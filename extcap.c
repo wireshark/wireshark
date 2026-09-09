@@ -3452,6 +3452,18 @@ extcap_get_bookmark_name(const char *ifname)
 }
 
 char *
+extcap_get_parent_ifname(const char *ifname)
+{
+    if (!ifname) {
+        return NULL;
+    }
+
+    extcap_ensure_all_interfaces_loaded();
+
+    return get_plain_ifname(ifname);
+}
+
+char *
 extcap_set_bookmark(const char *ifname, const char *bookmark_name)
 {
     if (!ifname || !bookmark_name || strlen(bookmark_name) == 0) {
@@ -3510,6 +3522,52 @@ done:
     g_free(old_bookmark_name);
 
     return bookmark_call;
+}
+
+bool
+extcap_remove_bookmark(const char *ifname)
+{
+    if (!ifname) {
+        return false;
+    }
+
+    extcap_ensure_all_interfaces_loaded();
+
+    char *bookmark_name = extcap_get_bookmark_name(ifname);
+    if (!bookmark_name) {
+        ws_debug("Bookmark name not found for %s", ifname);
+        return false;
+    }
+
+    char *plain_ifname = get_plain_ifname(ifname);
+    const char *toolname = (const char *)g_hash_table_lookup(_tool_for_ifname, plain_ifname);
+    if (!toolname) {
+        ws_warning("Can't remove bookmark for unknown extcap interface \"%s\"", plain_ifname);
+        g_free(plain_ifname);
+        g_free(bookmark_name);
+        return false;
+    }
+
+    /* This only removes the bookmark from our saved information; the
+     * interface stays registered (and thus visible) until we next load our
+     * interfaces, same as the rename case in extcap_set_bookmark(). */
+    GList *info_list = extcap_read_info();
+    extcap_saved_info_t *info = extcap_find_or_create_info(&info_list, toolname, plain_ifname);
+
+    int idx = extcap_find_saved_bookmark(info->bookmarks, bookmark_name);
+    if (idx >= 0) {
+        g_ptr_array_remove_index(info->bookmarks, (unsigned)idx);
+    }
+
+    extcap_write_info(info_list);
+    g_list_free_full(info_list, extcap_free_saved_info);
+
+    ws_debug("Removed bookmark \"%s\" from extcap interface \"%s\"", bookmark_name, plain_ifname);
+
+    g_free(plain_ifname);
+    g_free(bookmark_name);
+
+    return true;
 }
 
 /**

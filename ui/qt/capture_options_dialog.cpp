@@ -30,6 +30,7 @@
 
 #include <QAbstractItemModel>
 #include <QComboBox>
+#include <QLineEdit>
 #include <QSpinBox>
 #include <QMessageBox>
 
@@ -67,6 +68,8 @@
 //   if they actually called recent_get_cfilter_list with the interface name to
 //   get the separate list of recent capture filters for that interface, but
 //   they don't.
+// - Should bookmarks be children of their parent extcap interfaces, i.e.
+//   collapsible and expandable?
 
 static interface_t *getDeviceByName(const QString &device_name)
 {
@@ -152,11 +155,18 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     ui->interfaceTree->setSortingEnabled(true);
 
     interface_item_delegate_ = new InterfaceTreeDelegate(cache_model_, proxy_model_, this);
+    ui->interfaceTree->setItemDelegateForColumn(col_interface_, interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_link_, interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_snaplen_, interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_buffer_, interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_filter_, interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_traffic_, new SparkLineDelegate(this));
+
+    // Allow renaming bookmarks here, but not in other views like the welcome screen.
+    cache_model_->setBookmarkRenameEnabled(true);
+
+    ui->newToolButton->setStockIcon("list-add");
+    ui->deleteToolButton->setStockIcon("list-remove");
 
     ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
 
@@ -288,6 +298,36 @@ void CaptureOptionsDialog::updateWidgets()
 
     ui->compileBPF->setEnabled(can_capture);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(can_capture);
+
+    QModelIndexList selected_rows = ui->interfaceTree->selectionModel()->selectedRows();
+
+    // Allow adding a bookmark iff one extcap or bookmark is selected.
+    bool single_extcap_selected = false;
+    // Allow deleting one or more bookmarks iff only bookmarks are selected.
+    bool all_bookmarks_selected = !selected_rows.isEmpty();
+
+    if (selected_rows.count() == 1) {
+        interface_t *device = deviceForIndex(cache_model_, proxy_model_, selected_rows.first());
+        if (device && device->if_info.type == IF_EXTCAP) {
+            single_extcap_selected = true;
+        }
+    }
+
+    foreach (const QModelIndex &row, selected_rows) {
+        interface_t *device = deviceForIndex(cache_model_, proxy_model_, row);
+        char *bookmark_name = (device && device->if_info.type == IF_EXTCAP) ?
+            extcap_get_bookmark_name(device->if_info.name) : NULL;
+        if (bookmark_name) {
+            g_free(bookmark_name);
+        } else {
+            all_bookmarks_selected = false;
+            break;
+        }
+    }
+
+    ui->newToolButton->setEnabled(single_extcap_selected);
+    ui->deleteToolButton->setEnabled(all_bookmarks_selected);
+    // XXX Update ui->deleteToolButton's tooltip for plurality?
 }
 
 void CaptureOptionsDialog::on_capturePromModeCheckBox_toggled(bool checked)
@@ -349,6 +389,17 @@ void CaptureOptionsDialog::itemDoubleClicked(const QModelIndex &index)
         return;
 
     if (device->if_info.type == IF_EXTCAP) {
+        if (index.column() == col_interface_) {
+            /* Bookmark names are editable in place; let the tree's own edit
+             * trigger handle the double click instead of starting a capture
+             * or reopening the interface's extcap options out from under it. */
+            char *bookmark_name = extcap_get_bookmark_name(device->if_info.name);
+            if (bookmark_name) {
+                g_free(bookmark_name);
+                return;
+            }
+        }
+
         /* this checks if configuration is required and not yet provided or saved via prefs */
         QString device_name(device->if_info.name);
         if (extcap_requires_configuration((const char *)(device_name.toStdString().c_str())))
@@ -984,6 +1035,37 @@ void CaptureOptionsDialog::on_manageButton_clicked()
     }
 }
 
+void CaptureOptionsDialog::on_newToolButton_clicked()
+{
+    QModelIndexList selected_rows = ui->interfaceTree->selectionModel()->selectedRows();
+    if (selected_rows.count() != 1)
+        return;
+
+    QModelIndex newIndex = cache_model_->addBookmark(proxy_model_->mapToSource(selected_rows.first()));
+    if (! newIndex.isValid())
+        return;
+
+    QModelIndex viewIndex = proxy_model_->mapFromSource(newIndex);
+    if (! viewIndex.isValid())
+        return;
+
+    ui->interfaceTree->setCurrentIndex(viewIndex);
+    ui->interfaceTree->edit(viewIndex);
+}
+
+void CaptureOptionsDialog::on_deleteToolButton_clicked()
+{
+    QModelIndexList selected_rows = ui->interfaceTree->selectionModel()->selectedRows();
+    if (selected_rows.isEmpty())
+        return;
+
+    QModelIndexList cache_indexes;
+    for (const QModelIndex &row : selected_rows)
+        cache_indexes << proxy_model_->mapToSource(row);
+
+    cache_model_->deleteBookmarks(cache_indexes);
+}
+
 void CaptureOptionsDialog::changeEvent(QEvent* event)
 {
     if (0 != event)
@@ -1017,12 +1099,27 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
     if (!device)
         return NULL;
 
+    int col_interface = proxy_model_->mapSourceToColumn(IFTREE_COL_DISPLAY_NAME);
     int col_link = proxy_model_->mapSourceToColumn(IFTREE_COL_DLT);
     int col_snaplen = proxy_model_->mapSourceToColumn(IFTREE_COL_SNAPLEN);
     int col_buffer = proxy_model_->mapSourceToColumn(IFTREE_COL_BUFFERLEN);
     int col_filter = proxy_model_->mapSourceToColumn(IFTREE_COL_CAPTURE_FILTER);
 
-    if (idx.column() == col_link) {
+    if (idx.column() == col_interface) {
+        // We currently only edit extcap bookmarks, so this is always a
+        // bookmark's short name.
+        // XXX Should this be a SyntaxLineEdit?
+        char *bookmark_name = (device->if_info.type == IF_EXTCAP) ?
+            extcap_get_bookmark_name(device->if_info.name) : NULL;
+        if (!bookmark_name)
+            return NULL;
+        QLineEdit *le = new QLineEdit(parent);
+        le->setMaxLength(InterfaceTreeModel::maxBookmarkNameLength);
+        le->setText(QString::fromUtf8(bookmark_name));
+        le->selectAll();
+        g_free(bookmark_name);
+        w = (QWidget*) le;
+    } else if (idx.column() == col_link) {
         GList *list;
         link_row *linkr;
         QStringList valid_link_types;
@@ -1081,16 +1178,23 @@ void InterfaceTreeDelegate::setModelData(QWidget *editor, QAbstractItemModel *, 
 {
     QModelIndex cacheIdx = proxy_model_->mapToSource(idx);
 
+    int col_interface = proxy_model_->mapSourceToColumn(IFTREE_COL_DISPLAY_NAME);
     int col_link = proxy_model_->mapSourceToColumn(IFTREE_COL_DLT);
     int col_snaplen = proxy_model_->mapSourceToColumn(IFTREE_COL_SNAPLEN);
     int col_filter = proxy_model_->mapSourceToColumn(IFTREE_COL_CAPTURE_FILTER);
 
-    if (idx.column() == col_link) {
-        if (QComboBox *cb = qobject_cast<QComboBox *>(editor))
+    if (idx.column() == col_interface) {
+        if (QLineEdit *le = qobject_cast<QLineEdit *>(editor)) {
+            cache_model_->setData(cacheIdx, le->text(), Qt::EditRole);
+        }
+    } else if (idx.column() == col_link) {
+        if (QComboBox *cb = qobject_cast<QComboBox *>(editor)) {
             cache_model_->setData(cacheIdx, cb->currentText(), Qt::EditRole);
+        }
     } else if (idx.column() == col_filter) {
-        if (FilterEdit *cf = qobject_cast<FilterEdit *>(editor))
+        if (FilterEdit *cf = qobject_cast<FilterEdit *>(editor)) {
             cache_model_->setData(cacheIdx, cf->text(), Qt::EditRole);
+        }
     } else if (idx.column() == col_snaplen) {
         if (QSpinBox *sb = qobject_cast<QSpinBox *>(editor)) {
             int value = sb->value();

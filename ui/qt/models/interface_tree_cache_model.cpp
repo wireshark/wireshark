@@ -15,6 +15,8 @@
 
 #include "capture/capture_ifinfo.h"
 
+#include "extcap.h"
+
 #include "wsutil/utf8_entities.h"
 
 #include "wiretap/wtap.h"
@@ -29,6 +31,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QIdentityProxyModel>
+#include <QSet>
 
 InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
     QIdentityProxyModel(parent)
@@ -394,6 +397,171 @@ void InterfaceTreeCacheModel::refreshCapabilities(const QModelIndex &index, bool
     emit dataChanged(this->index(row, IFTREE_COL_DLT), this->index(row, IFTREE_COL_DLT));
     emit dataChanged(this->index(row, IFTREE_COL_MONITOR_MODE), this->index(row, IFTREE_COL_MONITOR_MODE));
 }
+
+bool InterfaceTreeCacheModel::renameBookmark(const QModelIndex &index, const QString &newName)
+{
+    const interface_t *device = lookup(index);
+    if (! device || device->if_info.type != IF_EXTCAP)
+        return false;
+
+    char *old_bookmark_name = extcap_get_bookmark_name(device->if_info.name);
+    if (! old_bookmark_name)
+        return false;
+
+    QString trimmedName = newName.trimmed();
+    bool unchanged = trimmedName == QString::fromUtf8(old_bookmark_name);
+    g_free(old_bookmark_name);
+
+    if (trimmedName.isEmpty() || trimmedName.size() > InterfaceTreeModel::maxBookmarkNameLength)
+        return false;
+
+    if (unchanged)
+        return true;
+
+    if (bookmarkNameInUse(index, trimmedName))
+        return false;
+
+    QByteArray bookmarkName = trimmedName.toUtf8();
+    char *new_ifname = extcap_set_bookmark(device->if_info.name, bookmarkName.constData());
+    if (! new_ifname)
+        return false;
+    g_free(new_ifname);
+
+    /* The rename leaves a stale entry under the old bookmark name registered
+     * until we reload; ask for a rescan so the tree picks up the new one. */
+    MainWindow *mainWindow = mainApp->mainWindow();
+    if (mainWindow && mainWindow->interfaceListManager())
+        mainWindow->interfaceListManager()->requestRefresh(true, true);
+
+    return true;
+}
+
+QModelIndex InterfaceTreeCacheModel::addBookmark(const QModelIndex &index)
+{
+    const interface_t *device = lookup(index);
+    if (! device || device->if_info.type != IF_EXTCAP)
+        return QModelIndex();
+
+    char *parent_ifname = extcap_get_parent_ifname(device->if_info.name);
+    if (! parent_ifname)
+        return QModelIndex();
+    QByteArray parentIfname = gchar_free_to_qbytearray(parent_ifname);
+
+    QByteArray bookmarkName = nextBookmarkName(QString::fromUtf8(parentIfname)).toUtf8();
+
+    char *new_ifname = extcap_set_bookmark(parentIfname.constData(), bookmarkName.constData());
+    if (! new_ifname)
+        return QModelIndex();
+    QByteArray newIfname = gchar_free_to_qbytearray(new_ifname);
+
+    /* Unlike renameBookmark(), the caller needs the new bookmark's row right
+     * away (to select and start editing it), so refresh synchronously
+     * instead of just requesting one. */
+    MainWindow *mainWindow = mainApp->mainWindow();
+    if (mainWindow && mainWindow->interfaceListManager())
+        mainWindow->interfaceListManager()->refreshNow(true);
+
+    if (! global_capture_opts.all_ifaces)
+        return QModelIndex();
+
+    for (unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++)
+    {
+        interface_t *newDevice = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+        if (newDevice->if_info.type == IF_EXTCAP &&
+                g_strcmp0(newDevice->if_info.name, newIfname.constData()) == 0)
+            return this->index((int)idx, IFTREE_COL_DISPLAY_NAME);
+    }
+
+    return QModelIndex();
+}
+
+bool InterfaceTreeCacheModel::deleteBookmarks(const QModelIndexList &indexes)
+{
+    bool anyRemoved = false;
+
+    for (const QModelIndex &index : indexes)
+    {
+        const interface_t *device = lookup(index);
+        if (! device || device->if_info.type != IF_EXTCAP)
+            continue;
+
+        if (extcap_remove_bookmark(device->if_info.name))
+            anyRemoved = true;
+    }
+
+    if (anyRemoved)
+    {
+        /* The removed bookmarks stay registered (and thus visible) until we
+         * reload; ask for a rescan so the tree drops them. */
+        MainWindow *mainWindow = mainApp->mainWindow();
+        if (mainWindow && mainWindow->interfaceListManager())
+            mainWindow->interfaceListManager()->requestRefresh(true, true);
+    }
+
+    return anyRemoved;
+}
+
+bool InterfaceTreeCacheModel::bookmarkNameInUse(const QModelIndex &excludeIndex, const QString &bookmarkName) const
+{
+    if (! global_capture_opts.all_ifaces)
+        return false;
+
+    int excludeRow = excludeIndex.row();
+
+    for (unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++)
+    {
+        if ((int)idx == excludeRow)
+            continue;
+
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+        if (device->if_info.type != IF_EXTCAP)
+            continue;
+
+        char *other_bookmark_name = extcap_get_bookmark_name(device->if_info.name);
+        bool matches = other_bookmark_name && bookmarkName == QString::fromUtf8(other_bookmark_name);
+        g_free(other_bookmark_name);
+
+        if (matches)
+            return true;
+    }
+
+    return false;
+}
+
+QString InterfaceTreeCacheModel::nextBookmarkName(const QString &parentIfname) const
+{
+    QString prefix = parentIfname + QStringLiteral(" bookmark ");
+    QSet<int> usedNumbers;
+
+    if (global_capture_opts.all_ifaces)
+    {
+        for (unsigned int idx = 0; idx < global_capture_opts.all_ifaces->len; idx++)
+        {
+            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, idx);
+            if (device->if_info.type != IF_EXTCAP)
+                continue;
+
+            char *bookmark_name = extcap_get_bookmark_name(device->if_info.name);
+            if (! bookmark_name)
+                continue;
+            QString name = gchar_free_to_qstring(bookmark_name);
+
+            if (! name.startsWith(prefix))
+                continue;
+
+            bool ok = false;
+            int number = name.mid(prefix.size()).toInt(&ok);
+            if (ok && number > 0)
+                usedNumbers.insert(number);
+        }
+    }
+
+    int nextNumber = 1;
+    while (usedNumbers.contains(nextNumber))
+        nextNumber++;
+
+    return prefix + QString::number(nextNumber);
+}
 #endif
 
 int InterfaceTreeCacheModel::rowCount(const QModelIndex & parent) const
@@ -499,6 +667,23 @@ Qt::ItemFlags InterfaceTreeCacheModel::flags(const QModelIndex &index) const
 
     InterfaceTreeColumns col = (InterfaceTreeColumns) index.column();
 
+#ifdef HAVE_LIBPCAP
+    if (col == IFTREE_COL_DISPLAY_NAME)
+    {
+        const interface_t *device = bookmarkRenameEnabled ? lookup(index) : nullptr;
+        if (device && device->if_info.type == IF_EXTCAP)
+        {
+            char *bookmark_name = extcap_get_bookmark_name(device->if_info.name);
+            if (bookmark_name)
+            {
+                g_free(bookmark_name);
+                flags |= Qt::ItemIsEditable;
+            }
+        }
+        return flags;
+    }
+#endif
+
     if (changeIsAllowed(col) && isAvailableField(index) && isAllowedToBeEdited(index))
     {
         if (checkableColumns.contains(col))
@@ -524,6 +709,13 @@ bool InterfaceTreeCacheModel::setData(const QModelIndex &index, const QVariant &
 
     int row = index.row();
     InterfaceTreeColumns col = (InterfaceTreeColumns)index.column();
+
+#ifdef HAVE_LIBPCAP
+    if (bookmarkRenameEnabled && col == IFTREE_COL_DISPLAY_NAME && role == Qt::EditRole)
+    {
+        return renameBookmark(index, value.toString());
+    }
+#endif
 
     if (role == Qt::CheckStateRole || role == Qt::EditRole)
     {

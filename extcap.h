@@ -10,9 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __EXTCAP_H__
-#define __EXTCAP_H__
-
+#pragma once
 
 #include <glib.h>
 
@@ -141,6 +139,19 @@ char *
 extcap_get_bookmark_name(const char *ifname);
 
 /**
+ * Returns the extcap interface that a possibly-bookmarked interface belongs to.
+ *
+ * Use this instead of trying to split out the bookmark name yourself.
+ *
+ * @param ifname The extcap interface name, which may itself be a bookmark.
+ * @return The name of the underlying extcap interface, or a copy of ifname
+ * itself if it isn't a bookmark, or NULL if ifname is NULL. Must be freed
+ * with g_free().
+ */
+char *
+extcap_get_parent_ifname(const char *ifname);
+
+/**
  * Bookmark an extcap interface, and save our interface information.
  *
  * If the interface we're given is itself a bookmark, its bookmark is renamed.
@@ -156,6 +167,19 @@ extcap_get_bookmark_name(const char *ifname);
  */
 char *
 extcap_set_bookmark(const char *ifname, const char *bookmark_name);
+
+/**
+ * Remove a bookmark and save our interface information.
+ *
+ * The interface stays registered (and thus visible) until we next load our
+ * interfaces, same as renaming does in extcap_set_bookmark().
+ *
+ * @param ifname The extcap interface name, which must be a bookmark.
+ * @return true if the bookmark was removed, false if ifname isn't a
+ * bookmark or its underlying extcap interface is unknown.
+ */
+bool
+extcap_remove_bookmark(const char *ifname);
 
 /**
  * Fetches the interface capabilities for the named extcap interface.
@@ -368,8 +392,6 @@ void extcap_cleanup(void);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-
-#endif
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

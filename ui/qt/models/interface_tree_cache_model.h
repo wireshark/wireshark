@@ -108,6 +108,47 @@ public:
     void save();
 
     /**
+     * @brief Allows the display name of an extcap bookmark to be edited in place.
+     *
+     * Off by default, since we only enable this in the capture options dialog.
+     * @param enabled Whether in-place bookmark renaming is enabled.
+     */
+    void setBookmarkRenameEnabled(bool enabled) { bookmarkRenameEnabled = enabled; }
+
+    /**
+     * @brief Creates a new bookmark for the extcap interface at the given index.
+     *
+     * If index itself refers to a bookmark, the new bookmark is added as a
+     * sibling under the same parent extcap interface rather than renaming
+     * the one at index. Its name follows the pattern "<interface> bookmark
+     * <n>", where <n> is the lowest positive integer not already used by an
+     * existing bookmark of that name (see nextBookmarkName()).
+     *
+     * Unlike renameBookmark(), this refreshes the interface list
+     * synchronously (InterfaceListManager::refreshNow()) rather than
+     * deferring it, so the returned index is immediately valid and the
+     * caller can select and start editing it right away.
+     * @param index The model index of the extcap interface (or one of its
+     * bookmarks) to create a new bookmark under.
+     * @return The model index of the newly-created bookmark, or an invalid
+     * index on failure.
+     */
+    QModelIndex addBookmark(const QModelIndex &index);
+
+    /**
+     * @brief Removes the extcap bookmarks at the given indexes.
+     *
+     * Indexes that aren't extcap bookmarks are silently skipped. Persists
+     * via extcap_remove_bookmark() and requests an interface list refresh
+     * (deferred, like renameBookmark() - there's no follow-up UI action
+     * that needs the removal to be visible immediately) so the removed
+     * entries drop out of the tree.
+     * @param indexes The model indexes of the bookmarks to remove.
+     * @return True if at least one bookmark was removed.
+     */
+    bool deleteBookmarks(const QModelIndexList &indexes);
+
+    /**
      * @brief Adds a new device to the cache.
      * @param newDevice Pointer to the new interface device definition.
      */
@@ -154,6 +195,47 @@ private:
      * @param monitor_mode The newly requested monitor mode state.
      */
     void refreshCapabilities(const QModelIndex &index, bool monitor_mode);
+
+    /**
+     * @brief Renames the extcap bookmark at the given index.
+     *
+     * Validates newName (non-empty, at most 200 characters, and not already
+     * used by another bookmark), then applies the rename via
+     * extcap_set_bookmark() and requests an interface list refresh so the
+     * renamed (and now stale, pre-rename) entries are picked up. Does
+     * nothing and returns false if index isn't an extcap bookmark.
+     * @param index The model index of the bookmark to rename.
+     * @param newName The requested new bookmark name.
+     * @return true if the rename was applied, false otherwise.
+     */
+    bool renameBookmark(const QModelIndex &index, const QString &newName);
+
+    /**
+     * @brief Checks whether another extcap interface is already bookmarked
+     * under the given name.
+     * @param excludeIndex The index to exclude from the search (the
+     * bookmark being renamed, which trivially already has some name).
+     * @param bookmarkName The candidate bookmark name.
+     * @return true if a different interface already uses bookmarkName.
+     */
+    bool bookmarkNameInUse(const QModelIndex &excludeIndex, const QString &bookmarkName) const;
+
+    /**
+     * @brief Computes the default name for a new bookmark of parentIfname.
+     *
+     * The pattern is "<parentIfname> bookmark <n>", where <n> is the lowest
+     * positive integer not already used by an existing bookmark with that
+     * exact prefix (e.g. given bookmarks "sshdump bookmark 1", "sshdump
+     * bookmark 3" and "sshdump bookmark 4", this returns "sshdump bookmark
+     * 2").
+     * @param parentIfname The extcap interface the bookmark is being
+     * created for.
+     * @return The generated bookmark name.
+     */
+    QString nextBookmarkName(const QString &parentIfname) const;
+
+    /** Whether in-place bookmark renaming is exposed (see setBookmarkRenameEnabled()). */
+    bool bookmarkRenameEnabled = false;
 #endif
 
     /** Cached changes stored by row and column mapping. */

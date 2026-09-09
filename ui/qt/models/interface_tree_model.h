@@ -162,6 +162,10 @@ public:
     /** A default placeholder string for unavailable numeric values. */
     static const QString DefaultNumericValue;
 
+    /** The maximum length of a bookmark name in characers */
+    // Arbitrary, but at that point we should add a "description" field.
+    static const int maxBookmarkNameLength = 200;
+
 public slots:
     /**
      * @brief Slot triggered when the global list of available interfaces changes.
