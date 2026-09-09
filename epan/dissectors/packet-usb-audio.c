@@ -1437,7 +1437,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
             proto_item_prepend_text(ti, "%s channel %d ", (i == 0) ? "Master" : "Logical", i);
             if (controlsize > 1) {
                 ti = proto_tree_add_bitmask(bitmap_tree, tvb, offset + 1, hf_ac_if_fu_control, ett_ac_if_fu_controls1, fu_controls1, ENC_LITTLE_ENDIAN);
-                proto_item_prepend_text(ti, "%s channel %d", (i == 0) ? "Master" : "Logical", i);
+                proto_item_prepend_text(ti, "%s channel %d ", (i == 0) ? "Master" : "Logical", i);
             }
             offset += controlsize;
         }
