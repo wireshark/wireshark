@@ -712,12 +712,30 @@ Supersedes “TCP Dup ACK”.
 
 // TCP_A_AMBIGUOUS_INTERPRETATIONS
 [discrete]
-==== TCP Ambiguous Interpretations
+==== TCP Ambiguous Interpretations and the Classification Dilemma
 
 Some captures are quite difficult to analyze automatically, particularly when the
 time frame may cover both Fast Retransmission and Out-Of-Order packets. A TCP
-preference allows to switch the precedence of these two interpretations at the
-protocol level.
+preference (Fast Retransmission supersedes Out-of-Order interpretation) allows to
+switch the precedence of these two interpretations at the protocol level.
+
+In addition, interpretations may be different whether the capture was
+performed server side, client side or anywhere in the middle. While the historical
+classification algorithm is comparing new packets to almost previous, adjacent
+Duplicate ACKs, the “Enable Distal Disambiguation Algorithm” TCP preference allows
+a more neutral interpretation if the iRTT is known
+(the 3WHS is present in the capture).
+In this case, the time interval between a missing packet is compared to its
+supposed retransmission and if it's between 0,8 and 2,4 it will be considered as
+a Fast Retransmission if enough Duplicate ACKs were seen. In other cases (not so
+many Duplicate ACKs seen), packets are considered as a Retransmission (RTO) if
+the time is over the 2,4 ratio. Otherwise, they are Out-of-Order ones.
+
+[NOTE]
+====
+While RFC 6675 is taken into account in Wireshark's implementation of Duplicate
+ACKs, RFC 5827 and 8985 aren't for now.
+====
 
 // TCP_A_CONVERSATION_COMPLETENESS
 [discrete]
