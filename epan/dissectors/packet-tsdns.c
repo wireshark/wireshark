@@ -39,6 +39,12 @@ static int ett_tsdns;
 static int dissect_tsdns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
+  int pLen = tvb_reported_length(tvb);
+
+  if (pLen < 5) {
+    return 0;
+  }
+
   int         offset    = 0;
   bool        request   = false;
 
@@ -48,13 +54,9 @@ static int dissect_tsdns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TSDNS");
 
-  int pLen = tvb_reported_length(tvb);
-
   if (request) {
     col_set_str(pinfo->cinfo, COL_INFO, "Request");
-    if (pLen >= 5) {
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_get_string_enc(pinfo->pool, tvb, 0, pLen - 5, ENC_ASCII));
-    }
   } else {
     col_set_str(pinfo->cinfo, COL_INFO, "Response");
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", tvb_get_string_enc(pinfo->pool, tvb, 0, pLen, ENC_ASCII));
