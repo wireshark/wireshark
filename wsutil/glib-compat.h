@@ -58,6 +58,151 @@ g_hash_table_steal_extended (GHashTable    *hash_table,
   return FALSE;
 }
 
+/**
+ * g_canonicalize_filename:
+ * @filename: (type filename): the name of the file
+ * @relative_to: (type filename) (nullable): the relative directory, or %NULL
+ * to use the current working directory
+ *
+ * Gets the canonical file name from @filename. All triple slashes are turned into
+ * single slashes, and all `..` and `.`s resolved against @relative_to.
+ *
+ * Symlinks are not followed, and the returned path is guaranteed to be absolute.
+ *
+ * If @filename is an absolute path, @relative_to is ignored. Otherwise,
+ * @relative_to will be prepended to @filename to make it absolute. @relative_to
+ * must be an absolute path, or %NULL. If @relative_to is %NULL, it'll fallback
+ * to g_get_current_dir().
+ *
+ * This function never fails, and will canonicalize file paths even if they don't
+ * exist.
+ *
+ * No file system I/O is done.
+ *
+ * Returns: (type filename) (transfer full): a newly allocated string with the
+ *   canonical file path
+ *
+ * Since: 2.58
+ */
+static inline gchar *
+g_canonicalize_filename (const gchar *filename,
+                         const gchar *relative_to)
+{
+  gchar *canon, *input, *output, *after_root, *output_start;
+
+  g_return_val_if_fail (relative_to == NULL || g_path_is_absolute (relative_to), NULL);
+
+  if (!g_path_is_absolute (filename))
+    {
+      gchar *cwd_allocated = NULL;
+      const gchar  *cwd;
+
+      if (relative_to != NULL)
+        cwd = relative_to;
+      else
+        cwd = cwd_allocated = g_get_current_dir ();
+
+      canon = g_build_filename (cwd, filename, NULL);
+      g_free (cwd_allocated);
+    }
+  else
+    {
+      canon = g_strdup (filename);
+    }
+
+  after_root = (char *)g_path_skip_root (canon);
+
+  if (after_root == NULL)
+    {
+      /* This shouldn't really happen, as g_get_current_dir() should
+         return an absolute pathname, but bug 573843 shows this is
+         not always happening */
+      g_free (canon);
+      return g_build_filename (G_DIR_SEPARATOR_S, filename, NULL);
+    }
+
+  /* Find the first dir separator and use the canonical dir separator. */
+  for (output = after_root - 1;
+       (output >= canon) && G_IS_DIR_SEPARATOR (*output);
+       output--)
+    *output = G_DIR_SEPARATOR;
+
+  /* 1 to re-increment after the final decrement above (so that output >= canon),
+   * and 1 to skip the first `/`. There might not be a first `/` if
+   * the @canon is a Windows `//server/share` style path with no
+   * trailing directories. @after_root will be '\0' in that case. */
+  output++;
+  if (*output == G_DIR_SEPARATOR)
+    output++;
+
+  /* POSIX allows double slashes at the start to mean something special
+   * (as does windows too). So, "//" != "/", but more than two slashes
+   * is treated as "/".
+   */
+  if (after_root - output == 1)
+    output++;
+
+  input = after_root;
+  output_start = output;
+  while (*input)
+    {
+      /* input points to the next non-separator to be processed. */
+      /* output points to the next location to write to. */
+      g_assert (input > canon && G_IS_DIR_SEPARATOR (input[-1]));
+      g_assert (output > canon && G_IS_DIR_SEPARATOR (output[-1]));
+      g_assert (input >= output);
+
+      /* Ignore repeated dir separators. */
+      while (G_IS_DIR_SEPARATOR (input[0]))
+       input++;
+
+      /* Ignore single dot directory components. */
+      if (input[0] == '.' && (input[1] == 0 || G_IS_DIR_SEPARATOR (input[1])))
+        {
+           if (input[1] == 0)
+             break;
+           input += 2;
+        }
+      /* Remove double-dot directory components along with the preceding
+       * path component. */
+      else if (input[0] == '.' && input[1] == '.' &&
+               (input[2] == 0 || G_IS_DIR_SEPARATOR (input[2])))
+        {
+          if (output > output_start)
+            {
+              do
+                {
+                  output--;
+                }
+              while (!G_IS_DIR_SEPARATOR (output[-1]) && output > output_start);
+            }
+          if (input[2] == 0)
+            break;
+          input += 3;
+        }
+      /* Copy the input to the output until the next separator,
+       * while converting it to canonical separator */
+      else
+        {
+          while (*input && !G_IS_DIR_SEPARATOR (*input))
+            *output++ = *input++;
+          if (input[0] == 0)
+            break;
+          input++;
+          *output++ = G_DIR_SEPARATOR;
+        }
+
+    }
+
+  /* Remove a potentially trailing dir separator */
+  if (output > output_start && G_IS_DIR_SEPARATOR (output[-1]))
+    output--;
+
+  *output = '\0';
+
+  return canon;
+}
+
 #endif
 
 #if !GLIB_CHECK_VERSION(2, 60, 0)
