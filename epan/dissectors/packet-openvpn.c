@@ -300,29 +300,29 @@ dissect_openvpn_msg_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openvp
     return tvb_captured_length(tvb);
   }
 
-  int data_len = msg_length_remaining;
-  int wkc_len = -1;
+  uint32_t data_len = msg_length_remaining;
+  uint32_t wkc_len = 0;
   if (openvpn_opcode == P_CONTROL_HARD_RESET_CLIENT_V3 || openvpn_opcode == P_CONTROL_WKC_V1) {
     if (msg_length_remaining < 2) {
-      proto_tree_add_expert_format(openvpn_tree, pinfo, &ei_openvpn_wkc_length_bad, tvb, offset, msg_length_remaining, "Packet too short for wrapped client key length (%d bytes remaining)", msg_length_remaining);
+      proto_tree_add_expert_format(openvpn_tree, pinfo, &ei_openvpn_wkc_length_bad, tvb, offset, msg_length_remaining, "Packet too short for wrapped client key length (%u bytes remaining)", msg_length_remaining);
       return tvb_captured_length(tvb);
     }
     wkc_len = tvb_get_ntohs(tvb, tvb_reported_length(tvb) - 2);
     if (wkc_len < 2 || wkc_len > msg_length_remaining) {
-      proto_tree_add_expert_format(openvpn_tree, pinfo, &ei_openvpn_wkc_length_bad, tvb, tvb_reported_length(tvb) - 2, 2, "Illegal wrapped client key length: %d (remaining bytes: %d)", wkc_len, msg_length_remaining);
+      proto_tree_add_expert_format(openvpn_tree, pinfo, &ei_openvpn_wkc_length_bad, tvb, tvb_reported_length(tvb) - 2, 2, "Illegal wrapped client key length: %u (remaining bytes: %u)", wkc_len, msg_length_remaining);
       return tvb_captured_length(tvb);
     }
     data_len = msg_length_remaining - wkc_len;
     if (data_len > 0) {
-      proto_tree_add_expert_format(openvpn_tree, pinfo, &ei_openvpn_extra_data, tvb, offset, data_len, "Unexpected extra data before wrapped client key (%d bytes)", data_len);
+      proto_tree_add_expert_format(openvpn_tree, pinfo, &ei_openvpn_extra_data, tvb, offset, data_len, "Unexpected extra data before wrapped client key (%u bytes)", data_len);
     }
   } else if (openvpn_opcode == P_ACK_V1) {
-    proto_tree_add_expert_format(openvpn_tree, pinfo, &ei_openvpn_extra_data, tvb, offset, msg_length_remaining, "Unexpected extra data in ACK packet (%d bytes)", msg_length_remaining);
+    proto_tree_add_expert_format(openvpn_tree, pinfo, &ei_openvpn_extra_data, tvb, offset, msg_length_remaining, "Unexpected extra data in ACK packet (%u bytes)", msg_length_remaining);
   }
   if (openvpn_opcode != P_CONTROL_V1) {
     if (data_len > 0) {
       proto_tree *data_tree;
-      data_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, data_len, ett_openvpn_data, NULL, "Data (%d bytes)", data_len);
+      data_tree = proto_tree_add_subtree_format(openvpn_tree, tvb, offset, data_len, ett_openvpn_data, NULL, "Data (%u bytes)", data_len);
       proto_tree_add_item(data_tree, hf_openvpn_data, tvb, offset, data_len, ENC_NA);
     }
 
