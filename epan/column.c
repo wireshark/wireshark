@@ -338,6 +338,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
             col_custom_occurrence = strtol(cust_format_info->pdata[1], &p, 10);
             if (p == cust_format_info->pdata[1] || *p != '\0') {
                 /* Not a valid number. */
+                g_free(col_custom_fields);
                 g_free(fmt_copy);
                 g_ptr_array_unref(cust_format_info);
                 return false;

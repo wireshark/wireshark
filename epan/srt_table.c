@@ -151,8 +151,10 @@ void srt_table_get_filter(register_srt_t* srt, const char *opt_arg, const char *
         if (srt->param_cb != NULL)
         {
             pos = srt->param_cb(srt, opt_arg + len, err);
-            if (*err != NULL)
+            if (*err != NULL) {
+                g_free(cmd_str);
                 return;
+            }
 
             if (pos > 0)
                 pos += len;
