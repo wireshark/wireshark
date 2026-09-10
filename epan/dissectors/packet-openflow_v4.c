@@ -664,6 +664,7 @@ static expert_field ei_openflow_v4_action_undecoded;
 static expert_field ei_openflow_v4_instruction_undecoded;
 static expert_field ei_openflow_v4_meter_band_undecoded;
 static expert_field ei_openflow_v4_hello_element_undecoded;
+static expert_field ei_openflow_v4_hello_element_length_bad;
 static expert_field ei_openflow_v4_error_undecoded;
 static expert_field ei_openflow_v4_experimenter_undecoded;
 static expert_field ei_openflow_v4_table_feature_prop_undecoded;
@@ -1235,7 +1236,7 @@ static const value_string openflow_v4_hello_element_type_values[] = {
 };
 
 static int
-dissect_openflow_hello_element_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length)
+dissect_openflow_hello_element_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t length)
 {
     proto_tree *elem_tree;
     uint16_t elem_type;
@@ -1251,9 +1252,15 @@ dissect_openflow_hello_element_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     /* uint16_t length; */
     elem_length = tvb_get_ntohs(tvb, offset);
-    pad_length = (elem_length + 7)/8*8 - elem_length;
     proto_tree_add_item(elem_tree, hf_openflow_v4_hello_element_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
+
+    if (elem_length < 4) {
+
+        proto_tree_add_expert_format(elem_tree, pinfo, &ei_openflow_v4_hello_element_length_bad, tvb, offset - 2, 2, "Illegal hello element length: %u (must be >= 4)", elem_length);
+        return length;
+    }
+    pad_length = (elem_length + 7)/8*8 - elem_length;
 
     switch (elem_type) {
     case OFPHET_VERSIONBITMAP:
@@ -7413,6 +7420,10 @@ proto_register_openflow_v4(void)
         { &ei_openflow_v4_hello_element_undecoded,
             { "openflow_v4.hello_element.undecoded", PI_UNDECODED, PI_NOTE,
               "Unknown hello element body.", EXPFILL }
+        },
+        { &ei_openflow_v4_hello_element_length_bad,
+            { "openflow_v4.hello_element.length_bad", PI_MALFORMED, PI_ERROR,
+              "Illegal hello element length (must be >= 4)", EXPFILL }
         },
         { &ei_openflow_v4_error_undecoded,
             { "openflow_v4.error.undecoded", PI_UNDECODED, PI_NOTE,
