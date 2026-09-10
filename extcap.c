@@ -3168,18 +3168,25 @@ extcap_free_saved_info(void *data)
     g_free(info);
 }
 
+WS_RETNONNULL
 static extcap_saved_info_t *
-extcap_find_saved_info(GList *info_list, const char *toolname, const char *ifname)
+extcap_find_or_create_info(GList **info_list, const char *toolname, const char *plain_ifname)
 {
-    for (GList *walker = info_list; walker; walker = walker->next) {
+    for (GList *walker = *info_list; walker; walker = walker->next) {
         extcap_saved_info_t *info = (extcap_saved_info_t *)walker->data;
         if (g_strcmp0(info->toolname, toolname) == 0
-                && g_strcmp0(info->ifname, ifname) == 0) {
+                && g_strcmp0(info->ifname, plain_ifname) == 0) {
             return info;
         }
     }
 
-    return NULL;
+    extcap_saved_info_t *info = g_new0(extcap_saved_info_t, 1);
+    info->toolname = g_strdup(toolname);
+    info->ifname = g_strdup(plain_ifname);
+    info->bookmarks = g_ptr_array_new_with_free_func(g_free);
+    *info_list = g_list_append(*info_list, info);
+
+    return info;
 }
 
 /* Find a bookmark name in a saved interface's bookmarks, or -1. */
@@ -3475,14 +3482,7 @@ extcap_set_bookmark(const char *ifname, const char *bookmark_name)
 
     /* Save it, renaming the bookmark we were given if that's what it is. */
     GList *info_list = extcap_read_info();
-    extcap_saved_info_t *info = extcap_find_saved_info(info_list, toolname, plain_ifname);
-    if (!info) {
-        info = g_new0(extcap_saved_info_t, 1);
-        info->toolname = g_strdup(toolname);
-        info->ifname = g_strdup(plain_ifname);
-        info->bookmarks = g_ptr_array_new_with_free_func(g_free);
-        info_list = g_list_append(info_list, info);
-    }
+    extcap_saved_info_t *info = extcap_find_or_create_info(&info_list, toolname, plain_ifname);
 
     int old_idx = -1;
     if (old_bookmark_name) {
@@ -3730,6 +3730,16 @@ extcap_migrate_profile_config(void)
         if (extcap_add_bookmark(iface, toolname, profile_name)) {
             new_prefs = true;
         }
+
+        // Add the bookmark to interfaces.json so that we don't generate warnings
+        // in tshark.
+        GList *info_list = extcap_read_info();
+        extcap_saved_info_t *info = extcap_find_or_create_info(&info_list, toolname, iface->call);
+        if (extcap_find_saved_bookmark(info->bookmarks, profile_name) < 0) {
+            g_ptr_array_add(info->bookmarks, g_strdup(profile_name));
+        }
+        extcap_write_info(info_list);
+        g_list_free_full(info_list, extcap_free_saved_info);
 
         char *pref_ifname = extcap_pref_ifname(bookmark_call);
         for (GList *walker = args; walker; walker = walker->next) {

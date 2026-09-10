@@ -266,10 +266,11 @@ class TestExtcapProfileConfig:
         iface_list = subprocess.check_output((cmd_tshark, '-C', 'Test lab', '-D'),
                 cwd=program_path, encoding='utf-8', env=base_env)
         assert bookmark_listing('randpkt', 'Random packet generator', 'Test lab') in iface_list
-        # The default profile's extcap.cfg is the shared one.
+        # The migrated bookmark is saved to interfaces.json, so it's shared
+        # by all of our profiles, like any other bookmark.
         iface_list = subprocess.check_output((cmd_tshark, '-D'),
                 cwd=program_path, encoding='utf-8', env=base_env)
-        assert bookmark_ifname('randpkt', 'Test lab') not in iface_list
+        assert bookmark_listing('randpkt', 'Random packet generator', 'Test lab') in iface_list
 
     def test_extcap_profile_config_capture(self, cmd_tshark, program_path,
             profile_conf_path, base_env, result_file):
