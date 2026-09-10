@@ -649,7 +649,6 @@ static const fragment_items oran_frag_items = {
 };
 
 
-
 /* Don't want all extensions to open and close together. Use [extType-1] entry */
 static int ett_oran_c_section_extension[HIGHEST_EXTTYPE];
 
@@ -2141,14 +2140,9 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, int hf, uint16_t
 }
 
 /* Uniquely identify the U-plane stream that may need to be reassembled */
-static uint32_t make_reassembly_id(uint32_t seqid, uint32_t direction, uint16_t eAxC,
-                                   uint8_t frameid, uint8_t subframeid,
-                                   uint8_t slotid,  uint8_t symbolid)
+static uint32_t make_reassembly_id(uint32_t seqid, uint16_t eAxC, int direction)
 {
-    /* N.B., no room in 32-bits for all of this info, so cut down some of the fields
-       and hope for no collisions */
-    return (seqid << 24) | (direction << 23) | (slotid << 22) | (subframeid << 18) |
-           (frameid << 9) | (symbolid << 6) | (eAxC & 0x3f);
+    return ((seqid & 0xff) << 24) | ((direction&1)<<16) | (eAxC & 0xffff);
 }
 
 /* 5.1.3.2.8  ecpriSeqid (message identifier) */
@@ -7185,6 +7179,520 @@ static bool copy_section_entry(const void *key, void* value, void *userdata)
     return false;
 }
 
+/*
+  dissect_oran_u_timing_header()
+  Table 8.3.2-1, octets 9-12..
+ */
+static int dissect_oran_u_timing_header(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
+                                        proto_item * timingHeader, oran_tap_info *tap_info, uint32_t * frameIdPtr, uint32_t * subframeIdPtr, uint32_t * slotIdPtr,
+                                        uint32_t * symbolIdPtr, uint32_t * directionPtr )
+{
+    /* Now does the data combine correctly? */
+    /* Common header for time reference */
+    proto_tree *timing_header_tree = proto_item_add_subtree(timingHeader, ett_oran_u_timing);
+
+    /* dataDirection */
+    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, directionPtr);
+    tap_info->uplink = ((*directionPtr)==0);
+    /* payloadVersion */
+    dissect_payload_version(timing_header_tree, tvb, pinfo, offset);
+    /* filterIndex */
+    proto_tree_add_item(timing_header_tree, hf_oran_filter_index, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    int ref_a_offset = offset;
+
+    /* frameId */
+    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_frame_id, tvb, offset, 1, ENC_NA, frameIdPtr);
+    tap_info->frame = *frameIdPtr;
+    offset += 1;
+
+    /* subframeId */
+    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_subframe_id, tvb, offset, 1, ENC_NA, subframeIdPtr);
+    /* slotId */
+    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN, slotIdPtr);
+    tap_info->slot = *slotIdPtr;
+    offset++;
+    /* symbolId */
+    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_symbolId, tvb, offset, 1, ENC_NA, symbolIdPtr);
+    offset++;
+
+    char id[16];
+    snprintf(id, 16, "%u-%u-%u-%u", *frameIdPtr, *subframeIdPtr, *slotIdPtr, *symbolIdPtr);
+    proto_item *pi = proto_tree_add_string(timing_header_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
+    proto_item_set_generated(pi);
+
+    proto_item_append_text(timingHeader, "%s, frameId: %d, subframeId: %d, slotId: %d, symbolId: %d)",
+        val_to_str_const(*directionPtr, data_direction_vals, "Unknown"), *frameIdPtr, *subframeIdPtr, *slotIdPtr, *symbolIdPtr);
+    return offset;
+}
+
+/*
+  dissect_oran_u_section_header()
+  Mandatory Section Header fields (darker green part)
+  Table 8.3.2-1, octets 13-16.  Optional fields handled elsewhere.
+ */
+static int dissect_oran_u_section_header(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
+                                         proto_tree * section_tree,
+                                         oran_tap_info *tap_info,
+                                         flow_result_t *result, flow_state_t *cplane_state,
+                                         uint32_t frameId, uint32_t subframeId, uint32_t slotId, uint32_t symbolId,
+                                         uint32_t direction, uint32_t * sectionIdPtr, uint32_t * rbPtr, uint32_t *startPrbuPtr, uint32_t *numPrbuPtr,
+                                         section_details_t **section_details_ptr)
+{
+    proto_item *sectionId_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, sectionIdPtr);
+    if (*sectionIdPtr == 4095) {
+        proto_item_append_text(sectionId_ti, " (not default coupling C/U planes using sectionId)");
+    }
+    offset++;
+
+    if (tap_info->num_section_ids < MAX_SECTION_IDs) {
+        tap_info->section_ids[tap_info->num_section_ids++] = *sectionIdPtr;
+    }
+
+    section_details_t *section_details = NULL;
+    corresponding_uplane_frame *details = NULL;
+
+    /* Lookup corresponding C-plane frame/info */
+    if (link_planes_together) {
+        if (cplane_state != NULL && result) {
+
+            expected_section_data_t *section_data = NULL;
+            section_data = wmem_tree_lookup32(result->expected_sections, *sectionIdPtr);
+
+            if (section_data) {
+                /* Need to work out which of 2 entries is in use for this data frame */
+                unsigned index_to_use = 0;
+
+                /* Does the first entry match the timing for this frame? */
+                if (section_data->details[0].frame == frameId &&
+                    section_data->details[0].subframe == subframeId &&
+                    section_data->details[0].slot == slotId &&
+                    /* Check that symbolId is in range */
+                    section_data->details[0].startSymbol <= symbolId &&
+                    (unsigned)(section_data->details[0].startSymbol + section_data->details[0].numSymbols) <= (unsigned)symbolId) {
+
+                    index_to_use = 0;
+                }
+                else if (section_data->details[1].frame == frameId &&
+                         section_data->details[1].subframe == subframeId &&
+                         section_data->details[1].slot == slotId &&
+                         /* Check that symbolId is in range */
+                         section_data->details[1].startSymbol <= symbolId &&
+                         (unsigned)(section_data->details[1].startSymbol + section_data->details[1].numSymbols) <= (unsigned)symbolId) {
+
+                    index_to_use = 1;
+                }
+                else {
+                    /* There was a sectionId, but timing header didn't exactly match, so neither index may be used.. */
+                    index_to_use = 2;         /* invalid value */
+                    /* Expert info */
+                    expert_add_info_format(NULL, sectionId_ti,
+                                           &ei_oran_cplane_entry_not_found,
+                                           "C-plane entry for %s sectionId %u at timing header %u-%u-%u-%u"
+                                           " timing didn't match C-plane",
+                                           (direction) ? "DL" : "UL", *sectionIdPtr,
+                                           frameId, subframeId, slotId, symbolId);
+                }
+
+                if (index_to_use <= 1) {
+                    section_details = &section_data->details[index_to_use];
+
+                    /* Cplane frame number */
+                    proto_item *cplane_frame_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame, tvb, 0, 0,
+                                                                      section_details->frame_number);
+                    proto_item_set_generated(cplane_frame_ti);
+
+                    /* usecs since cplane frame */
+                    time_t total_gap = 0;
+
+                    if ((pinfo->abs_ts.secs == section_details->frame_time.secs) || (pinfo->abs_ts.secs == section_details->frame_time.secs+1)) {
+                        total_gap = ((pinfo->abs_ts.secs - section_details->frame_time.secs) * 1000000) +
+                            ((pinfo->abs_ts.nsecs - section_details->frame_time.nsecs)/1000);
+                    }
+
+                    if (total_gap > 0) {
+                        proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
+                        proto_item_set_generated(cplane_delta_ti);
+                    }
+
+                    if (!PINFO_FD_VISITED(pinfo)) {
+                        /* Look up 'result' for c-plane frame, and tell it about this frame.. */
+                        flow_result_t *cplane_result = wmem_tree_lookup32(flow_results_table, section_details->frame_number);
+                        if (!cplane_result) {
+                            cplane_result = wmem_new0(wmem_file_scope(), flow_result_t);
+                            cplane_result->u_plane_frames = wmem_list_new(wmem_file_scope());
+                            wmem_tree_insert32(flow_results_table, section_details->frame_number, cplane_result);
+                        }
+                        /* PRB range filled in below.. */
+
+                        details = wmem_new(wmem_file_scope(), corresponding_uplane_frame);
+                        details->frame_number = pinfo->num;
+                        details->gap_in_usecs = (uint32_t)total_gap;
+                        details->sectionId = *sectionIdPtr;
+                        details->symbol = symbolId;
+
+                        wmem_list_append(cplane_result->u_plane_frames, details);
+                    }
+                }
+            }
+            else {
+                /* No section entry at all */
+                expert_add_info_format(NULL, sectionId_ti,
+                                       &ei_oran_cplane_entry_not_found,
+                                       "C-plane entry for %s sectionId %u not found",
+                                       (direction) ? "DL" : "UL", *sectionIdPtr);
+            }
+        }
+    }
+
+    /* rb */
+    proto_tree_add_item_ret_uint(section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, rbPtr);
+    /* symInc. "use of symInc=1 shall be prohibited in the U-plane"  */
+    uint8_t syminc;
+    proto_item *syminc_ti = proto_tree_add_item_ret_uint8(section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA, &syminc);
+    if (syminc) {
+        expert_add_info(NULL, syminc_ti, &ei_oran_syminc_set_for_uplane);
+    }
+    /* startPrbu */
+    proto_tree_add_item_ret_uint(section_tree, hf_oran_startPrbu, tvb, offset, 2, ENC_BIG_ENDIAN, startPrbuPtr);
+    offset += 2;
+
+    /* numPrbu */
+    proto_tree_add_item_ret_uint(section_tree, hf_oran_numPrbu, tvb, offset, 1, ENC_NA, numPrbuPtr);
+    offset += 1;
+
+    if (!PINFO_FD_VISITED(pinfo) && details) {
+        details->startPrbu = *startPrbuPtr;
+        details->numPrbu = (*numPrbuPtr) ? (*numPrbuPtr) : 273;
+    }
+
+    *section_details_ptr = section_details;
+    return offset;
+}
+
+static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
+                                  proto_tree * oran_tree,
+                                  proto_item * protocol_item,
+                                  oran_tap_info *tap_info,
+                                  flow_state_t *state, flow_result_t *result, flow_state_t *cplane_state,
+                                  uint32_t frameId, uint32_t subframeId, uint32_t slotId, uint32_t symbolId,
+                                  uint32_t direction, int includeUdCompHeader, unsigned * sample_bit_width_ptr,
+                                  unsigned compression, bool ud_cmp_hdr_cplane,     unsigned *nBytesPerPrbPtr)
+{
+    /* Section subtree */
+    unsigned section_start_offset = offset;
+    proto_item *sectionHeading = proto_tree_add_string_format(oran_tree, hf_oran_u_section,
+                                                              tvb, offset, 0, "", "Section");
+    proto_tree *section_tree = proto_item_add_subtree(sectionHeading, ett_oran_u_section);
+    section_details_t *section_details = NULL;
+
+    /* Section Header fields [fixed parts] (darker green part) */
+    uint32_t sectionId = 0, rb, startPrbu = 0, numPrbu = 0;
+
+    offset = dissect_oran_u_section_header(tvb, pinfo, offset, section_tree, tap_info, result, cplane_state,
+                                           frameId, subframeId, slotId, symbolId, direction, &sectionId, &rb, &startPrbu, &numPrbu,
+                                           &section_details);
+
+    proto_item *ud_comp_meth_item, *ud_comp_len_ti=NULL;
+    uint32_t ud_comp_len = 0;
+
+    /* udCompHdr (if preferences indicate will be present) */
+    bool included = (includeUdCompHeader==1) ||   /* 1 means present.. */
+        (includeUdCompHeader==2 && udcomphdr_appears_present(state, direction, tvb, offset));
+    if (included) {
+        /* 7.5.2.10 */
+        /* Extract these values to inform how wide IQ samples in each PRB will be. */
+        offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, false, direction == 0, sample_bit_width_ptr,
+                                   &compression, &ud_comp_meth_item, tap_info);
+
+        /* Not part of udCompHdr */
+        uint32_t reserved;
+        proto_item *res_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_NA, &reserved);
+        offset += 1;
+        if (reserved != 0) {
+            expert_add_info_format(pinfo, res_ti, &ei_oran_reserved_not_zero,
+                                   "reserved field (0x%x) not zero - perhaps udCompHdr is not really present?",
+                                   reserved);
+        }
+    }
+    else {
+        /* No fields to dissect - just showing comp values from prefs */
+        /* iqWidth */
+        proto_item *iq_width_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrIqWidth_pref, tvb, 0, 0, *sample_bit_width_ptr);
+        proto_item_append_text(iq_width_item, (ud_cmp_hdr_cplane) ? " (from c-plane)" : " (from preferences)");
+        proto_item_set_generated(iq_width_item);
+
+        /* udCompMethod */
+        ud_comp_meth_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrMeth_pref, tvb, 0, 0, compression);
+        proto_item_append_text(ud_comp_meth_item, (ud_cmp_hdr_cplane) ? " (from c-plane)" : " (from preferences)");
+        proto_item_set_generated(ud_comp_meth_item);
+
+        /* Point back to C-Plane, if used */
+        /* TODO: doesn't work with multiple port mappings using SE10.. */
+        if (ud_cmp_hdr_cplane) {
+            proto_item *cplane_ti = proto_tree_add_uint(section_tree, hf_oran_ul_cplane_ud_comp_hdr_frame, tvb, offset, 0, cplane_state->ul_ud_comp_hdr_frame);
+            proto_item_set_generated(cplane_ti);
+        }
+
+        tap_info->compression_methods |= (1 << compression);
+        tap_info->compression_width = *sample_bit_width_ptr;
+    }
+
+    /* Not supported! TODO: other places where comp method is looked up (e.g., bfw?) */
+    switch (compression) {
+    case COMP_NONE:
+    case COMP_BLOCK_FP:
+    case BFP_AND_SELECTIVE_RE:
+    case COMP_MODULATION:
+    case MOD_COMPR_AND_SELECTIVE_RE:
+        break;
+    default:
+        expert_add_info_format(pinfo, ud_comp_meth_item, &ei_oran_unsupported_compression_method,
+                               "Compression method %u (%s) not supported by dissector",
+                               compression,
+                               rval_to_str_const(compression, ud_comp_header_meth, "reserved"));
+    }
+
+    /* udCompLen (when supported, methods 5,6,7,8) */
+    if (compression >= BFP_AND_SELECTIVE_RE) {
+        bool supported = (pref_support_udcompLen==1) || /* supported */
+            (pref_support_udcompLen==2 && udcomplen_appears_present(includeUdCompHeader, tvb, offset));
+
+        if (supported) {
+            ud_comp_len_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_BIG_ENDIAN, &ud_comp_len);
+            if (ud_comp_len <= 1) {
+                proto_item_append_text(ud_comp_len_ti, " (reserved)");
+            }
+            /* TODO: report if less than a viable section in frame? */
+            /* Check that there is this much length left in the frame */
+            if (ud_comp_len > tvb_reported_length_remaining(tvb, section_start_offset)) {
+                expert_add_info_format(pinfo, ud_comp_len_ti, &ei_oran_ud_comp_len_wrong_size,
+                                       "udCompLen indicates %u bytes in section, but only %u are left in frame",
+                                       ud_comp_len, tvb_reported_length_remaining(tvb, section_start_offset));
+            }
+            /* Actual length of section will be checked below, at the end of the section */
+            offset += 2;
+        }
+    }
+
+    /* sReSMask1 + sReSMask2 (depends upon compression method) */
+    uint64_t sresmask1=0, sresmask2=0;
+    if (compression == BFP_AND_SELECTIVE_RE_WITH_MASKS ||
+        compression == MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS)
+        {
+            static int * const  sres_mask1_2_flags[] = {
+                &hf_oran_sReSMask1_2_re12,
+                &hf_oran_sReSMask1_2_re11,
+                &hf_oran_sReSMask1_2_re10,
+                &hf_oran_sReSMask1_2_re9,
+                &hf_oran_sReSMask_re8,
+                &hf_oran_sReSMask_re7,
+                &hf_oran_sReSMask_re6,
+                &hf_oran_sReSMask_re5,
+                &hf_oran_sReSMask_re4,
+                &hf_oran_sReSMask_re3,
+                &hf_oran_sReSMask_re2,
+                &hf_oran_sReSMask_re1,
+                NULL
+            };
+
+            /* reserved (4 bits) */
+            add_reserved_field(section_tree, hf_oran_reserved_4bits, tvb, offset, 1);
+            /* sReSMask1 (12 bits) */
+            proto_item *sresmask_ti;
+            sresmask_ti = proto_tree_add_bitmask_ret_uint64(section_tree, tvb, offset,
+                                                            hf_oran_sReSMask1,
+                                                            ett_oran_sresmask,
+                                                            sres_mask1_2_flags,
+                                                            ENC_NA,
+                                                            &sresmask1);
+            offset += 2;
+            /* Count REs present */
+            unsigned res = 0;
+            for (unsigned n=0; n < 12; n++) {
+                if ((sresmask1 >> n) & 0x1) {
+                    res++;
+                }
+            }
+            proto_item_append_text(sresmask_ti, "   (%u REs)", res);
+
+
+            /* reserved (4 bits) */
+            add_reserved_field(section_tree, hf_oran_reserved_4bits, tvb, offset, 1);
+            /* sReSMask2 (12 bits) */
+            sresmask_ti = proto_tree_add_bitmask_ret_uint64(section_tree, tvb, offset,
+                                                            hf_oran_sReSMask2,
+                                                            ett_oran_sresmask,
+                                                            sres_mask1_2_flags,
+                                                            ENC_NA,
+                                                            &sresmask2);
+            offset += 2;
+
+            if (rb == 1) {
+                proto_item_append_text(sresmask_ti, " (ignored)");
+                if (sresmask2 != 0) {
+                    expert_add_info(pinfo, ud_comp_len_ti, &ei_oran_sresmask2_not_zero_with_rb);
+                }
+            }
+            else {
+                /* Count REs present */
+                res = 0;
+                for (unsigned n=0; n < 12; n++) {
+                    if ((sresmask2 >> n) & 0x1) {
+                        res++;
+                    }
+                }
+                proto_item_append_text(sresmask_ti, "   (%u REs)", res);
+            }
+        }
+
+    write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu, rb);
+
+    /* TODO: should this use the same pref as c-plane? */
+    if (numPrbu == 0) {
+        /* Special case for all PRBs (NR: the total number of PRBs may be > 255) */
+        numPrbu = pref_data_plane_section_total_rbs;
+        startPrbu = 0;  /* may already be 0... */
+    }
+
+    section_mod_compr_config_t* mod_compr_config = get_mod_compr_section_to_read(cplane_state, sectionId);
+
+    /* Add each PRB */
+    for (unsigned i = 0; i < numPrbu; i++) {
+        /* Create subtree */
+        proto_item *prbHeading = proto_tree_add_string_format(section_tree, hf_oran_samples_prb,
+                                                              tvb, offset, 0,
+                                                              "", "PRB");
+        proto_tree *rb_tree = proto_item_add_subtree(prbHeading, ett_oran_u_prb);
+        uint32_t exponent = 0;
+        uint16_t sresmask = 0;
+
+        /* udCompParam (depends upon compression method) */
+        int before = offset;
+        offset = dissect_udcompparam(tvb, pinfo, rb_tree, offset, compression, &exponent, &sresmask, false);
+        int udcompparam_len = offset-before;
+
+        /* Show PRB number in root */
+        proto_item_append_text(prbHeading, " %3u", startPrbu + i*(1+rb));
+
+        /* Work out how many REs / PRB */
+        unsigned res_per_prb = 12;
+        uint16_t sresmask_to_use = 0x0fff;
+
+        if (compression >= BFP_AND_SELECTIVE_RE) {
+            /* Work out which mask should be used */
+            if (compression==BFP_AND_SELECTIVE_RE || compression==MOD_COMPR_AND_SELECTIVE_RE) {
+                /* Selective RE cases, use value from compModParam */
+                sresmask_to_use = (uint16_t)sresmask;
+            }
+            else {
+                /* With masks (in section).  Choose between sresmask1 and sresmask2 */
+                if (rb==1 || (i%2)==0) {
+                    /* Even values */
+                    sresmask_to_use = (uint16_t)sresmask1;
+                }
+                else {
+                    /* Odd values */
+                    sresmask_to_use = (uint16_t)sresmask2;
+                }
+            }
+
+            /* Count REs present using sresmask */
+            res_per_prb = 0;
+            /* Use sresmask to pick out which REs are present */
+            for (unsigned n=0; n<12; n++) {
+                if (sresmask_to_use & (1<<n)) {
+                    res_per_prb++;
+                }
+            }
+        }
+
+        /* N.B. bytes for samples need to be padded out to next byte
+           (certainly where there aren't 12 REs in PRB..) */
+        unsigned nBytesForSamples = ((*sample_bit_width_ptr) * res_per_prb * 2 + 7) / 8;
+        *nBytesPerPrbPtr = nBytesForSamples + udcompparam_len;
+
+        proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
+
+        if (section_details) {
+            if ((startPrbu + i*(1+rb)) < 273) {
+                proto_item *beamid_ti = proto_tree_add_uint(rb_tree, hf_oran_beamId, tvb, 0, 0,
+                                                            section_details->beamIds[startPrbu + i*(1+rb)]);
+                proto_item_set_generated(beamid_ti);
+            }
+        }
+
+
+        tap_info->non_zero_re_in_current_prb = false;
+
+        /* Optionally trying to show I/Q RE values */
+        if (pref_showIQSampleValues) {
+            /* Individual values */
+            unsigned samples_offset = offset*8;
+            unsigned samples_start = offset;
+            unsigned samples = 0;
+
+            if (compression >= BFP_AND_SELECTIVE_RE) {
+                /* Use sresmask to pick out which REs are present */
+                for (unsigned n=1; n<=12; n++) {
+                    if (sresmask_to_use & (1<<(n-1))) {
+                        samples_offset = dissect_oran_u_re(tvb, rb_tree,
+                                                           n, samples_offset, tap_info, *sample_bit_width_ptr, compression, exponent, mod_compr_config, n);
+                        samples++;
+                    }
+                }
+            }
+            else {
+                /* All 12 REs are present */
+                for (unsigned n=1; n<=12; n++) {
+                    samples_offset = dissect_oran_u_re(tvb, rb_tree,
+                                                       n, samples_offset, tap_info, *sample_bit_width_ptr, compression, exponent, mod_compr_config, n);
+                    samples++;
+                }
+            }
+            proto_item_append_text(prbHeading, " (%u REs)", samples);
+            if (section_details) {
+                if ((startPrbu + i*(1+rb)) < 273) {
+                    proto_item_append_text(prbHeading, " [BeamId:%u]", section_details->beamIds[startPrbu + i*(1+rb)]);
+                }
+            }
+
+            /* Was this PRB all zeros? */
+            if (!tap_info->non_zero_re_in_current_prb) {
+                tap_info->num_prbs_zero++;
+                /* Add a filter to make zero-valued PRBs more findable */
+                proto_item *zero_ti = proto_tree_add_item(rb_tree, hf_oran_zero_prb, tvb,
+                                                          samples_start, nBytesForSamples, ENC_NA);
+                proto_item_set_hidden(zero_ti);
+                proto_item_append_text(prbHeading, " (all zeros)");
+            }
+            else {
+                proto_item *nonzero_ti = proto_tree_add_item(rb_tree, hf_oran_nonzero_prb, tvb, samples_start, nBytesForSamples, ENC_NA);
+                proto_item_set_hidden(nonzero_ti);
+            }
+        }
+
+        tap_info->num_prbs++;
+
+
+        /* Advance past samples */
+        offset += nBytesForSamples;
+
+        /* Set end of prb subtree */
+        proto_item_set_end(prbHeading, tvb, offset);
+    }
+
+    /* Set extent of section */
+    proto_item_set_len(sectionHeading, offset-section_start_offset);
+    if (ud_comp_len_ti != NULL && ((offset-section_start_offset != ud_comp_len))) {
+        expert_add_info_format(pinfo, ud_comp_len_ti, &ei_oran_ud_comp_len_wrong_size,
+                               "udCompLen indicates %u bytes in section, but dissected %u instead",
+                               ud_comp_len, offset-section_start_offset);
+    }
+    return offset;
+}
+
 /* User plane dissector (section 8) */
 static int
 dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -7224,49 +7732,77 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     uint32_t seqId, subSeqId, e;
     offset = addSeqid(tvb, oran_tree, offset, ORAN_U_PLANE, &seqId, &seqIdItem, pinfo, &subSeqId, &e);
 
-    /* Common header for time reference */
-    proto_item *timingHeader = proto_tree_add_string_format(oran_tree, hf_oran_timing_header,
-                                                            tvb, offset, 4, "", "Timing Header (");
-    proto_tree *timing_header_tree = proto_item_add_subtree(timingHeader, ett_oran_u_timing);
+    uint32_t frameId  = 0, subframeId = 0, slotId = 0, symbolId = 0, direction;
 
-    /* dataDirection */
-    uint32_t direction;
-    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_data_direction, tvb, offset, 1, ENC_NA, &direction);
-    tap_info->uplink = (direction==0);
-    /* payloadVersion */
-    dissect_payload_version(timing_header_tree, tvb, pinfo, offset);
-    /* filterIndex */
-    proto_tree_add_item(timing_header_tree, hf_oran_filter_index, tvb, offset, 1, ENC_NA);
-    offset += 1;
+    /* Add buffer to the reassembly ahead of cycling through the options */
+    if (do_radio_transport_layer_reassembly && (e !=1 || subSeqId!= 0)) {
+        /* Set fragmented flag. */
+        bool save_fragmented = pinfo->fragmented;
+        pinfo->fragmented = true;
+        fragment_head *fh;
+        unsigned frag_data_len = tvb_reported_length_remaining(tvb, offset);
 
-    int ref_a_offset = offset;
+        /* Add this fragment into reassembly table */
+        /* In the absence of information from the header [might not be present], use the MAC addresses. */
+        int dir = cmp_address(&pinfo->src, &pinfo->dst)>0;
+        uint32_t reassembly_id = make_reassembly_id(seqId, eAxC, dir);
+        fh = fragment_add_seq(&oran_reassembly_table, tvb, offset, pinfo,
+                              reassembly_id,                                 /* id */
+                              GUINT_TO_POINTER(reassembly_id),               /* data */
+                              subSeqId,                                      /* frag_number */
+                              frag_data_len,                                 /* frag_data_len */
+                              !e,                                             /* more_frags */
+                              0);
 
-    /* frameId */
-    uint32_t frameId = 0;
-    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_frame_id, tvb, offset, 1, ENC_NA, &frameId);
-    tap_info->frame = frameId;
-    offset += 1;
+        bool update_col_info = true;
 
-    /* subframeId */
-    uint32_t subframeId = 0;
-    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_subframe_id, tvb, offset, 1, ENC_NA, &subframeId);
-    /* slotId */
-    uint32_t slotId = 0;
-    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_slot_id, tvb, offset, 2, ENC_BIG_ENDIAN, &slotId);
-    tap_info->slot = slotId;
-    offset++;
-    /* symbolId */
-    uint32_t symbolId = 0;
-    proto_tree_add_item_ret_uint(timing_header_tree, hf_oran_symbolId, tvb, offset, 1, ENC_NA, &symbolId);
-    offset++;
+        /* See if this completes an SDU */
+        tvbuff_t *original_tvb = tvb;
+        tvbuff_t *next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled O-RAN FH CUS Payload",
+                                                      fh, &oran_frag_items,
+                                                      &update_col_info, oran_tree);
+        if (next_tvb) {
+            /* Have reassembled data */
+            proto_tree_add_item(oran_tree, hf_oran_payload, next_tvb, 0, -1, ENC_NA);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  Reassembled Data (%u bytes)", tvb_reported_length(next_tvb));
+        }
+        /* Will continue with either reassembled tvb or NULL */
+        tvb = next_tvb;
 
-    char id[16];
-    snprintf(id, 16, "%u-%u-%u-%u", frameId, subframeId, slotId, symbolId);
-    proto_item *pi = proto_tree_add_string(timing_header_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
-    proto_item_set_generated(pi);
+        /* Restore fragmented flag */
+        pinfo->fragmented = save_fragmented;
 
-    proto_item_append_text(timingHeader, "%s, frameId: %d, subframeId: %d, slotId: %d, symbolId: %d)",
-        val_to_str_const(direction, data_direction_vals, "Unknown"), frameId, subframeId, slotId, symbolId);
+        /* Don't dissect any more if not complete yet.. */
+        if (tvb == NULL) {
+            /* For subseq=0 it's possible to do a partial decode to display the timing header
+               and first section header, but not much more */
+            if ( subSeqId == 0 ) {
+                if ( tvb_reported_length_remaining(original_tvb, offset) >= 4 ) {
+                    proto_item * timingHeader = proto_tree_add_string_format(oran_tree, hf_oran_timing_header,
+                                                                             original_tvb, offset, 4, "", "Timing Header (");
+                    offset = dissect_oran_u_timing_header(original_tvb, pinfo, offset, timingHeader, tap_info, &frameId, &subframeId, &slotId, &symbolId, &direction);
+
+                    if ( tvb_reported_length_remaining(original_tvb, offset) >= 4 ) {
+                        uint32_t sectionId, rb, startPrbu, numPrbu;
+                        section_details_t *section_details = NULL;
+                        proto_item *sectionHeading = proto_tree_add_string_format(oran_tree, hf_oran_u_section,
+                                                                                  tvb, offset, 0, "", "Section");
+                        proto_tree *section_tree = proto_item_add_subtree(sectionHeading, ett_oran_u_section);
+
+                        offset = dissect_oran_u_section_header(original_tvb, pinfo, offset, section_tree, tap_info, result, NULL,
+                                                               frameId, subframeId, slotId, symbolId, direction, &sectionId, &rb,
+                                                               &startPrbu, &numPrbu, &section_details);
+                    }
+                }
+            }
+            return tvb_captured_length(original_tvb);
+        }
+        offset = 0;  /* This sorts out the reading of the timing header and the first section header */
+    }
+
+    proto_item * timingHeader = proto_tree_add_string_format(oran_tree, hf_oran_timing_header,
+                                                                          tvb, offset, 4, "", "Timing Header (");
+    offset = dissect_oran_u_timing_header(tvb, pinfo, offset, timingHeader, tap_info, &frameId, &subframeId, &slotId, &symbolId, &direction);
 
     unsigned sample_bit_width;
     unsigned compression;
@@ -7440,489 +7976,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Add each section (not from count, just keep parsing until payload used) */
     do {
-        /* Section subtree */
-        unsigned section_start_offset = offset;
-        proto_item *sectionHeading = proto_tree_add_string_format(oran_tree, hf_oran_u_section,
-                                                                  tvb, offset, 0, "", "Section");
-        proto_tree *section_tree = proto_item_add_subtree(sectionHeading, ett_oran_u_section);
-
-        /* Section Header fields (darker green part) */
-
-        /* sectionId */
-        uint32_t sectionId = 0;
-        proto_item *sectionId_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
-        if (sectionId == 4095) {
-            proto_item_append_text(sectionId_ti, " (not default coupling C/U planes using sectionId)");
-        }
-        offset++;
-
-        if (tap_info->num_section_ids < MAX_SECTION_IDs) {
-            tap_info->section_ids[tap_info->num_section_ids++] = sectionId;
-        }
-
-        section_details_t *section_details = NULL;
-        corresponding_uplane_frame *details = NULL;
-
-        /* Lookup corresponding C-plane frame/info */
-        if (link_planes_together) {
-            if (cplane_state != NULL && result) {
-
-                expected_section_data_t *section_data = NULL;
-                section_data = wmem_tree_lookup32(result->expected_sections, sectionId);
-
-                if (section_data) {
-                    /* Need to work out which of 2 entries is in use for this data frame */
-                    unsigned index_to_use = 0;
-
-                    /* Does the first entry match the timing for this frame? */
-                    if (section_data->details[0].frame == frameId &&
-                        section_data->details[0].subframe == subframeId &&
-                        section_data->details[0].slot == slotId &&
-                        /* Check that symbolId is in range */
-                        section_data->details[0].startSymbol <= symbolId &&
-                        (unsigned)(section_data->details[0].startSymbol + section_data->details[0].numSymbols) <= (unsigned)symbolId) {
-
-                        index_to_use = 0;
-                    }
-                    else if (section_data->details[1].frame == frameId &&
-                        section_data->details[1].subframe == subframeId &&
-                        section_data->details[1].slot == slotId &&
-                        /* Check that symbolId is in range */
-                        section_data->details[1].startSymbol <= symbolId &&
-                        (unsigned)(section_data->details[1].startSymbol + section_data->details[1].numSymbols) <= (unsigned)symbolId) {
-
-                        index_to_use = 1;
-                    }
-                    else {
-                        /* There was a sectionId, but timing header didn't exactly match, so neither index may be used.. */
-                        index_to_use = 2;         /* invalid value */
-                        /* Expert info */
-                        expert_add_info_format(NULL, sectionId_ti,
-                                               &ei_oran_cplane_entry_not_found,
-                                               "C-plane entry for %s sectionId %u at timing header %u-%u-%u-%u",
-                                               (direction) ? "DL" : "UL", sectionId,
-                                               frameId, subframeId, slotId, symbolId);
-                    }
-
-                    if (index_to_use <= 1) {
-                        section_details = &section_data->details[index_to_use];
-
-                        /* Cplane frame number */
-                        proto_item *cplane_frame_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame, tvb, 0, 0,
-                                                                          section_details->frame_number);
-                        proto_item_set_generated(cplane_frame_ti);
-
-                        /* usecs since cplane frame */
-                        time_t total_gap = 0;
-
-                        if ((pinfo->abs_ts.secs == section_details->frame_time.secs) || (pinfo->abs_ts.secs == section_details->frame_time.secs+1)) {
-                            total_gap = ((pinfo->abs_ts.secs - section_details->frame_time.secs) * 1000000) +
-                                        ((pinfo->abs_ts.nsecs - section_details->frame_time.nsecs)/1000);
-                        }
-
-                        if (total_gap > 0) {
-                            proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
-                            proto_item_set_generated(cplane_delta_ti);
-                        }
-
-                        if (!PINFO_FD_VISITED(pinfo)) {
-                            /* Look up 'result' for c-plane frame, and tell it about this frame.. */
-                            flow_result_t *cplane_result = wmem_tree_lookup32(flow_results_table, section_details->frame_number);
-                            if (!cplane_result) {
-                                cplane_result = wmem_new0(wmem_file_scope(), flow_result_t);
-                                cplane_result->u_plane_frames = wmem_list_new(wmem_file_scope());
-                                wmem_tree_insert32(flow_results_table, section_details->frame_number, cplane_result);
-                            }
-                            /* PRB range filled in below.. */
-
-                            details = wmem_new(wmem_file_scope(), corresponding_uplane_frame);
-                            details->frame_number = pinfo->num;
-                            details->gap_in_usecs = (uint32_t)total_gap;
-                            details->sectionId = sectionId;
-                            details->symbol = symbolId;
-
-                            wmem_list_append(cplane_result->u_plane_frames, details);
-                        }
-                    }
-                }
-                else {
-                    /* No section entry at all */
-                    expert_add_info_format(NULL, sectionId_ti,
-                                           &ei_oran_cplane_entry_not_found,
-                                           "C-plane entry for %s sectionId %u not found",
-                                           (direction) ? "DL" : "UL", sectionId);
-                }
-            }
-        }
-
-        /* rb */
-        uint32_t rb;
-        proto_tree_add_item_ret_uint(section_tree, hf_oran_rb, tvb, offset, 1, ENC_NA, &rb);
-        /* symInc. "use of symInc=1 shall be prohibited in the U-plane"  */
-        uint8_t syminc;
-        proto_item *syminc_ti = proto_tree_add_item_ret_uint8(section_tree, hf_oran_symInc, tvb, offset, 1, ENC_NA, &syminc);
-        if (syminc) {
-            expert_add_info(NULL, syminc_ti, &ei_oran_syminc_set_for_uplane);
-        }
-        /* startPrbu */
-        uint32_t startPrbu = 0;
-        proto_tree_add_item_ret_uint(section_tree, hf_oran_startPrbu, tvb, offset, 2, ENC_BIG_ENDIAN, &startPrbu);
-        offset += 2;
-
-        /* numPrbu */
-        uint32_t numPrbu = 0;
-        proto_tree_add_item_ret_uint(section_tree, hf_oran_numPrbu, tvb, offset, 1, ENC_NA, &numPrbu);
-        offset += 1;
-
-        if (!PINFO_FD_VISITED(pinfo) && details) {
-            details->startPrbu = startPrbu;
-            details->numPrbu = (numPrbu) ? numPrbu : 273;
-        }
-
-        proto_item *ud_comp_meth_item, *ud_comp_len_ti=NULL;
-        uint32_t ud_comp_len = 0;
-
-        /* udCompHdr (if preferences indicate will be present) */
-        bool included = (includeUdCompHeader==1) ||   /* 1 means present.. */
-                        (includeUdCompHeader==2 && udcomphdr_appears_present(state, direction, tvb, offset));
-        if (included) {
-            /* 7.5.2.10 */
-            /* Extract these values to inform how wide IQ samples in each PRB will be. */
-            offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, false, direction == 0, &sample_bit_width,
-                                       &compression, &ud_comp_meth_item, tap_info);
-
-            /* Not part of udCompHdr */
-            uint32_t reserved;
-            proto_item *res_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_reserved_8bits, tvb, offset, 1, ENC_NA, &reserved);
-            offset += 1;
-            if (reserved != 0) {
-                expert_add_info_format(pinfo, res_ti, &ei_oran_reserved_not_zero,
-                                       "reserved field (0x%x) not zero - perhaps udCompHdr is not really present?",
-                                       reserved);
-            }
-        }
-        else {
-            /* No fields to dissect - just showing comp values from prefs */
-            /* iqWidth */
-            proto_item *iq_width_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrIqWidth_pref, tvb, 0, 0, sample_bit_width);
-            proto_item_append_text(iq_width_item, (ud_cmp_hdr_cplane) ? " (from c-plane)" : " (from preferences)");
-            proto_item_set_generated(iq_width_item);
-
-            /* udCompMethod */
-            ud_comp_meth_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrMeth_pref, tvb, 0, 0, compression);
-            proto_item_append_text(ud_comp_meth_item, (ud_cmp_hdr_cplane) ? " (from c-plane)" : " (from preferences)");
-            proto_item_set_generated(ud_comp_meth_item);
-
-            /* Point back to C-Plane, if used */
-            /* TODO: doesn't work with multiple port mappings using SE10.. */
-            if (ud_cmp_hdr_cplane) {
-                proto_item *cplane_ti = proto_tree_add_uint(section_tree, hf_oran_ul_cplane_ud_comp_hdr_frame, tvb, offset, 0, cplane_state->ul_ud_comp_hdr_frame);
-                proto_item_set_generated(cplane_ti);
-            }
-
-            tap_info->compression_methods |= (1 << compression);
-            tap_info->compression_width = sample_bit_width;
-        }
-
-        /* Consider fragmentation after first section header */
-        if (do_radio_transport_layer_reassembly && (number_of_sections == 0) && (e !=1 || subSeqId!= 0)) {
-
-            /* Set fragmented flag. */
-            bool save_fragmented = pinfo->fragmented;
-            pinfo->fragmented = true;
-            fragment_head *fh;
-            unsigned frag_data_len = tvb_reported_length_remaining(tvb, offset);
-
-            /* Add this fragment into reassembly table */
-            uint32_t reassembly_id = make_reassembly_id(seqId, direction, eAxC,
-                                                        frameId, subframeId, slotId, symbolId);
-            fh = fragment_add_seq(&oran_reassembly_table, tvb, offset, pinfo,
-                                        reassembly_id,                                 /* id */
-                                        GUINT_TO_POINTER(reassembly_id),               /* data */
-                                        subSeqId,                                      /* frag_number */
-                                        frag_data_len,                                 /* frag_data_len */
-                                        !e,                                             /* more_frags */
-                                        0);
-
-            bool update_col_info = true;
-
-            /* See if this completes an SDU */
-            tvbuff_t *original_tvb = tvb;
-            tvbuff_t *next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled O-RAN FH CUS Payload",
-                                                          fh, &oran_frag_items,
-                                                          &update_col_info, oran_tree);
-            if (next_tvb) {
-                /* Have reassembled data */
-                proto_tree_add_item(oran_tree, hf_oran_payload, next_tvb, 0, -1, ENC_NA);
-                col_append_fstr(pinfo->cinfo, COL_INFO, "  Reassembled Data (%u bytes)", tvb_reported_length(next_tvb));
-                /* Dissection should resume at start of reassembled tvb */
-                offset = 0;
-            }
-            /* Will continue with either reassembled tvb or NULL */
-            tvb = next_tvb;
-
-            /* Restore fragmented flag */
-            pinfo->fragmented = save_fragmented;
-
-            /* Don't dissect any more if not complete yet.. */
-            if (tvb == NULL) {
-                return tvb_captured_length(original_tvb);
-            }
-        }
-
-
-        /* Not supported! TODO: other places where comp method is looked up (e.g., bfw?) */
-        switch (compression) {
-            case COMP_NONE:
-            case COMP_BLOCK_FP:
-            case BFP_AND_SELECTIVE_RE:
-            case COMP_MODULATION:
-            case MOD_COMPR_AND_SELECTIVE_RE:
-                break;
-            default:
-                expert_add_info_format(pinfo, ud_comp_meth_item, &ei_oran_unsupported_compression_method,
-                                   "Compression method %u (%s) not supported by dissector",
-                                   compression,
-                                   rval_to_str_const(compression, ud_comp_header_meth, "reserved"));
-        }
-
-        /* udCompLen (when supported, methods 5,6,7,8) */
-        if (compression >= BFP_AND_SELECTIVE_RE) {
-            bool supported = (pref_support_udcompLen==1) || /* supported */
-                             (pref_support_udcompLen==2 && udcomplen_appears_present(includeUdCompHeader, tvb, offset));
-
-            if (supported) {
-                ud_comp_len_ti = proto_tree_add_item_ret_uint(section_tree, hf_oran_udCompLen, tvb, offset, 2, ENC_BIG_ENDIAN, &ud_comp_len);
-                if (ud_comp_len <= 1) {
-                    proto_item_append_text(ud_comp_len_ti, " (reserved)");
-                }
-                /* TODO: report if less than a viable section in frame? */
-                /* Check that there is this much length left in the frame */
-                if (ud_comp_len > tvb_reported_length_remaining(tvb, section_start_offset)) {
-                    expert_add_info_format(pinfo, ud_comp_len_ti, &ei_oran_ud_comp_len_wrong_size,
-                                           "udCompLen indicates %u bytes in section, but only %u are left in frame",
-                                           ud_comp_len, tvb_reported_length_remaining(tvb, section_start_offset));
-                }
-                /* Actual length of section will be checked below, at the end of the section */
-                offset += 2;
-            }
-        }
-
-        /* sReSMask1 + sReSMask2 (depends upon compression method) */
-        uint64_t sresmask1=0, sresmask2=0;
-        if (compression == BFP_AND_SELECTIVE_RE_WITH_MASKS ||
-            compression == MOD_COMPR_AND_SELECTIVE_RE_WITH_MASKS)
-        {
-            static int * const  sres_mask1_2_flags[] = {
-                &hf_oran_sReSMask1_2_re12,
-                &hf_oran_sReSMask1_2_re11,
-                &hf_oran_sReSMask1_2_re10,
-                &hf_oran_sReSMask1_2_re9,
-                &hf_oran_sReSMask_re8,
-                &hf_oran_sReSMask_re7,
-                &hf_oran_sReSMask_re6,
-                &hf_oran_sReSMask_re5,
-                &hf_oran_sReSMask_re4,
-                &hf_oran_sReSMask_re3,
-                &hf_oran_sReSMask_re2,
-                &hf_oran_sReSMask_re1,
-                NULL
-            };
-
-            /* reserved (4 bits) */
-            add_reserved_field(section_tree, hf_oran_reserved_4bits, tvb, offset, 1);
-            /* sReSMask1 (12 bits) */
-            proto_item *sresmask_ti;
-            sresmask_ti = proto_tree_add_bitmask_ret_uint64(section_tree, tvb, offset,
-                                                            hf_oran_sReSMask1,
-                                                            ett_oran_sresmask,
-                                                            sres_mask1_2_flags,
-                                                            ENC_NA,
-                                                            &sresmask1);
-            offset += 2;
-            /* Count REs present */
-            unsigned res = 0;
-            for (unsigned n=0; n < 12; n++) {
-                if ((sresmask1 >> n) & 0x1) {
-                    res++;
-                }
-            }
-            proto_item_append_text(sresmask_ti, "   (%u REs)", res);
-
-
-            /* reserved (4 bits) */
-            add_reserved_field(section_tree, hf_oran_reserved_4bits, tvb, offset, 1);
-            /* sReSMask2 (12 bits) */
-            sresmask_ti = proto_tree_add_bitmask_ret_uint64(section_tree, tvb, offset,
-                                                            hf_oran_sReSMask2,
-                                                            ett_oran_sresmask,
-                                                            sres_mask1_2_flags,
-                                                            ENC_NA,
-                                                            &sresmask2);
-            offset += 2;
-
-            if (rb == 1) {
-                proto_item_append_text(sresmask_ti, " (ignored)");
-                if (sresmask2 != 0) {
-                    expert_add_info(pinfo, ud_comp_len_ti, &ei_oran_sresmask2_not_zero_with_rb);
-                }
-            }
-            else {
-                /* Count REs present */
-                res = 0;
-                for (unsigned n=0; n < 12; n++) {
-                    if ((sresmask2 >> n) & 0x1) {
-                        res++;
-                    }
-                }
-                proto_item_append_text(sresmask_ti, "   (%u REs)", res);
-            }
-        }
-
-        write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu, rb);
-
-        /* TODO: should this use the same pref as c-plane? */
-        if (numPrbu == 0) {
-            /* Special case for all PRBs (NR: the total number of PRBs may be > 255) */
-            numPrbu = pref_data_plane_section_total_rbs;
-            startPrbu = 0;  /* may already be 0... */
-        }
-
-        section_mod_compr_config_t* mod_compr_config = get_mod_compr_section_to_read(cplane_state, sectionId);
-
-        /* Add each PRB */
-        for (unsigned i = 0; i < numPrbu; i++) {
-            /* Create subtree */
-            proto_item *prbHeading = proto_tree_add_string_format(section_tree, hf_oran_samples_prb,
-                                                                  tvb, offset, 0,
-                                                                  "", "PRB");
-            proto_tree *rb_tree = proto_item_add_subtree(prbHeading, ett_oran_u_prb);
-            uint32_t exponent = 0;
-            uint16_t sresmask = 0;
-
-            /* udCompParam (depends upon compression method) */
-            int before = offset;
-            offset = dissect_udcompparam(tvb, pinfo, rb_tree, offset, compression, &exponent, &sresmask, false);
-            int udcompparam_len = offset-before;
-
-            /* Show PRB number in root */
-            proto_item_append_text(prbHeading, " %3u", startPrbu + i*(1+rb));
-
-            /* Work out how many REs / PRB */
-            unsigned res_per_prb = 12;
-            uint16_t sresmask_to_use = 0x0fff;
-
-            if (compression >= BFP_AND_SELECTIVE_RE) {
-                /* Work out which mask should be used */
-                if (compression==BFP_AND_SELECTIVE_RE || compression==MOD_COMPR_AND_SELECTIVE_RE) {
-                    /* Selective RE cases, use value from compModParam */
-                    sresmask_to_use = (uint16_t)sresmask;
-                }
-                else {
-                    /* With masks (in section).  Choose between sresmask1 and sresmask2 */
-                    if (rb==1 || (i%2)==0) {
-                        /* Even values */
-                        sresmask_to_use = (uint16_t)sresmask1;
-                    }
-                    else {
-                        /* Odd values */
-                        sresmask_to_use = (uint16_t)sresmask2;
-                    }
-                }
-
-                /* Count REs present using sresmask */
-                res_per_prb = 0;
-                /* Use sresmask to pick out which REs are present */
-                for (unsigned n=0; n<12; n++) {
-                    if (sresmask_to_use & (1<<n)) {
-                        res_per_prb++;
-                    }
-                }
-            }
-
-            /* N.B. bytes for samples need to be padded out to next byte
-               (certainly where there aren't 12 REs in PRB..) */
-            unsigned nBytesForSamples = (sample_bit_width * res_per_prb * 2 + 7) / 8;
-            nBytesPerPrb = nBytesForSamples + udcompparam_len;
-
-            proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
-
-            if (section_details) {
-                if ((startPrbu + i*(1+rb)) < 273) {
-                    proto_item *beamid_ti = proto_tree_add_uint(rb_tree, hf_oran_beamId, tvb, 0, 0,
-                                                                section_details->beamIds[startPrbu + i*(1+rb)]);
-                    proto_item_set_generated(beamid_ti);
-                }
-            }
-
-
-            tap_info->non_zero_re_in_current_prb = false;
-
-            /* Optionally trying to show I/Q RE values */
-            if (pref_showIQSampleValues) {
-                /* Individual values */
-                unsigned samples_offset = offset*8;
-                unsigned samples_start = offset;
-                unsigned samples = 0;
-
-                if (compression >= BFP_AND_SELECTIVE_RE) {
-                    /* Use sresmask to pick out which REs are present */
-                    for (unsigned n=1; n<=12; n++) {
-                        if (sresmask_to_use & (1<<(n-1))) {
-                            samples_offset = dissect_oran_u_re(tvb, rb_tree,
-                                                               n, samples_offset, tap_info, sample_bit_width, compression, exponent, mod_compr_config, n);
-                            samples++;
-                        }
-                    }
-                }
-                else {
-                    /* All 12 REs are present */
-                    for (unsigned n=1; n<=12; n++) {
-                        samples_offset = dissect_oran_u_re(tvb, rb_tree,
-                                                           n, samples_offset, tap_info, sample_bit_width, compression, exponent, mod_compr_config, n);
-                        samples++;
-                    }
-                }
-                proto_item_append_text(prbHeading, " (%u REs)", samples);
-                if (section_details) {
-                    if ((startPrbu + i*(1+rb)) < 273) {
-                        proto_item_append_text(prbHeading, " [BeamId:%u]", section_details->beamIds[startPrbu + i*(1+rb)]);
-                    }
-                }
-
-                /* Was this PRB all zeros? */
-                if (!tap_info->non_zero_re_in_current_prb) {
-                    tap_info->num_prbs_zero++;
-                    /* Add a filter to make zero-valued PRBs more findable */
-                    proto_item *zero_ti = proto_tree_add_item(rb_tree, hf_oran_zero_prb, tvb,
-                                                              samples_start, nBytesForSamples, ENC_NA);
-                    proto_item_set_hidden(zero_ti);
-                    proto_item_append_text(prbHeading, " (all zeros)");
-                }
-                else {
-                    proto_item *nonzero_ti = proto_tree_add_item(rb_tree, hf_oran_nonzero_prb, tvb, samples_start, nBytesForSamples, ENC_NA);
-                    proto_item_set_hidden(nonzero_ti);
-                }
-            }
-
-            tap_info->num_prbs++;
-
-
-            /* Advance past samples */
-            offset += nBytesForSamples;
-
-            /* Set end of prb subtree */
-            proto_item_set_end(prbHeading, tvb, offset);
-        }
-
-        /* Set extent of section */
-        proto_item_set_len(sectionHeading, offset-section_start_offset);
-        if (ud_comp_len_ti != NULL && ((offset-section_start_offset != ud_comp_len))) {
-            expert_add_info_format(pinfo, ud_comp_len_ti, &ei_oran_ud_comp_len_wrong_size,
-                                   "udCompLen indicates %u bytes in section, but dissected %u instead",
-                                   ud_comp_len, offset-section_start_offset);
-        }
-
+        offset = dissect_oran_u_section(tvb, pinfo, offset, oran_tree, protocol_item, tap_info, state, result, cplane_state,
+                                        frameId, subframeId, slotId, symbolId, direction, includeUdCompHeader,
+                                        &sample_bit_width, compression, ud_cmp_hdr_cplane, &nBytesPerPrb);
         bytesLeft = tvb_captured_length(tvb) - offset;
         number_of_sections++;
     } while (bytesLeft >= (4 + nBytesPerPrb));     /* FIXME: bad heuristic */
