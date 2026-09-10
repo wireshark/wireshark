@@ -14,6 +14,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 void proto_register_kdp(void);
 void proto_reg_handoff_kdp(void);
 
@@ -24,6 +25,8 @@ static dissector_handle_t kdp_handle;
 static int proto_kdp;
 static int ett_kdp;
 static int ett_kdp_flags;
+
+static expert_field ei_kdp_optionlen_bad;
 
 static int hf_kdp_version;
 static int hf_kdp_headerlen;
@@ -152,9 +155,14 @@ static int dissect_kdp(tvbuff_t *tvb,
         proto_tree_add_item(kdp_tree, hf_kdp_optionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset = offset + 1;
         if (option_number > 0) {
+          proto_item *opt_len_item;
           option_len = tvb_get_uint8(tvb, offset);
-          proto_tree_add_item(kdp_tree, hf_kdp_optionlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+          opt_len_item = proto_tree_add_item(kdp_tree, hf_kdp_optionlen, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset = offset + 1;
+          if (option_len < 2) {
+            expert_add_info_format(pinfo, opt_len_item, &ei_kdp_optionlen_bad, "Illegal option length: %u (must be >= 2)", option_len);
+            break;
+          }
         }
 
         switch (option_number) {
@@ -385,9 +393,16 @@ void proto_register_kdp(void) {
     &ett_kdp, &ett_kdp_flags
   };
 
+  static ei_register_info ei[] = {
+    { &ei_kdp_optionlen_bad, { "kdp.optionlen.bad", PI_MALFORMED, PI_WARN, "Illegal option length (must be >= 2)", EXPFILL }}
+  };
+  expert_module_t *expert_kdp;
+
   proto_kdp = proto_register_protocol("Kontiki Delivery Protocol", "KDP", "kdp"); /* name, short name, abbreviation */
   proto_register_field_array(proto_kdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_kdp = expert_register_protocol(proto_kdp);
+  expert_register_field_array(expert_kdp, ei, array_length(ei));
 
   kdp_handle = register_dissector("kdp", dissect_kdp, proto_kdp);
 }
