@@ -1512,6 +1512,31 @@ static const value_string aigp_tlv_type[] = {
     { 0, NULL }
 };
 
+/* BFD Discriminator (RFC 9026) */
+#define BGP_BFD_MODE_RESERVED_0         0
+#define BGP_BFD_MODE_P2MP               1
+#define BGP_BFD_MODE_UNICAST            2
+#define BGP_BFD_MODE_RESERVED_255       255
+
+static const value_string bgp_bfd_mode_vals[] = {
+    { BGP_BFD_MODE_RESERVED_0,    "Reserved" },
+    { BGP_BFD_MODE_P2MP,          "P2MP BFD Session" },
+    { BGP_BFD_MODE_UNICAST,       "Unicast BFD Session" },
+    { BGP_BFD_MODE_RESERVED_255,  "Reserved" },
+    { 0, NULL }
+};
+
+#define BGP_BFD_DISCRIMINATOR_TLV_RESERVED_0    0
+#define BGP_BFD_DISCRIMINATOR_TLV_SOURCE_IP     1
+#define BGP_BFD_DISCRIMINATOR_TLV_RESERVED_255  255
+
+static const value_string bgp_bfd_discriminator_tlv_type_vals[] = {
+    { BGP_BFD_DISCRIMINATOR_TLV_RESERVED_0,   "Reserved" },
+    { BGP_BFD_DISCRIMINATOR_TLV_SOURCE_IP,    "Source IP Address" },
+    { BGP_BFD_DISCRIMINATOR_TLV_RESERVED_255, "Reserved" },
+    { 0, NULL }
+};
+
 static const value_string pmsi_mldp_fec_opaque_value_type[] = {
     { PMSI_MLDP_FEC_TYPE_RSVD,                      "Reserved" },
     { PMSI_MLDP_FEC_TYPE_GEN_LSP,                   "Generic LSP Identifier" },
@@ -2603,6 +2628,14 @@ static int hf_bgp_d_path_ga;
 static int hf_bgp_d_path_la;
 static int hf_bgp_d_path_length;
 static int hf_bgp_d_path_isf_safi;
+static int hf_bgp_update_path_attribute_bfd_mode;
+static int hf_bgp_update_path_attribute_bfd_discriminator;
+static int hf_bgp_bfd_discriminator_tlv;
+static int hf_bgp_bfd_discriminator_tlv_type;
+static int hf_bgp_bfd_discriminator_tlv_length;
+static int hf_bgp_bfd_discriminator_tlv_source_ipv4;
+static int hf_bgp_bfd_discriminator_tlv_source_ipv6;
+static int hf_bgp_bfd_discriminator_tlv_value;
 static int hf_bgp_evpn_nlri;
 static int hf_bgp_evpn_nlri_rt;
 static int hf_bgp_evpn_nlri_len;
@@ -3503,6 +3536,7 @@ static int ett_bgp_pmsi_tunnel_id;
 static int ett_bgp_aigp_attr;
 static int ett_bgp_large_communities;
 static int ett_bgp_dpath;
+static int ett_bgp_bfd_discriminator_tlv;
 static int ett_bgp_prefix_sid_originator_srgb;
 static int ett_bgp_prefix_sid_originator_srgb_block;
 static int ett_bgp_prefix_sid_originator_srgb_blocks;
@@ -12046,6 +12080,75 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                 proto_tree_add_item(subtree2, hf_bgp_d_path_isf_safi, tvb,
                                     q, 1, ENC_BIG_ENDIAN);
                 break;
+            case BGPTYPE_BFD_DISCRIMINATOR: {
+                if (tlen < 5) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                                                 "BFD Discriminator attribute has invalid length: %u byte%s (must be at least 5)",
+                                                 tlen, plurality(tlen, "", "s"));
+                    break;
+                }
+                q = o + i + aoff;
+                end = q + tlen;
+
+                proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_bfd_mode, tvb, q, 1, ENC_BIG_ENDIAN);
+                uint8_t bfd_mode = tvb_get_uint8(tvb, q);
+                q += 1;
+
+                proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_bfd_discriminator, tvb, q, 4, ENC_BIG_ENDIAN);
+                uint32_t bfd_disc = tvb_get_ntohl(tvb, q);
+                proto_item_append_text(ti_pa, ": Mode %u, Discriminator 0x%08x", bfd_mode, bfd_disc);
+                q += 4;
+
+                while (q < end) {
+                    if (end - q < 2) {
+                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, q, end - q,
+                                                     "Truncated BFD Discriminator optional TLV header");
+                        break;
+                    }
+                    uint8_t tlv_type = tvb_get_uint8(tvb, q);
+                    uint8_t tlv_len  = tvb_get_uint8(tvb, q + 1);
+
+                    if (q + 2 + tlv_len > end) {
+                        proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, q, end - q,
+                                                     "BFD Discriminator optional TLV length %u exceeds attribute length", tlv_len);
+                        break;
+                    }
+
+                    ti = proto_tree_add_none_format(subtree2, hf_bgp_bfd_discriminator_tlv, tvb, q, 2 + tlv_len,
+                                                    "TLV: %s (Length: %u)",
+                                                    val_to_str_const(tlv_type, bgp_bfd_discriminator_tlv_type_vals, "Unknown"),
+                                                    tlv_len);
+                    subtree3 = proto_item_add_subtree(ti, ett_bgp_bfd_discriminator_tlv);
+                    proto_tree_add_item(subtree3, hf_bgp_bfd_discriminator_tlv_type, tvb, q, 1, ENC_BIG_ENDIAN);
+                    q += 1;
+                    proto_tree_add_item(subtree3, hf_bgp_bfd_discriminator_tlv_length, tvb, q, 1, ENC_BIG_ENDIAN);
+                    q += 1;
+
+                    switch (tlv_type) {
+                    case BGP_BFD_DISCRIMINATOR_TLV_SOURCE_IP:
+                        if (tlv_len == 4) {
+                            proto_tree_add_item(subtree3, hf_bgp_bfd_discriminator_tlv_source_ipv4, tvb, q, 4, ENC_BIG_ENDIAN);
+                            proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb, q));
+                        } else if (tlv_len == 16) {
+                            proto_tree_add_item(subtree3, hf_bgp_bfd_discriminator_tlv_source_ipv6, tvb, q, 16, ENC_NA);
+                            proto_item_append_text(ti, ": %s", tvb_ip6_to_str(pinfo->pool, tvb, q));
+                        } else {
+                            proto_tree_add_expert_format(subtree3, pinfo, &ei_bgp_length_invalid, tvb, q, tlv_len,
+                                                         "Invalid Source IP Address length: %u (expected 4 or 16)", tlv_len);
+                            if (tlv_len > 0) {
+                                proto_tree_add_item(subtree3, hf_bgp_bfd_discriminator_tlv_value, tvb, q, tlv_len, ENC_NA);
+                            }
+                        }
+                        break;
+                    default:
+                        if (tlv_len > 0) {
+                            proto_tree_add_item(subtree3, hf_bgp_bfd_discriminator_tlv_value, tvb, q, tlv_len, ENC_NA);
+                        }
+                        break;
+                    }
+                    q += tlv_len;
+                }
+            } break;
             default:
                 proto_tree_add_item(subtree2, hf_bgp_update_path_attributes_unknown, tvb, o + i + aoff, tlen, ENC_NA);
                 break;
@@ -13212,6 +13315,32 @@ proto_register_bgp(void)
       { &hf_bgp_d_path_isf_safi,
         { "Inter-Subnet Forwarding SAFI type", "bgp.update.attribute.dpath.isf.safi", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
+
+        /* BFD Discriminator Attribute, RFC9026 */
+      { &hf_bgp_update_path_attribute_bfd_mode,
+        { "BFD Mode", "bgp.update.path_attribute.bfd_mode", FT_UINT8, BASE_DEC,
+          VALS(bgp_bfd_mode_vals), 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_bfd_discriminator,
+        { "BFD Discriminator", "bgp.update.path_attribute.bfd_discriminator", FT_UINT32, BASE_HEX_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_bfd_discriminator_tlv,
+        { "BFD Discriminator TLV", "bgp.bfd_discriminator.tlv", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_bfd_discriminator_tlv_type,
+        { "Type", "bgp.bfd_discriminator.tlv.type", FT_UINT8, BASE_DEC,
+          VALS(bgp_bfd_discriminator_tlv_type_vals), 0x0, "TLV Type", HFILL}},
+      { &hf_bgp_bfd_discriminator_tlv_length,
+        { "Length", "bgp.bfd_discriminator.tlv.length", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "TLV Length", HFILL}},
+      { &hf_bgp_bfd_discriminator_tlv_source_ipv4,
+        { "Source IPv4 Address", "bgp.bfd_discriminator.tlv.source_ipv4", FT_IPv4, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_bfd_discriminator_tlv_source_ipv6,
+        { "Source IPv6 Address", "bgp.bfd_discriminator.tlv.source_ipv6", FT_IPv6, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_bfd_discriminator_tlv_value,
+        { "Value", "bgp.bfd_discriminator.tlv.value", FT_BYTES, BASE_NONE,
+          NULL, 0x0, "TLV Value", HFILL}},
 
         /* RFC7311 */
       { &hf_bgp_update_path_attribute_aigp,
@@ -15430,6 +15559,7 @@ proto_register_bgp(void)
       &ett_bgp_aigp_attr,
       &ett_bgp_large_communities,
       &ett_bgp_dpath,
+      &ett_bgp_bfd_discriminator_tlv,
       &ett_bgp_prefix_sid_label_index,
       &ett_bgp_prefix_sid_ipv6,
       &ett_bgp_prefix_sid_originator_srgb,
