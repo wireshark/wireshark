@@ -2005,11 +2005,19 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 /* XXX - free anything? */
                 return false;
             }
-            // XXX - It's two concatenated 32 bit unsigned integers
-            pcapng_process_uint64_option(wblock, section_info,
-                                         OPT_SECTION_BYTE_ORDER,
-                                         option_code, option_length,
-                                         option_content);
+            /*
+             * This is two concatenated 32-bit unsigned integers, the
+             * process ID followed by the thread ID, each in the byte
+             * order of the section.  Process it the same way as the
+             * two 32-bit halves of a timestamp, so that the process ID
+             * ends up in the upper 32 bits of the 64-bit option value
+             * and the thread ID in the lower 32 bits, regardless of
+             * the byte order of the section or of the host.
+             */
+            pcapng_process_timestamp_option(wblock, section_info,
+                                            OPT_SECTION_BYTE_ORDER,
+                                            option_code, option_length,
+                                            option_content);
             break;
         default:
             if (!pcapng_process_unhandled_option(wblock, section_info,
@@ -5026,7 +5034,13 @@ static bool write_wtap_epb_option(wtap_dumper *wdh, wtap_block_t block _U_,
             return false;
         break;
     case OPT_PKT_PROCIDTHRDID:
-        if (!pcapng_write_uint64_option(wdh, OPT_PKT_PROCIDTHRDID, optval, err))
+        /*
+         * Two 32-bit unsigned integers, the process ID (the upper 32
+         * bits of the option value) followed by the thread ID (the
+         * lower 32 bits); write them the same way as the two halves
+         * of a timestamp.
+         */
+        if (!pcapng_write_timestamp_option(wdh, OPT_PKT_PROCIDTHRDID, optval, err))
             return false;
         break;
     default: {

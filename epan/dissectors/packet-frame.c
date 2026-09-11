@@ -70,6 +70,9 @@ static int hf_frame_marked;
 static int hf_frame_ignored;
 static int hf_frame_link_number;
 static int hf_frame_packet_id;
+static int hf_frame_process;
+static int hf_frame_process_pid;
+static int hf_frame_process_tid;
 static int hf_frame_hash;
 static int hf_frame_hash_bytes;
 static int hf_frame_verdict;
@@ -116,6 +119,7 @@ static int ett_flags;
 static int ett_comments;
 static int ett_hash;
 static int ett_verdict;
+static int ett_process;
 
 static expert_field ei_comments_text;
 static expert_field ei_arrive_time_out_of_range;
@@ -564,6 +568,36 @@ add_color_filter_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 	proto_item_set_generated(item);
 }
 
+/*
+ * Add the process and thread IDs from the pcapng epb_processid_threadid
+ * option, if the packet has one.  wiretap stores the option as a 64-bit
+ * value with the process ID in the upper 32 bits and the thread ID in
+ * the lower 32 bits; an ID of 0 means that it is not available.
+ */
+static void
+frame_add_procid_threadid(proto_tree *fh_tree, tvbuff_t *tvb, wtap_block_t pkt_block)
+{
+	uint64_t procid_threadid;
+	uint32_t pid, tid;
+	proto_item *process_item, *item;
+	proto_tree *process_tree;
+
+	if (wtap_block_get_uint64_option_value(pkt_block, OPT_PKT_PROCIDTHRDID, &procid_threadid) != WTAP_OPTTYPE_SUCCESS)
+		return;
+
+	pid = (uint32_t)(procid_threadid >> 32);
+	tid = (uint32_t)procid_threadid;
+	process_item = proto_tree_add_none_format(fh_tree, hf_frame_process, tvb, 0, 0,
+	    "Process information: PID %u, TID %u", pid, tid);
+	process_tree = proto_item_add_subtree(process_item, ett_process);
+	item = proto_tree_add_uint(process_tree, hf_frame_process_pid, tvb, 0, 0, pid);
+	if (pid == 0)
+		proto_item_append_text(item, " (not available)");
+	item = proto_tree_add_uint(process_tree, hf_frame_process_tid, tvb, 0, 0, tid);
+	if (tid == 0)
+		proto_item_append_text(item, " (not available)");
+}
+
 static int
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
@@ -923,6 +957,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				proto_tree_add_uint64(fh_tree, hf_frame_packet_id, tvb, 0, 0, packetid);
 			}
 
+			frame_add_procid_threadid(fh_tree, tvb, fr_data->pkt_block);
+
 			if (wtap_block_count_option(fr_data->pkt_block, OPT_PKT_VERDICT) > 0) {
 				proto_tree *verdict_tree;
 				proto_item *verdict_item;
@@ -934,7 +970,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				fr_user_data.pinfo = pinfo;
 				fr_user_data.tvb = tvb;
 				fr_user_data.n_changes = 0;
-				wtap_block_foreach_option(pinfo->rec->block, frame_add_verdict, (void *)&fr_user_data);
+				wtap_block_foreach_option(fr_data->pkt_block, frame_add_verdict, (void *)&fr_user_data);
 			}
 
 			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->rec->rec_header.packet_header.pkt_encap);
@@ -1641,6 +1677,21 @@ static void common_register_frame(bool use_packets)
 		    FT_UINT64, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
+		{ &hf_frame_process,
+		  { "Process information", "frame.process",
+		    FT_NONE, BASE_NONE, NULL, 0x0,
+		    "Process associated with the packet, from the pcapng epb_processid_threadid option", HFILL }},
+
+		{ &hf_frame_process_pid,
+		  { "Process ID", "frame.process.pid",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Identifier of the process associated with the packet; 0 if not available", HFILL }},
+
+		{ &hf_frame_process_tid,
+		  { "Thread ID", "frame.process.tid",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Identifier of the thread associated with the packet; 0 if not available", HFILL }},
+
 		{ &hf_frame_hash,
 		  { "Hash Algorithm", "frame.hash",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1737,6 +1788,7 @@ static void common_register_frame(bool use_packets)
 		&ett_comments,
 		&ett_hash,
 		&ett_verdict,
+		&ett_process,
 	};
 
 	static ei_register_info ei[] = {

@@ -138,7 +138,10 @@ extern "C" {
 #define OPT_PKT_PACKETID     5
 #define OPT_PKT_QUEUE        6
 #define OPT_PKT_VERDICT      7
-#define OPT_PKT_PROCIDTHRDID 8
+#define OPT_PKT_PROCIDTHRDID 8    /**< 64-bit value holding the process ID in the upper 32 bits
+                                   *     and the thread ID in the lower 32 bits; 0 means that
+                                   *     the ID is not available.
+                                   */
 
 /* Name Resolution Block (NRB) */
 #define OPT_NS_DNSNAME       2
