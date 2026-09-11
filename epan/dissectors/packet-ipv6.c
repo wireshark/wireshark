@@ -416,6 +416,17 @@ static int hf_ipv6_routing_srh_last_entry;
 static int hf_ipv6_routing_srh_flags;
 static int hf_ipv6_routing_srh_tag;
 static int hf_ipv6_routing_srh_addr;
+static int hf_ipv6_routing_srh_tlv;
+static int hf_ipv6_routing_srh_tlv_type;
+static int hf_ipv6_routing_srh_tlv_type_change;
+static int hf_ipv6_routing_srh_tlv_length;
+static int hf_ipv6_routing_srh_tlv_pad1;
+static int hf_ipv6_routing_srh_tlv_padn;
+static int hf_ipv6_routing_srh_tlv_hmac_d;
+static int hf_ipv6_routing_srh_tlv_hmac_reserved;
+static int hf_ipv6_routing_srh_tlv_hmac_key_id;
+static int hf_ipv6_routing_srh_tlv_hmac;
+static int hf_ipv6_routing_srh_tlv_value;
 
 static int hf_ipv6_routing_crh16_current_sid;
 static int hf_ipv6_routing_crh32_current_sid;
@@ -524,6 +535,8 @@ static int ett_ipv6_hopopts_proto;
 static int ett_ipv6_fraghdr_proto;
 static int ett_ipv6_routing_proto;
 static int ett_ipv6_routing_srh_vect;
+static int ett_ipv6_routing_srh_tlv;
+static int ett_ipv6_routing_srh_tlv_type;
 static int ett_ipv6_fragments;
 static int ett_ipv6_fragment;
 static int ett_ipv6_dstopts_proto;
@@ -1038,6 +1051,35 @@ static const value_string routing_header_type[] = {
     { 0, NULL }
 };
 
+#define IP6_SRH_TLV_PAD1        0
+#define IP6_SRH_TLV_PADN        4
+#define IP6_SRH_TLV_HMAC        5
+
+/* Segment Routing Header TLVs (RFC 8754) */
+static const value_string srh_tlv_type_vals[] = {
+    { IP6_SRH_TLV_PAD1, "Pad1" },
+    { 1,                "Reserved" },
+    { 2,                "Reserved" },
+    { 3,                "Reserved" },
+    { IP6_SRH_TLV_PADN, "PadN" },
+    { IP6_SRH_TLV_HMAC, "HMAC" },
+    { 6,                "Reserved" },
+    { 124,              "Experimentation and Testing" },
+    { 125,              "Experimentation and Testing" },
+    { 126,              "Experimentation and Testing" },
+    { 127,              "Reserved" },
+    { 252,              "Experimentation and Testing" },
+    { 253,              "Experimentation and Testing" },
+    { 254,              "Experimentation and Testing" },
+    { 255,              "Reserved" },
+    { 0, NULL }
+};
+
+static const true_false_string tfs_srh_tlv_change = {
+    "May change en route",
+    "Does not change en route"
+};
+
 static const value_string mpl_seed_id_len_vals[] = {
     { 0, "0" },
     { 1, "16-bit unsigned integer" },
@@ -1511,7 +1553,87 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 addr_offset, IPv6_ADDR_SIZE, tvb_get_ptr_ipv6(tvb, addr_offset), i);
     }
 
-    /* TODO: dissect TLVs */
+    offset += addr_count * IPv6_ADDR_SIZE;
+
+    /* Optional TLVs (RFC 8754 Section 2.1) */
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        uint8_t tlv_type = tvb_get_uint8(tvb, offset);
+
+        if (tlv_type == IP6_SRH_TLV_PAD1) {
+            proto_item *ti_tlv = proto_tree_add_none_format(tree, hf_ipv6_routing_srh_tlv, tvb, offset, 1, "Pad1");
+            proto_tree *tlv_tree = proto_item_add_subtree(ti_tlv, ett_ipv6_routing_srh_tlv);
+            proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_pad1, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            continue;
+        }
+
+        if (tvb_reported_length_remaining(tvb, offset) < 2) {
+            proto_item *ti_err = proto_tree_add_none_format(tree, hf_ipv6_routing_srh_tlv, tvb, offset, -1, "Truncated SRH TLV header");
+            expert_add_info_format(pinfo, ti_err, &ei_ipv6_routing_invalid_length, "Truncated SRH TLV header");
+            break;
+        }
+
+        uint8_t tlv_len = tvb_get_uint8(tvb, offset + 1);
+        int rem_len = tvb_reported_length_remaining(tvb, offset + 2);
+        if (rem_len < (int)tlv_len) {
+            proto_item *ti_err = proto_tree_add_none_format(tree, hf_ipv6_routing_srh_tlv, tvb, offset, -1,
+                                                            "SRH TLV length %u exceeds remaining header size (%d)",
+                                                            tlv_len, rem_len > 0 ? rem_len : 0);
+            expert_add_info_format(pinfo, ti_err, &ei_ipv6_routing_invalid_length,
+                                   "SRH TLV length %u exceeds remaining header size (%d)",
+                                   tlv_len, rem_len > 0 ? rem_len : 0);
+            break;
+        }
+
+        unsigned total_tlv_len = 2 + (unsigned)tlv_len;
+        proto_item *ti_tlv = proto_tree_add_none_format(tree, hf_ipv6_routing_srh_tlv, tvb, offset, total_tlv_len,
+                                                        "%s (Length: %u)",
+                                                        val_to_str_const(tlv_type, srh_tlv_type_vals, "Unknown"),
+                                                        tlv_len);
+        proto_tree *tlv_tree = proto_item_add_subtree(ti_tlv, ett_ipv6_routing_srh_tlv);
+
+        proto_item *ti_type = proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree *type_tree = proto_item_add_subtree(ti_type, ett_ipv6_routing_srh_tlv_type);
+        proto_tree_add_item(type_tree, hf_ipv6_routing_srh_tlv_type_change, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        switch (tlv_type) {
+        case IP6_SRH_TLV_PADN:
+            if (tlv_len > 0) {
+                proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_padn, tvb, offset, tlv_len, ENC_NA);
+            }
+            break;
+
+        case IP6_SRH_TLV_HMAC:
+            if (tlv_len < 6) {
+                expert_add_info_format(pinfo, ti_tlv, &ei_ipv6_routing_invalid_length,
+                                       "HMAC TLV length must be at least 6 octets (got %u)", tlv_len);
+                if (tlv_len > 0) {
+                    proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_value, tvb, offset, tlv_len, ENC_NA);
+                }
+            } else {
+                proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_hmac_d, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_hmac_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_hmac_key_id, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
+                if (tlv_len > 6) {
+                    proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_hmac, tvb, offset + 6, tlv_len - 6, ENC_NA);
+                }
+            }
+            break;
+
+        default:
+            if (tlv_len > 0) {
+                proto_tree_add_item(tlv_tree, hf_ipv6_routing_srh_tlv_value, tvb, offset, tlv_len, ENC_NA);
+            }
+            break;
+        }
+
+        offset += tlv_len;
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -5366,6 +5488,61 @@ proto_register_ipv6(void)
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "Segment address", HFILL }
         },
+        { &hf_ipv6_routing_srh_tlv,
+            { "SRH TLV", "ipv6.routing.srh.tlv",
+                FT_NONE, BASE_NONE, NULL, 0x0,
+                "Segment Routing Header Optional TLV", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_type,
+            { "Type", "ipv6.routing.srh.tlv.type",
+                FT_UINT8, BASE_DEC, VALS(srh_tlv_type_vals), 0x0,
+                "TLV Type", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_type_change,
+            { "Can change en route", "ipv6.routing.srh.tlv.type.change",
+                FT_BOOLEAN, 8, TFS(&tfs_srh_tlv_change), 0x80,
+                "Whether TLV data may change en route", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_length,
+            { "Length", "ipv6.routing.srh.tlv.length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "TLV Length (excluding Type and Length fields)", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_pad1,
+            { "Pad1", "ipv6.routing.srh.tlv.pad1",
+                FT_NONE, BASE_NONE, NULL, 0x0,
+                "Pad1 TLV (1 byte padding)", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_padn,
+            { "PadN", "ipv6.routing.srh.tlv.padn",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "PadN padding data", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_hmac_d,
+            { "D", "ipv6.routing.srh.tlv.hmac.d",
+                FT_BOOLEAN, 16, TFS(&tfs_disabled_enabled), 0x8000,
+                "Destination Address verification disabled", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_hmac_reserved,
+            { "Reserved", "ipv6.routing.srh.tlv.hmac.reserved",
+                FT_UINT16, BASE_HEX, NULL, 0x7FFF,
+                "Reserved (must be zero)", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_hmac_key_id,
+            { "HMAC Key ID", "ipv6.routing.srh.tlv.hmac.key_id",
+                FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
+                "Identifies the pre-shared key and algorithm", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_hmac,
+            { "HMAC", "ipv6.routing.srh.tlv.hmac",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "Hashed Message Authentication Code", HFILL }
+        },
+        { &hf_ipv6_routing_srh_tlv_value,
+            { "Value", "ipv6.routing.srh.tlv.value",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "TLV Value data", HFILL }
+        },
 
         /* Compact Routing Header */
         { &hf_ipv6_routing_crh16_current_sid,
@@ -5448,7 +5625,9 @@ proto_register_ipv6(void)
 
     static int *ett_ipv6_routing[] = {
         &ett_ipv6_routing_proto,
-        &ett_ipv6_routing_srh_vect
+        &ett_ipv6_routing_srh_vect,
+        &ett_ipv6_routing_srh_tlv,
+        &ett_ipv6_routing_srh_tlv_type
     };
 
     static int *ett_ipv6_fraghdr[] = {
