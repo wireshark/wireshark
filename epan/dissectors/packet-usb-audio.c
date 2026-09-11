@@ -1632,8 +1632,7 @@ dissect_ac_if_clock_selector(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_clksel_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ac_if_clksel_nrpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    nrinpins = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ac_if_clksel_nrpins, tvb, offset, 1, ENC_LITTLE_ENDIAN, &nrinpins);
     offset += 1;
 
     while (nrinpins) {
@@ -1707,8 +1706,7 @@ dissect_ac_if_extension_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_extunit_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_ac_if_extunit_nrpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    nrinpins = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_ac_if_extunit_nrpins, tvb, offset, 1, ENC_LITTLE_ENDIAN, &nrinpins);
     offset += 1;
 
     while (nrinpins) {
@@ -1872,8 +1870,7 @@ dissect_as_if_general_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         offset++;
         proto_tree_add_bitmask(tree, tvb, offset, hf_as_if_gen_controls, ett_as_if_gen_controls, v2_controls, ENC_LITTLE_ENDIAN);
         offset++;
-        proto_tree_add_item(tree, hf_as_if_gen_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        format_type = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(tree, hf_as_if_gen_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN, &format_type);
         offset++;
         switch(format_type)
         {
@@ -1924,8 +1921,7 @@ dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, int offset, packet_info *pinf
 
     offset_start = offset;
 
-    proto_tree_add_item(tree, hf_as_if_ft_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    format_type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_as_if_ft_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN, &format_type);
     offset++;
 
 
@@ -2036,8 +2032,7 @@ dissect_as_if_format_type_ver2_body(tvbuff_t *tvb, int offset, packet_info *pinf
 
     offset_start = offset;
 
-    proto_tree_add_item(tree, hf_as_if_ft_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    format_type = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_as_if_ft_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN, &format_type);
     offset++;
 
     if (format_type==1) {

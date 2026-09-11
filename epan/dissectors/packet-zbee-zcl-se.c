@@ -6918,8 +6918,7 @@ dissect_zcl_met_get_notified_msg(tvbuff_t *tvb, proto_tree *tree, unsigned *offs
     *offset += 1;
 
     /* Notification Flag attribute ID */
-    noti_flags_number = tvb_get_uint16(tvb, *offset, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_flag_attribute_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_zbee_zcl_met_get_notified_msg_notification_flag_attribute_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN, &noti_flags_number);
     *offset += 2;
 
     dissect_zcl_met_notification_flags(tvb, tree, offset, noti_flags_number);
@@ -11430,8 +11429,7 @@ dissect_zcl_calendar_publish_day_profile(tvbuff_t *tvb, proto_tree *tree, unsign
     *offset += 1;
 
     /* Total Number of Schedule Entries */
-    schedule_entries_count = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_calendar_total_number_of_schedule_entries, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_calendar_total_number_of_schedule_entries, tvb, *offset, 1, ENC_NA, &schedule_entries_count);
     *offset += 1;
 
     /* Command Index */
@@ -11606,8 +11604,7 @@ dissect_zcl_calendar_publish_special_days(tvbuff_t *tvb, proto_tree *tree, unsig
     *offset += 1;
 
     /* Total Number of Special Days */
-    total_special_days_count = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_calendar_total_number_of_special_days, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_calendar_total_number_of_special_days, tvb, *offset, 1, ENC_NA, &total_special_days_count);
     *offset += 1;
 
     /* Command Index */
@@ -12142,8 +12139,7 @@ dissect_zcl_daily_schedule_publish_day_profile(tvbuff_t *tvb, proto_tree *tree, 
     *offset += 4;
 
     /* Total Number of Schedule Entries */
-    schedule_entries_count = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_total_number_of_schedule_entries, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_daily_schedule_total_number_of_schedule_entries, tvb, *offset, 1, ENC_NA, &schedule_entries_count);
     *offset += 1;
 
     /* Command Index */
@@ -12155,8 +12151,7 @@ dissect_zcl_daily_schedule_publish_day_profile(tvbuff_t *tvb, proto_tree *tree, 
     *offset += 1;
 
     /* Calendar Type */
-    calendar_type = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_daily_schedule_type, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_daily_schedule_type, tvb, *offset, 1, ENC_NA, &calendar_type);
     *offset += 1;
 
     for (int i = 0; tvb_reported_length_remaining(tvb, *offset) >= 4 && i < schedule_entries_count; i++) {
@@ -13317,8 +13312,7 @@ dissect_zcl_device_management_set_event_configuration(proto_tree *tree, tvbuff_t
     *offset += 1;
 
     /* Configuration Control */
-    config_control = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_configuration_control, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_device_management_set_event_configuration_configuration_control, tvb, *offset, 1, ENC_NA, &config_control);
     *offset += 1;
 
     /* Event Configuration Payload */
@@ -14461,8 +14455,7 @@ dissect_zcl_mdu_pairing_response(tvbuff_t *tvb, proto_tree *tree, unsigned *offs
     *offset += 4;
 
     /* Total Number of Devices */
-    devices_num = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_mdu_pairing_total_devices_number, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_mdu_pairing_total_devices_number, tvb, *offset, 1, ENC_NA, &devices_num);
     *offset += 1;
 
     /* Command index */

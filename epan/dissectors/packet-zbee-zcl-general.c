@@ -16307,8 +16307,7 @@ dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, proto_tree *tree, unsigned *o
     *offset += 2;
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_nwk_addr, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    subdev = tvb_get_uint8(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_touchlink_sub_devices, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_touchlink_sub_devices, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &subdev);
     *offset += 1;
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_total_groups, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;

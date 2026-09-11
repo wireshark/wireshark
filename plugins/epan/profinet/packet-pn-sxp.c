@@ -475,13 +475,11 @@ dissect_sxp_header_req(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     {
         uint8_t r;
         proto_item *ri;
-        r = tvb_get_uint8(tvb, offset);
-        ri = proto_tree_add_item(header_req_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ri = proto_tree_add_item_ret_uint8(header_req_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &r);
         if (r != 0)
             expert_add_info_format(pinfo, ri, &ei_pn_sxp_malformed, "Service reserved field non-zero: 0x%02x", r);
         offset++;
-        r = tvb_get_uint8(tvb, offset);
-        ri = proto_tree_add_item(header_req_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ri = proto_tree_add_item_ret_uint8(header_req_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &r);
         if (r != 0)
             expert_add_info_format(pinfo, ri, &ei_pn_sxp_malformed, "Service reserved field non-zero: 0x%02x", r);
         offset++;
@@ -512,13 +510,11 @@ dissect_sxp_header_rsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
     {
         uint8_t r;
         proto_item *ri;
-        r = tvb_get_uint8(tvb, offset);
-        ri = proto_tree_add_item(header_rsp_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ri = proto_tree_add_item_ret_uint8(header_rsp_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &r);
         if (r != 0)
             expert_add_info_format(pinfo, ri, &ei_pn_sxp_malformed, "Service reserved field non-zero: 0x%02x", r);
         offset++;
-        r = tvb_get_uint8(tvb, offset);
-        ri = proto_tree_add_item(header_rsp_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ri = proto_tree_add_item_ret_uint8(header_rsp_tree, hf_pn_sxp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &r);
         if (r != 0)
             expert_add_info_format(pinfo, ri, &ei_pn_sxp_malformed, "Service reserved field non-zero: 0x%02x", r);
         offset++;

@@ -1335,8 +1335,7 @@ dissect_zbee_nwk_gp_cmd_application_desc(tvbuff_t *tvb, packet_info *pinfo _U_, 
     offset++;
 
     /* Number of reports */
-    num_reports = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_nwk_gp_cmd_app_desc_num_report, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_nwk_gp_cmd_app_desc_num_report, tvb, offset, 1, ENC_LITTLE_ENDIAN, &num_reports);
     offset++;
 
     /* Dissect the report descriptors */

@@ -140,9 +140,8 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			break;
 
 		case ERROR_MSG:
-			error_type = tvb_get_uint8(tvb, offset);
-			proto_tree_add_uint(x29_tree, hf_error_type, tvb,
-			    offset, 1, error_type);
+			proto_tree_add_item_ret_uint8(x29_tree, hf_error_type, tvb,
+				offset, 1, ENC_BIG_ENDIAN, &error_type);
 			offset++;
 			if (error_type != 0) {
 				proto_tree_add_item(x29_tree, hf_inv_msg_code,
@@ -152,8 +151,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 		case BREAK_IND_MSG:
 			if (tvb_reported_length_remaining(tvb, offset) > 0) {
-				type_ref = tvb_get_uint8(tvb, offset);
-				proto_tree_add_item(x29_tree, hf_x29_type_reference, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint8(x29_tree, hf_x29_type_reference, tvb, offset, 1, ENC_BIG_ENDIAN, &type_ref);
 				offset++;
 				switch (type_ref) {
 

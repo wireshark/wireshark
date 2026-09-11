@@ -282,7 +282,7 @@ static const value_string payload_transport_rate_payload_abbrev_vals[] = {
 #define PAYLOAD_EDR_2  0x01
 #define PAYLOAD_EDR_3  0x02
 
-#define PACKET_TYPE_UNKNOWN  -1
+#define PACKET_TYPE_UNKNOWN  0xffffffff
 
 static const value_string packet_type_any_vals[] = {
     { 0x00, "NULL" },
@@ -664,7 +664,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     uint8_t               uap = 0;
     uint32_t              ltaddr = 0;
     uint8_t               payload_and_transport;
-    int16_t               packet_type = PACKET_TYPE_UNKNOWN;
+    uint32_t              packet_type = PACKET_TYPE_UNKNOWN;
     const char           *packet_type_str = "Unknown";
     dissector_table_t     packet_type_table = NULL;
     bool                  decrypted;
@@ -820,57 +820,40 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         header_tree = proto_item_add_subtree(header_item, ett_bluetooth_header);
 
         proto_tree_add_item(header_tree, hf_packet_header_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(header_tree, hf_packet_header_broken_lt_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        ltaddr = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 15) & 7;
+        proto_tree_add_item_ret_uint(header_tree, hf_packet_header_broken_lt_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ltaddr);
         arqn = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 9) & 1;
         seqn = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 8) & 1;
 
         if (payload_and_transport == (TRANSPORT_SCO | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_sco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_broken_type_sco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_sco_br_vals, "Unknown");
             packet_type_table = packet_type_sco_br_table;
         } else if (payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_esco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_broken_type_esco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_esco_br_vals, "Unknown");
             packet_type_table = packet_type_esco_br_table;
         } else if (payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_EDR_3)) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_esco_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_broken_type_esco_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_esco_edr_vals, "Unknown");
             packet_type_table = packet_type_esco_edr_table;
         } else if (payload_and_transport == (TRANSPORT_ACL | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_acl_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_broken_type_acl_br, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_br_vals, "Unknown");
             packet_type_table = packet_type_acl_br_table;
         } else if (payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_acl_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_broken_type_acl_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_edr_vals, "Unknown");
             packet_type_table = packet_type_acl_edr_table;
         } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_cpb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_broken_type_cpb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_br_vals, "Unknown");
             packet_type_table = packet_type_cpb_br_table;
         } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_broken_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_edr_vals, "Unknown");
             packet_type_table = packet_type_cpb_edr_table;
         } else if ((payload_and_transport >> 4) == TRANSPORT_ANY) {
-            proto_tree_add_item(header_tree, hf_packet_header_broken_type_any, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_broken_type_any, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_any_vals, "Unknown");
         } else {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -885,57 +868,40 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         header_item = proto_tree_add_item(btbredr_rf_tree, hf_packet_header, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         header_tree = proto_item_add_subtree(header_item, ett_bluetooth_header);
 
-        proto_tree_add_item(header_tree, hf_packet_header_lt_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        ltaddr = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) & 7;
+        proto_tree_add_item_ret_uint(header_tree, hf_packet_header_lt_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ltaddr);
         arqn = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 8) & 1;
         seqn = (tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN) >> 9) & 1;
 
         if (payload_and_transport == (TRANSPORT_SCO | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_sco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_type_sco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_sco_br_vals, "Unknown");
             packet_type_table = packet_type_sco_br_table;
         } else if (payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_esco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_type_esco_br, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_esco_br_vals, "Unknown");
             packet_type_table = packet_type_esco_br_table;
         } else if (payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_eSCO | PAYLOAD_EDR_3)) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_esco_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_type_esco_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_esco_edr_vals, "Unknown");
             packet_type_table = packet_type_esco_edr_table;
         } else if (payload_and_transport == (TRANSPORT_ACL | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_acl_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_type_acl_br, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_br_vals, "Unknown");
             packet_type_table = packet_type_acl_br_table;
         } else if (payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_acl_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_type_acl_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_acl_edr_vals, "Unknown");
             packet_type_table = packet_type_acl_edr_table;
         } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_BR)) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_cpb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_type_cpb_br, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_br_vals, "Unknown");
             packet_type_table = packet_type_cpb_br_table;
         } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_edr_vals, "Unknown");
             packet_type_table = packet_type_cpb_edr_table;
         } else if ((payload_and_transport >> 4) == TRANSPORT_ANY) {
-            proto_tree_add_item(header_tree, hf_packet_header_type_any, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
-            packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
+            proto_tree_add_item_ret_uint(header_tree, hf_packet_header_type_any, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_type);
             packet_type_str = val_to_str_const(packet_type, packet_type_any_vals, "Unknown");
         } else {
             proto_tree_add_item(header_tree, hf_packet_header_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1524,7 +1490,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                tvbuff_t       *next_tvb;
 
                next_tvb = tvb_new_subset_remaining(tvb, offset);
-               if (packet_type_table && packet_type > PACKET_TYPE_UNKNOWN &&
+               if (packet_type_table && packet_type != PACKET_TYPE_UNKNOWN &&
                    dissector_try_uint_with_data(packet_type_table, packet_type, next_tvb, pinfo, tree, true, bluetooth_data)) {
                    offset = tvb_reported_length(tvb);
                } else {
@@ -2018,6 +1984,7 @@ proto_register_btbredr_rf(void)
             FT_INT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
+        /* TODO: should have a 24-bit mask? */
         {  &hf_lower_address_part,
             { "Lower Address Part",                             "btbredr_rf.lower_address_part",
             FT_UINT32, BASE_HEX, NULL, 0x00,
