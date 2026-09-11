@@ -62,6 +62,18 @@ extern "C" {
 #define BLOCK_TYPE_CB_NO_COPY             0x40000BAD /* Custom Block which should not be copied */
 #define BLOCK_TYPE_LEGACY_DPIB            0x80000001 /* Historically, Apple used this code for Darwin Process Info Block. */
 
+/*
+ * The Wireshark Foundation's Private Enterprise Number, used for Custom
+ * Blocks and Custom Options defined by Wireshark, and the Block Entry
+ * Types of Wireshark Custom Blocks; see
+ * https://wiki.wireshark.org/Development/PcapngCustom for the format.
+ * Entry type numbers must never be reused for something else.  Entry
+ * types 1 (File Preferences) and 2 (Decryption Key) are reserved by
+ * that page but not implemented.
+ */
+#define PEN_WIRESHARK                          32622
+#define WIRESHARK_CB_ENTRY_PROCESS_INFORMATION 3          /* Process Information Block body */
+
 /* TODO: the following are not yet well defined in the draft spec,
  * and do not yet have block type values assigned to them:
  * Alternative Packet Blocks
@@ -364,6 +376,15 @@ bool pcapng_write_options(wtap_dumper *wdh, pcapng_opt_byte_order_e byte_order,
 
 /*
  * Handler routines for pcapng custom blocks with an enterprise number.
+ *
+ * The parser is called after the block header and the PEN have been
+ * read, with wblock->block a WTAP_BLOCK_CUSTOM block and wblock->rec
+ * set up as a custom block record whose length is the length of the
+ * rest of the block; it reads that data.  If the block is to be
+ * processed internally, e.g. added to a per-file table, rather than
+ * returned as a record, the parser sets wblock->internal and leaves
+ * the block to be processed in wblock->block; the processor for the
+ * custom block type is then called with it.
  */
 typedef bool (*custom_option_parser)(FILE_T fh, section_info_t* section_info,
     wtapng_block_t* wblock,
@@ -377,8 +398,8 @@ typedef bool (*custom_option_processor)(wtapng_block_t* wblock,
  */
 typedef struct pcapng_custom_block_enterprise_handler_t {
     custom_option_parser    parser;     /**< Callback invoked to parse raw custom block data into an internal representation. */
-    custom_option_processor processor;  /**< Callback invoked to process and validate a parsed custom block. */
-    block_writer            writer;     /**< Callback invoked to serialize and write the custom block back to a file. */
+    custom_option_processor processor;  /**< Callback invoked to process a custom binary option with this PEN, or NULL to store it as is. */
+    block_writer            writer;     /**< Callback invoked to write a custom block record with this PEN, or NULL to write its data as is. */
 } pcapng_custom_block_enterprise_handler_t;
 
 /*

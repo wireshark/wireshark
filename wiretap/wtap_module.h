@@ -68,8 +68,7 @@ struct wtap {
     GArray                      *nrbs;                  /**< Holds the Name Res Blocks, or NULL */
     GArray                      *dsbs;                  /**< An array of DSBs (of type wtap_block_t), or NULL if not supported. */
     GArray                      *meta_events;           /**< An array of meta events (of type wtap_block_t), or NULL if not supported. */
-    GArray                      *dpibs;                 /**< An array of DPIBs (of type wtap_block_t), or NULL if not supported. */
-    unsigned                    next_dpib_id;           /**< Next DPIB id  */
+    GArray                      *pibs;                  /**< An array of process information blocks (of type wtap_block_t), or NULL if not supported. */
     char                        *pathname;              /**< File pathname; might just be "-" */
     const char                  *app_env_var_prefix;    /**< Application specific environment variable prefix, used to determine certain behavior */
 
@@ -196,11 +195,11 @@ struct wtap_dumper {
     const GArray            *nrbs_growing;          /**< A reference to an array of NRBs (of type wtap_block_t) */
     const GArray            *dsbs_growing;          /**< A reference to an array of DSBs (of type wtap_block_t) */
     const GArray            *mevs_growing;          /**< A reference to an array of Sysdig meta events (of type wtap_block_t) */
-    const GArray            *dpibs_growing;          /**< A reference to an array of DPIBs (of type wtap_block_t) */
+    const GArray            *pibs_growing;           /**< A reference to an array of process information blocks (of type wtap_block_t) */
     unsigned                nrbs_growing_written;   /**< Number of already processed NRBs in nrbs_growing. */
     unsigned                dsbs_growing_written;   /**< Number of already processed DSBs in dsbs_growing. */
     unsigned                mevs_growing_written;   /**< Number of already processed meta events in mevs_growing. */
-    unsigned                dpibs_growing_written;   /**< Number of already processed DPIBs in dsbs_growing. */
+    unsigned                pibs_growing_written;    /**< Number of already processed process information blocks in pibs_growing. */
 };
 
 /**
@@ -366,15 +365,16 @@ void
 wtap_add_idb(wtap *wth, wtap_block_t idb);
 
 /**
- * @brief Add a DPIB to the dpibs list for a file.
+ * @brief Add a process information block to the pibs list for a file.
  *
- * Used during parsing to register a Decryption Parameters Info Block (DPIB).
+ * Used during parsing to register a process information block; the
+ * list takes ownership of the block.
  *
  * @param wth Wiretap handle.
- * @param dpib DPIB block to add.
+ * @param pib Process information block to add.
  */
 void
-wtap_add_dpib(wtap *wth, wtap_block_t dpib);
+wtap_add_pib(wtap *wth, wtap_block_t pib);
 
 /**
  * @brief Invoke the registered callback with a Name Resolution Block (NRB).

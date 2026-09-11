@@ -19,15 +19,17 @@
 #include <stdbool.h>
 
 /**
- * @brief Writes a legacy Darwin process event block to the dump file.
+ * @brief Writes a process information block as a legacy Darwin process info block.
  *
  * @param wdh The wtap_dumper structure for the output file.
- * @param sdata The wtap_block_t containing the data for the block.
+ * @param pib The WTAP_BLOCK_PROCESS_INFORMATION block to write.
  * @param err Pointer to an integer that will be set to an error code if an error occurs.
+ * @param err_info Pointer to a string where error information will be stored on failure.
  * @return true if successful, false otherwise.
  */
 extern bool
-pcapng_write_legacy_darwin_process_event_block(wtap_dumper *wdh, wtap_block_t sdata, int *err);
+pcapng_write_legacy_darwin_process_info_block(wtap_dumper *wdh, wtap_block_t pib,
+                                              int *err, char **err_info);
 
 /**
  * @brief Computes the size of an EPB legacy Darwin option based on its ID and value.

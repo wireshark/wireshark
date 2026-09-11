@@ -41,6 +41,7 @@
 #include "pcapng_module.h"
 #include "secrets-types.h"
 #include "pcapng-darwin-custom.h"
+#include "pcapng-wireshark-custom.h"
 
 #define NS_PER_S 1000000000U
 
@@ -119,12 +120,6 @@ typedef struct pcapng_custom_block_s {
     uint32_t pen;
     /* Custom data and options */
 } pcapng_custom_block_t;
-
-/* pcapng: legacy DPEB (Darwin Process Event Block) file encoding */
-typedef struct pcapng_legacy_darwin_process_event_block_s {
-    uint32_t process_id;
-    /* Options */
-}  pcapng_legacy_darwin_process_event_block_t;
 
 
 /*
@@ -873,7 +868,7 @@ pcapng_process_custom_binary_option(wtapng_block_t *wblock,
 
     pen_handler = (pcapng_custom_block_enterprise_handler_t const *)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(pen));
 
-    if (pen_handler != NULL)
+    if (pen_handler != NULL && pen_handler->processor != NULL)
     {
         ret = pen_handler->processor(wblock, section_info, option_code, option_content + 4, option_length - 4);
     }
@@ -3001,6 +2996,12 @@ pcapng_read_custom_block(wtap *wth _U_, FILE_T fh, uint32_t block_type,
 
     if (pen_handler != NULL)
     {
+        /*
+         * The parser may replace the block with one to be processed
+         * internally, in which case it sets wblock->internal and
+         * there's nothing to return to the caller.
+         */
+        wblock->internal = false;
         if (!pen_handler->parser(fh, section_info, wblock, err, err_info)) {
             if (*err == WTAP_ERR_REC_MALFORMED) {
                 /* Allow the packet to be kept */
@@ -3013,6 +3014,9 @@ pcapng_read_custom_block(wtap *wth _U_, FILE_T fh, uint32_t block_type,
                 return false;
             }
          }
+        if (wblock->internal) {
+            return true;
+        }
     }
     else
     {
@@ -3469,6 +3473,31 @@ pcapng_process_dsb(wtap *wth, section_info_t *section_info _U_,
     return true;
 }
 
+/*
+ * Process a custom block that we have just read and that its enterprise
+ * handler turned into a block to be processed internally.
+ */
+static bool
+pcapng_process_cb(wtap *wth, section_info_t *section_info _U_,
+                  wtapng_block_t *wblock)
+{
+    switch (wtap_block_get_type(wblock->block)) {
+
+    case WTAP_BLOCK_PROCESS_INFORMATION:
+        /* Store it such that it can be looked up and saved by the dumper. */
+        wtap_add_pib(wth, wblock->block);
+        /* Do not free wblock->block, it is consumed above */
+        break;
+
+    default:
+        /* Not a block we keep. */
+        wtap_block_unref(wblock->block);
+        break;
+    }
+
+    return true;
+}
+
 /* Process a ISB that we have just read. */
 static bool
 pcapng_process_isb(wtap *wth, section_info_t *section_info _U_,
@@ -3695,13 +3724,13 @@ pcapng_open(wtap *wth, int *err, char **err_info)
     wth->file_type_subtype = pcapng_file_type_subtype;
 
     /* Always initialize the lists of Decryption Secret Blocks, Name
-     * Resolution Blocks, Sysdig meta event blocks, and Darwin Process Event Blocks,
-     * such that a wtap_dumper can refer to them right after
+     * Resolution Blocks, Sysdig meta event blocks, and process information
+     * blocks, such that a wtap_dumper can refer to them right after
      * opening the capture file. */
     wth->dsbs = g_array_new(false, false, sizeof(wtap_block_t));
     wth->nrbs = g_array_new(false, false, sizeof(wtap_block_t));
     wth->meta_events = g_array_new(false, false, sizeof(wtap_block_t));
-    wth->dpibs = g_array_new(false, false, sizeof(wtap_block_t));
+    wth->pibs = g_array_new(false, false, sizeof(wtap_block_t));
 
     /* Most other capture types (such as pcap) support a single link-layer
      * type, indicated in the header, and don't support WTAP_ENCAP_PER_PACKET.
@@ -5296,7 +5325,7 @@ pcapng_write_custom_block_copy(wtap_dumper *wdh, const wtap_rec *rec,
     }
 
     pen_handler = (pcapng_custom_block_enterprise_handler_t const *)g_hash_table_lookup(custom_enterprise_handlers, GUINT_TO_POINTER(rec->rec_header.custom_block_header.pen));
-    if (pen_handler != NULL)
+    if (pen_handler != NULL && pen_handler->writer != NULL)
     {
         if (!pen_handler->writer(wdh, rec, err, err_info))
             return false;
@@ -6073,7 +6102,8 @@ static bool pcapng_add_idb(wtap_dumper *wdh, wtap_block_t idb,
     return pcapng_write_if_descr_block(wdh, idb, err, err_info);
 }
 
-static bool pcapng_write_internal_blocks(wtap_dumper *wdh, int *err)
+static bool pcapng_write_internal_blocks(wtap_dumper *wdh, int *err,
+                                         char **err_info)
 {
 
     /* Write (optional) Decryption Secrets Blocks that were collected while
@@ -6162,18 +6192,24 @@ static bool pcapng_write_internal_blocks(wtap_dumper *wdh, int *err)
         }
     }
 
-    /* Write (optional) Darwin Process Event Blocks that were collected while
-     * reading packet blocks. */
-     if (wdh->dpibs_growing) {
-        ws_noisy("writing internal blocks: dpibs_growing: written: %u len: %u",
-            wdh->dpibs_growing_written, wdh->dpibs_growing->len);
-        for (unsigned i = wdh->dpibs_growing_written; i < wdh->dpibs_growing->len; i++) {
+    /* Write (optional) process information blocks that were collected
+     * while reading packet blocks, each in the form in which it was read. */
+    if (wdh->pibs_growing) {
+        for (unsigned i = wdh->pibs_growing_written; i < wdh->pibs_growing->len; i++) {
+            ws_debug("writing PIB %u", i);
+            wtap_block_t pib = g_array_index(wdh->pibs_growing, wtap_block_t, i);
+            wtapng_process_info_mandatory_t *pib_mand = (wtapng_process_info_mandatory_t *)wtap_block_get_mandatory_data(pib);
+            bool ok;
 
-            wtap_block_t dpib = g_array_index(wdh->dpibs_growing, wtap_block_t, i);
-            if (!pcapng_write_legacy_darwin_process_event_block(wdh, dpib, err)) {
+            if (pib_mand->block_type == BLOCK_TYPE_LEGACY_DPIB) {
+                ok = pcapng_write_legacy_darwin_process_info_block(wdh, pib, err, err_info);
+            } else {
+                ok = pcapng_write_wireshark_process_info_block(wdh, pib, err, err_info);
+            }
+            if (!ok) {
                 return false;
             }
-            ++wdh->dpibs_growing_written;
+            ++wdh->pibs_growing_written;
         }
     }
 
@@ -6186,7 +6222,7 @@ static bool pcapng_dump(wtap_dumper *wdh, const wtap_rec *rec,
     uint32_t block_type;
     pcapng_block_type_information_t* handler;
 
-    if (!pcapng_write_internal_blocks(wdh, err)) {
+    if (!pcapng_write_internal_blocks(wdh, err, err_info)) {
         return false;
     }
 
@@ -6311,7 +6347,7 @@ static bool pcapng_dump_finish(wtap_dumper *wdh, int *err, char **err_info)
     unsigned i, j;
 
     /* Flush any hostname resolution or decryption secrets info we may have */
-    if (!pcapng_write_internal_blocks(wdh, err)) {
+    if (!pcapng_write_internal_blocks(wdh, err, err_info)) {
         return false;
     }
 
@@ -6568,8 +6604,23 @@ static const struct supported_option_type systemd_journal_export_block_options_s
 /* Options for file-type-specific information. */
 static const struct supported_option_type ftr_specific_information_block_options_supported[] = {
     { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
-    { OPT_DPIB_NAME, ONE_OPTION_SUPPORTED },
-    { OPT_DPIB_UUID, ONE_OPTION_SUPPORTED },
+};
+
+/* Options for process information blocks. */
+static const struct supported_option_type process_information_block_options_supported[] = {
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_PIB_NAME, ONE_OPTION_SUPPORTED },
+    { OPT_PIB_PATH, ONE_OPTION_SUPPORTED },
+    { OPT_PIB_CMDLINE, ONE_OPTION_SUPPORTED },
+    { OPT_PIB_PPID, ONE_OPTION_SUPPORTED },
+    { OPT_PIB_UID, ONE_OPTION_SUPPORTED },
+    { OPT_PIB_USER, ONE_OPTION_SUPPORTED },
+    { OPT_PIB_UUID, ONE_OPTION_SUPPORTED },
+    { OPT_PIB_STARTTIME, ONE_OPTION_SUPPORTED },
+    { OPT_CUSTOM_STR_COPY, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_CUSTOM_BIN_COPY, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_CUSTOM_STR_NO_COPY, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_CUSTOM_BIN_NO_COPY, MULTIPLE_OPTIONS_SUPPORTED }
 };
 
 static const struct supported_block_type pcapng_blocks_supported[] = {
@@ -6590,6 +6641,9 @@ static const struct supported_block_type pcapng_blocks_supported[] = {
 
     /* Multiple blocks of meta evens.. */
     { WTAP_BLOCK_META_EVENT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(meta_events_block_options_supported) },
+
+    /* Multiple blocks of process information. */
+    { WTAP_BLOCK_PROCESS_INFORMATION, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(process_information_block_options_supported) },
 
     /* And, obviously, multiple packets. */
     { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(packet_block_options_supported) },
@@ -6692,11 +6746,11 @@ void register_pcapng(const char* app_env_var_prefix)
     DSB.option_handlers = pcapng_create_option_handler_table();
     register_pcapng_block_type_information(&DSB);
 
-    static pcapng_block_type_information_t CB_COPY = { BLOCK_TYPE_CB_COPY, pcapng_read_custom_block, NULL, pcapng_write_custom_block_copy, false, NULL };
+    static pcapng_block_type_information_t CB_COPY = { BLOCK_TYPE_CB_COPY, pcapng_read_custom_block, pcapng_process_cb, pcapng_write_custom_block_copy, false, NULL };
     CB_COPY.option_handlers = pcapng_create_option_handler_table();
     register_pcapng_block_type_information(&CB_COPY);
 
-    static pcapng_block_type_information_t CB_NO_COPY = { BLOCK_TYPE_CB_NO_COPY, pcapng_read_custom_block, NULL, pcapng_write_custom_block_no_copy, false, NULL };
+    static pcapng_block_type_information_t CB_NO_COPY = { BLOCK_TYPE_CB_NO_COPY, pcapng_read_custom_block, pcapng_process_cb, pcapng_write_custom_block_no_copy, false, NULL };
     /* Copy and no-copy and CBs have the same options. */
     CB_NO_COPY.option_handlers = CB_COPY.option_handlers;
     register_pcapng_block_type_information(&CB_NO_COPY);

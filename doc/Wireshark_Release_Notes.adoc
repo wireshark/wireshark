@@ -270,6 +270,11 @@ an alias for the protocol and all its fields.
 
 == New and Updated Capture File Support
 
+* pcapng: Process information blocks are now read from and written to
+  Wireshark custom blocks (PEN 32622, block entry type 3) as well as
+  Apple's Darwin process information blocks, and both are preserved when
+  a file is rewritten.
+
 [commaize]
 --
 --
@@ -313,6 +318,15 @@ but without string copying or otherwise ensuring NUL termination.
 
 Linking with the Heimdal Kerberos library is now deprecated, and support will likely be removed in a future release.
 Linking with the MIT Kerberos library is still supported.
+
+libwiretap's per-file table of Darwin process information blocks has been
+generalised into a table of WTAP_BLOCK_PROCESS_INFORMATION blocks, with a
+32-bit process ID and the options OPT_PIB_NAME, OPT_PIB_PATH,
+OPT_PIB_CMDLINE, OPT_PIB_PPID, OPT_PIB_UID, OPT_PIB_USER, OPT_PIB_UUID and
+OPT_PIB_STARTTIME. wtap_file_get_dpib_lookup_info() has been replaced by
+wtap_file_get_num_pibs() and wtap_file_get_pib(), the dpibs_growing member
+of wtap_dump_params has been renamed pibs_growing, and the OPT_DPIB_NAME
+and OPT_DPIB_UUID option codes have been removed.
 
 === Plugin Development Changes
 

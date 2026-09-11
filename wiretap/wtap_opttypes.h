@@ -157,9 +157,15 @@ extern "C" {
 #define OPT_ISB_OSDROP       7
 #define OPT_ISB_USRDELIV     8
 
-/* Darwin Process Info Block (DPIB) */
-#define OPT_DPIB_NAME        2   /**< Process name: NUL-terminated UTF8 string (limited to 16 characters including the NUL) */
-#define OPT_DPIB_UUID        4   /**< Process UUID: 16 byte */
+/* Process Information Block (PIB) */
+#define OPT_PIB_NAME         2   /**< Short name of the process: UTF-8 string */
+#define OPT_PIB_PATH         3   /**< Full path of the executable image: UTF-8 string */
+#define OPT_PIB_CMDLINE      4   /**< Command line, arguments separated by NULs: bytes */
+#define OPT_PIB_PPID         5   /**< Parent process ID: 32-bit unsigned integer */
+#define OPT_PIB_UID          6   /**< Numeric user ID: 32-bit unsigned integer */
+#define OPT_PIB_USER         7   /**< User name or textual security identifier: UTF-8 string */
+#define OPT_PIB_UUID         8   /**< UUID of the executable image: 16 bytes */
+#define OPT_PIB_STARTTIME    9   /**< Process start time, in nanoseconds since the Epoch: 64-bit unsigned integer */
 
 /* Darwin-specific options for EPB */
 #define OPT_PKT_DARWIN_PIB_ID               32769   /**< 32-bit number of the Darwin PIB that describes the Process ID. */
@@ -248,6 +254,7 @@ typedef enum {
     WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT,  /**< systemd journal export block: reserved for future use (not currently active) */
     WTAP_BLOCK_CUSTOM,                  /**< Custom block: vendor- or application-defined block with a private PEN (pcapng CB) */
     WTAP_BLOCK_FT_SPECIFIC_INFORMATION, /**< File-type-specific information: non-timestamped static metadata with no time coordinate */
+    WTAP_BLOCK_PROCESS_INFORMATION,     /**< Process information block: describes a process on the capturing host that packets are associated with (pcapng PIB) */
     MAX_WTAP_BLOCK_TYPE_VALUE           /**< Sentinel: total number of defined block type identifiers */
 } wtap_block_type_t;
 
@@ -305,14 +312,6 @@ typedef struct wtapng_section_mandatory_s {
 typedef struct wtapng_iface_descriptions_s {
     GArray *interface_data;
 } wtapng_iface_descriptions_t;
-
-/** struct holding the information to lookup a Darwin PIB.
- *  the dpibs array holds an array of wtap_block_t
- *  representing Darwin PIBs, one per PIB.
- */
- typedef struct wtapng_dpib_lookup_info_s {
-    GArray     *dpibs;
-} wtapng_dpib_lookup_info_t;
 
 /**
  * Holds the required data from a WTAP_BLOCK_IF_ID_AND_INFO.
@@ -384,11 +383,16 @@ typedef struct wtapng_packet_mandatory_s {
 #endif
 
 /**
- * Holds the required data from a WTAP_BLOCK_LEGACY_DARWIN_PROCESS_EVENT.
+ * Holds the required data from a WTAP_BLOCK_PROCESS_INFORMATION.
  */
- typedef struct wtapng_darwin_process_event_mandatory_s {
-    uint32_t               process_id;      /** Process ID */
-}  wtapng_darwin_process_event_mandatory_t;
+typedef struct wtapng_process_info_mandatory_s {
+    uint32_t               process_id;      /**< Process ID assigned by the OS of the capturing host */
+    uint32_t               block_type;      /**< pcapng block type in which the information was read, and
+                                             *     in which it will be written again: BLOCK_TYPE_CB_COPY
+                                             *     for a Wireshark custom block, BLOCK_TYPE_LEGACY_DPIB
+                                             *     for a Darwin process information block; 0 if unknown
+                                             */
+} wtapng_process_info_mandatory_t;
 
 /**
  * Holds the required data from a WTAP_BLOCK_FT_SPECIFIC_REPORT.

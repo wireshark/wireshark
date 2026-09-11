@@ -30,6 +30,14 @@ typedef struct pcapng_legacy_darwin_process_info_block_s {
 /* Minimum DPIB size = minimum block size + size of fixed length portion of DPIB. */
  #define MIN_DPIB_SIZE    ((uint32_t)sizeof(pcapng_legacy_darwin_process_info_block_t))
 
+/*
+ * DPIB option codes.  A DPIB is read into, and written from, a
+ * WTAP_BLOCK_PROCESS_INFORMATION block, so these are mapped to and
+ * from the corresponding OPT_PIB_ option codes.
+ */
+#define OPT_DPIB_NAME        2   /**< Process name: UTF-8 string, limited to 15 characters */
+#define OPT_DPIB_UUID        4   /**< Process UUID: 16 bytes */
+
 
 static uint32_t
 compute_dpib_option_size(wtap_block_t block _U_, unsigned option_code,  wtap_opttype_e option_type _U_, wtap_optval_t* optval)
@@ -37,139 +45,97 @@ compute_dpib_option_size(wtap_block_t block _U_, unsigned option_code,  wtap_opt
     uint32_t size = 0;
 
     switch (option_code) {
-    case(OPT_DPIB_NAME): /* dpib_process_name */
+    case(OPT_PIB_NAME): /* dpib_process_name */
         size = (uint32_t)strlen(optval->stringval);
         /* Don't write it if it's too big. */
         if (size > UINT16_MAX)
             size = 0;
         break;
-    case(OPT_DPIB_UUID): /* dpib_process_uuid */
+    case(OPT_PIB_UUID): /* dpib_process_uuid */
         size = (uint32_t)g_bytes_get_size(optval->byteval);
         /* Don't write it if it's an invalid size. */
         if (size != 16)
             size = 0;
         break;
     default:
-        ws_warning("Unrecognized DPIB option code %u", option_code);
+        /* Not something a DPIB can hold; don't write it. */
+        break;
     }
     return size;
 }
 
 static bool
-put_dpib_option(wtap_block_t block _U_, unsigned option_code, wtap_opttype_e option_type _U_, wtap_optval_t* optval, void* user_data)
+write_dpib_option(wtap_dumper *wdh, wtap_block_t block _U_, unsigned option_code, wtap_opttype_e option_type _U_, wtap_optval_t* optval, int *err, char **err_info _U_)
 {
     struct pcapng_option_header option_hdr;
-    size_t                      size        = 0;
-    size_t                      pad         = 0;
-    uint8_t                     **opt_ptrp  = (uint8_t **)user_data;
-    const void                  *uuid_bytes;
+    const void                 *data;
+    size_t                      size;
 
     switch (option_code) {
-    case OPT_DPIB_NAME:
+    case OPT_PIB_NAME:
+        data = optval->stringval;
         size = strlen(optval->stringval);
-        if (size > 65535) {
-            /* Too big to fit */
+        if (size == 0 || size > UINT16_MAX) {
+            /* Not written; compute_dpib_option_size() didn't count it. */
             return true;
         }
-        if (size == 0) {
-            /* If the name is an empty string, it won't be accounted for
-             * by `pcapng_compute_options_size`. We have two alternatives
-             * available if we want to avoid creating a corrupted file:
-             * 1. Skip writing the empty string; or
-             * 2. Don't use `pcapng_compute_options_size`; implement
-             *    a similar function that will account for the size
-             *    of an option header while calculating the options size.
-             * Here, we are opting for the first alternative: skip
-             * writing the empty option. This creates a file that is
-             * readable by Darwin tcpdump.
-             */
-            return true;
-        }
-        option_hdr.type         = (uint16_t)option_code;
-        option_hdr.value_length = (uint16_t)size;
-        memcpy(*opt_ptrp, &option_hdr, 4);
-        *opt_ptrp += 4;
-        memcpy(*opt_ptrp, optval->stringval, size);
-        *opt_ptrp += size;
-        /* write padding (if any) */
-        if ((pad = WS_PADDING_TO_4(size)) != 0) {
-            memset(*opt_ptrp, 0, pad);
-            *opt_ptrp += pad;
-        }
-
+        option_hdr.type = OPT_DPIB_NAME;
         break;
-    case OPT_DPIB_UUID:
-        uuid_bytes = g_bytes_get_data(optval->byteval, &size);
+    case OPT_PIB_UUID:
+        data = g_bytes_get_data(optval->byteval, &size);
         if (size != 16) {
-            /* A valid UUID option must be 16 bytes long. If it's not,
-             * don't write it. Like with the string option above, there's
-             * no way to indicate an error here. */
+            /* Not written; compute_dpib_option_size() didn't count it. */
             return true;
         }
-        option_hdr.type         = (uint16_t)option_code;
-        option_hdr.value_length = (uint16_t)size;
-        memcpy(*opt_ptrp, &option_hdr, 4);
-        *opt_ptrp += 4;
-        memcpy(*opt_ptrp, uuid_bytes, size);
-        *opt_ptrp += size;
+        option_hdr.type = OPT_DPIB_UUID;
         break;
     default:
-        break;
-    }
-    return true;
-}
-
-bool
-pcapng_write_legacy_darwin_process_event_block(wtap_dumper *wdh, wtap_block_t sdata, int *err)
-{
-    pcapng_block_header_t              bh;
-    wtapng_ft_specific_mandatory_t     *dpib_mand;
-    uint32_t                           options_size;
-    uint8_t                            *block_data;
-    uint8_t                            *opt_ptr;
-    uint32_t                           block_off;
-
-    /* Note: the process id is represented by the `record_type` field
-     * of the generic type `wtap_ft_specific_mandatory_t`
-     */
-    dpib_mand = (wtapng_ft_specific_mandatory_t*)wtap_block_get_mandatory_data(sdata);
-
-    if (!dpib_mand) {
+        /* Not something a DPIB can hold; don't write it. */
         return true;
     }
 
-    /* pcapng_compute_options_size takes care of the 4 bytes for the end-of-options. */
-    options_size = pcapng_compute_options_size(sdata, compute_dpib_option_size);
-
-
-    bh.block_type = BLOCK_TYPE_LEGACY_DPIB;
-    bh.block_total_length = sizeof(bh) + sizeof(dpib_mand->record_type) + options_size + sizeof(bh.block_total_length);
-
-    /* Allocate the block data */
-    block_data = (uint8_t *)g_malloc0(bh.block_total_length);
-
-    /* Copy the block header */
-    memcpy(block_data, &bh, sizeof(bh));
-    block_off = sizeof(bh);
-
-    /* Copy the process id */
-    memcpy(block_data + block_off, &dpib_mand->record_type, 4);
-    block_off += 4;
-
-    /* Populate the options */
-    opt_ptr = block_data + block_off;
-    wtap_block_foreach_option(sdata, put_dpib_option, &opt_ptr);
-    block_off += options_size;
-
-    /* Copy the block trailer */
-    memcpy(block_data + block_off, &bh.block_total_length, sizeof(bh.block_total_length));
-
-    if (!wtap_dump_file_write(wdh, block_data, bh.block_total_length, err)) {
-        g_free(block_data);
+    option_hdr.value_length = (uint16_t)size;
+    if (!wtap_dump_file_write(wdh, &option_hdr, sizeof option_hdr, err))
         return false;
+    if (!wtap_dump_file_write(wdh, data, size, err))
+        return false;
+    return pcapng_write_padding(wdh, WS_PADDING_TO_4(size), err);
+}
+
+bool
+pcapng_write_legacy_darwin_process_info_block(wtap_dumper *wdh, wtap_block_t pib,
+                                              int *err, char **err_info)
+{
+    wtapng_process_info_mandatory_t           *pib_mand;
+    pcapng_legacy_darwin_process_info_block_t  dpib;
+    uint32_t                                   options_size;
+    uint32_t                                   block_content_length;
+
+    pib_mand = (wtapng_process_info_mandatory_t *)wtap_block_get_mandatory_data(pib);
+
+    /* pcapng_compute_options_size takes care of the 4 bytes for the end-of-options. */
+    options_size = pcapng_compute_options_size(pib, compute_dpib_option_size);
+    block_content_length = MIN_DPIB_SIZE + options_size;
+
+    /* write block header */
+    if (!pcapng_write_block_header(wdh, BLOCK_TYPE_LEGACY_DPIB,
+                                   block_content_length, err))
+        return false;
+
+    /* write the process id */
+    dpib.process_id = pib_mand->process_id;
+    if (!wtap_dump_file_write(wdh, &dpib, sizeof dpib, err))
+        return false;
+
+    /* write options, if we have any */
+    if (options_size != 0) {
+        if (!pcapng_write_options(wdh, OPT_SECTION_BYTE_ORDER, pib,
+                                  write_dpib_option, err, err_info))
+            return false;
     }
 
-    return true;
+    /* write block footer */
+    return pcapng_write_block_footer(wdh, block_content_length, err);
 }
 
 static bool
@@ -298,7 +264,7 @@ pcapng_write_epb_legacy_darwin_option(wtap_dumper *wdh, wtap_block_t sdata _U_,
     case OPT_PKT_DARWIN_PIB_ID:
     case OPT_PKT_DARWIN_EFFECTIVE_PIB_ID: {
         /* The referenced Darwin PIB id should be present in the wdh->dpibs */
-        if ((wdh->dpibs_growing == NULL) || (wdh->dpibs_growing->len <= (uint32_t)optval->int32val)) {
+        if ((wdh->pibs_growing == NULL) || (wdh->pibs_growing->len <= (uint32_t)optval->int32val)) {
             /* The `optval` is unlikely to be a Darwin PIB id reference, ignore. */
             ws_warning("Attempting to write a DPIB option while no DPIBs are present. Writing anyway.");
             // return true;
@@ -349,27 +315,27 @@ pcapng_write_epb_legacy_darwin_option(wtap_dumper *wdh, wtap_block_t sdata _U_,
 static bool
 pcapng_process_apple_legacy_block_option(wtapng_block_t *wblock, section_info_t *section_info _U_,
                                          uint16_t option_code, uint16_t option_length, const uint8_t *option_content,
-                                         int *err, char **err_info)
+                                         int *err _U_, char **err_info _U_)
 {
-    /* Handle the DPIB option content. */
+    /* Handle the DPIB option content, as the corresponding PIB option. */
     switch (option_code) {
-        case(OPT_DPIB_NAME): /* dpip_process_name */
-            pcapng_process_string_option(wblock, option_code, option_length, option_content);
+        case(OPT_DPIB_NAME): /* dpib_process_name */
+            pcapng_process_string_option(wblock, OPT_PIB_NAME, option_length, option_content);
             break;
         case(OPT_DPIB_UUID): /* dpib_process_uuid */
-            pcapng_process_bytes_option(wblock, option_code, option_length, option_content);
+            pcapng_process_bytes_option(wblock, OPT_PIB_UUID, option_length, option_content);
             break;
         default:
-            *err = WTAP_ERR_BAD_FILE;
-            *err_info = ws_strdup_printf("pcapng: unrecognized option %u in legacy DPIB block", option_code);
-            return false;
+            /* Unknown option; ignore it. */
+            ws_debug("pcapng: unrecognized option %u in legacy DPIB block", option_code);
+            break;
     }
 
     return true;
 }
 
 static bool
-pcapng_read_darwin_legacy_block(wtap* wth, FILE_T fh, uint32_t block_size _U_,
+pcapng_read_darwin_legacy_block(wtap* wth _U_, FILE_T fh, uint32_t block_size _U_,
     uint32_t block_content_size,
     section_info_t* section_info,
     wtapng_block_t* wblock,
@@ -377,8 +343,7 @@ pcapng_read_darwin_legacy_block(wtap* wth, FILE_T fh, uint32_t block_size _U_,
 {
     unsigned                                    opt_cont_buf_len;
     pcapng_legacy_darwin_process_info_block_t   process_info;
-    wtapng_ft_specific_mandatory_t              *dpib_mand;
-    wtap_block_t                                dpib;
+    wtapng_process_info_mandatory_t             *pib_mand;
 
     /* Is this block long enough to be a DPIB? */
     if (block_content_size < sizeof(uint32_t)) {
@@ -398,38 +363,46 @@ pcapng_read_darwin_legacy_block(wtap* wth, FILE_T fh, uint32_t block_size _U_,
         return false;
     }
 
-    /* Initialize the wblock->block to point to a new DPIB block */
-    dpib_mand = g_malloc0(sizeof(wtapng_ft_specific_mandatory_t));
-    dpib = wtap_block_create( WTAP_BLOCK_FT_SPECIFIC_INFORMATION);
-    dpib->mandatory_data = dpib_mand;
-    wblock->block = dpib;
-    /* Add the block to the `wtap->dpibs` array, and increment the block's refcount,
-     * to reflect that the block is now referenced by two entities.
+    /*
+     * Initialize the wblock->block to point to a new process information
+     * block; pcapng_process_darwin_legacy_block() adds it to the file's
+     * table of process information blocks once the block has been read.
      */
-    wtap_add_dpib(wth, dpib);
-    wtap_block_ref(wblock->block);
+    wblock->block = wtap_block_create(WTAP_BLOCK_PROCESS_INFORMATION);
 
     /* We don't return these to the caller in pcapng_read(). */
     wblock->internal = true;
 
     /* Populate the mandatory values for the block. */
+    pib_mand = (wtapng_process_info_mandatory_t *)wtap_block_get_mandatory_data(wblock->block);
     if (section_info->byte_swapped) {
-        dpib_mand->record_type       = GUINT32_SWAP_LE_BE(process_info.process_id);
+        pib_mand->process_id = GUINT32_SWAP_LE_BE(process_info.process_id);
     } else {
-        dpib_mand->record_type       = process_info.process_id;
+        pib_mand->process_id = process_info.process_id;
     }
-    ws_debug("process_id %u", dpib_mand->record_type);
+    pib_mand->block_type = BLOCK_TYPE_LEGACY_DPIB;
+    ws_debug("process_id %u", pib_mand->process_id);
 
-    /* Process options. Note: encountering an unknown option should not discard the block. */
+    /* Process options. Note: unknown options are ignored, so they don't discard the block. */
     opt_cont_buf_len = block_content_size - MIN_DPIB_SIZE; /* fixed part */
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_apple_legacy_block_option,
                                 OPT_SECTION_BYTE_ORDER, err, err_info)) {
-
-        *err = 0;
-        g_free(*err_info);
-        *err_info = NULL;
+        return false;
     }
+
+    return true;
+}
+
+/* Process a DPIB that we have just read. */
+static bool
+pcapng_process_darwin_legacy_block(wtap *wth, section_info_t *section_info _U_,
+                                   wtapng_block_t *wblock)
+{
+    /* Store it such that it can be looked up and saved by the dumper. */
+    wtap_add_pib(wth, wblock->block);
+
+    /* Do not free wblock->block, it is consumed above */
 
     return true;
 }
@@ -564,33 +537,9 @@ pcapng_parse_darwin_legacy_drop_func(wtap_block_t block, bool byte_swapped _U_,
     return true;
 }
 
-static const wtap_opttype_t dpib_name = {
-    "name",
-    "Darwin Process Name",
-    WTAP_OPTTYPE_STRING,
-    0
-};
-static const wtap_opttype_t dpib_uuid = {
-    "name",
-    "Darwin Process UUID",
-    WTAP_OPTTYPE_BYTES,
-    0
-};
-
 void register_darwin(void)
 {
-    static pcapng_block_type_information_t LEGACY = { BLOCK_TYPE_LEGACY_DPIB, pcapng_read_darwin_legacy_block, NULL, NULL, true, NULL };
-    static wtap_block_t dpib = NULL;
-
-    if (dpib == NULL) {
-        wtap_blocktype_t *blocktype;
-        dpib = wtap_block_create( WTAP_BLOCK_FT_SPECIFIC_INFORMATION);
-        blocktype = dpib->info;
-        g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_DPIB_NAME),
-                        (void *)&dpib_name);
-        g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_DPIB_UUID),
-                        (void *)&dpib_uuid);
-    }
+    static pcapng_block_type_information_t LEGACY = { BLOCK_TYPE_LEGACY_DPIB, pcapng_read_darwin_legacy_block, pcapng_process_darwin_legacy_block, NULL, true, NULL };
 
     register_pcapng_block_type_information(&LEGACY);
 
