@@ -537,6 +537,13 @@ sfloat_ieee_11073_is_negative(const fvalue_t *a)
     }
 }
 
+static bool
+sfloat_ieee_11073_is_nan(const fvalue_t *a)
+{
+    return a->value.sfloat_ieee_11073 == SFLOAT_VALUE_NAN ||
+           a->value.sfloat_ieee_11073 == SFLOAT_VALUE_NRES;
+}
+
 static enum ft_result
 sfloat_ieee_11073_unary_minus(fvalue_t *dst, const fvalue_t *src, char **err_ptr _U_)
 {
@@ -1060,6 +1067,13 @@ float_ieee_11073_is_negative(const fvalue_t *a)
     }
 }
 
+static bool
+float_ieee_11073_is_nan(const fvalue_t *a)
+{
+    return a->value.float_ieee_11073 == FLOAT_VALUE_NAN ||
+           a->value.float_ieee_11073 == FLOAT_VALUE_NRES;
+}
+
 static enum ft_result
 float_ieee_11073_unary_minus(fvalue_t *dst, const fvalue_t *src, char **err_ptr _U_)
 {
@@ -1163,8 +1177,7 @@ Example: 114 is 0x0072
         sfloat_ieee_11073_hash,               /* hash */
         sfloat_ieee_11073_is_zero,            /* is_zero */
         sfloat_ieee_11073_is_negative,        /* is_negative */
-        /* TODO: implement is_nan for IEEE 11073 floats */
-        NULL,                                 /* is_nan */
+        sfloat_ieee_11073_is_nan,             /* is_nan */
         NULL,                                 /* len */
         NULL,                                 /* slice */
         NULL,                                 /* bitwise_and */
@@ -1238,8 +1251,7 @@ Example: 36.4 is 0xFF00016C
         float_ieee_11073_hash,               /* hash */
         float_ieee_11073_is_zero,            /* is_zero */
         float_ieee_11073_is_negative,        /* is_negative */
-        /* TODO: implement is_nan for IEEE 11073 floats */
-        NULL,                                /* is_nan */
+        float_ieee_11073_is_nan,              /* is_nan */
         NULL,                                /* len */
         NULL,                                /* slice */
         NULL,                                /* bitwise_and */
