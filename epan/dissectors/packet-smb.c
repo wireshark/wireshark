@@ -1053,22 +1053,36 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 	free_chunk *new_free_chunk;
 	uint64_t    chunk_offset     = eo_info->smb_file_offset;
 	uint64_t    chunk_length     = eo_info->payload_len;
-	uint64_t    chunk_end_offset = chunk_offset + chunk_length-1;
 	/* Size of file in memory */
-	uint64_t    calculated_size  = chunk_offset + chunk_length;
+	uint64_t    chunk_end_offset, calculated_size;
 	void *      dest_memory_addr;
+
+	if (ckd_add(&calculated_size, chunk_offset, chunk_length)) {
+		calculated_size = UINT64_MAX;
+		chunk_length = calculated_size - chunk_offset;
+	}
+
+	if (chunk_length == 0) {
+		/* There's no point in doing anything with a zero length chunk.
+		 * eo_info->payload_data might be NULL, in which case at least
+		 * currently means the memmove() below is UB. */
+		return;
+	}
+
+	chunk_end_offset = calculated_size - 1;
+	/* Above has to be at least 0 because chunk_length != 0 */
 
 	/* Let's recalculate the file length and data gathered */
 	if ((file->data_gathered == 0) && (nfreechunks == 0)) {
 		/* If this is the first entry for this file, we first create an initial free chunk */
 		new_free_chunk = g_new(free_chunk, 1);
 		new_free_chunk->start_offset = 0;
-		new_free_chunk->end_offset = MAX(file->file_length, chunk_end_offset+1) - 1;
+		new_free_chunk->end_offset = MAX(file->file_length, calculated_size) - 1;
 		file->free_chunk_list = NULL;
 		file->free_chunk_list = g_slist_append(file->free_chunk_list, new_free_chunk);
 		nfreechunks += 1;
 	} else {
-		if (chunk_end_offset > file->file_length-1) {
+		if (calculated_size > file->file_length) {
 			new_free_chunk = g_new(free_chunk, 1);
 			new_free_chunk->start_offset = file->file_length;
 			new_free_chunk->end_offset = chunk_end_offset;
@@ -1076,7 +1090,7 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 			nfreechunks += 1;
 		}
 	}
-	file->file_length = MAX(file->file_length, chunk_end_offset+1);
+	file->file_length = MAX(file->file_length, calculated_size);
 
 	/* Recalculate each free chunk according with the incoming data chunk */
 	for (i=0; i<nfreechunks; i++) {
