@@ -1249,7 +1249,7 @@ dissect_sec_intx(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tre
     ti = proto_tree_add_item(tree, hf_sgeonw_intx, tvb, start, (*offset) - start, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_sgeonw_intx);
     proto_tree_add_bits_item(subtree, hf_sgeonw_var_len_det, tvb, start << 3, (*offset) - start, ENC_NA);
-    if ((hf != hf_sgeonw_app_id) || ((*offset) - start) > 4) {
+    if ((hf != hf_sgeonw_app_id) && ((*offset) - start) > 4) {
         proto_tree_add_uint64_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
             (((*offset) - start) << 3) - ((*offset) - start), tmp_val, ENC_BIG_ENDIAN, "%" PRIu64, tmp_val);
     }
