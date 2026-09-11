@@ -367,6 +367,15 @@ static const value_string sapms_opcode_vals[] = {
 	{  0, NULL },
 };
 
+static const value_string sapms_ascs_gateway_tag_vals[] = {
+	{ 0, "MS_ASCS_GW_END" },
+	{ 1, "MS_ASCS_GW_INTERNAL_PORT" },
+	{ 2, "MS_ASCS_GW_EXTERNAL_PORT" },
+	{ 3, "MS_ASCS_GW_PID" },
+	{ 4, "MS_ASCS_GW_NODE_ADDRESS" },
+	{ 0, NULL },
+};
+
 /* MS OP Code Error values */
 static const value_string sapms_opcode_error_vals[] = {
 	{  0, "MSOP_OK" },
@@ -666,6 +675,14 @@ static int hf_sapms_security_key;
 static int hf_sapms_security_port;
 static int hf_sapms_security_address;
 static int hf_sapms_security_address6;
+static int hf_sapms_open_request_record;
+static int hf_sapms_nitrace_client;
+static int hf_sapms_nitrace_operation;
+static int hf_sapms_nitrace_level;
+static int hf_sapms_log_counter_index;
+static int hf_sapms_log_counter_count;
+static int hf_sapms_log_counter_end;
+static int hf_sapms_log_counter_record;
 
 static int hf_sapms_file_reload;
 static int hf_sapms_file_filler;
@@ -698,6 +715,15 @@ static int hf_sapms_ip_to_name;
 
 static int hf_sapms_check_acl_error_code;
 static int hf_sapms_check_acl_acl;
+static int hf_sapms_check_acl_address;
+
+static int hf_sapms_ascs_gateway_tag;
+static int hf_sapms_ascs_gateway_internal_port;
+static int hf_sapms_ascs_gateway_external_port;
+static int hf_sapms_ascs_gateway_pid;
+static int hf_sapms_ascs_gateway_node_address;
+static int hf_sapms_ascs_gateway_unknown;
+static int hf_sapms_ascs_gateway_keepalive_data;
 
 static int hf_sapms_sid;
 
@@ -1181,10 +1207,15 @@ dissect_sapms_logon_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static void
-dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint8_t flag, uint8_t opcode, uint8_t opcode_version, uint32_t length){
+dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, uint8_t flag, uint8_t opcode, uint8_t opcode_error, uint8_t opcode_version, uint32_t length){
 	int client_length = 0;
 
 	switch (opcode){
+		case 0x01:          /* MS_SERVER_CHG */
+		case 0x21:          /* MS_NOOP */
+		case 0x40:          /* MS_SERVER_LONG_LIST */
+			/* These opcodes have no payload. */
+			break;
 		case 0x00:{     /* MS_DP_ADM */
 			tvb_get_uint8(tvb, offset);
 			proto_tree_add_item(tree, hf_sapms_dp_adm_dp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1197,7 +1228,8 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			break;
 		}
 		case 0x05:			/* MS_SERVER_LST */
-		case 0x4d:{			/* MS_SERVER_LST_SUBSYSTEM */
+		case 0x4d:			/* MS_SERVER_LST_SUBSYSTEM */
+		case 0x4f:{			/* MS_SERVER_LST_SERVERGENERATION */
 			if (flag == 0x03){ /* If it's a reply (flag=MS_REPLY) */
 				while (tvb_reported_length_remaining(tvb, offset) > 0){
 					client_length = dissect_sapms_client(tvb, pinfo, tree, offset, opcode_version);
@@ -1215,34 +1247,112 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			}
 			break;
 		}
-		case 0x07:			/* MS_SET_SECURITY_KEY */
-		case 0x08:{			/* MS_GET_SECURITY_KEY */
+		case 0x07:{			/* MS_SET_SECURITY_KEY */
+			if (length < 296) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"Set security key body is shorter than 296 bytes (actual=%u)", length);
+				break;
+			}
 			proto_tree_add_item(tree, hf_sapms_security_name, tvb, offset, 40, ENC_ASCII);
 			offset+=40;
 			proto_tree_add_item(tree, hf_sapms_security_key, tvb, offset, 256, ENC_ASCII);
 			break;
 		}
+		case 0x08:{			/* MS_GET_SECURITY_KEY */
+			uint32_t expected_length = flag == 0x03 ? 256 : 40;
+			if (length < expected_length) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"Get security key body is shorter than %u bytes (actual=%u)", expected_length, length);
+				break;
+			}
+			proto_tree_add_item(tree, flag == 0x03 ? hf_sapms_security_key : hf_sapms_security_name,
+				tvb, offset, expected_length, ENC_ASCII);
+			break;
+		}
 		case 0x09:{			/* MS_GET_SECURITY_KEY2 */
-			uint32_t address_ipv4;
-			struct e_in6_addr address_ipv6;
-
-			address_ipv4 = tvb_get_ipv4(tvb, offset);
-			proto_tree_add_ipv4(tree, hf_sapms_security_address, tvb, offset, 4, address_ipv4);
-			offset+=4;
-			proto_tree_add_item(tree, hf_sapms_security_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset+=2;
-			proto_tree_add_item(tree, hf_sapms_security_key, tvb, offset, 256, ENC_ASCII);
-			offset+=256;
-			tvb_get_ipv6(tvb, offset, &address_ipv6);
-			proto_tree_add_ipv6(tree, hf_sapms_security_address6, tvb, offset, 16, &address_ipv6);
+			if (flag == 0x03) {
+				if (length < 256) {
+					expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+						"Get security key by endpoint response is shorter than 256 bytes (actual=%u)", length);
+					break;
+				}
+				proto_tree_add_item(tree, hf_sapms_security_key, tvb, offset, 256, ENC_ASCII);
+			} else if (opcode_version <= 0x01) {
+				uint32_t address_ipv4;
+				if (length < 6) {
+					expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+						"Get security key IPv4 request is shorter than 6 bytes (actual=%u)", length);
+					break;
+				}
+				address_ipv4 = tvb_get_ipv4(tvb, offset);
+				proto_tree_add_ipv4(tree, hf_sapms_security_address, tvb, offset, 4, address_ipv4);
+				offset+=4;
+				proto_tree_add_item(tree, hf_sapms_security_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+			} else {
+				struct e_in6_addr address_ipv6;
+				if (length < 18) {
+					expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+						"Get security key IPv6 request is shorter than 18 bytes (actual=%u)", length);
+					break;
+				}
+				tvb_get_ipv6(tvb, offset, &address_ipv6);
+				proto_tree_add_ipv6(tree, hf_sapms_security_address6, tvb, offset, 16, &address_ipv6);
+				offset+=16;
+				proto_tree_add_item(tree, hf_sapms_security_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+			}
 			break;
 		}
 		case 0x0a:{			/* MS_GET_HWID */
-			proto_tree_add_none_format(tree, hf_sapms_opcode_value, tvb, offset, length, "Hardware ID: %s", tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII));
+			if (flag == 0x03) {
+				if (length < 100) {
+					expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+						"Hardware ID response is shorter than 100 bytes (actual=%u)", length);
+					break;
+				}
+				proto_tree_add_none_format(tree, hf_sapms_opcode_value, tvb, offset, 100,
+					"Hardware ID: %s", tvb_get_string_enc(pinfo->pool, tvb, offset, 100, ENC_ASCII));
+			} else if (length == 4) {
+				proto_tree_add_none_format(tree, hf_sapms_opcode_value, tvb, offset, 4,
+					"Hardware ID request magic: 0x%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 4));
+			} else if (length != 0) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"Hardware ID request body is neither empty nor 4 bytes (actual=%u)", length);
+			}
 			break;
 		}
+		case 0x0b:          /* MS_INCRE_TRACE */
+		case 0x0c:          /* MS_DECRE_TRACE */
+		case 0x0d:          /* MS_RESET_TRACE */
+		case 0x0e:          /* MS_ACT_STATISTIC */
+		case 0x0f:          /* MS_DEACT_STATISTIC */
+		case 0x10:          /* MS_RESET_STATISTIC */
+		case 0x12:          /* MS_DUMP_NIBUFFER */
+		case 0x13:          /* MS_RESET_NIBUFFER */
+		case 0x1d:          /* MS_SOFT_SHUTDOWN */
+		case 0x51:          /* MS_RESET_LG_COUNTER */
+			break;
 		case 0x11:{			/* MS_GET_STATISTIC */
-			/* XXX: Fill fields for statistics */
+			if (flag != 0x03 || opcode_error != 0) {
+				break;
+			}
+			if (length != 4 && length != 712 && length != 1208 && length != 1272) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"Unexpected statistics response length (actual=%u)", length);
+			}
+			proto_tree_add_item(tree, hf_sapms_opcode_value, tvb, offset, length, ENC_NA);
+			break;
+		}
+		case 0x14:{          /* MS_OPEN_REQ_LST */
+			if (flag != 0x03) break;
+			if (length % 88 != 0) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"Open request list length is not a multiple of 88 bytes (actual=%u)", length);
+			}
+			while (length >= 88) {
+				proto_tree_add_item(tree, hf_sapms_open_request_record, tvb, offset, 88, ENC_NA);
+				offset += 88;
+				length -= 88;
+			}
 			break;
 		}
 		case 0x1C:{			/* MS_GET_CODEPAGE */
@@ -1266,19 +1376,8 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 					proto_tree_add_item(tree, hf_sapms_dump_name, tvb, offset, 40, ENC_ASCII);
 				}
 
-			} else if (flag == 0x03) { /* If it's a reply (flag=MS_REPLY) */
-				uint32_t string_length = 0;
-				length = tvb_strsize(tvb, offset);
-				/* Add each string in a different item */
-				while (length>1) {
-					tvb_find_line_end_remaining(tvb, offset, &string_length, NULL);
-					if (string_length>0) {
-						proto_tree_add_none_format(tree, hf_sapms_opcode_value, tvb, offset, string_length, "%s", tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_ASCII));
-						offset+=string_length; length-=string_length;
-					}
-					offset+=1;
-					length-=1;
-				}
+			} else if (flag == 0x03 && length > 0) { /* If it's a reply (flag=MS_REPLY) */
+				proto_tree_add_item(tree, hf_sapms_opcode_value, tvb, offset, length, ENC_ASCII);
 			}
 			break;
 		}
@@ -1459,6 +1558,21 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			}
 			break;
 		}
+		case 0x3f:{          /* MS_NITRACE_SETGET */
+			if (flag != 0x02 && opcode_error != 0) break;
+			if (flag == 0x03 && length == 0) break;
+			if (length < 44) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"NI trace body is shorter than 44 bytes (actual=%u)", length);
+				break;
+			}
+			proto_tree_add_item(tree, hf_sapms_nitrace_client, tvb, offset, 40, ENC_ASCII);
+			offset += 41;
+			proto_tree_add_item(tree, hf_sapms_nitrace_operation, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(tree, hf_sapms_nitrace_level, tvb, offset, 1, ENC_BIG_ENDIAN);
+			break;
+		}
 		case 0x43:			/* MS_SET_PROPERTY */
 		case 0x44:			/* MS_GET_PROPERTY */
 		case 0x45:{			/* MS_DEL_PROPERTY */
@@ -1470,7 +1584,7 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			uint32_t address_ipv4;
 			struct e_in6_addr address_ipv6;
 
-			if (opcode_version == 0x01){
+			if (opcode_version <= 0x01){
 				if (length < 4) {
 					expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "IP to name IPv4 body is shorter than 4 bytes (actual=%u)", length);
 					break;
@@ -1513,6 +1627,17 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 		}
 		case 0x47:{			/* MS_CHECK_ACL */
 			uint32_t string_length = 0;
+			if (flag != 0x03) {
+				if (opcode_version == 0x02) {
+					if (length < 16) {
+						expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+							"Check ACL IPv6 request is shorter than 16 bytes (actual=%u)", length);
+						break;
+					}
+					proto_tree_add_item(tree, hf_sapms_check_acl_address, tvb, offset, 16, ENC_NA);
+				}
+				break;
+			}
 			if (length < 2) {
 				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Check ACL opcode body is shorter than 2 bytes (actual=%u)", length);
 				break;
@@ -1544,12 +1669,106 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			break;
 		}
 		case 0x4e:{			/* MS_GET_SID */
-			if (flag == 0x03 && length >= 8) {
+			if (flag == 0x03 && opcode_error == 0 && length >= 8) {
 				proto_tree_add_item(tree, hf_sapms_sid, tvb, offset, 8, ENC_ASCII);
-			} else if (flag == 0x03) {
+			} else if (flag == 0x03 && opcode_error == 0) {
 				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
 					"SID response is shorter than 8 bytes (actual=%u)", length);
 			}
+			break;
+		}
+		case 0x50:{          /* MS_READ_LG_COUNTER */
+			uint32_t count;
+			if (flag != 0x03 || opcode_error != 0) break;
+			if (length < 12) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"Log counter response is shorter than 12 bytes (actual=%u)", length);
+				break;
+			}
+			proto_tree_add_item(tree, hf_sapms_log_counter_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
+			proto_tree_add_item_ret_uint(tree, hf_sapms_log_counter_count, tvb, offset, 4, ENC_BIG_ENDIAN, &count);
+			offset += 4;
+			proto_tree_add_item(tree, hf_sapms_log_counter_end, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 4;
+			length -= 12;
+			if (count > 15 || count > length / 48) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"Invalid log counter record count (count=%u, bytes=%u)", count, length);
+				count = MIN(count, length / 48);
+			}
+			while (count-- > 0) {
+				proto_tree_add_item(tree, hf_sapms_log_counter_record, tvb, offset, 48, ENC_NA);
+				offset += 48;
+			}
+			break;
+		}
+		case 0x52:			/* MS_ASCS_GW_LOGON */
+		case 0x53:{			/* MS_ASCS_GW_STATUS */
+			if (opcode == 0x53 && (flag != 0x03 || opcode_error != 0)) {
+				break;
+			}
+			while (length > 0) {
+				uint8_t tag = tvb_get_uint8(tvb, offset);
+				proto_tree_add_item(tree, hf_sapms_ascs_gateway_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+				offset += 1;
+				length -= 1;
+
+				if (tag == 0) {
+					break;
+				}
+				if (tag == 1 || tag == 2) {
+					if (length < 4) {
+						expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+							"ASCS gateway port tag is truncated (actual=%u)", length);
+						break;
+					}
+					proto_tree_add_item(tree, tag == 1 ? hf_sapms_ascs_gateway_internal_port : hf_sapms_ascs_gateway_external_port,
+						tvb, offset, 4, ENC_BIG_ENDIAN);
+					offset += 4;
+					length -= 4;
+					continue;
+				}
+				if (tag == 3) {
+					if (length < 8) {
+						expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+							"ASCS gateway PID tag is truncated (actual=%u)", length);
+						break;
+					}
+					proto_tree_add_item(tree, hf_sapms_ascs_gateway_pid, tvb, offset, 8, ENC_BIG_ENDIAN);
+					offset += 8;
+					length -= 8;
+					continue;
+				}
+				if (tag == 4) {
+					if (length < 16) {
+						expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+							"ASCS gateway node-address tag is truncated (actual=%u)", length);
+						break;
+					}
+					proto_tree_add_item(tree, hf_sapms_ascs_gateway_node_address, tvb, offset, 16, ENC_NA);
+					offset += 16;
+					length -= 16;
+					continue;
+				}
+
+				if (length > 0) {
+					proto_tree_add_item(tree, hf_sapms_ascs_gateway_unknown, tvb, offset, length, ENC_NA);
+				}
+				break;
+			}
+			break;
+		}
+		case 0x54:{			/* MS_ASCS_GW_KEEPALIVE */
+			if (flag == 0x03) {
+				break;
+			}
+			if (length < 0x1030) {
+				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length,
+					"ASCS gateway keepalive body is shorter than 4144 bytes (actual=%u)", length);
+				break;
+			}
+			proto_tree_add_item(tree, hf_sapms_ascs_gateway_keepalive_data, tvb, offset, 0x1030, ENC_NA);
 			break;
 		}
 		default:{
@@ -1583,7 +1802,7 @@ dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 	/* Check for the eye catcher string */
 	if (tvb_strneql(tvb, offset, "**MESSAGE**\00", 12) == 0){
 		int remaining_length = 0;
-		uint8_t flag=0, iflag = 0, opcode = 0, opcode_version = 0;
+		uint8_t flag=0, iflag = 0, opcode = 0, opcode_error = 0, opcode_version = 0;
 
 		proto_tree_add_item(sapms_tree, hf_sapms_eyecatcher, tvb, offset, SAPMS_EYECATCHER_LEN, ENC_ASCII);
 		offset+=SAPMS_EYECATCHER_LEN;
@@ -1651,7 +1870,7 @@ dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 				}
 				proto_tree_add_item_ret_uint8(sapms_tree, hf_sapms_opcode, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
 				offset+=1;
-				proto_tree_add_item(sapms_tree, hf_sapms_opcode_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint8(sapms_tree, hf_sapms_opcode_error, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode_error);
 				offset+=1;
 				proto_tree_add_item_ret_uint8(sapms_tree, hf_sapms_opcode_version, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode_version);
 				offset+=1;
@@ -1666,7 +1885,7 @@ dissect_sapms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 				if (remaining_length > 0){
 					oi = proto_tree_add_item(sapms_tree, hf_sapms_opcode_value, tvb, offset, remaining_length, ENC_NA);
 					sapms_opcode_tree = proto_item_add_subtree(oi, ett_sapms);
-					dissect_sapms_opcode(tvb, pinfo, sapms_opcode_tree, offset, flag, opcode, opcode_version, remaining_length);
+					dissect_sapms_opcode(tvb, pinfo, sapms_opcode_tree, offset, flag, opcode, opcode_error, opcode_version, remaining_length);
 				}
 				break;
 
@@ -1806,6 +2025,22 @@ proto_register_sapms(void)
 			{ "Opcode Character Set", "sapms.opcode.charset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapms_opcode_value,
 			{ "Opcode Value", "sapms.opcode.value", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_open_request_record,
+			{ "Open Request Record", "sapms.open_request.record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_nitrace_client,
+			{ "NI Trace Client", "sapms.nitrace.client", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_nitrace_operation,
+			{ "NI Trace Operation", "sapms.nitrace.operation", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_nitrace_level,
+			{ "NI Trace Level", "sapms.nitrace.level", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_log_counter_index,
+			{ "Log Counter Index", "sapms.log_counter.index", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_log_counter_count,
+			{ "Log Counter Count", "sapms.log_counter.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_log_counter_end,
+			{ "Log Counter End", "sapms.log_counter.end", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_log_counter_record,
+			{ "Log Counter Record", "sapms.log_counter.record", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		/* MS_SET/GET/DEL_PROPERTY opcode fields */
 		{ &hf_sapms_property_client,
@@ -1999,9 +2234,27 @@ proto_register_sapms(void)
 
 		/* MS_CHECK_ACL fields */
 		{ &hf_sapms_check_acl_error_code,
-			{ "Check ACL Error Code", "sapms.check_acl.error_code", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+			{ "Check ACL Error Code", "sapms.check_acl.error_code", FT_UINT16, BASE_DEC, VALS(sapms_opcode_error_vals), 0x0, NULL, HFILL }},
 		{ &hf_sapms_check_acl_acl,
 			{ "Check ACL Entry", "sapms.check_acl.acl", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_check_acl_address,
+			{ "Check ACL Address", "sapms.check_acl.address", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+		/* MS_ASCS_GW_LOGON fields */
+		{ &hf_sapms_ascs_gateway_tag,
+			{ "ASCS Gateway Tag", "sapms.ascs_gateway.tag", FT_UINT8, BASE_DEC, VALS(sapms_ascs_gateway_tag_vals), 0x0, NULL, HFILL }},
+		{ &hf_sapms_ascs_gateway_internal_port,
+			{ "ASCS Gateway Internal Port", "sapms.ascs_gateway.internal_port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_ascs_gateway_external_port,
+			{ "ASCS Gateway External Port", "sapms.ascs_gateway.external_port", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_ascs_gateway_pid,
+			{ "ASCS Gateway PID", "sapms.ascs_gateway.pid", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_ascs_gateway_node_address,
+			{ "ASCS Gateway Node Address", "sapms.ascs_gateway.node_address", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_ascs_gateway_unknown,
+			{ "ASCS Gateway Undecoded Data", "sapms.ascs_gateway.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapms_ascs_gateway_keepalive_data,
+			{ "ASCS Gateway Keepalive Data", "sapms.ascs_gateway.keepalive_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapms_sid,
 			{ "System ID", "sapms.sid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
