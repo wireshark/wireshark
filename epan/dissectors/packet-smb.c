@@ -1367,6 +1367,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
 		/* Modify the current_entry object_type string */
 		if (current_file->is_out_of_memory) {
+			g_free(current_entry->content_type);
 			current_entry->content_type =
 				ws_strdup_printf("%s (%"PRIu64"?/%"PRIu64") %s [mem!!]",
 								aux_smb_fid_type_string,
@@ -1375,6 +1376,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 								try_val_to_str(current_file->flag_contains, smb_eo_contains_string));
 		} else {
 			percent = (float) (100*current_file->data_gathered/current_file->file_length);
+			g_free(current_entry->content_type);
 			current_entry->content_type =
 				ws_strdup_printf("%s (%"PRIu64"/%"PRIu64") %s [%5.2f%%]",
 								aux_smb_fid_type_string,
