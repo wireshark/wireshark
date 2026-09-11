@@ -1,5 +1,5 @@
 /* packet-packclient.c
- * Routines for PackClient Launcher Transport dissection
+ * Routines for PackClient Launcher/Core Transport dissection
  * Copyright 2026, Ivan Immanuel Shaji
  *
  * Protocol research and tooling:
@@ -29,6 +29,13 @@ void proto_register_packclient(void);
 #define PACKCLIENT_FRAME_PREFIX_MASK       0xFFC00000U
 #define PACKCLIENT_BODY_LENGTH_MASK        0x003FFFFFU
 
+#define PACKCLIENT_TYPE_CORE_1             0x01U
+#define PACKCLIENT_TYPE_CORE_2             0x02U
+#define PACKCLIENT_TYPE_CORE_STRUCTURED    0x03U
+#define PACKCLIENT_TYPE_CORE_10            0x0AU
+#define PACKCLIENT_TYPE_CORE_INVENTORY     0x0BU
+#define PACKCLIENT_TYPE_CORE_17            0x11U
+#define PACKCLIENT_TYPE_CORE_PV10          0x12U
 #define PACKCLIENT_TYPE_PLAINTEXT          0x15U
 #define PACKCLIENT_TYPE_ENVELOPE           0x16U
 
@@ -45,6 +52,7 @@ static int proto_packclient;
 static int hf_packclient_frame_word;
 static int hf_packclient_body_length;
 static int hf_packclient_message_type;
+static int hf_packclient_phase;
 static int hf_packclient_object_magic;
 static int hf_packclient_object_version;
 static int hf_packclient_plh1_field_06;
@@ -60,6 +68,7 @@ static int hf_packclient_pla1_authenticator;
 static int hf_packclient_envelope_version;
 static int hf_packclient_envelope_iv;
 static int hf_packclient_envelope_ciphertext_length;
+static int hf_packclient_envelope_format;
 static int hf_packclient_envelope_hmac;
 static int hf_packclient_plk1_wire_version;
 static int hf_packclient_plk1_lz4_flag;
@@ -67,12 +76,18 @@ static int hf_packclient_plk1_reserved;
 static int hf_packclient_plk1_total_size;
 static int hf_packclient_plk1_original_size;
 static int hf_packclient_plk1_expected_sha256;
+static int hf_packclient_core_payload;
+static int hf_packclient_core_command;
+static int hf_packclient_pv10_magic;
+static int hf_packclient_pv10_jpeg_length;
+static int hf_packclient_pv10_jpeg;
 
 static int ett_packclient;
 
 static expert_field ei_packclient_malformed_framing = EI_INIT;
 static expert_field ei_packclient_malformed_object = EI_INIT;
 static expert_field ei_packclient_malformed_envelope = EI_INIT;
+static expert_field ei_packclient_malformed_pv10 = EI_INIT;
 
 static dissector_handle_t packclient_handle;
 
@@ -80,10 +95,39 @@ static const uint8_t packclient_magic_plh1[] = { 'P', 'L', 'H', '1' };
 static const uint8_t packclient_magic_plc1[] = { 'P', 'L', 'C', '1' };
 static const uint8_t packclient_magic_pla1[] = { 'P', 'L', 'A', '1' };
 static const uint8_t packclient_magic_plk1[] = { 'P', 'L', 'K', '1' };
+static const uint8_t packclient_magic_pv10[] = { 'P', 'V', '1', '0' };
+
+static const uint8_t packclient_core_prefix_inp[] = { 'I', 'N', 'P', '|' };
+static const uint8_t packclient_core_prefix_sys[] = { 'S', 'Y', 'S', '|' };
+static const uint8_t packclient_core_prefix_tlm[] = { 'T', 'L', 'M', '|' };
+static const uint8_t packclient_core_prefix_scr[] = { 'S', 'C', 'R', '|' };
+static const uint8_t packclient_core_prefix_q[] = { 'Q', '|' };
+static const uint8_t packclient_core_prefix_pipe[] = { 'P', 'I', 'P', 'E', '|' };
+
+typedef struct {
+    const uint8_t *bytes;
+    unsigned length;
+} packclient_marker_t;
+
+static const packclient_marker_t packclient_core_command_prefixes[] = {
+    { packclient_core_prefix_inp, sizeof(packclient_core_prefix_inp) },
+    { packclient_core_prefix_sys, sizeof(packclient_core_prefix_sys) },
+    { packclient_core_prefix_tlm, sizeof(packclient_core_prefix_tlm) },
+    { packclient_core_prefix_scr, sizeof(packclient_core_prefix_scr) },
+    { packclient_core_prefix_q, sizeof(packclient_core_prefix_q) },
+    { packclient_core_prefix_pipe, sizeof(packclient_core_prefix_pipe) },
+};
 
 static const value_string packclient_message_type_vals[] = {
-    { PACKCLIENT_TYPE_PLAINTEXT, "Plaintext" },
-    { PACKCLIENT_TYPE_ENVELOPE,  "Encrypted envelope" },
+    { PACKCLIENT_TYPE_CORE_1,          "Core type 1" },
+    { PACKCLIENT_TYPE_CORE_2,          "Core type 2" },
+    { PACKCLIENT_TYPE_CORE_STRUCTURED, "Core structured message" },
+    { PACKCLIENT_TYPE_CORE_10,         "Core type 10" },
+    { PACKCLIENT_TYPE_CORE_INVENTORY,  "Core host inventory" },
+    { PACKCLIENT_TYPE_CORE_17,         "Core type 17" },
+    { PACKCLIENT_TYPE_CORE_PV10,       "Core PV10 preview" },
+    { PACKCLIENT_TYPE_PLAINTEXT,       "Plaintext delivery" },
+    { PACKCLIENT_TYPE_ENVELOPE,        "Authenticated encrypted envelope" },
     { 0, NULL }
 };
 
@@ -91,6 +135,23 @@ static bool
 packclient_valid_frame_word(uint32_t frame_word)
 {
     return (frame_word & PACKCLIENT_FRAME_PREFIX_MASK) == PACKCLIENT_FRAME_PREFIX;
+}
+
+static bool
+packclient_is_core_type(uint32_t message_type)
+{
+    switch (message_type) {
+    case PACKCLIENT_TYPE_CORE_1:
+    case PACKCLIENT_TYPE_CORE_2:
+    case PACKCLIENT_TYPE_CORE_STRUCTURED:
+    case PACKCLIENT_TYPE_CORE_10:
+    case PACKCLIENT_TYPE_CORE_INVENTORY:
+    case PACKCLIENT_TYPE_CORE_17:
+    case PACKCLIENT_TYPE_CORE_PV10:
+        return true;
+    default:
+        return false;
+    }
 }
 
 static bool
@@ -207,6 +268,7 @@ packclient_valid_heuristic_start(tvbuff_t *tvb)
         if (tvb_get_uint8(tvb, 8) != 1)
             return false;
 
+        /* Heuristic binding intentionally remains Launcher-only. */
         ciphertext_length = tvb_get_ntohl(tvb, 25);
         return ciphertext_length != 0 && (ciphertext_length % 16) == 0 &&
                (uint64_t)ciphertext_length + PACKCLIENT_ENVELOPE_OVERHEAD_LEN ==
@@ -259,6 +321,7 @@ packclient_add_plaintext_object(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_packclient_plh1_tick_count, tvb, 24, 8, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_packclient_plh1_process_id, tvb, 32, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_packclient_plh1_reserved, tvb, 36, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_string(tree, hf_packclient_phase, tvb, 4, 4, "Launcher");
         return "PLH1";
     }
 
@@ -273,6 +336,7 @@ packclient_add_plaintext_object(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_packclient_object_version, tvb, 12, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_packclient_plc1_field_06, tvb, 14, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_packclient_plc1_challenge, tvb, 16, 16, ENC_NA);
+        proto_tree_add_string(tree, hf_packclient_phase, tvb, 4, 4, "Launcher");
         return "PLC1";
     }
 
@@ -287,6 +351,7 @@ packclient_add_plaintext_object(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_packclient_object_version, tvb, 12, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_packclient_pla1_reserved, tvb, 14, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_packclient_pla1_authenticator, tvb, 16, 32, ENC_NA);
+        proto_tree_add_string(tree, hf_packclient_phase, tvb, 4, 4, "Launcher");
         return "PLA1";
     }
 
@@ -318,6 +383,7 @@ packclient_add_plaintext_object(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(tree, hf_packclient_plk1_total_size, tvb, 16, 8, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_packclient_plk1_original_size, tvb, 24, 8, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_packclient_plk1_expected_sha256, tvb, 32, 32, ENC_NA);
+        proto_tree_add_string(tree, hf_packclient_phase, tvb, 4, 4, "Launcher");
         return "PLK1";
     }
 
@@ -330,8 +396,16 @@ packclient_add_envelope_metadata(tvbuff_t *tvb, packet_info *pinfo,
                                  uint32_t body_length)
 {
     uint32_t envelope_length = body_length - PACKCLIENT_TYPE_LEN;
-    uint8_t version;
+    uint32_t expected_ciphertext_length;
+    uint32_t ciphertext_length_be;
+    uint32_t ciphertext_length_le;
     uint32_t ciphertext_length;
+    uint8_t version;
+    unsigned encoding;
+    const char *format;
+    const char *phase = NULL;
+    bool launcher_format;
+    bool core_format;
 
     if (envelope_length < PACKCLIENT_ENVELOPE_OVERHEAD_LEN) {
         expert_add_info_format(pinfo, root, &ei_packclient_malformed_envelope,
@@ -340,23 +414,46 @@ packclient_add_envelope_metadata(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     version = tvb_get_uint8(tvb, 8);
-    ciphertext_length = tvb_get_ntohl(tvb, 25);
+    ciphertext_length_be = tvb_get_ntohl(tvb, 25);
+    ciphertext_length_le = tvb_get_letohl(tvb, 25);
+    expected_ciphertext_length = envelope_length - PACKCLIENT_ENVELOPE_OVERHEAD_LEN;
+    launcher_format = ciphertext_length_be == expected_ciphertext_length;
+    core_format = ciphertext_length_le == expected_ciphertext_length;
 
     proto_tree_add_item(tree, hf_packclient_envelope_version, tvb, 8, 1, ENC_NA);
     proto_tree_add_item(tree, hf_packclient_envelope_iv, tvb, 9, 16, ENC_NA);
-    proto_tree_add_item(tree, hf_packclient_envelope_ciphertext_length, tvb, 25, 4,
-                        ENC_BIG_ENDIAN);
 
     if (version != 1) {
         expert_add_info_format(pinfo, root, &ei_packclient_malformed_envelope,
                                "type 0x16 envelope version must be 1");
         return NULL;
     }
-    if ((uint64_t)ciphertext_length + PACKCLIENT_ENVELOPE_OVERHEAD_LEN != envelope_length) {
+
+    if (launcher_format && !core_format) {
+        ciphertext_length = ciphertext_length_be;
+        encoding = ENC_BIG_ENDIAN;
+        format = "Launcher (big-endian length)";
+        phase = "Launcher";
+    } else if (core_format && !launcher_format) {
+        ciphertext_length = ciphertext_length_le;
+        encoding = ENC_LITTLE_ENDIAN;
+        format = "Core (little-endian length)";
+        phase = "Core";
+    } else if (launcher_format && core_format) {
+        ciphertext_length = ciphertext_length_be;
+        encoding = ENC_BIG_ENDIAN;
+        format = "Ambiguous byte order";
+    } else {
         expert_add_info_format(pinfo, root, &ei_packclient_malformed_envelope,
                                "type 0x16 envelope length does not match its ciphertext length");
         return NULL;
     }
+
+    proto_tree_add_item(tree, hf_packclient_envelope_ciphertext_length, tvb, 25, 4, encoding);
+    proto_tree_add_string(tree, hf_packclient_envelope_format, tvb, 25, 4, format);
+    if (phase != NULL)
+        proto_tree_add_string(tree, hf_packclient_phase, tvb, 4, 4, phase);
+
     if (ciphertext_length == 0) {
         expert_add_info_format(pinfo, root, &ei_packclient_malformed_envelope,
                                "type 0x16 ciphertext is empty");
@@ -371,6 +468,102 @@ packclient_add_envelope_metadata(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(tree, hf_packclient_envelope_hmac, tvb,
                         29 + ciphertext_length, 32, ENC_NA);
     return "type 0x16 metadata";
+}
+
+static void
+packclient_add_core_command(tvbuff_t *tvb, proto_tree *tree, uint32_t payload_length)
+{
+    unsigned payload_offset = 8;
+    unsigned command_offset = 0;
+    unsigned command_length = 0;
+    bool found = false;
+
+    for (unsigned offset = 0; offset < payload_length && !found; offset++) {
+        unsigned remaining = payload_length - offset;
+
+        for (unsigned marker_idx = 0; marker_idx < array_length(packclient_core_command_prefixes);
+             marker_idx++) {
+            const packclient_marker_t *marker = &packclient_core_command_prefixes[marker_idx];
+
+            if (remaining >= marker->length &&
+                tvb_memeql(tvb, payload_offset + offset,
+                           marker->bytes, marker->length) == 0) {
+                command_offset = offset;
+                command_length = remaining;
+                found = true;
+                break;
+            }
+        }
+    }
+
+    if (!found)
+        return;
+
+    for (unsigned offset = 0; offset < command_length; offset++) {
+        if (tvb_get_uint8(tvb, payload_offset + command_offset + offset) == 0) {
+            command_length = offset;
+            break;
+        }
+    }
+
+    if (command_length > 0) {
+        proto_tree_add_item(tree, hf_packclient_core_command, tvb,
+                            payload_offset + command_offset, command_length, ENC_ASCII);
+    }
+}
+
+static const char *
+packclient_add_core_metadata(tvbuff_t *tvb, packet_info *pinfo,
+                             proto_tree *tree, proto_item *root,
+                             uint32_t message_type, uint32_t body_length)
+{
+    uint32_t payload_length = body_length - PACKCLIENT_TYPE_LEN;
+
+    proto_tree_add_string(tree, hf_packclient_phase, tvb, 4, 4, "Core");
+    if (payload_length > 0)
+        proto_tree_add_item(tree, hf_packclient_core_payload, tvb, 8, payload_length, ENC_NA);
+
+    if (message_type == PACKCLIENT_TYPE_CORE_PV10) {
+        uint32_t jpeg_length;
+
+        if (payload_length < 8) {
+            expert_add_info_format(pinfo, root, &ei_packclient_malformed_pv10,
+                                   "PV10 payload is shorter than 8 bytes");
+            return NULL;
+        }
+        if (tvb_memeql(tvb, 8, packclient_magic_pv10, 4) != 0) {
+            expert_add_info_format(pinfo, root, &ei_packclient_malformed_pv10,
+                                   "Core type 18 payload does not begin with PV10");
+            return NULL;
+        }
+
+        jpeg_length = tvb_get_letohl(tvb, 12);
+        proto_tree_add_item(tree, hf_packclient_pv10_magic, tvb, 8, 4, ENC_ASCII);
+        proto_tree_add_item(tree, hf_packclient_pv10_jpeg_length, tvb, 12, 4,
+                            ENC_LITTLE_ENDIAN);
+
+        if (jpeg_length != payload_length - 8) {
+            expert_add_info_format(pinfo, root, &ei_packclient_malformed_pv10,
+                                   "PV10 JPEG length does not match the payload");
+            return NULL;
+        }
+        if (jpeg_length < 2 || tvb_get_ntohs(tvb, 16) != 0xFFD8) {
+            expert_add_info_format(pinfo, root, &ei_packclient_malformed_pv10,
+                                   "PV10 data does not begin with a JPEG SOI marker");
+            return NULL;
+        }
+        if (jpeg_length < 4 || tvb_get_ntohs(tvb, 16 + jpeg_length - 2) != 0xFFD9) {
+            expert_add_info_format(pinfo, root, &ei_packclient_malformed_pv10,
+                                   "PV10 data does not end with a JPEG EOI marker");
+            return NULL;
+        }
+
+        proto_tree_add_item(tree, hf_packclient_pv10_jpeg, tvb, 16, jpeg_length, ENC_NA);
+        return "Core PV10 JPEG";
+    }
+
+    packclient_add_core_command(tvb, tree, payload_length);
+    return val_to_str_const(message_type, packclient_message_type_vals, "Core message");
 }
 
 static unsigned
@@ -431,13 +624,19 @@ dissect_packclient_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            "Encrypted envelope (authentication not verified)");
         classification = packclient_add_envelope_metadata(
             tvb, pinfo, packclient_tree, ti, body_length);
+    } else if (packclient_is_core_type(message_type)) {
+        classification = packclient_add_core_metadata(
+            tvb, pinfo, packclient_tree, ti, message_type, body_length);
     } else {
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ",
                             "Message type 0x%08x", message_type);
     }
 
     if (classification != NULL) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s", classification);
+        if (packclient_is_core_type(message_type))
+            col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", classification);
+        else
+            col_append_fstr(pinfo->cinfo, COL_INFO, " %s", classification);
         proto_item_append_text(ti, " (%s)", classification);
     }
 
@@ -490,6 +689,11 @@ proto_register_packclient(void)
         { &hf_packclient_message_type,
           { "Message type", "packclient.message_type",
             FT_UINT32, BASE_HEX, VALS(packclient_message_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_packclient_phase,
+          { "Protocol phase", "packclient.phase",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_packclient_object_magic,
@@ -567,6 +771,11 @@ proto_register_packclient(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_packclient_envelope_format,
+          { "Envelope format", "packclient.envelope.format",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_packclient_envelope_hmac,
           { "Envelope HMAC-SHA-256", "packclient.envelope.hmac",
             FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -602,6 +811,31 @@ proto_register_packclient(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Expected digest from the header; delivered plaintext is not verified", HFILL }
         },
+        { &hf_packclient_core_payload,
+          { "Core payload", "packclient.core.payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_packclient_core_command,
+          { "Core command text", "packclient.core.command",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_packclient_pv10_magic,
+          { "PV10 magic", "packclient.pv10.magic",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_packclient_pv10_jpeg_length,
+          { "PV10 JPEG length", "packclient.pv10.jpeg_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_packclient_pv10_jpeg,
+          { "PV10 JPEG data", "packclient.pv10.jpeg",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static int *ett[] = {
@@ -621,12 +855,16 @@ proto_register_packclient(void)
           { "packclient.expert.malformed_envelope", PI_MALFORMED, PI_ERROR,
             "Malformed PackClient type 0x16 envelope", EXPFILL }
         },
+        { &ei_packclient_malformed_pv10,
+          { "packclient.expert.malformed_pv10", PI_MALFORMED, PI_ERROR,
+            "Malformed PackClient Core PV10 preview", EXPFILL }
+        },
     };
 
     expert_module_t *expert_packclient;
 
     proto_packclient = proto_register_protocol(
-        "PackClient Launcher Transport", "PACKCLIENT", "packclient");
+        "PackClient Transport", "PACKCLIENT", "packclient");
 
     proto_register_field_array(proto_packclient, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
