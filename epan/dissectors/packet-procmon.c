@@ -2717,7 +2717,8 @@ dissect_procmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     //Stack trace size part of the record
 #define PROCMON_MAX_STACK_TRACE_COUNT 100 // Arbitrary.
-    unsigned full_stack_trace_size = tvb_get_letohl(tvb, offset);
+    uint32_t full_stack_trace_size; // Host byte order.
+    tvb_memcpy(tvb, &full_stack_trace_size, offset, 4);
     int size_of_pointer = pinfo->pseudo_header->procmon.system_bitness ? 8 : 4;
     unsigned max_stack_trace_size = PROCMON_MAX_STACK_TRACE_COUNT * size_of_pointer;
     unsigned stack_trace_size = MIN(full_stack_trace_size, max_stack_trace_size);
