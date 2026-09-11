@@ -60,7 +60,9 @@ void keypair_context_init(const uint8_t *controller_ieee, const uint8_t *target_
 
 static void keypair_context_calc_key(uint8_t *nwk_key)
 {
-    for (int i = 0; i < keypair_context.nwk_key_exchange_transfer_received; i++)
+    /* "Divide the result of phase 1 into five 128-bit blocks and compute
+     * their XOR." */
+    for (int i = 0; i < 5; i++)
     {
         for (int j = 0; j < KEY_LEN; j++)
         {
@@ -124,6 +126,8 @@ void keypair_context_update_seed(uint8_t *seed, uint8_t seed_seqn)
         /* save the current key seed to avoid retransmitts of the latest one in future */
         memcpy(keypair_context.nwk_key_seed_prev, keypair_context.nwk_key_seed, RF4CE_NWK_KEY_SEED_DATA_LENGTH);
 
+        /* "Compute the XOR of the seed data fields from each of the (n + 1)
+         * key seed command frames." */
         for (int i = 0; i < RF4CE_NWK_KEY_SEED_DATA_LENGTH; i++)
         {
             keypair_context.nwk_key_seed[i] ^= keypair_context.nwk_key_seed_latest[i];
