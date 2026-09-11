@@ -891,6 +891,7 @@ static expert_field ei_openflow_v6_port_desc_prop_undecoded;
 static expert_field ei_openflow_v6_port_stats_prop_undecoded;
 static expert_field ei_openflow_v6_meter_band_undecoded;
 static expert_field ei_openflow_v6_hello_element_undecoded;
+static expert_field ei_openflow_v6_hello_element_length_bad;
 static expert_field ei_openflow_v6_error_undecoded;
 static expert_field ei_openflow_v6_experimenter_undecoded;
 static expert_field ei_openflow_v6_portmod_prop_undecoded;
@@ -1659,7 +1660,7 @@ static const value_string openflow_v6_hello_element_type_values[] = {
 };
 
 static int
-dissect_openflow_hello_element_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length)
+dissect_openflow_hello_element_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t length)
 {
     proto_tree *elem_tree;
     uint32_t elem_type;
@@ -1674,14 +1675,17 @@ dissect_openflow_hello_element_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     /* uint16_t length; */
     elem_length = tvb_get_ntohs(tvb, offset);
-    pad_length = (elem_length + 7)/8*8 - elem_length;
     proto_tree_add_item(elem_tree, hf_openflow_v6_hello_element_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
-    if (elem_length >= 4) {
-        elem_length -= 4;
-        /* Otherwise expert info? */
+    if (elem_length < 4) {
+        proto_tree_add_expert_format(elem_tree, pinfo, &ei_openflow_v6_hello_element_length_bad,
+                                     tvb, offset - 2, 2, "Illegal hello element length: %u (must be >= 4)", elem_length);
+        return length;
     }
+
+    pad_length = (elem_length + 7)/8*8 - elem_length;
+    elem_length -= 4;
 
     switch (elem_type) {
     case OFPHET_VERSIONBITMAP:
@@ -10650,6 +10654,10 @@ proto_register_openflow_v6(void)
         { &ei_openflow_v6_hello_element_undecoded,
             { "openflow_v6.hello_element.undecoded", PI_UNDECODED, PI_NOTE,
               "Unknown hello element body.", EXPFILL }
+        },
+        { &ei_openflow_v6_hello_element_length_bad,
+            { "openflow_v6.hello_element.length_bad", PI_MALFORMED, PI_ERROR,
+              "Illegal hello element length", EXPFILL }
         },
         { &ei_openflow_v6_error_undecoded,
             { "openflow_v6.error.undecoded", PI_UNDECODED, PI_NOTE,
