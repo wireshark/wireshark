@@ -795,12 +795,11 @@ blf_decompress_zlib(uint8_t *compressed_data, unsigned compressed_len, uint64_t 
      * on 32-bit platforms. */
     uint64_t total_out = 0;
 
-    /* blf_pull_logcontainer_into_memory already checks for 0 */
-    ws_assert(decompressed_len != 0);
-
-    /* blf_pull_logcontainer_into_memory already checks for 0 by
-     * checking the return value of g_[try_]malloc. */
-    ws_assert(compressed_len != 0);
+    if (decompressed_len == 0 || compressed_len == 0) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup("blf: compressed or decompressed container has 0 length");
+        return NULL;
+    }
 
     /* Typical compression ratios are between 2:1-5:1; the theoretical max
      * is somewhat above 1030:1; depending on what's being compressed, that
@@ -1075,11 +1074,13 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
 
     } else if (container->compression_method == BLF_COMPRESSION_ZLIB) {
 #ifdef USE_ZLIB_OR_ZLIBNG
+        if (data_length == 0) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = ws_strdup("blf_pull_logcontainer_into_memory: compressed container has 0 length");
+            return false;
+        }
         unsigned char *compressed_data = g_try_malloc((size_t)data_length);
         if (compressed_data == NULL) {
-            /* g_try_malloc returns NULL if data_length is 0. Can data_length
-             * be zero, and in a way that we should just skip it, as above if
-             * the decompressed length is 0? */
             *err = WTAP_ERR_INTERNAL;
             *err_info = ws_strdup("blf_pull_logcontainer_into_memory: cannot allocate memory");
             return false;
