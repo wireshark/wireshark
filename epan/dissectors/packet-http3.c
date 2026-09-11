@@ -2150,18 +2150,39 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
         dissect_http3_headers(next_tvb, pinfo, ft_tree, 0, offset, stream_info, http3_stream);
     } break;
-    case HTTP3_CANCEL_PUSH: /* TODO: dissect Cancel_Push Frame */
-        break;
+    case HTTP3_CANCEL_PUSH: {
+        uint64_t push_id;
+        proto_tree_add_item_ret_varint(ft_tree, hf_http3_push_id, tvb, offset, -1,
+                                       ENC_VARINT_QUIC, &push_id, NULL);
+        proto_item_append_text(ti_ft, " Push ID=%" PRIu64, push_id);
+    } break;
     case HTTP3_SETTINGS: { /* Settings Frame */
         tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, payload_length);
         dissect_http3_settings(next_tvb, pinfo, ft_tree, 0);
     } break;
-    case HTTP3_PUSH_PROMISE: /* TODO: dissect Push_Promise_Frame */
-        break;
-    case HTTP3_GOAWAY: /* TODO: dissect Goaway Frame */
-        break;
-    case HTTP3_MAX_PUSH_ID: /* TODO: dissect Max_Push_ID Frame */
-        break;
+    case HTTP3_PUSH_PROMISE: {
+        uint64_t push_id;
+        unsigned push_id_len;
+        proto_tree_add_item_ret_varint(ft_tree, hf_http3_push_id, tvb, offset, -1,
+                                       ENC_VARINT_QUIC, &push_id, &push_id_len);
+        proto_item_append_text(ti_ft, " Push ID=%" PRIu64, push_id);
+        if (payload_length > push_id_len) {
+            tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset + push_id_len, payload_length - push_id_len);
+            dissect_http3_headers(next_tvb, pinfo, ft_tree, 0, offset + push_id_len, stream_info, http3_stream);
+        }
+    } break;
+    case HTTP3_GOAWAY: {
+        uint64_t stream_id;
+        proto_tree_add_item_ret_varint(ft_tree, hf_http3_stream_id, tvb, offset, -1,
+                                       ENC_VARINT_QUIC, &stream_id, NULL);
+        proto_item_append_text(ti_ft, " Stream ID=%" PRIu64, stream_id);
+    } break;
+    case HTTP3_MAX_PUSH_ID: {
+        uint64_t push_id;
+        proto_tree_add_item_ret_varint(ft_tree, hf_http3_push_id, tvb, offset, -1,
+                                       ENC_VARINT_QUIC, &push_id, NULL);
+        proto_item_append_text(ti_ft, " Push ID=%" PRIu64, push_id);
+    } break;
     case HTTP3_PRIORITY_UPDATE_REQUEST_STREAM:
         /* FALLTHROUGH */
     case HTTP3_PRIORITY_UPDATE_PUSH_STREAM: { /* Priority_Update Frame */
