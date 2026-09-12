@@ -3041,15 +3041,15 @@ reassemble:
             }
         }
 
+        if (allow_reassembling && info->do_rc_send_reassembling) {
+                goto reassemble;
+        }
+
         if (dissector_found == false)
         {
             /* No sub-dissector found.
                Label rest of packet as "Data" */
             call_data_dissector(next_tvb, pinfo, top_tree);
-        }
-
-        if (allow_reassembling && info->do_rc_send_reassembling) {
-                goto reassemble;
         }
 
 skip_dissector:
