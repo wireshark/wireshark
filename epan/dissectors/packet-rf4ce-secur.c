@@ -62,7 +62,7 @@ static void keypair_context_calc_key(uint8_t *nwk_key)
 {
     /* "Divide the result of phase 1 into five 128-bit blocks and compute
      * their XOR." */
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < KEY_LEN; j++)
         {
