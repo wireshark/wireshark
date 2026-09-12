@@ -130,8 +130,7 @@ typedef struct _x11_conv_data {
       unsigned     byte_order;       /* byte order of connection */
       bool      resync;           /* resynchronization of sequence number performed */
 
-      int       *keycodemap[256]; /* keycode to keysymvalue map. */
-      int       keysyms_per_keycode;
+      wmem_array_t *keycodemap[256]; /* keycode to keysymvalue map. */
       int       first_keycode;
       int       *modifiermap[array_length(modifiers)];/* modifier to keycode.*/
       int       keycodes_per_modifier;
@@ -1106,7 +1105,7 @@ static const value_string zero_is_none_vals[] = {
       proto_tree_add_uint_format(t, hf_x11_##name, tvb, offset, 1,    \
       keycode, "keycode: %d (%s)",                                    \
       keycode,  keycode2keysymString(pinfo->pool, state->keycodemap,  \
-      state->first_keycode, state->keysyms_per_keycode,               \
+      state->first_keycode,                                           \
       state->modifiermap, state->keycodes_per_modifier,               \
       keycode, mask));                                                \
       ++offset;                                                       \
@@ -1657,8 +1656,7 @@ XConvertCase(register int sym, int *lower, int *upper)
 }
 
 static const char *
-keycode2keysymString(wmem_allocator_t* allocator, int *keycodemap[256], int first_keycode,
-                     int keysyms_per_keycode,
+keycode2keysymString(wmem_allocator_t* allocator, wmem_array_t *keycodemap[256], int first_keycode,
                      int *modifiermap[array_length(modifiers)],
                      int keycodes_per_modifier,
                      uint32_t keycode, uint32_t bitmask)
@@ -1668,15 +1666,19 @@ keycode2keysymString(wmem_allocator_t* allocator, int *keycodemap[256], int firs
       int lockmod_is_capslock = 0, lockmod_is_shiftlock = 0;
       int lockmod_is_nosymbol = 1;
       int modifier, kc, keysym;
+      int keysyms_per_keycode;
 
-      if ((syms = keycodemap[keycode]) == NULL)
+      if ((keycodemap[keycode]) == NULL)
             return "<Unknown>";
 
-      for (kc = first_keycode, groupmodkc = numlockkc = -1; kc < 256; ++kc)
+      for (kc = first_keycode, groupmodkc = numlockkc = -1; kc < 256; ++kc) {
+            if (keycodemap[kc] == NULL) {
+                  continue;
+            }
+            keysyms_per_keycode = wmem_array_get_count(keycodemap[kc]);
+            syms = wmem_array_get_raw(keycodemap[kc]);
             for (keysym = 0; keysym < keysyms_per_keycode; ++keysym) {
-                  if (keycodemap[kc] == NULL)
-                        return "<Unknown>";
-                  switch (keycodemap[kc][keysym]) {
+                  switch (syms[keysym]) {
                         case 0xff7e:
                               groupmodkc = kc;
                               break;
@@ -1694,7 +1696,7 @@ keycode2keysymString(wmem_allocator_t* allocator, int *keycodemap[256], int firs
                               break;
                   }
             }
-
+      }
 
       /*
        * If we have not seen the modifiermap we don't know what the
@@ -1728,6 +1730,9 @@ keycode2keysymString(wmem_allocator_t* allocator, int *keycodemap[256], int firs
                   lockmod_is_capslock = lockmod_is_nosymbol = 0;
                   break;
             }
+
+      keysyms_per_keycode = wmem_array_get_count(keycodemap[keycode]);
+      syms = wmem_array_get_raw(keycodemap[keycode]);
 
 #if 0
       /*
@@ -1777,7 +1782,7 @@ keycode2keysymString(wmem_allocator_t* allocator, int *keycodemap[256], int firs
 #else /* _XTranslateKey() based code. */
 
       while (keysyms_per_keycode > 2
-             && keycodemap[keysyms_per_keycode - 1] == NoSymbol)
+             && syms[keysyms_per_keycode - 1] == NoSymbol)
             --keysyms_per_keycode;
       if (keysyms_per_keycode > 2
           && (groupmod >= 0 && (modifiermask[groupmod] & bitmask))) {
@@ -1888,7 +1893,7 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 }
 
 static void listOfKeysyms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto_tree *t, int hf,
-                          int hf_item, int *keycodemap[256],
+                          int hf_item, wmem_array_t *keycodemap[256],
                           int keycode_first, int keycode_count,
                           int keysyms_per_keycode, unsigned byte_order)
 {
@@ -1896,6 +1901,7 @@ static void listOfKeysyms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
       proto_tree *tt = proto_item_add_subtree(ti, ett_x11_list_of_keysyms);
       proto_item *tti;
       proto_tree *ttt;
+      int *syms;
       int i, keycode;
 
       DISSECTOR_ASSERT(keycode_first >= 0);
@@ -1915,8 +1921,15 @@ static void listOfKeysyms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
             ttt = proto_item_add_subtree(tti, ett_x11_keysym);
 
             tvb_ensure_bytes_exist(tvb, *offsetp, 4 * keysyms_per_keycode);
+            /* XXX - To be more correct, this should be a tree that stores
+             * the lists at different frame numbers, so that nonsequential
+             * dissection on later passes works before and after a
+             * ChangeKeyboardMapping opcode. */
+            if (keycodemap[keycode]) {
+                  wmem_destroy_array(keycodemap[keycode]);
+            }
             keycodemap[keycode]
-                  =  (int *)wmem_alloc(wmem_file_scope(), sizeof(*keycodemap[keycode]) * keysyms_per_keycode);
+                  = wmem_array_sized_new(wmem_file_scope(), sizeof(int), keysyms_per_keycode);
 
             for(i = 0; i < keysyms_per_keycode; ++i) {
                   /* keysymvalue = byte3 * 256 + byte4. */
@@ -1928,33 +1941,34 @@ static void listOfKeysyms(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, proto
                                              "keysym (keycode %d): 0x%08x (%s)",
                                              keycode, v, keysymString(v));
 
-                  keycodemap[keycode][i] = v;
+                  wmem_array_append_one(keycodemap[keycode], v);
                   *offsetp += 4;
             }
 
+            syms = wmem_array_get_raw(keycodemap[keycode]);
             for (i = 1; i < keysyms_per_keycode; ++i)
-                  if (keycodemap[keycode][i] != NoSymbol)
+                  if (syms[i] != NoSymbol)
                         break;
 
             if (i == keysyms_per_keycode) {
                   /* all but (possibly) first were NoSymbol. */
                   if (keysyms_per_keycode == 4) {
-                        keycodemap[keycode][1] = NoSymbol;
-                        keycodemap[keycode][2] = keycodemap[keycode][0];
-                        keycodemap[keycode][3] = NoSymbol;
+                        syms[1] = NoSymbol;
+                        syms[2] = syms[0];
+                        syms[3] = NoSymbol;
                   }
 
                   continue;
             }
 
             for (i = 2; i < keysyms_per_keycode; ++i)
-                  if (keycodemap[keycode][i] != NoSymbol)
+                  if (syms[i] != NoSymbol)
                         break;
             if (i == keysyms_per_keycode) {
                   /* all but (possibly) first two were NoSymbol. */
                   if (keysyms_per_keycode == 4) {
-                        keycodemap[keycode][2] = keycodemap[keycode][0];
-                        keycodemap[keycode][3] =  keycodemap[keycode][1];
+                        syms[2] = syms[0];
+                        syms[3] = syms[1];
                   }
 
                   continue;
@@ -5122,7 +5136,7 @@ x11_stateinit(conversation_t *conversation)
       static x11_conv_data_t stateinit;
       int i;
 
-      state = wmem_new(wmem_file_scope(), x11_conv_data_t);
+      state = wmem_new0(wmem_file_scope(), x11_conv_data_t);
       *state = stateinit;
 
       /* initialise opcodes */
@@ -5640,11 +5654,11 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   REPLYCONTENTS_COMMON();
                   break;
 
-            case X_GetKeyboardMapping:
+            case X_GetKeyboardMapping: {
                   state->first_keycode =
                         state->request.GetKeyboardMapping.first_keycode;
                   REPLY(reply);
-                  state->keysyms_per_keycode =
+                  int keysyms_per_keycode =
                         FIELD8(keysyms_per_keycode);
                   SEQUENCENUMBER_REPLY(sequencenumber);
                   length = REPLYLENGTH(replylength);
@@ -5652,11 +5666,12 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   *offsetp += 24;
                   LISTofKEYSYM(keysyms, state->keycodemap,
                                state->request.GetKeyboardMapping.first_keycode,
-                               /* XXX - length / state->keysyms_per_keycode can raise a division by zero,
+                               /* XXX - length / keysyms_per_keycode can raise a division by zero,
                                 * don't know if this is the *right* way to fix it ... */
-                               state->keysyms_per_keycode ? length / state->keysyms_per_keycode : 0,
-                               state->keysyms_per_keycode);
+                               keysyms_per_keycode ? length / keysyms_per_keycode : 0,
+                               keysyms_per_keycode);
                   break;
+            }
 
             case X_GetKeyboardControl:
                   REPLYCONTENTS_COMMON();
