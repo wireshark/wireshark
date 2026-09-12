@@ -22969,6 +22969,16 @@ save_tag_for_dot11decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset)
   uint8_t tag_no;
   uint8_t tag_len;
 
+  /* None of these should be fragmented. For purposes of calculating the
+   * MIC we want these elements including the tag number and tag len. The
+   * tag dissector is passed a tvbuffer that does not include the tag number
+   * or tag len.
+   *
+   * XXX - save_proto_data calls tvb_memcpy and can throw an exception if
+   * the TVB doesn't contain the full element length. We don't want to copy
+   * the data if the full length isn't there, but we might not want to throw
+   * an exception here before we've added the fields that we can to the tree.
+   */
   if (!enable_decryption) {
     return;
   }
@@ -22980,7 +22990,13 @@ save_tag_for_dot11decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset)
       save_proto_data(tvb, pinfo, offset, tag_len + 2, MDE_TAG_KEY);
       break;
     case TAG_FAST_BSS_TRANSITION:
-      save_proto_data(tvb, pinfo, offset, tag_len + 2, FTE_TAG_KEY);
+      if (tag_len >= 82) {
+        /* Same length check as in dissect_fast_bss_transition(), which
+         * also saves proto data needed for the MIC calculation but after
+         * the length check. This prevents odd behavior in the unusual
+         * case of a malformed frame with one normal and one short FTE. */
+        save_proto_data(tvb, pinfo, offset, tag_len + 2, FTE_TAG_KEY);
+      }
       break;
     case TAG_RIC_DATA:
       save_proto_data(tvb, pinfo, offset, tag_len + 2, RDE_TAG_KEY);
@@ -32208,6 +32224,13 @@ add_tagged_field_with_validation(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 
   tag_no  = tvb_get_uint8(tvb, offset);
   tag_len = tvb_get_uint8(tvb, offset + 1);
+  /* XXX - Some elements can only appear once, whereas others can appear one or
+   * more times. Compare in Table 9-32 "Beacon frame body" etc. the phrases
+   * "The X element is present if" to "One or more X elements are present if".
+   * We don't add an expert info if an element that should appear only once
+   * is repeated. In general when saving proto_data, e.g. for dot11decrypt,
+   * we save the last element of a tag, but need to be careful if an element
+   * occurs once in a normal form and once in a short or malformed form. */
   save_tag_for_dot11decrypt(tvb, pinfo, offset);
 
   /*

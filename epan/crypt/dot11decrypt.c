@@ -2225,6 +2225,12 @@ Dot11DecryptFtMicCheck(
     int mic_algo;
     bool hmac;
 
+    if (!assoc_parsed->rsne_tag || !assoc_parsed->mde_tag ||
+        !assoc_parsed->fte_tag) {
+        ws_debug("RSNE, MDE, or FTE not present");
+        return DOT11DECRYPT_RET_UNSUCCESS;
+    }
+
     fte_len = assoc_parsed->fte_tag[1] + 2;
     if (fte_len < 20) {
         ws_debug("FTE too short");
