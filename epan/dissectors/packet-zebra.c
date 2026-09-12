@@ -1274,7 +1274,7 @@ zebra_route(proto_tree *tree, bool request, tvbuff_t *tvb, int offset,
 					    offset, PSIZE(srcprefixlen),
 					    (ws_in6_addr *)srcbuffer6);
 		} else if (family == ZEBRA_FAMILY_IPV4) {
-			prefix4 = 0;
+			srcprefix4 = 0;
 			tvb_memcpy(tvb, (uint8_t *)&srcprefix4, offset,
 				   MIN((unsigned)PSIZE(srcprefixlen),
 				       sizeof srcprefix4));
