@@ -43,6 +43,44 @@ void proto_register_tns(void);
 #define TNS_TYPE_DD             15
 #define TNS_TYPE_MAX            19
 
+/*
+ * Oracle datatype codes as they appear on the wire and in tns_data_types[].
+ * python-oracledb lists most of these as its ORA_TYPE_NUM_* constants.
+ */
+#define TNS_DATATYPE_VARCHAR        1
+#define TNS_DATATYPE_NUMBER         2
+#define TNS_DATATYPE_INTEGER        3
+#define TNS_DATATYPE_FLOAT          4
+#define TNS_DATATYPE_STRING         5
+#define TNS_DATATYPE_VARNUM         6
+#define TNS_DATATYPE_DECIMAL        7
+#define TNS_DATATYPE_LONG           8
+#define TNS_DATATYPE_VCS            9
+#define TNS_DATATYPE_ROWID          11   /* RID */
+#define TNS_DATATYPE_DATE           12
+#define TNS_DATATYPE_VBI            15
+#define TNS_DATATYPE_RAW            23
+#define TNS_DATATYPE_LONG_RAW       24
+#define TNS_DATATYPE_CHAR           96
+#define TNS_DATATYPE_BINARY_FLOAT   100
+#define TNS_DATATYPE_BINARY_DOUBLE  101
+#define TNS_DATATYPE_REFCURSOR      102
+#define TNS_DATATYPE_ROWID_EXT      104  /* ROWID */
+#define TNS_DATATYPE_ADT            109  /* object */
+#define TNS_DATATYPE_REF            111
+#define TNS_DATATYPE_CLOB           112
+#define TNS_DATATYPE_BLOB           113
+#define TNS_DATATYPE_BFILE          114
+#define TNS_DATATYPE_RSET           116
+#define TNS_DATATYPE_JSON           119  /* OSON */
+#define TNS_DATATYPE_VECTOR         127
+#define TNS_DATATYPE_TIMESTAMP      180
+#define TNS_DATATYPE_TIMESTAMP_TZ   181
+#define TNS_DATATYPE_INTERVAL_YM    182
+#define TNS_DATATYPE_INTERVAL_DS    183
+#define TNS_DATATYPE_UROWID         208
+#define TNS_DATATYPE_TIMESTAMP_LTZ  231
+
 /* Data Packet Functions */
 #define SQLNET_SET_PROTOCOL     1
 #define SQLNET_SET_DATATYPES    2
@@ -388,37 +426,39 @@ static const value_string tns_data_funcs[] = {
 /* Oracle TNS native data-type ids. Used by the Set Datatypes
  * negotiation to label override entries with human names. */
 static const value_string tns_data_types[] = {
-	{1,   "VARCHAR"},
-	{2,   "NUMBER"},
-	{3,   "INTEGER"},
-	{4,   "FLOAT"},
-	{5,   "STRING"},
-	{6,   "VARNUM"},
-	{7,   "DECIMAL"},
-	{8,   "LONG"},
-	{9,   "VCS"},
-	{11,  "RID"},
-	{12,  "DATE"},
-	{15,  "VBI"},
-	{23,  "RAW"},
-	{24,  "LONG RAW"},
-	{96,  "CHAR"},
-	{100, "BINARY_FLOAT"},
-	{101, "BINARY_DOUBLE"},
-	{102, "REFCURSOR"},
-	{104, "ROWID"},
-	{109, "ADT"},
-	{111, "REF"},
-	{112, "CLOB"},
-	{113, "BLOB"},
-	{114, "BFILE"},
-	{116, "RSET"},
-	{180, "TIMESTAMP"},
-	{181, "TIMESTAMP WITH TIME ZONE"},
-	{182, "INTERVAL YEAR TO MONTH"},
-	{183, "INTERVAL DAY TO SECOND"},
-	{208, "UROWID"},
-	{231, "TIMESTAMP WITH LOCAL TIME ZONE"},
+	{TNS_DATATYPE_VARCHAR,        "VARCHAR"},
+	{TNS_DATATYPE_NUMBER,         "NUMBER"},
+	{TNS_DATATYPE_INTEGER,        "INTEGER"},
+	{TNS_DATATYPE_FLOAT,          "FLOAT"},
+	{TNS_DATATYPE_STRING,         "STRING"},
+	{TNS_DATATYPE_VARNUM,         "VARNUM"},
+	{TNS_DATATYPE_DECIMAL,        "DECIMAL"},
+	{TNS_DATATYPE_LONG,           "LONG"},
+	{TNS_DATATYPE_VCS,            "VCS"},
+	{TNS_DATATYPE_ROWID,          "RID"},
+	{TNS_DATATYPE_DATE,           "DATE"},
+	{TNS_DATATYPE_VBI,            "VBI"},
+	{TNS_DATATYPE_RAW,            "RAW"},
+	{TNS_DATATYPE_LONG_RAW,       "LONG RAW"},
+	{TNS_DATATYPE_CHAR,           "CHAR"},
+	{TNS_DATATYPE_BINARY_FLOAT,   "BINARY_FLOAT"},
+	{TNS_DATATYPE_BINARY_DOUBLE,  "BINARY_DOUBLE"},
+	{TNS_DATATYPE_REFCURSOR,      "REFCURSOR"},
+	{TNS_DATATYPE_ROWID_EXT,      "ROWID"},
+	{TNS_DATATYPE_ADT,            "ADT"},
+	{TNS_DATATYPE_REF,            "REF"},
+	{TNS_DATATYPE_CLOB,           "CLOB"},
+	{TNS_DATATYPE_BLOB,           "BLOB"},
+	{TNS_DATATYPE_BFILE,          "BFILE"},
+	{TNS_DATATYPE_RSET,           "RSET"},
+	{TNS_DATATYPE_JSON,           "JSON"},
+	{TNS_DATATYPE_VECTOR,         "VECTOR"},
+	{TNS_DATATYPE_TIMESTAMP,      "TIMESTAMP"},
+	{TNS_DATATYPE_TIMESTAMP_TZ,   "TIMESTAMP WITH TIME ZONE"},
+	{TNS_DATATYPE_INTERVAL_YM,    "INTERVAL YEAR TO MONTH"},
+	{TNS_DATATYPE_INTERVAL_DS,    "INTERVAL DAY TO SECOND"},
+	{TNS_DATATYPE_UROWID,         "UROWID"},
+	{TNS_DATATYPE_TIMESTAMP_LTZ,  "TIMESTAMP WITH LOCAL TIME ZONE"},
 	{0, NULL}
 };
 
@@ -1113,13 +1153,13 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	switch ( dtype )
 	{
-		case 109: /* ADT / object */
-		case 119: /* JSON (OSON) */
-		case 127: /* VECTOR */
+		case TNS_DATATYPE_ADT:    /* object */
+		case TNS_DATATYPE_JSON:   /* OSON */
+		case TNS_DATATYPE_VECTOR:
 			*bail = 1;
 			return offset;
 
-		case 11:  /* ROWID: indicator, then obj/file/unused/block/slot (ub4) */
+		case TNS_DATATYPE_ROWID:  /* indicator, then obj/file/unused/block/slot (ub4) */
 			first = tvb_get_uint8(tvb, offset);
 			offset += 1;
 			if ( first == 0 || first == 0xff )
@@ -1129,7 +1169,7 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					offset += get_sb4_custom(tvb, offset, &v);
 			break;
 
-		case 208: /* UROWID: ub4 num_bytes, a length echo byte, then the bytes */
+		case TNS_DATATYPE_UROWID: /* ub4 num_bytes, a length echo byte, then the bytes */
 			offset += get_sb4_custom(tvb, offset, &v);
 			if ( v > 0 )
 				offset += 1 + v;
@@ -1137,8 +1177,8 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				is_null = 1;
 			break;
 
-		case 8:   /* LONG */
-		case 24:  /* LONG RAW: value then two trailing ub4 length indicators */
+		case TNS_DATATYPE_LONG:
+		case TNS_DATATYPE_LONG_RAW: /* value then two trailing ub4 length indicators */
 			first = tvb_get_uint8(tvb, offset);
 			if ( first == 0 )
 			{
@@ -1163,9 +1203,9 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += get_sb4_custom(tvb, offset, &v);
 			break;
 
-		case 112: /* CLOB */
-		case 113: /* BLOB */
-		case 114: /* BFILE: 0x00 NULL, else ub4 num_bytes + DALC locator block */
+		case TNS_DATATYPE_CLOB:
+		case TNS_DATATYPE_BLOB:
+		case TNS_DATATYPE_BFILE: /* 0x00 NULL, else ub4 num_bytes + DALC locator block */
 			first = tvb_get_uint8(tvb, offset);
 			if ( first == 0 )
 			{
@@ -1193,13 +1233,13 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				{
 					const uint8_t *vb = tvb_get_ptr(tvb, disp_start, offset - disp_start);
 					int vlen = offset - disp_start;
-					if ( dtype == 2 )
+					if ( dtype == TNS_DATATYPE_NUMBER )
 						rendered = tns_format_number(pinfo, vb, vlen);
-					else if ( dtype == 12 || dtype == 180 || dtype == 231 )
+					else if ( dtype == TNS_DATATYPE_DATE || dtype == TNS_DATATYPE_TIMESTAMP || dtype == TNS_DATATYPE_TIMESTAMP_LTZ )
 						rendered = tns_format_date(pinfo, vb, vlen);
-					else if ( dtype == 100 || dtype == 101 )
+					else if ( dtype == TNS_DATATYPE_BINARY_FLOAT || dtype == TNS_DATATYPE_BINARY_DOUBLE )
 						rendered = tns_format_binary_float(pinfo, vb, vlen);
-					else if ( dtype == 1 || dtype == 5 || dtype == 96 )
+					else if ( dtype == TNS_DATATYPE_VARCHAR || dtype == TNS_DATATYPE_STRING || dtype == TNS_DATATYPE_CHAR )
 						/* VARCHAR / STRING / CHAR: character data (session
 						 * charset, ordinarily UTF-8). */
 						rendered = (const char *)tvb_get_string_enc(pinfo->pool,
@@ -1930,16 +1970,16 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 						int b_start = offset;
 						uint8_t btype = tvb_get_uint8(tvb, offset);
 						btypes[i] = btype;
-						/* CLOB (112) / BLOB (113) binds use a temp-LOB
-						 * locator value form we do not unpack. */
-						if ( btype == 112 || btype == 113 )
+						/* CLOB / BLOB binds use a temp-LOB locator value
+						 * form we do not unpack. */
+						if ( btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB )
 							has_lob = 1;
 						bind_tree = proto_tree_add_subtree_format(binds_tree, tvb, offset, -1,
 							ett_tns_bind, &bind_item, "Bind %d: %s", i + 1,
 							val_to_str_const(btype, tns_data_types, "unknown"));
 						offset = dissect_tns_oac(tvb, pinfo, bind_tree, offset);
 						/* A CLOB/BLOB bind OAC carries a trailing oaccolid byte. */
-						if ( btype == 112 || btype == 113 )
+						if ( btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB )
 							offset += 1;
 						proto_item_set_len(bind_item, offset - b_start);
 					}
