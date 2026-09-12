@@ -59,6 +59,29 @@
         </Feature>
       <?endif?>
     </Feature>
+    <Feature Id="Fe.Extcap" Title="External capture tools (extcap)" Level="1" AllowAdvertise="yes" Display="expand" Description="External Capture Interfaces">
+      <Feature Id="Fe.Extcap.Androiddump" Title="Androiddump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide capture interfaces from Android devices.">
+        <ComponentGroupRef Id="CG.Extcap.Androiddump" />
+      </Feature>
+      <Feature Id="Fe.Extcap.Randpktdump" Title="Randpktdump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide random packet generator.">
+        <ComponentGroupRef Id="CG.Extcap.Randpktdump" />
+      </Feature>
+      <Feature Id="Fe.Extcap.Etwdump" Title="Etwdump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide ETW reader.">
+        <ComponentGroupRef Id="CG.Extcap.Etwdump" />
+      </Feature>
+      <Feature Id="Fe.Extcap.Sshdump" Title="Sshdump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide remote capture through SSH.">
+        <ComponentGroupRef Id="CG.Extcap.Sshdump" />
+      </Feature>
+      <Feature Id="Fe.Extcap.Ciscodump" Title="Ciscodump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide capture interface from a remote Cisco router through SSH.">
+        <ComponentGroupRef Id="CG.Extcap.Ciscodump" />
+      </Feature>
+      <Feature Id="Fe.Extcap.Udpdump" Title="Udpdump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide capture interface that gets UDP packets from network devices.">
+        <ComponentGroupRef Id="CG.Extcap.Udpdump" />
+      </Feature>
+      <Feature Id="Fe.Extcap.Wifidump" Title="Wifidump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide remote capture of Wi-Fi frames through SSH.">
+        <ComponentGroupRef Id="CG.Extcap.Wifidump" />
+      </Feature>
+    </Feature>
     <Feature Id="Fe.Tools" Title="Tools" Level="1" AllowAdvertise="yes" Display="expand" Description="Additional command line based tools.">
       <Feature Id="Fe.Tools.Editcap" Title="Editcap" Level="1" AllowAdvertise="yes" Display="expand" Description="Copy packets to a new file, optionally trimmming packets, omitting them, or saving to a different format.">
         <ComponentGroupRef Id="CG.Tools.Editcap" />
@@ -89,27 +112,6 @@
         <ComponentGroupRef Id="CG.Tools.MMDBResolve" />
       </Feature>
       <?endif?>
-      <Feature Id="Fe.Tools.Androiddump" Title="Androiddump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide capture interfaces from Android devices.">
-        <ComponentGroupRef Id="CG.Tools.Androiddump" />
-      </Feature>
-      <Feature Id="Fe.Tools.Randpktdump" Title="Randpktdump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide random packet generator.">
-        <ComponentGroupRef Id="CG.Tools.Randpktdump" />
-      </Feature>
-      <Feature Id="Fe.Tools.Etwdump" Title="Etwdump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide ETW reader.">
-        <ComponentGroupRef Id="CG.Tools.Etwdump" />
-      </Feature>
-      <Feature Id="Fe.Tools.Sshdump" Title="Sshdump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide remote capture through SSH.">
-        <ComponentGroupRef Id="CG.Tools.Sshdump" />
-      </Feature>
-      <Feature Id="Fe.Tools.Ciscodump" Title="Ciscodump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide capture interface from a remote Cisco router through SSH.">
-        <ComponentGroupRef Id="CG.Tools.Ciscodump" />
-      </Feature>
-      <Feature Id="Fe.Tools.Udpdump" Title="Udpdump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide capture interface that gets UDP packets from network devices.">
-        <ComponentGroupRef Id="CG.Tools.Udpdump" />
-      </Feature>
-      <Feature Id="Fe.Tools.Wifidump" Title="Wifidump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide remote capture of Wi-Fi frames through SSH.">
-        <ComponentGroupRef Id="CG.Tools.Wifidump" />
-      </Feature>
     </Feature>
     <?ifdef DOC_DIR?>
       <Feature Id="Fe.Documentation" Title="Documentation" Level="1" AllowAdvertise="yes" Display="expand" Description="Install an offline copy of the User's Guide.">

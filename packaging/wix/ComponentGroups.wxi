@@ -527,7 +527,7 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="CG.Tools.Androiddump">
+    <ComponentGroup Id="CG.Extcap.Androiddump">
       <ComponentRef Id="cmpAndroiddump_exe" />
       <ComponentRef Id="cmpAndroiddump_html" />
     </ComponentGroup>
@@ -547,7 +547,7 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="CG.Tools.Randpktdump">
+    <ComponentGroup Id="CG.Extcap.Randpktdump">
       <ComponentRef Id="cmpRandpktdump_exe" />
       <ComponentRef Id="cmpRandpktdump_html" />
     </ComponentGroup>
@@ -567,7 +567,7 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="CG.Tools.Etwdump">
+    <ComponentGroup Id="CG.Extcap.Etwdump">
       <ComponentRef Id="cmpEtwdump_exe" />
       <ComponentRef Id="cmpEtwdump_html" />
     </ComponentGroup>
@@ -587,7 +587,7 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="CG.Tools.Sshdump">
+    <ComponentGroup Id="CG.Extcap.Sshdump">
       <ComponentRef Id="cmpSshdump_exe" />
       <ComponentRef Id="cmpSshdump_html" />
     </ComponentGroup>
@@ -607,7 +607,7 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="CG.Tools.Ciscodump">
+    <ComponentGroup Id="CG.Extcap.Ciscodump">
       <ComponentRef Id="cmpCiscodump_exe" />
       <ComponentRef Id="cmpCiscodump_html" />
     </ComponentGroup>
@@ -627,7 +627,7 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="CG.Tools.Wifidump">
+    <ComponentGroup Id="CG.Extcap.Wifidump">
       <ComponentRef Id="cmpWifidump_exe" />
       <ComponentRef Id="cmpWifidump_html" />
     </ComponentGroup>
@@ -647,7 +647,7 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="CG.Tools.Udpdump">
+    <ComponentGroup Id="CG.Extcap.Udpdump">
       <ComponentRef Id="cmpUdpdump_exe" />
       <ComponentRef Id="cmpUdpdump_html" />
     </ComponentGroup>
