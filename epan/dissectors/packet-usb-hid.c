@@ -5483,6 +5483,18 @@ dissect_usb_hid_class_descriptors(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset;
 }
 
+/* USBHID 1.11, Chapter 7.2.4 */
+static void
+hid_duration_fmt(char *buf, uint8_t value)
+{
+    if (value == 0) {
+        snprintf(buf, ITEM_LABEL_LENGTH, "indefinite");
+    } else {
+        unsigned int ms = value * 4;
+        snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", ms);
+    }
+}
+
 
 void
 proto_register_usb_hid(void)
@@ -5713,8 +5725,8 @@ proto_register_usb_hid(void)
                 NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_hid_duration,
-            { "Duration", "usbhid.setup.Duration", FT_UINT8, BASE_DEC,
-                NULL, 0x0, NULL, HFILL }},
+            { "Duration", "usbhid.setup.Duration", FT_UINT8, BASE_CUSTOM,
+                CF_FUNC(hid_duration_fmt), 0x0, NULL, HFILL }},
 
         { &hf_usb_hid_zero,
             { "(zero)", "usbhid.setup.zero", FT_UINT8, BASE_DEC,
