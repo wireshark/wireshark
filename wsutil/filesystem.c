@@ -1934,6 +1934,7 @@ delete_persconffile_profile(const char* app_env_var_prefix, const char *profilen
 
     char *profile_dir = get_persconffile_dir(app_env_var_prefix, profilename, &ok);
     if (!ok) {
+        *pf_dir_path_return = profile_dir;
         errno = EINVAL;
         return -1;
     }
