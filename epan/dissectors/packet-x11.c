@@ -1875,24 +1875,7 @@ keycode2keysymString(wmem_allocator_t* allocator, wmem_array_t *keycodemap[256],
 
 static const char *keysymString(uint32_t v)
 {
-#if 0  /* XXX: Use of GTree no longer needed; use value_string_ext */
-      static GTree *keysymTable = NULL;
-
-      void *res;
-      if (!keysymTable) {
-
-            /* This table is so big that we built it only if necessary */
-            const value_string *p = x11_keysym_vals_source;
-            keysymTable = g_tree_new(compareGuint32);
-            for(; p -> strptr; p++)
-                  g_tree_insert(keysymTable, GINT_TO_POINTER(p -> value), (void *) (p -> strptr) );
-      }
-      res = g_tree_lookup(keysymTable, GINT_TO_POINTER(v));
-      return res ? res : "<Unknown>";
-#endif
-
       return val_to_str_ext_const(v, &x11_keysym_vals_source_ext, "<Unknown>");
-
 }
 
 static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
