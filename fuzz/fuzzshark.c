@@ -91,6 +91,13 @@ fuzzshark_epan_new(void)
 		NULL,
 		NULL,
 		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
+		NULL,
 	};
 
 	return epan_new(NULL, &funcs);

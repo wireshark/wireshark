@@ -269,6 +269,13 @@ sharkd_epan_new(capture_file *cf)
         cap_file_provider_get_process_id,
         cap_file_provider_get_process_name,
         cap_file_provider_get_process_uuid,
+        cap_file_provider_get_process_path,
+        cap_file_provider_get_process_cmdline,
+        cap_file_provider_get_process_parent_id,
+        cap_file_provider_get_process_user_id,
+        cap_file_provider_get_process_user_name,
+        cap_file_provider_get_process_start_time,
+        cap_file_provider_find_process_info,
     };
 
     return epan_new(&cf->provider, &funcs);

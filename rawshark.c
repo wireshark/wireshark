@@ -1449,6 +1449,13 @@ raw_epan_new(capture_file *cf)
         NULL,
         NULL,
         NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
     };
 
     return epan_new(&cf->provider, &funcs);

@@ -132,6 +132,14 @@ The following features are either new or have been significantly updated since v
   Available as `tshark --json-compact` (with `-T json` or `-T jsonraw`)
   and as a "Compact (no indentation)" checkbox in the GUI JSON export dialog.
 
+* Process information stored in pcapng captures, in Wireshark custom blocks
+  or in Apple's Darwin process information blocks, is now shown under
+  "Process information" in the Frame tree as the `frame.process` fields
+  (process and thread ID, name, executable path, command line, parent
+  process ID, user ID and name, executable UUID and start time), fills the
+  "User name" column, and can be used through the "Process" conversation
+  filter.
+
 * The Windows installers now ship with Npcap 1.88.
   They previously shipped with Npcap 1.83.
 

@@ -163,6 +163,82 @@ struct packet_provider_funcs {
      * @return Pointer to the UUID byte array, or NULL if unavailable.
      */
     const uint8_t *(*get_process_uuid)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, size_t *uuid_size);
+
+    /**
+     * @brief Get the path of the executable image of a process.
+     *
+     * @param prov Packet provider context.
+     * @param process_info_id Process info identifier.
+     * @param section_number Capture section number.
+     * @return Path string, or NULL if unavailable.
+     */
+    const char *(*get_process_path)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
+
+    /**
+     * @brief Get the command line of a process.
+     *
+     * @param prov Packet provider context.
+     * @param process_info_id Process info identifier.
+     * @param section_number Capture section number.
+     * @param cmdline_size Output parameter for the size of the command line.
+     * @return Pointer to the command line, its arguments separated by NULs, or NULL if unavailable.
+     */
+    const uint8_t *(*get_process_cmdline)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, size_t *cmdline_size);
+
+    /**
+     * @brief Get the ID of the parent of a process.
+     *
+     * @param prov Packet provider context.
+     * @param process_info_id Process info identifier.
+     * @param section_number Capture section number.
+     * @param parent_process_id Output parameter for the parent process ID.
+     * @return true if available, false otherwise.
+     */
+    bool (*get_process_parent_id)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, uint32_t *parent_process_id);
+
+    /**
+     * @brief Get the numeric ID of the user a process runs as.
+     *
+     * @param prov Packet provider context.
+     * @param process_info_id Process info identifier.
+     * @param section_number Capture section number.
+     * @param user_id Output parameter for the user ID.
+     * @return true if available, false otherwise.
+     */
+    bool (*get_process_user_id)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, uint32_t *user_id);
+
+    /**
+     * @brief Get the name of the user a process runs as.
+     *
+     * @param prov Packet provider context.
+     * @param process_info_id Process info identifier.
+     * @param section_number Capture section number.
+     * @return User name string, or NULL if unavailable.
+     */
+    const char *(*get_process_user_name)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
+
+    /**
+     * @brief Get the start time of a process.
+     *
+     * @param prov Packet provider context.
+     * @param process_info_id Process info identifier.
+     * @param section_number Capture section number.
+     * @param start_time Output parameter for the start time.
+     * @return true if available, false otherwise.
+     */
+    bool (*get_process_start_time)(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, nstime_t *start_time);
+
+    /**
+     * @brief Find the process information for a process ID.
+     *
+     * @param prov Packet provider context.
+     * @param process_id Process ID, as in the pcapng epb_processid_threadid option.
+     * @param section_number Capture section number.
+     * @param ts Time stamp of the packet, to tell apart processes that reused the ID, or NULL.
+     * @param process_info_id Output parameter for the process info identifier.
+     * @return true if found, false otherwise.
+     */
+    bool (*find_process_info)(struct packet_provider_data *prov, uint32_t process_id, unsigned section_number, const nstime_t *ts, uint32_t *process_info_id);
 };
 
 /**
@@ -450,6 +526,98 @@ WS_DLL_PUBLIC const char *epan_get_process_name(const epan_t *session, uint32_t 
  * @see epan_get_process_name()
  */
 WS_DLL_PUBLIC const uint8_t *epan_get_process_uuid(const epan_t *session, uint32_t process_info_id, unsigned section_number, size_t *uuid_size);
+
+/**
+ * @brief Retrieve the path of the executable image of a process.
+ *
+ * @param session          The epan session context.
+ * @param process_info_id  The identifier for the process information.
+ * @param section_number   The section number within the capture file.
+ *
+ * @return A pointer to a string containing the path, or NULL if not available.
+ */
+WS_DLL_PUBLIC const char *epan_get_process_path(const epan_t *session, uint32_t process_info_id, unsigned section_number);
+
+/**
+ * @brief Retrieve the command line of a process.
+ *
+ * The arguments of the command line are separated by NULs; the last one
+ * is not followed by a NUL.
+ *
+ * @param session          The epan session context.
+ * @param process_info_id  The identifier for the process information.
+ * @param section_number   The section number within the capture file.
+ * @param cmdline_size     Output parameter that receives the size of the command line in bytes.
+ *
+ * @return A pointer to the command line, or NULL if not available.
+ */
+WS_DLL_PUBLIC const uint8_t *epan_get_process_cmdline(const epan_t *session, uint32_t process_info_id, unsigned section_number, size_t *cmdline_size);
+
+/**
+ * @brief Retrieve the ID of the parent of a process.
+ *
+ * @param session          The epan session context.
+ * @param process_info_id  The identifier for the process information.
+ * @param section_number   The section number within the capture file.
+ * @param parent_process_id Output parameter that receives the parent process ID.
+ *
+ * @return true if available, false otherwise.
+ */
+WS_DLL_PUBLIC bool epan_get_process_parent_id(const epan_t *session, uint32_t process_info_id, unsigned section_number, uint32_t *parent_process_id);
+
+/**
+ * @brief Retrieve the numeric ID of the user a process runs as.
+ *
+ * @param session          The epan session context.
+ * @param process_info_id  The identifier for the process information.
+ * @param section_number   The section number within the capture file.
+ * @param user_id          Output parameter that receives the user ID.
+ *
+ * @return true if available, false otherwise.
+ */
+WS_DLL_PUBLIC bool epan_get_process_user_id(const epan_t *session, uint32_t process_info_id, unsigned section_number, uint32_t *user_id);
+
+/**
+ * @brief Retrieve the name of the user a process runs as.
+ *
+ * @param session          The epan session context.
+ * @param process_info_id  The identifier for the process information.
+ * @param section_number   The section number within the capture file.
+ *
+ * @return A pointer to a string containing the user name, or NULL if not available.
+ */
+WS_DLL_PUBLIC const char *epan_get_process_user_name(const epan_t *session, uint32_t process_info_id, unsigned section_number);
+
+/**
+ * @brief Retrieve the start time of a process.
+ *
+ * @param session          The epan session context.
+ * @param process_info_id  The identifier for the process information.
+ * @param section_number   The section number within the capture file.
+ * @param start_time       Output parameter that receives the start time.
+ *
+ * @return true if available, false otherwise.
+ */
+WS_DLL_PUBLIC bool epan_get_process_start_time(const epan_t *session, uint32_t process_info_id, unsigned section_number, nstime_t *start_time);
+
+/**
+ * @brief Find the process information for a process ID.
+ *
+ * This function queries the epan session for the process information
+ * describing the process with the given ID, as found in the pcapng
+ * epb_processid_threadid option of a packet. If the ID was reused, the
+ * time stamp of the packet, if given, is used to choose the process that
+ * was running at that time.
+ *
+ * @param session          The epan session context.
+ * @param process_id       The process ID.
+ * @param section_number   The section number within the capture file.
+ * @param ts               The time stamp of the packet, or NULL.
+ * @param process_info_id  Output parameter that receives the identifier for the process information.
+ *
+ * @return true if found, false otherwise.
+ */
+WS_DLL_PUBLIC bool epan_find_process_info(const epan_t *session, uint32_t process_id, unsigned section_number, const nstime_t *ts, uint32_t *process_info_id);
 
 /**
  * @brief Retrieve the timestamp of a specific frame.

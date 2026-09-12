@@ -643,6 +643,69 @@ epan_get_process_uuid(const epan_t *session, uint32_t process_info_id, unsigned 
 	return NULL;
 }
 
+const char *
+epan_get_process_path(const epan_t *session, uint32_t process_info_id, unsigned section_number)
+{
+	if (session->funcs.get_process_path)
+		return session->funcs.get_process_path(session->prov, process_info_id, section_number);
+
+	return NULL;
+}
+
+const uint8_t *
+epan_get_process_cmdline(const epan_t *session, uint32_t process_info_id, unsigned section_number, size_t *cmdline_size)
+{
+	if (session->funcs.get_process_cmdline)
+		return session->funcs.get_process_cmdline(session->prov, process_info_id, section_number, cmdline_size);
+
+	return NULL;
+}
+
+bool
+epan_get_process_parent_id(const epan_t *session, uint32_t process_info_id, unsigned section_number, uint32_t *parent_process_id)
+{
+	if (session->funcs.get_process_parent_id)
+		return session->funcs.get_process_parent_id(session->prov, process_info_id, section_number, parent_process_id);
+
+	return false;
+}
+
+bool
+epan_get_process_user_id(const epan_t *session, uint32_t process_info_id, unsigned section_number, uint32_t *user_id)
+{
+	if (session->funcs.get_process_user_id)
+		return session->funcs.get_process_user_id(session->prov, process_info_id, section_number, user_id);
+
+	return false;
+}
+
+const char *
+epan_get_process_user_name(const epan_t *session, uint32_t process_info_id, unsigned section_number)
+{
+	if (session->funcs.get_process_user_name)
+		return session->funcs.get_process_user_name(session->prov, process_info_id, section_number);
+
+	return NULL;
+}
+
+bool
+epan_get_process_start_time(const epan_t *session, uint32_t process_info_id, unsigned section_number, nstime_t *start_time)
+{
+	if (session->funcs.get_process_start_time)
+		return session->funcs.get_process_start_time(session->prov, process_info_id, section_number, start_time);
+
+	return false;
+}
+
+bool
+epan_find_process_info(const epan_t *session, uint32_t process_id, unsigned section_number, const nstime_t *ts, uint32_t *process_info_id)
+{
+	if (session->funcs.find_process_info)
+		return session->funcs.find_process_info(session->prov, process_id, section_number, ts, process_info_id);
+
+	return false;
+}
+
 void
 epan_free(epan_t *session)
 {

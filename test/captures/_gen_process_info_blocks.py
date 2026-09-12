@@ -32,9 +32,26 @@ Apple's tcpdump, and packets that refer to them:
         DPIB 1: process 1 "launchd"
         Frame 1: UDP packet with darwin_dpib_id 0
         Frame 2: UDP packet with darwin_dpib_id 1
+        Frame 3: UDP packet with darwin_dpib_id 0 and darwin_edpib_id 1
+
+process_info_pid_reuse.pcapng has one little-endian section with several
+Wireshark process information blocks for the same process ID, to test which
+one a packet is matched with:
+
+        PIB 0: process 500 "first", started 10 us before the base time
+        PIB 1: process 500 "second", started 20 us after the base time
+        PIB 2: process 600 "old", no start time
+        PIB 3: process 600 "new", no start time
+        Frame 1: process 500, 5 us after the base time ("first")
+        Frame 2: process 500, 25 us after the base time ("second")
+        Frame 3: process 500, 100 us before the base time ("first", the
+                 earliest, as no process had started yet)
+        Frame 4: process 600 ("new", the last block)
+        Frame 5: process 700, for which there is no block
 
 The hex dump of the custom data of each Wireshark custom block (everything
-after the PEN), as needed by the tests, is printed.
+after the PEN) of process_info_wireshark_cb.pcapng, as needed by the tests,
+is printed.
 """
 import os
 import struct
@@ -51,6 +68,7 @@ OPT_ENDOFOPT = 0
 OPT_COMMENT = 1
 OPT_EPB_PROCESSID_THREADID = 8
 OPT_EPB_DARWIN_DPIB_ID = 32769
+OPT_EPB_DARWIN_EDPIB_ID = 32771
 
 OPT_PIB_NAME = 2
 OPT_PIB_PATH = 3
@@ -198,12 +216,40 @@ def gen_darwin_dpib() -> None:
     out += legacy_dpib("<", 1, [(OPT_DPIB_NAME, b"launchd")])
     out += epb("<", base_ts + 1, udp_packet(1), [(OPT_EPB_DARWIN_DPIB_ID, struct.pack("<I", 0))])
     out += epb("<", base_ts + 2, udp_packet(2), [(OPT_EPB_DARWIN_DPIB_ID, struct.pack("<I", 1))])
+    out += epb("<", base_ts + 3, udp_packet(3), [(OPT_EPB_DARWIN_DPIB_ID, struct.pack("<I", 0)),
+                                                 (OPT_EPB_DARWIN_EDPIB_ID, struct.pack("<I", 1))])
     write("process_info_darwin_dpib.pcapng", out)
+
+
+def gen_pid_reuse() -> None:
+    base_ts = 1_757_500_000_000_000
+
+    def pib(pid: int, name: bytes, start_offset_us=None) -> bytes:
+        opts = [(OPT_PIB_NAME, name)]
+        if start_offset_us is not None:
+            opts.append((OPT_PIB_STARTTIME, struct.pack("<Q", (base_ts + start_offset_us) * 1000)))
+        return wireshark_cb("<", wireshark_cb_custom_data(WIRESHARK_CB_ENTRY_PROCESS_INFORMATION,
+                                                          pib_entry(pid, opts)))
+
+    def packet(seq: int, offset_us: int, pid: int) -> bytes:
+        return epb("<", base_ts + offset_us, udp_packet(seq),
+                   [(OPT_EPB_PROCESSID_THREADID, struct.pack("<II", pid, 0))])
+
+    out = shb("<") + idb("<")
+    out += pib(500, b"first", -10) + pib(500, b"second", 20)
+    out += pib(600, b"old") + pib(600, b"new")
+    out += packet(1, 5, 500)
+    out += packet(2, 25, 500)
+    out += packet(3, -100, 500)
+    out += packet(4, 1, 600)
+    out += packet(5, 2, 700)
+    write("process_info_pid_reuse.pcapng", out)
 
 
 def main() -> None:
     gen_wireshark_cb()
     gen_darwin_dpib()
+    gen_pid_reuse()
 
 
 if __name__ == "__main__":

@@ -182,6 +182,98 @@ cap_file_provider_get_process_uuid(struct packet_provider_data *prov, uint32_t p
   return uuid;
 }
 
+const char *
+cap_file_provider_get_process_path(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number)
+{
+  wtap_block_t pib = cap_file_provider_get_pib(prov, process_info_id, section_number);
+  char *path;
+
+  if (pib == NULL ||
+      wtap_block_get_string_option_value(pib, OPT_PIB_PATH, &path) != WTAP_OPTTYPE_SUCCESS)
+    return NULL;
+
+  return path;
+}
+
+const uint8_t *
+cap_file_provider_get_process_cmdline(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, size_t *cmdline_size)
+{
+  wtap_block_t pib = cap_file_provider_get_pib(prov, process_info_id, section_number);
+  GBytes *cmdline_data;
+  const uint8_t *cmdline;
+  size_t cmdline_data_size = 0;
+
+  if (pib == NULL ||
+      wtap_block_get_bytes_option_value(pib, OPT_PIB_CMDLINE, &cmdline_data) != WTAP_OPTTYPE_SUCCESS ||
+      cmdline_data == NULL)
+    return NULL;
+
+  cmdline = g_bytes_get_data(cmdline_data, &cmdline_data_size);
+  if (cmdline_size)
+    *cmdline_size = (cmdline == NULL) ? 0 : cmdline_data_size;
+
+  return cmdline;
+}
+
+bool
+cap_file_provider_get_process_parent_id(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, uint32_t *parent_process_id)
+{
+  wtap_block_t pib = cap_file_provider_get_pib(prov, process_info_id, section_number);
+
+  return pib != NULL &&
+         wtap_block_get_uint32_option_value(pib, OPT_PIB_PPID, parent_process_id) == WTAP_OPTTYPE_SUCCESS;
+}
+
+bool
+cap_file_provider_get_process_user_id(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, uint32_t *user_id)
+{
+  wtap_block_t pib = cap_file_provider_get_pib(prov, process_info_id, section_number);
+
+  return pib != NULL &&
+         wtap_block_get_uint32_option_value(pib, OPT_PIB_UID, user_id) == WTAP_OPTTYPE_SUCCESS;
+}
+
+const char *
+cap_file_provider_get_process_user_name(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number)
+{
+  wtap_block_t pib = cap_file_provider_get_pib(prov, process_info_id, section_number);
+  char *user_name;
+
+  if (pib == NULL ||
+      wtap_block_get_string_option_value(pib, OPT_PIB_USER, &user_name) != WTAP_OPTTYPE_SUCCESS)
+    return NULL;
+
+  return user_name;
+}
+
+bool
+cap_file_provider_get_process_start_time(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, nstime_t *start_time)
+{
+  wtap_block_t pib = cap_file_provider_get_pib(prov, process_info_id, section_number);
+  uint64_t start_time_ns;
+
+  if (pib == NULL ||
+      wtap_block_get_uint64_option_value(pib, OPT_PIB_STARTTIME, &start_time_ns) != WTAP_OPTTYPE_SUCCESS)
+    return false;
+
+  /* The option is in nanoseconds since the Epoch. */
+  start_time->secs = (time_t)(start_time_ns / 1000000000U);
+  start_time->nsecs = (int)(start_time_ns % 1000000000U);
+  return true;
+}
+
+bool
+cap_file_provider_find_process_info(struct packet_provider_data *prov, uint32_t process_id, unsigned section_number _U_, const nstime_t *ts, uint32_t *process_info_id)
+{
+  unsigned pib_num;
+
+  if (!wtap_file_find_pib(prov->wth, process_id, ts, &pib_num))
+    return false;
+
+  *process_info_id = pib_num;
+  return true;
+}
+
 wtap_block_t
 cap_file_provider_get_modified_block(struct packet_provider_data *prov, const frame_data *fd)
 {

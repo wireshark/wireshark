@@ -231,6 +231,82 @@ WS_DLL_PUBLIC const char *cap_file_provider_get_process_name(struct packet_provi
 WS_DLL_PUBLIC const uint8_t *cap_file_provider_get_process_uuid(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, size_t *uuid_size);
 
 /**
+ * @brief Retrieves the path of the executable image of a process from a capture file.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @param process_info_id Identifier for the process information.
+ * @param section_number The section number (currently unused).
+ * @return The path, or NULL if not found.
+ */
+WS_DLL_PUBLIC const char *cap_file_provider_get_process_path(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
+
+/**
+ * @brief Retrieves the command line of a process from a capture file.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @param process_info_id Identifier for the process information.
+ * @param section_number The section number (currently unused).
+ * @param cmdline_size Pointer to store the size of the command line.
+ * @return Pointer to the command line, its arguments separated by NULs, or NULL if not found.
+ */
+WS_DLL_PUBLIC const uint8_t *cap_file_provider_get_process_cmdline(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, size_t *cmdline_size);
+
+/**
+ * @brief Retrieves the ID of the parent of a process from a capture file.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @param process_info_id Identifier for the process information.
+ * @param section_number The section number (currently unused).
+ * @param parent_process_id Pointer to store the parent process ID.
+ * @return true if found, false otherwise.
+ */
+WS_DLL_PUBLIC bool cap_file_provider_get_process_parent_id(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, uint32_t *parent_process_id);
+
+/**
+ * @brief Retrieves the numeric ID of the user a process runs as from a capture file.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @param process_info_id Identifier for the process information.
+ * @param section_number The section number (currently unused).
+ * @param user_id Pointer to store the user ID.
+ * @return true if found, false otherwise.
+ */
+WS_DLL_PUBLIC bool cap_file_provider_get_process_user_id(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, uint32_t *user_id);
+
+/**
+ * @brief Retrieves the name of the user a process runs as from a capture file.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @param process_info_id Identifier for the process information.
+ * @param section_number The section number (currently unused).
+ * @return The user name, or NULL if not found.
+ */
+WS_DLL_PUBLIC const char *cap_file_provider_get_process_user_name(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number);
+
+/**
+ * @brief Retrieves the start time of a process from a capture file.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @param process_info_id Identifier for the process information.
+ * @param section_number The section number (currently unused).
+ * @param start_time Pointer to store the start time.
+ * @return true if found, false otherwise.
+ */
+WS_DLL_PUBLIC bool cap_file_provider_get_process_start_time(struct packet_provider_data *prov, uint32_t process_info_id, unsigned section_number, nstime_t *start_time);
+
+/**
+ * @brief Finds the process information for a process ID in a capture file.
+ *
+ * @param prov Pointer to the packet provider data structure.
+ * @param process_id The process ID.
+ * @param section_number The section number (currently unused).
+ * @param ts The time stamp of the packet, to tell apart processes that reused the ID, or NULL.
+ * @param process_info_id Pointer to store the identifier for the process information.
+ * @return true if found, false otherwise.
+ */
+WS_DLL_PUBLIC bool cap_file_provider_find_process_info(struct packet_provider_data *prov, uint32_t process_id, unsigned section_number, const nstime_t *ts, uint32_t *process_info_id);
+
+/**
  * @brief Get a modified block for a frame from the packet provider.
  *
  * @param prov Pointer to the packet_provider_data structure.

@@ -36,6 +36,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/wmem_scopes.h>
 #include <epan/column-info.h>
+#include <epan/conversation_filter.h>
+#include <wsutil/pint.h>
 
 #include "packet-frame.h"
 
@@ -73,6 +75,14 @@ static int hf_frame_packet_id;
 static int hf_frame_process;
 static int hf_frame_process_pid;
 static int hf_frame_process_tid;
+static int hf_frame_process_name;
+static int hf_frame_process_path;
+static int hf_frame_process_cmdline;
+static int hf_frame_process_ppid;
+static int hf_frame_process_uid;
+static int hf_frame_process_user;
+static int hf_frame_process_uuid;
+static int hf_frame_process_start_time;
 static int hf_frame_hash;
 static int hf_frame_hash_bytes;
 static int hf_frame_verdict;
@@ -568,17 +578,30 @@ add_color_filter_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 	proto_item_set_generated(item);
 }
 
+/* Key of the per-packet data holding the process ID, for the conversation filter. */
+#define FRAME_PROCESS_ID_KEY 1
+
 /*
  * Add the process and thread IDs from the pcapng epb_processid_threadid
- * option, if the packet has one.  wiretap stores the option as a 64-bit
- * value with the process ID in the upper 32 bits and the thread ID in
- * the lower 32 bits; an ID of 0 means that it is not available.
+ * option, if the packet has one, and what the file's process information
+ * says about the process.  wiretap stores the option as a 64-bit value
+ * with the process ID in the upper 32 bits and the thread ID in the
+ * lower 32 bits; an ID of 0 means that it is not available.
+ *
+ * The tree may be NULL; the process ID is remembered for the conversation
+ * filter, and the user name is set for the user name column, regardless.
  */
 static void
-frame_add_procid_threadid(proto_tree *fh_tree, tvbuff_t *tvb, wtap_block_t pkt_block)
+frame_add_process_info(proto_tree *fh_tree, tvbuff_t *tvb, packet_info *pinfo, wtap_block_t pkt_block)
 {
 	uint64_t procid_threadid;
-	uint32_t pid, tid;
+	uint32_t pid, tid, process_info_id, ppid, uid;
+	unsigned section_number;
+	bool have_info = false;
+	const char *name = NULL, *path, *user;
+	const uint8_t *cmdline, *uuid;
+	size_t cmdline_size, uuid_size;
+	nstime_t start_time;
 	proto_item *process_item, *item;
 	proto_tree *process_tree;
 
@@ -587,8 +610,34 @@ frame_add_procid_threadid(proto_tree *fh_tree, tvbuff_t *tvb, wtap_block_t pkt_b
 
 	pid = (uint32_t)(procid_threadid >> 32);
 	tid = (uint32_t)procid_threadid;
-	process_item = proto_tree_add_none_format(fh_tree, hf_frame_process, tvb, 0, 0,
-	    "Process information: PID %u, TID %u", pid, tid);
+	section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
+
+	if (pid != 0) {
+		p_add_proto_data(pinfo->pool, pinfo, proto_frame, FRAME_PROCESS_ID_KEY, GUINT_TO_POINTER(pid));
+
+		/*
+		 * Look the process up, using the time stamp of the packet
+		 * to tell apart processes that reused the ID.
+		 */
+		have_info = epan_find_process_info(pinfo->epan, pid, section_number,
+		    (pinfo->presence_flags & PINFO_HAS_TS) ? &pinfo->abs_ts : NULL,
+		    &process_info_id);
+		if (have_info) {
+			name = epan_get_process_name(pinfo->epan, process_info_id, section_number);
+			pinfo->user_name = epan_get_process_user_name(pinfo->epan, process_info_id, section_number);
+		}
+	}
+
+	if (fh_tree == NULL)
+		return;
+
+	if (name != NULL) {
+		process_item = proto_tree_add_none_format(fh_tree, hf_frame_process, tvb, 0, 0,
+		    "Process information: PID %u (%s), TID %u", pid, name, tid);
+	} else {
+		process_item = proto_tree_add_none_format(fh_tree, hf_frame_process, tvb, 0, 0,
+		    "Process information: PID %u, TID %u", pid, tid);
+	}
 	process_tree = proto_item_add_subtree(process_item, ett_process);
 	item = proto_tree_add_uint(process_tree, hf_frame_process_pid, tvb, 0, 0, pid);
 	if (pid == 0)
@@ -596,6 +645,72 @@ frame_add_procid_threadid(proto_tree *fh_tree, tvbuff_t *tvb, wtap_block_t pkt_b
 	item = proto_tree_add_uint(process_tree, hf_frame_process_tid, tvb, 0, 0, tid);
 	if (tid == 0)
 		proto_item_append_text(item, " (not available)");
+
+	if (!have_info)
+		return;
+
+	if (name != NULL) {
+		item = proto_tree_add_string(process_tree, hf_frame_process_name, tvb, 0, 0, name);
+		proto_item_set_generated(item);
+	}
+	path = epan_get_process_path(pinfo->epan, process_info_id, section_number);
+	if (path != NULL) {
+		item = proto_tree_add_string(process_tree, hf_frame_process_path, tvb, 0, 0, path);
+		proto_item_set_generated(item);
+	}
+	cmdline = epan_get_process_cmdline(pinfo->epan, process_info_id, section_number, &cmdline_size);
+	if (cmdline != NULL) {
+		/* The arguments are separated by NULs; show them separated by spaces. */
+		char *cmdline_str = (char *)wmem_alloc(pinfo->pool, cmdline_size + 1);
+		size_t i;
+
+		for (i = 0; i < cmdline_size; i++)
+			cmdline_str[i] = cmdline[i] == '\0' ? ' ' : cmdline[i];
+		cmdline_str[cmdline_size] = '\0';
+		item = proto_tree_add_string(process_tree, hf_frame_process_cmdline, tvb, 0, 0, cmdline_str);
+		proto_item_set_generated(item);
+	}
+	if (epan_get_process_parent_id(pinfo->epan, process_info_id, section_number, &ppid)) {
+		item = proto_tree_add_uint(process_tree, hf_frame_process_ppid, tvb, 0, 0, ppid);
+		proto_item_set_generated(item);
+	}
+	if (epan_get_process_user_id(pinfo->epan, process_info_id, section_number, &uid)) {
+		item = proto_tree_add_uint(process_tree, hf_frame_process_uid, tvb, 0, 0, uid);
+		proto_item_set_generated(item);
+	}
+	user = epan_get_process_user_name(pinfo->epan, process_info_id, section_number);
+	if (user != NULL) {
+		item = proto_tree_add_string(process_tree, hf_frame_process_user, tvb, 0, 0, user);
+		proto_item_set_generated(item);
+	}
+	uuid = epan_get_process_uuid(pinfo->epan, process_info_id, section_number, &uuid_size);
+	if (uuid != NULL && uuid_size == 16) {
+		e_guid_t guid;
+
+		guid.data1 = pntohu32(uuid);
+		guid.data2 = pntohu16(uuid + 4);
+		guid.data3 = pntohu16(uuid + 6);
+		memcpy(guid.data4, uuid + 8, sizeof guid.data4);
+		item = proto_tree_add_guid(process_tree, hf_frame_process_uuid, tvb, 0, 0, &guid);
+		proto_item_set_generated(item);
+	}
+	if (epan_get_process_start_time(pinfo->epan, process_info_id, section_number, &start_time)) {
+		item = proto_tree_add_time(process_tree, hf_frame_process_start_time, tvb, 0, 0, &start_time);
+		proto_item_set_generated(item);
+	}
+}
+
+static bool
+frame_process_filter_valid(packet_info *pinfo, void *user_data _U_)
+{
+	return p_get_proto_data(pinfo->pool, pinfo, proto_frame, FRAME_PROCESS_ID_KEY) != NULL;
+}
+
+static char *
+frame_process_build_filter(packet_info *pinfo, void *user_data _U_)
+{
+	return ws_strdup_printf("frame.process.pid == %u",
+	    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_frame, FRAME_PROCESS_ID_KEY)));
 }
 
 static int
@@ -957,8 +1072,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				proto_tree_add_uint64(fh_tree, hf_frame_packet_id, tvb, 0, 0, packetid);
 			}
 
-			frame_add_procid_threadid(fh_tree, tvb, fr_data->pkt_block);
-
 			if (wtap_block_count_option(fr_data->pkt_block, OPT_PKT_VERDICT) > 0) {
 				proto_tree *verdict_tree;
 				proto_item *verdict_item;
@@ -975,6 +1088,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->rec->rec_header.packet_header.pkt_encap);
 		}
+
+		/*
+		 * Done whether or not we're building the frame tree, as it
+		 * also supplies the user name column and the conversation
+		 * filter.
+		 */
+		frame_add_process_info(fh_tree, tvb, pinfo, fr_data->pkt_block);
 	}
 
 	if (pinfo->presence_flags & PINFO_HAS_TS) {
@@ -1680,7 +1800,7 @@ static void common_register_frame(bool use_packets)
 		{ &hf_frame_process,
 		  { "Process information", "frame.process",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
-		    "Process associated with the packet, from the pcapng epb_processid_threadid option", HFILL }},
+		    "Process associated with the packet, from the pcapng epb_processid_threadid option and the process information in the file", HFILL }},
 
 		{ &hf_frame_process_pid,
 		  { "Process ID", "frame.process.pid",
@@ -1691,6 +1811,46 @@ static void common_register_frame(bool use_packets)
 		  { "Thread ID", "frame.process.tid",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Identifier of the thread associated with the packet; 0 if not available", HFILL }},
+
+		{ &hf_frame_process_name,
+		  { "Process name", "frame.process.name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Short name of the process, typically that of its executable", HFILL }},
+
+		{ &hf_frame_process_path,
+		  { "Executable path", "frame.process.path",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Full path of the executable image of the process", HFILL }},
+
+		{ &hf_frame_process_cmdline,
+		  { "Command line", "frame.process.cmdline",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Command line of the process, its arguments separated by spaces", HFILL }},
+
+		{ &hf_frame_process_ppid,
+		  { "Parent process ID", "frame.process.ppid",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Identifier of the parent of the process", HFILL }},
+
+		{ &hf_frame_process_uid,
+		  { "User ID", "frame.process.uid",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Numeric identifier of the user account the process runs as", HFILL }},
+
+		{ &hf_frame_process_user,
+		  { "User name", "frame.process.user",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Name of the user account the process runs as", HFILL }},
+
+		{ &hf_frame_process_uuid,
+		  { "Executable UUID", "frame.process.uuid",
+		    FT_GUID, BASE_NONE, NULL, 0x0,
+		    "UUID of the executable image of the process", HFILL }},
+
+		{ &hf_frame_process_start_time,
+		  { "Start time", "frame.process.start_time",
+		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+		    "Time at which the process started", HFILL }},
 
 		{ &hf_frame_hash,
 		  { "Hash Algorithm", "frame.hash",
@@ -1852,6 +2012,11 @@ static void common_register_frame(bool use_packets)
 	proto_set_cant_toggle(proto_frame);
 
 	register_seq_analysis("any", "All Flows", proto_frame, NULL, TL_REQUIRES_COLUMNS, frame_seq_analysis_packet);
+
+	if (use_packets) {
+		register_conversation_filter("process", "Process",
+		    frame_process_filter_valid, frame_process_build_filter, NULL);
+	}
 
 	/* Our preferences */
 	frame_module = prefs_register_protocol(proto_frame, NULL);
