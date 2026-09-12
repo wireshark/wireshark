@@ -145,7 +145,7 @@ typedef enum
  *
  * may_be_null
  *         true: if dissection may be attempted at an offset beyond the length of existing data bits
- *         false: othewise
+ *         false: otherwise
  *
  * sz
  *    - is the name of the parameter within the descr where their unpacked or packed value shall be stored or fetched.
@@ -580,7 +580,7 @@ int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* p
 /******************************************************************************
  * M_SERIALIZE(Par1, Par2, Par3)
  * Allows using a complete free format of data being encoded or decoded.
- * When the M_SERIALIZE is encounted during encoding or decoding of a message
+ * When the M_SERIALIZE is encountered during encoding or decoding of a message
  * the CSNstream program passes the control over to the specified function
  * together with all necessary parameters about the current position within
  * the message being unpacked or packed.  When transferring of "serialized"

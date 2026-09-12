@@ -272,7 +272,7 @@ static bool is_data_shifting_command(uint8_t cmd)
     switch (cmd)
     {
     /* Not all data shifting commands (with bit 7 clear) are explicitly listed in MPSSE documentation
-     * Some undocumented data shifting commands trigger BadCommmand response, but some seem to be handled by the device.
+     * Some undocumented data shifting commands trigger BadCommand response, but some seem to be handled by the device.
      *
      * Commands listed below (with bit 7 clear) trigger BadCommand response on FT2232L, FT232H and FT2232H
      */

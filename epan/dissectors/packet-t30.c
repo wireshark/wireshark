@@ -158,7 +158,7 @@ static const value_string t30_control_vals[] = {
 #define T30_FC_CTR      0x23
 #define T30_FC_CSA      0x24
 
-// post-message resopnses - format X011 XXXX
+// post-message responses - format X011 XXXX
 #define T30_FC_MCF      0x31
 #define T30_FC_RTN      0x32
 #define T30_FC_RTP      0x33

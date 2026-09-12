@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #
-# Add arbritrary commands to a GitLab CI compatible (JUnit) test report
+# Add arbitrary commands to a GitLab CI compatible (JUnit) test report
 # SPDX-License-Identifier: MIT
 #
 # Usage:

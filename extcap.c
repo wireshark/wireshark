@@ -62,7 +62,7 @@
  */
 #define EXTCAP_CLEANUP_TIMEOUT 30
 
-/* Separator used to specify a bookmark for a particlar extcap
+/* Separator used to specify a bookmark for a particular extcap
  * interface. It should be easy to type, not too ugly in `tshark -D`
  * output, and unlikely to be used in an interface name.
  */

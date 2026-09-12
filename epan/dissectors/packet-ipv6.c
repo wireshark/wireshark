@@ -3838,7 +3838,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     alloc_address_wmem_ipv6(pinfo->pool, &pinfo->net_dst, ip6_dst);
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
-    /* XXX - See comment in the IPv4 disector. */
+    /* XXX - See comment in the IPv4 dissector. */
     pinfo->conv_elements = NULL;
 
     if (tree) {

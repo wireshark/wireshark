@@ -190,6 +190,7 @@ asynchronous
 asynchronously
 asyncio
 asyncmap
+asyncs
 atapi
 atest
 athens
@@ -478,6 +479,7 @@ cliprdr
 clksrc
 cllog
 clopts
+clrpc
 clsfr
 clusctl
 clusprop
@@ -710,6 +712,7 @@ deencapsulate
 defaultsc
 defence
 deferral
+defgroup
 defrag
 defragment
 defragmentation
@@ -1110,6 +1113,7 @@ filsfils
 filter1d
 filter2d
 finalise
+findall
 finditer
 finfo
 firefox
@@ -1393,6 +1397,7 @@ image4dsgis
 imeisv
 immdt
 immersive
+imodeuuid
 impinj
 implementations
 implementer
@@ -1970,6 +1975,7 @@ nbifom
 nbrar
 nbytes
 ncell
+ncpic
 ndiswan
 ndpsm
 ndriver
@@ -2540,6 +2546,7 @@ rdpudp
 rdstls
 rdtci
 reachability
+readall
 readdir
 readme
 realise
@@ -2707,6 +2714,7 @@ resynchronize
 resynchronized
 retap
 retarder
+rethrow
 rethrown
 retrans
 retranslated
@@ -2813,6 +2821,7 @@ scalable
 scaleout
 scaler
 scannable
+scapy
 scard
 sccpch
 scdma
@@ -3123,6 +3132,7 @@ supportof
 svalidator
 svalue
 svcctl
+svcinfo
 svcparam
 svcparams
 sverige
@@ -3186,6 +3196,7 @@ tdd128
 tdd384
 tdd768
 technica
+tecnologia
 tektronix
 telco
 telecel
@@ -3761,6 +3772,7 @@ xilleon
 xinerama
 xinput
 xmlns
+xmlprop
 xoffset
 xpert
 xpress

@@ -3906,7 +3906,7 @@ proto_register_http3(void)
             "Failed to decode HTTP3 header name/value (QPACK decoder no emission)", EXPFILL}
         },
         /* Stopping due to excessive headers is possibly PI_SECURITY
-         * (decompression bomb or other dangerous implemention). */
+         * (decompression bomb or other dangerous implementation). */
         { &ei_http3_header_size,
           { "http3.expert.header_decoding.header_size_exceeded", PI_UNDECODED, PI_WARN,
             "QPACK decompression stopped after " G_STRINGIFY(QPACK_MAX_HEADER_SIZE) " bytes", EXPFILL}

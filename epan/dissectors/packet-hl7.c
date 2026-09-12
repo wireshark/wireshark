@@ -966,7 +966,7 @@ dissect_hl7_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
 {
     conversation_t *conversation = NULL;
 
-    /* heuristic is based on first 5 bytes analisys, we assume
+    /* heuristic is based on first 5 bytes analysis, we assume
        0x0B + "MSH|" is good enough */
     if ((tvb_reported_length_remaining(tvb, 0) < 5) ||
         (tvb_get_uint8(tvb, 0) != LLP_SOB) ||

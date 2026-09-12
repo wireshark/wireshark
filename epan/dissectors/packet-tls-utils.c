@@ -12331,7 +12331,7 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint
      *
      * XXX - When the server responds with a HelloRetryRequest, for subsequent
      * hashes (other than the first PSK Binder, see 4.2.11.2) ClientHello1 is
-     * replaced with a synthentic handhsake message of type "message_hash",
+     * replaced with a synthetic handhsake message of type "message_hash",
      * per RFC 8446 4.4.1. We aren't concerned with that now, as a HRR generally
      * rules out PSK-only key exchange, which is what we calculate the hash for
      * here. (The possible exception is when a server sends a HRR to reject

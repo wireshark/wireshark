@@ -10,7 +10,7 @@
  */
 
 /* 2014-04      Philip Rosenberg-Watt <p.rosenberg-watt[at]cablelabs.com>
- *               + EPON preamble with CableLabs DPoE securty byte.
+ *               + EPON preamble with CableLabs DPoE security byte.
  *                 See IEEE 802.3-2012 Section 5, Clause 65 and
  *                 CableLabs DPoE SEC 1.0 specification.
  */
