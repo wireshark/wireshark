@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-09-04) */
+/* (last updated 2026-09-11) */
 
 #include "config.h"
 
@@ -19681,7 +19681,7 @@ static const char * const table[] =
     "Paradigit Computers B.V.",                                                           // 19659
     "CRO24 GmbH",                                                                         // 19660
     "Gleiss Lutz",                                                                        // 19661
-    "Telenor AB",                                                                         // 19662
+    "Telenor Sverige AB",                                                                 // 19662
     "Secure-Group AS",                                                                    // 19663
     "gr3 a/s",                                                                            // 19664
     "Grazer Wechselseitige Versicherung AG",                                              // 19665
@@ -48578,7 +48578,7 @@ static const char * const table[] =
     "bellaflora Gartencenter GmbH",                                                       // 48556
     "OOO LOYALTY PROGRAM Koshelek",                                                       // 48557
     "Trinity Grammar School",                                                             // 48558
-    "Rosenberger Technologies Co., Ltd.",                                                 // 48559
+    "PROSE Technologies",                                                                 // 48559
     "Almnäs Bruk AB",                                                                     // 48560
     "Ahlstrom Group",                                                                     // 48561
     "KENDRIS AG",                                                                         // 48562
@@ -66756,7 +66756,87 @@ static const char * const table[] =
     "CHU de Bordeaux",                                                                    // 66734
     "Kiruna kommun",                                                                      // 66735
     "LegalTechsolution S.A.",                                                             // 66736
-    "Tessellation Software LLC"                                                           // 66737
+    "Tessellation Software LLC",                                                          // 66737
+    "Jining KeLi Photoelectronic Industrial Co., Ltd.",                                   // 66738
+    "Certynx, Inc.",                                                                      // 66739
+    "Archer Aviation",                                                                    // 66740
+    "Colk-tech",                                                                          // 66741
+    "syscom",                                                                             // 66742
+    "PT RUANG INOVASI MAJU BERSAMA",                                                      // 66743
+    "James Lambert",                                                                      // 66744
+    "Mitologie LLC",                                                                      // 66745
+    "Hydro Tasmania",                                                                     // 66746
+    "GTWAVE CO.,LTD.",                                                                    // 66747
+    "TRUONG SON SOLUTIONS & CONTRUCTIONS CO.,LTD",                                        // 66748
+    "Energofora",                                                                         // 66749
+    "MACOMO LLC",                                                                         // 66750
+    "Rocketdyne, Inc",                                                                    // 66751
+    "Quantum Iryx Systems Inc.",                                                          // 66752
+    "Zeng Alexandre Qizhi",                                                               // 66753
+    "Xopero Software S.A.",                                                               // 66754
+    "Darabotics",                                                                         // 66755
+    "G5 Digital",                                                                         // 66756
+    "Strength of the Ox, LLC",                                                            // 66757
+    "Ximena Rodriguez",                                                                   // 66758
+    "Technical University of Sofia",                                                      // 66759
+    "Atlastech Solution",                                                                 // 66760
+    "Infamous Endeavors",                                                                 // 66761
+    "Jaime Sanders",                                                                      // 66762
+    "MioElettronics",                                                                     // 66763
+    "DAHMANI",                                                                            // 66764
+    "Spéciales Gillardeau",                                                               // 66765
+    "ARF Technologies",                                                                   // 66766
+    "Authologic Sp. z o.o.",                                                              // 66767
+    "Plyfa Plywood AB",                                                                   // 66768
+    "Ytek",                                                                               // 66769
+    "Mao Haoji",                                                                          // 66770
+    "DYNACOM s.r.l.",                                                                     // 66771
+    "AODFETE NOSIDDA IRREVOCABLE LIVING TRUST",                                           // 66772
+    "Emen Hesar Pouya",                                                                   // 66773
+    "FomentaGov",                                                                         // 66774
+    "Kapital México Grupo Financiero, S.A. de C.V.",                                      // 66775
+    "Electronics Boutique Australia Pty. Ltd.",                                           // 66776
+    "Jebsen & Jessen Group",                                                              // 66777
+    "Creatotronik Ltd",                                                                   // 66778
+    "Associazione Italiana Professionisti dell'Intelligenza Artificiale",                 // 66779
+    "forenova",                                                                           // 66780
+    "Empyrean Medical Systems, Inc.",                                                     // 66781
+    "Diakonissenkrankenhaus Dresden",                                                     // 66782
+    "Prästlönetillgångarna i Härnösands stift",                                           // 66783
+    "Keyanna Technology Private Limited",                                                 // 66784
+    "Alomere Health",                                                                     // 66785
+    "Rumen Doynov",                                                                       // 66786
+    "CoreWeave, Inc",                                                                     // 66787
+    "Bill Justesen",                                                                      // 66788
+    "Modernizing Medicine Inc.",                                                          // 66789
+    "杜健 (Du Jian)",                                                                       // 66790
+    "Initials INK",                                                                       // 66791
+    "Extrixa Inc.",                                                                       // 66792
+    "Ultimate Linux Solutions (Pty) Ltd",                                                 // 66793
+    "Nivtrix Inc",                                                                        // 66794
+    "Rosendahl Studiotechnik GmbH",                                                       // 66795
+    "Ophir RF, Inc.",                                                                     // 66796
+    "Shenzhen Juneng Innovation Technology Co., Ltd.",                                    // 66797
+    "Andreas Jansson",                                                                    // 66798
+    "Cryptlex LLP",                                                                       // 66799
+    "ROBOTICSWARE PTE. LTD.",                                                             // 66800
+    "Crawford Media Group",                                                               // 66801
+    "Palior UG (haftungsbeschränkt)",                                                     // 66802
+    "Beyond EV Pty Ltd",                                                                  // 66803
+    "UIB Holdings Pte Ltd",                                                               // 66804
+    "Mesurons",                                                                           // 66805
+    "MSPOperations",                                                                      // 66806
+    "SPC EOH",                                                                            // 66807
+    "XR Trading LLC",                                                                     // 66808
+    "Arisa Data Saina",                                                                   // 66809
+    "EonoSpace Ltd",                                                                      // 66810
+    "RayanNivand",                                                                        // 66811
+    "AstropotaMedia LLC",                                                                 // 66812
+    "GoBright",                                                                           // 66813
+    "Lanstar Germany",                                                                    // 66814
+    "WiSP Services",                                                                      // 66815
+    "Pinch A Penny, LLC",                                                                 // 66816
+    "National Health Investors, Inc."                                                     // 66817
 };
 
 const char* global_enterprises_lookup(uint32_t value)
