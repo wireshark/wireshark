@@ -131,6 +131,7 @@ class LuaDebuggerCaptureSuppression
     /** @brief True when a live capture currently has the debugger force-disabled. */
     static bool isActive();
 
+#ifdef HAVE_LIBPCAP
     /** @brief Enter suppression. Snapshots the user's pre-capture enabled
      *  intent so we can restore it on @ref exit. Idempotent: returns true
      *  iff this call actually transitioned the state. */
@@ -140,13 +141,16 @@ class LuaDebuggerCaptureSuppression
      *  unless the user has since explicitly disabled the debugger.
      *  Idempotent: returns true iff this call actually transitioned the state. */
     static bool exit();
+#endif
 
     /** @brief Re-apply suppression at dialog startup so any constructor-time
      *  paths that re-enabled the core get reverted. */
     static void reconcileOnStartup(LuaDebuggerDialog *dialog);
 
+#ifdef HAVE_LIBPCAP
     /** @brief Capture-session observer registered at process start. */
     static void onCaptureSessionEvent(int event, struct _capture_session *cap_session, void *user_data);
+#endif
 
     /** @brief Update the "restore on capture stop" intent. */
     static void setPrevEnabled(bool enabled);
@@ -162,6 +166,7 @@ bool LuaDebuggerCaptureSuppression::isActive()
     return g_captureSuppressionActive;
 }
 
+#ifdef HAVE_LIBPCAP
 bool LuaDebuggerCaptureSuppression::enter()
 {
     /* Suppress on the very first start-ish event of a session.
@@ -198,6 +203,7 @@ bool LuaDebuggerCaptureSuppression::exit()
     }
     return true;
 }
+#endif
 
 void LuaDebuggerCaptureSuppression::reconcileOnStartup(LuaDebuggerDialog *dialog)
 {
@@ -226,13 +232,13 @@ void LuaDebuggerCaptureSuppression::reconcileOnStartup(LuaDebuggerDialog *dialog
     }
 }
 
+#ifdef HAVE_LIBPCAP
 void LuaDebuggerCaptureSuppression::onCaptureSessionEvent(int event, struct _capture_session *cap_session,
                                                           void *user_data)
 {
     Q_UNUSED(cap_session);
     Q_UNUSED(user_data);
 
-#ifdef HAVE_LIBPCAP
     bool state_changed = false;
 
     switch (event)
@@ -258,10 +264,8 @@ void LuaDebuggerCaptureSuppression::onCaptureSessionEvent(int event, struct _cap
             dialog->refreshDebuggerStateUi();
         }
     }
-#else
-    Q_UNUSED(event);
-#endif
 }
+#endif
 
 void LuaDebuggerCaptureSuppression::setPrevEnabled(bool enabled)
 {
