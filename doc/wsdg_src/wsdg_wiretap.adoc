@@ -251,7 +251,7 @@ struct open_info {
 
 The important values here are the `name`, `type`, and `open_routine`. The remaining parameters can be `NULL`.
 
-For convenience, we also added an entry to `file_access.c`'s `wireshark_file_type_extensions_base` table so that this format can be selected with the 'open' dialog.
+For convenience, we also added an entry to `app/wireshark_flavor.c`'s `wireshark_file_type_extensions_base` table so that this format can be selected with the 'open' dialog.
 
 ```c
 { "Data Undergoing Mysterious Breakage (DUMB)", true, "dumb" },
