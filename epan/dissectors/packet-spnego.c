@@ -439,6 +439,7 @@ static const ber_sequence_t NegTokenTarg_sequence[] = {
   { &hf_spnego_supportedMech, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_spnego_T_supportedMech },
   { &hf_spnego_responseToken, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_spnego_T_responseToken },
   { &hf_spnego_mechListMIC_01, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_spnego_T_mechListMIC },
+  { &hf_spnego_mechTypes    , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_spnego_MechTypeList },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2294,6 +2295,9 @@ void proto_reg_handoff_spnego(void) {
   gssapi_init_oid("1.3.6.1.5.2.5", proto_spnego_krb5, ett_spnego_krb5,
                   spnego_krb5_handle, spnego_krb5_wrap_handle,
                   "KRB5 - IAKERB");
+  gssapi_init_oid("1.3.6.1.4.1.311.2.2.40", proto_spnego_krb5, ett_spnego_krb5,
+                  spnego_krb5_handle, spnego_krb5_wrap_handle,
+                  "MS SPNG - Negotiate Late Fallback");
 }
 
 /*

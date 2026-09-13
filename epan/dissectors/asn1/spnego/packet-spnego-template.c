@@ -1462,6 +1462,9 @@ void proto_reg_handoff_spnego(void) {
   gssapi_init_oid("1.3.6.1.5.2.5", proto_spnego_krb5, ett_spnego_krb5,
                   spnego_krb5_handle, spnego_krb5_wrap_handle,
                   "KRB5 - IAKERB");
+  gssapi_init_oid("1.3.6.1.4.1.311.2.2.40", proto_spnego_krb5, ett_spnego_krb5,
+                  spnego_krb5_handle, spnego_krb5_wrap_handle,
+                  "MS SPNG - Negotiate Late Fallback");
 }
 
 /*

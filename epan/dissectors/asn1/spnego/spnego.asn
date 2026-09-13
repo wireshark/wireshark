@@ -56,7 +56,9 @@ NegTokenTarg ::= SEQUENCE {
                             request-mic         (3) }          OPTIONAL,
     supportedMech  [1] MechType                                OPTIONAL,
     responseToken  [2] OCTET STRING                            OPTIONAL,
-    mechListMIC    [3] OCTET STRING                            OPTIONAL
+    mechListMIC    [3] OCTET STRING                            OPTIONAL,
+    -- [MS-SPNG] Late Fallback Mechanism
+    mechTypes      [4] MechTypeList                            OPTIONAL
 }
 
 --GSS-API DEFINITIONS ::=
