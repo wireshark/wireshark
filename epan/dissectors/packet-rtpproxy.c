@@ -102,6 +102,7 @@ static expert_field ei_rtpproxy_timeout;
 static expert_field ei_rtpproxy_notify_no_ip;
 static expert_field ei_rtpproxy_bad_ipv4;
 static expert_field ei_rtpproxy_bad_ipv6;
+static expert_field ei_rtpproxy_no_lf_on_tcp;
 
 /* Request/response tracking */
 static int hf_rtpproxy_request_in;
@@ -1532,9 +1533,12 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     if (subc_offset)
         rtpproxy_add_subcommands(tvb, pinfo, rtpproxy_main_tree, subc_offset, fullsize, is_reply);
 
-    /* TODO add an expert warning about packets w/o LF sent over TCP */
+    /* The trailing LF is required over TCP, where it delimits messages, and
+     * optional over UDP. */
     if (has_lf)
         proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_lf, tvb, fullsize, 1, ENC_NA);
+    else if (pinfo->ptype == PT_TCP)
+        expert_add_info(pinfo, rtpproxy_tree, &ei_rtpproxy_no_lf_on_tcp);
 
     return tvb_captured_length(tvb);
 }
@@ -2363,6 +2367,9 @@ proto_register_rtpproxy(void)
         { &ei_rtpproxy_bad_ipv6,
           { "rtpproxy.bad_ipv6", PI_MALFORMED, PI_ERROR,
             "Bad IPv6", EXPFILL }},
+        { &ei_rtpproxy_no_lf_on_tcp,
+          { "rtpproxy.no_lf_on_tcp", PI_PROTOCOL, PI_WARN,
+            "Message without a trailing LF sent over TCP", EXPFILL }},
     };
 
     /* Setup protocol subtree array */

@@ -936,6 +936,17 @@ class TestDissectRtpproxy:
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'RTPproxy-ng')
 
+    def test_rtpproxy_no_lf_on_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Over TCP a message must end with an LF; one without is flagged, one with is not'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpproxy_tcp.pcap'),
+                '-d', 'tcp.port==12222,rtpproxy',
+                '-Y', 'rtpproxy.no_lf_on_tcp',
+                '-T', 'fields', '-e', 'frame.number',
+            ), encoding='utf-8', env=test_env)
+        # Only the first frame (no trailing LF) is flagged; the second has one.
+        assert stdout.strip() == '1'
+
 class TestDissectTcp:
     @staticmethod
     def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=[]):
