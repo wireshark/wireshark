@@ -128,6 +128,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	plugin_exports.h
 	pow2.h
 	privileges.h
+	process_lookup.h
 	processes.h
 	regex.h
 	report_message.h
@@ -202,6 +203,7 @@ set(WSUTIL_COMMON_FILES
 	os_version_info.c
 	please_report_bug.c
 	privileges.c
+	process_lookup.c
 	regex.c
 	rsa.c
 	saplzclzh.c
@@ -252,6 +254,15 @@ if(WIN32)
 		win32-utils.c
 	)
 endif(WIN32)
+
+# The platform backend of the process lookup.
+if(WIN32)
+	list(APPEND WSUTIL_FILES process_lookup-win32.c)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	list(APPEND WSUTIL_FILES process_lookup-linux.c)
+else()
+	list(APPEND WSUTIL_FILES process_lookup-stub.c)
+endif()
 
 
 if(HAVE_MACOS_FRAMEWORKS)
@@ -525,7 +536,7 @@ add_executable(test_wsutil EXCLUDE_FROM_ALL
 	test_wsutil.c
 )
 
-target_link_libraries(test_wsutil ${M_LIBRARIES} ${GLIB2_LIBRARIES} wsutil)
+target_link_libraries(test_wsutil ${M_LIBRARIES} ${GLIB2_LIBRARIES} ${SOCKET_LIBRARY} wsutil)
 target_include_directories(test_wsutil SYSTEM PRIVATE ${XXHASH_INCLUDE_DIRS})
 
 set_target_properties(test_wsutil PROPERTIES

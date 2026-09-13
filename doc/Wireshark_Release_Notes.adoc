@@ -336,6 +336,12 @@ wtap_file_get_num_pibs() and wtap_file_get_pib(), the dpibs_growing member
 of wtap_dump_params has been renamed pibs_growing, and the OPT_DPIB_NAME
 and OPT_DPIB_UUID option codes have been removed.
 
+libwsutil has a new API, wsutil/process_lookup.h, that finds the processes
+that have a network socket open, from the operating system's socket tables,
+and describes them (name, path, command line, parent, user, start time). It
+is implemented for Windows and Linux; on other platforms it reports that it
+is not supported.
+
 === Plugin Development Changes
 
 The list of installed dissector header files has been reduced and is now restricted to ones that contain the following:

@@ -1284,6 +1284,349 @@ static void test_ws_hexbuftoi64(void)
     test_int64(hexstr, 2, &hexstr[1], 16, true, 0, 0);
     test_int64(hexstr, 2, &hexstr[1], 0, true, 0, 0);
 }
+#include <wsutil/process_lookup.h>
+#include <wsutil/socket.h>
+#ifdef _WIN32
+#include <process.h>
+#else
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+#endif
+
+static uint32_t
+own_pid(void)
+{
+#ifdef _WIN32
+    return (uint32_t)GetCurrentProcessId();
+#else
+    return (uint32_t)getpid();
+#endif
+}
+
+/* A TCP or UDP socket bound to an ephemeral port on the given loopback address, listening if
+ * asked; INVALID_SOCKET if that isn't possible, e.g. without IPv6. */
+static socket_handle_t
+bound_socket(int family, int type, const char *addr_str, bool do_listen)
+{
+    socket_handle_t sock;
+    struct sockaddr_storage ss;
+    socklen_t len;
+
+    sock = socket(family, type, 0);
+    if (sock == INVALID_SOCKET)
+        return INVALID_SOCKET;
+    memset(&ss, 0, sizeof ss);
+    if (family == AF_INET) {
+        struct sockaddr_in *sin = (struct sockaddr_in *)&ss;
+        ws_in4_addr addr;
+
+        g_assert_true(ws_inet_pton4(addr_str, &addr));
+        sin->sin_family = AF_INET;
+        memcpy(&sin->sin_addr, &addr, sizeof addr);
+        len = sizeof *sin;
+    } else {
+        struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)&ss;
+        ws_in6_addr addr;
+
+        g_assert_true(ws_inet_pton6(addr_str, &addr));
+        sin6->sin6_family = AF_INET6;
+        memcpy(&sin6->sin6_addr, addr.bytes, sizeof addr.bytes);
+        len = sizeof *sin6;
+    }
+    if (bind(sock, (struct sockaddr *)&ss, len) != 0 || (do_listen && listen(sock, 1) != 0)) {
+        closesocket(sock);
+        return INVALID_SOCKET;
+    }
+    return sock;
+}
+
+static uint16_t
+socket_port(socket_handle_t sock)
+{
+    struct sockaddr_storage ss;
+    socklen_t len = sizeof ss;
+
+    g_assert_cmpint(getsockname(sock, (struct sockaddr *)&ss, &len), ==, 0);
+    if (ss.ss_family == AF_INET)
+        return g_ntohs(((struct sockaddr_in *)&ss)->sin_port);
+    return g_ntohs(((struct sockaddr_in6 *)&ss)->sin6_port);
+}
+
+static void
+endpoint4(ws_socket_endpoint_t *ep, const char *addr, uint16_t port)
+{
+    memset(ep, 0, sizeof *ep);
+    ep->ip_version = 4;
+    g_assert_true(ws_inet_pton4(addr, &ep->addr.ipv4));
+    ep->port = port;
+}
+
+static void
+endpoint6(ws_socket_endpoint_t *ep, const char *addr, uint16_t port)
+{
+    memset(ep, 0, sizeof *ep);
+    ep->ip_version = 6;
+    g_assert_true(ws_inet_pton6(addr, &ep->addr.ipv6));
+    ep->port = port;
+}
+
+/* The record must describe this very process. */
+static void
+check_own_process(const ws_process_info_t *info)
+{
+    uint64_t now_ns = (uint64_t)g_get_real_time() * 1000;
+
+    g_assert_nonnull(info);
+    g_assert_cmpuint(info->pid, ==, own_pid());
+    g_assert_nonnull(info->name);
+    g_assert_nonnull(strstr(info->name, "test_wsutil"));
+    g_assert_nonnull(info->path);
+    g_assert_nonnull(strstr(info->path, "test_wsutil"));
+    g_assert_nonnull(info->cmdline);
+    g_assert_cmpuint(info->cmdline_len, >, 0);
+    g_assert_nonnull(info->user);
+    g_assert_true(info->has_ppid);
+    g_assert_cmpuint(info->start_time_ns, >, 0);
+    /* The start time is derived from the boot time on some systems; allow it some slack. */
+    g_assert_cmpuint(info->start_time_ns, <=, now_ns + 2000000000ULL);
+#ifndef _WIN32
+    g_assert_true(info->has_uid);
+    g_assert_cmpuint(info->uid, ==, (uint32_t)getuid());
+#endif
+}
+
+static ws_process_lookup_t *
+new_lookup(void)
+{
+    char *err_msg = NULL;
+    ws_process_lookup_t *lookup = ws_process_lookup_new(&err_msg);
+
+    if (lookup == NULL)
+        g_error("ws_process_lookup_new: %s", err_msg);
+    return lookup;
+}
+
+/* Look a socket up that no process but this one can have open: its record, or NULL if none. */
+static const ws_process_info_t *
+lookup_only(ws_process_lookup_t *lookup, ws_process_lookup_protocol_t protocol,
+            const ws_socket_endpoint_t *local, const ws_socket_endpoint_t *remote)
+{
+    GPtrArray *procs = g_ptr_array_new();
+    const ws_process_info_t *info = NULL;
+
+    g_assert_cmpuint(ws_process_lookup_socket(lookup, protocol, local, remote, procs), ==, procs->len);
+    g_assert_cmpuint(procs->len, <=, 1);
+    if (procs->len == 1)
+        info = (const ws_process_info_t *)g_ptr_array_index(procs, 0);
+    g_ptr_array_free(procs, TRUE);
+    return info;
+}
+
+/* Whether this process is among those reported as having a socket open. */
+static bool
+lists_own_process(ws_process_lookup_t *lookup, ws_process_lookup_protocol_t protocol,
+                  const ws_socket_endpoint_t *local, const ws_socket_endpoint_t *remote)
+{
+    GPtrArray *procs = g_ptr_array_new();
+    bool found = false;
+
+    ws_process_lookup_socket(lookup, protocol, local, remote, procs);
+    for (unsigned i = 0; i < procs->len; i++) {
+        if (((const ws_process_info_t *)g_ptr_array_index(procs, i))->pid == own_pid())
+            found = true;
+    }
+    g_ptr_array_free(procs, TRUE);
+    return found;
+}
+
+static void
+test_process_lookup_tcp4(void)
+{
+    socket_handle_t listener, client, server;
+    struct sockaddr_in sin;
+    ws_in4_addr loopback;
+    uint16_t lport, cport;
+    ws_process_lookup_t *lookup;
+    ws_socket_endpoint_t l, c;
+    const ws_process_info_t *info;
+    char *err_msg = NULL;
+
+    if (!ws_process_lookup_supported()) {
+        g_test_skip("not supported on this platform");
+        return;
+    }
+    g_assert_null(ws_init_sockets());
+
+    listener = bound_socket(AF_INET, SOCK_STREAM, "127.0.0.1", true);
+    g_assert_true(listener != INVALID_SOCKET);
+    lport = socket_port(listener);
+    client = socket(AF_INET, SOCK_STREAM, 0);
+    g_assert_true(client != INVALID_SOCKET);
+    memset(&sin, 0, sizeof sin);
+    sin.sin_family = AF_INET;
+    g_assert_true(ws_inet_pton4("127.0.0.1", &loopback));
+    memcpy(&sin.sin_addr, &loopback, sizeof loopback);
+    sin.sin_port = g_htons(lport);
+    g_assert_cmpint(connect(client, (struct sockaddr *)&sin, sizeof sin), ==, 0);
+    cport = socket_port(client);
+    server = accept(listener, NULL, NULL);
+    g_assert_true(server != INVALID_SOCKET);
+
+    lookup = new_lookup();
+    endpoint4(&c, "127.0.0.1", cport);
+    endpoint4(&l, "127.0.0.1", lport);
+
+    /* The connection, seen from either end, and the listening socket. */
+    info = lookup_only(lookup, WS_PROCESS_LOOKUP_TCP, &c, &l);
+    check_own_process(info);
+    g_assert_true(lookup_only(lookup, WS_PROCESS_LOOKUP_TCP, &l, &c) == info);
+    g_assert_true(lookup_only(lookup, WS_PROCESS_LOOKUP_TCP, &l, NULL) == info);
+    /* The same record, by process ID. */
+    g_assert_true(ws_process_lookup_pid(lookup, own_pid()) == info);
+    /* A process that doesn't exist. */
+    g_assert_null(ws_process_lookup_pid(lookup, 0xfffffff0));
+
+    /* Once closed, the sockets have no owner (a TIME_WAIT socket has none). */
+    closesocket(client);
+    closesocket(server);
+    closesocket(listener);
+    g_assert_true(ws_process_lookup_refresh(lookup, &err_msg));
+    g_assert_false(lists_own_process(lookup, WS_PROCESS_LOOKUP_TCP, &c, &l));
+    g_assert_false(lists_own_process(lookup, WS_PROCESS_LOOKUP_TCP, &l, NULL));
+
+    ws_process_lookup_free(lookup);
+    ws_cleanup_sockets();
+}
+
+static void
+test_process_lookup_wildcard_udp(void)
+{
+    socket_handle_t any_listener, udp;
+    ws_process_lookup_t *lookup;
+    ws_socket_endpoint_t l, r, u;
+
+    if (!ws_process_lookup_supported()) {
+        g_test_skip("not supported on this platform");
+        return;
+    }
+    g_assert_null(ws_init_sockets());
+
+    any_listener = bound_socket(AF_INET, SOCK_STREAM, "0.0.0.0", true);
+    g_assert_true(any_listener != INVALID_SOCKET);
+    udp = bound_socket(AF_INET, SOCK_DGRAM, "127.0.0.1", false);
+    g_assert_true(udp != INVALID_SOCKET);
+
+    lookup = new_lookup();
+    /* A socket listening on any address matches a packet to any address on its port,
+     * whether or not the caller knows the other end. */
+    endpoint4(&l, "127.0.0.1", socket_port(any_listener));
+    endpoint4(&r, "127.0.0.1", 40000);
+    check_own_process(lookup_only(lookup, WS_PROCESS_LOOKUP_TCP, &l, NULL));
+    check_own_process(lookup_only(lookup, WS_PROCESS_LOOKUP_TCP, &l, &r));
+    /* An unconnected UDP socket matches with or without a remote end. */
+    endpoint4(&u, "127.0.0.1", socket_port(udp));
+    check_own_process(lookup_only(lookup, WS_PROCESS_LOOKUP_UDP, &u, NULL));
+    check_own_process(lookup_only(lookup, WS_PROCESS_LOOKUP_UDP, &u, &r));
+    /* Not with the other protocol (some other process may happen to use that port). */
+    g_assert_false(lists_own_process(lookup, WS_PROCESS_LOOKUP_UDP, &l, NULL));
+    g_assert_false(lists_own_process(lookup, WS_PROCESS_LOOKUP_TCP, &u, NULL));
+
+    ws_process_lookup_free(lookup);
+    closesocket(any_listener);
+    closesocket(udp);
+    ws_cleanup_sockets();
+}
+
+static void
+test_process_lookup_tcp6(void)
+{
+    socket_handle_t listener;
+    ws_process_lookup_t *lookup;
+    ws_socket_endpoint_t l6, l4;
+
+    if (!ws_process_lookup_supported()) {
+        g_test_skip("not supported on this platform");
+        return;
+    }
+    g_assert_null(ws_init_sockets());
+
+    listener = bound_socket(AF_INET6, SOCK_STREAM, "::1", true);
+    if (listener == INVALID_SOCKET) {
+        ws_cleanup_sockets();
+        g_test_skip("no IPv6 loopback");
+        return;
+    }
+
+    lookup = new_lookup();
+    endpoint6(&l6, "::1", socket_port(listener));
+    check_own_process(lookup_only(lookup, WS_PROCESS_LOOKUP_TCP, &l6, NULL));
+    /* An IPv6 socket bound to ::1 is not reached over IPv4. */
+    endpoint4(&l4, "127.0.0.1", socket_port(listener));
+    g_assert_false(lists_own_process(lookup, WS_PROCESS_LOOKUP_TCP, &l4, NULL));
+
+    ws_process_lookup_free(lookup);
+    closesocket(listener);
+    ws_cleanup_sockets();
+}
+
+#ifndef _WIN32
+/* A socket that a child process inherited is reported for both, this older process first. */
+static void
+test_process_lookup_shared(void)
+{
+    socket_handle_t listener;
+    pid_t child;
+    int status;
+    ws_process_lookup_t *lookup;
+    ws_socket_endpoint_t l;
+    GPtrArray *procs;
+    const ws_process_info_t *info;
+
+    if (!ws_process_lookup_supported()) {
+        g_test_skip("not supported on this platform");
+        return;
+    }
+    g_assert_null(ws_init_sockets());
+
+    listener = bound_socket(AF_INET, SOCK_STREAM, "127.0.0.1", true);
+    g_assert_true(listener != INVALID_SOCKET);
+    endpoint4(&l, "127.0.0.1", socket_port(listener));
+
+    child = fork();
+    g_assert_cmpint(child, >=, 0);
+    if (child == 0) {
+        /* Hold the inherited socket until killed. */
+        for (;;)
+            pause();
+    }
+
+    lookup = new_lookup();
+    procs = g_ptr_array_new();
+    g_assert_cmpuint(ws_process_lookup_socket(lookup, WS_PROCESS_LOOKUP_TCP, &l, NULL, procs), ==, 2);
+    g_assert_cmpuint(procs->len, ==, 2);
+    check_own_process((const ws_process_info_t *)g_ptr_array_index(procs, 0));
+    info = (const ws_process_info_t *)g_ptr_array_index(procs, 1);
+    g_assert_cmpuint(info->pid, ==, (uint32_t)child);
+    g_assert_true(info->has_ppid);
+    g_assert_cmpuint(info->ppid, ==, own_pid());
+    g_assert_true(ws_process_lookup_pid(lookup, (uint32_t)child) == info);
+
+    /* Once we close it, the child is the only process that has it; the array is appended to. */
+    closesocket(listener);
+    g_assert_true(ws_process_lookup_refresh(lookup, NULL));
+    g_assert_cmpuint(ws_process_lookup_socket(lookup, WS_PROCESS_LOOKUP_TCP, &l, NULL, procs), ==, 1);
+    g_assert_cmpuint(procs->len, ==, 3);
+    g_assert_true(g_ptr_array_index(procs, 2) == info);
+
+    kill(child, SIGKILL);
+    g_assert_cmpint(waitpid(child, &status, 0), ==, child);
+    g_ptr_array_free(procs, TRUE);
+    ws_process_lookup_free(lookup);
+    ws_cleanup_sockets();
+}
+#endif
+
 int main(int argc, char **argv)
 {
     int ret;
@@ -1348,6 +1691,13 @@ int main(int argc, char **argv)
 
     g_test_add_func("/sap_lzclzh_decompress", test_sap_lzclzh_decompress);
     g_test_add_func("/sap_lzclzh_decompress/errors", test_sap_lzclzh_decompress_errors);
+
+    g_test_add_func("/process_lookup/tcp4", test_process_lookup_tcp4);
+    g_test_add_func("/process_lookup/wildcard_udp", test_process_lookup_wildcard_udp);
+    g_test_add_func("/process_lookup/tcp6", test_process_lookup_tcp6);
+#ifndef _WIN32
+    g_test_add_func("/process_lookup/shared", test_process_lookup_shared);
+#endif
 
     ret = g_test_run();
 
