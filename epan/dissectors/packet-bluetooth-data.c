@@ -899,6 +899,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C3F,   "TPMS Duty Cycle" },
     { 0x2C40,   "TPMS Position" },
     { 0x2C41,   "TPMS Signing Key" },
+    { 0x2C42,   "Cookware Device ID" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
     { 0xFC27,   "Barking Labs Corp." },
     { 0xFC28,   "TechnoPartner Tecnologia Ltda." },
@@ -5666,6 +5667,9 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x111A,   "BOKE Drivers Co., Ltd." },
     { 0x111B,   "DIGITANIMAL S.L." },
     { 0x111C,   "Techavtomatica" },
+    { 0x111D,   "Commodore International Corporation" },
+    { 0x111E,   "DS TAGS Group B.V." },
+    { 0x111F,   "iAppliance Inc." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6444,6 +6448,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c3f,   "Bluetooth GATT Attribute TPMS Duty Cycle (UUID 0x2c3f)", "BT GATT TPMS Duty Cycle (UUID 0x2c3f)", "btgatt.uuid0x2c3f" },
     { 0x2c40,   "Bluetooth GATT Attribute TPMS Position (UUID 0x2c40)", "BT GATT TPMS Position (UUID 0x2c40)", "btgatt.uuid0x2c40" },
     { 0x2c41,   "Bluetooth GATT Attribute TPMS Signing Key (UUID 0x2c41)", "BT GATT TPMS Signing Key (UUID 0x2c41)", "btgatt.uuid0x2c41" },
+    { 0x2c42,   "Bluetooth GATT Attribute Cookware Device ID (UUID 0x2c42)", "BT GATT Cookware Device ID (UUID 0x2c42)", "btgatt.uuid0x2c42" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
     { 0xfc27,   "Bluetooth GATT Attribute Barking Labs Corp. (UUID 0xfc27)", "BT GATT Barking Labs Corp. (UUID 0xfc27)", "btgatt.uuid0xfc27" },
     { 0xfc28,   "Bluetooth GATT Attribute TechnoPartner Tecnologia Ltda. (UUID 0xfc28)", "BT GATT TechnoPartner Tecnologia Ltda. (UUID 0xfc28)", "btgatt.uuid0xfc28" },
