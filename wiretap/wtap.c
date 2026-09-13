@@ -1462,6 +1462,9 @@ static const struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_GSMTAP_UM */
 	{ "gsmtap_um", "GSMTAP Um" },
+
+	/* WTAP_ENCAP_DEKTEC_SDI */
+	{ "dektec-sdi", "DekTec SDI frame" },
 };
 
 static int wtap_num_encap_types = array_length(encap_table_base);

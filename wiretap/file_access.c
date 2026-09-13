@@ -77,6 +77,7 @@
 #include "btsnoop.h"
 #include "tnef.h"
 #include "dct3trace.h"
+#include "dtsdi.h"
 #include "packetlogger.h"
 #include "daintree-sna.h"
 #include "netscaler.h"
@@ -311,6 +312,7 @@ static const struct open_info open_info_base[] = {
 	{ "Unigraf DPA-400 capture",                OPEN_INFO_MAGIC,     dpa400_open,              NULL,       NULL, NULL },
 	{ "RFC 7468 files",                         OPEN_INFO_MAGIC,     rfc7468_open,             NULL,  NULL, NULL },
 	{ "MS Procmon Files",                       OPEN_INFO_MAGIC,     procmon_open,             NULL,  NULL, NULL },
+	{ "DekTec SDI",                             OPEN_INFO_MAGIC,     dtsdi_open,               NULL,       NULL, NULL },
 
 	/* Open routines that have no magic numbers and require heuristics. */
 	{ "Novell LANalyzer",                       OPEN_INFO_HEURISTIC, lanalyzer_open,           "tr1",      NULL, NULL },

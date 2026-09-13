@@ -319,6 +319,7 @@ extern "C" {
 #define WTAP_ENCAP_ZWAVE_TAP                    228
 #define WTAP_ENCAP_DECT_NR_TAP                  229
 #define WTAP_ENCAP_GSMTAP_UM                    230
+#define WTAP_ENCAP_DEKTEC_SDI                   231
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -376,6 +377,7 @@ extern "C" {
 #define WTAP_MAX_PACKET_SIZE_USBPCAP     (128U*1024U*1024U)
 #define WTAP_MAX_PACKET_SIZE_EBHSCR      (32U*1024U*1024U)
 #define WTAP_MAX_PACKET_SIZE_DBUS        (128U*1024U*1024U)
+#define WTAP_MAX_PACKET_SIZE_DEKTEC_SDI  (16U*1024U*1024U)
 
 /*
  * "Pseudo-headers" are used to supply to the clients of wiretap
@@ -1347,6 +1349,15 @@ struct mmodule_phdr {
 };
 
 /**
+ * @brief Pseudo-header for DekTec DTSDI frame records.
+ */
+struct dtsdi_phdr {
+    uint8_t format_version; /**< On-disk DTSDI format version. */
+    uint8_t data_type;      /**< DekTec SDI video-standard identifier. */
+    uint16_t flags;         /**< DekTec SDI data-format flags. */
+};
+
+/**
  * @brief Top-level union of all Wiretap pseudo-headers.
  *
  * Exactly one member is valid per record, selected by the encapsulation
@@ -1382,6 +1393,7 @@ union wtap_pseudo_header {
     struct procmon_phdr          procmon;     /**< Microsoft ProcMon pseudo-header. */
     struct ber_phdr              ber;         /**< BER file pseudo-header. */
     struct mmodule_phdr          mmodule;     /**< M-Module pseudo-header. */
+    struct dtsdi_phdr            dtsdi;       /**< DekTec DTSDI pseudo-header. */
 };
 
 /*

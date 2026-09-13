@@ -8,6 +8,7 @@
 #
 '''File format conversion tests'''
 
+import gzip
 import os.path
 import subprocess
 from pathlib import PurePath
@@ -481,3 +482,74 @@ class TestFileFormatCllog:
             ), encoding='utf-8', env=test_env)
         assert ' '.join(proc_stdout.strip().splitlines()) == \
             '2015 2024 2015 2024 2015 2024 2015 2024'
+
+
+class TestFileFormatDtsdi:
+    def test_dtsdi_v2_gzip(self, cmd_tshark, capture_file, test_env):
+        '''Basic test of the DekTec DTSDI V2 file reader.'''
+        proc_stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtsdi-vanc-op47.dtsdi.gz'),
+                '-Tfields',
+                '-e', 'frame.number',
+                '-e', 'frame.len',
+                '-e', 'frame.time_epoch',
+            ), encoding='utf-8', env=test_env)
+        assert proc_stdout == '1\t7425000\t0.000000000\n'
+
+    def test_dtsdi_v2_inferred_frame_metadata(self, cmd_tshark, capture_file,
+                                               test_env):
+        '''Checks inference when the V2 frame size and count are zero.'''
+        proc_stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtsdi-v2-16bit-st352.dtsdi.gz'),
+                '-Tfields',
+                '-e', 'frame.number',
+                '-e', 'frame.len',
+                '-e', 'frame.time_epoch',
+            ), encoding='utf-8', env=test_env)
+        assert proc_stdout == '1\t4950000\t0.000000000\n'
+
+    def test_dtsdi_v2_truncated_frame(self, cmd_tshark, capture_file,
+                                      result_file, test_env):
+        '''Checks rejection of an incomplete final frame.'''
+        with gzip.open(capture_file('dtsdi-v2-16bit-st352.dtsdi.gz'), 'rb') as fh:
+            contents = fh.read()
+        truncated_file = result_file('dtsdi-v2-truncated.dtsdi')
+        with open(truncated_file, 'wb') as fh:
+            fh.write(contents[:-1])
+
+        proc = subprocess.run((cmd_tshark, '-r', truncated_file),
+                              capture_output=True, encoding='utf-8',
+                              env=test_env)
+        assert proc.returncode != 0
+        assert 'not a supported number of 4950000-byte frames' in proc.stderr
+
+    def test_dtsdi_truncated_header(self, cmd_tshark, capture_file,
+                                    result_file, test_env):
+        '''Checks that a recognized file with a short header is rejected.'''
+        with gzip.open(capture_file('dtsdi-v2-16bit-st352.dtsdi.gz'), 'rb') as fh:
+            contents = fh.read(12)
+        truncated_file = result_file('dtsdi-truncated-header.dtsdi')
+        with open(truncated_file, 'wb') as fh:
+            fh.write(contents)
+
+        proc = subprocess.run((cmd_tshark, '-r', truncated_file),
+                              capture_output=True, encoding='utf-8',
+                              env=test_env)
+        assert proc.returncode != 0
+        assert 'cut short in the middle of a packet' in proc.stderr
+
+    def test_dtsdi_v2_undersized_frame(self, cmd_tshark, capture_file,
+                                       result_file, test_env):
+        '''Checks rejection of a declared frame smaller than its raster.'''
+        with gzip.open(capture_file('dtsdi-v2-16bit-st352.dtsdi.gz'), 'rb') as fh:
+            contents = bytearray(fh.read())
+        contents[16:20] = (1).to_bytes(4, 'little')
+        malformed_file = result_file('dtsdi-v2-undersized.dtsdi')
+        with open(malformed_file, 'wb') as fh:
+            fh.write(contents)
+
+        proc = subprocess.run((cmd_tshark, '-r', malformed_file),
+                              capture_output=True, encoding='utf-8',
+                              env=test_env)
+        assert proc.returncode != 0
+        assert 'frame size 1 is smaller than the minimum 4950000-byte full frame' in proc.stderr

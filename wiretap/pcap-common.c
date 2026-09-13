@@ -802,6 +802,9 @@ wtap_max_snaplen_for_encap(int wtap_encap)
 	case WTAP_ENCAP_EBHSCR:
 		return WTAP_MAX_PACKET_SIZE_EBHSCR;
 
+	case WTAP_ENCAP_DEKTEC_SDI:
+		return WTAP_MAX_PACKET_SIZE_DEKTEC_SDI;
+
 	case WTAP_ENCAP_USBPCAP:
 	case WTAP_ENCAP_USB_LINUX:
 	case WTAP_ENCAP_USB_LINUX_MMAPPED:
