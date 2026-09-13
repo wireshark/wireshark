@@ -81,24 +81,6 @@ static const value_string st2110_40_field_vals[] = {
     { 0, NULL }
 };
 
-/* Wireshark/Lua TvbRange:bitfield() numbers bits MSB-first. */
-
-static bool
-st291_id_word_parity_ok(uint16_t word)
-{
-    unsigned ones = 0;
-    unsigned i;
-    uint8_t data = (uint8_t)(word & 0xff);
-    unsigned b8 = (word >> 8) & 1U;
-    unsigned b9 = (word >> 9) & 1U;
-
-    for (i = 0; i < 8; i++)
-        ones += (data >> i) & 1U;
-
-    return (((ones + b8) & 1U) == 0) && (b9 == (b8 ^ 1U));
-}
-
-
 static const char *
 line_number_desc(uint16_t v)
 {
@@ -185,16 +167,14 @@ dissect_st2110_40(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     for (i = 0; i < anc_count; i++) {
-        unsigned data_count, packet_len, udw_length;
-        unsigned dw_off, dw_rem, j;
+        unsigned data_count, packet_len, udw_length, checksum_offset;
         unsigned content_bits, align_bits;
-        uint8_t did, sdid_or_dbn, dispatch_sdid;
+        uint8_t did, sdid_or_dbn;
         bool type1;
         uint16_t did_word, second_word, dc_word;
         uint16_t line_number, horiz_offset;
         uint16_t cs_received, cs_calc;
-        uint8_t *udw_data;
-        tvbuff_t *ntvb;
+        st291_vanc_packet_t anc;
         proto_item *packet_ti, *cs_ti, *tree_data_ti;
         proto_tree *packet_tree, *tree_data;
         const char *desc;
@@ -204,15 +184,29 @@ dissect_st2110_40(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
         }
 
-        did_word = tvb_get_bits16(tvb, (offset + 4) * 8, 10, ENC_BIG_ENDIAN);
-        second_word = tvb_get_bits16(tvb, (offset + 5) * 8 + 2, 10, ENC_BIG_ENDIAN);
-        dc_word = tvb_get_bits16(tvb, (offset + 6) * 8 + 4, 10, ENC_BIG_ENDIAN);
+        if (!st291_vanc_packet_from_packed(tvb, pinfo, (offset + 4) * 8,
+                                           (payload_end - offset - 4) * 8,
+                                           &anc)) {
+            if (anc.word_count != 0) {
+                expert_add_info_format(pinfo, root_ti, &ei_st2110_40_truncated,
+                                       "ANC packet %u extends past the RFC 8331 Length boundary",
+                                       i + 1);
+            } else {
+                expert_add_info_format(pinfo, root_ti, &ei_st2110_40_truncated,
+                                       "ANC packet %u contains a truncated ST 291 header",
+                                       i + 1);
+            }
+            break;
+        }
 
-        did = did_word & 0xff;
-        sdid_or_dbn = second_word & 0xff;
+        did_word = anc.words[0];
+        second_word = anc.words[1];
+        dc_word = anc.words[2];
+
+        did = anc.did;
+        sdid_or_dbn = anc.sdid_or_dbn;
         type1 = (did & 0x80U) != 0;
-        dispatch_sdid = type1 ? 0x00 : sdid_or_dbn;
-        data_count = dc_word & 0xff;
+        data_count = anc.data_count;
 
         packet_len = ((72 + data_count * 10 + 31) / 32) * 4;
         if (offset + packet_len > payload_end) {
@@ -255,14 +249,14 @@ dissect_st2110_40(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         st291_append_packet_description(packet_ti, did, sdid_or_dbn);
 
 
-        if (!st291_id_word_parity_ok(did_word))
+        if (!anc.did_parity_ok)
             expert_add_info_format(pinfo, packet_ti, &ei_st2110_40_bad_parity,
                                    "Invalid ST 291 DID parity (raw word 0x%03x)", did_word);
-        if (!st291_id_word_parity_ok(second_word))
+        if (!anc.second_word_parity_ok)
             expert_add_info_format(pinfo, packet_ti, &ei_st2110_40_bad_parity,
                                    "Invalid ST 291 %s parity (raw word 0x%03x)",
                                    type1 ? "DBN" : "SDID", second_word);
-        if (!st291_id_word_parity_ok(dc_word))
+        if (!anc.data_count_parity_ok)
             expert_add_info_format(pinfo, packet_ti, &ei_st2110_40_bad_parity,
                                    "Invalid ST 291 DC parity (raw word 0x%03x)", dc_word);
 
@@ -271,69 +265,31 @@ dissect_st2110_40(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
 
         /*
-         * Highlight the octets touched by the packed UDW bitstream.  The
+         * Preserve the original packed-byte filter field without a duplicate
+         * visible tree entry. The
          * first UDW begins six bits into tvb[offset+7].  For DC=0 there
          * are no UDW bits at all.
          */
         if (data_count > 0) {
             udw_length = (6 + data_count * 10 + 7) / 8;
-            if (offset + 7 + udw_length <= payload_end)
-                proto_tree_add_item(packet_tree, hf_st2110_40_udw, tvb, offset + 7, udw_length, ENC_NA);
-        }
-
-        udw_data = wmem_alloc(pinfo->pool, MAX(1U, data_count));
-        cs_calc = (uint16_t)((did_word & 0x01ff)
-                           + (second_word & 0x01ff)
-                           + (dc_word & 0x01ff));
-        dw_off = offset + 7;
-        dw_rem = 6;
-
-        for (j = 0; j < data_count; j++) {
-            uint16_t raw_udw;
-            uint16_t checksum_bits;
-
-            if (dw_off + 2 > payload_end) {
-                expert_add_info(pinfo, packet_ti, &ei_st2110_40_truncated);
-                return captured;
-            }
-
-            raw_udw = tvb_get_bits16(tvb, dw_off * 8 + dw_rem, 10, ENC_BIG_ENDIAN);
-            checksum_bits = raw_udw & 0x01ff;
-            cs_calc = (uint16_t)(cs_calc + checksum_bits);
-
-            /*
-             * The public ST 291 DID/SDID subdissector interface is
-             * byte-oriented: UDW bits b7..b0 are passed as one octet.
-             * This matches ST 2010, ST 2031, RDD 8/OP-47, and other
-             * common 8-bit ANC application mappings.  The original
-             * packed 10-bit words remain available in the parent tvb.
-             */
-            udw_data[j] = (uint8_t)(raw_udw & 0xff);
-
-            if (dw_rem == 6) {
-                dw_off += 2;
-                dw_rem = 0;
-            } else {
-                dw_off += 1;
-                dw_rem += 2;
+            if (offset + 7 + udw_length <= payload_end) {
+                ti = proto_tree_add_item(packet_tree, hf_st2110_40_udw, tvb, offset + 7, udw_length, ENC_NA);
+                proto_item_set_hidden(ti);
             }
         }
 
-        if (dw_off + 2 > payload_end) {
-            expert_add_info(pinfo, packet_ti, &ei_st2110_40_truncated);
-            break;
-        }
-
-        cs_received = tvb_get_bits16(tvb, dw_off * 8 + dw_rem, 10, ENC_BIG_ENDIAN);
-        cs_ti = proto_tree_add_uint_format_value(packet_tree, hf_st2110_40_checksum, tvb, dw_off, 2,
+        cs_received = anc.checksum;
+        checksum_offset = (unsigned)(((uint64_t)(offset + 4) * 8 +
+                                      (3U + data_count) * 10) / 8);
+        cs_ti = proto_tree_add_uint_format_value(packet_tree, hf_st2110_40_checksum,
+                                                 tvb, checksum_offset, 2,
                                                  cs_received, "0x%03x", cs_received);
-        cs_calc &= 0x01ff;
-        if ((cs_calc & 0x0100) == 0)
-            cs_calc |= 0x0200;
-        ti = proto_tree_add_uint_format_value(packet_tree, hf_st2110_40_checksum_calc, tvb, dw_off, 0,
+        cs_calc = anc.checksum_calculated;
+        ti = proto_tree_add_uint_format_value(packet_tree, hf_st2110_40_checksum_calc,
+                                              tvb, checksum_offset, 0,
                                               cs_calc, "0x%03x", cs_calc);
         proto_item_set_generated(ti);
-        if (cs_received != cs_calc)
+        if (!anc.checksum_ok)
             expert_add_info(pinfo, cs_ti, &ei_st2110_40_bad_checksum);
 
         /*
@@ -348,27 +304,29 @@ dissect_st2110_40(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                                    align_bits, align_bits == 1 ? "" : "s");
         }
 
-        ntvb = tvb_new_child_real_data(tvb, udw_data, data_count, data_count);
-        add_new_data_source(pinfo, ntvb, "ST 291 UDW Array");
-        tree_data_ti = proto_tree_add_item(packet_tree, hf_st2110_40_udw_array, ntvb, 0, data_count, ENC_NA);
-        proto_item_set_generated(tree_data_ti);
-        tree_data = proto_item_add_subtree(tree_data_ti, ett_st2110_40_udw);
+        if (data_count > 0) {
+            tree_data_ti = proto_tree_add_item(packet_tree, hf_st2110_40_udw_array,
+                                               anc.packed_udw_tvb, 0,
+                                               tvb_captured_length(anc.packed_udw_tvb),
+                                               ENC_NA);
+            tree_data = proto_item_add_subtree(tree_data_ti, ett_st2110_40_udw);
+        } else {
+            /* Preserve the existing empty generated field without adding an
+             * empty Packet Bytes data source. */
+            tree_data_ti = proto_tree_add_item(packet_tree, hf_st2110_40_udw_array,
+                                               tvb, offset + 7, 0, ENC_NA);
+            proto_item_set_generated(tree_data_ti);
+            tree_data = proto_item_add_subtree(tree_data_ti, ett_st2110_40_udw);
+        }
 
-        /*
-         * Public ST 291 payload extension point.  Type 2 packets use
-         * (DID << 8) | SDID.  Type 1 packets have no SDID, so the key
-         * uses SDID=0x00, matching RFC 8331's DID_SDID signaling rule.
-         */
         {
             st291_vanc_dissector_data_t st291_data = {
                 .top_tree = tree,
                 .payload_index = i,
             };
 
-            dissector_try_uint_with_data(st291_get_did_sdid_table(),
-                                         ((uint32_t)did << 8) | dispatch_sdid,
-                                         ntvb, pinfo, tree_data, true,
-                                         &st291_data);
+            st291_vanc_dissect_packet(&anc, pinfo, tree_data, tree_data_ti,
+                                      &st291_data);
         }
 
         parsed_anc_count++;
@@ -403,7 +361,7 @@ proto_register_st2110_40(void)
         { &hf_st2110_40_s, { "S", "st2110_40.s", FT_BOOLEAN, 8, TFS(&tfs_stream_num), 0x80, NULL, HFILL } },
         { &hf_st2110_40_stream_num, { "Stream Number", "st2110_40.streamnum", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL } },
         { &hf_st2110_40_udw, { "UDW Bytes", "st2110_40.udw", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_st2110_40_udw_array, { "UDW Array", "st2110_40.udw_array", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_st2110_40_udw_array, { "User Data Words", "st2110_40.udw_array", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_st2110_40_checksum, { "Checksum Word", "st2110_40.checksum", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_st2110_40_checksum_calc, { "Calculated Checksum", "st2110_40.checksum_calculated", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 

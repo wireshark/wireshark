@@ -16,6 +16,8 @@
 
 #include "config.h"
 
+#include <string.h>
+
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
@@ -33,6 +35,11 @@ static int hf_st291_did;
 static int hf_st291_sdid;
 static int hf_st291_dbn;
 static dissector_table_t st291_did_sdid_table;
+
+typedef struct {
+    tvbuff_t *full_tvb;
+    tvbuff_t *byte_tvb;
+} st291_vanc_udw_t;
 
 /* SMPTE ST 12-2 declarations */
 static int proto_st12_2;
@@ -429,10 +436,212 @@ st291_lookup_did_sdid(uint8_t did, uint8_t sdid)
     return NULL;
 }
 
-dissector_table_t
-st291_get_did_sdid_table(void)
+static bool
+st291_id_word_parity_ok(uint16_t word)
 {
-    return st291_did_sdid_table;
+    unsigned ones = 0;
+    unsigned bit;
+    uint8_t data = word & 0x00ff;
+    unsigned b8 = (word >> 8) & 1U;
+    unsigned b9 = (word >> 9) & 1U;
+
+    for (bit = 0; bit < 8; bit++)
+        ones += (data >> bit) & 1U;
+
+    return (((ones + b8) & 1U) == 0) && (b9 == (b8 ^ 1U));
+}
+
+bool
+st291_vanc_packet_from_words(tvbuff_t *parent_tvb, packet_info *pinfo,
+                             const uint16_t *words, unsigned word_count,
+                             st291_vanc_packet_t *packet)
+{
+    uint16_t *normalized_words;
+    uint8_t *packed_data;
+    unsigned expected_words;
+    unsigned packed_length;
+    unsigned i;
+
+    DISSECTOR_ASSERT(parent_tvb != NULL);
+    DISSECTOR_ASSERT(pinfo != NULL);
+    DISSECTOR_ASSERT(words != NULL || word_count == 0);
+    DISSECTOR_ASSERT(packet != NULL);
+
+    memset(packet, 0, sizeof(*packet));
+    if (word_count < 4)
+        return false;
+
+    expected_words = 4U + (words[2] & 0x00ff);
+    if (word_count < expected_words)
+        return false;
+
+    normalized_words = wmem_alloc_array(pinfo->pool, uint16_t, expected_words);
+    for (i = 0; i < expected_words; i++)
+        normalized_words[i] = words[i] & 0x03ff;
+
+    packet->parent_tvb = parent_tvb;
+    packet->words = normalized_words;
+    packet->word_count = expected_words;
+    packet->did = normalized_words[0] & 0x00ff;
+    packet->sdid_or_dbn = normalized_words[1] & 0x00ff;
+    packet->data_count = normalized_words[2] & 0x00ff;
+    packet->checksum = normalized_words[3 + packet->data_count];
+    packet->did_parity_ok = st291_id_word_parity_ok(normalized_words[0]);
+    packet->second_word_parity_ok = st291_id_word_parity_ok(normalized_words[1]);
+    packet->data_count_parity_ok = st291_id_word_parity_ok(normalized_words[2]);
+
+    packet->checksum_calculated = 0;
+    for (i = 0; i < 3U + packet->data_count; i++) {
+        packet->checksum_calculated =
+            (packet->checksum_calculated + (normalized_words[i] & 0x01ff)) &
+            0x01ff;
+    }
+    if ((packet->checksum_calculated & 0x0100) == 0)
+        packet->checksum_calculated |= 0x0200;
+    packet->checksum_ok = packet->checksum == packet->checksum_calculated;
+
+    /* Word-oriented transports do not necessarily have a contiguous source
+     * range (for example, one component of an interleaved SDI raster). Build
+     * a canonical packed representation so the shared renderer can still
+     * display the logical 10-bit UDW sequence. */
+    if (packet->data_count != 0) {
+        packed_length = (packet->data_count * 10 + 7) / 8;
+        packed_data = wmem_alloc0(pinfo->pool, packed_length);
+        for (i = 0; i < packet->data_count; i++) {
+            uint16_t word = normalized_words[3 + i];
+            unsigned bit;
+
+            for (bit = 0; bit < 10; bit++) {
+                if ((word & (1U << (9 - bit))) != 0) {
+                    unsigned packed_bit = i * 10 + bit;
+                    packed_data[packed_bit / 8] |= 1U << (7 - packed_bit % 8);
+                }
+            }
+        }
+        packet->packed_udw_tvb = tvb_new_child_real_data(parent_tvb,
+                                                          packed_data,
+                                                          packed_length,
+                                                          packed_length);
+    }
+    return true;
+}
+
+bool
+st291_vanc_packet_from_packed(tvbuff_t *tvb, packet_info *pinfo,
+                              unsigned bit_offset, unsigned available_bits,
+                              st291_vanc_packet_t *packet)
+{
+    uint16_t header_words[3];
+    uint16_t *words;
+    unsigned required_bits;
+    unsigned udw_bit_offset;
+    unsigned word_count;
+    unsigned byte_offset;
+    unsigned byte_length;
+    unsigned i;
+
+    DISSECTOR_ASSERT(tvb != NULL);
+    DISSECTOR_ASSERT(pinfo != NULL);
+    DISSECTOR_ASSERT(packet != NULL);
+
+    memset(packet, 0, sizeof(*packet));
+    if (available_bits < 30)
+        return false;
+
+    for (i = 0; i < array_length(header_words); i++)
+        header_words[i] = tvb_get_bits16(tvb, bit_offset + i * 10, 10,
+                                         ENC_BIG_ENDIAN);
+
+    word_count = 4U + (header_words[2] & 0x00ff);
+    required_bits = word_count * 10;
+    if (required_bits > available_bits) {
+        /* Preserve the decoded header so the transport can distinguish a
+         * truncated ST 291 header from a complete header whose declared
+         * packet extends beyond the transport boundary. */
+        packet->did = header_words[0] & 0x00ff;
+        packet->sdid_or_dbn = header_words[1] & 0x00ff;
+        packet->data_count = header_words[2] & 0x00ff;
+        packet->word_count = word_count;
+        return false;
+    }
+
+    words = wmem_alloc_array(pinfo->pool, uint16_t, word_count);
+    for (i = 0; i < word_count; i++)
+        words[i] = tvb_get_bits16(tvb, bit_offset + i * 10, 10,
+                                  ENC_BIG_ENDIAN);
+
+    if (!st291_vanc_packet_from_words(tvb, pinfo, words, word_count, packet))
+        return false;
+
+    if (packet->data_count != 0) {
+        udw_bit_offset = bit_offset + 30;
+        byte_offset = (unsigned)(udw_bit_offset / 8);
+        packet->packed_udw_bit_offset = (unsigned)(udw_bit_offset % 8);
+        byte_length = (packet->packed_udw_bit_offset +
+                       packet->data_count * 10 + 7) / 8;
+        packet->packed_udw_tvb = tvb_new_subset_length(tvb, byte_offset,
+                                                        byte_length);
+    }
+
+    return true;
+}
+
+/* Keep the canonical full-width and compatibility byte TVBs here so every
+ * ST 291 transport presents the same subdissector interface. */
+static void
+st291_vanc_create_udw_tvbs(tvbuff_t *parent_tvb, packet_info *pinfo,
+                           const uint16_t *udw_words, unsigned udw_count,
+                           st291_vanc_udw_t *udw)
+{
+    uint8_t *full_data;
+    uint8_t *payload_data;
+    unsigned i;
+
+    DISSECTOR_ASSERT(udw != NULL);
+    DISSECTOR_ASSERT(udw_words != NULL || udw_count == 0);
+
+    full_data = wmem_alloc(pinfo->pool, MAX(2U, udw_count * 2U));
+    payload_data = wmem_alloc(pinfo->pool, MAX(1U, udw_count));
+
+    for (i = 0; i < udw_count; i++) {
+        uint16_t word = udw_words[i] & 0x03ff;
+
+        full_data[i * 2] = (uint8_t)(word >> 8);
+        full_data[i * 2 + 1] = (uint8_t)word;
+        payload_data[i] = (uint8_t)word;
+    }
+
+    udw->full_tvb = tvb_new_child_real_data(parent_tvb, full_data,
+                                             udw_count * 2, udw_count * 2);
+    udw->byte_tvb = tvb_new_child_real_data(parent_tvb, payload_data,
+                                             udw_count, udw_count);
+}
+
+bool
+st291_vanc_dissect_packet(const st291_vanc_packet_t *packet,
+                          packet_info *pinfo, proto_tree *tree,
+                          proto_item *payload_item _U_,
+                          const st291_vanc_dissector_data_t *data)
+{
+    st291_vanc_udw_t udw;
+    st291_vanc_dissector_data_t subdissector_data;
+    uint8_t dispatch_sdid;
+
+    DISSECTOR_ASSERT(packet != NULL);
+    DISSECTOR_ASSERT(data != NULL);
+
+    st291_vanc_create_udw_tvbs(packet->parent_tvb, pinfo, packet->words + 3,
+                               packet->data_count, &udw);
+    if (packet->data_count != 0)
+        add_new_data_source(pinfo, udw.byte_tvb, "ST 291 UDW Array");
+
+    subdissector_data = *data;
+    subdissector_data.full_udw_tvb = udw.full_tvb;
+    dispatch_sdid = (packet->did & 0x80U) != 0 ? 0x00 : packet->sdid_or_dbn;
+    return dissector_try_uint_with_data(
+        st291_did_sdid_table,
+        ((uint32_t)packet->did << 8) | dispatch_sdid,
+        udw.byte_tvb, pinfo, tree, true, &subdissector_data);
 }
 
 /* SMPTE ST 291-1:2011, Secs. 5.1-5.2 -- DID/SDID/DBN on-wire identity fields. */

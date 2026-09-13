@@ -122,8 +122,8 @@ class TestSt2110_40:
         rows = stdout.splitlines()
 
         # Valid empty, Type 1, and Type 2 packets cover modes absent from the
-        # public capture. The last packet preserves the distinction between
-        # the packed 10-bit source bytes and the legacy eight-bit UDW array.
+        # public capture. The last packet verifies that the transport-owned
+        # UDW array retains the original packed bytes covering all ten bits.
         assert rows[0] == '1\t0x0001\t0\t0\t0x00\t\t\t\t\t\t\t\t\t\t\t\t\t'
         assert rows[5] == (
             '6\t0x0006\t12\t1\t0x02\tTrue\t12\t345\tTrue\t7\t0x80\t\t0x34\t0\t'
@@ -131,7 +131,7 @@ class TestSt2110_40:
         )
         assert rows[11] == (
             '12\t0x000c\t12\t1\t0x00\tFalse\t9\t0\tFalse\t0\t0x50\t0x01\t\t1\t'
-            '06ab\tab\t0x02fd\t0x02fd'
+            '06ab\t06ab\t0x02fd\t0x02fd'
         )
 
         expert_fields = (
