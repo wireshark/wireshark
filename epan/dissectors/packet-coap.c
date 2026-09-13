@@ -1599,7 +1599,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if (coap_token_str != NULL)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
 	if (coinfo->block_number != DEFAULT_COAP_BLOCK_NUMBER) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Bock%u: %u/%u/%u",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Block%u: %u/%u/%u",
 				coinfo->block_option, coinfo->block_number, coinfo->block_mflag, coinfo->block_size);
 	}
 	if (wmem_strbuf_get_len(coinfo->uri_host_strbuf) > 0 || wmem_strbuf_get_len(coinfo->uri_path_strbuf) > 0) {
