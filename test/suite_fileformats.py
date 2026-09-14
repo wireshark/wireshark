@@ -319,6 +319,17 @@ class TestFileFormatsPcapngProcessInformation:
             ('32622', self.PIB_2_REWRITTEN),
         ]
 
+    def test_pcapng_several_processes_rewrite(self, cmd_tshark, cmd_editcap, capture_file, result_file, base_env):
+        '''Several epb_processid_threadid options of a packet survive rewriting.'''
+        infile = capture_file('process_info_several.pcapng')
+        outfile = result_file('process_info_several-rewritten.pcapng')
+        fields = ('-T', 'fields', '-e', 'frame.number', '-e', 'frame.process.pid', '-e', 'frame.process.name')
+        before = subprocess.check_output((cmd_tshark, '-r', infile) + fields, encoding='utf-8', env=base_env)
+        assert before.splitlines() == ['1\t10,20,30\tsender,receiver,other', '2\t20\treceiver']
+        subprocess.run((cmd_editcap, infile, outfile), check=True, env=base_env)
+        after = subprocess.check_output((cmd_tshark, '-r', outfile) + fields, encoding='utf-8', env=base_env)
+        assert after == before
+
     def test_pcapng_pib_darwin_fields(self, assert_frames_match):
         '''Legacy Darwin process information blocks are looked up by the frame dissector.'''
         assert_frames_match(self.DARWIN_CAPTURE, [

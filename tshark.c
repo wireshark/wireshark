@@ -461,6 +461,7 @@ print_usage(FILE *output)
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
     fprintf(output, "  --no-optimize            do not optimize capture filter\n");
+    fprintf(output, "  --process-info           record the processes that sent or received each packet\n");
     fprintf(output, "\n");
     fprintf(output, "Capture display:\n");
     fprintf(output, "  --update-interval        interval between updates with new packets, in milliseconds (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
@@ -1464,6 +1465,7 @@ main(int argc, char *argv[])
             case LONGOPT_COMPRESS_TYPE:        /* compress type */
             case LONGOPT_CAPTURE_TMPDIR:       /* capture temp directory */
             case LONGOPT_UPDATE_INTERVAL:      /* sync pipe update interval */
+            case LONGOPT_PROCESS_INFO:         /* record the processes that sent or received each packet */
                 /* These are options only for packet capture. */
 #ifdef HAVE_LIBPCAP
                 exit_status = capture_opts_add_opt(application_configuration_environment_prefix(), &global_capture_opts, opt, ws_optarg);

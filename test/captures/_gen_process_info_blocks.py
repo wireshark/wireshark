@@ -34,6 +34,15 @@ Apple's tcpdump, and packets that refer to them:
         Frame 2: UDP packet with darwin_dpib_id 1
         Frame 3: UDP packet with darwin_dpib_id 0 and darwin_edpib_id 1
 
+process_info_several.pcapng has one little-endian section with packets that
+belong to several processes, one epb_processid_threadid option each:
+
+        PIB 0: process 10 "sender"
+        PIB 1: process 20 "receiver"
+        PIB 2: process 30 "other"
+        Frame 1: UDP packet from process 10 to processes 20 and 30
+        Frame 2: UDP packet with process 20 only
+
 process_info_pid_reuse.pcapng has one little-endian section with several
 Wireshark process information blocks for the same process ID, to test which
 one a packet is matched with:
@@ -298,11 +307,33 @@ def gen_pid_reuse_order() -> None:
     write("process_info_pid_reuse_order.pcapng", out)
 
 
+def gen_several_processes() -> None:
+    """process_info_several.pcapng: packets that belong to several processes,
+    one epb_processid_threadid option each, e.g. a multicast datagram and
+    its sender and receivers."""
+    base_ts = 1_757_600_000_000_000
+
+    def pib(pid: int, name: bytes) -> bytes:
+        return wireshark_cb("<", wireshark_cb_custom_data(WIRESHARK_CB_ENTRY_PROCESS_INFORMATION,
+                                                          pib_entry(pid, [(OPT_PIB_NAME, name)])))
+
+    def packet(seq: int, pids) -> bytes:
+        return epb("<", base_ts + seq, udp_packet(seq),
+                   [(OPT_EPB_PROCESSID_THREADID, struct.pack("<II", pid, 0)) for pid in pids])
+
+    out = shb("<") + idb("<")
+    out += pib(10, b"sender") + pib(20, b"receiver") + pib(30, b"other")
+    out += packet(1, [10, 20, 30])
+    out += packet(2, [20])
+    write("process_info_several.pcapng", out)
+
+
 def main() -> None:
     gen_wireshark_cb()
     gen_darwin_dpib()
     gen_pid_reuse()
     gen_pid_reuse_order()
+    gen_several_processes()
 
 
 if __name__ == "__main__":

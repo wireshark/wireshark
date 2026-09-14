@@ -50,6 +50,7 @@ extern "C" {
 #define LONGOPT_CAPTURE_TMPDIR    LONGOPT_BASE_CAPTURE+4
 #define LONGOPT_UPDATE_INTERVAL   LONGOPT_BASE_CAPTURE+5
 #define LONGOPT_NO_OPTIMIZE       LONGOPT_BASE_CAPTURE+6
+#define LONGOPT_PROCESS_INFO      LONGOPT_BASE_CAPTURE+7
 
 /*
  * Options for capturing common to all capturing programs.
@@ -84,7 +85,8 @@ extern "C" {
     {"time-stamp-type",       ws_required_argument, NULL, LONGOPT_SET_TSTAMP_TYPE}, \
     {"compress-type",         ws_required_argument, NULL, LONGOPT_COMPRESS_TYPE}, \
     {"temp-dir",              ws_required_argument, NULL, LONGOPT_CAPTURE_TMPDIR},\
-    {"update-interval",       ws_required_argument, NULL, LONGOPT_UPDATE_INTERVAL},
+    {"update-interval",       ws_required_argument, NULL, LONGOPT_UPDATE_INTERVAL}, \
+    {"process-info",          ws_no_argument,       NULL, LONGOPT_PROCESS_INFO},
 
 
 #define OPTSTRING_CAPTURE_COMMON \
@@ -279,6 +281,7 @@ typedef struct capture_options_tag {
     char              *save_file;             /**< the capture file name */
     bool               group_read_access;     /**< true is group read permission needs to be set */
     bool               use_pcapng;            /**< true if file format is pcapng */
+    bool               process_info;          /**< Record the processes that sent or received each packet (pcapng only) */
     unsigned           update_interval;       /**< Time in milliseconds. How often to notify parent of new packet counts, check file duration, etc. */
 
     /* GUI related */

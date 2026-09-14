@@ -2196,6 +2196,19 @@ class TestDissectPcapngProcessInformation:
             ), encoding='utf-8', env=test_env)
         assert [line.split() for line in stdout.splitlines()] == [['1', 'alice'], ['2'], ['3'], ['4']]
 
+    def test_frame_process_info_several_processes(self, cmd_tshark, capture_file, test_env, assert_frames_match):
+        '''A packet can belong to several processes, one epb_processid_threadid
+        option each; all of them are shown, in the order of the file.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('process_info_several.pcapng'),
+                '-T', 'fields', '-e', 'frame.process.pid', '-e', 'frame.process.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['10,20,30\tsender,receiver,other', '20\treceiver']
+        assert_frames_match('process_info_several.pcapng', [
+            (1, 'frame.process.pid == 20 && frame.process.pid == 10'),
+            (2, 'frame.process.pid == 20 && !(frame.process.pid == 10)'),
+        ])
+
     def test_frame_process_info_pid_reuse(self, assert_frames_match):
         '''With several blocks for one process ID, the start times and
         the time stamp of the packet decide which one it is matched with;

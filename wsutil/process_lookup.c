@@ -31,8 +31,18 @@ struct ws_process_lookup {
     GPtrArray  *retired;             /* entries replaced when their PID was reused; kept for callers holding them */
     unsigned    refresh_interval_ms;
     int64_t     last_refresh;        /* monotonic time of the last refresh, in microseconds; 0 = never */
+    int64_t     last_refresh_duration; /* how long it took, in microseconds */
+    bool        warned_slow;         /* a slow refresh has been reported */
     unsigned    refresh_seq;
 };
+
+/*
+ * A refresh must not take more than about this share of the time, so on a
+ * host with very many sockets, where a refresh is slow, refreshes are
+ * spaced out accordingly and the caller keeps up with its packets.
+ */
+#define REFRESH_DUTY_CYCLE_DIVISOR 10
+#define SLOW_REFRESH_US (G_USEC_PER_SEC / 2)
 
 static unsigned
 socket_key_hash(const void *key)
@@ -221,12 +231,15 @@ bool
 ws_process_lookup_refresh(ws_process_lookup_t *lookup, char **err_msg)
 {
     char *backend_err = NULL;
+    bool ok;
 
     g_hash_table_remove_all(lookup->sockets);
     lookup->refresh_seq++;
     lookup->last_refresh = g_get_monotonic_time();
-    if (!ws_process_lookup_backend.refresh(lookup->backend_state, add_socket,
-                                           lookup, &backend_err)) {
+    ok = ws_process_lookup_backend.refresh(lookup->backend_state, add_socket,
+                                           lookup, &backend_err);
+    lookup->last_refresh_duration = g_get_monotonic_time() - lookup->last_refresh;
+    if (!ok) {
         ws_debug("refreshing the socket tables failed: %s", backend_err);
         if (err_msg != NULL)
             *err_msg = backend_err;
@@ -234,9 +247,28 @@ ws_process_lookup_refresh(ws_process_lookup_t *lookup, char **err_msg)
             g_free(backend_err);
         return false;
     }
-    ws_noisy("refreshed the socket tables: %u sockets with owners",
-             g_hash_table_size(lookup->sockets));
+    ws_noisy("refreshed the socket tables in %" PRId64 " ms: %u sockets with owners",
+             lookup->last_refresh_duration / 1000, g_hash_table_size(lookup->sockets));
+    if (lookup->last_refresh_duration >= SLOW_REFRESH_US && !lookup->warned_slow) {
+        lookup->warned_slow = true;
+        ws_warning("Reading the socket tables of this host takes %.1f s, so they will be read "
+                   "again at most every %.0f s: a socket created after that may not be "
+                   "attributed to its process for that long",
+                   lookup->last_refresh_duration / 1e6,
+                   lookup->last_refresh_duration * REFRESH_DUTY_CYCLE_DIVISOR / 1e6);
+    }
     return true;
+}
+
+/* The time that must have passed since the last refresh before a miss triggers another. */
+static int64_t
+min_refresh_interval(const ws_process_lookup_t *lookup)
+{
+    int64_t interval = (int64_t)lookup->refresh_interval_ms * 1000;
+
+    if (interval < lookup->last_refresh_duration * REFRESH_DUTY_CYCLE_DIVISOR)
+        interval = lookup->last_refresh_duration * REFRESH_DUTY_CYCLE_DIVISOR;
+    return interval;
 }
 
 /*
@@ -367,7 +399,7 @@ ws_process_lookup_socket(ws_process_lookup_t *lookup,
     }
     pids = find_socket(lookup, &key);
     if (pids == NULL &&
-        g_get_monotonic_time() - lookup->last_refresh >= (int64_t)lookup->refresh_interval_ms * 1000) {
+        g_get_monotonic_time() - lookup->last_refresh >= min_refresh_interval(lookup)) {
         /* Not in the snapshot; it may be a new socket. */
         if (!ws_process_lookup_refresh(lookup, NULL))
             return 0;

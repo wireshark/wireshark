@@ -40,12 +40,13 @@ class UdpTrafficGenerator(threading.Thread):
     def __init__(self):
         super().__init__(daemon=True)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.destination = ('127.0.0.1', 9)
         self.stopped = False
 
     def run(self):
         while not self.stopped:
             time.sleep(.05)
-            self.sock.sendto(b'Wireshark test\n', ('127.0.0.1', 9))
+            self.sock.sendto(b'Wireshark test\n', self.destination)
 
     def stop(self):
         if not self.stopped:
@@ -625,3 +626,121 @@ class TestDumpcapPcapngMixedEndian:
     # def test_dumpcap_pcapng_multi_in_single_out(self, check_dumpcap_pcapng_sections, base_env):
     #     '''Capture from a single pcapng source using Dumpcap and write a single file'''
     #     check_dumpcap_pcapng_sections(self, multi_input=True, mixed_endian=True, env=base_env)
+
+
+class BoundUdpTrafficGenerator(UdpTrafficGenerator):
+    '''UDP traffic from a known port, so that a capture filter can pick out
+    this process's traffic when tests run in parallel.'''
+    def __init__(self):
+        super().__init__()
+        self.sock.bind(('0.0.0.0', 0))
+        self.port = self.sock.getsockname()[1]
+
+
+@pytest.fixture
+def check_capture_process_info(capture_interface, cmd_tshark, cmd_capinfos, result_file):
+    def check_capture_process_info_real(self, cmd=None, env=None):
+        assert cmd is not None
+        testout_file = result_file(testout_pcapng)
+        generator = BoundUdpTrafficGenerator()
+        generator.start()
+        try:
+            proc = subprocesstest.run(capture_command(cmd,
+                '-i', capture_interface,
+                '-p',
+                '-w', testout_file,
+                '-c', '10',
+                '-a', f'duration:{capture_duration}',
+                '-f', f'udp src port {generator.port} and udp dst port 9',
+                '--process-info',
+            ), capture_output=True, env=env)
+        finally:
+            generator.stop()
+        if proc.returncode != 0 and 'not supported' in proc.stderr:
+            pytest.skip('Process information is not supported on this platform')
+        assert proc.returncode == 0, proc.stderr
+        check_packet_count(cmd_capinfos, 10, testout_file)
+
+        # The traffic comes from this very process, so every packet must be
+        # attributed to it, and the file must describe it.
+        proc = subprocesstest.check_run((cmd_tshark, '-r', testout_file,
+            '-T', 'fields',
+            '-e', 'frame.process.pid',
+            '-e', 'frame.process.name',
+            '-e', 'frame.process.path',
+        ), capture_output=True, env=env)
+        lines = proc.stdout.splitlines()
+        assert len(lines) == 10
+        for line in lines:
+            pid, name, path = line.split('\t')
+            assert pid == str(os.getpid()), line
+            assert 'python' in name.lower() or 'pytest' in name.lower(), line
+            assert path != '', line
+    return check_capture_process_info_real
+
+
+class TestCaptureProcessInfo:
+    def test_dumpcap_capture_process_info(self, cmd_dumpcap, check_capture_process_info, base_env):
+        '''Capture with dumpcap, recording the processes the packets belong to'''
+        check_capture_process_info(self, cmd=cmd_dumpcap, env=base_env)
+
+    def test_tshark_capture_process_info(self, cmd_tshark, check_capture_process_info, test_env):
+        '''Capture with TShark, recording the processes the packets belong to'''
+        check_capture_process_info(self, cmd=cmd_tshark, env=test_env)
+
+    def test_dumpcap_capture_process_info_receivers(self, cmd_dumpcap, cmd_tshark, capture_interface, result_file, base_env):
+        '''A datagram to a port that two other processes have a socket on is
+        attributed to this process, the sender, and to both of them.'''
+        receiver_script = (
+            'import socket, sys\n'
+            's = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)\n'
+            's.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)\n'
+            "if hasattr(socket, 'SO_REUSEPORT'):\n"
+            '    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)\n'
+            "s.bind(('0.0.0.0', int(sys.argv[1])))\n"
+            "print('ready', flush=True)\n"
+            'while True:\n'
+            '    s.recv(1500)\n'
+        )
+        testout_file = result_file(testout_pcapng)
+        # A port for the receivers; it is free again by the time they bind it.
+        probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        probe.bind(('0.0.0.0', 0))
+        port = probe.getsockname()[1]
+        probe.close()
+        receivers = [subprocess.Popen((sys.executable, '-c', receiver_script, str(port)),
+                                      stdout=subprocess.PIPE, encoding='utf-8')
+                     for _ in range(2)]
+        try:
+            for receiver in receivers:
+                assert receiver.stdout.readline().strip() == 'ready'
+            sender = BoundUdpTrafficGenerator()
+            sender.destination = ('127.0.0.1', port)
+            sender.start()
+            try:
+                proc = subprocesstest.run(capture_command(cmd_dumpcap,
+                    '-i', capture_interface,
+                    '-p',
+                    '-w', testout_file,
+                    '-c', '10',
+                    '-a', f'duration:{capture_duration}',
+                    '-f', f'udp src port {sender.port} and udp dst port {port}',
+                    '--process-info',
+                ), capture_output=True, env=base_env)
+            finally:
+                sender.stop()
+            if proc.returncode != 0 and 'not supported' in proc.stderr:
+                pytest.skip('Process information is not supported on this platform')
+            assert proc.returncode == 0, proc.stderr
+            proc = subprocesstest.check_run((cmd_tshark, '-r', testout_file,
+                '-T', 'fields', '-e', 'frame.process.pid',
+            ), capture_output=True, env=base_env)
+            lines = proc.stdout.splitlines()
+            assert len(lines) == 10
+            expected = {str(os.getpid())} | {str(receiver.pid) for receiver in receivers}
+            for line in lines:
+                assert set(line.split(',')) == expected, line
+        finally:
+            for receiver in receivers:
+                receiver.kill()
+                receiver.wait()

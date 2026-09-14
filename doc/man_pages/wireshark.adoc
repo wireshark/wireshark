@@ -559,6 +559,25 @@ is not.  On Windows, the __%TEMP%__ environment variable is used, which
 typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 --
 
+--process-info::
++
+--
+Record, for each packet, the processes on this host that sent or received
+it, when the packet belongs to a TCP or UDP socket: the process ID goes in
+an __epb_processid_threadid__ option of the packet's block, and a Process
+Information Block describing the process (name, executable path, command
+line, parent process ID, user, start time) is written once per output file.
+Wireshark shows them as the __frame.process__ fields.  The processes are
+found in the operating system's socket tables, so a socket must still exist
+when its packet is captured; very short-lived sockets can be missed.  Which
+processes can be identified depends on privileges: on Windows all of them;
+on Linux the user's own, or all of them if *dumpcap* runs as root or has
+the CAP_SYS_PTRACE capability, which it then keeps, and nothing else,
+after opening the interfaces; on macOS the user's own, or all of them if
+*dumpcap* runs as root.  Not supported on other platforms.
+Requires the pcapng file format.
+--
+
 --time-stamp-type <type>::
 Change the interface's timestamp method. See --list-time-stamp-types.
 

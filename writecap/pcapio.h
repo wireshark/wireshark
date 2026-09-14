@@ -15,6 +15,7 @@
 #pragma once
 
 #include <wsutil/file_compressed.h>
+#include <wsutil/process_lookup.h>
 
 /* Writing pcap files */
 
@@ -172,6 +173,9 @@ pcapng_write_interface_statistics_block(ws_cwstream* pfile,
  * @param ts_mul Timestamp multiplier.
  * @param pd Pointer to the captured data.
  * @param flags Flags for the packet.
+ * @param process_ids IDs of the processes that sent or received the packet,
+ * one epb_processid_threadid option each, or NULL.
+ * @param num_process_ids The number of process IDs.
  * @param bytes_written Pointer to store the number of bytes written.
  * @return true if successful, false otherwise.
  */
@@ -184,5 +188,28 @@ pcapng_write_enhanced_packet_block(ws_cwstream* pfile,
                                    unsigned ts_mul,
                                    const uint8_t *pd,
                                    uint32_t flags,
+                                   const uint32_t *process_ids,
+                                   unsigned num_process_ids,
                                    uint64_t *bytes_written,
                                    int *err);
+
+/**
+ * @brief Writes a Process Information Block to a pcapng file, describing a
+ * process that packets are attributed to with epb_processid_threadid options.
+ *
+ * Until the pcapng specification assigns a block type to it, it is written as
+ * a Wireshark Custom Block (PEN 32622, block entry type 3) whose entry data is
+ * the body of the proposed block; see
+ * https://wiki.wireshark.org/Development/PcapngCustom.
+ *
+ * @param pfile Pointer to the write context.
+ * @param process What is known about the process; its start time is in
+ * nanoseconds since the Epoch.
+ * @param bytes_written Pointer to store the number of bytes written.
+ * @return true if successful, false otherwise.
+ */
+extern bool
+pcapng_write_process_information_block(ws_cwstream* pfile,
+                                       const ws_process_info_t *process,
+                                       uint64_t *bytes_written,
+                                       int *err);

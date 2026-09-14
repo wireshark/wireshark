@@ -118,6 +118,7 @@ commandline_print_usage(commandline_usage_app_data_t* app_data, bool for_help_op
     fprintf(output, "  -S                       update display when new items are captured\n");
     fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
     fprintf(output, "  --update-interval        interval between updates with new items, in milliseconds (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
+    fprintf(output, "  --process-info           record the processes that sent or received each packet\n");
     fprintf(output, "Capture stop conditions:\n");
     fprintf(output, "  -c <item count>          stop after n items (def: infinite)\n");
     fprintf(output, "  -a <autostop cond.> ..., --autostop <autostop cond.> ...\n");
@@ -569,6 +570,7 @@ void commandline_other_options(capture_options* capture_opts _U_, int argc, char
             case LONGOPT_SET_TSTAMP_TYPE: /* Set capture timestamp type */
             case LONGOPT_CAPTURE_TMPDIR: /* capture temp directory */
             case LONGOPT_UPDATE_INTERVAL: /* sync pipe update interval */
+            case LONGOPT_PROCESS_INFO: /* record the processes that sent or received each packet */
             case 'I':        /* Capture in monitor mode, if available */
 #ifdef HAVE_PCAP_REMOTE
             case 'A':        /* Authentication */

@@ -108,6 +108,9 @@ ws_process_lookup_free(ws_process_lookup_t *lookup);
  *
  * @param lookup The context.
  * @param interval_ms The minimum interval between refreshes, in milliseconds.
+ * Whatever it is, refreshes are also kept at least ten times as far apart as
+ * the last one took, so that a host with very many sockets, where reading
+ * the tables is slow, still gets most of the caller's time.
  */
 WS_DLL_PUBLIC void
 ws_process_lookup_set_refresh_interval(ws_process_lookup_t *lookup, unsigned interval_ms);

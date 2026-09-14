@@ -151,9 +151,22 @@ struct ws_option_tlv {
     uint16_t type;
     uint16_t value_length;
 };
+/* A Custom Block that may be copied, with the Wireshark Foundation's PEN. */
+#define CUSTOM_BLOCK_TYPE 0x00000BAD
+#define PEN_WIRESHARK     32622
+#define WIRESHARK_CB_ENTRY_PROCESS_INFORMATION 3
+
 #define OPT_ENDOFOPT      0
 #define OPT_COMMENT       1
 #define EPB_FLAGS         2
+#define EPB_PROCESSID_THREADID 8
+#define PIB_NAME          2
+#define PIB_PATH          3
+#define PIB_CMDLINE       4
+#define PIB_PPID          5
+#define PIB_UID           6
+#define PIB_USER          7
+#define PIB_STARTTIME     9
 #define SHB_HARDWARE      2 /* currently not used */
 #define SHB_OS            3
 #define SHB_USERAPPL      4
@@ -535,6 +548,8 @@ pcapng_write_enhanced_packet_block(ws_cwstream* pfile,
                                    unsigned ts_mul,
                                    const uint8_t *pd,
                                    uint32_t flags,
+                                   const uint32_t *process_ids,
+                                   unsigned num_process_ids,
                                    uint64_t *bytes_written,
                                    int *err)
 {
@@ -557,6 +572,10 @@ pcapng_write_enhanced_packet_block(ws_cwstream* pfile,
         options_length += (uint32_t)(sizeof(struct ws_option_tlv) +
                                     sizeof(uint32_t));
     }
+    if (process_ids == NULL)
+        num_process_ids = 0;
+    options_length += num_process_ids * (uint32_t)(sizeof(struct ws_option_tlv) +
+                                                   2 * sizeof(uint32_t));
     /* If we have options add size of end-of-options */
     if (options_length != 0) {
         options_length += (uint32_t)sizeof(struct ws_option_tlv);
@@ -605,6 +624,17 @@ pcapng_write_enhanced_packet_block(ws_cwstream* pfile,
         if (!ws_cwstream_write(pfile, (const uint8_t*)&flags, sizeof(uint32_t), bytes_written, err))
             return false;
     }
+    for (unsigned n = 0; n < num_process_ids; n++) {
+        /* The process ID, then the thread ID, which is not known. */
+        const uint32_t procid_threadid[2] = { process_ids[n], 0 };
+
+        option.type = EPB_PROCESSID_THREADID;
+        option.value_length = sizeof procid_threadid;
+        if (!ws_cwstream_write(pfile, (const uint8_t*)&option, sizeof(struct ws_option_tlv), bytes_written, err))
+            return false;
+        if (!ws_cwstream_write(pfile, (const uint8_t*)procid_threadid, sizeof procid_threadid, bytes_written, err))
+            return false;
+    }
     if (options_length != 0) {
         /* write end of options */
         option.type = OPT_ENDOFOPT;
@@ -614,6 +644,95 @@ pcapng_write_enhanced_packet_block(ws_cwstream* pfile,
     }
 
     return ws_cwstream_write(pfile, (const uint8_t*)&block_total_length, sizeof(uint32_t), bytes_written, err);
+}
+
+/*
+ * Append an option of a process information block body to the block being
+ * built: everything in it is little-endian, and the value is padded to a
+ * multiple of 4 bytes. Nothing is appended for an empty or oversized value.
+ */
+static void
+pib_append_option(GByteArray *block, uint16_t type, const void *value, size_t length)
+{
+    struct ws_option_tlv option;
+    static const uint8_t padding[4] = { 0, 0, 0, 0 };
+
+    if (value == NULL || length == 0 || length > UINT16_MAX)
+        return;
+    option.type = GUINT16_TO_LE(type);
+    option.value_length = GUINT16_TO_LE((uint16_t)length);
+    g_byte_array_append(block, (const uint8_t*)&option, sizeof option);
+    g_byte_array_append(block, (const uint8_t*)value, (unsigned)length);
+    g_byte_array_append(block, padding, WS_PADDING_TO_4(length));
+}
+
+bool
+pcapng_write_process_information_block(ws_cwstream* pfile,
+                                       const ws_process_info_t *process,
+                                       uint64_t *bytes_written,
+                                       int *err)
+{
+    GByteArray *block;
+    const uint32_t block_type = CUSTOM_BLOCK_TYPE;
+    const uint32_t pen = PEN_WIRESHARK;
+    uint32_t block_total_length, entry_type, entry_length, value32;
+    uint64_t value64;
+    unsigned entry_length_offset, entry_offset;
+    struct ws_option_tlv option;
+    bool successful;
+
+    /*
+     * The block header and the PEN are in the byte order of the section,
+     * that is ours; the block entry type and length and the entry itself,
+     * the body of a process information block, are little-endian.
+     */
+    block = g_byte_array_new();
+    g_byte_array_append(block, (const uint8_t*)&block_type, sizeof block_type);
+    g_byte_array_set_size(block, block->len + sizeof block_total_length);  /* filled in below */
+    g_byte_array_append(block, (const uint8_t*)&pen, sizeof pen);
+    entry_type = GUINT32_TO_LE(WIRESHARK_CB_ENTRY_PROCESS_INFORMATION);
+    g_byte_array_append(block, (const uint8_t*)&entry_type, sizeof entry_type);
+    entry_length_offset = block->len;
+    g_byte_array_set_size(block, block->len + sizeof entry_length);         /* filled in below */
+
+    entry_offset = block->len;
+    value32 = GUINT32_TO_LE(process->pid);
+    g_byte_array_append(block, (const uint8_t*)&value32, sizeof value32);
+    pib_append_option(block, PIB_NAME, process->name,
+                      process->name != NULL ? strlen(process->name) : 0);
+    pib_append_option(block, PIB_PATH, process->path,
+                      process->path != NULL ? strlen(process->path) : 0);
+    pib_append_option(block, PIB_CMDLINE, process->cmdline, process->cmdline_len);
+    if (process->has_ppid) {
+        value32 = GUINT32_TO_LE(process->ppid);
+        pib_append_option(block, PIB_PPID, &value32, sizeof value32);
+    }
+    if (process->has_uid) {
+        value32 = GUINT32_TO_LE(process->uid);
+        pib_append_option(block, PIB_UID, &value32, sizeof value32);
+    }
+    pib_append_option(block, PIB_USER, process->user,
+                      process->user != NULL ? strlen(process->user) : 0);
+    if (process->start_time_ns != 0) {
+        value64 = GUINT64_TO_LE(process->start_time_ns);
+        pib_append_option(block, PIB_STARTTIME, &value64, sizeof value64);
+    }
+    if (block->len > entry_offset + sizeof value32) {
+        /* There are options; end them. */
+        option.type = OPT_ENDOFOPT;
+        option.value_length = 0;
+        g_byte_array_append(block, (const uint8_t*)&option, sizeof option);
+    }
+    entry_length = GUINT32_TO_LE(block->len - entry_offset);
+    memcpy(block->data + entry_length_offset, &entry_length, sizeof entry_length);
+
+    block_total_length = block->len + (uint32_t)sizeof block_total_length;
+    memcpy(block->data + sizeof block_type, &block_total_length, sizeof block_total_length);
+    g_byte_array_append(block, (const uint8_t*)&block_total_length, sizeof block_total_length);
+
+    successful = ws_cwstream_write(pfile, block->data, block->len, bytes_written, err);
+    g_byte_array_free(block, TRUE);
+    return successful;
 }
 
 bool

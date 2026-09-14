@@ -3936,6 +3936,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	set(dumpcap_FILES
 		dumpcap.c
 		ringbuffer.c
+		capture/capture_process_info.c
 		capture/iface_monitor.c
 		capture/sync_pipe_write.c
 		capture/ws80211_utils.c

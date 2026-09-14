@@ -837,6 +837,18 @@ wtap_block_set_uint64_option_value(wtap_block_t block, unsigned option_id, uint6
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_uint64_option_value(wtap_block_t block, unsigned option_id, uint64_t* value) G_GNUC_WARN_UNUSED_RESULT;
 
+/** Get nth UINT64 option value in a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] idx Instance number of option with that ID
+ * @param[out] value Returned value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_nth_uint64_option_value(wtap_block_t block, unsigned option_id, unsigned idx, uint64_t *value) G_GNUC_WARN_UNUSED_RESULT;
+
 /**
  * @brief Add INT8 option value to a block
  *

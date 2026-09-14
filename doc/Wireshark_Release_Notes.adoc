@@ -111,6 +111,8 @@ See the “New and Updated Features” section below for more details.
 
 The following features are either new or have been significantly updated since version 4.6.0:
 
+* Dumpcap, TShark and Wireshark can record which processes on the capturing host sent or received each packet, with the new `--process-info` capture option: the process IDs go in the pcapng epb_processid_threadid packet option and the processes (name, path, command line, parent, user, start time) are described in process information blocks, shown as the `frame.process` fields. A packet that several processes could have sent or received, such as a multicast datagram and its sender and receivers, is attributed to all of them. Supported on Windows, Linux and macOS.
+
 * New IMSI List dialog (menu:Telephony[IMSI List]) scans all packets in a capture and lists
   every unique IMSI with packet count, first/last frame, and protocols.
   Double-click an IMSI to apply a display filter for that subscriber.

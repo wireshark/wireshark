@@ -26,6 +26,7 @@
 #include <ws_exit_codes.h>
 
 #include "capture_opts.h"
+#include <wsutil/process_lookup.h>
 #include "ringbuffer.h"
 
 #include <wiretap/wtap.h> /* For WTAP_MAX_PACKET_SIZE_STANDARD */
@@ -118,6 +119,7 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
     capture_opts->save_file                       = NULL;
     capture_opts->group_read_access               = false;
     capture_opts->use_pcapng                      = true;             /* Save as pcapng by default */
+    capture_opts->process_info                    = false;
     capture_opts->update_interval                 = DEFAULT_UPDATE_INTERVAL; /* 100 ms */
     capture_opts->real_time_mode                  = true;
     capture_opts->show_info                       = true;
@@ -293,6 +295,7 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
     ws_log(log_domain, log_level, "SaveFile            : %s", (capture_opts->save_file) ? capture_opts->save_file : "");
     ws_log(log_domain, log_level, "GroupReadAccess     : %u", capture_opts->group_read_access);
     ws_log(log_domain, log_level, "Fileformat          : %s", (capture_opts->use_pcapng) ? "PCAPNG" : "PCAP");
+    ws_log(log_domain, log_level, "ProcessInfo         : %s", capture_opts->process_info ? "true" : "false");
     ws_log(log_domain, log_level, "UpdateInterval      : %u (ms)", capture_opts->update_interval);
     ws_log(log_domain, log_level, "RealTimeMode        : %u", capture_opts->real_time_mode);
     ws_log(log_domain, log_level, "ShowInfo            : %u", capture_opts->show_info);
@@ -1246,6 +1249,13 @@ capture_opts_add_opt(const char* app_env_var_prefix, capture_options *capture_op
         }
 #endif /* S_IRWXU */
         capture_opts->temp_dir = g_strdup(optarg_str_p);
+        break;
+    case LONGOPT_PROCESS_INFO:  /* record the processes that sent or received each packet */
+        if (!ws_process_lookup_supported()) {
+            cmdarg_err("Recording process information is not supported on this platform");
+            return 1;
+        }
+        capture_opts->process_info = true;
         break;
     case LONGOPT_UPDATE_INTERVAL:  /* capture update interval */
         if (!get_uint32(optarg_str_p, "update interval", &capture_opts->update_interval))

@@ -128,6 +128,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	plugin_exports.h
 	pow2.h
 	privileges.h
+	packet_endpoints.h
 	process_lookup.h
 	processes.h
 	regex.h
@@ -203,6 +204,7 @@ set(WSUTIL_COMMON_FILES
 	os_version_info.c
 	please_report_bug.c
 	privileges.c
+	packet_endpoints.c
 	process_lookup.c
 	regex.c
 	rsa.c

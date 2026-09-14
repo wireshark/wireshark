@@ -879,6 +879,19 @@ wtap_block_get_uint64_option_value(wtap_block_t block, unsigned option_id, uint6
 }
 
 wtap_opttype_return_val
+wtap_block_get_nth_uint64_option_value(wtap_block_t block, unsigned option_id, unsigned idx, uint64_t *value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_nth_option_common(block, option_id, WTAP_OPTTYPE_UINT64, idx, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->uint64val;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
 wtap_block_add_int8_option(wtap_block_t block, unsigned option_id, int8_t value)
 {
     wtap_opttype_return_val ret;
@@ -2238,7 +2251,7 @@ void wtap_opttypes_initialize(void)
         "procidthreadid",
         "Process ID thread ID",
         WTAP_OPTTYPE_UINT64,
-        0
+        WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED  /* one per process that could have sent or received the packet */
     };
     static const wtap_opttype_t pkt_darwin_peb_id = {
         "darwin_peb_id",

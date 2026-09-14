@@ -1685,6 +1685,169 @@ test_process_lookup_shared(void)
 }
 #endif
 
+#include <wsutil/packet_endpoints.h>
+
+/* Pieces of packets for the endpoint parser: link-layer headers and IP packets. */
+static const uint8_t ethernet_ipv4_hdr[] = {
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0x08, 0x00
+};
+static const uint8_t ethernet_vlan_ipv6_hdr[] = {
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0x81, 0x00,
+    0x00, 0x64, 0x86, 0xdd
+};
+static const uint8_t ethernet_arp_hdr[] = {
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0x08, 0x06
+};
+static const uint8_t null_hdr[] = { 2, 0, 0, 0 };          /* AF_INET, little-endian */
+static const uint8_t loop_hdr[] = { 0, 0, 0, 30 };         /* Darwin AF_INET6, big-endian */
+static const uint8_t sll_ipv6_hdr[] = {
+    0x00, 0x00, 0x00, 0x01, 0x00, 0x06, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x00, 0x00,
+    0x86, 0xdd
+};
+static const uint8_t sll2_ipv4_hdr[] = {
+    0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, 0x06,
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x00, 0x00
+};
+/* 10.0.0.1:12345 -> 10.0.0.2:80, SYN */
+static const uint8_t ipv4_tcp[] = {
+    0x45, 0x00, 0x00, 0x28, 0x00, 0x01, 0x40, 0x00, 0x40, 0x06, 0x00, 0x00,
+    10, 0, 0, 1, 10, 0, 0, 2,
+    0x30, 0x39, 0x00, 0x50, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+    0x50, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+/* The second fragment of an IPv4 packet: no ports. */
+static const uint8_t ipv4_fragment[] = {
+    0x45, 0x00, 0x00, 0x28, 0x00, 0x01, 0x00, 0x05, 0x40, 0x11, 0x00, 0x00,
+    10, 0, 0, 1, 10, 0, 0, 2,
+    0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c,
+    0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14
+};
+/* 10.0.0.1 -> 10.0.0.2, ICMP echo */
+static const uint8_t ipv4_icmp[] = {
+    0x45, 0x00, 0x00, 0x1c, 0x00, 0x01, 0x40, 0x00, 0x40, 0x01, 0x00, 0x00,
+    10, 0, 0, 1, 10, 0, 0, 2,
+    0x08, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01
+};
+/* 2001:db8::1:53 -> 2001:db8::2:5353 */
+static const uint8_t ipv6_udp[] = {
+    0x60, 0x00, 0x00, 0x00, 0x00, 0x0c, 17, 64,
+    0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+    0x00, 0x35, 0x14, 0xe9, 0x00, 0x0c, 0x00, 0x00, 'h', 'i', '!', '\n'
+};
+/* The same, behind a hop-by-hop options header and a first-fragment header. */
+static const uint8_t ipv6_ext_udp[] = {
+    0x60, 0x00, 0x00, 0x00, 0x00, 0x1c, 0, 64,
+    0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+    44, 0, 1, 4, 0, 0, 0, 0,                /* hop-by-hop: next header fragment, PadN */
+    17, 0, 0x00, 0x01, 0x12, 0x34, 0x56, 0x78,  /* fragment: offset 0, more fragments */
+    0x00, 0x35, 0x14, 0xe9, 0x00, 0x0c, 0x00, 0x00, 'h', 'i', '!', '\n'
+};
+/* The same, but a later fragment. */
+static const uint8_t ipv6_later_fragment[] = {
+    0x60, 0x00, 0x00, 0x00, 0x00, 0x14, 44, 64,
+    0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+    17, 0, 0x00, 0x08, 0x12, 0x34, 0x56, 0x78,  /* fragment: offset 1 */
+    0x00, 0x35, 0x14, 0xe9, 0x00, 0x0c, 0x00, 0x00, 'h', 'i', '!', '\n'
+};
+
+static bool
+parse_packet(int linktype, const uint8_t *hdr, size_t hdr_len, const uint8_t *ip, size_t ip_len,
+             ws_packet_endpoints_t *ep)
+{
+    uint8_t packet[256];
+
+    g_assert_cmpuint(hdr_len + ip_len, <=, sizeof packet);
+    memcpy(packet, hdr, hdr_len);
+    memcpy(packet + hdr_len, ip, ip_len);
+    return ws_packet_endpoints_parse(linktype, packet, hdr_len + ip_len, ep);
+}
+
+#define PARSE(linktype, hdr, ip, ep) parse_packet(linktype, hdr, sizeof hdr, ip, sizeof ip, ep)
+
+static void
+check_ipv4_tcp(const ws_packet_endpoints_t *ep)
+{
+    ws_in4_addr src, dst;
+
+    g_assert_true(ws_inet_pton4("10.0.0.1", &src));
+    g_assert_true(ws_inet_pton4("10.0.0.2", &dst));
+    g_assert_cmpint(ep->protocol, ==, WS_PROCESS_LOOKUP_TCP);
+    g_assert_cmpuint(ep->src.ip_version, ==, 4);
+    g_assert_cmpuint(ep->dst.ip_version, ==, 4);
+    g_assert_cmpuint(ep->src.addr.ipv4, ==, src);
+    g_assert_cmpuint(ep->dst.addr.ipv4, ==, dst);
+    g_assert_cmpuint(ep->src.port, ==, 12345);
+    g_assert_cmpuint(ep->dst.port, ==, 80);
+}
+
+static void
+check_ipv6_udp(const ws_packet_endpoints_t *ep)
+{
+    ws_in6_addr src, dst;
+
+    g_assert_true(ws_inet_pton6("2001:db8::1", &src));
+    g_assert_true(ws_inet_pton6("2001:db8::2", &dst));
+    g_assert_cmpint(ep->protocol, ==, WS_PROCESS_LOOKUP_UDP);
+    g_assert_cmpuint(ep->src.ip_version, ==, 6);
+    g_assert_cmpuint(ep->dst.ip_version, ==, 6);
+    g_assert_cmpmem(ep->src.addr.ipv6.bytes, 16, src.bytes, 16);
+    g_assert_cmpmem(ep->dst.addr.ipv6.bytes, 16, dst.bytes, 16);
+    g_assert_cmpuint(ep->src.port, ==, 53);
+    g_assert_cmpuint(ep->dst.port, ==, 5353);
+}
+
+static void
+test_packet_endpoints_link_layers(void)
+{
+    ws_packet_endpoints_t ep;
+
+    g_assert_true(ws_packet_endpoints_linktype_supported(1));
+    g_assert_false(ws_packet_endpoints_linktype_supported(105));  /* IEEE 802.11 */
+
+    g_assert_true(PARSE(1, ethernet_ipv4_hdr, ipv4_tcp, &ep));      /* Ethernet */
+    check_ipv4_tcp(&ep);
+    g_assert_true(PARSE(1, ethernet_vlan_ipv6_hdr, ipv6_udp, &ep)); /* Ethernet, VLAN tagged */
+    check_ipv6_udp(&ep);
+    g_assert_false(PARSE(1, ethernet_arp_hdr, ipv4_tcp, &ep));      /* not IP */
+    g_assert_true(PARSE(0, null_hdr, ipv4_tcp, &ep));               /* BSD loopback */
+    check_ipv4_tcp(&ep);
+    g_assert_true(PARSE(108, loop_hdr, ipv6_udp, &ep));             /* OpenBSD loopback */
+    check_ipv6_udp(&ep);
+    g_assert_true(PARSE(113, sll_ipv6_hdr, ipv6_udp, &ep));         /* Linux cooked capture */
+    check_ipv6_udp(&ep);
+    g_assert_true(PARSE(276, sll2_ipv4_hdr, ipv4_tcp, &ep));        /* Linux cooked capture v2 */
+    check_ipv4_tcp(&ep);
+    g_assert_true(ws_packet_endpoints_parse(101, ipv4_tcp, sizeof ipv4_tcp, &ep));  /* raw IP */
+    check_ipv4_tcp(&ep);
+    g_assert_true(ws_packet_endpoints_parse(229, ipv6_udp, sizeof ipv6_udp, &ep));  /* raw IPv6 */
+    check_ipv6_udp(&ep);
+    g_assert_false(PARSE(105, ethernet_ipv4_hdr, ipv4_tcp, &ep));   /* a link type we don't handle */
+}
+
+static void
+test_packet_endpoints_ip(void)
+{
+    ws_packet_endpoints_t ep;
+
+    /* Extension headers are stepped over; a first fragment still has the ports. */
+    g_assert_true(ws_packet_endpoints_parse(229, ipv6_ext_udp, sizeof ipv6_ext_udp, &ep));
+    check_ipv6_udp(&ep);
+    /* Later fragments have no ports. */
+    g_assert_false(ws_packet_endpoints_parse(229, ipv6_later_fragment, sizeof ipv6_later_fragment, &ep));
+    g_assert_false(ws_packet_endpoints_parse(228, ipv4_fragment, sizeof ipv4_fragment, &ep));
+    /* Neither TCP nor UDP. */
+    g_assert_false(ws_packet_endpoints_parse(228, ipv4_icmp, sizeof ipv4_icmp, &ep));
+    /* Cut off before the ports, or within the IP header. */
+    g_assert_false(ws_packet_endpoints_parse(228, ipv4_tcp, 22, &ep));
+    g_assert_false(ws_packet_endpoints_parse(228, ipv4_tcp, 19, &ep));
+    g_assert_false(ws_packet_endpoints_parse(229, ipv6_udp, 42, &ep));
+    g_assert_true(ws_packet_endpoints_parse(228, ipv4_tcp, 24, &ep));  /* just the ports is enough */
+    check_ipv4_tcp(&ep);
+}
+
 int main(int argc, char **argv)
 {
     int ret;
@@ -1757,6 +1920,8 @@ int main(int argc, char **argv)
 #ifndef _WIN32
     g_test_add_func("/process_lookup/shared", test_process_lookup_shared);
 #endif
+    g_test_add_func("/packet_endpoints/link_layers", test_packet_endpoints_link_layers);
+    g_test_add_func("/packet_endpoints/ip", test_packet_endpoints_ip);
 
     ret = g_test_run();
 

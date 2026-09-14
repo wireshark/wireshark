@@ -582,19 +582,19 @@ add_color_filter_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 #define FRAME_PROCESS_ID_KEY 1
 
 /*
- * Add the process and thread IDs from the pcapng epb_processid_threadid
- * option, if the packet has one, and what the file's process information
- * says about the process.  wiretap stores the option as a 64-bit value
- * with the process ID in the upper 32 bits and the thread ID in the
- * lower 32 bits; an ID of 0 means that it is not available.
+ * Add the process and thread IDs from one pcapng epb_processid_threadid
+ * option, and what the file's process information says about the
+ * process.  wiretap stores the option as a 64-bit value with the process
+ * ID in the upper 32 bits and the thread ID in the lower 32 bits; an ID
+ * of 0 means that it is not available.
  *
- * The tree may be NULL; the process ID is remembered for the conversation
- * filter, and the user name is set for the user name column, regardless.
+ * The tree may be NULL; if this is the packet's first process, its ID is
+ * remembered for the conversation filter, and its user name is set for
+ * the user name column, regardless.
  */
 static void
-frame_add_process_info(proto_tree *fh_tree, tvbuff_t *tvb, packet_info *pinfo, wtap_block_t pkt_block)
+frame_add_process(proto_tree *fh_tree, tvbuff_t *tvb, packet_info *pinfo, uint64_t procid_threadid, bool first)
 {
-	uint64_t procid_threadid;
 	uint32_t pid, tid, process_info_id, ppid, uid;
 	unsigned section_number;
 	bool have_info = false;
@@ -605,15 +605,13 @@ frame_add_process_info(proto_tree *fh_tree, tvbuff_t *tvb, packet_info *pinfo, w
 	proto_item *process_item, *item;
 	proto_tree *process_tree;
 
-	if (wtap_block_get_uint64_option_value(pkt_block, OPT_PKT_PROCIDTHRDID, &procid_threadid) != WTAP_OPTTYPE_SUCCESS)
-		return;
-
 	pid = (uint32_t)(procid_threadid >> 32);
 	tid = (uint32_t)procid_threadid;
 	section_number = pinfo->rec->presence_flags & WTAP_HAS_SECTION_NUMBER ? pinfo->rec->section_number : 0;
 
 	if (pid != 0) {
-		p_add_proto_data(pinfo->pool, pinfo, proto_frame, FRAME_PROCESS_ID_KEY, GUINT_TO_POINTER(pid));
+		if (first)
+			p_add_proto_data(pinfo->pool, pinfo, proto_frame, FRAME_PROCESS_ID_KEY, GUINT_TO_POINTER(pid));
 
 		/*
 		 * Look the process up, using the time stamp of the packet
@@ -624,7 +622,8 @@ frame_add_process_info(proto_tree *fh_tree, tvbuff_t *tvb, packet_info *pinfo, w
 		    pinfo->fd->file_off, &process_info_id);
 		if (have_info) {
 			name = epan_get_process_name(pinfo->epan, process_info_id, section_number);
-			pinfo->user_name = epan_get_process_user_name(pinfo->epan, process_info_id, section_number);
+			if (first)
+				pinfo->user_name = epan_get_process_user_name(pinfo->epan, process_info_id, section_number);
 		}
 	}
 
@@ -697,6 +696,27 @@ frame_add_process_info(proto_tree *fh_tree, tvbuff_t *tvb, packet_info *pinfo, w
 	if (epan_get_process_start_time(pinfo->epan, process_info_id, section_number, &start_time)) {
 		item = proto_tree_add_time(process_tree, hf_frame_process_start_time, tvb, 0, 0, &start_time);
 		proto_item_set_generated(item);
+	}
+}
+
+/*
+ * Add the processes the packet belongs to.  A packet can have several
+ * epb_processid_threadid options, one for each process that could have
+ * sent or received it, e.g. every process that has the socket open, or
+ * the sender and the receivers of a multicast datagram on the capturing
+ * host.
+ */
+static void
+frame_add_process_info(proto_tree *fh_tree, tvbuff_t *tvb, packet_info *pinfo, wtap_block_t pkt_block)
+{
+	unsigned count = wtap_block_count_option(pkt_block, OPT_PKT_PROCIDTHRDID);
+
+	for (unsigned n = 0; n < count; n++) {
+		uint64_t procid_threadid;
+
+		if (wtap_block_get_nth_uint64_option_value(pkt_block, OPT_PKT_PROCIDTHRDID, n, &procid_threadid) != WTAP_OPTTYPE_SUCCESS)
+			break;
+		frame_add_process(fh_tree, tvb, pinfo, procid_threadid, n == 0);
 	}
 }
 
