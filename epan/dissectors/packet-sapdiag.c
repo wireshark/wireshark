@@ -906,6 +906,38 @@ static int hf_sapdiag_item_length_short;
 static int hf_sapdiag_item_length_long;
 static int hf_sapdiag_item_value;
 
+/* Extended Passport */
+static int hf_sapdiag_epp_magic;
+static int hf_sapdiag_epp_version;
+static int hf_sapdiag_epp_length;
+static int hf_sapdiag_epp_trace_flags;
+static int hf_sapdiag_epp_component;
+static int hf_sapdiag_epp_service;
+static int hf_sapdiag_epp_user;
+static int hf_sapdiag_epp_action;
+static int hf_sapdiag_epp_action_type;
+static int hf_sapdiag_epp_previous_component;
+static int hf_sapdiag_epp_transaction_id;
+static int hf_sapdiag_epp_client;
+static int hf_sapdiag_epp_component_type;
+static int hf_sapdiag_epp_root_context_id;
+static int hf_sapdiag_epp_connection_id;
+static int hf_sapdiag_epp_connection_counter;
+static int hf_sapdiag_epp_variable_part_count;
+static int hf_sapdiag_epp_variable_part_offset;
+static int hf_sapdiag_epp_variable_part;
+static int hf_sapdiag_epp_variable_part_length;
+static int hf_sapdiag_epp_variable_part_last;
+static int hf_sapdiag_epp_variable_part_id;
+static int hf_sapdiag_epp_item_count;
+static int hf_sapdiag_epp_item;
+static int hf_sapdiag_epp_item_key;
+static int hf_sapdiag_epp_item_application;
+static int hf_sapdiag_epp_item_type;
+static int hf_sapdiag_epp_item_length;
+static int hf_sapdiag_epp_item_value;
+static int hf_sapdiag_epp_trailer;
+
 /* Message DP Header */
 static int hf_sapdiag_dp_request_id;
 static int hf_sapdiag_dp_retcode;
@@ -1212,6 +1244,8 @@ static int hf_SAPDIAG_SUPPORT_BIT_GUI_SYSTEM_COLOR;
 static int hf_SAPDIAG_SUPPORT_BIT_GROUPBOX_WITHOUT_BOTTOMLINE;
 
 static int ett_sapdiag;
+static int ett_sapdiag_epp_variable_part;
+static int ett_sapdiag_epp_item;
 
 /* Expert info */
 static expert_field ei_sapdiag_item_unknown;
@@ -1226,6 +1260,23 @@ static expert_field ei_sapdiag_dynt_focus_more_cont_ids;
 static expert_field ei_sapdiag_password_field;
 static expert_field ei_sapdiag_invalid_decompression;
 static expert_field ei_sapdiag_invalid_decompress_length;
+static expert_field ei_sapdiag_epp_malformed;
+
+#include "packet-sapepp.h"
+const value_string sap_epp_version_vals[] = {
+	{ 1, "EPP version 1" },
+	{ 2, "EPP version 2" },
+	{ 3, "EPP version 3" },
+	{ 0, NULL }
+};
+
+const value_string sap_epp_item_type_vals[] = {
+	{ 1, "Byte string" },
+	{ 2, "Integer" },
+	{ 3, "UUID" },
+	{ 4, "String" },
+	{ 0, NULL }
+};
 
 /* Global decompress preference */
 static bool global_sapdiag_decompress = true;
@@ -2356,6 +2407,142 @@ dissect_sapdiag_uievent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uin
 	}
 }
 
+
+uint16_t
+dissect_sap_epp(tvbuff_t *tvb, packet_info *pinfo, proto_item *item,
+		proto_tree *tree, uint32_t offset, uint32_t item_length, const sap_epp_fields_t *fields)
+{
+	uint32_t end, trailer_offset, variable_offset;
+	uint16_t declared_length, variable_count = 0;
+	uint8_t version;
+
+	if (item_length < 7 || tvb_captured_length_remaining(tvb, offset) < 7) {
+		expert_add_info(pinfo, item, fields->malformed);
+		return 0;
+	}
+
+	proto_tree_add_item(tree, fields->magic, tvb, offset, 4, ENC_BIG_ENDIAN);
+	version = tvb_get_uint8(tvb, offset + 4);
+	declared_length = tvb_get_ntohs(tvb, offset + 5);
+	proto_tree_add_item(tree, fields->version, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, fields->length, tvb, offset + 5, 2, ENC_BIG_ENDIAN);
+
+	if (tvb_get_ntohl(tvb, offset) != SAP_EPP_MAGIC ||
+	    declared_length > item_length ||
+	    tvb_captured_length_remaining(tvb, offset) < declared_length ||
+	    (version == 1 && declared_length < 0x99) ||
+	    (version == 2 && declared_length < 0xb9) ||
+	    (version == 3 && declared_length < 0xe6) ||
+	    (version < 1 || version > 3)) {
+		expert_add_info(pinfo, item, fields->malformed);
+		return 0;
+	}
+
+	end = offset + declared_length;
+	trailer_offset = end - 4;
+	proto_tree_add_item(tree, fields->trace_flags, tvb, offset + 7, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, fields->component, tvb, offset + 9, 32, ENC_ASCII);
+	proto_tree_add_item(tree, fields->service, tvb, offset + 0x29, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, fields->user, tvb, offset + 0x2b, 32, ENC_ASCII);
+	proto_tree_add_item(tree, fields->action, tvb, offset + 0x4b, 40, ENC_ASCII);
+	proto_tree_add_item(tree, fields->action_type, tvb, offset + 0x73, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, fields->previous_component, tvb, offset + 0x75, 32, ENC_ASCII);
+
+	if (version > 1) {
+		proto_tree_add_item(tree, fields->transaction_id, tvb, offset + 0x95, 32, ENC_ASCII);
+	}
+	if (version > 2) {
+		proto_tree_add_item(tree, fields->client, tvb, offset + 0xb5, 3, ENC_ASCII);
+		proto_tree_add_item(tree, fields->component_type, tvb, offset + 0xb8, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, fields->root_context_id, tvb, offset + 0xba, 16, ENC_NA);
+		proto_tree_add_item(tree, fields->connection_id, tvb, offset + 0xca, 16, ENC_NA);
+		proto_tree_add_item(tree, fields->connection_counter, tvb, offset + 0xda, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, fields->variable_part_count, tvb, offset + 0xde, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, fields->variable_part_offset, tvb, offset + 0xe0, 2, ENC_BIG_ENDIAN);
+		variable_count = tvb_get_ntohs(tvb, offset + 0xde);
+		variable_offset = tvb_get_ntohs(tvb, offset + 0xe0);
+
+		if (variable_offset < 0xe2 || variable_offset > (uint32_t)declared_length - 4) {
+			expert_add_info(pinfo, item, fields->malformed);
+			return 0;
+		}
+
+		variable_offset += offset;
+		while (variable_count-- > 0) {
+			proto_item *part_item;
+			proto_tree *part_tree;
+			uint32_t part_end;
+			uint16_t part_length, item_count;
+
+			if (variable_offset > trailer_offset || trailer_offset - variable_offset < 12) {
+				expert_add_info(pinfo, item, fields->malformed);
+				return 0;
+			}
+			part_length = tvb_get_ntohs(tvb, variable_offset + 5);
+			if (tvb_get_ntohl(tvb, variable_offset) != SAP_EPP_MAGIC ||
+			    tvb_get_uint8(tvb, variable_offset + 4) != 1 ||
+			    tvb_get_uint8(tvb, variable_offset + 7) > 1 ||
+			    part_length < 12 || part_length > trailer_offset - variable_offset) {
+				expert_add_info(pinfo, item, fields->malformed);
+				return 0;
+			}
+
+			part_end = variable_offset + part_length;
+			part_item = proto_tree_add_item(tree, fields->variable_part,
+					tvb, variable_offset, part_length, ENC_NA);
+			part_tree = proto_item_add_subtree(part_item, fields->ett_variable_part);
+			proto_tree_add_item(part_tree, fields->magic, tvb, variable_offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(part_tree, fields->version, tvb, variable_offset + 4, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(part_tree, fields->variable_part_length, tvb, variable_offset + 5, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(part_tree, fields->variable_part_last, tvb, variable_offset + 7, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(part_tree, fields->variable_part_id, tvb, variable_offset + 8, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(part_tree, fields->item_count, tvb, variable_offset + 10, 2, ENC_BIG_ENDIAN);
+			item_count = tvb_get_ntohs(tvb, variable_offset + 10);
+			variable_offset += 12;
+
+			while (item_count-- > 0) {
+				proto_item *epp_item;
+				proto_tree *epp_item_tree;
+				uint16_t epp_item_length;
+
+				if (variable_offset > part_end || part_end - variable_offset < 7) {
+					expert_add_info(pinfo, part_item, fields->malformed);
+					return 0;
+				}
+				epp_item_length = tvb_get_ntohs(tvb, variable_offset + 5);
+				if (epp_item_length < 7 || epp_item_length > part_end - variable_offset) {
+					expert_add_info(pinfo, part_item, fields->malformed);
+					return 0;
+				}
+				epp_item = proto_tree_add_item(part_tree, fields->item,
+						tvb, variable_offset, epp_item_length, ENC_NA);
+				epp_item_tree = proto_item_add_subtree(epp_item, fields->ett_item);
+				proto_tree_add_item(epp_item_tree, fields->item_key, tvb, variable_offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(epp_item_tree, fields->item_application, tvb, variable_offset + 2, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(epp_item_tree, fields->item_type, tvb, variable_offset + 4, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(epp_item_tree, fields->item_length, tvb, variable_offset + 5, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(epp_item_tree, fields->item_value, tvb, variable_offset + 7, epp_item_length - 7, ENC_NA);
+				variable_offset += epp_item_length;
+			}
+			if (variable_offset != part_end) {
+				expert_add_info(pinfo, part_item, fields->malformed);
+				return 0;
+			}
+		}
+		if (variable_offset != trailer_offset) {
+			expert_add_info(pinfo, item, fields->malformed);
+			return 0;
+		}
+	}
+
+	proto_tree_add_item(tree, fields->trailer, tvb, trailer_offset, 4, ENC_BIG_ENDIAN);
+	if (tvb_get_ntohl(tvb, trailer_offset) != SAP_EPP_MAGIC) {
+		expert_add_info(pinfo, item, fields->malformed);
+		return 0;
+	}
+	return declared_length;
+}
+
 static void
 dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_tree *item_value_tree, proto_tree *parent_tree, uint32_t offset, uint8_t item_type, uint8_t item_id, uint8_t item_sid, uint32_t item_length){
 
@@ -2412,6 +2599,44 @@ dissect_sapdiag_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Control y-position");
 		offset+=1;
 		add_item_value_uint8(tvb, item, item_value_tree, hf_sapdiag_item_value, offset, "Control x-position");
+
+	} else if ((item_type==0x10 || item_type==0x12) && item_id==0x04 && item_sid==0x18){ /* Extended Passport */
+		const sap_epp_fields_t fields = {
+			.magic = hf_sapdiag_epp_magic,
+			.version = hf_sapdiag_epp_version,
+			.length = hf_sapdiag_epp_length,
+			.trace_flags = hf_sapdiag_epp_trace_flags,
+			.component = hf_sapdiag_epp_component,
+			.service = hf_sapdiag_epp_service,
+			.user = hf_sapdiag_epp_user,
+			.action = hf_sapdiag_epp_action,
+			.action_type = hf_sapdiag_epp_action_type,
+			.previous_component = hf_sapdiag_epp_previous_component,
+			.transaction_id = hf_sapdiag_epp_transaction_id,
+			.client = hf_sapdiag_epp_client,
+			.component_type = hf_sapdiag_epp_component_type,
+			.root_context_id = hf_sapdiag_epp_root_context_id,
+			.connection_id = hf_sapdiag_epp_connection_id,
+			.connection_counter = hf_sapdiag_epp_connection_counter,
+			.variable_part_count = hf_sapdiag_epp_variable_part_count,
+			.variable_part_offset = hf_sapdiag_epp_variable_part_offset,
+			.variable_part = hf_sapdiag_epp_variable_part,
+			.variable_part_length = hf_sapdiag_epp_variable_part_length,
+			.variable_part_last = hf_sapdiag_epp_variable_part_last,
+			.variable_part_id = hf_sapdiag_epp_variable_part_id,
+			.item_count = hf_sapdiag_epp_item_count,
+			.item = hf_sapdiag_epp_item,
+			.item_key = hf_sapdiag_epp_item_key,
+			.item_application = hf_sapdiag_epp_item_application,
+			.item_type = hf_sapdiag_epp_item_type,
+			.item_length = hf_sapdiag_epp_item_length,
+			.item_value = hf_sapdiag_epp_item_value,
+			.trailer = hf_sapdiag_epp_trailer,
+			.ett_variable_part = ett_sapdiag_epp_variable_part,
+			.ett_item = ett_sapdiag_epp_item,
+			.malformed = &ei_sapdiag_epp_malformed
+		};
+		dissect_sap_epp(tvb, pinfo, item, item_value_tree, offset, item_length, &fields);
 
 	} else if (item_type==0x10 && item_id==0x04 && item_sid==0x26){		/* Dialog Step Number */
 		if (!check_length(pinfo, item_value_tree, 4, item_length, "Dialog Step Number")) return;
@@ -3428,6 +3653,68 @@ proto_register_sapdiag(void)
 			{ "Length", "sapdiag.item.length_long", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_sapdiag_item_value,
 			{ "Value", "sapdiag.item.value", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+		/* Extended Passport */
+		{ &hf_sapdiag_epp_magic,
+			{ "EPP Magic", "sapdiag.epp.magic", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_version,
+			{ "EPP Version", "sapdiag.epp.version", FT_UINT8, BASE_DEC, VALS(sap_epp_version_vals), 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_length,
+			{ "EPP Length", "sapdiag.epp.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_trace_flags,
+			{ "EPP Trace Flags", "sapdiag.epp.trace_flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_component,
+			{ "EPP Component", "sapdiag.epp.component", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_service,
+			{ "EPP Service", "sapdiag.epp.service", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_user,
+			{ "EPP User", "sapdiag.epp.user", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_action,
+			{ "EPP Action", "sapdiag.epp.action", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_action_type,
+			{ "EPP Action Type", "sapdiag.epp.action_type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_previous_component,
+			{ "EPP Previous Component", "sapdiag.epp.previous_component", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_transaction_id,
+			{ "EPP Transaction ID", "sapdiag.epp.transaction_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_client,
+			{ "EPP Client", "sapdiag.epp.client", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_component_type,
+			{ "EPP Component Type", "sapdiag.epp.component_type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_root_context_id,
+			{ "EPP Root Context ID", "sapdiag.epp.root_context_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_connection_id,
+			{ "EPP Connection ID", "sapdiag.epp.connection_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_connection_counter,
+			{ "EPP Connection Counter", "sapdiag.epp.connection_counter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_variable_part_count,
+			{ "EPP Variable Part Count", "sapdiag.epp.variable_part_count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_variable_part_offset,
+			{ "EPP Variable Part Offset", "sapdiag.epp.variable_part_offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_variable_part,
+			{ "EPP Variable Part", "sapdiag.epp.variable_part", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_variable_part_length,
+			{ "EPP Variable Part Length", "sapdiag.epp.variable_part.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_variable_part_last,
+			{ "EPP Last Variable Part", "sapdiag.epp.variable_part.last", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+		{ &hf_sapdiag_epp_variable_part_id,
+			{ "EPP Variable Part ID", "sapdiag.epp.variable_part.id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_item_count,
+			{ "EPP Item Count", "sapdiag.epp.variable_part.item_count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_item,
+			{ "EPP Item", "sapdiag.epp.item", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_item_key,
+			{ "EPP Item Key", "sapdiag.epp.item.key", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_item_application,
+			{ "EPP Item Application", "sapdiag.epp.item.application", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_item_type,
+			{ "EPP Item Type", "sapdiag.epp.item.type", FT_UINT8, BASE_DEC, VALS(sap_epp_item_type_vals), 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_item_length,
+			{ "EPP Item Length", "sapdiag.epp.item.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_item_value,
+			{ "EPP Item Value", "sapdiag.epp.item.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_sapdiag_epp_trailer,
+			{ "EPP Trailer", "sapdiag.epp.trailer", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		/* SAPDiag DP Header */
 		{ &hf_sapdiag_dp_request_id,
 			{ "Request ID", "sapdiag.dp.reqid", FT_INT32, BASE_DEC, VALS(sapdiag_dp_request_id_vals), 0x0, NULL, HFILL }},
@@ -4058,7 +4345,9 @@ proto_register_sapdiag(void)
 
 	/* Setup protocol subtree array */
 	static int *ett[] = {
-		&ett_sapdiag
+		&ett_sapdiag,
+		&ett_sapdiag_epp_variable_part,
+		&ett_sapdiag_epp_item
 	};
 
 	/* Register the expert info */
@@ -4075,6 +4364,7 @@ proto_register_sapdiag(void)
 		{ &ei_sapdiag_password_field, { "sapdiag.item.value.dyntatom.item.password", PI_SECURITY, PI_WARN, "Password field?", EXPFILL }},
 		{ &ei_sapdiag_invalid_decompression, { "sapdiag.header.compression.invalid", PI_MALFORMED, PI_WARN, "Decompression of payload failed", EXPFILL }},
 		{ &ei_sapdiag_invalid_decompress_length, { "sapdiag.header.compression.uncomplength.invalid", PI_MALFORMED, PI_WARN, "The uncompressed payload length differs from the reported length", EXPFILL }},
+		{ &ei_sapdiag_epp_malformed, { "sapdiag.epp.malformed", PI_MALFORMED, PI_WARN, "Malformed SAP Extended Passport", EXPFILL }},
 	};
 
 	module_t *sapdiag_module;

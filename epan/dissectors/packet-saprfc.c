@@ -25,7 +25,7 @@
 #define SAPRFC_DEFAULT_MAX_UNCOMPRESSED_SIZE (16U * 1024U * 1024U)
 #define SAPRFC_DEFAULT_MAX_REASSEMBLED_SIZE (16U * 1024U * 1024U)
 #define SAPRFC_TABLE_PREFIX_LENGTH 8U
-#define SAPRFC_APPC_HEADER_LEN 96U
+#define SAPRFC_APPC_HEADER_LEN 80U
 #define SAPRFC_NORMAL_CLIENT_HEADER_LEN_V1 64U
 #define SAPRFC_NORMAL_CLIENT_HEADER_LEN_V3 80U
 
@@ -384,12 +384,48 @@ static int hf_saprfc_header_ncpic_parameters_security_password_length;
 
 static int hf_saprfc_header_comm_idx;
 static int hf_saprfc_header_conn_idx;
+static int hf_saprfc_partner_long_lu;
+static int hf_saprfc_partner_lu_reserved;
 
 static int hf_saprfc_item;
 static int hf_saprfc_item_id1;
 static int hf_saprfc_item_id2;
 static int hf_saprfc_item_length;
 static int hf_saprfc_item_value;
+static int hf_saprfc_epp_magic;
+static int hf_saprfc_epp_version;
+static int hf_saprfc_epp_length;
+static int hf_saprfc_epp_trace_flags;
+static int hf_saprfc_epp_component;
+static int hf_saprfc_epp_service;
+static int hf_saprfc_epp_user;
+static int hf_saprfc_epp_action;
+static int hf_saprfc_epp_action_type;
+static int hf_saprfc_epp_previous_component;
+static int hf_saprfc_epp_transaction_id;
+static int hf_saprfc_epp_client;
+static int hf_saprfc_epp_component_type;
+static int hf_saprfc_epp_root_context_id;
+static int hf_saprfc_epp_connection_id;
+static int hf_saprfc_epp_connection_counter;
+static int hf_saprfc_epp_variable_part_count;
+static int hf_saprfc_epp_variable_part_offset;
+static int hf_saprfc_epp_variable_part;
+static int hf_saprfc_epp_variable_part_length;
+static int hf_saprfc_epp_variable_part_last;
+static int hf_saprfc_epp_variable_part_id;
+static int hf_saprfc_epp_item_count;
+static int hf_saprfc_epp_item;
+static int hf_saprfc_epp_item_key;
+static int hf_saprfc_epp_item_application;
+static int hf_saprfc_epp_item_type;
+static int hf_saprfc_epp_item_length;
+static int hf_saprfc_epp_item_value;
+static int hf_saprfc_epp_trailer;
+static int hf_saprfc_epp_padding;
+static int hf_saprfc_session_header;
+static int hf_saprfc_rfc_packet_size;
+static int hf_saprfc_cpic_state;
 
 static int hf_saprfc_table;
 static int hf_saprfc_table_structure;
@@ -414,6 +450,8 @@ static int hf_saprfc_payload;
 /* TODO: Add RFC logon error codes (https://launchpad.support.sap.com/#/notes/320991) */
 
 static int ett_saprfc;
+static int ett_saprfc_epp_variable_part;
+static int ett_saprfc_epp_item;
 
 /* Expert info */
 static expert_field ei_saprfc_invalid_decompression;
@@ -422,6 +460,9 @@ static expert_field ei_saprfc_invalid_table_length;
 static expert_field ei_saprfc_item_length_invalid;
 static expert_field ei_saprfc_unknown_item;
 static expert_field ei_saprfc_short_appc_header;
+static expert_field ei_saprfc_epp_malformed;
+
+#include "packet-sapepp.h"
 
 
 /* Global decompress preference */
@@ -781,6 +822,53 @@ dissect_saprfc_item(tvbuff_t *tvb, packet_info *pinfo, proto_item *item, proto_t
 		proto_tree_add_none_format(item_value_tree, hf_saprfc_item_value, tvb, offset, 4, "#: %d", value_uint32);
 		proto_item_append_text(item, ", #=%u", value_uint32);
 
+	} else if (item_id1==0x01 && item_id2==0x31){
+		const sap_epp_fields_t fields = {
+			.magic = hf_saprfc_epp_magic,
+			.version = hf_saprfc_epp_version,
+			.length = hf_saprfc_epp_length,
+			.trace_flags = hf_saprfc_epp_trace_flags,
+			.component = hf_saprfc_epp_component,
+			.service = hf_saprfc_epp_service,
+			.user = hf_saprfc_epp_user,
+			.action = hf_saprfc_epp_action,
+			.action_type = hf_saprfc_epp_action_type,
+			.previous_component = hf_saprfc_epp_previous_component,
+			.transaction_id = hf_saprfc_epp_transaction_id,
+			.client = hf_saprfc_epp_client,
+			.component_type = hf_saprfc_epp_component_type,
+			.root_context_id = hf_saprfc_epp_root_context_id,
+			.connection_id = hf_saprfc_epp_connection_id,
+			.connection_counter = hf_saprfc_epp_connection_counter,
+			.variable_part_count = hf_saprfc_epp_variable_part_count,
+			.variable_part_offset = hf_saprfc_epp_variable_part_offset,
+			.variable_part = hf_saprfc_epp_variable_part,
+			.variable_part_length = hf_saprfc_epp_variable_part_length,
+			.variable_part_last = hf_saprfc_epp_variable_part_last,
+			.variable_part_id = hf_saprfc_epp_variable_part_id,
+			.item_count = hf_saprfc_epp_item_count,
+			.item = hf_saprfc_epp_item,
+			.item_key = hf_saprfc_epp_item_key,
+			.item_application = hf_saprfc_epp_item_application,
+			.item_type = hf_saprfc_epp_item_type,
+			.item_length = hf_saprfc_epp_item_length,
+			.item_value = hf_saprfc_epp_item_value,
+			.trailer = hf_saprfc_epp_trailer,
+			.ett_variable_part = ett_saprfc_epp_variable_part,
+			.ett_item = ett_saprfc_epp_item,
+			.malformed = &ei_saprfc_epp_malformed
+		};
+		uint16_t declared_length;
+
+		/* The RFCID slot may include padding after the complete EPP value. */
+		proto_item_append_text(item, ", Extended Passport");
+		declared_length = dissect_sap_epp(tvb, pinfo, item, item_value_tree,
+				offset, item_length, &fields);
+		if (declared_length && declared_length < item_length) {
+			proto_tree_add_item(item_value_tree, hf_saprfc_epp_padding, tvb,
+					offset + declared_length, item_length - declared_length, ENC_NA);
+		}
+
 	} else if (item_id1==0xFF && item_id2==0xFF){
 		proto_item_append_text(item, ", End of RFC message");
 
@@ -800,10 +888,18 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 	uint32_t item_length;
 	int remaining_length;
 	unsigned reported_remaining_length;
+	bool has_session_header = false;
 	tvbuff_t *item_value_tvb = NULL;
 
 	proto_item *item = NULL, *item_value = NULL;
 	proto_tree *item_tree = NULL, *item_value_tree = NULL;
+
+	if (tvb_reported_length_remaining(tvb, offset) >= 12 &&
+	    tvb_get_ntohl(tvb, offset) == 0xd9c6c3f0U) {
+		proto_tree_add_item(tree, hf_saprfc_session_header, tvb, offset, 12, ENC_NA);
+		offset += 12;
+		has_session_header = true;
+	}
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		item_length = 0;
@@ -880,6 +976,11 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 		if (item_id1==0xFF && item_id2==0xFF){
 			break;
 		}
+	}
+
+	if (has_session_header && tvb_reported_length_remaining(tvb, offset) >= 8) {
+		proto_tree_add_item(tree, hf_saprfc_rfc_packet_size, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_saprfc_cpic_state, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 	}
 
 }
@@ -1108,6 +1209,27 @@ dissect_saprfc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			return tvb_reported_length(tvb);
 		}
 		dissect_saprfc_header(tvb, pinfo, saprfc_tree, offset);
+		if (tvb_reported_length_remaining(tvb, SAPRFC_APPC_HEADER_LEN) > 0) {
+			proto_item *payload;
+			proto_tree *payload_tree;
+
+			payload = proto_tree_add_item(saprfc_tree, hf_saprfc_payload, tvb,
+					SAPRFC_APPC_HEADER_LEN, -1, ENC_NA);
+			payload_tree = proto_item_add_subtree(payload, ett_saprfc);
+			if (req_type == 0x0f &&
+			    tvb_reported_length_remaining(tvb, SAPRFC_APPC_HEADER_LEN) >= 144) {
+				uint32_t long_lu_length = tvb_get_ntohl(tvb, 56);
+				uint32_t displayed_length = MIN(long_lu_length, 128U);
+
+				proto_tree_add_item(payload_tree, hf_saprfc_partner_long_lu, tvb,
+						SAPRFC_APPC_HEADER_LEN, displayed_length, ENC_ASCII);
+				proto_tree_add_item(payload_tree, hf_saprfc_partner_lu_reserved, tvb,
+						SAPRFC_APPC_HEADER_LEN + 128, 16, ENC_NA);
+			} else {
+				dissect_saprfc_payload(tvb, pinfo, payload_tree, saprfc_tree,
+						SAPRFC_APPC_HEADER_LEN);
+			}
+		}
 		return tvb_reported_length(tvb);
 	}
 
@@ -1371,6 +1493,10 @@ proto_register_saprfc(void)
 			{ "Comm Index", "saprfc.appcheader.comm_idx", FT_INT16, BASE_DEC, NULL, 0x0, "SAP RFC APPC Header Comm Index", HFILL }},
 		{ &hf_saprfc_header_conn_idx,
 			{ "Conn Index", "saprfc.appcheader.conn_idx", FT_INT16, BASE_DEC, NULL, 0x0, "SAP RFC APPC Header Conn Index", HFILL }},
+		{ &hf_saprfc_partner_long_lu,
+			{ "Partner Long LU", "saprfc.partner_long_lu", FT_STRING, BASE_NONE, NULL, 0x0, "SAP RFC Partner Long LU", HFILL }},
+		{ &hf_saprfc_partner_lu_reserved,
+			{ "Partner LU Reserved", "saprfc.partner_lu_reserved", FT_BYTES, BASE_NONE, NULL, 0x0, "SAP RFC Partner LU Reserved Bytes", HFILL }},
 
 		/* Payload */
 		{ &hf_saprfc_payload,
@@ -1387,6 +1513,75 @@ proto_register_saprfc(void)
 			{ "Length", "saprfc.item.length", FT_UINT16, BASE_DEC, NULL, 0x0, "SAP RFC Item Length", HFILL }},
 		{ &hf_saprfc_item_value,
 			{ "Value", "saprfc.item.value", FT_NONE, BASE_NONE, NULL, 0x0, "SAP RFC Item Value", HFILL }},
+		/* Extended Passport */
+		{ &hf_saprfc_epp_magic,
+			{ "EPP Magic", "saprfc.epp.magic", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_version,
+			{ "EPP Version", "saprfc.epp.version", FT_UINT8, BASE_DEC, VALS(sap_epp_version_vals), 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_length,
+			{ "EPP Length", "saprfc.epp.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_trace_flags,
+			{ "EPP Trace Flags", "saprfc.epp.trace_flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_component,
+			{ "EPP Component", "saprfc.epp.component", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_service,
+			{ "EPP Service", "saprfc.epp.service", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_user,
+			{ "EPP User", "saprfc.epp.user", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_action,
+			{ "EPP Action", "saprfc.epp.action", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_action_type,
+			{ "EPP Action Type", "saprfc.epp.action_type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_previous_component,
+			{ "EPP Previous Component", "saprfc.epp.previous_component", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_transaction_id,
+			{ "EPP Transaction ID", "saprfc.epp.transaction_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_client,
+			{ "EPP Client", "saprfc.epp.client", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_component_type,
+			{ "EPP Component Type", "saprfc.epp.component_type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_root_context_id,
+			{ "EPP Root Context ID", "saprfc.epp.root_context_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_connection_id,
+			{ "EPP Connection ID", "saprfc.epp.connection_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_connection_counter,
+			{ "EPP Connection Counter", "saprfc.epp.connection_counter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_variable_part_count,
+			{ "EPP Variable Part Count", "saprfc.epp.variable_part_count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_variable_part_offset,
+			{ "EPP Variable Part Offset", "saprfc.epp.variable_part_offset", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_variable_part,
+			{ "EPP Variable Part", "saprfc.epp.variable_part", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_variable_part_length,
+			{ "EPP Variable Part Length", "saprfc.epp.variable_part.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_variable_part_last,
+			{ "EPP Last Variable Part", "saprfc.epp.variable_part.last", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+		{ &hf_saprfc_epp_variable_part_id,
+			{ "EPP Variable Part ID", "saprfc.epp.variable_part.id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_item_count,
+			{ "EPP Item Count", "saprfc.epp.variable_part.item_count", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_item,
+			{ "EPP Item", "saprfc.epp.item", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_item_key,
+			{ "EPP Item Key", "saprfc.epp.item.key", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_item_application,
+			{ "EPP Item Application", "saprfc.epp.item.application", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_item_type,
+			{ "EPP Item Type", "saprfc.epp.item.type", FT_UINT8, BASE_DEC, VALS(sap_epp_item_type_vals), 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_item_length,
+			{ "EPP Item Length", "saprfc.epp.item.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_item_value,
+			{ "EPP Item Value", "saprfc.epp.item.value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_trailer,
+			{ "EPP Trailer", "saprfc.epp.trailer", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+		{ &hf_saprfc_epp_padding,
+			{ "EPP RFCID Slot Padding", "saprfc.epp.padding", FT_BYTES, BASE_NONE, NULL, 0x0, "Bytes after the embedded EPP declared length in the RFCID 0x0131 slot", HFILL }},
+		{ &hf_saprfc_session_header,
+			{ "RFC Session Header", "saprfc.session_header", FT_BYTES, BASE_NONE, NULL, 0x0, "SAP RFC Session Header", HFILL }},
+		{ &hf_saprfc_rfc_packet_size,
+			{ "RFC Packet Size", "saprfc.rfc_packet_size", FT_UINT32, BASE_DEC, NULL, 0x0, "SAP RFC Streaming Packet Size", HFILL }},
+		{ &hf_saprfc_cpic_state,
+			{ "CPIC State", "saprfc.cpic_state", FT_UINT32, BASE_HEX, NULL, 0x0, "SAP RFC CPIC Streaming State", HFILL }},
 
 		/* Table content */
 		{ &hf_saprfc_table,
@@ -1424,7 +1619,9 @@ proto_register_saprfc(void)
 
 	/* Setup protocol subtree array */
 	static int *ett[] = {
-		&ett_saprfc
+		&ett_saprfc,
+		&ett_saprfc_epp_variable_part,
+		&ett_saprfc_epp_item
 	};
 
 	/* Register the expert info */
@@ -1435,6 +1632,7 @@ proto_register_saprfc(void)
 		{ &ei_saprfc_item_length_invalid, { "saprfc.item.value.invalid_length", PI_MALFORMED, PI_WARN, "The item length is invalid", EXPFILL }},
 		{ &ei_saprfc_unknown_item, { "saprfc.item.unknown", PI_UNDECODED, PI_WARN, "The RFC item has a unknown type that is not dissected", EXPFILL }},
 		{ &ei_saprfc_short_appc_header, { "saprfc.appcheader.short", PI_MALFORMED, PI_WARN, "SAP RFC APPC header is too short", EXPFILL }},
+		{ &ei_saprfc_epp_malformed, { "saprfc.epp.malformed", PI_MALFORMED, PI_WARN, "Malformed Extended Passport", EXPFILL }},
 	};
 
 	module_t *saprfc_module;
