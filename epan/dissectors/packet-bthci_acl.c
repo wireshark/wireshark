@@ -54,6 +54,8 @@ static expert_field ei_length_bad;
 static dissector_handle_t bthci_acl_handle;
 static dissector_handle_t btl2cap_handle;
 
+static dissector_table_t  bthci_acl_chandle_table;
+
 static bool acl_reassembly = true;
 
 typedef struct _multi_fragment_pdu_t {
@@ -385,6 +387,10 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     length_item = proto_tree_add_item_ret_uint16(bthci_acl_tree, hf_bthci_acl_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
     offset += 2;
 
+    if (dissector_try_uint_with_data(bthci_acl_chandle_table, connection_handle, tvb, pinfo, tree, TRUE, bluetooth_data)) {
+        return tvb_captured_length(tvb);
+    }
+
     /* determine if packet is fragmented */
     switch(pb_flag) {
     case 0x01:  /* Continuation fragment */
@@ -665,6 +671,7 @@ proto_register_bthci_acl(void)
     /* Register the protocol name and description */
     proto_bthci_acl = proto_register_protocol("Bluetooth HCI ACL Packet", "HCI_ACL", "bthci_acl");
     bthci_acl_handle = register_dissector("bthci_acl", dissect_bthci_acl, proto_bthci_acl);
+    bthci_acl_chandle_table = register_dissector_table("bthci_acl.chandle", "HCI ACL Connection Handle", proto_bthci_acl, FT_UINT16, BASE_HEX);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_acl, hf, array_length(hf));
