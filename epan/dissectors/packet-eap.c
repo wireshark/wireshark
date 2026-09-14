@@ -2385,7 +2385,7 @@ skip_tls_dissector:
          * If so, should we stop here to avoid modifying conversation_state? */
 
         /* See if we've already remembered the state. */
-        packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | p_proto_data_layer);
+        packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE_LEAP | p_proto_data_layer);
         if (packet_state == NULL) {
           /*
            * We haven't - compute the state based on the current
@@ -2406,7 +2406,7 @@ skip_tls_dissector:
            */
           packet_state = wmem_new(wmem_file_scope(), frame_state_t);
           packet_state->info = leap_state;
-          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE | p_proto_data_layer, packet_state);
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE_LEAP | p_proto_data_layer, packet_state);
 
           /*
            * Update the conversation's state.
