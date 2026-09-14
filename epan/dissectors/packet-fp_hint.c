@@ -57,6 +57,7 @@ static int hf_fph_tf_size;
 static expert_field ei_fph_radio_bearers;
 static expert_field ei_fph_mac_frames;
 static expert_field ei_fph_fp_channels;
+static expert_field ei_fph_edch_ddis;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t ethwithfcs_handle;
@@ -299,6 +300,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, f
             proto_tree_add_expert_format_remaining(tree, pinfo, &ei_fph_fp_channels, tvb, offset,
                 "Frame contains more FP channels than currently supported (%u supported)",
                 MAX_FP_CHANS);
+            fpi->num_chans = MAX_FP_CHANS;
             return;
         }
         pi = proto_tree_add_item(tree, hf_fph_tf, tvb, offset, 4, ENC_NA);
@@ -390,6 +392,13 @@ static void assign_fph_edch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, 
 
     fpi->no_ddi_entries = maces_cnt;
     while (i < maces_cnt) {
+        if (i >= MAX_EDCH_DDIS) {
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_fph_edch_ddis, tvb, offset,
+                "Frame contains more E-DCH DDIs than currently supported (%u supported)",
+                MAX_EDCH_DDIS);
+            fpi->no_ddi_entries = MAX_EDCH_DDIS;
+            return;
+        }
         ddi = tvb_get_uint8(tvb, offset++);
         logical = tvb_get_uint8(tvb, offset++);
         maces_size = tvb_get_letohs(tvb, offset);
@@ -404,12 +413,6 @@ static void assign_fph_edch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, 
             proto_tree_add_uint(subtree, hf_fph_ddi_size, tvb, offset - 2, 2, maces_size);
         }
         i++;
-        if (i >= MAX_EDCH_DDIS) {
-            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_fph_fp_channels, tvb, offset,
-                "Frame contains more FP channels than currently supported (%u supported)",
-                MAX_FP_CHANS);
-            return;
-        }
     }
 
 
@@ -574,6 +577,7 @@ proto_register_fp_hint(void)
         { &ei_fph_radio_bearers, { "fp_hint.rb.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more Radio Bearers than currently supported", EXPFILL }},
         { &ei_fph_mac_frames, { "fp_hint.mac_frames.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more MAC Frames than currently supported", EXPFILL }},
         { &ei_fph_fp_channels, { "fp_hint.fp_channels.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more FP channels than currently supported", EXPFILL }},
+        { &ei_fph_edch_ddis, { "fp_hint.edch_ddis.invalid", PI_PROTOCOL, PI_WARN, "Frame contains more E-DCH DDIs than currently supported", EXPFILL }},
     };
 
     expert_module_t* expert_fp_hint;
