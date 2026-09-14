@@ -1686,9 +1686,27 @@ get_profiles_dir(const char* app_env_var_prefix)
 static char *
 get_profiles_dir_with_trailing_sep(const char* app_env_var_prefix, bool is_global)
 {
-    return g_build_filename(is_global ? get_datafile_dir(app_env_var_prefix) :
-                                        get_persconffile_dir_no_profile(app_env_var_prefix),
-                            PROFILES_DIR, G_DIR_SEPARATOR_S, NULL);
+    /* We use this for prefix comparison so we always want the canonical
+     * directory separator (G_DIR_SEPARATOR_S). The second parameter in
+     * g_canonicalize_filename has to be an absolute path, or NULL (for
+     * current directory), though it's not used if the first parameter is
+     * an absolute path.
+     *
+     * We don't currently guarantee that get_datafile_dir and
+     * get_persconffile_dir_no_profile return canonicalized paths with the
+     * platform default directory separator or even absolute paths, but
+     * we might want to do so. Since they're not, we can't necessarily use
+     * them as the second parameter here with PROFILES_DIR as the first
+     * parameter, so we do this. Note that g_canonicalize_filename never
+     * returns a string with a trailing dir sep, so we have to add it
+     * separately anyway. */
+    char *canonical_conf_dir = g_canonicalize_filename(is_global ? get_datafile_dir(app_env_var_prefix) :
+                                        get_persconffile_dir_no_profile(app_env_var_prefix), NULL);
+
+    char *dir_with_sep = g_build_filename(canonical_conf_dir, PROFILES_DIR,
+                                        G_DIR_SEPARATOR_S, NULL);
+    g_free(canonical_conf_dir);
+    return dir_with_sep;
 }
 
 int
