@@ -45,7 +45,9 @@ macro (ADD_MAN_PAGE _page_name _man_section _install)
 			message(FATAL_ERROR "Unsupported manual page section ${_man_section} for ${_page_name}")
 		endif()
 
-		if (${_install})
+		# Expressions need to be lists.
+		string(REPLACE " " ";" _install_expr "${_install}")
+		if (${_install_expr})
 			list(APPEND HTML_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/man_pages/${_page_name}.html)
 			if (${_man_section} EQUAL 1)
 				list(APPEND MAN1_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/man_pages/${_page_name}.${_man_section})
@@ -53,6 +55,7 @@ macro (ADD_MAN_PAGE _page_name _man_section _install)
 				list(APPEND MAN4_INSTALL_FILES ${CMAKE_CURRENT_BINARY_DIR}/man_pages/${_page_name}.${_man_section})
 			endif()
 		endif()
+		unset(_install_expr)
 	endif()
 endmacro()
 
