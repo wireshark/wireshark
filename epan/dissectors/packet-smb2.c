@@ -4423,7 +4423,18 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		   So if ByteCount is zero and there's no data remaining, that could just be a modern
 		   server.
 		 */
-		if (byte_count == 0 && tvb_reported_length_remaining(tvb, offset)) byte_count = 1;
+		if (byte_count == 0) {
+			/* A zero ByteCount and a nonzero ErrorContextCount are inconsistent.
+			 * Some servers (#19410) have a (uninitialized?) bogus context count
+			 * value when there is a zero ByteCount, and a header Status that is
+			 * not one of the ones listed in [MS-SMB2] 2.2.2.2 ErrorData format.
+			 */
+			if (error_context_count != 0) {
+				expert_add_info_format(pinfo, ti, &ei_smb2_bad_error_context_count, "ERROR Response ErrorContextCount is nonzero with zero ByteCount");
+				error_context_count = 0;
+			}
+			if (tvb_reported_length_remaining(tvb, offset)) byte_count = 1;
+		}
 
 		if (byte_count) {
 			/* ErrorData (variable): A variable-length data field that contains extended
@@ -17061,7 +17072,7 @@ proto_register_smb2(void)
 	static ei_register_info ei[] = {
 		{ &ei_smb2_invalid_length, { "smb2.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
 		{ &ei_smb2_bad_response, { "smb2.bad_response", PI_MALFORMED, PI_ERROR, "Bad response", EXPFILL }},
-		{ &ei_smb2_bad_error_context_count, { "smb2.error.context_count.bad", PI_PROTOCOL, PI_WARN, "ERROR Reponse ErrorContextCount is nonzero without SMB 3.11 support", EXPFILL }},
+		{ &ei_smb2_bad_error_context_count, { "smb2.error.context_count.bad", PI_PROTOCOL, PI_WARN, "ERROR Response ErrorContextCount is nonzero without SMB 3.11 support", EXPFILL }},
 		{ &ei_smb2_bad_negprot_negotiate_context_count, { "smb2.bad_negprot_negotiate_context_count", PI_PROTOCOL, PI_WARN, "Negotiate Protocol request NegotiateContextCount is nonzero without SMB 3.11 support", EXPFILL }},
 		{ &ei_smb2_bad_negprot_negotiate_context_offset, { "smb2.bad_negprot_negotiate_context_offset", PI_PROTOCOL, PI_WARN, "Negotiate Protocol request NegotiateContextOffset is nonzero without SMB 3.11 support", EXPFILL }},
 		{ &ei_smb2_bad_negprot_reserved, { "smb2.bad_negprot_reserved", PI_PROTOCOL, PI_WARN, "Negotiate Protocol response Reserved is nonzero", EXPFILL }},
