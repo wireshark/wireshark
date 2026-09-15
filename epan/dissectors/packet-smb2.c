@@ -847,6 +847,7 @@ static int ett_smb2_fsctl_dfs_get_referrals_ex_sitename;
 
 static expert_field ei_smb2_invalid_length;
 static expert_field ei_smb2_bad_response;
+static expert_field ei_smb2_bad_error_context_count;
 static expert_field ei_smb2_bad_negprot_negotiate_context_count;
 static expert_field ei_smb2_bad_negprot_negotiate_context_offset;
 static expert_field ei_smb2_bad_negprot_reserved;
@@ -4378,6 +4379,7 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	uint8_t error_context_count;
 	uint16_t length;
 	tvbuff_t *sub_tvb;
+	proto_item *ti;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, &length);
@@ -4392,7 +4394,17 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			*continue_dissection = false;
 
 		/* ErrorContextCount (1 bytes) */
-		proto_tree_add_item_ret_uint8(tree, hf_smb2_error_context_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_context_count);
+		ti = proto_tree_add_item_ret_uint8(tree, hf_smb2_error_context_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &error_context_count);
+		/* XXX - We don't have an enum preference for "what dialect to assume
+		 * if the Negotiate Protocol Response is missing," but probably should.
+		 * [MS-SMB2] says this MUST be set to 0 for SMB dialects other than
+		 * 3.1.1, but the behavior was the same for the deprecated 3.1.0 (not
+		 * mentioned in the spec anymore), just as with other ContextCounts.
+		 */
+		if ((si->conv->dialect >= SMB2_DIALECT_202 && si->conv->dialect < SMB2_DIALECT_310) && error_context_count) {
+			expert_add_info(pinfo, ti, &ei_smb2_bad_error_context_count);
+			error_context_count = 0;
+		}
 		offset += 1;
 
 		/* Reserved (1 bytes) */
@@ -4404,16 +4416,23 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		proto_tree_add_item(tree, hf_smb2_error_byte_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		/* If the ByteCount field is zero then the server MUST supply an ErrorData field
-		   that is one byte in length */
-		if (byte_count == 0) byte_count = 1;
+		/* [MS-SMB2] revision 59 and earlier: If the ByteCount field is zero then the server
+		   MUST supply an ErrorData field that is one byte in length; the client MUST ignore it
+		   revision 60 and later: Windows 10 v1703 operating system and prior and Windows Server
+		   2016 and prior set ErrorData to one uninitialized byte when ByteCount is zero.
+		   So if ByteCount is zero and there's no data remaining, that could just be a modern
+		   server.
+		 */
+		if (byte_count == 0 && tvb_reported_length_remaining(tvb, offset)) byte_count = 1;
 
-		/* ErrorData (variable): A variable-length data field that contains extended
-		   error information.*/
-		sub_tvb = tvb_new_subset_length(tvb, offset, byte_count);
-		offset += byte_count;
+		if (byte_count) {
+			/* ErrorData (variable): A variable-length data field that contains extended
+			   error information.*/
+			sub_tvb = tvb_new_subset_length(tvb, offset, byte_count);
+			offset += byte_count;
 
-		dissect_smb2_error_data(sub_tvb, pinfo, tree, error_context_count, 0, si);
+			dissect_smb2_error_data(sub_tvb, pinfo, tree, error_context_count, 0, si);
+		}
 	}
 
 	return offset;
@@ -17042,10 +17061,11 @@ proto_register_smb2(void)
 	static ei_register_info ei[] = {
 		{ &ei_smb2_invalid_length, { "smb2.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
 		{ &ei_smb2_bad_response, { "smb2.bad_response", PI_MALFORMED, PI_ERROR, "Bad response", EXPFILL }},
-		{ &ei_smb2_bad_negprot_negotiate_context_count, { "smb2.bad_negprot_negotiate_context_count", PI_MALFORMED, PI_ERROR, "Negotiate Protocol request NegotiateContextCount is nonzero without SMB 3.11 support", EXPFILL }},
-		{ &ei_smb2_bad_negprot_negotiate_context_offset, { "smb2.bad_negprot_negotiate_context_offset", PI_MALFORMED, PI_ERROR, "Negotiate Protocol request NegotiateContextOffset is nonzero without SMB 3.11 support", EXPFILL }},
-		{ &ei_smb2_bad_negprot_reserved, { "smb2.bad_negprot_reserved", PI_MALFORMED, PI_ERROR, "Negotiate Protocol response Reserved is nonzero", EXPFILL }},
-		{ &ei_smb2_bad_negprot_reserved2, { "smb2.bad_negprot_reserved2", PI_MALFORMED, PI_ERROR, "Negotiate Protocol response Reserved2 is nonzero", EXPFILL }},
+		{ &ei_smb2_bad_error_context_count, { "smb2.error.context_count.bad", PI_PROTOCOL, PI_WARN, "ERROR Reponse ErrorContextCount is nonzero without SMB 3.11 support", EXPFILL }},
+		{ &ei_smb2_bad_negprot_negotiate_context_count, { "smb2.bad_negprot_negotiate_context_count", PI_PROTOCOL, PI_WARN, "Negotiate Protocol request NegotiateContextCount is nonzero without SMB 3.11 support", EXPFILL }},
+		{ &ei_smb2_bad_negprot_negotiate_context_offset, { "smb2.bad_negprot_negotiate_context_offset", PI_PROTOCOL, PI_WARN, "Negotiate Protocol request NegotiateContextOffset is nonzero without SMB 3.11 support", EXPFILL }},
+		{ &ei_smb2_bad_negprot_reserved, { "smb2.bad_negprot_reserved", PI_PROTOCOL, PI_WARN, "Negotiate Protocol response Reserved is nonzero", EXPFILL }},
+		{ &ei_smb2_bad_negprot_reserved2, { "smb2.bad_negprot_reserved2", PI_PROTOCOL, PI_WARN, "Negotiate Protocol response Reserved2 is nonzero", EXPFILL }},
 		{ &ei_smb2_invalid_getinfo_offset, { "smb2.invalid_getinfo_offset", PI_MALFORMED, PI_ERROR, "Input buffer offset isn't past the fixed data in the message", EXPFILL }},
 		{ &ei_smb2_invalid_getinfo_size, { "smb2.invalid_getinfo_size", PI_MALFORMED, PI_ERROR, "Input buffer length goes past the end of the message", EXPFILL }},
 		{ &ei_smb2_empty_getinfo_buffer, { "smb2.empty_getinfo_buffer", PI_PROTOCOL, PI_WARN, "Input buffer length is empty for a quota request", EXPFILL }},
