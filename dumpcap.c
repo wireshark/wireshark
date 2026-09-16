@@ -1811,13 +1811,118 @@ cap_pipe_close(int pipe_fd _U_)
 #endif
 }
 
-/* Some forward declarations for breaking up cap_pipe_open_live for pcap and pcapng formats */
-static bool pcap_pipe_open_live(int fd, capture_src *pcap_src,
-                                struct pcap_hdr *hdr,
-                                char *errmsg, size_t errmsgl,
-                                char *secondary_errmsg, size_t secondary_errmsgl);
-static bool pcapng_pipe_open_live(int fd, capture_src *pcap_src,
-                                  char *errmsg, size_t errmsgl);
+/* Open a capture device.
+
+   Return true on success. If any warnings occur, report them.
+
+   Return false on failure. Don't report an error, as we might handle
+   the error by attempting to open it as a pipe. */
+static bool
+cap_device_open(capture_options *capture_opts, interface_options *interface_opts, capture_src *pcap_src,
+                cap_device_open_status *open_status,
+                char *errmsg, size_t errmsgl,
+                char *secondary_errmsg, size_t secondary_errmsgl)
+{
+    char open_status_str[PCAP_ERRBUF_SIZE];
+
+    pcap_src->pcap_h = open_capture_device(capture_opts, interface_opts,
+        CAP_READ_TIMEOUT, open_status, &open_status_str);
+
+    if (pcap_src->pcap_h == NULL) {
+        /* open failed; get the error message and report the error. */
+        get_capture_device_open_failure_messages(*open_status,
+                                                 open_status_str,
+                                                 interface_opts->name,
+                                                 errmsg,
+                                                 errmsgl,
+                                                 secondary_errmsg,
+                                                 secondary_errmsgl);
+        return false;
+    }
+
+    /* We've opened the interface as a network device.
+
+       Is "open_status" something other than CAP_DEVICE_OPEN_NO_ERR?
+       If so, "open_capture_device()" returned a warning; fill in
+       the warning message, and report it. */
+    if (*open_status != CAP_DEVICE_OPEN_NO_ERR) {
+        get_capture_device_open_warning_messages(*open_status,
+                                                 open_status_str,
+                                                 interface_opts->name,
+                                                 errmsg,
+                                                 errmsgl,
+                                                 secondary_errmsg,
+                                                 secondary_errmsgl);
+        report_capture_warning(errmsg, secondary_errmsg);
+    }
+
+    /* setting the data link type only works on real interfaces */
+    if (!set_pcap_datalink(pcap_src->pcap_h, interface_opts->linktype,
+                           interface_opts->name,
+                           errmsg, errmsgl,
+                           secondary_errmsg, secondary_errmsgl)) {
+        /* This is an error; close the pcap_t.
+           Don't report it now, as, if it's an error that could
+           occur if the device doesn't exist, we want to see
+           if there's a named pipe with that name and open it
+           instead,  */
+        pcap_close(pcap_src->pcap_h);
+        pcap_src->pcap_h = NULL;
+        *open_status = CAP_DEVICE_OPEN_ERROR_OTHER;
+        return false;
+    }
+
+#if defined(HAVE_PCAP_SETSAMPLING)
+    if (interface_opts->sampling_method != CAPTURE_SAMP_NONE) {
+        struct pcap_samp *samp;
+
+        if ((samp = pcap_setsampling(pcap_src->pcap_h)) != NULL) {
+            char               *sync_msg_str;
+
+            switch (interface_opts->sampling_method) {
+            case CAPTURE_SAMP_BY_COUNT:
+                samp->method = PCAP_SAMP_1_EVERY_N;
+                break;
+
+            case CAPTURE_SAMP_BY_TIMER:
+                samp->method = PCAP_SAMP_FIRST_AFTER_N_MS;
+                break;
+
+            default:
+                /* Do non-sampling capture. */
+                sync_msg_str = ws_strdup_printf("Couldn't set the packet sampling: uUnknown sampling method %d specified,\n"
+                                                "continue without packet sampling",
+                                                interface_opts->sampling_method);
+                report_capture_warning(sync_msg_str, please_report_bug());
+                g_free(sync_msg_str);
+                *open_status = CAP_DEVICE_OPEN_WARNING_OTHER;
+                break;
+            }
+            samp->value = interface_opts->sampling_param;
+        } else {
+            /* Warn and do non-sampling capture. */
+            report_capture_warning("Couldn't set the packet sampling: cannot get packet sampling data structure.",
+                                   please_report_bug());
+            *open_status = CAP_DEVICE_OPEN_WARNING_OTHER;
+        }
+    }
+#endif
+
+    /* Find out if we're getting nanosecond-precision time stamps */
+    pcap_src->ts_nsec = have_high_resolution_timestamp(pcap_src->pcap_h);
+
+    pcap_src->linktype = dlt_to_linktype(get_pcap_datalink(pcap_src->pcap_h, interface_opts->name));
+    pcap_src->snaplen = pcap_snapshot(pcap_src->pcap_h);
+    return true;
+}
+
+/* Some forward declarations for breaking up cap_pipe_open for pcap and pcapng formats */
+static bool pcap_pipe_finish_reading_header(int fd, capture_src *pcap_src,
+                                            struct pcap_hdr *hdr,
+                                            char *errmsg, size_t errmsgl,
+                                            char *secondary_errmsg, size_t secondary_errmsgl);
+static bool pcapng_pipe_finish_reading_shb(int fd, capture_src *pcap_src,
+                                           char *errmsg, size_t errmsgl);
 static int pcapng_pipe_dispatch(capture_src *pcap_src,
                                 char *errmsg, size_t errmsgl);
 
@@ -1825,21 +1930,21 @@ static int pcapng_pipe_dispatch(capture_src *pcap_src,
 static char not_our_bug[] =
     "Please report this to the developers of the program writing to the pipe.";
 
-/* Mimic pcap_open_live() for pipe captures
-
+/* Mimic the capture device open process for pipe captures
+ *
  * We check if "pipename" is "-" (stdin), a AF_UNIX socket, or a FIFO,
  * open it, and read the header.
  *
  * N.B. : we can't read the libpcap formats used in RedHat 6.1 or SuSE 6.3
  * because we can't seek on pipes (see wiretap/libpcap.c for details)
  *
- * Returns true on success, fals on failure. */
+ * Returns true on success, false on failure. */
 static bool
-cap_pipe_open_live(char *pipename,
-                   capture_src *pcap_src,
-                   void *hdr,
-                   char *errmsg, size_t errmsgl,
-                   char *secondary_errmsg, size_t secondary_errmsgl)
+cap_pipe_open(char *pipename,
+              capture_src *pcap_src,
+              void *hdr,
+              char *errmsg, size_t errmsgl,
+              char *secondary_errmsg, size_t secondary_errmsgl)
 {
 #ifndef _WIN32
     ws_statb64         pipe_stat;
@@ -1858,7 +1963,7 @@ cap_pipe_open_live(char *pipename,
     pcap_src->cap_pipe_h = INVALID_HANDLE_VALUE;
 #endif
 
-    ws_debug("cap_pipe_open_live: %s", pipename);
+    ws_debug("cap_pipe_open: %s", pipename);
 
     /*
      * XXX - this blocks until a pcap per-file header has been written to
@@ -1872,16 +1977,33 @@ cap_pipe_open_live(char *pipename,
 #endif  /* _WIN32 */
     } else {
 #ifndef _WIN32
+        /*
+         * We're on a UNIX-like system (a category that here includes
+         * Haiku).
+         */
         if ( g_strrstr(pipename, EXTCAP_PIPE_PREFIX) != NULL )
             extcap_pipe = true;
 
         if (ws_stat64(pipename, &pipe_stat) < 0) {
-            if (errno == ENOENT || errno == ENOTDIR)
+            if (errno == ENOENT || errno == ENOTDIR) {
+                /* The pipe doesn't exist.
+
+                   Either the device we tried to open doesn't exist
+                   or we don't have permission to open capture devices
+                   of that sort, otherwise we wouldn't have been
+                   called to try to open the device as a pipe.
+
+                   The error message has already been filled in by
+                   cap_device_open(); don't overwrite it, under
+                   the assumption that the user intended to open
+                   a capture device rather than a pipe. */
                 pcap_src->cap_pipe_err = PIPNEXIST;
-            else {
+            } else {
+                /* Some other error occurred. */
                 snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
                            "due to error getting information on pipe or socket: %s.", g_strerror(errno));
+                *secondary_errmsg = '\0'; /* no secondary message */
                 pcap_src->cap_pipe_err = PIPERR;
             }
             return false;
@@ -1892,6 +2014,7 @@ cap_pipe_open_live(char *pipename,
                 snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
                            "due to error on pipe open: %s.", g_strerror(errno));
+                *secondary_errmsg = '\0'; /* no secondary message */
                 pcap_src->cap_pipe_err = PIPERR;
                 return false;
             }
@@ -1901,6 +2024,7 @@ cap_pipe_open_live(char *pipename,
                 snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
                            "due to error on socket create: %s.", g_strerror(errno));
+                *secondary_errmsg = '\0'; /* no secondary message */
                 pcap_src->cap_pipe_err = PIPERR;
                 return false;
             }
@@ -1933,6 +2057,7 @@ cap_pipe_open_live(char *pipename,
                 snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
                            "due to error on socket connect: Path name too long.");
+                *secondary_errmsg = '\0'; /* no secondary message */
                 pcap_src->cap_pipe_err = PIPERR;
                 ws_close(fd);
                 return false;
@@ -1942,6 +2067,7 @@ cap_pipe_open_live(char *pipename,
                 snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated "
                            "due to error on socket connect: %s.", g_strerror(errno));
+                *secondary_errmsg = '\0'; /* no secondary message */
                 pcap_src->cap_pipe_err = PIPERR;
                 ws_close(fd);
                 return false;
@@ -1949,20 +2075,37 @@ cap_pipe_open_live(char *pipename,
         } else {
             if (S_ISCHR(pipe_stat.st_mode)) {
                 /*
+                 * This is a path to a character device, not a pipe.
+                 *
                  * Assume the user specified an interface on a system where
-                 * interfaces are in /dev.  Pretend we haven't seen it.
+                 * interfaces are in /dev, and the interface name included
+                 * /dev, which is where most if not all character device
+                 * files exist.
+                 *
+                 * Either the capture device we tried to open doesn't exist
+                 * or we don't have permission to open capture devices
+                 * of that sort, otherwise we wouldn't have been
+                 * called to try to open the device as a pipe.
+                 *
+                 * The error message has already been filled in by
+                 * cap_device_open(); don't overwrite it, under
+                 * the assumption that the user intended to open
+                 * a capture device rather than a pipe.
                  */
                 pcap_src->cap_pipe_err = PIPNEXIST;
             } else {
                 snprintf(errmsg, errmsgl,
                            "The capture session could not be initiated because\n"
                            "\"%s\" is neither an interface nor a socket nor a pipe.", pipename);
+                *secondary_errmsg = '\0'; /* no secondary message */
                 pcap_src->cap_pipe_err = PIPERR;
             }
             return false;
         }
-
 #else /* _WIN32 */
+        /*
+         * We're on Windows.
+         */
         if (sscanf(pipename, EXTCAP_PIPE_PREFIX "%" SCNuPTR, &extcap_pipe_handle) == 1)
         {
             /* The client is already connected to extcap pipe.
@@ -1977,6 +2120,7 @@ cap_pipe_open_live(char *pipename,
                 snprintf(errmsg, errmsgl,
                     "The capture session could not be initiated because\n"
                     "\"%s\" is neither an interface nor a pipe.", pipename);
+                *secondary_errmsg = '\0'; /* no secondary message */
                 pcap_src->cap_pipe_err = PIPNEXIST;
                 return false;
             }
@@ -1994,6 +2138,7 @@ cap_pipe_open_live(char *pipename,
                         "The capture session on \"%s\" could not be started "
                         "due to error on pipe open: %s.",
                         pipename, win32strerror(GetLastError()));
+                    *secondary_errmsg = '\0'; /* no secondary message */
                     pcap_src->cap_pipe_err = PIPERR;
                     return false;
                 }
@@ -2003,6 +2148,7 @@ cap_pipe_open_live(char *pipename,
                         "The capture session on \"%s\" timed out during "
                         "pipe open: %s.",
                         pipename, win32strerror(GetLastError()));
+                    *secondary_errmsg = '\0'; /* no secondary message */
                     pcap_src->cap_pipe_err = PIPERR;
                     return false;
                 }
@@ -2046,6 +2192,7 @@ cap_pipe_open_live(char *pipename,
             snprintf(errmsg, errmsgl,
                         "Unexpected error from select: %s.",
                         g_strerror(errno));
+            *secondary_errmsg = '\0'; /* no secondary message */
             goto error;
         } else if (sel_ret > 0) {
             b = cap_pipe_read(fd, ((uint8_t*)&magic)+bytes_read,
@@ -2062,6 +2209,7 @@ cap_pipe_open_live(char *pipename,
                     snprintf(errmsg, errmsgl,
                                 "Error on pipe magic during open: %s.",
                                 g_strerror(errno));
+                *secondary_errmsg = '\0'; /* no secondary message */
                 goto error;
             }
             bytes_read += b;
@@ -2076,7 +2224,7 @@ cap_pipe_open_live(char *pipename,
      *
      * Create a thread to read from this pipe.
      */
-    g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
+    g_thread_new("cap_pipe_open", &cap_thread_read, pcap_src);
 
     pipe_read_sync(pcap_src, &magic, sizeof(magic));
     /* jump messaging, if extcap had an error, stderr will provide the correct message */
@@ -2091,6 +2239,7 @@ cap_pipe_open_live(char *pipename,
             snprintf(errmsg, errmsgl,
                         "Error on pipe magic during open: %s.",
                         g_strerror(errno));
+        *secondary_errmsg = '\0'; /* no secondary message */
         goto error;
     }
 #endif
@@ -2148,13 +2297,15 @@ cap_pipe_open_live(char *pipename,
     }
 
     if (pcap_src->from_pcapng)
-        return pcapng_pipe_open_live(fd, pcap_src, errmsg, errmsgl);
+        return pcapng_pipe_finish_reading_shb(fd, pcap_src, errmsg, errmsgl);
     else
-        return pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
-                                   secondary_errmsg, secondary_errmsgl);
+        return pcap_pipe_finish_reading_header(fd, pcap_src,
+                                               (struct pcap_hdr *) hdr,
+                                               errmsg, errmsgl,
+                                               secondary_errmsg, secondary_errmsgl);
 
 error:
-    ws_debug("cap_pipe_open_live: error %s", errmsg);
+    ws_debug("cap_pipe_open: error %s", errmsg);
     pcap_src->cap_pipe_err = PIPERR;
     cap_pipe_close(fd);
     pcap_src->cap_pipe_fd = -1;
@@ -2169,11 +2320,10 @@ error:
  * number (we've already read the magic number).
  */
 static bool
-pcap_pipe_open_live(int fd,
-                    capture_src *pcap_src,
-                    struct pcap_hdr *hdr,
-                    char *errmsg, size_t errmsgl,
-                    char *secondary_errmsg, size_t secondary_errmsgl)
+pcap_pipe_finish_reading_header(int fd, capture_src *pcap_src,
+                                struct pcap_hdr *hdr,
+                                char *errmsg, size_t errmsgl,
+                                char *secondary_errmsg, size_t secondary_errmsgl)
 {
 #ifndef _WIN32
     size_t   bytes_read;
@@ -2245,6 +2395,17 @@ pcap_pipe_open_live(int fd,
          * Fail with an error on those link-layer types?
          */
     }
+
+    /* We only support pcap format 2.x and later.*/
+    if (hdr->version_major < 2) {
+        snprintf(errmsg, errmsgl,
+                   "The old pcap format version %d.%d is not supported.",
+                   hdr->version_major, hdr->version_minor);
+        snprintf(secondary_errmsg, secondary_errmsgl, "%s",
+                   not_our_bug);
+        goto error;
+    }
+
     /*
      * The link-layer header type field of the pcap header is
      * probably a LINKTYPE_ value, as the vast majority of
@@ -2258,6 +2419,7 @@ pcap_pipe_open_live(int fd,
      * the result of pcap_datalink() to a LINKTYPE_ value.
      */
     pcap_src->linktype = dlt_to_linktype(hdr->network);
+
     /* Pick the appropriate maximum packet size for the link type */
     switch (pcap_src->linktype) {
 
@@ -2278,20 +2440,14 @@ pcap_pipe_open_live(int fd,
         break;
     }
 
-    if (hdr->version_major < 2) {
-        snprintf(errmsg, errmsgl,
-                   "The old pcap format version %d.%d is not supported.",
-                   hdr->version_major, hdr->version_minor);
-        snprintf(secondary_errmsg, secondary_errmsgl, "%s",
-                   not_our_bug);
-        goto error;
-    }
+    /* Set the snapshot lengt from the value in the file headerh. */
+    pcap_src->snaplen = pcap_src->cap_pipe_info.pcap.hdr.snaplen;
 
     pcap_src->cap_pipe_fd = fd;
     return true;
 
 error:
-    ws_debug("pcap_pipe_open_live: error %s", errmsg);
+    ws_debug("pcap_pipe_finish_reading_header: error %s", errmsg);
     pcap_src->cap_pipe_err = PIPERR;
     cap_pipe_close(fd);
     pcap_src->cap_pipe_fd = -1;
@@ -2543,15 +2699,13 @@ static bool is_data_block(uint32_t block_type)
  * (we've already read the block type).
  */
 static bool
-pcapng_pipe_open_live(int fd,
-                      capture_src *pcap_src,
-                      char *errmsg,
-                      size_t errmsgl)
+pcapng_pipe_finish_reading_shb(int fd, capture_src *pcap_src,
+                               char *errmsg, size_t errmsgl)
 {
     uint32_t type = BLOCK_TYPE_SHB;
     pcapng_block_header_t *bh = &pcap_src->cap_pipe_info.pcapng.bh;
 
-    ws_debug("pcapng_pipe_open_live: fd %d", fd);
+    ws_debug("pcapng_pipe_finish_reading_shb: fd %d", fd);
 
     /*
      * A pcapng block begins with the block type followed by the block
@@ -2576,7 +2730,7 @@ pcapng_pipe_open_live(int fd,
     }
     memcpy(bh, pcap_src->cap_pipe_databuf, sizeof(pcapng_block_header_t));
 #else
-    g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
+    g_thread_new("cap_pipe_open", &cap_thread_read, pcap_src);
 
     bh->block_type = type;
     pipe_read_sync(pcap_src, &bh->block_total_length,
@@ -2602,7 +2756,7 @@ pcapng_pipe_open_live(int fd,
     return true;
 
 error:
-    ws_debug("pcapng_pipe_open_live: error %s", errmsg);
+    ws_debug("pcapng_pipe_finish_reading_shb: error %s", errmsg);
     pcap_src->cap_pipe_err = PIPERR;
     cap_pipe_close(fd);
     pcap_src->cap_pipe_fd = -1;
@@ -3055,10 +3209,6 @@ capture_loop_open_input(capture_options *capture_opts,
                         char *secondary_errmsg, size_t secondary_errmsg_len)
 {
     cap_device_open_status open_status;
-    char                open_status_str[PCAP_ERRBUF_SIZE];
-#if defined(HAVE_PCAP_SETSAMPLING)
-    char               *sync_msg_str;
-#endif
     interface_options  *interface_opts;
     capture_src        *pcap_src;
     unsigned            i;
@@ -3111,88 +3261,41 @@ capture_loop_open_input(capture_options *capture_opts,
         g_array_append_val(global_ld.pcaps, pcap_src);
 
         ws_debug("capture_loop_open_input : %s", interface_opts->name);
-        pcap_src->pcap_h = open_capture_device(capture_opts, interface_opts,
-            CAP_READ_TIMEOUT, &open_status, &open_status_str);
 
-        if (pcap_src->pcap_h != NULL) {
-            /* we've opened "iface" as a network device */
+        if (!cap_device_open(capture_opts, interface_opts, pcap_src,
+                             &open_status,
+                             errmsg, errmsg_len,
+                             secondary_errmsg, secondary_errmsg_len)) {
+            /* We couldn't open the interface as a network device.
+               Unfortunately, making Npcap calls will fail if
+               Npcap can't be loaded, and the ones that return a
+               pointer rather than a return status have no way
+               (other than by looking at the error message string)
+               to determine *why* the call failed, so we can't easily
+               figure out which errors mean that the device doesn't
+               exist and only fall back on trying to open the device
+               for those errors.
 
-            /* Find out if we're getting nanosecond-precision time stamps */
-            pcap_src->ts_nsec = have_high_resolution_timestamp(pcap_src->pcap_h);
+               (There's also the separate problem that current version of
+               libpcap may return "no permission to open the device" even
+               if the device doesn't exist.)
 
-#if defined(HAVE_PCAP_SETSAMPLING)
-            if (interface_opts->sampling_method != CAPTURE_SAMP_NONE) {
-                struct pcap_samp *samp;
-
-                if ((samp = pcap_setsampling(pcap_src->pcap_h)) != NULL) {
-                    switch (interface_opts->sampling_method) {
-                    case CAPTURE_SAMP_BY_COUNT:
-                        samp->method = PCAP_SAMP_1_EVERY_N;
-                        break;
-
-                    case CAPTURE_SAMP_BY_TIMER:
-                        samp->method = PCAP_SAMP_FIRST_AFTER_N_MS;
-                        break;
-
-                    default:
-                        sync_msg_str = ws_strdup_printf(
-                            "Unknown sampling method %d specified,\n"
-                            "continue without packet sampling",
-                            interface_opts->sampling_method);
-                        report_capture_error("Couldn't set the capture "
-                                             "sampling", sync_msg_str);
-                        g_free(sync_msg_str);
-                    }
-                    samp->value = interface_opts->sampling_param;
-                } else {
-                    report_capture_error("Couldn't set the capture sampling",
-                                         "Cannot get packet sampling data structure");
-                }
+               Therefore, we always try to open it as a pipe if opening
+               it as a capture device failed. */
+            if (!cap_pipe_open(interface_opts->name, pcap_src,
+                                &pcap_src->cap_pipe_info.pcap.hdr,
+                                errmsg, errmsg_len,
+                                secondary_errmsg, secondary_errmsg_len)) {
+                 /* That didn't work, either. cap_pipe_open() has
+                    filled in errmsg and secpmdaru_errmsg. */
+                 return false;
             }
-#endif
 
-            /* setting the data link type only works on real interfaces */
-            if (!set_pcap_datalink(pcap_src->pcap_h, interface_opts->linktype,
-                                   interface_opts->name,
-                                   errmsg, errmsg_len,
-                                   secondary_errmsg, secondary_errmsg_len)) {
-                return false;
-            }
-            pcap_src->linktype = dlt_to_linktype(get_pcap_datalink(pcap_src->pcap_h, interface_opts->name));
-        } else {
-            /* We couldn't open "iface" as a network device. */
-            /* Try to open it as a pipe */
-            if (!cap_pipe_open_live(interface_opts->name, pcap_src,
-                                    &pcap_src->cap_pipe_info.pcap.hdr,
-                                    errmsg, errmsg_len,
-                                    secondary_errmsg, secondary_errmsg_len)) {
-                if (pcap_src->cap_pipe_err == PIPNEXIST) {
-                    /*
-                     * We tried opening as an interface, and that failed,
-                     * so we tried to open it as a pipe, but the pipe
-                     * doesn't exist.  Report the error message for
-                     * the interface.
-                     */
-                    get_capture_device_open_failure_messages(open_status,
-                                                             open_status_str,
-                                                             interface_opts->name,
-                                                             errmsg,
-                                                             errmsg_len,
-                                                             secondary_errmsg,
-                                                             secondary_errmsg_len);
-                }
-                /*
-                 * Else pipe (or file) does exist and cap_pipe_open_live() has
-                 * filled in errmsg
-                 */
-                return false;
-            } else {
-                /*
-                 * We tried opening as an interface, and that failed,
-                 * so we tried to open it as a pipe, and that succeeded.
-                 */
-                open_status = CAP_DEVICE_OPEN_NO_ERR;
-            }
+            /*
+             * We tried opening as an interface, and that failed,
+             * so we tried to open it as a pipe, and that succeeded.
+             */
+            open_status = CAP_DEVICE_OPEN_NO_ERR;
         }
 
 /* XXX - will this work for tshark? */
@@ -3202,19 +3305,6 @@ capture_loop_open_input(capture_options *capture_opts,
         }
 #endif
 
-        /* Is "open_status" something other than CAP_DEVICE_OPEN_NO_ERR?
-           If so, "open_capture_device()" returned a warning; print it,
-           but keep capturing. */
-        if (open_status != CAP_DEVICE_OPEN_NO_ERR) {
-            get_capture_device_open_warning_messages(open_status,
-                                                     open_status_str,
-                                                     interface_opts->name,
-                                                     errmsg,
-                                                     errmsg_len,
-                                                     secondary_errmsg,
-                                                     secondary_errmsg_len);
-            report_capture_warning(errmsg, secondary_errmsg);
-        }
         if (pcap_src->from_pcapng) {
             /*
              * We will use the IDBs from the source (but rewrite the
@@ -3439,11 +3529,6 @@ capture_loop_init_pcapng_output(capture_options *capture_opts,
             unsigned if_id = idb_source.interface_id;
             interface_options *interface_opts = &g_array_index(capture_opts->ifaces, interface_options, if_id);
             capture_src *pcap_src = g_array_index(global_ld.pcaps, capture_src *, if_id);
-            if (pcap_src->from_cap_pipe) {
-                pcap_src->snaplen = pcap_src->cap_pipe_info.pcap.hdr.snaplen;
-            } else {
-                pcap_src->snaplen = pcap_snapshot(pcap_src->pcap_h);
-            }
             successful = pcapng_write_interface_description_block(global_ld.pdh,
                                                                    NULL,                       /* OPT_COMMENT       1 */
                                                                   (interface_opts->ifname != NULL) ? interface_opts->ifname : interface_opts->name, /* IDB_NAME          2 */
@@ -3512,11 +3597,6 @@ capture_loop_init_output(capture_options *capture_opts, char *errmsg, int errmsg
     } else {
         capture_src *pcap_src;
         pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
-        if (pcap_src->from_cap_pipe) {
-            pcap_src->snaplen = pcap_src->cap_pipe_info.pcap.hdr.snaplen;
-        } else {
-            pcap_src->snaplen = pcap_snapshot(pcap_src->pcap_h);
-        }
         successful = libpcap_write_file_header(global_ld.pdh, pcap_src->linktype, pcap_src->snaplen,
                                                pcap_src->ts_nsec, &global_ld.bytes_written, &err);
     }
@@ -4589,9 +4669,9 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
      * XXX We exhibit different behaviour between normal mode and sync mode
      * when the pipe is stdin and not already at EOF.  If we're a child, the
      * parent's stdin isn't closed, so if the user starts another capture,
-     * cap_pipe_open_live() will very likely not see the expected magic bytes and
+     * cap_pipe_open() will very likely not see the expected magic bytes and
      * will say "Unrecognized libpcap format".  On the other hand, in normal
-     * mode, cap_pipe_open_live() will say "End of file on pipe during open".
+     * mode, cap_pipe_open() will say "End of file on pipe during open".
      */
 
     report_capture_count(!really_quiet);
