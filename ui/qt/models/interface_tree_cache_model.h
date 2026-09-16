@@ -9,8 +9,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef INTERFACE_TREE_CACHE_MODEL_H_
-#define INTERFACE_TREE_CACHE_MODEL_H_
+#pragma once
 
 #include <ui/qt/models/interface_tree_model.h>
 
@@ -36,6 +35,16 @@ public:
      * @brief Destroys the InterfaceTreeCacheModel.
      */
     ~InterfaceTreeCacheModel();
+
+    /**
+     * @brief Returns the underlying InterfaceTreeModel this cache wraps.
+     *
+     * The private @c sourceModel member hides QAbstractProxyModel's own
+     * sourceModel() accessor, so callers that need the concrete type (e.g.
+     * to call selectedDevices()/updateSelectedDevices()) go through this.
+     * @return The wrapped InterfaceTreeModel.
+     */
+    InterfaceTreeModel * interfaceModel() const { return sourceModel; }
 
     /**
      * @brief Returns the number of rows under a given parent.
@@ -132,6 +141,19 @@ private:
      * @brief Persists the newly added devices to the source model.
      */
     void saveNewDevices();
+
+    /**
+     * @brief Re-queries link-layer capabilities after a monitor mode toggle.
+     *
+     * Calling this updates the device's link-type list and active DLT for
+     * the new monitor mode setting, since the set of available link-layer
+     * types can differ between normal and monitor mode. It also corrects
+     * the cached monitor mode checkbox state if the query reveals monitor
+     * mode isn't actually supported.
+     * @param index The model index of the device whose monitor mode changed.
+     * @param monitor_mode The newly requested monitor mode state.
+     */
+    void refreshCapabilities(const QModelIndex &index, bool monitor_mode);
 #endif
 
     /** Cached changes stored by row and column mapping. */
@@ -174,4 +196,3 @@ private:
     bool isAllowedToBeEdited(const QModelIndex &index) const;
 
 };
-#endif /* INTERFACE_TREE_CACHE_MODEL_H_ */

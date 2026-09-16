@@ -29,6 +29,8 @@
 #ifdef HAVE_LIBPCAP
 
 #include <QAbstractItemModel>
+#include <QComboBox>
+#include <QSpinBox>
 #include <QMessageBox>
 
 #include "ringbuffer.h"
@@ -57,8 +59,6 @@
 
 // To do:
 // - Set a size hint for item delegates.
-// - Make promiscuous and monitor mode checkboxes.
-// - Fix InterfaceTreeDelegate method names.
 // - You can edit filters via the main capture-filter field and via each
 //   individual interface row. We should probably do one or the other.
 // - There might be a point in having the separate per-interface row editors,
@@ -66,138 +66,31 @@
 //   get the separate list of recent capture filters for that interface, but
 //   they don't.
 
-/*
- * Symbolic names for column indices.
- * These have to match the order as defined in the .ui file.
- * col_filter_ should go at the end so that it stretches to consume extra space
- */
-enum
+static interface_t *getDeviceByName(const QString &device_name)
 {
-    col_extcap_ = 0,
-    col_interface_,
-    col_traffic_,
-    col_link_,
-    col_pmode_,
-    col_snaplen_,
-    col_buffer_,
-    col_monitor_,
-    col_optimize_,
-    col_filter_,
-    col_num_columns_
-};
-
-static interface_t *find_device_by_if_name(const QString &interface_name)
-{
-    interface_t *device;
-    unsigned i;
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (!interface_name.compare(device->display_name) && !device->hidden && device->if_info.type != IF_PIPE) {
+    for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
             return device;
         }
     }
     return NULL;
 }
 
-/* The window's InterfaceStatistics facade is the single source of truth for the
- * traffic sparklines (received + dropped series, with gap markers). Returns NULL
- * before the manager exists. */
-static InterfaceStatistics *interfaceStatistics()
+/*
+ * Resolves a proxy model index to the interface_t it displays by reading
+ * the row's system name (IFTREE_COL_NAME) straight from the cache model,
+ * bypassing whichever columns happen to be configured as visible.
+ */
+static interface_t *deviceForIndex(InterfaceTreeCacheModel *cache_model, InterfaceSortFilterModel *proxy_model, const QModelIndex &proxyIndex)
 {
-    MainWindow *mainWindow = mainApp->mainWindow();
-    if (mainWindow && mainWindow->interfaceListManager())
-        return mainWindow->interfaceListManager()->statistics();
-    return NULL;
+    if (!proxyIndex.isValid())
+        return NULL;
+
+    int row = proxy_model->mapToSource(proxyIndex).row();
+    QString device_name = cache_model->data(cache_model->index(row, IFTREE_COL_NAME)).toString();
+    return getDeviceByName(device_name);
 }
-
-class InterfaceTreeWidgetItem : public QTreeWidgetItem
-{
-public:
-    InterfaceTreeWidgetItem(QTreeWidget *tree) : QTreeWidgetItem(tree) {}
-    bool operator< (const QTreeWidgetItem &other) const override;
-    QVariant data(int column, int role) const override;
-    void setData(int column, int role, const QVariant &value) override;
-
-    /* Identifies the interface whose history this row renders. Empty for rows
-     * with no live stats (e.g. extcap), which then draw a blank sparkline. */
-    QString stat_name_;
-
-    void updateInterfaceColumns(interface_t *device)
-    {
-        if (!device) return;
-
-        // Prevent infinite recursive signal loop
-        // itemChanged->interfaceItemChanged->updateInterfaceColumns
-        treeWidget()->blockSignals(true);
-        QString default_str = QObject::tr("default");
-
-        // XXX - this is duplicated in InterfaceTreeModel::data;
-        // it should be done in common code somewhere.
-        QString linkname;
-        if (device->active_dlt == -1)
-            linkname = "Unknown";
-        else {
-            linkname = QObject::tr("DLT %1").arg(device->active_dlt);
-            for (GList *list = device->links; list != NULL; list = gxx_list_next(list)) {
-                link_row *linkr = gxx_list_data(link_row *, list);
-                if (linkr->dlt == device->active_dlt) {
-                    linkname = linkr->name;
-                    break;
-                }
-            }
-        }
-        setText(col_link_, linkname);
-        // Something like this should work, but there are some problems
-        // with calling setData when the ComboBox editor is closed and
-        // how it emits dataChanged.
-        //setData(col_link_, Qt::UserRole, device->active_dlt);
-
-        if (device->if_info.type == IF_EXTCAP) {
-            /* extcap interfaces do not have these settings (though some
-             * extcaps might be able to support certain of these settings
-             * eventually) */
-            /* XXX - IF_PIPE and IF_STDIN don't have these settings either. */
-            setApplicable(col_pmode_, false);
-
-            setApplicable(col_snaplen_, false);
-            setApplicable(col_buffer_, false);
-
-            setApplicable(col_optimize_, false);
-        } else {
-            setApplicable(col_pmode_, true);
-            setCheckState(col_pmode_, device->pmode ? Qt::Checked : Qt::Unchecked);
-
-            QString snaplen_string = device->has_snaplen ? QString::number(device->snaplen) : default_str;
-            setText(col_snaplen_, snaplen_string);
-            setText(col_buffer_, QString::number(device->buffer));
-
-            setCheckState(col_optimize_, device->optimize ? Qt::Checked : Qt::Unchecked);
-        }
-        setText(col_filter_, device->cfilter);
-
-        if (device->monitor_mode_supported) {
-            setApplicable(col_monitor_, true);
-            setCheckState(col_monitor_, device->monitor_mode_enabled ? Qt::Checked : Qt::Unchecked);
-        } else {
-            setApplicable(col_monitor_, false);
-        }
-        treeWidget()->blockSignals(false);
-    }
-
-    void setApplicable(int column, bool applicable = false) {
-        QPalette palette = mainApp->palette();
-
-        if (applicable) {
-            setText(column, QString());
-        } else {
-            setData(column, Qt::CheckStateRole, QVariant());
-            palette.setCurrentColorGroup(QPalette::Disabled);
-            setText(column, UTF8_EM_DASH);
-        }
-        setForeground(column, palette.text().color());
-    }
-
-};
 
 CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -209,19 +102,53 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
 
+    cache_model_ = new InterfaceTreeCacheModel(this);
+    proxy_model_ = new InterfaceSortFilterModel(this);
+    source_model_ = cache_model_->interfaceModel();
+
+    QList<InterfaceTreeColumns> columns;
+    columns << IFTREE_COL_EXTCAP
+            << IFTREE_COL_DISPLAY_NAME
+            << IFTREE_COL_STATS
+            << IFTREE_COL_DLT
+            << IFTREE_COL_PROMISCUOUSMODE
+            << IFTREE_COL_SNAPLEN
+            << IFTREE_COL_BUFFERLEN
+            << IFTREE_COL_MONITOR_MODE
+            << IFTREE_COL_OPTIMIZE
+            << IFTREE_COL_CAPTURE_FILTER;
+    proxy_model_->setColumns(columns);
+    proxy_model_->setSourceModel(cache_model_);
+    proxy_model_->setFilterHidden(true);
+    proxy_model_->setFilterByType(false);
+#ifdef HAVE_PCAP_REMOTE
+    proxy_model_->setRemoteDisplay(true);
+#endif
+
+    col_extcap_ = proxy_model_->mapSourceToColumn(IFTREE_COL_EXTCAP);
+    col_interface_ = proxy_model_->mapSourceToColumn(IFTREE_COL_DISPLAY_NAME);
+    col_traffic_ = proxy_model_->mapSourceToColumn(IFTREE_COL_STATS);
+    col_link_ = proxy_model_->mapSourceToColumn(IFTREE_COL_DLT);
+    col_pmode_ = proxy_model_->mapSourceToColumn(IFTREE_COL_PROMISCUOUSMODE);
+    col_snaplen_ = proxy_model_->mapSourceToColumn(IFTREE_COL_SNAPLEN);
+    col_buffer_ = proxy_model_->mapSourceToColumn(IFTREE_COL_BUFFERLEN);
+    col_monitor_ = proxy_model_->mapSourceToColumn(IFTREE_COL_MONITOR_MODE);
+    col_optimize_ = proxy_model_->mapSourceToColumn(IFTREE_COL_OPTIMIZE);
+    col_filter_ = proxy_model_->mapSourceToColumn(IFTREE_COL_CAPTURE_FILTER);
+
+    ui->interfaceTree->setModel(proxy_model_);
+
     // Start out with the list *not* sorted, so they show up in the order
     // in which they were provided
-    ui->interfaceTree->sortByColumn(-1, Qt::AscendingOrder);
-    ui->interfaceTree->setItemDelegateForColumn(col_extcap_, &interface_item_delegate_);
-    ui->interfaceTree->setItemDelegateForColumn(col_interface_, &interface_item_delegate_);
+    ui->interfaceTree->header()->setSortIndicator(-1, Qt::AscendingOrder);
+    ui->interfaceTree->setSortingEnabled(true);
+
+    interface_item_delegate_ = new InterfaceTreeDelegate(cache_model_, proxy_model_, this);
+    ui->interfaceTree->setItemDelegateForColumn(col_link_, interface_item_delegate_);
+    ui->interfaceTree->setItemDelegateForColumn(col_snaplen_, interface_item_delegate_);
+    ui->interfaceTree->setItemDelegateForColumn(col_buffer_, interface_item_delegate_);
+    ui->interfaceTree->setItemDelegateForColumn(col_filter_, interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_traffic_, new SparkLineDelegate(this));
-    ui->interfaceTree->setItemDelegateForColumn(col_link_, &interface_item_delegate_);
-
-    ui->interfaceTree->setItemDelegateForColumn(col_snaplen_, &interface_item_delegate_);
-    ui->interfaceTree->setItemDelegateForColumn(col_buffer_, &interface_item_delegate_);
-    ui->interfaceTree->setItemDelegateForColumn(col_filter_, &interface_item_delegate_);
-
-    interface_item_delegate_.setTree(ui->interfaceTree);
 
     ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
 
@@ -248,14 +175,16 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     connect(ui->captureFilterComboBox, &CaptureFilterEntry::captureFilterSyntaxChanged, this, &CaptureOptionsDialog::updateWidgets);
     connect(ui->captureFilterComboBox, &QLineEdit::textEdited, this, &CaptureOptionsDialog::filterEdited);
     connect(ui->captureFilterComboBox, &QLineEdit::textEdited, this, &CaptureOptionsDialog::captureFilterTextEdited);
-    connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, ui->captureFilterComboBox, &QLineEdit::setText);
-    connect(&interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, this, &CaptureOptionsDialog::captureFilterTextEdited);
+    connect(interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, ui->captureFilterComboBox, &QLineEdit::setText);
+    connect(interface_item_delegate_, &InterfaceTreeDelegate::filterChanged, this, &CaptureOptionsDialog::captureFilterTextEdited);
     connect(mainApp, &MainApplication::interfaceListChanged, this, &CaptureOptionsDialog::refreshInterfaceList);
 
     mainApp->whenInitialized(this, [this]() { connectInterfaceListManager(); });
     connect(ui->browseButton, &QPushButton::clicked, this, &CaptureOptionsDialog::browseButtonClicked);
-    connect(ui->interfaceTree, &QTreeWidget::itemClicked, this, &CaptureOptionsDialog::itemClicked);
-    connect(ui->interfaceTree, &QTreeWidget::itemDoubleClicked, this, &CaptureOptionsDialog::itemDoubleClicked);
+    connect(ui->interfaceTree, &QTreeView::clicked, this, &CaptureOptionsDialog::itemClicked);
+    connect(ui->interfaceTree, &QTreeView::doubleClicked, this, &CaptureOptionsDialog::itemDoubleClicked);
+    connect(ui->interfaceTree->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &CaptureOptionsDialog::interfaceSelected);
     connect(ui->tempDirBrowseButton, &QPushButton::clicked, this, &CaptureOptionsDialog::tempDirBrowseButtonClicked);
 
     // Ring buffer minimums (all 1 except # of files)
@@ -288,63 +217,31 @@ CaptureOptionsDialog::~CaptureOptionsDialog()
     delete ui;
 }
 
-/* Update global device selections based on the TreeWidget selection. */
+/* Update global device selections based on the view's selection. */
 void CaptureOptionsDialog::updateGlobalDeviceSelections()
 {
-#ifdef HAVE_LIBPCAP
-    QTreeWidgetItemIterator iter(ui->interfaceTree);
+    QItemSelection viewSelection = ui->interfaceTree->selectionModel()->selection();
+    QItemSelection sourceSelection = cache_model_->mapSelectionToSource(proxy_model_->mapSelectionToSource(viewSelection));
 
-    global_capture_opts.num_selected = 0;
-
-    while (*iter) {
-        QString device_name = (*iter)->data(col_interface_, Qt::UserRole).value<QString>();
-        for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
-                if ((*iter)->isSelected()) {
-                    device->selected = true;
-                    global_capture_opts.num_selected++;
-                } else {
-                    device->selected = false;
-                }
-                break;
-            }
-        }
-        ++iter;
-    }
-#endif
+    // Also sets global_capture_opts.num_selected.
+    source_model_->updateSelectedDevices(sourceSelection);
 }
 
-/* Update TreeWidget selection based on global device selections. */
+/* Update the view's selection based on global device selections. */
 void CaptureOptionsDialog::updateFromGlobalDeviceSelections()
 {
-#ifdef HAVE_LIBPCAP
-    QTreeWidgetItemIterator iter(ui->interfaceTree);
+    QItemSelection sourceSelection = source_model_->selectedDevices();
+    QItemSelection viewSelection = proxy_model_->mapSelectionFromSource(cache_model_->mapSelectionFromSource(sourceSelection));
 
-    // Prevent recursive interface interfaceSelected signals
-    ui->interfaceTree->blockSignals(true);
-
-    while (*iter) {
-        QString device_name = (*iter)->data(col_interface_, Qt::UserRole).value<QString>();
-        for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
-                if ((bool)device->selected != (*iter)->isSelected()) {
-                    (*iter)->setSelected(device->selected);
-                }
-                break;
-            }
-        }
-        ++iter;
-    }
-
-    ui->interfaceTree->blockSignals(false);
-#endif
+    // Prevent recursive interfaceSelected signals
+    ui->interfaceTree->selectionModel()->blockSignals(true);
+    ui->interfaceTree->selectionModel()->select(viewSelection, QItemSelectionModel::ClearAndSelect);
+    ui->interfaceTree->selectionModel()->blockSignals(false);
 }
 
 void CaptureOptionsDialog::interfaceSelected()
 {
-    if (sender() == ui->interfaceTree) {
+    if (sender() == ui->interfaceTree->selectionModel()) {
         // Local changes, propagate our changes
         updateGlobalDeviceSelections();
         emit interfacesChanged();
@@ -360,15 +257,15 @@ void CaptureOptionsDialog::interfaceSelected()
 
 void CaptureOptionsDialog::filterEdited()
 {
-    QList<QTreeWidgetItem*> si = ui->interfaceTree->selectedItems();
+    QModelIndexList selected_rows = ui->interfaceTree->selectionModel()->selectedRows();
 
-    foreach (QTreeWidgetItem *ti, si) {
-        ti->setText(col_filter_, ui->captureFilterComboBox->text());
+    foreach (const QModelIndex &row, selected_rows) {
+        QModelIndex filter_idx = proxy_model_->mapToSource(row.sibling(row.row(), col_filter_));
+        cache_model_->setData(filter_idx, ui->captureFilterComboBox->text(), Qt::EditRole);
     }
 
-    if (si.count() > 0) {
-        QModelIndex col_filter_idx = ui->interfaceTree->model()->index(ui->interfaceTree->indexOfTopLevelItem(si[0]), col_filter_);
-        ui->interfaceTree->scrollTo(col_filter_idx);
+    if (selected_rows.count() > 0) {
+        ui->interfaceTree->scrollTo(selected_rows.first().sibling(selected_rows.first().row(), col_filter_));
     }
 }
 
@@ -376,7 +273,7 @@ void CaptureOptionsDialog::updateWidgets()
 {
     bool can_capture = false;
 
-    if (ui->interfaceTree->selectedItems().count() > 0 &&
+    if (ui->interfaceTree->selectionModel()->selectedRows().count() > 0 &&
         ui->captureFilterComboBox->state() != FilterEdit::SyntaxState::Invalid) {
         can_capture = true;
     }
@@ -387,35 +284,20 @@ void CaptureOptionsDialog::updateWidgets()
 
 void CaptureOptionsDialog::on_capturePromModeCheckBox_toggled(bool checked)
 {
-    interface_t *device;
     prefs.capture_prom_mode = checked;
-    for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-        InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(ui->interfaceTree->topLevelItem(row));
-        if (!ti) continue;
-
-        QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
-        device = getDeviceByName(device_name);
-        if (!device) continue;
-        device->pmode = checked;
-        ti->updateInterfaceColumns(device);
+    for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        cache_model_->setData(cache_model_->index(i, IFTREE_COL_PROMISCUOUSMODE), checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
     }
 }
 
 void CaptureOptionsDialog::on_captureMonitorModeCheckBox_toggled(bool checked)
 {
-    interface_t *device;
     prefs.capture_monitor_mode = checked;
-    for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-        InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(ui->interfaceTree->topLevelItem(row));
-        if (!ti) continue;
-
-        QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
-        device = getDeviceByName(device_name);
-        if (!device) continue;
-        if (device->monitor_mode_supported) {
-            device->monitor_mode_enabled = checked;
-            ti->updateInterfaceColumns(device);
-        }
+    for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (!device->monitor_mode_supported)
+            continue;
+        cache_model_->setData(cache_model_->index(i, IFTREE_COL_MONITOR_MODE), checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
     }
 }
 
@@ -431,174 +313,45 @@ void CaptureOptionsDialog::tempDirBrowseButtonClicked()
     ui->tempDirLineEdit->setText(specified_dir);
 }
 
-void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int column)
+void CaptureOptionsDialog::itemClicked(const QModelIndex &index)
 {
-    QWidget* editor = ui->interfaceTree->indexWidget(ui->interfaceTree->currentIndex());
-    if (editor) {
-        ui->interfaceTree->closePersistentEditor(item, ui->interfaceTree->currentColumn());
-    }
+    if (index.column() != col_extcap_)
+        return;
 
-    InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(item);
-    if (!ti) return;
+    interface_t *device = deviceForIndex(cache_model_, proxy_model_, index);
+    if (!device || device->if_info.type != IF_EXTCAP)
+        return;
 
-    interface_t *device;
-    QString interface_name = ti->text(col_interface_);
-    device = find_device_by_if_name(interface_name);
-    if (!device) return;
-
-    switch(column) {
-
-    case col_pmode_:
-        device->pmode = item->checkState(col_pmode_) == Qt::Checked ? true : false;
-        ti->updateInterfaceColumns(device);
-        break;
-
-    case col_monitor_:
+    /* this checks if configuration is required and not yet provided or saved via prefs */
+    QString device_name(device->if_info.name);
+    if (extcap_has_configuration((const char *)(device_name.toStdString().c_str())))
     {
-        bool monitor_mode = false;
-        if (ti->checkState(col_monitor_) == Qt::Checked) monitor_mode = true;
-
-        if_capabilities_t *caps;
-        char *auth_str = NULL;
-        QString active_dlt_name;
-
-        set_active_dlt(device, global_capture_opts.default_options.linktype);
-
-    #ifdef HAVE_PCAP_REMOTE
-        if (device->remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
-            auth_str = ws_strdup_printf("%s:%s", device->remote_opts.remote_host_opts.auth_username,
-                                       device->remote_opts.remote_host_opts.auth_password);
-        }
-    #endif
-        caps = capture_get_if_capabilities(device->name, monitor_mode, auth_str, NULL, NULL, main_window_update);
-        g_free(auth_str);
-
-        if (caps != Q_NULLPTR) {
-
-#if GLIB_CHECK_VERSION(2, 68, 0)
-            g_list_free_full(g_steal_pointer(&device->links), capture_opts_free_link_row);
-#else
-            g_list_free_full((GList*)g_steal_pointer(&device->links), capture_opts_free_link_row);
-#endif
-            device->active_dlt = -1;
-            device->monitor_mode_supported = caps->can_set_rfmon;
-            device->monitor_mode_enabled = monitor_mode && caps->can_set_rfmon;
-            GList *lt_list = device->monitor_mode_enabled ? caps->data_link_types_rfmon : caps->data_link_types;
-
-            for (GList *lt_entry = lt_list; lt_entry != Q_NULLPTR; lt_entry = gxx_list_next(lt_entry)) {
-                link_row *linkr = g_new(link_row, 1);
-                data_link_info_t *data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
-                /*
-                 * For link-layer types libpcap/Npcap doesn't know
-                 * about, the name will be "DLT n", and the description will
-                 * be null.
-                 * We mark those as unsupported, and don't allow them to be
-                 * used - capture filters won't work on them, for example.
-                 */
-                if (data_link_info->description != Q_NULLPTR) {
-                    linkr->dlt = data_link_info->dlt;
-                    if (active_dlt_name.isEmpty()) {
-                        device->active_dlt = data_link_info->dlt;
-                        active_dlt_name = data_link_info->description;
-                    }
-                    linkr->name = g_strdup(data_link_info->description);
-                } else {
-                    char *str;
-                    /* XXX - should we just omit them? */
-                    str = ws_strdup_printf("%s (not supported)", data_link_info->name);
-                    linkr->dlt = -1;
-                    linkr->name = g_strdup(str);
-                    g_free(str);
-                }
-                device->links = g_list_append(device->links, linkr);
-            }
-            free_if_capabilities(caps);
-        } else {
-            /* We don't know whether this supports monitor mode or not;
-               don't ask for monitor mode. */
-            device->monitor_mode_enabled = false;
-            device->monitor_mode_supported = false;
-        }
-
-        ti->updateInterfaceColumns(device);
-
-        break;
-    }
-    case col_optimize_:
-        device->optimize = item->checkState(col_optimize_) == Qt::Checked ? true : false;
-        ti->updateInterfaceColumns(device);
-        break;
-    default:
-        break;
+        emit showExtcapOptions(device_name, false);
     }
 }
 
-void CaptureOptionsDialog::itemClicked(QTreeWidgetItem *item, int column)
+void CaptureOptionsDialog::itemDoubleClicked(const QModelIndex &index)
 {
-    InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(item);
-    if (!ti) return;
-
-#ifdef HAVE_LIBPCAP
-    interface_t *device;
-    QString interface_name = ti->text(col_interface_);
-    device = find_device_by_if_name(interface_name);
-    if (!device) return;
-
-    switch(column) {
-
-    case col_extcap_:
-        if (device->if_info.type == IF_EXTCAP) {
-            /* this checks if configuration is required and not yet provided or saved via prefs */
-            QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
-            if (extcap_has_configuration((const char *)(device_name.toStdString().c_str())))
-            {
-                emit showExtcapOptions(device_name, false);
-                return;
-            }
-        }
-        break;
-
-    default:
-        break;
-    }
-#endif /* HAVE_LIBPCAP */
-}
-
-void CaptureOptionsDialog::itemDoubleClicked(QTreeWidgetItem *item, int column)
-{
-    InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(item);
-    if (!ti) return;
-
-    switch(column) {
-
     // Double click starts capture just on columns which are not editable
-    case col_interface_:
-    case col_traffic_:
-    {
-#ifdef HAVE_LIBPCAP
-        interface_t *device;
-        QString interface_name = ti->text(col_interface_);
-        device = find_device_by_if_name(interface_name);
-        if (!device) return;
+    if (index.column() != col_interface_ && index.column() != col_traffic_)
+        return;
 
-        if (device->if_info.type == IF_EXTCAP) {
-            /* this checks if configuration is required and not yet provided or saved via prefs */
-            QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
-            if (extcap_requires_configuration((const char *)(device_name.toStdString().c_str())))
-            {
-                emit showExtcapOptions(device_name, true);
-                return;
-            }
+    interface_t *device = deviceForIndex(cache_model_, proxy_model_, index);
+    if (!device)
+        return;
+
+    if (device->if_info.type == IF_EXTCAP) {
+        /* this checks if configuration is required and not yet provided or saved via prefs */
+        QString device_name(device->if_info.name);
+        if (extcap_requires_configuration((const char *)(device_name.toStdString().c_str())))
+        {
+            emit showExtcapOptions(device_name, true);
+            return;
         }
-#endif /* HAVE_LIBPCAP */
-        emit startCapture();
-        close();
-        break;
     }
 
-    default:
-        break;
-    }
+    emit startCapture();
+    close();
 }
 
 void CaptureOptionsDialog::MBComboBoxIndexChanged(int index)
@@ -676,26 +429,23 @@ void CaptureOptionsDialog::on_cbResolveTransportNames_toggled(bool checked)
 
 void CaptureOptionsDialog::on_buttonBox_accepted()
 {
+    // Flush any pending per-row edits (filter, DLT, snaplen, buffer, ...) into
+    // the real interface_t structs before anything reads them below.
+    cache_model_->save();
+    cache_model_->reset(-1);
+
     if (saveOptionsToPreferences(&global_capture_opts)) {
 
-#ifdef HAVE_LIBPCAP
-        InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(ui->interfaceTree->currentItem());
-        if (ti) {
-            interface_t *device;
-
-            QString interface_name = ti->text(col_interface_);
-            device = find_device_by_if_name(interface_name);
-            if (device && device->if_info.type == IF_EXTCAP) {
-                /* this checks if configuration is required and not yet provided or saved via prefs */
-                QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
-                if (extcap_requires_configuration((const char *)(device_name.toStdString().c_str())))
-                {
-                    emit showExtcapOptions(device_name, true);
-                    return;
-                }
+        interface_t *device = deviceForIndex(cache_model_, proxy_model_, ui->interfaceTree->currentIndex());
+        if (device && device->if_info.type == IF_EXTCAP) {
+            /* this checks if configuration is required and not yet provided or saved via prefs */
+            QString device_name(device->if_info.name);
+            if (extcap_requires_configuration((const char *)(device_name.toStdString().c_str())))
+            {
+                emit showExtcapOptions(device_name, true);
+                return;
             }
         }
-#endif /* HAVE_LIBPCAP */
 
         emit setFilterValid(true, ui->captureFilterComboBox->text());
         accept();
@@ -705,6 +455,10 @@ void CaptureOptionsDialog::on_buttonBox_accepted()
 // Not sure why we have to do this manually.
 void CaptureOptionsDialog::on_buttonBox_rejected()
 {
+    // Discard any pending per-row edits; nothing in the interface list should
+    // stick from a cancelled dialog.
+    cache_model_->reset(-1);
+
     if (saveOptionsToPreferences(&global_capture_opts)) {
         reject();
     }
@@ -837,16 +591,9 @@ void CaptureOptionsDialog::updateInterfaces(capture_options* capture_opts)
     ui->cbResolveNetworkNames->setChecked(gbl_resolv_flags.network_name);
     ui->cbResolveTransportNames->setChecked(gbl_resolv_flags.transport_name);
 
-    // Rebuild the interface list without disturbing the main welcome screen.
-    disconnect(ui->interfaceTree, &QTreeWidget::itemSelectionChanged, this, &CaptureOptionsDialog::interfaceSelected);
-    ui->interfaceTree->clear();
-
     int           buffer;
     int           snaplen;
     bool          hassnap, pmode;
-    QList<QTreeWidgetItem *> selected_interfaces;
-
-    disconnect(ui->interfaceTree, &QTreeWidget::itemChanged, this, &CaptureOptionsDialog::interfaceItemChanged);
 
     if (capture_opts->all_ifaces->len > 0) {
         interface_t *device;
@@ -857,37 +604,6 @@ void CaptureOptionsDialog::updateInterfaces(capture_options* capture_opts)
             /* Continue if capture device is hidden */
             if (device->hidden) {
                 continue;
-            }
-
-            // Traffic sparklines
-            InterfaceTreeWidgetItem *ti = new InterfaceTreeWidgetItem(ui->interfaceTree);
-            ti->setFlags(ti->flags() | Qt::ItemIsEditable);
-
-            if (device->if_info.type == IF_EXTCAP) {
-              ti->setIcon(col_extcap_,  QIcon(StockIcon("x-capture-options")));
-              ti->setData(col_extcap_, Qt::UserRole, QString(device->if_info.name));
-              ti->setToolTip(col_extcap_, tr("Extcap interface settings"));
-            }
-
-            ti->setText(col_interface_, device->display_name);
-            ti->setData(col_interface_, Qt::UserRole, QString(device->name));
-            // Non-extcap rows render live traffic from InterfaceStatistics,
-            // keyed by interface name; extcap interfaces have no -S stats.
-            if (device->if_info.type != IF_EXTCAP)
-                ti->stat_name_ = device->name;
-
-            if (device->no_addresses > 0) {
-                QString addr_str = tr("%1: %2").arg(device->no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device->addresses);
-                QTreeWidgetItem *addr_ti = new QTreeWidgetItem(ti);
-
-                addr_str.replace('\n', ", ");
-                addr_ti->setText(0, addr_str);
-                addr_ti->setFlags(addr_ti->flags() ^ Qt::ItemIsSelectable);
-                addr_ti->setFirstColumnSpanned(true);
-                addr_ti->setToolTip(col_interface_, QStringLiteral("<span>%1</span>").arg(addr_str));
-                ti->setToolTip(col_interface_, QStringLiteral("<span>%1</span>").arg(addr_str));
-            } else {
-                ti->setToolTip(col_interface_, tr("no addresses"));
             }
 
             if (capture_dev_user_pmode_find(device->name, &pmode)) {
@@ -912,46 +628,26 @@ void CaptureOptionsDialog::updateInterfaces(capture_options* capture_opts)
             if (device->monitor_mode_supported) {
                 ui->captureMonitorModeCheckBox->setEnabled(true);
             }
-            ti->updateInterfaceColumns(device);
-
-            if (device->selected) {
-                selected_interfaces << ti;
-            }
         }
     }
 
-    connect(ui->interfaceTree, &QTreeWidget::itemChanged, this, &CaptureOptionsDialog::interfaceItemChanged);
+    // Let the model pick up the (possibly changed) global interface list.
+    source_model_->interfaceListChanged();
 
-    foreach (QTreeWidgetItem *ti, selected_interfaces) {
-        ti->setSelected(true);
-    }
-    connect(ui->interfaceTree, &QTreeWidget::itemSelectionChanged, this, &CaptureOptionsDialog::interfaceSelected);
+    updateFromGlobalDeviceSelections();
     updateSelectedFilter();
 
     // Manually or automatically size some columns as needed.
     int one_em = fontMetrics().height();
-    for (int col = 0; col < ui->interfaceTree->topLevelItemCount(); col++) {
-        switch (col) {
-        case col_pmode_:
-            ui->interfaceTree->setColumnWidth(col, one_em * 3.25);
-            break;
-        case col_snaplen_:
-            ui->interfaceTree->setColumnWidth(col, one_em * 4.25);
-            break;
-        case col_buffer_:
-            ui->interfaceTree->setColumnWidth(col, one_em * 4.25);
-            break;
-        case col_monitor_:
-            ui->interfaceTree->setColumnWidth(col, one_em * 3.25);
-            break;
-        case col_optimize_:
-            ui->interfaceTree->setColumnWidth(col, one_em * 3.25);
-            break;
-        default:
-            ui->interfaceTree->resizeColumnToContents(col);
-        }
-
-    }
+    ui->interfaceTree->setColumnWidth(col_pmode_, one_em * 3.25);
+    ui->interfaceTree->setColumnWidth(col_snaplen_, one_em * 4.25);
+    ui->interfaceTree->setColumnWidth(col_buffer_, one_em * 4.25);
+    ui->interfaceTree->setColumnWidth(col_monitor_, one_em * 3.25);
+    ui->interfaceTree->setColumnWidth(col_optimize_, one_em * 3.25);
+    ui->interfaceTree->resizeColumnToContents(col_extcap_);
+    ui->interfaceTree->resizeColumnToContents(col_interface_);
+    ui->interfaceTree->resizeColumnToContents(col_traffic_);
+    ui->interfaceTree->resizeColumnToContents(col_link_);
 
     updateWidgets();
 }
@@ -973,30 +669,19 @@ void CaptureOptionsDialog::connectInterfaceListManager()
         return;
 
     InterfaceListManager *manager = mainWindow->interfaceListManager();
-    // The facade owns the dumpcap -S stream; the dialog only renders. Repaint
-    // the sparklines whenever it samples or an interface's activity flips.
+    // The facade owns the dumpcap -S stream; the model renders the
+    // sparklines/activity straight from it once wired up here.
     if (InterfaceStatistics *stats = manager->statistics()) {
-        connect(stats, &InterfaceStatistics::statisticsUpdated,
-                this, &CaptureOptionsDialog::redrawStatistics, Qt::UniqueConnection);
-        connect(stats, &InterfaceStatistics::activityChanged,
-                this, &CaptureOptionsDialog::redrawStatistics, Qt::UniqueConnection);
+        source_model_->setStatistics(stats);
     }
-}
-
-void CaptureOptionsDialog::redrawStatistics()
-{
-    // History lives in InterfaceStatistics and is pulled on demand by
-    // InterfaceTreeWidgetItem::data(); a viewport repaint is all that's needed.
-    ui->interfaceTree->viewport()->update();
 }
 
 void CaptureOptionsDialog::on_compileBPF_clicked()
 {
     InterfaceList interfaces;
-    interface_t *device;
-    foreach (QTreeWidgetItem *ti, ui->interfaceTree->selectedItems()) {
-        QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
-        device = getDeviceByName(device_name);
+    QModelIndexList selected_rows = ui->interfaceTree->selectionModel()->selectedRows();
+    foreach (const QModelIndex &row, selected_rows) {
+        interface_t *device = deviceForIndex(cache_model_, proxy_model_, row);
         if (!device) continue;
         interfaces.emplaceBack(device);
     }
@@ -1167,126 +852,50 @@ bool CaptureOptionsDialog::saveOptionsToPreferences(capture_options* capture_opt
         capture_opts->autostop_files = ui->stopFilesSpinBox->value();
     }
 
-    interface_t *device;
+    // These preference strings are derived straight from the (by now
+    // up to date, thanks to cache_model_->save() in on_buttonBox_accepted())
+    // interface_t structs, one entry per interface.
+    QStringList link_list, buffer_size_list, snaplen_list, pmode_list, monitor_list;
 
-    for (int col = col_link_; col <= col_filter_; col++) {
-        if (ui->interfaceTree->isColumnHidden(col)) {
-            continue;
-        }
-        /* All entries are separated by comma. There is also one before the first interface to be able to identify
-           word boundaries. As 'lo' is part of 'nflog' an exact match is necessary. */
-        switch (col) {
-        case col_link_:
-        {
-            QStringList link_list;
+    for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
-            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
-                QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
-                device = getDeviceByName(device_name);
-                if (!device || device->active_dlt == -1) {
-                    continue;
-                }
-                link_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->active_dlt);
-            }
-            wmem_free(wmem_epan_scope(), prefs.capture_devices_linktypes);
-            prefs.capture_devices_linktypes = wmem_strdup(wmem_epan_scope(), link_list.join(",").toUtf8().constData());
-            break;
-        }
-        case col_buffer_:
-        {
-            QStringList buffer_size_list;
+        if (device->active_dlt != -1)
+            link_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->active_dlt);
 
-            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
-                QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
-                device = getDeviceByName(device_name);
-                if (!device || device->buffer == -1) {
-                    continue;
-                }
-                buffer_size_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->buffer);
-            }
-            wmem_free(wmem_epan_scope(), prefs.capture_devices_buffersize);
-            prefs.capture_devices_buffersize = wmem_strdup(wmem_epan_scope(), buffer_size_list.join(",").toUtf8().constData());
-            break;
-        }
-        case col_snaplen_:
-        {
-            QStringList snaplen_list;
+        if (device->buffer != -1)
+            buffer_size_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->buffer);
 
-            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
-                QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
-                device = getDeviceByName(device_name);
-                if (!device) continue;
-                snaplen_list << QStringLiteral("%1:%2(%3)")
-                                .arg(device->name)
-                                .arg(device->has_snaplen)
-                                .arg(device->has_snaplen ? device->snaplen : WTAP_MAX_PACKET_SIZE_STANDARD);
-            }
-            wmem_free(wmem_epan_scope(), prefs.capture_devices_snaplen);
-            prefs.capture_devices_snaplen = wmem_strdup(wmem_epan_scope(), snaplen_list.join(",").toUtf8().constData());
-            break;
-        }
-        case col_pmode_:
-        {
-            QStringList pmode_list;
+        snaplen_list << QStringLiteral("%1:%2(%3)")
+                        .arg(device->name)
+                        .arg(device->has_snaplen)
+                        .arg(device->has_snaplen ? device->snaplen : WTAP_MAX_PACKET_SIZE_STANDARD);
 
-            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
-                QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
-                device = getDeviceByName(device_name);
-                if (!device || !device->pmode) {
-                    continue;
-                }
-                pmode_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->pmode);
-            }
-            wmem_free(wmem_epan_scope(), prefs.capture_devices_pmode);
-            prefs.capture_devices_pmode = wmem_strdup(wmem_epan_scope(), pmode_list.join(",").toUtf8().constData());
-            break;
-        }
+        if (device->pmode)
+            pmode_list << QStringLiteral("%1(%2)").arg(device->name).arg(device->pmode);
 
-        case col_monitor_:
-        {
-            QStringList monitor_list;
-
-            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
-                QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
-                device = getDeviceByName(device_name);
-                if (!device || !device->monitor_mode_supported || (device->monitor_mode_supported && !device->monitor_mode_enabled)) {
-                    continue;
-                }
-                monitor_list << device->name;
-            }
-            wmem_free(wmem_epan_scope(), prefs.capture_devices_monitor_mode);
-            prefs.capture_devices_monitor_mode = wmem_strdup(wmem_epan_scope(), monitor_list.join(",").toUtf8().constData());
-            break;
-        }
-        // We don't save col_optimize_ to prefs (it's probably rarely changed.)
-
-#if 0
-            // The device cfilter should have been applied at this point.
-            // We shouldn't change it here.
-        case col_filter_:
-        {
-            // XXX Update selected interfaces only?
-            for (int row = 0; row < ui->interfaceTree->topLevelItemCount(); row++) {
-                QTreeWidgetItem *ti = ui->interfaceTree->topLevelItem(row);
-                QString device_name = ti->data(col_interface_, Qt::UserRole).toString();
-                device = getDeviceByName(device_name);
-                if (!device) continue;
-                g_free(device->cfilter);
-                if (ti->text(col_filter_).isEmpty()) {
-                    device->cfilter = NULL;
-                } else {
-                    device->cfilter = qstring_strdup(ti->text(col_filter_));
-                }
-            }
-        }
-#endif
-        }
+        if (device->monitor_mode_supported && device->monitor_mode_enabled)
+            monitor_list << device->name;
     }
+
+    wmem_free(wmem_epan_scope(), prefs.capture_devices_linktypes);
+    prefs.capture_devices_linktypes = wmem_strdup(wmem_epan_scope(), link_list.join(",").toUtf8().constData());
+
+    wmem_free(wmem_epan_scope(), prefs.capture_devices_buffersize);
+    prefs.capture_devices_buffersize = wmem_strdup(wmem_epan_scope(), buffer_size_list.join(",").toUtf8().constData());
+
+    wmem_free(wmem_epan_scope(), prefs.capture_devices_snaplen);
+    prefs.capture_devices_snaplen = wmem_strdup(wmem_epan_scope(), snaplen_list.join(",").toUtf8().constData());
+
+    wmem_free(wmem_epan_scope(), prefs.capture_devices_pmode);
+    prefs.capture_devices_pmode = wmem_strdup(wmem_epan_scope(), pmode_list.join(",").toUtf8().constData());
+
+    wmem_free(wmem_epan_scope(), prefs.capture_devices_monitor_mode);
+    prefs.capture_devices_monitor_mode = wmem_strdup(wmem_epan_scope(), monitor_list.join(",").toUtf8().constData());
+
+    // We don't save the "Optimize" or per-interface "Capture Filter" columns
+    // to preferences (they're rarely changed, and the filter should already
+    // have been applied to device->cfilter by cache_model_->save()).
 
     g_free(capture_opts->compress_type);
 
@@ -1329,6 +938,9 @@ void CaptureOptionsDialog::updateSelectedFilter()
 
 void CaptureOptionsDialog::on_manageButton_clicked()
 {
+    cache_model_->save();
+    cache_model_->reset(-1);
+
     if (saveOptionsToPreferences(&global_capture_opts)) {
         ManageInterfacesDialog *dlg = new ManageInterfacesDialog(this);
         dlg->show();
@@ -1351,172 +963,110 @@ void CaptureOptionsDialog::changeEvent(QEvent* event)
     QDialog::changeEvent(event);
 }
 
-interface_t *CaptureOptionsDialog::getDeviceByName(const QString device_name)
-{
-    for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (device_name.compare(QString().fromUtf8(device->name)) == 0) {
-            return device;
-        }
-    }
-    return NULL;
-}
-
-//
-// InterfaceTreeItem
-//
-bool InterfaceTreeWidgetItem::operator< (const QTreeWidgetItem &other) const {
-    if (treeWidget()->sortColumn() == col_traffic_) {
-        QList<int> points = data(col_traffic_, Qt::UserRole).value<QList<int> >();
-        QList<int> other_points = other.data(col_traffic_, Qt::UserRole).value<QList<int> >();
-        double avg = 0, other_avg = 0;
-        foreach (int point, points) {
-            avg += (double) point / points.length();
-        }
-        foreach (int point, other_points) {
-            other_avg += (double) point / other_points.length();
-        }
-        return avg < other_avg;
-    }
-    return QTreeWidgetItem::operator<(other);
-}
-
-QVariant InterfaceTreeWidgetItem::data(int column, int role) const
-{
-    // The traffic sparkline pulls live history straight from the
-    // InterfaceStatistics facade on read (mirrors InterfaceTreeModel::data):
-    // the received series via Qt::UserRole, the dropped series via
-    // SecondaryPointsRole. Points are surfaced only for active interfaces, so
-    // quiet rows draw a blank sparkline like the welcome page.
-    if (column == col_traffic_ && (role == Qt::UserRole || role == SparkLineDelegate::SecondaryPointsRole)) {
-        InterfaceStatistics *stats = interfaceStatistics();
-        if (stats && !stat_name_.isEmpty() && stats->isActive(stat_name_)) {
-            return QVariant::fromValue(role == Qt::UserRole ? stats->pointsFor(stat_name_)
-                                                            : stats->droppedPointsFor(stat_name_));
-        }
-        return QVariant::fromValue(QList<int>());
-    }
-
-    if (column == col_snaplen_ && role == Qt::DisplayRole) {
-        QVariant data = QTreeWidgetItem::data(column, role);
-        if (data.toInt() == WTAP_MAX_PACKET_SIZE_STANDARD || data.toInt() == 0) {
-            return InterfaceTreeDelegate::tr("default");
-        }
-        return data;
-    }
-    return QTreeWidgetItem::data(column, role);
-}
-
-void InterfaceTreeWidgetItem::setData(int column, int role, const QVariant &value)
-{
-    QTreeWidgetItem::setData(column, role, value);
-}
-
 //
 // InterfaceTreeDelegate
 //
 
-#include <QComboBox>
-
-InterfaceTreeDelegate::InterfaceTreeDelegate(QObject *parent)
-    : QStyledItemDelegate(parent), tree_(NULL)
+InterfaceTreeDelegate::InterfaceTreeDelegate(InterfaceTreeCacheModel *cache_model, InterfaceSortFilterModel *proxy_model, QObject *parent)
+    : QStyledItemDelegate(parent), cache_model_(cache_model), proxy_model_(proxy_model)
 {
 }
-
-
-InterfaceTreeDelegate::~InterfaceTreeDelegate()
-{
-}
-
 
 QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &idx) const
 {
     QWidget *w = NULL;
-    int buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
-    unsigned snap = WTAP_MAX_PACKET_SIZE_STANDARD;
-    GList *links = NULL;
 
-    if (idx.column() > 1 && idx.data().toString().compare(UTF8_EM_DASH)) {
-        QTreeWidgetItem *ti = tree_->topLevelItem(idx.row());
-        QString interface_name = ti->text(col_interface_);
-        interface_t *device = find_device_by_if_name(interface_name);
+    interface_t *device = deviceForIndex(cache_model_, proxy_model_, idx);
+    if (!device)
+        return NULL;
 
-        if (device) {
-            buffer = device->buffer;
-            snap = device->snaplen;
-            links = device->links;
-        }
-        switch (idx.column()) {
-        case col_extcap_:
-        case col_interface_:
-        case col_traffic_:
-            break;
-        case col_link_:
-        {
-            GList *list;
-            link_row *linkr;
-            QStringList valid_link_types;
+    int col_link = proxy_model_->mapSourceToColumn(IFTREE_COL_DLT);
+    int col_snaplen = proxy_model_->mapSourceToColumn(IFTREE_COL_SNAPLEN);
+    int col_buffer = proxy_model_->mapSourceToColumn(IFTREE_COL_BUFFERLEN);
+    int col_filter = proxy_model_->mapSourceToColumn(IFTREE_COL_CAPTURE_FILTER);
 
-            // XXX The GTK+ UI fills in all link types, valid or not. We add
-            // only the valid ones. If we *do* wish to include invalid link
-            // types we'll have to jump through the hoops necessary to disable
-            // QComboBox items.
+    if (idx.column() == col_link) {
+        GList *list;
+        link_row *linkr;
+        QStringList valid_link_types;
 
-            for (list = links; list != Q_NULLPTR; list = gxx_list_next(list)) {
-                linkr = gxx_list_data(link_row*, list);
-                if (linkr->dlt >= 0) {
-                    valid_link_types << linkr->name;
-                }
+        for (list = device->links; list != Q_NULLPTR; list = gxx_list_next(list)) {
+            linkr = gxx_list_data(link_row*, list);
+            if (linkr->dlt >= 0) {
+                valid_link_types << linkr->name;
             }
+        }
 
-            if (valid_link_types.size() < 2) {
-                break;
-            }
-            QComboBox *cb = new QComboBox(parent);
-            cb->addItems(valid_link_types);
-
-            connect(cb, &QComboBox::currentTextChanged, this, &InterfaceTreeDelegate::linkTypeChanged);
-            w = (QWidget*) cb;
-            break;
+        if (valid_link_types.size() < 2) {
+            return NULL;
         }
-        case col_snaplen_:
-        {
-            QSpinBox *sb = new QSpinBox(parent);
-            sb->setRange(0, WTAP_MAX_PACKET_SIZE_STANDARD);
-            sb->setValue(snap);
-            sb->setWrapping(true);
-            sb->setSpecialValueText(tr("default"));
-            connect(sb, &QSpinBox::valueChanged, this, &InterfaceTreeDelegate::snapshotLengthChanged);
-            w = (QWidget*) sb;
-            break;
-        }
-        case col_buffer_:
-        {
-            QSpinBox *sb = new QSpinBox(parent);
-            sb->setRange(1, WTAP_MAX_PACKET_SIZE_STANDARD);
-            sb->setValue(buffer);
-            sb->setWrapping(true);
-            connect(sb, &QSpinBox::valueChanged, this, &InterfaceTreeDelegate::bufferSizeChanged);
-            w = (QWidget*) sb;
-            break;
-        }
-        case col_filter_:
-        {
-            // A plain (chrome-less) capture-filter edit: validity tinting via the
-            // capture validator, but none of the bookmark/history in-line actions
-            // the main field has, since this is an inline table-cell editor.
-            FilterEdit *cf = new FilterEdit(parent);
-            cf->setValidator(new CaptureFilterValidator(cf));
-            connect(cf, &QLineEdit::textEdited, this, &InterfaceTreeDelegate::filterChanged);
-            w = (QWidget*) cf;
-        }
-        default:
-            break;
-        }
+        QComboBox *cb = new QComboBox(parent);
+        cb->addItems(valid_link_types);
+        w = (QWidget*) cb;
+    } else if (idx.column() == col_snaplen) {
+        QSpinBox *sb = new QSpinBox(parent);
+        sb->setRange(0, WTAP_MAX_PACKET_SIZE_STANDARD);
+        sb->setValue(device->snaplen);
+        sb->setWrapping(true);
+        sb->setSpecialValueText(tr("default"));
+        w = (QWidget*) sb;
+    } else if (idx.column() == col_buffer) {
+        QSpinBox *sb = new QSpinBox(parent);
+        sb->setRange(1, WTAP_MAX_PACKET_SIZE_STANDARD);
+        sb->setValue(device->buffer);
+        sb->setWrapping(true);
+        w = (QWidget*) sb;
+    } else if (idx.column() == col_filter) {
+        // A plain (chrome-less) capture-filter edit: validity tinting via the
+        // capture validator, but none of the bookmark/history in-line actions
+        // the main field has, since this is an inline table-cell editor.
+        FilterEdit *cf = new FilterEdit(parent);
+        cf->setValidator(new CaptureFilterValidator(cf));
+        cf->setText(QString(device->cfilter));
+        connect(cf, &QLineEdit::textEdited, this, &InterfaceTreeDelegate::filterChanged);
+        w = (QWidget*) cf;
     }
+
     if (w)
         w->setAutoFillBackground(true);
     return w;
+}
+
+void InterfaceTreeDelegate::setEditorData(QWidget *, const QModelIndex &) const
+{
+    // createEditor() already populated the editor directly from the
+    // live interface_t, since the cache model doesn't (yet) surface
+    // Qt::EditRole for these columns. Nothing further to do here, and
+    // doing nothing avoids clobbering that with an invalid QVariant.
+}
+
+void InterfaceTreeDelegate::setModelData(QWidget *editor, QAbstractItemModel *, const QModelIndex &idx) const
+{
+    QModelIndex cacheIdx = proxy_model_->mapToSource(idx);
+
+    int col_link = proxy_model_->mapSourceToColumn(IFTREE_COL_DLT);
+    int col_snaplen = proxy_model_->mapSourceToColumn(IFTREE_COL_SNAPLEN);
+    int col_filter = proxy_model_->mapSourceToColumn(IFTREE_COL_CAPTURE_FILTER);
+
+    if (idx.column() == col_link) {
+        if (QComboBox *cb = qobject_cast<QComboBox *>(editor))
+            cache_model_->setData(cacheIdx, cb->currentText(), Qt::EditRole);
+    } else if (idx.column() == col_filter) {
+        if (FilterEdit *cf = qobject_cast<FilterEdit *>(editor))
+            cache_model_->setData(cacheIdx, cf->text(), Qt::EditRole);
+    } else if (idx.column() == col_snaplen) {
+        if (QSpinBox *sb = qobject_cast<QSpinBox *>(editor)) {
+            int value = sb->value();
+            // The spinbox's minimum (0) is its "default" special value;
+            // InterfaceTreeCacheModel::save() keys off
+            // WTAP_MAX_PACKET_SIZE_STANDARD instead.
+            if (value == 0)
+                value = WTAP_MAX_PACKET_SIZE_STANDARD;
+            cache_model_->setData(cacheIdx, value, Qt::EditRole);
+        }
+    } else if (QSpinBox *sb = qobject_cast<QSpinBox *>(editor)) {
+        cache_model_->setData(cacheIdx, sb->value(), Qt::EditRole);
+    }
 }
 
 bool InterfaceTreeDelegate::eventFilter(QObject *object, QEvent *event)
@@ -1531,66 +1081,6 @@ bool InterfaceTreeDelegate::eventFilter(QObject *object, QEvent *event)
         return QStyledItemDelegate::eventFilter(object, event);
     }
     return false;
-}
-
-void InterfaceTreeDelegate::linkTypeChanged(const QString selected_link_type)
-{
-    GList *list;
-    link_row *temp;
-    interface_t *device;
-
-    QTreeWidgetItem *ti = tree_->currentItem();
-    if (!ti) {
-        return;
-    }
-    QString interface_name = ti->text(col_interface_);
-    device = find_device_by_if_name(interface_name);
-    if (!device) {
-        return;
-    }
-    for (list = device->links; list != Q_NULLPTR; list = gxx_list_next(list)) {
-        temp = gxx_list_data(link_row*, list);
-        if (!selected_link_type.compare(temp->name)) {
-            device->active_dlt = temp->dlt;
-        }
-    }
-    // XXX We might want to verify that active_dlt is valid at this point.
-}
-
-void InterfaceTreeDelegate::snapshotLengthChanged(int value)
-{
-    interface_t *device;
-    QTreeWidgetItem *ti = tree_->currentItem();
-    if (!ti) {
-        return;
-    }
-    QString interface_name = ti->text(col_interface_);
-    device = find_device_by_if_name(interface_name);
-    if (!device) {
-        return;
-    }
-    if (value != WTAP_MAX_PACKET_SIZE_STANDARD && value != 0) {
-        device->has_snaplen = true;
-        device->snaplen = value;
-    } else {
-        device->has_snaplen = false;
-        device->snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
-    }
-}
-
-void InterfaceTreeDelegate::bufferSizeChanged(int value)
-{
-    interface_t *device;
-    QTreeWidgetItem *ti = tree_->currentItem();
-    if (!ti) {
-        return;
-    }
-    QString interface_name = ti->text(col_interface_);
-    device = find_device_by_if_name(interface_name);
-    if (!device) {
-        return;
-    }
-    device->buffer = value;
 }
 
 #endif /* HAVE_LIBPCAP */

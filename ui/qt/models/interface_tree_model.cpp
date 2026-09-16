@@ -212,6 +212,10 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
             {
                 return device->monitor_mode_enabled ? Qt::Checked : Qt::Unchecked;
             }
+            else if (col == IFTREE_COL_OPTIMIZE)
+            {
+                return device->optimize ? Qt::Checked : Qt::Unchecked;
+            }
         }
         /* Used by SparkLineDelegate for loading the data for the statistics line */
         else if (role == Qt::UserRole)
@@ -316,9 +320,21 @@ QVariant InterfaceTreeModel::headerData(int section, Qt::Orientation orientation
             {
                 return tr("Monitor Mode");
             }
+            else if (section == IFTREE_COL_OPTIMIZE)
+            {
+                return tr("Optimize");
+            }
             else if (section == IFTREE_COL_CAPTURE_FILTER)
             {
                 return tr("Capture Filter");
+            }
+            else if (section == IFTREE_COL_STATS)
+            {
+                return tr("Traffic");
+            }
+            else if (section == IFTREE_COL_EXTCAP)
+            {
+                return QString();
             }
         }
     }

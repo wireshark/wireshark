@@ -9,8 +9,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef INTERFACE_TREE_MODEL_H
-#define INTERFACE_TREE_MODEL_H
+#pragma once
 
 #include <config.h>
 #include <wireshark.h>
@@ -57,6 +56,7 @@ enum InterfaceTreeColumns
     IFTREE_COL_SNAPLEN,         /**< Snapshot length (in bytes) applied to each captured packet */
     IFTREE_COL_BUFFERLEN,       /**< Kernel capture buffer size in megabytes */
     IFTREE_COL_MONITOR_MODE,    /**< Whether 802.11 monitor mode is enabled (wireless interfaces only) */
+    IFTREE_COL_OPTIMIZE,        /**< Whether the capture filter is compiled with optimization enabled */
     IFTREE_COL_CAPTURE_FILTER,  /**< BPF capture filter string applied to this interface */
     IFTREE_COL_PIPE_PATH,       /**< Filesystem path or URI for a pipe interface — ManageInterfaceDialog pipeView */
     IFTREE_COL_MAX              /**< Sentinel: total number of columns; not displayed */
@@ -186,5 +186,3 @@ private:
     /** Statistics provider (not owned) supplying sparkline/activity data. */
     InterfaceStatistics *interface_stats_;
 };
-
-#endif // INTERFACE_TREE_MODEL_H

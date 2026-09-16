@@ -13,15 +13,20 @@
 
 #include "epan/prefs.h"
 
-#include <ui/qt/utils/qt_ui_utils.h>
-#include "ui/capture_globals.h"
+#include "capture/capture_ifinfo.h"
+
 #include "wsutil/utf8_entities.h"
 
 #include "wiretap/wtap.h"
 
-#include "main_application.h"
+#include "ui/capture_globals.h"
+#include "ui/capture_ui_utils.h"
+#include "ui/ws_ui_util.h"
+
+#include <ui/qt/main_application.h>
 #include <ui/qt/main_window.h>
 #include <ui/qt/manager/interface_list_manager.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QIdentityProxyModel>
 
@@ -37,10 +42,10 @@ InterfaceTreeCacheModel::InterfaceTreeCacheModel(QObject *parent) :
     storage = new QMap<int, QSharedPointer<QMap<InterfaceTreeColumns, QVariant> > >();
 
     checkableColumns << IFTREE_COL_HIDDEN << IFTREE_COL_PROMISCUOUSMODE;
-    checkableColumns << IFTREE_COL_MONITOR_MODE;
+    checkableColumns << IFTREE_COL_MONITOR_MODE << IFTREE_COL_OPTIMIZE;
 
     editableColumns << IFTREE_COL_COMMENT << IFTREE_COL_SNAPLEN << IFTREE_COL_PIPE_PATH;
-    editableColumns << IFTREE_COL_BUFFERLEN;
+    editableColumns << IFTREE_COL_BUFFERLEN << IFTREE_COL_CAPTURE_FILTER << IFTREE_COL_DLT;
 }
 
 InterfaceTreeCacheModel::~InterfaceTreeCacheModel()
@@ -175,6 +180,32 @@ void InterfaceTreeCacheModel::save()
                     /* Hidden is de-selection, therefore inverted logic here */
                     device->hidden = (saveValue == Qt::Unchecked);
                 }
+                else if (col == IFTREE_COL_CAPTURE_FILTER)
+                {
+                    /* Applies to extcap interfaces as well, so this is handled
+                     * before the extcap gate below. Not persisted to preferences;
+                     * prefs.capture_devices_filter is legacy and unused elsewhere. */
+                    g_free(device->cfilter);
+                    QString filterValue = saveValue.toString();
+                    device->cfilter = filterValue.isEmpty() ? NULL : qstring_strdup(filterValue);
+                }
+                else if (col == IFTREE_COL_DLT)
+                {
+                    /* Applies to extcap interfaces as well, so this is handled
+                     * before the extcap gate below. The cached value is the
+                     * link-type name as shown to the user; map it back to the
+                     * device's link_row list to find the matching DLT. */
+                    QString linkName = saveValue.toString();
+                    for (GList *list = device->links; list != NULL; list = gxx_list_next(list))
+                    {
+                        link_row *linkr = gxx_list_data(link_row *, list);
+                        if (linkName == QString(linkr->name))
+                        {
+                            device->active_dlt = linkr->dlt;
+                            break;
+                        }
+                    }
+                }
                 else if (device->if_info.type == IF_EXTCAP)
                 {
                     /* extcap interfaces do not have the following columns.
@@ -206,6 +237,11 @@ void InterfaceTreeCacheModel::save()
                 else if (col == IFTREE_COL_BUFFERLEN)
                 {
                     device->buffer = saveValue.toInt();
+                }
+                else if (col == IFTREE_COL_OPTIMIZE)
+                {
+                    /* Rarely changed, so not persisted to preferences below. */
+                    device->optimize = saveValue.toBool();
                 }
                 ++it;
             }
@@ -277,6 +313,87 @@ void InterfaceTreeCacheModel::save()
     if (mainWindow && mainWindow->interfaceListManager())
         mainWindow->interfaceListManager()->notifyListChanged();
 }
+
+/*
+ * Normal and monitor mode linktypes can differ, so we need to fetch our
+ * device capabilities each time we toggle monitor mode.
+ */
+void InterfaceTreeCacheModel::refreshCapabilities(const QModelIndex &index, bool monitor_mode)
+{
+    int row = index.row();
+    if (! global_capture_opts.all_ifaces || (unsigned int) row >= global_capture_opts.all_ifaces->len)
+        return;
+
+    interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, row);
+
+    set_active_dlt(device, global_capture_opts.default_options.linktype);
+
+    char *auth_str = NULL;
+#ifdef HAVE_PCAP_REMOTE
+    if (device->remote_opts.remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
+        auth_str = ws_strdup_printf("%s:%s", device->remote_opts.remote_host_opts.auth_username,
+                                   device->remote_opts.remote_host_opts.auth_password);
+    }
+#endif
+
+    if_capabilities_t *caps = capture_get_if_capabilities(device->name, monitor_mode, auth_str, NULL, NULL, main_window_update);
+    g_free(auth_str);
+
+    if (caps != NULL)
+    {
+#if GLIB_CHECK_VERSION(2, 68, 0)
+        g_list_free_full(g_steal_pointer(&device->links), capture_opts_free_link_row);
+#else
+        g_list_free_full((GList*)g_steal_pointer(&device->links), capture_opts_free_link_row);
+#endif
+        device->active_dlt = -1;
+        device->monitor_mode_supported = caps->can_set_rfmon;
+        device->monitor_mode_enabled = monitor_mode && caps->can_set_rfmon;
+        GList *lt_list = device->monitor_mode_enabled ? caps->data_link_types_rfmon : caps->data_link_types;
+
+        QString active_dlt_name;
+        for (GList *lt_entry = lt_list; lt_entry != NULL; lt_entry = gxx_list_next(lt_entry)) {
+            link_row *linkr = g_new(link_row, 1);
+            data_link_info_t *data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
+            /*
+             * For link-layer types libpcap/Npcap doesn't know about, the
+             * name will be "DLT n" and the description will be null. Mark
+             * those as unsupported; capture filters won't work on them.
+             */
+            if (data_link_info->description != NULL) {
+                linkr->dlt = data_link_info->dlt;
+                if (active_dlt_name.isEmpty()) {
+                    device->active_dlt = data_link_info->dlt;
+                    active_dlt_name = data_link_info->description;
+                }
+                linkr->name = g_strdup(data_link_info->description);
+            } else {
+                char *str = ws_strdup_printf("%s (not supported)", data_link_info->name);
+                linkr->dlt = -1;
+                linkr->name = g_strdup(str);
+                g_free(str);
+            }
+            device->links = g_list_append(device->links, linkr);
+        }
+        free_if_capabilities(caps);
+    }
+    else
+    {
+        /* We don't know whether this supports monitor mode or not. Fall back to "no". */
+        device->monitor_mode_enabled = false;
+        device->monitor_mode_supported = false;
+    }
+
+    /* The query may have overridden the requested state (e.g. monitor mode
+     * turned out to be unsupported), so the cached checkbox value has to be
+     * corrected to match reality. */
+    QSharedPointer<QMap<InterfaceTreeColumns, QVariant> > dataField = storage->value(row, 0);
+    if (dataField)
+        dataField->insert(IFTREE_COL_MONITOR_MODE, device->monitor_mode_enabled ? Qt::Checked : Qt::Unchecked);
+
+    emit dataChanged(this->index(row, IFTREE_COL_DLT), this->index(row, IFTREE_COL_DLT));
+    emit dataChanged(this->index(row, IFTREE_COL_MONITOR_MODE), this->index(row, IFTREE_COL_MONITOR_MODE));
+}
 #endif
 
 int InterfaceTreeCacheModel::rowCount(const QModelIndex & parent) const
@@ -338,7 +455,7 @@ bool InterfaceTreeCacheModel::isAllowedToBeEdited(const QModelIndex &index) cons
         /* extcap interfaces do not have those settings */
         if (col == IFTREE_COL_PROMISCUOUSMODE || col == IFTREE_COL_SNAPLEN)
             return false;
-        if (col == IFTREE_COL_BUFFERLEN)
+        if (col == IFTREE_COL_BUFFERLEN || col == IFTREE_COL_OPTIMIZE)
             return false;
     }
 #endif
@@ -362,6 +479,11 @@ bool InterfaceTreeCacheModel::isAvailableField(const QModelIndex &index) const
         // Do not allow default capture interface to be hidden.
         if (! g_strcmp0(prefs.capture_device, device->display_name))
             return false;
+    }
+    else if (col == IFTREE_COL_MONITOR_MODE && ! device->monitor_mode_supported)
+    {
+        // Nothing to show or toggle for interfaces that can't do monitor mode.
+        return false;
     }
 #endif
 
@@ -419,6 +541,13 @@ bool InterfaceTreeCacheModel::setData(const QModelIndex &index, const QVariant &
             }
 
             dataField->insert(col, saveValue);
+
+#ifdef HAVE_LIBPCAP
+            if (col == IFTREE_COL_MONITOR_MODE && role == Qt::CheckStateRole)
+            {
+                refreshCapabilities(index, saveValue.toInt() == Qt::Checked);
+            }
+#endif
 
             return true;
         }

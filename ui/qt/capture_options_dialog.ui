@@ -22,7 +22,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QTreeWidget" name="interfaceTree">
+        <widget class="QTreeView" name="interfaceTree">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -32,62 +32,24 @@
          <property name="selectionMode">
           <enum>QAbstractItemView::ExtendedSelection</enum>
          </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
          <property name="textElideMode">
           <enum>Qt::ElideMiddle</enum>
+         </property>
+         <property name="rootIsDecorated">
+          <bool>false</bool>
+         </property>
+         <property name="itemsExpandable">
+          <bool>false</bool>
+         </property>
+         <property name="uniformRowHeights">
+          <bool>true</bool>
          </property>
          <property name="sortingEnabled">
           <bool>true</bool>
          </property>
-         <column>
-          <property name="text">
-           <string></string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Interface</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Traffic</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Link-layer Header</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Promiscuous</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Snaplen (B)</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Buffer (MB)</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Monitor Mode</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Optimize</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Capture Filter</string>
-          </property>
-         </column>
         </widget>
        </item>
        <item>

@@ -8,18 +8,19 @@
  */
 
 
-#ifndef CAPTURE_OPTIONS_DIALOG_H
-#define CAPTURE_OPTIONS_DIALOG_H
+#pragma once
 
 #include <config.h>
 
 #ifdef HAVE_LIBPCAP
 
 #include <ui/qt/models/interface_tree_model.h>
+#include <ui/qt/models/interface_tree_cache_model.h>
+#include <ui/qt/models/interface_sort_filter_model.h>
 
 #include "geometry_state_dialog.h"
 #include <QPushButton>
-#include <QTreeWidget>
+#include <QTreeView>
 
 namespace Ui {
 class CaptureOptionsDialog;
@@ -27,27 +28,33 @@ class CaptureOptionsDialog;
 
 #include <QStyledItemDelegate>
 
+/**
+ * @brief Provides editors for the interface tree's editable columns (link-layer
+ * header, snapshot length, buffer size, capture filter).
+ *
+ * Unlike a stock QStyledItemDelegate, editor commits are written straight to
+ * @c cache_model_ rather than through the view's bound model: the cache model
+ * doesn't (yet) surface Qt::EditRole for these columns, so createEditor()
+ * populates editors directly from the underlying interface_t, and
+ * setEditorData() is a no-op to avoid clobbering that.
+ */
 class InterfaceTreeDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
-private:
-    QTreeWidget* tree_;
-
 public:
-    InterfaceTreeDelegate(QObject *parent = 0);
-    ~InterfaceTreeDelegate();
+    InterfaceTreeDelegate(InterfaceTreeCacheModel *cache_model, InterfaceSortFilterModel *proxy_model, QObject *parent = nullptr);
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &idx) const override;
-    void setTree(QTreeWidget* tree) { tree_ = tree; }
+    void setEditorData(QWidget *editor, const QModelIndex &idx) const override;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &idx) const override;
     bool eventFilter(QObject *object, QEvent *event) override;
 
 signals:
     void filterChanged(const QString filter);
 
-private slots:
-    void linkTypeChanged(const QString selected_link_type);
-    void snapshotLengthChanged(int value);
-    void bufferSizeChanged(int value);
+private:
+    InterfaceTreeCacheModel *cache_model_;
+    InterfaceSortFilterModel *proxy_model_;
 };
 
 class CaptureOptionsDialog : public GeometryStateDialog
@@ -86,13 +93,10 @@ private slots:
     void on_buttonBox_helpRequested();
     void filterEdited();
     void updateWidgets();
-    /** @brief Repaints the traffic sparklines when InterfaceStatistics samples. */
-    void redrawStatistics();
     void refreshInterfaceList();
     void browseButtonClicked();
-    void interfaceItemChanged(QTreeWidgetItem *item, int column);
-    void itemClicked(QTreeWidgetItem *item, int column);
-    void itemDoubleClicked(QTreeWidgetItem *item, int column);
+    void itemClicked(const QModelIndex &index);
+    void itemDoubleClicked(const QModelIndex &index);
     void changeEvent(QEvent* event) override;
     void tempDirBrowseButtonClicked();
     void MBComboBoxIndexChanged(int index);
@@ -110,9 +114,23 @@ signals:
 private:
     Ui::CaptureOptionsDialog *ui;
 
-    InterfaceTreeDelegate interface_item_delegate_;
+    InterfaceTreeCacheModel *cache_model_;
+    InterfaceSortFilterModel *proxy_model_;
+    InterfaceTreeModel *source_model_;
+    InterfaceTreeDelegate *interface_item_delegate_;
 
-    interface_t *getDeviceByName(const QString device_name);
+    /* Proxy model column indices. Fixed for the dialog's lifetime. */
+    int col_extcap_;
+    int col_interface_;
+    int col_traffic_;
+    int col_link_;
+    int col_pmode_;
+    int col_snaplen_;
+    int col_buffer_;
+    int col_monitor_;
+    int col_optimize_;
+    int col_filter_;
+
     bool saveOptionsToPreferences(capture_options* capture_opts);
     void updateSelectedFilter();
 
@@ -121,5 +139,3 @@ private:
 };
 
 #endif /* HAVE_LIBPCAP */
-
-#endif // CAPTURE_OPTIONS_DIALOG_H
