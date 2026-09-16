@@ -62,8 +62,13 @@ signals:
     /** @brief Bookmark requested for the current expression. */
     void addBookmark(const QString &filter);
 
+protected:
+    void updateTranslations() override;
+
 private:
-    QString placeholder_text_; /**< Cached placeholder for the (non-)conflict state. */
+    void updatePlaceholderText();
+
+    bool conflict_; /**< Whether there are conflicting filters for different interfaces */
 };
 
 #endif // CAPTURE_FILTER_ENTRY_H

@@ -27,10 +27,8 @@
 #include <QStringListModel>
 
 CaptureFilterEntry::CaptureFilterEntry(QWidget *parent) :
-    FilterExpressionEdit(parent)
+    FilterExpressionEdit(parent), conflict_(false)
 {
-    setAccessibleName(tr("Capture filter entry"));
-
     // Backends. setValidator/setCompleter/setBookmarkModel are widget-owned;
     // the history model is a thin view over the global recent store, parented
     // here for lifetime.
@@ -53,15 +51,10 @@ CaptureFilterEntry::CaptureFilterEntry(QWidget *parent) :
                                ThemeManager::FilterBookmarkCapture),
                     ThemedIcon(":/svg_icons/x-capture-filter-bookmark.svg",
                                ThemeManager::FilterBookmarkMatch));
-    setBookmarkMenuLabels(tr("Saved Capture Filters"),
-                          tr("Save this filter"),
-                          tr("Remove this filter"),
-                          tr("Manage Capture Filters"),
-                          QString());
     setApplyActionVisible(false);       // implicit apply
     setPreferencesActionVisible(false); // capture has no filter-button prefs pane
 
-    setConflict(false);
+    updateTranslations();
 
     // Generic base signals → capture vocabulary. An empty capture filter is
     // valid — it means "capture everything, discard nothing" — but the base
@@ -114,19 +107,36 @@ void CaptureFilterEntry::recheck()
     validateNow();
 }
 
-void CaptureFilterEntry::setConflict(bool conflict)
+void CaptureFilterEntry::updatePlaceholderText()
 {
-    if (conflict) {
+    if (conflict_) {
         //: This is a very long concept that needs to fit into a short space.
-        placeholder_text_ = tr("Multiple filters selected. Override them here or leave this blank to preserve them.");
+        setPlaceholderText(tr("Multiple filters selected. Override them here or leave this blank to preserve them."));
         setToolTip(tr("<p>The interfaces you have selected have different capture filters."
                       " Typing a filter here will override them. Doing nothing will"
                       " preserve them.</p>"));
     } else {
-        placeholder_text_ = tr("Enter a capture filter %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
+        setPlaceholderText(tr("Enter a capture filter %1").arg(UTF8_HORIZONTAL_ELLIPSIS));
         setToolTip(QString());
     }
-    setPlaceholderText(placeholder_text_);
+}
+
+void CaptureFilterEntry::updateTranslations()
+{
+    setAccessibleName(tr("Capture filter entry"));
+    setBookmarkMenuLabels(tr("Saved Capture Filters"),
+                          tr("Save this filter"),
+                          tr("Remove this filter"),
+                          tr("Manage Capture Filters"),
+                          QString());
+    updatePlaceholderText();
+    updateButtonTranslations();
+}
+
+void CaptureFilterEntry::setConflict(bool conflict)
+{
+    conflict_ = conflict;
+    updatePlaceholderText();
 }
 
 QPair<const QString, bool> CaptureFilterEntry::getSelectedFilter()

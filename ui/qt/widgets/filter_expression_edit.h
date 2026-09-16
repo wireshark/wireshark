@@ -155,8 +155,14 @@ protected:
      */
     void applyExpression();
 
+    /** @brief Event handler for changeEvents, e.g. QEvent::LanguageChange */
+    void changeEvent(QEvent *event) override;
+
     /** @brief Paints the field, then the bookmark/apply zone dividers on top. */
     void paintEvent(QPaintEvent *event) override;
+
+    virtual void updateButtonTranslations();
+    virtual void updateTranslations();
 
 private:
     void rebuildBookmarkEntries(); /**< Refresh the dynamic bookmark section. */

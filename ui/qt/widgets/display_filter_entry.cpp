@@ -47,7 +47,6 @@
 DisplayFilterEntry::DisplayFilterEntry(QWidget *parent) :
     FilterExpressionEdit(parent)
 {
-    setAccessibleName(tr("Display filter entry"));
     setAcceptDrops(true);
 
     // Backends. setValidator/setCompleter/setBookmarkModel are widget-owned; the
@@ -71,16 +70,10 @@ DisplayFilterEntry::DisplayFilterEntry(QWidget *parent) :
                                ThemeManager::FilterBookmark),
                     ThemedIcon(":/svg_icons/x-display-filter-bookmark.svg",
                                ThemeManager::FilterBookmarkMatch));
-    setBookmarkMenuLabels(tr("Saved Display Filters"),
-                          tr("Save this filter"),
-                          tr("Remove this filter"),
-                          tr("Manage Display Filters"),
-                          tr("Filter Button Preferences…"));
     setApplyActionVisible(true);        // explicit apply
     setPreferencesActionVisible(true);  // display has a filter-button prefs pane
 
-    setPlaceholderText(tr("Apply a display filter %1 <%2/>")
-                           .arg(UTF8_HORIZONTAL_ELLIPSIS).arg(DEFAULT_MODIFIER));
+    updateTranslations();
 
     // Generic base signals -> display vocabulary.
     connect(this, &FilterExpressionEdit::applied, this, [this](const QString &expr) {
@@ -302,6 +295,20 @@ void DisplayFilterEntry::contextMenuEvent(QContextMenuEvent *event)
     menu->addAction(la);
 
     menu->popup(event->globalPos());
+}
+
+void DisplayFilterEntry::updateTranslations()
+{
+    setAccessibleName(tr("Display filter entry"));
+    setBookmarkMenuLabels(tr("Saved Display Filters"),
+                          tr("Save this filter"),
+                          tr("Remove this filter"),
+                          tr("Manage Display Filters"),
+                          tr("Filter Button Preferences…"));
+
+    setPlaceholderText(tr("Apply a display filter %1 <%2/>")
+                           .arg(UTF8_HORIZONTAL_ELLIPSIS).arg(DEFAULT_MODIFIER));
+    updateButtonTranslations();
 }
 
 void DisplayFilterEntry::displayFilterExpression()

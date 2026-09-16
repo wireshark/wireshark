@@ -144,7 +144,7 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     save_action_ = bookmark_menu_->addAction(tr("Save this filter"));
     remove_action_ = bookmark_menu_->addAction(tr("Remove this filter"));
     manage_action_ = bookmark_menu_->addAction(tr("Manage Saved Filters"));
-    preferences_action_ = bookmark_menu_->addAction(tr("Filter Button Preferences..."));
+    preferences_action_ = bookmark_menu_->addAction(tr("Filter Button Preferences…"));
     static_separator_ = bookmark_menu_->addSeparator();
 
     connect(save_action_, &QAction::triggered, this, [this]() {
@@ -544,6 +544,36 @@ void FilterExpressionEdit::updateBookmarkState()
         return;
     const bool saved = bookmarkModel_ && bookmarkModel_->contains(text());
     bookmark_button_->setIcon(saved ? matching_bookmark_icon_ : normal_bookmark_icon_);
+}
+
+void FilterExpressionEdit::updateButtonTranslations()
+{
+    bookmark_button_->setToolTip(tr("Manage saved filters"));
+    clear_button_->setToolTip(tr("Clear the filter"));
+    apply_button_->setToolTip(tr("Apply this filter"));
+    history_button_->setToolTip(tr("Recent filters"));
+}
+
+void FilterExpressionEdit::updateTranslations()
+{
+    setBookmarkMenuLabels(tr("Saved Filters"),
+                          tr("Save this filter"),
+                          tr("Remove this filter"),
+                          tr("Manage Saved Filters"),
+                          tr("Filter Button Preferences…"));
+    updateButtonTranslations();
+}
+
+void FilterExpressionEdit::changeEvent(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::LanguageChange:
+        updateTranslations();
+        break;
+    default:
+        break;
+    }
+    FilterEdit::changeEvent(event);
 }
 
 void FilterExpressionEdit::paintEvent(QPaintEvent *event)

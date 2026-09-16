@@ -78,6 +78,8 @@ protected:
     void dropEvent(QDropEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
 
+    void updateTranslations() override;
+
 private:
     void connectToMainWindow();
     void updateStatus(SyntaxState state);
