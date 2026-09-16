@@ -9,6 +9,7 @@
 
 #include "main_window_preferences_frame.h"
 #include <ui/qt/utils/qt_ui_utils.h>
+#include "main_application.h"
 
 #include <ui_main_window_preferences_frame.h>
 #include "ui/language.h"
@@ -21,6 +22,7 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QDebug>
+#include <QCollator>
 
 MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     QFrame(parent),
@@ -63,38 +65,73 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     ui->maxFilterLineEdit->setMaximumWidth(num_entry_size.width());
     ui->maxRecentLineEdit->setMaximumWidth(num_entry_size.width());
 
+    // For the same reason that it's helpful to present a language in its native
+    // term when someone is trying to switch to it, it makes sense to present
+    // the "Use system setting" in the system language instead of the current
+    // language. (If the user doesn't understand the resulting translation,
+    // then switching to the system setting isn't going to help.)
+    ui->languageComboBox->setItemText(0, mainApp->translateSystemLocale("MainWindowPreferencesFrame", "Use system setting"));
     QString li_path = QStringLiteral(":/languages/language%1.svg").arg(ThemeManager::isDark() ? ".dark" : "");
     QIcon language_icon = QIcon(li_path);
     ui->languageComboBox->setItemIcon(0, language_icon);
+    ui->languageComboBox->setItemData(0, USE_SYSTEM_LANGUAGE);
+    ui->languageComboBox->insertSeparator(1);
 
     QString globalLanguagesPath(QStringLiteral("%1/languages/").arg(get_datafile_dir(application_configuration_environment_prefix())));
     QString userLanguagesPath(gchar_free_to_qstring(get_persconffile_path("languages/", false, application_configuration_environment_prefix())));
 
+    // Get the list of languages for which we have translations.
     QStringList filenames = QDir(":/i18n/").entryList(QStringList("wireshark_*.qm"));
     filenames += QDir(globalLanguagesPath).entryList(QStringList("wireshark_*.qm"));
     filenames += QDir(userLanguagesPath).entryList(QStringList("wireshark_*.qm"));
 
+    // Present languages with their native name. Germanic languages generally
+    // capitalize the names of languages; Romance languages generally don't.
+    // Other languages have their own rules. It looks a little better IMO to
+    // capitalize the first letter of each language regardless as the first
+    // word of a combo box entry.
+    QList<QPair<QString, QVariant>> langs;
     for (int i = 0; i < filenames.size(); i += 1) {
         QString locale;
         locale = filenames[i];
         locale.truncate(locale.lastIndexOf('.'));
         locale.remove(0, locale.indexOf('_') + 1);
 
-        QString lang = QLocale::languageToString(QLocale(locale).language());
-
-        ui->languageComboBox->addItem(lang, locale);
-    }
-
-    ui->languageComboBox->setItemData(0, USE_SYSTEM_LANGUAGE);
-    ui->languageComboBox->model()->sort(0);
-
-    for (int i = 0; i < ui->languageComboBox->count(); i += 1) {
-        if (QString(get_language_used()) == ui->languageComboBox->itemData(i).toString()) {
-            ui->languageComboBox->setCurrentIndex(i);
-            break;
+        QString lang = QLocale(locale).nativeLanguageName();
+        if (!lang.isEmpty()) { // empty *would* be weird
+            lang.replace(0, 1, lang.at(0).toUpper());
         }
+
+        langs.emplaceBack(lang, locale);
     }
 
+    // Use the system locale for collation (Qt uses the CLDR guidelines.) That
+    // means that, e.g., if the system locale is a Cyrillic script language all
+    // the Cyrillic script native language names will be sorted before others.
+    QCollator collator(QLocale::system().collation());
+    //collator.setCaseSensitivity(Qt::CaseInsensitive);
+
+    std::sort(langs.begin(), langs.end(), [&collator](const auto &a, const auto &b) {
+        return collator.compare(a.first, b.first) < 0;
+    });
+
+    // Now add the languages. Sorting first means that "Use system setting"
+    // is the first option regardless of locale.
+    //
+    // Note that since we use the system locale for collation and translating
+    // "Use system setting" and native language names for the others, we don't
+    // have to change the entries if the current locale changes.
+    for (const auto &lang : langs) {
+        ui->languageComboBox->addItem(lang.first, lang.second);
+    }
+
+    int i = ui->languageComboBox->findData(QString(get_language_used()));
+    if (i != -1) {
+        ui->languageComboBox->setCurrentIndex(i);
+    }
+
+    connect(ui->languageComboBox, &QComboBox::currentIndexChanged,
+        this, &MainWindowPreferencesFrame::languageComboBoxCurrentIndexChanged);
 }
 
 MainWindowPreferencesFrame::~MainWindowPreferencesFrame()
@@ -140,11 +177,9 @@ void MainWindowPreferencesFrame::updateWidgets()
 
     ui->mainToolbarComboBox->setCurrentIndex(prefs_get_enum_value(pref_toolbar_main_style_, pref_stashed));
 
-    for (int i = 0; i < ui->languageComboBox->count(); i += 1) {
-        if (QString(get_language_used()) == ui->languageComboBox->itemData(i).toString()) {
-            ui->languageComboBox->setCurrentIndex(i);
-            break;
-        }
+    int i = ui->languageComboBox->findData(QString(get_language_used()));
+    if (i != -1) {
+        ui->languageComboBox->setCurrentIndex(i);
     }
 
     ui->windowTitle->setText(prefs_get_string_value(pref_window_title_, pref_stashed));
@@ -221,9 +256,9 @@ void MainWindowPreferencesFrame::on_mainToolbarComboBox_currentIndexChanged(int 
     prefs_set_enum_value(pref_toolbar_main_style_, index, pref_stashed);
 }
 
-void MainWindowPreferencesFrame::on_languageComboBox_currentIndexChanged(int index _U_)
+void MainWindowPreferencesFrame::languageComboBoxCurrentIndexChanged(int index _U_)
 {
-    set_language_used(ui->languageComboBox->itemData(index).toString().toUtf8().constData());
+    set_language_used(ui->languageComboBox->currentData().toString().toUtf8().constData());
 }
 
 void MainWindowPreferencesFrame::on_windowTitle_textEdited(const QString &new_title)

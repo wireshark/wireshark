@@ -369,6 +369,20 @@ public:
     void loadLanguage(const QString language);
 
     /**
+     * @brief Gets a translation in the system (not necessarily current) locale
+     * @param context Typically the class name
+     * @param sourceText The text to translate
+     * @param disambiguation Identifying string, for when the same sourceText
+     * is used in different roles in the same context (nullptr by default)
+     * @param n Used for plural translations as QCoreApplication::translate
+     * @return A translated version of sourceText, optionally based on a
+     * disambiguation string and value of n for strings containing plurals;
+     * otherwise returns QString::fromUtf8(sourceText) if no appropriate
+     * translated string is available.
+     */
+    QString translateSystemLocale(const char *context, const char *sourceText, const char *disambiguation = nullptr, int n = -1) const;
+
+    /**
      * @brief Triggers a specific main menu item.
      * @param menuItem The MainMenuItem to trigger.
      */
@@ -407,6 +421,9 @@ private:
      * timing policy in one place. See main_application.cpp.
      */
     void whenInitializedDispatch(const QObject *context, std::function<void()> fn);
+
+    /* @brief Gets the list of paths that might contain translation .ts files */
+    QStringList getTranslationsPaths() const;
 
     /** Indicates if the application initialization has completed. */
     bool initialized_;

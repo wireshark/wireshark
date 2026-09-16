@@ -834,18 +834,9 @@ static void switchTranslator(QTranslator& myTranslator, const QLocale &locale, c
     }
 }
 
-void MainApplication::loadLanguage(const QString newLanguage)
+QStringList MainApplication::getTranslationsPaths() const
 {
-    QLocale locale;
     const char* env_prefix = application_configuration_environment_prefix();
-
-    if (newLanguage.isEmpty() || newLanguage == USE_SYSTEM_LANGUAGE) {
-        locale = QLocale::system();
-    } else {
-        locale = QLocale(newLanguage);
-    }
-
-    QLocale::setDefault(locale);
 
     // Search path list ordered by priority. Prefer personal configuration
     // to global datadir to embedded resources to Qt global directory.
@@ -860,6 +851,23 @@ void MainApplication::loadLanguage(const QString newLanguage)
     searchPath.emplaceBack(QLibraryInfo::path(QLibraryInfo::TranslationsPath));
 #endif
 
+    return searchPath;
+}
+
+void MainApplication::loadLanguage(const QString newLanguage)
+{
+    QLocale locale;
+
+    if (newLanguage.isEmpty() || newLanguage == USE_SYSTEM_LANGUAGE) {
+        locale = QLocale::system();
+    } else {
+        locale = QLocale(newLanguage);
+    }
+
+    QLocale::setDefault(locale);
+
+    QStringList searchPath = getTranslationsPaths();
+
     // Translations are searched for in the reverse order in which they were
     // installed, so install the Qt generic translator first and ours last.
     switchTranslator(mainApp->translatorQt, locale, QStringLiteral("qt"), searchPath);
@@ -868,6 +876,38 @@ void MainApplication::loadLanguage(const QString newLanguage)
     // There is a stratoshark_en.[ts|qm] file too (for plurals?) though I'm
     // not sure if it's used properly.
     switchTranslator(mainApp->translator, locale, QStringLiteral("wireshark"), searchPath);
+}
+
+QString MainApplication::translateSystemLocale(const char *context, const char *sourceText, const char *disambiguation, int n) const
+{
+    // If we called this a lot, we could store the system QTranslators as
+    // member variables, but we only call this when constructing the
+    // language preference QComboBox.
+    QTranslator systemTranslator;
+    QString translated;
+    QStringList searchPath = getTranslationsPaths();
+
+    // Search in our translations first
+    for (const QString &path : searchPath) {
+        if (systemTranslator.load(QLocale::system(), QStringLiteral("wireshark"), QStringLiteral("_"), path)) {
+            translated = systemTranslator.translate(context, sourceText, disambiguation, n);
+            if (!translated.isEmpty()) {
+                return translated;
+            }
+        }
+    }
+
+    // Try the generic Qt translations
+    for (const QString &path : searchPath) {
+        if (systemTranslator.load(QLocale::system(), QStringLiteral("qt"), QStringLiteral("_"), path)) {
+            translated = systemTranslator.translate(context, sourceText, disambiguation, n);
+            if (!translated.isEmpty()) {
+                return translated;
+            }
+        }
+    }
+
+    return QString::fromUtf8(sourceText);
 }
 
 void MainApplication::doTriggerMenuItem(MainMenuItem menuItem)

@@ -159,7 +159,7 @@ private slots:
      * @brief Slot triggered when the language combo box index changes.
      * @param index The new index.
      */
-    void on_languageComboBox_currentIndexChanged(int index);
+    void languageComboBoxCurrentIndexChanged(int index);
 
     /**
      * @brief Slot triggered when the window title line edit is modified.
