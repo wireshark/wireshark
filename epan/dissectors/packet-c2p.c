@@ -1160,6 +1160,12 @@ typedef enum sti_type_t {
     STI_EV_JACKKNIFE,
 
     /**
+    ISO-3166-1 numeric country code.
+    @type [integer]
+    */
+    STI_COUNTRY_CODE,
+
+    /**
     Project specific STI values.
     @type [integer]
     @unit [varying]
@@ -1853,6 +1859,7 @@ static const value_string sti_types[STI_TYPE_LAST + 1] = {
     { STI_PEDESTRIAN_COLLISION, "Pedestrian collision" },
     { STI_HIGH_SEVERITY_CRASH, "High severity crash" },
     { STI_EV_JACKKNIFE, "Jackknife" },
+    { STI_COUNTRY_CODE, "Country code" },
     { STI_PROJECT_00, "Project #0" },
     { STI_PROJECT_01, "Project #1" },
     { STI_PROJECT_02, "Project #2" },
@@ -1989,6 +1996,7 @@ static const int* const sti_params[STI_TYPE_LAST] = {
     [STI_PEDESTRIAN_COLLISION] = &hf_c2p_sti_value_state_desc,
     [STI_HIGH_SEVERITY_CRASH] = &hf_c2p_sti_value_state_desc,
     [STI_EV_JACKKNIFE] = &hf_c2p_sti_value_state_desc,
+    [STI_COUNTRY_CODE] = &hf_c2p_sti_value_integer_desc,
     [STI_PROJECT_00] = &hf_c2p_sti_value_integer_desc,
     [STI_PROJECT_01] = &hf_c2p_sti_value_integer_desc,
     [STI_PROJECT_02] = &hf_c2p_sti_value_integer_desc,
