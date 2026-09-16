@@ -23,6 +23,8 @@
 // - Figure out module timestamps
 // - Read the ports array? Is there any advantage to doing that vs our built in
 //   port number resolution?
+// - Disable compression and mmap the file? That's probably what Process Monitor
+//   itself does.
 
 #pragma pack(push,1)
 typedef struct procmon_header_s {
@@ -143,8 +145,9 @@ typedef struct {
 } procmon_file_info_t;
 
 #define COMMON_EVENT_STRUCT_SIZE 52
-// Most of these are arbitrary
-#define MAX_PROCMON_EVENTS (500 * 1000 * 1000)
+// Most of these are arbitrary. Care should be taken to ensure that we don't
+// allocate too much memory.
+#define MAX_PROCMON_EVENTS (50 * 1000 * 1000) // * uint32_t = 200 MB
 #define MAX_PROCMON_STRINGS (1000 * 1000)
 #define MAX_PROCMON_STRING_LENGTH 8192
 #define MAX_PROCMON_PROCESSES (500 * 1000)
@@ -529,8 +532,13 @@ wtap_open_return_val procmon_open(wtap *wth, int *err, char **err_info)
 #endif
 
     if (header->num_events > MAX_PROCMON_EVENTS) {
-        ws_debug("Truncating events from %u to %u", header->num_events, MAX_PROCMON_EVENTS);
-        header->num_events = MAX_PROCMON_EVENTS;
+        // If we need to read more events and the file is uncompressed, we could
+        // use g_mapped_file_new instead.
+        file_info_cleanup(file_info);
+        ws_debug("wtap_read_bytes_or_eof() failed, err = %d.", *err);
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("Too many events: %u (max %u)", header->num_events, MAX_PROCMON_EVENTS);
+        return WTAP_OPEN_ERROR;
     }
 
     // Read the event offsets array, which we use in procmon_read(). It's not clear
