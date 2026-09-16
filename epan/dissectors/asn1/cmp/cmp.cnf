@@ -4,11 +4,13 @@
 #.MODULE_IMPORT
 PKIX1Explicit88	pkix1explicit
 PKIX1Implicit88	pkix1implicit
-PKCS-10 pkcs10
+CertificateExtensions x509ce
+CryptographicMessageSyntax2004 cms
 
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
 #.INCLUDE ../pkix1implicit/pkix1implicit-exp.cnf
 #.INCLUDE ../crmf/crmf-exp.cnf
+#.INCLUDE ../cms/cms-exp.cnf
 
 #.EXPORTS
 PKIMessage
@@ -33,8 +35,20 @@ ImplicitConfirmValue   B "1.3.6.1.5.5.7.4.13"     "id-it-implicitConfirm"
 ConfirmWaitTimeValue   B "1.3.6.1.5.5.7.4.14"     "id-it-confirmWaitTime"
 OrigPKIMessageValue    B "1.3.6.1.5.5.7.4.15"     "id-it-origPKIMessage"
 SuppLangTagsValue      B "1.3.6.1.5.5.7.4.16"     "id-it-suppLangTags"
+CaCertsValue           B "1.3.6.1.5.5.7.4.17"     "id-it-caCerts"
+RootCaKeyUpdateValue   B "1.3.6.1.5.5.7.4.18"     "id-it-rootCaKeyUpdate"
+CertReqTemplateValue   B "1.3.6.1.5.5.7.4.19"     "id-it-certReqTemplate"
+RootCaCertValue        B "1.3.6.1.5.5.7.4.20"     "id-it-rootCaCert"
+CertProfileValue       B "1.3.6.1.5.5.7.4.21"     "id-it-certProfile"
+CRLStatusListValue     B "1.3.6.1.5.5.7.4.22"     "id-it-crlStatusList"
+CRLsValue              B "1.3.6.1.5.5.7.4.23"     "id-it-crls"
+AltCertTemplate        B "1.3.6.1.5.5.7.5.1.7"    "id-regCtrl-altCertTemplate"
+AlgIdCtrl              B "1.3.6.1.5.5.7.5.1.11"   "id-regCtrl-algId"
+RsaKeyLenCtrl          B "1.3.6.1.5.5.7.5.1.12"   "id-regCtrl-rsaKeyLen"
 
 #.NO_EMIT
+LocalKeyIdValue
+Rand
 
 #.TYPE_RENAME
 

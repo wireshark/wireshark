@@ -22,10 +22,11 @@
 #include <wsutil/array.h>
 #include "packet-ber.h"
 #include "packet-cmp.h"
+#include "packet-cms.h"
 #include "packet-crmf.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
-#include "packet-pkcs10.h"
+#include "packet-x509ce.h"
 #include "packet-tcp.h"
 #include "packet-http.h"
 #include <epan/prefs.h>

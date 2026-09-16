@@ -36,6 +36,7 @@ set( EXTRA_CNF
 	../pkix1explicit/pkix1explicit_exp.cnf
 	"${CMAKE_CURRENT_BINARY_DIR}/../pkix1implicit/pkix1implicit-exp.cnf"
 	"${CMAKE_CURRENT_BINARY_DIR}/../crmf/crmf-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../x509ce/x509ce-exp.cnf"
 )
 
 ASN2WRS()

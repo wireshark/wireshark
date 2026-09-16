@@ -14,7 +14,8 @@ AttributeTypeAndValue
 CertId
 CertReqMessages
 CertTemplate
-EncryptedValue
+Controls
+EncryptedKey
 PKIPublicationInfo
 
 #.REGISTER

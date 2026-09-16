@@ -1,522 +1,650 @@
--- Extracted from RFC4210
--- by Martin Peylo <martin.peylo@nsn.com>
+-- From RFC9480
 --
--- Changes to the original ASN.1 source:
---   - Commented out the import of UTF8String which is not needed
---   - Commented out PKIBody/p10cr since PKCS-10 is not implemented
---   - Uncommented the definitions for the OIDs used in InfoTypeAndValue
---
--- The copyright statement from the original description in RFC4211
--- follows below:
---
--- Full Copyright Statement
---
---    Copyright (C) The Internet Society (2005).
---
---    This document is subject to the rights, licenses and restrictions
---    contained in BCP 78, and except as set forth therein, the authors
---    retain all their rights.
---
---    This document and the information contained herein are provided on an
---    "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
---    OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
---    ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
---    INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
---    INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
---    WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+-- Changes:
+--  - Uncommented the definitions of the OIDs used in InfoTypeAndValue
+--  - Import DistributionPointName and GeneralNames from X509ce
+--    (CertificateExtensions) instead
 
-     PKIXCMP {iso(1) identified-organization(3)
+PKIXCMP {iso(1) identified-organization(3)
+      dod(6) internet(1) security(5) mechanisms(5) pkix(7)
+      id-mod(0) id-mod-cmp2021-88(99)}
+
+DEFINITIONS EXPLICIT TAGS ::=
+
+BEGIN
+
+-- EXPORTS ALL --
+
+IMPORTS
+
+    Certificate, CertificateList, Extensions, Name, Time,
+    AlgorithmIdentifier, id-kp
+    --, UTF8String -- -- if required; otherwise, comment out
+           FROM PKIX1Explicit88 {iso(1) identified-organization(3)
            dod(6) internet(1) security(5) mechanisms(5) pkix(7)
-           id-mod(0) id-mod-cmp2000(16)}
+           id-mod(0) id-pkix1-explicit-88(18)}
+    -- The import of Name is added to define CertificationRequest
+    -- instead of importing it from PKCS #10 [RFC2986].
 
-     DEFINITIONS EXPLICIT TAGS ::=
+    -- DistributionPointName, GeneralNames, GeneralName, -- KeyIdentifier
+           FROM PKIX1Implicit88 {iso(1) identified-organization(3)
+           dod(6) internet(1) security(5) mechanisms(5) pkix(7)
+           id-mod(0) id-pkix1-implicit-88(19)}
 
-     BEGIN
+    CertTemplate, PKIPublicationInfo, EncryptedKey, CertId,
+    CertReqMessages, Controls, AttributeTypeAndValue, id-regCtrl
+           FROM PKIXCRMF-2005 {iso(1) identified-organization(3)
+           dod(6) internet(1) security(5) mechanisms(5) pkix(7)
+           id-mod(0) id-mod-crmf2005(36)}
+    -- The import of EncryptedKey is added due to the updates made
+    -- in CMP Updates [RFC9480]. EncryptedValue does not need to
+    -- be imported anymore and is therefore removed here.
 
-     -- EXPORTS ALL --
+    -- Also, see the behavioral clarifications to CRMF codified in
+    -- Appendix C of this specification.
 
-     IMPORTS
+    EnvelopedData, SignedData, Attribute
+           FROM CryptographicMessageSyntax2004 { iso(1)
+           member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs-9(9)
+           smime(16) modules(0) cms-2004(24) }
+    -- The import of EnvelopedData and SignedData is added due to
+    -- the updates made in CMP Updates [RFC9480].
+    -- The import of Attribute is added to define
+    -- CertificationRequest instead of importing it from
+    -- PKCS #10 [RFC2986].
 
-         Certificate, CertificateList, Extensions, AlgorithmIdentifier --,
-         -- UTF8String
-	 -- if required; otherwise, comment out
-                FROM PKIX1Explicit88 {iso(1) identified-organization(3)
-                dod(6) internet(1) security(5) mechanisms(5) pkix(7)
-                id-mod(0) id-pkix1-explicit-88(1)}
+    DistributionPointName, GeneralNames, GeneralName
+           FROM CertificateExtensions {joint-iso-itu-t ds(5) module(1)
+           certificateExtensions(26) 5}
+    ;
 
-         GeneralName, KeyIdentifier
-                FROM PKIX1Implicit88 {iso(1) identified-organization(3)
-                dod(6) internet(1) security(5) mechanisms(5) pkix(7)
-                id-mod(0) id-pkix1-implicit-88(2)}
+-- The rest of the module contains locally defined OIDs and
+-- constructs:
 
-         CertTemplate, PKIPublicationInfo, EncryptedValue, CertId,
-         CertReqMessages
-                FROM PKIXCRMF-2005 {iso(1) identified-organization(3)
-                dod(6) internet(1) security(5) mechanisms(5) pkix(7)
-                id-mod(0) id-mod-crmf2005(36)}
+CMPCertificate ::= CHOICE {
+    x509v3PKCert        Certificate
+}
+-- This syntax, while bits-on-the-wire compatible with the
+-- standard X.509 definition of "Certificate", allows the
+-- possibility of future certificate types (such as X.509
+-- attribute certificates, card-verifiable
+-- certificates, or other kinds of certificates) within this
+-- Certificate Management Protocol, should a need ever arise to
+-- support such generality.  Those implementations that do not
+-- foresee a need to ever support other certificate types MAY, if
+-- they wish, comment out the above structure and "uncomment" the
+-- following one prior to compiling this ASN.1 module.  (Note that
+-- interoperability with implementations that don't do this will be
+-- unaffected by this change.)
 
-         -- see also the behavioral clarifications to CRMF codified in
-         -- Appendix C of this specification
+-- CMPCertificate ::= Certificate
 
-         CertificationRequest
-                FROM PKCS-10 {iso(1) member-body(2)
-                              us(840) rsadsi(113549)
-                              pkcs(1) pkcs-10(10) modules(1) pkcs-10(1)}
+PKIMessage ::= SEQUENCE {
+    header           PKIHeader,
+    body             PKIBody,
+    protection   [0] PKIProtection OPTIONAL,
+    extraCerts   [1] SEQUENCE SIZE (1..MAX) OF CMPCertificate
+                     OPTIONAL
+}
 
-         -- (specified in RFC 2986 with 1993 ASN.1 syntax and IMPLICIT
-         -- tags).  Alternatively, implementers may directly include
-         -- the [PKCS10] syntax in this module
+PKIMessages ::= SEQUENCE SIZE (1..MAX) OF PKIMessage
 
-         ;
+PKIHeader ::= SEQUENCE {
+    pvno                INTEGER     { cmp1999(1), cmp2000(2),
+                                      cmp2021(3) },
+    sender              GeneralName,
+    -- identifies the sender
+    recipient           GeneralName,
+    -- identifies the intended recipient
+    messageTime     [0] GeneralizedTime         OPTIONAL,
+    -- time of production of this message (used when the sender
+    -- believes that the transport will be "suitable", i.e.,
+    -- that the time will still be meaningful upon receipt)
+    protectionAlg   [1] AlgorithmIdentifier     OPTIONAL,
+    -- algorithm used for the calculation of protection bits
+    senderKID       [2] KeyIdentifier           OPTIONAL,
+    recipKID        [3] KeyIdentifier           OPTIONAL,
+    -- to identify specific keys used for protection
+    transactionID   [4] OCTET STRING            OPTIONAL,
+    -- identifies the transaction, i.e., this will be the same in
+    -- corresponding request, response, certConf, and PKIConf
+    -- messages
+    senderNonce     [5] OCTET STRING            OPTIONAL,
+    recipNonce      [6] OCTET STRING            OPTIONAL,
+    -- nonces used to provide replay protection, senderNonce
+    -- is inserted by the creator of this message; recipNonce
+    -- is a nonce previously inserted in a related message by
+    -- the intended recipient of this message.
+    freeText        [7] PKIFreeText             OPTIONAL,
+    -- this may be used to indicate context-specific instructions
+    -- (this field is intended for human consumption)
+    generalInfo     [8] SEQUENCE SIZE (1..MAX) OF
+                           InfoTypeAndValue     OPTIONAL
+    -- this may be used to convey context-specific information
+    -- (this field not primarily intended for human consumption)
+}
 
-   -- the rest of the module contains locally-defined OIDs and
-   -- constructs
+PKIFreeText ::= SEQUENCE SIZE (1..MAX) OF UTF8String
+    -- text encoded as a UTF-8 string [RFC3629]
 
-      CMPCertificate ::= CHOICE {
-         x509v3PKCert        Certificate
-      }
-   -- This syntax, while bits-on-the-wire compatible with the
-   -- standard X.509 definition of "Certificate", allows the
-   -- possibility of future certificate types (such as X.509
-   -- attribute certificates, WAP WTLS certificates, or other kinds
-   -- of certificates) within this certificate management protocol,
-   -- should a need ever arise to support such generality.  Those
-   -- implementations that do not foresee a need to ever support
-   -- other certificate types MAY, if they wish, comment out the
-   -- above structure and "un-comment" the following one prior to
-   -- compiling this ASN.1 module.  (Note that interoperability
-   -- with implementations that don't do this will be unaffected by
-   -- this change.)
+PKIBody ::= CHOICE {       -- message-specific body elements
+    ir       [0]  CertReqMessages,        --Initialization Request
+    ip       [1]  CertRepMessage,         --Initialization Response
+    cr       [2]  CertReqMessages,        --Certification Request
+    cp       [3]  CertRepMessage,         --Certification Response
+    p10cr    [4]  CertificationRequest,   --imported from [RFC2986]
+    popdecc  [5]  POPODecKeyChallContent, --pop Challenge
+    popdecr  [6]  POPODecKeyRespContent,  --pop Response
+    kur      [7]  CertReqMessages,        --Key Update Request
+    kup      [8]  CertRepMessage,         --Key Update Response
+    krr      [9]  CertReqMessages,        --Key Recovery Request
+    krp      [10] KeyRecRepContent,       --Key Recovery Response
+    rr       [11] RevReqContent,          --Revocation Request
+    rp       [12] RevRepContent,          --Revocation Response
+    ccr      [13] CertReqMessages,        --Cross-Cert. Request
+    ccp      [14] CertRepMessage,         --Cross-Cert. Response
+    ckuann   [15] CAKeyUpdAnnContent,     --CA Key Update Ann.
+    cann     [16] CertAnnContent,         --Certificate Ann.
+    rann     [17] RevAnnContent,          --Revocation Ann.
+    crlann   [18] CRLAnnContent,          --CRL Announcement
+    pkiconf  [19] PKIConfirmContent,      --Confirmation
+    nested   [20] NestedMessageContent,   --Nested Message
+    genm     [21] GenMsgContent,          --General Message
+    genp     [22] GenRepContent,          --General Response
+    error    [23] ErrorMsgContent,        --Error Message
+    certConf [24] CertConfirmContent,     --Certificate Confirm
+    pollReq  [25] PollReqContent,         --Polling Request
+    pollRep  [26] PollRepContent          --Polling Response
+}
 
-   -- CMPCertificate ::= Certificate
+PKIProtection ::= BIT STRING
 
-      PKIMessage ::= SEQUENCE {
-         header           PKIHeader,
-         body             PKIBody,
-         protection   [0] PKIProtection OPTIONAL,
-         extraCerts   [1] SEQUENCE SIZE (1..MAX) OF CMPCertificate
-                          OPTIONAL
-     }
+ProtectedPart ::= SEQUENCE {
+    header    PKIHeader,
+    body      PKIBody
+}
 
-     PKIMessages ::= SEQUENCE SIZE (1..MAX) OF PKIMessage
-
-     PKIHeader ::= SEQUENCE {
-         pvno                INTEGER     { cmp1999(1), cmp2000(2) },
-         sender              GeneralName,
-         -- identifies the sender
-         recipient           GeneralName,
-         -- identifies the intended recipient
-         messageTime     [0] GeneralizedTime         OPTIONAL,
-         -- time of production of this message (used when sender
-         -- believes that the transport will be "suitable"; i.e.,
-         -- that the time will still be meaningful upon receipt)
-         protectionAlg   [1] AlgorithmIdentifier     OPTIONAL,
-         -- algorithm used for calculation of protection bits
-         senderKID       [2] KeyIdentifier           OPTIONAL,
-         recipKID        [3] KeyIdentifier           OPTIONAL,
-         -- to identify specific keys used for protection
-         transactionID   [4] OCTET STRING            OPTIONAL,
-         -- identifies the transaction; i.e., this will be the same in
-         -- corresponding request, response, certConf, and PKIConf
-         -- messages
-         senderNonce     [5] OCTET STRING            OPTIONAL,
-         recipNonce      [6] OCTET STRING            OPTIONAL,
-         -- nonces used to provide replay protection, senderNonce
-         -- is inserted by the creator of this message; recipNonce
-         -- is a nonce previously inserted in a related message by
-         -- the intended recipient of this message
-         freeText        [7] PKIFreeText             OPTIONAL,
-         -- this may be used to indicate context-specific instructions
-         -- (this field is intended for human consumption)
-         generalInfo     [8] SEQUENCE SIZE (1..MAX) OF
-                                InfoTypeAndValue     OPTIONAL
-         -- this may be used to convey context-specific information
-         -- (this field not primarily intended for human consumption)
-     }
-
-     PKIFreeText ::= SEQUENCE SIZE (1..MAX) OF UTF8String
-         -- text encoded as UTF-8 String [RFC3629] (note: each
-         -- UTF8String MAY include an [RFC3066] language tag
-         -- to indicate the language of the contained text
-         -- see [RFC2482] for details)
-
-     PKIBody ::= CHOICE {       -- message-specific body elements
-         ir       [0]  CertReqMessages,        --Initialization Request
-         ip       [1]  CertRepMessage,         --Initialization Response
-         cr       [2]  CertReqMessages,        --Certification Request
-         cp       [3]  CertRepMessage,         --Certification Response
-         p10cr    [4]  CertificationRequest,   --imported from [PKCS10]
-         popdecc  [5]  POPODecKeyChallContent, --pop Challenge
-         popdecr  [6]  POPODecKeyRespContent,  --pop Response
-         kur      [7]  CertReqMessages,        --Key Update Request
-         kup      [8]  CertRepMessage,         --Key Update Response
-         krr      [9]  CertReqMessages,        --Key Recovery Request
-         krp      [10] KeyRecRepContent,       --Key Recovery Response
-         rr       [11] RevReqContent,          --Revocation Request
-         rp       [12] RevRepContent,          --Revocation Response
-         ccr      [13] CertReqMessages,        --Cross-Cert. Request
-         ccp      [14] CertRepMessage,         --Cross-Cert. Response
-         ckuann   [15] CAKeyUpdAnnContent,     --CA Key Update Ann.
-         cann     [16] CertAnnContent,         --Certificate Ann.
-         rann     [17] RevAnnContent,          --Revocation Ann.
-         crlann   [18] CRLAnnContent,          --CRL Announcement
-         pkiconf  [19] PKIConfirmContent,      --Confirmation
-         nested   [20] NestedMessageContent,   --Nested Message
-         genm     [21] GenMsgContent,          --General Message
-         genp     [22] GenRepContent,          --General Response
-         error    [23] ErrorMsgContent,        --Error Message
-         certConf [24] CertConfirmContent,     --Certificate confirm
-         pollReq  [25] PollReqContent,         --Polling request
-         pollRep  [26] PollRepContent          --Polling response
-     }
-
-     PKIProtection ::= BIT STRING
-
-     ProtectedPart ::= SEQUENCE {
-         header    PKIHeader,
-         body      PKIBody
-     }
-
-     id-PasswordBasedMac OBJECT IDENTIFIER ::= {1 2 840 113533 7 66 13}
-     PBMParameter ::= SEQUENCE {
-         salt                OCTET STRING,
-         -- note:  implementations MAY wish to limit acceptable sizes
-         -- of this string to values appropriate for their environment
-         -- in order to reduce the risk of denial-of-service attacks
-         owf                 AlgorithmIdentifier,
-         -- AlgId for a One-Way Function (SHA-1 recommended)
-         iterationCount      INTEGER,
-         -- number of times the OWF is applied
-         -- note:  implementations MAY wish to limit acceptable sizes
-         -- of this integer to values appropriate for their environment
-         -- in order to reduce the risk of denial-of-service attacks
-         mac                 AlgorithmIdentifier
-         -- the MAC AlgId (e.g., DES-MAC, Triple-DES-MAC [PKCS11],
-     }   -- or HMAC [RFC2104, RFC2202])
-
-     id-DHBasedMac OBJECT IDENTIFIER ::= {1 2 840 113533 7 66 30}
-     DHBMParameter ::= SEQUENCE {
-         owf                 AlgorithmIdentifier,
-         -- AlgId for a One-Way Function (SHA-1 recommended)
-         mac                 AlgorithmIdentifier
-         -- the MAC AlgId (e.g., DES-MAC, Triple-DES-MAC [PKCS11],
-     }   -- or HMAC [RFC2104, RFC2202])
+id-PasswordBasedMac OBJECT IDENTIFIER ::= {1 2 840 113533 7 66 13}
+PBMParameter ::= SEQUENCE {
+    salt                OCTET STRING,
+    -- Note: Implementations MAY wish to limit acceptable sizes
+    -- of this string to values appropriate for their environment
+    -- in order to reduce the risk of denial-of-service attacks.
+    owf                 AlgorithmIdentifier,
+    -- AlgId for a One-Way Function (OWF)
+    iterationCount      INTEGER,
+    -- number of times the OWF is applied
+    -- Note: Implementations MAY wish to limit acceptable sizes
+    -- of this integer to values appropriate for their environment
+    -- in order to reduce the risk of denial-of-service attacks.
+    mac                 AlgorithmIdentifier
+    -- the MAC AlgId (e.g., HMAC-SHA256, AES-GMAC [RFC9481],
+}   -- or HMAC [RFC2104, RFC2202])
 
 
-     NestedMessageContent ::= PKIMessages
 
-     PKIStatus ::= INTEGER {
-         accepted                (0),
-         -- you got exactly what you asked for
-         grantedWithMods        (1),
-         -- you got something like what you asked for; the
-         -- requester is responsible for ascertaining the differences
-         rejection              (2),
-         -- you don't get it, more information elsewhere in the message
-         waiting                (3),
-         -- the request body part has not yet been processed; expect to
-         -- hear more later (note: proper handling of this status
-         -- response MAY use the polling req/rep PKIMessages specified
-         -- in Section 5.3.22; alternatively, polling in the underlying
-         -- transport layer MAY have some utility in this regard)
-         revocationWarning      (4),
-         -- this message contains a warning that a revocation is
-         -- imminent
-         revocationNotification (5),
-         -- notification that a revocation has occurred
-         keyUpdateWarning       (6)
-         -- update already done for the oldCertId specified in
-         -- CertReqMsg
-     }
+id-DHBasedMac OBJECT IDENTIFIER ::= {1 2 840 113533 7 66 30}
+DHBMParameter ::= SEQUENCE {
+    owf                 AlgorithmIdentifier,
+    -- AlgId for a One-Way Function
+    mac                 AlgorithmIdentifier
+    -- the MAC AlgId (e.g., HMAC-SHA256, AES-GMAC [RFC9481],
+}   -- or HMAC [RFC2104, RFC2202])
 
-     PKIFailureInfo ::= BIT STRING {
-     -- since we can fail in more than one way!
-     -- More codes may be added in the future if/when required.
-         badAlg              (0),
-         -- unrecognized or unsupported Algorithm Identifier
-         badMessageCheck     (1),
-         -- integrity check failed (e.g., signature did not verify)
-         badRequest          (2),
-         -- transaction not permitted or supported
-         badTime             (3),
-         -- messageTime was not sufficiently close to the system time,
-         -- as defined by local policy
-         badCertId           (4),
-         -- no certificate could be found matching the provided criteria
-         badDataFormat       (5),
-         -- the data submitted has the wrong format
-         wrongAuthority      (6),
-         -- the authority indicated in the request is different from the
-         -- one creating the response token
-         incorrectData       (7),
-         -- the requester's data is incorrect (for notary services)
-         missingTimeStamp    (8),
-         -- when the timestamp is missing but should be there
-         -- (by policy)
-         badPOP              (9),
-         -- the proof-of-possession failed
-         certRevoked         (10),
-            -- the certificate has already been revoked
-         certConfirmed       (11),
-            -- the certificate has already been confirmed
-         wrongIntegrity      (12),
-            -- invalid integrity, password based instead of signature or
-            -- vice versa
-         badRecipientNonce   (13),
-            -- invalid recipient nonce, either missing or wrong value
-         timeNotAvailable    (14),
-            -- the TSA's time source is not available
-         unacceptedPolicy    (15),
-            -- the requested TSA policy is not supported by the TSA.
-         unacceptedExtension (16),
-            -- the requested extension is not supported by the TSA.
-         addInfoNotAvailable (17),
-            -- the additional information requested could not be
-            -- understood or is not available
-         badSenderNonce      (18),
-            -- invalid sender nonce, either missing or wrong size
-         badCertTemplate     (19),
-            -- invalid cert. template or missing mandatory information
-         signerNotTrusted    (20),
-            -- signer of the message unknown or not trusted
-         transactionIdInUse  (21),
-            -- the transaction identifier is already in use
-         unsupportedVersion  (22),
-            -- the version of the message is not supported
-         notAuthorized       (23),
-            -- the sender was not authorized to make the preceding
-            -- request or perform the preceding action
-         systemUnavail       (24),
-         -- the request cannot be handled due to system unavailability
-         systemFailure       (25),
-         -- the request cannot be handled due to system failure
-         duplicateCertReq    (26)
-         -- certificate cannot be issued because a duplicate
-         -- certificate already exists
-     }
 
-     PKIStatusInfo ::= SEQUENCE {
-         status        PKIStatus,
-         statusString  PKIFreeText     OPTIONAL,
-         failInfo      PKIFailureInfo  OPTIONAL
-     }
+NestedMessageContent ::= PKIMessages
 
-     OOBCert ::= CMPCertificate
+PKIStatus ::= INTEGER {
+    accepted               (0),
+    -- you got exactly what you asked for
+    grantedWithMods        (1),
+    -- you got something like what you asked for; the
+    -- requester is responsible for ascertaining the differences
+    rejection              (2),
+    -- you don't get it, more information elsewhere in the message
+    waiting                (3),
+    -- the request body part has not yet been processed; expect to
+    -- hear more later (note: proper handling of this status
+    -- response MAY use the polling req/rep PKIMessages specified
+    -- in Section 5.3.22 of [RFC4210]; alternatively, polling in the
+    -- underlying transport layer MAY have some utility in this
+    -- regard)
+    revocationWarning      (4),
+    -- this message contains a warning that a revocation is
+    -- imminent
+    revocationNotification (5),
+    -- notification that a revocation has occurred
+    keyUpdateWarning       (6)
+    -- update already done for the oldCertId specified in
+    -- CertReqMsg
+}
 
-     OOBCertHash ::= SEQUENCE {
-         hashAlg     [0] AlgorithmIdentifier     OPTIONAL,
-         certId      [1] CertId                  OPTIONAL,
-         hashVal         BIT STRING
-         -- hashVal is calculated over the DER encoding of the
-         -- self-signed certificate with the identifier certID.
-     }
+PKIFailureInfo ::= BIT STRING {
+-- since we can fail in more than one way!
+-- More codes may be added in the future if/when required.
+    badAlg              (0),
+    -- unrecognized or unsupported algorithm identifier
+    badMessageCheck     (1),
+    -- integrity check failed (e.g., signature did not verify)
+    badRequest          (2),
+    -- transaction not permitted or supported
+    badTime             (3),
+    -- messageTime was not sufficiently close to the system time,
+    -- as defined by local policy
+    badCertId           (4),
+    -- no certificate could be found matching the provided criteria
+    badDataFormat       (5),
+    -- the data submitted has the wrong format
+    wrongAuthority      (6),
+    -- the authority indicated in the request is different from the
+    -- one creating the response token
+    incorrectData       (7),
+    -- the requester's data is incorrect (for notary services)
+    missingTimeStamp    (8),
+    -- when the timestamp is missing but should be there
+    -- (by policy)
+    badPOP              (9),
+    -- the proof-of-possession failed
+    certRevoked         (10),
+    -- the certificate has already been revoked
+    certConfirmed       (11),
+    -- the certificate has already been confirmed
+    wrongIntegrity      (12),
+    -- not valid integrity, based on the password instead of the
+    -- signature or vice versa
+    badRecipientNonce   (13),
+    -- not valid recipient nonce, either missing or wrong value
+    timeNotAvailable    (14),
+    -- the time source of the Time Stamping Authority (TSA) is
+    -- not available
+    unacceptedPolicy    (15),
+    -- the requested TSA policy is not supported by the TSA
+    unacceptedExtension (16),
+    -- the requested extension is not supported by the TSA
+    addInfoNotAvailable (17),
+    -- the additional information requested could not be
+    -- understood or is not available
+    badSenderNonce      (18),
+    -- not valid sender nonce, either missing or wrong size
+    badCertTemplate     (19),
+    -- not valid cert. template or missing mandatory information
+    signerNotTrusted    (20),
+    -- signer of the message unknown or not trusted
+    transactionIdInUse  (21),
+    -- the transaction identifier is already in use
+    unsupportedVersion  (22),
+    -- the version of the message is not supported
+    notAuthorized       (23),
+    -- the sender was not authorized to make the preceding
+    -- request or perform the preceding action
+    systemUnavail       (24),
+    -- the request cannot be handled due to system unavailability
+    systemFailure       (25),
+    -- the request cannot be handled due to system failure
+    duplicateCertReq    (26)
+    -- the certificate cannot be issued because a duplicate
+    -- certificate already exists
+}
 
-     POPODecKeyChallContent ::= SEQUENCE OF Challenge
-     -- One Challenge per encryption key certification request (in the
-     -- same order as these requests appear in CertReqMessages).
+PKIStatusInfo ::= SEQUENCE {
+    status        PKIStatus,
+    statusString  PKIFreeText     OPTIONAL,
+    failInfo      PKIFailureInfo  OPTIONAL
+}
 
-     Challenge ::= SEQUENCE {
-         owf                 AlgorithmIdentifier  OPTIONAL,
+OOBCert ::= CMPCertificate
 
-         -- MUST be present in the first Challenge; MAY be omitted in
-         -- any subsequent Challenge in POPODecKeyChallContent (if
-         -- omitted, then the owf used in the immediately preceding
-         -- Challenge is to be used).
+OOBCertHash ::= SEQUENCE {
+    hashAlg     [0] AlgorithmIdentifier     OPTIONAL,
+    certId      [1] CertId                  OPTIONAL,
+    hashVal         BIT STRING
+    -- hashVal is calculated over the DER encoding of the
+    -- self-signed certificate with the identifier certID.
+}
 
-         witness             OCTET STRING,
-         -- the result of applying the one-way function (owf) to a
-         -- randomly-generated INTEGER, A.  [Note that a different
-         -- INTEGER MUST be used for each Challenge.]
-         challenge           OCTET STRING
-         -- the encryption (under the public key for which the cert.
-         -- request is being made) of Rand, where Rand is specified as
-         --   Rand ::= SEQUENCE {
-         --      int      INTEGER,
-         --       - the randomly-generated INTEGER A (above)
-         --      sender   GeneralName
-         --       - the sender's name (as included in PKIHeader)
-         --   }
-     }
+POPODecKeyChallContent ::= SEQUENCE OF Challenge
+-- one Challenge per encryption key certification request (in the
+-- same order as these requests appear in CertReqMessages)
 
-     POPODecKeyRespContent ::= SEQUENCE OF INTEGER
-     -- One INTEGER per encryption key certification request (in the
-     -- same order as these requests appear in CertReqMessages).  The
-     -- retrieved INTEGER A (above) is returned to the sender of the
-     -- corresponding Challenge.
+Challenge ::= SEQUENCE {
+    owf                 AlgorithmIdentifier  OPTIONAL,
+    -- MUST be present in the first Challenge; MAY be omitted in
+    -- any subsequent Challenge in POPODecKeyChallContent (if
+    -- omitted, then the owf used in the immediately preceding
+    -- Challenge is to be used)
+    witness             OCTET STRING,
+    -- the result of applying the One-Way Function (owf) to a
+    -- randomly generated INTEGER, A (Note that a different
+    -- INTEGER MUST be used for each Challenge.)
+    challenge           OCTET STRING
+    -- the encryption (under the public key for which the cert.
+    -- request is being made) of Rand
+}
 
-     CertRepMessage ::= SEQUENCE {
-         caPubs       [1] SEQUENCE SIZE (1..MAX) OF CMPCertificate
-                          OPTIONAL,
-         response         SEQUENCE OF CertResponse
-     }
+-- Rand was added in CMP Updates [RFC9480]
 
-     CertResponse ::= SEQUENCE {
-         certReqId           INTEGER,
-         -- to match this response with corresponding request (a value
-         -- of -1 is to be used if certReqId is not specified in the
-         -- corresponding request)
-         status              PKIStatusInfo,
-         certifiedKeyPair    CertifiedKeyPair    OPTIONAL,
-         rspInfo             OCTET STRING        OPTIONAL
-         -- analogous to the id-regInfo-utf8Pairs string defined
-         -- for regInfo in CertReqMsg [CRMF]
-     }
+Rand ::= SEQUENCE {
+-- Rand is encrypted under the public key to form the challenge
+-- in POPODecKeyChallContent
+   int                  INTEGER,
+   -- the randomly generated INTEGER A (above)
+   sender               GeneralName
+   -- the sender's name (as included in PKIHeader)
+}
 
-     CertifiedKeyPair ::= SEQUENCE {
-         certOrEncCert       CertOrEncCert,
-         privateKey      [0] EncryptedValue      OPTIONAL,
-         -- see [CRMF] for comment on encoding
-         publicationInfo [1] PKIPublicationInfo  OPTIONAL
-     }
+POPODecKeyRespContent ::= SEQUENCE OF INTEGER
+-- One INTEGER per encryption key certification request (in the
+-- same order as these requests appear in CertReqMessages).  The
+-- retrieved INTEGER A (above) is returned to the sender of the
+-- corresponding Challenge.
 
-     CertOrEncCert ::= CHOICE {
-         certificate     [0] CMPCertificate,
-         encryptedCert   [1] EncryptedValue
-     }
+CertRepMessage ::= SEQUENCE {
+    caPubs       [1] SEQUENCE SIZE (1..MAX) OF CMPCertificate
+                     OPTIONAL,
+    response         SEQUENCE OF CertResponse
+}
 
-     KeyRecRepContent ::= SEQUENCE {
-         status                  PKIStatusInfo,
-         newSigCert          [0] CMPCertificate OPTIONAL,
-         caCerts             [1] SEQUENCE SIZE (1..MAX) OF
-                                             CMPCertificate OPTIONAL,
-         keyPairHist         [2] SEQUENCE SIZE (1..MAX) OF
-                                             CertifiedKeyPair OPTIONAL
-     }
+CertificationRequest ::= SEQUENCE {
+    certificationRequestInfo  SEQUENCE {
+      version                   INTEGER,
+      subject                   Name,
+      subjectPublicKeyInfo      SEQUENCE {
+        algorithm                 AlgorithmIdentifier,
+        subjectPublicKey          BIT STRING },
+      attributes                [0] IMPLICIT SET OF Attribute },
+    signatureAlgorithm        AlgorithmIdentifier,
+    signature                 BIT STRING
+}
 
-     RevReqContent ::= SEQUENCE OF RevDetails
+CertResponse ::= SEQUENCE {
+    certReqId           INTEGER,
+    -- to match this response with the corresponding request (a value
+    -- of -1 is to be used if certReqId is not specified in the
+    -- corresponding request, which can only be a p10cr)
+    status              PKIStatusInfo,
+    certifiedKeyPair    CertifiedKeyPair    OPTIONAL,
+    rspInfo             OCTET STRING        OPTIONAL
+    -- analogous to the id-regInfo-utf8Pairs string defined
+    -- for regInfo in CertReqMsg [RFC4211]
+}
 
-     RevDetails ::= SEQUENCE {
-         certDetails         CertTemplate,
-         -- allows requester to specify as much as they can about
-         -- the cert. for which revocation is requested
-         -- (e.g., for cases in which serialNumber is not available)
-         crlEntryDetails     Extensions       OPTIONAL
-         -- requested crlEntryExtensions
-     }
+CertifiedKeyPair ::= SEQUENCE {
+    certOrEncCert       CertOrEncCert,
+    privateKey      [0] EncryptedKey        OPTIONAL,
+    -- See [RFC4211] for comments on encoding.
+    -- Changed from Encrypted Value to EncryptedKey as a CHOICE of
+    -- EncryptedValue and EnvelopedData due to the changes made in
+    -- CMP Updates [RFC9480].
+    -- Using the choice EncryptedValue is bit-compatible to the
+    -- syntax without this change.
+    publicationInfo [1] PKIPublicationInfo  OPTIONAL
+}
 
-     RevRepContent ::= SEQUENCE {
-         status       SEQUENCE SIZE (1..MAX) OF PKIStatusInfo,
-         -- in same order as was sent in RevReqContent
-         revCerts [0] SEQUENCE SIZE (1..MAX) OF CertId
-                                             OPTIONAL,
-         -- IDs for which revocation was requested
-         -- (same order as status)
-         crls     [1] SEQUENCE SIZE (1..MAX) OF CertificateList
-         -- the resulting CRLs (there may be more than one)
-     }
+CertOrEncCert ::= CHOICE {
+    certificate     [0] CMPCertificate,
+    encryptedCert   [1] EncryptedKey
+    -- Changed from Encrypted Value to EncryptedKey as a CHOICE of
+    -- EncryptedValue and EnvelopedData due to the changes made in
+    -- CMP Updates [RFC9480].
+    -- Using the choice EncryptedValue is bit-compatible to the
+    -- syntax without this change.
+}
 
-     CAKeyUpdAnnContent ::= SEQUENCE {
-         oldWithNew   CMPCertificate, -- old pub signed with new priv
-         newWithOld   CMPCertificate, -- new pub signed with old priv
-         newWithNew   CMPCertificate  -- new pub signed with new priv
-     }
+KeyRecRepContent ::= SEQUENCE {
+    status                  PKIStatusInfo,
+    newSigCert          [0] CMPCertificate OPTIONAL,
+    caCerts             [1] SEQUENCE SIZE (1..MAX) OF
+                                        CMPCertificate OPTIONAL,
+    keyPairHist         [2] SEQUENCE SIZE (1..MAX) OF
+                                        CertifiedKeyPair OPTIONAL
+}
 
-     CertAnnContent ::= CMPCertificate
+RevReqContent ::= SEQUENCE OF RevDetails
 
-     RevAnnContent ::= SEQUENCE {
-         status              PKIStatus,
-         certId              CertId,
-         willBeRevokedAt     GeneralizedTime,
-         badSinceDate        GeneralizedTime,
-         crlDetails          Extensions  OPTIONAL
-         -- extra CRL details (e.g., crl number, reason, location, etc.)
-     }
+RevDetails ::= SEQUENCE {
+    certDetails         CertTemplate,
+    -- allows the requester to specify as much as they can about
+    -- the cert. for which revocation is requested
+    -- (e.g., for cases in which serialNumber is not available)
+    crlEntryDetails     Extensions       OPTIONAL
+    -- requested crlEntryExtensions
+}
 
-     CRLAnnContent ::= SEQUENCE OF CertificateList
+RevRepContent ::= SEQUENCE {
+    status       SEQUENCE SIZE (1..MAX) OF PKIStatusInfo,
+    -- in the same order as was sent in RevReqContent
+    revCerts [0] SEQUENCE SIZE (1..MAX) OF CertId
+                                        OPTIONAL,
+    -- IDs for which revocation was requested
+    -- (same order as status)
+    crls     [1] SEQUENCE SIZE (1..MAX) OF CertificateList
+                                        OPTIONAL
+    -- the resulting CRLs (there may be more than one)
+}
 
-     CertConfirmContent ::= SEQUENCE OF CertStatus
+CAKeyUpdAnnContent ::= SEQUENCE {
+    oldWithNew   CMPCertificate, -- old pub signed with new priv
+    newWithOld   CMPCertificate, -- new pub signed with old priv
+    newWithNew   CMPCertificate  -- new pub signed with new priv
+}
 
-     CertStatus ::= SEQUENCE {
-        certHash    OCTET STRING,
-        -- the hash of the certificate, using the same hash algorithm
-        -- as is used to create and verify the certificate signature
-        certReqId   INTEGER,
-        -- to match this confirmation with the corresponding req/rep
-        statusInfo  PKIStatusInfo OPTIONAL
-     }
+CertAnnContent ::= CMPCertificate
 
-     PKIConfirmContent ::= NULL
+RevAnnContent ::= SEQUENCE {
+    status              PKIStatus,
+    certId              CertId,
+    willBeRevokedAt     GeneralizedTime,
+    badSinceDate        GeneralizedTime,
+    crlDetails          Extensions  OPTIONAL
+    -- extra CRL details (e.g., crl number, reason, location, etc.)
+}
 
-     InfoTypeAndValue ::= SEQUENCE {
-         infoType               OBJECT IDENTIFIER,
-         infoValue              ANY DEFINED BY infoType  OPTIONAL
-     }
-     -- Example InfoTypeAndValue contents include, but are not limited
-     -- to, the following (un-comment in this ASN.1 module and use as
-     -- appropriate for a given environment):
-     --
-     --   id-it-caProtEncCert    OBJECT IDENTIFIER ::= {id-it 1}
-           CAProtEncCertValue      ::= CMPCertificate
-     --   id-it-signKeyPairTypes OBJECT IDENTIFIER ::= {id-it 2}
-           SignKeyPairTypesValue   ::= SEQUENCE OF AlgorithmIdentifier
-     --   id-it-encKeyPairTypes  OBJECT IDENTIFIER ::= {id-it 3}
-           EncKeyPairTypesValue    ::= SEQUENCE OF AlgorithmIdentifier
-     --   id-it-preferredSymmAlg OBJECT IDENTIFIER ::= {id-it 4}
-           PreferredSymmAlgValue   ::= AlgorithmIdentifier
-     --   id-it-caKeyUpdateInfo  OBJECT IDENTIFIER ::= {id-it 5}
-           CAKeyUpdateInfoValue    ::= CAKeyUpdAnnContent
-     --   id-it-currentCRL       OBJECT IDENTIFIER ::= {id-it 6}
-           CurrentCRLValue         ::= CertificateList
-     --   id-it-unsupportedOIDs  OBJECT IDENTIFIER ::= {id-it 7}
-           UnsupportedOIDsValue    ::= SEQUENCE OF OBJECT IDENTIFIER
-     --   id-it-keyPairParamReq  OBJECT IDENTIFIER ::= {id-it 10}
-           KeyPairParamReqValue    ::= OBJECT IDENTIFIER
-     --   id-it-keyPairParamRep  OBJECT IDENTIFIER ::= {id-it 11}
-           KeyPairParamRepValue    ::= AlgorithmIdentifier
-     --   id-it-revPassphrase    OBJECT IDENTIFIER ::= {id-it 12}
-           RevPassphraseValue      ::= EncryptedValue
-     --   id-it-implicitConfirm  OBJECT IDENTIFIER ::= {id-it 13}
-           ImplicitConfirmValue    ::= NULL
-     --   id-it-confirmWaitTime  OBJECT IDENTIFIER ::= {id-it 14}
-           ConfirmWaitTimeValue    ::= GeneralizedTime
-     --   id-it-origPKIMessage   OBJECT IDENTIFIER ::= {id-it 15}
-           OrigPKIMessageValue     ::= PKIMessages
-     --   id-it-suppLangTags     OBJECT IDENTIFIER ::= {id-it 16}
-           SuppLangTagsValue       ::= SEQUENCE OF UTF8String
-     --
-     -- where
-     --
-     --   id-pkix OBJECT IDENTIFIER ::= {
-     --      iso(1) identified-organization(3)
-     --      dod(6) internet(1) security(5) mechanisms(5) pkix(7)}
-     -- and
-     --   id-it   OBJECT IDENTIFIER ::= {id-pkix 4}
-     --
-     --
-     -- This construct MAY also be used to define new PKIX Certificate
-     -- Management Protocol request and response messages, or general-
-     -- purpose (e.g., announcement) messages for future needs or for
-     -- specific environments.
+CRLAnnContent ::= SEQUENCE OF CertificateList
 
-     GenMsgContent ::= SEQUENCE OF InfoTypeAndValue
+CertConfirmContent ::= SEQUENCE OF CertStatus
 
-     -- May be sent by EE, RA, or CA (depending on message content).
-     -- The OPTIONAL infoValue parameter of InfoTypeAndValue will
-     -- typically be omitted for some of the examples given above.
-     -- The receiver is free to ignore any contained OBJ. IDs that it
-     -- does not recognize. If sent from EE to CA, the empty set
-     -- indicates that the CA may send
-     -- any/all information that it wishes.
-     GenRepContent ::= SEQUENCE OF InfoTypeAndValue
-     -- Receiver MAY ignore any contained OIDs that it does not
-     -- recognize.
+CertStatus ::= SEQUENCE {
+   certHash    OCTET STRING,
+   -- the hash of the certificate, using the same hash algorithm
+   -- as is used to create and verify the certificate signature
+   certReqId   INTEGER,
+   -- to match this confirmation with the corresponding req/rep
+   statusInfo  PKIStatusInfo OPTIONAL,
+   hashAlg [0] AlgorithmIdentifier OPTIONAL
+   -- the hash algorithm to use for calculating certHash
+   -- SHOULD NOT be used in all cases where the AlgorithmIdentifier
+   -- of the certificate signature specifies a hash algorithm
+}
 
-     ErrorMsgContent ::= SEQUENCE {
-         pKIStatusInfo          PKIStatusInfo,
-         errorCode              INTEGER           OPTIONAL,
-         -- implementation-specific error codes
-         errorDetails           PKIFreeText       OPTIONAL
-         -- implementation-specific error details
-     }
+PKIConfirmContent ::= NULL
 
-     PollReqContent ::= SEQUENCE OF SEQUENCE {
-         certReqId              INTEGER
-     }
+-- CertReqTemplateContent, id-regCtrl-algId, id-regCtrl-algId, and
+-- id-regCtrl-rsaKeyLen were added in CMP Updates [RFC9480]
 
-     PollRepContent ::= SEQUENCE OF SEQUENCE {
-         certReqId              INTEGER,
-         checkAfter             INTEGER,  -- time in seconds
-         reason                 PKIFreeText OPTIONAL
-     }
+CertReqTemplateContent ::= SEQUENCE {
+   certTemplate           CertTemplate,
+   -- prefilled certTemplate structure elements
+   -- The SubjectPublicKeyInfo field in the certTemplate MUST NOT
+   -- be used.
+   keySpec                Controls OPTIONAL
+   -- MAY be used to specify supported algorithms
+   -- Controls  ::= SEQUENCE SIZE (1..MAX) OF AttributeTypeAndValue
+   -- as specified in CRMF [RFC4211]
+   }
 
-     END -- of CMP module
+id-regCtrl-altCertTemplate OBJECT IDENTIFIER ::= { id-regCtrl 7 }
+   AltCertTemplate ::= AttributeTypeAndValue
+   -- specifies a template for a certificate other than an X.509v3
+   -- public key certificate
+
+id-regCtrl-algId OBJECT IDENTIFIER ::= { id-regCtrl 11 }
+   AlgIdCtrl ::= AlgorithmIdentifier
+   -- SHALL be used to specify supported algorithms other than RSA
+
+id-regCtrl-rsaKeyLen OBJECT IDENTIFIER ::= { id-regCtrl 12 }
+   RsaKeyLenCtrl ::= INTEGER (1..MAX)
+   -- SHALL be used to specify supported RSA key lengths
+
+-- RootCaKeyUpdateContent, CRLSource, and CRLStatus were added in
+-- CMP Updates [RFC9480]
+
+RootCaKeyUpdateContent ::= SEQUENCE {
+   newWithNew       CMPCertificate,
+   -- new root CA certificate
+   newWithOld   [0] CMPCertificate OPTIONAL,
+   -- X.509 certificate containing the new public root CA key
+   -- signed with the old private root CA key
+   oldWithNew   [1] CMPCertificate OPTIONAL
+   -- X.509 certificate containing the old public root CA key
+   -- signed with the new private root CA key
+   }
+
+CRLSource ::= CHOICE {
+   dpn          [0] DistributionPointName,
+   issuer       [1] GeneralNames }
+
+CRLStatus ::= SEQUENCE {
+   source       CRLSource,
+   thisUpdate   Time OPTIONAL }
+
+InfoTypeAndValue ::= SEQUENCE {
+    infoType               OBJECT IDENTIFIER,
+    infoValue              ANY DEFINED BY infoType  OPTIONAL
+}
+-- Example InfoTypeAndValue contents include, but are not limited
+-- to, the following (uncomment in this ASN.1 module and use as
+-- appropriate for a given environment):
+--
+--   id-it-caProtEncCert    OBJECT IDENTIFIER ::= {id-it 1}
+      CAProtEncCertValue      ::= CMPCertificate
+--   id-it-signKeyPairTypes OBJECT IDENTIFIER ::= {id-it 2}
+      SignKeyPairTypesValue   ::= SEQUENCE SIZE (1..MAX) OF
+                                        AlgorithmIdentifier
+--   id-it-encKeyPairTypes  OBJECT IDENTIFIER ::= {id-it 3}
+      EncKeyPairTypesValue    ::= SEQUENCE SIZE (1..MAX) OF
+                                        AlgorithmIdentifier
+--   id-it-preferredSymmAlg OBJECT IDENTIFIER ::= {id-it 4}
+      PreferredSymmAlgValue   ::= AlgorithmIdentifier
+--   id-it-caKeyUpdateInfo  OBJECT IDENTIFIER ::= {id-it 5}
+      CAKeyUpdateInfoValue    ::= CAKeyUpdAnnContent
+--   id-it-currentCRL       OBJECT IDENTIFIER ::= {id-it 6}
+      CurrentCRLValue         ::= CertificateList
+--   id-it-unsupportedOIDs  OBJECT IDENTIFIER ::= {id-it 7}
+      UnsupportedOIDsValue    ::= SEQUENCE SIZE (1..MAX) OF
+                                          OBJECT IDENTIFIER
+--   id-it-keyPairParamReq  OBJECT IDENTIFIER ::= {id-it 10}
+      KeyPairParamReqValue    ::= OBJECT IDENTIFIER
+--   id-it-keyPairParamRep  OBJECT IDENTIFIER ::= {id-it 11}
+      KeyPairParamRepValue    ::= AlgorithmIdentifier
+--   id-it-revPassphrase    OBJECT IDENTIFIER ::= {id-it 12}
+      RevPassphraseValue      ::= EncryptedKey
+--      - Changed from Encrypted Value to EncryptedKey as a CHOICE
+--      - of EncryptedValue and EnvelopedData due to the changes
+--      - made in CMP Updates [RFC9480].
+--      - Using the choice EncryptedValue is bit-compatible to the
+--      - syntax without this change.
+--   id-it-implicitConfirm  OBJECT IDENTIFIER ::= {id-it 13}
+      ImplicitConfirmValue    ::= NULL
+--   id-it-confirmWaitTime  OBJECT IDENTIFIER ::= {id-it 14}
+      ConfirmWaitTimeValue    ::= GeneralizedTime
+--   id-it-origPKIMessage   OBJECT IDENTIFIER ::= {id-it 15}
+      OrigPKIMessageValue     ::= PKIMessages
+--   id-it-suppLangTags     OBJECT IDENTIFIER ::= {id-it 16}
+      SuppLangTagsValue       ::= SEQUENCE OF UTF8String
+--   id-it-caCerts          OBJECT IDENTIFIER ::= {id-it 17}
+      CaCertsValue            ::= SEQUENCE SIZE (1..MAX) OF
+                                             CMPCertificate
+--      - id-it-caCerts added in CMP Updates [RFC9480]
+--   id-it-rootCaKeyUpdate  OBJECT IDENTIFIER ::= {id-it 18}
+      RootCaKeyUpdateValue    ::= RootCaKeyUpdateContent
+--      - id-it-rootCaKeyUpdate added in CMP Updates [RFC9480]
+--   id-it-certReqTemplate  OBJECT IDENTIFIER ::= {id-it 19}
+      CertReqTemplateValue    ::= CertReqTemplateContent
+--      - id-it-certReqTemplate added in CMP Updates [RFC9480]
+--   id-it-rootCaCert       OBJECT IDENTIFIER ::= {id-it 20}
+      RootCaCertValue         ::= CMPCertificate
+--      - id-it-rootCaCert added in CMP Updates [RFC9480]
+--   id-it-certProfile      OBJECT IDENTIFIER ::= {id-it 21}
+      CertProfileValue        ::= SEQUENCE SIZE (1..MAX) OF
+                                                 UTF8String
+--      - id-it-certProfile added in CMP Updates [RFC9480]
+--   id-it-crlStatusList    OBJECT IDENTIFIER ::= {id-it 22}
+   CRLStatusListValue         ::= SEQUENCE SIZE (1..MAX) OF
+                                                  CRLStatus
+--      - id-it-crlStatusList added in CMP Updates [RFC9480]
+--   id-it-crls             OBJECT IDENTIFIER ::= {id-it 23}
+   CRLsValue                  ::= SEQUENCE SIZE (1..MAX) OF
+                                            CertificateList
+--      - id-it-crls added in CMP Updates [RFC9480]
+--
+-- where
+--
+--   id-pkix OBJECT IDENTIFIER ::= {
+--      iso(1) identified-organization(3)
+--      dod(6) internet(1) security(5) mechanisms(5) pkix(7)}
+-- and
+--   id-it   OBJECT IDENTIFIER ::= {id-pkix 4}
+--
+--
+-- This construct MAY also be used to define new PKIX Certificate
+-- Management Protocol request and response messages or general-
+-- purpose (e.g., announcement) messages for future needs or for
+-- specific environments.
+
+GenMsgContent ::= SEQUENCE OF InfoTypeAndValue
+
+-- May be sent by EE, RA, or CA (depending on message content).
+-- The OPTIONAL infoValue parameter of InfoTypeAndValue will
+-- typically be omitted for some of the examples given above.
+-- The receiver is free to ignore any contained OIDs that it
+-- does not recognize.  If sent from EE to CA, the empty set
+-- indicates that the CA may send
+-- any/all information that it wishes.
+
+GenRepContent ::= SEQUENCE OF InfoTypeAndValue
+-- The receiver MAY ignore any contained OIDs that it does not
+-- recognize.
+
+ErrorMsgContent ::= SEQUENCE {
+    pKIStatusInfo          PKIStatusInfo,
+    errorCode              INTEGER           OPTIONAL,
+    -- implementation-specific error codes
+    errorDetails           PKIFreeText       OPTIONAL
+    -- implementation-specific error details
+}
+
+PollReqContent ::= SEQUENCE OF SEQUENCE {
+    certReqId              INTEGER
+}
+
+PollRepContent ::= SEQUENCE OF SEQUENCE {
+    certReqId              INTEGER,
+    checkAfter             INTEGER,  -- time in seconds
+    reason                 PKIFreeText OPTIONAL
+}
+
+--
+-- Extended key usage extension for PKI entities used in CMP
+-- operations, added due to the changes made in
+-- CMP Updates [RFC9480]
+-- The EKUs for the CA and RA are reused from CMC, as defined in
+-- [RFC6402]
+--
+
+-- id-kp-cmcCA OBJECT IDENTIFIER ::= { id-kp 27 }
+-- id-kp-cmcRA OBJECT IDENTIFIER ::= { id-kp 28 }
+id-kp-cmKGA OBJECT IDENTIFIER ::= { id-kp 32 }
+
+-- There is no 1988 ASN.1 module of PKCS #9 available to import the
+-- syntax of the localKeyId attribute type and value from. Therefore,
+-- the syntax is added here as needed for the updates made in
+-- CMP Updates [RFC9480].
+
+pkcs-9 OBJECT IDENTIFIER ::= {iso(1) member-body(2) us(840)
+                              rsadsi(113549) pkcs(1) 9}
+
+pkcs-9-at-localKeyId OBJECT IDENTIFIER ::= {pkcs-9 21}
+
+LocalKeyIdValue ::= OCTET STRING
+
+END -- of CMP module

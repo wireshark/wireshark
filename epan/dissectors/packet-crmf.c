@@ -238,7 +238,7 @@ static const ber_sequence_t Controls_sequence_of[1] = {
   { &hf_crmf_Controls_item  , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_crmf_AttributeTypeAndValue },
 };
 
-static unsigned
+unsigned
 dissect_crmf_Controls(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                                   1, NO_BOUND, Controls_sequence_of, hf_index, ett_crmf_Controls);
@@ -599,7 +599,7 @@ static const ber_sequence_t EncryptedValue_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-unsigned
+static unsigned
 dissect_crmf_EncryptedValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedValue_sequence, hf_index, ett_crmf_EncryptedValue);
@@ -608,7 +608,7 @@ dissect_crmf_EncryptedValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned o
 }
 
 
-static const value_string crmf_EncryptedKey_vals[] = {
+const value_string crmf_EncryptedKey_vals[] = {
   {   0, "encryptedValue" },
   {   1, "envelopedData" },
   { 0, NULL }
@@ -620,7 +620,7 @@ static const ber_choice_t EncryptedKey_choice[] = {
   { 0, NULL, 0, 0, 0, NULL }
 };
 
-static unsigned
+unsigned
 dissect_crmf_EncryptedKey(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  EncryptedKey_choice, hf_index, ett_crmf_EncryptedKey,
