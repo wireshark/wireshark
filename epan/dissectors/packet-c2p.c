@@ -1209,6 +1209,7 @@ static dissector_handle_t its_handle;
 static dissector_handle_t j2735_handle;
 static dissector_handle_t wsa_handle;
 static dissector_handle_t cn_msg_frame_handle;
+static dissector_handle_t commsigniaapi_handle;
 
 static int hf_c2p_version_desc;
 static int hf_c2p_type_desc;
@@ -1305,6 +1306,11 @@ static int hf_c2p_fac_signer_id_desc;
 static int hf_c2p_fac_generation_time_desc;
 static int hf_c2p_fac_payload_length_desc;
 
+static int hf_c2p_api_direction_desc;
+static int hf_c2p_api_client_ip_desc;
+static int hf_c2p_api_client_port_desc;
+static int hf_c2p_api_length_desc;
+
 
 #define C2P_TYPE_DSRC_RX        1UL
 #define C2P_TYPE_DSRC_TX        2UL
@@ -1314,9 +1320,10 @@ static int hf_c2p_fac_payload_length_desc;
 #define C2P_TYPE_POTI           6UL
 #define C2P_TYPE_CV2X_RX        7UL
 #define C2P_TYPE_CV2X_TX        8UL
+#define C2P_TYPE_API            11UL
 #define C2P_TYPE_FAC_INJECT     12UL
 
-enum { C2P_TYPES_NUM = 10UL };
+enum { C2P_TYPES_NUM = 11UL };
 
 static const value_string c2p_types[C2P_TYPES_NUM] = {
     { C2P_TYPE_DSRC_RX, "Received DSRC Packet" },
@@ -1327,7 +1334,17 @@ static const value_string c2p_types[C2P_TYPES_NUM] = {
     { C2P_TYPE_POTI, "Position & Timing" },
     { C2P_TYPE_CV2X_RX, "Received CV2X Packet" },
     { C2P_TYPE_CV2X_TX, "Transmitted CV2X Packet" },
+    { C2P_TYPE_API, "Remote API Message" },
     { C2P_TYPE_FAC_INJECT, "Injected Facility Packet" },
+    { 0, NULL }
+};
+
+/**
+Direction of a captured remote API message
+*/
+static const value_string api_directions[] = {
+    { 0, "Received from the API client" },
+    { 1, "Sent to the API client" },
     { 0, NULL }
 };
 
@@ -2959,6 +2976,47 @@ static int dissect_fac_inject(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* 
     return offset;
 }
 
+/*
+ * The payload of a remote API packet is one complete Commsignia API frame,
+ * its own frame header included. Hand it to the commsigniaapi dissector when
+ * that plugin is installed.
+ */
+static int dissect_c2p_api(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
+{
+    /* Every multi-byte field of the API metadata is in network byte order. */
+    unsigned offset = 0;
+    uint32_t length = 0;
+
+    proto_tree_add_item(c2p_tree, hf_c2p_api_direction_desc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(c2p_tree, hf_c2p_api_client_ip_desc, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(c2p_tree, hf_c2p_api_client_port_desc, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(c2p_tree,
+                                 hf_c2p_api_length_desc,
+                                 tvb,
+                                 offset,
+                                 2,
+                                 ENC_BIG_ENDIAN,
+                                 &length);
+    offset += 2;
+
+    proto_tree* root_tree = proto_tree_get_root(c2p_tree);
+    tvbuff_t* next_tvb = tvb_new_subset_length(tvb, offset, length);
+
+    if(NULL != commsigniaapi_handle) {
+        call_dissector(commsigniaapi_handle, next_tvb, pinfo, root_tree);
+    } else {
+        call_data_dissector(next_tvb, pinfo, root_tree);
+    }
+
+    offset += tvb_reported_length(next_tvb);
+
+    return offset;
+}
+
 static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     unsigned offset = 0;
@@ -3033,6 +3091,9 @@ static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         switch(type) {
         case C2P_TYPE_STI:
             offset += dissect_sti(next_tvb, c2p_tree, pinfo);
+            break;
+        case C2P_TYPE_API:
+            offset += dissect_c2p_api(next_tvb, c2p_tree, pinfo);
             break;
         case C2P_TYPE_FAC_INJECT:
             offset += dissect_fac_inject(next_tvb, c2p_tree, pinfo);
@@ -4273,6 +4334,58 @@ void proto_register_c2p(void)
                 HFILL
             }
         },
+        {
+            &hf_c2p_api_direction_desc,
+            {
+                "Direction",
+                "c2p.api.direction",
+                FT_UINT8,
+                BASE_DEC,
+                VALS(api_directions),
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_api_client_ip_desc,
+            {
+                "Client address",
+                "c2p.api.client_ip",
+                FT_IPv4,
+                BASE_NONE,
+                NULL,
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_api_client_port_desc,
+            {
+                "Client port",
+                "c2p.api.client_port",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_c2p_api_length_desc,
+            {
+                "API frame length",
+                "c2p.api.length",
+                FT_UINT16,
+                BASE_DEC,
+                NULL,
+                0x00,
+                NULL,
+                HFILL
+            }
+        },
     };
 
     int* ett[] = {
@@ -4296,6 +4409,7 @@ void proto_reg_handoff_c2p(void)
     j2735_handle = find_dissector_add_dependency("j2735", proto_desc);
     wsa_handle = find_dissector_add_dependency("wsa", proto_desc);
     cn_msg_frame_handle = find_dissector_add_dependency("cn-msg-frame", proto_desc);
+    commsigniaapi_handle = find_dissector_add_dependency("commsigniaapi", proto_desc);
 
     static const uint32_t C2P_PORT = 7943UL;
     static const char* const UDP_PORT_NAME = "udp.port";
