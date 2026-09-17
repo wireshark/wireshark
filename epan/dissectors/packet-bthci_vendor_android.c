@@ -16,6 +16,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/unit_strings.h>
 
 #include "packet-bluetooth.h"
 #include "packet-bthci_cmd.h"
@@ -31,9 +32,54 @@ static int hf_android_parameter_length;
 static int hf_android_number_of_allowed_command_packets;
 static int hf_android_event_code;
 static int hf_android_le_advertising_filter_subcode;
-static int hf_android_le_scan_condition;
-static int hf_android_le_filter_index;
-static int hf_android_le_number_of_available_filters;
+static int hf_android_apcf_enable;
+static int hf_android_apcf_action;
+static int hf_android_apcf_filter_index;
+static int hf_android_apcf_available_spaces;
+static int hf_android_apcf_feature_selection;
+static int hf_android_apcf_feature_broadcast_address;
+static int hf_android_apcf_feature_service_data_change;
+static int hf_android_apcf_feature_service_uuid;
+static int hf_android_apcf_feature_service_solicitation_uuid;
+static int hf_android_apcf_feature_local_name;
+static int hf_android_apcf_feature_manufacturer_data;
+static int hf_android_apcf_feature_service_data;
+static int hf_android_apcf_feature_transport_discovery_service;
+static int hf_android_apcf_feature_ad_type;
+static int hf_android_apcf_feature_reserved;
+static int hf_android_apcf_list_logic;
+static int hf_android_apcf_list_logic_broadcast_address;
+static int hf_android_apcf_list_logic_service_data_change;
+static int hf_android_apcf_list_logic_service_uuid;
+static int hf_android_apcf_list_logic_service_solicitation_uuid;
+static int hf_android_apcf_list_logic_local_name;
+static int hf_android_apcf_list_logic_manufacturer_data;
+static int hf_android_apcf_list_logic_service_data;
+static int hf_android_apcf_list_logic_transport_discovery_service;
+static int hf_android_apcf_list_logic_ad_type;
+static int hf_android_apcf_list_logic_reserved;
+static int hf_android_apcf_filter_logic_type;
+static int hf_android_apcf_rssi_high_threshold;
+static int hf_android_apcf_delivery_mode;
+static int hf_android_apcf_onfound_timeout;
+static int hf_android_apcf_onfound_timeout_count;
+static int hf_android_apcf_rssi_low_threshold;
+static int hf_android_apcf_onlost_timeout;
+static int hf_android_apcf_num_of_tracking_entries;
+static int hf_android_apcf_broadcaster_address;
+static int hf_android_apcf_application_address_type;
+static int hf_android_apcf_uuid;
+static int hf_android_apcf_uuid_mask;
+static int hf_android_apcf_data;
+static int hf_android_apcf_mask;
+static int hf_android_apcf_ad_type;
+static int hf_android_apcf_ad_data_length;
+static int hf_android_apcf_ad_data;
+static int hf_android_apcf_ad_data_mask;
+static int hf_android_apcf_extended_features;
+static int hf_android_apcf_extended_features_transport_discovery_service;
+static int hf_android_apcf_extended_features_ad_type;
+static int hf_android_apcf_extended_features_reserved;
 static int hf_android_status;
 static int hf_android_bd_addr;
 static int hf_android_data;
@@ -47,6 +93,8 @@ static int hf_android_filter_support;
 static int hf_android_max_filter;
 static int hf_android_energy_support;
 static int hf_android_version_support;
+static int hf_android_version_major;
+static int hf_android_version_minor;
 static int hf_android_total_num_of_advt_tracked;
 static int hf_android_extended_scan_support;
 static int hf_android_debug_logging_support;
@@ -58,6 +106,7 @@ static int hf_android_a2dp_source_offload_capability_mask_aac;
 static int hf_android_a2dp_source_offload_capability_mask_aptx;
 static int hf_android_a2dp_source_offload_capability_mask_aptx_hd;
 static int hf_android_a2dp_source_offload_capability_mask_ldac;
+static int hf_android_a2dp_source_offload_capability_mask_opus;
 static int hf_android_a2dp_source_offload_capability_mask_reserved;
 static int hf_android_bluetooth_quality_report_support;
 static int hf_android_dynamic_audio_buffer_support_mask;
@@ -66,8 +115,17 @@ static int hf_android_dynamic_audio_buffer_support_mask_aac;
 static int hf_android_dynamic_audio_buffer_support_mask_aptx;
 static int hf_android_dynamic_audio_buffer_support_mask_aptx_hd;
 static int hf_android_dynamic_audio_buffer_support_mask_ldac;
+static int hf_android_dynamic_audio_buffer_support_mask_opus;
 static int hf_android_dynamic_audio_buffer_support_mask_reserved;
 static int hf_android_a2dp_offload_v2_support;
+static int hf_android_iso_link_layer_feedback_supported;
+static int hf_android_sniff_offload_supported;
+static int hf_android_big_channel_map_support;
+static int hf_android_big_channel_map_support_bit0;
+static int hf_android_big_channel_map_support_reserved;
+static int hf_android_vendor_connection_handle_min;
+static int hf_android_vendor_connection_handle_max;
+static int hf_android_connection_proximity_threshold;
 static int hf_android_le_energy_total_rx_time;
 static int hf_android_le_energy_total_tx_time;
 static int hf_android_le_energy_total_idle_time;
@@ -159,22 +217,65 @@ static int * const hfx_android_le_multi_advertising_channel_map[] = {
 };
 
 static int * const hfx_android_a2dp_source_offload_capability[] = {
-    &hf_android_a2dp_source_offload_capability_mask_reserved,
-    &hf_android_a2dp_source_offload_capability_mask_ldac,
-    &hf_android_a2dp_source_offload_capability_mask_aptx_hd,
-    &hf_android_a2dp_source_offload_capability_mask_aptx,
-    &hf_android_a2dp_source_offload_capability_mask_aac,
     &hf_android_a2dp_source_offload_capability_mask_sbc,
+    &hf_android_a2dp_source_offload_capability_mask_aac,
+    &hf_android_a2dp_source_offload_capability_mask_aptx,
+    &hf_android_a2dp_source_offload_capability_mask_aptx_hd,
+    &hf_android_a2dp_source_offload_capability_mask_ldac,
+    &hf_android_a2dp_source_offload_capability_mask_opus,
+    &hf_android_a2dp_source_offload_capability_mask_reserved,
     NULL
 };
 
 static int * const hfx_android_dynamic_audio_buffer_support[] = {
-    &hf_android_dynamic_audio_buffer_support_mask_reserved,
-    &hf_android_dynamic_audio_buffer_support_mask_ldac,
-    &hf_android_dynamic_audio_buffer_support_mask_aptx_hd,
-    &hf_android_dynamic_audio_buffer_support_mask_aptx,
-    &hf_android_dynamic_audio_buffer_support_mask_aac,
     &hf_android_dynamic_audio_buffer_support_mask_sbc,
+    &hf_android_dynamic_audio_buffer_support_mask_aac,
+    &hf_android_dynamic_audio_buffer_support_mask_aptx,
+    &hf_android_dynamic_audio_buffer_support_mask_aptx_hd,
+    &hf_android_dynamic_audio_buffer_support_mask_ldac,
+    &hf_android_dynamic_audio_buffer_support_mask_opus,
+    &hf_android_dynamic_audio_buffer_support_mask_reserved,
+    NULL
+};
+
+static int * const hfx_android_big_channel_map_support[] = {
+    &hf_android_big_channel_map_support_bit0,
+    &hf_android_big_channel_map_support_reserved,
+    NULL
+};
+
+static int * const hfx_android_apcf_feature_selection[] = {
+    &hf_android_apcf_feature_broadcast_address,
+    &hf_android_apcf_feature_service_data_change,
+    &hf_android_apcf_feature_service_uuid,
+    &hf_android_apcf_feature_service_solicitation_uuid,
+    &hf_android_apcf_feature_local_name,
+    &hf_android_apcf_feature_manufacturer_data,
+    &hf_android_apcf_feature_service_data,
+    &hf_android_apcf_feature_transport_discovery_service,
+    &hf_android_apcf_feature_ad_type,
+    &hf_android_apcf_feature_reserved,
+    NULL
+};
+
+static int * const hfx_android_apcf_list_logic[] = {
+    &hf_android_apcf_list_logic_broadcast_address,
+    &hf_android_apcf_list_logic_service_data_change,
+    &hf_android_apcf_list_logic_service_uuid,
+    &hf_android_apcf_list_logic_service_solicitation_uuid,
+    &hf_android_apcf_list_logic_local_name,
+    &hf_android_apcf_list_logic_manufacturer_data,
+    &hf_android_apcf_list_logic_service_data,
+    &hf_android_apcf_list_logic_transport_discovery_service,
+    &hf_android_apcf_list_logic_ad_type,
+    &hf_android_apcf_list_logic_reserved,
+    NULL
+};
+
+static int * const hfx_android_apcf_extended_features[] = {
+    &hf_android_apcf_extended_features_transport_discovery_service,
+    &hf_android_apcf_extended_features_ad_type,
+    &hf_android_apcf_extended_features_reserved,
     NULL
 };
 
@@ -191,6 +292,11 @@ static int ett_android_opcode;
 static int ett_android_channel_map;
 static int ett_android_a2dp_source_offload_capability_mask;
 static int ett_android_dynamic_audio_buffer_support_mask;
+static int ett_android_version_support;
+static int ett_android_big_channel_map_support;
+static int ett_android_apcf_feature_selection;
+static int ett_android_apcf_list_logic;
+static int ett_android_apcf_extended_features;
 static int ett_android_a2dp_hardware_offload_start_legacy_codec_information;
 static int ett_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask;
 
@@ -207,9 +313,9 @@ static const uint16_t bthci_vendor_manufacturer_android = 0x00e0; // Google LLC
     { (base) | 0x0153,  "LE Get Vendor Capabilities" }, \
     { (base) | 0x0154,  "LE Multi Advertising" }, \
     { (base) | 0x0156,  "LE Batch Scan" }, \
-    { (base) | 0x0157,  "LE Advertising Filter" }, \
+    { (base) | 0x0157,  "LE Advertising Packet Content Filter (APCF)" }, \
     { (base) | 0x0158,  "LE Tracking Advertising" }, \
-    { (base) | 0x0159,  "LE Energy Info" }, \
+    { (base) | 0x0159,  "LE Get Controller Activity Energy Info" }, \
     { (base) | 0x015D,  "A2DP Hardware Offload" }
 
 static const value_string android_opcode_ocf_vals[] = {
@@ -223,19 +329,43 @@ static const value_string android_opcode_vals[] = {
 };
 
 static const value_string android_le_subcode_advertising_filter_vals[] = {
-    { 0x00,  "Enable" },
-    { 0x01,  "Feature Select" },
-    { 0x02,  "BDADDR" },
-    { 0x03,  "UUID" },
-    { 0x04,  "Solicitate UUID" },
-    { 0x05,  "Local Name" },
-    { 0x06,  "Manufacturer Data"  },
-    { 0x07,  "Service Data" },
-    { 0x08,  "All" },
+    { 0x00,  "APCF Enable" },
+    { 0x01,  "APCF Set Filtering Parameters" },
+    { 0x02,  "APCF Broadcaster Address" },
+    { 0x03,  "APCF Service UUID" },
+    { 0x04,  "APCF Service Solicitation UUID" },
+    { 0x05,  "APCF Local Name" },
+    { 0x06,  "APCF Manufacturer Data"  },
+    { 0x07,  "APCF Service Data" },
+    { 0x08,  "APCF Transport Discovery Service" },
+    { 0x09,  "APCF AD Type Filter" },
+    { 0xFF,  "APCF Read Extended Features" },
     { 0, NULL }
 };
 
-static const value_string android_le_scan_condition_vals[] = {
+static const value_string android_apcf_filter_logic_vals[] = {
+    { 0x00,  "OR" },
+    { 0x01,  "AND" },
+    { 0, NULL }
+};
+
+static const true_false_string tfs_apcf_logic = { "AND", "OR" };
+
+static const value_string android_apcf_delivery_mode_vals[] = {
+    { 0x00,  "Immediate" },
+    { 0x01,  "On Found" },
+    { 0x02,  "Batched" },
+    { 0, NULL }
+};
+
+static const value_string android_apcf_application_address_type_vals[] = {
+    { 0x00,  "Public" },
+    { 0x01,  "Random" },
+    { 0x02,  "NA (ignore the address type)" },
+    { 0, NULL }
+};
+
+static const value_string android_apcf_action_vals[] = {
     { 0x00,  "Add" },
     { 0x01,  "Delete" },
     { 0x02,  "Clear" },
@@ -387,6 +517,11 @@ static const value_string android_a2dp_hardware_offload_start_legacy_codec_infor
     { 0, NULL }
 };
 
+static void
+android_version_support_fmt(char *buf, uint32_t value) {
+    snprintf(buf, ITEM_LABEL_LENGTH, "V%u.%02u", value >> 8, value & 0xff);
+}
+
 void proto_register_bthci_vendor_android(void);
 void proto_reg_handoff_bthci_vendor_android(void);
 
@@ -399,7 +534,7 @@ dissect_bthci_vendor_android_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     bluetooth_data_t  *bluetooth_data;
     unsigned           offset = 0;
     uint8_t            subcode;
-    uint8_t            condition;
+    const char        *description;
     uint32_t           interface_id;
     uint32_t           adapter_id;
 
@@ -525,41 +660,199 @@ dissect_bthci_vendor_android_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         }
 
         break;
-    case 0x0157: /* LE Advertising Filter */
-        proto_tree_add_item_ret_uint8(main_tree, hf_android_le_advertising_filter_subcode, tvb, offset, 1, ENC_NA, &subcode);
+    case 0x0157: /* LE Advertising Packet Content Filter (APCF) */ {
+        uint8_t     action = 0;
+
+        proto_tree_add_item(main_tree, hf_android_le_advertising_filter_subcode, tvb, offset, 1, ENC_NA);
+        subcode = tvb_get_uint8(tvb, offset);
         offset += 1;
 
-        proto_tree_add_item_ret_uint8(main_tree, hf_android_le_scan_condition, tvb, offset, 1, ENC_NA, &condition);
-        offset += 1;
+        description = val_to_str_const(subcode, android_le_subcode_advertising_filter_vals, "Unknown");
+        col_set_str(pinfo->cinfo, COL_INFO, "Sent Android ");
+        col_append_str(pinfo->cinfo, COL_INFO, description);
 
-        proto_tree_add_item(main_tree, hf_android_le_filter_index, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
-        if (condition == 0x00) { /* Add */
-            switch (subcode) {
-            case 0x00: /* Enable */
-            case 0x01: /* Feature Select */
-            case 0x02: /* BDADDR */
-            case 0x03: /* UUID */
-            case 0x04: /* Solicitate UUID */
-            case 0x05: /* Local Name */
-            case 0x06: /* Manufacturer Data */
-            case 0x07: /* Service Data */
-            case 0x08: /* All */
-/* TODO */
-                sub_item = proto_tree_add_item(main_tree, hf_android_data, tvb, offset, -1, ENC_NA);
-                expert_add_info(pinfo, sub_item, &ei_android_undecoded);
-                offset = tvb_reported_length(tvb);
-
+        switch (subcode) {
+        case 0x00: /* Enable */
+            if (tvb_reported_length_remaining(tvb, offset) < 1)
                 break;
-            default:
-                sub_item = proto_tree_add_item(main_tree, hf_android_data, tvb, offset, -1, ENC_NA);
-                expert_add_info(pinfo, sub_item, &ei_android_unexpected_data);
-                offset = tvb_reported_length(tvb);
+            proto_tree_add_item(main_tree, hf_android_apcf_enable, tvb, offset, 1, ENC_NA);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                            tvb_get_uint8(tvb, offset) == 0x01 ? "Enable" : "Disable");
+            offset += 1;
+            break;
+        case 0x01: /* Set Filtering Parameters */
+            if (tvb_reported_length_remaining(tvb, offset) < 2)
+                break;
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_apcf_action, tvb, offset, 1, ENC_NA, &action);
+            offset += 1;
+            proto_tree_add_item(main_tree, hf_android_apcf_filter_index, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s %u)",
+                            val_to_str_const(action, android_apcf_action_vals, "Unknown"),
+                            tvb_get_uint8(tvb, offset - 1));
+
+            /* A Clear action carries no further parameters. */
+            if (action == 0x02 || tvb_reported_length_remaining(tvb, offset) < 2)
+                break;
+
+            {
+                proto_tree_add_bitmask(main_tree, tvb, offset, hf_android_apcf_feature_selection, ett_android_apcf_feature_selection, hfx_android_apcf_feature_selection, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_bitmask(main_tree, tvb, offset, hf_android_apcf_list_logic, ett_android_apcf_list_logic, hfx_android_apcf_list_logic, ENC_LITTLE_ENDIAN);
+                offset += 2;
             }
+
+            if (tvb_reported_length_remaining(tvb, offset) < 1)
+                break;
+            proto_tree_add_item(main_tree, hf_android_apcf_filter_logic_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (tvb_reported_length_remaining(tvb, offset) < 1)
+                break;
+            proto_tree_add_item(main_tree, hf_android_apcf_rssi_high_threshold, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (tvb_reported_length_remaining(tvb, offset) < 1)
+                break;
+            proto_tree_add_item(main_tree, hf_android_apcf_delivery_mode, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (tvb_reported_length_remaining(tvb, offset) < 2)
+                break;
+            proto_tree_add_item(main_tree, hf_android_apcf_onfound_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            if (tvb_reported_length_remaining(tvb, offset) < 1)
+                break;
+            proto_tree_add_item(main_tree, hf_android_apcf_onfound_timeout_count, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (tvb_reported_length_remaining(tvb, offset) < 1)
+                break;
+            proto_tree_add_item(main_tree, hf_android_apcf_rssi_low_threshold, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (tvb_reported_length_remaining(tvb, offset) < 2)
+                break;
+            proto_tree_add_item(main_tree, hf_android_apcf_onlost_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            if (tvb_reported_length_remaining(tvb, offset) < 2)
+                break;
+            proto_tree_add_item(main_tree, hf_android_apcf_num_of_tracking_entries, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            break;
+        case 0x02: /* Broadcaster Address */
+            if (tvb_reported_length_remaining(tvb, offset) < 8)
+                break;
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_apcf_action, tvb, offset, 1, ENC_NA, &action);
+            offset += 1;
+            proto_tree_add_item(main_tree, hf_android_apcf_filter_index, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s %u)",
+                            val_to_str_const(action, android_apcf_action_vals, "Unknown"),
+                            tvb_get_uint8(tvb, offset - 1));
+
+            offset = dissect_bd_addr(hf_android_apcf_broadcaster_address, pinfo, main_tree, tvb, offset, false, interface_id, adapter_id, NULL);
+
+            proto_tree_add_item(main_tree, hf_android_apcf_application_address_type, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+        case 0x03: /* Service UUID */
+        case 0x04: /* Service Solicitation UUID */
+        case 0x05: /* Local Name */
+        case 0x06: /* Manufacturer Data */
+        case 0x07: /* Service Data */
+        case 0x09: /* AD Type Filter */ {
+            int      remaining;
+            uint32_t data_len;
+
+            if (tvb_reported_length_remaining(tvb, offset) < 2)
+                break;
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_apcf_action, tvb, offset, 1, ENC_NA, &action);
+            offset += 1;
+            proto_tree_add_item(main_tree, hf_android_apcf_filter_index, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s %u)",
+                            val_to_str_const(action, android_apcf_action_vals, "Unknown"),
+                            tvb_get_uint8(tvb, offset - 1));
+
+            /* A Clear action carries no further parameters. */
+            if (action == 0x02)
+                break;
+
+            if (subcode == 0x09) {
+                uint8_t ad_data_len;
+
+                if (tvb_reported_length_remaining(tvb, offset) < 2)
+                    break;
+                proto_tree_add_item(main_tree, hf_android_apcf_ad_type, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item_ret_uint8(main_tree, hf_android_apcf_ad_data_length, tvb, offset, 1, ENC_NA, &ad_data_len);
+                offset += 1;
+                if (ad_data_len == 0)
+                    break;
+                data_len = MIN((uint32_t)ad_data_len, (uint32_t)tvb_reported_length_remaining(tvb, offset) / 2);
+                if (data_len == 0)
+                    break;
+                proto_tree_add_item(main_tree, hf_android_apcf_ad_data, tvb, offset, data_len, ENC_NA);
+                offset += data_len;
+                proto_tree_add_item(main_tree, hf_android_apcf_ad_data_mask, tvb, offset, data_len, ENC_NA);
+                offset += data_len;
+                break;
+            }
+
+            remaining = tvb_reported_length_remaining(tvb, offset);
+            if (remaining <= 0)
+                break;
+
+            if (subcode == 0x03 || subcode == 0x04) {
+                /* UUID and its mask are equal length: 2, 4 or 16 bytes. */
+                data_len = remaining / 2;
+                proto_tree_add_item(main_tree, hf_android_apcf_uuid, tvb, offset, data_len, ENC_NA);
+                offset += data_len;
+                proto_tree_add_item(main_tree, hf_android_apcf_uuid_mask, tvb, offset, data_len, ENC_NA);
+                offset += data_len;
+            } else if (subcode == 0x05) {
+                proto_tree_add_item(main_tree, hf_android_apcf_data, tvb, offset, remaining, ENC_NA);
+                offset += remaining;
+            } else {
+                data_len = remaining / 2;
+                proto_tree_add_item(main_tree, hf_android_apcf_data, tvb, offset, data_len, ENC_NA);
+                offset += data_len;
+                proto_tree_add_item(main_tree, hf_android_apcf_mask, tvb, offset, data_len, ENC_NA);
+                offset += data_len;
+            }
+
+            break;
+        }
+        case 0x08: /* Transport Discovery Service */
+            if (tvb_reported_length_remaining(tvb, offset) < 2)
+                break;
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_apcf_action, tvb, offset, 1, ENC_NA, &action);
+            offset += 1;
+            proto_tree_add_item(main_tree, hf_android_apcf_filter_index, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s %u)",
+                            val_to_str_const(action, android_apcf_action_vals, "Unknown"),
+                            tvb_get_uint8(tvb, offset - 1));
+            break;
+        case 0xFF: /* Read Extended Features */
+            break;
+        default:
+            break;
+        }
+
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
+            sub_item = proto_tree_add_item(main_tree, hf_android_data, tvb, offset, -1, ENC_NA);
+            expert_add_info(pinfo, sub_item, &ei_android_unexpected_data);
+            offset = tvb_reported_length(tvb);
         }
 
         break;
+    }
     case 0x0153: /* LE Get Vendor Capabilities */
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
             sub_item = proto_tree_add_item(main_tree, hf_android_data, tvb, offset, -1, ENC_NA);
@@ -567,7 +860,7 @@ dissect_bthci_vendor_android_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             offset = tvb_reported_length(tvb);
         }
         break;
-    case 0x0159: /* LE Energy Info */
+    case 0x0159: /* LE Get Controller Activity Energy Info */
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
             sub_item = proto_tree_add_item(main_tree, hf_android_data, tvb, offset, -1, ENC_NA);
             expert_add_info(pinfo, sub_item, &ei_android_unexpected_parameter);
@@ -811,10 +1104,13 @@ dissect_bthci_vendor_android_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         offset += 2;
 
         description = val_to_str_const(ocf, android_opcode_ocf_vals, "unknown");
-        if (g_strcmp0(description, "unknown") != 0)
+        if (ocf == 0x0157) {
+            /* LE Advertising Packet Content Filter (APCF) appends its own detail below. */
+        } else if (g_strcmp0(description, "unknown") != 0) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", description);
-        else
+        } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, " (Unknown Command 0x%04X [opcode 0x%04X])", ocf, opcode);
+        }
 
         if (have_tap_listener(bluetooth_hci_summary_tap)) {
             bluetooth_hci_summary_tap_t  *tap_hci_summary;
@@ -871,7 +1167,11 @@ dissect_bthci_vendor_android_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             proto_tree_add_item(main_tree, hf_android_energy_support, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            proto_tree_add_item(main_tree, hf_android_version_support, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+            sub_item = proto_tree_add_item(main_tree, hf_android_version_support, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree *version_tree = proto_item_add_subtree(sub_item, ett_android_version_support);
+            proto_tree_add_item(version_tree, hf_android_version_major, tvb, offset + 1, 1, ENC_NA);
+            proto_tree_add_item(version_tree, hf_android_version_minor, tvb, offset, 1, ENC_NA);
             offset += 2;
 
             proto_tree_add_item(main_tree, hf_android_total_num_of_advt_tracked, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -904,6 +1204,28 @@ dissect_bthci_vendor_android_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 offset += 1;
             }
 
+            if (google_feature_spec_version >= 0x0105 && tvb_reported_length_remaining(tvb, offset) >= 2) {
+                proto_tree_add_item(main_tree, hf_android_iso_link_layer_feedback_supported, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(main_tree, hf_android_sniff_offload_supported, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+
+            if (google_feature_spec_version >= 0x0106 && tvb_reported_length_remaining(tvb, offset) >= 7) {
+                proto_tree_add_bitmask(main_tree, tvb, offset, hf_android_big_channel_map_support, ett_android_big_channel_map_support, hfx_android_big_channel_map_support, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_android_vendor_connection_handle_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_android_vendor_connection_handle_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_android_connection_proximity_threshold, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+
             break;
         case 0x0154: /* LE Multi Advertising */
             proto_tree_add_item(main_tree, hf_android_le_multi_advertising_subcode, tvb, offset, 1, ENC_NA);
@@ -924,32 +1246,78 @@ dissect_bthci_vendor_android_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 
             break;
-        case 0x0157: /* LE Advertising Filter */
-            proto_tree_add_item(main_tree, hf_android_le_advertising_filter_subcode, tvb, offset, 1, ENC_NA);
+        case 0x0157: /* LE Advertising Packet Content Filter (APCF) */ {
+            uint8_t apcf_enable = 0;
+            uint8_t apcf_action = 0;
+            uint8_t apcf_spaces = 0;
+            const char *apcf_name;
+
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_le_advertising_filter_subcode, tvb, offset, 1, ENC_NA, &subcode);
             offset += 1;
+            apcf_name = val_to_str_const(subcode, android_le_subcode_advertising_filter_vals, "Unknown");
 
-            if (status == STATUS_SUCCESS) {
-                proto_tree_add_item(main_tree, hf_android_le_scan_condition, tvb, offset, 1, ENC_NA);
-                offset += 1;
+            if (status != STATUS_SUCCESS) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (%s Failed)", apcf_name);
+                break;
+            }
 
-                proto_tree_add_item(main_tree, hf_android_le_number_of_available_filters, tvb, offset, 1, ENC_NA);
-                offset += 1;
+            switch (subcode) {
+            case 0x00: /* Enable */
+                if (tvb_reported_length_remaining(tvb, offset) >= 1) {
+                    proto_tree_add_item_ret_uint8(main_tree, hf_android_apcf_enable, tvb, offset, 1, ENC_NA, &apcf_enable);
+                    offset += 1;
+                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (%s (%s))",
+                                apcf_name, apcf_enable == 0x01 ? "Enable" : "Disable");
+                break;
+            case 0x01: /* Set Filtering Parameters */
+            case 0x02: /* Broadcaster Address */
+            case 0x03: /* Service UUID */
+            case 0x04: /* Service Solicitation UUID */
+            case 0x05: /* Local Name */
+            case 0x06: /* Manufacturer Data */
+            case 0x07: /* Service Data */
+            case 0x09: /* AD Type Filter */
+                if (tvb_reported_length_remaining(tvb, offset) >= 1) {
+                    proto_tree_add_item_ret_uint8(main_tree, hf_android_apcf_action, tvb, offset, 1, ENC_NA, &apcf_action);
+                    offset += 1;
+                }
+                if (tvb_reported_length_remaining(tvb, offset) >= 1) {
+                    proto_tree_add_item_ret_uint8(main_tree, hf_android_apcf_available_spaces, tvb, offset, 1, ENC_NA, &apcf_spaces);
+                    offset += 1;
+                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (%s %s (%u Available))",
+                                apcf_name,
+                                val_to_str_const(apcf_action, android_apcf_action_vals, "Unknown"),
+                                apcf_spaces);
+                break;
+            case 0xFF: /* Read Extended Features */
+                if (tvb_reported_length_remaining(tvb, offset) >= 2) {
+                    proto_tree_add_bitmask(main_tree, tvb, offset, hf_android_apcf_extended_features, ett_android_apcf_extended_features, hfx_android_apcf_extended_features, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", apcf_name);
+                break;
+            default:
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", apcf_name);
+                break;
             }
 
             break;
-        case 0x0159: /* LE Energy Info */
+        }
+        case 0x0159: /* LE Get Controller Activity Energy Info */
             if (status == STATUS_SUCCESS) {
-                proto_tree_add_item(main_tree, hf_android_le_energy_total_rx_time, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
+                proto_tree_add_item(main_tree, hf_android_le_energy_total_tx_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
 
-                proto_tree_add_item(main_tree, hf_android_le_energy_total_tx_time, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
+                proto_tree_add_item(main_tree, hf_android_le_energy_total_rx_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
 
-                proto_tree_add_item(main_tree, hf_android_le_energy_total_idle_time, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
+                proto_tree_add_item(main_tree, hf_android_le_energy_total_idle_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
 
-                proto_tree_add_item(main_tree, hf_android_le_energy_total_energy_used, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
+                proto_tree_add_item(main_tree, hf_android_le_energy_total_energy_used, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
             }
 
             break;
@@ -1150,23 +1518,248 @@ proto_register_bthci_vendor_android(void)
             NULL, HFILL }
         },
         { &hf_android_le_advertising_filter_subcode,
-            { "Subcode",                                   "bthci_vendor.android.le.advertising_filter.subcode",
+            { "APCF Opcode",                               "bthci_vendor.android.le.advertising_filter.subcode",
             FT_UINT8, BASE_HEX, VALS(android_le_subcode_advertising_filter_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_android_le_scan_condition,
-            { "Scan Condition",                            "bthci_vendor.android.le.scan_condition",
-            FT_UINT8, BASE_HEX, VALS(android_le_scan_condition_vals), 0x0,
+        { &hf_android_apcf_enable,
+            { "APCF Enable",                               "bthci_vendor.android.apcf.enable",
+            FT_UINT8, BASE_DEC, VALS(android_disable_enable_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_android_le_filter_index,
-            { "Filter Index",                              "bthci_vendor.android.le.filter_index",
+        { &hf_android_apcf_action,
+            { "Action",                                    "bthci_vendor.android.apcf.action",
+            FT_UINT8, BASE_DEC, VALS(android_apcf_action_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_filter_index,
+            { "Filter Index",                              "bthci_vendor.android.apcf.filter_index",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_android_le_number_of_available_filters,
-            { "Number of Available Filters",               "bthci_vendor.android.le.number_of_available_filters",
+        { &hf_android_apcf_available_spaces,
+            { "Number of Available Spaces",               "bthci_vendor.android.apcf.available_spaces",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_selection,
+            { "Feature Selection",                        "bthci_vendor.android.apcf.feature_selection",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_broadcast_address,
+            { "Enable Broadcast Address Filter",          "bthci_vendor.android.apcf.feature_selection.broadcast_address",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_service_data_change,
+            { "Enable Service Data Change Filter",        "bthci_vendor.android.apcf.feature_selection.service_data_change",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_service_uuid,
+            { "Enable Service UUID Check",                "bthci_vendor.android.apcf.feature_selection.service_uuid",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_service_solicitation_uuid,
+            { "Enable Service Solicitation UUID Check",   "bthci_vendor.android.apcf.feature_selection.service_solicitation_uuid",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_local_name,
+            { "Enable Local Name Check",                  "bthci_vendor.android.apcf.feature_selection.local_name",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_manufacturer_data,
+            { "Enable Manufacturer Data Check",           "bthci_vendor.android.apcf.feature_selection.manufacturer_data",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_service_data,
+            { "Enable Service Data Check",                "bthci_vendor.android.apcf.feature_selection.service_data",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_transport_discovery_service,
+            { "Enable Transport Discovery Service Check", "bthci_vendor.android.apcf.feature_selection.transport_discovery_service",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_ad_type,
+            { "Enable AD Type Check",                     "bthci_vendor.android.apcf.feature_selection.ad_type",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_feature_reserved,
+            { "Reserved",                                 "bthci_vendor.android.apcf.feature_selection.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFE00,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic,
+            { "Feature Selection List Logic",             "bthci_vendor.android.apcf.list_logic",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_broadcast_address,
+            { "Broadcast Address Filter Logic",           "bthci_vendor.android.apcf.list_logic.broadcast_address",
+            FT_BOOLEAN, 16, TFS(&tfs_apcf_logic), 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_service_data_change,
+            { "Service Data Change Filter Logic",         "bthci_vendor.android.apcf.list_logic.service_data_change",
+            FT_BOOLEAN, 16, TFS(&tfs_apcf_logic), 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_service_uuid,
+            { "Service UUID Check Logic",                 "bthci_vendor.android.apcf.list_logic.service_uuid",
+            FT_BOOLEAN, 16, TFS(&tfs_apcf_logic), 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_service_solicitation_uuid,
+            { "Service Solicitation UUID Check Logic",    "bthci_vendor.android.apcf.list_logic.service_solicitation_uuid",
+            FT_BOOLEAN, 16, TFS(&tfs_apcf_logic), 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_local_name,
+            { "Local Name Check Logic",                   "bthci_vendor.android.apcf.list_logic.local_name",
+            FT_BOOLEAN, 16, TFS(&tfs_apcf_logic), 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_manufacturer_data,
+            { "Manufacturer Data Check Logic",            "bthci_vendor.android.apcf.list_logic.manufacturer_data",
+            FT_BOOLEAN, 16, TFS(&tfs_apcf_logic), 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_service_data,
+            { "Service Data Check Logic",                 "bthci_vendor.android.apcf.list_logic.service_data",
+            FT_BOOLEAN, 16, TFS(&tfs_apcf_logic), 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_transport_discovery_service,
+            { "Transport Discovery Service Check Logic",  "bthci_vendor.android.apcf.list_logic.transport_discovery_service",
+            FT_BOOLEAN, 16, TFS(&tfs_apcf_logic), 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_ad_type,
+            { "AD Type Check Logic",                      "bthci_vendor.android.apcf.list_logic.ad_type",
+            FT_BOOLEAN, 16, TFS(&tfs_apcf_logic), 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_list_logic_reserved,
+            { "Reserved",                                 "bthci_vendor.android.apcf.list_logic.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFE00,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_filter_logic_type,
+            { "Filter Logic Type",                        "bthci_vendor.android.apcf.filter_logic_type",
+            FT_UINT8, BASE_DEC, VALS(android_apcf_filter_logic_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_rssi_high_threshold,
+            { "RSSI High Threshold",                      "bthci_vendor.android.apcf.rssi_high_threshold",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_delivery_mode,
+            { "Delivery Mode",                            "bthci_vendor.android.apcf.delivery_mode",
+            FT_UINT8, BASE_DEC, VALS(android_apcf_delivery_mode_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_onfound_timeout,
+            { "OnFound Timeout",                          "bthci_vendor.android.apcf.onfound_timeout",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_onfound_timeout_count,
+            { "OnFound Timeout Count",                    "bthci_vendor.android.apcf.onfound_timeout_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_rssi_low_threshold,
+            { "RSSI Low Threshold",                       "bthci_vendor.android.apcf.rssi_low_threshold",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_onlost_timeout,
+            { "OnLost Timeout",                           "bthci_vendor.android.apcf.onlost_timeout",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_num_of_tracking_entries,
+            { "Number of Tracking Entries",               "bthci_vendor.android.apcf.num_of_tracking_entries",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_broadcaster_address,
+            { "Broadcaster Address",                      "bthci_vendor.android.apcf.broadcaster_address",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_application_address_type,
+            { "Application Address Type",                 "bthci_vendor.android.apcf.application_address_type",
+            FT_UINT8, BASE_DEC, VALS(android_apcf_application_address_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_uuid,
+            { "UUID",                                     "bthci_vendor.android.apcf.uuid",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_uuid_mask,
+            { "UUID Mask",                                "bthci_vendor.android.apcf.uuid_mask",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_data,
+            { "Data",                                     "bthci_vendor.android.apcf.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_mask,
+            { "Mask",                                     "bthci_vendor.android.apcf.mask",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_ad_type,
+            { "AD Type",                                  "bthci_vendor.android.apcf.ad_type",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_ad_data_length,
+            { "AD Data Length",                           "bthci_vendor.android.apcf.ad_data_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_ad_data,
+            { "AD Data",                                  "bthci_vendor.android.apcf.ad_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_ad_data_mask,
+            { "AD Data Mask",                             "bthci_vendor.android.apcf.ad_data_mask",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_extended_features,
+            { "Extended Features",                        "bthci_vendor.android.apcf.extended_features",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_extended_features_transport_discovery_service,
+            { "Transport Discovery Service Filter Supported", "bthci_vendor.android.apcf.extended_features.transport_discovery_service",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_extended_features_ad_type,
+            { "AD Type Filter Supported",                 "bthci_vendor.android.apcf.extended_features.ad_type",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_android_apcf_extended_features_reserved,
+            { "Reserved",                                 "bthci_vendor.android.apcf.extended_features.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFFFC,
             NULL, HFILL }
         },
         { &hf_android_bd_addr,
@@ -1180,8 +1773,8 @@ proto_register_bthci_vendor_android(void)
             NULL, HFILL }
         },
         { &hf_android_max_advertising_instance_reserved,
-            { "Reserved",                                  "bthci_vendor.android.max_advertising_instance_reserved",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            { "Max Advertising Instance (Reserved)",       "bthci_vendor.android.max_advertising_instance_reserved",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_android_resolvable_private_address_offloading,
@@ -1190,8 +1783,8 @@ proto_register_bthci_vendor_android(void)
             NULL, HFILL }
         },
         { &hf_android_resolvable_private_address_offloading_reserved,
-            { "Reserved",                                  "bthci_vendor.android.resolvable_private_address_offloading_reserved",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            { "Resolvable Private Address Offloading (Reserved)", "bthci_vendor.android.resolvable_private_address_offloading_reserved",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_android_total_scan_results,
@@ -1221,7 +1814,17 @@ proto_register_bthci_vendor_android(void)
         },
         { &hf_android_version_support,
             { "Version Support",                           "bthci_vendor.android.version_support",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(android_version_support_fmt), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_version_major,
+            { "Major",                                      "bthci_vendor.android.version_support.major",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_version_minor,
+            { "Minor",                                      "bthci_vendor.android.version_support.minor",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_android_total_num_of_advt_tracked,
@@ -1245,7 +1848,7 @@ proto_register_bthci_vendor_android(void)
             NULL, HFILL }
         },
         { &hf_android_le_address_generation_offloading_support_reserved,
-            { "Reserved",                                  "bthci_vendor.android.le_address_generation_offloading_support_reserved",
+            { "LE Address Generation Offloading Support (Reserved)", "bthci_vendor.android.le_address_generation_offloading_support_reserved",
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1279,9 +1882,14 @@ proto_register_bthci_vendor_android(void)
             FT_BOOLEAN, 32, NULL, 0x00000010,
             NULL, HFILL }
         },
+        { &hf_android_a2dp_source_offload_capability_mask_opus,
+          { "Opus",                                        "bthci_vendor.android.a2dp_source_offload_capability_mask.opus",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL }
+        },
         { &hf_android_a2dp_source_offload_capability_mask_reserved,
           { "Reserved",                                    "bthci_vendor.android.a2dp_source_offload_capability_mask.reserved",
-            FT_UINT32, BASE_HEX, NULL, UINT32_C(0xFFFFFFE0),
+            FT_UINT32, BASE_HEX, NULL, UINT32_C(0xFFFFFFC0),
             NULL, HFILL }
         },
         { &hf_android_bluetooth_quality_report_support,
@@ -1319,9 +1927,14 @@ proto_register_bthci_vendor_android(void)
             FT_BOOLEAN, 32, NULL, 0x00000010,
             NULL, HFILL }
         },
+        { &hf_android_dynamic_audio_buffer_support_mask_opus,
+          { "Opus",                                        "bthci_vendor.android.dynamic_audio_buffer_support_mask.opus",
+            FT_BOOLEAN, 32, NULL, 0x00000020,
+            NULL, HFILL }
+        },
         { &hf_android_dynamic_audio_buffer_support_mask_reserved,
           { "Reserved",                                    "bthci_vendor.android.dynamic_audio_buffer_support_mask.reserved",
-            FT_UINT32, BASE_HEX, NULL, UINT32_C(0xFFFFFFE0),
+            FT_UINT32, BASE_HEX, NULL, UINT32_C(0xFFFFFFC0),
             NULL, HFILL }
         },
         { &hf_android_a2dp_offload_v2_support,
@@ -1329,28 +1942,60 @@ proto_register_bthci_vendor_android(void)
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_android_iso_link_layer_feedback_supported,
+            { "ISO Link Layer Feedback Supported", "bthci_vendor.android.iso_link_layer_feedback_supported",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_android_sniff_offload_supported,
+            { "Sniff Offload Supported", "bthci_vendor.android.sniff_offload_supported",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_android_big_channel_map_support,
+            { "BIG Channel Map Support", "bthci_vendor.android.big_channel_map_support",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_android_big_channel_map_support_bit0,
+            { "Bit 0", "bthci_vendor.android.big_channel_map_support.bit0",
+            FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }
+        },
+        { &hf_android_big_channel_map_support_reserved,
+            { "Reserved", "bthci_vendor.android.big_channel_map_support.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFFFE, NULL, HFILL }
+        },
+        { &hf_android_vendor_connection_handle_min,
+            { "Vendor Connection Handle Minimum", "bthci_vendor.android.vendor_connection_handle_min",
+            FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_android_vendor_connection_handle_max,
+            { "Vendor Connection Handle Maximum", "bthci_vendor.android.vendor_connection_handle_max",
+            FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_android_connection_proximity_threshold,
+            { "Connection Proximity Threshold", "bthci_vendor.android.connection_proximity_threshold",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+        },
         { &hf_android_status,
           { "Status",                                      "bthci_vendor.android.status",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_status_vals_ext, 0x0,
             NULL, HFILL }
         },
-        { &hf_android_le_energy_total_rx_time,
-            { "Total RX Time",                             "bthci_vendor.android.le.total_rx_time",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_android_le_energy_total_tx_time,
             { "Total TX Time",                             "bthci_vendor.android.le.total_tx_time",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_le_energy_total_rx_time,
+            { "Total RX Time",                             "bthci_vendor.android.le.total_rx_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_android_le_energy_total_idle_time,
             { "Total Idle Time",                           "bthci_vendor.android.le.total_idle_time",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
             NULL, HFILL }
         },
         { &hf_android_le_energy_total_energy_used,
-            { "Total Energy Used Time",                    "bthci_vendor.android.le.total_energy_used",
+            { "Total Energy Used (Current(mA) * Voltage(V) * Time(ms))", "bthci_vendor.android.le.total_energy_used",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -1747,6 +2392,11 @@ proto_register_bthci_vendor_android(void)
         &ett_android_channel_map,
         &ett_android_a2dp_source_offload_capability_mask,
         &ett_android_dynamic_audio_buffer_support_mask,
+        &ett_android_version_support,
+        &ett_android_big_channel_map_support,
+        &ett_android_apcf_feature_selection,
+        &ett_android_apcf_list_logic,
+        &ett_android_apcf_extended_features,
         &ett_android_a2dp_hardware_offload_start_legacy_codec_information,
         &ett_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask,
     };
