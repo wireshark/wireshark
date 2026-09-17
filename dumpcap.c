@@ -3552,6 +3552,16 @@ capture_loop_init_pcapng_output(capture_options *capture_opts,
     return successful;
 }
 
+static bool
+capture_loop_init_libpcap_output(int *err)
+{
+    capture_src *pcap_src;
+
+    pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
+    return libpcap_write_file_header(global_ld.pdh, pcap_src->linktype, pcap_src->snaplen,
+                                     pcap_src->ts_nsec, &global_ld.bytes_written, err);
+}
+
 /* set up to write to the already-opened capture output file/files */
 static bool
 capture_loop_init_output(capture_options *capture_opts, char *errmsg, int errmsg_len)
@@ -3595,10 +3605,7 @@ capture_loop_init_output(capture_options *capture_opts, char *errmsg, int errmsg
     if (capture_opts->use_pcapng) {
         successful = capture_loop_init_pcapng_output(capture_opts, &err);
     } else {
-        capture_src *pcap_src;
-        pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
-        successful = libpcap_write_file_header(global_ld.pdh, pcap_src->linktype, pcap_src->snaplen,
-                                               pcap_src->ts_nsec, &global_ld.bytes_written, &err);
+        successful = capture_loop_init_libpcap_output(&err);
     }
     if (!successful) {
         /* We couldn't write to the capture file. */
@@ -4080,10 +4087,7 @@ do_file_switch_or_stop(capture_options *capture_opts)
             if (capture_opts->use_pcapng) {
                 successful = capture_loop_init_pcapng_output(capture_opts, &global_ld.err);
             } else {
-                capture_src *pcap_src;
-                pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
-                successful = libpcap_write_file_header(global_ld.pdh, pcap_src->linktype, pcap_src->snaplen,
-                                                       pcap_src->ts_nsec, &global_ld.bytes_written, &global_ld.err);
+                successful = capture_loop_init_libpcap_output(&global_ld.err);
             }
 
             if (!successful) {
