@@ -26,7 +26,11 @@ little-endian in both sections:
 
 process_info_darwin_dpib.pcapng has one little-endian section with legacy
 Darwin process information blocks (block type 0x80000001), as written by
-Apple's tcpdump, and packets that refer to them:
+tcpdump on Darwin, and packets that refer to them; process_info_darwin_dpib_be.pcapng
+is the same in a big-endian section. The Darwin integer fields (the process
+ID of the block and the values of the per-packet options) are little-endian
+in both, as they are by design whatever the byte order of the section is;
+the block and option headers follow the section:
 
         DPIB 0: process 501 "mDNSResponder", with a UUID
         DPIB 1: process 1 "launchd"
@@ -195,7 +199,9 @@ def pib_entry(pid: int, opts) -> bytes:
 
 
 def legacy_dpib(endian: str, pid: int, opts) -> bytes:
-    return block(endian, LEGACY_DPIB_TYPE, struct.pack(endian + "I", pid) + options(endian, opts))
+    # The Darwin integer fields are little-endian whatever the byte order of
+    # the section is; the block and option headers follow the section.
+    return block(endian, LEGACY_DPIB_TYPE, struct.pack("<I", pid) + options(endian, opts))
 
 
 def write(name: str, data: bytes) -> None:
@@ -240,16 +246,17 @@ def gen_wireshark_cb() -> None:
         print(f"custom data {i}: {data.hex()}")
 
 
-def gen_darwin_dpib() -> None:
+def gen_darwin_dpib(endian: str = "<", suffix: str = "") -> None:
     base_ts = 1_757_500_000_000_000
-    out = shb("<") + idb("<")
-    out += legacy_dpib("<", 501, [(OPT_DPIB_NAME, b"mDNSResponder"), (OPT_DPIB_UUID, UUID)])
-    out += legacy_dpib("<", 1, [(OPT_DPIB_NAME, b"launchd")])
-    out += epb("<", base_ts + 1, udp_packet(1), [(OPT_EPB_DARWIN_DPIB_ID, struct.pack("<I", 0))])
-    out += epb("<", base_ts + 2, udp_packet(2), [(OPT_EPB_DARWIN_DPIB_ID, struct.pack("<I", 1))])
-    out += epb("<", base_ts + 3, udp_packet(3), [(OPT_EPB_DARWIN_DPIB_ID, struct.pack("<I", 0)),
-                                                 (OPT_EPB_DARWIN_EDPIB_ID, struct.pack("<I", 1))])
-    write("process_info_darwin_dpib.pcapng", out)
+    out = shb(endian) + idb(endian)
+    out += legacy_dpib(endian, 501, [(OPT_DPIB_NAME, b"mDNSResponder"), (OPT_DPIB_UUID, UUID)])
+    out += legacy_dpib(endian, 1, [(OPT_DPIB_NAME, b"launchd")])
+    # The values of the Darwin options are little-endian as well.
+    out += epb(endian, base_ts + 1, udp_packet(1), [(OPT_EPB_DARWIN_DPIB_ID, struct.pack("<I", 0))])
+    out += epb(endian, base_ts + 2, udp_packet(2), [(OPT_EPB_DARWIN_DPIB_ID, struct.pack("<I", 1))])
+    out += epb(endian, base_ts + 3, udp_packet(3), [(OPT_EPB_DARWIN_DPIB_ID, struct.pack("<I", 0)),
+                                                    (OPT_EPB_DARWIN_EDPIB_ID, struct.pack("<I", 1))])
+    write(f"process_info_darwin_dpib{suffix}.pcapng", out)
 
 
 def gen_pid_reuse() -> None:
@@ -331,6 +338,10 @@ def gen_several_processes() -> None:
 def main() -> None:
     gen_wireshark_cb()
     gen_darwin_dpib()
+    # The same in a big-endian section: the Darwin integer fields stay
+    # little-endian, so they must be read the same way whatever the section
+    # and the host are.
+    gen_darwin_dpib(">", "_be")
     gen_pid_reuse()
     gen_pid_reuse_order()
     gen_several_processes()

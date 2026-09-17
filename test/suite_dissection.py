@@ -2238,10 +2238,11 @@ class TestDissectPcapngProcessInformation:
             (8, 'frame.process.name == "late"'),
         ], two_pass=True)
 
-    def test_frame_darwin_effective_process(self, assert_frames_match):
+    @pytest.mark.parametrize('capture', ('process_info_darwin_dpib.pcapng', 'process_info_darwin_dpib_be.pcapng'))
+    def test_frame_darwin_effective_process(self, assert_frames_match, capture):
         '''The effective process of a Darwin packet is shown when it
-        differs from the process.'''
-        assert_frames_match('process_info_darwin_dpib.pcapng', [
+        differs from the process, whatever the byte order of the section.'''
+        assert_frames_match(capture, [
             (1, 'frame.darwin.process_info.pid == 501 && !frame.darwin.process_info.epid'),
             (3, 'frame.darwin.process_info.pid == 501 && frame.darwin.process_info.epid == 1'
                 ' && frame.darwin.process_info.epname == "launchd"'),

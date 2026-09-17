@@ -123,8 +123,8 @@ pcapng_write_legacy_darwin_process_info_block(wtap_dumper *wdh, wtap_block_t pib
                                    block_content_length, err))
         return false;
 
-    /* write the process id */
-    dpib.process_id = pib_mand->process_id;
+    /* write the process id; like the other Darwin integer fields, it is little-endian */
+    dpib.process_id = GUINT32_TO_LE(pib_mand->process_id);
     if (!wtap_dump_file_write(wdh, &dpib, sizeof dpib, err))
         return false;
 
@@ -143,7 +143,10 @@ static bool
 pcapng_write_darwin_legacy_uint32_option(wtap_dumper *wdh, unsigned option_id, wtap_optval_t *optval, int *err)
 {
     struct pcapng_option_header option_hdr;
+    uint32_t                    option_val;
 
+    /* The value is little-endian whatever the byte order of the section is. */
+    option_val              = GUINT32_TO_LE(optval->uint32val);
     option_hdr.type         = (uint16_t)option_id;
     option_hdr.value_length = (uint16_t)4;
 
@@ -153,7 +156,7 @@ pcapng_write_darwin_legacy_uint32_option(wtap_dumper *wdh, unsigned option_id, w
     if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
         return false;
 
-    if (!wtap_dump_file_write(wdh, &optval->uint32val, 4, err))
+    if (!wtap_dump_file_write(wdh, &option_val, 4, err))
         return false;
 
     return true;
@@ -165,7 +168,8 @@ pcapng_write_darwin_legacy_uint16_option(wtap_dumper *wdh, unsigned option_id, w
     struct pcapng_option_header option_hdr;
     uint16_t                    option_val;
 
-    option_val              = (uint16_t)optval->uint32val;
+    /* The value is little-endian whatever the byte order of the section is. */
+    option_val              = GUINT16_TO_LE((uint16_t)optval->uint32val);
     option_hdr.type         = (uint16_t)option_id;
     option_hdr.value_length = (uint16_t)2;
 
@@ -376,11 +380,12 @@ pcapng_read_darwin_legacy_block(wtap* wth _U_, FILE_T fh, uint32_t block_size _U
 
     /* Populate the mandatory values for the block. */
     pib_mand = (wtapng_process_info_mandatory_t *)wtap_block_get_mandatory_data(wblock->block);
-    if (section_info->byte_swapped) {
-        pib_mand->process_id = GUINT32_SWAP_LE_BE(process_info.process_id);
-    } else {
-        pib_mand->process_id = process_info.process_id;
-    }
+    /*
+     * The Darwin integer fields are little-endian by design, whatever the
+     * byte order of the section is; the block and option headers follow
+     * the section.
+     */
+    pib_mand->process_id = GUINT32_FROM_LE(process_info.process_id);
     pib_mand->block_type = BLOCK_TYPE_LEGACY_DPIB;
     ws_debug("process_id %u", pib_mand->process_id);
 
@@ -411,6 +416,10 @@ pcapng_process_darwin_legacy_block(wtap *wth, section_info_t *section_info _U_,
     return true;
 }
 
+/*
+ * Darwin integer options use little-endian byte order by design, whatever
+ * the byte order of the section is.
+ */
 static bool
 pcapng_parse_darwin_legacy_uint32(wtap_block_t block, unsigned option_code,
     unsigned option_length, const uint8_t* option_content,
@@ -426,9 +435,10 @@ pcapng_parse_darwin_legacy_uint32(wtap_block_t block, unsigned option_code,
     }
 
     memcpy(&uint32, option_content, sizeof(uint32_t));
+    uint32 = GUINT32_FROM_LE(uint32);
     wtap_block_add_uint32_option(block, option_code, uint32);
 
-    ws_noisy("Processed integer option 0x%08x (len: %u) == %d", option_code, option_length, *(int32_t*)option_content);
+    ws_noisy("Processed integer option 0x%08x (len: %u) == %u", option_code, option_length, uint32);
     return true;
 }
 
@@ -437,7 +447,8 @@ pcapng_parse_darwin_legacy_uint16(wtap_block_t block, unsigned option_code,
     unsigned option_length, const uint8_t* option_content,
     int* err, char** err_info)
 {
-    uint32_t uint32;
+    uint16_t uint16;
+
     if (option_length != 2) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("pcapng: Darwin option 0x%hx length expected %u, actual %u",
@@ -445,14 +456,12 @@ pcapng_parse_darwin_legacy_uint16(wtap_block_t block, unsigned option_code,
         return false;
     }
 
-    /* NOTE: Internally, the 16-bit options are stored as 32-bit.
-     * Because of that, we are using uint32_t as the option length,
-     * and not the real option length.
-     */
-    memcpy(&uint32, option_content, sizeof(uint32_t));
-    wtap_block_add_uint32_option(block, option_code, uint32);
+    memcpy(&uint16, option_content, sizeof(uint16_t));
+    uint16 = GUINT16_FROM_LE(uint16);
+    /* Internally, the 16-bit options are stored as 32-bit. */
+    wtap_block_add_uint32_option(block, option_code, uint16);
 
-    ws_noisy("Processed integer option 0x%08x (len: %u) == %d", option_code, option_length, *(int32_t*)option_content);
+    ws_noisy("Processed integer option 0x%08x (len: %u) == %u", option_code, option_length, uint16);
     return true;
 }
 
