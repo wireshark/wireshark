@@ -3442,7 +3442,7 @@ capture_loop_init_filter(pcap_t *pcap_h, bool from_cap_pipe,
  * Called from capture_loop_init_output and do_file_switch_or_stop.
  */
 static bool
-capture_loop_init_pcapng_output(capture_options *capture_opts,
+capture_file_start_output_pcapng(capture_options *capture_opts,
                                 int *err)
 {
     g_rw_lock_reader_lock (&global_ld.saved_shb_idb_lock);
@@ -3553,13 +3553,23 @@ capture_loop_init_pcapng_output(capture_options *capture_opts,
 }
 
 static bool
-capture_loop_init_libpcap_output(int *err)
+capture_file_start_output_pcap(int *err)
 {
     capture_src *pcap_src;
 
     pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
     return libpcap_write_file_header(global_ld.pdh, pcap_src->linktype, pcap_src->snaplen,
                                      pcap_src->ts_nsec, &global_ld.bytes_written, err);
+}
+
+static bool
+capture_file_start_output(capture_options *capture_opts, int *err)
+{
+    if (capture_opts->use_pcapng) {
+        return capture_file_start_output_pcapng(capture_opts, err);
+    } else {
+        return capture_file_start_output_pcap(err);
+    }
 }
 
 /* set up to write to the already-opened capture output file/files */
@@ -3600,14 +3610,7 @@ capture_loop_init_output(capture_options *capture_opts, char *errmsg, int errmsg
         return false;
     }
 
-    bool successful;
-
-    if (capture_opts->use_pcapng) {
-        successful = capture_loop_init_pcapng_output(capture_opts, &err);
-    } else {
-        successful = capture_loop_init_libpcap_output(&err);
-    }
-    if (!successful) {
+    if (!capture_file_start_output(capture_opts, &err)) {
         /* We couldn't write to the capture file. */
         if (err < 0) {
             snprintf(errmsg, errmsg_len,
@@ -4067,8 +4070,6 @@ static time_t get_next_time_interval(int interval_s) {
 static bool
 do_file_switch_or_stop(capture_options *capture_opts)
 {
-    bool              successful;
-
     if (capture_opts->multi_files_on) {
         if (capture_opts->has_autostop_files &&
             ++global_ld.file_count >= capture_opts->autostop_files) {
@@ -4084,13 +4085,8 @@ do_file_switch_or_stop(capture_options *capture_opts)
             /* File switch succeeded: reset the conditions */
             global_ld.bytes_written = 0;
             global_ld.packets_written = 0;
-            if (capture_opts->use_pcapng) {
-                successful = capture_loop_init_pcapng_output(capture_opts, &global_ld.err);
-            } else {
-                successful = capture_loop_init_libpcap_output(&global_ld.err);
-            }
 
-            if (!successful) {
+            if (!capture_file_start_output(capture_opts, &global_ld.err)) {
                 ws_cwstream_close_after_error(global_ld.pdh);
                 global_ld.pdh = NULL;
                 global_ld.go = false;
@@ -4885,7 +4881,7 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
 
     if (bh->block_type == BLOCK_TYPE_SHB && !global_ld.pcapng_passthrough) {
         /*
-         * capture_loop_init_pcapng_output should've handled this. We need
+         * capture_file_start_output_pcapng should've handled this. We need
          * to write ISBs when they're initially read so we shouldn't skip
          * them here.
          */
