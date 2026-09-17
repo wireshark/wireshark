@@ -3438,12 +3438,10 @@ capture_loop_init_filter(pcap_t *pcap_h, bool from_cap_pipe,
 }
 
 /*
- * Write the dumpcap pcapng SHB and IDBs if needed.
- * Called from capture_loop_init_output and do_file_switch_or_stop.
+ * Write a pcapng SHB and IDBs if needed.
  */
 static bool
-capture_file_start_output_pcapng(capture_options *capture_opts,
-                                int *err)
+capture_file_start_output_pcapng(capture_options *capture_opts)
 {
     g_rw_lock_reader_lock (&global_ld.saved_shb_idb_lock);
 
@@ -3457,7 +3455,6 @@ capture_file_start_output_pcapng(capture_options *capture_opts,
     bool successful = true;
     GString *os_info_str = g_string_new("");
 
-    *err = 0;
     get_os_version_info(os_info_str);
 
     if (global_ld.saved_shb) {
@@ -3473,7 +3470,10 @@ capture_file_start_output_pcapng(capture_options *capture_opts,
             bh.block_total_length = GUINT32_SWAP_LE_BE(bh.block_total_length);
         }
 
-        successful = pcapng_write_block(global_ld.pdh, global_ld.saved_shb, bh.block_total_length, &global_ld.bytes_written, err);
+        successful = pcapng_write_block(global_ld.pdh, global_ld.saved_shb,
+                                        bh.block_total_length,
+                                        &global_ld.bytes_written,
+                                        &global_ld.err);
 
         ws_debug("%s: wrote saved passthrough SHB %d", G_STRFUNC, successful);
     } else {
@@ -3487,7 +3487,7 @@ capture_file_start_output_pcapng(capture_options *capture_opts,
                                                        get_appname_and_version(),
                                                        -1,                          /* section_length */
                                                        &global_ld.bytes_written,
-                                                       err);
+                                                       &global_ld.err);
         ws_debug("%s: wrote dumpcap SHB %d", G_STRFUNC, successful);
         g_string_free(cpu_info_str, TRUE);
     }
@@ -3523,7 +3523,10 @@ capture_file_start_output_pcapng(capture_options *capture_opts,
                                                                   &global_ld.err);
             ws_debug("%s: skipping deleted pcapng IDB %u", G_STRFUNC, i);
         } else if (idb_source.idb && idb_source.idb_len) {
-            successful = pcapng_write_block(global_ld.pdh, idb_source.idb, idb_source.idb_len, &global_ld.bytes_written, err);
+            successful = pcapng_write_block(global_ld.pdh, idb_source.idb,
+                                            idb_source.idb_len,
+                                            &global_ld.bytes_written,
+                                            &global_ld.err);
             ws_debug("%s: wrote pcapng IDB %d", G_STRFUNC, successful);
         } else if (idb_source.interface_id < capture_opts->ifaces->len) {
             unsigned if_id = idb_source.interface_id;
@@ -3552,23 +3555,32 @@ capture_file_start_output_pcapng(capture_options *capture_opts,
     return successful;
 }
 
+/*
+ * Write a pcap file header.
+ */
 static bool
-capture_file_start_output_pcap(int *err)
+capture_file_start_output_pcap(void)
 {
     capture_src *pcap_src;
 
     pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
-    return libpcap_write_file_header(global_ld.pdh, pcap_src->linktype, pcap_src->snaplen,
-                                     pcap_src->ts_nsec, &global_ld.bytes_written, err);
+    return libpcap_write_file_header(global_ld.pdh, pcap_src->linktype,
+                                     pcap_src->snaplen, pcap_src->ts_nsec,
+                                     &global_ld.bytes_written,
+                                     &global_ld.err);
 }
 
+/*
+ * Write the first part of an output file.
+ * Called from capture_loop_init_output and do_file_switch_or_stop.
+ */
 static bool
-capture_file_start_output(capture_options *capture_opts, int *err)
+capture_file_start_output(capture_options *capture_opts)
 {
     if (capture_opts->use_pcapng) {
-        return capture_file_start_output_pcapng(capture_opts, err);
+        return capture_file_start_output_pcapng(capture_opts);
     } else {
-        return capture_file_start_output_pcap(err);
+        return capture_file_start_output_pcap();
     }
 }
 
@@ -3576,8 +3588,6 @@ capture_file_start_output(capture_options *capture_opts, int *err)
 static bool
 capture_loop_init_output(capture_options *capture_opts, char *errmsg, int errmsg_len)
 {
-    int err = 0;
-
     ws_debug("capture_loop_init_output");
 
     if ((capture_opts->use_pcapng == false) &&
@@ -3587,41 +3597,45 @@ capture_loop_init_output(capture_options *capture_opts, char *errmsg, int errmsg
         return false;
     }
 
+    global_ld.err = 0;
+
     /* Set up to write to the capture file. */
     if (capture_opts->multi_files_on) {
-        global_ld.pdh = ringbuf_init_libpcap_fdopen(&err);
+        global_ld.pdh = ringbuf_init_libpcap_fdopen(&global_ld.err);
     } else {
-        global_ld.pdh = ws_cwstream_fdopen(global_ld.save_file_fd, ws_name_to_compression_type(capture_opts->compress_type), &err);
+        global_ld.pdh = ws_cwstream_fdopen(global_ld.save_file_fd,
+                                           ws_name_to_compression_type(capture_opts->compress_type),
+                                           &global_ld.err);
     }
     if (global_ld.pdh == NULL) {
         /* We couldn't set up to write to the capture file. */
         /* XXX - use cf_open_error_message from ui/capture.c instead? */
-        if (err < 0) {
+        if (global_ld.err < 0) {
             snprintf(errmsg, errmsg_len,
                        "The file to which the capture would be"
                        " saved (\"%s\") could not be opened: Error %d.",
-                       capture_opts->save_file, err);
+                       capture_opts->save_file, global_ld.err);
         } else {
             snprintf(errmsg, errmsg_len,
                        "The file to which the capture would be"
                        " saved (\"%s\") could not be opened: %s.",
-                       capture_opts->save_file, g_strerror(err));
+                       capture_opts->save_file, g_strerror(global_ld.err));
         }
         return false;
     }
 
-    if (!capture_file_start_output(capture_opts, &err)) {
+    if (!capture_file_start_output(capture_opts)) {
         /* We couldn't write to the capture file. */
-        if (err < 0) {
+        if (global_ld.err < 0) {
             snprintf(errmsg, errmsg_len,
                      "The file to which the capture would be"
                      " saved (\"%s\") could not be written to: Error %d.",
-                     capture_opts->save_file, err);
+                     capture_opts->save_file, global_ld.err);
         } else {
             snprintf(errmsg, errmsg_len,
                      "The file to which the capture would be"
                      " saved (\"%s\") could not be written to: %s.",
-                     capture_opts->save_file, g_strerror(err));
+                     capture_opts->save_file, g_strerror(global_ld.err));
         }
         ws_cwstream_close_after_error(global_ld.pdh);
         global_ld.pdh = NULL;
@@ -4086,7 +4100,7 @@ do_file_switch_or_stop(capture_options *capture_opts)
             global_ld.bytes_written = 0;
             global_ld.packets_written = 0;
 
-            if (!capture_file_start_output(capture_opts, &global_ld.err)) {
+            if (!capture_file_start_output(capture_opts)) {
                 ws_cwstream_close_after_error(global_ld.pdh);
                 global_ld.pdh = NULL;
                 global_ld.go = false;
