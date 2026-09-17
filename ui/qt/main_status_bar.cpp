@@ -83,12 +83,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent),
     cap_file_(NULL),
     cs_fixed_(false),
-    cs_count_(0),
-#ifdef HAVE_LIBPCAP
-    ready_msg_(tr("Ready to load or capture"))
-#else
-    ready_msg_(tr("Ready to load file"))
-#endif
+    cs_count_(0)
 {
     QSplitter *splitter = new QSplitter(this);
     QWidget *info_progress = new QWidget(this);
@@ -177,7 +172,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     cur_main_status_bar_ = this;
 
     splitter->hide();
-    info_status_.pushText(ready_msg_, STATUS_CTX_MAIN);
+    setReadyMsg();
     packets_bar_update();
 
 #ifdef QWINTASKBARPROGRESS_H
@@ -262,11 +257,21 @@ void MainStatusBar::setFileName(CaptureFile &cf)
     }
 }
 
+void MainStatusBar::setReadyMsg()
+{
+#ifdef HAVE_LIBPCAP
+    QString ready_msg(tr("Ready to load or capture"));
+#else
+    QString ready_msg(tr("Ready to load file"));
+#endif
+    info_status_.pushText(std::move(ready_msg), STATUS_CTX_MAIN);
+}
+
 void MainStatusBar::changeEvent(QEvent *event)
 {
     if (event->type() == QEvent::LanguageChange) {
         info_status_.popText(STATUS_CTX_MAIN);
-        info_status_.pushText(ready_msg_, STATUS_CTX_MAIN);
+        setReadyMsg();
         setStatusbarForCaptureFile();
         showCaptureStatistics();
         setProfileName();

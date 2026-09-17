@@ -153,9 +153,6 @@ private:
     /** Label for the current profile status. */
     ClickableLabel profile_status_;
 
-    /** String representing the ready message. */
-    QString ready_msg_;
-
     /** Selected-field text for STATUS_CTX_FIELD. */
     QString field_status_base_;
 
@@ -169,6 +166,11 @@ private:
      * @brief Push STATUS_CTX_FIELD using @ref field_status_supplement_ and @ref field_status_base_.
      */
     void refreshFieldStatus();
+
+    /**
+     * @brief Sets the ready message depending on the current locale.
+     */
+    void setReadyMsg();
 
     /**
      * @brief Configures the status bar for a capture file.
