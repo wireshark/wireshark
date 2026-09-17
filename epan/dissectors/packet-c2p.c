@@ -2627,7 +2627,7 @@ static void fac_user_prio_format(char* string, uint32_t value)
     }
 }
 
-static int dissect_dsrc_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
+static int dissect_c2p_dsrc_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
     unsigned offset = 0;
 
@@ -2671,7 +2671,7 @@ static int dissect_dsrc_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pin
     return offset;
 }
 
-static int dissect_dsrc_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
+static int dissect_c2p_dsrc_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
     unsigned offset = 0;
 
@@ -2709,7 +2709,7 @@ static int dissect_dsrc_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pin
     return offset;
 }
 
-static int dissect_cv2x_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
+static int dissect_c2p_cv2x_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
     unsigned offset = 0;
 
@@ -2739,7 +2739,7 @@ static int dissect_cv2x_tx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pin
     return offset;
 }
 
-static int dissect_cv2x_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
+static int dissect_c2p_cv2x_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
     unsigned offset = 0;
 
@@ -2761,7 +2761,7 @@ static int dissect_cv2x_rx(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pin
     return offset;
 }
 
-static int dissect_nav(tvbuff_t* tvb, proto_tree* c2p_tree)
+static int dissect_c2p_nav(tvbuff_t* tvb, proto_tree* c2p_tree)
 {
     unsigned offset = 0;
 
@@ -2795,7 +2795,7 @@ static int dissect_nav(tvbuff_t* tvb, proto_tree* c2p_tree)
     return offset;
 }
 
-static int dissect_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
+static int dissect_c2p_sti(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
     unsigned offset = 0;
 
@@ -2876,7 +2876,7 @@ static dissector_handle_t fac_payload_dissector(uint32_t msg_type)
     return handle;
 }
 
-static int dissect_fac_inject(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
+static int dissect_c2p_fac_inject(tvbuff_t* tvb, proto_tree* c2p_tree, packet_info* pinfo)
 {
     /*
      * Sizes of the facility notification metadata that precedes the injected
@@ -3078,19 +3078,19 @@ static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     if(C2P_VERSION_1 == version) {
         switch(type) {
         case C2P_TYPE_DSRC_RX:
-            offset += dissect_dsrc_rx(next_tvb, c2p_tree, pinfo);
+            offset += dissect_c2p_dsrc_rx(next_tvb, c2p_tree, pinfo);
             break;
         case C2P_TYPE_DSRC_TX:
-            offset += dissect_dsrc_tx(next_tvb, c2p_tree, pinfo);
+            offset += dissect_c2p_dsrc_tx(next_tvb, c2p_tree, pinfo);
             break;
         case C2P_TYPE_NAV:
-            offset += dissect_nav(next_tvb, c2p_tree);
+            offset += dissect_c2p_nav(next_tvb, c2p_tree);
             break;
         case C2P_TYPE_CV2X_RX:
-            offset += dissect_cv2x_rx(next_tvb, c2p_tree, pinfo);
+            offset += dissect_c2p_cv2x_rx(next_tvb, c2p_tree, pinfo);
             break;
         case C2P_TYPE_CV2X_TX:
-            offset += dissect_cv2x_tx(next_tvb, c2p_tree, pinfo);
+            offset += dissect_c2p_cv2x_tx(next_tvb, c2p_tree, pinfo);
             break;
         default:
             break;
@@ -3098,13 +3098,13 @@ static int dissect_c2p(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     } else if(C2P_VERSION_2 == version) {
         switch(type) {
         case C2P_TYPE_STI:
-            offset += dissect_sti(next_tvb, c2p_tree, pinfo);
+            offset += dissect_c2p_sti(next_tvb, c2p_tree, pinfo);
             break;
         case C2P_TYPE_API:
             offset += dissect_c2p_api(next_tvb, c2p_tree, pinfo);
             break;
         case C2P_TYPE_FAC_INJECT:
-            offset += dissect_fac_inject(next_tvb, c2p_tree, pinfo);
+            offset += dissect_c2p_fac_inject(next_tvb, c2p_tree, pinfo);
             break;
         default:
             break;
