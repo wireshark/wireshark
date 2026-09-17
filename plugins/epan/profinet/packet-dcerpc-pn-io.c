@@ -9351,7 +9351,7 @@ dissect_SAM_block(tvbuff_t* tvb, int offset, packet_info* pinfo,
     uint16_t u16SecurityOperation;
     uint16_t eap_length;
 
-    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+    if ((u8BlockVersionHigh != 1 && u8BlockVersionHigh != 2) || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -15839,7 +15839,7 @@ dissect_ExpectedCredentialTypeBlock_block(tvbuff_t *tvb, int offset,
     int body_end = offset + u16BodyLength;
     uint32_t u32ExpectedCredentialType;
 
-    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+    if (u8BlockVersionHigh != 2 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -15872,7 +15872,7 @@ dissect_ARMetadataBlock_block(tvbuff_t *tvb, int offset,
     uint16_t u16ARType;
     int      body_end = offset + u16BodyLength;
 
-    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+    if (u8BlockVersionHigh != 2 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
