@@ -651,6 +651,10 @@ extern "C" {
 #define ETHERTYPE_CABLELABS		0xB4E3 /* Ethernet type for CableLabs layer-3 protocol */
 #endif
 
+#ifndef ETHERTYPE_OPC_UA
+#define ETHERTYPE_OPC_UA		0xB62C /* Ethernet Type 0xB62C is the dedicated identifier used for OPC UA Ethernet */
+#endif
+
 #ifndef ETHERTYPE_XIP
 #define ETHERTYPE_XIP			0xC0DE	/* eXpressive Internet Protocol (not officially registered) */
 #endif

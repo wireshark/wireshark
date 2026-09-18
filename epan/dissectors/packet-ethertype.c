@@ -191,6 +191,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_AVSP,                 "Arista Vendor Specific Protocol" },
 	{ ETHERTYPE_ECPRI,                "eCPRI" },
 	{ ETHERTYPE_CABLELABS,            "CableLabs Layer-3 Protocol" },
+	{ ETHERTYPE_OPC_UA,               "OPC UA over Ethernet" },
 	{ ETHERTYPE_EXEH,                 "EXos internal Extra Header" },
 	{ ETHERTYPE_ATMF,                 "Allied Telesis Autonomous Management Framework" },
 	{ ETHERTYPE_ATRL,                 "Allied Telesis Resiliency Link" },
