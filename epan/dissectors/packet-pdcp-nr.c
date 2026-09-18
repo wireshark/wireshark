@@ -1313,8 +1313,8 @@ static void write_pdu_label_and_info(proto_item *pdu_ti,
 
 
 /* Show in the tree the config info attached to this frame, as generated fields */
-static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
-                             pdcp_nr_info *p_pdcp_info)
+static proto_item* show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
+                                    pdcp_nr_info *p_pdcp_info)
 {
     proto_item *ti;
     proto_tree *configuration_tree;
@@ -1452,8 +1452,55 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s: ",
                     val_to_str_const(p_pdcp_info->plane, pdcp_plane_vals, "Unknown"));
 
+    return configuration_ti;
 }
 
+/* Show in the tree the security info attached to this frame, as generated fields */
+static proto_tree* show_pdcp_security(packet_info *pinfo, tvbuff_t *tvb, proto_tree *pdcp_tree,
+                               pdcp_nr_security_info_t *pdu_security)
+{
+    proto_tree *security_tree = NULL;
+    proto_item *security_ti, *ti;
+
+    if (pdu_security != NULL) {
+        /* Create subtree */
+        security_ti = proto_tree_add_string_format(pdcp_tree,
+                                                   hf_pdcp_nr_security,
+                                                   tvb, 0, 0,
+                                                   "", "UE Security");
+        security_tree = proto_item_add_subtree(security_ti, ett_pdcp_security);
+        proto_item_set_generated(security_ti);
+
+        /* Setup frame */
+        if (pdu_security->algorithm_configuration_frame &&
+            pinfo->num > pdu_security->algorithm_configuration_frame) {
+            /* Must be set, and be seen before this frame */
+            /* XXX - Should we add it if it is this frame? The link isn't
+             * useful, but it probably doesn't hurt. */
+            ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_setup_frame,
+                                     tvb, 0, 0, pdu_security->algorithm_configuration_frame);
+            proto_item_set_generated(ti);
+        }
+
+        /* Ciphering - does not apply to the SecurityModeCommand itself */
+        /* XXX - Should we try to clarify (Expert Info Chat or some such)
+         * because this is a little confusing? */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_ciphering_algorithm,
+                                 tvb, 0, 0, pdu_security->ciphering);
+        proto_item_set_generated(ti);
+
+        /* Integrity - *does* apply to the SecurityModeCommand itself */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_integrity_algorithm,
+                                 tvb, 0, 0, pdu_security->integrity);
+        proto_item_set_generated(ti);
+
+        /* Show algorithms in security root */
+        proto_item_append_text(security_ti, " (ciphering=%s, integrity=%s)",
+                               val_to_str_const(pdu_security->ciphering, ciphering_algorithm_vals, "Unknown"),
+                               val_to_str_const(pdu_security->integrity, integrity_algorithm_vals, "Unknown"));
+    }
+    return security_tree;
+}
 
 /* Look for an RRC dissector for signalling data (using Bearer type and direction) */
 static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_nr_info  *p_pdcp_info, uint32_t data_length)
@@ -2085,7 +2132,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     pdcp_nr_security_info_t *current_security = NULL;   /* current security for this UE */
     pdcp_nr_security_info_t *pdu_security;              /* security in place for this PDU */
     proto_tree *security_tree = NULL;
-    proto_item *security_ti;
+    proto_item *configuration_ti = NULL;
     tvbuff_t *payload_tvb;
     pdu_security_settings_t  pdu_security_settings;
     bool payload_deciphered = false;
@@ -2161,7 +2208,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /*****************************************************/
     /* Show configuration (attached packet) info in tree */
     if (pdcp_tree) {
-        show_pdcp_config(pinfo, tvb, pdcp_tree, p_pdcp_info);
+        configuration_ti = show_pdcp_config(pinfo, tvb, pdcp_tree, p_pdcp_info);
     }
 
     /* Show ROHC mode */
@@ -2210,43 +2257,11 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     pdu_security = (pdcp_nr_security_info_t*)wmem_map_lookup(pdcp_security_result_hash,
                                                              get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->num, false));
     if (pdu_security != NULL) {
-        /* Create subtree */
-        security_ti = proto_tree_add_string_format(pdcp_tree,
-                                                   hf_pdcp_nr_security,
-                                                   tvb, 0, 0,
-                                                   "", "UE Security");
-        security_tree = proto_item_add_subtree(security_ti, ett_pdcp_security);
-        proto_item_set_generated(security_ti);
-
-        /* Setup frame */
-        if (pdu_security->algorithm_configuration_frame &&
-            pinfo->num > pdu_security->algorithm_configuration_frame) {
-            /* Must be set, and be seen before this frame */
-            ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_setup_frame,
-                                     tvb, 0, 0, pdu_security->algorithm_configuration_frame);
-            proto_item_set_generated(ti);
-        }
-
-        /* Ciphering */
-        ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_ciphering_algorithm,
-                                 tvb, 0, 0, pdu_security->ciphering);
-        proto_item_set_generated(ti);
-
-        /* Integrity */
-        ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_integrity_algorithm,
-                                 tvb, 0, 0, pdu_security->integrity);
-        proto_item_set_generated(ti);
-
-        /* Show algorithms in security root */
-        proto_item_append_text(security_ti, " (ciphering=%s, integrity=%s)",
-                               val_to_str_const(pdu_security->ciphering, ciphering_algorithm_vals, "Unknown"),
-                               val_to_str_const(pdu_security->integrity, integrity_algorithm_vals, "Unknown"));
+        show_pdcp_security(pinfo, tvb, pdcp_tree, pdu_security);
 
         pdu_security_settings.ciphering = pdu_security->ciphering;
         pdu_security_settings.integrity = pdu_security->integrity;
     }
-
-
 
     /***********************************/
     /* Handle PDCP header              */
@@ -2570,17 +2585,9 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     proto_item *mac_ti = NULL;
-    uint32_t calculated_digest = 0;
-    bool digest_was_calculated = false;
 
-    /* Try to calculate digest so we can check it */
-    if (global_pdcp_check_integrity && p_pdcp_info->maci_present) {
-        calculated_digest = calculate_digest(&pdu_security_settings, pinfo, security_tree,
-                                             tvb_new_subset_length(tvb, 0, header_length),
-                                             payload_tvb, offset,
-                                             payload_deciphered ? 0 : sdap_length,
-                                             &digest_was_calculated);
-    }
+    /* Save the payload offset so we can calculate the digest later */
+    int payload_offset = offset;
 
     if (p_pdcp_info->plane == NR_SIGNALING_PLANE) {
         /* Compute payload length (no MAC on common control Bearers) */
@@ -2735,8 +2742,51 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         }
     }
 
+    /* 3GPP TS 38.323 5.9 Integrity protection and verification
+     * "NOTE 1: As the RRC message which activates the integrity protection
+     * function is itself integrity protected with the configuration included
+     * in this RRC message, this message needs first be decoded by RRC before
+     * the integrity protection verification could be performed for the PDU in
+     * which the message was received."
+     *
+     * 3GPP TS 38.331 5.3.4.3 Reception of the SecurityModeCommand by the UE
+     * "integrity protection shall be applied to all subsequent messages
+     * received and sent by the UE, including the SecurityModeComplete message;
+     * ... ciphering shall be applied to all subsequent messages received and
+     * sent by the UE, except for the SecurityModeComplete message which is sent
+     * unciphered;"
+     *
+     * So if we didn't already have the security settings, check again now
+     * if the payload is a RRC SecurityModeCommand and integrity protection
+     * is present. Luckily the message that tells you the cipher isn't ciphered
+     * itself. This makes a difference on the first pass.
+     */
+    if (pdu_security == NULL) {
+        pdu_security = (pdcp_nr_security_info_t*)wmem_map_lookup(pdcp_security_result_hash,
+                                                                 get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->num, false));
+        if (pdu_security != NULL) {
+            security_tree = show_pdcp_security(pinfo, tvb, pdcp_tree, pdu_security);
+            proto_tree_move_item(pdcp_tree, configuration_ti, proto_tree_get_parent(security_tree));
+
+            //pdu_security_settings.ciphering = pdu_security->ciphering;
+            pdu_security_settings.integrity = pdu_security->integrity;
+        }
+    }
+
     /* MAC */
     if (p_pdcp_info->maci_present) {
+        uint32_t calculated_digest = 0;
+        bool digest_was_calculated = false;
+
+        /* Try to calculate digest so we can check it */
+        if (global_pdcp_check_integrity) {
+            calculated_digest = calculate_digest(&pdu_security_settings, pinfo, security_tree,
+                                                 tvb_new_subset_length(tvb, 0, header_length),
+                                                 payload_tvb, payload_offset,
+                                                 payload_deciphered ? 0 : sdap_length,
+                                                 &digest_was_calculated);
+        }
+
         /* Last 4 bytes are MAC */
         int mac_offset = tvb_reported_length(payload_tvb)-4;
         uint32_t mac;
