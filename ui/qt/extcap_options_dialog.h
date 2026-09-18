@@ -63,6 +63,12 @@ public:
      */
     ExtcapValueList loadValuesFor(int argNum, QString call, QString parent = "");
 
+    /**
+      * @brief Retrieves the current extcap argument settings.
+      * @return A GHashTable containing the configured argument settings.
+      */
+    GHashTable* getExtcapArgumentSettings();
+
 private Q_SLOTS:
     /**
      * @brief Slot triggered when a button in the button box is clicked.
@@ -113,6 +119,9 @@ private:
 
     /** The list of extcap arguments populated in the dialog. */
     ExtcapArgumentList extcapArguments;
+
+    /** The hash table containing the validated extcap argument settings when the dialog is accepted. */
+    GHashTable* ret_args;
 
     /**
      * @brief Loads the arguments for the current device and populates the dialog.

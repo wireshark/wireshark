@@ -57,7 +57,8 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(bool startCaptureOnClose, QWidget *pare
     ui(new Ui::ExtcapOptionsDialog),
     device_name(""),
     device_idx(0),
-    defaultValueIcon_(StockIcon("x-reset"))
+    defaultValueIcon_(StockIcon("x-reset")),
+    ret_args(NULL)
 {
     ui->setupUi(this);
 
@@ -140,6 +141,12 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, bo
 ExtcapOptionsDialog::~ExtcapOptionsDialog()
 {
     delete ui;
+
+    if (ret_args)
+    {
+        g_hash_table_unref(ret_args);
+        this->ret_args = NULL;
+    }
 }
 
 void ExtcapOptionsDialog::anyValueChanged()
@@ -494,8 +501,16 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
 
     if (device->external_cap_args_settings != NULL)
       g_hash_table_unref(device->external_cap_args_settings);
-    device->external_cap_args_settings = ret_args;
+
+    device->external_cap_args_settings = g_hash_table_ref(ret_args);
+    this->ret_args = ret_args;
+
     return true;
+}
+
+GHashTable* ExtcapOptionsDialog::getExtcapArgumentSettings()
+{
+    return this->ret_args;
 }
 
 void ExtcapOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)

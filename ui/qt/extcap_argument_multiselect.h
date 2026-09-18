@@ -209,10 +209,10 @@ protected:
     virtual void showExtcapOptionsDialogForOptionValue(QStandardItem* item, QString& option_value);
 
     /**
-     * @brief Handles the completion of the extcap options dialog.
+     * @brief Handles the completion of the extcap sub-options dialog.
      * @param item The standard item that was edited.
      */
-    virtual void extcap_options_finished(QStandardItem* item);
+    virtual void extcap_suboptions_accepted(QStandardItem* item);
 
 private:
     /** Dialog for configuring detailed extcap options. */
