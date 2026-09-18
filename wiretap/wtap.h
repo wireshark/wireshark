@@ -2695,20 +2695,22 @@ wtap_block_t wtap_file_get_pib(wtap *wth, unsigned pib_num);
 /**
  * @brief Finds the process information block for a process.
  * @details Returns the ordinal number of the most recent process information
- *          block, i.e. the last one read from the file so far, whose process
- *          ID is the given one and whose start time, if it has one, is not
- *          after the given time, so that processes that reused the ID can be
- *          told apart. If every block for the ID has a later start time, the
- *          first one is returned.
+ *          block whose process ID is the given one and whose start time, if it
+ *          has one, is not after the given time, so that processes that reused
+ *          the ID can be told apart. Only the blocks that precede the packet in
+ *          the file are considered, as a writer describes a process before the
+ *          first packet it attributes to it, unless none does. If every block
+ *          considered has a later start time, the last of them is returned.
  *
  * @param wth The wiretap session.
  * @param process_id The process ID, as in the pcapng epb_processid_threadid option.
  * @param ts The time at which the packet was captured, or NULL to ignore start times.
+ * @param file_off The file offset of the packet, or -1 to consider every block.
  * @param pib_num Set to the ordinal number (0-based) of the block found.
  * @return true if a block was found, false otherwise.
  */
 WS_DLL_PUBLIC
-bool wtap_file_find_pib(wtap *wth, uint32_t process_id, const nstime_t *ts, unsigned *pib_num);
+bool wtap_file_find_pib(wtap *wth, uint32_t process_id, const nstime_t *ts, int64_t file_off, unsigned *pib_num);
 
 /**
  * @brief Adds a Decryption Secrets Block to the open wiretap session.

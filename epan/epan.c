@@ -698,10 +698,10 @@ epan_get_process_start_time(const epan_t *session, uint32_t process_info_id, uns
 }
 
 bool
-epan_find_process_info(const epan_t *session, uint32_t process_id, unsigned section_number, const nstime_t *ts, uint32_t *process_info_id)
+epan_find_process_info(const epan_t *session, uint32_t process_id, unsigned section_number, const nstime_t *ts, int64_t file_off, uint32_t *process_info_id)
 {
 	if (session->funcs.find_process_info)
-		return session->funcs.find_process_info(session->prov, process_id, section_number, ts, process_info_id);
+		return session->funcs.find_process_info(session->prov, process_id, section_number, ts, file_off, process_info_id);
 
 	return false;
 }

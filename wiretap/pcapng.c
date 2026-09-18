@@ -3484,8 +3484,11 @@ pcapng_process_cb(wtap *wth, section_info_t *section_info _U_,
     switch (wtap_block_get_type(wblock->block)) {
 
     case WTAP_BLOCK_PROCESS_INFORMATION:
-        /* Store it such that it can be looked up and saved by the dumper. */
-        wtap_add_pib(wth, wblock->block);
+        /*
+         * Store it such that it can be looked up and saved by the dumper;
+         * where it ends tells which packets it precedes.
+         */
+        wtap_add_pib(wth, wblock->block, file_tell(wth->fh));
         /* Do not free wblock->block, it is consumed above */
         break;
 

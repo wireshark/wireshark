@@ -304,7 +304,7 @@ WS_DLL_PUBLIC bool cap_file_provider_get_process_start_time(struct packet_provid
  * @param process_info_id Pointer to store the identifier for the process information.
  * @return true if found, false otherwise.
  */
-WS_DLL_PUBLIC bool cap_file_provider_find_process_info(struct packet_provider_data *prov, uint32_t process_id, unsigned section_number, const nstime_t *ts, uint32_t *process_info_id);
+WS_DLL_PUBLIC bool cap_file_provider_find_process_info(struct packet_provider_data *prov, uint32_t process_id, unsigned section_number, const nstime_t *ts, int64_t file_off, uint32_t *process_info_id);
 
 /**
  * @brief Get a modified block for a frame from the packet provider.

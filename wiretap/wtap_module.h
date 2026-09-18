@@ -70,6 +70,7 @@ struct wtap {
     GArray                      *meta_events;           /**< An array of meta events (of type wtap_block_t), or NULL if not supported. */
     GArray                      *pibs;                  /**< An array of process information blocks (of type wtap_block_t), or NULL if not supported. */
     GHashTable                  *pibs_by_pid;           /**< Maps a process ID to a GArray of the indices in pibs of the blocks for it, in file order, or NULL. */
+    GArray                      *pib_offsets;           /**< For each block in pibs, the file offset just after it (of type int64_t), or NULL. */
     char                        *pathname;              /**< File pathname; might just be "-" */
     const char                  *app_env_var_prefix;    /**< Application specific environment variable prefix, used to determine certain behavior */
 
@@ -373,9 +374,11 @@ wtap_add_idb(wtap *wth, wtap_block_t idb);
  *
  * @param wth Wiretap handle.
  * @param pib Process information block to add.
+ * @param offset The file offset just after the block, so that a packet can
+ * be matched with the blocks that precede it, or -1 if not known.
  */
 void
-wtap_add_pib(wtap *wth, wtap_block_t pib);
+wtap_add_pib(wtap *wth, wtap_block_t pib, int64_t offset);
 
 /**
  * @brief Invoke the registered callback with a Name Resolution Block (NRB).

@@ -621,7 +621,7 @@ frame_add_process_info(proto_tree *fh_tree, tvbuff_t *tvb, packet_info *pinfo, w
 		 */
 		have_info = epan_find_process_info(pinfo->epan, pid, section_number,
 		    (pinfo->presence_flags & PINFO_HAS_TS) ? &pinfo->abs_ts : NULL,
-		    &process_info_id);
+		    pinfo->fd->file_off, &process_info_id);
 		if (have_info) {
 			name = epan_get_process_name(pinfo->epan, process_info_id, section_number);
 			pinfo->user_name = epan_get_process_user_name(pinfo->epan, process_info_id, section_number);

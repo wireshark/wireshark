@@ -44,10 +44,32 @@ one a packet is matched with:
         PIB 3: process 600 "new", no start time
         Frame 1: process 500, 5 us after the base time ("first")
         Frame 2: process 500, 25 us after the base time ("second")
-        Frame 3: process 500, 100 us before the base time ("first", the
-                 earliest, as no process had started yet)
+        Frame 3: process 500, 100 us before the base time ("second": every
+                 block started later, so the clocks disagree and the last
+                 block before the packet is taken)
         Frame 4: process 600 ("new", the last block)
         Frame 5: process 700, for which there is no block
+
+process_info_pid_reuse_order.pcapng has one little-endian section in which
+the blocks for a process ID are interleaved with the packets, as a writer
+that describes a process before the first packet it attributes to it does,
+so that the position of a block in the file decides:
+
+        PIB 0: process 500 "first", no start time
+        Frame 1, 2: process 500 ("first")
+        PIB 1: process 500 "second", no start time
+        Frame 3, 4: process 500 ("second", the last block before them)
+        PIB 2: process 600 "a", started 5 s after the base time
+        Frame 5: process 600 at the base time ("a": started later, but the
+                 only block before the packet)
+        PIB 3: process 600 "b", started 6 s after the base time
+        Frame 6: process 600, 1 us after the base time ("b": both started
+                 later, the last block before the packet)
+        PIB 4: process 800 "x", started 1 s before the base time
+        PIB 5: process 800 "y", started 10 s after the base time
+        Frame 7: process 800 at the base time ("x": "y" started later)
+        Frame 8: process 700 ("late", the only block, which comes after)
+        PIB 6: process 700 "late", no start time
 
 The hex dump of the custom data of each Wireshark custom block (everything
 after the PEN) of process_info_wireshark_cb.pcapng, as needed by the tests,
@@ -246,10 +268,41 @@ def gen_pid_reuse() -> None:
     write("process_info_pid_reuse.pcapng", out)
 
 
+def gen_pid_reuse_order() -> None:
+    base_ts = 1_757_600_000_000_000
+
+    def pib(pid: int, name: bytes, start_offset_us=None) -> bytes:
+        opts = [(OPT_PIB_NAME, name)]
+        if start_offset_us is not None:
+            opts.append((OPT_PIB_STARTTIME, struct.pack("<Q", (base_ts + start_offset_us) * 1000)))
+        return wireshark_cb("<", wireshark_cb_custom_data(WIRESHARK_CB_ENTRY_PROCESS_INFORMATION,
+                                                          pib_entry(pid, opts)))
+
+    def packet(seq: int, offset_us: int, pid: int) -> bytes:
+        return epb("<", base_ts + offset_us, udp_packet(seq),
+                   [(OPT_EPB_PROCESSID_THREADID, struct.pack("<II", pid, 0))])
+
+    out = shb("<") + idb("<")
+    out += pib(500, b"first")
+    out += packet(1, 0, 500) + packet(2, 1, 500)
+    out += pib(500, b"second")
+    out += packet(3, 2, 500) + packet(4, 3, 500)
+    out += pib(600, b"a", 5_000_000)
+    out += packet(5, 0, 600)
+    out += pib(600, b"b", 6_000_000)
+    out += packet(6, 1, 600)
+    out += pib(800, b"x", -1_000_000) + pib(800, b"y", 10_000_000)
+    out += packet(7, 0, 800)
+    out += packet(8, 0, 700)
+    out += pib(700, b"late")
+    write("process_info_pid_reuse_order.pcapng", out)
+
+
 def main() -> None:
     gen_wireshark_cb()
     gen_darwin_dpib()
     gen_pid_reuse()
+    gen_pid_reuse_order()
 
 
 if __name__ == "__main__":

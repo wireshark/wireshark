@@ -320,7 +320,7 @@ wtap_pib_index_free(void *pib_nums)
 }
 
 void
-wtap_add_pib(wtap *wth, wtap_block_t pib)
+wtap_add_pib(wtap *wth, wtap_block_t pib, int64_t offset)
 {
 	wtapng_process_info_mandatory_t *pib_mand;
 	GArray *pib_nums;
@@ -328,6 +328,9 @@ wtap_add_pib(wtap *wth, wtap_block_t pib)
 
 	pib_num = wth->pibs->len;
 	g_array_append_val(wth->pibs, pib);
+	if (wth->pib_offsets == NULL)
+		wth->pib_offsets = g_array_new(false, false, sizeof(int64_t));
+	g_array_append_val(wth->pib_offsets, offset);
 
 	/*
 	 * Index the block by its process ID, as packets refer to a process
@@ -350,10 +353,10 @@ wtap_add_pib(wtap *wth, wtap_block_t pib)
 
 bool
 wtap_file_find_pib(wtap *wth, uint32_t process_id, const nstime_t *ts,
-    unsigned *pib_num)
+    int64_t file_off, unsigned *pib_num)
 {
 	GArray *pib_nums;
-	unsigned i, num = 0;
+	unsigned i, count, num = 0;
 	wtap_block_t pib;
 	uint64_t start_time;
 	nstime_t start_ts;
@@ -366,12 +369,31 @@ wtap_file_find_pib(wtap *wth, uint32_t process_id, const nstime_t *ts,
 		return false;
 
 	/*
+	 * Consider only the blocks that precede the packet in the file: a
+	 * writer describes a process before the first packet it attributes
+	 * to it, so a later block describes a later process with the same
+	 * ID.  If no block precedes the packet, because the writer put them
+	 * at the end or the packet's position is not known, consider them
+	 * all.
+	 */
+	count = pib_nums->len;
+	if (file_off >= 0 && wth->pib_offsets != NULL) {
+		while (count > 0 &&
+		    g_array_index(wth->pib_offsets, int64_t,
+		        g_array_index(pib_nums, unsigned, count - 1)) > file_off)
+			count--;
+		if (count == 0)
+			count = pib_nums->len;
+	}
+
+	/*
 	 * Search backwards, so that the most recent block for a process ID
 	 * that was reused wins, skipping the blocks for processes that
 	 * started after the given time.  If every block has a later start
-	 * time, the clocks probably disagree; fall back to the first block.
+	 * time, the clocks probably disagree; take the last of them, as its
+	 * position in the file is the evidence left.
 	 */
-	for (i = pib_nums->len; i > 0; i--) {
+	for (i = count; i > 0; i--) {
 		num = g_array_index(pib_nums, unsigned, i - 1);
 		if (ts == NULL)
 			break;
@@ -385,7 +407,7 @@ wtap_file_find_pib(wtap *wth, uint32_t process_id, const nstime_t *ts,
 			break;
 	}
 	if (i == 0)
-		num = g_array_index(pib_nums, unsigned, 0);
+		num = g_array_index(pib_nums, unsigned, count - 1);
 	*pib_num = num;
 	return true;
 }
@@ -1725,6 +1747,8 @@ wtap_close(wtap *wth)
 	wtap_block_array_free(wth->pibs);
 	if (wth->pibs_by_pid != NULL)
 		g_hash_table_destroy(wth->pibs_by_pid);
+	if (wth->pib_offsets != NULL)
+		g_array_free(wth->pib_offsets, true);
 
 	g_free(wth);
 }

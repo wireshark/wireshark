@@ -263,11 +263,11 @@ cap_file_provider_get_process_start_time(struct packet_provider_data *prov, uint
 }
 
 bool
-cap_file_provider_find_process_info(struct packet_provider_data *prov, uint32_t process_id, unsigned section_number _U_, const nstime_t *ts, uint32_t *process_info_id)
+cap_file_provider_find_process_info(struct packet_provider_data *prov, uint32_t process_id, unsigned section_number _U_, const nstime_t *ts, int64_t file_off, uint32_t *process_info_id)
 {
   unsigned pib_num;
 
-  if (!wtap_file_find_pib(prov->wth, process_id, ts, &pib_num))
+  if (!wtap_file_find_pib(prov->wth, process_id, ts, file_off, &pib_num))
     return false;
 
   *process_info_id = pib_num;

@@ -235,10 +235,11 @@ struct packet_provider_funcs {
      * @param process_id Process ID, as in the pcapng epb_processid_threadid option.
      * @param section_number Capture section number.
      * @param ts Time stamp of the packet, to tell apart processes that reused the ID, or NULL.
+     * @param file_off File offset of the packet, to prefer the blocks that precede it, or -1.
      * @param process_info_id Output parameter for the process info identifier.
      * @return true if found, false otherwise.
      */
-    bool (*find_process_info)(struct packet_provider_data *prov, uint32_t process_id, unsigned section_number, const nstime_t *ts, uint32_t *process_info_id);
+    bool (*find_process_info)(struct packet_provider_data *prov, uint32_t process_id, unsigned section_number, const nstime_t *ts, int64_t file_off, uint32_t *process_info_id);
 };
 
 /**
@@ -613,11 +614,12 @@ WS_DLL_PUBLIC bool epan_get_process_start_time(const epan_t *session, uint32_t p
  * @param process_id       The process ID.
  * @param section_number   The section number within the capture file.
  * @param ts               The time stamp of the packet, or NULL.
+ * @param file_off         The file offset of the packet, so that the blocks preceding it are preferred, or -1.
  * @param process_info_id  Output parameter that receives the identifier for the process information.
  *
  * @return true if found, false otherwise.
  */
-WS_DLL_PUBLIC bool epan_find_process_info(const epan_t *session, uint32_t process_id, unsigned section_number, const nstime_t *ts, uint32_t *process_info_id);
+WS_DLL_PUBLIC bool epan_find_process_info(const epan_t *session, uint32_t process_id, unsigned section_number, const nstime_t *ts, int64_t file_off, uint32_t *process_info_id);
 
 /**
  * @brief Retrieve the timestamp of a specific frame.

@@ -14,6 +14,7 @@
 #include <glib.h>
 
 #include "wtap_module.h"
+#include "file_wrappers.h"
 #include "pcapng.h"
 #include "pcapng_module.h"
 #include "wtap_opttypes.h"
@@ -399,8 +400,11 @@ static bool
 pcapng_process_darwin_legacy_block(wtap *wth, section_info_t *section_info _U_,
                                    wtapng_block_t *wblock)
 {
-    /* Store it such that it can be looked up and saved by the dumper. */
-    wtap_add_pib(wth, wblock->block);
+    /*
+     * Store it such that it can be looked up and saved by the dumper;
+     * where it ends tells which packets it precedes.
+     */
+    wtap_add_pib(wth, wblock->block, file_tell(wth->fh));
 
     /* Do not free wblock->block, it is consumed above */
 
