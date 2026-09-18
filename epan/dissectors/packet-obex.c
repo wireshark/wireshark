@@ -226,6 +226,8 @@ static int hf_ctn_application_parameter_data_cse_time;
 static int hf_ctn_application_parameter_data_recurrent;
 static int hf_ctn_application_parameter_data_attach_id;
 static int hf_ctn_application_parameter_data_last_update;
+static int hf_bip_user_defined_header_image_handle;
+static int hf_bip_user_defined_header_image_descriptor;
 static int hf_profile;
 static int hf_type;
 static int hf_object_class;
@@ -355,13 +357,14 @@ static int ett_obex_fragment;
 static int ett_obex_fragments;
 
 static dissector_handle_t obex_handle;
-static dissector_handle_t raw_application_parameters_handle;
-static dissector_handle_t bt_bpp_application_parameters_handle;
-static dissector_handle_t bt_bip_application_parameters_handle;
-static dissector_handle_t bt_gpp_application_parameters_handle;
-static dissector_handle_t bt_ctn_application_parameters_handle;
-static dissector_handle_t bt_map_application_parameters_handle;
-static dissector_handle_t bt_pbap_application_parameters_handle;
+static dissector_handle_t raw_profile_handle;
+static dissector_handle_t bt_bpp_profile_handle;
+static dissector_handle_t bt_bip_profile_handle;
+static dissector_handle_t bt_avrcp_profile_handle;
+static dissector_handle_t bt_gpp_profile_handle;
+static dissector_handle_t bt_ctn_profile_handle;
+static dissector_handle_t bt_map_profile_handle;
+static dissector_handle_t bt_pbap_profile_handle;
 
 static reassembly_table obex_reassembly_table;
 
@@ -1048,6 +1051,28 @@ static const value_string ctn_application_parameter_data_status_value_vals[] = {
     { 0,    NULL }
 };
 
+static const value_string bip_user_defined_header_vals[] = {
+    { 0x30, "Image Handle" },
+    { 0x71, "Image Descriptor" },
+    { 0,    NULL }
+};
+
+/* This table must map profiles to value_string arrays for user defined headers */
+static const value_string * const profile_to_user_defined_headers[] = {
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    bip_user_defined_header_vals,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    bip_user_defined_header_vals
+};
+
 static value_string_ext map_application_parameters_vals_ext = VALUE_STRING_EXT_INIT(map_application_parameters_vals);
 static value_string_ext pbap_application_parameters_vals_ext = VALUE_STRING_EXT_INIT(pbap_application_parameters_vals);
 static value_string_ext bpp_application_parameters_vals_ext = VALUE_STRING_EXT_INIT(bpp_application_parameters_vals);
@@ -1224,6 +1249,23 @@ dissect_obex_application_parameter_raw(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 }
 
 static int
+dissect_obex_header_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int     offset = 0;
+    uint8_t hdr_id = 0;
+
+    if (data) {
+        hdr_id = *(uint8_t *)data;
+    }
+
+    if (hdr_id == 0x4c) {
+        offset += dissect_obex_application_parameter_raw(tvb, pinfo, tree, NULL);
+    }
+
+    return offset;
+}
+
+static int
 dissect_obex_application_parameter_bt_bpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item  *item;
@@ -1274,6 +1316,23 @@ dissect_obex_application_parameter_bt_bpp(tvbuff_t *tvb, packet_info *pinfo, pro
 
         parameters_length -= 2 + parameter_length;
         offset += parameter_length;
+    }
+
+    return offset;
+}
+
+static int
+dissect_obex_header_bt_bpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int     offset = 0;
+    uint8_t hdr_id = 0;
+
+    if (data) {
+        hdr_id = *(uint8_t *)data;
+    }
+
+    if (hdr_id == 0x4c) {
+        offset += dissect_obex_application_parameter_bt_bpp(tvb, pinfo, tree, NULL);
     }
 
     return offset;
@@ -1351,6 +1410,68 @@ dissect_obex_application_parameter_bt_bip(tvbuff_t *tvb, packet_info *pinfo, pro
 
         parameters_length -= 2 + parameter_length;
         offset += parameter_length;
+    }
+
+    return offset;
+}
+
+static int
+dissect_obex_user_defined_bt_bip(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint8_t hdr_id)
+{
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    switch (hdr_id) {
+        case 0x30: /* Image Handle */
+            proto_tree_add_item(tree, hf_bip_user_defined_header_image_handle, tvb, offset, length, ENC_UCS_2 | ENC_BIG_ENDIAN);
+            offset += length;
+            break;
+        case 0x71: /* Image Descriptor */
+            proto_tree_add_item(tree, hf_bip_user_defined_header_image_descriptor, tvb, offset, length, ENC_NA);
+            if (!tvb_strneql(tvb, offset, "<?xml", 5)) {
+                call_dissector(xml_handle, tvb, pinfo, tree);
+            }
+            offset += length;
+            break;
+        default:
+            break;
+    }
+
+    return offset;
+}
+
+static int
+dissect_obex_header_bt_bip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int     offset = 0;
+    uint8_t hdr_id = 0;
+
+    if (data) {
+        hdr_id = *(uint8_t *)data;
+    }
+
+    if (hdr_id == 0x4c) {
+        offset += dissect_obex_application_parameter_bt_bip(tvb, pinfo, tree, NULL);
+    } else if (hdr_id & 0x30) {
+        offset += dissect_obex_user_defined_bt_bip(tvb, pinfo, tree, hdr_id);
+    }
+
+    return offset;
+}
+
+static int
+dissect_obex_header_bt_avrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int     offset = 0;
+    uint8_t hdr_id = 0;
+
+    if (data) {
+        hdr_id = *(uint8_t *)data;
+    }
+
+    /* AVRCP cover art re-uses BIP user defined headers */
+    if (hdr_id & 0x30) {
+        offset += dissect_obex_user_defined_bt_bip(tvb, pinfo, tree, hdr_id);
     }
 
     return offset;
@@ -1449,6 +1570,23 @@ dissect_obex_application_parameter_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, pr
 
         parameters_length -= 2 + parameter_length;
         offset += parameter_length;
+    }
+
+    return offset;
+}
+
+static int
+dissect_obex_header_bt_pbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int     offset = 0;
+    uint8_t hdr_id = 0;
+
+    if (data) {
+        hdr_id = *(uint8_t *)data;
+    }
+
+    if (hdr_id == 0x4c) {
+        offset += dissect_obex_application_parameter_bt_pbap(tvb, pinfo, tree, NULL);
     }
 
     return offset;
@@ -1613,6 +1751,23 @@ dissect_obex_application_parameter_bt_map(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 static int
+dissect_obex_header_bt_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int     offset = 0;
+    uint8_t hdr_id = 0;
+
+    if (data) {
+        hdr_id = *(uint8_t *)data;
+    }
+
+    if (hdr_id == 0x4c) {
+        offset += dissect_obex_application_parameter_bt_map(tvb, pinfo, tree, NULL);
+    }
+
+    return offset;
+}
+
+static int
 dissect_obex_application_parameter_bt_gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item      *item;
@@ -1671,6 +1826,23 @@ dissect_obex_application_parameter_bt_gpp(tvbuff_t *tvb, packet_info *pinfo, pro
 
         parameters_length -= 2 + parameter_length;
         offset += parameter_length;
+    }
+
+    return offset;
+}
+
+static int
+dissect_obex_header_bt_gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int     offset = 0;
+    uint8_t hdr_id = 0;
+
+    if (data) {
+        hdr_id = *(uint8_t *)data;
+    }
+
+    if (hdr_id == 0x4c) {
+        offset += dissect_obex_application_parameter_bt_gpp(tvb, pinfo, tree, NULL);
     }
 
     return offset;
@@ -1793,6 +1965,23 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 static int
+dissect_obex_header_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int     offset = 0;
+    uint8_t hdr_id = 0;
+
+    if (data) {
+        hdr_id = *(uint8_t *)data;
+    }
+
+    if (hdr_id == 0x4c) {
+        offset += dissect_obex_application_parameter_bt_ctn(tvb, pinfo, tree, NULL);
+    }
+
+    return offset;
+}
+
+static int
 dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
         int profile, obex_last_opcode_data_t *obex_last_opcode_data,
         obex_proto_data_t *obex_proto_data)
@@ -1809,6 +1998,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
     uint32_t    value;
     uint32_t    frame_number;
     uint8_t     tag;
+    const char *user_defined_hdr_str = NULL;
     char       *str = NULL;
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -1843,8 +2033,18 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 break;
         }
 
+        /* user defined headers have low bits in the range 0x30 - 0x3F */
+        if (0x30 & hdr_id && (unsigned)profile < array_length(profile_to_user_defined_headers)) {
+            /* if the profile dissector has been changed via "Decode As" or the profile dissector is disabled,
+               use the standard header name */
+            if (!dissector_is_uint_changed(obex_profile_table, profile) &&
+                    proto_is_protocol_enabled(find_protocol_by_id(dissector_handle_get_protocol_index(dissector_get_uint_handle(obex_profile_table, profile))))) {
+                user_defined_hdr_str = try_val_to_str(hdr_id, profile_to_user_defined_headers[profile]);
+            }
+        }
+
         hdr = proto_tree_add_none_format(hdrs_tree, hf_header, tvb, offset, item_length, "%s",
-                                  val_to_str_ext_const(hdr_id, &header_id_vals_ext, "Unknown"));
+                                  user_defined_hdr_str ? user_defined_hdr_str : val_to_str_ext_const(hdr_id, &header_id_vals_ext, "Unknown"));
         hdr_tree = proto_item_add_subtree(hdr, ett_obex_hdr);
 
         proto_tree_add_bitmask_with_flags(hdr_tree, tvb, offset, hf_hdr_id, ett_obex_hdr_id,  hfx_hdr_id, ENC_NA, BMT_NO_APPEND);
@@ -1867,6 +2067,27 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                             obex_last_opcode_data->data.get_put.name = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                     }
                     break;
+                case 0x30: /* User Defined */
+                case 0x31:
+                case 0x32:
+                case 0x33:
+                case 0x34:
+                case 0x35:
+                case 0x36:
+                case 0x37:
+                case 0x38:
+                case 0x39:
+                case 0x3a:
+                case 0x3b:
+                case 0x3c:
+                case 0x3d:
+                case 0x3e:
+                case 0x3f:
+                    next_tvb = tvb_new_subset_length(tvb, offset, value_length);
+                    if (dissector_try_uint_with_data(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, true, &hdr_id)) {
+                        break;
+                    }
+                /* FALLTHROUGH */
                 default:
                     proto_tree_add_item(hdr_tree, hf_hdr_val_unicode, tvb, offset, value_length, ENC_UCS_2 | ENC_BIG_ENDIAN);
                 }
@@ -1884,8 +2105,8 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 switch (hdr_id) {
                 case 0x4c: /* Application Parameters */
                     next_tvb = tvb_new_subset_length(tvb, offset, value_length);
-                    if (!(new_offset = dissector_try_uint_with_data(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, true, NULL))) {
-                        new_offset = call_dissector(raw_application_parameters_handle, next_tvb, pinfo, hdr_tree);
+                    if (!(new_offset = dissector_try_uint_with_data(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, true, &hdr_id))) {
+                        new_offset = call_dissector_with_data(raw_profile_handle, next_tvb, pinfo, hdr_tree, &hdr_id);
                     }
                     offset += new_offset;
 
@@ -2208,6 +2429,28 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         value_length -= 2 + sub_parameter_length;
                     }
                     break;
+                case 0x70: /* User Defined */
+                case 0x71:
+                case 0x72:
+                case 0x73:
+                case 0x74:
+                case 0x75:
+                case 0x76:
+                case 0x77:
+                case 0x78:
+                case 0x79:
+                case 0x7a:
+                case 0x7b:
+                case 0x7c:
+                case 0x7d:
+                case 0x7e:
+                case 0x7f:
+                    next_tvb = tvb_new_subset_length(tvb, offset, value_length);
+                    if ((new_offset = dissector_try_uint_with_data(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, true, &hdr_id))) {
+                        offset += new_offset;
+                        break;
+                    }
+                /* FALLTHROUGH */
                 default:
                     proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, value_length, ENC_NA);
                     offset += value_length;
@@ -2233,7 +2476,29 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_item_append_text(hdr_tree, ": %s", val_to_str_const(value, single_response_mode_parameter_vals, "Unknown"));
 
                     break;
+                case 0xb0: /* User Defined */
+                case 0xb1:
+                case 0xb2:
+                case 0xb3:
+                case 0xb4:
+                case 0xb5:
+                case 0xb6:
+                case 0xb7:
+                case 0xb8:
+                case 0xb9:
+                case 0xba:
+                case 0xbb:
+                case 0xbc:
+                case 0xbd:
+                case 0xbe:
+                case 0xbf:
+                    next_tvb = tvb_new_subset_length(tvb, offset, 1);
+                    if (dissector_try_uint_with_data(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, true, &hdr_id)) {
+                        break;
+                    }
+                /* FALLTHROUGH */
                 case 0x93: /* Session Sequence Number */
+                    /* TODO: Add dissection for this header to allow for numerical ordering */
                 default:
                     proto_tree_add_item(hdr_tree, hf_hdr_val_byte, tvb, offset, 1, ENC_NA);
                     proto_item_append_text(hdr_tree, ": %i", value);
@@ -2259,6 +2524,28 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree_add_item(hdr_tree, hf_connection_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 
                     break;
+                case 0xF0: /* User Defined */
+                case 0xF1:
+                case 0xF2:
+                case 0xF3:
+                case 0xF4:
+                case 0xF5:
+                case 0xF6:
+                case 0xF7:
+                case 0xF8:
+                case 0xF9:
+                case 0xFA:
+                case 0xFB:
+                case 0xFC:
+                case 0xFD:
+                case 0xFE:
+                case 0xFF:
+                    next_tvb = tvb_new_subset_length(tvb, offset, 4);
+                    if (dissector_try_uint_with_data(obex_profile_table, profile, next_tvb, pinfo, hdr_tree, true, &hdr_id)) {
+                        break;
+                    }
+                /* FALLTHROUGH */
+                /* TODO: Add dissection for these headers to allow for numerical ordering */
                 case 0xC4: /* Time */
                 case 0xCF: /* Creator */
                 case 0xD6: /* Permissions */
@@ -2693,6 +2980,7 @@ proto_register_obex(void)
     int              proto_raw;
     int              proto_bpp;
     int              proto_bip;
+    int              proto_avrcp;
     int              proto_map;
     int              proto_bt_gpp;
     int              proto_bt_ctn;
@@ -3755,6 +4043,17 @@ proto_register_obex(void)
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
+        /* user defined headers for BIP */
+        { &hf_bip_user_defined_header_image_handle,
+            { "Image Handle", "obex.user_defined_header.value.image_handle",
+            FT_STRING, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bip_user_defined_header_image_descriptor,
+            { "Image Descriptor", "obex.user_defined_header.value.image_descriptor",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         /* for fragmentation */
         { &hf_obex_fragment_overlap,
           { "Fragment overlap",   "obex.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -3910,26 +4209,29 @@ proto_register_obex(void)
 
     register_decode_as(&obex_profile_da);
 
-    proto_raw = proto_register_protocol("OBEX Raw Application Parameters", "Raw Application Parameters", "obex.parameter.raw");
-    raw_application_parameters_handle  = register_dissector("obex.parameter.raw",  dissect_obex_application_parameter_raw, proto_raw);
+    proto_raw = proto_register_protocol("OBEX Raw Application Parameters", "Raw Application Parameters", "obex.profile.raw");
+    raw_profile_handle = register_dissector("obex.profile.raw", dissect_obex_header_raw, proto_raw);
 
-    proto_bpp = proto_register_protocol("Bluetooth OBEX BPP Application Parameters", "BT BPP Application Parameters", "obex.parameter.bt.bpp");
-    bt_bpp_application_parameters_handle  = register_dissector("obex.parameter.bt.bpp",  dissect_obex_application_parameter_bt_bpp, proto_bpp);
+    proto_bpp = proto_register_protocol("Bluetooth OBEX BPP Application Parameters", "BT BPP Application Parameters", "obex.profile.bt.bpp");
+    bt_bpp_profile_handle = register_dissector("obex.profile.bt.bpp", dissect_obex_header_bt_bpp, proto_bpp);
 
-    proto_bip = proto_register_protocol("Bluetooth OBEX BIP Application Parameters", "BT BIP Application Parameters", "obex.parameter.bt.bip");
-    bt_bip_application_parameters_handle  = register_dissector("obex.parameter.bt.bip",  dissect_obex_application_parameter_bt_bip, proto_bip);
+    proto_bip = proto_register_protocol("Bluetooth OBEX BIP Application Parameters and User Defined Headers", "BT BIP Application Parameters and User Defined Headers", "obex.profile.bt.bip");
+    bt_bip_profile_handle = register_dissector("obex.profile.bt.bip", dissect_obex_header_bt_bip, proto_bip);
 
-    proto_map = proto_register_protocol("Bluetooth OBEX MAP Application Parameters", "BT MAP Application Parameters", "obex.parameter.bt.map");
-    bt_map_application_parameters_handle  = register_dissector("obex.parameter.bt.map",  dissect_obex_application_parameter_bt_map, proto_map);
+    proto_avrcp = proto_register_protocol("Bluetooth OBEX AVRCP User Defined Headers", "BT AVRCP User Defined Headers", "obex.profile.bt.avrcp");
+    bt_avrcp_profile_handle = register_dissector("obex.profile.bt.avrcp", dissect_obex_header_bt_avrcp, proto_avrcp);
 
-    proto_bt_gpp = proto_register_protocol("Bluetooth OBEX GPP Application Parameters", "BT GPP Application Parameters", "obex.parameter.bt.gpp");
-    bt_gpp_application_parameters_handle  = register_dissector("obex.parameter.bt.gpp",  dissect_obex_application_parameter_bt_gpp, proto_bt_gpp);
+    proto_map = proto_register_protocol("Bluetooth OBEX MAP Application Parameters", "BT MAP Application Parameters", "obex.profile.bt.map");
+    bt_map_profile_handle = register_dissector("obex.profile.bt.map", dissect_obex_header_bt_map, proto_map);
 
-    proto_bt_ctn = proto_register_protocol("Bluetooth OBEX CTN Application Parameters", "BT CTN Application Parameters", "obex.parameter.bt.ctn");
-    bt_ctn_application_parameters_handle  = register_dissector("obex.parameter.bt.ctn",  dissect_obex_application_parameter_bt_ctn, proto_bt_ctn);
+    proto_bt_gpp = proto_register_protocol("Bluetooth OBEX GPP Application Parameters", "BT GPP Application Parameters", "obex.profile.bt.gpp");
+    bt_gpp_profile_handle = register_dissector("obex.profile.bt.gpp", dissect_obex_header_bt_gpp, proto_bt_gpp);
 
-    proto_bt_pbap = proto_register_protocol("Bluetooth OBEX PBAP Application Parameters", "BT PBAP Application Parameters", "obex.parameter.bt.pbap");
-    bt_pbap_application_parameters_handle = register_dissector("obex.parameter.bt.pbap", dissect_obex_application_parameter_bt_pbap, proto_bt_pbap);
+    proto_bt_ctn = proto_register_protocol("Bluetooth OBEX CTN Application Parameters", "BT CTN Application Parameters", "obex.profile.bt.ctn");
+    bt_ctn_profile_handle = register_dissector("obex.profile.bt.ctn", dissect_obex_header_bt_ctn, proto_bt_ctn);
+
+    proto_bt_pbap = proto_register_protocol("Bluetooth OBEX PBAP Application Parameters", "BT PBAP Application Parameters", "obex.profile.bt.pbap");
+    bt_pbap_profile_handle = register_dissector("obex.profile.bt.pbap", dissect_obex_header_bt_pbap, proto_bt_pbap);
 
     register_decode_as(&media_type_da);
 
@@ -3970,18 +4272,19 @@ proto_reg_handoff_obex(void)
 
     proto_btavrcp = proto_get_id_by_filter_name("btavrcp");
 
-    dissector_add_uint("obex.profile", PROFILE_UNKNOWN,  raw_application_parameters_handle);
-    dissector_add_uint("obex.profile", PROFILE_BPP,      bt_bpp_application_parameters_handle);
-    dissector_add_uint("obex.profile", PROFILE_BIP,      bt_bip_application_parameters_handle);
-    dissector_add_uint("obex.profile", PROFILE_CTN,      bt_ctn_application_parameters_handle);
-    dissector_add_uint("obex.profile", PROFILE_GPP,      bt_gpp_application_parameters_handle);
-    dissector_add_uint("obex.profile", PROFILE_MAP,      bt_map_application_parameters_handle);
-    dissector_add_uint("obex.profile", PROFILE_PBAP,     bt_pbap_application_parameters_handle);
+    dissector_add_uint("obex.profile", PROFILE_UNKNOWN,  raw_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_BPP,      bt_bpp_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_BIP,      bt_bip_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_AVRCP,    bt_avrcp_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_CTN,      bt_ctn_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_GPP,      bt_gpp_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_MAP,      bt_map_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_PBAP,     bt_pbap_profile_handle);
 
-    dissector_add_uint("obex.profile", PROFILE_OPP,      raw_application_parameters_handle);
-    dissector_add_uint("obex.profile", PROFILE_FTP,      raw_application_parameters_handle);
-    dissector_add_uint("obex.profile", PROFILE_SYNCML,   raw_application_parameters_handle);
-    dissector_add_uint("obex.profile", PROFILE_SYNC,     raw_application_parameters_handle);
+    dissector_add_uint("obex.profile", PROFILE_OPP,      raw_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_FTP,      raw_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_SYNCML,   raw_profile_handle);
+    dissector_add_uint("obex.profile", PROFILE_SYNC,     raw_profile_handle);
 
     dissector_add_for_decode_as("btrfcomm.dlci", obex_handle);
     dissector_add_for_decode_as("btl2cap.psm", obex_handle);
