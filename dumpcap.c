@@ -1266,7 +1266,7 @@ report_counts_siginfo(int signum _U_)
 #endif /* SIGINFO */
 
 static void
-exit_main(void)
+do_cleanup(void)
 {
     ws_cleanup_sockets();
 
@@ -5301,7 +5301,7 @@ main(int argc, char *argv[])
             if (strcmp(ws_optarg, SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
                 // get_positive_int calls cmdarg_err
                 if (!ws_strtoi(ws_optarg, NULL, &sync_pipe_fd) || sync_pipe_fd <= 0) {
-                    exit_main();
+                    do_cleanup();
                     return WS_EXIT_INVALID_OPTION;
                 }
 #ifdef _WIN32
@@ -5392,7 +5392,7 @@ main(int argc, char *argv[])
         g_free(err_msg);
         ws_log(LOG_DOMAIN_CAPCHILD, LOG_LEVEL_ERROR,
                           "%s", please_report_bug());
-        exit_main();
+        do_cleanup();
         return EXIT_FAILURE;
     }
 
@@ -5565,11 +5565,11 @@ main(int argc, char *argv[])
         case 'h':        /* Print help and exit */
             show_help_header("Capture network packets and dump them into a pcapng or pcap file.");
             print_usage(stdout);
-            exit_main();
+            do_cleanup();
             return EXIT_SUCCESS;
         case 'v':        /* Show version and exit */
             show_version();
-            exit_main();
+            do_cleanup();
             return EXIT_SUCCESS;
         case LONGOPT_APPLICATION_FLAVOR:
             /*
@@ -5610,7 +5610,7 @@ main(int argc, char *argv[])
             status = capture_opts_add_opt(app_prefix, &global_capture_opts, opt, ws_optarg);
             g_free(app_prefix);
             if (status != 0) {
-                exit_main();
+                do_cleanup();
                 return status;
             }
             break;
@@ -5624,7 +5624,7 @@ main(int argc, char *argv[])
                 interface_opts->ifname = g_strdup(ws_optarg);
             } else {
                 cmdarg_err("--ifname must be specified after a -i option");
-                exit_main();
+                do_cleanup();
                 return WS_EXIT_INVALID_OPTION;
             }
             break;
@@ -5636,7 +5636,7 @@ main(int argc, char *argv[])
                 interface_opts->descr = g_strdup(ws_optarg);
             } else {
                 cmdarg_err("--ifdescr must be specified after a -i option");
-                exit_main();
+                do_cleanup();
                 return WS_EXIT_INVALID_OPTION;
             }
             break;
@@ -5656,7 +5656,7 @@ main(int argc, char *argv[])
             if (!capture_child) {
                 /* We have already checked for -Z at the very beginning. */
                 cmdarg_err("--signal-pipe may only be specified with -Z");
-                exit_main();
+                do_cleanup();
                 return WS_EXIT_INVALID_OPTION;
             }
             /*
@@ -5671,7 +5671,7 @@ main(int argc, char *argv[])
                 if (sig_pipe_handle == INVALID_HANDLE_VALUE) {
                     ws_info("Signal pipe: Unable to open %s.  Dead parent?",
                           sig_pipe_name);
-                    exit_main();
+                    do_cleanup();
                     return WS_EXIT_INVALID_OPTION;
                 }
             }
@@ -5782,7 +5782,7 @@ main(int argc, char *argv[])
     if (arg_error) {
         if (ws_optopt == 'F') {
             capture_opts_list_file_types();
-            exit_main();
+            do_cleanup();
             return WS_EXIT_INVALID_OPTION;
         }
         /*
@@ -5802,20 +5802,20 @@ main(int argc, char *argv[])
         if (ws_optopt != 'Z' && ws_optopt != LONGOPT_APPLICATION_FLAVOR) {
             print_usage(stderr);
         }
-        exit_main();
+        do_cleanup();
         return WS_EXIT_INVALID_OPTION;
     }
 
     if (run_once_args > 1) {
         cmdarg_err("Only one of -D, -L, -d, -k or -S may be supplied.");
-        exit_main();
+        do_cleanup();
         return WS_EXIT_INVALID_OPTION;
     } else if (run_once_args == 1) {
         /* We're supposed to print some information, rather than
            to capture traffic; did they specify a ring buffer option? */
         if (global_capture_opts.multi_files_on) {
             cmdarg_err("Ring buffer requested, but a capture isn't being done.");
-            exit_main();
+            do_cleanup();
             return WS_EXIT_INVALID_OPTION;
         }
     } else {
@@ -5831,7 +5831,7 @@ main(int argc, char *argv[])
             (!global_capture_opts.use_pcapng || global_capture_opts.multi_files_on)) {
             /* XXX - for ringbuffer, should we apply the comments to each file? */
             cmdarg_err("Capture comments can only be set if we capture into a single pcapng file.");
-            exit_main();
+            do_cleanup();
             return WS_EXIT_INVALID_OPTION;
         }
 
@@ -5858,7 +5858,7 @@ main(int argc, char *argv[])
             }
             if (global_capture_opts.has_file_duration && global_capture_opts.has_file_interval) {
                 cmdarg_err("Ring buffer file duration and interval can't be used at the same time.");
-                exit_main();
+                do_cleanup();
                 return WS_EXIT_INVALID_OPTION;
             }
         }
@@ -5885,13 +5885,13 @@ main(int argc, char *argv[])
                  */
                 if (!machine_readable) {
                     cmdarg_err("There are no interfaces on which a capture can be done");
-                    exit_main();
+                    do_cleanup();
                     return WS_EXIT_NO_INTERFACES;
                 }
             } else {
                 cmdarg_err("%s", err_str);
                 g_free(err_str);
-                exit_main();
+                do_cleanup();
                 return WS_EXIT_INVALID_INTERFACE;
             }
         }
@@ -5962,7 +5962,7 @@ main(int argc, char *argv[])
         }
         free_interface_list(if_list);
         if (!print_statistics) {
-            exit_main();
+            do_cleanup();
             return status;
         }
     }
@@ -5973,7 +5973,7 @@ main(int argc, char *argv[])
      */
     if (print_statistics) {
         status = print_statistics_loop(machine_readable);
-        exit_main();
+        do_cleanup();
         return status;
     }
 
@@ -5982,13 +5982,13 @@ main(int argc, char *argv[])
 
         if (global_capture_opts.ifaces->len != 1) {
             cmdarg_err("Need one interface");
-            exit_main();
+            do_cleanup();
             return WS_EXIT_INVALID_INTERFACE;
         }
 
         interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, 0);
         status = set_80211_channel(interface_opts->name, set_chan_arg);
-        exit_main();
+        do_cleanup();
         return status;
     }
 
@@ -5999,7 +5999,7 @@ main(int argc, char *argv[])
     status = capture_opts_default_iface_if_necessary(&global_capture_opts, NULL);
     if (status != 0) {
         /* cmdarg_err() already called .... */
-        exit_main();
+        do_cleanup();
         return status;
     }
 
@@ -6079,7 +6079,7 @@ main(int argc, char *argv[])
                                     get_pcap_failure_secondary_error_message(open_status, open_status_str));
                     }
                     g_free(open_status_str);
-                    exit_main();
+                    do_cleanup();
                     return WS_EXIT_INVALID_INTERFACE;
                 }
 
@@ -6092,7 +6092,7 @@ main(int argc, char *argv[])
                     break;
             }
         }
-        exit_main();
+        do_cleanup();
         return status;
     }
 
@@ -6104,7 +6104,7 @@ main(int argc, char *argv[])
             interface_opts->timestamp_type_id = pcap_tstamp_type_name_to_val(interface_opts->timestamp_type);
             if (interface_opts->timestamp_type_id < 0) {
                 cmdarg_err("Invalid argument to option: --time-stamp-type=%s", interface_opts->timestamp_type);
-                exit_main();
+                do_cleanup();
                 return WS_EXIT_INVALID_OPTION;
 
             }
@@ -6176,7 +6176,7 @@ main(int argc, char *argv[])
 
     if (print_bpf_code) {
         show_filter_code(&global_capture_opts);
-        exit_main();
+        do_cleanup();
         return EXIT_SUCCESS;
     }
 
@@ -6189,12 +6189,12 @@ main(int argc, char *argv[])
     /* Now start the capture. */
     if (capture_loop_start(&global_capture_opts, &stats_known, &stats) == true) {
         /* capture ok */
-        exit_main();
+        do_cleanup();
         return EXIT_SUCCESS;
     }
 
     /* capture failed */
-    exit_main();
+    do_cleanup();
     return EXIT_FAILURE;
 }
 
