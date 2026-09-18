@@ -19,6 +19,7 @@
 
 #include <epan/asn1.h>
 
+extern const value_string x509sat_UnboundedDirectoryString_vals[];
 extern const value_string x509sat_DirectoryString_vals[];
 extern const value_string x509sat_Criteria_vals[];
 extern const value_string x509sat_ZonalResult_vals[];
@@ -26,6 +27,7 @@ extern const value_string x509sat_XDayOf_vals[];
 extern const value_string x509sat_NamedDay_vals[];
 extern const value_string x509sat_TimeAssertion_vals[];
 extern const value_string x509sat_LocaleContextSyntax_vals[];
+unsigned dissect_x509sat_UnboundedDirectoryString(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_x509sat_DirectoryString(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_x509sat_UniqueIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 unsigned dissect_x509sat_CountryName(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

@@ -17,6 +17,7 @@ AttributeCertificate
 AttributeCertificateAssertion
 AttributeCertificateInfo
 AttributeCertificationPath
+AvlSerialNumber
 Certificate_PDU
 Certificates
 CertificateList

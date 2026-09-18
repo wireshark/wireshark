@@ -71,11 +71,16 @@ static int hf_x509sat_SyntaxISO646String_PDU;     /* SyntaxISO646String */
 static int hf_x509sat_SyntaxVisibleString_PDU;    /* SyntaxVisibleString */
 static int hf_x509sat_SyntaxGeneralString_PDU;    /* SyntaxGeneralString */
 static int hf_x509sat_GUID_PDU;                   /* GUID */
-static int hf_x509sat_teletexString;              /* TeletexString */
-static int hf_x509sat_printableString;            /* PrintableString */
-static int hf_x509sat_universalString;            /* UniversalString */
-static int hf_x509sat_bmpString;                  /* BMPString */
-static int hf_x509sat_uTF8String;                 /* UTF8String */
+static int hf_x509sat_teletexString;              /* TeletexString_SIZE_1_MAX */
+static int hf_x509sat_printableString;            /* PrintableString_SIZE_1_MAX */
+static int hf_x509sat_bmpString;                  /* BMPString_SIZE_1_MAX */
+static int hf_x509sat_universalString;            /* UniversalString_SIZE_1_MAX */
+static int hf_x509sat_uTF8String;                 /* UTF8String_SIZE_1_MAX */
+static int hf_x509sat_teletexString_01;           /* TeletexString */
+static int hf_x509sat_printableString_01;         /* PrintableString */
+static int hf_x509sat_universalString_01;         /* UniversalString */
+static int hf_x509sat_bmpString_01;               /* BMPString */
+static int hf_x509sat_uTF8String_01;              /* UTF8String */
 static int hf_x509sat_objectClass;                /* OBJECT_IDENTIFIER */
 static int hf_x509sat_criteria;                   /* Criteria */
 static int hf_x509sat_type;                       /* CriteriaItem */
@@ -200,6 +205,7 @@ static int hf_x509sat_T_bitNamedDays_friday;
 static int hf_x509sat_T_bitNamedDays_saturday;
 
 /* Initialize the subtree pointers */
+static int ett_x509sat_UnboundedDirectoryString;
 static int ett_x509sat_DirectoryString;
 static int ett_x509sat_Guide;
 static int ett_x509sat_Criteria;
@@ -254,6 +260,89 @@ static int ett_x509sat_LocaleContextSyntax;
 /* Criteria -> Criteria */
 /*unsigned dissect_x509sat_Criteria(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);*/
 
+
+
+
+static unsigned
+dissect_x509sat_TeletexString_SIZE_1_MAX(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
+                                                        actx, tree, tvb, offset,
+                                                        1, NO_BOUND, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_x509sat_PrintableString_SIZE_1_MAX(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_PrintableString,
+                                                        actx, tree, tvb, offset,
+                                                        1, NO_BOUND, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_x509sat_BMPString_SIZE_1_MAX(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_BMPString,
+                                                        actx, tree, tvb, offset,
+                                                        1, NO_BOUND, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_x509sat_UniversalString_SIZE_1_MAX(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_UniversalString,
+                                                        actx, tree, tvb, offset,
+                                                        1, NO_BOUND, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_x509sat_UTF8String_SIZE_1_MAX(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                                        actx, tree, tvb, offset,
+                                                        1, NO_BOUND, hf_index, NULL);
+
+  return offset;
+}
+
+
+const value_string x509sat_UnboundedDirectoryString_vals[] = {
+  {   0, "teletexString" },
+  {   1, "printableString" },
+  {   2, "bmpString" },
+  {   3, "universalString" },
+  {   4, "uTF8String" },
+  { 0, NULL }
+};
+
+static const ber_choice_t UnboundedDirectoryString_choice[] = {
+  {   0, &hf_x509sat_teletexString, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_x509sat_TeletexString_SIZE_1_MAX },
+  {   1, &hf_x509sat_printableString, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_x509sat_PrintableString_SIZE_1_MAX },
+  {   2, &hf_x509sat_bmpString   , BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_x509sat_BMPString_SIZE_1_MAX },
+  {   3, &hf_x509sat_universalString, BER_CLASS_UNI, BER_UNI_TAG_UniversalString, BER_FLAGS_NOOWNTAG, dissect_x509sat_UniversalString_SIZE_1_MAX },
+  {   4, &hf_x509sat_uTF8String  , BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_x509sat_UTF8String_SIZE_1_MAX },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+unsigned
+dissect_x509sat_UnboundedDirectoryString(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 UnboundedDirectoryString_choice, hf_index, ett_x509sat_UnboundedDirectoryString,
+                                 NULL);
+
+  return offset;
+}
 
 
 
@@ -321,11 +410,11 @@ const value_string x509sat_DirectoryString_vals[] = {
 };
 
 static const ber_choice_t DirectoryString_choice[] = {
-  {   0, &hf_x509sat_teletexString, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_x509sat_TeletexString },
-  {   1, &hf_x509sat_printableString, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_x509sat_PrintableString },
-  {   2, &hf_x509sat_universalString, BER_CLASS_UNI, BER_UNI_TAG_UniversalString, BER_FLAGS_NOOWNTAG, dissect_x509sat_UniversalString },
-  {   3, &hf_x509sat_bmpString   , BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_x509sat_BMPString },
-  {   4, &hf_x509sat_uTF8String  , BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_x509sat_UTF8String },
+  {   0, &hf_x509sat_teletexString_01, BER_CLASS_UNI, BER_UNI_TAG_TeletexString, BER_FLAGS_NOOWNTAG, dissect_x509sat_TeletexString },
+  {   1, &hf_x509sat_printableString_01, BER_CLASS_UNI, BER_UNI_TAG_PrintableString, BER_FLAGS_NOOWNTAG, dissect_x509sat_PrintableString },
+  {   2, &hf_x509sat_universalString_01, BER_CLASS_UNI, BER_UNI_TAG_UniversalString, BER_FLAGS_NOOWNTAG, dissect_x509sat_UniversalString },
+  {   3, &hf_x509sat_bmpString_01, BER_CLASS_UNI, BER_UNI_TAG_BMPString, BER_FLAGS_NOOWNTAG, dissect_x509sat_BMPString },
+  {   4, &hf_x509sat_uTF8String_01, BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_x509sat_UTF8String },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -2055,20 +2144,40 @@ void proto_register_x509sat(void) {
     { &hf_x509sat_teletexString,
       { "teletexString", "x509sat.teletexString",
         FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "TeletexString_SIZE_1_MAX", HFILL }},
     { &hf_x509sat_printableString,
       { "printableString", "x509sat.printableString",
         FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_x509sat_universalString,
-      { "universalString", "x509sat.universalString",
-        FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "PrintableString_SIZE_1_MAX", HFILL }},
     { &hf_x509sat_bmpString,
       { "bmpString", "x509sat.bmpString",
         FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "BMPString_SIZE_1_MAX", HFILL }},
+    { &hf_x509sat_universalString,
+      { "universalString", "x509sat.universalString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UniversalString_SIZE_1_MAX", HFILL }},
     { &hf_x509sat_uTF8String,
+      { "uTF8String", "x509sat.uTF8String",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTF8String_SIZE_1_MAX", HFILL }},
+    { &hf_x509sat_teletexString_01,
+      { "teletexString", "x509sat.teletexString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_printableString_01,
+      { "printableString", "x509sat.printableString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_universalString_01,
+      { "universalString", "x509sat.universalString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_bmpString_01,
+      { "bmpString", "x509sat.bmpString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509sat_uTF8String_01,
       { "uTF8String", "x509sat.uTF8String",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -2560,6 +2669,7 @@ void proto_register_x509sat(void) {
 
   /* List of subtrees */
   static int *ett[] = {
+    &ett_x509sat_UnboundedDirectoryString,
     &ett_x509sat_DirectoryString,
     &ett_x509sat_Guide,
     &ett_x509sat_Criteria,

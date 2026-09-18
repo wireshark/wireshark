@@ -761,6 +761,16 @@ dissect_x509af_CertificateList(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigne
 }
 
 
+
+unsigned
+dissect_x509af_AvlSerialNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_constrained_integer64(implicit_tag, actx, tree, tvb, offset,
+                                                            0U, NO_BOUND, hf_index, NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t IssuerSerial_sequence[] = {
   { &hf_x509af_issuerName   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralNames },
   { &hf_x509af_serial       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x509af_CertificateSerialNumber },
