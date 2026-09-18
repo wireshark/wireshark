@@ -611,7 +611,7 @@ void registerFieldTypes(int proto)
        { &hf_opcua_UserName, { "UserName", "opcua.UserName", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_UserWriteMask, { "UserWriteMask", "opcua.UserWriteMask", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_ValidBits, { "ValidBits", "opcua.ValidBits", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-       { &hf_opcua_Value, { "Value", "opcua.Value", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+       { &hf_opcua_Value, { "Value", "opcua.Value", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_ValueRank, { "ValueRank", "opcua.ValueRank", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_VendorName, { "VendorName", "opcua.VendorName", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_VendorProductCertificate, { "VendorProductCertificate", "opcua.VendorProductCertificate", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
