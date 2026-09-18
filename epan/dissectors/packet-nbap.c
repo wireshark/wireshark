@@ -6502,11 +6502,12 @@ typedef struct
 {
   address crnc_address;
   uint16_t crnc_port;
+  /* fp_edch_channel_info_t */
   int no_ddi_entries;
   uint8_t edch_ddi[MAX_EDCH_DDIS];
   unsigned edch_macd_pdu_size[MAX_EDCH_DDIS];
-  uint8_t edch_type;  /* 1 means T2 */
   uint8_t lchId[MAX_EDCH_DDIS]; /*Logical channel ids.*/
+  uint8_t edch_type;  /* 1 means T2 */
 } nbap_edch_channel_info_t;
 
 
@@ -18495,6 +18496,8 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
         return offset;
 
     no_ddi_entries = fp_edch_channel_info->no_ddi_entries = nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries;
+    /* This should always hold because of the PER sequence constraint. */
+    DISSECTOR_ASSERT_CMPINT(no_ddi_entries, <=, MAX_EDCH_DDIS);
     for (i = 0; i < no_ddi_entries; i++) {
         fp_edch_channel_info->edch_ddi[i]            = nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i];
         fp_edch_channel_info->edch_macd_pdu_size[i]  = nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[i];
@@ -18786,6 +18789,8 @@ nbap_private_data->num_items = 1;
         return offset;
 
     no_ddi_entries = fp_edch_channel_info->no_ddi_entries = nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries;
+    /* This should always hold because of the PER sequence constraint. */
+    DISSECTOR_ASSERT_CMPINT(no_ddi_entries, <=, MAX_EDCH_DDIS);
     for (i = 0; i < no_ddi_entries; i++) {
         fp_edch_channel_info->edch_ddi[i]            = nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[i];
         fp_edch_channel_info->edch_macd_pdu_size[i]  = nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[i];

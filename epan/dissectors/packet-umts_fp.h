@@ -221,12 +221,11 @@ typedef struct fp_info
     int chan_tf_size[MAX_FP_CHANS];
     int chan_num_tbs[MAX_FP_CHANS];
 
+    /* fp_edch_channel_info_t; */
     int    no_ddi_entries;
     uint8_t edch_ddi[MAX_EDCH_DDIS];
     unsigned  edch_macd_pdu_size[MAX_EDCH_DDIS];
-
     unsigned  edch_lchId[MAX_EDCH_DDIS];   /* Logical Channel Id for E-DCH*/
-
     uint8_t edch_type;       /* 1 means T2 */
 
     int cur_tb;            /* current transport block (required for dissecting of single TBs */

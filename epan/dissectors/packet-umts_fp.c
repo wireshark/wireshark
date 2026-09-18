@@ -227,6 +227,7 @@ static expert_field ei_fp_spare_extension;
 static expert_field ei_fp_no_per_frame_info;
 static expert_field ei_fp_no_per_conv_channel_info;
 static expert_field ei_fp_invalid_frame_count;
+static expert_field ei_fp_invalid_ddi_count;
 
 static dissector_handle_t rlc_bcch_handle;
 static dissector_handle_t mac_fdd_dch_handle;
@@ -2738,6 +2739,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             for (i=0; i < subframes[n].number_of_mac_es_pdus; i++) {
                 uint64_t ddi;
                 uint64_t n_pdus;    /*Size of the PDU*/
+                int no_ddi_entries = MIN(p_fp_info->no_ddi_entries, MAX_EDCH_DDIS);
 
                 proto_item *ddi_ti;
                 int ddi_size = -1;
@@ -2751,7 +2753,7 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /********************************/
                 /* Look up data in higher layers*/
                 /* Look up the size from this DDI value */
-                for (p=0; p < p_fp_info->no_ddi_entries; p++) {
+                for (p=0; p < no_ddi_entries; p++) {
                     if (ddi == p_fp_info->edch_ddi[p]) {
                         ddi_size = p_fp_info->edch_macd_pdu_size[p];
 
@@ -2817,24 +2819,18 @@ dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item  *ti;
                 int         macd_idx;
                 proto_tree  *maces_tree = NULL;
+                int         no_ddi_entries = MIN(p_fp_info->no_ddi_entries, MAX_EDCH_DDIS);
 
-                /** TODO: Merge these two loops? **/
-                /* Look up mac-d pdu size for this ddi */
-                for (m=0; m < p_fp_info->no_ddi_entries; m++) {
+                /* Look up mac-d pdu size and logicalchannel id for this DDI */
+                for (m=0; m < no_ddi_entries; m++) {
                     if (subframes[n].ddi[i] == p_fp_info->edch_ddi[m]) {
                         size = p_fp_info->edch_macd_pdu_size[m];
-                        break;
-                    }
-                }
-                /* Look up logicalchannel id for this DDI value */
-                for (m=0; m < p_fp_info->no_ddi_entries; m++) {
-                    if (subframes[n].ddi[i] == p_fp_info->edch_ddi[m]) {
                         lchid = p_fp_info->edch_lchId[m];
                         break;
                     }
                 }
 
-                if (m == p_fp_info->no_ddi_entries) {
+                if (m == no_ddi_entries) {
                     /* Not found.  Oops */
                     expert_add_info(pinfo, NULL, &ei_fp_unable_to_locate_ddi_entry);
                     return;
@@ -5519,7 +5515,7 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
             }
             macinf = wmem_new0(wmem_file_scope(), umts_mac_info);
             rlcinf = wmem_new0(wmem_file_scope(), rlc_info);
-            fpi->no_ddi_entries = fp_edch_channel_info->no_ddi_entries;
+            fpi->no_ddi_entries = MIN(fp_edch_channel_info->no_ddi_entries, MAX_EDCH_DDIS);
             for (i=0; i<fpi->no_ddi_entries; i++) {
                 fpi->edch_ddi[i] = fp_edch_channel_info->edch_ddi[i];    /*Set the DDI value*/
                 fpi->edch_macd_pdu_size[i] = fp_edch_channel_info->edch_macd_pdu_size[i];    /*Set the PDU size*/
@@ -5918,6 +5914,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         int n;
         proto_item *ddi_config_ti;
         proto_tree *ddi_config_tree;
+        int no_ddi_entries = MIN(p_fp_info->no_ddi_entries, MAX_EDCH_DDIS);
 
         ddi_config_ti = proto_tree_add_string_format(fp_tree, hf_fp_ddi_config, tvb, offset, 0,
                                                      "", "DDI Config (");
@@ -5925,7 +5922,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         ddi_config_tree = proto_item_add_subtree(ddi_config_ti, ett_fp_ddi_config);
 
         /* Add each entry */
-        for (n=0; n < p_fp_info->no_ddi_entries; n++) {
+        for (n=0; n < no_ddi_entries; n++) {
             proto_item_append_text(ddi_config_ti, "%s%u->%ubits",
                                    (n == 0) ? "" : "  ",
                                    p_fp_info->edch_ddi[n], p_fp_info->edch_macd_pdu_size[n]);
@@ -5938,6 +5935,9 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         }
         proto_item_append_text(ddi_config_ti, ")");
+        if (p_fp_info->no_ddi_entries > MAX_EDCH_DDIS) {
+            expert_add_info_format(pinfo, ddi_config_ti, &ei_fp_invalid_ddi_count, "Invalid Number of E-DCH DDIs (max is %u)", MAX_EDCH_DDIS);
+        }
     }
 
     /*************************************/
@@ -7056,6 +7056,7 @@ void proto_register_fp(void)
         { &ei_fp_no_per_frame_info, { "fp.no_per_frame_info", PI_UNDECODED, PI_ERROR, "Can't dissect FP frame because no per-frame info was attached!", EXPFILL }},
         { &ei_fp_no_per_conv_channel_info, { "fp.no_per_conv_channel_info", PI_UNDECODED, PI_ERROR, "Can't dissect this FP stream because no per-conversation channel info was attached!", EXPFILL }},
         { &ei_fp_invalid_frame_count, { "fp.invalid_frame_count", PI_MALFORMED, PI_ERROR, "Invalid frame count", EXPFILL }},
+        { &ei_fp_invalid_ddi_count, { "fp.invalid_ddi_count", PI_MALFORMED, PI_ERROR, "Invalid E-DCH DDI count", EXPFILL }},
     };
 
     module_t *fp_module;

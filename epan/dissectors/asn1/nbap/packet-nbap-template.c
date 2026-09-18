@@ -130,11 +130,12 @@ typedef struct
 {
   address crnc_address;
   uint16_t crnc_port;
+  /* fp_edch_channel_info_t */
   int no_ddi_entries;
   uint8_t edch_ddi[MAX_EDCH_DDIS];
   unsigned edch_macd_pdu_size[MAX_EDCH_DDIS];
-  uint8_t edch_type;  /* 1 means T2 */
   uint8_t lchId[MAX_EDCH_DDIS]; /*Logical channel ids.*/
+  uint8_t edch_type;  /* 1 means T2 */
 } nbap_edch_channel_info_t;
 
 
