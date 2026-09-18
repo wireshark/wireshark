@@ -840,4 +840,8 @@ EntrustInfoFlags ::=  BIT STRING {
 -- WS retaning defines from older version
 KeyPurposeIDs ::= SEQUENCE OF KeyPurposeId
 
+-- WS added extensions
+-- Cisco Certificate Extension
+CertTemplate ::= OCTET STRING
+
 END -- CertificateExtensions

@@ -85,6 +85,7 @@ static int hf_x509ce_NtdsCaSecurity_PDU;          /* NtdsCaSecurity */
 static int hf_x509ce_NtdsObjectSid_PDU;           /* NtdsObjectSid */
 static int hf_x509ce_EntrustVersionInfo_PDU;      /* EntrustVersionInfo */
 static int hf_x509ce_KeyPurposeIDs_PDU;           /* KeyPurposeIDs */
+static int hf_x509ce_CertTemplate_PDU;            /* CertTemplate */
 static int hf_x509ce_NFTypes_PDU;                 /* NFTypes */
 static int hf_x509ce_ScramblerCapabilities_PDU;   /* ScramblerCapabilities */
 static int hf_x509ce_CiplusInfo_PDU;              /* CiplusInfo */
@@ -1790,6 +1791,16 @@ dissect_x509ce_KeyPurposeIDs(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned 
 
 
 static unsigned
+dissect_x509ce_CertTemplate(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
 dissect_x509ce_NFType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                                         actx, tree, tvb, offset,
@@ -2167,6 +2178,13 @@ static int dissect_KeyPurposeIDs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset = dissect_x509ce_KeyPurposeIDs(false, tvb, offset, &asn1_ctx, tree, hf_x509ce_KeyPurposeIDs_PDU);
   return offset;
 }
+static int dissect_CertTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  unsigned offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
+  offset = dissect_x509ce_CertTemplate(false, tvb, offset, &asn1_ctx, tree, hf_x509ce_CertTemplate_PDU);
+  return offset;
+}
 static int dissect_NFTypes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   unsigned offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2469,6 +2487,10 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_KeyPurposeIDs_PDU,
       { "KeyPurposeIDs", "x509ce.KeyPurposeIDs",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509ce_CertTemplate_PDU,
+      { "CertTemplate", "x509ce.CertTemplate",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_NFTypes_PDU,
       { "NFTypes", "x509ce.NFTypes",
@@ -3293,6 +3315,7 @@ void proto_reg_handoff_x509ce(void) {
   register_ber_oid_dissector("1.3.6.1.4.1.311.21.10", dissect_CertificatePoliciesSyntax_PDU, proto_x509ce, "id-ms-application-certificate-policies");
   register_ber_oid_dissector("1.3.6.1.4.1.311.25.2", dissect_NtdsCaSecurity_PDU, proto_x509ce, "id-ms-ntds-ca-security");
   register_ber_oid_dissector("1.3.6.1.4.1.311.25.2.1", dissect_NtdsObjectSid_PDU, proto_x509ce, "id-ms-ntds-object-sid");
+  register_ber_oid_dissector("1.3.6.1.4.1.9.21.2.5", dissect_CertTemplate_PDU, proto_x509ce, "CiscoCertTemplate");
   register_ber_oid_dissector("1.2.840.113533.7.65.0", dissect_EntrustVersionInfo_PDU, proto_x509ce, "id-ce-entrustVersionInfo");
 
   register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
