@@ -972,18 +972,20 @@ decode_half(tvbuff_t *tvb, proto_tree *tree, proto_item *item, int *offset, int 
 	return val;
 }
 
-#define CBOR_DIAG_FLOAT(buf, fmt, val)            \
-	if (isnan(val)) {                             \
-		wmem_strbuf_append(buf, "NaN");           \
-	}                                             \
-	else if (isinf(val)) {                        \
-		if (val < 0) {                            \
-			wmem_strbuf_append(buf, "-");         \
-		}                                         \
-		wmem_strbuf_append(buf, "Infinity");      \
-	}                                             \
-	else {                                        \
-		wmem_strbuf_append_printf(buf, fmt, val); \
+#define CBOR_DIAG_FLOAT(buf, fmt, val)               \
+	if (isnan(val)) {                                \
+		wmem_strbuf_append(buf, "NaN");              \
+	}                                                \
+	else if (isinf(val)) {                           \
+		if (val < 0) {                               \
+			wmem_strbuf_append(buf, "-");            \
+		}                                            \
+		wmem_strbuf_append(buf, "Infinity");         \
+	}                                                \
+	else {                                           \
+		char tmp[G_ASCII_DTOSTR_BUF_SIZE];           \
+		g_ascii_formatd(tmp, sizeof(tmp), fmt, val); \
+		wmem_strbuf_append(buf, tmp);                \
 	}
 
 
