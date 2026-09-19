@@ -2694,6 +2694,19 @@ class TestDissectTns:
         assert '(JSON): {"' + 'A' * 100 in stdout, stdout
         assert '(JSON): {"k": [true, null, "s"]}' in stdout, stdout
 
+    def test_tns_clob_text(self, cmd_tshark, capture_file, test_env):
+        '''The content a READ returns is text when the locator it named is a
+        CLOB's, encoded as the locator's flags say: UTF-16BE with the
+        variable-length charset bit, UTF-8 without; a BLOB's is not text.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_clob_text.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_lob.data',
+            '-T', 'fields',
+            '-e', 'tns.data_lob.text',
+        ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['abc', '', 'héllo'], stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

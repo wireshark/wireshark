@@ -20,6 +20,7 @@
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
 #include <epan/unit_strings.h>
+#include <epan/charsets.h>
 
 #include <wsutil/array.h>
 
@@ -475,6 +476,7 @@ static int hf_tns_data_tpc_context;
 static int hf_tns_data_tpc_app_value;
 static int hf_tns_data_tpc_internal_name;
 static int hf_tns_data_tpc_external_name;
+static int hf_tns_data_lob_text;
 static int hf_tns_data_lob_total_size;
 static int hf_tns_data_pgy_schema;
 static int hf_tns_data_pgy_session_state;
@@ -918,6 +920,20 @@ static const value_string tns_charsets[] = {
 	{0, NULL}
 };
 
+/* A LOB locator's flag bytes, at these offsets in the locator as a
+ * client holds and sends it (python-oracledb's TNS_LOB_LOC_*). Flag 1
+ * says what kind of LOB it is; flags 3 and 4 how a CLOB's characters are
+ * encoded: UTF-16 with the variable-length charset bit, little-endian
+ * with the little-endian bit too, UTF-8 without. An NCLOB is UTF-16. */
+#define TNS_LOB_LOC_FLAG_1                0x04
+#define TNS_LOB_LOC_FLAG_3                0x06
+#define TNS_LOB_LOC_FLAG_4                0x07
+#define TNS_LOB_LOC_FLAGS_BLOB            0x01
+#define TNS_LOB_LOC_FLAGS_CLOB            0x02
+#define TNS_LOB_LOC_FLAGS_NCLOB           0x04
+#define TNS_LOB_LOC_FLAGS_VAR_LENGTH_CHARSET 0x80
+#define TNS_LOB_LOC_FLAGS_LITTLE_ENDIAN   0x40
+
 /* TTI_LOBOPS operation opcodes. */
 #define TNS_LOB_OP_FILE_ISOPEN   0x00400
 #define TNS_LOB_OP_FILE_EXISTS   0x00800
@@ -1188,6 +1204,8 @@ typedef struct _tns_call_t {
 	uint32_t lob_op;        /* TTI_LOBOPS operation */
 	uint32_t lob_locator_len; /* ... its source locator length */
 	bool lob_amount;        /* ... whether it sent an amount */
+	uint8_t lob_flags[4];   /* ... its locator's flag bytes 1 to 4 */
+	bool lob_flags_known;
 } tns_call_t;
 
 typedef struct _tns_conv_info_t {
@@ -4090,6 +4108,28 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				proto_tree_add_item(data_tree, hf_tns_data_lob_data, tvb, start, offset - start, ENC_NA);
 			else if ( offset - start > 1 )
 				proto_tree_add_item(data_tree, hf_tns_data_lob_data, tvb, start + 1, offset - start - 1, ENC_NA);
+
+			/* A CLOB's content is text; the locator the read named says
+			 * how it is encoded. */
+			const tns_call_t *call = tns_answered_call(pinfo);
+			if ( call && call->func == TTI_LOBOPS && call->lob_flags_known
+				&& (call->lob_flags[0] & (TNS_LOB_LOC_FLAGS_CLOB | TNS_LOB_LOC_FLAGS_NCLOB)) )
+			{
+				int len = 0;
+				const uint8_t *data = tns_dalc_bytes(tvb, pinfo, start, &len);
+				const uint8_t *text = NULL;
+
+				if ( data && (call->lob_flags[0] & TNS_LOB_LOC_FLAGS_NCLOB) )
+					text = get_utf_16_string(pinfo->pool, data, len, ENC_BIG_ENDIAN);
+				else if ( data && (call->lob_flags[2] & TNS_LOB_LOC_FLAGS_VAR_LENGTH_CHARSET) )
+					text = get_utf_16_string(pinfo->pool, data, len,
+						(call->lob_flags[3] & TNS_LOB_LOC_FLAGS_LITTLE_ENDIAN) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+				else if ( data )
+					text = get_utf_8_string(pinfo->pool, data, len);
+				if ( text )
+					proto_item_set_generated(proto_tree_add_string(data_tree, hf_tns_data_lob_text, tvb,
+						start, offset - start, (const char *)text));
+			}
 			ctx->walk = true;
 			break;
 		}
@@ -5194,6 +5234,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				amount_ptr = tvb_get_uint8(tvb, offset);
 				offset += 1;                              /* amount pointer flag */
 				offset += 6;                              /* array-LOB slots */
+				int locator_start = offset;
 				if ( src_ptr && loc_len > 0 )
 				{
 					proto_tree_add_item(data_tree, hf_tns_data_lob_locator, tvb, offset, loc_len, ENC_NA);
@@ -5228,6 +5269,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					call->lob_op = (uint32_t)op;
 					call->lob_locator_len = src_ptr ? (uint32_t)loc_len : 0;
 					call->lob_amount = amount_ptr != 0;
+					if ( src_ptr && loc_len >= TNS_LOB_LOC_FLAG_4 + 1 )
+					{
+						tvb_memcpy(tvb, call->lob_flags, locator_start + TNS_LOB_LOC_FLAG_1, 4);
+						call->lob_flags_known = true;
+					}
 				}
 			}
 			break;
@@ -6966,6 +7012,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_pgy_sec_value, {
 			"Security Context Value", "tns.data_piggyback.sec_value", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_lob_text, {
+			"Text", "tns.data_lob.text", FT_STRING, BASE_NONE,
+			NULL, 0x0, "A CLOB's content, decoded as its locator says", HFILL }},
 		{ &hf_tns_data_release_tag, {
 			"Tag", "tns.data_release.tag", FT_STRING, BASE_NONE,
 			NULL, 0x0, "Session tag for the pool", HFILL }},
