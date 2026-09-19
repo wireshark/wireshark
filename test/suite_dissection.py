@@ -2665,6 +2665,21 @@ class TestDissectTns:
             ['False', 'False', 'True', ''],
         ], rows
 
+    def test_tns_vector_render(self, cmd_tshark, capture_file, test_env):
+        '''A VECTOR image is rendered by its storage format: FLOAT32 and
+        FLOAT64 from their order-preserving encoding, INT8, BINARY as packed
+        bytes, and a sparse vector as index: value pairs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_vector.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert '(VECTOR): FLOAT32[3]: [1.5, 2.5, 3.5]' in stdout, stdout
+        assert '(VECTOR): INT8[4]: [1, -2, 3, -4]' in stdout, stdout
+        assert '(VECTOR): BINARY[16]: [170, 1]' in stdout, stdout
+        assert '(VECTOR): FLOAT64[1]: [0.25]' in stdout, stdout
+        assert '(VECTOR): sparse FLOAT32 of 300 dimensions: {299: 1.5}' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

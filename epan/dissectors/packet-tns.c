@@ -1833,6 +1833,77 @@ static const char *tns_format_urowid(packet_info *pinfo, const uint8_t *data, in
 	return wmem_strbuf_get_str(buf);
 }
 
+/* Render a VECTOR image:
+ *   0xDB | version (ub1) | flags (be16) | format (ub1) | elements (be32) |
+ *   [norm, 8 bytes, with flag 0x02 or 0x10] |
+ *   [sparse (flag 0x20): count (be16), count x be32 index] | values
+ * FLOAT32 / FLOAT64 values use the order-preserving BINARY_FLOAT /
+ * BINARY_DOUBLE encoding, INT8 plain bytes, BINARY bits packed eight to a
+ * byte (the element count is then a bit count). The first few values are
+ * shown. Returns a pinfo->pool string, or NULL. */
+static const char *tns_format_vector(packet_info *pinfo, const uint8_t *data, int len)
+{
+	static const char *formats[] = { NULL, NULL, "FLOAT32", "FLOAT64", "INT8", "BINARY" };
+	const int shown = 16;
+	uint16_t flags;
+	uint8_t format;
+	uint32_t count, dims;
+	int pos = 9, size;
+	const uint8_t *indices = NULL;
+	wmem_strbuf_t *buf;
+
+	if ( len < 9 || data[0] != 0xdb )
+		return NULL;
+	flags = (uint16_t)((data[2] << 8) | data[3]);
+	format = data[4];
+	dims = count = ((uint32_t)data[5] << 24) | ((uint32_t)data[6] << 16) | ((uint32_t)data[7] << 8) | data[8];
+	if ( format < 2 || format > 5 )
+		return NULL;
+	if ( flags & 0x0012 )
+		pos += 8;
+	if ( flags & 0x0020 )
+	{
+		if ( pos + 2 > len )
+			return NULL;
+		count = (uint32_t)((data[pos] << 8) | data[pos + 1]);
+		pos += 2;
+		indices = data + pos;
+		if ( (uint64_t)count * 4 > (uint64_t)(len - pos) )
+			return NULL;
+		pos += count * 4;
+	}
+	else if ( format == 5 )
+		count = (count + 7) / 8;
+	size = format == 2 ? 4 : format == 3 ? 8 : 1;
+	if ( (uint64_t)count * size > (uint64_t)(len - pos) )
+		return NULL;
+
+	buf = wmem_strbuf_new(pinfo->pool, "");
+	if ( indices )
+		wmem_strbuf_append_printf(buf, "sparse %s of %u dimensions: {", formats[format], dims);
+	else
+		wmem_strbuf_append_printf(buf, "%s[%u]: [", formats[format], dims);
+	for ( uint32_t i = 0; i < count && i < (uint32_t)shown; i++ )
+	{
+		const uint8_t *e = data + pos + i * size;
+		if ( i )
+			wmem_strbuf_append(buf, ", ");
+		if ( indices )
+			wmem_strbuf_append_printf(buf, "%u: ", ((uint32_t)indices[4 * i] << 24)
+				| ((uint32_t)indices[4 * i + 1] << 16) | ((uint32_t)indices[4 * i + 2] << 8) | indices[4 * i + 3]);
+		if ( size > 1 )
+			wmem_strbuf_append(buf, tns_format_binary_float(pinfo, e, size));
+		else if ( format == 4 )
+			wmem_strbuf_append_printf(buf, "%d", (int8_t)e[0]);
+		else
+			wmem_strbuf_append_printf(buf, "%u", e[0]);
+	}
+	if ( count > (uint32_t)shown )
+		wmem_strbuf_append(buf, ", ...");
+	wmem_strbuf_append_c(buf, indices ? '}' : ']');
+	return wmem_strbuf_get_str(buf);
+}
+
 static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
@@ -2207,8 +2278,12 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
 			image_len = offset - image_start;
 			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
-			rendered = wmem_strdup_printf(pinfo->pool, "%s image, %" PRIu64 " bytes",
-				dtype == TNS_DATATYPE_JSON ? "OSON" : "vector", lob_size);
+			if ( dtype == TNS_DATATYPE_VECTOR && image_len > 1
+				&& tvb_get_uint8(tvb, image_start) != 0xfe )
+				rendered = tns_format_vector(pinfo, tvb_get_ptr(tvb, image_start + 1, image_len - 1), image_len - 1);
+			if ( !rendered )
+				rendered = wmem_strdup_printf(pinfo->pool, "%s image, %" PRIu64 " bytes",
+					dtype == TNS_DATATYPE_JSON ? "OSON" : "vector", lob_size);
 			break;
 
 		case TNS_DATATYPE_ROWID:
