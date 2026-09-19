@@ -81,6 +81,9 @@ void proto_register_tns(void);
 #define TNS_DATATYPE_UROWID         208
 #define TNS_DATATYPE_TIMESTAMP_LTZ  231
 
+/* DALC length byte marking a slot with no value (see get_dalc_custom). */
+#define TNS_DALC_ABSENT             0xFD
+
 /* Data Packet Functions */
 #define SQLNET_SET_PROTOCOL     1
 #define SQLNET_SET_DATATYPES    2
@@ -841,13 +844,18 @@ static int get_sb4_custom(tvbuff_t *tvb, int offset, int *result)
  * length only in the middle of its range:
  *
  *   0x00        empty
- *   0x01..0xFD  that many data bytes follow
+ *   0x01..0xFC  that many data bytes follow (252 is the longest)
+ *   0xFD        absent value: the two-byte placeholder FD 01, no data
  *   0xFE        chunked: (len, bytes) pairs until a 0-length chunk
  *   0xFF        null - a marker only, no data follows
  *
- * The null marker consumes just itself. Reading it as a length would
- * claim 255 bytes that are not there and misalign every field after
- * it, so it has to be spelled out rather than left to the default.
+ * The top three bytes are markers, not lengths. The null marker consumes
+ * just itself. The absent-value placeholder fills a bind slot that has no
+ * inline value - a pure OUT bind, or a NULL of a type with no inline form
+ * such as BOOLEAN - and consumes itself plus the 0x01 after it. Reading
+ * either as a length would claim bytes that are not there and misalign
+ * every field after it, so they have to be spelled out rather than left
+ * to the default.
  *
  * The chunk lengths in the 0xFE form are single bytes here, which is
  * the 11g shape this dissector decodes throughout; 12.2 and later
@@ -865,6 +873,12 @@ static int get_dalc_custom(tvbuff_t *tvb, packet_info *pinfo, int offset, const 
 		if ( out_str )
 			*out_str = NULL;
 		return 1;
+	}
+	if ( first == TNS_DALC_ABSENT )
+	{
+		if ( out_str )
+			*out_str = NULL;
+		return 2;
 	}
 	if ( first != 254 )
 	{
@@ -1147,7 +1161,7 @@ static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, int idx, int *bail, int hf, const char *prefix)
 {
 	int v_start = offset, disp_start = offset, v = 0;
-	int is_null = 0;
+	int is_null = 0, is_absent = 0;
 	uint8_t first;
 	const char *rendered = NULL;
 
@@ -1224,6 +1238,8 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
 			if ( first == 0 )
 				is_null = 1;
+			else if ( first == TNS_DALC_ABSENT )
+				is_absent = 1;
 			else
 			{
 				disp_start = v_start + 1; /* show the value bytes, not the length */
@@ -1252,6 +1268,10 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if ( is_null )
 		proto_tree_add_bytes_format(tree, hf, tvb,
 			v_start, offset - v_start, NULL, "%s %d (%s): NULL", prefix, idx,
+			val_to_str_const(dtype, tns_data_types, "unknown"));
+	else if ( is_absent )
+		proto_tree_add_bytes_format(tree, hf, tvb,
+			v_start, offset - v_start, NULL, "%s %d (%s): no value", prefix, idx,
 			val_to_str_const(dtype, tns_data_types, "unknown"));
 	else if ( rendered )
 		proto_tree_add_bytes_format(tree, hf, tvb,

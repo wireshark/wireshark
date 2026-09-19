@@ -1660,6 +1660,28 @@ class TestDissectTns:
         # The VARCHAR value "hi" is rendered as text, not raw bytes.
         assert '(VARCHAR): hi' in stdout, stdout
 
+    def test_tns_dalc_absent(self, cmd_tshark, capture_file, test_env):
+        '''A bind value of FD 01 is the DALC absent-value placeholder, not a
+        length of 253. The binds after it keep their values: NUMBER 10 and
+        VARCHAR "ok".'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_dalc_absent.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_bind.value',
+            '-e', '_ws.expert',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert len(rows) == 1, rows
+        assert rows[0][0] == 'fd01,c10b,6f6b', rows[0]
+        assert rows[0][1] == '', rows[0]
+        verbose = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_dalc_absent.pcap'),
+            '-d', 'tcp.port==1521,tns', '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Bind 1 (VARCHAR): no value' in verbose, verbose
+        assert 'Bind 3 (VARCHAR): ok' in verbose, verbose
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
