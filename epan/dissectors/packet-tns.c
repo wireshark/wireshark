@@ -1434,6 +1434,31 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	switch ( dtype )
 	{
+		case TNS_DATATYPE_REFCURSOR:
+		{
+			/* A cursor - a CURSOR(...) column, or a REF CURSOR OUT
+			 * bind: a ub1 length (a fixed value, ignored), the describe
+			 * of the cursor's result set inline, and the ub2 id the
+			 * client drains it with. The value's length is known only
+			 * once the describe is read, so read it once to size the
+			 * item and again to show it. */
+			proto_item *ci;
+			proto_tree *ct;
+			int end, cursor = 0, start;
+
+			end = dissect_tns_describe_body(tvb, pinfo, NULL, offset + 1, NULL);
+			end += get_sb4_custom(tvb, end, &cursor);
+			ci = proto_tree_add_bytes_format(tree, hf, tvb, offset, end - offset, NULL,
+				"%s %d (%s): cursor %d", prefix, idx,
+				val_to_str_const(dtype, tns_data_types, "unknown"), cursor);
+			ct = proto_item_add_subtree(ci, ett_tns_value);
+			offset = dissect_tns_describe_body(tvb, pinfo, ct, offset + 1, NULL);
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &cursor);
+			proto_tree_add_uint(ct, hf_tns_cursor, tvb, start, offset - start, cursor);
+			return offset;
+		}
+
 		case TNS_DATATYPE_ADT:
 		{
 			/* An object - or an XMLType, which is an ADT by describe - is

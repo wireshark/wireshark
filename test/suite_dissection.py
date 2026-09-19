@@ -2056,6 +2056,20 @@ class TestDissectTns:
         assert toids.strip() == ('5b5c96bccc225afce0639600a8c02ca9,5b5c96bccc225afce0639600a8c02ca9'
                                  '\t8401fe0000000c0002c102ff'), toids
 
+    def test_tns_cursor_column(self, cmd_tshark, capture_file, test_env):
+        '''A CURSOR(...) column value carries its result set's describe
+        inline and the cursor id; the next row follows straight after.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_cursor_column.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 2 (REFCURSOR): cursor 12' in stdout, stdout
+        assert 'Column 1 (NUMBER): 2' in stdout, stdout
+        assert 'Column 2 (REFCURSOR): cursor 13' in stdout, stdout
+        assert 'Column 1: X (VARCHAR)' in stdout, stdout
+        assert 'Malformed' not in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
