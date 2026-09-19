@@ -2294,6 +2294,17 @@ class TestDissectTns:
             ['79,fd01', '', ''],
         ], rows
 
+    def test_tns_field_version(self, cmd_tshark, capture_file, test_env):
+        '''The TTC field version is compile capability 7 of the client's
+        TTI_DTY; the 11g client in tns_dty.pcap negotiated 6 (11.2).'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_dty.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_setdt.field_version',
+        ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '6', stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

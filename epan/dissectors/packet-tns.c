@@ -85,6 +85,30 @@ void proto_register_tns(void);
 /* DALC length byte marking a slot with no value (see get_dalc_custom). */
 #define TNS_DALC_ABSENT             0xFD
 
+/* TTC field versions (compile capability 7), as python-oracledb's
+ * TNS_CCAP_FIELD_VERSION_* name them. The wire shape of several messages
+ * depends on the one a connection negotiates. */
+#define TNS_CCAP_FIELD_VERSION  7
+#define TNS_FV_11_2             6
+#define TNS_FV_12_1             7
+#define TNS_FV_12_2             8
+#define TNS_FV_12_2_EXT1        9
+#define TNS_FV_18_1             10
+#define TNS_FV_18_1_EXT_1       11
+#define TNS_FV_19_1             12
+#define TNS_FV_19_1_EXT_1       13
+#define TNS_FV_20_1             14
+#define TNS_FV_20_1_EXT_1       15
+#define TNS_FV_21_1             16
+#define TNS_FV_23_1             17
+#define TNS_FV_23_1_EXT_1       18
+#define TNS_FV_23_1_EXT_2       19
+#define TNS_FV_23_1_EXT_3       20
+#define TNS_FV_23_1_EXT_4       21
+#define TNS_FV_23_1_EXT_5       22
+#define TNS_FV_23_3_EXT_6       23
+#define TNS_FV_23_4             24
+
 /* Data Packet Functions */
 #define SQLNET_SET_PROTOCOL     1
 #define SQLNET_SET_DATATYPES    2
@@ -277,6 +301,8 @@ static int hf_tns_data_setdt_flag;
 static int hf_tns_data_setdt_caphdr;
 static int hf_tns_data_setdt_caphdr_version;
 static int hf_tns_data_setdt_caphdr_flags;
+static int hf_tns_data_setdt_field_version;
+static int hf_tns_data_field_version;
 static int hf_tns_data_setdt_tblhdr;
 static int hf_tns_data_setdt_idmap;
 static int hf_tns_data_setdt_overrides;
@@ -627,6 +653,29 @@ static const value_string tns_command_types[] = {
 	{0, NULL}
 };
 
+static const value_string tns_field_versions[] = {
+	{TNS_FV_11_2,       "11.2"},
+	{TNS_FV_12_1,       "12.1"},
+	{TNS_FV_12_2,       "12.2"},
+	{TNS_FV_12_2_EXT1,  "12.2 ext 1"},
+	{TNS_FV_18_1,       "18.1"},
+	{TNS_FV_18_1_EXT_1, "18.1 ext 1"},
+	{TNS_FV_19_1,       "19.1"},
+	{TNS_FV_19_1_EXT_1, "19.1 ext 1"},
+	{TNS_FV_20_1,       "20.1"},
+	{TNS_FV_20_1_EXT_1, "20.1 ext 1"},
+	{TNS_FV_21_1,       "21.1"},
+	{TNS_FV_23_1,       "23.1"},
+	{TNS_FV_23_1_EXT_1, "23.1 ext 1"},
+	{TNS_FV_23_1_EXT_2, "23.1 ext 2"},
+	{TNS_FV_23_1_EXT_3, "23.1 ext 3"},
+	{TNS_FV_23_1_EXT_4, "23.1 ext 4"},
+	{TNS_FV_23_1_EXT_5, "23.1 ext 5"},
+	{TNS_FV_23_3_EXT_6, "23.3 ext 6"},
+	{TNS_FV_23_4,       "23.4"},
+	{0, NULL}
+};
+
 /* Keyword numbers of the key/value pairs a server reports back, for a
  * session attribute a statement changed (python-oracledb's
  * TNS_KEYWORD_NUM_*). */
@@ -971,6 +1020,9 @@ typedef struct _tns_conv_info_t {
 	 * integers and 8-byte pointer indicators, where a thin client uses
 	 * variable-length integers and 1-byte pointer flags. */
 	bool oci_dialect;
+	/* The TTC field version the client and server settled on, from the
+	 * client's TTI_DTY; 0 until seen. */
+	uint8_t field_version;
 	tns_describe_t *last_describe;
 	/* Bind types of an execute that opened a new cursor, waiting for the
 	 * status that names the cursor id. */
@@ -987,6 +1039,8 @@ typedef struct _tns_conv_info_t {
 #define TNS_PROTO_DATA_CALL     3
 /* p_add_proto_data key for whether a packet is in the OCI dialect. */
 #define TNS_PROTO_DATA_OCI      4
+/* p_add_proto_data key for the field version in force for a packet. */
+#define TNS_PROTO_DATA_FV       5
 
 /* Execute flag asking for the rows each array DML iteration affected. */
 #define TNS_EXEC_FLAGS_DML_ROWCOUNTS 0x4000
@@ -1006,6 +1060,20 @@ tns_get_conv_info(packet_info *pinfo)
 		conversation_add_proto_data(conversation, proto_tns, tns_info);
 	}
 	return tns_info;
+}
+
+/* The TTC field version negotiated on the packet's connection, or 0 when
+ * the negotiation was not seen - which the decoders read as the 11g
+ * shape. Stored per packet on the first pass. */
+static unsigned tns_field_version(packet_info *pinfo)
+{
+	void *stored = p_get_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_FV);
+	if ( stored || PINFO_FD_VISITED(pinfo) )
+		return stored ? GPOINTER_TO_UINT(stored) - 1 : 0;
+
+	unsigned fv = tns_get_conv_info(pinfo)->field_version;
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_FV, GUINT_TO_POINTER(fv + 1));
+	return fv;
 }
 
 static unsigned get_data_func_id(tvbuff_t *tvb, int offset)
@@ -2521,6 +2589,12 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	offset += 2;
 	data_func_id = get_data_func_id(tvb, offset);
 
+	/* The field version the connection negotiated decides the shape of
+	 * several messages; show the one in force. */
+	unsigned fv = tns_field_version(pinfo);
+	if ( fv )
+		proto_item_set_generated(proto_tree_add_uint(data_tree, hf_tns_data_field_version, tvb, 0, 0, fv));
+
 	/* Do this only if the Data message have a body. Otherwise, there are only Data flags. */
 	int remaining = tvb_reported_length_remaining(tvb, offset);
 	if ( remaining > 0 )
@@ -2774,6 +2848,18 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			caphdr_tree = proto_item_add_subtree(caphdr_item, ett_tns_setdt_caphdr);
 			proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_caphdr_version, tvb, offset, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_caphdr_flags, tvb, offset + 3, 36, ENC_NA);
+			/* The header opens with the length of the client's compile
+			 * capabilities, and capability 7 is the TTC field version.
+			 * The client has already lowered it to the server's, so it
+			 * is the one the connection uses. */
+			if ( tvb_get_uint8(tvb, offset) > TNS_CCAP_FIELD_VERSION )
+			{
+				uint8_t fv = tvb_get_uint8(tvb, offset + 1 + TNS_CCAP_FIELD_VERSION);
+				proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_field_version, tvb,
+					offset + 1 + TNS_CCAP_FIELD_VERSION, 1, ENC_NA);
+				if ( !PINFO_FD_VISITED(pinfo) )
+					tns_get_conv_info(pinfo)->field_version = fv;
+			}
 			offset += 39;
 
 			proto_tree_add_item(data_tree, hf_tns_data_setdt_tblhdr, tvb, offset, 8, ENC_NA);
@@ -5102,6 +5188,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_setdt_caphdr_flags, {
 			"Flags", "tns.data_setdt.caphdr.flags", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_field_version, {
+			"Field Version", "tns.data.field_version", FT_UINT8, BASE_DEC,
+			VALS(tns_field_versions), 0x0, "TTC field version in force on the connection", HFILL }},
+		{ &hf_tns_data_setdt_field_version, {
+			"Field Version", "tns.data_setdt.field_version", FT_UINT8, BASE_DEC,
+			VALS(tns_field_versions), 0x0, "TTC field version the connection uses", HFILL }},
 		{ &hf_tns_data_setdt_tblhdr, {
 			"Table Header", "tns.data_setdt.tblhdr", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
