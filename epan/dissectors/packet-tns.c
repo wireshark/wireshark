@@ -174,6 +174,7 @@ void proto_register_tns(void);
 #define TTI_LOBOPS              96
 #define TTI_AQ_ENQUEUE          121
 #define TTI_AQ_DEQUEUE          122
+#define TTI_AQ_ARRAY            145
 #define TTI_TPC_TXN_SWITCH      103
 #define TTI_TPC_TXN_CHANGE_STATE 104
 #define TTI_CLOSE_CURSORS       105
@@ -514,6 +515,8 @@ static int hf_tns_data_aq_navigation;
 static int hf_tns_data_aq_wait;
 static int hf_tns_data_aq_flags;
 static int hf_tns_data_aq_delivery_flags;
+static int hf_tns_data_aq_array_op;
+static int hf_tns_data_aq_num_messages;
 static int hf_tns_data_release_tag;
 static int hf_tns_data_release_mode;
 static int hf_tns_data_release_mode_deauth;
@@ -856,6 +859,12 @@ static const value_string tns_aq_navigation[] = {
 	{0, NULL}
 };
 
+static const value_string tns_aq_array_ops[] = {
+	{1, "Enqueue"},
+	{2, "Dequeue"},
+	{0, NULL}
+};
+
 /* Two-phase commit operations (python-oracledb's TNS_TPC_*). */
 static const value_string tns_tpc_switch_ops[] = {
 	{0x01, "Start"},
@@ -1060,6 +1069,8 @@ static const value_string tns_csform_vals[] = {
 
 /* The length of an Advanced Queuing message id. */
 #define TNS_AQ_MSGID_LEN   16
+#define TNS_AQ_TOID_LEN    16
+#define TNS_AQ_ARRAY_ENQ   1
 
 /* An OAC flag marking a PL/SQL associative-array bind: in the flag byte
  * from 12.2, in the continuation flags before. */
@@ -3676,6 +3687,120 @@ static int dissect_tns_aq_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	return offset;
 }
 
+/* Decode an array Advanced Queuing call (145), which enqueues or
+ * dequeues several messages at once. Its header says which operation and
+ * how many messages; an array enqueue then carries a row header with the
+ * queue name, the payload type's OID and the flags, and one row per
+ * message, closing with a status byte, while an array dequeue repeats
+ * the queue name and the dequeue options for each message it asks for.
+ * Returns the new offset. */
+static int dissect_tns_aq_array_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	const char *text = NULL;
+	int start, v = 0, op = 0, num_iters = 0;
+	bool enqueue;
+
+	offset += 1;                                        /* input parameters */
+	offset += get_sb4_custom(tvb, offset, &num_iters);
+	offset += get_sb4_custom(tvb, offset, &v);          /* array flags */
+	offset += 2;                                        /* output parameters */
+	start = offset;
+	offset += get_sb4_custom(tvb, offset, &op);
+	proto_tree_add_uint(tree, hf_tns_data_aq_array_op, tvb, start, offset - start, op);
+	enqueue = op == TNS_AQ_ARRAY_ENQ;
+	offset += 1;                                        /* iterations pointer */
+	if ( tns_field_version(pinfo) >= TNS_FV_21_1 )
+		offset += get_sb4_custom(tvb, offset, &v);      /* shard id */
+	if ( enqueue )
+		offset += get_sb4_custom(tvb, offset, &num_iters);
+	proto_tree_add_uint(tree, hf_tns_data_aq_num_messages, tvb, offset, 0, num_iters);
+
+	if ( enqueue )
+	{
+		offset += get_sb4_custom(tvb, offset, &v);      /* relative message id */
+		offset += 1;                                    /* row header */
+		start = offset;
+		offset += get_field_with_length(tvb, pinfo, offset, &text);
+		if ( text )
+		{
+			proto_tree_add_string(tree, hf_tns_data_aq_queue, tvb, start, offset - start, text);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", text);
+		}
+		proto_tree_add_item(tree, hf_tns_data_aq_toid, tvb, offset, TNS_AQ_TOID_LEN, ENC_NA);
+		offset += TNS_AQ_TOID_LEN;
+		offset += get_sb4_custom(tvb, offset, &v);      /* message version */
+		offset += get_sb4_custom(tvb, offset, &v);      /* flags */
+		for ( int i = 0; i < num_iters && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+		{
+			int num_recipients = 0, payload_len = 0;
+			offset += 1;                                /* row data */
+			offset += get_sb4_custom(tvb, offset, &v);  /* flags */
+			offset = dissect_tns_aq_msg_props(tvb, pinfo, tree, offset, false);
+			offset += get_sb4_custom(tvb, offset, &num_recipients);
+			if ( num_recipients > 0 )
+				offset = dissect_tns_kv_pairs(tvb, pinfo, tree, offset, num_recipients);
+			offset += get_sb4_custom(tvb, offset, &v);  /* visibility */
+			offset += get_sb4_custom(tvb, offset, &v);  /* relative message id */
+			offset += get_sb4_custom(tvb, offset, &v);  /* sequence deviation */
+			offset += get_sb4_custom(tvb, offset, &payload_len);
+			if ( payload_len > 0 )
+			{
+				proto_tree_add_item(tree, hf_tns_data_aq_payload, tvb, offset, payload_len, ENC_NA);
+				offset += payload_len;
+			}
+		}
+		offset += 1;                                    /* the closing status */
+		return offset;
+	}
+
+	for ( int i = 0; i < num_iters && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+	{
+		start = offset;
+		offset += get_field_with_length(tvb, pinfo, offset, &text);
+		if ( text && i == 0 )
+		{
+			proto_tree_add_string(tree, hf_tns_data_aq_queue, tvb, start, offset - start, text);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", text);
+		}
+		offset = dissect_tns_aq_msg_props(tvb, pinfo, tree, offset, false);
+		offset += get_sb4_custom(tvb, offset, &v);      /* recipients */
+		start = offset;
+		offset += get_field_with_length(tvb, pinfo, offset, &text);
+		if ( text )
+			proto_tree_add_string(tree, hf_tns_data_aq_consumer, tvb, start, offset - start, text);
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(tree, hf_tns_data_aq_deq_mode, tvb, start, offset - start, v);
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(tree, hf_tns_data_aq_navigation, tvb, start, offset - start, v);
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(tree, hf_tns_data_aq_visibility, tvb, start, offset - start, v);
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_int(tree, hf_tns_data_aq_wait, tvb, start, offset - start, v);
+		offset += get_field_with_length(tvb, pinfo, offset, NULL);  /* message id */
+		start = offset;
+		offset += get_field_with_length(tvb, pinfo, offset, &text);
+		if ( text )
+			proto_tree_add_string(tree, hf_tns_data_aq_correlation, tvb, start, offset - start, text);
+		start = offset;
+		offset += get_field_with_length(tvb, pinfo, offset, &text);
+		if ( text )
+			proto_tree_add_string(tree, hf_tns_data_aq_condition, tvb, start, offset - start, text);
+		offset += get_sb4_custom(tvb, offset, &v);      /* extensions */
+		offset += get_sb4_custom(tvb, offset, &v);      /* relative message id */
+		offset += get_sb4_custom(tvb, offset, &v);      /* sequence deviation */
+		start = offset;
+		offset += get_field_with_length(tvb, pinfo, offset, NULL);
+		if ( offset - start > 2 )
+			proto_tree_add_item(tree, hf_tns_data_aq_toid, tvb, offset - TNS_AQ_TOID_LEN,
+				TNS_AQ_TOID_LEN, ENC_NA);
+	}
+	return offset;
+}
+
 /* Decode a two-phase commit call: a transaction switch (103) - start,
  * detach - or a state change (104) - prepare, commit, abort, forget. The
  * header gives an operation, the lengths of a transaction context and of
@@ -5560,6 +5685,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				proto_tree_add_bitmask_value(data_tree, tvb, start, hf_tns_data_release_mode,
 					ett_tns_release_mode, tns_release_modes, (uint64_t)(uint32_t)v);
 			}
+			else if ( oci_id == TTI_AQ_ARRAY )
+				offset = dissect_tns_aq_array_call(tvb, pinfo, data_tree, offset);
 			else if ( oci_id == TTI_AQ_ENQUEUE || oci_id == TTI_AQ_DEQUEUE )
 				offset = dissect_tns_aq_call(tvb, pinfo, data_tree, offset, oci_id);
 			else if ( oci_id == TTI_TPC_TXN_SWITCH || oci_id == TTI_TPC_TXN_CHANGE_STATE )
@@ -6344,6 +6471,43 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					proto_tree_add_item(data_tree, hf_tns_data_aq_msgid, tvb, offset, TNS_AQ_MSGID_LEN, ENC_NA);
 					offset += TNS_AQ_MSGID_LEN;
 					offset += get_sb4_custom(tvb, offset, &ext_len); /* extensions */
+					ctx->walk = true;
+				}
+				else if ( call && call->func == TTI_AQ_ARRAY )
+				{
+					/* one message per iteration: its properties when the
+					 * length before them is not zero, the recipients, the
+					 * payload, the message ids and the extensions */
+					int num_iters = 0, len = 0, v = 0, msg_start;
+
+					offset += get_sb4_custom(tvb, offset, &num_iters);
+					for ( int i = 0; i < num_iters && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+					{
+						offset += get_sb4_custom(tvb, offset, &len);
+						if ( len > 0 )
+						{
+							offset += 1;
+							offset = dissect_tns_aq_msg_props(tvb, pinfo, data_tree, offset, true);
+						}
+						offset += get_sb4_custom(tvb, offset, &v);      /* recipients */
+						offset += get_sb4_custom(tvb, offset, &len);
+						if ( len > 0 )
+							offset = dissect_tns_value(tvb, pinfo, data_tree, offset, TNS_DATATYPE_ADT,
+								0, false, i + 1, hf_tns_data_aq_payload, "Payload");
+						/* the ids of this iteration's messages, one after
+						 * another */
+						offset += get_sb4_custom(tvb, offset, &len);
+						if ( len > 0 )
+						{
+							msg_start = offset;
+							offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+							if ( offset - msg_start > 1 )
+								proto_tree_add_item(data_tree, hf_tns_data_aq_msgid, tvb,
+									msg_start + 1, offset - msg_start - 1, ENC_NA);
+						}
+						offset += get_sb4_custom(tvb, offset, &v);      /* extensions */
+						offset += get_sb4_custom(tvb, offset, &v);      /* output ack */
+					}
 					ctx->walk = true;
 				}
 				else if ( call && call->func == TTI_AQ_DEQUEUE )
@@ -8008,6 +8172,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_aq_delivery_flags, {
 			"Delivery Flags", "tns.data_aq.delivery_flags", FT_UINT32, BASE_HEX,
 			NULL, 0x0, "0x02 marks a buffered message", HFILL }},
+		{ &hf_tns_data_aq_array_op, {
+			"Array Operation", "tns.data_aq.array_op", FT_UINT32, BASE_DEC,
+			VALS(tns_aq_array_ops), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_aq_num_messages, {
+			"Messages", "tns.data_aq.num_messages", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_tpc_switch_op, {
 			"Operation", "tns.data_tpc.switch_op", FT_UINT32, BASE_HEX,
 			VALS(tns_tpc_switch_ops), 0x0, NULL, HFILL }},

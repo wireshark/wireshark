@@ -2965,6 +2965,30 @@ class TestDissectTns:
         assert rows[2][:4] == ['MYQ', '', 'SUB1', 'priority = 1'], rows[2]
         assert rows[3][5] == '2024-03-04 05:07:09' and rows[3][6] == '', rows[3]
 
+    def test_tns_aq_array(self, cmd_tshark, capture_file, test_env):
+        '''The array queuing call enqueues or dequeues several messages at
+        once: a row per message on the way out, the queue's options
+        repeated per message on the way in, and the ids on the way back.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_aq_array.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_aq.array_op || tns.data_aq.msgid',
+            '-T', 'fields',
+            '-e', 'tns.data_aq.array_op',
+            '-e', 'tns.data_aq.num_messages',
+            '-e', 'tns.data_aq.queue',
+            '-e', 'tns.data_aq.correlation',
+            '-e', 'tns.data_aq.consumer',
+            '-e', 'tns.data_aq.msgid',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert len(rows) == 4, rows
+        assert rows[0][:4] == ['1', '2', 'MYQ', 'corr-1,corr-2'], rows[0]
+        assert rows[1][5].count(',') == 1, rows[1]
+        assert rows[2][:3] == ['2', '2', 'MYQ'] and rows[2][4] == 'SUB1,SUB1', rows[2]
+        assert all(r[6] == '' for r in rows), rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
