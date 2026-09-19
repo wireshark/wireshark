@@ -1738,6 +1738,23 @@ class TestDissectTns:
         assert rows[1][5] == '1403' and rows[1][6] == '7', rows[1]
         assert rows[1][7].startswith('ORA-01403: no data found'), rows[1]
 
+    def test_tns_sta(self, cmd_tshark, capture_file, test_env):
+        '''TTI_STA decodes its call status and end-to-end sequence, and the
+        END_OF_RESPONSE marker behind it is named.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_sta.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_sta.call_status',
+            '-e', 'tns.data_sta.seq',
+            '-e', '_ws.col.info',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert len(rows) == 3, rows
+        assert rows[1][:2] == ['0x00000001', '0'], rows[1]
+        assert rows[2][:2] == ['0x00000005', '300'], rows[2]
+        assert rows[1][2].endswith('Function Complete, End of Response'), rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

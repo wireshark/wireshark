@@ -104,6 +104,7 @@ void proto_register_tns(void);
 #define SQLNET_PIGGYBACK_FUNC   17
 #define SQLNET_SIG_4UCS         18
 #define SQLNET_FLUSH_BIND_DATA  19
+#define SQLNET_END_OF_RESPONSE  29
 #define SQLNET_SNS              0xdeadbeef
 #define SQLNET_XTRN_PROCSERV_R1 32
 #define SQLNET_XTRN_PROCSERV_R2 68
@@ -272,6 +273,9 @@ static int hf_tns_data_oer_n_batch_offsets;
 static int hf_tns_data_oer_n_batch_messages;
 static int hf_tns_data_oer_message;
 
+static int hf_tns_data_sta_call_status;
+static int hf_tns_data_sta_seq;
+
 static int hf_tns_data_iov_num_binds;
 static int hf_tns_data_iov_bind_dir;
 
@@ -421,6 +425,7 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_PIGGYBACK_FUNC,   "Piggy back function follow"},
 	{SQLNET_SIG_4UCS,         "Signals special action for untrusted callout support"},
 	{SQLNET_FLUSH_BIND_DATA,  "Flush Out Bind data in DML/w RETURN when error"},
+	{SQLNET_END_OF_RESPONSE,  "End of Response"},
 	{SQLNET_XTRN_PROCSERV_R1, "External Procedures and Services Registrations"},
 	{SQLNET_XTRN_PROCSERV_R2, "External Procedures and Services Registrations"},
 	{SQLNET_SNS,              "Secure Network Services"},
@@ -1359,6 +1364,8 @@ static bool tns_is_next_message(unsigned data_func_id, bool is_request)
 	switch ( data_func_id )
 	{
 		case SQLNET_RETURN_STATUS:
+		case SQLNET_FUNCCOMPLETE:
+		case SQLNET_END_OF_RESPONSE:
 		case SQLNET_ROW_TRANSF_HDR:
 		case SQLNET_ROW_TRANSF_DATA:
 		case SQLNET_RETURN_OPI_PARAM:
@@ -1705,6 +1712,32 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			proto_item_set_len(oer_item, offset - oer_start);
 			break;
 		}
+
+		case SQLNET_FUNCCOMPLETE:
+		{
+			/* TTI_STA: a bare status, with no error block. It answers a
+			 * commit, a rollback or a logoff: a ub4 call status and the
+			 * ub2 end-to-end sequence number. */
+			int v = 0, start;
+
+			if ( is_request )
+				break;
+
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(data_tree, hf_tns_data_sta_call_status, tvb, start, offset - start, v);
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(data_tree, hf_tns_data_sta_seq, tvb, start, offset - start, v);
+			*walk = true;
+			break;
+		}
+
+		case SQLNET_END_OF_RESPONSE:
+			/* Marks the end of a response for a client that negotiated
+			 * it; there is no body. */
+			*walk = true;
+			break;
 
 		case SQLNET_IOVEC_4FAST_UPI:
 		{
@@ -3259,6 +3292,12 @@ void proto_register_tns(void)
 			"Format", "tns.data_setdt.override.format", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_sta_call_status, {
+			"Call Status", "tns.data_sta.call_status", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sta_seq, {
+			"End-to-End Sequence", "tns.data_sta.seq", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_oer_call_status, {
 			"Call Status", "tns.data_oer.call_status", FT_INT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
