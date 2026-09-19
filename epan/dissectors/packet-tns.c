@@ -1320,6 +1320,40 @@ static const char *tns_format_timestamp_tz(packet_info *pinfo, const uint8_t *da
 		sign, abs(tz_hour), abs(tz_min));
 }
 
+/* Render an Oracle INTERVAL YEAR TO MONTH (5 bytes: years as a
+ * big-endian ub4 biased by 2^31, months biased by 60) or INTERVAL DAY TO
+ * SECOND (11 bytes: days as a ub4 biased by 2^31, hours, minutes and
+ * seconds each biased by 60, nanoseconds as a ub4 biased by 2^31). All
+ * fields carry the interval's sign. Rendered as Oracle writes an
+ * interval literal: [-]Y-MM, or [-]D HH:MM:SS[.fffffffff].
+ * Returns a pinfo->pool string, or NULL. */
+static const char *tns_format_interval(packet_info *pinfo, uint8_t dtype, const uint8_t *data, int len)
+{
+	int32_t lead = (int32_t)((((uint32_t)data[0] << 24) | ((uint32_t)data[1] << 16) |
+		((uint32_t)data[2] << 8) | data[3]) - 0x80000000u);
+
+	if ( dtype == TNS_DATATYPE_INTERVAL_YM && len == 5 )
+	{
+		int months = data[4] - 60;
+		bool neg = lead < 0 || months < 0;
+		return wmem_strdup_printf(pinfo->pool, "%s%d-%02d", neg ? "-" : "",
+			abs(lead), abs(months));
+	}
+	if ( dtype == TNS_DATATYPE_INTERVAL_DS && len == 11 )
+	{
+		int hours = data[4] - 60, minutes = data[5] - 60, seconds = data[6] - 60;
+		int32_t nsec = (int32_t)((((uint32_t)data[7] << 24) | ((uint32_t)data[8] << 16) |
+			((uint32_t)data[9] << 8) | data[10]) - 0x80000000u);
+		bool neg = lead < 0 || hours < 0 || minutes < 0 || seconds < 0 || nsec < 0;
+		if ( nsec )
+			return wmem_strdup_printf(pinfo->pool, "%s%d %02d:%02d:%02d.%09d", neg ? "-" : "",
+				abs(lead), abs(hours), abs(minutes), abs(seconds), abs(nsec));
+		return wmem_strdup_printf(pinfo->pool, "%s%d %02d:%02d:%02d", neg ? "-" : "",
+			abs(lead), abs(hours), abs(minutes), abs(seconds));
+	}
+	return NULL;
+}
+
 /* Render an Oracle BINARY_FLOAT (4 bytes) / BINARY_DOUBLE (8 bytes) value
  * Stored in an order-preserving IEEE-754 form: if the
  * high bit is set the value was positive (clear it), else it was negative
@@ -1826,6 +1860,8 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						rendered = tns_format_date(pinfo, vb, vlen);
 					else if ( dtype == TNS_DATATYPE_TIMESTAMP_TZ )
 						rendered = tns_format_timestamp_tz(pinfo, vb, vlen);
+					else if ( (dtype == TNS_DATATYPE_INTERVAL_YM || dtype == TNS_DATATYPE_INTERVAL_DS) && vlen >= 5 )
+						rendered = tns_format_interval(pinfo, dtype, vb, vlen);
 					else if ( dtype == TNS_DATATYPE_BINARY_FLOAT || dtype == TNS_DATATYPE_BINARY_DOUBLE )
 						rendered = tns_format_binary_float(pinfo, vb, vlen);
 					else if ( dtype == TNS_DATATYPE_VARCHAR || dtype == TNS_DATATYPE_STRING || dtype == TNS_DATATYPE_CHAR )

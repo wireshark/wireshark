@@ -2179,6 +2179,19 @@ class TestDissectTns:
         assert '(TIMESTAMP WITH TIME ZONE): 2024-01-15 20:00:00.500000000 -03:30' in stdout, stdout
         assert '(TIMESTAMP WITH TIME ZONE): 2024-06-01 12:00:00 UTC (time zone region 64)' in stdout, stdout
 
+    def test_tns_interval_render(self, cmd_tshark, capture_file, test_env):
+        '''INTERVAL values are rendered as Oracle writes an interval
+        literal, sign included.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_interval.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert '(INTERVAL YEAR TO MONTH): 3-07' in stdout, stdout
+        assert '(INTERVAL DAY TO SECOND): 5 04:03:02.123456000' in stdout, stdout
+        assert '(INTERVAL YEAR TO MONTH): -1-02' in stdout, stdout
+        assert '(INTERVAL DAY TO SECOND): -2 03:00:00' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
