@@ -362,6 +362,8 @@ static int hf_tns_data_lob_size;
 static int hf_tns_data_lob_chunk_size;
 static int hf_tns_data_json_image;
 static int hf_tns_data_vector_image;
+static int hf_tns_data_obj_toid;
+static int hf_tns_data_obj_image;
 
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
@@ -1364,11 +1366,9 @@ static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 /* Decode one row/bind value by its data type, and add it as a
  * "<prefix> N (TYPE)" item under `hf`. Ordinary values are a
- * DALC blob; ROWID / UROWID / LONG / LOB / JSON / VECTOR carry their own
- * framings. Object values have a richer framing not handled here, so on
- * those the caller stops (sets *bail) and leaves the remainder to the
- * data dissector. Returns the new offset. */
-static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, int idx, int *bail, int hf, const char *prefix)
+ * DALC blob; ROWID / UROWID / LONG / LOB / JSON / VECTOR / object carry
+ * their own framings. Returns the new offset. */
+static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, int idx, int hf, const char *prefix)
 {
 	int v_start = offset, disp_start = offset, v = 0;
 	int is_null = 0, is_absent = 0;
@@ -1378,14 +1378,39 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	bool lob_meta = false;
 	uint64_t lob_size = 0;
 	int lob_chunk = 0, size_start = 0, size_len = 0, lchunk_start = 0, lchunk_len = 0;
-	int image_start = 0, image_len = 0;
+	int image_start = 0, image_len = 0, obj_toid_start = 0, obj_toid_len = 0;
 	proto_item *ti;
 
 	switch ( dtype )
 	{
-		case TNS_DATATYPE_ADT:    /* object */
-			*bail = 1;
-			return offset;
+		case TNS_DATATYPE_ADT:
+		{
+			/* An object - or an XMLType, which is an ADT by describe - is
+			 * framed the same way whether it is NULL or not:
+			 *   bytes_with_length type OID | bytes_with_length OID |
+			 *   bytes_with_length snapshot | ub2 version |
+			 *   ub4 image length | ub2 flags | [DALC image]
+			 * A NULL object has an image length of 0 and no image. */
+			int toid_start = offset, img_len = 0;
+			offset += get_field_with_length(tvb, pinfo, offset, NULL);
+			obj_toid_start = toid_start;
+			obj_toid_len = offset - toid_start;
+			offset += get_field_with_length(tvb, pinfo, offset, NULL); /* OID */
+			offset += get_field_with_length(tvb, pinfo, offset, NULL); /* snapshot */
+			offset += get_sb4_custom(tvb, offset, &v);                  /* version */
+			offset += get_sb4_custom(tvb, offset, &img_len);
+			offset += get_sb4_custom(tvb, offset, &v);                  /* flags */
+			if ( img_len > 0 )
+			{
+				image_start = offset;
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+				image_len = offset - image_start;
+				rendered = wmem_strdup_printf(pinfo->pool, "object, %d-byte image", img_len);
+			}
+			else
+				rendered = "NULL object";
+			break;
+		}
 
 		case TNS_DATATYPE_JSON:   /* OSON */
 		case TNS_DATATYPE_VECTOR:
@@ -1556,6 +1581,23 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		ti = proto_tree_add_bytes_format(tree, hf, tvb,
 			disp_start, offset - disp_start, NULL, "%s %d (%s): %s", prefix, idx,
 			val_to_str_const(dtype, tns_data_types, "unknown"), rendered);
+		if ( dtype == TNS_DATATYPE_ADT )
+		{
+			proto_tree *vt = proto_item_add_subtree(ti, ett_tns_value);
+			/* the type OID, without its ub4 count and DALC length */
+			if ( obj_toid_len > 2 )
+			{
+				int w = 1 + (tvb_get_uint8(tvb, obj_toid_start) & 0x7f);
+				proto_tree_add_item(vt, hf_tns_data_obj_toid, tvb,
+					obj_toid_start + w + 1, obj_toid_len - w - 1, ENC_NA);
+			}
+			if ( image_len > 1 )
+			{
+				bool chunked = tvb_get_uint8(tvb, image_start) == 0xfe;
+				proto_tree_add_item(vt, hf_tns_data_obj_image, tvb,
+					chunked ? image_start : image_start + 1, chunked ? image_len : image_len - 1, ENC_NA);
+			}
+		}
 		if ( lob_meta )
 		{
 			proto_tree *vt = proto_item_add_subtree(ti, ett_tns_value);
@@ -1628,18 +1670,16 @@ static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	{
 		proto_tree *row_tree;
 		proto_item *row_item;
-		int r_start = offset, row_bail = 0;
+		int r_start = offset;
 
 		offset += 1; /* TTI_RXD token */
 		row_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
 			ett_tns_bind_row, &row_item, "Row %d", ++rownum);
 		for ( uint32_t i = 0; i < count
-			&& tvb_reported_length_remaining(tvb, offset) > 0 && !row_bail; i++ )
+			&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
 			offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
-				types[i], i + 1, &row_bail, hf_tns_data_bind_value, "Bind");
+				types[i], i + 1, hf_tns_data_bind_value, "Bind");
 		proto_item_set_len(row_item, offset - r_start);
-		if ( row_bail )
-			break;
 	}
 	return offset;
 }
@@ -2585,8 +2625,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 			if ( desc && desc->num_cols > 0 )
 			{
-				int rownum = 0, first_row = 1, bail = 0;
-				while ( tvb_reported_length_remaining(tvb, offset) > 0 && !bail )
+				int rownum = 0, first_row = 1;
+				while ( tvb_reported_length_remaining(tvb, offset) > 0 )
 				{
 					proto_tree *row_tree;
 					proto_item *row_item;
@@ -2604,7 +2644,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					row_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, -1,
 						ett_tns_rxd_row, &row_item, "Row %d", ++rownum);
 					for ( uint32_t c = 0; c < desc->num_cols
-						&& tvb_reported_length_remaining(tvb, offset) > 0 && !bail; c++ )
+						&& tvb_reported_length_remaining(tvb, offset) > 0; c++ )
 					{
 						const tns_column_t *col = &desc->cols[c];
 						if ( ctx->bit_vector && c / 8 < ctx->bit_vector_len
@@ -2630,13 +2670,13 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							continue;
 						}
 						offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
-							col->type, c + 1, &bail, hf_tns_data_col_value, "Column");
+							col->type, c + 1, hf_tns_data_col_value, "Column");
 					}
 					proto_item_set_len(row_item, offset - r_start);
 					/* A bit vector covers one row only. */
 					ctx->bit_vector = NULL;
 				}
-				ctx->walk = !bail;
+				ctx->walk = true;
 			}
 			break;
 		}
@@ -4422,6 +4462,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_vector_image, {
 			"Vector Image", "tns.data_vector.image", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_obj_toid, {
+			"Type OID", "tns.data_obj.toid", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_obj_image, {
+			"Object Image", "tns.data_obj.image", FT_BYTES, BASE_NONE,
+			NULL, 0x0, "Packed object attributes, or an XMLType document", HFILL }},
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},

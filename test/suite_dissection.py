@@ -2034,6 +2034,28 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         assert images.strip().startswith('ff4a5a01'), images
 
+    def test_tns_object_column(self, cmd_tshark, capture_file, test_env):
+        '''An object column value is framed with its type OID, OID, snapshot,
+        version, image length and flags; a NULL object keeps the frame with
+        a zero image length. The NUMBER after each is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_object_column.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (ADT): object, 12-byte image' in stdout, stdout
+        assert 'Column 2 (NUMBER): 7' in stdout, stdout
+        assert 'Column 1 (ADT): NULL object' in stdout, stdout
+        assert 'Column 2 (NUMBER): 8' in stdout, stdout
+        toids = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_object_column.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_obj.toid',
+            '-T', 'fields', '-e', 'tns.data_obj.toid', '-e', 'tns.data_obj.image',
+        ), encoding='utf-8', env=test_env)
+        assert toids.strip() == ('5b5c96bccc225afce0639600a8c02ca9,5b5c96bccc225afce0639600a8c02ca9'
+                                 '\t8401fe0000000c0002c102ff'), toids
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
