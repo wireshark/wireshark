@@ -1469,6 +1469,20 @@ static int get_dalc_custom(tvbuff_t *tvb, packet_info *pinfo, int offset, const 
 	return used;
 }
 
+/* A server's message text carries a trailing newline; a client strips it
+ * before showing the error. Returns a pinfo->pool string, or NULL. */
+static const char *tns_trim_message(packet_info *pinfo, const char *msg)
+{
+	size_t len;
+
+	if ( !msg )
+		return NULL;
+	len = strlen(msg);
+	while ( len > 0 && (msg[len - 1] == '\n' || msg[len - 1] == '\r' || msg[len - 1] == ' ') )
+		len--;
+	return wmem_strndup(pinfo->pool, msg, len);
+}
+
 /* Decode a bytes_with_length / str_with_length field: a ub4 count, and
  * a DALC carrying the value only when that count is non-zero. The count
  * is not simply a byte to step over - an empty field is the count
@@ -3092,6 +3106,7 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 				const char *msg = NULL;
 				int msg_start = offset;
 				offset += get_dalc_custom(tvb, pinfo, offset, &msg);
+				msg = tns_trim_message(pinfo, msg);
 				if ( msg )
 				{
 					proto_tree_add_string(oer_tree, hf_tns_data_oer_message, tvb, msg_start, offset - msg_start, msg);
@@ -3454,6 +3469,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				const char *msg = NULL;
 				int msg_start = offset;
 				offset += get_dalc_custom(tvb, pinfo, offset, &msg);
+				msg = tns_trim_message(pinfo, msg);
 				if ( msg )
 				{
 					proto_tree_add_string(oer_tree, hf_tns_data_oer_message, tvb, msg_start, offset - msg_start, msg);
@@ -3533,6 +3549,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				const char *msg = NULL;
 				start = offset;
 				offset += get_dalc_custom(tvb, pinfo, offset, &msg);
+				msg = tns_trim_message(pinfo, msg);
 				if ( msg )
 				{
 					proto_tree_add_string(data_tree, hf_tns_data_wrn_message, tvb, start, offset - start, msg);
