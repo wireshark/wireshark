@@ -166,6 +166,7 @@ void proto_register_tns(void);
 #define TTI_SESSION_RELEASE     163
 #define TTI_SESSION_STATE       176
 #define TTI_PIPELINE_BEGIN      199
+#define TTI_PIPELINE_END        200
 #define TTI_END_USER_SEC_CTX    205
 
 /* desegmentation of TNS over TCP */
@@ -3996,6 +3997,13 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				start = offset;
 				offset += get_sb4_custom(tvb, offset, &v);
 				proto_tree_add_uint(data_tree, hf_tns_data_fetch_rows, tvb, start, offset - start, v);
+			}
+			else if ( oci_id == TTI_PIPELINE_END )
+			{
+				/* ends a pipeline begun by the pipeline-begin piggyback: a
+				 * ub4 id, unused */
+				int v = 0;
+				offset += get_sb4_custom(tvb, offset, &v);
 			}
 			else if ( oci_id == TTI_SESSION_RELEASE )
 			{

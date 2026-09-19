@@ -2524,6 +2524,20 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         assert 'Session state (0xb0)' in stdout, stdout
 
+    def test_tns_pipeline(self, cmd_tshark, capture_file, test_env):
+        '''A pipeline begins with a piggyback in front of a call and ends
+        with its own call; both decode to their last byte.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_pipeline.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_piggyback.pipeline_mode',
+            '-e', 'tns.data_oci.id',
+            '-e', 'data.data',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['1', '0x0e', ''], ['', '0xc8', '']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
