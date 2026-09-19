@@ -1250,6 +1250,76 @@ static const char *tns_format_date(packet_info *pinfo, const uint8_t *data, int 
 		year, month, day, hour, minute, second);
 }
 
+/* Days since 1970-01-01 of a proleptic Gregorian date, and back. */
+static int64_t tns_days_from_civil(int64_t y, unsigned m, unsigned d)
+{
+	y -= m <= 2;
+	int64_t era = (y >= 0 ? y : y - 399) / 400;
+	unsigned yoe = (unsigned)(y - era * 400);
+	unsigned doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1;
+	unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+	return era * 146097 + (int64_t)doe - 719468;
+}
+
+static void tns_civil_from_days(int64_t z, int64_t *y, unsigned *m, unsigned *d)
+{
+	z += 719468;
+	int64_t era = (z >= 0 ? z : z - 146096) / 146097;
+	unsigned doe = (unsigned)(z - era * 146097);
+	unsigned yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+	unsigned doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+	unsigned mp = (5 * doy + 2) / 153;
+	*d = doy - (153 * mp + 2) / 5 + 1;
+	*m = mp < 10 ? mp + 3 : mp - 9;
+	*y = (int64_t)yoe + era * 400 + (*m <= 2);
+}
+
+/* Render an Oracle TIMESTAMP WITH TIME ZONE value: 13 bytes, the
+ * 11-byte TIMESTAMP form holding the instant in UTC, then two zone
+ * bytes. With the top bit of the first clear they are an offset, hour
+ * + 20 and minute + 60, and the value is shown in local time with that
+ * offset; with it set they hold a named zone's region id,
+ * ((b0 & 0x7f) << 6) + (b1 >> 2), and the value is shown in UTC.
+ * Returns a pinfo->pool string, or NULL. */
+static const char *tns_format_timestamp_tz(packet_info *pinfo, const uint8_t *data, int len)
+{
+	const char *utc;
+	uint32_t nsec;
+	int64_t minutes, days, year;
+	unsigned month, day;
+	int tz_hour, tz_min, minute_of_day;
+	char sign;
+
+	if ( len != 13 )
+		return tns_format_date(pinfo, data, len);
+	utc = tns_format_date(pinfo, data, 11);
+	if ( !utc )
+		return NULL;
+	if ( data[11] & 0x80 )
+		return wmem_strdup_printf(pinfo->pool, "%s UTC (time zone region %u)", utc,
+			((unsigned)(data[11] & 0x7f) << 6) + (data[12] >> 2));
+
+	/* Shift the UTC wall clock by the offset, in whole minutes. */
+	tz_hour = data[11] - 20;
+	tz_min = data[12] - 60;
+	days = tns_days_from_civil((data[0] - 100) * 100 + (data[1] - 100), data[2], data[3]);
+	minutes = days * 1440 + (data[4] - 1) * 60 + (data[5] - 1) + tz_hour * 60 + tz_min;
+	days = minutes >= 0 ? minutes / 1440 : -((-minutes + 1439) / 1440);
+	minute_of_day = (int)(minutes - days * 1440);
+	tns_civil_from_days(days, &year, &month, &day);
+
+	nsec = ((uint32_t)data[7] << 24) | ((uint32_t)data[8] << 16) | ((uint32_t)data[9] << 8) | data[10];
+	/* The sign goes on the whole offset: -03:30 is hour -3, minute -30. */
+	sign = (tz_hour < 0 || tz_min < 0) ? '-' : '+';
+	if ( nsec )
+		return wmem_strdup_printf(pinfo->pool, "%04" PRId64 "-%02u-%02u %02d:%02d:%02d.%09u %c%02d:%02d",
+			year, month, day, minute_of_day / 60, minute_of_day % 60, data[6] - 1, nsec,
+			sign, abs(tz_hour), abs(tz_min));
+	return wmem_strdup_printf(pinfo->pool, "%04" PRId64 "-%02u-%02u %02d:%02d:%02d %c%02d:%02d",
+		year, month, day, minute_of_day / 60, minute_of_day % 60, data[6] - 1,
+		sign, abs(tz_hour), abs(tz_min));
+}
+
 /* Render an Oracle BINARY_FLOAT (4 bytes) / BINARY_DOUBLE (8 bytes) value
  * Stored in an order-preserving IEEE-754 form: if the
  * high bit is set the value was positive (clear it), else it was negative
@@ -1754,6 +1824,8 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						rendered = tns_format_number(pinfo, vb, vlen);
 					else if ( dtype == TNS_DATATYPE_DATE || dtype == TNS_DATATYPE_TIMESTAMP || dtype == TNS_DATATYPE_TIMESTAMP_LTZ )
 						rendered = tns_format_date(pinfo, vb, vlen);
+					else if ( dtype == TNS_DATATYPE_TIMESTAMP_TZ )
+						rendered = tns_format_timestamp_tz(pinfo, vb, vlen);
 					else if ( dtype == TNS_DATATYPE_BINARY_FLOAT || dtype == TNS_DATATYPE_BINARY_DOUBLE )
 						rendered = tns_format_binary_float(pinfo, vb, vlen);
 					else if ( dtype == TNS_DATATYPE_VARCHAR || dtype == TNS_DATATYPE_STRING || dtype == TNS_DATATYPE_CHAR )

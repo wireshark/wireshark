@@ -2166,6 +2166,19 @@ class TestDissectTns:
         assert 'Column 1 (RID): NULL' in stdout, stdout
         assert 'Column 2 (UROWID): AAAK6JAAEAAACGPAAA' in stdout, stdout
 
+    def test_tns_timestamp_tz_render(self, cmd_tshark, capture_file, test_env):
+        '''TIMESTAMP WITH TIME ZONE holds the instant in UTC plus the zone.
+        An offset zone is shown in local time with the offset, a named zone
+        in UTC with its region id.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_timestamp_tz.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert '(TIMESTAMP WITH TIME ZONE): 2024-01-15 10:30:00 +02:00' in stdout, stdout
+        assert '(TIMESTAMP WITH TIME ZONE): 2024-01-15 20:00:00.500000000 -03:30' in stdout, stdout
+        assert '(TIMESTAMP WITH TIME ZONE): 2024-06-01 12:00:00 UTC (time zone region 64)' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
