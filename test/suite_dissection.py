@@ -2442,6 +2442,26 @@ class TestDissectTns:
             ['7', '', '', 'c102', '1403', ''],
         ], rows
 
+    def test_tns_auth_request(self, cmd_tshark, capture_file, test_env):
+        '''The authentication calls carry the user, the mode and key/value
+        pairs: the first the client's identity, the second the proof and
+        the driver name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_auth.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_auth.user',
+            '-e', 'tns.data_auth.mode.with_password',
+            '-e', 'tns.data_opi.param_name',
+            '-e', 'tns.data_opi.param_value',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows[0][:2] == ['SCOTT', 'False'], rows[0]
+        assert rows[0][2] == 'AUTH_TERMINAL,AUTH_PROGRAM_NM,AUTH_MACHINE,AUTH_PID,AUTH_SID', rows[0]
+        assert rows[0][3] == 'pts/1,python3,db-client,4242,petro', rows[0]
+        assert rows[1][:2] == ['SCOTT', 'True'], rows[1]
+        assert rows[1][2] == 'AUTH_SESSKEY,AUTH_PASSWORD,SESSION_CLIENT_DRIVER_NAME', rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

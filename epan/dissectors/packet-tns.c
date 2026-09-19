@@ -287,6 +287,13 @@ static int hf_tns_data_opi_num_of_params;
 static int hf_tns_data_opi_param_length;
 static int hf_tns_data_opi_param_name;
 static int hf_tns_data_opi_param_value;
+static int hf_tns_data_auth_mode;
+static int hf_tns_data_auth_mode_logon;
+static int hf_tns_data_auth_mode_change_password;
+static int hf_tns_data_auth_mode_sysdba;
+static int hf_tns_data_auth_mode_sysoper;
+static int hf_tns_data_auth_mode_with_password;
+static int hf_tns_data_auth_user;
 
 static int hf_tns_data_setp_acc_version;
 static int hf_tns_data_setp_cli_plat;
@@ -475,6 +482,7 @@ static int ett_tns_setdt_overrides;
 static int ett_tns_setdt_override;
 static int ett_tns_oer;
 static int ett_tns_call_status;
+static int ett_tns_auth_mode;
 static int ett_tns_rpa;
 static int ett_tns_kv;
 static int ett_tns_iov;
@@ -585,6 +593,16 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_XTRN_PROCSERV_R2, "External Procedures and Services Registrations"},
 	{SQLNET_SNS,              "Secure Network Services"},
 	{0, NULL}
+};
+
+/* The authentication mode of an authentication call. */
+static int * const tns_auth_modes[] = {
+	&hf_tns_data_auth_mode_logon,
+	&hf_tns_data_auth_mode_change_password,
+	&hf_tns_data_auth_mode_sysdba,
+	&hf_tns_data_auth_mode_sysoper,
+	&hf_tns_data_auth_mode_with_password,
+	NULL
 };
 
 /* The second options word of a re-execute. */
@@ -3722,10 +3740,62 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			offset += 1;
 			offset = dissect_tns_call_token(tvb, pinfo, data_tree, offset);
 			if((oci_id == 115) || (oci_id == 118)){
+				/* The two authentication calls: the session key request
+				 * (118) and the authentication itself (115). A pointer
+				 * and a ub4 user name length, the ub4 mode, a pointer, the
+				 * ub4 number of key/value pairs, two pointers, the user
+				 * name, and the pairs - each a key and a value with two
+				 * lengths and a ub4 flags word. The first call's pairs
+				 * carry the client's identity (program, machine, terminal,
+				 * process id, OS user), which is what the server records
+				 * for the session; the second's the proof, the driver name
+				 * and the session settings. */
+				int user_len = 0, mode = 0, num = 0, start;
 				proto_tree_add_item(data_tree, hf_tns_data_unused, tvb, offset, 1, ENC_NA);
 				offset += 1;
-				int user_len = 0;
 				offset += get_sb4_custom(tvb, offset, &user_len);
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &mode);
+				proto_tree_add_bitmask_value(data_tree, tvb, start, hf_tns_data_auth_mode,
+					ett_tns_auth_mode, tns_auth_modes, (uint64_t)(uint32_t)mode);
+				offset += 1; /* pointer */
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &num);
+				proto_tree_add_uint(data_tree, hf_tns_data_opi_num_of_params, tvb, start, offset - start, num);
+				offset += 2; /* pointers */
+				if ( user_len > 0 )
+				{
+					const char *user = NULL;
+					start = offset;
+					offset += get_dalc_custom(tvb, pinfo, offset, &user);
+					if ( user )
+					{
+						proto_tree_add_string(data_tree, hf_tns_data_auth_user, tvb, start, offset - start, user);
+						col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", user);
+					}
+				}
+				for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+				{
+					proto_tree *par_tree;
+					proto_item *par_ti;
+					const char *key = NULL, *value = NULL;
+					int v = 0, par_start = offset;
+
+					par_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, -1,
+						ett_tns_opi_par, &par_ti, "Parameter %d", i + 1);
+					start = offset;
+					offset += get_field_with_length(tvb, pinfo, offset, &key);
+					if ( key )
+						proto_tree_add_string(par_tree, hf_tns_data_opi_param_name, tvb, start, offset - start, key);
+					start = offset;
+					offset += get_field_with_length(tvb, pinfo, offset, &value);
+					if ( value )
+						proto_tree_add_string(par_tree, hf_tns_data_opi_param_value, tvb, start, offset - start, value);
+					offset += get_sb4_custom(tvb, offset, &v); /* flags */
+					if ( key )
+						proto_item_append_text(par_ti, ": %s = %s", key, value ? value : "");
+					proto_item_set_len(par_ti, offset - par_start);
+				}
 			}
 			else if ( oci_id == TTI_FETCH )
 			{
@@ -5502,6 +5572,27 @@ void proto_register_tns(void)
 		{ &hf_tns_data_oci_oer_call_seq, {
 			"Call Sequence", "tns.data_oer.call_seq", FT_UINT16, BASE_DEC,
 			NULL, 0x0, "Sequence number of the call this status answers", HFILL }},
+		{ &hf_tns_data_auth_mode, {
+			"Authentication Mode", "tns.data_auth.mode", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_auth_mode_logon, {
+			"Logon", "tns.data_auth.mode.logon", FT_BOOLEAN, 32,
+			NULL, 0x00000001, NULL, HFILL }},
+		{ &hf_tns_data_auth_mode_change_password, {
+			"Change Password", "tns.data_auth.mode.change_password", FT_BOOLEAN, 32,
+			NULL, 0x00000002, NULL, HFILL }},
+		{ &hf_tns_data_auth_mode_sysdba, {
+			"SYSDBA", "tns.data_auth.mode.sysdba", FT_BOOLEAN, 32,
+			NULL, 0x00000020, NULL, HFILL }},
+		{ &hf_tns_data_auth_mode_sysoper, {
+			"SYSOPER", "tns.data_auth.mode.sysoper", FT_BOOLEAN, 32,
+			NULL, 0x00000040, NULL, HFILL }},
+		{ &hf_tns_data_auth_mode_with_password, {
+			"With Password", "tns.data_auth.mode.with_password", FT_BOOLEAN, 32,
+			NULL, 0x00000100, NULL, HFILL }},
+		{ &hf_tns_data_auth_user, {
+			"User", "tns.data_auth.user", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_sta_call_status, {
 			"Call Status", "tns.data_sta.call_status", FT_UINT32, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
@@ -5873,6 +5964,7 @@ void proto_register_tns(void)
 		&ett_tns_setdt_override,
 		&ett_tns_oer,
 		&ett_tns_call_status,
+		&ett_tns_auth_mode,
 		&ett_tns_rpa,
 		&ett_tns_kv,
 		&ett_tns_iov,
