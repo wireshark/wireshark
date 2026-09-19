@@ -19,8 +19,16 @@
 #define MP2T_PACKET_SIZE 188
 #define MP2T_SYNC_BYTE   0x47
 
+typedef struct {
+    uint8_t stream_type;
+    uint32_t registration_id;
+} mpeg_pes_stream_info_t;
+
 extern void
 mp2t_add_stream_type(packet_info *pinfo, uint32_t pid, uint32_t stream_type);
+
+extern void
+mp2t_add_registration_id(packet_info *pinfo, uint32_t pid, uint32_t registration_id);
 
 WS_DLL_PUBLIC uint32_t
 mp2t_get_stream_count(void);

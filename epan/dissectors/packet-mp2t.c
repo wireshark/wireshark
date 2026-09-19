@@ -373,6 +373,7 @@ typedef struct pid_analysis_data {
     int8_t                   cc_prev;      /* Previous CC number */
     enum pid_payload_type    pload_type;
     wmem_tree_t             *stream_types;
+    wmem_tree_t             *registration_ids;
 
     /* Fragments information used for first pass */
     bool                     fragmentation;
@@ -467,6 +468,7 @@ get_pid_analysis(mp2t_analysis_data_t *mp2t_data, uint32_t pid)
         pid_data->cc_prev = -1;
         pid_data->pid     = pid;
         pid_data->stream_types = wmem_tree_new(wmem_file_scope());
+        pid_data->registration_ids = wmem_tree_new(wmem_file_scope());
         pid_data->frag_id = (pid << (32 - 13)) | 0x1;
 
         wmem_tree_insert32(mp2t_data->pid_table, pid, (void *)pid_data);
@@ -637,6 +639,26 @@ mp2t_add_stream_type(packet_info *pinfo, uint32_t pid, uint32_t stream_type)
     wmem_tree_insert32(pid_data->stream_types, pinfo->num, GUINT_TO_POINTER(stream_type));
 }
 
+void
+mp2t_add_registration_id(packet_info *pinfo, uint32_t pid, uint32_t registration_id)
+{
+    mp2t_stream_key *stream;
+    uint32_t *stored_id;
+
+    stream = (mp2t_stream_key *)p_get_proto_data(pinfo->pool, pinfo,
+            proto_mp2t, MP2T_PROTO_DATA_STREAM);
+    if (!stream) {
+        return;
+    }
+
+    mp2t_analysis_data_t *mp2t_data = get_mp2t_conversation_data(stream);
+    pid_analysis_data_t *pid_data = get_pid_analysis(mp2t_data, pid);
+
+    stored_id = wmem_new(wmem_file_scope(), uint32_t);
+    *stored_id = registration_id;
+    wmem_tree_insert32(pid_data->registration_ids, pinfo->num, stored_id);
+}
+
 static void
 mp2t_dissect_packet(tvbuff_t *tvb, const pid_analysis_data_t *pid_analysis,
             packet_info *pinfo, proto_tree *tree)
@@ -650,8 +672,22 @@ mp2t_dissect_packet(tvbuff_t *tvb, const pid_analysis_data_t *pid_analysis,
             call_dissector(docsis_handle, tvb, pinfo, tree);
             break;
         case pid_pload_pes:
-            call_dissector_with_data(mpeg_pes_handle, tvb, pinfo, tree, wmem_tree_lookup32_le(pid_analysis->stream_types, pinfo->num));
+        {
+            mpeg_pes_stream_info_t stream_info = {
+                .stream_type = (uint8_t)GPOINTER_TO_UINT(
+                    wmem_tree_lookup32_le(pid_analysis->stream_types, pinfo->num)),
+                .registration_id = 0,
+            };
+            uint32_t *registration_id = (uint32_t *)wmem_tree_lookup32_le(
+                pid_analysis->registration_ids, pinfo->num);
+
+            if (registration_id != NULL) {
+                stream_info.registration_id = *registration_id;
+            }
+
+            call_dissector_with_data(mpeg_pes_handle, tvb, pinfo, tree, &stream_info);
             break;
+        }
         case pid_pload_sect:
             call_dissector(mpeg_sect_handle, tvb, pinfo, tree);
             break;

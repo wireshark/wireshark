@@ -127,6 +127,32 @@ static const value_string mpeg_pmt_stream_type_vals[] = {
 };
 value_string_ext mpeg_pmt_stream_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_pmt_stream_type_vals);
 
+/*
+ * Return the ISO/IEC 13818-1 registration_descriptor format_identifier from
+ * an elementary-stream descriptor loop, or zero if no registration descriptor
+ * is present. Descriptor tag 0x05 carries a four-octet format_identifier.
+ */
+static uint32_t
+mpeg_pmt_registration_id(tvbuff_t *tvb, unsigned offset, unsigned loop_len)
+{
+    const unsigned end = offset + loop_len;
+
+    while (offset + 2 <= end) {
+        const uint8_t tag = tvb_get_uint8(tvb, offset);
+        const unsigned len = tvb_get_uint8(tvb, offset + 1);
+
+        if (offset + 2U + len > end) {
+            break;
+        }
+        if (tag == 0x05 && len >= 4) {
+            return tvb_get_ntohl(tvb, offset + 2);
+        }
+        offset += 2U + len;
+    }
+
+    return 0;
+}
+
 static int
 dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -198,6 +224,11 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_es_info_length,    tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
+        uint32_t registration_id = mpeg_pmt_registration_id(tvb, offset, es_info_len);
+
+        if (current) {
+            mp2t_add_registration_id(pinfo, pid, registration_id);
+        }
         offset += proto_mpeg_descriptor_loop_dissect(tvb, pinfo, offset, es_info_len, mpeg_pmt_stream_tree);
     }
 
