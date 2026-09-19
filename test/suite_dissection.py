@@ -2462,6 +2462,24 @@ class TestDissectTns:
         assert rows[1][:2] == ['SCOTT', 'True'], rows[1]
         assert rows[1][2] == 'AUTH_SESSKEY,AUTH_PASSWORD,SESSION_CLIENT_DRIVER_NAME', rows[1]
 
+    def test_tns_pro_reply(self, cmd_tshark, capture_file, test_env):
+        '''The server's TTI_PRO reply: after the banner its charset, the
+        national charset from the fdo block, and its capabilities, offering
+        field version 24.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_pro.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tcp.srcport == 1521',
+            '-T', 'fields',
+            '-e', 'tns.data_setp_resp.banner',
+            '-e', 'tns.data_setp_resp.charset',
+            '-e', 'tns.data_setp_resp.ncharset',
+            '-e', 'tns.data_setp_resp.field_version',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['x86_64/Linux 2.4.xx', '873', '2000', '24', '']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

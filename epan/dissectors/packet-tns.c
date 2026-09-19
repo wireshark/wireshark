@@ -299,6 +299,12 @@ static int hf_tns_data_setp_acc_version;
 static int hf_tns_data_setp_cli_plat;
 static int hf_tns_data_setp_version;
 static int hf_tns_data_setp_banner;
+static int hf_tns_data_setp_charset;
+static int hf_tns_data_setp_flags;
+static int hf_tns_data_setp_ncharset;
+static int hf_tns_data_setp_compile_caps;
+static int hf_tns_data_setp_runtime_caps;
+static int hf_tns_data_setp_field_version;
 
 static int hf_tns_data_sns_cli_vers;
 static int hf_tns_data_sns_srv_vers;
@@ -2942,6 +2948,39 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				proto_item_set_end(ti, tvb, offset);
 				proto_tree_add_item_ret_length(data_tree, hf_tns_data_setp_banner, tvb, offset, -1, ENC_ASCII|ENC_NA, &len);
 				offset += len;
+
+				/* After the banner: the server's charset (LE), flags, a
+				 * count of 5-byte elements (LE), the "fdo" block (a BE
+				 * length) whose tail names the national charset, and the
+				 * server's compile and runtime capabilities, each behind a
+				 * length byte. Capability 7 is the highest TTC field
+				 * version the server offers. */
+				if ( tvb_reported_length_remaining(tvb, offset) < 5 )
+					break;
+				proto_tree_add_item(data_tree, hf_tns_data_setp_charset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+				proto_tree_add_item(data_tree, hf_tns_data_setp_flags, tvb, offset, 1, ENC_NA);
+				offset += 1;
+				unsigned num_elem = tvb_get_letohs(tvb, offset);
+				offset += 2 + 5 * num_elem;
+				unsigned fdo_len = tvb_get_ntohs(tvb, offset);
+				offset += 2;
+				if ( fdo_len >= 7 )
+				{
+					unsigned ix = 6 + tvb_get_uint8(tvb, offset + 5) + tvb_get_uint8(tvb, offset + 6);
+					if ( ix + 5 <= fdo_len )
+						proto_tree_add_item(data_tree, hf_tns_data_setp_ncharset, tvb, offset + ix + 3, 2, ENC_BIG_ENDIAN);
+				}
+				offset += fdo_len;
+				uint8_t caps_len = tvb_get_uint8(tvb, offset);
+				proto_tree_add_item(data_tree, hf_tns_data_setp_compile_caps, tvb, offset, 1 + caps_len, ENC_NA);
+				if ( caps_len > TNS_CCAP_FIELD_VERSION )
+					proto_tree_add_item(data_tree, hf_tns_data_setp_field_version, tvb,
+						offset + 1 + TNS_CCAP_FIELD_VERSION, 1, ENC_NA);
+				offset += 1 + caps_len;
+				caps_len = tvb_get_uint8(tvb, offset);
+				proto_tree_add_item(data_tree, hf_tns_data_setp_runtime_caps, tvb, offset, 1 + caps_len, ENC_NA);
+				offset += 1 + caps_len;
 			}
 			break;
 		}
@@ -5434,6 +5473,24 @@ void proto_register_tns(void)
 		{ &hf_tns_data_setp_version, {
 			"Version", "tns.data_setp_resp.version", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setp_charset, {
+			"Charset", "tns.data_setp_resp.charset", FT_UINT16, BASE_DEC,
+			VALS(tns_charsets), 0x0, "The database character set", HFILL }},
+		{ &hf_tns_data_setp_flags, {
+			"Server Flags", "tns.data_setp_resp.flags", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setp_ncharset, {
+			"National Charset", "tns.data_setp_resp.ncharset", FT_UINT16, BASE_DEC,
+			VALS(tns_charsets), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setp_compile_caps, {
+			"Compile Capabilities", "tns.data_setp_resp.compile_caps", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setp_runtime_caps, {
+			"Runtime Capabilities", "tns.data_setp_resp.runtime_caps", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setp_field_version, {
+			"Field Version", "tns.data_setp_resp.field_version", FT_UINT8, BASE_DEC,
+			VALS(tns_field_versions), 0x0, "The highest TTC field version the server offers", HFILL }},
 		{ &hf_tns_data_setp_banner, {
 			"Server Banner", "tns.data_setp_resp.banner", FT_STRINGZ, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
