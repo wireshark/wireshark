@@ -308,6 +308,7 @@ static int hf_tns_data_call_status_sess_release;
 
 static int hf_tns_data_iov_num_binds;
 static int hf_tns_data_iov_bind_dir;
+static int hf_tns_data_bind_retcode;
 
 static int hf_tns_data_dcb_num_columns;
 static int hf_tns_data_col_type;
@@ -408,6 +409,7 @@ static int ett_tns_bind_row;
 static int ett_tns_rxd_row;
 static int ett_tns_value;
 static int ett_tns_irs;
+static int ett_tns_out_binds;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
@@ -654,6 +656,7 @@ static const value_string tns_csform_vals[] = {
 
 /* Bind directions reported per bind in a TTI_IOV vector (TNS_BIND_DIR_*),
  * cross-referenced with python-oracledb's constants. */
+#define TNS_BIND_DIR_INPUT 32
 static const value_string tns_iov_bind_dirs[] = {
 	{16, "OUT"},
 	{32, "IN"},
@@ -873,6 +876,8 @@ typedef struct _tns_binds_t {
 typedef struct _tns_call_t {
 	uint8_t func;           /* OCI function id */
 	uint32_t exec_flags;    /* al8i4[9] of a TTI_ALL8 execute */
+	uint32_t num_binds;     /* bind types of an execute */
+	uint8_t *bind_types;
 } tns_call_t;
 
 typedef struct _tns_conv_info_t {
@@ -1944,6 +1949,10 @@ typedef struct _tns_msg_ctx_t {
 	 * every column is sent. */
 	const uint8_t *bit_vector;
 	unsigned bit_vector_len;
+	/* After a TTI_IOV: the call it answers and each bind's direction, so
+	 * the TTI_RXD after it can be read as the OUT bind values. */
+	const tns_call_t *out_call;
+	const uint8_t *bind_dirs;
 } tns_msg_ctx_t;
 
 static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, bool is_request, unsigned data_func_id, tns_msg_ctx_t *ctx);
@@ -2547,8 +2556,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			 * All the leading counters are stored in the ub4 variable-
 			 * length form (see get_sb4_custom). The per-bind directions
 			 * are one raw byte each. The trailing RXD values need each
-			 * bind's declared type to decode, so we stop after the
-			 * direction vector and leave the rest to the data dissector. */
+			 * bind's declared type to decode, so they are read only when
+			 * the execute this answers was seen. */
 			int num_requests = 0, num_iters = 0, v = 0, bv_len = 0, rid_len = 0;
 
 			if ( !is_request )
@@ -2585,6 +2594,18 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					offset += 1;
 				}
 				proto_item_set_len(iov_item, offset - iov_start);
+
+				/* The OUT and IN OUT values follow as a TTI_RXD, typed by
+				 * the binds of the execute this answers - readable only
+				 * when that execute was seen and bound as many. */
+				const tns_call_t *call = tns_answered_call(pinfo);
+				if ( call && call->bind_types && call->num_binds == (uint32_t)num_binds
+					&& offset - iov_start == num_binds )
+				{
+					ctx->out_call = call;
+					ctx->bind_dirs = tvb_memdup(pinfo->pool, tvb, iov_start, num_binds);
+					ctx->walk = true;
+				}
 			}
 			break;
 		}
@@ -2696,6 +2717,41 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 			if ( is_request )
 				break;
+
+			if ( ctx->bind_dirs )
+			{
+				/* The OUT and IN OUT bind values of a PL/SQL execute, in
+				 * bind order, each followed by its sb4 return code. Out of
+				 * a fetch, ROWID and UROWID come as strings and a LONG has
+				 * no trailing indicators. */
+				proto_tree *ob_tree;
+				proto_item *ob_item;
+				int ob_start = offset, rc = 0, start;
+
+				ob_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
+					ett_tns_out_binds, &ob_item, "Out Binds");
+				for ( uint32_t i = 0; i < ctx->out_call->num_binds
+					&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+				{
+					uint8_t btype = ctx->out_call->bind_types[i];
+					if ( ctx->bind_dirs[i] == TNS_BIND_DIR_INPUT )
+						continue;
+					if ( btype == TNS_DATATYPE_ROWID || btype == TNS_DATATYPE_UROWID
+						|| btype == TNS_DATATYPE_LONG )
+						btype = TNS_DATATYPE_VARCHAR;
+					else if ( btype == TNS_DATATYPE_LONG_RAW )
+						btype = TNS_DATATYPE_RAW;
+					offset = dissect_tns_value(tvb, pinfo, ob_tree, offset, btype, i + 1,
+						hf_tns_data_bind_value, "Bind");
+					start = offset;
+					offset += get_sb4_custom(tvb, offset, &rc);
+					proto_tree_add_int(ob_tree, hf_tns_data_bind_retcode, tvb, start, offset - start, rc);
+				}
+				proto_item_set_len(ob_item, offset - ob_start);
+				ctx->bind_dirs = NULL;
+				ctx->walk = true;
+				break;
+			}
 
 			desc = tns_current_describe(pinfo);
 
@@ -2982,6 +3038,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					tns_binds_t *binds = cursor ? tns_lookup_cursor_binds(pinfo, cursor) : NULL;
 					if ( binds && binds->count == (uint32_t)bind_count )
 					{
+						if ( call )
+						{
+							call->num_binds = binds->count;
+							call->bind_types = binds->types;
+						}
 						proto_item *binds_item;
 						proto_tree *binds_tree;
 						int binds_start = offset;
@@ -3016,6 +3077,12 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						if ( btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB )
 							offset += 1;
 						proto_item_set_len(bind_item, offset - b_start);
+					}
+
+					if ( call )
+					{
+						call->num_binds = bind_count;
+						call->bind_types = btypes;
 					}
 
 					/* Remember the types for later executes of the cursor
@@ -4379,6 +4446,9 @@ void proto_register_tns(void)
 			"Bind Direction", "tns.data_iov.bind_dir", FT_UINT8, BASE_DEC,
 			VALS(tns_iov_bind_dirs), 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_bind_retcode, {
+			"Return Code", "tns.data_bind.retcode", FT_INT32, BASE_DEC,
+			NULL, 0x0, "Non-zero when an OUT value was truncated", HFILL }},
 		{ &hf_tns_data_dcb_num_columns, {
 			"Number of Columns", "tns.data_dcb.num_columns", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -4602,6 +4672,7 @@ void proto_register_tns(void)
 		&ett_tns_rxd_row,
 		&ett_tns_value,
 		&ett_tns_irs,
+		&ett_tns_out_binds,
 		&ett_sql
 	};
 

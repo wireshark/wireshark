@@ -2086,6 +2086,22 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.strip().splitlines()]
         assert rows == [['2', 'A,B', '21,22', '0']], rows
 
+    def test_tns_out_binds(self, cmd_tshark, capture_file, test_env):
+        '''The TTI_RXD after a TTI_IOV holds the OUT bind values, typed by
+        the execute's binds and each followed by a return code; IN binds
+        have no value there. The status behind them is decoded too.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_out_binds.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+            '-Y', 'tns.data_iov.num_binds',
+        ), encoding='utf-8', env=test_env)
+        assert 'Bind 1 (NUMBER): 11' in stdout, stdout
+        assert 'Bind 3 (VARCHAR): hi' in stdout, stdout
+        assert 'Bind 2' not in stdout.split('Out Binds')[1], stdout
+        assert 'Return Code: 0' in stdout, stdout
+        assert 'Oracle Error Return' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
