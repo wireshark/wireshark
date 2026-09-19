@@ -2514,6 +2514,16 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['False', 'True'], stdout
 
+    def test_tns_newer_call_names(self, cmd_tshark, capture_file, test_env):
+        '''The newer calls are named: the session-state piggyback (176) in
+        tns_piggybacks.pcap.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_piggybacks.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Session state (0xb0)' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

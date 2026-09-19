@@ -1039,6 +1039,11 @@ static const value_string tns_data_oci_subfuncs[] = {
 	{170, "Replay PL/SQL RPC"},
 	{171, "XStream Out"},
 	{172, "Golden Gate RPC"},
+	{176, "Session state"},
+	{187, "Notify"},
+	{199, "Pipeline begin"},
+	{200, "Pipeline end"},
+	{205, "End-user security context"},
 	{0, NULL}
 };
 static value_string_ext tns_data_oci_subfuncs_ext = VALUE_STRING_EXT_INIT(tns_data_oci_subfuncs);
