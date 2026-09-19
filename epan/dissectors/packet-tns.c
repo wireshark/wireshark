@@ -49,7 +49,7 @@ void proto_register_tns(void);
  */
 #define TNS_DATATYPE_VARCHAR        1
 #define TNS_DATATYPE_NUMBER         2
-#define TNS_DATATYPE_INTEGER        3
+#define TNS_DATATYPE_INTEGER        3    /* BINARY_INTEGER */
 #define TNS_DATATYPE_FLOAT          4
 #define TNS_DATATYPE_STRING         5
 #define TNS_DATATYPE_VARNUM         6
@@ -598,7 +598,7 @@ static const value_string tns_kv_keywords[] = {
 static const value_string tns_data_types[] = {
 	{TNS_DATATYPE_VARCHAR,        "VARCHAR"},
 	{TNS_DATATYPE_NUMBER,         "NUMBER"},
-	{TNS_DATATYPE_INTEGER,        "INTEGER"},
+	{TNS_DATATYPE_INTEGER,        "BINARY_INTEGER"},
 	{TNS_DATATYPE_FLOAT,          "FLOAT"},
 	{TNS_DATATYPE_STRING,         "STRING"},
 	{TNS_DATATYPE_VARNUM,         "VARNUM"},
@@ -1854,7 +1854,9 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				{
 					const uint8_t *vb = tvb_get_ptr(tvb, disp_start, offset - disp_start);
 					int vlen = offset - disp_start;
-					if ( dtype == TNS_DATATYPE_NUMBER )
+					/* A BINARY_INTEGER carries NUMBER bytes, not a native
+					 * integer. */
+					if ( dtype == TNS_DATATYPE_NUMBER || dtype == TNS_DATATYPE_INTEGER )
 						rendered = tns_format_number(pinfo, vb, vlen);
 					else if ( dtype == TNS_DATATYPE_DATE || dtype == TNS_DATATYPE_TIMESTAMP || dtype == TNS_DATATYPE_TIMESTAMP_LTZ )
 						rendered = tns_format_date(pinfo, vb, vlen);

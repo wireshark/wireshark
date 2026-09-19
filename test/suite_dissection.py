@@ -2192,6 +2192,17 @@ class TestDissectTns:
         assert '(INTERVAL YEAR TO MONTH): -1-02' in stdout, stdout
         assert '(INTERVAL DAY TO SECOND): -2 03:00:00' in stdout, stdout
 
+    def test_tns_binary_integer_render(self, cmd_tshark, capture_file, test_env):
+        '''A BINARY_INTEGER (type 3) value carries NUMBER bytes and is
+        rendered as a number: c1 20 is 31, not raw bytes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_binary_integer.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (BINARY_INTEGER): 31' in stdout, stdout
+        assert 'Column 1 (BINARY_INTEGER): 0' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
