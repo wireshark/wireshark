@@ -1783,6 +1783,26 @@ class TestDissectTns:
             '-d', 'tcp.port==1521,tns') + fields, encoding='utf-8', env=test_env)
         assert stdout.splitlines()[0].split('\t') == ['True', 'True'], stdout
 
+    def test_tns_all8_parse_only(self, cmd_tshark, capture_file, test_env):
+        '''cursor.parse() sends PARSE without EXECUTE, and a query adds
+        DESCRIBE (0x20000). An executemany with batcherrors sets
+        BATCH_ERRORS (0x80000).'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_parse.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.options.parse',
+            '-e', 'tns.data_all8.options.execute',
+            '-e', 'tns.data_all8.options.describe',
+            '-e', 'tns.data_all8.options.batch_errors',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [
+            ['True', 'False', 'True', 'False'],
+            ['True', 'False', 'False', 'False'],
+            ['True', 'True', 'False', 'True'],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

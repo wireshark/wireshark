@@ -305,6 +305,8 @@ static int hf_tns_data_all8_opt_commit;
 static int hf_tns_data_all8_opt_plsql;
 static int hf_tns_data_all8_opt_fetch;
 static int hf_tns_data_all8_opt_not_plsql;
+static int hf_tns_data_all8_opt_describe;
+static int hf_tns_data_all8_opt_batch_errors;
 static int hf_tns_data_all8_fetch_rows;
 static int hf_tns_data_all8_bind_count;
 static int hf_tns_data_all8_sql;
@@ -390,6 +392,8 @@ static int * const tns_all8_options[] = {
 	&hf_tns_data_all8_opt_commit,
 	&hf_tns_data_all8_opt_plsql,
 	&hf_tns_data_all8_opt_not_plsql,
+	&hf_tns_data_all8_opt_describe,
+	&hf_tns_data_all8_opt_batch_errors,
 	NULL
 };
 
@@ -3450,6 +3454,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_all8_opt_not_plsql, {
 			"Not PL/SQL", "tns.data_all8.options.not_plsql", FT_BOOLEAN, 32,
 			NULL, 0x8000, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_describe, {
+			"Describe", "tns.data_all8.options.describe", FT_BOOLEAN, 32,
+			NULL, 0x20000, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_batch_errors, {
+			"Batch Errors", "tns.data_all8.options.batch_errors", FT_BOOLEAN, 32,
+			NULL, 0x80000, NULL, HFILL }},
 		{ &hf_tns_data_all8_fetch_rows, {
 			"Fetch Rows", "tns.data_all8.fetch_rows", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
