@@ -360,6 +360,8 @@ static int hf_tns_data_lob_offset;
 static int hf_tns_data_col_value;
 static int hf_tns_data_lob_size;
 static int hf_tns_data_lob_chunk_size;
+static int hf_tns_data_json_image;
+static int hf_tns_data_vector_image;
 
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
@@ -1362,10 +1364,10 @@ static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 /* Decode one row/bind value by its data type, and add it as a
  * "<prefix> N (TYPE)" item under `hf`. Ordinary values are a
- * DALC blob; ROWID / UROWID / LONG / LOB carry their own framings.
- * Object / JSON / VECTOR values have richer image
- * framings not handled here, so on those the caller stops (sets *bail) and
- * leaves the remainder to the data dissector. Returns the new offset. */
+ * DALC blob; ROWID / UROWID / LONG / LOB / JSON / VECTOR carry their own
+ * framings. Object values have a richer framing not handled here, so on
+ * those the caller stops (sets *bail) and leaves the remainder to the
+ * data dissector. Returns the new offset. */
 static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, int idx, int *bail, int hf, const char *prefix)
 {
 	int v_start = offset, disp_start = offset, v = 0;
@@ -1376,15 +1378,54 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	bool lob_meta = false;
 	uint64_t lob_size = 0;
 	int lob_chunk = 0, size_start = 0, size_len = 0, lchunk_start = 0, lchunk_len = 0;
+	int image_start = 0, image_len = 0;
 	proto_item *ti;
 
 	switch ( dtype )
 	{
 		case TNS_DATATYPE_ADT:    /* object */
-		case TNS_DATATYPE_JSON:   /* OSON */
-		case TNS_DATATYPE_VECTOR:
 			*bail = 1;
 			return offset;
+
+		case TNS_DATATYPE_JSON:   /* OSON */
+		case TNS_DATATYPE_VECTOR:
+			/* LOB-class, but the value itself rides in the row: the LOB
+			 * metadata framing with the image spliced in ahead of the
+			 * locator,
+			 *   ub4 locator length | ub8 image size | ub4 chunk size |
+			 *   DALC image | DALC locator
+			 * The locator is a placeholder. A 0x00 is NULL. A server may
+			 * instead send a bare locator, as for a CLOB, and leave the
+			 * image to a LOB read; that is told apart as for a CLOB. */
+			first = tvb_get_uint8(tvb, offset);
+			if ( first == 0 )
+			{
+				offset += 1;
+				is_null = 1;
+				break;
+			}
+			offset += get_sb4_custom(tvb, offset, &v);
+			if ( v > 8 && tvb_get_uint8(tvb, offset) == v )
+			{
+				/* bare locator */
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+				rendered = "locator only";
+				break;
+			}
+			lob_meta = true;
+			size_start = offset;
+			offset += get_ub8_custom(tvb, offset, &lob_size);
+			size_len = offset - size_start;
+			lchunk_start = offset;
+			offset += get_sb4_custom(tvb, offset, &lob_chunk);
+			lchunk_len = offset - lchunk_start;
+			image_start = offset;
+			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			image_len = offset - image_start;
+			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			rendered = wmem_strdup_printf(pinfo->pool, "%s image, %" PRIu64 " bytes",
+				dtype == TNS_DATATYPE_JSON ? "OSON" : "vector", lob_size);
+			break;
 
 		case TNS_DATATYPE_ROWID:  /* indicator, then obj/file/unused/block/slot (ub4) */
 			first = tvb_get_uint8(tvb, offset);
@@ -1520,6 +1561,14 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_tree *vt = proto_item_add_subtree(ti, ett_tns_value);
 			proto_tree_add_uint64(vt, hf_tns_data_lob_size, tvb, size_start, size_len, lob_size);
 			proto_tree_add_uint(vt, hf_tns_data_lob_chunk_size, tvb, lchunk_start, lchunk_len, lob_chunk);
+			/* the image of a prefetched JSON / VECTOR value, without its
+			 * DALC length byte (chunked images are shown whole) */
+			if ( image_len > 1 )
+			{
+				bool chunked = tvb_get_uint8(tvb, image_start) == 0xfe;
+				proto_tree_add_item(vt, dtype == TNS_DATATYPE_JSON ? hf_tns_data_json_image : hf_tns_data_vector_image,
+					tvb, chunked ? image_start : image_start + 1, chunked ? image_len : image_len - 1, ENC_NA);
+			}
 		}
 	}
 	else
@@ -4366,6 +4415,12 @@ void proto_register_tns(void)
 			NULL, 0x0, "Characters for a CLOB, bytes for a BLOB", HFILL }},
 		{ &hf_tns_data_lob_chunk_size, {
 			"LOB Chunk Size", "tns.data_lob.chunk_size", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_json_image, {
+			"OSON Image", "tns.data_json.image", FT_BYTES, BASE_NONE,
+			NULL, 0x0, "Binary JSON (OSON) value", HFILL }},
+		{ &hf_tns_data_vector_image, {
+			"Vector Image", "tns.data_vector.image", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,

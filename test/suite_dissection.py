@@ -2011,6 +2011,29 @@ class TestDissectTns:
         assert 'Column 2 (CLOB): locator, size 5' in verbose, verbose
         assert 'Malformed' not in verbose, verbose
 
+    def test_tns_json_vector_column(self, cmd_tshark, capture_file, test_env):
+        '''A JSON or VECTOR column value carries its image in the row, in the
+        LOB metadata framing with the image ahead of the locator. Both are
+        consumed, so the NUMBER after them decodes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_json_column.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (JSON): OSON image, 42 bytes' in stdout, stdout
+        assert 'Column 2 (VECTOR): vector image, 29 bytes' in stdout, stdout
+        assert 'Column 3 (NUMBER): 7' in stdout, stdout
+        assert 'Column 1 (JSON): NULL' in stdout, stdout
+        assert 'Column 2 (VECTOR): locator only' in stdout, stdout
+        assert 'Column 3 (NUMBER): 8' in stdout, stdout
+        images = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_json_column.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_json.image',
+            '-T', 'fields', '-e', 'tns.data_json.image',
+        ), encoding='utf-8', env=test_env)
+        assert images.strip().startswith('ff4a5a01'), images
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
