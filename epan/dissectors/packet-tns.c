@@ -784,13 +784,27 @@ typedef struct _tns_describe_t {
 	tns_column_t *cols;
 } tns_describe_t;
 
+/* The bind types of a cursor, from the execute that opened it. A later
+ * execute of the same cursor may send its values with no descriptors. */
+typedef struct _tns_binds_t {
+	uint32_t count;
+	uint8_t *types;
+} tns_binds_t;
+
 typedef struct _tns_conv_info_t {
 	uint32_t pending_connect_data;
 	tns_describe_t *last_describe;
+	/* Bind types of an execute that opened a new cursor, waiting for the
+	 * status that names the cursor id. */
+	tns_binds_t *pending_binds;
+	/* Cursor id -> tns_binds_t. */
+	wmem_map_t *cursor_binds;
 } tns_conv_info_t;
 
 /* p_add_proto_data key for the describe a TTI_RXD response packet uses. */
 #define TNS_PROTO_DATA_DESCRIBE 1
+/* p_add_proto_data key for the remembered binds of a re-execute. */
+#define TNS_PROTO_DATA_BINDS    2
 
 void proto_reg_handoff_tns(void);
 static int dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
@@ -803,6 +817,7 @@ tns_get_conv_info(packet_info *pinfo)
 	tns_conv_info_t *tns_info = (tns_conv_info_t *)conversation_get_proto_data(conversation, proto_tns);
 	if (!tns_info) {
 		tns_info = wmem_new0(wmem_file_scope(), tns_conv_info_t);
+		tns_info->cursor_binds = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		conversation_add_proto_data(conversation, proto_tns, tns_info);
 	}
 	return tns_info;
@@ -1374,6 +1389,54 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
+/* Look up the bind types remembered for a cursor, for an execute that
+ * sends its values without descriptors. Stashed per packet on the first
+ * pass, so a later pass gets the same answer. */
+static tns_binds_t *tns_lookup_cursor_binds(packet_info *pinfo, uint32_t cursor)
+{
+	if ( PINFO_FD_VISITED(pinfo) )
+		return (tns_binds_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_BINDS);
+
+	tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
+	tns_binds_t *binds = (tns_binds_t *)wmem_map_lookup(tns_info->cursor_binds, GUINT_TO_POINTER(cursor));
+	if ( binds )
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_BINDS, binds);
+	return binds;
+}
+
+/* Decode the TTI_RXD value rows of a bind section - one row per
+ * execution - with each value typed by types[]. A CLOB / BLOB bind
+ * carries a temp-LOB locator form not unpacked here, so rows with one are
+ * left alone. Returns the new offset. */
+static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const uint8_t *types, uint32_t count)
+{
+	int rownum = 0;
+
+	for ( uint32_t i = 0; i < count; i++ )
+		if ( types[i] == TNS_DATATYPE_CLOB || types[i] == TNS_DATATYPE_BLOB )
+			return offset;
+
+	while ( tvb_reported_length_remaining(tvb, offset) > 0
+		&& tvb_get_uint8(tvb, offset) == SQLNET_ROW_TRANSF_DATA )
+	{
+		proto_tree *row_tree;
+		proto_item *row_item;
+		int r_start = offset, row_bail = 0;
+
+		offset += 1; /* TTI_RXD token */
+		row_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+			ett_tns_bind_row, &row_item, "Row %d", ++rownum);
+		for ( uint32_t i = 0; i < count
+			&& tvb_reported_length_remaining(tvb, offset) > 0 && !row_bail; i++ )
+			offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
+				types[i], i + 1, &row_bail, hf_tns_data_bind_value, "Bind");
+		proto_item_set_len(row_item, offset - r_start);
+		if ( row_bail )
+			break;
+	}
+	return offset;
+}
+
 static void dissect_tns_data_descriptor(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tns_tree, uint32_t length)
 {
 	/* This is used by Oracle 12c for at least sending LOB/FILE data. */
@@ -1719,6 +1782,17 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			int ci_start = offset;
 			offset += get_sb4_custom(tvb, offset, &v);
 			proto_tree_add_int(oer_tree, hf_tns_data_oer_cursor_id, tvb, ci_start, offset - ci_start, v);
+			/* The status of an execute that opened a new cursor names it:
+			 * its bind types now belong to that cursor id. */
+			if ( !PINFO_FD_VISITED(pinfo) && v != 0 )
+			{
+				tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
+				if ( tns_info->pending_binds )
+				{
+					wmem_map_insert(tns_info->cursor_binds, GUINT_TO_POINTER(v), tns_info->pending_binds);
+					tns_info->pending_binds = NULL;
+				}
+			}
 			/* error position (skipped) */
 			offset += get_sb4_custom(tvb, offset, &v);
 			/* 6 single-byte fields: sql_type, fatal, flags, user_cursor_opts, upi_param, warn_flags */
@@ -2088,11 +2162,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * TTI_RXD row of values per iteration with no bind
 				 * descriptors - the values are typed by the execute that
 				 * opened the cursor. */
-				int v = 0, start;
+				int v = 0, cursor = 0, start;
 
 				start = offset;
-				offset += get_sb4_custom(tvb, offset, &v);
-				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, start, offset - start, v);
+				offset += get_sb4_custom(tvb, offset, &cursor);
+				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, start, offset - start, cursor);
 				start = offset;
 				offset += get_sb4_custom(tvb, offset, &v);
 				proto_tree_add_uint(data_tree, oci_id == TTI_REEXECUTE_AND_FETCH ?
@@ -2106,6 +2180,19 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset += get_sb4_custom(tvb, offset, &v);
 				proto_tree_add_bitmask_value(data_tree, tvb, start, hf_tns_data_reexec_options2,
 					ett_tns_reexec_options2, tns_reexec_options2, (uint64_t)(uint32_t)v);
+
+				tns_binds_t *binds = tns_lookup_cursor_binds(pinfo, cursor);
+				if ( binds && tvb_reported_length_remaining(tvb, offset) > 0 )
+				{
+					proto_item *binds_item;
+					proto_tree *binds_tree;
+					int binds_start = offset;
+
+					binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
+						ett_tns_binds, &binds_item, "Binds");
+					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->types, binds->count);
+					proto_item_set_len(binds_item, offset - binds_start);
+				}
 			}
 			else if ( oci_id == TTI_ALL8 )
 			{
@@ -2237,18 +2324,43 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * there is decided by the wire, not by the SQL text: an
 				 * execute with no SQL often still carries them (every
 				 * executemany after the first), and they are absent
-				 * exactly when the bind area starts on a TTI_RXD. Values
-				 * without descriptors cannot be split, so those are
-				 * left to the data dissector. */
-				if ( bind_count > 0 && tvb_reported_length_remaining(tvb, offset) > 0
-					&& tvb_get_uint8(tvb, offset) != SQLNET_ROW_TRANSF_DATA )
+				 * exactly when the bind area starts on a TTI_RXD, in
+				 * which case the types remembered for the cursor apply.
+				 *
+				 * An execute that opens a new cursor (cursor id 0) learns
+				 * its id only from the status that answers it, so its
+				 * bind types wait for that. */
+				tns_conv_info_t *tns_info = NULL;
+				if ( !PINFO_FD_VISITED(pinfo) )
 				{
-					proto_tree *binds_tree, *bind_tree, *row_tree;
-					proto_item *binds_item, *bind_item, *row_item;
-					int binds_start = offset, has_lob = 0, rownum = 0;
+					tns_info = tns_get_conv_info(pinfo);
+					if ( cursor == 0 )
+						tns_info->pending_binds = NULL;
+				}
+				if ( bind_count > 0 && tvb_reported_length_remaining(tvb, offset) > 0
+					&& tvb_get_uint8(tvb, offset) == SQLNET_ROW_TRANSF_DATA )
+				{
+					tns_binds_t *binds = cursor ? tns_lookup_cursor_binds(pinfo, cursor) : NULL;
+					if ( binds && binds->count == (uint32_t)bind_count )
+					{
+						proto_item *binds_item;
+						proto_tree *binds_tree;
+						int binds_start = offset;
+
+						binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
+							ett_tns_binds, &binds_item, "Binds");
+						offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->types, binds->count);
+						proto_item_set_len(binds_item, offset - binds_start);
+					}
+				}
+				else if ( bind_count > 0 && tvb_reported_length_remaining(tvb, offset) > 0 )
+				{
+					proto_tree *binds_tree, *bind_tree;
+					proto_item *binds_item, *bind_item;
+					int binds_start = offset;
 					uint8_t *btypes;
 
-					btypes = (uint8_t *)wmem_alloc_array(pinfo->pool, uint8_t, bind_count);
+					btypes = (uint8_t *)wmem_alloc_array(tns_info ? wmem_file_scope() : pinfo->pool, uint8_t, bind_count);
 					binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 						ett_tns_binds, &binds_item, "Binds");
 
@@ -2257,10 +2369,6 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						int b_start = offset;
 						uint8_t btype = tvb_get_uint8(tvb, offset);
 						btypes[i] = btype;
-						/* CLOB / BLOB binds use a temp-LOB locator value
-						 * form we do not unpack. */
-						if ( btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB )
-							has_lob = 1;
 						bind_tree = proto_tree_add_subtree_format(binds_tree, tvb, offset, -1,
 							ett_tns_bind, &bind_item, "Bind %d: %s", i + 1,
 							val_to_str_const(btype, tns_data_types, "unknown"));
@@ -2271,25 +2379,23 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						proto_item_set_len(bind_item, offset - b_start);
 					}
 
+					/* Remember the types for later executes of the cursor
+					 * that leave the descriptors out. */
+					if ( tns_info )
+					{
+						tns_binds_t *binds = wmem_new0(wmem_file_scope(), tns_binds_t);
+						binds->count = bind_count;
+						binds->types = btypes;
+						if ( cursor != 0 )
+							wmem_map_insert(tns_info->cursor_binds, GUINT_TO_POINTER(cursor), binds);
+						else
+							tns_info->pending_binds = binds;
+					}
+
 					/* Value rows: a TTI_RXD token then one DALC value per bind
 					 * column (an ordinary execute sends one row, executemany
 					 * sends N), decoded and rendered by the bind's type. */
-					while ( !has_lob && tvb_reported_length_remaining(tvb, offset) > 0
-						&& tvb_get_uint8(tvb, offset) == SQLNET_ROW_TRANSF_DATA )
-					{
-						int r_start = offset;
-						offset += 1; /* TTI_RXD token */
-						row_tree = proto_tree_add_subtree_format(binds_tree, tvb, offset, -1,
-							ett_tns_bind_row, &row_item, "Row %d", ++rownum);
-						int row_bail = 0;
-						for ( int i = 0; i < bind_count
-							&& tvb_reported_length_remaining(tvb, offset) > 0 && !row_bail; i++ )
-							offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
-								btypes[i], i + 1, &row_bail, hf_tns_data_bind_value, "Bind");
-						proto_item_set_len(row_item, offset - r_start);
-						if ( row_bail )
-							break;
-					}
+					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, btypes, bind_count);
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
 
@@ -2327,8 +2433,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					 * execute of the cursor. Rows are still split by the
 					 * describe's columns, so replace each column's type
 					 * with the one its define gives. */
-					tns_conv_info_t *tns_info = dcols ? tns_get_conv_info(pinfo) : NULL;
-					if ( tns_info && tns_info->last_describe
+					if ( tns_info && dcols && tns_info->last_describe
 						&& tns_info->last_describe->num_cols == (uint32_t)define_count )
 					{
 						tns_describe_t *desc = wmem_new0(wmem_file_scope(), tns_describe_t);

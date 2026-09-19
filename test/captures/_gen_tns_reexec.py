@@ -15,6 +15,11 @@ re-executed, and a query re-executed with a prefetch.
               on, row (2, "row2") with no bind descriptors
     Frame 4 - TTI_FUN REEXECUTE_AND_FETCH (78) of a query on cursor 9 with
               a prefetch of 100 rows and the EXECUTE option
+    Frame 5 - a TTI_ALL8 re-execute of cursor 8 with no SQL and no bind
+              descriptors: the bind area starts on the row (3, "row3")
+
+The rows of frames 3 and 5 can only be split with the bind types the
+cursor was opened with in frame 1, which frame 2 ties to cursor 8.
 
 Bytes are built by hand in the Oracle 11g wire shape.
 """
@@ -162,6 +167,10 @@ frames = [
     (True, reexecute(FUNC_REEXECUTE, 2, 8, 1, 0, 1,
                      rows=[dalc(b"\xc1\x03") + dalc(b"row2")])),
     (True, reexecute(FUNC_REEXECUTE_AND_FETCH, 3, 9, 100, 0x20, 0)),
+    # a TTI_ALL8 re-execute of cursor 8 whose bind area starts on the row
+    (True, all8(4, b"", 0x8028, cursor=8, binds=[b"", b""],
+                rows=[dalc(b"\xc1\x04") + dalc(b"row3")],
+                al8=[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])),
 ]
 
 

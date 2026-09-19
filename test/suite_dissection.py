@@ -1900,6 +1900,22 @@ class TestDissectTns:
             ['9', '', '100', 'True', 'False'],
         ], rows
 
+    def test_tns_reexecute_binds(self, cmd_tshark, capture_file, test_env):
+        '''Values sent without bind descriptors are typed by the execute
+        that opened the cursor; its status names the cursor id. Both the
+        REEXECUTE row and the descriptor-less TTI_ALL8 row are split.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_reexec.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'frame.number',
+            '-e', 'tns.data_bind.value',
+        ), encoding='utf-8', env=test_env)
+        values = dict(r.split('\t') for r in stdout.strip().splitlines())
+        assert values['1'] == 'c102,726f7731', values
+        assert values['3'] == 'c103,726f7732', values
+        assert values['5'] == 'c104,726f7733', values
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
