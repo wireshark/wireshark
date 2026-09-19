@@ -133,6 +133,7 @@ void proto_register_tns(void);
 #define SQLNET_SERVER_PIGGYBACK 23
 #define SQLNET_IMPLICIT_RESULTS 27
 #define SQLNET_END_OF_RESPONSE  29
+#define SQLNET_TOKEN            33
 #define SQLNET_SNS              0xdeadbeef
 #define SQLNET_XTRN_PROCSERV_R1 32
 #define SQLNET_XTRN_PROCSERV_R2 68
@@ -272,6 +273,7 @@ static int hf_tns_data_id;
 static int hf_tns_data_length;
 static int hf_tns_data_oci_id;
 static int hf_tns_data_tseq;
+static int hf_tns_data_token;
 static int hf_tns_data_piggyback_id;
 static int hf_tns_data_unused;
 
@@ -578,6 +580,7 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_SERVER_PIGGYBACK, "Server-side Piggyback"},
 	{SQLNET_IMPLICIT_RESULTS, "Implicit Result Sets"},
 	{SQLNET_END_OF_RESPONSE,  "End of Response"},
+	{SQLNET_TOKEN,            "Token"},
 	{SQLNET_XTRN_PROCSERV_R1, "External Procedures and Services Registrations"},
 	{SQLNET_XTRN_PROCSERV_R2, "External Procedures and Services Registrations"},
 	{SQLNET_SNS,              "Secure Network Services"},
@@ -2407,6 +2410,21 @@ static int dissect_tns_return_params(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	return offset;
 }
 
+/* From field version 23.1 ext 1 a call or piggyback header carries a ub8
+ * token after its sequence number, which the reply echoes in a TOKEN
+ * message. Returns the new offset. */
+static int dissect_tns_call_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	uint64_t token = 0;
+	int start = offset;
+
+	if ( tns_field_version(pinfo) < TNS_FV_23_1_EXT_1 )
+		return offset;
+	offset += get_ub8_custom(tvb, offset, &token);
+	proto_tree_add_uint64(tree, hf_tns_data_token, tvb, start, offset - start, token);
+	return offset;
+}
+
 /* Decode the body of a piggyback other than close-cursors. Layouts
  * follow python-oracledb's _write_*_piggyback. Sets *walk when the body
  * was understood, so the call behind it can be decoded. Returns the new
@@ -2647,6 +2665,7 @@ static bool tns_is_next_message(unsigned data_func_id, bool is_request)
 		case SQLNET_BIT_VECTOR:
 		case SQLNET_SERVER_PIGGYBACK:
 		case SQLNET_IMPLICIT_RESULTS:
+		case SQLNET_TOKEN:
 		case SQLNET_END_OF_RESPONSE:
 		case SQLNET_ROW_TRANSF_HDR:
 		case SQLNET_ROW_TRANSF_DATA:
@@ -3364,6 +3383,20 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			break;
 		}
 
+		case SQLNET_TOKEN:
+		{
+			/* the token of the call this answers */
+			uint64_t token = 0;
+			int start = offset;
+
+			if ( is_request )
+				break;
+			offset += get_ub8_custom(tvb, offset, &token);
+			proto_tree_add_uint64(data_tree, hf_tns_data_token, tvb, start, offset - start, token);
+			ctx->walk = true;
+			break;
+		}
+
 		case SQLNET_END_OF_RESPONSE:
 			/* Marks the end of a response for a client that negotiated
 			 * it; there is no body. */
@@ -3677,6 +3710,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 		{
 			guint32 oci_id = 0;
 			tns_call_t *call;
+			int fun_start = offset - 1; /* the TTI_FUN byte */
 			proto_tree_add_item_ret_uint(data_tree, hf_tns_data_oci_id, tvb, offset, 1, ENC_BIG_ENDIAN, &oci_id);
 			offset += 1;
 			call = is_request ? tns_remember_call(pinfo, (uint8_t)oci_id) : NULL;
@@ -3686,6 +3720,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				val_to_str_ext_const(oci_id, &tns_data_oci_subfuncs_ext, "unknown"));
 			proto_tree_add_item(data_tree, hf_tns_data_tseq, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
+			offset = dissect_tns_call_token(tvb, pinfo, data_tree, offset);
 			if((oci_id == 115) || (oci_id == 118)){
 				proto_tree_add_item(data_tree, hf_tns_data_unused, tvb, offset, 1, ENC_NA);
 				offset += 1;
@@ -3755,8 +3790,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					call->binds = binds->cols;
 				}
 			}
-			else if ( oci_id == TTI_ALL8 && tvb_bytes_exist(tvb, offset + TNS_OCI_ALL8_IND - 3, 8)
-				&& tvb_get_ntoh64(tvb, offset + TNS_OCI_ALL8_IND - 3) == TNS_OCI_INDICATOR )
+			else if ( oci_id == TTI_ALL8 && tvb_bytes_exist(tvb, fun_start + TNS_OCI_ALL8_IND, 8)
+				&& tvb_get_ntoh64(tvb, fun_start + TNS_OCI_ALL8_IND) == TNS_OCI_INDICATOR )
 			{
 				/* An OCI client's execute (sqlplus and other thick
 				 * clients): a fixed preamble of 8-byte pointer indicators
@@ -3768,7 +3803,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * wide form and 23 in the narrow one, and the two cannot
 				 * both hold. The cursor id and SQL length precede every
 				 * slot and do not move; the bind count and the SQL do. */
-				int base = offset - 3, bind_count_off, sql_off;
+				int base = fun_start, bind_count_off, sql_off;
 				uint32_t cursor, sql_len, bind_count;
 				bool wide;
 
@@ -4481,6 +4516,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			offset += 1;
 			proto_tree_add_item(data_tree, hf_tns_data_tseq, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
+			offset = dissect_tns_call_token(tvb, pinfo, data_tree, offset);
 			/* Only the close-cursors piggyback carries a cursor list:
 			 * a pointer byte, a ub4 count, then that many ub4 cursor
 			 * ids. The other piggybacks have bodies of their own. */
@@ -5301,6 +5337,9 @@ void proto_register_tns(void)
 			"TSeq", "tns.data_tseq", FT_UINT8, BASE_HEX,
 			NULL, 0x00, NULL, HFILL }},
 
+		{ &hf_tns_data_token, {
+			"Token", "tns.data.token", FT_UINT64, BASE_DEC,
+			NULL, 0x0, "Call token (23ai); the reply echoes it", HFILL }},
 		{ &hf_tns_data_piggyback_id, {
 			/* Also Call ID.
 			   Piggyback is a message what calls a small subset of functions

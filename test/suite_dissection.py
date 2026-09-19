@@ -2397,6 +2397,28 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['UPDATE T SET S = :1 WHERE ID = :2', '1,2', '6869,c10b', '']], rows
 
+    def test_tns_token(self, cmd_tshark, capture_file, test_env):
+        '''From field version 23.1 ext 1 every call and piggyback header
+        carries a ub8 token after its sequence number, and the reply echoes
+        it in a TOKEN message. A 23ai request and reply decode in full.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_token.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data.token',
+            '-T', 'fields',
+            '-e', 'tns.data.token',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data_all8.sql',
+            '-e', 'tns.data_col.value',
+            '-e', 'tns.data_oer.err_num',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['7,7', '3,0', 'SELECT 1 FROM DUAL', '', '', ''],
+            ['7', '', '', 'c102', '1403', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
