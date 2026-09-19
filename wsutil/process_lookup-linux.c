@@ -1,5 +1,5 @@
 /* process_lookup-linux.c
- * Look up the processes that have a network socket open: Linux, through /proc
+ * Look up the processes that have a network socket open: Linux, through netlink and /proc
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,22 +21,37 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <linux/netlink.h>
+#include <linux/sock_diag.h>
+#include <linux/inet_diag.h>
 
 /*
- * The sockets come from /proc/net/{tcp,tcp6,udp,udp6}, which list every
- * socket in the network namespace with its owner's UID and its inode, and
- * the processes that have each open from the socket inodes in
- * /proc/<pid>/fd, which can be read for the caller's own processes and,
- * with CAP_SYS_PTRACE or as root, for everybody's. Sockets nobody has open
- * any more, such as TIME_WAIT ones, have inode 0 and are skipped.
+ * The sockets of the network namespace, each with its inode, come from the
+ * kernel through a NETLINK_SOCK_DIAG socket, as they do for ss, or, where
+ * that is not possible, from /proc/net/{tcp,tcp6,udp,udp6}, which give the
+ * same as text but take the kernel several times as long to produce when
+ * there are tens of thousands of sockets. The processes that have each
+ * socket open come from the socket inodes in /proc/<pid>/fd, which can be
+ * read for the caller's own processes and, with CAP_SYS_PTRACE or as root,
+ * for everybody's. Sockets nobody has open any more, such as TIME_WAIT
+ * ones, have inode 0 and are skipped.
  */
 
 #define NS_PER_S 1000000000ULL
+
+/* The receive buffer for the dumps, the size that ss uses. */
+#define DIAG_BUF_SIZE 32768
 
 typedef struct {
     GHashTable *inode_to_pids;  /* uint64_t * -> GArray of the uint32_t pids that have the socket open */
     uint64_t    boot_time_s;    /* seconds since the Epoch */
     long        clk_tck;
+    int         diag_fd;        /* the NETLINK_SOCK_DIAG socket, or -1 to read /proc/net instead */
+    uint32_t    diag_seq;       /* the sequence number of the last request */
+    uint8_t    *diag_buf;
 } linux_state_t;
 
 static void
@@ -76,6 +91,10 @@ linux_open(char **err_msg)
     state->clk_tck = sysconf(_SC_CLK_TCK);
     if (state->clk_tck <= 0)
         state->clk_tck = 100;
+    /* No privilege is needed for this; if it fails, /proc/net is read instead. */
+    state->diag_fd = socket(AF_NETLINK, SOCK_DGRAM | SOCK_CLOEXEC, NETLINK_SOCK_DIAG);
+    if (state->diag_fd >= 0)
+        state->diag_buf = (uint8_t *)g_malloc(DIAG_BUF_SIZE);
     return state;
 }
 
@@ -84,6 +103,9 @@ linux_close(void *p)
 {
     linux_state_t *state = (linux_state_t *)p;
 
+    if (state->diag_fd >= 0)
+        close(state->diag_fd);
+    g_free(state->diag_buf);
     g_hash_table_destroy(state->inode_to_pids);
     g_free(state);
 }
@@ -244,25 +266,131 @@ read_socket_table(linux_state_t *state, const char *path, uint8_t protocol,
     return true;
 }
 
+/*
+ * Ask the kernel for the sockets of an address family and a protocol, which
+ * it sends as a series of messages. Returns false, with errno set, if that
+ * can't be done, e.g. ENOENT if the kernel has no inet_diag module for the
+ * protocol; some of the sockets may have been reported by then.
+ */
+static bool
+read_sockets_netlink(linux_state_t *state, int family, uint8_t protocol,
+                     ws_process_lookup_add_socket_func add, void *ctx)
+{
+    struct {
+        struct nlmsghdr         nlh;
+        struct inet_diag_req_v2 req;
+    } request;
+    struct sockaddr_nl kernel;
+
+    memset(&request, 0, sizeof request);
+    request.nlh.nlmsg_len = sizeof request;
+    request.nlh.nlmsg_type = SOCK_DIAG_BY_FAMILY;
+    request.nlh.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP;
+    request.nlh.nlmsg_seq = ++state->diag_seq;
+    request.req.sdiag_family = (uint8_t)family;
+    request.req.sdiag_protocol = protocol;
+    /* In every state but TIME_WAIT: nobody has those open. */
+    request.req.idiag_states = ~(1U << TCP_TIME_WAIT);
+
+    memset(&kernel, 0, sizeof kernel);
+    kernel.nl_family = AF_NETLINK;
+    if (sendto(state->diag_fd, &request, sizeof request, 0,
+               (const struct sockaddr *)&kernel, sizeof kernel) < 0)
+        return false;
+
+    for (;;) {
+        struct sockaddr_nl from;
+        socklen_t from_len = sizeof from;
+        struct nlmsghdr *nlh;
+        ssize_t received;
+        unsigned len;  /* what NLMSG_OK() compares with the unsigned length of a message */
+
+        received = recvfrom(state->diag_fd, state->diag_buf, DIAG_BUF_SIZE, 0,
+                            (struct sockaddr *)&from, &from_len);
+        if (received < 0) {
+            if (errno == EINTR)
+                continue;
+            return false;
+        }
+        if (from_len != sizeof from || from.nl_pid != 0)
+            continue;  /* not from the kernel */
+        len = (unsigned)received;
+
+        for (nlh = (struct nlmsghdr *)state->diag_buf; NLMSG_OK(nlh, len); nlh = NLMSG_NEXT(nlh, len)) {
+            const struct inet_diag_msg *msg;
+            uint64_t inode_key;
+            const GArray *pids;
+            uint8_t ip_version;
+            ws_process_lookup_socket_key_t key;
+
+            if (nlh->nlmsg_seq != state->diag_seq)
+                continue;
+            if (nlh->nlmsg_type == NLMSG_DONE)
+                return true;
+            if (nlh->nlmsg_type == NLMSG_ERROR) {
+                const struct nlmsgerr *nlerr = (const struct nlmsgerr *)NLMSG_DATA(nlh);
+
+                errno = (nlh->nlmsg_len >= NLMSG_LENGTH(sizeof *nlerr)) ? -nlerr->error : EIO;
+                return false;
+            }
+            if (nlh->nlmsg_type != SOCK_DIAG_BY_FAMILY || nlh->nlmsg_len < NLMSG_LENGTH(sizeof *msg))
+                continue;
+            msg = (const struct inet_diag_msg *)NLMSG_DATA(nlh);
+            if (msg->idiag_inode == 0)
+                continue;  /* nobody has it open (any more) */
+            inode_key = msg->idiag_inode;
+            pids = (const GArray *)g_hash_table_lookup(state->inode_to_pids, &inode_key);
+            if (pids == NULL)
+                continue;  /* not our process, and we may not look */
+            if (msg->idiag_family == AF_INET)
+                ip_version = 4;
+            else if (msg->idiag_family == AF_INET6)
+                ip_version = 6;
+            else
+                continue;
+            /* The addresses are as they are in a packet, in the first of four words if IPv4. */
+            ws_process_lookup_key_init(&key, protocol, ip_version,
+                                       (const uint8_t *)msg->id.idiag_src, g_ntohs(msg->id.idiag_sport),
+                                       (const uint8_t *)msg->id.idiag_dst, g_ntohs(msg->id.idiag_dport));
+            for (unsigned i = 0; i < pids->len; i++)
+                add(ctx, &key, g_array_index(pids, uint32_t, i));
+        }
+    }
+}
+
 static bool
 linux_refresh(void *p, ws_process_lookup_add_socket_func add, void *ctx, char **err_msg)
 {
     linux_state_t *state = (linux_state_t *)p;
     static const struct {
         const char *path;
+        int         family;
         uint8_t     protocol;
         bool        required;
     } tables[] = {
-        { "/proc/net/tcp",  WS_PROCESS_LOOKUP_TCP, true },
-        { "/proc/net/udp",  WS_PROCESS_LOOKUP_UDP, true },
-        { "/proc/net/tcp6", WS_PROCESS_LOOKUP_TCP, false },  /* absent without IPv6 */
-        { "/proc/net/udp6", WS_PROCESS_LOOKUP_UDP, false },
+        { "/proc/net/tcp",  AF_INET,  WS_PROCESS_LOOKUP_TCP, true },
+        { "/proc/net/udp",  AF_INET,  WS_PROCESS_LOOKUP_UDP, true },
+        { "/proc/net/tcp6", AF_INET6, WS_PROCESS_LOOKUP_TCP, false },  /* absent without IPv6 */
+        { "/proc/net/udp6", AF_INET6, WS_PROCESS_LOOKUP_UDP, false },
     };
 
     scan_socket_fds(state);
     for (size_t i = 0; i < G_N_ELEMENTS(tables); i++) {
         if (!tables[i].required && access(tables[i].path, R_OK) != 0)
             continue;
+        if (state->diag_fd >= 0) {
+            if (read_sockets_netlink(state, tables[i].family, tables[i].protocol, add, ctx))
+                continue;
+            /*
+             * Not with this kernel, or not in this sandbox. Whatever was
+             * reported before it failed is reported again below, which does
+             * no harm.
+             */
+            ws_debug("reading the sockets through netlink failed, reading /proc/net from now on: %s",
+                     g_strerror(errno));
+            close(state->diag_fd);
+            state->diag_fd = -1;
+        }
         if (!read_socket_table(state, tables[i].path, tables[i].protocol, add, ctx, err_msg))
             return false;
     }
