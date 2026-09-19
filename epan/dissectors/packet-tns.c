@@ -368,6 +368,12 @@ static int hf_tns_data_col_csform;
 static int hf_tns_data_col_max_size;
 static int hf_tns_data_col_nulls_ok;
 static int hf_tns_data_col_name;
+static int hf_tns_data_col_uds_flags;
+static int hf_tns_data_col_domain_schema;
+static int hf_tns_data_col_domain_name;
+static int hf_tns_data_col_annotation;
+static int hf_tns_data_col_vector_dims;
+static int hf_tns_data_col_vector_format;
 
 static int hf_tns_data_rxh_num_requests;
 static int hf_tns_data_rxh_iter_num;
@@ -1076,6 +1082,14 @@ static unsigned tns_field_version(packet_info *pinfo)
 	return fv;
 }
 
+/* Whether the connection is known to predate 11g (a 10g server): its
+ * describe lacks the fields 11g added. */
+static bool tns_before_11g(packet_info *pinfo)
+{
+	unsigned fv = tns_field_version(pinfo);
+	return fv != 0 && fv < TNS_FV_11_2;
+}
+
 static unsigned get_data_func_id(tvbuff_t *tvb, int offset)
 {
 	/* Determine Data Function id */
@@ -1695,6 +1709,8 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  * Returns the new offset. */
 static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int idx, tns_column_t *col)
 {
+	unsigned fv = tns_field_version(pinfo);
+	int start;
 	proto_tree *col_tree;
 	proto_item *col_item;
 	int col_start = offset, v = 0;
@@ -1721,8 +1737,59 @@ static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += get_field_with_length(tvb, pinfo, offset, NULL);
 	/* column position (ub4, skip) */
 	offset += get_sb4_custom(tvb, offset, &v);
-	/* uds flags (ub4, skip) — 11g addition */
-	offset += get_sb4_custom(tvb, offset, &v);
+	/* uds flags (ub4) — an 11g addition; it marks a JSON column */
+	if ( !tns_before_11g(pinfo) )
+	{
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(col_tree, hf_tns_data_col_uds_flags, tvb, start, offset - start, v);
+	}
+	/* 23ai: the column's SQL domain, its annotations, and a vector
+	 * column's dimensions and format */
+	if ( fv >= TNS_FV_23_1 )
+	{
+		const char *str = NULL;
+		start = offset;
+		offset += get_field_with_length(tvb, pinfo, offset, &str);
+		if ( str )
+			proto_tree_add_string(col_tree, hf_tns_data_col_domain_schema, tvb, start, offset - start, str);
+		start = offset;
+		offset += get_field_with_length(tvb, pinfo, offset, &str);
+		if ( str )
+			proto_tree_add_string(col_tree, hf_tns_data_col_domain_name, tvb, start, offset - start, str);
+	}
+	if ( fv >= TNS_FV_23_1_EXT_3 )
+	{
+		int num = 0;
+		offset += get_sb4_custom(tvb, offset, &num);
+		if ( num > 0 )
+		{
+			offset += 1;
+			offset += get_sb4_custom(tvb, offset, &num);
+			offset += 1;
+			for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+			{
+				const char *key = NULL, *value = NULL;
+				start = offset;
+				offset += get_field_with_length(tvb, pinfo, offset, &key);
+				offset += get_field_with_length(tvb, pinfo, offset, &value);
+				proto_tree_add_string_format_value(col_tree, hf_tns_data_col_annotation, tvb,
+					start, offset - start, key ? key : "", "%s = %s",
+					key ? key : "", value ? value : "");
+				offset += get_sb4_custom(tvb, offset, &v); /* flags */
+			}
+			offset += get_sb4_custom(tvb, offset, &v);     /* flags */
+		}
+	}
+	if ( fv >= TNS_FV_23_4 )
+	{
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(col_tree, hf_tns_data_col_vector_dims, tvb, start, offset - start, v);
+		proto_tree_add_item(col_tree, hf_tns_data_col_vector_format, tvb, offset, 1, ENC_NA);
+		offset += 1;
+		offset += 1;                                         /* vector flags */
+	}
 
 	if ( name )
 		proto_item_append_text(col_item, ": %s (%s)", name,
@@ -1774,11 +1841,14 @@ static int dissect_tns_describe_body(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	}
 
 	/* Trailer: current date (bytes_with_length), four ub4 flags,
-	 * and the query-cache key (bytes_with_length) — all skipped. */
+	 * and the query-cache key (bytes_with_length) — all skipped. The key
+	 * came with the 11g result cache: a 10g describe ends after the
+	 * flags. */
 	offset += get_field_with_length(tvb, pinfo, offset, NULL);
 	for ( int i = 0; i < 4; i++ )
 		offset += get_sb4_custom(tvb, offset, &v);
-	offset += get_field_with_length(tvb, pinfo, offset, NULL);
+	if ( !tns_before_11g(pinfo) )
+		offset += get_field_with_length(tvb, pinfo, offset, NULL);
 	return offset;
 }
 
@@ -5419,6 +5489,24 @@ void proto_register_tns(void)
 			"Column Name", "tns.data_col.name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_col_uds_flags, {
+			"UDS Flags", "tns.data_col.uds_flags", FT_UINT32, BASE_HEX,
+			NULL, 0x0, "Marks a JSON column", HFILL }},
+		{ &hf_tns_data_col_domain_schema, {
+			"Domain Schema", "tns.data_col.domain_schema", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_domain_name, {
+			"Domain Name", "tns.data_col.domain_name", FT_STRING, BASE_NONE,
+			NULL, 0x0, "The column's SQL domain", HFILL }},
+		{ &hf_tns_data_col_annotation, {
+			"Annotation", "tns.data_col.annotation", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_vector_dims, {
+			"Vector Dimensions", "tns.data_col.vector_dims", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_vector_format, {
+			"Vector Format", "tns.data_col.vector_format", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_rxh_num_requests, {
 			"Number of Requests", "tns.data_rxh.num_requests", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},

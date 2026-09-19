@@ -2340,6 +2340,26 @@ class TestDissectTns:
         assert rows[2][2] == 'c10b,6869', rows[2]
         assert rows[3][3] == '112,2' and rows[3][4] == '', rows[3]
 
+    def test_tns_describe_versions(self, cmd_tshark, capture_file, test_env):
+        '''A describe's column fields depend on the field version: 23ai adds
+        the SQL domain, annotations and vector dimensions; 10g lacks the uds
+        flags and the query-cache key. The rows after both decode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_describe_versions.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_col.domain_name',
+            '-e', 'tns.data_col.annotation',
+            '-e', 'tns.data_col.vector_dims',
+            '-e', 'tns.data_col.value',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows[1][0] == 'EMAIL_D' and rows[1][1] == 'DISPLAY', rows[1]
+        assert rows[1][2] == '0,3,0', rows[1]
+        assert rows[2][3] == '614062,00,c106', rows[2]
+        assert rows[5][3] == 'c107' and rows[5][4] == '', rows[5]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
