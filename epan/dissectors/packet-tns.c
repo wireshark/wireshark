@@ -1259,6 +1259,7 @@ typedef struct _tns_describe_t {
 typedef struct _tns_binds_t {
 	uint32_t count;
 	uint32_t num_return;    /* the last num_return are RETURNING ... INTO binds */
+	bool plsql;             /* bound to a PL/SQL block */
 	tns_column_t *cols;
 } tns_binds_t;
 
@@ -1322,6 +1323,9 @@ typedef struct _tns_conv_info_t {
 #define TNS_PROTO_DATA_SERVER_FV 7
 /* p_add_proto_data key for whether an OCI session is at the 12c band. */
 #define TNS_PROTO_DATA_OCI_12C  8
+
+/* Execute option set on every SQL statement, clear on a PL/SQL block. */
+#define TNS_EXEC_OPTION_NOT_PLSQL 0x8000
 
 /* The execute options that ask the server to do something: run the
  * statement, take a set of defines, or return rows. */
@@ -3170,6 +3174,14 @@ static tns_binds_t *tns_lookup_cursor_binds(packet_info *pinfo, uint32_t cursor)
 	return binds;
 }
 
+/* Whether a bind is LONG-class: a LONG or LONG RAW whose buffer exceeds
+ * the longest string a server takes in place. */
+static bool tns_is_long_bind(const tns_column_t *col)
+{
+	return (col->type == TNS_DATATYPE_LONG || col->type == TNS_DATATYPE_LONG_RAW)
+		&& col->data_len > 4000;
+}
+
 /* Decode one bind's value in a bind row or an OUT reply, framed as out of
  * a fetch. An array bind's value is a ub4 element count and that many
  * elements. In an OUT reply each value - each element of an array - is
@@ -3202,7 +3214,7 @@ static int dissect_tns_bind_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
  * execution - with each value typed by cols[]. A CLOB / BLOB bind
  * carries a temp-LOB locator form not unpacked here, so rows with one are
  * left alone. Returns the new offset. */
-static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const tns_column_t *cols, uint32_t count)
+static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const tns_column_t *cols, uint32_t count, bool plsql)
 {
 	int rownum = 0;
 
@@ -3220,9 +3232,17 @@ static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		offset += 1; /* TTI_RXD token */
 		row_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
 			ett_tns_bind_row, &row_item, "Row %d", ++rownum);
-		for ( uint32_t i = 0; i < count
-			&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
-			offset = dissect_tns_bind_value(tvb, pinfo, row_tree, offset, &cols[i], i + 1, false);
+		/* In a SQL statement a LONG-class value - one too long for a
+		 * string, sent as LONG or LONG RAW - rides after all the others;
+		 * a PL/SQL block takes its values in bind order. */
+		for ( int pass = 0; pass < 2; pass++ )
+			for ( uint32_t i = 0; i < count
+				&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+			{
+				bool late = !plsql && tns_is_long_bind(&cols[i]);
+				if ( late == (pass == 1) )
+					offset = dissect_tns_bind_value(tvb, pinfo, row_tree, offset, &cols[i], i + 1, false);
+			}
 		proto_item_set_len(row_item, offset - r_start);
 	}
 	return offset;
@@ -5292,7 +5312,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						ett_tns_binds, &binds_item, "Binds");
 					/* RETURNING ... INTO binds send no value */
 					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols,
-						binds->count - binds->num_return);
+						binds->count - binds->num_return, binds->plsql);
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
 				if ( call && binds )
@@ -5591,7 +5611,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 							ett_tns_binds, &binds_item, "Binds");
 						offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols,
-							binds->count - binds->num_return);
+							binds->count - binds->num_return, binds->plsql);
 						proto_item_set_len(binds_item, offset - binds_start);
 					}
 				}
@@ -5643,6 +5663,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						tns_binds_t *binds = wmem_new0(wmem_file_scope(), tns_binds_t);
 						binds->count = bind_count;
 						binds->num_return = num_return;
+						binds->plsql = !(options & TNS_EXEC_OPTION_NOT_PLSQL);
 						binds->cols = bcols;
 						if ( cursor != 0 )
 							wmem_map_insert(tns_info->cursor_binds, GUINT_TO_POINTER(cursor), binds);
@@ -5653,7 +5674,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					/* Value rows: a TTI_RXD token then one DALC value per bind
 					 * column (an ordinary execute sends one row, executemany
 					 * sends N), decoded and rendered by the bind's type. */
-					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, bcols, bind_count - num_return);
+					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, bcols, bind_count - num_return,
+						!(options & TNS_EXEC_OPTION_NOT_PLSQL));
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
 

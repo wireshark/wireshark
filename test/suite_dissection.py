@@ -2929,6 +2929,18 @@ class TestDissectTns:
         assert 'Bind 2 (NUMBER): 9' in stdout, stdout
         assert 'Malformed' not in stdout, stdout
 
+    def test_tns_long_bind_order(self, cmd_tshark, capture_file, test_env):
+        '''In a SQL statement a LONG-class bind value comes after all the
+        others; a PL/SQL block takes its values in bind order.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_long_bind.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Bind 2 (NUMBER): 7' in stdout, stdout
+        assert 'Bind 2 (NUMBER): 8' in stdout, stdout
+        assert 'Malformed' not in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
