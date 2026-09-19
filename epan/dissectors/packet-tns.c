@@ -707,11 +707,18 @@ static const value_string tns_control_cmds[] = {
 	{0, NULL}
 };
 
-/* Column types from the most recent describe (TTI_DCB), threaded to a later
+/* What a row decoder needs to know about one column: its datatype and
+ * the data length (buffer size) the describe gave it. */
+typedef struct _tns_column_t {
+	uint8_t type;
+	uint32_t data_len;
+} tns_column_t;
+
+/* Columns from the most recent describe (TTI_DCB), threaded to a later
  * TTI_RXD response so its row values can be split per column. */
 typedef struct _tns_describe_t {
 	uint32_t num_cols;
-	uint8_t *types;
+	tns_column_t *cols;
 } tns_describe_t;
 
 typedef struct _tns_conv_info_t {
@@ -1067,11 +1074,14 @@ static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 /* Decode an OAC (Oracle Access Column) descriptor — the type/format core
  * shared by describe columns and bind descriptors. Fields
  * use the Oracle variable-length form (get_sb4_custom).
+ * When col is not NULL it receives the type and data length.
  * Returns the new offset. */
-static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, tns_column_t *col)
 {
 	int v = 0, start;
 
+	if ( col )
+		col->type = tvb_get_uint8(tvb, offset);
 	/* type (ub1) */
 	proto_tree_add_item(tree, hf_tns_data_col_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -1088,6 +1098,8 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	start = offset;
 	offset += get_sb4_custom(tvb, offset, &v);
 	proto_tree_add_uint(tree, hf_tns_data_col_max_length, tvb, start, offset - start, v);
+	if ( col )
+		col->data_len = (uint32_t)v;
 	/* max array elements (ub4, skip) */
 	offset += get_sb4_custom(tvb, offset, &v);
 	/* cont flags (ub4, skip) */
@@ -1113,8 +1125,9 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 /* Decode one per-column metadata block of a TTI_DCB describe (11g
  * shape): an OAC descriptor plus the nullability and naming fields.
+ * When col is not NULL it receives what a row decoder needs.
  * Returns the new offset. */
-static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int idx)
+static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int idx, tns_column_t *col)
 {
 	proto_tree *col_tree;
 	proto_item *col_item;
@@ -1125,7 +1138,7 @@ static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	col_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
 		ett_tns_dcb_col, &col_item, "Column %d", idx);
 
-	offset = dissect_tns_oac(tvb, pinfo, col_tree, offset);
+	offset = dissect_tns_oac(tvb, pinfo, col_tree, offset, col);
 
 	/* nulls allowed (ub1) */
 	proto_tree_add_item(col_tree, hf_tns_data_col_nulls_ok, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1729,23 +1742,20 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			if ( num_cols > 0 )
 				offset += 1; /* reserved byte */
 
-			/* Remember each column's type so a later TTI_RXD response can
-			 * split its row values. Recorded once, on the first pass. */
-			uint8_t *col_types = NULL;
+			/* Remember each column so a later TTI_RXD response can split
+			 * its row values. Recorded once, on the first pass. */
+			tns_column_t *cols = NULL;
 			if ( !PINFO_FD_VISITED(pinfo) && num_cols > 0 )
-				col_types = (uint8_t *)wmem_alloc_array(wmem_file_scope(), uint8_t, num_cols);
+				cols = wmem_alloc0_array(wmem_file_scope(), tns_column_t, num_cols);
 			for ( int i = 0; i < num_cols && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
-			{
-				if ( col_types )
-					col_types[i] = tvb_get_uint8(tvb, offset);
-				offset = dissect_tns_dcb_column(tvb, pinfo, data_tree, offset, i + 1);
-			}
-			if ( col_types )
+				offset = dissect_tns_dcb_column(tvb, pinfo, data_tree, offset, i + 1,
+					cols ? &cols[i] : NULL);
+			if ( cols )
 			{
 				tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
 				tns_describe_t *desc = wmem_new0(wmem_file_scope(), tns_describe_t);
 				desc->num_cols = num_cols;
-				desc->types = col_types;
+				desc->cols = cols;
 				tns_info->last_describe = desc;
 			}
 
@@ -1850,8 +1860,25 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 						ett_tns_rxd_row, &row_item, "Row %d", ++rownum);
 					for ( uint32_t c = 0; c < desc->num_cols
 						&& tvb_reported_length_remaining(tvb, offset) > 0 && !bail; c++ )
+					{
+						const tns_column_t *col = &desc->cols[c];
+						/* A column the describe gives no data length is
+						 * NULL by definition (SELECT NULL, SELECT '')
+						 * and sends no bytes at all - not even an empty
+						 * DALC. LONG, LONG RAW and UROWID are the
+						 * exceptions: they always carry their value. */
+						if ( col->data_len == 0 && col->type != TNS_DATATYPE_LONG
+							&& col->type != TNS_DATATYPE_LONG_RAW
+							&& col->type != TNS_DATATYPE_UROWID )
+						{
+							proto_tree_add_bytes_format(row_tree, hf_tns_data_col_value,
+								tvb, offset, 0, NULL, "Column %u (%s): NULL (no data length)",
+								c + 1, val_to_str_const(col->type, tns_data_types, "unknown"));
+							continue;
+						}
 						offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
-							desc->types[c], c + 1, &bail, hf_tns_data_col_value, "Column");
+							col->type, c + 1, &bail, hf_tns_data_col_value, "Column");
+					}
 					proto_item_set_len(row_item, offset - r_start);
 				}
 			}
@@ -1997,7 +2024,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 						bind_tree = proto_tree_add_subtree_format(binds_tree, tvb, offset, -1,
 							ett_tns_bind, &bind_item, "Bind %d: %s", i + 1,
 							val_to_str_const(btype, tns_data_types, "unknown"));
-						offset = dissect_tns_oac(tvb, pinfo, bind_tree, offset);
+						offset = dissect_tns_oac(tvb, pinfo, bind_tree, offset, NULL);
 						/* A CLOB/BLOB bind OAC carries a trailing oaccolid byte. */
 						if ( btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB )
 							offset += 1;

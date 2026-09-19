@@ -1682,6 +1682,22 @@ class TestDissectTns:
         assert 'Bind 1 (VARCHAR): no value' in verbose, verbose
         assert 'Bind 3 (VARCHAR): ok' in verbose, verbose
 
+    def test_tns_rxd_nodata(self, cmd_tshark, capture_file, test_env):
+        '''A column the describe gives a zero data length carries no bytes in
+        the row. Describe (NUMBER, VARCHAR of length 0, VARCHAR), then two
+        rows that hold only the first and last values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_rxd_nodata.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (NUMBER): 10' in stdout, stdout
+        assert 'Column 2 (VARCHAR): NULL (no data length)' in stdout, stdout
+        assert 'Column 3 (VARCHAR): hi' in stdout, stdout
+        assert 'Column 1 (NUMBER): 20' in stdout, stdout
+        assert 'Column 3 (VARCHAR): yo' in stdout, stdout
+        assert 'Malformed' not in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
