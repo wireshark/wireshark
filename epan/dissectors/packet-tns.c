@@ -1623,12 +1623,17 @@ static void tns_add_call_status_flags(proto_item *ti, tvbuff_t *tvb, int start, 
 
 /* Decode an OAC (Oracle Access Column) descriptor — the type/format core
  * shared by describe columns and bind descriptors. Fields
- * use the Oracle variable-length form (get_sb4_custom).
+ * use the Oracle variable-length form (get_sb4_custom). From field version
+ * 12.2 the scale is a single signed byte, where 11g sends a variable-length
+ * sb4 (NUMBER's default -127 as 0x81 0x7f), and a ub4 oaccolid follows the
+ * max size.
  * When col is not NULL it receives the type and data length.
  * Returns the new offset. */
 static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, tns_column_t *col)
 {
 	int v = 0, start;
+	uint64_t u = 0;
+	bool fv_12_2 = tns_field_version(pinfo) >= TNS_FV_12_2;
 
 	if ( col )
 		col->type = tvb_get_uint8(tvb, offset);
@@ -1640,9 +1645,15 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* precision (sb1) */
 	proto_tree_add_item(tree, hf_tns_data_col_precision, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	/* scale (ub4, may be negative — NUMBER default is -127) */
+	/* scale (may be negative — NUMBER default is -127) */
 	start = offset;
-	offset += get_sb4_custom(tvb, offset, &v);
+	if ( fv_12_2 )
+	{
+		v = (int8_t)tvb_get_uint8(tvb, offset);
+		offset += 1;
+	}
+	else
+		offset += get_sb4_custom(tvb, offset, &v);
 	proto_tree_add_int(tree, hf_tns_data_col_scale, tvb, start, offset - start, v);
 	/* max data length / buffer size (ub4) */
 	start = offset;
@@ -1652,8 +1663,8 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		col->data_len = (uint32_t)v;
 	/* max array elements (ub4, skip) */
 	offset += get_sb4_custom(tvb, offset, &v);
-	/* cont flags (ub4, skip) */
-	offset += get_sb4_custom(tvb, offset, &v);
+	/* cont flags (ub8, skip) */
+	offset += get_ub8_custom(tvb, offset, &u);
 	/* type OID (bytes_with_length, skip) */
 	offset += get_field_with_length(tvb, pinfo, offset, NULL);
 	/* version (ub4, skip) */
@@ -1671,6 +1682,9 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	start = offset;
 	offset += get_sb4_custom(tvb, offset, &v);
 	proto_tree_add_uint(tree, hf_tns_data_col_max_size, tvb, start, offset - start, v);
+	/* oaccolid (ub4, skip) */
+	if ( fv_12_2 )
+		offset += get_sb4_custom(tvb, offset, &v);
 
 	return offset;
 }
@@ -3879,8 +3893,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							ett_tns_bind, &bind_item, "Bind %d: %s", i + 1,
 							val_to_str_const(btype, tns_data_types, "unknown"));
 						offset = dissect_tns_oac(tvb, pinfo, bind_tree, offset, &bcols[i]);
-						/* A CLOB/BLOB bind OAC carries a trailing oaccolid byte. */
-						if ( btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB )
+						/* Below 12.2 a CLOB/BLOB bind OAC still carries a
+						 * trailing oaccolid byte; from 12.2 every OAC does,
+						 * and the OAC decoder reads it. */
+						if ( (btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB)
+							&& tns_field_version(pinfo) < TNS_FV_12_2 )
 							offset += 1;
 						proto_item_set_len(bind_item, offset - b_start);
 					}

@@ -2321,6 +2321,25 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['8', '300', '']], rows
 
+    def test_tns_describe_field_version(self, cmd_tshark, capture_file, test_env):
+        '''From field version 12.2 a column descriptor's scale is one signed
+        byte and an oaccolid follows its max size; the describe, its rows
+        and bind descriptors all decode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_describe_122.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_col.scale',
+            '-e', 'tns.data_col.name',
+            '-e', 'tns.data_col.value',
+            '-e', 'tns.data_col.type',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows[1] == ['-127,0', 'ID,NAME', '', '2,1', ''], rows[1]
+        assert rows[2][2] == 'c10b,6869', rows[2]
+        assert rows[3][3] == '112,2' and rows[3][4] == '', rows[3]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
