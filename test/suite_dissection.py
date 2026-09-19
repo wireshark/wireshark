@@ -2218,6 +2218,18 @@ class TestDissectTns:
         assert 'Bind 2 (BOOLEAN): no value' in stdout, stdout
         assert 'Bind 3 (NUMBER): 1' in stdout, stdout
 
+    def test_tns_nchar_render(self, cmd_tshark, capture_file, test_env):
+        '''A value of the national character set form travels as UTF-16BE,
+        in a column and an OUT bind alike, and is rendered as text.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_nchar.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (VARCHAR): Called' in stdout, stdout
+        assert 'Column 2 (VARCHAR): hi' in stdout, stdout
+        assert 'Bind 1 (VARCHAR): Called' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

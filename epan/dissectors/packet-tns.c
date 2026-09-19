@@ -680,6 +680,7 @@ static const value_string tns_lob_ops[] = {
 
 /* Column character-set form (csfrm) in an OAC descriptor: whether char data
  * is in the database charset or the national (AL16UTF16) charset. */
+#define TNS_CSFORM_NCHAR 2
 static const value_string tns_csform_vals[] = {
 	{1, "Database charset"},
 	{2, "National (AL16UTF16)"},
@@ -882,10 +883,12 @@ static const value_string tns_control_cmds[] = {
 	{0, NULL}
 };
 
-/* What a row decoder needs to know about one column: its datatype and
- * the data length (buffer size) the describe gave it. */
+/* What a value decoder needs to know about one column or bind: its
+ * datatype, character set form, and the data length (buffer size) the
+ * describe gave it. */
 typedef struct _tns_column_t {
 	uint8_t type;
+	uint8_t csform;         /* character set form: 2 = national */
 	uint32_t data_len;
 } tns_column_t;
 
@@ -900,7 +903,7 @@ typedef struct _tns_describe_t {
  * execute of the same cursor may send its values with no descriptors. */
 typedef struct _tns_binds_t {
 	uint32_t count;
-	uint8_t *types;
+	tns_column_t *cols;
 } tns_binds_t;
 
 /* The call a response answers: some response messages can only be read
@@ -909,7 +912,7 @@ typedef struct _tns_call_t {
 	uint8_t func;           /* OCI function id */
 	uint32_t exec_flags;    /* al8i4[9] of a TTI_ALL8 execute */
 	uint32_t num_binds;     /* bind types of an execute */
-	uint8_t *bind_types;
+	tns_column_t *binds;
 	uint32_t lob_op;        /* TTI_LOBOPS operation */
 	uint32_t lob_locator_len; /* ... its source locator length */
 	bool lob_amount;        /* ... whether it sent an amount */
@@ -1525,6 +1528,8 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_uint(tree, hf_tns_data_col_charset, tvb, start, offset - start, v);
 	/* charset form (ub1) */
 	proto_tree_add_item(tree, hf_tns_data_col_csform, tvb, offset, 1, ENC_BIG_ENDIAN);
+	if ( col )
+		col->csform = tvb_get_uint8(tvb, offset);
 	offset += 1;
 	/* max size (ub4) */
 	start = offset;
@@ -1631,7 +1636,7 @@ static int dissect_tns_describe_body(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  * "<prefix> N (TYPE)" item under `hf`. Ordinary values are a
  * DALC blob; ROWID / UROWID / LONG / LOB / JSON / VECTOR / object carry
  * their own framings. Returns the new offset. */
-static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, int idx, int hf, const char *prefix)
+static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, uint8_t csform, int idx, int hf, const char *prefix)
 {
 	int v_start = offset, disp_start = offset, v = 0;
 	int is_null = 0, is_absent = 0;
@@ -1872,10 +1877,13 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					else if ( dtype == TNS_DATATYPE_BINARY_FLOAT || dtype == TNS_DATATYPE_BINARY_DOUBLE )
 						rendered = tns_format_binary_float(pinfo, vb, vlen);
 					else if ( dtype == TNS_DATATYPE_VARCHAR || dtype == TNS_DATATYPE_STRING || dtype == TNS_DATATYPE_CHAR )
-						/* VARCHAR / STRING / CHAR: character data (session
-						 * charset, ordinarily UTF-8). */
+						/* VARCHAR / STRING / CHAR: character data, in the
+						 * session charset (ordinarily UTF-8), or UTF-16BE
+						 * for the national charset form (NCHAR,
+						 * NVARCHAR2) - in a column and an OUT bind alike. */
 						rendered = (const char *)tvb_get_string_enc(pinfo->pool,
-							tvb, disp_start, vlen, ENC_UTF_8|ENC_NA);
+							tvb, disp_start, vlen,
+							csform == TNS_CSFORM_NCHAR ? ENC_UTF_16|ENC_BIG_ENDIAN : ENC_UTF_8|ENC_NA);
 				}
 			}
 			break;
@@ -1967,15 +1975,15 @@ static tns_binds_t *tns_lookup_cursor_binds(packet_info *pinfo, uint32_t cursor)
 }
 
 /* Decode the TTI_RXD value rows of a bind section - one row per
- * execution - with each value typed by types[]. A CLOB / BLOB bind
+ * execution - with each value typed by cols[]. A CLOB / BLOB bind
  * carries a temp-LOB locator form not unpacked here, so rows with one are
  * left alone. Returns the new offset. */
-static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const uint8_t *types, uint32_t count)
+static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const tns_column_t *cols, uint32_t count)
 {
 	int rownum = 0;
 
 	for ( uint32_t i = 0; i < count; i++ )
-		if ( types[i] == TNS_DATATYPE_CLOB || types[i] == TNS_DATATYPE_BLOB )
+		if ( cols[i].type == TNS_DATATYPE_CLOB || cols[i].type == TNS_DATATYPE_BLOB )
 			return offset;
 
 	while ( tvb_reported_length_remaining(tvb, offset) > 0
@@ -1991,7 +1999,7 @@ static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		for ( uint32_t i = 0; i < count
 			&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
 			offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
-				types[i], i + 1, hf_tns_data_bind_value, "Bind");
+				cols[i].type, cols[i].csform, i + 1, hf_tns_data_bind_value, "Bind");
 		proto_item_set_len(row_item, offset - r_start);
 	}
 	return offset;
@@ -3005,7 +3013,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * the binds of the execute this answers - readable only
 				 * when that execute was seen and bound as many. */
 				const tns_call_t *call = tns_answered_call(pinfo);
-				if ( call && call->bind_types && call->num_binds == (uint32_t)num_binds
+				if ( call && call->binds && call->num_binds == (uint32_t)num_binds
 					&& offset - iov_start == num_binds )
 				{
 					ctx->out_call = call;
@@ -3139,7 +3147,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				for ( uint32_t i = 0; i < ctx->out_call->num_binds
 					&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
 				{
-					uint8_t btype = ctx->out_call->bind_types[i];
+					uint8_t btype = ctx->out_call->binds[i].type;
 					if ( ctx->bind_dirs[i] == TNS_BIND_DIR_INPUT )
 						continue;
 					if ( btype == TNS_DATATYPE_ROWID || btype == TNS_DATATYPE_UROWID
@@ -3147,7 +3155,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						btype = TNS_DATATYPE_VARCHAR;
 					else if ( btype == TNS_DATATYPE_LONG_RAW )
 						btype = TNS_DATATYPE_RAW;
-					offset = dissect_tns_value(tvb, pinfo, ob_tree, offset, btype, i + 1,
+					offset = dissect_tns_value(tvb, pinfo, ob_tree, offset, btype,
+						ctx->out_call->binds[i].csform, i + 1,
 						hf_tns_data_bind_value, "Bind");
 					start = offset;
 					offset += get_sb4_custom(tvb, offset, &rc);
@@ -3208,7 +3217,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							continue;
 						}
 						offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
-							col->type, c + 1, hf_tns_data_col_value, "Column");
+							col->type, col->csform, c + 1, hf_tns_data_col_value, "Column");
 					}
 					proto_item_set_len(row_item, offset - r_start);
 					/* A bit vector covers one row only. */
@@ -3289,7 +3298,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 					binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 						ett_tns_binds, &binds_item, "Binds");
-					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->types, binds->count);
+					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols, binds->count);
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
 			}
@@ -3447,7 +3456,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						if ( call )
 						{
 							call->num_binds = binds->count;
-							call->bind_types = binds->types;
+							call->binds = binds->cols;
 						}
 						proto_item *binds_item;
 						proto_tree *binds_tree;
@@ -3455,7 +3464,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 						binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 							ett_tns_binds, &binds_item, "Binds");
-						offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->types, binds->count);
+						offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols, binds->count);
 						proto_item_set_len(binds_item, offset - binds_start);
 					}
 				}
@@ -3464,9 +3473,9 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					proto_tree *binds_tree, *bind_tree;
 					proto_item *binds_item, *bind_item;
 					int binds_start = offset;
-					uint8_t *btypes;
+					tns_column_t *bcols;
 
-					btypes = (uint8_t *)wmem_alloc_array(tns_info ? wmem_file_scope() : pinfo->pool, uint8_t, bind_count);
+					bcols = wmem_alloc0_array(tns_info ? wmem_file_scope() : pinfo->pool, tns_column_t, bind_count);
 					binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 						ett_tns_binds, &binds_item, "Binds");
 
@@ -3474,11 +3483,10 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					{
 						int b_start = offset;
 						uint8_t btype = tvb_get_uint8(tvb, offset);
-						btypes[i] = btype;
 						bind_tree = proto_tree_add_subtree_format(binds_tree, tvb, offset, -1,
 							ett_tns_bind, &bind_item, "Bind %d: %s", i + 1,
 							val_to_str_const(btype, tns_data_types, "unknown"));
-						offset = dissect_tns_oac(tvb, pinfo, bind_tree, offset, NULL);
+						offset = dissect_tns_oac(tvb, pinfo, bind_tree, offset, &bcols[i]);
 						/* A CLOB/BLOB bind OAC carries a trailing oaccolid byte. */
 						if ( btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB )
 							offset += 1;
@@ -3488,7 +3496,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					if ( call )
 					{
 						call->num_binds = bind_count;
-						call->bind_types = btypes;
+						call->binds = bcols;
 					}
 
 					/* Remember the types for later executes of the cursor
@@ -3497,7 +3505,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					{
 						tns_binds_t *binds = wmem_new0(wmem_file_scope(), tns_binds_t);
 						binds->count = bind_count;
-						binds->types = btypes;
+						binds->cols = bcols;
 						if ( cursor != 0 )
 							wmem_map_insert(tns_info->cursor_binds, GUINT_TO_POINTER(cursor), binds);
 						else
@@ -3507,7 +3515,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					/* Value rows: a TTI_RXD token then one DALC value per bind
 					 * column (an ordinary execute sends one row, executemany
 					 * sends N), decoded and rendered by the bind's type. */
-					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, btypes, bind_count);
+					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, bcols, bind_count);
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
 
@@ -3553,7 +3561,10 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						desc->cols = (tns_column_t *)wmem_memdup(wmem_file_scope(),
 							tns_info->last_describe->cols, define_count * sizeof(tns_column_t));
 						for ( int i = 0; i < define_count; i++ )
+						{
 							desc->cols[i].type = dcols[i].type;
+							desc->cols[i].csform = dcols[i].csform;
+						}
 						tns_info->last_describe = desc;
 					}
 				}
