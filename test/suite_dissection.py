@@ -1547,9 +1547,10 @@ class TestDissectTns:
         assert rows[1] == ['0x05', '7', '100'], rows[1]
 
     def test_tns_lobops(self, cmd_tshark, capture_file, test_env):
-        '''TTI_LOBOPS decodes the operation opcode and source offset. Two
-        frames: a READ (op 0x0002) and a GET_LENGTH (op 0x0001), both from
-        source offset 1.'''
+        '''TTI_LOBOPS decodes the operation, the source offset, the locator,
+        and what trails it. Four frames: a READ (op 0x0002) of 8192 and a
+        GET_LENGTH (op 0x0001), both from source offset 1; a CREATE_TEMP
+        (op 0x0110) with its charset; a WRITE (op 0x0040) of 6 bytes.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_lobops.pcap'),
             '-d', 'tcp.port==1521,tns',
@@ -1557,12 +1558,18 @@ class TestDissectTns:
             '-e', 'tns.data_oci.id',
             '-e', 'tns.data_lob.op',
             '-e', 'tns.data_lob.offset',
+            '-e', 'tns.data_lob.amount',
+            '-e', 'tns.data_lob.charset',
+            '-e', 'tns.data_lob.data',
+            '-e', '_ws.malformed',
         ), encoding='utf-8', env=test_env)
-        rows = [r.split('\t') for r in stdout.strip().splitlines()]
-        assert len(rows) == 2, rows
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert len(rows) == 4, rows
         # oci id 0x60 = 96 (TTI_LOBOPS / "LOB and FILE related calls").
-        assert rows[0] == ['0x60', '0x00000002', '1'], rows[0]
-        assert rows[1] == ['0x60', '0x00000001', '1'], rows[1]
+        assert rows[0] == ['0x60', '0x00000002', '1', '8192', '', '', ''], rows[0]
+        assert rows[1] == ['0x60', '0x00000001', '1', '', '', '', ''], rows[1]
+        assert rows[2] == ['0x60', '0x00000110', '0', '', '873', '', ''], rows[2]
+        assert rows[3] == ['0x60', '0x00000040', '1', '', '', '006100620063', ''], rows[3]
 
     def test_tns_marker(self, cmd_tshark, capture_file, test_env):
         '''TNS_MARKER decodes the break/reset function byte. Two frames:

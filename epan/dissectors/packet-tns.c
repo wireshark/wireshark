@@ -360,6 +360,10 @@ static int hf_tns_data_reexec_options2;
 static int hf_tns_data_reexec_opt2_commit;
 static int hf_tns_data_lob_op;
 static int hf_tns_data_lob_offset;
+static int hf_tns_data_lob_locator;
+static int hf_tns_data_lob_charset;
+static int hf_tns_data_lob_data;
+static int hf_tns_data_lob_amount;
 static int hf_tns_data_col_value;
 static int hf_tns_data_lob_size;
 static int hf_tns_data_lob_chunk_size;
@@ -878,6 +882,9 @@ typedef struct _tns_call_t {
 	uint32_t exec_flags;    /* al8i4[9] of a TTI_ALL8 execute */
 	uint32_t num_binds;     /* bind types of an execute */
 	uint8_t *bind_types;
+	uint32_t lob_op;        /* TTI_LOBOPS operation */
+	uint32_t lob_locator_len; /* ... its source locator length */
+	bool lob_amount;        /* ... whether it sent an amount */
 } tns_call_t;
 
 typedef struct _tns_conv_info_t {
@@ -3157,43 +3164,84 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				/* TTI_LOBOPS: the LOB operation family (read, write, get
 				 * length, create/free temp, open/close, BFILE ops). One
 				 * common request layout selects behaviour by the operation
-				 * opcode. All multi-byte integers use
-				 * the ub4 variable-length form.
-				 *
-				 * We decode the common header through the source offset and
-				 * show the opcode; the locator framing and trailing amount /
-				 * write payload vary by opcode and locator variant, so they
-				 * are left to the data dissector. */
-				int v = 0, op = 0, start;
+				 * opcode:
+				 *   ub1 source pointer | ub4 source locator length |
+				 *   ub1 dest pointer | ub4 dest length |
+				 *   ub4 short source offset | ub4 short dest offset |
+				 *   ub1 charset pointer | ub1 short amount pointer |
+				 *   ub1 null-LOB pointer | ub4 operation |
+				 *   ub1 SCN array pointer | ub1 SCN array length |
+				 *   ub8 source offset | ub8 dest offset |
+				 *   ub1 amount pointer | 3 x ub2 array-LOB slots (fixed) |
+				 *   [locator] | [ub4 charset, CREATE_TEMP] |
+				 *   [0x0E and the data, WRITE] | [ub8 amount]
+				 * The locator is as long as the source locator length says;
+				 * a temporary LOB's carries its own ub2 length prefix, which
+				 * that length counts. */
+				int v = 0, op = 0, loc_len = 0, start;
+				uint8_t src_ptr, charset_ptr, amount_ptr;
+				uint64_t u = 0;
 
-				/* CREATE_TEMP carries a fixed field block (01 01 28 ...) with
-				 * no source locator instead of the common header. */
-				if ( tvb_bytes_exist(tvb, offset, 3)
-					&& tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN) == 0x010128 )
+				src_ptr = tvb_get_uint8(tvb, offset);
+				offset += 1;                              /* source pointer flag */
+				offset += get_sb4_custom(tvb, offset, &loc_len); /* source locator length */
+				offset += 1;                              /* dest pointer flag */
+				offset += get_sb4_custom(tvb, offset, &v); /* dest length */
+				offset += get_sb4_custom(tvb, offset, &v); /* short source offset */
+				offset += get_sb4_custom(tvb, offset, &v); /* short dest offset */
+				charset_ptr = tvb_get_uint8(tvb, offset);
+				offset += 3;                              /* charset / amount / null-lob flags */
+				/* operation opcode */
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &op);
+				proto_tree_add_uint(data_tree, hf_tns_data_lob_op, tvb, start, offset - start, op);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]",
+					val_to_str_const(op, tns_lob_ops, "unknown"));
+				/* scn-array pointer flag + length */
+				offset += 2;
+				/* source offset (ub8, 1-based into the LOB) */
+				start = offset;
+				offset += get_ub8_custom(tvb, offset, &u);
+				proto_tree_add_uint64(data_tree, hf_tns_data_lob_offset, tvb, start, offset - start, u);
+				/* dest offset (ub8, skip) */
+				offset += get_ub8_custom(tvb, offset, &u);
+				amount_ptr = tvb_get_uint8(tvb, offset);
+				offset += 1;                              /* amount pointer flag */
+				offset += 6;                              /* array-LOB slots */
+				if ( src_ptr && loc_len > 0 )
 				{
-					proto_tree_add_uint(data_tree, hf_tns_data_lob_op, tvb, offset, 3, 0x00110);
+					proto_tree_add_item(data_tree, hf_tns_data_lob_locator, tvb, offset, loc_len, ENC_NA);
+					offset += loc_len;
 				}
-				else
+				if ( charset_ptr )
 				{
-					offset += 1;                              /* source pointer flag */
-					offset += get_sb4_custom(tvb, offset, &v); /* source locator length */
-					offset += 1;                              /* dest pointer flag */
-					offset += get_sb4_custom(tvb, offset, &v); /* dest length */
-					offset += get_sb4_custom(tvb, offset, &v); /* short source offset */
-					offset += get_sb4_custom(tvb, offset, &v); /* short dest offset */
-					offset += 3;                              /* charset / amount / null-lob flags */
-					/* operation opcode */
-					start = offset;
-					offset += get_sb4_custom(tvb, offset, &op);
-					proto_tree_add_uint(data_tree, hf_tns_data_lob_op, tvb, start, offset - start, op);
-					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]",
-						val_to_str_const(op, tns_lob_ops, "unknown"));
-					/* scn-array pointer flag + length */
-					offset += 2;
-					/* source offset (ub8, 1-based into the LOB) */
 					start = offset;
 					offset += get_sb4_custom(tvb, offset, &v);
-					proto_tree_add_uint(data_tree, hf_tns_data_lob_offset, tvb, start, offset - start, v);
+					proto_tree_add_uint(data_tree, hf_tns_data_lob_charset, tvb, start, offset - start, v);
+				}
+				if ( tvb_reported_length_remaining(tvb, offset) > 0
+					&& tvb_get_uint8(tvb, offset) == SQLNET_LOB_FILE_DF )
+				{
+					/* WRITE: a LOB_DATA marker, then the data */
+					offset += 1;
+					start = offset;
+					offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+					if ( tvb_get_uint8(tvb, start) == 0xfe ) /* chunked: shown whole */
+						proto_tree_add_item(data_tree, hf_tns_data_lob_data, tvb, start, offset - start, ENC_NA);
+					else if ( offset - start > 1 )
+						proto_tree_add_item(data_tree, hf_tns_data_lob_data, tvb, start + 1, offset - start - 1, ENC_NA);
+				}
+				if ( amount_ptr )
+				{
+					start = offset;
+					offset += get_ub8_custom(tvb, offset, &u);
+					proto_tree_add_uint64(data_tree, hf_tns_data_lob_amount, tvb, start, offset - start, u);
+				}
+				if ( call )
+				{
+					call->lob_op = (uint32_t)op;
+					call->lob_locator_len = src_ptr ? (uint32_t)loc_len : 0;
+					call->lob_amount = amount_ptr != 0;
 				}
 			}
 			break;
@@ -4593,8 +4641,20 @@ void proto_register_tns(void)
 			"LOB Operation", "tns.data_lob.op", FT_UINT32, BASE_HEX,
 			VALS(tns_lob_ops), 0x0, NULL, HFILL }},
 		{ &hf_tns_data_lob_offset, {
-			"Source Offset", "tns.data_lob.offset", FT_UINT32, BASE_DEC,
+			"Source Offset", "tns.data_lob.offset", FT_UINT64, BASE_DEC,
 			NULL, 0x0, "1-based offset into the LOB", HFILL }},
+		{ &hf_tns_data_lob_locator, {
+			"Locator", "tns.data_lob.locator", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_lob_charset, {
+			"Charset", "tns.data_lob.charset", FT_UINT32, BASE_DEC,
+			VALS(tns_charsets), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_lob_data, {
+			"Data", "tns.data_lob.data", FT_BYTES, BASE_NONE,
+			NULL, 0x0, "LOB content; UTF-16BE for a CLOB", HFILL }},
+		{ &hf_tns_data_lob_amount, {
+			"Amount", "tns.data_lob.amount", FT_UINT64, BASE_DEC,
+			NULL, 0x0, "Characters for a CLOB, bytes for a BLOB; the mode for OPEN", HFILL }},
 		{ &hf_tns_data_col_value, {
 			"Column Value", "tns.data_col.value", FT_BYTES, BASE_NONE,
 			NULL, 0x0, "Raw type-encoded row column value", HFILL }},
