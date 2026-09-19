@@ -2305,6 +2305,22 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '6', stdout
 
+    def test_tns_chunked_field_version(self, cmd_tshark, capture_file, test_env):
+        '''From field version 12.2 on, the chunks of a long value are
+        prefixed with a ub4 length, not a single byte. The amount after a
+        chunked LOB_DATA decodes only when that is honoured.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_chunked_122.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_lob.data',
+            '-T', 'fields',
+            '-e', 'tns.data.field_version',
+            '-e', 'tns.data_lob.amount',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['8', '300', '']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

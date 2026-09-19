@@ -1198,6 +1198,35 @@ static int get_ub8_custom(tvbuff_t *tvb, int offset, uint64_t *result)
 	return 1 + width;
 }
 
+/* Walk the chunks of a chunked (0xFE) value, starting after the 0xFE:
+ * (length, bytes) pairs until a zero length. A length is one byte up to
+ * field version 12.1 and a variable-length ub4 from 12.2 on. The data is
+ * appended to strbuf as UTF-8 when strbuf is not NULL. Returns the bytes
+ * consumed, the terminating zero included. */
+static int tns_chunks_len(tvbuff_t *tvb, packet_info *pinfo, int offset, wmem_strbuf_t *strbuf)
+{
+	bool ub4_lengths = tns_field_version(pinfo) >= TNS_FV_12_2;
+	int o = offset;
+
+	while ( tvb_reported_length_remaining(tvb, o) > 0 )
+	{
+		int chunk_len;
+		if ( ub4_lengths )
+			o += get_sb4_custom(tvb, o, &chunk_len);
+		else
+		{
+			chunk_len = tvb_get_uint8(tvb, o);
+			o += 1;
+		}
+		if ( chunk_len <= 0 )
+			break;
+		if ( strbuf )
+			wmem_strbuf_append(strbuf, (const char *)tvb_get_string_enc(pinfo->pool, tvb, o, chunk_len, ENC_UTF_8|ENC_NA));
+		o += chunk_len;
+	}
+	return o - offset;
+}
+
 /* Decode a DALC (Data-Length-And-Content) blob. The leading byte is a
  * length only in the middle of its range:
  *
@@ -1215,11 +1244,8 @@ static int get_ub8_custom(tvbuff_t *tvb, int offset, uint64_t *result)
  * every field after it, so they have to be spelled out rather than left
  * to the default.
  *
- * The chunk lengths in the 0xFE form are single bytes here, which is
- * the 11g shape this dissector decodes throughout; 12.2 and later
- * prefix each chunk with a variable-length ub4 instead. Telling the
- * two apart needs the field version negotiated during the handshake,
- * which is not threaded through yet.
+ * The chunk lengths in the 0xFE form are single bytes up to field version
+ * 12.1, and variable-length ub4s from 12.2 on.
  *
  * Returns the number of bytes consumed from the tvb and, when content
  * is non-empty, a UTF-8 string allocated from pinfo->pool. */
@@ -1245,21 +1271,12 @@ static int get_dalc_custom(tvbuff_t *tvb, packet_info *pinfo, int offset, const 
 		return 1 + first;
 	}
 
-	/* Chunked form: walk (len, bytes)+ until a zero-length chunk. */
+	/* Chunked form: (len, bytes)+ until a zero-length chunk. */
 	wmem_strbuf_t *strbuf = wmem_strbuf_new(pinfo->pool, "");
-	int o = offset + 1;
-	while ( tvb_reported_length_remaining(tvb, o) > 0 )
-	{
-		uint8_t chunk_len = tvb_get_uint8(tvb, o);
-		o += 1;
-		if ( chunk_len == 0 )
-			break;
-		wmem_strbuf_append(strbuf, (const char *)tvb_get_string_enc(pinfo->pool, tvb, o, chunk_len, ENC_UTF_8|ENC_NA));
-		o += chunk_len;
-	}
+	int used = 1 + tns_chunks_len(tvb, pinfo, offset + 1, strbuf);
 	if ( out_str )
 		*out_str = wmem_strbuf_get_str(strbuf);
-	return o - offset;
+	return used;
 }
 
 /* Decode a bytes_with_length / str_with_length field: a ub4 count, and
@@ -1906,18 +1923,8 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				offset += 1;
 				is_null = 1;
 			}
-			else if ( first == 0xfe ) /* chunked: ub1 len chunks until 0 (11g) */
-			{
-				offset += 1;
-				while ( tvb_reported_length_remaining(tvb, offset) > 0 )
-				{
-					uint8_t chunk_len = tvb_get_uint8(tvb, offset);
-					offset += 1;
-					if ( chunk_len == 0 )
-						break;
-					offset += chunk_len;
-				}
-			}
+			else if ( first == 0xfe ) /* chunked */
+				offset += 1 + tns_chunks_len(tvb, pinfo, offset + 1, NULL);
 			else
 				offset += 1 + first;
 			offset += get_sb4_custom(tvb, offset, &v);
