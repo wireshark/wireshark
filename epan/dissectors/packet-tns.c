@@ -80,6 +80,7 @@ void proto_register_tns(void);
 #define TNS_DATATYPE_INTERVAL_DS    183
 #define TNS_DATATYPE_UROWID         208
 #define TNS_DATATYPE_TIMESTAMP_LTZ  231
+#define TNS_DATATYPE_BOOLEAN        252
 
 /* DALC length byte marking a slot with no value (see get_dalc_custom). */
 #define TNS_DALC_ABSENT             0xFD
@@ -629,6 +630,7 @@ static const value_string tns_data_types[] = {
 	{TNS_DATATYPE_INTERVAL_DS,    "INTERVAL DAY TO SECOND"},
 	{TNS_DATATYPE_UROWID,         "UROWID"},
 	{TNS_DATATYPE_TIMESTAMP_LTZ,  "TIMESTAMP WITH LOCAL TIME ZONE"},
+	{TNS_DATATYPE_BOOLEAN,        "BOOLEAN"},
 	{0, NULL}
 };
 
@@ -1864,6 +1866,9 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						rendered = tns_format_timestamp_tz(pinfo, vb, vlen);
 					else if ( (dtype == TNS_DATATYPE_INTERVAL_YM || dtype == TNS_DATATYPE_INTERVAL_DS) && vlen >= 5 )
 						rendered = tns_format_interval(pinfo, dtype, vb, vlen);
+					else if ( dtype == TNS_DATATYPE_BOOLEAN )
+						/* an encoded integer: 00 false, 01 01 true */
+						rendered = vb[0] == 1 ? "TRUE" : "FALSE";
 					else if ( dtype == TNS_DATATYPE_BINARY_FLOAT || dtype == TNS_DATATYPE_BINARY_DOUBLE )
 						rendered = tns_format_binary_float(pinfo, vb, vlen);
 					else if ( dtype == TNS_DATATYPE_VARCHAR || dtype == TNS_DATATYPE_STRING || dtype == TNS_DATATYPE_CHAR )

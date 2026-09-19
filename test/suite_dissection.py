@@ -2203,6 +2203,21 @@ class TestDissectTns:
         assert 'Column 1 (BINARY_INTEGER): 31' in stdout, stdout
         assert 'Column 1 (BINARY_INTEGER): 0' in stdout, stdout
 
+    def test_tns_boolean_render(self, cmd_tshark, capture_file, test_env):
+        '''BOOLEAN values are rendered as TRUE / FALSE; a NULL BOOLEAN bind
+        is the FD 01 placeholder and the bind after it still decodes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_boolean.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (BOOLEAN): TRUE' in stdout, stdout
+        assert 'Column 1 (BOOLEAN): FALSE' in stdout, stdout
+        assert 'Column 1 (BOOLEAN): NULL' in stdout, stdout
+        assert 'Bind 1 (BOOLEAN): TRUE' in stdout, stdout
+        assert 'Bind 2 (BOOLEAN): no value' in stdout, stdout
+        assert 'Bind 3 (NUMBER): 1' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
