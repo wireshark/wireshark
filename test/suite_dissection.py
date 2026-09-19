@@ -2941,6 +2941,30 @@ class TestDissectTns:
         assert 'Bind 2 (NUMBER): 8' in stdout, stdout
         assert 'Malformed' not in stdout, stdout
 
+    def test_tns_aq(self, cmd_tshark, capture_file, test_env):
+        '''Advanced Queuing: an enqueue names its queue, correlation and
+        payload, and is answered with the message id; a dequeue names its
+        consumer, mode and condition, and is answered with the message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_aq.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_aq.queue || tns.data_aq.msgid',
+            '-T', 'fields',
+            '-e', 'tns.data_aq.queue',
+            '-e', 'tns.data_aq.correlation',
+            '-e', 'tns.data_aq.consumer',
+            '-e', 'tns.data_aq.condition',
+            '-e', 'tns.data_aq.msgid',
+            '-e', 'tns.data_aq.enq_time',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert len(rows) == 4, rows
+        assert rows[0][:2] == ['MYQ', 'corr-1'] and rows[0][6] == '', rows[0]
+        assert rows[1][4] == '202122232425262728292a2b2c2d2e2f', rows[1]
+        assert rows[2][:4] == ['MYQ', '', 'SUB1', 'priority = 1'], rows[2]
+        assert rows[3][5] == '2024-03-04 05:07:09' and rows[3][6] == '', rows[3]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
