@@ -1916,6 +1916,28 @@ class TestDissectTns:
         assert values['3'] == 'c103,726f7732', values
         assert values['5'] == 'c104,726f7733', values
 
+    def test_tns_return_params(self, cmd_tshark, capture_file, test_env):
+        '''The TTI_RPA that answers an execute is a return-parameters block:
+        al8o4 words, al8txl, key/value pairs, a registration, and the
+        per-iteration row counts when DML_ROWCOUNTS was asked for.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_rpa.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_rpa.num_al8o4',
+            '-T', 'fields',
+            '-e', 'tns.data_rpa.num_al8o4',
+            '-e', 'tns.data_rpa.dml_rowcount',
+            '-e', 'tns.data_kv.text',
+            '-e', 'tns.data_kv.keyword',
+            '-e', 'tns.data_oer.cursor_id',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [
+            ['6', '1,1,0,2', '', '', '3'],
+            ['6', '', 'PYO', '168', '0'],
+            ['6', '', '', '', '4'],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

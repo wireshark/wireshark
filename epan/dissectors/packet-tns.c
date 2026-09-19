@@ -275,6 +275,17 @@ static int hf_tns_data_oer_n_batch_offsets;
 static int hf_tns_data_oer_n_batch_messages;
 static int hf_tns_data_oer_message;
 
+static int hf_tns_data_rpa_num_al8o4;
+static int hf_tns_data_rpa_al8o4;
+static int hf_tns_data_rpa_al8txl;
+static int hf_tns_data_rpa_num_kv;
+static int hf_tns_data_rpa_registration;
+static int hf_tns_data_rpa_num_rowcounts;
+static int hf_tns_data_rpa_dml_rowcount;
+static int hf_tns_data_kv_text;
+static int hf_tns_data_kv_binary;
+static int hf_tns_data_kv_keyword;
+
 static int hf_tns_data_sta_call_status;
 static int hf_tns_data_sta_seq;
 static int hf_tns_data_call_status_txn;
@@ -358,6 +369,8 @@ static int ett_tns_setdt_overrides;
 static int ett_tns_setdt_override;
 static int ett_tns_oer;
 static int ett_tns_call_status;
+static int ett_tns_rpa;
+static int ett_tns_kv;
 static int ett_tns_iov;
 static int ett_tns_dcb_col;
 static int ett_tns_all8_options;
@@ -486,6 +499,16 @@ static const value_string tns_fetch_orientations[] = {
 	{0x10, "Prior"},
 	{0x20, "Absolute"},
 	{0x40, "Relative"},
+	{0, NULL}
+};
+
+/* Keyword numbers of the key/value pairs a server reports back, for a
+ * session attribute a statement changed (python-oracledb's
+ * TNS_KEYWORD_NUM_*). */
+static const value_string tns_kv_keywords[] = {
+	{168, "CURRENT_SCHEMA"},
+	{172, "EDITION"},
+	{201, "TRANSACTION_ID"},
 	{0, NULL}
 };
 
@@ -791,8 +814,17 @@ typedef struct _tns_binds_t {
 	uint8_t *types;
 } tns_binds_t;
 
+/* The call a response answers: some response messages can only be read
+ * knowing what was asked. */
+typedef struct _tns_call_t {
+	uint8_t func;           /* OCI function id */
+	uint32_t exec_flags;    /* al8i4[9] of a TTI_ALL8 execute */
+} tns_call_t;
+
 typedef struct _tns_conv_info_t {
 	uint32_t pending_connect_data;
+	/* The most recent call the client made. */
+	tns_call_t *last_call;
 	tns_describe_t *last_describe;
 	/* Bind types of an execute that opened a new cursor, waiting for the
 	 * status that names the cursor id. */
@@ -805,6 +837,11 @@ typedef struct _tns_conv_info_t {
 #define TNS_PROTO_DATA_DESCRIBE 1
 /* p_add_proto_data key for the remembered binds of a re-execute. */
 #define TNS_PROTO_DATA_BINDS    2
+/* p_add_proto_data key for the call a response packet answers. */
+#define TNS_PROTO_DATA_CALL     3
+
+/* Execute flag asking for the rows each array DML iteration affected. */
+#define TNS_EXEC_FLAGS_DML_ROWCOUNTS 0x4000
 
 void proto_reg_handoff_tns(void);
 static int dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
@@ -923,6 +960,26 @@ static int get_sb4_custom(tvbuff_t *tvb, int offset, int *result)
 	}
 	*result = negative ? -magnitude : magnitude;
 	return width + 1;
+}
+
+/* Decode an Oracle variable-length ub8: a width byte (0..8), then that
+ * many big-endian bytes. Returns the number of bytes consumed. */
+static int get_ub8_custom(tvbuff_t *tvb, int offset, uint64_t *result)
+{
+	uint8_t width = tvb_get_uint8(tvb, offset);
+	uint64_t value = 0;
+
+	if ( width > 8 )
+	{
+		/* Not a valid width; the value came off the wire, so step over
+		 * the width byte alone rather than claim bytes. */
+		*result = 0;
+		return 1;
+	}
+	for ( int i = 0; i < width; i++ )
+		value = (value << 8) | tvb_get_uint8(tvb, offset + 1 + i);
+	*result = value;
+	return 1 + width;
 }
 
 /* Decode a DALC (Data-Length-And-Content) blob. The leading byte is a
@@ -1434,6 +1491,130 @@ static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		if ( row_bail )
 			break;
 	}
+	return offset;
+}
+
+/* Remember the call a request makes, so the response can be read in its
+ * light. Returns the record to fill in, or NULL on a later pass. */
+static tns_call_t *tns_remember_call(packet_info *pinfo, uint8_t func)
+{
+	if ( PINFO_FD_VISITED(pinfo) )
+		return NULL;
+
+	tns_call_t *call = wmem_new0(wmem_file_scope(), tns_call_t);
+	call->func = func;
+	tns_get_conv_info(pinfo)->last_call = call;
+	return call;
+}
+
+/* The call a response packet answers, or NULL if none was seen. */
+static tns_call_t *tns_answered_call(packet_info *pinfo)
+{
+	if ( PINFO_FD_VISITED(pinfo) )
+		return (tns_call_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_CALL);
+
+	tns_call_t *call = tns_get_conv_info(pinfo)->last_call;
+	if ( call )
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_CALL, call);
+	return call;
+}
+
+/* Decode num key/value pairs: each a ub2 text length and text, a ub2
+ * binary length and bytes, and a ub2 keyword number saying which session
+ * attribute the value is for. Returns the new offset. */
+static int dissect_tns_kv_pairs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int num)
+{
+	for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+	{
+		proto_tree *kv_tree;
+		proto_item *kv_item;
+		const char *text = NULL;
+		int kv_start = offset, len = 0, keyword = 0, start;
+
+		kv_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_tns_kv,
+			&kv_item, "Key/Value Pair %d", i + 1);
+		offset += get_sb4_custom(tvb, offset, &len);
+		if ( len > 0 )
+		{
+			start = offset;
+			offset += get_dalc_custom(tvb, pinfo, offset, &text);
+			proto_tree_add_string(kv_tree, hf_tns_data_kv_text, tvb, start, offset - start, text);
+		}
+		offset += get_sb4_custom(tvb, offset, &len);
+		if ( len > 0 )
+		{
+			start = offset;
+			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			proto_tree_add_item(kv_tree, hf_tns_data_kv_binary, tvb, start + 1, offset - start - 1, ENC_NA);
+		}
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &keyword);
+		proto_tree_add_uint(kv_tree, hf_tns_data_kv_keyword, tvb, start, offset - start, keyword);
+		proto_item_append_text(kv_item, ": %s", val_to_str(pinfo->pool, keyword, tns_kv_keywords, "keyword %u"));
+		if ( text )
+			proto_item_append_text(kv_item, " = %s", text);
+		proto_item_set_len(kv_item, offset - kv_start);
+	}
+	return offset;
+}
+
+/* Decode the return-parameters block (TTI_RPA) that answers an execute,
+ * ahead of its closing status. With DML_ROWCOUNTS requested it ends with
+ * the rows each iteration of an array DML affected. Returns the new
+ * offset. */
+static int dissect_tns_return_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, bool rowcounts)
+{
+	proto_tree *rpa_tree;
+	proto_item *rpa_item;
+	int rpa_start = offset, num = 0, len = 0, start;
+
+	rpa_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tns_rpa, &rpa_item, "Return Parameters");
+
+	/* al8o4l: a count of ub4 words */
+	start = offset;
+	offset += get_sb4_custom(tvb, offset, &num);
+	proto_tree_add_uint(rpa_tree, hf_tns_data_rpa_num_al8o4, tvb, start, offset - start, num);
+	for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+	{
+		int v = 0;
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(rpa_tree, hf_tns_data_rpa_al8o4, tvb, start, offset - start, v);
+	}
+	/* al8txl: a byte count and the bytes */
+	offset += get_sb4_custom(tvb, offset, &len);
+	if ( len > 0 )
+	{
+		proto_tree_add_item(rpa_tree, hf_tns_data_rpa_al8txl, tvb, offset, len, ENC_NA);
+		offset += len;
+	}
+	/* key/value pairs: a changed session attribute is reported here */
+	start = offset;
+	offset += get_sb4_custom(tvb, offset, &num);
+	proto_tree_add_uint(rpa_tree, hf_tns_data_rpa_num_kv, tvb, start, offset - start, num);
+	offset = dissect_tns_kv_pairs(tvb, pinfo, rpa_tree, offset, num);
+	/* registration: a byte count and the bytes */
+	offset += get_sb4_custom(tvb, offset, &len);
+	if ( len > 0 )
+	{
+		proto_tree_add_item(rpa_tree, hf_tns_data_rpa_registration, tvb, offset, len, ENC_NA);
+		offset += len;
+	}
+	/* per-iteration row counts, when the execute asked for them */
+	if ( rowcounts )
+	{
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &num);
+		proto_tree_add_uint(rpa_tree, hf_tns_data_rpa_num_rowcounts, tvb, start, offset - start, num);
+		for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+		{
+			uint64_t rows = 0;
+			start = offset;
+			offset += get_ub8_custom(tvb, offset, &rows);
+			proto_tree_add_uint64(rpa_tree, hf_tns_data_rpa_dml_rowcount, tvb, start, offset - start, rows);
+		}
+	}
+	proto_item_set_len(rpa_item, offset - rpa_start);
 	return offset;
 }
 
@@ -2125,8 +2306,10 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 		case SQLNET_USER_OCI_FUNC:
 		{
 			guint32 oci_id = 0;
+			tns_call_t *call;
 			proto_tree_add_item_ret_uint(data_tree, hf_tns_data_oci_id, tvb, offset, 1, ENC_BIG_ENDIAN, &oci_id);
 			offset += 1;
+			call = is_request ? tns_remember_call(pinfo, (uint8_t)oci_id) : NULL;
 			/* Name the specific OCI call in the Info column — otherwise every
 			 * function call reads only as the generic "User OCI Functions". */
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
@@ -2314,6 +2497,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							tvb, al8i4_start[10], al8i4_len[10], al8i4[10]);
 						proto_tree_add_uint(i4_tree, hf_tns_data_all8_fetch_pos,
 							tvb, al8i4_start[11], al8i4_len[11], al8i4[11]);
+						if ( call )
+							call->exec_flags = (uint32_t)al8i4[9];
 					}
 				}
 
@@ -2692,6 +2877,19 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					proto_item_set_end(par_ti, tvb, offset);
 				}
 				proto_item_set_end(params_ti, tvb, offset);
+			}
+			else if ( !is_request )
+			{
+				/* Not an authentication reply: an execute answers with
+				 * its return parameters. */
+				tns_call_t *call = tns_answered_call(pinfo);
+				if ( call && (call->func == TTI_ALL8 || call->func == TTI_REEXECUTE
+					|| call->func == TTI_REEXECUTE_AND_FETCH) )
+				{
+					offset = dissect_tns_return_params(tvb, pinfo, data_tree, offset,
+						(call->exec_flags & TNS_EXEC_FLAGS_DML_ROWCOUNTS) != 0);
+					*walk = true;
+				}
 			}
 			break;
 		}
@@ -3597,6 +3795,36 @@ void proto_register_tns(void)
 			"Format", "tns.data_setdt.override.format", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 
+		{ &hf_tns_data_rpa_num_al8o4, {
+			"Number of al8o4 Words", "tns.data_rpa.num_al8o4", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_rpa_al8o4, {
+			"al8o4", "tns.data_rpa.al8o4", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_rpa_al8txl, {
+			"al8txl", "tns.data_rpa.al8txl", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_rpa_num_kv, {
+			"Number of Key/Value Pairs", "tns.data_rpa.num_kv", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_rpa_registration, {
+			"Registration", "tns.data_rpa.registration", FT_BYTES, BASE_NONE,
+			NULL, 0x0, "Query registration; the last 8 bytes are the query id", HFILL }},
+		{ &hf_tns_data_rpa_num_rowcounts, {
+			"Number of Row Counts", "tns.data_rpa.num_rowcounts", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_rpa_dml_rowcount, {
+			"DML Row Count", "tns.data_rpa.dml_rowcount", FT_UINT64, BASE_DEC,
+			NULL, 0x0, "Rows one iteration of an array DML affected", HFILL }},
+		{ &hf_tns_data_kv_text, {
+			"Text Value", "tns.data_kv.text", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_kv_binary, {
+			"Binary Value", "tns.data_kv.binary", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_kv_keyword, {
+			"Keyword", "tns.data_kv.keyword", FT_UINT16, BASE_DEC,
+			VALS(tns_kv_keywords), 0x0, NULL, HFILL }},
 		{ &hf_tns_data_sta_call_status, {
 			"Call Status", "tns.data_sta.call_status", FT_UINT32, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
@@ -3845,6 +4073,8 @@ void proto_register_tns(void)
 		&ett_tns_setdt_override,
 		&ett_tns_oer,
 		&ett_tns_call_status,
+		&ett_tns_rpa,
+		&ett_tns_kv,
 		&ett_tns_iov,
 		&ett_tns_dcb_col,
 		&ett_tns_all8_options,
