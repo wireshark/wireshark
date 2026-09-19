@@ -136,6 +136,7 @@ void proto_register_tns(void);
 #define SQLNET_IMPLICIT_RESULTS 27
 #define SQLNET_END_OF_RESPONSE  29
 #define SQLNET_TOKEN            33
+#define SQLNET_FAST_AUTH        34
 #define SQLNET_SNS              0xdeadbeef
 #define SQLNET_XTRN_PROCSERV_R1 32
 #define SQLNET_XTRN_PROCSERV_R2 68
@@ -326,6 +327,7 @@ static int hf_tns_data_auth_user;
 
 static int hf_tns_data_setp_acc_version;
 static int hf_tns_data_setp_cli_plat;
+static int hf_tns_data_fastauth_version;
 static int hf_tns_data_setp_version;
 static int hf_tns_data_setp_banner;
 static int hf_tns_data_setp_charset;
@@ -708,6 +710,7 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_IMPLICIT_RESULTS, "Implicit Result Sets"},
 	{SQLNET_END_OF_RESPONSE,  "End of Response"},
 	{SQLNET_TOKEN,            "Token"},
+	{SQLNET_FAST_AUTH,        "Fast Authentication"},
 	{SQLNET_XTRN_PROCSERV_R1, "External Procedures and Services Registrations"},
 	{SQLNET_XTRN_PROCSERV_R2, "External Procedures and Services Registrations"},
 	{SQLNET_SNS,              "Secure Network Services"},
@@ -4113,6 +4116,9 @@ typedef struct _tns_msg_ctx_t {
 	 * the TTI_RXD after it can be read as the OUT bind values. */
 	const tns_call_t *out_call;
 	const uint8_t *bind_dirs;
+	/* The call inside a fast-authentication bundle carries no token,
+	 * whatever field version the connection ends up with. */
+	bool no_token;
 } tns_msg_ctx_t;
 
 static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, bool is_request, unsigned data_func_id, tns_msg_ctx_t *ctx);
@@ -4126,7 +4132,8 @@ static bool tns_is_oci(packet_info *pinfo);
 static bool tns_is_next_message(packet_info *pinfo, unsigned data_func_id, bool is_request)
 {
 	if ( is_request )
-		return data_func_id == SQLNET_USER_OCI_FUNC || data_func_id == SQLNET_PIGGYBACK_FUNC;
+		return data_func_id == SQLNET_USER_OCI_FUNC || data_func_id == SQLNET_PIGGYBACK_FUNC
+			|| data_func_id == SQLNET_SET_DATATYPES;
 
 	switch ( data_func_id )
 	{
@@ -4835,6 +4842,9 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					offset += 8;
 				}
 				proto_item_set_len(ov_item, offset - ov_start);
+			/* in a fast-authentication bundle the session key request
+			 * follows */
+			ctx->walk = true;
 				break;
 			}
 
@@ -5627,7 +5637,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				val_to_str_ext_const(oci_id, &tns_data_oci_subfuncs_ext, "unknown"));
 			proto_tree_add_item(data_tree, hf_tns_data_tseq, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
-			offset = dissect_tns_call_token(tvb, pinfo, data_tree, offset);
+			if ( !ctx->no_token )
+				offset = dissect_tns_call_token(tvb, pinfo, data_tree, offset);
 			if((oci_id == 115) || (oci_id == 118)){
 				/* The two authentication calls: the session key request
 				 * (118) and the authentication itself (115). A pointer
@@ -6708,6 +6719,44 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			ctx->walk = true;
 			break;
 		}
+		case SQLNET_FAST_AUTH:
+		{
+			/* A 23ai client cannot open a session with the three separate
+			 * handshake messages: from field version 23.1 ext 1 it sends
+			 * them in one packet behind this header - a version and two
+			 * flags - with the protocol message, three unused character
+			 * set fields, the field version the bundle is written at, the
+			 * data types message and the session key request following
+			 * one after another. The server answers with its three
+			 * replies in one packet too. */
+			unsigned len;
+
+			if ( !is_request )
+				break;
+
+			proto_tree_add_item(data_tree, hf_tns_data_fastauth_version, tvb, offset, 1, ENC_NA);
+			offset += 3; /* version and two flags */
+			if ( tvb_get_uint8(tvb, offset) != SQLNET_SET_PROTOCOL )
+				break;
+			proto_tree_add_item(data_tree, hf_tns_data_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+			proto_tree_add_item(data_tree, hf_tns_data_setp_acc_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 2; /* the version and the list's 0 terminator */
+			proto_tree_add_item_ret_length(data_tree, hf_tns_data_setp_cli_plat, tvb, offset, -1,
+				ENC_ASCII|ENC_NA, &len);
+			offset += len;
+			offset += 5; /* unused charset, charset flag and ncharset */
+			proto_tree_add_item(data_tree, hf_tns_data_setdt_field_version, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			/* The data types message and the session key request follow,
+			 * and the walker steps into them. The call in the bundle
+			 * carries no token, whatever field version its data types
+			 * message negotiates. */
+			ctx->no_token = true;
+			ctx->walk = true;
+			break;
+		}
+
 		case SQLNET_SNS:
 		{
 			proto_tree_add_item(data_tree, hf_tns_data_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -7610,6 +7659,9 @@ void proto_register_tns(void)
 
 		{ &hf_tns_data_setp_acc_version, {
 			"Accepted Version", "tns.data_setp_req.acc_vers", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_fastauth_version, {
+			"Fast Authentication Version", "tns.data_fastauth.version", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_setp_cli_plat, {
 			"Client Platform", "tns.data_setp_req.cli_plat", FT_STRINGZ, BASE_NONE,

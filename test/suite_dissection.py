@@ -3019,6 +3019,28 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.strip().splitlines()]
         assert rows == [['1,2', '1,0', '0x00000001']], rows
 
+    def test_tns_fast_auth(self, cmd_tshark, capture_file, test_env):
+        '''A 23ai client bundles the protocol, data types and session key
+        messages into one fast-authentication packet; the call inside it
+        carries no token, though the connection's field version is 24 and
+        the execute after it does.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_fast_auth.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_setp_req.cli_plat',
+            '-e', 'tns.data_setdt.field_version',
+            '-e', 'tns.data_auth.user',
+            '-e', 'tns.data_opi.param_name',
+            '-e', 'tns.data.token',
+            '-e', 'tns.data_all8.sql',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows[0][:4] == ['python', '13,24', 'SCOTT',
+                               'AUTH_PROGRAM_NM,AUTH_MACHINE'], rows[0]
+        assert rows[0][4] == '', rows[0]
+        assert rows[1][4] == '0' and rows[1][5] == 'SELECT 1 FROM DUAL', rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
