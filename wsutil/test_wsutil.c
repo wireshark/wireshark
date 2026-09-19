@@ -1570,6 +1570,64 @@ test_process_lookup_tcp6(void)
     ws_cleanup_sockets();
 }
 
+/* An IPv4 connection to an IPv6 socket that accepts IPv4 as well is found by its IPv4 addresses. */
+static void
+test_process_lookup_tcp4_mapped(void)
+{
+    socket_handle_t listener, client, server;
+    struct sockaddr_in6 sin6;
+    struct sockaddr_in sin;
+    ws_in4_addr loopback;
+    int v6only = 0;
+    uint16_t lport, cport;
+    ws_process_lookup_t *lookup;
+    ws_socket_endpoint_t l, c;
+
+    if (!ws_process_lookup_supported()) {
+        g_test_skip("not supported on this platform");
+        return;
+    }
+    g_assert_null(ws_init_sockets());
+
+    listener = socket(AF_INET6, SOCK_STREAM, 0);
+    memset(&sin6, 0, sizeof sin6);
+    sin6.sin6_family = AF_INET6;  /* any address, any port */
+    if (listener == INVALID_SOCKET ||
+        setsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, (const char *)&v6only, sizeof v6only) != 0 ||
+        bind(listener, (struct sockaddr *)&sin6, sizeof sin6) != 0 || listen(listener, 1) != 0) {
+        if (listener != INVALID_SOCKET)
+            closesocket(listener);
+        ws_cleanup_sockets();
+        g_test_skip("no IPv6 sockets that accept IPv4");
+        return;
+    }
+    lport = socket_port(listener);
+    client = socket(AF_INET, SOCK_STREAM, 0);
+    g_assert_true(client != INVALID_SOCKET);
+    memset(&sin, 0, sizeof sin);
+    sin.sin_family = AF_INET;
+    g_assert_true(ws_inet_pton4("127.0.0.1", &loopback));
+    memcpy(&sin.sin_addr, &loopback, sizeof loopback);
+    sin.sin_port = g_htons(lport);
+    g_assert_cmpint(connect(client, (struct sockaddr *)&sin, sizeof sin), ==, 0);
+    cport = socket_port(client);
+    server = accept(listener, NULL, NULL);
+    g_assert_true(server != INVALID_SOCKET);
+    /* Without the listening socket only the accepted one, an IPv6 socket, has that local port. */
+    closesocket(listener);
+
+    lookup = new_lookup();
+    endpoint4(&c, "127.0.0.1", cport);
+    endpoint4(&l, "127.0.0.1", lport);
+    check_own_process(lookup_only(lookup, WS_PROCESS_LOOKUP_TCP, &l, &c));
+    check_own_process(lookup_only(lookup, WS_PROCESS_LOOKUP_TCP, &c, &l));
+
+    ws_process_lookup_free(lookup);
+    closesocket(client);
+    closesocket(server);
+    ws_cleanup_sockets();
+}
+
 #ifndef _WIN32
 /* A socket that a child process inherited is reported for both, this older process first. */
 static void
@@ -1695,6 +1753,7 @@ int main(int argc, char **argv)
     g_test_add_func("/process_lookup/tcp4", test_process_lookup_tcp4);
     g_test_add_func("/process_lookup/wildcard_udp", test_process_lookup_wildcard_udp);
     g_test_add_func("/process_lookup/tcp6", test_process_lookup_tcp6);
+    g_test_add_func("/process_lookup/tcp4_mapped", test_process_lookup_tcp4_mapped);
 #ifndef _WIN32
     g_test_add_func("/process_lookup/shared", test_process_lookup_shared);
 #endif

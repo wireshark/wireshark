@@ -339,8 +339,8 @@ and OPT_DPIB_UUID option codes have been removed.
 libwsutil has a new API, wsutil/process_lookup.h, that finds the processes
 that have a network socket open, from the operating system's socket tables,
 and describes them (name, path, command line, parent, user, start time). It
-is implemented for Windows and Linux; on other platforms it reports that it
-is not supported.
+is implemented for Windows, Linux and macOS; on other platforms it reports
+that it is not supported.
 
 === Plugin Development Changes
 
