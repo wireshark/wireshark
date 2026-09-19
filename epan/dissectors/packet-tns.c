@@ -307,6 +307,16 @@ static int hf_tns_data_all8_opt_fetch;
 static int hf_tns_data_all8_opt_not_plsql;
 static int hf_tns_data_all8_opt_describe;
 static int hf_tns_data_all8_opt_batch_errors;
+static int hf_tns_data_all8_iterations;
+static int hf_tns_data_all8_prefetch;
+static int hf_tns_data_all8_is_query;
+static int hf_tns_data_all8_exec_flags;
+static int hf_tns_data_all8_xflag_scrollable;
+static int hf_tns_data_all8_xflag_no_cancel_on_eof;
+static int hf_tns_data_all8_xflag_dml_rowcounts;
+static int hf_tns_data_all8_xflag_implicit_rs;
+static int hf_tns_data_all8_fetch_orientation;
+static int hf_tns_data_all8_fetch_pos;
 static int hf_tns_data_all8_fetch_rows;
 static int hf_tns_data_all8_bind_count;
 static int hf_tns_data_all8_sql;
@@ -345,6 +355,8 @@ static int ett_tns_call_status;
 static int ett_tns_iov;
 static int ett_tns_dcb_col;
 static int ett_tns_all8_options;
+static int ett_tns_all8_i4;
+static int ett_tns_all8_exec_flags;
 static int ett_tns_binds;
 static int ett_tns_bind;
 static int ett_tns_bind_row;
@@ -438,6 +450,28 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_XTRN_PROCSERV_R1, "External Procedures and Services Registrations"},
 	{SQLNET_XTRN_PROCSERV_R2, "External Procedures and Services Registrations"},
 	{SQLNET_SNS,              "Secure Network Services"},
+	{0, NULL}
+};
+
+/* Execute flags, the al8i4[9] word of a TTI_ALL8 execute. */
+static int * const tns_all8_exec_flags[] = {
+	&hf_tns_data_all8_xflag_scrollable,
+	&hf_tns_data_all8_xflag_no_cancel_on_eof,
+	&hf_tns_data_all8_xflag_dml_rowcounts,
+	&hf_tns_data_all8_xflag_implicit_rs,
+	NULL
+};
+
+/* Scrollable-cursor fetch orientation, al8i4[10] of a TTI_ALL8 execute. */
+static const value_string tns_fetch_orientations[] = {
+	{0x00, "None"},
+	{0x01, "Current"},
+	{0x02, "Next"},
+	{0x04, "First"},
+	{0x08, "Last"},
+	{0x10, "Prior"},
+	{0x20, "Absolute"},
+	{0x40, "Relative"},
 	{0, NULL}
 };
 
@@ -2107,9 +2141,43 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", sql);
 					offset += query_len;
 				}
-				/* al8i4 option array: all8_len ub4 elements (skip) */
-				for ( int i = 0; i < all8_len && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
-					offset += get_sb4_custom(tvb, offset, &v);
+				/* al8i4 option array: all8_len ub4 elements. Slot 1 is
+				 * the execution count for DML but the number of rows to
+				 * prefetch for a query, and slot 7 says which - so read
+				 * the array before showing any of it. */
+				{
+					int al8i4[13] = {0}, al8i4_start[13] = {0}, al8i4_len[13] = {0};
+					int i4_start = offset;
+					proto_tree *i4_tree;
+					proto_item *i4_item;
+
+					for ( int i = 0; i < all8_len && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+					{
+						start = offset;
+						offset += get_sb4_custom(tvb, offset, &v);
+						if ( i < (int)array_length(al8i4) )
+						{
+							al8i4[i] = v;
+							al8i4_start[i] = start;
+							al8i4_len[i] = offset - start;
+						}
+					}
+					if ( all8_len >= (int)array_length(al8i4) )
+					{
+						i4_tree = proto_tree_add_subtree(data_tree, tvb, i4_start, offset - i4_start,
+							ett_tns_all8_i4, &i4_item, "Execute Arguments (al8i4)");
+						proto_tree_add_uint(i4_tree, al8i4[7] ? hf_tns_data_all8_prefetch : hf_tns_data_all8_iterations,
+							tvb, al8i4_start[1], al8i4_len[1], al8i4[1]);
+						proto_tree_add_boolean(i4_tree, hf_tns_data_all8_is_query,
+							tvb, al8i4_start[7], al8i4_len[7], al8i4[7]);
+						proto_tree_add_bitmask_value(i4_tree, tvb, al8i4_start[9], hf_tns_data_all8_exec_flags,
+							ett_tns_all8_exec_flags, tns_all8_exec_flags, (uint64_t)(uint32_t)al8i4[9]);
+						proto_tree_add_uint(i4_tree, hf_tns_data_all8_fetch_orientation,
+							tvb, al8i4_start[10], al8i4_len[10], al8i4[10]);
+						proto_tree_add_uint(i4_tree, hf_tns_data_all8_fetch_pos,
+							tvb, al8i4_start[11], al8i4_len[11], al8i4[11]);
+					}
+				}
 
 				/* Bind section: on a fresh parse with binds, one bare OAC
 				 * descriptor per bind column, then one TTI_RXD row of values
@@ -3463,6 +3531,36 @@ void proto_register_tns(void)
 		{ &hf_tns_data_all8_fetch_rows, {
 			"Fetch Rows", "tns.data_all8.fetch_rows", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_all8_iterations, {
+			"Execution Count", "tns.data_all8.iterations", FT_UINT32, BASE_DEC,
+			NULL, 0x0, "Number of times a DML statement runs (array DML)", HFILL }},
+		{ &hf_tns_data_all8_prefetch, {
+			"Prefetch Rows", "tns.data_all8.prefetch", FT_UINT32, BASE_DEC,
+			NULL, 0x0, "Rows a query returns with the execute, before any fetch", HFILL }},
+		{ &hf_tns_data_all8_is_query, {
+			"Query", "tns.data_all8.is_query", FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_all8_exec_flags, {
+			"Execute Flags", "tns.data_all8.exec_flags", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_all8_xflag_scrollable, {
+			"Scrollable", "tns.data_all8.exec_flags.scrollable", FT_BOOLEAN, 32,
+			NULL, 0x0002, NULL, HFILL }},
+		{ &hf_tns_data_all8_xflag_no_cancel_on_eof, {
+			"No Cancel on EOF", "tns.data_all8.exec_flags.no_cancel_on_eof", FT_BOOLEAN, 32,
+			NULL, 0x0080, NULL, HFILL }},
+		{ &hf_tns_data_all8_xflag_dml_rowcounts, {
+			"DML Row Counts", "tns.data_all8.exec_flags.dml_rowcounts", FT_BOOLEAN, 32,
+			NULL, 0x4000, "Return the rows each iteration of an array DML affected", HFILL }},
+		{ &hf_tns_data_all8_xflag_implicit_rs, {
+			"Implicit Result Sets", "tns.data_all8.exec_flags.implicit_resultset", FT_BOOLEAN, 32,
+			NULL, 0x8000, NULL, HFILL }},
+		{ &hf_tns_data_all8_fetch_orientation, {
+			"Fetch Orientation", "tns.data_all8.fetch_orientation", FT_UINT32, BASE_HEX,
+			VALS(tns_fetch_orientations), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_all8_fetch_pos, {
+			"Fetch Position", "tns.data_all8.fetch_pos", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_all8_bind_count, {
 			"Bind Count", "tns.data_all8.bind_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -3528,6 +3626,8 @@ void proto_register_tns(void)
 		&ett_tns_iov,
 		&ett_tns_dcb_col,
 		&ett_tns_all8_options,
+		&ett_tns_all8_i4,
+		&ett_tns_all8_exec_flags,
 		&ett_tns_binds,
 		&ett_tns_bind,
 		&ett_tns_bind_row,

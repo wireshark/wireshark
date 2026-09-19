@@ -1803,6 +1803,30 @@ class TestDissectTns:
             ['True', 'True', 'False', 'True'],
         ], rows
 
+    def test_tns_all8_al8i4(self, cmd_tshark, capture_file, test_env):
+        '''The al8i4 execute arguments: slot 1 is a prefetch row count for a
+        query and an execution count for DML, told apart by slot 7; slot 9
+        holds the execute flags, 10 and 11 a scroll position.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_al8i4.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.prefetch',
+            '-e', 'tns.data_all8.iterations',
+            '-e', 'tns.data_all8.is_query',
+            '-e', 'tns.data_all8.exec_flags.dml_rowcounts',
+            '-e', 'tns.data_all8.exec_flags.scrollable',
+            '-e', 'tns.data_all8.fetch_orientation',
+            '-e', 'tns.data_all8.fetch_pos',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [
+            ['0', '', 'True', 'False', 'False', '0x00000000', '0'],
+            ['100', '', 'True', 'False', 'False', '0x00000000', '0'],
+            ['', '4', 'False', 'True', 'False', '0x00000000', '0'],
+            ['1', '', 'True', 'False', 'True', '0x00000020', '5'],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
