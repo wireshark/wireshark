@@ -2734,8 +2734,10 @@ static bool tns_bfile_names(tvbuff_t *tvb, int offset, int len,
 /* Decode one row/bind value by its data type, and add it as a
  * "<prefix> N (TYPE)" item under `hf`. Ordinary values are a
  * DALC blob; ROWID / UROWID / LONG / LOB / JSON / VECTOR / object carry
- * their own framings. Returns the new offset. */
-static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, uint8_t csform, int idx, int hf, const char *prefix)
+ * their own framings - though out of a fetch (fetch false: a bind or OUT
+ * value) a ROWID or UROWID is its string and a LONG has no trailing
+ * indicators. Returns the new offset. */
+static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, uint8_t csform, bool fetch, int idx, int hf, const char *prefix)
 {
 	int v_start = offset, disp_start = offset, v = 0;
 	int is_null = 0, is_absent = 0;
@@ -2747,8 +2749,15 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	int lob_chunk = 0, size_start = 0, size_len = 0, lchunk_start = 0, lchunk_len = 0;
 	int image_start = 0, image_len = 0, obj_toid_start = 0, obj_toid_len = 0;
 	proto_item *ti;
+	uint8_t frame = dtype;
 
-	switch ( dtype )
+	if ( !fetch && (dtype == TNS_DATATYPE_ROWID || dtype == TNS_DATATYPE_UROWID
+		|| dtype == TNS_DATATYPE_LONG) )
+		frame = TNS_DATATYPE_VARCHAR;
+	else if ( !fetch && dtype == TNS_DATATYPE_LONG_RAW )
+		frame = TNS_DATATYPE_RAW;
+
+	switch ( frame )
 	{
 		case TNS_DATATYPE_REFCURSOR:
 		{
@@ -2999,7 +3008,7 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						rendered = vb[0] == 1 ? "TRUE" : "FALSE";
 					else if ( dtype == TNS_DATATYPE_BINARY_FLOAT || dtype == TNS_DATATYPE_BINARY_DOUBLE )
 						rendered = tns_format_binary_float(pinfo, vb, vlen);
-					else if ( dtype == TNS_DATATYPE_VARCHAR || dtype == TNS_DATATYPE_STRING || dtype == TNS_DATATYPE_CHAR )
+					else if ( frame == TNS_DATATYPE_VARCHAR || dtype == TNS_DATATYPE_STRING || dtype == TNS_DATATYPE_CHAR )
 						/* VARCHAR / STRING / CHAR: character data, in the
 						 * session charset (ordinarily UTF-8), or UTF-16BE
 						 * for the national charset form (NCHAR,
@@ -3161,24 +3170,14 @@ static tns_binds_t *tns_lookup_cursor_binds(packet_info *pinfo, uint32_t cursor)
 	return binds;
 }
 
-/* Decode one bind's value in a bind row or an OUT reply. An array bind's
- * value is a ub4 element count and that many elements. In an OUT reply
- * each value - each element of an array - is followed by its sb4 return
- * code, and a value is framed as out of a fetch: ROWID and UROWID come as
- * strings and a LONG has no trailing indicators. Returns the new offset. */
+/* Decode one bind's value in a bind row or an OUT reply, framed as out of
+ * a fetch. An array bind's value is a ub4 element count and that many
+ * elements. In an OUT reply each value - each element of an array - is
+ * followed by its sb4 return code. Returns the new offset. */
 static int dissect_tns_bind_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const tns_column_t *col, int idx, bool out)
 {
-	uint8_t btype = col->type;
 	int num = 1, rc = 0, start;
 
-	if ( out )
-	{
-		if ( btype == TNS_DATATYPE_ROWID || btype == TNS_DATATYPE_UROWID
-			|| btype == TNS_DATATYPE_LONG )
-			btype = TNS_DATATYPE_VARCHAR;
-		else if ( btype == TNS_DATATYPE_LONG_RAW )
-			btype = TNS_DATATYPE_RAW;
-	}
 	if ( col->is_array )
 	{
 		start = offset;
@@ -3187,7 +3186,7 @@ static int dissect_tns_bind_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 	for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
 	{
-		offset = dissect_tns_value(tvb, pinfo, tree, offset, btype, col->csform, idx,
+		offset = dissect_tns_value(tvb, pinfo, tree, offset, col->type, col->csform, false, idx,
 			hf_tns_data_bind_value, "Bind");
 		if ( out )
 		{
@@ -5034,7 +5033,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					for ( int j = 0; j < rows && tvb_reported_length_remaining(tvb, offset) > 0; j++ )
 					{
 						offset = dissect_tns_value(tvb, pinfo, rv_tree, offset, rcall->binds[i].type,
-							rcall->binds[i].csform, i + 1, hf_tns_data_bind_value, "Bind");
+							rcall->binds[i].csform, false, i + 1, hf_tns_data_bind_value, "Bind");
 						start = offset;
 						offset += get_sb4_custom(tvb, offset, &rc);
 						proto_tree_add_int(rv_tree, hf_tns_data_bind_retcode, tvb, start, offset - start, rc);
@@ -5094,7 +5093,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							continue;
 						}
 						offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
-							col->type, col->csform, c + 1, hf_tns_data_col_value, "Column");
+							col->type, col->csform, true, c + 1, hf_tns_data_col_value, "Column");
 					}
 					proto_item_set_len(row_item, offset - r_start);
 					/* A bit vector covers one row only. */

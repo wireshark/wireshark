@@ -2915,6 +2915,20 @@ class TestDissectTns:
             ['', '3', 'c103,c105,c107', '0', ''],
         ], rows
 
+    def test_tns_bind_framing(self, cmd_tshark, capture_file, test_env):
+        '''A bind value is framed as a client sends it, not as a fetched
+        column: a LONG has no trailing indicators and a ROWID is a string.
+        The NUMBER after each decodes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_bind_framing.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Bind 2 (NUMBER): 8' in stdout, stdout
+        assert 'Bind 1 (RID): AAAK6JAAEAAACGPAAA' in stdout, stdout
+        assert 'Bind 2 (NUMBER): 9' in stdout, stdout
+        assert 'Malformed' not in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
