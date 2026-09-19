@@ -304,6 +304,7 @@ static int hf_tns_data_all8_opt_execute;
 static int hf_tns_data_all8_opt_commit;
 static int hf_tns_data_all8_opt_plsql;
 static int hf_tns_data_all8_opt_fetch;
+static int hf_tns_data_all8_opt_not_plsql;
 static int hf_tns_data_all8_fetch_rows;
 static int hf_tns_data_all8_bind_count;
 static int hf_tns_data_all8_sql;
@@ -385,9 +386,10 @@ static int * const tns_all8_options[] = {
 	&hf_tns_data_all8_opt_bind,
 	&hf_tns_data_all8_opt_define,
 	&hf_tns_data_all8_opt_execute,
+	&hf_tns_data_all8_opt_fetch,
 	&hf_tns_data_all8_opt_commit,
 	&hf_tns_data_all8_opt_plsql,
-	&hf_tns_data_all8_opt_fetch,
+	&hf_tns_data_all8_opt_not_plsql,
 	NULL
 };
 
@@ -3440,10 +3442,13 @@ void proto_register_tns(void)
 			"Autocommit", "tns.data_all8.options.commit", FT_BOOLEAN, 32,
 			NULL, 0x0100, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_plsql, {
-			"PL/SQL Block", "tns.data_all8.options.plsql", FT_BOOLEAN, 32,
+			"PL/SQL Binds", "tns.data_all8.options.plsql", FT_BOOLEAN, 32,
 			NULL, 0x0400, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_fetch, {
 			"Fetch", "tns.data_all8.options.fetch", FT_BOOLEAN, 32,
+			NULL, 0x0040, NULL, HFILL }},
+		{ &hf_tns_data_all8_opt_not_plsql, {
+			"Not PL/SQL", "tns.data_all8.options.not_plsql", FT_BOOLEAN, 32,
 			NULL, 0x8000, NULL, HFILL }},
 		{ &hf_tns_data_all8_fetch_rows, {
 			"Fetch Rows", "tns.data_all8.fetch_rows", FT_UINT32, BASE_DEC,

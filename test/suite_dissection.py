@@ -1766,6 +1766,23 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['True', 'False', 'False'], stdout
 
+    def test_tns_all8_option_bits(self, cmd_tshark, capture_file, test_env):
+        '''The execute options name FETCH (0x40) and NOT_PLSQL (0x8000) by
+        their own bits. tns_all8.pcap's SELECT is 0x8021 (no fetch), the
+        SELECT in tns_walk.pcap is 0x8061 (fetch).'''
+        fields = ('-T', 'fields',
+            '-e', 'tns.data_all8.options.fetch',
+            '-e', 'tns.data_all8.options.not_plsql',
+            '-Y', 'tns.data_all8.options')
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_all8.pcap'),
+            '-d', 'tcp.port==1521,tns') + fields, encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[0].split('\t') == ['False', 'True'], stdout
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_walk.pcap'),
+            '-d', 'tcp.port==1521,tns') + fields, encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[0].split('\t') == ['True', 'True'], stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

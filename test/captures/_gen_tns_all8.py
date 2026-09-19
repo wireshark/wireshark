@@ -8,7 +8,8 @@
 """Generate test/captures/tns_all8.pcap with two TTI_ALL8 (SQL execute)
 request frames:
 
-    Frame 1 — SELECT (options 0x8021 = parse+execute+fetch, fetch 15 rows):
+    Frame 1 — SELECT (options 0x8021 = parse+execute, not PL/SQL;
+                fetch 15 rows):
                 "SELECT ID, NAME FROM USERS"
     Frame 2 — DML with autocommit (options 0x8121):
                 "DELETE FROM USERS WHERE ID = 5"
