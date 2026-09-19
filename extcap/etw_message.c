@@ -36,13 +36,22 @@ static DWORD GetPropertyLength(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, US
     */
     if ((pInfo->EventPropertyInfoArray[i].Flags & PropertyParamLength) == PropertyParamLength)
     {
-        DWORD Length = 0;  // Expects the length to be defined by a UINT16 or UINT32
+        /* Expects the length to be defined by a UINT16 or UINT32 */
+        DWORD Length = 0;
         DWORD j = pInfo->EventPropertyInfoArray[i].lengthPropertyIndex;
+
+        if (j >= pInfo->PropertyCount)
+            return ERROR_EVT_INVALID_EVENT_DATA;
+
         DataDescriptor.PropertyName = ((ULONGLONG)(pInfo)+(ULONGLONG)pInfo->EventPropertyInfoArray[j].NameOffset);
         DataDescriptor.ArrayIndex = ULONG_MAX;
         status = TdhGetPropertySize(pEvent, 0, NULL, 1, &DataDescriptor, &PropertySize);
         if (status != ERROR_SUCCESS)
             return status;
+
+        if (PropertySize != sizeof(USHORT) && PropertySize != sizeof(DWORD))
+            return ERROR_EVT_INVALID_EVENT_DATA;
+
         status = TdhGetProperty(pEvent, 0, NULL, 1, &DataDescriptor, PropertySize, (PBYTE)&Length);
         *PropertyLength = (USHORT)Length;
     }
@@ -97,11 +106,19 @@ static DWORD GetArraySize(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, USHORT 
         /* Expects the count to be defined by a UINT16 or UINT32 */
         DWORD Count = 0;
         DWORD j = pInfo->EventPropertyInfoArray[i].countPropertyIndex;
+
+        if (j >= pInfo->PropertyCount)
+            return ERROR_EVT_INVALID_EVENT_DATA;
+
         DataDescriptor.PropertyName = ((ULONGLONG)(pInfo)+(ULONGLONG)(pInfo->EventPropertyInfoArray[j].NameOffset));
         DataDescriptor.ArrayIndex = ULONG_MAX;
         status = TdhGetPropertySize(pEvent, 0, NULL, 1, &DataDescriptor, &PropertySize);
         if (status != ERROR_SUCCESS)
             return status;
+
+        if (PropertySize != sizeof(USHORT) && PropertySize != sizeof(DWORD))
+            return ERROR_EVT_INVALID_EVENT_DATA;
+
         status = TdhGetProperty(pEvent, 0, NULL, 1, &DataDescriptor, PropertySize, (PBYTE)&Count);
         *ArraySize = (USHORT)Count;
     }
@@ -134,7 +151,7 @@ static DWORD GetMapInfo(PEVENT_RECORD pEvent, LPWSTR pMapName, PEVENT_MAP_INFO* 
     if (ERROR_NOT_FOUND == status)
     {
         /* This case is okay. */
-        status = ERROR_SUCCESS; 
+        status = ERROR_SUCCESS;
     }
 
 cleanup:
@@ -153,7 +170,7 @@ PBYTE extract_property(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD Poin
     USHORT ArraySize = 0;
     PEVENT_MAP_INFO pMapInfo = NULL;
     WCHAR formatted_data[MAX_LOG_LINE_LENGTH + 1];
-    DWORD formatted_data_size = sizeof(WCHAR) * MAX_LOG_LINE_LENGTH;
+    const DWORD formatted_data_size = sizeof(formatted_data);
     LPWSTR oversize_formatted_data = NULL;
 
     do
@@ -239,6 +256,8 @@ PBYTE extract_property(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD Poin
 
                 /* Get the size of the buffer required for the formatted data. */
 
+                DWORD oversize_formatted_data_size = formatted_data_size;
+
                 status = TdhFormatProperty(
                     pInfo,
                     pMapInfo,
@@ -248,7 +267,7 @@ PBYTE extract_property(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD Poin
                     PropertyLength,
                     (USHORT)(pEndOfUserData - pUserData),
                     pUserData,
-                    &formatted_data_size,
+                    &oversize_formatted_data_size,
                     formatted_data,
                     &UserDataConsumed);
 
@@ -260,7 +279,7 @@ PBYTE extract_property(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD Poin
                         oversize_formatted_data = NULL;
                     }
 
-                    oversize_formatted_data = (LPWSTR)g_malloc(formatted_data_size);
+                    oversize_formatted_data = (LPWSTR)g_malloc(oversize_formatted_data_size);
                     if (oversize_formatted_data == NULL)
                     {
                         status = ERROR_OUTOFMEMORY;
@@ -278,14 +297,14 @@ PBYTE extract_property(PEVENT_RECORD pEvent, PTRACE_EVENT_INFO pInfo, DWORD Poin
                         PropertyLength,
                         (USHORT)(pEndOfUserData - pUserData),
                         pUserData,
-                        &formatted_data_size,
+                        &oversize_formatted_data_size,
                         oversize_formatted_data,
                         &UserDataConsumed);
                 }
 
                 if (ERROR_SUCCESS == status)
                 {
-                    if (formatted_data_size > sizeof(formatted_data) && oversize_formatted_data != NULL)
+                    if (oversize_formatted_data_size > formatted_data_size && oversize_formatted_data != NULL)
                     {
                         /* Any oversize FormattedData will be truncated */
                         StringCbCat(pExtract->value, sizeof(pExtract->value), oversize_formatted_data);
