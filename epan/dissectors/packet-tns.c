@@ -358,6 +358,8 @@ static int hf_tns_data_reexec_opt2_commit;
 static int hf_tns_data_lob_op;
 static int hf_tns_data_lob_offset;
 static int hf_tns_data_col_value;
+static int hf_tns_data_lob_size;
+static int hf_tns_data_lob_chunk_size;
 
 static int hf_tns_data_descriptor_row_count;
 static int hf_tns_data_descriptor_row_size;
@@ -398,6 +400,7 @@ static int ett_tns_defines;
 static int ett_tns_reexec_options2;
 static int ett_tns_bind_row;
 static int ett_tns_rxd_row;
+static int ett_tns_value;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
@@ -1369,6 +1372,11 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	int is_null = 0, is_absent = 0;
 	uint8_t first;
 	const char *rendered = NULL;
+	/* LOB metadata: size and chunk size, with where they sit */
+	bool lob_meta = false;
+	uint64_t lob_size = 0;
+	int lob_chunk = 0, size_start = 0, size_len = 0, lchunk_start = 0, lchunk_len = 0;
+	proto_item *ti;
 
 	switch ( dtype )
 	{
@@ -1424,7 +1432,16 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 		case TNS_DATATYPE_CLOB:
 		case TNS_DATATYPE_BLOB:
-		case TNS_DATATYPE_BFILE: /* 0x00 NULL, else ub4 num_bytes + DALC locator block */
+		case TNS_DATATYPE_BFILE:
+			/* 0x00 NULL, else a ub4 locator length and the locator. A
+			 * server sends CLOB / BLOB in one of two forms: with the LOB's
+			 * size (ub8) and chunk size (ub4) between the two, or bare -
+			 * and which one it picks for a client is not known. They are
+			 * told apart by the byte after the length: the bare form's is
+			 * the locator's own length prefix (or 0xFE when chunked), the
+			 * metadata form's is the size's width, at most 8. A real
+			 * locator is far longer than 8 bytes, so the two cannot meet.
+			 * A BFILE is always bare. */
 			first = tvb_get_uint8(tvb, offset);
 			if ( first == 0 )
 			{
@@ -1434,6 +1451,21 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			else
 			{
 				offset += get_sb4_custom(tvb, offset, &v);
+				if ( dtype != TNS_DATATYPE_BFILE && v > 8 )
+				{
+					uint8_t next = tvb_get_uint8(tvb, offset);
+					if ( next <= 8 && next != v )
+					{
+						lob_meta = true;
+						size_start = offset;
+						offset += get_ub8_custom(tvb, offset, &lob_size);
+						size_len = offset - size_start;
+						lchunk_start = offset;
+						offset += get_sb4_custom(tvb, offset, &lob_chunk);
+						lchunk_len = offset - lchunk_start;
+						rendered = wmem_strdup_printf(pinfo->pool, "locator, size %" PRIu64, lob_size);
+					}
+				}
 				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
 			}
 			break;
@@ -1479,9 +1511,17 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			v_start, offset - v_start, NULL, "%s %d (%s): no value", prefix, idx,
 			val_to_str_const(dtype, tns_data_types, "unknown"));
 	else if ( rendered )
-		proto_tree_add_bytes_format(tree, hf, tvb,
+	{
+		ti = proto_tree_add_bytes_format(tree, hf, tvb,
 			disp_start, offset - disp_start, NULL, "%s %d (%s): %s", prefix, idx,
 			val_to_str_const(dtype, tns_data_types, "unknown"), rendered);
+		if ( lob_meta )
+		{
+			proto_tree *vt = proto_item_add_subtree(ti, ett_tns_value);
+			proto_tree_add_uint64(vt, hf_tns_data_lob_size, tvb, size_start, size_len, lob_size);
+			proto_tree_add_uint(vt, hf_tns_data_lob_chunk_size, tvb, lchunk_start, lchunk_len, lob_chunk);
+		}
+	}
 	else
 		proto_tree_add_bytes_format(tree, hf, tvb,
 			disp_start, offset - disp_start, NULL, "%s %d (%s)", prefix, idx,
@@ -4321,6 +4361,12 @@ void proto_register_tns(void)
 			"Column Value", "tns.data_col.value", FT_BYTES, BASE_NONE,
 			NULL, 0x0, "Raw type-encoded row column value", HFILL }},
 
+		{ &hf_tns_data_lob_size, {
+			"LOB Size", "tns.data_lob.size", FT_UINT64, BASE_DEC,
+			NULL, 0x0, "Characters for a CLOB, bytes for a BLOB", HFILL }},
+		{ &hf_tns_data_lob_chunk_size, {
+			"LOB Chunk Size", "tns.data_lob.chunk_size", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_descriptor_row_count, {
 			"Row Count", "tns.data_descriptor.row_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -4374,6 +4420,7 @@ void proto_register_tns(void)
 		&ett_tns_reexec_options2,
 		&ett_tns_bind_row,
 		&ett_tns_rxd_row,
+		&ett_tns_value,
 		&ett_sql
 	};
 

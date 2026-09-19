@@ -1989,6 +1989,28 @@ class TestDissectTns:
         assert 'Column 3 (VARCHAR): same as previous row' in stdout, stdout
         assert 'ORA-01403' in stdout, stdout
 
+    def test_tns_lob_column(self, cmd_tshark, capture_file, test_env):
+        '''A CLOB / BLOB column value comes with or without the LOB's size
+        and chunk size ahead of the locator; both forms are read.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_lob_column.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_col.value',
+            '-T', 'fields',
+            '-e', 'tns.data_lob.size',
+            '-e', 'tns.data_lob.chunk_size',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [['3000,5', '8060,8060']], rows
+        verbose = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_lob_column.pcap'),
+            '-d', 'tcp.port==1521,tns', '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (BLOB): locator, size 3000' in verbose, verbose
+        assert 'Column 1 (BLOB): NULL' in verbose, verbose
+        assert 'Column 2 (CLOB): locator, size 5' in verbose, verbose
+        assert 'Malformed' not in verbose, verbose
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
