@@ -1827,6 +1827,23 @@ class TestDissectTns:
             ['1', '', 'True', 'False', 'True', '0x00000020', '5'],
         ], rows
 
+    def test_tns_all8_nosql_binds(self, cmd_tshark, capture_file, test_env):
+        '''An execute with no SQL text still carries bind descriptors unless
+        its bind area starts on a TTI_RXD. The first frame's descriptors and
+        rows are decoded; the second frame has none and is not misread.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_all8_nosql.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_col.type',
+            '-e', 'tns.data_bind.value',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert len(rows) == 2, rows
+        assert rows[0] == ['2,1', 'c104,63,c105,64', ''], rows[0]
+        assert rows[1] == ['', '', ''], rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

@@ -2179,12 +2179,18 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					}
 				}
 
-				/* Bind section: on a fresh parse with binds, one bare OAC
-				 * descriptor per bind column, then one TTI_RXD row of values
-				 * per iteration. A cached re-execute (no query text) omits
-				 * the OACs — detecting that needs connection state, so we
-				 * only decode binds when the query was present. */
-				if ( bind_count > 0 && query_flag )
+				/* Bind section: one bare OAC descriptor per bind column,
+				 * then one TTI_RXD row of values per iteration. A cached
+				 * re-execute may leave the descriptors out and rely on
+				 * the ones the cursor was opened with. Whether they are
+				 * there is decided by the wire, not by the SQL text: an
+				 * execute with no SQL often still carries them (every
+				 * executemany after the first), and they are absent
+				 * exactly when the bind area starts on a TTI_RXD. Values
+				 * without descriptors cannot be split, so those are
+				 * left to the data dissector. */
+				if ( bind_count > 0 && tvb_reported_length_remaining(tvb, offset) > 0
+					&& tvb_get_uint8(tvb, offset) != SQLNET_ROW_TRANSF_DATA )
 				{
 					proto_tree *binds_tree, *bind_tree, *row_tree;
 					proto_item *binds_item, *bind_item, *row_item;
