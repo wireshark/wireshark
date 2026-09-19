@@ -1755,6 +1755,17 @@ class TestDissectTns:
         assert rows[2][:2] == ['0x00000005', '300'], rows[2]
         assert rows[1][2].endswith('Function Complete, End of Response'), rows[1]
 
+    def test_tns_txn(self, cmd_tshark, capture_file, test_env):
+        '''The call status of TTI_OER and TTI_STA flags an open transaction
+        (0x02). An uncommitted INSERT has it; a query and a commit do not.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_txn.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data.call_status.txn_in_progress',
+        ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['True', 'False', 'False'], stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

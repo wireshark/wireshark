@@ -275,6 +275,8 @@ static int hf_tns_data_oer_message;
 
 static int hf_tns_data_sta_call_status;
 static int hf_tns_data_sta_seq;
+static int hf_tns_data_call_status_txn;
+static int hf_tns_data_call_status_sess_release;
 
 static int hf_tns_data_iov_num_binds;
 static int hf_tns_data_iov_bind_dir;
@@ -336,6 +338,7 @@ static int ett_tns_setdt_caphdr;
 static int ett_tns_setdt_overrides;
 static int ett_tns_setdt_override;
 static int ett_tns_oer;
+static int ett_tns_call_status;
 static int ett_tns_iov;
 static int ett_tns_dcb_col;
 static int ett_tns_all8_options;
@@ -1077,6 +1080,20 @@ static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 		 vsnum & 0xff);
 }
 
+/* End-of-call status flags, carried by both TTI_OER and TTI_STA. */
+#define TNS_CALL_STATUS_TXN_IN_PROGRESS  0x00000002
+#define TNS_CALL_STATUS_SESS_RELEASE     0x00008000
+
+/* Break out the flag bits of a call status item. A client reads the
+ * transaction bit to decide whether closing or releasing the connection
+ * owes a rollback. */
+static void tns_add_call_status_flags(proto_item *ti, tvbuff_t *tvb, int start, int len, uint32_t status)
+{
+	proto_tree *st = proto_item_add_subtree(ti, ett_tns_call_status);
+	proto_tree_add_boolean(st, hf_tns_data_call_status_txn, tvb, start, len, status);
+	proto_tree_add_boolean(st, hf_tns_data_call_status_sess_release, tvb, start, len, status);
+}
+
 /* Decode an OAC (Oracle Access Column) descriptor — the type/format core
  * shared by describe columns and bind descriptors. Fields
  * use the Oracle variable-length form (get_sb4_custom).
@@ -1627,7 +1644,9 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 			/* call_status */
 			offset += get_sb4_custom(tvb, offset, &v);
-			proto_tree_add_int(oer_tree, hf_tns_data_oer_call_status, tvb, oer_start, offset - oer_start, v);
+			tns_add_call_status_flags(
+				proto_tree_add_int(oer_tree, hf_tns_data_oer_call_status, tvb, oer_start, offset - oer_start, v),
+				tvb, oer_start, offset - oer_start, (uint32_t)v);
 			/* end-to-end seq# (skipped) */
 			offset += get_sb4_custom(tvb, offset, &v);
 			/* rowcount (DML affected rows on 11g) */
@@ -1725,7 +1744,9 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 			start = offset;
 			offset += get_sb4_custom(tvb, offset, &v);
-			proto_tree_add_uint(data_tree, hf_tns_data_sta_call_status, tvb, start, offset - start, v);
+			tns_add_call_status_flags(
+				proto_tree_add_uint(data_tree, hf_tns_data_sta_call_status, tvb, start, offset - start, v),
+				tvb, start, offset - start, (uint32_t)v);
 			start = offset;
 			offset += get_sb4_custom(tvb, offset, &v);
 			proto_tree_add_uint(data_tree, hf_tns_data_sta_seq, tvb, start, offset - start, v);
@@ -3298,6 +3319,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_sta_seq, {
 			"End-to-End Sequence", "tns.data_sta.seq", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_call_status_txn, {
+			"Transaction in progress", "tns.data.call_status.txn_in_progress", FT_BOOLEAN, 32,
+			NULL, TNS_CALL_STATUS_TXN_IN_PROGRESS, NULL, HFILL }},
+		{ &hf_tns_data_call_status_sess_release, {
+			"Session release", "tns.data.call_status.sess_release", FT_BOOLEAN, 32,
+			NULL, TNS_CALL_STATUS_SESS_RELEASE, NULL, HFILL }},
 		{ &hf_tns_data_oer_call_status, {
 			"Call Status", "tns.data_oer.call_status", FT_INT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -3482,6 +3509,7 @@ void proto_register_tns(void)
 		&ett_tns_setdt_overrides,
 		&ett_tns_setdt_override,
 		&ett_tns_oer,
+		&ett_tns_call_status,
 		&ett_tns_iov,
 		&ett_tns_dcb_col,
 		&ett_tns_all8_options,
