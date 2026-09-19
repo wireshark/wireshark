@@ -2360,6 +2360,26 @@ class TestDissectTns:
         assert rows[2][3] == '614062,00,c106', rows[2]
         assert rows[5][3] == 'c107' and rows[5][4] == '', rows[5]
 
+    def test_tns_oer_extended(self, cmd_tshark, capture_file, test_env):
+        '''From field version 12.1 the error block carries the error number
+        and row count at full width, and from 20.1 the SQL type and a
+        checksum; the message and the end-of-response marker follow.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oer_12c.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_oer.err_code',
+            '-T', 'fields',
+            '-e', 'tns.data_oer.err_num',
+            '-e', 'tns.data_oer.rowcount64',
+            '-e', 'tns.data_oer.message',
+            '-e', '_ws.col.info',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows[0][:2] == ['942', '0'], rows[0]
+        assert rows[0][2].startswith('ORA-00942'), rows[0]
+        assert rows[0][3].endswith('End of Response'), rows[0]
+        assert rows[1][:3] == ['0', '70000', ''], rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

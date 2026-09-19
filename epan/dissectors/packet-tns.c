@@ -318,6 +318,10 @@ static int hf_tns_data_oer_n_batch_errcodes;
 static int hf_tns_data_oer_n_batch_offsets;
 static int hf_tns_data_oer_n_batch_messages;
 static int hf_tns_data_oer_message;
+static int hf_tns_data_oer_err_num_ext;
+static int hf_tns_data_oer_rowcount_ext;
+static int hf_tns_data_oer_sql_type;
+static int hf_tns_data_oer_checksum;
 
 static int hf_tns_data_rpa_num_al8o4;
 static int hf_tns_data_rpa_al8o4;
@@ -3094,6 +3098,31 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				}
 			}
 
+			/* From 12.1 the block goes on with the error number and row
+			 * count at their full widths (a ub4 and a ub8), and from 20.1
+			 * with the SQL type and a server checksum. The extended error
+			 * number is the one that says whether a message follows. */
+			unsigned fv = tns_field_version(pinfo);
+			if ( fv >= TNS_FV_12_1 )
+			{
+				uint64_t rows = 0;
+				int start = offset;
+				offset += get_sb4_custom(tvb, offset, &err_code);
+				proto_tree_add_uint(oer_tree, hf_tns_data_oer_err_num_ext, tvb, start, offset - start, err_code);
+				start = offset;
+				offset += get_ub8_custom(tvb, offset, &rows);
+				proto_tree_add_uint64(oer_tree, hf_tns_data_oer_rowcount_ext, tvb, start, offset - start, rows);
+			}
+			if ( fv >= TNS_FV_20_1 )
+			{
+				int start = offset;
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_tree_add_uint(oer_tree, hf_tns_data_oer_sql_type, tvb, start, offset - start, v);
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_tree_add_uint(oer_tree, hf_tns_data_oer_checksum, tvb, start, offset - start, v);
+			}
+
 			/* Trailing message DALC — present (and meaningful) only when
 			 * err_code is non-zero. */
 			if ( err_code != 0 && tvb_reported_length_remaining(tvb, offset) > 0 )
@@ -3108,6 +3137,9 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				}
 			}
 			proto_item_set_len(oer_item, offset - oer_start);
+			/* With the field version known the block ends where it
+			 * should, so an end-of-response marker after it can be read. */
+			ctx->walk = fv != 0;
 			break;
 		}
 
@@ -5420,6 +5452,18 @@ void proto_register_tns(void)
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_oer_n_batch_messages, {
 			"Batch Error Messages", "tns.data_oer.n_batch_messages", FT_INT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_err_num_ext, {
+			"Error Number", "tns.data_oer.err_num", FT_UINT32, BASE_DEC,
+			NULL, 0x0, "The error code at its full width (12.1 and later)", HFILL }},
+		{ &hf_tns_data_oer_rowcount_ext, {
+			"Row Count (64 bit)", "tns.data_oer.rowcount64", FT_UINT64, BASE_DEC,
+			NULL, 0x0, "The row count at its full width (12.1 and later)", HFILL }},
+		{ &hf_tns_data_oer_sql_type, {
+			"SQL Type", "tns.data_oer.sql_type", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_checksum, {
+			"Server Checksum", "tns.data_oer.checksum", FT_UINT32, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_oer_message, {
 			"Message", "tns.data_oer.message", FT_STRING, BASE_NONE,
