@@ -1364,6 +1364,57 @@ static int dissect_tns_dcb_column(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return offset;
 }
 
+/* Decode a describe body - the column metadata of a result set - as a
+ * TTI_DCB carries it after its preamble: a ub4 max row size, a ub4 column
+ * count, a reserved byte when there are columns, the columns, and a
+ * trailer. When out is not NULL it receives the columns, allocated in
+ * file scope. Returns the new offset. */
+static int dissect_tns_describe_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, tns_describe_t **out)
+{
+	int v = 0, num_cols = 0, nc_start;
+	tns_column_t *cols = NULL;
+
+	/* max row size (ub4, skip) */
+	offset += get_sb4_custom(tvb, offset, &v);
+	/* number of columns */
+	nc_start = offset;
+	offset += get_sb4_custom(tvb, offset, &num_cols);
+	proto_tree_add_uint(tree, hf_tns_data_dcb_num_columns, tvb, nc_start, offset - nc_start, num_cols);
+	/* The count comes off the wire and sizes the allocation below, so a
+	 * count larger than the data left cannot be real - report it and
+	 * decode no columns. */
+	if ( num_cols < 0 ||
+	     (unsigned)num_cols > tvb_reported_length_remaining(tvb, offset) )
+	{
+		proto_tree_add_expert(tree, pinfo, &ei_tns_data_count_too_large,
+			tvb, nc_start, offset - nc_start);
+		num_cols = 0;
+	}
+	if ( num_cols > 0 )
+		offset += 1; /* reserved byte */
+
+	if ( out && num_cols > 0 )
+		cols = wmem_alloc0_array(wmem_file_scope(), tns_column_t, num_cols);
+	for ( int i = 0; i < num_cols && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+		offset = dissect_tns_dcb_column(tvb, pinfo, tree, offset, i + 1,
+			cols ? &cols[i] : NULL);
+	if ( cols )
+	{
+		tns_describe_t *desc = wmem_new0(wmem_file_scope(), tns_describe_t);
+		desc->num_cols = num_cols;
+		desc->cols = cols;
+		*out = desc;
+	}
+
+	/* Trailer: current date (bytes_with_length), four ub4 flags,
+	 * and the query-cache key (bytes_with_length) — all skipped. */
+	offset += get_field_with_length(tvb, pinfo, offset, NULL);
+	for ( int i = 0; i < 4; i++ )
+		offset += get_sb4_custom(tvb, offset, &v);
+	offset += get_field_with_length(tvb, pinfo, offset, NULL);
+	return offset;
+}
+
 /* Decode one row/bind value by its data type, and add it as a
  * "<prefix> N (TYPE)" item under `hf`. Ordinary values are a
  * DALC blob; ROWID / UROWID / LONG / LOB / JSON / VECTOR / object carry
@@ -2476,61 +2527,22 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 		case SQLNET_DESCRIBE_INFO:
 		{
-			/* TTI_DCB: describe (column metadata) for a SELECT result set.
-			 * Layout is the Oracle 11g shape. All
-			 * counts use the ub4 variable-length form. Only the leading
-			 * describe token is decoded here; any RXH/RXD/OER that follow
-			 * in the same packet are left to the data dissector. */
-			int v = 0, num_cols = 0;
+			/* TTI_DCB: describe (column metadata) for a SELECT result set,
+			 * in the Oracle 11g shape: a preamble, then the describe body.
+			 * The columns are remembered, once, so a later TTI_RXD can
+			 * split its row values. */
+			tns_describe_t *desc = NULL;
 
 			if ( is_request )
 				break;
 
 			/* describe-info preamble (chunked bytes: cursor uuid + date) */
 			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
-			/* max row size (ub4, skip) */
-			offset += get_sb4_custom(tvb, offset, &v);
-			/* number of columns */
-			int nc_start = offset;
-			offset += get_sb4_custom(tvb, offset, &num_cols);
-			proto_tree_add_uint(data_tree, hf_tns_data_dcb_num_columns, tvb, nc_start, offset - nc_start, num_cols);
-			/* The count comes off the wire and sizes the allocation
-			 * below, so a count larger than the data left cannot be
-			 * real - report it and decode no columns. */
-			if ( num_cols < 0 ||
-			     (unsigned)num_cols > tvb_reported_length_remaining(tvb, offset) )
-			{
-				proto_tree_add_expert(data_tree, pinfo, &ei_tns_data_count_too_large,
-					tvb, nc_start, offset - nc_start);
-				num_cols = 0;
-			}
-			if ( num_cols > 0 )
-				offset += 1; /* reserved byte */
+			offset = dissect_tns_describe_body(tvb, pinfo, data_tree, offset,
+				PINFO_FD_VISITED(pinfo) ? NULL : &desc);
+			if ( desc )
+				tns_get_conv_info(pinfo)->last_describe = desc;
 			ctx->walk = true;
-
-			/* Remember each column so a later TTI_RXD response can split
-			 * its row values. Recorded once, on the first pass. */
-			tns_column_t *cols = NULL;
-			if ( !PINFO_FD_VISITED(pinfo) && num_cols > 0 )
-				cols = wmem_alloc0_array(wmem_file_scope(), tns_column_t, num_cols);
-			for ( int i = 0; i < num_cols && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
-				offset = dissect_tns_dcb_column(tvb, pinfo, data_tree, offset, i + 1,
-					cols ? &cols[i] : NULL);
-			if ( cols )
-			{
-				tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
-				tns_describe_t *desc = wmem_new0(wmem_file_scope(), tns_describe_t);
-				desc->num_cols = num_cols;
-				desc->cols = cols;
-				tns_info->last_describe = desc;
-			}
-
-			/* Trailer: current date (bytes_with_length), four ub4 flags,
-			 * and the query-cache key (bytes_with_length) — all skipped. */
-			offset += get_field_with_length(tvb, pinfo, offset, NULL);
-			for ( int i = 0; i < 4; i++ )
-				offset += get_sb4_custom(tvb, offset, &v);
-			offset += get_field_with_length(tvb, pinfo, offset, NULL);
 			break;
 		}
 
