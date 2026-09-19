@@ -1880,6 +1880,26 @@ class TestDissectTns:
         # the LONG value "blob_4620" and its two trailing ub4 indicators
         assert values.strip() == '09626c6f625f343632300000', values
 
+    def test_tns_reexecute(self, cmd_tshark, capture_file, test_env):
+        '''The re-execute calls (4 and 78) carry a cursor, an iteration
+        count and two options words. For 78 the count is a prefetch size.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_reexec.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_oci.id == 4 || tns.data_oci.id == 78',
+            '-T', 'fields',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data_reexec.iterations',
+            '-e', 'tns.data_all8.prefetch',
+            '-e', 'tns.data_all8.options.execute',
+            '-e', 'tns.data_reexec.options2.commit',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [
+            ['8', '1', '', 'False', 'True'],
+            ['9', '', '100', 'True', 'False'],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

@@ -115,7 +115,9 @@ void proto_register_tns(void);
 #define OPI_OAUTH               3
 
 /* OCI function ids (TTI_FUN sub-functions). */
+#define TTI_REEXECUTE           4
 #define TTI_FETCH               5
+#define TTI_REEXECUTE_AND_FETCH 78
 #define TTI_ALL8                94
 #define TTI_LOBOPS              96
 #define TTI_CLOSE_CURSORS       105
@@ -323,6 +325,9 @@ static int hf_tns_data_all8_define_count;
 static int hf_tns_data_all8_sql;
 static int hf_tns_data_bind_value;
 static int hf_tns_data_fetch_rows;
+static int hf_tns_data_reexec_iterations;
+static int hf_tns_data_reexec_options2;
+static int hf_tns_data_reexec_opt2_commit;
 static int hf_tns_data_lob_op;
 static int hf_tns_data_lob_offset;
 static int hf_tns_data_col_value;
@@ -361,6 +366,7 @@ static int ett_tns_all8_exec_flags;
 static int ett_tns_binds;
 static int ett_tns_bind;
 static int ett_tns_defines;
+static int ett_tns_reexec_options2;
 static int ett_tns_bind_row;
 static int ett_tns_rxd_row;
 static int ett_sql;
@@ -453,6 +459,12 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_XTRN_PROCSERV_R2, "External Procedures and Services Registrations"},
 	{SQLNET_SNS,              "Secure Network Services"},
 	{0, NULL}
+};
+
+/* The second options word of a re-execute. */
+static int * const tns_reexec_options2[] = {
+	&hf_tns_data_reexec_opt2_commit,
+	NULL
 };
 
 /* Execute flags, the al8i4[9] word of a TTI_ALL8 execute. */
@@ -2067,6 +2079,34 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset += get_sb4_custom(tvb, offset, &v);
 				proto_tree_add_uint(data_tree, hf_tns_data_fetch_rows, tvb, start, offset - start, v);
 			}
+			else if ( oci_id == TTI_REEXECUTE || oci_id == TTI_REEXECUTE_AND_FETCH )
+			{
+				/* Re-execute of a cursor whose statement already ran and
+				 * whose bind types did not change: the cursor id, the
+				 * iteration count (the prefetch size for 78, the number
+				 * of executions for 4) and two options words, then one
+				 * TTI_RXD row of values per iteration with no bind
+				 * descriptors - the values are typed by the execute that
+				 * opened the cursor. */
+				int v = 0, start;
+
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, start, offset - start, v);
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_tree_add_uint(data_tree, oci_id == TTI_REEXECUTE_AND_FETCH ?
+					hf_tns_data_all8_prefetch : hf_tns_data_reexec_iterations,
+					tvb, start, offset - start, v);
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_tree_add_bitmask_value(data_tree, tvb, start, hf_tns_data_all8_options,
+					ett_tns_all8_options, tns_all8_options, (uint64_t)(uint32_t)v);
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_tree_add_bitmask_value(data_tree, tvb, start, hf_tns_data_reexec_options2,
+					ett_tns_reexec_options2, tns_reexec_options2, (uint64_t)(uint32_t)v);
+			}
 			else if ( oci_id == TTI_ALL8 )
 			{
 				/* TTI_ALL8: the generic SQL execute — SELECT, DML and
@@ -3626,6 +3666,15 @@ void proto_register_tns(void)
 		{ &hf_tns_data_all8_fetch_pos, {
 			"Fetch Position", "tns.data_all8.fetch_pos", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_reexec_iterations, {
+			"Execution Count", "tns.data_reexec.iterations", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_reexec_options2, {
+			"Options 2", "tns.data_reexec.options2", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_reexec_opt2_commit, {
+			"Autocommit", "tns.data_reexec.options2.commit", FT_BOOLEAN, 32,
+			NULL, 0x0001, NULL, HFILL }},
 		{ &hf_tns_data_all8_define_count, {
 			"Define Count", "tns.data_all8.define_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -3699,6 +3748,7 @@ void proto_register_tns(void)
 		&ett_tns_binds,
 		&ett_tns_bind,
 		&ett_tns_defines,
+		&ett_tns_reexec_options2,
 		&ett_tns_bind_row,
 		&ett_tns_rxd_row,
 		&ett_sql
