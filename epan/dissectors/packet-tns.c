@@ -163,6 +163,7 @@ void proto_register_tns(void);
 #define TTI_CLOSE_CURSORS       105
 #define TTI_SET_END_TO_END_ATTR 135
 #define TTI_SET_SCHEMA          152
+#define TTI_SESSION_RELEASE     163
 #define TTI_SESSION_STATE       176
 #define TTI_PIPELINE_BEGIN      199
 #define TTI_END_USER_SEC_CTX    205
@@ -442,6 +443,9 @@ static int hf_tns_data_lob_data;
 static int hf_tns_data_lob_amount;
 static int hf_tns_data_lob_flag;
 static int hf_tns_data_tpc_switch_op;
+static int hf_tns_data_release_tag;
+static int hf_tns_data_release_mode;
+static int hf_tns_data_release_mode_deauth;
 static int hf_tns_data_tpc_change_op;
 static int hf_tns_data_tpc_format_id;
 static int hf_tns_data_tpc_gtrid;
@@ -503,6 +507,7 @@ static int ett_tns_setdt_override;
 static int ett_tns_oer;
 static int ett_tns_call_status;
 static int ett_tns_auth_mode;
+static int ett_tns_release_mode;
 static int ett_tns_rpa;
 static int ett_tns_kv;
 static int ett_tns_iov;
@@ -622,6 +627,12 @@ static int * const tns_auth_modes[] = {
 	&hf_tns_data_auth_mode_sysdba,
 	&hf_tns_data_auth_mode_sysoper,
 	&hf_tns_data_auth_mode_with_password,
+	NULL
+};
+
+/* The mode of a DRCP session release. */
+static int * const tns_release_modes[] = {
+	&hf_tns_data_release_mode_deauth,
 	NULL
 };
 
@@ -3981,6 +3992,24 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset += get_sb4_custom(tvb, offset, &v);
 				proto_tree_add_uint(data_tree, hf_tns_data_fetch_rows, tvb, start, offset - start, v);
 			}
+			else if ( oci_id == TTI_SESSION_RELEASE )
+			{
+				/* DRCP: hand the session back to the pool - a tag name
+				 * (a pointer and a length byte) and the release mode */
+				int v = 0, start;
+				uint8_t tag_ptr = tvb_get_uint8(tvb, offset);
+				uint8_t tag_len = tvb_get_uint8(tvb, offset + 1);
+				offset += 2;
+				if ( tag_ptr && tag_len > 0 )
+				{
+					proto_tree_add_item(data_tree, hf_tns_data_release_tag, tvb, offset, tag_len, ENC_UTF_8);
+					offset += tag_len;
+				}
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_tree_add_bitmask_value(data_tree, tvb, start, hf_tns_data_release_mode,
+					ett_tns_release_mode, tns_release_modes, (uint64_t)(uint32_t)v);
+			}
 			else if ( oci_id == TTI_TPC_TXN_SWITCH || oci_id == TTI_TPC_TXN_CHANGE_STATE )
 				offset = dissect_tns_tpc_call(tvb, pinfo, data_tree, offset, oci_id);
 			else if ( oci_id == TTI_REEXECUTE || oci_id == TTI_REEXECUTE_AND_FETCH )
@@ -6108,6 +6137,15 @@ void proto_register_tns(void)
 		{ &hf_tns_data_pgy_sec_value, {
 			"Security Context Value", "tns.data_piggyback.sec_value", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_release_tag, {
+			"Tag", "tns.data_release.tag", FT_STRING, BASE_NONE,
+			NULL, 0x0, "Session tag for the pool", HFILL }},
+		{ &hf_tns_data_release_mode, {
+			"Release Mode", "tns.data_release.mode", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_release_mode_deauth, {
+			"Deauthenticate", "tns.data_release.mode.deauthenticate", FT_BOOLEAN, 32,
+			NULL, 0x00000002, "The session is being closed, not just returned", HFILL }},
 		{ &hf_tns_data_tpc_switch_op, {
 			"Operation", "tns.data_tpc.switch_op", FT_UINT32, BASE_HEX,
 			VALS(tns_tpc_switch_ops), 0x0, NULL, HFILL }},
@@ -6213,6 +6251,7 @@ void proto_register_tns(void)
 		&ett_tns_oer,
 		&ett_tns_call_status,
 		&ett_tns_auth_mode,
+		&ett_tns_release_mode,
 		&ett_tns_rpa,
 		&ett_tns_kv,
 		&ett_tns_iov,

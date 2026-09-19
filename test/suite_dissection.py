@@ -2504,6 +2504,16 @@ class TestDissectTns:
         assert rows[3][6] == '1', rows[3]
         assert all(r[7] == '' for r in rows), rows
 
+    def test_tns_session_release(self, cmd_tshark, capture_file, test_env):
+        '''A DRCP session release carries a tag and a release mode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_session_release.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_release.mode.deauthenticate',
+        ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['False', 'True'], stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
