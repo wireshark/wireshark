@@ -2575,6 +2575,22 @@ class TestDissectTns:
         assert rows['4'].endswith('Encrypted Data'), rows
         assert rows['5'].endswith('Encrypted Data'), rows
 
+    def test_tns_flush_out_binds(self, cmd_tshark, capture_file, test_env):
+        '''A failed DML RETURNING is answered with the flush-out-binds
+        message and then the error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_flush_binds.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tcp.srcport == 1521',
+            '-T', 'fields',
+            '-e', 'tns.data_id',
+            '-e', 'tns.data_oer.err_code',
+            '-e', 'tns.data_oer.message',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows[0][0] == '0x00000013,0x00000004', rows[0]
+        assert rows[0][1] == '1476' and rows[0][2].startswith('ORA-01476'), rows[0]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

@@ -2919,6 +2919,7 @@ static bool tns_is_next_message(unsigned data_func_id, bool is_request)
 	switch ( data_func_id )
 	{
 		case SQLNET_RETURN_STATUS:
+		case SQLNET_FLUSH_BIND_DATA:
 		case SQLNET_FUNCCOMPLETE:
 		case SQLNET_WARNING:
 		case SQLNET_LOB_FILE_DF:
@@ -3700,6 +3701,14 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			ctx->walk = true;
 			break;
 		}
+
+		case SQLNET_FLUSH_BIND_DATA:
+			/* Sent when a DML with a RETURNING clause fails: the client
+			 * drops the out-bind data it was collecting. There is no
+			 * body, and the error follows. */
+			if ( !is_request )
+				ctx->walk = true;
+			break;
 
 		case SQLNET_END_OF_RESPONSE:
 			/* Marks the end of a response for a client that negotiated
