@@ -104,6 +104,7 @@ void proto_register_tns(void);
 #define SQLNET_PIGGYBACK_FUNC   17
 #define SQLNET_SIG_4UCS         18
 #define SQLNET_FLUSH_BIND_DATA  19
+#define SQLNET_SERVER_PIGGYBACK 23
 #define SQLNET_END_OF_RESPONSE  29
 #define SQLNET_SNS              0xdeadbeef
 #define SQLNET_XTRN_PROCSERV_R1 32
@@ -282,6 +283,13 @@ static int hf_tns_data_rpa_num_kv;
 static int hf_tns_data_rpa_registration;
 static int hf_tns_data_rpa_num_rowcounts;
 static int hf_tns_data_rpa_dml_rowcount;
+static int hf_tns_data_spb_opcode;
+static int hf_tns_data_spb_ltxid;
+static int hf_tns_data_spb_os_pid;
+static int hf_tns_data_spb_num_kv;
+static int hf_tns_data_spb_flags;
+static int hf_tns_data_spb_session_id;
+static int hf_tns_data_spb_serial_num;
 static int hf_tns_data_kv_text;
 static int hf_tns_data_kv_binary;
 static int hf_tns_data_kv_keyword;
@@ -467,6 +475,7 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_PIGGYBACK_FUNC,   "Piggy back function follow"},
 	{SQLNET_SIG_4UCS,         "Signals special action for untrusted callout support"},
 	{SQLNET_FLUSH_BIND_DATA,  "Flush Out Bind data in DML/w RETURN when error"},
+	{SQLNET_SERVER_PIGGYBACK, "Server-side Piggyback"},
 	{SQLNET_END_OF_RESPONSE,  "End of Response"},
 	{SQLNET_XTRN_PROCSERV_R1, "External Procedures and Services Registrations"},
 	{SQLNET_XTRN_PROCSERV_R2, "External Procedures and Services Registrations"},
@@ -499,6 +508,31 @@ static const value_string tns_fetch_orientations[] = {
 	{0x10, "Prior"},
 	{0x20, "Absolute"},
 	{0x40, "Relative"},
+	{0, NULL}
+};
+
+/* Server-side piggyback opcodes (python-oracledb's
+ * TNS_SERVER_PIGGYBACK_*). */
+#define TNS_SPB_QUERY_CACHE_INVALIDATION 1
+#define TNS_SPB_OS_PID_MTS               2
+#define TNS_SPB_TRACE_EVENT              3
+#define TNS_SPB_SESS_RET                 4
+#define TNS_SPB_SYNC                     5
+#define TNS_SPB_LTXID                    7
+#define TNS_SPB_AC_REPLAY_CONTEXT        8
+#define TNS_SPB_EXT_SYNC                 9
+#define TNS_SPB_SESS_SIGNATURE           10
+
+static const value_string tns_spb_opcodes[] = {
+	{TNS_SPB_QUERY_CACHE_INVALIDATION, "Query Cache Invalidation"},
+	{TNS_SPB_OS_PID_MTS,               "OS PID (shared server)"},
+	{TNS_SPB_TRACE_EVENT,              "Trace Event"},
+	{TNS_SPB_SESS_RET,                 "Session Return"},
+	{TNS_SPB_SYNC,                     "Session State Sync"},
+	{TNS_SPB_LTXID,                    "Logical Transaction Id"},
+	{TNS_SPB_AC_REPLAY_CONTEXT,        "Application Continuity Replay Context"},
+	{TNS_SPB_EXT_SYNC,                 "Extended Sync"},
+	{TNS_SPB_SESS_SIGNATURE,           "Session Signature"},
 	{0, NULL}
 };
 
@@ -1680,6 +1714,7 @@ static bool tns_is_next_message(unsigned data_func_id, bool is_request)
 	{
 		case SQLNET_RETURN_STATUS:
 		case SQLNET_FUNCCOMPLETE:
+		case SQLNET_SERVER_PIGGYBACK:
 		case SQLNET_END_OF_RESPONSE:
 		case SQLNET_ROW_TRANSF_HDR:
 		case SQLNET_ROW_TRANSF_DATA:
@@ -2059,6 +2094,117 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			start = offset;
 			offset += get_sb4_custom(tvb, offset, &v);
 			proto_tree_add_uint(data_tree, hf_tns_data_sta_seq, tvb, start, offset - start, v);
+			*walk = true;
+			break;
+		}
+
+		case SQLNET_SERVER_PIGGYBACK:
+		{
+			/* A piggyback from the server: state it pushes to the client
+			 * alongside a reply, selected by an opcode. Layouts follow
+			 * python-oracledb's _process_server_side_piggyback. */
+			int v = 0, num = 0, start;
+			uint8_t opcode;
+
+			if ( is_request )
+				break;
+
+			proto_tree_add_item_ret_uint8(data_tree, hf_tns_data_spb_opcode, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+				val_to_str_const(opcode, tns_spb_opcodes, "unknown"));
+			offset += 1;
+			switch ( opcode )
+			{
+				case TNS_SPB_QUERY_CACHE_INVALIDATION:
+				case TNS_SPB_TRACE_EVENT:
+					break;
+				case TNS_SPB_LTXID:
+					offset += get_sb4_custom(tvb, offset, &v);
+					if ( v > 0 )
+					{
+						start = offset;
+						offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+						proto_tree_add_item(data_tree, hf_tns_data_spb_ltxid, tvb, start + 1, offset - start - 1, ENC_NA);
+					}
+					break;
+				case TNS_SPB_OS_PID_MTS:
+				{
+					const char *pid = NULL;
+					offset += get_sb4_custom(tvb, offset, &v);
+					start = offset;
+					offset += get_dalc_custom(tvb, pinfo, offset, &pid);
+					if ( pid )
+						proto_tree_add_string(data_tree, hf_tns_data_spb_os_pid, tvb, start, offset - start, pid);
+					break;
+				}
+				case TNS_SPB_SYNC:
+					/* Session state the statement changed - a new current
+					 * schema, edition or NLS setting - as key/value pairs. */
+					offset += get_sb4_custom(tvb, offset, &v);  /* number of DTYs */
+					offset += 1;                               /* length of DTYs */
+					start = offset;
+					offset += get_sb4_custom(tvb, offset, &num);
+					proto_tree_add_uint(data_tree, hf_tns_data_spb_num_kv, tvb, start, offset - start, num);
+					offset += 1;                               /* length */
+					offset = dissect_tns_kv_pairs(tvb, pinfo, data_tree, offset, num);
+					start = offset;
+					offset += get_sb4_custom(tvb, offset, &v);
+					proto_tree_add_uint(data_tree, hf_tns_data_spb_flags, tvb, start, offset - start, v);
+					break;
+				case TNS_SPB_EXT_SYNC:
+					offset += get_sb4_custom(tvb, offset, &v);  /* number of DTYs */
+					offset += 1;                               /* length of DTYs */
+					break;
+				case TNS_SPB_AC_REPLAY_CONTEXT:
+					offset += get_sb4_custom(tvb, offset, &v);  /* number of DTYs */
+					offset += 1;                               /* length of DTYs */
+					offset += get_sb4_custom(tvb, offset, &v);  /* flags */
+					offset += get_sb4_custom(tvb, offset, &v);  /* error code */
+					offset += 1;                               /* queue */
+					offset += get_field_with_length(tvb, pinfo, offset, NULL); /* replay context */
+					break;
+				case TNS_SPB_SESS_RET:
+					offset += get_sb4_custom(tvb, offset, &v);  /* number of DTYs */
+					offset += 1;                               /* length of DTYs */
+					offset += get_sb4_custom(tvb, offset, &num);
+					if ( num > 0 )
+					{
+						offset += 1;
+						for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+						{
+							offset += get_sb4_custom(tvb, offset, &v);   /* key */
+							if ( v > 0 )
+								offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+							offset += get_sb4_custom(tvb, offset, &v);   /* value */
+							if ( v > 0 )
+								offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+							offset += get_sb4_custom(tvb, offset, &v);   /* flags */
+						}
+					}
+					start = offset;
+					offset += get_sb4_custom(tvb, offset, &v);
+					proto_tree_add_uint(data_tree, hf_tns_data_spb_flags, tvb, start, offset - start, v);
+					start = offset;
+					offset += get_sb4_custom(tvb, offset, &v);
+					proto_tree_add_uint(data_tree, hf_tns_data_spb_session_id, tvb, start, offset - start, v);
+					start = offset;
+					offset += get_sb4_custom(tvb, offset, &v);
+					proto_tree_add_uint(data_tree, hf_tns_data_spb_serial_num, tvb, start, offset - start, v);
+					break;
+				case TNS_SPB_SESS_SIGNATURE:
+				{
+					uint64_t u = 0;
+					offset += get_sb4_custom(tvb, offset, &v);  /* number of DTYs */
+					offset += 1;                               /* length of DTYs */
+					offset += get_ub8_custom(tvb, offset, &u);  /* signature flags */
+					offset += get_ub8_custom(tvb, offset, &u);  /* client signature */
+					offset += get_ub8_custom(tvb, offset, &u);  /* server signature */
+					break;
+				}
+				default:
+					/* Unknown opcode: its length is unknown too. */
+					return offset;
+			}
 			*walk = true;
 			break;
 		}
@@ -3816,6 +3962,27 @@ void proto_register_tns(void)
 		{ &hf_tns_data_rpa_dml_rowcount, {
 			"DML Row Count", "tns.data_rpa.dml_rowcount", FT_UINT64, BASE_DEC,
 			NULL, 0x0, "Rows one iteration of an array DML affected", HFILL }},
+		{ &hf_tns_data_spb_opcode, {
+			"Opcode", "tns.data_spb.opcode", FT_UINT8, BASE_DEC,
+			VALS(tns_spb_opcodes), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_spb_ltxid, {
+			"Logical Transaction Id", "tns.data_spb.ltxid", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_spb_os_pid, {
+			"OS PID", "tns.data_spb.os_pid", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_spb_num_kv, {
+			"Number of Key/Value Pairs", "tns.data_spb.num_kv", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_spb_flags, {
+			"Flags", "tns.data_spb.flags", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_spb_session_id, {
+			"Session Id", "tns.data_spb.session_id", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_spb_serial_num, {
+			"Serial Number", "tns.data_spb.serial_num", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_kv_text, {
 			"Text Value", "tns.data_kv.text", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},

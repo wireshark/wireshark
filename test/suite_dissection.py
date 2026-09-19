@@ -1938,6 +1938,28 @@ class TestDissectTns:
             ['6', '', '', '', '4'],
         ], rows
 
+    def test_tns_server_piggyback(self, cmd_tshark, capture_file, test_env):
+        '''A server-side piggyback (0x17) is decoded by its opcode: the SYNC
+        that reports a changed CURRENT_SCHEMA as key/value pairs, a logical
+        transaction id, and a session return with its session id.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_spb.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_spb.opcode',
+            '-T', 'fields',
+            '-e', 'tns.data_spb.opcode',
+            '-e', 'tns.data_kv.text',
+            '-e', 'tns.data_kv.keyword',
+            '-e', 'tns.data_spb.session_id',
+            '-e', 'tns.data_spb.serial_num',
+            '-e', 'tns.data_oer.err_code',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [
+            ['5', 'PYO', '168,169', '', '', '0'],
+            ['7,4', '', '', '123', '45', '0'],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
