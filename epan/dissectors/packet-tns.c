@@ -1345,6 +1345,31 @@ static void dissect_tns_data_descriptor(tvbuff_t *tvb, int offset, packet_info *
 	    dd_tree);
 }
 
+static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, bool is_request, unsigned data_func_id, bool *walk);
+
+/* Whether a message that follows another in the same packet is one we
+ * step into. A response is a run of messages back to back - a describe,
+ * a row header, the rows, a status - and a request may put piggybacks in
+ * front of its call. */
+static bool tns_is_next_message(unsigned data_func_id, bool is_request)
+{
+	if ( is_request )
+		return data_func_id == SQLNET_USER_OCI_FUNC || data_func_id == SQLNET_PIGGYBACK_FUNC;
+
+	switch ( data_func_id )
+	{
+		case SQLNET_RETURN_STATUS:
+		case SQLNET_ROW_TRANSF_HDR:
+		case SQLNET_ROW_TRANSF_DATA:
+		case SQLNET_RETURN_OPI_PARAM:
+		case SQLNET_IOVEC_4FAST_UPI:
+		case SQLNET_DESCRIBE_INFO:
+			return true;
+		default:
+			return false;
+	}
+}
+
 static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tns_tree)
 {
 	proto_tree *data_tree;
@@ -1404,6 +1429,32 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		}
 	}
 
+	/* Decode the first message, then step into each one after it for as
+	 * long as the previous decoder ended exactly on its last byte. */
+	bool walk = false;
+	offset = dissect_tns_message(tvb, offset, pinfo, data_tree, is_request, data_func_id, &walk);
+	while ( walk && tvb_reported_length_remaining(tvb, offset) > 0 )
+	{
+		data_func_id = tvb_get_uint8(tvb, offset);
+		if ( !tns_is_next_message(data_func_id, is_request) )
+			break;
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(data_func_id, tns_data_funcs, "unknown"));
+		proto_tree_add_item(data_tree, hf_tns_data_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		walk = false;
+		offset = dissect_tns_message(tvb, offset, pinfo, data_tree, is_request, data_func_id, &walk);
+	}
+
+	if ( tvb_reported_length_remaining(tvb, offset) > 0 )
+		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
+}
+
+/* Decode the body of one TTC message, whose id byte has already been
+ * consumed. Sets *walk when the decoder ended exactly on the message's
+ * last byte, so the caller can step into whatever follows it.
+ * Returns the new offset. */
+static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, bool is_request, unsigned data_func_id, bool *walk)
+{
 	/* Handle data functions that have more than just ID */
 	switch (data_func_id)
 	{
@@ -1440,7 +1491,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				proto_item_set_end(ti, tvb, offset);
 				proto_tree_add_item(data_tree, hf_tns_data_setp_cli_plat, tvb, offset, -1, ENC_ASCII);
 
-				return; /* skip call_data_dissector */
+				return tvb_reported_length(tvb); /* skip call_data_dissector */
 			}
 			else
 			{
@@ -1742,6 +1793,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			}
 			if ( num_cols > 0 )
 				offset += 1; /* reserved byte */
+			*walk = true;
 
 			/* Remember each column so a later TTI_RXD response can split
 			 * its row values. Recorded once, on the first pass. */
@@ -1805,6 +1857,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			}
 			/* rxhrid (bytes_with_length, skip) */
 			offset += get_field_with_length(tvb, pinfo, offset, NULL);
+			*walk = true;
 			break;
 		}
 
@@ -1882,6 +1935,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 					}
 					proto_item_set_len(row_item, offset - r_start);
 				}
+				*walk = !bail;
 			}
 			break;
 		}
@@ -2338,6 +2392,8 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, offset, len, cursor);
 				offset += len;
 			}
+			/* The call this piggyback rides in front of follows it. */
+			*walk = true;
 			break;
 		}
 		case SQLNET_SNS:
@@ -2365,7 +2421,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		}
 	}
 
-	call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
+	return offset;
 }
 
 static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tns_tree)

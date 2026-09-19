@@ -1711,6 +1711,33 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.strip().splitlines()]
         assert rows == [['0x69', '3,5'], ['0x69', '300,70000']], rows
 
+    def test_tns_walk(self, cmd_tshark, capture_file, test_env):
+        '''Every TTC message in a packet is decoded, not only the first. A
+        close-cursors piggyback in front of an execute, then a response that
+        carries describe, row header, two rows and the closing status.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_walk.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data_all8.sql',
+            '-e', 'tns.data_dcb.num_columns',
+            '-e', 'tns.data_rxh.num_iters',
+            '-e', 'tns.data_col.value',
+            '-e', 'tns.data_oer.err_code',
+            '-e', 'tns.data_oer.cursor_id',
+            '-e', 'tns.data_oer.message',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert len(rows) == 2, rows
+        # The piggyback's two cursors, then the execute's own (new) cursor.
+        assert rows[0][0] == '3,5,0', rows[0]
+        assert rows[0][1] == 'SELECT ID, NAME FROM USERS', rows[0]
+        assert rows[1][2] == '2' and rows[1][3] == '2', rows[1]
+        assert rows[1][4] == 'c10b,6869,c115,796f', rows[1]
+        assert rows[1][5] == '1403' and rows[1][6] == '7', rows[1]
+        assert rows[1][7].startswith('ORA-01403: no data found'), rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
