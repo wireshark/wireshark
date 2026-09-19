@@ -1975,6 +1975,20 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.strip().splitlines()]
         assert rows == [['24344', 'ORA-24344: success with compilation error', '0']], rows
 
+    def test_tns_bit_vector(self, cmd_tshark, capture_file, test_env):
+        '''After a TTI_BVC a row sends only the columns whose bit is set; the
+        others repeat the previous row. The row after the bit vector here is
+        just the NUMBER 2, and the status behind it is still decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_bvc.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (NUMBER): 2' in stdout, stdout
+        assert 'Column 2 (VARCHAR): same as previous row' in stdout, stdout
+        assert 'Column 3 (VARCHAR): same as previous row' in stdout, stdout
+        assert 'ORA-01403' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

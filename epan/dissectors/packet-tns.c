@@ -104,6 +104,7 @@ void proto_register_tns(void);
 #define SQLNET_PIGGYBACK_FUNC   17
 #define SQLNET_SIG_4UCS         18
 #define SQLNET_FLUSH_BIND_DATA  19
+#define SQLNET_BIT_VECTOR       21
 #define SQLNET_SERVER_PIGGYBACK 23
 #define SQLNET_END_OF_RESPONSE  29
 #define SQLNET_SNS              0xdeadbeef
@@ -321,6 +322,8 @@ static int hf_tns_data_col_name;
 static int hf_tns_data_rxh_num_requests;
 static int hf_tns_data_rxh_iter_num;
 static int hf_tns_data_rxh_num_iters;
+static int hf_tns_data_bit_vector;
+static int hf_tns_data_bvc_num_cols_sent;
 
 static int hf_tns_data_all8_options;
 static int hf_tns_data_all8_opt_parse;
@@ -480,6 +483,7 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_PIGGYBACK_FUNC,   "Piggy back function follow"},
 	{SQLNET_SIG_4UCS,         "Signals special action for untrusted callout support"},
 	{SQLNET_FLUSH_BIND_DATA,  "Flush Out Bind data in DML/w RETURN when error"},
+	{SQLNET_BIT_VECTOR,       "Bit Vector"},
 	{SQLNET_SERVER_PIGGYBACK, "Server-side Piggyback"},
 	{SQLNET_END_OF_RESPONSE,  "End of Response"},
 	{SQLNET_XTRN_PROCSERV_R1, "External Procedures and Services Registrations"},
@@ -1485,6 +1489,24 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
+/* The describe a row-data message is split by: the conversation's most
+ * recent one, stored per packet on the first pass so a later pass uses
+ * the same. */
+static tns_describe_t *tns_current_describe(packet_info *pinfo)
+{
+	tns_describe_t *desc;
+
+	if ( PINFO_FD_VISITED(pinfo) )
+		return (tns_describe_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+			proto_tns, TNS_PROTO_DATA_DESCRIBE);
+
+	desc = tns_get_conv_info(pinfo)->last_describe;
+	if ( desc && !p_get_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_DESCRIBE) )
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_tns,
+			TNS_PROTO_DATA_DESCRIBE, desc);
+	return desc;
+}
+
 /* Look up the bind types remembered for a cursor, for an execute that
  * sends its values without descriptors. Stashed per packet on the first
  * pass, so a later pass gets the same answer. */
@@ -1704,7 +1726,18 @@ static void dissect_tns_data_descriptor(tvbuff_t *tvb, int offset, packet_info *
 	    dd_tree);
 }
 
-static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, bool is_request, unsigned data_func_id, bool *walk);
+/* State carried from one TTC message to the next within a packet. */
+typedef struct _tns_msg_ctx_t {
+	/* The decoder ended exactly on its message's last byte. */
+	bool walk;
+	/* Which columns the next row sends, from a row header or a TTI_BVC:
+	 * a clear bit means the value repeats the previous row's. NULL when
+	 * every column is sent. */
+	const uint8_t *bit_vector;
+	unsigned bit_vector_len;
+} tns_msg_ctx_t;
+
+static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, bool is_request, unsigned data_func_id, tns_msg_ctx_t *ctx);
 
 /* Whether a message that follows another in the same packet is one we
  * step into. A response is a run of messages back to back - a describe,
@@ -1720,6 +1753,7 @@ static bool tns_is_next_message(unsigned data_func_id, bool is_request)
 		case SQLNET_RETURN_STATUS:
 		case SQLNET_FUNCCOMPLETE:
 		case SQLNET_WARNING:
+		case SQLNET_BIT_VECTOR:
 		case SQLNET_SERVER_PIGGYBACK:
 		case SQLNET_END_OF_RESPONSE:
 		case SQLNET_ROW_TRANSF_HDR:
@@ -1794,9 +1828,9 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 
 	/* Decode the first message, then step into each one after it for as
 	 * long as the previous decoder ended exactly on its last byte. */
-	bool walk = false;
-	offset = dissect_tns_message(tvb, offset, pinfo, data_tree, is_request, data_func_id, &walk);
-	while ( walk && tvb_reported_length_remaining(tvb, offset) > 0 )
+	tns_msg_ctx_t ctx = { 0 };
+	offset = dissect_tns_message(tvb, offset, pinfo, data_tree, is_request, data_func_id, &ctx);
+	while ( ctx.walk && tvb_reported_length_remaining(tvb, offset) > 0 )
 	{
 		data_func_id = tvb_get_uint8(tvb, offset);
 		if ( !tns_is_next_message(data_func_id, is_request) )
@@ -1804,8 +1838,8 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(data_func_id, tns_data_funcs, "unknown"));
 		proto_tree_add_item(data_tree, hf_tns_data_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		walk = false;
-		offset = dissect_tns_message(tvb, offset, pinfo, data_tree, is_request, data_func_id, &walk);
+		ctx.walk = false;
+		offset = dissect_tns_message(tvb, offset, pinfo, data_tree, is_request, data_func_id, &ctx);
 	}
 
 	if ( tvb_reported_length_remaining(tvb, offset) > 0 )
@@ -1813,10 +1847,10 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 }
 
 /* Decode the body of one TTC message, whose id byte has already been
- * consumed. Sets *walk when the decoder ended exactly on the message's
- * last byte, so the caller can step into whatever follows it.
+ * consumed. Sets ctx->walk when the decoder ended exactly on the
+ * message's last byte, so the caller can step into whatever follows it.
  * Returns the new offset. */
-static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, bool is_request, unsigned data_func_id, bool *walk)
+static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, bool is_request, unsigned data_func_id, tns_msg_ctx_t *ctx)
 {
 	/* Handle data functions that have more than just ID */
 	switch (data_func_id)
@@ -2100,7 +2134,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			start = offset;
 			offset += get_sb4_custom(tvb, offset, &v);
 			proto_tree_add_uint(data_tree, hf_tns_data_sta_seq, tvb, start, offset - start, v);
-			*walk = true;
+			ctx->walk = true;
 			break;
 		}
 
@@ -2135,7 +2169,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", msg);
 				}
 			}
-			*walk = true;
+			ctx->walk = true;
 			break;
 		}
 
@@ -2246,14 +2280,14 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					/* Unknown opcode: its length is unknown too. */
 					return offset;
 			}
-			*walk = true;
+			ctx->walk = true;
 			break;
 		}
 
 		case SQLNET_END_OF_RESPONSE:
 			/* Marks the end of a response for a client that negotiated
 			 * it; there is no body. */
-			*walk = true;
+			ctx->walk = true;
 			break;
 
 		case SQLNET_IOVEC_4FAST_UPI:
@@ -2343,7 +2377,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			}
 			if ( num_cols > 0 )
 				offset += 1; /* reserved byte */
-			*walk = true;
+			ctx->walk = true;
 
 			/* Remember each column so a later TTI_RXD response can split
 			 * its row values. Recorded once, on the first pass. */
@@ -2398,16 +2432,47 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			proto_tree_add_uint(data_tree, hf_tns_data_rxh_num_iters, tvb, start, offset - start, v);
 			/* buffer length (ub4, skip) */
 			offset += get_sb4_custom(tvb, offset, &v);
-			/* bit vector: length + [repeated length byte + vector bytes] */
+			/* bit vector: length + [repeated length byte + vector bytes],
+			 * saying which columns the first row sends */
 			offset += get_sb4_custom(tvb, offset, &bv_len);
 			if ( bv_len > 0 )
 			{
 				offset += 1;       /* repeated length byte */
+				proto_tree_add_item(data_tree, hf_tns_data_bit_vector, tvb, offset, bv_len, ENC_NA);
+				ctx->bit_vector = tvb_memdup(pinfo->pool, tvb, offset, bv_len);
+				ctx->bit_vector_len = bv_len;
 				offset += bv_len;  /* bit vector */
 			}
 			/* rxhrid (bytes_with_length, skip) */
 			offset += get_field_with_length(tvb, pinfo, offset, NULL);
-			*walk = true;
+			ctx->walk = true;
+			break;
+		}
+
+		case SQLNET_BIT_VECTOR:
+		{
+			/* TTI_BVC: which columns the next row sends. A row that
+			 * repeats values from the row before sends only the ones that
+			 * changed, and the clear bits name those it left out. A ub2
+			 * count of columns sent, then one bit per described column. */
+			tns_describe_t *desc;
+			int v = 0, start;
+
+			if ( is_request )
+				break;
+
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(data_tree, hf_tns_data_bvc_num_cols_sent, tvb, start, offset - start, v);
+			desc = tns_current_describe(pinfo);
+			if ( !desc )
+				break;
+			unsigned bv_len = (desc->num_cols + 7) / 8;
+			proto_tree_add_item(data_tree, hf_tns_data_bit_vector, tvb, offset, bv_len, ENC_NA);
+			ctx->bit_vector = tvb_memdup(pinfo->pool, tvb, offset, bv_len);
+			ctx->bit_vector_len = bv_len;
+			offset += bv_len;
+			ctx->walk = true;
 			break;
 		}
 
@@ -2420,27 +2485,14 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			 * conversation state); ordinary values are shown raw.
 			 *
 			 * The leading RXD token was already consumed above, so offset
-			 * sits on the first row's first value. Differential (bit-vector)
-			 * row encoding is not handled — a row that reuses a prior value
-			 * would desync, so we only decode when no BVC context applies. */
-			tns_describe_t *desc = NULL;
+			 * sits on the first row's first value. A row that follows a
+			 * bit vector sends only the columns whose bit is set. */
+			tns_describe_t *desc;
 
 			if ( is_request )
 				break;
 
-			if ( !PINFO_FD_VISITED(pinfo) )
-			{
-				tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
-				desc = tns_info->last_describe;
-				if ( desc )
-					p_add_proto_data(wmem_file_scope(), pinfo, proto_tns,
-						TNS_PROTO_DATA_DESCRIBE, desc);
-			}
-			else
-			{
-				desc = (tns_describe_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-					proto_tns, TNS_PROTO_DATA_DESCRIBE);
-			}
+			desc = tns_current_describe(pinfo);
 
 			if ( desc && desc->num_cols > 0 )
 			{
@@ -2466,6 +2518,14 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						&& tvb_reported_length_remaining(tvb, offset) > 0 && !bail; c++ )
 					{
 						const tns_column_t *col = &desc->cols[c];
+						if ( ctx->bit_vector && c / 8 < ctx->bit_vector_len
+							&& !(ctx->bit_vector[c / 8] & (1 << (c % 8))) )
+						{
+							proto_tree_add_bytes_format(row_tree, hf_tns_data_col_value,
+								tvb, offset, 0, NULL, "Column %u (%s): same as previous row",
+								c + 1, val_to_str_const(col->type, tns_data_types, "unknown"));
+							continue;
+						}
 						/* A column the describe gives no data length is
 						 * NULL by definition (SELECT NULL, SELECT '')
 						 * and sends no bytes at all - not even an empty
@@ -2484,8 +2544,10 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							col->type, c + 1, &bail, hf_tns_data_col_value, "Column");
 					}
 					proto_item_set_len(row_item, offset - r_start);
+					/* A bit vector covers one row only. */
+					ctx->bit_vector = NULL;
 				}
-				*walk = !bail;
+				ctx->walk = !bail;
 			}
 			break;
 		}
@@ -3075,7 +3137,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				{
 					offset = dissect_tns_return_params(tvb, pinfo, data_tree, offset,
 						(call->exec_flags & TNS_EXEC_FLAGS_DML_ROWCOUNTS) != 0);
-					*walk = true;
+					ctx->walk = true;
 				}
 			}
 			break;
@@ -3116,7 +3178,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset += len;
 			}
 			/* The call this piggyback rides in front of follows it. */
-			*walk = true;
+			ctx->walk = true;
 			break;
 		}
 		case SQLNET_SNS:
@@ -4148,6 +4210,12 @@ void proto_register_tns(void)
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_rxh_iter_num, {
 			"Iteration Number", "tns.data_rxh.iter_num", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_bit_vector, {
+			"Bit Vector", "tns.data.bit_vector", FT_BYTES, BASE_NONE,
+			NULL, 0x0, "Columns the next row sends; a clear bit repeats the previous row's value", HFILL }},
+		{ &hf_tns_data_bvc_num_cols_sent, {
+			"Columns Sent", "tns.data_bvc.num_cols_sent", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_rxh_num_iters, {
 			"Number of Iterations", "tns.data_rxh.num_iters", FT_UINT32, BASE_DEC,
