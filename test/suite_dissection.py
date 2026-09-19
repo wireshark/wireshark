@@ -1861,6 +1861,25 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.strip().splitlines()]
         assert rows == [['True', '0', '1', '8', '2147483647']], rows
 
+    def test_tns_define_rows(self, cmd_tshark, capture_file, test_env):
+        '''The rows that answer a define are framed as the define asked, not
+        as the describe said: a CLOB column defined as LONG arrives inline.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_define.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (LONG)' in stdout, stdout
+        values = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_define.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_col.value',
+            '-T', 'fields',
+            '-e', 'tns.data_col.value',
+        ), encoding='utf-8', env=test_env)
+        # the LONG value "blob_4620" and its two trailing ub4 indicators
+        assert values.strip() == '09626c6f625f343632300000', values
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

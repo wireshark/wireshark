@@ -2263,7 +2263,10 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					proto_tree *defs_tree, *def_tree;
 					proto_item *defs_item, *def_item;
 					int defs_start = offset;
+					tns_column_t *dcols = NULL;
 
+					if ( !PINFO_FD_VISITED(pinfo) )
+						dcols = wmem_alloc0_array(pinfo->pool, tns_column_t, define_count);
 					defs_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 						ett_tns_defines, &defs_item, "Defines");
 					for ( int i = 0; i < define_count && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
@@ -2273,10 +2276,29 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						def_tree = proto_tree_add_subtree_format(defs_tree, tvb, offset, -1,
 							ett_tns_bind, &def_item, "Define %d: %s", i + 1,
 							val_to_str_const(dtype, tns_data_types, "unknown"));
-						offset = dissect_tns_oac(tvb, pinfo, def_tree, offset, NULL);
+						offset = dissect_tns_oac(tvb, pinfo, def_tree, offset, dcols ? &dcols[i] : NULL);
 						proto_item_set_len(def_item, offset - d_start);
 					}
 					proto_item_set_len(defs_item, offset - defs_start);
+
+					/* The rows that answer a define come framed the way
+					 * it asked - a CLOB defined as LONG arrives inline,
+					 * with no locator - and so do the rows of every later
+					 * execute of the cursor. Rows are still split by the
+					 * describe's columns, so replace each column's type
+					 * with the one its define gives. */
+					tns_conv_info_t *tns_info = dcols ? tns_get_conv_info(pinfo) : NULL;
+					if ( tns_info && tns_info->last_describe
+						&& tns_info->last_describe->num_cols == (uint32_t)define_count )
+					{
+						tns_describe_t *desc = wmem_new0(wmem_file_scope(), tns_describe_t);
+						desc->num_cols = define_count;
+						desc->cols = (tns_column_t *)wmem_memdup(wmem_file_scope(),
+							tns_info->last_describe->cols, define_count * sizeof(tns_column_t));
+						for ( int i = 0; i < define_count; i++ )
+							desc->cols[i].type = dcols[i].type;
+						tns_info->last_describe = desc;
+					}
 				}
 			}
 			else if ( oci_id == TTI_LOBOPS )
