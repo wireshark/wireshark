@@ -364,6 +364,7 @@ static int hf_tns_data_lob_locator;
 static int hf_tns_data_lob_charset;
 static int hf_tns_data_lob_data;
 static int hf_tns_data_lob_amount;
+static int hf_tns_data_lob_flag;
 static int hf_tns_data_col_value;
 static int hf_tns_data_lob_size;
 static int hf_tns_data_lob_chunk_size;
@@ -631,6 +632,11 @@ static const value_string tns_charsets[] = {
 };
 
 /* TTI_LOBOPS operation opcodes. */
+#define TNS_LOB_OP_FILE_ISOPEN   0x00400
+#define TNS_LOB_OP_FILE_EXISTS   0x00800
+#define TNS_LOB_OP_CREATE_TEMP   0x00110
+#define TNS_LOB_OP_IS_OPEN       0x11000
+
 static const value_string tns_lob_ops[] = {
 	{0x00001, "GET_LENGTH"},
 	{0x00002, "READ"},
@@ -1978,6 +1984,7 @@ static bool tns_is_next_message(unsigned data_func_id, bool is_request)
 		case SQLNET_RETURN_STATUS:
 		case SQLNET_FUNCCOMPLETE:
 		case SQLNET_WARNING:
+		case SQLNET_LOB_FILE_DF:
 		case SQLNET_BIT_VECTOR:
 		case SQLNET_SERVER_PIGGYBACK:
 		case SQLNET_IMPLICIT_RESULTS:
@@ -2360,6 +2367,25 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			start = offset;
 			offset += get_sb4_custom(tvb, offset, &v);
 			proto_tree_add_uint(data_tree, hf_tns_data_sta_seq, tvb, start, offset - start, v);
+			ctx->walk = true;
+			break;
+		}
+
+		case SQLNET_LOB_FILE_DF:
+		{
+			/* LOB content: what a TTI_LOBOPS READ returns, ahead of the
+			 * return parameters. Raw bytes for a BLOB or BFILE, the LOB's
+			 * character set (usually UTF-16BE) for a CLOB. */
+			int start = offset;
+
+			if ( is_request )
+				break;
+
+			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			if ( tvb_get_uint8(tvb, start) == 0xfe ) /* chunked: shown whole */
+				proto_tree_add_item(data_tree, hf_tns_data_lob_data, tvb, start, offset - start, ENC_NA);
+			else if ( offset - start > 1 )
+				proto_tree_add_item(data_tree, hf_tns_data_lob_data, tvb, start + 1, offset - start - 1, ENC_NA);
 			ctx->walk = true;
 			break;
 		}
@@ -3457,6 +3483,43 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				{
 					offset = dissect_tns_return_params(tvb, pinfo, data_tree, offset,
 						(call->exec_flags & TNS_EXEC_FLAGS_DML_ROWCOUNTS) != 0);
+					ctx->walk = true;
+				}
+				else if ( call && call->func == TTI_LOBOPS )
+				{
+					/* A LOB operation's reply: the locator as the server
+					 * now sees it - as long as the one sent, and changed
+					 * by a mutating call - then per operation the new
+					 * temporary LOB's charset, the amount, or a boolean. */
+					uint64_t u = 0;
+					int start;
+
+					if ( call->lob_locator_len > 0 )
+					{
+						proto_tree_add_item(data_tree, hf_tns_data_lob_locator, tvb, offset,
+							call->lob_locator_len, ENC_NA);
+						offset += call->lob_locator_len;
+					}
+					if ( call->lob_op == TNS_LOB_OP_CREATE_TEMP )
+					{
+						int v = 0;
+						start = offset;
+						offset += get_sb4_custom(tvb, offset, &v);
+						proto_tree_add_uint(data_tree, hf_tns_data_lob_charset, tvb, start, offset - start, v);
+						offset += 1; /* trailing flags */
+					}
+					else if ( call->lob_amount )
+					{
+						start = offset;
+						offset += get_ub8_custom(tvb, offset, &u);
+						proto_tree_add_uint64(data_tree, hf_tns_data_lob_amount, tvb, start, offset - start, u);
+					}
+					if ( call->lob_op == TNS_LOB_OP_IS_OPEN || call->lob_op == TNS_LOB_OP_FILE_EXISTS
+						|| call->lob_op == TNS_LOB_OP_FILE_ISOPEN )
+					{
+						proto_tree_add_item(data_tree, hf_tns_data_lob_flag, tvb, offset, 1, ENC_NA);
+						offset += 1;
+					}
 					ctx->walk = true;
 				}
 			}
@@ -4652,6 +4715,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_lob_data, {
 			"Data", "tns.data_lob.data", FT_BYTES, BASE_NONE,
 			NULL, 0x0, "LOB content; UTF-16BE for a CLOB", HFILL }},
+		{ &hf_tns_data_lob_flag, {
+			"Result", "tns.data_lob.flag", FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "Whether the LOB is open, or the file exists", HFILL }},
 		{ &hf_tns_data_lob_amount, {
 			"Amount", "tns.data_lob.amount", FT_UINT64, BASE_DEC,
 			NULL, 0x0, "Characters for a CLOB, bytes for a BLOB; the mode for OPEN", HFILL }},

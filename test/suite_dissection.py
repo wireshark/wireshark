@@ -2109,6 +2109,26 @@ class TestDissectTns:
         assert 'Return Code: 0' in stdout, stdout
         assert 'Oracle Error Return' in stdout, stdout
 
+    def test_tns_lob_reply(self, cmd_tshark, capture_file, test_env):
+        '''The reply to a LOB operation: LOB_DATA with the content for a
+        READ, then return parameters holding the locator as the server now
+        sees it and the amount, then the status.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_lob_reply.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tcp.srcport == 1521',
+            '-T', 'fields',
+            '-e', 'tns.data_lob.data',
+            '-e', 'tns.data_lob.amount',
+            '-e', 'tns.data_oer.err_code',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['4142434445', '5', '0', ''],
+            ['', '260', '0', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
