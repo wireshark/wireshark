@@ -313,6 +313,15 @@ static int hf_tns_data_setp_field_version;
 static int hf_tns_data_sns_cli_vers;
 static int hf_tns_data_sns_srv_vers;
 static int hf_tns_data_sns_srvcnt;
+static int hf_tns_data_sns_error;
+static int hf_tns_data_sns_service;
+static int hf_tns_data_sns_subpackets;
+static int hf_tns_data_sns_svc_error;
+static int hf_tns_data_sns_sub_type;
+static int hf_tns_data_sns_sub_data;
+static int hf_tns_data_sns_version;
+static int hf_tns_data_sns_encryption;
+static int hf_tns_data_sns_integrity;
 
 static int hf_tns_data_setdt_charset_in;
 static int hf_tns_data_setdt_charset_out;
@@ -508,6 +517,8 @@ static int ett_tns_setdt_override;
 static int ett_tns_oer;
 static int ett_tns_call_status;
 static int ett_tns_auth_mode;
+static int ett_tns_sns_service;
+static int ett_tns_sns_subpacket;
 static int ett_tns_release_mode;
 static int ett_tns_rpa;
 static int ett_tns_kv;
@@ -762,6 +773,61 @@ static const value_string tns_tpc_states[] = {
 	{3, "Aborted"},
 	{4, "Read only"},
 	{5, "Forgotten"},
+	{0, NULL}
+};
+
+/* Native network services (ANO) negotiation: services, sub-packet types
+ * and the encryption and integrity algorithm ids. */
+#define TNS_ANO_AUTHENTICATION   1
+#define TNS_ANO_ENCRYPTION       2
+#define TNS_ANO_DATA_INTEGRITY   3
+#define TNS_ANO_SUPERVISOR       4
+#define TNS_ANO_SP_BYTES         1
+#define TNS_ANO_SP_UB1           2
+#define TNS_ANO_SP_VERSION       5
+
+static const value_string tns_sns_services[] = {
+	{TNS_ANO_AUTHENTICATION, "Authentication"},
+	{TNS_ANO_ENCRYPTION,     "Encryption"},
+	{TNS_ANO_DATA_INTEGRITY, "Data Integrity"},
+	{TNS_ANO_SUPERVISOR,     "Supervisor"},
+	{0, NULL}
+};
+
+static const value_string tns_sns_subpacket_types[] = {
+	{0, "String"},
+	{1, "Bytes"},
+	{2, "UB1"},
+	{3, "UB2"},
+	{4, "UB4"},
+	{5, "Version"},
+	{6, "Status"},
+	{0, NULL}
+};
+
+static const value_string tns_sns_encryption_algs[] = {
+	{0,  "None"},
+	{1,  "RC4_40"},
+	{2,  "DES"},
+	{3,  "DES40"},
+	{6,  "RC4_256"},
+	{8,  "RC4_56"},
+	{10, "RC4_128"},
+	{11, "3DES112"},
+	{12, "3DES168"},
+	{15, "AES128"},
+	{16, "AES192"},
+	{17, "AES256"},
+	{0, NULL}
+};
+
+static const value_string tns_sns_integrity_algs[] = {
+	{0, "None"},
+	{1, "MD5"},
+	{3, "SHA1"},
+	{4, "SHA512"},
+	{5, "SHA256"},
+	{6, "SHA384"},
 	{0, NULL}
 };
 
@@ -4872,10 +4938,56 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			}
 			offset += 4;
 
+			uint16_t num_services = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_item(data_tree, hf_tns_data_sns_srvcnt, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(data_tree, hf_tns_data_sns_error, tvb, offset, 1, ENC_NA);
+			offset += 1;
 
-			/* move back, to include data_id into data_dissector */
-			offset -= 10;
+			/* Each service: a type, a sub-packet count and an error, then
+			 * the sub-packets, each a length, a type and that many bytes
+			 * of payload - all big-endian. A service opens with its
+			 * version; in the encryption and integrity services the
+			 * sub-packet after it lists the algorithms a client offers,
+			 * or holds the one the server picked. */
+			for ( unsigned i = 0; i < num_services && tvb_bytes_exist(tvb, offset, 8); i++ )
+			{
+				proto_tree *svc_tree;
+				proto_item *svc_item;
+				int svc_start = offset;
+				uint16_t svc_type = tvb_get_ntohs(tvb, offset);
+				uint16_t num_sub = tvb_get_ntohs(tvb, offset + 2);
+
+				svc_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, -1, ett_tns_sns_service,
+					&svc_item, "Service: %s", val_to_str_const(svc_type, tns_sns_services, "unknown"));
+				proto_tree_add_item(svc_tree, hf_tns_data_sns_service, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(svc_tree, hf_tns_data_sns_subpackets, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(svc_tree, hf_tns_data_sns_svc_error, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+				offset += 8;
+				for ( unsigned j = 0; j < num_sub && tvb_bytes_exist(tvb, offset, 4); j++ )
+				{
+					uint16_t len = tvb_get_ntohs(tvb, offset);
+					uint16_t sub_type = tvb_get_ntohs(tvb, offset + 2);
+					proto_tree *sub_tree = proto_tree_add_subtree_format(svc_tree, tvb, offset, 4 + len,
+						ett_tns_sns_subpacket, NULL, "Sub-packet %u: %s, %u bytes", j + 1,
+						val_to_str_const(sub_type, tns_sns_subpacket_types, "unknown"), len);
+					proto_tree_add_item(sub_tree, hf_tns_data_sns_sub_type, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+					offset += 4;
+					bool algs = j == 1 && (sub_type == TNS_ANO_SP_BYTES || sub_type == TNS_ANO_SP_UB1);
+					if ( sub_type == TNS_ANO_SP_VERSION && len == 4 )
+						proto_tree_add_item(sub_tree, hf_tns_data_sns_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+					else if ( algs && svc_type == TNS_ANO_ENCRYPTION )
+						for ( unsigned k = 0; k < len; k++ )
+							proto_tree_add_item(sub_tree, hf_tns_data_sns_encryption, tvb, offset + k, 1, ENC_NA);
+					else if ( algs && svc_type == TNS_ANO_DATA_INTEGRITY )
+						for ( unsigned k = 0; k < len; k++ )
+							proto_tree_add_item(sub_tree, hf_tns_data_sns_integrity, tvb, offset + k, 1, ENC_NA);
+					else if ( len > 0 )
+						proto_tree_add_item(sub_tree, hf_tns_data_sns_sub_data, tvb, offset, len, ENC_NA);
+					offset += len;
+				}
+				proto_item_set_len(svc_item, offset - svc_start);
+			}
 			break;
 		}
 	}
@@ -5701,6 +5813,33 @@ void proto_register_tns(void)
 		{ &hf_tns_data_sns_srvcnt, {
 			"Services", "tns.data_sns.srvcnt", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_error, {
+			"Error", "tns.data_sns.error", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_service, {
+			"Service", "tns.data_sns.service", FT_UINT16, BASE_DEC,
+			VALS(tns_sns_services), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_subpackets, {
+			"Sub-packets", "tns.data_sns.subpackets", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_svc_error, {
+			"Service Error", "tns.data_sns.service_error", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_sub_type, {
+			"Sub-packet Type", "tns.data_sns.sub_type", FT_UINT16, BASE_DEC,
+			VALS(tns_sns_subpacket_types), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_version, {
+			"Version", "tns.data_sns.version", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_sub_data, {
+			"Sub-packet Data", "tns.data_sns.sub_data", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_encryption, {
+			"Encryption Algorithm", "tns.data_sns.encryption", FT_UINT8, BASE_DEC,
+			VALS(tns_sns_encryption_algs), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_sns_integrity, {
+			"Integrity Algorithm", "tns.data_sns.integrity", FT_UINT8, BASE_DEC,
+			VALS(tns_sns_integrity_algs), 0x0, NULL, HFILL }},
 
 		{ &hf_tns_data_setdt_charset_in, {
 			"Charset In", "tns.data_setdt.charset_in", FT_UINT16, BASE_DEC,
@@ -6264,6 +6403,8 @@ void proto_register_tns(void)
 		&ett_tns_oer,
 		&ett_tns_call_status,
 		&ett_tns_auth_mode,
+		&ett_tns_sns_service,
+		&ett_tns_sns_subpacket,
 		&ett_tns_release_mode,
 		&ett_tns_rpa,
 		&ett_tns_kv,

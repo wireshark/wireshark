@@ -2538,6 +2538,25 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['1', '0x0e', ''], ['', '0xc8', '']], rows
 
+    def test_tns_ano(self, cmd_tshark, capture_file, test_env):
+        '''The native network encryption negotiation: the algorithms a
+        client offers and the ones the server picks are named.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_ano.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_sns.service',
+            '-e', 'tns.data_sns.encryption',
+            '-e', 'tns.data_sns.integrity',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['4,1,2,3', '0,17,16,15', '0,5,3', ''],
+            ['4,2,3', '17', '5', ''],
+            ['3', '', '', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
