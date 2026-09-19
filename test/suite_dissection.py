@@ -2249,6 +2249,32 @@ class TestDissectTns:
             ['OCI, narrow (4-byte slots)', '5', '1', 'SELECT :v FROM DUAL'],
         ], rows
 
+    def test_tns_oci_status(self, cmd_tshark, capture_file, test_env):
+        '''A server answers an OCI client with a fixed-width little-endian
+        status block - 136 bytes, or a compact 24 - and a 7-byte TTI_STA
+        for a commit. Its fields are decoded once the conversation is known
+        to be an OCI client's.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_status.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tcp.srcport == 1521',
+            '-T', 'fields',
+            '-e', 'tns.data_oer.oci_status',
+            '-e', 'tns.data_oer.err_code',
+            '-e', 'tns.data_oer.rowcount',
+            '-e', 'tns.data_oer.command_type',
+            '-e', 'tns.data_oer.call_seq',
+            '-e', 'tns.data_oer.message',
+            '-e', 'tns.data_sta.seq',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert len(rows) == 4, rows
+        assert rows[0][:5] == ['5', '942', '0', '3', '4'], rows[0]
+        assert rows[0][5].startswith('ORA-00942'), rows[0]
+        assert rows[1][:5] == ['1', '0', '1', '2', '6'], rows[1]
+        assert rows[2][:5] == ['1', '0', '0', '3', ''], rows[2]
+        assert rows[3][6] == '7', rows[3]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

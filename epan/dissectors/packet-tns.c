@@ -316,6 +316,13 @@ static int hf_tns_data_wrn_length;
 static int hf_tns_data_wrn_flags;
 static int hf_tns_data_wrn_message;
 
+static int hf_tns_data_oci_oer_status;
+static int hf_tns_data_oci_oer_seq;
+static int hf_tns_data_oci_oer_category;
+static int hf_tns_data_oci_oer_error_pos;
+static int hf_tns_data_oci_oer_command;
+static int hf_tns_data_oci_oer_call_seq;
+
 static int hf_tns_data_sta_call_status;
 static int hf_tns_data_sta_seq;
 static int hf_tns_data_call_status_txn;
@@ -591,6 +598,32 @@ static const value_string tns_spb_opcodes[] = {
 	{TNS_SPB_AC_REPLAY_CONTEXT,        "Application Continuity Replay Context"},
 	{TNS_SPB_EXT_SYNC,                 "Extended Sync"},
 	{TNS_SPB_SESS_SIGNATURE,           "Session Signature"},
+	{0, NULL}
+};
+
+/* Status byte of an OCI client's status block. */
+static const value_string tns_oci_oer_status_vals[] = {
+	{1, "Success"},
+	{5, "Error"},
+	{0, NULL}
+};
+
+/* Statement command types, as V$SQL.COMMAND_TYPE numbers them. */
+static const value_string tns_command_types[] = {
+	{1,  "CREATE TABLE"},
+	{2,  "INSERT"},
+	{3,  "SELECT"},
+	{6,  "UPDATE"},
+	{7,  "DELETE"},
+	{9,  "CREATE INDEX"},
+	{12, "DROP TABLE"},
+	{15, "ALTER TABLE"},
+	{21, "CREATE VIEW"},
+	{22, "DROP VIEW"},
+	{44, "COMMIT"},
+	{45, "ROLLBACK"},
+	{47, "PL/SQL EXECUTE"},
+	{85, "TRUNCATE TABLE"},
 	{0, NULL}
 };
 
@@ -950,6 +983,8 @@ typedef struct _tns_conv_info_t {
 #define TNS_PROTO_DATA_BINDS    2
 /* p_add_proto_data key for the call a response packet answers. */
 #define TNS_PROTO_DATA_CALL     3
+/* p_add_proto_data key for whether a packet is in the OCI dialect. */
+#define TNS_PROTO_DATA_OCI      4
 
 /* Execute flag asking for the rows each array DML iteration affected. */
 #define TNS_EXEC_FLAGS_DML_ROWCOUNTS 0x4000
@@ -2474,12 +2509,101 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
 }
 
+/* Whether a packet belongs to a conversation whose client speaks the OCI
+ * dialect. Stored per packet on the first pass. */
+static bool tns_is_oci(packet_info *pinfo)
+{
+	void *stored = p_get_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_OCI);
+	if ( stored || PINFO_FD_VISITED(pinfo) )
+		return GPOINTER_TO_UINT(stored) == 2;
+
+	bool oci = tns_get_conv_info(pinfo)->oci_dialect;
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_OCI, GUINT_TO_POINTER(oci ? 2 : 1));
+	return oci;
+}
+
+/* Decode a server message to an OCI client. Its integers are fixed-width
+ * little-endian, so only the status messages, whose layout is known, are
+ * decoded; the rest is left to the data dissector. Returns the new
+ * offset. */
+static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, unsigned data_func_id)
+{
+	switch ( data_func_id )
+	{
+		case SQLNET_RETURN_STATUS:
+		{
+			/* The OCI status block: 136 bytes, or a compact 24 for a
+			 * query's execute status, the end of a fetch and a no-row
+			 * status. Offsets count from the message id byte; a field
+			 * this decoder skips is a constant or not understood. The
+			 * error message follows the full form. */
+			proto_tree *oer_tree;
+			proto_item *oer_item;
+			int base = offset - 1;
+			bool full = tvb_reported_length_remaining(tvb, base) >= 136;
+			uint32_t err_code;
+
+			if ( tvb_reported_length_remaining(tvb, base) < 24 )
+				return offset;
+			oer_tree = proto_tree_add_subtree(data_tree, tvb, base, full ? 136 : 24, ett_tns_oer, &oer_item,
+				full ? "Oracle Error Return (OCI)" : "Oracle Error Return (OCI, compact)");
+			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_status, tvb, base + 1, 1, ENC_NA);
+			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_seq, tvb, base + 5, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_int(oer_tree, hf_tns_data_oer_rowcount, tvb, base + 8, 4, (int32_t)tvb_get_letohl(tvb, base + 8));
+			err_code = tvb_get_letohl(tvb, base + 12);
+			proto_tree_add_int(oer_tree, hf_tns_data_oer_err_code, tvb, base + 12, 4, (int32_t)err_code);
+			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_category, tvb, base + 18, 1, ENC_NA);
+			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_error_pos, tvb, base + 20, 1, ENC_NA);
+			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_command, tvb, base + 22, 1, ENC_NA);
+			if ( !full )
+				return base + 24;
+			/* the sequence number of the call this answers - the client's
+			 * own, not the counter at offset 5 */
+			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_call_seq, tvb, base + 49, 2, ENC_LITTLE_ENDIAN);
+			offset = base + 136;
+			if ( err_code != 0 && tvb_reported_length_remaining(tvb, offset) > 0 )
+			{
+				const char *msg = NULL;
+				int msg_start = offset;
+				offset += get_dalc_custom(tvb, pinfo, offset, &msg);
+				if ( msg )
+				{
+					proto_tree_add_string(oer_tree, hf_tns_data_oer_message, tvb, msg_start, offset - msg_start, msg);
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", msg);
+				}
+				proto_item_set_len(oer_item, offset - base);
+			}
+			return offset;
+		}
+
+		case SQLNET_FUNCCOMPLETE:
+			/* TTI_STA, answering a commit, a rollback or a logoff: a
+			 * ub4 LE call status and a ub2 LE end-to-end sequence */
+			if ( !tvb_bytes_exist(tvb, offset, 6) )
+				return offset;
+			tns_add_call_status_flags(
+				proto_tree_add_item(data_tree, hf_tns_data_sta_call_status, tvb, offset, 4, ENC_LITTLE_ENDIAN),
+				tvb, offset, 4, tvb_get_letohl(tvb, offset));
+			proto_tree_add_item(data_tree, hf_tns_data_sta_seq, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+			return offset + 6;
+
+		default:
+			return offset;
+	}
+}
+
 /* Decode the body of one TTC message, whose id byte has already been
  * consumed. Sets ctx->walk when the decoder ended exactly on the
  * message's last byte, so the caller can step into whatever follows it.
  * Returns the new offset. */
 static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *data_tree, bool is_request, unsigned data_func_id, tns_msg_ctx_t *ctx)
 {
+	/* The thin decoders below would misread the fixed-width integers of
+	 * a server talking to an OCI client. */
+	if ( !is_request && data_func_id != SQLNET_SNS && data_func_id != SQLNET_RETURN_OPI_PARAM
+		&& tns_is_oci(pinfo) )
+		return dissect_tns_oci_message(tvb, offset, pinfo, data_tree, data_func_id);
+
 	/* Handle data functions that have more than just ID */
 	switch (data_func_id)
 	{
@@ -4944,6 +5068,24 @@ void proto_register_tns(void)
 		{ &hf_tns_data_wrn_message, {
 			"Message", "tns.data_wrn.message", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oci_oer_status, {
+			"Status", "tns.data_oer.oci_status", FT_UINT8, BASE_DEC,
+			VALS(tns_oci_oer_status_vals), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oci_oer_seq, {
+			"End-to-End Sequence", "tns.data_oer.seq", FT_UINT16, BASE_DEC,
+			NULL, 0x0, "A per-session counter the server advances with each reply", HFILL }},
+		{ &hf_tns_data_oci_oer_category, {
+			"Statement Category", "tns.data_oer.category", FT_UINT8, BASE_DEC,
+			NULL, 0x0, "2 for a statement that produces rows or values, 1 for one that does not", HFILL }},
+		{ &hf_tns_data_oci_oer_error_pos, {
+			"Error Position", "tns.data_oer.error_pos", FT_UINT8, BASE_DEC,
+			NULL, 0x0, "Offset into the SQL text of the parse error", HFILL }},
+		{ &hf_tns_data_oci_oer_command, {
+			"Command Type", "tns.data_oer.command_type", FT_UINT8, BASE_DEC,
+			VALS(tns_command_types), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oci_oer_call_seq, {
+			"Call Sequence", "tns.data_oer.call_seq", FT_UINT16, BASE_DEC,
+			NULL, 0x0, "Sequence number of the call this status answers", HFILL }},
 		{ &hf_tns_data_sta_call_status, {
 			"Call Status", "tns.data_sta.call_status", FT_UINT32, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
