@@ -23,10 +23,14 @@ import struct
 SQLNET_PIGGYBACK_FUNC = 17
 
 
+TTI_CLOSE_CURSORS = 105
+
+
 def piggyback(cursors: bytes) -> bytes:
-    """A piggyback request body: function id, piggyback id, sequence, then
-    the cursor count in whatever encoding the caller wants to try."""
-    return bytes([SQLNET_PIGGYBACK_FUNC, 0x01, 0x02]) + cursors
+    """A close-cursors piggyback request body: function id, piggyback id,
+    sequence, the pointer byte, then the cursor count in whatever encoding
+    the caller wants to try."""
+    return bytes([SQLNET_PIGGYBACK_FUNC, TTI_CLOSE_CURSORS, 0x02, 0x01]) + cursors
 
 
 frames = [

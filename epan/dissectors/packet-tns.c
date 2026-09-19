@@ -117,6 +117,7 @@ void proto_register_tns(void);
 #define TTI_FETCH               5
 #define TTI_ALL8                94
 #define TTI_LOBOPS              96
+#define TTI_CLOSE_CURSORS       105
 
 /* desegmentation of TNS over TCP */
 static bool tns_desegment = true;
@@ -2307,10 +2308,17 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		{
 			int cursors_len = 0;
 			int cursors_start;
+			uint8_t piggyback_id = tvb_get_uint8(tvb, offset);
 			proto_tree_add_item(data_tree, hf_tns_data_piggyback_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			proto_tree_add_item(data_tree, hf_tns_data_tseq, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
+			/* Only the close-cursors piggyback carries a cursor list:
+			 * a pointer byte, a ub4 count, then that many ub4 cursor
+			 * ids. The other piggybacks have bodies of their own. */
+			if ( piggyback_id != TTI_CLOSE_CURSORS )
+				break;
+			offset += 1; /* pointer */
 			cursors_start = offset;
 			offset += get_sb4_custom(tvb, offset, &cursors_len);
 			/* The count comes off the wire and every cursor takes at
@@ -2326,9 +2334,9 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 			}
 			for(int i = 0; i < cursors_len; i++) {
 				int cursor = 0;
-				int new_offset = get_sb4_custom(tvb, offset, &cursor);
-				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, offset, new_offset - offset, cursor);
-				offset = new_offset;
+				int len = get_sb4_custom(tvb, offset, &cursor);
+				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, offset, len, cursor);
+				offset += len;
 			}
 			break;
 		}

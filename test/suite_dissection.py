@@ -1698,6 +1698,19 @@ class TestDissectTns:
         assert 'Column 3 (VARCHAR): yo' in stdout, stdout
         assert 'Malformed' not in stdout, stdout
 
+    def test_tns_piggyback(self, cmd_tshark, capture_file, test_env):
+        '''The close-cursors piggyback is a pointer byte, a count and the
+        cursor ids. Two frames: cursors 3 and 5, then 300 and 70000.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_piggyback.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_piggyback.id',
+            '-e', 'tns.data.cursor',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [['0x69', '3,5'], ['0x69', '300,70000']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
