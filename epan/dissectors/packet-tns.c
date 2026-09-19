@@ -106,6 +106,7 @@ void proto_register_tns(void);
 #define SQLNET_FLUSH_BIND_DATA  19
 #define SQLNET_BIT_VECTOR       21
 #define SQLNET_SERVER_PIGGYBACK 23
+#define SQLNET_IMPLICIT_RESULTS 27
 #define SQLNET_END_OF_RESPONSE  29
 #define SQLNET_SNS              0xdeadbeef
 #define SQLNET_XTRN_PROCSERV_R1 32
@@ -324,6 +325,7 @@ static int hf_tns_data_rxh_iter_num;
 static int hf_tns_data_rxh_num_iters;
 static int hf_tns_data_bit_vector;
 static int hf_tns_data_bvc_num_cols_sent;
+static int hf_tns_data_irs_num_results;
 
 static int hf_tns_data_all8_options;
 static int hf_tns_data_all8_opt_parse;
@@ -405,6 +407,7 @@ static int ett_tns_reexec_options2;
 static int ett_tns_bind_row;
 static int ett_tns_rxd_row;
 static int ett_tns_value;
+static int ett_tns_irs;
 static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
@@ -492,6 +495,7 @@ static const value_string tns_data_funcs[] = {
 	{SQLNET_FLUSH_BIND_DATA,  "Flush Out Bind data in DML/w RETURN when error"},
 	{SQLNET_BIT_VECTOR,       "Bit Vector"},
 	{SQLNET_SERVER_PIGGYBACK, "Server-side Piggyback"},
+	{SQLNET_IMPLICIT_RESULTS, "Implicit Result Sets"},
 	{SQLNET_END_OF_RESPONSE,  "End of Response"},
 	{SQLNET_XTRN_PROCSERV_R1, "External Procedures and Services Registrations"},
 	{SQLNET_XTRN_PROCSERV_R2, "External Procedures and Services Registrations"},
@@ -1960,6 +1964,7 @@ static bool tns_is_next_message(unsigned data_func_id, bool is_request)
 		case SQLNET_WARNING:
 		case SQLNET_BIT_VECTOR:
 		case SQLNET_SERVER_PIGGYBACK:
+		case SQLNET_IMPLICIT_RESULTS:
 		case SQLNET_END_OF_RESPONSE:
 		case SQLNET_ROW_TRANSF_HDR:
 		case SQLNET_ROW_TRANSF_DATA:
@@ -2484,6 +2489,40 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				default:
 					/* Unknown opcode: its length is unknown too. */
 					return offset;
+			}
+			ctx->walk = true;
+			break;
+		}
+
+		case SQLNET_IMPLICIT_RESULTS:
+		{
+			/* The result sets a PL/SQL block returned with
+			 * DBMS_SQL.RETURN_RESULT: a ub4 count, then per result a
+			 * length-prefixed opaque blob, the describe of its columns,
+			 * and the ub2 cursor id the client fetches it with. */
+			int num = 0, start;
+
+			if ( is_request )
+				break;
+
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &num);
+			proto_tree_add_uint(data_tree, hf_tns_data_irs_num_results, tvb, start, offset - start, num);
+			for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+			{
+				proto_tree *rs_tree;
+				proto_item *rs_item;
+				int rs_start = offset, cursor = 0;
+
+				rs_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, -1,
+					ett_tns_irs, &rs_item, "Result Set %d", i + 1);
+				offset += 1 + tvb_get_uint8(tvb, offset);
+				offset = dissect_tns_describe_body(tvb, pinfo, rs_tree, offset, NULL);
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &cursor);
+				proto_tree_add_uint(rs_tree, hf_tns_cursor, tvb, start, offset - start, cursor);
+				proto_item_append_text(rs_item, ": cursor %d", cursor);
+				proto_item_set_len(rs_item, offset - rs_start);
 			}
 			ctx->walk = true;
 			break;
@@ -4383,6 +4422,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_bvc_num_cols_sent, {
 			"Columns Sent", "tns.data_bvc.num_cols_sent", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_irs_num_results, {
+			"Number of Result Sets", "tns.data_irs.num_results", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_rxh_num_iters, {
 			"Number of Iterations", "tns.data_rxh.num_iters", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -4559,6 +4601,7 @@ void proto_register_tns(void)
 		&ett_tns_bind_row,
 		&ett_tns_rxd_row,
 		&ett_tns_value,
+		&ett_tns_irs,
 		&ett_sql
 	};
 

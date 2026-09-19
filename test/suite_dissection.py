@@ -2070,6 +2070,22 @@ class TestDissectTns:
         assert 'Column 1: X (VARCHAR)' in stdout, stdout
         assert 'Malformed' not in stdout, stdout
 
+    def test_tns_implicit_results(self, cmd_tshark, capture_file, test_env):
+        '''The implicit result sets message carries, per result, a describe
+        and the cursor id to fetch it with; the status behind it follows.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_implicit_results.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_irs.num_results',
+            '-T', 'fields',
+            '-e', 'tns.data_irs.num_results',
+            '-e', 'tns.data_col.name',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data_oer.err_code',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [['2', 'A,B', '21,22', '0']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
