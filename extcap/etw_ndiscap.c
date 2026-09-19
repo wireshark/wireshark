@@ -190,6 +190,70 @@ static struct INTERFACE* GetInterface(unsigned long LowerIfIndex)
     return NULL;
 }
 
+#define MAX_TDH_PROPERTY_SIZE 16384
+
+static char *GetTdhWideStringProperty(PEVENT_RECORD ev, const wchar_t *PropertyName)
+{
+    PROPERTY_DATA_DESCRIPTOR Desc;
+    ULONG PropertySize = 0;
+    wchar_t *Buffer;
+    char *NarrowBuffer;
+    int Err, NarrowLen;
+
+    Desc.PropertyName = (unsigned long long)(PropertyName);
+    Desc.ArrayIndex = ULONG_MAX;
+
+    Err = TdhGetPropertySize(ev, 0, NULL, 1, &Desc, &PropertySize);
+    if (Err != NO_ERROR || PropertySize == 0 ||
+        PropertySize > MAX_TDH_PROPERTY_SIZE ||
+        PropertySize % sizeof(wchar_t) != 0) {
+        return _strdup("");
+    }
+
+    Buffer = malloc(PropertySize + sizeof(wchar_t));
+    if (Buffer == NULL) {
+        g_err = ERROR_OUTOFMEMORY;
+        sprintf_s(g_err_info, sizeof(g_err_info), "malloc failed to allocate memory for wide string property");
+        exit(1);
+    }
+
+    Err = TdhGetProperty(ev, 0, NULL, 1, &Desc, PropertySize, (PBYTE)Buffer);
+    if (Err != NO_ERROR) {
+        Buffer[0] = L'\0';
+    } else {
+        // Since PropertySize is a multiple of sizeof(wchar_t), this properly
+        // null terminates and WideCharToMultiByte will properly null terminate
+        // the return and include the null terminator in the returned length.
+        Buffer[PropertySize / sizeof(wchar_t)] = L'\0';
+    }
+
+    NarrowLen = WideCharToMultiByte(CP_ACP, 0, Buffer, -1, NULL, 0, NULL, NULL);
+    if (NarrowLen <= 0) {
+        free(Buffer);
+        return _strdup("");
+    }
+
+    NarrowBuffer = malloc(NarrowLen);
+    if (NarrowBuffer == NULL) {
+        free(Buffer);
+        g_err = ERROR_OUTOFMEMORY;
+        sprintf_s(g_err_info, sizeof(g_err_info), "malloc failed to allocate memory for wide string property");
+        exit(1);
+    }
+
+    WideCharToMultiByte(CP_ACP,
+        0,
+        Buffer,
+        -1,
+        NarrowBuffer,
+        NarrowLen,
+        NULL,
+        NULL);
+
+    free(Buffer);
+    return NarrowBuffer;
+}
+
 static struct INTERFACE* AddInterface(PEVENT_RECORD ev, unsigned long LowerIfIndex, unsigned long MiniportIfIndex, int Type)
 {
     struct INTERFACE** Iface = &InterfaceHashTable[HashInterface(LowerIfIndex) % IFACE_HT_SIZE];
@@ -218,88 +282,9 @@ static struct INTERFACE* AddInterface(PEVENT_RECORD ev, unsigned long LowerIfInd
     if (CurrentPacketIsVMSwitchPacketFragment) {
 
         NewIface->IsVMNic = true;
-
-        wchar_t Buffer[8192];
-        PROPERTY_DATA_DESCRIPTOR Desc;
-        int Err;
-
-        // SourceNicName
-        Desc.PropertyName = (unsigned long long)(L"SourceNicName");
-        Desc.ArrayIndex = ULONG_MAX;
-        ULONG ParamNameSize = 0;
-        (void)TdhGetPropertySize(ev, 0, NULL, 1, &Desc, &ParamNameSize);
-        NewIface->VMNic.SourceNicName = malloc((ParamNameSize / sizeof(wchar_t)) + 1);
-        if (NewIface->VMNic.SourceNicName == NULL) {
-            g_err = ERROR_OUTOFMEMORY;
-            sprintf_s(g_err_info, sizeof(g_err_info), "malloc failed to allocate memory for NewIface->VMNic.SourceNicName");
-            exit(1);
-        }
-        Err = TdhGetProperty(ev, 0, NULL, 1, &Desc, sizeof(Buffer), (PBYTE)Buffer);
-        if (Err != NO_ERROR) {
-            Buffer[0] = L'\0';
-        }
-        Buffer[ParamNameSize / sizeof(wchar_t) + 1] = L'\0';
-        WideCharToMultiByte(CP_ACP,
-            0,
-            Buffer,
-            -1,
-            NewIface->VMNic.SourceNicName,
-            ParamNameSize / sizeof(wchar_t) + 1,
-            NULL,
-            NULL);
-        NewIface->VMNic.SourceNicName[wcslen(Buffer)] = '\0';
-
-        // SourcePortName
-        Desc.PropertyName = (unsigned long long)(L"SourcePortName");
-        Desc.ArrayIndex = ULONG_MAX;
-        (void)TdhGetPropertySize(ev, 0, NULL, 1, &Desc, &ParamNameSize);
-        NewIface->VMNic.SourcePortName = malloc((ParamNameSize / sizeof(wchar_t)) + 1);
-        if (NewIface->VMNic.SourcePortName == NULL) {
-            g_err = ERROR_OUTOFMEMORY;
-            sprintf_s(g_err_info, sizeof(g_err_info), "malloc failed to allocate memory for NewIface->VMNic.SourcePortName");
-            exit(1);
-        }
-        Err = TdhGetProperty(ev, 0, NULL, 1, &Desc, sizeof(Buffer), (PBYTE)Buffer);
-        if (Err != NO_ERROR) {
-            Buffer[0] = L'\0';
-        }
-        Buffer[ParamNameSize / sizeof(wchar_t) + 1] = L'\0';
-        WideCharToMultiByte(CP_ACP,
-            0,
-            Buffer,
-            -1,
-            NewIface->VMNic.SourcePortName,
-            ParamNameSize / sizeof(wchar_t) + 1,
-            NULL,
-            NULL);
-        NewIface->VMNic.SourcePortName[wcslen(Buffer)] = '\0';
-
-        // SourceNicType
-        Desc.PropertyName = (unsigned long long)(L"SourceNicType");
-        Desc.ArrayIndex = ULONG_MAX;
-        (void)TdhGetPropertySize(ev, 0, NULL, 1, &Desc, &ParamNameSize);
-        NewIface->VMNic.SourceNicType = malloc((ParamNameSize / sizeof(wchar_t)) + 1);
-        if (NewIface->VMNic.SourceNicType == NULL) {
-            g_err = ERROR_OUTOFMEMORY;
-            sprintf_s(g_err_info, sizeof(g_err_info), "malloc failed to allocate memory for NewIface->VMNic.SourceNicType");
-            exit(1);
-        }
-        Err = TdhGetProperty(ev, 0, NULL, 1, &Desc, sizeof(Buffer), (PBYTE)Buffer);
-        if (Err != NO_ERROR) {
-            Buffer[0] = L'\0';
-        }
-        Buffer[ParamNameSize / sizeof(wchar_t) + 1] = L'\0';
-        WideCharToMultiByte(CP_ACP,
-            0,
-            Buffer,
-            -1,
-            NewIface->VMNic.SourceNicType,
-            ParamNameSize / sizeof(wchar_t) + 1,
-            NULL,
-            NULL);
-        NewIface->VMNic.SourceNicType[wcslen(Buffer)] = '\0';
-
-
+        NewIface->VMNic.SourceNicName = GetTdhWideStringProperty(ev, L"SourceNicName");
+        NewIface->VMNic.SourcePortName = GetTdhWideStringProperty(ev, L"SourcePortName");
+        NewIface->VMNic.SourceNicType = GetTdhWideStringProperty(ev, L"SourceNicType");
         NewIface->VMNic.SourcePortId = VMSwitchPacketFragment.SourcePortId;
         NewIface->VlanId = VMSwitchPacketFragment.VlanId;
     }
