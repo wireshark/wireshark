@@ -355,6 +355,9 @@ static int hf_tns_data_setdt_caphdr;
 static int hf_tns_data_setdt_caphdr_version;
 static int hf_tns_data_setdt_caphdr_flags;
 static int hf_tns_data_setdt_field_version;
+static int hf_tns_data_setdt_type;
+static int hf_tns_data_setdt_conv_type;
+static int hf_tns_data_setdt_rep;
 static int hf_tns_data_field_version;
 static int hf_tns_data_setdt_tblhdr;
 static int hf_tns_data_setdt_idmap;
@@ -4720,22 +4723,28 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 		case SQLNET_SET_DATATYPES:
 		{
 			/* TTI_DTY: Data Type Negotiation, sent right after TTI_PRO
-			 * during the TTC handshake. The body is a fixed-shape blob
-			 * the client uses to tell the server which native Oracle
-			 * data types it understands and what wire representation it
-			 * wants for each. Layout cross-referenced with
-			 * python-oracledb.
+			 * during the TTC handshake. The client tells the server its
+			 * capabilities and, for each native Oracle data type it
+			 * understands, the wire representation it wants. Layout
+			 * cross-referenced with python-oracledb.
 			 *
 			 *   charset_in        2 bytes LE   NLS_LANGUAGE charset id
 			 *   charset_out       2 bytes LE   NLS_NCHAR   charset id
 			 *   flag              1 byte       capability flag (1 = std)
-			 *   capability header 39 bytes     version triple + flag bytes
-			 *   table header      8 bytes      group/sub counts
-			 *   identity map     980 bytes     245 x (type, type, 1, 0)
-			 *   type overrides    var          entries, terminated by 0
-			 */
+			 *   compile caps      a length byte and the capabilities
+			 *   runtime caps      a length byte and the capabilities
+			 *   type entries      until a 0 type
+			 *
+			 * The entries are single bytes from an 11g client - (type,
+			 * conversion type, representation, 0), or just (type, 0) - and
+			 * big-endian 16-bit fields (type, conversion type,
+			 * representation, 0) from a 12c+ one; a table of 16-bit
+			 * entries opens with a zero byte. The single-byte table opens
+			 * with an identity map - (N, N, 1, 0) for each type N - that
+			 * is shown whole. */
 			proto_tree *caphdr_tree, *ov_tree;
 			proto_item *caphdr_item, *ov_item;
+			uint8_t caps_len;
 
 			if ( !is_request )
 				break;
@@ -4747,15 +4756,19 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			proto_tree_add_item(data_tree, hf_tns_data_setdt_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			caphdr_item = proto_tree_add_item(data_tree, hf_tns_data_setdt_caphdr, tvb, offset, 39, ENC_NA);
+			caps_len = tvb_get_uint8(tvb, offset);
+			caphdr_item = proto_tree_add_item(data_tree, hf_tns_data_setdt_caphdr, tvb, offset, 1 + caps_len, ENC_NA);
 			caphdr_tree = proto_item_add_subtree(caphdr_item, ett_tns_setdt_caphdr);
-			proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_caphdr_version, tvb, offset, 3, ENC_BIG_ENDIAN);
-			proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_caphdr_flags, tvb, offset + 3, 36, ENC_NA);
+			if ( caps_len >= 2 )
+			{
+				proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_caphdr_version, tvb, offset, 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_caphdr_flags, tvb, offset + 3, caps_len - 2, ENC_NA);
+			}
 			/* The header opens with the length of the client's compile
 			 * capabilities, and capability 7 is the TTC field version.
 			 * The client has already lowered it to the server's, so it
 			 * is the one the connection uses. */
-			if ( tvb_get_uint8(tvb, offset) > TNS_CCAP_FIELD_VERSION )
+			if ( caps_len > TNS_CCAP_FIELD_VERSION )
 			{
 				uint8_t fv = tvb_get_uint8(tvb, offset + 1 + TNS_CCAP_FIELD_VERSION);
 				proto_tree_add_item(caphdr_tree, hf_tns_data_setdt_field_version, tvb,
@@ -4763,20 +4776,53 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				if ( !PINFO_FD_VISITED(pinfo) )
 					tns_get_conv_info(pinfo)->field_version = fv;
 			}
-			offset += 39;
+			offset += 1 + caps_len;
 
-			proto_tree_add_item(data_tree, hf_tns_data_setdt_tblhdr, tvb, offset, 8, ENC_NA);
-			offset += 8;
-			proto_tree_add_item(data_tree, hf_tns_data_setdt_idmap, tvb, offset, 980, ENC_NA);
-			offset += 980;
+			/* runtime capabilities */
+			caps_len = tvb_get_uint8(tvb, offset);
+			proto_tree_add_item(data_tree, hf_tns_data_setdt_tblhdr, tvb, offset, 1 + caps_len, ENC_NA);
+			offset += 1 + caps_len;
+
+			ov_item = proto_tree_add_item(data_tree, hf_tns_data_setdt_overrides, tvb, offset, -1, ENC_NA);
+			ov_tree = proto_item_add_subtree(ov_item, ett_tns_setdt_overrides);
+			int ov_start = offset;
+			if ( tvb_reported_length_remaining(tvb, offset) > 0 && tvb_get_uint8(tvb, offset) == 0 )
+			{
+				/* 16-bit entries */
+				while ( tvb_reported_length_remaining(tvb, offset) >= 2 )
+				{
+					uint16_t type = tvb_get_ntohs(tvb, offset);
+					if ( type == 0 )
+					{
+						offset += 2;
+						break;
+					}
+					proto_tree *e_tree = proto_tree_add_subtree_format(ov_tree, tvb, offset, 8,
+						ett_tns_setdt_override, NULL, "Type %u (%s)",
+						type, val_to_str_const(type, tns_data_types, "unknown"));
+					proto_tree_add_item(e_tree, hf_tns_data_setdt_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(e_tree, hf_tns_data_setdt_conv_type, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(e_tree, hf_tns_data_setdt_rep, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+					offset += 8;
+				}
+				proto_item_set_len(ov_item, offset - ov_start);
+				break;
+			}
+
+			/* the identity run of the single-byte table */
+			int id_start = offset;
+			while ( tvb_bytes_exist(tvb, offset, 4) && tvb_get_uint8(tvb, offset) != 0
+				&& tvb_get_uint8(tvb, offset) == tvb_get_uint8(tvb, offset + 1)
+				&& tvb_get_uint8(tvb, offset + 2) == 1 && tvb_get_uint8(tvb, offset + 3) == 0 )
+				offset += 4;
+			if ( offset > id_start )
+				proto_tree_add_item(data_tree, hf_tns_data_setdt_idmap, tvb, id_start, offset - id_start, ENC_NA);
+			ov_start = offset;
 
 			/* Walk type-override entries until the 0 terminator. Each
 			 * entry is (client_type, server_repr[, format]); a 0 in the
 			 * server_repr slot marks a short "client knows the id but
 			 * has no override" entry. */
-			ov_item = proto_tree_add_item(data_tree, hf_tns_data_setdt_overrides, tvb, offset, -1, ENC_NA);
-			ov_tree = proto_item_add_subtree(ov_item, ett_tns_setdt_overrides);
-			int ov_start = offset;
 			while ( tvb_reported_length_remaining(tvb, offset) > 0 )
 			{
 				uint8_t client_type = tvb_get_uint8(tvb, offset);
@@ -7611,7 +7657,7 @@ void proto_register_tns(void)
 			"Flag", "tns.data_setdt.flag", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_setdt_caphdr, {
-			"Capability Header", "tns.data_setdt.caphdr", FT_BYTES, BASE_NONE,
+			"Compile Capabilities", "tns.data_setdt.caphdr", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_setdt_caphdr_version, {
 			"Version", "tns.data_setdt.caphdr.version", FT_UINT24, BASE_HEX,
@@ -7626,7 +7672,16 @@ void proto_register_tns(void)
 			"Field Version", "tns.data_setdt.field_version", FT_UINT8, BASE_DEC,
 			VALS(tns_field_versions), 0x0, "TTC field version the connection uses", HFILL }},
 		{ &hf_tns_data_setdt_tblhdr, {
-			"Table Header", "tns.data_setdt.tblhdr", FT_BYTES, BASE_NONE,
+			"Runtime Capabilities", "tns.data_setdt.tblhdr", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_type, {
+			"Data Type", "tns.data_setdt.type", FT_UINT16, BASE_DEC,
+			VALS(tns_data_types), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_conv_type, {
+			"Conversion Type", "tns.data_setdt.conv_type", FT_UINT16, BASE_DEC,
+			VALS(tns_data_types), 0x0, "The type the server sends it as", HFILL }},
+		{ &hf_tns_data_setdt_rep, {
+			"Representation", "tns.data_setdt.rep", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_setdt_idmap, {
 			"Identity Map", "tns.data_setdt.idmap", FT_BYTES, BASE_NONE,

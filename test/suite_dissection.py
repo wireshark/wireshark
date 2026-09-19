@@ -2989,6 +2989,21 @@ class TestDissectTns:
         assert rows[2][:3] == ['2', '2', 'MYQ'] and rows[2][4] == 'SUB1,SUB1', rows[2]
         assert all(r[6] == '' for r in rows), rows
 
+    def test_tns_dty_12c(self, cmd_tshark, capture_file, test_env):
+        '''A 12c+ client's TTI_DTY: capability arrays of their own lengths,
+        and a type table of big-endian 16-bit entries.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_dty_12c.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_setdt.field_version',
+            '-e', 'tns.data_setdt.type',
+            '-e', 'tns.data_setdt.rep',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['24', '1,2,112', '1,10,1', '']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
