@@ -2129,6 +2129,29 @@ class TestDissectTns:
             ['', '260', '0', ''],
         ], rows
 
+    def test_tns_piggyback_bodies(self, cmd_tshark, capture_file, test_env):
+        '''The piggybacks a thin client sends in front of a call are decoded
+        by function, and the call behind them too: end-to-end attributes,
+        set schema, close temporary LOBs and session state, then a commit.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_piggybacks.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_piggyback.module',
+            '-e', 'tns.data_piggyback.action',
+            '-e', 'tns.data_piggyback.schema',
+            '-e', 'tns.data_lob.op',
+            '-e', 'tns.data_lob.locator',
+            '-e', 'tns.data_piggyback.session_state',
+            '-e', 'tns.data_oci.id',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert len(rows) == 1, rows
+        r = rows[0]
+        assert r[0:4] == ['mod', 'act', 'HR', '0x00080111'], r
+        assert len(r[4].split(',')) == 2 and r[4].startswith('0026'), r
+        assert r[5] == '0x0000000000000005' and r[6] == '0x0e', r
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

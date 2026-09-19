@@ -124,6 +124,11 @@ void proto_register_tns(void);
 #define TTI_ALL8                94
 #define TTI_LOBOPS              96
 #define TTI_CLOSE_CURSORS       105
+#define TTI_SET_END_TO_END_ATTR 135
+#define TTI_SET_SCHEMA          152
+#define TTI_SESSION_STATE       176
+#define TTI_PIPELINE_BEGIN      199
+#define TTI_END_USER_SEC_CTX    205
 
 /* desegmentation of TNS over TCP */
 static bool tns_desegment = true;
@@ -365,6 +370,21 @@ static int hf_tns_data_lob_charset;
 static int hf_tns_data_lob_data;
 static int hf_tns_data_lob_amount;
 static int hf_tns_data_lob_flag;
+static int hf_tns_data_lob_total_size;
+static int hf_tns_data_pgy_schema;
+static int hf_tns_data_pgy_session_state;
+static int hf_tns_data_pgy_e2e_flags;
+static int hf_tns_data_pgy_client_id;
+static int hf_tns_data_pgy_module;
+static int hf_tns_data_pgy_action;
+static int hf_tns_data_pgy_client_info;
+static int hf_tns_data_pgy_dbop;
+static int hf_tns_data_pgy_error_set_id;
+static int hf_tns_data_pgy_error_set_mode;
+static int hf_tns_data_pgy_pipeline_mode;
+static int hf_tns_data_pgy_sec_flags;
+static int hf_tns_data_pgy_sec_key;
+static int hf_tns_data_pgy_sec_value;
 static int hf_tns_data_col_value;
 static int hf_tns_data_lob_size;
 static int hf_tns_data_lob_chunk_size;
@@ -1903,6 +1923,164 @@ static int dissect_tns_return_params(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 		}
 	}
 	proto_item_set_len(rpa_item, offset - rpa_start);
+	return offset;
+}
+
+/* Decode the body of a piggyback other than close-cursors. Layouts
+ * follow python-oracledb's _write_*_piggyback. Sets *walk when the body
+ * was understood, so the call behind it can be decoded. Returns the new
+ * offset. */
+static int dissect_tns_piggyback_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t piggyback_id, bool *walk)
+{
+	int v = 0, start;
+	uint64_t u = 0;
+
+	switch ( piggyback_id )
+	{
+		case TTI_LOBOPS:
+		{
+			/* close temporary LOBs: a FREE_TEMP | ARRAY LOB operation
+			 * whose locators, each with its own ub2 length prefix, follow
+			 * back to back - as many bytes as the total says. */
+			int total = 0, op = 0;
+			offset += 1;                                   /* pointer */
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &total);
+			proto_tree_add_uint(tree, hf_tns_data_lob_total_size, tvb, start, offset - start, total);
+			offset += 1;                                   /* dest locator pointer */
+			offset += get_sb4_custom(tvb, offset, &v);     /* dest locator length */
+			offset += get_sb4_custom(tvb, offset, &v);     /* source locator */
+			offset += get_sb4_custom(tvb, offset, &v);
+			offset += 3;                                   /* offsets, charset */
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &op);
+			proto_tree_add_uint(tree, hf_tns_data_lob_op, tvb, start, offset - start, op);
+			offset += 1;                                   /* scn */
+			offset += get_sb4_custom(tvb, offset, &v);     /* losbscn */
+			offset += get_ub8_custom(tvb, offset, &u);     /* lobscnl */
+			offset += get_ub8_custom(tvb, offset, &u);
+			offset += 1;
+			for ( int i = 0; i < 3; i++ )                   /* array LOB fields */
+			{
+				offset += 1;
+				offset += get_sb4_custom(tvb, offset, &v);
+			}
+			if ( total < 0 || (unsigned)total > tvb_reported_length_remaining(tvb, offset) )
+			{
+				proto_tree_add_expert(tree, pinfo, &ei_tns_data_count_too_large, tvb, offset, 0);
+				return offset;
+			}
+			for ( int end = offset + total; offset + 2 <= end; )
+			{
+				int len = 2 + tvb_get_ntohs(tvb, offset);
+				if ( offset + len > end )
+					len = end - offset;
+				proto_tree_add_item(tree, hf_tns_data_lob_locator, tvb, offset, len, ENC_NA);
+				offset += len;
+			}
+			break;
+		}
+
+		case TTI_SET_SCHEMA:
+		{
+			const char *schema = NULL;
+			offset += 1;                                   /* pointer */
+			start = offset;
+			offset += get_field_with_length(tvb, pinfo, offset, &schema);
+			if ( schema )
+				proto_tree_add_string(tree, hf_tns_data_pgy_schema, tvb, start, offset - start, schema);
+			break;
+		}
+
+		case TTI_SESSION_STATE:
+			start = offset;
+			offset += get_ub8_custom(tvb, offset, &u);
+			proto_tree_add_uint64(tree, hf_tns_data_pgy_session_state, tvb, start, offset - start, u);
+			break;
+
+		case TTI_PIPELINE_BEGIN:
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(tree, hf_tns_data_pgy_error_set_id, tvb, start, offset - start, v);
+			proto_tree_add_item(tree, hf_tns_data_pgy_error_set_mode, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			proto_tree_add_item(tree, hf_tns_data_pgy_pipeline_mode, tvb, offset, 1, ENC_NA);
+			offset += 1;
+			break;
+
+		case TTI_SET_END_TO_END_ATTR:
+		{
+			/* End-to-end attributes: a flags word saying which changed,
+			 * then a (pointer, length) header for each attribute - some
+			 * never used - and finally the strings of those that have a
+			 * value, in the same order. */
+			static int * const hfs[] = { &hf_tns_data_pgy_client_id, &hf_tns_data_pgy_module,
+				&hf_tns_data_pgy_action, NULL, &hf_tns_data_pgy_client_info, NULL, NULL,
+				&hf_tns_data_pgy_dbop };
+			int lens[array_length(hfs)];
+
+			offset += 2;                                   /* cidnam, cidser pointers */
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(tree, hf_tns_data_pgy_e2e_flags, tvb, start, offset - start, v);
+			for ( unsigned i = 0; i < array_length(hfs); i++ )
+			{
+				uint8_t ptr = tvb_get_uint8(tvb, offset);
+				offset += 1;
+				offset += get_sb4_custom(tvb, offset, &lens[i]);
+				if ( !ptr || !hfs[i] )
+					lens[i] = 0;
+				if ( i == 3 )                                /* cideci is followed by cidcct, cidecs */
+				{
+					offset += 1;
+					offset += get_sb4_custom(tvb, offset, &v);
+				}
+			}
+			for ( unsigned i = 0; i < array_length(hfs); i++ )
+			{
+				const char *str = NULL;
+				if ( lens[i] <= 0 )
+					continue;
+				start = offset;
+				offset += get_dalc_custom(tvb, pinfo, offset, &str);
+				if ( str )
+					proto_tree_add_string(tree, *hfs[i], tvb, start, offset - start, str);
+			}
+			break;
+		}
+
+		case TTI_END_USER_SEC_CTX:
+		{
+			/* End-user security context: flags, then key/value pairs, each
+			 * a flags word and a key, a text and a value in the
+			 * bytes_with_length form. */
+			int num = 0;
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(tree, hf_tns_data_pgy_sec_flags, tvb, start, offset - start, v);
+			offset += 1;                                   /* pointer */
+			offset += get_sb4_custom(tvb, offset, &num);
+			for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+			{
+				const char *key = NULL;
+				offset += get_sb4_custom(tvb, offset, &v); /* flags */
+				start = offset;
+				offset += get_field_with_length(tvb, pinfo, offset, &key);
+				if ( key )
+					proto_tree_add_string(tree, hf_tns_data_pgy_sec_key, tvb, start, offset - start, key);
+				offset += get_field_with_length(tvb, pinfo, offset, NULL); /* text */
+				start = offset;
+				offset += get_field_with_length(tvb, pinfo, offset, NULL);
+				proto_tree_add_item(tree, hf_tns_data_pgy_sec_value, tvb, start, offset - start, ENC_NA);
+			}
+			break;
+		}
+
+		default:
+			/* An unknown body has an unknown length. */
+			return offset;
+	}
+	*walk = true;
 	return offset;
 }
 
@@ -3539,7 +3717,10 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			 * a pointer byte, a ub4 count, then that many ub4 cursor
 			 * ids. The other piggybacks have bodies of their own. */
 			if ( piggyback_id != TTI_CLOSE_CURSORS )
+			{
+				offset = dissect_tns_piggyback_body(tvb, pinfo, data_tree, offset, piggyback_id, &ctx->walk);
 				break;
+			}
 			offset += 1; /* pointer */
 			cursors_start = offset;
 			offset += get_sb4_custom(tvb, offset, &cursors_len);
@@ -4715,6 +4896,51 @@ void proto_register_tns(void)
 		{ &hf_tns_data_lob_data, {
 			"Data", "tns.data_lob.data", FT_BYTES, BASE_NONE,
 			NULL, 0x0, "LOB content; UTF-16BE for a CLOB", HFILL }},
+		{ &hf_tns_data_lob_total_size, {
+			"Total Locator Size", "tns.data_lob.total_size", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_schema, {
+			"Current Schema", "tns.data_piggyback.schema", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_session_state, {
+			"Session State", "tns.data_piggyback.session_state", FT_UINT64, BASE_HEX,
+			NULL, 0x0, "Request boundary: the client begins or ends a request", HFILL }},
+		{ &hf_tns_data_pgy_e2e_flags, {
+			"Changed Attributes", "tns.data_piggyback.e2e_flags", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_client_id, {
+			"Client Identifier", "tns.data_piggyback.client_id", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_module, {
+			"Module", "tns.data_piggyback.module", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_action, {
+			"Action", "tns.data_piggyback.action", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_client_info, {
+			"Client Info", "tns.data_piggyback.client_info", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_dbop, {
+			"Database Operation", "tns.data_piggyback.dbop", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_error_set_id, {
+			"Error Set Id", "tns.data_piggyback.error_set_id", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_error_set_mode, {
+			"Error Set Mode", "tns.data_piggyback.error_set_mode", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_pipeline_mode, {
+			"Pipeline Mode", "tns.data_piggyback.pipeline_mode", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_sec_flags, {
+			"Security Context Flags", "tns.data_piggyback.sec_flags", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_sec_key, {
+			"Security Context Key", "tns.data_piggyback.sec_key", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_sec_value, {
+			"Security Context Value", "tns.data_piggyback.sec_value", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_lob_flag, {
 			"Result", "tns.data_lob.flag", FT_BOOLEAN, BASE_NONE,
 			NULL, 0x0, "Whether the LOB is open, or the file exists", HFILL }},
