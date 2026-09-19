@@ -4131,6 +4131,7 @@ static bool tns_is_next_message(packet_info *pinfo, unsigned data_func_id, bool 
 	switch ( data_func_id )
 	{
 		case SQLNET_RETURN_STATUS:
+		case SQLNET_SET_DATATYPES:
 		case SQLNET_FLUSH_BIND_DATA:
 		case SQLNET_FUNCCOMPLETE:
 		case SQLNET_WARNING:
@@ -4716,6 +4717,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				caps_len = tvb_get_uint8(tvb, offset);
 				proto_tree_add_item(data_tree, hf_tns_data_setp_runtime_caps, tvb, offset, 1 + caps_len, ENC_NA);
 				offset += 1 + caps_len;
+				ctx->walk = true;
 			}
 			break;
 		}
@@ -4747,7 +4749,34 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			uint8_t caps_len;
 
 			if ( !is_request )
+			{
+				/* The server's reply, from 12.1: 16-bit (type, conversion
+				 * type) pairs - with four more bytes when the conversion
+				 * type is not 0 - up to a 0 type. */
+				if ( tns_field_version(pinfo) < TNS_FV_12_1 )
+					break;
+				while ( tvb_reported_length_remaining(tvb, offset) >= 2 )
+				{
+					uint16_t type = tvb_get_ntohs(tvb, offset);
+					uint16_t conv;
+					if ( type == 0 )
+					{
+						offset += 2;
+						ctx->walk = true;
+						break;
+					}
+					conv = tvb_get_ntohs(tvb, offset + 2);
+					proto_tree *e_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, conv ? 8 : 4,
+						ett_tns_setdt_override, NULL, "Type %u (%s)",
+						type, val_to_str_const(type, tns_data_types, "unknown"));
+					proto_tree_add_item(e_tree, hf_tns_data_setdt_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(e_tree, hf_tns_data_setdt_conv_type, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+					if ( conv )
+						proto_tree_add_item(e_tree, hf_tns_data_setdt_rep, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+					offset += conv ? 8 : 4;
+				}
 				break;
+			}
 
 			proto_tree_add_item(data_tree, hf_tns_data_setdt_charset_in, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;

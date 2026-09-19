@@ -3004,6 +3004,21 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['24', '1,2,112', '1,10,1', '']], rows
 
+    def test_tns_dty_reply(self, cmd_tshark, capture_file, test_env):
+        '''A 12c+ server's TTI_DTY reply lists 16-bit type pairs up to a 0
+        type; the message after it is decoded too.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_dty_reply.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tcp.srcport == 1521',
+            '-T', 'fields',
+            '-e', 'tns.data_setdt.type',
+            '-e', 'tns.data_setdt.conv_type',
+            '-e', 'tns.data_sta.call_status',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [['1,2', '1,0', '0x00000001']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
