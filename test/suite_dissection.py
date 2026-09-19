@@ -2680,6 +2680,20 @@ class TestDissectTns:
         assert '(VECTOR): FLOAT64[1]: [0.25]' in stdout, stdout
         assert '(VECTOR): sparse FLOAT32 of 300 dimensions: {299: 1.5}' in stdout, stdout
 
+    def test_tns_oson_render(self, cmd_tshark, capture_file, test_env):
+        '''An OSON image is rendered as JSON text: relative offsets and a
+        shared field-id object of a compressed column, a version 3 image
+        with a field name over 255 bytes, and nested containers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oson.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert '(JSON): [{"a": 1, "b": "x"}, {"a": 2, "b": "y"}]' in stdout, stdout
+        # the label is cut short; the full text is past its length
+        assert '(JSON): {"' + 'A' * 100 in stdout, stdout
+        assert '(JSON): {"k": [true, null, "s"]}' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
