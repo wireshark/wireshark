@@ -1411,7 +1411,7 @@ class TestDissectTns:
             '-e', 'tns.data_setdt.caphdr.version',
             '-e', 'tns.data_setdt.override.client',
         ), encoding='utf-8', env=test_env)
-        # data_id = 2 (Set Datatypes); charset = 871 (US7ASCII) both ways;
+        # data_id = 2 (Set Datatypes); charset = 871 (UTF8) both ways;
         # version triple in capability header = 0x260601 (38, 6, 1);
         # override client list ends with the 0 terminator and includes
         # both long entries (e.g. 91) and short entries (e.g. 13).
