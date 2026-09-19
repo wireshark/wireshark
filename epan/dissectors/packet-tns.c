@@ -946,6 +946,7 @@ typedef struct _tns_describe_t {
  * execute of the same cursor may send its values with no descriptors. */
 typedef struct _tns_binds_t {
 	uint32_t count;
+	uint32_t num_return;    /* the last num_return are RETURNING ... INTO binds */
 	tns_column_t *cols;
 } tns_binds_t;
 
@@ -955,6 +956,7 @@ typedef struct _tns_call_t {
 	uint8_t func;           /* OCI function id */
 	uint32_t exec_flags;    /* al8i4[9] of a TTI_ALL8 execute */
 	uint32_t num_binds;     /* bind types of an execute */
+	uint32_t num_return;    /* ... of which the last are RETURNING ... INTO binds */
 	tns_column_t *binds;
 	uint32_t lob_op;        /* TTI_LOBOPS operation */
 	uint32_t lob_locator_len; /* ... its source locator length */
@@ -2006,6 +2008,70 @@ static tns_describe_t *tns_current_describe(packet_info *pinfo)
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_tns,
 			TNS_PROTO_DATA_DESCRIBE, desc);
 	return desc;
+}
+
+/* Count the RETURNING ... INTO binds of a statement: the placeholders
+ * after INTO, in a DML statement that has RETURNING ... INTO. Each
+ * placeholder is a bind of its own, and those after INTO come last. A
+ * PL/SQL block is never this form - a RETURNING INTO inside one is its
+ * own PL/SQL, and its target an ordinary OUT bind. String literals and
+ * comments are skipped. */
+static unsigned tns_count_return_binds(const char *sql)
+{
+	const char *p = sql;
+	bool first_word = true, returning = false, into = false;
+	unsigned n = 0;
+
+	while ( *p )
+	{
+		if ( *p == '\'' )
+		{
+			for ( p++; *p && *p != '\''; p++ )
+				;
+			if ( *p )
+				p++;
+		}
+		else if ( p[0] == '-' && p[1] == '-' )
+		{
+			while ( *p && *p != '\n' )
+				p++;
+		}
+		else if ( p[0] == '/' && p[1] == '*' )
+		{
+			const char *end = strstr(p + 2, "*/");
+			p = end ? end + 2 : p + strlen(p);
+		}
+		else if ( g_ascii_isalpha(*p) )
+		{
+			const char *w = p;
+			size_t len;
+			while ( g_ascii_isalnum(*p) || *p == '_' || *p == '$' || *p == '#' )
+				p++;
+			len = p - w;
+			if ( first_word )
+			{
+				first_word = false;
+				if ( !((len == 6 && (g_ascii_strncasecmp(w, "INSERT", 6) == 0
+						|| g_ascii_strncasecmp(w, "UPDATE", 6) == 0
+						|| g_ascii_strncasecmp(w, "DELETE", 6) == 0))
+					|| (len == 5 && g_ascii_strncasecmp(w, "MERGE", 5) == 0)) )
+					return 0;
+			}
+			else if ( !returning && len == 9 && g_ascii_strncasecmp(w, "RETURNING", 9) == 0 )
+				returning = true;
+			else if ( returning && !into && len == 4 && g_ascii_strncasecmp(w, "INTO", 4) == 0 )
+				into = true;
+		}
+		else if ( *p == ':' && into && (g_ascii_isalnum(p[1]) || p[1] == '_' || p[1] == '"') )
+		{
+			n++;
+			for ( p++; g_ascii_isalnum(*p) || *p == '_' || *p == '"'; p++ )
+				;
+		}
+		else
+			p++;
+	}
+	return n;
 }
 
 /* Look up the bind types remembered for a cursor, for an execute that
@@ -3306,6 +3372,38 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				break;
 			}
 
+			const tns_call_t *rcall = tns_answered_call(pinfo);
+			if ( rcall && rcall->num_return > 0 && rcall->binds )
+			{
+				/* The values a DML RETURNING ... INTO returned: for each
+				 * return bind a ub4 row count - every row the statement
+				 * touched - then that many values, each followed by its
+				 * sb4 return code. */
+				proto_tree *rv_tree;
+				proto_item *rv_item;
+				int rv_start = offset, rc = 0, start;
+
+				rv_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
+					ett_tns_out_binds, &rv_item, "Returned Values");
+				for ( uint32_t i = rcall->num_binds - rcall->num_return; i < rcall->num_binds
+					&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+				{
+					int rows = 0;
+					offset += get_sb4_custom(tvb, offset, &rows);
+					for ( int j = 0; j < rows && tvb_reported_length_remaining(tvb, offset) > 0; j++ )
+					{
+						offset = dissect_tns_value(tvb, pinfo, rv_tree, offset, rcall->binds[i].type,
+							rcall->binds[i].csform, i + 1, hf_tns_data_bind_value, "Bind");
+						start = offset;
+						offset += get_sb4_custom(tvb, offset, &rc);
+						proto_tree_add_int(rv_tree, hf_tns_data_bind_retcode, tvb, start, offset - start, rc);
+					}
+				}
+				proto_item_set_len(rv_item, offset - rv_start);
+				ctx->walk = true;
+				break;
+			}
+
 			desc = tns_current_describe(pinfo);
 
 			if ( desc && desc->num_cols > 0 )
@@ -3436,8 +3534,16 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 					binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 						ett_tns_binds, &binds_item, "Binds");
-					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols, binds->count);
+					/* RETURNING ... INTO binds send no value */
+					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols,
+						binds->count - binds->num_return);
 					proto_item_set_len(binds_item, offset - binds_start);
+				}
+				if ( call && binds )
+				{
+					call->num_binds = binds->count;
+					call->num_return = binds->num_return;
+					call->binds = binds->cols;
 				}
 			}
 			else if ( oci_id == TTI_ALL8 && tvb_bytes_exist(tvb, offset + TNS_OCI_ALL8_IND - 3, 8)
@@ -3506,6 +3612,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * rows follow the al8 array. */
 				int v = 0, options = 0, cursor = 0, query_len = 0, all8_len = 0;
 				int fetch = 0, bind_count = 0, define_count = 0, start;
+				const uint8_t *sql = NULL;
 				uint8_t query_flag;
 
 				/* options (ub4) + flag breakdown */
@@ -3572,7 +3679,6 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				/* SQL text — a flat run of query_len bytes on 11g */
 				if ( query_flag && query_len > 0 )
 				{
-					const uint8_t *sql;
 					proto_tree_add_item_ret_string(data_tree, hf_tns_data_all8_sql, tvb,
 						offset, query_len, ENC_UTF_8|ENC_NA, pinfo->pool, &sql);
 					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", sql);
@@ -3647,6 +3753,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						if ( call )
 						{
 							call->num_binds = binds->count;
+							call->num_return = binds->num_return;
 							call->binds = binds->cols;
 						}
 						proto_item *binds_item;
@@ -3655,7 +3762,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 						binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 							ett_tns_binds, &binds_item, "Binds");
-						offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols, binds->count);
+						offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols,
+							binds->count - binds->num_return);
 						proto_item_set_len(binds_item, offset - binds_start);
 					}
 				}
@@ -3684,9 +3792,16 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						proto_item_set_len(bind_item, offset - b_start);
 					}
 
+					/* A DML RETURNING ... INTO statement sends no values for
+					 * its return binds, the last ones. */
+					unsigned num_return = sql ? tns_count_return_binds((const char *)sql) : 0;
+					if ( num_return > (unsigned)bind_count )
+						num_return = 0;
+
 					if ( call )
 					{
 						call->num_binds = bind_count;
+						call->num_return = num_return;
 						call->binds = bcols;
 					}
 
@@ -3696,6 +3811,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					{
 						tns_binds_t *binds = wmem_new0(wmem_file_scope(), tns_binds_t);
 						binds->count = bind_count;
+						binds->num_return = num_return;
 						binds->cols = bcols;
 						if ( cursor != 0 )
 							wmem_map_insert(tns_info->cursor_binds, GUINT_TO_POINTER(cursor), binds);
@@ -3706,7 +3822,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					/* Value rows: a TTI_RXD token then one DALC value per bind
 					 * column (an ordinary execute sends one row, executemany
 					 * sends N), decoded and rendered by the bind's type. */
-					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, bcols, bind_count);
+					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, bcols, bind_count - num_return);
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
 

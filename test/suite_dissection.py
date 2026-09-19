@@ -2275,6 +2275,25 @@ class TestDissectTns:
         assert rows[2][:5] == ['1', '0', '0', '3', ''], rows[2]
         assert rows[3][6] == '7', rows[3]
 
+    def test_tns_returning(self, cmd_tshark, capture_file, test_env):
+        '''DML RETURNING ... INTO: the return binds send no value in the
+        request, and the reply carries a row count and the values for each.
+        A PL/SQL block is never this form.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_returning.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_bind.value',
+            '-e', 'tns.data_oer.rowcount',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['78,c106', '', ''],
+            ['c107,c108,78,78', '2', ''],
+            ['79,fd01', '', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
