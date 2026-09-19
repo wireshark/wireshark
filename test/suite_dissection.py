@@ -1960,6 +1960,21 @@ class TestDissectTns:
             ['7,4', '', '', '123', '45', '0'],
         ], rows
 
+    def test_tns_warning(self, cmd_tshark, capture_file, test_env):
+        '''TTI_WRN carries a warning number and message; the status behind
+        it is still decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_wrn.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_wrn.code',
+            '-T', 'fields',
+            '-e', 'tns.data_wrn.code',
+            '-e', 'tns.data_wrn.message',
+            '-e', 'tns.data_oer.err_code',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [['24344', 'ORA-24344: success with compilation error', '0']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

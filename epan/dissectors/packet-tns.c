@@ -294,6 +294,11 @@ static int hf_tns_data_kv_text;
 static int hf_tns_data_kv_binary;
 static int hf_tns_data_kv_keyword;
 
+static int hf_tns_data_wrn_code;
+static int hf_tns_data_wrn_length;
+static int hf_tns_data_wrn_flags;
+static int hf_tns_data_wrn_message;
+
 static int hf_tns_data_sta_call_status;
 static int hf_tns_data_sta_seq;
 static int hf_tns_data_call_status_txn;
@@ -1714,6 +1719,7 @@ static bool tns_is_next_message(unsigned data_func_id, bool is_request)
 	{
 		case SQLNET_RETURN_STATUS:
 		case SQLNET_FUNCCOMPLETE:
+		case SQLNET_WARNING:
 		case SQLNET_SERVER_PIGGYBACK:
 		case SQLNET_END_OF_RESPONSE:
 		case SQLNET_ROW_TRANSF_HDR:
@@ -2094,6 +2100,41 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			start = offset;
 			offset += get_sb4_custom(tvb, offset, &v);
 			proto_tree_add_uint(data_tree, hf_tns_data_sta_seq, tvb, start, offset - start, v);
+			*walk = true;
+			break;
+		}
+
+		case SQLNET_WARNING:
+		{
+			/* TTI_WRN: a warning that does not fail the call - PL/SQL
+			 * compiled with errors, say. A ub2 warning number, a ub2
+			 * message length and ub2 flags, then the message itself when
+			 * both are non-zero. */
+			int code = 0, len = 0, v = 0, start;
+
+			if ( is_request )
+				break;
+
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &code);
+			proto_tree_add_uint(data_tree, hf_tns_data_wrn_code, tvb, start, offset - start, code);
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &len);
+			proto_tree_add_uint(data_tree, hf_tns_data_wrn_length, tvb, start, offset - start, len);
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			proto_tree_add_uint(data_tree, hf_tns_data_wrn_flags, tvb, start, offset - start, v);
+			if ( code != 0 && len > 0 )
+			{
+				const char *msg = NULL;
+				start = offset;
+				offset += get_dalc_custom(tvb, pinfo, offset, &msg);
+				if ( msg )
+				{
+					proto_tree_add_string(data_tree, hf_tns_data_wrn_message, tvb, start, offset - start, msg);
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", msg);
+				}
+			}
 			*walk = true;
 			break;
 		}
@@ -3992,6 +4033,18 @@ void proto_register_tns(void)
 		{ &hf_tns_data_kv_keyword, {
 			"Keyword", "tns.data_kv.keyword", FT_UINT16, BASE_DEC,
 			VALS(tns_kv_keywords), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_wrn_code, {
+			"Warning Code", "tns.data_wrn.code", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_wrn_length, {
+			"Message Length", "tns.data_wrn.length", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_wrn_flags, {
+			"Flags", "tns.data_wrn.flags", FT_UINT16, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_wrn_message, {
+			"Message", "tns.data_wrn.message", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_sta_call_status, {
 			"Call Status", "tns.data_sta.call_status", FT_UINT32, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
