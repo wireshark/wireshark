@@ -2960,7 +2960,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
 
                     /* Create tvb */
-                    tvbuff_t *mac_nr_tvb = tvb_new_real_data(mac_data, idx, idx);
+                    tvbuff_t *mac_nr_tvb = tvb_new_child_real_data(tvb, (const uint8_t*)mac_data, idx, idx);
                     add_new_data_source(pinfo, mac_nr_tvb, "MAC-NR Payload");
                     /* Call the dissector! */
                     call_dissector_only(mac_nr_handle, mac_nr_tvb, pinfo, tree, NULL);
@@ -2985,10 +2985,10 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     int idx, m;
 
                     /* The rest (or all) is data! */
-                    length = (int)strlen(payload) / 2;
                     for (m=0, idx=0; payload[m] != '\0' && idx < MAX_NRUP_DATA_LENGTH-4; m+=2, idx++) {
                         nrup_data[idx] = (hex_from_char(payload[m]) << 4) + hex_from_char(payload[m+1]);
                     }
+                    length = idx;
                     /* Pad out to nearest 4 bytes if necessary. */
                     if (length % 4 != 0) {
                         for (int p=length % 4; p < 4; p++) {
@@ -2997,7 +2997,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
 
                     /* Create separate NRUP tvb */
-                    tvbuff_t *nrup_tvb = tvb_new_real_data(nrup_data, length, length);
+                    /* XXX - Should the reported length be based upon
+                     * strlen(payload) / 2 as we might have truncated? */
+                    tvbuff_t *nrup_tvb = tvb_new_child_real_data(tvb, nrup_data, length, length);
                     add_new_data_source(pinfo, nrup_tvb, "NRUP Payload");
 
                     /* Call the dissector! */
@@ -3064,7 +3066,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
 
                     /* Create tvb */
-                    tvbuff_t *raw_traffic_tvb = tvb_new_real_data(eth_data, idx, idx);
+                    tvbuff_t *raw_traffic_tvb = tvb_new_child_real_data(tvb, eth_data, idx, idx);
                     add_new_data_source(pinfo, raw_traffic_tvb, "Raw-Traffic Payload");
 
                     /* PDU */
