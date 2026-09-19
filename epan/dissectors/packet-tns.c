@@ -118,6 +118,15 @@ void proto_register_tns(void);
 #define OPI_OSESSKEY            2
 #define OPI_OAUTH               3
 
+/* An OCI client's execute preamble: offsets from the TTI_FUN byte, and
+ * the 8-byte pointer indicator its fixed slots sit between. */
+#define TNS_OCI_INDICATOR        UINT64_C(0xfeffffffffffffff)
+#define TNS_OCI_ALL8_CURSOR      7
+#define TNS_OCI_ALL8_IND         11
+#define TNS_OCI_ALL8_SQLLEN3     19
+#define TNS_OCI_ALL8_IND2_NARROW 23
+#define TNS_OCI_ALL8_IND2_WIDE   27
+
 /* OCI function ids (TTI_FUN sub-functions). */
 #define TTI_REEXECUTE           4
 #define TTI_FETCH               5
@@ -358,6 +367,7 @@ static int hf_tns_data_all8_fetch_pos;
 static int hf_tns_data_all8_fetch_rows;
 static int hf_tns_data_all8_bind_count;
 static int hf_tns_data_all8_define_count;
+static int hf_tns_data_all8_oci_preamble;
 static int hf_tns_data_all8_sql;
 static int hf_tns_data_bind_value;
 static int hf_tns_data_fetch_rows;
@@ -922,6 +932,10 @@ typedef struct _tns_conv_info_t {
 	uint32_t pending_connect_data;
 	/* The most recent call the client made. */
 	tns_call_t *last_call;
+	/* The client speaks the OCI dialect: fixed-width little-endian
+	 * integers and 8-byte pointer indicators, where a thin client uses
+	 * variable-length integers and 1-byte pointer flags. */
+	bool oci_dialect;
 	tns_describe_t *last_describe;
 	/* Bind types of an execute that opened a new cursor, waiting for the
 	 * status that names the cursor id. */
@@ -3302,17 +3316,70 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
 			}
+			else if ( oci_id == TTI_ALL8 && tvb_bytes_exist(tvb, offset + TNS_OCI_ALL8_IND - 3, 8)
+				&& tvb_get_ntoh64(tvb, offset + TNS_OCI_ALL8_IND - 3) == TNS_OCI_INDICATOR )
+			{
+				/* An OCI client's execute (sqlplus and other thick
+				 * clients): a fixed preamble of 8-byte pointer indicators
+				 * FE FF FF FF FF FF FF FF with little-endian scalar slots
+				 * between them, and the ub1-length-prefixed SQL at the
+				 * end. Offsets count from the TTI_FUN byte. The scalar
+				 * slots are 8 bytes wide or 4, fixed for a connection;
+				 * the second indicator tells which - it sits at 27 in the
+				 * wide form and 23 in the narrow one, and the two cannot
+				 * both hold. The cursor id and SQL length precede every
+				 * slot and do not move; the bind count and the SQL do. */
+				int base = offset - 3, bind_count_off, sql_off;
+				uint32_t cursor, sql_len, bind_count;
+				bool wide;
+
+				if ( tvb_bytes_exist(tvb, base + TNS_OCI_ALL8_IND2_WIDE, 8)
+					&& tvb_get_ntoh64(tvb, base + TNS_OCI_ALL8_IND2_WIDE) == TNS_OCI_INDICATOR )
+					wide = true;
+				else if ( tvb_bytes_exist(tvb, base + TNS_OCI_ALL8_IND2_NARROW, 8)
+					&& tvb_get_ntoh64(tvb, base + TNS_OCI_ALL8_IND2_NARROW) == TNS_OCI_INDICATOR )
+					wide = false;
+				else
+					break;
+				if ( !PINFO_FD_VISITED(pinfo) )
+					tns_get_conv_info(pinfo)->oci_dialect = true;
+
+				proto_tree_add_string(data_tree, hf_tns_data_all8_oci_preamble, tvb, base, 0,
+					wide ? "OCI, wide (8-byte slots)" : "OCI, narrow (4-byte slots)");
+				cursor = tvb_get_letohl(tvb, base + TNS_OCI_ALL8_CURSOR);
+				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, base + TNS_OCI_ALL8_CURSOR, 4, cursor);
+				/* three times the SQL length */
+				sql_len = tvb_get_letohl(tvb, base + TNS_OCI_ALL8_SQLLEN3) / 3;
+				bind_count_off = base + (wide ? 83 : 71);
+				sql_off = base + (wide ? 196 : 176);
+				bind_count = tvb_get_letohl(tvb, bind_count_off);
+				proto_tree_add_uint(data_tree, hf_tns_data_all8_bind_count, tvb, bind_count_off, 4, bind_count);
+				if ( sql_len > 0 && tvb_bytes_exist(tvb, sql_off - 1, 1) )
+				{
+					const char *sql = NULL;
+					int start = sql_off - 1;
+					uint8_t prefix = tvb_get_uint8(tvb, start);
+
+					if ( prefix == 0xfe || prefix == sql_len )
+					{
+						offset = start + get_dalc_custom(tvb, pinfo, start, &sql);
+						if ( sql )
+						{
+							/* sqlplus NUL-terminates its own queries; the
+							 * string ends there */
+							proto_tree_add_string(data_tree, hf_tns_data_all8_sql, tvb, start, offset - start, sql);
+							col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", sql);
+						}
+					}
+				}
+			}
 			else if ( oci_id == TTI_ALL8 )
 			{
 				/* TTI_ALL8: the generic SQL execute — SELECT, DML and
-				 * PL/SQL all ride this call. Layout is the Oracle 11g
-				 * shape. All multi-byte integers use the ub4
-				 * variable-length form.
-				 *
-				 * The bind descriptors (OAC) and bind values (RXD) that can
-				 * trail the al8 array need per-bind type context to decode
-				 * safely, so we stop after the al8 array and leave them to
-				 * the data dissector. */
+				 * PL/SQL all ride this call, in the Oracle 11g shape of a
+				 * thin client, whose integers use the ub4 variable-length
+				 * form. The bind (or define) descriptors and the value
+				 * rows follow the al8 array. */
 				int v = 0, options = 0, cursor = 0, query_len = 0, all8_len = 0;
 				int fetch = 0, bind_count = 0, define_count = 0, start;
 				uint8_t query_flag;
@@ -5072,6 +5139,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_reexec_opt2_commit, {
 			"Autocommit", "tns.data_reexec.options2.commit", FT_BOOLEAN, 32,
 			NULL, 0x00000001, NULL, HFILL }},
+		{ &hf_tns_data_all8_oci_preamble, {
+			"Preamble", "tns.data_all8.oci_preamble", FT_STRING, BASE_NONE,
+			NULL, 0x0, "The fixed execute preamble of an OCI client", HFILL }},
 		{ &hf_tns_data_all8_define_count, {
 			"Define Count", "tns.data_all8.define_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},

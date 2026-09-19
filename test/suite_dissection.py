@@ -2230,6 +2230,25 @@ class TestDissectTns:
         assert 'Column 2 (VARCHAR): hi' in stdout, stdout
         assert 'Bind 1 (VARCHAR): Called' in stdout, stdout
 
+    def test_tns_oci_all8(self, cmd_tshark, capture_file, test_env):
+        '''An OCI client's execute has a fixed preamble in one of two widths,
+        told apart by where its second pointer indicator sits. The cursor
+        id, bind count and SQL are found in both.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_all8.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.oci_preamble',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data_all8.bind_count',
+            '-e', 'tns.data_all8.sql',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [
+            ['OCI, wide (8-byte slots)', '0', '0', 'SELECT * FROM DUAL'],
+            ['OCI, narrow (4-byte slots)', '5', '1', 'SELECT :v FROM DUAL'],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
