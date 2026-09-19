@@ -1284,6 +1284,70 @@ static const char *tns_format_binary_float(packet_info *pinfo, const uint8_t *da
 	return NULL;
 }
 
+/* The base-64 alphabet of Oracle's printable rowids. */
+static const char tns_rowid_alphabet[] =
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+/* Append value to buf as `digits` base-64 characters, most significant
+ * first. */
+static void tns_rowid_append(wmem_strbuf_t *buf, uint32_t value, int digits)
+{
+	char chars[6];
+
+	for ( int i = digits - 1; i >= 0; i-- )
+	{
+		chars[i] = tns_rowid_alphabet[value & 0x3f];
+		value >>= 6;
+	}
+	wmem_strbuf_append_len(buf, chars, digits);
+}
+
+/* Render a physical rowid as the 18-character extended rowid ROWIDTOCHAR
+ * prints: object, file, block and slot in 6, 3, 6 and 3 base-64 digits.
+ * Returns a pinfo->pool string. */
+static const char *tns_format_rowid(packet_info *pinfo, uint32_t rba, uint32_t part, uint32_t block, uint32_t slot)
+{
+	wmem_strbuf_t *buf = wmem_strbuf_new(pinfo->pool, "");
+
+	tns_rowid_append(buf, rba, 6);
+	tns_rowid_append(buf, part, 3);
+	tns_rowid_append(buf, block, 6);
+	tns_rowid_append(buf, slot, 3);
+	return wmem_strbuf_get_str(buf);
+}
+
+/* Render a universal rowid. A leading type byte of 1 marks a physical
+ * rowid, printed as above; anything else is a logical one - an
+ * index-organized table's, carrying its primary key - printed as "*" and
+ * the base-64 of the bytes after the type byte, unpadded. Returns a
+ * pinfo->pool string, or NULL. */
+static const char *tns_format_urowid(packet_info *pinfo, const uint8_t *data, int len)
+{
+	if ( len >= 13 && data[0] == 1 )
+		return tns_format_rowid(pinfo,
+			((uint32_t)data[1] << 24) | ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 8) | data[4],
+			((uint32_t)data[5] << 8) | data[6],
+			((uint32_t)data[7] << 24) | ((uint32_t)data[8] << 16) | ((uint32_t)data[9] << 8) | data[10],
+			((uint32_t)data[11] << 8) | data[12]);
+	if ( len < 2 )
+		return NULL;
+
+	wmem_strbuf_t *buf = wmem_strbuf_new(pinfo->pool, "*");
+	for ( int i = 1; i < len; i += 3 )
+	{
+		int n = MIN(3, len - i);
+		uint32_t group = (uint32_t)data[i] << 16;
+		if ( n > 1 )
+			group |= (uint32_t)data[i + 1] << 8;
+		if ( n > 2 )
+			group |= data[i + 2];
+		/* n bytes give n + 1 characters */
+		for ( int k = 0; k <= n; k++ )
+			wmem_strbuf_append_c(buf, tns_rowid_alphabet[(group >> (18 - 6 * k)) & 0x3f]);
+	}
+	return wmem_strbuf_get_str(buf);
+}
+
 static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 {
 	/*
@@ -1570,20 +1634,36 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				dtype == TNS_DATATYPE_JSON ? "OSON" : "vector", lob_size);
 			break;
 
-		case TNS_DATATYPE_ROWID:  /* indicator, then obj/file/unused/block/slot (ub4) */
+		case TNS_DATATYPE_ROWID:
+		{
+			/* a present indicator (0 / 0xff = NULL), then the object id
+			 * (ub4), file number (ub2), an unused byte, block number
+			 * (ub4) and slot number (ub2) */
+			int rba = 0, part = 0, block = 0, slot = 0;
 			first = tvb_get_uint8(tvb, offset);
 			offset += 1;
 			if ( first == 0 || first == 0xff )
+			{
 				is_null = 1;
-			else
-				for ( int k = 0; k < 5; k++ )
-					offset += get_sb4_custom(tvb, offset, &v);
+				break;
+			}
+			offset += get_sb4_custom(tvb, offset, &rba);
+			offset += get_sb4_custom(tvb, offset, &part);
+			offset += 1;
+			offset += get_sb4_custom(tvb, offset, &block);
+			offset += get_sb4_custom(tvb, offset, &slot);
+			rendered = tns_format_rowid(pinfo, (uint32_t)rba, (uint32_t)part, (uint32_t)block, (uint32_t)slot);
 			break;
+		}
 
 		case TNS_DATATYPE_UROWID: /* ub4 num_bytes, a length echo byte, then the bytes */
 			offset += get_sb4_custom(tvb, offset, &v);
 			if ( v > 0 )
-				offset += 1 + v;
+			{
+				offset += 1;
+				rendered = tns_format_urowid(pinfo, tvb_get_ptr(tvb, offset, v), v);
+				offset += v;
+			}
 			else
 				is_null = 1;
 			break;

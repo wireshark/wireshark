@@ -2152,6 +2152,20 @@ class TestDissectTns:
         assert len(r[4].split(',')) == 2 and r[4].startswith('0026'), r
         assert r[5] == '0x0000000000000005' and r[6] == '0x0e', r
 
+    def test_tns_rowid_render(self, cmd_tshark, capture_file, test_env):
+        '''ROWID and UROWID values are rendered as the strings Oracle prints:
+        an 18-character extended rowid, and "*" + base-64 for a logical
+        UROWID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_rowid.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Column 1 (RID): AAAK6JAAEAAACGPAAA' in stdout, stdout
+        assert 'Column 2 (UROWID): *BAEAGYMCwQL+' in stdout, stdout
+        assert 'Column 1 (RID): NULL' in stdout, stdout
+        assert 'Column 2 (UROWID): AAAK6JAAEAAACGPAAA' in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
