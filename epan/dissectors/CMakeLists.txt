@@ -1671,6 +1671,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sml.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smpp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-smpte-2038.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smpte-2110-20.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smpte-2110-40.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-smpte-291-vanc.c
