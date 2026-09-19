@@ -1844,6 +1844,23 @@ class TestDissectTns:
         assert rows[0] == ['2,1', 'c104,63,c105,64', ''], rows[0]
         assert rows[1] == ['', '', ''], rows[1]
 
+    def test_tns_all8_defines(self, cmd_tshark, capture_file, test_env):
+        '''A define execute (options 0x8010) carries one OAC per column in
+        place of binds. The define here asks for a CLOB column as LONG.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_define.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_all8.options',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.options.define',
+            '-e', 'tns.data_all8.bind_count',
+            '-e', 'tns.data_all8.define_count',
+            '-e', 'tns.data_col.type',
+            '-e', 'tns.data_col.max_length',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.strip().splitlines()]
+        assert rows == [['True', '0', '1', '8', '2147483647']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

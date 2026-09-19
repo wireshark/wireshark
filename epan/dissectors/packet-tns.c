@@ -319,6 +319,7 @@ static int hf_tns_data_all8_fetch_orientation;
 static int hf_tns_data_all8_fetch_pos;
 static int hf_tns_data_all8_fetch_rows;
 static int hf_tns_data_all8_bind_count;
+static int hf_tns_data_all8_define_count;
 static int hf_tns_data_all8_sql;
 static int hf_tns_data_bind_value;
 static int hf_tns_data_fetch_rows;
@@ -359,6 +360,7 @@ static int ett_tns_all8_i4;
 static int ett_tns_all8_exec_flags;
 static int ett_tns_binds;
 static int ett_tns_bind;
+static int ett_tns_defines;
 static int ett_tns_bind_row;
 static int ett_tns_rxd_row;
 static int ett_sql;
@@ -2077,7 +2079,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * safely, so we stop after the al8 array and leave them to
 				 * the data dissector. */
 				int v = 0, options = 0, cursor = 0, query_len = 0, all8_len = 0;
-				int fetch = 0, bind_count = 0, start;
+				int fetch = 0, bind_count = 0, define_count = 0, start;
 				uint8_t query_flag;
 
 				/* options (ub4) + flag breakdown */
@@ -2128,8 +2130,17 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset += 5;
 				/* define-columns present flag (ub1) */
 				offset += 1;
-				/* define-columns count (ub4, skip) */
-				offset += get_sb4_custom(tvb, offset, &v);
+				/* define-columns count (ub4) */
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &define_count);
+				proto_tree_add_uint(data_tree, hf_tns_data_all8_define_count, tvb, start, offset - start, define_count);
+				if ( define_count < 0 ||
+				     (unsigned)define_count > tvb_reported_length_remaining(tvb, offset) )
+				{
+					proto_tree_add_expert(data_tree, pinfo, &ei_tns_data_count_too_large,
+						tvb, start, offset - start);
+					define_count = 0;
+				}
 				/* [0,0,1] marker (3 bytes) + server version slot (5 bytes) */
 				offset += 8;
 				/* SQL text — a flat run of query_len bytes on 11g */
@@ -2240,6 +2251,32 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							break;
 					}
 					proto_item_set_len(binds_item, offset - binds_start);
+				}
+
+				/* Define section: a client that wants a column in some
+				 * other form than the describe gave - a CLOB as a string,
+				 * say - re-executes the cursor with the DEFINE option and
+				 * one OAC per column, in the bind OAC layout. It carries
+				 * no binds. */
+				if ( define_count > 0 )
+				{
+					proto_tree *defs_tree, *def_tree;
+					proto_item *defs_item, *def_item;
+					int defs_start = offset;
+
+					defs_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
+						ett_tns_defines, &defs_item, "Defines");
+					for ( int i = 0; i < define_count && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+					{
+						int d_start = offset;
+						uint8_t dtype = tvb_get_uint8(tvb, offset);
+						def_tree = proto_tree_add_subtree_format(defs_tree, tvb, offset, -1,
+							ett_tns_bind, &def_item, "Define %d: %s", i + 1,
+							val_to_str_const(dtype, tns_data_types, "unknown"));
+						offset = dissect_tns_oac(tvb, pinfo, def_tree, offset, NULL);
+						proto_item_set_len(def_item, offset - d_start);
+					}
+					proto_item_set_len(defs_item, offset - defs_start);
 				}
 			}
 			else if ( oci_id == TTI_LOBOPS )
@@ -3567,6 +3604,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_all8_fetch_pos, {
 			"Fetch Position", "tns.data_all8.fetch_pos", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_all8_define_count, {
+			"Define Count", "tns.data_all8.define_count", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_all8_bind_count, {
 			"Bind Count", "tns.data_all8.bind_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -3636,6 +3676,7 @@ void proto_register_tns(void)
 		&ett_tns_all8_exec_flags,
 		&ett_tns_binds,
 		&ett_tns_bind,
+		&ett_tns_defines,
 		&ett_tns_bind_row,
 		&ett_tns_rxd_row,
 		&ett_sql
