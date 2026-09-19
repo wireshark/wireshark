@@ -542,6 +542,7 @@ static expert_field ei_tns_connect_data_next_packet;
 static expert_field ei_tns_data_descriptor_size_mismatch;
 static expert_field ei_tns_data_piggyback_cursors;
 static expert_field ei_tns_data_count_too_large;
+static expert_field ei_tns_data_encrypted;
 
 #define TCP_PORT_TNS			1521 /* Not IANA registered */
 
@@ -1183,6 +1184,11 @@ typedef struct _tns_conv_info_t {
 	/* The TTC field version the client and server settled on, from the
 	 * client's TTI_DTY; 0 until seen. */
 	uint8_t field_version;
+	/* Native network encryption: the server picked an algorithm, and
+	 * the frame of the client's last negotiation packet, after which the
+	 * data packets are encrypted. */
+	bool ano_encryption;
+	uint32_t ano_active_after;
 	tns_describe_t *last_describe;
 	/* Bind types of an execute that opened a new cursor, waiting for the
 	 * status that names the cursor id. */
@@ -1201,6 +1207,8 @@ typedef struct _tns_conv_info_t {
 #define TNS_PROTO_DATA_OCI      4
 /* p_add_proto_data key for the field version in force for a packet. */
 #define TNS_PROTO_DATA_FV       5
+/* p_add_proto_data key for whether a packet is encrypted. */
+#define TNS_PROTO_DATA_ENCRYPTED 6
 
 /* Execute flag asking for the rows each array DML iteration affected. */
 #define TNS_EXEC_FLAGS_DML_ROWCOUNTS 0x4000
@@ -1242,6 +1250,20 @@ static bool tns_before_11g(packet_info *pinfo)
 {
 	unsigned fv = tns_field_version(pinfo);
 	return fv != 0 && fv < TNS_FV_11_2;
+}
+
+/* Whether a data packet is encrypted by native network encryption.
+ * Stored per packet on the first pass. */
+static bool tns_is_encrypted(packet_info *pinfo)
+{
+	void *stored = p_get_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_ENCRYPTED);
+	if ( stored || PINFO_FD_VISITED(pinfo) )
+		return GPOINTER_TO_UINT(stored) == 2;
+
+	tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
+	bool encrypted = tns_info->ano_active_after && pinfo->num > tns_info->ano_active_after;
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_ENCRYPTED, GUINT_TO_POINTER(encrypted ? 2 : 1));
+	return encrypted;
 }
 
 static unsigned get_data_func_id(tvbuff_t *tvb, int offset)
@@ -2940,6 +2962,17 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 	proto_tree_add_bitmask(data_tree, tvb, offset, hf_tns_data_flag, ett_tns_data_flag, flags, ENC_BIG_ENDIAN);
 	offset += 2;
 	data_func_id = get_data_func_id(tvb, offset);
+
+	/* Once native network encryption is on, a data packet is ciphertext
+	 * followed by a padding and a key-fold byte; nothing in it can be
+	 * decoded without the session key. */
+	if ( tns_is_encrypted(pinfo) && data_func_id != SQLNET_SNS )
+	{
+		col_append_str(pinfo->cinfo, COL_INFO, ", Encrypted Data");
+		proto_tree_add_expert(data_tree, pinfo, &ei_tns_data_encrypted, tvb, offset, tvb_reported_length_remaining(tvb, offset));
+		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
+		return;
+	}
 
 	/* The field version the connection negotiated decides the shape of
 	 * several messages; show the one in force. */
@@ -4940,6 +4973,14 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 			uint16_t num_services = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_item(data_tree, hf_tns_data_sns_srvcnt, tvb, offset, 2, ENC_BIG_ENDIAN);
+			/* With encryption picked, the client's next negotiation packet
+			 * - its Diffie-Hellman public key - is the last in the clear. */
+			if ( is_request && !PINFO_FD_VISITED(pinfo) )
+			{
+				tns_conv_info_t *tns_info = tns_get_conv_info(pinfo);
+				if ( tns_info->ano_encryption && !tns_info->ano_active_after )
+					tns_info->ano_active_after = pinfo->num;
+			}
 			offset += 2;
 			proto_tree_add_item(data_tree, hf_tns_data_sns_error, tvb, offset, 1, ENC_NA);
 			offset += 1;
@@ -4977,8 +5018,14 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					if ( sub_type == TNS_ANO_SP_VERSION && len == 4 )
 						proto_tree_add_item(sub_tree, hf_tns_data_sns_version, tvb, offset, 4, ENC_BIG_ENDIAN);
 					else if ( algs && svc_type == TNS_ANO_ENCRYPTION )
+					{
 						for ( unsigned k = 0; k < len; k++ )
 							proto_tree_add_item(sub_tree, hf_tns_data_sns_encryption, tvb, offset + k, 1, ENC_NA);
+						/* the server's pick: anything but none turns
+						 * encryption on once the client has answered */
+						if ( !is_request && !PINFO_FD_VISITED(pinfo) && len == 1 && tvb_get_uint8(tvb, offset) != 0 )
+							tns_get_conv_info(pinfo)->ano_encryption = true;
+					}
 					else if ( algs && svc_type == TNS_ANO_DATA_INTEGRITY )
 						for ( unsigned k = 0; k < len; k++ )
 							proto_tree_add_item(sub_tree, hf_tns_data_sns_integrity, tvb, offset + k, 1, ENC_NA);
@@ -6430,6 +6477,7 @@ void proto_register_tns(void)
 		{ &ei_tns_data_descriptor_size_mismatch, { "tns.data_descriptor.size_mismatch", PI_PROTOCOL, PI_WARN, "Data size from summing row sizes differs from size in descriptor", EXPFILL }},
 		{ &ei_tns_data_piggyback_cursors, { "tns.data.piggyback.cursors.invalid", PI_MALFORMED, PI_ERROR, "Cursor count is larger than the data left in the packet", EXPFILL }},
 		{ &ei_tns_data_count_too_large, { "tns.data.count.invalid", PI_MALFORMED, PI_ERROR, "Count is larger than the data left in the packet", EXPFILL }},
+		{ &ei_tns_data_encrypted, { "tns.data.encrypted", PI_DECRYPTION, PI_NOTE, "Encrypted by native network encryption", EXPFILL }},
 	};
 
 	module_t *tns_module;

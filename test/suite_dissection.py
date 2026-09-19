@@ -2555,7 +2555,25 @@ class TestDissectTns:
             ['4,1,2,3', '0,17,16,15', '0,5,3', ''],
             ['4,2,3', '17', '5', ''],
             ['3', '', '', ''],
+            ['', '', '', ''],
+            ['', '', '', ''],
         ], rows
+
+    def test_tns_ano_encrypted(self, cmd_tshark, capture_file, test_env):
+        '''Once the server has picked an encryption algorithm and the client
+        has sent its second round, data packets are ciphertext and are not
+        decoded as TTC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_ano.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'frame.number',
+            '-e', '_ws.col.info',
+        ), encoding='utf-8', env=test_env)
+        rows = dict(r.split('\t') for r in stdout.strip().splitlines())
+        assert 'Encrypted' not in rows['3'], rows
+        assert rows['4'].endswith('Encrypted Data'), rows
+        assert rows['5'].endswith('Encrypted Data'), rows
 
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):

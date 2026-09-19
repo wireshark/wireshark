@@ -14,6 +14,8 @@ negotiation.
     Frame 2 - the server's answer: AES256 and SHA256 selected, the
               integrity service carrying its Diffie-Hellman parameters
     Frame 3 - the client's second round: its DH public key
+    Frame 4 - a data packet from the client, now encrypted
+    Frame 5 - a data packet from the server, encrypted too
 
 Each is a DEADBEEF container of services, each service a list of
 sub-packets, all big-endian. Bytes are built by hand.
@@ -217,7 +219,11 @@ answer = container([
                 sp(1, bytes(8)), sp(1, b"foo bar baz bat quux")]),
 ])
 round2 = container([service(3, [sp(1, bytes(range(8)))])])
-frames = [(True, offer), (False, answer), (True, round2)]
+# after round 2 the data packets are ciphertext, a padding marker byte and
+# a zero key-fold byte
+ciphertext = bytes(range(0x30, 0x50)) + b"\x05\x00"
+frames = [(True, offer), (False, answer), (True, round2),
+          (True, ciphertext), (False, ciphertext)]
 
 
 OUT_NAME = "tns_ano.pcap"
