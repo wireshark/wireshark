@@ -3883,10 +3883,53 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						tvb, start, offset - start);
 					define_count = 0;
 				}
-				/* [0,0,1] marker (3 bytes) + server version slot (5 bytes) */
-				offset += 8;
-				/* SQL text — a flat run of query_len bytes on 11g */
-				if ( query_flag && query_len > 0 )
+				/* registration id (low half), the al8objlist / al8objlen /
+				 * al8blv pointers, al8blvl, the al8dnam pointer, al8dnaml
+				 * and the registration id's high half */
+				offset += get_sb4_custom(tvb, offset, &v);
+				offset += 3;
+				offset += get_sb4_custom(tvb, offset, &v);
+				offset += 1;
+				offset += get_sb4_custom(tvb, offset, &v);
+				offset += get_sb4_custom(tvb, offset, &v);
+				/* 12.1 adds the per-row DML count block (a pointer, the
+				 * execution count, a pointer), 12.2 the SQL signature and
+				 * SQL id fields, 12.2 ext 1 the chunk ids */
+				unsigned fv = tns_field_version(pinfo);
+				if ( fv >= TNS_FV_12_1 )
+				{
+					offset += 1;
+					offset += get_sb4_custom(tvb, offset, &v);
+					offset += 1;
+				}
+				if ( fv >= TNS_FV_12_2 )
+				{
+					offset += 1;
+					offset += get_sb4_custom(tvb, offset, &v);
+					offset += 1;
+					offset += get_sb4_custom(tvb, offset, &v);
+					offset += 1;
+				}
+				if ( fv >= TNS_FV_12_2_EXT1 )
+				{
+					offset += 1;
+					offset += get_sb4_custom(tvb, offset, &v);
+				}
+				/* SQL text: a flat run of query_len bytes on 11g, length
+				 * prefixed (and chunked when long) from 12.1 */
+				if ( query_flag && query_len > 0 && fv >= TNS_FV_12_1 )
+				{
+					const char *text = NULL;
+					start = offset;
+					offset += get_dalc_custom(tvb, pinfo, offset, &text);
+					if ( text )
+					{
+						sql = (const uint8_t *)text;
+						proto_tree_add_string(data_tree, hf_tns_data_all8_sql, tvb, start, offset - start, text);
+						col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", text);
+					}
+				}
+				else if ( query_flag && query_len > 0 )
 				{
 					proto_tree_add_item_ret_string(data_tree, hf_tns_data_all8_sql, tvb,
 						offset, query_len, ENC_UTF_8|ENC_NA, pinfo->pool, &sql);

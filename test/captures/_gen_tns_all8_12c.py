@@ -5,16 +5,14 @@
 # Copyright 1998 Gerald Combs
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Generate test/captures/tns_describe_122.pcap: a describe and its rows on
-a 12.2 connection.
+"""Generate test/captures/tns_all8_12c.pcap: an execute on a 12.2 connection.
 
-    Frame 1 - the client's TTI_DTY, negotiating field version 8 (12.2)
-    Frame 2 - TTI_DCB of NUMBER "ID" (scale -127) and VARCHAR "NAME": each
-              column's scale is one signed byte (0x81 for -127) and an
-              oaccolid follows its max size
-    Frame 3 - one row, (10, "hi")
-    Frame 4 - an execute binding a CLOB and a NUMBER, each descriptor
-              ending with an oaccolid
+    Frame 1 - the client's TTI_DTY, negotiating field version 9 (12.2 ext 1)
+    Frame 2 - TTI_ALL8 "UPDATE T SET S = :1 WHERE ID = :2" with binds
+              VARCHAR "hi" and NUMBER 10: after the registration id come
+              the al8pidmlrc block (12.1), the SQL signature and id fields
+              (12.2) and the chunk ids (12.2 ext 1); the SQL text is length
+              prefixed; each bind descriptor ends with an oaccolid
 
 Bytes are built by hand.
 """
@@ -179,20 +177,17 @@ def oer(err_code=0, cursor=0, rowcount=0, call_status=0, msg=b"", fv=0) -> bytes
         b += dalc(msg)
     return b
 
-TYPE_CLOB = 112
-FV = 8
+FV = 9
 
 frames = [
     (True, dty(FV)),
-    (False, dcb([dcb_column(TYPE_NUMBER, 22, b"ID", max_size=22, scale=-127, fv=FV),
-                 dcb_column(TYPE_VARCHAR, 100, b"NAME", 873, 1, 100, fv=FV)])),
-    (False, bytes([TTI_RXD]) + dalc(b"\xc1\x0b") + dalc(b"hi")),
-    (True, all8(1, b"INSERT INTO T VALUES (:1, :2)", 0x8029,
-                binds=[oac(TYPE_CLOB, 112, 873, 1, fv=FV), oac(TYPE_NUMBER, 22, fv=FV)], fv=FV)),
+    (True, all8(1, b"UPDATE T SET S = :1 WHERE ID = :2", 0x8029,
+                binds=[oac(TYPE_VARCHAR, 32, 873, 1, 32, fv=FV), oac(TYPE_NUMBER, 22, fv=FV)],
+                rows=[dalc(b"hi") + dalc(b"\xc1\x0b")], fv=FV)),
 ]
 
 
-OUT_NAME = "tns_describe_122.pcap"
+OUT_NAME = "tns_all8_12c.pcap"
 
 
 def ipv4_checksum(h: bytes) -> int:

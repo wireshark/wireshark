@@ -2380,6 +2380,23 @@ class TestDissectTns:
         assert rows[0][3].endswith('End of Response'), rows[0]
         assert rows[1][:3] == ['0', '70000', ''], rows[1]
 
+    def test_tns_all8_field_version(self, cmd_tshark, capture_file, test_env):
+        '''A 12.2 execute has more header fields than an 11g one and a
+        length-prefixed SQL text; its SQL, bind descriptors and values
+        decode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_all8_12c.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_all8.sql',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.sql',
+            '-e', 'tns.data_col.type',
+            '-e', 'tns.data_bind.value',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['UPDATE T SET S = :1 WHERE ID = :2', '1,2', '6869,c10b', '']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
