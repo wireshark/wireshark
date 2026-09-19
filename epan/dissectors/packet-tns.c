@@ -422,6 +422,8 @@ static int hf_tns_data_col_max_length;
 static int hf_tns_data_col_charset;
 static int hf_tns_data_col_csform;
 static int hf_tns_data_col_max_size;
+static int hf_tns_data_col_max_elements;
+static int hf_tns_data_bind_num_elements;
 static int hf_tns_data_col_nulls_ok;
 static int hf_tns_data_col_name;
 static int hf_tns_data_col_uds_flags;
@@ -1002,6 +1004,10 @@ static const value_string tns_csform_vals[] = {
 /* Bind directions reported per bind in a TTI_IOV vector (TNS_BIND_DIR_*),
  * cross-referenced with python-oracledb's constants. */
 #define TNS_BIND_DIR_INPUT 32
+
+/* An OAC flag marking a PL/SQL associative-array bind: in the flag byte
+ * from 12.2, in the continuation flags before. */
+#define TNS_BIND_ARRAY     0x40
 static const value_string tns_iov_bind_dirs[] = {
 	{16, "OUT"},
 	{32, "IN"},
@@ -1237,6 +1243,7 @@ static const value_string tns_control_cmds[] = {
 typedef struct _tns_column_t {
 	uint8_t type;
 	uint8_t csform;         /* character set form: 2 = national */
+	bool is_array;          /* a PL/SQL associative-array bind */
 	uint32_t data_len;
 } tns_column_t;
 
@@ -2482,7 +2489,9 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* type (ub1) */
 	proto_tree_add_item(tree, hf_tns_data_col_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	/* flag (ub1, skip) */
+	/* flag (ub1); from 12.2 it marks an array bind */
+	if ( col && fv_12_2 )
+		col->is_array = (tvb_get_uint8(tvb, offset) & TNS_BIND_ARRAY) != 0;
 	offset += 1;
 	/* precision (sb1) */
 	proto_tree_add_item(tree, hf_tns_data_col_precision, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2503,10 +2512,15 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_uint(tree, hf_tns_data_col_max_length, tvb, start, offset - start, v);
 	if ( col )
 		col->data_len = (uint32_t)v;
-	/* max array elements (ub4, skip) */
+	/* max array elements (ub4) */
+	start = offset;
 	offset += get_sb4_custom(tvb, offset, &v);
-	/* cont flags (ub8, skip) */
+	if ( v > 0 )
+		proto_tree_add_uint(tree, hf_tns_data_col_max_elements, tvb, start, offset - start, v);
+	/* cont flags (ub8); below 12.2 they mark an array bind */
 	offset += get_ub8_custom(tvb, offset, &u);
+	if ( col && !fv_12_2 )
+		col->is_array = (u & TNS_BIND_ARRAY) != 0;
 	/* type OID (bytes_with_length, skip) */
 	offset += get_field_with_length(tvb, pinfo, offset, NULL);
 	/* version (ub4, skip) */
@@ -3147,6 +3161,44 @@ static tns_binds_t *tns_lookup_cursor_binds(packet_info *pinfo, uint32_t cursor)
 	return binds;
 }
 
+/* Decode one bind's value in a bind row or an OUT reply. An array bind's
+ * value is a ub4 element count and that many elements. In an OUT reply
+ * each value - each element of an array - is followed by its sb4 return
+ * code, and a value is framed as out of a fetch: ROWID and UROWID come as
+ * strings and a LONG has no trailing indicators. Returns the new offset. */
+static int dissect_tns_bind_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const tns_column_t *col, int idx, bool out)
+{
+	uint8_t btype = col->type;
+	int num = 1, rc = 0, start;
+
+	if ( out )
+	{
+		if ( btype == TNS_DATATYPE_ROWID || btype == TNS_DATATYPE_UROWID
+			|| btype == TNS_DATATYPE_LONG )
+			btype = TNS_DATATYPE_VARCHAR;
+		else if ( btype == TNS_DATATYPE_LONG_RAW )
+			btype = TNS_DATATYPE_RAW;
+	}
+	if ( col->is_array )
+	{
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &num);
+		proto_tree_add_uint(tree, hf_tns_data_bind_num_elements, tvb, start, offset - start, num);
+	}
+	for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+	{
+		offset = dissect_tns_value(tvb, pinfo, tree, offset, btype, col->csform, idx,
+			hf_tns_data_bind_value, "Bind");
+		if ( out )
+		{
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &rc);
+			proto_tree_add_int(tree, hf_tns_data_bind_retcode, tvb, start, offset - start, rc);
+		}
+	}
+	return offset;
+}
+
 /* Decode the TTI_RXD value rows of a bind section - one row per
  * execution - with each value typed by cols[]. A CLOB / BLOB bind
  * carries a temp-LOB locator form not unpacked here, so rows with one are
@@ -3171,8 +3223,7 @@ static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			ett_tns_bind_row, &row_item, "Row %d", ++rownum);
 		for ( uint32_t i = 0; i < count
 			&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
-			offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
-				cols[i].type, cols[i].csform, i + 1, hf_tns_data_bind_value, "Bind");
+			offset = dissect_tns_bind_value(tvb, pinfo, row_tree, offset, &cols[i], i + 1, false);
 		proto_item_set_len(row_item, offset - r_start);
 	}
 	return offset;
@@ -4944,27 +4995,17 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * no trailing indicators. */
 				proto_tree *ob_tree;
 				proto_item *ob_item;
-				int ob_start = offset, rc = 0, start;
+				int ob_start = offset;
 
 				ob_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 					ett_tns_out_binds, &ob_item, "Out Binds");
 				for ( uint32_t i = 0; i < ctx->out_call->num_binds
 					&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
 				{
-					uint8_t btype = ctx->out_call->binds[i].type;
 					if ( ctx->bind_dirs[i] == TNS_BIND_DIR_INPUT )
 						continue;
-					if ( btype == TNS_DATATYPE_ROWID || btype == TNS_DATATYPE_UROWID
-						|| btype == TNS_DATATYPE_LONG )
-						btype = TNS_DATATYPE_VARCHAR;
-					else if ( btype == TNS_DATATYPE_LONG_RAW )
-						btype = TNS_DATATYPE_RAW;
-					offset = dissect_tns_value(tvb, pinfo, ob_tree, offset, btype,
-						ctx->out_call->binds[i].csform, i + 1,
-						hf_tns_data_bind_value, "Bind");
-					start = offset;
-					offset += get_sb4_custom(tvb, offset, &rc);
-					proto_tree_add_int(ob_tree, hf_tns_data_bind_retcode, tvb, start, offset - start, rc);
+					offset = dissect_tns_bind_value(tvb, pinfo, ob_tree, offset,
+						&ctx->out_call->binds[i], i + 1, true);
 				}
 				proto_item_set_len(ob_item, offset - ob_start);
 				ctx->bind_dirs = NULL;
@@ -7311,6 +7352,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_col_csform, {
 			"Charset Form", "tns.data_col.csform", FT_UINT8, BASE_DEC,
 			VALS(tns_csform_vals), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_col_max_elements, {
+			"Max Array Elements", "tns.data_col.max_elements", FT_UINT32, BASE_DEC,
+			NULL, 0x0, "Capacity of an array bind", HFILL }},
+		{ &hf_tns_data_bind_num_elements, {
+			"Array Elements", "tns.data_bind.num_elements", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_col_max_size, {
 			"Max Size", "tns.data_col.max_size", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},

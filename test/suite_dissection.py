@@ -2895,6 +2895,26 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['2', '15', '']], rows
 
+    def test_tns_array_binds(self, cmd_tshark, capture_file, test_env):
+        '''An associative-array bind's value is an element count and the
+        elements, in the request and in the OUT reply alike.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_array_binds.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_bind.num_elements',
+            '-T', 'fields',
+            '-e', 'tns.data_col.max_elements',
+            '-e', 'tns.data_bind.num_elements',
+            '-e', 'tns.data_bind.value',
+            '-e', 'tns.data_oer.err_code',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['10', '3', 'c102,c103,c104', '', ''],
+            ['', '3', 'c103,c105,c107', '0', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
