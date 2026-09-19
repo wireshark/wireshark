@@ -2480,6 +2480,30 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['x86_64/Linux 2.4.xx', '873', '2000', '24', '']], rows
 
+    def test_tns_tpc(self, cmd_tshark, capture_file, test_env):
+        '''The two-phase commit calls carry an operation and an XID; the
+        switch's reply returns a transaction context, the state change's
+        the branch's new state.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_tpc.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_tpc.switch_op',
+            '-e', 'tns.data_tpc.change_op',
+            '-e', 'tns.data_tpc.format_id',
+            '-e', 'tns.data_tpc.gtrid',
+            '-e', 'tns.data_tpc.bqual',
+            '-e', 'tns.data_tpc.context',
+            '-e', 'tns.data_tpc.state',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows[0][:5] == ['0x00000001', '', '4660', '67747269642d31', '62712d31'], rows[0]
+        assert rows[1][5] == 'cafebabe', rows[1]
+        assert rows[2][1] == '0x00000003' and rows[2][5] == 'cafebabe', rows[2]
+        assert rows[3][6] == '1', rows[3]
+        assert all(r[7] == '' for r in rows), rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

@@ -158,6 +158,8 @@ void proto_register_tns(void);
 #define TTI_REEXECUTE_AND_FETCH 78
 #define TTI_ALL8                94
 #define TTI_LOBOPS              96
+#define TTI_TPC_TXN_SWITCH      103
+#define TTI_TPC_TXN_CHANGE_STATE 104
 #define TTI_CLOSE_CURSORS       105
 #define TTI_SET_END_TO_END_ATTR 135
 #define TTI_SET_SCHEMA          152
@@ -439,6 +441,18 @@ static int hf_tns_data_lob_charset;
 static int hf_tns_data_lob_data;
 static int hf_tns_data_lob_amount;
 static int hf_tns_data_lob_flag;
+static int hf_tns_data_tpc_switch_op;
+static int hf_tns_data_tpc_change_op;
+static int hf_tns_data_tpc_format_id;
+static int hf_tns_data_tpc_gtrid;
+static int hf_tns_data_tpc_bqual;
+static int hf_tns_data_tpc_flags;
+static int hf_tns_data_tpc_timeout;
+static int hf_tns_data_tpc_state;
+static int hf_tns_data_tpc_context;
+static int hf_tns_data_tpc_app_value;
+static int hf_tns_data_tpc_internal_name;
+static int hf_tns_data_tpc_external_name;
 static int hf_tns_data_lob_total_size;
 static int hf_tns_data_pgy_schema;
 static int hf_tns_data_pgy_session_state;
@@ -710,6 +724,32 @@ static const value_string tns_field_versions[] = {
 	{TNS_FV_23_1_EXT_5, "23.1 ext 5"},
 	{TNS_FV_23_3_EXT_6, "23.3 ext 6"},
 	{TNS_FV_23_4,       "23.4"},
+	{0, NULL}
+};
+
+/* Two-phase commit operations (python-oracledb's TNS_TPC_*). */
+static const value_string tns_tpc_switch_ops[] = {
+	{0x01, "Start"},
+	{0x02, "Detach"},
+	{0x04, "Post-detach"},
+	{0, NULL}
+};
+
+static const value_string tns_tpc_change_ops[] = {
+	{0x01, "Commit"},
+	{0x02, "Abort"},
+	{0x03, "Prepare"},
+	{0x04, "Forget"},
+	{0, NULL}
+};
+
+static const value_string tns_tpc_states[] = {
+	{0, "Prepared"},
+	{1, "Requires commit"},
+	{2, "Committed"},
+	{3, "Aborted"},
+	{4, "Read only"},
+	{5, "Forgotten"},
 	{0, NULL}
 };
 
@@ -2449,6 +2489,97 @@ static int dissect_tns_call_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	return offset;
 }
 
+/* Decode a two-phase commit call: a transaction switch (103) - start,
+ * detach - or a state change (104) - prepare, commit, abort, forget. The
+ * header gives an operation, the lengths of a transaction context and of
+ * the XID's parts, and for a switch the names; the context, the XID and
+ * the rest follow. The XID is padded to 128 bytes. Returns the new
+ * offset. */
+static int dissect_tns_tpc_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t func)
+{
+	int v = 0, ctx_len = 0, gtrid_len = 0, bqual_len = 0, xid_len = 0;
+	int int_len = 0, ext_len = 0, start;
+	uint8_t ctx_ptr, xid_ptr, int_ptr = 0, ext_ptr = 0;
+
+	start = offset;
+	offset += get_sb4_custom(tvb, offset, &v);
+	proto_tree_add_uint(tree, func == TTI_TPC_TXN_SWITCH ? hf_tns_data_tpc_switch_op : hf_tns_data_tpc_change_op,
+		tvb, start, offset - start, v);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", val_to_str_const(v,
+		func == TTI_TPC_TXN_SWITCH ? tns_tpc_switch_ops : tns_tpc_change_ops, "unknown"));
+	ctx_ptr = tvb_get_uint8(tvb, offset);
+	offset += 1;
+	offset += get_sb4_custom(tvb, offset, &ctx_len);
+	start = offset;
+	offset += get_sb4_custom(tvb, offset, &v);
+	proto_tree_add_uint(tree, hf_tns_data_tpc_format_id, tvb, start, offset - start, v);
+	offset += get_sb4_custom(tvb, offset, &gtrid_len);
+	offset += get_sb4_custom(tvb, offset, &bqual_len);
+	xid_ptr = tvb_get_uint8(tvb, offset);
+	offset += 1;
+	offset += get_sb4_custom(tvb, offset, &xid_len);
+	if ( func == TTI_TPC_TXN_SWITCH )
+	{
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(tree, hf_tns_data_tpc_flags, tvb, start, offset - start, v);
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(tree, hf_tns_data_tpc_timeout, tvb, start, offset - start, v);
+		offset += 3; /* application value, return context and its length pointers */
+		int_ptr = tvb_get_uint8(tvb, offset);
+		offset += 1;
+		offset += get_sb4_custom(tvb, offset, &int_len);
+		ext_ptr = tvb_get_uint8(tvb, offset);
+		offset += 1;
+		offset += get_sb4_custom(tvb, offset, &ext_len);
+	}
+	else
+	{
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(tree, hf_tns_data_tpc_timeout, tvb, start, offset - start, v);
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(tree, hf_tns_data_tpc_state, tvb, start, offset - start, v);
+		offset += 1; /* out state pointer */
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(tree, hf_tns_data_tpc_flags, tvb, start, offset - start, v);
+	}
+	if ( ctx_ptr && ctx_len > 0 )
+	{
+		proto_tree_add_item(tree, hf_tns_data_tpc_context, tvb, offset, ctx_len, ENC_NA);
+		offset += ctx_len;
+	}
+	if ( xid_ptr && xid_len > 0 )
+	{
+		if ( gtrid_len >= 0 && bqual_len >= 0 && gtrid_len + bqual_len <= xid_len )
+		{
+			proto_tree_add_item(tree, hf_tns_data_tpc_gtrid, tvb, offset, gtrid_len, ENC_NA);
+			proto_tree_add_item(tree, hf_tns_data_tpc_bqual, tvb, offset + gtrid_len, bqual_len, ENC_NA);
+		}
+		offset += xid_len;
+	}
+	if ( func == TTI_TPC_TXN_SWITCH )
+	{
+		start = offset;
+		offset += get_sb4_custom(tvb, offset, &v);
+		proto_tree_add_uint(tree, hf_tns_data_tpc_app_value, tvb, start, offset - start, v);
+		if ( int_ptr && int_len > 0 )
+		{
+			proto_tree_add_item(tree, hf_tns_data_tpc_internal_name, tvb, offset, int_len, ENC_UTF_8);
+			offset += int_len;
+		}
+		if ( ext_ptr && ext_len > 0 )
+		{
+			proto_tree_add_item(tree, hf_tns_data_tpc_external_name, tvb, offset, ext_len, ENC_UTF_8);
+			offset += ext_len;
+		}
+	}
+	return offset;
+}
+
 /* Decode the body of a piggyback other than close-cursors. Layouts
  * follow python-oracledb's _write_*_piggyback. Sets *walk when the body
  * was understood, so the call behind it can be decoded. Returns the new
@@ -3850,6 +3981,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset += get_sb4_custom(tvb, offset, &v);
 				proto_tree_add_uint(data_tree, hf_tns_data_fetch_rows, tvb, start, offset - start, v);
 			}
+			else if ( oci_id == TTI_TPC_TXN_SWITCH || oci_id == TTI_TPC_TXN_CHANGE_STATE )
+				offset = dissect_tns_tpc_call(tvb, pinfo, data_tree, offset, oci_id);
 			else if ( oci_id == TTI_REEXECUTE || oci_id == TTI_REEXECUTE_AND_FETCH )
 			{
 				/* Re-execute of a cursor whose statement already ran and
@@ -4573,6 +4706,28 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				{
 					offset = dissect_tns_return_params(tvb, pinfo, data_tree, offset,
 						(call->exec_flags & TNS_EXEC_FLAGS_DML_ROWCOUNTS) != 0);
+					ctx->walk = true;
+				}
+				else if ( call && call->func == TTI_TPC_TXN_SWITCH )
+				{
+					/* the application value and the transaction context
+					 * (a ub2 length and the bytes) */
+					int v = 0, len = 0, start = offset;
+					offset += get_sb4_custom(tvb, offset, &v);
+					proto_tree_add_uint(data_tree, hf_tns_data_tpc_app_value, tvb, start, offset - start, v);
+					offset += get_sb4_custom(tvb, offset, &len);
+					if ( len > 0 )
+					{
+						proto_tree_add_item(data_tree, hf_tns_data_tpc_context, tvb, offset, len, ENC_NA);
+						offset += len;
+					}
+					ctx->walk = true;
+				}
+				else if ( call && call->func == TTI_TPC_TXN_CHANGE_STATE )
+				{
+					int v = 0, start = offset;
+					offset += get_sb4_custom(tvb, offset, &v);
+					proto_tree_add_uint(data_tree, hf_tns_data_tpc_state, tvb, start, offset - start, v);
 					ctx->walk = true;
 				}
 				else if ( call && call->func == TTI_LOBOPS )
@@ -5952,6 +6107,42 @@ void proto_register_tns(void)
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_pgy_sec_value, {
 			"Security Context Value", "tns.data_piggyback.sec_value", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_switch_op, {
+			"Operation", "tns.data_tpc.switch_op", FT_UINT32, BASE_HEX,
+			VALS(tns_tpc_switch_ops), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_change_op, {
+			"Operation", "tns.data_tpc.change_op", FT_UINT32, BASE_HEX,
+			VALS(tns_tpc_change_ops), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_format_id, {
+			"XID Format Id", "tns.data_tpc.format_id", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_gtrid, {
+			"Global Transaction Id", "tns.data_tpc.gtrid", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_bqual, {
+			"Branch Qualifier", "tns.data_tpc.bqual", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_flags, {
+			"Flags", "tns.data_tpc.flags", FT_UINT32, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_timeout, {
+			"Timeout", "tns.data_tpc.timeout", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_state, {
+			"State", "tns.data_tpc.state", FT_UINT32, BASE_DEC,
+			VALS(tns_tpc_states), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_context, {
+			"Transaction Context", "tns.data_tpc.context", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_app_value, {
+			"Application Value", "tns.data_tpc.app_value", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_internal_name, {
+			"Internal Name", "tns.data_tpc.internal_name", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_tpc_external_name, {
+			"External Name", "tns.data_tpc.external_name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_lob_flag, {
 			"Result", "tns.data_lob.flag", FT_BOOLEAN, BASE_NONE,
