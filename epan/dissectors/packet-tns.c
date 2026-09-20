@@ -2836,13 +2836,22 @@ static bool tns_bfile_names(tvbuff_t *tvb, int offset, int len,
 	return false;
 }
 
+/* Where a value is being carried, which decides the framing some types
+ * use: a fetched row column, a value a client binds, or a value a server
+ * returns for a bind - an OUT or IN OUT bind, or a RETURNING one. */
+typedef enum {
+	TNS_VALUE_FETCH,
+	TNS_VALUE_BIND,
+	TNS_VALUE_OUT
+} tns_value_kind_t;
+
 /* Decode one row/bind value by its data type, and add it as a
  * "<prefix> N (TYPE)" item under `hf`. Ordinary values are a
  * DALC blob; ROWID / UROWID / LONG / LOB / JSON / VECTOR / object carry
  * their own framings - though out of a fetch (fetch false: a bind or OUT
  * value) a ROWID or UROWID is its string and a LONG has no trailing
  * indicators. Returns the new offset. */
-static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, uint8_t csform, bool fetch, int idx, int hf, const char *prefix)
+static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint8_t dtype, uint8_t csform, tns_value_kind_t kind, int idx, int hf, const char *prefix)
 {
 	int v_start = offset, disp_start = offset, v = 0;
 	int is_null = 0, is_absent = 0;
@@ -2856,10 +2865,10 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_item *ti;
 	uint8_t frame = dtype;
 
-	if ( !fetch && (dtype == TNS_DATATYPE_ROWID || dtype == TNS_DATATYPE_UROWID
+	if ( kind != TNS_VALUE_FETCH && (dtype == TNS_DATATYPE_ROWID || dtype == TNS_DATATYPE_UROWID
 		|| dtype == TNS_DATATYPE_LONG) )
 		frame = TNS_DATATYPE_VARCHAR;
-	else if ( !fetch && dtype == TNS_DATATYPE_LONG_RAW )
+	else if ( kind != TNS_VALUE_FETCH && dtype == TNS_DATATYPE_LONG_RAW )
 		frame = TNS_DATATYPE_RAW;
 
 	switch ( frame )
@@ -2945,7 +2954,11 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			 *   DALC image | DALC locator
 			 * The locator is a placeholder. A 0x00 is NULL. A server may
 			 * instead send a bare locator, as for a CLOB, and leave the
-			 * image to a LOB read; that is told apart as for a CLOB. */
+			 * image to a LOB read; that is told apart as for a CLOB.
+			 *
+			 * A bind sends the locator and the image behind it, and a
+			 * value a server returns for a bind is the LOB block alone,
+			 * as for a CLOB. */
 			first = tvb_get_uint8(tvb, offset);
 			if ( first == 0 )
 			{
@@ -2954,24 +2967,48 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				break;
 			}
 			offset += get_sb4_custom(tvb, offset, &v);
-			if ( v > 8 && tvb_get_uint8(tvb, offset) == v )
+			if ( kind == TNS_VALUE_OUT )
+			{
+				lob_meta = true;
+				size_start = offset;
+				offset += get_ub8_custom(tvb, offset, &lob_size);
+				size_len = offset - size_start;
+				lchunk_start = offset;
+				offset += get_sb4_custom(tvb, offset, &lob_chunk);
+				lchunk_len = offset - lchunk_start;
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+				rendered = wmem_strdup_printf(pinfo->pool, "locator, size %" PRIu64, lob_size);
+				break;
+			}
+			if ( kind == TNS_VALUE_BIND )
+			{
+				/* the locator the value rides under, then the image */
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+				image_start = offset;
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+				image_len = offset - image_start;
+			}
+			else if ( v > 8 && tvb_get_uint8(tvb, offset) == v )
 			{
 				/* bare locator */
 				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
 				rendered = "locator only";
 				break;
 			}
-			lob_meta = true;
-			size_start = offset;
-			offset += get_ub8_custom(tvb, offset, &lob_size);
-			size_len = offset - size_start;
-			lchunk_start = offset;
-			offset += get_sb4_custom(tvb, offset, &lob_chunk);
-			lchunk_len = offset - lchunk_start;
-			image_start = offset;
-			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
-			image_len = offset - image_start;
-			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			else
+			{
+				lob_meta = true;
+				size_start = offset;
+				offset += get_ub8_custom(tvb, offset, &lob_size);
+				size_len = offset - size_start;
+				lchunk_start = offset;
+				offset += get_sb4_custom(tvb, offset, &lob_chunk);
+				lchunk_len = offset - lchunk_start;
+				image_start = offset;
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+				image_len = offset - image_start;
+				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			}
 			if ( image_len > 1 )
 			{
 				int img_len = 0;
@@ -2981,8 +3018,9 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						: tns_format_oson(pinfo, img, img_len);
 			}
 			if ( !rendered )
-				rendered = wmem_strdup_printf(pinfo->pool, "%s image, %" PRIu64 " bytes",
-					dtype == TNS_DATATYPE_JSON ? "OSON" : "vector", lob_size);
+				rendered = wmem_strdup_printf(pinfo->pool, "%s image, %d bytes",
+					dtype == TNS_DATATYPE_JSON ? "OSON" : "vector",
+					lob_meta ? (int)lob_size : image_len - 1);
 			break;
 
 		case TNS_DATATYPE_ROWID:
@@ -3046,7 +3084,9 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			 * the locator's own length prefix (or 0xFE when chunked), the
 			 * metadata form's is the size's width, at most 8. A real
 			 * locator is far longer than 8 bytes, so the two cannot meet.
-			 * A BFILE is always bare. */
+			 * A BFILE is always bare, as is the locator a client binds;
+			 * a value a server returns for a bind always carries the
+			 * size and chunk size. */
 			first = tvb_get_uint8(tvb, offset);
 			if ( first == 0 )
 			{
@@ -3056,10 +3096,10 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			else
 			{
 				offset += get_sb4_custom(tvb, offset, &v);
-				if ( dtype != TNS_DATATYPE_BFILE && v > 8 )
+				if ( dtype != TNS_DATATYPE_BFILE && v > 8 && kind != TNS_VALUE_BIND )
 				{
 					uint8_t next = tvb_get_uint8(tvb, offset);
-					if ( next <= 8 && next != v )
+					if ( kind == TNS_VALUE_OUT || (next <= 8 && next != v) )
 					{
 						lob_meta = true;
 						size_start = offset;
@@ -3079,6 +3119,8 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					rendered = wmem_strdup_printf(pinfo->pool, "BFILENAME('%s', '%s')",
 						tvb_get_string_enc(pinfo->pool, tvb, dir_off, dir_len, ENC_UTF_8),
 						tvb_get_string_enc(pinfo->pool, tvb, file_off, file_len, ENC_UTF_8));
+				if ( !rendered )
+					rendered = "locator";
 			}
 			break;
 
@@ -3299,8 +3341,8 @@ static int dissect_tns_bind_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 	for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
 	{
-		offset = dissect_tns_value(tvb, pinfo, tree, offset, col->type, col->csform, false, idx,
-			hf_tns_data_bind_value, "Bind");
+		offset = dissect_tns_value(tvb, pinfo, tree, offset, col->type, col->csform,
+			out ? TNS_VALUE_OUT : TNS_VALUE_BIND, idx, hf_tns_data_bind_value, "Bind");
 		if ( out )
 		{
 			start = offset;
@@ -3312,16 +3354,10 @@ static int dissect_tns_bind_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 /* Decode the TTI_RXD value rows of a bind section - one row per
- * execution - with each value typed by cols[]. A CLOB / BLOB bind
- * carries a temp-LOB locator form not unpacked here, so rows with one are
- * left alone. Returns the new offset. */
+ * execution - with each value typed by cols[]. Returns the new offset. */
 static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const tns_column_t *cols, uint32_t count, bool plsql)
 {
 	int rownum = 0;
-
-	for ( uint32_t i = 0; i < count; i++ )
-		if ( cols[i].type == TNS_DATATYPE_CLOB || cols[i].type == TNS_DATATYPE_BLOB )
-			return offset;
 
 	while ( tvb_reported_length_remaining(tvb, offset) > 0
 		&& tvb_get_uint8(tvb, offset) == SQLNET_ROW_TRANSF_DATA )
@@ -3715,8 +3751,8 @@ static int dissect_tns_aq_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			offset += raw_len;
 		}
 		else if ( tvb_reported_length_remaining(tvb, offset) > 0 )
-			offset = dissect_tns_value(tvb, pinfo, tree, offset, TNS_DATATYPE_ADT, 0, false, 1,
-				hf_tns_data_aq_payload, "Payload");
+			offset = dissect_tns_value(tvb, pinfo, tree, offset, TNS_DATATYPE_ADT, 0,
+				TNS_VALUE_BIND, 1, hf_tns_data_aq_payload, "Payload");
 	}
 	return offset;
 }
@@ -5580,7 +5616,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					for ( int j = 0; j < rows && tvb_reported_length_remaining(tvb, offset) > 0; j++ )
 					{
 						offset = dissect_tns_value(tvb, pinfo, rv_tree, offset, rcall->binds[i].type,
-							rcall->binds[i].csform, false, i + 1, hf_tns_data_bind_value, "Bind");
+							rcall->binds[i].csform, TNS_VALUE_OUT, i + 1, hf_tns_data_bind_value, "Bind");
 						start = offset;
 						offset += get_sb4_custom(tvb, offset, &rc);
 						proto_tree_add_int(rv_tree, hf_tns_data_bind_retcode, tvb, start, offset - start, rc);
@@ -5640,7 +5676,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							continue;
 						}
 						offset = dissect_tns_value(tvb, pinfo, row_tree, offset,
-							col->type, col->csform, true, c + 1, hf_tns_data_col_value, "Column");
+							col->type, col->csform, TNS_VALUE_FETCH, c + 1, hf_tns_data_col_value, "Column");
 					}
 					proto_item_set_len(row_item, offset - r_start);
 					/* A bit vector covers one row only. */
@@ -6166,10 +6202,13 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							ett_tns_bind, &bind_item, "Bind %d: %s", i + 1,
 							val_to_str_const(btype, tns_data_types, "unknown"));
 						offset = dissect_tns_oac(tvb, pinfo, bind_tree, offset, &bcols[i]);
-						/* Below 12.2 a CLOB/BLOB bind OAC still carries a
-						 * trailing oaccolid byte; from 12.2 every OAC does,
-						 * and the OAC decoder reads it. */
-						if ( (btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB)
+						/* Below 12.2 the descriptor of a bind whose value
+						 * rides under a locator - a CLOB, BLOB, JSON or
+						 * VECTOR - still carries a trailing oaccolid byte;
+						 * from 12.2 every OAC does, and the OAC decoder
+						 * reads it. */
+						if ( (btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB
+							|| btype == TNS_DATATYPE_JSON || btype == TNS_DATATYPE_VECTOR)
 							&& tns_field_version(pinfo) < TNS_FV_12_2 )
 							offset += 1;
 						proto_item_set_len(bind_item, offset - b_start);
@@ -6607,7 +6646,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						offset += get_sb4_custom(tvb, offset, &len);
 						if ( len > 0 )
 							offset = dissect_tns_value(tvb, pinfo, data_tree, offset, TNS_DATATYPE_ADT,
-								0, false, i + 1, hf_tns_data_aq_payload, "Payload");
+								0, TNS_VALUE_OUT, i + 1, hf_tns_data_aq_payload, "Payload");
 						/* the ids of this iteration's messages, one after
 						 * another */
 						offset += get_sb4_custom(tvb, offset, &len);
@@ -6636,7 +6675,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						offset = dissect_tns_aq_msg_props(tvb, pinfo, data_tree, offset, true);
 						offset += get_sb4_custom(tvb, offset, &v);  /* recipients */
 						offset = dissect_tns_value(tvb, pinfo, data_tree, offset, TNS_DATATYPE_ADT, 0,
-							false, 1, hf_tns_data_aq_payload, "Payload");
+							TNS_VALUE_OUT, 1, hf_tns_data_aq_payload, "Payload");
 						proto_tree_add_item(data_tree, hf_tns_data_aq_msgid, tvb, offset, TNS_AQ_MSGID_LEN, ENC_NA);
 						offset += TNS_AQ_MSGID_LEN;
 					}

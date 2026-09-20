@@ -3041,6 +3041,28 @@ class TestDissectTns:
         assert rows[0][4] == '', rows[0]
         assert rows[1][4] == '0' and rows[1][5] == 'SELECT 1 FROM DUAL', rows[1]
 
+    def test_tns_lob_binds(self, cmd_tshark, capture_file, test_env):
+        '''A LOB value carried by a bind is a bare locator on the way out and
+        the LOB block - its size and chunk size before the locator - on the
+        way back, for an OUT bind and a RETURNING bind alike. A LONG return
+        bind is a plain DALC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_lob_binds.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Bind 1 (CLOB): locator\n' in stdout, stdout
+        assert 'Bind 2 (NUMBER): 10' in stdout, stdout
+        assert stdout.count('Bind 1 (CLOB): locator, size 50005') == 1, stdout
+        assert stdout.count('Bind 2 (CLOB): locator, size 50005') == 1, stdout
+        assert 'LOB Chunk Size: 8132' in stdout, stdout
+        assert 'Bind 3 (LONG): nineteen bytes here' in stdout, stdout
+        # a JSON bind sends its locator and image; the value returned for
+        # it is the same block a LOB's is
+        assert 'Bind 1 (JSON): {"k": 5}' in stdout, stdout
+        assert 'Bind 1 (JSON): locator, size 50005' in stdout, stdout
+        assert 'Malformed' not in stdout, stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
