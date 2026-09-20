@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-09-13
+ * ESTA codes download date: 2026-09-20
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -695,6 +695,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x082C, "RIVA GmbH Engineering" },
   { 0x082E, "QubiCast GmbH" },
   { 0x0830, "PulseWorx" },
+  { 0x0831, "Jim Eischen Designs LLC" },
   { 0x0832, "Shenzhen EXC-LED Technology Co.,Ltd" },
   { 0x0835, "Guangdong Fahold Electronics Co., Ltd." },
   { 0x0836, "Nyvoll Lys" },

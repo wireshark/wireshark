@@ -1387,35 +1387,35 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Interface</source>
-        <translation>Arayüz</translation>
+        <translation type="vanished">Arayüz</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Trafik</translation>
+        <translation type="vanished">Trafik</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Bağlantı katmanı Başlığı</translation>
+        <translation type="vanished">Bağlantı katmanı Başlığı</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Karışık</translation>
+        <translation type="vanished">Karışık</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Snaplen (B)</translation>
+        <translation type="vanished">Snaplen (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Arabellek (MB)</translation>
+        <translation type="vanished">Arabellek (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Monitör Modu</translation>
+        <translation type="vanished">Monitör Modu</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Yakalama Filtresi</translation>
+        <translation type="vanished">Yakalama Filtresi</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1538,10 +1538,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
 For example, use 1 hour to have a new file created every hour on the hour.</source>
         <translation>(duvar saati) süresi belirtilen aralığın çift katı olduğunda sonraki dosyaya geçin.
 Örneğin, her saat başı yeni bir dosyanın oluşturulması için 1 saat kullanın.</translation>
-    </message>
-    <message>
-        <source>Optimize</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1720,24 +1716,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Geçici dizini belirtin</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Adresler</translation>
+        <translation type="vanished">Adresler</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adres</translation>
+        <translation type="vanished">Adres</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>adres yok</translation>
+        <translation type="vanished">adres yok</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3895,7 +3887,8 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6202,8 +6195,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>Monitör Modu</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Yakalama Filtresi</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Trafik</translation>
     </message>
     <message>
         <source>Addresses</source>

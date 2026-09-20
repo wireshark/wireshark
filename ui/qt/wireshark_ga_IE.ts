@@ -1414,35 +1414,35 @@ As = pointe loga amháin (meaitseálann sé an coinbhinsiún stairiúil &quot;n�
     </message>
     <message>
         <source>Interface</source>
-        <translation>Comhéadan</translation>
+        <translation type="vanished">Comhéadan</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Trácht</translation>
+        <translation type="vanished">Trácht</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Ceanntásca Nasc-Chiseal</translation>
+        <translation type="vanished">Ceanntásca Nasc-Chiseal</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Promiscuous</translation>
+        <translation type="vanished">Promiscuous</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Snaplen (B)</translation>
+        <translation type="vanished">Snaplen (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Maolán (MB)</translation>
+        <translation type="vanished">Maolán (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Mód Monatóireachta</translation>
+        <translation type="vanished">Mód Monatóireachta</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Scagaire Gabhála</translation>
+        <translation type="vanished">Scagaire Gabhála</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1568,7 +1568,7 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Optimize</source>
-        <translation>Optamaigh</translation>
+        <translation type="vanished">Optamaigh</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1748,23 +1748,23 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation>Socruithe comhéadain Extcap</translation>
+        <translation type="vanished">Socruithe comhéadain Extcap</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Seoltaí</translation>
+        <translation type="vanished">Seoltaí</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Seoladh</translation>
+        <translation type="vanished">Seoladh</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>gan seoltaí</translation>
+        <translation type="vanished">gan seoltaí</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3758,11 +3758,11 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Leabharmharc</translation>
     </message>
     <message>
         <source>Type a name to create a bookmark</source>
-        <translation type="unfinished"></translation>
+        <translation>Clóscríobh ainm chun leabharmharc a chruthú</translation>
     </message>
     <message>
         <source>Save parameters on capture start</source>
@@ -3932,8 +3932,9 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>Bainistigh Scagairí Sábháilte</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Roghanna Cnaipe Scagaire...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Roghanna Cnaipe Scagaire...</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6286,8 +6287,16 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>Mód Monatóireachta</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished">Optamaigh</translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Scagaire Gabhála</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Trácht</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -9272,11 +9281,11 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prefix values that a spreadsheet would evaluate as a formula (those starting with &quot;=&quot;, &quot;+&quot;, &quot;-&quot; or &quot;@&quot;) with an apostrophe, so that packet data cannot inject a formula into the exported file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuir apostróf roimh luachanna a mheasfadh scarbhileog mar fhoirmle (iad siúd a thosaíonn le &quot;=&quot;, &quot;+&quot;, &quot;-&quot; nó &quot;@&quot;), ionas nach bhféadfaí foirmle a instealladh isteach sa chomhad easpórtáilte trí shonraí paicéid.</translation>
     </message>
     <message>
         <source>Escape spreadsheet formulas</source>
-        <translation type="unfinished"></translation>
+        <translation>Éalaigh ó fhoirmlí scarbhileoige</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Replace whitespace characters (tabs, newlines, etc.) with C-style escapes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -9413,23 +9422,23 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <name>PacketList</name>
     <message>
         <source>Unpin Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Díphionnaigh an Ró</translation>
     </message>
     <message>
         <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="unfinished"></translation>
+        <translation>Biorraigh an Ró go dtí an Barr (baintear amach an t-uasmhéid %1)</translation>
     </message>
     <message>
         <source>Pin Row to Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Biorraigh an Ró go dtí an Barr</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Téigh chuig an bpacáiste</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Díphionnaigh gach ró</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -9508,11 +9517,11 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message>
         <source>Unfreeze Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Díreoigh Colúin</translation>
     </message>
     <message>
         <source>Freeze Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Reoigh an Colún</translation>
     </message>
     <message>
         <source>Display as Packet Details</source>
@@ -9643,7 +9652,7 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <name>Plot</name>
     <message>
         <source>Field cannot be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ní féidir leis an réimse a bheith folamh.</translation>
     </message>
 </context>
 <context>
@@ -12935,11 +12944,11 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>Playback of stream %1 failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Theip ar sheinm an tsrutha %1.</translation>
     </message>
     <message>
         <source>Save failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Theip ar an sábháil.</translation>
     </message>
     <message>
         <source>Automatic</source>

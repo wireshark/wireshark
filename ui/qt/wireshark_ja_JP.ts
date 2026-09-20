@@ -1392,35 +1392,35 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Interface</source>
-        <translation>インターフェース</translation>
+        <translation type="vanished">インターフェース</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>トラフィック</translation>
+        <translation type="vanished">トラフィック</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>リンク層ヘッダ</translation>
+        <translation type="vanished">リンク層ヘッダ</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>プロミスキャス</translation>
+        <translation type="vanished">プロミスキャス</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>キャプチャ長(バイト)</translation>
+        <translation type="vanished">キャプチャ長(バイト)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>バッファ(メガバイト)</translation>
+        <translation type="vanished">バッファ(メガバイト)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>モニタモード</translation>
+        <translation type="vanished">モニタモード</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>キャプチャフィルタ</translation>
+        <translation type="vanished">キャプチャフィルタ</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1545,7 +1545,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Optimize</source>
-        <translation>最適化</translation>
+        <translation type="vanished">最適化</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1725,23 +1725,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation>Extcapインターフェース設定</translation>
+        <translation type="vanished">Extcapインターフェース設定</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>アドレス</translation>
+        <translation type="vanished">アドレス</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>アドレス</translation>
+        <translation type="vanished">アドレス</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>アドレスがありません</translation>
+        <translation type="vanished">アドレスがありません</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3903,8 +3903,9 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>保存したフィルタを管理</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>フィルタボタン設定…</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">フィルタボタン設定…</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6243,8 +6244,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>モニタモード</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished">最適化</translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>キャプチャフィルタ</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">トラフィック</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -9339,23 +9348,23 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <name>PacketList</name>
     <message>
         <source>Unpin Row</source>
-        <translation type="unfinished"></translation>
+        <translation> 行の固定解除</translation>
     </message>
     <message>
         <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="unfinished"></translation>
+        <translation> 行を先頭に固定 (最大 %1 行)</translation>
     </message>
     <message>
         <source>Pin Row to Top</source>
-        <translation type="unfinished"></translation>
+        <translation> 行を先頭に固定</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットへ移動</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>すべての行の固定解除</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -9434,11 +9443,11 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>Unfreeze Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>列の固定解除</translation>
     </message>
     <message>
         <source>Freeze Column</source>
-        <translation type="unfinished"></translation>
+        <translation>列を固定</translation>
     </message>
     <message>
         <source>Display as Packet Details</source>

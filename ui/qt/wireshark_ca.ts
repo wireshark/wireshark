@@ -1403,35 +1403,35 @@ Desactivat = només punt de registre (coincideix amb la convenció històrica «
     </message>
     <message>
         <source>Interface</source>
-        <translation>Interfície</translation>
+        <translation type="vanished">Interfície</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Trànsit</translation>
+        <translation type="vanished">Trànsit</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Capçalera de la capa d&apos;enllaç</translation>
+        <translation type="vanished">Capçalera de la capa d&apos;enllaç</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Promiscu</translation>
+        <translation type="vanished">Promiscu</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Snaplen (B)</translation>
+        <translation type="vanished">Snaplen (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Memòria intermèdia (MB)</translation>
+        <translation type="vanished">Memòria intermèdia (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Mode monitor</translation>
+        <translation type="vanished">Mode monitor</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Filtre de captura</translation>
+        <translation type="vanished">Filtre de captura</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1557,7 +1557,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Optimize</source>
-        <translation>Optimitza</translation>
+        <translation type="vanished">Optimitza</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1737,23 +1737,23 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation>Configuració de la interfície Extcap</translation>
+        <translation type="vanished">Configuració de la interfície Extcap</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Adreces</translation>
+        <translation type="vanished">Adreces</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adreça</translation>
+        <translation type="vanished">Adreça</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>Sense adreces</translation>
+        <translation type="vanished">Sense adreces</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3919,8 +3919,9 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
         <translation>Gestiona els filtres desats</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Preferències del botó de filtre…</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Preferències del botó de filtre…</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6266,8 +6267,16 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
         <translation>Mode monitor</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished">Optimitza</translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Filtre de captura</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Trànsit</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -9378,23 +9387,23 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <name>PacketList</name>
     <message>
         <source>Unpin Row</source>
-        <translation type="unfinished"></translation>
+        <translation>No fixis la columna</translation>
     </message>
     <message>
         <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixa la columna a dalt (s&apos;ha assolit el màx de %1)</translation>
     </message>
     <message>
         <source>Pin Row to Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixa la columna a dalt</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished">Vés al paquet</translation>
+        <translation>Vés al paquet</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Deixa de fixar columnes</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -9473,11 +9482,11 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     </message>
     <message>
         <source>Unfreeze Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Descongela les columnes</translation>
     </message>
     <message>
         <source>Freeze Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Congela les columnes</translation>
     </message>
     <message>
         <source>Display as Packet Details</source>

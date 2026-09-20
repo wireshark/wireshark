@@ -1407,35 +1407,35 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Interface</source>
-        <translation>Interfejs</translation>
+        <translation type="vanished">Interfejs</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Ruch</translation>
+        <translation type="vanished">Ruch</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Nagłówek warstwy łącza</translation>
+        <translation type="vanished">Nagłówek warstwy łącza</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Tryb mieszany</translation>
+        <translation type="vanished">Tryb mieszany</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Rozmiar przechwyconej ramki (B)</translation>
+        <translation type="vanished">Rozmiar przechwyconej ramki (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Bufor (MB)</translation>
+        <translation type="vanished">Bufor (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Tryb monitora</translation>
+        <translation type="vanished">Tryb monitora</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Filtr przechwytywania</translation>
+        <translation type="vanished">Filtr przechwytywania</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1556,10 +1556,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Optimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1739,24 +1735,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Wybierz katalog tymczasowy</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Adresy</translation>
+        <translation type="vanished">Adresy</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adres</translation>
+        <translation type="vanished">Adres</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>brak adresów</translation>
+        <translation type="vanished">brak adresów</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3916,7 +3908,8 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6237,8 +6230,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>Tryb monitora</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Filtr przechwytywania</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Ruch</translation>
     </message>
     <message>
         <source>Addresses</source>

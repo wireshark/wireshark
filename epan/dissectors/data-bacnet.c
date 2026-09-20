@@ -306,7 +306,7 @@ BACnetVendorIdentifiers[] = {
     {  290, "Romutec Steuer-u. Regelsysteme GmbH" },
     {  291, "Pribusin, Inc." },
     {  292, "Advantage Controls" },
-    {  293, "Critical Room Control" },
+    {  293, "CRC" },
     {  294, "LEGRAND" },
     {  295, "Tongdy Control Technology Co., Ltd." },
     {  296, "ISSARO Integrierte Systemtechnik" },
@@ -1667,6 +1667,14 @@ BACnetVendorIdentifiers[] = {
     { 1654, "CoreControlsAi, LLC" },
     { 1655, "Modutrol Pty Ltd" },
     { 1656, "Kaeser Kompressoren SE" },
+    { 1657, "cunnect GmbH" },
+    { 1658, "Bennett Automation, LLC" },
+    { 1659, "Lesophistique Tech Pvt Ltd" },
+    { 1660, "Ebm-papst neo GmbH & Co. KG" },
+    { 1661, "Avyanna Tech Pvt Ltd" },
+    { 1662, "ControlByWeb" },
+    { 1663, "Cooler Master Co., Ltd." },
+    { 1664, "Bes-Tech, Inc." },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

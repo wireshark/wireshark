@@ -1402,35 +1402,35 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Interface</source>
-        <translation>Schnittstelle</translation>
+        <translation type="vanished">Schnittstelle</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Datenverkehr</translation>
+        <translation type="vanished">Datenverkehr</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Link-Layer Header</translation>
+        <translation type="vanished">Link-Layer Header</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Promiskuitiv</translation>
+        <translation type="vanished">Promiskuitiv</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Mitschnittlänge (B)</translation>
+        <translation type="vanished">Mitschnittlänge (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Puffer (MB)</translation>
+        <translation type="vanished">Puffer (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Überwachungsmodus</translation>
+        <translation type="vanished">Überwachungsmodus</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Mitschnittfilter</translation>
+        <translation type="vanished">Mitschnittfilter</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1556,7 +1556,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Optimize</source>
-        <translation>Optimierung</translation>
+        <translation type="vanished">Optimierung</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1736,23 +1736,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation>Extcap-Schnittstelleneinstellungen</translation>
+        <translation type="vanished">Extcap-Schnittstelleneinstellungen</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Adressen</translation>
+        <translation type="vanished">Adressen</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adresse</translation>
+        <translation type="vanished">Adresse</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>keine Adressen</translation>
+        <translation type="vanished">keine Adressen</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3918,8 +3918,9 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
         <translation>Gespeicherte Filter verwalten</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Einstellungen Filterknöpfe...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Einstellungen Filterknöpfe...</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6232,8 +6233,16 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
         <translation>Überwachungsmodus</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished">Optimierung</translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Mitschnittfilter</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Datenverkehr</translation>
     </message>
     <message>
         <source>Addresses</source>

@@ -1387,35 +1387,35 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Interface</source>
-        <translation>Antar muka</translation>
+        <translation type="vanished">Antar muka</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Lalu lintas</translation>
+        <translation type="vanished">Lalu lintas</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Header Link layer</translation>
+        <translation type="vanished">Header Link layer</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Promiscuous</translation>
+        <translation type="vanished">Promiscuous</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Snaplen (B)</translation>
+        <translation type="vanished">Snaplen (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Penyangga (MB)</translation>
+        <translation type="vanished">Penyangga (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Mode Monitor</translation>
+        <translation type="vanished">Mode Monitor</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Filter Tangkapan</translation>
+        <translation type="vanished">Filter Tangkapan</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1541,7 +1541,7 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Optimize</source>
-        <translation>Optimalkan</translation>
+        <translation type="vanished">Optimalkan</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1721,23 +1721,23 @@ Misalnya, gunakan 1 jam agar ada satu berkas baru dibuat setiap jam pada awal ja
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation>Pengaturan antar muka extcap</translation>
+        <translation type="vanished">Pengaturan antar muka extcap</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Alamat</translation>
+        <translation type="vanished">Alamat</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Alamat</translation>
+        <translation type="vanished">Alamat</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>tidak ada alamat</translation>
+        <translation type="vanished">tidak ada alamat</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3899,8 +3899,9 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
         <translation>Kelola Filter Tersimpan</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Preferensi Tombol Filter...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Preferensi Tombol Filter...</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6206,8 +6207,16 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
         <translation>Mode Monitor</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished">Optimalkan</translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Filter Tangkapan</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Lalu lintas</translation>
     </message>
     <message>
         <source>Addresses</source>

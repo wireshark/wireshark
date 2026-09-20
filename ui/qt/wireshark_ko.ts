@@ -1387,35 +1387,35 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Interface</source>
-        <translation>인터페이스</translation>
+        <translation type="vanished">인터페이스</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>트래픽</translation>
+        <translation type="vanished">트래픽</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>링크 레이어 헤더</translation>
+        <translation type="vanished">링크 레이어 헤더</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>무작위</translation>
+        <translation type="vanished">무작위</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Snaplen(B)</translation>
+        <translation type="vanished">Snaplen(B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>버퍼(MB)</translation>
+        <translation type="vanished">버퍼(MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>모니터 모드</translation>
+        <translation type="vanished">모니터 모드</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>캡처 필터</translation>
+        <translation type="vanished">캡처 필터</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1538,10 +1538,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
 For example, use 1 hour to have a new file created every hour on the hour.</source>
         <translation>지정한 주기마다 다음 파일로 전환합니다.
 예를 들어 1시간으로 설정하면 매시간마다 새로운 파일을 만듭니다.</translation>
-    </message>
-    <message>
-        <source>Optimize</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1720,24 +1716,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>임시 디렉터리 지정</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>주소</translation>
+        <translation type="vanished">주소</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>주소</translation>
+        <translation type="vanished">주소</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>주소 없음</translation>
+        <translation type="vanished">주소 없음</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3895,7 +3887,8 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6202,8 +6195,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>모니터 모드</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>캡처 필터</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">트래픽</translation>
     </message>
     <message>
         <source>Addresses</source>

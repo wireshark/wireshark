@@ -1403,35 +1403,35 @@ Av = endast loggpunkt (följer den historiska konventionen ”loggpunkter pausar
     </message>
     <message>
         <source>Interface</source>
-        <translation>Gränssnitt</translation>
+        <translation type="vanished">Gränssnitt</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Trafik</translation>
+        <translation type="vanished">Trafik</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Länknivåhuvud</translation>
+        <translation type="vanished">Länknivåhuvud</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Promiskuös</translation>
+        <translation type="vanished">Promiskuös</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Provlängd (B)</translation>
+        <translation type="vanished">Provlängd (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Buffert (MB)</translation>
+        <translation type="vanished">Buffert (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Monitorläge</translation>
+        <translation type="vanished">Monitorläge</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Fångstfilter</translation>
+        <translation type="vanished">Fångstfilter</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1557,7 +1557,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Optimize</source>
-        <translation>Optimera</translation>
+        <translation type="vanished">Optimera</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1737,23 +1737,23 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation>Extcap-gränssnittsinställningar</translation>
+        <translation type="vanished">Extcap-gränssnittsinställningar</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Adresser</translation>
+        <translation type="vanished">Adresser</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adress</translation>
+        <translation type="vanished">Adress</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>inga adresser</translation>
+        <translation type="vanished">inga adresser</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3421,7 +3421,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Show chat packets.</source>
-        <translation>Visa tjattpaket.</translation>
+        <translation>Visa chattpaket.</translation>
     </message>
     <message>
         <source>Comment</source>
@@ -3919,8 +3919,9 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>Hantera sparade filter</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Inställningar för filterknappar…</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Inställningar för filterknappar…</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6266,8 +6267,16 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>Monitorläge</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished">Optimera</translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Fångstfilter</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Trafik</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -7363,7 +7372,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
-&lt;h3&gt;Värdefulla och fantastiska tidssparande tangenbordsgenvägar&lt;/h3&gt;
+&lt;h3&gt;Värdefulla och fantastiska tidssparande tangentbordsgenvägar&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
 &lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zooma in&lt;/td&gt;&lt;/th&gt;
@@ -9378,23 +9387,23 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>PacketList</name>
     <message>
         <source>Unpin Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Lossa rad</translation>
     </message>
     <message>
         <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fäst rad överst (maxgränsen %1 har nåtts)</translation>
     </message>
     <message>
         <source>Pin Row to Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Fäst rad överst</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished">Gå till paket</translation>
+        <translation>Gå till paket</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Lossa alla rader</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -9473,11 +9482,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Unfreeze Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Lås upp kolumner</translation>
     </message>
     <message>
         <source>Freeze Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Lås kolumn</translation>
     </message>
     <message>
         <source>Display as Packet Details</source>
@@ -12592,7 +12601,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Go To Setup Packet</source>
-        <translation>Gå till uppsättnigspaketet</translation>
+        <translation>Gå till uppsättningspaketet</translation>
     </message>
     <message>
         <source>Go to setup packet of stream currently under the cursor</source>
@@ -12812,7 +12821,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>&amp;Set playlist</source>
-        <translation>S&amp;ätt spellistan</translation>
+        <translation>Sätt &amp;spellistan</translation>
     </message>
     <message>
         <source>Replace existing playlist in RTP Player with new one</source>
@@ -13968,7 +13977,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
 &lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
-&lt;h3&gt;Värdefulla och fantastiska tidssparande tangenbordsgenvägar&lt;/h3&gt;
+&lt;h3&gt;Värdefulla och fantastiska tidssparande tangentbordsgenvägar&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
 &lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zooma in&lt;/td&gt;&lt;/th&gt;
@@ -13986,7 +13995,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Gå till paketet under markören&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;n&lt;/th&gt;&lt;td&gt;Gå till nästa paket&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;Gå till föregående paket&lt;/td&gt;
+&lt;tr&gt;&lt;th&gt;p&lt;/th&gt;&lt;td&gt;Gå till föregående paket&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -14037,7 +14046,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>&amp;Reset Diagram</source>
-        <translation>&amp;Återställ diagrammet</translation>
+        <translation>Åter&amp;ställ diagrammet</translation>
     </message>
     <message>
         <source>Reset the diagram to its initial state</source>
@@ -14951,9 +14960,10 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Flytta 1 bildpunkt åt höger&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Flytta 1 bildpunkt åt vänster&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Flytta 1 bildpunkt uppåt&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Flytta nedåt 1 pixel 
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Flytta 1 bildpunkt nedåt&lt;/td&gt;&lt;/th&gt;
 
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Up&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Nästa ström &lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Dn&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Föregående ström
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Up&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Nästa ström&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Dn&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Föregående ström&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;Byt riktning (byt TCP-ändpunkter)&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Gå till paketet under markören&lt;/td&gt;&lt;/th&gt;
 
@@ -16767,7 +16777,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>&amp;Reload</source>
-        <translation>L&amp;äs om</translation>
+        <translation>&amp;Läs om</translation>
     </message>
     <message>
         <source>Options</source>
@@ -17460,7 +17470,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>&amp;Endpoints</source>
-        <translation>&amp;Ändpunkter</translation>
+        <translation>Änd&amp;punkter</translation>
     </message>
     <message>
         <source>Shrink the main window text</source>
@@ -17504,7 +17514,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Show or hide the packet diagram</source>
-        <translation>Visa eller dölj paketduagrannet</translation>
+        <translation>Visa eller dölj paketdiagrammet</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
@@ -17796,11 +17806,11 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Find Ne&amp;xt</source>
-        <translation>Sök n&amp;ästa</translation>
+        <translation>Sök &amp;nästa</translation>
     </message>
     <message>
         <source>Find Pre&amp;vious</source>
-        <translation>Sök f&amp;öregående</translation>
+        <translation>Sök &amp;föregående</translation>
     </message>
     <message>
         <source>&amp;Mark/Unmark Selected</source>
@@ -18306,7 +18316,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation>&amp;Öppna</translation>
+        <translation>Ö&amp;ppna</translation>
     </message>
     <message>
         <source>&amp;Quit</source>

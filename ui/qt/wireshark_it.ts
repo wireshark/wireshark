@@ -1403,35 +1403,35 @@ Off = solo logpoint (corrisponde alla convenzione storica secondo cui &quot;i lo
     </message>
     <message>
         <source>Interface</source>
-        <translation>Interfaccia</translation>
+        <translation type="vanished">Interfaccia</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Traffico</translation>
+        <translation type="vanished">Traffico</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Intestazione del livello di collegamento</translation>
+        <translation type="vanished">Intestazione del livello di collegamento</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Promiscua</translation>
+        <translation type="vanished">Promiscua</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Lunghezza di cattura (B)</translation>
+        <translation type="vanished">Lunghezza di cattura (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Buffer (MB)</translation>
+        <translation type="vanished">Buffer (MB)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Modalità di monitoraggio</translation>
+        <translation type="vanished">Modalità di monitoraggio</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Filtro di cattura</translation>
+        <translation type="vanished">Filtro di cattura</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1557,7 +1557,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Optimize</source>
-        <translation>Ottimizza</translation>
+        <translation type="vanished">Ottimizza</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1737,23 +1737,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Extcap interface settings</source>
-        <translation>Impostazioni interfaccia Extcap</translation>
+        <translation type="vanished">Impostazioni interfaccia Extcap</translation>
     </message>
     <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Indirizzi</translation>
+        <translation type="vanished">Indirizzi</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Indirizzo</translation>
+        <translation type="vanished">Indirizzo</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>nessun indirizzo</translation>
+        <translation type="vanished">nessun indirizzo</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3919,8 +3919,9 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <translation>Gestisci filtri salvati</translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
-        <translation>Preferenze pulsante di filtro...</translation>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
+        <translation type="unfinished">Preferenze pulsante di filtro...</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6268,8 +6269,16 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <translation>Modalità di monitoraggio</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished">Ottimizza</translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Filtro di cattura</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Traffico</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -9380,23 +9389,23 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <name>PacketList</name>
     <message>
         <source>Unpin Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Sblocca riga</translation>
     </message>
     <message>
         <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="unfinished"></translation>
+        <translation>Blocca riga in alto (%1 massimo raggiunto)</translation>
     </message>
     <message>
         <source>Pin Row to Top</source>
-        <translation type="unfinished"></translation>
+        <translation>Blocca riga in alto</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished">Vai al pacchetto</translation>
+        <translation>Vai al pacchetto</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Sblocca tutte le righe</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -9475,11 +9484,11 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Unfreeze Columns</source>
-        <translation type="unfinished"></translation>
+        <translation>Sblocca colonne</translation>
     </message>
     <message>
         <source>Freeze Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Blocca colonna</translation>
     </message>
     <message>
         <source>Display as Packet Details</source>

@@ -1384,36 +1384,12 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="unfinished">接口</translation>
-    </message>
-    <message>
         <source>Traffic</source>
-        <translation>流量</translation>
+        <translation type="vanished">流量</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>链路层</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="unfinished">混杂</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="unfinished">捕获长度 (B)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="unfinished">缓冲区 (MB)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="unfinished">监控模式</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="unfinished">捕获过滤器</translation>
+        <translation type="vanished">链路层</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1536,10 +1512,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
 For example, use 1 hour to have a new file created every hour on the hour.</source>
         <translation>当当前时间为指定时间的整数倍时切换到下一个文件。
 例如，如果设置成1小时，则每个整点将创建一个文件。</translation>
-    </message>
-    <message>
-        <source>Optimize</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1715,26 +1687,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Specify temporary directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1: %2</source>
-        <translation type="unfinished">%1: %2</translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="unfinished">地址</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="unfinished">地址</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3891,7 +3843,8 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6198,8 +6151,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>监控模式</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>捕获过滤器</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">流量</translation>
     </message>
     <message>
         <source>Addresses</source>

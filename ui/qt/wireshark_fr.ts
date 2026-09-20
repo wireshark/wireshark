@@ -1398,35 +1398,35 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Interface</source>
-        <translation>Interface</translation>
+        <translation type="vanished">Interface</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Trafic</translation>
+        <translation type="vanished">Trafic</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Entête de couche de liaison</translation>
+        <translation type="vanished">Entête de couche de liaison</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Promiscuité</translation>
+        <translation type="vanished">Promiscuité</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Snaplen (B)</translation>
+        <translation type="vanished">Snaplen (B)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Tampon (Mo)</translation>
+        <translation type="vanished">Tampon (Mo)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Mode moniteur</translation>
+        <translation type="vanished">Mode moniteur</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Filtre de capture</translation>
+        <translation type="vanished">Filtre de capture</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1549,10 +1549,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
 For example, use 1 hour to have a new file created every hour on the hour.</source>
         <translation>Passe au fichier suivant quand le temps (de l&apos;horloge murale) est un multiple pair de l&apos;intervale indiqué.
 Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les heures à l&apos;heure.</translation>
-    </message>
-    <message>
-        <source>Optimize</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1731,24 +1727,20 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Spécifier le répertoire temporaire</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1: %2</source>
-        <translation>%1 : %2</translation>
+        <translation type="vanished">%1 : %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Adresses</translation>
+        <translation type="vanished">Adresses</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Adresse</translation>
+        <translation type="vanished">Adresse</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>pas d&apos;adresses</translation>
+        <translation type="vanished">pas d&apos;adresses</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3905,7 +3897,8 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6219,8 +6212,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>Mode moniteur</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Filtre de capture</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Trafic</translation>
     </message>
     <message>
         <source>Addresses</source>

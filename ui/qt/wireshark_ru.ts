@@ -1409,35 +1409,35 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     </message>
     <message>
         <source>Interface</source>
-        <translation>Интерфейс</translation>
+        <translation type="vanished">Интерфейс</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation>Трафик</translation>
+        <translation type="vanished">Трафик</translation>
     </message>
     <message>
         <source>Link-layer Header</source>
-        <translation>Заголовок канального уровня</translation>
+        <translation type="vanished">Заголовок канального уровня</translation>
     </message>
     <message>
         <source>Promiscuous</source>
-        <translation>Смешанный</translation>
+        <translation type="vanished">Смешанный</translation>
     </message>
     <message>
         <source>Snaplen (B)</source>
-        <translation>Длина снимка (Б)</translation>
+        <translation type="vanished">Длина снимка (Б)</translation>
     </message>
     <message>
         <source>Buffer (MB)</source>
-        <translation>Буфер (Мбайт)</translation>
+        <translation type="vanished">Буфер (Мбайт)</translation>
     </message>
     <message>
         <source>Monitor Mode</source>
-        <translation>Режим мониторинга</translation>
+        <translation type="vanished">Режим мониторинга</translation>
     </message>
     <message>
         <source>Capture Filter</source>
-        <translation>Фильтр захвата</translation>
+        <translation type="vanished">Фильтр захвата</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1560,10 +1560,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
 For example, use 1 hour to have a new file created every hour on the hour.</source>
         <translation>Переходить на следующий файл при достижении указанного кратного интервала времени.
 Например, если указать 1 час, то каждый час будет создаваться новый файл.</translation>
-    </message>
-    <message>
-        <source>Optimize</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1742,24 +1738,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Укажите временный каталог</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1: %2</source>
-        <translation>%1: %2</translation>
+        <translation type="vanished">%1: %2</translation>
     </message>
     <message>
         <source>Addresses</source>
-        <translation>Адреса</translation>
+        <translation type="vanished">Адреса</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation>Адрес</translation>
+        <translation type="vanished">Адрес</translation>
     </message>
     <message>
         <source>no addresses</source>
-        <translation>нет адресов</translation>
+        <translation type="vanished">нет адресов</translation>
     </message>
     <message>
         <source>Error</source>
@@ -3919,7 +3911,8 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6240,8 +6233,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>Режим монитора</translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
         <translation>Фильтр захвата</translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished">Трафик</translation>
     </message>
     <message>
         <source>Addresses</source>

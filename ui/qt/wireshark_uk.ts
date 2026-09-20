@@ -1382,38 +1382,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="unfinished">Інтерфейс</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ймовірно, ви захочете це ввімкнути. Зазвичай, мережева карта захоплює лише ті пакети, що надсилаються до її власної мережевої адреси. Якщо ж ви хочете захопити весь трафік, що карта може &amp;quot;побачити&amp;quot;, виберіть цю опцію. Перегляньте ЧаПи щодо нюансів захоплення пакетів в мережах з комутацією.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1532,10 +1500,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Optimize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1712,26 +1676,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Specify temporary directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Extcap interface settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1: %2</source>
-        <translation type="unfinished">%1: %2</translation>
-    </message>
-    <message>
-        <source>Addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>no addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3890,7 +3834,8 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Filter Button Preferences...</source>
+        <source>Filter Button Preferences…</source>
+        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6211,7 +6156,15 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Optimize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Traffic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
