@@ -2249,7 +2249,6 @@ SRSInformationReservationNotification    N f1ap.proc.imsg id-SRSInformationReser
         }
         break;
       case id_DLRRCMessageTransfer:
-      case id_UEContextRelease:
         switch (f1ap_data->srb_id) {
         case 0:
           col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
@@ -2269,6 +2268,12 @@ SRSInformationReservationNotification    N f1ap.proc.imsg id-SRSInformationReser
         default:
           break;
         }
+        break;
+      case id_UEContextRelease:
+        /* In the UEContextReleaseCommand, the id_SRBID IE is present if the
+         * RRC container IE is present, but follows it. */
+        f1ap_data->rrc_tree = subtree;
+        f1ap_data->rrc_tvb = param_tvb;
         break;
       case id_UEContextSetup:
       case id_UEContextModification:
@@ -2302,7 +2307,41 @@ SRSInformationReservationNotification    N f1ap.proc.imsg id-SRSInformationReser
 
 #.FN_BODY SRBID VAL_PTR=&f1ap_data->srb_id
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+  proto_tree *subtree = f1ap_data->rrc_tree;
+  tvbuff_t *param_tvb = f1ap_data->rrc_tvb;
 %(DEFAULT_BODY)s
+  if (param_tvb) {
+    switch (f1ap_data->message_type) {
+    case INITIATING_MESSAGE:
+      switch (f1ap_data->procedure_code) {
+      case id_UEContextRelease:
+        switch (f1ap_data->srb_id) {
+        case 0:
+          col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+          col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
+          call_dissector(nr_rrc_dl_ccch_handle, param_tvb, actx->pinfo, subtree);
+          break;
+        case 1:
+        case 2:
+        case 3:
+          col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+          col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
+          add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_DOWNLINK, f1ap_data->srb_id);
+          call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
+          break;
+        default:
+          break;
+        }
+        break;
+      default:
+        break;
+      }
+    default:
+      break;
+    }
+  }
 
 #.FN_BODY RRCContainer-RRCSetupComplete VAL_PTR=&param_tvb
   tvbuff_t *param_tvb = NULL;
