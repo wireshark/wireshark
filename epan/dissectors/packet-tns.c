@@ -3974,10 +3974,13 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				tvb, oer_start, offset - oer_start, (uint32_t)v);
 			/* end-to-end seq# (skipped) */
 			offset += get_sb4_custom(tvb, offset, &v);
-			/* rowcount (DML affected rows on 11g) */
+			/* rowcount: the rows the call applied, whether it went on
+			 * to fail or not */
 			int rc_start = offset;
+			uint64_t rows_done;
 			offset += get_sb4_custom(tvb, offset, &v);
 			proto_tree_add_int(oer_tree, hf_tns_data_oer_rowcount, tvb, rc_start, offset - rc_start, v);
+			rows_done = (uint64_t)(uint32_t)v;
 			/* err_code (ORA-NNNNN, 0 on success) */
 			int ec_start = offset;
 			int err_code = 0;
@@ -4077,6 +4080,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				start = offset;
 				offset += get_ub8_custom(tvb, offset, &rows);
 				proto_tree_add_uint64(oer_tree, hf_tns_data_oer_rowcount_ext, tvb, start, offset - start, rows);
+				rows_done = rows;
 			}
 			if ( fv >= TNS_FV_12_1 && (server_fv ? server_fv : fv) >= TNS_FV_20_1 )
 			{
@@ -4102,6 +4106,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", msg);
 				}
 			}
+			/* A call that failed part-way through - an array DML whose
+			 * later iteration raised - still applied the rows before the
+			 * one that raised, and this is where it says how many. */
+			if ( err_code != 0 && rows_done != 0 )
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [%" PRIu64 " rows applied]", rows_done);
 			proto_item_set_len(oer_item, offset - oer_start);
 			/* With the field version known the block ends where it
 			 * should, so an end-of-response marker after it can be read. */
@@ -6776,7 +6785,7 @@ void proto_register_tns(void)
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_oer_rowcount, {
 			"Row Count", "tns.data_oer.rowcount", FT_INT32, BASE_DEC,
-			NULL, 0x0, "DML affected rows (11g)", HFILL }},
+			NULL, 0x0, "The rows the call applied - on an error, the rows it managed before failing (11g)", HFILL }},
 		{ &hf_tns_data_oer_err_code, {
 			"Error Code", "tns.data_oer.err_code", FT_INT32, BASE_DEC,
 			NULL, 0x0, "ORA-NNNNN (0 = success)", HFILL }},
@@ -6797,7 +6806,7 @@ void proto_register_tns(void)
 			NULL, 0x0, "The error code at its full width (12.1 and later)", HFILL }},
 		{ &hf_tns_data_oer_rowcount_ext, {
 			"Row Count (64 bit)", "tns.data_oer.rowcount64", FT_UINT64, BASE_DEC,
-			NULL, 0x0, "The row count at its full width (12.1 and later)", HFILL }},
+			NULL, 0x0, "The rows the call applied, at full width (12.1 and later)", HFILL }},
 		{ &hf_tns_data_oer_sql_type, {
 			"SQL Type", "tns.data_oer.sql_type", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},

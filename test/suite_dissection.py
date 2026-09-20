@@ -2403,7 +2403,9 @@ class TestDissectTns:
     def test_tns_oer_extended(self, cmd_tshark, capture_file, test_env):
         '''From field version 12.1 the error block carries the error number
         and row count at full width, and from 20.1 the SQL type and a
-        checksum; the message and the end-of-response marker follow.'''
+        checksum; the message and the end-of-response marker follow. The
+        row count is read on an error too: it is what the call managed
+        before it raised.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_oer_12c.pcap'),
             '-d', 'tcp.port==1521,tns',
@@ -2419,6 +2421,9 @@ class TestDissectTns:
         assert rows[0][2].startswith('ORA-00942'), rows[0]
         assert rows[0][3].endswith('End of Response'), rows[0]
         assert rows[1][:3] == ['0', '70000', ''], rows[1]
+        # a batch that raised on its third row still applied two
+        assert rows[2][:2] == ['1', '2'], rows[2]
+        assert '[2 rows applied]' in rows[2][3], rows[2]
 
     def test_tns_all8_field_version(self, cmd_tshark, capture_file, test_env):
         '''A 12.2 execute has more header fields than an 11g one and a

@@ -14,6 +14,8 @@ connections, which carry extended fields.
               then the END_OF_RESPONSE marker
     Frame 3 - a successful TTI_OER for a DML of 70000 rows: the 11g row
               count field holds the low bits, the ub8 one the whole count
+    Frame 4 - a TTI_OER for an array insert that raised ORA-00001 on its
+              third row: the row count says the two rows before it went in
 
 Bytes are built by hand.
 """
@@ -172,11 +174,14 @@ def oer(err_code=0, cursor=0, rowcount=0, call_status=0, msg=b"", fv=0) -> bytes
 
 TTI_EOR = 29
 MSG = b"ORA-00942: table or view does not exist\n"
+DUP = b"ORA-00001: unique constraint (HR.T_PK) violated\n"
 
 frames = [
     (True, dty(24)),
     (False, oer(err_code=942, cursor=3, msg=MSG, fv=24) + bytes([TTI_EOR])),
     (False, oer(rowcount=70000, cursor=4, fv=24) + bytes([TTI_EOR])),
+    (False, oer(err_code=1, cursor=5, rowcount=2, msg=DUP, fv=24)
+            + bytes([TTI_EOR])),
 ]
 
 
