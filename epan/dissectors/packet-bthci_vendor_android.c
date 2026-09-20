@@ -80,6 +80,176 @@ static int hf_android_apcf_extended_features;
 static int hf_android_apcf_extended_features_transport_discovery_service;
 static int hf_android_apcf_extended_features_ad_type;
 static int hf_android_apcf_extended_features_reserved;
+
+/* Bluetooth Quality Report (BQR) fields. */
+static int hf_android_bqr_link_packet_type;
+static int hf_android_bqr_link_connection_handle;
+static int hf_android_bqr_link_connection_role;
+static int hf_android_bqr_link_tx_power;
+static int hf_android_bqr_link_rssi;
+static int hf_android_bqr_link_snr;
+static int hf_android_bqr_link_unused_afh_channels;
+static int hf_android_bqr_link_afh_unideal_channels;
+static int hf_android_bqr_link_retransmission_count;
+static int hf_android_bqr_link_no_rx_count;
+static int hf_android_bqr_link_nak_count;
+static int hf_android_bqr_link_flow_off_count;
+static int hf_android_bqr_link_buffer_overflow_bytes;
+static int hf_android_bqr_link_buffer_underflow_bytes;
+static int hf_android_bqr_link_cal_failed_item_count;
+static int hf_android_bqr_link_tx_total_packets;
+static int hf_android_bqr_link_tx_unacked_packets;
+static int hf_android_bqr_link_tx_flushed_packets;
+static int hf_android_bqr_link_tx_last_subevent_packets;
+static int hf_android_bqr_link_crc_error_packets;
+static int hf_android_bqr_link_rx_duplicate_packets;
+static int hf_android_bqr_link_rx_unreceived_packets;
+static int hf_android_bqr_root_error_code;
+static int hf_android_bqr_root_vendor_error_code;
+static int hf_android_bqr_energy_average_current;
+static int hf_android_bqr_energy_idle_total_time;
+static int hf_android_bqr_energy_idle_enter_count;
+static int hf_android_bqr_energy_active_total_time;
+static int hf_android_bqr_energy_active_enter_count;
+static int hf_android_bqr_energy_bredr_tx_total_time;
+static int hf_android_bqr_energy_bredr_tx_enter_count;
+static int hf_android_bqr_energy_bredr_tx_avg_power;
+static int hf_android_bqr_energy_bredr_rx_total_time;
+static int hf_android_bqr_energy_bredr_rx_enter_count;
+static int hf_android_bqr_energy_le_tx_total_time;
+static int hf_android_bqr_energy_le_tx_enter_count;
+static int hf_android_bqr_energy_le_tx_avg_power;
+static int hf_android_bqr_energy_le_rx_total_time;
+static int hf_android_bqr_energy_le_rx_enter_count;
+static int hf_android_bqr_energy_report_time_duration;
+static int hf_android_bqr_energy_rx_active_one_chain_time;
+static int hf_android_bqr_energy_rx_active_two_chain_time;
+static int hf_android_bqr_energy_tx_ipa_active_one_chain_time;
+static int hf_android_bqr_energy_tx_ipa_active_two_chain_time;
+static int hf_android_bqr_energy_tx_epa_active_one_chain_time;
+static int hf_android_bqr_energy_tx_epa_active_two_chain_time;
+static int hf_android_bqr_energy_bredr_rx_scan_total_time;
+static int hf_android_bqr_energy_le_rx_scan_total_time;
+static int hf_android_bqr_advanced_extension_info;
+static int hf_android_bqr_advanced_report_time_period;
+static int hf_android_bqr_advanced_tx_power_ipa_bf;
+static int hf_android_bqr_advanced_tx_power_epa_bf;
+static int hf_android_bqr_advanced_tx_power_ipa_div;
+static int hf_android_bqr_advanced_tx_power_epa_div;
+static int hf_android_bqr_advanced_rssi_chain_50;
+static int hf_android_bqr_advanced_rssi_chain_50_55;
+static int hf_android_bqr_advanced_rssi_chain_55_60;
+static int hf_android_bqr_advanced_rssi_chain_60_65;
+static int hf_android_bqr_advanced_rssi_chain_65_70;
+static int hf_android_bqr_advanced_rssi_chain_70_75;
+static int hf_android_bqr_advanced_rssi_chain_75_80;
+static int hf_android_bqr_advanced_rssi_chain_80_85;
+static int hf_android_bqr_advanced_rssi_chain_85_90;
+static int hf_android_bqr_advanced_rssi_chain_90;
+static int hf_android_bqr_advanced_rssi_delta_2;
+static int hf_android_bqr_advanced_rssi_delta_2_5;
+static int hf_android_bqr_advanced_rssi_delta_5_8;
+static int hf_android_bqr_advanced_rssi_delta_8_11;
+static int hf_android_bqr_advanced_rssi_delta_11;
+static int hf_android_bqr_advanced_antenna_switch_count;
+static int hf_android_bqr_advanced_retx_ipa_bf;
+static int hf_android_bqr_advanced_retx_epa_bf;
+static int hf_android_bqr_advanced_retx_ipa_div;
+static int hf_android_bqr_advanced_retx_epa_div;
+static int hf_android_bqr_advanced_channel_count_good;
+static int hf_android_bqr_advanced_channel_count_ok;
+static int hf_android_bqr_advanced_channel_count_bad;
+static int hf_android_bqr_advanced_channel_count_very_bad;
+static int hf_android_bqr_health_packet_count_host_to_controller;
+static int hf_android_bqr_health_packet_count_controller_to_host;
+static int hf_android_bqr_health_last_packet_length_host_to_controller;
+static int hf_android_bqr_health_last_packet_length_controller_to_host;
+static int hf_android_bqr_health_total_bt_wake_count;
+static int hf_android_bqr_health_total_host_wake_count;
+static int hf_android_bqr_health_last_bt_wake_timestamp;
+static int hf_android_bqr_health_last_host_wake_timestamp;
+static int hf_android_bqr_health_reset_timestamp;
+static int hf_android_bqr_health_current_timestamp;
+static int hf_android_bqr_health_watchdog_expiring;
+static int hf_android_bqr_health_coex_status_mask;
+static int hf_android_bqr_health_total_links_bredr_le_active;
+static int hf_android_bqr_health_total_links_bredr_sniff;
+static int hf_android_bqr_health_total_links_cis;
+static int hf_android_bqr_health_is_sco_active;
+static int hf_android_bqr_log_connection_handle;
+static int hf_android_bqr_lea_big_handle;
+static int hf_android_bqr_lea_source_bd_addr_type;
+static int hf_android_bqr_lea_source_bd_addr;
+static int hf_android_bqr_lea_source_prefer_channel_map;
+static int hf_android_bqr_lea_source_used_channel_map;
+static int hf_android_bqr_lea_tx_power;
+static int hf_android_bqr_lea_subscribed_broadcast_id;
+static int hf_android_bqr_lea_receiver_bd_addr_type;
+static int hf_android_bqr_lea_receiver_bd_addr;
+static int hf_android_bqr_lea_time_duration;
+static int hf_android_bqr_lea_bis_choppy_count;
+static int hf_android_bqr_lea_per;
+static int hf_android_bqr_lea_no_sync;
+static int hf_android_bqr_lea_receiver_prefer_channel_map;
+static int hf_android_bqr_lea_receiver_tx_power;
+static int hf_android_bqr_lea_rssi;
+static int hf_android_bqr_lea_reserved;
+
+/* Fields needing custom formatting or nested bitmasks, declared explicitly. */
+static int hf_android_bqr_link_lsto;
+static int hf_android_bqr_link_piconet_clock;
+static int hf_android_bqr_link_last_tx_ack_timestamp;
+static int hf_android_bqr_link_last_flow_on_timestamp;
+static int hf_android_bqr_lea_timestamp;
+static int hf_android_bqr_link_coex_info_mask;
+static int hf_android_bqr_link_coex_involvement;
+static int hf_android_bqr_link_coex_wl_2g_active;
+static int hf_android_bqr_link_coex_wl_2g_connected;
+static int hf_android_bqr_link_coex_wl_5g_6g_active;
+static int hf_android_bqr_link_coex_reserved;
+static int hf_android_bqr_advanced_tx_buffer_queue_count;
+static int hf_android_bqr_advanced_tx_buffer_acl_1;
+static int hf_android_bqr_advanced_tx_buffer_acl_2;
+static int hf_android_bqr_advanced_tx_buffer_leconn_1;
+static int hf_android_bqr_advanced_tx_buffer_leconn_2;
+static int hf_android_bqr_advanced_tx_buffer_leisoc_1;
+static int hf_android_bqr_advanced_tx_buffer_leisoc_2;
+static int hf_android_bqr_advanced_tx_buffer_lebroadcast;
+static int hf_android_bqr_advanced_tx_buffer_reserved;
+static int hf_android_bqr_vendor_data;
+static int hf_android_subevent_code;
+static int hf_android_quality_report_id;
+static int hf_android_bqr_action;
+static int hf_android_bqr_minimum_report_interval;
+static int hf_android_bqr_vendor_quality_event_mask;
+static int hf_android_bqr_vendor_trace_mask;
+static int hf_android_bqr_report_interval_multiple;
+static int hf_android_quality_event_mask;
+static int hf_android_quality_event_mask_quality_monitoring;
+static int hf_android_quality_event_mask_approaching_lsto;
+static int hf_android_quality_event_mask_a2dp_choppy;
+static int hf_android_quality_event_mask_esco_choppy;
+static int hf_android_quality_event_mask_root_inflammation;
+static int hf_android_quality_event_mask_energy_monitor;
+static int hf_android_quality_event_mask_le_audio_choppy;
+static int hf_android_quality_event_mask_connect_fail;
+static int hf_android_quality_event_mask_advanced_rf_trigger;
+static int hf_android_quality_event_mask_advanced_rf_periodic;
+static int hf_android_quality_event_mask_controller_health_trigger;
+static int hf_android_quality_event_mask_controller_health_periodic;
+static int hf_android_quality_event_mask_reserved;
+static int hf_android_quality_event_mask_vendor_quality;
+static int hf_android_quality_event_mask_lmp_trace;
+static int hf_android_quality_event_mask_coex_trace;
+static int hf_android_quality_event_mask_controller_debug;
+static int hf_android_quality_event_mask_offload_debug_reserved;
+static int hf_android_quality_event_mask_uart_history;
+static int hf_android_quality_event_mask_reserved_2;
+static int hf_android_quality_event_mask_vendor_trace;
+static int hf_android_bqr_current_quality_event_mask;
+static int hf_android_bqr_current_vendor_quality_event_mask;
+static int hf_android_bqr_current_vendor_trace_mask;
+static int hf_android_bqr_report_interval;
 static int hf_android_status;
 static int hf_android_bd_addr;
 static int hf_android_data;
@@ -279,6 +449,52 @@ static int * const hfx_android_apcf_extended_features[] = {
     NULL
 };
 
+static int * const hfx_android_bqr_link_coex_info_mask[] = {
+    &hf_android_bqr_link_coex_involvement,
+    &hf_android_bqr_link_coex_wl_2g_active,
+    &hf_android_bqr_link_coex_wl_2g_connected,
+    &hf_android_bqr_link_coex_wl_5g_6g_active,
+    &hf_android_bqr_link_coex_reserved,
+    NULL
+};
+
+static int * const hfx_android_bqr_advanced_tx_buffer_queue_count[] = {
+    &hf_android_bqr_advanced_tx_buffer_acl_1,
+    &hf_android_bqr_advanced_tx_buffer_acl_2,
+    &hf_android_bqr_advanced_tx_buffer_leconn_1,
+    &hf_android_bqr_advanced_tx_buffer_leconn_2,
+    &hf_android_bqr_advanced_tx_buffer_leisoc_1,
+    &hf_android_bqr_advanced_tx_buffer_leisoc_2,
+    &hf_android_bqr_advanced_tx_buffer_lebroadcast,
+    &hf_android_bqr_advanced_tx_buffer_reserved,
+    NULL
+};
+
+static int * const hfx_android_quality_event_mask[] = {
+    &hf_android_quality_event_mask_quality_monitoring,
+    &hf_android_quality_event_mask_approaching_lsto,
+    &hf_android_quality_event_mask_a2dp_choppy,
+    &hf_android_quality_event_mask_esco_choppy,
+    &hf_android_quality_event_mask_root_inflammation,
+    &hf_android_quality_event_mask_energy_monitor,
+    &hf_android_quality_event_mask_le_audio_choppy,
+    &hf_android_quality_event_mask_connect_fail,
+    &hf_android_quality_event_mask_advanced_rf_trigger,
+    &hf_android_quality_event_mask_advanced_rf_periodic,
+    &hf_android_quality_event_mask_controller_health_trigger,
+    &hf_android_quality_event_mask_controller_health_periodic,
+    &hf_android_quality_event_mask_reserved,
+    &hf_android_quality_event_mask_vendor_quality,
+    &hf_android_quality_event_mask_lmp_trace,
+    &hf_android_quality_event_mask_coex_trace,
+    &hf_android_quality_event_mask_controller_debug,
+    &hf_android_quality_event_mask_offload_debug_reserved,
+    &hf_android_quality_event_mask_uart_history,
+    &hf_android_quality_event_mask_reserved_2,
+    &hf_android_quality_event_mask_vendor_trace,
+    NULL
+};
+
 static int * const hfx_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode[] = {
     &hf_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_reserved,
     &hf_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask_mono,
@@ -297,6 +513,9 @@ static int ett_android_big_channel_map_support;
 static int ett_android_apcf_feature_selection;
 static int ett_android_apcf_list_logic;
 static int ett_android_apcf_extended_features;
+static int ett_android_bqr;
+static int ett_android_bqr_link_coex_info_mask;
+static int ett_android_bqr_advanced_tx_buffer_queue_count;
 static int ett_android_a2dp_hardware_offload_start_legacy_codec_information;
 static int ett_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask;
 
@@ -316,7 +535,8 @@ static const uint16_t bthci_vendor_manufacturer_android = 0x00e0; // Google LLC
     { (base) | 0x0157,  "LE Advertising Packet Content Filter (APCF)" }, \
     { (base) | 0x0158,  "LE Tracking Advertising" }, \
     { (base) | 0x0159,  "LE Get Controller Activity Energy Info" }, \
-    { (base) | 0x015D,  "A2DP Hardware Offload" }
+    { (base) | 0x015D,  "A2DP Hardware Offload" }, \
+    { (base) | 0x015E,  "Bluetooth Quality Report" }
 
 static const value_string android_opcode_ocf_vals[] = {
     ANDROID_OPCODE_VALS(0x0),
@@ -369,6 +589,94 @@ static const value_string android_apcf_action_vals[] = {
     { 0x00,  "Add" },
     { 0x01,  "Delete" },
     { 0x02,  "Clear" },
+    { 0, NULL }
+};
+
+static const value_string android_bqr_action_vals[] = {
+    { 0x00,  "Add" },
+    { 0x01,  "Delete" },
+    { 0x02,  "Clear" },
+    { 0x03,  "One Time Query" },
+    { 0, NULL }
+};
+
+static const value_string android_bqr_quality_report_id_vals[] = {
+    { 0x01, "Quality Monitoring" },
+    { 0x02, "Approaching LSTO" },
+    { 0x03, "A2DP Audio Choppy" },
+    { 0x04, "(e)SCO Voice Choppy" },
+    { 0x05, "Root Inflammation" },
+    { 0x06, "Energy Monitor" },
+    { 0x07, "LE Audio Choppy" },
+    { 0x08, "Connect Fail" },
+    { 0x09, "Advanced RF Stats Trigger" },
+    { 0x0A, "Advanced RF Stats Monitor" },
+    { 0x0B, "Controller Health Trigger" },
+    { 0x0C, "Controller Health Periodic" },
+    { 0x11, "LMP/LL Message Trace" },
+    { 0x12, "Multi-link/Coex Trace" },
+    { 0x13, "Controller Debug Information" },
+    { 0x16, "LEA Broadcast Source" },
+    { 0, NULL }
+};
+
+static const value_string android_bqr_packet_type_vals[] = {
+    { 0x01, "ID" },
+    { 0x02, "NULL" },
+    { 0x03, "POLL" },
+    { 0x04, "FHS" },
+    { 0x05, "HV1" },
+    { 0x06, "HV2" },
+    { 0x07, "HV3" },
+    { 0x08, "DV" },
+    { 0x09, "EV3" },
+    { 0x0A, "EV4" },
+    { 0x0B, "EV5" },
+    { 0x0C, "2-EV3" },
+    { 0x0D, "2-EV5" },
+    { 0x0E, "3-EV3" },
+    { 0x0F, "3-EV5" },
+    { 0x10, "DM1" },
+    { 0x11, "DH1" },
+    { 0x12, "DM3" },
+    { 0x13, "DH3" },
+    { 0x14, "DM5" },
+    { 0x15, "DH5" },
+    { 0x16, "AUX1" },
+    { 0x17, "2-DH1" },
+    { 0x18, "2-DH3" },
+    { 0x19, "2-DH5" },
+    { 0x1A, "3-DH1" },
+    { 0x1B, "3-DH3" },
+    { 0x1C, "3-DH5" },
+    { 0x51, "ISO Packet" },
+    { 0x52, "1M PHY" },
+    { 0x53, "2M PHY" },
+    { 0x54, "Codec PHY S=2" },
+    { 0x55, "Codec PHY S=8" },
+    { 0, NULL }
+};
+
+static const value_string android_bqr_extension_info_vals[] = {
+    { 0x01, "BQRv6" },
+    { 0x02, "BQRv7" },
+    { 0x03, "BQRv8" },
+    { 0, NULL }
+};
+
+static const value_string android_bqr_connection_role_vals[] = {
+    { 0x00, "Central" },
+    { 0x01, "Peripheral" },
+    { 0, NULL }
+};
+
+static const value_string android_subevent_code_vals[] = {
+    { 0x54, "Storage Threshold Breach" },
+    { 0x55, "LE Multi Advertising State Change" },
+    { 0x56, "LE Advertisement Tracking" },
+    { 0x57, "Controller Debug Information" },
+    { 0x58, "Bluetooth Quality Report" },
+    { 0x5C, "ISO Link Feedback" },
     { 0, NULL }
 };
 
@@ -522,8 +830,297 @@ android_version_support_fmt(char *buf, uint32_t value) {
     snprintf(buf, ITEM_LABEL_LENGTH, "V%u.%02u", value >> 8, value & 0xff);
 }
 
+/* LSTO: Time = N * 0.625 ms */
+static void
+android_bqr_lsto_fmt(char *buf, uint32_t value) {
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u (%.3f ms)", value, 0.625 * value);
+}
+
+/* Bluetooth clock based timestamps: Time = N * 0.3125 ms */
+static void
+android_bqr_bt_clock_fmt(char *buf, uint32_t value) {
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u (%.3f ms)", value, 0.3125 * value);
+}
+
 void proto_register_bthci_vendor_android(void);
 void proto_reg_handoff_bthci_vendor_android(void);
+
+static unsigned
+dissect_android_bqr(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, uint8_t report_id,
+                    uint32_t interface_id, uint32_t adapter_id)
+{
+    proto_tree *bqr_tree;
+
+    bqr_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_android_bqr, NULL,
+                                      "Bluetooth Quality Report");
+
+    if ((report_id >= 0x01 && report_id <= 0x04) || report_id == 0x07 || report_id == 0x08) {
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_packet_type, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_connection_role, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_tx_power, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_rssi, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_snr, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_unused_afh_channels, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_afh_unideal_channels, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_lsto, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_piconet_clock, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_retransmission_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_no_rx_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_nak_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_last_tx_ack_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_flow_off_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_last_flow_on_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_buffer_overflow_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_buffer_underflow_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        offset = dissect_bd_addr(hf_android_bd_addr, pinfo, bqr_tree, tvb, offset,
+                                 false, interface_id, adapter_id, NULL);
+
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_cal_failed_item_count, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_tx_total_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_tx_unacked_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_tx_flushed_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_tx_last_subevent_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_crc_error_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_rx_duplicate_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_link_rx_unreceived_packets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_bitmask(bqr_tree, tvb, offset, hf_android_bqr_link_coex_info_mask,
+                               ett_android_bqr_link_coex_info_mask, hfx_android_bqr_link_coex_info_mask, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    } else if (report_id == 0x05) {
+        proto_tree_add_item(bqr_tree, hf_android_bqr_root_error_code, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_root_vendor_error_code, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    } else if (report_id == 0x06) {
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_average_current, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_idle_total_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_idle_enter_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_active_total_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_active_enter_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_bredr_tx_total_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_bredr_tx_enter_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_bredr_tx_avg_power, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_bredr_rx_total_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_bredr_rx_enter_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_le_tx_total_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_le_tx_enter_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_le_tx_avg_power, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_le_rx_total_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_le_rx_enter_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_report_time_duration, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_rx_active_one_chain_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_rx_active_two_chain_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_tx_ipa_active_one_chain_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_tx_ipa_active_two_chain_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_tx_epa_active_one_chain_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_tx_epa_active_two_chain_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_bredr_rx_scan_total_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_energy_le_rx_scan_total_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    } else if (report_id == 0x09 || report_id == 0x0A) {
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_extension_info, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_report_time_period, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_tx_power_ipa_bf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_tx_power_epa_bf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_tx_power_ipa_div, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_tx_power_epa_div, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_50, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_50_55, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_55_60, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_60_65, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_65_70, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_70_75, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_75_80, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_80_85, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_85_90, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_chain_90, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_delta_2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_delta_2_5, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_delta_5_8, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_delta_8_11, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_rssi_delta_11, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_antenna_switch_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_retx_ipa_bf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_retx_epa_bf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_retx_ipa_div, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_retx_epa_div, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_channel_count_good, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_channel_count_ok, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_channel_count_bad, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_advanced_channel_count_very_bad, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_bitmask(bqr_tree, tvb, offset, hf_android_bqr_advanced_tx_buffer_queue_count,
+                               ett_android_bqr_advanced_tx_buffer_queue_count, hfx_android_bqr_advanced_tx_buffer_queue_count, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    } else if (report_id == 0x0B || report_id == 0x0C) {
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_packet_count_host_to_controller, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_packet_count_controller_to_host, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_last_packet_length_host_to_controller, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_last_packet_length_controller_to_host, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_total_bt_wake_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_total_host_wake_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_last_bt_wake_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_last_host_wake_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_reset_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_current_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_watchdog_expiring, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_coex_status_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_total_links_bredr_le_active, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_total_links_bredr_sniff, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_total_links_cis, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_health_is_sco_active, tvb, offset, 1, ENC_NA);
+        offset += 1;
+    } else if (report_id == 0x16) {
+        /* The two BD_ADDRs are on the wire least significant octet first, so
+         * use dissect_bd_addr to reverse them into the displayed byte order. */
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_big_handle, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_source_bd_addr_type, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        offset = dissect_bd_addr(hf_android_bqr_lea_source_bd_addr, pinfo, bqr_tree, tvb, offset,
+                                 false, interface_id, adapter_id, NULL);
+
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_source_prefer_channel_map, tvb, offset, 5, ENC_NA);
+        offset += 5;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_source_used_channel_map, tvb, offset, 5, ENC_NA);
+        offset += 5;
+
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_tx_power, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_subscribed_broadcast_id, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        offset += 3;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_receiver_bd_addr_type, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        offset = dissect_bd_addr(hf_android_bqr_lea_receiver_bd_addr, pinfo, bqr_tree, tvb, offset,
+                                 false, interface_id, adapter_id, NULL);
+
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_time_duration, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_bis_choppy_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_per, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_no_sync, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_receiver_prefer_channel_map, tvb, offset, 5, ENC_NA);
+        offset += 5;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_receiver_tx_power, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_rssi, tvb, offset, 1, ENC_NA);
+        offset += 1;
+        proto_tree_add_item(bqr_tree, hf_android_bqr_lea_reserved, tvb, offset, 4, ENC_NA);
+        offset += 4;
+    } else if (report_id >= 0x11 && report_id <= 0x13) {
+        proto_tree_add_item(bqr_tree, hf_android_bqr_log_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
+
+    proto_tree_add_item(bqr_tree, hf_android_bqr_vendor_data, tvb, offset, -1, ENC_NA);
+
+    return tvb_reported_length(tvb);
+}
 
 static unsigned
 dissect_bthci_vendor_android_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *main_tree, void *data, uint16_t ocf)
@@ -848,6 +1445,46 @@ dissect_bthci_vendor_android_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             sub_item = proto_tree_add_item(main_tree, hf_android_data, tvb, offset, -1, ENC_NA);
             expert_add_info(pinfo, sub_item, &ei_android_unexpected_data);
             offset = tvb_reported_length(tvb);
+        }
+
+        break;
+    }
+    case 0x015E: /* Bluetooth Quality Report */ {
+        uint8_t action;
+
+        if (tvb_reported_length_remaining(tvb, offset) < 1)
+            break;
+        proto_tree_add_item_ret_uint8(main_tree, hf_android_bqr_action, tvb, offset, 1, ENC_NA, &action);
+        offset += 1;
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                        val_to_str_const(action, android_bqr_action_vals, "Unknown"));
+
+        /* Clear takes no further parameters. */
+        if (action == 0x02)
+            break;
+
+        if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+            proto_tree_add_bitmask(main_tree, tvb, offset, hf_android_quality_event_mask,
+                                   ett_android_bqr, hfx_android_quality_event_mask, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+        if (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            proto_tree_add_item(main_tree, hf_android_bqr_minimum_report_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+        /* Vendor-specific masks are only meaningful for Add/One Time Query. */
+        if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+            proto_tree_add_item(main_tree, hf_android_bqr_vendor_quality_event_mask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+        if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+            proto_tree_add_item(main_tree, hf_android_bqr_vendor_trace_mask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+        if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+            proto_tree_add_item(main_tree, hf_android_bqr_report_interval_multiple, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
         }
 
         break;
@@ -1304,6 +1941,29 @@ dissect_bthci_vendor_android_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
             break;
         }
+        case 0x015E: /* Bluetooth Quality Report */
+            if (status != STATUS_SUCCESS)
+                break;
+
+            if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+                proto_tree_add_bitmask(main_tree, tvb, offset, hf_android_bqr_current_quality_event_mask,
+                                       ett_android_bqr, hfx_android_quality_event_mask, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+                proto_tree_add_item(main_tree, hf_android_bqr_current_vendor_quality_event_mask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+                proto_tree_add_item(main_tree, hf_android_bqr_current_vendor_trace_mask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+            if (tvb_reported_length_remaining(tvb, offset) >= 4) {
+                proto_tree_add_item(main_tree, hf_android_bqr_report_interval, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+            }
+
+            break;
         case 0x0159: /* LE Get Controller Activity Energy Info */
             if (status == STATUS_SUCCESS) {
                 proto_tree_add_item(main_tree, hf_android_le_energy_total_tx_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1331,6 +1991,37 @@ dissect_bthci_vendor_android_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                 expert_add_info(pinfo, sub_item, &ei_android_undecoded);
                 offset = tvb_reported_length(tvb);
             }
+        }
+
+        break;
+    case 0xff: /* Vendor-Specific Event */
+        if (tvb_reported_length_remaining(tvb, offset) < 1)
+            break;
+
+        proto_tree_add_item_ret_uint8(main_tree, hf_android_subevent_code, tvb, offset, 1, ENC_NA, &subcode);
+        offset += 1;
+
+        description = val_to_str_const(subcode, android_subevent_code_vals, "Unknown");
+        col_set_str(pinfo->cinfo, COL_INFO, "Rcvd Android ");
+        col_append_str(pinfo->cinfo, COL_INFO, description);
+
+        switch (subcode) {
+        case 0x58: /* Bluetooth Quality Report */
+            if (tvb_reported_length_remaining(tvb, offset) < 1)
+                break;
+            proto_tree_add_item_ret_uint8(main_tree, hf_android_quality_report_id, tvb, offset, 1, ENC_NA, &subcode);
+            offset += 1;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                            val_to_str_const(subcode, android_bqr_quality_report_id_vals, "Unknown"));
+            offset = dissect_android_bqr(main_tree, pinfo, tvb, offset, subcode, interface_id, adapter_id);
+            break;
+        default:
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                sub_item = proto_tree_add_item(main_tree, hf_android_data, tvb, offset, -1, ENC_NA);
+                expert_add_info(pinfo, sub_item, &ei_android_undecoded);
+                offset = tvb_reported_length(tvb);
+            }
+            break;
         }
 
         break;
@@ -1760,6 +2451,802 @@ proto_register_bthci_vendor_android(void)
             { "Reserved",                                 "bthci_vendor.android.apcf.extended_features.reserved",
             FT_UINT16, BASE_HEX, NULL, 0xFFFC,
             NULL, HFILL }
+        },
+        { &hf_android_bqr_link_packet_type,
+            { "Packet Type", "bthci_vendor.android.bqr.link.packet_type",
+            FT_UINT8, BASE_HEX, VALS(android_bqr_packet_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_connection_handle,
+            { "Connection Handle", "bthci_vendor.android.bqr.link.connection_handle",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_connection_role,
+            { "Connection Role", "bthci_vendor.android.bqr.link.connection_role",
+            FT_UINT8, BASE_HEX, VALS(android_bqr_connection_role_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_tx_power,
+            { "TX Power Level", "bthci_vendor.android.bqr.link.tx_power",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_rssi,
+            { "RSSI", "bthci_vendor.android.bqr.link.rssi",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_snr,
+            { "SNR", "bthci_vendor.android.bqr.link.snr",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_unused_afh_channels,
+            { "Unused AFH Channel Count", "bthci_vendor.android.bqr.link.unused_afh_channel_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_afh_unideal_channels,
+            { "AFH Select Unideal Channel Count", "bthci_vendor.android.bqr.link.afh_unideal_channel_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_lsto,
+            { "LSTO (Link Supervision Timeout)", "bthci_vendor.android.bqr.link.lsto",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(android_bqr_lsto_fmt), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_piconet_clock,
+            { "Connection Piconet Clock", "bthci_vendor.android.bqr.link.piconet_clock",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(android_bqr_bt_clock_fmt), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_retransmission_count,
+            { "Retransmission Count", "bthci_vendor.android.bqr.link.retransmission_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_no_rx_count,
+            { "No RX Count", "bthci_vendor.android.bqr.link.no_rx_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_nak_count,
+            { "NAK Count", "bthci_vendor.android.bqr.link.nak_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_last_tx_ack_timestamp,
+            { "Last TX ACK Timestamp", "bthci_vendor.android.bqr.link.last_tx_ack_timestamp",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(android_bqr_bt_clock_fmt), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_flow_off_count,
+            { "Flow Off Count", "bthci_vendor.android.bqr.link.flow_off_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_last_flow_on_timestamp,
+            { "Last Flow On Timestamp", "bthci_vendor.android.bqr.link.last_flow_on_timestamp",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(android_bqr_bt_clock_fmt), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_buffer_overflow_bytes,
+            { "Buffer Overflow Bytes", "bthci_vendor.android.bqr.link.buffer_overflow_bytes",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_buffer_underflow_bytes,
+            { "Buffer Underflow Bytes", "bthci_vendor.android.bqr.link.buffer_underflow_bytes",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_cal_failed_item_count,
+            { "Calibration Failed Item Count", "bthci_vendor.android.bqr.link.cal_failed_item_count",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_tx_total_packets,
+            { "TX Total Packets", "bthci_vendor.android.bqr.link.tx_total_packets",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_tx_unacked_packets,
+            { "TX Unacked Packets", "bthci_vendor.android.bqr.link.tx_unacked_packets",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_tx_flushed_packets,
+            { "TX Flushed Packets", "bthci_vendor.android.bqr.link.tx_flushed_packets",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_tx_last_subevent_packets,
+            { "TX Last Subevent Packets", "bthci_vendor.android.bqr.link.tx_last_subevent_packets",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_crc_error_packets,
+            { "CRC Error Packets", "bthci_vendor.android.bqr.link.crc_error_packets",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_rx_duplicate_packets,
+            { "RX Duplicate Packets", "bthci_vendor.android.bqr.link.rx_duplicate_packets",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_rx_unreceived_packets,
+            { "RX Unreceived Packets", "bthci_vendor.android.bqr.link.rx_unreceived_packets",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_coex_info_mask,
+            { "Coex Info Mask", "bthci_vendor.android.bqr.link.coex_info_mask",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_link_coex_involvement,
+            { "Coex Involvement", "bthci_vendor.android.bqr.link.coex_info_mask.coex_involvement",
+            FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }
+        },
+        { &hf_android_bqr_link_coex_wl_2g_active,
+            { "WLAN 2G Radio Active", "bthci_vendor.android.bqr.link.coex_info_mask.wl_2g_active",
+            FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL }
+        },
+        { &hf_android_bqr_link_coex_wl_2g_connected,
+            { "WLAN 2G Radio Active and Connected", "bthci_vendor.android.bqr.link.coex_info_mask.wl_2g_connected",
+            FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL }
+        },
+        { &hf_android_bqr_link_coex_wl_5g_6g_active,
+            { "WLAN 5G/6G Radio Active", "bthci_vendor.android.bqr.link.coex_info_mask.wl_5g_6g_active",
+            FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL }
+        },
+        { &hf_android_bqr_link_coex_reserved,
+            { "Reserved", "bthci_vendor.android.bqr.link.coex_info_mask.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFFF0, NULL, HFILL }
+        },
+        { &hf_android_bqr_root_error_code,
+            { "Error Code", "bthci_vendor.android.bqr.root.error_code",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_root_vendor_error_code,
+            { "Vendor Specific Error Code", "bthci_vendor.android.bqr.root.vendor_error_code",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_average_current,
+            { "Average Current Consumption", "bthci_vendor.android.bqr.energy.average_current",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliamps), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_idle_total_time,
+            { "Idle Total Time", "bthci_vendor.android.bqr.energy.idle_total_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_idle_enter_count,
+            { "Idle State Enter Count", "bthci_vendor.android.bqr.energy.idle_enter_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_active_total_time,
+            { "Active Total Time", "bthci_vendor.android.bqr.energy.active_total_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_active_enter_count,
+            { "Active State Enter Count", "bthci_vendor.android.bqr.energy.active_enter_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_bredr_tx_total_time,
+            { "BR/EDR TX Total Time", "bthci_vendor.android.bqr.energy.br_edr_tx_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_bredr_tx_enter_count,
+            { "BR/EDR TX State Enter Count", "bthci_vendor.android.bqr.energy.br_edr_tx_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_bredr_tx_avg_power,
+            { "BR/EDR TX Average Power", "bthci_vendor.android.bqr.energy.br_edr_tx_power",
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_bredr_rx_total_time,
+            { "BR/EDR RX Total Time", "bthci_vendor.android.bqr.energy.br_edr_rx_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_bredr_rx_enter_count,
+            { "BR/EDR RX State Enter Count", "bthci_vendor.android.bqr.energy.br_edr_rx_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_le_tx_total_time,
+            { "LE TX Total Time", "bthci_vendor.android.bqr.energy.le_tx_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_le_tx_enter_count,
+            { "LE TX State Enter Count", "bthci_vendor.android.bqr.energy.le_tx_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_le_tx_avg_power,
+            { "LE TX Average Power", "bthci_vendor.android.bqr.energy.le_tx_power",
+            FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_dbm), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_le_rx_total_time,
+            { "LE RX Total Time", "bthci_vendor.android.bqr.energy.le_rx_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_le_rx_enter_count,
+            { "LE RX State Enter Count", "bthci_vendor.android.bqr.energy.le_rx_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_report_time_duration,
+            { "Report Time Duration", "bthci_vendor.android.bqr.energy.report_duration",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_rx_active_one_chain_time,
+            { "RX Active One Chain Time", "bthci_vendor.android.bqr.energy.rx_one_chain",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_rx_active_two_chain_time,
+            { "RX Active Two Chain Time", "bthci_vendor.android.bqr.energy.rx_two_chain",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_tx_ipa_active_one_chain_time,
+            { "TX iPA Active One Chain Time", "bthci_vendor.android.bqr.energy.tx_ipa_one_chain",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_tx_ipa_active_two_chain_time,
+            { "TX iPA Active Two Chain Time", "bthci_vendor.android.bqr.energy.tx_ipa_two_chain",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_tx_epa_active_one_chain_time,
+            { "TX ePA Active One Chain Time", "bthci_vendor.android.bqr.energy.tx_epa_one_chain",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_tx_epa_active_two_chain_time,
+            { "TX ePA Active Two Chain Time", "bthci_vendor.android.bqr.energy.tx_epa_two_chain",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_bredr_rx_scan_total_time,
+            { "BR/EDR RX Scan Total Time", "bthci_vendor.android.bqr.energy.bredr_scan_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_energy_le_rx_scan_total_time,
+            { "LE RX Scan Total Time", "bthci_vendor.android.bqr.energy.le_scan_time",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_extension_info,
+            { "Extension Info", "bthci_vendor.android.bqr.advanced.extension_info",
+            FT_UINT8, BASE_DEC, VALS(android_bqr_extension_info_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_report_time_period,
+            { "Report Time Period", "bthci_vendor.android.bqr.advanced.report_time_period",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_power_ipa_bf,
+            { "TX Power iPA BF", "bthci_vendor.android.bqr.advanced.tx_power_ipa_bf",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_power_epa_bf,
+            { "TX Power ePA BF", "bthci_vendor.android.bqr.advanced.tx_power_epa_bf",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_power_ipa_div,
+            { "TX Power iPA Div", "bthci_vendor.android.bqr.advanced.tx_power_ipa_div",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_power_epa_div,
+            { "TX Power ePA Div", "bthci_vendor.android.bqr.advanced.tx_power_epa_div",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_50,
+            { "RSSI Chain > -50", "bthci_vendor.android.bqr.advanced.rssi_chain_50",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_50_55,
+            { "RSSI Chain -50 to -55", "bthci_vendor.android.bqr.advanced.rssi_chain_50_55",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_55_60,
+            { "RSSI Chain -55 to -60", "bthci_vendor.android.bqr.advanced.rssi_chain_55_60",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_60_65,
+            { "RSSI Chain -60 to -65", "bthci_vendor.android.bqr.advanced.rssi_chain_60_65",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_65_70,
+            { "RSSI Chain -65 to -70", "bthci_vendor.android.bqr.advanced.rssi_chain_65_70",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_70_75,
+            { "RSSI Chain -70 to -75", "bthci_vendor.android.bqr.advanced.rssi_chain_70_75",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_75_80,
+            { "RSSI Chain -75 to -80", "bthci_vendor.android.bqr.advanced.rssi_chain_75_80",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_80_85,
+            { "RSSI Chain -80 to -85", "bthci_vendor.android.bqr.advanced.rssi_chain_80_85",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_85_90,
+            { "RSSI Chain -85 to -90", "bthci_vendor.android.bqr.advanced.rssi_chain_85_90",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_chain_90,
+            { "RSSI Chain < -90", "bthci_vendor.android.bqr.advanced.rssi_chain_90",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_delta_2,
+            { "RSSI Delta < 2", "bthci_vendor.android.bqr.advanced.rssi_delta_2",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_delta_2_5,
+            { "RSSI Delta 2 to 5", "bthci_vendor.android.bqr.advanced.rssi_delta_2_5",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_delta_5_8,
+            { "RSSI Delta 5 to 8", "bthci_vendor.android.bqr.advanced.rssi_delta_5_8",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_delta_8_11,
+            { "RSSI Delta 8 to 11", "bthci_vendor.android.bqr.advanced.rssi_delta_8_11",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_rssi_delta_11,
+            { "RSSI Delta > 11", "bthci_vendor.android.bqr.advanced.rssi_delta_11",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_antenna_switch_count,
+            { "Antenna Switch Count", "bthci_vendor.android.bqr.advanced.antenna_switch_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_retx_ipa_bf,
+            { "ReTX iPA BF", "bthci_vendor.android.bqr.advanced.retx_ipa_bf",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_retx_epa_bf,
+            { "ReTX ePA BF", "bthci_vendor.android.bqr.advanced.retx_epa_bf",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_retx_ipa_div,
+            { "ReTX iPA Div", "bthci_vendor.android.bqr.advanced.retx_ipa_div",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_retx_epa_div,
+            { "ReTX ePA Div", "bthci_vendor.android.bqr.advanced.retx_epa_div",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_channel_count_good,
+            { "Channel Count Good (Bin-4, RSSI > -50 dBm)", "bthci_vendor.android.bqr.advanced.channel_count_good",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_channel_count_ok,
+            { "Channel Count OK (Bin-3, RSSI -76 to -50 dBm)", "bthci_vendor.android.bqr.advanced.channel_count_ok",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_channel_count_bad,
+            { "Channel Count Bad (Bin-2, RSSI -90 to -76 dBm)", "bthci_vendor.android.bqr.advanced.channel_count_bad",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_channel_count_very_bad,
+            { "Channel Count Very Bad (Bin-1, RSSI < -90 dBm)", "bthci_vendor.android.bqr.advanced.channel_count_very_bad",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_buffer_queue_count,
+            { "TX Buffer Queue Count", "bthci_vendor.android.bqr.advanced.tx_buffer_queue_count",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_buffer_acl_1,
+            { "ACL_1 [0:3]", "bthci_vendor.android.bqr.advanced.tx_buffer_queue_count.acl_1",
+            FT_UINT32, BASE_DEC, NULL, 0x0000000F, NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_buffer_acl_2,
+            { "ACL_2 [4:7]", "bthci_vendor.android.bqr.advanced.tx_buffer_queue_count.acl_2",
+            FT_UINT32, BASE_DEC, NULL, 0x000000F0, NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_buffer_leconn_1,
+            { "LECONN_1 [8:11]", "bthci_vendor.android.bqr.advanced.tx_buffer_queue_count.leconn_1",
+            FT_UINT32, BASE_DEC, NULL, 0x00000F00, NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_buffer_leconn_2,
+            { "LECONN_2 [12:15]", "bthci_vendor.android.bqr.advanced.tx_buffer_queue_count.leconn_2",
+            FT_UINT32, BASE_DEC, NULL, 0x0000F000, NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_buffer_leisoc_1,
+            { "LEISOC_1 [16:19]", "bthci_vendor.android.bqr.advanced.tx_buffer_queue_count.leisoc_1",
+            FT_UINT32, BASE_DEC, NULL, 0x000F0000, NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_buffer_leisoc_2,
+            { "LEISOC_2 [20:23]", "bthci_vendor.android.bqr.advanced.tx_buffer_queue_count.leisoc_2",
+            FT_UINT32, BASE_DEC, NULL, 0x00F00000, NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_buffer_lebroadcast,
+            { "LEBroadcast [24:27]", "bthci_vendor.android.bqr.advanced.tx_buffer_queue_count.lebroadcast",
+            FT_UINT32, BASE_DEC, NULL, 0x0F000000, NULL, HFILL }
+        },
+        { &hf_android_bqr_advanced_tx_buffer_reserved,
+            { "Reserved [28:31]", "bthci_vendor.android.bqr.advanced.tx_buffer_queue_count.reserved",
+            FT_UINT32, BASE_DEC, NULL, 0xF0000000, NULL, HFILL }
+        },
+        { &hf_android_bqr_health_packet_count_host_to_controller,
+            { "Packets Host to Controller", "bthci_vendor.android.bqr.health.packet_host_to_controller",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_packet_count_controller_to_host,
+            { "Packets Controller to Host", "bthci_vendor.android.bqr.health.packet_controller_to_host",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_last_packet_length_host_to_controller,
+            { "Last Packet Length Host to Controller", "bthci_vendor.android.bqr.health.last_packet_host_to_controller",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_last_packet_length_controller_to_host,
+            { "Last Packet Length Controller to Host", "bthci_vendor.android.bqr.health.last_packet_controller_to_host",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_total_bt_wake_count,
+            { "BT Wake Count", "bthci_vendor.android.bqr.health.bt_wake_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_total_host_wake_count,
+            { "Host Wake Count", "bthci_vendor.android.bqr.health.host_wake_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_last_bt_wake_timestamp,
+            { "Last BT Wake Timestamp", "bthci_vendor.android.bqr.health.last_bt_wake_timestamp",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_last_host_wake_timestamp,
+            { "Last Host Wake Timestamp", "bthci_vendor.android.bqr.health.last_host_wake_timestamp",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_reset_timestamp,
+            { "Reset Timestamp", "bthci_vendor.android.bqr.health.reset_timestamp",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_current_timestamp,
+            { "Current Timestamp", "bthci_vendor.android.bqr.health.current_timestamp",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_watchdog_expiring,
+            { "Watchdog Timer About To Expire", "bthci_vendor.android.bqr.health.watchdog_expiring",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_coex_status_mask,
+            { "Coex Status Mask", "bthci_vendor.android.bqr.health.coex_status_mask",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_total_links_bredr_le_active,
+            { "Active BR/EDR/LE Links", "bthci_vendor.android.bqr.health.active_links",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_total_links_bredr_sniff,
+            { "BR/EDR Sniff Links", "bthci_vendor.android.bqr.health.sniff_links",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_total_links_cis,
+            { "CIS Links", "bthci_vendor.android.bqr.health.cis_links",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_health_is_sco_active,
+            { "SCO Active", "bthci_vendor.android.bqr.health.sco_active",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_log_connection_handle,
+            { "Connection Handle", "bthci_vendor.android.bqr.log.connection_handle",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_big_handle,
+            { "BIG Handle", "bthci_vendor.android.bqr.lea.big_handle",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_source_bd_addr_type,
+            { "Broadcast Source BD_ADDR Type", "bthci_vendor.android.bqr.lea.source_bd_addr_type",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_source_bd_addr,
+            { "Broadcast Source BD_ADDR", "bthci_vendor.android.bqr.lea.source_bd_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_source_prefer_channel_map,
+            { "BIG Source Preferred Channel Map", "bthci_vendor.android.bqr.lea.source_prefer_channel_map",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_source_used_channel_map,
+            { "BIG Source Used Channel Map", "bthci_vendor.android.bqr.lea.source_used_channel_map",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_tx_power,
+            { "BIG TX Power", "bthci_vendor.android.bqr.lea.tx_power",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_timestamp,
+            { "Timestamp", "bthci_vendor.android.bqr.lea.timestamp",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(android_bqr_bt_clock_fmt), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_subscribed_broadcast_id,
+            { "Subscribed Broadcast ID", "bthci_vendor.android.bqr.lea.subscribed_broadcast_id",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_receiver_bd_addr_type,
+            { "Broadcast Receiver BD_ADDR Type", "bthci_vendor.android.bqr.lea.receiver_bd_addr_type",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_receiver_bd_addr,
+            { "Broadcast Receiver BD_ADDR", "bthci_vendor.android.bqr.lea.receiver_bd_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_time_duration,
+            { "Time Duration", "bthci_vendor.android.bqr.lea.time_duration",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_bis_choppy_count,
+            { "BIS Choppy Count", "bthci_vendor.android.bqr.lea.bis_choppy_count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_per,
+            { "PER", "bthci_vendor.android.bqr.lea.per",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_no_sync,
+            { "No Sync", "bthci_vendor.android.bqr.lea.no_sync",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_receiver_prefer_channel_map,
+            { "Receiver Preferred Channel Map", "bthci_vendor.android.bqr.lea.receiver_prefer_channel_map",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_receiver_tx_power,
+            { "Receiver TX Power", "bthci_vendor.android.bqr.lea.receiver_tx_power",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_rssi,
+            { "RSSI", "bthci_vendor.android.bqr.lea.rssi",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_lea_reserved,
+            { "Reserved", "bthci_vendor.android.bqr.lea.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_vendor_data,
+            { "Vendor Specific Data", "bthci_vendor.android.bqr.vendor_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_subevent_code,
+            { "Subevent Code", "bthci_vendor.android.subevent_code",
+            FT_UINT8, BASE_HEX, VALS(android_subevent_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_quality_report_id,
+            { "Quality Report ID", "bthci_vendor.android.quality_report_id",
+            FT_UINT8, BASE_HEX, VALS(android_bqr_quality_report_id_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_action,
+            { "BQR Report Action", "bthci_vendor.android.bqr.action",
+            FT_UINT8, BASE_DEC, VALS(android_bqr_action_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_minimum_report_interval,
+            { "Minimum Report Interval", "bthci_vendor.android.bqr.minimum_report_interval",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_vendor_quality_event_mask,
+            { "Vendor Specific Quality Event Mask", "bthci_vendor.android.bqr.vendor_quality_event_mask",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_vendor_trace_mask,
+            { "Vendor Specific Trace Mask", "bthci_vendor.android.bqr.vendor_trace_mask",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_report_interval_multiple,
+            { "Report Interval Multiple", "bthci_vendor.android.bqr.report_interval_multiple",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_current_quality_event_mask,
+            { "Current Quality Event Mask", "bthci_vendor.android.bqr.current_quality_event_mask",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_current_vendor_quality_event_mask,
+            { "Current Vendor Specific Quality Event Mask", "bthci_vendor.android.bqr.current_vendor_quality_event_mask",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_current_vendor_trace_mask,
+            { "Current Vendor Specific Trace Mask", "bthci_vendor.android.bqr.current_vendor_trace_mask",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_bqr_report_interval,
+            { "BQR Report Interval", "bthci_vendor.android.bqr.report_interval",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_milliseconds), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask,
+            { "Quality Event Mask", "bthci_vendor.android.quality_event_mask",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_quality_monitoring,
+            { "Quality Monitoring Mode", "bthci_vendor.android.quality_event_mask.quality_monitoring",
+            FT_BOOLEAN, 32, NULL, 0x00000001, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_approaching_lsto,
+            { "Approaching LSTO Event", "bthci_vendor.android.quality_event_mask.approaching_lsto",
+            FT_BOOLEAN, 32, NULL, 0x00000002, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_a2dp_choppy,
+            { "A2DP Audio Choppy Event", "bthci_vendor.android.quality_event_mask.a2dp_choppy",
+            FT_BOOLEAN, 32, NULL, 0x00000004, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_esco_choppy,
+            { "(e)SCO Voice Choppy Event", "bthci_vendor.android.quality_event_mask.esco_choppy",
+            FT_BOOLEAN, 32, NULL, 0x00000008, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_root_inflammation,
+            { "Root Inflammation Event", "bthci_vendor.android.quality_event_mask.root_inflammation",
+            FT_BOOLEAN, 32, NULL, 0x00000010, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_energy_monitor,
+            { "Energy Monitoring Mode", "bthci_vendor.android.quality_event_mask.energy_monitor",
+            FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_le_audio_choppy,
+            { "LE Audio Choppy Event", "bthci_vendor.android.quality_event_mask.le_audio_choppy",
+            FT_BOOLEAN, 32, NULL, 0x00000040, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_connect_fail,
+            { "Connect Fail Event", "bthci_vendor.android.quality_event_mask.connect_fail",
+            FT_BOOLEAN, 32, NULL, 0x00000080, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_advanced_rf_trigger,
+            { "Advanced RF Stats Trigger", "bthci_vendor.android.quality_event_mask.advanced_rf_trigger",
+            FT_BOOLEAN, 32, NULL, 0x00000100, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_advanced_rf_periodic,
+            { "Advanced RF Stats Periodic Report", "bthci_vendor.android.quality_event_mask.advanced_rf_periodic",
+            FT_BOOLEAN, 32, NULL, 0x00000200, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_controller_health_trigger,
+            { "Controller Health Trigger", "bthci_vendor.android.quality_event_mask.controller_health_trigger",
+            FT_BOOLEAN, 32, NULL, 0x00000400, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_controller_health_periodic,
+            { "Controller Health Periodic Report", "bthci_vendor.android.quality_event_mask.controller_health_periodic",
+            FT_BOOLEAN, 32, NULL, 0x00000800, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_reserved,
+            { "Reserved", "bthci_vendor.android.quality_event_mask.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0x00007000, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_vendor_quality,
+            { "Vendor Specific Quality Events", "bthci_vendor.android.quality_event_mask.vendor_quality",
+            FT_BOOLEAN, 32, NULL, 0x00008000, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_lmp_trace,
+            { "LMP/LL Message Trace", "bthci_vendor.android.quality_event_mask.lmp_trace",
+            FT_BOOLEAN, 32, NULL, 0x00010000, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_coex_trace,
+            { "Multi-link/Coex Scheduling Trace", "bthci_vendor.android.quality_event_mask.coex_trace",
+            FT_BOOLEAN, 32, NULL, 0x00020000, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_controller_debug,
+            { "Controller Debug Information", "bthci_vendor.android.quality_event_mask.controller_debug",
+            FT_BOOLEAN, 32, NULL, 0x00040000, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_offload_debug_reserved,
+            { "Reserved for Offload Debug Information", "bthci_vendor.android.quality_event_mask.offload_debug_reserved",
+            FT_BOOLEAN, 32, NULL, 0x00080000, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_uart_history,
+            { "UART History Dump Event Trigger", "bthci_vendor.android.quality_event_mask.uart_history",
+            FT_BOOLEAN, 32, NULL, 0x00100000, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_reserved_2,
+            { "Reserved", "bthci_vendor.android.quality_event_mask.reserved_2",
+            FT_UINT32, BASE_HEX, NULL, 0x7FE00000, NULL, HFILL }
+        },
+        { &hf_android_quality_event_mask_vendor_trace,
+            { "Vendor Specific Trace", "bthci_vendor.android.quality_event_mask.vendor_trace",
+            FT_BOOLEAN, 32, NULL, 0x80000000, NULL, HFILL }
         },
         { &hf_android_bd_addr,
           { "BD_ADDR",                                     "bthci_vendor.android.bd_addr",
@@ -2396,6 +3883,9 @@ proto_register_bthci_vendor_android(void)
         &ett_android_apcf_feature_selection,
         &ett_android_apcf_list_logic,
         &ett_android_apcf_extended_features,
+        &ett_android_bqr,
+        &ett_android_bqr_link_coex_info_mask,
+        &ett_android_bqr_advanced_tx_buffer_queue_count,
         &ett_android_a2dp_hardware_offload_start_legacy_codec_information,
         &ett_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask,
     };
