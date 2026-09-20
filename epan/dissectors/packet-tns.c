@@ -434,6 +434,7 @@ static int hf_tns_data_all8_opt_commit;
 static int hf_tns_data_all8_opt_plsql;
 static int hf_tns_data_all8_opt_fetch;
 static int hf_tns_data_all8_opt_not_plsql;
+static int hf_tns_data_all8_parse_only;
 static int hf_tns_data_all8_opt_describe;
 static int hf_tns_data_all8_opt_batch_errors;
 static int hf_tns_data_all8_iterations;
@@ -1253,6 +1254,12 @@ typedef struct _tns_conv_info_t {
 #define TNS_PROTO_DATA_ENCRYPTED 6
 /* p_add_proto_data key for the field version the server offered. */
 #define TNS_PROTO_DATA_SERVER_FV 7
+
+/* The execute options that ask the server to do something: run the
+ * statement, take a set of defines, or return rows. */
+#define TNS_EXEC_OPTION_DEFINE    0x0010
+#define TNS_EXEC_OPTION_EXECUTE   0x0020
+#define TNS_EXEC_OPTION_FETCH     0x0040
 
 /* Execute flag asking for the rows each array DML iteration affected. */
 #define TNS_EXEC_FLAGS_DML_ROWCOUNTS 0x4000
@@ -4914,6 +4921,18 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset += get_sb4_custom(tvb, offset, &options);
 				proto_tree_add_bitmask_value(data_tree, tvb, start, hf_tns_data_all8_options,
 					ett_tns_all8_options, tns_all8_options, (uint64_t)(uint32_t)options);
+				/* An execute that asks for no work is a parse: the client
+				 * wants the statement checked, not run. The PARSE bit does
+				 * not say so - it rides along with EXECUTE on the first
+				 * execute of any statement, and a parse of a statement the
+				 * client already has cached sets no bit at all. */
+				if ( !(options & (TNS_EXEC_OPTION_EXECUTE | TNS_EXEC_OPTION_DEFINE
+					| TNS_EXEC_OPTION_FETCH)) )
+				{
+					proto_item_set_generated(proto_tree_add_boolean(data_tree,
+						hf_tns_data_all8_parse_only, tvb, start, offset - start, true));
+					col_append_str(pinfo->cinfo, COL_INFO, " [parse only]");
+				}
 				/* cursor id (ub4) */
 				start = offset;
 				offset += get_sb4_custom(tvb, offset, &cursor);
@@ -6923,6 +6942,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_all8_opt_not_plsql, {
 			"Not PL/SQL", "tns.data_all8.options.not_plsql", FT_BOOLEAN, 32,
 			NULL, 0x00008000, NULL, HFILL }},
+		{ &hf_tns_data_all8_parse_only, {
+			"Parse Only", "tns.data_all8.parse_only", FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "The execute asks for no work: nothing to run, nothing to fetch", HFILL }},
 		{ &hf_tns_data_all8_opt_describe, {
 			"Describe", "tns.data_all8.options.describe", FT_BOOLEAN, 32,
 			NULL, 0x00020000, NULL, HFILL }},

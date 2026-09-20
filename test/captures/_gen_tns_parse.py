@@ -13,6 +13,12 @@ DML that asks for batch errors.
     Frame 2 - cursor.parse() of a DML: options 0x01, PARSE alone
     Frame 3 - executemany(..., batcherrors=True): options 0x80129 with
               the BATCH_ERRORS bit
+    Frame 4 - cursor.parse() of a statement the client has cached: an
+              execute by cursor id with no SQL and options 0x0 - not even
+              the PARSE bit
+    Frame 5 - a define round trip (options 0x8010) and, in frame 6, a
+              scroll re-execute (0x8040): neither asks the server to run
+              anything either, but both are still not parses
 
 Bytes are built by hand in the Oracle 11g wire shape.
 """
@@ -67,25 +73,36 @@ def bwl(s: bytes) -> bytes:
 
 
 def oac(data_type, max_length, charset=0, csform=0, max_size=0,
-        precision=0, scale=0):
+        precision=0, scale=0, fv=0, flag=0, max_elements=0):
+    """A column / bind descriptor. From field version 12.2 (8) the scale is
+    one signed byte and an oaccolid follows the max size."""
     return (
-        bytes([data_type]) + b"\x00" + bytes([precision]) + sb4(scale)
-        + ub4(max_length) + ub4(0) + ub4(0) + bwl(b"") + ub4(0)
+        bytes([data_type, flag, precision])
+        + (bytes([scale & 0xFF]) if fv >= 8 else sb4(scale))
+        + ub4(max_length) + ub4(max_elements) + ub4(0) + bwl(b"") + ub4(0)
         + ub4(charset) + bytes([csform]) + ub4(max_size)
+        + (ub4(0) if fv >= 8 else b"")
     )
 
 
 def dcb_column(data_type, max_length, name, charset=0, csform=0,
-               max_size=0, precision=0, scale=0):
+               max_size=0, precision=0, scale=0, fv=0):
+    """A describe column. 10g (below 6) has no uds flags; 23ai appends the
+    SQL domain schema and name (17), an annotation count (20) and the
+    vector dimensions, format and flags (24)."""
     return (
-        oac(data_type, max_length, charset, csform, max_size, precision, scale)
+        oac(data_type, max_length, charset, csform, max_size, precision, scale, fv)
         + b"\x01" + bytes([len(name)]) + bwl(name) + bwl(b"") + bwl(b"")
-        + ub4(0) + ub4(0)
+        + ub4(0) + (ub4(0) if fv == 0 or fv >= 6 else b"")
+        + (bwl(b"") + bwl(b"") if fv >= 17 else b"")
+        + (ub4(0) if fv >= 20 else b"")
+        + (ub4(0) + b"\x00\x00" if fv >= 24 else b"")
     )
 
 
-def describe_body(columns) -> bytes:
-    """The describe body shared by TTI_DCB and a nested cursor value."""
+def describe_body(columns, fv=0) -> bytes:
+    """The describe body shared by TTI_DCB and a nested cursor value; the
+    query-cache key came with 11g (6)."""
     b = ub4(80)                  # max row size
     b += ub4(len(columns))       # num columns
     if columns:
@@ -94,40 +111,62 @@ def describe_body(columns) -> bytes:
         b += col
     b += bwl(b"")                # current date
     b += ub4(0) * 4              # dcbflag / mdbz / mnpr / mxpr
-    b += bwl(b"")                # dcbqcky
+    if fv == 0 or fv >= 6:
+        b += bwl(b"")            # dcbqcky
     return b
 
 
-def dcb(columns) -> bytes:
-    return bytes([TTI_DCB]) + dalc(b"\x00" * 16) + describe_body(columns)
+def dcb(columns, fv=0) -> bytes:
+    return bytes([TTI_DCB]) + dalc(b"\x00" * 16) + describe_body(columns, fv)
 
 
 def all8(seq, sql, options, binds=(), rows=(), cursor=0, al8=None,
-         defines=0) -> bytes:
-    """An 11g-shape TTI_ALL8 execute. `binds` are OAC blobs, `rows` are the
-    already-encoded value rows (each gets a leading TTI_RXD)."""
+         defines=(), fv=0) -> bytes:
+    """A TTI_ALL8 execute, in the 11g shape unless a field version is given.
+    `binds` and `defines` are OAC blobs, `rows` are the already-encoded
+    value rows (each gets a leading TTI_RXD)."""
     al8 = al8 if al8 is not None else [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     b = bytes([TTI_FUN, TTI_ALL8, seq])
+    if fv >= 18:
+        b += ub4(0)              # ub8 call token
     b += ub4(options) + ub4(cursor)
     b += bytes([1 if sql else 0]) + ub4(len(sql))
     b += bytes([1]) + ub4(len(al8))
     b += bytes([0, 0]) + ub4(0) + ub4(0) + ub4(0)
     b += bytes([1 if binds else 0]) + ub4(len(binds))
     b += bytes([0, 0, 0, 0, 0])
-    b += bytes([1 if defines else 0]) + ub4(defines)
+    b += bytes([1 if defines else 0]) + ub4(len(defines))
     b += bytes([0, 0, 1]) + bytes([0, 0, 0, 0, 0])
-    b += sql
+    if fv >= 7:
+        b += bytes([0, 0, 0])    # al8pidmlrc pointer, length, pointer
+    if fv >= 8:
+        b += bytes([0, 0, 0, 0, 0])  # SQL signature and SQL id fields
+    if fv >= 9:
+        b += bytes([0, 0])       # chunk ids pointer, count
+    b += (dalc(sql) if sql else b"") if fv >= 7 else sql
     for elem in al8:
         b += ub4(elem)
-    for o in binds:
+    for o in list(binds) + list(defines):
         b += o
     for r in rows:
         b += bytes([TTI_RXD]) + r
     return b
 
 
-def oer(err_code=0, cursor=0, rowcount=0, call_status=0, msg=b"") -> bytes:
-    """An 11g-shape TTI_OER."""
+def dty(field_version: int) -> bytes:
+    """A client TTI_DTY whose compile capabilities carry field_version
+    (capability 7): charsets, flag, the 38 capability bytes behind their
+    length, the table header and identity map (zeros here), and the
+    override list's terminator."""
+    caps = bytearray(38)
+    caps[7] = field_version
+    return (bytes([2]) + b"\x69\x03\x69\x03\x01" + bytes([len(caps)]) + caps
+            + bytes(8) + bytes(980) + b"\x00")
+
+
+def oer(err_code=0, cursor=0, rowcount=0, call_status=0, msg=b"", fv=0) -> bytes:
+    """A TTI_OER; from field version 12.1 (7) with the extended error
+    number and row count, from 20.1 (14) the SQL type and checksum too."""
     b = bytes([TTI_OER])
     b += ub4(call_status) + ub4(0) + ub4(rowcount) + ub4(err_code)
     b += ub4(0) + ub4(0) + ub4(cursor) + ub4(0)
@@ -136,6 +175,10 @@ def oer(err_code=0, cursor=0, rowcount=0, call_status=0, msg=b"") -> bytes:
     b += ub4(0) + bytes(2) + ub4(0) + ub4(0)
     b += bwl(b"")
     b += ub4(0) + ub4(0) + ub4(0)
+    if fv >= 7:
+        b += ub4(err_code) + ub4(rowcount)
+    if fv >= 14:
+        b += ub4(0) + ub4(0)
     if err_code:
         b += dalc(msg)
     return b
@@ -146,6 +189,11 @@ frames = [
     (True, all8(3, b"INSERT INTO T (ID) VALUES (:1)", 0x80129,
                 binds=[oac(TYPE_NUMBER, 22)],
                 rows=[dalc(b"\xc1\x02"), dalc(b"\xc1\x03")])),
+    (True, all8(4, b"", 0x0, cursor=9)),
+    (True, all8(5, b"", 0x8010, cursor=9,
+                defines=[oac(TYPE_VARCHAR, 32, 873, 1, 32)])),
+    (True, all8(6, b"", 0x8040, cursor=9,
+                al8=[0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0x20, 5, 0])),
 ]
 
 

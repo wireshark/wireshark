@@ -1831,6 +1831,9 @@ class TestDissectTns:
             ['True', 'False', 'True', 'False'],
             ['True', 'False', 'False', 'False'],
             ['True', 'True', 'False', 'True'],
+            ['False', 'False', 'False', 'False'],
+            ['False', 'False', 'False', 'False'],
+            ['False', 'False', 'False', 'False'],
         ], rows
 
     def test_tns_all8_al8i4(self, cmd_tshark, capture_file, test_env):
@@ -2724,6 +2727,28 @@ class TestDissectTns:
         assert rows[0][:3] == ['0', '0x21', 'True'], rows[0]
         assert 'compiled with errors' in rows[0][3], rows[0]
         assert rows[1][:4] == ['0', '0x00', 'False', ''], rows[1]
+
+    def test_tns_parse_only(self, cmd_tshark, capture_file, test_env):
+        '''An execute that asks for no work - no EXECUTE, DEFINE or FETCH -
+        is a parse, whether or not it sets the PARSE bit: a parse of a
+        cached statement sets none. A define round trip and a scroll
+        re-execute ask for no run either but are not parses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_parse.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.options',
+            '-e', 'tns.data_all8.parse_only',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['0x00020001', 'True'],
+            ['0x00000001', 'True'],
+            ['0x00080129', ''],
+            ['0x00000000', 'True'],
+            ['0x00008010', ''],
+            ['0x00008040', ''],
+        ], rows
 
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
