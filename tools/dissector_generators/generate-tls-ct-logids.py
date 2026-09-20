@@ -13,6 +13,7 @@ import os
 from base64 import b64decode
 from enum import Enum
 from hashlib import sha256
+from urllib.parse import urlparse
 
 import requests
 
@@ -48,7 +49,7 @@ def process_json(obj, lastmod):
     metainfo += " * Last-Modified %s, %s entries. */\n" % (lastmod, len(logs))
     block += "static const bytes_string ct_logids[] = {\n"
     for entry in logs:
-        desc = entry.get("description", f"No description ({entry["log_id"]})")
+        desc = entry.get("description", urlparse(entry["url"]).hostname)
         pubkey_der = b64decode(entry["key"])
         key_id = sha256(pubkey_der).digest()
         block += '    { (const uint8_t[]){\n'
