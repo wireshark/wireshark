@@ -355,6 +355,8 @@ static int hf_tns_data_oer_n_batch_errcodes;
 static int hf_tns_data_oer_n_batch_offsets;
 static int hf_tns_data_oer_n_batch_messages;
 static int hf_tns_data_oer_message;
+static int hf_tns_data_oer_warn_flags;
+static int hf_tns_data_oer_warn_compile;
 static int hf_tns_data_oer_err_num_ext;
 static int hf_tns_data_oer_rowcount_ext;
 static int hf_tns_data_oer_sql_type;
@@ -527,6 +529,7 @@ static int ett_tns_setdt_overrides;
 static int ett_tns_setdt_override;
 static int ett_tns_oer;
 static int ett_tns_call_status;
+static int ett_tns_warn_flags;
 static int ett_tns_auth_mode;
 static int ett_tns_sns_service;
 static int ett_tns_sns_subpacket;
@@ -554,6 +557,7 @@ static expert_field ei_tns_data_descriptor_size_mismatch;
 static expert_field ei_tns_data_piggyback_cursors;
 static expert_field ei_tns_data_count_too_large;
 static expert_field ei_tns_data_encrypted;
+static expert_field ei_tns_data_compilation_error;
 
 #define TCP_PORT_TNS			1521 /* Not IANA registered */
 
@@ -2358,9 +2362,28 @@ static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 		 vsnum & 0xff);
 }
 
+/* The warning-flags byte of an error block: a PL/SQL object was created
+ * with compilation errors, though the call itself succeeded. */
+#define TNS_WARN_COMPILATION_ERROR  0x20
+
 /* End-of-call status flags, carried by both TTI_OER and TTI_STA. */
 #define TNS_CALL_STATUS_TXN_IN_PROGRESS  0x00000002
 #define TNS_CALL_STATUS_SESS_RELEASE     0x00008000
+
+/* Show the warning flags of an error block, and say so when the
+ * compilation-warning bit is set. */
+static void tns_add_warn_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	proto_item *ti = proto_tree_add_item(tree, hf_tns_data_oer_warn_flags, tvb, offset, 1, ENC_NA);
+	proto_tree *wt = proto_item_add_subtree(ti, ett_tns_warn_flags);
+
+	proto_tree_add_item(wt, hf_tns_data_oer_warn_compile, tvb, offset, 1, ENC_NA);
+	if ( tvb_get_uint8(tvb, offset) & TNS_WARN_COMPILATION_ERROR )
+	{
+		expert_add_info(pinfo, ti, &ei_tns_data_compilation_error);
+		col_append_str(pinfo->cinfo, COL_INFO, " [created with compilation errors]");
+	}
+}
 
 /* Break out the flag bits of a call status item. A client reads the
  * transaction bit to decide whether closing or releasing the connection
@@ -3973,8 +3996,16 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			}
 			/* error position (skipped) */
 			offset += get_sb4_custom(tvb, offset, &v);
-			/* 6 single-byte fields: sql_type, fatal, flags, user_cursor_opts, upi_param, warn_flags */
-			offset += 6;
+			/* 6 single-byte fields: sql_type, fatal, flags,
+			 * user_cursor_opts, upi_param, warn_flags. Five are
+			 * diagnostic; the last is not. Its bit 0x20 says the
+			 * statement created a PL/SQL object that compiled with
+			 * errors - the call succeeded, the error code is 0 and the
+			 * reply is otherwise indistinguishable from a clean one, so
+			 * this bit is the only sign the object is invalid. */
+			offset += 5;
+			tns_add_warn_flags(tvb, pinfo, oer_tree, offset);
+			offset += 1;
 			/* rowid: ub4 rba, ub2 part_id, 1 byte reserved, ub4 block, ub2 slot */
 			offset += get_sb4_custom(tvb, offset, &v);
 			offset += get_sb4_custom(tvb, offset, &v);
@@ -6754,6 +6785,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_oer_checksum, {
 			"Server Checksum", "tns.data_oer.checksum", FT_UINT32, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_warn_flags, {
+			"Warning Flags", "tns.data_oer.warn_flags", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_warn_compile, {
+			"Compiled with errors", "tns.data_oer.warn_flags.compilation_error", FT_BOOLEAN, 8,
+			NULL, TNS_WARN_COMPILATION_ERROR, "A PL/SQL object was created in an invalid state", HFILL }},
 		{ &hf_tns_data_oer_message, {
 			"Message", "tns.data_oer.message", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
@@ -7129,6 +7166,7 @@ void proto_register_tns(void)
 		&ett_tns_setdt_override,
 		&ett_tns_oer,
 		&ett_tns_call_status,
+		&ett_tns_warn_flags,
 		&ett_tns_auth_mode,
 		&ett_tns_sns_service,
 		&ett_tns_sns_subpacket,
@@ -7157,6 +7195,7 @@ void proto_register_tns(void)
 		{ &ei_tns_data_descriptor_size_mismatch, { "tns.data_descriptor.size_mismatch", PI_PROTOCOL, PI_WARN, "Data size from summing row sizes differs from size in descriptor", EXPFILL }},
 		{ &ei_tns_data_piggyback_cursors, { "tns.data.piggyback.cursors.invalid", PI_MALFORMED, PI_ERROR, "Cursor count is larger than the data left in the packet", EXPFILL }},
 		{ &ei_tns_data_count_too_large, { "tns.data.count.invalid", PI_MALFORMED, PI_ERROR, "Count is larger than the data left in the packet", EXPFILL }},
+		{ &ei_tns_data_compilation_error, { "tns.data_oer.compilation_error", PI_RESPONSE_CODE, PI_NOTE, "The statement created a PL/SQL object that compiled with errors", EXPFILL }},
 		{ &ei_tns_data_encrypted, { "tns.data.encrypted", PI_DECRYPTION, PI_NOTE, "Encrypted by native network encryption", EXPFILL }},
 	};
 

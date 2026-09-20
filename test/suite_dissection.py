@@ -2707,6 +2707,24 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['abc', '', 'héllo'], stdout
 
+    def test_tns_warn_flags(self, cmd_tshark, capture_file, test_env):
+        '''The warning flags of a successful status say whether the PL/SQL
+        object the statement created compiles.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_warn_flags.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_oer.warn_flags',
+            '-T', 'fields',
+            '-e', 'tns.data_oer.err_code',
+            '-e', 'tns.data_oer.warn_flags',
+            '-e', 'tns.data_oer.warn_flags.compilation_error',
+            '-e', '_ws.expert.message',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows[0][:3] == ['0', '0x21', 'True'], rows[0]
+        assert 'compiled with errors' in rows[0][3], rows[0]
+        assert rows[1][:4] == ['0', '0x00', 'False', ''], rows[1]
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
