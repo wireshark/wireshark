@@ -5427,6 +5427,9 @@ typedef struct {
   uint32_t gdb_cu_ue_f1ap_id;
   e212_number_type_t number_type;
   struct f1ap_tap_t  *stats_tap;
+  proto_tree *top_tree;
+  proto_tree *rrc_tree;
+  tvbuff_t *rrc_tvb;
 } f1ap_private_data_t;
 
 typedef struct {
@@ -5459,16 +5462,26 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
 
-static proto_tree *top_tree;
+static f1ap_private_data_t*
+f1ap_get_private_data(packet_info *pinfo)
+{
+  f1ap_private_data_t *f1ap_data = (f1ap_private_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_f1ap, 0);
+  if (!f1ap_data) {
+    f1ap_data = wmem_new0(pinfo->pool, f1ap_private_data_t);
+    f1ap_data->srb_id = -1;
+    f1ap_data->gdb_cu_ue_f1ap_id = 1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_f1ap, 0, f1ap_data);
+  }
+  return f1ap_data;
+}
 
 static void set_message_label(asn1_ctx_t *actx, int type)
 {
   const char *label = val_to_str_ext_const(type, &mtype_names_ext, "Unknown");
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, label);
-  /* N.B. would like to be able to use actx->subTree.top_tree, but not easy to set.. */
-  proto_item_append_text(top_tree, " (%s)", label);
+  f1ap_private_data_t *priv_data = f1ap_get_private_data(actx->pinfo);
+  proto_item_append_text(priv_data->top_tree, " (%s)", label);
 }
-
 
 
 static void
@@ -5493,19 +5506,6 @@ static void
 f1ap_N6Jitter_fmt(char *s, uint32_t v)
 {
   snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%d)", (float)v/2, (int32_t)v);
-}
-
-static f1ap_private_data_t*
-f1ap_get_private_data(packet_info *pinfo)
-{
-  f1ap_private_data_t *f1ap_data = (f1ap_private_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_f1ap, 0);
-  if (!f1ap_data) {
-    f1ap_data = wmem_new0(wmem_file_scope(), f1ap_private_data_t);
-    f1ap_data->srb_id = -1;
-    f1ap_data->gdb_cu_ue_f1ap_id = 1;
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_f1ap, 0, f1ap_data);
-  }
-  return f1ap_data;
 }
 
 static void
@@ -28393,7 +28393,6 @@ dissect_f1ap_RRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
         }
         break;
       case id_DLRRCMessageTransfer:
-      case id_UEContextRelease:
         switch (f1ap_data->srb_id) {
         case 0:
           col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
@@ -28413,6 +28412,12 @@ dissect_f1ap_RRCContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
         default:
           break;
         }
+        break;
+      case id_UEContextRelease:
+        /* In the UEContextReleaseCommand, the id_SRBID IE is present if the
+         * RRC container IE is present, but follows it. */
+        f1ap_data->rrc_tree = subtree;
+        f1ap_data->rrc_tvb = param_tvb;
         break;
       case id_UEContextSetup:
       case id_UEContextModification:
@@ -28890,9 +28895,43 @@ dissect_f1ap_SDTBearerConfigurationQueryIndication(tvbuff_t *tvb _U_, int offset
 static int
 dissect_f1ap_SRBID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+  proto_tree *subtree = f1ap_data->rrc_tree;
+  tvbuff_t *param_tvb = f1ap_data->rrc_tvb;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 3U, &f1ap_data->srb_id, true);
 
+  if (param_tvb) {
+    switch (f1ap_data->message_type) {
+    case INITIATING_MESSAGE:
+      switch (f1ap_data->procedure_code) {
+      case id_UEContextRelease:
+        switch (f1ap_data->srb_id) {
+        case 0:
+          col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+          col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
+          call_dissector(nr_rrc_dl_ccch_handle, param_tvb, actx->pinfo, subtree);
+          break;
+        case 1:
+        case 2:
+        case 3:
+          col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+          col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
+          add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_DOWNLINK, f1ap_data->srb_id);
+          call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
+          break;
+        default:
+          break;
+        }
+        break;
+      default:
+        break;
+      }
+    default:
+      break;
+    }
+  }
 
 
   return offset;
@@ -45832,13 +45871,13 @@ dissect_f1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   f1ap_item = proto_tree_add_item(tree, proto_f1ap, tvb, 0, -1, ENC_NA);
   f1ap_tree = proto_item_add_subtree(f1ap_item, ett_f1ap);
 
-  /* Store top-level tree */
-  top_tree = f1ap_tree;
 
   /* Add stats tap to private struct */
   f1ap_private_data_t *priv_data = f1ap_get_private_data(pinfo);
   priv_data->stats_tap = f1ap_info;
 
+  /* Store top-level tree */
+  priv_data->top_tree = f1ap_tree;
 
   dissect_F1AP_PDU_PDU(tvb, pinfo, f1ap_tree, NULL);
 
