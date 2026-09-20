@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-09-11) */
+/* (last updated 2026-09-18) */
 
 #include "config.h"
 
@@ -40600,7 +40600,7 @@ static const char * const table[] =
     "Computing Point Limited",                                                            // 40578
     "Vistula University",                                                                 // 40579
     "GlobalSite UK",                                                                      // 40580
-    "Big Dutchman ltd.",                                                                  // 40581
+    "Big Dutchman LLC",                                                                   // 40581
     "iBlocks Ltd.",                                                                       // 40582
     "Federal Service State Registration, Cadastre and Cartography in Moscow",             // 40583
     "Petersburg State University of Railways Transport",                                  // 40584
@@ -43473,7 +43473,7 @@ static const char * const table[] =
     "Department of Home Affairs",                                                         // 43451
     "Pragtec inc.",                                                                       // 43452
     "Visiometrics S.L.",                                                                  // 43453
-    "Wiccess",                                                                            // 43454
+    "SPECTRONITE",                                                                        // 43454
     "LFT Solutions",                                                                      // 43455
     "KHS GmbH",                                                                           // 43456
     "Warp Software Ltda.",                                                                // 43457
@@ -66830,13 +66830,98 @@ static const char * const table[] =
     "XR Trading LLC",                                                                     // 66808
     "Arisa Data Saina",                                                                   // 66809
     "EonoSpace Ltd",                                                                      // 66810
-    "RayanNivand",                                                                        // 66811
+    "Rayan Nivand",                                                                       // 66811
     "AstropotaMedia LLC",                                                                 // 66812
     "GoBright",                                                                           // 66813
     "Lanstar Germany",                                                                    // 66814
     "WiSP Services",                                                                      // 66815
     "Pinch A Penny, LLC",                                                                 // 66816
-    "National Health Investors, Inc."                                                     // 66817
+    "National Health Investors, Inc.",                                                    // 66817
+    "深圳云豹智能股份有限公司 (Shenzhen Yunbao Microsystems Co., Ltd.)",                              // 66818
+    "Benny",                                                                              // 66819
+    "Goldenfields Water County Council",                                                  // 66820
+    "Talbot County Technical Services",                                                   // 66821
+    "C&P Capeletti & Perl Gesellschaft für Datentechnik mbH",                             // 66822
+    "Image Owl, Inc.",                                                                    // 66823
+    "IRTDA doo",                                                                          // 66824
+    "dynamic acoustics e.U.",                                                             // 66825
+    "EP Apps OOD",                                                                        // 66826
+    "Safari Technologies, Inc.",                                                          // 66827
+    "Morris Systems, Inc",                                                                // 66828
+    "Psychiatrische Universitätsklink Zürich",                                            // 66829
+    "四川省华存智谷科技有限责任公司 (Sichuan Huacun Zhigu Technology Co., Ltd.)",                        // 66830
+    "New Telecom",                                                                        // 66831
+    "Agency EMB, LLC",                                                                    // 66832
+    "ISO-IMAGING",                                                                        // 66833
+    "Xian Tianqi Intelligent Technology Co.Ltd",                                          // 66834
+    "Olib AI",                                                                            // 66835
+    "Olib AI LLC",                                                                        // 66836
+    "TelcoTalkies Systems DWC-LLC",                                                       // 66837
+    "QAX Jowto",                                                                          // 66838
+    "Northern Territory Government",                                                      // 66839
+    "iMAR Navigation GmbH",                                                               // 66840
+    "KAKEHASHI Inc.",                                                                     // 66841
+    "Adidi SL",                                                                           // 66842
+    "Unizar Students Network Management",                                                 // 66843
+    "Soft Space Sdn. Bhd.",                                                               // 66844
+    "American Association of Motor Vehicle Adminstrators",                                // 66845
+    "Renvio",                                                                             // 66846
+    "Vortex Imaging Inc.",                                                                // 66847
+    "City of Concord",                                                                    // 66848
+    "Suncast Corporation",                                                                // 66849
+    "GeekFeed Co.,Ltd.",                                                                  // 66850
+    "Charles Taylor",                                                                     // 66851
+    "Pratik Mali",                                                                        // 66852
+    "Anthony Joseph Saab",                                                                // 66853
+    "Antti Olavi Kautiainen",                                                             // 66854
+    "SISSAN SRL",                                                                         // 66855
+    "PT. Jayadi Media Teknologi",                                                         // 66856
+    "SPEAKIE HEALTH TECHNOLOGIES SL",                                                     // 66857
+    "Vivek M L",                                                                          // 66858
+    "Ralf Blaesen",                                                                       // 66859
+    "Post-Quantum",                                                                       // 66860
+    "Myungjin Itech Co., Ltd.",                                                           // 66861
+    "Klaus Ott",                                                                          // 66862
+    "Troo Corporation",                                                                   // 66863
+    "Jack Bacon",                                                                         // 66864
+    "LT – EC SUP ARTS APPLIQUES TEXTILE",                                                 // 66865
+    "GANATECHWIN",                                                                        // 66866
+    "Stemp AS",                                                                           // 66867
+    "enjoyelec B.V.",                                                                     // 66868
+    "Lars Morren",                                                                        // 66869
+    "TAK Fusion Inc.",                                                                    // 66870
+    "Hapi Systems (Pty) Ltd",                                                             // 66871
+    "Unstructured Technologies, Inc.",                                                    // 66872
+    "astrastudio broadcast solutions",                                                    // 66873
+    "Dilenex LLC",                                                                        // 66874
+    "Anivive Lifesciences Inc",                                                           // 66875
+    "OLVIA",                                                                              // 66876
+    "HW Solution s.r.o",                                                                  // 66877
+    "The Cloud Rental",                                                                   // 66878
+    "Datasoft Srl",                                                                       // 66879
+    "Halyard",                                                                            // 66880
+    "METODO SCIENTIFICO DIGITALE TOLA (MSDT)",                                            // 66881
+    "Phil Summers",                                                                       // 66882
+    "BLACKFISHID SL",                                                                     // 66883
+    "Digital Control, Inc.",                                                              // 66884
+    "OZ1 Corporation",                                                                    // 66885
+    "Toyota & Lexus Centrum Wrocław Sp. z o.o",                                           // 66886
+    "Aretiico Ltd",                                                                       // 66887
+    "Linkdata Technology (Tianjin) Co., LTD",                                             // 66888
+    "Wuxi Stars Microsystem Technology Co., Ltd",                                         // 66889
+    "Pro AV Solutions QLD",                                                               // 66890
+    "2provide GmbH",                                                                      // 66891
+    "Oct Systems Inc.",                                                                   // 66892
+    "OrbitSRV",                                                                           // 66893
+    "Devalex LLC",                                                                        // 66894
+    "Dcim-France",                                                                        // 66895
+    "SONOTRACK SISTEMAS S.A.",                                                            // 66896
+    "Binário.net",                                                                        // 66897
+    "Mujahiddin Janapi",                                                                  // 66898
+    "Quantidia LLC",                                                                      // 66899
+    "Melbourne Automation",                                                               // 66900
+    "Alnet Systems Sp. z o.o.",                                                           // 66901
+    "ITSpine"                                                                             // 66902
 };
 
 const char* global_enterprises_lookup(uint32_t value)
