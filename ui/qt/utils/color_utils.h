@@ -18,8 +18,10 @@
 #include <QColor>
 #include <QObject>
 #include <QRect>
+#include <QStyleOptionViewItem>
 
 class QPainter;
+class QAbstractItemView;
 
 /**
  * @brief Utility class providing color conversion, blending, and theme-aware UI color definitions.
@@ -93,17 +95,29 @@ public:
     static const QColor hoverBackground();
 
     /**
-     * @brief Paints the translucent hover-highlight overlay used by
-     * PacketList and its pinned overlay panes (PinnedColumnView,
-     * PinnedRowView) over a row's rect. Painted on top of (rather than
-     * under) the row's normal delegate-drawn content, since delegates
-     * paint an opaque item background themselves that would otherwise
-     * hide a highlight painted underneath it.
+     * @brief Paints a single cell with a flat background/text color,
+     * ignoring any Qt::BackgroundRole/Qt::ForegroundRole (coloring rule,
+     * marked, ignored) the model would otherwise contribute -- used for
+     * PacketList's and its pinned overlay panes' manually-driven hover
+     * highlight (see PacketList::drawRow()), where hovering needs to show
+     * a flat theme color regardless of the row's own coloring.
+     *
+     * QStyledItemDelegate::paint() can't be reused for this directly: its
+     * own initStyleOption() re-fetches Qt::BackgroundRole from the model
+     * and would silently overwrite a caller-supplied override, so this
+     * fills the background and draws the item's content (text, icons)
+     * itself instead of delegating to it.
+     *
      * @param painter The active painter (mid-paintEvent).
-     * @param row_rect The row's rect to fill, in the same coordinate space
-     * the painter is currently set up for.
+     * @param view The view the cell belongs to (for style/font lookups).
+     * @param option The cell's style option; its rect is used as-is.
+     * @param index The cell's model index (for its display content).
+     * @param bg The flat background color to fill.
+     * @param fg The flat text color to draw with.
      */
-    static void paintHoverOverlay(QPainter *painter, const QRect &row_rect);
+    static void paintFlatCell(QPainter *painter, const QAbstractItemView *view,
+                               const QStyleOptionViewItem &option, const QModelIndex &index,
+                               const QColor &bg, const QColor &fg);
 
     /**
      * @brief Returns an appropriate warning background color for the current mode.

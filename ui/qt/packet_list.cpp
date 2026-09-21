@@ -56,6 +56,7 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QApplication>
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QtCore/qmath.h>
@@ -558,17 +559,32 @@ void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option,
     // native per-widget hover state, since the mouse hovering a pinned
     // overlay view needs to highlight this row here too -- native :hover
     // styling only ever reacts to the mouse being over this specific
-    // widget. Painted last with a translucent color (rather than before
-    // the base drawRow(), like a normal CSS background) since delegates
-    // paint an opaque item background themselves, which would otherwise
-    // hide a highlight painted underneath it. Painted even on a selected
-    // row so hover wins over selection, matching the pre-ThemeManager
-    // behavior (see the :selected:hover stylesheet rule elsewhere).
+    // widget. Painted even on a selected row so hover wins over selection,
+    // matching the pre-ThemeManager behavior (see the old :selected:hover
+    // stylesheet rule this replaced -- "background-color: ...;
+    // color: palette(text);"). Uses ColorUtils::paintFlatCell() rather
+    // than re-invoking each column's delegate with overridden palette
+    // roles -- QStyledItemDelegate::paint() calls initStyleOption(),
+    // which re-fetches Qt::BackgroundRole from the model and clobbers any
+    // backgroundBrush/palette override made beforehand, so a colored,
+    // marked, or ignored row's own background always won that fight and
+    // showed through instead of the flat hover color.
     if (prefs.gui_packet_list_hover_style && index.isValid()) {
         frame_data *fdata = getFDataForRow(index.row());
         if (fdata && (int)fdata->num == hovered_frame_num_) {
-            QRect row_rect(0, visualRect(index).y(), viewport()->width(), visualRect(index).height());
-            ColorUtils::paintHoverOverlay(painter, row_rect);
+            QColor hover_bg = ColorUtils::hoverBackground();
+            QColor text_color = palette().color(QPalette::Text);
+
+            for (int visual_col = 0; visual_col < header()->count(); visual_col++) {
+                int logical_col = header()->logicalIndex(visual_col);
+                if (isColumnHidden(logical_col)) {
+                    continue;
+                }
+                QModelIndex col_index = index.siblingAtColumn(logical_col);
+                QStyleOptionViewItem col_option = option;
+                col_option.rect = visualRect(col_index);
+                ColorUtils::paintFlatCell(painter, this, col_option, col_index, hover_bg, text_color);
+            }
         }
     }
 

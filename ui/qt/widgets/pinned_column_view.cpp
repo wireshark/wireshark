@@ -186,8 +186,27 @@ void PinnedColumnView::drawRow(QPainter *painter, const QStyleOptionViewItem &op
         PacketListRecord *record = model() ? static_cast<PacketListRecord *>(index.internalPointer()) : nullptr;
         frame_data *fdata = record ? record->frameData() : nullptr;
         if (fdata && (int)fdata->num == packet_list->hoveredFrameNum()) {
-            QRect row_rect(0, visualRect(index).y(), viewport()->width(), visualRect(index).height());
-            ColorUtils::paintHoverOverlay(painter, row_rect);
+            // Uses ColorUtils::paintFlatCell() rather than re-invoking
+            // each column's delegate with overridden palette roles -- see
+            // PacketList::drawRow()'s own comment (this mirrors it
+            // exactly) for why: QStyledItemDelegate::paint() re-fetches
+            // Qt::BackgroundRole from the model via initStyleOption(),
+            // clobbering any backgroundBrush/palette override made
+            // beforehand, so a colored/marked/ignored row's own
+            // background always won that fight instead of the flat hover
+            // color.
+            QColor hover_bg = ColorUtils::hoverBackground();
+            QColor text_color = palette().color(QPalette::Text);
+            for (int visual_col = 0; visual_col < header()->count(); visual_col++) {
+                int logical_col = header()->logicalIndex(visual_col);
+                if (isColumnHidden(logical_col)) {
+                    continue;
+                }
+                QModelIndex col_index = index.siblingAtColumn(logical_col);
+                QStyleOptionViewItem col_option = option;
+                col_option.rect = visualRect(col_index);
+                ColorUtils::paintFlatCell(painter, this, col_option, col_index, hover_bg, text_color);
+            }
         }
     }
 

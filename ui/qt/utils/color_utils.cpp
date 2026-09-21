@@ -11,9 +11,11 @@
 #include <ui/qt/utils/tango_colors.h>
 #include <ui/qt/utils/theme_manager.h>
 
+#include <QAbstractItemView>
 #include <QApplication>
 #include <QPainter>
 #include <QPalette>
+#include <QStyle>
 
 ColorUtils::ColorUtils(QObject *parent) :
     QObject(parent)
@@ -102,11 +104,31 @@ const QColor ColorUtils::hoverBackground()
 #endif
 }
 
-void ColorUtils::paintHoverOverlay(QPainter *painter, const QRect &row_rect)
+void ColorUtils::paintFlatCell(QPainter *painter, const QAbstractItemView *view,
+                                const QStyleOptionViewItem &option, const QModelIndex &index,
+                                const QColor &bg, const QColor &fg)
 {
-    QColor overlay = ColorUtils::hoverBackground();
-    overlay.setAlpha(96);
-    painter->fillRect(row_rect, overlay);
+    painter->save();
+    painter->fillRect(option.rect, bg);
+    painter->restore();
+
+    QStyleOptionViewItem cell_option = option;
+    cell_option.features |= QStyleOptionViewItem::HasDisplay;
+    cell_option.text = index.data(Qt::DisplayRole).toString();
+    cell_option.icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+    QVariant alignment = index.data(Qt::TextAlignmentRole);
+    if (alignment.isValid()) {
+        cell_option.displayAlignment = Qt::Alignment(alignment.toInt());
+    }
+    cell_option.backgroundBrush = QBrush();
+    cell_option.palette.setBrush(QPalette::Base, QBrush());
+    cell_option.palette.setBrush(QPalette::Window, QBrush());
+    cell_option.palette.setColor(QPalette::Text, fg);
+    cell_option.palette.setColor(QPalette::WindowText, fg);
+    cell_option.palette.setColor(QPalette::HighlightedText, fg);
+
+    QStyle *style = view->style() ? view->style() : QApplication::style();
+    style->drawControl(QStyle::CE_ItemViewItem, &cell_option, painter, view);
 }
 
 const QColor ColorUtils::warningBackground()
