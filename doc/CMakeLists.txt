@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-find_package( Asciidoctor 1.5 )
+find_package( Asciidoctor 2.0 )
 
 function(set_doc_target_properties _target)
 	set_target_properties(${_target} PROPERTIES

@@ -3,11 +3,11 @@ module WsUtils
   def create_doc_links(parent, target, text)
     if (parent.document.basebackend? 'docbook') || (parent.document.basebackend? 'html')
       parent.document.register :links, target
-      create_anchor(parent, text, type: :link, target: target).render.to_s
+      create_anchor parent, text, type: :link, target: target
     elsif parent.document.backend == 'manpage'
-      "\\fB#{text}"
+      create_inline parent, :quoted, text, type: :strong
     else
-      text
+      create_inline parent, :quoted, text
     end
   end
 end

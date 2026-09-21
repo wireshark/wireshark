@@ -1690,7 +1690,7 @@ endif()
 
 ws_find_package(CpuInfo ENABLE_CPUINFO HAVE_CPUINFO)
 
-find_package( Asciidoctor 1.5 )
+find_package( Asciidoctor 2.0 )
 find_package( XSLTPROC )
 
 find_package(DOXYGEN)
