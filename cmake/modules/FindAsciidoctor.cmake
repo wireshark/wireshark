@@ -207,11 +207,52 @@ if(ASCIIDOCTOR_EXECUTABLE)
 
     if(ASCIIDOCTOR_PDF_EXECUTABLE)
 
+        if(NOT DEFINED ASCIIDOCTOR_PDF_OPTIMIZE_WORKS)
+            # The -a optimize option requires that the RGhost gem and
+            # Ghostscript be installed, and that the RGhost gem can find
+            # Ghostscript (tricky on Windows)
+            # https://docs.asciidoctor.org/pdf-converter/latest/optimize-pdf/#rghost
+
+            set(TEST_ADOC_FILE "${CMAKE_BINARY_DIR}/optimize_test.adoc")
+            set(TEST_PDF_FILE "${CMAKE_BINARY_DIR}/optimize_test.pdf")
+            file(WRITE "${TEST_ADOC_FILE}" "= Test\n\nTest optimization.")
+
+            message(CHECK_START "Checking if asciidoctor-pdf optimization works")
+            set(_asciidoctor_pdf_test_command ${ASCIIDOCTOR_PDF_EXECUTABLE}
+                --require asciidoctor-pdf
+                --backend pdf
+                -a optimize
+                -v
+                -o "${TEST_PDF_FILE}"
+                "${TEST_ADOC_FILE}"
+            )
+
+            execute_process(
+                COMMAND ${_asciidoctor_pdf_test_command}
+                RESULT_VARIABLE OPTIMIZE_RESULT
+                OUTPUT_QUIET #or OUTPUT_VARIABLE OPTIMIZE_OUTPUT
+                ERROR_QUIET #or ERROR_VARIABLE OPTIMIZE_ERROR
+            )
+
+            unset (_asciidoctor_pdf_optimize_args)
+            if(OPTIMIZE_RESULT EQUAL 0)
+                set(ASCIIDOCTOR_PDF_OPTIMIZE_WORKS TRUE CACHE INTERNAL "Does asciidoctor-pdf optimize work")
+                set (_asciidoctor_pdf_optimize_args -a optimize)
+                message(CHECK_PASS "success")
+            else()
+                set(ASCIIDOCTOR_PDF_OPTIMIZE_WORKS FALSE CACHE INTERNAL "Does asciidoctor-pdf optimize work")
+                message(CHECK_FAIL "failed") # Could print ${OPTIMIZE_ERROR}
+            endif()
+
+            file(REMOVE "${TEST_ADOC_FILE}" "${TEST_PDF_FILE}")
+        endif()
+
         set(_asciidoctor_pdf_common_command
             ${CMAKE_COMMAND} -E env TZ=UTC "ASCIIDOCTORJ_OPTS=${_asciidoctorj_opts}"
             ${ASCIIDOCTOR_PDF_EXECUTABLE}
             --require asciidoctor-pdf
             --backend pdf
+            ${_asciidoctor_pdf_optimize_args}
             ${_asciidoctor_common_args}
         )
 
