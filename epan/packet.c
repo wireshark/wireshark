@@ -3419,7 +3419,7 @@ dissector_handle_get_description(const dissector_handle_t handle)
 int
 dissector_handle_get_protocol_index(const dissector_handle_t handle)
 {
-	if (handle->protocol == NULL) {
+	if (handle == NULL || handle->protocol == NULL) {
 		/*
 		 * No protocol (see, for example, the handle for
 		 * dissecting the set of protocols where the first
