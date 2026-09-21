@@ -2338,15 +2338,26 @@ interfaces. If used after an *-i* option, the capture filter for the interface
 specified by the last *-i* option occurring before this option is not optimized.
 // This is not supported for extcaps (yet)
 
---process-info::
+--process-info[=basic|full]::
 +
 --
 Record, for each packet, the processes on this host that sent or received
 it, when the packet belongs to a TCP or UDP socket: the process ID goes in
 an __epb_processid_threadid__ option of the packet's block, and a Process
-Information Block describing the process (name, executable path, command
-line, parent process ID, user, start time) is written once per output file.
-Wireshark shows them as the __frame.process__ fields.  The processes are
+Information Block describing the process is written once per output file.
+Wireshark shows them as the __frame.process__ fields.
+
+With *basic*, which is the default, a process is described by what
+identifies it: its ID, name and start time, which is what tools such as
+*netstat* show.  With *full* its executable path, command line, parent
+process ID and user are recorded as well.  Those can be sensitive: a command
+line can contain a password or a token, and a path the name of a user.  They
+are stored in the capture file as they are, for everybody the file is given
+to, so use *full* only for files that will be handled accordingly.  With
+*basic* they are not even read.  The argument has to be attached with an
+equals sign, as in *--process-info=full*.
+
+The processes are
 found in the operating system's socket tables, so a socket must still exist
 when its packet is captured; very short-lived sockets can be missed.  Which
 processes can be identified depends on privileges: on Windows all of them;

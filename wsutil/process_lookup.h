@@ -24,8 +24,9 @@ extern "C" {
  * @brief What the operating system knows about a process.
  *
  * Whatever the operating system does not provide, or does not let the
- * calling user see, is NULL (strings), 0 (the start time) or flagged as
- * absent. Strings are UTF-8.
+ * calling user see, or was not asked for (see ws_process_detail_t), is
+ * NULL (strings), 0 (the start time) or flagged as absent. Strings are
+ * UTF-8.
  */
 typedef struct ws_process_info {
     uint32_t  pid;            /**< The process ID. */
@@ -98,6 +99,30 @@ ws_process_lookup_new(char **err_msg);
  */
 WS_DLL_PUBLIC void
 ws_process_lookup_free(ws_process_lookup_t *lookup);
+
+/**
+ * @brief How much is found out about a process.
+ *
+ * The path, the command line and the user of a process can be sensitive:
+ * a command line can contain a password, and a path the name of a user.
+ * With WS_PROCESS_DETAIL_BASIC they are not even read.
+ */
+typedef enum {
+    WS_PROCESS_DETAIL_BASIC,  /**< What identifies a process: its ID, name and start time. */
+    WS_PROCESS_DETAIL_FULL    /**< Also its path, command line, parent and user. */
+} ws_process_detail_t;
+
+/**
+ * @brief Set how much is found out about the processes.
+ *
+ * The default is WS_PROCESS_DETAIL_BASIC. Set it before looking anything
+ * up: the records that have been returned are not changed.
+ *
+ * @param lookup The context.
+ * @param detail The level of detail.
+ */
+WS_DLL_PUBLIC void
+ws_process_lookup_set_detail(ws_process_lookup_t *lookup, ws_process_detail_t detail);
 
 /**
  * @brief Set how soon the socket tables may be read again after a miss.

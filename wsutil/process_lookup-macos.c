@@ -219,7 +219,7 @@ get_cmdline(uint32_t pid, ws_process_info_t *info)
 }
 
 static bool
-macos_describe(void *p _U_, uint32_t pid, ws_process_info_t *info)
+macos_describe(void *p _U_, uint32_t pid, ws_process_detail_t detail, ws_process_info_t *info)
 {
     int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, (int)pid };
     struct kinfo_proc kp;
@@ -233,8 +233,6 @@ macos_describe(void *p _U_, uint32_t pid, ws_process_info_t *info)
     if (pid > INT_MAX || sysctl(mib, 4, &kp, &size, NULL, 0) != 0 || size < sizeof kp)
         return false;
 
-    info->has_ppid = true;
-    info->ppid = (uint32_t)kp.kp_eproc.e_ppid;
     info->start_time_ns = (uint64_t)kp.kp_proc.p_starttime.tv_sec * NS_PER_S +
                           (uint64_t)kp.kp_proc.p_starttime.tv_usec * NS_PER_US;
 
@@ -243,6 +241,11 @@ macos_describe(void *p _U_, uint32_t pid, ws_process_info_t *info)
         info->name = g_strdup(name);
     else if (kp.kp_proc.p_comm[0] != '\0')
         info->name = g_strndup(kp.kp_proc.p_comm, sizeof kp.kp_proc.p_comm);
+    if (detail != WS_PROCESS_DETAIL_FULL)
+        return true;  /* the rest is not wanted, so it is not read */
+
+    info->has_ppid = true;
+    info->ppid = (uint32_t)kp.kp_eproc.e_ppid;
 
     if (proc_pidpath((int)pid, path, sizeof path) > 0 && path[0] != '\0')
         info->path = g_strdup(path);

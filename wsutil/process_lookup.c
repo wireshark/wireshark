@@ -29,6 +29,7 @@ struct ws_process_lookup {
     GHashTable *sockets;             /* ws_process_lookup_socket_key_t * -> GArray of the pids that have it open */
     GHashTable *processes;           /* pid -> process_entry_t * */
     GPtrArray  *retired;             /* entries replaced when their PID was reused; kept for callers holding them */
+    ws_process_detail_t detail;      /* how much is found out about a process */
     unsigned    refresh_interval_ms;
     int64_t     last_refresh;        /* monotonic time of the last refresh, in microseconds; 0 = never */
     int64_t     last_refresh_duration; /* how long it took, in microseconds */
@@ -205,6 +206,12 @@ ws_process_lookup_free(ws_process_lookup_t *lookup)
 }
 
 void
+ws_process_lookup_set_detail(ws_process_lookup_t *lookup, ws_process_detail_t detail)
+{
+    lookup->detail = detail;
+}
+
+void
 ws_process_lookup_set_refresh_interval(ws_process_lookup_t *lookup, unsigned interval_ms)
 {
     lookup->refresh_interval_ms = interval_ms;
@@ -322,7 +329,7 @@ get_process(ws_process_lookup_t *lookup, uint32_t pid, bool known_to_exist)
 
     memset(&fresh, 0, sizeof fresh);
     fresh.pid = pid;
-    if (!ws_process_lookup_backend.describe(lookup->backend_state, pid, &fresh)) {
+    if (!ws_process_lookup_backend.describe(lookup->backend_state, pid, lookup->detail, &fresh)) {
         /* No such process, at least not any more. */
         if (entry != NULL) {
             /* What we know about it is still the best description. */

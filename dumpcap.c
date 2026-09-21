@@ -539,7 +539,10 @@ print_usage(FILE *output)
     fprintf(output, "                           print list of link-layer types of iface and exit\n");
     fprintf(output, "  --list-time-stamp-types  print list of timestamp types for iface and exit\n");
     fprintf(output, "  --no-optimize            do not optimize capture filter\n");
-    fprintf(output, "  --process-info           record the processes that sent or received each packet\n");
+    fprintf(output, "  --process-info[=basic|full]\n");
+    fprintf(output, "                           record the processes that sent or received each packet:\n");
+    fprintf(output, "                           their ID and name (basic, the default), or their path,\n");
+    fprintf(output, "                           command line and user as well (full)\n");
     fprintf(output, "  --update-interval        interval between updates with new packets, in milliseconds (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
     fprintf(output, "  -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]\n");
@@ -699,7 +702,7 @@ relinquish_all_capabilities(void)
     /* Allowed whether or not process has any privileges.              */
     cap_t caps = cap_init();    /* all capabilities initialized to off */
     print_caps("Pre-clear");
-    if (global_capture_opts.process_info && have_ptrace_capability()) {
+    if (global_capture_opts.process_info != PROCESS_INFO_NONE && have_ptrace_capability()) {
         /*
          * Keep CAP_SYS_PTRACE, and only that, while we record process
          * information: without it we can only see the sockets of the
@@ -4375,10 +4378,12 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
     /* If we're supposed to record which processes the packets belong to,
        set up to do so, now that we've dropped the privileges we opened the
        interfaces with: what's left decides which processes we can see. */
-    if (capture_opts->process_info) {
+    if (capture_opts->process_info != PROCESS_INFO_NONE) {
         char *err_msg = NULL;
 
-        global_ld.process_info = capture_process_info_new(capture_opts->get_iface_list, &err_msg);
+        global_ld.process_info = capture_process_info_new(capture_opts->get_iface_list,
+            capture_opts->process_info == PROCESS_INFO_FULL ? WS_PROCESS_DETAIL_FULL : WS_PROCESS_DETAIL_BASIC,
+            &err_msg);
         if (global_ld.process_info == NULL) {
             snprintf(errmsg, sizeof(errmsg), "Can't record process information: %s", err_msg);
             g_free(err_msg);
@@ -5644,7 +5649,8 @@ main(int argc, char *argv[])
         bool keep_ptrace = false;
 
         for (int i = 1; i < argc; i++) {
-            if (strcmp(argv[i], "--process-info") == 0)
+            if (strcmp(argv[i], "--process-info") == 0 ||
+                g_str_has_prefix(argv[i], "--process-info="))
                 keep_ptrace = true;
         }
         relinquish_privs_except_capture(keep_ptrace);
@@ -5967,7 +5973,7 @@ main(int argc, char *argv[])
             return WS_EXIT_INVALID_OPTION;
         }
 
-        if (global_capture_opts.process_info && !global_capture_opts.use_pcapng) {
+        if (global_capture_opts.process_info != PROCESS_INFO_NONE && !global_capture_opts.use_pcapng) {
             cmdarg_err("Process information can only be recorded in pcapng files.");
             do_cleanup();
             return WS_EXIT_INVALID_OPTION;

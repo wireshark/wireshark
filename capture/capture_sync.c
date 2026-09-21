@@ -744,8 +744,10 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             argv = sync_pipe_add_arg(argv, &argc, capture_opts->temp_dir);
     }
 
-    if (capture_opts->process_info)
-        argv = sync_pipe_add_arg(argv, &argc, "--process-info");
+    if (capture_opts->process_info == PROCESS_INFO_FULL)
+        argv = sync_pipe_add_arg(argv, &argc, "--process-info=full");
+    else if (capture_opts->process_info == PROCESS_INFO_BASIC)
+        argv = sync_pipe_add_arg(argv, &argc, "--process-info=basic");
 
     if (capture_opts->multi_files_on) {
         if (capture_opts->has_autostop_filesize) {

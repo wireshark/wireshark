@@ -33,7 +33,8 @@ stub_refresh(void *state _U_, ws_process_lookup_add_socket_func add _U_,
 }
 
 static bool
-stub_describe(void *state _U_, uint32_t pid _U_, ws_process_info_t *info _U_)
+stub_describe(void *state _U_, uint32_t pid _U_, ws_process_detail_t detail _U_,
+              ws_process_info_t *info _U_)
 {
     return false;
 }

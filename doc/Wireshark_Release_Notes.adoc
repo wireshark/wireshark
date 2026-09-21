@@ -111,7 +111,7 @@ See the “New and Updated Features” section below for more details.
 
 The following features are either new or have been significantly updated since version 4.6.0:
 
-* Dumpcap, TShark and Wireshark can record which processes on the capturing host sent or received each packet, with the new `--process-info` capture option: the process IDs go in the pcapng epb_processid_threadid packet option and the processes (name, path, command line, parent, user, start time) are described in process information blocks, shown as the `frame.process` fields. A packet that several processes could have sent or received, such as a multicast datagram and its sender and receivers, is attributed to all of them. Supported on Windows, Linux and macOS.
+* Dumpcap, TShark and Wireshark can record which processes on the capturing host sent or received each packet, with the new `--process-info[=basic|full]` capture option: the process IDs go in the pcapng epb_processid_threadid packet option and the processes are described in process information blocks, shown as the `frame.process` fields. By default (`basic`) a process is described by its ID, name and start time; with `full` its path, command line, parent and user are recorded as well, which can be sensitive. A packet that several processes could have sent or received, such as a multicast datagram and its sender and receivers, is attributed to all of them. Supported on Windows, Linux and macOS.
 
 * New IMSI List dialog (menu:Telephony[IMSI List]) scans all packets in a capture and lists
   every unique IMSI with packet count, first/last frame, and protocols.
@@ -340,9 +340,9 @@ and OPT_DPIB_UUID option codes have been removed.
 
 libwsutil has a new API, wsutil/process_lookup.h, that finds the processes
 that have a network socket open, from the operating system's socket tables,
-and describes them (name, path, command line, parent, user, start time). It
-is implemented for Windows, Linux and macOS; on other platforms it reports
-that it is not supported.
+and describes them (name and start time or, if asked to, path, command line,
+parent and user as well). It is implemented for Windows, Linux and macOS; on
+other platforms it reports that it is not supported.
 
 === Plugin Development Changes
 

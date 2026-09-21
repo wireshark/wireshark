@@ -115,7 +115,8 @@ endpoint_is_local(capture_process_info_t *cpi, const ws_socket_endpoint_t *ep, b
 }
 
 capture_process_info_t *
-capture_process_info_new(capture_process_info_iface_list_func get_iface_list, char **err_msg)
+capture_process_info_new(capture_process_info_iface_list_func get_iface_list,
+                         ws_process_detail_t detail, char **err_msg)
 {
     capture_process_info_t *cpi;
     ws_process_lookup_t *lookup;
@@ -123,6 +124,7 @@ capture_process_info_new(capture_process_info_iface_list_func get_iface_list, ch
     lookup = ws_process_lookup_new(err_msg);
     if (lookup == NULL)
         return NULL;
+    ws_process_lookup_set_detail(lookup, detail);
     cpi = g_new0(capture_process_info_t, 1);
     cpi->lookup = lookup;
     cpi->get_iface_list = get_iface_list;

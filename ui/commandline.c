@@ -118,7 +118,10 @@ commandline_print_usage(commandline_usage_app_data_t* app_data, bool for_help_op
     fprintf(output, "  -S                       update display when new items are captured\n");
     fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
     fprintf(output, "  --update-interval        interval between updates with new items, in milliseconds (def: %dms)\n", DEFAULT_UPDATE_INTERVAL);
-    fprintf(output, "  --process-info           record the processes that sent or received each packet\n");
+    fprintf(output, "  --process-info[=basic|full]\n");
+    fprintf(output, "                           record the processes that sent or received each packet:\n");
+    fprintf(output, "                           their ID and name (basic, the default), or their path,\n");
+    fprintf(output, "                           command line and user as well (full)\n");
     fprintf(output, "Capture stop conditions:\n");
     fprintf(output, "  -c <item count>          stop after n items (def: infinite)\n");
     fprintf(output, "  -a <autostop cond.> ..., --autostop <autostop cond.> ...\n");

@@ -33,12 +33,13 @@ typedef GList *(*capture_process_info_iface_list_func)(int *err, char **err_str)
  *
  * @param get_iface_list Lists this host's interfaces; their addresses say
  * which end of a packet is on this host.
+ * @param detail How much to find out about the processes.
  * @param err_msg Set to a g_malloc()ed message if this fails.
  * @return The context, or NULL if process information is not available.
  */
 extern capture_process_info_t *
 capture_process_info_new(capture_process_info_iface_list_func get_iface_list,
-                         char **err_msg);
+                         ws_process_detail_t detail, char **err_msg);
 
 extern void
 capture_process_info_free(capture_process_info_t *cpi);

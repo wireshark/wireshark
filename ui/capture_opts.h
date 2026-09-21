@@ -86,7 +86,7 @@ extern "C" {
     {"compress-type",         ws_required_argument, NULL, LONGOPT_COMPRESS_TYPE}, \
     {"temp-dir",              ws_required_argument, NULL, LONGOPT_CAPTURE_TMPDIR},\
     {"update-interval",       ws_required_argument, NULL, LONGOPT_UPDATE_INTERVAL}, \
-    {"process-info",          ws_no_argument,       NULL, LONGOPT_PROCESS_INFO},
+    {"process-info",          ws_optional_argument, NULL, LONGOPT_PROCESS_INFO},
 
 
 #define OPTSTRING_CAPTURE_COMMON \
@@ -243,6 +243,18 @@ typedef struct interface_options_tag {
     int               timestamp_type_id;    /**< Numeric timestamp type passed to pcap_set_tstamp_type(); valid only when @p timestamp_type is non-NULL. */
 } interface_options;
 
+/**
+ * @brief What to record of the processes that sent or received each packet.
+ *
+ * The path, command line and user of a process can be sensitive, so they
+ * are only recorded, and only looked at, when explicitly asked for.
+ */
+typedef enum {
+    PROCESS_INFO_NONE,   /**< Nothing */
+    PROCESS_INFO_BASIC,  /**< What identifies a process: its ID, name and start time */
+    PROCESS_INFO_FULL    /**< Also its path, command line, parent and user */
+} process_info_level_e;
+
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
     /* general */
@@ -281,7 +293,7 @@ typedef struct capture_options_tag {
     char              *save_file;             /**< the capture file name */
     bool               group_read_access;     /**< true is group read permission needs to be set */
     bool               use_pcapng;            /**< true if file format is pcapng */
-    bool               process_info;          /**< Record the processes that sent or received each packet (pcapng only) */
+    process_info_level_e process_info;        /**< What to record of the processes that sent or received each packet (pcapng only) */
     unsigned           update_interval;       /**< Time in milliseconds. How often to notify parent of new packet counts, check file duration, etc. */
 
     /* GUI related */

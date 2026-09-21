@@ -398,7 +398,7 @@ linux_refresh(void *p, ws_process_lookup_add_socket_func add, void *ctx, char **
 }
 
 static bool
-linux_describe(void *p, uint32_t pid, ws_process_info_t *info)
+linux_describe(void *p, uint32_t pid, ws_process_detail_t detail, ws_process_info_t *info)
 {
     linux_state_t *state = (linux_state_t *)p;
     char *stat, *comm, *status;
@@ -412,8 +412,10 @@ linux_describe(void *p, uint32_t pid, ws_process_info_t *info)
     if (stat == NULL)
         return false;
     if (parse_proc_stat(stat, &ppid, &start_ticks)) {
-        info->has_ppid = true;
-        info->ppid = ppid;
+        if (detail == WS_PROCESS_DETAIL_FULL) {
+            info->has_ppid = true;
+            info->ppid = ppid;
+        }
         if (state->boot_time_s != 0) {
             info->start_time_ns = state->boot_time_s * NS_PER_S +
                                   (start_ticks * NS_PER_S) / (uint64_t)state->clk_tck;
@@ -429,6 +431,8 @@ linux_describe(void *p, uint32_t pid, ws_process_info_t *info)
         else
             g_free(comm);
     }
+    if (detail != WS_PROCESS_DETAIL_FULL)
+        return true;  /* the rest is not wanted, so it is not read */
 
     snprintf(path, sizeof path, "/proc/%u/exe", pid);
     info->path = g_file_read_link(path, NULL);  /* NULL for another user's process, or a kernel thread */

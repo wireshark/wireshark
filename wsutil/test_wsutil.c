@@ -1404,6 +1404,8 @@ new_lookup(void)
 
     if (lookup == NULL)
         g_error("ws_process_lookup_new: %s", err_msg);
+    /* check_own_process() wants every detail. */
+    ws_process_lookup_set_detail(lookup, WS_PROCESS_DETAIL_FULL);
     return lookup;
 }
 
@@ -1564,6 +1566,47 @@ test_process_lookup_tcp6(void)
     /* An IPv6 socket bound to ::1 is not reached over IPv4. */
     endpoint4(&l4, "127.0.0.1", socket_port(listener));
     g_assert_false(lists_own_process(lookup, WS_PROCESS_LOOKUP_TCP, &l4, NULL));
+
+    ws_process_lookup_free(lookup);
+    closesocket(listener);
+    ws_cleanup_sockets();
+}
+
+/* By default a record says what identifies the process and nothing else. */
+static void
+test_process_lookup_basic(void)
+{
+    socket_handle_t listener;
+    ws_process_lookup_t *lookup;
+    ws_socket_endpoint_t l;
+    const ws_process_info_t *info;
+    char *err_msg = NULL;
+
+    if (!ws_process_lookup_supported()) {
+        g_test_skip("not supported on this platform");
+        return;
+    }
+    g_assert_null(ws_init_sockets());
+
+    listener = bound_socket(AF_INET, SOCK_STREAM, "127.0.0.1", true);
+    g_assert_true(listener != INVALID_SOCKET);
+    endpoint4(&l, "127.0.0.1", socket_port(listener));
+
+    lookup = ws_process_lookup_new(&err_msg);
+    if (lookup == NULL)
+        g_error("ws_process_lookup_new: %s", err_msg);
+    info = lookup_only(lookup, WS_PROCESS_LOOKUP_TCP, &l, NULL);
+    g_assert_nonnull(info);
+    g_assert_cmpuint(info->pid, ==, own_pid());
+    g_assert_nonnull(info->name);
+    g_assert_nonnull(strstr(info->name, "test_wsutil"));
+    g_assert_cmpuint(info->start_time_ns, >, 0);
+    g_assert_null(info->path);
+    g_assert_null(info->cmdline);
+    g_assert_cmpuint(info->cmdline_len, ==, 0);
+    g_assert_null(info->user);
+    g_assert_false(info->has_ppid);
+    g_assert_false(info->has_uid);
 
     ws_process_lookup_free(lookup);
     closesocket(listener);
@@ -1914,6 +1957,7 @@ int main(int argc, char **argv)
     g_test_add_func("/sap_lzclzh_decompress/errors", test_sap_lzclzh_decompress_errors);
 
     g_test_add_func("/process_lookup/tcp4", test_process_lookup_tcp4);
+    g_test_add_func("/process_lookup/basic", test_process_lookup_basic);
     g_test_add_func("/process_lookup/wildcard_udp", test_process_lookup_wildcard_udp);
     g_test_add_func("/process_lookup/tcp6", test_process_lookup_tcp6);
     g_test_add_func("/process_lookup/tcp4_mapped", test_process_lookup_tcp4_mapped);

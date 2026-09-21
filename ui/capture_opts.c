@@ -119,7 +119,7 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
     capture_opts->save_file                       = NULL;
     capture_opts->group_read_access               = false;
     capture_opts->use_pcapng                      = true;             /* Save as pcapng by default */
-    capture_opts->process_info                    = false;
+    capture_opts->process_info                    = PROCESS_INFO_NONE;
     capture_opts->update_interval                 = DEFAULT_UPDATE_INTERVAL; /* 100 ms */
     capture_opts->real_time_mode                  = true;
     capture_opts->show_info                       = true;
@@ -295,7 +295,9 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
     ws_log(log_domain, log_level, "SaveFile            : %s", (capture_opts->save_file) ? capture_opts->save_file : "");
     ws_log(log_domain, log_level, "GroupReadAccess     : %u", capture_opts->group_read_access);
     ws_log(log_domain, log_level, "Fileformat          : %s", (capture_opts->use_pcapng) ? "PCAPNG" : "PCAP");
-    ws_log(log_domain, log_level, "ProcessInfo         : %s", capture_opts->process_info ? "true" : "false");
+    ws_log(log_domain, log_level, "ProcessInfo         : %s",
+           capture_opts->process_info == PROCESS_INFO_FULL ? "full" :
+           capture_opts->process_info == PROCESS_INFO_BASIC ? "basic" : "none");
     ws_log(log_domain, log_level, "UpdateInterval      : %u (ms)", capture_opts->update_interval);
     ws_log(log_domain, log_level, "RealTimeMode        : %u", capture_opts->real_time_mode);
     ws_log(log_domain, log_level, "ShowInfo            : %u", capture_opts->show_info);
@@ -1255,7 +1257,15 @@ capture_opts_add_opt(const char* app_env_var_prefix, capture_options *capture_op
             cmdarg_err("Recording process information is not supported on this platform");
             return 1;
         }
-        capture_opts->process_info = true;
+        /* The argument is optional: --process-info[=basic|full]. */
+        if (optarg_str_p == NULL || strcmp(optarg_str_p, "basic") == 0) {
+            capture_opts->process_info = PROCESS_INFO_BASIC;
+        } else if (strcmp(optarg_str_p, "full") == 0) {
+            capture_opts->process_info = PROCESS_INFO_FULL;
+        } else {
+            cmdarg_err("Invalid argument \"%s\" to --process-info; it must be \"basic\" or \"full\"", optarg_str_p);
+            return 1;
+        }
         break;
     case LONGOPT_UPDATE_INTERVAL:  /* capture update interval */
         if (!get_uint32(optarg_str_p, "update interval", &capture_opts->update_interval))

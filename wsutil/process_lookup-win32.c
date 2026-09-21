@@ -348,25 +348,29 @@ process_cmdline(win32_state_t *state, HANDLE process, ws_process_info_t *info)
 }
 
 static bool
-win32_describe(void *p, uint32_t pid, ws_process_info_t *info)
+win32_describe(void *p, uint32_t pid, ws_process_detail_t detail, ws_process_info_t *info)
 {
     win32_state_t *state = (win32_state_t *)p;
+    bool full = (detail == WS_PROCESS_DETAIL_FULL);
     const toolhelp_entry_t *entry;
-    HANDLE process;
-    bool can_read_memory;
-    DWORD path_len = 32768;
-    wchar_t *path;
+    HANDLE process = NULL;
+    bool can_read_memory = false;
     FILETIME creation, exit, kernel, user;
 
     entry = (const toolhelp_entry_t *)g_hash_table_lookup(state->processes, GUINT_TO_POINTER(pid));
     if (entry != NULL) {
         info->name = g_strdup(entry->name);
-        info->has_ppid = true;
-        info->ppid = entry->ppid;
+        if (full) {
+            info->has_ppid = true;
+            info->ppid = entry->ppid;
+        }
     }
 
-    process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ, FALSE, pid);
-    can_read_memory = (process != NULL);
+    /* Its memory is only read for the command line. */
+    if (full) {
+        process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+        can_read_memory = (process != NULL);
+    }
     if (process == NULL)
         process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
     if (process == NULL) {
@@ -374,13 +378,23 @@ win32_describe(void *p, uint32_t pid, ws_process_info_t *info)
         return entry != NULL;
     }
 
-    path = g_new(wchar_t, path_len);
-    if (QueryFullProcessImageNameW(process, 0, path, &path_len)) {
-        info->path = g_utf16_to_utf8(path, path_len, NULL, NULL, NULL);
-        if (info->name == NULL && info->path != NULL)
-            info->name = g_path_get_basename(info->path);
+    /* The path, which is also where the name comes from if the snapshot did not have it. */
+    if (full || info->name == NULL) {
+        DWORD path_len = 32768;
+        wchar_t *path = g_new(wchar_t, path_len);
+
+        if (QueryFullProcessImageNameW(process, 0, path, &path_len)) {
+            char *path_utf8 = g_utf16_to_utf8(path, path_len, NULL, NULL, NULL);
+
+            if (info->name == NULL && path_utf8 != NULL)
+                info->name = g_path_get_basename(path_utf8);
+            if (full)
+                info->path = path_utf8;
+            else
+                g_free(path_utf8);
+        }
+        g_free(path);
     }
-    g_free(path);
 
     if (GetProcessTimes(process, &creation, &exit, &kernel, &user)) {
         uint64_t filetime = ((uint64_t)creation.dwHighDateTime << 32) | creation.dwLowDateTime;
@@ -390,9 +404,11 @@ win32_describe(void *p, uint32_t pid, ws_process_info_t *info)
             info->start_time_ns = (uint64_t)start.secs * 1000000000ULL + (uint64_t)start.nsecs;
     }
 
-    info->user = process_user(process);
-    if (can_read_memory)
-        process_cmdline(state, process, info);
+    if (full) {
+        info->user = process_user(process);
+        if (can_read_memory)
+            process_cmdline(state, process, info);
+    }
 
     CloseHandle(process);
     return true;

@@ -71,10 +71,13 @@ typedef struct {
 
     /**
      * Fill in what is known about a process; info->pid is set on entry and
-     * the rest is zero. The strings must be g_malloc()ed. Returns false if
-     * there is no such process.
+     * the rest is zero. The strings must be g_malloc()ed. With
+     * WS_PROCESS_DETAIL_BASIC only the name and the start time are filled
+     * in, and the rest is not read. Returns false if there is no such
+     * process.
      */
-    bool (*describe)(void *state, uint32_t pid, ws_process_info_t *info);
+    bool (*describe)(void *state, uint32_t pid, ws_process_detail_t detail,
+                     ws_process_info_t *info);
 } ws_process_lookup_backend_t;
 
 /** The backend for this platform. */

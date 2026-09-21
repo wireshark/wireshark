@@ -639,7 +639,7 @@ class BoundUdpTrafficGenerator(UdpTrafficGenerator):
 
 @pytest.fixture
 def check_capture_process_info(capture_interface, cmd_tshark, cmd_capinfos, result_file):
-    def check_capture_process_info_real(self, cmd=None, env=None):
+    def check_capture_process_info_real(self, cmd=None, env=None, option='--process-info', full=False):
         assert cmd is not None
         testout_file = result_file(testout_pcapng)
         generator = BoundUdpTrafficGenerator()
@@ -652,7 +652,7 @@ def check_capture_process_info(capture_interface, cmd_tshark, cmd_capinfos, resu
                 '-c', '10',
                 '-a', f'duration:{capture_duration}',
                 '-f', f'udp src port {generator.port} and udp dst port 9',
-                '--process-info',
+                option,
             ), capture_output=True, env=env)
         finally:
             generator.stop()
@@ -662,31 +662,57 @@ def check_capture_process_info(capture_interface, cmd_tshark, cmd_capinfos, resu
         check_packet_count(cmd_capinfos, 10, testout_file)
 
         # The traffic comes from this very process, so every packet must be
-        # attributed to it, and the file must describe it.
+        # attributed to it, and the file must describe it: with what
+        # identifies it, and with the rest only if that was asked for.
         proc = subprocesstest.check_run((cmd_tshark, '-r', testout_file,
             '-T', 'fields',
             '-e', 'frame.process.pid',
             '-e', 'frame.process.name',
+            '-e', 'frame.process.start_time',
             '-e', 'frame.process.path',
+            '-e', 'frame.process.cmdline',
+            '-e', 'frame.process.ppid',
+            '-e', 'frame.process.user',
         ), capture_output=True, env=env)
         lines = proc.stdout.splitlines()
         assert len(lines) == 10
         for line in lines:
-            pid, name, path = line.split('\t')
+            pid, name, start_time, path, cmdline, ppid, user = line.split('\t')
             assert pid == str(os.getpid()), line
             assert 'python' in name.lower() or 'pytest' in name.lower(), line
-            assert path != '', line
+            assert start_time != '', line
+            if full:
+                assert path != '' and cmdline != '' and ppid != '' and user != '', line
+            else:
+                assert (path, cmdline, ppid, user) == ('', '', '', ''), line
     return check_capture_process_info_real
 
 
 class TestCaptureProcessInfo:
     def test_dumpcap_capture_process_info(self, cmd_dumpcap, check_capture_process_info, base_env):
-        '''Capture with dumpcap, recording the processes the packets belong to'''
+        '''Capture with dumpcap, recording what identifies the processes the
+        packets belong to, which is what the option does by default'''
         check_capture_process_info(self, cmd=cmd_dumpcap, env=base_env)
 
+    def test_dumpcap_capture_process_info_full(self, cmd_dumpcap, check_capture_process_info, base_env):
+        '''Capture with dumpcap, recording everything about the processes'''
+        check_capture_process_info(self, cmd=cmd_dumpcap, env=base_env, option='--process-info=full', full=True)
+
     def test_tshark_capture_process_info(self, cmd_tshark, check_capture_process_info, test_env):
-        '''Capture with TShark, recording the processes the packets belong to'''
-        check_capture_process_info(self, cmd=cmd_tshark, env=test_env)
+        '''Capture with TShark, which has to pass the level on to dumpcap'''
+        check_capture_process_info(self, cmd=cmd_tshark, env=test_env, option='--process-info=basic')
+
+    def test_tshark_capture_process_info_full(self, cmd_tshark, check_capture_process_info, test_env):
+        '''Capture with TShark, recording everything about the processes'''
+        check_capture_process_info(self, cmd=cmd_tshark, env=test_env, option='--process-info=full', full=True)
+
+    def test_dumpcap_process_info_bad_level(self, cmd_dumpcap, base_env):
+        '''A level that does not exist is refused.'''
+        proc = subprocesstest.run((cmd_dumpcap, '--process-info=everything', '-D'), capture_output=True, env=base_env)
+        assert proc.returncode != 0
+        if 'not supported' in proc.stderr:
+            pytest.skip('Process information is not supported on this platform')
+        assert 'must be "basic" or "full"' in proc.stderr, proc.stderr
 
     def test_dumpcap_capture_process_info_receivers(self, cmd_dumpcap, cmd_tshark, capture_interface, result_file, base_env):
         '''A datagram to a port that two other processes have a socket on is
