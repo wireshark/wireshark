@@ -854,6 +854,16 @@ int main(int argc, char *qt_argv[])
 
     commandline_other_options(&global_capture_opts, argc, argv, &commandline_app_data, true);
 
+#ifdef HAVE_LIBPCAP
+    /*
+     * The preference for process information was applied before the
+     * command line, which may have asked for a pcap file, in which there is
+     * no room for it; a capture must not fail because of a preference.
+     */
+    if (!global_capture_opts.use_pcapng)
+        global_capture_opts.process_info = PROCESS_INFO_NONE;
+#endif
+
     /* Convert some command-line parameters to QStrings */
     cf_name = QString(commandline_get_cf_name());
     read_filter = QString(commandline_get_rfilter());

@@ -91,6 +91,10 @@ private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
+    /**
+     * @brief Enable the choice of process information and show its warning as appropriate.
+     */
+    void updateProcessInfoWidgets();
     void filterEdited();
     void updateWidgets();
     void refreshInterfaceList();

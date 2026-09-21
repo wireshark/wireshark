@@ -15,6 +15,7 @@
 #include <epan/column.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/wslog.h>
+#include <wsutil/process_lookup.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/packet.h>
@@ -33,6 +34,27 @@
 #include "ui/preference_utils.h"
 #include "ui/simple_dialog.h"
 
+void
+capture_opts_set_process_info(capture_options* capture_opts _U_, capture_process_info_e level _U_)
+{
+#ifdef HAVE_LIBPCAP
+    capture_opts->process_info = PROCESS_INFO_NONE;
+    /* Stratoshark captures system calls, which have no sockets to look up. */
+    if (!capture_opts->use_pcapng || !ws_process_lookup_supported() || !application_flavor_is_wireshark())
+        return;
+    switch (level) {
+    case CAPTURE_PROCESS_INFO_BASIC:
+        capture_opts->process_info = PROCESS_INFO_BASIC;
+        break;
+    case CAPTURE_PROCESS_INFO_FULL:
+        capture_opts->process_info = PROCESS_INFO_FULL;
+        break;
+    default:
+        break;
+    }
+#endif /* HAVE_LIBPCAP */
+}
+
 /* Fill in capture options with values from the preferences */
 void
 prefs_to_capture_opts(capture_options* capture_opts _U_)
@@ -43,6 +65,7 @@ prefs_to_capture_opts(capture_options* capture_opts _U_)
     capture_opts->default_options.promisc_mode = prefs.capture_prom_mode;
     capture_opts->default_options.monitor_mode = prefs.capture_monitor_mode;
     capture_opts->use_pcapng                   = prefs.capture_pcap_ng;
+    capture_opts_set_process_info(capture_opts, prefs.capture_process_info);
     capture_opts->show_info                    = prefs.capture_show_info;
     capture_opts->real_time_mode               = prefs.capture_real_time;
     capture_opts->update_interval              = prefs.capture_update_interval;

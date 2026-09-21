@@ -42,10 +42,12 @@
 #include "ui/util.h"
 #include <wsutil/utf8_entities.h>
 #include "ui/preference_utils.h"
+#include <wsutil/process_lookup.h>
 #include "ui/recent.h"
 
 #include <cstdio>
 #include <epan/prefs.h>
+#include <app/application_flavor.h>
 #include <epan/prefs-int.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/filesystem.h>
@@ -101,6 +103,12 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     setWindowTitle(mainApp->windowTitleString(tr("Capture Options")));
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
+
+    ui->processInfoComboBox->addItem(tr("Don't record processes"), CAPTURE_PROCESS_INFO_NONE);
+    ui->processInfoComboBox->addItem(tr("Record process IDs and names"), CAPTURE_PROCESS_INFO_BASIC);
+    ui->processInfoComboBox->addItem(tr("Record process IDs, names, paths, command lines and users"), CAPTURE_PROCESS_INFO_FULL);
+    connect(ui->processInfoComboBox, &QComboBox::currentIndexChanged, this, &CaptureOptionsDialog::updateProcessInfoWidgets);
+    connect(ui->rbPcapng, &QRadioButton::toggled, this, &CaptureOptionsDialog::updateProcessInfoWidgets);
 
     cache_model_ = new InterfaceTreeCacheModel(this);
     proxy_model_ = new InterfaceSortFilterModel(this);
@@ -464,6 +472,30 @@ void CaptureOptionsDialog::on_buttonBox_rejected()
     }
 }
 
+void CaptureOptionsDialog::updateProcessInfoWidgets()
+{
+    bool possible = ws_process_lookup_supported() && ui->rbPcapng->isChecked();
+
+    if (!application_flavor_is_wireshark()) {
+        /* Stratoshark captures system calls, which have no sockets to look up. */
+        ui->processInfoWidget->setVisible(false);
+        return;
+    }
+    ui->labelProcessInfo->setEnabled(possible);
+    ui->processInfoComboBox->setEnabled(possible);
+    if (!ws_process_lookup_supported()) {
+        ui->processInfoComboBox->setToolTip(tr("Not supported on this platform."));
+    } else if (!ui->rbPcapng->isChecked()) {
+        ui->processInfoComboBox->setToolTip(tr("Process information can only be recorded in pcapng files."));
+    } else {
+        ui->processInfoComboBox->setToolTip(tr("<html><head/><body><p>Record which processes on this computer sent or received each packet, "
+            "for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, "
+            "and the packets of very short-lived sockets can be missed.</p></body></html>"));
+    }
+    ui->processInfoWarningLabel->setVisible(possible &&
+        ui->processInfoComboBox->currentData().toInt() == CAPTURE_PROCESS_INFO_FULL);
+}
+
 void CaptureOptionsDialog::on_buttonBox_helpRequested()
 {
     // Probably the wrong URL.
@@ -477,6 +509,8 @@ void CaptureOptionsDialog::updateInterfaces(capture_options* capture_opts)
     } else {
         ui->rbPcap->setChecked(true);
     }
+    ui->processInfoComboBox->setCurrentIndex(ui->processInfoComboBox->findData(prefs.capture_process_info));
+    updateProcessInfoWidgets();
     ui->capturePromModeCheckBox->setChecked(prefs.capture_prom_mode);
     ui->captureMonitorModeCheckBox->setChecked(prefs.capture_monitor_mode);
     ui->captureMonitorModeCheckBox->setEnabled(false);
@@ -700,6 +734,9 @@ bool CaptureOptionsDialog::saveOptionsToPreferences(capture_options* capture_opt
         capture_opts->use_pcapng = false;
         prefs.capture_pcap_ng = false;
     }
+    /* What is chosen is remembered even while it can't be done, e.g. for a pcap file. */
+    prefs.capture_process_info = (capture_process_info_e)ui->processInfoComboBox->currentData().toInt();
+    capture_opts_set_process_info(capture_opts, prefs.capture_process_info);
 
     g_free(capture_opts->save_file);
     g_free(capture_opts->orig_save_file);

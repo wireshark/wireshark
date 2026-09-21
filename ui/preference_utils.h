@@ -13,6 +13,7 @@
 #define __PREFERENCE_UTILS_H__
 
 #include <glib.h>
+#include <epan/prefs.h>
 typedef struct capture_options_tag capture_options;
 
 #ifdef __cplusplus
@@ -31,6 +32,18 @@ extern bool auto_scroll_live;
 /** Fill in capture options with values from the preferences
  */
 extern void prefs_to_capture_opts(capture_options* capture_opts);
+
+/**
+ * @brief Set what is recorded of the processes that packets belong to.
+ *
+ * What the preference asks for is recorded where it can be: dumpcap refuses
+ * to do it for a pcap file, or where it cannot look processes up, and a
+ * capture must not fail because of a preference.
+ *
+ * @param capture_opts The capture options, of which use_pcapng has been set.
+ * @param level What the user would like to have recorded.
+ */
+extern void capture_opts_set_process_info(capture_options* capture_opts, capture_process_info_e level);
 
 /** Save all preferences
  */

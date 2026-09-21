@@ -121,6 +121,13 @@ static const enum_val_t gui_packet_dialog_layout[] = {
     {NULL, NULL, -1}
 };
 
+static const enum_val_t capture_process_info_vals[] = {
+    {"NONE", "Nothing", CAPTURE_PROCESS_INFO_NONE},
+    {"BASIC", "Process ID and name", CAPTURE_PROCESS_INFO_BASIC},
+    {"FULL", "Process ID, name, path, command line and user", CAPTURE_PROCESS_INFO_FULL},
+    {NULL, NULL, -1}
+};
+
 static const enum_val_t gui_update_channel[] = {
     {"DEVELOPMENT", "DEVELOPMENT", UPDATE_CHANNEL_DEVELOPMENT},
     {"STABLE", "STABLE", UPDATE_CHANNEL_STABLE},
@@ -3778,6 +3785,11 @@ prefs_register_modules(void)
     prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in pcapng format",
         "Capture in pcapng format?", &prefs.capture_pcap_ng);
 
+    prefs_register_enum_preference(capture_module, "process_info", "Record the processes that packets belong to",
+        "What to record, in pcapng files, of the processes on this host that sent or received each packet."
+        " Paths, command lines and user names can be sensitive.",
+        (int*)(void*)(&prefs.capture_process_info), capture_process_info_vals, false);
+
     prefs_register_bool_preference(capture_module, "real_time_update", "Update packet list in real time during capture",
         "Update packet list in real time during capture?", &prefs.capture_real_time);
 
@@ -4281,6 +4293,7 @@ prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, in
     prefs.capture_prom_mode             = true;
     prefs.capture_monitor_mode          = false;
     prefs.capture_pcap_ng               = true;
+    prefs.capture_process_info          = CAPTURE_PROCESS_INFO_BASIC;
     prefs.capture_real_time             = true;
     prefs.capture_update_interval       = DEFAULT_UPDATE_INTERVAL;
     prefs.capture_no_extcap             = false;

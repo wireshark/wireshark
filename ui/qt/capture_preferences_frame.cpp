@@ -8,6 +8,7 @@
  */
 
 #include "config.h"
+#include <app/application_flavor.h>
 
 #include <wireshark.h>
 
@@ -23,6 +24,7 @@
 #include <ui/qt/main_window.h>
 #include <ui/qt/manager/interface_list_manager.h>
 
+#include <QSignalBlocker>
 #include <QSpacerItem>
 
 #include "ui/capture_ui_utils.h"
@@ -41,6 +43,19 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     pref_prom_mode_ = prefFromPrefPtr(&prefs.capture_prom_mode);
     pref_monitor_mode_ = prefFromPrefPtr(&prefs.capture_monitor_mode);
     pref_pcap_ng_ = prefFromPrefPtr(&prefs.capture_pcap_ng);
+    pref_process_info_ = prefFromPrefPtr(&prefs.capture_process_info);
+    {
+        /* Filled before anything is connected to it changing. */
+        QSignalBlocker blocker(ui->captureProcessInfoComboBox);
+        ui->captureProcessInfoComboBox->addItem(tr("Nothing"), CAPTURE_PROCESS_INFO_NONE);
+        ui->captureProcessInfoComboBox->addItem(tr("Process IDs and names"), CAPTURE_PROCESS_INFO_BASIC);
+        ui->captureProcessInfoComboBox->addItem(tr("Process IDs, names, paths, command lines and users"), CAPTURE_PROCESS_INFO_FULL);
+    }
+    if (!application_flavor_is_wireshark()) {
+        /* Stratoshark captures system calls, which have no sockets to look up. */
+        ui->captureProcessInfoLabel->setVisible(false);
+        ui->captureProcessInfoComboBox->setVisible(false);
+    }
     pref_real_time_ = prefFromPrefPtr(&prefs.capture_real_time);
     pref_update_interval_ = prefFromPrefPtr(&prefs.capture_update_interval);
     pref_no_interface_load_ = prefFromPrefPtr(&prefs.capture_no_interface_load);
@@ -130,6 +145,8 @@ void CapturePreferencesFrame::updateWidgets()
     ui->capturePromModeCheckBox->setChecked(prefs_get_bool_value(pref_prom_mode_, pref_stashed));
     ui->captureMonitorModeCheckBox->setChecked(prefs_get_bool_value(pref_monitor_mode_, pref_stashed));
     ui->capturePcapNgCheckBox->setChecked(prefs_get_bool_value(pref_pcap_ng_, pref_stashed));
+    ui->captureProcessInfoComboBox->setCurrentIndex(
+        ui->captureProcessInfoComboBox->findData(prefs_get_enum_value(pref_process_info_, pref_stashed)));
     ui->captureRealTimeCheckBox->setChecked(prefs_get_bool_value(pref_real_time_, pref_stashed));
     ui->captureUpdateIntervalLineEdit->setText(QString::number(prefs_get_uint_value(pref_update_interval_, pref_stashed)));
     ui->captureUpdateIntervalLineEdit->setPlaceholderText(QString::number(prefs_get_uint_value(pref_update_interval_, pref_default)));
@@ -157,6 +174,12 @@ void CapturePreferencesFrame::on_captureMonitorModeCheckBox_toggled(bool checked
 void CapturePreferencesFrame::on_capturePcapNgCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_pcap_ng_, checked, pref_stashed);
+}
+
+void CapturePreferencesFrame::on_captureProcessInfoComboBox_currentIndexChanged(int idx)
+{
+    if (idx >= 0)
+        prefs_set_enum_value(pref_process_info_, ui->captureProcessInfoComboBox->itemData(idx).toInt(), pref_stashed);
 }
 
 void CapturePreferencesFrame::on_captureRealTimeCheckBox_toggled(bool checked)

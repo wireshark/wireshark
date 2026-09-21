@@ -70,6 +70,12 @@ private slots:
     void on_capturePcapNgCheckBox_toggled(bool checked);
 
     /**
+     * @brief Slot triggered when what to record of processes is chosen.
+     * @param idx Index of the selected level.
+     */
+    void on_captureProcessInfoComboBox_currentIndexChanged(int idx);
+
+    /**
      * @brief Slot triggered when the real-time capture checkbox is toggled.
      * @param checked True if checked, false otherwise.
      */
@@ -108,6 +114,9 @@ private:
 
     /** Preference setting for pcapng format usage. */
     pref_t *pref_pcap_ng_;
+
+    /** Preference setting for what to record of the processes that packets belong to. */
+    pref_t *pref_process_info_;
 
     /** Preference setting for real-time capture display. */
     pref_t *pref_real_time_;

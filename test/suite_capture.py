@@ -517,6 +517,45 @@ class TestWiresharkCapture:
             check_capture_snapshot_len(self, cmd=wireshark_k, env=test_env)
 
 
+class TestWiresharkCaptureProcessInfo:
+    '''Wireshark records processes as its capture.process_info preference
+    says, which must never make a capture fail.'''
+    def check(self, request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env, **kwargs):
+        if request.config.getoption('--disable-gui', default=False):
+            pytest.skip('GUI tests are disabled via --disable-gui')
+        # Where processes can't be looked up Wireshark records none, rather than fail.
+        cmd_dumpcap = request.getfixturevalue('cmd_dumpcap')
+        proc = subprocesstest.run((cmd_dumpcap, '--process-info', '-D'), capture_output=True, env=test_env)
+        if proc.returncode != 0 and 'not supported' in proc.stderr:
+            pytest.skip('Process information is not supported on this platform')
+        with make_screenshot_on_error():
+            check_capture_process_info(self, cmd=wireshark_k, env=test_env, **kwargs)
+
+    def test_wireshark_capture_process_info_default(self, request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env):
+        '''By default Wireshark records what identifies the processes'''
+        self.check(request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env, option=())
+
+    def test_wireshark_capture_process_info_pref_full(self, request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env):
+        '''The preference can ask for everything about the processes'''
+        self.check(request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env,
+                   option=('-o', 'capture.process_info:FULL'), full=True)
+
+    def test_wireshark_capture_process_info_pref_none(self, request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env):
+        '''The preference can turn it off'''
+        self.check(request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env,
+                   option=('-o', 'capture.process_info:NONE'), none=True)
+
+    def test_wireshark_capture_process_info_option_over_pref(self, request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env):
+        '''The command line wins over the preference'''
+        self.check(request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env,
+                   option=('-o', 'capture.process_info:FULL', '--process-info=basic'))
+
+    def test_wireshark_capture_process_info_pcap(self, request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env):
+        '''A pcap file has no room for processes; the capture must work all the same'''
+        self.check(request, wireshark_k, check_capture_process_info, make_screenshot_on_error, test_env,
+                   option=('-F', 'pcap'), none=True)
+
+
 class TestTsharkCapture:
     def test_tshark_capture_10_packets_to_file(self, cmd_tshark, check_capture_10_packets, test_env):
         '''Capture 10 packets from the network to a file using TShark'''
@@ -639,8 +678,9 @@ class BoundUdpTrafficGenerator(UdpTrafficGenerator):
 
 @pytest.fixture
 def check_capture_process_info(capture_interface, cmd_tshark, cmd_capinfos, result_file):
-    def check_capture_process_info_real(self, cmd=None, env=None, option='--process-info', full=False):
+    def check_capture_process_info_real(self, cmd=None, env=None, option='--process-info', full=False, none=False):
         assert cmd is not None
+        options = (option,) if isinstance(option, str) else tuple(option)
         testout_file = result_file(testout_pcapng)
         generator = BoundUdpTrafficGenerator()
         generator.start()
@@ -652,7 +692,7 @@ def check_capture_process_info(capture_interface, cmd_tshark, cmd_capinfos, resu
                 '-c', '10',
                 '-a', f'duration:{capture_duration}',
                 '-f', f'udp src port {generator.port} and udp dst port 9',
-                option,
+                *options,
             ), capture_output=True, env=env)
         finally:
             generator.stop()
@@ -678,6 +718,9 @@ def check_capture_process_info(capture_interface, cmd_tshark, cmd_capinfos, resu
         assert len(lines) == 10
         for line in lines:
             pid, name, start_time, path, cmdline, ppid, user = line.split('\t')
+            if none:
+                assert line.strip() == '', line
+                continue
             assert pid == str(os.getpid()), line
             assert 'python' in name.lower() or 'pytest' in name.lower(), line
             assert start_time != '', line

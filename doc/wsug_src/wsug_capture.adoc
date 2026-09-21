@@ -207,6 +207,15 @@ pcapng is the default and is more flexible than pcap.
 pcapng might be required, e.g., if more than one interface is chosen for capturing.
 See {wireshark-wiki-url}Development/PcapNg for more details on pcapng.
 
+Processes:::
+Allows you to record which processes on your computer sent or received each packet, for the packets of TCP and UDP sockets.
+They are shown under “Process information” in the frame details, and can be filtered on with the `frame.process` fields.
+By default the ID and name of each process are recorded, which is what tools such as netstat show.
+You can also have the executable path, command line, parent process and user of each process recorded.
+Be careful with that if the capture file will be given to somebody else: a command line can contain a password, and a path the name of a user.
+Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed; see the `--process-info` option in the dumpcap man page for the details.
+This requires the pcapng format.
+
 Create a new file automatically...::
 Sets the conditions for switching to a new capture file.
 A new capture file can be created based on the following conditions:

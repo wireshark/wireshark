@@ -919,6 +919,10 @@ Results may vary, depending on the actual capabilities of the operating system, 
 Selecting _Capture packets in pcapng format_ causes the Next-Generation packet capture file format to be used when capturing.
 This much more capable packet capture file format has many advantages over the original format, although not every external tool may be capable of handling packet captures in this format.
 
+_Record the processes that packets belong to_ sets what is recorded, in pcapng files, of the processes on your computer that sent or received each packet: nothing, their IDs and names, or their executable paths, command lines and users as well.
+The latter can be sensitive: a command line can contain a password.
+The same choice is in the “Output” tab of the “Capture Options” dialog.
+
 Selecting _Update list of packets in real time_ causes the packet list to fill up and possibly scroll up during the packet capture process.
 This does give an insight in the packets captured, although it takes processing power to dissect the capture packets.
 
