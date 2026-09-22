@@ -330,6 +330,31 @@ class TestFileFormatsPcapngProcessInformation:
         after = subprocess.check_output((cmd_tshark, '-r', outfile) + fields, encoding='utf-8', env=base_env)
         assert after == before
 
+    @pytest.mark.parametrize('capture,block_type', [
+        ('process_info_several.pcapng', '0x00000bad'),
+        ('process_info_darwin_dpib.pcapng', '0x80000001'),
+    ])
+    def test_pcapng_pib_discard(self, cmd_tshark, cmd_editcap, capture_file, result_file, base_env, capture, block_type):
+        '''editcap --discard-process-info drops the process blocks, Wireshark's
+        and Darwin's, and the options of the packets that refer to them; the
+        packets themselves and their other options stay.'''
+        infile = capture_file(capture)
+        outfile = result_file(capture.replace('.pcapng', '-no-processes.pcapng'))
+        subprocess.run((cmd_editcap, '--discard-process-info', infile, outfile), check=True, env=base_env)
+        structure = ('-Xread_format:MIME Files Format', '-T', 'fields', '-e', 'pcapng.block.type')
+        before = subprocess.check_output((cmd_tshark, '-r', infile) + structure, encoding='utf-8', env=base_env).strip().split(',')
+        after = subprocess.check_output((cmd_tshark, '-r', outfile) + structure, encoding='utf-8', env=base_env).strip().split(',')
+        assert block_type in before
+        assert block_type not in after
+        assert after.count('0x00000006') == before.count('0x00000006')
+        fields = ('-T', 'fields', '-e', 'frame.number', '-e', 'frame.process.pid', '-e', 'frame.process.name',
+                  '-e', 'frame.darwin.process_info.pid', '-e', 'frame.darwin.process_info.epid')
+        packets = subprocess.check_output((cmd_tshark, '-r', outfile) + fields, encoding='utf-8', env=base_env).splitlines()
+        assert len(packets) == before.count('0x00000006')
+        for line in packets:
+            number, pid, name, dpid, depid = line.split('\t')
+            assert (pid, name, dpid, depid) == ('', '', '', ''), line
+
     def test_pcapng_pib_darwin_fields(self, assert_frames_match):
         '''Legacy Darwin process information blocks are looked up by the frame dissector.'''
         assert_frames_match(self.DARWIN_CAPTURE, [

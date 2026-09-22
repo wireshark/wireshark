@@ -160,6 +160,7 @@ static bool                   dup_detect_by_time;
 static bool                   skip_radiotap;
 static bool                   discard_all_secrets;
 static bool                   discard_name_resolution;
+static bool                   discard_process_info;
 static bool                   discard_cap_comments;
 static bool                   set_unused;
 static bool                   discard_pkt_comments;
@@ -1190,6 +1191,11 @@ print_usage(FILE *output)
     fprintf(output, "                         when writing the output file.  Does not discard\n");
     fprintf(output, "                         secrets added by \"--inject-secrets\" in the same\n");
     fprintf(output, "                         command line.\n");
+    fprintf(output, "  --discard-process-info\n");
+    fprintf(output, "                         Discard the process information from the input file\n");
+    fprintf(output, "                         when writing the output file: the blocks describing\n");
+    fprintf(output, "                         processes and the options of the packets that refer\n");
+    fprintf(output, "                         to them.\n");
     fprintf(output, "  --discard-name-resolution\n");
     fprintf(output, "                         Discard all name resolution records from the input\n");
     fprintf(output, "                         file when writing the output file.\n");
@@ -1565,6 +1571,7 @@ main(int argc, char *argv[])
 #define LONGOPT_COMPRESS                 LONGOPT_BASE_APPLICATION+12
 #define LONGOPT_SCTP_SPLIT               LONGOPT_BASE_APPLICATION+13
 #define LONGOPT_DISCARD_NAME_RESOLUTION  LONGOPT_BASE_APPLICATION+14
+#define LONGOPT_DISCARD_PROCESS_INFO     LONGOPT_BASE_APPLICATION+15
 
     static const struct ws_option long_options[] = {
         {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
@@ -1573,6 +1580,7 @@ main(int argc, char *argv[])
         {"inject-secrets", ws_required_argument, NULL, LONGOPT_INJECT_SECRETS},
         {"discard-all-secrets", ws_no_argument, NULL, LONGOPT_DISCARD_ALL_SECRETS},
         {"discard-name-resolution", ws_no_argument, NULL, LONGOPT_DISCARD_NAME_RESOLUTION},
+        {"discard-process-info", ws_no_argument, NULL, LONGOPT_DISCARD_PROCESS_INFO},
         {"help", ws_no_argument, NULL, 'h'},
         {"version", ws_no_argument, NULL, 'v'},
         {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
@@ -1746,6 +1754,12 @@ main(int argc, char *argv[])
         case LONGOPT_DISCARD_NAME_RESOLUTION:
         {
             discard_name_resolution = true;
+            break;
+        }
+
+        case LONGOPT_DISCARD_PROCESS_INFO:
+        {
+            discard_process_info = true;
             break;
         }
 
@@ -2283,6 +2297,10 @@ main(int argc, char *argv[])
         wtap_dump_params_discard_name_resolution(&params);
     }
 
+    if (discard_process_info) {
+        wtap_dump_params_discard_process_info(&params);
+    }
+
     /*
      * Discard capture file comments.
      */
@@ -2754,6 +2772,24 @@ main(int argc, char *argv[])
             /* Discard all packet comments when writing */
             if (discard_pkt_comments) {
                 while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(read_rec.block, OPT_COMMENT, 0)) {
+                    read_rec.block_was_modified = true;
+                }
+            }
+
+            /*
+             * Discard the process information of the packet when writing:
+             * the standard option, and the Darwin ones that refer to a
+             * process, as the blocks they refer to are being discarded.
+             */
+            if (discard_process_info && read_rec.block != NULL) {
+                /* The standard option can appear several times, the Darwin ones once. */
+                while (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_nth_option_instance(read_rec.block, OPT_PKT_PROCIDTHRDID, 0)) {
+                    read_rec.block_was_modified = true;
+                }
+                if (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_option(read_rec.block, OPT_PKT_DARWIN_PIB_ID)) {
+                    read_rec.block_was_modified = true;
+                }
+                if (WTAP_OPTTYPE_SUCCESS == wtap_block_remove_option(read_rec.block, OPT_PKT_DARWIN_EFFECTIVE_PIB_ID)) {
                     read_rec.block_was_modified = true;
                 }
             }

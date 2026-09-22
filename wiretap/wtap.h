@@ -2878,6 +2878,17 @@ WS_DLL_PUBLIC
 void wtap_dump_params_discard_decryption_secrets(wtap_dump_params *params);
 
 /**
+ * @brief Remove any process information from the per-file information;
+ * used if we're stripping process information as we write the file.
+ * The process information in the packets themselves is separate.
+ *
+ * @param params The parameters for wtap_dump_* from which to remove the
+ * process information blocks.
+ */
+WS_DLL_PUBLIC
+void wtap_dump_params_discard_process_info(wtap_dump_params *params);
+
+/**
  * @brief Free memory associated with the wtap_dump_params when it is no longer in
  * use by wtap_dumper.
  *

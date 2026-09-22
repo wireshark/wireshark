@@ -33,6 +33,7 @@ editcap - Edit and/or translate the format of capture files
 [ *--inject-secrets* <secrets type>,<file> ]
 [ *--discard-all-secrets* ]
 [ *--discard-name-resolution* ]
+[ *--discard-process-info* ]
 [ *--capture-comment* <comment> ]
 [ *--discard-capture-comment* ]
 [ *--discard-packet-comments* ]
@@ -539,6 +540,17 @@ the same command line.
 Discard all Name Resolution Block (NRB) entries from the input file when
 writing the output file. This removes all hostname-to-IP address mappings
 that were embedded in the capture file at capture time.
+--
+
+--discard-process-info::
++
+--
+Discard the process information from the input file when writing the
+output file: the blocks that describe the processes on the capturing
+host (as recorded by *dumpcap --process-info*, or by Darwin), and the
+options of the packets that refer to them.  Use it before sharing a
+capture file: the blocks can hold the names, executable paths, command
+lines and users of the processes.
 --
 
 --capture-comment <comment>::

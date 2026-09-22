@@ -743,6 +743,12 @@ wtap_dump_params_discard_meta_events(wtap_dump_params *params)
 }
 
 void
+wtap_dump_params_discard_process_info(wtap_dump_params *params)
+{
+	params->pibs_growing = NULL;
+}
+
+void
 wtap_dump_params_cleanup(wtap_dump_params *params)
 {
 	wtap_block_array_free(params->shb_hdrs);
