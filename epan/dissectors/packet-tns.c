@@ -1869,12 +1869,21 @@ static const char *tns_format_number(packet_info *pinfo, const uint8_t *data, in
 /* Render an Oracle DATE / TIMESTAMP value as an
  * ISO-ish string. 7 bytes: century+100, year+100, month, day, hour+1,
  * minute+1, second+1; 11 bytes add 4-byte big-endian nanoseconds.
- * Returns a pinfo->pool string, or NULL. */
+ * A year before 1 - a DATE reaches back to 4712 BC, with no year 0 -
+ * counts down from the same bias, so the same sum gives it negative,
+ * and it is shown as the BC year it is. Returns a pinfo->pool string, or
+ * NULL. */
 static const char *tns_format_date(packet_info *pinfo, const uint8_t *data, int len)
 {
 	if ( len < 7 )
 		return NULL;
 	int year = (data[0] - 100) * 100 + (data[1] - 100);
+	const char *era = "";
+	if ( year < 0 )
+	{
+		year = -year;
+		era = " BC";
+	}
 	int month = data[2], day = data[3];
 	int hour = data[4] - 1, minute = data[5] - 1, second = data[6] - 1;
 	if ( month < 1 || month > 12 || day < 1 || day > 31 ||
@@ -1885,11 +1894,11 @@ static const char *tns_format_date(packet_info *pinfo, const uint8_t *data, int 
 		uint32_t nsec = ((uint32_t)data[7] << 24) | ((uint32_t)data[8] << 16) |
 				((uint32_t)data[9] << 8) | data[10];
 		if ( nsec > 0 )
-			return wmem_strdup_printf(pinfo->pool, "%04d-%02d-%02d %02d:%02d:%02d.%09u",
-				year, month, day, hour, minute, second, nsec);
+			return wmem_strdup_printf(pinfo->pool, "%04d-%02d-%02d %02d:%02d:%02d.%09u%s",
+				year, month, day, hour, minute, second, nsec, era);
 	}
-	return wmem_strdup_printf(pinfo->pool, "%04d-%02d-%02d %02d:%02d:%02d",
-		year, month, day, hour, minute, second);
+	return wmem_strdup_printf(pinfo->pool, "%04d-%02d-%02d %02d:%02d:%02d%s",
+		year, month, day, hour, minute, second, era);
 }
 
 /* Days since 1970-01-01 of a proleptic Gregorian date, and back. */

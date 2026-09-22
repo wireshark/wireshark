@@ -3107,6 +3107,23 @@ class TestDissectTns:
         assert [r[4].split('[CREATE_TEMP] ')[1] for r in rows] == ['[CLOB]', '[NCLOB]', '[BLOB]'], rows
         assert all(r[5] == '' for r in rows), rows
 
+    def test_tns_bc_date(self, cmd_tshark, capture_file, test_env):
+        '''A DATE or TIMESTAMP before year 1 counts its century and year
+        down from the same bias and is shown as the BC year it is; a date
+        after it is unchanged.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_bc_date.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        for value in ('Column 1 (DATE): 4712-01-01 00:00:00 BC',
+                      'Column 2 (TIMESTAMP): 0044-03-15 12:30:05.500000000 BC',
+                      'Column 1 (DATE): 0044-03-15 00:00:00 BC',
+                      'Column 1 (DATE): 0001-12-31 23:59:59 BC',
+                      'Column 1 (DATE): 0101-06-01 00:00:00 BC',
+                      'Column 1 (DATE): 2026-09-22 00:00:00\n'):
+            assert value in stdout, value
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
