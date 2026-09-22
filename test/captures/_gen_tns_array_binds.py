@@ -13,7 +13,7 @@ bind, IN OUT.
               descriptor flag is 0x41 - TNS_BIND_ARRAY - and whose capacity
               is 10; its value is the element count 3 and 1, 2, 3
     Frame 3 - the reply: TTI_IOV (IN OUT), then the OUT value - the count 3
-              and 2, 4, 6, each with its return code - and TTI_OER
+              and 2, 4, 6, each with its actual length - and TTI_OER
 
 Bytes are built by hand.
 """

@@ -13,7 +13,7 @@ PL/SQL block that only looks like one.
               VARCHAR) but values only for the first two, ("x", 5): a
               return bind sends no value
     Frame 2 - its reply: a TTI_RXD holding, for each return bind, a row
-              count of 2 and the two values with their return codes - IDs
+              count of 2 and the two values with their actual lengths - IDs
               6 and 7, strings "x" and "x" - then TTI_OER
     Frame 3 - "BEGIN UPDATE T SET S = :1 RETURNING ID INTO :2; END;", a
               block whose RETURNING INTO is its own PL/SQL: both binds

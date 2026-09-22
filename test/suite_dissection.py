@@ -2135,7 +2135,7 @@ class TestDissectTns:
 
     def test_tns_out_binds(self, cmd_tshark, capture_file, test_env):
         '''The TTI_RXD after a TTI_IOV holds the OUT bind values, typed by
-        the execute's binds and each followed by a return code; IN binds
+        the execute's binds and each followed by its actual length; IN binds
         have no value there. The status behind them is decoded too.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_out_binds.pcap'),
@@ -2146,7 +2146,7 @@ class TestDissectTns:
         assert 'Bind 1 (NUMBER): 11' in stdout, stdout
         assert 'Bind 3 (VARCHAR): hi' in stdout, stdout
         assert 'Bind 2' not in stdout.split('Out Binds')[1], stdout
-        assert 'Return Code: 0' in stdout, stdout
+        assert 'Actual Length: 0' in stdout, stdout
         assert 'Oracle Error Return' in stdout, stdout
 
     def test_tns_lob_reply(self, cmd_tshark, capture_file, test_env):
@@ -3062,6 +3062,26 @@ class TestDissectTns:
         assert 'Bind 1 (JSON): {"k": 5}' in stdout, stdout
         assert 'Bind 1 (JSON): locator, size 50005' in stdout, stdout
         assert 'Malformed' not in stdout, stdout
+
+    def test_tns_actual_length(self, cmd_tshark, capture_file, test_env):
+        '''Each value a server returns for a bind is followed by its actual
+        length: 0 when it fitted, -1 when NULL, else its length before the
+        server cut it to the declared size - which is truncation only when
+        more than arrived.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_actual_length.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_bind.actual_len',
+            '-e', '_ws.expert.message',
+            '-e', '_ws.col.info',
+            '-Y', 'tns.data_bind.actual_len',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert [r[0] for r in rows] == ['23,-1', '5,11'], rows
+        assert rows[0][1] == 'The value was cut to 2 of its 23', rows[0]
+        assert rows[1][1] == 'The value was cut to 5 of its 11', rows[1]
+        assert all('[truncated]' in r[2] for r in rows), rows
 
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):

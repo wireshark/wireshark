@@ -420,7 +420,7 @@ static int hf_tns_data_call_status_sess_release;
 
 static int hf_tns_data_iov_num_binds;
 static int hf_tns_data_iov_bind_dir;
-static int hf_tns_data_bind_retcode;
+static int hf_tns_data_bind_actual_len;
 
 static int hf_tns_data_dcb_num_columns;
 static int hf_tns_data_col_type;
@@ -618,6 +618,7 @@ static expert_field ei_tns_data_piggyback_cursors;
 static expert_field ei_tns_data_count_too_large;
 static expert_field ei_tns_data_encrypted;
 static expert_field ei_tns_data_compilation_error;
+static expert_field ei_tns_data_value_truncated;
 
 #define TCP_PORT_TNS			1521 /* Not IANA registered */
 
@@ -3329,9 +3330,44 @@ static bool tns_is_long_bind(const tns_column_t *col)
  * a fetch. An array bind's value is a ub4 element count and that many
  * elements. In an OUT reply each value - each element of an array - is
  * followed by its sb4 return code. Returns the new offset. */
+/* After each value a server returns for a bind - an OUT bind or a
+ * RETURNING one, never a fetched column - comes an sb4 with the value's
+ * actual length: 0 when it fitted, -1 when it is NULL, and otherwise the
+ * length the value had before the server cut it to the size the client
+ * declared. Only a value that arrived as plain bytes can have been cut -
+ * VARCHAR2, CHAR or RAW; the others are fixed width or carry framing of
+ * their own. value_start is where the value began. Returns the new
+ * offset. */
+static int dissect_tns_actual_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
+		int value_start, uint8_t dtype)
+{
+	int actual = 0, start = offset, got = 0;
+	proto_item *ti;
+
+	offset += get_sb4_custom(tvb, offset, &actual);
+	ti = proto_tree_add_int(tree, hf_tns_data_bind_actual_len, tvb, start, offset - start, actual);
+	if ( actual == -1 )
+		proto_item_append_text(ti, " (NULL)");
+	else if ( actual > 0 && (dtype == TNS_DATATYPE_VARCHAR || dtype == TNS_DATATYPE_CHAR
+		|| dtype == TNS_DATATYPE_RAW || dtype == TNS_DATATYPE_LONG || dtype == TNS_DATATYPE_LONG_RAW) )
+	{
+		/* A server may echo the length of a value that fitted, so the
+		 * value is cut only when it had more than arrived. */
+		tns_dalc_bytes(tvb, pinfo, value_start, &got);
+		if ( actual > got )
+		{
+			proto_item_append_text(ti, " (truncated to %d)", got);
+			expert_add_info_format(pinfo, ti, &ei_tns_data_value_truncated,
+				"The value was cut to %d of its %d", got, actual);
+			col_append_str(pinfo->cinfo, COL_INFO, " [truncated]");
+		}
+	}
+	return offset;
+}
+
 static int dissect_tns_bind_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const tns_column_t *col, int idx, bool out)
 {
-	int num = 1, rc = 0, start;
+	int num = 1, start;
 
 	if ( col->is_array )
 	{
@@ -3341,14 +3377,11 @@ static int dissect_tns_bind_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	}
 	for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
 	{
+		start = offset;
 		offset = dissect_tns_value(tvb, pinfo, tree, offset, col->type, col->csform,
 			out ? TNS_VALUE_OUT : TNS_VALUE_BIND, idx, hf_tns_data_bind_value, "Bind");
 		if ( out )
-		{
-			start = offset;
-			offset += get_sb4_custom(tvb, offset, &rc);
-			proto_tree_add_int(tree, hf_tns_data_bind_retcode, tvb, start, offset - start, rc);
-		}
+			offset = dissect_tns_actual_length(tvb, pinfo, tree, offset, start, col->type);
 	}
 	return offset;
 }
@@ -5601,10 +5634,10 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				/* The values a DML RETURNING ... INTO returned: for each
 				 * return bind a ub4 row count - every row the statement
 				 * touched - then that many values, each followed by its
-				 * sb4 return code. */
+				 * sb4 actual length. */
 				proto_tree *rv_tree;
 				proto_item *rv_item;
-				int rv_start = offset, rc = 0, start;
+				int rv_start = offset, start;
 
 				rv_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 					ett_tns_out_binds, &rv_item, "Returned Values");
@@ -5615,11 +5648,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					offset += get_sb4_custom(tvb, offset, &rows);
 					for ( int j = 0; j < rows && tvb_reported_length_remaining(tvb, offset) > 0; j++ )
 					{
+						start = offset;
 						offset = dissect_tns_value(tvb, pinfo, rv_tree, offset, rcall->binds[i].type,
 							rcall->binds[i].csform, TNS_VALUE_OUT, i + 1, hf_tns_data_bind_value, "Bind");
-						start = offset;
-						offset += get_sb4_custom(tvb, offset, &rc);
-						proto_tree_add_int(rv_tree, hf_tns_data_bind_retcode, tvb, start, offset - start, rc);
+						offset = dissect_tns_actual_length(tvb, pinfo, rv_tree, offset, start,
+							rcall->binds[i].type);
 					}
 				}
 				proto_item_set_len(rv_item, offset - rv_start);
@@ -8034,9 +8067,9 @@ void proto_register_tns(void)
 			"Bind Direction", "tns.data_iov.bind_dir", FT_UINT8, BASE_DEC,
 			VALS(tns_iov_bind_dirs), 0x0, NULL, HFILL }},
 
-		{ &hf_tns_data_bind_retcode, {
-			"Return Code", "tns.data_bind.retcode", FT_INT32, BASE_DEC,
-			NULL, 0x0, "Non-zero when an OUT value was truncated", HFILL }},
+		{ &hf_tns_data_bind_actual_len, {
+			"Actual Length", "tns.data_bind.actual_len", FT_INT32, BASE_DEC,
+			NULL, 0x0, "The returned value's length before it was cut to the declared size: 0 when it fitted, -1 when NULL", HFILL }},
 		{ &hf_tns_data_dcb_num_columns, {
 			"Number of Columns", "tns.data_dcb.num_columns", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -8517,6 +8550,7 @@ void proto_register_tns(void)
 		{ &ei_tns_data_descriptor_size_mismatch, { "tns.data_descriptor.size_mismatch", PI_PROTOCOL, PI_WARN, "Data size from summing row sizes differs from size in descriptor", EXPFILL }},
 		{ &ei_tns_data_piggyback_cursors, { "tns.data.piggyback.cursors.invalid", PI_MALFORMED, PI_ERROR, "Cursor count is larger than the data left in the packet", EXPFILL }},
 		{ &ei_tns_data_count_too_large, { "tns.data.count.invalid", PI_MALFORMED, PI_ERROR, "Count is larger than the data left in the packet", EXPFILL }},
+		{ &ei_tns_data_value_truncated, { "tns.data_bind.truncated", PI_RESPONSE_CODE, PI_WARN, "The value was cut to the size the client declared", EXPFILL }},
 		{ &ei_tns_data_compilation_error, { "tns.data_oer.compilation_error", PI_RESPONSE_CODE, PI_NOTE, "The statement created a PL/SQL object that compiled with errors", EXPFILL }},
 		{ &ei_tns_data_encrypted, { "tns.data.encrypted", PI_DECRYPTION, PI_NOTE, "Encrypted by native network encryption", EXPFILL }},
 	};

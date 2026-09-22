@@ -5,15 +5,21 @@
 # Copyright 1998 Gerald Combs
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
-"""Generate test/captures/tns_out_binds.pcap: a PL/SQL block with OUT binds
-and the values that come back.
+"""Generate test/captures/tns_actual_length.pcap: the sb4 after each value a
+server returns for a bind is the value's actual length - 0 when it fitted,
+-1 when it is NULL, and otherwise its length before the server cut it to
+the size the client declared.
 
-    Frame 1 - TTI_ALL8 "BEGIN :1 := :2 + 1; :3 := 'hi'; END;" with binds
-              NUMBER (OUT), NUMBER (IN) = 10 and VARCHAR (OUT); the OUT
-              slots carry the FD 01 no-value placeholder
-    Frame 2 - its reply: TTI_IOV with directions OUT, IN, OUT, then a
-              TTI_RXD with the two OUT values - NUMBER 11 and VARCHAR
-              "hi" - each followed by its sb4 actual length, then TTI_OER
+    Frame 1 - "BEGIN :1 := :2; :3 := NULL; END;": OUT VARCHAR declared 2
+              bytes, IN VARCHAR, OUT VARCHAR
+    Frame 2 - its reply: TTI_IOV, then the OUT values - "A " with actual
+              length 23 (cut), and a NULL with actual length -1 - then
+              TTI_OER
+    Frame 3 - "UPDATE T SET S = :1 WHERE ID = :2 RETURNING S INTO :3",
+              the return bind declared 5 bytes
+    Frame 4 - its reply: two returned rows - "hello" with actual length 5
+              (a server echoing the length of a value that fitted), and
+              "abcde" with actual length 11 (cut) - then TTI_OER
 
 Bytes are built by hand in the Oracle 11g wire shape.
 """
@@ -68,25 +74,36 @@ def bwl(s: bytes) -> bytes:
 
 
 def oac(data_type, max_length, charset=0, csform=0, max_size=0,
-        precision=0, scale=0):
+        precision=0, scale=0, fv=0, flag=0, max_elements=0):
+    """A column / bind descriptor. From field version 12.2 (8) the scale is
+    one signed byte and an oaccolid follows the max size."""
     return (
-        bytes([data_type]) + b"\x00" + bytes([precision]) + sb4(scale)
-        + ub4(max_length) + ub4(0) + ub4(0) + bwl(b"") + ub4(0)
+        bytes([data_type, flag, precision])
+        + (bytes([scale & 0xFF]) if fv >= 8 else sb4(scale))
+        + ub4(max_length) + ub4(max_elements) + ub4(0) + bwl(b"") + ub4(0)
         + ub4(charset) + bytes([csform]) + ub4(max_size)
+        + (ub4(0) if fv >= 8 else b"")
     )
 
 
 def dcb_column(data_type, max_length, name, charset=0, csform=0,
-               max_size=0, precision=0, scale=0):
+               max_size=0, precision=0, scale=0, fv=0):
+    """A describe column. 10g (below 6) has no uds flags; 23ai appends the
+    SQL domain schema and name (17), an annotation count (20) and the
+    vector dimensions, format and flags (24)."""
     return (
-        oac(data_type, max_length, charset, csform, max_size, precision, scale)
+        oac(data_type, max_length, charset, csform, max_size, precision, scale, fv)
         + b"\x01" + bytes([len(name)]) + bwl(name) + bwl(b"") + bwl(b"")
-        + ub4(0) + ub4(0)
+        + ub4(0) + (ub4(0) if fv == 0 or fv >= 6 else b"")
+        + (bwl(b"") + bwl(b"") if fv >= 17 else b"")
+        + (ub4(0) if fv >= 20 else b"")
+        + (ub4(0) + b"\x00\x00" if fv >= 24 else b"")
     )
 
 
-def describe_body(columns) -> bytes:
-    """The describe body shared by TTI_DCB and a nested cursor value."""
+def describe_body(columns, fv=0) -> bytes:
+    """The describe body shared by TTI_DCB and a nested cursor value; the
+    query-cache key came with 11g (6)."""
     b = ub4(80)                  # max row size
     b += ub4(len(columns))       # num columns
     if columns:
@@ -95,21 +112,24 @@ def describe_body(columns) -> bytes:
         b += col
     b += bwl(b"")                # current date
     b += ub4(0) * 4              # dcbflag / mdbz / mnpr / mxpr
-    b += bwl(b"")                # dcbqcky
+    if fv == 0 or fv >= 6:
+        b += bwl(b"")            # dcbqcky
     return b
 
 
-def dcb(columns) -> bytes:
-    return bytes([TTI_DCB]) + dalc(b"\x00" * 16) + describe_body(columns)
+def dcb(columns, fv=0) -> bytes:
+    return bytes([TTI_DCB]) + dalc(b"\x00" * 16) + describe_body(columns, fv)
 
 
 def all8(seq, sql, options, binds=(), rows=(), cursor=0, al8=None,
-         defines=()) -> bytes:
-    """An 11g-shape TTI_ALL8 execute. `binds` and `defines` are OAC blobs,
-    `rows` are the already-encoded value rows (each gets a leading
-    TTI_RXD)."""
+         defines=(), fv=0) -> bytes:
+    """A TTI_ALL8 execute, in the 11g shape unless a field version is given.
+    `binds` and `defines` are OAC blobs, `rows` are the already-encoded
+    value rows (each gets a leading TTI_RXD)."""
     al8 = al8 if al8 is not None else [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     b = bytes([TTI_FUN, TTI_ALL8, seq])
+    if fv >= 18:
+        b += ub4(0)              # ub8 call token
     b += ub4(options) + ub4(cursor)
     b += bytes([1 if sql else 0]) + ub4(len(sql))
     b += bytes([1]) + ub4(len(al8))
@@ -118,7 +138,13 @@ def all8(seq, sql, options, binds=(), rows=(), cursor=0, al8=None,
     b += bytes([0, 0, 0, 0, 0])
     b += bytes([1 if defines else 0]) + ub4(len(defines))
     b += bytes([0, 0, 1]) + bytes([0, 0, 0, 0, 0])
-    b += sql
+    if fv >= 7:
+        b += bytes([0, 0, 0])    # al8pidmlrc pointer, length, pointer
+    if fv >= 8:
+        b += bytes([0, 0, 0, 0, 0])  # SQL signature and SQL id fields
+    if fv >= 9:
+        b += bytes([0, 0])       # chunk ids pointer, count
+    b += (dalc(sql) if sql else b"") if fv >= 7 else sql
     for elem in al8:
         b += ub4(elem)
     for o in list(binds) + list(defines):
@@ -128,8 +154,20 @@ def all8(seq, sql, options, binds=(), rows=(), cursor=0, al8=None,
     return b
 
 
-def oer(err_code=0, cursor=0, rowcount=0, call_status=0, msg=b"") -> bytes:
-    """An 11g-shape TTI_OER."""
+def dty(field_version: int) -> bytes:
+    """A client TTI_DTY whose compile capabilities carry field_version
+    (capability 7): charsets, flag, the 38 capability bytes behind their
+    length, the table header and identity map (zeros here), and the
+    override list's terminator."""
+    caps = bytearray(38)
+    caps[7] = field_version
+    return (bytes([2]) + b"\x69\x03\x69\x03\x01" + bytes([len(caps)]) + caps
+            + bytes(8) + bytes(980) + b"\x00")
+
+
+def oer(err_code=0, cursor=0, rowcount=0, call_status=0, msg=b"", fv=0) -> bytes:
+    """A TTI_OER; from field version 12.1 (7) with the extended error
+    number and row count, from 20.1 (14) the SQL type and checksum too."""
     b = bytes([TTI_OER])
     b += ub4(call_status) + ub4(0) + ub4(rowcount) + ub4(err_code)
     b += ub4(0) + ub4(0) + ub4(cursor) + ub4(0)
@@ -138,6 +176,10 @@ def oer(err_code=0, cursor=0, rowcount=0, call_status=0, msg=b"") -> bytes:
     b += ub4(0) + bytes(2) + ub4(0) + ub4(0)
     b += bwl(b"")
     b += ub4(0) + ub4(0) + ub4(0)
+    if fv >= 7:
+        b += ub4(err_code) + ub4(rowcount)
+    if fv >= 14:
+        b += ub4(0) + ub4(0)
     if err_code:
         b += dalc(msg)
     return b
@@ -150,18 +192,27 @@ def iov(directions) -> bytes:
             + ub4(0) + ub4(0) + ub4(0) + ub4(0) + bytes(directions))
 
 
+VC2 = oac(TYPE_VARCHAR, 2, 873, 1, 2)
+VC32 = oac(TYPE_VARCHAR, 32, 873, 1, 32)
+SQL = b"UPDATE T SET S = :1 WHERE ID = :2 RETURNING S INTO :3"
+
 frames = [
-    (True, all8(1, b"BEGIN :1 := :2 + 1; :3 := 'hi'; END;", 0x0429,
-                binds=[oac(TYPE_NUMBER, 22), oac(TYPE_NUMBER, 22),
-                       oac(TYPE_VARCHAR, 32, 873, 1, 32)],
-                rows=[b"\xfd\x01" + dalc(b"\xc1\x0b") + b"\xfd\x01"])),
+    (True, all8(1, b"BEGIN :1 := :2; :3 := NULL; END;", 0x0429,
+                binds=[VC2, VC32, VC32],
+                rows=[b"\xfd\x01" + dalc(b"x") + b"\xfd\x01"])),
     (False, iov([OUT, IN, OUT])
-     + bytes([TTI_RXD]) + dalc(b"\xc1\x0c") + sb4(0) + dalc(b"hi") + sb4(0)
+     + bytes([TTI_RXD]) + dalc(b"A ") + sb4(23) + b"\x00" + sb4(-1)
      + oer()),
+    (True, all8(2, SQL, 0x8029,
+                binds=[VC32, oac(TYPE_NUMBER, 22), oac(TYPE_VARCHAR, 5, 873, 1, 5)],
+                rows=[dalc(b"hello") + dalc(b"\xc1\x02")])),
+    (False, bytes([TTI_RXD])
+     + ub4(2) + dalc(b"hello") + sb4(5) + dalc(b"abcde") + sb4(11)
+     + oer(rowcount=2)),
 ]
 
 
-OUT_NAME = "tns_out_binds.pcap"
+OUT_NAME = "tns_actual_length.pcap"
 
 
 def ipv4_checksum(h: bytes) -> int:

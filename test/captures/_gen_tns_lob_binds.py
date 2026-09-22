@@ -12,7 +12,7 @@ value that is not a fetched column.
               locator, as a client sends one - and a NUMBER
     Frame 2 - its reply: TTI_IOV (IN OUT, IN), then the OUT value as a
               live 23ai sent it, the LOB block 01 28 | 02 c3 55 |
-              02 1f c4 | 28 <40 bytes>, and its return code; then TTI_OER
+              02 1f c4 | 28 <40 bytes>, and its actual length; then TTI_OER
     Frame 3 - "UPDATE T SET N = :1 RETURNING C, L INTO :2, :3" binding a
               NUMBER and returning a CLOB and a LONG
     Frame 4 - its reply: the CLOB as the same block and the LONG as a
