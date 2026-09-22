@@ -949,7 +949,9 @@ class TestDissectRtpproxy:
 
 class TestDissectTcp:
     @staticmethod
-    def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=[]):
+    def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=None):
+        if extraArgs is None:
+            extraArgs = []
         capture_file = os.path.join(dirs.capture_dir, 'http-ooo.pcap')
         stdout = subprocess.check_output([cmd_tshark,
                 '-r', capture_file,
@@ -1108,7 +1110,9 @@ class TestDissectGit:
 class TestDissectTls:
     @staticmethod
     def check_tls_handshake_reassembly(cmd_tshark, capture_file, test_env,
-                                       extraArgs=[]):
+                                       extraArgs=None):
+        if extraArgs is None:
+            extraArgs = []
         # Include -zexpert just to be sure that no exception has occurred. It
         # is not strictly necessary as the extension to be matched is the last
         # one in the handshake message.
@@ -1120,12 +1124,14 @@ class TestDissectTls:
                                encoding='utf-8', env=test_env)
         stdout = stdout.replace(',', '\n')
         # Expected output are lines with 0001, 0002, ..., 03e8
-        expected = ''.join('%04x\n' % i for i in range(1, 1001))
+        expected = ''.join(f'{i:04x}\n' for i in range(1, 1001))
         assert stdout == expected
 
     @staticmethod
     def check_tls_reassembly_over_tcp_reassembly(cmd_tshark, capture_file, test_env,
-                                                 extraArgs=[]):
+                                                 extraArgs=None):
+        if extraArgs is None:
+            extraArgs = []
         stdout = subprocess.check_output([cmd_tshark,
                                '-r', capture_file('tls-fragmented-over-tcp-segmented.pcapng.gz'),
                                '-zexpert,note',
@@ -1161,7 +1167,9 @@ class TestDissectTls:
             test_env, extraArgs=['-2'])
 
     @staticmethod
-    def check_tls_out_of_order(cmd_tshark, capture_file, test_env, extraArgs=[]):
+    def check_tls_out_of_order(cmd_tshark, capture_file, test_env, extraArgs=None):
+        if extraArgs is None:
+            extraArgs = []
         stdout = subprocess.check_output([cmd_tshark,
                 '-r', capture_file('challenge01_ooo_stream.pcapng.gz'),
                 '-otcp.reassemble_out_of_order:TRUE',
@@ -1213,7 +1221,7 @@ class TestDissectRoq:
 class TestDissectQuic:
     @staticmethod
     def check_quic_tls_handshake_reassembly(cmd_tshark, capture_file, test_env,
-                                       extraArgs=[]):
+                                       extraArgs=None):
         # An assortment of QUIC carrying TLS handshakes that need to be
         # reassembled, including fragmented in one packet, fragmented in
         # multiple packets, fragmented in multiple out of order packets,
@@ -1222,6 +1230,9 @@ class TestDissectQuic:
         # Include -zexpert just to be sure that nothing Warn or higher occurred.
         # Note level expert infos may be expected with the overlaps and
         # retransmissions.
+        if extraArgs is None:
+            extraArgs = []
+
         stdout = subprocess.check_output([cmd_tshark,
                                '-r', capture_file('quic-fragmented-handshakes.pcapng.gz'),
                                '-zexpert,warn',
@@ -2173,17 +2184,17 @@ class TestDissectPcapngProcessInformation:
 
     def test_frame_process_info_fields(self, assert_frames_match):
         assert_frames_match('process_info_wireshark_cb.pcapng', [
-            (1, 'frame.process.pid == 1234 && frame.process.name == "curl"'
-                ' && frame.process.path == "/usr/bin/curl"'
-                ' && frame.process.cmdline == "curl https://example.com/"'
-                ' && frame.process.ppid == 1 && frame.process.uid == 1000'
-                ' && frame.process.user == "alice"'
-                ' && frame.process.uuid == 6b8b4567-327b-23c6-643c-986966334873'
+            (1, 'frame.process.pid == 1234 && frame.process.name == "curl"' +
+                ' && frame.process.path == "/usr/bin/curl"' +
+                ' && frame.process.cmdline == "curl https://example.com/"' +
+                ' && frame.process.ppid == 1 && frame.process.uid == 1000' +
+                ' && frame.process.user == "alice"' +
+                ' && frame.process.uuid == 6b8b4567-327b-23c6-643c-986966334873' +
                 ' && frame.process.start_time == "2026-01-01T00:00:00Z"'),
             # A block with nothing but a process ID.
             (3, 'frame.process.pid == 4321 && !frame.process.name && !frame.process.uid'),
             # A block in a big-endian section.
-            (4, 'frame.process.pid == 77 && frame.process.name == "sshd"'
+            (4, 'frame.process.pid == 77 && frame.process.name == "sshd"' +
                 ' && frame.process.uid == 0 && !frame.process.user'),
         ])
 
@@ -2244,6 +2255,6 @@ class TestDissectPcapngProcessInformation:
         differs from the process, whatever the byte order of the section.'''
         assert_frames_match(capture, [
             (1, 'frame.darwin.process_info.pid == 501 && !frame.darwin.process_info.epid'),
-            (3, 'frame.darwin.process_info.pid == 501 && frame.darwin.process_info.epid == 1'
+            (3, 'frame.darwin.process_info.pid == 501 && frame.darwin.process_info.epid == 1' +
                 ' && frame.darwin.process_info.epname == "launchd"'),
         ])

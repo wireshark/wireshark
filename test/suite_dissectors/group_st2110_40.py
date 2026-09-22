@@ -9,7 +9,6 @@
 import hashlib
 import subprocess
 
-
 DECODE_AS_ARGS = (
     # The captures contain RTP without signaling identifying it as RTP.
     '-d', 'udp.port==5000,rtp',

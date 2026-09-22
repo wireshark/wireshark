@@ -11,7 +11,6 @@ import subprocess
 
 import pytest
 
-
 CLIENT_IP = "192.0.2.10"
 SERVER_IP = "198.51.100.20"
 CLIENT_PORT = 49152

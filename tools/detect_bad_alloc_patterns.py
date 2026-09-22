@@ -44,7 +44,7 @@ def replace_file(fpath):
         if print_replacement_info and fdata != fdata_out:
             for match in re.finditer(pattern, fdata):
                 replacement = re.sub(pattern, replacewith, match.group(0))
-                print("Bad malloc pattern in %s: Replace '%s' with '%s'" % (fpath, match.group(0), replacement))  
+                print(f"Bad malloc pattern in {fpath}: Replace '{match.group(0)}' with '{replacement}'")
         fdata = fdata_out  
     if fdata_out != fdata_orig:
         with open(fpath, 'w') as fh:
@@ -53,7 +53,7 @@ def replace_file(fpath):
 
 def run_specific_files(fpaths):
     for fpath in fpaths:
-        if not (fpath.endswith('.c') or fpath.endswith('.cpp')):
+        if not fpath.endswith(('.c', '.cpp')):
             continue
         replace_file(fpath)
 

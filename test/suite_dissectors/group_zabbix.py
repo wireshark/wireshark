@@ -6,12 +6,11 @@
 
 import subprocess
 from pathlib import Path
-from typing import List
 
 import pytest
 
 
-def _tshark_outputs(tshark: str, capture_file: Path, env: dict) -> List[str]:
+def _tshark_outputs(tshark: str, capture_file: Path, env: dict) -> list[str]:
     res = subprocess.run(
         (
             tshark,
@@ -28,7 +27,7 @@ def _tshark_outputs(tshark: str, capture_file: Path, env: dict) -> List[str]:
     return [line.strip() for line in res.stdout.splitlines()]
 
 
-def _get_zabbix_capture_files() -> List[Path]:
+def _get_zabbix_capture_files() -> list[Path]:
     # Unfortunately unable to use Wireshark-defined fixtures (like dirs) as they are not
     # available at the time of decorating the parametrized test. So let's resolve the
     # capture file location ourselves.
@@ -39,12 +38,12 @@ def _get_zabbix_capture_files() -> List[Path]:
     return list(zabbix_capture_dir.glob("*.pcap*"))
 
 
-def _get_zabbix_capture_files_names_only() -> List[str]:
+def _get_zabbix_capture_files_names_only() -> list[str]:
     # The returned file names are used for parametrized test ids
     return [p.name for p in _get_zabbix_capture_files()]
 
 
-def _get_output_file_contents(capture_file: Path) -> List[str]:
+def _get_output_file_contents(capture_file: Path) -> list[str]:
     if len(capture_file.suffixes) == 1:
         # It is just .pcap or .pcapng or similar, replace it
         output_file = capture_file.with_suffix(".output")

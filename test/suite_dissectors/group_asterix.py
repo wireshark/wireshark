@@ -46,8 +46,8 @@ class _asterix_validator_real:
             total_length % 256
         ] + byte_list
         expected_result = {
-            "asterix.category": "{}".format(self.category),
-            "asterix.length": "{}".format(total_length),
+            "asterix.category": f"{self.category}",
+            "asterix.length": f"{total_length}",
             "asterix.message":
             {
                 "asterix.fspec": "",
@@ -87,15 +87,14 @@ class _asterix_re_validator_real(_asterix_validator_real):
             re_length % 256
         ] + byte_list
         expected_result = {
-            "asterix.re_field_len": "{}".format(re_length),
+            "asterix.re_field_len": f"{re_length}",
             "asterix.fspec": "",
-            "asterix.{:03}_RE_{}".format(self.category, field): expected_message
+            f"asterix.{self.category:03}_RE_{field}": expected_message
         }
         if line_no is None:
             caller = inspect.getframeinfo(inspect.stack()[1][0])
             line_no = caller.lineno
-        self.add_dissection(byte_list, "asterix.{:03}_RE".format(
-            self.category), expected_result, line_no)
+        self.add_dissection(byte_list, f"asterix.{self.category:03}_RE", expected_result, line_no)
 
 
 @pytest.fixture
@@ -112,9 +111,9 @@ def asterix_re_validator(dissection_validator):
 def fspec_local(key, idx, value):
     result = {
         "asterix.fspec": "",
-        "asterix.{}".format(key):
+        f"asterix.{key}":
         {
-            "asterix.{}_{}".format(key, idx): value
+            f"asterix.{key}_{idx}": value
         }
     }
     return result
@@ -123,9 +122,9 @@ def fspec_local(key, idx, value):
 def fspec_global(key, idx, value):
     result = {
         "asterix.fspec": "",
-        "asterix.{}".format(key):
+        f"asterix.{key}":
         {
-            "asterix.{}".format(idx): value
+            f"asterix.{idx}": value
         }
     }
     return result
@@ -133,20 +132,20 @@ def fspec_global(key, idx, value):
 
 def dict_local(vmap, key, idx, value):
     result = vmap.copy()
-    result["asterix.{}_{}".format(key, idx)] = value
+    result[f"asterix.{key}_{idx}"] = value
     return result
 
 
 def dict_global(vmap, key, value):
     result = vmap.copy()
-    result["asterix.{}".format(key)] = value
+    result[f"asterix.{key}"] = value
     return result
 
 
 def dict_fspec_local(vmap, key, idx, value):
     result = {
         "asterix.fspec": "",
-        "asterix.{}".format(key): dict_local(vmap, key, idx, value)
+        f"asterix.{key}": dict_local(vmap, key, idx, value)
     }
     return result
 
@@ -154,7 +153,7 @@ def dict_fspec_local(vmap, key, idx, value):
 def dict_fspec_global(vmap, key, idx, value):
     result = {
         "asterix.fspec": "",
-        "asterix.{}".format(key): dict_global(vmap, idx, value)
+        f"asterix.{key}": dict_global(vmap, idx, value)
     }
     return result
 
@@ -162,10 +161,10 @@ def dict_fspec_global(vmap, key, idx, value):
 def counter_local(vmap, counter, key, idx, value):
     result = {
         "asterix.fspec": "",
-        "asterix.{}".format(key):
+        f"asterix.{key}":
         {
             "asterix.counter": counter,
-            "asterix.{}".format(key): dict_local(vmap, key, idx, value)
+            f"asterix.{key}": dict_local(vmap, key, idx, value)
         }
     }
     return result

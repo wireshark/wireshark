@@ -607,14 +607,14 @@ class TestMySQL:
 
         print(summary)
 
-        for pkt in summary:
-            for mysqlpkt in summary[pkt]:
+        for pkt, summ in summary.items():
+            for mysqlpkt in summ:
                 assert (
-                    summary[pkt][mysqlpkt]["showname"]
+                    summ[mysqlpkt]["showname"]
                     == expected[pkt][mysqlpkt]["showname"]
                 )
                 assert (
-                    summary[pkt][mysqlpkt]["fields"]
+                    summ[mysqlpkt]["fields"]
                     == expected[pkt][mysqlpkt]["fields"]
                 )
 
@@ -968,14 +968,14 @@ class TestMySQL:
 
         print(summary)
 
-        for pkt in summary:
+        for pkt, summ in summary.items():
             for mysqlpkt in summary[pkt]:
                 assert (
-                    summary[pkt][mysqlpkt]["showname"]
+                    summ[mysqlpkt]["showname"]
                     == expected[pkt][mysqlpkt]["showname"]
                 )
                 assert (
-                    summary[pkt][mysqlpkt]["fields"]
+                    summ[mysqlpkt]["fields"]
                     == expected[pkt][mysqlpkt]["fields"]
                 )
 
@@ -1329,14 +1329,14 @@ class TestMySQL:
 
         print(summary)
 
-        for pkt in summary:
+        for pkt, summ in summary.items():
             for mysqlpkt in summary[pkt]:
                 assert (
-                    summary[pkt][mysqlpkt]["showname"]
+                    summ[mysqlpkt]["showname"]
                     == expected[pkt][mysqlpkt]["showname"]
                 )
                 assert (
-                    summary[pkt][mysqlpkt]["fields"]
+                    summ[mysqlpkt]["fields"]
                     == expected[pkt][mysqlpkt]["fields"]
                 )
 
@@ -1690,14 +1690,14 @@ class TestMySQL:
 
         print(summary)
 
-        for pkt in summary:
-            for mysqlpkt in summary[pkt]:
+        for pkt, summ in summary.items():
+            for mysqlpkt in summ:
                 assert (
-                    summary[pkt][mysqlpkt]["showname"]
+                    summ[mysqlpkt]["showname"]
                     == expected[pkt][mysqlpkt]["showname"]
                 )
                 assert (
-                    summary[pkt][mysqlpkt]["fields"]
+                    summ[mysqlpkt]["fields"]
                     == expected[pkt][mysqlpkt]["fields"]
                 )
 
@@ -2051,13 +2051,13 @@ class TestMySQL:
 
         print(summary)
 
-        for pkt in summary:
-            for mysqlpkt in summary[pkt]:
+        for pkt, summ in summary.items():
+            for mysqlpkt in summ:
                 assert (
-                    summary[pkt][mysqlpkt]["showname"]
+                    summ[mysqlpkt]["showname"]
                     == expected[pkt][mysqlpkt]["showname"]
                 )
                 assert (
-                    summary[pkt][mysqlpkt]["fields"]
+                    summ[mysqlpkt]["fields"]
                     == expected[pkt][mysqlpkt]["fields"]
                 )

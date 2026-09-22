@@ -39,7 +39,7 @@ class _dissection_validator_real:
 
         byte bundles must be iterable.'''
 
-        hex_string = ' '.join('{:02x}'.format(ele) for ele in bytes(byte_list))
+        hex_string = ' '.join(f'{ele:02x}' for ele in bytes(byte_list))
 
         if line_no is None:
             caller = inspect.getframeinfo(inspect.stack()[1][0])
@@ -66,8 +66,7 @@ class _dissection_validator_real:
 
         # create our text file of hex encoded messages
         with open(text_file, 'w') as f:
-            for line_no, hex_string, expected_result in self.dissection_list:
-                f.write("0 {}\n".format(hex_string))
+            f.writelines(f"0 {hex_string}\n" for line_no, hex_string, expected_result in self.dissection_list)
 
         # generate our pcap file by feeding the messages to text2pcap
         subprocess.check_call((
@@ -81,7 +80,7 @@ class _dissection_validator_real:
             self.cmd_tshark,
             '-r', pcap_file,
             '-T', 'json',
-            '-d', 'udp.port==1234,{}'.format(self.protocol),
+            '-d', f'udp.port==1234,{self.protocol}',
             '-J', self.protocol
         ), encoding='utf-8', env=self.env)
 
@@ -95,7 +94,7 @@ class _dissection_validator_real:
 
             # verify that the dissection is as expected
             assert expected_result == result, \
-                "expected != result, while dissecting [{}] from line {}.".format(hex_string, line_no)
+                f"expected != result, while dissecting [{hex_string}] from line {line_no}."
 
         # cleanup for next test
         self.dissection_list = []

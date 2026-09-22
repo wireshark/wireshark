@@ -2967,11 +2967,11 @@ class TestNvmeMiAdminLogPage:
     # Error Information Log Entry Reserved field, NVMe Base 2.3 Figure 209
     # bytes 62:42 -- 21 bytes, matching ERRINF_RSVD1 in the fixture generator.
     # tshark -Tfields prints an FT_BYTES value as unseparated hex.
-    ERRINF_RSVD1 = ''.join('%02x' % b for b in range(0xa0, 0xb5))
+    ERRINF_RSVD1 = ''.join(f'{b:02x}' for b in range(0xa0, 0xb5))
 
     # Endurance Group Information Reserved field, NVMe Base 2.3 Figure 222
     # bytes 31:08 -- 24 bytes, matching EGROUP_RSVD1 in the fixture generator.
-    EGROUP_RSVD1 = ''.join('%02x' % b for b in range(0xc0, 0xd8))
+    EGROUP_RSVD1 = ''.join(f'{b:02x}' for b in range(0xc0, 0xd8))
 
     # Endurance Group Total/Unallocated Capacity, NVMe Base 2.3 Figure 222
     # bytes 175:160 and 191:176 -- 16 bytes each, little-endian, with only the
