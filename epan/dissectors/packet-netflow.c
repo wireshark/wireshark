@@ -1812,6 +1812,8 @@ static const value_string v10_template_types_ixia[] = {
     {  384, "Mobile Network Name"},
     {  385, "IMEI Mobile Device Model"},
     {  386, "IMEI Mobile Device Manufacturer"},
+    {  387, "Tunnel Interface Name"},
+    {  510, "HTTP Body"},
     { 0, NULL }
 };
 static value_string_ext v10_template_types_ixia_ext = VALUE_STRING_EXT_INIT(v10_template_types_ixia);
@@ -3749,6 +3751,8 @@ static int      hf_pie_ixia_gtp_mobile_country_name;
 static int      hf_pie_ixia_gtp_mobile_network_name;
 static int      hf_pie_ixia_gtp_mobile_device_model;
 static int      hf_pie_ixia_gtp_mobile_device_manufacturer;
+static int      hf_pie_ixia_gtp_tunnel_interface_name;
+static int      hf_pie_ixia_http_body;
 
 static int      hf_pie_netscaler;
 static int      hf_pie_netscaler_roundtriptime;
@@ -11521,6 +11525,14 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 386):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_mobile_device_manufacturer,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 387):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_tunnel_interface_name,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 510):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_body,
                                      tvb, offset, length, ENC_ASCII);
             break;
             /* END Ixia Communications */
@@ -20511,6 +20523,20 @@ proto_register_netflow(void)
         /* ixia, 3054 / 386 */
         {&hf_pie_ixia_gtp_mobile_device_manufacturer,
          {"GTP Mobile Device Manufacturer", "cflow.pie.ixia.gtp-mobile-device-manufacturer",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+
+        /* ixia, 3054 / 387 */
+        {&hf_pie_ixia_gtp_tunnel_interface_name,
+         {"GTP Tunnel Interface Name", "cflow.pie.ixia.gtp-tunnel-interface-name",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+
+        /* ixia, 3054 / 510 */
+        {&hf_pie_ixia_http_body,
+         {"HTTP Body", "cflow.pie.ixia.http-body",
           FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
