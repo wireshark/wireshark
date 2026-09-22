@@ -602,14 +602,18 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/lib*.so.*
 %{_libdir}/wireshark
 %{_libexecdir}/wireshark
+%if %{with qt6}
 # Don't pick up the wireshark (GUI) man page here
 %exclude %{_mandir}/man1/wireshark.*
+%endif
+%if %{with stratoshark}
 # Don't pick up the stratoshark related man pages here
 %exclude %{_mandir}/man1/strato.*
 %exclude %{_mandir}/man1/stratoshark.*
 %exclude %{_mandir}/man1/falcodump.*
 %exclude %{_mandir}/man1/dumpcalls.*
 %exclude %{_mandir}/man1/sshdig.*
+%endif
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 
