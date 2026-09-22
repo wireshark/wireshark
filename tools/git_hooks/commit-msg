@@ -5,11 +5,6 @@
 msgfile="$1"
 topdir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
-# Warn (do not block) if the Assisted-by trailer is missing.
-if [ -f "$msgfile" ] && grep -qv '^#' && ! grep -qi '^Assisted-by:' "$msgfile"; then
-    echo "Warning: Commit message is missing the 'Assisted-by: [tool(s)]' trailer." >&2
-fi
-
 "$topdir/tools/validate-commit.py" --commitmsg "$msgfile"
 
 #

@@ -1001,7 +1001,7 @@ $ git config commit.template .gitmessage
 --
 
 The Wireshark pre-commit hook (in `tools/git_hooks/`) runs Wireshark-specific API and formatting checks and might return false positives.
-The commit-msg hook warns if the "Assisted-by" trailer is missing.
+The commit-msg hook and the CI checks run `tools/validate-commit.py`, which warns if a commit message credits an AI tool in another way, such as a "Co-authored-by" trailer naming the tool, but has no "Assisted-by" trailer.
 The wrappers in `tools/` remain for compatibility; if you prefer the classic layout you can still copy or symlink from `tools/git_hooks/` into `.git/hooks/`.
 
 If the pre-commit hook is preventing you from committing what you believe is a valid change, you can run `git commit --no-verify` to skip running the hooks.

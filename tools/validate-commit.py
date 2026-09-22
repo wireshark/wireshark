@@ -120,6 +120,33 @@ def extract_subject(subject):
     return subject
 
 
+# Ways an AI tool is credited other than the Assisted-by trailer we ask for:
+# the trailers and lines the tools write by default, and the AI-Assisted
+# trailer earlier commits used.
+AI_CREDIT_PATTERNS = (
+    re.compile(r'^Co-authored-by:.*(@anthropic\.com|copilot|@cursor\.com|@aider\.chat)',
+               re.IGNORECASE | re.MULTILINE),
+    re.compile(r'^Claude-Session:', re.IGNORECASE | re.MULTILINE),
+    re.compile(r'Generated with \[?(Claude Code|GitHub Copilot|Cursor|Codex|Gemini)',
+               re.IGNORECASE),
+)
+AI_ASSISTED_TRAILER = re.compile(r'^AI-Assisted:(.*)$', re.IGNORECASE | re.MULTILINE)
+AI_ASSISTED_NO = re.compile(r'^\s*(hell\s+)?not?(\W|$)', re.IGNORECASE)
+ASSISTED_BY_TRAILER = re.compile(r'^Assisted-by:', re.IGNORECASE | re.MULTILINE)
+
+
+def verify_ai_credit(body):
+    '''Warns when a message credits an AI tool but has no Assisted-by
+    trailer. A message that mentions no AI tool needs no trailer.'''
+    if ASSISTED_BY_TRAILER.search(body):
+        return
+    credits_ai = any(p.search(body) for p in AI_CREDIT_PATTERNS) or any(
+        not AI_ASSISTED_NO.match(m.group(1)) for m in AI_ASSISTED_TRAILER.finditer(body))
+    if credits_ai:
+        print("Warning: the commit message credits an AI tool but has no "
+              "'Assisted-by: [tool(s)]' trailer.")
+
+
 def verify_body(body):
     git_cut_marker = '\n# ------------------------ >8 ------------------------\n'
     cut_index = body.find(git_cut_marker)
@@ -129,6 +156,7 @@ def verify_body(body):
 
     # XXX Should depend on core.commentChar. Might use 'git stripspace -s' instead?
     body = re.sub('^#.*\n?', '', body, flags=re.MULTILINE)
+    verify_ai_credit(body)
     old_lines = body.splitlines(True)
     is_good = True
     if len(old_lines) >= 2 and old_lines[1].strip():
