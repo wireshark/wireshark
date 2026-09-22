@@ -1,0 +1,23 @@
+-- RFC 8636: PKINIT Algorithm Agility
+KerberosV5-PK-INIT-Agility-SPEC {
+        iso(1) identified-organization(3) dod(6) internet(1)
+        security(5) kerberosV5(2) modules(4) pkinit(5) agility(1) }
+DEFINITIONS EXPLICIT TAGS ::=
+BEGIN
+
+IMPORTS
+    AlgorithmIdentifier
+        FROM PKIX1Explicit88 { iso(1)
+            identified-organization(3) dod(6) internet(1)
+            security(5) mechanisms(5) pkix(7) id-mod(0)
+            id-pkix1-explicit(18) };
+
+TD-CMS-DIGEST-ALGORITHMS-DATA ::= SEQUENCE OF AlgorithmIdentifier
+
+TD-CERT-DIGEST-ALGORITHMS-DATA ::= SEQUENCE {
+    allowedAlgorithms  [0] SEQUENCE OF AlgorithmIdentifier,
+    rejectedAlgorithm [1] AlgorithmIdentifier OPTIONAL,
+    ...
+}
+
+END

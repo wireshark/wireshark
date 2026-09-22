@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-kerberos.c                                                          */
-/* asn2wrs.py -b -q -L -p kerberos -c ./kerberos.cnf -s ./packet-kerberos-template -D . -O ../.. KerberosV5Spec2.asn k5.asn RFC3244.asn RFC6113.asn SPAKE.asn */
+/* asn2wrs.py -b -q -L -p kerberos -c ./kerberos.cnf -s ./packet-kerberos-template -D . -O ../.. KerberosV5Spec2.asn k5.asn RFC3244.asn RFC6113.asn RFC8636.asn SPAKE.asn */
 
 /* packet-kerberos.c
  * Routines for Kerberos
@@ -88,6 +88,7 @@
 #include "packet-dcerpc.h"
 
 #include "packet-gssapi.h"
+#include "packet-pkix1explicit.h"
 #include "packet-x509af.h"
 
 #define KEY_USAGE_FAST_REQ_CHKSUM       50
@@ -205,6 +206,8 @@ static unsigned dissect_kerberos_PA_S4U2Self(bool implicit_tag _U_, tvbuff_t *tv
 static unsigned dissect_kerberos_PA_S4U_X509_USER(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static unsigned dissect_kerberos_ETYPE_INFO(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static unsigned dissect_kerberos_ETYPE_INFO2(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_kerberos_TD_CERT_DIGEST_ALGORITHMS_DATA(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static unsigned dissect_kerberos_AD_IF_RELEVANT(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static unsigned dissect_kerberos_PA_AUTHENTICATION_SET_ELEM(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static unsigned dissect_kerberos_PA_FX_FAST_REQUEST(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -540,6 +543,10 @@ static int hf_kerberos_armored_data_reply;        /* KrbFastArmoredRep */
 static int hf_kerberos_encryptedKrbFastResponse_cipher;  /* T_encryptedKrbFastResponse_cipher */
 static int hf_kerberos_enc_fast_rep;              /* EncryptedKrbFastResponse */
 static int hf_kerberos_encryptedChallenge_cipher;  /* T_encryptedChallenge_cipher */
+static int hf_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA_item;  /* AlgorithmIdentifier */
+static int hf_kerberos_allowedAlgorithms;         /* SEQUENCE_OF_AlgorithmIdentifier */
+static int hf_kerberos_allowedAlgorithms_item;    /* AlgorithmIdentifier */
+static int hf_kerberos_rejectedAlgorithm;         /* AlgorithmIdentifier */
 static int hf_kerberos_cipher;                    /* OCTET_STRING */
 static int hf_kerberos_groups_01;                 /* SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup */
 static int hf_kerberos_groups_item_01;            /* SPAKEGroup */
@@ -730,6 +737,9 @@ static int ett_kerberos_PA_FX_FAST_REPLY;
 static int ett_kerberos_EncryptedKrbFastResponse;
 static int ett_kerberos_KrbFastArmoredRep;
 static int ett_kerberos_EncryptedChallenge;
+static int ett_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA;
+static int ett_kerberos_TD_CERT_DIGEST_ALGORITHMS_DATA;
+static int ett_kerberos_SEQUENCE_OF_AlgorithmIdentifier;
 static int ett_kerberos_EncryptedSpakeData;
 static int ett_kerberos_EncryptedSpakeResponseData;
 static int ett_kerberos_SPAKESupport;
@@ -5971,6 +5981,12 @@ dissect_kerberos_T_padata_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsign
   case KERBEROS_PA_ETYPE_INFO2:
     offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO2);
     break;
+  case KERBEROS_TD_CMS_DIGEST_ALGORITHMS:
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA);
+    break;
+  case KERBEROS_TD_CERT_DIGEST_ALGORITHMS:
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_TD_CERT_DIGEST_ALGORITHMS_DATA);
+    break;
   case KERBEROS_PA_PW_SALT:
     offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PW_SALT);
     break;
@@ -7072,9 +7088,15 @@ static const value_string kerberos_ERROR_CODE_vals[] = {
   {  74, "eRR-REVOCATION-STATUS-UNAVAILABLE" },
   {  75, "eRR-CLIENT-NAME-MISMATCH" },
   {  76, "eRR-KDC-NAME-MISMATCH" },
+  {  77, "eRR-INCONSISTENT-KEY-PURPOSE" },
+  {  78, "eRR-DIGEST-IN-CERT-NOT-ACCEPTED" },
+  {  79, "eRR-PA-CHECKSUM-MUST-BE-INCLUDED" },
+  {  80, "eRR-DIGEST-IN-SIGNED-DATA-NOT-ACCEPTED" },
+  {  81, "eRR-PUBLIC-KEY-ENCRYPTION-NOT-SUPPORTED" },
   {  85, "eRR-IAKERB-KDC-NOT-FOUND" },
   {  86, "eRR-IAKERB-KDC-NO-RESPONSE" },
   {  91, "eRR-KDC-MORE-PREAUTH-DATA-REQUIRED" },
+  { 100, "eRR-NO-ACCEPTABLE-KDF" },
   { 0, NULL }
 };
 
@@ -7969,6 +7991,47 @@ static unsigned
 dissect_kerberos_EncryptedChallenge(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedChallenge_sequence, hf_index, ett_kerberos_EncryptedChallenge);
+
+  return offset;
+}
+
+
+static const ber_sequence_t TD_CMS_DIGEST_ALGORITHMS_DATA_sequence_of[1] = {
+  { &hf_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_AlgorithmIdentifier },
+};
+
+static unsigned
+dissect_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      TD_CMS_DIGEST_ALGORITHMS_DATA_sequence_of, hf_index, ett_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_AlgorithmIdentifier_sequence_of[1] = {
+  { &hf_kerberos_allowedAlgorithms_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_AlgorithmIdentifier },
+};
+
+static unsigned
+dissect_kerberos_SEQUENCE_OF_AlgorithmIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_AlgorithmIdentifier_sequence_of, hf_index, ett_kerberos_SEQUENCE_OF_AlgorithmIdentifier);
+
+  return offset;
+}
+
+
+static const ber_sequence_t TD_CERT_DIGEST_ALGORITHMS_DATA_sequence[] = {
+  { &hf_kerberos_allowedAlgorithms, BER_CLASS_CON, 0, 0, dissect_kerberos_SEQUENCE_OF_AlgorithmIdentifier },
+  { &hf_kerberos_rejectedAlgorithm, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_pkix1explicit_AlgorithmIdentifier },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_kerberos_TD_CERT_DIGEST_ALGORITHMS_DATA(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TD_CERT_DIGEST_ALGORITHMS_DATA_sequence, hf_index, ett_kerberos_TD_CERT_DIGEST_ALGORITHMS_DATA);
 
   return offset;
 }
@@ -9853,6 +9916,22 @@ void proto_register_kerberos(void) {
       { "cipher", "kerberos.encryptedChallenge_cipher",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_encryptedChallenge_cipher", HFILL }},
+    { &hf_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA_item,
+      { "AlgorithmIdentifier", "kerberos.AlgorithmIdentifier_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_kerberos_allowedAlgorithms,
+      { "allowedAlgorithms", "kerberos.allowedAlgorithms",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_AlgorithmIdentifier", HFILL }},
+    { &hf_kerberos_allowedAlgorithms_item,
+      { "AlgorithmIdentifier", "kerberos.AlgorithmIdentifier_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_kerberos_rejectedAlgorithm,
+      { "rejectedAlgorithm", "kerberos.rejectedAlgorithm_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "AlgorithmIdentifier", HFILL }},
     { &hf_kerberos_cipher,
       { "cipher", "kerberos.cipher",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -10254,6 +10333,9 @@ void proto_register_kerberos(void) {
     &ett_kerberos_EncryptedKrbFastResponse,
     &ett_kerberos_KrbFastArmoredRep,
     &ett_kerberos_EncryptedChallenge,
+    &ett_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA,
+    &ett_kerberos_TD_CERT_DIGEST_ALGORITHMS_DATA,
+    &ett_kerberos_SEQUENCE_OF_AlgorithmIdentifier,
     &ett_kerberos_EncryptedSpakeData,
     &ett_kerberos_EncryptedSpakeResponseData,
     &ett_kerberos_SPAKESupport,

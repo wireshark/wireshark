@@ -2,6 +2,11 @@
 # kerberos conformation file
 # Copyright 2008 Anders Broman
 
+#.MODULE_IMPORT
+PKIX1Explicit88 pkix1explicit
+
+#.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
+
 #.EXPORTS
 ChangePasswdData
 Applications ONLY_ENUM
@@ -242,6 +247,12 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
     break;
   case KERBEROS_PA_ETYPE_INFO2:
     offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_ETYPE_INFO2);
+    break;
+  case KERBEROS_TD_CMS_DIGEST_ALGORITHMS:
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_TD_CMS_DIGEST_ALGORITHMS_DATA);
+    break;
+  case KERBEROS_TD_CERT_DIGEST_ALGORITHMS:
+    offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_TD_CERT_DIGEST_ALGORITHMS_DATA);
     break;
   case KERBEROS_PA_PW_SALT:
     offset=dissect_ber_octet_string_wcb(false, actx, sub_tree, tvb, offset,hf_index, dissect_krb5_PW_SALT);
