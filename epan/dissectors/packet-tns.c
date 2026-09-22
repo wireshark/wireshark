@@ -460,6 +460,8 @@ static int hf_tns_data_reexec_opt2_commit;
 static int hf_tns_data_lob_op;
 static int hf_tns_data_lob_offset;
 static int hf_tns_data_lob_locator;
+static int hf_tns_data_lob_directory;
+static int hf_tns_data_lob_file_name;
 static int hf_tns_data_lob_charset;
 static int hf_tns_data_lob_data;
 static int hf_tns_data_lob_amount;
@@ -2621,6 +2623,41 @@ static int dissect_tns_describe_body(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 static tns_call_t *tns_answered_call(packet_info *pinfo);
 
+/* A BFILE's locator names its file: a big-endian ub2 length and the
+ * directory object's name, then a ub2 length and the file name, which end
+ * the locator. They start 16 bytes into the locator as a value carries it,
+ * behind its own ub2 length, and 14 bytes in in a LOB operation, which
+ * sends it without that length. Finds the names in the len bytes at
+ * offset, or returns false. */
+static bool tns_bfile_names(tvbuff_t *tvb, int offset, int len,
+		int *dir_off, int *dir_len, int *file_off, int *file_len)
+{
+	static const int bases[] = { 16, 14 };
+
+	for ( unsigned i = 0; i < array_length(bases); i++ )
+	{
+		int b = bases[i], dl, fl;
+
+		if ( len < b + 4 )
+			continue;
+		dl = tvb_get_ntohs(tvb, offset + b);
+		if ( dl == 0 || b + 2 + dl + 2 > len )
+			continue;
+		fl = tvb_get_ntohs(tvb, offset + b + 2 + dl);
+		if ( fl == 0 || b + 2 + dl + 2 + fl != len )
+			continue;
+		if ( !tvb_utf_8_isprint(tvb, offset + b + 2, dl)
+			|| !tvb_utf_8_isprint(tvb, offset + b + 2 + dl + 2, fl) )
+			continue;
+		*dir_off = offset + b + 2;
+		*dir_len = dl;
+		*file_off = offset + b + 2 + dl + 2;
+		*file_len = fl;
+		return true;
+	}
+	return false;
+}
+
 /* Decode one row/bind value by its data type, and add it as a
  * "<prefix> N (TYPE)" item under `hf`. Ordinary values are a
  * DALC blob; ROWID / UROWID / LONG / LOB / JSON / VECTOR / object carry
@@ -2847,7 +2884,14 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 						rendered = wmem_strdup_printf(pinfo->pool, "locator, size %" PRIu64, lob_size);
 					}
 				}
+				int loc_start = offset, dir_off, dir_len, file_off, file_len;
+				uint8_t loc_len = tvb_get_uint8(tvb, offset);
 				offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+				if ( dtype == TNS_DATATYPE_BFILE && loc_len <= 0xfc
+					&& tns_bfile_names(tvb, loc_start + 1, loc_len, &dir_off, &dir_len, &file_off, &file_len) )
+					rendered = wmem_strdup_printf(pinfo->pool, "BFILENAME('%s', '%s')",
+						tvb_get_string_enc(pinfo->pool, tvb, dir_off, dir_len, ENC_UTF_8),
+						tvb_get_string_enc(pinfo->pool, tvb, file_off, file_len, ENC_UTF_8));
 			}
 			break;
 
@@ -5296,7 +5340,18 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				int locator_start = offset;
 				if ( src_ptr && loc_len > 0 )
 				{
+					int dir_off, dir_len, file_off, file_len;
+
 					proto_tree_add_item(data_tree, hf_tns_data_lob_locator, tvb, offset, loc_len, ENC_NA);
+					if ( tns_bfile_names(tvb, offset, loc_len, &dir_off, &dir_len, &file_off, &file_len) )
+					{
+						const char *dir, *file;
+						proto_tree_add_item_ret_string(data_tree, hf_tns_data_lob_directory, tvb,
+							dir_off, dir_len, ENC_UTF_8, pinfo->pool, (const uint8_t **)&dir);
+						proto_tree_add_item_ret_string(data_tree, hf_tns_data_lob_file_name, tvb,
+							file_off, file_len, ENC_UTF_8, pinfo->pool, (const uint8_t **)&file);
+						col_append_fstr(pinfo->cinfo, COL_INFO, " [BFILENAME('%s', '%s')]", dir, file);
+					}
 					offset += loc_len;
 				}
 				if ( charset_ptr )
@@ -7029,6 +7084,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_lob_locator, {
 			"Locator", "tns.data_lob.locator", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_lob_directory, {
+			"Directory", "tns.data_lob.directory", FT_STRING, BASE_NONE,
+			NULL, 0x0, "The directory object a BFILE's locator names", HFILL }},
+		{ &hf_tns_data_lob_file_name, {
+			"File Name", "tns.data_lob.file_name", FT_STRING, BASE_NONE,
+			NULL, 0x0, "The file a BFILE's locator names", HFILL }},
 		{ &hf_tns_data_lob_charset, {
 			"Charset", "tns.data_lob.charset", FT_UINT32, BASE_DEC,
 			VALS(tns_charsets), 0x0, NULL, HFILL }},

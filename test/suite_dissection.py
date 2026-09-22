@@ -2755,6 +2755,29 @@ class TestDissectTns:
             ['0x00008040', ''],
         ], rows
 
+    def test_tns_bfile(self, cmd_tshark, capture_file, test_env):
+        '''A BFILE's locator names its directory and file, found whether
+        the locator comes whole, as in a fetched column, or without its
+        leading length, as a LOB operation sends it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_bfile.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert "Column 1 (BFILE): BFILENAME('DATA_DIR', 'report.txt')" in stdout, stdout
+        assert 'Column 1 (BFILE): NULL' in stdout, stdout
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_bfile.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_lob.op',
+            '-T', 'fields',
+            '-e', 'tns.data_lob.directory',
+            '-e', 'tns.data_lob.file_name',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['DATA_DIR', 'report.txt', '']] * 2, rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
