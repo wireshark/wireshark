@@ -1591,7 +1591,7 @@ class TestDissectTns:
         # oci id 0x60 = 96 (TTI_LOBOPS / "LOB and FILE related calls").
         assert rows[0] == ['0x60', '0x00000002', '1', '8192', '', '', ''], rows[0]
         assert rows[1] == ['0x60', '0x00000001', '1', '', '', '', ''], rows[1]
-        assert rows[2] == ['0x60', '0x00000110', '0', '', '873', '', ''], rows[2]
+        assert rows[2] == ['0x60', '0x00000110', '', '', '873', '', ''], rows[2]
         assert rows[3] == ['0x60', '0x00000040', '1', '', '', '006100620063', ''], rows[3]
 
     def test_tns_marker(self, cmd_tshark, capture_file, test_env):
@@ -3082,6 +3082,30 @@ class TestDissectTns:
         assert rows[0][1] == 'The value was cut to 2 of its 23', rows[0]
         assert rows[1][1] == 'The value was cut to 5 of its 11', rows[1]
         assert all('[truncated]' in r[2] for r in rows), rows
+
+    def test_tns_create_temp(self, cmd_tshark, capture_file, test_env):
+        '''A CREATE_TEMP carries the charset form and type of the LOB to
+        create where other LOB operations carry offsets; an NCLOB is a
+        CLOB with the national form and charset.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_create_temp.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_lob.csform',
+            '-e', 'tns.data_lob.type',
+            '-e', 'tns.data_lob.charset',
+            '-e', 'tns.data_lob.offset',
+            '-e', '_ws.col.info',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert [r[:4] for r in rows] == [
+            ['1', '112', '873', ''],
+            ['2', '112', '2000', ''],
+            ['0', '113', '873', ''],
+        ], rows
+        assert [r[4].split('[CREATE_TEMP] ')[1] for r in rows] == ['[CLOB]', '[NCLOB]', '[BLOB]'], rows
+        assert all(r[5] == '' for r in rows), rows
 
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):

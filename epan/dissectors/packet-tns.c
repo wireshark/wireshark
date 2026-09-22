@@ -496,6 +496,8 @@ static int hf_tns_data_lob_locator;
 static int hf_tns_data_lob_directory;
 static int hf_tns_data_lob_file_name;
 static int hf_tns_data_lob_charset;
+static int hf_tns_data_lob_csform;
+static int hf_tns_data_lob_type;
 static int hf_tns_data_lob_data;
 static int hf_tns_data_lob_amount;
 static int hf_tns_data_lob_flag;
@@ -1092,6 +1094,20 @@ static const value_string tns_lob_ops[] = {
 /* Column character-set form (csfrm) in an OAC descriptor: whether char data
  * is in the database charset or the national (AL16UTF16) charset. */
 #define TNS_CSFORM_NCHAR 2
+/* The charset form and type of a temporary LOB a CREATE_TEMP asks for. */
+static const val64_string tns_csform_vals64[] = {
+	{0, "None (BLOB)"},
+	{1, "Implicit (CLOB)"},
+	{2, "National (NCLOB)"},
+	{0, NULL}
+};
+
+static const val64_string tns_lob_types64[] = {
+	{TNS_DATATYPE_CLOB, "CLOB"},
+	{TNS_DATATYPE_BLOB, "BLOB"},
+	{0, NULL}
+};
+
 static const value_string tns_csform_vals[] = {
 	{1, "Database charset"},
 	{2, "National (AL16UTF16)"},
@@ -6373,12 +6389,33 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					val_to_str_const(op, tns_lob_ops, "unknown"));
 				/* scn-array pointer flag + length */
 				offset += 2;
-				/* source offset (ub8, 1-based into the LOB) */
-				start = offset;
-				offset += get_ub8_custom(tvb, offset, &u);
-				proto_tree_add_uint64(data_tree, hf_tns_data_lob_offset, tvb, start, offset - start, u);
-				/* dest offset (ub8, skip) */
-				offset += get_ub8_custom(tvb, offset, &u);
+				if ( op == TNS_LOB_OP_CREATE_TEMP )
+				{
+					/* A CREATE_TEMP has no source and no destination
+					 * to offset into: the two offsets carry the charset
+					 * form of the LOB to create and its type. An NCLOB
+					 * is a CLOB told apart only by the form. */
+					uint64_t csform = 0, type = 0;
+					start = offset;
+					offset += get_ub8_custom(tvb, offset, &csform);
+					proto_tree_add_uint64(data_tree, hf_tns_data_lob_csform, tvb, start, offset - start, csform);
+					start = offset;
+					offset += get_ub8_custom(tvb, offset, &type);
+					proto_tree_add_uint64(data_tree, hf_tns_data_lob_type, tvb, start, offset - start, type);
+					if ( type == TNS_DATATYPE_BLOB )
+						col_append_str(pinfo->cinfo, COL_INFO, " [BLOB]");
+					else if ( type == TNS_DATATYPE_CLOB )
+						col_append_str(pinfo->cinfo, COL_INFO, csform == 2 ? " [NCLOB]" : " [CLOB]");
+				}
+				else
+				{
+					/* source offset (ub8, 1-based into the LOB) */
+					start = offset;
+					offset += get_ub8_custom(tvb, offset, &u);
+					proto_tree_add_uint64(data_tree, hf_tns_data_lob_offset, tvb, start, offset - start, u);
+					/* dest offset (ub8, skip) */
+					offset += get_ub8_custom(tvb, offset, &u);
+				}
 				amount_ptr = tvb_get_uint8(tvb, offset);
 				offset += 1;                              /* amount pointer flag */
 				offset += 6;                              /* array-LOB slots */
@@ -8288,6 +8325,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_lob_charset, {
 			"Charset", "tns.data_lob.charset", FT_UINT32, BASE_DEC,
 			VALS(tns_charsets), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_lob_csform, {
+			"Charset Form", "tns.data_lob.csform", FT_UINT64, BASE_DEC|BASE_VAL64_STRING,
+			VALS64(tns_csform_vals64), 0x0, "The charset form of a temporary LOB to create: 0 for a BLOB", HFILL }},
+		{ &hf_tns_data_lob_type, {
+			"LOB Type", "tns.data_lob.type", FT_UINT64, BASE_DEC|BASE_VAL64_STRING,
+			VALS64(tns_lob_types64), 0x0, "The type of a temporary LOB to create", HFILL }},
 		{ &hf_tns_data_lob_data, {
 			"Data", "tns.data_lob.data", FT_BYTES, BASE_NONE,
 			NULL, 0x0, "LOB content; UTF-16BE for a CLOB", HFILL }},
