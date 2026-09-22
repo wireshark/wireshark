@@ -372,6 +372,7 @@ static int hf_tns_data_oer_call_status;
 static int hf_tns_data_oer_rowcount;
 static int hf_tns_data_oer_err_code;
 static int hf_tns_data_oer_cursor_id;
+static int hf_tns_data_oer_rowid;
 static int hf_tns_data_oer_n_batch_errcodes;
 static int hf_tns_data_oer_n_batch_offsets;
 static int hf_tns_data_oer_n_batch_messages;
@@ -5078,12 +5079,23 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			offset += 5;
 			tns_add_warn_flags(tvb, pinfo, oer_tree, offset);
 			offset += 1;
-			/* rowid: ub4 rba, ub2 part_id, 1 byte reserved, ub4 block, ub2 slot */
-			offset += get_sb4_custom(tvb, offset, &v);
-			offset += get_sb4_custom(tvb, offset, &v);
-			offset += 1;
-			offset += get_sb4_custom(tvb, offset, &v);
-			offset += get_sb4_custom(tvb, offset, &v);
+			/* The rowid of the last row the statement touched: ub4
+			 * data object, ub2 relative file, a reserved byte, ub4
+			 * block, ub2 slot. A zero block means there is none - a
+			 * query, DDL, or a DML that touched no row. In a bigfile
+			 * tablespace the file is 1024 here where a fetched ROWID
+			 * says 0; both name the same row. */
+			{
+				int rid_start = offset, rba = 0, part = 0, block = 0, slot = 0;
+				offset += get_sb4_custom(tvb, offset, &rba);
+				offset += get_sb4_custom(tvb, offset, &part);
+				offset += 1;
+				offset += get_sb4_custom(tvb, offset, &block);
+				offset += get_sb4_custom(tvb, offset, &slot);
+				if ( block != 0 )
+					proto_tree_add_string(oer_tree, hf_tns_data_oer_rowid, tvb, rid_start, offset - rid_start,
+						tns_format_rowid(pinfo, (uint32_t)rba, (uint32_t)part, (uint32_t)block, (uint32_t)slot));
+			}
 			/* os error (skipped) */
 			offset += get_sb4_custom(tvb, offset, &v);
 			/* statement #, call # (1 byte each) */
@@ -8052,6 +8064,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_oer_cursor_id, {
 			"Cursor Id", "tns.data_oer.cursor_id", FT_INT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_oer_rowid, {
+			"Last Rowid", "tns.data_oer.rowid", FT_STRING, BASE_NONE,
+			NULL, 0x0, "The rowid of the last row the statement touched", HFILL }},
 		{ &hf_tns_data_oer_n_batch_errcodes, {
 			"Batch Error Codes", "tns.data_oer.n_batch_errcodes", FT_INT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},

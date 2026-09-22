@@ -3124,6 +3124,24 @@ class TestDissectTns:
                       'Column 1 (DATE): 2026-09-22 00:00:00\n'):
             assert value in stdout, value
 
+    def test_tns_lastrowid(self, cmd_tshark, capture_file, test_env):
+        '''The status block names the rowid of the last row a DML touched,
+        rendered as the extended rowid; a zero block means there is none.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_lastrowid.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_oer.rowid',
+            '-e', 'tns.data_oer.rowcount',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['AAAfXBAAAAAAVrtAAA', '1', ''],
+            ['AAAfXBAQAAAAVrtAAA', '1', ''],
+            ['', '0', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
