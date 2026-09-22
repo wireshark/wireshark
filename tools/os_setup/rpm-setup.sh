@@ -227,6 +227,14 @@ echo "Required OpenSUSE package update-desktop-files is unavailable. Not require
 add_package RPMDEPS_LIST rubygem-asciidoctor.noarch || add_package RPMDEPS_LIST ruby3.4-rubygem-asciidoctor ||
 echo "RPM dependency asciidoctor is unavailable" >&2
 
+# We don't install the PDF versions of the guide in the RPM but this
+# package depends on Asciidoctor, which is installed for RPM building
+# rubygem-asciidoctor-pdf: Fedora (not RHEL and derivatives)
+# ruby2.5-rubygem-asciidoctor-pdf: openSUSE 15.2+ (Ruby version is too old)
+# ruby3.4-rubygem-asciidoctor-pdf: openSUSE 16.0
+add_package RPMDEPS_LIST rubygem-asciidoctor-pdf.noarch || add_package RPMDEPS_LIST ruby3.4-rubygem-asciidoctor-pdf ||
+echo "Optional documentation package asciidoctor-pdf is unavailable" >&2
+
 # libcap: CentOS 7, Fedora 28, Fedora 29
 # libcap2: OpenSUSE Leap 42.3, OpenSUSE Leap 15.0
 add_package ADDITIONAL_LIST libcap || add_package ADDITIONAL_LIST libcap2 ||
