@@ -775,6 +775,17 @@ Documentation:
     - DEBIAN_FRONTEND=noninteractive apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get --yes install asciidoctor-pdf ruby-coderay ruby-dev
     - NOKOGIRI_USE_SYSTEM_LIBRARIES=1 gem install asciidoctor-epub3
+    # ttfunk 1.8.0 has a bug that has been fixed since Mar 6 but there hasn't
+    # been a 1.8.1 release
+    # https://github.com/prawnpdf/ttfunk/pull/106
+    # https://github.com/prawnpdf/ttfunk/issues/123
+    - pushd /tmp
+    - git clone https://github.com/prawnpdf/ttfunk.git
+    - cd ttfunk
+    - git switch -c fix-maxp 6bc9950a4a2110e84a29eff850e0e61fda171484
+    - gem build ttfunk.gemspec
+    - gem install ttfunk-1.8.0.gem
+    - popd
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
