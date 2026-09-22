@@ -106,7 +106,9 @@ enum {
   COL_UTC_TIME,       /**< 46) UTC time */
   COL_CLS_TIME,       /**< 47) Command line-specified time (default relative) */
   COL_USER_NAME,      /**< 48) User name */
-  NUM_COL_FMTS        /**< 49) Should always be last */
+  COL_PROCESS_ID,     /**< 49) Process ID */
+  COL_PROCESS_NAME,   /**< 50) Process name */
+  NUM_COL_FMTS        /**< 51) Should always be last */
 };
 
 /**

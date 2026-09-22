@@ -41,6 +41,7 @@ right_justify_column (int col, capture_file *cf)
         case COL_DEF_SRC_PORT:
         case COL_DELTA_TIME:
         case COL_DELTA_TIME_DIS:
+        case COL_PROCESS_ID:
             right_justify = true;
             break;
 

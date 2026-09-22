@@ -84,6 +84,8 @@ col_format_to_string(const int fmt) {
     "%Aut",                                     /* 46) COL_UTC_TIME */
     "%t",                                       /* 47) COL_CLS_TIME */
     "%U",                                       /* 48) COL_USER_NAME */
+    "%Pi",                                      /* 49) COL_PROCESS_ID */
+    "%Pn",                                      /* 50) COL_PROCESS_NAME */
   };
 
  /* Note the formats in migrated_columns[] below have been used in deprecated
@@ -156,6 +158,8 @@ col_format_desc(const int fmt_num) {
     { COL_UTC_YDOY_TIME, "UTC date, as YYYY/DOY, and time" },
     { COL_UTC_TIME, "UTC time" },
     { COL_USER_NAME, "User name" },
+    { COL_PROCESS_ID, "Process ID" },
+    { COL_PROCESS_NAME, "Process name" },
 
     { 0, NULL }
   };
@@ -229,6 +233,8 @@ col_format_abbrev(const int fmt_num) {
     { COL_UTC_YDOY_TIME, COLUMN_FIELD_FILTER"utc_ydoy_time" },
     { COL_UTC_TIME, COLUMN_FIELD_FILTER"utc_time" },
     { COL_USER_NAME, COLUMN_FIELD_FILTER"user_name" },
+    { COL_PROCESS_ID, COLUMN_FIELD_FILTER"process_id" },
+    { COL_PROCESS_NAME, COLUMN_FIELD_FILTER"process_name" },
 
     { 0, NULL }
   };
@@ -862,6 +868,10 @@ get_column_longest_string(const int format)
       return "9999 MHz [A 999]";
     case COL_USER_NAME:
       return "example_user";
+    case COL_PROCESS_ID:
+      return "0000000";
+    case COL_PROCESS_NAME:
+      return "WindowsTerminal";
     case COL_CUSTOM:
       return "0000000000";  /* not the longest, but the longest is too long */
     default: /* COL_INFO */

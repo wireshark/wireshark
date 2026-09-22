@@ -427,6 +427,9 @@ dissect_darwin_data(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* d
 
         proc_id = epan_get_process_id(pinfo->epan, darwin->dpib_id, section_number);
         proc_name = epan_get_process_name(pinfo->epan, darwin->dpib_id, section_number);
+        col_add_fstr(pinfo->cinfo, COL_PROCESS_ID, "%u", proc_id);
+        if (proc_name)
+            col_add_str(pinfo->cinfo, COL_PROCESS_NAME, proc_name);
 
         /* If the effective dpib id is not present, or is equal to the primary dpib id,
          * set the eproc_id to proc_id.

@@ -625,6 +625,9 @@ frame_add_process(proto_tree *fh_tree, tvbuff_t *tvb, packet_info *pinfo, uint64
 			if (first)
 				pinfo->user_name = epan_get_process_user_name(pinfo->epan, process_info_id, section_number);
 		}
+		col_append_sep_fstr(pinfo->cinfo, COL_PROCESS_ID, ",", "%u", pid);
+		if (name != NULL)
+			col_append_sep_str(pinfo->cinfo, COL_PROCESS_NAME, ",", name);
 	}
 
 	if (fh_tree == NULL)

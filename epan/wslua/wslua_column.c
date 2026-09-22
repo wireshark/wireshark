@@ -89,6 +89,8 @@ static const struct col_names_t colnames[] = {
     {"direction",COL_IF_DIR},
     {"tx_rate",COL_TX_RATE},
     {"rssi",COL_RSSI},
+    {"process_id",COL_PROCESS_ID},
+    {"process_name",COL_PROCESS_NAME},
     {NULL,0}
 };
 
