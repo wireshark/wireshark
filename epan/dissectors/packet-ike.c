@@ -218,6 +218,7 @@ static int hf_isakmp_vid_ms_nt5_isakmpoakley;
 static int hf_isakmp_vid_aruba_via_auth_profile;
 static int hf_isakmp_vid_fortinet_fortigate_release;
 static int hf_isakmp_vid_fortinet_fortigate_build;
+static int hf_isakmp_vid_watchguard_firebox_version;
 static int hf_isakmp_ts_number_of_ts;
 static int hf_isakmp_ts_type;
 static int hf_isakmp_ts_protoid;
@@ -3267,6 +3268,13 @@ static const uint8_t VID_FORTINET_FORTICLIENT_EAP_EXTENSION[] = { /* Forticlient
         0x29, 0xB9, 0x17, 0x81, 0x91, 0x4C, 0xA4, 0x3E
 };
 
+static const uint8_t VID_WATCHGUARD[] = { /* WatchGuard (sha256("WatchGuard Technologies Inc.")) */
+        0xBF, 0xC2, 0x2E, 0x98, 0x56, 0xBA, 0x99, 0x36,
+        0x11, 0xC1, 0x1E, 0x48, 0xA6, 0xD2, 0x08, 0x07,
+        0xA9, 0x5B, 0xED, 0xB3, 0x93, 0x02, 0x6A, 0x49,
+        0xE6, 0x0F, 0xAC, 0x32, 0x7B, 0xB9, 0x60, 0x1B
+};
+
 static const bytes_string vendor_id[] = {
   { VID_SSH_IPSEC_EXPRESS_1_1_0, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_0), "Ssh Communications Security IPSEC Express version 1.1.0" },
   { VID_SSH_IPSEC_EXPRESS_1_1_1, sizeof(VID_SSH_IPSEC_EXPRESS_1_1_1), "Ssh Communications Security IPSEC Express version 1.1.1" },
@@ -3383,6 +3391,7 @@ static const bytes_string vendor_id[] = {
   { VID_FORTINET_AUTODISCOVERY_SENDER, sizeof(VID_FORTINET_AUTODISCOVERY_SENDER), "Auto-Discovery Sender (Fortinet)" },
   { VID_FORTINET_EXCHANGE_INTERFACE_IP, sizeof(VID_FORTINET_EXCHANGE_INTERFACE_IP), "Exchange Interface IP (Fortinet)" },
   { VID_FORTINET_FORTICLIENT_EAP_EXTENSION, sizeof(VID_FORTINET_FORTICLIENT_EAP_EXTENSION), "Forticlient EAP Extension (Fortinet)" },
+  { VID_WATCHGUARD, sizeof(VID_WATCHGUARD), "WatchGuard" },
   { 0, 0, NULL }
 };
 
@@ -5615,6 +5624,7 @@ dissect_vid(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length,
 {
   const uint8_t * pVID;
   const char * vendorstring;
+  tvbuff_t * firebox_version;
 
   pVID = tvb_get_ptr(tvb, offset, length);
 
@@ -5676,6 +5686,17 @@ dissect_vid(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, unsigned length,
     proto_tree_add_item(tree, hf_isakmp_vid_fortinet_fortigate_build, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
   }
+
+  /* VID_WATCHGUARD */
+  if (length >= 32 && memcmp(pVID, VID_WATCHGUARD, 32) == 0)
+  {
+    offset += 32;
+    firebox_version = base64_tvb_to_new_tvb(tvb, offset, length-32);
+    add_new_data_source(pinfo, firebox_version, "Firebox Version");
+    proto_tree_add_item(tree, hf_isakmp_vid_watchguard_firebox_version, firebox_version, 0, tvb_reported_length(firebox_version), ENC_ASCII);
+    offset += length - 32;
+  }
+
   return offset;
 }
 
@@ -7658,6 +7679,11 @@ proto_register_isakmp(void)
       { "Build", "ike.vid.fortinet.fortigate.build",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Build of Fortigate", HFILL }},
+
+    { &hf_isakmp_vid_watchguard_firebox_version,
+      { "Version", "ike.vid.watchguard.firebox_version",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "Firebox Version", HFILL }},
 
     { &hf_isakmp_ts_number_of_ts,
       { "Number of Traffic Selectors", "ike.ts.number",
