@@ -980,7 +980,7 @@ def checkFile(filename, source_dir, check_hf, check_value_string_array, debug_fl
 
     # Check and count APIs for this file
     for group in api_groups:
-        pfx = OutputType.NOTE
+        pfx = OutputType.WARN
         found_apis = []
 
         function_counts = {}
@@ -1002,9 +1002,9 @@ def checkFile(filename, source_dir, check_hf, check_value_string_array, debug_fl
             if cur_func_count <= APIs[group]['max_function_count']:
                 continue
 
-        # Do we care about the count of this type?
+        # The use of APIs in a group that counts errors is an error.
         if APIs[group]['count_errors']:
-            pfx = OutputType.WARN
+            pfx = OutputType.ERR
 
         if found_apis and not machine_readable:
             result.output(pfx, f"Found {group} APIs in {filename}: {','.join(found_apis)}")
@@ -1062,8 +1062,8 @@ def main():
     if args.pre_commit and args.files:
         filename = args.files[0]
         if isDissectorFile(filename):
-            api_groups.append('abort')
-            api_groups.append('termoutput')
+            api_groups.append('dissectors-prohibited')
+            api_groups.append('dissectors-restricted')
 
     # Add function_counts to each API group
     for apis in APIs.values():
