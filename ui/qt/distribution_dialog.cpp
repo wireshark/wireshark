@@ -207,7 +207,8 @@ DistributionDialog::DistributionDialog(QWidget &parent, CaptureFile &cf, const Q
     needsQuotes_(0)
 {
     hf_index_ = -1;
-    fvalues_map = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+    fvalues_map = wmem_map_new(allocator, wmem_str_hash, g_str_equal);
 
     if (!registerTapListener("frame",
                              this,
@@ -251,7 +252,10 @@ DistributionDialog::DistributionDialog(QWidget &parent, CaptureFile &cf, const Q
     }
 }
 
-DistributionDialog::~DistributionDialog() { }
+DistributionDialog::~DistributionDialog()
+{
+    wmem_destroy_allocator(allocator);
+}
 
 void DistributionDialog::updateLabels()
 {
@@ -350,22 +354,23 @@ tap_packet_status DistributionDialog::tapPacket(void *tap_data, _packet_info *, 
                     if( (finfos != NULL) && (g_ptr_array_len(finfos) != 0) ) {
                         for (unsigned i = 0; i < finfos->len; i++) {
 
-                            const char* value;
+                            char* value;
                             const field_info* fip = static_cast<field_info*>(finfos->pdata[i]);
                             if (fip) {
-                                value = fvalue_to_string_repr(NULL, fip->value, FTREPR_DISPLAY, 0);
+                                value = fvalue_to_string_repr(ws_dlg->allocator, fip->value, FTREPR_DISPLAY, 0);
 
                                 /* if the key is known, just increment the counter */
                                 if(wmem_map_contains(ws_dlg->fvalues_map, value)) {
 
                                     _tap_elts *tap_elt = static_cast<_tap_elts*>(wmem_map_lookup(ws_dlg->fvalues_map, value));
                                     tap_elt->count++;
+                                    wmem_free(ws_dlg->allocator, value);
                                 }
                                 else { /* otherwise insert the key, initialize counter to 0 */
 
-                                    _tap_elts *p_new_tap_elt = wmem_new0(wmem_epan_scope(), struct _tap_elts);
+                                    _tap_elts *p_new_tap_elt = wmem_new0(ws_dlg->allocator, struct _tap_elts);
                                     p_new_tap_elt->count = 1;
-                                    wmem_map_insert(ws_dlg->fvalues_map, wmem_strdup(wmem_epan_scope(), value), p_new_tap_elt);
+                                    wmem_map_insert(ws_dlg->fvalues_map, value, p_new_tap_elt);
                                 }
 
                                 /* percentages tracking */
@@ -453,7 +458,7 @@ void DistributionDialog::tapDraw(void *ws_dlg_ptr)
      * First, build an array with the distribution values,
      * then send it to the dedicated function which computes this H indicator.
      */
-    wmem_array_t *arr = wmem_array_new(wmem_epan_scope(), sizeof(int));
+    wmem_array_t *arr = wmem_array_new(ws_dlg->allocator, sizeof(int));
     wmem_map_foreach(ws_dlg->fvalues_map, insertOccurence, arr);
 
     int *freq  = (int *)wmem_array_get_raw(arr);

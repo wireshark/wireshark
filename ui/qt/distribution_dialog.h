@@ -54,6 +54,7 @@ private:
     int               hf_index_;
     bool              needsQuotes_;
     int               field_type_;
+    wmem_allocator_t  *allocator;
     wmem_map_t        *fvalues_map;
 
     /**
