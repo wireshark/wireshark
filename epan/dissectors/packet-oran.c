@@ -1909,27 +1909,73 @@ static const value_string acknack_type_vals[] = {
 #define ORAN_C_PLANE 0
 #define ORAN_U_PLANE 1
 
-/* Using parts of src/dst MAC address, so don't confuse UL messages with DL messages configuring UL.. */
-static uint32_t make_flow_key(packet_info *pinfo, uint16_t eaxc_id, uint8_t plane, bool opposite_dir)
-{
-    uint16_t eth_bits = 0;
-    if (pinfo->dl_src.len == 6 && pinfo->dl_dst.len == 6) {
-        /* Only using (most of) 2 bytes from addresses for now, but reluctant to make key longer.. */
-        const uint8_t *src_eth = (uint8_t*)pinfo->dl_src.data;
-        const uint8_t *dst_eth = (uint8_t*)pinfo->dl_dst.data;
-        if (!opposite_dir) {
-            eth_bits = (src_eth[0]<<8) | dst_eth[5];
-        }
-        else {
-            eth_bits = (dst_eth[0]<<8) | src_eth[5];
-        }
-    }
-    return eaxc_id | (plane << 16) | (eth_bits << 17);
-}
 
 
 /* Table maintained on first pass from flow_key(uint32_t) -> flow_state_t* */
 static wmem_tree_t *flow_states_table;
+
+
+/* Includes transport details (eth addresses + vlan) */
+static flow_state_t* lookup_flow(packet_info *pinfo, uint16_t eaxc_id, uint8_t plane, bool opposite_dir)
+{
+    wmem_tree_key_t key[3];
+    uint32_t word1, word2;
+
+    /* 1st value is vlan_id(15) | plane(1) | eaxc_id(16) */
+    word1 = eaxc_id | (plane << 16) | (pinfo->vlan_id << 17);
+    key[0].length = 1;
+    key[0].key = &word1;
+
+    /* 2nd word is first/last bytes of eth src/dst */
+    const uint8_t *src_eth = (uint8_t*)pinfo->dl_src.data;
+    const uint8_t *dst_eth = (uint8_t*)pinfo->dl_dst.data;
+
+    if (!opposite_dir) {
+        word2 = src_eth[5] | (src_eth[0] << 8) | (dst_eth[5] << 16) | (dst_eth[0] << 24);
+    }
+    else {
+        word2 = dst_eth[5] | (dst_eth[0] << 8) | (src_eth[5] << 16) | (src_eth[0] << 24);
+
+    }
+    key[1].length = 1;
+    key[1].key = &word2;
+    key[2].length = 0;
+    key[2].key = NULL;
+
+    return (flow_state_t*)wmem_tree_lookup32_array(flow_states_table, key);
+}
+
+static void store_flow(packet_info *pinfo, uint16_t eaxc_id, uint8_t plane, bool opposite_dir, flow_state_t *state)
+{
+    wmem_tree_key_t key[3];
+    uint32_t word1, word2;
+
+    /* 1st value is vlan_id(15) | plane(1) | eaxc_id(16) */
+    word1 = eaxc_id | (plane << 16) | (pinfo->vlan_id << 17);
+    key[0].length = 1;
+    key[0].key = &word1;
+
+    /* 2nd word is first/last bytes of eth src/dst */
+    const uint8_t *src_eth = (uint8_t*)pinfo->dl_src.data;
+    const uint8_t *dst_eth = (uint8_t*)pinfo->dl_dst.data;
+
+    if (!opposite_dir) {
+        word2 = src_eth[5] | (src_eth[0] << 8) | (dst_eth[5] << 16) | (dst_eth[0] << 24);
+    }
+    else {
+        word2 = dst_eth[5] | (dst_eth[0] << 8) | (src_eth[5] << 16) | (src_eth[0] << 24);
+
+    }
+    key[1].length = 1;
+    key[1].key = &word2;
+    key[2].length = 0;
+    key[2].key = NULL;
+
+    wmem_tree_insert32_array(flow_states_table, key, state);
+}
+
+
+
 
 typedef struct {
     uint32_t frame_number;
@@ -6029,8 +6075,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     tap_info->eaxc = eAxC;
 
     /* Look up any existing conversation state for eAxC+plane */
-    uint32_t key = make_flow_key(pinfo, eAxC, ORAN_C_PLANE, false);
-    flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+    flow_state_t* state = lookup_flow(pinfo, eAxC, ORAN_C_PLANE, false);
 
     /* Message identifier */
     uint32_t seq_id, sub_seq_id, e;
@@ -6059,10 +6104,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     if (!PINFO_FD_VISITED(pinfo)) {
 
         if (state == NULL) {
-            /* Allocate new state */
+            /* Allocate state now */
             state = wmem_new0(wmem_file_scope(), flow_state_t);
             state->ack_nack_requests = wmem_tree_new(wmem_file_scope());
-            wmem_tree_insert32(flow_states_table, key, state);
+            store_flow(pinfo, eAxC, ORAN_C_PLANE, false, state);
             /* Tables for each direction */
             state->expected_sections[0] = wmem_tree_new(wmem_file_scope());
             state->expected_sections[1] = wmem_tree_new(wmem_file_scope());
@@ -7722,8 +7767,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tap_info->eaxc = eAxC;
 
     /* Update/report status of conversation */
-    uint32_t key = make_flow_key(pinfo, eAxC, ORAN_U_PLANE, false);
-    flow_state_t* state = (flow_state_t*)wmem_tree_lookup32(flow_states_table, key);
+    flow_state_t* state = lookup_flow(pinfo, eAxC, ORAN_U_PLANE, false);
 
     flow_result_t *result = NULL;
 
@@ -7809,8 +7853,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int includeUdCompHeader;
 
     /* Also lookup C-PLANE state (sent in opposite direction for UL) so may check current compression settings */
-    uint32_t cplane_key =                make_flow_key(pinfo, eAxC, ORAN_C_PLANE, direction == 0);
-    flow_state_t* cplane_state =         (flow_state_t*)wmem_tree_lookup32(flow_states_table, cplane_key);
+    flow_state_t* cplane_state = lookup_flow(pinfo, eAxC, ORAN_C_PLANE, direction == 0);
 
     if (!PINFO_FD_VISITED(pinfo)) {
         /* Create state/conversation if doesn't exist yet */
@@ -7820,7 +7863,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             state->ack_nack_requests = wmem_tree_new(wmem_file_scope());
             state->expected_sections[0] = wmem_tree_new(wmem_file_scope());
             state->expected_sections[1] = wmem_tree_new(wmem_file_scope());
-            wmem_tree_insert32(flow_states_table, key, state);
+            store_flow(pinfo, eAxC, ORAN_U_PLANE, false, state);
         }
 
         result = wmem_new0(wmem_file_scope(), flow_result_t);
