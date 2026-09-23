@@ -369,7 +369,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     }
 
     /* add Distribution menu */
-    action = ctx_menu->addAction(tr("Distribution"), [this, finfo]() {
+    action = ctx_menu->addAction(tr("Distribution…"), [this, finfo]() {
         emit showDistributionDialog(finfo->headerInfo().abbreviation);
     });
     action->setEnabled(isDistributable);
