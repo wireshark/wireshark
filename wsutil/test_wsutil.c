@@ -90,6 +90,54 @@ static void test_ip_addr_to_str_test1(void)
     g_assert_cmpstr(result, ==, expect);
 }
 
+#include "wsjson.h"
+
+static void test_json_strip_jsonc_comments_basic(void)
+{
+    char buf[] =
+        "{\n"
+        "  // A line comment.\n"
+        "  \"a\": 1, /* A block\n"
+        "              comment. */ \"b\": 2\n"
+        "}\n";
+    jsmntok_t tokens[16];
+    int64_t val;
+
+    g_assert_true(json_strip_jsonc_comments(buf));
+    g_assert_true(json_validate((const uint8_t *)buf, strlen(buf)));
+
+    int ret = json_parse(buf, tokens, 16);
+    g_assert_cmpint(ret, >, 0);
+    g_assert_true(json_get_int(buf, &tokens[0], "a", &val));
+    g_assert_cmpint(val, ==, 1);
+    g_assert_true(json_get_int(buf, &tokens[0], "b", &val));
+    g_assert_cmpint(val, ==, 2);
+}
+
+static void test_json_strip_jsonc_comments_string_slashes(void)
+{
+    /* "//" and "/", "*" inside a JSON string are not comments. */
+    char buf[] = "{ \"url\": \"http://example.com/*not-a-comment*/\" }";
+    char *expect = g_strdup(buf);
+    jsmntok_t tokens[8];
+
+    g_assert_true(json_strip_jsonc_comments(buf));
+    g_assert_cmpstr(buf, ==, expect);
+    g_free(expect);
+
+    int ret = json_parse(buf, tokens, 8);
+    g_assert_cmpint(ret, >, 0);
+    char *url = json_get_string(buf, &tokens[0], "url");
+    g_assert_cmpstr(url, ==, "http://example.com/*not-a-comment*/");
+}
+
+static void test_json_strip_jsonc_comments_unterminated_block_comment(void)
+{
+    char buf[] = "{ \"a\": 1 } /* unterminated";
+
+    g_assert_false(json_strip_jsonc_comments(buf));
+}
+
 #include "str_util.h"
 
 static void test_format_size(void)
@@ -1906,6 +1954,10 @@ int main(int argc, char **argv)
     g_test_add_func("/inet_addr/inet_ntop4", test_inet_ntop4_test1);
     g_test_add_func("/inet_addr/inet_pton6", test_inet_pton6_test1);
     g_test_add_func("/inet_addr/inet_ntop6", test_inet_ntop6_test1);
+
+    g_test_add_func("/wsjson/strip_jsonc_comments_basic", test_json_strip_jsonc_comments_basic);
+    g_test_add_func("/wsjson/strip_jsonc_comments_string_slashes", test_json_strip_jsonc_comments_string_slashes);
+    g_test_add_func("/wsjson/strip_jsonc_comments_unterminated_block_comment", test_json_strip_jsonc_comments_unterminated_block_comment);
 
     g_test_add_func("/str_util/format_size", test_format_size);
     g_test_add_func("/str_util/format_units", test_format_units);

@@ -367,6 +367,73 @@ json_decode_string_inplace(char *text)
     return true;
 }
 
+bool
+json_strip_jsonc_comments(char *text)
+{
+    bool in_string = false;
+    size_t len = strlen(text);
+    size_t pos = 0;
+
+    while (pos < len) {
+        char ch = text[pos];
+
+        if (in_string) {
+            if (ch == '\\') {
+                /* Skip the escaped character, whatever it is; it can't
+                 * end the string or start a comment. */
+                pos += (pos + 1 < len) ? 2 : 1;
+                continue;
+            }
+            if (ch == '"')
+                in_string = false;
+            pos++;
+            continue;
+        }
+
+        if (ch == '"') {
+            in_string = true;
+            pos++;
+            continue;
+        }
+
+        if (ch == '/' && pos + 1 < len && text[pos + 1] == '/') {
+            while (pos < len && text[pos] != '\n') {
+                text[pos] = ' ';
+                pos++;
+            }
+            continue;
+        }
+
+        if (ch == '/' && pos + 1 < len && text[pos + 1] == '*') {
+            bool closed = false;
+
+            text[pos] = ' ';
+            text[pos + 1] = ' ';
+            pos += 2;
+            while (pos < len) {
+                if (text[pos] == '*' && pos + 1 < len && text[pos + 1] == '/') {
+                    text[pos] = ' ';
+                    text[pos + 1] = ' ';
+                    pos += 2;
+                    closed = true;
+                    break;
+                }
+                if (text[pos] != '\n')
+                    text[pos] = ' ';
+                pos++;
+            }
+            if (!closed) {
+                ws_debug("unterminated block comment in JSONC data");
+                return false;
+            }
+            continue;
+        }
+        pos++;
+    }
+
+    return true;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

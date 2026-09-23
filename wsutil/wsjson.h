@@ -11,8 +11,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __WSJSON_H__
-#define __WSJSON_H__
+#pragma once
 
 #include "ws_symbol_export.h"
 
@@ -189,10 +188,24 @@ WS_DLL_PUBLIC bool json_get_boolean(char *buf, jsmntok_t *parent, const char *na
  */
 WS_DLL_PUBLIC bool json_decode_string_inplace(char *text);
 
+/**
+ * @brief Strip the comments from a JSONC (jsonc.org) string in place,
+ * so that it can be parsed with json_parse(), json_parse_len(), or
+ * json_validate().
+ *
+ * Each "//" line comment and "/ *" ... "* /" block comment found outside of
+ * a JSON string is overwritten with spaces. This preserves every other
+ * byte's offset in the string, including newlines within block comments.
+ *
+ * @param text - A null-terminated string containing JSONC.
+ * @return true on success, false if a block comment was never closed.
+ *
+ * @note This modifies the input string.
+ */
+WS_DLL_PUBLIC bool json_strip_jsonc_comments(char *text);
+
 #ifdef __cplusplus
 }
-#endif
-
 #endif
 
 /*
