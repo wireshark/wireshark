@@ -1,0 +1,988 @@
+commit b328796c35
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Sep 23 08:39:19 2026 -0700
+
+    Prep for 4.4.19
+
+commit 4622c2c366
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 20 12:02:23 2026 -0700
+
+    tools: Use the URL hostname as a fallback in generate-tls-ct-logids.py
+
+    The URL hostname seems to be more descriptive than the log ID.
+
+    (cherry picked from commit c228a8bf2125e73bccf4c9064db6baa8d964db7b)
+
+commit aebac65983
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Sep 20 07:56:16 2026 -0400
+
+    F1AP: Handle SRBID appearing after RRCContainer in UEContextRelease
+
+    In the UEContextRelease PDU, the SRBID shall be present if the
+    RRCContainer is present, according to the ASN.1, but unlike the
+    UL and DL RRCMessageTransfer PDUs, the SRBID occurs later in the
+    PDU. Handle that reverse ordering so that it works on the first pass
+    as well.
+
+    By doing so, we can revert the f1ap_private_data_t to pinfo->pool
+    storage, saving some persistent memory. This also allows us to store
+    the top_tree in the private data instead of having a dissector level
+    static global, which is an anti-pattern that has led to user-after-free
+    in other dissectors, since the proto_trees are freed in epan/proto.c
+    outside of dissectors.
+
+    Fix #21581 with regards to frame 93. There's also an issue with frame
+    59 on the first pass and how the RRC Security Mode Command has the
+    integrity protection mentioned in its own message applied to itself
+    (which is spec compliant, and not handled by the NR PDCP dissector at the
+    moment.)
+
+    (cherry picked from commit 82a1ec4455197fdd75250324844365b7e202accf)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 2869818e9a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 20 10:12:04 2026 +0000
+
+    [Automatic update for 2026-09-20]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit c0f44dcd15
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Sep 18 21:44:37 2026 -0400
+
+    ETWDump Message: Don't pass in a larger buffer size than exists
+
+    etw_message extract_property has a stack allocated buffer and then heap
+    allocates a larger buffer if necessary. On a subsequent loop, it passes
+    in the stack allocated buffer but the expanded size of the oversize
+    buffer, which could lead to a buffer overflow. Correct that.
+
+    The GetPropertyLenght and GetArraySize functions do not check to see
+    if the property index is out of bounds or if the property size is
+    larger than the assumed maximum of a 32 bit integer.
+
+    Thanks to AISLE security research for the report. No PoC was given.
+    It might be possible to exploit this with a malicious etl file
+    (or, somehow, a malicious event stream?)
+
+    (backported from 7caf6e0b965c594e497c451d25273393f1869318)
+
+commit 741ce07db7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Sep 19 10:33:29 2026 -0400
+
+    Catapult DCT2000: Use the truncated length for padding and TVB creation
+
+    Use the length after truncating instead of the untruncated length when
+    padding the end of the NRUP data and creating the associated tvb. Also,
+    use tvb_new_child_real_data with the original tvb passed into the
+    dissector in order to avoid leaking.
+
+    Fix #21589
+
+    Thanks to Anthropic and Claude and Ada Logics and David Korczynski for
+    the report and PoC.
+
+    (cherry picked from commit 63e9d5ba582c3502b65d3e617f08eeeb29765afc)
+
+commit 89947f2e1f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Sep 19 11:06:35 2026 -0400
+
+    etwdump ndiscap: Fix VM Switch string property handling
+
+    Use a common function.  Check for errors. Ensure that null
+    termination is correct. Actually calculate the narrow length;
+    if the ANSI Code Page is UTF-8, GB18030, or more generally any
+    multibyte code page, then a single 2-byte UTF-16 character does
+    not necessarily translate to a single byte (and GB18030 even maps
+    some code points in the BMP to 4 bytes.)
+
+    Thanks to AISLE Security and Elman Shahbazov for separately reporting
+    this.
+
+    Fix #21587
+
+    (cherry picked from commit f113d13f0c162d09620e94b3d8b5718284bd82e4)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 923ab08cbc
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Jan 7 11:48:03 2025 -0800
+
+    etwdump: either declare functions static or declare them in headers.
+
+    If a function is used only in the .c file that defines it, declare it
+    static.
+
+    If it's used in other .c files, don't declare it .c files that call it;
+    declare it in a .h files also included in the .c file that defines it.
+
+    (cherry picked from commit febd09fad933d3d6043f34c70c4d435a9e42b8e1)
+    (cherry picked from commit b2bd2d080b9648ef69175aca3df0e5c5ac3fc155)
+
+commit 1f62251374
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Sep 18 08:23:10 2026 +0200
+
+    UMTS FP: more checks for no_ddi_entries
+
+    Several dissectors setup the fp_info struct and pass it as packet info
+    to the UMTS FP dissector. Add some additional checks that the number
+    of E-DCH DDIs is not greater than the array size inside UMTS FP.
+
+    Follow up of #21580, #21270 to check in the consumer as well (though
+    all the in-tree producers do limit the value now.)
+
+    (cherry picked from commit c414032d06b0796fcc376ec55f61e3ae0c6c719b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b0d31fcd8c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 17 17:13:13 2026 -0500
+
+    FP Hint: Don't set no_ddi_entries larger than the maximum
+
+    The fp_edch_channel_info_t used in various places to pass information to
+    the UMTS FP dissector has a maximum number of E-DCH DDI entries it can
+    hold, both due to the NGAP spec and due to how fixed size arrays are
+    allocated. THere is a also an int indicating the number of DDI entries
+    actually used. When the FP Hint dissector dissects a frame, if the frame hint
+    indicates too many DDIs, don't just have an expert info, but prevent the
+    no_ddi_entries value from being larger than the max, since the UMTS FP
+    dissector uses that value to loop on.
+
+    Differentiate between two similar expert info situations. Do the test at
+    the top of the E-DCH DDI loop, not the end.
+
+    Fix #21580
+
+    Test the num FP chans loop variable before indexing with it, not after, and
+    it needs to exit when greater than or equal to the max.
+
+    Coverity CIDs 1191371, 1191372
+
+    (backported from commit 49256c60eb5aa622588d81da8976770f0812e715)
+    (backported from commit 990b41a264532805c88d26cb0d5b44e5bab7177f)
+
+commit 41eeaaea7e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 13 08:58:07 2026 -0700
+
+    tools: Add a fallback description to generate-tls-ct-logids.py
+
+    Log entries may not have a description, so fall back to the log ID.
+
+    (cherry picked from commit 2224bc09a442be2e3e6a3a309c68de45732d3fa8)
+
+commit a08f1a9d23
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 13 10:12:24 2026 +0000
+
+    [Automatic update for 2026-09-13]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit 13e2d35799
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Sep 13 00:24:37 2026 -0400
+
+    IEEE 802.11: Save the FTE element for dot11decrypt after length check
+
+    For certain elements, data is saved off as proto_data for the
+    dot11decrypt functions. Most of such elements are those that *SHOULD*
+    only appear once; if they appear more than once, rather than marking
+    an expert info, the last element generally replaces the previous one
+    in proto data. Certain elements can have "one or more" present; it
+    does not appear that any of those are the ones saved as proto_data.
+    For purposes of calculating the MIC, the entire element, including
+    tag number and tag length, is concatenated, so the data is saved
+    before the tag dissector is called. (It is also before defragmentation,
+    though those elements, according to Table 9-92 Element IDs of IEEE
+    802.11-2020, are not fragmentable.)
+
+    *The* Fast BSS Transition Element (FTE) is one that MUST only appear
+    once in a frame body if it appears. It also saves to proto_data some
+    parsed data needed for the MIC calculation from later in the element.
+    That is by necessity after a length check.
+
+    This means that in the case of a short FTE, the full element is saved
+    to FTE_TAG_KEY is saved but not the other proto data from the FTE. Worse,
+    if a frame illegally contains multiple FTE elements, an earlier one which
+    is of a normal size and a second one which is short, there is an
+    inconsistency between the data from the FTE_TAG_KEY and the data from
+    the FTE_MIC_LEN_KEY, as the former but not the latter will be copied
+    from a short element.
+
+    To prevent that, don't copy the FTE if it is too short.
+
+    In addition, add some extra checks in Dot11DecryptFtMicCheck for the
+    RSNE, MDE, or FTE being missing, as might somehow occur in a bogus
+    Authentication, Reassociation Request, or Reassociation Response frame.
+
+    Fix #21564
+
+    Thanks to Anthropic and Ada Logics for the report.
+
+    (cherry picked from commit 6971deb86e2ec687f1a86abef0988be0594d14ea)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit ec16a28a99
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Sep 12 09:31:03 2026 -0400
+
+    X11: Handle ChangeKeyboardMapping better
+
+    A XChangeKeyboardMapping opcode can change the KeySyms for only a subset
+    of KeyCodes. The keysyms_per_keycode in that function need not be the
+    same as keysyms_per_keycode necessary to decribe the KeyCodes requested
+    in XGetKeyboardMapping. One option would be to extend all possible
+    KeyCodes KeySym lists to the largest keysyms_per_keycode seen, filling
+    with trailing NoSymbol entries.
+
+    Instead, use wmem_array_t for each KeyCode, so that we have access to
+    the length of each KeyCode instead of storing a per-state value. This
+    makes it easier to perhaps later use a tree of arrays so that the
+    correct values can be used on non sequential dissection on later
+    passes before and after a ChangeKeyboardMapping operation.
+
+    Fix a few other minor issues, like allocating the array each time a
+    packet is dissected without freeing the old one, making sure the keymap
+    is initialized to zero, and checking for trailing NoSymbol at the end
+    of a list of KeySyms for a particular KeyCode, instead of at the end
+    of the array of KeyCodes.
+
+    https://tronche.com/gui/x/xlib/input/XChangeKeyboardMapping.html
+    https://tronche.com/gui/x/xlib/input/XGetKeyboardMapping.html
+    https://tronche.com/gui/x/xlib/events/keyboard-pointer/keyboard-pointer.html
+    https://tronche.com/gui/x/xlib/input/keyboard-encoding.html
+
+    Fix #21563
+
+    Thanks to Ada Logics and Anthropic for reporting.
+
+    (cherry picked from commit 8d3ad0ad22e7b392df9ba2a249cfe792b397c855)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b86acf4a2a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Sep 12 14:05:33 2026 -0400
+
+    RF4CE: Fix previous fix
+
+    There are five 16-byte blocks, but we only XOR to the next block from
+    the first four blocks in order to XOR them all together without
+    overwriting a different part of the struct (with temp storage of a previous
+    key, so mostly harmless but incorrect.)
+
+    Fixup ca63025d79ef5059445d213b5ae5e199c1a7f426
+
+    Coverity 1701150
+
+    (cherry picked from commit 84a95a3468cf8c1b6016dc46d6ee27ae3fe0cdf8)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a9fd9ac978
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Sep 12 09:28:23 2026 -0400
+
+    Zebra: Fix use of uninitialized memory
+
+    Fix a likely copy-and-pasteo.
+
+    Fix #21372
+
+    AI-Assisted: no
+
+    (cherry picked from commit 8ac2da71b5ccb3fa6204ab9a796144dea1a3ae1d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a3a546d95a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Sep 12 08:58:08 2026 -0400
+
+    X11: wmem_packet_scope -> pinfo->pool
+
+    (cherry picked from commit 5547bbb3670751fbe072aaea1b5b6826e334abcc)
+
+    Co-authored-by: Michael Mann <mmann78@netscape.net>
+
+commit bf4578f18e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Sep 11 06:58:35 2026 -0400
+
+    SMB: Clamp the max reported size of files at UINT64_MAX
+
+    File offsets can be 64-bit, so that plus the size can wrap. There's a
+    check later on that avoids doing anything with files larger than
+    UINT32_MAX, so clamping the max size doesn't pose any problems.
+
+    Also return early when the reported chunk length is 0 if the
+    insert_chunk function is ever called that way (prevents UB) and
+    use the total size instead of the end offset (which is 1 less)
+    in a few places where that is more intuitive.
+
+    Fix #21575
+
+    Thanks to Mirae working with TrendAI Zero Day Initiative for
+    reporting.
+
+    (cherry picked from commit 73b7edffb06be63444b507c4b8453859455eeb79)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 1fd3ca3cfa
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Sep 11 08:37:16 2026 +0200
+
+    OpenFlow v4: Validate hello element length to prevent exception
+
+    (cherry picked from commit 4ce4d86ed195d881aca69b6b8d34aae5de9668e3)
+
+    25e42341 openflow_v4: validate hello element length to prevent exception
+
+    Co-authored-by: meel-ayush <ayushmeel.dev@gmail.com>
+
+commit b2d359a23f
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Sep 11 08:28:29 2026 +0200
+
+    RF4CE: Fix link key recovery
+
+    Each key seed command frame has 80 octets. (n + 1) frames are sent. The
+    link key is recovered in two phases:
+
+    1. Compute the XOR of the seed data fields from each of the (n + 1) key
+       seed command frames.
+    2. Divide the result of phase 1 into five 128-bit blocks and compute
+       their XOR.
+
+    3.5.11.2 of https://csa-iot.org/wp-content/uploads/2022/01/095262r01ZB_zigbee_rf4ce_sc-ZigBee_RF4CE_Specification_public.pdf
+
+    Using the "number of key seed command frames received (plus one)"
+    instead of five for the number of 128-bit blocks does not work, and,
+    worse, can run off the end of the allocated struct.
+
+    Works with the sample from !12435
+
+    Fix #21574
+
+    Thanks to Meshaal (@unrealmesh) and working with TrendAI Zero Day Initiative
+    for the report.
+
+    (cherry picked from commit ca63025d79ef5059445d213b5ae5e199c1a7f426)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e14e4cbe9c
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Sep 11 08:30:10 2026 +0200
+
+    SMB: Fix small leak every time Export Objects updates
+
+    Free the old content type entry (which hsa the percentage of the
+    size detected) when creating a new one.
+
+    (cherry picked from commit b38f082685a04dc109e30863055cf9b0c96b6fd9)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 62754d2360
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Fri Sep 11 08:32:46 2026 +0200
+
+    openflow: validate hello element length in v5 and v6 dissectors
+
+    In OpenFlow 1.4 (v5) and OpenFlow 1.5 (v6) hello elements, elem_length includes the 4-byte header. An elem_length < 4 causes an infinite loop in dissect_openflow_hello_v5() and dissect_openflow_hello_v6() because the offset does not advance.
+
+    Register and report ei_openflow_v5_hello_element_length_bad and ei_openflow_v6_hello_element_length_bad when elem_length < 4, and safely terminate hello element dissection.
+
+    (cherry picked from commit 8d43195058fcbceb1fa94dee769c690b3dc25db9)
+
+    Co-authored-by: Ayush Meel <ayushmeel.dev@gmail.com>
+
+commit 48f59b01ea
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Thu Sep 10 11:09:22 2026 +0200
+
+    cmake: use set() for bcrypt on Win32 to fix x86/x64 mismatch
+
+    find_library() resolved bcrypt.lib to the x86 Windows SDK path on x64
+    builds, causing LNK4272 and LNK2019. Use set() directly as bcrypt is a
+    standard Windows system library always available via the linker.
+
+    AI-Assisted: yes (Kiro)
+
+    (cherry picked from commit 9a388e4c54fa51364ea4981150049a863d066c53)
+
+    Co-authored-by: Joakim Karlsson <oakimk@gmail.com>
+
+commit 86777d8d73
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Sep 8 20:19:13 2026 -0400
+
+    USB HID: Widen a loop variable
+
+    Since usage_max is inclusive, widen a loop variable so that the loop is
+    guaranteed to end. In some ways it might be clearer to loop from 0 to the
+    new count, usage_max - usage_min + 1 (which is bounded by UINT16_MAX), but
+    that requires other changes like using wmem_array_index and recording
+    the current max index, so it might be less clear in other ways.
+
+    Fix #21566
+
+    (cherry picked from commit 857d9b98e9d70c0f0666bea18c3b2b060e5bd93b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 18d2bbee99
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Tue Sep 8 07:39:13 2026 +0200
+
+    OBEX: Fix an off by one when going up a path level
+
+    The number of bytes to save up to (but not including, because it's
+    added back later) a "/" is just the result of subtracting the result
+    from g_strrstr or strrchr from the original start. (If we wanted to
+    include the "/" found instead of adding it back later, we would add
+    one, but subtracting 1 is not correct.)
+
+    Also just use strrchr instead of g_strrstr, since we're searching for
+    a single character.
+
+    Fix #21562
+
+    (cherry picked from commit c8c396cf239270428e9283fb9654869c57d9806d)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit a895b968f6
+Author: Anders Broman <a.broman58@gmail.com>
+Date:   Tue Sep 8 07:44:31 2026 +0200
+
+    TIFF dissector: Fix IFD chain has no cycle detection.
+
+    Closes #21565
+
+    (cherry picked from commit c4b49facbe64e43aa4a71750e75ad26548c2b976)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit cc96a21810
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 6 10:17:41 2026 +0000
+
+    [Automatic update for 2026-09-06]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit e93748b2f3
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Sep 1 18:03:06 2026 -0400
+
+    Qt: Guard better on profile ZIP archives
+
+    The Qt documentation has to be read very carefully to see which
+    functions remove ".." and which don't. Add more explicit comments
+    noting that absolute paths are allowed on Windows because of an
+    error creating profile ZIP archives up until 3.2.5 (but maybe we
+    should stop as that's a no longer supported version.) After converting
+    absolute paths to relative, perform a directory traversal check on
+    all OSes.
+
+    Also, don't cast the returned uncompressed_size in the unz_file_info64
+    struct from a ZPOS64_T (uint64_t) to an int, to handle the case where
+    a ZIP64 archive has a file with a 64-bit file size that when cast to
+    a 32-bit signed integer becomes negative or otherwise less than 256 MiB.
+
+    Fixup 70c86bd39c74fc0052c9a212afc911b41d612388
+
+    Fix #21553
+
+    (backported from commit 683ee3badeebecbf4409b76d649ff43bd54e368b)
+
+commit d4b9700879
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Sep 2 10:17:40 2026 -0400
+
+    frame: Try to prevent a clobbering warning
+
+    Under some unknown conditions GCC optimizes itself just right into a
+    clobbering warning in the frame dissector on certain versions of GCC
+    and Qt and in MRs that don't actually touch packet-frame. Mark a
+    variable as volatile to try to fix that.
+
+    This is only needed directly on 4.4 because of the changes in
+    5d3605b293038c9c28ee3c83829ed393aabaf901
+
+commit 1fe015631b
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Sep 1 20:41:25 2026 -0400
+
+    BT AVCTP: Check for overflow when reassembling
+
+    Put a maximum size limit on the length of a reassembled PDU, similar to
+    BT AVRCP.
+
+    Fix #21552.
+
+    (cherry picked from commit 6a5382d1333aee1c15e8239200aa10db1575eac2)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 9366180862
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 29 16:45:42 2026 -0400
+
+    frame: Catch exception if there are too many comments
+
+    frame_add_comment adds comments to the frame tree. Since there can
+    be multiple comments, in the unusual case of enough comments to hit
+    the "too many items in the tree" safeguard, a DissectorError can
+    be thrown. Thus, that processing has to be under a TRY CATCH block
+    just as with dissection and postdissectors.
+
+    Fix #21525. Thanks to Mayank Jangid for the report and PoC.
+
+    (backported from commit 7cd3f07525f1a17d27f14196d62dbc9735f2feec)
+
+commit 803b73b83d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 30 10:18:42 2026 +0000
+
+    [Automatic update for 2026-08-30]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit 5ff55eb493
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 29 17:09:56 2026 -0400
+
+    RTPS: Use correct minimum length in RTPS_DATA_BATCH
+
+    RTPS_DATA_BATCH has a list of nested information, each of which
+    has its own flags and minimum length. There are two similarly
+    named minimum length variables; use the correct one on the inner
+    loop.
+
+    Fix #21521
+
+    (cherry picked from commit a3d7492c3d1d71de3e6184716c30050d49044942)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 466d6856d7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 29 12:37:46 2026 -0400
+
+    sharkd: Use a wider int for intermediate value when resampling
+
+    Prevent overflow when the sampling rate changes dramatically from
+    the beginning.
+
+    This is the same fix as dd161ade12670c2b92105068527ae899a7e5afae but
+    in sharkd.
+
+    Fix #21545
+
+    Thanks to Mayank Jangid for the report and PoC.
+
+    (cherry picked from commit e999e30092c4e5e0c47521a8de614517455a3799)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 505ffa313f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 29 08:50:42 2026 -0400
+
+    epan: Avoid overflow calculating number of bytes required 7 bit encoding
+
+    Calculating the number of bytes required for a certain number of 7 bit
+    characters at a certain bit offset doesn't overflow in the result via
+    the natural method, but an intermediate result must be stored in a
+    larger type to avoid overflow. Alternatively, the number of characters
+    could be split into the quotient and remainder with 8 in order to divide
+    by 8 first; that is probably slower here on 64-bit architectures with
+    32-bit inputs and output, but might be worth it on 32-bit architectures
+    or 64-bit inputs and outputs.
+
+    In the signed case, intermediate overflow of an initially positive
+    signed integer (as expected here) leads to a negative result; division
+    here would definitely leave it negative whereas the right bit shift is
+    implementation defined but probably also arithmetic and retains the
+    sign. This leads to handling as a negative number and in many case either
+    taking the rest of the tvb or throwing an exception, instead of wrapping
+    to a smaller number. Hence the same PoC that works on the current master
+    may not produce an error on released versions. (See #20103.)
+
+    Fix #21549, #21550
+
+    (backported from commit 6a2b72e43d571cca589ef7712f0d4641a610c126)
+
+commit f9101365f9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Aug 26 19:48:05 2026 -0400
+
+    dfilter: Don't re-use range-limited field values
+
+    We already had a test not to re-use existing registers with field
+    values for range-limited versions of the same hfinfo. Also do the
+    other side, and don't *store* the values of range-limited hfinfos
+    for possible re-use by other versions of the same hfinfo, range-limited
+    or not.
+
+    Add some tests for this, and for the similar situation with raw
+    field queries.
+
+    We could also store the range-limits in the key of used hfinfos
+    so that we could re-use those registers, though that does seem like
+    a fair amount of work for a relatively rare optimization.
+
+    Thanks to AISLE Security for this report. This is not a security issue,
+    as it only causes the wrong filter results when using an unusual filter.
+
+    (backported from commit a8c96d44a3642456d6524229f0f540d64e077632)
+
+commit 661d3320c2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 2 10:47:51 2026 -0400
+
+    ERF: Don't further truncate truncated packets below 0
+
+    The ERF format requires that the actual captured length
+    present (including some ERF headers) be 64-bit aligned.
+    When a frame is already truncated below the reported wire
+    length, the ERF dumper has to truncate the frame further
+    instead of padding, because otherwise the padding would be
+    interpreted as the missing truncated bytes. If this would
+    make the length to be written go below zero, report an error
+    and refuse to write the record.
+
+    Fix #21466
+
+    Thanks to AISLE Security for the report, PoC, and proposed fix.
+
+    (backported from commit 6393b5bd637ab336f07f3d8d6709cc8fc7d4c9f4)
+
+commit 29cb8db03e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Aug 26 09:46:39 2026 -0400
+
+    toshiba: Make sure the OFFSET line is long enough
+
+    Even if the first 16 bytes look correct, double-check and make
+    sure that the line is long enough to actually contain the LEN,
+    as opposed to reading it from stale data from the previous packet.
+
+    Tested with the Toshiba files attached to other issue (see
+    previous Toshiba commits.)
+
+    Thanks to AISLE Security for the report.
+
+    Fix #21541
+
+    (cherry picked from commit 9f54bc5a6b742446d03d4902734f55c07e1f75b4)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4edcad5efe
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Aug 26 09:45:20 2026 -0400
+
+    CSN.1: Check the length of RECURSIVE_ARRAYs
+
+    Similar to RECURSIVE_TARRAY, make sure we don't go past the length of
+    the appropriate data member. Otherwise it can write into the next
+    part of the same larger structure, or worse go outside the structure
+    memory entirely.
+
+    Fix #21510
+
+    Thanks to Feng Xue for the report, PoC, and proposed fix.
+
+    (cherry picked from commit 7379ffcb0f45d34336d354844e75b513743a9c40)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 150f4da46e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Aug 25 20:41:23 2026 -0400
+
+    dfvm: Fix an error message to avoid an out-of-bounds read
+
+    Fix the wrong index variable passed to debug_op_error.
+
+    In the unusual case of an arithmetic binary operation failing at runtime,
+    e.g. due to a divide-by-zero, and where the left-hand side has more
+    field values than the right hand side, this can cause an out-of-bounds
+    read when generating the debug message. (Even though the debug message
+    it at noisy level, the incorrect array value is accessed even when
+    debug statements are compiled out.)
+
+    Add a test with a runtime divide by zero where the left side has more
+    field values than the right side.
+
+    Fix #21540
+
+    (cherry picked from commit 373504f7c97813ac828e573ed76707205423647b)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit fa10b0c343
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Aug 25 08:00:31 2026 -0400
+
+    pkcs12: Add some checks in PBE_decrypt data
+
+    If the encryption algorithm is NULL (didn't parse or missing the ASN.1
+    element entirely), fail.
+
+    If the length of the encrypted tvb is zero, fail. (wmem_alloc will
+    return NULL for the output buffer, and gcry_cipher_decrypt will
+    apparently succeed.) (This can happen with zero-length ASN.1
+    OCTET STRINGs.)
+
+    If the length of the salt_tvb is 0, fail in generate_key_or_iv.
+    (This can also happen with a zero-length OCTET STRING.)
+
+    Fix #21535
+
+    Thanks to AISLE Research and Ibrahim AlJaafreh for independently
+    reporting.
+
+    (backported from commit 6b535616b5f0b945be1f42da15702189c75e0872)
+
+commit 322b8ff03c
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Aug 23 09:27:41 2026 -0400
+
+    netmon: Normalize bad nanoseconds more quickly
+
+    Integer division and remainder has been defined as rounding towards
+    zero since C99 (and C++11). Use a much faster approach for bogus
+    packets to prevent potentially billions of iterations. Also add some
+    other checked arithmetic.
+
+    Fix #21523
+
+    Thanks to both AISLE Research and Mayank Jangid for independently reporting,
+    and for the PoC.
+
+    (backported from commit 5cc3a15d3dd960df6a31252584ab95340a00d99a)
+
+commit 88574ad8f8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 23 10:11:45 2026 +0000
+
+    [Automatic update for 2026-08-23]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit 6527cb12b7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Aug 21 18:25:03 2026 -0400
+
+    LoRaWAN: Don't store a padded length in a uint8_t
+
+    There's absolutely no good reason to store this value in a uint8_t
+    and let it possibly wrap. Move some of the allocation and tvb copying
+    into the static decryption function, so it can return false on
+    failure.
+
+    Fix #21520
+
+    Thanks to Trend Micro's Zero Day Initiative for the report and PoC.
+
+    (cherry picked from commit 48463347d7e6fef175d6df34b6db17db1b865881)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e2f9595e3d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 20 21:31:22 2026 -0400
+
+    LBMC: Test for integer overflow
+
+    Test for integer overflow both in the new fragment and in the
+    accumulated length. The fragment reassembly does not seem to consider
+    that there might be bogus and/or overlapping fragments.
+
+    Make some things that should always be non-NULL in the static function
+    a DISSECTOR_ASSERT instead of returning.
+
+    Also, assign data_tvb in all path, including the error path, so it won't
+    be NULL when handed to the data dissector.
+
+    Fix #21519
+
+    Thanks to Trend Micro's Zero Day Initiative for the report and PoC.
+
+    (backported from commit d6e8f0b2806f73779335ef4def5ca19227aa1e68)
+
+commit aa7372d11d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 20 07:45:51 2026 -0400
+
+    SPDY: Fix potential reassembly overflow
+
+    Also fix two places where the wrong TVB was sent to the media or
+    data dissector.
+
+    Note that the tvbuffer wrapper (not the data) leaks here, 64 bytes.
+    It could be possible to call a wmem callback, or to store the data
+    length and the data directly and create the tvbuffer on demand.
+    Long term we probably just want to use the reassembly API here
+    for various reasons.
+
+    It might make sense longrun to replace "tvb_new_real_data" with
+    something that takes a wmem_allocator_t, and forces developers to pass
+    NULL when they want one that won't be automatically freed. That might
+    discourage leaks.
+
+    Fix #21487.
+
+    Thanks to feng xue for reporting and for the PoC.
+
+    (cherry picked from commit eecf92ebc812d2414752f5608ad726422fff6b31)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 09d825f1da
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Aug 19 10:09:18 2026 -0400
+
+    DICOM: Make Export Objects fix 32-bit happy
+
+    ssize_t and unsigned int are the same rank on 32-bit and so can't be
+    compared. Also put some kind of sanity check on the max size rather
+    than using the theoretical max of SSIZE_MAX on 64-bit so that Coverity
+    won't complain.
+
+    Fixup 17689584d70f15419d4ae9de53d57ceb60cdb351
+
+    (cherry picked from commit 0d40a2c7d7b71b27b8210edfd5874c65613e0cbb)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit b9fb012bf4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Aug 17 09:51:57 2026 -0400
+
+    DICOM: Avoid overflow in Export Objects
+
+    Check for overflow. Also, increase the maximum size, as the Export
+    Objects code does work with a size_t. This is based on the actual
+    size of the data contained in the file and does not need to be
+    limited. (Overflowing a size_t might be possible on a 32-bit system,
+    so stop there. It's not really worth trying something clever to
+    write more than SIZE_MAX bytes even if we do have large file support.)
+
+    Fix #21497
+
+    (cherry picked from commit 17689584d70f15419d4ae9de53d57ceb60cdb351)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 4f484b1815
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 16 10:16:24 2026 +0000
+
+    [Automatic update for 2026-08-16]
+
+    Update manuf, services, enterprise numbers, translations, and other items.
+
+commit aeb82d6483
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Aug 15 14:33:30 2026 -0400
+
+    SCTP: Prevent overflow in reassembly
+
+    Fix #21481.
+
+    Thanks to Feng Xue for the Report and PoC.
+
+    (cherry picked from commit fe9b9fe55ae040e1cf32931d8124d62f56655988)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit e26e6dba8b
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sat Aug 15 21:14:32 2026 +0200
+
+    F1AP: NotificationInformation is both a normal IE and an extension
+
+    Ref !11625
+    Closes #21499
+
+    (cherry picked from commit 875997963333c6a34485f8b68ba630f6bd8dd216)
+
+    Co-authored-by: Anders Broman <a.broman58@gmail.com>
+
+commit 57682ea521
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Aug 13 20:19:37 2026 -0400
+
+    DICOM: Use a wmem_strbuf_t for appending
+
+    To repeatedly append to a string, use a wmem_strbuf_t, which saves
+    a considerably amount of memory and processing time. This reduces
+    the peak memory usage according to massif from 5.3 GiB to 56.9 MiB
+    on the sample file.
+
+    Fix #21498
+
+    Thanks to Daniel Birtwhistle for the report and PoC.
+
+    (cherry picked from commit 9126072c92be387da08eba5e623145e93e3d264f)
+
+    Co-authored-by: John Thacker <johnthacker@gmail.com>
+
+commit 8415b3a8ca
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Aug 12 21:16:29 2026 -0400
+
+    Synchrophasor: Don't allocate file scope memory for a transient array
+
+    The temporary arrays of phasor and analog data from the packet can be
+    pinfo->pool scoped, since their values are copied into the file scoped
+    memory array. Also call wmem_array_append and copy all of them at once;
+    this is not only more efficient, but it also reduces persistent memory
+    allocation in cases where some, but not all, of the phasors are present
+    in the packet and an exception is thrown so that the file scoped memory
+    would become oprhaned.
+
+    This avoids allocating nearly as much persistent memory, especially that
+    using a size read from packet data that may be larger than what's actually
+    in the packet. The pinfo->pool memory will be freed shortly upon an exception
+    in the packet, so we don't really need to check that the value is below a
+    reasonable maximum (it's a 16-bit quantity at most, which is fine so long
+    as it's pinfo->pool scoped).
+
+    Fix #21492
+
+    Thanks to Liu Tianzhuo (刘天卓) for the report and PoC.
+
+    (backported from commit 42011d80e51432af44095e1ccf83839068e2808e)
+
+commit fd4669d716
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Aug 12 13:06:58 2026 -0700
+
+    Docs: Minor release notes fixes
+
+commit c90c5ae7ed
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Aug 12 12:47:14 2026 -0700
+
+    Version: 4.4.18 → 4.4.19 [skip ci]
