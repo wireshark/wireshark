@@ -125,7 +125,7 @@ class TestExtcaps:
 @pytest.fixture
 def bookmark_conf_path(conf_path):
     '''A configuration directory with a bookmark for the randpkt interface.'''
-    with open(os.path.join(conf_path, 'interfaces.json'), 'w') as f:
+    with open(os.path.join(conf_path, 'interfaces.jsonc'), 'w') as f:
         f.write('[ {"randpktdump": {"extcap-interfaces": ['
                 '{"randpkt": {"bookmarks": ["Random test"]}}'
                 ']}} ]\n')
@@ -147,7 +147,7 @@ def written_bookmark_conf_path(conf_path):
                 {'randpkt': {'bookmarks': ['Random test', 'Wire🦈 "quoted" / slashed']}}]}},
             {'sshdump': {'extcap-interfaces': [
                 {'sshdump': {'bookmarks': ['My server']}}]}}]
-    with open(os.path.join(conf_path, 'interfaces.json'), 'w') as f:
+    with open(os.path.join(conf_path, 'interfaces.jsonc'), 'w') as f:
         json.dump(info, f, indent=2)
     return conf_path
 
@@ -266,7 +266,7 @@ class TestExtcapProfileConfig:
         iface_list = subprocess.check_output((cmd_tshark, '-C', 'Test lab', '-D'),
                 cwd=program_path, encoding='utf-8', env=base_env)
         assert bookmark_listing('randpkt', 'Random packet generator', 'Test lab') in iface_list
-        # The migrated bookmark is saved to interfaces.json, so it's shared
+        # The migrated bookmark is saved to interfaces.jsonc, so it's shared
         # by all of our profiles, like any other bookmark.
         iface_list = subprocess.check_output((cmd_tshark, '-D'),
                 cwd=program_path, encoding='utf-8', env=base_env)
