@@ -27,15 +27,209 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2026-92[] {notable}
-// Foo dissector {crash,infinite loop,memory leak}.
+* wssalink:2026-93[] {notable}
+SCTP protocol dissector crash.
+wsbuglink:21481[].
+cveidlink:2026-95389[].
+// Fixed in master: fe9b9fe55a
+// Fixed in release-4.6: 8428d84d1a
+// Fixed in release-4.4: aeb82d6483
+// CVSS AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H
+// CWE-122
+// Credit: Security research assessment of Wireshark internals (Feng Xue)
+// * SCTP Fragment Reassembly integer overflow in fragment_reassembly() leads to heap buffer overflow. wsbuglink:21481[].
+
+* wssalink:2026-96[] {notable}
+IEEE C37.118 Synchrophasor protocol dissector memory leak.
+wsbuglink:21492[].
+cveidlink:2026-95395[].
+// Fixed in master: 42011d80e5
+// Fixed in release-4.6: 148bda7a53
+// Fixed in release-4.4: 8415b3a8ca
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-401
+// Credit: Liu Tianzhuo (刘天卓)
+// * Wireshark SYNCHROPHASOR CFG3 frame parser memory exhaustion. wsbuglink:21492[].
+
+* wssalink:2026-97[] {notable}
+SPDY protocol dissector crash.
+wsbuglink:21487[].
+cveidlink:2026-95387[].
+// Fixed in master: eecf92ebc8
+// Fixed in release-4.6: 41d743897e
+// Fixed in release-4.4: aa7372d11d
+// CVSS AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H
+// CWE-122
+// Credit: Security research assessment of Wireshark internals (Feng Xue)
+// * SPDY Data Frame Reassembly Integer Overflow. wsbuglink:21487[].
+
+* wssalink:2026-98[] {notable}
+Microsoft Network Monitor file parser large loop.
+wsbuglink:21523[].
+cveidlink:2026-95394[].
+// Fixed in master: 5cc3a15d3d
+// Fixed in release-4.6: 89bdc94130
+// Fixed in release-4.4: 322b8ff03c
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-606
+// Credit: Mayank Jangid (OpenSec Intelligence)
+// * NetMon 2.x timestamp normalization permits CPU denial of service from a small capture file. wsbuglink:21523[].
+
+* wssalink:2026-99[] {notable}
+CSN.1 protocol dissector crash.
+wsbuglink:21510[].
+cveidlink:2026-95393[].
+// Fixed in master: 7379ffcb0f
+// Fixed in release-4.6: dc02523edb
+// Fixed in release-4.4: 4edcad5efe
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Security research assessment of Wireshark internals (Feng Xue)
+// * Heap buffer overflow (WRITE) in CSN.1 dissector. wsbuglink:21510[].
+
+* wssalink:2026-100[] {notable}
+MBIM protocol dissector crash.
+wsbuglink:21549, wsbuglink:21550[].
+cveidlink:2026-95392[].
+// Fixed in master: 6a2b72e43d
+// Fixed in release-4.6: 2e9a516902
+// Fixed in release-4.4: 505ffa313f
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-126
+// Credit: Mayank Jangid (OpenSec Intelligence)
+// * MBIM ASCII/IA5 7-bit character-count wrap causes invalid read and full-tree process termination. wsbuglink:21550[].
+
+* wssalink:2026-101[] {notable}
+Sharkd utility crash.
+wsbuglink:21545[].
+cveidlink:2026-95388[].
+// Fixed in master: e999e30092
+// Fixed in release-4.6: 842203fb89
+// Fixed in release-4.4: 466d6856d7
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Mayank Jangid (OpenSec Intelligence)
+// * Sharkd RTP resampler output-size wrap causes undersized-buffer write. wsbuglink:21545[].
+
+* wssalink:2026-102[] {notable}
+Frame protocol metadissector crash.
+wsbuglink:21525[].
+cveidlink:2026-96422[].
+// Fixed in master: 7cd3f07525
+// Fixed in release-4.6: 66fa0aecbd
+// Fixed in release-4.4: 9366180862
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-617
+// Credit: Mayank Jangid (OpenSec Intelligence)
+// * pcapng packet comments can abort TShark while building a protocol tree. wsbuglink:21525[].
+
+* wssalink:2026-103[] {notable}
+USB HID protocol dissector infinite loop and memory leak.
+wsbuglink:21566[].
+cveidlink:2026-96421[].
+// Fixed in master: 857d9b98e9
+// Fixed in release-4.6: f32cebcbc3
+// Fixed in release-4.4: 86777d8d73
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-1325
+// Credit: Claude and Ada Logics
+// * USB HID: extended Usage Maximum `0xFFFFFFFF` wraps the usage-range loop at UINT32_MAX → infinite loop + unbounded allocation (bypasses the wnpa-sec-2026-05 cap) wsbuglink:21566[].
+
+* wssalink:2026-104[] {notable}
+RF4CE protocol dissector crash.
+wsbuglink:21574[].
+cveidlink:2026-96417[].
+// Fixed in master: ca63025d79, 84a95a3468
+// Fixed in release-4.6: 91fe6e507c, 0fe8d00e93
+// Fixed in release-4.4: b2d359a23f, b86acf4a2a
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Trend Micro's Zero Day Initiative
+// * ZDI-CAN-31780: RF4CE Packet Parsing Buffer Overflow. wsbuglink:21574[].
+
+* wssalink:2026-105[] {notable}
+Toshiba file parser crash.
+wsbuglink:21541[].
+cveidlink:2026-xxx[].
+// Fixed in master: 9f54bc5a6b
+// Fixed in release-4.6: 211d9e27b8
+// Fixed in release-4.4: 29cb8db03e
+// CVSS AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-126
+// Credit: Aisle Research (Dmitrijs Trizna, Luigino Camastra, Ze Sheng (O2Lab & TAMU), Igor Morgenstern)
+// * Malformed Toshiba OFFSET line can make parser read stale stack memory. wsbuglink:21541[].
+
+* wssalink:2026-106[] {notable}
+Profile import crash and possible code execution.
+// followup to wnpa-sec-2026-21 / CVE-2026-5656
+wsbuglink:21553[].
+cveidlink:2026-96419[].
+// Fixed in master: 683ee3bade
+// Fixed in release-4.6: 1fce266d26
+// Fixed in release-4.4: e93748b2f3
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-22
+// Credit: 경배 지
+// * Incomplete fix for CVE-2026-5656: Windows patch bypass via #ifndef _WIN32 guard in WiresharkZipHelper::unzip() wsbuglink:21553[].
+
+* wssalink:2026-107[] {notable}
+TIFF protocol dissector infinite loop.
+wsbuglink:21565[].
+cveidlink:2026-96418[].
+// Fixed in master: c4b49facbe
+// Fixed in release-4.6: 22ac3622e7
+// Fixed in release-4.4: a895b968f6
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-835
+// Credit: Claude and Ada Logics
+// * TIFF dissector: IFD chain has no cycle detection, so a self-referential IFD makes the dissector loop forever (infinite loop, DoS) wsbuglink:21565[].
+
+* wssalink:2026-108[] {notable}
+X11 protocol dissector crash.
+wsbuglink:21563[].
+cveidlink:2026-96423[].
+// Fixed in master: 8d3ad0ad22
+// Fixed in release-4.6: 6029ac4693
+// Fixed in release-4.4: ec16a28a99
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Claude and Ada Logics
+// * X11 dissector: out-of-bounds heap read from a stale keysyms-per-keycode width in `keycode2keysymString()` wsbuglink:21563[].
+
+* wssalink:2026-109[] {notable}
+IEEE 802.11 protocol dissector crash.
+wsbuglink:21564[].
+cveidlink:2026-96416[].
+// Fixed in master: 6971deb86e
+// Fixed in release-4.6: 147d2ca4b1
+// Fixed in release-4.4: 13e2d35799
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-122
+// Credit: Claude and Ada Logics
+// * 802.11 FT MIC check: length desync between two FTE elements passes a negative length to `gcry_mac_write()`, causing a huge out-of-bounds read. wsbuglink:21564[].
+
+* wssalink:2026-110[] {notable}
+Catapult DCT2000 protocol dissector crash.
+wsbuglink:21589[].
+cveidlink:2026-96415[].
+// Fixed in master: 63e9d5ba58
+// Fixed in release-4.6: 2f80bfe200
+// Fixed in release-4.4: 741ce07db7
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-121
+// Credit: Claude and Ada Logics
+// * Catapult DCT2000 NR-UP padding loop writes past a 200-byte static buffer. wsbuglink:21589[].
+
+// * wssalink:2026-111[] {notable}
+// Foo protocol dissector {crash,infinite loop,memory leak}.
 // wsbuglink:xxx[].
 // cveidlink:2026-xxx[].
 // Fixed in master: xxx
 // Fixed in release-4.6: xxx
 // Fixed in release-4.4: xxx
 // CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
-// CWE-824
+// CWE-???
+// Credit:
 
 The following bugs have been fixed:
 
@@ -43,6 +237,23 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark took a bite out of each of your freshly baked muffins until it found the perfect one. {notable}
+
+* Fuzz job issue: fuzz-2026-06-24-15017166049.pcap. wsbuglink:21372[].
+* ERF writer underflows payload length for tiny truncated packets. wsbuglink:21466[].
+* DICOM Export Objects uint32 length wrap causes undersized allocation and heap overwrite. wsbuglink:21497[].
+* DICOM AT value formatting has quadratic packet-scope memory amplification. wsbuglink:21498[].
+* F1AP: NotificationInformation IE under PWSSystemInformation.iE-Extensions not decoded in WriteReplaceWarningRequest. wsbuglink:21499[].
+* ZDI-CAN-32846: Wireshark LBMC Fragment Reassembly Integer Overflow Remote Code Execution Vulnerability. wsbuglink:21519[].
+* ZDI-CAN-32851: Wireshark LoRaWAN Decryption Numeric Truncation Error Remote Code Execution Vulnerability. wsbuglink:21520[].
+* RTPS: dissect_RTPS_DATA_BATCH() sample-info minimum-length check increments the wrong variable (min_len instead of min_length) wsbuglink:21521[].
+* NULL-pointer dereference in pkcs12 PBE_decrypt_data via empty AlgorithmIdentifier. wsbuglink:21535[].
+* Out-of-bounds read in DFVM binary-operation error path. wsbuglink:21540[].
+* Bluetooth AVCTP multipart reassembly integer overflow (incomplete AVRCP ckd_add sibling fix) wsbuglink:21552[].
+* Fuzz job UTF-8 encoding issue: fuzz-2026-09-06-16330342486.pcap. wsbuglink:21562[].
+* ZDI-CAN-31676: Wireshark SMB Object Export Integer Overflow. wsbuglink:21575[].
+* Heap out-of-bounds read in FP Hint E-DCH DDI count handling. wsbuglink:21580[].
+* F1AP fails to decode RRC release message. wsbuglink:21581[].
+* Stack-based buffer overflow in etwdump extcap (etw_ndiscap.c) when parsing crafted ETL files. wsbuglink:21587[].
 
 
 // == Known Bugs
@@ -66,6 +277,30 @@ There are no new protocols in this release.
 // rg -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v4.4.18.. | rg packet- | sort -u)
 [commaize]
 --
+BT AVCTP
+Catapult DCT2000
+CSN.1
+DICOM
+F1AP
+FP Hint
+Frame
+IEEE 802.11
+LBMC
+LoRaWAN
+NBAP
+OBEX
+OpenFlow 1.3
+OpenFlow 1.4
+OpenFlow 1.5
+PKCS12
+RTPS
+SMB
+SPDY
+SYNCHROPHASOR
+TPM2.0
+UMTS FP
+X11
+Zebra
 --
 
 === New and Updated Capture File Support
@@ -74,6 +309,9 @@ There are no new protocols in this release.
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
+ERF
+Network Monitor
+Toshiba
 --
 
 === New and Updated File Format Decoding Support
