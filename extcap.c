@@ -1424,7 +1424,7 @@ _extcap_requires_configuration_int(const char *ifname, bool check_required)
                     defval = arg->default_complex->_val;
                 }
 
-                if (arg->arg_type == EXTCAP_ARG_FILESELECT)
+                if (arg->arg_type == EXTCAP_ARG_FILESELECT || arg->arg_type == EXTCAP_ARG_FOLDERSELECT)
                 {
                     isset = (arg->fileexists ? (file_exists(defval) || file_exists(stored)) : (defval || (stored && *stored)));
                 }

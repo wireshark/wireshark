@@ -121,6 +121,7 @@ def extcap_config(interface, option):
     args.append((11, '--radio', 'Radio Test', 'Radio Test Value', 'radio', '{group=Selection}'))
     args.append((12, '--multi', 'MultiCheck Test', 'MultiCheck Test Value', 'multicheck', '{group=Selection}'))
     args.append((13, '--table', 'Table Test', 'Table test value', 'table', '{configurable=true}{prefix=--opt}{group=Table}'))
+    args.append((14, '--logdir', 'Log Folder Test', 'The Log Folder Test', 'folderselect', '{mustexist=true}{group=Time / Log}'))
 
     if option == "remote":
         values.append((3, "if1", "Remote Interface 1", "false"))

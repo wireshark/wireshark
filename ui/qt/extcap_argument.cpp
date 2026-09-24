@@ -1013,7 +1013,7 @@ ExtcapArgument * ExtcapArgument::create(extcap_arg * argument, QObject *parent)
         result = new ExtArgEditSelector(argument, parent);
     else if (argument->arg_type == EXTCAP_ARG_RADIO)
         result = new ExtArgRadio(argument, parent);
-    else if (argument->arg_type == EXTCAP_ARG_FILESELECT)
+    else if (argument->arg_type == EXTCAP_ARG_FILESELECT || argument->arg_type == EXTCAP_ARG_FOLDERSELECT)
         result = new ExtcapArgumentFileSelection(argument, parent);
     else if (argument->arg_type == EXTCAP_ARG_MULTICHECK)
         result = new ExtArgMultiSelect(argument, parent);

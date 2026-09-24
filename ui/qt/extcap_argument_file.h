@@ -18,7 +18,7 @@
 #include <extcap_argument.h>
 
 /**
- * @brief Represents an extcap argument that provides a file selection UI.
+ * @brief Represents an extcap argument that provides a file or folder selection UI.
  */
 class ExtcapArgumentFileSelection : public ExtcapArgument
 {
@@ -70,6 +70,11 @@ private slots:
      * @brief Opens the file dialog.
      */
     void openFileDialog();
+
+    /**
+     * @brief Opens the folder dialog.
+     */
+    void openFolderDialog();
 
     /**
      * @brief Clears the previously entered filename.

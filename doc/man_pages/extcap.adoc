@@ -77,6 +77,7 @@ Argument type for UI filtering for raw, or UI type for selector:
     booleanflag (display checkbox)
     radio (display group of radio buttons with provided values, all values as strings)
     fileselect (display a dialog to select a file from the filesystem, value as string)
+    folderselect (display a dialog to select a folder from the filesystem, value as string)
     multicheck (display a textbox for selecting multiple options, values as strings)
     table (display a table that is populated by the user, selections can be configured, values as commandlines arguments)
     password (display a textbox with masked text)
@@ -134,6 +135,23 @@ Example 6: multicheck
     value {arg=0}{value=PCIDEV}{display=PCI devices}{enabled=false}
     value {arg=0}{value=/sys/devices/pci123}{display=Device 1}{parent=PCIDEV}
     value {arg=0}{value=/sys/devices/pci456}{display=Device 2}{parent=PCIDEV}
+
+== File and folder select fields
+
+The "fileselect" and "folderselect" fields accept the following additional attributes:
+
+mustexist::
+If set to "true", the selected file or folder must already exist on disk (checked both in the
+GUI and, for the default value, on startup). Defaults to "false", in which case the argument
+is treated as the target of a save operation and need not exist yet.
+
+fileext::
+A file extension filter, in the same form accepted by Qt's file dialogs (e.g.
+`Capture Files (*.pcap *.pcapng)`). Only used by "fileselect".
+
+Example:
+
+    arg {number=0}{call=--logdir}{display=Output Location}{type=folderselect}{mustexist=false}
 
 == Table field
 

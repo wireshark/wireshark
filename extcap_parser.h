@@ -50,6 +50,7 @@ typedef enum {
     EXTCAP_ARG_MULTICHECK,    /**< Multi-select checkbox group populated from accompanying value sentences */
     EXTCAP_ARG_TABLE,         /**< Tabular multi-row input populated from accompanying value sentences */
     EXTCAP_ARG_FILESELECT,    /**< File path selector with an optional extension filter and existence check */
+    EXTCAP_ARG_FOLDERSELECT,  /**< Folder path selector with an optional existence check */
     EXTCAP_ARG_TIMESTAMP      /**< Date/time timestamp picker */
 } extcap_arg_type;
 
@@ -70,7 +71,7 @@ typedef enum {
     EXTCAP_PARAM_PLACEHOLDER,     /**< Placeholder text shown in an empty input widget */
     EXTCAP_PARAM_NAME,            /**< Name of the extcap or interface */
     EXTCAP_PARAM_ENABLED,         /**< Whether a value option is selectable in the GUI */
-    EXTCAP_PARAM_FILE_MUSTEXIST,  /**< If set, the selected file must already exist on disk */
+    EXTCAP_PARAM_FILE_MUSTEXIST,  /**< If set, the selected file or folder must already exist on disk */
     EXTCAP_PARAM_FILE_EXTENSION,  /**< Comma-separated list of accepted file extensions for file selectors */
     EXTCAP_PARAM_GROUP,           /**< GUI grouping label used to visually cluster related arguments */
     EXTCAP_PARAM_PARENT,          /**< Parent argument call name for hierarchical value relationships */
@@ -123,7 +124,7 @@ typedef struct _extcap_arg {
     char *placeholder;  /**< Placeholder text shown inside an empty string input widget */
 
     char *fileextension; /**< Accepted file extension(s) for EXTCAP_ARG_FILESELECT arguments */
-    bool  fileexists;    /**< If true, the selected file must already exist on disk */
+    bool  fileexists;    /**< If true, the selected file or folder must already exist on disk */
 
     bool  is_required;  /**< If true, this argument must be set before capture can start */
     bool  is_sufficient; /**< If true, providing this argument alone is sufficient to start capture */

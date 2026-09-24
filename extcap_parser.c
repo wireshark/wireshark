@@ -604,6 +604,8 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
             target_arg->arg_type = EXTCAP_ARG_PASSWORD;
         } else if (g_ascii_strcasecmp(param_value, "fileselect") == 0) {
             target_arg->arg_type = EXTCAP_ARG_FILESELECT;
+        } else if (g_ascii_strcasecmp(param_value, "folderselect") == 0) {
+            target_arg->arg_type = EXTCAP_ARG_FOLDERSELECT;
         } else if (g_ascii_strcasecmp(param_value, "multicheck") == 0) {
             target_arg->arg_type = EXTCAP_ARG_MULTICHECK;
         } else if (g_ascii_strcasecmp(param_value, "table") == 0) {

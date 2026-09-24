@@ -331,6 +331,16 @@ When _mustexist=false_ is used, the GUI shows the user a file dialog for saving 
 arg {number=3}{call=--logfile}{display=Logfile}{tooltip=A file for log messages}{type=fileselect}{mustexist=false}
 ----
 
+_folderselect_::
+Lets the user provide a folder path.
+The GUI shows the user a dialog for selecting a folder.
+If _mustexist=true_ is provided, the selected folder must already exist.
++
+[source,python]
+----
+arg {number=3}{call=--logdir}{display=Log directory}{tooltip=A folder for log files}{type=folderselect}{mustexist=true}
+----
+
 _selector_, __editselector__, _radio_, _multicheck_::
 Option fields where the user may choose from one or more options.
 If _parent_ is provided for the value items, the option fields for _multicheck_ and _selector_ are presented in a tree-like structure.
