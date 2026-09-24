@@ -22,6 +22,7 @@
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/array.h>
 #include <wsutil/str_util.h>
@@ -40,8 +41,6 @@ static int proto_rtse;
 
 static bool open_request=false;
 static uint32_t app_proto=0;
-
-static proto_tree *top_tree;
 
 /* Preferences */
 static bool rtse_reassemble = true;
@@ -186,6 +185,7 @@ static unsigned
 call_rtse_external_type_callback(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
     const char    *oid = NULL;
+    proto_tree    *top_tree;
 
     if (actx->external.indirect_ref_present) {
 
@@ -198,6 +198,7 @@ call_rtse_external_type_callback(bool implicit_tag _U_, tvbuff_t *tvb, unsigned 
         oid = actx->external.direct_reference;
     }
 
+    top_tree = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_rtse, 0);
     if (oid)
         offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
 
@@ -235,31 +236,32 @@ dissect_rtse_T_dialogueMode(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned o
 static unsigned
 dissect_rtse_T_open(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-        struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
-        const char *oid = NULL;
+    struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
+    const char *oid = NULL;
 
-        switch(app_proto)  {
-        case 1:         /* mts-transfer-protocol-1984 */
-                oid = "applicationProtocol.1";
-                break;
-        case 12:        /* mts-transfer-protocol */
-                oid = "applicationProtocol.12";
-                break;
-        default:
-                if(session && session->pres_ctx_id)
-                        oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
-                break;
-        }
+    switch(app_proto)  {
+    case 1:         /* mts-transfer-protocol-1984 */
+        oid = "applicationProtocol.1";
+        break;
+    case 12:        /* mts-transfer-protocol */
+        oid = "applicationProtocol.12";
+        break;
+    default:
+        if(session && session->pres_ctx_id)
+            oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
+        break;
+    }
 
-        if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
-                oid = "applicationProtocol.12";
+    if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
+        oid = "applicationProtocol.12";
 
-        if(oid) {
+    if(oid) {
 
-                offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
-        }
+        proto_tree *top_tree = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_rtse, 0);
+        offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
+    }
 
-        /* else XXX: need to flag we can't find the presentation context */
+    /* else XXX: need to flag we can't find the presentation context */
 
 
   return offset;
@@ -482,30 +484,31 @@ dissect_rtse_RefuseReason(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned off
 static unsigned
 dissect_rtse_T_userDataRJ(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
-        const char *oid = NULL;
+    const char *oid = NULL;
 
-        switch(app_proto)  {
-        case 1:         /* mts-transfer-protocol-1984 */
-                oid = "applicationProtocol.1";
-                break;
-        case 12:        /* mts-transfer-protocol */
-                oid = "applicationProtocol.12";
-                break;
-        default:
-                if(session && session->pres_ctx_id)
-                        oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
-                break;
-        }
+    switch(app_proto)  {
+    case 1:         /* mts-transfer-protocol-1984 */
+        oid = "applicationProtocol.1";
+        break;
+    case 12:        /* mts-transfer-protocol */
+        oid = "applicationProtocol.12";
+        break;
+    default:
+        if(session && session->pres_ctx_id)
+            oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id);
+        break;
+    }
 
-        if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
-                oid = "applicationProtocol.12";
+    if(!oid) /* XXX: problem here is we haven't decoded the applicationProtocol yet - so we make assumptions! */
+        oid = "applicationProtocol.12";
 
-        if(oid) {
-          if(session != NULL)
-                session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
+    if(oid) {
+        if(session != NULL)
+            session->ros_op = (ROS_OP_BIND | ROS_OP_ERROR);
 
-          offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
-        }
+        proto_tree *top_tree = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_rtse, 0);
+        offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, session);
+    }
 
 
   return offset;
@@ -552,21 +555,21 @@ dissect_rtse_RTTPapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset 
 
 static unsigned
 dissect_rtse_RTTRapdu(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-        tvbuff_t *next_tvb = NULL;
+    tvbuff_t *next_tvb = NULL;
     struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 
-        offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &next_tvb);
+    offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, hf_index, &next_tvb);
 
-        if(next_tvb) {
+    if(next_tvb) {
 
-                /* XXX: we should check is this is an EXTERNAL first */
+        /* XXX: we should check is this is an EXTERNAL first */
 
-                /* ROS won't do this for us */
-                if(session)
-                        session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
+        /* ROS won't do this for us */
+        if(session)
+            session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 
-                offset = dissect_ber_external_type(false, tree, next_tvb, 0, actx,  -1, call_rtse_external_type_callback);
-        }
+        offset = dissect_ber_external_type(false, tree, next_tvb, 0, actx,  -1, call_rtse_external_type_callback);
+    }
 
 
 
@@ -691,7 +694,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     session = (struct SESSION_DATA_STRUCTURE*)data;
 
     /* save parent_tree so subdissectors can create new top nodes */
-    top_tree=parent_tree;
+    p_add_proto_data(pinfo->pool, pinfo, proto_rtse, 0, parent_tree);
 
     asn1_ctx.private_data = session;
 
@@ -749,7 +752,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
             /* ROS won't do this for us */
             session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
             /*offset=*/dissect_ber_external_type(false, tree, next_tvb, 0, &asn1_ctx, -1, call_rtse_external_type_callback);
-            top_tree = NULL;
+            p_set_proto_data(pinfo->pool, pinfo, proto_rtse, 0, NULL);
             /* Return other than 0 to indicate that we handled this packet */
             return 1;
         } else {
@@ -773,7 +776,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         }
     }
 
-    top_tree = NULL;
+    p_set_proto_data(pinfo->pool, pinfo, proto_rtse, 0, NULL);
     return tvb_captured_length(tvb);
 }
 
