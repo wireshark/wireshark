@@ -17,6 +17,7 @@
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/array.h>
 #include <wsutil/str_util.h>
@@ -39,8 +40,6 @@ static int proto_rtse;
 
 static bool open_request=false;
 static uint32_t app_proto=0;
-
-static proto_tree *top_tree;
 
 /* Preferences */
 static bool rtse_reassemble = true;
@@ -155,6 +154,7 @@ static int
 call_rtse_external_type_callback(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
     const char    *oid = NULL;
+    proto_tree    *top_tree;
 
     if (actx->external.indirect_ref_present) {
 
@@ -167,6 +167,7 @@ call_rtse_external_type_callback(bool implicit_tag _U_, tvbuff_t *tvb, int offse
         oid = actx->external.direct_reference;
     }
 
+    top_tree = p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_rtse, 0);
     if (oid)
         offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
 
@@ -203,7 +204,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
     session = (struct SESSION_DATA_STRUCTURE*)data;
 
     /* save parent_tree so subdissectors can create new top nodes */
-    top_tree=parent_tree;
+    p_add_proto_data(pinfo->pool, pinfo, proto_rtse, 0, parent_tree);
 
     asn1_ctx.private_data = session;
 
@@ -261,7 +262,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
             /* ROS won't do this for us */
             session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
             /*offset=*/dissect_ber_external_type(false, tree, next_tvb, 0, &asn1_ctx, -1, call_rtse_external_type_callback);
-            top_tree = NULL;
+            p_set_proto_data(pinfo->pool, pinfo, proto_rtse, 0, NULL);
             /* Return other than 0 to indicate that we handled this packet */
             return 1;
         } else {
@@ -285,7 +286,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         }
     }
 
-    top_tree = NULL;
+    p_set_proto_data(pinfo->pool, pinfo, proto_rtse, 0, NULL);
     return tvb_captured_length(tvb);
 }
 
