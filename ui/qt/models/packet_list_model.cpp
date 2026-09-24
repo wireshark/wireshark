@@ -374,14 +374,26 @@ void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
     if (fdata->ref_time) {
         fdata->ref_time=0;
         cap_file_->ref_time_count--;
+        if (!fdata->passed_dfilter) {
+            // XXX - We might not want to change this (#10142), but we would
+            // need to touch several places in the code
+            cap_file_->displayed_count--;
+            // XXX - recreateVisibleRows() to remove the row? That resets the
+            // model, which is a bit strong. We might want a method to remove
+            // one row.
+        }
     } else {
         fdata->ref_time=1;
         cap_file_->ref_time_count++;
+        if (!fdata->passed_dfilter) {
+            // It is a little odd that we managed to change a frame that wasn't
+            // displayed, but that can happen if we change the row state again
+            // without rescanning to pick up the change (see above), and might
+            // be possible if the row was pinned and then filtered out.
+            cap_file_->displayed_count++;
+        }
     }
     cf_reftime_packets(cap_file_);
-    if (!fdata->ref_time && !fdata->passed_dfilter) {
-        cap_file_->displayed_count--;
-    }
     record->resetColumns(&cap_file_->cinfo);
     emit layoutChanged();
 #if 0

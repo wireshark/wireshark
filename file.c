@@ -2128,6 +2128,10 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, bo
  * Scan through all frame data and recalculate the ref time
  * without rereading the file.
  * XXX - do we need a progress bar or is this fast enough?
+ * XXX - if the filter depends on relative time, we might need to rescan.
+ * Some taps use the relative time too, so we might need a retap.
+ * We might even need to redissect, depending on what dissectors do with
+ * pinfo->rel_ts.
  */
 void
 cf_reftime_packets(capture_file* cf)
