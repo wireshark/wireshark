@@ -676,14 +676,30 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
         }
         std::sort(sorted_visible_rows_.begin(), sorted_visible_rows_.end(), recordLessThan);
 
-        beginResetModel();
+        // This causes the QItemSelectionModel to create persistent indexes for
+        // each row (instead of just storing the top left and bottom right.)
+        // XXX - layoutChanged might be slow if the user has 100 k rows selected,
+        // but then again other things in the GUI with multi-select are probably
+        // slow then too. We could use resetModel in such a case.
+        emit layoutAboutToBeChanged(QList<QPersistentModelIndex>(), QAbstractItemModel::VerticalSortHint);
+        QModelIndexList oldIndexes = persistentIndexList();
         visible_rows_.resize(0);
         number_to_row_.fill(0);
         aggregation_key_row_.clear();
         foreach (PacketListRecord *record, sorted_visible_rows_) {
             updateVisibleRows(record);
         }
-        endResetModel();
+        QModelIndexList newIndexes;
+        for (const auto &oldIdx : oldIndexes) {
+            PacketListRecord *record = static_cast<PacketListRecord*>(oldIdx.internalPointer());
+            if (!record)
+                continue;
+            int row = visibleIndexOf(record->frameData());
+            newIndexes.append(createIndex(row, oldIdx.column(), record));
+        }
+        changePersistentIndexList(oldIndexes, newIndexes);
+        emit layoutChanged(QList<QPersistentModelIndex>(), QAbstractItemModel::VerticalSortHint);
+
     } catch (const SortAbort& e) {
         mainApp->pushStatus(MainApplication::TemporaryStatus, e.what());
     }
@@ -695,6 +711,12 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     }
     sort_cap_file_->read_lock = false;
 
+    // Using layoutChanged keeps the current selection but does not necessarily
+    // scroll to it if it is not visible. If we have a single current frame we
+    // can scroll to it. It's harder to determine what to do for multi-select.
+    // XXX - It might make more sense to have the PacketList connect to
+    // layoutChanged and call scrollTo with the currentIndex there. That would
+    // be a little lighter weight and better separation of model vs view.
     if (cap_file_->current_frame) {
         emit goToPacket(cap_file_->current_frame->num);
     }
