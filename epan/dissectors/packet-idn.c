@@ -1141,7 +1141,7 @@ static int dissect_idn_audio_category_6(tvbuff_t *tvb, int offset, proto_tree *i
 	};
 	uint8_t audio_format = tvb_get_int8(tvb, offset);
 	uint8_t channels = tvb_get_int8(tvb, offset + 1);
-	uint8_t layout = audio_format & 0xF0;
+	uint8_t layout = channels & 0xF0;
 	audio_format = audio_format & 0x0F;
 	cinfo->audio_format = audio_format;
 	channels &= 0x0F;
@@ -1258,7 +1258,7 @@ static void add_audio_sample_description(proto_item *audio_samples_tree, configu
 
 	switch(audio_category){
 		case 0x6:
-			layout = config->audio_format;
+			layout = config->audio_layout;
 			switch(layout){
 				case 0x1:
 					switch(channels){
