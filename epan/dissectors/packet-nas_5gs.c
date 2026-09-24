@@ -10838,7 +10838,7 @@ static const range_string nas_5gs_ursp_traff_desc_conn_cap_values[] = {
     { 0x04, 0x04, "SUPL" },
     { 0x08, 0x08, "Internet" },
     { 0x10, 0x10, "LCS user plane positioning" },
-    { 0x20, 0x3f, "Operator specific" },
+    { 0x20, 0xA0, "Operator specific" },
     { 0xA1, 0xA1, "IoT delay-tolerant" },
     { 0xA2, 0xA2, "IoT non-delay-tolerant" },
     { 0xA3, 0xA3, "Downlink streaming" },
