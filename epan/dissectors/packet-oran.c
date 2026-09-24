@@ -1919,7 +1919,7 @@ static wmem_tree_t *flow_states_table;
 static flow_state_t* lookup_flow(packet_info *pinfo, uint16_t eaxc_id, uint8_t plane, bool opposite_dir)
 {
     wmem_tree_key_t key[3];
-    uint32_t word1, word2;
+    uint32_t word1, word2 = 0;
 
     /* 1st value is vlan_id(15) | plane(1) | eaxc_id(16) */
     word1 = eaxc_id | (plane << 16) | (pinfo->vlan_id << 17);
@@ -1931,11 +1931,20 @@ static flow_state_t* lookup_flow(packet_info *pinfo, uint16_t eaxc_id, uint8_t p
     const uint8_t *dst_eth = (uint8_t*)pinfo->dl_dst.data;
 
     if (!opposite_dir) {
-        word2 = src_eth[5] | (src_eth[0] << 8) | (dst_eth[5] << 16) | (dst_eth[0] << 24);
+        if (src_eth) {
+            word2 |= src_eth[5] | (src_eth[0] << 8);
+        }
+        if (dst_eth) {
+            word2 |= (dst_eth[5] << 16) | (dst_eth[0] << 24);
+        }
     }
     else {
-        word2 = dst_eth[5] | (dst_eth[0] << 8) | (src_eth[5] << 16) | (src_eth[0] << 24);
-
+        if (src_eth) {
+            word2 |= (src_eth[5] << 16) | (src_eth[0] << 24);
+        }
+        if (dst_eth) {
+            word2 |= dst_eth[5] | (dst_eth[0] << 8);
+        }
     }
     key[1].length = 1;
     key[1].key = &word2;
@@ -1948,7 +1957,7 @@ static flow_state_t* lookup_flow(packet_info *pinfo, uint16_t eaxc_id, uint8_t p
 static void store_flow(packet_info *pinfo, uint16_t eaxc_id, uint8_t plane, bool opposite_dir, flow_state_t *state)
 {
     wmem_tree_key_t key[3];
-    uint32_t word1, word2;
+    uint32_t word1, word2 = 0;
 
     /* 1st value is vlan_id(15) | plane(1) | eaxc_id(16) */
     word1 = eaxc_id | (plane << 16) | (pinfo->vlan_id << 17);
@@ -1960,11 +1969,20 @@ static void store_flow(packet_info *pinfo, uint16_t eaxc_id, uint8_t plane, bool
     const uint8_t *dst_eth = (uint8_t*)pinfo->dl_dst.data;
 
     if (!opposite_dir) {
-        word2 = src_eth[5] | (src_eth[0] << 8) | (dst_eth[5] << 16) | (dst_eth[0] << 24);
+        if (src_eth) {
+            word2 |= src_eth[5] | (src_eth[0] << 8);
+        }
+        if (dst_eth) {
+            word2 |= (dst_eth[5] << 16) | (dst_eth[0] << 24);
+        }
     }
     else {
-        word2 = dst_eth[5] | (dst_eth[0] << 8) | (src_eth[5] << 16) | (src_eth[0] << 24);
-
+        if (src_eth) {
+            word2 |= (src_eth[5] << 16) | (src_eth[0] << 24);
+        }
+        if (dst_eth) {
+            word2 |= dst_eth[5] | (dst_eth[0] << 8);
+        }
     }
     key[1].length = 1;
     key[1].key = &word2;
