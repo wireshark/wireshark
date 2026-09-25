@@ -361,20 +361,22 @@ public:
     void resizeAllColumns(bool onlyTimeFormatted = false);
 
     /**
-     * @brief Pins a packet's row so that it stays visible (stacked with
-     * any other pinned rows, ordered to match the active sort) while the
-     * view is scrolled vertically. Up to PinnedRowsModel::kMaxPinnedRows
-     * packets may be pinned at once; additional pins beyond that are
-     * ignored.
-     * @param frame_num The frame number of the packet to pin.
+     * @brief Pins every currently selected row (or, if nothing is
+     * selected, the current row) so each stays visible (stacked with any
+     * other pinned rows, ordered to match the active sort) while the view
+     * is scrolled vertically. Mirrors markFrame()'s "act on the current
+     * selection, falling back to currentIndex()" pattern. Up to
+     * PinnedRowsModel::kMaxPinnedRows packets may be pinned at once;
+     * pins beyond that are silently skipped.
      */
-    void pinRow(int frame_num);
+    void pinSelectedRows();
 
     /**
-     * @brief Unpins a single packet's row, if pinned.
-     * @param frame_num The frame number of the packet to unpin.
+     * @brief Unpins every currently selected row (or, if nothing is
+     * selected, the current row) that is currently pinned. Rows in the
+     * selection that aren't pinned are left alone.
      */
-    void unpinRow(int frame_num);
+    void unpinSelectedRows();
 
     // Unpins every currently pinned packet's row.
     void unpinAllRows();
@@ -447,8 +449,32 @@ public:
      * @param column The column that was clicked, for consistency with a
      * direct click (used e.g. for context/copy actions).
      * @param buttons The mouse buttons held during the press.
+     * @param modifiers Keyboard modifiers held during the press, honored
+     * the same way a native ExtendedSelection click would: no modifier
+     * clears and selects just this row, Ctrl toggles this row within the
+     * existing selection, Shift extends the existing selection from
+     * currentIndex() through this row.
      */
-    void selectRowFromOverlay(int row, int column, Qt::MouseButtons buttons);
+    void selectRowFromOverlay(int row, int column, Qt::MouseButtons buttons,
+                               Qt::KeyboardModifiers modifiers = Qt::NoModifier);
+
+    /**
+     * @brief Selects exactly the given set of frames -- no more, no less
+     * -- clearing any prior selection first. Used for Shift-click
+     * range-select within the pinned-rows strip, where the "range" is
+     * scoped to the strip's own row order rather than the primary view's:
+     * the caller (PinnedRowView::mousePressEvent()) resolves a range of
+     * *strip* positions to this list of frame numbers first, since a
+     * single QItemSelection range can't express "these particular sparse
+     * primary-view rows" directly -- only a contiguous rectangle in one
+     * model's row space.
+     * @param frame_nums The frame numbers to select, in any order. Each is
+     * resolved to its own primary-view row independently; a frame number
+     * currently filtered out of the primary view (no row to resolve to)
+     * is silently skipped, the same documented limitation
+     * selectFrameFromOverlay() carries for a single filtered-out row.
+     */
+    void selectFramesFromOverlay(const QList<int> &frame_nums);
 
     /**
      * @brief Same as selectRowFromOverlay(), but given a frame/packet
@@ -464,8 +490,14 @@ public:
      * bypasses the model entirely and drives that directly, then emits
      * framesSelected() the same way selectionChanged() normally would.
      * @param frame_num The frame/packet number to select.
+     * @param modifiers Present for signature symmetry with
+     * selectRowFromOverlay(), but not currently acted on: this frame has
+     * no QModelIndex here at all (it's filtered out of the primary view),
+     * so there's nothing for Ctrl/Shift to toggle or extend a real
+     * QItemSelectionModel selection against. Always clears and selects
+     * just this frame, regardless of modifiers held.
      */
-    void selectFrameFromOverlay(int frame_num);
+    void selectFrameFromOverlay(int frame_num, Qt::KeyboardModifiers modifiers = Qt::NoModifier);
 
     /**
      * @brief Shows this view's context menu for a row already resolved by

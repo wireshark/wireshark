@@ -157,6 +157,18 @@ private:
     int last_column_;
 
     /**
+     * @brief The proxy row (this view's own row order, i.e. "strip
+     * position", not the primary view's row numbering) of the last
+     * non-Shift click, used as the range anchor for a subsequent
+     * Shift-click -- analogous to a real QAbstractItemView tracking
+     * selectionModel()->currentIndex() as its own range anchor, except
+     * scoped to this proxy's row space, since that's what "range" means
+     * for Shift-click within this strip (see mousePressEvent()). -1 if
+     * there's been no click yet to anchor from.
+     */
+    int shift_anchor_proxy_row_;
+
+    /**
      * @brief Frame numbers selected in the primary view, as of the start
      * of the current paint pass. drawRow() is called once per visible
      * pinned row per repaint, and previously called

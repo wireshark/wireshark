@@ -863,12 +863,11 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
                            : tr("Pin Row to Top");
         QAction *pin_action = ctx_menu->addAction(pin_label);
         pin_action->setEnabled(!maxReached);
-        int ctx_frame_num = ctx_fdata->num;
-        connect(pin_action, &QAction::triggered, this, [this, rowPinned, ctx_frame_num]() {
+        connect(pin_action, &QAction::triggered, this, [this, rowPinned]() {
             if (rowPinned) {
-                unpinRow(ctx_frame_num);
+                unpinSelectedRows();
             } else {
-                pinRow(ctx_frame_num);
+                pinSelectedRows();
             }
         });
     }
@@ -1103,7 +1102,8 @@ void PacketList::mouseReleaseEvent(QMouseEvent *event) {
 // overlay resolves the row itself via its own (always-correct, since it's
 // local) indexAt(), and these entry points act on that row/index directly
 // within this view, exactly as a real click here would.
-void PacketList::selectRowFromOverlay(int row, int column, Qt::MouseButtons buttons)
+void PacketList::selectRowFromOverlay(int row, int column, Qt::MouseButtons buttons,
+                                       Qt::KeyboardModifiers modifiers)
 {
     QModelIndex index = model()->index(row, column);
     if (!index.isValid()) {
@@ -1121,9 +1121,34 @@ void PacketList::selectRowFromOverlay(int row, int column, Qt::MouseButtons butt
     int vert_scroll_value = verticalScrollBar()->value();
 
     mouse_pressed_at_ = index;
-    setCurrentIndex(index);
+
+    // Mirrors the same three cases native ExtendedSelection handles for a
+    // plain click (no modifier/Ctrl/Shift) -- this view's own
+    // mousePressEvent() can't be relied on here since the click actually
+    // landed in a different, overlay widget (PinnedRowView/
+    // PinnedColumnView), which forwards here instead of letting
+    // QAbstractItemView's native handling run.
+    //
+    // setCurrentIndex(QModelIndex) (the view-level convenience method) always
+    // re-applies its own ClearAndSelect internally, which would immediately
+    // clobber the Toggle/Select calls below -- moving "current" without
+    // touching the selection just made requires going through
+    // QItemSelectionModel::setCurrentIndex() directly with an explicit
+    // NoUpdate flag instead.
+    if (modifiers & Qt::ShiftModifier) {
+        QModelIndex from = currentIndex().isValid() ? currentIndex() : index;
+        selectionModel()->select(QItemSelection(from, index),
+                                  QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate | QItemSelectionModel::Current);
+    } else if (modifiers & Qt::ControlModifier) {
+        selectionModel()->select(index, QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate | QItemSelectionModel::Current);
+    } else {
+        setCurrentIndex(index);
+        selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    }
+
     verticalScrollBar()->setValue(vert_scroll_value);
-    selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     // Keep keyboard focus on the primary view so the selection highlight
     // always renders in its "active" color, regardless of which pane the
     // click that produced this selection landed in.
@@ -1144,7 +1169,65 @@ void PacketList::selectRowFromOverlay(int row, int column, Qt::MouseButtons butt
     }
 }
 
-void PacketList::selectFrameFromOverlay(int frame_num)
+void PacketList::selectFramesFromOverlay(const QList<int> &frame_nums)
+{
+    if (!packet_list_model_) {
+        return;
+    }
+
+    // Builds one QItemSelection out of each frame's own (single-row)
+    // selection range rather than one spanning QItemSelection(first, last):
+    // a single range only ever expresses a contiguous rectangle in one
+    // model's row space, so there's no way to ask it for "just these
+    // sparse primary-view rows" directly -- each frame number (already
+    // resolved by the caller to just the pinned rows actually within a
+    // strip-scoped Shift-click range, see
+    // PinnedRowView::mousePressEvent()) is resolved to its own primary-view
+    // row here, which naturally excludes any unpinned row that happens to
+    // sit between them there. Accumulated into one QItemSelection and
+    // applied via a single select() call (rather than clearSelection() +
+    // one select() per frame) so selectionChanged() -- which does real
+    // work per call, e.g. rebuilding and emitting framesSelected() -- only
+    // fires once for the whole batch, not once per frame.
+    QItemSelection combined;
+    QModelIndex last_valid_index;
+    for (int frame_num : frame_nums) {
+        int row = packet_list_model_->packetNumberToRow(frame_num);
+        if (row < 0) {
+            // Filtered out of the primary view -- no row here to add to
+            // the shared QItemSelectionModel for it, same documented
+            // limitation selectFrameFromOverlay() already carries for a
+            // single filtered-out pinned row.
+            continue;
+        }
+        QModelIndex row_index = model()->index(row, 0);
+        combined.select(row_index, row_index);
+        last_valid_index = row_index;
+    }
+
+    // Matches selectRowFromOverlay()/selectFrameFromOverlay(), which both
+    // update or clear this: stale drag-select state left over from an
+    // earlier real click on this view itself shouldn't be mistaken for a
+    // drag matching whatever row a later mouseMoveEvent() lands on (see
+    // mouse_pressed_at_'s own comment and its use at line ~1431).
+    mouse_pressed_at_ = QModelIndex();
+    selectionModel()->select(combined, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+
+    if (last_valid_index.isValid()) {
+        selectionModel()->setCurrentIndex(last_valid_index,
+                                           QItemSelectionModel::NoUpdate | QItemSelectionModel::Current);
+    }
+    setFocus();
+
+    // The pinned-row views draw their own selection highlight by reading
+    // currentFrameNum()/selectedRows() directly (see PinnedRowView::drawRow()),
+    // rather than sharing this view's QItemSelectionModel, so updating that
+    // state above doesn't itself trigger a repaint there -- request one
+    // explicitly, the same way setHoveredFrameNum() already does for hover.
+    repaintPinnedOverlays();
+}
+
+void PacketList::selectFrameFromOverlay(int frame_num, Qt::KeyboardModifiers /* modifiers */)
 {
     if (!cap_file_ || !packet_list_model_) {
         return;
@@ -2662,15 +2745,47 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
     layoutPinnedOverlays();
 }
 
-void PacketList::pinRow(int frame_num)
+void PacketList::pinSelectedRows()
 {
-    pinned_rows_model_->pinFrame(frame_num);
+    if (!pinned_rows_model_ || !packet_list_model_) return;
+
+    QModelIndexList frames;
+    if (selectionModel() && selectionModel()->hasSelection()) {
+        foreach (QModelIndex idx, selectionModel()->selectedRows(0)) {
+            if (idx.isValid()) frames << idx;
+        }
+    } else {
+        frames << currentIndex();
+    }
+
+    foreach (QModelIndex idx, frames) {
+        frame_data *fdata = packet_list_model_->getRowFdata(idx.row());
+        if (fdata) {
+            pinned_rows_model_->pinFrame((int)fdata->num);
+        }
+    }
     updatePinnedRowVisibility();
 }
 
-void PacketList::unpinRow(int frame_num)
+void PacketList::unpinSelectedRows()
 {
-    pinned_rows_model_->unpinFrame(frame_num);
+    if (!pinned_rows_model_ || !packet_list_model_) return;
+
+    QModelIndexList frames;
+    if (selectionModel() && selectionModel()->hasSelection()) {
+        foreach (QModelIndex idx, selectionModel()->selectedRows(0)) {
+            if (idx.isValid()) frames << idx;
+        }
+    } else {
+        frames << currentIndex();
+    }
+
+    foreach (QModelIndex idx, frames) {
+        frame_data *fdata = packet_list_model_->getRowFdata(idx.row());
+        if (fdata) {
+            pinned_rows_model_->unpinFrame((int)fdata->num);
+        }
+    }
     updatePinnedRowVisibility();
 }
 

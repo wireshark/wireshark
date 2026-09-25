@@ -32,7 +32,8 @@ PinnedRowView::PinnedRowView(PacketList *packet_list, QWidget *parent) :
     QTreeView(parent),
     packet_list_(packet_list),
     first_column_(0),
-    last_column_(-1)
+    last_column_(-1),
+    shift_anchor_proxy_row_(-1)
 {
     PinnedOverlayView::applyCommonTreeViewSetup(this);
     setSelectionMode(QAbstractItemView::NoSelection);
@@ -131,11 +132,42 @@ void PinnedRowView::mousePressEvent(QMouseEvent *event)
         return;
     }
 
+    if (event->modifiers() & Qt::ShiftModifier) {
+        // Scoped to this proxy's own row order ("strip position"), not
+        // the primary view's row numbering -- a QItemSelection range built
+        // from two primary-view indices would select every row (pinned or
+        // not) between them there, which is exactly the too-broad
+        // behavior this is meant to avoid. Resolving each strip position
+        // to a frame number here, then selecting each individually in
+        // PacketList (see selectFramesFromOverlay()), keeps the range
+        // scoped to just the pinned rows actually between the two clicks.
+        int anchor = (shift_anchor_proxy_row_ >= 0) ? shift_anchor_proxy_row_ : index.row();
+        int lo = qMin(anchor, index.row());
+        int hi = qMax(anchor, index.row());
+        QList<int> frame_nums;
+        for (int r = lo; r <= hi; r++) {
+            int frame_num = pinned_model->frameNumAtProxyRow(r);
+            if (frame_num >= 0) {
+                frame_nums << frame_num;
+            }
+        }
+        packet_list->selectFramesFromOverlay(frame_nums);
+        return;
+    }
+
+    // Anchor for a future Shift-click updates on every non-Shift click
+    // (plain or Ctrl), the same way a real view moves currentIndex() (its
+    // own range anchor) on any click that isn't itself a range-extend.
+    shift_anchor_proxy_row_ = index.row();
+
     QModelIndex source_index = pinned_model->mapToSource(index);
     if (source_index.isValid()) {
         // Still visible in the primary (filtered) view: use the normal,
-        // row-based path, which also supports middle-click-to-mark.
-        packet_list->selectRowFromOverlay(source_index.row(), source_index.column(), event->buttons());
+        // row-based path, which also supports middle-click-to-mark and
+        // (via event->modifiers()) the same Ctrl-toggle behavior a native
+        // click in the main list has.
+        packet_list->selectRowFromOverlay(source_index.row(), source_index.column(),
+                                           event->buttons(), event->modifiers());
         return;
     }
 
@@ -146,7 +178,7 @@ void PinnedRowView::mousePressEvent(QMouseEvent *event)
     // capture file's own frame array, not a row in this view's model).
     if (PacketListRecord *record = static_cast<PacketListRecord *>(index.internalPointer())) {
         if (frame_data *fdata = record->frameData()) {
-            packet_list->selectFrameFromOverlay((int)fdata->num);
+            packet_list->selectFrameFromOverlay((int)fdata->num, event->modifiers());
         }
     }
 }
