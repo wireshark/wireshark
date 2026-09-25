@@ -1254,7 +1254,7 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
     // XXX: Should we allow frames that don't have a time stamp to be
     // set as time references? "Time" references are also used to reset
     // the "Cumulative Bytes", so it's not entirely useless.
-    main_ui_->actionEditSetTimeReference->setEnabled(frame_selected);
+    main_ui_->actionEditSetTimeReference->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditUnsetAllTimeReferences->setEnabled(have_time_ref);
     main_ui_->actionEditNextTimeReference->setEnabled(another_is_time_ref);
     main_ui_->actionEditPreviousTimeReference->setEnabled(another_is_time_ref);

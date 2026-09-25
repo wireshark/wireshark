@@ -248,9 +248,9 @@ public:
 
     /**
      * @brief Toggles the mark state for the specified frames.
-     * @param indeces List of model indices to toggle.
+     * @param indices List of model indices to toggle.
      */
-    void toggleFrameMark(const QModelIndexList &indeces);
+    void toggleFrameMark(const QModelIndexList &indices);
 
     /**
      * @brief Sets the mark state for all currently displayed frames.
@@ -260,9 +260,9 @@ public:
 
     /**
      * @brief Toggles the ignore state for the specified frames.
-     * @param indeces List of model indices to toggle.
+     * @param indices List of model indices to toggle.
      */
-    void toggleFrameIgnore(const QModelIndexList &indeces);
+    void toggleFrameIgnore(const QModelIndexList &indices);
 
     /**
      * @brief Sets the ignore state for all currently displayed frames.
@@ -271,10 +271,10 @@ public:
     void setDisplayedFrameIgnore(bool set);
 
     /**
-     * @brief Toggles the reference time state for a specified frame.
-     * @param rt_index The model index of the frame.
+     * @brief Toggles the reference time state for the specified frames.
+     * @param indices List of model indices to toggle
      */
-    void toggleFrameRefTime(const QModelIndex &rt_index);
+    void toggleFrameRefTime(const QModelIndexList &indices);
 
     /**
      * @brief Unsets the reference time state for all frames.

@@ -268,14 +268,14 @@ void PacketListModel::resetColorized()
 #endif
 }
 
-void PacketListModel::toggleFrameMark(const QModelIndexList &indeces)
+void PacketListModel::toggleFrameMark(const QModelIndexList &indices)
 {
-    if (!cap_file_ || indeces.count() <= 0)
+    if (!cap_file_ || indices.count() <= 0)
         return;
 
     int sectionMax = columnCount() - 1;
 
-    foreach (QModelIndex index, indeces) {
+    foreach (QModelIndex index, indices) {
         if (! index.isValid())
             continue;
 
@@ -314,14 +314,14 @@ void PacketListModel::setDisplayedFrameMark(bool set)
 #endif
 }
 
-void PacketListModel::toggleFrameIgnore(const QModelIndexList &indeces)
+void PacketListModel::toggleFrameIgnore(const QModelIndexList &indices)
 {
-    if (!cap_file_ || indeces.count() <= 0)
+    if (!cap_file_ || indices.count() <= 0)
         return;
 
     int sectionMax = columnCount() - 1;
 
-    foreach (QModelIndex index, indeces) {
+    foreach (QModelIndex index, indices) {
         if (! index.isValid())
             continue;
 
@@ -360,41 +360,47 @@ void PacketListModel::setDisplayedFrameIgnore(bool set)
 #endif
 }
 
-void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
+void PacketListModel::toggleFrameRefTime(const QModelIndexList &indices)
 {
-    if (!cap_file_ || !rt_index.isValid()) return;
-
-    PacketListRecord *record = static_cast<PacketListRecord*>(rt_index.internalPointer());
-    if (!record) return;
-
-    frame_data *fdata = record->frameData();
-    if (!fdata) return;
+    if (!cap_file_ || indices.count() <= 0)
+        return;
 
     emit layoutAboutToBeChanged();
-    if (fdata->ref_time) {
-        fdata->ref_time=0;
-        cap_file_->ref_time_count--;
-        if (!fdata->passed_dfilter) {
-            // XXX - We might not want to change this (#10142), but we would
-            // need to touch several places in the code
-            cap_file_->displayed_count--;
-            // XXX - recreateVisibleRows() to remove the row? That resets the
-            // model, which is a bit strong. We might want a method to remove
-            // one row.
-        }
-    } else {
-        fdata->ref_time=1;
-        cap_file_->ref_time_count++;
-        if (!fdata->passed_dfilter) {
-            // It is a little odd that we managed to change a frame that wasn't
-            // displayed, but that can happen if we change the row state again
-            // without rescanning to pick up the change (see above), and might
-            // be possible if the row was pinned and then filtered out.
-            cap_file_->displayed_count++;
+    for (const auto& rt_index : indices) {
+        if (! rt_index.isValid())
+            continue;
+
+        PacketListRecord *record = static_cast<PacketListRecord*>(rt_index.internalPointer());
+        if (!record) continue;
+
+        frame_data *fdata = record->frameData();
+        if (!fdata) continue;
+
+        if (fdata->ref_time) {
+            fdata->ref_time=0;
+            cap_file_->ref_time_count--;
+            if (!fdata->passed_dfilter) {
+                // XXX - We might not want to change this (#10142), but we would
+                // need to touch several places in the code
+                cap_file_->displayed_count--;
+                // XXX - recreateVisibleRows() to remove the row? That resets the
+                // model, which is a bit strong. We might want a method to remove
+                // one row.
+            }
+        } else {
+            fdata->ref_time=1;
+            cap_file_->ref_time_count++;
+            if (!fdata->passed_dfilter) {
+                // It is a little odd that we managed to change a frame that wasn't
+                // displayed, but that can happen if we change the row state again
+                // without rescanning to pick up the change (see above), and might
+                // be possible if the row was pinned and then filtered out.
+                cap_file_->displayed_count++;
+            }
         }
     }
     cf_reftime_packets(cap_file_);
-    record->resetColumns(&cap_file_->cinfo);
+    PacketListRecord::resetColumns(&cap_file_->cinfo);
     emit layoutChanged();
 #if 0
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));

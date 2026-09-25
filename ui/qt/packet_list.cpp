@@ -2505,7 +2505,23 @@ void PacketList::ignoreAllDisplayedFrames(bool set)
 void PacketList::setTimeReference()
 {
     if (!cap_file_ || !packet_list_model_) return;
-    packet_list_model_->toggleFrameRefTime(currentIndex());
+
+    QModelIndexList frames;
+
+    if (selectionModel() && selectionModel()->hasSelection())
+    {
+        foreach (QModelIndex idx, selectionModel()->selectedRows(0))
+        {
+            if (idx.isValid())
+            {
+                frames << idx;
+            }
+        }
+    }
+    else
+        frames << currentIndex();
+
+    packet_list_model_->toggleFrameRefTime(frames);
     create_far_overlay_ = true;
 }
 
