@@ -14,6 +14,7 @@ set_module_info(opcua 1 0 0 0)
 
 set(DISSECTOR_SRC
 	opcua.c
+	packet-opcua-pubsub.c
 )
 
 set(DISSECTOR_SUPPORT_SRC
