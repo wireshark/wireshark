@@ -738,10 +738,8 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
         cf_select_packet(cap_file_, fdata);
     }
 
-    if (!in_history_ && cap_file_->current_frame) {
-        cur_history_++;
-        selection_history_.resize(cur_history_);
-        selection_history_.append(cap_file_->current_frame->num);
+    if (cap_file_->current_frame) {
+        updateHistory(cap_file_->current_frame->num);
     }
 
     related_packet_delegate_.clear();
@@ -1261,10 +1259,13 @@ void PacketList::selectFrameFromOverlay(int frame_num, Qt::KeyboardModifiers /* 
     // only ever resolve a frame that currently has a row in this view.
     cf_select_packet(cap_file_, fdata);
 
-    if (!in_history_ && cap_file_->current_frame) {
-        cur_history_++;
-        selection_history_.resize(cur_history_);
-        selection_history_.append(cap_file_->current_frame->num);
+    // This adds a frame to the history even if it's filtered out and not in
+    // the main view. Such a frame will be skipped by have[Next|Previous]History
+    // and thus go[Next|Previous]HistoryPacket, but is preserved in the history
+    // for when the filter changes. To make goToHistory work for frames which
+    // are filtered out but still pinned would take more work.
+    if (cap_file_->current_frame) {
+        updateHistory(cap_file_->current_frame->num);
     }
 
     related_packet_delegate_.clear();
@@ -1872,6 +1873,25 @@ bool PacketList::havePreviousHistory(bool update_cur)
         }
     }
     return false;
+}
+
+void PacketList::updateHistory(int frame_num)
+{
+    // We could call this from currentChanged, but we can't *just* update the
+    // history from currentChanged, because the pinned rows can add to the
+    // history a row that isn't in the main view (and thus never becomes the
+    // currentIndex.)
+    if (in_history_)
+        return;
+
+    if (!selection_history_.isEmpty()) {
+        if (frame_num == selection_history_.constLast()) {
+            return;
+        }
+    }
+
+    cur_history_++;
+    selection_history_.append(frame_num);
 }
 
 void PacketList::setProfileSwitcher(ProfileSwitcher *profile_switcher)

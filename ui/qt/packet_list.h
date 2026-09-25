@@ -885,6 +885,16 @@ private:
     ProfileSwitcher *profile_switcher_;
 
     /**
+     * @brief Update the history of selected (current) frames.
+     * @param frame_num The frame number to add
+     *
+     * This does not append the frame number to the history while in the
+     * middle of traversing the history itself, or if the frame number is
+     * already the last frame number in the history.
+     */
+    void updateHistory(int frame_num);
+
+    /**
      * @brief Sets or unsets a frame as a time reference.
      * @param set True to set as time reference, false to unset.
      * @param fdata Pointer to the frame data.
