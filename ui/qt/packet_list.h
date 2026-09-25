@@ -909,8 +909,9 @@ private:
 
     /**
      * @brief Forces drawing of the current packet.
+     * @param scroll If true, scroll to the current packet.
      */
-    void drawCurrentPacket();
+    void drawCurrentPacket(bool scroll = true);
 
     /**
      * @brief Applies recent widths across all columns.

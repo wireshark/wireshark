@@ -672,128 +672,11 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     // originated from.
     repaintPinnedOverlays();
 
-    if (!cap_file_) return;
-
-    int row = -1;
-    static bool multiSelect = false;
-
-    if (selectionModel())
-    {
-        QModelIndexList selRows = selectionModel()->selectedRows(0);
-        if (selRows.count() > 1)
-        {
-            QList<int> rows;
-            foreach (QModelIndex idx, selRows)
-            {
-                if (idx.isValid())
-                    rows << idx.row();
-            }
-
-            emit framesSelected(rows);
-            emit fieldSelected(0);
-            cf_unselect_packet(cap_file_);
-
-            /* We have to repaint the content while changing state, as some delegates react to multi-select */
-            if (! multiSelect)
-            {
-                related_packet_delegate_.clear();
-                viewport()->update();
-            }
-
-            multiSelect = true;
-
-            return;
-        }
-        else if (selRows.count() > 0 && selRows.at(0).isValid())
-        {
-            multiSelect = false;
-            row = selRows.at(0).row();
-        }
-
-        /* Handling empty selection */
-        if (selRows.count() <= 0)
-        {
-            /* Nothing selected, but multiSelect is still active */
-            if (multiSelect)
-            {
-                multiSelect = false;
-                if (currentIndex().isValid())
-                {
-                    selectionModel()->select(currentIndex(), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
-                    return;
-                }
-            }
-            /* Nothing selected, so in WS <= 3.0 nothing was indicated as well */
-            else if (currentIndex().isValid())
-            {
-                setCurrentIndex(QModelIndex());
-            }
-        }
-    }
-
-    if (row < 0 || !packet_list_model_)
-        cf_unselect_packet(cap_file_);
-    else {
-        frame_data * fdata = packet_list_model_->getRowFdata(row);
-        cf_select_packet(cap_file_, fdata);
-    }
-
-    if (cap_file_->current_frame) {
-        updateHistory(cap_file_->current_frame->num);
-    }
-
-    related_packet_delegate_.clear();
-
-    // The previous dissection state has been invalidated by cf_select_packet
-    // above, receivers must clear the previous state and apply the updated one.
-    emit framesSelected(QList<int>() << row);
-
-    if (!cap_file_->edt) {
-        viewport()->update();
-        emit fieldSelected(0);
-        return;
-    }
-
-    if (cap_file_->edt->tree) {
-        packet_info *pi = &cap_file_->edt->pi;
-        related_packet_delegate_.setCurrentFrame(pi->num);
-        conversation_t *conv = find_conversation_pinfo_ro(pi, 0);
-        if (conv) {
-            related_packet_delegate_.setConversation(conv);
-        }
-        viewport()->update();
-    }
-
-    if (cap_file_->search_in_progress) {
-        field_info *fi = NULL;
-
-        if (cap_file_->string && cap_file_->decode_data) {
-            // The tree where the target string matched one of the labels was discarded in
-            // match_protocol_tree() so we have to search again in the latest tree.
-            fi = cf_find_string_protocol_tree(cap_file_, cap_file_->edt->tree);
-        } else if (cap_file_->search_len != 0) {
-            // Find the finfo that corresponds to our byte.
-            // The match can span multiple fields (and a single byte can
-            // match more than one field.) Our behavior is to find the last
-            // field in the tree (so hopefully spanning fewer bytes) that
-            // matches the last byte in the search match.
-            // (regex search can find a zero length match not at the
-            // start of the frame if lookbehind is used, but
-            // proto_find_field_from_offset doesn't match such a field
-            // and it's not clear which field we would want to match.)
-            fi = proto_find_field_from_offset(cap_file_->edt->tree, cap_file_->search_pos + cap_file_->search_len - 1,
-                                              cap_file_->edt->tvb);
-        }
-
-        if (fi) {
-            FieldInformation finfo(fi, this);
-            emit fieldSelected(&finfo);
-        } else {
-            emit fieldSelected(0);
-        }
-    } else if (proto_tree_) {
-        proto_tree_->restoreSelectedField();
-    }
+    // We shouldn't need to scroll because QTreeView already does that if
+    // a single packet is newly selected. If we have a single selected packet
+    // because we just deselected the second to last packet, we probably don't
+    // want to scroll to the remaining frame.
+    drawCurrentPacket(false);
 }
 
 void PacketList::contextMenuEvent(QContextMenuEvent *event)
@@ -1809,22 +1692,162 @@ void PacketList::setRecentColumnWidth(int col)
     setColumnWidth(col, col_width);
 }
 
-void PacketList::drawCurrentPacket()
+void PacketList::drawCurrentPacket(bool scroll)
 {
-    // XXX - Update for multi-select? If more than one packet is Selected,
-    // this changes it so that only the Current packet is Selected.
-    QModelIndex current_index = currentIndex();
-    if (selectionModel() && current_index.isValid()) {
-        selectionModel()->clearSelection();
-        selectionModel()->setCurrentIndex(current_index, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
+    // Update the dissection details for the current frame.
+    //
+    // It might make sense to call this from dataChanged if a single frame
+    // is selected and its index is among those changed, instead of, e.g.,
+    // markFrame() having to call this directly.  Note however that
+    // PacketListModel calls layoutChanged instead of dataChanged due
+    // to a Qt 6 bug (that appears to have been mitigated in Qt 6.9),
+    // so we perhaps have to listen to LayoutChanged as well.
+    if (!cap_file_) return;
+
+    int row = -1;
+    static bool multiSelect = false;
+
+    if (selectionModel())
+    {
+        QModelIndexList selRows = selectionModel()->selectedRows(0);
+        if (selRows.count() > 1)
+        {
+            QList<int> rows;
+            foreach (QModelIndex idx, selRows)
+            {
+                if (idx.isValid())
+                    rows << idx.row();
+            }
+
+            emit framesSelected(rows);
+            emit fieldSelected(0);
+            cf_unselect_packet(cap_file_);
+
+            /* We have to repaint the content while changing state, as some delegates react to multi-select */
+            if (! multiSelect)
+            {
+                related_packet_delegate_.clear();
+                viewport()->update();
+            }
+
+            multiSelect = true;
+
+            return;
+        }
+        else if (selRows.count() > 0 && selRows.at(0).isValid())
+        {
+            /* One row selected. Note this is *not* necessarily the row of the
+             * currentIndex, if two rows were selected and one was deselected
+             * via Ctrl-Click. Then the currentIndex is the deselected row. */
+            multiSelect = false;
+            row = selRows.at(0).row();
+            if (scroll) {
+                if (currentIndex().siblingAtColumn(0) != selRows.at(0)) {
+                    // Not the currentIndex. Set the current index, which will
+                    // scroll to it. Use NoUpdate to not change the selection
+                    // and possibly create a loop.
+                    selectionModel()->setCurrentIndex(selRows.at(0), QItemSelectionModel::NoUpdate);
+                } else {
+                    // The currentIndex. Scroll to it if necessary.
+                    scrollTo(currentIndex());
+                }
+            }
+        }
+
+        /* Handling empty selection */
+        if (selRows.count() <= 0)
+        {
+            /* Nothing selected, but multiSelect is still active */
+            if (multiSelect)
+            {
+                multiSelect = false;
+                if (currentIndex().isValid())
+                {
+                    selectionModel()->select(currentIndex(), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
+                    return;
+                }
+            }
+            /* Nothing selected, so in WS <= 3.0 nothing was indicated as well */
+            else if (currentIndex().isValid())
+            {
+                setCurrentIndex(QModelIndex());
+            }
+        }
+    }
+
+    if (row < 0 || !packet_list_model_)
+        cf_unselect_packet(cap_file_);
+    else {
+        frame_data * fdata = packet_list_model_->getRowFdata(row);
+        cf_select_packet(cap_file_, fdata);
+    }
+
+    if (cap_file_->current_frame) {
+        // Add this to the end of the history if it's not already
+        updateHistory(cap_file_->current_frame->num);
+    }
+
+    related_packet_delegate_.clear();
+
+    // The previous dissection state has been invalidated by cf_select_packet
+    // above, receivers must clear the previous state and apply the updated one.
+    emit framesSelected(QList<int>() << row);
+
+    if (!cap_file_->edt) {
+        viewport()->update();
+        emit fieldSelected(0);
+        return;
+    }
+
+    if (cap_file_->edt->tree) {
+        packet_info *pi = &cap_file_->edt->pi;
+        related_packet_delegate_.setCurrentFrame(pi->num);
+        conversation_t *conv = find_conversation_pinfo_ro(pi, 0);
+        if (conv) {
+            related_packet_delegate_.setConversation(conv);
+        }
+        viewport()->update();
+    }
+
+    // Figure out what field should be selected.
+    // XXX - All this should be done in ProtoTree in response to framesSelected
+    if (cap_file_->search_in_progress) {
+        field_info *fi = NULL;
+
+        if (cap_file_->string && cap_file_->decode_data) {
+            // The tree where the target string matched one of the labels was discarded in
+            // match_protocol_tree() so we have to search again in the latest tree.
+            fi = cf_find_string_protocol_tree(cap_file_, cap_file_->edt->tree);
+        } else if (cap_file_->search_len != 0) {
+            // Find the finfo that corresponds to our byte.
+            // The match can span multiple fields (and a single byte can
+            // match more than one field.) Our behavior is to find the last
+            // field in the tree (so hopefully spanning fewer bytes) that
+            // matches the last byte in the search match.
+            // (regex search can find a zero length match not at the
+            // start of the frame if lookbehind is used, but
+            // proto_find_field_from_offset doesn't match such a field
+            // and it's not clear which field we would want to match.)
+            fi = proto_find_field_from_offset(cap_file_->edt->tree, cap_file_->search_pos + cap_file_->search_len - 1,
+                                              cap_file_->edt->tvb);
+        }
+
+        if (fi) {
+            FieldInformation finfo(fi, this);
+            emit fieldSelected(&finfo);
+        } else {
+            emit fieldSelected(0);
+        }
+    } else if (proto_tree_) {
+        proto_tree_->restoreSelectedField();
     }
 }
 
-// Redraw the packet list and detail.  Re-selects the current packet (causes
-// the UI to scroll to that packet).
+// Redraw the packet list and detail.
+// Causes the UI to scroll to the current packet.
 // Called from many places.
 void PacketList::redrawVisiblePackets() {
-    redrawVisiblePacketsDontSelectCurrent();
+    packet_list_model_->invalidateAllColumnStrings();
     drawCurrentPacket();
 }
 
@@ -1832,6 +1855,7 @@ void PacketList::redrawVisiblePackets() {
 // Does not scroll back to the selected packet.
 void PacketList::redrawVisiblePacketsDontSelectCurrent() {
     packet_list_model_->invalidateAllColumnStrings();
+    drawCurrentPacket(false);
 }
 
 void PacketList::resetColumns()
@@ -1877,10 +1901,15 @@ bool PacketList::havePreviousHistory(bool update_cur)
 
 void PacketList::updateHistory(int frame_num)
 {
-    // We could call this from currentChanged, but we can't *just* update the
-    // history from currentChanged, because the pinned rows can add to the
-    // history a row that isn't in the main view (and thus never becomes the
-    // currentIndex.)
+    // We want to call this whenever cap_file_->current_frame changes.
+    // (We don't keep a history of frames that were selected as part of
+    // multiselect.) That is not the same thing as the currentIndex. First,
+    // because the pinned rows can set a frame as the current frame that
+    // isn't in the main view (and thus never becomes the currentIndex.)
+    // Secondly, because with ExtendedSelection an index can become the
+    // currentIndex by being in a multi-selection and then *deselected*
+    // with Ctrl-Click. (Also, if two frames were selected, the remaining
+    // frame then becomes cap_file_->current_frame but not CurrentIndex.)
     if (in_history_)
         return;
 
