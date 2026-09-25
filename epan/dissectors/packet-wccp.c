@@ -812,8 +812,7 @@ dissect_wccp2_security_info(tvbuff_t *tvb, int offset, int length,
   if (length < SECURITY_INFO_LEN)
     return (length-SECURITY_INFO_LEN);
 
-  security_option = tvb_get_ntohl(tvb, offset);
-  proto_tree_add_item(info_tree, hf_security_info_option, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(info_tree, hf_security_info_option, tvb, offset, 4, ENC_BIG_ENDIAN, &security_option);
 
   if (security_option == WCCP2_MD5_SECURITY) {
     offset += 4;
@@ -992,8 +991,7 @@ dissect_wccp2_router_identity_info(tvbuff_t *tvb, int offset, int length,
   wccp_add_ipaddress_item(info_tree, hf_router_identity_send_to_ip_index, hf_router_identity_send_to_ipv4, hf_router_identity_send_to_ipv6, tvb, offset, 4, addr_table);
   EAT_AND_CHECK(4,4);
 
-  n_received_from = tvb_get_ntohl(tvb, offset);
-  proto_tree_add_item(info_tree, hf_router_identity_received_from_num, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(info_tree, hf_router_identity_received_from_num, tvb, offset, 4, ENC_BIG_ENDIAN, &n_received_from);
   EAT(4);
 
   for (i = 0; i < n_received_from; i++) {
@@ -1417,8 +1415,7 @@ dissect_wccp2_command_extension(tvbuff_t *tvb, int offset,
     if (length < ALT_COMMAND_EXTENSION_MIN_LEN )
       return length - ALT_COMMAND_EXTENSION_MIN_LEN ;
 
-    command_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(info_tree, hf_command_element_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(info_tree, hf_command_element_type, tvb, offset, 2, ENC_BIG_ENDIAN, &command_type);
     EAT_AND_CHECK(2,2);
 
     proto_tree_add_item_ret_uint(info_tree, hf_command_element_length, tvb, offset, 2, ENC_BIG_ENDIAN, &command_length);

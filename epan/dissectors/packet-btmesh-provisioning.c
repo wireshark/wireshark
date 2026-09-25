@@ -316,8 +316,7 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
         break;
         case PROVISIONING_CAPABILITIES_PDU:
-            proto_tree_add_item(sub_tree, hf_btmesh_provisioning_number_of_elements, tvb, offset, 1, ENC_NA);
-            no_of_elements = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_number_of_elements, tvb, offset, 1, ENC_NA, &no_of_elements);
             if (no_of_elements == 0) {
                 proto_tree_add_expert_remaining(sub_tree, pinfo, &ei_btmesh_provisioning_zero_elements, tvb, offset);
             }
@@ -415,16 +414,14 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
             switch(authentication_method){
                 case NO_OOB_AUTHENTICATION_IS_USED:
-                    expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_action_no_oob_action, tvb, offset, 1, ENC_NA);
-                    authentication_action = tvb_get_uint8(tvb, offset);
+                    expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_authentication_action_no_oob_action, tvb, offset, 1, ENC_NA, &authentication_action);
                     if (authentication_action != 0) {
                         expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_authentication_action);
                         proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
                     }
                     offset += 1;
 
-                    expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_size_no_oob_action, tvb, offset, 1, ENC_NA);
-                    authentication_size = tvb_get_uint8(tvb, offset);
+                    expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_authentication_size_no_oob_action, tvb, offset, 1, ENC_NA, &authentication_size);
                     if (authentication_size != 0) {
                         expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_authentication_size);
                         proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
@@ -433,16 +430,14 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
                 break;
                 case STATIC_OOB_AUTHENTICATION_IS_USED:
-                    expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_action_static_oob_action, tvb, offset, 1, ENC_NA);
-                    authentication_action = tvb_get_uint8(tvb, offset);
+                    expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_authentication_action_static_oob_action, tvb, offset, 1, ENC_NA, &authentication_action);
                     if (authentication_action != 0) {
                         expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_authentication_action);
                         proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
                     }
                     offset += 1;
 
-                    expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_size_static_oob_action, tvb, offset, 1, ENC_NA);
-                    authentication_size = tvb_get_uint8(tvb, offset);
+                    expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_authentication_size_static_oob_action, tvb, offset, 1, ENC_NA, &authentication_size);
                     if (authentication_size != 0) {
                         expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_authentication_size);
                         proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
@@ -451,16 +446,14 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
                 break;
                 case OUTPUT_OOB_AUTHENTICATION_IS_USED:
-                    expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_action_output_oob_action, tvb, offset, 1, ENC_NA);
-                    authentication_action = tvb_get_uint8(tvb, offset);
+                    expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_authentication_action_output_oob_action, tvb, offset, 1, ENC_NA, &authentication_action);
                     if (authentication_action >= 5) {
                         expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_authentication_action);
                         proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
                     }
                     offset += 1;
 
-                    expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_size_output_oob_action, tvb, offset, 1, ENC_NA);
-                    authentication_size = tvb_get_uint8(tvb, offset);
+                    expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_authentication_size_output_oob_action, tvb, offset, 1, ENC_NA, &authentication_size);
                     if (authentication_size >= 9) {
                         expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_authentication_size);
                         proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
@@ -474,16 +467,14 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
                 break;
                 case INPUT_OOB_AUTHENTICATION_IS_USED:
-                    expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_action_input_oob_action, tvb, offset, 1, ENC_NA);
-                    authentication_action = tvb_get_uint8(tvb, offset);
+                    expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_authentication_action_input_oob_action, tvb, offset, 1, ENC_NA, &authentication_action);
                     if (authentication_action >= 4) {
                         expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_authentication_action);
                         proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);
                     }
                     offset += 1;
 
-                    expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_size_input_oob_action, tvb, offset, 1, ENC_NA);
-                    authentication_size = tvb_get_uint8(tvb, offset);
+                    expert_item = proto_tree_add_item_ret_uint8(sub_tree, hf_btmesh_provisioning_authentication_size_input_oob_action, tvb, offset, 1, ENC_NA, &authentication_size);
                     if (authentication_size >= 9) {
                         expert_tree = proto_item_add_subtree(expert_item, ett_btmesh_provisioning_authentication_size);
                         proto_tree_add_expert_remaining(expert_tree, pinfo, &ei_btmesh_provisioning_in_rfu_range, tvb, offset);

@@ -5682,8 +5682,7 @@ dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, uint32_t start_offset, uint32_t le
     alarmcfg_tree = proto_tree_add_subtree_format(alarm_tree, payload_tvb, offset, tvb_get_uint8 (payload_tvb, offset),
                                          ett_r3alarmcfg, NULL, "Alarm Item (%s, %s)", ai, as);
 
-    alarm_len = tvb_get_uint8 (payload_tvb, offset + 0);
-    pi = proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_length, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
+    pi = proto_tree_add_item_ret_uint (alarmcfg_tree, hf_r3_alarm_length, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN, &alarm_len);
     if (alarm_len == 0) {
       expert_add_info_format (pinfo, pi, &ei_r3_malformed_length,
                               "Alarm length equal to 0. Payload could be partially decoded");

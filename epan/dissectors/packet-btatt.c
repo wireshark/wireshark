@@ -5532,8 +5532,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         if (bluetooth_gatt_has_no_parameter(att_data->opcode))
             break;
 
-        proto_tree_add_item(tree, hf_btatt_value_trigger_setting_condition, tvb, offset, 1, ENC_NA);
-        value = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_btatt_value_trigger_setting_condition, tvb, offset, 1, ENC_NA, &value);
         offset += 1;
 
         if (value >= 1 && value <= 3) {
@@ -6350,13 +6349,11 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             list_length += 1;
             offset += 1;
 
-            proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_type, tvb, offset, 1, ENC_NA);
-            item_type = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_type, tvb, offset, 1, ENC_NA, &item_type);
             list_length += 1;
             offset += 1;
 
-            list_length_item = proto_tree_add_item(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            item_length = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
+            list_length_item = proto_tree_add_item_ret_uint16(sub_tree, hf_btatt_regulatory_certification_data_list_item_body_structure_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_length);
             list_length += 2 + item_length;
             offset += 2;
 

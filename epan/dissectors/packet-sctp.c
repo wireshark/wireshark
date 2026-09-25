@@ -1619,8 +1619,7 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   offset = PARAMETER_VALUE_OFFSET;
   proto_item_append_text(parameter_item, " (Supported types: ");
   for(addr_type_number = 0; addr_type_number < number_of_addr_types; addr_type_number++) {
-    proto_tree_add_item(parameter_tree, hf_supported_address_type, parameter_tvb, offset, SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH, ENC_BIG_ENDIAN);
-    addr_type = tvb_get_ntohs(parameter_tvb, offset);
+    proto_tree_add_item_ret_uint16(parameter_tree, hf_supported_address_type, parameter_tvb, offset, SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH, ENC_BIG_ENDIAN, &addr_type);
     switch (addr_type) {
     case IPv4_ADDRESS_TYPE:
       proto_item_append_text(parameter_item, "IPv4");

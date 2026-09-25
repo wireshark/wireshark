@@ -1293,8 +1293,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 unsigned number_of_attributes;
                 unsigned i_attribute;
 
-                proto_tree_add_item(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN);
-                number_of_attributes = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_attributes);
                 offset += 1;
 
                 for (i_attribute = 0; i_attribute < number_of_attributes; ++i_attribute) {
@@ -1311,8 +1310,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 unsigned number_of_values;
                 unsigned i_value;
 
-                proto_tree_add_item(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN);
-                number_of_values = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_values);
                 offset += 1;
 
                 for (i_value = 0; i_value < number_of_values; ++i_value) {
@@ -1326,8 +1324,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 unsigned number_of_attributes;
                 unsigned i_attribute;
 
-                proto_tree_add_item(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN);
-                number_of_attributes = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_attributes);
                 offset += 1;
 
                 for (i_attribute = 0; i_attribute < number_of_attributes; ++i_attribute) {
@@ -1372,8 +1369,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 unsigned number_of_attributes;
                 unsigned i_attribute;
 
-                proto_tree_add_item(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN);
-                number_of_attributes = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_attributes);
                 offset += 1;
 
                 for (i_attribute = 0; i_attribute < number_of_attributes; ++i_attribute) {
@@ -1385,8 +1381,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 unsigned i_attribute;
                 unsigned attribute_name_length;
 
-                proto_tree_add_item(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN);
-                number_of_attributes = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_attributes);
                 offset += 1;
 
                 for (i_attribute = 0; i_attribute < number_of_attributes; ++i_attribute) {
@@ -1411,8 +1406,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                 proto_tree_add_item(tree, hf_btavrcp_settings_attribute, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-                proto_tree_add_item(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN);
-                number_of_values = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_btavrcp_number_of_settings, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_values);
                 offset += 1;
 
                 for (i_value = 0; i_value < number_of_values; ++i_value) {

@@ -1217,9 +1217,8 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         ++offset;
 
         /* Decode Bundle Status Report Flags */
-        status = tvb_get_uint8(tvb, offset);
-        status_flag_item = proto_tree_add_item(admin_record_tree,
-                                hf_bundle_admin_statflags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        status_flag_item = proto_tree_add_item_ret_uint8(admin_record_tree,
+                                hf_bundle_admin_statflags, tvb, offset, 1, ENC_BIG_ENDIAN, &status);
         status_flag_tree = proto_item_add_subtree(status_flag_item,
                                                         ett_admin_rec_status);
         proto_tree_add_item(status_flag_tree, hf_bundle_admin_rcvd,

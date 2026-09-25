@@ -436,8 +436,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     proto_tree_add_item(sm_tree, hf_sm_lsc_state_type, tvb, offset, 4, ENC_BIG_ENDIAN);
                     break;
                 case PDU_LSC_INDICATION:
-                    proto_tree_add_item(sm_tree, hf_sm_backhaul_event_code, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    bh_event_code = tvb_get_ntohl(tvb,offset);
+                    proto_tree_add_item_ret_uint(sm_tree, hf_sm_backhaul_event_code, tvb, offset, 4, ENC_BIG_ENDIAN, &bh_event_code);
                     if (bh_event_code == 0x02 || bh_event_code == 0x04) {
                         offset += 4;
                         proto_tree_add_item(sm_tree, hf_sm_linkdown_cause_code, tvb, offset, 4, ENC_BIG_ENDIAN);

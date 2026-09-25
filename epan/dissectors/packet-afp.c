@@ -1452,8 +1452,7 @@ parse_long_filename(proto_tree *tree, tvbuff_t *tvb, int offset, int org_offset)
 	int tp_ofs = 0;
 	uint8_t len;
 
-	lnameoff = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_long_name_offset,tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_afp_long_name_offset,tvb, offset, 2, ENC_BIG_ENDIAN, &lnameoff);
 	if (lnameoff) {
 		tp_ofs = lnameoff +org_offset;
 		proto_tree_add_item_ret_uint8(tree, hf_afp_path_len, tvb, tp_ofs, 1, ENC_BIG_ENDIAN, &len);
@@ -3614,8 +3613,7 @@ dissect_query_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 	PAD(1);
 
-	token = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_afp_session_token_type, tvb, offset, 2, ENC_BIG_ENDIAN, &token);
 	offset += 2;
 	if (token == kLoginWithoutID || token == kGetKerberosSessionKey) /* 0 || 8 */
 		return offset;
@@ -4860,32 +4858,28 @@ dissect_afp_server_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
 		if ((offset & 1))
 			offset++;
-		sign_ofs = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_signature_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_afp_signature_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &sign_ofs);
 		offset += 2;
 	}
 
 	if ((flag & AFPSRVRINFO_TCPIP)) {
 		if ((offset & 1))
 			offset++;
-		adr_ofs = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_network_address_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_afp_network_address_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &adr_ofs);
 		offset += 2;
 	}
 
 	if ((flag & AFPSRVRINFO_SRVDIRECTORY)) {
 		if ((offset & 1))
 			offset++;
-		dir_ofs = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_directory_services_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_afp_directory_services_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &dir_ofs);
 		offset += 2;
 	}
 
 	if ((flag & AFPSRVRINFO_SRVUTF8)) {
 		if ((offset & 1))
 			offset++;
-		utf_ofs = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(tree, hf_afp_utf8_server_name_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_afp_utf8_server_name_offset, tvb, offset, 2, ENC_BIG_ENDIAN, &utf_ofs);
 		offset += 2;
 	}
 

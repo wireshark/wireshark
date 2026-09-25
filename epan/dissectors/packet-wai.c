@@ -549,8 +549,7 @@ dissect_signature_algorithm(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
     }
 
     offset += 1;
-    sig_name_item = proto_tree_add_item(sa_tree, hf_wai_sign_alg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    sig_id = tvb_get_uint8(tvb, offset);
+    sig_name_item = proto_tree_add_item_ret_uint8(sa_tree, hf_wai_sign_alg_id, tvb, offset, 1, ENC_BIG_ENDIAN, &sig_id);
 
     if (1 == sig_id) {
         proto_item_set_text(sig_name_item, "Signature Algorithm Identifier: ECDSA-192  (0x01)");

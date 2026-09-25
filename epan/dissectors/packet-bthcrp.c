@@ -169,42 +169,36 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else switch(control_pdu_id) {
         case 0x0001: /* CR_DataChannelCreditGrant */
             if (is_client_message) {
-                proto_tree_add_item(tree, hf_bthcrp_control_client_credit_granted, tvb, offset, 4, ENC_BIG_ENDIAN);
-                credits = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_client_credit_granted, tvb, offset, 4, ENC_BIG_ENDIAN, &credits);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - CreditGranted: %u", credits);
                 offset += 4;
             }
             break;
         case 0x0002: /* CR_DataChannelCreditRequest */
             if (!is_client_message) {
-                proto_tree_add_item(tree, hf_bthcrp_control_server_credit_granted, tvb, offset, 4, ENC_BIG_ENDIAN);
-                credits = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_server_credit_granted, tvb, offset, 4, ENC_BIG_ENDIAN, &credits);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - CreditGranted: %u", credits);
                 offset += 4;
             }
             break;
         case 0x0003: /* CR_DataChannelCreditReturn */
             if (is_client_message) {
-                proto_tree_add_item(tree, hf_bthcrp_control_client_credit_return, tvb, offset, 4, ENC_BIG_ENDIAN);
-                credits = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_client_credit_return, tvb, offset, 4, ENC_BIG_ENDIAN, &credits);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Client Credit Return: %u", credits);
                 offset += 4;
             } else {
-                proto_tree_add_item(tree, hf_bthcrp_control_server_credit_return, tvb, offset, 4, ENC_BIG_ENDIAN);
-                credits = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_server_credit_return, tvb, offset, 4, ENC_BIG_ENDIAN, &credits);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Server Credit Return: %u", credits);
                 offset += 4;
             }
             break;
         case 0x0004: /* CR_DataChannelCreditQuery */
             if (is_client_message) {
-                proto_tree_add_item(tree, hf_bthcrp_control_client_credit_query, tvb, offset, 4, ENC_BIG_ENDIAN);
-                credits = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_client_credit_query, tvb, offset, 4, ENC_BIG_ENDIAN, &credits);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Client Credit: %u", credits);
                 offset += 4;
             } else {
-                proto_tree_add_item(tree, hf_bthcrp_control_server_credit_query, tvb, offset, 4, ENC_BIG_ENDIAN);
-                credits = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_server_credit_query, tvb, offset, 4, ENC_BIG_ENDIAN, &credits);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Server Credit: %u", credits);
                 offset += 4;
             }
@@ -226,8 +220,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - Start Byte: %u", number);
                 offset += 2;
 
-                proto_tree_add_item(tree, hf_bthcrp_control_number_of_bytes, tvb, offset, 2, ENC_BIG_ENDIAN);
-                number = tvb_get_ntohs(tvb, offset);
+                proto_tree_add_item_ret_uint(tree, hf_bthcrp_control_number_of_bytes, tvb, offset, 2, ENC_BIG_ENDIAN, &number);
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Number Of Bytes: %u", number);
                 offset += 2;
             } else {

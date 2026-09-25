@@ -1215,8 +1215,7 @@ dissect_bmp_init(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int of
         subtree = proto_item_add_subtree(ti, ett_bmp_init_type);
         offset += 2;
 
-        init_len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(subtree, hf_init_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint16(subtree, hf_init_length, tvb, offset, 2, ENC_BIG_ENDIAN, &init_len);
         offset += 2;
 
         proto_tree_add_item(subtree, hf_init_info, tvb, offset, init_len, ENC_ASCII);

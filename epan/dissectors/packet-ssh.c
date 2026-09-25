@@ -4606,13 +4606,11 @@ ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 proto_tree_add_item(msg_type_tree, hf_ssh_disconnect_reason, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 unsigned   nlen;
-                nlen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_disconnect_description_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_disconnect_description_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &nlen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_disconnect_description, packet_tvb, offset, nlen, ENC_ASCII);
                 offset += nlen;
-                nlen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_lang_tag_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_lang_tag_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &nlen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_lang_tag, packet_tvb, offset, nlen, ENC_ASCII);
                 offset += nlen;
@@ -4622,34 +4620,29 @@ ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 unsigned   slen;
                 proto_tree_add_item(msg_type_tree, hf_ssh_debug_always_display, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_debug_message_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_debug_message_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_debug_message, packet_tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_lang_tag_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_lang_tag_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_lang_tag, packet_tvb, offset, slen, ENC_ASCII);
                 offset += slen;
         }else if(msg_code==SSH_MSG_SERVICE_REQUEST){
                 unsigned   nlen;
-                nlen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &nlen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_service_name, packet_tvb, offset, nlen, ENC_ASCII);
                 offset += nlen;
         }else if(msg_code==SSH_MSG_SERVICE_ACCEPT){
                 unsigned   nlen;
-                nlen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &nlen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_service_name, packet_tvb, offset, nlen, ENC_ASCII);
                 offset += nlen;
         }else if(msg_code==SSH_MSG_EXT_INFO){
                 unsigned   ext_cnt;
-                ext_cnt = tvb_get_ntohl(packet_tvb, offset);
-                proto_tree_add_item(msg_type_tree, hf_ssh_ext_count, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_ext_count, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &ext_cnt);
                 offset += 4;
                 for(unsigned ext_index = 0; ext_index < ext_cnt; ext_index++) {
                     offset = ssh_dissect_rfc8308_extension(packet_tvb, pinfo, offset, peer_data, msg_type_tree);
@@ -4684,13 +4677,11 @@ ssh_dissect_rfc8308_extension(tvbuff_t *packet_tvb, packet_info *pinfo,
     } else if (g_str_equal(ext_name, "delay-compression")) {
         // delay-compression (RFC8308 Sec 3.2)
         unsigned slen;
-        slen = tvb_get_ntohl(packet_tvb, offset);
-        proto_tree_add_item(ext_tree, hf_ssh_ext_delay_compression_algorithms_client_to_server_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(ext_tree, hf_ssh_ext_delay_compression_algorithms_client_to_server_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
         offset += 4;
         proto_tree_add_item(ext_tree, hf_ssh_ext_delay_compression_algorithms_client_to_server, packet_tvb, offset, slen, ENC_ASCII);
         offset += slen;
-        slen = tvb_get_ntohl(packet_tvb, offset);
-        proto_tree_add_item(ext_tree, hf_ssh_ext_delay_compression_algorithms_server_to_client_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(ext_tree, hf_ssh_ext_delay_compression_algorithms_server_to_client_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
         offset += 4;
         proto_tree_add_item(ext_tree, hf_ssh_ext_delay_compression_algorithms_server_to_client, packet_tvb, offset, slen, ENC_ASCII);
         offset += slen;
@@ -4813,8 +4804,7 @@ ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
                 proto_item *ti;
                 int dissected_len = 0;
                 unsigned   slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_userauth_pka_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name, packet_tvb, offset, slen, ENC_ASCII);
                 offset += slen;
@@ -5804,8 +5794,7 @@ ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         if(msg_code==SSH_MSG_GLOBAL_REQUEST){
                 const char* request_name;
                 unsigned   slen;
-                slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_global_request_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_global_request_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
                 offset += 4;
                 request_name = (char*)tvb_get_string_enc(pinfo->pool, packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
                 proto_tree_add_item(msg_type_tree, hf_ssh_global_request_name, packet_tvb, offset, slen, ENC_ASCII);
@@ -5832,14 +5821,12 @@ ssh_dissect_local_extension(tvbuff_t *packet_tvb, packet_info *pinfo,
         proto_tree_add_item(msg_type_tree, hf_ssh2_ext_ping_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         if (msg_code == SSH_MSG_PING) {
-            slen = tvb_get_ntohl(packet_tvb, offset) ;
-            proto_tree_add_item(msg_type_tree, hf_ssh_ping_data_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_ping_data_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
             offset += 4;
             proto_tree_add_item(msg_type_tree, hf_ssh_ping_data, packet_tvb, offset, slen, ENC_NA);
             offset += slen;
         } else if (msg_code == SSH_MSG_PONG) {
-            slen = tvb_get_ntohl(packet_tvb, offset) ;
-            proto_tree_add_item(msg_type_tree, hf_ssh_pong_data_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_pong_data_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
             offset += 4;
             proto_tree_add_item(msg_type_tree, hf_ssh_pong_data, packet_tvb, offset, slen, ENC_NA);
             offset += slen;
@@ -5900,13 +5887,11 @@ ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
 {
         (void)pinfo;
         unsigned   slen;
-        slen = tvb_get_ntohl(packet_tvb, offset) ;
-        proto_tree_add_item(msg_type_tree, hf_ssh_pk_sig_blob_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_pk_sig_blob_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
         offset += 4;
         proto_tree_add_item(msg_type_tree, hf_ssh_pk_sig_blob_name, packet_tvb, offset, slen, ENC_ASCII);
         offset += slen;
-        slen = tvb_get_ntohl(packet_tvb, offset) ;
-        proto_tree_add_item(msg_type_tree, hf_ssh_pk_sig_s_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(msg_type_tree, hf_ssh_pk_sig_s_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN, &slen);
         offset += 4;
         proto_tree_add_item(msg_type_tree, hf_ssh_pk_sig_s, packet_tvb, offset, slen, ENC_NA);
         offset += slen;

@@ -2627,8 +2627,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                             cm_tree = proto_item_add_subtree(pi, ett_thread_mc_chan_mask);
                             proto_tree_add_item(cm_tree, hf_thread_mc_tlv_chan_mask_page, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
-                            masklen = tvb_get_uint8(tvb, offset);
-                            proto_tree_add_item(cm_tree, hf_thread_mc_tlv_chan_mask_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item_ret_uint16(cm_tree, hf_thread_mc_tlv_chan_mask_len, tvb, offset, 1, ENC_BIG_ENDIAN, &masklen);
                             offset++;
                             proto_tree_add_item(cm_tree, hf_thread_mc_tlv_chan_mask_mask, tvb, offset, masklen, ENC_NA);
                             offset += masklen;
@@ -2922,8 +2921,7 @@ dissect_thread_nwd_with_server_decode(tvbuff_t *tvb, packet_info *pinfo, proto_t
                     tlv_offset = 1;
 
                     /* Prefix Length */
-                    proto_tree_add_item(tlv_tree, hf_thread_nwd_tlv_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    prefix_len = tvb_get_uint8(tvb, offset);
+                    proto_tree_add_item_ret_uint8(tlv_tree, hf_thread_nwd_tlv_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN, &prefix_len);
                     prefix_byte_len = (prefix_len + 7) / 8;
                     offset++;
                     tlv_offset++;

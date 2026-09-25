@@ -1205,8 +1205,7 @@ static unsigned dissect_wimaxmacphy_dl_burst_descriptor(tvbuff_t *tvb, unsigned 
     }
 
     /* sub-burst portion */
-    sub_burst_descriptor_count = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_number_of_sub_burst_descriptors, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_number_of_sub_burst_descriptors, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_burst_descriptor_count);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_sub_burst_padding,               tvb, offset, 3, ENC_NA);
@@ -1310,8 +1309,7 @@ static unsigned dissect_wimaxmacphy_dl_zone_descriptor(tvbuff_t *tvb, unsigned o
     }
 
     /* burst portion */
-    burst_descriptor_count = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_number_of_burst_descriptors, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_number_of_burst_descriptors, tvb, offset, 1, ENC_BIG_ENDIAN, &burst_descriptor_count);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_burst_padding,               tvb, offset, 3, ENC_NA);
@@ -1828,8 +1826,7 @@ static unsigned dissect_wimaxmacphy_ul_burst_descriptor(tvbuff_t *tvb, unsigned 
     }
 
     /* sub-burst portion */
-    sub_burst_descriptor_count = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_number_of_sub_burst_descriptors, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_number_of_sub_burst_descriptors, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_burst_descriptor_count);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_sub_burst_padding,               tvb, offset, 3, ENC_NA);
@@ -1915,8 +1912,7 @@ static unsigned dissect_wimaxmacphy_ul_zone_descriptor(tvbuff_t *tvb, unsigned o
     }
 
     /* burst portion */
-    burst_descriptor_count = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_number_of_burst_descriptors, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_wimaxmacphy_number_of_burst_descriptors, tvb, offset, 1, ENC_BIG_ENDIAN, &burst_descriptor_count);
     offset += 1;
 
     proto_tree_add_item(tree, hf_wimaxmacphy_burst_padding,               tvb, offset, 3, ENC_NA);
@@ -1996,8 +1992,7 @@ static unsigned dissect_wimaxmacphy_phy_txstart_request(tvbuff_t *tvb, unsigned 
     uint16_t txvector_length;
     unsigned   subframe_descriptor_length;
 
-    txvector_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_length_of_txvector, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_wimaxmacphy_prim_length_of_txvector, tvb, offset, 2, ENC_BIG_ENDIAN, &txvector_length);
     offset += 2;
 
     subframe_descriptor_length = dissect_wimaxmacphy_dl_subframe_descriptor(
@@ -2103,8 +2098,7 @@ static unsigned dissect_wimaxmacphy_phy_rxstart_request(tvbuff_t *tvb, unsigned 
     uint16_t rxvector_length;
     unsigned   subframe_descriptor_length;
 
-    rxvector_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_wimaxmacphy_prim_length_of_rxvector, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_wimaxmacphy_prim_length_of_rxvector, tvb, offset, 2, ENC_BIG_ENDIAN, &rxvector_length);
     offset += 2;
 
     subframe_descriptor_length = dissect_wimaxmacphy_ul_subframe_descriptor(

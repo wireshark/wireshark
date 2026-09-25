@@ -317,10 +317,8 @@ static void dissect_wa_payload(uint32_t starting_offset, proto_item *parent_tree
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
 
-            if_type = tvb_get_ntohl(tvb, starting_offset + 4);
-
-            proto_tree_add_item(parent_tree,
-                hf_waveagent_iftype, tvb, starting_offset + 4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(parent_tree,
+                hf_waveagent_iftype, tvb, starting_offset + 4, 4, ENC_BIG_ENDIAN, &if_type);
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifdhcp, tvb, starting_offset + 8, 4, ENC_BIG_ENDIAN);
@@ -385,10 +383,8 @@ static void dissect_wa_payload(uint32_t starting_offset, proto_item *parent_tree
             proto_tree_add_item(parent_tree,
                 hf_waveagent_ifindex, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
 
-            if_type = tvb_get_ntohl(tvb, starting_offset + 4);
-
-            proto_tree_add_item(parent_tree,
-                hf_waveagent_iftype, tvb, starting_offset + 4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(parent_tree,
+                hf_waveagent_iftype, tvb, starting_offset + 4, 4, ENC_BIG_ENDIAN, &if_type);
 
             offset = starting_offset + 8;
             delta = 156;

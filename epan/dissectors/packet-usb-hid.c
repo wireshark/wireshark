@@ -4806,8 +4806,7 @@ dissect_usb_hid_boot_keyboard_input_report(tvbuff_t *tvb, packet_info *pinfo, pr
     proto_tree_add_item(tree, hf_usbhid_boot_report_keyboard_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_usbhid_boot_report_keyboard_keycode_1, tvb, offset, 1, ENC_BIG_ENDIAN);
-    keycode = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_usbhid_boot_report_keyboard_keycode_1, tvb, offset, 1, ENC_BIG_ENDIAN, &keycode);
     offset += 1;
 
     if (keycode) {
@@ -4816,8 +4815,7 @@ dissect_usb_hid_boot_keyboard_input_report(tvbuff_t *tvb, packet_info *pinfo, pr
         shortcut_helper = true;
     }
 
-    proto_tree_add_item(tree, hf_usbhid_boot_report_keyboard_keycode_2, tvb, offset, 1, ENC_BIG_ENDIAN);
-    keycode = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_usbhid_boot_report_keyboard_keycode_2, tvb, offset, 1, ENC_BIG_ENDIAN, &keycode);
     offset += 1;
 
     if (keycode) {
@@ -4826,8 +4824,7 @@ dissect_usb_hid_boot_keyboard_input_report(tvbuff_t *tvb, packet_info *pinfo, pr
         shortcut_helper = true;
     }
 
-    proto_tree_add_item(tree, hf_usbhid_boot_report_keyboard_keycode_3, tvb, offset, 1, ENC_BIG_ENDIAN);
-    keycode = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_usbhid_boot_report_keyboard_keycode_3, tvb, offset, 1, ENC_BIG_ENDIAN, &keycode);
     offset += 1;
 
     if (keycode) {
@@ -4836,8 +4833,7 @@ dissect_usb_hid_boot_keyboard_input_report(tvbuff_t *tvb, packet_info *pinfo, pr
         shortcut_helper = true;
     }
 
-    proto_tree_add_item(tree, hf_usbhid_boot_report_keyboard_keycode_4, tvb, offset, 1, ENC_BIG_ENDIAN);
-    keycode = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_usbhid_boot_report_keyboard_keycode_4, tvb, offset, 1, ENC_BIG_ENDIAN, &keycode);
     offset += 1;
 
     if (keycode) {
@@ -4846,8 +4842,7 @@ dissect_usb_hid_boot_keyboard_input_report(tvbuff_t *tvb, packet_info *pinfo, pr
         shortcut_helper = true;
     }
 
-    proto_tree_add_item(tree, hf_usbhid_boot_report_keyboard_keycode_5, tvb, offset, 1, ENC_BIG_ENDIAN);
-    keycode = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_usbhid_boot_report_keyboard_keycode_5, tvb, offset, 1, ENC_BIG_ENDIAN, &keycode);
     offset += 1;
 
     if (keycode) {
@@ -4856,8 +4851,7 @@ dissect_usb_hid_boot_keyboard_input_report(tvbuff_t *tvb, packet_info *pinfo, pr
         shortcut_helper = true;
     }
 
-    proto_tree_add_item(tree, hf_usbhid_boot_report_keyboard_keycode_6, tvb, offset, 1, ENC_BIG_ENDIAN);
-    keycode = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_usbhid_boot_report_keyboard_keycode_6, tvb, offset, 1, ENC_BIG_ENDIAN, &keycode);
     offset += 1;
 
     if (keycode) {

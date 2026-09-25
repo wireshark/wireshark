@@ -2582,8 +2582,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (segment == 0x01) {
         proto_item *pi;
 
-        sdulen = tvb_get_letohs(tvb, offset);
-        pi = proto_tree_add_item(btl2cap_tree, hf_btl2cap_sdulength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        pi = proto_tree_add_item_ret_uint16(btl2cap_tree, hf_btl2cap_sdulength, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sdulen);
         offset += 2;
 
 

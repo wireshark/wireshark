@@ -2548,11 +2548,10 @@ dlms_dissect_event_notification_request(tvbuff_t* tvb, packet_info* pinfo, proto
 static void
 dlms_dissect_action_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
 {
-    int choice, method_invocation_parameters;
+    uint8_t choice, method_invocation_parameters;
     proto_tree* subtree;
 
-    proto_tree_add_item(tree, hf_dlms_action_request, tvb, offset, 1, ENC_NA);
-    choice = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_dlms_action_request, tvb, offset, 1, ENC_NA, &choice);
     offset += 1;
     offset = dlms_dissect_invoke_id_and_priority(tree, tvb, offset);
     if (choice == DLMS_ACTION_REQUEST_NORMAL) {

@@ -371,8 +371,8 @@ dissect_network_message_payload(tvbuff_t *tvb, packet_info *pinfo, int *pOffset,
 
                 uint16_t field_count = 0;
                 if (field_enc != 0x01) {
-                    proto_tree_add_item(keyframe_tree, hf_opcua_pubsub_dsm_kf_field_count, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
-                    field_count = tvb_get_uint16(tvb, iOffset, ENC_LITTLE_ENDIAN); iOffset += 2;
+                    proto_tree_add_item_ret_uint16(keyframe_tree, hf_opcua_pubsub_dsm_kf_field_count, tvb, iOffset, 2, ENC_LITTLE_ENDIAN, &field_count);
+                    iOffset += 2;
                 }
 
                 if (field_enc == 0x00) { /* Variant */
@@ -804,8 +804,8 @@ dissect_opcua_pubsub(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         }
 
         if (security_footer_enabled) {
-            proto_tree_add_item(sec_hdr_tree, hf_opcua_pubsub_sec_footer_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            sec_footer_size = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN); offset += 2;
+            proto_tree_add_item_ret_uint16(sec_hdr_tree, hf_opcua_pubsub_sec_footer_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sec_footer_size);
+            offset += 2;
         }
 
         proto_item_set_end(sec_hdr_ti, tvb, offset);
