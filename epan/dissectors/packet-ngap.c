@@ -3957,6 +3957,7 @@ struct ngap_tai {
 };
 
 struct ngap_private_data {
+  proto_tree *top_tree;
   struct ngap_conv_info *ngap_conv;
   uint32_t procedure_code;
   uint32_t protocol_ie_id;
@@ -4017,14 +4018,25 @@ static dissector_table_t ngap_proc_sout_dissector_table;
 static dissector_table_t ngap_proc_uout_dissector_table;
 static dissector_table_t ngap_n2_ie_type_dissector_table;
 
-static proto_tree *top_tree;
+static struct ngap_private_data*
+ngap_get_private_data(packet_info *pinfo)
+{
+  struct ngap_private_data *ngap_data = (struct ngap_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_ngap, 0);
+  if (!ngap_data) {
+    ngap_data = wmem_new0(pinfo->pool, struct ngap_private_data);
+    ngap_data->handover_type_value = -1;
+    ngap_data->qos_flow_add_info_rel_type = -1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_ngap, 0, ngap_data);
+  }
+  return ngap_data;
+}
 
 static void set_message_label(asn1_ctx_t *actx, int type)
 {
   const char *label = val_to_str_ext_const(type, &mtype_names_ext, "Unknown");
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, label);
-  /* N.B. would like to be able to use actx->subTree.top_tree, but not easy to set.. */
-  proto_item_append_text(top_tree, " (%s)", label);
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+  proto_item_append_text(ngap_data->top_tree, " (%s)", label);
 }
 
 
@@ -4216,19 +4228,6 @@ ngap_50m_r19_fmt(char *s, uint32_t v)
   int32_t d = (int32_t)v;
 
   snprintf(s, ITEM_LABEL_LENGTH, "%dm (%d)", d*50, d);
-}
-
-static struct ngap_private_data*
-ngap_get_private_data(packet_info *pinfo)
-{
-  struct ngap_private_data *ngap_data = (struct ngap_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_ngap, 0);
-  if (!ngap_data) {
-    ngap_data = wmem_new0(pinfo->pool, struct ngap_private_data);
-    ngap_data->handover_type_value = -1;
-    ngap_data->qos_flow_add_info_rel_type = -1;
-    p_add_proto_data(pinfo->pool, pinfo, proto_ngap, 0, ngap_data);
-  }
-  return ngap_data;
 }
 
 static GlobalRANNodeID_enum
@@ -33777,14 +33776,14 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   ngap_item = proto_tree_add_item(tree, proto_ngap, tvb, 0, -1, ENC_NA);
   ngap_tree = proto_item_add_subtree(ngap_item, ett_ngap);
 
+  ngap_data = ngap_get_private_data(pinfo);
+
   /* Store top-level tree */
-  top_tree = ngap_tree;
+  ngap_data->top_tree = ngap_tree;
 
   /* Add stats tap to private struct */
-  struct ngap_private_data *priv_data = ngap_get_private_data(pinfo);
-  priv_data->stats_tap = ngap_info;
+  ngap_data->stats_tap = ngap_info;
 
-  ngap_data = ngap_get_private_data(pinfo);
   conversation = find_or_create_conversation(pinfo);
   ngap_data->ngap_conv = (struct ngap_conv_info *)conversation_get_proto_data(conversation, proto_ngap);
   if (!ngap_data->ngap_conv) {
