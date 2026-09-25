@@ -57,8 +57,12 @@ find_library( CARES_LIBRARY
 # Try to retrieve version from header if found
 # Adapted from https://stackoverflow.com/a/47084079/82195
 if(CARES_INCLUDE_DIR)
+  unset(_ares_version_h)
   file(READ "${CARES_INCLUDE_DIR}/ares_version.h" _ares_version_h)
 
+  if(NOT _ares_version_h)
+    message(FATAL_ERROR "c-ares version file ${CARES_INCLUDE_DIR}/ares_version.h not found or unreadable")
+  endif()
   string(REGEX MATCH "#[\t ]*define[ \t]+ARES_VERSION_MAJOR[ \t]+([0-9]+)" _ ${_ares_version_h})
   set(_ares_version_major ${CMAKE_MATCH_1})
   string(REGEX MATCH "#[\t ]*define[ \t]+ARES_VERSION_MINOR[ \t]+([0-9]+)" _ ${_ares_version_h})
