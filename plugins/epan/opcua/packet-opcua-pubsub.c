@@ -845,7 +845,7 @@ dissect_opcua_pubsub(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             proto_tree_add_item(payload_tree, hf_opcua_pubsub_dsm_total_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             uint32_t total_size = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN); offset += 4;
 
-            uint16_t chunk_data_len = tvb_captured_length_remaining(tvb, offset) - sign_len;
+            uint16_t chunk_data_len = tvb_captured_length_remaining(tvb, offset) - sec_footer_size - sign_len;
             pinfo->fragmented = true;
             chunk_data = fragment_add_check(&opcua_pubsub_reassembly_table, tvb, offset, pinfo,
                 msg_seq_num, NULL, chunk_offset, chunk_data_len, chunk_offset + chunk_data_len != total_size);
@@ -876,21 +876,23 @@ dissect_opcua_pubsub(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
         if (next_tvb) { /* only dissect if: normal payload or completely reassembled */
             if (dissect_network_message_payload(next_tvb, pinfo, &new_offset, nm_type, msg_count, payload_hdr_enabled,
-                msg_count_ti, payload_tree, opcua_pubsub_ti, ext_f2_ti, sec_footer_size - sign_len)) {
+                msg_count_ti, payload_tree, opcua_pubsub_ti, ext_f2_ti, chunk_enabled ? 0 : sec_footer_size + sign_len)) {
                 return tvb_captured_length(tvb);
             }
+        }
+
+        /* Bring old tvb offset up to date, a chunk's offset is already behind its chunk data */
+        if (!chunk_enabled) {
+            offset += new_offset;
         }
 
         /* TODO Padding: Not Implemented */
 
         if (security_footer_enabled) {
             /* TODO interpret Security Footer with regard to SecurityPolicy */
-            proto_tree_add_item(opcua_pubsub_tree, hf_opcua_pubsub_sec_footer, next_tvb, new_offset, sec_footer_size, ENC_NA);
-            new_offset += sec_footer_size;
+            proto_tree_add_item(opcua_pubsub_tree, hf_opcua_pubsub_sec_footer, tvb, offset, sec_footer_size, ENC_NA);
+            offset += sec_footer_size;
         }
-
-        /* Bring old tvb offset up to date */
-        offset += new_offset;
     }
 
     if (sign_enabled) {
