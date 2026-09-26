@@ -1,0 +1,563 @@
+// This file was created by Stratoshark. Edit with care.
+[
+  {
+    "Errors": {
+      "filter": "ct.error",
+      "foreground": "#f78787",
+      "background": "#12272e",
+      "enabled": true
+    }
+  },
+  {
+    "State Modifying Event": {
+      "filter": "ct.readonly == \"false\"",
+      "foreground": "#942192",
+      "background": "#ffffff",
+      "enabled": true
+    }
+  },
+  {
+    "Administrative Activity": {
+      "filter": "falcoevents.id == 2 and not (ct.name ~ \"^Describe.*\" or ct.name ~ \"^List.*\"  or ct.name ~ \"^(Batch|)Get.*\")",
+      "foreground": "#000000",
+      "background": "#942192",
+      "enabled": true
+    }
+  },
+  {
+    "s3": {
+      "filter": "ct.shortsrc==s3",
+      "foreground": "#000000",
+      "background": "#d2e1f2",
+      "enabled": true
+    }
+  },
+  {
+    "ec2": {
+      "filter": "ct.shortsrc==ec2",
+      "foreground": "#000000",
+      "background": "#fff9c4",
+      "enabled": true
+    }
+  },
+  {
+    "ecs": {
+      "filter": "ct.shortsrc==ecs",
+      "foreground": "#000000",
+      "background": "#e2e5f5",
+      "enabled": true
+    }
+  },
+  {
+    "elasticloadbalancing": {
+      "filter": "ct.shortsrc==elasticloadbalancing",
+      "foreground": "#000000",
+      "background": "#ffe7ba",
+      "enabled": true
+    }
+  },
+  {
+    "dynamodb": {
+      "filter": "ct.shortsrc==dynamodb",
+      "foreground": "#000000",
+      "background": "#e0f0ff",
+      "enabled": true
+    }
+  },
+  {
+    "sts": {
+      "filter": "ct.shortsrc==sts",
+      "foreground": "#000000",
+      "background": "#ffe5e6",
+      "enabled": true
+    }
+  },
+  {
+    "rds": {
+      "filter": "ct.shortsrc==rds",
+      "foreground": "#000000",
+      "background": "#eeeeee",
+      "enabled": true
+    }
+  },
+  {
+    "elasticache": {
+      "filter": "ct.shortsrc==elasticache",
+      "foreground": "#000000",
+      "background": "#e0fdef",
+      "enabled": true
+    }
+  },
+  {
+    "ssm": {
+      "filter": "ct.shortsrc==ssm",
+      "foreground": "#000000",
+      "background": "#ffcbe2",
+      "enabled": true
+    }
+  },
+  {
+    "servicediscovery": {
+      "filter": "ct.shortsrc==servicediscovery",
+      "foreground": "#000000",
+      "background": "#e2e8ec",
+      "enabled": true
+    }
+  },
+  {
+    "kms": {
+      "filter": "ct.shortsrc==kms",
+      "foreground": "#000000",
+      "background": "#d7f5dc",
+      "enabled": true
+    }
+  },
+  {
+    "iam": {
+      "filter": "ct.shortsrc==iam",
+      "foreground": "#000000",
+      "background": "#ebc8f3",
+      "enabled": true
+    }
+  },
+  {
+    "config": {
+      "filter": "ct.shortsrc==config",
+      "foreground": "#000000",
+      "background": "#d9f2f6",
+      "enabled": true
+    }
+  },
+  {
+    "autoscaling": {
+      "filter": "ct.shortsrc==autoscaling",
+      "foreground": "#000000",
+      "background": "#f4ffb8",
+      "enabled": true
+    }
+  },
+  {
+    "logs": {
+      "filter": "ct.shortsrc==logs",
+      "foreground": "#000000",
+      "background": "#ebdff7",
+      "enabled": true
+    }
+  },
+  {
+    "cloudformation": {
+      "filter": "ct.shortsrc==cloudformation",
+      "foreground": "#000000",
+      "background": "#d2e1f2",
+      "enabled": true
+    }
+  },
+  {
+    "route53": {
+      "filter": "ct.shortsrc==route53",
+      "foreground": "#000000",
+      "background": "#fff9c4",
+      "enabled": true
+    }
+  },
+  {
+    "health": {
+      "filter": "ct.shortsrc==health",
+      "foreground": "#000000",
+      "background": "#e2e5f5",
+      "enabled": true
+    }
+  },
+  {
+    "codebuild": {
+      "filter": "ct.shortsrc==codebuild",
+      "foreground": "#000000",
+      "background": "#ffe7ba",
+      "enabled": true
+    }
+  },
+  {
+    "ecr": {
+      "filter": "ct.shortsrc==ecr",
+      "foreground": "#000000",
+      "background": "#e0f0ff",
+      "enabled": true
+    }
+  },
+  {
+    "lambda": {
+      "filter": "ct.shortsrc==lambda",
+      "foreground": "#000000",
+      "background": "#ffe5e6",
+      "enabled": true
+    }
+  },
+  {
+    "eks": {
+      "filter": "ct.shortsrc==eks",
+      "foreground": "#000000",
+      "background": "#eeeeee",
+      "enabled": true
+    }
+  },
+  {
+    "glue": {
+      "filter": "ct.shortsrc==glue",
+      "foreground": "#000000",
+      "background": "#e0fdef",
+      "enabled": true
+    }
+  },
+  {
+    "events": {
+      "filter": "ct.shortsrc==events",
+      "foreground": "#000000",
+      "background": "#ffcbe2",
+      "enabled": true
+    }
+  },
+  {
+    "athena": {
+      "filter": "ct.shortsrc==athena",
+      "foreground": "#000000",
+      "background": "#e2e8ec",
+      "enabled": true
+    }
+  },
+  {
+    "guardduty": {
+      "filter": "ct.shortsrc==guardduty",
+      "foreground": "#000000",
+      "background": "#d7f5dc",
+      "enabled": true
+    }
+  },
+  {
+    "tagging": {
+      "filter": "ct.shortsrc==tagging",
+      "foreground": "#000000",
+      "background": "#ebc8f3",
+      "enabled": true
+    }
+  },
+  {
+    "monitoring": {
+      "filter": "ct.shortsrc==monitoring",
+      "foreground": "#000000",
+      "background": "#d9f2f6",
+      "enabled": true
+    }
+  },
+  {
+    "sns": {
+      "filter": "ct.shortsrc==sns",
+      "foreground": "#000000",
+      "background": "#f4ffb8",
+      "enabled": true
+    }
+  },
+  {
+    "secretsmanager": {
+      "filter": "ct.shortsrc==secretsmanager",
+      "foreground": "#000000",
+      "background": "#ebdff7",
+      "enabled": true
+    }
+  },
+  {
+    "cloudtrail": {
+      "filter": "ct.shortsrc==cloudtrail",
+      "foreground": "#000000",
+      "background": "#d2e1f2",
+      "enabled": false
+    }
+  },
+  {
+    "ec2-instance-connect": {
+      "filter": "ct.shortsrc==ec2-instance-connect",
+      "foreground": "#000000",
+      "background": "#fff9c4",
+      "enabled": true
+    }
+  },
+  {
+    "servicequotas": {
+      "filter": "ct.shortsrc==servicequotas",
+      "foreground": "#000000",
+      "background": "#e2e5f5",
+      "enabled": true
+    }
+  },
+  {
+    "apigateway": {
+      "filter": "ct.shortsrc==apigateway",
+      "foreground": "#000000",
+      "background": "#ffe7ba",
+      "enabled": true
+    }
+  },
+  {
+    "resource-groups": {
+      "filter": "ct.shortsrc==resource-groups",
+      "foreground": "#000000",
+      "background": "#e0f0ff",
+      "enabled": true
+    }
+  },
+  {
+    "cognito-idp": {
+      "filter": "ct.shortsrc==cognito-idp",
+      "foreground": "#000000",
+      "background": "#ffe5e6",
+      "enabled": true
+    }
+  },
+  {
+    "compute-optimizer": {
+      "filter": "ct.shortsrc==compute-optimizer",
+      "foreground": "#000000",
+      "background": "#eeeeee",
+      "enabled": true
+    }
+  },
+  {
+    "signin": {
+      "filter": "ct.shortsrc==signin",
+      "foreground": "#000000",
+      "background": "#e0fdef",
+      "enabled": true
+    }
+  },
+  {
+    "inspector": {
+      "filter": "ct.shortsrc==inspector",
+      "foreground": "#000000",
+      "background": "#ffcbe2",
+      "enabled": true
+    }
+  },
+  {
+    "es": {
+      "filter": "ct.shortsrc==es",
+      "foreground": "#000000",
+      "background": "#e2e8ec",
+      "enabled": true
+    }
+  },
+  {
+    "cognito-identity": {
+      "filter": "ct.shortsrc==cognito-identity",
+      "foreground": "#000000",
+      "background": "#d7f5dc",
+      "enabled": true
+    }
+  },
+  {
+    "acm": {
+      "filter": "ct.shortsrc==acm",
+      "foreground": "#000000",
+      "background": "#ebc8f3",
+      "enabled": true
+    }
+  },
+  {
+    "firehose": {
+      "filter": "ct.shortsrc==firehose",
+      "foreground": "#000000",
+      "background": "#d9f2f6",
+      "enabled": true
+    }
+  },
+  {
+    "redshift": {
+      "filter": "ct.shortsrc==redshift",
+      "foreground": "#000000",
+      "background": "#f4ffb8",
+      "enabled": true
+    }
+  },
+  {
+    "workspaces": {
+      "filter": "ct.shortsrc==workspaces",
+      "foreground": "#000000",
+      "background": "#ebdff7",
+      "enabled": true
+    }
+  },
+  {
+    "translate": {
+      "filter": "ct.shortsrc==translate",
+      "foreground": "#000000",
+      "background": "#d2e1f2",
+      "enabled": true
+    }
+  },
+  {
+    "elasticmapreduce": {
+      "filter": "ct.shortsrc==elasticmapreduce",
+      "foreground": "#000000",
+      "background": "#fff9c4",
+      "enabled": true
+    }
+  },
+  {
+    "states": {
+      "filter": "ct.shortsrc==states",
+      "foreground": "#000000",
+      "background": "#e2e5f5",
+      "enabled": true
+    }
+  },
+  {
+    "dms": {
+      "filter": "ct.shortsrc==dms",
+      "foreground": "#000000",
+      "background": "#ffe7ba",
+      "enabled": true
+    }
+  },
+  {
+    "kinesis": {
+      "filter": "ct.shortsrc==kinesis",
+      "foreground": "#000000",
+      "background": "#e0f0ff",
+      "enabled": true
+    }
+  },
+  {
+    "access-analyzer": {
+      "filter": "ct.shortsrc==access-analyzer",
+      "foreground": "#000000",
+      "background": "#ffe5e6",
+      "enabled": true
+    }
+  },
+  {
+    "storagegateway": {
+      "filter": "ct.shortsrc==storagegateway",
+      "foreground": "#000000",
+      "background": "#eeeeee",
+      "enabled": true
+    }
+  },
+  {
+    "waf-regional": {
+      "filter": "ct.shortsrc==waf-regional",
+      "foreground": "#000000",
+      "background": "#e0fdef",
+      "enabled": true
+    }
+  },
+  {
+    "transfer": {
+      "filter": "ct.shortsrc==transfer",
+      "foreground": "#000000",
+      "background": "#ffcbe2",
+      "enabled": true
+    }
+  },
+  {
+    "route53domains": {
+      "filter": "ct.shortsrc==route53domains",
+      "foreground": "#000000",
+      "background": "#e2e8ec",
+      "enabled": true
+    }
+  },
+  {
+    "sagemaker": {
+      "filter": "ct.shortsrc==sagemaker",
+      "foreground": "#000000",
+      "background": "#d7f5dc",
+      "enabled": true
+    }
+  },
+  {
+    "route53resolver": {
+      "filter": "ct.shortsrc==route53resolver",
+      "foreground": "#000000",
+      "background": "#ebc8f3",
+      "enabled": true
+    }
+  },
+  {
+    "securityhub": {
+      "filter": "ct.shortsrc==securityhub",
+      "foreground": "#000000",
+      "background": "#d9f2f6",
+      "enabled": true
+    }
+  },
+  {
+    "organizations": {
+      "filter": "ct.shortsrc==organizations",
+      "foreground": "#000000",
+      "background": "#f4ffb8",
+      "enabled": true
+    }
+  },
+  {
+    "ram": {
+      "filter": "ct.shortsrc==ram",
+      "foreground": "#000000",
+      "background": "#ebdff7",
+      "enabled": true
+    }
+  },
+  {
+    "elasticfilesystem": {
+      "filter": "ct.shortsrc==elasticfilesystem",
+      "foreground": "#000000",
+      "background": "#d2e1f2",
+      "enabled": true
+    }
+  },
+  {
+    "ds": {
+      "filter": "ct.shortsrc==ds",
+      "foreground": "#000000",
+      "background": "#fff9c4",
+      "enabled": true
+    }
+  },
+  {
+    "codedeploy": {
+      "filter": "ct.shortsrc==codedeploy",
+      "foreground": "#000000",
+      "background": "#e2e5f5",
+      "enabled": true
+    }
+  },
+  {
+    "dax": {
+      "filter": "ct.shortsrc==dax",
+      "foreground": "#000000",
+      "background": "#ffe7ba",
+      "enabled": true
+    }
+  },
+  {
+    "support": {
+      "filter": "ct.shortsrc==support",
+      "foreground": "#000000",
+      "background": "#e0f0ff",
+      "enabled": true
+    }
+  },
+  {
+    "application-insights": {
+      "filter": "ct.shortsrc==application-insights",
+      "foreground": "#000000",
+      "background": "#ffe5e6",
+      "enabled": true
+    }
+  },
+  {
+    "cloudfront": {
+      "filter": "ct.shortsrc==cloudfront",
+      "foreground": "#aa7942",
+      "background": "#eeeeee",
+      "enabled": true
+    }
+  }
+]

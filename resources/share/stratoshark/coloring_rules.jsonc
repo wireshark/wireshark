@@ -1,0 +1,91 @@
+// This file was created by Stratoshark. Edit with care.
+[
+  {
+    "Failed Syscall": {
+      "filter": "(evt.failed == True) && !(evt.res == \"EAGAIN\") && !(evt.res == \"EALREADY\")",
+      "foreground": "#000000",
+      "background": "#dd6e5e",
+      "enabled": true
+    }
+  },
+  {
+    "Falco Notifications": {
+      "filter": "sysdig.event_name == \"notification\"",
+      "foreground": "#ffffff",
+      "background": "#000000",
+      "enabled": true
+    }
+  },
+  {
+    "Command Executions": {
+      "filter": "evt.type == \"execve\"",
+      "foreground": "#000000",
+      "background": "#97e046",
+      "enabled": true
+    }
+  },
+  {
+    "New Process Creations": {
+      "filter": "evt.type==\"clone\" || evt.type==\"fork\"",
+      "foreground": "#ffffff",
+      "background": "#396d3a",
+      "enabled": true
+    }
+  },
+  {
+    "Socket Syscalls": {
+      "filter": "evt.type == \"connect\" || evt.type == \"accept\" || evt.type == \"socket\" || evt.type == \"bind\"",
+      "foreground": "#ffffff",
+      "background": "#4f66c7",
+      "enabled": true
+    }
+  },
+  {
+    "Net Writes": {
+      "filter": "(evt.is_io == True) && (evt.category == \"net\") && (evt.is_io_write == True)",
+      "foreground": "#000000",
+      "background": "#60d1c9",
+      "enabled": true
+    }
+  },
+  {
+    "Net Reads": {
+      "filter": "(evt.is_io == True) && (evt.category == \"net\")",
+      "foreground": "#000000",
+      "background": "#74fcf3",
+      "enabled": true
+    }
+  },
+  {
+    "File Opens": {
+      "filter": "evt.type == \"open\" || evt.type == \"openat\" || evt.type == \"openat2\"",
+      "foreground": "#ffffff",
+      "background": "#7b5f35",
+      "enabled": true
+    }
+  },
+  {
+    "File Writes": {
+      "filter": "(evt.is_io == True) && (evt.category == \"file\") && (evt.is_io_write == True)",
+      "foreground": "#000000",
+      "background": "#eabb92",
+      "enabled": true
+    }
+  },
+  {
+    "File Reads": {
+      "filter": "(evt.is_io == True) && (evt.category == \"file\")",
+      "foreground": "#000000",
+      "background": "#efd29d",
+      "enabled": true
+    }
+  },
+  {
+    "FD Closes": {
+      "filter": "evt.type == \"close\"",
+      "foreground": "#ffffff",
+      "background": "#6b6b6b",
+      "enabled": true
+    }
+  }
+]

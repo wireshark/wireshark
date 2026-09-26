@@ -27,6 +27,9 @@ The following changes have been made since version 4.7.3:
 
 * Holding down kbd:[↓] and kbd:[↑] will move rapidly through the packet list.
 
+* Coloring rules are now saved as a JSONC file.
+  The legacy file format is still supported, but support will be removed in a future release.
+
 The following changes have been made since version 4.7.2:
 
 * The minimum supported Windows version is Windows 10 21H2 (build 19044) or

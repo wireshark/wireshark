@@ -31,6 +31,9 @@ The following changes have been made since version 0.10.3:
 
 * Holding down kbd:[↓] and kbd:[↑] will move rapidly through the event list.
 
+* Coloring rules are now saved as a JSONC file.
+  The legacy file format is still supported, but support will be removed in a future release.
+
 The following changes have been made since version 0.10.2:
 
 * The minimum supported Windows version is Windows 10 21H2 (build 19044) or

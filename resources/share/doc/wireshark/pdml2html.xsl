@@ -76,7 +76,7 @@
        of the frame title bar. Defer colorization until the full page has
        been loaded. If the browser would support the XPath function
        replace() we could simply set the class attribute of the title bar div,
-       but for now we're stuck with class names from Wireshark's colorfilters
+       but for now we're stuck with class names from Wireshark's coloring rules
        that contain spaces and we can't handle them in CSS. -->
   <script type="text/javascript">
     dojo.addOnLoad(function(){

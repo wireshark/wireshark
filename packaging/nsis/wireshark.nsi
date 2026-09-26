@@ -518,9 +518,9 @@ Delete "$INSTDIR\${VCREDIST_EXE}"
 ;IfFileExists cfilters dont_overwrite_cfilters
 File "${STAGING_DIR}\cfilters"
 ;dont_overwrite_cfilters:
-;IfFileExists colorfilters dont_overwrite_colorfilters
-File "${STAGING_DIR}\colorfilters"
-;dont_overwrite_colorfilters:
+;IfFileExists coloring_rules.jsonc dont_overwrite_coloring_rules
+File "${STAGING_DIR}\coloring_rules.jsonc"
+;dont_overwrite_coloring_rules:
 ;IfFileExists dfilters dont_overwrite_dfilters
 File "${STAGING_DIR}\dfilters"
 ;dont_overwrite_dfilters:
@@ -1624,6 +1624,7 @@ Section "Un.Global Settings" un.SecGlobalSettings
 SectionIn 1 2
 Delete "$INSTDIR\cfilters"
 Delete "$INSTDIR\colorfilters"
+Delete "$INSTDIR\coloring_rules.jsonc"
 Delete "$INSTDIR\dfilters"
 Delete "$INSTDIR\enterprises.tsv"
 Delete "$INSTDIR\smi_modules"

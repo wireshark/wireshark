@@ -1,0 +1,83 @@
+// This file was created by Stratoshark. Edit with care.
+[
+  {
+    "Registry Writes": {
+      "filter": "procmon.registry.operation_type in {4,8,16}",
+      "foreground": "#ffffff",
+      "background": "#348010",
+      "enabled": true
+    }
+  },
+  {
+    "Registry Reads": {
+      "filter": "procmon.registry.operation_type in {3,5,6,7}",
+      "foreground": "#ffffff",
+      "background": "#50a129",
+      "enabled": true
+    }
+  },
+  {
+    "Unsuccessful Result": {
+      "filter": "procmon.event_result != 0",
+      "foreground": "#000000",
+      "background": "#dd6e5e",
+      "enabled": true
+    }
+  },
+  {
+    "Socket Operations": {
+      "filter": "procmon.network.operation_type in {4,5,6,7}",
+      "foreground": "#ffffff",
+      "background": "#4f66c7",
+      "enabled": true
+    }
+  },
+  {
+    "Net Writes": {
+      "filter": "procmon.network.operation_type in {2,8,9}",
+      "foreground": "#000000",
+      "background": "#60d1c9",
+      "enabled": true
+    }
+  },
+  {
+    "Net Reads": {
+      "filter": "procmon.network.operation_type == 3",
+      "foreground": "#000000",
+      "background": "#74fcf3",
+      "enabled": true
+    }
+  },
+  {
+    "File Opens": {
+      "filter": "procmon.filesystem.operation_type in {19,20,21,39}",
+      "foreground": "#ffffff",
+      "background": "#7b5f35",
+      "enabled": true
+    }
+  },
+  {
+    "File Writes": {
+      "filter": "procmon.filesystem.operation_type in {3,24}",
+      "foreground": "#000000",
+      "background": "#eabb92",
+      "enabled": true
+    }
+  },
+  {
+    "File Reads": {
+      "filter": "procmon.filesystem.operation_type in {5,23}",
+      "foreground": "#000000",
+      "background": "#efd29d",
+      "enabled": true
+    }
+  },
+  {
+    "FD Closes": {
+      "filter": "procmon.filesystem.operation_type == 38",
+      "foreground": "#ffffff",
+      "background": "#6b6b6b",
+      "enabled": true
+    }
+  }
+]

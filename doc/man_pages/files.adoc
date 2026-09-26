@@ -400,10 +400,29 @@ not found and used to migrate to the new format.
 --
 // end::gui[]
 
-Color Filters (Coloring Rules)::
+Coloring Rules (Color Filters)::
 +
 --
-The __colorfilters__ files contain system-wide and personal color filters.
+The __coloring_rules.jsonc__ file contains system-wide and personal coloring rules.
+It contains an array of named JSON objects with the following key:value pairs:
+
+    [
+        { "Filter name": {
+            "filter": "<display filter string>",
+            "foreground": "#rrggbb or rrggbb",
+            "background": "#rrggbb or rrggbb",
+            "enabled": "<boolean value>"
+            }
+        }
+    ]
+
+The global __coloring_rules.jsonc__ file uses the same directory as the global preferences file.
+The personal __coloring_rules.jsonc__ file uses the same directory as the personal preferences file.
+It is written through the menu:View[Coloring Rules...] dialog.
+
+If the global __coloring_rules.jsonc__ file exists, it is used only if the personal __coloring_rules.jsonc__ file does not exist; global and personal color filters are not merged.
+
+There is also a legacy __colorfilters__ file which was the default name and format prior to Wireshark 5.0 and Stratoshark 1.0.
 Each line contains one filter, starting with the string displayed in the
 dialog box, followed by the corresponding display filter.  Then the
 background and foreground colors are appended:
@@ -412,16 +431,8 @@ background and foreground colors are appended:
   @tcp@tcp@[59345,58980,65534][0,0,0]
   @udp@udp@[28834,57427,65533][0,0,0]
 
-The global __colorfilters__ file uses the same directory as the
-global preferences file.
-
-The personal __colorfilters__ file uses the same directory as the
-personal preferences file.  It is written through the View:Coloring Rules
-dialog.
-
-If the global __colorfilters__ file exists, it is used only if the personal
-__colorfilters__ file does not exist; global and personal color filters are
-not merged.
+Wireshark will read the legacy __colorfilters__ file if it exists, followed by __coloring_rules.jsonc__.
+Wireshark will write the legacy __colorfilters__ file only if it exists.
 --
 
 Plugins::

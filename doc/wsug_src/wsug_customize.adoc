@@ -1218,7 +1218,7 @@ Configuration files stored in each profile include:
 
 * Display Filter Macros (dmacros) (<<ChWorkDefineFilterMacrosSection>>)
 
-* Coloring Rules (colorfilters) (<<ChCustColorizationSection>>)
+* Coloring Rules (coloring_rules.jsonc) (<<ChCustColorizationSection>>)
 
 * Disabled Protocols (disabled_protos) (<<ChAdvEnabledProtocols>>)
 

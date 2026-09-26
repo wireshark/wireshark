@@ -162,7 +162,7 @@ _/usr/local/etc_.
 |===
 |File/Folder|Description
 |_cfilters_|Capture filters.
-|_colorfilters_|Coloring rules.
+|_coloring_rules.jsonc_|Coloring rules.
 |__dfilter_buttons__|Display filter buttons.
 |_dfilters_|Display filters.
 |__disabled_protos__|Disabled protocols.
@@ -205,24 +205,26 @@ all the current capture filters are written to the personal capture
 filters file.
 --
 
-colorfilters::
+coloring_rules.jsonc::
 +
 --
-This file contains all the color filters that you have defined and saved. It
-consists of one or more lines, where each line has the following format:
+This file contains all the coloring rules that you have defined and saved.
+It contains an array of JSON objects, each representing a coloring rule, with the following format:
 
 ----
-@<filter name>@<filter string>@[<bg RGB(16-bit)>][<fg RGB(16-bit)>]
+{ "Filter name": {
+    "filter": "<display filter string>",
+    "foreground": "#rrggbb or rrggbb",
+    "background": "#rrggbb or rrggbb",
+    "enabled": "<boolean value>"
+    }
+}
 ----
 
-At program start, if there is a _colorfilters_ file in the personal
-configuration folder, it is read.  If there isn’t a _colorfilters_ file
-in the personal configuration folder, then, if there is a _colorfilters_
-file in the global configuration folder, it is read.
+At program start, if there is a __coloring_rules.jsonc__ file in the personal configuration folder, it is read.
+If that doesn't exist, Wireshark will attempt to read the global __coloring_rules.jsonc__ file.
 
-When you press the Save button in the “Coloring Rules” dialog box,
-all the current color filters are written to the personal color filters
-file.
+When you press the Save button in the “Coloring Rules” dialog box, all the current color filters are written to the personal color filters file.
 --
 
 dfilter_buttons::

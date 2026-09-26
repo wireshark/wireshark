@@ -14,7 +14,7 @@
     </Feature>
     <Feature Id="Fe.WiresharkRequired" Title="Required" Level="1" AllowAdvertise="yes" Display="hidden" Description="Install for every user">
       <ComponentGroupRef Id="CG.WiresharkRequired" />
-      <ComponentGroupRef Id="CG.ColorFilters" />
+      <ComponentGroupRef Id="CG.ColoringRules" />
       <ComponentGroupRef Id="CG.Diameter" />
       <ComponentGroupRef Id="CG.RadiusDict" />
       <ComponentGroupRef Id="CG.Dtds" />

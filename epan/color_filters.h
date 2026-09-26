@@ -21,7 +21,9 @@ extern "C" {
 
 struct epan_dissect;
 
-#define COLORFILTERS_FILE_NAME          "colorfilters"
+#define COLORING_RULES_FILE_NAME "coloring_rules.jsonc"
+/* Legacy name */
+#define COLORFILTERS_FILE_NAME "colorfilters"
 
 #define CONVERSATION_COLOR_PREFIX       "___conversation_color_filter___"
 /** @file

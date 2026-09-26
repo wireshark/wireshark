@@ -2338,7 +2338,7 @@ endif()
 # at install time.
 set(INSTALL_FILES
 	resources/share/wireshark/cfilters
-	resources/share/wireshark/colorfilters
+	resources/share/wireshark/coloring_rules.jsonc
 	resources/share/wireshark/dmacros
 	resources/share/wireshark/dfilters
 	resources/share/wireshark/ipmap.html
@@ -2363,7 +2363,7 @@ if (BUILD_stratoshark)
 
 	set(STRATOSHARK_INSTALL_FILES
 		doc/ws.css
-		resources/share/stratoshark/colorfilters
+		resources/share/stratoshark/coloring_rules.jsonc
 		resources/share/stratoshark/dfilter_buttons
 	)
 endif()
@@ -2769,7 +2769,7 @@ if (BUILD_stratoshark)
 			list(APPEND copy_data_files_depends "${_output_file}")
 		endforeach()
 	else()
-		# XXX The default profile (colorfilters, dfilters) is at the
+		# XXX The default profile (coloring_rules.jsonc, dfilters) is at the
 		# top-level resources directory for both Wireshark and Stratoshark.
 	endif()
 endif()

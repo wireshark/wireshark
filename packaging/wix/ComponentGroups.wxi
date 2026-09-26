@@ -95,8 +95,8 @@
         <Component Id="cmpCfilters" Guid="*">
           <File Id="filCfilters" KeyPath="yes" Source="$(var.Staging.Dir)\cfilters" />
         </Component>
-        <Component Id="cmpColorfilters" Guid="*">
-          <File Id="filColorfilters" KeyPath="yes" Source="$(var.Staging.Dir)\colorfilters" />
+        <Component Id="cmpColoringRules" Guid="*">
+          <File Id="filColoringRules" KeyPath="yes" Source="$(var.Staging.Dir)\coloring_rules.jsonc" />
         </Component>
         <Component Id="cmpDfilters" Guid="*">
           <File Id="filDfilters" KeyPath="yes" Source="$(var.Staging.Dir)\dfilters" />
@@ -107,9 +107,9 @@
       </DirectoryRef>
     </Fragment>
     <Fragment>
-      <ComponentGroup Id="CG.ColorFilters">
+      <ComponentGroup Id="CG.ColoringRules">
         <ComponentRef Id="cmpCfilters" />
-        <ComponentRef Id="cmpColorfilters" />
+        <ComponentRef Id="cmpColoringRules" />
         <ComponentRef Id="cmpDfilters" />
         <ComponentRef Id="cmpSmi_modules" />
       </ComponentGroup>
@@ -303,16 +303,16 @@
   <Fragment>
     <DirectoryRef Id="dirProfiles">
       <Directory Id="dirBluetooth" Name="Bluetooth">
-        <Component Id="cmpBluetooth_colorfilters" Guid="*">
-          <File Id="filBluetooth_colorfilters" KeyPath="yes" Source="$(var.Profiles.Dir)\Bluetooth\colorfilters" />
+        <Component Id="cmpBluetooth_coloring_rules" Guid="*">
+          <File Id="filBluetooth_coloring_rules" KeyPath="yes" Source="$(var.Profiles.Dir)\Bluetooth\coloring_rules.jsonc" />
         </Component>
         <Component Id="cmpBluetooth_preferences" Guid="*">
           <File Id="filBluetooth_preferences" KeyPath="yes" Source="$(var.Profiles.Dir)\Bluetooth\preferences" />
         </Component>
       </Directory>
       <Directory Id="dirClassic" Name="Classic">
-        <Component Id="cmpClassic_colorfilters" Guid="*">
-          <File Id="filClassic_colorfilters" KeyPath="yes" Source="$(var.Profiles.Dir)\Classic\colorfilters" />
+        <Component Id="cmpClassic_coloring_rules" Guid="*">
+          <File Id="filClassic_coloring_rules" KeyPath="yes" Source="$(var.Profiles.Dir)\Classic\coloring_rules.jsonc" />
         </Component>
       </Directory>
       <Directory Id="dirNoReassembly" Name="No Reassembly">
@@ -324,9 +324,9 @@
   </Fragment>
   <Fragment>
     <ComponentGroup Id="CG.Plugins.ConfigurationProfiles">
-      <ComponentRef Id="cmpBluetooth_colorfilters" />
+      <ComponentRef Id="cmpBluetooth_coloring_rules" />
       <ComponentRef Id="cmpBluetooth_preferences" />
-      <ComponentRef Id="cmpClassic_colorfilters" />
+      <ComponentRef Id="cmpClassic_coloring_rules" />
       <ComponentRef Id="cmpNoReassembly_preferences" />
     </ComponentGroup>
   </Fragment>

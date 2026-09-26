@@ -401,7 +401,7 @@ Delete "$INSTDIR\${VCREDIST_EXE}"
 
 
 ; Global config files
-File "${TOP_SRC_DIR}\resources\share\stratoshark\colorfilters"
+File "${TOP_SRC_DIR}\resources\share\stratoshark\coloring_rules.jsonc"
 File "${TOP_SRC_DIR}\resources\share\stratoshark\dfilter_buttons"
 ;File "${TOP_SRC_DIR}\resources\share\stratoshark\dfilters"
 File "${STAGING_DIR}\smi_modules"
@@ -1299,6 +1299,7 @@ Section "Un.Global Settings" un.SecGlobalSettings
 ;-------------------------------------------
 SectionIn 1 2
 Delete "$INSTDIR\colorfilters"
+Delete "$INSTDIR\coloring_rules.jsonc"
 Delete "$INSTDIR\dfilter_buttons"
 Delete "$INSTDIR\dfilters"
 Delete "$INSTDIR\smi_modules"
@@ -1353,7 +1354,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecUinstall} "Uninstall all ${PROGRAM_NAME} components."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPlugins} "Uninstall all Plugins (even from previous ${PROGRAM_NAME} versions)."
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecProfiles} "Uninstall all global configuration profiles."
-  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\colorfilters"
+  !insertmacro MUI_DESCRIPTION_TEXT ${un.SecGlobalSettings} "Uninstall global settings like: $INSTDIR\coloring_rules.jsonc"
   !insertmacro MUI_DESCRIPTION_TEXT ${un.SecPersonalSettings} "Uninstall personal settings like your preferences file from your profile: $PROFILE."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
 
