@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <wsutil/jsmn.h>
 #include <wsutil/str_util.h>
+#include <wsutil/strtoi.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/wslog.h>
 
@@ -195,6 +196,7 @@ bool json_get_double(char *buf, jsmntok_t *parent, const char *name, double *val
             && strlen(name) == (size_t)(cur->end - cur->start) &&
             cur->size == 1 && (cur+1)->type == JSMN_PRIMITIVE) {
             buf[(cur+1)->end] = '\0';
+            errno = 0; // GLib says it resets errno but this doesn't hurt.
             *val = g_ascii_strtod(&buf[(cur+1)->start], NULL);
             if (errno != 0)
                 return false;
@@ -216,10 +218,7 @@ bool json_get_int(char *buf, jsmntok_t *parent, const char *name, int64_t *val)
             && strlen(name) == (size_t)(cur->end - cur->start) &&
             cur->size == 1 && (cur+1)->type == JSMN_PRIMITIVE) {
             buf[(cur+1)->end] = '\0';
-            *val = g_ascii_strtoll(&buf[(cur+1)->start], NULL, 10);
-            if (errno != 0)
-                return false;
-            return true;
+            return ws_strtoi64(&buf[(cur+1)->start], NULL, val);
         }
         cur = json_get_next_object(cur);
     }
