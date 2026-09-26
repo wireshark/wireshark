@@ -55,7 +55,67 @@ html, body {
     crossorigin=""></script>
 -->
 <script>
+/*
+ * leaflet-custom-headers support (based on the plugin
+ * https://github.com/fifogipo/leaflet-custom-headers, which is published as an
+ * ES module only). It is inlined here as a plain <script> so that it works in
+ * this static HTML page. Tiles are fetched via fetch() so that custom headers
+ * can be attached to every tile request, which is impossible with plain
+ * <img> tile loading.
+ */
+L.TileLayer.Headers = L.TileLayer.extend({
+    options: {
+        // @option customHeaders: Object = {}
+        // Custom HTTP headers to be sent with every tile request.
+        customHeaders: {}
+    },
+
+    createTile: function(coords, done) {
+        var tile = document.createElement('img');
+
+        L.DomEvent.on(tile, 'load', this._tileOnLoad.bind(this, done, tile));
+        L.DomEvent.on(tile, 'error', this._tileOnError.bind(this, done, tile, new Error()));
+
+        if (this.options.crossOrigin || this.options.crossOrigin === '') {
+            tile.crossOrigin = (this.options.crossOrigin === true) ? '' : this.options.crossOrigin;
+        }
+
+        if (typeof this.options.referrerPolicy === 'string') {
+            tile.referrerPolicy = this.options.referrerPolicy;
+        }
+
+        tile.alt = '';
+
+        var tileUrl = this.getTileUrl(coords);
+
+        fetch(tileUrl, {
+            headers: this.options.customHeaders || {}
+        })
+            .then(function(response) { return response.blob(); })
+            .then(function(blob) {
+                var objectUrl = URL.createObjectURL(blob);
+                tile.src = objectUrl;
+                tile.onload = function() { URL.revokeObjectURL(objectUrl); };
+                tile.onerror = function() { URL.revokeObjectURL(objectUrl); };
+                done(undefined, tile);
+            })
+            .catch(function(error) { done(error, undefined); });
+
+        return tile;
+    }
+});
+
+L.tileLayer.headers = function(urlTemplate, options) {
+    return new L.TileLayer.Headers(urlTemplate, options);
+};
+</script>
+<script>
 var map;
+
+// HTTP headers added to every tile request (leaflet-custom-headers).
+var tileCustomHeaders = {
+    'X-Requested-With': 'Wireshark'
+};
 
 function sortIpKey(v) {
     if (/\./.test(v)) {
@@ -132,12 +192,12 @@ function loadGeoJSON(obj) {
     'use strict';
     if (map) map.remove();
     map = L.map('map');
-    var tileServer = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-    L.tileLayer(tileServer, {
+    var tileServer = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    L.tileLayer.headers(tileServer, {
         minZoom: 2,
         maxZoom: 16,
-        subdomains: 'abcd',
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        customHeaders: tileCustomHeaders
     }).addTo(map);
     L.control.scale().addTo(map);
 
