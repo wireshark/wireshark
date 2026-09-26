@@ -1248,7 +1248,13 @@ Type selection::
 Profiles can be filtered between displaying "All profiles", "Personal profiles"
 and "Global profiles"
 * Personal profiles - these are profiles stored in the user's configuration directory
-* Global profiles - these are profiles provided with Wireshark
+* Global profiles - these are profiles provided with Wireshark, such as
+  “Bluetooth”, “No Reassembly” and “Processes”, which adds the “PID” and
+  “Proc Name” columns and two filter buttons for captures that record
+  which process on the capturing host sent or received each packet (see
+  <<ChCapCaptureOptionsOutputDialog>>). To switch to it automatically
+  whenever a capture has that information, set its “Auto Switch Filter”
+  to `frame.process.pid` (see <<ChCustProfileAutoSwitch>>).
 
 New (+)::
 Create a new profile. The name of the created profile is “New profile”
@@ -1291,6 +1297,7 @@ added and deleted profiles will not be deleted.
 btn:[Help]::
 Show this help page.
 
+[#ChCustProfileAutoSwitch]
 ==== Automatic Profile Switching
 
 You can configure Wireshark to automatically change configuration profiles by adding a display filter to the "Auto Switch Filter" setting for a profile.

@@ -1,0 +1,24 @@
+# The "Processes" profile: the default columns, plus the process on the
+# capturing host that sent or received each packet, as recorded by the
+# "Processes" choice of the capture options (dumpcap --process-info) or by
+# tcpdump on macOS.
+#
+# To switch to this profile automatically when a capture has process
+# information, set its Auto Switch Filter to "frame.process.pid" in
+# Edit > Configuration Profiles.
+
+####### User Interface: Columns ########
+
+# Packet list column format
+# Each pair of strings consists of a column title and its format
+gui.column.format:
+	"No.", "%m",
+	"Time", "%t",
+	"Delta", "%Gt",
+	"Source", "%s",
+	"Destination", "%d",
+	"Protocol", "%p",
+	"Length", "%L",
+	"PID", "%Pi",
+	"Proc Name", "%Pn",
+	"Info", "%i"
