@@ -811,6 +811,11 @@ dissect_opcua_pubsub(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         proto_item_set_end(sec_hdr_ti, tvb, offset);
     }
 
+    /* only a signed NetworkMessage has a signature, whatever the SecurityPolicy */
+    if (!sign_enabled) {
+        sign_len = 0;
+    }
+
     /* Payload */
     if (encrypt_enabled) {
         unsigned int payload_size = tvb_captured_length_remaining(tvb, offset) - sec_footer_size - sign_len;
