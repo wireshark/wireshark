@@ -88,7 +88,7 @@ color_filter_new(const char *name,          /* The name of the filter to create 
                  const char *filter_string, /* The string representing the filter */
                  color_t     *bg_color,      /* The background color */
                  color_t     *fg_color,      /* The foreground color */
-                 bool         disabled)      /* Is the filter disabled? */
+                 bool         enabled)       /* Is the filter enabled? */
 {
     color_filter_t *colorf;
 
@@ -97,7 +97,7 @@ color_filter_new(const char *name,          /* The name of the filter to create 
     colorf->filter_text         = g_strdup(filter_string);
     colorf->bg_color            = *bg_color;
     colorf->fg_color            = *fg_color;
-    colorf->disabled            = disabled;
+    colorf->enabled             = enabled;
     return colorf;
 }
 
@@ -130,7 +130,7 @@ color_filters_add_tmp(GSList **cfl)
         bg_color.red = RED_COMPONENT(cval);
         bg_color.green = GREEN_COMPONENT(cval);
         bg_color.blue = BLUE_COMPONENT(cval);
-        colorf = color_filter_new(name, NULL, &bg_color, &fg_color, true);
+        colorf = color_filter_new(name, NULL, &bg_color, &fg_color, false);
         colorf->filter_text = g_strdup("frame");
         *cfl = g_slist_append(*cfl, colorf);
 
@@ -166,7 +166,7 @@ color_filters_get_tmp(uint8_t filt_nr)
     cfl = g_slist_find_custom(color_filter_list, name, color_filters_find_by_name_cb);
     colorf = (color_filter_t*)cfl->data;
 
-    if (!colorf->disabled)
+    if (colorf->enabled)
         filter = g_strdup(colorf->filter_text);
 
     g_free(name);
@@ -176,7 +176,7 @@ color_filters_get_tmp(uint8_t filt_nr)
 
 /* Set the filter off a temporary colorfilters and enable it */
 bool
-color_filters_set_tmp(uint8_t filt_nr, const char *filter, bool disabled, char **err_msg)
+color_filters_set_tmp(uint8_t filt_nr, const char *filter, bool enabled, char **err_msg)
 {
     char           *name = NULL;
     const char     *tmpfilter = NULL;
@@ -217,7 +217,7 @@ color_filters_set_tmp(uint8_t filt_nr, const char *filter, bool disabled, char *
                 dfilter_free(colorf->c_colorfilter);
                 colorf->filter_text = g_strdup(tmpfilter);
                 colorf->c_colorfilter = compiled_filter;
-                colorf->disabled = ((i!=filt_nr) ? true : disabled);
+                colorf->enabled = ((i!=filt_nr) ? false : enabled);
                 /* Remember that there are now temporary coloring filters set */
                 if( filter )
                     tmp_colors_set = true;
@@ -251,7 +251,7 @@ color_filters_reset_tmp(char **err_msg)
     uint8_t i;
 
     for ( i=1 ; i<=10 ; i++ ) {
-        if (!color_filters_set_tmp(i, NULL, true, err_msg))
+        if (!color_filters_set_tmp(i, NULL, false, err_msg))
             return false;
     }
     /* Remember that there are now *no* temporary coloring filters set */
@@ -297,7 +297,7 @@ color_filter_clone(color_filter_t *colorf)
     new_colorf->filter_text         = g_strdup(colorf->filter_text);
     new_colorf->bg_color            = colorf->bg_color;
     new_colorf->fg_color            = colorf->fg_color;
-    new_colorf->disabled            = colorf->disabled;
+    new_colorf->enabled             = colorf->enabled;
     new_colorf->c_colorfilter       = NULL;
 
     return new_colorf;
@@ -471,7 +471,7 @@ color_filter_compile_cb(void *filter_arg, void *err)
     ws_assert(colorf->c_colorfilter == NULL);
 
     /* If the filter is disabled it doesn't matter if it compiles or not. */
-    if (colorf->disabled) return;
+    if (!colorf->enabled) return;
 
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &df_err)) {
         *err_msg = ws_strdup_printf("Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
@@ -493,7 +493,7 @@ color_filter_validate_cb(void *filter_arg, void *err)
     ws_assert(colorf->c_colorfilter == NULL);
 
     /* If the filter is disabled it doesn't matter if it compiles or not. */
-    if (colorf->disabled) return;
+    if (!colorf->enabled) return;
 
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &df_err)) {
         *err_msg = ws_strdup_printf("Disabling color filter name: \"%s\" filter: \"%s\".\n%s",
@@ -501,7 +501,7 @@ color_filter_validate_cb(void *filter_arg, void *err)
         df_error_free(&df_err);
 
         /* Disable the color filter in the list of color filters. */
-        colorf->disabled = true;
+        colorf->enabled = false;
     }
 
     /* XXX: What if the color filter tests "frame.coloring_rule.name" or
@@ -584,7 +584,7 @@ find_hfid(const void *data, const void *user_data)
     color_filter_t *colorf = (color_filter_t *)data;
     int hfid = GPOINTER_TO_INT(user_data);
 
-    if ((!colorf->disabled) && colorf->c_colorfilter != NULL) {
+    if ((colorf->enabled) && colorf->c_colorfilter != NULL) {
         if (dfilter_interested_in_field(colorf->c_colorfilter, hfid)) {
             return 0;
         }
@@ -607,7 +607,7 @@ find_proto(const void *data, const void *user_data)
     color_filter_t *colorf = (color_filter_t *)data;
     int proto_id = GPOINTER_TO_INT(user_data);
 
-    if ((!colorf->disabled) && colorf->c_colorfilter != NULL) {
+    if ((colorf->enabled) && colorf->c_colorfilter != NULL) {
         if (dfilter_interested_in_proto(colorf->c_colorfilter, proto_id)) {
             return 0;
         }
@@ -637,7 +637,7 @@ color_filters_colorize_packet(epan_dissect_t *edt)
 
         while(curr != NULL) {
             colorf = (color_filter_t *)curr->data;
-            if ( (!colorf->disabled) &&
+            if ( (colorf->enabled) &&
                  (colorf->c_colorfilter != NULL) &&
                  dfilter_apply_edt(colorf->c_colorfilter, edt) &&
                  !color_filter_is_session_disabled(colorf->filter_name)) {
@@ -664,7 +664,7 @@ color_filters_colorize_packet_all(epan_dissect_t *edt,
     if ((edt->tree != NULL) && (color_filters_used())) {
         for (GSList *curr = color_filter_list; curr != NULL; curr = g_slist_next(curr)) {
             color_filter_t *colorf = (color_filter_t *)curr->data;
-            if ((!colorf->disabled) &&
+            if ((colorf->enabled) &&
                 (colorf->c_colorfilter != NULL) &&
                 dfilter_apply_edt(colorf->c_colorfilter, edt)) {
 
@@ -899,7 +899,7 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
 
     for (int i = 0; i < array_len; i++, element = json_get_next_object(element)) {
         char       *name, *filter_str, *fg_str, *bg_str;
-        bool        enabled = true, disabled;
+        bool        enabled = true;
         color_t     fg_color = { 0, 0, 0 }, bg_color = { 0, 0, 0 };
         dfilter_t  *temp_dfilter = NULL;
         df_error_t *df_err = NULL;
@@ -932,17 +932,16 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
         hex_str_to_color(fg_str, &fg_color);
         hex_str_to_color(bg_str, &bg_color);
 
-        disabled = !enabled;
         filter_exp = filter_str ? filter_str : "";
 
-        if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &df_err)) {
+        if (enabled && !dfilter_compile(filter_exp, &temp_dfilter, &df_err)) {
             report_warning("Disabling color filter: Could not compile \"%s\" in coloring rules file \"%s\".\n%s",
                             name, path, df_err->msg);
             df_error_free(&df_err);
-            disabled = true;
+            enabled = false;
         }
 
-        colorf = color_filter_new(name, filter_exp, &bg_color, &fg_color, disabled);
+        colorf = color_filter_new(name, filter_exp, &bg_color, &fg_color, enabled);
         g_free(name);
 
         if (user_data == &color_filter_list) {
@@ -1105,7 +1104,7 @@ read_legacy_filters_file(const char *path, FILE *f, void *user_data, color_filte
             bg_color.blue = bg_b;
 
             colorf = color_filter_new(name, filter_exp, &bg_color,
-                                      &fg_color, disabled);
+                                      &fg_color, !disabled);
             if(user_data == &color_filter_list) {
                 GSList **cfl = (GSList **)user_data;
 
@@ -1234,7 +1233,7 @@ write_legacy_filter(void *filter_arg, void *data_arg)
     if ( (!data->only_selected) &&
          (strstr(colorf->filter_name,CONVERSATION_COLOR_PREFIX)==NULL) ) {
         fprintf(f,"%s@%s@%s@[%u,%u,%u][%u,%u,%u]\n",
-                colorf->disabled ? "!" : "",
+                colorf->enabled ? "" : "!",
                 colorf->filter_name,
                 colorf->filter_text,
                 colorf->bg_color.red,
@@ -1290,7 +1289,7 @@ write_jsonc_filter(void *filter_arg, void *data_arg)
         json_dumper_set_member_name_const(dumper, "background");
         json_dumper_value_string(dumper, bg_str);
         json_dumper_set_member_name_const(dumper, "enabled");
-        json_dumper_value_anyf(dumper, "%s", colorf->disabled ? "false" : "true");
+        json_dumper_value_anyf(dumper, "%s", colorf->enabled ? "true" : "false");
         json_dumper_end_object(dumper);
         json_dumper_end_object(dumper);
 

@@ -103,7 +103,7 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     }
 
     if (!add_filter.isEmpty()) {
-        colorRuleModel_.addColor(false, add_filter, palette().color(QPalette::Text), palette().color(QPalette::Base));
+        colorRuleModel_.addColor(true, add_filter, palette().color(QPalette::Text), palette().color(QPalette::Base));
 
         //setup the buttons appropriately
         ui->coloringRulesTreeView->setCurrentIndex(colorRuleModel_.index(0, 0));

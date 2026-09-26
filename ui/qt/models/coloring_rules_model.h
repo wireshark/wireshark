@@ -31,14 +31,14 @@ class ColoringRuleItem : public ModelHelperTreeItem<ColoringRuleItem>
 public:
     /**
      * @brief Constructs a new ColoringRuleItem.
-     * @param disabled True if the rule is disabled.
+     * @param enabled True if the rule is enabled.
      * @param name The name of the rule.
      * @param filter The filter string for the rule.
      * @param foreground The foreground color.
      * @param background The background color.
      * @param parent The parent rule item.
      */
-    ColoringRuleItem(bool disabled, QString name, QString filter, QColor foreground, QColor background, ColoringRuleItem* parent);
+    ColoringRuleItem(bool enabled, QString name, QString filter, QColor foreground, QColor background, ColoringRuleItem* parent);
 
     /**
      * @brief Destroys the ColoringRuleItem.
@@ -58,8 +58,8 @@ public:
      */
     ColoringRuleItem(const ColoringRuleItem& item);
 
-    /** @brief Indicates if the rule is currently disabled. */
-    bool disabled_;
+    /** @brief Indicates if the rule is currently enabled. */
+    bool enabled_;
 
     /** @brief The display name of the rule. */
     QString name_;
@@ -120,12 +120,12 @@ public:
 
     /**
      * @brief Adds a new color rule with specified properties.
-     * @param disabled True if the rule is disabled.
+     * @param enabled True if the rule is enabled.
      * @param filter The filter string for the rule.
      * @param foreground The foreground color.
      * @param background The background color.
      */
-    void addColor(bool disabled, QString filter, QColor foreground, QColor background);
+    void addColor(bool enabled, QString filter, QColor foreground, QColor background);
 
     /**
      * @brief Imports coloring rules from a specified file.

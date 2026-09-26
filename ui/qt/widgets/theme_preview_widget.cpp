@@ -90,7 +90,7 @@ QPixmap tintedSvg(const QString &path, const QColor &color, const QSize &size, q
 // list would actually paint.
 void collectRuleColor(color_filter_t *colorf, void *user_data)
 {
-    if (colorf && !colorf->disabled && colorf->filter_name) {
+    if (colorf && colorf->enabled && colorf->filter_name) {
         auto *map = static_cast<QHash<QString, QPair<QColor, QColor>> *>(user_data);
         const color_t &b = colorf->bg_color;
         const color_t &f = colorf->fg_color;
