@@ -1110,7 +1110,7 @@ dissect_lorawan_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_
 	session_key_t *session_key = get_session_key(dev_address);
 	if (session_key && frmpayload_length > 0) {
 		uint8_t *decrypted_buffer;
-		if ((!decrypt_lorawan_frame_payload(pinfo->pool, tvb, current_offset, frmpayload_length, &decrypted_buffer, (fport == 0) ? session_key->nwkskey->data : session_key->appskey->data, !uplink, dev_address, fcnt))) {
+		if (decrypt_lorawan_frame_payload(pinfo->pool, tvb, current_offset, frmpayload_length, &decrypted_buffer, (fport == 0) ? session_key->nwkskey->data : session_key->appskey->data, !uplink, dev_address, fcnt)) {
 			tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, decrypted_buffer, frmpayload_length, frmpayload_length);
 			add_new_data_source(pinfo, next_tvb, "Decrypted payload");
 			proto_tree *frame_payload_decrypted_tree = proto_item_add_subtree(ti, ett_lorawan_frame_payload_decrypted);
