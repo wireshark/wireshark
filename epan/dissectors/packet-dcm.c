@@ -1418,7 +1418,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         }
 
         /* Last packet */
-        memmove(pdv_combined_curr, pdv->data, pdv->data_len);       /* this is a copy not a move */
+        memmove(pdv_combined_curr, pdv->data, MIN(pdv->data_len, pdv_combined_len - curr_len));  /* this is a copy not a move */
 
         /* Add to list */
         /* The tap will copy the values and free the copies; this only
