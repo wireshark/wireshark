@@ -1403,6 +1403,7 @@ uint32_t getExtensionObjectType(tvbuff_t *tvb, int *pOffset)
     EncodingMask = tvb_get_uint8(tvb, iOffset);
     iOffset++;
 
+    /* 0: no built-in parser (namespace != 0) */
     switch(EncodingMask)
     {
     case 0x00: /* two byte node id */
@@ -1410,17 +1411,14 @@ uint32_t getExtensionObjectType(tvbuff_t *tvb, int *pOffset)
         /*iOffset+=1;*/
         break;
     case 0x01: /* four byte node id */
-        iOffset+=1;
-        Numeric = tvb_get_letohs(tvb, iOffset);
+        if (tvb_get_uint8(tvb, iOffset) == 0) Numeric = tvb_get_letohs(tvb, iOffset + 1);
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
-        iOffset+=2;
-        Numeric = tvb_get_letohl(tvb, iOffset);
+        if (tvb_get_letohs(tvb, iOffset) == 0) Numeric = tvb_get_letohl(tvb, iOffset + 2);
         break;
     case 0x03: /* string */
-    case 0x04: /* uri */
-    case 0x05: /* guid */
-    case 0x06: /* byte string */
+    case 0x04: /* guid */
+    case 0x05: /* byte string */
         /* NOT USED */
         break;
     };
