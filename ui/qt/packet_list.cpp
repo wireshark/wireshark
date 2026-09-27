@@ -3470,15 +3470,12 @@ void PacketList::drawFarOverlay()
 void PacketList::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     QTreeView::rowsInserted(parent, start, end);
-    const QModelIndex& cIndex = currentIndex();
     bool aggregation_mode = recent.aggregation_view && prefs.aggregation_fields_num > 0;
-    if (aggregation_mode && cIndex.isValid() && cIndex.row() >= 0) {
-        int row = cIndex.row();
-        frame_data* fdata = getFDataForRow(row);
-        if (fdata && cap_file_->current_frame->num != fdata->num) {
-            cf_select_packet(cap_file_, fdata);
-            emit framesSelected(QList<int>() << row);
-        }
+    if (aggregation_mode) {
+        // In Aggregation mode, we might have replaced the currently selected
+        // packets with new ones matching the aggregation fields, so we need
+        // to redissect the details if a single frame is selected.
+        drawCurrentPacket(false);
     }
     if (capture_in_progress_ && tail_at_end_) {
         scrollToBottom();
