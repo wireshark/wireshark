@@ -16,9 +16,6 @@
 #include <wsutil/array.h>
 #include <wsutil/ws_assert.h>
 
-static void
-debug_register(GSList *reg, uint32_t num);
-
 const char *
 dfvm_opcode_tostr(dfvm_opcode_t code)
 {
@@ -1345,32 +1342,6 @@ static void debug_op_error(const fvalue_t *v1, const fvalue_t *v2, const char *o
 	g_free(s2);
 }
 
-/* Used for temporary debugging only, don't leave in production code (at
- * a minimum WS_DEBUG_HERE must be replaced by another log level). */
-static void _U_
-debug_register(GSList *reg, uint32_t num)
-{
-	wmem_strbuf_t *buf;
-	GSList *l;
-	char *s;
-
-	buf = wmem_strbuf_new(NULL, NULL);
-
-	wmem_strbuf_append_printf(buf, "Reg#%"PRIu32" = { ", num);
-	for (l = reg; l != NULL; l = l->next) {
-		s = fvalue_to_debug_repr(NULL, l->data);
-		wmem_strbuf_append_printf(buf, "%s <%s>", s, fvalue_type_name(l->data));
-		g_free(s);
-		if (l->next != NULL) {
-			wmem_strbuf_append(buf, ", ");
-		}
-	}
-	wmem_strbuf_append_c(buf, '}');
-	WS_DEBUG_HERE("%s", wmem_strbuf_get_str(buf));
-	wmem_strbuf_destroy(buf);
-}
-
-
 typedef fvalue_t* (*DFVMBinaryFunc)(const fvalue_t*, const fvalue_t*, char **);
 
 static void
@@ -1425,7 +1396,6 @@ mk_binary(dfilter_t *df, DFVMBinaryFunc func,
 	df_cell_init(to_rp, true);
 
 	mk_binary_internal(func, val1, val2, to_rp);
-	//debug_register(result, to_arg->value.numeric);
 }
 
 static void

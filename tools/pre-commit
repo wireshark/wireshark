@@ -1,7 +1,8 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# Compatibility shim for older setups that copied or linked tools/pre-commit.
+# General entry point for code checks during commit. This includes a test
+# targeting older setups, that copied or linked tools/pre-commit.
 # Preferred setup: run tools/setup-dev.sh (or tools/setup-dev.ps1 on Windows)
 # to configure core.hooksPath=tools/git_hooks and commit.template=.gitmessage.
 
