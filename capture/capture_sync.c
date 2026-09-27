@@ -1300,18 +1300,18 @@ sync_pipe_run_command(char **argv, char **data, char **primary_msg,
                       char **secondary_msg, void (*update_cb)(void))
 {
     int ret, i;
-    int64_t start_time;
+    int64_t start_time = 0;
     double elapsed;
     int logging_enabled;
 
     /* check if logging is actually enabled, otherwise don't expend the CPU generating logging */
     logging_enabled = ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_INFO);
     if (logging_enabled) {
-        start_time = g_get_monotonic_time();
         ws_debug("sync_pipe_run_command() starts");
         for (i=0; argv[i] != 0; i++) {
             ws_noisy("  argv[%d]: %s", i, argv[i]);
         }
+        start_time = g_get_monotonic_time();
     }
     /* do the actual sync pipe run command */
     ret = sync_pipe_run_command_actual(argv, data, primary_msg, secondary_msg, update_cb);
