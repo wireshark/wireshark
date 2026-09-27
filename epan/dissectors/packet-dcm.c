@@ -1413,12 +1413,26 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
                 memmove(pdv_combined_curr, pdv_curr->data, to_copy);
                 pdv_combined_curr += to_copy;
                 curr_len = next_len;
+                DISSECTOR_ASSERT(curr_len <= pdv_combined_len);
             }
             pdv_curr = pdv_curr->next;
         }
 
-        /* Last packet */
-        memmove(pdv_combined_curr, pdv->data, MIN(pdv->data_len, pdv_combined_len - curr_len));  /* this is a copy not a move */
+        /* Last packet.
+         *
+         * In the ordinary case, pdv_combined_len equals
+         *   sum(prev PDV data_len) + pdv->data_len + dcm_header_len
+         * so pdv_combined_len - curr_len == pdv->data_len and the MIN
+         * below is a no-op.
+         *
+         * The MIN matters only when the initial summation was clamped
+         * to DICOM_EO_MAXSIZE (or ckd_add overflowed), in which case
+         * the pre-loop above may have already filled the allocated
+         * buffer and pdv_combined_len - curr_len can be as small as 0.
+         */
+        DISSECTOR_ASSERT(curr_len <= pdv_combined_len);
+        memmove(pdv_combined_curr, pdv->data,
+                MIN(pdv->data_len, pdv_combined_len - curr_len));
 
         /* Add to list */
         /* The tap will copy the values and free the copies; this only
