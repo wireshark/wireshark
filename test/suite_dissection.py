@@ -2258,3 +2258,45 @@ class TestDissectPcapngProcessInformation:
             (3, 'frame.darwin.process_info.pid == 501 && frame.darwin.process_info.epid == 1' +
                 ' && frame.darwin.process_info.epname == "launchd"'),
         ])
+
+
+class TestDissectDnsMqtype:
+    '''DNS Multiple QTYPEs EDNS options (RFC 10029).'''
+
+    def test_mqtype_query(self, cmd_tshark, capture_file, test_env):
+        '''MQTYPE-Query option (code 20) is decoded with named QTYPEs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_mqtype.pcap'),
+                '-Y', 'frame.number == 1',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.mqtype',
+            ), encoding='utf-8', env=test_env)
+        # Option code 20 (MQTYPE-Query), QTYPEs AAAA (28) and HTTPS (65)
+        assert '20' in stdout
+        assert '28' in stdout
+        assert '65' in stdout
+
+    def test_mqtype_response(self, cmd_tshark, capture_file, test_env):
+        '''MQTYPE-Response option (code 21) is decoded with named QTYPEs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_mqtype.pcap'),
+                '-Y', 'frame.number == 2',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.mqtype',
+            ), encoding='utf-8', env=test_env)
+        # Option code 21 (MQTYPE-Response), QTYPE AAAA (28) only
+        assert '21' in stdout
+        assert '28' in stdout
+
+    def test_mqtype_response_empty(self, cmd_tshark, capture_file, test_env):
+        '''MQTYPE-Response with an empty QTYPE list is accepted (RFC 10029 §3.4).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_mqtype.pcap'),
+                '-Y', 'frame.number == 3',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+            ), encoding='utf-8', env=test_env)
+        # Option code 21 present, no QTYPEs
+        assert '21' in stdout
