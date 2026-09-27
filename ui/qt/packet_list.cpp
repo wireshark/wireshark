@@ -1155,12 +1155,7 @@ void PacketList::selectFrameFromOverlay(int frame_num, Qt::KeyboardModifiers /* 
 
     // The previous dissection state has been invalidated by
     // cf_select_packet() above; receivers must clear the previous state
-    // and apply the updated one. The emitted value is a frame number
-    // here, not a row -- consistent with contextMenuEvent()'s own
-    // framesSelected() emit further down, and safe because every
-    // receiver (DataSourceTab, ProtoTree, MainStatusBar, etc.) only
-    // checks the list's count and then reads cap_file_->edt/current_frame
-    // directly, never the integer values themselves.
+    // and apply the updated one.
     emit framesSelected(QList<int>() << frame_num);
 
     if (!cap_file_->edt) {
@@ -1706,20 +1701,23 @@ void PacketList::drawCurrentPacket(bool scroll)
 
     int row = -1;
     static bool multiSelect = false;
+    QList<int> selectedFrames;
 
     if (selectionModel())
     {
         QModelIndexList selRows = selectionModel()->selectedRows(0);
         if (selRows.count() > 1)
         {
-            QList<int> rows;
-            foreach (QModelIndex idx, selRows)
-            {
-                if (idx.isValid())
-                    rows << idx.row();
+            if (packet_list_model_) {
+                foreach (QModelIndex idx, selRows)
+                {
+                    frame_data * fdata = packet_list_model_->getRowFdata(idx);
+                    if (fdata)
+                        selectedFrames << fdata->num;
+                }
             }
 
-            emit framesSelected(rows);
+            emit framesSelected(selectedFrames);
             emit fieldSelected(0);
             cf_unselect_packet(cap_file_);
 
@@ -1780,6 +1778,8 @@ void PacketList::drawCurrentPacket(bool scroll)
     else {
         frame_data * fdata = packet_list_model_->getRowFdata(row);
         cf_select_packet(cap_file_, fdata);
+        if (fdata)
+            selectedFrames << fdata->num;
     }
 
     if (cap_file_->current_frame) {
@@ -1791,7 +1791,7 @@ void PacketList::drawCurrentPacket(bool scroll)
 
     // The previous dissection state has been invalidated by cf_select_packet
     // above, receivers must clear the previous state and apply the updated one.
-    emit framesSelected(QList<int>() << row);
+    emit framesSelected(selectedFrames);
 
     if (!cap_file_->edt) {
         viewport()->update();
