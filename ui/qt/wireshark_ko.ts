@@ -1386,38 +1386,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <translation>입력</translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="vanished">인터페이스</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">트래픽</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="vanished">링크 레이어 헤더</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">무작위</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">Snaplen(B)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">버퍼(MB)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">모니터 모드</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">캡처 필터</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;이 옵션을 활성화하는 것을 추천합니다. 일반적으로 네트워크 카드는 자신의 네트워크 주소로 전송된 트래픽만 캡처합니다. 네트워크 카드가 &amp;quot;볼 수 있는&amp;quot; 모든 트래픽을 캡처하려면 이 옵션을 활성화하십시오. 스위치 네트워크에서 패킷을 캡처할 때에 대한 자세한 내용은 FAQ를 참조하십시오.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1584,6 +1552,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;날짜와 시간 이전에 파일 순서 번호를 배치합니다. Wireshark에서 역사적으로 사용했던 방식입니다..&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Create a new interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Processes:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;다음 파일로 캡처를 전환한 후 생성하기로 지정한 파일 개수를 초과하면 가장 오래된 파일을 지울 것입니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1704,6 +1688,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>시작</translation>
     </message>
     <message>
+        <source>Don&apos;t record processes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Leave blank to use a temporary file</source>
         <translation>비워 두면 임시 파일 사용</translation>
     </message>
@@ -1716,20 +1712,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>임시 디렉터리 지정</translation>
     </message>
     <message>
-        <source>%1: %2</source>
-        <translation type="vanished">%1: %2</translation>
+        <source>Not supported on this platform.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Addresses</source>
-        <translation type="vanished">주소</translation>
+        <source>Process information can only be recorded in pcapng files.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation type="vanished">주소</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
-        <translation type="vanished">주소 없음</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -1783,6 +1775,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>pcapng 형식으로 패킷 캡처</translation>
     </message>
     <message>
+        <source>Record the processes that packets belong to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;캡처가 진행되는 동안 패킷 목록을 업데이트합니다. 고속 네트워크에서는 패킷이 손실될 수도 있습니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1809,6 +1809,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Disable external capture interfaces</source>
         <translation>외부 캡처 인터페이스 비활성화</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3888,7 +3900,6 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6204,7 +6215,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished">트래픽</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -10503,7 +10514,8 @@ on an existing breakpoint, toggle its active state</source>
         <translation>모두 접기</translation>
     </message>
     <message>
-        <source>Distribution</source>
+        <source>Distribution…</source>
+        <oldsource>Distribution</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

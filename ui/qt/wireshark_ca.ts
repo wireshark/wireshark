@@ -1402,38 +1402,6 @@ Desactivat = només punt de registre (coincideix amb la convenció històrica «
         <translation>Entrada</translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="vanished">Interfície</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">Trànsit</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="vanished">Capçalera de la capa d&apos;enllaç</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">Promiscu</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">Snaplen (B)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">Memòria intermèdia (MB)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">Mode monitor</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">Filtre de captura</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Probablement vulgueu activar-ho. Normalment, una targeta de xarxa només captura el trànsit que s&apos;envia a la seva adreça de xarxa. Si voleu capturar el trànsit que la targeta pot &amp;quot;veure&amp;quot;, marqueu aquesta opció. Vegeu les Preguntes Més Freqüents per a capturar paquets d&apos;una xarxa commutada.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1556,10 +1524,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada hora en punt.</translation>
     </message>
     <message>
-        <source>Optimize</source>
-        <translation type="vanished">Optimitza</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Normalment una xarxa sense fils només captura el trànsit que s&apos;envia o es rep des de la seva adreça de xarxa pròpia i només captura trànsit de &lt;em&gt;dades d&apos;usuari&lt;/em&gt; amb capçaleres Ethernet &amp;quot;falses&amp;quot;. Si voleu capturar tot el trànsit que pot &amp;quot;veure&amp;quot; la targeta, o si esteu interessats en gestionar o controlar paquets de 802.11 o de la informació de la capa de ràdio, marqueu aquesta opció. El mode monitor depèn del controlador i de la targeta de xarxa sense fils. Vegeu la Wiki per a obtenir més detalls de la captura de paquets en xarxes WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1602,6 +1566,22 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Número de fitxer abans de la data i del temps. Aquest és el format de nom històric del Wireshark.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Create a new interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Processes:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1724,6 +1704,18 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Inici</translation>
     </message>
     <message>
+        <source>Don&apos;t record processes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Leave blank to use a temporary file</source>
         <translation>Deixa en blanc per a fer servir un fitxer temporal</translation>
     </message>
@@ -1736,24 +1728,16 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Especifica una carpeta temporal</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="vanished">Configuració de la interfície Extcap</translation>
+        <source>Not supported on this platform.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1: %2</source>
-        <translation type="vanished">%1: %2</translation>
+        <source>Process information can only be recorded in pcapng files.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Addresses</source>
-        <translation type="vanished">Adreces</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">Adreça</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
-        <translation type="vanished">Sense adreces</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -1807,6 +1791,14 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Captura paquets en format pcapng</translation>
     </message>
     <message>
+        <source>Record the processes that packets belong to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Actualitza la llista de paquets mentre es realitza la captura. Pot provocar que es descartin paquets en xarxes d&apos;alta velocitat.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1833,6 +1825,18 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Disable external capture interfaces</source>
         <translation>Desactiva les interfícies de captura externa</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3920,8 +3924,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Preferències del botó de filtre…</translation>
+        <translation>Preferències del botó de filtre…</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6268,7 +6271,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Optimize</source>
-        <translation type="unfinished">Optimitza</translation>
+        <translation>Optimitza</translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -6276,7 +6279,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished">Trànsit</translation>
+        <translation>Trànsit</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -10648,8 +10651,9 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
         <translation>Plega-ho tot</translation>
     </message>
     <message>
-        <source>Distribution</source>
-        <translation>Distribució</translation>
+        <source>Distribution…</source>
+        <oldsource>Distribution</oldsource>
+        <translation type="unfinished">Distribució</translation>
     </message>
     <message>
         <source>Copy</source>

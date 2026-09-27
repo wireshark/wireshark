@@ -1406,38 +1406,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <translation>Wejście</translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="vanished">Interfejs</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">Ruch</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="vanished">Nagłówek warstwy łącza</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">Tryb mieszany</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">Rozmiar przechwyconej ramki (B)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">Bufor (MB)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">Tryb monitora</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">Filtr przechwytywania</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prawdopodobnie chcesz włączyć to. Zwykle karta sieciowa może przechwytywać tylko ruch wysyłany na jej adres sieciowy. Jeśli chcesz przechwytywać cały ruch sieciowy zaznacz tą opcję. Zobacz FAQ by uzyskać więcej informacji na temat przechwytywania pakietów w sieci przełączalnej.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1603,6 +1571,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Create a new interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Processes:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1723,6 +1707,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Rozpocznij</translation>
     </message>
     <message>
+        <source>Don&apos;t record processes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Leave blank to use a temporary file</source>
         <translation>Pozostaw puste by użyć pliku tymczasowego</translation>
     </message>
@@ -1735,20 +1731,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Wybierz katalog tymczasowy</translation>
     </message>
     <message>
-        <source>%1: %2</source>
-        <translation type="vanished">%1: %2</translation>
+        <source>Not supported on this platform.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Addresses</source>
-        <translation type="vanished">Adresy</translation>
+        <source>Process information can only be recorded in pcapng files.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation type="vanished">Adres</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
-        <translation type="vanished">brak adresów</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -1802,6 +1794,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Przechwytuj pakiety do formatu pcapng</translation>
     </message>
     <message>
+        <source>Record the processes that packets belong to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aktualizuj listę pakietów czasie przechwytywania. To może skutkować gubieniem pakietów na sieciach wysokich prędkości.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1828,6 +1828,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Disable external capture interfaces</source>
         <translation>Wyłącz zewnętrzne interfejsy przechwytywania</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3909,7 +3921,6 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6239,7 +6250,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished">Ruch</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -10572,7 +10583,8 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Zwiń wszystko</translation>
     </message>
     <message>
-        <source>Distribution</source>
+        <source>Distribution…</source>
+        <oldsource>Distribution</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

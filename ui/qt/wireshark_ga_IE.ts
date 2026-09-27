@@ -1413,38 +1413,6 @@ As = pointe loga amháin (meaitseálann sé an coinbhinsiún stairiúil &quot;n�
         <translation>Ionchur</translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="vanished">Comhéadan</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">Trácht</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="vanished">Ceanntásca Nasc-Chiseal</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">Promiscuous</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">Snaplen (B)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">Maolán (MB)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">Mód Monatóireachta</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">Scagaire Gabhála</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Is dócha gur mhaith leat é seo a chumasú. De ghnáth, ní ghabhfaidh cárta líonra ach an trácht a sheoltar chuig a sheoladh líonra féin. Más mian leat gach trácht is féidir leis an gcárta líonra &amp;quot;a fheiceáil&amp;quot; a ghabháil, marcáil an rogha seo. Féach na Ceisteanna Coitianta le haghaidh roinnt sonraí breise maidir le paicéid a ghabháil ó líonra lasctha.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1567,10 +1535,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach uair an chloig ar an uair an chloig.</translation>
     </message>
     <message>
-        <source>Optimize</source>
-        <translation type="vanished">Optamaigh</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;De ghnáth, ní ghabhfaidh cárta líonra gan sreang ach an trácht a sheoltar chuig agus óna sheoladh líonra féin, agus ní ghlacann sé ach trácht &lt;em&gt;sonraí úsáideora&lt;/em&gt; le ceanntásca Ethernet &amp;quot;falsa&amp;quot;. Más mian leat a ghabháil go léir tráchta gur féidir le cártaí líonra gan sreang &amp;quot;a fheiceáil&amp;quot;, nó go bhfuil suim acu i bpaicéid bainistíochta nó rialaithe 802.11, nó faisnéis raidió-ciseal, marcáil an rogha seo. Braitheann infhaighteacht mód Monatóireacht ar an gcárta gan sreang agus ar an tiománaí. Féach ar an Wiki le haghaidh roinnt sonraí breise maidir le paicéid a ghabháil ar líonraí WLAN.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1613,6 +1577,22 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Comhad uimhir innéacs roimh an dáta agus am. Is é seo an t-ordú stairiúil Wireshark.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Create a new interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Processes:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1735,6 +1715,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Tosaigh</translation>
     </message>
     <message>
+        <source>Don&apos;t record processes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Leave blank to use a temporary file</source>
         <translation>Fág bán chun comhad sealadach a úsáid</translation>
     </message>
@@ -1747,24 +1739,16 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Sonraigh comhadlann shealadach</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="vanished">Socruithe comhéadain Extcap</translation>
+        <source>Not supported on this platform.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1: %2</source>
-        <translation type="vanished">%1: %2</translation>
+        <source>Process information can only be recorded in pcapng files.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Addresses</source>
-        <translation type="vanished">Seoltaí</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">Seoladh</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
-        <translation type="vanished">gan seoltaí</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -1818,6 +1802,14 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Paicéid a ghabháil i bhformáid pcapng</translation>
     </message>
     <message>
+        <source>Record the processes that packets belong to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nuashonraigh liosta na bpaicéad agus an ghabháil ar siúl. D&apos;fhéadfadh paicéid tite ar líonraí ardluais a bheith mar thoradh air seo.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1844,6 +1836,18 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Disable external capture interfaces</source>
         <translation>Díchumasaigh comhéadain ghabhála sheachtracha</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3933,8 +3937,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Roghanna Cnaipe Scagaire...</translation>
+        <translation type="unfinished">Roghanna Cnaipe Scagaire…</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6288,7 +6291,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Optimize</source>
-        <translation type="unfinished">Optamaigh</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -6296,7 +6299,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished">Trácht</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -10691,8 +10694,9 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Laghdaigh Gach Rud</translation>
     </message>
     <message>
-        <source>Distribution</source>
-        <translation>Dáileadh</translation>
+        <source>Distribution…</source>
+        <oldsource>Distribution</oldsource>
+        <translation type="unfinished">Dáileadh</translation>
     </message>
     <message>
         <source>Copy</source>

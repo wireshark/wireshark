@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-09-20
+ * ESTA codes download date: 2026-09-27
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -1131,6 +1131,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1268, "Frontside Technology Services" },
   { 0x126C, "Pravdin Vitalii Fedotovych FOP" },
   { 0x127E, "Symphony Interactive Inc" },
+  { 0x12B0, "Novoshine Semiconductor Technology Co., Ltd." },
   { 0x12DA, "Newlab S.r.l." },
   { 0x12E0, "Luxlight Skandinavien AB" },
   { 0x12EA, "Kolberg Percussion GmbH" },
@@ -1754,6 +1755,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x7888, "Tontron Photoelectric Co., Limited" },
   { 0x78B4, "LED Flex Limited" },
   { 0x7900, "Leprecon / CAE, Inc." },
+  { 0x790D, "Guangzhou Shengyuan Electronic Technology Co., Ltd" },
   { 0x79BC, "DC Reactive" },
   { 0x7A70, "Open Lighting" },
   { 0x7AA0, "Anaren Inc." },
@@ -1794,7 +1796,6 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x7FFD, "RESERVED FOR PROTOTYPING/EXPERIMENTAL USE ONLY" },
   { 0x7FFE, "RESERVED FOR PROTOTYPING/EXPERIMENTAL USE ONLY" },
   { 0x7FFF, "RESERVED FOR PROTOTYPING/EXPERIMENTAL USE ONLY" },
-  { 0x890D, "Guangzhou Shengyuan Electronic Technology Co., Ltd" },
   { 0xFFFC, "RDMNet RPT All Controllers" },
   { 0xFFFD, "RDMNet RPT All Devices" },
   { 0xFFFF, "ESTA" },

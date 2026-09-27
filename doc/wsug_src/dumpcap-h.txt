@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 4.7.4 (v4.7.4rc0-9-g19446dd93ee3)
+Dumpcap (Wireshark) 4.7.4 (v4.7.4rc0-250-g86027d9e2dd3)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
@@ -28,6 +28,10 @@ Capture interface:
                            print list of link-layer types of iface and exit
   --list-time-stamp-types  print list of timestamp types for iface and exit
   --no-optimize            do not optimize capture filter
+  --process-info[=basic|full]
+                           record the processes that sent or received each packet:
+                           their ID and name (basic, the default), or their path,
+                           command line and user as well (full)
   --update-interval        interval between updates with new packets, in milliseconds (def: 100ms)
   -d                       print generated BPF code for capture filter
   -k <freq>,[<type>],[<center_freq1>],[<center_freq2>]

@@ -1408,38 +1408,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <translation>Ввод</translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="vanished">Интерфейс</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">Трафик</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="vanished">Заголовок канального уровня</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">Смешанный</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">Длина снимка (Б)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">Буфер (Мбайт)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">Режим мониторинга</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">Фильтр захвата</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Данный параметр может быть очень полезен. Обычно сетевая плата захватывает только трафик, отправляемый на её сетевой адрес. Включение данного параметра позволяет захватывать весь трафик, который может &amp;quot;видеть&amp;quot; сетевая карта. Смотрите раздел «Вопросы и ответы» для получения дополнительной информации о захвате пакетов из коммутируемой сети.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1606,6 +1574,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Номер индекса файла перед датой и временем. Это исторический заказ Wireshark.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Create a new interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Processes:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;При переходе записи данных на следующий файл превышение указанного здесь числа файлов приведёт к удалению самого старого из них.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1726,6 +1710,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Старт</translation>
     </message>
     <message>
+        <source>Don&apos;t record processes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Leave blank to use a temporary file</source>
         <translation>Оставьте поле пустым для использования временного файла</translation>
     </message>
@@ -1738,20 +1734,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Укажите временный каталог</translation>
     </message>
     <message>
-        <source>%1: %2</source>
-        <translation type="vanished">%1: %2</translation>
+        <source>Not supported on this platform.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Addresses</source>
-        <translation type="vanished">Адреса</translation>
+        <source>Process information can only be recorded in pcapng files.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation type="vanished">Адрес</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
-        <translation type="vanished">нет адресов</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -1805,6 +1797,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Захватывать пакеты в формате pcapng</translation>
     </message>
     <message>
+        <source>Record the processes that packets belong to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Обновлять список пакетов во время захвата. Это может привести к потере пакетов в высокоскоростных сетях.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1831,6 +1831,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Disable external capture interfaces</source>
         <translation>Отключить внешние интерфейсы захвата</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3912,7 +3924,6 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <oldsource>Filter Button Preferences...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6242,7 +6253,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished">Трафик</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -10575,7 +10586,8 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Свернуть всё</translation>
     </message>
     <message>
-        <source>Distribution</source>
+        <source>Distribution…</source>
+        <oldsource>Distribution</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -1469,7 +1469,7 @@ BACnetVendorIdentifiers[] = {
     { 1455, "Ziegler Instrumentation UK Ltd" },
     { 1456, "ControlTec, LLC" },
     { 1457, "Aeterlink Corporation" },
-    { 1458, "Alpha Epsilon Automation" },
+    { 1458, "Aether Energy Alliance, LLC" },
     { 1459, "Astralite Inc." },
     { 1460, "Delta Fire Ltda." },
     { 1461, "Bock Water Heaters, Inc." },
@@ -1675,6 +1675,14 @@ BACnetVendorIdentifiers[] = {
     { 1662, "ControlByWeb" },
     { 1663, "Cooler Master Co., Ltd." },
     { 1664, "Bes-Tech, Inc." },
+    { 1665, "Total Solution GmbH" },
+    { 1666, "Jambhekar Automation Solutions Pvt. Ltd." },
+    { 1667, "Nassar Electronics, S.A. de C.V." },
+    { 1668, "BTune Limited" },
+    { 1669, "PT Navicom Indonesia" },
+    { 1670, "HotDash Systems, Inc." },
+    { 1671, "2VV s.r.o." },
+    { 1672, "Shenzhen Beilai Technology Co., Ltd." },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

@@ -1391,38 +1391,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <translation>入力</translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="vanished">インターフェース</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">トラフィック</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="vanished">リンク層ヘッダ</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">プロミスキャス</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">キャプチャ長(バイト)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">バッファ(メガバイト)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">モニタモード</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">キャプチャフィルタ</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;これを有効にした方がよいでしょう。通常ネットワークカードは自身のネットワークアドレスに送られたトラフィックのみキャプチャします。もし、ネットワークカードが&quot;見る&quot;ことのできるすべてのトラフィックをキャプチャしたいのでしたら、このオプションをマークしてください。スイッチされたネットワークからパケットをキャプチャするより多くの詳細はFAQを参照してください。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1544,10 +1512,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>(時計の)時刻が特定の間隔になったら次のファイルに切り替えます。例えば、1時間に設定すると毎時１時間ごとに新しいファイルが作成されます</translation>
     </message>
     <message>
-        <source>Optimize</source>
-        <translation type="vanished">最適化</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;通常、無線 ネットワークカードは自身のネットワークアドレスに送受信されるトラフィックのみキャプチャして、&amp;quot;偽の&amp;quot; Ethernetヘッダで &lt;em&gt;ユーザデータ&lt;/em&gt; トラフィックのみ取得します。もし無線ネットワークカードが&amp;quot;見える&amp;quot;すべてのトラフィックをキャプチャしたい、802.11管理や制御パケットや無線の物理層のヘッダ情報に興味がある場合にはこのオプションをマークしてください。モニターモードが利用できるかは無線カードとドライバに依存します。無線ネットワークに関してのパケットキャプチャのさらなる詳細についてはWikiを参照ください。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1590,6 +1554,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;日付と時刻の前にファイルインデックスを示します。これは歴史的なWiresharkの順序です。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Create a new interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Processes:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1712,6 +1692,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>開始</translation>
     </message>
     <message>
+        <source>Don&apos;t record processes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Leave blank to use a temporary file</source>
         <translation>一時ファイルを使うため空白にしておきます</translation>
     </message>
@@ -1724,24 +1716,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>一時ファイルのディレクトリを指定</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="vanished">Extcapインターフェース設定</translation>
+        <source>Not supported on this platform.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1: %2</source>
-        <translation type="vanished">%1: %2</translation>
+        <source>Process information can only be recorded in pcapng files.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Addresses</source>
-        <translation type="vanished">アドレス</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">アドレス</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
-        <translation type="vanished">アドレスがありません</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -1795,6 +1779,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>pcapng形式でパケットをキャプチャします</translation>
     </message>
     <message>
+        <source>Record the processes that packets belong to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キャプチャが進んでいる間パケット一覧を更新します。これにより、高速ネットワークにおいてはパケットが欠落することがありえます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1821,6 +1813,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Disable external capture interfaces</source>
         <translation>外部キャプチャインタフェースを無効にします</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3904,8 +3908,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">フィルタボタン設定…</translation>
+        <translation>フィルタボタン設定…</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6245,7 +6248,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Optimize</source>
-        <translation type="unfinished">最適化</translation>
+        <translation>最適化</translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -6253,7 +6256,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished">トラフィック</translation>
+        <translation>トラフィック</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -10601,8 +10604,9 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>すべて閉じる</translation>
     </message>
     <message>
-        <source>Distribution</source>
-        <translation>分布</translation>
+        <source>Distribution…</source>
+        <oldsource>Distribution</oldsource>
+        <translation type="unfinished">分布</translation>
     </message>
     <message>
         <source>Copy</source>

@@ -1402,38 +1402,6 @@ Av = endast loggpunkt (följer den historiska konventionen ”loggpunkter pausar
         <translation>Indata</translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="vanished">Gränssnitt</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">Trafik</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="vanished">Länknivåhuvud</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">Promiskuös</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">Provlängd (B)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">Buffert (MB)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">Monitorläge</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">Fångstfilter</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1556,10 +1524,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid hel timma.</translation>
     </message>
     <message>
-        <source>Optimize</source>
-        <translation type="vanished">Optimera</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vanligen kommer ett trådlöst nätverkskort bara fånga trafiken som skickas till och från dess egen nätverksadress, och fångar endast &lt;em&gt;användardata&lt;/em&gt;trafik med &amp;quot;falska&amp;quot; Ethernethuvuden. Om du vill fånga all trafik som trådlösa nätverkskort kan &amp;quot;se&amp;quot;, eller är intresserad av 802.11:s hanterings- eller styrpaket, eller radionivåinformation, markera detta alternativ. Övervakningslägets tillgänglighet beror på det trådlösa kortet och drivrutinen. Se Wiki:n för några fler detaljer om att fånga paket på WLAN-nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1602,6 +1566,22 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Filindexnummer före datum och tid. Detta är den historiska Wireshark-ordningen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Create a new interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Processes:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1724,6 +1704,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Starta</translation>
     </message>
     <message>
+        <source>Don&apos;t record processes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Leave blank to use a temporary file</source>
         <translation>Lämna tomt för att använda en temporärfil</translation>
     </message>
@@ -1736,24 +1728,16 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ange temporärkatalog</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="vanished">Extcap-gränssnittsinställningar</translation>
+        <source>Not supported on this platform.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1: %2</source>
-        <translation type="vanished">%1: %2</translation>
+        <source>Process information can only be recorded in pcapng files.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Addresses</source>
-        <translation type="vanished">Adresser</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">Adress</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
-        <translation type="vanished">inga adresser</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -1807,6 +1791,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Fånga paket i pcapng-format</translation>
     </message>
     <message>
+        <source>Record the processes that packets belong to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Uppdatera listan av paket under tiden infångandet pågår.  Detta kan medföra att paket släpps på höghastighetsnätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1833,6 +1825,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Disable external capture interfaces</source>
         <translation>Avaktivera externa fångstgränssnitt</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3920,8 +3924,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Inställningar för filterknappar…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6268,7 +6271,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Optimize</source>
-        <translation type="unfinished">Optimera</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -6276,7 +6279,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished">Trafik</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -10648,8 +10651,9 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <translation>Fäll ihop alla</translation>
     </message>
     <message>
-        <source>Distribution</source>
-        <translation>Fördelning</translation>
+        <source>Distribution…</source>
+        <oldsource>Distribution</oldsource>
+        <translation type="unfinished">Fördelning</translation>
     </message>
     <message>
         <source>Copy</source>

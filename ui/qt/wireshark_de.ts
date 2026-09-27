@@ -1401,38 +1401,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <translation>Eingabe</translation>
     </message>
     <message>
-        <source>Interface</source>
-        <translation type="vanished">Schnittstelle</translation>
-    </message>
-    <message>
-        <source>Traffic</source>
-        <translation type="vanished">Datenverkehr</translation>
-    </message>
-    <message>
-        <source>Link-layer Header</source>
-        <translation type="vanished">Link-Layer Header</translation>
-    </message>
-    <message>
-        <source>Promiscuous</source>
-        <translation type="vanished">Promiskuitiv</translation>
-    </message>
-    <message>
-        <source>Snaplen (B)</source>
-        <translation type="vanished">Mitschnittlänge (B)</translation>
-    </message>
-    <message>
-        <source>Buffer (MB)</source>
-        <translation type="vanished">Puffer (MB)</translation>
-    </message>
-    <message>
-        <source>Monitor Mode</source>
-        <translation type="vanished">Überwachungsmodus</translation>
-    </message>
-    <message>
-        <source>Capture Filter</source>
-        <translation type="vanished">Mitschnittfilter</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vermutlich sollten Sie diese Option aktivieren. Normalerweise nimmt eine Netzwerkkarte nur Pakete auf, die an die eigene Adresse adressiert sind. Wenn Sie alle Pakete &amp;quot;sehen&amp;quot; wollen, sollten Sie diese Option aktivieren. In den FAQ stehen weitere Informationen zum Aufzeichnen von Paketen in einer Switch-Netzwerkumgebung.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1555,10 +1523,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angeben.</translation>
     </message>
     <message>
-        <source>Optimize</source>
-        <translation type="vanished">Optimierung</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Normalerweise erfasst eine WLAN-Netzwerkkarte nur Verkehr, der zu oder von ihrer Netzwerkadresse gesendet wird. Zudem wird nur &lt;em&gt;user data&lt;/em&gt;-Verkehr mit &amp;quot;fake&amp;quot; Ethernet-Headern aufgezeichnet. Wenn Sie den gesamten Datenverkehr, den die Netzwerkkarte &amp;quot;sehen&amp;quot; kann, aufzeichnen möchten, an 802.11 Management-/Kontrollpaketen oder Radio-Layer-Infos interessiert sind, wählen Sie diese Option an. Monitor-Mode-Verfügbarkeit hängt von der Netzwerkkarte und den Treibern ab. Schauen Sie für mehr Informationen zum Mitschneiden in WLAN-Netzwerken ins Wiki.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1601,6 +1565,22 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;File index number before the date and time. This is the historic Wireshark ordering.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Datei-Indexnummer vor Datum und Uhrzeit. Dies ist die alte Wireshark Sortierung.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Create a new interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this interface bookmark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Processes:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1723,6 +1703,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Start</translation>
     </message>
     <message>
+        <source>Don&apos;t record processes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Record process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Leave blank to use a temporary file</source>
         <translation>Leer lassen um eine temporäre Datei zu verwenden</translation>
     </message>
@@ -1735,24 +1727,16 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Verzeichnis für temporäre Dateien definieren</translation>
     </message>
     <message>
-        <source>Extcap interface settings</source>
-        <translation type="vanished">Extcap-Schnittstelleneinstellungen</translation>
+        <source>Not supported on this platform.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1: %2</source>
-        <translation type="vanished">%1: %2</translation>
+        <source>Process information can only be recorded in pcapng files.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Addresses</source>
-        <translation type="vanished">Adressen</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="vanished">Adresse</translation>
-    </message>
-    <message>
-        <source>no addresses</source>
-        <translation type="vanished">keine Adressen</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error</source>
@@ -1806,6 +1790,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Pakete im pcap-ng Format mitschneiden</translation>
     </message>
     <message>
+        <source>Record the processes that packets belong to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Paketliste während dem Aufzeichnen aktualisieren. Dies kann bei einer hohen Bandbreite zu Paketverlusten führen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1832,6 +1824,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Disable external capture interfaces</source>
         <translation>Externe Mitschnittschnittstellen deaktivieren</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs and names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Process IDs, names, paths, command lines and users</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3919,8 +3923,7 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <oldsource>Filter Button Preferences...</oldsource>
-        <translation type="unfinished">Einstellungen Filterknöpfe...</translation>
+        <translation type="unfinished">Einstellungen Filterknopf</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -6234,7 +6237,7 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
     </message>
     <message>
         <source>Optimize</source>
-        <translation type="unfinished">Optimierung</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -6242,7 +6245,7 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished">Datenverkehr</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -10578,8 +10581,9 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Alles einklappen</translation>
     </message>
     <message>
-        <source>Distribution</source>
-        <translation>Verteilung</translation>
+        <source>Distribution…</source>
+        <oldsource>Distribution</oldsource>
+        <translation type="unfinished">Verteilung</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -17769,7 +17773,7 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Distribution</source>
-        <translation type="unfinished">Verteilung</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Distribution statistics</source>

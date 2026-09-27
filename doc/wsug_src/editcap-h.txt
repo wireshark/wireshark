@@ -1,4 +1,4 @@
-Editcap (Wireshark) 4.7.4 (v4.7.4rc0-9-g19446dd93ee3)
+Editcap (Wireshark) 4.7.4 (v4.7.4rc0-250-g86027d9e2dd3)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -116,6 +116,11 @@ Output File(s):
                          when writing the output file.  Does not discard
                          secrets added by "--inject-secrets" in the same
                          command line.
+  --discard-process-info
+                         Discard the process information from the input file
+                         when writing the output file: the blocks describing
+                         processes and the options of the packets that refer
+                         to them.
   --discard-name-resolution
                          Discard all name resolution records from the input
                          file when writing the output file.
