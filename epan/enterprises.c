@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-09-18) */
+/* (last updated 2026-09-25) */
 
 #include "config.h"
 
@@ -582,7 +582,7 @@ static const char * const table[] =
     "Paul Freeman Associates, Inc.",                                                      // 560
     "John S. Barnes, Corp.",                                                              // 561
     "Northern Telecom, Ltd.",                                                             // 562
-    "CAP Debris",                                                                         // 563
+    "CAP DEBRIS",                                                                         // 563
     "Telco Systems NAC",                                                                  // 564
     "Tosco Refining Co",                                                                  // 565
     "Russell Info Sys",                                                                   // 566
@@ -30849,7 +30849,7 @@ static const char * const table[] =
     "RIZ-Transmitters Co.",                                                               // 30827
     "Colfax Corporation",                                                                 // 30828
     "United Technologists Europe Limited (UTEL)",                                         // 30829
-    "G & L Geissendörfer & Leschinsky GmbH",                                              // 30830
+    "G&L Geißendörfer & Leschinsky GmbH",                                                 // 30830
     "Network Center of Tianjin University",                                               // 30831
     "CompuCredit Corporation",                                                            // 30832
     "Clearspeed Technology plc",                                                          // 30833
@@ -35590,7 +35590,7 @@ static const char * const table[] =
     "Beth Israel Deaconess Medical Center",                                               // 35568
     "A-dec Inc.",                                                                         // 35569
     "Travel Tripper LLC",                                                                 // 35570
-    "LU-Hosting",                                                                         // 35571
+    NULL,                                                                                 // 35571
     "Arends IT+TK",                                                                       // 35572
     "sitel",                                                                              // 35573
     "Dambach-Werke GmbH",                                                                 // 35574
@@ -66194,7 +66194,7 @@ static const char * const table[] =
     "Netralux",                                                                           // 66172
     "Digital Cinema Network Pty Ltd",                                                     // 66173
     "emplohouse spółka z ograniczoną odpowiedzialnością",                                 // 66174
-    "Siemens Mobility GmbH (OT)",                                                         // 66175
+    "Siemens Mobility GmbH",                                                              // 66175
     "SHENZHEN JIUZHOU ELECTRIC CO.,LTD.",                                                 // 66176
     "Lars Kohnert",                                                                       // 66177
     "Quantum B",                                                                          // 66178
@@ -66903,7 +66903,7 @@ static const char * const table[] =
     "METODO SCIENTIFICO DIGITALE TOLA (MSDT)",                                            // 66881
     "Phil Summers",                                                                       // 66882
     "BLACKFISHID SL",                                                                     // 66883
-    "Digital Control, Inc.",                                                              // 66884
+    "Digital Control Incorporated",                                                       // 66884
     "OZ1 Corporation",                                                                    // 66885
     "Toyota & Lexus Centrum Wrocław Sp. z o.o",                                           // 66886
     "Aretiico Ltd",                                                                       // 66887
@@ -66921,7 +66921,81 @@ static const char * const table[] =
     "Quantidia LLC",                                                                      // 66899
     "Melbourne Automation",                                                               // 66900
     "Alnet Systems Sp. z o.o.",                                                           // 66901
-    "ITSpine"                                                                             // 66902
+    "ITSpine",                                                                            // 66902
+    "北京持安科技有限公司 / Beijing Chi'an Technology Co., Ltd.",                                   // 66903
+    "Uwitz",                                                                              // 66904
+    "Acen NV",                                                                            // 66905
+    "Rutronica",                                                                          // 66906
+    "Maximilian Kroboth",                                                                 // 66907
+    "RD Homelab",                                                                         // 66908
+    "Centos Inc.",                                                                        // 66909
+    "Hoogheemraadschap Hollands Noorderkwartier",                                         // 66910
+    "S.F AUTTO Wardale LLC",                                                              // 66911
+    "AMD Administracao, Participacoes e Concessoes Ltda (AMD Services)",                  // 66912
+    "Yamong Security Inc.",                                                               // 66913
+    "Pixbots Private Limited",                                                            // 66914
+    "MCS Protect Limited",                                                                // 66915
+    "Rougsoe Systems ApS",                                                                // 66916
+    "Mindlapse",                                                                          // 66917
+    "ARCR TECHNOLOGIES PRIVATE LIMITED",                                                  // 66918
+    "Tansenn Blackwell",                                                                  // 66919
+    "TSUMUGI Labo.",                                                                      // 66920
+    "Tingyang Chang",                                                                     // 66921
+    "Klein & Bilke-Klein GbR",                                                            // 66922
+    "Shanghai Yidingqian Technology Co., Ltd.",                                           // 66923
+    "Kazmierczak",                                                                        // 66924
+    "openfabric",                                                                         // 66925
+    "Hams.com",                                                                           // 66926
+    "Jonathan Schleifer",                                                                 // 66927
+    "SNR33 B.V.",                                                                         // 66928
+    "Groupe Synapse",                                                                     // 66929
+    "State Grid Information & Communication Yili Technology Co., Ltd.",                   // 66930
+    "VILION (SHENZHEN) NEW ENERGY TECHNOLOGY CO.,LTD",                                    // 66931
+    "Vaaran Metsä Oy",                                                                    // 66932
+    "Ministerium des Innern des Landes Nordrhein-Westfalen",                              // 66933
+    "3SSISTEMI srl",                                                                      // 66934
+    "Sewan",                                                                              // 66935
+    "Capri Communities",                                                                  // 66936
+    "Farkas Sicherheitstechnik GmbH",                                                     // 66937
+    "Guangdong Yada Electronics Co., Ltd.",                                               // 66938
+    "Julian Klissenbauer-Mathä",                                                          // 66939
+    "VoiceIt Technologies, Inc. d/b/a EnQuanta",                                          // 66940
+    "Crystal Waters Fibre",                                                               // 66941
+    "La Provençale SARL",                                                                 // 66942
+    "MINASOFT SAĞLIK YAZILIM TEKNOLOJİ SANAYİ VE TİCARET LİMİTED ŞİRKETİ",                // 66943
+    "SPiNE GmbH",                                                                         // 66944
+    "Suzhou RCT Power Energy Technology Co., Ltd.",                                       // 66945
+    "Jiangsu RCT  Energy Technology Co., Ltd",                                            // 66946
+    "Jiangsu RCT Power Energy Technology Co., Ltd",                                       // 66947
+    "Ooredoo Kuwait",                                                                     // 66948
+    "Comsol Networks",                                                                    // 66949
+    "Open Answers Ltd",                                                                   // 66950
+    "F.H.U. RALPH Sebastian Styrna",                                                      // 66951
+    "Aerix Limited",                                                                      // 66952
+    "ConnectivityWise, LLC",                                                              // 66953
+    "Netgenius",                                                                          // 66954
+    "Vox Soluções em Telecomunicações e Informática",                                     // 66955
+    "Shenzhen Star Turing Technology Co., Ltd",                                           // 66956
+    "Westala",                                                                            // 66957
+    "QSEC Global Co.,Ltd.",                                                               // 66958
+    "Cheetal Technology Pvt. Ltd.",                                                       // 66959
+    "Blockfinance AG",                                                                    // 66960
+    "Leben im Alter – Boecker-Stiftung gGmbH",                                            // 66961
+    "Danduola Team",                                                                      // 66962
+    "Marc Schneider",                                                                     // 66963
+    "NOVARA ADVANCED SYSTEMS",                                                            // 66964
+    "SealGrid.ai",                                                                        // 66965
+    "Ethernetics NV",                                                                     // 66966
+    "Pica8 Software Inc",                                                                 // 66967
+    "Means+Measures LLC",                                                                 // 66968
+    "Total Solution GmbH",                                                                // 66969
+    "HubertIndutries",                                                                    // 66970
+    "Khalil Fregat",                                                                      // 66971
+    "PB2M TECHNOLOGIES SL",                                                               // 66972
+    "O2 Czech Republic a.s.",                                                             // 66973
+    "Ripcurrent Technologies Inc.",                                                       // 66974
+    "Stealth Scale B.V.",                                                                 // 66975
+    "Estrogen Corp."                                                                      // 66976
 };
 
 const char* global_enterprises_lookup(uint32_t value)
