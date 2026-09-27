@@ -34,12 +34,12 @@ tapPacket(void* ptr, packet_info* pinfo, epan_dissect_t* edt, const void* data _
     for (unsigned i = 0; i < gp->len; i++) {
         const field_info* fip = (field_info*)(gp->pdata[i]);
         if (fip->hfinfo->type == FT_PROTOCOL) {
-            g_string_append(key, g_strdup(agg_field->field));
+            g_string_append(key, agg_field->field);
             break;
         }
         char* string_repr = fvalue_to_string_repr(NULL, fip->value, FTREPR_DFILTER, 0);
         if (string_repr) {
-            g_string_append(key, g_strdup(string_repr));
+            g_string_append(key, string_repr);
             wmem_free(NULL, string_repr);
         }
     }
@@ -65,6 +65,7 @@ tapPacket(void* ptr, packet_info* pinfo, epan_dissect_t* edt, const void* data _
 void register_tap_listener_aggregation(void) {
     for (int i = 0; i < taps_num; i++) {
         remove_tap_listener(&taps[i]);
+        g_free(taps[i].field);
     }
     g_free(taps);
     taps = NULL;
