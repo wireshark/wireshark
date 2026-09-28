@@ -337,30 +337,60 @@ void PacketListPane::updatePinnedRowsStripWidth(int corner_width, bool have_pinn
             // signal only fires on a change, not on every pin.
             int boundary = packet_list_->pinnedColumnBoundary();
             for (int col = 0; col < packet_list_->header()->count(); col++) {
-                duplicate_header_corner_->resizeSection(col, packet_list_->header()->sectionSize(col));
-                duplicate_header_main_->resizeSection(col, packet_list_->header()->sectionSize(col));
                 bool column_hidden = packet_list_->header()->isSectionHidden(col);
                 bool frozen = PacketList::isColumnFrozen(col, boundary);
-                duplicate_header_corner_->setSectionHidden(col, column_hidden || !frozen);
-                duplicate_header_main_->setSectionHidden(col, column_hidden || frozen);
+                bool corner_hidden = column_hidden || !frozen;
+                bool main_hidden = column_hidden || frozen;
+                // Hide first, then resize: resizing a section immediately
+                // before hiding it (the previous order here) left stale
+                // cumulative section-position offsets on this bare
+                // QHeaderView, visually shifting every later visible
+                // section to the right by roughly the hidden sections'
+                // combined width even though isSectionHidden()/
+                // sectionSize() both correctly reported 0 -- only
+                // reproducible on a standalone QHeaderView with no
+                // attached view (unlike pinned_row_view_'s own header,
+                // which is a real QTreeView's and unaffected).
+                duplicate_header_corner_->setSectionHidden(col, corner_hidden);
+                duplicate_header_main_->setSectionHidden(col, main_hidden);
+                if (!corner_hidden) {
+                    duplicate_header_corner_->resizeSection(col, packet_list_->header()->sectionSize(col));
+                } else {
+                    duplicate_header_corner_->resizeSection(col, 0);
+                }
+                if (!main_hidden) {
+                    duplicate_header_main_->resizeSection(col, packet_list_->header()->sectionSize(col));
+                } else {
+                    duplicate_header_main_->resizeSection(col, 0);
+                }
             }
             duplicate_header_corner_->setSortIndicator(packet_list_->header()->sortIndicatorSection(),
                                                         packet_list_->header()->sortIndicatorOrder());
             duplicate_header_main_->setSortIndicator(packet_list_->header()->sortIndicatorSection(),
                                                       packet_list_->header()->sortIndicatorOrder());
         }
-        // Only refresh the height while the native header is still
-        // visible: this function can run more than once in a row for the
-        // same have_pinned_rows=true transition (e.g. once from the pin
-        // itself, again from the resulting layoutPinnedOverlays() calls),
-        // and packet_list_->header()->height() reports 0 once it's
-        // already been hidden by the setVisible(false) call below --
-        // reading it again on a later call would otherwise clobber the
-        // duplicate headers' height with that stale 0.
-        if (packet_list_->header()->isVisible()) {
-            duplicate_header_corner_->setFixedHeight(packet_list_->header()->height());
-            duplicate_header_main_->setFixedHeight(packet_list_->header()->height());
-        }
+        // Force both duplicate headers to repaint with their newly-applied
+        // section state immediately: the batch of resizeSection()/
+        // setSectionHidden() calls above can otherwise leave stale visual
+        // positions on screen until some unrelated later event happens to
+        // trigger a repaint.
+        duplicate_header_corner_->updateGeometry();
+        duplicate_header_main_->updateGeometry();
+        duplicate_header_corner_->update();
+        duplicate_header_main_->update();
+        // Use sizeHint() rather than height(): this function can run more
+        // than once in a row for the same have_pinned_rows=true transition
+        // (e.g. once from the pin itself, again from a freeze/thaw cycle's
+        // resulting layoutPinnedOverlays() calls), and by the second call
+        // the native header may already be hidden by the setVisible(false)
+        // call below (or by an earlier call in the same batch), at which
+        // point height() reports 0 -- clobbering the duplicate headers'
+        // height with that stale 0. sizeHint() reflects the header's
+        // natural size regardless of its current visibility, so it stays
+        // correct across every call in the batch.
+        int header_height = packet_list_->header()->sizeHint().height();
+        duplicate_header_corner_->setFixedHeight(header_height);
+        duplicate_header_main_->setFixedHeight(header_height);
     }
     packet_list_->header()->setVisible(!have_pinned_rows);
     duplicate_header_strip_->setVisible(have_pinned_rows);

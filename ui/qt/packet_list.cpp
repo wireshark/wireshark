@@ -2166,6 +2166,13 @@ bool PacketList::thaw(bool restore_selection)
     frozen_current_row_ = QModelIndex();
     frozen_selected_rows_ = QModelIndexList();
 
+    // setHeaderHidden(false) above unconditionally re-shows the native
+    // header, but if rows are still pinned, PacketListPane needs the
+    // native header hidden again in favor of its duplicate header pair.
+    // Resync now so that invariant holds after every freeze/thaw cycle
+    // (filter apply, reload, retap), not just after pin/unpin.
+    updatePinnedRowVisibility();
+
     return true;
 }
 
