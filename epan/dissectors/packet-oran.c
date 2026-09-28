@@ -296,6 +296,7 @@ static int hf_oran_ciSample;
 static int hf_oran_ciIsample;
 static int hf_oran_ciQsample;
 
+static int hf_oran_se10_port;
 static int hf_oran_beamGroupType;
 static int hf_oran_numPortc;
 
@@ -635,6 +636,7 @@ static int ett_oran_symbol_mask;
 static int ett_oran_active_beamspace_coefficient_mask;
 static int ett_oran_sinr_prb;
 static int ett_oran_rbgMask;
+static int ett_oran_se10_port;
 
 static int ett_oran_fragment;
 static int ett_oran_fragments;
@@ -4038,12 +4040,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         /* Work out how many port beam entries there is room for */
                         /* Using numPortC as visible in issue 18116 */
                         for (n=0; n < numPortc; n++) {
+                            /* Port subtree */
+                            proto_item *port_ti = proto_tree_add_item(extension_tree, hf_oran_se10_port,
+                                                                      tvb, offset, 2, ENC_NA);
+                            proto_tree *port_tree = proto_item_add_subtree(port_ti, ett_oran_se10_port);
+
                             /* 1 reserved bit */
-                            add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
+                            add_reserved_field(port_tree, hf_oran_reserved_1bit, tvb, offset, 1);
 
                             /* port beam ID (or UEID) (15 bits) */
                             uint32_t id;
-                            proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId,
+                            proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(port_tree, hf_oran_beamId,
                                                                                          tvb, offset, 2, ENC_BIG_ENDIAN, &id);
                             proto_item_append_text(beamid_or_ueid_ti, " (or UEId) port #%u", n);
                             offset += 2;
@@ -4055,6 +4062,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             }
 
                             proto_item_append_text(extension_ti, "%u ", id);
+                            proto_item_append_text(port_ti, " (beam/ueid %u)", id);
                         }
 
                         proto_item_append_text(extension_ti, "]");
@@ -4076,12 +4084,17 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                             offset += 1;
 
                             for (n=0; n < numPortc-1; n++) {
+                                /* Port subtree */
+                                proto_item *port_ti = proto_tree_add_item(extension_tree, hf_oran_se10_port,
+                                                                          tvb, offset, 3, ENC_NA);
+                                proto_tree *port_tree = proto_item_add_subtree(port_ti, ett_oran_se10_port);
+
                                 /* 1 reserved bit */
-                                add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
+                                add_reserved_field(port_tree, hf_oran_reserved_1bit, tvb, offset, 1);
 
                                 /* port beam ID (or UEID) */
                                 uint32_t id;
-                                proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_beamId,
+                                proto_item *beamid_or_ueid_ti = proto_tree_add_item_ret_uint(port_tree, hf_oran_beamId,
                                                                                              tvb, offset, 2, ENC_BIG_ENDIAN, &id);
                                 proto_item_append_text(beamid_or_ueid_ti, " port #%u beam ID (or UEId) %u", n, id);
                                 offset += 2;
@@ -4093,7 +4106,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                 }
 
                                 /* subsequent portListIndex */
-                                pli_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_port_list_index, tvb,
+                                pli_ti = proto_tree_add_item_ret_uint(port_tree, hf_oran_port_list_index, tvb,
                                                              offset, 1, ENC_BIG_ENDIAN, &port_list_index);
                                 if (port_list_index == 0) {
                                     /* Value 0 is reserved */
@@ -4102,6 +4115,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                 offset += 1;
 
                                 proto_item_append_text(extension_ti, "%u:%u ", port_list_index, id);
+                                proto_item_append_text(port_ti, " (beam/ueid %u, portListIndex %u)", id, port_list_index);
                             }
                         }
 
@@ -9676,6 +9690,13 @@ proto_register_oran(void)
             "Channel information complex value - Q part", HFILL}
         },
 
+        /* 7.7.10 */
+        { &hf_oran_se10_port,
+          { "Port entry", "oran_fh_cus.portEntry",
+            FT_NONE, BASE_NONE,
+            NULL, 0x0,
+            "SE10 port entry", HFILL}
+        },
         /* 7.7.10.2 */
         { &hf_oran_beamGroupType,
           { "beamGroupType", "oran_fh_cus.beamGroupType",
@@ -11316,6 +11337,7 @@ proto_register_oran(void)
         &ett_oran_active_beamspace_coefficient_mask,
         &ett_oran_sinr_prb,
         &ett_oran_rbgMask,
+        &ett_oran_se10_port,
 
         &ett_oran_fragment,
         &ett_oran_fragments
