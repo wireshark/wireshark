@@ -40,6 +40,9 @@
 #include <epan/unit_strings.h>
 #include <epan/iana-info.h>
 
+#include <wsutil/filesystem.h>
+#include <wsutil/report_message.h>
+
 #include <wiretap/erf_record.h>
 #include "packet-ip.h"
 #include "packet-juniper.h"
@@ -872,6 +875,56 @@ nat64_prefix_copy_cb(void *dst_, const void *src_, size_t len _U_)
     return dst;
 }
 
+/*
+ * uat_load() only ever picks one file (profile dir, or else the personal
+ * configuration dir, or else the global data dir - see
+ * uat_get_actual_filename()) and loads just that one. This callback runs
+ * after every uat_load() call (including the initial automatic one done by
+ * uat_load_all()) and merges in any NAT64_NSP_list entries additionally
+ * found in the personal configuration and/or global data directories, so
+ * that all three locations' entries are available, not just the first one
+ * found. A static guard prevents the uat_load() calls made here from
+ * re-entering this same callback.
+ */
+static void
+nat64_prefix_post_update_cb(void)
+{
+    static bool in_post_update = false;
+    const char *app_env_var_prefix;
+    char *profile_path, *personal_path, *global_path;
+    char *err = NULL;
+
+    if (in_post_update) {
+        return;
+    }
+    in_post_update = true;
+
+    app_env_var_prefix = epan_get_environment_prefix();
+
+    profile_path = get_persconffile_path("NAT64_NSP_list", true, app_env_var_prefix);
+    personal_path = get_persconffile_path("NAT64_NSP_list", false, app_env_var_prefix);
+    global_path = get_datafile_path("NAT64_NSP_list", app_env_var_prefix);
+
+    if (g_strcmp0(personal_path, profile_path) != 0 && file_exists(personal_path)) {
+        if (!uat_load(nat64_prefix_uat, personal_path, app_env_var_prefix, &err)) {
+            report_failure("Error loading table 'NAT64 Network-Specific Prefixes': %s", err);
+            g_free(err);
+        }
+    }
+
+    if (file_exists(global_path)) {
+        if (!uat_load(nat64_prefix_uat, global_path, app_env_var_prefix, &err)) {
+            report_failure("Error loading table 'NAT64 Network-Specific Prefixes': %s", err);
+            g_free(err);
+        }
+    }
+
+    g_free(profile_path);
+    g_free(personal_path);
+    g_free(global_path);
+
+    in_post_update = false;
+}
 
 static int
 ipv6_previous_layer_id(packet_info *pinfo)
@@ -5908,7 +5961,7 @@ proto_register_ipv6(void)
         nat64_prefix_copy_cb,
         NULL,
         nat64_prefix_free_cb,
-        NULL,
+        nat64_prefix_post_update_cb,
         NULL,
         nat64_uats_flds);
 
