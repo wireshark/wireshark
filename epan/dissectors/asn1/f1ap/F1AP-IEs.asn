@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V19.3.0 (2026-06)
+-- 3GPP TS 38.473 V19.4.0 (2026-09)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -323,6 +323,11 @@ IMPORTS
 	id-SBFD-AcrossSymbolType,
 	id-LPWUSSupportedBandInfo,
 	id-DeliveryStatusReq,
+	id-EarlySyncInformationRelease,
+	id-CSI-RSResourceSetToReleaseList,
+	id-CSI-IMResourceToReleaseList,
+	id-CSI-IMResourceSetToReleaseList,
+	id-FutureCoverageModificationCause,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -465,14 +470,8 @@ IMPORTS
 	maxnoofCSI-RSs,
 	maxnoofChannelRes,
 	maxnoofCellsinNG-RANnode,
-	maxnoofLTM-CSI-ResourcesPerSet
-
-
-
-
-
-
-
+	maxnoofLTM-CSI-ResourcesPerSet,
+	maxnoofCandidategNBDUs
 
 
 FROM F1AP-Constants
@@ -1451,6 +1450,18 @@ CandidateCellwithMeasurements-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+CandidategNB-DUs-ToBeReleased-List ::= SEQUENCE (SIZE(1..maxnoofCandidategNBDUs)) OF CandidategNB-DUs-ToBeReleased-Item
+
+CandidategNB-DUs-ToBeReleased-Item ::= SEQUENCE {
+	candidategNB-DU-ID				GNB-DU-ID,
+	candidategNB-ID					GlobalGNB-ID				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { CandidategNB-DUs-ToBeReleased-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+CandidategNB-DUs-ToBeReleased-ItemExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 CapacityValue::= SEQUENCE {
 	capacityValue				INTEGER (0..100),
@@ -2827,6 +2838,16 @@ EarlySyncInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+EarlySyncInformationRelease  ::= SEQUENCE {
+	candidategNB-DUs-ToBeReleased-List	CandidategNB-DUs-ToBeReleased-List,
+	iE-Extensions						ProtocolExtensionContainer { { EarlySyncInformationRelease-ExtIEs} } OPTIONAL,
+	...
+}
+
+EarlySyncInformationRelease-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 EarlySyncCandidateCellInformation-List ::= SEQUENCE (SIZE (1.. maxnoofLTMCells)) OF EarlySyncCandidateCellInformation-Item
 
 EarlySyncCandidateCellInformation-Item ::= SEQUENCE {
@@ -2841,9 +2862,10 @@ EarlySyncCandidateCellInformation-Item ::= SEQUENCE {
 }
 
 EarlySyncCandidateCellInformation-Item-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-SSB-PositionsInBurst	CRITICALITY ignore	EXTENSION SSB-PositionsInBurst		PRESENCE optional }|
+	{ ID id-SSB-PositionsInBurst		CRITICALITY ignore	EXTENSION SSB-PositionsInBurst				PRESENCE optional }|
 -- The above IE shall be present if the earlyULSyncConfig IE or the earlyULSyncConfigSUL IE is present
-	{	ID id-LTMResidualTAInfoList	CRITICALITY ignore	EXTENSION	LTMResidualTAInfoList		PRESENCE optional},
+	{ ID id-LTMResidualTAInfoList		CRITICALITY ignore	EXTENSION LTMResidualTAInfoList				PRESENCE optional}|
+	{ ID id-EarlySyncInformationRelease	CRITICALITY reject	EXTENSION EarlySyncInformationRelease		PRESENCE optional},
 	...
 }
 
@@ -2854,6 +2876,7 @@ EarlySyncServingCellInformation ::= SEQUENCE {
 }
 
 EarlySyncServingCellInformation-ExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-EarlySyncInformationRelease	CRITICALITY reject	EXTENSION EarlySyncInformationRelease		PRESENCE optional},
 	...
 }
 
@@ -4238,7 +4261,7 @@ InterFrequencyConfig-NoGap ::= ENUMERATED {
 InterSNLTMMCGInformation ::= SEQUENCE {
 	interSNLTM-trigger				LTM-trigger,
 	pscellid						NRCGI															OPTIONAL,
-	-- The above IE shall be present if the interSNLTM-trigger IE is set to "LTM-preparation" or "LTM-executed"
+	-- The above IE shall be present if the interSNLTM-trigger IE is set to "LTM-preparation" or "LTM-executed"
 	candidatePSCellsToCancel		PSCellList														OPTIONAL,
 	-- The above IE shall be present if the interSNLTM-trigger IE is set to "LTM-cancel"
 	iE-Extensions					ProtocolExtensionContainer { {InterSNLTMMCGInformation-ExtIEs} }	OPTIONAL,
@@ -4799,6 +4822,7 @@ iE-Extensions								ProtocolExtensionContainer { { LTMConfig-to-Modify-Item-Ext
 }
 
 LTMConfig-to-Modify-Item-ExtIEs		F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-EarlySyncInformationRelease		CRITICALITY reject	EXTENSION EarlySyncInformationRelease		PRESENCE optional	},
 	...
 }
 
@@ -5600,9 +5624,9 @@ MMSID ::= OCTET STRING (SIZE (1))
 MonitoringRequestonAvailableBitrate	::= SEQUENCE{
 	monitoringRequest						MonitoringRequest,
 	dlAvailableBitrateReportThresholds		AvailableBitrateReportThresholdList		OPTIONAL,
--- The above IE shall be present if the Monitoring Request IE is set to the value “dl” or “both”
+-- The above IE shall be present if the Monitoring Request IE is set to the value "dl" or "both"
 	ulAvailableBitrateReportThresholds		AvailableBitrateReportThresholdList		OPTIONAL,
--- The above IE shall be present if the Monitoring Request IE is set to the value “ul” or “both”
+-- The above IE shall be present if the Monitoring Request IE is set to the value "ul" or "both"
 	iE-Extensions							ProtocolExtensionContainer { { MonitoringRequestonAvailableBitrate-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -6279,6 +6303,8 @@ Neighbour-Future-Coverage-Modification-Notification ::= SEQUENCE {
 }
 
 Neighbour-Future-Coverage-Modification-Notification-ExtIEs F1AP-PROTOCOL-EXTENSION ::={
+-- Bug in 38.473 v19.4.0: it id-FutureCoverageModificationCause should be defined as ProtocolIE-ID
+-- { ID id-FutureCoverageModificationCause	CRITICALITY ignore		EXTENSION Future-Coverage-Modification-Notification-Cause	PRESENCE optional	},
 	...
 }
 
@@ -6289,8 +6315,8 @@ Neighbour-Future-Coverage-Modification-Item ::= SEQUENCE {
 	neighbourfuturecellCoverageState				NeighbourFutureCellCoverageState,
 	neighbourfutureSSBCoverageModificationList	NeighbourFutureSSBCoverageModification-List	OPTIONAL,
 	timeforneighbourFutureCoverageModification	TimeforNeighbourFutureCoverageModification	OPTIONAL,
--- The above IE shall be present if the Future Coverage Modification Cause IE is set to the value “coverage” or “cell edge capacity”.
-	futureCoverageModificationCause				Future-Coverage-Modification-Notification-Cause,	iE-Extension			ProtocolExtensionContainer { { Neighbour-Future-Coverage-Modification-Item-ExtIEs} } 				OPTIONAL,
+-- The above IE shall be present if the Future Coverage Modification Cause IE is set to the value "coverage" or "cell edge capacity".
+		iE-Extension			ProtocolExtensionContainer { { Neighbour-Future-Coverage-Modification-Item-ExtIEs} } 				OPTIONAL,
 	...
 }
 
@@ -6345,8 +6371,13 @@ NZP-CSI-RS-ResourceSetConfiguration ::= SEQUENCE {
 ...
 }
 
+-- WS modification: define a dedicated type
+CSI-RSResourceSetToReleaseList ::= OCTET STRING
 
 NZP-CSI-RS-ResourceSetConfiguration-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+-- WS modification: define a dedicated type
+-- 	{ID id-CSI-RSResourceSetToReleaseList	CRITICALITY ignore	EXTENSION OCTET STRING	PRESENCE optional},
+	{ID id-CSI-RSResourceSetToReleaseList	CRITICALITY ignore	EXTENSION CSI-RSResourceSetToReleaseList	PRESENCE optional},
 ...
 }
 
@@ -6358,8 +6389,16 @@ CSI-IM-ResourceConfiguration ::= SEQUENCE {
 ...
 }
 
+-- WS modification: define a dedicated type
+CSI-IMResourceToReleaseList ::= OCTET STRING
+CSI-IMResourceSetToReleaseList ::= OCTET STRING
 
 CSI-IM-ResourceConfiguration-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+-- WS modification: define a dedicated type
+	{ID id-CSI-IMResourceToReleaseList			CRITICALITY ignore	EXTENSION OCTET STRING	PRESENCE optional}|
+	{ID id-CSI-IMResourceSetToReleaseList		CRITICALITY ignore	EXTENSION OCTET STRING	PRESENCE optional},
+	{ID id-CSI-IMResourceToReleaseList			CRITICALITY ignore	EXTENSION CSI-IMResourceToReleaseList	PRESENCE optional}|
+	{ID id-CSI-IMResourceSetToReleaseList		CRITICALITY ignore	EXTENSION CSI-IMResourceSetToReleaseList	PRESENCE optional},
 	...
 }
 
@@ -7489,9 +7528,9 @@ PRSTRPList ::= SEQUENCE (SIZE(1.. maxnoofTRPs)) OF PRSTRPItem
 PRSTRPItem ::= SEQUENCE {
 	tRP-ID		TRPID,
 	requestedDLPRSTransmissionCharacteristics	RequestedDLPRSTransmissionCharacteristics 		OPTIONAL,
-	-- The IE shall be present if the PRS Configuration Request Type IE is set to “configure” --
+	-- The IE shall be present if the PRS Configuration Request Type IE is set to "configure" --
 	pRSTransmissionOffInformation		PRSTransmissionOffInformation				OPTIONAL,
-	-- The IE shall be present if the PRS Configuration Request Type IE is set to “off” --
+	-- The IE shall be present if the PRS Configuration Request Type IE is set to "off" --
 
 	iE-Extensions	ProtocolExtensionContainer { { PRSTRPItem-ExtIEs} } OPTIONAL,
 	...
@@ -8050,7 +8089,7 @@ RequestedSRSPreconfigurationCharacteristics-Item-ExtIEs F1AP-PROTOCOL-EXTENSION 
 
 RequestedSRSTransmissionCharacteristics ::= SEQUENCE {
 	numberOfTransmissions		INTEGER (0..500, ...)		OPTIONAL,
-	-- The above IE shall be present if the Resource Type IE is set to “periodic” --
+	-- The above IE shall be present if the Resource Type IE is set to "periodic" --
 	resourceType				ENUMERATED  {periodic, semi-persistent, aperiodic,...},
 	bandwidthSRS				BandwidthSRS,
 	sRSResourceSetList 			SRSResourceSetList				OPTIONAL,
@@ -10078,7 +10117,7 @@ TimeWindowInformation-Measurement-Item ::= SEQUENCE {
 	timeWindowDurationMeasurement		TimeWindowDurationMeasurement,
 	timeWindowType						ENUMERATED {single, periodic, ...},
 	timeWindowPeriodicityMeasurement	TimeWindowPeriodicityMeasurement		OPTIONAL,
-	-- This IE shall be present if the Time Window Type IE is set to the value “periodic”. --
+	-- This IE shall be present if the Time Window Type IE is set to the value "periodic". --
 	timeWindowStart						TimeWindowStart,
 	iE-Extension			ProtocolExtensionContainer { { TimeWindowInformation-Measurement-Item-ExtIEs} }	OPTIONAL,
 	...}
@@ -10094,7 +10133,7 @@ TimeWindowInformation-SRS-Item ::= SEQUENCE {
 	timeWindowDurationSRS				TimeWindowDurationSRS,
 	timeWindowType						ENUMERATED {single, periodic, ...},
 	timeWindowPeriodicitySRS			TimeWindowPeriodicitySRS				OPTIONAL,
-	-- The above IE shall be present if the Time Window Type IE is set to the value “periodic”.
+	-- The above IE shall be present if the Time Window Type IE is set to the value "periodic".
 	iE-Extension			ProtocolExtensionContainer { { TimeWindowInformation-SRS-ExtIEs} }	OPTIONAL,
 	...
 }

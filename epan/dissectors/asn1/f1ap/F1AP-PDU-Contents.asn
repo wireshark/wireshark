@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V19.3.0 (2026-06)
+-- 3GPP TS 38.473 V19.4.0 (2026-09)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -429,7 +429,7 @@ IMPORTS
 	S-CPAC-Configuration,
 	DLLBTFailureInformationRequest,
 	DLLBTFailureInformationList,
- 	SLPositioning-Ranging-Service-Info,
+	SLPositioning-Ranging-Service-Info,
 	TimeWindowInformation-SRS-List,
 	TimeWindowInformation-Measurement-List,
 	SRSPosRRCInactiveValidityAreaConfig,
@@ -1180,8 +1180,8 @@ ResetAcknowledgeIEs F1AP-PROTOCOL-IES ::= {
 
 UE-associatedLogicalF1-ConnectionListResAck ::= SEQUENCE (SIZE(1.. maxnoofIndividualF1ConnectionsToReset)) OF ProtocolIE-SingleContainer { { UE-associatedLogicalF1-ConnectionItemResAck } }
 
-UE-associatedLogicalF1-ConnectionItemResAck 	F1AP-PROTOCOL-IES ::= {
-	{ ID id-UE-associatedLogicalF1-ConnectionItem	 CRITICALITY ignore 	TYPE UE-associatedLogicalF1-ConnectionItem  	PRESENCE mandatory },
+UE-associatedLogicalF1-ConnectionItemResAck F1AP-PROTOCOL-IES ::= {
+	{ ID id-UE-associatedLogicalF1-ConnectionItem	CRITICALITY ignore	TYPE UE-associatedLogicalF1-ConnectionItem 	PRESENCE mandatory },
 	...
 }
 
@@ -1207,7 +1207,9 @@ ErrorIndicationIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-CU-UE-F1AP-ID			PRESENCE optional	}|
 	{ ID id-gNB-DU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-DU-UE-F1AP-ID			PRESENCE optional	}|
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	}|
+	{ ID id-gNB-CU-MBS-F1AP-ID			CRITICALITY ignore	TYPE GNB-CU-MBS-F1AP-ID			PRESENCE optional	}|
+	{ ID id-gNB-DU-MBS-F1AP-ID			CRITICALITY ignore	TYPE GNB-DU-MBS-F1AP-ID			PRESENCE optional	},
 	...
 }
 
@@ -1238,12 +1240,12 @@ F1SetupRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-BAPAddress						CRITICALITY ignore	TYPE BAPAddress							PRESENCE optional	}|
 	{ ID id-Extended-GNB-DU-Name			CRITICALITY ignore	TYPE Extended-GNB-DU-Name				PRESENCE optional	}|
 	{ ID id-RRC-Terminating-IAB-Donor-gNB-ID	CRITICALITY reject	TYPE GlobalGNB-ID					PRESENCE optional }|
-	{ ID id-Mobile-IAB-MTUserLocationInformation	CRITICALITY ignore	TYPE Mobile-IAB-MTUserLocationInformation 		PRESENCE optional	},
+	{ ID id-Mobile-IAB-MTUserLocationInformation	CRITICALITY ignore	TYPE Mobile-IAB-MTUserLocationInformation		PRESENCE optional	},
 	...
 }
 
 
-GNB-DU-Served-Cells-List 	::= SEQUENCE (SIZE(1.. maxCellingNBDU)) OF ProtocolIE-SingleContainer { { GNB-DU-Served-Cells-ItemIEs } }
+GNB-DU-Served-Cells-List ::= SEQUENCE (SIZE(1.. maxCellingNBDU)) OF ProtocolIE-SingleContainer { { GNB-DU-Served-Cells-ItemIEs } }
 
 GNB-DU-Served-Cells-ItemIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-GNB-DU-Served-Cells-Item		CRITICALITY reject	TYPE		GNB-DU-Served-Cells-Item	PRESENCE mandatory	},
@@ -1344,7 +1346,7 @@ GNBDUConfigurationUpdateIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-DU-Name								CRITICALITY ignore	TYPE GNB-DU-Name												PRESENCE optional	}|
 	{ ID id-Extended-GNB-DU-Name					CRITICALITY ignore	TYPE Extended-GNB-DU-Name										PRESENCE optional	}|
 	{ ID id-RRC-Terminating-IAB-Donor-Related-Info	CRITICALITY reject	TYPE RRC-Terminating-IAB-Donor-Related-Info	         PRESENCE optional }|
-	{ ID id-Mobile-IAB-MTUserLocationInformation    CRITICALITY ignore	TYPE Mobile-IAB-MTUserLocationInformation 		      PRESENCE optional	}|
+	{ ID id-Mobile-IAB-MTUserLocationInformation	CRITICALITY ignore	TYPE Mobile-IAB-MTUserLocationInformation	PRESENCE optional	}|
 	{ ID id-Future-Coverage-Modification-Notification		CRITICALITY ignore	TYPE Future-Coverage-Modification-Notification					PRESENCE optional	},
 	...
 }
@@ -1462,14 +1464,14 @@ GNBCUConfigurationUpdateIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-Neighbour-Cell-Information-List			CRITICALITY ignore	TYPE	Neighbour-Cell-Information-List					PRESENCE optional	}|
 	{ ID id-Transport-Layer-Address-Info			CRITICALITY ignore	TYPE	Transport-Layer-Address-Info						PRESENCE optional	}|
 	{ ID id-UL-BH-Non-UP-Traffic-Mapping			CRITICALITY reject	TYPE	UL-BH-Non-UP-Traffic-Mapping						PRESENCE optional	}|
-	{ ID id-BAPAddress								CRITICALITY ignore  TYPE 	BAPAddress												PRESENCE optional }|
-	{ ID id-CCO-Assistance-Information				CRITICALITY ignore	TYPE 	CCO-Assistance-Information							PRESENCE optional	}|
+	{ ID id-BAPAddress								CRITICALITY ignore	TYPE BAPAddress												PRESENCE optional }|
+	{ ID id-CCO-Assistance-Information				CRITICALITY ignore	TYPE CCO-Assistance-Information							PRESENCE optional	}|
 	{ ID id-CellsForSON-List						CRITICALITY ignore	TYPE	CellsForSON-List										PRESENCE optional }|
 	{ ID id-gNB-CU-Name								CRITICALITY ignore	TYPE	GNB-CU-Name												PRESENCE optional	}|
 	{ ID id-Extended-GNB-CU-Name					CRITICALITY ignore	TYPE	Extended-GNB-CU-Name									PRESENCE optional	}|
 	{ ID id-Cells-Allowed-to-be-Deactivated-List			CRITICALITY ignore	TYPE	Cells-Allowed-to-be-Deactivated-List		PRESENCE optional	}|
 	{ ID id-OnDemand-SIB1-Cell								CRITICALITY ignore	TYPE	OnDemand-SIB1-Cell								PRESENCE optional	}|
-	{ ID id-Predicted-CCO-Assistance-Information				CRITICALITY ignore	TYPE 	Predicted-CCO-Assistance-Information							PRESENCE optional	}|
+	{ ID id-Predicted-CCO-Assistance-Information				CRITICALITY ignore	TYPE Predicted-CCO-Assistance-Information							PRESENCE optional	}|
 	{ ID id-NeighbourFutureCoverageModNotification	CRITICALITY ignore	TYPE	Neighbour-Future-Coverage-Modification-Notification		PRESENCE optional	},
 	...
 }
@@ -3928,7 +3930,7 @@ PositioningMeasurementRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-TRP-MeasurementRequestList				CRITICALITY reject	TYPE TRP-MeasurementRequestList					PRESENCE mandatory}|
 	{ ID id-PosReportCharacteristics				CRITICALITY reject	TYPE PosReportCharacteristics					PRESENCE mandatory}|
 	{ ID id-PosMeasurementPeriodicity				CRITICALITY reject	TYPE MeasurementPeriodicity						PRESENCE conditional }|
-	-- The above IE shall be present if the PosReportCharacteristics IE is set to “periodic” --
+	-- The above IE shall be present if the PosReportCharacteristics IE is set to "periodic" --
 	{ ID id-PosMeasurementQuantities				CRITICALITY reject	TYPE PosMeasurementQuantities					PRESENCE mandatory}|
 	{ ID id-SFNInitialisationTime					CRITICALITY ignore	TYPE RelativeTime1900	PRESENCE optional	}|
 	{ ID id-SRSConfiguration						CRITICALITY ignore	TYPE SRSConfiguration								PRESENCE optional}|
@@ -4444,10 +4446,10 @@ E-CIDMeasurementInitiationRequest-IEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-RAN-UE-MeasurementID			CRITICALITY reject	TYPE RAN-UE-MeasurementID				PRESENCE mandatory	}|
 	{ ID id-E-CID-ReportCharacteristics		CRITICALITY reject	TYPE E-CID-ReportCharacteristics		PRESENCE mandatory	}|
 	{ ID id-E-CID-MeasurementPeriodicity	CRITICALITY reject	TYPE MeasurementPeriodicity		PRESENCE conditional	}|
-	-- The above IE shall be present if the E-CID-ReportCharacteristics IE is set to “periodic” –-
+	-- The above IE shall be present if the E-CID-ReportCharacteristics IE is set to "periodic" –-
 	{ ID id-E-CID-MeasurementQuantities		CRITICALITY reject	TYPE E-CID-MeasurementQuantities	PRESENCE mandatory}|
 	{ ID id-PosMeasurementPeriodicityNR-AoA	CRITICALITY reject	TYPE PosMeasurementPeriodicityNR-AoA		PRESENCE conditional},
-	-- The IE shall be present if the E-CID-ReportCharacteristics IE is set to “periodic” and the E-CID-MeasurementQuantities-Item IE in the E-CID-MeasurementQuantities IE is set to the value "angleOfArrivalNR"--
+	-- The IE shall be present if the E-CID-ReportCharacteristics IE is set to "periodic" and the E-CID-MeasurementQuantities-Item IE in the E-CID-MeasurementQuantities IE is set to the value "angleOfArrivalNR"--
 	...
 }
 
@@ -5509,7 +5511,7 @@ PDCMeasurementInitiationRequest-IEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-RAN-UE-PDC-MeasID				CRITICALITY reject	TYPE RAN-UE-PDC-MeasID					PRESENCE mandatory	}|
 	{ ID id-PDCReportType					CRITICALITY reject	TYPE PDCReportType						PRESENCE mandatory	}|
 	{ ID id-PDCMeasurementPeriodicity		CRITICALITY reject	TYPE PDCMeasurementPeriodicity			PRESENCE conditional	}|
-	-- The above IE shall be present if the PDCReportType IE is set to “periodic” –-
+	-- The above IE shall be present if the PDCReportType IE is set to "periodic" –-
 	{ ID id-PDCMeasurementQuantities		CRITICALITY reject	TYPE PDCMeasurementQuantities			PRESENCE mandatory	},
 	...
 }

@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V19.3.0 (2026-06)
+-- 3GPP TS 38.473 V19.4.0 (2026-09)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -314,8 +314,8 @@ F1AP-ELEMENTARY-PROCEDURE ::= CLASS {
 	&InitiatingMessage				,
 	&SuccessfulOutcome							OPTIONAL,
 	&UnsuccessfulOutcome						OPTIONAL,
-	&procedureCode				ProcedureCode 	UNIQUE,
-	&criticality				Criticality 	DEFAULT ignore
+	&procedureCode				ProcedureCode	UNIQUE,
+	&criticality				Criticality	DEFAULT ignore
 }
 WITH SYNTAX {
 	INITIATING MESSAGE			&InitiatingMessage
@@ -648,7 +648,7 @@ pWSFailureIndication F1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
-gNBDUStatusIndication 	F1AP-ELEMENTARY-PROCEDURE ::= {
+gNBDUStatusIndication F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		GNBDUStatusIndication
 	PROCEDURE CODE			id-GNBDUStatusIndication
 	CRITICALITY				ignore
@@ -1018,26 +1018,26 @@ posSystemInformationDelivery F1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
-dUCUCellSwitchNotification 	F1AP-ELEMENTARY-PROCEDURE ::= {
+dUCUCellSwitchNotification F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		DUCUCellSwitchNotification
 	PROCEDURE CODE			id-DUCUCellSwitchNotification
 	CRITICALITY				ignore
 }
 
-cUDUCellSwitchNotification 	F1AP-ELEMENTARY-PROCEDURE ::= {
+cUDUCellSwitchNotification F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		CUDUCellSwitchNotification
 	PROCEDURE CODE			id-CUDUCellSwitchNotification
 	CRITICALITY				ignore
 }
 
 
-dUCUTAInformationTransfer 	F1AP-ELEMENTARY-PROCEDURE ::= {
+dUCUTAInformationTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		DUCUTAInformationTransfer
 	PROCEDURE CODE			id-DUCUTAInformationTransfer
 	CRITICALITY				ignore
 }
 
-cUDUTAInformationTransfer 	F1AP-ELEMENTARY-PROCEDURE ::= {
+cUDUTAInformationTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		CUDUTAInformationTransfer
 	PROCEDURE CODE			id-CUDUTAInformationTransfer
 	CRITICALITY				ignore

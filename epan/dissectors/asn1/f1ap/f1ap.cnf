@@ -215,6 +215,8 @@ id-CUDUMobilityInitiationRequest            ProcedureCode
 id-CLI-Indication                           ProcedureCode
 id-DUCUCSIRSCoordination                    ProcedureCode
 id-CUDUCSIRSCoordination                    ProcedureCode
+# Bug in 38.473 v19.4.0: it id-FutureCoverageModificationCause should be defined as ProtocolIE-ID
+id-FutureCoverageModificationCause          ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                             ProtocolIE-ID
@@ -1125,6 +1127,10 @@ id-LTMConfig-to-Modify-List                          ProtocolIE-ID
 id-InterSNLTMMCGInformation                          ProtocolIE-ID
 id-LPWUSSupportedBandInfo                            ProtocolIE-ID
 id-DeliveryStatusReq                                 ProtocolIE-ID
+id-EarlySyncInformationRelease                       ProtocolIE-ID
+id-CSI-RSResourceSetToReleaseList                    ProtocolIE-ID
+id-CSI-IMResourceToReleaseList                       ProtocolIE-ID
+id-CSI-IMResourceSetToReleaseList                    ProtocolIE-ID
 
 #.END
 
@@ -2038,6 +2044,10 @@ UEPerformanceDelayMonitoring                      N f1ap.extension id-UEPerforma
 SBFD-AcrossSymbolType                             N f1ap.extension id-SBFD-AcrossSymbolType
 LPWUSSupportedBandInfo                            N f1ap.extension id-LPWUSSupportedBandInfo
 DeliveryStatusReq                                 N f1ap.extension id-DeliveryStatusReq
+EarlySyncInformationRelease                       N f1ap.extension id-EarlySyncInformationRelease
+CSI-RSResourceSetToReleaseList                    N f1ap.extension id-CSI-RSResourceSetToReleaseList
+CSI-IMResourceToReleaseList                       N f1ap.extension id-CSI-IMResourceToReleaseList
+CSI-IMResourceSetToReleaseList                    N f1ap.extension id-CSI-IMResourceSetToReleaseList
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
@@ -3748,6 +3758,14 @@ N6JitterInformation/n6JitterUpperBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(f1ap_
     dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceSetToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY CSI-RSResourceSetToReleaseList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_CSI_RSResourceSetToReleaseList);
+    dissect_nr_rrc_LTM_NZP_CSI_RS_ResourceSetToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY CSI-IM-ResourceConfiguration/cSI-IMResourceToAddModList VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -3756,12 +3774,28 @@ N6JitterInformation/n6JitterUpperBound DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(f1ap_
     dissect_nr_rrc_LTM_CSI_IM_ResourceToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY CSI-IMResourceToReleaseList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_CSI_IMResourceToReleaseList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY CSI-IM-ResourceConfiguration/cSI-IMResourceSetToAddModList VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_cSI_IMResourceSetToAddModList);
     dissect_nr_rrc_LTM_CSI_IM_ResourceSetToAddModList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CSI-IMResourceSetToReleaseList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_CSI_IMResourceSetToReleaseList);
+    dissect_nr_rrc_LTM_CSI_IM_ResourceSetToReleaseList_r19_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY OndemandSIB1Config VAL_PTR = &param_tvb

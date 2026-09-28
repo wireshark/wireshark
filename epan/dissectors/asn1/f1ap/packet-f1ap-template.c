@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V19.3.0 (2026-06)
+ * References: 3GPP TS 38.473 V19.4.0 (2026-09)
  */
 
 #include "config.h"
@@ -186,6 +186,9 @@ static int ett_f1ap_OndemandSIB1Config;
 static int ett_f1ap_SBFD_Frequency_Configuration;
 static int ett_f1ap_SSB_resource_config;
 static int ett_f1ap_sRS_Resource;
+static int ett_f1ap_CSI_RSResourceSetToReleaseList;
+static int ett_f1ap_CSI_IMResourceToReleaseList;
+static int ett_f1ap_CSI_IMResourceSetToReleaseList;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -988,6 +991,9 @@ void proto_register_f1ap(void) {
     &ett_f1ap_SBFD_Frequency_Configuration,
     &ett_f1ap_SSB_resource_config,
     &ett_f1ap_sRS_Resource,
+    &ett_f1ap_CSI_RSResourceSetToReleaseList,
+    &ett_f1ap_CSI_IMResourceToReleaseList,
+    &ett_f1ap_CSI_IMResourceSetToReleaseList,
 #include "packet-f1ap-ettarr.c"
   };
 

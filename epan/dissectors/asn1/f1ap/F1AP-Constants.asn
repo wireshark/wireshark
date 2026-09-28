@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V19.3.0 (2026-06)
+-- 3GPP TS 38.473 V19.4.0 (2026-09)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -134,7 +134,7 @@ id-CUDUMobilityInitiationRequest			ProcedureCode ::= 97
 id-CLI-Indication							ProcedureCode ::= 98
 id-DUCUCSIRSCoordination					ProcedureCode ::= 99
 id-CUDUCSIRSCoordination					ProcedureCode ::= 100
-
+id-FutureCoverageModificationCause 			ProcedureCode ::= 101
 
 
 
@@ -315,9 +315,7 @@ maxnoofTAs								INTEGER ::= 2
 maxnoofChannelRes						INTEGER ::= 24
 maxnoofCellsinNG-RANnode					INTEGER ::= 16384
 maxnoofLTM-CSI-ResourcesPerSet			INTEGER ::= 512
-
-
-
+maxnoofCandidategNBDUs					INTEGER ::= 8
 
 
 
@@ -1263,9 +1261,11 @@ id-SBFD-AcrossSymbolType							ProtocolIE-ID ::= 920
 id-LTMConfig-to-Modify-List							ProtocolIE-ID ::= 921
 id-InterSNLTMMCGInformation							ProtocolIE-ID ::= 922
 id-LPWUSSupportedBandInfo							ProtocolIE-ID ::= 923
-id-DeliveryStatusReq									ProtocolIE-ID ::= 924
-
-
+id-DeliveryStatusReq								ProtocolIE-ID ::= 924
+id-EarlySyncInformationRelease						ProtocolIE-ID ::= 925
+id-CSI-RSResourceSetToReleaseList					ProtocolIE-ID ::= 926
+id-CSI-IMResourceToReleaseList						ProtocolIE-ID ::= 927
+id-CSI-IMResourceSetToReleaseList					ProtocolIE-ID ::= 928
 
 
 END
