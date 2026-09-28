@@ -489,6 +489,7 @@ static expert_field ei_isakmp_payload_bad_length;
 static expert_field ei_isakmp_bad_fragment_number;
 static expert_field ei_isakmp_notify_data_3gpp_unknown_device_identity;
 static expert_field ei_isakmp_notify_data_nat_payload_sha1_mismatch;
+static expert_field ei_isakmp_notify_data_nat_payload_sha1_unchecked;
 
 static dissector_handle_t eap_handle;
 static dissector_handle_t esp_handle;
@@ -5185,6 +5186,12 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned lengt
             break;
         }
 
+        if (pinfo->src.type != AT_IPv4 && pinfo->src.type != AT_IPv6) {
+            expert_add_info(pinfo, data_item, &ei_isakmp_notify_data_nat_payload_sha1_unchecked);
+            break;
+        }
+        DISSECTOR_ASSERT_CMPINT(pinfo->src.len, <=, 16);
+
         /* The SHA1 hash is calculated over the concatenation of the initiator SPI, responder SPI, source IP address and source port. */
         /* Buffer size derived from components: 2 SPIs (8 bytes each), max IP (16 bytes), and port (2 bytes). */
         unsigned char buf[2 * sizeof(uint64_t) + 16 + sizeof(uint16_t)];
@@ -5237,6 +5244,12 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned lengt
             proto_item_append_text(data_item, " [malformed: notify_data length %u]", length);
             break;
         }
+
+        if ((pinfo->dst.type != AT_IPv4 && pinfo->dst.type != AT_IPv6) || pinfo->dst.len > 16) {
+            expert_add_info(pinfo, data_item, &ei_isakmp_notify_data_nat_payload_sha1_unchecked);
+            break;
+        }
+        DISSECTOR_ASSERT_CMPINT(pinfo->dst.len, <=, 16);
 
         /* The SHA1 hash is calculated over the concatenation of the initiator SPI, responder SPI, destination IP address and destination port. */
         /* Buffer size derived from components: 2 SPIs (8 bytes each), max IP (16 bytes), and port (2 bytes). */
@@ -8741,6 +8754,7 @@ proto_register_isakmp(void)
      { &ei_isakmp_bad_fragment_number, { "ike.fragment_number.invalid", PI_MALFORMED, PI_ERROR, "Invalid fragment numbering", EXPFILL }},
      { &ei_isakmp_notify_data_3gpp_unknown_device_identity, { "ike.notify.priv.3gpp.unknown_device_identity", PI_PROTOCOL, PI_WARN, "Type of device identity not known", EXPFILL }},
      { &ei_isakmp_notify_data_nat_payload_sha1_mismatch, { "ike.notify.nat_payload.sha1_mismatch", PI_PROTOCOL, PI_NOTE, "SHA1 mismatch in NAT payload. NAT was detected", EXPFILL }},
+     { &ei_isakmp_notify_data_nat_payload_sha1_unchecked, { "ike.notify.nat_payload.sha1_mismatch", PI_PROTOCOL, PI_NOTE, "Could not check SHA1 to detect NAT as frame address is not IP", EXPFILL }},
   };
 
   expert_module_t* expert_isakmp;
