@@ -141,6 +141,9 @@ set(WIRESHARK_MODEL_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/display_filter_validator.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/coloring_rules_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/coloring_rules_model.h
+	${CMAKE_SOURCE_DIR}/ui/qt/models/tag_column_delegate.h
+	${CMAKE_SOURCE_DIR}/ui/qt/models/tagging_rules_delegate.h
+	${CMAKE_SOURCE_DIR}/ui/qt/models/tagging_rules_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/column_list_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/decode_as_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/decode_as_model.h
@@ -197,6 +200,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_options_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_preferences_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/coloring_rules_dialog.h
+	${CMAKE_SOURCE_DIR}/ui/qt/tagging_rules_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/column_editor_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/column_preferences_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/compiled_filter_output.h
@@ -460,6 +464,9 @@ set(WIRESHARK_MODEL_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/display_filter_validator.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/coloring_rules_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/coloring_rules_model.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/models/tag_column_delegate.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/models/tagging_rules_delegate.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/models/tagging_rules_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/column_list_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/decode_as_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/decode_as_model.cpp
@@ -513,6 +520,7 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_options_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_preferences_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/coloring_rules_dialog.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/tagging_rules_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/column_editor_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/column_preferences_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/compiled_filter_output.cpp
@@ -662,6 +670,7 @@ set(WIRESHARK_QT_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_options_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/capture_preferences_frame.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/coloring_rules_dialog.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/tagging_rules_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/column_editor_frame.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/column_preferences_frame.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/compiled_filter_output.ui

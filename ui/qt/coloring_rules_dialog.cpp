@@ -43,7 +43,7 @@
 // - Make the filter column narrower? It's easy to run into Qt's annoying
 //   habit of horizontally scrolling QTreeWidgets here.
 
-ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
+ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QString add_name) :
     GeometryStateDialog(parent),
     ui(new Ui::ColoringRulesDialog),
     colorRuleModel_(palette().color(QPalette::Text), palette().color(QPalette::Base), this),
@@ -104,6 +104,11 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
 
     if (!add_filter.isEmpty()) {
         colorRuleModel_.addColor(true, add_filter, palette().color(QPalette::Text), palette().color(QPalette::Base));
+
+        if (!add_name.isEmpty()) {
+            colorRuleModel_.setData(colorRuleModel_.index(0, ColoringRulesModel::colName),
+                                    add_name, Qt::EditRole);
+        }
 
         //setup the buttons appropriately
         ui->coloringRulesTreeView->setCurrentIndex(colorRuleModel_.index(0, 0));

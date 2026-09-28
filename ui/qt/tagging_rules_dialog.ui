@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TaggingRulesDialog</class>
+ <widget class="QDialog" name="TaggingRulesDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>700</width>
+    <height>520</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="TabnavTreeView" name="taggingRulesTreeView">
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::InternalMove</enum>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <property name="textElideMode">
+      <enum>Qt::ElideMiddle</enum>
+     </property>
+     <property name="rootIsDecorated">
+      <bool>false</bool>
+     </property>
+     <property name="uniformRowHeights">
+      <bool>true</bool>
+     </property>
+     <property name="itemsExpandable">
+      <bool>false</bool>
+     </property>
+     <property name="expandsOnDoubleClick">
+      <bool>false</bool>
+     </property>
+     <property name="DropIndicatorShown" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="prefsLayout">
+     <item>
+      <widget class="QLabel" name="linkClickLabel">
+       <property name="text">
+        <string>Follow Link:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="linkClickComboBox">
+       <property name="toolTip">
+        <string>How to open a tag link in the packet list.</string>
+       </property>
+       <item><property name="text"><string>Ctrl+Shift+Click</string></property></item>
+       <item><property name="text"><string>Click</string></property></item>
+       <item><property name="text"><string>Right-click only</string></property></item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="prefsHSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="sizeLabel">
+       <property name="text">
+        <string>Emoji Size:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="fontSizeComboBox">
+       <property name="toolTip">
+        <string>Emoji size as a percentage of the row height. Does not affect text tag labels or the separator character.</string>
+       </property>
+       <item><property name="text"><string>100%</string></property></item>
+       <item><property name="text"><string>90%</string></property></item>
+       <item><property name="text"><string>80%</string></property></item>
+       <item><property name="text"><string>70%</string></property></item>
+       <item><property name="text"><string>60%</string></property></item>
+       <item><property name="text"><string>50%</string></property></item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="separatorLabel">
+       <property name="text">
+        <string>Separator:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="separatorLineEdit">
+       <property name="maximumWidth">
+        <number>30</number>
+       </property>
+       <property name="toolTip">
+        <string>Single character shown between tags when more than one rule matches. Leave empty for none.</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="tagActionLayout">
+     <item>
+      <spacer name="tagActionSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="copyToColoringRuleButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Save these tagging rules and open the Coloring Rules dialog with this rule's filter and name pre-filled.</string>
+       </property>
+       <property name="text">
+        <string>Copy to Coloring Rule</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="hintLabel">
+     <property name="text">
+      <string>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1,0">
+     <item>
+      <widget class="StockIconToolButton" name="newToolButton">
+       <property name="toolTip">
+        <string>Add a new tagging rule.</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="deleteToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Delete this tagging rule.</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="copyToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Duplicate this tagging rule.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="StockIconToolButton" name="clearToolButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Clear all tagging rules.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="ElidedLabel" name="pathLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>widgets/elided_label.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TabnavTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/tabnav_tree_view.h</header>
+  </customwidget>
+  <customwidget>
+   <class>StockIconToolButton</class>
+   <extends>QToolButton</extends>
+   <header>widgets/stock_icon_tool_button.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>TaggingRulesDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

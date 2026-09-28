@@ -140,6 +140,9 @@ set(WIRESHARK_MODEL_HEADERS
 	models/display_filter_validator.h
 	models/coloring_rules_delegate.h
 	models/coloring_rules_model.h
+	models/tag_column_delegate.h
+	models/tagging_rules_delegate.h
+	models/tagging_rules_model.h
 	models/column_list_model.h
 	models/credentials_model.h
 	models/decode_as_delegate.h
@@ -200,6 +203,7 @@ set(WIRESHARK_QT_HEADERS
 	capture_options_dialog.h
 	capture_preferences_frame.h
 	coloring_rules_dialog.h
+	tagging_rules_dialog.h
 	column_editor_frame.h
 	column_preferences_frame.h
 	compiled_filter_output.h
@@ -483,6 +487,9 @@ set(WIRESHARK_MODEL_SRCS
 	models/display_filter_validator.cpp
 	models/coloring_rules_delegate.cpp
 	models/coloring_rules_model.cpp
+	models/tag_column_delegate.cpp
+	models/tagging_rules_delegate.cpp
+	models/tagging_rules_model.cpp
 	models/column_list_model.cpp
 	models/credentials_model.cpp
 	models/decode_as_delegate.cpp
@@ -542,6 +549,7 @@ set(WIRESHARK_QT_SRC
 	capture_options_dialog.cpp
 	capture_preferences_frame.cpp
 	coloring_rules_dialog.cpp
+	tagging_rules_dialog.cpp
 	column_editor_frame.cpp
 	column_preferences_frame.cpp
 	compiled_filter_output.cpp
@@ -728,6 +736,7 @@ set(WIRESHARK_QT_UI
 	capture_options_dialog.ui
 	capture_preferences_frame.ui
 	coloring_rules_dialog.ui
+	tagging_rules_dialog.ui
 	column_editor_frame.ui
 	column_preferences_frame.ui
 	compiled_filter_output.ui

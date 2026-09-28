@@ -44,6 +44,7 @@
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
 #include <epan/color_filters.h>
+#include <epan/tag_rules.h>
 #include <epan/secrets.h>
 
 #include <epan/cfile.h>
@@ -4959,6 +4960,8 @@ cf_select_packet(capture_file *cf, frame_data *fdata)
         color_filters_prime_edt(cf->edt);
         cf->current_frame->need_colorize = 1;
     }
+    if (tag_rules_used())
+        tag_rules_prime_edt(cf->edt);
 
     epan_dissect_run(cf->edt, cf->cd_t, &cf->rec, cf->current_frame, NULL);
 

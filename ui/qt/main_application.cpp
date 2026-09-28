@@ -49,6 +49,7 @@
 #include "coloring_rules_dialog.h"
 
 #include "epan/color_filters.h"
+#include "epan/tag_rules.h"
 
 #include "extcap.h"
 #ifdef HAVE_LIBPCAP
@@ -301,6 +302,9 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }
+
+    /* Reload tag rules (profile-specific file changes; global file stays the same) */
+    tag_rules_reload();
 
     /* Capture-interface prefs are now watched by InterfaceListManager, which
        rescans when capture_no_interface_load / capture_no_extcap flips. A profile

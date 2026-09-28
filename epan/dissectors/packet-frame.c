@@ -42,6 +42,7 @@
 #include "packet-frame.h"
 
 #include <epan/color_filters.h>
+#include <epan/tag_rules.h>
 
 void proto_register_frame(void);
 void event_register_frame(void);
@@ -116,6 +117,8 @@ static int hf_frame_wtap_encap;
 static int hf_frame_cb_pen;
 static int hf_frame_cb_copy_allowed;
 static int hf_frame_comment;
+static int hf_frame_tags;
+static int hf_frame_tag;
 static int hf_frame_encoding;
 static int hf_frame_cust_opt;
 static int hf_frame_cust_opt_pen;
@@ -130,6 +133,7 @@ static int ett_comments;
 static int ett_hash;
 static int ett_verdict;
 static int ett_process;
+static int ett_frame_tags;
 
 static expert_field ei_comments_text;
 static expert_field ei_arrive_time_out_of_range;
@@ -1572,6 +1576,27 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 	}
 
+	/* Add a "Tags" item (frame.tags, present only when at least one tagging
+	 * rule matched, so it can be filtered/columned without expanding it) with
+	 * a subtree holding one frame.tag item (rule name) per matching rule. */
+	if (fh_tree) {
+		const GSList *tag_names = (const GSList *)p_get_proto_data(wmem_file_scope(), pinfo, proto_frame, 1);
+
+		if (tag_names) {
+			proto_item *tags_item = proto_tree_add_boolean(fh_tree, hf_frame_tags, tvb, 0, 0, true);
+			proto_item_set_generated(tags_item);
+
+			if (proto_field_is_referenced(fh_tree, hf_frame_tag)) {
+				proto_tree *tags_tree = proto_item_add_subtree(tags_item, ett_frame_tags);
+				for (const GSList *t = tag_names; t; t = g_slist_next(t)) {
+					proto_item *tag_item = proto_tree_add_string(tags_tree, hf_frame_tag, tvb, 0, 0,
+					                                             (const char *)t->data);
+					proto_item_set_generated(tag_item);
+				}
+			}
+		}
+	}
+
 	tap_queue_packet(frame_tap, pinfo, NULL);
 
 
@@ -1815,6 +1840,16 @@ static void common_register_frame(bool use_packets)
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
+		{ &hf_frame_tags,
+		  { "Tags", "frame.tags",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "At least one tagging rule matched this frame", HFILL }},
+
+		{ &hf_frame_tag,
+		  { "Tag", "frame.tag",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Name of a matching tagging rule", HFILL }},
+
 		{ &hf_frame_packet_id,
 		  { "Packet id", "frame.packet_id",
 		    FT_UINT64, BASE_DEC, NULL, 0x0,
@@ -1972,6 +2007,7 @@ static void common_register_frame(bool use_packets)
 		&ett_hash,
 		&ett_verdict,
 		&ett_process,
+		&ett_frame_tags,
 	};
 
 	static ei_register_info ei[] = {

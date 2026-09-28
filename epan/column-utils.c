@@ -1936,6 +1936,7 @@ col_based_on_frame_data(column_info *cinfo, const unsigned col)
   switch (cinfo->columns[col].col_fmt) {
   case COL_NUMBER:
   case COL_NUMBER_DIS:
+  case COL_TAG:
   case COL_CLS_TIME:
   case COL_ABS_TIME:
   case COL_ABS_YMD_TIME:

@@ -79,13 +79,14 @@ col_format_to_string(const int fmt) {
     "%us",                                      /* 41) COL_UNRES_SRC */
     "%rS",                                      /* 42) COL_RES_SRC_PORT */
     "%uS",                                      /* 43) COL_UNRES_SRC_PORT */
-    "%Yut",                                     /* 44) COL_UTC_YMD_TIME */
-    "%YDOYut",                                  /* 45) COL_UTC_YDOY_TIME */
-    "%Aut",                                     /* 46) COL_UTC_TIME */
-    "%t",                                       /* 47) COL_CLS_TIME */
-    "%U",                                       /* 48) COL_USER_NAME */
-    "%Pi",                                      /* 49) COL_PROCESS_ID */
-    "%Pn",                                      /* 50) COL_PROCESS_NAME */
+    "%Tg",                                      /* 44) COL_TAG */
+    "%Yut",                                     /* 45) COL_UTC_YMD_TIME */
+    "%YDOYut",                                  /* 46) COL_UTC_YDOY_TIME */
+    "%Aut",                                     /* 47) COL_UTC_TIME */
+    "%t",                                       /* 48) COL_CLS_TIME */
+    "%U",                                       /* 49) COL_USER_NAME */
+    "%Pi",                                      /* 50) COL_PROCESS_ID */
+    "%Pn",                                      /* 51) COL_PROCESS_NAME */
   };
 
  /* Note the formats in migrated_columns[] below have been used in deprecated
@@ -153,6 +154,7 @@ col_format_desc(const int fmt_num) {
     { COL_UNRES_SRC, "Src addr (unresolved)" },
     { COL_RES_SRC_PORT, "Src port (resolved)" },
     { COL_UNRES_SRC_PORT, "Src port (unresolved)" },
+    { COL_TAG, "Tag (tagging rules)" },
     { COL_CLS_TIME, "Time (format as specified)" },
     { COL_UTC_YMD_TIME, "UTC date, as YYYY-MM-DD, and time" },
     { COL_UTC_YDOY_TIME, "UTC date, as YYYY/DOY, and time" },
@@ -864,6 +866,8 @@ get_column_longest_string(const int format)
       return "AAA BBB";    /* not the longest, but the longest is too long */
     case COL_EXPERT:
       return "ERROR";
+    case COL_TAG:
+      return "\xF0\x9F\x94\xB4\xF0\x9F\x9F\xA0\xF0\x9F\x9F\xA1"; /* three emoji */
     case COL_FREQ_CHAN:
       return "9999 MHz [A 999]";
     case COL_USER_NAME:

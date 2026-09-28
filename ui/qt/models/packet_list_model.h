@@ -519,6 +519,7 @@ private:
      * @return True if the aggregation view was updated, false otherwise.
      */
     bool updateVisibleAggregationViewRows(PacketListRecord* record);
+
 };
 
 #endif // PACKET_LIST_MODEL_H

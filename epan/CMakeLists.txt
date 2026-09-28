@@ -43,6 +43,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	cfile.h
 	charsets.h
 	color_filters.h
+	tag_rules.h
 	column.h
 	column-info.h
 	column-utils.h
@@ -151,6 +152,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	cfile.c
 	charsets.c
 	color_filters.c
+	tag_rules.c
 	column.c
 	column-utils.c
 	conversation.c

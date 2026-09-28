@@ -20,10 +20,18 @@
 #include <QByteArray>
 #include <QCache>
 #include <QList>
+#include <QPair>
+#include <QString>
+#include <QStringList>
 #include <QVariant>
+#include <QMetaType>
 
 struct conversation;
 struct _GStringChunk;
+
+typedef QList<QPair<QString,QString>> TagSegmentList;
+Q_DECLARE_METATYPE(TagSegmentList)
+
 
 /**
  * @brief Represents a single record within the packet list.
@@ -87,6 +95,25 @@ public:
      * @return Pointer to the GSList of matching color filters.
      */
     const GSList* matchingColorFilters() const { return color_filters_; }
+
+    /**
+     * @brief Concatenated tag_content strings for all matching rules (for COL_TAG display).
+     */
+    const QString &tagColumnString() const { return tag_column_str_; }
+
+    /**
+     * @brief Tooltip text for the tag column (one "name: comment" line per matching rule).
+     */
+    const QString &tagColumnTooltip() const { return tag_column_tip_; }
+
+    /**
+     * @brief Per-segment (text, url) pairs for all matching rules in order.
+     *        Used by TagColumnDelegate for per-emoji click-to-URL.
+     */
+    const TagSegmentList &tagColumnSegments() const { return tag_column_segments_; }
+
+    /** (rule_name, url) for matching rules that have a URL — used for the right-click Link submenu. */
+    const TagSegmentList &tagLinkList() const { return tag_link_list_; }
 
     /**
      * @brief Check if packet has multiple color matches
@@ -200,6 +227,12 @@ private:
 
     GSList *color_filters_; /**< All matching color filters (only if multi-color enabled) */
     int color_filter_count_; /**< The count of matching color filters. */
+
+    QString tag_column_str_; /**< Concatenated tag_content for all matching rules */
+    QString tag_column_tip_; /**< Tooltip: "name: comment" per matching rule */
+    TagSegmentList tag_column_segments_; /**< (text, url) per matching rule */
+    TagSegmentList tag_link_list_;       /**< (rule_name, url) for rules with a URL */
+    static bool any_tag_column_; /**< True if any column is COL_TAG */
 
     /**
      * @brief Dissects the packet to evaluate columns and/or coloring.

@@ -60,6 +60,7 @@
 /* general (not Qt specific) */
 #include "file.h"
 #include "epan/color_filters.h"
+#include "epan/tag_rules.h"
 
 #include "epan/rtd_table.h"
 #include "epan/srt_table.h"
@@ -1003,6 +1004,8 @@ int main(int argc, char *qt_argv[])
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }
+
+    tag_rules_init();
 
     /* allSystemsGo() emits appInitialized(), which signals the WelcomePage to
      * delete the splash overlay. However, it doesn't get redrawn until

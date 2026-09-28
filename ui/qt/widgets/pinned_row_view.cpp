@@ -18,6 +18,7 @@
 #include <ui/qt/widgets/pinned_overlay_view.h>
 #include <ui/qt/utils/color_utils.h>
 
+#include <epan/column.h>
 #include <epan/frame_data.h>
 #include <epan/prefs.h>
 
@@ -194,10 +195,29 @@ void PinnedRowView::mousePressEvent(QMouseEvent *event)
     }
 }
 
-void PinnedRowView::mouseReleaseEvent(QMouseEvent *)
+void PinnedRowView::mouseReleaseEvent(QMouseEvent *event)
 {
-    // Selection already happened on press; nothing to do here.
     drag_proxy_row_ = -1;
+
+    // Selection already happened on press. The one thing still needed here
+    // is the tag column's click-to-open-link handling: this view doesn't
+    // call QAbstractItemView::mouseReleaseEvent() (which is what would
+    // normally dispatch to the column's delegate), so invoke
+    // TagColumnDelegate::editorEvent() directly for a click landing in a
+    // COL_TAG cell.
+    QModelIndex index = indexAt(event->pos());
+    if (!packet_list_ || !index.isValid()) {
+        return;
+    }
+    if (get_column_format(index.column()) != COL_TAG) {
+        return;
+    }
+    QStyleOptionViewItem option;
+    initViewItemOption(&option);
+    option.rect = visualRect(index);
+    static_cast<QAbstractItemDelegate &>(
+        const_cast<TagColumnDelegate &>(packet_list_->tagColumnDelegate()))
+        .editorEvent(event, model(), option, index);
 }
 
 void PinnedRowView::mouseMoveEvent(QMouseEvent *event)
@@ -359,6 +379,16 @@ void PinnedRowView::drawRow(QPainter *painter, const QStyleOptionViewItem &optio
                 QModelIndex col_index = index.siblingAtColumn(logical_col);
                 QStyleOptionViewItem col_option = option;
                 col_option.rect = visualRect(col_index);
+                if (get_column_format(logical_col) == COL_TAG) {
+                    // See PacketList::drawRow()'s own comment for why the tag
+                    // column needs its content painted separately rather than
+                    // through paintFlatCell().
+                    painter->save();
+                    painter->fillRect(col_option.rect, hover_bg);
+                    painter->restore();
+                    packet_list->tagColumnDelegate().paintContent(painter, col_option, col_index);
+                    continue;
+                }
                 ColorUtils::paintFlatCell(painter, this, col_option, col_index, hover_bg, text_color);
             }
         }

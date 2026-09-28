@@ -13,6 +13,7 @@ const QString WiresharkMimeData::ColoringRulesMimeType = "application/vnd.wiresh
 const QString WiresharkMimeData::ColumnListMimeType = "application/vnd.wireshark.columnlist";
 const QString WiresharkMimeData::FilterListMimeType = "application/vnd.wireshark.filterlist";
 const QString WiresharkMimeData::DisplayFilterMimeType = "application/vnd.wireshark.displayfilter";
+const QString WiresharkMimeData::TaggingRulesMimeType = "application/vnd.wireshark.taggingrules";
 
 void WiresharkMimeData::allowPlainText()
 {

@@ -16,6 +16,7 @@
 #include "protocol_preferences_menu.h"
 #include <ui/qt/models/related_packet_delegate.h>
 #include <ui/qt/models/multi_color_packet_delegate.h>
+#include <ui/qt/models/tag_column_delegate.h>
 #include <ui/qt/utils/field_information.h>
 #include <ui/qt/widgets/pinned_column_view.h>
 #include <ui/qt/widgets/pinned_row_view.h>
@@ -645,6 +646,16 @@ public:
      */
     frame_data *filteredOutSelectedFrame() const;
 
+    /**
+     * @brief The delegate used to paint the COL_TAG column (emoji font,
+     * centered layout, per-segment links). Used by drawRow() overrides
+     * (this view's own and PinnedRowView's) to paint the tag column's
+     * content directly when manually painting the hover highlight, since
+     * QStyledItemDelegate::paint() would clobber the hover background --
+     * see PacketList::drawRow()'s comment for why.
+     */
+    const TagColumnDelegate &tagColumnDelegate() const { return tag_column_delegate_; }
+
 protected:
     /**
      * @brief Handles window-activation changes.
@@ -838,6 +849,7 @@ private:
 
     /** @brief Delegate responsible for drawing multi-color packet lines. */
     MultiColorPacketDelegate multi_color_delegate_;
+    TagColumnDelegate tag_column_delegate_;
 
     /** @brief Action to show or hide the column separator. */
     QAction *show_hide_separator_;

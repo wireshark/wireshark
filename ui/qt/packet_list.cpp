@@ -58,6 +58,8 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
+#include <QDesktopServices>
+#include <QUrl>
 #include <QClipboard>
 #include <QContextMenuEvent>
 #include <QtCore/qmath.h>
@@ -373,6 +375,13 @@ void PacketList::setPinnedRowViews(PinnedRowView *row_view, PinnedRowView *corne
     if (pinned_row_corner_view_) {
         pinned_row_corner_view_->setModel(pinned_rows_model_);
     }
+
+    // Push this view's already-computed column delegates (including the tag
+    // column's) onto the newly attached pinned views immediately, rather than
+    // waiting for the next setColumnVisibility() call (e.g. a column resize),
+    // which is the only other place delegates get propagated to
+    // pinnedOverlayViews().
+    setColumnDelegate();
 }
 
 QList<QTreeView *> PacketList::pinnedOverlayViews() const
@@ -590,6 +599,19 @@ void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option,
                 QModelIndex col_index = index.siblingAtColumn(logical_col);
                 QStyleOptionViewItem col_option = option;
                 col_option.rect = visualRect(col_index);
+                if (get_column_format(logical_col) == COL_TAG) {
+                    // The tag column has its own delegate (emoji font, centered
+                    // layout, per-segment links) that paintFlatCell()'s generic
+                    // CE_ItemViewItem drawing can't reproduce. Fill the hover
+                    // background here, then paint only the tag content on top
+                    // (not the delegate's own background fill, which would
+                    // clobber the hover color with the model's background role).
+                    painter->save();
+                    painter->fillRect(col_option.rect, hover_bg);
+                    painter->restore();
+                    tag_column_delegate_.paintContent(painter, col_option, col_index);
+                    continue;
+                }
                 ColorUtils::paintFlatCell(painter, this, col_option, col_index, hover_bg, text_color);
             }
         }
@@ -856,6 +878,28 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
              */
             if (follow_action->isEnabled()) {
                 submenu->addAction(follow_action);
+            }
+        }
+    }
+
+    // "Links" submenu — one entry per matching tag rule that has a URL
+    if (ctxIndex.isValid()) {
+        PacketListRecord *record = static_cast<PacketListRecord *>(ctxIndex.internalPointer());
+        if (record) {
+            const TagSegmentList &links = record->tagLinkList();
+            if (!links.isEmpty()) {
+                QMenu *linkSubmenu = new QMenu(tr("Tag Links"), ctx_menu);
+                for (const auto &link : links) {
+                    QString displayUrl = link.second.length() > 50
+                        ? link.second.left(50) + "..." : link.second;
+                    QString label = link.first + ": " + displayUrl;
+                    QAction *linkAction = linkSubmenu->addAction(label);
+                    QString url = link.second;
+                    connect(linkAction, &QAction::triggered, this, [url]() {
+                        QDesktopServices::openUrl(QUrl(url));
+                    });
+                }
+                ctx_menu->addMenu(linkSubmenu);
             }
         }
     }
@@ -1683,6 +1727,13 @@ void PacketList::setColumnDelegate()
                 setItemDelegateForColumn(i, &related_packet_delegate_);
                 break;  // Set the delegate only on the first visible column
             }
+        }
+    }
+
+    // Tag column delegate is installed on every COL_TAG column regardless of other delegates
+    for (unsigned i = 0; i < prefs.num_cols; i++) {
+        if (get_column_format(i) == COL_TAG) {
+            setItemDelegateForColumn(i, &tag_column_delegate_);
         }
     }
 

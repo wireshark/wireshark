@@ -549,6 +549,62 @@ was applied, along with the matching filter.
 image::images/ws-coloring-fields.png[{screenshot-attrs}]
 
 
+[#ChCustTaggingSection]
+
+=== Packet tagging
+
+Similar to coloring rules, Wireshark can tag packets that match a display
+filter, showing a short label (typically an emoji) in a dedicated "Tag"
+column and setting the `frame.tag` field so tagged packets can be filtered
+on (for example, `frame.tag == "HTTP errors"`).
+
+Unlike coloring rules, which only change how a packet looks, a tagging rule
+can also carry an optional URL. Clicking a tag opens that URL, which is
+useful for linking a packet directly to an external ticket, runbook, or wiki
+page.
+
+To manage tagging rules, select menu:View[Tagging Rules...]. Wireshark will
+display the "Tagging Rules" dialog box.
+
+Tagging rules are stored in the current configuration profile, the same way
+coloring rules are, so different profiles can have different sets of tags.
+
+You can create a new rule by clicking on the btn:[+] button. You can delete
+one or more rules by clicking the btn:[-] button. The "copy" button will
+duplicate a rule.
+
+Each rule has a name (also the value stored in `frame.tag`), a display
+filter, the tag content shown in the packet list (typically an emoji, but
+any short text works), an optional link, and an optional comment. The
+btn:[Copy to Coloring Rule] button saves the current rule and opens the
+Coloring Rules dialog with the same name and filter already filled in, so
+you can give the same packets a background color as well as a tag.
+
+Three settings at the top of the dialog apply to every tag in the current
+profile:
+
+Follow Link::
+How clicking a tag's link opens it: `Ctrl+Shift+Click`, a plain `Click`, or
+`Right-click only` (which disables click-to-open and requires using the
+right-click "Tag Links" menu instead).
+
+Size::
+The tag's size as a percentage of the packet list row height.
+
+Separator::
+A single character shown between tags when more than one rule matches the
+same packet.
+
+[NOTE]
+.The first match wins for filtering, but every match is shown
+====
+If more than one rule matches a packet, all of the matching tags are shown
+in the Tag column (separated by the Separator character above), but
+`frame.tag` is set to every matching rule's name, so a filter like
+`frame.tag == "HTTP errors"` still works even if other rules also matched.
+====
+
+
 [#ChCustProtocolDissectionSection]
 
 === Control Protocol Dissection

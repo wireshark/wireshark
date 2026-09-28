@@ -13,6 +13,7 @@
 
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/tag_rules.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/utf8_entities.h>
@@ -331,7 +332,23 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
 
     if (hInfo.isValid)
     {
-        if (hInfo.description.length() > 0) {
+        /* For frame.tag items, show the rule's comment in the status bar instead of the blurb. */
+        if (hInfo.abbreviation == "frame.tag") {
+            field_info *fi = finfo->fieldInfo();
+            const char *rule_name = fi ? fvalue_get_string(fi->value) : nullptr;
+            QString comment_str;
+            if (rule_name) {
+                for (const GSList *r = tag_rules_get_list(); r; r = g_slist_next(r)) {
+                    const tag_rule_t *rule = (const tag_rule_t *)r->data;
+                    if (strcmp(rule->rule_name, rule_name) == 0) {
+                        if (rule->comment && rule->comment[0])
+                            comment_str = QString::fromUtf8(rule->comment);
+                        break;
+                    }
+                }
+            }
+            item_info.append(comment_str.isEmpty() ? hInfo.description : comment_str);
+        } else if (hInfo.description.length() > 0) {
             item_info.append(hInfo.description);
         } else {
             item_info.append(hInfo.name);

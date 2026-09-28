@@ -101,14 +101,15 @@ enum {
   COL_UNRES_SRC,      /**< 41) Unresolved source */
   COL_RES_SRC_PORT,   /**< 42) Resolved source port */
   COL_UNRES_SRC_PORT, /**< 43) Unresolved source port */
-  COL_UTC_YMD_TIME,   /**< 44) UTC date, as YYYY-MM-DD, and time */
-  COL_UTC_YDOY_TIME,  /**< 45) UTC date, as YYYY/DOY, and time */
-  COL_UTC_TIME,       /**< 46) UTC time */
-  COL_CLS_TIME,       /**< 47) Command line-specified time (default relative) */
-  COL_USER_NAME,      /**< 48) User name */
-  COL_PROCESS_ID,     /**< 49) Process ID */
-  COL_PROCESS_NAME,   /**< 50) Process name */
-  NUM_COL_FMTS        /**< 51) Should always be last */
+  COL_TAG,            /**< 44) Tag (tagging rules) */
+  COL_UTC_YMD_TIME,   /**< 45) UTC date, as YYYY-MM-DD, and time */
+  COL_UTC_YDOY_TIME,  /**< 46) UTC date, as YYYY/DOY, and time */
+  COL_UTC_TIME,       /**< 47) UTC time */
+  COL_CLS_TIME,       /**< 48) Command line-specified time (default relative) */
+  COL_USER_NAME,      /**< 49) User name */
+  COL_PROCESS_ID,     /**< 50) Process ID */
+  COL_PROCESS_NAME,   /**< 51) Process name */
+  NUM_COL_FMTS        /**< 52) Should always be last */
 };
 
 /**

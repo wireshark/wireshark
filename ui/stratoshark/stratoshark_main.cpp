@@ -58,6 +58,7 @@
 /* general (not Qt specific) */
 #include "file.h"
 #include "epan/color_filters.h"
+#include "epan/tag_rules.h"
 
 #include "epan/rtd_table.h"
 #include "epan/srt_table.h"
@@ -872,6 +873,8 @@ int main(int argc, char *qt_argv[])
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }
+
+    tag_rules_init();
 
     ssApp->allSystemsGo();
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Stratoshark is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);

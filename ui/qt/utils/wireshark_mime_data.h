@@ -39,6 +39,9 @@ public:
 
     /** @brief MIME type string for display filters. */
     static const QString DisplayFilterMimeType;
+
+    /** @brief MIME type string for tagging rules. */
+    static const QString TaggingRulesMimeType;
 };
 
 /**

@@ -1122,7 +1122,15 @@ QVariant PacketListModel::dataForRecord(PacketListRecord *record, int column, in
         return QVariant();
     case Qt::AccessibleTextRole:
     {
+        if (get_column_format(column) == COL_TAG)
+            return record->tagColumnString();
         return record->columnString(cap_file_, column, true);
+    }
+    case Qt::ToolTipRole:
+    {
+        if (get_column_format(column) == COL_TAG)
+            return record->tagColumnTooltip();
+        return QVariant();
     }
     case Qt::AccessibleDescriptionRole:
     {
@@ -1152,12 +1160,22 @@ QVariant PacketListModel::dataForRecord(PacketListRecord *record, int column, in
     }
     case Qt::DisplayRole:
     {
+        if (get_column_format(column) == COL_TAG)
+            return record->tagColumnString();
         return record->columnString(cap_file_, column, true);
+    }
+    case Qt::UserRole:
+    {
+        if (get_column_format(column) == COL_TAG)
+            return QVariant::fromValue<TagSegmentList>(record->tagColumnSegments());
+        return QVariant();
     }
     default:
         return QVariant();
     }
 }
+
+
 
 QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
                                      int role) const

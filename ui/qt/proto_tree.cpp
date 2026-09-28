@@ -19,6 +19,8 @@
 #include <epan/epan_dissect.h>
 #include <epan/color_filters.h>
 #include <epan/dissectors/packet-frame.h>
+#include <epan/tag_rules.h>
+#include <epan/dfilter/dfilter.h>
 #include <epan/cfile.h>
 
 #include <ui/qt/utils/color_utils.h>
@@ -468,6 +470,44 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         }
     }
 
+    // Add "Tagging Rules..." and "Tag Links" submenu when right-clicking a frame.tag field
+    bool is_tag_field = fi && fi->hfinfo &&
+        strcmp(fi->hfinfo->abbrev, "frame.tag") == 0;
+    if (is_tag_field && !buildForDialog) {
+        ctx_menu->addAction(tr("Tagging Rules..."), [this]() {
+            QAction *tagging_rules_action = window()->findChild<QAction *>("actionViewTaggingRules");
+            if (tagging_rules_action)
+                tagging_rules_action->trigger();
+        });
+
+        // Build "Tag Links" submenu from all matching rules that have a URL
+        if (edt) {
+            QMenu *linkSubmenu = nullptr;
+            const GSList *rule_list = tag_rules_get_list();
+            for (const GSList *r = rule_list; r; r = g_slist_next(r)) {
+                const tag_rule_t *rule = (const tag_rule_t *)r->data;
+                if (rule->disabled || !rule->c_tagfilter || !rule->tag_url || !rule->tag_url[0])
+                    continue;
+                if (!dfilter_apply_edt(rule->c_tagfilter, edt))
+                    continue;
+                if (!linkSubmenu)
+                    linkSubmenu = new QMenu(tr("Tag Links"), ctx_menu);
+                QString name = QString::fromUtf8(rule->rule_name);
+                QString url  = QString::fromUtf8(rule->tag_url);
+                QString displayUrl = url.length() > 50 ? url.left(50) + "..." : url;
+                QString label = name + ": " + displayUrl;
+                QAction *linkAction = linkSubmenu->addAction(label);
+                connect(linkAction, &QAction::triggered, this, [url]() {
+                    QDesktopServices::openUrl(QUrl(url));
+                });
+            }
+            if (linkSubmenu)
+                ctx_menu->addMenu(linkSubmenu);
+        }
+
+        ctx_menu->addSeparator();
+    }
+
     // Add actions for coloring rule fields
     bool is_color_rule_name = fi && fi->hfinfo &&
         strcmp(fi->hfinfo->abbrev, "frame.coloring_rule.name") == 0;
@@ -850,6 +890,26 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index)
             mainApp->gotoFrame(fvalue_get_uinteger(finfo.fieldInfo()->value));
         }
     } else {
+        // For frame.tag fields, look up the URL from the matching tag rule.
+        const header_field_info *hfi = finfo.fieldInfo() ? finfo.fieldInfo()->hfinfo : nullptr;
+        if (hfi && strcmp(hfi->abbrev, "frame.tag") == 0) {
+            if (tag_rules_get_prefs().link_click == TAG_LINK_CLICK_NONE)
+                return;
+            QString tag_name = finfo.toString();
+            const GSList *rule_list = tag_rules_get_list();
+            for (const GSList *r = rule_list; r; r = g_slist_next(r)) {
+                const tag_rule_t *rule = (const tag_rule_t *)r->data;
+                if (tag_name == QString::fromUtf8(rule->rule_name)) {
+                    if (rule->tag_url && rule->tag_url[0]) {
+                        QDesktopServices::openUrl(QUrl(QString::fromUtf8(rule->tag_url)));
+                        return;
+                    }
+                    break;
+                }
+            }
+            return; // no URL configured for this rule
+        }
+
         QString url = finfo.url();
         if (!url.isEmpty()) {
             QApplication::clipboard()->setText(url);

@@ -15,6 +15,10 @@
 #include <epan/column.h>
 #include <epan/conversation.h>
 #include <epan/color_filters.h>
+#include <epan/tag_rules.h>
+#include <epan/proto.h>
+#include <epan/proto_data.h>
+#include <epan/dfilter/dfilter.h>
 #include <epan/wmem_scopes.h>
 #include <wsutil/wmem/wmem_list.h>
 
@@ -26,6 +30,7 @@ QCache<uint32_t, QStringList> PacketListRecord::col_text_cache_(500);
 bool PacketListRecord::dissection_paused_ = false;
 QMap<int, int> PacketListRecord::cinfo_column_;
 unsigned PacketListRecord::rows_color_ver_ = 1;
+bool PacketListRecord::any_tag_column_ = false;
 
 PacketListRecord::PacketListRecord(frame_data *frameData) :
     fdata_(frameData),
@@ -44,7 +49,6 @@ PacketListRecord::PacketListRecord(frame_data *frameData) :
 
 PacketListRecord::~PacketListRecord()
 {
-    // Free the GSList but don't free the color_filter_t* (they're global)
     g_slist_free(color_filters_);
 }
 
@@ -103,8 +107,11 @@ void PacketListRecord::resetColumns(column_info *cinfo)
     }
 
     cinfo_column_.clear();
+    any_tag_column_ = false;
     unsigned i, j;
     for (i = 0, j = 0; i < cinfo->num_cols; i++) {
+        if (get_column_format(i) == COL_TAG)
+            any_tag_column_ = true;
         if (!col_based_on_frame_data(cinfo, i)) {
             cinfo_column_[i] = j;
             j++;
@@ -178,7 +185,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
      *
      *    XXX - field extractors?  (Not done for GTK+....)
      */
-    create_proto_tree = ((dissect_color && color_filters_used()) ||
+    create_proto_tree = ((dissect_color && (color_filters_used() || any_tag_column_)) ||
                          (dissect_columns && (have_custom_cols(cinfo) ||
                                               have_field_extractors())));
 
@@ -189,6 +196,8 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
     /* Re-color when the coloring rules are changed via the UI. */
     if (dissect_color) {
         color_filters_prime_edt(&edt);
+        if (any_tag_column_)
+            tag_rules_prime_edt(&edt);
         fdata_->need_colorize = 1;
     }
     if (dissect_columns)
@@ -230,6 +239,64 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
             }
         } else {
             color_filter_count_ = fdata_->color_filter ? 1 : 0;
+        }
+
+        // Apply tagging rules: build display strings and store rule names as
+        // proto_data (key 1) for frame.tag field population in dissect_frame().
+        // The GSList spine and its strings are both wmem_file_scope()-allocated
+        // (rather than glib-heap-allocated via g_slist_append) so they are
+        // reclaimed automatically when the capture file closes, with no
+        // explicit free needed even for a frame's last redissection.
+        tag_column_str_.clear();
+        tag_column_tip_.clear();
+        tag_column_segments_.clear();
+        tag_link_list_.clear();
+        if (any_tag_column_) {
+            const GSList *rule_list = tag_rules_get_list();
+            int frame_proto_id = proto_get_id_by_filter_name("frame");
+            p_remove_proto_data(wmem_file_scope(), &edt.pi, frame_proto_id, 1);
+            GSList *tag_names = NULL;
+            GSList *tag_names_tail = NULL;
+            QStringList tip_lines;
+            tag_prefs_t tag_prefs = tag_rules_get_prefs();
+            for (const GSList *r = rule_list; r; r = g_slist_next(r)) {
+                tag_rule_t *rule = (tag_rule_t *)r->data;
+                if (!rule->disabled && rule->c_tagfilter &&
+                    dfilter_apply_edt(rule->c_tagfilter, &edt)) {
+                    QString seg_text = (rule->tag_content && rule->tag_content[0])
+                        ? QString::fromUtf8(rule->tag_content) : QString();
+                    QString seg_url  = (rule->tag_url && rule->tag_url[0])
+                        ? QString::fromUtf8(rule->tag_url) : QString();
+                    if (!seg_text.isEmpty()) {
+                        if (!tag_column_str_.isEmpty() && tag_prefs.separator != '\0')
+                            tag_column_str_ += QChar::fromLatin1(tag_prefs.separator);
+                        tag_column_str_ += seg_text;
+                    }
+                    tag_column_segments_.append(qMakePair(seg_text, seg_url));
+                    if (!seg_url.isEmpty()) {
+                        QString link_name = QString::fromUtf8(rule->rule_name);
+                        tag_link_list_.append(qMakePair(link_name, seg_url));
+                    }
+                    QString tip_line = QString::fromUtf8(rule->rule_name);
+                    if (rule->comment && rule->comment[0])
+                        tip_line += QStringLiteral(": ") + QString::fromUtf8(rule->comment);
+                    tip_lines << tip_line;
+                    /* Store rule name in proto_data for frame.tag display */
+                    char *tag_str = wmem_strdup(wmem_file_scope(), rule->rule_name);
+                    GSList *node = wmem_new(wmem_file_scope(), GSList);
+                    node->data = tag_str;
+                    node->next = NULL;
+                    if (tag_names_tail)
+                        tag_names_tail->next = node;
+                    else
+                        tag_names = node;
+                    tag_names_tail = node;
+                }
+            }
+            tag_column_tip_ = tip_lines.join(QStringLiteral("\n"));
+            if (tag_names) {
+                p_add_proto_data(wmem_file_scope(), &edt.pi, frame_proto_id, 1, tag_names);
+            }
         }
     }
 
