@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd">
+  <Aliases>
+    <Alias Alias="Int32">i=6</Alias>
+    <Alias Alias="UInt32">i=7</Alias>
+    <Alias Alias="Double">i=11</Alias>
+    <Alias Alias="String">i=12</Alias>
+    <Alias Alias="ByteString">i=15</Alias>
+  </Aliases>
+  <UADataType NodeId="ns=1;i=3001" BrowseName="1:Color">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=29</Reference>
+    </References>
+    <Definition Name="1:Color">
+      <Field Name="Red" Value="0"/>
+      <Field Name="Green" Value="1"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3002" BrowseName="1:Point">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+    </References>
+    <Definition Name="1:Point">
+      <Field Name="X" DataType="Int32" ValueRank="-1"/>
+      <Field Name="Y" DataType="Int32"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3003" BrowseName="1:Shape">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+    </References>
+    <Definition Name="1:Shape">
+      <Field Name="Id" DataType="UInt32"/>
+      <Field Name="Name" DataType="String" MaxStringLength="32"/>
+      <Field Name="Points" DataType="ns=1;i=3002" ValueRank="1" ArrayDimensions="0"/>
+      <Field Name="Colors" DataType="ns=1;i=3001" ValueRank="1"/>
+      <Field Name="Scale" DataType="Double" IsOptional="true"/>
+      <Field Name="Tag" DataType="ByteString" IsOptional="true" AllowSubTypes="false"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3004" BrowseName="1:Inner">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+    </References>
+    <Definition Name="1:Inner">
+      <Field Name="Sub" DataType="ns=1;i=3002" AllowSubTypes="true"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3005" BrowseName="1:Outer">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+    </References>
+    <Definition Name="1:Outer">
+      <Field Name="Inner" DataType="ns=1;i=3004"/>
+      <Field Name="After" DataType="UInt32"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3006" BrowseName="1:Pair">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+    </References>
+    <Definition Name="1:Pair">
+      <Field Name="A" DataType="Double"/>
+      <Field Name="B" DataType="Double"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3007" BrowseName="1:Choice">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=12756</Reference>
+    </References>
+    <Definition Name="1:Choice" IsUnion="true">
+      <Field Name="Number" DataType="Double"/>
+      <Field Name="Count" DataType="UInt32"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3008" BrowseName="1:Holder">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+    </References>
+    <Definition Name="1:Holder">
+      <Field Name="Value" DataType="ns=1;i=3007"/>
+      <Field Name="After" DataType="UInt32"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3009" BrowseName="1:Weather">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+    </References>
+    <Definition Name="1:Weather">
+      <Field Name="温度" DataType="Double"/>
+    </Definition>
+  </UADataType>
+  <UADataType NodeId="ns=1;i=3010" BrowseName="1:Clash">
+    <References>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+    </References>
+    <Definition Name="1:Clash">
+      <Field Name="a-b" DataType="String"/>
+      <Field Name="a_b" DataType="UInt32"/>
+    </Definition>
+  </UADataType>
+  <UAObject NodeId="ns=1;i=5001" BrowseName="Default Binary" SymbolicName="DefaultBinary">
+    <References>
+      <Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3003</Reference>
+    </References>
+  </UAObject>
+  <UAObject NodeId="ns=1;i=5002" BrowseName="Default Binary" SymbolicName="DefaultBinary">
+    <References>
+      <Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3005</Reference>
+    </References>
+  </UAObject>
+  <UAObject NodeId="ns=1;i=886" BrowseName="Default Binary" SymbolicName="DefaultBinary">
+    <References>
+      <Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3006</Reference>
+    </References>
+  </UAObject>
+  <UAObject NodeId="ns=1;s=Pair" BrowseName="Default Binary" SymbolicName="DefaultBinary">
+    <References>
+      <Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3006</Reference>
+    </References>
+  </UAObject>
+  <UAObject NodeId="ns=1;i=5003" BrowseName="Default Binary" SymbolicName="DefaultBinary">
+    <References>
+      <Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3008</Reference>
+    </References>
+  </UAObject>
+</UANodeSet>

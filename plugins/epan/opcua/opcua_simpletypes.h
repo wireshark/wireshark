@@ -17,7 +17,18 @@
 #ifndef OPCUA_IDENTIFIERS_H
 #define OPCUA_IDENTIFIERS_H
 
+#include <epan/expert.h>
+
 #include "opcua_identifiers.h"
+
+/** @brief Maximum number of array elements that are dissected (chosen arbitrarily). */
+#define MAX_ARRAY_LEN 10000
+
+/** @brief Wireshark header field index for the length of an array. */
+extern int hf_opcua_ArraySize;
+
+/** @brief Expert info for an array longer than MAX_ARRAY_LEN. */
+extern expert_field ei_array_length;
 
 /* simple header fields */
 /** @brief Wireshark header field index for the ReturnDiagnostics bitmask field. */
@@ -580,13 +591,27 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 void registerSimpleTypes(int proto);
 
 /**
+ * @brief Type ID (NodeId) of an ExtensionObject.
+ *
+ * Only numeric and string NodeIds are decoded; a Guid or ByteString NodeId
+ * has @c isNumeric false and @c string NULL.
+ */
+typedef struct {
+    uint16_t    ns;        /**< namespace index */
+    bool        isNumeric; /**< numeric NodeId, @c numeric is valid */
+    uint32_t    numeric;   /**< identifier of a numeric NodeId */
+    const char *string;    /**< identifier of a string NodeId (pinfo->pool), NULL if not a string NodeId or empty */
+} ExtensionObjectTypeId;
+
+/**
  * @brief Read the type ID of an ExtensionObject without advancing the offset.
  *
  * @param tvb     The packet buffer.
+ * @param pinfo   The packet info (string identifiers are allocated in its pool).
  * @param pOffset The current offset into @p tvb.
  * @return The ExtensionObject type ID.
  */
-uint32_t getExtensionObjectType(tvbuff_t *tvb, int *pOffset);
+ExtensionObjectTypeId getExtensionObjectType(tvbuff_t *tvb, packet_info *pinfo, int *pOffset);
 
 /**
  * @brief Parse a NodeClassMask field into the protocol tree.
@@ -616,8 +641,8 @@ void parseResultMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *p
  * @param tvb     The packet buffer.
  * @param pinfo   The packet info.
  * @param pOffset The current offset into @p tvb; updated on return.
- * @param TypeId  The ExtensionObject type ID used to select the parser.
+ * @param typeId  The ExtensionObject type ID used to select the parser.
  */
-void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int TypeId);
+void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const ExtensionObjectTypeId *typeId);
 
 #endif /* OPCUA_IDENTIFIERS_H */

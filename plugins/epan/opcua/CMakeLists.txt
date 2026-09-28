@@ -18,6 +18,9 @@ set(DISSECTOR_SRC
 )
 
 set(DISSECTOR_SUPPORT_SRC
+	infomodel_elements.c
+	infomodel_parser.c
+	opcua_infomodel.c
 	opcua_transport_layer.c
 	opcua_security_layer.c
 	opcua_application_layer.c

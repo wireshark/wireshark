@@ -24,6 +24,7 @@
 #include "opcua_complextypeparser.h"
 #include "opcua_extensionobjectids.h"
 #include "opcua_hfindeces.h"
+#include "opcua_infomodel.h"
 
 static ExtensionObjectParserEntry g_arExtensionObjectParserTable[] = {
     { OpcUaId_TrustListDataType_Encoding_DefaultBinary, parseTrustListDataType, "TrustListDataType" },
@@ -169,7 +170,7 @@ static ExtensionObjectParserEntry g_arExtensionObjectParserTable[] = {
 };
 
 /** Dispatch all extension objects to a special parser function. */
-void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, int TypeId)
+void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, const ExtensionObjectTypeId *typeId)
 {
     int      iOffset = *pOffset;
     unsigned indx = 0;
@@ -180,9 +181,10 @@ void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *p
     iLen = tvb_get_letohl(tvb, iOffset);
     iOffset += 4;
 
-    while (indx < array_length(g_arExtensionObjectParserTable))
+    /* the built-in parsers are for the types of namespace 0 */
+    while (typeId->ns == 0 && typeId->isNumeric && indx < array_length(g_arExtensionObjectParserTable))
     {
-        if (g_arExtensionObjectParserTable[indx].iRequestId == TypeId)
+        if (g_arExtensionObjectParserTable[indx].iRequestId == (int)typeId->numeric)
         {
             bFound = 1;
             (*g_arExtensionObjectParserTable[indx].pParser)(tree, tvb, pinfo, &iOffset, g_arExtensionObjectParserTable[indx].typeName);
@@ -191,7 +193,14 @@ void dispatchExtensionObjectType(proto_tree *tree, tvbuff_t *tvb, packet_info *p
         indx++;
     }
 
-    /* display contained object as ByteString if unknown type */
+    /* other types: custom datatype of the information model, else display as ByteString
+     * (also a body longer than the packet, the ByteString reports that) */
+    if (bFound == 0 && iLen >= 0 && (unsigned)iLen <= tvb_reported_length_remaining(tvb, iOffset) &&
+        opcua_infomodel_dissect(tree, tvb, pinfo, iOffset, iLen, typeId))
+    {
+        bFound = 1;
+        iOffset += iLen; /* continue after the body, whatever the decoder consumed */
+    }
     if (bFound == 0)
     {
         if (iLen == -1)

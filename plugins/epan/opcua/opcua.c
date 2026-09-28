@@ -34,6 +34,7 @@
 #include "opcua_complextypeparser.h"
 #include "opcua_enumparser.h"
 #include "opcua_hfindeces.h"
+#include "opcua_infomodel.h"
 #include "opcua_keyset.h"
 #include "opcua_security_layer.h"
 #include "opcua_serviceparser.h"
@@ -948,6 +949,7 @@ void proto_register_opcua(void)
     registerComplexTypes();
     registerServiceTypes();
     registerFieldTypes(proto_opcua);
+    opcua_infomodel_register(proto_opcua, opcua_module);
 
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_opcua, hf, array_length(hf));
@@ -960,6 +962,7 @@ void proto_register_opcua(void)
 void proto_reg_handoff_opcua(void)
 {
     dissector_add_uint_range_with_preference("tcp.port", OPCUA_PORT_RANGE, opcua_handle);
+    opcua_infomodel_apply();
 }
 
 /*
