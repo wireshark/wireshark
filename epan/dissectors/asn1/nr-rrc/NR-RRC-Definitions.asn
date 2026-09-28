@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V19.3.0 (2026-06)
+-- 3GPP TS 38.331 V19.4.0 (2026-09)
 
 NR-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -3864,13 +3864,23 @@ SIB2 ::=                            SEQUENCE {
     }                                                                                       OPTIONAL        -- Need R
     ]],
     [[
-    lowMobilityEvaluationLPWUS-r19            SEQUENCE {
+    dummy                                     SEQUENCE {
         s-SearchDeltaP-LPWUS-r19                  ENUMERATED {dB3, dB6, dB9, dB12, dB15, spare3, spare2, spare1},
         t-SearchDeltaP-LPWUS-r19                  ENUMERATED {s1, s2, s3, s4, s5, s6, s7, s10, s20, s30, s60, s120, s180, s240, s300, spare1},
         rsrp-Threshold2onMR-ForLR-OnSSB-r19       ReselectionThreshold                    OPTIONAL,       -- Cond SupportLR-OnSSB
         rsrp-Threshold2onLR-ForLR-OnSSB-r19       ThresholdP-LR-r19,
         rsrp-Threshold2onMR-ForLR-OnLPSS-r19      ReselectionThreshold                    OPTIONAL,       -- Cond SupportLR-OnLPSS
         rsrp-Threshold2onLR-ForLR-OnLPSS-r19      ThresholdP-LR-r19
+    }                                                                                     OPTIONAL        -- Need R
+    ]],
+    [[
+    lowMobilityEvaluationLPWUS-r19            SEQUENCE {
+        s-SearchDeltaP-LPWUS-r19                  ENUMERATED {dB3, dB6, dB9, dB12, dB15, spare3, spare2, spare1},
+        t-SearchDeltaP-LPWUS-r19                  ENUMERATED {s1, s2, s3, s4, s5, s6, s7, s10, s20, s30, s60, s120, s180, s240, s300, spare1},
+        rsrp-Threshold2onMR-ForLR-OnSSB-r19       ReselectionThreshold                    OPTIONAL,       -- Cond SupportLR-OnSSB
+        rsrp-Threshold2onLR-ForLR-OnSSB-r19       ThresholdP-LR-r19                       OPTIONAL,       -- Need R
+        rsrp-Threshold2onMR-ForLR-OnLPSS-r19      ReselectionThreshold                    OPTIONAL,       -- Cond SupportLR-OnLPSS
+        rsrp-Threshold2onLR-ForLR-OnLPSS-r19      ThresholdP-LR-r19                       OPTIONAL        -- Need R
     }                                                                                     OPTIONAL        -- Need R
     ]]
 }
@@ -9497,6 +9507,9 @@ MeasObjectNR ::=                    SEQUENCE {
     ]],
     [[
     cellsToAddModListExt-v1930          CellsToAddModListExt-v1930                                      OPTIONAL    -- Need N
+    ]],
+    [[
+    cellsToAddModListExt-v1940          CellsToAddModListExt-v1940                                      OPTIONAL    -- Need N
     ]]
 }
 
@@ -9565,6 +9578,8 @@ CellsToAddModListExt-v1800 ::=      SEQUENCE (SIZE (1..maxNrofCellMeas)) OF Cell
 
 CellsToAddModListExt-v1930 ::=      SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CellsToAddModExt-v1930
 
+CellsToAddModListExt-v1940 ::=      SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CellsToAddModExt-v1940
+
 CellsToAddMod ::=                   SEQUENCE {
     physCellId                          PhysCellId,
     cellIndividualOffset                Q-OffsetRangeList
@@ -9583,6 +9598,10 @@ CellsToAddModExt-v1930 ::=          SEQUENCE {
     ntn-LinearPolarizationDL-r19        ENUMERATED {xlp,ylp}                                            OPTIONAL   -- Need R
 }
 
+CellsToAddModExt-v1940 ::=          SEQUENCE {
+    ntn-NeighbourCellInfo-v1940         NTN-NeighbourCellInfo-v1940                                     OPTIONAL   -- Need R
+}
+
 RMTC-Config-r16 ::=                 SEQUENCE {
     rmtc-Periodicity-r16                ENUMERATED {ms40, ms80, ms160, ms320, ms640},
     rmtc-SubframeOffset-r16             INTEGER(0..639)                                                 OPTIONAL,   -- Need M
@@ -9597,7 +9616,7 @@ RMTC-Config-r16 ::=                 SEQUENCE {
     tci-StateInfo-r17               SEQUENCE {
         tci-StateId-r17                  TCI-StateId,
         ref-ServCellId-r17               ServCellIndex                                                  OPTIONAL   -- Need R
-    } OPTIONAL -- Need R
+    } OPTIONAL -- Need S
     ]],
     [[
     ref-BWPId-r17                   BWP-Id                                                              OPTIONAL   -- Need R
@@ -9633,6 +9652,10 @@ NTN-NeighbourCellInfo-r18 ::=          SEQUENCE {
     epochTime-r18                          EpochTime-r17,
     ephemerisInfo-r18                      EphemerisInfo-r17,
     referenceLocation-r18                  ReferenceLocation-r17                                        OPTIONAL   -- Need R
+}
+
+NTN-NeighbourCellInfo-v1940 ::=        SEQUENCE {
+    ta-Info-r19                            TA-Info-r17
 }
 
 -- TAG-MEASOBJECTNR-STOP
@@ -21347,6 +21370,9 @@ MeasAndMobParametersCommon ::=          SEQUENCE {
     ltm-SR-ConfIdInCellSwitchCommand-r19        ENUMERATED {supported}               OPTIONAL,
     speedStateDetection-r19                     ENUMERATED {supported}               OPTIONAL,
     eventD2-MultiReferenceLocations-r19         ENUMERATED {supported}               OPTIONAL
+    ]],
+    [[
+    ntn-NeighbourCellInfoSupport-v1940          ENUMERATED {supported}               OPTIONAL
     ]]
 }
 
@@ -22743,6 +22769,7 @@ NTN-Parameters-v1820 ::= SEQUENCE {
     fr2-Add-UE-NR-CapabilitiesNTN-r18   UE-NR-CapabilityAddFRX-Mode                           OPTIONAL
 }
 
+
 -- TAG-NTN-PARAMETERS-STOP
 -- TAG-OLPC-SRS-POS-START
 
@@ -23731,6 +23758,14 @@ RF-Parameters-v17b0 ::=                            SEQUENCE {
     supportedBandCombinationList-UplinkTxSwitch-v17b0  BandCombinationList-UplinkTxSwitch-v17b0     OPTIONAL
 }
 
+RF-Parameters-v17i0 ::=                            SEQUENCE {
+    supportedBandListNR-v17i0                          SEQUENCE (SIZE (1..maxBands)) OF BandNR-v17i0
+}
+
+RF-Parameters-v18b0 ::=                            SEQUENCE {
+    supportedBandListNR-v18b0                          SEQUENCE (SIZE (1..maxBands)) OF BandNR-v18b0
+}
+
 BandNR ::=                          SEQUENCE {
     bandNR                              FreqBandIndicatorNR,
     modifiedMPR-Behaviour               BIT STRING (SIZE (8))                           OPTIONAL,
@@ -24489,7 +24524,7 @@ BandNR ::=                          SEQUENCE {
     -- R1 60-1: Basic feature for SBFD-aware UE TX/RX/measurement behaviour and procedures
     sbfd-Aware-r19                                                  SEQUENCE {
         numOfPartialPRG-r19                                             ENUMERATED {n2, n4},
-        timeline-r19                                                    ENUMERATED {full, partial, no},
+        factorOfTwoRelaxation-r19                                       ENUMERATED {timeline, counting, no},
         -- R1 60-2: Reception across SBFD symbols and non-SBFD symbols in different slots (Configuration 2)
         sbfd-Rx-r19                                                     ENUMERATED {supported}                                OPTIONAL,
         -- R1 60-2a: Transmission across SBFD symbols and non-SBFD symbols in different slots (Configuration 2)
@@ -24724,6 +24759,15 @@ BandNR-v16c0 ::=                                                SEQUENCE {
 BandNR-v17b0 ::=                                                SEQUENCE {
     mimo-ParametersPerBand-v17b0                                    MIMO-ParametersPerBand-v17b0                               OPTIONAL,
     ...
+}
+
+BandNR-v17i0 ::= SEQUENCE {
+    timeBasedCondHandoverOnlyWithA4-r17            ENUMERATED {supported}              OPTIONAL,
+    locationBasedCondHandoverOnlyWithA4-r17        ENUMERATED {supported}              OPTIONAL
+}
+
+BandNR-v18b0 ::= SEQUENCE {
+    locationBasedCondHandoverEMC-OnlyWithA4-r18        ENUMERATED {supported}              OPTIONAL
 }
 
 LowerMSD-r18 ::=           SEQUENCE {
@@ -25899,7 +25943,14 @@ UE-NR-Capability-v17c0 ::=               SEQUENCE {
 
 UE-NR-Capability-v17d0 ::=               SEQUENCE {
     featureSets-v17d0                        FeatureSets-v17d0                                            OPTIONAL,
-    nonCriticalExtension                     SEQUENCE {}                                                  OPTIONAL
+    nonCriticalExtension                     UE-NR-Capability-v17i0                                       OPTIONAL
+}
+
+UE-NR-Capability-v17i0 ::=               SEQUENCE {
+    rf-Parameters-v17i0                     RF-Parameters-v17i0                                           OPTIONAL,
+    -- Following field is only for REL-17 late non-critical extensions
+    lateNonCriticalExtension                 OCTET STRING                                                 OPTIONAL,
+    nonCriticalExtension                     UE-NR-Capability-v18b0                                       OPTIONAL
 }
 
 -- Regular non-critical Rel-18 extensions:
@@ -25939,6 +25990,13 @@ UE-NR-Capability-v1860 ::=               SEQUENCE {
     nonCriticalExtension                     UE-NR-Capability-v1900                                       OPTIONAL
 }
 
+-- Late non-critical extensions from Rel-18 onwards:
+UE-NR-Capability-v18b0 ::=               SEQUENCE {
+    rf-Parameters-v18b0                      RF-Parameters-v18b0  OPTIONAL,
+    nonCriticalExtension                     SEQUENCE{}                                                   OPTIONAL
+}
+
+-- Regular non-critical Rel-19 extensions:
 UE-NR-Capability-v1900 ::=               SEQUENCE {
     aiml-Parameters-r19                      AIML-Parameters-r19                                          OPTIONAL,
     ue-RadioPagingInfo-r19                   OCTET STRING (CONTAINING UE-RadioPagingInfo-r19)             OPTIONAL,
