@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V19.3.0 (2026-06)
+-- 3GPP TS 38.423 V19.4.0 (2026-09)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -153,7 +153,7 @@ maxnoofslots								INTEGER ::= 5120
 maxnoofExtTLAs								INTEGER ::= 16
 maxnoofGTPTLAs								INTEGER ::= 16
 maxnoofCHOcells								INTEGER ::= 8
-maxnoofPC5QoSFlows 							INTEGER ::= 2064
+maxnoofPC5QoSFlows							INTEGER ::= 2064
 maxnoofSSBAreas								INTEGER ::= 64
 maxnoofRAReports							INTEGER ::= 64
 maxnoofNRSCSs								INTEGER ::= 5
@@ -238,9 +238,6 @@ maxnoofAreaNTNforMDT						INTEGER ::= 32
 maxnoofLTMCellsPlusOne						INTEGER ::= 9
 maxnoofSCGSecurityConfigurations			INTEGER ::= 8
 maxnoofLTM-CSI-ResourcesPerSet				INTEGER ::= 512
-
-
-
 
 
 -- **************************************************************
@@ -346,7 +343,7 @@ id-XnRemovalThreshold																				ProtocolIE-ID ::= 93
 id-DesiredActNotificationLevel																		ProtocolIE-ID ::= 94
 id-AvailableDRBIDs																					ProtocolIE-ID ::= 95
 id-AdditionalDRBIDs																					ProtocolIE-ID ::= 96
-id-SpareDRBIDs 																						ProtocolIE-ID ::= 97
+id-SpareDRBIDs																							ProtocolIE-ID ::= 97
 id-RequiredNumberOfDRBIDs																			ProtocolIE-ID ::= 98
 id-TNLA-To-Add-List																					ProtocolIE-ID ::= 99
 id-TNLA-To-Update-List																				ProtocolIE-ID ::= 100
@@ -715,7 +712,7 @@ id-ReportCharacteristicsForDataCollection															ProtocolIE-ID ::= 461
 id-ReportingPeriodicityForDataCollection															ProtocolIE-ID ::= 462
 id-NodeAssociatedInfoResult																			ProtocolIE-ID ::= 463
 id-SLPositioning-Ranging-Services-Info																ProtocolIE-ID ::= 464
-id-XR-Bcast-Information					 															ProtocolIE-ID ::= 465
+id-XR-Bcast-Information																				ProtocolIE-ID ::= 465
 id-PDUSessionsListToBeReleased-UPError																ProtocolIE-ID ::= 466
 id-MaximumDataBurstVolume																			ProtocolIE-ID ::= 467
 id-CPAC-Preparation-Type																			ProtocolIE-ID ::= 468
@@ -732,11 +729,11 @@ id-NES-Cell-ID																						ProtocolIE-ID ::= 478
 id-Cell-A-ID																						ProtocolIE-ID ::= 479
 id-ProvisionStatus																					ProtocolIE-ID ::= 480
 id-ECNMarkingorCongestionInformationReportingStatus													ProtocolIE-ID ::= 481
-id-AdditionalDRBSetupInfoList													 					ProtocolIE-ID ::= 482
+id-AdditionalDRBSetupInfoList																		ProtocolIE-ID ::= 482
 id-PSIbasedSDUdiscardUL																				ProtocolIE-ID ::= 483
 id-PSIbasedSDUdiscardDL																				ProtocolIE-ID ::= 484
 id-DLPDUSetInformationMarkingSupportIndication														ProtocolIE-ID ::= 485
-id-PduSetDelayBudgetDownlink 																		ProtocolIE-ID ::= 486
+id-PduSetDelayBudgetDownlink																		ProtocolIE-ID ::= 486
 id-PduSetDelayBudgetUplink																			ProtocolIE-ID ::= 487
 id-PduSetErrorRateDownlink																			ProtocolIE-ID ::= 488
 id-PduSetErrorRateUplink																			ProtocolIE-ID ::= 489
@@ -804,6 +801,11 @@ id-UEBasedTAMeasurementConfiguration																ProtocolIE-ID ::= 550
 id-ServingGNB-ID																					ProtocolIE-ID ::= 551
 id-LTMUpdatesToSourceNodeInformation-List															ProtocolIE-ID ::= 552
 id-EarlyRACHResourcesRequesterID																	ProtocolIE-ID ::= 553
-
+id-TCI-StatesConfigurationsList																		ProtocolIE-ID ::= 554
+id-earlySyncResourcestoAdd																			ProtocolIE-ID ::= 555
+id-earlySyncResourcestoRelease																		ProtocolIE-ID ::= 556
+id-earlySyncInformation																				ProtocolIE-ID ::= 557
+id-L3HOLTMInformation																				ProtocolIE-ID ::= 558
+id-LTMKeptCandidateCellList																			ProtocolIE-ID ::= 559
 
 END

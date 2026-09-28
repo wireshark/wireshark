@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V19.3.0 (2026-06)
+-- 3GPP TS 38.423 V19.4.0 (2026-09)
 -- 9.3.6	Common definitions
 -- **************************************************************
 --
@@ -20,8 +20,8 @@ BEGIN
 --
 -- **************************************************************
 
-maxPrivateIEs 									INTEGER ::= 65535
-maxProtocolExtensions 							INTEGER ::= 65535
+maxPrivateIEs									INTEGER ::= 65535
+maxProtocolExtensions							INTEGER ::= 65535
 maxProtocolIEs									INTEGER ::= 65535
 
 -- **************************************************************

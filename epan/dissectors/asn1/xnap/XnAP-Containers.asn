@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V19.3.0 (2026-06)
+-- 3GPP TS 38.423 V19.4.0 (2026-09)
 -- 9.3.8	Container definitions
 -- **************************************************************
 --
@@ -37,7 +37,7 @@ FROM XnAP-CommonDataTypes;
 -- **************************************************************
 
 XNAP-PROTOCOL-IES ::= CLASS {
-	&id				ProtocolIE-ID 			UNIQUE,
+	&id				ProtocolIE-ID			UNIQUE,
 	&criticality	Criticality,
 	&Value,
 	&presence		Presence
@@ -56,7 +56,7 @@ WITH SYNTAX {
 -- **************************************************************
 
 XNAP-PROTOCOL-IES-PAIR ::= CLASS {
-	&id						ProtocolIE-ID 		UNIQUE,
+	&id						ProtocolIE-ID		UNIQUE,
 	&firstCriticality		Criticality,
 	&FirstValue,
 	&secondCriticality		Criticality,
@@ -65,9 +65,9 @@ XNAP-PROTOCOL-IES-PAIR ::= CLASS {
 }
 WITH SYNTAX {
 	ID						&id
-	FIRST CRITICALITY 		&firstCriticality
+	FIRST CRITICALITY		&firstCriticality
 	FIRST TYPE				&FirstValue
-	SECOND CRITICALITY 		&secondCriticality
+	SECOND CRITICALITY		&secondCriticality
 	SECOND TYPE				&SecondValue
 	PRESENCE				&presence
 }
@@ -79,7 +79,7 @@ WITH SYNTAX {
 -- **************************************************************
 
 XNAP-PROTOCOL-EXTENSION ::= CLASS {
-	&id					ProtocolIE-ID 		UNIQUE,
+	&id					ProtocolIE-ID		UNIQUE,
 	&criticality		Criticality,
 	&Extension,
 	&presence			Presence
@@ -120,7 +120,7 @@ ProtocolIE-Container {XNAP-PROTOCOL-IES : IEsSetParam} ::=
 	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
 	ProtocolIE-Field {{IEsSetParam}}
 
-ProtocolIE-Single-Container {XNAP-PROTOCOL-IES : IEsSetParam} ::= 	ProtocolIE-Field {{IEsSetParam}}
+ProtocolIE-Single-Container {XNAP-PROTOCOL-IES : IEsSetParam} ::= ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field {XNAP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
 	id				XNAP-PROTOCOL-IES.&id					({IEsSetParam}),

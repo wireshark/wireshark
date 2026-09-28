@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V19.3.0 (2026-06)
+ * 3GPP TS 38.423 V19.4.0 (2026-09)
  */
 
 #include "config.h"

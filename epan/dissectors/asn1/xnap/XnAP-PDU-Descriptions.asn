@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V19.3.0 (2026-06)
+-- 3GPP TS 38.423 V19.4.0 (2026-09)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -646,14 +646,14 @@ cellTrafficTrace XNAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
-rANMulticastGroupPaging 	XNAP-ELEMENTARY-PROCEDURE ::={
-	INITIATING MESSAGE 		RANMulticastGroupPaging
+rANMulticastGroupPaging XNAP-ELEMENTARY-PROCEDURE ::={
+	INITIATING MESSAGE		RANMulticastGroupPaging
 	PROCEDURE CODE			id-RANMulticastGroupPaging
 	CRITICALITY				reject
 }
 
 scgFailureInformationReport XNAP-ELEMENTARY-PROCEDURE ::={
-	INITIATING MESSAGE 		ScgFailureInformationReport
+	INITIATING MESSAGE		ScgFailureInformationReport
 	PROCEDURE CODE			id-scgFailureInformationReport
 	CRITICALITY				ignore
 }
@@ -664,7 +664,7 @@ scgFailureTransfer XNAP-ELEMENTARY-PROCEDURE ::={
 	CRITICALITY				ignore
 }
 
-f1CTrafficTransfer			XNAP-ELEMENTARY-PROCEDURE ::= {
+f1CTrafficTransfer XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		F1CTrafficTransfer
 	PROCEDURE CODE			id-f1CTrafficTransfer
 	CRITICALITY				reject
@@ -692,7 +692,7 @@ iABResourceCoordination XNAP-ELEMENTARY-PROCEDURE ::={
 	CRITICALITY				reject
 }
 
-retrieveUEContextConfirm	XNAP-ELEMENTARY-PROCEDURE ::={
+retrieveUEContextConfirm XNAP-ELEMENTARY-PROCEDURE ::={
 	INITIATING MESSAGE		RetrieveUEContextConfirm
 	PROCEDURE CODE			id-retrieveUEContextConfirm
 	CRITICALITY				reject
@@ -710,7 +710,7 @@ rachIndication XNAP-ELEMENTARY-PROCEDURE ::={
 	CRITICALITY				ignore
 }
 
-dataCollectionReportingInitiation	XNAP-ELEMENTARY-PROCEDURE ::= {
+dataCollectionReportingInitiation XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE				DataCollectionRequest
 	SUCCESSFUL OUTCOME				DataCollectionResponse
 	UNSUCCESSFUL OUTCOME			DataCollectionFailure
@@ -718,13 +718,13 @@ dataCollectionReportingInitiation	XNAP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY						reject
 }
 
-dataCollectionReporting	XNAP-ELEMENTARY-PROCEDURE ::= {
+dataCollectionReporting XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		DataCollectionUpdate
 	PROCEDURE CODE			id-dataCollectionReporting
 	CRITICALITY				ignore
 }
 
-oDSIB1ConfigurationProvision		XNAP-ELEMENTARY-PROCEDURE ::= {
+oDSIB1ConfigurationProvision XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE				ODSIB1ConfigurationProvisionRequest
 	SUCCESSFUL OUTCOME				ODSIB1ConfigurationProvisionResponse
 	UNSUCCESSFUL OUTCOME			ODSIB1ConfigurationProvisionFailure
@@ -739,7 +739,7 @@ oDSIB1ConfigurationProvisionStatusUpdate	XNAP-ELEMENTARY-PROCEDURE ::= {
 }
 
 
-lTMConfigurationUpdate		XNAP-ELEMENTARY-PROCEDURE ::= {
+lTMConfigurationUpdate XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE				LTMConfigurationUpdate
 	SUCCESSFUL OUTCOME				LTMConfigurationUpdateAcknowledge
 	UNSUCCESSFUL OUTCOME			LTMConfigurationUpdateFailure
@@ -748,7 +748,7 @@ lTMConfigurationUpdate		XNAP-ELEMENTARY-PROCEDURE ::= {
 }
 
 
-cSIRSCoordination			XNAP-ELEMENTARY-PROCEDURE ::= {
+cSIRSCoordination XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE				CSIRSCoordinationRequest
 	SUCCESSFUL OUTCOME				CSIRSCoordinationResponse
 	PROCEDURE CODE					id-cSIRSCoordination
@@ -756,25 +756,25 @@ cSIRSCoordination			XNAP-ELEMENTARY-PROCEDURE ::= {
 }
 
 
-cellSwitchNotification		XNAP-ELEMENTARY-PROCEDURE ::= {
+cellSwitchNotification XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE				CellSwitchNotification
 	PROCEDURE CODE					id-cellSwitchNotification
 	CRITICALITY						ignore
 }
 
-tAInformationTransfer		XNAP-ELEMENTARY-PROCEDURE ::= {
+tAInformationTransfer XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE				TAInformationTransfer
 	PROCEDURE CODE					id-tAInformationTransfer
 	CRITICALITY						ignore
 }
 
-lTMCancel					XNAP-ELEMENTARY-PROCEDURE ::= {
+lTMCancel XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE				LTMCancel
 	PROCEDURE CODE					id-lTMCancel
 	CRITICALITY						ignore
 }
 
-cLI-Indication	XNAP-ELEMENTARY-PROCEDURE ::= {
+cLI-Indication XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		CLI-Indication
 	PROCEDURE CODE			id-cLI-Indication
 	CRITICALITY				ignore
