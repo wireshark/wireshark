@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.501 19.7.0
+ * References: 3GPP TS 24.501 19.8.0
  */
 
 #include "config.h"
@@ -362,6 +362,7 @@ static int hf_nas_5gs_mint_eps_b5;
 static int hf_nas_5gs_ef5l_b6;
 static int hf_nas_5gs_lwd_b7;
 static int hf_nas_5gs_nonsatlsp_b0;
+static int hf_nas_5gs_lcscdl_b3;
 static int hf_nas_5gs_mm_type_id;
 static int hf_nas_5gs_mm_odd_even;
 static int hf_nas_5gs_mm_length;
@@ -1443,7 +1444,7 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         &hf_nas_5gs_spare_b6,
         &hf_nas_5gs_spare_b5,
         &hf_nas_5gs_spare_b4,
-        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_lcscdl_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_spare_b1,
         &hf_nas_5gs_nonsatlsp_b0,
@@ -14805,6 +14806,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_nonsatlsp_b0,
         { "Non satellite lower PLMN selection (NonSATLSP)",   "nas-5gs.mm.nonsatlsp_b0",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_lcscdl_b3,
+        { "Location service continuity between 5GS and EPS for deferred location (LCSCDL)",   "nas-5gs.mm.lcscdl_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_type_id,
