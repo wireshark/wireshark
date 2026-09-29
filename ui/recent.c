@@ -164,6 +164,7 @@ static const value_string bytes_encoding_type_values[] = {
     { BYTES_ENC_FROM_PACKET,    "FROM_PACKET"  },
     { BYTES_ENC_ASCII,          "ASCII"  },
     { BYTES_ENC_EBCDIC,         "EBCDIC"  },
+    { BYTES_ENC_UTF8,           "UTF-8"  },
     { 0, NULL }
 };
 

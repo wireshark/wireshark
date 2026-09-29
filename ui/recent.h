@@ -72,7 +72,8 @@ typedef enum {
 typedef enum {
     BYTES_ENC_FROM_PACKET, /**< Use the encoding recorded in the frame's ::frame_data packet_char_enc field */
     BYTES_ENC_ASCII,       /**< Always render characters using ASCII */
-    BYTES_ENC_EBCDIC       /**< Always render characters using EBCDIC */
+    BYTES_ENC_EBCDIC,      /**< Always render characters using EBCDIC */
+    BYTES_ENC_UTF8         /**< Always render characters using UTF-8 */
 } bytes_encoding_type;
 
 
