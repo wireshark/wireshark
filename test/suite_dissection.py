@@ -2831,6 +2831,22 @@ class TestDissectTns:
             ['942', '942', '0', 'ORA-00942: table or view does not exist', ''],
         ], rows
 
+    def test_tns_oci_fetch(self, cmd_tshark, capture_file, test_env):
+        '''An OCI client's fetch carries the cursor id and the row count as
+        fixed-width little-endian ub4s: sqlplus 23.26 asks cursor 2 for 15
+        rows.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_12c.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_fetch.rows',
+            '-T', 'fields',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data_fetch.rows',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['2', '15', '']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

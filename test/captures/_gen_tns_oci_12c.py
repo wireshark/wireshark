@@ -17,6 +17,8 @@ on a session at the 12c band, whose messages are wider than at 11g.
               the ub8 row count 3 at 136, the one sqlplus reports
     Frame 4 - a 144-byte status for ORA-00942: the error number at 12 and
               again at 132, then the message
+    Frame 5 - a fetch as sqlplus 23.26 sends it, fixed-width:
+              03 05 0f 02 00 00 00 0f 00 00 00 asks cursor 2 for 15 rows
 
 Offsets count from the TTI_FUN byte. The slots not named here are zero.
 Bytes are built by hand.
@@ -226,6 +228,7 @@ frames = [
     (True, oci_all8(5, 0, b"SELECT * FROM T", 0, False)),
     (False, oci_oer_12c(6, 3, 0, 2, 5)),
     (False, oci_oer_12c(7, 0, 942, 3, 6, b"ORA-00942: table or view does not exist\n")),
+    (True, bytes.fromhex("03050f020000000f000000")),
 ]
 
 

@@ -4851,6 +4851,16 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					proto_item_set_len(par_ti, offset - par_start);
 				}
 			}
+			else if ( oci_id == TTI_FETCH && tns_is_oci(pinfo) && tvb_bytes_exist(tvb, fun_start + 3, 8) )
+			{
+				/* An OCI client's fetch: the cursor id and the row count
+				 * as fixed-width little-endian ub4s, right after the
+				 * sequence number. The count is a hard limit - the
+				 * client sizes its fetch buffer to it. */
+				proto_tree_add_item(data_tree, hf_tns_cursor, tvb, fun_start + 3, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(data_tree, hf_tns_data_fetch_rows, tvb, fun_start + 7, 4, ENC_LITTLE_ENDIAN);
+				offset = fun_start + 11;
+			}
 			else if ( oci_id == TTI_FETCH )
 			{
 				/* TTI_FETCH: fetch more rows from an open cursor.
