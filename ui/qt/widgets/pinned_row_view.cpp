@@ -128,6 +128,7 @@ void PinnedRowView::mousePressEvent(QMouseEvent *event)
     PacketList *packet_list = packet_list_;
     PinnedRowsModel *pinned_model = qobject_cast<PinnedRowsModel *>(model());
     QModelIndex index = indexAt(event->pos());
+    drag_proxy_row_ = -1;
     if (!packet_list || !pinned_model || !index.isValid()) {
         return;
     }
@@ -161,6 +162,16 @@ void PinnedRowView::mousePressEvent(QMouseEvent *event)
     shift_anchor_proxy_row_ = index.row();
 
     QModelIndex source_index = pinned_model->mapToSource(index);
+    if (event->button() == Qt::LeftButton) {
+        PacketListRecord *drag_record = static_cast<PacketListRecord *>(index.internalPointer());
+        frame_data *drag_fdata = drag_record ? drag_record->frameData() : nullptr;
+        if (drag_fdata) {
+            drag_proxy_row_ = index.row();
+            drag_column_ = index.column();
+            drag_source_row_ = source_index.isValid() ? source_index.row() : -1;
+            drag_frame_num_ = (int)drag_fdata->num;
+        }
+    }
     if (source_index.isValid()) {
         // Still visible in the primary (filtered) view: use the normal,
         // row-based path, which also supports middle-click-to-mark and
@@ -186,6 +197,7 @@ void PinnedRowView::mousePressEvent(QMouseEvent *event)
 void PinnedRowView::mouseReleaseEvent(QMouseEvent *)
 {
     // Selection already happened on press; nothing to do here.
+    drag_proxy_row_ = -1;
 }
 
 void PinnedRowView::mouseMoveEvent(QMouseEvent *event)
@@ -207,6 +219,19 @@ void PinnedRowView::mouseMoveEvent(QMouseEvent *event)
         static_cast<PacketListRecord *>(index.internalPointer()) : nullptr;
     frame_data *fdata = record ? record->frameData() : nullptr;
     packet_list->setHoveredFrameNum(fdata ? (int)fdata->num : -1);
+
+    if ((event->buttons() & Qt::LeftButton) && drag_proxy_row_ >= 0
+        && index.isValid() && index.row() == drag_proxy_row_ && index.column() == drag_column_) {
+        int column = drag_column_;
+        int source_row = drag_source_row_;
+        int frame_num = drag_frame_num_;
+        drag_proxy_row_ = -1;
+        if (source_row >= 0) {
+            packet_list->startCellDragFromOverlay(source_row, column);
+        } else {
+            packet_list->startCellDragForFrameFromOverlay(frame_num, column);
+        }
+    }
 }
 
 void PinnedRowView::leaveEvent(QEvent *event)

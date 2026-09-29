@@ -146,6 +146,12 @@ public:
     QString getFilterFromRowAndColumn(QModelIndex idx);
 
     /**
+     * @brief Same as getFilterFromRowAndColumn(), but for a frame that may
+     * not have a row in this (filtered) view, e.g. a pinned row.
+     */
+    QString getFilterFromFdataAndColumn(frame_data *fdata, int column);
+
+    /**
      * @brief Resets the colorized state of the packets.
      */
     void resetColorized();
@@ -459,6 +465,17 @@ public:
                                Qt::KeyboardModifiers modifiers = Qt::NoModifier);
 
     /**
+     * @brief Starts a cell drag (filter, or selected-rows text) for the
+     * given row/column, exactly as dragging that cell in this view would.
+     * Called by the pinned overlay views, which never see this view's own
+     * mouse events.
+     */
+    void startCellDragFromOverlay(int row, int column);
+
+    // Same, for a pinned frame that is filtered out of this view (no row).
+    void startCellDragForFrameFromOverlay(int frame_num, int column);
+
+    /**
      * @brief Selects exactly the given set of frames -- no more, no less
      * -- clearing any prior selection first. Used for Shift-click
      * range-select within the pinned-rows strip, where the "range" is
@@ -758,6 +775,13 @@ private:
 
     /** @brief The context menu for colorization rules. */
     QMenu colorize_menu_;
+
+    /**
+     * @brief Starts a drag of the given cell: a display filter if one can be
+     * built for fdata/column, the selected rows' text if several are
+     * selected, or cell_text as a last resort.
+     */
+    void startCellDrag(frame_data *fdata, int column, const QString &cell_text);
 
     /** @brief Current context column index. */
     int ctx_column_;

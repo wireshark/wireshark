@@ -1348,80 +1348,92 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
 
     if (event->buttons() & Qt::LeftButton && curIndex.isValid() && curIndex == mouse_pressed_at_)
     {
-        ctx_column_ = curIndex.column();
-        QMimeData * mimeData = new QMimeData();
-        DragLabel * drag_label = nullptr;
+        startCellDrag(packet_list_model_ ? packet_list_model_->getRowFdata(curIndex.row()) : nullptr,
+                      curIndex.column(), model()->data(curIndex).toString());
+    }
+}
 
-        QString filter = getFilterFromRowAndColumn(curIndex);
-        QList<int> rows = selectedRows();
-        if (rows.count() > 1)
+void PacketList::startCellDragFromOverlay(int row, int column)
+{
+    QModelIndex idx = model()->index(row, column);
+    if (!idx.isValid() || !packet_list_model_) {
+        return;
+    }
+    startCellDrag(packet_list_model_->getRowFdata(row), column, model()->data(idx).toString());
+}
+
+void PacketList::startCellDragForFrameFromOverlay(int frame_num, int column)
+{
+    if (!packet_list_model_) {
+        return;
+    }
+    PacketListRecord *record = packet_list_model_->physicalRecordForFrameNum(frame_num);
+    startCellDrag(record ? record->frameData() : nullptr, column, QString());
+}
+
+void PacketList::startCellDrag(frame_data *fdata, int column, const QString &cell_text)
+{
+    ctx_column_ = column;
+    QMimeData * mimeData = new QMimeData();
+    DragLabel * drag_label = nullptr;
+
+    QString filter = getFilterFromFdataAndColumn(fdata, column);
+    QList<int> rows = selectedRows();
+    if (rows.count() > 1)
+    {
+        QStringList entries;
+        foreach (int row, rows)
         {
-            QStringList entries;
-            foreach (int row, rows)
-            {
-                QModelIndex idx = model()->index(row, 0);
-                if (! idx.isValid())
-                    continue;
+            QModelIndex idx = model()->index(row, 0);
+            if (! idx.isValid())
+                continue;
 
-                QString entry = createSummaryText(idx, CopyAsText);
-                entries << entry;
-            }
-
-            if (entries.count() > 0)
-                mimeData->setText(entries.join("\n"));
-        }
-        else if (! filter.isEmpty())
-        {
-            QString abbrev;
-            QString name = model()->headerData(curIndex.column(), header()->orientation()).toString();
-
-            if (! filter.isEmpty())
-            {
-                abbrev = filter.left(filter.indexOf(' '));
-            }
-            else
-            {
-                filter = model()->data(curIndex).toString().toLower();
-                abbrev = filter;
-            }
-
-            mimeData->setText(filter);
-
-            QJsonObject filterData;
-            filterData["filter"] = filter;
-            filterData["name"] = abbrev;
-            filterData["description"] = name;
-
-            mimeData->setData(WiresharkMimeData::DisplayFilterMimeType, QJsonDocument(filterData).toJson());
-            drag_label = new DragLabel(QStringLiteral("%1\n%2").arg(name, abbrev), this);
-        }
-        else
-        {
-            QString text = model()->data(curIndex).toString();
-            if (! text.isEmpty())
-                mimeData->setText(text);
+            QString entry = createSummaryText(idx, CopyAsText);
+            entries << entry;
         }
 
-        if (mimeData->hasText() || mimeData->hasFormat(WiresharkMimeData::DisplayFilterMimeType))
-        {
-            QDrag * drag = new QDrag(this);
-            drag->setMimeData(mimeData);
-            if (drag_label)
-            {
-                qreal dpr = window()->windowHandle()->devicePixelRatio();
-                QPixmap pixmap= QPixmap(drag_label->size() * dpr);
-                pixmap.setDevicePixelRatio(dpr);
-                drag_label->render(&pixmap);
-                drag->setPixmap(pixmap);
-                delete drag_label;
-            }
+        if (entries.count() > 0)
+            mimeData->setText(entries.join("\n"));
+    }
+    else if (! filter.isEmpty())
+    {
+        QString name = model()->headerData(column, header()->orientation()).toString();
+        QString abbrev = filter.left(filter.indexOf(' '));
 
-            drag->exec(Qt::CopyAction);
-        }
-        else
+        mimeData->setText(filter);
+
+        QJsonObject filterData;
+        filterData["filter"] = filter;
+        filterData["name"] = abbrev;
+        filterData["description"] = name;
+
+        mimeData->setData(WiresharkMimeData::DisplayFilterMimeType, QJsonDocument(filterData).toJson());
+        drag_label = new DragLabel(QStringLiteral("%1\n%2").arg(name, abbrev), this);
+    }
+    else if (! cell_text.isEmpty())
+    {
+        mimeData->setText(cell_text);
+    }
+
+    if (mimeData->hasText() || mimeData->hasFormat(WiresharkMimeData::DisplayFilterMimeType))
+    {
+        QDrag * drag = new QDrag(this);
+        drag->setMimeData(mimeData);
+        if (drag_label)
         {
-            delete mimeData;
+            qreal dpr = window()->windowHandle()->devicePixelRatio();
+            QPixmap pixmap= QPixmap(drag_label->size() * dpr);
+            pixmap.setDevicePixelRatio(dpr);
+            drag_label->render(&pixmap);
+            drag->setPixmap(pixmap);
+            delete drag_label;
         }
+
+        drag->exec(Qt::CopyAction);
+    }
+    else
+    {
+        delete mimeData;
     }
 }
 
@@ -2263,19 +2275,18 @@ bool PacketList::contextMenuActive()
 
 QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
 {
-    frame_data *fdata;
+    if (! idx.isValid() || !packet_list_model_)
+        return QString();
+
+    return getFilterFromFdataAndColumn(packet_list_model_->getRowFdata(idx.row()), idx.column());
+}
+
+QString PacketList::getFilterFromFdataAndColumn(frame_data *fdata, int column)
+{
     QString filter;
-
-    if (! idx.isValid())
-        return filter;
-
-    int row = idx.row();
-    int column = idx.column();
 
     if (!cap_file_ || !packet_list_model_ || column < 0 || (unsigned)column >= cap_file_->cinfo.num_cols)
         return filter;
-
-    fdata = packet_list_model_->getRowFdata(row);
 
     if (fdata != NULL) {
         epan_dissect_t edt;

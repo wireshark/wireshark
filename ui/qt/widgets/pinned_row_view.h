@@ -168,6 +168,15 @@ private:
      */
     int shift_anchor_proxy_row_;
 
+    // Cell pressed with the left button, used to start a cell drag on the
+    // first mouse move within it (as PacketList does). drag_proxy_row_ is -1 when no drag is armed.
+    // drag_source_row_ is the primary view's row, or -1 if the pinned
+    // packet is filtered out there (then drag_frame_num_ is used).
+    int drag_proxy_row_ = -1;
+    int drag_column_ = -1;
+    int drag_source_row_ = -1;
+    int drag_frame_num_ = -1;
+
     /**
      * @brief Frame numbers selected in the primary view, as of the start
      * of the current paint pass. drawRow() is called once per visible

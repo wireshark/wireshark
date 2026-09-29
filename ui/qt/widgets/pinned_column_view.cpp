@@ -131,14 +131,20 @@ void PinnedColumnView::mousePressEvent(QMouseEvent *event)
 {
     PacketList *packet_list = qobject_cast<PacketList *>(parentWidget());
     QModelIndex index = indexAt(event->pos());
+    drag_row_ = -1;
     if (packet_list && index.isValid()) {
         packet_list->selectRowFromOverlay(index.row(), index.column(), event->buttons());
+        if (event->button() == Qt::LeftButton) {
+            drag_row_ = index.row();
+            drag_column_ = index.column();
+        }
     }
 }
 
 void PinnedColumnView::mouseReleaseEvent(QMouseEvent *)
 {
     // Selection already happened on press; nothing to do here.
+    drag_row_ = -1;
 }
 
 void PinnedColumnView::mouseMoveEvent(QMouseEvent *event)
@@ -147,6 +153,14 @@ void PinnedColumnView::mouseMoveEvent(QMouseEvent *event)
     if (packet_list) {
         QModelIndex index = indexAt(event->pos());
         packet_list->setHoveredRowFromOverlay(index.isValid() ? index.row() : -1);
+
+        if ((event->buttons() & Qt::LeftButton) && drag_row_ >= 0
+            && index.isValid() && index.row() == drag_row_ && index.column() == drag_column_) {
+            int row = drag_row_;
+            int column = drag_column_;
+            drag_row_ = -1;
+            packet_list->startCellDragFromOverlay(row, column);
+        }
     }
 }
 

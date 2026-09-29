@@ -130,6 +130,11 @@ private:
     PacketList *packet_list_;
     int frozen_column_count_;
 
+    // Cell pressed with the left button, used to start a cell drag on the
+    // first mouse move within it (as PacketList does). drag_row_ is -1 when no drag is armed.
+    int drag_row_ = -1;
+    int drag_column_ = -1;
+
     /** A thin child widget marking the boundary between the frozen and
      * non-frozen columns. A plain QPainter(this) can't be used directly on
      * a QAbstractScrollArea-derived widget like QTreeView (Qt redirects
