@@ -277,6 +277,9 @@ static int hf_tns_data_flag_eof;
 static int hf_tns_data_flag_dic;
 static int hf_tns_data_flag_rts;
 static int hf_tns_data_flag_sntt;
+static int hf_tns_data_flag_end_of_request;
+static int hf_tns_data_flag_begin_pipeline;
+static int hf_tns_data_flag_end_of_response;
 
 static int hf_tns_data_id;
 static int hf_tns_data_length;
@@ -3001,6 +3004,9 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		&hf_tns_data_flag_dic,
 		&hf_tns_data_flag_rts,
 		&hf_tns_data_flag_sntt,
+		&hf_tns_data_flag_end_of_request,
+		&hf_tns_data_flag_begin_pipeline,
+		&hf_tns_data_flag_end_of_response,
 		NULL
 	};
 
@@ -5879,6 +5885,15 @@ void proto_register_tns(void)
 		{ &hf_tns_data_flag_sntt, {
 			"Send NT Trailer", "tns.data_flag.sntt", FT_BOOLEAN, 16,
 			NULL, 0x0200, NULL, HFILL }},
+		{ &hf_tns_data_flag_end_of_request, {
+			"End of Request", "tns.data_flag.end_of_request", FT_BOOLEAN, 16,
+			NULL, 0x0800, "The packet ends one of a pipeline's calls", HFILL }},
+		{ &hf_tns_data_flag_begin_pipeline, {
+			"Begin Pipeline", "tns.data_flag.begin_pipeline", FT_BOOLEAN, 16,
+			NULL, 0x1000, "The packet carries the first call of a pipeline", HFILL }},
+		{ &hf_tns_data_flag_end_of_response, {
+			"End of Response", "tns.data_flag.end_of_response", FT_BOOLEAN, 16,
+			NULL, 0x2000, "The packet ends a reply, which closes with an end-of-response marker", HFILL }},
 
 		{ &hf_tns_data_id, {
 			"Data ID", "tns.data_id", FT_UINT32, BASE_HEX,

@@ -2632,6 +2632,25 @@ class TestDissectTns:
             ['314', '', '', '', '', '', ''],
         ], rows
 
+    def test_tns_pipeline_flags(self, cmd_tshark, capture_file, test_env):
+        '''The DATA flags of a pipeline: BEGIN_PIPELINE and END_OF_REQUEST
+        mark the calls, END_OF_RESPONSE the packet that ends a reply.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_pipeline_flags.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_flag.begin_pipeline',
+            '-e', 'tns.data_flag.end_of_request',
+            '-e', 'tns.data_flag.end_of_response',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['True', 'True', 'False', ''],
+            ['False', 'True', 'False', ''],
+            ['False', 'False', 'True', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
