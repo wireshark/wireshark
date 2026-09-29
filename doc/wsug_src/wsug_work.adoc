@@ -406,6 +406,12 @@ Use ASCII encoding when displaying “hexdump” text.
 |menu:...as EBCDIC[] |
 Use EBCDIC encoding when displaying “hexdump” text.
 
+|menu:...as UTF-8[] |
+Use UTF-8 encoding when displaying “hexdump” text. Each character is drawn
+over the column of its first byte, a dim “]” marks the column of the last
+byte of a multi-byte character, and hovering over any of those bytes
+highlights the whole character.
+
 |===
 
 [#ChWorkPacketDiagramPanePopUpMenuSection]

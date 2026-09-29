@@ -26,6 +26,9 @@ If you or your organization would like to contribute or become a sponsor, please
 The following changes have been made since version 4.7.3:
 
 * Holding down kbd:[↓] and kbd:[↑] will move rapidly through the packet list.
+* The packet bytes pane can show text as UTF-8. Multi-byte characters are
+  drawn over the column of their first byte with a “]” over their last byte,
+  and hovering over any of those bytes highlights the whole character.
 
 * Coloring rules are now saved as a JSONC file.
   The legacy file format is still supported, but support will be removed in a future release.
