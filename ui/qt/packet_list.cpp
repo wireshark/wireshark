@@ -661,6 +661,31 @@ int PacketList::currentFrameNum() const
     return (int)cap_file_->current_frame->num;
 }
 
+frame_data *PacketList::filteredOutSelectedFrame() const
+{
+    if (!cap_file_ || !cap_file_->current_frame || !packet_list_model_ || !pinned_rows_model_) {
+        return nullptr;
+    }
+    if (selectionModel() && selectionModel()->hasSelection()) {
+        return nullptr;
+    }
+    int frame_num = (int)cap_file_->current_frame->num;
+    if (!pinned_rows_model_->isPinned(frame_num) || packet_list_model_->packetNumberToRow(frame_num) >= 0) {
+        return nullptr;
+    }
+    return cap_file_->current_frame;
+}
+
+void PacketList::refreshFilteredOutFrame(frame_data *fdata)
+{
+    // Re-selecting re-dissects the frame; drawCurrentPacket() would instead
+    // unselect it, since there is no row here to resolve it from.
+    packet_list_model_->invalidateAllColumnStrings();
+    selectFrameFromOverlay((int)fdata->num);
+    create_far_overlay_ = true;
+    packets_bar_update();
+}
+
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected)
 {
     QTreeView::selectionChanged(selected, deselected);
@@ -2321,6 +2346,7 @@ QString PacketList::getPacketComment(unsigned c_number)
     if (!cap_file_ || !packet_list_model_) return NULL;
 
     fdata = packet_list_model_->getRowFdata(row);
+    if (!fdata) fdata = filteredOutSelectedFrame();
 
     if (!fdata) return NULL;
 
@@ -2353,7 +2379,10 @@ void PacketList::addPacketComment(QString new_comment)
         return;
     }
 
-    if (selectionModel() && selectionModel()->hasSelection()) {
+    if (frame_data *hidden = filteredOutSelectedFrame()) {
+        packet_list_model_->addFrameComment(packet_list_model_->physicalRecordForFrameNum((int)hidden->num), ba);
+        refreshFilteredOutFrame(hidden);
+    } else if (selectionModel() && selectionModel()->hasSelection()) {
         packet_list_model_->addFrameComment(selectionModel()->selectedRows(), ba);
         drawCurrentPacket();
     }
@@ -2376,6 +2405,12 @@ void PacketList::setPacketComment(unsigned c_number, QString new_comment)
     if (ba.size() > 65535) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "That comment is too large to save in a capture file.");
+        return;
+    }
+
+    if (frame_data *hidden = filteredOutSelectedFrame()) {
+        packet_list_model_->setFrameComment(packet_list_model_->physicalRecordForFrameNum((int)hidden->num), ba, c_number);
+        refreshFilteredOutFrame(hidden);
         return;
     }
 
@@ -2418,7 +2453,10 @@ void PacketList::deleteCommentsFromPackets()
 {
     if (!cap_file_ || !packet_list_model_) return;
 
-    if (selectionModel() && selectionModel()->hasSelection()) {
+    if (frame_data *hidden = filteredOutSelectedFrame()) {
+        packet_list_model_->deleteFrameComments(packet_list_model_->physicalRecordForFrameNum((int)hidden->num));
+        refreshFilteredOutFrame(hidden);
+    } else if (selectionModel() && selectionModel()->hasSelection()) {
         packet_list_model_->deleteFrameComments(selectionModel()->selectedRows());
         drawCurrentPacket();
     }
@@ -2565,6 +2603,12 @@ void PacketList::markFrame()
 {
     if (!cap_file_ || !packet_list_model_) return;
 
+    if (frame_data *hidden = filteredOutSelectedFrame()) {
+        packet_list_model_->toggleFrameMark(packet_list_model_->physicalRecordForFrameNum((int)hidden->num));
+        refreshFilteredOutFrame(hidden);
+        return;
+    }
+
     QModelIndexList frames;
 
     if (selectionModel() && selectionModel()->hasSelection())
@@ -2607,6 +2651,13 @@ void PacketList::ignoreFrame()
 {
     if (!cap_file_ || !packet_list_model_) return;
 
+    if (frame_data *hidden = filteredOutSelectedFrame()) {
+        packet_list_model_->toggleFrameIgnore(packet_list_model_->physicalRecordForFrameNum((int)hidden->num));
+        refreshFilteredOutFrame(hidden);
+        emit packetDissectionChanged();
+        return;
+    }
+
     QModelIndexList frames;
 
     if (selectionModel() && selectionModel()->hasSelection())
@@ -2644,6 +2695,12 @@ void PacketList::ignoreAllDisplayedFrames(bool set)
 void PacketList::setTimeReference()
 {
     if (!cap_file_ || !packet_list_model_) return;
+
+    if (frame_data *hidden = filteredOutSelectedFrame()) {
+        packet_list_model_->toggleFrameRefTime(packet_list_model_->physicalRecordForFrameNum((int)hidden->num));
+        refreshFilteredOutFrame(hidden);
+        return;
+    }
 
     QModelIndexList frames;
 

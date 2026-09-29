@@ -1084,9 +1084,9 @@ void WiresharkMainWindow::setEditCommentsMenu()
     QAction *action = main_ui_->menuPacketComment->addAction(tr("Add New Comment…"));
     connect(action, &QAction::triggered, this, &WiresharkMainWindow::addPacketComment);
     action->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
-    if (selectedRows().count() == 1) {
-        const int thisRow = selectedRows().first();
-        frame_data * current_frame = frameDataForRow(thisRow);
+    frame_data *hidden_frame = packet_list_->filteredOutSelectedFrame();
+    if (selectedRows().count() == 1 || hidden_frame) {
+        frame_data * current_frame = hidden_frame ? hidden_frame : frameDataForRow(selectedRows().first());
         wtap_block_t pkt_block = cf_get_packet_block(capture_file_.capFile(), current_frame);
         unsigned nComments = wtap_block_count_option(pkt_block, OPT_COMMENT);
         if (nComments > 0) {
@@ -1169,7 +1169,11 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
         if (rows.count() > 0)
             current_frame = frameDataForRow(rows.at(0));
 
-        frame_selected = rows.count() == 1;
+        frame_data *hidden_frame = packet_list_->filteredOutSelectedFrame();
+        if (rows.count() == 0 && hidden_frame)
+            current_frame = hidden_frame;
+
+        frame_selected = rows.count() == 1 || hidden_frame;
         if (packet_list_->multiSelectActive())
         {
             frame_selected = false;
@@ -1243,7 +1247,8 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
         linkTypes = capture_file_.capFile()->linktypes;
 
     bool enableEditComments = linkTypes && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET);
-    main_ui_->menuPacketComment->setEnabled(enableEditComments && selectedRows().count() > 0);
+    main_ui_->menuPacketComment->setEnabled(enableEditComments &&
+            (selectedRows().count() > 0 || packet_list_->filteredOutSelectedFrame()));
     main_ui_->actionDeleteAllPacketComments->setEnabled(enableEditComments);
 
     main_ui_->actionEditIgnoreSelected->setEnabled(frame_selected || multi_selection);
@@ -2326,10 +2331,7 @@ void WiresharkMainWindow::editTimeShiftFinished(int)
 void WiresharkMainWindow::addPacketComment()
 {
     QList<int> rows = selectedRows();
-    if (rows.count() == 0)
-        return;
-
-    frame_data * fdata = frameDataForRow(rows.at(0));
+    frame_data * fdata = rows.count() > 0 ? frameDataForRow(rows.at(0)) : packet_list_->filteredOutSelectedFrame();
     if (! fdata)
         return;
 
@@ -2352,7 +2354,7 @@ void WiresharkMainWindow::addPacketCommentFinished(PacketCommentDialog* pc_dialo
 void WiresharkMainWindow::editPacketComment()
 {
     QList<int> rows = selectedRows();
-    if (rows.count() != 1)
+    if (rows.count() != 1 && !(rows.count() == 0 && packet_list_->filteredOutSelectedFrame()))
         return;
 
     QAction *ra = qobject_cast<QAction*>(sender());

@@ -620,6 +620,14 @@ public:
      */
     int currentFrameNum() const;
 
+    /**
+     * @brief The currently selected frame if it is pinned but filtered out
+     * of this view (so it has no row here and selectedRows() is empty),
+     * otherwise nullptr. Edit actions (mark, ignore, time reference,
+     * comments) use this to act on such a frame.
+     */
+    frame_data *filteredOutSelectedFrame() const;
+
 protected:
     /**
      * @brief Handles window-activation changes.
@@ -731,6 +739,8 @@ protected slots:
         const QModelIndex &index) const override;
 
 private:
+    void refreshFilteredOutFrame(frame_data *fdata);
+
     /** @brief Pointer to the internal packet list model. */
     PacketListModel *packet_list_model_;
 

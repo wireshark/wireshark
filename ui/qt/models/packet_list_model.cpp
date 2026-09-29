@@ -297,6 +297,23 @@ void PacketListModel::toggleFrameMark(const QModelIndexList &indices)
     }
 }
 
+void PacketListModel::toggleFrameMark(PacketListRecord *record)
+{
+    if (!cap_file_ || !record)
+        return;
+
+    frame_data *fdata = record->frameData();
+    if (!fdata)
+        return;
+
+    if (fdata->marked)
+        cf_unmark_frame(cap_file_, fdata);
+    else
+        cf_mark_frame(cap_file_, fdata);
+
+    record->invalidateColorized();
+}
+
 void PacketListModel::setDisplayedFrameMark(bool set)
 {
     emit layoutAboutToBeChanged();
@@ -343,6 +360,24 @@ void PacketListModel::toggleFrameIgnore(const QModelIndexList &indices)
     }
 }
 
+void PacketListModel::toggleFrameIgnore(PacketListRecord *record)
+{
+    if (!cap_file_ || !record)
+        return;
+
+    frame_data *fdata = record->frameData();
+    if (!fdata)
+        return;
+
+    if (fdata->ignored)
+        cf_unignore_frame(cap_file_, fdata);
+    else
+        cf_ignore_frame(cap_file_, fdata);
+
+    record->invalidateColorized();
+    record->invalidateRecord();
+}
+
 void PacketListModel::setDisplayedFrameIgnore(bool set)
 {
     emit layoutAboutToBeChanged();
@@ -362,17 +397,29 @@ void PacketListModel::setDisplayedFrameIgnore(bool set)
 
 void PacketListModel::toggleFrameRefTime(const QModelIndexList &indices)
 {
-    if (!cap_file_ || indices.count() <= 0)
+    QList<PacketListRecord *> records;
+    for (const auto &rt_index : indices) {
+        if (rt_index.isValid() && rt_index.internalPointer()) {
+            records << static_cast<PacketListRecord*>(rt_index.internalPointer());
+        }
+    }
+    toggleRecordsRefTime(records);
+}
+
+void PacketListModel::toggleFrameRefTime(PacketListRecord *record)
+{
+    if (record) {
+        toggleRecordsRefTime(QList<PacketListRecord *>() << record);
+    }
+}
+
+void PacketListModel::toggleRecordsRefTime(const QList<PacketListRecord *> &records)
+{
+    if (!cap_file_ || records.isEmpty())
         return;
 
     emit layoutAboutToBeChanged();
-    for (const auto& rt_index : indices) {
-        if (! rt_index.isValid())
-            continue;
-
-        PacketListRecord *record = static_cast<PacketListRecord*>(rt_index.internalPointer());
-        if (!record) continue;
-
+    for (PacketListRecord *record : records) {
         frame_data *fdata = record->frameData();
         if (!fdata) continue;
 
@@ -391,10 +438,7 @@ void PacketListModel::toggleFrameRefTime(const QModelIndexList &indices)
             fdata->ref_time=1;
             cap_file_->ref_time_count++;
             if (!fdata->passed_dfilter) {
-                // It is a little odd that we managed to change a frame that wasn't
-                // displayed, but that can happen if we change the row state again
-                // without rescanning to pick up the change (see above), and might
-                // be possible if the row was pinned and then filtered out.
+                // A pinned row that was filtered out can still be changed.
                 cap_file_->displayed_count++;
             }
         }
@@ -429,10 +473,39 @@ void PacketListModel::unsetAllFrameRefTime()
 #endif
 }
 
+void PacketListModel::addCommentToRecord(PacketListRecord *record, const QByteArray &comment)
+{
+    frame_data *fdata = record->frameData();
+    wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+    wtap_block_add_string_option(pkt_block, OPT_COMMENT, comment.data(), comment.size());
+
+    if (!cf_set_modified_block(cap_file_, fdata, pkt_block)) {
+        cap_file_->packet_comment_count++;
+        expert_update_comment_count(cap_file_->packet_comment_count);
+    }
+
+    // In case there are coloring rules or columns related to comments.
+    // (#12519)
+    //
+    // XXX: "Does any active coloring rule relate to frame data"
+    // could be an optimization. For columns, note that
+    // "col_based_on_frame_data" only applies to built in columns,
+    // not custom columns based on frame data. (Should we prevent
+    // custom columns based on frame data from being created,
+    // substituting them with the other columns?)
+    //
+    // Note that there are not currently any fields that depend on
+    // whether other frames have comments, unlike with time references
+    // and time shifts ("frame.time_relative", "frame.offset_shift", etc.)
+    // If there were, then we'd need to reset data for all frames instead
+    // of just the frames changed.
+    record->invalidateColorized();
+    record->invalidateRecord();
+}
+
 void PacketListModel::addFrameComment(const QModelIndexList &indices, const QByteArray &comment)
 {
     int sectionMax = columnCount() - 1;
-    frame_data *fdata;
     if (!cap_file_) return;
 
     for (const auto &index : indices) {
@@ -441,49 +514,22 @@ void PacketListModel::addFrameComment(const QModelIndexList &indices, const QByt
         PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
         if (!record) continue;
 
-        fdata = record->frameData();
-        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
-        wtap_block_add_string_option(pkt_block, OPT_COMMENT, comment.data(), comment.size());
-
-        if (!cf_set_modified_block(cap_file_, fdata, pkt_block)) {
-            cap_file_->packet_comment_count++;
-            expert_update_comment_count(cap_file_->packet_comment_count);
-        }
-
-        // In case there are coloring rules or columns related to comments.
-        // (#12519)
-        //
-        // XXX: "Does any active coloring rule relate to frame data"
-        // could be an optimization. For columns, note that
-        // "col_based_on_frame_data" only applies to built in columns,
-        // not custom columns based on frame data. (Should we prevent
-        // custom columns based on frame data from being created,
-        // substituting them with the other columns?)
-        //
-        // Note that there are not currently any fields that depend on
-        // whether other frames have comments, unlike with time references
-        // and time shifts ("frame.time_relative", "frame.offset_shift", etc.)
-        // If there were, then we'd need to reset data for all frames instead
-        // of just the frames changed.
-        record->invalidateColorized();
-        record->invalidateRecord();
+        addCommentToRecord(record, comment);
         emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
                 QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
     }
 }
 
-void PacketListModel::setFrameComment(const QModelIndex &index, const QByteArray &comment, unsigned c_number)
+void PacketListModel::addFrameComment(PacketListRecord *record, const QByteArray &comment)
 {
-    int sectionMax = columnCount() - 1;
-    frame_data *fdata;
-    if (!cap_file_) return;
+    if (!cap_file_ || !record || !record->frameData()) return;
 
-    if (!index.isValid()) return;
+    addCommentToRecord(record, comment);
+}
 
-    PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
-    if (!record) return;
-
-    fdata = record->frameData();
+void PacketListModel::setCommentOnRecord(PacketListRecord *record, const QByteArray &comment, unsigned c_number)
+{
+    frame_data *fdata = record->frameData();
 
     wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
     if (comment.isEmpty()) {
@@ -499,14 +545,55 @@ void PacketListModel::setFrameComment(const QModelIndex &index, const QByteArray
 
     record->invalidateColorized();
     record->invalidateRecord();
+}
+
+void PacketListModel::setFrameComment(const QModelIndex &index, const QByteArray &comment, unsigned c_number)
+{
+    int sectionMax = columnCount() - 1;
+    if (!cap_file_) return;
+
+    if (!index.isValid()) return;
+
+    PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
+    if (!record) return;
+
+    setCommentOnRecord(record, comment, c_number);
     emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
             QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
+}
+
+void PacketListModel::setFrameComment(PacketListRecord *record, const QByteArray &comment, unsigned c_number)
+{
+    if (!cap_file_ || !record || !record->frameData()) return;
+
+    setCommentOnRecord(record, comment, c_number);
+}
+
+bool PacketListModel::deleteCommentsFromRecord(PacketListRecord *record)
+{
+    frame_data *fdata = record->frameData();
+    wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+    unsigned n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
+
+    if (!n_comments)
+        return false;
+
+    for (unsigned i = 0; i < n_comments; i++) {
+        wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, 0);
+    }
+    if (!cf_set_modified_block(cap_file_, fdata, pkt_block)) {
+        cap_file_->packet_comment_count -= n_comments;
+        expert_update_comment_count(cap_file_->packet_comment_count);
+    }
+
+    record->invalidateColorized();
+    record->invalidateRecord();
+    return true;
 }
 
 void PacketListModel::deleteFrameComments(const QModelIndexList &indices)
 {
     int sectionMax = columnCount() - 1;
-    frame_data *fdata;
     if (!cap_file_) return;
 
     for (const auto &index : indices) {
@@ -515,25 +602,18 @@ void PacketListModel::deleteFrameComments(const QModelIndexList &indices)
         PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
         if (!record) continue;
 
-        fdata = record->frameData();
-        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
-        unsigned n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
-
-        if (n_comments) {
-            for (unsigned i = 0; i < n_comments; i++) {
-                wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, 0);
-            }
-            if (!cf_set_modified_block(cap_file_, fdata, pkt_block)) {
-                cap_file_->packet_comment_count -= n_comments;
-                expert_update_comment_count(cap_file_->packet_comment_count);
-            }
-
-            record->invalidateColorized();
-            record->invalidateRecord();
+        if (deleteCommentsFromRecord(record)) {
             emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), sectionMax),
                     QVector<int>() << Qt::BackgroundRole << Qt::ForegroundRole << Qt::DisplayRole);
         }
     }
+}
+
+void PacketListModel::deleteFrameComments(PacketListRecord *record)
+{
+    if (!cap_file_ || !record || !record->frameData()) return;
+
+    deleteCommentsFromRecord(record);
 }
 
 void PacketListModel::deleteAllFrameComments()
