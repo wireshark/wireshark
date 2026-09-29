@@ -240,6 +240,11 @@ static int hf_tns_trace_cid;
 
 static int hf_tns_accept_data_length;
 static int hf_tns_accept_data_offset;
+static int hf_tns_accept_sdu;
+static int hf_tns_accept_flags2;
+static int hf_tns_accept_flags2_check_oob;
+static int hf_tns_accept_flags2_end_of_response;
+static int hf_tns_accept_flags2_fast_auth;
 static int hf_tns_accept_data;
 
 static int hf_tns_refuse_reason_user;
@@ -510,6 +515,7 @@ static int ett_tns_opi_par;
 static int ett_tns_sopt_flag;
 static int ett_tns_ntp_flag;
 static int ett_tns_conn_flag;
+static int ett_tns_accept_flags2;
 static int ett_tns_rows;
 static int ett_tns_setdt_caphdr;
 static int ett_tns_setdt_overrides;
@@ -545,6 +551,14 @@ static expert_field ei_tns_data_count_too_large;
 static expert_field ei_tns_data_encrypted;
 
 #define TCP_PORT_TNS			1521 /* Not IANA registered */
+
+/* The ACCEPT's flags2 word, what the server offers from version 318. */
+static int * const tns_accept_flags2[] = {
+	&hf_tns_accept_flags2_check_oob,
+	&hf_tns_accept_flags2_end_of_response,
+	&hf_tns_accept_flags2_fast_auth,
+	NULL
+};
 
 static int * const tns_connect_flags[] = {
 	&hf_tns_conn_flag_nareq,
@@ -5213,6 +5227,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 {
 	proto_tree *accept_tree;
 	uint32_t accept_offset, accept_len;
+	uint16_t version;
 	int tns_offset = offset-8;
 
 	accept_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1,
@@ -5249,7 +5264,16 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	offset += 1;
 
 	proto_tree_add_bitmask(accept_tree, tvb, offset, hf_tns_connect_flags1, ett_tns_conn_flag, tns_connect_flags, ENC_BIG_ENDIAN);
-	/* offset += 1; */
+
+	/* From version 315 the session data unit is offered again as 32
+	 * bits, 24 bytes into the ACCEPT, and from 318 a flags2 word follows
+	 * at 33 - both ahead of any connect data. */
+	version = tvb_get_ntohs(tvb, tns_offset + 8);
+	if ( version >= 315 && accept_offset >= 8 + 24 + 4 && tvb_bytes_exist(tvb, tns_offset + 8 + 24, 4) )
+		proto_tree_add_item(accept_tree, hf_tns_accept_sdu, tvb, tns_offset + 8 + 24, 4, ENC_BIG_ENDIAN);
+	if ( version >= 318 && accept_offset >= 8 + 33 + 4 && tvb_bytes_exist(tvb, tns_offset + 8 + 33, 4) )
+		proto_tree_add_bitmask(accept_tree, tvb, tns_offset + 8 + 33, hf_tns_accept_flags2,
+			ett_tns_accept_flags2, tns_accept_flags2, ENC_BIG_ENDIAN);
 
 	if ( accept_len > 0)
 	{
@@ -5754,6 +5778,21 @@ void proto_register_tns(void)
 		{ &hf_tns_accept_data, {
 			"Accept Data", "tns.accept_data", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_accept_sdu, {
+			"Session Data Unit Size (32-bit)", "tns.accept_sdu", FT_UINT32, BASE_DEC,
+			NULL, 0x0, "The session data unit a version 315 or later ACCEPT offers, past the 16-bit field's reach", HFILL }},
+		{ &hf_tns_accept_flags2, {
+			"Flags 2", "tns.accept_flags2", FT_UINT32, BASE_HEX,
+			NULL, 0x0, "What a version 318 or later server offers the client", HFILL }},
+		{ &hf_tns_accept_flags2_check_oob, {
+			"Check Out-of-Band", "tns.accept_flags2.check_oob", FT_BOOLEAN, 32,
+			NULL, 0x00000001, NULL, HFILL }},
+		{ &hf_tns_accept_flags2_end_of_response, {
+			"End of Response", "tns.accept_flags2.end_of_response", FT_BOOLEAN, 32,
+			NULL, 0x02000000, "Replies end with an end-of-response marker, so the client can pipeline calls", HFILL }},
+		{ &hf_tns_accept_flags2_fast_auth, {
+			"Fast Authentication", "tns.accept_flags2.fast_auth", FT_BOOLEAN, 32,
+			NULL, 0x10000000, "The client may send its protocol, data types and session key in one bundle", HFILL }},
 		{ &hf_tns_accept_data_offset, {
 			"Offset to Accept Data", "tns.accept_data_offset", FT_UINT16, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -6497,6 +6536,7 @@ void proto_register_tns(void)
 		&ett_tns_sopt_flag,
 		&ett_tns_ntp_flag,
 		&ett_tns_conn_flag,
+		&ett_tns_accept_flags2,
 		&ett_tns_rows,
 		&ett_tns_setdt_caphdr,
 		&ett_tns_setdt_overrides,

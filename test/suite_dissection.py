@@ -2609,6 +2609,29 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['1722', '0', 'ORA-01722: invalid number', '']], rows
 
+    def test_tns_accept_flags2(self, cmd_tshark, capture_file, test_env):
+        '''From version 315 an ACCEPT offers the session data unit again as
+        32 bits, and from 318 a flags2 word saying whether replies end with
+        an end-of-response marker and whether fast authentication is on
+        offer. An older ACCEPT has neither.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_accept_flags2.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.version',
+            '-e', 'tns.accept_sdu',
+            '-e', 'tns.accept_flags2',
+            '-e', 'tns.accept_flags2.end_of_response',
+            '-e', 'tns.accept_flags2.fast_auth',
+            '-e', 'tns.accept_flags2.check_oob',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['319', '2097152', '0x1a000000', 'True', 'True', 'False', ''],
+            ['314', '', '', '', '', '', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
