@@ -4923,10 +4923,14 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * the second indicator tells which - it sits at 27 in the
 				 * wide form and 23 in the narrow one, and the two cannot
 				 * both hold. The cursor id and SQL length precede every
-				 * slot and do not move; the bind count and the SQL do. */
+				 * slot and do not move; the bind count and the SQL do.
+				 * A session at the 12c band inserts 64 zero bytes ahead
+				 * of a narrow preamble's SQL, which moves from 176 to
+				 * 240; the byte before the SQL is its length, never
+				 * zero, so which one holds shows. */
 				int base = fun_start, bind_count_off, sql_off;
 				uint32_t cursor, sql_len_decl, bind_count;
-				bool wide;
+				bool wide, band_12c = false;
 
 				if ( tvb_bytes_exist(tvb, base + TNS_OCI_ALL8_IND2_WIDE, 8)
 					&& tvb_get_ntoh64(tvb, base + TNS_OCI_ALL8_IND2_WIDE) == TNS_OCI_INDICATOR )
@@ -4939,14 +4943,25 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				if ( !PINFO_FD_VISITED(pinfo) )
 					tns_get_conv_info(pinfo)->oci_dialect = true;
 
-				proto_tree_add_string(data_tree, hf_tns_data_all8_oci_preamble, tvb, base, 0,
-					wide ? "OCI, wide (8-byte slots)" : "OCI, narrow (4-byte slots)");
 				cursor = tvb_get_letohl(tvb, base + TNS_OCI_ALL8_CURSOR);
-				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, base + TNS_OCI_ALL8_CURSOR, 4, cursor);
 				/* the SQL length, as the client's character set has it */
 				sql_len_decl = tvb_get_letohl(tvb, base + TNS_OCI_ALL8_SQLLEN3);
 				bind_count_off = base + (wide ? 83 : 71);
 				sql_off = base + (wide ? 196 : 176);
+				if ( !wide && sql_len_decl > 0 && tvb_bytes_exist(tvb, base + 239, 1)
+					&& tvb_get_uint8(tvb, base + 175) == 0 )
+				{
+					uint8_t prefix = tvb_get_uint8(tvb, base + 239);
+					if ( tns_oci_sql_length_matches(prefix, sql_len_decl) )
+					{
+						band_12c = true;
+						sql_off = base + 240;
+					}
+				}
+				proto_tree_add_string(data_tree, hf_tns_data_all8_oci_preamble, tvb, base, 0,
+					wide ? "OCI, wide (8-byte slots)" : band_12c ? "OCI, narrow (4-byte slots), 12c band"
+					: "OCI, narrow (4-byte slots)");
+				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, base + TNS_OCI_ALL8_CURSOR, 4, cursor);
 				bind_count = tvb_get_letohl(tvb, bind_count_off);
 				proto_tree_add_uint(data_tree, hf_tns_data_all8_bind_count, tvb, bind_count_off, 4, bind_count);
 				if ( sql_len_decl > 0 && tvb_bytes_exist(tvb, sql_off - 1, 1) )

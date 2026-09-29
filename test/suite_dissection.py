@@ -2791,6 +2791,25 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['DATA_DIR', 'report.txt', '']] * 2, rows
 
+    def test_tns_oci_12c(self, cmd_tshark, capture_file, test_env):
+        '''At the 12c band an OCI client's narrow execute preamble inserts
+        64 zero bytes ahead of the SQL, which moves from 176 to 240; the
+        11g layout still decodes beside it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_12c.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_all8.oci_preamble',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.oci_preamble',
+            '-e', 'tns.data_all8.sql',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['OCI, narrow (4-byte slots), 12c band', 'SELECT * FROM T', ''],
+            ['OCI, narrow (4-byte slots)', 'SELECT * FROM T', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
