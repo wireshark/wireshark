@@ -1223,6 +1223,8 @@ typedef struct _tns_conv_info_t {
 	 * integers and 8-byte pointer indicators, where a thin client uses
 	 * variable-length integers and 1-byte pointer flags. */
 	bool oci_dialect;
+	/* ... and at the 12c band, whose status blocks are 144 bytes. */
+	bool oci_band_12c;
 	/* The TTC field version the client and server settled on, from the
 	 * client's TTI_DTY; 0 until seen. */
 	uint8_t field_version;
@@ -1256,6 +1258,8 @@ typedef struct _tns_conv_info_t {
 #define TNS_PROTO_DATA_ENCRYPTED 6
 /* p_add_proto_data key for the field version the server offered. */
 #define TNS_PROTO_DATA_SERVER_FV 7
+/* p_add_proto_data key for whether an OCI session is at the 12c band. */
+#define TNS_PROTO_DATA_OCI_12C  8
 
 /* The execute options that ask the server to do something: run the
  * statement, take a set of defines, or return rows. */
@@ -3726,6 +3730,19 @@ static bool tns_is_oci(packet_info *pinfo)
 	return oci;
 }
 
+/* Whether an OCI client's session has been seen at the 12c band. Stored
+ * per packet on the first pass. */
+static bool tns_is_oci_12c(packet_info *pinfo)
+{
+	void *stored = p_get_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_OCI_12C);
+	if ( stored || PINFO_FD_VISITED(pinfo) )
+		return GPOINTER_TO_UINT(stored) == 2;
+
+	bool band = tns_get_conv_info(pinfo)->oci_band_12c;
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_OCI_12C, GUINT_TO_POINTER(band ? 2 : 1));
+	return band;
+}
+
 /* Decode a server message to an OCI client. Its integers are fixed-width
  * little-endian, so only the status messages, whose layout is known, are
  * decoded; the rest is left to the data dissector. Returns the new
@@ -3740,21 +3757,28 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 			 * query's execute status, the end of a fetch and a no-row
 			 * status. Offsets count from the message id byte; a field
 			 * this decoder skips is a constant or not understood. The
-			 * error message follows the full form. */
+			 * error message follows the full form. At the 12c band the
+			 * full form is 144 bytes: the error number again at 132 and
+			 * a ub8 row count, the one sqlplus reports for a DML. */
 			proto_tree *oer_tree;
 			proto_item *oer_item;
-			int base = offset - 1;
-			bool full = tvb_reported_length_remaining(tvb, base) >= 136;
+			int base = offset - 1, remaining = tvb_reported_length_remaining(tvb, base);
+			bool full = remaining >= 136, wide = false;
 			uint32_t err_code;
 
-			if ( tvb_reported_length_remaining(tvb, base) < 24 )
+			if ( remaining < 24 )
 				return offset;
-			oer_tree = proto_tree_add_subtree(data_tree, tvb, base, full ? 136 : 24, ett_tns_oer, &oer_item,
-				full ? "Oracle Error Return (OCI)" : "Oracle Error Return (OCI, compact)");
+			err_code = tvb_get_letohl(tvb, base + 12);
+			if ( remaining >= 144 )
+				wide = tns_is_oci_12c(pinfo)
+					|| (err_code != 0 && tvb_get_letohl(tvb, base + 132) == err_code)
+					|| (err_code == 0 && remaining == 144);
+			oer_tree = proto_tree_add_subtree(data_tree, tvb, base, wide ? 144 : full ? 136 : 24, ett_tns_oer, &oer_item,
+				wide ? "Oracle Error Return (OCI, 12c band)" : full ? "Oracle Error Return (OCI)"
+				: "Oracle Error Return (OCI, compact)");
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_status, tvb, base + 1, 1, ENC_NA);
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_seq, tvb, base + 5, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_int(oer_tree, hf_tns_data_oer_rowcount, tvb, base + 8, 4, (int32_t)tvb_get_letohl(tvb, base + 8));
-			err_code = tvb_get_letohl(tvb, base + 12);
 			proto_tree_add_int(oer_tree, hf_tns_data_oer_err_code, tvb, base + 12, 4, (int32_t)err_code);
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_category, tvb, base + 18, 1, ENC_NA);
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_error_pos, tvb, base + 20, 1, ENC_NA);
@@ -3765,6 +3789,12 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 			 * own, not the counter at offset 5 */
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_call_seq, tvb, base + 49, 2, ENC_LITTLE_ENDIAN);
 			offset = base + 136;
+			if ( wide )
+			{
+				proto_tree_add_item(oer_tree, hf_tns_data_oer_err_num_ext, tvb, base + 132, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(oer_tree, hf_tns_data_oer_rowcount_ext, tvb, base + 136, 8, ENC_LITTLE_ENDIAN);
+				offset = base + 144;
+			}
 			if ( err_code != 0 && tvb_reported_length_remaining(tvb, offset) > 0 )
 			{
 				const char *msg = NULL;
@@ -4956,6 +4986,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					{
 						band_12c = true;
 						sql_off = base + 240;
+						if ( !PINFO_FD_VISITED(pinfo) )
+							tns_get_conv_info(pinfo)->oci_band_12c = true;
 					}
 				}
 				proto_tree_add_string(data_tree, hf_tns_data_all8_oci_preamble, tvb, base, 0,

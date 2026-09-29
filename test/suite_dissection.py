@@ -2810,6 +2810,27 @@ class TestDissectTns:
             ['OCI, narrow (4-byte slots)', 'SELECT * FROM T', ''],
         ], rows
 
+    def test_tns_oci_12c_status(self, cmd_tshark, capture_file, test_env):
+        '''At the 12c band an OCI status block is 144 bytes: the error
+        number again at 132 and a ub8 row count at 136, which is the row
+        count sqlplus reports for a DML. An error's message follows it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_12c.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_oer.err_code',
+            '-T', 'fields',
+            '-e', 'tns.data_oer.err_code',
+            '-e', 'tns.data_oer.err_num',
+            '-e', 'tns.data_oer.rowcount64',
+            '-e', 'tns.data_oer.message',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['0', '0', '3', '', ''],
+            ['942', '942', '0', 'ORA-00942: table or view does not exist', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

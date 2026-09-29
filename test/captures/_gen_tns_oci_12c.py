@@ -13,6 +13,10 @@ on a session at the 12c band, whose messages are wider than at 11g.
               still at 71, the SQL's length at 239 and the SQL at 240
     Frame 2 - the same statement in the 11g layout, SQL at 176, for
               comparison
+    Frame 3 - a 144-byte status for a DML: success, the 11g row count 0 and
+              the ub8 row count 3 at 136, the one sqlplus reports
+    Frame 4 - a 144-byte status for ORA-00942: the error number at 12 and
+              again at 132, then the message
 
 Offsets count from the TTI_FUN byte. The slots not named here are zero.
 Bytes are built by hand.
@@ -200,9 +204,28 @@ def oci_all8(seq, cursor, sql, binds, band_12c):
     return bytes(b)
 
 
+def oci_oer_12c(seq, rows, err, command, call_seq, msg=b""):
+    """A status block at the 12c band: 144 bytes, with the error number
+    again at 132 and a ub8 row count at 136."""
+    b = bytearray(144)
+    b[0] = TTI_OER
+    b[1] = 1
+    b[5:7] = _s.pack("<H", seq)
+    b[7] = 1
+    b[12:16] = _s.pack("<I", err)
+    b[18] = 1
+    b[22] = command
+    b[49:51] = _s.pack("<H", call_seq)
+    b[132:136] = _s.pack("<I", err)
+    b[136:144] = _s.pack("<Q", rows)
+    return bytes(b) + (dalc(msg) if err else b"")
+
+
 frames = [
     (True, oci_all8(4, 0, b"SELECT * FROM T", 0, True)),
     (True, oci_all8(5, 0, b"SELECT * FROM T", 0, False)),
+    (False, oci_oer_12c(6, 3, 0, 2, 5)),
+    (False, oci_oer_12c(7, 0, 942, 3, 6, b"ORA-00942: table or view does not exist\n")),
 ]
 
 
