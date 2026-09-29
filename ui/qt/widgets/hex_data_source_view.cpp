@@ -32,7 +32,6 @@
 #include <QScrollBar>
 #include <QStyle>
 #include <QStyleOption>
-#include <QTextLayout>
 #include <QToolTip>
 #include <QWindow>
 
@@ -66,47 +65,10 @@ bool rangesIntersect(int a_start, int a_len, int b_start, int b_len)
     return a_start <= b_end && a_end >= b_start;
 }
 
-// Look up the byte column for pixel position x in a pixel → column map,
-// optionally snapping to the nearest mapped column.
-int columnAtPixel(const QVector<int> &x_pos_to_column, int x, bool allow_fuzzy)
-{
-    Q_ASSERT(x_pos_to_column.size() <= std::numeric_limits<int>::max());
-    int size = static_cast<int>(x_pos_to_column.size());
-    if (size == 0) {
-        return -1;
-    }
-
-    if (x < 0 || x >= size) {
-        if (!allow_fuzzy) {
-            return -1;
-        }
-        x = qBound(0, x, size - 1);
-    }
-
-    int col = x_pos_to_column.value(x, -1);
-    if (col < 0 && allow_fuzzy) {
-        int left = x - 1;
-        int right = x + 1;
-        while (left >= 0 || right < size) {
-            if (left >= 0 && x_pos_to_column[left] >= 0) {
-                col = x_pos_to_column[left];
-                break;
-            }
-            if (right < size && x_pos_to_column[right] >= 0) {
-                col = x_pos_to_column[right];
-                break;
-            }
-            left--;
-            right++;
-        }
-    }
-    return col;
-}
 } // namespace
 
 HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc encoding, QWidget *parent) :
     BaseDataSourceView(data, parent),
-    layout_(new QTextLayout()),
     layout_dirty_(false),
     encoding_(encoding),
     hovered_byte_offset_(-1),
@@ -138,8 +100,6 @@ HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc enc
     selected_field_use_own_range_(false),
     text_cells_dirty_(true)
 {
-    layout_->setCacheEnabled(true);
-
     ThemeManager * theme = ThemeManager::instance();
 
     offset_normal_fg_ = ColorMath::withAlphaF(theme->color(ThemeManager::PaletteWindowText), 0.35);
@@ -166,7 +126,6 @@ HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc enc
 HexDataSourceView::~HexDataSourceView()
 {
     ctx_menu_.clear();
-    delete(layout_);
 }
 
 void HexDataSourceView::setAnnotations(const QVector<ByteViewAnnotation> &annotations)
@@ -470,7 +429,6 @@ void HexDataSourceView::setMonospaceFont(const QFont &mono_font)
 
     setFont(int_font);
     viewport()->setFont(int_font);
-    layout_->setFont(int_font);
 
     if (isVisible()) {
         updateLayoutMetrics();
@@ -553,7 +511,6 @@ void HexDataSourceView::paintEvent(QPaintEvent *)
     int widget_height = height();
     painter.save();
 
-    x_pos_to_column_.clear();
     const int tvb_len = static_cast<int>(data_.size());
     while ((int) (row_y + line_height_) < widget_height && offset < tvb_len) {
         Row row;
@@ -561,8 +518,12 @@ void HexDataSourceView::paintEvent(QPaintEvent *)
         row.last = qMin(offset + row_width_, tvb_len) - 1;
         row.y = row_y;
         row.styles.reserve(row.last - offset + 1);
+        row.gaps.reserve(row.last - offset);
         for (int tvb_pos = offset; tvb_pos <= row.last; tvb_pos++) {
             row.styles.append(byteStyle(tvb_pos, ctx));
+            if (tvb_pos < row.last) {
+                row.gaps.append(byteStyle(tvb_pos, ctx, 2));
+            }
         }
         drawLine(&painter, row, ctx);
         offset += row_width_;
@@ -771,154 +732,66 @@ int HexDataSourceView::stringWidth(const QString &line)
     return viewport()->fontMetrics().horizontalAdvance(line);
 }
 
-// Draw a line of byte view text for a given offset.
-// The offset and hex columns are laid out as one string whose highlighting
-// is handled using QTextLayout::FormatRange. The text panel is a grid of
-// one column per byte and is drawn separately in drawTextPanel().
+// Draw one row: the offset column, the hex panel and the text panel. Both
+// panels are grids with one cell per byte, so highlights and hit-testing
+// are a matter of arithmetic.
 void HexDataSourceView::drawLine(QPainter *painter, const Row &row, const RowPaintContext &ctx)
 {
-    if (data_.isEmpty()) {
-        return;
-    }
-
-    const int offset = row.offset;
-    const int max_tvb_pos = row.last;
-    const int row_y = row.y;
-
-    // Build our pixel to byte offset vector the first time through.
-    bool build_x_pos = x_pos_to_column_.empty() ? true : false;
-    QList<QTextLayout::FormatRange> fmt_list;
-
-    static const char hexchars[16] = {
-        '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
-    QString line;
-    HighlightMode offset_mode = ModeOffsetNormal;
-    if ((show_hex_ || show_ascii_) && rangesIntersect(field_start_, field_len_, offset, max_tvb_pos - offset + 1)) {
-        offset_mode = ModeOffsetField;
-    }
-
-    // Offset.
     if (show_offset_) {
-        line = QStringLiteral(" %1 ").arg(offset, offsetChars(false), 16, QChar('0'));
-        if (build_x_pos) {
-            x_pos_to_column_.fill(-1, stringWidth(line));
-        }
+        drawOffsetColumn(painter, row);
     }
-
-    // Hex
     if (show_hex_) {
-        int ascii_start = static_cast<int>(line.length()) + DataPrinter::hexChars() + 3;
-        // Extra hover space before and after each byte.
-        int slop = em_width_ / 2;
-        unsigned char c;
+        drawHexPanel(painter, row, ctx);
+    }
+    drawTextPanel(painter, row, ctx);
+}
 
-        if (build_x_pos) {
-            x_pos_to_column_ += QVector<int>().fill(-1, slop);
-        }
+// The offset column, dimmed unless the selected field has bytes on this row.
+void HexDataSourceView::drawOffsetColumn(QPainter *painter, const Row &row)
+{
+    QColor fg = offset_normal_fg_;
+    if ((show_hex_ || show_ascii_) && rangesIntersect(field_start_, field_len_, row.offset, row.last - row.offset + 1)) {
+        fg = offset_field_fg_;
+    }
+    QString text = QStringLiteral(" %1 ").arg(row.offset, offsetChars(false), 16, QChar('0'));
+    painter->save();
+    painter->setPen(fg);
+    painter->drawText(QRect(0, row.y, offsetPixels(), line_height_), Qt::AlignLeft | Qt::AlignVCenter, text);
+    painter->restore();
+}
 
-        for (int tvb_pos = offset; tvb_pos <= max_tvb_pos; tvb_pos++) {
-            line += ' ';
-            /* insert a space every separator_interval_ bytes */
-            if ((tvb_pos != offset) && ((tvb_pos % separator_interval_) == 0)) {
-                line += ' ';
-                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset - 1, em_width_);
-            }
+// The hex panel: one cell per byte holding its digits in the current base.
+void HexDataSourceView::drawHexPanel(QPainter *painter, const Row &row, const RowPaintContext &ctx)
+{
+    const int cols = row.last - row.offset + 1;
 
-            switch (recent.gui_bytes_view) {
-            case BYTES_HEX:
-                line += hexchars[(data_[tvb_pos] & 0xf0) >> 4];
-                line += hexchars[data_[tvb_pos] & 0x0f];
-                break;
-            case BYTES_BITS:
-                /* XXX, bitmask */
-                for (int j = 7; j >= 0; j--) {
-                    line += (data_[tvb_pos] & (1 << j)) ? '1' : '0';
-                }
-                break;
-            case BYTES_DEC:
-                c = data_[tvb_pos];
-                line += c < 100 ? ' ' : hexchars[c / 100];
-                line += c < 10 ? ' ' : hexchars[(c / 10) % 10];
-                line += hexchars[c % 10];
-                break;
-            case BYTES_OCT:
-                line += hexchars[(data_[tvb_pos] & 0xc0) >> 6];
-                line += hexchars[(data_[tvb_pos] & 0x38) >> 3];
-                line += hexchars[data_[tvb_pos] & 0x07];
-                break;
-            }
-            if (build_x_pos) {
-                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, stringWidth(line) - x_pos_to_column_.size() + slop);
-            }
-            if (tvb_pos >= ctx.hover_start && tvb_pos < ctx.hover_start + ctx.hover_length) {
-                int ho_len;
-                switch (recent.gui_bytes_view) {
-                case BYTES_HEX:
-                    ho_len = 2;
-                    break;
-                case BYTES_BITS:
-                    ho_len = 8;
-                    break;
-                case BYTES_DEC:
-                case BYTES_OCT:
-                    ho_len = 3;
-                    break;
-                default:
-                    ws_assert_not_reached();
-                }
-                QRect ho_rect = painter->boundingRect(QRect(), Qt::AlignHCenter|Qt::AlignVCenter, line.right(ho_len));
-                ho_rect.moveRight(stringWidth(line));
-                ho_rect.moveTop(row_y);
-                hover_outlines_.append(ho_rect);
-            }
+    // Backgrounds, for the bytes and for the spaces between them.
+    for (int col = 0; col < cols; col++) {
+        QRect rect = hexCellRect(col, row.y);
+        const QColor &bg = row.styles.at(col).bg;
+        if (bg.isValid()) {
+            painter->fillRect(rect, bg);
         }
-        line += QString(ascii_start - line.length(), ' ');
-        if (build_x_pos) {
-            x_pos_to_column_ += QVector<int>().fill(-1, stringWidth(line) - x_pos_to_column_.size());
-        }
-
-        addHexFormatRange(fmt_list, proto_start_, proto_len_, offset, max_tvb_pos, ModeProtocol);
-        addHexFormatRange(fmt_list, field_start_, field_len_, offset, max_tvb_pos, ModeField);
-        addHexFormatRange(fmt_list, field_a_start_, field_a_len_, offset, max_tvb_pos, ModeField);
-        addHexFormatRange(fmt_list, field_hover_start_, field_hover_len_, offset, max_tvb_pos, ModeHover);
-        if (ctx.has_selection) {
-            addHexCustomRange(fmt_list, ctx.sel_start, ctx.sel_length, offset, max_tvb_pos, ctx.sel_overlay, ctx.sel_fg);
-        }
-        for (const ByteViewAnnotation &ann : annotations_) {
-            if (ann.length <= 0) {
-                continue;
-            }
-            QColor ann_bg = annotationBackground(ann, ctx);
-            addHexCustomRange(fmt_list, ann.start, ann.length, offset, max_tvb_pos, ann_bg,
-                              ColorMath::contrastingText(ann_bg));
-        }
-        if (offset_start_byte_ >= 0) {
-            addHexCustomRange(fmt_list, offset_start_byte_, 1, offset, max_tvb_pos,
-                              ctx.marker_start_bg, ColorMath::contrastingText(ctx.marker_start_bg));
-        }
-        if (offset_end_byte_ >= 0) {
-            addHexCustomRange(fmt_list, offset_end_byte_, 1, offset, max_tvb_pos,
-                              ctx.marker_end_bg, ColorMath::contrastingText(ctx.marker_end_bg));
+        if (col + 1 < cols && row.gaps.at(col).bg.isValid()) {
+            QRect gap(rect.right() + 1, rect.top(), 0, rect.height());
+            gap.setRight(hexCellRect(col + 1, row.y).left() - 1);
+            painter->fillRect(gap, row.gaps.at(col).bg);
         }
     }
 
-    // XXX Fields won't be highlighted if neither hex nor ascii are enabled.
-    addFormatRange(fmt_list, 0, offsetChars(), offset_mode);
-
-    layout_->clearLayout();
-    layout_->clearFormats();
-    layout_->setText(line);
-    layout_->setFormats(fmt_list.toVector());
-    layout_->beginLayout();
-    QTextLine tl = layout_->createLine();
-    tl.setLineWidth(totalPixels());
-    tl.setLeadingIncluded(true);
-    layout_->endLayout();
-    layout_->draw(painter, QPointF(0.0, row_y));
-
-    drawTextPanel(painter, row, ctx);
+    // Digits.
+    painter->save();
+    for (int col = 0; col < cols; col++) {
+        const int tvb_pos = row.offset + col;
+        QRect rect = hexCellRect(col, row.y);
+        const QColor &fg = row.styles.at(col).fg;
+        painter->setPen(fg.isValid() ? fg : palette().text().color());
+        painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, byteText(static_cast<uint8_t>(data_.at(tvb_pos))));
+        if (tvb_pos >= ctx.hover_start && tvb_pos < ctx.hover_start + ctx.hover_length) {
+            hover_outlines_.append(rect);
+        }
+    }
+    painter->restore();
 }
 
 void HexDataSourceView::drawTextPanel(QPainter *painter, const Row &row, const RowPaintContext &ctx)
@@ -928,11 +801,18 @@ void HexDataSourceView::drawTextPanel(QPainter *painter, const Row &row, const R
     }
 
     // Backgrounds, one column per byte, so that highlights keep their
-    // byte precision inside multi-byte characters.
+    // byte precision inside multi-byte characters. The separator column
+    // between two byte groups is colored like the space between bytes.
     for (int col = 0; col < row.styles.size(); col++) {
+        QRect rect = textCellRect(col, row.y);
         const QColor &bg = row.styles.at(col).bg;
         if (bg.isValid()) {
-            painter->fillRect(textCellRect(col, row.y), bg);
+            painter->fillRect(rect, bg);
+        }
+        if (col < row.gaps.size() && (col + 1) % separator_interval_ == 0 && row.gaps.at(col).bg.isValid()) {
+            QRect gap(rect.right() + 1, rect.top(), 0, rect.height());
+            gap.setRight(textCellRect(col + 1, row.y).left() - 1);
+            painter->fillRect(gap, row.gaps.at(col).bg);
         }
     }
 
@@ -1027,10 +907,10 @@ QColor HexDataSourceView::cellTextColor(const ByteViewTextCells::Cell &cell, con
     }
 }
 
-HexDataSourceView::ByteStyle HexDataSourceView::byteStyle(int offset, const RowPaintContext &ctx)
+HexDataSourceView::ByteStyle HexDataSourceView::byteStyle(int offset, const RowPaintContext &ctx, int length)
 {
-    auto covers = [offset](int start, int length) {
-        return length > 0 && offset >= start && offset < start + length;
+    auto covers = [offset, length](int start, int len) {
+        return len > 0 && start <= offset && offset + length <= start + len;
     };
     ByteStyle style;
 
@@ -1061,11 +941,11 @@ HexDataSourceView::ByteStyle HexDataSourceView::byteStyle(int offset, const RowP
             style.fg = ColorMath::contrastingText(style.bg);
         }
     }
-    if (offset == offset_start_byte_) {
+    if (covers(offset_start_byte_, 1)) {
         style.bg = ctx.marker_start_bg;
         style.fg = ColorMath::contrastingText(ctx.marker_start_bg);
     }
-    if (offset == offset_end_byte_) {
+    if (covers(offset_end_byte_, 1)) {
         style.bg = ctx.marker_end_bg;
         style.fg = ColorMath::contrastingText(ctx.marker_end_bg);
     }
@@ -1115,6 +995,79 @@ ByteViewTextCells::Encoding HexDataSourceView::textEncoding() const
     }
 }
 
+// The number of digits a byte takes in the hex panel in the current base.
+int HexDataSourceView::hexCharsPerByte()
+{
+    int chars = 2;
+    switch (recent.gui_bytes_view) {
+    case BYTES_HEX:
+        chars = 2;
+        break;
+    case BYTES_BITS:
+        chars = 8;
+        break;
+    case BYTES_DEC:
+    case BYTES_OCT:
+        chars = 3;
+        break;
+    default:
+        ws_assert_not_reached();
+    }
+    return chars;
+}
+
+// A byte's digits in the current base, padded to hexCharsPerByte().
+QString HexDataSourceView::byteText(uint8_t c)
+{
+    switch (recent.gui_bytes_view) {
+    case BYTES_BITS:
+        return QStringLiteral("%1").arg(c, 8, 2, QChar('0'));
+    case BYTES_DEC:
+        return QStringLiteral("%1").arg(c, 3, 10, QChar(' '));
+    case BYTES_OCT:
+        return QStringLiteral("%1").arg(c, 3, 8, QChar('0'));
+    case BYTES_HEX:
+    default:
+        return QStringLiteral("%1").arg(c, 2, 16, QChar('0'));
+    }
+}
+
+int HexDataSourceView::hexPanelX()
+{
+    // One pad space after the offset column.
+    return offsetPixels() + em_width_;
+}
+
+QRect HexDataSourceView::hexCellRect(int col, int row_y)
+{
+    // Each byte is its digits and a pad space; one extra space every
+    // separator_interval_ bytes.
+    const int chars = hexCharsPerByte();
+    int x = hexPanelX() + (col * (chars + 1) + col / separator_interval_) * em_width_;
+    return QRect(x, row_y, chars * em_width_, line_height_);
+}
+
+int HexDataSourceView::hexColumnAtX(int x, bool allow_fuzzy)
+{
+    if (em_width_ <= 0) {
+        return -1;
+    }
+    // A byte's hit region is its digits plus half of the pad space on
+    // each side; a separator space hit-tests as the byte before it.
+    int rel = x - hexPanelX() + em_width_ / 2;
+    if (rel < 0) {
+        return allow_fuzzy ? 0 : -1;
+    }
+    const int byte_units = hexCharsPerByte() + 1;
+    const int group_units = separator_interval_ * byte_units + 1;
+    int unit = rel / em_width_;
+    int col = (unit / group_units) * separator_interval_ + qMin((unit % group_units) / byte_units, separator_interval_ - 1);
+    if (col >= row_width_) {
+        return allow_fuzzy ? row_width_ - 1 : -1;
+    }
+    return col;
+}
+
 int HexDataSourceView::textPanelX()
 {
     // One pad space after the hex panel.
@@ -1150,137 +1103,6 @@ int HexDataSourceView::textColumnAtX(int x, bool allow_fuzzy)
         return allow_fuzzy ? row_width_ - 1 : -1;
     }
     return col;
-}
-
-bool HexDataSourceView::addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int start, int length, HighlightMode mode)
-{
-    if (length < 1)
-        return false;
-
-    QTextLayout::FormatRange format_range;
-    format_range.start = start;
-    format_range.length = length;
-    switch (mode) {
-    case ModeNormal:
-        return false;
-    case ModeField:
-        format_range.format.setBackground(palette().highlight());
-        format_range.format.setForeground(palette().highlightedText());
-        break;
-    case ModeProtocol:
-        // On the GTK3 platform theme, and possibly others, window() and
-        // base() are the same color. Use alternateBase for contrast.
-        if (palette().window() == palette().base()) {
-            format_range.format.setBackground(palette().alternateBase());
-        } else {
-            format_range.format.setBackground(palette().window());
-            format_range.format.setForeground(palette().windowText());
-        }
-        break;
-    case ModeOffsetNormal:
-        format_range.format.setForeground(offset_normal_fg_);
-        break;
-    case ModeOffsetField:
-        format_range.format.setForeground(offset_field_fg_);
-        break;
-    case ModeHover:
-        // TODO: FIX right color
-        //format_range.format.setBackground(ThemeManager::instance()->color(ThemeManager::HoverHighlight));
-        format_range.format.setForeground(palette().text());
-        break;
-    }
-    fmt_list << format_range;
-    return true;
-}
-
-bool HexDataSourceView::addHexFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int mark_start, int mark_length, int tvb_offset, int max_tvb_pos, HexDataSourceView::HighlightMode mode)
-{
-    int mark_end = mark_start + mark_length - 1;
-    if (mark_start < 0 || mark_length < 1) return false;
-    if (mark_start > max_tvb_pos || mark_end < tvb_offset) return false;
-
-    int chars_per_byte;
-    switch (recent.gui_bytes_view) {
-    case BYTES_HEX:
-        chars_per_byte = 2;
-        break;
-    case BYTES_BITS:
-        chars_per_byte = 8;
-        break;
-    case BYTES_DEC:
-    case BYTES_OCT:
-        chars_per_byte = 3;
-        break;
-    default:
-        ws_assert_not_reached();
-    }
-    int chars_plus_pad = chars_per_byte + 1;
-    int byte_start = qMax(tvb_offset, mark_start) - tvb_offset;
-    int byte_end = qMin(max_tvb_pos, mark_end) - tvb_offset;
-    int fmt_start = offsetChars() + 1 // offset + spacing
-            + (byte_start / separator_interval_)
-            + (byte_start * chars_plus_pad);
-    int fmt_length = offsetChars() + 1 // offset + spacing
-            + (byte_end / separator_interval_)
-            + (byte_end * chars_plus_pad)
-            + chars_per_byte
-            - fmt_start;
-    return addFormatRange(fmt_list, fmt_start, fmt_length, mode);
-}
-
-bool HexDataSourceView::addHexCustomRange(QList<QTextLayout::FormatRange> &fmt_list, int mark_start, int mark_length, int tvb_offset, int max_tvb_pos, const QColor &bg, const QColor &fg)
-{
-    if (mark_start < 0 || mark_length < 1) {
-        return false;
-    }
-
-    int tvb_len = static_cast<int>(data_.size());
-    int mark_end = mark_start + mark_length - 1;
-    if (mark_start >= tvb_len) {
-        return false;
-    }
-    mark_end = qMin(mark_end, tvb_len - 1);
-    if (mark_start > max_tvb_pos || mark_end < tvb_offset) {
-        return false;
-    }
-
-    int chars_per_byte;
-    switch (recent.gui_bytes_view) {
-    case BYTES_HEX:
-        chars_per_byte = 2;
-        break;
-    case BYTES_BITS:
-        chars_per_byte = 8;
-        break;
-    case BYTES_DEC:
-    case BYTES_OCT:
-        chars_per_byte = 3;
-        break;
-    default:
-        ws_assert_not_reached();
-    }
-    int chars_plus_pad = chars_per_byte + 1;
-    int byte_start = qMax(tvb_offset, mark_start) - tvb_offset;
-    int byte_end = qMin(max_tvb_pos, mark_end) - tvb_offset;
-    if (byte_end < byte_start) {
-        return false;
-    }
-    int fmt_start = offsetChars() + 1 // offset + spacing
-            + (byte_start / separator_interval_)
-            + (byte_start * chars_plus_pad);
-    int fmt_length = offsetChars() + 1 // offset + spacing
-            + (byte_end / separator_interval_)
-            + (byte_end * chars_plus_pad)
-            + chars_per_byte
-            - fmt_start;
-
-    QTextLayout::FormatRange format_range;
-    format_range.start = fmt_start;
-    format_range.length = fmt_length;
-    format_range.format.setBackground(bg);
-    format_range.format.setForeground(fg);
-    fmt_list << format_range;
-    return true;
 }
 
 int HexDataSourceView::annotationIndexAt(int byte_offset) const
@@ -1436,7 +1258,7 @@ void HexDataSourceView::updateScrollbars()
 
 int HexDataSourceView::byteOffsetAtPixel(QPoint pos, bool allow_fuzzy)
 {
-    if (x_pos_to_column_.isEmpty()) {
+    if (data_.isEmpty() || line_height_ <= 0) {
         return -1;
     }
 
@@ -1446,8 +1268,10 @@ int HexDataSourceView::byteOffsetAtPixel(QPoint pos, bool allow_fuzzy)
     int col;
     if (show_ascii_ && x >= textPanelX()) {
         col = textColumnAtX(x, allow_fuzzy);
+    } else if (show_hex_) {
+        col = hexColumnAtX(x, allow_fuzzy);
     } else {
-        col = columnAtPixel(x_pos_to_column_, x, allow_fuzzy);
+        col = allow_fuzzy ? 0 : -1;
     }
     if (col < 0) {
         return -1;

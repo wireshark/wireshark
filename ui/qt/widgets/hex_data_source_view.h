@@ -20,7 +20,6 @@
 #include <QMenu>
 #include <QSize>
 #include <QString>
-#include <QTextLayout>
 #include <QVector>
 
 #include <limits>
@@ -64,7 +63,7 @@ public:
                                 packet_char_enc encoding = PACKET_CHAR_ENC_CHAR_ASCII,
                                 QWidget *parent = nullptr);
 
-    /** @brief Destroy the view and its @c QTextLayout. */
+    /** @brief Destroy the view. */
     ~HexDataSourceView();
 
     /**
@@ -340,20 +339,6 @@ protected:
 
 private:
     /**
-     * @brief Semantic highlight modes used when building @c QTextLayout format ranges.
-     */
-    typedef enum {
-        ModeNormal,       /**< Default foreground/background colors. */
-        ModeField,        /**< Selected field highlight color. */
-        ModeProtocol,     /**< Enclosing protocol layer highlight color. */
-        ModeOffsetNormal, /**< Offset column default color. */
-        ModeOffsetField,  /**< Offset column color within the marked offset range. */
-        ModeHover         /**< Transient hover highlight color. */
-    } HighlightMode;
-
-    QTextLayout *layout_; /**< Reused text layout for rendering one row at a time. */
-
-    /**
      * @brief Per-paint state shared by all rows.
      */
     struct RowPaintContext {
@@ -386,6 +371,7 @@ private:
         int last;                  /**< Last byte offset of the row. */
         int y;                     /**< Top-of-row y coordinate in viewport pixels. */
         QVector<ByteStyle> styles; /**< The colors of the row's bytes, by column. */
+        QVector<ByteStyle> gaps;   /**< The colors of the space after each byte but the last, by column. */
     };
 
     /**
@@ -408,6 +394,24 @@ private:
      * @param ctx     Per-paint state.
      */
     void drawLine(QPainter *painter, const Row &row, const RowPaintContext &ctx);
+
+    /**
+     * @brief Paint the offset column of one row.
+     * @param painter The painter targeting the viewport.
+     * @param row     The row.
+     */
+    void drawOffsetColumn(QPainter *painter, const Row &row);
+
+    /**
+     * @brief Paint the hex panel of one row.
+     *
+     * Backgrounds and digits are painted per byte cell.
+     *
+     * @param painter The painter targeting the viewport.
+     * @param row     The row.
+     * @param ctx     Per-paint state.
+     */
+    void drawHexPanel(QPainter *painter, const Row &row, const RowPaintContext &ctx);
 
     /**
      * @brief Paint the text panel of one row.
@@ -444,16 +448,19 @@ private:
     QColor cellTextColor(const ByteViewTextCells::Cell &cell, const ByteStyle &style, const RowPaintContext &ctx);
 
     /**
-     * @brief Combine every highlight that applies to a byte into its colors.
+     * @brief Combine every highlight that covers a run of bytes into its colors.
      *
-     * Later layers override earlier ones: protocol, field and appendix,
-     * hovered field, selection, annotations, offset markers.
+     * Highlights are applied in a fixed order, later ones overriding the
+     * colors of earlier ones. With a length of 2 this gives the colors of
+     * the space between two bytes: only a highlight that covers both
+     * bytes reaches across it, so a range still reads as one block while
+     * a single highlighted byte inside it keeps its own box.
      *
-     * @param offset The byte offset.
+     * @param offset The first byte.
      * @param ctx    Per-paint state.
-     * @return The colors; invalid colors mean the default should be used.
+     * @param length The number of bytes the highlight must cover.
      */
-    ByteStyle byteStyle(int offset, const RowPaintContext &ctx);
+    ByteStyle byteStyle(int offset, const RowPaintContext &ctx, int length = 1);
 
     /**
      * @brief Return the background color of an annotation, dimmed or
@@ -487,6 +494,33 @@ private:
      */
     QRect textSpanRect(int first_col, int last_col, int row_y);
 
+    /** @brief Return the number of digits a byte takes in the hex panel. */
+    int hexCharsPerByte();
+
+    /**
+     * @brief Return a byte's digits in the current base, padded to hexCharsPerByte().
+     * @param c The byte.
+     */
+    QString byteText(uint8_t c);
+
+    /** @brief Return the x pixel position of the first hex panel cell. */
+    int hexPanelX();
+
+    /**
+     * @brief Return the rectangle of one hex panel cell.
+     * @param col   The byte column within the row.
+     * @param row_y Top-of-row y coordinate in viewport pixels.
+     */
+    QRect hexCellRect(int col, int row_y);
+
+    /**
+     * @brief Convert an x pixel position within the hex panel to a byte column.
+     * @param x           Absolute x pixel position.
+     * @param allow_fuzzy true to snap positions outside the cells to the nearest one.
+     * @return The byte column, or -1.
+     */
+    int hexColumnAtX(int x, bool allow_fuzzy);
+
     /**
      * @brief Convert an x pixel position within the text panel to a byte column.
      * @param x           Absolute x pixel position.
@@ -494,51 +528,6 @@ private:
      * @return The byte column, or -1.
      */
     int textColumnAtX(int x, bool allow_fuzzy);
-
-    /**
-     * @brief Append a semantic highlight range to a format list.
-     *
-     * @param fmt_list The format range list to modify.
-     * @param start    Character start index within the layout string.
-     * @param length   Number of characters to cover.
-     * @param mode     The highlight mode that determines the color.
-     * @return true if a range was appended; false if the range was empty.
-     */
-    bool addFormatRange(QList<QTextLayout::FormatRange> &fmt_list,
-                        int start, int length, HighlightMode mode);
-
-    /**
-     * @brief Append a semantic highlight range over the hex panel columns.
-     *
-     * @param fmt_list    The format range list to modify.
-     * @param mark_start  Absolute start byte offset of the mark.
-     * @param mark_length Length of the mark in bytes.
-     * @param tvb_offset  First byte offset of the current row.
-     * @param max_tvb_pos One past the last byte of the current row.
-     * @param mode        The highlight mode.
-     * @return true if any columns were covered.
-     */
-    bool addHexFormatRange(QList<QTextLayout::FormatRange> &fmt_list,
-                           int mark_start, int mark_length,
-                           int tvb_offset, int max_tvb_pos,
-                           HighlightMode mode);
-
-    /**
-     * @brief Append a custom-color range over the hex panel columns.
-     *
-     * @param fmt_list    The format range list to modify.
-     * @param mark_start  Absolute start byte offset of the annotation.
-     * @param mark_length Length of the annotation in bytes.
-     * @param tvb_offset  First byte offset of the current row.
-     * @param max_tvb_pos One past the last byte of the current row.
-     * @param bg          Background color.
-     * @param fg          Foreground (text) color.
-     * @return true if any columns were covered.
-     */
-    bool addHexCustomRange(QList<QTextLayout::FormatRange> &fmt_list,
-                           int mark_start, int mark_length,
-                           int tvb_offset, int max_tvb_pos,
-                           const QColor &bg, const QColor &fg);
 
     /**
      * @brief Return the index of the annotation that covers @p byte_offset.
@@ -688,17 +677,6 @@ private:
     int offset_end_byte_;   /**< Byte offset of the end offset marker, or -1. */
     bool selected_field_is_protocol_;   /**< true if the packet-tree selection is a protocol node. */
     bool selected_field_use_own_range_; /**< true if the selected field carries its own independent range. */
-
-    /**
-     * @brief Maps x pixel positions to column indices within the current row.
-     *
-     * Built by @c drawLine(). Indexed by x pixel offset from the left edge
-     * of the viewport; each entry holds the byte column number
-     * (0 … @c row_width_-1) of the hex value at that pixel, or -1, enabling
-     * O(1) hit-testing in @c byteOffsetAtPixel(). The text panel is a
-     * fixed grid and is hit-tested arithmetically instead.
-     */
-    QVector<int> x_pos_to_column_;
 
     ByteViewTextCells text_cells_; /**< The data decoded into text panel cells. */
     bool text_cells_dirty_;        /**< true when @c text_cells_ must be decoded again. */
