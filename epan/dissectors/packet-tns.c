@@ -1117,6 +1117,7 @@ static const value_string tns_csform_vals[] = {
 
 /* Bind directions reported per bind in a TTI_IOV vector (TNS_BIND_DIR_*),
  * cross-referenced with python-oracledb's constants. */
+#define TNS_BIND_DIR_OUTPUT 16
 #define TNS_BIND_DIR_INPUT 32
 
 /* The length of an Advanced Queuing message id. */
@@ -1380,6 +1381,10 @@ typedef struct _tns_binds_t {
 	uint32_t num_return;    /* the last num_return are RETURNING ... INTO binds */
 	bool plsql;             /* bound to a PL/SQL block */
 	tns_column_t *cols;
+	/* A PL/SQL block's bind directions, which only the reply to its
+	 * first execute reports; NULL until then. Its re-executes send no
+	 * value for an OUT bind and are answered with no directions. */
+	uint8_t *dirs;
 } tns_binds_t;
 
 /* The call a response answers: some response messages can only be read
@@ -1390,6 +1395,7 @@ typedef struct _tns_call_t {
 	uint32_t num_binds;     /* bind types of an execute */
 	uint32_t num_return;    /* ... of which the last are RETURNING ... INTO binds */
 	tns_column_t *binds;
+	tns_binds_t *bind_rec;  /* ... and the cursor's record of them */
 	uint32_t lob_op;        /* TTI_LOBOPS operation */
 	uint32_t lob_locator_len; /* ... its source locator length */
 	bool lob_amount;        /* ... whether it sent an amount */
@@ -3415,7 +3421,7 @@ static int dissect_tns_bind_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 /* Decode the TTI_RXD value rows of a bind section - one row per
  * execution - with each value typed by cols[]. Returns the new offset. */
-static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const tns_column_t *cols, uint32_t count, bool plsql)
+static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const tns_column_t *cols, uint32_t count, bool plsql, const uint8_t *dirs)
 {
 	int rownum = 0;
 
@@ -3437,6 +3443,9 @@ static int dissect_tns_bind_rows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				&& tvb_reported_length_remaining(tvb, offset) > 0; i++ )
 			{
 				bool late = !plsql && tns_is_long_bind(&cols[i]);
+				/* a re-executed block sends no value for an OUT bind */
+				if ( dirs && dirs[i] == TNS_BIND_DIR_OUTPUT )
+					continue;
 				if ( late == (pass == 1) )
 					offset = dissect_tns_bind_value(tvb, pinfo, row_tree, offset, &cols[i], i + 1, false);
 			}
@@ -5527,6 +5536,10 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					ctx->out_call = call;
 					ctx->bind_dirs = tvb_memdup(pinfo->pool, tvb, iov_start, num_binds);
 					ctx->walk = true;
+					/* Only this reply says which of a block's binds are
+					 * OUT; its re-executes need to know. */
+					if ( !PINFO_FD_VISITED(pinfo) && call->bind_rec && call->bind_rec->plsql )
+						call->bind_rec->dirs = (uint8_t *)tvb_memdup(wmem_file_scope(), tvb, iov_start, num_binds);
 				}
 			}
 			break;
@@ -5639,6 +5652,20 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 			if ( is_request )
 				break;
+
+			if ( !ctx->bind_dirs )
+			{
+				/* A PL/SQL block's re-execute is answered with no IOV:
+				 * each iteration's OUT values come as a TTI_RXD of their
+				 * own, read by the directions its first execute got. */
+				const tns_call_t *rc = tns_answered_call(pinfo);
+				if ( rc && (rc->func == TTI_REEXECUTE || rc->func == TTI_REEXECUTE_AND_FETCH)
+					&& rc->binds && rc->bind_rec && rc->bind_rec->plsql && rc->bind_rec->dirs )
+				{
+					ctx->out_call = rc;
+					ctx->bind_dirs = rc->bind_rec->dirs;
+				}
+			}
 
 			if ( ctx->bind_dirs )
 			{
@@ -5949,9 +5976,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 
 					binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 						ett_tns_binds, &binds_item, "Binds");
-					/* RETURNING ... INTO binds send no value */
+					/* RETURNING ... INTO binds send no value, nor does a
+					 * block's OUT bind */
 					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols,
-						binds->count - binds->num_return, binds->plsql);
+						binds->count - binds->num_return, binds->plsql,
+						binds->plsql ? binds->dirs : NULL);
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
 				if ( call && binds )
@@ -5959,6 +5988,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					call->num_binds = binds->count;
 					call->num_return = binds->num_return;
 					call->binds = binds->cols;
+					call->bind_rec = binds;
 				}
 			}
 			else if ( oci_id == TTI_ALL8 && tvb_bytes_exist(tvb, fun_start + TNS_OCI_ALL8_IND, 8)
@@ -6242,6 +6272,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							call->num_binds = binds->count;
 							call->num_return = binds->num_return;
 							call->binds = binds->cols;
+							call->bind_rec = binds;
 						}
 						proto_item *binds_item;
 						proto_tree *binds_tree;
@@ -6250,7 +6281,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						binds_tree = proto_tree_add_subtree(data_tree, tvb, offset, -1,
 							ett_tns_binds, &binds_item, "Binds");
 						offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, binds->cols,
-							binds->count - binds->num_return, binds->plsql);
+							binds->count - binds->num_return, binds->plsql, NULL);
 						proto_item_set_len(binds_item, offset - binds_start);
 					}
 				}
@@ -6308,6 +6339,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 						binds->num_return = num_return;
 						binds->plsql = !(options & TNS_EXEC_OPTION_NOT_PLSQL);
 						binds->cols = bcols;
+						if ( call )
+							call->bind_rec = binds;
 						if ( cursor != 0 )
 							wmem_map_insert(tns_info->cursor_binds, GUINT_TO_POINTER(cursor), binds);
 						else
@@ -6318,7 +6351,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					 * column (an ordinary execute sends one row, executemany
 					 * sends N), decoded and rendered by the bind's type. */
 					offset = dissect_tns_bind_rows(tvb, pinfo, binds_tree, offset, bcols, bind_count - num_return,
-						!(options & TNS_EXEC_OPTION_NOT_PLSQL));
+						!(options & TNS_EXEC_OPTION_NOT_PLSQL), NULL);
 					proto_item_set_len(binds_item, offset - binds_start);
 				}
 

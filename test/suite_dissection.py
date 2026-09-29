@@ -3166,6 +3166,28 @@ class TestDissectTns:
         assert binds[:2] == ['c102', 'c103'] and len(binds) == 3, rows[3]
         assert all(r[4] == '' for r in rows), rows
 
+    def test_tns_plsql_reexec(self, cmd_tshark, capture_file, test_env):
+        '''A PL/SQL block's bind directions, reported only in the reply to
+        its first execute, are remembered against its cursor: a re-execute
+        sends no value for the OUT bind, and each iteration's OUT value
+        comes back in a TTI_RXD of its own, with no IOV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_plsql_reexec.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_bind.value',
+            '-e', 'tns.data_bind.actual_len',
+            '-e', 'tns.data_oer.cursor_id',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['6869,c106,fd01', '', '', ''],
+            ['c107', '0', '3', ''],
+            ['796f,c115,6f6b,c111', '', '', ''],
+            ['c116,c112', '0,0', '3', ''],
+        ], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
