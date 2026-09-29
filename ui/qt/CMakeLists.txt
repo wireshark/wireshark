@@ -93,6 +93,7 @@ set(WIRESHARK_MANAGER_HEADERS
 )
 
 set(WIRESHARK_UTILS_HEADERS
+	utils/byte_view_text_cells.h
 	utils/color_utils.h
 	utils/data_printer.h
 	utils/field_information.h
@@ -442,6 +443,7 @@ else()
 endif()
 
 set(WIRESHARK_UTILS_SRCS
+	utils/byte_view_text_cells.cpp
 	utils/color_utils.cpp
 	utils/data_printer.cpp
 	utils/field_information.cpp
