@@ -2591,6 +2591,24 @@ class TestDissectTns:
         assert rows[0][0] == '0x00000013,0x00000004', rows[0]
         assert rows[0][1] == '1476' and rows[0][2].startswith('ORA-01476'), rows[0]
 
+    def test_tns_oer_server_fv(self, cmd_tshark, capture_file, test_env):
+        '''The status block's SQL type and checksum follow the server's
+        release, not the negotiated field version: a 23ai server sends them
+        to a session that settled on 12.1, and the message after them
+        decodes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oer_server_fv.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_oer.err_code',
+            '-T', 'fields',
+            '-e', 'tns.data_oer.err_num',
+            '-e', 'tns.data_oer.sql_type',
+            '-e', 'tns.data_oer.message',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['1722', '0', 'ORA-01722: invalid number', '']], rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

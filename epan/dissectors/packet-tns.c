@@ -1184,6 +1184,9 @@ typedef struct _tns_conv_info_t {
 	/* The TTC field version the client and server settled on, from the
 	 * client's TTI_DTY; 0 until seen. */
 	uint8_t field_version;
+	/* The TTC field version the server offered in its TTI_PRO reply,
+	 * which can be higher; 0 until seen. */
+	uint8_t server_field_version;
 	/* Native network encryption: the server picked an algorithm, and
 	 * the frame of the client's last negotiation packet, after which the
 	 * data packets are encrypted. */
@@ -1209,6 +1212,8 @@ typedef struct _tns_conv_info_t {
 #define TNS_PROTO_DATA_FV       5
 /* p_add_proto_data key for whether a packet is encrypted. */
 #define TNS_PROTO_DATA_ENCRYPTED 6
+/* p_add_proto_data key for the field version the server offered. */
+#define TNS_PROTO_DATA_SERVER_FV 7
 
 /* Execute flag asking for the rows each array DML iteration affected. */
 #define TNS_EXEC_FLAGS_DML_ROWCOUNTS 0x4000
@@ -1241,6 +1246,20 @@ static unsigned tns_field_version(packet_info *pinfo)
 
 	unsigned fv = tns_get_conv_info(pinfo)->field_version;
 	p_add_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_FV, GUINT_TO_POINTER(fv + 1));
+	return fv;
+}
+
+/* The TTC field version the server offered on the packet's connection -
+ * its own release, before the client lowered it - or 0 when the
+ * negotiation was not seen. Stored per packet on the first pass. */
+static unsigned tns_server_field_version(packet_info *pinfo)
+{
+	void *stored = p_get_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_SERVER_FV);
+	if ( stored || PINFO_FD_VISITED(pinfo) )
+		return stored ? GPOINTER_TO_UINT(stored) - 1 : 0;
+
+	unsigned fv = tns_get_conv_info(pinfo)->server_field_version;
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_tns, TNS_PROTO_DATA_SERVER_FV, GUINT_TO_POINTER(fv + 1));
 	return fv;
 }
 
@@ -3238,8 +3257,13 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				uint8_t caps_len = tvb_get_uint8(tvb, offset);
 				proto_tree_add_item(data_tree, hf_tns_data_setp_compile_caps, tvb, offset, 1 + caps_len, ENC_NA);
 				if ( caps_len > TNS_CCAP_FIELD_VERSION )
+				{
 					proto_tree_add_item(data_tree, hf_tns_data_setp_field_version, tvb,
 						offset + 1 + TNS_CCAP_FIELD_VERSION, 1, ENC_NA);
+					if ( !PINFO_FD_VISITED(pinfo) )
+						tns_get_conv_info(pinfo)->server_field_version =
+							tvb_get_uint8(tvb, offset + 1 + TNS_CCAP_FIELD_VERSION);
+				}
 				offset += 1 + caps_len;
 				caps_len = tvb_get_uint8(tvb, offset);
 				proto_tree_add_item(data_tree, hf_tns_data_setp_runtime_caps, tvb, offset, 1 + caps_len, ENC_NA);
@@ -3440,8 +3464,12 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			/* From 12.1 the block goes on with the error number and row
 			 * count at their full widths (a ub4 and a ub8), and from 20.1
 			 * with the SQL type and a server checksum. The extended error
-			 * number is the one that says whether a message follows. */
+			 * number is the one that says whether a message follows.
+			 * The first pair follows the negotiated field version, the
+			 * second the server's own release: a 21c or later server
+			 * sends it even to a session that settled on 12.1 or 19c. */
 			unsigned fv = tns_field_version(pinfo);
+			unsigned server_fv = tns_server_field_version(pinfo);
 			if ( fv >= TNS_FV_12_1 )
 			{
 				uint64_t rows = 0;
@@ -3452,7 +3480,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset += get_ub8_custom(tvb, offset, &rows);
 				proto_tree_add_uint64(oer_tree, hf_tns_data_oer_rowcount_ext, tvb, start, offset - start, rows);
 			}
-			if ( fv >= TNS_FV_20_1 )
+			if ( fv >= TNS_FV_12_1 && (server_fv ? server_fv : fv) >= TNS_FV_20_1 )
 			{
 				int start = offset;
 				offset += get_sb4_custom(tvb, offset, &v);
