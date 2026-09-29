@@ -207,3 +207,21 @@ class TestDissectOpcua:
         assert '\t温度\topcua.custom_field.Weather.field0\tFT_DOUBLE\t' in stdout
         assert '\ta-b\topcua.custom_field.Clash.a_b\tFT_STRING\t' in stdout
         assert '\ta_b\topcua.custom_field.Clash.a_b_2\tFT_UINT32\t' in stdout
+
+    def test_opcua_abort_message(self, cmd_tshark, capture_file, test_env, features):
+        '''An Abort chunk (MSG, chunk type A) has its Error and Reason after
+        the sequence header, and the message header is shown once.
+
+        test/captures/opcua-abort-message.pcapng (TCP port 48020) has two
+        Abort messages with the Error BadResponseTooLarge (0x80b90000).'''
+        if not features.have_plugins:
+            pytest.skip('Test requires binary plugin support.')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'opcua.tcp.port:48020',
+                '-r', capture_file('opcua-abort-message.pcapng'),
+                '-Y', 'opcua.transport.chunk == "A"',
+                '-Tfields',
+                '-eopcua.transport.scid',
+                '-eopcua.transport.error',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '3510954351\t0x80b90000\n3510954352\t0x80b90000\n'
