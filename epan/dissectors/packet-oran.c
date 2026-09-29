@@ -3510,7 +3510,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     num_trx = pref_num_bf_antennas;
                 }
 
+                bool non_zero_weights_seen = false;
                 int bit_offset = offset*8;
+                int offset_before_weights = offset;
 
                 for (unsigned n=0; n < num_trx; n++) {
                     /* Create antenna subtree */
@@ -3525,6 +3527,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* I value */
                     /* Get bits, and convert to float. */
                     uint32_t bits = tvb_get_bits32(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
+                    if (bits) {
+                        non_zero_weights_seen = true;
+                    }
                     float value = decompress_value(bits, bfwcomphdr_comp_meth, bfwcomphdr_iq_width, exponent,
                                                    NULL /* no ModCompr */, 0 /* RE */);
                     /* Add to tree. */
@@ -3539,6 +3544,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     /* Q value */
                     /* Get bits, and convert to float. */
                     bits = tvb_get_bits32(tvb, bit_offset, bfwcomphdr_iq_width, ENC_BIG_ENDIAN);
+                    if (bits) {
+                        non_zero_weights_seen = true;
+                    }
+
                     value = decompress_value(bits, bfwcomphdr_comp_meth, bfwcomphdr_iq_width, exponent,
                                              NULL /* no ModCompr */, 0 /* RE */);
                     /* Add to tree. */
@@ -3550,9 +3559,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                     proto_item_append_text(bfw_ti, ")");
                     proto_item_set_len(bfw_ti, (bit_offset+7)/8  - bfw_offset);
                 }
+
                 /* Need to round to next byte */
                 offset = (bit_offset+7)/8;
 
+                if (!non_zero_weights_seen) {
+                    proto_tree_add_item(extension_tree, hf_oran_bundle_weights_all_zero, tvb,
+                                        offset_before_weights, offset-offset_before_weights, ENC_NA);
+                }
                 break;
             }
 
@@ -5892,7 +5906,7 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         proto_item_append_text(udcomphdr_ti, " (ignored)");
         if (hdr_iq_width || ud_comp_meth) {
             if (cplane) {
-                /* Only ignore DL for cplane */
+                /* Only ignoring in DL for cplane */
                 expert_add_info_format(pinfo, udcomphdr_ti, &ei_oran_udpcomphdr_should_be_zero,
                                        "udCompHdr in C-Plane for DL should be 0 - found 0x%02x",
                                        tvb_get_uint8(tvb, offset));
@@ -5904,7 +5918,6 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                        tvb_get_uint8(tvb, offset));
                 */
             }
-
         }
     }
     return offset+1;
@@ -6420,7 +6433,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         case SEC_C_UE_SCHED:     /* Section Type 5 */
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
-                                       true, direction==0 && pref_override_ul_compression, /* ignore for DL or if using mplane for UL settings */
+                                       true, direction==1 || pref_override_ul_compression, /* ignore for DL or if using mplane for UL settings */
                                        &bit_width, &comp_meth, &comp_meth_ti, tap_info);
             /* reserved (8 bits) */
             add_reserved_field(section_tree, hf_oran_reserved_8bits, tvb, offset, 1);
@@ -6442,7 +6455,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             offset += 2;
             /* udCompHdr */
             offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset,
-                                       true, direction==0 && pref_override_ul_compression, /* ignore for DL or if using mplane for UL settings */
+                                       true, direction==1 || pref_override_ul_compression, /* ignore for DL or if using mplane for UL settings */
                                        &bit_width, &comp_meth, &comp_meth_ti, tap_info);
             break;
 
@@ -7567,11 +7580,13 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
 
     /* udCompHdr (if preferences indicate will be present) */
     bool included = (includeUdCompHeader==1) ||   /* 1 means present.. */
-        (includeUdCompHeader==2 && udcomphdr_appears_present(state, direction, tvb, offset));
+                    (includeUdCompHeader==2 && udcomphdr_appears_present(state, direction, tvb, offset)); /* heuristic */
     if (included) {
         /* 7.5.2.10 */
         /* Extract these values to inform how wide IQ samples in each PRB will be. */
-        offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, false, direction == 0, sample_bit_width_ptr,
+        offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, false,
+                                   direction == 0 && pref_override_ul_compression, /* Ignore UL if configured to */
+                                   sample_bit_width_ptr,
                                    &compression, &ud_comp_meth_item, tap_info);
 
         /* Not part of udCompHdr */
@@ -7603,8 +7618,9 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
             proto_item_set_generated(cplane_ti);
         }
 
+        /* Still adding these values to tap */
         tap_info->compression_methods |= (1 << compression);
-        tap_info->compression_width = *sample_bit_width_ptr;
+        tap_info->compression_width = MAX(tap_info->compression_width, *sample_bit_width_ptr);
     }
 
     /* Not supported! TODO: other places where comp method is looked up (e.g., bfw?) */
@@ -10417,6 +10433,7 @@ proto_register_oran(void)
             NULL, 0x0,
             "Not all of the REs in this PRB are zero", HFILL}
         },
+        /* TODO: rename, as now used in ext1 too, which doesn't really have bundles? */
         { &hf_oran_bundle_weights_all_zero,
           { "Bundle Weights all zero", "oran_fh_cus.zero-bundle",
             FT_NONE, BASE_NONE,

@@ -226,7 +226,7 @@ oran_stat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     row->num_res_zero += si->num_res_zero;
 
     /* Compression settings */
-    row->compression_width = si->compression_width;
+    row->compression_width = MAX(row->compression_width, si->compression_width);
     row->compression_methods |= si->compression_methods;
 
     /* Count beams */
@@ -428,7 +428,6 @@ oran_stat_draw(void *phs)
                     method = comp_names[c];
                     break;
                 }
-
             }
 
             printf(" %8u %10u %10u %10u %16s %12u\n",
