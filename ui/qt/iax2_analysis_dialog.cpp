@@ -253,9 +253,9 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
     // We keep our temp files open for the lifetime of the dialog. The GTK+
     // UI opens and closes at various points.
-    QString tempname = QStringLiteral("%1/wireshark_iax2_f").arg(QDir::tempPath());
+    QString tempname = QStringLiteral("%1/wireshark_iax2_f").arg(tempPath());
     fwd_tempfile_ = new QTemporaryFile(tempname, this);
-    tempname = QStringLiteral("%1/wireshark_iax2_r").arg(QDir::tempPath());
+    tempname = QStringLiteral("%1/wireshark_iax2_r").arg(tempPath());
     rev_tempfile_ = new QTemporaryFile(tempname, this);
 
     if (!fwd_tempfile_->open() || fwd_tempfile_->error() != QFile::NoError || !rev_tempfile_->open() || rev_tempfile_->error() != QFile::NoError) {

@@ -125,6 +125,10 @@ private:
     InterfaceTreeModel *source_model_;
     InterfaceTreeDelegate *interface_item_delegate_;
 
+    /* The temporary directory the dialog opened with, which may have come
+     * from --temp-dir rather than from the preferences. */
+    QString initial_temp_dir_;
+
     /* Proxy model column indices. Fixed for the dialog's lifetime. */
     int col_extcap_;
     int col_interface_;

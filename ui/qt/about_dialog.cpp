@@ -36,8 +36,6 @@
 #include "wsutil/version_info.h"
 #include "wsutil/path_config.h"
 
-#include "ui/capture_globals.h"
-
 #include "extcap.h"
 
 #include <ui/qt/main_window.h>
@@ -179,7 +177,7 @@ FolderListModel::FolderListModel(QObject * parent):
     appendRow(QStringList() << tr("\"File\" dialog location") << get_open_dialog_initial_dir() << tr("Capture files"));
 
     /* temp */
-    appendRow(QStringList() << tr("Temp") << (global_capture_opts.temp_dir && global_capture_opts.temp_dir[0] ? global_capture_opts.temp_dir : g_get_tmp_dir())
+    appendRow(QStringList() << tr("Temp") << tempPath()
                             << tr("Untitled capture files"));
 
     /* pers conf */

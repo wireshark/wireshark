@@ -155,6 +155,7 @@ capture_opts_init(capture_options *capture_opts, GList *(*get_iface_list)(int *,
     capture_opts->print_file_names                = false;
     capture_opts->print_name_to                   = NULL;
     capture_opts->temp_dir                        = NULL;
+    capture_opts->temp_dir_from_prefs             = false;
     capture_opts->compress_type                   = NULL;
     capture_opts->closed_msg                      = NULL;
     capture_opts->extcap_terminate_id             = 0;
@@ -315,7 +316,19 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
     ws_log(log_domain, log_level, "AutostopWrittenPackets (%u) : %u", capture_opts->has_autostop_written_packets, capture_opts->autostop_written_packets);
     ws_log(log_domain, log_level, "AutostopFilesize(%u) : %u (KB)", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
     ws_log(log_domain, log_level, "AutostopDuration(%u) : %.3f", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
-    ws_log(log_domain, log_level, "Temporary Directory  : %s", capture_opts->temp_dir && capture_opts->temp_dir[0] ? capture_opts->temp_dir : g_get_tmp_dir());
+    ws_log(log_domain, log_level, "Temporary Directory  : %s", capture_opts_get_temp_dir(capture_opts));
+}
+
+const char *
+capture_opts_get_temp_dir(const capture_options *capture_opts)
+{
+    if (capture_opts != NULL && capture_opts->temp_dir != NULL &&
+        capture_opts->temp_dir[0] != '\0') {
+        return capture_opts->temp_dir;
+    }
+
+    /* Nothing was asked for, so let the system decide. */
+    return g_get_tmp_dir();
 }
 
 /*
@@ -1229,7 +1242,10 @@ capture_opts_add_opt(const char* app_env_var_prefix, capture_options *capture_op
         capture_opts->compress_type = g_strdup(optarg_str_p);
         break;
     case LONGOPT_CAPTURE_TMPDIR:  /* capture temporary directory */
-        if (capture_opts->temp_dir) {
+        /* A directory that only came from the preferences is a default,
+           not a choice the user made on this command line, so it does not
+           count as the one permitted use of the option. */
+        if (capture_opts->temp_dir && !capture_opts->temp_dir_from_prefs) {
             cmdarg_err("--temp-dir can be set only once");
             return 1;
         }
@@ -1250,7 +1266,9 @@ capture_opts_add_opt(const char* app_env_var_prefix, capture_options *capture_op
             return 1;
         }
 #endif /* S_IRWXU */
+        g_free(capture_opts->temp_dir);
         capture_opts->temp_dir = g_strdup(optarg_str_p);
+        capture_opts->temp_dir_from_prefs = false;
         break;
     case LONGOPT_PROCESS_INFO:  /* record the processes that sent or received each packet */
         if (!ws_process_lookup_supported()) {

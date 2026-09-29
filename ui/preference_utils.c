@@ -69,6 +69,22 @@ prefs_to_capture_opts(capture_options* capture_opts _U_)
     capture_opts->show_info                    = prefs.capture_show_info;
     capture_opts->real_time_mode               = prefs.capture_real_time;
     capture_opts->update_interval              = prefs.capture_update_interval;
+
+    /* An empty preference means "no preference". Leave the temporary
+       directory unset so the system default applies, which is what
+       create_tempfile() does when handed a null directory. This runs
+       again whenever the preferences change; a directory given with
+       --temp-dir is a choice for this run, and a change to the
+       preferences does not replace it. */
+    if (capture_opts->temp_dir == NULL || capture_opts->temp_dir_from_prefs) {
+        g_free(capture_opts->temp_dir);
+        capture_opts->temp_dir = NULL;
+        capture_opts->temp_dir_from_prefs = false;
+        if (prefs.capture_temp_dir != NULL && prefs.capture_temp_dir[0] != '\0') {
+            capture_opts->temp_dir = g_strdup(prefs.capture_temp_dir);
+            capture_opts->temp_dir_from_prefs = true;
+        }
+    }
 #endif /* HAVE_LIBPCAP */
 }
 

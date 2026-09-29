@@ -59,6 +59,7 @@
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/models/sparkline_delegate.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
+#include <ui/qt/models/pref_models.h>
 
 // To do:
 // - Set a size hint for item delegates.
@@ -185,6 +186,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
 
     ui->tempDirLineEdit->setPlaceholderText(g_get_tmp_dir());
     ui->tempDirLineEdit->setText(global_capture_opts.temp_dir);
+    initial_temp_dir_ = ui->tempDirLineEdit->text();
 
     // Changes in interface selections or capture filters should be propagated
     // to the main welcome screen where they will be applied to the global
@@ -808,11 +810,20 @@ bool CaptureOptionsDialog::saveOptionsToPreferences(capture_options* capture_opt
     }
 
     QString tempdir = ui->tempDirLineEdit->text();
+    g_free(capture_opts->temp_dir);
     if (tempdir.length() > 0) {
         capture_opts->temp_dir = qstring_strdup(tempdir);
     }
     else {
         capture_opts->temp_dir = NULL;
+    }
+    /* Remember a directory the user chose here as the capture.temp_dir
+     * preference. One the dialog only showed - from --temp-dir, say -
+     * stays a choice for this run. */
+    if (tempdir != initial_temp_dir_) {
+        prefs_set_string_value(prefFromPrefPtr(&prefs.capture_temp_dir), qUtf8Printable(tempdir), pref_current);
+        capture_opts->temp_dir_from_prefs = true;
+        initial_temp_dir_ = tempdir;
     }
 
     capture_opts->has_ring_num_files = ui->RbCheckBox->isChecked();

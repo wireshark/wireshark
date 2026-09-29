@@ -1412,6 +1412,24 @@ main(int argc, char *argv[])
     prefs_p = epan_load_settings();
     prefs_loaded = true;
 
+#ifdef HAVE_LIBPCAP
+    /* Pick up the temporary directory from the preferences. This has to
+       happen before the command line is parsed below, so that --temp-dir
+       overrides the preference rather than the other way round.
+     *
+     * The GUI gets this from prefs_to_capture_opts(), but TShark cannot
+     * link ui/preference_utils.c - it pulls in simple_dialog() and the
+     * rest of the GUI - so the one field TShark cares about is copied
+     * here instead. An empty preference means "no preference": leave the
+     * directory unset so the system default applies.
+     */
+    if (prefs_p->capture_temp_dir != NULL && prefs_p->capture_temp_dir[0] != '\0') {
+        g_free(global_capture_opts.temp_dir);
+        global_capture_opts.temp_dir = g_strdup(prefs_p->capture_temp_dir);
+        global_capture_opts.temp_dir_from_prefs = true;
+    }
+#endif
+
     cap_file_init(&cfile);
 
     /* Print format defaults to this. */

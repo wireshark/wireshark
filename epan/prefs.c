@@ -3799,6 +3799,12 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.capture_update_interval);
 
+    prefs_register_directory_preference(capture_module, "temp_dir", "Temporary directory",
+        "Directory in which to write temporary capture files. Leave empty to use the "
+        "system default (the TMPDIR environment variable, or /tmp). A directory chosen in "
+        "the Capture Options dialog is saved here. Overridden by the --temp-dir option.",
+        (const char **)&prefs.capture_temp_dir);
+
     prefs_register_bool_preference(capture_module, "no_interface_load", "Don't load interfaces on startup",
         "Don't automatically load capture interfaces on startup", &prefs.capture_no_interface_load);
 

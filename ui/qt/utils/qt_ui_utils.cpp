@@ -25,6 +25,10 @@
 #include <wsutil/value_string.h>
 
 #include <ui/recent.h>
+#ifdef HAVE_LIBPCAP
+#include <ui/capture_opts.h>
+#include <ui/capture_globals.h>
+#endif
 #include <ui/util.h>
 #include "ui/ws_ui_util.h"
 
@@ -429,3 +433,12 @@ bool filePathsMatch(const QString &path1, const QString &path2)
     return abs1.compare(abs2, cs) == 0;
 }
 
+QString tempPath()
+{
+#ifdef HAVE_LIBPCAP
+    /* One place decides this, so the C and Qt sides cannot disagree. */
+    return QString(capture_opts_get_temp_dir(&global_capture_opts));
+#else
+    return QDir::tempPath();
+#endif
+}

@@ -338,6 +338,11 @@ typedef struct capture_options_tag {
                                                    files as we close them */
     char              *print_name_to;         /**< output file name */
     char              *temp_dir;              /**< temporary directory path */
+    bool               temp_dir_from_prefs;   /**< true if temp_dir came from the
+                                                   capture.temp_dir preference rather
+                                                   than from --temp-dir or the Capture
+                                                   Options dialog, and so may be
+                                                   overridden by either */
 
     /* internally used (don't touch from outside) */
     bool               output_to_pipe;        /**< save_file is a pipe (named or stdout) */
@@ -395,6 +400,19 @@ capture_opts_add_opt(const char* app_env_var_prefix, capture_options *capture_op
  */
 extern void
 capture_opts_log(const char *domain, enum ws_log_level level, capture_options *capture_opts);
+
+/**
+ * @brief Get the directory in which to write temporary capture files.
+ *
+ * Returns the directory the user asked for - from --temp-dir, the Capture
+ * Options dialog, or the capture.temp_dir preference - and the system
+ * default when none of those chose one. Never returns NULL.
+ *
+ * @param capture_opts Pointer to the capture options structure, which may be NULL.
+ * @return The directory. Owned by the callee; do not free.
+ */
+extern const char *
+capture_opts_get_temp_dir(const capture_options *capture_opts);
 
 /**
  * @brief Lists available file types for capture options.

@@ -160,6 +160,34 @@
     </layout>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="captureTempDir">
+     <item>
+      <widget class="QLabel" name="captureTempDirLabel">
+       <property name="text">
+        <string>Temporary directory</string>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory in which to write temporary capture files. Leave empty to use the system default. Overridden by the --temp-dir option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="captureTempDirLineEdit">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory in which to write temporary capture files. Leave empty to use the system default. Overridden by the --temp-dir option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="captureTempDirBrowseButton">
+       <property name="text">
+        <string>Browse…</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QCheckBox" name="captureNoInterfaceLoad">
      <property name="text">
       <string>Don't load interfaces on startup</string>

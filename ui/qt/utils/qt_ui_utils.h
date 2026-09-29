@@ -320,6 +320,19 @@ void storeLastDir(QString dir);
  */
 bool filePathsMatch(const QString &path1, const QString &path2);
 
+/**
+ * Directory in which to create temporary files.
+ *
+ * The directory the user asked for - from --temp-dir, the Capture Options
+ * dialog, or the capture.temp_dir preference - and QDir::tempPath() when
+ * none of those chose one. Use this rather than QDir::tempPath() for any
+ * scratch file whose size follows the capture, so that a user who has
+ * pointed Wireshark at a roomier disk actually gets it.
+ *
+ * @return The directory, without a trailing separator.
+ */
+QString tempPath();
+
 #endif /* __QT_UI_UTILS__H__ */
 
 // XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration

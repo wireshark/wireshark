@@ -32,6 +32,7 @@
 
 #include <epan/prefs-int.h>
 #include <uat_dialog.h>
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     QFrame(parent),
@@ -58,6 +59,7 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     }
     pref_real_time_ = prefFromPrefPtr(&prefs.capture_real_time);
     pref_update_interval_ = prefFromPrefPtr(&prefs.capture_update_interval);
+    pref_temp_dir_ = prefFromPrefPtr(&prefs.capture_temp_dir);
     pref_no_interface_load_ = prefFromPrefPtr(&prefs.capture_no_interface_load);
     pref_no_extcap_ = prefFromPrefPtr(&prefs.capture_no_extcap);
 
@@ -151,6 +153,8 @@ void CapturePreferencesFrame::updateWidgets()
     ui->captureUpdateIntervalLineEdit->setText(QString::number(prefs_get_uint_value(pref_update_interval_, pref_stashed)));
     ui->captureUpdateIntervalLineEdit->setPlaceholderText(QString::number(prefs_get_uint_value(pref_update_interval_, pref_default)));
     ui->captureUpdateIntervalLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
+    ui->captureTempDirLineEdit->setText(prefs_get_string_value(pref_temp_dir_, pref_stashed));
+    ui->captureTempDirLineEdit->setPlaceholderText(g_get_tmp_dir());
 #endif // HAVE_LIBPCAP
     ui->captureNoInterfaceLoad->setChecked(prefs_get_bool_value(pref_no_interface_load_, pref_stashed));
     ui->captureNoExtcapCheckBox->setChecked(prefs_get_bool_value(pref_no_extcap_, pref_stashed));
@@ -206,6 +210,21 @@ void CapturePreferencesFrame::on_captureUpdateIntervalLineEdit_textChanged(const
         ui->captureUpdateIntervalLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
     }
     prefs_set_uint_value(pref_update_interval_, new_uint, pref_stashed);
+}
+
+void CapturePreferencesFrame::on_captureTempDirLineEdit_textEdited(const QString &new_dir)
+{
+    prefs_set_string_value(pref_temp_dir_, qUtf8Printable(new_dir), pref_stashed);
+}
+
+void CapturePreferencesFrame::on_captureTempDirBrowseButton_clicked()
+{
+    QString specified_dir = WiresharkFileDialog::getExistingDirectory(this, tr("Temporary Directory"));
+
+    if (specified_dir.isEmpty()) return;
+
+    ui->captureTempDirLineEdit->setText(specified_dir);
+    prefs_set_string_value(pref_temp_dir_, qUtf8Printable(specified_dir), pref_stashed);
 }
 
 void CapturePreferencesFrame::on_captureNoInterfaceLoad_toggled(bool checked)

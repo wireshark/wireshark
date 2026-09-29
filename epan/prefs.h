@@ -306,6 +306,7 @@ typedef struct _e_prefs {
     capture_process_info_e capture_process_info; /**< What to record of the processes that packets belong to */
     bool          capture_real_time;            /**< If true, update the packet list in real time during capture */
     unsigned      capture_update_interval;      /**< Interval in milliseconds between packet list updates during capture */
+    char         *capture_temp_dir;             /**< Directory for temporary capture files; empty means the system default */
 
     /* Aggregation */
     GList        *aggregation_fields;           /**< List of field names used for packet aggregation */

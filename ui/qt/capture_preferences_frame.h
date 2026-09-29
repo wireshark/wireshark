@@ -88,6 +88,17 @@ private slots:
     void on_captureUpdateIntervalLineEdit_textChanged(const QString &new_str);
 
     /**
+     * @brief Slot triggered when the temporary directory is edited.
+     * @param new_dir The new directory; empty for the system default.
+     */
+    void on_captureTempDirLineEdit_textEdited(const QString &new_dir);
+
+    /**
+     * @brief Slot triggered when the temporary directory Browse button is clicked.
+     */
+    void on_captureTempDirBrowseButton_clicked();
+
+    /**
      * @brief Slot triggered when the disable interface loading checkbox is toggled.
      * @param checked True if checked, false otherwise.
      */
@@ -123,6 +134,9 @@ private:
 
     /** Preference setting for the UI update interval during capture. */
     pref_t *pref_update_interval_;
+
+    /** Preference setting for the directory of temporary capture files. */
+    pref_t *pref_temp_dir_;
 
     /** Preference setting to skip interface loading. */
     pref_t *pref_no_interface_load_;

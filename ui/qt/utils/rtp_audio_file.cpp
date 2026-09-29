@@ -31,6 +31,7 @@
 
 #include "rtp_audio_file.h"
 #include <ws_attributes.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 RtpAudioFile::RtpAudioFile(bool use_disk_for_temp, bool use_disk_for_frames):
       real_pos_(0)
@@ -45,7 +46,7 @@ RtpAudioFile::RtpAudioFile(bool use_disk_for_temp, bool use_disk_for_frames):
 
     tempname = "memory";
     if (use_disk_for_temp) {
-        tempname = QStringLiteral("%1/wireshark_rtp_stream").arg(QDir::tempPath());
+        tempname = QStringLiteral("%1/wireshark_rtp_stream").arg(tempPath());
         sample_file_ = new QTemporaryFile(tempname, this);
     } else {
         sample_file_ = new QBuffer(this);
@@ -59,7 +60,7 @@ RtpAudioFile::RtpAudioFile(bool use_disk_for_temp, bool use_disk_for_frames):
 
     tempname = "memory";
     if (use_disk_for_frames) {
-        tempname = QStringLiteral("%1/wireshark_rtp_frames").arg(QDir::tempPath());
+        tempname = QStringLiteral("%1/wireshark_rtp_frames").arg(tempPath());
         sample_file_frame_ = new QTemporaryFile(tempname, this);
     } else {
         sample_file_frame_ = new QBuffer(this);
