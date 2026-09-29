@@ -3142,6 +3142,30 @@ class TestDissectTns:
             ['', '0', ''],
         ], rows
 
+    def test_tns_fv_12_1(self, cmd_tshark, capture_file, test_env):
+        '''A session at field version 12.1 already uses the 12c forms: a
+        one-byte describe scale, the array flag in the OAC's flag byte,
+        ub4 chunk lengths, and no trailing byte after a CLOB bind's
+        descriptor; the oaccolid waits for 12.2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_fv_12_1.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_col.scale',
+            '-e', 'tns.data_col.value',
+            '-e', 'tns.data_bind.num_elements',
+            '-e', 'tns.data_bind.value',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows[1][0] == '-127,0', rows[1]
+        values = rows[2][1].split(',')
+        assert values[0] == 'c102' and len(values[1]) // 2 == 304, rows[2]
+        assert rows[3][2] == '2', rows[3]
+        binds = rows[3][3].split(',')
+        assert binds[:2] == ['c102', 'c103'] and len(binds) == 3, rows[3]
+        assert all(r[4] == '' for r in rows), rows
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:

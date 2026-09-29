@@ -1645,13 +1645,13 @@ static int get_ub8_custom(tvbuff_t *tvb, int offset, uint64_t *result)
 }
 
 /* Walk the chunks of a chunked (0xFE) value, starting after the 0xFE:
- * (length, bytes) pairs until a zero length. A length is one byte up to
- * field version 12.1 and a variable-length ub4 from 12.2 on. The data is
+ * (length, bytes) pairs until a zero length. A length is one byte below
+ * field version 12.1 and a variable-length ub4 from 12.1 on. The data is
  * appended to strbuf as UTF-8 when strbuf is not NULL. Returns the bytes
  * consumed, the terminating zero included. */
 static int tns_chunks_len(tvbuff_t *tvb, packet_info *pinfo, int offset, wmem_strbuf_t *strbuf)
 {
-	bool ub4_lengths = tns_field_version(pinfo) >= TNS_FV_12_2;
+	bool ub4_lengths = tns_field_version(pinfo) >= TNS_FV_12_1;
 	int o = offset;
 
 	while ( tvb_reported_length_remaining(tvb, o) > 0 )
@@ -1678,7 +1678,7 @@ static int tns_chunks_len(tvbuff_t *tvb, packet_info *pinfo, int offset, wmem_st
 static const uint8_t *tns_dalc_bytes(tvbuff_t *tvb, packet_info *pinfo, int offset, int *len)
 {
 	uint8_t first = tvb_get_uint8(tvb, offset);
-	bool ub4_lengths = tns_field_version(pinfo) >= TNS_FV_12_2;
+	bool ub4_lengths = tns_field_version(pinfo) >= TNS_FV_12_1;
 	wmem_array_t *out;
 	int o;
 
@@ -2605,24 +2605,25 @@ static void tns_add_call_status_flags(proto_item *ti, tvbuff_t *tvb, int start, 
 /* Decode an OAC (Oracle Access Column) descriptor — the type/format core
  * shared by describe columns and bind descriptors. Fields
  * use the Oracle variable-length form (get_sb4_custom). From field version
- * 12.2 the scale is a single signed byte, where 11g sends a variable-length
- * sb4 (NUMBER's default -127 as 0x81 0x7f), and a ub4 oaccolid follows the
- * max size.
+ * 12.1 the scale is a single signed byte, where 11g sends a variable-length
+ * sb4 (NUMBER's default -127 as 0x81 0x7f), and the flag byte marks an
+ * array bind; from 12.2 a ub4 oaccolid also follows the max size.
  * When col is not NULL it receives the type and data length.
  * Returns the new offset. */
 static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, tns_column_t *col)
 {
 	int v = 0, start;
 	uint64_t u = 0;
-	bool fv_12_2 = tns_field_version(pinfo) >= TNS_FV_12_2;
+	unsigned fv = tns_field_version(pinfo);
+	bool fv_12_1 = fv >= TNS_FV_12_1, fv_12_2 = fv >= TNS_FV_12_2;
 
 	if ( col )
 		col->type = tvb_get_uint8(tvb, offset);
 	/* type (ub1) */
 	proto_tree_add_item(tree, hf_tns_data_col_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	/* flag (ub1); from 12.2 it marks an array bind */
-	if ( col && fv_12_2 )
+	/* flag (ub1); from 12.1 it marks an array bind */
+	if ( col && fv_12_1 )
 		col->is_array = (tvb_get_uint8(tvb, offset) & TNS_BIND_ARRAY) != 0;
 	offset += 1;
 	/* precision (sb1) */
@@ -2630,7 +2631,7 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 1;
 	/* scale (may be negative — NUMBER default is -127) */
 	start = offset;
-	if ( fv_12_2 )
+	if ( fv_12_1 )
 	{
 		v = (int8_t)tvb_get_uint8(tvb, offset);
 		offset += 1;
@@ -2649,9 +2650,9 @@ static int dissect_tns_oac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += get_sb4_custom(tvb, offset, &v);
 	if ( v > 0 )
 		proto_tree_add_uint(tree, hf_tns_data_col_max_elements, tvb, start, offset - start, v);
-	/* cont flags (ub8); below 12.2 they mark an array bind */
+	/* cont flags (ub8); below 12.1 they mark an array bind */
 	offset += get_ub8_custom(tvb, offset, &u);
-	if ( col && !fv_12_2 )
+	if ( col && !fv_12_1 )
 		col->is_array = (u & TNS_BIND_ARRAY) != 0;
 	/* type OID (bytes_with_length, skip) */
 	offset += get_field_with_length(tvb, pinfo, offset, NULL);
@@ -6272,14 +6273,15 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 							ett_tns_bind, &bind_item, "Bind %d: %s", i + 1,
 							val_to_str_const(btype, tns_data_types, "unknown"));
 						offset = dissect_tns_oac(tvb, pinfo, bind_tree, offset, &bcols[i]);
-						/* Below 12.2 the descriptor of a bind whose value
+						/* Below 12.1 the descriptor of a bind whose value
 						 * rides under a locator - a CLOB, BLOB, JSON or
-						 * VECTOR - still carries a trailing oaccolid byte;
-						 * from 12.2 every OAC does, and the OAC decoder
-						 * reads it. */
+						 * VECTOR - carries a trailing byte the others
+						 * lack; 12.1 drops it, and from 12.2 every OAC
+						 * carries an oaccolid, which the OAC decoder
+						 * reads. */
 						if ( (btype == TNS_DATATYPE_CLOB || btype == TNS_DATATYPE_BLOB
 							|| btype == TNS_DATATYPE_JSON || btype == TNS_DATATYPE_VECTOR)
-							&& tns_field_version(pinfo) < TNS_FV_12_2 )
+							&& tns_field_version(pinfo) < TNS_FV_12_1 )
 							offset += 1;
 						proto_item_set_len(bind_item, offset - b_start);
 					}
