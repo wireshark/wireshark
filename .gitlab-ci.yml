@@ -1264,15 +1264,17 @@ Visual Studio Code Analysis:
   script:
     - py -m venv sarif-tools.venv
     - sarif-tools.venv\Scripts\pip.exe install sarif-tools
-    - New-Item -Path C:\MinIO -Type "directory"
-    - Invoke-Webrequest -OutFile C:\MinIO\mc.exe https://dl.min.io/client/mc/release/windows-amd64/archive/mc.RELEASE.2025-08-13T08-35-41Z
-    - if ($( Get-FileHash -Algorithm SHA256 -Path C:\MinIO\mc.exe ).Hash -ne "C8DB13EBEDA31497F354C0E950809DB0AE9B2A2A69B8AFEE68C128C37300C157" ) { Exit 1 }
+    # https://github.com/minio/mc was archived in July 2026. As of this writing (September 2026), the Pigsty fork appears to be the most active.
+    - New-Item -Path C:\mcli -Type "directory"
+    - Invoke-Webrequest -OutFile C:\mcli\mcli.tar.gz https://github.com/pgsty/mc/releases/download/RELEASE.2026-09-16T00-00-00Z/mcli_20260916000000.0.0_windows_amd64.tar.gz
+    - if ($( Get-FileHash -Algorithm SHA256 -Path C:\mcli\mcli.tar.gz ).Hash -ne "24F90568CBB010FD792A96CC286B3505BB6A620DD2932F35DB556A4D0AC11E52" ) { Exit 1 }
+    - tar -C C:\mcli -xf C:\mcli\mcli.tar.gz
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
     - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 18 2026" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.slnx
     - $report = "visual-c++-analyze-" + (Get-Date -format "yyyy-MM-dd") + ".html"
     - sarif-tools.venv\Scripts\sarif html --output $report
-    - if (Test-Path env:MC_DESTINATION_ANALYSIS) { C:\MinIO\mc --quiet cp "$report" "$env:MC_DESTINATION_ANALYSIS/" }
+    - if (Test-Path env:MC_DESTINATION_ANALYSIS) { C:\mcli\mcli --quiet cp "$report" "$env:MC_DESTINATION_ANALYSIS/" }
 
 # Build all doxygen docs
 API Reference:
