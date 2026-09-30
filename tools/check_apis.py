@@ -139,6 +139,20 @@ APIs = {
         'strtod',
         'strcasecmp',
         'strncasecmp',
+        # Wide-character versions are locale-unsafe too
+        'iswalnum',
+        'iswalpha',
+        'iswcntrl',
+        'iswdigit',
+        'iswlower',
+        'iswgraph',
+        'iswprint',
+        'iswpunct',
+        'iswspace',
+        'iswupper',
+        'iswxdigit',
+        'towlower',
+        'towupper',
         # Deprecated in glib 2.68 in favor of g_memdup2
         # We have our local implementation for older versions
         'g_memdup',
