@@ -35,7 +35,7 @@ randpkt - Random packet generator
 By creating many randomized packets of a certain type, you can
 test packet sniffers to see how well they handle malformed packets.
 The sniffer can never trust the data that it sees in the packet because
-you can always sniff a very bad packet that conforms to no standard.
+you can always sniff a very bad packet that doesn't conform to any standard.
 *randpkt* produces __very bad__ packets.
 
 When creating packets of a certain type, *randpkt* uses a sample
@@ -86,7 +86,7 @@ Print the version number and options and exit.
 -r::
 +
 --
-The packet type is determined randomly for each packet.  This requires
+The packet type is determined randomly for each packet. This requires
 an output format that can support different encapsulations per packet,
 like *pcapng*.
 --

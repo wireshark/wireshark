@@ -20,7 +20,7 @@ The essential call tree:
    -  `dissect_http3_uni_stream`
       Processes unidirectional streams, including the control streams,
       the QPACK encoder/decoder streams, and the HTTP3 server push streams.
-      NOTE: the HTTP3 server push streams support is rudimental.
+      NOTE: the HTTP3 server push streams support is rudimentary.
       -  `dissect_http3_qpack_enc`
          Dissects the QPACK encoder stream.
          If Wireshark was built with the optional `nghttp3` library,

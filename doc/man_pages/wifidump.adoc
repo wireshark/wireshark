@@ -7,7 +7,7 @@ include::../attributes.adoc[]
 
 == NAME
 
-wifidump - Provides an interface to capture Wi-Fi frames from a remote host through SSH.
+wifidump - Provides an interface for capturing Wi-Fi frames from a remote host through SSH.
 
 == SYNOPSIS
 

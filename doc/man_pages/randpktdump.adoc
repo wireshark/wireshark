@@ -32,7 +32,7 @@ randpktdump - Provide an interface to generate random captures using randpkt
 
 *randpktdump* is a extcap tool that provides access to the random
 packet generator (randpkt). It is mainly used for testing and
-educational purpose.
+educational purposes.
 
 == OPTIONS
 
@@ -55,7 +55,7 @@ List DLTs of specified interface.
 List configuration options of specified interface.
 
 --capture::
-Start capturing from specified interface save saved it in place specified by --fifo.
+Start capturing from the specified interface and save it in the location specified by --fifo.
 
 --fifo=<path to file or pipe>::
 Save captured packet to file or send it through pipe.

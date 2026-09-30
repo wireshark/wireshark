@@ -38,7 +38,7 @@ You can set up a [build environment](https://www.wireshark.org/docs/wsdg_html_ch
 
 If you would like to contribute changes to Wireshark’s source code, you must create a [merge request](https://gitlab.com/wireshark/wireshark/-/merge_requests).
 Complete details on doing so can be found in the [Developer’s Guide](https://www.wireshark.org/docs/wsdg_html_chunked/ChSrcContribute.html) and on the [wiki](https://gitlab.com/wireshark/wireshark/-/wikis/Development/SubmittingPatches).
-When you submit a merge request, a series of automated tests will be run in order to ensure that compiles across different platforms and conforms to our coding guidelines.
+When you submit a merge request, a series of automated tests will be run in order to ensure that it compiles across different platforms and conforms to our coding guidelines.
 The change will also be manually reviewed by a core developer and will be merged when the change passes both automated and manual review.
 
 The Wireshark User’s Guide and Developer’s Guide are maintained in the [doc directory](https://gitlab.com/wireshark/wireshark/-/tree/master/doc) in the main repository.
