@@ -867,7 +867,7 @@ sctp_ppi_prompt1(packet_info *pinfo _U_, char* result)
     if (ppid == LAST_PPID) {
         snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
     } else {
-        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%u)", ppid);
     }
 }
 
@@ -879,7 +879,7 @@ sctp_ppi_prompt2(packet_info *pinfo _U_, char* result)
     if (ppid == LAST_PPID) {
         snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
     } else {
-        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%u)", ppid);
     }
 }
 

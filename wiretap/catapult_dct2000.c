@@ -957,9 +957,6 @@ parse_line(char *linebuff, unsigned line_length,
              (g_ascii_isdigit(linebuff[n])) && (variant_digits <= MAX_VARIANT_DIGITS) && (n+1 < line_length);
              n++, variant_digits++) {
 
-            if (!g_ascii_isdigit(linebuff[n])) {
-                return false;
-            }
             variant_name[variant_digits] = linebuff[n];
         }
         if (variant_digits > MAX_VARIANT_DIGITS || (n+1 >= line_length)) {

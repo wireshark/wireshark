@@ -1071,8 +1071,7 @@ dissect_usb_video_streaming_input_header(proto_tree *tree, tvbuff_t *tvb, int of
 
     DISSECTOR_ASSERT(array_length(control_bits) == (1+array_length(hf_usb_vid_streaming_control_D)));
 
-    num_formats = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_usb_vid_streaming_ifdesc_bNumFormats, tvb, offset,   1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_usb_vid_streaming_ifdesc_bNumFormats, tvb, offset,   1, ENC_LITTLE_ENDIAN, &num_formats);
     proto_tree_add_item(tree, hf_usb_vid_ifdesc_wTotalLength,          tvb, offset+1, 2, ENC_LITTLE_ENDIAN);
     offset += 3;
 

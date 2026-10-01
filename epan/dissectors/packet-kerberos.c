@@ -1839,10 +1839,8 @@ decrypt_krb5_with_cb_try_key(void *__key _U_, void *value, void *userdata)
 		switch (state->usage) {
 		case KEY_USAGE_ENC_CHALLENGE_CLIENT:
 		case KEY_USAGE_ENC_CHALLENGE_KDC:
-			if (ek->fd_num == -1) {
-				/* Challenges are based on a long term key */
-				try_with_armor_key = true;
-			}
+			/* Challenges are based on a long term key */
+			try_with_armor_key = true;
 			break;
 		}
 

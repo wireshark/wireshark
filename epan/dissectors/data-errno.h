@@ -1,5 +1,5 @@
 /* data-errno.h
- * Sttring descriptions for errno values.
+ * String descriptions for errno values.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

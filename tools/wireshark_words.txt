@@ -2202,6 +2202,7 @@ optoelectronics
 optreq
 optrsp
 optus
+oracledb
 ordinal
 organisation
 orpcthat
@@ -2629,6 +2630,7 @@ regex
 regexp
 regid
 regionid
+regist
 regname
 reimplement
 reimplementation

@@ -53,6 +53,9 @@ def isGeneratedFile(filename):
     if filename.endswith('packet-asterix.c'):
         return True
 
+    if 'generated' in filename:
+        return True
+
     # Open file
     with open(os.path.join(filename), 'r', encoding="utf8", errors="ignore") as f_read:
         lines_tested = 0

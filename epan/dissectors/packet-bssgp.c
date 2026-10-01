@@ -6871,7 +6871,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     ti = proto_tree_add_item(tree, proto_bssgp, tvb, 0, -1, ENC_NA);
     bssgp_tree = proto_item_add_subtree(ti, ett_bssgp);
 
-    /* Messge type IE*/
+    /* Message type IE*/
     msg_fcn_p = NULL;
     ett_tree = -1;
     hf_idx = -1;

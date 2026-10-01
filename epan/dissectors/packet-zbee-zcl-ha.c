@@ -798,8 +798,7 @@ dissect_zcl_appl_evtalt_get_alerts_rsp(tvbuff_t *tvb, proto_tree *tree, unsigned
     uint8_t     count;
 
     /* Retrieve "Alert Count" field */
-    count = tvb_get_uint8(tvb, *offset) & ZBEE_ZCL_APPL_EVTALT_COUNT_NUM_MASK;
-    proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_count_num, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_zcl_appl_evtalt_count_num, tvb, *offset, 1, ENC_NA, &count);
     proto_tree_add_item(tree, hf_zbee_zcl_appl_evtalt_count_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
@@ -1135,8 +1134,7 @@ dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, unsigned *offset
     *offset += 4;
 
     /* Retrieve 'Log Length' field */
-    log_len = tvb_get_letohl(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_appl_stats_log_length, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_zbee_zcl_appl_stats_log_length, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &log_len);
     *offset += 4;
 
     /* Retrieve 'Log Payload' field */

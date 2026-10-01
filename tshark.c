@@ -4989,7 +4989,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
             if (print_summary && !print_columns(cf, edt))
                 return false;
             if (print_details) {
-                if (!proto_tree_print(print_details ? print_dissections_expanded : print_dissections_none,
+                if (!proto_tree_print(print_dissections_expanded,
                             print_hex, edt, output_only_tables, print_stream))
                     return false;
                 if (!print_hex) {

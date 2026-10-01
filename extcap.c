@@ -2794,7 +2794,7 @@ extcap_ensure_interface(const char * toolname, bool create_if_nonexist)
     if ( element )
         return NULL;
 
-    if ( ! element && create_if_nonexist )
+    if ( create_if_nonexist )
     {
         g_hash_table_insert(_loaded_interfaces, g_strdup(toolname), g_new0(extcap_info, 1));
         element = (extcap_info *) g_hash_table_lookup(_loaded_interfaces, toolname );

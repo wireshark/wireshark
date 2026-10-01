@@ -695,12 +695,10 @@ dissect_nwk_route_req_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_route_req, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_route_req, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -750,12 +748,10 @@ dissect_nwk_route_reply_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_route_reply, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_route_reply, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -779,12 +775,10 @@ dissect_nwk_status_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_network_status, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_network_status, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -877,12 +871,10 @@ dissect_zdp_req_security_get_auth_level_local_tlv (tvbuff_t *tvb, packet_info *p
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_req_security_get_auth_level, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_req_security_get_auth_level, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -914,12 +906,10 @@ dissect_zdp_req_security_get_auth_token_local_tlv (tvbuff_t *tvb, packet_info *p
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_req_security_get_auth_token, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_req_security_get_auth_token, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -952,12 +942,10 @@ dissect_zdp_req_clear_all_bindings_local_tlv (tvbuff_t *tvb, packet_info *pinfo 
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_clear_all_bindings_req, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_clear_all_bindings_req, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -990,12 +978,10 @@ dissect_zdp_req_beacon_survey_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, 
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_req_beacon_survey, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_req_beacon_survey, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -1043,12 +1029,10 @@ dissect_zdp_rsp_beacon_survey_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, 
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_rsp_beacon_survey, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_rsp_beacon_survey, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -1119,12 +1103,10 @@ dissect_zdp_req_security_challenge_local_tlv (tvbuff_t *tvb, packet_info *pinfo 
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_req_challenge, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_req_challenge, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -1264,12 +1246,10 @@ dissect_zdp_security_start_key_neg_local_tlv (tvbuff_t *tvb, packet_info *pinfo 
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_key_negotiation_req_rsp, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_key_negotiation_req_rsp, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1; /* actual length */
@@ -1301,32 +1281,29 @@ dissect_zdp_security_start_key_neg_local_tlv (tvbuff_t *tvb, packet_info *pinfo 
 static unsigned
 dissect_zdp_security_key_upd_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset)
 {
-  uint8_t type;
-      uint8_t length;
+    uint8_t type;
+    uint8_t length;
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_key_update_req_rsp, tvb, offset, 1, ENC_NA, &type);
+    offset += 1;
 
-      type = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(tree, hf_zbee_tlv_local_type_key_update_req_rsp, tvb, offset, 1, ENC_NA);
-      offset += 1;
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
+    offset += 1;
 
-      length = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
-      offset += 1;
+    length += 1; /* actual length */
 
-      length += 1; /* actual length */
+    switch (type) {
 
-      switch (type) {
+       case ZBEE_TLV_TYPE_KEY_UPD_REQ_SELECTED_KEY_NEGOTIATION_METHOD:
+           offset = dissect_zbee_tlv_selected_key_negotiation_method(tvb, pinfo, tree, offset);
+           break;
 
-         case ZBEE_TLV_TYPE_KEY_UPD_REQ_SELECTED_KEY_NEGOTIATION_METHOD:
-             offset = dissect_zbee_tlv_selected_key_negotiation_method(tvb, pinfo, tree, offset);
-             break;
+       default:
+           proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, length, ENC_NA);
+           offset += length;
+           break;
+    }
 
-         default:
-             proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, length, ENC_NA);
-             offset += length;
-             break;
-      }
-
-      return offset;
+    return offset;
 }
 /*
  *Helper dissector for the Security Get Auth Level Response.
@@ -1343,12 +1320,10 @@ dissect_zdp_rsp_security_get_auth_level_local_tlv (tvbuff_t *tvb, packet_info *p
     uint8_t type;
     uint8_t length;
 
-    type = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_local_type_get_auth_level_rsp, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_local_type_get_auth_level_rsp, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -2033,8 +2008,7 @@ dissect_zbd_msg_status_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_item(tree, hf_zbee_tlv_zbd_comm_tlv, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -2116,8 +2090,7 @@ dissect_zbd_msg_tunneling_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_tree_add_item(tree, hf_zbee_tlv_zbd_tunneling_npdu_msg_tlv, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -2159,8 +2132,7 @@ dissect_zbd_msg_manage_joiners_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, 
     proto_tree_add_item(tree, hf_zbee_tlv_zbd_comm_mj_cmd_tlv, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -2207,8 +2179,7 @@ dissect_zbd_msg_join_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     proto_tree_add_item(tree, hf_zbee_tlv_zbd_comm_tlv, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -2287,8 +2258,7 @@ dissect_zbd_msg_formation_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_tree_add_item(tree, hf_zbee_tlv_zbd_comm_tlv, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -2363,8 +2333,7 @@ dissect_zbd_msg_secur_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item(tree, hf_zbee_tlv_zbd_secur_tlv, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
     length += 1;
@@ -2898,7 +2867,6 @@ dissect_global_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
     proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_global_type, tvb, offset, 1, ENC_NA, &type);
     offset += 1;
 
-    length = tvb_get_uint8(tvb, offset);
     proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
 
@@ -2986,8 +2954,7 @@ dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
   proto_tree_add_item(tree, hf_zbee_tlv_type, tvb, offset, 1, ENC_NA);
   offset += 1;
 
-  length = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item_ret_uint8(tree, hf_zbee_tlv_length, tvb, offset, 1, ENC_NA, &length);
   offset += 1;
 
   length += 1; /* length of tlv_val == tlv_len + 1 */
