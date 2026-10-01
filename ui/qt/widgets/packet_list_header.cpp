@@ -12,6 +12,7 @@
 #include <QMouseEvent>
 #include <QToolTip>
 #include <QAction>
+#include <QApplication>
 #include <QInputDialog>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -125,7 +126,27 @@ void PacketListHeader::mousePressEvent(QMouseEvent *e)
         QString headerName = model()->headerData(sectIdx, orientation()).toString();
         QToolTip::showText(e->globalPosition().toPoint(), QStringLiteral("Width: %1").arg(sectionSize(sectIdx)));
     }
+    if (e->button() == Qt::LeftButton) {
+        press_pos_ = e->position().toPoint();
+        press_active_ = true;
+    }
     QHeaderView::mousePressEvent(e);
+}
+
+void PacketListHeader::setDragActive(bool active)
+{
+    if (drag_active_ == active) {
+        return;
+    }
+    drag_active_ = active;
+    emit dragActiveChanged(active);
+}
+
+void PacketListHeader::mouseReleaseEvent(QMouseEvent *e)
+{
+    press_active_ = false;
+    QHeaderView::mouseReleaseEvent(e);
+    setDragActive(false);
 }
 
 void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
@@ -149,6 +170,10 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
             QToolTip::showText(e->globalPosition().toPoint(), QStringLiteral("Width: %1").arg(sectionSize(sectionIdx)));
         }
     }
+    if (press_active_ && (e->buttons() & Qt::LeftButton)
+        && (e->position().toPoint() - press_pos_).manhattanLength() >= QApplication::startDragDistance()) {
+        setDragActive(true);
+    }
     QHeaderView::mouseMoveEvent(e);
 }
 
@@ -169,7 +194,9 @@ void PacketListHeader::forwardMouseMoveEvent(QMouseEvent *event)
 
 void PacketListHeader::forwardMouseReleaseEvent(QMouseEvent *event)
 {
+    press_active_ = false;
     QHeaderView::mouseReleaseEvent(event);
+    setDragActive(false);
 }
 
 void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)

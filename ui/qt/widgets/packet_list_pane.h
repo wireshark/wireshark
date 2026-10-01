@@ -14,11 +14,13 @@
 #define PACKET_LIST_PANE_H
 
 #include <QWidget>
+#include <QPoint>
 
 class PacketList;
 class PinnedRowView;
 class QHBoxLayout;
 class QHeaderView;
+class QLabel;
 
 /**
  * @brief Sibling container for PacketList and its pinned-rows strip.
@@ -59,7 +61,9 @@ class QHeaderView;
  * drifting out of sync with each other on screen.
  *
  * Deliberately plain QHeaderViews (handling their own resize-drag/
- * sort-click natively) rather than reusing PinnedColumnHeader, which
+ * sort-click natively; column-reorder drags are handled by hand in
+ * handleHeaderDrag(), since a native drag can't cross between the two
+ * halves) rather than reusing PinnedColumnHeader, which
  * forwards raw mouse events to the real (in this case hidden) header to
  * drive its resize-drag state machine -- appropriate for
  * pinned_column_view_'s own header, which is always visible alongside the
@@ -129,6 +133,17 @@ private:
      * scrollbar). */
     QHeaderView *duplicate_header_corner_;
     QHeaderView *duplicate_header_main_;
+
+    // Hand-rolled column-reorder drag across both duplicate headers.
+    bool handleHeaderDrag(QHeaderView *header, QEvent *event);
+    int dragTargetSection(int strip_x, int from) const;
+    QHeaderView *drag_source_ = nullptr;
+    int drag_section_ = -1;
+    int drag_grab_dx_ = 0;
+    QPoint drag_press_global_;
+    bool drag_pressed_ = false;
+    bool drag_active_ = false;
+    QLabel *drag_ghost_ = nullptr;
 
 private slots:
     /**

@@ -23,6 +23,13 @@
 #include <QEvent>
 #include <QContextMenuEvent>
 #include <QScrollBar>
+#include <QApplication>
+#include <QLabel>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QPixmap>
+#include <QTimer>
+#include <QPointer>
 #include <QPalette>
 
 namespace {
@@ -82,6 +89,9 @@ PacketListPane::PacketListPane(QWidget *parent) :
     // need this rather than handling it natively.
     duplicate_header_corner_->installEventFilter(this);
     duplicate_header_main_->installEventFilter(this);
+    // QHeaderView receives mouse events on its viewport, not on itself.
+    duplicate_header_corner_->viewport()->installEventFilter(this);
+    duplicate_header_main_->viewport()->installEventFilter(this);
 
     duplicate_header_layout_->addWidget(duplicate_header_corner_);
     duplicate_header_layout_->addWidget(duplicate_header_main_, 1);
@@ -248,6 +258,10 @@ PacketListPane::PacketListPane(QWidget *parent) :
 
     duplicate_header_strip_->setVisible(false);
 
+    drag_ghost_ = new QLabel(this);
+    drag_ghost_->setAttribute(Qt::WA_TransparentForMouseEvents);
+    drag_ghost_->setVisible(false);
+
     pinned_rows_strip_ = new QWidget(this);
     pinned_rows_strip_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     pinned_rows_layout_ = new QHBoxLayout(pinned_rows_strip_);
@@ -398,8 +412,177 @@ void PacketListPane::updatePinnedRowsStripWidth(int corner_width, bool have_pinn
     updateGeometry();
 }
 
+// Returns the visible section at the strip-relative x, clamped to the ends.
+// Native QHeaderView dragging can't cross from duplicate_header_corner_ into
+// duplicate_header_main_ (each only shows part of the columns), so the
+// reorder drag on the duplicate headers is done by hand across both.
+int PacketListPane::dragTargetSection(int strip_x, int from) const
+{
+    const int corner_width = duplicate_header_corner_->width();
+    auto edgeVisible = [](QHeaderView *h, bool last) {
+        for (int i = 0; i < h->count(); i++) {
+            int v = last ? h->count() - 1 - i : i;
+            int l = h->logicalIndex(v);
+            if (!h->isSectionHidden(l)) {
+                return l;
+            }
+        }
+        return -1;
+    };
+    int logical = -1;
+    if (strip_x < corner_width) {
+        logical = duplicate_header_corner_->logicalIndexAt(qMax(strip_x, 0));
+        if (logical < 0) {
+            logical = edgeVisible(duplicate_header_corner_, strip_x >= corner_width / 2);
+        }
+    } else {
+        logical = duplicate_header_main_->logicalIndexAt(strip_x - corner_width);
+        if (logical < 0) {
+            logical = edgeVisible(duplicate_header_main_, true);
+        }
+        if (logical < 0) {
+            logical = edgeVisible(duplicate_header_corner_, true);
+        }
+    }
+    if (logical < 0 || logical == from) {
+        return logical;
+    }
+
+    // Same rule as QHeaderView's native drag: the cursor has to cross the
+    // midpoint of the section it is over before the dragged column takes
+    // its slot; otherwise the column lands next to it on the near side.
+    QHeaderView *th = (strip_x < corner_width) ? duplicate_header_corner_ : duplicate_header_main_;
+    int base = (th == duplicate_header_corner_) ? 0 : corner_width;
+    int mid = base + th->sectionViewportPosition(logical) + th->sectionSize(logical) / 2;
+    QHeaderView *real = packet_list_->header();
+    if (logical > from) {
+        if (strip_x > mid) {
+            return logical;
+        }
+        for (int i = logical - 1; i >= 0; i--) {
+            if (i == from || !real->isSectionHidden(i)) {
+                return i;
+            }
+        }
+    } else {
+        if (strip_x < mid) {
+            return logical;
+        }
+        for (int i = logical + 1; i < real->count(); i++) {
+            if (i == from || !real->isSectionHidden(i)) {
+                return i;
+            }
+        }
+    }
+    return from;
+}
+
+bool PacketListPane::handleHeaderDrag(QHeaderView *header, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *me = static_cast<QMouseEvent *>(event);
+        drag_pressed_ = false;
+        if (me->button() != Qt::LeftButton) {
+            return false;
+        }
+        int x = me->position().toPoint().x();
+        int logical = header->logicalIndexAt(x);
+        if (logical < 0) {
+            return false;
+        }
+        int left = header->sectionViewportPosition(logical);
+        const int grip = 4;
+        if (x - left <= grip || left + header->sectionSize(logical) - x <= grip) {
+            return false; // resize handle, left to QHeaderView
+        }
+        drag_pressed_ = true;
+        drag_source_ = header;
+        drag_section_ = logical;
+        drag_press_global_ = me->globalPosition().toPoint();
+        drag_grab_dx_ = x - left;
+        return false;
+    }
+    if (!drag_pressed_ || header != drag_source_) {
+        return false;
+    }
+    if (event->type() == QEvent::MouseMove) {
+        QMouseEvent *me = static_cast<QMouseEvent *>(event);
+        if (!(me->buttons() & Qt::LeftButton)) {
+            return false;
+        }
+        QPoint global = me->globalPosition().toPoint();
+        if (!drag_active_) {
+            if ((global - drag_press_global_).manhattanLength() < QApplication::startDragDistance()) {
+                return false;
+            }
+            drag_active_ = true;
+            // Keeps the release that ends this drag from also counting as a sort click.
+            header->setSectionsClickable(false);
+            int left = header->sectionViewportPosition(drag_section_);
+            QRect rect(left, 0, header->sectionSize(drag_section_), header->height());
+            QPixmap src = header->grab(rect);
+            QPixmap ghost(src.size());
+            ghost.fill(Qt::transparent);
+            QPainter painter(&ghost);
+            painter.setOpacity(0.7);
+            painter.drawPixmap(0, 0, src);
+            painter.end();
+            drag_ghost_->setPixmap(ghost);
+            drag_ghost_->resize(ghost.size());
+            drag_ghost_->setVisible(true);
+            drag_ghost_->raise();
+        }
+        QPoint in_pane = mapFromGlobal(global);
+        int strip_top = duplicate_header_strip_->mapTo(this, QPoint(0, 0)).y();
+        drag_ghost_->move(in_pane.x() - drag_grab_dx_, strip_top);
+        return true;
+    }
+    if (event->type() == QEvent::MouseButtonRelease) {
+        QMouseEvent *me = static_cast<QMouseEvent *>(event);
+        bool was_active = drag_active_;
+        int from = drag_section_;
+        int target = -1;
+        if (was_active) {
+            target = dragTargetSection(duplicate_header_strip_->mapFromGlobal(me->globalPosition().toPoint()).x(), from);
+        }
+        drag_ghost_->setVisible(false);
+        drag_pressed_ = false;
+        drag_active_ = false;
+        drag_source_ = nullptr;
+        if (was_active) {
+            // Deferred so QHeaderView finishes handling this release before
+            // the reorder rebuilds the columns underneath it.
+            QPointer<QHeaderView> guard(header);
+            QTimer::singleShot(0, this, [this, guard, from, target]() {
+                if (guard) {
+                    guard->setSectionsClickable(true);
+                }
+                if (target >= 0 && target != from) {
+                    packet_list_->header()->moveSection(from, target);
+                }
+            });
+        }
+        return false;
+    }
+    return false;
+}
+
 bool PacketListPane::eventFilter(QObject *watched, QEvent *event)
 {
+    QHeaderView *drag_header = nullptr;
+    if (watched == duplicate_header_corner_->viewport()) {
+        drag_header = duplicate_header_corner_;
+    } else if (watched == duplicate_header_main_->viewport()) {
+        drag_header = duplicate_header_main_;
+    }
+    if (drag_header) {
+        QEvent::Type t = event->type();
+        if (t == QEvent::MouseButtonPress || t == QEvent::MouseMove || t == QEvent::MouseButtonRelease) {
+            if (handleHeaderDrag(drag_header, event)) {
+                return true;
+            }
+        }
+    }
     if (watched == duplicate_header_corner_ && event->type() == QEvent::ContextMenu) {
         // duplicate_header_corner_ never scrolls (like PinnedColumnHeader,
         // it always shows the frozen columns at their unscrolled logical

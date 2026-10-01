@@ -327,6 +327,12 @@ PacketList::PacketList(QWidget *parent) :
     connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &PacketList::vScrollBarActionTriggered);
 
     connect(packet_list_header_, &PacketListHeader::freezeColumnsToHere, this, &PacketList::setPinnedColumnBoundary);
+    // While the real header is being dragged, let it show through the
+    // frozen-column overlay so the drag is visible when crossing the freeze.
+    connect(packet_list_header_, &PacketListHeader::dragActiveChanged, this, [this](bool active) {
+        header_drag_active_ = active;
+        updateFrozenOverlayMask();
+    });
     connect(packet_list_header_, &PacketListHeader::unfreezeColumns, this, [this]() { setPinnedColumnBoundary(0); });
 
     pinned_rows_model_ = new PinnedRowsModel(this);
@@ -742,25 +748,6 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu->addAction(window()->findChild<QAction *>("actionEditIgnoreSelected"));
     ctx_menu->addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
     ctx_menu->addAction(window()->findChild<QAction *>("actionEditTimeShift"));
-    ctx_menu->addMenu(window()->findChild<QMenu *>("menuPacketComment"));
-
-    ctx_menu->addSeparator();
-
-    // Code for custom context menus from Lua's register_packet_menu()
-    MainWindow * mainWindow = mainApp->mainWindow();
-    // N.B., will only call for a single frame selection,
-    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
-        finfo_array = proto_all_finfos(cap_file_->edt->tree);
-        if (mainWindow) {
-            bool insertedPacketMenu = mainWindow->addPacketMenus(ctx_menu, finfo_array);
-            if (insertedPacketMenu) {
-                ctx_menu->addSeparator();
-            }
-        }
-    }
-
-    ctx_menu->addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
-
     frame_data *ctx_fdata = ctx_row_fdata;
     if (ctx_fdata) {
         bool rowPinned = pinned_rows_model_->isPinned((int)ctx_fdata->num);
@@ -796,6 +783,25 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
         QAction *unpin_all_action = ctx_menu->addAction(tr("Unpin All Rows"));
         connect(unpin_all_action, &QAction::triggered, this, &PacketList::unpinAllRows);
     }
+    ctx_menu->addMenu(window()->findChild<QMenu *>("menuPacketComment"));
+
+    ctx_menu->addSeparator();
+
+    // Code for custom context menus from Lua's register_packet_menu()
+    MainWindow * mainWindow = mainApp->mainWindow();
+    // N.B., will only call for a single frame selection,
+    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
+        finfo_array = proto_all_finfos(cap_file_->edt->tree);
+        if (mainWindow) {
+            bool insertedPacketMenu = mainWindow->addPacketMenus(ctx_menu, finfo_array);
+            if (insertedPacketMenu) {
+                ctx_menu->addSeparator();
+            }
+        }
+    }
+
+    ctx_menu->addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
+
     // Reset for the next context menu request: showContextMenuForRow()/
     // showContextMenuForFrame() set this immediately before calling here,
     // but a direct right-click on the primary view calls this override
@@ -3003,6 +3009,20 @@ void PacketList::updatePinnedRowVisibility()
     layoutPinnedOverlays();
 }
 
+void PacketList::updateFrozenOverlayMask()
+{
+    if (!pinned_column_view_) {
+        return;
+    }
+    if (header_drag_active_ && pinned_column_view_->isVisible()) {
+        int header_height = header()->height();
+        pinned_column_view_->setMask(QRegion(0, header_height, pinned_column_view_->width(),
+                                             pinned_column_view_->height() - header_height));
+    } else {
+        pinned_column_view_->clearMask();
+    }
+}
+
 void PacketList::layoutPinnedOverlays()
 {
     // Width of the frozen-column portion, shared between the column-freeze
@@ -3050,6 +3070,7 @@ void PacketList::layoutPinnedOverlays()
             pinned_column_view_->refreshLayout();
         }
         pinned_column_view_size_ = new_size;
+        updateFrozenOverlayMask();
         pinned_column_view_->setVerticalScrollValue(verticalScrollBar()->value());
     } else {
         pinned_column_view_->setVisible(false);

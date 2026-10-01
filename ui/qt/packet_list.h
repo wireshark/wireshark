@@ -882,6 +882,8 @@ private:
      * range) can skip the relayout that setGeometry() alone doesn't need --
      * see layoutPinnedOverlays()'s own comment. */
     QSize pinned_column_view_size_;
+    bool header_drag_active_ = false;
+    void updateFrozenOverlayMask();
 
     // Overlay view showing the pinned row's non-frozen columns.
     PinnedRowView *pinned_row_view_;

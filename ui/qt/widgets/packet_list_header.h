@@ -14,6 +14,7 @@
 
 #include <QDrag>
 #include <QMenu>
+#include <QPoint>
 
 #include <ui/qt/widgets/adaptive_header_view.h>
 
@@ -79,6 +80,7 @@ protected:
      * @param e The mouse event.
      */
     virtual void mousePressEvent(QMouseEvent *e) override;
+    virtual void mouseReleaseEvent(QMouseEvent *e) override;
 
     /**
      * @brief Handles context menu events.
@@ -175,6 +177,9 @@ signals:
     // Signal emitted to clear the frozen-column boundary.
     void unfreezeColumns();
 
+    // Emitted when a left-button drag on the header starts (true) or ends (false).
+    void dragActiveChanged(bool active);
+
 public:
     /**
      * @brief Updates the checked/enabled state of the "freeze columns" menu
@@ -184,6 +189,10 @@ public:
     void setFrozenColumnCount(int frozen_column_count);
 
 private:
+    QPoint press_pos_;
+    bool press_active_ = false;
+    bool drag_active_ = false;
+    void setDragActive(bool active);
     int sectionIdx; /**< The index of the section currently being interacted with. */
     int frozen_column_count_; /**< Current number of frozen columns, as last reported by PacketList. */
 };
