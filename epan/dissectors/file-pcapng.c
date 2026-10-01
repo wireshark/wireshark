@@ -1329,34 +1329,38 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += 4;
 
                 break;
+            /*
+             * The values of the Darwin options are little-endian whatever
+             * the byte order of the section (see wiretap/pcapng-darwin-custom.c).
+             */
             case 32769: /* Darwin DPIB ID */
-                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_dpib_id, tvb, offset, option_length, encoding, &value_u32);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_dpib_id, tvb, offset, option_length, ENC_LITTLE_ENDIAN, &value_u32);
                 offset += option_length;
 
                 proto_item_append_text(option_item, " = %u", value_u32);
 
                 break;
             case 32770: /* Darwin Service Type */
-                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_svc_class, tvb, offset, option_length, encoding, &value_u32);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_svc_class, tvb, offset, option_length, ENC_LITTLE_ENDIAN, &value_u32);
                 offset += option_length;
 
                 proto_item_append_text(option_item, " = %s", val_to_str_const(value_u32, option_code_darwin_svc_class_vals, "Unknown"));
 
                 break;
             case 32771: /* Darwin Effective DPIB ID */
-                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_edpib_id, tvb, offset, option_length, encoding, &value_u32);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_edpib_id, tvb, offset, option_length, ENC_LITTLE_ENDIAN, &value_u32);
                 offset += option_length;
 
                 proto_item_append_text(option_item, " = %u", value_u32);
 
                 break;
             case 32772: /* Darwin Flags */
-                proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_packet_darwin_flags, ett_pcapng_option, hfx_pcapng_option_data_packet_darwin_flags, encoding);
+                proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_packet_darwin_flags, ett_pcapng_option, hfx_pcapng_option_data_packet_darwin_flags, ENC_LITTLE_ENDIAN);
                 offset += option_length;
 
                 break;
             case 32773: /* Darwin Flow ID */
-                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_flow_id, tvb, offset, option_length, encoding, &value_u32);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_flow_id, tvb, offset, option_length, ENC_LITTLE_ENDIAN, &value_u32);
                 offset += option_length;
 
                 proto_item_append_text(option_item, " = %u", value_u32);

@@ -178,8 +178,9 @@ dissect_darwin_process_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_item_append_text(argp->block_item, " %u", argp->info->darwin_process_event_number);
     argp->info->darwin_process_event_number += 1;
 
-    /* Process ID */
-    proto_tree_add_item(tree, hf_pcapng_darwin_process_id, tvb, offset, 4, argp->info->encoding);
+    /* Process ID; like the other Darwin integer fields, it is little-endian
+     * whatever the byte order of the section (see wiretap/pcapng-darwin-custom.c) */
+    proto_tree_add_item(tree, hf_pcapng_darwin_process_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     /* Options */

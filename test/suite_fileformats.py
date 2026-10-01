@@ -365,6 +365,24 @@ class TestFileFormatsPcapngProcessInformation:
         ])
 
     @pytest.mark.parametrize('capture', DARWIN_CAPTURES)
+    def test_pcapng_pib_darwin_file_dissector(self, cmd_tshark, capture_file, base_env, capture):
+        '''The pcapng file dissector reads the Darwin integer fields as
+        little-endian in a section of either byte order, as wiretap does.
+        A file rewritten on a big-endian host is such a big-endian section.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(capture),
+                '-Xread_format:MIME Files Format',
+                '-Tfields',
+                '-e', 'pcapng.darwin.process_id',
+                '-e', 'pcapng.options.option.data.packet.darwin.dpib_id',
+                '-e', 'pcapng.options.option.data.packet.darwin.edpib_id',
+            ), encoding='utf-8', env=base_env)
+        pids, dpib_ids, edpib_ids = stdout.strip().split('\t')
+        assert pids == '501,1'
+        assert dpib_ids == '0,1,0'
+        assert edpib_ids == '1'
+
+    @pytest.mark.parametrize('capture', DARWIN_CAPTURES)
     def test_pcapng_pib_darwin_rewrite(self, cmd_tshark, cmd_editcap, capture_file, result_file, base_env, capture):
         '''Legacy Darwin process information blocks are written back as such.'''
         infile = capture_file(capture)
