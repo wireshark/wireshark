@@ -27,7 +27,8 @@ class PacketList;
  *
  * This view shares its model and selection model with the primary view so
  * that clicking a row here selects the same row there, and reuses the
- * primary view's item delegates so that rendering matches exactly.
+ * primary view's item delegates, wrapped in a FixedRowHeightDelegate so that
+ * rendering matches exactly and row heights match the primary view.
  */
 class PinnedColumnView : public QTreeView
 {

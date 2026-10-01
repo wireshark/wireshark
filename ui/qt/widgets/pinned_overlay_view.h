@@ -15,8 +15,12 @@
 
 #include <QTreeView>
 #include <QHeaderView>
+#include <QHelpEvent>
+#include <QStyledItemDelegate>
 #include <QWidget>
 #include <QPalette>
+
+#include <functional>
 
 /**
  * @brief Setup shared by PinnedColumnView and PinnedRowView, the two
@@ -26,6 +30,49 @@
  * applied to only one of the two views by mistake.
  */
 namespace PinnedOverlayView {
+
+/**
+ * @brief Delegate wrapper reporting a caller-supplied row height. Some
+ * styles (Breeze) size rows by the view's frame shape, so an overlay
+ * (NoFrame) would otherwise come out a pixel taller than PacketList and
+ * misalign. All other behavior is forwarded to the wrapped delegate, or
+ * to QStyledItemDelegate when none is given.
+ */
+class FixedRowHeightDelegate : public QStyledItemDelegate
+{
+public:
+    FixedRowHeightDelegate(QAbstractItemDelegate *inner, std::function<int()> row_height, QObject *parent) :
+        QStyledItemDelegate(parent), inner_(inner), row_height_(std::move(row_height)) {}
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        if (inner_) {
+            inner_->paint(painter, option, index);
+        } else {
+            QStyledItemDelegate::paint(painter, option, index);
+        }
+    }
+
+    QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        QSize size = inner_ ? inner_->sizeHint(option, index) : QStyledItemDelegate::sizeHint(option, index);
+        int height = row_height_ ? row_height_() : 0;
+        if (height > 0) {
+            size.setHeight(height);
+        }
+        return size;
+    }
+
+    bool helpEvent(QHelpEvent *event, QAbstractItemView *view, const QStyleOptionViewItem &option, const QModelIndex &index) override
+    {
+        return inner_ ? inner_->helpEvent(event, view, option, index)
+                      : QStyledItemDelegate::helpEvent(event, view, option, index);
+    }
+
+private:
+    QAbstractItemDelegate *inner_;
+    std::function<int()> row_height_;
+};
 
 /**
  * @brief Applies the QTreeView configuration common to every pinned

@@ -47,6 +47,7 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/widgets/packet_list_header.h>
+#include <ui/qt/widgets/pinned_overlay_view.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/drag_label.h>
 #include <ui/qt/filter_action.h>
@@ -1679,13 +1680,24 @@ void PacketList::setColumnDelegate()
         }
     }
 
-    for (unsigned i = 0; i < prefs.num_cols; i++) {
-        QAbstractItemDelegate *col_delegate = itemDelegateForColumn(i);
-        if (!col_delegate) {
-            continue;
+    auto row_height = [this]() { return pinnedRowHeight(); };
+    for (QTreeView *view : pinnedOverlayViews()) {
+        for (unsigned i = 0; i < prefs.num_cols; i++) {
+            view->setItemDelegateForColumn(i, nullptr);
         }
-        for (QTreeView *view : pinnedOverlayViews()) {
-            view->setItemDelegateForColumn(i, col_delegate);
+        QList<QObject *> old_wrappers;
+        for (QObject *child : view->children()) {
+            if (dynamic_cast<PinnedOverlayView::FixedRowHeightDelegate *>(child)) {
+                old_wrappers << child;
+            }
+        }
+        view->setItemDelegate(new PinnedOverlayView::FixedRowHeightDelegate(nullptr, row_height, view));
+        qDeleteAll(old_wrappers);
+        for (unsigned i = 0; i < prefs.num_cols; i++) {
+            QAbstractItemDelegate *col_delegate = itemDelegateForColumn(i);
+            if (col_delegate) {
+                view->setItemDelegateForColumn(i, new PinnedOverlayView::FixedRowHeightDelegate(col_delegate, row_height, view));
+            }
         }
     }
 }
