@@ -3938,34 +3938,34 @@ void proto_register_tns(void)
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_parse, {
 			"Parse", "tns.data_all8.options.parse", FT_BOOLEAN, 32,
-			NULL, 0x0001, NULL, HFILL }},
+			NULL, 0x00000001, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_bind, {
 			"Bind Values Present", "tns.data_all8.options.bind", FT_BOOLEAN, 32,
-			NULL, 0x0008, NULL, HFILL }},
+			NULL, 0x00000008, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_define, {
 			"Define Columns Present", "tns.data_all8.options.define", FT_BOOLEAN, 32,
-			NULL, 0x0010, NULL, HFILL }},
+			NULL, 0x00000010, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_execute, {
 			"Execute", "tns.data_all8.options.execute", FT_BOOLEAN, 32,
-			NULL, 0x0020, NULL, HFILL }},
+			NULL, 0x00000020, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_commit, {
 			"Autocommit", "tns.data_all8.options.commit", FT_BOOLEAN, 32,
-			NULL, 0x0100, NULL, HFILL }},
+			NULL, 0x00000100, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_plsql, {
 			"PL/SQL Binds", "tns.data_all8.options.plsql", FT_BOOLEAN, 32,
-			NULL, 0x0400, NULL, HFILL }},
+			NULL, 0x00000400, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_fetch, {
 			"Fetch", "tns.data_all8.options.fetch", FT_BOOLEAN, 32,
-			NULL, 0x0040, NULL, HFILL }},
+			NULL, 0x00000040, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_not_plsql, {
 			"Not PL/SQL", "tns.data_all8.options.not_plsql", FT_BOOLEAN, 32,
-			NULL, 0x8000, NULL, HFILL }},
+			NULL, 0x00008000, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_describe, {
 			"Describe", "tns.data_all8.options.describe", FT_BOOLEAN, 32,
-			NULL, 0x20000, NULL, HFILL }},
+			NULL, 0x00020000, NULL, HFILL }},
 		{ &hf_tns_data_all8_opt_batch_errors, {
 			"Batch Errors", "tns.data_all8.options.batch_errors", FT_BOOLEAN, 32,
-			NULL, 0x80000, NULL, HFILL }},
+			NULL, 0x00080000, NULL, HFILL }},
 		{ &hf_tns_data_all8_fetch_rows, {
 			"Fetch Rows", "tns.data_all8.fetch_rows", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
@@ -3983,16 +3983,16 @@ void proto_register_tns(void)
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_all8_xflag_scrollable, {
 			"Scrollable", "tns.data_all8.exec_flags.scrollable", FT_BOOLEAN, 32,
-			NULL, 0x0002, NULL, HFILL }},
+			NULL, 0x00000002, NULL, HFILL }},
 		{ &hf_tns_data_all8_xflag_no_cancel_on_eof, {
 			"No Cancel on EOF", "tns.data_all8.exec_flags.no_cancel_on_eof", FT_BOOLEAN, 32,
-			NULL, 0x0080, NULL, HFILL }},
+			NULL, 0x00000080, NULL, HFILL }},
 		{ &hf_tns_data_all8_xflag_dml_rowcounts, {
 			"DML Row Counts", "tns.data_all8.exec_flags.dml_rowcounts", FT_BOOLEAN, 32,
-			NULL, 0x4000, "Return the rows each iteration of an array DML affected", HFILL }},
+			NULL, 0x00004000, "Return the rows each iteration of an array DML affected", HFILL }},
 		{ &hf_tns_data_all8_xflag_implicit_rs, {
 			"Implicit Result Sets", "tns.data_all8.exec_flags.implicit_resultset", FT_BOOLEAN, 32,
-			NULL, 0x8000, NULL, HFILL }},
+			NULL, 0x00008000, NULL, HFILL }},
 		{ &hf_tns_data_all8_fetch_orientation, {
 			"Fetch Orientation", "tns.data_all8.fetch_orientation", FT_UINT32, BASE_HEX,
 			VALS(tns_fetch_orientations), 0x0, NULL, HFILL }},
@@ -4007,7 +4007,7 @@ void proto_register_tns(void)
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_reexec_opt2_commit, {
 			"Autocommit", "tns.data_reexec.options2.commit", FT_BOOLEAN, 32,
-			NULL, 0x0001, NULL, HFILL }},
+			NULL, 0x00000001, NULL, HFILL }},
 		{ &hf_tns_data_all8_define_count, {
 			"Define Count", "tns.data_all8.define_count", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
