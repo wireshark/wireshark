@@ -8754,7 +8754,7 @@ proto_register_isakmp(void)
      { &ei_isakmp_bad_fragment_number, { "ike.fragment_number.invalid", PI_MALFORMED, PI_ERROR, "Invalid fragment numbering", EXPFILL }},
      { &ei_isakmp_notify_data_3gpp_unknown_device_identity, { "ike.notify.priv.3gpp.unknown_device_identity", PI_PROTOCOL, PI_WARN, "Type of device identity not known", EXPFILL }},
      { &ei_isakmp_notify_data_nat_payload_sha1_mismatch, { "ike.notify.nat_payload.sha1_mismatch", PI_PROTOCOL, PI_NOTE, "SHA1 mismatch in NAT payload. NAT was detected", EXPFILL }},
-     { &ei_isakmp_notify_data_nat_payload_sha1_unchecked, { "ike.notify.nat_payload.sha1_mismatch", PI_PROTOCOL, PI_NOTE, "Could not check SHA1 to detect NAT as frame address is not IP", EXPFILL }},
+     { &ei_isakmp_notify_data_nat_payload_sha1_unchecked, { "ike.notify.nat_payload.sha1_unchecked", PI_PROTOCOL, PI_NOTE, "Could not check SHA1 to detect NAT as frame address is not IP", EXPFILL }},
   };
 
   expert_module_t* expert_isakmp;

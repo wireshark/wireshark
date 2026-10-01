@@ -3918,7 +3918,7 @@ static const value_string ansi_a_signal_signal_vals[] = {
     { 0, NULL }
 };
 
-static const value_string ansi_a_signal_alert_pitch_vals[] = {
+static const value_string ansi_a_alert_pitch_vals[] = {
     { 0x00,     "Medium pitch (standard alert)" },
     { 0x01,     "High pitch" },
     { 0x02,     "Low pitch" },
@@ -5174,14 +5174,6 @@ static const value_string ansi_a_ms_info_rec_signal_type_vals[] = {
     { 0x0,      "Tone signal" },
     { 0x1,      "ISDN Alerting" },
     { 0x2,      "IS-54B Alerting" },
-    { 0x3,      "Reserved" },
-    { 0, NULL }
-};
-
-static const value_string ansi_a_ms_info_rec_signal_alert_pitch_vals[] = {
-    { 0x0,      "Medium pitch (standard alert)" },
-    { 0x1,      "High pitch" },
-    { 0x2,      "Low pitch" },
     { 0x3,      "Reserved" },
     { 0, NULL }
 };
@@ -10811,7 +10803,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_ms_info_rec_signal_alert_pitch,
             { "Alert Type", "ansi_a_bsmap.ms_info_rec.signal.alert_pitch",
-            FT_UINT8, BASE_HEX, VALS(ansi_a_ms_info_rec_signal_alert_pitch_vals), 0x30,
+            FT_UINT8, BASE_HEX, VALS(ansi_a_alert_pitch_vals), 0x30,
             NULL, HFILL }
         },
         { &hf_ansi_a_ms_info_rec_signal_tone,
@@ -11628,7 +11620,7 @@ proto_register_ansi_a(void)
         },
         { &hf_ansi_a_signal_alert_pitch,
             { "Alert Pitch", "ansi_a_bsmap.signal.alert_pitch",
-            FT_UINT8, BASE_DEC, VALS(ansi_a_signal_alert_pitch_vals), 0x03,
+            FT_UINT8, BASE_DEC, VALS(ansi_a_alert_pitch_vals), 0x03,
             NULL, HFILL }
         },
         { &hf_ansi_a_clg_party_bcd_num_ton,

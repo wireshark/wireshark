@@ -3184,8 +3184,7 @@ dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case MAGIC_REPLY_TYPE_3:
-      command = tvb_get_ntohl(tvb, offset);
-      proto_tree_add_item(magic_tree, hf_magic_command_vals, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint(magic_tree, hf_magic_command_vals, tvb, offset, 4, ENC_BIG_ENDIAN, &command);
       offset += 4;
       proto_tree_add_item(magic_tree, hf_magic_reply_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
@@ -5744,8 +5743,7 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
   proto_tree_add_item_ret_uint(ti, hf_acn_dmx_discovery_page, tvb, data_offset, 1, ENC_BIG_ENDIAN, &page);
   data_offset += 1;
 
-  lastpage = tvb_get_uint8(tvb, data_offset);
-  proto_tree_add_item(ti, hf_acn_dmx_discovery_last_page, tvb, data_offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(ti, hf_acn_dmx_discovery_last_page, tvb, data_offset, 1, ENC_BIG_ENDIAN, &lastpage);
   data_offset += 1;
 
   switch (vector) {

@@ -592,8 +592,7 @@ dissect_iso_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         offset += 4;
     }
 
-    seq_no = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(iso_data_load_tree, hf_bthci_iso_data_packet_seq_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(iso_data_load_tree, hf_bthci_iso_data_packet_seq_num, tvb, offset, 2, ENC_LITTLE_ENDIAN, &seq_no);
     offset += 2;
 
     proto_tree_add_item_ret_uint(iso_data_load_tree, hf_bthci_iso_data_sdu_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sdu_length);

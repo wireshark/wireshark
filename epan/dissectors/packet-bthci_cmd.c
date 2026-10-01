@@ -3403,8 +3403,7 @@ dissect_antenna_switching_pattern(tvbuff_t *tvb, unsigned offset, proto_tree *tr
 {
     uint8_t length_antenna_pattern;
 
-    proto_tree_add_item(tree, hf_bthci_cmd_antenna_switching_pattern_length, tvb, offset, 1, ENC_NA);
-    length_antenna_pattern = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_antenna_switching_pattern_length, tvb, offset, 1, ENC_NA, &length_antenna_pattern);
     offset += 1;
 
     if (length_antenna_pattern > 0) {
@@ -6407,8 +6406,7 @@ dissect_le_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *t
             offset+=2;
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_advertising_properties, ett_adv_properties, hfx_bthci_cmd_adv_properties, ENC_LITTLE_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_bthci_cmd_num_subevents, tvb, offset, 1, ENC_NA);
-            sub_events = tvb_get_uint8(tvb, offset);
+            proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_num_subevents, tvb, offset, 1, ENC_NA, &sub_events);
             offset++;
             sub_item = proto_tree_add_none_format(tree, hf_bthci_cmd_subevents, tvb, offset, sub_events, "Sub-events");
             sub_tree = proto_item_add_subtree(sub_item, ett_adv_subevents);

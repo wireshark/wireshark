@@ -663,8 +663,7 @@ dissect_bthci_vendor_android_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     case 0x0157: /* LE Advertising Packet Content Filter (APCF) */ {
         uint8_t     action = 0;
 
-        proto_tree_add_item(main_tree, hf_android_le_advertising_filter_subcode, tvb, offset, 1, ENC_NA);
-        subcode = tvb_get_uint8(tvb, offset);
+        proto_tree_add_item_ret_uint8(main_tree, hf_android_le_advertising_filter_subcode, tvb, offset, 1, ENC_NA, &subcode);
         offset += 1;
 
         description = val_to_str_const(subcode, android_le_subcode_advertising_filter_vals, "Unknown");

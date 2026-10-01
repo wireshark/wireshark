@@ -2571,8 +2571,7 @@ static int dissect_aim_tlv_value_icq(proto_item *ti, uint16_t subtype _U_, tvbuf
 	proto_tree_add_item(t, hf_icq_tlv_request_owner_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_item(t, hf_icq_tlv_request_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	req_type = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item_ret_uint16(t, hf_icq_tlv_request_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &req_type);
 	offset += 2;
 
 	proto_tree_add_item(t, hf_icq_tlv_request_seq_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -3523,8 +3522,7 @@ static int dissect_ssi_item(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 
 	/* Size of the following TLV in bytes (as opposed to the number of
 	   TLV objects in the chain) */
-	tlv_len = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_tlvlen, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(ssi_entry, hf_aim_fnac_subtype_ssi_tlvlen, tvb, offset, 2, ENC_BIG_ENDIAN, &tlv_len);
 	offset += 2;
 
 	endoffset = offset;
@@ -3593,8 +3591,7 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	offset += 1;
 
 	/* Number of items */
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2, ENC_BIG_ENDIAN);
-	num_items = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item_ret_uint16(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2, ENC_BIG_ENDIAN, &num_items);
 	offset += 2;
 
 	for(i = 0; i < num_items; i++) {
@@ -3615,8 +3612,8 @@ static int dissect_aim_snac_ssi_auth_request(tvbuff_t *tvb, packet_info *pinfo _
 	/*uint16_t unknown;*/
 
 	/* get buddy length (1 byte) */
-	uint8_t buddyname_length = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, ENC_BIG_ENDIAN);
+	uint8_t buddyname_length;
+	proto_tree_add_item_ret_uint8(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, ENC_BIG_ENDIAN, &buddyname_length);
 	offset += 1;
 
 	/* show buddy name */
@@ -3649,8 +3646,8 @@ static int dissect_aim_snac_ssi_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_
 	uint16_t reason_length;
 
 	/* get buddy length (1 byte) */
-	uint8_t buddyname_length = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, ENC_BIG_ENDIAN);
+	uint8_t buddyname_length;
+	proto_tree_add_item_ret_uint8(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, ENC_BIG_ENDIAN, &buddyname_length);
 	offset += 1;
 
 	/* show buddy name */
@@ -3759,8 +3756,7 @@ static int dissect_aim_sst_buddy_up_repl (tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 4, ENC_NA);
 	offset+=4;
 
-	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-	md5_size = tvb_get_uint8(tvb, offset);
+	proto_tree_add_item_ret_uint8(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, ENC_BIG_ENDIAN, &md5_size);
 	offset++;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, ENC_NA);

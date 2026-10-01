@@ -710,7 +710,7 @@ proto_register_geneve(void)
     proto_register_field_array(proto_geneve, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    geneve_vendor_dissector_table = register_dissector_table("geneve.vendor_opts", "Genenve Vendor OPTs", proto_geneve, FT_UINT32, BASE_DEC);
+    geneve_vendor_dissector_table = register_dissector_table("geneve.vendor_opts", "Geneve Vendor OPTs", proto_geneve, FT_UINT32, BASE_DEC);
 
     expert_geneve = expert_register_protocol(proto_geneve);
     expert_register_field_array(expert_geneve, ei, array_length(ei));

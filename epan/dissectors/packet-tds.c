@@ -5542,8 +5542,7 @@ dissect_tds_envchg_token(tvbuff_t *tvb, unsigned offset, proto_tree *tree, tds_c
                         tds_get_int2_encoding(tds_info));
     cur += 2;
 
-    env_type = tvb_get_uint8(tvb, cur);
-    proto_tree_add_item(tree, hf_tds_envchg_type, tvb, cur, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_tds_envchg_type, tvb, cur, 1, ENC_NA, &env_type);
     cur += 1;
 
     /* Read new value */
@@ -6062,8 +6061,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
 
                     if(schema_present)
                     {
-                        msg_len = tvb_get_uint8(tvb, cur);
-                        proto_tree_add_item(col_tree, hf_tds_colmetadata_dbname_length, tvb, cur, 1, ENC_NA);
+                        proto_tree_add_item_ret_uint16(col_tree, hf_tds_colmetadata_dbname_length, tvb, cur, 1, ENC_NA, &msg_len);
                         cur += 1;
                         if(msg_len != 0) {
                             msg_len *= 2;
@@ -6071,8 +6069,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
                             cur += msg_len;
                         }
 
-                        msg_len = tvb_get_uint8(tvb, cur);
-                        proto_tree_add_item(col_tree, hf_tds_colmetadata_owningschema_length, tvb, cur, 1, ENC_NA);
+                        proto_tree_add_item_ret_uint16(col_tree, hf_tds_colmetadata_owningschema_length, tvb, cur, 1, ENC_NA, &msg_len);
                         cur += 1;
                         if(msg_len != 0) {
                             msg_len *= 2;
@@ -6080,8 +6077,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
                             cur += msg_len;
                         }
 
-                        msg_len = tvb_get_uint8(tvb, cur);
-                        proto_tree_add_item(col_tree, hf_tds_colmetadata_typename_length, tvb, cur, 1, ENC_NA);
+                        proto_tree_add_item_ret_uint16(col_tree, hf_tds_colmetadata_typename_length, tvb, cur, 1, ENC_NA, &msg_len);
                         cur += 1;
                         if(msg_len != 0) {
                             msg_len *= 2;
@@ -6089,8 +6085,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
                             cur += msg_len;
                         }
 
-                        msg_len = tvb_get_uint8(tvb, cur);
-                        proto_tree_add_item(col_tree, hf_tds_colmetadata_xmlschemacollection_length, tvb, cur, 1, ENC_NA);
+                        proto_tree_add_item_ret_uint16(col_tree, hf_tds_colmetadata_xmlschemacollection_length, tvb, cur, 1, ENC_NA, &msg_len);
                         cur += 1;
                         if(msg_len != 0) {
                             msg_len *= 2;
@@ -6106,8 +6101,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
                     proto_tree_add_item(col_tree, hf_tds_colmetadata_maxbytesize, tvb, cur, 2, ENC_LITTLE_ENDIAN);
                     cur += 2;
 
-                    msg_len = tvb_get_uint8(tvb, cur);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_dbname_length, tvb, cur, 1, ENC_NA);
+                    proto_tree_add_item_ret_uint16(col_tree, hf_tds_colmetadata_dbname_length, tvb, cur, 1, ENC_NA, &msg_len);
                     cur += 1;
                     if(msg_len != 0) {
                         msg_len *= 2;
@@ -6115,8 +6109,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
                         cur += msg_len;
                     }
 
-                    msg_len = tvb_get_uint8(tvb, cur);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_schemaname_length, tvb, cur, 1, ENC_NA);
+                    proto_tree_add_item_ret_uint16(col_tree, hf_tds_colmetadata_schemaname_length, tvb, cur, 1, ENC_NA, &msg_len);
                     cur += 1;
                     if(msg_len != 0) {
                         msg_len *= 2;
@@ -6124,8 +6117,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
                         cur += msg_len;
                     }
 
-                    msg_len = tvb_get_uint8(tvb, cur);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_typename_length, tvb, cur, 1, ENC_NA);
+                    proto_tree_add_item_ret_uint16(col_tree, hf_tds_colmetadata_typename_length, tvb, cur, 1, ENC_NA, &msg_len);
                     cur += 1;
                     if(msg_len != 0) {
                         msg_len *= 2;
@@ -6220,8 +6212,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
         }
 
         /* ColName */
-        msg_len = tvb_get_uint8(tvb, cur);
-        proto_tree_add_item(col_tree, hf_tds_colmetadata_colname_length, tvb, cur, 1, ENC_NA);
+        proto_tree_add_item_ret_uint16(col_tree, hf_tds_colmetadata_colname_length, tvb, cur, 1, ENC_NA, &msg_len);
         cur += 1;
         if(msg_len != 0) {
             msg_len *= 2;
@@ -6537,8 +6528,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_in
         switch(tds_protocol_type) {
             case TDS_PROTOCOL_4:
             case TDS_PROTOCOL_5:
-                len = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(tree, hf_tds_rpc_name_length8, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item_ret_uint(tree, hf_tds_rpc_name_length8, tvb, offset, 1, ENC_NA, &len);
                 proto_tree_add_item(tree, hf_tds_rpc_name, tvb, offset + 1, len, ENC_ASCII);
                 offset += 1 + len;
                 break;
@@ -6549,8 +6539,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_in
             case TDS_PROTOCOL_7_3:
             case TDS_PROTOCOL_7_4:
             default: /* unspecified: try as if TDS7 */
-                len = tvb_get_letohs(tvb, offset);
-                proto_tree_add_item(tree, hf_tds_rpc_name_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(tree, hf_tds_rpc_name_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &len);
                 offset += 2;
                 if (len == 0xFFFF) {
                     proto_tree_add_item(tree, hf_tds_rpc_proc_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
