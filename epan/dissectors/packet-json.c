@@ -2404,8 +2404,8 @@ jsonplus_find_wildcard_field(json_field_t *field, const char *key_str)
 {
 	if (!field || !field->wildcard_fields || !key_str)
 		return NULL;
-	for (GSList *wc = field->wildcard_fields; wc; wc = wc->next) {
-		json_wildcard_field_t *jwf = (json_wildcard_field_t *)wc->data;
+	for (wmem_list_frame_t *wc = wmem_list_head(field->wildcard_fields); wc; wc = wmem_list_frame_next(wc)) {
+		json_wildcard_field_t *jwf = (json_wildcard_field_t *)wmem_list_frame_data(wc);
 		if (jwf->match_re && ws_regex_matches(jwf->match_re, key_str))
 			return jwf;
 	}

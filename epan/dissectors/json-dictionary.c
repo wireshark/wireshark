@@ -638,8 +638,11 @@ static json_wildcard_field_t *create_wildcardfield(dict_wildcardfield_def_t *wf_
 	for (GSList *wc = wf_def->child_wildcards; wc; wc = wc->next) {
 		json_wildcard_field_t *cwf = create_wildcardfield(
 			(dict_wildcardfield_def_t *)wc->data, hf_array, ett_array, dict, type_definitions);
-		if (cwf)
-			jwf->child_wildcards = g_slist_append(jwf->child_wildcards, cwf);
+		if (cwf) {
+			if (!jwf->child_wildcards)
+				jwf->child_wildcards = wmem_list_new(wmem_epan_scope());
+			wmem_list_append(jwf->child_wildcards, cwf);
+		}
 	}
 
 	return jwf;
@@ -894,8 +897,11 @@ static json_field_t *create_json_field(dict_field_def_t *field_def, wmem_array_t
 			json_wildcard_field_t *jwf = create_wildcardfield(
 				(dict_wildcardfield_def_t *)wc->data,
 				hf_array, ett_array, dict, type_definitions);
-			if (jwf)
-				field->wildcard_fields = g_slist_append(field->wildcard_fields, jwf);
+			if (jwf) {
+				if (!field->wildcard_fields)
+					field->wildcard_fields = wmem_list_new(wmem_epan_scope());
+				wmem_list_append(field->wildcard_fields, jwf);
+			}
 		}
 	}
 

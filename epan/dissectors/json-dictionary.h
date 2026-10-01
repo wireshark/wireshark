@@ -61,7 +61,7 @@ struct _json_field_t {
 	char *parser_args;          /* Additional arguments for parser */
 	wmem_tree_t *parser_child_hf; /* Dynamic header fields from parser (filter → hf_index) */
 	bool case_insensitive;      /* Enable case-insensitive path matching */
-	GSList *wildcard_fields;    /* Ordered list of json_wildcard_field_t* (NULL if none) */
+	wmem_list_t *wildcard_fields; /* Ordered list of json_wildcard_field_t* (NULL if none) */
 };
 
 // Forward declaration to keep wsutil/regex.h optional for callers
@@ -76,7 +76,7 @@ struct _json_wildcard_field_t {
 	char   *display_value;           /* label for key-value string field */
 	struct _ws_regex *match_re;      /* compiled PCRE2 regex */
 	wmem_tree_t *child_fields;       /* child json_field_t entries keyed by path */
-	GSList      *child_wildcards;    /* nested json_wildcard_field_t entries (ordered) */
+	wmem_list_t *child_wildcards;    /* nested json_wildcard_field_t entries (ordered) */
 	int     hf_key_value;            /* hf index for the auto key-value string field */
 	int    *ett;                     /* subtree index */
 };
