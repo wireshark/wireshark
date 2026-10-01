@@ -189,7 +189,7 @@ static const value_string authn_level_vals[] = {
 #define PFC_FIRST_FRAG          0x01    /* First fragment */
 #define PFC_LAST_FRAG           0x02    /* Last fragment */
 #define PFC_PENDING_CANCEL      0x04    /* Cancel was pending at sender */
-#define PFC_HDR_SIGNING         PFC_PENDING_CANCEL /* on bind and alter req */
+#define PFC_HDR_SIGNING         PFC_PENDING_CANCEL /* [MS-RPCE] 2.2.2.3 */
 #define PFC_RESERVED_1          0x08
 #define PFC_CONC_MPX            0x10    /* supports concurrent multiplexing
                                          * of a single connection. */
@@ -447,6 +447,7 @@ static int hf_dcerpc_cn_flags;
 static int hf_dcerpc_cn_flags_first_frag;
 static int hf_dcerpc_cn_flags_last_frag;
 static int hf_dcerpc_cn_flags_cancel_pending;
+static int hf_dcerpc_cn_flags_support_header_sign;
 static int hf_dcerpc_cn_flags_reserved;
 static int hf_dcerpc_cn_flags_mpx;
 static int hf_dcerpc_cn_flags_dne;
@@ -5560,6 +5561,17 @@ dissect_dcerpc_cn(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
         &hf_dcerpc_cn_flags_first_frag,
         NULL
     };
+    static int * const hdr_signing_flags[] = {
+        &hf_dcerpc_cn_flags_object,
+        &hf_dcerpc_cn_flags_maybe,
+        &hf_dcerpc_cn_flags_dne,
+        &hf_dcerpc_cn_flags_mpx,
+        &hf_dcerpc_cn_flags_reserved,
+        &hf_dcerpc_cn_flags_support_header_sign,
+        &hf_dcerpc_cn_flags_last_frag,
+        &hf_dcerpc_cn_flags_first_frag,
+        NULL
+    };
 
     /*
      * when done over nbt, dcerpc requests are padded with 4 bytes of null
@@ -5654,8 +5666,17 @@ dissect_dcerpc_cn(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                                fragment_type(hdr.flags));
     }
 
+    /* [MS-RPCE] 2.2.2.3 reuses bit 0x04 for header-signing support on
+     * bind, bind_ack, alter_context, alter_context_resp, and rpc_auth_3.
+     * On all other connection-oriented PDU types, it means cancel pending.
+     * Select the displayed field by PDU type, not by the authentication type.
+     */
     proto_tree_add_bitmask_value_with_flags(dcerpc_tree, tvb, offset, hf_dcerpc_cn_flags,
-                                ett_dcerpc_cn_flags, hdr_flags, hdr.flags, BMT_NO_APPEND);
+                                ett_dcerpc_cn_flags,
+                                (hdr.ptype == PDU_BIND || hdr.ptype == PDU_BIND_ACK ||
+                                 hdr.ptype == PDU_ALTER || hdr.ptype == PDU_ALTER_ACK ||
+                                 hdr.ptype == PDU_AUTH3) ? hdr_signing_flags : hdr_flags,
+                                hdr.flags, BMT_NO_APPEND);
     offset++;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Fragment: %s", fragment_type(hdr.flags));
@@ -6796,6 +6817,8 @@ proto_register_dcerpc(void)
           { "Last Frag", "dcerpc.cn_flags.last_frag", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFC_LAST_FRAG, NULL, HFILL }},
         { &hf_dcerpc_cn_flags_cancel_pending,
           { "Cancel Pending", "dcerpc.cn_flags.cancel_pending", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFC_PENDING_CANCEL, NULL, HFILL }},
+        { &hf_dcerpc_cn_flags_support_header_sign,
+          { "Support Header Sign", "dcerpc.cn_flags.support_header_sign", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFC_HDR_SIGNING, NULL, HFILL }},
         { &hf_dcerpc_cn_flags_reserved,
           { "Reserved", "dcerpc.cn_flags.reserved", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PFC_RESERVED_1, NULL, HFILL }},
         { &hf_dcerpc_cn_flags_mpx,

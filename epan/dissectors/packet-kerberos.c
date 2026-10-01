@@ -233,6 +233,7 @@ static unsigned dissect_kerberos_KRB5_SRP_PA_CLIENT_RESPONSE(bool implicit_tag _
 static unsigned dissect_kerberos_KRB5_SRP_PA_SERVER_VERIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static unsigned dissect_kerberos_AD_CAMMAC(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static unsigned dissect_kerberos_AD_AUTHENTICATION_INDICATOR(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static unsigned dissect_kerberos_IAKERB_FINISHED(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* Desegment Kerberos over TCP messages */
 static bool krb_desegment = true;
@@ -257,6 +258,9 @@ static int hf_krb_gssapi_len;
 static int hf_krb_gssapi_bnd;
 static int hf_krb_gssapi_dlgopt;
 static int hf_krb_gssapi_dlglen;
+static int hf_krb_gssapi_ext_type;
+static int hf_krb_gssapi_ext_len;
+static int hf_krb_gssapi_ext_data;
 static int hf_krb_gssapi_c_flag_deleg;
 static int hf_krb_gssapi_c_flag_mutual;
 static int hf_krb_gssapi_c_flag_replay;
@@ -526,6 +530,7 @@ static int hf_kerberos_mac;                       /* Verifier_MAC */
 static int hf_kerberos_identifier;                /* PrincipalName */
 static int hf_kerberos_enctype;                   /* Int32 */
 static int hf_kerberos_mac_01;                    /* Checksum */
+static int hf_kerberos_gss_mic;                   /* Checksum */
 static int hf_kerberos_newpasswd;                 /* OCTET_STRING */
 static int hf_kerberos_targname;                  /* PrincipalName */
 static int hf_kerberos_targrealm;                 /* Realm */
@@ -727,6 +732,7 @@ static int ett_kerberos_AD_CAMMAC;
 static int ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier;
 static int ett_kerberos_Verifier;
 static int ett_kerberos_Verifier_MAC;
+static int ett_kerberos_IAKERB_FINISHED;
 static int ett_kerberos_ChangePasswdData;
 static int ett_kerberos_PA_AUTHENTICATION_SET_ELEM;
 static int ett_kerberos_KrbFastArmor;
@@ -755,6 +761,7 @@ static expert_field ei_kerberos_decrypted_keytype;
 static expert_field ei_kerberos_learnt_keytype;
 static expert_field ei_kerberos_address;
 static expert_field ei_krb_gssapi_dlglen;
+static expert_field ei_krb_gssapi_extlen;
 
 static dissector_handle_t krb4_handle;
 
@@ -3506,6 +3513,13 @@ static const value_string krb5_msg_types[] = {
 #define KRB5_GSS_C_INTEG_FLAG             0x00000020
 #define KRB5_GSS_C_DCE_STYLE              0x00001000
 
+static const value_string krb_gssapi_ext_types[] = {
+	{ 0, "Channel binding" },
+	{ 1, "IAKERB finished (legacy)" },
+	{ 2, "IAKERB finished" },
+	{ 0, NULL }
+};
+
 static const true_false_string tfs_gss_flags_deleg = {
 	"Delegate credentials to remote peer",
 	"Do NOT delegate"
@@ -4175,14 +4189,15 @@ dissect_kerberos_AD_TARGET_PRINCIPAL(bool implicit_tag _U_, tvbuff_t *tvb _U_,
 	return offset;
 }
 
-/* Dissect a GSSAPI checksum as per RFC1964. This is NOT ASN.1 encoded.
+/* Dissect a GSSAPI checksum as per RFC 4121 and RFC 6542. This is NOT ASN.1 encoded.
  */
 static unsigned
-dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *tvb)
+dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb)
 {
 	unsigned offset=0;
-	uint32_t len;
+	uint32_t len, flags, ext_type, ext_len;
 	uint16_t dlglen;
+	tvbuff_t *next_tvb;
 
 	/* Length of Bnd field */
 	len=tvb_get_letohl(tvb, offset);
@@ -4195,6 +4210,7 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
 
 
 	/* flags */
+	flags=tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_dce_style, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_integ, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_conf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -4204,31 +4220,50 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
 	proto_tree_add_item(tree, hf_krb_gssapi_c_flag_deleg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	/* the next fields are optional so we have to check that we have
-	 * more data in our buffers */
-	if(tvb_reported_length_remaining(tvb, offset)<2){
-		return offset;
-	}
-	/* dlgopt identifier */
-	proto_tree_add_item(tree, hf_krb_gssapi_dlgopt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
-
-	if(tvb_reported_length_remaining(tvb, offset)<2){
-		return offset;
-	}
-	/* dlglen identifier */
-	dlglen=tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_krb_gssapi_dlglen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
-
-	if(dlglen!=tvb_reported_length_remaining(tvb, offset)){
-		proto_tree_add_expert_format(tree, actx->pinfo, &ei_krb_gssapi_dlglen, tvb, 0, 0,
-				"Error: DlgLen:%d is not the same as number of bytes remaining:%d", dlglen, tvb_captured_length_remaining(tvb, offset));
-		return offset;
+	if (flags & KRB5_GSS_C_DELEG_FLAG) {
+		if (tvb_reported_length_remaining(tvb, offset) < 4) {
+			return offset;
+		}
+		proto_tree_add_item(tree, hf_krb_gssapi_dlgopt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+		dlglen=tvb_get_letohs(tvb, offset);
+		proto_tree_add_item(tree, hf_krb_gssapi_dlglen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+		if (dlglen > tvb_reported_length_remaining(tvb, offset)) {
+			proto_tree_add_expert_format(tree, actx->pinfo, &ei_krb_gssapi_dlglen, tvb, offset, -1,
+					"DlgLen:%u exceeds bytes remaining:%d", dlglen, tvb_reported_length_remaining(tvb, offset));
+			return offset;
+		}
+		next_tvb=tvb_new_subset_length(tvb, offset, dlglen);
+		dissect_kerberos_Applications(false, next_tvb, 0, actx, tree, /* hf_index */ -1);
+		offset += dlglen;
 	}
 
-	/* this should now be a KRB_CRED message */
-	offset=dissect_kerberos_Applications(false, tvb, offset, actx, tree, /* hf_index */ -1);
+	/* RFC 6542 extensions have a big-endian type and length. */
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		if (tvb_reported_length_remaining(tvb, offset) < 8) {
+			proto_tree_add_expert_format(tree, actx->pinfo, &ei_krb_gssapi_extlen, tvb, offset, -1,
+					"Incomplete GSSAPI extension header");
+			return offset;
+		}
+		ext_type=tvb_get_ntohl(tvb, offset);
+		proto_tree_add_item(tree, hf_krb_gssapi_ext_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		ext_len=tvb_get_ntohl(tvb, offset);
+		proto_tree_add_item(tree, hf_krb_gssapi_ext_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
+		if (ext_len > (uint32_t)tvb_reported_length_remaining(tvb, offset)) {
+			proto_tree_add_expert_format(tree, actx->pinfo, &ei_krb_gssapi_extlen, tvb, offset, -1,
+					"Extension length:%u exceeds bytes remaining:%d", ext_len, tvb_reported_length_remaining(tvb, offset));
+			return offset;
+		}
+		proto_tree_add_item(tree, hf_krb_gssapi_ext_data, tvb, offset, ext_len, ENC_NA);
+		if (ext_type == 1 || ext_type == 2) {
+			next_tvb=tvb_new_subset_length(tvb, offset, ext_len);
+			dissect_kerberos_IAKERB_FINISHED(false, next_tvb, 0, actx, tree, -1);
+		}
+		offset += ext_len;
+	}
 
 	return offset;
 }
@@ -7753,6 +7788,20 @@ dissect_kerberos_AD_CAMMAC(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
 }
 
 
+static const ber_sequence_t IAKERB_FINISHED_sequence[] = {
+  { &hf_kerberos_gss_mic    , BER_CLASS_CON, 1, 0, dissect_kerberos_Checksum },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static unsigned
+dissect_kerberos_IAKERB_FINISHED(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IAKERB_FINISHED_sequence, hf_index, ett_kerberos_IAKERB_FINISHED);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ChangePasswdData_sequence[] = {
   { &hf_kerberos_newpasswd  , BER_CLASS_CON, 0, 0, dissect_kerberos_OCTET_STRING },
   { &hf_kerberos_targname   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_kerberos_PrincipalName },
@@ -8861,6 +8910,15 @@ void proto_register_kerberos(void) {
 	{ &hf_krb_gssapi_dlglen, {
 		"DlgLen", "kerberos.gssapi.dlglen", FT_UINT16, BASE_DEC,
 		NULL, 0, "GSSAPI DlgLen", HFILL }},
+	{ &hf_krb_gssapi_ext_type, {
+		"Extension type", "kerberos.gssapi.extension.type", FT_UINT32, BASE_DEC,
+		VALS(krb_gssapi_ext_types), 0, NULL, HFILL }},
+	{ &hf_krb_gssapi_ext_len, {
+		"Extension length", "kerberos.gssapi.extension.length", FT_UINT32, BASE_DEC,
+		NULL, 0, NULL, HFILL }},
+	{ &hf_krb_gssapi_ext_data, {
+		"Extension data", "kerberos.gssapi.extension.data", FT_BYTES, BASE_NONE,
+		NULL, 0, NULL, HFILL }},
 	{ &hf_krb_midl_blob_len, {
 		"Blob Length", "kerberos.midl_blob_len", FT_UINT64, BASE_DEC,
 		NULL, 0, "Length of NDR encoded data that follows", HFILL }},
@@ -9848,6 +9906,10 @@ void proto_register_kerberos(void) {
       { "mac", "kerberos.mac_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "Checksum", HFILL }},
+    { &hf_kerberos_gss_mic,
+      { "gss-mic", "kerberos.gss_mic_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Checksum", HFILL }},
     { &hf_kerberos_newpasswd,
       { "newpasswd", "kerberos.newpasswd",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -10323,6 +10385,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_Verifier,
     &ett_kerberos_Verifier,
     &ett_kerberos_Verifier_MAC,
+    &ett_kerberos_IAKERB_FINISHED,
     &ett_kerberos_ChangePasswdData,
     &ett_kerberos_PA_AUTHENTICATION_SET_ELEM,
     &ett_kerberos_KrbFastArmor,
@@ -10352,7 +10415,8 @@ void proto_register_kerberos(void) {
 		{ &ei_kerberos_decrypted_keytype, { "kerberos.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decrypted keytype", EXPFILL }},
 		{ &ei_kerberos_learnt_keytype, { "kerberos.learnt_keytype", PI_SECURITY, PI_CHAT, "Learnt keytype", EXPFILL }},
 		{ &ei_kerberos_address, { "kerberos.address.unknown", PI_UNDECODED, PI_WARN, "KRB Address: I don't know how to parse this type of address yet", EXPFILL }},
-		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen is not the same as number of bytes remaining", EXPFILL }},
+		{ &ei_krb_gssapi_dlglen, { "kerberos.gssapi.dlglen.error", PI_MALFORMED, PI_ERROR, "DlgLen exceeds bytes remaining", EXPFILL }},
+		{ &ei_krb_gssapi_extlen, { "kerberos.gssapi.extension.length.error", PI_MALFORMED, PI_ERROR, "Invalid GSSAPI extension length", EXPFILL }},
 	};
 
 	expert_module_t* expert_krb;

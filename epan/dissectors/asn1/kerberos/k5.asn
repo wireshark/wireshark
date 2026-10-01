@@ -1006,4 +1006,20 @@ Verifier-MAC         ::= SEQUENCE {
 
 END
 
+-- draft-ietf-kitten-iakerb-03, Section 4.
+IAKERB DEFINITIONS EXPLICIT TAGS ::= BEGIN
+
+IMPORTS
+    Checksum
+        FROM KerberosV5Spec2 { iso(1) identified-organization(3)
+            dod(6) internet(1) security(5) kerberosV5(2)
+            modules(4) krb5spec2(2) };
+
+IAKERB-FINISHED ::= SEQUENCE {
+    gss-mic [1] Checksum,
+    ...
+}
+
+END
+
 -- etags -r '/\([A-Za-z][-A-Za-z0-9]*\).*::=/\1/' k5.asn1
