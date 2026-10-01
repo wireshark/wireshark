@@ -103,7 +103,7 @@ static uint8_t crc8_table[256] = {
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
-static dissector_handle_t eth_withoutfcs_handle;
+static dissector_handle_t vlan_handle;
 static dissector_handle_t dvb_s2_table_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t mp2t_handle;
@@ -1422,7 +1422,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 case ETHERTYPE_VLAN:
                     if (dvb_s2_full_dissection)
                     {
-                        call_dissector(eth_withoutfcs_handle, data_tvb, pinfo, tree);
+                        call_dissector(vlan_handle, data_tvb, pinfo, tree);
                         dissected = true;
                     }
                     break;
@@ -1441,6 +1441,10 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
                 default:
                     /* Not handled! TODO: expert info? */
+                    /* XXX - We could add more types from ETSI EN 301 545-2
+                     * Table 5-1 "Some Recognized SDU protocol types"; we could
+                     * even try to call the ethertype dissector table for values
+                     * above 0x600. */
                     break;
             }
         }
@@ -2588,7 +2592,7 @@ void proto_reg_handoff_dvb_s2_modeadapt(void)
     ip_handle   = find_dissector_add_dependency("ip", proto_dvb_s2_bb);
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_dvb_s2_bb);
     dvb_s2_table_handle = find_dissector("dvb-s2_table");
-    eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
+    vlan_handle = find_dissector_add_dependency("vlan", proto_dvb_s2_bb);
     data_handle = find_dissector("data");
     mp2t_handle = find_dissector_add_dependency("mp2t", proto_dvb_s2_bb);
 
