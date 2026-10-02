@@ -107,7 +107,27 @@ void PinnedRowView::mirrorSectionWidth(int column, int width)
 
 void PinnedRowView::setHorizontalScrollValue(int value)
 {
-    horizontalScrollBar()->setValue(value);
+    QScrollBar *scroll_bar = horizontalScrollBar();
+    // Make sure the range can hold the primary view's position before
+    // applying it, so the value isn't clamped.
+    if (value > scroll_bar->maximum()) {
+        scroll_bar->setRange(scroll_bar->minimum(), value);
+    }
+    scroll_bar->setValue(value);
+}
+
+void PinnedRowView::updateGeometries()
+{
+    QTreeView::updateGeometries();
+
+    if (packet_list_) {
+        QScrollBar *scroll_bar = horizontalScrollBar();
+        int primary_max = packet_list_->horizontalScrollBar()->maximum();
+        if (primary_max > scroll_bar->maximum()) {
+            scroll_bar->setRange(scroll_bar->minimum(), primary_max);
+        }
+        scroll_bar->setValue(packet_list_->horizontalScrollBar()->value());
+    }
 }
 
 QSize PinnedRowView::sizeHint() const

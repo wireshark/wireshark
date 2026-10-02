@@ -97,6 +97,16 @@ public slots:
 
 protected:
     /**
+     * @brief Widens this view's horizontal scroll range to the primary
+     * view's. QTreeView derives the range from its own content and
+     * viewport widths, which differ from the primary view's (frozen
+     * columns hidden here, scrollbar width), so at the far right edge
+     * this view would otherwise clamp short and stop scrolling while the
+     * primary view keeps going, misaligning the pinned rows' columns.
+     */
+    void updateGeometries() override;
+
+    /**
      * @brief Forwards mouse presses to the primary packet list so that
      * selection/marking behavior matches clicking the main view exactly.
      */
