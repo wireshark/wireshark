@@ -81,7 +81,6 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
                 break;
             }
         }
-        wtap_rec_reset(&rec);
     }
 
     stats->have_times = have_times;

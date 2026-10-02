@@ -2321,6 +2321,10 @@ void wtap_rec_apply_snapshot(wtap_rec *rec, uint32_t snaplen);
  * Clears existing content and resets the record for reuse.
  *
  * @param rec Pointer to the wtap_rec structure.
+ *
+ * @note wtap_read and wtap_seek_read call this before doing anything, so
+ * for a processing loop that calls one of those for each iteration and
+ * calls wtap_rec_cleanup at the end, this isn't needed.
  */
 WS_DLL_PUBLIC
 void wtap_rec_reset(wtap_rec *rec);

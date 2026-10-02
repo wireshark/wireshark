@@ -1896,27 +1896,13 @@ void wtap_set_cb_pcapng_block(wtap *wth, wtap_pcapng_block_callback_t callback, 
 static void
 wtap_reset_rec(wtap *wth, wtap_rec *rec)
 {
+	wtap_rec_reset(rec);
 	/*
 	 * Set the time stamp precision to the file's time stamp
 	 * precision value, as a default. If it's per-packet,
 	 * the read routine must override it.
 	 */
 	rec->tsprec = wth->file_tsprec;
-	rec->block = NULL;
-	rec->block_was_modified = false;
-
-	/*
-	 * Assume the file has only one section; the module for the
-	 * file type needs to indicate the section number if there's
-	 * more than one section.
-	 */
-	rec->section_number = 0;
-
-	/*
-	 * Reset the data buffer to an initialized state.
-	 * XXX - any other buffers?
-	 */
-	ws_buffer_clean(&rec->data);
 }
 
 
@@ -2266,6 +2252,28 @@ wtap_rec_reset(wtap_rec *rec)
 	wtap_block_unref(rec->block);
 	rec->block = NULL;
 	rec->block_was_modified = false;
+
+	/*
+	 * Assume the file has only one section; the module for the
+	 * file type needs to indicate the section number if there's
+	 * more than one section.
+	 */
+	rec->section_number = 0;
+
+	/*
+	 * Reset the data buffer to an initialized state.
+	 */
+	ws_buffer_clean(&rec->data);
+
+	/*
+	 * Reset the options buffer to an initialized state.
+	 * (Nothing in the repo uses this currently, but perhaps third
+	 * party code does.)
+	 */
+	ws_buffer_clean(&rec->options_buf);
+
+	/* XXX - Reset rec_type, presence_flags, etc? All the modules
+	 * explicitly set the values. */
 }
 
 /* clean up record metadata */

@@ -697,7 +697,6 @@ cf_read(capture_file *cf, bool reloading)
             }
             add_new_record_to_record_list(cf, &rec, cf->dfcode, &edt, cinfo,
                                           data_offset, &frame_dup_cache, cksum);
-            wtap_rec_reset(&rec);
         }
     }
     CATCH(OutOfMemoryError) {
@@ -924,7 +923,6 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
                                           frame_cksum);
             to_read--;
         }
-        wtap_rec_reset(rec);
     }
     CATCH(OutOfMemoryError) {
         simple_message_box(ESD_TYPE_ERROR, NULL,
@@ -1051,7 +1049,6 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, int *err,
         add_new_record_to_record_list(cf, rec, cf->dfcode, &edt, cinfo,
                                       data_offset, frame_dup_cache,
                                       frame_cksum);
-        wtap_rec_reset(rec);
     }
 
     epan_dissect_cleanup(&edt);
@@ -2010,7 +2007,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, bo
            on the next pass through the loop. */
         prev_frame_num = fdata->num;
         prev_frame = fdata;
-        wtap_rec_reset(&rec);
     }
 
     epan_dissect_cleanup(&edt);
@@ -2338,7 +2334,6 @@ process_specified_records(capture_file *cf, packet_range_t *range,
             ret = PSP_FAILED;
             break;
         }
-        wtap_rec_reset(&rec);
     }
 
     if (range == &all_range) {
@@ -4744,7 +4739,6 @@ find_packet(capture_file *cf, ws_match_function match_function,
                 new_fd = fdata;
                 break;
             }
-            wtap_rec_reset(&rec);
         }
 
         if (fdata == start_fd) {
@@ -5553,7 +5547,6 @@ rescan_file(capture_file *cf, const char *fname, bool is_tempfile)
         if (rec.rec_type == REC_TYPE_PACKET) {
             cf_add_encapsulation_type(cf, rec.rec_header.packet_header.pkt_encap);
         }
-        wtap_rec_reset(&rec);
     }
     wtap_rec_cleanup(&rec);
 

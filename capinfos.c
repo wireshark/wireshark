@@ -1277,7 +1277,6 @@ process_cap_file(const char *filename, bool need_separator)
             }
         }
 
-        wtap_rec_reset(&rec);
     } /* while */
     wtap_rec_cleanup(&rec);
 

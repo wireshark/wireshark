@@ -1158,7 +1158,6 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
             status = MERGE_ERR_CANT_WRITE_OUTFILE;
             break;
         }
-        wtap_rec_reset(&in_file->rec);
     }
 
     if (cb)

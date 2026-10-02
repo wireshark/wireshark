@@ -1486,7 +1486,6 @@ extract_secrets(wtap *wth, char* filename, int *err, char **err_info)
          * Probably more confusing than it's worth, because a user might
          * not know if a DSB is at the end of the file.
          */
-        wtap_rec_reset(&read_rec);
     }
     wtap_rec_cleanup(&read_rec);
 
@@ -2888,7 +2887,6 @@ main(int argc, char *argv[])
             written_count++;
         }
         count++;
-        wtap_rec_reset(&read_rec);
     }
 
     if (verbose)
