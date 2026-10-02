@@ -882,7 +882,6 @@ pcapng_process_custom_binary_option(wtapng_block_t *wblock,
     return ret;
 }
 
-#ifdef HAVE_PLUGINS
 static bool
 pcapng_process_unhandled_option(wtapng_block_t *wblock,
                                 section_info_t *section_info,
@@ -912,17 +911,6 @@ pcapng_process_unhandled_option(wtapng_block_t *wblock,
     }
     return true;
 }
-#else
-static bool
-pcapng_process_unhandled_option(wtapng_block_t *wblock _U_,
-                                section_info_t *section_info _U_,
-                                uint16_t option_code _U_, uint16_t option_length _U_,
-                                const uint8_t *option_content _U_,
-                                int *err _U_, char **err_info _U_)
-{
-    return true;
-}
-#endif
 
 bool
 pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
