@@ -2414,6 +2414,13 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_information_hash, tvb, offset+8, 16, ENC_NA);
         break;
 
+    case TYPE_INITIATE_DOWNLOAD: /* Initiate Download (27) */
+        /* Initiate Download message element does not contain any payload */
+        if (optlen != 0) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "Initiate Download length %u wrong, must be 0", optlen);
+        }
+        break;
 
     case TYPE_LOCATION_DATA: /* Location Data (28) */
         if (optlen < 1) {
