@@ -133,7 +133,8 @@ void PinnedColumnView::mousePressEvent(QMouseEvent *event)
     QModelIndex index = indexAt(event->pos());
     drag_row_ = -1;
     if (packet_list && index.isValid()) {
-        packet_list->selectRowFromOverlay(index.row(), index.column(), event->buttons());
+        packet_list->selectRowFromOverlay(index.row(), index.column(), event->buttons(),
+                                          event->modifiers());
         if (event->button() == Qt::LeftButton) {
             drag_row_ = index.row();
             drag_column_ = index.column();
