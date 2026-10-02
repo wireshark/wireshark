@@ -167,6 +167,9 @@ static int hf_capwap_msg_element_type_capwap_local_ipv4_address;
 
 static int hf_capwap_msg_element_type_idle_timeout;
 
+static int hf_capwap_msg_element_type_image_data_type;
+static int hf_capwap_msg_element_type_image_data_data;
+
 static int hf_capwap_msg_element_type_image_identifier_vendor;
 static int hf_capwap_msg_element_type_image_identifier_data;
 
@@ -1187,6 +1190,20 @@ static const value_string last_failure_type_vals[] = {
 static const value_string capwap_transport_protocol_vals[] = {
     { 1, "UDP-Lite" },
     { 2, "UDP" },
+    { 0,     NULL     }
+};
+
+/* ************************************************************************* */
+/*                     Image Data Types                                      */
+/* ************************************************************************* */
+#define IMAGE_DATA_TYPE_DATA 1
+#define IMAGE_DATA_TYPE_DATA_EOF 2
+#define IMAGE_DATA_TYPE_ERROR 5
+
+static const value_string image_data_types[] = {
+    { IMAGE_DATA_TYPE_DATA, "Image data is included" },
+    { IMAGE_DATA_TYPE_DATA_EOF, "Last Image Data Block is included (EOF)" },
+    { IMAGE_DATA_TYPE_ERROR, "An error occurred. Transfer is aborted" },
     { 0,     NULL     }
 };
 
@@ -2393,6 +2410,25 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_idle_timeout, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         break;
+
+    case TYPE_IMAGE_DATA: { /* Image Data (24) */
+        uint8_t data_type;
+        unsigned data_len;
+
+        if (optlen == 0) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "Image Data length 0 wrong, must be >= 1");
+            break;
+        }
+        proto_tree_add_item_ret_uint8(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_data_type, tvb, offset+4, 1, ENC_BIG_ENDIAN, &data_type);
+        proto_tree_add_item_ret_length(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_data_data, tvb, offset+5, optlen-1, ENC_NA, &data_len);
+        /* When the Data Type field is 5, the Value field has a zero length [RFC5415 4.6.26] */
+        if (data_type == IMAGE_DATA_TYPE_ERROR && data_len > 0) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "Data length %u wrong, must be 0 when Data Type = %d", data_len, IMAGE_DATA_TYPE_ERROR);
+        }
+        break;
+    }
 
     case TYPE_IMAGE_IDENTIFIER: /* Image Identifier (25) */
         if (optlen < 5) {
@@ -3982,6 +4018,16 @@ proto_register_capwap_control(void)
             { "Idle Timeout (Sec)", "capwap.control.message_element.idle_timeout",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
+        },
+        { &hf_capwap_msg_element_type_image_data_type,
+            { "Data Type", "capwap.control.message_element.image_data.type",
+              FT_UINT8, BASE_DEC, VALS(image_data_types), 0x0,
+              "Image Data Type", HFILL }
+        },
+        { &hf_capwap_msg_element_type_image_data_data,
+            { "Data", "capwap.control.message_element.image_data.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Data bytes", HFILL }
         },
         { &hf_capwap_msg_element_type_image_identifier_vendor,
             { "Vendor Identifier", "capwap.control.message_element.image_identifier.vendor",
