@@ -2078,6 +2078,8 @@ static int dissect_tns_describe_body(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	return offset;
 }
 
+static tns_call_t *tns_answered_call(packet_info *pinfo);
+
 /* Decode one row/bind value by its data type, and add it as a
  * "<prefix> N (TYPE)" item under `hf`. Ordinary values are a
  * DALC blob; ROWID / UROWID / LONG / LOB / JSON / VECTOR / object carry
@@ -2108,6 +2110,24 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_item *ci;
 			proto_tree *ct;
 			int end, cursor = 0, start;
+			const tns_call_t *call = tns_answered_call(pinfo);
+
+			/* Rows a TTI_FETCH returns carry a cursor cut short before
+			 * 23ai: the length byte and the id, with no describe. An
+			 * execute's reply, and a fetch-only execute's, carry it
+			 * whole. */
+			if ( call && call->func == TTI_FETCH && tns_field_version(pinfo) < TNS_FV_23_1 )
+			{
+				start = offset;
+				end = offset + 1;
+				end += get_sb4_custom(tvb, end, &cursor);
+				ci = proto_tree_add_bytes_format(tree, hf, tvb, start, end - start, NULL,
+					"%s %d (%s): cursor %d", prefix, idx,
+					val_to_str_const(dtype, tns_data_types, "unknown"), cursor);
+				ct = proto_item_add_subtree(ci, ett_tns_value);
+				proto_tree_add_uint(ct, hf_tns_cursor, tvb, offset + 1, end - offset - 1, cursor);
+				return end;
+			}
 
 			end = dissect_tns_describe_body(tvb, pinfo, NULL, offset + 1, NULL);
 			end += get_sb4_custom(tvb, end, &cursor);
