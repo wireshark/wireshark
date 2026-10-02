@@ -2036,7 +2036,7 @@ dissect_type_bitmap_nxt(proto_tree *rr_tree, packet_info* pinfo, tvbuff_t *tvb, 
 
 /*
  * SIG, KEY, and CERT RR algorithms.
- * http://www.iana.org/assignments/dns-sec-alg-numbers/dns-sec-alg-numbers.txt (last updated 2026-06-28)
+ * http://www.iana.org/assignments/dns-sec-alg-numbers/dns-sec-alg-numbers.txt (last updated 2026-10-02)
  */
 #define DNS_ALGO_RSAMD5               1 /* RSA/MD5 */
 #define DNS_ALGO_DH                   2 /* Diffie-Hellman */
@@ -2052,6 +2052,7 @@ dissect_type_bitmap_nxt(proto_tree *rr_tree, packet_info* pinfo, tvbuff_t *tvb, 
 #define DNS_ALGO_ED25519             15 /* Ed25519 */
 #define DNS_ALGO_ED448               16 /* Ed448 */
 #define DNS_ALGO_SM2SM3              17 /* SM2 signing with SM3 hashing */
+#define DNS_ALGO_MLDSA44             18 /* ML-DSA-44 */
 #define DNS_ALGO_ECCGOST12           23 /* GOST R 34.10-2012 */
 #define DNS_ALGO_INDIRECT           252 /* Indirect key */
 #define DNS_ALGO_PRIVATEDNS         253 /* Private, domain name  */
@@ -2072,6 +2073,7 @@ static const value_string dnssec_algo_vals[] = {
   { DNS_ALGO_ED25519,           "Ed25519" },
   { DNS_ALGO_ED448,             "Ed448" },
   { DNS_ALGO_SM2SM3,            "SM2 signing with SM3 hashing" },
+  { DNS_ALGO_MLDSA44,           "ML-DSA-44" },
   { DNS_ALGO_ECCGOST12,         "GOST R 34.10-2012" },
   { DNS_ALGO_INDIRECT,          "Indirect key" },
   { DNS_ALGO_PRIVATEDNS,        "Private, domain name" },
