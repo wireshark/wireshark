@@ -3702,6 +3702,17 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 		call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, data_tree);
 }
 
+/* Whether the length byte in front of an OCI execute's SQL agrees with
+ * the SQL length its preamble declares. A client in AL32UTF8, the
+ * database's own character set, declares the SQL's byte length; one in
+ * any other set declares three times it, a conversion buffer's worth.
+ * The length byte is the byte length either way, or 0xFE for chunked
+ * text. */
+static bool tns_oci_sql_length_matches(uint8_t prefix, uint32_t declared)
+{
+	return prefix == 0xfe || prefix == declared || (uint32_t)prefix * 3 == declared;
+}
+
 /* Whether a packet belongs to a conversation whose client speaks the OCI
  * dialect. Stored per packet on the first pass. */
 static bool tns_is_oci(packet_info *pinfo)
@@ -4914,7 +4925,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * both hold. The cursor id and SQL length precede every
 				 * slot and do not move; the bind count and the SQL do. */
 				int base = fun_start, bind_count_off, sql_off;
-				uint32_t cursor, sql_len, bind_count;
+				uint32_t cursor, sql_len_decl, bind_count;
 				bool wide;
 
 				if ( tvb_bytes_exist(tvb, base + TNS_OCI_ALL8_IND2_WIDE, 8)
@@ -4932,19 +4943,19 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					wide ? "OCI, wide (8-byte slots)" : "OCI, narrow (4-byte slots)");
 				cursor = tvb_get_letohl(tvb, base + TNS_OCI_ALL8_CURSOR);
 				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, base + TNS_OCI_ALL8_CURSOR, 4, cursor);
-				/* three times the SQL length */
-				sql_len = tvb_get_letohl(tvb, base + TNS_OCI_ALL8_SQLLEN3) / 3;
+				/* the SQL length, as the client's character set has it */
+				sql_len_decl = tvb_get_letohl(tvb, base + TNS_OCI_ALL8_SQLLEN3);
 				bind_count_off = base + (wide ? 83 : 71);
 				sql_off = base + (wide ? 196 : 176);
 				bind_count = tvb_get_letohl(tvb, bind_count_off);
 				proto_tree_add_uint(data_tree, hf_tns_data_all8_bind_count, tvb, bind_count_off, 4, bind_count);
-				if ( sql_len > 0 && tvb_bytes_exist(tvb, sql_off - 1, 1) )
+				if ( sql_len_decl > 0 && tvb_bytes_exist(tvb, sql_off - 1, 1) )
 				{
 					const char *sql = NULL;
 					int start = sql_off - 1;
 					uint8_t prefix = tvb_get_uint8(tvb, start);
 
-					if ( prefix == 0xfe || prefix == sql_len )
+					if ( tns_oci_sql_length_matches(prefix, sql_len_decl) )
 					{
 						offset = start + get_dalc_custom(tvb, pinfo, start, &sql);
 						if ( sql )

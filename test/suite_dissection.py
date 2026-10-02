@@ -2289,6 +2289,19 @@ class TestDissectTns:
             ['OCI, narrow (4-byte slots)', '5', '1', 'SELECT :v FROM DUAL'],
         ], rows
 
+    def test_tns_oci_sql_length(self, cmd_tshark, capture_file, test_env):
+        '''An OCI client declares the SQL's byte length in AL32UTF8 and three
+        times it in any other character set; the SQL decodes either way.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_sql_length.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.sql',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['select 1 from dual', '']] * 2, rows
+
     def test_tns_oci_status(self, cmd_tshark, capture_file, test_env):
         '''A server answers an OCI client with a fixed-width little-endian
         status block - 136 bytes, or a compact 24 - and a 7-byte TTI_STA
