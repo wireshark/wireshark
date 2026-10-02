@@ -170,6 +170,9 @@ static int hf_capwap_msg_element_type_idle_timeout;
 static int hf_capwap_msg_element_type_image_identifier_vendor;
 static int hf_capwap_msg_element_type_image_identifier_data;
 
+static int hf_capwap_msg_element_type_image_information_file_size;
+static int hf_capwap_msg_element_type_image_information_hash;
+
 static int hf_capwap_msg_element_type_radio_admin_id;
 static int hf_capwap_msg_element_type_radio_admin_state;
 
@@ -2401,6 +2404,17 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_identifier_data, tvb, offset+8, optlen-4, ENC_UTF_8);
         break;
 
+    case TYPE_IMAGE_INFORMATION: /* Image Information (26) */
+        if (optlen != 20) {
+            expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
+                           "Image Information length %u wrong, must be = 20", optlen);
+            break;
+        }
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_information_file_size, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_image_information_hash, tvb, offset+8, 16, ENC_NA);
+        break;
+
+
     case TYPE_LOCATION_DATA: /* Location Data (28) */
         if (optlen < 1) {
             expert_add_info_format(pinfo, ti_len, &ei_capwap_msg_element_length,
@@ -3971,6 +3985,16 @@ proto_register_capwap_control(void)
             { "Image Version", "capwap.control.message_element.image_identifier.data",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "Expected software version to be run on the WTP", HFILL }
+        },
+        { &hf_capwap_msg_element_type_image_information_file_size,
+            { "File Size", "capwap.control.message_element.image_information.file_size",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              "Size of the image file in bytes to be transferred from AC to WTP", HFILL }
+        },
+        { &hf_capwap_msg_element_type_image_information_hash,
+            { "Hash", "capwap.control.message_element.image_information.hash",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "MD5 hash of the image", HFILL }
         },
         { &hf_capwap_msg_element_type_location_data,
             { "Location Data", "capwap.control.message_element.location_data",
