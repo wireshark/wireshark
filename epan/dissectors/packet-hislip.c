@@ -164,6 +164,14 @@ static int hf_hislip_controlcode_tls_handshake_result;
 static int hf_hislip_controlcode_authentication_result;
 static int hf_hislip_last_received_message_id;
 static int hf_hislip_msgpara_authentication_error_code;
+static int hf_hislip_descriptors;
+static int hf_hislip_descriptor_length;
+static int hf_hislip_descriptor_type;
+static int hf_hislip_descriptor_data;
+static int hf_hislip_descriptor_raw_data;
+static int hf_hislip_descriptor_tls_version;
+static int hf_hislip_descriptor_tls_info;
+static int hf_hislip_descriptor_tls_last_error;
 
 
 /*Subtree index*/
@@ -171,10 +179,13 @@ static int ett_hislip;
 static int ett_hislip_msgpara;
 static int ett_hislip_intializeresponse_controlcode;
 static int ett_hislip_asyncinitializeresponse_controlcode;
+static int ett_hislip_descriptor;
+static int ett_hislip_descriptors;
 
 
 static expert_field ei_wrong_prologue;
 static expert_field ei_msg_not_null;
+static expert_field ei_descriptor_malformed;
 
 static const range_string messagetypestring[] =
 {
@@ -325,6 +336,14 @@ static const value_string authentication_result_code[] =
 {
         { 0, "Failure" },
         { 1, "Success" },
+        { 0, NULL }
+};
+
+static const value_string descriptor_type[] =
+{
+        { 0, "Supported TLS versions" },
+        { 1, "TLS information" },
+        { 2, "TLS last error" },
         { 0, NULL }
 };
 
@@ -792,9 +811,116 @@ decode_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, hislipinfo *dat
             }
             break;
 
+
+        case HISLIP_GETDESCRIPTORSRESPONSE:
+        {
+            unsigned offset = data->offset;
+            unsigned end_offset = data->offset + (unsigned)data->payloadlength;
+            proto_item *descriptors_item;
+            proto_tree *descriptors_tree;
+
+            descriptors_item = proto_tree_add_item(tree, hf_hislip_descriptors, tvb, data->offset, (int)data->payloadlength, ENC_NA);
+            descriptors_tree = proto_item_add_subtree(descriptors_item, ett_hislip_descriptors);
+
+            while (offset + 3 <= end_offset)
+            {
+                uint16_t desc_len = tvb_get_ntohs(tvb, offset);
+                uint8_t desc_type = tvb_get_uint8(tvb, offset + 2);
+                unsigned content_avail = end_offset - offset - 3;
+                unsigned desc_total = 3 + desc_len;
+                proto_item *item;
+                proto_tree *subtree;
+                unsigned content_offset;
+
+                if (desc_len > content_avail)
+                {
+                    item = proto_tree_add_none_format(descriptors_tree, hf_hislip_descriptor_data, tvb, offset,
+                        end_offset - offset,
+                        "Descriptor: truncated (declared content length %u, %u available)",
+                        desc_len, content_avail);
+                    expert_add_info_format(pinfo, item, &ei_descriptor_malformed,
+                        "Descriptor content length %u exceeds remaining payload (%u bytes)",
+                        desc_len, content_avail);
+                    break;
+                }
+
+                item = proto_tree_add_none_format(descriptors_tree, hf_hislip_descriptor_data, tvb, offset, desc_total,
+                    "Descriptor: %s (length=%u)", val_to_str_const(desc_type, descriptor_type, "Unknown"), desc_len);
+                subtree = proto_item_add_subtree(item, ett_hislip_descriptor);
+
+                proto_tree_add_item(subtree, hf_hislip_descriptor_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(subtree, hf_hislip_descriptor_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                content_offset = offset;
+
+                if (desc_len > 0)
+                {
+                    switch(desc_type)
+                    {
+
+                    case 0: /* Supported TLS versions descriptor: array of uint16_t */
+                    {
+                        unsigned ver_offset = content_offset;
+                        unsigned ver_end = content_offset + desc_len;
+
+                        while (ver_offset + 2 <= ver_end)
+                        {
+                            proto_tree_add_item(subtree, hf_hislip_descriptor_tls_version, tvb, ver_offset, 2, ENC_BIG_ENDIAN);
+                            ver_offset += 2;
+                        }
+
+                        if (ver_offset < ver_end)
+                        {
+                            unsigned trailing = ver_end - ver_offset;
+                            proto_item *trailing_item;
+
+                            trailing_item = proto_tree_add_item(subtree, hf_hislip_descriptor_raw_data, tvb, ver_offset, trailing, ENC_NA);
+                            expert_add_info_format(pinfo, trailing_item, &ei_descriptor_malformed,
+                                "Supported TLS versions descriptor has %u trailing byte(s)", trailing);
+                        }
+                        break;
+                    }
+
+
+                    case 1: /* TLS information descriptor: ASCII-7 string without \0 terminator */
+
+                        proto_tree_add_item(subtree, hf_hislip_descriptor_tls_info, tvb, content_offset, desc_len, ENC_ASCII);
+                        break;
+
+
+                    case 2: /* TLS last error descriptor: ASCII-7 string without \0 terminator */
+
+                        proto_tree_add_item(subtree, hf_hislip_descriptor_tls_last_error, tvb, content_offset, desc_len, ENC_ASCII);
+                        break;
+
+
+                    default: /* reserved for IVI (3-127) and vendor (128-255) */
+
+                        proto_tree_add_item(subtree, hf_hislip_descriptor_raw_data, tvb, content_offset, desc_len, ENC_NA);
+                        break;
+                    }
+                }
+
+                offset = content_offset + desc_len;
+            }
+
+            if (offset < end_offset)
+            {
+                proto_item *trailing_item;
+
+                trailing_item = proto_tree_add_item(descriptors_tree, hf_hislip_descriptor_raw_data, tvb, offset,
+                    end_offset - offset, ENC_NA);
+                expert_add_info_format(pinfo, trailing_item, &ei_descriptor_malformed,
+                    "Descriptor list has %u trailing byte(s)", end_offset - offset);
+            }
+            break;
+        }
+
         default:
 
             proto_tree_add_item(tree, hf_hislip_data, tvb, data->offset, -1, ENC_UTF_8);
+            break;
 
         }
     }
@@ -1265,7 +1391,31 @@ proto_register_hislip(void)
         "HiSLIP MessageID of last received message", HFILL }},
         { &hf_hislip_msgpara_authentication_error_code,
         { "Error Code", "hislip.msgpara.authentication_error_code", FT_UINT32, BASE_HEX, NULL, 0x0,
-        "HiSLIP 2.0 Authentication Error Code", HFILL }}
+        "HiSLIP 2.0 Authentication Error Code", HFILL }},
+        { &hf_hislip_descriptors,
+        { "Descriptors", "hislip.descriptors", FT_NONE, BASE_NONE, NULL, 0x0,
+        "HiSLIP 2.0 Descriptors", HFILL }},
+        { &hf_hislip_descriptor_length,
+        { "Length", "hislip.descriptor.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+        "HiSLIP 2.0 Descriptor Content Length", HFILL }},
+        { &hf_hislip_descriptor_type,
+        { "Type", "hislip.descriptor.type", FT_UINT8, BASE_DEC, VALS(descriptor_type), 0x0,
+        "HiSLIP 2.0 Descriptor Type", HFILL }},
+        { &hf_hislip_descriptor_data,
+        { "Descriptor", "hislip.descriptor", FT_NONE, BASE_NONE, NULL, 0x0,
+        "HiSLIP 2.0 Descriptor", HFILL }},
+        { &hf_hislip_descriptor_raw_data,
+        { "Data", "hislip.descriptor.raw_data", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "HiSLIP 2.0 Raw Descriptor Data", HFILL }},
+        { &hf_hislip_descriptor_tls_version,
+        { "TLS Version", "hislip.descriptor.tls_version", FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
+        "HiSLIP 2.0 Supported TLS Version", HFILL }},
+        { &hf_hislip_descriptor_tls_info,
+        { "TLS Information", "hislip.descriptor.tls_info", FT_STRING, BASE_NONE, NULL, 0x0,
+        "HiSLIP 2.0 TLS Information Descriptor", HFILL }},
+        { &hf_hislip_descriptor_tls_last_error,
+        { "TLS Last Error", "hislip.descriptor.tls_last_error", FT_STRING, BASE_NONE, NULL, 0x0,
+        "HiSLIP 2.0 TLS Last Error Descriptor", HFILL }}
     };
 
 
@@ -1273,13 +1423,16 @@ proto_register_hislip(void)
         &ett_hislip,
         &ett_hislip_msgpara,
         &ett_hislip_intializeresponse_controlcode,
-        &ett_hislip_asyncinitializeresponse_controlcode
+        &ett_hislip_asyncinitializeresponse_controlcode,
+        &ett_hislip_descriptors,
+        &ett_hislip_descriptor
     };
 
 
     static ei_register_info ei[] = {
         { &ei_wrong_prologue, { "hislip.wrongprologue", PI_UNDECODED, PI_WARN, "Frame hasn't 'HS' as Prologue", EXPFILL }},
-        { &ei_msg_not_null, { "hislip.msgnotnull", PI_PROTOCOL, PI_WARN, "Message Parameter isn't 0", EXPFILL }}
+        { &ei_msg_not_null, { "hislip.msgnotnull", PI_PROTOCOL, PI_WARN, "Message Parameter isn't 0", EXPFILL }},
+        { &ei_descriptor_malformed, { "hislip.descriptor.malformed", PI_MALFORMED, PI_WARN, "Malformed descriptor data", EXPFILL }}
     };
 
     proto_hislip = proto_register_protocol("High-Speed LAN Instrument Protocol", "HiSLIP", "hislip");
