@@ -3743,6 +3743,48 @@ static bool tns_is_oci_12c(packet_info *pinfo)
 	return band;
 }
 
+/* Read the error text after an OCI status block: a length byte for up to
+ * 252 bytes, else 0xFE and chunks until a zero length. The chunk lengths
+ * are single bytes from an 11g server and ub4 LE from an 18c one, and
+ * which a server sends is not its field version but a capability not yet
+ * identified. The text holds no zero bytes and a message never runs to
+ * 64K, so the two zero high bytes of a ub4 LE length tell it from a ub1
+ * length followed by text. Returns the bytes consumed; *out_str gets the
+ * text, or NULL. */
+static int tns_oci_error_text(tvbuff_t *tvb, packet_info *pinfo, int offset, const char **out_str)
+{
+	wmem_strbuf_t *strbuf;
+	bool ub4_lengths;
+	int o;
+
+	if ( tvb_get_uint8(tvb, offset) != 0xfe )
+		return get_dalc_custom(tvb, pinfo, offset, out_str);
+
+	ub4_lengths = tvb_bytes_exist(tvb, offset + 1, 4) && tvb_get_letohs(tvb, offset + 3) == 0;
+	strbuf = wmem_strbuf_new(pinfo->pool, "");
+	o = offset + 1;
+	while ( tvb_reported_length_remaining(tvb, o) > 0 )
+	{
+		int chunk_len;
+		if ( ub4_lengths )
+		{
+			chunk_len = (int)MIN(tvb_get_letohl(tvb, o), INT_MAX);
+			o += 4;
+		}
+		else
+		{
+			chunk_len = tvb_get_uint8(tvb, o);
+			o += 1;
+		}
+		if ( chunk_len == 0 )
+			break;
+		wmem_strbuf_append(strbuf, (const char *)tvb_get_string_enc(pinfo->pool, tvb, o, chunk_len, ENC_UTF_8|ENC_NA));
+		o += chunk_len;
+	}
+	*out_str = wmem_strbuf_get_str(strbuf);
+	return o - offset;
+}
+
 /* Decode a server message to an OCI client. Its integers are fixed-width
  * little-endian, so only the status messages, whose layout is known, are
  * decoded; the rest is left to the data dissector. Returns the new
@@ -3799,7 +3841,7 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 			{
 				const char *msg = NULL;
 				int msg_start = offset;
-				offset += get_dalc_custom(tvb, pinfo, offset, &msg);
+				offset += tns_oci_error_text(tvb, pinfo, offset, &msg);
 				msg = tns_trim_message(pinfo, msg);
 				if ( msg )
 				{

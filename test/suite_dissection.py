@@ -2831,6 +2831,24 @@ class TestDissectTns:
             ['942', '942', '0', 'ORA-00942: table or view does not exist', ''],
         ], rows
 
+    def test_tns_oci_long_error(self, cmd_tshark, capture_file, test_env):
+        '''An error message too long for a length byte follows an OCI
+        status block chunked, with single-byte chunk lengths from an 11g
+        server and ub4 LE ones from an 18c server. Either way the whole
+        333-byte message is read and nothing is left over.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_long_error.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tcp.srcport == 1521',
+            '-T', 'fields',
+            '-e', 'tns.data_oer.err_code',
+            '-e', 'tns.data_oer.message',
+            '-e', 'data.len',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [['20001', 'ORA-20001: ' + 'A' * 321, '', '']] * 2, rows
+
     def test_tns_oci_fetch(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's fetch carries the cursor id and the row count as
         fixed-width little-endian ub4s: sqlplus 23.26 asks cursor 2 for 15
