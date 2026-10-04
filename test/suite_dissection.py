@@ -2849,6 +2849,36 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['20001', 'ORA-20001: ' + 'A' * 321, '', '']] * 2, rows
 
+    def test_tns_oci_kod(self, cmd_tshark, capture_file, test_env):
+        '''An OCI client describes an object type with TTI_KOD, by name or
+        by REF. The reply is a name header for a by-name call, a record
+        per type descriptor and a status; a descriptor that is an instance
+        of SYS.KOTTD names the type, its version and its typecode. The
+        12c band's longer header and bare record descriptor are read
+        too.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_kod.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-E', 'aggregator=|',
+            '-e', 'tns.data_kod.opcode',
+            '-e', 'tns.data_kod.kind',
+            '-e', 'tns.data_kod.schema',
+            '-e', 'tns.data_kod.name',
+            '-e', 'tns.data_kod.system_type',
+            '-e', 'tns.data_kod.typecode',
+            '-e', 'tns.data_oer.err_code',
+            '-e', 'data.len',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['3', '', '', 'DBMSOUTPUT_LINESARRAY', '', '', '', '', ''],
+            ['', '2|1', 'PYO|SYS', 'DBMSOUTPUT_LINESARRAY|DBMSOUTPUT_LINESARRAY', '0x01', '122', '0', '', ''],
+            ['4', '', '', '', '0x01', '', '', '', ''],
+            ['', '1', 'SYS', 'KOTTD', '0x01', '108', '0', '', ''],
+        ] * 2, rows
+
     def test_tns_oci_fetch(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's fetch carries the cursor id and the row count as
         fixed-width little-endian ub4s: sqlplus 23.26 asks cursor 2 for 15
