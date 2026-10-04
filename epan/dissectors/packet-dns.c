@@ -620,6 +620,7 @@ static int hf_dns_dso_tlv_keepalive_inactivity;
 static int hf_dns_dso_tlv_keepalive_interval;
 static int hf_dns_dso_tlv_retrydelay_retrydelay;
 static int hf_dns_dso_tlv_encpad_padding;
+static int hf_dns_dso_tlv_unsubscribe_id;
 
 static int hf_dns_dnscrypt;
 static int hf_dns_dnscrypt_magic;
@@ -671,6 +672,7 @@ static expert_field ei_dns_svcb_param_key_order;
 static expert_field ei_dns_svcb_param_mandatory_duplicate;
 static expert_field ei_dns_svcb_param_mandatory_missing;
 static expert_field ei_dns_svcb_param_noalpn_missing_alpn;
+static expert_field ei_dns_dso_tlv_length_mismatch;
 
 static dissector_table_t dns_tsig_dissector_table;
 
@@ -4658,15 +4660,23 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 }
 
 static int
-dissect_dso_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *dns_tree)
+dissect_dso_data(tvbuff_t *tvb, int offset, int dns_data_offset, packet_info *pinfo, proto_tree *dns_tree)
 {
-  proto_tree *dso_tree;
-  proto_tree *dso_tlv_tree;
-  proto_item *dso_ti;
-  proto_item *dso_tlv_ti;
-  uint16_t   dso_tlv_length;
-  uint32_t   dso_tlv_type;
-  int        start_offset;
+  proto_tree  *dso_tree;
+  proto_tree  *dso_tlv_tree;
+  proto_item  *dso_ti;
+  proto_item  *dso_tlv_ti;
+  uint16_t    dso_tlv_length;
+  uint32_t    dso_tlv_type;
+  int         start_offset;
+  tvbuff_t    *tlv_tvb;
+  int         tlv_end;
+  wmem_list_t *rr_types;
+  bool        unused;
+
+  if (tvb_reported_length_remaining(tvb, offset) <= 0) {
+    return 0;
+  }
 
   start_offset = offset;
   dso_ti = proto_tree_add_item(dns_tree, hf_dns_dso, tvb, offset, -1, ENC_NA);
@@ -4684,29 +4694,50 @@ dissect_dso_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    tlv_end = offset + dso_tlv_length;
+    tlv_tvb = tvb_new_subset_length(tvb, 0, tlv_end);
+
     switch(dso_tlv_type) {
       case DSO_TYPE_KEEPALIVE:
-        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_keepalive_inactivity, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_keepalive_inactivity, tlv_tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_keepalive_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_keepalive_interval, tlv_tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
       case DSO_TYPE_RETRYDELAY:
-        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_retrydelay_retrydelay, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_retrydelay_retrydelay, tlv_tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
       case DSO_TYPE_ENCPAD:
         if (dso_tlv_length > 0) {
-          proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_encpad_padding, tvb, offset, dso_tlv_length, ENC_NA);
+          proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_encpad_padding, tlv_tvb, offset, dso_tlv_length, ENC_NA);
           offset += dso_tlv_length;
+        }
+        break;
+      case DSO_TYPE_SUBSCRIBE:
+        offset += dissect_dns_query(tlv_tvb, offset, dns_data_offset, pinfo, dso_tlv_tree, false, &unused);
+        break;
+      case DSO_TYPE_UNSUBSCRIBE:
+        proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_unsubscribe_id, tlv_tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        break;
+      case DSO_TYPE_PUSH:
+        rr_types = wmem_list_new(pinfo->pool);
+        while (offset < tlv_end) {
+          offset += dissect_dns_answer(tlv_tvb, offset, dns_data_offset, dso_tlv_tree, pinfo, false, rr_types);
         }
         break;
       default:
         if (dso_tlv_length > 0) {
-          proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_data, tvb, offset, dso_tlv_length, ENC_NA);
+          proto_tree_add_item(dso_tlv_tree, hf_dns_dso_tlv_data, tlv_tvb, offset, dso_tlv_length, ENC_NA);
           offset += dso_tlv_length;
         }
         break;
+    }
+
+    if (offset != tlv_end) {
+      expert_add_info(pinfo, dso_tlv_ti, &ei_dns_dso_tlv_length_mismatch);
+      offset = tlv_end;
     }
   }
 
@@ -5037,7 +5068,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (opcode == DNS_OPCODE_DSO && quest == 0 && ans == 0 && auth == 0 && add == 0) {
     /* DSO messages differs somewhat from the traditional DNS message format.
        the four count fields (QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT) are set to zero */
-      cur_off += dissect_dso_data(tvb, cur_off, pinfo, dns_tree);
+      cur_off += dissect_dso_data(tvb, cur_off, dns_data_offset, pinfo, dns_tree);
   }
 
   rr_types = wmem_list_new(pinfo->pool);
@@ -8120,6 +8151,10 @@ proto_register_dns(void)
       { "Padding", "dns.dso.tlv.encpad.padding",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_dns_dso_tlv_unsubscribe_id,
+      { "Subscribe Message ID", "dns.dso.tlv.unsubscribe.id",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_dns_dnscrypt,
       { "DNSCrypt", "dns.dnscrypt",
@@ -8176,6 +8211,7 @@ proto_register_dns(void)
     { &ei_dns_svcb_param_mandatory_duplicate, { "dns.svcb.param.mandatory.duplicate_key", PI_MALFORMED, PI_WARN, "Duplicate key in mandatory list", EXPFILL }},
     { &ei_dns_svcb_param_mandatory_missing, { "dns.svcb.param.mandatory.missing_key", PI_MALFORMED, PI_WARN, "mandatory references missing SvcParam key", EXPFILL }},
     { &ei_dns_svcb_param_noalpn_missing_alpn, { "dns.svcb.param.no_default_alpn_missing_alpn", PI_MALFORMED, PI_WARN, "no-default-alpn present without alpn", EXPFILL }},
+    { &ei_dns_dso_tlv_length_mismatch, { "dns.dso.tlv.length_mismatch", PI_MALFORMED, PI_ERROR, "DSO TLV length does not match its content", EXPFILL }},
   };
 
   static int *ett[] = {
