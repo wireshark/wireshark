@@ -901,6 +901,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C41,   "TPMS Signing Key" },
     { 0x2C42,   "Cookware Device ID" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC24,   "Electronics and Telecommunications Research Institute" },
     { 0xFC25,   "Trackonomy Systems, Inc." },
     { 0xFC26,   "Hudl, Inc." },
     { 0xFC27,   "Barking Labs Corp." },
@@ -5680,6 +5681,13 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x1125,   "Wavarts Technologies, Co., Ltd" },
     { 0x1126,   "Hakemann GmbH & Co. KG" },
     { 0x1127,   "Permobil AB" },
+    { 0x1128,   "NIC IMPEX" },
+    { 0x1129,   "I.T.O. Vaarwegmarkering B.V." },
+    { 0x112A,   "Flowil International Lighting (Holding) B.V." },
+    { 0x112B,   "IXI Eyewear Oy" },
+    { 0x112C,   "mees audio technology., co.ltd." },
+    { 0x112D,   "Aktiia S.A." },
+    { 0x112E,   "Oticon Medical AB" },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6460,6 +6468,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c41,   "Bluetooth GATT Attribute TPMS Signing Key (UUID 0x2c41)", "BT GATT TPMS Signing Key (UUID 0x2c41)", "btgatt.uuid0x2c41" },
     { 0x2c42,   "Bluetooth GATT Attribute Cookware Device ID (UUID 0x2c42)", "BT GATT Cookware Device ID (UUID 0x2c42)", "btgatt.uuid0x2c42" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc24,   "Bluetooth GATT Attribute Electronics and Telecommunications Research Institute (UUID 0xfc24)", "BT GATT Electronics and Telecommunications Research Institute (UUID 0xfc24)", "btgatt.uuid0xfc24" },
     { 0xfc25,   "Bluetooth GATT Attribute Trackonomy Systems, Inc. (UUID 0xfc25)", "BT GATT Trackonomy Systems, Inc. (UUID 0xfc25)", "btgatt.uuid0xfc25" },
     { 0xfc26,   "Bluetooth GATT Attribute Hudl, Inc. (UUID 0xfc26)", "BT GATT Hudl, Inc. (UUID 0xfc26)", "btgatt.uuid0xfc26" },
     { 0xfc27,   "Bluetooth GATT Attribute Barking Labs Corp. (UUID 0xfc27)", "BT GATT Barking Labs Corp. (UUID 0xfc27)", "btgatt.uuid0xfc27" },

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-09-25) */
+/* (last updated 2026-10-02) */
 
 #include "config.h"
 
@@ -16196,7 +16196,7 @@ static const char * const table[] =
     "Sensatronics LLC",                                                                   // 16174
     "TRIADE Beratungsgesellschaft für Informationstechnologie mbH",                       // 16175
     "Zephra Corp.",                                                                       // 16176
-    "Westermo Teleindustri AB",                                                           // 16177
+    "Westermo Network Technologies AB",                                                   // 16177
     "Elevance Health, Inc.",                                                              // 16178
     "WAN Norway",                                                                         // 16179
     "Blue Data Networks Ltd",                                                             // 16180
@@ -39451,7 +39451,7 @@ static const char * const table[] =
     "G10 Transportes - LTDA",                                                             // 39429
     "ownCloud Inc.",                                                                      // 39430
     "BLT Italia srl",                                                                     // 39431
-    "devcoach GbR - Michael Willers & Partner",                                           // 39432
+    "devcoach GmbH",                                                                      // 39432
     "T8, LLC",                                                                            // 39433
     "Isthmus SARL",                                                                       // 39434
     "Sistemas Dypsa S.R.L",                                                               // 39435
@@ -65152,7 +65152,7 @@ static const char * const table[] =
     "Huawei FANO group",                                                                  // 65130
     "Huawei FANO group",                                                                  // 65131
     "ProvenRun",                                                                          // 65132
-    "FITFAK",                                                                             // 65133
+    "Oebarsius",                                                                          // 65133
     "TechRunes",                                                                          // 65134
     "Sygnature Discovery Canada",                                                         // 65135
     "TECHSQUARE SOFTWARE SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ",                        // 65136
@@ -66995,7 +66995,88 @@ static const char * const table[] =
     "O2 Czech Republic a.s.",                                                             // 66973
     "Ripcurrent Technologies Inc.",                                                       // 66974
     "Stealth Scale B.V.",                                                                 // 66975
-    "Estrogen Corp."                                                                      // 66976
+    "Estrogen Corp.",                                                                     // 66976
+    "pingiun solutions",                                                                  // 66977
+    "trkulja.it",                                                                         // 66978
+    "FKuR Kunststoff GmbH",                                                               // 66979
+    "DesignSigner, LLC",                                                                  // 66980
+    "Beamlink",                                                                           // 66981
+    "NIRVA SOFTWARE",                                                                     // 66982
+    "CÔNG TY TNHH GIẢI PHÁP CÔNG NGHỆ Y TẾ HVTT",                                         // 66983
+    "Shree Home Foods LLP",                                                               // 66984
+    "Stacy Olivas",                                                                       // 66985
+    "Basin Urgent Care",                                                                  // 66986
+    "Fill Easy (Malta) Limited",                                                          // 66987
+    "FIRMASELECTRONICAS EC S.A.S",                                                        // 66988
+    "ERGO Insurance SE",                                                                  // 66989
+    "Femboy Solutions",                                                                   // 66990
+    "Vela Research, LP",                                                                  // 66991
+    "Meter Energy",                                                                       // 66992
+    "ClearGrow LLC",                                                                      // 66993
+    "Efftronics Systems Pvt. Ltd.",                                                       // 66994
+    "BioNautica Limited",                                                                 // 66995
+    "Bassett Enterprises Ltd",                                                            // 66996
+    "Engeen Services",                                                                    // 66997
+    "Libertystack",                                                                       // 66998
+    "Krotion InfoTech (OPC) Private Limited",                                             // 66999
+    "Cardioid Inc.",                                                                      // 67000
+    "山东北智科创集团有限公司(Shandong NorthSmart Technology Innovation Group Co., Ltd.)",            // 67001
+    "北方智能（山东）信息技术有限公司(NorthSmart (Shandong) InfoTech Co., Ltd.)",                         // 67002
+    "北方智能（山东）物联技术有限公司(NorthSmart (Shandong) IoT Tech Co., Ltd.)",                         // 67003
+    "North-AI",                                                                           // 67004
+    "Ales Stibal",                                                                        // 67005
+    "stackon tecnologia",                                                                 // 67006
+    "PIP Total IT Solutions",                                                             // 67007
+    "Voibro AB",                                                                          // 67008
+    "GridM",                                                                              // 67009
+    "George Cummings",                                                                    // 67010
+    "Logically Us Ltd",                                                                   // 67011
+    "Beldar Tekné SL",                                                                    // 67012
+    "Silitics GmbH",                                                                      // 67013
+    "The City of Thibodaux, Louisana",                                                    // 67014
+    "ADM Language Project",                                                               // 67015
+    "Marcus Felipe Fernandes Cruz",                                                       // 67016
+    "Kern Automação",                                                                     // 67017
+    "PT Alat Cerdas Adikarya Bersama",                                                    // 67018
+    "NAK Electronics Private Limited",                                                    // 67019
+    "CoderForge.org Ltd",                                                                 // 67020
+    "Hengst SE",                                                                          // 67021
+    "Steinmeyer Holding GmbH",                                                            // 67022
+    "Vesiro AB",                                                                          // 67023
+    "FanConnect",                                                                         // 67024
+    "Winmed sp. z o.o.",                                                                  // 67025
+    "Pratuu Labs LLC",                                                                    // 67026
+    "Open Trusted Service Provider Initiative",                                           // 67027
+    "Nullspire LLC",                                                                      // 67028
+    "Alexander Savonchik",                                                                // 67029
+    "MTN Business Africa",                                                                // 67030
+    "Twinning Labs, Inc.",                                                                // 67031
+    "SECAB Società Cooperativa",                                                          // 67032
+    "NetConfig",                                                                          // 67033
+    "Infocoding SPA",                                                                     // 67034
+    "Perseverous Apps",                                                                   // 67035
+    "Nakashima Medical Systems Co., Ltd.",                                                // 67036
+    "Simulated Golf Association (SGA) LLC",                                               // 67037
+    "IG Digital Lab",                                                                     // 67038
+    "5xS s.r.o.",                                                                         // 67039
+    "Siav s.p.a.",                                                                        // 67040
+    "Bionic.Network Ltd",                                                                 // 67041
+    "tinycontrol Marcin Nosek",                                                           // 67042
+    "Raider Defense LLC",                                                                 // 67043
+    "Tasso Inc., dba Ramorra",                                                            // 67044
+    "Ascom UMS Unipersonale srl",                                                         // 67045
+    "Coretura AB",                                                                        // 67046
+    "IPng Networks GmbH",                                                                 // 67047
+    "Helix Software, LLC",                                                                // 67048
+    "Krill Energy",                                                                       // 67049
+    "MARCO VLADIMIR VELOZ HERNANDEZ",                                                     // 67050
+    "JOSTALY TECHNOLOGIES",                                                               // 67051
+    "Consolinno Energy GmbH",                                                             // 67052
+    "MEDIA VISION INFOTECH PRIVATE LIMITED",                                              // 67053
+    "3MT Galicia Global Services SL",                                                     // 67054
+    "Aisitec LTD",                                                                        // 67055
+    "LLC Distribuciya Svyazi",                                                            // 67056
+    "Encypher Corporation"                                                                // 67057
 };
 
 const char* global_enterprises_lookup(uint32_t value)
