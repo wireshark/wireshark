@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-09-27
+ * ESTA codes download date: 2026-10-04
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -837,6 +837,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x08CA, "Foshan City Xuandao Optoelectronics Equipment Co., Ltd" },
   { 0x08CB, "Practical LEDs.com" },
   { 0x08CC, "Guangzhou Santu Stage Lighting Equipment Co.Ltd" },
+  { 0x08CD, "RAVE.productions" },
   { 0x08CE, "Zhejiang DGX Electronic Technology Co.,Ltd" },
   { 0x08CF, "Nanjing Lopu Co., Ltd" },
   { 0x08D0, "Image Engineering" },
@@ -1033,6 +1034,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0995, "Rasha Professional" },
   { 0x0996, "CCI Power Supplies, LLC" },
   { 0x0997, "Star Iluminacao Computadorizada LTDA" },
+  { 0x0998, "Spaker" },
   { 0x0999, "Concept Smoke Systems Ltd." },
   { 0x099A, "Aixz International (S)" },
   { 0x099B, "Luminoscape Lighting Limited" },
@@ -1201,6 +1203,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1A16, "WADAK GmbH" },
   { 0x1A1A, "ValDim Waterfountains Ltd." },
   { 0x1A3D, "Red Lighting s.r.l." },
+  { 0x1A46, "StageMatter" },
   { 0x1A58, "Wuxi Seastar Lighting Co.,Ltd." },
   { 0x1AAF, "Gigacolor technology Co., Ltd." },
   { 0x1AFA, "TMB" },

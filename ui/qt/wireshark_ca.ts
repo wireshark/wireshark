@@ -1569,19 +1569,19 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Create a new interface bookmark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea un marcador d&apos;interfície nou.</translation>
     </message>
     <message>
         <source>Remove this interface bookmark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Trau aquest marcador d&apos;interfície.</translation>
     </message>
     <message>
         <source>Processes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Processos:</translation>
     </message>
     <message>
         <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
-        <translation type="unfinished"></translation>
+        <translation>Els camins executables, les línies d&apos;ordres i els noms d&apos;usuaris s&apos;emmagatzemaran al fitxer de captura. Una línia d&apos;ordres pot contenir contrasenyes.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1705,15 +1705,15 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Don&apos;t record processes</source>
-        <translation type="unfinished"></translation>
+        <translation>No gravis els processos</translation>
     </message>
     <message>
         <source>Record process IDs and names</source>
-        <translation type="unfinished"></translation>
+        <translation>Grava els ID i els noms dels processos</translation>
     </message>
     <message>
         <source>Record process IDs, names, paths, command lines and users</source>
-        <translation type="unfinished"></translation>
+        <translation>Grava els ID i els noms dels processos, els camins, les línies d&apos;ordres i els usuaris</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
@@ -1729,15 +1729,15 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Not supported on this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>No està suportat en aquesta plataforma.</translation>
     </message>
     <message>
         <source>Process information can only be recorded in pcapng files.</source>
-        <translation type="unfinished"></translation>
+        <translation>La informació del procés només es pot gravar en fitxers pcapng.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Grava quins processos d&apos;aquest ordinador han rebut o enviat cada paquet, per als paquets de sòcols TCP i UDP. Els processos que es poden identificar depenen dels privilegis que teniu i els paquets de sòcols de vida molt curta poden passar per alt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1792,11 +1792,11 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Record the processes that packets belong to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Grava els processos als quals pertanyen els paquets:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indica què s&apos;ha de gravar als fitxers pcapng dels processos d&apos;aquest ordinador que han enviat o rebut cadascun dels paquets. Els camins executables, les línies d&apos;ordres i els noms d&apos;usuaris poden ser dades sensibles: una línia d&apos;ordres podria contenir alguna contrasenya.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1819,6 +1819,18 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;L&apos;interval entre actualitzacions dels paquets. Afecta la freqüència d&apos;actualització de la interfície i dels temporitzadors.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Temporary directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory in which to write temporary capture files. Leave empty to use the system default. Overridden by the --temp-dir option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">Navega…</translation>
+    </message>
+    <message>
         <source>Don&apos;t load interfaces on startup</source>
         <translation>No carreguis les interfícies a l&apos;inici</translation>
     </message>
@@ -1828,14 +1840,18 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Nothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Res</translation>
     </message>
     <message>
         <source>Process IDs and names</source>
-        <translation type="unfinished"></translation>
+        <translation>ID i noms dels processos</translation>
     </message>
     <message>
         <source>Process IDs, names, paths, command lines and users</source>
+        <translation>ID i noms dels processos, camins, línies d&apos;ordres i usuaris</translation>
+    </message>
+    <message>
+        <source>Temporary Directory</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4717,6 +4733,10 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>…as EBCDIC</source>
         <translation>…en EBCDIC</translation>
+    </message>
+    <message>
+        <source>…as UTF-8</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Comment: %1</source>
@@ -9409,6 +9429,10 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
         <translation>Deixa de fixar columnes</translation>
     </message>
     <message>
+        <source>Tag Links</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Summary as Text</source>
         <translation>Resum com a text</translation>
     </message>
@@ -10652,8 +10676,7 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     </message>
     <message>
         <source>Distribution…</source>
-        <oldsource>Distribution</oldsource>
-        <translation type="unfinished">Distribució</translation>
+        <translation>Distribuci…</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -10690,6 +10713,14 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <message>
         <source>Filter Field Reference</source>
         <translation>Filtra la referència del filtre</translation>
+    </message>
+    <message>
+        <source>Tagging Rules...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tag Links</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Coloring Rule Preferences...</source>
@@ -15288,6 +15319,176 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
 </context>
 <context>
+    <name>TaggingRulesDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Diàleg</translation>
+    </message>
+    <message>
+        <source>Follow Link:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How to open a tag link in the packet list.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right-click only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Emoji Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Emoji size as a percentage of the row height. Does not affect text tag labels or the separator character.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>100%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>90%</source>
+        <translation type="unfinished">90&#xa0;%</translation>
+    </message>
+    <message>
+        <source>80%</source>
+        <translation type="unfinished">80&#xa0;%</translation>
+    </message>
+    <message>
+        <source>70%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>60%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>50%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Separator:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Single character shown between tags when more than one rule matches. Leave empty for none.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save these tagging rules and open the Coloring Rules dialog with this rule&apos;s filter and name pre-filled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy to Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Un consell.&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>Add a new tagging rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete this tagging rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate this tagging rule.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear all tagging rules.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tagging Rules %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Command+Click</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import…</source>
+        <translation type="unfinished">Importa…</translation>
+    </message>
+    <message>
+        <source>Select a file and add its rules to the end of the list.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export…</source>
+        <translation type="unfinished">Exporta…</translation>
+    </message>
+    <message>
+        <source>Save rules to a file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy tagging rules from another profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
+        <translation type="unfinished">Obre</translation>
+    </message>
+    <message>
+        <source>(no tagrules file yet — will be created on save)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to edit. Drag to move. Sample Emojis &lt;a href=&quot;https://emojipedia.org&quot;&gt;here&lt;/a&gt;. All matching rules are applied.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Tagging Rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export %1 Tagging Rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TaggingRulesModel</name>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished">Nom</translation>
+    </message>
+    <message>
+        <source>Filter</source>
+        <translation type="unfinished">Filtre</translation>
+    </message>
+    <message>
+        <source>Tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Comment</source>
+        <translation type="unfinished">Comentari</translation>
+    </message>
+    <message>
+        <source>New tagging rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TapParameterDialog</name>
     <message>
         <source>Dialog</source>
@@ -18220,6 +18421,14 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>&amp;Coloring Rules…</source>
         <translation>Regles d&apos;a&amp;coloriment…</translation>
+    </message>
+    <message>
+        <source>&amp;Tagging Rules…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit the packet tagging rules.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Linked Packet in New Window</source>
