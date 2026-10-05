@@ -1081,7 +1081,19 @@ lz4_fill_out_buffer(FILE_T state)
 
         state->out.avail += (unsigned)outBufSize;
 
-        if (state->fast_seek_cur != NULL) {
+        /* Independent blocks need checkpoints but no history buffer.
+         * Keep frame-level seeking when the frame specifies a content size,
+         * which cannot be restored after skipping blocks, or block checksums
+         * (FLG bit 4), which make the input-size hint unreliable here.
+         */
+        bool independent_seek = state->lz4_info.blockMode == LZ4F_blockIndependent &&
+            state->lz4_info.contentSize == 0 && !(state->lz4_hdr[4] & 0x10);
+#if LZ4_VERSION_NUMBER < 10904
+        /* Older LZ4 cannot suppress an incomplete frame checksum after a seek. */
+        independent_seek = independent_seek &&
+            state->lz4_info.contentChecksumFlag == LZ4F_noContentChecksum;
+#endif
+        if (state->fast_seek && (independent_seek || state->fast_seek_cur != NULL)) {
             struct lz4_cur_seek_point *cur = (struct lz4_cur_seek_point *) state->fast_seek_cur;
             switch (state->lz4_info.blockMode) {
 
@@ -1141,12 +1153,8 @@ lz4_fill_out_buffer(FILE_T state)
             if (compressedSize == 0 && ret > LZ4F_BLOCK_HEADER_SIZE) {
                 /* End of block plus the next block header. We want to add a fast
                  * seek point to the beginning of a block, before the header. We
-                 * don't add a fast seek point after before the EndMark / footer,
-                 * which has no data. This also has the effect of preventing us
-                 * from calculating the frame Content Checksum after doing fast
-                 * seeks and random access, which is good because the LZ4 Frame
-                 * API also doesn't have a method to update the running checksum
-                 * value.
+                 * don't add a fast seek point before the EndMark / footer,
+                 * which has no data.
                  */
 
                 if (cur == NULL || cur->have >= LZ4_WINSIZE) {
@@ -1958,10 +1966,28 @@ file_seek(FILE_T file, int64_t offset, int whence, int *err)
             }
             file->lz4_info = here->data.lz4.lz4_info;
             file->compression = LZ4;
+#if LZ4_VERSION_NUMBER >= 10904
+            LZ4F_decompressOptions_t options = { 0 };
+            options.skipChecksums = here->compression == LZ4_AFTER_HEADER;
+            if (here->compression == LZ4_AFTER_HEADER && file->lz4_info.blockMode == LZ4F_blockIndependent) {
+                /* The frame checksum cannot be verified after skipping its
+                 * prefix. This option lasts only until the end of this frame;
+                 * subsequent frames and reads from frame headers still verify
+                 * their checksums. A packet may span the frame boundary.
+                 */
+                size_t dst_size = 0, src_size = 0;
+                frame_err = LZ4F_decompress(file->lz4_dctx, NULL, &dst_size, NULL, &src_size, &options);
+                if (LZ4F_isError(frame_err)) {
+                    file->err = WTAP_ERR_DECOMPRESS;
+                    file->err_info = LZ4F_getErrorName(frame_err);
+                    return -1;
+                }
+            }
+#endif /* LZ4_VERSION_NUMBER >= 10904 */
 #if LZ4_VERSION_NUMBER >= 11000
             if (here->compression == LZ4_AFTER_HEADER && here->data.lz4.lz4_info.blockMode == LZ4F_blockLinked) {
                 size_t dstSize = 0, srcSize = 0;
-                frame_err = LZ4F_decompress_usingDict(file->lz4_dctx, NULL, &dstSize, NULL, &srcSize, here->data.lz4.window, LZ4_WINSIZE, NULL);
+                frame_err = LZ4F_decompress_usingDict(file->lz4_dctx, NULL, &dstSize, NULL, &srcSize, here->data.lz4.window, LZ4_WINSIZE, &options);
                 if (LZ4F_isError(frame_err)) {
                     file->err = WTAP_ERR_DECOMPRESS;
                     file->err_info = LZ4F_getErrorName(frame_err);

@@ -4851,6 +4851,7 @@ add_custom_target(test-programs
 		wscbor_enc_test
 		test_epan
 		test_wsutil
+		test_wiretap
 	COMMENT "Building unit test programs and wrapper"
 )
 set_target_properties(test-programs PROPERTIES

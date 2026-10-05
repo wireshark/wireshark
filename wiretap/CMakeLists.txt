@@ -233,6 +233,14 @@ install(FILES ${WIRETAP_PUBLIC_HEADERS}
 	EXCLUDE_FROM_ALL
 )
 
+add_executable(test_wiretap EXCLUDE_FROM_ALL test_wiretap.c)
+target_link_libraries(test_wiretap wiretap $<TARGET_NAME_IF_EXISTS:LZ4::LZ4>)
+set_target_properties(test_wiretap PROPERTIES
+	FOLDER "Tests"
+	EXCLUDE_FROM_DEFAULT_BUILD True
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
+
 CHECKAPI(
 	NAME
 	  wiretap

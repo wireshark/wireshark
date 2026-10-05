@@ -50,6 +50,10 @@ class TestUnitTests:
             '--verbose'
         ), env=base_env)
 
+    def test_unit_wiretap(self, program, base_env):
+        """Wiretap unit tests"""
+        subprocess.check_call((program('test_wiretap'), '--verbose'), env=base_env)
+
     def test_unit_wsutil(self, program, base_env):
         '''wsutil unit tests'''
         subprocess.check_call((program('test_wsutil'),
