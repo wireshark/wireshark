@@ -4814,10 +4814,11 @@ cf_goto_frame(capture_file *cf, unsigned fnumber, bool exact)
         }
         if (fdata->prev_dis_num == 0) {
             /* There is no previous displayed frame, so this frame is
-             * before the first displayed frame. Go to the first line,
-             * which is the closest frame.
+             * before the first displayed frame, which is the closest frame.
+             * (This isn't necessarily the first row, if the packet list is
+             * sorted.)
              */
-            fdata = NULL; /* This will select the first row. */
+            fdata = frame_data_sequence_find(cf->provider.frames, cf->first_displayed);
             statusbar_push_temporary_msg("Packet number %u isn't displayed, going to the first displayed packet, %u.", fnumber, cf->first_displayed);
         } else {
             uint32_t delta = fnumber - fdata->prev_dis_num;
