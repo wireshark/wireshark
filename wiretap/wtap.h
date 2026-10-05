@@ -1749,6 +1749,7 @@ typedef struct wtap_dump_params {
                                                  This array may grow since the dumper was opened and will subsequently
                                                  be written before newer packets are written in wtap_dump. */
     bool        dont_copy_idbs;             /**< XXX - don't copy IDBs; this should eventually always be the case. */
+    unsigned    zstd_compression_level;      /**< Zstandard output level; 0 uses the library default */
 } wtap_dump_params;
 
 /* Zero-initializer for wtap_dump_params. */

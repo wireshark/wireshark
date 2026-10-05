@@ -433,6 +433,7 @@ target_link_libraries(wsutil
 		${M_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${ZLIBNG_LIBRARIES}
+		${ZSTD_LIBRARIES}
 		$<TARGET_NAME_IF_EXISTS:LZ4::LZ4>
 		$<TARGET_NAME_IF_EXISTS:XXHASH::XXHASH>
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
@@ -495,6 +496,7 @@ target_link_libraries(wsutil_static
 		$<TARGET_NAME_IF_EXISTS:XXHASH::XXHASH>
 		${ZLIB_LIBRARIES}
 		${ZLIBNG_LIBRARIES}
+		${ZSTD_LIBRARIES}
 		$<TARGET_NAME_IF_EXISTS:LZ4::LZ4>
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 		${WIN_IPHLPAPI_LIBRARY}
@@ -542,6 +544,8 @@ add_executable(test_wsutil EXCLUDE_FROM_ALL
 
 target_link_libraries(test_wsutil ${M_LIBRARIES} ${GLIB2_LIBRARIES} ${SOCKET_LIBRARY} wsutil)
 target_include_directories(test_wsutil SYSTEM PRIVATE ${XXHASH_INCLUDE_DIRS})
+target_link_libraries(test_wsutil ${ZSTD_LIBRARIES})
+target_include_directories(test_wsutil SYSTEM PRIVATE ${ZSTD_INCLUDE_DIRS})
 
 set_target_properties(test_wsutil PROPERTIES
 	FOLDER "Tests"

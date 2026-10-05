@@ -2081,7 +2081,7 @@ wtap_dump_can_open(int file_type_subtype)
  * Return whether we know how to write a compressed file of the specified
  * file type.
  */
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H)
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H) || defined (HAVE_ZSTD)
 bool
 wtap_dump_can_compress(int file_type_subtype)
 {
@@ -2181,6 +2181,7 @@ wtap_dump_init_dumper(int file_type_subtype, ws_compression_type compression_typ
 	wdh->snaplen = params->snaplen;
 	wdh->file_encap = params->encap;
 	wdh->compression_type = compression_type;
+	wdh->zstd_compression_level = params->zstd_compression_level;
 	wdh->wslua_data = NULL;
 	wdh->shb_iface_to_global = params->shb_iface_to_global;
 	wdh->interface_data = g_array_new(false, false, sizeof(wtap_block_t));
@@ -2581,6 +2582,14 @@ wtap_dump_flush(wtap_dumper *wdh, int *err)
 		}
 		break;
 #endif /* HAVE_LZ4FRAME_H */
+#ifdef HAVE_ZSTD
+	case WS_FILE_ZSTD_COMPRESSED:
+		if (zstdwfile_flush((ZSTDWFILE_T)wdh->fh) == -1) {
+			*err = zstdwfile_geterr((ZSTDWFILE_T)wdh->fh);
+			return false;
+		}
+		break;
+#endif /* HAVE_ZSTD */
 	default:
 		if (fflush((FILE *)wdh->fh) == EOF) {
 			*err = errno;
@@ -2718,6 +2727,10 @@ wtap_dump_file_open(const wtap_dumper *wdh, const char *filename)
 	case WS_FILE_LZ4_COMPRESSED:
 		return lz4wfile_open(filename);
 #endif /* HAVE_LZ4FRAME_H */
+#ifdef HAVE_ZSTD
+	case WS_FILE_ZSTD_COMPRESSED:
+		return zstdwfile_open(filename, wdh->zstd_compression_level);
+#endif /* HAVE_ZSTD */
 	default:
 		return ws_fopen(filename, "wb");
 	}
@@ -2736,6 +2749,10 @@ wtap_dump_file_fdopen(const wtap_dumper *wdh, int fd)
 	case WS_FILE_LZ4_COMPRESSED:
 		return lz4wfile_fdopen(fd);
 #endif /* HAVE_LZ4FRAME_H */
+#ifdef HAVE_ZSTD
+	case WS_FILE_ZSTD_COMPRESSED:
+		return zstdwfile_fdopen(fd, wdh->zstd_compression_level);
+#endif /* HAVE_ZSTD */
 	default:
 		return ws_fdopen(fd, "wb");
 	}
@@ -2772,6 +2789,18 @@ wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize, int *err
 		}
 		break;
 #endif /* HAVE_LZ4FRAME_H */
+#ifdef HAVE_ZSTD
+	case WS_FILE_ZSTD_COMPRESSED:
+		nwritten = zstdwfile_write((ZSTDWFILE_T)wdh->fh, buf, bufsize);
+		/*
+		 * zstdwfile_write() returns 0 on error.
+		 */
+		if (nwritten == 0) {
+			*err = zstdwfile_geterr((ZSTDWFILE_T)wdh->fh);
+			return false;
+		}
+		break;
+#endif /* HAVE_ZSTD */
 	default:
 		errno = WTAP_ERR_CANT_WRITE;
 		nwritten = fwrite(buf, 1, bufsize, (FILE *)wdh->fh);
@@ -2804,6 +2833,10 @@ wtap_dump_file_close(wtap_dumper *wdh)
 	case WS_FILE_LZ4_COMPRESSED:
 		return lz4wfile_close((LZ4WFILE_T)wdh->fh);
 #endif /* HAVE_LZ4FRAME_H */
+#ifdef HAVE_ZSTD
+	case WS_FILE_ZSTD_COMPRESSED:
+		return zstdwfile_close((ZSTDWFILE_T)wdh->fh);
+#endif /* HAVE_ZSTD */
 	default:
 		return fclose((FILE *)wdh->fh);
 	}
@@ -2812,7 +2845,7 @@ wtap_dump_file_close(wtap_dumper *wdh)
 int64_t
 wtap_dump_file_seek(wtap_dumper *wdh, int64_t offset, int whence, int *err)
 {
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H)
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H) || defined (HAVE_ZSTD)
 	if (wdh->compression_type != WS_FILE_UNCOMPRESSED) {
 		*err = WTAP_ERR_CANT_SEEK_COMPRESSED;
 		return -1;
@@ -2833,7 +2866,7 @@ int64_t
 wtap_dump_file_tell(wtap_dumper *wdh, int *err)
 {
 	int64_t rval;
-#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H)
+#if defined (HAVE_ZLIB) || defined (HAVE_ZLIBNG) || defined (HAVE_LZ4FRAME_H) || defined (HAVE_ZSTD)
 	/* XXX - The gzip_writer and lz4_writer structs do contain the
 	 * position in the uncompressed data as an int64_t so we could
 	 * return that, but that should be the same as bytes_dumped as

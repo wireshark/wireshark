@@ -119,6 +119,14 @@ See the “New and Updated Features” section below for more details.
 
 The following features are either new or have been significantly updated since version 4.6.0:
 
+* Capture files can be saved with Zstandard compression. The Save Capture File As
+  and Export Specified Packets dialogs offer a Zstandard option, and command-line
+  tools accept `--compress zstd` when built with Zstandard support.
+  The Advanced preference `capture.zstd_compression_level` sets the level for
+  Wireshark saves and exports and for TShark capture-file rewrites.
+  Output uses independent frames with up to 4 MiB of uncompressed data to support
+  fast seeking when the capture is reopened.
+
 * Dumpcap, TShark and Wireshark can record which processes on the capturing host sent or received each packet, with the new `--process-info[=basic|full]` capture option: the process IDs go in the pcapng epb_processid_threadid packet option and the processes are described in process information blocks, shown as the `frame.process` fields. By default (`basic`) a process is described by its ID, name and start time; with `full` its path, command line, parent and user are recorded as well, which can be sensitive. In Wireshark it is set in the “Output” tab of the “Capture Options” dialog and in the capture preferences (`capture.process_info`), and IDs and names are recorded by default. A packet that several processes could have sent or received, such as a multicast datagram and its sender and receivers, is attributed to all of them. Supported on Windows, Linux and macOS. `editcap --discard-process-info` removes the process information from a capture file, e.g. before sharing it.
 
 * New IMSI List dialog (menu:Telephony[IMSI List]) scans all packets in a capture and lists

@@ -262,7 +262,10 @@ You can perform the following actions:
 
 * The btn:[Help] button will take you to this section of the “User’s Guide”.
 
-* “Compress with gzip” will compress the capture file as it is being written to disk.
+* The compression options compress the capture file as it is being written to disk.
+  Depending on the libraries included in your build, you can choose gzip, LZ4,
+  or Zstandard (zstd). Zstandard captures use a `.zst` suffix, for example
+  `capture.pcapng.zst`.
 
 * Click the btn:[Save] button to accept your selected file and save it.
 
@@ -277,6 +280,21 @@ You can convert capture files from one format to another by opening a capture an
 ====
 
 If you wish to save some of the packets in your capture file you can do so via <<ChIOExportSpecifiedPacketsDialog>>.
+
+The `capture.zstd_compression_level` preference under menu:Edit[Preferences,Advanced]
+sets the Zstandard level for saved and exported captures. The default is 3.
+Levels 1 through 22 are supported; 0 selects the library default (3). Higher
+levels use more CPU and memory to produce smaller files. This preference also
+applies when TShark rewrites a capture, for example:
+
+[source,sh]
+----
+tshark -r input.pcapng -w output.pcapng.zst --compress zstd -o capture.zstd_compression_level:9
+----
+
+Editcap, Mergecap and Dumpcap use the library default level and do not read
+this preference. It does not change TShark's live capture compression level.
+
 
 [#ChIOOutputFormatsSection]
 

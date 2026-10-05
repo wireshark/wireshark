@@ -3785,6 +3785,16 @@ prefs_register_modules(void)
     prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in pcapng format",
         "Capture in pcapng format?", &prefs.capture_pcap_ng);
 
+#ifdef HAVE_ZSTD
+    prefs_register_uint_preference(capture_module, "zstd_compression_level",
+        "Zstandard compression level",
+        "Compression level for saving and exporting Zstandard captures. "
+        "Higher levels use more CPU and memory to produce smaller files. "
+        "Use 1 to 22, or 0 for the library default (3). "
+        "Also applies to TShark when rewriting captures with -r and -w.",
+        10, &prefs.capture_zstd_compression_level);
+#endif
+
     prefs_register_enum_preference(capture_module, "process_info", "Record the processes that packets belong to",
         "What to record, in pcapng files, of the processes on this host that sent or received each packet."
         " Paths, command lines and user names can be sensitive.",
@@ -4299,6 +4309,7 @@ prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, in
     prefs.capture_prom_mode             = true;
     prefs.capture_monitor_mode          = false;
     prefs.capture_pcap_ng               = true;
+    prefs.capture_zstd_compression_level = 3;
     prefs.capture_process_info          = CAPTURE_PROCESS_INFO_BASIC;
     prefs.capture_real_time             = true;
     prefs.capture_update_interval       = DEFAULT_UPDATE_INTERVAL;

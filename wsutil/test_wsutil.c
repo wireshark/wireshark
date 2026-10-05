@@ -18,6 +18,188 @@
 
 #include "inet_addr.h"
 
+#ifdef HAVE_ZSTD
+#include <errno.h>
+#include <zstd.h>
+#include <wsutil/file_compressed.h>
+#include <wsutil/file_util.h>
+
+static void
+test_zstd_writer(void)
+{
+    char *path = NULL;
+    int fd = g_file_open_tmp("wireshark-zstd-XXXXXX", &path, NULL);
+    g_assert_cmpint(fd, >=, 0);
+    ZSTDWFILE_T writer = zstdwfile_fdopen(fd, 9);
+    g_assert_nonnull(writer);
+
+    const size_t size = 1024 * 1024;
+    uint8_t *input = g_malloc(size);
+    uint8_t *output = g_malloc(size);
+    uint32_t random = 1;
+    for (size_t i = 0; i < size; i++) {
+        random ^= random << 13;
+        random ^= random >> 17;
+        random ^= random << 5;
+        input[i] = (uint8_t)random;
+    }
+    g_assert_cmpint(zstdwfile_flush(writer), ==, 0);
+    g_assert_cmpuint(zstdwfile_write(writer, input, 0), ==, 0);
+    g_assert_cmpint(zstdwfile_geterr(writer), ==, 0);
+    g_assert_cmpuint(zstdwfile_write(writer, input, 17), ==, 17);
+    g_assert_cmpint(zstdwfile_flush(writer), ==, 0);
+    g_assert_cmpint(zstdwfile_flush(writer), ==, 0);
+    g_assert_cmpuint(zstdwfile_write(writer, input + 17, size - 17), ==, size - 17);
+    g_assert_cmpint(zstdwfile_close(writer), ==, 0);
+
+    char *compressed = NULL;
+    size_t compressed_size = 0;
+    g_assert_true(g_file_get_contents(path, &compressed, &compressed_size, NULL));
+    size_t decoded = ZSTD_decompress(output, size, compressed, compressed_size);
+    g_assert_false(ZSTD_isError(decoded));
+    g_assert_cmpuint(decoded, ==, size);
+    g_assert_cmpmem(output, size, input, size);
+    g_free(compressed);
+
+    /* Closing a writer without packets must still produce a valid frame. */
+    writer = zstdwfile_open(path, 0);
+    g_assert_nonnull(writer);
+    g_assert_cmpint(zstdwfile_close(writer), ==, 0);
+    g_assert_true(g_file_get_contents(path, &compressed, &compressed_size, NULL));
+    decoded = ZSTD_decompress(output, size, compressed, compressed_size);
+    g_assert_false(ZSTD_isError(decoded));
+    g_assert_cmpuint(decoded, ==, 0);
+
+    /* Invalid settings must not truncate an existing output file. */
+    writer = zstdwfile_open(path, (unsigned)ZSTD_maxCLevel() + 1);
+    g_assert_null(writer);
+    g_assert_cmpint(errno, ==, EINVAL);
+    char *unchanged = NULL;
+    size_t unchanged_size = 0;
+    g_assert_true(g_file_get_contents(path, &unchanged, &unchanged_size, NULL));
+    g_assert_cmpmem(unchanged, unchanged_size, compressed, compressed_size);
+    g_free(unchanged);
+    g_free(compressed);
+
+    /* A read-only descriptor exercises error propagation without triggering
+     * the Windows CRT's invalid-parameter handler for a closed descriptor. */
+    fd = ws_open(path, O_BINARY|O_RDONLY, 0);
+    g_assert_cmpint(fd, >=, 0);
+    writer = zstdwfile_fdopen(fd, 0);
+    g_assert_nonnull(writer);
+    g_assert_cmpuint(zstdwfile_write(writer, input, size), ==, 0);
+    g_assert_cmpint(zstdwfile_geterr(writer), !=, 0);
+    g_assert_cmpint(zstdwfile_flush(writer), ==, -1);
+    g_assert_cmpint(zstdwfile_close(writer), !=, 0);
+
+    ws_unlink(path);
+    g_free(path);
+    g_free(input);
+    g_free(output);
+}
+
+static void
+check_zstd_frames(const char *path, const uint8_t *input, size_t size, bool identical_frames)
+{
+    const size_t frame_size = 4 * 1024 * 1024;
+    char *compressed = NULL;
+    size_t compressed_size = 0;
+    g_assert_true(g_file_get_contents(path, &compressed, &compressed_size, NULL));
+    ZSTD_DStream *stream = ZSTD_createDStream();
+    g_assert_nonnull(stream);
+    uint8_t *output = g_malloc(frame_size + 1);
+    ZSTD_inBuffer encoded = { compressed, compressed_size, 0 };
+    size_t total = 0, frames = 0, first_frame_size = 0;
+
+    while (encoded.pos < encoded.size) {
+        /* Reset the decoder at every frame to verify independent decoding. */
+        g_assert_false(ZSTD_isError(ZSTD_initDStream(stream)));
+        ZSTD_outBuffer decoded = { output, frame_size + 1, 0 };
+        size_t frame_start = encoded.pos;
+        size_t remaining;
+        do {
+            size_t before_in = encoded.pos, before_out = decoded.pos;
+            remaining = ZSTD_decompressStream(stream, &decoded, &encoded);
+            g_assert_false(ZSTD_isError(remaining));
+            g_assert_true(encoded.pos != before_in || decoded.pos != before_out);
+            g_assert_cmpuint(decoded.pos, <=, frame_size);
+        } while (remaining != 0);
+        g_assert_cmpuint(decoded.pos, ==, MIN(size - total, frame_size));
+        g_assert_cmpmem(output, decoded.pos, input + total, decoded.pos);
+        total += decoded.pos;
+        if (frames == 0) {
+            first_frame_size = encoded.pos - frame_start;
+        } else if (frames == 1 && identical_frames) {
+            /* Identical full frames must retain the requested compression level. */
+            g_assert_cmpmem(compressed, first_frame_size,
+                            compressed + frame_start, encoded.pos - frame_start);
+        }
+        frames++;
+    }
+    g_assert_cmpuint(total, ==, size);
+    g_assert_cmpuint(frames, ==, (size + frame_size - 1) / frame_size);
+    ZSTD_freeDStream(stream);
+    g_free(output);
+    g_free(compressed);
+}
+
+static void
+test_zstd_writer_frames(const void *data)
+{
+    const size_t frame_size = 4 * 1024 * 1024;
+    const size_t size = 2 * frame_size + 17;
+    unsigned level = GPOINTER_TO_UINT(data);
+    uint8_t *input = g_malloc(size);
+    uint32_t random = 1;
+    for (size_t i = 0; i < frame_size; i++) {
+        random ^= random << 13;
+        random ^= random >> 17;
+        random ^= random << 5;
+        input[i] = (i & 31) ? (uint8_t)(i % 251) : (uint8_t)random;
+    }
+    memcpy(input + frame_size, input, frame_size);
+    memcpy(input + 2 * frame_size, input, 17);
+
+    char *path = NULL;
+    int fd = g_file_open_tmp("wireshark-zstd-frames-XXXXXX", &path, NULL);
+    g_assert_cmpint(fd, >=, 0);
+    ZSTDWFILE_T writer = zstdwfile_fdopen(fd, level);
+    g_assert_nonnull(writer);
+    /* A single write can cross more than one frame boundary. */
+    g_assert_cmpuint(zstdwfile_write(writer, input, size), ==, size);
+    g_assert_cmpint(zstdwfile_close(writer), ==, 0);
+    check_zstd_frames(path, input, size, true);
+
+    /* Flush within a frame, then close exactly at the boundary. Neither
+     * flushing nor an empty write may append an empty trailing frame. */
+    writer = zstdwfile_open(path, level);
+    g_assert_nonnull(writer);
+    g_assert_cmpuint(zstdwfile_write(writer, input, 17), ==, 17);
+    g_assert_cmpint(zstdwfile_flush(writer), ==, 0);
+    g_assert_cmpuint(zstdwfile_write(writer, input + 17, frame_size - 17), ==, frame_size - 17);
+    g_assert_cmpint(zstdwfile_flush(writer), ==, 0);
+    g_assert_cmpuint(zstdwfile_write(writer, input, 0), ==, 0);
+    g_assert_cmpint(zstdwfile_flush(writer), ==, 0);
+    g_assert_cmpint(zstdwfile_close(writer), ==, 0);
+    check_zstd_frames(path, input, frame_size, false);
+
+    /* Resume after a flush and cross a boundary in the middle of a write. */
+    writer = zstdwfile_open(path, level);
+    g_assert_nonnull(writer);
+    g_assert_cmpuint(zstdwfile_write(writer, input, frame_size - 1), ==, frame_size - 1);
+    g_assert_cmpint(zstdwfile_flush(writer), ==, 0);
+    g_assert_cmpuint(zstdwfile_write(writer, input + frame_size - 1, 2), ==, 2);
+    g_assert_cmpint(zstdwfile_flush(writer), ==, 0);
+    g_assert_cmpuint(zstdwfile_write(writer, input + frame_size + 1, frame_size - 1), ==, frame_size - 1);
+    g_assert_cmpint(zstdwfile_close(writer), ==, 0);
+    check_zstd_frames(path, input, 2 * frame_size, false);
+
+    ws_unlink(path);
+    g_free(path);
+    g_free(input);
+}
+#endif
+
 #define PROGNAME "test_wsutil"
 
 static void test_inet_pton4_test1(void)
@@ -2018,6 +2200,12 @@ int main(int argc, char **argv)
 #endif
     g_test_add_func("/packet_endpoints/link_layers", test_packet_endpoints_link_layers);
     g_test_add_func("/packet_endpoints/ip", test_packet_endpoints_ip);
+
+#ifdef HAVE_ZSTD
+    g_test_add_func("/compression/zstd", test_zstd_writer);
+    g_test_add_data_func("/compression/zstd-frames/default", GUINT_TO_POINTER(0), test_zstd_writer_frames);
+    g_test_add_data_func("/compression/zstd-frames/level19", GUINT_TO_POINTER(19), test_zstd_writer_frames);
+#endif
 
     ret = g_test_run();
 

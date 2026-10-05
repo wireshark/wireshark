@@ -38,6 +38,12 @@ CompressionGroupBox::CompressionGroupBox(QWidget *parent) :
     vbox->addWidget(radio3);
 #endif
 
+#ifdef HAVE_ZSTD
+    QRadioButton *radio4 = new QRadioButton(tr("Compress with Zstandard"));
+    bg_->addButton(radio4, WS_FILE_ZSTD_COMPRESSED);
+    vbox->addWidget(radio4);
+#endif
+
     radio1->setChecked(true);
 
     setLayout(vbox);
