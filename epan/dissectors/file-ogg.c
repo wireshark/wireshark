@@ -92,6 +92,7 @@ find_ogg_page(tvbuff_t *tvb, unsigned offset, size_t len, bool *found)
     unsigned old_offset = offset;
 
     /* Find sync word */
+    /* XXX - This can probably be made faster with tvb_find_ */
     while ((ssize_t)offset < (ssize_t)(len - OGG_HDR_LEN)) {
         if (tvb_strneql(tvb, offset, "OggS", 4) == 0) {
             *found = true;
@@ -176,7 +177,14 @@ dissect_ogg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 static bool
 dissect_ogg_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_ogg(tvb, pinfo, tree, data) > 0;
+    bool found;
+    unsigned offset = 0;
+
+    offset = find_ogg_page(tvb, offset, tvb_reported_length(tvb), &found);
+    if (!found)
+        return false;
+
+    return dissect_ogg(tvb_new_subset_remaining(tvb, offset), pinfo, tree, data) > 0;
 }
 
 void
