@@ -3418,3 +3418,34 @@ class TestDissectDnsMqtype:
             ), encoding='utf-8', env=test_env)
         # Option code 21 present, no QTYPEs
         assert '21' in stdout
+
+
+class TestDissectDnsEdnsKeyTag:
+    '''DNS edns-key-tag EDNS option (code 14, RFC 8145).'''
+
+    def test_key_tag_single(self, cmd_tshark, capture_file, test_env):
+        '''edns-key-tag option with a single key tag value is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_edns_key_tag.pcap'),
+                '-Y', 'frame.number == 1',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.key_tag',
+            ), encoding='utf-8', env=test_env)
+        # Option code 14 (edns-key-tag), key tag 12345
+        assert '14' in stdout
+        assert '12345' in stdout
+
+    def test_key_tag_multiple(self, cmd_tshark, capture_file, test_env):
+        '''edns-key-tag option with multiple key tag values is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_edns_key_tag.pcap'),
+                '-Y', 'frame.number == 2',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.key_tag',
+            ), encoding='utf-8', env=test_env)
+        # Option code 14, two key tags 12345 and 54321
+        assert '14' in stdout
+        assert '12345' in stdout
+        assert '54321' in stdout
