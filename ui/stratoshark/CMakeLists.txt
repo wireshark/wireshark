@@ -163,6 +163,7 @@ set(WIRESHARK_MODEL_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/interface_tree_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/numeric_value_chooser_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_model.h
+	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_proxy_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_record.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/pinned_rows_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/path_selection_delegate.h
@@ -487,6 +488,7 @@ set(WIRESHARK_MODEL_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/interface_tree_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/numeric_value_chooser_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_model.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_proxy_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/packet_list_record.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/pinned_rows_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/path_selection_delegate.cpp

@@ -12,6 +12,7 @@
 
 #include "data_source_tab.h"
 #include <ui/qt/models/packet_list_model.h>
+#include <ui/qt/models/packet_list_proxy_model.h>
 #include "proto_tree.h"
 #include "protocol_preferences_menu.h"
 #include <ui/qt/models/related_packet_delegate.h>
@@ -769,8 +770,17 @@ protected slots:
 private:
     void refreshFilteredOutFrame(frame_data *fdata);
 
-    /** @brief Pointer to the internal packet list model. */
+    /**
+     * @brief Maps indexes in this view's model (the proxy) to the
+     * corresponding indexes in the source PacketListModel.
+     */
+    QModelIndexList sourceIndexes(const QModelIndexList &indexes) const;
+
+    /** @brief Pointer to the internal packet list model, holding every packet. */
     PacketListModel *packet_list_model_;
+
+    /** @brief Pointer to the proxy model filtering and sorting packet_list_model_, shown by this view. */
+    PacketListProxyModel *packet_list_proxy_model_;
 
     /** @brief Pointer to the header view of the packet list. */
     PacketListHeader * packet_list_header_;

@@ -45,7 +45,7 @@
 
 #include <ui/qt/main_window.h>
 #include "packet_list.h"
-#include <ui/qt/models/packet_list_model.h>
+#include <ui/qt/models/packet_list_proxy_model.h>
 
 /* we start rendering this number of microseconds left of the left edge - to ensure
  * NAV lines are drawn correctly, and that small errors in time order don't prevent some
@@ -339,9 +339,9 @@ WirelessTimeline::~WirelessTimeline()
 void WirelessTimeline::setPacketList(PacketList *packet_list)
 {
     this->packet_list = packet_list;
-    PacketListModel *packet_list_model = qobject_cast<PacketListModel *>(packet_list->model());
+    PacketListProxyModel *packet_list_model = qobject_cast<PacketListProxyModel *>(packet_list->model());
     if (packet_list_model) {
-        connect(packet_list_model, &PacketListModel::bgColorizationProgress,
+        connect(packet_list_model, &PacketListProxyModel::bgColorizationProgress,
                 this, &WirelessTimeline::bgColorizationProgress);
     }
 

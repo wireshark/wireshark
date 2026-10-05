@@ -1,6 +1,6 @@
 /* pinned_rows_model.cpp
  *
- * Proxy model exposing only the currently pinned packets from a PacketListModel
+ * Proxy model exposing only the currently pinned packets from a PacketListProxyModel
  * Copyright 2026, Mark Stout <mark.stout@markstout.com>
  *
  * Wireshark - Network traffic analyzer
@@ -12,19 +12,20 @@
 
 #include <ui/qt/models/pinned_rows_model.h>
 #include <ui/qt/models/packet_list_model.h>
+#include <ui/qt/models/packet_list_proxy_model.h>
 
 #include <algorithm>
 
 PinnedRowsModel::PinnedRowsModel(QObject *parent) :
     QAbstractProxyModel(parent),
-    packet_list_model_(nullptr)
+    packet_list_proxy_model_(nullptr)
 {
 }
 
 void PinnedRowsModel::setSourceModel(QAbstractItemModel *source_model)
 {
     QAbstractProxyModel::setSourceModel(source_model);
-    packet_list_model_ = qobject_cast<PacketListModel *>(source_model);
+    packet_list_proxy_model_ = qobject_cast<PacketListProxyModel *>(source_model);
 
     if (source_model) {
         connect(source_model, &QAbstractItemModel::dataChanged,
@@ -80,7 +81,7 @@ bool PinnedRowsModel::isPinned(int frame_num) const
 
 void PinnedRowsModel::refresh()
 {
-    if (pinned_frame_nums_.isEmpty() || !packet_list_model_) {
+    if (pinned_frame_nums_.isEmpty() || !packet_list_proxy_model_) {
         return;
     }
 
@@ -106,7 +107,7 @@ void PinnedRowsModel::refresh()
     // directly, which is defined regardless of filter state.
     std::stable_sort(pinned_frame_nums_.begin(), pinned_frame_nums_.end(),
         [this](int a, int b) {
-            return packet_list_model_->pinnedRecordLessThan(a, b);
+            return packet_list_proxy_model_->pinnedRecordLessThan(a, b);
         });
 
     QModelIndexList old_persistent_indexes = persistentIndexList();
@@ -125,26 +126,30 @@ void PinnedRowsModel::refresh()
 
 int PinnedRowsModel::sourceRowForPinnedIndex(int proxy_row) const
 {
-    if (!packet_list_model_ || proxy_row < 0 || proxy_row >= pinned_frame_nums_.count()) {
+    if (!packet_list_proxy_model_ || proxy_row < 0 || proxy_row >= pinned_frame_nums_.count()) {
         return -1;
     }
-    return packet_list_model_->packetNumberToRow(pinned_frame_nums_[proxy_row]);
+    return packet_list_proxy_model_->packetNumberToRow(pinned_frame_nums_[proxy_row]);
 }
 
 QVariant PinnedRowsModel::data(const QModelIndex &proxy_index, int role) const
 {
-    if (!proxy_index.isValid() || !packet_list_model_) {
+    if (!proxy_index.isValid() || !packet_list_proxy_model_) {
         return QVariant();
     }
     if (proxy_index.row() < 0 || proxy_index.row() >= pinned_frame_nums_.count()) {
         return QVariant();
     }
-    return packet_list_model_->dataForFrameNum(pinned_frame_nums_[proxy_index.row()], proxy_index.column(), role);
+    PacketListModel *packet_list_model = packet_list_proxy_model_->packetListModel();
+    if (!packet_list_model) {
+        return QVariant();
+    }
+    return packet_list_model->dataForFrameNum(pinned_frame_nums_[proxy_index.row()], proxy_index.column(), role);
 }
 
 Qt::ItemFlags PinnedRowsModel::flags(const QModelIndex &proxy_index) const
 {
-    if (!proxy_index.isValid() || !packet_list_model_) {
+    if (!proxy_index.isValid() || !packet_list_proxy_model_) {
         return Qt::NoItemFlags;
     }
     if (proxy_index.row() < 0 || proxy_index.row() >= pinned_frame_nums_.count()) {
@@ -169,7 +174,7 @@ Qt::ItemFlags PinnedRowsModel::flags(const QModelIndex &proxy_index) const
 void PinnedRowsModel::sourceDataChanged(const QModelIndex &source_top_left, const QModelIndex &source_bottom_right,
                                         const QList<int> &roles)
 {
-    if (!packet_list_model_ || pinned_frame_nums_.isEmpty()) {
+    if (!packet_list_proxy_model_ || pinned_frame_nums_.isEmpty()) {
         return;
     }
     if (!source_top_left.isValid() || !source_bottom_right.isValid()) {
@@ -198,7 +203,7 @@ void PinnedRowsModel::sourceDataChanged(const QModelIndex &source_top_left, cons
 
 QModelIndex PinnedRowsModel::mapToSource(const QModelIndex &proxy_index) const
 {
-    if (!proxy_index.isValid() || !packet_list_model_) {
+    if (!proxy_index.isValid() || !packet_list_proxy_model_) {
         return QModelIndex();
     }
 
@@ -207,16 +212,16 @@ QModelIndex PinnedRowsModel::mapToSource(const QModelIndex &proxy_index) const
         return QModelIndex();
     }
 
-    return packet_list_model_->index(source_row, proxy_index.column());
+    return packet_list_proxy_model_->index(source_row, proxy_index.column());
 }
 
 QModelIndex PinnedRowsModel::mapFromSource(const QModelIndex &source_index) const
 {
-    if (!source_index.isValid() || !packet_list_model_) {
+    if (!source_index.isValid() || !packet_list_proxy_model_) {
         return QModelIndex();
     }
 
-    frame_data *fdata = packet_list_model_->getRowFdata(source_index.row());
+    frame_data *fdata = packet_list_proxy_model_->getRowFdata(source_index.row());
     if (!fdata) {
         return QModelIndex();
     }
@@ -241,8 +246,10 @@ QModelIndex PinnedRowsModel::index(int row, int column, const QModelIndex &paren
     // the index the view hands them (this proxy's own index, not a
     // source-mapped one), so a null pointer here meant they always fell
     // back to plain QStyledItemDelegate painting for every pinned row.
-    PacketListRecord *record = packet_list_model_ ?
-        packet_list_model_->physicalRecordForFrameNum(pinned_frame_nums_[row]) : nullptr;
+    PacketListModel *packet_list_model = packet_list_proxy_model_ ?
+        packet_list_proxy_model_->packetListModel() : nullptr;
+    PacketListRecord *record = packet_list_model ?
+        packet_list_model->physicalRecordForFrameNum(pinned_frame_nums_[row]) : nullptr;
     return createIndex(row, column, record);
 }
 

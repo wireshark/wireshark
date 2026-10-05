@@ -16,11 +16,11 @@
 #include <QAbstractProxyModel>
 #include <QList>
 
-class PacketListModel;
+class PacketListProxyModel;
 
 /**
  * @brief A proxy model exposing only a chosen set of "pinned" packets from
- * a PacketListModel, packed together with no gaps, ordered to match the
+ * a PacketListProxyModel, packed together with no gaps, ordered to match the
  * source model's own current row order (i.e. whatever sort/filter is
  * currently active there).
  *
@@ -109,7 +109,7 @@ public:
      * currently *visible* (filtered-in) rows -- a pinned packet that's
      * been filtered out has no such row, so the default would return an
      * empty QVariant for it. This instead always reads the packet's data
-     * from PacketListModel::dataForFrameNum(), which looks the packet up
+     * from the underlying PacketListModel::dataForFrameNum(), which looks the packet up
      * directly regardless of the display filter, so pinned rows keep
      * showing their data even after being filtered out.
      * @param proxy_index The index within this proxy model.
@@ -146,7 +146,7 @@ private slots:
 
 private:
     QList<int> pinned_frame_nums_;
-    PacketListModel *packet_list_model_;
+    PacketListProxyModel *packet_list_proxy_model_;
 
     /**
      * @brief The source model row currently backing the given pinned

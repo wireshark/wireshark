@@ -122,7 +122,7 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
     if (! gbl_cur_packet_list || ! gbl_cur_packet_list->model())
         return false;
 
-    PacketListModel* model = qobject_cast<PacketListModel*>(gbl_cur_packet_list->model());
+    PacketListProxyModel* model = qobject_cast<PacketListProxyModel*>(gbl_cur_packet_list->model());
 
     if (!model)
         return false;
@@ -294,12 +294,14 @@ PacketList::PacketList(QWidget *parent) :
     header()->setSortIndicator(-1, Qt::AscendingOrder);
 
     packet_list_model_ = new PacketListModel(this, cap_file_);
-    setModel(packet_list_model_);
+    packet_list_proxy_model_ = new PacketListProxyModel(this);
+    packet_list_proxy_model_->setSourceModel(packet_list_model_);
+    setModel(packet_list_proxy_model_);
 
     Q_ASSERT(gbl_cur_packet_list == Q_NULLPTR);
     gbl_cur_packet_list = this;
 
-    connect(packet_list_model_, &PacketListModel::goToPacket, this, [=](int packet) { goToPacket(packet); });
+    connect(packet_list_proxy_model_, &PacketListProxyModel::goToPacket, this, [=](int packet) { goToPacket(packet); });
     connect(mainApp, &MainApplication::addressResolutionChanged, this, &PacketList::redrawVisiblePacketsDontSelectCurrent);
     connect(mainApp, &MainApplication::columnDataChanged, this, &PacketList::redrawVisiblePacketsDontSelectCurrent);
     connect(mainApp, &MainApplication::preferencesChanged, this, [=]() {
@@ -338,14 +340,14 @@ PacketList::PacketList(QWidget *parent) :
     connect(packet_list_header_, &PacketListHeader::unfreezeColumns, this, [this]() { setPinnedColumnBoundary(0); });
 
     pinned_rows_model_ = new PinnedRowsModel(this);
-    pinned_rows_model_->setSourceModel(packet_list_model_);
+    pinned_rows_model_->setSourceModel(packet_list_proxy_model_);
     // Filtering (modelReset) and sorting (layoutChanged) on the source
     // model both need the pinned set re-resolved/re-ordered to match.
-    connect(packet_list_model_, &QAbstractItemModel::modelReset, this, &PacketList::updatePinnedRowVisibility);
-    connect(packet_list_model_, &QAbstractItemModel::layoutChanged, this, &PacketList::updatePinnedRowVisibility);
+    connect(packet_list_proxy_model_, &QAbstractItemModel::modelReset, this, &PacketList::updatePinnedRowVisibility);
+    connect(packet_list_proxy_model_, &QAbstractItemModel::layoutChanged, this, &PacketList::updatePinnedRowVisibility);
 
     pinned_column_view_ = new PinnedColumnView(this, this);
-    pinned_column_view_->setModel(packet_list_model_);
+    pinned_column_view_->setModel(packet_list_proxy_model_);
     pinned_column_view_->setSelectionModel(selectionModel());
 
     connect(verticalScrollBar(), &QScrollBar::valueChanged, pinned_column_view_, &PinnedColumnView::setVerticalScrollValue);
@@ -699,10 +701,19 @@ frame_data *PacketList::filteredOutSelectedFrame() const
         return nullptr;
     }
     int frame_num = (int)cap_file_->current_frame->num;
-    if (!pinned_rows_model_->isPinned(frame_num) || packet_list_model_->packetNumberToRow(frame_num) >= 0) {
+    if (!pinned_rows_model_->isPinned(frame_num) || packet_list_proxy_model_->packetNumberToRow(frame_num) >= 0) {
         return nullptr;
     }
     return cap_file_->current_frame;
+}
+
+QModelIndexList PacketList::sourceIndexes(const QModelIndexList &indexes) const
+{
+    QModelIndexList source_indexes;
+    for (const QModelIndex &idx : indexes) {
+        source_indexes << packet_list_proxy_model_->mapToSource(idx);
+    }
+    return source_indexes;
 }
 
 void PacketList::refreshFilteredOutFrame(frame_data *fdata)
@@ -755,7 +766,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     // just before this runs), which for that case is exactly the pinned
     // packet's own frame, resolved independently of any row here.
     frame_data *ctx_row_fdata = ctxIndex.isValid() ?
-        packet_list_model_->getRowFdata(ctxIndex.row()) :
+        packet_list_proxy_model_->getRowFdata(ctxIndex.row()) :
         (cap_file_ ? cap_file_->current_frame : nullptr);
 
     // frameData will be owned by one of the submenus, see below.
@@ -1034,7 +1045,7 @@ void PacketList::mousePressEvent(QMouseEvent *event)
     bool midButton = (event->buttons() & Qt::MiddleButton) == Qt::MiddleButton;
     if (midButton && cap_file_ && packet_list_model_)
     {
-        packet_list_model_->toggleFrameMark(QModelIndexList() << curIndex);
+        packet_list_model_->toggleFrameMark(QModelIndexList() << packet_list_proxy_model_->mapToSource(curIndex));
 
         // Make sure the packet list's frame.marked related field text is updated.
         redrawVisiblePackets();
@@ -1119,7 +1130,7 @@ void PacketList::selectRowFromOverlay(int row, int column, Qt::MouseButtons butt
     repaintPinnedOverlays();
 
     if (buttons & Qt::MiddleButton) {
-        packet_list_model_->toggleFrameMark(QModelIndexList() << index);
+        packet_list_model_->toggleFrameMark(QModelIndexList() << packet_list_proxy_model_->mapToSource(index));
         redrawVisiblePackets();
         create_far_overlay_ = true;
         packets_bar_update();
@@ -1149,7 +1160,7 @@ void PacketList::selectFramesFromOverlay(const QList<int> &frame_nums)
     QItemSelection combined;
     QModelIndex last_valid_index;
     for (int frame_num : frame_nums) {
-        int row = packet_list_model_->packetNumberToRow(frame_num);
+        int row = packet_list_proxy_model_->packetNumberToRow(frame_num);
         if (row < 0) {
             // Filtered out of the primary view -- no row here to add to
             // the shared QItemSelectionModel for it, same documented
@@ -1399,7 +1410,7 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
 
     if (event->buttons() & Qt::LeftButton && curIndex.isValid() && curIndex == mouse_pressed_at_)
     {
-        startCellDrag(packet_list_model_ ? packet_list_model_->getRowFdata(curIndex.row()) : nullptr,
+        startCellDrag(packet_list_model_ ? packet_list_proxy_model_->getRowFdata(curIndex.row()) : nullptr,
                       curIndex.column(), model()->data(curIndex).toString());
     }
 }
@@ -1410,7 +1421,7 @@ void PacketList::startCellDragFromOverlay(int row, int column)
     if (!idx.isValid() || !packet_list_model_) {
         return;
     }
-    startCellDrag(packet_list_model_->getRowFdata(row), column, model()->data(idx).toString());
+    startCellDrag(packet_list_proxy_model_->getRowFdata(row), column, model()->data(idx).toString());
 }
 
 void PacketList::startCellDragForFrameFromOverlay(int frame_num, int column)
@@ -1817,7 +1828,7 @@ void PacketList::drawCurrentPacket(bool scroll)
             if (packet_list_model_) {
                 foreach (QModelIndex idx, selRows)
                 {
-                    frame_data * fdata = packet_list_model_->getRowFdata(idx);
+                    frame_data * fdata = packet_list_proxy_model_->getRowFdata(idx);
                     if (fdata)
                         selectedFrames << fdata->num;
                 }
@@ -1882,7 +1893,7 @@ void PacketList::drawCurrentPacket(bool scroll)
     if (row < 0 || !packet_list_model_)
         cf_unselect_packet(cap_file_);
     else {
-        frame_data * fdata = packet_list_model_->getRowFdata(row);
+        frame_data * fdata = packet_list_proxy_model_->getRowFdata(row);
         cf_select_packet(cap_file_, fdata);
         if (fdata)
             selectedFrames << fdata->num;
@@ -1977,7 +1988,7 @@ bool PacketList::haveNextHistory(bool update_cur)
     }
 
     for (int i = cur_history_ + 1; i < selection_history_.size(); i++) {
-        if (packet_list_model_->packetNumberToRow(selection_history_.at(i)) >= 0) {
+        if (packet_list_proxy_model_->packetNumberToRow(selection_history_.at(i)) >= 0) {
             if (update_cur) {
                 cur_history_ = i;
             }
@@ -1995,7 +2006,7 @@ bool PacketList::havePreviousHistory(bool update_cur)
     }
 
     for (int i = cur_history_ - 1; i >= 0; i--) {
-        if (packet_list_model_->packetNumberToRow(selection_history_.at(i)) >= 0) {
+        if (packet_list_proxy_model_->packetNumberToRow(selection_history_.at(i)) >= 0) {
             if (update_cur) {
                 cur_history_ = i;
             }
@@ -2039,7 +2050,7 @@ void PacketList::setProfileSwitcher(ProfileSwitcher *profile_switcher)
 
 frame_data *PacketList::getFDataForRow(int row) const
 {
-    return packet_list_model_->getRowFdata(row);
+    return packet_list_proxy_model_->getRowFdata(row);
 }
 
 // prefs.col_list has changed.
@@ -2184,8 +2195,8 @@ void PacketList::setVerticalAutoScroll(bool enabled)
 // packets.
 void PacketList::captureFileReadFinished()
 {
-    packet_list_model_->flushVisibleRows();
-    packet_list_model_->dissectIdle(true);
+    packet_list_proxy_model_->flushVisibleRows();
+    packet_list_proxy_model_->dissectIdle(true);
     // Invalidating the column strings picks up and request/response
     // tracking changes. We might just want to call it from flushVisibleRows.
     packet_list_model_->invalidateAllColumnStrings();
@@ -2234,7 +2245,7 @@ bool PacketList::thaw(bool restore_selection)
     // Note that if we have a current sort status set in the header,
     // this will automatically try to sort the model (we don't want
     // that to happen if we're in the middle of reading the file).
-    setModel(packet_list_model_);
+    setModel(packet_list_proxy_model_);
 
     // setModel() always creates a brand-new default selection model, even
     // when passed the same model pointer, discarding the one we'd shared
@@ -2347,7 +2358,7 @@ QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
     if (! idx.isValid() || !packet_list_model_)
         return QString();
 
-    return getFilterFromFdataAndColumn(packet_list_model_->getRowFdata(idx.row()), idx.column());
+    return getFilterFromFdataAndColumn(packet_list_proxy_model_->getRowFdata(idx.row()), idx.column());
 }
 
 QString PacketList::getFilterFromFdataAndColumn(frame_data *fdata, int column)
@@ -2425,7 +2436,7 @@ QString PacketList::getPacketComment(unsigned c_number)
 
     if (!cap_file_ || !packet_list_model_) return NULL;
 
-    fdata = packet_list_model_->getRowFdata(row);
+    fdata = packet_list_proxy_model_->getRowFdata(row);
     if (!fdata) fdata = filteredOutSelectedFrame();
 
     if (!fdata) return NULL;
@@ -2463,7 +2474,7 @@ void PacketList::addPacketComment(QString new_comment)
         packet_list_model_->addFrameComment(packet_list_model_->physicalRecordForFrameNum((int)hidden->num), ba);
         refreshFilteredOutFrame(hidden);
     } else if (selectionModel() && selectionModel()->hasSelection()) {
-        packet_list_model_->addFrameComment(selectionModel()->selectedRows(), ba);
+        packet_list_model_->addFrameComment(sourceIndexes(selectionModel()->selectedRows()), ba);
         drawCurrentPacket();
     }
 }
@@ -2494,7 +2505,7 @@ void PacketList::setPacketComment(unsigned c_number, QString new_comment)
         return;
     }
 
-    packet_list_model_->setFrameComment(curIndex, ba, c_number);
+    packet_list_model_->setFrameComment(packet_list_proxy_model_->mapToSource(curIndex), ba, c_number);
     drawCurrentPacket();
 }
 
@@ -2537,7 +2548,7 @@ void PacketList::deleteCommentsFromPackets()
         packet_list_model_->deleteFrameComments(packet_list_model_->physicalRecordForFrameNum((int)hidden->num));
         refreshFilteredOutFrame(hidden);
     } else if (selectionModel() && selectionModel()->hasSelection()) {
-        packet_list_model_->deleteFrameComments(selectionModel()->selectedRows());
+        packet_list_model_->deleteFrameComments(sourceIndexes(selectionModel()->selectedRows()));
         drawCurrentPacket();
     }
 }
@@ -2632,16 +2643,16 @@ void PacketList::goPreviousPacket(void)
 }
 
 void PacketList::goFirstPacket(void) {
-    if (packet_list_model_->rowCount() < 1) return;
-    selectionModel()->setCurrentIndex(packet_list_model_->index(0, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    if (packet_list_proxy_model_->rowCount() < 1) return;
+    selectionModel()->setCurrentIndex(packet_list_proxy_model_->index(0, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     scrollTo(currentIndex());
 
     scrollViewChanged(false);
 }
 
 void PacketList::goLastPacket(void) {
-    if (packet_list_model_->rowCount() < 1) return;
-    selectionModel()->setCurrentIndex(packet_list_model_->index(packet_list_model_->rowCount() - 1, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    if (packet_list_proxy_model_->rowCount() < 1) return;
+    selectionModel()->setCurrentIndex(packet_list_proxy_model_->index(packet_list_proxy_model_->rowCount() - 1, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     scrollTo(currentIndex());
 
     scrollViewChanged(false);
@@ -2705,7 +2716,7 @@ void PacketList::markFrame()
     else
         frames << currentIndex();
 
-    packet_list_model_->toggleFrameMark(frames);
+    packet_list_model_->toggleFrameMark(sourceIndexes(frames));
 
     // Make sure the packet list's frame.marked related field text is updated.
     redrawVisiblePackets();
@@ -2718,7 +2729,7 @@ void PacketList::markAllDisplayedFrames(bool set)
 {
     if (!cap_file_ || !packet_list_model_) return;
 
-    packet_list_model_->setDisplayedFrameMark(set);
+    packet_list_proxy_model_->setDisplayedFrameMark(set);
 
     // Make sure the packet list's frame.marked related field text is updated.
     redrawVisiblePackets();
@@ -2754,7 +2765,7 @@ void PacketList::ignoreFrame()
         frames << currentIndex();
 
 
-    packet_list_model_->toggleFrameIgnore(frames);
+    packet_list_model_->toggleFrameIgnore(sourceIndexes(frames));
     create_far_overlay_ = true;
     int sb_val = verticalScrollBar()->value(); // Surely there's a better way to keep our position?
     setUpdatesEnabled(false);
@@ -2767,7 +2778,7 @@ void PacketList::ignoreAllDisplayedFrames(bool set)
 {
     if (!cap_file_ || !packet_list_model_) return;
 
-    packet_list_model_->setDisplayedFrameIgnore(set);
+    packet_list_proxy_model_->setDisplayedFrameIgnore(set);
     create_far_overlay_ = true;
     emit packetDissectionChanged();
 }
@@ -2797,7 +2808,7 @@ void PacketList::setTimeReference()
     else
         frames << currentIndex();
 
-    packet_list_model_->toggleFrameRefTime(frames);
+    packet_list_model_->toggleFrameRefTime(sourceIndexes(frames));
     create_far_overlay_ = true;
 }
 
@@ -2952,7 +2963,7 @@ void PacketList::pinSelectedRows()
     }
 
     foreach (QModelIndex idx, frames) {
-        frame_data *fdata = packet_list_model_->getRowFdata(idx.row());
+        frame_data *fdata = packet_list_proxy_model_->getRowFdata(idx.row());
         if (fdata) {
             pinned_rows_model_->pinFrame((int)fdata->num);
         }
@@ -2974,7 +2985,7 @@ void PacketList::unpinSelectedRows()
     }
 
     foreach (QModelIndex idx, frames) {
-        frame_data *fdata = packet_list_model_->getRowFdata(idx.row());
+        frame_data *fdata = packet_list_proxy_model_->getRowFdata(idx.row());
         if (fdata) {
             pinned_rows_model_->unpinFrame((int)fdata->num);
         }
@@ -3135,9 +3146,9 @@ QString PacketList::createSummaryText(QModelIndex idx, SummaryCopyType type)
 
     QStringList col_parts;
     int row = idx.row();
-    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+    for (int col = 0; col < packet_list_proxy_model_->columnCount(); col++) {
         if (get_column_visible(col)) {
-            col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
+            col_parts << packet_list_proxy_model_->data(packet_list_proxy_model_->index(row, col), Qt::DisplayRole).toString();
         }
     }
     return joinSummaryRow(col_parts, row, type);
@@ -3146,9 +3157,9 @@ QString PacketList::createSummaryText(QModelIndex idx, SummaryCopyType type)
 QString PacketList::createHeaderSummaryText(SummaryCopyType type)
 {
     QStringList col_parts;
-    for (int col = 0; col < packet_list_model_->columnCount(); ++col) {
+    for (int col = 0; col < packet_list_proxy_model_->columnCount(); ++col) {
         if (get_column_visible(col)) {
-            col_parts << packet_list_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
+            col_parts << packet_list_proxy_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
         }
     }
     return joinSummaryRow(col_parts, 0, type);
@@ -3157,9 +3168,9 @@ QString PacketList::createHeaderSummaryText(SummaryCopyType type)
 QStringList PacketList::createHeaderPartsForAligned()
 {
     QStringList hdr_parts;
-    for (int col = 0; col < packet_list_model_->columnCount(); ++col) {
+    for (int col = 0; col < packet_list_proxy_model_->columnCount(); ++col) {
         if (get_column_visible(col)) {
-            hdr_parts << packet_list_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
+            hdr_parts << packet_list_proxy_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
         }
     }
     return hdr_parts;
@@ -3168,9 +3179,9 @@ QStringList PacketList::createHeaderPartsForAligned()
 QList<int> PacketList::createAlignmentPartsForAligned()
 {
     QList<int> align_parts;
-    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+    for (int col = 0; col < packet_list_proxy_model_->columnCount(); col++) {
         if (get_column_visible(col)) {
-            align_parts << packet_list_model_->data(packet_list_model_->index(0, col), Qt::TextAlignmentRole).toInt();
+            align_parts << packet_list_proxy_model_->data(packet_list_proxy_model_->index(0, col), Qt::TextAlignmentRole).toInt();
         }
     }
     return align_parts;
@@ -3194,9 +3205,9 @@ QList<int> PacketList::createSizePartsForAligned(bool useHeader, QStringList hdr
             continue;
 
         QStringList col_parts;
-        for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+        for (int col = 0; col < packet_list_proxy_model_->columnCount(); col++) {
             if (get_column_visible(col)) {
-                col_parts << (packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString());
+                col_parts << (packet_list_proxy_model_->data(packet_list_proxy_model_->index(row, col), Qt::DisplayRole).toString());
             }
         }
 
@@ -3232,9 +3243,9 @@ QString PacketList::createSummaryForAligned(QModelIndex idx, QList<int> align_pa
 
     QStringList col_parts;
     int row = idx.row();
-    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+    for (int col = 0; col < packet_list_proxy_model_->columnCount(); col++) {
         if (get_column_visible(col)) {
-            col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
+            col_parts << packet_list_proxy_model_->data(packet_list_proxy_model_->index(row, col), Qt::DisplayRole).toString();
         }
     }
 
@@ -3272,10 +3283,10 @@ QString PacketList::createHeaderSummaryForHtml()
 {
     QString hdr_text;
     hdr_text += "<tr>";
-    for (int col = 0; col < packet_list_model_->columnCount(); ++col) {
+    for (int col = 0; col < packet_list_proxy_model_->columnCount(); ++col) {
         if (get_column_visible(col)) {
             hdr_text += "<th>";
-            hdr_text += packet_list_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
+            hdr_text += packet_list_proxy_model_->headerData(col, Qt::Orientation::Horizontal, Qt::DisplayRole).toString();
             hdr_text += "</th>";
         }
     }
@@ -3291,16 +3302,16 @@ QString PacketList::createSummaryForHtml(QModelIndex idx)
     int row = idx.row();
     QString col_text;
 
-    QString bg_color = packet_list_model_->data(packet_list_model_->index(row, 0), Qt::BackgroundRole).toString();
-    QString fg_color = packet_list_model_->data(packet_list_model_->index(row, 0), Qt::ForegroundRole).toString();
+    QString bg_color = packet_list_proxy_model_->data(packet_list_proxy_model_->index(row, 0), Qt::BackgroundRole).toString();
+    QString fg_color = packet_list_proxy_model_->data(packet_list_proxy_model_->index(row, 0), Qt::ForegroundRole).toString();
     col_text += "<tr style=\"background-color:" + bg_color + ";color:" + fg_color + ";\">";
 
     QString alignment[] = {"left", "right", "center", "justify"};
 
-    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+    for (int col = 0; col < packet_list_proxy_model_->columnCount(); col++) {
         if (get_column_visible(col)) {
-            col_text += "<td style=\"text-align:" + alignment[packet_list_model_->data(packet_list_model_->index(row, col), Qt::TextAlignmentRole).toInt() / 2] + ";\">";
-            col_text += packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
+            col_text += "<td style=\"text-align:" + alignment[packet_list_proxy_model_->data(packet_list_proxy_model_->index(row, col), Qt::TextAlignmentRole).toInt() / 2] + ";\">";
+            col_text += packet_list_proxy_model_->data(packet_list_proxy_model_->index(row, col), Qt::DisplayRole).toString();
             col_text += "</td>";
         }
     }
@@ -3418,7 +3429,7 @@ void PacketList::drawNearOverlay()
 
     qreal dp_ratio = overlay_sb_->devicePixelRatio();
     int o_height = overlay_sb_->height() * dp_ratio;
-    int o_rows = qMin(packet_list_model_->rowCount(), o_height);
+    int o_rows = qMin(packet_list_proxy_model_->rowCount(), o_height);
     QFontMetricsF fmf(mainApp->font());
     int o_width = ((static_cast<int>(fmf.height())) * 2 * dp_ratio) + 2; // 2ems + 1-pixel border on either side.
 
@@ -3432,20 +3443,20 @@ void PacketList::drawNearOverlay()
         int cur_line = 0;
         int start = 0;
 
-        if (packet_list_model_->rowCount() > o_height && overlay_sb_->maximum() > 0) {
-            start += ((double) overlay_sb_->value() / overlay_sb_->maximum()) * (packet_list_model_->rowCount() - o_rows);
+        if (packet_list_proxy_model_->rowCount() > o_height && overlay_sb_->maximum() > 0) {
+            start += ((double) overlay_sb_->value() / overlay_sb_->maximum()) * (packet_list_proxy_model_->rowCount() - o_rows);
         }
         int end = start + o_rows;
         for (int row = start; row < end; row++) {
-            packet_list_model_->ensureRowColorized(row);
+            packet_list_proxy_model_->ensureRowColorized(row);
 
-            frame_data *fdata = packet_list_model_->getRowFdata(row);
+            frame_data *fdata = packet_list_proxy_model_->getRowFdata(row);
             int next_line = (row - start + 1) * o_height / o_rows;
             int row_height = next_line - cur_line;
 
             // Multi-color support in minimap (enabled for all non-Off modes)
             if (prefs.gui_packet_list_multi_color_mode != PACKET_LIST_MULTI_COLOR_MODE_OFF) {
-                QModelIndex idx = packet_list_model_->index(row, 0);
+                QModelIndex idx = packet_list_proxy_model_->index(row, 0);
                 PacketListRecord *record = static_cast<PacketListRecord*>(idx.internalPointer());
                 // Conversation color filters take full precedence — skip multi-color stripe rendering
                 bool is_conversation_color = fdata->color_filter &&
@@ -3546,7 +3557,7 @@ void PacketList::drawNearOverlay()
             }
         }
 
-        overlay_sb_->setNearOverlayImage(overlay, packet_list_model_->rowCount(), start, end, positions, (o_height / o_rows));
+        overlay_sb_->setNearOverlayImage(overlay, packet_list_proxy_model_->rowCount(), start, end, positions, (o_height / o_rows));
     } else {
         QImage overlay;
         overlay_sb_->setNearOverlayImage(overlay);
@@ -3568,7 +3579,7 @@ void PacketList::drawFarOverlay()
     groove_size *= dp_ratio;
     int o_width = groove_size.width();
     int o_height = groove_size.height();
-    int pl_rows = packet_list_model_->rowCount();
+    int pl_rows = packet_list_proxy_model_->rowCount();
     QImage overlay(o_width, o_height, QImage::Format_ARGB32_Premultiplied);
     bool have_marked_image = false;
 
@@ -3588,7 +3599,7 @@ void PacketList::drawFarOverlay()
 
         for (int row = 0; row < pl_rows; row++) {
 
-            frame_data *fdata = packet_list_model_->getRowFdata(row);
+            frame_data *fdata = packet_list_proxy_model_->getRowFdata(row);
             if (fdata->marked || fdata->ref_time || fdata->ignored) {
                 int new_line = row * o_height / pl_rows;
                 int tick_width = o_width / 3;

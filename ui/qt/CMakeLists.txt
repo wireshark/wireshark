@@ -165,6 +165,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/manuf_table_model.h
 	models/numeric_value_chooser_delegate.h
 	models/packet_list_model.h
+	models/packet_list_proxy_model.h
 	models/packet_list_record.h
 	models/pinned_rows_model.h
 	models/path_selection_delegate.h
@@ -514,6 +515,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/manuf_table_model.cpp
 	models/numeric_value_chooser_delegate.cpp
 	models/packet_list_model.cpp
+	models/packet_list_proxy_model.cpp
 	models/packet_list_record.cpp
 	models/pinned_rows_model.cpp
 	models/path_selection_delegate.cpp
