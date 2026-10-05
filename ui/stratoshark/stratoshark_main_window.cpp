@@ -204,10 +204,10 @@ static void plugin_if_mainwindow_get_ws_info(GHashTable * data_set)
     if (cf) {
         ws_info->cf_count = cf->count;
 
-        QList<int> rows = gbl_cur_main_window_->selectedRows();
+        QList<frame_data *> frames = gbl_cur_main_window_->selectedFrames();
         frame_data * fdata = NULL;
-        if (rows.count() > 0)
-            fdata = gbl_cur_main_window_->frameDataForRow(rows.at(0));
+        if (frames.count() > 0)
+            fdata = frames.at(0);
 
         if (cf->state == FILE_READ_DONE && fdata) {
             ws_info->cf_framenr = fdata->num;
@@ -242,12 +242,9 @@ static void plugin_if_mainwindow_get_frame_data(GHashTable* data_set)
         g_hash_table_lookup_extended(data_set, "user_data", NULL, (void**)&user_data) &&
         g_hash_table_lookup_extended(data_set, "ret_value_ptr", NULL, (void**)&ret_value_ptr))
     {
-        QList<int> rows = gbl_cur_main_window_->selectedRows();
-        if (rows.count() > 0) {
-            frame_data* fdata = gbl_cur_main_window_->frameDataForRow(rows.at(0));
-            if (fdata) {
-                *ret_value_ptr = extract_cb(fdata, user_data);
-            }
+        QList<frame_data *> frames = gbl_cur_main_window_->selectedFrames();
+        if (frames.count() > 0) {
+            *ret_value_ptr = extract_cb(frames.at(0), user_data);
         }
     }
 }

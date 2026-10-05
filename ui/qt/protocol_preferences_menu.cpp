@@ -298,8 +298,8 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
         if (mainApp) {
             MainWindow * mainWin = mainApp->mainWindow();
 
-            if (mainWin != nullptr && !mainWin->selectedRows().isEmpty()) {
-                frame_data * fdata = mainWin->frameDataForRow(mainWin->selectedRows().at(0));
+            if (mainWin != nullptr && !mainWin->selectedFrames().isEmpty()) {
+                frame_data * fdata = mainWin->selectedFrames().at(0);
                 if(fdata) {
                     override_id = fdata->tcp_snd_manual_analysis;
                 }
@@ -410,8 +410,8 @@ void ProtocolPreferencesMenu::enumCustomTCPOverridePreferenceTriggered()
     /* ensure we have access to MainWindow, and indirectly to the selection */
     if (mainApp) {
         MainWindow * mainWin = mainApp->mainWindow();
-        if (mainWin != nullptr && !mainWin->selectedRows().isEmpty()) {
-            frame_data * fdata = mainWin->frameDataForRow(mainWin->selectedRows().at(0));
+        if (mainWin != nullptr && !mainWin->selectedFrames().isEmpty()) {
+            frame_data * fdata = mainWin->selectedFrames().at(0);
             if(!fdata)
                 return;
 

@@ -305,7 +305,7 @@ QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
     if (mainApp && mainApp->mainWindow())
     {
         MainWindow * mw = mainApp->mainWindow();
-        if (mw && mw->selectedRows().count() > 1)
+        if (mw && mw->hasSelection())
             return hintNoDecoration;
     }
 

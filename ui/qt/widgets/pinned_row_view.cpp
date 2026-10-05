@@ -33,11 +33,12 @@ PinnedRowView::PinnedRowView(PacketList *packet_list, QWidget *parent) :
     QTreeView(parent),
     packet_list_(packet_list),
     first_column_(0),
-    last_column_(-1),
-    shift_anchor_proxy_row_(-1)
+    last_column_(-1)
 {
     PinnedOverlayView::applyCommonTreeViewSetup(this);
-    setSelectionMode(QAbstractItemView::NoSelection);
+    // The selection model (shared with the corner view, and linked to the
+    // primary view's) is set by PacketList::setPinnedRowViews().
+    setSelectionMode(QAbstractItemView::ExtendedSelection);
     // This view's height should always be exactly sizeHint().height() (all
     // pinned rows stacked with no gaps), never stretched to fill leftover
     // space in PacketListPane's QVBoxLayout the way QAbstractScrollArea's
@@ -149,128 +150,58 @@ void PinnedRowView::mousePressEvent(QMouseEvent *event)
     PacketList *packet_list = packet_list_;
     PinnedRowsModel *pinned_model = qobject_cast<PinnedRowsModel *>(model());
     QModelIndex index = indexAt(event->pos());
-    drag_proxy_row_ = -1;
+    drag_index_ = QPersistentModelIndex();
+
+    // Select natively in this view's own selection model, so Ctrl/Shift
+    // ranges are scoped to the strip's own row order. The selection is
+    // linked to the primary view's by PacketList: a packet that has a row
+    // there is selected in both.
+    QTreeView::mousePressEvent(event);
+
     if (!packet_list || !pinned_model || !index.isValid()) {
         return;
     }
 
-    if (event->modifiers() & Qt::ShiftModifier) {
-        // Scoped to this proxy's own row order ("strip position"), not
-        // the primary view's row numbering -- a QItemSelection range built
-        // from two primary-view indices would select every row (pinned or
-        // not) between them there, which is exactly the too-broad
-        // behavior this is meant to avoid. Resolving each strip position
-        // to a frame number here, then selecting each individually in
-        // PacketList (see selectFramesFromOverlay()), keeps the range
-        // scoped to just the pinned rows actually between the two clicks.
-        int anchor = (shift_anchor_proxy_row_ >= 0) ? shift_anchor_proxy_row_ : index.row();
-        int lo = qMin(anchor, index.row());
-        int hi = qMax(anchor, index.row());
-        QList<int> frame_nums;
-        for (int r = lo; r <= hi; r++) {
-            int frame_num = pinned_model->frameNumAtProxyRow(r);
-            if (frame_num >= 0) {
-                frame_nums << frame_num;
-            }
-        }
-        packet_list->selectFramesFromOverlay(frame_nums);
-        return;
-    }
-
-    // Anchor for a future Shift-click updates on every non-Shift click
-    // (plain or Ctrl), the same way a real view moves currentIndex() (its
-    // own range anchor) on any click that isn't itself a range-extend.
-    shift_anchor_proxy_row_ = index.row();
-
     QModelIndex source_index = pinned_model->mapToSource(index);
     if (event->button() == Qt::LeftButton) {
-        PacketListRecord *drag_record = static_cast<PacketListRecord *>(index.internalPointer());
-        frame_data *drag_fdata = drag_record ? drag_record->frameData() : nullptr;
-        if (drag_fdata) {
-            drag_proxy_row_ = index.row();
-            drag_column_ = index.column();
-            drag_source_row_ = source_index.isValid() ? source_index.row() : -1;
-            drag_frame_num_ = (int)drag_fdata->num;
-        }
+        drag_index_ = index;
     }
-    if (source_index.isValid()) {
-        // Still visible in the primary (filtered) view: use the normal,
-        // row-based path, which also supports middle-click-to-mark and
-        // (via event->modifiers()) the same Ctrl-toggle behavior a native
-        // click in the main list has.
-        packet_list->selectRowFromOverlay(source_index.row(), source_index.column(),
-                                           event->buttons(), event->modifiers());
-        return;
-    }
-
-    // Filtered out of the primary view entirely -- there's no row there
-    // to select via the row-based path above, but selectFrameFromOverlay()
-    // can still select it directly by frame number (see its own comment
-    // for why that's possible: cf_select_packet() works against the
-    // capture file's own frame array, not a row in this view's model).
-    if (PacketListRecord *record = static_cast<PacketListRecord *>(index.internalPointer())) {
-        if (frame_data *fdata = record->frameData()) {
-            packet_list->selectFrameFromOverlay((int)fdata->num, event->modifiers());
-        }
+    if (event->buttons() & Qt::MiddleButton) {
+        packet_list->toggleFrameMarkFromClick(source_index);
     }
 }
 
 void PinnedRowView::mouseReleaseEvent(QMouseEvent *event)
 {
-    drag_proxy_row_ = -1;
+    drag_index_ = QPersistentModelIndex();
 
-    // Selection already happened on press. The one thing still needed here
-    // is the tag column's click-to-open-link handling: this view doesn't
-    // call QAbstractItemView::mouseReleaseEvent() (which is what would
-    // normally dispatch to the column's delegate), so invoke
-    // TagColumnDelegate::editorEvent() directly for a click landing in a
-    // COL_TAG cell.
-    QModelIndex index = indexAt(event->pos());
-    if (!packet_list_ || !index.isValid()) {
-        return;
-    }
-    if (get_column_format(index.column()) != COL_TAG) {
-        return;
-    }
-    QStyleOptionViewItem option;
-    initViewItemOption(&option);
-    option.rect = visualRect(index);
-    static_cast<QAbstractItemDelegate &>(
-        const_cast<TagColumnDelegate &>(packet_list_->tagColumnDelegate()))
-        .editorEvent(event, model(), option, index);
+    // Also dispatches to the column's delegate, e.g. for the tag column's
+    // click-to-open-link handling.
+    QTreeView::mouseReleaseEvent(event);
 }
 
 void PinnedRowView::mouseMoveEvent(QMouseEvent *event)
 {
     PacketList *packet_list = packet_list_;
-    if (!packet_list) {
+    PinnedRowsModel *pinned_model = qobject_cast<PinnedRowsModel *>(model());
+    if (!packet_list || !pinned_model) {
         return;
     }
 
     // Read the frame number straight off this index's own internal
-    // pointer (the physical PacketListRecord -- see
-    // PinnedRowsModel::index()) rather than via mapToSource(), which
-    // only resolves while the packet is still visible in the primary
-    // (filtered) view. Hovering a pinned packet that's been filtered out
-    // should still highlight it here, even though there's no
-    // corresponding row in the primary view to sync a selection to.
+    // pointer (the PacketListRecord -- see PinnedRowsModel::index()), so
+    // hovering a pinned packet that's been filtered out of the primary
+    // view still highlights it here.
     QModelIndex index = indexAt(event->pos());
     PacketListRecord *record = index.isValid() ?
         static_cast<PacketListRecord *>(index.internalPointer()) : nullptr;
     frame_data *fdata = record ? record->frameData() : nullptr;
     packet_list->setHoveredFrameNum(fdata ? (int)fdata->num : -1);
 
-    if ((event->buttons() & Qt::LeftButton) && drag_proxy_row_ >= 0
-        && index.isValid() && index.row() == drag_proxy_row_ && index.column() == drag_column_) {
-        int column = drag_column_;
-        int source_row = drag_source_row_;
-        int frame_num = drag_frame_num_;
-        drag_proxy_row_ = -1;
-        if (source_row >= 0) {
-            packet_list->startCellDragFromOverlay(source_row, column);
-        } else {
-            packet_list->startCellDragForFrameFromOverlay(frame_num, column);
-        }
+    // Starting a cell drag replaces QAbstractItemView's drag-to-select.
+    if ((event->buttons() & Qt::LeftButton) && drag_index_.isValid() && index == drag_index_) {
+        drag_index_ = QPersistentModelIndex();
+        packet_list->startCellDragForSourceIndex(pinned_model->mapToSource(index));
     }
 }
 
@@ -293,20 +224,13 @@ void PinnedRowView::contextMenuEvent(QContextMenuEvent *event)
         return;
     }
 
-    QModelIndex source_index = pinned_model->mapToSource(index);
-    if (source_index.isValid()) {
-        packet_list->showContextMenuForRow(source_index.row(), event->globalPos(), /* from_pinned_row_strip */ true);
-        return;
+    // Same as a right-click in the primary view (see
+    // PacketList::contextMenuEvent()).
+    if (packet_list->multiSelectActive()) {
+        selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
-
-    // Filtered out of the primary view -- no row there to resolve via
-    // mapToSource(); showContextMenuForFrame() selects and shows the menu
-    // directly by frame number instead (see selectFrameFromOverlay()).
-    if (PacketListRecord *record = static_cast<PacketListRecord *>(index.internalPointer())) {
-        if (frame_data *fdata = record->frameData()) {
-            packet_list->showContextMenuForFrame((int)fdata->num, event->globalPos(), /* from_pinned_row_strip */ true);
-        }
-    }
+    packet_list->showContextMenuForSourceIndex(pinned_model->mapToSource(index), event->globalPos(),
+                                               /* from_pinned_row_strip */ true);
 }
 
 void PinnedRowView::wheelEvent(QWheelEvent *event)
@@ -317,61 +241,17 @@ void PinnedRowView::wheelEvent(QWheelEvent *event)
     }
 }
 
-void PinnedRowView::paintEvent(QPaintEvent *event)
-{
-    selected_frame_nums_cache_.clear();
-    if (packet_list_) {
-        const QList<int> selected = packet_list_->selectedRows(true);
-        selected_frame_nums_cache_ = QSet<int>(selected.begin(), selected.end());
-    }
-
-    QTreeView::paintEvent(event);
-}
-
 void PinnedRowView::drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     PacketList *packet_list = packet_list_;
-    // index's own internal pointer is the physical PacketListRecord (see
-    // PinnedRowsModel::index()), valid regardless of whether this pinned
-    // packet currently passes the display filter -- unlike routing
-    // through mapToSource(), which only resolves while the packet is
-    // still visible in the primary (filtered) view.
+    // index's own internal pointer is the PacketListRecord (see
+    // PinnedRowsModel::index()).
     frame_data *fdata = nullptr;
     if (PacketListRecord *record = static_cast<PacketListRecord *>(index.internalPointer())) {
         fdata = record->frameData();
     }
 
-    // This view's model is a separate proxy (PinnedRowsModel), so it can't
-    // rely on a shared QItemSelectionModel with the primary view the way
-    // PinnedColumnView does -- selection is checked by frame number
-    // instead. Checking both selected_frame_nums_cache_ (the normal,
-    // possibly multi-row case -- rows that exist in the primary view's own
-    // model, refreshed once per paint pass by paintEvent() rather than
-    // rescanning packet_list->selectedRows(true) here on every row) and
-    // currentFrameNum() (cap_file_->current_frame, kept correct by
-    // cf_select_packet() even for a pinned packet selected via
-    // selectFrameFromOverlay() with no row in the primary view at all,
-    // e.g. filtered out, so it could never appear in selectedRows())
-    // covers both.
-    bool is_selected = packet_list && fdata &&
-        ((int)fdata->num == packet_list->currentFrameNum() ||
-         selected_frame_nums_cache_.contains((int)fdata->num));
-
-    // This view's model is a separate proxy with no shared
-    // QItemSelectionModel with the primary view (see is_selected's own
-    // comment above), so Qt never actually sets QStyle::State_Selected on
-    // its own -- set it here so the rest of drawRow()'s normal machinery
-    // (the "QTreeView::item:selected:active"/":!active" stylesheet
-    // selectors colorsChanged() applies to this same widget, and
-    // MultiColorPacketDelegate's own State_Selected bail-out) picks the
-    // packet list's real selection colors exactly, rather than
-    // reimplementing them by hand with a manually-painted overlay.
-    QStyleOptionViewItem selected_option = option;
-    if (is_selected) {
-        selected_option.state |= QStyle::State_Selected;
-    }
-
-    QTreeView::drawRow(painter, selected_option, index);
+    QTreeView::drawRow(painter, option, index);
 
     // The hover highlight is driven by hovered_frame_num_ rather than Qt's
     // native per-widget hover state, since the mouse hovering a pinned

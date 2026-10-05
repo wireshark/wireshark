@@ -491,10 +491,14 @@ void PacketListProxyModel::sort(int column, Qt::SortOrder order)
     // Using layoutChanged keeps the current selection but does not necessarily
     // scroll to it if it is not visible. If we have a single current frame we
     // can scroll to it. It's harder to determine what to do for multi-select.
+    // If the current frame has no row of its own here (e.g., it's a pinned
+    // packet that's filtered out, or aggregated into another packet's row),
+    // there's nothing to scroll to, and going to it would instead select
+    // another packet.
     // XXX - It might make more sense to have the PacketList connect to
     // layoutChanged and call scrollTo with the currentIndex there. That would
     // be a little lighter weight and better separation of model vs view.
-    if (cap_file->current_frame) {
+    if (cap_file->current_frame && rowOfPacket(cap_file->current_frame) >= 0) {
         emit goToPacket(cap_file->current_frame->num);
     }
 }
@@ -811,4 +815,10 @@ int PacketListProxyModel::visibleIndexOf(const frame_data *fdata) const
         return -1;
     }
     return packetNumberToRow(fdata->num);
+}
+
+int PacketListProxyModel::rowOfPacket(const frame_data *fdata) const
+{
+    int row = visibleIndexOf(fdata);
+    return (row >= 0 && getRowFdata(row) == fdata) ? row : -1;
 }

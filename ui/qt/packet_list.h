@@ -260,30 +260,45 @@ public:
 
     /**
      * @brief Checks if a single unique selection is currently active.
-     * @return True if exactly one item is selected.
+     * @return True if exactly one packet is selected (see selectedFrames()).
      */
     bool uniqueSelectActive();
 
     /**
      * @brief Checks if multiple selections are currently active.
-     * @return True if more than one item is selected.
+     * @return True if more than one packet is selected (see selectedFrames()).
      */
     bool multiSelectActive();
 
     /**
      * @brief Retrieves a list of selected row numbers.
      * @param useFrameNum True to return frame numbers instead of row indices.
-     * @return A list of integer row or frame numbers.
+     * @return A list of integer row or frame numbers. Frame numbers include
+     * every selected packet (see selectedFrames()); row indices can only
+     * cover packets with a row in this view, so they omit pinned packets
+     * that are filtered out.
      */
     QList<int> selectedRows(bool useFrameNum = false);
 
     /**
-     * @brief Creates a summary text for a specific index.
-     * @param idx The model index.
+     * @brief The selected packets: the union of the rows selected in this
+     * view and the pinned rows selected in the pinned-row strip, which
+     * includes pinned packets that are filtered out of this view. The two
+     * selections are kept linked for packets present in both, so each
+     * packet is listed once.
+     * @param fall_back_to_current If nothing is selected, return the
+     * packet at currentIndex() instead, if any.
+     * @return The selected packets, those selected in this view first.
+     */
+    QList<frame_data *> selectedFrames(bool fall_back_to_current = true) const;
+
+    /**
+     * @brief Creates a summary text for a specific packet.
+     * @param frame_num The packet's frame number.
      * @param type The format type for the summary.
      * @return A QString containing the formatted summary.
      */
-    QString createSummaryText(QModelIndex idx, SummaryCopyType type);
+    QString createSummaryText(int frame_num, SummaryCopyType type);
 
     /**
      * @brief Creates the header summary text.
@@ -308,10 +323,10 @@ public:
      * @brief Creates size parts for aligned formatting.
      * @param useHeader True to include the header in size calculation.
      * @param hdr_parts The header parts.
-     * @param rows The list of rows to evaluate.
+     * @param frame_nums The frame numbers of the packets to evaluate.
      * @return A list of sizes.
      */
-    QList<int> createSizePartsForAligned(bool useHeader, QStringList hdr_parts, QList<int> rows);
+    QList<int> createSizePartsForAligned(bool useHeader, QStringList hdr_parts, QList<int> frame_nums);
 
     /**
      * @brief Creates an aligned header summary.
@@ -323,13 +338,13 @@ public:
     QString createHeaderSummaryForAligned(QStringList hdr_parts, QList<int> align_parts, QList<int> size_parts);
 
     /**
-     * @brief Creates an aligned summary for a specific index.
-     * @param idx The model index.
+     * @brief Creates an aligned summary for a specific packet.
+     * @param frame_num The packet's frame number.
      * @param align_parts The alignment parts.
      * @param size_parts The size parts.
      * @return A QString containing the aligned summary.
      */
-    QString createSummaryForAligned(QModelIndex idx, QList<int> align_parts, QList<int> size_parts);
+    QString createSummaryForAligned(int frame_num, QList<int> align_parts, QList<int> size_parts);
 
     /**
      * @brief Retrieves the default CSS style for HTML summaries.
@@ -350,11 +365,11 @@ public:
     QString createHeaderSummaryForHtml();
 
     /**
-     * @brief Creates an HTML summary for a specific index.
-     * @param idx The model index.
+     * @brief Creates an HTML summary for a specific packet.
+     * @param frame_num The packet's frame number.
      * @return A QString containing the HTML summary row.
      */
-    QString createSummaryForHtml(QModelIndex idx);
+    QString createSummaryForHtml(int frame_num);
 
     /**
      * @brief Creates the closing tag block for HTML summaries.
@@ -474,49 +489,20 @@ public:
      */
     void startCellDragFromOverlay(int row, int column);
 
-    // Same, for a pinned frame that is filtered out of this view (no row).
-    void startCellDragForFrameFromOverlay(int frame_num, int column);
+    /**
+     * @brief As startCellDragFromOverlay(), for a cell given by its index
+     * in the source PacketListModel. Used by the pinned-row strip, whose
+     * packets may be filtered out of this view.
+     * @param source_index The cell's index in the source model.
+     */
+    void startCellDragForSourceIndex(const QModelIndex &source_index);
 
     /**
-     * @brief Selects exactly the given set of frames -- no more, no less
-     * -- clearing any prior selection first. Used for Shift-click
-     * range-select within the pinned-rows strip, where the "range" is
-     * scoped to the strip's own row order rather than the primary view's:
-     * the caller (PinnedRowView::mousePressEvent()) resolves a range of
-     * *strip* positions to this list of frame numbers first, since a
-     * single QItemSelection range can't express "these particular sparse
-     * primary-view rows" directly -- only a contiguous rectangle in one
-     * model's row space.
-     * @param frame_nums The frame numbers to select, in any order. Each is
-     * resolved to its own primary-view row independently; a frame number
-     * currently filtered out of the primary view (no row to resolve to)
-     * is silently skipped, the same documented limitation
-     * selectFrameFromOverlay() carries for a single filtered-out row.
+     * @brief Toggles the mark on a packet in response to a middle click,
+     * in this view or one of the pinned overlay views.
+     * @param source_index The packet's index in the source PacketListModel.
      */
-    void selectFramesFromOverlay(const QList<int> &frame_nums);
-
-    /**
-     * @brief Same as selectRowFromOverlay(), but given a frame/packet
-     * number directly rather than a row in this view's own model.
-     *
-     * Used by PinnedRowView for a pinned packet that's been filtered out
-     * of the primary view entirely: such a packet has no row here at
-     * all, so model()->index(row, column) (what selectRowFromOverlay()
-     * uses) can never resolve to it. Selection itself is not actually a
-     * QModelIndex-level concept underneath -- cf_select_packet() takes a
-     * frame_data* directly and works purely against the capture file's
-     * own frame array, independent of the display filter -- so this
-     * bypasses the model entirely and drives that directly, then emits
-     * framesSelected() the same way selectionChanged() normally would.
-     * @param frame_num The frame/packet number to select.
-     * @param modifiers Present for signature symmetry with
-     * selectRowFromOverlay(), but not currently acted on: this frame has
-     * no QModelIndex here at all (it's filtered out of the primary view),
-     * so there's nothing for Ctrl/Shift to toggle or extend a real
-     * QItemSelectionModel selection against. Always clears and selects
-     * just this frame, regardless of modifiers held.
-     */
-    void selectFrameFromOverlay(int frame_num, Qt::KeyboardModifiers modifiers = Qt::NoModifier);
+    void toggleFrameMarkFromClick(const QModelIndex &source_index);
 
     /**
      * @brief Shows this view's context menu for a row already resolved by
@@ -524,26 +510,22 @@ public:
      * coordinates across views (see selectRowFromOverlay()).
      * @param row The row index (in this view's current row numbering).
      * @param global_pos Where to actually pop up the menu on screen.
-     * @param from_pinned_row_strip Whether this request originated from
-     * the pinned-row strip (PinnedRowView) specifically, rather than the
-     * frozen-column overlay (PinnedColumnView) or the primary view --
-     * used to show "Unpin All Rows" only there.
      */
-    void showContextMenuForRow(int row, const QPoint &global_pos, bool from_pinned_row_strip = false);
+    void showContextMenuForRow(int row, const QPoint &global_pos);
 
     /**
-     * @brief Same as showContextMenuForRow(), but given a frame/packet
-     * number directly for a pinned packet that's been filtered out of
-     * the primary view (see selectFrameFromOverlay() for why a row-based
-     * lookup can't reach it).
-     * @param frame_num The frame/packet number to show the menu for.
+     * @brief Shows this view's context menu for a packet given by its
+     * index in the source PacketListModel. Used by the pinned-row strip,
+     * whose packets may be filtered out of this view, and by
+     * contextMenuEvent().
+     * @param source_index The packet's index in the source model.
      * @param global_pos Where to actually pop up the menu on screen.
-     * @param from_pinned_row_strip See showContextMenuForRow(); always
-     * true in practice for this overload, since only PinnedRowView (never
-     * PinnedColumnView) ever needs the frame-number-based path (see its
-     * own comment for why).
+     * @param from_pinned_row_strip Whether this request originated from
+     * the pinned-row strip (PinnedRowView), to show the pinned-row
+     * actions ("Go to Packet", "Unpin All Rows") only there.
      */
-    void showContextMenuForFrame(int frame_num, const QPoint &global_pos, bool from_pinned_row_strip = true);
+    void showContextMenuForSourceIndex(const QModelIndex &source_index, const QPoint &global_pos,
+                                       bool from_pinned_row_strip = false);
 
     /**
      * @brief Translates a position local to the pinned column view's own
@@ -606,13 +588,8 @@ public:
     /**
      * @brief Same as setHoveredRowFromOverlay(), but given the frame
      * number directly rather than a row to resolve via getFDataForRow().
-     *
      * Used by PinnedRowView, whose rows can represent a pinned packet
-     * that's been filtered out of the primary view entirely -- such a
-     * packet has no row there at all, so a row-based lookup can never
-     * resolve to it (getFDataForRow() only searches visible rows), even
-     * though the frame number to highlight is already known directly
-     * from PinnedRowView's own model index.
+     * that's been filtered out of this view.
      * @param frame_num The frame number to mark as hovered, or -1 for none.
      */
     void setHoveredFrameNum(int frame_num);
@@ -624,28 +601,6 @@ public:
      * Qt's native per-widget hover state doesn't span separate widgets.
      */
     int hoveredFrameNum() const { return hovered_frame_num_; }
-
-    /**
-     * @brief The frame number of the currently selected packet, or -1 if
-     * none. Reflects cap_file_->current_frame, which cf_select_packet()
-     * keeps correct regardless of whether the selection was made through
-     * a normal click (a row in this view's own model) or through
-     * selectFrameFromOverlay() (a pinned packet with no row here at all,
-     * e.g. filtered out) -- unlike selectedRows(), which can only ever
-     * list rows that exist in this view's own model, and so comes back
-     * empty for the latter case even though a packet really is selected.
-     * Used by PinnedRowView::drawRow() so the pinned strip's own
-     * selection highlight tracks the real selection in both cases.
-     */
-    int currentFrameNum() const;
-
-    /**
-     * @brief The currently selected frame if it is pinned but filtered out
-     * of this view (so it has no row here and selectedRows() is empty),
-     * otherwise nullptr. Edit actions (mark, ignore, time reference,
-     * comments) use this to act on such a frame.
-     */
-    frame_data *filteredOutSelectedFrame() const;
 
     /**
      * @brief The delegate used to paint the COL_TAG column (emoji font,
@@ -768,13 +723,34 @@ protected slots:
         const QModelIndex &index) const override;
 
 private:
-    void refreshFilteredOutFrame(frame_data *fdata);
+    /**
+     * @brief The source PacketListModel indexes (column 0) of the packets
+     * returned by selectedFrames().
+     */
+    QModelIndexList selectedSourceIndexes() const;
 
     /**
-     * @brief Maps indexes in this view's model (the proxy) to the
-     * corresponding indexes in the source PacketListModel.
+     * @brief Replaces this view's selection model with one linked to the
+     * pinned-row strip's (see pinned_selection_model_). Called whenever
+     * setModel() has created a new default selection model.
      */
-    QModelIndexList sourceIndexes(const QModelIndexList &indexes) const;
+    void installSelectionModel();
+
+    /**
+     * @brief Selects in each of this view and the pinned-row strip any
+     * packet present in both that is selected only in the other, so the
+     * two selections agree after the pinned rows or this view's rows
+     * change (pinning, filtering, thawing).
+     */
+    void reconcilePinnedSelection();
+
+    /**
+     * @brief Makes one of this view's selection and the pinned-row strip's
+     * match the other for every pinned packet that has a row here.
+     * @param to_pinned True to update the strip to match this view, false
+     * to update this view to match the strip.
+     */
+    void syncPinnedSelection(bool to_pinned);
 
     /** @brief Pointer to the internal packet list model, holding every packet. */
     PacketListModel *packet_list_model_;
@@ -806,17 +782,6 @@ private:
 
     /** @brief Current context column index. */
     int ctx_column_;
-
-    /** @brief Whether the context menu currently being built was
-     * requested from the pinned-row strip specifically (see
-     * showContextMenuForRow()'s own comment), so contextMenuEvent() can
-     * show "Unpin All Rows" only there. Set just before contextMenuEvent()
-     * runs by showContextMenuForRow()/showContextMenuForFrame(); a direct
-     * right-click on the primary view bypasses both and goes straight to
-     * contextMenuEvent(), so this is reset to false at the top of that
-     * function to avoid leaking a stale true from a previous overlay
-     * invocation. */
-    bool ctx_from_pinned_row_strip_;
 
     /** @brief Saved column state. */
     QByteArray column_state_;
@@ -891,6 +856,23 @@ private:
     /** @brief Proxy model exposing only the pinned packets, in pin order,
      * for the pinned-row overlay views. */
     PinnedRowsModel *pinned_rows_model_;
+
+    /**
+     * @brief Selection model shared by the pinned-row strip's views
+     * (pinned_row_view_ and pinned_row_corner_view_). It is linked to this
+     * view's selection model by frame number: a packet present in both is
+     * selected in both or neither, and a selection command that clears
+     * one clears the other. Pinned packets that are filtered out of this
+     * view can only be selected here.
+     */
+    QItemSelectionModel *pinned_selection_model_;
+
+    /**
+     * @brief True while one of the two linked selection models is being
+     * updated to follow the other, to keep the update from propagating
+     * back, and to defer drawCurrentPacket() until the whole change is done.
+     */
+    bool syncing_selection_;
 
     // Number of leftmost columns currently frozen/pinned, or 0.
     int pinned_column_boundary_;
@@ -1316,6 +1298,18 @@ private slots:
      * Connected to the model's modelReset signal.
      */
     void updatePinnedRowVisibility();
+
+    /**
+     * @brief Follows a selection change in the pinned-row strip onto this
+     * view's rows for the same packets, and updates the packet details.
+     */
+    void pinnedSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+
+    /**
+     * @brief Moves this view's current index to the packet made current
+     * in the pinned-row strip, if it has a row here, without scrolling.
+     */
+    void pinnedCurrentChanged(const QModelIndex &current);
 
     /**
      * @brief Recomputes the geometry of the pinned column overlay

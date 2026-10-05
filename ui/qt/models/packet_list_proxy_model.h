@@ -127,9 +127,18 @@ public:
     /**
      * @brief Returns the visible index of the given frame data.
      * @param fdata Pointer to the frame data.
-     * @return The visible index.
+     * @return The visible index. In the aggregation view, this is the row
+     * the packet was aggregated into, which may show another packet.
      */
     int visibleIndexOf(const frame_data *fdata) const;
+
+    /**
+     * @brief Returns the row showing the given packet itself.
+     * @param fdata Pointer to the frame data.
+     * @return The row, or -1 if the packet isn't visible, including if the
+     * aggregation view has aggregated it into another packet's row.
+     */
+    int rowOfPacket(const frame_data *fdata) const;
 
     /**
      * @brief Sets the mark state for all currently displayed frames.

@@ -147,21 +147,6 @@ public:
     QVariant data(const QModelIndex &d_index, int role) const override;
 
     /**
-     * @brief Returns the same data data() would for a real, currently
-     * visible row, but for any frame/packet number that was ever
-     * appended, regardless of the current display filter -- see
-     * physicalRecordForFrameNum(). Used by PinnedRowsModel so pinned
-     * packets keep showing their data even after being filtered out of
-     * the PacketListProxyModel it sits on.
-     * @param frame_num The frame/packet number.
-     * @param column The column index.
-     * @param role The display role.
-     * @return The requested data as a QVariant, or an invalid QVariant if
-     * frame_num is unknown.
-     */
-    QVariant dataForFrameNum(int frame_num, int column, int role) const;
-
-    /**
      * @brief Returns the data for the given role and section in the header.
      * @param section The header section.
      * @param orientation The header orientation.
@@ -200,12 +185,6 @@ public:
     void toggleFrameMark(const QModelIndexList &indices);
 
     /**
-     * @brief Toggles the mark state for a frame given by record, which
-     * need not have a visible row (e.g., a pinned frame filtered out).
-     */
-    void toggleFrameMark(PacketListRecord *record);
-
-    /**
      * @brief Sets the mark state for the given frames.
      * @param records The records of the frames to change.
      * @param set True to mark, false to unmark.
@@ -217,9 +196,6 @@ public:
      * @param indices List of model indices to toggle.
      */
     void toggleFrameIgnore(const QModelIndexList &indices);
-
-    /** @brief As above, for a record that need not have a visible row. */
-    void toggleFrameIgnore(PacketListRecord *record);
 
     /**
      * @brief Sets the ignore state for the given frames.
@@ -234,9 +210,6 @@ public:
      */
     void toggleFrameRefTime(const QModelIndexList &indices);
 
-    /** @brief As above, for a record that need not have a visible row. */
-    void toggleFrameRefTime(PacketListRecord *record);
-
     /**
      * @brief Unsets the reference time state for all frames.
      */
@@ -249,9 +222,6 @@ public:
      */
     void addFrameComment(const QModelIndexList &indices, const QByteArray &comment);
 
-    /** @brief As above, for a record that need not have a visible row. */
-    void addFrameComment(PacketListRecord *record, const QByteArray &comment);
-
     /**
      * @brief Sets a specific comment on a frame.
      * @param index The model index of the frame.
@@ -260,17 +230,11 @@ public:
      */
     void setFrameComment(const QModelIndex &index, const QByteArray &comment, unsigned c_number);
 
-    /** @brief As above, for a record that need not have a visible row. */
-    void setFrameComment(PacketListRecord *record, const QByteArray &comment, unsigned c_number);
-
     /**
      * @brief Deletes comments from the specified frames.
      * @param indices List of model indices to remove comments from.
      */
     void deleteFrameComments(const QModelIndexList &indices);
-
-    /** @brief As above, for a record that need not have a visible row. */
-    void deleteFrameComments(PacketListRecord *record);
 
     /**
      * @brief Deletes all frame comments from all frames.
@@ -298,11 +262,6 @@ private slots:
     void onThemeChanged();
 
 private:
-    void toggleRecordsRefTime(const QList<PacketListRecord *> &records);
-    void addCommentToRecord(PacketListRecord *record, const QByteArray &comment);
-    void setCommentOnRecord(PacketListRecord *record, const QByteArray &comment, unsigned c_number);
-    bool deleteCommentsFromRecord(PacketListRecord *record);
-
     /** Cached foreground color for manually marked packets. */
     QColor marked_fg_;
     /** Cached background color for manually marked packets. */
@@ -318,17 +277,6 @@ private:
      * onThemeChanged() (after a theme/mode flip).
      */
     void refreshThemeColors();
-
-    /**
-     * @brief Shared implementation behind data() and dataForFrameNum():
-     * everything data() computes depends only on the record and column,
-     * never on the index's row number, so both can delegate here.
-     * @param record The record to read from, or nullptr (returns an
-     * invalid QVariant).
-     * @param column The column index.
-     * @param role The display role.
-     */
-    QVariant dataForRecord(PacketListRecord *record, int column, int role) const;
 
     /** Pointer to the associated capture file. */
     capture_file *cap_file_;

@@ -89,6 +89,13 @@ public:
     QList<int> selectedRows(bool useFrameNum = false);
 
     /**
+     * @brief Retrieves the selected packets, including any selected in
+     * the pinned-row strip that are filtered out of the packet list.
+     * @return The selected packets, or the current one if none is selected.
+     */
+    QList<frame_data *> selectedFrames();
+
+    /**
      * @brief Inserts a column into the view.
      * @param name The name of the column.
      * @param abbrev The abbreviation of the column.
@@ -102,12 +109,6 @@ public:
      */
     void gotoFrame(int packet_num);
 
-    /**
-     * @brief Retrieves frame data for a specific row.
-     * @param row The index of the row.
-     * @return Pointer to the frame data for the specified row.
-     */
-    frame_data* frameDataForRow(int row) const;
 
     /**
      * @brief Retrieves the current display filter.

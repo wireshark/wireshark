@@ -15,7 +15,7 @@
 
 #include <QTreeView>
 #include <QPainter>
-#include <QSet>
+#include <QPersistentModelIndex>
 
 class PacketList;
 
@@ -107,12 +107,13 @@ protected:
     void updateGeometries() override;
 
     /**
-     * @brief Forwards mouse presses to the primary packet list so that
-     * selection/marking behavior matches clicking the main view exactly.
+     * @brief Selects the clicked pinned row in this view's own selection
+     * model (linked to the primary packet list's by PacketList), marks it
+     * on a middle click, and arms a cell drag.
      */
     void mousePressEvent(QMouseEvent *event) override;
 
-    // Forwards mouse releases to the primary packet list.
+    // Ends a click, dispatching it to the column's delegate.
     void mouseReleaseEvent(QMouseEvent *event) override;
 
     /**
@@ -131,10 +132,8 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
     /**
-     * @brief Draws the selection and hover highlights (this view's model
-     * is a separate proxy, so it can't rely on a shared QItemSelectionModel
-     * the way PinnedColumnView does) and the "packet separator" line,
-     * mirroring PacketList::drawRow().
+     * @brief Draws the hover highlight (which spans every pane) and the
+     * "packet separator" line, mirroring PacketList::drawRow().
      */
     void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
@@ -144,60 +143,15 @@ protected:
      */
     void resizeEvent(QResizeEvent *event) override;
 
-    /**
-     * @brief Refreshes selected_frame_nums_cache_ once per paint pass
-     * before deferring to QTreeView's own paintEvent(), which calls
-     * drawRow() once per visible row -- see the cache's own comment for
-     * why this avoids a per-row rescan of the primary view's selection.
-     *
-     * Rebuilt unconditionally on every repaint (hover, scroll, resize),
-     * not only when the primary view's selection has actually changed:
-     * threading a dirty flag through from PacketList::selectionChanged()
-     * would avoid the rebuild on paints where selection didn't change,
-     * but the cost either way is bounded tightly by
-     * PinnedRowsModel::kMaxPinnedRows (currently 10) pinned rows against
-     * however many rows are selected in the primary view -- not worth the
-     * added plumbing for a cost this small and this bounded.
-     */
-    void paintEvent(QPaintEvent *event) override;
-
 private:
     PacketList *packet_list_;
     int first_column_;
     int last_column_;
 
-    /**
-     * @brief The proxy row (this view's own row order, i.e. "strip
-     * position", not the primary view's row numbering) of the last
-     * non-Shift click, used as the range anchor for a subsequent
-     * Shift-click -- analogous to a real QAbstractItemView tracking
-     * selectionModel()->currentIndex() as its own range anchor, except
-     * scoped to this proxy's row space, since that's what "range" means
-     * for Shift-click within this strip (see mousePressEvent()). -1 if
-     * there's been no click yet to anchor from.
-     */
-    int shift_anchor_proxy_row_;
-
     // Cell pressed with the left button, used to start a cell drag on the
-    // first mouse move within it (as PacketList does). drag_proxy_row_ is -1 when no drag is armed.
-    // drag_source_row_ is the primary view's row, or -1 if the pinned
-    // packet is filtered out there (then drag_frame_num_ is used).
-    int drag_proxy_row_ = -1;
-    int drag_column_ = -1;
-    int drag_source_row_ = -1;
-    int drag_frame_num_ = -1;
-
-    /**
-     * @brief Frame numbers selected in the primary view, as of the start
-     * of the current paint pass. drawRow() is called once per visible
-     * pinned row per repaint, and previously called
-     * packet_list_->selectedRows(true) (which itself rebuilds a QList from
-     * the selection model plus a getFDataForRow() lookup per selected row)
-     * and linearly scanned it for every single one of those calls;
-     * refreshed once per paintEvent() instead, so each drawRow() call just
-     * does an O(1) set lookup.
-     */
-    mutable QSet<int> selected_frame_nums_cache_;
+    // first mouse move within it (as PacketList does). Invalid when no
+    // drag is armed.
+    QPersistentModelIndex drag_index_;
 
     /** Visual boundary marker shown only when this instance acts as the
      * "corner" widget (columns starting at 0); see PinnedColumnView. */
