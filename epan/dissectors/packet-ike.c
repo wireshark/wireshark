@@ -4533,6 +4533,13 @@ dissect_transform(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned l
       proto_tree_add_item(tree, hf_isakmp_trans_integ, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
     case TF_IKE2_KE:
+    case TF_IKE2_ADDKE1:
+    case TF_IKE2_ADDKE2:
+    case TF_IKE2_ADDKE3:
+    case TF_IKE2_ADDKE4:
+    case TF_IKE2_ADDKE5:
+    case TF_IKE2_ADDKE6:
+    case TF_IKE2_ADDKE7:
       proto_tree_add_item(tree, hf_isakmp_trans_ke, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
     case TF_IKE2_SN:
