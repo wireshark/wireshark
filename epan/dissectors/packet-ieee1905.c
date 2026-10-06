@@ -31,6 +31,7 @@
 #include <epan/reassemble.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/proto_data.h>
 #include "packet-wps.h"
 #include "packet-wifi-dpp.h"
 #include "packet-ieee80211.h"
@@ -1090,12 +1091,18 @@ static int ett_eht_operations_radio;
 static int ett_eht_operations_radio_bss_list;
 static int ett_eht_operations_radio_bss;
 static int ett_eht_operations_radio_bss_flags;
+static int ett_tunneled_ies;
 
 static int ett_ieee1905_fragment;
 static int ett_ieee1905_fragments;
 
 static expert_field ei_ieee1905_malformed_tlv;
 static expert_field ei_ieee1905_extraneous_tlv_data;
+
+typedef enum {
+    TUNNELED_MESSAGE_TYPE_KEY,
+    TUNNELED_MESSAGE_TYPE_SET_KEY
+} ieee1905_proto_key_t;
 
 #define TOPOLOGY_DISCOVERY_MESSAGE                     0x0000
 #define TOPOLOGY_NOTIFICATION_MESSAGE                  0x0001
@@ -1824,7 +1831,9 @@ static const value_string ieee1905_error_code_vals[] = {
 /*
  * Size of the fixed parameters in 802.11 management frames
  */
-#define ASSOC_REQ_BODY_FIXED_SIZE 4
+#define ASSOC_REQ_BODY_FIXED_SIZE   4
+#define REASSOC_REQ_BODY_FIXED_SIZE 10
+#define WNM_REQ_BODY_FIXED_SIZE     4
 
 static int
 dissect_media_type(tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -7179,14 +7188,27 @@ dissect_source_info(tvbuff_t *tvb, packet_info *pinfo _U_,
 /*
  * Dissect a Tunneled Message Type TLV:
  */
+#define TUNNELED_MESSAGE_TYPE_ASSOCIATION_REQUEST   0
+#define TUNNELED_MESSAGE_TYPE_REASSOCIATION_REQUEST 1
+#define TUNNELED_MESSAGE_TYPE_BTM_QUERY             2
+#define TUNNELED_MESSAGE_TYPE_WNM_REQUEST           3
+#define TUNNELED_MESSAGE_TYPE_ANQP_REQUEST          4
+#define TUNNELED_MESSAGE_TYPE_DPP_MESSAGE           5
+#define TUNNELED_MESSAGE_TYPE_DSCP_POLICY_QUERY     6
+#define TUNNELED_MESSAGE_TYPE_DSCP_POLICY_RESPONSE  7
+#define TUNNELED_MESSAGE_TYPE_RESERVED_FIRST        8
+#define TUNNELED_MESSAGE_TYPE_RESERVED_LAST         255
+
 static const range_string tunneled_message_type_rvals[] = {
-    { 0, 0,   "Association Request" },
-    { 1, 1,   "Re-Association Request" },
-    { 2, 2,   "BTM Query" },
-    { 3, 3,   "WNM Request" },
-    { 4, 4,   "ANQP Request for Neighbor Report" },
-    { 5, 5,   "DPP Message" },
-    { 6, 255, "Reserved" },
+    { TUNNELED_MESSAGE_TYPE_ASSOCIATION_REQUEST,   TUNNELED_MESSAGE_TYPE_ASSOCIATION_REQUEST,   "Association Request" },
+    { TUNNELED_MESSAGE_TYPE_REASSOCIATION_REQUEST, TUNNELED_MESSAGE_TYPE_REASSOCIATION_REQUEST, "Re-Association Request" },
+    { TUNNELED_MESSAGE_TYPE_BTM_QUERY,             TUNNELED_MESSAGE_TYPE_BTM_QUERY,             "BTM Query" },
+    { TUNNELED_MESSAGE_TYPE_WNM_REQUEST,           TUNNELED_MESSAGE_TYPE_WNM_REQUEST,           "WNM Request" },
+    { TUNNELED_MESSAGE_TYPE_ANQP_REQUEST,          TUNNELED_MESSAGE_TYPE_ANQP_REQUEST,          "ANQP Request for Neighbor Report" },
+    { TUNNELED_MESSAGE_TYPE_DPP_MESSAGE,           TUNNELED_MESSAGE_TYPE_DPP_MESSAGE,           "DPP Message" },
+    { TUNNELED_MESSAGE_TYPE_DSCP_POLICY_QUERY,     TUNNELED_MESSAGE_TYPE_DSCP_POLICY_QUERY,     "DSCP Policy Query" },
+    { TUNNELED_MESSAGE_TYPE_DSCP_POLICY_RESPONSE,  TUNNELED_MESSAGE_TYPE_DSCP_POLICY_RESPONSE,  "DSCP Policy Response" },
+    { TUNNELED_MESSAGE_TYPE_RESERVED_FIRST,        TUNNELED_MESSAGE_TYPE_RESERVED_LAST,         "Reserved" },
     { 0, 0, NULL }
 };
 
@@ -7194,9 +7216,15 @@ static int
 dissect_tunneled_message_type(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
+    uint8_t message_type = tvb_get_uint8(tvb, offset);
+
     proto_tree_add_item(tree, hf_ieee1905_tunneled_message_type, tvb, offset,
                         1, ENC_NA);
     offset += 1;
+
+    /* Store message_type for use in dissect_tunneled */
+    p_add_proto_data(pinfo->pool, pinfo, proto_ieee1905, TUNNELED_MESSAGE_TYPE_KEY, GUINT_TO_POINTER(message_type));
+    p_add_proto_data(pinfo->pool, pinfo, proto_ieee1905, TUNNELED_MESSAGE_TYPE_SET_KEY, GUINT_TO_POINTER(true));
 
     return offset;
 }
@@ -7211,9 +7239,60 @@ dissect_tunneled(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ieee1905_tunneled_data, tvb, offset, len,
                         ENC_NA);
 
-    /*
-     * TODO: Save the tunnelled type and then dissect the message
-     */
+    /* Check if tunneled message type is known and call 802.11 dissector */
+    if (GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, TUNNELED_MESSAGE_TYPE_SET_KEY))) {
+        uint8_t message_type = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, TUNNELED_MESSAGE_TYPE_KEY));
+        bool dissect_80211_ies = false;
+        unsigned ie_offset;
+        unsigned ie_len;
+
+        switch (message_type) {
+            case TUNNELED_MESSAGE_TYPE_ASSOCIATION_REQUEST:
+                dissect_80211_ies = true;
+                ie_offset = offset + ASSOC_REQ_BODY_FIXED_SIZE;
+                ie_len = len - ASSOC_REQ_BODY_FIXED_SIZE;
+            break;
+            case TUNNELED_MESSAGE_TYPE_REASSOCIATION_REQUEST:
+                dissect_80211_ies = true;
+                ie_offset = offset + REASSOC_REQ_BODY_FIXED_SIZE;
+                ie_len = len - REASSOC_REQ_BODY_FIXED_SIZE;
+            break;
+            case TUNNELED_MESSAGE_TYPE_BTM_QUERY:
+               /* TODO */
+            break;
+            case TUNNELED_MESSAGE_TYPE_WNM_REQUEST:
+                dissect_80211_ies = true;
+                ie_offset = offset + WNM_REQ_BODY_FIXED_SIZE;
+                ie_len = len - WNM_REQ_BODY_FIXED_SIZE;
+            break;
+            case TUNNELED_MESSAGE_TYPE_ANQP_REQUEST:
+                /* TODO */
+            break;
+            case TUNNELED_MESSAGE_TYPE_DPP_MESSAGE:
+                /* TODO */
+            break;
+            case TUNNELED_MESSAGE_TYPE_DSCP_POLICY_QUERY:
+                /* TODO */
+            break;
+            case TUNNELED_MESSAGE_TYPE_DSCP_POLICY_RESPONSE:
+                /* TODO */
+            break;
+            default:
+            break;
+        }
+
+        if (dissect_80211_ies) {
+            proto_tree *ie_tree;
+            proto_item *ie;
+
+            ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
+                                                    ett_tunneled_ies,
+                                                    &ie, "Information Elements (%d bytes)", ie_len);
+
+            dissect_80211_information_elements(tvb, pinfo, ie_tree, ie_offset, ie_len);
+        }
+    }
+
     offset += len;
 
     return offset;
@@ -13680,6 +13759,7 @@ proto_register_ieee1905(void)
         &ett_eht_operations_radio_bss_list,
         &ett_eht_operations_radio_bss,
         &ett_eht_operations_radio_bss_flags,
+        &ett_tunneled_ies,
         &ett_ieee1905_fragment,
         &ett_ieee1905_fragments,
     };
