@@ -1838,8 +1838,8 @@ void WiresharkMainWindow::exportDissections(export_type_e export_type) {
 void WiresharkMainWindow::enableAggregationView(bool enable) const {
     main_ui_->actionAggregationView->setEnabled(enable);
     QString tooltip = enable ?
-        tr("Aggregation View — displays frames grouped by your configured aggregation fields.") :
-        tr("Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.");
+        tr("Display frames grouped by your configured aggregation fields.") :
+        tr("Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.");
     main_ui_->actionAggregationView->setToolTip(tooltip);
 }
 

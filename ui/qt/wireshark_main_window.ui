@@ -324,7 +324,6 @@
     <addaction name="actionGoPreviousHistoryPacket"/>
     <addaction name="separator"/>
     <addaction name="actionGoAutoScroll"/>
-    <addaction name="actionAggregationView"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -442,8 +441,9 @@
     <addaction name="separator"/>
     <addaction name="actionViewColorizePacketList"/>
     <addaction name="actionViewColoringRules"/>
-    <addaction name="actionViewTaggingRules"/>
     <addaction name="menuColorizeConversation"/>
+    <addaction name="actionViewTaggingRules"/>
+    <addaction name="actionAggregationView"/>
     <addaction name="separator"/>
     <addaction name="actionViewResetLayout"/>
     <addaction name="actionViewResizeColumns"/>
@@ -853,9 +853,9 @@
    <addaction name="actionGoFirstPacket"/>
    <addaction name="actionGoLastPacket"/>
    <addaction name="actionGoAutoScroll"/>
-   <addaction name="actionAggregationView"/>
    <addaction name="separator"/>
    <addaction name="actionViewColorizePacketList"/>
+   <addaction name="actionAggregationView"/>
    <addaction name="separator"/>
    <addaction name="actionViewZoomIn"/>
    <addaction name="actionViewZoomOut"/>
@@ -2903,7 +2903,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Aggregation in Live Capture</string>
+    <string>Aggregate Packets</string>
    </property>
   </action>
   <action name="actionAnalyzeExpertInfo">
