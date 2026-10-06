@@ -1,7 +1,7 @@
 /* packet-roughtime.c
  * Dissector for Roughtime Time Synchronization
  *
- * Copyright (c) 2024 by Martin Mayer <martin.mayer@m2-it-solutions.de>
+ * Copyright (c) 2024-2026 by Martin Mayer <martin.mayer@m2-it-solutions.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,34 +16,25 @@
  * - Google Roughtime Protocol
  *   https://roughtime.googlesource.com/roughtime/+/HEAD/PROTOCOL.md
  *
- * - IETF Roughtime I-D
- *   https://datatracker.ietf.org/doc/draft-ietf-ntp-roughtime/
- *
- *   Most recent version at time of writing
- *   https://www.ietf.org/archive/id/draft-ietf-ntp-roughtime-12.html
- */
-
-/*
- * To Do:
- *
- * - Default port assignments
- *   Change temporary ports to IANA assigned ports after RFC publication
- *
- * - Stream support
- *   Add TCP support when implementations adopted it or when there are example captures from other sources
+ * - IETF Roughtime (RFC 10049)
+ *   https://datatracker.ietf.org/doc/html/rfc10049
  */
 
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include "packet-tcp.h"
 
-/* Tag Registry (RFC -unpublished-) */
+/* Roughtime tags
+ * Ref.: https://www.iana.org/assignments/roughtime#roughtime-tags
+ */
 #define TAG_TYPE_SIG    0x00474953  // SIG\x00
 #define TAG_TYPE_VER    0x00524556  // VER\x00
 #define TAG_TYPE_SRV    0x00565253  // SRV\x00
 #define TAG_TYPE_NONC   0x434E4F4E  // NONC
 #define TAG_TYPE_DELE   0x454C4544  // DELE
+#define TAG_TYPE_TYPE   0x45505954  // TYPE
 #define TAG_TYPE_PATH   0x48544150  // PATH
 #define TAG_TYPE_RADI   0x49444152  // RADI
 #define TAG_TYPE_PUBK   0x4B425550  // PUBK
@@ -63,13 +54,17 @@
 /* Roughtime IETF Header Magic Word */
 #define HDR_IETF        0x4D49544847554F52 // ROUGHTIM
 
+/* Min. header length to determine PDU length (Magic + Len) */
+#define HDR_IETF_MINLEN 12
+
 #define PROTO_TEXT_GOOGLE   "Google"
 #define PROTO_TEXT_IETF     "IETF"
 
 void proto_register_roughtime(void);
 void proto_reg_handoff_roughtime(void);
 
-static dissector_handle_t roughtime_handle;
+static dissector_handle_t roughtime_udp_handle;
+static dissector_handle_t roughtime_tcp_handle;
 
 static int proto_roughtime;
 
@@ -84,6 +79,7 @@ static int hf_roughtime_num_tags;
 static int hf_roughtime_offset;
 static int hf_roughtime_tag;
 static int hf_roughtime_nonce;
+static int hf_roughtime_type;
 static int hf_roughtime_ver;
 static int hf_roughtime_sig;
 static int hf_roughtime_srv;
@@ -136,17 +132,14 @@ typedef struct _roughtime_req_resp_t {
     uint32_t resp_length;
 } roughtime_req_resp_t;
 
+/* Roughtime versions
+ * Ref.: https://www.iana.org/assignments/roughtime#roughtime-versions
+ */
 static const range_string roughtime_version_rvals[] = {
     { 0x00000000, 0x00000000, "Reserved" },
-    { 0x00000001, 0x00000001, "Roughtime Version 1" },
-    /* DRAFTS: Subject to removal? */
-    { 0x80000008, 0x80000008, "draft-ietf-ntp-roughtime-8" },
-    { 0x80000009, 0x80000009, "draft-ietf-ntp-roughtime-9" },
-    { 0x8000000A, 0x8000000A, "draft-ietf-ntp-roughtime-10" },
-    { 0x8000000B, 0x8000000B, "draft-ietf-ntp-roughtime-11" },
-    { 0x8000000C, 0x8000000C, "draft-ietf-ntp-roughtime-12" },
-    /* END DRAFTS */
-    { 0x8000000D, 0xFFFFFFFF, "Reserved (Private or Experimental use)" },
+    { 0x00000001, 0x00000001, "Roughtime version 1" },
+    { 0x80000000, 0xBFFFFFFF, "Reserved for Experimental Use" },
+    { 0xC0000000, 0xFFFFFFFF, "Reserved for Private Use" },
     {          0,          0, NULL }
 };
 
@@ -274,7 +267,7 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
             case TAG_TYPE_VERS:
                 if(map->length == 0) {
                     // Add empty item for informational purpose
-                    proto_tree_add_item(tree, hf_roughtime_ver, tvb, offset, 0, ENC_NA);
+                    proto_tree_add_item(tree, hf_roughtime_ver, tvb, offset, 0, ENC_LITTLE_ENDIAN);
                 }
                 else if(map->length % 4 == 0) {
                     for(uint32_t i = 0; i < map->length; i += 4) {
@@ -282,7 +275,8 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
                     }
                 }
                 else {
-                    expert_add_info(pinfo, tree, &ei_roughtime_illegal_length);
+                    pi = proto_tree_add_expert(tree, pinfo, &ei_roughtime_illegal_length, tvb, offset, map->length);
+                    proto_item_prepend_text(pi, "Version: ");
                 }
                 break;
 
@@ -292,9 +286,9 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
                 break;
 
             case TAG_TYPE_SIG:
-                proto_tree_add_item(tree, hf_roughtime_sig, tvb, offset, map->length, ENC_NA);
+                pi = proto_tree_add_item(tree, hf_roughtime_sig, tvb, offset, map->length, ENC_NA);
                 if(map->length != 64) {
-                    expert_add_info(pinfo, tree, &ei_roughtime_illegal_length);
+                    expert_add_info(pinfo, pi, &ei_roughtime_illegal_length);
                 }
                 break;
 
@@ -309,9 +303,9 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
                 break;
 
             case TAG_TYPE_INDX:
-                proto_tree_add_item(tree, hf_roughtime_index, tvb, offset, map->length, ENC_NA);
+                pi = proto_tree_add_item(tree, hf_roughtime_index, tvb, offset, map->length, ENC_LITTLE_ENDIAN);
                 if(map->length != 4) {
-                    expert_add_info(pinfo, tree, &ei_roughtime_illegal_length);
+                    expert_add_info(pinfo, pi, &ei_roughtime_illegal_length);
                 }
                 break;
 
@@ -330,18 +324,20 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
                         proto_tree_add_item(tree, hf_roughtime_path, tvb, offset + i, 32, ENC_NA);
                     }
                     if(map->length > 32*32) {
-                        expert_add_info(pinfo, tree, &ei_roughtime_path_too_large);
+                        pi = proto_tree_add_expert(tree, pinfo, &ei_roughtime_path_too_large, tvb, offset, map->length);
+                        proto_item_prepend_text(pi, "Path: ");
                     }
                 }
                 else {
-                    proto_tree_add_item(tree, hf_roughtime_path, tvb, offset, map->length, ENC_NA);
-                    expert_add_info(pinfo, tree, &ei_roughtime_illegal_length);
+                    pi = proto_tree_add_item(tree, hf_roughtime_path, tvb, offset, map->length, ENC_NA);
+                    expert_add_info(pinfo, pi, &ei_roughtime_illegal_length);
                 }
                 break;
 
             case TAG_TYPE_RADI:
                 if(map->length != 4) {
-                    expert_add_info(pinfo, tree, &ei_roughtime_illegal_length);
+                    pi = proto_tree_add_expert(tree, pinfo, &ei_roughtime_illegal_length, tvb, offset, map->length);
+                    proto_item_prepend_text(pi, "Radius: ");
                     break;
                 }
 
@@ -363,7 +359,8 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
 
             case TAG_TYPE_MIDP:
                 if(map->length != 8) {
-                    expert_add_info(pinfo, tree, &ei_roughtime_illegal_length);
+                    pi = proto_tree_add_expert(tree, pinfo, &ei_roughtime_illegal_length, tvb, offset, map->length);
+                    proto_item_prepend_text(pi, "Midpoint: ");
                     break;
                 }
 
@@ -390,7 +387,8 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
 
             case TAG_TYPE_MINT:
                 if(map->length != 8) {
-                    expert_add_info(pinfo, tree, &ei_roughtime_illegal_length);
+                    pi = proto_tree_add_expert(tree, pinfo, &ei_roughtime_illegal_length, tvb, offset, map->length);
+                    proto_item_prepend_text(pi, "Min. Time: ");
                     break;
                 }
 
@@ -404,7 +402,8 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
 
             case TAG_TYPE_MAXT:
                 if(map->length != 8) {
-                    expert_add_info(pinfo, tree, &ei_roughtime_illegal_length);
+                    pi = proto_tree_add_expert(tree, pinfo, &ei_roughtime_illegal_length, tvb, offset, map->length);
+                    proto_item_prepend_text(pi, "Max. Time: ");
                     break;
                 }
 
@@ -420,6 +419,10 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
                 pi = proto_tree_add_item(tree, hf_roughtime_dele, tvb, offset, map->length, ENC_NA);
                 msg_tree = proto_item_add_subtree(pi, ett_roughtime_dele);
                 dissect_roughtime_msg(tvb_new_subset_length(tvb, offset, map->length), pinfo, msg_tree, proto_type);
+                break;
+
+            case TAG_TYPE_TYPE:
+                proto_tree_add_item(tree, hf_roughtime_type, tvb, offset, map->length, ENC_NA);
                 break;
 
             default:
@@ -465,6 +468,21 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
     return offset;
 }
 
+static bool
+test_ietf_roughtime(tvbuff_t *tvb)
+{
+    if (!tvb_bytes_exist(tvb, 0, HDR_IETF_MINLEN)) {
+        return false;
+    }
+
+    /* Check for IETF Magic Word */
+    if(tvb_get_uint64(tvb, 0, ENC_LITTLE_ENDIAN) != HDR_IETF) {
+        return false;
+    }
+
+    return true;
+}
+
 static int
 dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -486,7 +504,7 @@ dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
      * The protocol type
      * If we have no IETF header, assume Google's protocol version.
      */
-    if(tvb_get_uint64(tvb, 0, ENC_LITTLE_ENDIAN) == HDR_IETF) {
+    if(test_ietf_roughtime(tvb)) {
         proto_type = PROTO_TYPE_IETF;
     } else if (tvb_get_uint32(tvb, 0, ENC_LITTLE_ENDIAN) < 16) {
         /* The Google version starts with the number of outer tags, which
@@ -572,13 +590,37 @@ dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             if( conv_data->req_length > 0 && conv_data->resp_length > 0 &&
                 conv_data->resp_length > conv_data->req_length )
             {
-                expert_add_info(pinfo, roughtime_tree, &ei_roughtime_response_too_large);
+                expert_add_info(pinfo, ti, &ei_roughtime_response_too_large);
             }
         }
     }
 
     proto_item_set_end(ti, tvb, offset);
     return offset;
+}
+
+static unsigned
+get_roughtime_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    /*   Magic Word field     (8 bytes)
+     * + Message length field (4 bytes)
+     * ---------------------------------
+     * = HDR_IETF_MINLEN      (12 bytes)
+     * + Message length       (var.)
+     * ---------------------------------
+     * = PDU length
+     */
+    return tvb_get_uint32(tvb, offset + 8, ENC_LITTLE_ENDIAN) + HDR_IETF_MINLEN;
+}
+
+static int
+dissect_roughtime_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    if (!test_ietf_roughtime(tvb))
+        return 0;
+
+    tcp_dissect_pdus(tvb, pinfo, tree, true, HDR_IETF_MINLEN, get_roughtime_pdu_len, dissect_roughtime, data);
+    return tvb_reported_length(tvb);
 }
 
 void
@@ -641,6 +683,12 @@ proto_register_roughtime(void)
         },
         { &hf_roughtime_nonce,
             { "Nonce", "roughtime.nonce",
+            FT_BYTES, BASE_NONE,
+            NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_roughtime_type,
+            { "Type", "roughtime.type",
             FT_BYTES, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
@@ -785,13 +833,21 @@ proto_register_roughtime(void)
     expert_roughtime = expert_register_protocol(proto_roughtime);
     expert_register_field_array(expert_roughtime, ei, array_length(ei));
 
-    roughtime_handle = register_dissector("roughtime", dissect_roughtime, proto_roughtime);
+    roughtime_udp_handle = register_dissector("roughtime.udp", dissect_roughtime, proto_roughtime);
+    roughtime_tcp_handle = register_dissector("roughtime.tcp", dissect_roughtime_tcp, proto_roughtime);
 }
 
 void
 proto_reg_handoff_roughtime(void)
 {
-    dissector_add_uint_range_with_preference("udp.port", "2002-2003", roughtime_handle);
+    /*
+     * Port 5319/tcp/udp is assigned by IANA for IETF's Roughtime.
+     * Port 2002-2003/udp is commonly used for Google's implementation
+     * and for IETF-drafts. We may remove or change these default
+     * port sometime.
+    .*/
+    dissector_add_uint_range_with_preference("udp.port", "5319,2002-2003", roughtime_udp_handle);
+    dissector_add_uint_range_with_preference("tcp.port", "5319,", roughtime_tcp_handle);
 }
 
 /*
