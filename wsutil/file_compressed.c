@@ -1102,7 +1102,7 @@ lz4wfile_geterr(LZ4WFILE_T state)
 struct zstd_writer {
     int fd;
     int err;
-    unsigned compression_level;
+    int compression_level;
     size_t frame_bytes;
     bool frame_ended;
     ZSTD_CStream *stream;
@@ -1110,10 +1110,23 @@ struct zstd_writer {
     size_t out_size;
 };
 
-ZSTDWFILE_T
-zstdwfile_fdopen(int fd, unsigned compression_level)
+static bool
+zstd_level_valid(int compression_level)
 {
-    if (compression_level > (unsigned)ZSTD_maxCLevel()) {
+    /* ZSTD_minCLevel() is available starting with libzstd 1.4.0. Keep
+     * supporting nonnegative levels when built with older libraries. */
+#if ZSTD_VERSION_NUMBER >= 10400
+    int min_level = ZSTD_minCLevel();
+#else
+    int min_level = 0;
+#endif
+    return compression_level >= min_level && compression_level <= ZSTD_maxCLevel();
+}
+
+ZSTDWFILE_T
+zstdwfile_fdopen(int fd, int compression_level)
+{
+    if (!zstd_level_valid(compression_level)) {
         errno = EINVAL;
         return NULL;
     }
@@ -1133,7 +1146,7 @@ zstdwfile_fdopen(int fd, unsigned compression_level)
     }
     /* Level 0 selects the library default (3). Use the streaming API
      * available in all supported versions of libzstd. */
-    if (ZSTD_isError(ZSTD_initCStream(state->stream, (int)compression_level))) {
+    if (ZSTD_isError(ZSTD_initCStream(state->stream, compression_level))) {
         errno = FILE_ERR_CANT_COMPRESS;
         goto fail;
     }
@@ -1148,10 +1161,10 @@ fail:
 }
 
 ZSTDWFILE_T
-zstdwfile_open(const char *path, unsigned compression_level)
+zstdwfile_open(const char *path, int compression_level)
 {
     /* Reject invalid levels before opening (and truncating) the output. */
-    if (compression_level > (unsigned)ZSTD_maxCLevel()) {
+    if (!zstd_level_valid(compression_level)) {
         errno = EINVAL;
         return NULL;
     }
@@ -1224,7 +1237,7 @@ zstdwfile_write(ZSTDWFILE_T state, const void *buf, size_t len)
         /* Start the next frame only when more input arrives. Closing or
          * flushing at a frame boundary must not append an empty frame. */
         if (state->frame_ended) {
-            if (ZSTD_isError(ZSTD_initCStream(state->stream, (int)state->compression_level))) {
+            if (ZSTD_isError(ZSTD_initCStream(state->stream, state->compression_level))) {
                 state->err = FILE_ERR_CANT_COMPRESS;
                 return 0;
             }

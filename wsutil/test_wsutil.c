@@ -20,6 +20,7 @@
 
 #ifdef HAVE_ZSTD
 #include <errno.h>
+#include <limits.h>
 #include <zstd.h>
 #include <wsutil/file_compressed.h>
 #include <wsutil/file_util.h>
@@ -71,9 +72,24 @@ test_zstd_writer(void)
     g_assert_cmpuint(decoded, ==, 0);
 
     /* Invalid settings must not truncate an existing output file. */
-    writer = zstdwfile_open(path, (unsigned)ZSTD_maxCLevel() + 1);
-    g_assert_null(writer);
-    g_assert_cmpint(errno, ==, EINVAL);
+#if ZSTD_VERSION_NUMBER >= 10400
+    int min_level = ZSTD_minCLevel();
+#else
+    int min_level = 0;
+#endif
+    const int invalid_levels[] = { ZSTD_maxCLevel() + 1, min_level - 1, INT_MIN, INT_MAX };
+    for (size_t i = 0; i < G_N_ELEMENTS(invalid_levels); i++) {
+        writer = zstdwfile_open(path, invalid_levels[i]);
+        g_assert_null(writer);
+        g_assert_cmpint(errno, ==, EINVAL);
+        /* The descriptor must remain owned by the caller after rejection. */
+        fd = ws_open(path, O_BINARY|O_RDONLY, 0);
+        g_assert_cmpint(fd, >=, 0);
+        writer = zstdwfile_fdopen(fd, invalid_levels[i]);
+        g_assert_null(writer);
+        g_assert_cmpint(errno, ==, EINVAL);
+        g_assert_cmpint(ws_close(fd), ==, 0);
+    }
     char *unchanged = NULL;
     size_t unchanged_size = 0;
     g_assert_true(g_file_get_contents(path, &unchanged, &unchanged_size, NULL));
@@ -148,7 +164,7 @@ test_zstd_writer_frames(const void *data)
 {
     const size_t frame_size = 4 * 1024 * 1024;
     const size_t size = 2 * frame_size + 17;
-    unsigned level = GPOINTER_TO_UINT(data);
+    int level = GPOINTER_TO_INT(data);
     uint8_t *input = g_malloc(size);
     uint32_t random = 1;
     for (size_t i = 0; i < frame_size; i++) {
@@ -2203,8 +2219,13 @@ int main(int argc, char **argv)
 
 #ifdef HAVE_ZSTD
     g_test_add_func("/compression/zstd", test_zstd_writer);
-    g_test_add_data_func("/compression/zstd-frames/default", GUINT_TO_POINTER(0), test_zstd_writer_frames);
-    g_test_add_data_func("/compression/zstd-frames/level19", GUINT_TO_POINTER(19), test_zstd_writer_frames);
+    g_test_add_data_func("/compression/zstd-frames/default", GINT_TO_POINTER(0), test_zstd_writer_frames);
+    g_test_add_data_func("/compression/zstd-frames/level19", GINT_TO_POINTER(19), test_zstd_writer_frames);
+#if ZSTD_VERSION_NUMBER >= 10400
+    g_test_add_data_func("/compression/zstd-frames/fast1", GINT_TO_POINTER(-1), test_zstd_writer_frames);
+    g_test_add_data_func("/compression/zstd-frames/fast5", GINT_TO_POINTER(-5), test_zstd_writer_frames);
+    g_test_add_data_func("/compression/zstd-frames/fast-max", GINT_TO_POINTER(ZSTD_minCLevel()), test_zstd_writer_frames);
+#endif
 #endif
 
     ret = g_test_run();

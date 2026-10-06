@@ -174,7 +174,7 @@ struct wtap_dumper {
                                               * encapsulation types
                                               */
     ws_compression_type     compression_type; /**< Compression type used for output. */
-    unsigned                zstd_compression_level; /**< Zstandard output level; 0 uses the library default. */
+    int                     zstd_compression_level; /**< Zstandard output level; 0 uses the library default. */
     bool                    needs_reload;    /**< true if the file requires re-loading after saving with wtap */
     uint64_t                bytes_dumped;    /**< Total bytes written. */
 

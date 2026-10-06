@@ -221,10 +221,12 @@ WS_DLL_PUBLIC int gzwfile_geterr(GZWFILE_T state);
 typedef struct zstd_writer *ZSTDWFILE_T;
 
 /* Write independent frames of at most 4 MiB of uncompressed input for fast seeking.
- * A compression level of 0 selects the library default (3). Levels above
- * libzstd's maximum are rejected with EINVAL. */
-WS_DLL_PUBLIC ZSTDWFILE_T zstdwfile_open(const char *path, unsigned compression_level);
-WS_DLL_PUBLIC ZSTDWFILE_T zstdwfile_fdopen(int fd, unsigned compression_level);
+ * A compression level of 0 selects the library default (3). Negative levels
+ * select fast compression with libzstd 1.4.0 or newer. Levels outside the
+ * library's supported range (or negative levels with older libraries) are
+ * rejected with EINVAL. */
+WS_DLL_PUBLIC ZSTDWFILE_T zstdwfile_open(const char *path, int compression_level);
+WS_DLL_PUBLIC ZSTDWFILE_T zstdwfile_fdopen(int fd, int compression_level);
 WS_DLL_PUBLIC size_t zstdwfile_write(ZSTDWFILE_T state, const void *buf, size_t len);
 WS_DLL_PUBLIC int zstdwfile_flush(ZSTDWFILE_T state);
 WS_DLL_PUBLIC int zstdwfile_close(ZSTDWFILE_T state);

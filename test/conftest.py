@@ -226,6 +226,8 @@ def features(cmd_tshark, make_env):
     except IndexError:
         print(f'Failed to detect tshark runtime features: {tshark_v_parts}', file=sys.stderr)
         tshark_runtime = ''
+    zstd_versions = [tuple(map(int, version)) for version in
+                     re.findall(r'\+Zstandard (\d+)\.(\d+)\.(\d+)', tshark_v)]
     return types.SimpleNamespace(
         have_x64='Compiler info: 64-bit' in tshark_v,
         have_lua='+Lua' in tshark_v,
@@ -237,6 +239,7 @@ def features(cmd_tshark, make_env):
         have_pkcs11='PKCS#11' in tshark_v,
         have_brotli='+brotli' in tshark_v,
         have_zstd='+Zstandard' in tshark_v,
+        have_zstd_fast=bool(zstd_versions) and min(zstd_versions) >= (1, 4, 0),
         have_plugins='Plugins: supported' in tshark_v,
         have_pcap='libpcap' in tshark_runtime,
     )

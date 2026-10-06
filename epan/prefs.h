@@ -303,7 +303,7 @@ typedef struct _e_prefs {
     bool          capture_prom_mode;            /**< If true, capture in promiscuous mode by default */
     bool          capture_monitor_mode;         /**< If true, capture in monitor (RFMON) mode by default */
     bool          capture_pcap_ng;              /**< If true, save captures in pcapng format instead of pcap */
-    unsigned      capture_zstd_compression_level; /**< Zstandard level for saved/exported captures; 0 uses the library default */
+    int           capture_zstd_compression_level; /**< Zstandard level for saved/exported captures; 0 uses the library default */
     capture_process_info_e capture_process_info; /**< What to record of the processes that packets belong to */
     bool          capture_real_time;            /**< If true, update the packet list in real time during capture */
     unsigned      capture_update_interval;      /**< Interval in milliseconds between packet list updates during capture */

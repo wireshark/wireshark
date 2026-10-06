@@ -284,12 +284,18 @@ If you wish to save some of the packets in your capture file you can do so via <
 The `capture.zstd_compression_level` preference under menu:Edit[Preferences,Advanced]
 sets the Zstandard level for saved and exported captures. The default is 3.
 Levels 1 through 22 are supported; 0 selects the library default (3). Higher
-levels use more CPU and memory to produce smaller files. This preference also
-applies when TShark rewrites a capture, for example:
+levels use more CPU and memory to produce smaller files.
+With Zstandard 1.4.0 or newer, negative levels select fast compression: -1
+corresponds to the Zstandard command-line option `--fast=1`, -5 to `--fast=5`,
+and so on. More negative levels favor speed over compression ratio. The minimum
+accepted level depends on the Zstandard library. Older libraries accept only
+nonnegative levels.
+
+This preference also applies when TShark rewrites a capture, for example:
 
 [source,sh]
 ----
-tshark -r input.pcapng -w output.pcapng.zst --compress zstd -o capture.zstd_compression_level:9
+tshark -r input.pcapng -w output.pcapng.zst --compress zstd -o capture.zstd_compression_level:-1
 ----
 
 Editcap, Mergecap and Dumpcap use the library default level and do not read

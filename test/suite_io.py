@@ -57,11 +57,13 @@ class TestZstandardOutput:
             decoded.seek(24)
             assert original.read() == decoded.read()
 
-    @pytest.mark.parametrize('level', [0, 1, 3, 9, 22])
+    @pytest.mark.parametrize('level', [-1, -5, 0, 1, 3, 9, 22])
     def test_tshark_zstd_output(self, cmd_tshark, capture_file, result_file,
                                features, test_env, level):
         if not features.have_zstd:
             pytest.skip('Zstandard is unavailable')
+        if level < 0 and not features.have_zstd_fast:
+            pytest.skip('Zstandard fast levels require version 1.4.0 or newer')
         output = result_file('tshark.pcapng.zst')
         subprocess.check_call([cmd_tshark, '-r', capture_file('dhcp.pcap'),
                                '-w', output, '--compress', 'zstd',
@@ -72,10 +74,13 @@ class TestZstandardOutput:
                                     env=test_env)
 
     @pytest.mark.parametrize('file_format', ['pcap', 'pcapng'])
+    @pytest.mark.parametrize('level', [-1, -5, 19])
     def test_zstd_multiframe_round_trip(self, cmd_editcap, cmd_tshark, capture_file,
-                                       result_file, features, test_env, file_format):
+                                       result_file, features, test_env, file_format, level):
         if not features.have_zstd:
             pytest.skip('Zstandard is unavailable')
+        if level < 0 and not features.have_zstd_fast:
+            pytest.skip('Zstandard fast levels require version 1.4.0 or newer')
         # Repeat valid packet records to cross multiple 4 MiB frame boundaries.
         baseline = result_file('baseline.pcap')
         subprocess.check_call([cmd_editcap, '-F', 'pcap', capture_file('dhcp.pcap'),
@@ -89,7 +94,7 @@ class TestZstandardOutput:
             stream.write(records)
         output = result_file('multiframe.' + file_format + '.zst')
         subprocess.check_call([cmd_tshark, '-r', source, '-F', file_format, '-w', output,
-                               '--compress', 'zstd', '-o', 'capture.zstd_compression_level:19'],
+                               '--compress', 'zstd', '-o', f'capture.zstd_compression_level:{level}'],
                               env=test_env)
         # Two-pass dissection rereads packet offsets using Wiretap's seek handle.
         fields = ['-2', '-T', 'fields', '-e', 'frame.number', '-e', 'frame.time_epoch',
@@ -103,12 +108,18 @@ class TestZstandardOutput:
             stream.seek(24)
             assert stream.read() == records
 
+    @pytest.mark.parametrize('profile_level', [-5, 9])
     def test_zstd_level_preference(self, cmd_tshark, capture_file, result_file,
-                                   features, test_env, tmp_path):
+                                   features, test_env, tmp_path, profile_level):
         if not features.have_zstd:
             pytest.skip('Zstandard is unavailable')
+        if profile_level < 0 and not features.have_zstd_fast:
+            pytest.skip('Zstandard fast levels require version 1.4.0 or newer')
         compressed = {}
-        for level in [0, 1, 3, 9]:
+        levels = [0, 1, 3, 9]
+        if features.have_zstd_fast:
+            levels += [-1, -5]
+        for level in levels:
             output = result_file(f'level-{level}.pcap.zst')
             subprocess.check_call([cmd_tshark, '-r', capture_file('dhcp.pcap'),
                                    '-F', 'pcap', '-w', output, '--compress', 'zstd',
@@ -117,25 +128,29 @@ class TestZstandardOutput:
                 compressed[level] = stream.read()
         assert compressed[0] == compressed[3]
         assert compressed[1] != compressed[9]
+        if features.have_zstd_fast:
+            assert compressed[-1] != compressed[3]
+            assert compressed[-5] != compressed[-1]
 
         # A saved preference must take effect without a command-line override.
         profile = tmp_path / 'zstd-profile'
         profile.mkdir()
-        (profile / 'preferences').write_text('capture.zstd_compression_level: 9\n')
+        (profile / 'preferences').write_text(f'capture.zstd_compression_level: {profile_level}\n')
         profile_env = dict(test_env, WIRESHARK_CONFIG_DIR=str(profile))
         output = result_file('profile-level.pcap.zst')
         subprocess.check_call([cmd_tshark, '-r', capture_file('dhcp.pcap'), '-F', 'pcap',
                                '-w', output, '--compress', 'zstd'], env=profile_env)
         with open(output, 'rb') as stream:
-            assert stream.read() == compressed[9]
+            assert stream.read() == compressed[profile_level]
 
+    @pytest.mark.parametrize('level', [-2147483648, -131073, 23, 2147483647, 4294967295])
     def test_zstd_invalid_level(self, cmd_tshark, capture_file, result_file,
-                                features, test_env):
+                                features, test_env, level):
         if not features.have_zstd:
             pytest.skip('Zstandard is unavailable')
         output = result_file('invalid-level.pcapng.zst')
         result = subprocess.run([cmd_tshark, '-r', capture_file('dhcp.pcap'), '-w', output,
-                                 '--compress', 'zstd', '-o', 'capture.zstd_compression_level:4294967295'],
+                                 '--compress', 'zstd', '-o', f'capture.zstd_compression_level:{level}'],
                                 env=test_env, capture_output=True)
         assert result.returncode != 0
 

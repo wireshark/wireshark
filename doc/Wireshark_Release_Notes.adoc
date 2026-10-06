@@ -126,6 +126,7 @@ The following features are either new or have been significantly updated since v
   tools accept `--compress zstd` when built with Zstandard support.
   The Advanced preference `capture.zstd_compression_level` sets the level for
   Wireshark saves and exports and for TShark capture-file rewrites.
+  Negative levels select fast compression when built with Zstandard 1.4.0 or newer.
   Output uses independent frames with up to 4 MiB of uncompressed data to support
   fast seeking when the capture is reopened.
 

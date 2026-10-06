@@ -3786,13 +3786,15 @@ prefs_register_modules(void)
         "Capture in pcapng format?", &prefs.capture_pcap_ng);
 
 #ifdef HAVE_ZSTD
-    prefs_register_uint_preference(capture_module, "zstd_compression_level",
+    prefs_register_int_preference(capture_module, "zstd_compression_level",
         "Zstandard compression level",
         "Compression level for saving and exporting Zstandard captures. "
         "Higher levels use more CPU and memory to produce smaller files. "
         "Use 1 to 22, or 0 for the library default (3). "
+        "With Zstandard 1.4.0 or newer, negative levels select fast compression; "
+        "more negative levels favor speed over compression ratio. "
         "Also applies to TShark when rewriting captures with -r and -w.",
-        10, &prefs.capture_zstd_compression_level);
+        &prefs.capture_zstd_compression_level);
 #endif
 
     prefs_register_enum_preference(capture_module, "process_info", "Record the processes that packets belong to",
