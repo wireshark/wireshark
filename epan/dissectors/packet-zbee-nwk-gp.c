@@ -1172,7 +1172,7 @@ dissect_zbee_nwk_gp_report_desc_attr_rec(tvbuff_t *tvb, packet_info *pinfo _U_, 
 
             proto_tree_add_item(subtree, hf_zbee_nwk_gp_cmd_app_desc_attr_rec_val,
                 tvb, offset, val_len, ENC_NA);
-            offset += val_len;
+            //offset += val_len;
         }
         offset = end;
     }
