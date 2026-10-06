@@ -4539,7 +4539,7 @@ dissect_usb_hid_get_report(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, 
     proto_tree *subtree;
 
     if (!is_request) {
-        offset += dissect_usb_hid_data(tvb_new_subset_remaining(tvb, offset), pinfo, tree, urb);
+        dissect_usb_hid_data(tvb_new_subset_remaining(tvb, offset), pinfo, tree, urb);
 
         return;
     }
@@ -4597,7 +4597,6 @@ dissect_usb_hid_get_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb
 
     if (!is_request) {
         proto_tree_add_item(tree, hf_usb_hid_duration, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        offset++;
 
         return;
     }
