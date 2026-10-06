@@ -336,6 +336,7 @@ Measurement-ID                                   N nrppa.ies id-LMF-Measurement-
 Measurement-ID                                   N nrppa.ies id-RAN-Measurement-ID
 TRP-MeasurementRequestList                       N nrppa.ies id-TRP-MeasurementRequestList
 TRP-MeasurementResponseList                      N nrppa.ies id-TRP-MeasurementResponseList
+TRP-MeasurementResponseList                      N nrppa.ies id-TRP-MeasurementReportList
 SRSType                                          N nrppa.ies id-SRSType
 RelativeTime1900                                 N nrppa.ies id-ActivationTime
 TRPList                                          N nrppa.ies id-TRPList
@@ -349,7 +350,6 @@ ResultEUTRA                                      N nrppa.ies id-ResultEUTRA
 TRPInformationTypeItem                           N nrppa.ies id-TRPInformationTypeItem
 CGI-NR                                           N nrppa.ies id-CGI-NR
 SFNInitialisationTime-EUTRA                      N nrppa.ies id-SFNInitialisationTime-NR
-CGI-NR                                           N nrppa.ies id-Cell-ID
 SrsFrequency                                     N nrppa.ies id-SrsFrequency
 TRPType                                          N nrppa.ies id-TRPType
 MeasurementPeriodicityExtended                   N nrppa.ies id-MeasurementPeriodicityExtended
@@ -471,6 +471,7 @@ WAB-MT-UE-ID                               N nrppa.extension id-WAB-MT-UE-ID
 ChannelResponseInformation                 N nrppa.extension id-ChannelResponseInformation
 PositioningDataCollectionNeeded            N nrppa.extension id-PositioningDataCollectionNeeded
 Inferred-measurement                       N nrppa.extension id-Inferred-measurement
+CGI-NR                                     N nrppa.extension id-Cell-ID
 
 
 #LPPA-ELEMENTARY-PROCEDURE
