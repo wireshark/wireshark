@@ -3278,7 +3278,7 @@ be_seg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset,
     if (len >= 3) {
         /* Octet 4-5	Message ID */
         proto_tree_add_item(tree, hf_gsm_a_bssmap_msg_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-        curr_offset += 2;
+        //curr_offset += 2;
     }
 
     return len;
