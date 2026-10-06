@@ -2085,7 +2085,7 @@ dissect_st334_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                            "CDP checksum does not make packet sum modulo 256 equal zero (sum 0x%02x)",
                                            sum);
             }
-            offset += section_len;
+            //offset += section_len;
             break;
         } else if (id >= 0x75 && id <= 0xef) {
             /* SMPTE ST 334-2:2015, Sec. 5.7, Table 8 -- future_section(). */
