@@ -17870,6 +17870,7 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.ies", id_RAN_Measurement_ID, create_dissector_handle(dissect_Measurement_ID_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_TRP_MeasurementRequestList, create_dissector_handle(dissect_TRP_MeasurementRequestList_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_TRP_MeasurementResponseList, create_dissector_handle(dissect_TRP_MeasurementResponseList_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.ies", id_TRP_MeasurementReportList, create_dissector_handle(dissect_TRP_MeasurementResponseList_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_SRSType, create_dissector_handle(dissect_SRSType_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_ActivationTime, create_dissector_handle(dissect_RelativeTime1900_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_TRPList, create_dissector_handle(dissect_TRPList_PDU, proto_nrppa));
@@ -17883,7 +17884,6 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.ies", id_TRPInformationTypeItem, create_dissector_handle(dissect_TRPInformationTypeItem_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_CGI_NR, create_dissector_handle(dissect_CGI_NR_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_SFNInitialisationTime_NR, create_dissector_handle(dissect_SFNInitialisationTime_EUTRA_PDU, proto_nrppa));
-  dissector_add_uint("nrppa.ies", id_Cell_ID, create_dissector_handle(dissect_CGI_NR_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_SrsFrequency, create_dissector_handle(dissect_SrsFrequency_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_TRPType, create_dissector_handle(dissect_TRPType_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_MeasurementPeriodicityExtended, create_dissector_handle(dissect_MeasurementPeriodicityExtended_PDU, proto_nrppa));
@@ -17993,6 +17993,7 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.extension", id_DL_reference_signal_UERxTx_TD, create_dissector_handle(dissect_DL_reference_signal_UERxTx_TD_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_SRSPosPeriodicConfigHyperSFNIndex, create_dissector_handle(dissect_SRSPosPeriodicConfigHyperSFNIndex_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_ValidityAreaSpecificSRSInformationExtended, create_dissector_handle(dissect_ValidityAreaSpecificSRSInformationExtended_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.extension", id_Cell_ID, create_dissector_handle(dissect_CGI_NR_PDU, proto_nrppa));
   dissector_add_uint("nrppa.proc.imsg", id_errorIndication, create_dissector_handle(dissect_ErrorIndication_PDU, proto_nrppa));
   dissector_add_uint("nrppa.proc.imsg", id_privateMessage, create_dissector_handle(dissect_PrivateMessage_PDU, proto_nrppa));
   dissector_add_uint("nrppa.proc.imsg", id_e_CIDMeasurementInitiation, create_dissector_handle(dissect_E_CIDMeasurementInitiationRequest_PDU, proto_nrppa));
