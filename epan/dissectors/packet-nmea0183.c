@@ -3714,7 +3714,7 @@ dissect_nmea0183_sentence_air(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Message #1 Sub-Section from Station #2 */
     offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_air_msg_sub_is2, NULL, NULL);
 
-    return tvb_captured_length(tvb);
+    return offset;
 }
 
 static int
