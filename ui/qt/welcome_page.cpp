@@ -321,7 +321,7 @@ void WelcomePage::updateSidebarLayout()
     int tipsCompactAt = tipsFull + spacing + learnMin;
     int tipsExpandAt = tipsCompactAt + kHysteresis;
 
-    bool collapseLinks = welcome_ui_->learnSectionCard->isLinksCollapsed();
+    bool collapseLinks;
     bool compactTips = welcome_ui_->tipsSectionCard->isCompactMode();
 
     if (available >= linksExpandAt) {
