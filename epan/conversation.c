@@ -3314,7 +3314,11 @@ find_or_create_conversation_strat(const packet_info *pinfo)
             conv = find_or_create_conversation_deinterlaced(pinfo, underlying_conv->conv_index);
         }
     }
-    else {
+
+    /* Handle the ordinary case,
+     * and safeguarding unhandled cases, see #21586
+     */
+    if(conv == NULL) {
         conv = find_or_create_conversation(pinfo);
     }
 
