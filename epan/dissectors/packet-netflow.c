@@ -13285,7 +13285,6 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         proto_item_append_text(tmplt_item,
                                " (Scope Count = %u; Data Count = %u)",
                                option_scope_field_count, option_field_count);
-        proto_item_set_len(tmplt_item, 6 +4*(option_scope_field_count+option_field_count));
 
         if (v9_tmplt_max_fields &&
             (option_field_count > v9_tmplt_max_fields)) {
@@ -13342,6 +13341,8 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         offset = dissect_v9_v10_template_fields(tvb, pinfo, tmplt_tree, offset,
                                                 hdrinfo_p, &tmplt, TF_ENTRIES);
 
+        proto_item_set_len(tmplt_item, offset - orig_offset);
+
         if ((tmplt_p == NULL) && (tmplt.fields_p[TF_SCOPES] || tmplt.fields_p[TF_ENTRIES])) {
             /* create permanent template copy for storage in template table */
             tmplt_p = (v9_v10_tmplt_t *)wmem_memdup(wmem_file_scope(), &tmplt, sizeof(tmplt));
@@ -13385,6 +13386,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         v9_v10_tmplt_t *tmplt_p;
         v9_v10_tmplt_t  tmplt;
         proto_tree     *tmplt_tree;
+        proto_item     *tmplt_item;
         proto_item     *ti;
         uint16_t        id;
         uint16_t        count;
@@ -13399,9 +13401,8 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 
         count = tvb_get_ntohs(tvb, offset + 2);
 
-        tmplt_tree = proto_tree_add_subtree_format(pdutree, tvb, offset,
-                                         4 + 4 * count /* hdrsiz + count*2*(sizeof uint16_t)*/,
-                                         ett_template, NULL, "Template (Id = %u, Count = %u)", id, count);
+        tmplt_tree = proto_tree_add_subtree_format(pdutree, tvb, offset, -1,
+                                         ett_template, &tmplt_item, "Template (Id = %u, Count = %u)", id, count);
 
         proto_tree_add_item(tmplt_tree, hf_cflow_template_id, tvb,
                             offset, 2, ENC_BIG_ENDIAN);
@@ -13447,6 +13448,8 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
         }
         offset = dissect_v9_v10_template_fields(tvb, pinfo, tmplt_tree, offset,
                                                 hdrinfo_p, &tmplt, TF_ENTRIES);
+
+        proto_item_set_len(tmplt_item, offset - orig_offset);
 
         if ((tmplt_p == NULL) && tmplt.fields_p[TF_ENTRIES]) {
             netflow_domain_state_t *domain_state;
