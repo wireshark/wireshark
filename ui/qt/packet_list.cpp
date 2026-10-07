@@ -493,6 +493,16 @@ void PacketList::scrollTo(const QModelIndex &index, QAbstractItemView::ScrollHin
     setUpdatesEnabled(true);
 }
 
+// https://bugreports.qt.io/browse/QTBUG-122109
+// Affects Qt 6.5.4 and 6.5.5, and 6.6.1 and 6.6.2 (fixed in 6.5.6 and
+// 6.6.3). When a tree view's style sheet is set, all visible sections of
+// its header are reset to the minimum DefaultSectionSize (even if it hasn't
+// changed.)
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 4) && QT_VERSION < QT_VERSION_CHECK(6, 5, 6)) \
+    || (QT_VERSION >= QT_VERSION_CHECK(6, 6, 1) && QT_VERSION < QT_VERSION_CHECK(6, 6, 3))
+#define QTBUG_122109_WORKAROUND
+#endif
+
 void PacketList::colorsChanged()
 {
     const QString c_active   = "active";
@@ -546,16 +556,9 @@ void PacketList::colorsChanged()
 
     applyOverlayActiveState();
 #if \
-    ( \
-    (QT_VERSION >= QT_VERSION_CHECK(6, 5, 4) && QT_VERSION < QT_VERSION_CHECK(6, 6, 0)) \
-    || (QT_VERSION >= QT_VERSION_CHECK(6, 6, 1)) \
-    )
-    // https://bugreports.qt.io/browse/QTBUG-122109
-    // Affects Qt 6.5.4 and later, 6.6.1 and later.
-    // When setting the style sheet, all visible sections are set
-    // to the new minimum DefaultSectionSize (even if it hasn't
-    // changed.) So make sure the new widths aren't saved to recent
-    // and then restore from recent.
+    defined(QTBUG_122109_WORKAROUND)
+    // Setting the style sheet reset the column widths (see above). Make sure
+    // the new widths aren't saved to recent and then restore from recent.
     applyRecentColumnWidths();
     setColumnVisibility();
 #endif
