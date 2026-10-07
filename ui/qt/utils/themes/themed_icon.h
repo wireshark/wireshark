@@ -54,9 +54,9 @@ public:
      *
      * @param name The base name of the SVG icon resource without a path or .svg extension.
      */
-    explicit ThemedIcon(const char *name) {
-        QString path = QStringLiteral(":/svg_icons/") + QLatin1String(name) + QStringLiteral(".svg");
-        *this = ThemedIcon(path, ThemeManager::PaletteText);
+    explicit ThemedIcon(const char *name) :
+        ThemedIcon(QString::fromUtf8(name))
+    {
     }
 
     /**
@@ -66,7 +66,8 @@ public:
      */
     explicit ThemedIcon(const QString &name)
     {
-        *this = ThemedIcon(qPrintable(name));
+        *this = ThemedIcon(QStringLiteral(":/svg_icons/") + name + QStringLiteral(".svg"),
+                           ThemeManager::PaletteText);
     }
 
     /**

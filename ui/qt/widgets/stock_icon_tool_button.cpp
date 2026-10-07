@@ -43,7 +43,7 @@ void StockIconToolButton::setIconByName(QString icon_name)
     if (icon_name_.isEmpty()) {
         return;
     }
-    base_icon_ = ThemedIcon(icon_name_.toUtf8().constData());
+    base_icon_ = ThemedIcon(icon_name_);
     setIcon(base_icon_);
 }
 
