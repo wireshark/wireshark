@@ -271,11 +271,7 @@ proto_register_ogg(void)
     expert_module_t* expert_ogg;
 
     /* Register the protocol name and description */
-    proto_ogg = proto_register_protocol(
-            "Xiph.org Ogg Stream",
-            "Ogg",
-            "ogg"
-    );
+    proto_ogg = proto_register_protocol("Xiph.org Ogg Stream", "Ogg", "ogg");
 
     /* Required function calls to register the header fields
      * and subtrees used */

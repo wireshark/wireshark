@@ -25,12 +25,13 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 4.7.3:
 
-* Holding down kbd:[↓] and kbd:[↑] will move rapidly through the packet list.
+* You can now https://www.wireshark.org/docs/wsug_html/#ChCustTaggingSection[tag packets] with emojis, text, or URLs similar to coloring rules.
+* The user interface icons have been refreshed, and now scale with the menu:View[] zoom settings.
 * The packet bytes pane can show text as UTF-8. Multi-byte characters are
   drawn over the column of their first byte with a “]” over their last byte,
   and hovering over any of those bytes highlights the whole character.
-
-* Coloring rules are now saved as a JSONC file.
+* Holding down kbd:[↓] and kbd:[↑] will move rapidly through the packet list.
+* Coloring rules are now saved as a https://jsonc.org/[JSONC] (JSON with comments) file.
   The legacy file format is still supported, but support will be removed in a future release.
 
 The following changes have been made since version 4.7.2:
@@ -245,13 +246,14 @@ Building with Qt 5 is no longer supported.
 [commaize]
 --
 Bachmann M-Module
+Xiph.org Ogg Stream
 --
 
 === New Protocol Support
 
 // Add one protocol per line between the -- delimiters in the format
 // “Full protocol name (Abbreviation)”
-// git log --oneline --diff-filter=A --stat v4.7.2rc0.. epan/dissectors plugins
+// git log --oneline --diff-filter=A --stat v4.7.4rc0.. epan/dissectors plugins
 [commaize]
 --
 Apple Darwin Metadata
@@ -275,16 +277,18 @@ NATS
 NMEA 2000
 Object Transform Protocol (OTP)
 OPC UA PubSub UADP
+PackClient
 Perforce P4RPC
 PosiStageNet (PSN)
 PROFINET SXP (PN-SXP)
 Qualcomm Diagnostic (QCDIAG)
-TrueConf Protocol (TrueConf)
 RDP Conctrl virtual channel Protocol (CONCTRL)
 RDP Video Capture Virtual Channel Extension (RDPECAM)
 Real-Time Tracking Protocol (RTTrP)
 RTP over QUIC (RoQ)
-TrueConf
+SMPTE ST2110-40 (ST291-1 Ancillary Data)
+TCG Storage Interface
+TrueConf Protocol (TrueConf)
 UDX
 Ultra Ethernet Transport (UET)
 XGT

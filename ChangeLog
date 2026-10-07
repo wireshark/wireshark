@@ -1,3 +1,445 @@
+0ebad4d74a Build: Wireshark 4.7.3 and Stratoshark 0.10.3 [skip ci]
+107d36694c Qt: Build ThemedIcon paths from the QString name
+0cc1861b01 Qt: Work around QTBUG-122109 for the pinned overlay views
+4f3e0d1e50 Qt: Limit the QTBUG-122109 workaround to affected Qt versions
+5f91aed481 Qt: Add sub menus in popup dialog
+bc35086ee2 ieee1905: dissect tunneled tlv
+bfaeee7769 extcap: Add a folderselect argument type
+c5ac023b46 Show Packet Bytes: Add "UTF-8 unescaped"
+13106595d9 TNS: Decode the array queuing call
+e07735057e TNS: Decode the Advanced Queuing calls
+27a7db4a69 TNS: Read LONG bind values after the others in a SQL statement
+a4a2673dc2 TNS: Frame bind values as a client sends them
+17367db075 TNS: Decode PL/SQL associative-array binds
+d9d4c22d28 Qt: Pin packet list rows from the unified packet list model
+1c50bb0b36 Qt: Contrast-adapting SVG icons
+7157e15307 Qt: Move the Aggregation View from the Go menu to View menu
+117475ea92 IKE: Add elements for Additional KE
+0b9f92bfa2 Qt: Filter and sort the packet list in a proxy model
+0c8887558b zbee-nwk-gp: Fix Dead Store (increment) found by Clang Analyzer
+0eee9bd702 usb-hid: Fix Dead Store (increment) found by Clang Analyzer
+3d393df6b4 smtpe-291-vanc: Fix Dead Store (increment) found by Clang Analyzer
+a3707f54c8 nmea0183: Fix Dead Store (increment) found by Clang Analyzer
+fa70d3d9c9 gsm_a_bssmap: Fix Dead Store (increment) found by Clang Analyzer
+2f589355da welcome_page(ui/qt): fix Dead Store (initialization) found by Clang Analyzer
+4cf03d0ab3 STUN: Fix deinterlacing for conversation creation
+47c33b93ea Kafka: Add Kafka 4.x API versions and KRaft APIs
+057bc9c0e8 DNS: Recognize DSO unidirectional
+404755c17e Roughtime: Align with RFC 10049
+b8152c7065 wiretap: Reduce overlap of wtap_reset_rec and wtap_rec_reset
+2c348f1e5b NRPPa: add dissection of TRP-MeasurementReportList IE
+b0783af263 Ogg: Don't add an expert info for failed heuristic detection
+a1941c859c Wiretap: Restore fast seeking for independent LZ4 blocks
+40513f102f Capture files: Add configurable Zstandard output
+9a622710ad file: Fix going to a frame before the first displayed when sorted
+dc91de8c96 Address some more script warnings
+6ee0bc8523 DNS: Add dissection of RFC 8765 TLVs
+a82a26bacf TNS: Decode an OCI client's object-type describe
+24ee067741 TNS: Read a long OCI error message in either chunk form
+2706e7373b TNS: Read an OCI client's fetch
+67c8aa6479 TNS: Read an OCI status block at the 12c band
+3d676cdf5c TNS: Find the SQL of an OCI execute at the 12c band
+a82cb6f3b4 TNS: Read an OCI execute's SQL length by the client's character set
+069233180e DNS: add dissection for edns-key-tag EDNS option (code 14, RFC 8145)
+341bd0ba15 TNS: Name the file a BFILE refers to
+32b32d48d7 TNS: Report the rows a failed call managed to apply
+76a58b5f86 TNS: Tell a parse from an execute by the work it asks for
+72b37b87f2 TNS: Show that a statement created an object that does not compile
+ab3a05eeda TNS: Show a CLOB's content as text
+e2ac45ac7b TNS: Render JSON values from their OSON image
+9cfd4b14a1 TNS: Render VECTOR values
+79c1b454ee TNS: Read a nested cursor cut short in a fetch's rows
+c90fea8c7f [Automatic update for 2026-10-04]
+041ce7ee3b Docs: Mention the UTF-8 text encoding in the byte view
+9f9268b367 hex data source view: Draw the hex panel as a grid too
+4c98ac3bce hex data source view: Draw the text panel as a grid and add UTF-8
+e28b3f0c2a Qt: Add ByteViewTextCells
+78ead179aa k12 text: Don't match an unlimited number of hours digits
+987d3f8d5d pcapng: Call the registered option handlers without plugin support
+9a160bf170 TNS: Show the DATA flags a pipeline uses
+2f437c7290 TNS: Show what a newer ACCEPT offers
+ad3a22df19 TNS: Read the SQL type and checksum by the server's release
+ca91bf99c2 TNS: Trim the trailing newline from a server's message
+d35bbeb270 TNS: Step past the flush-out-binds message
+ddf5bdf4fb TNS: Leave data packets encrypted by native encryption undecoded
+9bf0bca865 TNS: Decode the native network encryption negotiation
+c20c2b1424 TNS: Decode the pipeline-end call
+c72e501d39 TNS: Name the newer OCI calls
+07d1aa0a3e TNS: Decode the DRCP session release call
+a5f964ca53 TNS: Decode the two-phase commit calls
+214ee8725e TNS: Decode the rest of the server's TTI_PRO reply
+1f130db9e3 TNS: Decode the client's authentication calls
+b9c42e6480 CAPWAP: add Image Data message element dissector
+bbc6ef941f CAPWAP: add Initiate Download message element dissector
+b1d1fb0e04 CAPWAP: add Image Information message element dissector
+79973a8e9a HTTP2: improve window size state tracking
+375d19755c TNS: Decode the 23ai call token
+42f34b3d47 TNS: Read the 12c header fields of a TTI_ALL8 execute
+331ef8dd45 TNS: Read the extended fields of a 12c error block
+f1ebe7319e TNS: Read the describe fields that depend on the field version
+d254b40cfa TNS: Read the 12.2 shape of column and bind descriptors
+751c8a6a7b TNS: Read ub4 chunk lengths from field version 12.2
+d0e8be0769 TNS: Track the negotiated TTC field version
+5140ec3a78 Qt: Fix multi-select in the packet list for frozen columns
+51d38bd76c Qt: Fix pinned row scrolling with frozen columns/pinned rows
+3aefaa2ebf DNS: add support for ML-DSA-44 algorithm
+a187892a22 TNS: Decode DML RETURNING ... INTO binds and values
+f089726b03 TNS: Decode the status a server sends an OCI client
+e25860d8f8 TNS: Decode the execute preamble of an OCI client
+ac5fa514ec TNS: Render national character set strings as UTF-16BE
+5e3f8d54e2 TNS: Render BOOLEAN values
+842c068554 TNS: Render BINARY_INTEGER values as numbers
+455644bd0d TNS: Render INTERVAL values
+b95591d3a1 TNS: Render TIMESTAMP WITH TIME ZONE values
+3ca7fd61b7 TNS: Render ROWID and UROWID values as Oracle prints them
+e0dd58ed1a file-pcapng: Read the Darwin fields as little-endian
+16820a74b0 DCM: assert PDV combining invariant and document last-packet clamp
+54dbfee433 HISLIP: Add HiSLIP 2.0 GetDescriptorsResponse parsing
+39c274aed4 TNS: Decode the piggybacks a client sends besides close-cursors
+7821d1587d TNS: Decode the reply to a LOB operation
+22905a0a3b TNS: Decode the whole TTI_LOBOPS request
+426c333abe TNS: Decode the OUT bind values of a PL/SQL execute
+3cc9007800 TNS: Decode implicit result sets
+72535104d6 TNS: Decode nested cursor column values
+ece29366bf TNS: Factor the describe body out of the TTI_DCB decoder
+7f65265385 TNS: Decode object and XMLType column values
+2863b122bf TNS: Decode JSON and VECTOR column values
+f67c2ec650 TNS: Read the size and chunk size of a LOB column value
+3b342158ed TNS: Decode rows that repeat the previous row's values
+01547e269b TNS: Decode TTI_WRN warnings
+770dbe8a15 TNS: Decode server-side piggybacks
+2568a9e22a WSLua: Let listeners follow display filters
+3c03cd7a79 Kerberos, DCE/RPC: dissect IAKerb GSS extensions and header-signing flag
+b8388f199e TNS: Write the execute flag masks at full width
+2e59465920 TNS: Decode the return parameters of an execute
+d3428573a6 TNS: Type bind values sent without descriptors by their cursor
+828a0b4a42 TNS: Decode the re-execute calls
+8cc9b8e573 TNS: Split rows by the column types a define asked for
+88de0d0815 TNS: Decode the define descriptors of a TTI_ALL8 execute
+62fd219dcf TNS: Decode the binds of an execute that has no SQL text
+f7995ff386 TNS: Decode the TTI_ALL8 execute arguments
+ef1f6fbb78 TNS: Name the describe and batch-errors execute options
+decafe7d2c TNS: Fix the fetch bit of the execute options
+65d2cd5be4 Qt: Add Tagging Rules subsystem with COL_TAG column
+ea132db16c DVB-S2 GSE: Call the VLAN handle for VLAN
+d600b7ea2f json: Fix wildcard field memory leak in JSON+ dictionary
+2d57ff1e8d dissectors: fix more script warnings
+f951e999b7 TNS: Show the transaction flag of a call status
+2c15087e9e TNS: Decode the TTI_STA status and the end-of-response marker
+8b9534ee6f TNS: Decode every TTC message in a packet, not only the first
+1ac1f2ef62 TNS: Fix the close-cursors piggyback cursor list
+ebb29eefeb TNS: Skip a row column the describe gives no data length
+342aad1611 TNS: Treat the DALC 0xFD byte as an absent-value marker
+a8ffd13a2b Qt: fix Allow column reordering with frozen columns and pinned rows
+b823ed1d7f Qt: Fix frozen-column row height mismatch(Breeze) frozen columns/pinned rows
+4b40f9d517 Qt: fix dragging cells from frozen columns and pinned rows
+753a3f1e88 Qt: fix context menu actions for filtered-out pinned rows
+3729b64968 K12 Text: Use a GString for writing
+49cd28e4d4 GitLab CI: Try to fix the Visual Studio Code Analysis job
+a1a9d07029 tools: Don't allow wide-character locale-unsafe functions either
+94ae5443ae Capture: Remember the capture temporary directory as a preference
+3afa3fd1df Peak TRC: Validate UTF-8
+1dbb8baf9c obex: Dissect user defined headers per profile
+c3f6bd5e14 epan+Qt: Use positive naming and logic for color filters
+189399787b documentation: Fix typos and grammar issues.
+0888eedd55 ST 2038: Add ancillary data dissection
+50928df8d5 MPEG-2 TS: Dispatch PES payloads by registration identifier
+9209acd8f1 ORAN FH CUS: Fix compression method/width passed to stats
+f9d091314c Good "git" signature with ED25519 key SHA256:U3tgn8tzJzgaWejudF94tydWhKOflV7GEZ4lWSOgTFs
+No principal matched.
+opcua: Test the Abort message capture
+25e86b0276 Good "git" signature with ED25519 key SHA256:U3tgn8tzJzgaWejudF94tydWhKOflV7GEZ4lWSOgTFs
+No principal matched.
+opcua: Fix a memory leak in OpenSecureChannel messages
+11cb24b508 Good "git" signature with ED25519 key SHA256:U3tgn8tzJzgaWejudF94tydWhKOflV7GEZ4lWSOgTFs
+No principal matched.
+opcua: add example capture with abort message
+27ab005348 Good "git" signature with ED25519 key SHA256:U3tgn8tzJzgaWejudF94tydWhKOflV7GEZ4lWSOgTFs
+No principal matched.
+opcua: Fix parsing of Abort messages
+37cdaf0d55 OPCUA: Decode custom datatypes from an information model
+01103f31f0 IPv6: Merge NAT64 prefixes from multiple config locations
+cf84a00618 Qt: Fix pinned-rows header disappearing/misaligning after filter
+de5f414154 epan: Start migrating the coloring rules / color filters prefs to JSONC
+eef4020d13 ORAN FH CUS: Create port subtree for SE10 (group types 2 and 3)
+198e2acfc3 IKEv2: Don't attempt NAT detection when frame address is not IP
+c0c2c710da F1AP: upgrade dissector to v19.4.0
+56f1144c59 XnAP: upgrade dissector to v19.4.0
+a69a12344d NR RRC: upgrade dissector to v19.4.0
+62e3a8dfc8 NAS 5GS: upgrade dissector to v19.8.0
+fa5863c16b dissectors: avoid some more double fetches
+7198c95703 Qt: Switch endpoint map to OpenStreetMap
+a3bdb60df6 OPCUA: Use built-in ExtensionObject parsers only for ns 0
+f553d3f796 DCM: check for a potential overflow on the last packet
+7b36c554ed Qt: Make framesSelected consistent
+81e76cd4a8 E2AP: Move top_tree from global to private_data
+20011cf089 capture: initialize start_time to prevent uninit var warning
+06d6407534 Tools: tweak commit-codecheck and fix offending code
+1c32be7a44 Qt: Fix a crash with multiselect and aggregation view
+574704d001 Aggregation tap: Fix leaks
+129ae83aca Qt: Correct drawCurrentPacket for multiselect logic
+bf196d2471 [Automatic update for 2026-09-27]
+86027d9e2d DNS: add dissection for RFC 10029 MQTYPE EDNS options (codes 20 and 21)
+73cf463235 wsutil: wsjson: Reset errno to zero before calling g_ascii_strtoll
+d8c853fec5 UI: Add a Processes profile
+9e45b441bb epan: Add process ID and name columns
+ad1feb6468 Good "git" signature with ED25519 key SHA256:U3tgn8tzJzgaWejudF94tydWhKOflV7GEZ4lWSOgTFs
+No principal matched.
+OPC UA PubSub: Expect a signature only in signed NetworkMessages
+5ec2f53016 Good "git" signature with ED25519 key SHA256:U3tgn8tzJzgaWejudF94tydWhKOflV7GEZ4lWSOgTFs
+No principal matched.
+OPC UA PubSub: Read the security footer of a chunk from the chunk
+ff7decec03 epan: Load subnet files in hosts-file precedence order
+16c09df25f extcap: Allow JSONC comments in interfaces.json and rename it
+11c8d3ea10 wsutil: Add minimal JSONC support to wsjson
+8602742811 Qt: PacketList: Have a common function for history updating
+9969c5be15 CMake: Produce a better error message if c-ares version detection fails
+7852d506b9 Qt: Packet List: Fix pinned-row multiselect and clean up pin/unpin API
+3f3acd404f Qt: Add bookmark management to the capture options dialog
+afe42697b1 OPC UA PubSub: Add UADP dissector
+2a6db056e1 NGAP: Move top_tree into private data struct
+f7f077879b Qt: Allow multi-selection of time references
+fa62b0b099 Qt: When sorting, don't lose the current multi-select
+10ec8140e9 Qt: Keep displayed count consistent when toggling time references
+6ca46d12ed Fix inverted return value check
+284adf631a ORAN FH CUS: some SE6/SE11 improvements
+8574da1dc1 RTSE: Global proto_tree considered harmful
+d63cc08f8a IDN: fixed audio 6 layout
+41406db826 ORAN FH CUS: cope with missing ethernet addresses when working out flow key
+4a6bc91c54 NAS 5GS: update URSP connection capability operator specific range
+4f09b516b3 python scripts: fix a few more ruff check errors
+e72ddc0bff Qt: Avoid leaking memory in Distribution Dialog
+d6b32461f7 Qt: Proto Tree: Add ellipsis to Distribution Dialog ctx menu item
+7882f9b2e5 GitLab CI: Update ttfunk from git when building Documentation
+3bdbf696e2 O-RAN FH CUS: more carefully match flows
+a3ee39bd4d packaging: RPM: Make man page exclude conditional
+ae54480492 tools: Fix the API groups and severities in check_apis.py
+4aab717fa8 pcapng: Read and write the Darwin fields as little-endian
+87502b4d49 Update Ixia/Keysight netflow fields.
+c3177bd184 Good "git" signature with ED25519 key SHA256:5pYf6N7fCaQjRauDRoj3KOX8+vrLX6MaIQCohGVYKAo
+No principal matched.
+IKE: add support for WatchGuard Vendor ID
+94e6d8cd73 epan: Prevent NULL pointer deref in dissector proto index look up
+41ba1659c7 isobus: Add decoding support for Extended Transport Protocol messages
+b6d4c08ab9 packaging: Debian: Don't fail if no stratoshark extcaps are built
+95a7cab7df rpm-setup: Install asciidoctor-pdf
+19c885a174 tools: Restore executable bit on msys2checkdeps.py
+3c6fb7fa64 Move "OS setup" files to their own subfolder in \tools
+f0f5d612b0 docs, CMake: Optimize the generated PDF if we can
+fc942cc461 Kerberos: Decode RFC 8636 digest algorithm typed data
+59e9ef08a5 editcap: Add --discard-process-info
+996389fe36 Qt: Add a choice of process information to the capture options
+7f9b2ad650 Qt: theme fix for freeze columns/row pin MR
+dd0bed462b docs: Update Asciidoctor macro for 2.0
+9a3c5eb0fb Fix some spelling errors
+35e81ed23d dumpcap: Record only what identifies a process unless asked for more
+c544988b51 wsutil: Read the Linux socket tables through netlink
+c228a8bf21 tools: Use the URL hostname as a fallback in generate-tls-ct-logids.py
+73749f02ce [Automatic update for 2026-09-20]
+506fc1b2e1 dumpcap: Record the processes that packets belong to
+cb05a4619b wsutil: Add a macOS backend to the process lookup
+161fd8df72 wiretap: Match packets with the process blocks that precede them
+94c728dd49 PDCP NR: Handle SecurityModeCommand integrity prot on first pass
+82a1ec4455 F1AP: Handle SRBID appearing after RRCContainer in UEContextRelease
+7caf6e0b96 ETWDump Message: Don't pass in a larger buffer size than exists
+63e9d5ba58 Catapult DCT2000: Use the truncated length for padding and TVB creation
+3cfc16fa83 ST 2110-40: Preserve all ten UDW bits for VANC subdissectors
+a14a9c6509 ST 2110-40: Expand dissector regression coverage
+5680d76136 Update PROFINET security related block versions
+20a62fd3dc OPC UA: Add Ethernet Type 0xB62C
+f113d13f0c etwdump ndiscap: Fix VM Switch string property handling
+db60b6b98a CBOR: Make float diagnostic locale-independent
+039c40a2e6 dumpcap: rename a routine to reflect what it does.
+a15a71618f OPCUA: ExtensionObject decoding of EnumValueType is wrong.
+8fec0be902 extcap: simplify handling of the sub-options result + only update on accept
+14e79c24b6 x509ce.c: Add OID decoding of 1.3.6.1.4.1.9.21.2.5 CiscoCertTemplate
+787287d656 Bluetooth: Improve Android Vendor Dissectors OCF 0x153 0x157 0x159
+1b6e365d06 packet-x509ce: Update ASN1 files to X.509 (10/2019)
+4c0463fb6c C2P: Prefix the remaining file local functions with the protocol name
+4f4cae6920 C2P: Prefix the packet type dissectors with the protocol name
+578ee02aad C2P: Add the missing country code station info type
+61319c9555 C2P: Dissect the remote API packet type
+c414032d06 UMTS FP: more checks for no_ddi_entries
+5f33468b90 dumpcap: clean up some error code stuff.
+737382c423 dumpcap: create another routine of common code.
+a81edd92d8 Qt: Fix ready message changing on language change
+f66aa19b16 Qt: Present language preference choices in native names
+b057554cf9 CMP: Update ASN.1 to RFC 9480
+e059a34915 Procmon: Be more strict about the number of events we can handle
+c910cf86a6 dumpcap: ahve a common routine for initializing pcap output.
+57d9e975d7 Qt: Use common interface code in the capture options dialog
+34c52d46ae dumpcap: slightly untwist the maze of code paths.
+07f054cf25 Qt: Update Capture, Display Filter Entry translation on lang change
+b505b2beab CMake: Boolean expressions passed as macro arguments need to be lists
+7ebd1b3c4f SMB2: Warn about nonzero ErrorContextCount with zero ByteCount
+053ac612d6 CMake: Update libgcrypt to 1.12.4 and libmaxminddb to 1.14.0
+00c30a1267 SAP Diag/RFC: Add shared Extended Passport dissection
+48916208eb SMB2: Improve Error Response handling
+7481cb7737 CMake+Windows: Update Glib to 2.90.0
+c348651a36 gpg: Signature made Mon Sep 14 14:23:45 2026 PDT
+gpg:                using EDDSA key 1263FD567E3159974899C317DEC0D42CA24753DB
+gpg: Can't check signature: No public key
+eap: LEAP to use its own key for frame_state_t [#21572]
+5063636322 infiniband: don't call the data dissector if reassembly should be retried
+8d02b6c786 Revert "infiniband/smbdirect: fix dissecting the first smbdirect negotiate request"
+8350856752 smb2: allow dissecting rdma transforms for signed/encrypted offload
+8d21ac95b6 SAP MS: Add missing SAP Message Server opcode dissection
+ad9eef2592 wsutil: Compare profile path prefix with canonical dir sep
+3d90a4e3bd wsutil: Add a lookup of the processes that have a socket open
+dc3e2db3b1 Bluetooth: Add ACL connection handle dissector table
+990b41a264 FP Hint: Don't set no_ddi_entries larger than the maximum
+56b02599ef Qt: Fix the Lua debugger build without libpcap
+7ecbb3340a packet-hl7.c: Change documentation referemce.
+fa37207bfe Apply 1 suggestion(s) to 1 file(s)
+b3b2f9a162 coap: Use RFC 7959 notation for block options
+9c7f5b5abf ICMPv6: Dissect ICMP extensions in Extended Echo Reply
+da8ab00b4f epan: fix memory leaks in column format and SRT table filter parsing
+2224bc09a4 tools: Add a fallback description to generate-tls-ct-logids.py
+c54f437afa blf: reject zero-length compressed containers to prevent divide-by-zero
+e8fde9923a WSDG: Indicate the right filename for the file type extension base
+a126a1266a RTPproxy: Warn on a message without a trailing LF over TCP
+730aea3e7f spnego: add [MS-SPNEGO] Late Fallback Mechanism structures
+a641bff066 wix: move extcap features to a new toggle and change defaults
+8a471deb53 Docs: Generate every manual page, install only the ones built
+f509da0bb6 USB HID: Dissect control message data stage
+922929b660 USB HID: Decode protocol field
+f126ef5dfb USB HID: Decode idle duration
+bde9cfe60f [Automatic update for 2026-09-13]
+6971deb86e IEEE 802.11: Save the FTE element for dot11decrypt after length check
+e65aa198d8 TNS: Name the Oracle datatype codes
+ef90c08a86 TNS: Render bind values with the shared value decoder
+4369476979 TNS: Render VARCHAR / CHAR / STRING row values as text
+4366f81c45 TNS: Render BINARY_FLOAT / BINARY_DOUBLE row values
+7cdcb49ac0 TNS: Render Oracle DATE / TIMESTAMP row values
+cf54aecda0 TNS: Render Oracle NUMBER row values as decimal
+d4ab750129 TNS: Name the OCI call in the Info column
+1650299e8a epan: Show a packet's process as frame.process fields
+9c3b8c8677 RTPproxy: Remove the codec-mapping and transcode parameters
+236fafaa31 filesystem: Fill the return pointer on a bad entry
+84a95a3468 RF4CE: Fix previous fix
+f0294e22f6 X11: Remove some long unused code
+fa27eedc9e dissectors: avoid doubly fetching some more values
+eeecd7d51c IPv6: Dissect Segment Routing Header (SRH) optional TLVs
+a9de8950e5 obex: Use unique IDs for packet reassembly
+73fe382560 etwdump: fix swapped GUIDs
+2b19fa2df7 BGP: Dissect BFD Discriminator path attribute (RFC 9026)
+8096f7e873 ftypes: implement is_nan for IEEE 11073 SFLOAT and FLOAT types
+0f233b0ea3 wiretap: Add a generic process information table
+57692ee974 frame: Dissect the pcapng epb_processid_threadid option
+b2eba87ba7 Procmon: Check our event details size
+ef08edf907 TNS: Decode ROWID / UROWID / LONG / LOB row values
+83c1e99019 TNS: Decode TTI_RXD row values using the describe
+76385b16e3 TNS: Label TNS_MARKER break/reset function
+52552e840c TNS: Decode TTI_LOBOPS (LOB operations) request header
+dff3f6feac TNS: Decode TTI_FETCH (fetch rows) request body
+00b42aa932 TNS: Decode TTI_ALL8 bind descriptors and values
+04c61488e6 TNS: Decode TTI_ALL8 (SQL execute) request body
+05f8166faa TNS: Decode TTI_DCB (describe) and TTI_RXH (row header) bodies
+2e506a1f0e TNS: Decode TTI_IOV (I/O vector) body
+8d3ad0ad22 X11: Handle ChangeKeyboardMapping better
+c831c3acc8 PackClient: Add Core transport dissection
+e6d9e08a29 HTTP/3: Dissect CANCEL_PUSH, PUSH_PROMISE, GOAWAY, and MAX_PUSH_ID frames
+6db015b03c USB Audio: Fix version formatting
+c149b9f362 wsutil: Don't allow profile name shenanigans
+3d8adb687b wsutil: Add g_canonicalize_filename to glib-compat
+ca63025d79 RF4CE: Fix link key recovery
+b38f082685 SMB: Fix small leak every time Export Objects updates
+73b7edffb0 SMB: Clamp the max reported size of files at UINT64_MAX
+35b850c20c extcap: Add legacy bookmarks to interfaces.json
+8d43195058 openflow: validate hello element length in v5 and v6 dissectors
+c1af60a77e KDP: Validate option length to prevent infinite loop
+4a5bf1afca packet-geonw.c: Fix the check for length > 4 bytes
+8901bb22d5 O-RAN: Fixes to fragmentation/reassembly.
+4ce4d86ed1 OpenFlow v4: Validate hello element length to prevent exception
+7273d20eb8 openvpn: fix sign comparison for wrapped client key length
+459ae19d57 openvpn: validate wrapped client key length and report extra data
+6cf3d8eca9 OpenVPN: Validate wrapped client key length against remaining bytes
+b27753e858 tsdns: reject packets shorter than 5 bytes before dissecting
+c47b76469e TSDNS: Guard request domain extraction against short packets
+73ba7b741e TCP: Introduce a Distal Algorithm for disambiguating Retransmissions
+bf08e6adad HyperDHT: Add dissector for DHT-RPC and HyperDHT
+ed33902101 DLSw: Reset loop counter when dissecting capabilities vectors
+3accaea8ac PackClient: Add launcher transport dissector
+1466d23d9e USB Audio: Add missing space in FU Control
+4e3f39cfaf wiretap+Falco Events: Add raw block support
+4b8dbb2fa7 PROFINET: Extended DCP BlockError listing.
+18e0e7e693 TNS: Read a bytes_with_length as a count and a value
+6b4bf0494a TNS: Read the DALC null marker as a marker
+9428559d86 Qt: Fix column widths resetting to minimum on profile switch
+2b0c385118 packet-gsm-a-rr.c: Dissect SACCH messages with L2 pseudo header.
+143917afe7 SMPP: Use 32-bit integer for PDU length to prevent truncation
+6e61fbf3b4 ROQ: Add ROQ (RTP Over QUIC Dissector)
+72ed39cb4a V52: Comment out duplicate entries in info_element_values_short
+536844015d V52: Remove duplicate entries in short info element value_string
+857d9b98e9 USB HID: Widen a loop variable
+ab6bde8c1c eCPRI: When call oran-fh-cus, ignore result, continue as normal
+cda595e19e SAPMS dissector: synchronize public enums and response layouts
+ff96fb4b3d XCP: Add decoding for SET_SEGMENT_MODE.
+b172bf9f16 UBX: Fix encoding parameter for 32-bit flags field
+5211a0a346 SCSI: Add 32-bit parameter length field for PERSISTENT RESERVE OUT
+2440fc1764 dissectors: avoid some more double fetches
+81773f4125 TNS: Decode TTI_OER (Oracle Error Return) body
+6585e09c93 TNS: Decode TTI_DTY (Set Datatypes) body
+688caa4e1d TNS: Proper piggyback decoding
+3b1cee0172 TNS: Add sb4 decoding helper and dispatch on the OCI id
+4ceb28f2f4 TNS: Add TSeq field
+4b389bb177 TNS: Fix decoding of a complex lengthy strings
+c284f2f984 TNS: Add test
+2b2154781e eCPRI: Return correct offset when oran-fh-cus has claimed frame
+0ae245b39a PEAK TRC file reader: If version >2 and DLC used, translate length.
+977055ed20 RADIUS: support RADIUS over TCP and (D)TLS
+fdc383b2b4 RADIUS: warning if shared secret may be incorrect
+625d55e96e RADIUS: make sure the frame is at least the size reported
+94dcca4b10 RADIUS: use prefs_register_password_preference for shared_secret
+4187124717 st2110-40: Add new dissector for SMPTE ST2110-40
+1df582eedb RTPproxy: Hand the RTPproxy-ng session description to the SDP dissector
+4be347938e RTPproxy: Track RTPproxy-ng requests and replies
+fddb4bce12 RTPproxy: Name the RTPproxy-ng command and result
+1a9c13dff9 RTPproxy: Add a test capture for a reassembled RTPproxy-ng reply
+8dcc2e969e RTPproxy: Add a test capture for the RTPproxy-ng error replies
+6f6921780c RTPproxy: Dissect the reply to a "Q" command
+aada99d3ff RTPproxy: Dissect the counter names of a "Q" command
+bc8cf43923 RTPproxy: Dissect the official "P" command modifier
+e3369d470d RTPproxy: Drop the unofficial "protocol type" command modifier
+ae52ce1d31 RTPproxy: Dissect the "%%CC_SELF%%" notify address wildcard
+f32b55baca RTPproxy: Dissect all the notify socket forms
+f5fa473bde RTPproxy: Stop parsing a command once its arguments run out
+bf973070e8 RTPproxy: Dissect the address label of the "L" command modifier
+ea842df6f8 RTPproxy: Dissect IPv6 addresses of the "L"/"R" command modifiers
+ef45e3abff RTPproxy: Don't read past a command modifier without a value
+ebdd44e690 RTPproxy: Dissect the "&&" sub-commands
+8ee0f73cde RTPproxy: Recognize the "v" (verbose) command modifier
+90672659a1 RTPproxy: Add the missing E37 error code
+8bb082616a RTPproxy: Fix extraction of the second tag
+f439982cfe RTPproxy: Fix the length passed to tvb_find_uint8_length()
+82b53154b6 RTPproxy: Dissect the "N" (stop recording) command
+915df5b128 RTPproxy: Dissect the "G" (get statistics) command
+6e9d3fba50 RTPproxy: Add basic unit-tests
+b2bc518e4d Bencode: Don't run past the end of a truncated list
+a39ad04545 Bencode: Dissect the empty string
+e634ab8fc4 Bencode: Dissect 64 bit integers
+1a02d7f392 PTP: Do not check for follow-up, if one step
+c8c396cf23 OBEX: Fix an off by one when going up a path level
+54ffaa70f9 RSL: Fix length and offset in SACCH Information IE
+c4b49facbe TIFF dissector: Fix IFD chain has no cycle detection.
+27a028e726 Qt: Add a "turbo" navigation mode to the packet list
+742eb23641 Qt: Add packet list column freezing and row pinning
+1dff134662 eCPRI: still add pcid and seq fields when FH claims PDU
+9fc76ca769 dissectors: detect more double fetching and fix some
+cc2f545b23 extcap: cache the results of --extcap-config
+72637862ed extcap_parser: Add some copy functions
+09451d4155 [Automatic update for 2026-09-06]
+19446dd93e CMake: Wrap our CMake and native paths in quotes
+411f78566b C2P: Dissect the injected facility packet type
+5a243955f4 DTLS: Implement a barebones handshake retransmission detection
+4f63ea0eae NAS EPS: improve dissection of EMM transport message
+bae955afe4 BT HCI ACL: Do not overflow in reassembly
+d7a7f723e3 ieee1905(WiFi EasyMesh): Don't append flag for BSS Configuration Flag
+b44dc0f5ef sgp32: Check for SGP.22 RemoteProfileProvisioning
+4bcdb4e456 Python scripts: a few more ruff check warnings
+c7067653dc eap: support EAP-GTC
+5e18c78562 Version: Wireshark 4.7.3 → 4.7.4, Stratoshark 0.10.3 → 0.10.4 [skip ci]
+f6e0bf224b Build: Wireshark 4.7.3 and Stratoshark 0.10.3 [skip ci]
 954b48cf59 BGP: Handle Path Identifiers in BGP-MUP NLRI
 683ee3bade Qt: Guard better on profile ZIP archives
 9b9114c060 RSL: Implement SACCH Information IE
