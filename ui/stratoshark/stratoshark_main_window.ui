@@ -430,6 +430,8 @@
     <addaction name="separator"/>
     <addaction name="actionViewResetLayout"/>
     <addaction name="actionViewResizeColumns"/>
+    <addaction name="actionViewPinSelectedRows"/>
+    <addaction name="actionViewUnpinAllRows"/>
     <addaction name="separator"/>
     <addaction name="menuInternals"/>
     <addaction name="separator"/>
@@ -1679,6 +1681,22 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+W</string>
+   </property>
+  </action>
+  <action name="actionViewPinSelectedRows">
+   <property name="text">
+    <string>Pin Selected Rows</string>
+   </property>
+   <property name="toolTip">
+    <string>Keep the selected packets at the top of the packet list, or unpin them if they are all pinned</string>
+   </property>
+  </action>
+  <action name="actionViewUnpinAllRows">
+   <property name="text">
+    <string>Unpin All Rows</string>
+   </property>
+   <property name="toolTip">
+    <string>Unpin all of the packets pinned to the top of the packet list</string>
    </property>
   </action>
   <action name="actionViewResizeColumns">

@@ -575,6 +575,7 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     packet_list_ = packet_list_pane_->packetList();
     main_ui_->wirelessTimelineWidget->setPacketList(packet_list_);
     connect(packet_list_, &PacketList::framesSelected, this, &WiresharkMainWindow::setMenusForSelectedPacket);
+    connect(packet_list_, &PacketList::pinnedRowsChanged, this, &WiresharkMainWindow::setMenusForSelectedPacket);
     connect(packet_list_, &PacketList::framesSelected, this, &WiresharkMainWindow::framesSelected);
 
     QAction *action = main_ui_->menuPacketComment->addAction(tr("Add New Comment…"));

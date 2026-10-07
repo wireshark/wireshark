@@ -224,11 +224,9 @@ void PinnedRowView::contextMenuEvent(QContextMenuEvent *event)
         return;
     }
 
-    // Same as a right-click in the primary view (see
-    // PacketList::contextMenuEvent()).
-    if (packet_list->multiSelectActive()) {
-        selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    }
+    // The right-click has already selected the row, unless it was part of
+    // the selection, in which case the selection is kept (as in the primary
+    // view; see PacketList::contextMenuEvent()).
     packet_list->showContextMenuForSourceIndex(pinned_model->mapToSource(index), event->globalPos(),
                                                /* from_pinned_row_strip */ true);
 }

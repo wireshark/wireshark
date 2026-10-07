@@ -390,7 +390,7 @@ public:
      * is scrolled vertically. Mirrors markFrame()'s "act on the current
      * selection, falling back to currentIndex()" pattern. Up to
      * PinnedRowsModel::kMaxPinnedRows packets may be pinned at once;
-     * pins beyond that are silently skipped.
+     * if pinning the selection would exceed that, nothing is pinned.
      */
     void pinSelectedRows();
 
@@ -403,6 +403,34 @@ public:
 
     // Unpins every currently pinned packet's row.
     void unpinAllRows();
+
+    /** @brief What pinning or unpinning the selected packets would do. */
+    enum PinAction {
+        NoPinAction,      /**< Nothing is selected. */
+        PinRows,          /**< Pin the selected packets that aren't pinned. */
+        PinRowsOverLimit, /**< As PinRows, but that would pin too many. */
+        UnpinRows,        /**< Every selected packet is pinned; unpin them. */
+    };
+
+    /**
+     * @brief What toggling the pinning of the selected packets (see
+     * selectedFrames()) would do.
+     */
+    PinAction selectedRowsPinAction() const;
+
+    /**
+     * @brief Pins the selected packets, or unpins them if they're all
+     * pinned already (see selectedRowsPinAction()).
+     */
+    void togglePinSelectedRows();
+
+    /**
+     * @brief Sets the text and enabled state of the main window's pin
+     * actions to match the selection and the pinned rows.
+     * @param pin_selected The action that calls togglePinSelectedRows().
+     * @param unpin_all The action that calls unpinAllRows().
+     */
+    void updatePinActions(QAction *pin_selected, QAction *unpin_all) const;
 
     /**
      * @brief The height of a single row in this view, for sizing the
@@ -1014,6 +1042,9 @@ private:
     QString joinSummaryRow(QStringList col_parts, int row, SummaryCopyType type);
 
 signals:
+    /** @brief Emitted when packets are pinned or unpinned. */
+    void pinnedRowsChanged();
+
     /**
      * @brief Signal emitted when packet dissection data changes.
      */

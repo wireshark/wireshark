@@ -388,6 +388,9 @@ PacketList::PacketList(QWidget *parent) :
     });
     connect(pinned_selection_model_, &QItemSelectionModel::selectionChanged, this, &PacketList::pinnedSelectionChanged);
     connect(pinned_selection_model_, &QItemSelectionModel::currentChanged, this, &PacketList::pinnedCurrentChanged);
+    connect(pinned_rows_model_, &QAbstractItemModel::rowsInserted, this, &PacketList::pinnedRowsChanged);
+    connect(pinned_rows_model_, &QAbstractItemModel::rowsRemoved, this, &PacketList::pinnedRowsChanged);
+    connect(pinned_rows_model_, &QAbstractItemModel::modelReset, this, &PacketList::pinnedRowsChanged);
     installSelectionModel();
     // Filtering (modelReset) and sorting (layoutChanged) in the packet
     // list both need the pinned set re-ordered and the two selections
@@ -965,11 +968,10 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
 
 void PacketList::contextMenuEvent(QContextMenuEvent *event)
 {
+    // The right-click has already selected the row under the cursor, unless
+    // it was part of the selection, in which case the selection is kept so
+    // that the menu's actions apply to all of it.
     QModelIndex ctxIndex = indexAt(event->pos());
-
-    if (multiSelectActive())
-        selectionModel()->select(ctxIndex, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-
     showContextMenuForSourceIndex(packet_list_proxy_model_->mapToSource(ctxIndex), event->globalPos());
 }
 
@@ -981,6 +983,10 @@ void PacketList::showContextMenuForSourceIndex(const QModelIndex &source_index, 
     PacketListRecord *ctx_record = source_index.isValid() ?
         static_cast<PacketListRecord *>(source_index.internalPointer()) : nullptr;
     frame_data *ctx_row_fdata = ctx_record ? ctx_record->frameData() : nullptr;
+    // Actions that act on the selected packets apply to all of them. Those
+    // that need a single dissected packet are disabled when more than one
+    // is selected.
+    const bool multi_select = multiSelectActive();
 
     if (finfo_array)
     {
@@ -1002,20 +1008,7 @@ void PacketList::showContextMenuForSourceIndex(const QModelIndex &source_index, 
     ctx_menu->addAction(window()->findChild<QAction *>("actionEditTimeShift"));
     frame_data *ctx_fdata = ctx_row_fdata;
     if (ctx_fdata) {
-        bool rowPinned = pinned_rows_model_->isPinned((int)ctx_fdata->num);
-        bool maxReached = !rowPinned && pinned_rows_model_->pinnedCount() >= PinnedRowsModel::kMaxPinnedRows;
-        QString pin_label = rowPinned ? tr("Unpin Row")
-                           : maxReached ? tr("Pin Row to Top (max %1 reached)").arg(PinnedRowsModel::kMaxPinnedRows)
-                           : tr("Pin Row to Top");
-        QAction *pin_action = ctx_menu->addAction(pin_label);
-        pin_action->setEnabled(!maxReached);
-        connect(pin_action, &QAction::triggered, this, [this, rowPinned]() {
-            if (rowPinned) {
-                unpinSelectedRows();
-            } else {
-                pinSelectedRows();
-            }
-        });
+        ctx_menu->addAction(window()->findChild<QAction *>("actionViewPinSelectedRows"));
     }
 
     // Shown only for a context menu request that actually originated from
@@ -1032,8 +1025,7 @@ void PacketList::showContextMenuForSourceIndex(const QModelIndex &source_index, 
         });
     }
     if (from_pinned_row_strip && pinned_rows_model_->pinnedCount() > 0) {
-        QAction *unpin_all_action = ctx_menu->addAction(tr("Unpin All Rows"));
-        connect(unpin_all_action, &QAction::triggered, this, &PacketList::unpinAllRows);
+        ctx_menu->addAction(window()->findChild<QAction *>("actionViewUnpinAllRows"));
     }
     ctx_menu->addMenu(window()->findChild<QMenu *>("menuPacketComment"));
 
@@ -1056,12 +1048,15 @@ void PacketList::showContextMenuForSourceIndex(const QModelIndex &source_index, 
 
     ctx_menu->addSeparator();
 
-    QString selectedfilter = getFilterFromRowAndColumn(currentIndex());
+    QString selectedfilter;
+    if (!multi_select) {
+        selectedfilter = getFilterFromRowAndColumn(currentIndex());
 
-    if (! hasFocus() && cap_file_ && cap_file_->finfo_selected) {
-        char *tmp_field = proto_construct_match_selected_string(cap_file_->finfo_selected, cap_file_->edt);
-        selectedfilter = QString(tmp_field);
-        wmem_free(NULL, tmp_field);
+        if (! hasFocus() && cap_file_ && cap_file_->finfo_selected) {
+            char *tmp_field = proto_construct_match_selected_string(cap_file_->finfo_selected, cap_file_->edt);
+            selectedfilter = QString(tmp_field);
+            wmem_free(NULL, tmp_field);
+        }
     }
 
     bool have_filter_expr = !selectedfilter.isEmpty();
@@ -1105,7 +1100,7 @@ void PacketList::showContextMenuForSourceIndex(const QModelIndex &source_index, 
     }
 
     // "Links" submenu — one entry per matching tag rule that has a URL
-    {
+    if (!multi_select) {
         PacketListRecord *record = ctx_record;
         if (record) {
             const TagSegmentList &links = record->tagLinkList();
@@ -1151,6 +1146,7 @@ void PacketList::showContextMenuForSourceIndex(const QModelIndex &source_index, 
     submenu->addSeparator();
 
     QActionGroup * copyEntries = DataPrinter::copyActions(this, frameData);
+    copyEntries->setEnabled(!multi_select);
     submenu->addActions(copyEntries->actions());
     copyEntries->setParent(submenu);
     frameData->setParent(submenu);
@@ -1190,8 +1186,10 @@ void PacketList::showContextMenuForSourceIndex(const QModelIndex &source_index, 
                 }
             }
         }
+        proto_prefs_menus->setEnabled(!multi_select);
         ctx_menu->addMenu(proto_prefs_menus);
         action = ctx_menu->addAction(tr("Decode As…"));
+        action->setEnabled(!multi_select);
         action->setProperty("create_new", QVariant(true));
         connect(action, &QAction::triggered, this, &PacketList::ctxDecodeAsDialog);
         // "Print" not ported intentionally
@@ -1200,8 +1198,8 @@ void PacketList::showContextMenuForSourceIndex(const QModelIndex &source_index, 
     }
 
     // Set menu sensitivity for the current column and set action data.
-    if (frameData)
-        emit framesSelected(QList<int>() << frameData->frameNum());
+    if (ctx_row_fdata)
+        emit framesSelected(selectedRows(true));
     else
         emit framesSelected(QList<int>());
 
@@ -1320,7 +1318,11 @@ void PacketList::selectRowFromOverlay(int row, int column, Qt::MouseButtons butt
     // touching the selection just made requires going through
     // QItemSelectionModel::setCurrentIndex() directly with an explicit
     // NoUpdate flag instead.
-    if (modifiers & Qt::ShiftModifier) {
+    if ((buttons & Qt::RightButton) && selectionModel()->isRowSelected(row)) {
+        // Like a right-click directly on a selected row here: keep the
+        // selection, so that the context menu applies to all of it.
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate | QItemSelectionModel::Current);
+    } else if (modifiers & Qt::ShiftModifier) {
         QModelIndex from = currentIndex().isValid() ? currentIndex() : index;
         selectionModel()->select(QItemSelection(from, index),
                                   QItemSelectionModel::Select | QItemSelectionModel::Rows);
@@ -1352,9 +1354,6 @@ void PacketList::showContextMenuForRow(int row, const QPoint &global_pos)
     }
 
     // Same as a right-click on that row here (see contextMenuEvent()).
-    if (multiSelectActive()) {
-        selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    }
     showContextMenuForSourceIndex(packet_list_proxy_model_->mapToSource(index), global_pos);
 }
 
@@ -2927,9 +2926,81 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
     layoutPinnedOverlays();
 }
 
+PacketList::PinAction PacketList::selectedRowsPinAction() const
+{
+    const QList<frame_data *> frames = selectedFrames();
+    if (frames.isEmpty() || !pinned_rows_model_) {
+        return NoPinAction;
+    }
+
+    int unpinned = 0;
+    for (const frame_data *fdata : frames) {
+        if (!pinned_rows_model_->isPinned((int)fdata->num)) {
+            unpinned++;
+        }
+    }
+    if (unpinned == 0) {
+        return UnpinRows;
+    }
+    if (pinned_rows_model_->pinnedCount() + unpinned > PinnedRowsModel::kMaxPinnedRows) {
+        return PinRowsOverLimit;
+    }
+    return PinRows;
+}
+
+void PacketList::updatePinActions(QAction *pin_selected, QAction *unpin_all) const
+{
+    if (pin_selected) {
+        switch (selectedRowsPinAction()) {
+        case UnpinRows:
+            pin_selected->setText(tr("Unpin Selected Rows"));
+            pin_selected->setEnabled(true);
+            break;
+        case PinRowsOverLimit:
+            pin_selected->setText(tr("Pin Selected Rows (max %Ln)", "", PinnedRowsModel::kMaxPinnedRows));
+            pin_selected->setEnabled(false);
+            break;
+        case PinRows:
+            pin_selected->setText(tr("Pin Selected Rows"));
+            pin_selected->setEnabled(true);
+            break;
+        case NoPinAction:
+        default:
+            pin_selected->setText(tr("Pin Selected Rows"));
+            pin_selected->setEnabled(false);
+            break;
+        }
+    }
+    if (unpin_all) {
+        unpin_all->setEnabled(pinned_rows_model_ && pinned_rows_model_->pinnedCount() > 0);
+    }
+}
+
+void PacketList::togglePinSelectedRows()
+{
+    switch (selectedRowsPinAction()) {
+    case UnpinRows:
+        unpinSelectedRows();
+        break;
+    case PinRows:
+        pinSelectedRows();
+        break;
+    case PinRowsOverLimit:
+        mainApp->pushStatus(MainApplication::TemporaryStatus,
+                            tr("At most %Ln rows can be pinned.", "", PinnedRowsModel::kMaxPinnedRows));
+        break;
+    case NoPinAction:
+    default:
+        break;
+    }
+}
+
 void PacketList::pinSelectedRows()
 {
     if (!pinned_rows_model_ || !packet_list_model_) return;
+
+    // Pin all of them or none.
+    if (selectedRowsPinAction() != PinRows) return;
 
     for (const frame_data *fdata : selectedFrames()) {
         pinned_rows_model_->pinFrame((int)fdata->num);
@@ -3300,10 +3371,9 @@ QString PacketList::createClosingTagForHtml()
 
 void PacketList::copySummary()
 {
-    // The context menu leaves exactly one packet selected.
-    const QList<frame_data *> frames = selectedFrames();
-    if (frames.isEmpty()) return;
-    int frame_num = static_cast<int>(frames.first()->num);
+    // The selected packets, or the packet the context menu was shown for.
+    const QList<int> frame_nums = selectedRows(true);
+    if (frame_nums.isEmpty()) return;
 
     QAction *ca = qobject_cast<QAction*>(sender());
     if (!ca) return;
@@ -3313,27 +3383,31 @@ void PacketList::copySummary()
         return;
     SummaryCopyType copy_type = type.value<SummaryCopyType>();
 
-    QString copy_text;
+    QStringList content;
     if (type == CopyAsText || type == CopyAsHTML) {
+        QList<int> align_parts, size_parts;
         if (prefs.gui_packet_list_copy_text_with_aligned_columns) {
-            QList<int> frame_nums;
-            frame_nums << frame_num;
-            QStringList hdr_parts;
-            QList<int> align_parts, size_parts;
-            hdr_parts = createHeaderPartsForAligned();
+            QStringList hdr_parts = createHeaderPartsForAligned();
             align_parts = createAlignmentPartsForAligned();
             size_parts = createSizePartsForAligned(false, hdr_parts, frame_nums);
-            copy_text = createSummaryForAligned(frame_num, align_parts, size_parts);
         }
-        else {
-            copy_text = createSummaryText(frame_num, CopyAsText);
-        }
-        copy_text += "\n";
+        QStringList htmlContent;
         if (type == CopyAsHTML) {
-            QStringList htmlContent;
             htmlContent << createDefaultStyleForHtml();
             htmlContent << createOpeningTagForHtml();
-            htmlContent << createSummaryForHtml(frame_num);
+        }
+        for (int frame_num : frame_nums) {
+            if (prefs.gui_packet_list_copy_text_with_aligned_columns) {
+                content << createSummaryForAligned(frame_num, align_parts, size_parts);
+            } else {
+                content << createSummaryText(frame_num, CopyAsText);
+            }
+            if (type == CopyAsHTML) {
+                htmlContent << createSummaryForHtml(frame_num);
+            }
+        }
+        QString copy_text = content.join('\n') + "\n";
+        if (type == CopyAsHTML) {
             htmlContent << createClosingTagForHtml();
             // htmlContent will never be empty as they will always have
             // style and table tags
@@ -3347,7 +3421,10 @@ void PacketList::copySummary()
         }
     }
     else {
-        copy_text = createSummaryText(frame_num, copy_type);
+        for (int frame_num : frame_nums) {
+            content << createSummaryText(frame_num, copy_type);
+        }
+        QString copy_text = content.join('\n');
         if (type != CopyAsYAML)
             copy_text += "\n";
         mainApp->clipboard()->setText(copy_text);

@@ -514,6 +514,7 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     packet_list_pane_ = new PacketListPane(&master_split_);
     packet_list_ = packet_list_pane_->packetList();
     connect(packet_list_, &PacketList::framesSelected, this, &StratosharkMainWindow::setMenusForSelectedPacket);
+    connect(packet_list_, &PacketList::pinnedRowsChanged, this, &StratosharkMainWindow::setMenusForSelectedPacket);
     connect(packet_list_, &PacketList::framesSelected, this, &StratosharkMainWindow::framesSelected);
 
     QAction *action = main_ui_->menuPacketComment->addAction(tr("Add New Comment…"));

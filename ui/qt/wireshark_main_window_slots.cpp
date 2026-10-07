@@ -1234,6 +1234,7 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
     main_ui_->actionCopyListAsHTML->setEnabled(rows.count() > 0);
 
     main_ui_->actionEditMarkSelected->setEnabled(frame_selected || multi_selection);
+    packet_list_->updatePinActions(main_ui_->actionViewPinSelectedRows, main_ui_->actionViewUnpinAllRows);
     main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);
     /* Unlike un-ignore, do not allow unmark of all frames when no frames are displayed  */
     main_ui_->actionEditUnmarkAllDisplayed->setEnabled(have_marked);
@@ -2592,6 +2593,11 @@ void WiresharkMainWindow::connectViewMenuActions()
             recent_set_column_width(col, packet_list_->columnWidth(col));
         }
     });
+
+    connect(main_ui_->actionViewPinSelectedRows, &QAction::triggered,
+            packet_list_, &PacketList::togglePinSelectedRows);
+    connect(main_ui_->actionViewUnpinAllRows, &QAction::triggered,
+            packet_list_, &PacketList::unpinAllRows);
 
     connect(main_ui_->actionViewInternalsConversationHashTables, &QAction::triggered, this, [this]() {
         ConversationHashTablesDialog *conversation_hash_tables_dlg = new ConversationHashTablesDialog(this);
