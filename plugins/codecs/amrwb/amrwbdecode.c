@@ -48,7 +48,7 @@ codec_amrwb_get_frequency(codec_context_t *ctx _U_)
 
 /* RTP doesn't allow the other SID types */
 /* modes: 7k,9k,12k,14k,16k,18k,20k,23k,24k, MRDTX/SID */
-static const uint16_t speech_bits[16] = {132, 177, 253, 285, 317, 365, 397, 461, 477, 35, 0, 0, 0, 0, 0, 0};
+static const uint16_t speech_bits[16] = {132, 177, 253, 285, 317, 365, 397, 461, 477, 40, 0, 0, 0, 0, 0, 0};
 /* The number of speech bits rounded up to bytes */
 static const uint8_t block_size[16]   = { 17,  23,  32,  36,  40,  46,  50,  58,  60,  5, 0, 0, 0, 0, 0, 0};
 
