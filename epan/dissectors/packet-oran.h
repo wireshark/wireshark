@@ -21,10 +21,13 @@ enum section_c_types {
     SEC_C_SINR_REPORTING = 9,
     SEC_C_RRM_MEAS_REPORTS = 10,
     SEC_C_REQUEST_RRM_MEAS = 11,
+    SEC_C_SRS_DESCRIPTION = 12,
+    SEC_C_RRM_MEAS_REPORTS_NON_TIMING = 13,
+    SEC_C_CO_SCHEDULING_INFO = 14,
     SEC_C_MAX_INDEX				/* used to size array below */
 };
 
-#define HIGHEST_EXTTYPE 32  /* Highest supported exttype */
+#define HIGHEST_EXTTYPE 35  /* Highest supported exttype */
 #define MAX_SECTION_IDs 32  /* i.e. how many may be reported from one frame */
 #define MAX_BEAMS_IN_FRAME 32
 
