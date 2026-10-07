@@ -108,10 +108,7 @@ codec_amrwb_decode_one(void *state, const void *input, size_t inputSizeBytes,
         return *outputSizeBytes;
     }
 
-    /* XXX: The last parameter is the BFI - we could invert the
-     * Q-bit and pass it in, which might be better?
-     */
-    D_IF_decode(state, in, (short *)output, 0);
+    D_IF_decode(state, in, (short *)output, !(in[0] & 0x04));
     return *outputSizeBytes;
 }
 
@@ -152,10 +149,7 @@ codec_amrwb_decode_many(void *state, const void *input, size_t inputSizeBytes,
          */
         in[0] = toc[i] & 0x7F;
         memcpy(&in[1], speech, block_size[mode]);
-        /* XXX: The last parameter is the BFI - we could invert the
-         * Q-bit and pass it in, which might be better?
-         */
-        D_IF_decode(state, in, (short *)output, 0);
+        D_IF_decode(state, in, (short *)output, !(toc[i] & 0x04));
         speech += block_size[mode];
         output = (uint8_t *)output + out_frame_bytes;
     }
@@ -249,6 +243,7 @@ codec_amrwb_decode(codec_context_t *ctx, const void *input,
     uint8_t *output_start = output;
     for (unsigned i = 0; i < frames; ++i) {
         mode = get_bits8(in, toc_offset, 4);
+        int bfi = !get_bits8(in, toc_offset + 4, 1);
         toc_offset += 6;
 
         /* A reserved frame type invalidates the whole payload. */
@@ -277,10 +272,7 @@ codec_amrwb_decode(codec_context_t *ctx, const void *input,
         }
         /* Padding might be different. */
 
-        /* XXX: The last parameter is the BFI - we could invert the
-         * Q-bit and pass it in, which might be better?
-         */
-        D_IF_decode(state, aligned, (short *)output, 0);
+        D_IF_decode(state, aligned, (short *)output, bfi);
         output = (uint8_t *)output + out_frame_bytes;
     }
 
