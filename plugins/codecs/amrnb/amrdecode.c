@@ -220,11 +220,16 @@ codec_amr_decode(codec_context_t *ctx, const void *input,
 
     *outputSizeBytes = 160 * 2 * frames;
     /* bit_offset is now where the speech bits begin */
+    if (inputSizeBytes < 2 || bit_offset > inputSizeBytes * 8) {
+        memset(output, 0, *outputSizeBytes);
+        return *outputSizeBytes;
+    }
     unsigned toc_offset = 5; /* Mode start */
     uint8_t aligned[32];
     int mode;
     for (unsigned i = 0; i < frames; ++i) {
         mode = get_bits8(in, toc_offset, 4);
+        toc_offset += 6;
 
         /* If the size is screwed up, insert silence */
         if ((bit_offset + speech_bits[mode] + 7) / 8 > inputSizeBytes) {
@@ -240,7 +245,9 @@ codec_amr_decode(codec_context_t *ctx, const void *input,
             bit_offset += 8;
         }
         if (j < block_size[mode]) {
-            aligned[1 + j] = get_bits8(in, bit_offset, speech_bits[mode] % 8);
+            unsigned remaining_bits = speech_bits[mode] % 8;
+            aligned[1 + j] = get_bits8(in, bit_offset, remaining_bits) << (8 - remaining_bits);
+            bit_offset += remaining_bits;
         }
         /* Padding might be different. */
 
