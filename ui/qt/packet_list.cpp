@@ -555,8 +555,7 @@ void PacketList::colorsChanged()
     set_style_sheet_ = false;
 
     applyOverlayActiveState();
-#if \
-    defined(QTBUG_122109_WORKAROUND)
+#ifdef QTBUG_122109_WORKAROUND
     // Setting the style sheet reset the column widths (see above). Make sure
     // the new widths aren't saved to recent and then restore from recent.
     applyRecentColumnWidths();
@@ -573,16 +572,31 @@ void PacketList::applyOverlayActiveState()
     // packet details/bytes pane keeps the window active but moves focus
     // away from PacketList, and the overlay panes should dim along with
     // it, not stay "focused" on their own.
+    //
+    // This is called on every focus change in the application, and setting
+    // a style sheet repolishes the widget even if it hasn't changed, so only
+    // set it when it has.
     const QString &style = (hasFocus() && isActiveWindow()) ? overlay_active_flat_style_ : overlay_inactive_flat_style_;
-    if (pinned_column_view_) {
-        pinned_column_view_->setStyleSheet(style);
+    bool changed = false;
+    for (QTreeView *view : pinnedOverlayViews()) {
+        if (view->styleSheet() != style) {
+            view->setStyleSheet(style);
+            changed = true;
+        }
     }
-    if (pinned_row_view_) {
-        pinned_row_view_->setStyleSheet(style);
+#ifdef QTBUG_122109_WORKAROUND
+    // Setting the style sheet reset the overlays' column widths; restore
+    // them from this view's.
+    if (changed) {
+        for (int column = 0; column < header()->count(); column++) {
+            if (!header()->isSectionHidden(column)) {
+                mirrorSectionWidthToOverlays(column, header()->sectionSize(column));
+            }
+        }
     }
-    if (pinned_row_corner_view_) {
-        pinned_row_corner_view_->setStyleSheet(style);
-    }
+#else
+    Q_UNUSED(changed);
+#endif
 }
 
 void PacketList::changeEvent(QEvent *event)
