@@ -1715,6 +1715,9 @@ ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
 if (BUILD_stratoshark)
 	# libsinsp+libscap, required for falco-events
 	ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP "0.17.1")
+	if (NOT SINSP_FOUND)
+		message(FATAL_ERROR "libsinsp is required when BUILD_stratoshark is enabled")
+	endif()
 endif()
 
 # Capabilities to run dumpcap as non-root user.
@@ -4282,10 +4285,10 @@ if(RPMBUILD_EXECUTABLE)
 	else()
 		list(APPEND _rpmbuild_with_args --without qt6)
 	endif()
+	# SINSP is only found when BUILD_stratoshark is enabled
 	if(SINSP_FOUND)
-		if(BUILD_stratoshark)
-			list(APPEND _rpmbuild_with_args --with stratoshark)
-		endif()
+		list(APPEND _rpmbuild_with_args --with stratoshark)
+
 		if(BUILD_falcodump)
 			list(APPEND _rpmbuild_with_args --with falcodump)
 		endif()
