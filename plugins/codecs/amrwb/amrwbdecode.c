@@ -103,6 +103,11 @@ codec_amrwb_decode_one(void *state, const void *input, size_t inputSizeBytes,
         return *outputSizeBytes;
     }
 
+    if (mode >= 10 && mode <= 13) {
+        memset(output, 0, out_frame_bytes);
+        return *outputSizeBytes;
+    }
+
     /* XXX: The last parameter is the BFI - we could invert the
      * Q-bit and pass it in, which might be better?
      */
@@ -121,7 +126,16 @@ codec_amrwb_decode_many(void *state, const void *input, size_t inputSizeBytes,
 
     uint8_t *toc = (uint8_t *)input + 1;
     uint8_t *speech = toc + frames;
+    uint8_t *output_start = output;
     uint8_t in[64];
+
+    for (unsigned i = 0; i < frames; i++) {
+        mode = (toc[i] >> 3) & 0x0F;
+        if (mode >= 10 && mode <= 13) {
+            memset(output_start, 0, out_frame_bytes * frames);
+            return *outputSizeBytes;
+        }
+    }
 
     for (unsigned i = 0; i < frames; i++) {
         mode = (toc[i] >> 3) & 0x0F;
@@ -232,9 +246,16 @@ codec_amrwb_decode(codec_context_t *ctx, const void *input,
     /* Make room for mode byte + largest WB frame bytes + 1 */
     uint8_t aligned[64];
     int mode;
+    uint8_t *output_start = output;
     for (unsigned i = 0; i < frames; ++i) {
         mode = get_bits8(in, toc_offset, 4);
         toc_offset += 6;
+
+        /* A reserved frame type invalidates the whole payload. */
+        if (mode >= 10 && mode <= 13) {
+            memset(output_start, 0, total_out_bytes);
+            return *outputSizeBytes;
+        }
 
         /* If the size is screwed up, insert silence */
         if ((bit_offset + speech_bits[mode] + 7) / 8 > inputSizeBytes) {
