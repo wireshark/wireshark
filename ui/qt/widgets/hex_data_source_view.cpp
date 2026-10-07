@@ -203,22 +203,20 @@ void HexDataSourceView::createContextMenu()
     connect(action_allow_hover_selection_, &QAction::toggled, this, &HexDataSourceView::toggleHoverAllowed);
     ctx_menu_.addSeparator();
 
-    action_add_annotation_ = ctx_menu_.addAction(tr("Add annotation…"));
+    QMenu *annotation_menu = ctx_menu_.addMenu(tr("Annotations"));
+    action_add_annotation_ = annotation_menu->addAction(tr("Add annotation…"));
     connect(action_add_annotation_, &QAction::triggered, this, &HexDataSourceView::requestAddAnnotation);
-
-    action_edit_annotation_ = ctx_menu_.addAction(tr("Edit annotation…"));
+    action_edit_annotation_ = annotation_menu->addAction(tr("Edit annotation…"));
     connect(action_edit_annotation_, &QAction::triggered, this, &HexDataSourceView::requestEditAnnotation);
-
-    action_remove_annotation_ = ctx_menu_.addAction(tr("Remove annotation"));
+    action_remove_annotation_ = annotation_menu->addAction(tr("Remove annotation"));
     connect(action_remove_annotation_, &QAction::triggered, this, &HexDataSourceView::requestRemoveAnnotation);
 
-    action_set_offset_start_ = ctx_menu_.addAction(tr("Start byte for offset"));
+    QMenu *offset_markers = ctx_menu_.addMenu(tr("Offset markers"));
+    action_set_offset_start_ = offset_markers->addAction(tr("Start byte for offset"));
     connect(action_set_offset_start_, &QAction::triggered, this, &HexDataSourceView::requestSetOffsetStart);
-
-    action_set_offset_end_ = ctx_menu_.addAction(tr("End byte for offset"));
+    action_set_offset_end_ = offset_markers->addAction(tr("End byte for offset"));
     connect(action_set_offset_end_, &QAction::triggered, this, &HexDataSourceView::requestSetOffsetEnd);
-
-    action_clear_offset_markers_ = ctx_menu_.addAction(tr("Clear offset markers"));
+    action_clear_offset_markers_ = offset_markers->addAction(tr("Clear offset markers"));
     connect(action_clear_offset_markers_, &QAction::triggered, this, &HexDataSourceView::requestClearOffsetMarkers);
 
     ctx_menu_.addSeparator();
