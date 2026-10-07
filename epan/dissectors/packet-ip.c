@@ -999,8 +999,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
 
   /* loop through all of the tags in the CIPSO option */
   while (offset < offset_max) {
-    tagtype = tvb_get_uint8(tvb, offset);
-    tag_item = proto_tree_add_item(field_tree, hf_ip_cipso_tag_type, tvb, offset, 1, ENC_NA);
+    tag_item = proto_tree_add_item_ret_uint(field_tree, hf_ip_cipso_tag_type, tvb, offset, 1, ENC_NA, &tagtype);
 
     if ((offset + 1) < offset_max)
       taglen = tvb_get_uint8(tvb, offset + 1);

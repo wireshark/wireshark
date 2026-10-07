@@ -2751,9 +2751,7 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t of
 
     curr_offset = offset;
 
-    oct = tvb_get_uint8(tvb, curr_offset);
-
-    ti = proto_tree_add_item(tree, hf_gsm_a_bssmap_circuit_pool_number, tvb, curr_offset, 1, ENC_NA);
+    ti = proto_tree_add_item_ret_uint8(tree, hf_gsm_a_bssmap_circuit_pool_number, tvb, curr_offset, 1, ENC_NA, &oct);
     if (oct <= 50)
     {
         /* No extra string */
@@ -3890,8 +3888,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint3
             proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_bssmap_bogus_length, tvb, curr_offset, len, "Bogus length %u",len);
             return len;
     }
-    proto_tree_add_item(tree, hf_gsm_a_bssmap_aoip_trans_port, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-    rtp_port = tvb_get_ntohs(tvb,curr_offset);
+    proto_tree_add_item_ret_uint16(tree, hf_gsm_a_bssmap_aoip_trans_port, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &rtp_port);
     curr_offset+=2;
 
     switch (addr_type) {

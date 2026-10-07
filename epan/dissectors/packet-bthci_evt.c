@@ -1902,8 +1902,7 @@ dissect_iq_sample_list(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     uint8_t samples;
 
-    proto_tree_add_item(tree, hf_bthci_evt_sample_count, tvb, offset, 1, ENC_NA);
-    samples = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_bthci_evt_sample_count, tvb, offset, 1, ENC_NA, &samples);
     offset += 1;
 
     if (samples > 0) {
@@ -2131,8 +2130,7 @@ dissect_bthci_evt_lmp_features(tvbuff_t *tvb, unsigned offset, packet_info *pinf
         proto_tree_add_item(lmp_tree, hf_lmp_feature_paging_parameter_negotiation,           tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(lmp_tree, hf_lmp_feature_power_control,                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(lmp_tree, hf_lmp_feature_transparent_synchronous_data,           tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        fc_lag_item = proto_tree_add_item(lmp_tree, hf_lmp_feature_flow_control_lag,         tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        fc_lag = (tvb_get_uint8(tvb, offset) & 0x70) >> 4;
+        fc_lag_item = proto_tree_add_item_ret_uint8(lmp_tree, hf_lmp_feature_flow_control_lag, tvb, offset, 1, ENC_LITTLE_ENDIAN, &fc_lag);
         proto_item_append_text(fc_lag_item, " (%i bytes)", 256 * fc_lag);
 
         proto_tree_add_item(lmp_tree, hf_lmp_feature_broadcast_encryption,                   tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2631,7 +2629,7 @@ dissect_bthci_evt_read_clock_offset_complete(tvbuff_t *tvb, unsigned offset,
         packet_info *pinfo, proto_tree *tree, bluetooth_data_t *bluetooth_data)
 {
     proto_item *handle_item;
-    int16_t     clk;
+    uint16_t    clk;
 
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     send_hci_summary_status_tap(tvb_get_uint8(tvb, offset), pinfo, bluetooth_data);
@@ -2640,8 +2638,8 @@ dissect_bthci_evt_read_clock_offset_complete(tvbuff_t *tvb, unsigned offset,
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    handle_item = proto_tree_add_item(tree, hf_bthci_evt_clock_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    clk = tvb_get_letohs(tvb, offset) & 0x7FFF; /* only bits 0-14 are valid  */
+    handle_item = proto_tree_add_item_ret_uint16(tree, hf_bthci_evt_clock_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &clk);
+
     proto_item_append_text(handle_item, " (%g ms)", 1.25*clk);
     offset += 2;
 

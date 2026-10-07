@@ -3922,13 +3922,11 @@ dissect_proposal(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned le
   offset += 1;
   length -= 1;
 
-  spi_size = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_isakmp_spisize, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(tree, hf_isakmp_spisize, tvb, offset, 1, ENC_BIG_ENDIAN, &spi_size);
   offset += 1;
   length -= 1;
 
-  num_transforms = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_isakmp_prop_transforms, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(tree, hf_isakmp_prop_transforms, tvb, offset, 1, ENC_BIG_ENDIAN, &num_transforms);
   offset += 1;
   length -= 1;
 
@@ -5099,8 +5097,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned lengt
   offset += 1;
   length -= 1;
 
-  spi_size = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_isakmp_spisize, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(tree, hf_isakmp_spisize, tvb, offset, 1, ENC_BIG_ENDIAN, &spi_size);
   offset += 1;
   length -= 1;
 
@@ -5620,8 +5617,7 @@ dissect_delete(tvbuff_t *tvb, unsigned offset, unsigned length, proto_tree *tree
   offset += 1;
   length -= 1;
 
-  spi_size = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_isakmp_spisize, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(tree, hf_isakmp_spisize, tvb, offset, 1, ENC_BIG_ENDIAN, &spi_size);
   offset += 1;
   length -= 1;
 
@@ -6299,8 +6295,7 @@ dissect_ts(tvbuff_t *tvb, packet_info* pinfo, unsigned offset, proto_tree *paylo
   ts_item = proto_tree_add_item(payload_tree, hf_isakmp_ts_data, tvb, offset, len, ENC_NA);
   tree = proto_item_add_subtree(ts_item, ett_isakmp_ts);
 
-  tstype = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_isakmp_ts_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint8(tree, hf_isakmp_ts_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tstype);
   ts_typename = rval_to_str_wmem(pinfo->pool, tstype, traffic_selector_type, "Unknown Type (%d)");
   proto_item_append_text(ts_item, ": %s", ts_typename);
 

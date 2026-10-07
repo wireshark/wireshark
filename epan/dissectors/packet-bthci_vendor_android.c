@@ -1509,9 +1509,8 @@ dissect_bthci_vendor_android_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         switch (subcode) {
         case 0x01: {    /* Start A2DP offload (legacy) */
-            int codec_id = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
-
-            proto_tree_add_item(main_tree, hf_android_a2dp_hardware_offload_start_legacy_codec, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            unsigned codec_id;
+            proto_tree_add_item_ret_uint(main_tree, hf_android_a2dp_hardware_offload_start_legacy_codec, tvb, offset, 4, ENC_LITTLE_ENDIAN, &codec_id);
             offset += 4;
 
             proto_tree_add_item(main_tree, hf_android_a2dp_hardware_offload_start_legacy_max_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);

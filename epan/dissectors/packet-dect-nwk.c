@@ -1800,10 +1800,6 @@ static const value_string dect_charset_control_codes_val[] = {
 #define DECT_NWK_S_IE_AUTH_TYPE_DEF_MASK 0x40
 #define DECT_NWK_S_IE_AUTH_TYPE_DEF_SHIFT 6
 
-#define DECT_NWK_S_IE_PORTABLE_IDENTITY_TYPE_MASK 0x7F
-#define DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_MASK 0xF0
-#define DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_SHIFT 4
-
 #define DECT_NWK_S_IE_IWU_TO_IWU_PROTOCOL_DISCRIMINATOR_MASK 0x3F
 #define DECT_NWK_S_IE_IWU_TO_IWU_DISCRIMINATOR_TYPE_MASK 0x7F
 
@@ -2066,8 +2062,7 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offse
 	bit_offset = ( offset * 8 ) + 4;
 	switch(identity_type) {
 		case DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI:
-			ipui_type = ( tvb_get_uint8(tvb, offset) & DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_MASK ) >> DECT_NWK_S_IE_PORTABLE_IDENTITY_IPUI_TYPE_SHIFT;
-			proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_put, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item_ret_uint8(tree, hf_dect_nwk_s_ie_portable_identity_put, tvb, offset, 1, ENC_NA, &ipui_type);
 			no_of_bits = value_length - 4;
 			switch(ipui_type) {
 				case DECT_NWK_IPUI_TYPE_N:

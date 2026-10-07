@@ -2377,8 +2377,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
             break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_radio_id, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_length, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
-        maclength = tvb_get_uint8(tvb, offset+5);
+        proto_tree_add_item_ret_uint8(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_length, tvb, offset + 5, 1, ENC_BIG_ENDIAN, &maclength);
         switch(maclength){
             case 6:
                 proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_delete_station_mac_eui48, tvb, offset+6, maclength, ENC_NA);

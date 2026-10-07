@@ -6085,8 +6085,7 @@ dissect_mic(tvbuff_t *tvb, packet_info *pinfo _U_,
                         ENC_NA);
     offset += 6;
 
-    mic_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ieee1905_mic_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_ieee1905_mic_length, tvb, offset, 2, ENC_BIG_ENDIAN, &mic_len);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_mic_bytes, tvb, offset, mic_len,
