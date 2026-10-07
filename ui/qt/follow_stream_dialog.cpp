@@ -768,13 +768,13 @@ void FollowStreamDialog::showBuffer(QByteArray &buffer, size_t nchars, bool is_f
         // block sizes, e.g. transferring over TFTP, we would need to create
         // two stateful decoders, one for each direction.
         QByteArray encName = ui->cbCharset->currentText().toUtf8();
-        uint8_t *utf8 = get_string_enc_iconv(NULL,
+        wmem_strbuf_t *utf8 = get_strbuf_enc_iconv(NULL,
                                              (const uint8_t *)buffer.constData(),
                                              buffer.size(),
                                              encName.constData());
         if (utf8) {
-            addText(QString::fromUtf8((const char *)utf8), is_from_server, packet_num);
-            g_free(utf8);
+            addText(QString::fromUtf8(utf8->str, utf8->len), is_from_server, packet_num);
+            wmem_strbuf_destroy(utf8);
         }
         break;
     }

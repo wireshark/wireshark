@@ -1435,8 +1435,8 @@ get_nonascii_unichar2_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t
  * Unicode Standard 5.22 U+FFFD Substitution for Conversion
  * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
  */
-uint8_t *
-get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const char *encoding)
+wmem_strbuf_t *
+get_strbuf_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const char *encoding)
 {
     GIConv cd;
     size_t inbytes, outbytes;
@@ -1504,7 +1504,7 @@ get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length,
                     g_free(tempstr);
                     g_iconv_close(cd);
                     ws_warning("Unexpected iconv() error when converting from %s to UTF-8", encoding);
-                    return (uint8_t *) wmem_strbuf_finalize(str);
+                    return str;
             }
         } else {
             /* Otherwise err is the number of replacement characters used,
@@ -1519,7 +1519,13 @@ get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length,
 
     g_free(tempstr);
     g_iconv_close(cd);
-    return (uint8_t *) wmem_strbuf_finalize(str);
+    return str;
+}
+
+uint8_t *
+get_string_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const char *encoding)
+{
+    return (uint8_t*)wmem_strbuf_finalize(get_strbuf_enc_iconv(scope, ptr, length, encoding));
 }
 
 /*

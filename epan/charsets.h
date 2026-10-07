@@ -356,6 +356,29 @@ WS_DLL_PUBLIC uint8_t *
 get_dect_standard_8bits_string(wmem_allocator_t *scope, const uint8_t *ptr, size_t length);
 
 /**
+ * @brief Convert a byte sequence in an arbitrary encoding (supported by iconv) to UTF‑8.
+ *
+ * Given a wmem scope, a pointer, a length, and an encoding name recognized
+ * by iconv, treat the bytes referred to by the pointer and length as a string
+ * in that encoding, and return a pointer to a UTF-8 string, allocated using
+ * the wmem scope, converted from the original encoding having substituted
+ * REPLACEMENT CHARACTER according to the Unicode Standard 5.22 U+FFFD
+ * Substitution for Conversion.
+ * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
+ *
+ * @param scope The wmem allocator scope used for the returned UTF‑8 string (NULL for g_malloc).
+ * @param ptr Pointer to the encoded byte sequence.
+ * @param length Number of bytes to process from the sequence.
+ * @param encoding The source encoding name (as recognized by iconv).
+ *
+ * @return A UTF‑8 wmem_strbuf_t allocated in the given scope.
+ *
+ * @note This is useful when the byte sequence may have internal NUL bytes.
+ */
+WS_DLL_PUBLIC wmem_strbuf_t *
+get_strbuf_enc_iconv(wmem_allocator_t *scope, const uint8_t *ptr, size_t length, const char *encoding);
+
+/**
  * @brief Convert a string in an arbitrary encoding (supported by iconv) to UTF‑8.
  *
  * Given a wmem scope, a pointer, a length, and an encoding name recognized
