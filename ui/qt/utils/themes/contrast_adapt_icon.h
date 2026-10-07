@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <ui/qt/utils/themes/token_palette.h>
+
 #include <QColor>
 #include <QIcon>
 #include <QPalette>
@@ -106,4 +108,21 @@ public:
      */
     static void  setDefaultMinContrast(qreal ratio);
     static qreal defaultMinContrast();
+
+    /**
+     * @brief Set a custom palette for drawing this icon instead of the application palette.
+     *
+     * Affects every copy of this icon. By default the application palette is
+     * used.
+     */
+    void setPalette(const QPalette &palette);
+
+private:
+    // Private delegate: the engine shares @p palette so setPalette() can reach it.
+    ContrastAdaptIcon(const QString &svg_resource_path,
+                      QPalette::ColorRole surface_role,
+                      const QColor &explicit_background,
+                      QSize size, IconPaletteRef palette);
+
+    IconPaletteRef palette_;
 };

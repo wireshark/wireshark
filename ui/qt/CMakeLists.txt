@@ -121,6 +121,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/themes/theme_stylesheet_loader.h
 	utils/themes/theme_token_handler.h
 	utils/themes/themed_icon.h
+	utils/themes/token_palette.h
 	utils/themes/contrast_adapt_icon.h
 	utils/variant_pointer.h
 	utils/wireshark_mime_data.h

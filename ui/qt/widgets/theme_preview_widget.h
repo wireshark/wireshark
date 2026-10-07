@@ -102,6 +102,12 @@ private:
              const QColor &fallback = QColor()) const;
 
     /**
+     * @brief The application palette with the previewed theme's colors applied,
+     *        for icons that draw themselves from a QPalette.
+     */
+    QPalette previewPalette() const;
+
+    /**
      * Geometry and fonts for a single paint pass.  Built once by
      * buildLayout() from the content rectangle and then handed to every
      * band-drawing helper, so they all share identical fonts, row heights

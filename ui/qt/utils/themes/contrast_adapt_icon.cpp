@@ -12,6 +12,7 @@
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/themes/color_math.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/token_palette.h>
 
 #include <QApplication>
 #include <QFile>
@@ -71,9 +72,14 @@ class ContrastAdaptIconEngine : public QIconEngine
 public:
     ContrastAdaptIconEngine(const QString &path, qreal min_contrast,
                             QPalette::ColorRole surface_role,
-                            QColor explicit_bg, QSize size) :
-        min_contrast_(min_contrast), surface_role_(surface_role),
-        explicit_bg_(explicit_bg), size_(size)
+                            QColor explicit_bg, QSize size,
+                            IconPaletteRef palette) :
+        path_(path),
+        min_contrast_(min_contrast),
+        surface_role_(surface_role),
+        explicit_bg_(explicit_bg),
+        size_(size),
+        palette_(palette)
     {
         path_ = path;
         QFile f(path);
@@ -130,7 +136,8 @@ public:
     QIconEngine *clone() const override
     {
         ContrastAdaptIconEngine *e =
-            new ContrastAdaptIconEngine(path_, min_contrast_, surface_role_, explicit_bg_, size_);
+            new ContrastAdaptIconEngine(path_, min_contrast_, surface_role_, explicit_bg_,
+                                        size_, palette_);
         e->svg_ = svg_;
         e->swaps_ = swaps_;
         e->token_maps_ = token_maps_;
@@ -168,7 +175,8 @@ private:
     {
         if (explicit_bg_.isValid())
             return explicit_bg_;
-        const QPalette pal = qApp->palette();
+        const QPalette *override_pal = iconPalettePtr(palette_);
+        const QPalette pal = override_pal ? *override_pal : qApp->palette();
         if (mode == QIcon::Selected)
             return pal.color(QPalette::Highlight);
         return pal.color(surface_role_);
@@ -257,8 +265,7 @@ private:
     // when the theme does not supply it.
     QColor tokenColor(ThemeManager::ThemeToken token) const
     {
-        QColor c = ThemeManager::instance()->color(token);
-        return c.isValid() ? c : qApp->palette().color(QPalette::Text);
+        return resolveIconToken(token, iconPalettePtr(palette_));
     }
 
     // Folded into the pixmap cache key so a theme change that alters a mapped
@@ -340,6 +347,7 @@ private:
     QPalette::ColorRole surface_role_;
     QColor explicit_bg_;
     QSize size_;
+    IconPaletteRef palette_;
     QHash<QString, StateColors> swaps_;
     QHash<QString, ThemeManager::ThemeToken> token_maps_;
 };
@@ -348,16 +356,32 @@ private:
 
 ContrastAdaptIcon::ContrastAdaptIcon(const QString &svg_resource_path,
                                      QPalette::ColorRole surface_role, QSize size) :
-    QIcon(new ContrastAdaptIconEngine(svg_resource_path, defaultMinContrastRef(),
-                                      surface_role, QColor(), size))
+    ContrastAdaptIcon(svg_resource_path, surface_role, QColor(), size,
+                      makeIconPaletteRef())
 {
 }
 
 ContrastAdaptIcon::ContrastAdaptIcon(const QString &svg_resource_path,
                                      const QColor &explicit_background, QSize size) :
-    QIcon(new ContrastAdaptIconEngine(svg_resource_path, defaultMinContrastRef(),
-                                      QPalette::Window, explicit_background, size))
+    ContrastAdaptIcon(svg_resource_path, QPalette::Window, explicit_background,
+                      size, makeIconPaletteRef())
 {
+}
+
+ContrastAdaptIcon::ContrastAdaptIcon(const QString &svg_resource_path,
+                                     QPalette::ColorRole surface_role,
+                                     const QColor &explicit_background,
+                                     QSize size, IconPaletteRef palette) :
+    QIcon(new ContrastAdaptIconEngine(svg_resource_path, defaultMinContrastRef(),
+                                      surface_role, explicit_background, size,
+                                      palette)),
+    palette_(palette)
+{
+}
+
+void ContrastAdaptIcon::setPalette(const QPalette &palette)
+{
+    *palette_ = palette;
 }
 
 void ContrastAdaptIcon::setDefaultMinContrast(qreal ratio)

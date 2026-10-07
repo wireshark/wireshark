@@ -11,6 +11,7 @@
 #include "theme_preview_widget.h"
 #include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/themes/themed_icon.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/themes/color_math.h>
 
 #include <epan/color_filters.h>
@@ -63,25 +64,6 @@ const int kCellPad = 4;
 // Number of sample packets in the list; mirrored by the status bar's
 // "Packets:" figure.  Keep in step with the rows built in drawPacketList().
 const int kPreviewPacketCount = 9;
-
-// Renders an SVG silhouette flattened to a single colour, the same
-// CompositionMode_SourceIn technique ThemedIcon uses — but taking an explicit
-// colour so the preview can tint to its *previewed-theme* token (via c())
-// rather than the live ThemeManager value ThemedIcon would resolve.
-QPixmap tintedSvg(const QString &path, const QColor &color, const QSize &size, qreal dpr)
-{
-    QSvgRenderer renderer(path);
-    QPixmap pm(size * dpr);
-    pm.setDevicePixelRatio(dpr);
-    pm.fill(Qt::transparent);
-    QPainter pp(&pm);
-    pp.setRenderHint(QPainter::Antialiasing, true);
-    renderer.render(&pp, QRectF(QPointF(0, 0), QSizeF(size)));
-    pp.setCompositionMode(QPainter::CompositionMode_SourceIn);
-    pp.fillRect(QRectF(QPointF(0, 0), QSizeF(size)), color);
-    pp.end();
-    return pm;
-}
 
 // color_filters_clone() callback.  It hands us a freshly allocated clone we
 // own, so we copy the rule name and its colours (color_t is 16-bit per channel,
@@ -158,6 +140,26 @@ QColor ThemePreviewWidget::c(ThemeManager::ThemeToken token, const QColor &fallb
         return it.value();
     QColor live = ThemeManager::instance()->color(token);
     return live.isValid() ? live : fallback;
+}
+
+QPalette ThemePreviewWidget::previewPalette() const
+{
+    QPalette pal = QApplication::palette();
+    auto set = [&](QPalette::ColorRole role, ThemeManager::ThemeToken token) {
+        const QColor col = c(token);
+        if (col.isValid())
+            pal.setColor(role, col);
+    };
+    set(QPalette::Window,          ThemeManager::PaletteWindow);
+    set(QPalette::WindowText,      ThemeManager::PaletteWindowText);
+    set(QPalette::Base,            ThemeManager::PaletteBase);
+    set(QPalette::AlternateBase,   ThemeManager::PaletteAlternateBase);
+    set(QPalette::Text,            ThemeManager::PaletteText);
+    set(QPalette::Mid,             ThemeManager::PaletteMid);
+    set(QPalette::Midlight,        ThemeManager::PaletteMidLight);
+    set(QPalette::HighlightedText, ThemeManager::PaletteHighlightedText);
+    set(QPalette::Highlight,       ThemeManager::PacketsSelection);
+    return pal;
 }
 
 QSize ThemePreviewWidget::minimumSizeHint() const
@@ -332,29 +334,43 @@ void ThemePreviewWidget::drawToolbar(QPainter &p, const Layout &layout)
     p.setPen(sep);
     p.drawLine(layout.toolbarRect.bottomLeft(), layout.toolbarRect.bottomRight());
 
-    // The real, colour application toolbar icons.  The toolbar reflects the
-    // *icon* theme, not the colour theme, so these are the app's own ThemedIcons
-    // (capture/file icons are full-colour rasters; zoom falls back to a
-    // WindowText-tinted template mask) rather than ThemeManager tokens.  A
-    // nullptr entry is a separator.
-    static const char *const icons[] = {
-        "capture-start", "capture-stop", "capture-restart", nullptr,
-        "file-save", "file-close", "file-reload", nullptr,
-        "zoom-in", "zoom-out"
+    // Draw the real toolbar icons with the preview theme applied.
+    static ContrastAdaptIcon captureStart("capture-start");
+    static ContrastAdaptIcon captureStop("capture-stop");
+    static ThemedIcon captureRestart("capture-restart");
+    static ThemedIcon fileSave("file-save");
+    static ThemedIcon fileClose("file-close");
+    static ThemedIcon fileReload("file-reload");
+    static ThemedIcon zoomIn("zoom-in");
+    static ThemedIcon zoomOut("zoom-out");
+
+    const QPalette previewPal = previewPalette();
+    captureStart.setPalette(previewPal);
+    captureStop.setPalette(previewPal);
+    captureRestart.setPalette(previewPal);
+    fileSave.setPalette(previewPal);
+    fileClose.setPalette(previewPal);
+    fileReload.setPalette(previewPal);
+    zoomIn.setPalette(previewPal);
+    zoomOut.setPalette(previewPal);
+
+    const QIcon icons[] = {
+        captureStart, captureStop, captureRestart, QIcon(),
+        fileSave, fileClose, fileReload, QIcon(),
+        zoomIn, zoomOut
     };
-    const int count = static_cast<int>(sizeof(icons) / sizeof(icons[0]));
     const int btn = layout.toolbarRect.height() - 8;
     int x = layout.toolbarRect.left() + 6;
     const int y = layout.toolbarRect.top() + 4;
-    for (int i = 0; i < count; ++i) {
-        if (!icons[i]) {
+    for (auto icon : icons) {
+        if (icon.isNull()) {
             p.setPen(sep);
             const int sx = x + 4;
             p.drawLine(QPointF(sx, y + 3), QPointF(sx, y + btn - 3));
             x += 9;
             continue;
         }
-        ThemedIcon(icons[i]).paint(&p, QRect(x, y, btn, btn), Qt::AlignCenter);
+        icon.paint(&p, QRect(x, y, btn, btn), Qt::AlignCenter);
         x += btn + 2;
     }
 }
@@ -387,14 +403,13 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
 
     const int   iconH = qMin(14, field.height() - 4);
     const int   pad   = 5;
-    const qreal dpr   = devicePixelRatioF();
 
     // Left affordance: bookmark, tinted to FilterBookmark, on the window bg.
     QRect bookmark(field.left() + pad, field.center().y() - iconH / 2, iconH, iconH);
-    p.drawPixmap(bookmark,
-                 tintedSvg(QStringLiteral(":/svg_icons/x-display-filter-bookmark.svg"),
-                           c(ThemeManager::FilterBookmark, windowText),
-                           QSize(iconH, iconH), dpr));
+    const QPalette previewPal = previewPalette();
+    ContrastAdaptIcon icon("bookmark-display");
+    icon.setPalette(previewPal);
+    icon.paint(&p, bookmark);
 
     // Right affordances: apply pill (24:14), clear ✕, and the combo caret —
     // each tinted to its own Filter* token so the preview surfaces them.
@@ -402,14 +417,12 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     QRect caret(field.right() - pad - 9, field.center().y() - 4, 9, 8);
     QRect apply(caret.left() - 6 - applyW, field.center().y() - iconH / 2, applyW, iconH);
     QRect clear(apply.left() - 4 - iconH,  field.center().y() - iconH / 2, iconH, iconH);
-    p.drawPixmap(clear,
-                 tintedSvg(QStringLiteral(":/svg_icons/x-filter-clear.svg"),
-                           c(ThemeManager::FilterClear, windowText),
-                           QSize(iconH, iconH), dpr));
-    p.drawPixmap(apply,
-                 tintedSvg(QStringLiteral(":/svg_icons/x-filter-apply.svg"),
-                           c(ThemeManager::FilterApply, windowText),
-                           QSize(applyW, iconH), dpr));
+    icon = ContrastAdaptIcon("filter-clear");
+    icon.setPalette(previewPal);
+    icon.paint(&p, clear);
+    icon = ContrastAdaptIcon("filter-apply");
+    icon.setPalette(previewPal);
+    icon.paint(&p, apply);
 
     // Recent-filters dropdown caret (combo chrome), on the window background.
     p.setRenderHint(QPainter::Antialiasing, true);

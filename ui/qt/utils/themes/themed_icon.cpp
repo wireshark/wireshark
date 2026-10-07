@@ -10,6 +10,7 @@
 #include "config.h"
 
 #include <ui/qt/utils/themes/themed_icon.h>
+#include <ui/qt/utils/themes/token_palette.h>
 
 #include <QApplication>
 #include <QIconEngine>
@@ -48,9 +49,10 @@ class ThemedIconEngine : public QIconEngine
 public:
     ThemedIconEngine(const QString &path, ThemeManager::ThemeToken token,
                      ThemeManager::ThemeToken active_token,
-                     ThemeManager::ThemeToken selected_token, QSize size) :
+                     ThemeManager::ThemeToken selected_token, QSize size,
+                     IconPaletteRef palette) :
         path_(path), token_(token), active_token_(active_token),
-        selected_token_(selected_token), size_(size) {}
+        selected_token_(selected_token), size_(size), palette_(palette) {}
 
     void paint(QPainter *painter, const QRect &rect,
                QIcon::Mode mode, QIcon::State state) override
@@ -92,17 +94,15 @@ public:
 
     QIconEngine *clone() const override
     {
-        return new ThemedIconEngine(path_, token_, active_token_, selected_token_, size_);
+        return new ThemedIconEngine(path_, token_, active_token_, selected_token_, size_, palette_);
     }
 
 private:
     QColor modeColor(QIcon::Mode mode) const
     {
-        auto resolve = [](ThemeManager::ThemeToken t) {
-            QColor c = ThemeManager::instance()->color(t);
-            if (!c.isValid())
-                c = qApp->palette().color(QPalette::Text);
-            return c;
+        const QPalette *pal = iconPalettePtr(palette_);
+        auto resolve = [pal](ThemeManager::ThemeToken t) {
+            return resolveIconToken(t, pal);
         };
 
         switch (mode) {
@@ -148,14 +148,15 @@ private:
     ThemeManager::ThemeToken active_token_;
     ThemeManager::ThemeToken selected_token_;
     QSize size_;
+    IconPaletteRef palette_;
 };
 
 } // namespace
 
 ThemedIcon::ThemedIcon(const QString &svg_resource_path,
                        ThemeManager::ThemeToken token, QSize size) :
-    QIcon(new ThemedIconEngine(svg_resource_path, token,
-                               ThemeManager::NoRole, ThemeManager::NoRole, size))
+    ThemedIcon(svg_resource_path, token,
+               ThemeManager::NoRole, ThemeManager::NoRole, size)
 {
 }
 
@@ -163,7 +164,23 @@ ThemedIcon::ThemedIcon(const QString &svg_resource_path,
                        ThemeManager::ThemeToken token,
                        ThemeManager::ThemeToken active_token,
                        ThemeManager::ThemeToken selected_token, QSize size) :
-    QIcon(new ThemedIconEngine(svg_resource_path, token,
-                               active_token, selected_token, size))
+    ThemedIcon(svg_resource_path, token, active_token, selected_token, size,
+               makeIconPaletteRef())
 {
+}
+
+ThemedIcon::ThemedIcon(const QString &svg_resource_path,
+                       ThemeManager::ThemeToken token,
+                       ThemeManager::ThemeToken active_token,
+                       ThemeManager::ThemeToken selected_token, QSize size,
+                       IconPaletteRef palette) :
+    QIcon(new ThemedIconEngine(svg_resource_path, token,
+                               active_token, selected_token, size, palette)),
+    palette_(palette)
+{
+}
+
+void ThemedIcon::setPalette(const QPalette &palette)
+{
+    *palette_ = palette;
 }
