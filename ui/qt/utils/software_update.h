@@ -13,11 +13,13 @@
 #include <QObject>
 #include <QUrl>
 #include <QMutex>
+#include <QScopedPointer>
 #include <QTimer>
 #include <QVersionNumber>
 
 class QNetworkAccessManager;
 class QNetworkReply;
+class SoftwareUpdateBackend;
 
 /**
  * @brief An event object passed to shutdown listeners to allow vetoing.
@@ -201,6 +203,8 @@ private:
 
     QTimer *updateCheckTimer_;                  /**< Timer driving periodic auto-checks. */
     QNetworkAccessManager *networkAccessManager_; /**< Network manager for appcast requests. */
+    QScopedPointer<SoftwareUpdateBackend> backend_; /**< Platform backend, null if updates are unsupported. */
+    QNetworkReply *pendingReply_ = nullptr;     /**< Appcast request in flight, guarded by updateMutex_. */
 
     /**
      * @brief Return the URL of the appcast feed for the current platform.
@@ -215,33 +219,6 @@ private:
      */
     QList<AppcastItem> parseAppcast(const QByteArray &data) const;
 
-
-#if defined(_WIN32)
-    /**
-     * @brief WinSparkle callback queried before the updater may shut down the app.
-     * @return Non-zero if the application is ready to shut down; zero to delay.
-     */
-    static int __cdecl softwareUpdateCanShutdownCallback();
-
-    /**
-     * @brief WinSparkle callback invoked when the updater requests application shutdown.
-     */
-    static void __cdecl shutdownRequestCallback();
-
-    /**
-     * @brief WinSparkle callback invoked when the update process is engaged.
-     */
-    static void __cdecl softwareUpdateEngaged();
-
-#elif defined(__APPLE__)
-    /**
-     * @brief Sparkle callback invoked when the updater requests a postponed relaunch.
-     *
-     * @param proceed Function pointer the application must call to allow relaunch.
-     * @param ctx     Opaque context pointer passed back to @p proceed.
-     */
-    static void onPostponeRelaunch(void (*proceed)(void *ctx), void *ctx);
-#endif /* if */
 
 private slots:
     /**

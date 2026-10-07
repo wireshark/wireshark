@@ -297,8 +297,11 @@
 /* Define to 1 if you have the `setresuid' function. */
 #cmakedefine HAVE_SETRESUID 1
 
-/* Define to 1 if you have the Sparkle or WinSparkle library */
+/* Define to 1 if you have the Sparkle, WinSparkle or PackageKit library */
 #cmakedefine HAVE_SOFTWARE_UPDATE 1
+
+/* Define to 1 if PackageKit is 1.1.x and needs the unstable API acknowledgement */
+#cmakedefine PACKAGEKIT_REQUIRES_API_ACK 1
 
 /* Define if you have the 'strptime' function. */
 #cmakedefine HAVE_STRPTIME 1

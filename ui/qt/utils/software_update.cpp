@@ -10,12 +10,11 @@
 #include <config.h>
 
 #include "ui/qt/utils/software_update.h"
+#include "ui/qt/utils/software_update_backend.h"
 
 #include "app/application_flavor.h"
 #include "epan/prefs.h"
 
-#include "ui/language.h"
-#include "ui/qt/main_application.h"
 #include "ui/qt/utils/workspace_state.h"
 
 #include <QUrl>
@@ -50,25 +49,6 @@
     // #define TIMEOUT_OVERRIDE 5000
 #endif /* if */
 
-#ifdef HAVE_SOFTWARE_UPDATE
-    #if !defined(__x86_64__) && !defined(_M_X64) && !defined(__arm64__) && !defined(_M_ARM64)
-        #error Software updates are only be defined for x86-64 or arm64.
-    #endif /* if */
-
-    #if !defined(_WIN32) && !defined(__APPLE__)
-        #error Software updates are only be defined for Windows or macOS.
-    #endif /* if */
-
-    #ifdef _WIN32
-        #include <winsparkle.h>
-        #define SU_OSNAME "Windows"
-    #elif defined(__APPLE__)
-        #include <ui/macosx/sparkle_bridge.h>
-        #define SU_OSNAME "macOS"
-    #endif /* if */
-
-#endif /* HAVE_SOFTWARE_UPDATE */
-
 static const QString SPARKLE_NS = QStringLiteral("http://www.andymatuschak.org/xml-namespaces/sparkle");
 
 void ShutdownEvent::accept() {
@@ -98,7 +78,8 @@ QMutex SoftwareUpdate::updateMutex_;
 SoftwareUpdate::SoftwareUpdate(QObject *parent)
     : QObject(parent),
     updateCheckTimer_(new QTimer(this)),
-    networkAccessManager_(new QNetworkAccessManager(this))
+    networkAccessManager_(new QNetworkAccessManager(this)),
+    backend_(SoftwareUpdateBackend::create())
 {
     connect(networkAccessManager_, &QNetworkAccessManager::finished,
             this, &SoftwareUpdate::onNetworkReplyFinished);
@@ -124,121 +105,61 @@ SoftwareUpdate* SoftwareUpdate::instance()
 
 void SoftwareUpdate::init(bool runWithoutSilentCheck)
 {
-    #ifdef HAVE_SOFTWARE_UPDATE
-        /* Disable automatic updates for PortableApps installations */
-        if (WorkspaceState::isPortableApplication()) {
-            return;
-        }
+    /* Disable automatic updates for PortableApps installations */
+    /*
+     * XXX Flatpak, Snap and AppImage are not detected here. They are updated
+     * by their own tooling (flatpak update, snapd refresh, AppImageUpdate),
+     * not through us. On Linux they currently fall through to the PackageKit
+     * backend, which finds no package owning the executable and therefore
+     * never reports an update. Detecting them explicitly (FLATPAK_ID or
+     * /.flatpak-info, SNAP, APPIMAGE environment variables) would allow
+     * pointing the user to the right update mechanism instead.
+     */
+    if (!backend_ || WorkspaceState::isPortableApplication()) {
+        return;
+    }
 
-        /** Initialize software updates. */
-        QUrl updateUrl = this->updateUrl();
-
-        #ifdef _WIN32
-            /*
-            * According to the WinSparkle 0.5 documentation these must be called
-            * once, before win_sparkle_init. We can't update them dynamically when
-            * our preferences change.
-            */
-            QString regKey = QString("Software\\%1\\WinSparkle Settings").arg(application_flavor_name_proper());
-
-            win_sparkle_set_registry_path(regKey.toUtf8().constData());
-            win_sparkle_set_appcast_url(updateUrl.toString().toUtf8().constData());
-            if (prefs.gui_update_enabled && runWithoutSilentCheck) {
-                win_sparkle_set_automatic_check_for_updates(1);
-                win_sparkle_set_update_check_interval(prefs.gui_update_interval);
-            } else {
-                win_sparkle_set_automatic_check_for_updates(0);
-            }
-            win_sparkle_set_update_cancelled_callback(&SoftwareUpdate::softwareUpdateEngaged);
-            win_sparkle_set_update_postponed_callback(&SoftwareUpdate::softwareUpdateEngaged);
-            win_sparkle_set_update_skipped_callback(&SoftwareUpdate::softwareUpdateEngaged);
-            win_sparkle_set_update_dismissed_callback(&SoftwareUpdate::softwareUpdateEngaged);
-            win_sparkle_set_can_shutdown_callback(&SoftwareUpdate::softwareUpdateCanShutdownCallback);
-            win_sparkle_set_shutdown_request_callback(&SoftwareUpdate::shutdownRequestCallback);
-            const char* ws_language = get_language_used();
-            if ((ws_language != NULL) && (strcmp(ws_language, USE_SYSTEM_LANGUAGE) != 0)) {
-                win_sparkle_set_lang(ws_language);
-            }
-            win_sparkle_init();
-        #elif defined(__APPLE__)
-
-            if (runWithoutSilentCheck && prefs.gui_update_enabled) {
-                SparkleBridge::updateInit(updateUrl.toString().toUtf8().constData(), prefs.gui_update_enabled, prefs.gui_update_interval);
-            } else {
-                SparkleBridge::updateInit(updateUrl.toString().toUtf8().constData(), false, 0);
-            }
-
-            SparkleBridge::setUpdateCallbacks(
-                // engage callback
-                []() {
-                    emit SoftwareUpdate::instance()->updateEngaged();
-                },
-                // postpone callback — save documents, then proceed
-                [](void (*proceed)(void *ctx), void *ctx) {
-                    emit instance_->updateEngaged();
-
-                    ShutdownEvent shutdownEvent;
-                    emit instance_->appShutdownRequested(&shutdownEvent);
-
-                    if (shutdownEvent.isAccepted()) {
-                        proceed(ctx);
-                    }
-                },
-                // will-relaunch callback — final cleanup
-                []() {
-                    qInfo() << "Sparkle is about to relaunch the application.";
-                }
-            );
-
-        #endif /* if */
+    const QUrl appcastUrl = backend_->supportsAppcast() ? updateUrl() : QUrl();
+    backend_->init(appcastUrl, runWithoutSilentCheck);
 
     /** Start the automatic update check if enabled in preferences */
     if (prefs.gui_update_enabled && !runWithoutSilentCheck) {
         startAutoCheck(prefs.gui_update_interval);
     }
-    #else
-        Q_UNUSED(runWithoutSilentCheck);
-    #endif /** HAVE_SOFTWARE_UPDATE */
 }
 
 QString SoftwareUpdate::info()
 {
-    QString info;
-
-    #ifdef HAVE_SOFTWARE_UPDATE
-        #ifdef _WIN32
-            info = QString("%1 %2").arg("WinSparkle").arg(WIN_SPARKLE_VERSION_STRING);
-        #elif defined(__APPLE__)
-            info = "Sparkle";
-        #endif
-    #endif /* HAVE_SOFTWARE_UPDATE */
-
-    return info;
+    /* Called while building the feature list, possibly before the application object exists */
+    QScopedPointer<SoftwareUpdateBackend> backend(SoftwareUpdateBackend::create());
+    return backend ? backend->info() : QString();
 }
 
 bool SoftwareUpdate::plattformSupported()
 {
-    #if defined(HAVE_SOFTWARE_UPDATE) and (defined(_WIN32) || defined(__APPLE__))
-        return true;
-    #else
-        return false;
-    #endif /* if */
+    return instance()->backend_ != nullptr;
 }
 
 QUrl SoftwareUpdate::updateUrl() const
 {
     QUrl updateUrl;
 
-    #ifdef HAVE_SOFTWARE_UPDATE
+    Q_ASSERT_X(backend_ && backend_->supportsAppcast(), "SoftwareUpdate::updateUrl", "only appcast backends have an update URL");
+    if (backend_ && backend_->supportsAppcast()) {
         const auto _prefix = "update";
         const auto _version = 0;
         const auto _locale = "en-US";
 
+        const char *_arch = nullptr;
     #if defined(__x86_64__) || defined(_M_X64)
-        const auto _arch = "x86-64";
+        _arch = "x86-64";
     #elif defined(__arm64__) || defined(_M_ARM64)
-        const auto _arch = "arm64";
+        _arch = "arm64";
     #endif
+        Q_ASSERT_X(_arch, "SoftwareUpdate::updateUrl", "appcast updates exist only for x86-64 and arm64");
+        if (!_arch) {
+            return updateUrl;
+        }
 
         const auto _baseurl = "https://www.wireshark.org/";
 
@@ -246,12 +167,12 @@ QUrl SoftwareUpdate::updateUrl() const
             QString::number(_version) + "/" +
             QString(application_flavor_name_proper()) + "/" +
             QString(application_version()) + "/" +
-            QString(SU_OSNAME) + "/" +
+            backend_->osName() + "/" +
             QString(_arch) + "/"+ QString(_locale) + "/" +
             ((prefs.gui_update_channel == UPDATE_CHANNEL_DEVELOPMENT) ? "development" : "stable") + ".xml";
 
         updateUrl = _baseurl + _urlPath;
-    #endif /* HAVE_SOFTWARE_UPDATE */
+    }
 
     #ifdef UPDATE_TEST
         updateUrl = QUrl(APPCAST_URL);
@@ -264,34 +185,33 @@ QUrl SoftwareUpdate::updateUrl() const
 
 void SoftwareUpdate::performUIUpdate()
 {
-    #ifdef HAVE_SOFTWARE_UPDATE
-        /* Skip update check for PortableApps installations */
-        if (WorkspaceState::isPortableApplication()) {
-            return;
-        }
+    /* Skip update check for PortableApps installations */
+    if (WorkspaceState::isPortableApplication()) {
+        return;
+    }
 
-        #ifdef _WIN32
-            win_sparkle_check_update_with_ui();
-        #elif defined(__APPLE__)
-            SparkleBridge::updateCheck();
-        #endif /* if */
-    #endif /* HAVE_SOFTWARE_UPDATE */
+    SoftwareUpdate *su = instance();
+    if (su->backend_) {
+        su->backend_->performUIUpdate();
+    }
 }
 
 void SoftwareUpdate::cleanup()
 {
     stopAutoCheck();
-    #if defined(HAVE_SOFTWARE_UPDATE) && defined(_WIN32)
-        win_sparkle_cleanup();
-    #endif /* if */
+    if (backend_) {
+        backend_->cleanup();
+    }
 }
 
 void SoftwareUpdate::startAutoCheck(int intervalSeconds)
 {
-#ifdef HAVE_SOFTWARE_UPDATE
     /* Skip update check for PortableApps installations */
-    if (WorkspaceState::isPortableApplication()) {
+    if (!backend_ || WorkspaceState::isPortableApplication()) {
         return;
+    }
+    if (intervalSeconds <= 0) {
+        intervalSeconds = prefs.gui_update_interval;
     }
     updateMutex_.lock();
     auto msec = intervalSeconds * 1000;
@@ -307,9 +227,6 @@ void SoftwareUpdate::startAutoCheck(int intervalSeconds)
         updateCheckTimer_->start(msec);
     }
     updateMutex_.unlock();
-#else
-    Q_UNUSED(intervalSeconds);
-#endif /* HAVE_SOFTWARE_UPDATE */
 }
 
 void SoftwareUpdate::stopAutoCheck()
@@ -326,81 +243,25 @@ bool SoftwareUpdate::isAutoCheckEnabled() const
     return updateCheckTimer_->isActive();
 }
 
-#if defined(_WIN32)
-/** Check to see if Wireshark can shut down safely (e.g. offer to save the
- *  current capture). These callbacks are used by the software update system
- *  to determine if it can shut down the app to install updates.
- *
- *  Note on Windows:
- *  At this point the update is ready to install, but WinSparkle has
- *  not yet run the installer. We need to close our "Wireshark is
- *  running" mutexes since the IsWiresharkRunning NSIS macro checks
- *  for them.
- *  We must not exit the Qt main event loop here, which means we must
- *  not close the main window.
- */
-int SoftwareUpdate::softwareUpdateCanShutdownCallback() {
-    if (instance_) {
-        emit instance_->updateEngaged();
-
-        ShutdownEvent shutdownEvent;
-        emit instance_->appShutdownRequested(&shutdownEvent);
-
-        if (shutdownEvent.isAccepted()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
- * Note on Windows:
- * At this point the installer has been launched. Neither Wireshark nor
- * its children should have any "Wireshark is running" mutexes open.
- * The main window should still be open as noted above in and it's safe
- * to exit the Qt main event loop.
- */
-void __cdecl SoftwareUpdate::shutdownRequestCallback() {
-     if (instance_) {
-             mainApp->quit();
-     }
-}
-
-void SoftwareUpdate::softwareUpdateEngaged() {
-    if (instance_) {
-
-        /* Restarting auto check after update */
-        /* This can be called from a different thread; QTimer can only be
-         * stopped and started from the owning thread. */
-        QMetaObject::invokeMethod(instance_, [=]() {
-            instance_->startAutoCheck();
-            }, Qt::QueuedConnection);
-
-        emit instance_->updateEngaged();
-    }
-}
-#elif defined(__APPLE__)
-/** Check to see if Wireshark can shut down safely (e.g. offer to save the
- *  current capture). These callbacks are used by the software update system
- *  to determine if it can shut down the app to install updates.
- */
-void SoftwareUpdate::onPostponeRelaunch(void (*proceed)(void *ctx), void *ctx) {
-    if (instance_) {
-        emit instance_->updateEngaged();
-
-        ShutdownEvent shutdownEvent;
-        emit instance_->appShutdownRequested(&shutdownEvent);
-
-        if (shutdownEvent.isAccepted()) {
-            return proceed(ctx);
-        }
-    }
-}
-#endif
-
 void SoftwareUpdate::checkForUpdates()
 {
-    updateMutex_.lock();
+    /* If the backend handles updates itself (returning true on checkForUpdates)
+     * or does not support the appcast, skip the appcast check */
+    if (!backend_) {
+        return;
+    }
+
+    /* Held across both paths so a check never starts while another one is being started */
+    QMutexLocker locker(&updateMutex_);
+    if (backend_->checkForUpdates() || !backend_->supportsAppcast()) {
+        return;
+    }
+
+    /* The previous appcast request has not finished yet */
+    if (pendingReply_) {
+        return;
+    }
+
     QNetworkRequest request(updateUrl());
     QString userAgent = QString("%1 Update Check/%2").arg(application_flavor_name_proper()).arg(application_version());
     request.setHeader(QNetworkRequest::UserAgentHeader, userAgent);
@@ -409,12 +270,11 @@ void SoftwareUpdate::checkForUpdates()
     request.setAttribute(QNetworkRequest::CacheLoadControlAttribute,
                          QNetworkRequest::AlwaysNetwork);
 
-    networkAccessManager_->get(request);
+    pendingReply_ = networkAccessManager_->get(request);
 
 #if defined(UPDATE_TEST)
     qDebug() << "Checking for updates at:" << updateUrl().toString();
 #endif /* if */
-    updateMutex_.unlock();
 }
 
 QList<AppcastItem> SoftwareUpdate::parseAppcast(const QByteArray &data) const
@@ -497,6 +357,9 @@ QList<AppcastItem> SoftwareUpdate::parseAppcast(const QByteArray &data) const
 void SoftwareUpdate::onNetworkReplyFinished(QNetworkReply* reply)
 {
     reply->deleteLater();
+    updateMutex_.lock();
+    pendingReply_ = nullptr;
+    updateMutex_.unlock();
 
     if (reply->error() != QNetworkReply::NoError) {
         emit updateCheckFailed(reply->errorString());
@@ -516,14 +379,7 @@ void SoftwareUpdate::onNetworkReplyFinished(QNetworkReply* reply)
         int suffix;
     #endif
 
-    #if defined(WIN32)
-        const auto target_os = "windows";
-    #elif defined(__APPLE__)
-        const auto target_os = "macos";
-    #else
-        /** needs to be set to something, as an empty string means any platform for sparkle */
-        const auto target_os = "xxxx";
-    #endif
+    const QString target_os = backend_->osName();
 
     QVersionNumber bestVersion = QVersionNumber::fromString("0.0.0");
     QString bestReleaseNotes;

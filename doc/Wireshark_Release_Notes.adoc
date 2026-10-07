@@ -33,6 +33,7 @@ The following changes have been made since version 4.7.3:
 * Holding down kbd:[↓] and kbd:[↑] will move rapidly through the packet list.
 * Coloring rules are now saved as a https://jsonc.org/[JSONC] (JSON with comments) file.
   The legacy file format is still supported, but support will be removed in a future release.
+* Support for automatic update notification and updates on Linux distributions supporting PackageKit >= 1.1.12.
 
 The following changes have been made since version 4.7.2:
 
@@ -158,6 +159,14 @@ The following features are either new or have been significantly updated since v
   process ID, user ID and name, executable UUID and start time), fills the
   "User name" column, and can be used through the "Process" conversation
   filter.
+
+* On Linux, Wireshark can check whether the distribution offers a newer version
+  of the package it was installed from. The check uses PackageKit and never
+  contacts wireshark.org; the update itself is installed through the desktop's
+  software center (e.g. GNOME Software or KDE Discover). Self-compiled builds
+  and Flatpak, Snap or AppImage installations are not checked.
+  Building with this support requires the optional packagekit-glib2 library,
+  version 1.1.12 or later.
 
 * The Windows installers now ship with Npcap 1.88.
   They previously shipped with Npcap 1.83.

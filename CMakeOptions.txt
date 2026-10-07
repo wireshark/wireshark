@@ -118,6 +118,7 @@ if(UNIX)
 	# Libnl is Linux-specific.
 	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		set(_enable_libnl ON)
+		option(ENABLE_PACKAGEKIT "Enable automatic updates using PackageKit" ON)
 	endif()
 	option(ENABLE_NETLINK    "Build with libnl support" ${_enable_libnl})
 endif()
