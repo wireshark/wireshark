@@ -93,6 +93,7 @@ DIAG_ON(frame-larger-than=)
 #endif
 #include <ui/qt/utils/color_utils.h>
 #include "coloring_rules_dialog.h"
+#include "tagging_rules_dialog.h"
 #include "conversation_dialog.h"
 #include "conversation_colorize_action.h"
 #include "conversation_hash_tables_dialog.h"
@@ -2210,6 +2211,9 @@ void StratosharkMainWindow::connectViewMenuActions()
     connect(main_ui_->actionViewColoringRules, &QAction::triggered, this,
             [this]() { showColoringRulesDialog(); });
 
+    connect(main_ui_->actionViewTaggingRules, &QAction::triggered, this,
+            [this]() { showTaggingRulesDialog(); });
+
     connect(main_ui_->actionViewColorizeResetColorization, &QAction::triggered, this, [this]() {
         char *err_msg = NULL;
         if (!color_filters_reset_tmp(&err_msg)) {
@@ -2438,6 +2442,17 @@ void StratosharkMainWindow::showColoringRulesDialog()
     coloring_rules_dialog->setWindowModality(Qt::ApplicationModal);
     coloring_rules_dialog->setAttribute(Qt::WA_DeleteOnClose);
     coloring_rules_dialog->show();
+}
+
+void StratosharkMainWindow::showTaggingRulesDialog()
+{
+    TaggingRulesDialog *tagging_rules_dialog = new TaggingRulesDialog(this);
+    PacketList *pl = packet_list_;
+    tagging_rules_dialog->setColoringAcceptedCallback([pl]() { pl->recolorPackets(); });
+
+    tagging_rules_dialog->setWindowModality(Qt::ApplicationModal);
+    tagging_rules_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    tagging_rules_dialog->show();
 }
 
 // actionViewColorizeConversation1 - 10

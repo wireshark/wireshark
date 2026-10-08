@@ -426,6 +426,7 @@
     <addaction name="actionViewColorizePacketList"/>
     <addaction name="actionViewColoringRules"/>
     <addaction name="menuColorizeConversation"/>
+    <addaction name="actionViewTaggingRules"/>
     <addaction name="separator"/>
     <addaction name="actionViewResetLayout"/>
     <addaction name="actionViewResizeColumns"/>
@@ -2062,6 +2063,14 @@
    </property>
    <property name="toolTip">
     <string>Edit the event list coloring rules.</string>
+   </property>
+  </action>
+  <action name="actionViewTaggingRules">
+   <property name="text">
+    <string>&amp;Tagging Rules…</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit the event tagging rules.</string>
    </property>
   </action>
   <action name="actionViewShowPacketInNewWindow">

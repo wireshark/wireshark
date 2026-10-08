@@ -899,6 +899,9 @@ private slots:
     /** @brief Opens the Coloring Rules management dialog. */
     void showColoringRulesDialog();
 
+    /** @brief Opens the Tagging Rules management dialog. */
+    void showTaggingRulesDialog();
+
     /**
      * @brief Colorizes packets matching the current conversation, optionally
      *        creating a permanent colouring rule.
