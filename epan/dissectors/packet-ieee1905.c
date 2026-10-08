@@ -873,6 +873,11 @@ static int hf_ieee1905_eht_operations_radio_bss_ccfs1;
 static int hf_ieee1905_eht_operations_radio_bss_disabled_subchannel_bitmap;
 static int hf_ieee1905_available_spectrum_inquiry_request_object;
 static int hf_ieee1905_available_spectrum_inquiry_response_object;
+static int hf_ieee1905_supported_cipher_suites_num_cs;
+static int hf_ieee1905_supported_cipher_suites_cs_list;
+static int hf_ieee1905_supported_cipher_suites_cs;
+static int hf_ieee1905_supported_cipher_suites_cs_oui;
+static int hf_ieee1905_supported_cipher_suites_cs_type;
 
 static int ett_ieee1905;
 static int ett_ieee1905_flags;
@@ -1092,6 +1097,8 @@ static int ett_eht_operations_radio_bss_list;
 static int ett_eht_operations_radio_bss;
 static int ett_eht_operations_radio_bss_flags;
 static int ett_tunneled_ies;
+static int ett_supported_cipher_security_cs_tree;
+static int ett_supported_cipher_security_cs_sub_tree;
 
 static int ett_ieee1905_fragment;
 static int ett_ieee1905_fragments;
@@ -1403,6 +1410,7 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define EHT_OPERATIONS_TLV                      0xE7
 #define AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV  0xE8
 #define AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV 0xE9
+#define SUPPORTED_CIPHER_SUITES_TLV             0xED
 
 static const value_string ieee1905_tlv_types_vals[] = {
   { EOM_TLV,                                 "End of message" },
@@ -1538,6 +1546,7 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { EHT_OPERATIONS_TLV,                      "EHT Operations" },
   { AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV,  "Available Spectrum Inquiry Request" },
   { AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV, "Available Spectrum Inquiry Response" },
+  { SUPPORTED_CIPHER_SUITES_TLV,             "Supported Cipher Suites" },
   { 0, NULL }
 };
 static value_string_ext ieee1905_tlv_types_vals_ext = VALUE_STRING_EXT_INIT(ieee1905_tlv_types_vals);
@@ -8493,7 +8502,7 @@ static int* const agent_ap_mld_configuration_ap_mld_affiliated_ap_flags_headers[
 };
 
 static int
-dissect_agent_agent_ap_mld_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_agent_agent_ap_mld_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
     proto_tree *ap_mld_list = NULL;
@@ -8630,7 +8639,7 @@ static int* const backhaul_sta_mld_configuration_affiliated_bsta_flags_headers[]
 };
 
 static int
-dissect_backhaul_sta_mld_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_backhaul_sta_mld_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
     proto_tree *aff_bsta_list = NULL;
@@ -8719,7 +8728,7 @@ static int* const associated_sta_mld_configuration_flags_headers[] = {
 };
 
 static int
-dissect_associated_sta_mld_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_associated_sta_mld_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
     proto_tree *aff_sta_list = NULL;
@@ -8787,7 +8796,7 @@ dissect_associated_sta_mld_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _
  * Dissect an Affiliated STA Metrics TLV:
  */
 static int
-dissect_affiliated_sta_metrics(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_affiliated_sta_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
     unsigned end = offset + len;
@@ -8831,7 +8840,7 @@ dissect_affiliated_sta_metrics(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
  * Dissect an Affiliated AP Metrics TLV:
  */
 static int
-dissect_affiliated_ap_metrics(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_affiliated_ap_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
     unsigned end = offset + len;
@@ -8901,7 +8910,7 @@ static int* const eht_operations_radio_bss_flags_headers[] = {
 };
 
 static int
-dissect_eht_operations_tlv(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_eht_operations_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
     proto_tree *radio_list = NULL;
@@ -9012,7 +9021,7 @@ dissect_eht_operations_tlv(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
  * Dissect an Available Spectrum Inquiry Request TLV:
  */
 static int
-dissect_available_spectrum_inquiry_request(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_available_spectrum_inquiry_request(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
     /* Content is a JSON message */
@@ -9027,13 +9036,46 @@ dissect_available_spectrum_inquiry_request(tvbuff_t *tvb _U_, packet_info *pinfo
  * Dissect an Available Spectrum Inquiry Response TLV:
  */
 static int
-dissect_available_spectrum_inquiry_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
+dissect_available_spectrum_inquiry_response(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
     /* Content is a JSON message */
     proto_tree_add_item(tree, hf_ieee1905_available_spectrum_inquiry_response_object,
                         tvb, offset, len, ENC_ASCII);
     offset += len;
+
+    return offset;
+}
+
+/*
+ * Dissect a Supported Cipher Suites TLV:
+ */
+static int
+dissect_supported_cipher_suites(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    proto_item *suites_item, *suites_sub_item;
+    proto_tree *suites_tree, *suites_sub_tree;
+    uint8_t num_suites;
+    uint8_t i;
+
+    proto_tree_add_item_ret_uint8(tree, hf_ieee1905_supported_cipher_suites_num_cs,
+                                  tvb, offset, 1, ENC_NA, &num_suites);
+
+    offset++;
+
+    suites_item = proto_tree_add_item(tree, hf_ieee1905_supported_cipher_suites_cs_list , tvb, offset, num_suites * 4, ENC_NA);
+    suites_tree = proto_item_add_subtree(suites_item, ett_supported_cipher_security_cs_tree);
+
+    for (i = 0; i < num_suites; i++) {
+        suites_sub_item = proto_tree_add_item(suites_tree, hf_ieee1905_supported_cipher_suites_cs, tvb, offset, 4, ENC_BIG_ENDIAN);
+        suites_sub_tree = proto_item_add_subtree(suites_sub_item, ett_supported_cipher_security_cs_sub_tree);
+
+        proto_tree_add_item(suites_sub_tree, hf_ieee1905_supported_cipher_suites_cs_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(suites_sub_tree, hf_ieee1905_supported_cipher_suites_cs_type, tvb, offset + 3, 1, ENC_NA);
+
+        offset +=4;
+    }
 
     return offset;
 }
@@ -9636,6 +9678,10 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
                                                              tlv_len);
         break;
 
+    case SUPPORTED_CIPHER_SUITES_TLV:
+        offset = dissect_supported_cipher_suites(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
     default:
         proto_tree_add_item(tree, hf_ieee1905_tlv_data, tvb, offset, tlv_len, ENC_NA);
         offset += tlv_len;
@@ -9935,6 +9981,17 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     tvb_set_reported_length(tvb, offset + next_offset);
 
     return offset + next_offset;
+}
+
+static void
+supported_cipher_suites_cs_custom(char *result, uint32_t cs)
+{
+    uint8_t p_oui[3] = {cs >> 24 & 0xFF, cs >> 16 & 0xFF, cs >> 8 & 0xFF};
+    char *tmp_str;
+
+    tmp_str = val_to_str(NULL, cs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d");
+    snprintf(result, ITEM_LABEL_LENGTH, "%02x:%02x:%02x %s", p_oui[0], p_oui[1], p_oui[2], tmp_str);
+    wmem_free(NULL, tmp_str);
 }
 
 void
@@ -13491,6 +13548,30 @@ proto_register_ieee1905(void)
           { "Object", "ieee1905.available_spectrum_inquiry_response.object",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_supported_cipher_suites_num_cs,
+          { "Number of Cipher Suites", "ieee1905.supported_cipher_suites.num_suites",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_supported_cipher_suites_cs_list,
+          {"Cipher Suite List", "ieee1905.supported_cipher_suites.cipher_suites_list",
+            FT_NONE, BASE_NONE, NULL, 0,
+           "Contains a series of cipher suite selectors", HFILL }},
+
+        {&hf_ieee1905_supported_cipher_suites_cs,
+           {"Pairwise Cipher Suite", "ieee1905.supported_cipher_suites.cipher_suite",
+           FT_UINT32, BASE_CUSTOM, CF_FUNC(supported_cipher_suites_cs_custom), 0,
+           NULL, HFILL }},
+
+        {&hf_ieee1905_supported_cipher_suites_cs_oui,
+          {"Cipher Suite OUI", "ieee1905.supported_cipher_suites.cipher_suite.oui",
+            FT_UINT24, BASE_OUI, NULL, 0,
+            NULL, HFILL }},
+
+        {&hf_ieee1905_supported_cipher_suites_cs_type,
+          {"Cipher Suite type", "ieee1905.supported_cipher_suites.cipher_suite.type",
+          FT_UINT8, BASE_DEC, VALS(ieee80211_rsn_cipher_vals), 0,
+          NULL, HFILL }},
+
         { &hf_ieee1905_extra_tlv_data,
           { "Extraneous TLV data", "ieee1905.extra_tlv_data",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -13760,6 +13841,8 @@ proto_register_ieee1905(void)
         &ett_eht_operations_radio_bss,
         &ett_eht_operations_radio_bss_flags,
         &ett_tunneled_ies,
+        &ett_supported_cipher_security_cs_tree,
+        &ett_supported_cipher_security_cs_sub_tree,
         &ett_ieee1905_fragment,
         &ett_ieee1905_fragments,
     };
