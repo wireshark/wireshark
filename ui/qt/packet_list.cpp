@@ -2648,6 +2648,9 @@ void PacketList::setCaptureFile(capture_file *cf)
 void PacketList::setMonospaceFont(const QFont &mono_font)
 {
     setFont(mono_font);
+    if (pinned_rows_model_) {
+        pinned_rows_model_->setBaseFont(mono_font);
+    }
     for (QTreeView *view : pinnedOverlayViews()) {
         view->setFont(mono_font);
     }

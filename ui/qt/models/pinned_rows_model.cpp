@@ -13,6 +13,13 @@
 #include <ui/qt/models/pinned_rows_model.h>
 #include <ui/qt/models/packet_list_model.h>
 #include <ui/qt/models/packet_list_proxy_model.h>
+#include <ui/qt/models/packet_list_record.h>
+
+#include <epan/frame_data.h>
+
+#include <QFont>
+#include <QGuiApplication>
+#include <QPalette>
 
 #include <algorithm>
 
@@ -58,6 +65,11 @@ void PinnedRowsModel::setSortModel(PacketListProxyModel *sort_model)
 {
     sort_model_ = sort_model;
     refresh();
+}
+
+void PinnedRowsModel::setBaseFont(const QFont &font)
+{
+    base_font_ = font;
 }
 
 bool PinnedRowsModel::pinFrame(int frame_num)
@@ -267,4 +279,34 @@ QVariant PinnedRowsModel::headerData(int section, Qt::Orientation orientation, i
         return QVariant();
     }
     return sourceModel()->headerData(section, orientation, role);
+}
+
+QVariant PinnedRowsModel::data(const QModelIndex &index, int role) const
+{
+    if (!sort_model_ || (role != Qt::FontRole && role != Qt::ForegroundRole && role != Qt::ToolTipRole)) {
+        return QAbstractProxyModel::data(index, role);
+    }
+
+    PacketListRecord *record = index.isValid() ? static_cast<PacketListRecord *>(index.internalPointer()) : nullptr;
+    PacketListProxyModel::HiddenReason reason = record && record->frameData() ?
+        sort_model_->hiddenReason(record->frameData()) : PacketListProxyModel::HiddenReason::Shown;
+    if (reason == PacketListProxyModel::HiddenReason::Shown) {
+        return QAbstractProxyModel::data(index, role);
+    }
+
+    switch (role) {
+    case Qt::FontRole:
+    {
+        QFont font = base_font_;
+        font.setItalic(true);
+        return font;
+    }
+    case Qt::ForegroundRole:
+        return QGuiApplication::palette().color(QPalette::Disabled, QPalette::Text);
+    case Qt::ToolTipRole:
+    default:
+        return reason == PacketListProxyModel::HiddenReason::FilteredOut ?
+            tr("This packet is pinned but doesn't match the display filter.") :
+            tr("This packet is pinned but has been aggregated into a later row with the same key.");
+    }
 }

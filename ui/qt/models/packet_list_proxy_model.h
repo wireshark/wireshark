@@ -140,6 +140,20 @@ public:
      */
     int rowOfPacket(const frame_data *fdata) const;
 
+    /** Why a packet has no row of its own in this model. */
+    enum class HiddenReason {
+        Shown,       ///< The packet has a row of its own.
+        FilteredOut, ///< The display filter excludes the packet.
+        Aggregated   ///< The aggregation view folded it into another packet's row.
+    };
+
+    /**
+     * @brief Returns why the given packet has no row of its own, if it doesn't.
+     * @param fdata Pointer to the frame data.
+     * @return HiddenReason::Shown if rowOfPacket() would be non-negative.
+     */
+    HiddenReason hiddenReason(const frame_data *fdata) const;
+
     /**
      * @brief Sets the mark state for all currently displayed frames.
      * @param set True to mark, false to unmark.
