@@ -246,9 +246,15 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, char **err_info)
         fail; those will be I/O errors. */
     parser_state.fh = wth->fh;
     parser_state.pseudo_header = &rec.rec_header.packet_header.pseudo_header.ascend;
-    if (run_ascend_parser(buf, &parser_state, err, err_info) != 0 && *err != 0) {
-        /* An I/O error. */
-        return WTAP_OPEN_ERROR;
+    if (!run_ascend_parser(buf, &parser_state, err, err_info)) {
+        if (*err != WTAP_ERR_SHORT_READ && *err != WTAP_ERR_BAD_FILE) {
+            /* An I/O error. */
+            return WTAP_OPEN_ERROR;
+        }
+        /* EOF or a bad line; that's not fatal here. */
+        *err = 0;
+        g_free(*err_info);
+        *err_info = NULL;
     }
 
     /* Either the parse succeeded, or it failed but didn't get an I/O
@@ -309,13 +315,16 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
              int *err, char **err_info)
 {
     ascend_state_t parser_state = {0};
-    int retval;
+    bool parse_failed;
 
     ws_buffer_assure_space(buf, length);
     parser_state.fh = fh;
     parser_state.pseudo_header = &rec->rec_header.packet_header.pseudo_header.ascend;
 
-    retval = run_ascend_parser(ws_buffer_start_ptr(buf), &parser_state, err, err_info);
+    /* The parser returns false only for an I/O error; a syntax error
+       just sets ascend_parse_error. */
+    parse_failed = !run_ascend_parser(ws_buffer_start_ptr(buf), &parser_state, err, err_info) ||
+                   parser_state.ascend_parse_error != NULL;
 
     /* Did we see any data (hex bytes)? */
     if (parser_state.first_hexbyte) {
@@ -340,7 +349,7 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
         *next_packet_seek_start_ret = file_tell(fh);
 
         /* Don't treat that as a fatal error; pretend the parse succeeded. */
-        retval = 0;
+        parse_failed = false;
     }
 
     /* if we got at least some data, return success even if the parser
@@ -379,7 +388,7 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
     }
 
     /* Didn't see any data. Still, perhaps the parser was happy.  */
-    if (retval) {
+    if (parse_failed) {
         if (*err == 0) {
         /* Parser failed, but didn't report an I/O error, so a parse error.
             Return WTAP_ERR_BAD_FILE, with the parse error as the error string. */
