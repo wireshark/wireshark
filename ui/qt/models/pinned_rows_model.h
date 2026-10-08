@@ -67,6 +67,19 @@ public:
     // Unpins every currently pinned packet.
     void clear();
 
+    /**
+     * @brief Re-pins the frames that were pinned when the source model was
+     * last reset (e.g., by redissection), in the order they were pinned,
+     * skipping any that no longer exist. Frame numbers are stable across
+     * redissection, so the same packets are pinned afterward.
+     * @return True if any frames were restored.
+     */
+    bool restoreSavedPins();
+
+    // Forgets the pins saved by the last source model reset, e.g., because
+    // the capture file was closed or replaced rather than redissected.
+    void discardSavedPins() { saved_frame_nums_.clear(); }
+
     // Whether the given frame number is currently pinned.
     bool isPinned(int frame_num) const;
 
@@ -120,6 +133,8 @@ private slots:
 
 private:
     QList<int> pinned_frame_nums_;
+    // Pins held across a source model reset, for restoreSavedPins().
+    QList<int> saved_frame_nums_;
     PacketListModel *packet_list_model_;
     PacketListProxyModel *sort_model_;
 };

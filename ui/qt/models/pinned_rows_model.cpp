@@ -34,6 +34,7 @@ void PinnedRowsModel::setSourceModel(QAbstractItemModel *source_model)
     QAbstractProxyModel::setSourceModel(source_model);
     packet_list_model_ = qobject_cast<PacketListModel *>(source_model);
     pinned_frame_nums_.clear();
+    saved_frame_nums_.clear();
 
     if (source_model) {
         connect(source_model, &QAbstractItemModel::dataChanged,
@@ -103,6 +104,19 @@ void PinnedRowsModel::clear()
     endRemoveRows();
 }
 
+bool PinnedRowsModel::restoreSavedPins()
+{
+    // Pin in the original pin order; refresh() re-sorts to match the view.
+    QList<int> saved = saved_frame_nums_;
+    saved_frame_nums_.clear();
+
+    bool restored = false;
+    for (int frame_num : saved) {
+        restored |= (pinFrame(frame_num) && isPinned(frame_num));
+    }
+    return restored;
+}
+
 bool PinnedRowsModel::isPinned(int frame_num) const
 {
     return pinned_frame_nums_.contains(frame_num);
@@ -153,7 +167,12 @@ void PinnedRowsModel::refresh()
 void PinnedRowsModel::sourceModelAboutToBeReset()
 {
     // The source model is about to delete every packet, pinned or not.
+    // Redissection does this and then re-adds the same frames, so remember
+    // the pins for restoreSavedPins(); closing the file discards them.
     beginResetModel();
+    if (!pinned_frame_nums_.isEmpty()) {
+        saved_frame_nums_ = pinned_frame_nums_;
+    }
     pinned_frame_nums_.clear();
 }
 

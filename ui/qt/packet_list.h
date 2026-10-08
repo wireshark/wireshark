@@ -904,6 +904,9 @@ private:
 
     // Number of leftmost columns currently frozen/pinned, or 0.
     int pinned_column_boundary_;
+    // The frozen-column boundary held across a clear() so redissection can
+    // restore it; see captureFileReadFinished().
+    int saved_pinned_column_boundary_;
 
     // Overlay view showing the frozen leftmost columns for all rows.
     PinnedColumnView *pinned_column_view_;
