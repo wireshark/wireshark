@@ -1231,6 +1231,8 @@ If you want to automatically check for the latest version, you can use one of th
 
 https://www.wireshark.org/update/0/Wireshark/0.0.0/Windows/x86-64/en-US/stable.xml
 
+You can enable update notifications on various Linux distributions using the `ENABLE_PACKAGEKIT` CMake option.
+
 [discrete]
 ===== Artwork
 
