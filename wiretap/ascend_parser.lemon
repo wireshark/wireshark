@@ -464,6 +464,7 @@ run_ascend_parser(uint8_t *pd, ascend_state_t *parser_state, int *err, char **er
     parser_state->saw_timestamp = false;
     parser_state->timestamp = 0;
 
+    parser_state->line_len = 0;
     parser_state->first_hexbyte = 0;
     parser_state->caplen = 0;
     parser_state->wirelen = 0;

@@ -16,6 +16,13 @@
 #include <stdbool.h>
 #include "ws_symbol_export.h"
 
+/*
+ * Maximum length of a line. Real lines are around 80 characters; this
+ * just keeps the scanner from reading arbitrarily far into a non-Ascend
+ * file.
+ */
+#define ASCEND_MAX_LINE_LEN 1024
+
 /**
  * @brief Holds per-file state for reading an Ascend capture file.
  */
@@ -49,6 +56,7 @@ typedef struct {
     uint8_t             *pkt_data;           /**< Pointer to the buffer receiving the decoded packet payload bytes. */
     bool                 saw_timestamp;      /**< Whether a timestamp record has been encountered for the current packet. */
     time_t               timestamp;          /**< Parsed wall-clock timestamp of the current packet record. */
+    unsigned             line_len;           /**< Number of characters read on the current line. */
     int64_t              first_hexbyte;      /**< File offset of the first hex data byte of the current packet record. */
     uint32_t             wirelen;            /**< Original on-wire length of the current packet in bytes. */
     uint32_t             caplen;             /**< Captured length of the current packet in bytes. */
