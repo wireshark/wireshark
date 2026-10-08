@@ -2130,6 +2130,10 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 				LINK_FRAG(fd_head,fd);
 				return true;
 			}
+			/* Link the fragment first so it is owned by fd_head
+			 * and not leaked if the assertion or the tvb accesses
+			 * below throw an exception. */
+			LINK_FRAG(fd_head,fd);
 			DISSECTOR_ASSERT(fd_head->len >= dfpos + fd->len);
 			if (tvb_memeql(fd_head->tvb_data, dfpos,
 				tvb_get_ptr(tvb,offset,fd->len),fd->len) ){
@@ -2139,11 +2143,8 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 				 */
 				fd->flags	|= FD_OVERLAPCONFLICT;
 				fd_head->flags	|= FD_OVERLAPCONFLICT;
-				LINK_FRAG(fd_head,fd);
-				return true;
 			}
-			/* it was just an overlap, link it and return */
-			LINK_FRAG(fd_head,fd);
+			/* otherwise it was just an overlap */
 			return true;
 		} else {
 			/*
