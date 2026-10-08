@@ -49,6 +49,7 @@ static bool json_log_seek_read(wtap* wth, int64_t seek_off, wtap_rec* rec, int* 
 
 // Maximum size of a log entry
 #define MAX_JSON_LOG_ENTRY_SIZE (100 * 1024)
+#define JSON_LOG_READ_CHUNK_SIZE 4096
 #define START_TOKENS 25
 
 static jsmntok_t *tokens = NULL;
@@ -143,28 +144,33 @@ ptrdiff_t skip_cloudtrail_header(const char *log_data, const char *log_end) {
 }
 
 // XXX Should this be in wsjson?
-size_t json_object_size(const char *log_data, const char *log_end) {
-    int depth = 0;
-    bool in_string = false;
-    bool in_escape = false;
+typedef struct {
+    int depth;
+    bool in_string;
+    bool in_escape;
+} json_object_scan_t;
 
+// Scan for the end of a JSON object, continuing from the state left by a
+// previous call. Returns the number of bytes up to and including the closing
+// brace, or 0 if it's not in [log_data, log_end).
+static size_t json_object_scan(json_object_scan_t *scan, const char *log_data, const char *log_end) {
     for (const char *cur = log_data; cur < log_end; cur++) {
-        if (in_string) {
-            if (in_escape) {
-                in_escape = false;
+        if (scan->in_string) {
+            if (scan->in_escape) {
+                scan->in_escape = false;
             } else if (*cur == '\\') {
-                in_escape = true;
+                scan->in_escape = true;
             } else if (*cur == '"') {
-                in_string = false;
+                scan->in_string = false;
             }
         } else {
             if (*cur == '"') {
-                in_string = true;
+                scan->in_string = true;
             } else if (*cur == '{') {
-                depth++;
+                scan->depth++;
             } else if (*cur == '}') {
-                depth--;
-                if (depth == 0) {
+                scan->depth--;
+                if (scan->depth == 0) {
                     return cur - log_data + 1;
                 }
             }
@@ -172,6 +178,12 @@ size_t json_object_size(const char *log_data, const char *log_end) {
     }
 
     return 0;
+}
+
+size_t json_object_size(const char *log_data, const char *log_end) {
+    json_object_scan_t scan = {0};
+
+    return json_object_scan(&scan, log_data, log_end);
 }
 
 wtap_open_return_val json_log_open(wtap *wth, int *err, char **err_info _U_)
@@ -252,16 +264,35 @@ static bool json_log_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, int *err, 
     char *log_data = (char *) ws_buffer_start_ptr(&rec->data);
 
     int64_t start_pos = file_tell(fh);
-    int bytes_read = file_read(log_data, MAX_JSON_LOG_ENTRY_SIZE, fh);
-    if (bytes_read < 1) {
+    // Read in small chunks until we find the end of the object. Entries
+    // are usually much smaller than MAX_JSON_LOG_ENTRY_SIZE, and reading
+    // (and then seeking back over) the maximum for each one is very slow.
+    json_object_scan_t scan = {0};
+    unsigned bytes_avail = 0;
+    size_t entry_size = 0;
+    while (entry_size == 0 && bytes_avail < MAX_JSON_LOG_ENTRY_SIZE) {
+        unsigned to_read = MIN(JSON_LOG_READ_CHUNK_SIZE, MAX_JSON_LOG_ENTRY_SIZE - bytes_avail);
+        int bytes_read = file_read(log_data + bytes_avail, to_read, fh);
+        if (bytes_read < 0) {
+            *err = file_error(fh, err_info);
+            return false;
+        }
+        if (bytes_read == 0) {
+            break;
+        }
+        size_t scanned = json_object_scan(&scan, log_data + bytes_avail, log_data + bytes_avail + bytes_read);
+        if (scanned != 0) {
+            entry_size = bytes_avail + scanned;
+        }
+        bytes_avail += bytes_read;
+    }
+    if (bytes_avail == 0) {
         if (!file_eof(fh)) {
             *err = WTAP_ERR_SHORT_READ;
         }
         return false;
     }
-    const char *log_end = log_data + bytes_read - 1;
 
-    size_t entry_size = json_object_size(log_data, log_end);
     ws_buffer_increase_length(&rec->data, entry_size);
 
     nstime_t ts = get_entry_timestamp(log_data, entry_size);
