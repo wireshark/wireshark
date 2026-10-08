@@ -16,6 +16,16 @@
 #include <stdbool.h>
 #include "ws_symbol_export.h"
 
+/*
+ * Maximum length of a line. Real lines are around 80 characters; this
+ * just keeps the scanner from reading arbitrarily far into a non-Ascend
+ * file.
+ */
+#define ASCEND_MAX_LINE_LEN 1024
+
+/**
+ * @brief Holds per-file state for reading an Ascend capture file.
+ */
 typedef struct {
     time_t inittime;
     bool adjusted;
@@ -31,23 +41,21 @@ typedef struct {
 } ascend_token_t;
 
 typedef struct {
-    FILE_T fh;
-    const char *ascend_parse_error;
-    int err;
-    char *err_info;
-    struct ascend_phdr *pseudo_header;
-    uint8_t *pkt_data;
-
-    bool saw_timestamp;
-    time_t timestamp;
-
-    int64_t first_hexbyte;
-    uint32_t wirelen;
-    uint32_t caplen;
-    time_t secs;
-    uint32_t usecs;
-
-    ascend_token_t token;
+    FILE_T               fh;                 /**< File handle for the Ascend capture file being parsed. */
+    const char          *ascend_parse_error; /**< Human-readable parse error string; NULL if no error has occurred. */
+    int                  err;                /**< Wiretap error code set if a read or parse error is encountered. */
+    char                *err_info;           /**< Additional detail string associated with @p err; must be freed by the caller. */
+    struct ascend_phdr  *pseudo_header;      /**< Pointer to the Ascend pseudo-header populated during parsing. */
+    uint8_t             *pkt_data;           /**< Pointer to the buffer receiving the decoded packet payload bytes. */
+    bool                 saw_timestamp;      /**< Whether a timestamp record has been encountered for the current packet. */
+    time_t               timestamp;          /**< Parsed wall-clock timestamp of the current packet record. */
+    unsigned             line_len;           /**< Number of characters read on the current line. */
+    int64_t              first_hexbyte;      /**< File offset of the first hex data byte of the current packet record. */
+    uint32_t             wirelen;            /**< Original on-wire length of the current packet in bytes. */
+    uint32_t             caplen;             /**< Captured length of the current packet in bytes. */
+    time_t               secs;              /**< Seconds component of the current packet's arrival timestamp. */
+    uint32_t             usecs;             /**< Microseconds component of the current packet's arrival timestamp. */
+    ascend_token_t       token;             /**< Most recently scanned token from the Ascend file lexer. */
 } ascend_state_t;
 
 extern bool
