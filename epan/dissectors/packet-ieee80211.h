@@ -128,6 +128,11 @@ extern const value_string wfa_subtype_vals[];
 #define IS_FRAME_EXTENSION(x) ((FCF_FRAME_TYPE(x) == 0x1 && FCF_FRAME_SUBTYPE(x) == 0x6) ? 1 : 0)
 
 /*
+ * Convert MGT frame to FCF
+ */
+#define MGT_TO_FCF(x) (((x) & 0x0F) << 4)
+
+/*
  * Convert the frame type and subtype from the frame control field into
  * one of the MGT_, CTRL_, or DATA_ values.
  * Now includes extension subtype in case present.
@@ -590,6 +595,9 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
 unsigned
 add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                             int offset, uint8_t code);
+
+void
+dissect_ieee80211_mgt(uint16_t fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 int
 dissect_mcs_set(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset, bool basic, bool vendorspecific);

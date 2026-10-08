@@ -948,7 +948,7 @@ static int ett_ieee1905_unsuccessful_associations;
 static int ett_assoc_control_list;
 static int ett_ieee1905_steering_request_flags;
 static int ett_ieee1905_association_event_flags;
-static int ett_client_capability_ies;
+static int ett_client_capability_body;
 static int ett_radio_basic_class_list;
 static int ett_ap_radio_basic_cap_class_tree;
 static int ett_radio_basic_non_op_list;
@@ -1067,6 +1067,7 @@ static int ett_ieee1905_service_prio_rule_match_flags;
 static int ett_backhaul_sta_radio_capa_flags;
 static int ett_assoc_status_notif_bssid_list;
 static int ett_assoc_status_notif_bssid_tree;
+static int ett_tunneled_body;
 static int ett_akm_suite_list;
 static int ett_akm_suite;
 static int ett_backhaul_akm_suite_list;
@@ -1118,7 +1119,6 @@ static int ett_eht_operations_radio;
 static int ett_eht_operations_radio_bss_list;
 static int ett_eht_operations_radio_bss;
 static int ett_eht_operations_radio_bss_flags;
-static int ett_tunneled_ies;
 static int ett_rsn_parameter_configuration_radio_list;
 static int ett_rsn_parameter_configuration_radio;
 static int ett_rsn_parameter_configuration_radio_bss_list;
@@ -1881,12 +1881,19 @@ static const value_string ieee1905_error_code_vals[] = {
  */
 #define IEEE1905_MIN_LENGTH 11
 
-/*
- * Size of the fixed parameters in 802.11 management frames
- */
-#define ASSOC_REQ_BODY_FIXED_SIZE   4
-#define REASSOC_REQ_BODY_FIXED_SIZE 10
-#define WNM_REQ_BODY_FIXED_SIZE     4
+static int
+dissect_80211_information_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
+{
+    int offset_end = offset + len;
+    while (offset < offset_end) {
+        int tlen = add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+        if (tlen == 0) {
+            break;
+        }
+        offset += tlen;
+    }
+    return offset;
+}
 
 static int
 dissect_media_type(tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -4724,20 +4731,6 @@ dissect_client_info(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect a client capability report TLV
  */
 static int
-dissect_80211_information_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
-{
-    int offset_end = offset + len;
-    while (offset < offset_end) {
-        int tlen = add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-        if (tlen == 0) {
-            break;
-        }
-        offset += tlen;
-    }
-    return offset;
-}
-
-static int
 dissect_client_capability_report(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
@@ -4753,9 +4746,13 @@ dissect_client_capability_report(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset++;
 
     if (len > 1) { /* Must be the frame body of most recent assoc req */
+        tvbuff_t *mgmt_tvb;
+        proto_item *frame_item;
+        proto_tree *mgmt_tree;
+
         len--;
-        proto_tree_add_item(tree, hf_ieee1905_client_capability_frame, tvb,
-                            offset, len, ENC_NA);
+        frame_item =proto_tree_add_item(tree, hf_ieee1905_client_capability_frame, tvb,
+                                        offset, len, ENC_NA);
 
         /* Attempt to decode Information Elements from the Assoc Request.
          *
@@ -4766,18 +4763,10 @@ dissect_client_capability_report(tvbuff_t *tvb, packet_info *pinfo _U_,
          * => The problem is that you don't know which of the 2 it is and where the IE start
          * => Assume the most occurring case and thus useful case (Assoc Request)
          */
-        if (len >= ASSOC_REQ_BODY_FIXED_SIZE) {
-            proto_tree *ie_tree;
-            proto_item *ie;
-            unsigned ie_offset = offset + ASSOC_REQ_BODY_FIXED_SIZE;
-            unsigned ie_len = len - ASSOC_REQ_BODY_FIXED_SIZE;
+        mgmt_tvb = tvb_new_subset_length(tvb, offset, len);
+        mgmt_tree = proto_item_add_subtree(frame_item, ett_client_capability_body);
 
-            ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
-                                                    ett_client_capability_ies,
-                                                    &ie, "Information Elements (%d bytes)", ie_len);
-
-            dissect_80211_information_elements(tvb, pinfo, ie_tree, ie_offset, ie_len);
-        }
+        dissect_ieee80211_mgt(MGT_TO_FCF(MGT_ASSOC_REQ), mgmt_tvb, pinfo, mgmt_tree);
 
         offset += len;
     }
@@ -7317,60 +7306,38 @@ static int
 dissect_tunneled(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
-    proto_tree_add_item(tree, hf_ieee1905_tunneled_data, tvb, offset, len,
-                        ENC_NA);
+    proto_item *data_item;
+
+    data_item = proto_tree_add_item(tree, hf_ieee1905_tunneled_data, tvb, offset, len, ENC_NA);
 
     /* Check if tunneled message type is known and call 802.11 dissector */
     if (GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, TUNNELED_MESSAGE_TYPE_SET_KEY))) {
         uint8_t message_type = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, TUNNELED_MESSAGE_TYPE_KEY));
-        bool dissect_80211_ies = false;
-        unsigned ie_offset;
-        unsigned ie_len;
+        tvbuff_t *mgmt_tvb;
+        proto_tree *mgmt_tree;
+
+        mgmt_tvb = tvb_new_subset_length(tvb, offset, len);
+        mgmt_tree = proto_item_add_subtree(data_item, ett_tunneled_body);
 
         switch (message_type) {
             case TUNNELED_MESSAGE_TYPE_ASSOCIATION_REQUEST:
-                dissect_80211_ies = true;
-                ie_offset = offset + ASSOC_REQ_BODY_FIXED_SIZE;
-                ie_len = len - ASSOC_REQ_BODY_FIXED_SIZE;
+                dissect_ieee80211_mgt(MGT_TO_FCF(MGT_ASSOC_REQ), mgmt_tvb, pinfo, mgmt_tree);
             break;
             case TUNNELED_MESSAGE_TYPE_REASSOCIATION_REQUEST:
-                dissect_80211_ies = true;
-                ie_offset = offset + REASSOC_REQ_BODY_FIXED_SIZE;
-                ie_len = len - REASSOC_REQ_BODY_FIXED_SIZE;
+                dissect_ieee80211_mgt(MGT_TO_FCF(MGT_REASSOC_REQ), mgmt_tvb, pinfo, mgmt_tree);
             break;
             case TUNNELED_MESSAGE_TYPE_BTM_QUERY:
-               /* TODO */
-            break;
             case TUNNELED_MESSAGE_TYPE_WNM_REQUEST:
-                dissect_80211_ies = true;
-                ie_offset = offset + WNM_REQ_BODY_FIXED_SIZE;
-                ie_len = len - WNM_REQ_BODY_FIXED_SIZE;
-            break;
             case TUNNELED_MESSAGE_TYPE_ANQP_REQUEST:
-                /* TODO */
+            case TUNNELED_MESSAGE_TYPE_DSCP_POLICY_QUERY:
+            case TUNNELED_MESSAGE_TYPE_DSCP_POLICY_RESPONSE:
+                dissect_ieee80211_mgt(MGT_TO_FCF(MGT_ACTION), mgmt_tvb, pinfo, mgmt_tree);
             break;
             case TUNNELED_MESSAGE_TYPE_DPP_MESSAGE:
                 /* TODO */
             break;
-            case TUNNELED_MESSAGE_TYPE_DSCP_POLICY_QUERY:
-                /* TODO */
-            break;
-            case TUNNELED_MESSAGE_TYPE_DSCP_POLICY_RESPONSE:
-                /* TODO */
-            break;
             default:
             break;
-        }
-
-        if (dissect_80211_ies) {
-            proto_tree *ie_tree;
-            proto_item *ie;
-
-            ie_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
-                                                    ett_tunneled_ies,
-                                                    &ie, "Information Elements (%d bytes)", ie_len);
-
-            dissect_80211_information_elements(tvb, pinfo, ie_tree, ie_offset, ie_len);
         }
     }
 
@@ -14035,7 +14002,7 @@ proto_register_ieee1905(void)
         &ett_assoc_control_list,
         &ett_ieee1905_steering_request_flags,
         &ett_ieee1905_association_event_flags,
-        &ett_client_capability_ies,
+        &ett_client_capability_body,
         &ett_radio_basic_class_list,
         &ett_ap_radio_basic_cap_class_tree,
         &ett_radio_basic_non_op_list,
@@ -14154,6 +14121,7 @@ proto_register_ieee1905(void)
         &ett_backhaul_sta_radio_capa_flags,
         &ett_assoc_status_notif_bssid_list,
         &ett_assoc_status_notif_bssid_tree,
+        &ett_tunneled_body,
         &ett_akm_suite_list,
         &ett_akm_suite,
         &ett_backhaul_akm_suite_list,
@@ -14205,7 +14173,6 @@ proto_register_ieee1905(void)
         &ett_eht_operations_radio_bss_list,
         &ett_eht_operations_radio_bss,
         &ett_eht_operations_radio_bss_flags,
-        &ett_tunneled_ies,
         &ett_rsn_parameter_configuration_radio_list,
         &ett_rsn_parameter_configuration_radio,
         &ett_rsn_parameter_configuration_radio_bss_list,

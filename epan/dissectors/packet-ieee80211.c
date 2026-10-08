@@ -38227,7 +38227,7 @@ static void dissect_mgt_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 }
 
-static void
+void
 dissect_ieee80211_mgt(uint16_t fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
