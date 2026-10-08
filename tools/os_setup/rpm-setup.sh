@@ -126,6 +126,80 @@ esac
 
 echo "Using $PM ($PM_SEARCH)"
 
+# On RHEL and derivatives (Rocky, AlmaLinux, CentOS Stream) many of the
+# packages below live in the CRB (CodeReady Builder; "PowerTools" on EL8)
+# and EPEL repositories, which are not enabled by default. Enable them so
+# that the package searches further down can actually find the packages
+# (e.g. asciidoctor, *-devel packages, and the PNG/codec optional tools).
+enable_el_extra_repos() {
+	# Only relevant for dnf/yum based systems.
+	case $PM in
+		dnf|yum) ;;
+		*) return 0 ;;
+	esac
+
+	# Only act on RHEL-family distributions.
+	if [ ! -e /etc/os-release ]; then
+		return 0
+	fi
+	# shellcheck disable=SC1091
+	. /etc/os-release
+	case " ${ID:-} ${ID_LIKE:-} " in
+		*" rhel "*|*" fedora "*|*" centos "*|*" rocky "*|*" almalinux "*) ;;
+		*) return 0 ;;
+	esac
+
+	# Fedora ships EPEL content natively and has no CRB; skip there.
+	if [ "${ID:-}" = "fedora" ]; then
+		return 0
+	fi
+
+	echo "Detected RHEL-family distribution (${ID:-unknown} ${VERSION_ID:-}); enabling EPEL and CRB."
+
+	# EPEL provides asciidoctor and many optional packages.
+	if ! $PM -y install epel-release 2>/dev/null; then
+		echo "Could not install epel-release automatically." >&2
+		echo "If packages are missing, install it manually, e.g.:" >&2
+		echo "    $PM -y install epel-release" >&2
+	fi
+
+	# CRB (RHEL 9/10, Rocky 9/10, Alma 9/10) is called PowerTools on EL8.
+	# dnf config-manager is the preferred way to toggle it.
+	if type dnf >/dev/null 2>&1; then
+		if ! dnf config-manager --set-enabled crb 2>/dev/null; then
+			dnf config-manager --set-enabled powertools 2>/dev/null ||
+			dnf config-manager --set-enabled PowerTools 2>/dev/null ||
+			echo "Could not enable CRB/PowerTools automatically; some -devel packages may be missing." >&2
+		fi
+	else
+		# yum (EL7-style) uses yum-config-manager.
+		yum-config-manager --enable crb 2>/dev/null ||
+		yum-config-manager --enable powertools 2>/dev/null ||
+		yum-config-manager --enable PowerTools 2>/dev/null ||
+		echo "Could not enable CRB/PowerTools automatically; some -devel packages may be missing." >&2
+	fi
+
+	# Refresh metadata so the searches below see the newly enabled repos.
+	# This MUST succeed: every add_package probe below relies on repo
+	# metadata being present. If it fails (no network, proxy, broken
+	# mirror) the probes would all report "unavailable" even for packages
+	# that are in the always-on default repos (e.g. Qt6 in AppStream), so
+	# make the failure loud instead of silently swallowing it.
+	if ! $PM makecache; then
+		echo "" >&2
+		echo "ERROR: '$PM makecache' failed." >&2
+		echo "Repository metadata could not be downloaded. Every package will" >&2
+		echo "appear 'unavailable' below until this is fixed. Common causes:" >&2
+		echo "  * no network / HTTP(S) proxy not configured for $PM" >&2
+		echo "    (set proxy= in /etc/dnf/dnf.conf or http_proxy/https_proxy)" >&2
+		echo "  * EPEL/CRB just enabled but mirror unreachable" >&2
+		echo "Fix connectivity, then re-run this script." >&2
+		echo "" >&2
+	fi
+}
+
+enable_el_extra_repos
+
 # Adds package $2 to list variable $1 if the package is found
 add_package() {
 	local list="$1" pkgname="$2"
