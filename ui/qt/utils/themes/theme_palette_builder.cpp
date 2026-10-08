@@ -186,6 +186,15 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
 {
     QPalette pal = baselinePalette(isDarkMode, osBaseline);
 
+    // The OS baseline's Inactive group (e.g. macOS, when the window is in
+    // the background) can carry text colors that don't match the mode,
+    // leaving header and button text dark on a dark background.  Keep
+    // text legible by making Inactive text follow Active.
+    for (QPalette::ColorRole role : { QPalette::WindowText, QPalette::ButtonText,
+                                      QPalette::Text, QPalette::PlaceholderText }) {
+        pal.setColor(QPalette::Inactive, role, pal.color(QPalette::Active, role));
+    }
+
     // Apply theme-provided palette overrides.  Iterate over the full
     // QPalette role map so we only touch roles that Qt actually
     // defines; the token-name cache may not have a corresponding
