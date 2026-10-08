@@ -87,9 +87,7 @@ ADDITIONAL_LIST="
 	perl
 	perl-Parse-Yapp
 	python3-pytest
-	python3-pytest-xdist
 	snappy-devel
-	spandsp-devel
 	systemd-devel
 	xxhash-devel
 	"
@@ -177,6 +175,20 @@ enable_el_extra_repos() {
 		yum-config-manager --enable powertools 2>/dev/null ||
 		yum-config-manager --enable PowerTools 2>/dev/null ||
 		echo "Could not enable CRB/PowerTools automatically; some -devel packages may be missing." >&2
+	fi
+
+	# The 'devel' repo (Rocky and CentOS Stream only; absent on RHEL and
+	# AlmaLinux) carries a few extra -devel packages not yet shipped in
+	# the standard repos. Best-effort only: it does not exist everywhere
+	# and is not signed/stable, so never treat a failure as an error.
+	if [ "${ID:-}" = "rocky" ] || [ "${ID:-}" = "centos" ]; then
+		if type dnf >/dev/null 2>&1; then
+			dnf config-manager --set-enabled devel 2>/dev/null ||
+			echo "Note: optional 'devel' repo not enabled (not available here)." >&2
+		else
+			yum-config-manager --enable devel 2>/dev/null ||
+			echo "Note: optional 'devel' repo not enabled (not available here)." >&2
+		fi
 	fi
 
 	# Refresh metadata so the searches below see the newly enabled repos.
@@ -391,6 +403,18 @@ echo "Optional package opencore-amr-devel|libopencore-amr-devel is unavailable" 
 
 add_package ADDITIONAL_LIST softhsm ||
 echo "Optional package softhsm is unavailable" >&2
+
+# spandsp-devel and python3-pytest-xdist live in EPEL on RHEL/Rocky/Alma.
+# They were previously hardcoded in ADDITIONAL_LIST, which made the whole
+# install abort ("Unable to find a match") when EPEL was not reachable.
+# Probe for them instead so a missing EPEL degrades to a warning: spandsp
+# only affects some codec support and pytest-xdist only parallelises the
+# test suite, neither is required for a basic build.
+add_package ADDITIONAL_LIST spandsp-devel ||
+echo "Optional package spandsp-devel is unavailable (needs EPEL)" >&2
+
+add_package ADDITIONAL_LIST python3-pytest-xdist ||
+echo "Optional package python3-pytest-xdist is unavailable (needs EPEL)" >&2
 
 # PNG compression utilities used by compress-pngs:
 add_package ADDITIONAL_LIST advancecomp ||
