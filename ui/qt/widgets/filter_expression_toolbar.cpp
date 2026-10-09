@@ -40,19 +40,19 @@ static const char *dfe_menu_ = "filter_menu";
 struct filter_expression_data
 {
     FilterExpressionToolBar* toolbar;
-    bool actions_added;
+    bool needs_separator;
 };
 
 // Space toolbar buttons, including dropdowns, but never their menu entries.
 static void addToolbarAction(filter_expression_data *data, QAction *action)
 {
-    if (data->actions_added) {
+    if (data->needs_separator) {
         QFrame *sep = new QFrame();
         sep->setEnabled(false);
         data->toolbar->addWidget(sep);
     }
     data->toolbar->addAction(action);
-    data->actions_added = true;
+    data->needs_separator = true;
 }
 
 FilterExpressionToolBar::FilterExpressionToolBar(QWidget * parent) :
@@ -145,7 +145,7 @@ void FilterExpressionToolBar::filterExpressionsChanged()
     struct filter_expression_data data;
 
     data.toolbar = this;
-    data.actions_added = false;
+    data.needs_separator = false;
 
     // Hiding and showing seems to be the only way to get the layout to
     // work correctly in some cases. See bug 14121 for details.
@@ -462,7 +462,7 @@ bool FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, 
             parentMenu->addSeparator();
         } else {
             data->toolbar->addSeparator();
-            data->actions_added = false;
+            data->needs_separator = false;
         }
         return false;
     }
