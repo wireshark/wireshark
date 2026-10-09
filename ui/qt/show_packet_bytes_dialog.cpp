@@ -17,6 +17,7 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include "ui/recent.h"
 
+#include <epan/charsets.h>
 #include "epan/strutil.h"
 
 #include "wsutil/utf8_entities.h"
@@ -800,15 +801,13 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         // character U+FFFD.
         QByteArray encName = ui->cbShowAs->currentText().toUtf8();
         QByteArray ba(field_bytes_);
-        gsize bytes_written = 0;
-        gchar *utf8 = g_convert_with_fallback(ba.constData(), ba.size(),
-                                              "UTF-8", encName.constData(),
-                                              "\xEF\xBF\xBD",
-                                              NULL, &bytes_written, NULL);
+        wmem_strbuf_t *utf8 = get_strbuf_enc_iconv(NULL,
+            reinterpret_cast<const uint8_t*>(ba.constData()), ba.size(),
+            encName.constData());
         if (utf8) {
             ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
-            ui->tePacketBytes->setPlainText(QString::fromUtf8(utf8, bytes_written));
-            g_free(utf8);
+            ui->tePacketBytes->setPlainText(QString::fromUtf8(utf8->str, utf8->len));
+            wmem_strbuf_destroy(utf8);
         }
         break;
     }
@@ -816,10 +815,14 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     case SHOW_UTF8_UNESCAPED:
     {
         QByteArray ba(field_bytes_);
-        ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
-        ui->tePacketBytes->setPlainText(QString::fromUtf8(gchar_free_to_qbytearray(
-            wmem_strbuf_finalize(
-            ws_unescape_string_len(NULL, reinterpret_cast<const uint8_t*>(ba.constData()), ba.size(), NULL)))));
+        wmem_strbuf_t *utf8 = ws_unescape_string_len(NULL,
+            reinterpret_cast<const uint8_t*>(ba.constData()), ba.size(),
+            NULL);
+        if (utf8) {
+            ui->tePacketBytes->setLineWrapMode(QTextEdit::WidgetWidth);
+            ui->tePacketBytes->setPlainText(QString::fromUtf8(utf8->str, utf8->len));
+            wmem_strbuf_destroy(utf8);
+        }
         break;
     }
 
