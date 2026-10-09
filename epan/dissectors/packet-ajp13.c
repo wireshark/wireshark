@@ -14,10 +14,14 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
+#include <epan/export_object.h>
 #include "packet-tcp.h"
 
+#include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 
 void proto_register_ajp13(void);
@@ -221,9 +225,48 @@ static int hf_ajp13_reusep;
 static int hf_ajp13_rstatus;
 static int hf_ajp13_rsmsg;
 static int hf_ajp13_data;
+
+/* body reassembly */
+static int hf_ajp13_body_fragments;
+static int hf_ajp13_body_fragment;
+static int hf_ajp13_body_fragment_overlap;
+static int hf_ajp13_body_fragment_overlap_conflicts;
+static int hf_ajp13_body_fragment_multiple_tails;
+static int hf_ajp13_body_fragment_too_long_fragment;
+static int hf_ajp13_body_fragment_error;
+static int hf_ajp13_body_fragment_count;
+static int hf_ajp13_body_reassembled_in;
+static int hf_ajp13_body_reassembled_length;
+
 static int ett_ajp13;
+static int ett_ajp13_body_fragment;
+static int ett_ajp13_body_fragments;
 
 static expert_field ei_ajp13_content_length_invalid;
+
+static const fragment_items ajp13_body_fragment_items = {
+  &ett_ajp13_body_fragment,
+  &ett_ajp13_body_fragments,
+  &hf_ajp13_body_fragments,
+  &hf_ajp13_body_fragment,
+  &hf_ajp13_body_fragment_overlap,
+  &hf_ajp13_body_fragment_overlap_conflicts,
+  &hf_ajp13_body_fragment_multiple_tails,
+  &hf_ajp13_body_fragment_too_long_fragment,
+  &hf_ajp13_body_fragment_error,
+  &hf_ajp13_body_fragment_count,
+  &hf_ajp13_body_reassembled_in,
+  &hf_ajp13_body_reassembled_length,
+  NULL,
+  "Body fragments"
+};
+
+static reassembly_table ajp13_body_reassembly_table;
+
+static int ajp13_eo_tap;
+
+/* Reassemble request and response bodies (needed for Export Objects) */
+static bool ajp13_reassemble_body = true;
 
 /*
  * Request/response header codes. Common headers are stored as ints in
@@ -280,14 +323,119 @@ static int * const req_attributes[] = {
   &hf_ajp13_stored_method
 };
 
+/* A request and its response, whose bodies are reassembled and exported */
+typedef struct ajp13_trans_info {
+  uint32_t body_id;              /* reassembly ID of the bodies */
+  const char *host;              /* Host header, or else server name */
+  const char *uri;               /* request URI, including the query string */
+  const char *req_content_type;  /* media type of the request body */
+  const char *rsp_content_type;  /* media type of the response body */
+} ajp13_trans_info;
+
 typedef struct ajp13_conv_data {
   uint32_t content_length;  /* remaining length of the request body */
   bool was_get_body_chunk;  /* the next request packet is a body chunk */
+  ajp13_trans_info *trans;      /* current request */
+  ajp13_trans_info *rsp_trans;  /* request whose response is being sent */
 } ajp13_conv_data;
 
 typedef struct ajp13_frame_data {
   bool is_request_body;
+  bool is_request_body_end;  /* last packet of the request body */
+  ajp13_trans_info *trans;   /* request that the body packet belongs to */
 } ajp13_frame_data;
+
+/* Used for the Export Objects feature */
+typedef struct ajp13_eo_t {
+  const char *hostname;
+  const char *filename;
+  const char *content_type;
+  tvbuff_t *payload;
+} ajp13_eo_t;
+
+static tap_packet_status
+ajp13_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data, tap_flags_t flags _U_)
+{
+  export_object_list_t *object_list = (export_object_list_t *)tapdata;
+  const ajp13_eo_t *eo_info = (const ajp13_eo_t *)data;
+  export_object_entry_t *entry;
+
+  if (!eo_info)
+    return TAP_PACKET_DONT_REDRAW;
+
+  /* These values will be freed when the Export Object window is closed. */
+  entry = g_new(export_object_entry_t, 1);
+
+  entry->pkt_num = pinfo->num;
+  entry->hostname = g_strdup(eo_info->hostname);
+  entry->content_type = g_strdup(eo_info->content_type);
+  /* Like HTTP, use the final part of the URI */
+  entry->filename = eo_info->filename ? g_path_get_basename(eo_info->filename) : NULL;
+  entry->payload_len = tvb_captured_length(eo_info->payload);
+  entry->payload_data = (uint8_t *)tvb_memdup(NULL, eo_info->payload, 0, entry->payload_len);
+
+  object_list->add_entry(object_list->gui_data, entry);
+
+  return TAP_PACKET_REDRAW;
+}
+
+/* Returns the media type of a Content-Type header value, i.e. without
+ * any parameters and in lower case, like the HTTP dissector.
+ */
+static const char *
+ajp13_get_media_type(wmem_allocator_t *scope, const char *content_type)
+{
+  return wmem_ascii_strdown(scope, content_type, strcspn(content_type, "; \t"));
+}
+
+/* Adds the data of a request or response body packet to the reassembly
+ * of the body. If the packet ends the body, adds the reassembled body to
+ * the tree and sends it to Export Objects.
+ */
+static void
+ajp13_reassemble_body_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
+                           int offset, uint16_t length, bool is_end,
+                           const ajp13_trans_info *trans, const char *content_type)
+{
+  fragment_head *fd_head = NULL;
+  tvbuff_t *body_tvb;
+
+  if (!ajp13_reassemble_body)
+    return;
+
+  if (length != 0 && tvb_bytes_exist(tvb, offset, length)) {
+    fd_head = fragment_add_seq_next(&ajp13_body_reassembly_table, tvb, offset,
+                                    pinfo, trans->body_id, NULL, length, true);
+  }
+
+  if (!is_end) {
+    /* We know where the body was reassembled after the first pass. The
+     * last packet can be in the same frame as this one, so don't use
+     * process_reassembled_data(), which would show the body here too.
+     */
+    if (fd_head) {
+      proto_item *ti = proto_tree_add_uint(ajp13_tree, hf_ajp13_body_reassembled_in,
+                                           tvb, 0, 0, fd_head->reassembled_in);
+      proto_item_set_generated(ti);
+    }
+    return;
+  }
+
+  fd_head = fragment_end_seq_next(&ajp13_body_reassembly_table, pinfo, trans->body_id, NULL);
+  body_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled body", fd_head,
+                                      &ajp13_body_fragment_items, NULL, ajp13_tree);
+
+  if (body_tvb && have_tap_listener(ajp13_eo_tap)) {
+    ajp13_eo_t *eo_info = wmem_new0(pinfo->pool, ajp13_eo_t);
+
+    eo_info->hostname = trans->host;
+    eo_info->filename = trans->uri;
+    eo_info->content_type = content_type;
+    eo_info->payload = body_tvb;
+
+    tap_queue_packet(ajp13_eo_tap, pinfo, eo_info);
+  }
+}
 
 /* ajp13, in sort of a belt-and-suspenders move, encodes strings with
  * both a leading length field, and a trailing null. Mostly, see
@@ -318,7 +466,8 @@ ajp13_get_nstring(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, uint16_t* 
 /* dissect a response. more work to do here.
  */
 static void
-display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_conv_data* cd)
+display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
+            ajp13_conv_data* cd, ajp13_frame_data* fd)
 {
   int pos = 0;
   uint32_t mcode = 0;
@@ -354,8 +503,34 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     if (!PINFO_FD_VISITED(pinfo)) {
       cd->content_length = 0;
       cd->was_get_body_chunk = false;
+      fd->trans = cd->rsp_trans;
+      cd->trans = NULL;
+      cd->rsp_trans = NULL;
     }
+    /* This also ends the response body
+     */
+    if (fd->trans)
+      ajp13_reassemble_body_data(tvb, pinfo, ajp13_tree, pos, 0, true,
+                                 fd->trans, fd->trans->rsp_content_type);
     break;
+
+  case MTYPE_SEND_BODY_CHUNK:
+  {
+    uint16_t chunk_len;
+
+    /* MESSAGE DATA
+     */
+    chunk_len = tvb_get_ntohs(tvb, pos);
+    if (ajp13_tree)
+      proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, -1, ENC_UTF_8);
+
+    if (!PINFO_FD_VISITED(pinfo))
+      fd->trans = cd->rsp_trans;
+    if (fd->trans)
+      ajp13_reassemble_body_data(tvb, pinfo, ajp13_tree, pos+2, chunk_len, false,
+                                 fd->trans, NULL);
+    break;
+  }
 
   case MTYPE_SEND_HEADERS:
   {
@@ -363,6 +538,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     uint16_t rsmsg_len;
     uint16_t nhdr;
     uint16_t rcode_num;
+    const char *content_type = NULL;
 
     /* HTTP RESPONSE STATUS CODE
      */
@@ -386,6 +562,18 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_nhdr, tvb, pos, 2, ENC_BIG_ENDIAN);
     pos+=2;
+
+    /* The response (body) starts here. We only reassemble bodies that
+     * we've seen the start of.
+     */
+    if (!PINFO_FD_VISITED(pinfo)) {
+      if (!cd->trans) {
+        /* we haven't seen the request */
+        cd->trans = wmem_new0(wmem_file_scope(), ajp13_trans_info);
+        cd->trans->body_id = pinfo->num;
+      }
+      cd->rsp_trans = cd->trans;
+    }
 
     /* HEADERS
      */
@@ -416,6 +604,9 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         proto_tree_add_string(ajp13_tree, *rsp_headers[hid],
                               tvb, hpos, 2+hval_len+2, hval);
         pos+=hval_len+2;
+
+        if (hid == 0x01)  /* Content-Type */
+          content_type = hval;
 #if 0
         /* TODO: Content-Length header (encoded by 0x08) is special */
         if (hid == 0x08)
@@ -438,6 +629,9 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         pos+=hval_len+2;
       }
     }
+
+    if (!PINFO_FD_VISITED(pinfo) && content_type)
+      cd->rsp_trans->rsp_content_type = ajp13_get_media_type(wmem_file_scope(), content_type);
     break;
   }
 
@@ -474,7 +668,8 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
  * packets.
  */
 static void
-display_req_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_conv_data* cd)
+display_req_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
+                 ajp13_conv_data* cd, ajp13_frame_data* fd)
 {
   /*printf("ajp13:display_req_body()\n");*/
   uint16_t content_length = 0;
@@ -505,16 +700,28 @@ display_req_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp1
 
   if (!PINFO_FD_VISITED(pinfo)) {
     cd->was_get_body_chunk = false;
-    if (content_length == 0)
+    if (content_length == 0) {
       cd->content_length = 0;
-    else
+      fd->is_request_body_end = true;
+    } else if (cd->content_length != 0) {
+      /* the body has the length given by the Content-Length header,
+       * otherwise it ends with an empty packet.
+       */
       cd->content_length -= MIN(content_length, cd->content_length);
+      fd->is_request_body_end = (cd->content_length == 0);
+    }
+    fd->trans = cd->trans;
   }
 
   /* BODY (AS STRING)
    */
   if (content_length != 0)
     proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos, content_length, ENC_UTF_8);
+
+  if (fd->trans)
+    ajp13_reassemble_body_data(tvb, pinfo, ajp13_tree, pos, content_length,
+                               fd->is_request_body_end, fd->trans,
+                               fd->trans->req_content_type);
 }
 
 
@@ -547,6 +754,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   uint16_t srv_len;
   unsigned nhdr;
   unsigned i;
+  ajp13_trans_info *trans = NULL;
 
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, ENC_NA);
@@ -631,8 +839,17 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_nhdr, tvb, pos, 2, ENC_BIG_ENDIAN);
   pos+=2;
-  if (!PINFO_FD_VISITED(pinfo))
+  if (!PINFO_FD_VISITED(pinfo)) {
     cd->content_length = 0;
+    if (cod == MTYPE_FORWARD_REQUEST) {
+      /* a new request, for the bodies */
+      trans = wmem_new0(wmem_file_scope(), ajp13_trans_info);
+      trans->body_id = pinfo->num;
+      trans->host = wmem_strdup(wmem_file_scope(), srv);
+      trans->uri = wmem_strdup(wmem_file_scope(), uri);
+      cd->trans = trans;
+    }
+  }
 
   /* HEADERS
    */
@@ -673,6 +890,11 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
         if (!PINFO_FD_VISITED(pinfo))
           cd->content_length = content_length;
       }
+
+      if (trans && hid == 0x07)  /* Content-Type */
+        trans->req_content_type = ajp13_get_media_type(wmem_file_scope(), hval);
+      if (trans && hid == 0x0B)  /* Host */
+        trans->host = wmem_strdup(wmem_file_scope(), hval);
 
       pos+=hval_len+2;
     } else {
@@ -741,6 +963,9 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
       proto_tree_add_string(ajp13_tree, *req_attributes[aid],
                             tvb, apos, 1+aval_len+2, aval);
+
+      if (trans && aid == 0x05)  /* query_string */
+        trans->uri = wmem_strdup_printf(wmem_file_scope(), "%s?%s", trans->uri, aval);
     }
   }
 }
@@ -768,9 +993,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
   cd = (ajp13_conv_data*)conversation_get_proto_data(conv, proto_ajp13);
   if (!cd) {
-    cd = wmem_new(wmem_file_scope(), ajp13_conv_data);
-    cd->content_length = 0;
-    cd->was_get_body_chunk = false;
+    cd = wmem_new0(wmem_file_scope(), ajp13_conv_data);
     conversation_add_proto_data(conv, proto_ajp13, cd);
   }
 
@@ -789,9 +1012,8 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
      * time we've see the packet, and it must be the first "in order"
      * pass through the data.
      */
-    fd = wmem_new(wmem_file_scope(), ajp13_frame_data);
+    fd = wmem_new0(wmem_file_scope(), ajp13_frame_data);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_ajp13, pdu_num, fd);
-    fd->is_request_body = false;
     if (cd->content_length || cd->was_get_body_chunk) {
       /* this is screwy, see AJPv13.html. the idea is that if the
        * request has a body (as determined by the content-length
@@ -828,13 +1050,13 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   if (mag == 0x1234) {
 
     if (fd->is_request_body)
-      display_req_body(tvb, pinfo, ajp13_tree, cd);
+      display_req_body(tvb, pinfo, ajp13_tree, cd, fd);
     else
       display_req_forward(tvb, pinfo, ajp13_tree, cd);
 
   } else if (mag == 0x4142) {
 
-    display_rsp(tvb, pinfo, ajp13_tree, cd);
+    display_rsp(tvb, pinfo, ajp13_tree, cd, fd);
 
   }
 
@@ -880,6 +1102,7 @@ dissect_ajp13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 void
 proto_register_ajp13(void)
 {
+  module_t *ajp13_module;
   expert_module_t* expert_ajp13;
 
   static hf_register_info hf[] = {
@@ -1107,6 +1330,47 @@ proto_register_ajp13(void)
       { "Data",  "ajp13.data", FT_STRING, BASE_NONE, NULL, 0x0, NULL,
         HFILL }
     },
+/* body reassembly */
+    { &hf_ajp13_body_fragments,
+      { "Body fragments", "ajp13.body.fragments", FT_NONE, BASE_NONE, NULL, 0x0, NULL,
+        HFILL }
+    },
+    { &hf_ajp13_body_fragment,
+      { "Body fragment", "ajp13.body.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL,
+        HFILL }
+    },
+    { &hf_ajp13_body_fragment_overlap,
+      { "Body fragment overlap", "ajp13.body.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL,
+        HFILL }
+    },
+    { &hf_ajp13_body_fragment_overlap_conflicts,
+      { "Body fragment overlapping with conflicting data", "ajp13.body.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL,
+        HFILL }
+    },
+    { &hf_ajp13_body_fragment_multiple_tails,
+      { "Body has multiple tail fragments", "ajp13.body.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL,
+        HFILL }
+    },
+    { &hf_ajp13_body_fragment_too_long_fragment,
+      { "Body fragment too long", "ajp13.body.fragment.too_long_fragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL,
+        HFILL }
+    },
+    { &hf_ajp13_body_fragment_error,
+      { "Body defragmentation error", "ajp13.body.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL,
+        HFILL }
+    },
+    { &hf_ajp13_body_fragment_count,
+      { "Body fragment count", "ajp13.body.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
+        HFILL }
+    },
+    { &hf_ajp13_body_reassembled_in,
+      { "Reassembled body in frame", "ajp13.body.reassembled.in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL,
+        HFILL }
+    },
+    { &hf_ajp13_body_reassembled_length,
+      { "Reassembled body length", "ajp13.body.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
+        HFILL }
+    },
   };
 
   static ei_register_info ei[] = {
@@ -1116,6 +1380,8 @@ proto_register_ajp13(void)
 
   static int *ett[] = {
     &ett_ajp13,
+    &ett_ajp13_body_fragment,
+    &ett_ajp13_body_fragments,
   };
 
   /* Register the protocol name and description
@@ -1128,7 +1394,20 @@ proto_register_ajp13(void)
   expert_ajp13 = expert_register_protocol(proto_ajp13);
   expert_register_field_array(expert_ajp13, ei, array_length(ei));
 
+  ajp13_module = prefs_register_protocol(proto_ajp13, NULL);
+  prefs_register_bool_preference(ajp13_module, "reassemble_body",
+                                 "Reassemble bodies spanning multiple AJP13 packets",
+                                 "Whether the AJP13 dissector should reassemble request "
+                                 "and response bodies spanning multiple AJP13 packets. "
+                                 "This is needed to export the bodies with Export Objects.",
+                                 &ajp13_reassemble_body);
+
+  reassembly_table_register(&ajp13_body_reassembly_table,
+                            &addresses_ports_reassembly_table_functions);
+
   ajp13_handle = register_dissector("ajp13", dissect_ajp13, proto_ajp13);
+
+  ajp13_eo_tap = register_export_object(proto_ajp13, ajp13_eo_packet, NULL);
 }
 
 

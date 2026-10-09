@@ -241,6 +241,11 @@ The following features are either new or have been significantly updated since v
   The new `opcua.ns_offset` preference maps the namespace indexes of the file
   to those in the packets.
 
+* The AJP13 dissector reassembles request and response bodies spanning
+  multiple AJP13 packets, controlled by the new `ajp13.reassemble_body`
+  preference, and supports Export Objects (menu:File[Export Objects,AJP13]
+  and `tshark --export-objects ajp13,<destdir>`).
+
 === Removed Features and Support
 
 Dumpcap's TCP@host:port interface has been removed. Tools like `socat`, `ncat`,
