@@ -4850,6 +4850,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       case X_SetModifierMapping:
             v8 = FIELD8(keycodes_per_modifier);
+            state->keycodes_per_modifier = v8;
             requestLength(tvb, offsetp, t, byte_order);
             LISTofKEYCODE(state->modifiermap, keycodes, v8);
             break;
