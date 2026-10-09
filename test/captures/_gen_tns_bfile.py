@@ -13,7 +13,12 @@ directory and file.
               locator, which names DATA_DIR / report.txt; then a NULL
     Frame 3 - TTI_LOBOPS FILE_OPEN, sending the locator without its
               leading ub2 length
-    Frame 4 - TTI_LOBOPS READ of 100 bytes, sending the locator whole
+    Frame 4 - TTI_LOBOPS FILE_OPEN as a client opens a BFILE to read
+              it: the locator whole, and the read-only mode (11) as the
+              amount
+    Frame 5 - its reply: the locator, the mode echoed as the amount, then
+              the status
+    Frame 6 - TTI_LOBOPS READ of 100 bytes, sending the locator whole
 
 Bytes are built by hand in the Oracle 11g wire shape.
 """
@@ -182,6 +187,7 @@ TYPE_BFILE = 114
 TTI_LOBOPS = 96
 OP_READ = 0x0002
 OP_FILE_OPEN = 0x0100
+LOB_FILE_READONLY = 11  # FILE_OPEN's mode, sent as its amount
 
 
 def build_lobops(seq, op, loc, amount=None):
@@ -217,7 +223,9 @@ frames = [
     (False, bytes([TTI_RXD]) + ub4(len(LOC)) + dalc(LOC)
      + bytes([TTI_RXD]) + b"\x00"),
     (True, build_lobops(1, OP_FILE_OPEN, LOC[2:])),
-    (True, build_lobops(2, OP_READ, LOC, amount=100)),
+    (True, build_lobops(2, OP_FILE_OPEN, LOC, amount=LOB_FILE_READONLY)),
+    (False, bytes([TTI_RPA]) + LOC + ub4(LOB_FILE_READONLY) + oer()),
+    (True, build_lobops(3, OP_READ, LOC, amount=100)),
 ]
 
 

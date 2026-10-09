@@ -2789,7 +2789,19 @@ class TestDissectTns:
             '-e', '_ws.malformed',
         ), encoding='utf-8', env=test_env)
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
-        assert rows == [['DATA_DIR', 'report.txt', '']] * 2, rows
+        assert rows == [['DATA_DIR', 'report.txt', '']] * 3, rows
+        # a FILE_OPEN sends its mode as the amount, and the reply echoes it
+        # after the locator, ahead of the status
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_bfile.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tcp.srcport == 1521 && tns.data_lob.amount',
+            '-T', 'fields',
+            '-e', 'tns.data_lob.amount',
+            '-e', 'tns.data_oer.err_code',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        assert stdout == '11\t0\t\n', stdout
 
     def test_tns_oci_12c(self, cmd_tshark, capture_file, test_env):
         '''At the 12c band an OCI client's narrow execute preamble inserts
