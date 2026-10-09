@@ -6,14 +6,14 @@
    fill="none"
    version="1.1"
    id="svg1"
-   sodipodi:docname="bookmark-display.svg"
+   sodipodi:docname="bookmark-match.svg"
    inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <ws:states xmlns:ws="urn:x-wireshark-icon">
-    <ws:swap base="#edd400" selected="#725000" active="#c4a000"/>
+    <ws:swap base="#c4a000" active="#edd400" selected="#725000"/>
   </ws:states>
   <defs
      id="defs1" />
@@ -40,5 +40,5 @@
      fill="#212121"
      id="path1"
      sodipodi:nodetypes="cssssssccc"
-     style="fill:#edd400;fill-opacity:1" />
+     style="fill:#c4a000;fill-opacity:1" />
 </svg>

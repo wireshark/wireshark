@@ -13,7 +13,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <ws:states xmlns:ws="urn:x-wireshark-icon">
-    <ws:swap base="#8ae234" active="#73d216" selected="#4e9a06"/>
+    <ws:swap base="#73d216" active="#8ae234" selected="#4e9a06"/>
   </ws:states>
   <defs
      id="defs1" />
@@ -40,5 +40,5 @@
      fill="#212121"
      id="path1"
      sodipodi:nodetypes="cssssssccc"
-     style="fill:#8ae234;fill-opacity:1" />
+     style="fill:#73d216;fill-opacity:1" />
 </svg>

@@ -13,7 +13,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <ws:states xmlns:ws="urn:x-wireshark-icon">
-    <ws:swap base="#888a85" selected="#a40000" active="#cc0000"/>
+    <ws:swap base="#888a85" active="#cc0000" selected="#a40000"/>
   </ws:states>
   <defs
      id="defs1" />
