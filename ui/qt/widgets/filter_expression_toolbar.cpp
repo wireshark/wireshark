@@ -43,6 +43,18 @@ struct filter_expression_data
     bool actions_added;
 };
 
+// Space toolbar buttons, including dropdowns, but never their menu entries.
+static void addToolbarAction(filter_expression_data *data, QAction *action)
+{
+    if (data->actions_added) {
+        QFrame *sep = new QFrame();
+        sep->setEnabled(false);
+        data->toolbar->addWidget(sep);
+    }
+    data->toolbar->addAction(action);
+    data->actions_added = true;
+}
+
 FilterExpressionToolBar::FilterExpressionToolBar(QWidget * parent) :
     DragDropToolBar(parent)
 {
@@ -399,7 +411,7 @@ QMenu * FilterExpressionToolBar::findParentMenu(const QStringList tree, void *fe
         // Change the auto created QToolButton inside the QToolBar pop-up
         // behavior. Only auto created tool buttons will show up in the
         // extension menu at narrow widths (#19887.)
-        data->toolbar->addAction(menuAction);
+        addToolbarAction(data, menuAction);
         QWidget* menuWidget = data->toolbar->widgetForAction(menuAction);
         QToolButton* menuButton = qobject_cast<QToolButton*>(menuWidget);
         if (menuButton != nullptr) {
@@ -464,20 +476,10 @@ bool FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, 
     if (parentMenu) {
         parentMenu->addAction(dfb_action);
     } else {
-        /* Only add a visual separator between toolbar-level buttons.
-         * Submenu items must not create separators because disabled
-         * QFrame widgets still occupy ~1 px on the toolbar, causing
-         * progressively wider gaps when many submenu entries exist. */
-        if (data->actions_added) {
-            QFrame *sep = new QFrame();
-            sep->setEnabled(false);
-            data->toolbar->addWidget(sep);
-        }
-        data->toolbar->addAction(dfb_action);
+        addToolbarAction(data, dfb_action);
     }
 
     connect(dfb_action, &QAction::triggered, data->toolbar, &FilterExpressionToolBar::filterClicked);
-    data->actions_added = true;
     return false;
 }
 
