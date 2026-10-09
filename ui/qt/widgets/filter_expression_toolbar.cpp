@@ -456,6 +456,17 @@ bool FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, 
         }
     }
 
+    // A "---" label with no expression represents a separator, not a filter.
+    if (label.trimmed() == QStringLiteral("---") && fe->expression[0] == '\0') {
+        if (parentMenu) {
+            parentMenu->addSeparator();
+        } else {
+            data->toolbar->addSeparator();
+            data->actions_added = false;
+        }
+        return false;
+    }
+
     QAction *dfb_action = new QAction(label, data->toolbar);
     if (strlen(fe->comment) > 0)
     {

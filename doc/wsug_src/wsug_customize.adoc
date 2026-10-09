@@ -1078,6 +1078,14 @@ Selecting _Show in toolbar_ causes the button to be shown in the toolbar besides
 
 The _Button Label_ is the text shown on the button in the toolbar.
 The use of a double slash causes the button to create a dropdown list to allow grouping of multiple buttons, e.g. TCP//Syn and TCP//Res.
+Dropdown buttons use the same toolbar spacing as standalone filter buttons; adding entries inside a dropdown does not add toolbar spacing.
+
+To add a separator, create an entry here with `---` as the _Button Label_ and leave the _Filter Expression_ empty.
+Use a group prefix to place the separator inside a dropdown list, e.g. `TCP//---`, or `TCP//Flags//---` for a nested list.
+An entry labeled `---` without a group prefix adds a separator to the toolbar.
+Place the entry between the filters you want to separate using btn:[⌃] and btn:[⌄].
+Separators can be hidden with _Show in toolbar_ or removed like other entries.
+A `---` label with a nonempty filter expression remains a normal filter button.
 
 The _Filter Expression_ is the <<ChWorkBuildDisplayFilterSection,display filter expression>> entered into the display filter text entry when the button is clicked.
 
