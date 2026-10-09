@@ -127,30 +127,43 @@ static void
 jd_vprintf(json_dumper *dumper, const char *format, va_list args)
 {
     /* Try to format directly into the remaining buffer space */
-    size_t saved_pos = dumper->buf_pos;
-    size_t avail = JD_BUF_SIZE - saved_pos;
+    size_t avail = JD_BUF_SIZE - dumper->buf_pos;
     va_list args_copy;
     va_copy(args_copy, args);
-    int n = vsnprintf(dumper->buf + saved_pos, avail, format, args);
-    if (n >= 0 && (size_t)n < avail) {
-        dumper->buf_pos = saved_pos + n;
+    int n = vsnprintf(dumper->buf + dumper->buf_pos, avail, format, args);
+    if (n < 0) {
+        /* Formatting error or something else unrecoverable
+         * (ConfigureChecks.cmake requires that vsnprintf works
+         * properly and doesn't return -1 on truncation.) */
         va_end(args_copy);
         return;
     }
-    /* Didn't fit - restore position (discard truncated write), flush, retry */
-    dumper->buf_pos = saved_pos;
+    if ((size_t)n < avail) {
+        /* Success. */
+        dumper->buf_pos += n;
+        va_end(args_copy);
+        return;
+    }
+    /* Didn't fit - flushing discards the truncated write. We know the
+     * length now; write it to the full buffer if we can, otherwise
+     * directly to the output(s). */
     jd_flush(dumper);
-    n = vsnprintf(dumper->buf, JD_BUF_SIZE, format, args_copy);
-    if (n >= 0 && (size_t)n < JD_BUF_SIZE) {
+    if ((size_t)n < JD_BUF_SIZE) {
+        vsnprintf(dumper->buf, JD_BUF_SIZE, format, args_copy);
         dumper->buf_pos = n;
     } else {
         /* Very large format - write directly */
+        /* The temporary buffer handles the (unlikely?) dual output case
+         * without yet another va_copy. */
+        char *tmp = (char *)g_malloc((size_t)n + 1);
+        vsnprintf(tmp, (size_t)n + 1, format, args_copy);
         if (dumper->output_file) {
-            vfprintf(dumper->output_file, format, args_copy);
+            fwrite(tmp, 1, n, dumper->output_file);
         }
         if (dumper->output_string) {
-            g_string_append_vprintf(dumper->output_string, format, args_copy);
+            g_string_append_len(dumper->output_string, tmp, n);
         }
+        g_free(tmp);
     }
     va_end(args_copy);
 }
