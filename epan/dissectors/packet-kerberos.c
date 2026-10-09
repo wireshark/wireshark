@@ -1463,8 +1463,10 @@ add_encryption_key(packet_info *pinfo,
 	snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "%d.%u",
 		   new_key->fd_num, new_key->id);
 	new_key->keytype=keytype;
-	new_key->keylength=keylength;
-	memcpy(new_key->keyvalue, keyvalue, MIN(keylength, KRB_MAX_KEY_LENGTH));
+	/* XXX - Is there even a point in saving this if it's larger than the
+	 * max supported length? */
+	new_key->keylength=MIN(keylength, KRB_MAX_KEY_LENGTH);
+	memcpy(new_key->keyvalue, keyvalue, new_key->keylength);
 	new_key->src1 = src1;
 	new_key->src2 = src2;
 
@@ -5860,6 +5862,7 @@ dissect_kerberos_T_keyvalue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
                                        &out_tvb);
 
 
+  /* XXX - Expert info if this length > KRB_MAX_KEY_LENGTH? */
   private_data->key.keylength = tvb_reported_length(out_tvb);
   private_data->key.keyvalue = tvb_get_ptr(out_tvb, 0, private_data->key.keylength);
   private_data->key_tree = tree;

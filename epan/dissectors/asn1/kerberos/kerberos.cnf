@@ -431,6 +431,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 %(DEFAULT_BODY)s
 
+  /* XXX - Expert info if this length > KRB_MAX_KEY_LENGTH? */
   private_data->key.keylength = tvb_reported_length(out_tvb);
   private_data->key.keyvalue = tvb_get_ptr(out_tvb, 0, private_data->key.keylength);
   private_data->key_tree = tree;
