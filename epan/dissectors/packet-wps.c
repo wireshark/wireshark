@@ -159,6 +159,9 @@ static const value_string eapwps_opcode_vals[] = {
 #define WPS_TLV_TYPE_WEPTRANSMITKEY                     0x1064
 #define WPS_TLV_TYPE_REQUESTED_DEV_TYPE                 0x106a
 
+/* Extensions from the Wi-Fi Easymesh Specification (ieee1905) */
+#define WPS_TLV_TYPE_DPP_URI                            0x1bbb
+#define WPS_TLV_TYPE_BSS_INDEX                          0x1bbc
 
 static const value_string eapwps_tlv_types[] = {
   { WPS_TLV_TYPE_AP_CHANNEL,                        "AP Channel" },
@@ -248,6 +251,8 @@ static const value_string eapwps_tlv_types[] = {
   { WPS_TLV_TYPE_APPSESSIONKEY,                     "AppSessionKey" },
   { WPS_TLV_TYPE_WEPTRANSMITKEY,                    "WEPTransmitKey" },
   { WPS_TLV_TYPE_REQUESTED_DEV_TYPE,                "Requested Device Type" },
+  { WPS_TLV_TYPE_DPP_URI,                           "DPP URI" },
+  { WPS_TLV_TYPE_BSS_INDEX,                         "BSS Index" },
   { 0, NULL }
 };
 
@@ -432,6 +437,8 @@ static int hf_eapwps_tlv_8021x_enabled;
 static int hf_eapwps_tlv_appsessionkey;
 static int hf_eapwps_tlv_weptransmitkey;
 static int hf_eapwps_tlv_requested_dev_type;
+static int hf_eapwps_tlv_dpp_uri;
+static int hf_eapwps_tlv_bss_index;
 
 static int hf_eapwps_vendor_id;
 static int hf_eapwps_wfa_ext_id;
@@ -1633,6 +1640,16 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       hfindex = hf_eapwps_tlv_requested_dev_type;
       break;
 
+    case WPS_TLV_TYPE_DPP_URI:
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_dpp_uri, tvb, offset+4, tlv_len, ENC_ASCII);
+      hfindex = hf_eapwps_tlv_dpp_uri;
+      break;
+
+    case WPS_TLV_TYPE_BSS_INDEX:
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_bss_index, tvb, offset+4, 1, ENC_NA);
+      hfindex = hf_eapwps_tlv_bss_index;
+      break;
+
     default:
       /* do something useful ?  */
       tmp_item = NULL;
@@ -2407,6 +2424,14 @@ proto_register_wps(void)
     { &hf_eapwps_tlv_requested_dev_type,
       { "Requested Device Type", "wps.requested_dev_type",
         FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_dpp_uri,
+      { "DPP URI", "wps.dpp_uri",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_eapwps_tlv_bss_index,
+      { "BSS Index", "wps.bss_index",
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     { &hf_eapwps_vendor_id,
       { "Vendor ID", "wps.vendor_id",
