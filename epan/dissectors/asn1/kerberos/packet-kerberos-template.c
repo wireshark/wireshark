@@ -1051,8 +1051,10 @@ add_encryption_key(packet_info *pinfo,
 	new_key->id = ++private_data->learnt_key_ids;
 	new_key->id_str = wmem_strdup_printf(key_scope, "%d.%u", new_key->fd_num, new_key->id);
 	new_key->keytype=keytype;
-	new_key->keylength=keylength;
-	memcpy(new_key->keyvalue, keyvalue, MIN(keylength, KRB_MAX_KEY_LENGTH));
+	/* XXX - Is there even a point in saving this if it's larger than the
+	 * max supported length? */
+	new_key->keylength=MIN(keylength, KRB_MAX_KEY_LENGTH);
+	memcpy(new_key->keyvalue, keyvalue, new_key->keylength);
 	new_key->src1 = src1;
 	new_key->src2 = src2;
 
