@@ -1758,6 +1758,23 @@ bool extcap_session_stop(capture_session *cap_session)
             return false;
         }
 
+        /*
+         * The control out source is deliberately not part of the check
+         * above, but it must not outlive pipedata: it looks itself up
+         * through pipedata->other_sources on every dispatch. If it is
+         * still attached here (the extcap exited before reading SP_QUIT,
+         * never opened the control out FIFO, or a toolbar control was
+         * sent after the capture ended), the next dispatch can't find its
+         * interface. Remove it now. The extcap process has already been
+         * reaped at this point, so nothing can read the queued messages
+         * anyway, and the FIFO is unlinked below.
+         */
+        if (interface_opts->extcap_control_out_watch > 0)
+        {
+            g_source_remove(interface_opts->extcap_control_out_watch);
+            interface_opts->extcap_control_out_watch = 0;
+        }
+
         ws_pipe_t *pipedata = (ws_pipe_t *)interface_opts->extcap_pipedata;
         if (pipedata) {
             g_slist_free(pipedata->other_sources);
@@ -1852,8 +1869,13 @@ extcap_watch_removed(capture_session *cap_session, interface_options *interface_
     }
 }
 
+/*
+ * Map a GSource / GIOChannel back to the interface it belongs to.
+ * Returns NULL if no interface owns it anymore, e.g. because
+ * extcap_session_stop() already freed the pipedata it was listed in.
+ */
 static interface_options *
-extcap_find_channel_interface(capture_session *cap_session, void *source)
+extcap_lookup_channel_interface(capture_session *cap_session, void *source)
 {
     capture_options *capture_opts = cap_session->capture_opts;
     interface_options *interface_opts;
@@ -1871,7 +1893,23 @@ extcap_find_channel_interface(capture_session *cap_session, void *source)
         }
     }
 
-    ws_assert_not_reached();
+    return NULL;
+}
+
+/*
+ * Same as extcap_lookup_channel_interface(), for the stdout, stderr and
+ * control in watches. Those watches are counted by extcap_session_stop(),
+ * so pipedata can't be freed while they are still attached and the
+ * lookup must succeed.
+ */
+static interface_options *
+extcap_find_channel_interface(capture_session *cap_session, void *source)
+{
+    interface_options *interface_opts = extcap_lookup_channel_interface(cap_session, source);
+
+    if (interface_opts == NULL)
+        ws_assert_not_reached();
+    return interface_opts;
 }
 
 static void
@@ -2020,7 +2058,17 @@ msg_queue_dispatch(GSource *source, GSourceFunc callback, void *user_data _U_) {
     void (*generic_func)(void) = (void (*)(void))callback;
     MessageQueueSourceFunc msg_queue_cb = (MessageQueueSourceFunc)generic_func;
 
-    interface_options *interface_opts = extcap_find_channel_interface(cap_session, msg_source);
+    /*
+     * extcap_session_stop() removes this source before freeing pipedata,
+     * so this lookup should always succeed. If some other path ever
+     * leaves the source orphaned, drop it instead of asserting: the
+     * extcap is gone, so any queued messages have nowhere to go.
+     */
+    interface_options *interface_opts = extcap_lookup_channel_interface(cap_session, msg_source);
+    if (interface_opts == NULL) {
+        ws_warning("extcap control out source has no interface, removing it");
+        return G_SOURCE_REMOVE;
+    }
 
     if (msg_source->out_fd == -1) {
 #ifdef _WIN32
@@ -2104,7 +2152,14 @@ extcap_control_out_cb(MessageQueueSource *msg_source, capture_session *cap_sessi
     size_t msg_size;
     const uint8_t *msg_data = g_bytes_get_data(msg, &msg_size);
     char indicator = '\0';
-    interface_options *interface_opts = extcap_find_channel_interface(cap_session, msg_source);
+    /* See msg_queue_dispatch() for why the lookup may fail. */
+    interface_options *interface_opts = extcap_lookup_channel_interface(cap_session, msg_source);
+
+    if (interface_opts == NULL) {
+        ws_warning("extcap control out source has no interface, removing it");
+        g_bytes_unref(msg);
+        return G_SOURCE_REMOVE;
+    }
 
     if (msg_size > 0) {
         indicator = msg_data[0];
