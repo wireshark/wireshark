@@ -78,6 +78,7 @@ public:
 
     /**
      * @brief Run a background update check through the platform mechanism.
+     *
      * This function is called by SoftwareUpdate to check for updates.
      * Backends that handle updates themselves (PackageKit on Linux) should return true.
      * Backends that rely on the appcast (Windows, Apple) should return false. Note

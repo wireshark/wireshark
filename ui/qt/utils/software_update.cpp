@@ -144,19 +144,20 @@ QUrl SoftwareUpdate::updateUrl() const
 {
     QUrl updateUrl;
 
-    Q_ASSERT_X(backend_ && backend_->supportsAppcast(), "SoftwareUpdate::updateUrl", "only appcast backends have an update URL");
     if (backend_ && backend_->supportsAppcast()) {
         const auto _prefix = "update";
         const auto _version = 0;
         const auto _locale = "en-US";
 
+        /** Determine the architecture for the update URL, this needs to be supported
+         * by the AppCast infrastructure on the ebserver side. Currently only x86-64
+         * and arm64 are supported. */
         const char *_arch = nullptr;
     #if defined(__x86_64__) || defined(_M_X64)
         _arch = "x86-64";
     #elif defined(__arm64__) || defined(_M_ARM64)
         _arch = "arm64";
     #endif
-        Q_ASSERT_X(_arch, "SoftwareUpdate::updateUrl", "appcast updates exist only for x86-64 and arm64");
         if (!_arch) {
             return updateUrl;
         }

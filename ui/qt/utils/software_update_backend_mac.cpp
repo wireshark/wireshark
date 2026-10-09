@@ -22,7 +22,7 @@
 #include <QDebug>
 
 #if !defined(__x86_64__) && !defined(__arm64__)
-    #error Software updates are only be defined for x86-64 or arm64.
+    #error Software updates for macOS are only implemented for x86-64 or arm64.
 #endif /* if */
 
 class SparkleUpdateBackend : public SoftwareUpdateBackend

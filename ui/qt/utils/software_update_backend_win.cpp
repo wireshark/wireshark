@@ -21,7 +21,7 @@
 #include <winsparkle.h>
 
 #if !defined(_M_X64) && !defined(_M_ARM64)
-    #error Software updates are only be defined for x86-64 or arm64.
+    #error Software updates for Windows are only implemented for x86-64 or arm64.
 #endif /* if */
 
 class WinSparkleUpdateBackend : public SoftwareUpdateBackend
