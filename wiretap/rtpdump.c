@@ -182,6 +182,12 @@ rtpdump_open(wtap *wth, int *err, char **err_info)
             break;
         }
         else if (g_ascii_isprint(ch)) {
+            if (header_str->len >= RTP_HEADER_MAX_LEN) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = ws_strdup("rtpdump: header text too long");
+                g_string_free(header_str, TRUE);
+                return WTAP_OPEN_ERROR;
+            }
             g_string_append_c(header_str, ch);
         }
         else {
