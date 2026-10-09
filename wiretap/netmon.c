@@ -743,6 +743,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 			utf16_str = (uint8_t*)g_malloc(title_length);
 			if (!wtap_read_bytes(wth->fh, utf16_str, title_length,
 			    err, err_info)) {
+				g_free(utf16_str);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
 			}
@@ -850,6 +851,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 			utf16_str = (uint8_t*)g_malloc(path_size);
 			if (!wtap_read_bytes(wth->fh, utf16_str, path_size,
 			    err, err_info)) {
+				g_free(utf16_str);
 				g_free(process_info);
 				g_hash_table_destroy(process_info_table);
 				return WTAP_OPEN_ERROR;
@@ -864,7 +866,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 
 			/* Read icon (currently not saved) */
 			if (!wtap_read_bytes(wth->fh, &tmp32, 4, err, err_info)) {
-				g_free(process_info);
+				netmonrec_process_info_destroy(process_info);
 				g_hash_table_destroy(process_info_table);
 				return WTAP_OPEN_ERROR;
 			}
@@ -873,14 +875,14 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, char **err_info)
 
 			/* XXX - skip the icon for now */
 			if (file_seek(wth->fh, process_info->iconSize, SEEK_CUR, err) == -1) {
-				g_free(process_info);
+				netmonrec_process_info_destroy(process_info);
 				g_hash_table_destroy(process_info_table);
 				return WTAP_OPEN_ERROR;
 			}
 			process_info->iconSize = 0;
 
 			if (!wtap_read_bytes(wth->fh, &tmp32, 4, err, err_info)) {
-				g_free(process_info);
+				netmonrec_process_info_destroy(process_info);
 				g_hash_table_destroy(process_info_table);
 				return WTAP_OPEN_ERROR;
 			}
