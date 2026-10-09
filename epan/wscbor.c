@@ -264,7 +264,10 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, int *
                             const int datalen = wscbor_get_length(chunk, head->rawvalue);
                             *offset += datalen;
                             chunk->data_length += datalen;
-                            if(datalen) {
+                            if(datalen && tvb_captured_length_remaining(tvb, head->start + head->length)) {
+                                /* tvb_composite_append ignores a zero captured
+                                 * length tvbuff, but we need to avoid creating
+                                 * a new composite in that case. */
                                 if (!chunk->_priv->str_value) {
                                     chunk->_priv->str_value = tvb_new_composite ();
                                 }
