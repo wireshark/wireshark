@@ -281,8 +281,8 @@ static int * const req_attributes[] = {
 };
 
 typedef struct ajp13_conv_data {
-  uint32_t content_length;
-  bool was_get_body_chunk;  /* XXX - not used */
+  uint32_t content_length;  /* remaining length of the request body */
+  bool was_get_body_chunk;  /* the next request packet is a body chunk */
 } ajp13_conv_data;
 
 typedef struct ajp13_frame_data {
@@ -348,6 +348,13 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_reusep, tvb, pos, 1, ENC_BIG_ENDIAN);
     /*pos+=1;*/
+    /* This ends the request handling cycle, the container won't read
+     * any more of the request body.
+     */
+    if (!PINFO_FD_VISITED(pinfo)) {
+      cd->content_length = 0;
+      cd->was_get_body_chunk = false;
+    }
     break;
 
   case MTYPE_SEND_HEADERS:
@@ -436,12 +443,14 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
   case MTYPE_GET_BODY_CHUNK:
   {
-    uint16_t rlen;
-    rlen = tvb_get_ntohs(tvb, pos);
-    cd->content_length = rlen;
     if (ajp13_tree)
       proto_tree_add_item(ajp13_tree, hf_ajp13_rlen, tvb, pos, 2, ENC_BIG_ENDIAN);
     /*pos+=2;*/
+    /* The web server answers with a request body packet, which may be
+     * shorter than the requested length.
+     */
+    if (!PINFO_FD_VISITED(pinfo))
+      cd->was_get_body_chunk = true;
     break;
   }
 
@@ -465,13 +474,10 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
  * packets.
  */
 static void
-display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
+display_req_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_conv_data* cd)
 {
   /*printf("ajp13:display_req_body()\n");*/
-  /*
-   * In a resued connection this is never reset.
-   */
-  uint16_t content_length;
+  uint16_t content_length = 0;
   uint16_t packet_length;
 
   int pos = 0;
@@ -487,27 +493,28 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
   proto_tree_add_item(ajp13_tree, hf_ajp13_len, tvb, pos, 2, ENC_BIG_ENDIAN);
   pos+=2;
 
-  if (packet_length == 0)
-  {
-    /*
-     * We've got an empty packet:
-     * 0x12 0x34 0x00 0x00
-     * It signals that there is no more data in the body
-     */
-    cd->content_length = 0;
-    return;
+  /*
+   * An empty packet:
+   * 0x12 0x34 0x00 0x00
+   * or zero length content signals that there is no more data in the body
+   */
+  if (packet_length != 0) {
+    content_length = tvb_get_ntohs(tvb, pos);
+    pos+=2;
+  }
+
+  if (!PINFO_FD_VISITED(pinfo)) {
+    cd->was_get_body_chunk = false;
+    if (content_length == 0)
+      cd->content_length = 0;
+    else
+      cd->content_length -= MIN(content_length, cd->content_length);
   }
 
   /* BODY (AS STRING)
    */
-  content_length = tvb_get_ntohs( tvb, pos);
-  if (content_length == 0) {
-    /* zero length content also signals no more body data */
-    cd->content_length = 0;
-    return;
-  }
-  cd->content_length -= content_length;
-  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length, ENC_UTF_8);
+  if (content_length != 0)
+    proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos, content_length, ENC_UTF_8);
 }
 
 
@@ -624,7 +631,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_nhdr, tvb, pos, 2, ENC_BIG_ENDIAN);
   pos+=2;
-  cd->content_length = 0;
+  if (!PINFO_FD_VISITED(pinfo))
+    cd->content_length = 0;
 
   /* HEADERS
    */
@@ -657,8 +665,13 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       pi = proto_tree_add_string(ajp13_tree, *req_headers[hid],
                                  tvb, hpos, 2+hval_len+2, hval);
 
-      if (hid == 0x08 && !ws_strtou32(hval, NULL, &cd->content_length)) {
-        expert_add_info(pinfo, pi, &ei_ajp13_content_length_invalid);
+      if (hid == 0x08) {
+        uint32_t content_length;
+
+        if (!ws_strtou32(hval, NULL, &content_length))
+          expert_add_info(pinfo, pi, &ei_ajp13_content_length_invalid);
+        if (!PINFO_FD_VISITED(pinfo))
+          cd->content_length = content_length;
       }
 
       pos+=hval_len+2;
@@ -746,6 +759,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   ajp13_conv_data *cd = NULL;
   proto_tree *ajp13_tree = NULL;
   ajp13_frame_data* fd = NULL;
+  unsigned pdu_num;
 
   /* conversational state really only does us good during the first
    * in-order traversal
@@ -762,9 +776,13 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
   /* we use the per segment user data to record the conversational
    * state for use later on when we're called out of order (see
-   * comments at top of this file)
+   * comments at top of this file). a segment can contain more than
+   * one PDU, so the data is keyed by the PDU's position in the frame.
    */
-  fd = (ajp13_frame_data*)p_get_proto_data(wmem_file_scope(), pinfo, proto_ajp13, 0);
+  pdu_num = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ajp13, 0));
+  p_set_proto_data(pinfo->pool, pinfo, proto_ajp13, 0, GUINT_TO_POINTER(pdu_num + 1));
+
+  fd = (ajp13_frame_data*)p_get_proto_data(wmem_file_scope(), pinfo, proto_ajp13, pdu_num);
   if (!fd) {
     /*printf("ajp13:dissect_ajp13_common():no frame data, adding");*/
     /* since there's no per-packet user data, this must be the first
@@ -772,13 +790,14 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
      * pass through the data.
      */
     fd = wmem_new(wmem_file_scope(), ajp13_frame_data);
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_ajp13, 0, fd);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_ajp13, pdu_num, fd);
     fd->is_request_body = false;
-    if (cd->content_length) {
+    if (cd->content_length || cd->was_get_body_chunk) {
       /* this is screwy, see AJPv13.html. the idea is that if the
        * request has a body (as determined by the content-length
        * header), then there's always an immediate follow-up PDU with
-       * no GET_BODY_CHUNK from the container.
+       * no GET_BODY_CHUNK from the container. the following parts
+       * of the body are sent in reply to GET_BODY_CHUNK.
        */
       fd->is_request_body = true;
     }
@@ -809,7 +828,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   if (mag == 0x1234) {
 
     if (fd->is_request_body)
-      display_req_body(tvb, ajp13_tree, cd);
+      display_req_body(tvb, pinfo, ajp13_tree, cd);
     else
       display_req_forward(tvb, pinfo, ajp13_tree, cd);
 
