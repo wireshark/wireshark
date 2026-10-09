@@ -244,7 +244,9 @@ The following features are either new or have been significantly updated since v
 * The AJP13 dissector reassembles request and response bodies spanning
   multiple AJP13 packets, controlled by the new `ajp13.reassemble_body`
   preference, and supports Export Objects (menu:File[Export Objects,AJP13]
-  and `tshark --export-objects ajp13,<destdir>`).
+  and `tshark --export-objects ajp13,<destdir>`). Like with HTTP,
+  content-encoded bodies are uncompressed, controlled by the new
+  `ajp13.decompress_body` preference.
 
 === Removed Features and Support
 

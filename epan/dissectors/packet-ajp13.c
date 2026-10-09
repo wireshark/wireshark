@@ -267,6 +267,8 @@ static int ajp13_eo_tap;
 
 /* Reassemble request and response bodies (needed for Export Objects) */
 static bool ajp13_reassemble_body = true;
+/* Uncompress content-encoded bodies */
+static bool ajp13_decompress_body = true;
 
 /*
  * Request/response header codes. Common headers are stored as ints in
@@ -330,6 +332,8 @@ typedef struct ajp13_trans_info {
   const char *uri;               /* request URI, including the query string */
   const char *req_content_type;  /* media type of the request body */
   const char *rsp_content_type;  /* media type of the response body */
+  const char *req_content_encoding;  /* Content-Encoding of the request body */
+  const char *rsp_content_encoding;  /* Content-Encoding of the response body */
 } ajp13_trans_info;
 
 typedef struct ajp13_conv_data {
@@ -390,12 +394,14 @@ ajp13_get_media_type(wmem_allocator_t *scope, const char *content_type)
 
 /* Adds the data of a request or response body packet to the reassembly
  * of the body. If the packet ends the body, adds the reassembled body to
- * the tree and sends it to Export Objects.
+ * the tree and sends it, uncompressed if it is content-encoded, to Export
+ * Objects.
  */
 static void
 ajp13_reassemble_body_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
                            int offset, uint16_t length, bool is_end,
-                           const ajp13_trans_info *trans, const char *content_type)
+                           const ajp13_trans_info *trans, const char *content_type,
+                           const char *content_encoding)
 {
   fragment_head *fd_head = NULL;
   tvbuff_t *body_tvb;
@@ -424,8 +430,32 @@ ajp13_reassemble_body_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_
   fd_head = fragment_end_seq_next(&ajp13_body_reassembly_table, pinfo, trans->body_id, NULL);
   body_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled body", fd_head,
                                       &ajp13_body_fragment_items, NULL, ajp13_tree);
+  if (!body_tvb)
+    return;
 
-  if (body_tvb && have_tap_listener(ajp13_eo_tap)) {
+  if (content_encoding && ajp13_decompress_body &&
+      (ajp13_tree || have_tap_listener(ajp13_eo_tap))) {
+    tvbuff_t *uncomp_tvb = NULL;
+    unsigned body_len = tvb_captured_length(body_tvb);
+
+    if (g_ascii_strcasecmp(content_encoding, "gzip") == 0 ||
+        g_ascii_strcasecmp(content_encoding, "deflate") == 0 ||
+        g_ascii_strcasecmp(content_encoding, "x-gzip") == 0 ||
+        g_ascii_strcasecmp(content_encoding, "x-deflate") == 0)
+      uncomp_tvb = tvb_child_uncompress_zlib(tvb, body_tvb, 0, body_len);
+    else if (g_ascii_strcasecmp(content_encoding, "br") == 0)
+      uncomp_tvb = tvb_child_uncompress_brotli(tvb, body_tvb, 0, body_len);
+    else if (g_ascii_strcasecmp(content_encoding, "zstd") == 0)
+      uncomp_tvb = tvb_child_uncompress_zstd(tvb, body_tvb, 0, body_len);
+
+    /* Like HTTP, export the uncompressed body if possible */
+    if (uncomp_tvb) {
+      add_new_data_source(pinfo, uncomp_tvb, "Uncompressed body");
+      body_tvb = uncomp_tvb;
+    }
+  }
+
+  if (have_tap_listener(ajp13_eo_tap)) {
     ajp13_eo_t *eo_info = wmem_new0(pinfo->pool, ajp13_eo_t);
 
     eo_info->hostname = trans->host;
@@ -511,7 +541,8 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
      */
     if (fd->trans)
       ajp13_reassemble_body_data(tvb, pinfo, ajp13_tree, pos, 0, true,
-                                 fd->trans, fd->trans->rsp_content_type);
+                                 fd->trans, fd->trans->rsp_content_type,
+                                 fd->trans->rsp_content_encoding);
     break;
 
   case MTYPE_SEND_BODY_CHUNK:
@@ -528,7 +559,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
       fd->trans = cd->rsp_trans;
     if (fd->trans)
       ajp13_reassemble_body_data(tvb, pinfo, ajp13_tree, pos+2, chunk_len, false,
-                                 fd->trans, NULL);
+                                 fd->trans, NULL, NULL);
     break;
   }
 
@@ -539,6 +570,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
     uint16_t nhdr;
     uint16_t rcode_num;
     const char *content_type = NULL;
+    const char *content_encoding = NULL;
 
     /* HTTP RESPONSE STATUS CODE
      */
@@ -627,11 +659,16 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
                                 wmem_strdup_printf(pinfo->pool, "%s: %s", hname, hval),
                                 "%s: %s", hname, hval);
         pos+=hval_len+2;
+
+        if (g_ascii_strcasecmp(hname, "Content-Encoding") == 0)
+          content_encoding = hval;
       }
     }
 
     if (!PINFO_FD_VISITED(pinfo) && content_type)
       cd->rsp_trans->rsp_content_type = ajp13_get_media_type(wmem_file_scope(), content_type);
+    if (!PINFO_FD_VISITED(pinfo) && content_encoding)
+      cd->rsp_trans->rsp_content_encoding = wmem_strdup(wmem_file_scope(), content_encoding);
     break;
   }
 
@@ -721,7 +758,8 @@ display_req_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree,
   if (fd->trans)
     ajp13_reassemble_body_data(tvb, pinfo, ajp13_tree, pos, content_length,
                                fd->is_request_body_end, fd->trans,
-                               fd->trans->req_content_type);
+                               fd->trans->req_content_type,
+                               fd->trans->req_content_encoding);
 }
 
 
@@ -912,6 +950,9 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
                                      wmem_strdup_printf(pinfo->pool, "%s: %s", hname, hval),
                                      "%s: %s", hname, hval);
       pos+=hval_len+2;
+
+      if (trans && g_ascii_strcasecmp(hname, "Content-Encoding") == 0)
+        trans->req_content_encoding = wmem_strdup(wmem_file_scope(), hval);
     }
   }
 
@@ -1401,6 +1442,11 @@ proto_register_ajp13(void)
                                  "and response bodies spanning multiple AJP13 packets. "
                                  "This is needed to export the bodies with Export Objects.",
                                  &ajp13_reassemble_body);
+  prefs_register_bool_preference(ajp13_module, "decompress_body",
+                                 "Uncompress entity bodies",
+                                 "Whether to uncompress reassembled bodies that are compressed "
+                                 "using \"Content-Encoding: \"",
+                                 &ajp13_decompress_body);
 
   reassembly_table_register(&ajp13_body_reassembly_table,
                             &addresses_ports_reassembly_table_functions);
