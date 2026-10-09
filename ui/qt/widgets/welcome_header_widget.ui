@@ -91,9 +91,6 @@
           <property name="accessibleDescription">
            <string>Version of the application currently running</string>
           </property>
-          <property name="text">
-           <string>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</string>
-          </property>
          </widget>
         </item>
        </layout>
