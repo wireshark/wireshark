@@ -99,7 +99,7 @@ typedef struct {
 
 static erf_dump_t* erf_dump_priv_create(void);
 static void erf_dump_priv_free(erf_dump_t *dump_priv);
-static bool erf_dump_priv_compare_capture_comment(wtap_dumper *wdh, erf_dump_t *dump_priv,const union wtap_pseudo_header *pseudo_header, const uint8_t *pd);
+static bool erf_dump_priv_compare_capture_comment(wtap_dumper *wdh, erf_dump_t *dump_priv,const union wtap_pseudo_header *pseudo_header, const uint8_t *pd, uint32_t captured_len);
 static bool erf_comment_to_sections(wtap_dumper *wdh, uint16_t section_type, uint16_t section_id, char *comment, GPtrArray *sections);
 static bool erf_wtap_info_to_sections(wtap_dumper *wdh, GPtrArray *sections);
 static bool get_user_comment_string(wtap_dumper *wdh, char** user_comment_ptr);
@@ -1951,7 +1951,7 @@ static bool erf_dump(
   if (erf_type == ERF_TYPE_META) {
     /* Check whether the capture comment string has changed */
     /* Updates write_next_extra_meta */
-    dump_priv->last_meta_periodic = erf_dump_priv_compare_capture_comment(wdh, dump_priv, pseudo_header, pd);
+    dump_priv->last_meta_periodic = erf_dump_priv_compare_capture_comment(wdh, dump_priv, pseudo_header, pd, rec->rec_header.packet_header.caplen);
   } else { /* don't want to insert a new metadata record while looking at another */
     if (dump_priv->prev_erf_type == ERF_TYPE_META && dump_priv->last_meta_periodic) {
       /* Last frame was a periodic (non-comment) metadata record (and this frame is not), check if we
@@ -3497,7 +3497,7 @@ static bool get_user_comment_string(wtap_dumper *wdh, char** user_comment_ptr) {
   return true;
 }
 
-static bool erf_dump_priv_compare_capture_comment(wtap_dumper *wdh _U_, erf_dump_t *dump_priv, const union wtap_pseudo_header *pseudo_header, const uint8_t *pd){
+static bool erf_dump_priv_compare_capture_comment(wtap_dumper *wdh _U_, erf_dump_t *dump_priv, const union wtap_pseudo_header *pseudo_header _U_, const uint8_t *pd, uint32_t captured_len){
   struct erf_meta_read_state state = {0};
   struct erf_meta_tag tag = {0, 0, NULL};
   uint32_t tagtotallength;
@@ -3505,7 +3505,12 @@ static bool erf_dump_priv_compare_capture_comment(wtap_dumper *wdh _U_, erf_dump
   bool found_normal_section = false;
   char* comment_ptr = NULL;
 
-  state.remaining_len = pseudo_header->erf.phdr.wlen;
+  /* The metadata walk must be bounded by the number of bytes actually
+   * captured (pd points to a caplen-sized buffer), not by the on-wire
+   * length (wlen) from the pseudo-header. A record whose wlen exceeds its
+   * captured payload would otherwise make erf_meta_read_tag() read past
+   * the end of the buffer. */
+  state.remaining_len = captured_len;
   memcpy(&(state.tag_ptr), &pd, sizeof(pd));
 
   while((tagtotallength = erf_meta_read_tag(&tag, state.tag_ptr, state.remaining_len))) {
