@@ -14,7 +14,6 @@
 #include "file_wrappers.h"
 
 static int mmodule_file_type_subtype = -1;
-static struct mmodule_phdr *mmodule;
 
 void register_mmodule(void);
 
@@ -45,28 +44,22 @@ wtap_open_return_val mmodule_open(wtap *wth, int *err, char **err_info)
     uint32_t tmp;
 
     // Check if a file tag we recognize
-    mmodule = g_new(struct mmodule_phdr, 1);
     if (file_seek(wth->fh, 0x00, SEEK_SET, err) < 0) {
-        g_free(mmodule);
         return false;
     }
     if (!wtap_read_bytes_or_eof(wth->fh, &tmp, 4, err, err_info)) {
-        g_free(mmodule);
         return false;
     }
     uint32_t tag = GUINT32_FROM_LE(tmp);
     if (tag > 10 || tag < 1) {
-        g_free(mmodule);
         return WTAP_OPEN_NOT_MINE;
     }
 
     // Check if a version type we recognize
     if (file_seek(wth->fh, 0x10, SEEK_SET, err) < 0) {
-        g_free(mmodule);
         return false;
     }
     if (!wtap_read_bytes_or_eof(wth->fh, &tmp, 4, err, err_info)) {
-        g_free(mmodule);
         return false;
     }
     uint32_t vtype = GUINT32_FROM_LE(tmp);
@@ -76,27 +69,22 @@ wtap_open_return_val mmodule_open(wtap *wth, int *err, char **err_info)
 
     // Reported and actual lengths are not the same
     if (file_seek(wth->fh, 0x00, SEEK_END, err) == -1){
-        g_free(mmodule);
         return false;
     }
     uint32_t file_len = (uint32_t) file_tell(wth->fh);
     if (file_seek(wth->fh, 0x20, SEEK_SET, err) == -1){
-        g_free(mmodule);
         return false;
     }
     if (!wtap_read_bytes_or_eof(wth->fh, &tmp, 4, err, err_info)) {
-        g_free(mmodule);
         return false;
     }
     uint32_t reported_len = GUINT32_FROM_LE(tmp);
     if (reported_len != file_len) {
-        g_free(mmodule);
         return WTAP_OPEN_NOT_MINE;
     }
 
     // Confirm entire file checksum
     if (verify_checksum(wth->fh,err,err_info) == false) {
-        g_free(mmodule);
         return WTAP_OPEN_NOT_MINE;
     }
 
@@ -109,7 +97,6 @@ wtap_open_return_val mmodule_open(wtap *wth, int *err, char **err_info)
 
     // Explicitly set, in case code gets updated somewhere
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
-        g_free(mmodule);
         return WTAP_OPEN_ERROR;
     }
 
