@@ -647,7 +647,7 @@ read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_
 
     /* read in the packet data */
     if (!wtap_read_packet_bytes(fh, buf, length, err, err_info))
-        return false;
+        return -1;
     bytes_consumed += length;
 
     return bytes_consumed;
