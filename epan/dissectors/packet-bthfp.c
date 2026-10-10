@@ -207,6 +207,13 @@ enum reassemble_state_t {
     REASSEMBLE_DONE
 };
 
+/* Upper bound on the length of a reassembled message. V.250 and the
+ * HSP/HFP specifications don't limit the length of an AT command or
+ * response. This limit is arbitrary, well above any real command line;
+ * it keeps the offsets from overflowing and stops an unterminated stream
+ * from growing the same message without end. */
+#define MAX_REASSEMBLED_LENGTH  (64 * 1024)
+
 typedef struct _fragment_t {
     uint32_t                 interface_id;
     uint32_t                 adapter_id;
@@ -218,6 +225,7 @@ typedef struct _fragment_t {
     unsigned                 length;
     uint8_t                 *data;
     struct _fragment_t      *previous_fragment;
+    struct _fragment_t      *first_fragment;
 
     unsigned                 reassemble_start_offset;
     unsigned                 reassemble_end_offset;
@@ -2244,6 +2252,12 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             previous_fragment = NULL;
         }
 
+        if (previous_fragment &&
+                (uint64_t)previous_fragment->idx + previous_fragment->length + tvb_reported_length(tvb) > MAX_REASSEMBLED_LENGTH) {
+            /* Too long; give up on the previous message and start a new one */
+            previous_fragment = NULL;
+        }
+
         frame_number = pinfo->num;
 
         key[0].length = 1;
@@ -2272,6 +2286,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         fragment->length            = tvb_reported_length(tvb);
         fragment->data              = (uint8_t *) wmem_alloc(wmem_file_scope(), fragment->length);
         fragment->previous_fragment = previous_fragment;
+        fragment->first_fragment    = (fragment->idx > 0) ? previous_fragment->first_fragment : fragment;
         tvb_memcpy(tvb, fragment->data, offset, fragment->length);
 
         wmem_tree_insert32_array(fragments, key, fragment);
@@ -2320,10 +2335,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     fragment->chandle == chandle &&
                     fragment->dlci == dlci &&
                     fragment->role == role) {
-                i_fragment = fragment;
-                while (i_fragment && i_fragment->idx > 0) {
-                    i_fragment = i_fragment->previous_fragment;
-                }
+                i_fragment = fragment->first_fragment;
 
                 if (i_length + 1 == length &&
                         role == ROLE_HS &&
