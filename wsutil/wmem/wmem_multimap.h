@@ -108,7 +108,7 @@ wmem_multimap_new_autoreset(wmem_allocator_t *metadata_scope, wmem_allocator_t *
  * @brief Retrieves a list of the keys inside the multimap
  *
  * @param list_allocator The allocator scope for the returned list.
- * @param map The multimap to extract keys from
+ * @param map The multimap to extract keys from. May not be NULL.
  * @return list of keys in the multimap
  */
 WS_DLL_PUBLIC
@@ -118,7 +118,7 @@ wmem_multimap_get_keys(wmem_allocator_t *list_allocator, const wmem_multimap_t *
 /**
  * @brief Return the total number of elements in the multimap.
  *
- * @param map The multimap to use
+ * @param map The multimap to use. May be NULL.
  * @return the number of elements
 */
 WS_DLL_PUBLIC
@@ -132,7 +132,7 @@ wmem_multimap_size(const wmem_multimap_t *map);
  * safely generate unique tree keys prior to insertion if no values have been
  * removed, due to how the tree implementation works.
  *
- * @param map The multimap to search in.
+ * @param map The multimap to search in. May be NULL.
  * @param key The primary key to lookup in the map.
  * @return The number of values in the tree stored at map key, or zero if no
  * tree exists at that key.
@@ -149,7 +149,7 @@ wmem_multimap_count(const wmem_multimap_t *map, const void *key);
  * a problem if the value is wmem allocated, but if it is manually managed,
  * then you must ensure that the pair is unique or do a lookup before inserting.
  *
- * @param map The multimap to insert into.
+ * @param map The multimap to insert into. May not be NULL.
  * @param key The key to insert by in the map.
  * @param frame_num The key to insert by in the tree.
  * @param value The value to insert.
@@ -164,7 +164,7 @@ wmem_multimap_insert32(wmem_multimap_t *map, const void *key, uint32_t frame_num
 /**
  * @brief Lookup a value in the multimap combination with an exact match.
  *
- * @param map The multimap to search in.
+ * @param map The multimap to search in. May be NULL.
  * @param key The primary key to lookup in the map.
  * @param frame_num The secondary key to lookup in the tree.
  * @return The value stored at the keys if any, or NULL.
@@ -179,7 +179,7 @@ wmem_multimap_lookup32(const wmem_multimap_t *map, const void *key, const uint32
  *
  * This is useful for request/response matching where IDs can be reused.
  *
- * @param map The multimap to search in.
+ * @param map The multimap to search in. May be NULL.
  * @param key The primary key to lookup in the map.
  * @param frame_num The secondary key to lookup in the tree.
  * @return The value stored at the primary key in the map and with the largest
@@ -198,7 +198,7 @@ wmem_multimap_lookup32_le(const wmem_multimap_t *map, const void *key, const uin
  *
  * This is useful for request/response matching where IDs can be reused.
  *
- * @param map The multimap to search in.
+ * @param map The multimap to search in. May be NULL.
  * @param key The primary key to lookup in the map.
  * @param frame_num The secondary key to lookup in the tree.
  * @param orig_frame_num Set to the greater lower bound of frame_num tree key
@@ -216,7 +216,7 @@ wmem_multimap_lookup32_le_full(const wmem_multimap_t *map, const void *key, cons
  * nothing happens. As with wmem_tree, this is not really a remove, but the
  * value is set to NULL so that wmem_multimap_lookup32 not will find it.
  *
- * @param map The multimap to remove from.
+ * @param map The multimap to remove from. May be NULL.
  * @param key The map key of the value to remove.
  * @param frame_num The tree key of the value to remove.
  * @return The (removed) value stored at the key if any, or NULL.

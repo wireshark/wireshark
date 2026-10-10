@@ -119,7 +119,6 @@ wmem_gc(wmem_allocator_t *allocator)
 void
 wmem_destroy_allocator(wmem_allocator_t *allocator)
 {
-
     wmem_free_all_real(allocator, true);
     allocator->cleanup(allocator->private_data);
     wmem_free(NULL, allocator);

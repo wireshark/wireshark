@@ -634,8 +634,8 @@ wmem_map_reserve(wmem_map_t *map, uint64_t capacity)
 
 /* Borrowed from Perl 5.18. This is based on Bob Jenkin's one-at-a-time
  * algorithm with some additional randomness seeded in. It is believed to be
- * generally secure against collision attacks. See
- * http://blog.booking.com/hardening-perls-hash-function.html
+ * generally secure against collision attacks. See "Hardening Perl's Hash Function".
+ * https://medium.com/booking-com-development/hardening-perls-hash-function-d642601f4e54
  */
 uint32_t
 wmem_strong_hash(const uint8_t *buf, const size_t len)

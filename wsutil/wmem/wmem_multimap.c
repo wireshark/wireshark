@@ -107,7 +107,10 @@ wmem_multimap_size(const wmem_multimap_t *map)
 {
     unsigned count = 0;
 
-    wmem_map_foreach(map->map, count_nodes, &count);
+    /* Make sure we have map and a multimap */
+    if (map == NULL || map->map == NULL) {
+        wmem_map_foreach(map->map, count_nodes, &count);
+    }
     return count;
 }
 
@@ -115,6 +118,11 @@ unsigned
 wmem_multimap_count(const wmem_multimap_t *map, const void *key)
 {
     wmem_tree_t *tree;
+
+    /* Make sure we have map and a multimap */
+    if (map == NULL || map->map == NULL) {
+        return 0;
+    }
 
     if ((tree = wmem_map_lookup(map->map, key)) == NULL) {
         return 0;
@@ -143,6 +151,11 @@ wmem_multimap_lookup32(const wmem_multimap_t *map, const void *key, uint32_t fra
 {
     wmem_tree_t *tree;
 
+    /* Make sure we have map and a multimap */
+    if (map == NULL || map->map == NULL) {
+        return NULL;
+    }
+
     if ((tree = wmem_map_lookup(map->map, key)) == NULL) {
         return NULL;
     }
@@ -153,6 +166,11 @@ void *
 wmem_multimap_lookup32_le(const wmem_multimap_t *map, const void *key, uint32_t frame_num)
 {
     wmem_tree_t *tree;
+
+    /* Make sure we have map and a multimap */
+    if (map == NULL || map->map == NULL) {
+        return NULL;
+    }
 
     if ((tree = wmem_map_lookup(map->map, key)) == NULL) {
         return NULL;
@@ -165,6 +183,11 @@ wmem_multimap_lookup32_le_full(const wmem_multimap_t *map, const void *key, uint
 {
     wmem_tree_t *tree;
 
+    /* Make sure we have map and a multimap */
+    if (map == NULL || map->map == NULL) {
+        return NULL;
+    }
+
     if ((tree = wmem_map_lookup(map->map, key)) == NULL) {
         return NULL;
     }
@@ -175,6 +198,11 @@ void *
 wmem_multimap_remove32(wmem_multimap_t *map, const void *key, const uint32_t frame_num)
 {
     wmem_tree_t *tree;
+
+    /* Make sure we have map and a multimap */
+    if (map == NULL || map->map == NULL) {
+        return NULL;
+    }
 
     if ((tree = wmem_map_lookup(map->map, key)) == NULL) {
         return NULL;

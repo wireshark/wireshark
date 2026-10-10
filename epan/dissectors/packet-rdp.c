@@ -1610,15 +1610,15 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, unsigned offset, packet_info *pinfo
       if (rdp_info)
          channel = &rdp_info->staticChannels[i];
 
+      char *channelName = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 8, ENC_ASCII);
+
       if (!PINFO_FD_VISITED(pinfo) && channel) {
         channel->value = -1; /* unset */
-        channel->strptr = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, 8, ENC_ASCII);
+        channel->strptr = (char *)wmem_memdup(wmem_file_scope(), channelName, strlen(channelName));
         channel->channelType = find_known_channel_by_name(channel->strptr);
         channel->chunks_cs = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         channel->chunks_sc = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
       }
-
-      char *channelName = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 8, ENC_ASCII);
 
       proto_tree *channel_tree = proto_tree_add_subtree_format(next_tree, tvb, offset, 12, ett_rdp_channelDef, NULL, "channel %s", channelName);
       if (channel)
@@ -1836,7 +1836,7 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
 
                   /* Make sure we received a first chunk, or else reassembly
                    * has already failed. */
-                  if (context->chunks != NULL) {
+                  if (context->chunks != NULL && chunksMap != NULL) {
                           /* XXX - Check if length == context->packetLen; else
                            * something went wrong (missing/out of order?) */
                           chunk = wmem_alloc(wmem_file_scope(), sizeof(*chunk));
