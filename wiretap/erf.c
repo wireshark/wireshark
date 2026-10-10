@@ -2989,8 +2989,8 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
     if_info->set_flags.fcs_len = 1;
   }
 
-  if (state->if_map->module_snaplen != (uint32_t) -1 && !if_info->set_flags.snaplen && tag.value) {
-    int_data_mand->snap_len = pntohu32(tag.value);
+  if (state->if_map->module_snaplen != (uint32_t) -1 && !if_info->set_flags.snaplen) {
+    int_data_mand->snap_len = state->if_map->module_snaplen;
     if_info->set_flags.snaplen = 1;
   }
 
