@@ -265,7 +265,7 @@ wtap_open_return_val logcat_open(wtap *wth, int *err, char **err_info)
         }
 
         tmp_version = detect_version(wth->fh, err, err_info); /* third packet */
-        if (tmp_version < 0)
+        if (tmp_version == -1)
             return WTAP_OPEN_ERROR; /* I/O error */
         if (tmp_version == 0)
             return WTAP_OPEN_NOT_MINE;  /* not a logcat file */
@@ -273,8 +273,9 @@ wtap_open_return_val logcat_open(wtap *wth, int *err, char **err_info)
         /*
          * we've read three packets and the first two have the same
          * version; does the third have the same version?
+         * (If we got an EOF, there are only two packets, which is fine.)
          */
-        if (tmp_version != version) {
+        if (tmp_version != -2 && tmp_version != version) {
             /* no, so this is presumably not a logcat file */
             return WTAP_OPEN_NOT_MINE;
         }
