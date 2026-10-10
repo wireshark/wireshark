@@ -1060,6 +1060,9 @@ int CsDecomprLZH (CSHU     * cshu,
 
 CODE_INT DE_STACK_OFFSET = 1<<(CS_BITS+1);
 
+/* The output stack is the part of Suffixtab after the code table */
+#define DE_STACK_END (&csc->Suffixtab[sizeof(csc->Suffixtab)])
+
 CODE_INT GetCode (struct CSC *csc)
 /*--------------------------------------------------------------------*/
 /* Read the next code from input stream                               */
@@ -1343,6 +1346,10 @@ int CsDecomprLZC (CSC      * csc,
     finchar = oldcode = (CODE_INT) GetCode (csc);
     csc->get_r_bits = 0;                   /* not redundant !!! ...........*/
 
+    /* The first code must be a literal; there are no entries yet. */
+    if (oldcode >= 256)
+      return (CS_E_INVALIDCODE);
+
     if (outlen == 0)                  /* must have some space ........*/
     {
       code = CS_END_OUTBUFFER;
@@ -1375,9 +1382,17 @@ int CsDecomprLZC (CSC      * csc,
 
     incode = code;
 
+    /* A code can refer at most to the entry about to be added. A
+     * larger code would make the new entry its own prefix, an
+     * endless loop in the decoding below. */
+    if (code > csc->free_ent)
+      return (CS_E_INVALIDCODE);
+
     /* Special case for ababa string .................................*/
-    if (code >= csc->free_ent)
+    if (code == csc->free_ent)
     {
+      if (stackp >= DE_STACK_END)
+        return (CS_E_STACK_OVERFLOW);
       *stackp++ = (BYTE_TYP) finchar;
       OVERFLOW_CHECK
       code = oldcode;
@@ -1387,15 +1402,16 @@ int CsDecomprLZC (CSC      * csc,
     while (code >= 256)
     {
       /* Check for end of stack */
-      if (stackp >= (DE_STACK + DE_STACK_OFFSET)){
-          return (CS_E_STACK_OVERFLOW);
-      }
+      if (stackp >= DE_STACK_END)
+        return (CS_E_STACK_OVERFLOW);
       *stackp++ = TAB_SUFFIXOF(code);
       OVERFLOW_CHECK
       code = TAB_PREFIXOF(code);
     }
 
     finchar = TAB_SUFFIXOF(code);
+    if (stackp >= DE_STACK_END)
+      return (CS_E_STACK_OVERFLOW);
     *stackp++ = (BYTE_TYP) finchar;
     OVERFLOW_CHECK
 
