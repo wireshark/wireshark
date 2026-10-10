@@ -576,6 +576,16 @@ static wmem_tree_t *continuation_states;
 static wmem_tree_t *record_handle_services;
 static wmem_tree_t *service_infos;
 
+/* Attribute list bytes from one response, linked to those from the
+ * previous responses in the same continuation sequence, so that each
+ * response's bytes are only stored once. */
+typedef struct _attribute_list_chunk_t {
+    struct _attribute_list_chunk_t *previous;
+    uint32_t       total_length; /* including all previous chunks */
+    uint32_t       length;
+    uint8_t       *data;
+} attribute_list_chunk_t;
+
 typedef struct _tid_request_t {
     uint32_t       interface_id;
     uint32_t       adapter_id;
@@ -590,8 +600,7 @@ typedef struct _tid_request_t {
     char          *continuation_state;
     uint8_t        continuation_state_length;
 
-    uint32_t       data_length;
-    uint8_t       *data;
+    attribute_list_chunk_t *data;
 } tid_request_t;
 
 typedef struct _continuation_state_data_t {
@@ -602,8 +611,7 @@ typedef struct _continuation_state_data_t {
     uint32_t pdu_type;
     uint32_t continuation_state[5];
 
-    uint32_t data_length;
-    uint8_t *data;
+    attribute_list_chunk_t *data;
 } continuation_state_data_t;
 
 typedef struct _record_handle_service_t {
@@ -1440,6 +1448,59 @@ dissect_continuation_state(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 // The only specification I could find says the max length is 16:
 // https://lost-contact.mit.edu/afs/nada.kth.se/misc/cas/documentation/bluetooth/bluetooth_e.pdf
 #define MAX_CONTINUATION_STATE_LEN 16
+
+/* Upper bound on the total length of a reassembled attribute list.
+ * Each response's AttributeListByteCount is 16 bits, but the specification
+ * does not limit the total across continuation responses. This limit is
+ * arbitrary; it keeps the total length from overflowing and bounds the
+ * buffer allocated to assemble the list when the final response is
+ * dissected. */
+#define MAX_ATTRIBUTE_LIST_LENGTH (1024 * 1024)
+
+static attribute_list_chunk_t *
+append_attribute_list(tvbuff_t *tvb, packet_info *pinfo,
+        attribute_list_chunk_t *previous, int offset, int length)
+{
+    attribute_list_chunk_t *chunk;
+    uint32_t                previous_length = previous ? previous->total_length : 0;
+
+    if (length <= 0)
+        return previous;
+
+    if ((uint32_t)length > MAX_ATTRIBUTE_LIST_LENGTH - previous_length) {
+        expert_add_info(pinfo, NULL, &ei_length_bad);
+        return previous;
+    }
+
+    chunk = wmem_new(wmem_file_scope(), attribute_list_chunk_t);
+    chunk->data         = (uint8_t *) tvb_memdup(wmem_file_scope(), tvb, offset, length);
+    chunk->previous     = previous;
+    chunk->length       = length;
+    chunk->total_length = previous_length + length;
+
+    return chunk;
+}
+
+static tvbuff_t *
+attribute_list_tvb(tvbuff_t *tvb, packet_info *pinfo, attribute_list_chunk_t *chunk)
+{
+    uint8_t  *data;
+    uint32_t  length;
+    uint32_t  data_offset;
+
+    if (!chunk)
+        return tvb_new_child_real_data(tvb, NULL, 0, 0);
+
+    length = chunk->total_length;
+    data = (uint8_t *) wmem_alloc(pinfo->pool, length);
+    data_offset = length;
+    for (; chunk; chunk = chunk->previous) {
+        data_offset -= chunk->length;
+        memcpy(data + data_offset, chunk->data, chunk->length);
+    }
+
+    return tvb_new_child_real_data(tvb, data, length, length);
+}
 static int
 reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         unsigned offset, unsigned tid, bool is_request,
@@ -1528,7 +1589,6 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                     tid_request->record_handle = 0;
 
                 tid_request->data         = NULL;
-                tid_request->data_length  = 0;
 
                 tid_request->pdu_type = pdu_type;
 
@@ -1594,16 +1654,12 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                                 continuation_state_data->continuation_state[2] == k_continuation_state_array[2] &&
                                 continuation_state_data->continuation_state[3] == k_continuation_state_array[3] &&
                                 continuation_state_data->continuation_state[4] == k_continuation_state_array[4]) {
-                            tid_request->data = (uint8_t *) wmem_alloc(wmem_file_scope(), continuation_state_data->data_length + attribute_list_byte_count);
-                            tid_request->data_length = continuation_state_data->data_length + attribute_list_byte_count;
-                            memcpy(tid_request->data, continuation_state_data->data, continuation_state_data->data_length);
-                            tvb_memcpy(tvb, tid_request->data + continuation_state_data->data_length, attribute_list_byte_offset, attribute_list_byte_count);
+                            tid_request->data = append_attribute_list(tvb, pinfo, continuation_state_data->data,
+                                    attribute_list_byte_offset, attribute_list_byte_count);
                         }
                     } else {
-                        tid_request->data        = (uint8_t *) wmem_alloc(wmem_file_scope(), attribute_list_byte_count);
-                        tid_request->data_length = attribute_list_byte_count;
-
-                        tvb_memcpy(tvb, tid_request->data, attribute_list_byte_offset, attribute_list_byte_count);
+                        tid_request->data = append_attribute_list(tvb, pinfo, NULL,
+                                attribute_list_byte_offset, attribute_list_byte_count);
                     }
 
                     if (uuid_array) *uuid_array = tid_request->uuid_array;
@@ -1644,8 +1700,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                     tid_request->tid == tid) {
                 tvbuff_t *next_tvb;
 
-                next_tvb = tvb_new_child_real_data(tvb, tid_request->data,
-                        tid_request->data_length, tid_request->data_length);
+                next_tvb = attribute_list_tvb(tvb, pinfo, tid_request->data);
 
                 if (new_tvb) *new_tvb = next_tvb;
                 if (tid_request->continuation_state_length && is_first) *is_first = false;
@@ -1690,7 +1745,6 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
 
                 /* fetch data saved in continuation_state */
                 tid_request->data        = NULL;
-                tid_request->data_length = 0;
 
                 tid_request->pdu_type = pdu_type;
 
@@ -1746,16 +1800,12 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                         subtree = (wmem_tree_t *) wmem_tree_lookup32_array(continuation_states, key);
                         continuation_state_data = (subtree) ? (continuation_state_data_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
                         if (continuation_state_data) {
-                            tid_request->data = (uint8_t *) wmem_alloc(wmem_file_scope(), continuation_state_data->data_length + attribute_list_byte_count);
-                            tid_request->data_length = continuation_state_data->data_length + attribute_list_byte_count;
-                            memcpy(tid_request->data, continuation_state_data->data, continuation_state_data->data_length);
-                            tvb_memcpy(tvb, tid_request->data + continuation_state_data->data_length, attribute_list_byte_offset, attribute_list_byte_count);
+                            tid_request->data = append_attribute_list(tvb, pinfo, continuation_state_data->data,
+                                    attribute_list_byte_offset, attribute_list_byte_count);
                         }
                     } else {
-                        tid_request->data        = (uint8_t *) wmem_alloc(wmem_file_scope(), attribute_list_byte_count);
-                        tid_request->data_length = attribute_list_byte_count;
-
-                        tvb_memcpy(tvb, tid_request->data, attribute_list_byte_offset, attribute_list_byte_count);
+                        tid_request->data = append_attribute_list(tvb, pinfo, NULL,
+                                attribute_list_byte_offset, attribute_list_byte_count);
                     }
 
                     if (uuid_array) *uuid_array = tid_request->uuid_array;
@@ -1811,7 +1861,6 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                     continuation_state_data->continuation_state[3] = k_continuation_state_array[3];
                     continuation_state_data->continuation_state[4] = k_continuation_state_array[4];
                     continuation_state_data->data = tid_request->data;
-                    continuation_state_data->data_length = tid_request->data_length;
 
                     wmem_tree_insert32_array(continuation_states, key, continuation_state_data);
                 }
@@ -1850,8 +1899,7 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
                     tid_request->tid == tid) {
                 tvbuff_t *next_tvb;
 
-                next_tvb = tvb_new_child_real_data(tvb, tid_request->data,
-                        tid_request->data_length, tid_request->data_length);
+                next_tvb = attribute_list_tvb(tvb, pinfo, tid_request->data);
 
                 if (new_tvb) *new_tvb = next_tvb;
                 if (tid_request->continuation_state_length && is_first) *is_first = false;
