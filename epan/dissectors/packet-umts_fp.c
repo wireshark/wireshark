@@ -5386,7 +5386,7 @@ static fp_info *
 fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                                 umts_fp_conversation_info_t *p_conv_data,
                                 tvbuff_t *tvb, packet_info *pinfo,
-                                proto_tree *tree _U_)
+                                proto_tree *tree)
 {
     fp_info  *fpi;
     uint8_t   tfi, c_t, lchid;
@@ -5403,6 +5403,16 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
     fp_fach_channel_info_t* fp_fach_channel_info = NULL;
     fp_rach_channel_info_t* fp_rach_channel_info = NULL;
     bool info_missing = false;
+
+    /* The conversation can have up to FP_maxNrOfDCHs channels in the flow,
+     * but the per-channel arrays in fp_info (and in the MAC and RLC info)
+     * only have MAX_FP_CHANS entries. */
+    if (p_conv_data->num_dch_in_flow > MAX_FP_CHANS) {
+        proto_tree_add_expert_format_remaining(tree, pinfo, &ei_fp_invalid_frame_count, tvb, offset,
+                                               "Invalid number of channels %d (max is %u)",
+                                               p_conv_data->num_dch_in_flow, MAX_FP_CHANS);
+        return NULL;
+    }
 
     fpi = wmem_new0(wmem_file_scope(), fp_info);
     p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, fpi);

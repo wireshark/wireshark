@@ -157,6 +157,9 @@ fill_fp_info(fp_info* p_fp_info, unsigned char* extra_info, uint32_t length)
 
 	if (info_type == 0x30) { /* data frame */
 		p_fp_info->num_chans = extra_info[23 + adj];
+		if (p_fp_info->num_chans > MAX_FP_CHANS) {
+			p_fp_info->num_chans = MAX_FP_CHANS;
+		}
 		/* For each channel */
 		for (i = 0; i < (unsigned)p_fp_info->num_chans && (36+i*104+adj) <= length; ++i) {
 			/* Read TB size */
