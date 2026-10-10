@@ -655,7 +655,7 @@ read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_
     if (!wtap_read_bytes_buffer(fh, &rec->data,
                                 rec->rec_header.packet_header.caplen,
                                 err, err_info))
-        return false;
+        return -1;
     bytes_consumed += rec->rec_header.packet_header.caplen;
 
     return bytes_consumed;
