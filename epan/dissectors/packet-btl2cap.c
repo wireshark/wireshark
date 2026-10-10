@@ -254,6 +254,7 @@ typedef struct _btl2cap_frame_data_t
     /* LE frames info */
     unsigned first_fragment : 1; /* 0 = No, 1 = First or only fragment*/
     unsigned more_fragments : 1; /* 0 = Last fragment, 1 = more fragments*/
+    unsigned too_short : 1;      /* 1 = First frame too short for the SDU length */
 } btl2cap_frame_data_t;
 
 static const value_string command_code_vals[] = {
@@ -2360,22 +2361,28 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if ((!pinfo->fd->visited) && (config_data) && !is_retransmit) {
         btl2cap_frame_data = wmem_new0(wmem_file_scope(), btl2cap_frame_data_t);
         if (config_data->segmentation_started == 1) {
-            config_data->segment_len_rem = config_data->segment_len_rem - length;
-            if (config_data->segment_len_rem > 0) {
+            if (config_data->segment_len_rem > length) {
+                config_data->segment_len_rem = config_data->segment_len_rem - length;
                 btl2cap_frame_data->more_fragments = 1;
             } else {
                 btl2cap_frame_data->more_fragments = 0;
                 config_data->segmentation_started = 0;
                 config_data->segment_len_rem = 0;
             }
+        } else if (length < 2) {
+            /* First Frame in this SDU, but too short for the SDU length */
+            btl2cap_frame_data->too_short = 1;
+            config_data->segmentation_started = 0;
+            config_data->segment_len_rem = 0;
         } else {
             /* First Frame in this SDU, SDU length is present */
             uint16_t sdu_length;
 
             sdu_length = tvb_get_letohs(tvb, offset);
             btl2cap_frame_data->first_fragment = 1;
-            if (sdu_length == length - 2) {
-                /* Complete SDU no segmentation */
+            if (sdu_length <= length - 2) {
+                /* Complete SDU no segmentation (or malformed, if the
+                 * SDU length is shorter than the payload) */
                 btl2cap_frame_data->more_fragments = 0;
                 config_data->segmentation_started = 0;
                 config_data->segment_len_rem = 0;
@@ -2439,10 +2446,24 @@ dissect_le_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_set_generated(psm_item);
     }/*psm*/
 
+    if (btl2cap_frame_data->too_short) {
+        expert_add_info_format(pinfo, btl2cap_tree, &ei_btl2cap_length_bad,
+                "Length too short for the SDU length: %u", length);
+        proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
+        return tvb_captured_length(tvb);
+    }
+
     if (btl2cap_frame_data->first_fragment) {
-        proto_tree_add_item(btl2cap_tree, hf_btl2cap_le_sdu_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_item *sdu_length_item;
+        uint32_t    sdu_length;
+
+        sdu_length_item = proto_tree_add_item_ret_uint(btl2cap_tree, hf_btl2cap_le_sdu_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sdu_length);
         offset += 2;
         length = length - 2;
+        if (sdu_length < length) {
+            expert_add_info_format(pinfo, sdu_length_item, &ei_btl2cap_sdulength_bad,
+                    "SDU length less than length of first packet (%u < %u)", sdu_length, length);
+        }
     }
     pinfo->fragmented = true;
     frag_btl2cap_le_sdu = fragment_add_seq_next(&btl2cap_le_sdu_reassembly_table,
