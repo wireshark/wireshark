@@ -5141,16 +5141,16 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
         pos += tag_len;
     }
 
-    /* strip zero termination, if existing */
-    while (pd[tag_diss_pos + tag_diss_len - 1] == 0) {
+    /* strip zero termination, if existing (a missing tag has length 0) */
+    while (tag_diss_len > 0 && pd[tag_diss_pos + tag_diss_len - 1] == 0) {
         tag_diss_len -= 1;
     }
 
-    while (pd[col_proto_pos + col_proto_len - 1] == 0) {
+    while (col_proto_len > 0 && pd[col_proto_pos + col_proto_len - 1] == 0) {
         col_proto_len -= 1;
     }
 
-    while (pd[col_info_pos + col_info_len - 1] == 0) {
+    while (col_info_len > 0 && pd[col_info_pos + col_info_len - 1] == 0) {
         col_info_len -= 1;
     }
 
