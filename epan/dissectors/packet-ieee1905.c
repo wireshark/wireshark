@@ -875,6 +875,24 @@ static int hf_ieee1905_eht_operations_radio_bss_ccfs1;
 static int hf_ieee1905_eht_operations_radio_bss_disabled_subchannel_bitmap;
 static int hf_ieee1905_available_spectrum_inquiry_request_object;
 static int hf_ieee1905_available_spectrum_inquiry_response_object;
+static int hf_ieee1905_rsn_parameter_configuration_radio_num;
+static int hf_ieee1905_rsn_parameter_configuration_radio_id;
+static int hf_ieee1905_rsn_parameter_configuration_radio_reserved;
+static int hf_ieee1905_rsn_parameter_configuration_radio_bss_num;
+static int hf_ieee1905_rsn_parameter_configuration_radio_bss_bssid;
+static int hf_ieee1905_rsn_parameter_configuration_radio_bss_index;
+static int hf_ieee1905_rsn_parameter_configuration_radio_bss_security_ies_len;
+static int hf_ieee1905_rsn_parameter_configuration_radio_bss_security_ies;
+static int hf_ieee1905_rsn_parameter_configuration_radio_bss_reserved;
+static int hf_ieee1905_bss_advanced_configuration_radio_num;
+static int hf_ieee1905_bss_advanced_configuration_radio_id;
+static int hf_ieee1905_bss_advanced_configuration_radio_bss_num;
+static int hf_ieee1905_bss_advanced_configuration_radio_bss_bssid;
+static int hf_ieee1905_bss_advanced_configuration_radio_bss_index;
+static int hf_ieee1905_bss_advanced_configuration_radio_bss_flags;
+static int hf_ieee1905_bss_advanced_configuration_radio_bss_flags_ssid_advertisement;
+static int hf_ieee1905_bss_advanced_configuration_radio_bss_flags_reserved;
+static int hf_ieee1905_bss_advanced_configuration_radio_bss_reserved;
 static int hf_ieee1905_supported_cipher_suites_num_cs;
 static int hf_ieee1905_supported_cipher_suites_cs_list;
 static int hf_ieee1905_supported_cipher_suites_cs;
@@ -1099,6 +1117,16 @@ static int ett_eht_operations_radio_bss_list;
 static int ett_eht_operations_radio_bss;
 static int ett_eht_operations_radio_bss_flags;
 static int ett_tunneled_ies;
+static int ett_rsn_parameter_configuration_radio_list;
+static int ett_rsn_parameter_configuration_radio;
+static int ett_rsn_parameter_configuration_radio_bss_list;
+static int ett_rsn_parameter_configuration_radio_bss;
+static int ett_rsn_parameter_configuration_radio_bss_security_ies;
+static int ett_bss_advanced_configuration_radio_list;
+static int ett_bss_advanced_configuration_radio;
+static int ett_bss_advanced_configuration_radio_bss_list;
+static int ett_bss_advanced_configuration_radio_bss;
+static int ett_bss_advanced_configuration_radio_bss_flags;
 static int ett_supported_cipher_security_cs_tree;
 static int ett_supported_cipher_security_cs_sub_tree;
 
@@ -1412,6 +1440,8 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define EHT_OPERATIONS_TLV                      0xE7
 #define AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV  0xE8
 #define AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV 0xE9
+#define RSN_PARAMETER_CONFIGURATION_TLV         0xEB
+#define BSS_ADVANCED_CONFIGURATION_TLV          0xEC
 #define SUPPORTED_CIPHER_SUITES_TLV             0xED
 
 static const value_string ieee1905_tlv_types_vals[] = {
@@ -1548,6 +1578,8 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { EHT_OPERATIONS_TLV,                      "EHT Operations" },
   { AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV,  "Available Spectrum Inquiry Request" },
   { AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV, "Available Spectrum Inquiry Response" },
+  { RSN_PARAMETER_CONFIGURATION_TLV,         "RSN Parameter Configuration" },
+  { BSS_ADVANCED_CONFIGURATION_TLV,          "BSS Advanced Configuration" },
   { SUPPORTED_CIPHER_SUITES_TLV,             "Supported Cipher Suites" },
   { 0, NULL }
 };
@@ -9051,6 +9083,203 @@ dissect_available_spectrum_inquiry_response(tvbuff_t *tvb, packet_info *pinfo _U
 }
 
 /*
+ * Dissect a RSN Parameter Configuration TLV:
+ */
+static int
+dissect_rsn_parameter_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    proto_tree *radio_list = NULL;
+    proto_item *rli = NULL;
+    uint8_t radio_count = 0, radio_num = 0;
+    unsigned radio_list_start = 0;
+
+    proto_tree_add_item_ret_uint8(tree, hf_ieee1905_rsn_parameter_configuration_radio_num,
+                                  tvb, offset, 1, ENC_NA, &radio_count);
+    offset++;
+
+    radio_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                        ett_rsn_parameter_configuration_radio_list,
+                                        &rli, "Radio List");
+
+    radio_list_start = offset;
+
+    while (radio_num < radio_count) {
+        proto_tree *radio_tree = NULL;
+        proto_item *ri = NULL;
+        proto_tree *bss_list = NULL;
+        proto_item *bli = NULL;
+        uint8_t bss_count = 0, bss_num = 0;
+        unsigned bss_list_start = 0;
+
+        radio_tree = proto_tree_add_subtree_format(radio_list, tvb, offset,
+                                                   -1, ett_eht_operations_radio,
+                                                    &ri, "Radio %u", radio_num);
+
+        proto_tree_add_item(radio_tree, hf_ieee1905_rsn_parameter_configuration_radio_id,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item_ret_uint8(radio_tree, hf_ieee1905_rsn_parameter_configuration_radio_bss_num,
+                                     tvb, offset, 1, ENC_NA, &bss_count);
+        offset++;
+
+        bss_list = proto_tree_add_subtree(radio_tree, tvb, offset, -1,
+                                          ett_rsn_parameter_configuration_radio_bss_list,
+                                          &bli, "BSS List");
+
+        bss_list_start = offset;
+
+        while (bss_num < bss_count) {
+            proto_tree *bss_tree = NULL;
+            proto_tree *security_ies_tree;
+            proto_item *bi = NULL;
+            proto_item *security_ies_item = NULL;
+            uint16_t security_ies_len;
+
+            bss_tree = proto_tree_add_subtree_format(bss_list, tvb, offset,
+                                                     -1, ett_rsn_parameter_configuration_radio_bss,
+                                                     &bi, "BSS %u", bss_num);
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_rsn_parameter_configuration_radio_bss_bssid,
+                                tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_rsn_parameter_configuration_radio_bss_index,
+                                     tvb, offset, 1, ENC_NA);
+            offset++;
+
+            proto_tree_add_item_ret_uint16(bss_tree, hf_ieee1905_rsn_parameter_configuration_radio_bss_security_ies_len,
+                                           tvb, offset, 2, ENC_BIG_ENDIAN, &security_ies_len);
+            offset += 2;
+
+            if (security_ies_len > 0) {
+                security_ies_item = proto_tree_add_item(bss_tree,
+                                                        hf_ieee1905_rsn_parameter_configuration_radio_bss_security_ies,
+                                                        tvb, offset, security_ies_len, ENC_NA);
+
+                security_ies_tree = proto_item_add_subtree(security_ies_item, ett_supported_cipher_security_cs_sub_tree);
+
+                dissect_80211_information_elements(tvb, pinfo, security_ies_tree, offset, security_ies_len);
+
+                offset += security_ies_len;
+            }
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_rsn_parameter_configuration_radio_bss_reserved,
+                                tvb, offset, 16, ENC_NA);
+            offset += 16;
+
+            bss_num++;
+        }
+
+        proto_tree_add_item(radio_tree, hf_ieee1905_rsn_parameter_configuration_radio_reserved,
+                            tvb, offset, 16, ENC_NA);
+        offset += 16;
+
+        proto_item_set_len(bli, offset - bss_list_start);
+
+        radio_num++;
+    }
+
+    proto_item_set_len(rli, offset - radio_list_start);
+
+    return offset;
+}
+
+/*
+ * Dissect a RSN Parameter Configuration TLV:
+ */
+static int* const bss_advanced_configuration_radio_bss_flags_headers[] = {
+    &hf_ieee1905_bss_advanced_configuration_radio_bss_flags_ssid_advertisement,
+    &hf_ieee1905_bss_advanced_configuration_radio_bss_flags_reserved,
+    NULL
+};
+
+static int
+dissect_bss_advanced_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    proto_tree *radio_list = NULL;
+    proto_item *rli = NULL;
+    uint8_t radio_count = 0, radio_num = 0;
+    unsigned radio_list_start = 0;
+
+    proto_tree_add_item_ret_uint8(tree, hf_ieee1905_bss_advanced_configuration_radio_num,
+                                  tvb, offset, 1, ENC_NA, &radio_count);
+    offset++;
+
+    radio_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                        ett_bss_advanced_configuration_radio_list,
+                                        &rli, "Radio List");
+
+    radio_list_start = offset;
+
+    while (radio_num < radio_count) {
+        proto_tree *radio_tree = NULL;
+        proto_item *ri = NULL;
+        proto_tree *bss_list = NULL;
+        proto_item *bli = NULL;
+        uint8_t bss_count = 0, bss_num = 0;
+        unsigned bss_list_start = 0;
+
+        radio_tree = proto_tree_add_subtree_format(radio_list, tvb, offset,
+                                                   -1, ett_eht_operations_radio,
+                                                    &ri, "Radio %u", radio_num);
+
+        proto_tree_add_item(radio_tree, hf_ieee1905_bss_advanced_configuration_radio_id,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item_ret_uint8(radio_tree, hf_ieee1905_bss_advanced_configuration_radio_bss_num,
+                                     tvb, offset, 1, ENC_NA, &bss_count);
+        offset++;
+
+        bss_list = proto_tree_add_subtree(radio_tree, tvb, offset, -1,
+                                          ett_bss_advanced_configuration_radio_bss_list,
+                                          &bli, "BSS List");
+
+        bss_list_start = offset;
+
+        while (bss_num < bss_count) {
+            proto_tree *bss_tree = NULL;
+            proto_item *bi = NULL;
+
+            bss_tree = proto_tree_add_subtree_format(bss_list, tvb, offset,
+                                                     -1, ett_bss_advanced_configuration_radio_bss,
+                                                     &bi, "BSS %u", bss_num);
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_bss_advanced_configuration_radio_bss_bssid,
+                                tvb, offset, 6, ENC_NA);
+            offset += 6;
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_bss_advanced_configuration_radio_bss_index,
+                                     tvb, offset, 1, ENC_NA);
+            offset++;
+
+            proto_tree_add_bitmask(bss_tree, tvb, offset,
+                                   hf_ieee1905_bss_advanced_configuration_radio_bss_flags,
+                                   ett_bss_advanced_configuration_radio_bss_flags,
+                                   bss_advanced_configuration_radio_bss_flags_headers, ENC_NA);
+            offset++;
+
+            proto_tree_add_item(bss_tree, hf_ieee1905_bss_advanced_configuration_radio_bss_reserved,
+                                tvb, offset, 4, ENC_NA);
+            offset += 4;
+
+            bss_num++;
+        }
+
+        proto_item_set_len(bli, offset - bss_list_start);
+
+        radio_num++;
+    }
+
+    proto_item_set_len(rli, offset - radio_list_start);
+
+    return offset;
+}
+
+/*
  * Dissect a Supported Cipher Suites TLV:
  */
 static int
@@ -9679,6 +9908,14 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
     case AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV:
         offset = dissect_available_spectrum_inquiry_response(tvb, pinfo, tree, offset,
                                                              tlv_len);
+        break;
+
+    case RSN_PARAMETER_CONFIGURATION_TLV:
+        offset = dissect_rsn_parameter_configuration(tvb, pinfo, tree, offset, tlv_len);
+        break;
+
+    case BSS_ADVANCED_CONFIGURATION_TLV:
+        offset = dissect_bss_advanced_configuration(tvb, pinfo, tree, offset, tlv_len);
         break;
 
     case SUPPORTED_CIPHER_SUITES_TLV:
@@ -13559,6 +13796,78 @@ proto_register_ieee1905(void)
           { "Object", "ieee1905.available_spectrum_inquiry_response.object",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_rsn_parameter_configuration_radio_num,
+          { "Number of radios", "ieee1905.rsn_parameter_configuration.num_radio",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_parameter_configuration_radio_id,
+          { "Radio Unique ID", "ieee1905.rsn_parameter_configuration.radio.ruid",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_parameter_configuration_radio_reserved,
+          { "Reserved", "ieee1905.rsn_parameter_configuration.radio.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_parameter_configuration_radio_bss_num,
+          { "Number of BSS", "ieee1905.rsn_parameter_configuration.radio.num_bss",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_parameter_configuration_radio_bss_bssid,
+          { "BSSID", "ieee1905.rsn_parameter_configuration.radio.bss.bssid",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_parameter_configuration_radio_bss_index,
+          { "BSS Index", "ieee1905.rsn_parameter_configuration.radio.bss.index",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_parameter_configuration_radio_bss_security_ies_len,
+          { "Security IEs Length ", "ieee1905.rsn_parameter_configuration.radio.bss.security_ies_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_parameter_configuration_radio_bss_security_ies,
+          { "Security IEs", "ieee1905.rsn_parameter_configuration.radio.bss.security_ie",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_parameter_configuration_radio_bss_reserved,
+          { "Reserved", "ieee1905.rsn_parameter_configuration.radio.bss.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_bss_advanced_configuration_radio_num,
+          { "Number of radios", "ieee1905.bss_advanced_configuration.num_radio",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_bss_advanced_configuration_radio_id,
+          { "Radio Unique ID", "ieee1905.bss_advanced_configuration.radio.ruid",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_bss_advanced_configuration_radio_bss_num,
+          { "Number of BSS", "ieee1905.bss_advanced_configuration.radio.num_bss",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_bss_advanced_configuration_radio_bss_bssid,
+          { "BSSID", "ieee1905.bss_advanced_configuration.radio.bss.bssid",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_bss_advanced_configuration_radio_bss_index,
+          { "BSS Index", "ieee1905.bss_advanced_configuration.radio.bss.index",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_bss_advanced_configuration_radio_bss_flags,
+          { "Flags", "ieee1905.bss_advanced_configuration.radio.bss.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_bss_advanced_configuration_radio_bss_flags_ssid_advertisement,
+          { "SSID Advertisement", "ieee1905.bss_advanced_configuration.radio.bss.flags.ssid_advertisement",
+            FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_bss_advanced_configuration_radio_bss_flags_reserved,
+          { "Reserved", "ieee1905.bss_advanced_configuration.radio.bss.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL }},
+
+        { &hf_ieee1905_bss_advanced_configuration_radio_bss_reserved,
+          { "Reserved", "ieee1905.bss_advanced_configuration.radio.bss.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         { &hf_ieee1905_supported_cipher_suites_num_cs,
           { "Number of Cipher Suites", "ieee1905.supported_cipher_suites.num_suites",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -13852,6 +14161,16 @@ proto_register_ieee1905(void)
         &ett_eht_operations_radio_bss,
         &ett_eht_operations_radio_bss_flags,
         &ett_tunneled_ies,
+        &ett_rsn_parameter_configuration_radio_list,
+        &ett_rsn_parameter_configuration_radio,
+        &ett_rsn_parameter_configuration_radio_bss_list,
+        &ett_rsn_parameter_configuration_radio_bss,
+        &ett_rsn_parameter_configuration_radio_bss_security_ies,
+        &ett_bss_advanced_configuration_radio_list,
+        &ett_bss_advanced_configuration_radio,
+        &ett_bss_advanced_configuration_radio_bss_list,
+        &ett_bss_advanced_configuration_radio_bss,
+        &ett_bss_advanced_configuration_radio_bss_flags,
         &ett_supported_cipher_security_cs_tree,
         &ett_supported_cipher_security_cs_sub_tree,
         &ett_ieee1905_fragment,
