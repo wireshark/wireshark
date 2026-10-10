@@ -977,11 +977,9 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, blf_log_container_t *con
         return false;
     }
     if (container->infile_length < container->infile_data_start - (uint64_t)container->infile_start_pos) {
-        /*
-         * XXX - does this represent a bug (WTAP_ERR_INTERNAL) or a
-         * malformed file (WTAP_ERR_BAD_FILE)?
-         */
-        *err = WTAP_ERR_INTERNAL;
+        /* The object length comes from the file, and is only checked
+         * against the block header length, not the container header. */
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: container.infile_length (%" PRIu64 ") < (container.infile_data_start (%" PRIu64 ") - container.infile_start_pos (%" PRId64 ")) = %" PRIu64,
             container->infile_length,
             container->infile_data_start, container->infile_start_pos,
@@ -4080,20 +4078,16 @@ blf_finalize_file_header(wtap_dumper *wdh, int *err) {
     return true;
 }
 
-static bool blf_dump_write_logcontainer(wtap_dumper *wdh, int *err, char **err_info) {
+static bool blf_dump_write_logcontainer(wtap_dumper *wdh, int *err, char **err_info _U_) {
     blf_writer_data_t *writer_data = (blf_writer_data_t *)wdh->priv;
 
     if (!wtap_dump_file_write(wdh, &(writer_data->logcontainer_block_header), sizeof(blf_blockheader_t), err)) {
-        *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup_printf("blf: cannot write Log Container Block Header");
-        ws_warning("Cannot write Log Container Block Header");
+        ws_debug("Cannot write Log Container Block Header");
         return false;
     }
 
     if (!wtap_dump_file_write(wdh, &(writer_data->logcontainer_header), sizeof(blf_logcontainerheader_t), err)) {
-        *err = WTAP_ERR_INTERNAL;
-        *err_info = ws_strdup_printf("blf: cannot write Log Container");
-        ws_warning("Cannot write Log Container");
+        ws_debug("Cannot write Log Container");
         return false;
     }
 
@@ -4387,9 +4381,9 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
     }
 
     if (length < 8) {
-        *err = WTAP_ERR_INTERNAL;
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
         *err_info = ws_strdup_printf("blf: record length %u for Socket CAN message header is lower than minimum of 8", (uint32_t)length);
-        ws_warning("LINKTYPE_CAN_SOCKETCAN header is too short!");
+        ws_debug("LINKTYPE_CAN_SOCKETCAN header is too short.");
         return false;
     }
 
@@ -4402,9 +4396,9 @@ static bool blf_dump_socketcan(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
     uint8_t payload_length = pd[4];
 
     if (length < (size_t)payload_length + 8) {
-        *err = WTAP_ERR_INTERNAL;
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
         *err_info = ws_strdup_printf("blf: Socket CAN message (length %u) does not contain full payload (%u)", (uint32_t)length, payload_length);
-        ws_warning("LINKTYPE_CAN_SOCKETCAN header is too short!");
+        ws_debug("LINKTYPE_CAN_SOCKETCAN header is too short.");
         return false;
     }
 
@@ -4555,9 +4549,9 @@ static bool blf_dump_sll(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
     size_t length = ws_buffer_length(&rec->data);
 
     if (length < 16) {
-        *err = WTAP_ERR_INTERNAL;
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
         *err_info = ws_strdup_printf("blf: record length %u for CAN message header (LINKTYPE_LINUX_SLL) is lower than minimum of 16", (uint32_t)length);
-        ws_warning("LINKTYPE_LINUX_SLL header is too short!");
+        ws_debug("LINKTYPE_LINUX_SLL header is too short.");
         return false;
     }
 
@@ -4597,9 +4591,9 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
     size_t length = ws_buffer_length(&rec->data);
 
     if (length < 1) {
-        *err = WTAP_ERR_INTERNAL;
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
         *err_info = ws_strdup_printf("blf: record length %u for FlexRay header (LINKTYPE_FLEXRAY) is lower than minimum of 1", (uint32_t)length);
-        ws_warning("LINKTYPE_FLEXRAY header is too short (< 1 Byte)!");
+        ws_debug("LINKTYPE_FLEXRAY header is too short (< 1 Byte).");
         return false;
     }
 
@@ -4608,9 +4602,9 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         /* Symbol */
 
         if (length < 2) {
-            *err = WTAP_ERR_INTERNAL;
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
             *err_info = ws_strdup_printf("blf: record length %u for FlexRay Symbol (LINKTYPE_FLEXRAY) is lower than minimum of 2", (uint32_t)length);
-            ws_warning("LINKTYPE_FLEXRAY Symbol is too short (< 2 Byte)!");
+            ws_debug("LINKTYPE_FLEXRAY Symbol is too short (< 2 Byte).");
             return false;
         }
 
@@ -4623,9 +4617,9 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
         /* Frame */
 
         if (length < 2 + FLEXRAY_HEADER_LENGTH) {
-            *err = WTAP_ERR_INTERNAL;
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
             *err_info = ws_strdup_printf("blf: record length %u for FlexRay Frame header (LINKTYPE_FLEXRAY) is lower than minimum of 7", (uint32_t)length);
-            ws_warning("LINKTYPE_FLEXRAY Frame Header is too short (< 7 Byte)!");
+            ws_debug("LINKTYPE_FLEXRAY Frame Header is too short (< 7 Byte).");
             return false;
         }
 
@@ -4706,18 +4700,18 @@ static bool blf_dump_flexray(wtap_dumper *wdh, const wtap_rec *rec, int *err, ch
 
         fix_endianness_blf_flexrayrcvmessage(&frmsg);
 
+        if (length < (size_t)payload_length + 2 + FLEXRAY_HEADER_LENGTH) {
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+            *err_info = ws_strdup_printf("blf: record length %u for FlexRay Frame (LINKTYPE_FLEXRAY) is truncated", (uint32_t)length);
+            ws_debug("LINKTYPE_FLEXRAY Frame truncated.");
+            return false;
+        }
+
         if (!blf_dump_objheader(wdh, err, obj_timestamp, BLF_OBJTYPE_FLEXRAY_RCVMESSAGE, sizeof(blf_flexrayrcvmessage_t) + 254)) {
             return false;
         }
 
         if (!wtap_dump_file_write(wdh, &(frmsg), sizeof(blf_flexrayrcvmessage_t), err)) {
-            return false;
-        }
-
-        if (length < (size_t)payload_length + 2 + FLEXRAY_HEADER_LENGTH) {
-            *err = WTAP_ERR_INTERNAL;
-            *err_info = ws_strdup_printf("blf: record length %u for FlexRay Frame (LINKTYPE_FLEXRAY) is truncated", (uint32_t)length);
-            ws_warning("LINKTYPE_FLEXRAY Frame truncated!");
             return false;
         }
 
@@ -4757,9 +4751,9 @@ static bool blf_dump_lin(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
     size_t length = ws_buffer_length(&rec->data);
 
     if (length < 8) {
-        *err = WTAP_ERR_INTERNAL;
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
         *err_info = ws_strdup_printf("blf: record length %u for LIN message/symbol/error is lower than minimum of 8", (uint32_t)length);
-        ws_warning("LIN Data is too short (less than 8 bytes)!");
+        ws_debug("LIN Data is too short (less than 8 bytes).");
         return false;
     }
 
@@ -4780,9 +4774,9 @@ static bool blf_dump_lin(wtap_dumper *wdh, const wtap_rec *rec, int *err, char *
 
     /* we need to have at least the data */
     if (length < (size_t)dlc + 8) {
-        *err = WTAP_ERR_INTERNAL;
+        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
         *err_info = ws_strdup_printf("blf: record length %u for LIN message is too low for data. DLC: %u.", (uint32_t)length, dlc);
-        ws_error("LIN Data is too short (less than needed)!");
+        ws_debug("LIN Data is too short (less than needed).");
         return false;
     }
 
@@ -4846,9 +4840,9 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
     bool done = false;
     while (!done) {
         if (length - pos < 4) {
-            *err = WTAP_ERR_INTERNAL;
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
             *err_info = ws_strdup_printf("blf: Upper PDU has no or truncated tags (pos: %u, length: %u)", (uint32_t)pos, (uint32_t)length);
-            ws_warning("Upper PDU has truncated tags!");
+            ws_debug("Upper PDU has truncated tags.");
             return false;
         }
 
@@ -4856,9 +4850,9 @@ static bool blf_dump_upper_pdu(wtap_dumper *wdh, const wtap_rec *rec, int *err, 
         uint16_t tag_len = pntohu16(pd + pos + 2);
 
         if ((length - pos) < (size_t)tag_len + 4) {
-            *err = WTAP_ERR_INTERNAL;
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
             *err_info = ws_strdup_printf("blf: Upper PDU has truncated tags (pos: %u, tag_type: %u, tag_len: %u)", (uint32_t)pos, tag_type, tag_len);
-            ws_warning("Upper PDU has truncated tags!");
+            ws_debug("Upper PDU has truncated tags.");
             return false;
         }
 
