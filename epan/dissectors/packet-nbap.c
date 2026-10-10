@@ -15043,25 +15043,28 @@ nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
         if (num_items > 0 && num_items < MAX_FP_CHANS + 1 && dch_id != 0xffffffff) {
             common_physical_channel_id = nbap_private_data->common_physical_channel_id;
             common_transport_channel_id = nbap_private_data->common_transport_channel_id;
+            /* Set the channel counts from num_items instead of incrementing
+             * them; not every TransportFormatSet resets the counts, and they
+             * must not exceed MAX_FP_CHANS. */
             switch(nbap_private_data->transport_format_set_type){
                 case NBAP_DCH_UL:
-                    nbap_dch_chnl_info[dch_id].num_ul_chans++;
+                    nbap_dch_chnl_info[dch_id].num_ul_chans = num_items;
                     nbap_dch_chnl_info[dch_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
                     break;
                 case NBAP_DCH_DL:
-                    nbap_dch_chnl_info[dch_id].num_dl_chans++;
+                    nbap_dch_chnl_info[dch_id].num_dl_chans = num_items;
                     nbap_dch_chnl_info[dch_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
                     break;
                 case NBAP_CPCH:
-                    nbap_dch_chnl_info[common_physical_channel_id].num_ul_chans++;
+                    nbap_dch_chnl_info[common_physical_channel_id].num_ul_chans = num_items;
                     nbap_dch_chnl_info[common_physical_channel_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    nbap_dch_chnl_info[common_physical_channel_id].num_dl_chans++;
+                    nbap_dch_chnl_info[common_physical_channel_id].num_dl_chans = num_items;
                     nbap_dch_chnl_info[common_physical_channel_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
                     break;
                 case NBAP_PCH:
-                    nbap_dch_chnl_info[common_transport_channel_id].num_ul_chans++;
+                    nbap_dch_chnl_info[common_transport_channel_id].num_ul_chans = num_items;
                     nbap_dch_chnl_info[common_transport_channel_id].ul_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
-                    nbap_dch_chnl_info[common_transport_channel_id].num_dl_chans++;
+                    nbap_dch_chnl_info[common_transport_channel_id].num_dl_chans = num_items;
                     nbap_dch_chnl_info[common_transport_channel_id].dl_chan_num_tbs[num_items-1] = NrOfTransportBlocks;
                     break;
                 default:
@@ -29206,7 +29209,9 @@ nbap_private_data->dch_id = 0xFFFFFFFF;
                     /* Set data for associated DCH's if we have any */
                     i = dch_id;
                     umts_fp_conversation_info->dch_ids_in_flow_list[0] = dch_id;
-                    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow < FP_maxNrOfDCHs){
+                    /* Inside the loop num_dch_in_flow is the index of the last entry
+                     * added; it becomes the count afterwards. */
+                    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow + 1 < FP_maxNrOfDCHs){
                         i = nbap_dch_chnl_info[i].next_dch;
                         umts_fp_conversation_info->num_dch_in_flow++;
                         umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;   /*Set transport channel id*/
@@ -29227,7 +29232,6 @@ nbap_private_data->dch_id = 0xFFFFFFFF;
                         }
                     }
                     umts_fp_conversation_info->num_dch_in_flow++;
-                    umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
                     set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
                 }
             }
@@ -32893,7 +32897,9 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
     /* Set data for associated DCH's if we have any */
     i = common_physical_channel_id;
     umts_fp_conversation_info->dch_ids_in_flow_list[0] = common_physical_channel_id;
-    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow < FP_maxNrOfDCHs){
+    /* Inside the loop num_dch_in_flow is the index of the last entry
+     * added; it becomes the count afterwards. */
+    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow + 1 < FP_maxNrOfDCHs){
       i = nbap_dch_chnl_info[i].next_dch;
       umts_fp_conversation_info->num_dch_in_flow++;
       umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
@@ -32912,7 +32918,6 @@ nbap_private_data->transport_format_set_type = NBAP_CPCH;
       }
     }
     umts_fp_conversation_info->num_dch_in_flow++;
-    umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
     set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 
     /* Add Setup Conversation to list, we need it in response msg */
@@ -33068,7 +33073,9 @@ nbap_private_data->num_items = 1;
     nbap_debug("    commontransportchannelid %u next ch %u",common_transport_channel_id, nbap_dch_chnl_info[i].next_dch);
 
     umts_fp_conversation_info->dch_ids_in_flow_list[0] = common_transport_channel_id;
-    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow < FP_maxNrOfDCHs){
+    /* Inside the loop num_dch_in_flow is the index of the last entry
+     * added; it becomes the count afterwards. */
+    while(nbap_dch_chnl_info[i].next_dch != 0 && umts_fp_conversation_info->num_dch_in_flow + 1 < FP_maxNrOfDCHs){
       i = nbap_dch_chnl_info[i].next_dch;
       umts_fp_conversation_info->num_dch_in_flow++;
       umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
@@ -33090,7 +33097,6 @@ nbap_private_data->num_items = 1;
 
     nbap_debug("    num_dch_in_flow %u", umts_fp_conversation_info->num_dch_in_flow);
 
-    umts_fp_conversation_info->dch_ids_in_flow_list[umts_fp_conversation_info->num_dch_in_flow] = i;
     set_umts_fp_conv_data(conversation, umts_fp_conversation_info);
 
     /* Add Setup Conversation to list, we need it in response msg */
