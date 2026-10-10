@@ -59,6 +59,7 @@
 #endif
 #endif
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -125,7 +126,7 @@ SAP_INT CsGetLen (SAP_BYTE * data)
 /*           Length of org. data stream                               */
 /*--------------------------------------------------------------------*/
 {
-  SAP_INT len;
+  uint32_t len;
                                       /* file not compressed !!! .....*/
   if ((CsMagicHead[0] != data[5]) ||
       (CsMagicHead[1] != data[6]))
@@ -133,12 +134,16 @@ SAP_INT CsGetLen (SAP_BYTE * data)
     return ((SAP_INT)CS_E_FILENOTCOMPRESSED);
   }
 
-  len = (SAP_INT)data[0]         +    /* read length from first buf ..*/
-        ((SAP_INT)data[1] << 8)  +
-        ((SAP_INT)data[2] << 16) +
-        ((SAP_INT)data[3] << 24);
+  len = (uint32_t)data[0]         +   /* read length from first buf ..*/
+        ((uint32_t)data[1] << 8)  +
+        ((uint32_t)data[2] << 16) +
+        ((uint32_t)data[3] << 24);
 
-  return len;
+  /* Callers treat a negative length as not compressed */
+  if (len > INT32_MAX)
+    return ((SAP_INT)CS_E_FILENOTCOMPRESSED);
+
+  return (SAP_INT)len;
 }
 void NoBits (CSHU *cshu)
 /*--------------------------------------------------------------------*/
@@ -603,7 +608,9 @@ int DecompCodes ( CSHU *cshu,
       {
         n -= (e = (e = WSIZE - ((d &= WSIZE-1) > w ? d : w)) > n ? n : e);
 
-        if (w - d >= e)    /* (this test assumes unsigned comparison) */
+        /* The source can be before or (wrapping around the window)
+         * after the destination; only use memcpy if they don't overlap */
+        if ((w > d ? w - d : d - w) >= e)
         {
           memcpy (cshu->Slide + w, cshu->Slide + d, e);
           w += e;
@@ -1281,11 +1288,12 @@ int CsDecomprLZC (CSC      * csc,
     csc->maxbits        = inbuf[7];        /* get max. bits ...............*/
     csc->block_compress = csc->maxbits & BLOCK_MASK;
     csc->maxbits       &= BIT_MASK;
-    csc->maxmaxcode     = (CODE_INT) 1 << csc->maxbits;
-    csc->maxcode        = MAXCODE(csc->n_bits = INIT_CS_BITS);
 
     if (csc->maxbits > CS_BITS + 1)     /* not enough memory to decompress */
       return CS_E_MAXBITS_TOO_BIG;
+
+    csc->maxmaxcode     = (CODE_INT) 1 << csc->maxbits;
+    csc->maxcode        = MAXCODE(csc->n_bits = INIT_CS_BITS);
 
     /* get version and algorithm .....................................*/
     /* not supported at the moment ...................................*/
