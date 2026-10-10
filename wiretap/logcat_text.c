@@ -433,8 +433,10 @@ static bool logcat_text_dump_text(wtap_dumper *wdh, const wtap_rec *rec,
     char                            priority;
     const struct logger_entry      *log_entry;
     const struct logger_entry_v2   *log_entry_v2;
-    int                             payload_length;
+    unsigned                        hdr_size;
+    unsigned                        payload_length;
     const char                     *tag;
+    const uint8_t                  *tag_end;
     int32_t                         pid;
     int32_t                         tid;
     int32_t                         seconds;
@@ -507,27 +509,12 @@ static bool logcat_text_dump_text(wtap_dumper *wdh, const wtap_rec *rec,
         log_entry    = (const struct logger_entry *)(const void *) pd;
         log_entry_v2 = (const struct logger_entry_v2 *)(const void *) pd;
 
-        payload_length = GINT32_FROM_LE(log_entry->len);
-        pid = GINT32_FROM_LE(log_entry->pid);
-        tid = GINT32_FROM_LE(log_entry->tid);
-        seconds = GINT32_FROM_LE(log_entry->sec);
-        milliseconds = GINT32_FROM_LE(log_entry->nsec) / 1000000;
-
-        /* msg: <prio:1><tag:N>\0<msg:N>\0 with N >= 0, last \0 can be missing */
         if (logcat_version == 1) {
+            hdr_size = sizeof(*log_entry);
             msg_payload = (const uint8_t *) (log_entry + 1);
-
-            priority = get_priority(msg_payload[0]);
-            tag = msg_payload + 1;
-            msg_pre_skip = 1 + (int) strlen(tag) + 1;
-            msg_begin = msg_payload + msg_pre_skip;
         } else if (logcat_version == 2) {
+            hdr_size = sizeof(*log_entry_v2);
             msg_payload = (const uint8_t *) (log_entry_v2 + 1);
-
-            priority = get_priority(msg_payload[0]);
-            tag = msg_payload + 1;
-            msg_pre_skip = 1 + (int) strlen(tag) + 1;
-            msg_begin = msg_payload + msg_pre_skip;
         } else {
             *err = WTAP_ERR_UNWRITABLE_REC_DATA;
             *err_info = ws_strdup_printf("logcat: version %d isn't supported",
@@ -535,8 +522,40 @@ static bool logcat_text_dump_text(wtap_dumper *wdh, const wtap_rec *rec,
             return false;
         }
 
+        /* The record must contain the header and the whole payload */
+        if (length < hdr_size) {
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+            *err_info = ws_strdup_printf("logcat: record length %u is shorter than the %u byte header",
+                                        length, hdr_size);
+            return false;
+        }
+        payload_length = GUINT16_FROM_LE(log_entry->len);
+        if (payload_length > length - hdr_size) {
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+            *err_info = ws_strdup_printf("logcat: payload length %u is longer than the %u bytes remaining in the record",
+                                        payload_length, length - hdr_size);
+            return false;
+        }
+
+        pid = GINT32_FROM_LE(log_entry->pid);
+        tid = GINT32_FROM_LE(log_entry->tid);
+        seconds = GINT32_FROM_LE(log_entry->sec);
+        milliseconds = GINT32_FROM_LE(log_entry->nsec) / 1000000;
+
+        /* msg: <prio:1><tag:N>\0<msg:N>\0 with N >= 0, last \0 can be missing */
+        tag_end = (payload_length > 1) ? memchr(msg_payload + 1, '\0', payload_length - 1) : NULL;
+        if (tag_end == NULL) {
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+            *err_info = g_strdup("logcat: payload doesn't contain a priority and a terminated tag");
+            return false;
+        }
+        priority = get_priority(msg_payload[0]);
+        tag = (const char*)(msg_payload + 1);
+        msg_pre_skip = (int)(tag_end - msg_payload) + 1;
+        msg_begin = (const char*)(msg_payload + msg_pre_skip);
+
         /* copy the message part. If a nul byte was missing, it will be added. */
-        log = g_strndup(msg_begin, payload_length - msg_pre_skip);
+        log = g_strndup(msg_begin, payload_length - (unsigned)msg_pre_skip);
 
         /* long format: display one header followed by the whole message (which may
          * contain new lines). Other formats: include tag, etc. with each line */
