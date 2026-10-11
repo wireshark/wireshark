@@ -2162,6 +2162,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <source>Compress with &amp;LZ4</source>
         <translation>Comhbhrú le &amp;LZ4</translation>
     </message>
+    <message>
+        <source>Compress with Zstandard</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDataModel</name>
@@ -3740,6 +3744,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <source>%1 Select File</source>
         <translation>%1 Roghnaigh Comhad</translation>
     </message>
+    <message>
+        <source>%1 Select Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtcapOptionsDialog</name>
@@ -4699,6 +4707,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>Ceadaigh aird a tharraingt ar an luchóg</translation>
     </message>
     <message>
+        <source>Annotations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add annotation…</source>
         <translation>Cuir nóta leis…</translation>
     </message>
@@ -4709,6 +4721,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Remove annotation</source>
         <translation>Bain anótáil</translation>
+    </message>
+    <message>
+        <source>Offset markers</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start byte for offset</source>
@@ -9445,15 +9461,15 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <name>PacketList</name>
     <message>
         <source>Unpin Row</source>
-        <translation>Díphionnaigh an Ró</translation>
+        <translation type="vanished">Díphionnaigh an Ró</translation>
     </message>
     <message>
         <source>Pin Row to Top (max %1 reached)</source>
-        <translation>Biorraigh an Ró go dtí an Barr (baintear amach an t-uasmhéid %1)</translation>
+        <translation type="vanished">Biorraigh an Ró go dtí an Barr (baintear amach an t-uasmhéid %1)</translation>
     </message>
     <message>
         <source>Pin Row to Top</source>
-        <translation>Biorraigh an Ró go dtí an Barr</translation>
+        <translation type="vanished">Biorraigh an Ró go dtí an Barr</translation>
     </message>
     <message>
         <source>Go to Packet</source>
@@ -9461,7 +9477,7 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation>Díphionnaigh gach ró</translation>
+        <translation type="vanished">Díphionnaigh gach ró</translation>
     </message>
     <message>
         <source>Tag Links</source>
@@ -9498,6 +9514,30 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Sáraíonn téacs tráchta %1. Stopadh. ]</translation>
+    </message>
+    <message>
+        <source>Unpin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Pin Selected Rows (max %Ln)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>At most %Ln rows can be pinned.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -9571,19 +9611,19 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <name>PacketListModel</name>
     <message>
         <source>Column</source>
-        <translation>Colún</translation>
+        <translation type="vanished">Colún</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation>Ní féidir %1 a shórtáil ach le %2 nó níos lú sraitheanna infheicthe; méadaigh méid na taisce i sainroghanna Leagan Amach</translation>
+        <translation type="vanished">Ní féidir %1 a shórtáil ach le %2 nó níos lú sraitheanna infheicthe; méadaigh méid na taisce i sainroghanna Leagan Amach</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation>&quot;%1&quot; á shórtáil…</translation>
+        <translation type="vanished">&quot;%1&quot; á shórtáil…</translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation>Sórtáil…</translation>
+        <translation type="vanished">Sórtáil…</translation>
     </message>
     <message>
         <source>Marked</source>
@@ -9600,6 +9640,25 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <message>
         <source>Modified</source>
         <translation>Modhnaithe</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListProxyModel</name>
+    <message>
+        <source>Column</source>
+        <translation type="unfinished">Colún</translation>
+    </message>
+    <message>
+        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
+        <translation type="unfinished">Ní féidir %1 a shórtáil ach le %2 nó níos lú sraitheanna infheicthe; méadaigh méid na taisce i sainroghanna Leagan Amach</translation>
+    </message>
+    <message>
+        <source>Sorting &quot;%1&quot;…</source>
+        <translation type="unfinished">&quot;%1&quot; á shórtáil…</translation>
+    </message>
+    <message>
+        <source>Sorting …</source>
+        <translation type="unfinished">Sórtáil…</translation>
     </message>
 </context>
 <context>
@@ -14445,6 +14504,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
         <translation>UTF-8</translation>
     </message>
     <message>
+        <source>UTF-8 Unescaped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>YAML</source>
         <translation>YAML</translation>
     </message>
@@ -16414,7 +16477,7 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message>
         <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
+        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
     </message>
     <message>
         <source>Variant of the application running</source>
@@ -18252,6 +18315,22 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation>Gnáthmhéid</translation>
     </message>
     <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keep the selected packets at the top of the packet list, or unpin them if they are all pinned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpin All Rows</source>
+        <translation type="unfinished">Díphionnaigh gach ró</translation>
+    </message>
+    <message>
+        <source>Unpin all of the packets pinned to the top of the packet list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset layout to default size</source>
         <translation>Athshocraigh an leagan amach go dtí an méid réamhshocraithe</translation>
     </message>
@@ -18489,7 +18568,7 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message>
         <source>Aggregation in Live Capture</source>
-        <translation>Comhiomlánú i nGabháil Bheo</translation>
+        <translation type="vanished">Comhiomlánú i nGabháil Bheo</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18657,6 +18736,10 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     <message>
         <source>Automatically scroll to the last packet during a live capture.</source>
         <translation>Scrollaigh go huathoibríoch chuig an bpaicéad deireanach le linn gabhála beo.</translation>
+    </message>
+    <message>
+        <source>Aggregate Packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expert Information</source>
@@ -18862,12 +18945,14 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation>Cineál anaithnid comhaid curtha ar ais ag dialóg easpórtála.</translation>
     </message>
     <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
-        <translation>Radharc Comhiomlánaithe — taispeánann sé frámaí grúpáilte de réir do réimsí comhiomlánaithe cumraithe.</translation>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
+        <translation type="unfinished">Radharc Comhiomlánaithe — taispeánann sé frámaí grúpáilte de réir do réimsí comhiomlánaithe cumraithe.</translation>
     </message>
     <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <translation>Amharc Comhiomlánaithe — taispeánann sé frámaí grúpáilte de réir do réimsí comhiomlánaithe cumraithe. Chun é a ghníomhachtú, téigh go Roghanna → Comhiomlánú.</translation>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
+        <translation type="unfinished">Amharc Comhiomlánaithe — taispeánann sé frámaí grúpáilte de réir do réimsí comhiomlánaithe cumraithe. Chun é a ghníomhachtú, téigh go Roghanna → Comhiomlánú.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

@@ -1683,6 +1683,8 @@ BACnetVendorIdentifiers[] = {
     { 1670, "HotDash Systems, Inc." },
     { 1671, "2VV s.r.o." },
     { 1672, "Shenzhen Beilai Technology Co., Ltd." },
+    { 1673, "Havkon Elektronik San. Ve Tic. Ltd. Sti." },
+    { 1674, "Shenzhen DAS IOT Technology Co., Ltd." },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

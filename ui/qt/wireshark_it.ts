@@ -1820,15 +1820,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Cartella temporanea</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory in which to write temporary capture files. Leave empty to use the system default. Overridden by the --temp-dir option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;La cartella in cui scrivere temporaneamente i file di cattura. Lascia vuoto per usare le impostazioni predefinite del sistema. Sovrascritta dall&apos;opzione --temp-dir.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished">Sfoglia...</translation>
+        <translation>Sfoglia...</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -1852,7 +1852,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Temporary Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Cartella temporanea</translation>
     </message>
 </context>
 <context>
@@ -2149,6 +2149,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Compress with &amp;LZ4</source>
         <translation>Comprimi con &amp;LZ4</translation>
+    </message>
+    <message>
+        <source>Compress with Zstandard</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3728,6 +3732,10 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <source>%1 Select File</source>
         <translation>%1 Seleziona file</translation>
     </message>
+    <message>
+        <source>%1 Select Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtcapOptionsDialog</name>
@@ -4679,6 +4687,10 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
         <translation>Consenti la selezione al passaggio del mouse </translation>
     </message>
     <message>
+        <source>Annotations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add annotation…</source>
         <translation>Aggiungi annotazione...</translation>
     </message>
@@ -4689,6 +4701,10 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <message>
         <source>Remove annotation</source>
         <translation>Rimuovi annotazione</translation>
+    </message>
+    <message>
+        <source>Offset markers</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start byte for offset</source>
@@ -4736,7 +4752,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>…as UTF-8</source>
-        <translation type="unfinished"></translation>
+        <translation>…come UTF-8</translation>
     </message>
     <message>
         <source>Comment: %1</source>
@@ -9412,15 +9428,15 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <name>PacketList</name>
     <message>
         <source>Unpin Row</source>
-        <translation>Sblocca riga</translation>
+        <translation type="vanished">Sblocca riga</translation>
     </message>
     <message>
         <source>Pin Row to Top (max %1 reached)</source>
-        <translation>Blocca riga in alto (%1 massimo raggiunto)</translation>
+        <translation type="vanished">Blocca riga in alto (%1 massimo raggiunto)</translation>
     </message>
     <message>
         <source>Pin Row to Top</source>
-        <translation>Blocca riga in alto</translation>
+        <translation type="vanished">Blocca riga in alto</translation>
     </message>
     <message>
         <source>Go to Packet</source>
@@ -9428,11 +9444,11 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation>Sblocca tutte le righe</translation>
+        <translation type="vanished">Sblocca tutte le righe</translation>
     </message>
     <message>
         <source>Tag Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Collegamenti di etichetta</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -9465,6 +9481,28 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Il testo del commento supera %1. Interruzione. ]</translation>
+    </message>
+    <message>
+        <source>Unpin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Pin Selected Rows (max %Ln)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>At most %Ln rows can be pinned.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -9538,19 +9576,19 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <name>PacketListModel</name>
     <message>
         <source>Column</source>
-        <translation>Colonna</translation>
+        <translation type="vanished">Colonna</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation>%1 può essere ordinato solo con %2 o meno righe visibili; aumenta la dimensione della cache nelle preferenze di disposizione</translation>
+        <translation type="vanished">%1 può essere ordinato solo con %2 o meno righe visibili; aumenta la dimensione della cache nelle preferenze di disposizione</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation>Ordinamento di &quot;%1&quot;...</translation>
+        <translation type="vanished">Ordinamento di &quot;%1&quot;...</translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation>Ordinamento...</translation>
+        <translation type="vanished">Ordinamento...</translation>
     </message>
     <message>
         <source>Marked</source>
@@ -9567,6 +9605,25 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <message>
         <source>Modified</source>
         <translation>Modificato</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListProxyModel</name>
+    <message>
+        <source>Column</source>
+        <translation type="unfinished">Colonna</translation>
+    </message>
+    <message>
+        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
+        <translation type="unfinished">%1 può essere ordinato solo con %2 o meno righe visibili; aumenta la dimensione della cache nelle preferenze di disposizione</translation>
+    </message>
+    <message>
+        <source>Sorting &quot;%1&quot;…</source>
+        <translation type="unfinished">Ordinamento di &quot;%1&quot;...</translation>
+    </message>
+    <message>
+        <source>Sorting …</source>
+        <translation type="unfinished">Ordinamento...</translation>
     </message>
 </context>
 <context>
@@ -10719,11 +10776,11 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Tagging Rules...</source>
-        <translation type="unfinished"></translation>
+        <translation>Regole di etichettatura...</translation>
     </message>
     <message>
         <source>Tag Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Collegamenti di etichetta</translation>
     </message>
     <message>
         <source>Coloring Rule Preferences...</source>
@@ -14396,6 +14453,10 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
         <translation>UTF-8</translation>
     </message>
     <message>
+        <source>UTF-8 Unescaped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>YAML</source>
         <translation>YAML</translation>
     </message>
@@ -15324,170 +15385,170 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <name>TaggingRulesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Finestra</translation>
+        <translation>Finestra</translation>
     </message>
     <message>
         <source>Follow Link:</source>
-        <translation type="unfinished"></translation>
+        <translation>Segui collegamento:</translation>
     </message>
     <message>
         <source>How to open a tag link in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Come aprire un collegamento di etichetta nell&apos;elenco dei pacchetti.</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Maiusc+Clic</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Clic</translation>
     </message>
     <message>
         <source>Right-click only</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo clic destro</translation>
     </message>
     <message>
         <source>Emoji Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensione emoji</translation>
     </message>
     <message>
         <source>Emoji size as a percentage of the row height. Does not affect text tag labels or the separator character.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensione delle emoji espressa come percentuale dell&apos;altezza della riga. Non influisce sulle etichette delle etichette di testo o sul carattere del separatore.</translation>
     </message>
     <message>
         <source>100%</source>
-        <translation type="unfinished"></translation>
+        <translation>100%</translation>
     </message>
     <message>
         <source>90%</source>
-        <translation type="unfinished">90%</translation>
+        <translation>90%</translation>
     </message>
     <message>
         <source>80%</source>
-        <translation type="unfinished">80%</translation>
+        <translation>80%</translation>
     </message>
     <message>
         <source>70%</source>
-        <translation type="unfinished"></translation>
+        <translation>70%</translation>
     </message>
     <message>
         <source>60%</source>
-        <translation type="unfinished"></translation>
+        <translation>60%</translation>
     </message>
     <message>
         <source>50%</source>
-        <translation type="unfinished"></translation>
+        <translation>50%</translation>
     </message>
     <message>
         <source>Separator:</source>
-        <translation type="unfinished"></translation>
+        <translation>Separatore:</translation>
     </message>
     <message>
         <source>Single character shown between tags when more than one rule matches. Leave empty for none.</source>
-        <translation type="unfinished"></translation>
+        <translation>Carattere singolo mostrato tra le etichette quando corrisponde a più di una regola. Lascia vuoto per nessuno.</translation>
     </message>
     <message>
         <source>Save these tagging rules and open the Coloring Rules dialog with this rule&apos;s filter and name pre-filled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva queste regole di etichettatura e apri la finestra Regole di colorazione con il filtro e il nome di questa regola già compilati.</translation>
     </message>
     <message>
         <source>Copy to Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia nelle regole di colorazione</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Un suggerimento.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;Un suggerimento.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Add a new tagging rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi una nuova regola di etichettatura.</translation>
     </message>
     <message>
         <source>Delete this tagging rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Elimina questa regola di etichettatura.</translation>
     </message>
     <message>
         <source>Duplicate this tagging rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplica questa regola di etichettatura.</translation>
     </message>
     <message>
         <source>Clear all tagging rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella tutte le regole di etichettatura</translation>
     </message>
     <message>
         <source>Tagging Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Regole di etichettatura %1</translation>
     </message>
     <message>
         <source>Shift+Command+Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Maiusc+Comando+Clic</translation>
     </message>
     <message>
         <source>Import…</source>
-        <translation type="unfinished">Importa…</translation>
+        <translation>Importa…</translation>
     </message>
     <message>
         <source>Select a file and add its rules to the end of the list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona un file e aggiungi le sue regole alla fine dell&apos;elenco.</translation>
     </message>
     <message>
         <source>Export…</source>
-        <translation type="unfinished">Esporta</translation>
+        <translation>Esporta...</translation>
     </message>
     <message>
         <source>Save rules to a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva le regole in un file.</translation>
     </message>
     <message>
         <source>Copy tagging rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia regole di etichettatura da un altro profilo.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished"></translation>
+        <translation>Apri</translation>
     </message>
     <message>
         <source>(no tagrules file yet — will be created on save)</source>
-        <translation type="unfinished"></translation>
+        <translation>(nessun file con le regole di etichettatura ancora presente — sarà creato al salvataggio) </translation>
     </message>
     <message>
         <source>Click to edit. Drag to move. Sample Emojis &lt;a href=&quot;https://emojipedia.org&quot;&gt;here&lt;/a&gt;. All matching rules are applied.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fai clic per modificare. Trascina per spostare. Emoji di esempio &lt;a href=&quot;https://emojipedia.org&quot;&gt;qui&lt;/a&gt;. Tutte le regole corrispondenti sono applicate.</translation>
     </message>
     <message>
         <source>Import Tagging Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Importa regole di etichettatura</translation>
     </message>
     <message>
         <source>Export %1 Tagging Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta %1 regole di etichettatura</translation>
     </message>
 </context>
 <context>
     <name>TaggingRulesModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filtro</translation>
+        <translation>Filtro</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Etichetta</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Collegamento</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">Commento</translation>
+        <translation>Commento</translation>
     </message>
     <message>
         <source>New tagging rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Nuova regola di etichettatura</translation>
     </message>
 </context>
 <context>
@@ -16364,7 +16425,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
+        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
     </message>
     <message>
         <source>Variant of the application running</source>
@@ -18201,6 +18262,22 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>Dimensione normale</translation>
     </message>
     <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keep the selected packets at the top of the packet list, or unpin them if they are all pinned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpin All Rows</source>
+        <translation type="unfinished">Sblocca tutte le righe</translation>
+    </message>
+    <message>
+        <source>Unpin all of the packets pinned to the top of the packet list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset layout to default size</source>
         <translation>Ripristina la disposizione alla dimensione predefinita </translation>
     </message>
@@ -18426,11 +18503,11 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>&amp;Tagging Rules…</source>
-        <translation type="unfinished"></translation>
+        <translation>Regole di e&amp;tichettatura...</translation>
     </message>
     <message>
         <source>Edit the packet tagging rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifica le regole di etichettatura dei pacchetti.</translation>
     </message>
     <message>
         <source>Show Linked Packet in New Window</source>
@@ -18438,7 +18515,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Aggregation in Live Capture</source>
-        <translation>Aggregazione durante la cattura</translation>
+        <translation type="vanished">Aggregazione durante la cattura</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18606,6 +18683,10 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     <message>
         <source>Automatically scroll to the last packet during a live capture.</source>
         <translation>Scorri automaticamente all&apos;ultimo pacchetto durante una cattura.</translation>
+    </message>
+    <message>
+        <source>Aggregate Packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expert Information</source>
@@ -18811,12 +18892,14 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>Tipo di file sconosciuto restituito dalla finestra di esportazione. </translation>
     </message>
     <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
-        <translation>Vista di aggregazione: visualizza i frame raggruppati in base ai campi di aggregazione configurati.</translation>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
+        <translation type="unfinished">Vista di aggregazione: visualizza i frame raggruppati in base ai campi di aggregazione configurati.</translation>
     </message>
     <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <translation>Vista aggregazione: mostra i frame raggruppati in base ai campi di aggregazione configurati. Per attivarla, vai su Preferenze → Aggregazione.</translation>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
+        <translation type="unfinished">Vista aggregazione: mostra i frame raggruppati in base ai campi di aggregazione configurati. Per attivarla, vai su Preferenze → Aggregazione.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

@@ -2142,6 +2142,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Compress with &amp;LZ4</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Compress with Zstandard</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDataModel</name>
@@ -3711,6 +3715,10 @@ Relative to reference: n/a (outside reference range)</source>
         <source>%1 Select File</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%1 Select Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtcapOptionsDialog</name>
@@ -4662,6 +4670,10 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Annotations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add annotation…</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4671,6 +4683,10 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Remove annotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset markers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9329,23 +9345,7 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PacketList</name>
     <message>
-        <source>Unpin Row</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pin Row to Top</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Go to Packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unpin All Rows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9381,6 +9381,28 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Pin Selected Rows (max %Ln)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>At most %Ln rows can be pinned.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -9453,22 +9475,6 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9482,6 +9488,25 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Modified</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketListProxyModel</name>
+    <message>
+        <source>Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sorting &quot;%1&quot;…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sorting …</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -14243,6 +14268,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>UTF-8 Unescaped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>YAML</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16169,10 +16198,6 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Variant of the application running</source>
         <translation type="unfinished"></translation>
     </message>
@@ -18017,6 +18042,22 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keep the selected packets at the top of the packet list, or unpin them if they are all pinned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpin All Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpin all of the packets pinned to the top of the packet list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset layout to default size</source>
         <translation type="unfinished"></translation>
     </message>
@@ -18253,10 +18294,6 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Aggregation in Live Capture</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation type="unfinished"></translation>
@@ -18424,6 +18461,10 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Aggregate Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Expert Information</source>
         <translation type="unfinished"></translation>
     </message>
@@ -18568,6 +18609,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation type="unfinished"></translation>
@@ -18623,14 +18672,6 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

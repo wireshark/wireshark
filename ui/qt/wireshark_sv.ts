@@ -2150,6 +2150,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Compress with &amp;LZ4</source>
         <translation>Komprimera med &amp;LZ4</translation>
     </message>
+    <message>
+        <source>Compress with Zstandard</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDataModel</name>
@@ -3728,6 +3732,10 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <source>%1 Select File</source>
         <translation>%1 Välj fil</translation>
     </message>
+    <message>
+        <source>%1 Select Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtcapOptionsDialog</name>
@@ -4679,6 +4687,10 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>Tillåt markering vid hovring</translation>
     </message>
     <message>
+        <source>Annotations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add annotation…</source>
         <translation>Lägg till anteckning…</translation>
     </message>
@@ -4689,6 +4701,10 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Remove annotation</source>
         <translation>Ta bort anteckning</translation>
+    </message>
+    <message>
+        <source>Offset markers</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start byte for offset</source>
@@ -9410,15 +9426,15 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>PacketList</name>
     <message>
         <source>Unpin Row</source>
-        <translation>Lossa rad</translation>
+        <translation type="vanished">Lossa rad</translation>
     </message>
     <message>
         <source>Pin Row to Top (max %1 reached)</source>
-        <translation>Fäst rad överst (maxgränsen %1 har nåtts)</translation>
+        <translation type="vanished">Fäst rad överst (maxgränsen %1 har nåtts)</translation>
     </message>
     <message>
         <source>Pin Row to Top</source>
-        <translation>Fäst rad överst</translation>
+        <translation type="vanished">Fäst rad överst</translation>
     </message>
     <message>
         <source>Go to Packet</source>
@@ -9426,7 +9442,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation>Lossa alla rader</translation>
+        <translation type="vanished">Lossa alla rader</translation>
     </message>
     <message>
         <source>Tag Links</source>
@@ -9463,6 +9479,28 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Kommentartext överskrider %1.  Stannar. ]</translation>
+    </message>
+    <message>
+        <source>Unpin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Pin Selected Rows (max %Ln)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>At most %Ln rows can be pinned.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -9536,19 +9574,19 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>PacketListModel</name>
     <message>
         <source>Column</source>
-        <translation>Kolumn</translation>
+        <translation type="vanished">Kolumn</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation>%1 kan bara sorteras med %2 eller färre synliga rader; öka cachestorleken i inställningarna av layout</translation>
+        <translation type="vanished">%1 kan bara sorteras med %2 eller färre synliga rader; öka cachestorleken i inställningarna av layout</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation>Sorterar ”%1” …</translation>
+        <translation type="vanished">Sorterar ”%1” …</translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation>Sortering …</translation>
+        <translation type="vanished">Sortering …</translation>
     </message>
     <message>
         <source>Marked</source>
@@ -9565,6 +9603,25 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>Modified</source>
         <translation>Ändrad</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListProxyModel</name>
+    <message>
+        <source>Column</source>
+        <translation type="unfinished">Kolumn</translation>
+    </message>
+    <message>
+        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
+        <translation type="unfinished">%1 kan bara sorteras med %2 eller färre synliga rader; öka cachestorleken i inställningarna av layout</translation>
+    </message>
+    <message>
+        <source>Sorting &quot;%1&quot;…</source>
+        <translation type="unfinished">Sorterar ”%1” …</translation>
+    </message>
+    <message>
+        <source>Sorting …</source>
+        <translation type="unfinished">Sortering …</translation>
     </message>
 </context>
 <context>
@@ -14393,6 +14450,10 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
         <translation>UTF-8</translation>
     </message>
     <message>
+        <source>UTF-8 Unescaped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>YAML</source>
         <translation>YAML</translation>
     </message>
@@ -16361,7 +16422,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
+        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
     </message>
     <message>
         <source>Variant of the application running</source>
@@ -18198,6 +18259,22 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Normal storlek</translation>
     </message>
     <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keep the selected packets at the top of the packet list, or unpin them if they are all pinned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpin All Rows</source>
+        <translation type="unfinished">Lossa alla rader</translation>
+    </message>
+    <message>
+        <source>Unpin all of the packets pinned to the top of the packet list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset layout to default size</source>
         <translation>Återställ layouten till standardstorleken</translation>
     </message>
@@ -18435,7 +18512,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Aggregation in Live Capture</source>
-        <translation>Samla i live-fångst</translation>
+        <translation type="vanished">Samla i live-fångst</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18603,6 +18680,10 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>Automatically scroll to the last packet during a live capture.</source>
         <translation>Rulla automatiskt till det sista paketet under en live-fångst.</translation>
+    </message>
+    <message>
+        <source>Aggregate Packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expert Information</source>
@@ -18808,12 +18889,14 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Okänd filtyp returnerad av exportdialogen.</translation>
     </message>
     <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
-        <translation>Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält.</translation>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
+        <translation type="unfinished">Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält.</translation>
     </message>
     <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <translation>Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält. Aktivera den via Inställningar → Aggregering.</translation>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
+        <translation type="unfinished">Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält. Aktivera den via Inställningar → Aggregering.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

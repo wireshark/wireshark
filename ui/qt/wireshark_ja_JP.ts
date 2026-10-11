@@ -2138,6 +2138,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Compress with &amp;LZ4</source>
         <translation>LZ4形式で圧縮(&amp;L)</translation>
     </message>
+    <message>
+        <source>Compress with Zstandard</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ConversationDataModel</name>
@@ -3713,6 +3717,10 @@ Relative to reference: n/a (outside reference range)</source>
         <source>%1 Select File</source>
         <translation>%1 ファイルを選択</translation>
     </message>
+    <message>
+        <source>%1 Select Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ExtcapOptionsDialog</name>
@@ -4656,6 +4664,10 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>ホーバーハイライトを許可</translation>
     </message>
     <message>
+        <source>Annotations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add annotation…</source>
         <translation>注釈を追加…</translation>
     </message>
@@ -4666,6 +4678,10 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Remove annotation</source>
         <translation>注釈を削除</translation>
+    </message>
+    <message>
+        <source>Offset markers</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start byte for offset</source>
@@ -9371,15 +9387,15 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <name>PacketList</name>
     <message>
         <source>Unpin Row</source>
-        <translation> 行の固定解除</translation>
+        <translation type="vanished"> 行の固定解除</translation>
     </message>
     <message>
         <source>Pin Row to Top (max %1 reached)</source>
-        <translation> 行を先頭に固定 (最大 %1 行)</translation>
+        <translation type="vanished"> 行を先頭に固定 (最大 %1 行)</translation>
     </message>
     <message>
         <source>Pin Row to Top</source>
-        <translation> 行を先頭に固定</translation>
+        <translation type="vanished"> 行を先頭に固定</translation>
     </message>
     <message>
         <source>Go to Packet</source>
@@ -9387,7 +9403,7 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation>すべての行の固定解除</translation>
+        <translation type="vanished">すべての行の固定解除</translation>
     </message>
     <message>
         <source>Tag Links</source>
@@ -9424,6 +9440,26 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ コメントテキスト超過 %1 停止中 ]</translation>
+    </message>
+    <message>
+        <source>Unpin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Pin Selected Rows (max %Ln)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>At most %Ln rows can be pinned.</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -9497,19 +9533,19 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <name>PacketListModel</name>
     <message>
         <source>Column</source>
-        <translation>列</translation>
+        <translation type="vanished">列</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation>%1 は %2 か、より少ない表示行数でのみソートできます。設定のレイアウトでキャッシュサイズを増やしてください。</translation>
+        <translation type="vanished">%1 は %2 か、より少ない表示行数でのみソートできます。設定のレイアウトでキャッシュサイズを増やしてください。</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation>&quot;%1&quot; ソート中…</translation>
+        <translation type="vanished">&quot;%1&quot; ソート中…</translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation>ソート中 …</translation>
+        <translation type="vanished">ソート中 …</translation>
     </message>
     <message>
         <source>Marked</source>
@@ -9526,6 +9562,25 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <message>
         <source>Modified</source>
         <translation>修正済</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListProxyModel</name>
+    <message>
+        <source>Column</source>
+        <translation type="unfinished">列</translation>
+    </message>
+    <message>
+        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
+        <translation type="unfinished">%1 は %2 か、より少ない表示行数でのみソートできます。設定のレイアウトでキャッシュサイズを増やしてください。</translation>
+    </message>
+    <message>
+        <source>Sorting &quot;%1&quot;…</source>
+        <translation type="unfinished">&quot;%1&quot; ソート中…</translation>
+    </message>
+    <message>
+        <source>Sorting …</source>
+        <translation type="unfinished">ソート中 …</translation>
     </message>
 </context>
 <context>
@@ -14336,6 +14391,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>UTF-8形式</translation>
     </message>
     <message>
+        <source>UTF-8 Unescaped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>YAML</source>
         <translation>YAML形式</translation>
     </message>
@@ -16305,7 +16364,7 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     </message>
     <message>
         <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
+        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
     </message>
     <message>
         <source>Variant of the application running</source>
@@ -18141,6 +18200,22 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation>標準サイズ</translation>
     </message>
     <message>
+        <source>Pin Selected Rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keep the selected packets at the top of the packet list, or unpin them if they are all pinned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpin All Rows</source>
+        <translation type="unfinished">すべての行の固定解除</translation>
+    </message>
+    <message>
+        <source>Unpin all of the packets pinned to the top of the packet list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset layout to default size</source>
         <translation>デフォルトサイズにレイアウトをリセット</translation>
     </message>
@@ -18378,7 +18453,7 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     </message>
     <message>
         <source>Aggregation in Live Capture</source>
-        <translation>キャプチャ中に集約</translation>
+        <translation type="vanished">キャプチャ中に集約</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18546,6 +18621,10 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     <message>
         <source>Automatically scroll to the last packet during a live capture.</source>
         <translation>キャプチャ中の最後のパケットを自動スクロールします</translation>
+    </message>
+    <message>
+        <source>Aggregate Packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expert Information</source>
@@ -18751,12 +18830,14 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation>エクスポート画面から返された不明なファイルタイプ</translation>
     </message>
     <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields.</source>
-        <translation>集約ビュー — 設定した集約フィールドごとにフレームをグループ化して表示</translation>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
+        <translation type="unfinished">集約ビュー — 設定した集約フィールドごとにフレームをグループ化して表示</translation>
     </message>
     <message>
-        <source>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <translation>集約ビュー — 設定した集約フィールドごとにフレームをグループ化して表示します。有効にするには、［設定］→［集約］へ移動してください</translation>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
+        <translation type="unfinished">集約ビュー — 設定した集約フィールドごとにフレームをグループ化して表示します。有効にするには、［設定］→［集約］へ移動してください</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
