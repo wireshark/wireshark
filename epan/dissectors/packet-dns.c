@@ -76,6 +76,7 @@
 #include "packet-http2.h"
 #include "packet-http3.h"
 #include <wsutil/array.h>
+#include <epan/unit_strings.h>
 
 // parent knob to turn on-off the entire query-response statistics (at runtime)
 // qr = Query-Response
@@ -511,6 +512,8 @@ static int hf_dns_opt_zoneversion_soa;
 static int hf_dns_opt_zoneversion_version;
 static int hf_dns_opt_mqtype;
 static int hf_dns_opt_key_tag;
+static int hf_dns_opt_ul_lease;
+static int hf_dns_opt_ul_key_lease;
 static int hf_dns_nsec3_algo;
 static int hf_dns_nsec3_flags;
 static int hf_dns_nsec3_flag_optout;
@@ -766,7 +769,7 @@ typedef struct _dns_conv_info_t {
 
 /* Optcode values for EDNS0 options (RFC 2671) */
 #define O_LLQ            1              /* Long-lived query (on-hold, draft-sekar-dns-llq) */
-#define O_UL             2              /* Update lease (on-hold, draft-sekar-dns-ul) */
+#define O_UL             2              /* Update Lease (RFC9664) */
 #define O_NSID           3              /* Name Server Identifier (RFC 5001) */
 #define O_OWNER          4              /* Owner, reserved (draft-cheshire-edns0-owner-option) */
 #define O_DAU            5              /* DNSSEC Algorithm Understood (RFC6975) */
@@ -1203,7 +1206,7 @@ static value_string_ext dns_types_description_vals_ext = VALUE_STRING_EXT_INIT(d
 static const value_string edns0_opt_code_vals[] = {
   { 0,                       "Reserved" },
   { O_LLQ,               "LLQ - Long-lived query" },
-  { O_UL,                "UL - Update lease" },
+  { O_UL,                "Update Lease" },
   { O_NSID,              "NSID - Name Server Identifier" },
   { O_OWNER,             "Owner (reserved)" },
   { O_DAU,               "DAU - DNSSEC Algorithm Understood (RFC6975)" },
@@ -3479,6 +3482,23 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
         proto_tree_add_item(rropt_tree, hf_dns_opt_data, tvb, cur_offset, optlen, ENC_NA);
         switch(optcode) {
+
+          case O_UL: /* Update Lease (RFC9664) */
+          {
+              if (optlen != 4 && optlen != 8) {
+                  expert_add_info(pinfo, rroptlen, &ei_dns_opt_bad_length);
+                  break;
+              }
+              proto_tree_add_item(rropt_tree, hf_dns_opt_ul_lease, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+              cur_offset += 4;
+              rropt_len  -= 4;
+              if (optlen == 8) { /* 8-byte variant: KEY-LEASE present */
+                  proto_tree_add_item(rropt_tree, hf_dns_opt_ul_key_lease, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+                  cur_offset += 4;
+                  rropt_len  -= 4;
+              }
+          }
+          break;
 
           case O_DAU: /* DNSSEC Algorithm Understood (RFC6975) */
           {
@@ -7607,6 +7627,16 @@ proto_register_dns(void)
       { "Key Tag", "dns.opt.key_tag",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "DNSSEC Trust Anchor Key Tag (RFC8145)", HFILL }},
+
+    { &hf_dns_opt_ul_lease,
+      { "Lease", "dns.opt.ul.lease",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
+        "Lease duration in seconds (RFC9664)", HFILL }},
+
+    { &hf_dns_opt_ul_key_lease,
+      { "Key Lease", "dns.opt.ul.key_lease",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
+        "KEY RR lease duration in seconds (RFC9664)", HFILL }},
 
     { &hf_dns_count_questions,
       { "Questions", "dns.count.queries",

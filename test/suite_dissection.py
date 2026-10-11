@@ -3871,3 +3871,33 @@ class TestDissectDnsEdnsKeyTag:
         assert '14' in stdout
         assert '12345' in stdout
         assert '54321' in stdout
+
+
+class TestDissectDnsUpdateLease:
+    def test_ul_lease_only(self, cmd_tshark, capture_file, test_env):
+        '''Update Lease option with LEASE field only (4-byte variant) is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_update_lease.pcap'),
+                '-Y', 'frame.number == 1',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.ul.lease',
+            ), encoding='utf-8', env=test_env)
+        # Option code 2 (Update Lease), lease 300 seconds
+        assert '2' in stdout
+        assert '300' in stdout
+
+    def test_ul_lease_and_key_lease(self, cmd_tshark, capture_file, test_env):
+        '''Update Lease option with LEASE and KEY-LEASE fields (8-byte variant) is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_update_lease.pcap'),
+                '-Y', 'frame.number == 2',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.ul.lease',
+                '-e', 'dns.opt.ul.key_lease',
+            ), encoding='utf-8', env=test_env)
+        # Option code 2, lease 300 seconds, key lease 600 seconds
+        assert '2' in stdout
+        assert '300' in stdout
+        assert '600' in stdout
