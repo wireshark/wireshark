@@ -4489,7 +4489,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
     if (data_tvb) {
         int data_tvb_offset = MAX(0, ret - 7);
         if (tvb_captured_length_remaining(data_tvb, data_tvb_offset) > 0) {
-            proto_tree_add_item(setup_tree, hf_usb_data_fragment, data_tvb, data_tvb_offset, -1, ENC_NA);
+            proto_tree_add_item(parent, hf_usb_data_fragment, data_tvb, data_tvb_offset, -1, ENC_NA);
         }
     }
 
