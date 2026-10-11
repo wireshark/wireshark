@@ -24,6 +24,7 @@
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
 #include <wsutil/array.h>
+#include <wsutil/time_util.h>
 
 #include "packet-oer.h"
 #include "packet-ieee1609dot2.h"
@@ -100,7 +101,11 @@ static void
 ieee1609dot2_Time32_fmt(char *s, uint32_t v)
 {
   time_t secs = v + 1072915200 - 5;
-  struct tm *tm = gmtime(&secs);
+  struct tm tm_buf, *tm = ws_gmtime_r(&secs, &tm_buf);
+  if (tm == NULL) {
+    snprintf(s, ITEM_LABEL_LENGTH, "Not representable (%u)", v);
+    return;
+  }
   snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u (%u)",
     tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, v
   );
@@ -111,7 +116,11 @@ ieee1609dot2_Time64_fmt(char *s, uint64_t v)
 {
   time_t secs = v / 1000000 + 1072915200 - 5;
   uint32_t usecs = v % 1000000;
-  struct tm *tm = gmtime(&secs);
+  struct tm tm_buf, *tm = ws_gmtime_r(&secs, &tm_buf);
+  if (tm == NULL) {
+    snprintf(s, ITEM_LABEL_LENGTH, "Not representable (%" PRIu64 ")", v);
+    return;
+  }
   snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%06u (%" PRIu64 ")",
     tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, usecs, v
   );
