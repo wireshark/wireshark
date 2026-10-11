@@ -576,10 +576,9 @@ void FilterExpressionEdit::paintEvent(QPaintEvent *event)
 {
     FilterEdit::paintEvent(event);
 
-    // QLineEdit's icon button sits its glyph near the button's own right edge, so
-    // the only gap before the text is the line edit's small text margin. The line
-    // sits a single pixel past the edge to land midway between glyph and text.
-    // Tune kGapInset if it drifts toward either side.
+    // Each divider sits kGapInset pixels inside the reserved text margin, toward
+    // the buttons, to land midway between glyph and text. The neutral strip fill
+    // stops at the divider, so it is also the boundary of the state tint.
     const int kGapInset = 2;
 
     ThemeManager * tm = ThemeManager::instance();
@@ -600,15 +599,16 @@ void FilterExpressionEdit::paintEvent(QPaintEvent *event)
 
     // clear the background for the buttons on the left and right
     if (margins.left() > 0) {
+        const int x = inner.left() + margins.left() - kGapInset;
         painter.fillRect(QRect(QPoint(inner.left(), inner.top()),
-                QPoint(inner.left() + margins.left(), inner.bottom())), field);
-        auto x = inner.left() + margins.left() - kGapInset;
-        painter.drawLine(x, inner.top() + 2, x, inner.bottom() - 2);
+                QPoint(x - 1, inner.bottom())), field);
+        painter.drawLine(x, inner.top(), x, inner.bottom() + 1);
     }
     if (margins.right() > 0) {
-        painter.fillRect(QRect(QPoint(inner.right() - margins.right(), inner.top()),
+        const int x = inner.right() - margins.right() + kGapInset;
+        painter.fillRect(QRect(QPoint(x, inner.top()),
                 QPoint(inner.right(), inner.bottom())), field);
-        auto x = inner.right() - margins.right() + kGapInset;
-        painter.drawLine(x, inner.top() + 2, x, inner.bottom() - 2);
+        if (!text().isEmpty())
+            painter.drawLine(x, inner.top(), x, inner.bottom() + 1);
     }
 }
