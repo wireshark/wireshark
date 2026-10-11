@@ -3272,28 +3272,41 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	ret = krb5_pac_get_buffer(krb5_ctx, state.pac, KRB5_PAC_SERVER_CHECKSUM,
 				  &checksum_data);
 	if (ret == 0) {
-		state.server_checksum = pletohu32(checksum_data.data);
+		/* The signature buffers start with the 4 byte checksum type. */
+		if (checksum_data.length >= 4) {
+			state.server_checksum = pletohu32(checksum_data.data);
+		}
 		krb5_free_data_contents(krb5_ctx, &checksum_data);
 	};
 	ret = krb5_pac_get_buffer(krb5_ctx, state.pac, KRB5_PAC_PRIVSVR_CHECKSUM,
 				  &checksum_data);
 	if (ret == 0) {
-		state.kdc_checksum = pletohu32(checksum_data.data);
+		if (checksum_data.length >= 4) {
+			state.kdc_checksum = pletohu32(checksum_data.data);
+		}
 		krb5_free_data_contents(krb5_ctx, &checksum_data);
 	};
 	ret = krb5_pac_get_buffer(krb5_ctx, state.pac,
 				  __KRB5_PAC_TICKET_CHECKSUM,
 				  &ticket_checksum_data);
 	if (ret == 0) {
-		state.ticket_checksum_data = &ticket_checksum_data;
-		state.ticket_checksum_type = pletohu32(ticket_checksum_data.data);
+		if (ticket_checksum_data.length >= 4) {
+			state.ticket_checksum_data = &ticket_checksum_data;
+			state.ticket_checksum_type = pletohu32(ticket_checksum_data.data);
+		} else {
+			krb5_free_data_contents(krb5_ctx, &ticket_checksum_data);
+		}
 	};
 	ret = krb5_pac_get_buffer(krb5_ctx, state.pac,
 				  __KRB5_PAC_FULL_CHECKSUM,
 				  &full_checksum_data);
 	if (ret == 0) {
-		state.full_checksum_data = &full_checksum_data;
-		state.full_checksum_type = pletohu32(full_checksum_data.data);
+		if (full_checksum_data.length >= 4) {
+			state.full_checksum_data = &full_checksum_data;
+			state.full_checksum_type = pletohu32(full_checksum_data.data);
+		} else {
+			krb5_free_data_contents(krb5_ctx, &full_checksum_data);
+		}
 	};
 
 	read_keytab_file_from_preferences();
