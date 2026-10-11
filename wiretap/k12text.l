@@ -195,7 +195,7 @@ void register_k12text(void);
 
 %}
 start_timestamp \053[\055]{9}\053[\055]{15,100}\053[\055]{10,100}\053
-oneormoredigits [0-9]+:
+oneortwodigits [0-9]{1,2}:
 twodigits [0-9][0-9]
 colon :
 comma ,
@@ -217,7 +217,7 @@ hdlc HDLC
 <MAGIC>. { if (++ yyextra->junk_chars > MAX_JUNK) { yyextra->is_k12text = false;  yyterminate(); } }
 
 <NEXT_FRAME>{start_timestamp} {BEGIN(HOURS); }
-<HOURS>{oneormoredigits} { SET_HOURS(yytext); BEGIN(MINUTES); }
+<HOURS>{oneortwodigits} { SET_HOURS(yytext); BEGIN(MINUTES); }
 <MINUTES>{twodigits} { SET_MINUTES(yytext); BEGIN(M2S);}
 <M2S>{colon} { BEGIN(SECONDS);}
 <SECONDS>{twodigits} { SET_SECONDS(yytext); BEGIN(S2M); }
