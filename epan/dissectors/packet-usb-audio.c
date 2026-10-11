@@ -2622,10 +2622,12 @@ dissect_v1_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (has_data_stage(urb)) {
-        proto_tree  *subtree;
+        proto_tree  *subtree, *data_tree;
         proto_item  *subtree_item;
 
-        subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_parameter_block, &subtree_item, title);
+        /* always put the data stage after the setup stage (if any), not inside it */
+        data_tree = urb->is_request ? proto_tree_get_parent_tree(tree) : tree;
+        subtree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_parameter_block, &subtree_item, title);
 
         if (parameter_hf) {
             proto_tree_add_item(subtree, *parameter_hf, tvb, offset, attribute_size, ENC_LITTLE_ENDIAN);
@@ -2727,7 +2729,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
     }
 
     if (has_data_stage(urb)) {
-        proto_tree  *subtree;
+        proto_tree  *subtree, *data_tree;
         proto_item  *subtree_item;
         const char *title;
         uint32_t     n;
@@ -2772,7 +2774,9 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 break;
         }
 
-        subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_parameter_block, &subtree_item, title);
+        /* always put the data stage after the setup stage (if any), not inside it */
+        data_tree = urb->is_request ? proto_tree_get_parent_tree(tree) : tree;
+        subtree = proto_tree_add_subtree(data_tree, tvb, offset, -1, ett_parameter_block, &subtree_item, title);
         if (parameter_str) {
             proto_item_append_text(subtree_item, ": %s", parameter_str);
         }
