@@ -35,11 +35,6 @@ QAbstractItemView {
     border: 0;
 }
 
-QAbstractItemView:item:hover {
-    background-color: palette(midlight);
-    color: palette(text);
-}
-
 
 /* -----------------------------------------------------------------
  * "Open" section header

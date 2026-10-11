@@ -197,6 +197,8 @@ public:
         PaletteAlternateBase,
         PaletteMid,
         PaletteMidLight,
+        // Selection background — when omitted, builder uses brand.primary.
+        PaletteHighlight,
         // Selection foreground — when omitted, builder picks via
         // contrastingText(brand.primary).  Themes whose brand colour
         // sits on the WCAG luminance threshold (e.g. saturated mid-tone

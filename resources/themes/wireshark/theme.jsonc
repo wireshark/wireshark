@@ -51,8 +51,8 @@
 	// near-black deep with a hint of blue for the gradient.
 	// -----------------------------------------------------------------
 	"brand": {
-		"primary": { "light": "#204a87", "dark": "#5b9ee6" },
-		"deep":    { "light": "#112347", "dark": "#0a1828" }
+		"primary": { "light": "#a5cdff", "dark": "#314f78" },
+		"deep":    { "light": "#084ad9", "dark": "#0a1828" }
 	},
 
 	// -----------------------------------------------------------------
@@ -69,8 +69,8 @@
 	//   info    — sky_blue_4 (light) / _3 (dark)
 	// -----------------------------------------------------------------
 	"accent": {
-		"success": { "light": "#73d216", "dark": "#8ae234" },
-		"warning": { "light": "#f57900", "dark": "#fcaf3e" },
+		"success": { "light": "#4caf50", "dark": "#8ae234" },
+		"warning": { "light": "#e8652d", "dark": "#fcaf3e" },
 		"error":   { "light": "#cc0000", "dark": "#ef2929" },
 		"info":    { "light": "#3465a4", "dark": "#729fcf" }
 	},
@@ -140,8 +140,8 @@
 		// reading as the same blue.
 		"selection":     { "light": "#3072cc", "dark": "#2a4068" },
 		"selectionText": { "light": "#ffffff", "dark": "#ffffff" },
-		"inactive":      { "light": "#dcdcdc", "dark": "#2e3436" },
-		"inactiveText":  { "light": "#000000", "dark": "#eeeeec" },
+		"inactive":      { "light": "#3072cc", "dark": "#2a4068" },
+		"inactiveText":  { "light": "#ffffff", "dark": "#ffffff" },
 		"marked":        { "light": "#002033", "dark": "#002033" },
 		"markedText":    { "light": "#ffffff", "dark": "#ffffff" },
 		"ignored":       { "light": "#ffffff", "dark": "#1a1a1a" },
@@ -172,9 +172,10 @@
 	// the glyph brightens to a strong colour on hover/press in the widget.
 	// -----------------------------------------------------------------
 	"filter": {
-		"valid":   { "light": "#296700", "dark": "#3a7a06" },
-		"invalid": { "light": "#5e0000", "dark": "#7a1818" },
-		"history": { "light": "#555753", "dark": "#d3d7cf" }
+		"valid":      { "light": "#afffaf", "dark": "#006600" },
+		"invalid":    { "light": "#ffafaf", "dark": "#660000" },
+		"deprecated": { "light": "#ffffaf", "dark": "#666600" },
+		"history":    { "light": "#555753", "dark": "#d3d7cf" }
 	},
 
 	// -----------------------------------------------------------------
@@ -230,17 +231,26 @@
 	// system palette.  Selective merge: only specified roles are
 	// replaced, everything else stays at the system default.
 	//
-	// NOT in this section (auto-derived from brand.primary):
-	//   Highlight      = brand.primary
-	//   HighlightedText = contrastingTextColor(brand.primary)
-	//   Link           = brand.primary
+	// "highlight" and "highlightedText" are the selection colors of all
+	// lists except the packet list.
+	// When omitted: highlight = brand.primary, highlightedText =
+	// contrastingTextColor(highlight).
+	//
+	// NOT in this section (auto-derived):
+	//   Link           = highlight if set, else brand.primary
 	//   Accent         = brand.primary (Qt 6.6+)
 	//
-	// The default theme intentionally leaves this empty — it uses
-	// the system palette as-is.  See the Solarized example for how
+	// The default theme only sets the selection colors; everything else
+	// uses the system palette as-is.  See the Solarized example for how
 	// to override.
 	// -----------------------------------------------------------------
 	"palette": {
+		// Selection light is #3072cc (not the macOS-system #3a7ad2);
+		// the macOS value lands at 4.29:1 against white, just short of
+		// AA.  #3072cc is the smallest nudge that clears 4.5:1 while
+		// reading as the same blue.
+		"highlight":       { "light": "#3072cc", "dark": "#2a4068" },
+		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
 		// "window":        { "light": "#...", "dark": "#..." },
 		// "windowText":    { "light": "#...", "dark": "#..." },
 		// "base":          { "light": "#...", "dark": "#..." },

@@ -95,12 +95,11 @@ QString ColorUtils::themeLinkStyle()
 
 const QColor ColorUtils::hoverBackground()
 {
-    QPalette hover_palette = QApplication::palette();
+    const QColor hover_color = ThemeManager::instance()->color(ThemeManager::BrandPrimary);
 #if defined(Q_OS_MAC)
-    hover_palette.setCurrentColorGroup(QPalette::Active);
-    return hover_palette.highlight().color();
+    return hover_color;
 #else
-    return ColorUtils::alphaBlend(hover_palette.window(), hover_palette.highlight(), 0.5);
+    return ColorUtils::alphaBlend(QApplication::palette().window().color(), hover_color, 0.5);
 #endif
 }
 

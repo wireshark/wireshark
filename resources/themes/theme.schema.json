@@ -115,6 +115,7 @@
                 "alternateBase":   { "$ref": "#/$defs/colorPair" },
                 "mid":             { "$ref": "#/$defs/colorPair" },
                 "midlight":        { "$ref": "#/$defs/colorPair" },
+                "highlight":       { "$ref": "#/$defs/colorPair" },
                 "highlightedText": { "$ref": "#/$defs/colorPair" },
                 "accent":          { "$ref": "#/$defs/colorPair" }
             }

@@ -221,10 +221,16 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // ⇒ ~1.5:1).  Using a 0.25 mix instead keeps the muted text closer
     // to white (~75% mix) so it survives the brighter half of the
     // gradient without becoming as bold as the title.
-    const QColor textOnDarkLight       = ColorMath::contrastingText(brandDeep.light);
-    const QColor textOnDarkDark        = ColorMath::contrastingText(brandDeep.dark);
-    const QColor textOnDarkMutedLight  = ColorMath::mix(textOnDarkLight, brandDeep.light, 0.25);
-    const QColor textOnDarkMutedDark   = ColorMath::mix(textOnDarkDark,  brandDeep.dark,  0.25);
+    //
+    // Themes that pin palette.highlight get a flat header in the list
+    // selection color; others keep the brand.deep -> brand.primary gradient.
+    const ThemeColorPair highlight = tokens.value(ThemeManager::PaletteHighlight);
+    const bool flatHeader = highlight.light.isValid() && highlight.dark.isValid();
+    const ThemeColorPair headerBg = flatHeader ? highlight : brandDeep;
+    const QColor textOnDarkLight       = ColorMath::contrastingText(headerBg.light);
+    const QColor textOnDarkDark        = ColorMath::contrastingText(headerBg.dark);
+    const QColor textOnDarkMutedLight  = ColorMath::mix(textOnDarkLight, headerBg.light, 0.25);
+    const QColor textOnDarkMutedDark   = ColorMath::mix(textOnDarkDark,  headerBg.dark,  0.25);
     assign(tokens, ThemeManager::TextOnDark,
            ThemeColorPair { textOnDarkLight, textOnDarkDark });
     assign(tokens, ThemeManager::TextOnDarkMuted,
@@ -237,14 +243,20 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // brand.primary is bright fail by one to two stops (e.g. the old
     // Wireshark dark #5b9ee6 → title 2.8, version 1.6).  Themes whose
     // primary is already dark enough are unaffected — ensureContrast
-    // short-circuits when the ratio is already met.
-    QColor gradientEndLight = ColorMath::ensureContrast(brandPrimary.light, textOnDarkLight,      4.5);
-    gradientEndLight        = ColorMath::ensureContrast(gradientEndLight,   textOnDarkMutedLight, 3.0);
-    QColor gradientEndDark  = ColorMath::ensureContrast(brandPrimary.dark,  textOnDarkDark,       4.5);
-    gradientEndDark         = ColorMath::ensureContrast(gradientEndDark,    textOnDarkMutedDark,  3.0);
-    assign(tokens, ThemeManager::HeaderGradientStart, brandDeep);
-    assign(tokens, ThemeManager::HeaderGradientEnd,
-           ThemeColorPair { gradientEndLight, gradientEndDark });
+    // short-circuits when the ratio is already met.  A flat header uses
+    // the highlight color for both stops, unclamped.
+    if (flatHeader) {
+        assign(tokens, ThemeManager::HeaderGradientStart, highlight);
+        assign(tokens, ThemeManager::HeaderGradientEnd,   highlight);
+    } else {
+        QColor gradientEndLight = ColorMath::ensureContrast(brandPrimary.light, textOnDarkLight,      4.5);
+        gradientEndLight        = ColorMath::ensureContrast(gradientEndLight,   textOnDarkMutedLight, 3.0);
+        QColor gradientEndDark  = ColorMath::ensureContrast(brandPrimary.dark,  textOnDarkDark,       4.5);
+        gradientEndDark         = ColorMath::ensureContrast(gradientEndDark,    textOnDarkMutedDark,  3.0);
+        assign(tokens, ThemeManager::HeaderGradientStart, brandDeep);
+        assign(tokens, ThemeManager::HeaderGradientEnd,
+               ThemeColorPair { gradientEndLight, gradientEndDark });
+    }
 
     // Section headers — ensureContrast against palette.base at 4.5:1 so
     // welcome-page labels ("Open", "Capture", "Learn") stay readable on
