@@ -13,6 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/unit_strings.h>
+#include <wsutil/time_util.h>
 #include <inttypes.h>
 
 
@@ -2039,7 +2040,12 @@ static void c2p_set_tst_proto_item_info(tvbuff_t* tvb, int offset, proto_item* t
 
         static const time_t TIME_2004_IN_ABSTIME = 1072915200ULL;
         time_t timestamp = tst_sec + TIME_2004_IN_ABSTIME;
-        struct tm* utc_time = gmtime(&timestamp);
+        struct tm tm_buf;
+        struct tm* utc_time = ws_gmtime_r(&timestamp, &tm_buf);
+        if (utc_time == NULL) {
+            proto_item_append_text(ti, " - Not representable");
+            return;
+        }
 
         enum { TIMETAMP_STR_MAX_LEN = 128UL };
         char timestamp_str[TIMETAMP_STR_MAX_LEN] = {0};
@@ -2286,7 +2292,12 @@ static void c2p_gps_timestamp_format(char* string, uint64_t value)
     } else {
         time_t timestamp = value / 1000ULL;
         uint32_t tst_msec = value % 1000UL;
-        struct tm* utc_time = gmtime(&timestamp);
+        struct tm tm_buf;
+        struct tm* utc_time = ws_gmtime_r(&timestamp, &tm_buf);
+        if (utc_time == NULL) {
+            snprintf(string, ITEM_LABEL_LENGTH, "Not representable (%" PRIu64 ")", value);
+            return;
+        }
 
         enum { TIMETAMP_STR_MAX_LEN = 128UL };
         char timestamp_str[TIMETAMP_STR_MAX_LEN] = {0};
@@ -2487,7 +2498,12 @@ static void c2p_fac_timestamp_format(char* string, uint64_t value)
 
         time_t timestamp = (time_t)(value / MSEC_PER_SEC);
         uint32_t tst_msec = (uint32_t)(value % MSEC_PER_SEC);
-        struct tm* utc_time = gmtime(&timestamp);
+        struct tm tm_buf;
+        struct tm* utc_time = ws_gmtime_r(&timestamp, &tm_buf);
+        if (utc_time == NULL) {
+            snprintf(string, ITEM_LABEL_LENGTH, "Not representable (%" PRIu64 ")", value);
+            return;
+        }
 
         enum { TIMESTAMP_STR_MAX_LEN = 128UL };
         char timestamp_str[TIMESTAMP_STR_MAX_LEN] = {0};
@@ -2520,7 +2536,12 @@ static void c2p_fac_generation_time_format(char* string, uint64_t value)
         time_t timestamp = ((time_t)(value / USEC_PER_SEC) + TIME_2004_IN_ABSTIME) -
                            TAI_UTC_OFFSET_SINCE_2004;
         uint32_t tst_usec = (uint32_t)(value % USEC_PER_SEC);
-        struct tm* utc_time = gmtime(&timestamp);
+        struct tm tm_buf;
+        struct tm* utc_time = ws_gmtime_r(&timestamp, &tm_buf);
+        if (utc_time == NULL) {
+            snprintf(string, ITEM_LABEL_LENGTH, "Not representable (%" PRIu64 ")", value);
+            return;
+        }
 
         enum { TIMESTAMP_STR_MAX_LEN = 128UL };
         char timestamp_str[TIMESTAMP_STR_MAX_LEN] = {0};
