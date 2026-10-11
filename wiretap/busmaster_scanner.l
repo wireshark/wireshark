@@ -90,18 +90,25 @@ DIAG_OFF_FLEX()
 
 %}
 
-SPC [ \t]+
-ENDL [\r\n][ \t\r\n]*
-INT [0-9]+
-NUM (0x)?[0-9A-Fa-f]+
+ /*
+  * Every pattern must have a bounded length. Each time Flex refills its
+  * buffer it copies the partial token to the start of the buffer, so
+  * scanning an unbounded token is quadratic in its length.
+  */
 
-%x HEADER TIME
+SPC [ \t]{1,256}
+ENDL [\r\n][ \t\r\n]{0,255}
+INT [0-9]{1,20}
+NUM (0x)?[0-9A-Fa-f]{1,16}
+CHUNK [^\n]{1,256}
+
+%x HEADER TIME ERR_MSG
 %x HEADER_CHANNELS HEADER_DB_FILES
 
 %%
 
 <*>{SPC}   ;
-<INITIAL>{ENDL}               { yyterminate(); };
+<INITIAL,ERR_MSG>{ENDL}       { yyterminate(); };
 <HEADER,TIME>{ENDL}           {
                                   yyextra->err = WTAP_ERR_BAD_FILE;
                                   yyextra->err_info = g_strdup("Unterminated header statement");
@@ -129,12 +136,12 @@ NUM (0x)?[0-9A-Fa-f]+
 <HEADER>.                     { return TOKEN_HEADER_CHAR; }
 
 <HEADER_CHANNELS>"***END CHANNEL BAUD RATE***"{ENDL}"***" { BEGIN(HEADER); }
-<HEADER_CHANNELS>.+           ;
+<HEADER_CHANNELS>{CHUNK}      ;
 <HEADER_CHANNELS>{ENDL}       ;
 
 <HEADER_DB_FILES>"***END DATABASE FILES (DBF/DBC)***"{ENDL}"***" { BEGIN(HEADER); }
 <HEADER_DB_FILES>"***END OF DATABASE FILES (DBF/DBC)***"{ENDL}"***" { BEGIN(HEADER); }
-<HEADER_DB_FILES>.+           ;
+<HEADER_DB_FILES>{CHUNK}      ;
 <HEADER_DB_FILES>{ENDL}       ;
 
 <TIME>{INT} { yyextra->token.v0 = strtoul(yytext, NULL, 10); return TOKEN_INT; }
@@ -190,7 +197,8 @@ NUM (0x)?[0-9A-Fa-f]+
 <INITIAL>xr     { yyextra->token.v0 = MSG_TYPE_EXT_RTR; return TOKEN_MSG_TYPE; }
 <INITIAL>s-fd   { yyextra->token.v0 = MSG_TYPE_STD_FD;  return TOKEN_MSG_TYPE; }
 <INITIAL>x-fd   { yyextra->token.v0 = MSG_TYPE_EXT_FD;  return TOKEN_MSG_TYPE; }
-<INITIAL>ERR.*  { yyextra->token.v0 = MSG_TYPE_ERR;     return TOKEN_ERR_MSG_TYPE; }
+<INITIAL>ERR    { BEGIN(ERR_MSG); yyextra->token.v0 = MSG_TYPE_ERR; return TOKEN_ERR_MSG_TYPE; }
+<ERR_MSG>{CHUNK} ;
 
 <INITIAL>("NONE"|"CMD"|"RQST"|"DATA"|"BROADCAST"|"ACK"|"GRP_FUNC"|"ACL"|"RQST_ACL"|"CA"|"BAM"|"RTS"|"CTS"|"EOM"|"CON_ABORT"|"TPDT") {
     return TOKEN_J1939_MSG_TYPE;
