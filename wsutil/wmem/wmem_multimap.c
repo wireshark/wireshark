@@ -109,8 +109,10 @@ wmem_multimap_size(wmem_multimap_t *map)
 
     /* Make sure we have map and a multimap */
     if (map == NULL || map->map == NULL) {
-        wmem_map_foreach(map->map, count_nodes, &count);
+        return 0;
     }
+
+    wmem_map_foreach(map->map, count_nodes, &count);
     return count;
 }
 
