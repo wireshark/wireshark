@@ -901,6 +901,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C41,   "TPMS Signing Key" },
     { 0x2C42,   "Cookware Device ID" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC23,   "Helvar Oy Ab" },
     { 0xFC24,   "Electronics and Telecommunications Research Institute" },
     { 0xFC25,   "Trackonomy Systems, Inc." },
     { 0xFC26,   "Hudl, Inc." },
@@ -5688,6 +5689,8 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x112C,   "mees audio technology., co.ltd." },
     { 0x112D,   "Aktiia S.A." },
     { 0x112E,   "Oticon Medical AB" },
+    { 0x112F,   "SECANDA Systems AG" },
+    { 0x1130,   "Pi Variables, Inc." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6468,6 +6471,7 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c41,   "Bluetooth GATT Attribute TPMS Signing Key (UUID 0x2c41)", "BT GATT TPMS Signing Key (UUID 0x2c41)", "btgatt.uuid0x2c41" },
     { 0x2c42,   "Bluetooth GATT Attribute Cookware Device ID (UUID 0x2c42)", "BT GATT Cookware Device ID (UUID 0x2c42)", "btgatt.uuid0x2c42" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc23,   "Bluetooth GATT Attribute Helvar Oy Ab (UUID 0xfc23)", "BT GATT Helvar Oy Ab (UUID 0xfc23)", "btgatt.uuid0xfc23" },
     { 0xfc24,   "Bluetooth GATT Attribute Electronics and Telecommunications Research Institute (UUID 0xfc24)", "BT GATT Electronics and Telecommunications Research Institute (UUID 0xfc24)", "btgatt.uuid0xfc24" },
     { 0xfc25,   "Bluetooth GATT Attribute Trackonomy Systems, Inc. (UUID 0xfc25)", "BT GATT Trackonomy Systems, Inc. (UUID 0xfc25)", "btgatt.uuid0xfc25" },
     { 0xfc26,   "Bluetooth GATT Attribute Hudl, Inc. (UUID 0xfc26)", "BT GATT Hudl, Inc. (UUID 0xfc26)", "btgatt.uuid0xfc26" },
