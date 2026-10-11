@@ -158,6 +158,9 @@ protected:
     /** @brief Event handler for changeEvents, e.g. QEvent::LanguageChange */
     void changeEvent(QEvent *event) override;
 
+    /** @brief Re-syncs the inline insets once the style sheet has been applied. */
+    bool event(QEvent *event) override;
+
     /** @brief Paints the field, then the bookmark/apply zone dividers on top. */
     void paintEvent(QPaintEvent *event) override;
 
@@ -174,12 +177,14 @@ private:
     void updateInlineMargins();    /**< Reserve text margins for the shown inline buttons. */
     void rebuildInlineLayout();    /**< (Re)place the buttons for the current alignment. */
 
+    int inlineEdge() const;   /**< Inset (px) from the widget edge to the outermost buttons. */
     QMargins inlineMargins(); /**< Returns the left and right text margins needed to clear the buttons. */
 
     // Inline affordance buttons, placed by a QHBoxLayout inside the field and
     // sized by AdaptiveToolButton (tight box, zoom-aware glyph). paintEvent()
-    // uses their geometry to fence the icon zones off from the tint and to
-    // anchor the dividers. Parented to this line edit via the layout.
+    // fences the icon zones off from the tint and anchors the dividers using
+    // inlineMargins(), which mirrors the layout. Parented to this line edit
+    // via the layout.
     AdaptiveToolButton *bookmark_button_; /**< Leading; right edge ends the tinted area. */
     AdaptiveToolButton *clear_button_;    /**< Trailing; left edge starts the icon zone. */
     AdaptiveToolButton *history_button_;  /**< Trailing; left edge starts the icon zone. */

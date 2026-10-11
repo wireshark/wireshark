@@ -218,11 +218,10 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     history_button_->setIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/filter-history.svg"),
                                                QPalette::Base));
     history_button_->setToolTip(tr("Recent filters"));
-    // Size the recent-filters dropdown like a disclosure arrow rather than a full
-    // action glyph. QStyle exposes no tree-arrow metric; PM_MenuButtonIndicator
-    // is the dropdown-indicator size and the closest equivalent.
-    const int arrow = style()->pixelMetric(QStyle::PM_MenuButtonIndicator, nullptr, this);
-    history_button_->setBaseIconSize(QSize(arrow, arrow) * 2);
+    // Fixed, like the other glyphs, rather than derived from a style metric:
+    // PM_MenuButtonIndicator (12px in QCommonStyle) is 20px on Breeze, which
+    // made the box far wider than the caret drawn in it.
+    history_button_->setBaseIconSize(QSize(24, 24));
     history_button_->setVisible(false);
     connect(history_button_, &QAbstractButton::clicked, this, [this]() {
         populateHistoryMenu();
@@ -234,10 +233,9 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
 
     // Lay the buttons out inside the field. rebuildInlineLayout() places them for
     // the current alignment; hidden buttons take no layout space, so the row
-    // tightens as conditions change.
-    const int frame = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, this);
+    // tightens as conditions change. The layout's side insets are set by
+    // updateInlineMargins(), alongside the text margins they must agree with.
     inline_layout_ = new QHBoxLayout(this);
-    inline_layout_->setContentsMargins(frame + 1, 0, frame + 1, 0);
     inline_layout_->setSpacing(inline_button_spacing_);
     rebuildInlineLayout();
 
@@ -495,14 +493,26 @@ void FilterExpressionEdit::setButtonsLeftAligned(bool left)
     rebuildInlineLayout();
 }
 
+int FilterExpressionEdit::inlineEdge() const
+{
+    // Distance from the widget edge to the outermost buttons: the frame plus a
+    // 1px gap. Query this only through here, so the layout insets, the text
+    // margins and the dividers all see the same value. Before the widget is
+    // polished, the style sheet rule isn't applied yet and the style reports
+    // its native line edit frame width (e.g. 6px on Breeze) instead of the
+    // 1px QSS border; event() re-syncs once polished.
+    return style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, this) + 1;
+}
+
 QMargins FilterExpressionEdit::inlineMargins() {
     // Reserve text margins matching the shown buttons so the text never runs
     // under one, and so QLineEdit's sizeHint accounts for them (keeping the
-    // toolbar from compressing the field under its neighbours). The dividers in
-    // paintEvent() use the buttons' real geometry, so a slight over-reservation
-    // here is harmless. Use isHidden(), not isVisible(): this runs before the
-    // field is first shown, when isVisible() is still false for every child.
-    const int edge = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, nullptr, this) + 1;
+    // toolbar from compressing the field under its neighbours). paintEvent()
+    // places the dividers and the neutral strips from these margins too, so
+    // they must match the layout exactly. Use isHidden(), not isVisible():
+    // this runs before the field is first shown, when isVisible() is still
+    // false for every child.
+    const int edge = inlineEdge();
 
     auto zone = [](const AdaptiveToolButton *b) {
         return b->isHidden() ? 0 : b->sizeHint().width() + inline_button_spacing_;
@@ -520,6 +530,8 @@ QMargins FilterExpressionEdit::inlineMargins() {
 
 void FilterExpressionEdit::updateInlineMargins()
 {
+    const int edge = inlineEdge();
+    inline_layout_->setContentsMargins(edge, 0, edge, 0);
     setTextMargins(inlineMargins());
 }
 
@@ -566,10 +578,23 @@ void FilterExpressionEdit::changeEvent(QEvent *event)
     case QEvent::LanguageChange:
         updateTranslations();
         break;
+    case QEvent::StyleChange:
+        updateInlineMargins();
+        break;
     default:
         break;
     }
     FilterEdit::changeEvent(event);
+}
+
+bool FilterExpressionEdit::event(QEvent *event)
+{
+    const bool ret = FilterEdit::event(event);
+    // Sent once the style (and so any style sheet rule) has been applied, which
+    // can change the frame width inlineEdge() depends on.
+    if (event->type() == QEvent::Polish)
+        updateInlineMargins();
+    return ret;
 }
 
 void FilterExpressionEdit::paintEvent(QPaintEvent *event)
