@@ -13,6 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/unit_strings.h>
+#include <wsutil/time_util.h>
 #include <inttypes.h>
 
 
@@ -1892,7 +1893,12 @@ static void set_tst_proto_item_info(tvbuff_t* tvb, int offset, proto_item* ti)
 
         static const time_t TIME_2004_IN_ABSTIME = 1072915200ULL;
         time_t timestamp = tst_sec + TIME_2004_IN_ABSTIME;
-        struct tm* utc_time = gmtime(&timestamp);
+        struct tm tm_buf;
+        struct tm* utc_time = ws_gmtime_r(&timestamp, &tm_buf);
+        if (utc_time == NULL) {
+            proto_item_append_text(ti, " - Not representable");
+            return;
+        }
 
         enum { TIMETAMP_STR_MAX_LEN = 128UL };
         char timestamp_str[TIMETAMP_STR_MAX_LEN] = {0};
@@ -2139,7 +2145,12 @@ static void gps_timestamp_format(char* string, uint64_t value)
     } else {
         time_t timestamp = value / 1000ULL;
         uint32_t tst_msec = value % 1000UL;
-        struct tm* utc_time = gmtime(&timestamp);
+        struct tm tm_buf;
+        struct tm* utc_time = ws_gmtime_r(&timestamp, &tm_buf);
+        if (utc_time == NULL) {
+            snprintf(string, ITEM_LABEL_LENGTH, "Not representable (%" PRIu64 ")", value);
+            return;
+        }
 
         enum { TIMETAMP_STR_MAX_LEN = 128UL };
         char timestamp_str[TIMETAMP_STR_MAX_LEN] = {0};
