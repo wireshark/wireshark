@@ -1614,7 +1614,7 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, unsigned offset, packet_info *pinfo
 
       if (!PINFO_FD_VISITED(pinfo) && channel) {
         channel->value = -1; /* unset */
-        channel->strptr = (char *)wmem_memdup(wmem_file_scope(), channelName, strlen(channelName));
+        channel->strptr = wmem_strdup(wmem_file_scope(), channelName);
         channel->channelType = find_known_channel_by_name(channel->strptr);
         channel->chunks_cs = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         channel->chunks_sc = wmem_multimap_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
