@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-10-02) */
+/* (last updated 2026-10-10) */
 
 #include "config.h"
 
@@ -67076,7 +67076,103 @@ static const char * const table[] =
     "3MT Galicia Global Services SL",                                                     // 67054
     "Aisitec LTD",                                                                        // 67055
     "LLC Distribuciya Svyazi",                                                            // 67056
-    "Encypher Corporation"                                                                // 67057
+    "Encypher Corporation",                                                               // 67057
+    "Fr0ntierX Inc.",                                                                     // 67058
+    "Hadley So",                                                                          // 67059
+    "Serinya Telecom",                                                                    // 67060
+    "Adam Hellberg",                                                                      // 67061
+    "Business Services Yahia El-Qasem",                                                   // 67062
+    "Rajendarreddy Jagapathi",                                                            // 67063
+    "GLAMOX AS",                                                                          // 67064
+    "yettiesoft",                                                                         // 67065
+    "MENNEKES Elektrotechnik GmbH & Co. KG",                                              // 67066
+    "Farmacol",                                                                           // 67067
+    "Terasic Technologies Inc.",                                                          // 67068
+    "Soneric Ltd.",                                                                       // 67069
+    "NostVex",                                                                            // 67070
+    "Soft-Gorizont, LLC",                                                                 // 67071
+    "Arta Cyber Inc.",                                                                    // 67072
+    "Reindex Srl",                                                                        // 67073
+    "EigenQ, Inc.",                                                                       // 67074
+    "Clegg's Termite and Pest Control, LLC",                                              // 67075
+    "Nooran Ertebatat",                                                                   // 67076
+    "PixFlow",                                                                            // 67077
+    "TEAM T5 INC.",                                                                       // 67078
+    "Arul Raj",                                                                           // 67079
+    "Prospective Monitoring",                                                             // 67080
+    "Finanzmarktaufsicht Liechtenstein",                                                  // 67081
+    "Digital Strategy Solutions, LLC",                                                    // 67082
+    "Sistema DIF Hidalgo",                                                                // 67083
+    "Narwatt Energy Inc.",                                                                // 67084
+    "Reddit, Inc.",                                                                       // 67085
+    "Cláudio Silva",                                                                      // 67086
+    "Sysnet Yazilim ve Bilgi Teknolojileri Ltd.Sti.",                                     // 67087
+    "Nervus Technologies",                                                                // 67088
+    "Nervus Data Labs",                                                                   // 67089
+    "RDC Products LLC",                                                                   // 67090
+    "Tchobanski",                                                                         // 67091
+    "Herrick Networks",                                                                   // 67092
+    "Ubu AI Inc.",                                                                        // 67093
+    "PT Inti Tech Indonesia",                                                             // 67094
+    "eCentric TI",                                                                        // 67095
+    "Agantra Inovatif OÜ",                                                                // 67096
+    "VougaDev",                                                                           // 67097
+    "Philipp Meyer",                                                                      // 67098
+    "Frischlecker LLC",                                                                   // 67099
+    "HTTPS CARD - INTERNET IDENTITY CARD LIMITED",                                        // 67100
+    "Shenzhen Rayin Technology Co., Ltd.",                                                // 67101
+    "BrainWave Software GmbH",                                                            // 67102
+    "SMARTFOX - DAfi GmbH",                                                               // 67103
+    "Fernando Catullo (FUTURE)",                                                          // 67104
+    "Luca Cappelletti",                                                                   // 67105
+    "enteria a.s.",                                                                       // 67106
+    "VAE, Inc.",                                                                          // 67107
+    "Netwrix Corporation",                                                                // 67108
+    "ComputerTalk Technology",                                                            // 67109
+    "Queensland Department of State Development, Infrastructure and Planning",            // 67110
+    "RAY SECURE INNOVATIONS PVT LTD",                                                     // 67111
+    "FED invest",                                                                         // 67112
+    "BITE GmbH",                                                                          // 67113
+    "Giovanni Cofone",                                                                    // 67114
+    "Phase Zero Integration Inc",                                                         // 67115
+    "Skyeng",                                                                             // 67116
+    "SunState Medical Specialists",                                                       // 67117
+    "LEY DEL SEXTO",                                                                      // 67118
+    "vmpn",                                                                               // 67119
+    "Patrick Tudor",                                                                      // 67120
+    "ZSD Systems LLC",                                                                    // 67121
+    "NanoCry Technologies, Inc.",                                                         // 67122
+    "AppaBits",                                                                           // 67123
+    "Technoblox",                                                                         // 67124
+    "PT Priva Identitas Digital",                                                         // 67125
+    "GEMSS Healthcare Co., Ltd.",                                                         // 67126
+    "Wipak Walsrode GmbH",                                                                // 67127
+    "Aaron Tulino",                                                                       // 67128
+    "Elgens Co., Ltd.",                                                                   // 67129
+    "ZaiNar, Inc",                                                                        // 67130
+    "BankSouth",                                                                          // 67131
+    "Muun Wallet Inc.",                                                                   // 67132
+    "Consejo Superior de Deportes",                                                       // 67133
+    "ILLEVANTE CLOUD SERVICE & DATACENTERS PROVIDERS CO. L.L.C",                          // 67134
+    "IAAXIN TECH LABS INDIA PVT LTD",                                                     // 67135
+    "Ecosuite Inc.",                                                                      // 67136
+    "Equitaria",                                                                          // 67137
+    "Olivine, Inc.",                                                                      // 67138
+    "Diasorin S.p.A.",                                                                    // 67139
+    "NTEKSYSTEM Co., Ltd.",                                                               // 67140
+    "ZKTL INFORMATION TECHNOLOGY LTD",                                                    // 67141
+    "FTSTECH AUSTRALIA PRIVATE LIMITED",                                                  // 67142
+    "Volvo Car Retail AB",                                                                // 67143
+    "FORYOULINK CO.,LTD",                                                                 // 67144
+    "MVision AI Oy",                                                                      // 67145
+    "Pier MTTP GmbH (Ataves)",                                                            // 67146
+    "APRO Kassensysteme GmbH",                                                            // 67147
+    "IVSO SYSTEMS PIOTR MRÓZ",                                                            // 67148
+    "Signalmover OÜ",                                                                     // 67149
+    "CANDA Solutions",                                                                    // 67150
+    "Observatoire des Sciences de l’Univers de Grenoble - OSUG",                          // 67151
+    "Emporia Energy",                                                                     // 67152
+    "Henry Willis"                                                                        // 67153
 };
 
 const char* global_enterprises_lookup(uint32_t value)
