@@ -266,7 +266,7 @@ static bool logcat_text_seek_read(wtap *wth, int64_t seek_off,
     return true;
 }
 
-wtap_open_return_val logcat_text_open(wtap *wth, int *err, char **err_info _U_) {
+wtap_open_return_val logcat_text_open(wtap *wth, int *err, char **err_info) {
     char *cbuff;
     char *ret = NULL;
 
@@ -280,6 +280,19 @@ wtap_open_return_val logcat_text_open(wtap *wth, int *err, char **err_info _U_) 
             && ((3 > strlen(cbuff))
                     || g_regex_match_simple(SPECIAL_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
                             G_REGEX_MATCH_NOTEMPTY)));
+
+    /*
+     * If no line was read, cbuff may never have been written. (If an
+     * earlier line was read, it was too short or a special line, which
+     * doesn't match any of the formats anyway.)
+     */
+    if (ret == NULL) {
+        g_free(cbuff);
+        *err = file_error(wth->fh, err_info);
+        if (*err != 0)
+            return WTAP_OPEN_ERROR;
+        return WTAP_OPEN_NOT_MINE;
+    }
 
     if (g_regex_match_simple(BRIEF_STRING, cbuff, (GRegexCompileFlags)(G_REGEX_ANCHORED | G_REGEX_RAW),
             G_REGEX_MATCH_NOTEMPTY)) {
