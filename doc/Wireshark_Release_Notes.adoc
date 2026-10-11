@@ -23,6 +23,13 @@ If you or your organization would like to contribute or become a sponsor, please
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
+The following changes have been made since version 4.7.4:
+
+// https://developer.apple.com/news/?id=w4atic4c
+// https://developer.apple.com/help/account/certificates/replace-developer-id-certificates
+* macOS disk images and applications are now signed using certificates issued by Apple's Developer ID Certification Authority (G2).
+  The previous certificate was issued by Apple's Developer ID Certification Authority, which expires in early 2027.
+
 The following changes have been made since version 4.7.3:
 
 * You can now https://www.wireshark.org/docs/wsug_html/#ChCustTaggingSection[tag packets] with emojis, text, or URLs similar to coloring rules.

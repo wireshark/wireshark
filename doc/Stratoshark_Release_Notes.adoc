@@ -27,6 +27,13 @@ If you or your organization would like to contribute or become a sponsor, please
 // Many other improvements have been made.
 // See the “New and Updated Features” section below for more details.
 
+The following changes have been made since version 0.10.4:
+
+// https://developer.apple.com/news/?id=w4atic4c
+// https://developer.apple.com/help/account/certificates/replace-developer-id-certificates
+* macOS disk images and applications are now signed using certificates issued by Apple's Developer ID Certification Authority (G2).
+  The previous certificate was issued by Apple's Developer ID Certification Authority, which expires in early 2027.
+
 The following changes have been made since version 0.10.3:
 
 * The user interface icons have been refreshed, and now scale with the menu:View[] zoom settings.
