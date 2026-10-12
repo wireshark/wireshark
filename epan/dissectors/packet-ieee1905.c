@@ -608,6 +608,8 @@ static int hf_ieee1905_service_prio_rule_dest_mac;
 static int hf_ieee1905_dscp_mapping_table_val;
 static int hf_ieee1905_r2_error_reason_code;
 static int hf_ieee1905_r2_error_bssid;
+static int hf_ieee1905_r2_error_service_prio_rule_id;
+static int hf_ieee1905_r2_error_qmid;
 static int hf_ieee1905_ap_radio_advanced_capa_backhaul_bss_traffic_sep;
 static int hf_ieee1905_ap_radio_advanced_capa_combined_r1_r2_backhaul;
 static int hf_ieee1905_ap_radio_advanced_capa_mscs;
@@ -1202,7 +1204,7 @@ typedef enum {
 #define BACKHAUL_STA_CAPABILITY_QUERY_MESSAGE          0x8027
 #define BACKHAUL_STA_CAPABILITY_REPORT_MESSAGE         0x8028
 #define PROXIED_ENCAP_DPP_MESSAGE                      0x8029
-#define DIRECT_ENCAP_DPP_MESSAGE                       0x802a
+#define DIRECT_ENCAP_DPP_MESSAGE                       0x802A
 #define RECONFIGURATION_TRIGGER_MESSAGE                0x802B
 #define BSS_CONFIGURATION_REQUEST_MESSAGE              0x802C
 #define BSS_CONFIGURATION_RESPONSE_MESSAGE             0x802D
@@ -1221,6 +1223,10 @@ typedef enum {
 #define BSTA_MLD_CONFIGURATION_REQUEST_MESSAGE         0x8046
 #define BSTA_MLD_CONFIGURATION_RESPONSE_MESSAGE        0x8047
 #define AVAILABLE_SPECTRUM_INQUIRY_MESSAGE             0x8049
+#define OPERATING_CHANNEL_NOTIFICATION_MESSAGE         0x804A
+#define OPERATING_CHANNEL_QUERY_MESSAGE                0x804B
+#define BSS_CONFIGURATION_EXTENDED_REQUEST_MESSAGE     0x804C
+#define BSS_CONFIGURATION_EXTENDED_REPORT_MESSAGE      0x804D
 
 static const value_string ieee1905_message_type_vals[] = {
   { TOPOLOGY_DISCOVERY_MESSAGE,                  "Topology discovery" },
@@ -1302,7 +1308,11 @@ static const value_string ieee1905_message_type_vals[] = {
   { AP_MLD_CONFIGURATION_RESPONSE_MESSAGE,       "AP MLD Configuration Response" },
   { BSTA_MLD_CONFIGURATION_REQUEST_MESSAGE,      "BSTA MLD Configuration Request" },
   { BSTA_MLD_CONFIGURATION_RESPONSE_MESSAGE,     "BSTA MLD Configuration Response" },
-  { AVAILABLE_SPECTRUM_INQUIRY_MESSAGE,          "Available Spectrum Inquiry Message" },
+  { AVAILABLE_SPECTRUM_INQUIRY_MESSAGE,          "Available Spectrum Inquiry" },
+  { OPERATING_CHANNEL_NOTIFICATION_MESSAGE,      "Operating Channel Notification" },
+  { OPERATING_CHANNEL_QUERY_MESSAGE,             "Operating Channel Query" },
+  { BSS_CONFIGURATION_EXTENDED_REQUEST_MESSAGE,  "BSS Configuration Extended Request" },
+  { BSS_CONFIGURATION_EXTENDED_REPORT_MESSAGE,   "BSS Configuration Extended Report" },
   { 0, NULL }
 };
 static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(ieee1905_message_type_vals);
@@ -1397,8 +1407,8 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define SERVICE_PRIORITIZATION_RULE_TLV         0xB9
 #define DSCP_MAPPING_TABLE_TLV                  0xBA
 #define BSS_CONFIGURATION_REQUEST_TLV           0xBB
-#define PROFILE_2_ERROR_CODE_ERROR_TLV          0xBC
-#define BSS_CONFIGURATION_RESPONSE_TLV          0xBD /* FIX */
+#define PROFILE_2_ERROR_CODE_TLV                0xBC
+#define BSS_CONFIGURATION_RESPONSE_TLV          0xBD
 #define AP_RADIO_ADVANCED_CAPABILITIES_TLV      0xBE
 #define ASSOCIATION_STATUS_NOTIFICATION_TLV     0xBF
 #define SOURCE_INFO_TLV                         0xC0
@@ -1535,7 +1545,7 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { SERVICE_PRIORITIZATION_RULE_TLV,         "Service Prioritization Rule" },
   { DSCP_MAPPING_TABLE_TLV,                  "DSCP Mapping Table" },
   { BSS_CONFIGURATION_REQUEST_TLV,           "BSS Configuration Request" },
-  { PROFILE_2_ERROR_CODE_ERROR_TLV,          "Profile 2 Error Code" },
+  { PROFILE_2_ERROR_CODE_TLV,                "Profile 2 Error Code" },
   { BSS_CONFIGURATION_RESPONSE_TLV,          "BSS Configuration Response" },
   { AP_RADIO_ADVANCED_CAPABILITIES_TLV,      "AP Radio Advanced Capabilities" },
   { ASSOCIATION_STATUS_NOTIFICATION_TLV,     "Associated Status Notification" },
@@ -7097,17 +7107,23 @@ dissect_dscp_mapping_table(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect an R2 Error Code TLV
  */
 static const range_string r2_error_code_rvals[] = {
-    { 0, 0,   "Reserved" },
-    { 1, 1,   "Service Prioritization Rule not found" },
-    { 2, 2,   "Number of Service Prioritization Rules reached the max supported" },
-    { 3, 3,   "Default PCP or VLAN ID not provided" },
-    { 4, 4,   "Reserved" },
-    { 5, 5,   "Number of unique VID exceeds maximum supported" },
-    { 6, 6,   "Reserved" },
-    { 7, 7,   "Traffic Separation one combined fronthaul and Profile-1 backhaul unsupported" },
-    { 8, 8,   "Traffic Separation on combined Profile-1 backhaul and Profile-2 backhaul unsupported" },
-    { 9, 9,   "Service Prioritization Rule not supported" },
-    { 10, 255, "Reserved" },
+    { 0x00, 0x00, "Reserved" },
+    { 0x01, 0x01, "Service Prioritization Rule not found" },
+    { 0x02, 0x02, "Number of Service Prioritization Rules reached the max supported" },
+    { 0x03, 0x03, "Default PCP or VLAN ID not provided" },
+    { 0x04, 0x04, "Reserved" },
+    { 0x05, 0x05, "Number of unique VID exceeds maximum supported" },
+    { 0x06, 0x06, "Reserved" },
+    { 0x07, 0x07, "Traffic Separation one combined fronthaul and Profile-1 backhaul unsupported" },
+    { 0x08, 0x08, "Traffic Separation on combined Profile-1 backhaul and Profile-2 backhaul unsupported" },
+    { 0x09, 0x09, "Service Prioritization Rule not supported" }, /* Note: this is "Reserved" in EM R6.1 */
+    { 0x0A, 0x0A, "Traffic Separation not supported" },
+    { 0x0B, 0x0B, "Unable to configure requested QoS Management Policy" },
+    { 0x0C, 0x0C, "QoS Management DSCP Policy Request rejected" },
+    { 0x0D, 0x0D, "Agent can not onboard other Agents via DPP over Wi-Fi" },
+    { 0x0E, 0x0E, "Agent cannot apply the Disabled_Subchannel_Bitmap" },
+    { 0x0F, 0x0F, "No operating channel report available for requested 1905.1" },
+    { 0x10, 0xFF, "Reserved" },
     { 0, 0,   NULL }
 };
 
@@ -7119,12 +7135,33 @@ dissect_r2_error_code(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_tree_add_item(tree, hf_ieee1905_r2_error_reason_code, tvb, offset, 1,
                         ENC_NA);
-    offset += 1;
+    offset++;
 
-    if (reason_code == 7 || reason_code == 8) {
-        proto_tree_add_item(tree, hf_ieee1905_r2_error_bssid,
-                        tvb, offset, 6, ENC_NA);
-        offset += 6;
+    /* For some reason_codes there is an additional field */
+    switch (reason_code) {
+        case 0x07:
+        case 0x08:
+        case 0x0E:
+            /* BSSID (or AP MLD MAC) */
+            proto_tree_add_item(tree, hf_ieee1905_r2_error_bssid,
+                                tvb, offset, 6, ENC_NA);
+            offset += 6;
+        break;
+        case 0x01:
+        case 0x02:
+            /* Service Prioritization Rule ID */
+            proto_tree_add_item(tree, hf_ieee1905_r2_error_service_prio_rule_id,
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+        break;
+        case 0x0B:
+            /* Qos Management Rule ID */
+            proto_tree_add_item(tree, hf_ieee1905_r2_error_qmid,
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        break;
+        default:
+        break;
     }
 
     return offset;
@@ -9718,7 +9755,7 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
         offset = dissect_dscp_mapping_table(tvb, pinfo, tree, offset, tlv_len);
         break;
 
-    case PROFILE_2_ERROR_CODE_ERROR_TLV:
+    case PROFILE_2_ERROR_CODE_TLV:
         offset = dissect_r2_error_code(tvb, pinfo, tree, offset, tlv_len);
         break;
 
@@ -12633,6 +12670,14 @@ proto_register_ieee1905(void)
         { &hf_ieee1905_r2_error_bssid,
           { "BSSID", "ieee1905.profile_2_error.bssid",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_error_service_prio_rule_id,
+          { "Service Prioritization Rule ID", "ieee1905.r2_error.service_prio_rule.id",
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_r2_error_qmid,
+          { "QMID", "ieee1905.profile_2_error.qmid",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee1905_ap_radio_advanced_capa_backhaul_bss_traffic_sep,
           { "Traffic Separation on combined fronthaul and R1-only backhaul",
