@@ -162,10 +162,12 @@ static int hf_ieee1905_ap_local_intf_mac_addr;
 static int hf_ieee1905_ap_local_intf_ssid_len;
 static int hf_ieee1905_ap_local_intf_ssid;
 static int hf_ieee1905_ap_capabilities_flags;
-static int hf_ieee1905_rpt_unsuccessful_associations;
 static int hf_ieee1905_unassoc_sta_metrics_oper_flag;
 static int hf_ieee1905_unassoc_sta_metrics_non_oper_flag;
 static int hf_ieee1905_agent_init_steering;
+static int hf_ieee1905_m8_bsta_reconfiguration;
+static int hf_ieee1905_rsn_overriding;
+static int hf_ieee1905_rpt_unsuccessful_associations;
 static int hf_ieee1905_rpt_unsuccessful_assoc_report;
 static int hf_ieee1905_higher_layer_protocol;
 static int hf_ieee1905_higher_layer_data;
@@ -3261,6 +3263,8 @@ dissect_ap_capability(tvbuff_t *tvb, packet_info *pinfo _U_,
         &hf_ieee1905_unassoc_sta_metrics_oper_flag,
         &hf_ieee1905_unassoc_sta_metrics_non_oper_flag,
         &hf_ieee1905_agent_init_steering,
+        &hf_ieee1905_m8_bsta_reconfiguration,
+        &hf_ieee1905_rsn_overriding,
         NULL,
     };
 
@@ -10419,10 +10423,6 @@ proto_register_ieee1905(void)
           { "AP capabilities flags", "ieee1905.ap_capability_flags",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-        { &hf_ieee1905_rpt_unsuccessful_associations,
-          { "Report Unsuccessful Associations", "ieee1905.rpt_unsuccessful_assoc",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
         { &hf_ieee1905_unassoc_sta_metrics_oper_flag,
           { "STA link metric reporting operational channels", "ieee1905.link_metric_oper",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80, NULL, HFILL }},
@@ -10434,6 +10434,18 @@ proto_register_ieee1905(void)
         { &hf_ieee1905_agent_init_steering,
           { "Agent-initiated RCPI-based Steering", "ieee1905.agent_init_steering",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_m8_bsta_reconfiguration,
+          { "M8 bSTA Reconfiguration", "ieee1905.m8_bsta_reconfiguration",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_overriding,
+          { "RSN Overriding", "ieee1905.rsn_overriding",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08, NULL, HFILL }},
+
+        { &hf_ieee1905_rpt_unsuccessful_associations,
+          { "Report Unsuccessful Associations", "ieee1905.rpt_unsuccessful_assoc",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_rpt_unsuccessful_assoc_report,
           { "Unsuccessful Association Attempts", "ieee1905.report_unsuccessful_associations",
