@@ -2227,7 +2227,11 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
       reassembled_tvb = process_reassembled_data(frag_tvb, 0, actx->pinfo, "Reassembled DL Dedicated Message",
                                                  frag_data, &lte_rrc_dcch_segment_frag_items, NULL, tree);
       if (reassembled_tvb) {
+        /* The reassembled message can itself be a segment, which would
+         * reassemble and dissect recursively, so bound the depth. */
+        increment_dissection_depth(actx->pinfo);
         dissect_lte_rrc_DL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+        decrement_dissection_depth(actx->pinfo);
       }
     }
   }
@@ -2298,7 +2302,11 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
       reassembled_tvb = process_reassembled_data(frag_tvb, 0, actx->pinfo, "Reassembled UL Dedicated Message",
                                                  frag_data, &lte_rrc_dcch_segment_frag_items, NULL, tree);
       if (reassembled_tvb) {
+        /* The reassembled message can itself be a segment, which would
+         * reassemble and dissect recursively, so bound the depth. */
+        increment_dissection_depth(actx->pinfo);
         dissect_lte_rrc_UL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+        decrement_dissection_depth(actx->pinfo);
       }
     }
   }
