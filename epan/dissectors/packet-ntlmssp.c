@@ -553,6 +553,8 @@ create_ntlmssp_v2_key(const uint8_t *serverchallenge, const uint8_t *clientchall
   const md4_pass   *used_md4 = NULL;
   uint32_t          nb_pass = 0;
   bool              found = false;
+  uint8_t          *nt_proof_input;
+  size_t            nt_proof_input_len;
 
   /* We are going to try password encrypted in keytab as well, it's an idea of Stefan Metzmacher <metze@samba.org>
    * The idea is to be able to test all the key of domain in once and to be able to decode the NTLM dialogs */
@@ -583,6 +585,18 @@ create_ntlmssp_v2_key(const uint8_t *serverchallenge, const uint8_t *clientchall
     /* Unable to calculate the session not enough space in buffer, note this is unlikely to happen but ......*/
     return;
   }
+
+  /* The NT proof is computed over the server challenge followed by the
+   * NTLMv2 response after the NT proof itself (the NTLMv2_CLIENT_CHALLENGE,
+   * which includes the AV pairs, so its length is variable.) */
+  if (ntlm_response->length <= NTLMSSP_KEY_LEN) {
+    return;
+  }
+  nt_proof_input_len = 8 + ntlm_response->length - NTLMSSP_KEY_LEN;
+  nt_proof_input = (uint8_t *)wmem_alloc(pinfo->pool, nt_proof_input_len);
+  memcpy(nt_proof_input, serverchallenge, 8);
+  memcpy(nt_proof_input + 8, ntlm_response->contents + NTLMSSP_KEY_LEN, ntlm_response->length - NTLMSSP_KEY_LEN);
+
   while (i < nb_pass) {
     ws_debug("Turn %d", i);
     used_md4 = &pass_list[i];
@@ -609,10 +623,7 @@ create_ntlmssp_v2_key(const uint8_t *serverchallenge, const uint8_t *clientchall
     ws_log_buffer(lm_challenge_response, 24, "LM Response");
 
     /* NT proof = First NTLMSSP_KEY_LEN bytes of NT response */
-    memset(buf, 0, BUF_SIZE);
-    memcpy(buf, serverchallenge, 8);
-    memcpy(buf+8, ntlm_response->contents+NTLMSSP_KEY_LEN, MIN(BUF_SIZE - 8, ntlm_response->length-NTLMSSP_KEY_LEN));
-    if (ws_hmac_buffer(GCRY_MD_MD5, nt_proof, buf, ntlm_response->length-8, ntowfv2, NTLMSSP_KEY_LEN)) {
+    if (ws_hmac_buffer(GCRY_MD_MD5, nt_proof, nt_proof_input, nt_proof_input_len, ntowfv2, NTLMSSP_KEY_LEN)) {
       return;
     }
     ws_log_buffer(nt_proof, NTLMSSP_KEY_LEN, "NT proof");
