@@ -55,12 +55,12 @@ bool ringbuf_is_initialized(void);
 const char *ringbuf_current_filename(void);
 
 /**
- * @brief Initialize a libpcap dump file for the ringbuffer.
- * Initializes a libpcap dump file for writing captured packets to the ringbuffer.
+ * @brief Initialize a dump file for the ringbuffer.
+ * Initializes a dump file for writing captured packets to the ringbuffer.
  * @param err Pointer to an integer that will be set to an error code if an error occurs.
  * @return A pointer to a ws_cwstream on success, or NULL on failure.
  */
-ws_cwstream* ringbuf_init_libpcap_fdopen(int *err);
+ws_cwstream* ringbuf_init_fdopen(int *err);
 
 /**
  * @brief Switch the ringbuffer dump file.
@@ -82,7 +82,7 @@ bool ringbuf_switch_file(ws_cwstream* *pdh, char **save_file, int *save_file_fd,
  * @param err Pointer to an integer that will be set to an error code if an error occurs.
  * @return true on success, false otherwise.
  */
-bool ringbuf_libpcap_dump_close(char **save_file, int *err);
+bool ringbuf_dump_close(char **save_file, int *err);
 
 /**
  * @brief Frees all memory allocated by the ringbuffer.

@@ -290,7 +290,7 @@ ringbuf_current_filename(void)
  * Calls ws_fdopen() for the current ringbuffer file
  */
 ws_cwstream*
-ringbuf_init_libpcap_fdopen(int *err)
+ringbuf_init_fdopen(int *err)
 {
     rb_data.pdh = ws_cwstream_fdopen(rb_data.fd, ws_name_to_compression_type(rb_data.compress_type), err);
 
@@ -333,7 +333,7 @@ ringbuf_switch_file(ws_cwstream* *pdh, char **save_file, int *save_file_fd, int 
         return false;
     }
 
-    if (ringbuf_init_libpcap_fdopen(err) == NULL) {
+    if (ringbuf_init_fdopen(err) == NULL) {
         return false;
     }
 
@@ -349,7 +349,7 @@ ringbuf_switch_file(ws_cwstream* *pdh, char **save_file, int *save_file_fd, int 
  * Calls fclose() for the current ringbuffer file
  */
 bool
-ringbuf_libpcap_dump_close(char **save_file, int *err)
+ringbuf_dump_close(char **save_file, int *err)
 {
     bool      ret_val = true;
 

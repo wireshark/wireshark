@@ -3669,7 +3669,7 @@ capture_loop_init_output(capture_options *capture_opts, char *errmsg, int errmsg
 
     /* Set up to write to the capture file. */
     if (capture_opts->multi_files_on) {
-        global_ld.pdh = ringbuf_init_libpcap_fdopen(&global_ld.err);
+        global_ld.pdh = ringbuf_init_fdopen(&global_ld.err);
     } else {
         global_ld.pdh = ws_cwstream_fdopen(global_ld.save_file_fd,
                                            ws_name_to_compression_type(capture_opts->compress_type),
@@ -3764,7 +3764,7 @@ capture_loop_close_output(capture_options *capture_opts, int *err_close)
     ws_debug("capture_loop_close_output");
 
     if (capture_opts->multi_files_on) {
-        return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
+        return ringbuf_dump_close(&capture_opts->save_file, err_close);
     } else {
         return ws_cwstream_close(global_ld.pdh, err_close);
     }
