@@ -2586,7 +2586,7 @@ proto_register_midi(void) {
             NULL, HFILL }
         },
         { &hf_midi_sysex_mtc_cue_nrt_command,
-            { "MTC Cueing Non-Realtime Commmand", "midi.mtc.cue.nrt_command",
+            { "MTC Cueing Non-Realtime Command", "midi.mtc.cue.nrt_command",
             FT_UINT8, BASE_HEX,
             VALS(midi_mtc_sysex_cue_nrt), 0x7f,
             NULL, HFILL }

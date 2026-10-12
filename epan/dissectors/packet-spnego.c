@@ -1577,8 +1577,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo,
   offset += 1;
 
   /* EC */
-  ec = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(tree, hf_spnego_krb5_cfx_ec, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16(tree, hf_spnego_krb5_cfx_ec, tvb, offset, 2, ENC_BIG_ENDIAN, &ec);
   offset += 2;
 
   /* RRC */

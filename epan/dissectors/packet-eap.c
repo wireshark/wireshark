@@ -821,8 +821,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, un
   if (left <= 0)
     return;
 
-  item = proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-  ms_len = tvb_get_ntohs(tvb, offset);
+  item = proto_tree_add_item_ret_uint(eap_tree, hf_eap_ms_chap_v2_length, tvb, offset, 2, ENC_BIG_ENDIAN, &ms_len);
   if (ms_len != size)
     expert_add_info(pinfo, item, &ei_eap_ms_chap_v2_length);
   offset += 2;

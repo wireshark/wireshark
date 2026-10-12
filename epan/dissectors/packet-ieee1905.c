@@ -2723,7 +2723,7 @@ dissect_ipv6_type(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /*
- * Dissect a push butteon generic phy event notification
+ * Dissect a push button generic phy event notification
  */
 static int
 dissect_push_button_event_type_notification(tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -14073,7 +14073,7 @@ proto_register_ieee1905(void)
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee1905_rsn_diagnostic_report_frame_body_len,
-          { "Frame Body Length ", "ieee1905.rsn_diagnostic_report.frame_body_length",
+          { "Frame Body Length", "ieee1905.rsn_diagnostic_report.frame_body_length",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee1905_rsn_diagnostic_report_frame_body,
@@ -14105,7 +14105,7 @@ proto_register_ieee1905(void)
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee1905_rsn_parameter_configuration_radio_bss_security_ies_len,
-          { "Security IEs Length ", "ieee1905.rsn_parameter_configuration.radio.bss.security_ies_length",
+          { "Security IEs Length", "ieee1905.rsn_parameter_configuration.radio.bss.security_ies_length",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee1905_rsn_parameter_configuration_radio_bss_security_ies,

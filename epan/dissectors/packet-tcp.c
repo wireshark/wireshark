@@ -8026,8 +8026,7 @@ dissect_tcpopt_user_to(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         return tvb_captured_length(tvb);
 
     proto_tree_add_item(field_tree, hf_tcp_option_user_to_granularity, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    to = tvb_get_ntohs(tvb, offset + 2) & 0x7FFF;
-    proto_tree_add_item(field_tree, hf_tcp_option_user_to_val, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(field_tree, hf_tcp_option_user_to_val, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &to);
 
     tcp_info_append_uint(pinfo, "USER_TO", to);
     return tvb_captured_length(tvb);

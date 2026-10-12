@@ -2556,8 +2556,7 @@ vnc_extended_desktop_size(tvbuff_t *tvb, unsigned *offset, proto_tree *tree)
 	uint8_t     i, num_of_screens;
 	proto_tree *screen_tree;
 
-	num_of_screens = tvb_get_uint8(tvb, *offset);
-	proto_tree_add_item(tree, hf_vnc_desktop_screen_num, tvb, *offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint8(tree, hf_vnc_desktop_screen_num, tvb, *offset, 1, ENC_BIG_ENDIAN, &num_of_screens);
 	*offset += 1;
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_NA);
 

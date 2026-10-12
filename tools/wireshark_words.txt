@@ -3807,3 +3807,5 @@ zquarter
 zsssr
 zugtyp
 zürich
+dektec
+syscom

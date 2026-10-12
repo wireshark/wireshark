@@ -1365,9 +1365,7 @@ static void get_parameter_definitions(packet_info* pinfo, unsigned offset, uint8
 	uint8_t scheme = 0;
 	uint16_t n = 0;
 
-	scheme = tvb_get_uint8(tvb, offset);
-
-	ecmp_parameter_item = proto_tree_add_item(ecmp_tree, hf_ecmp_parameter_address, tvb, offset, 1, ENC_BIG_ENDIAN);
+	ecmp_parameter_item = proto_tree_add_item_ret_uint8(ecmp_tree, hf_ecmp_parameter_address, tvb, offset, 1, ENC_BIG_ENDIAN, &scheme);
 	ecmp_parameter_tree = proto_item_add_subtree(ecmp_parameter_item, ett_ecmp_param_address);
 
 	offset++;
@@ -1992,8 +1990,7 @@ static void file_list(packet_info* pinfo, unsigned offset, bool request, tvbuff_
 			offset++;
 
 			/*display number of files to list*/
-			no_of_items = tvb_get_uint8(tvb, offset);
-			proto_tree_add_item(ecmp_tree, hf_ecmp_number_of_files_to_list, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item_ret_uint8(ecmp_tree, hf_ecmp_number_of_files_to_list, tvb, offset, 1, ENC_NA, &no_of_items);
 			offset++;
 
 			/*display hash value (dissection TBD)*/

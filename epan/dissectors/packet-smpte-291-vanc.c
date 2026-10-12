@@ -2547,8 +2547,7 @@ dissect_st2031(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *da
     /* SMPTE ST 2031:2015, Sec. 6, Table 2 -- data_identifier,
      * data_unit_id and data_unit_length. */
     proto_tree_add_item(st2031_tree, hf_st2031_data_identifier, tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(st2031_tree, hf_st2031_data_unit_id, tvb, 1, 1, ENC_BIG_ENDIAN);
-    unit_id = tvb_get_uint8(tvb, 1);
+    proto_tree_add_item_ret_uint8(st2031_tree, hf_st2031_data_unit_id, tvb, 1, 1, ENC_BIG_ENDIAN, &unit_id);
 
     if ((unit_id == 0x02 || unit_id == 0x03) && tvb_captured_length(tvb) >= 47) {
         proto_tree_add_item(st2031_tree, hf_st2031_data_unit_length, tvb, 2, 1, ENC_BIG_ENDIAN);

@@ -178,8 +178,7 @@ dissect_eapol_rc4_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
   proto_tree *key_index_tree;
   int         eapol_len;
 
-  eapol_key_len = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(tree, hf_eapol_keydes_key_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16(tree, hf_eapol_keydes_key_len, tvb, offset, 2, ENC_BIG_ENDIAN, &eapol_key_len);
   offset += 2;
   proto_tree_add_item(tree, hf_eapol_keydes_replay_counter, tvb,
                       offset, 8, ENC_BIG_ENDIAN);

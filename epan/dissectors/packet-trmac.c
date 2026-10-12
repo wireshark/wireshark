@@ -186,8 +186,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 				    "Subvector length is != 4");
 				break;
 			}
-			beacon_type = tvb_get_ntohs(tvb, svoff+2);
-			proto_tree_add_item(sv_tree, hf_trmac_beacon_type, tvb, svoff+2, sv_length-2, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint16(sv_tree, hf_trmac_beacon_type, tvb, svoff+2, sv_length-2, ENC_BIG_ENDIAN, &beacon_type);
 			proto_item_append_text(sv_item,
 					": %s", val_to_str(pinfo->pool, beacon_type, beacon_vs, "Illegal value: %d"));
 			break;
@@ -209,8 +208,7 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 				    "Subvector length is != 4");
 				break;
 			}
-			ring = tvb_get_ntohs(tvb, svoff+2);
-			proto_tree_add_item(sv_tree, hf_trmac_local_ring_number, tvb, svoff+2, sv_length-2, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint16(sv_tree, hf_trmac_local_ring_number, tvb, svoff+2, sv_length-2, ENC_BIG_ENDIAN, &ring);
 			proto_item_append_text(sv_item,
 				": 0x%04X (%d)", ring, ring);
 			break;
