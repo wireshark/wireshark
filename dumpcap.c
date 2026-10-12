@@ -834,7 +834,7 @@ compile_capture_filter(const char *iface, pcap_t *pcap_h,
      * away the warning.
      */
 DIAG_OFF(cast-qual)
-    if (pcap_compile(pcap_h, fcode, (char *)cfilter, optimize, netmask) < 0)
+    if (pcap_compile(pcap_h, fcode, (char *)cfilter, optimize, g_ntohl(netmask)) < 0)
         return false;
 DIAG_ON(cast-qual)
     return true;
