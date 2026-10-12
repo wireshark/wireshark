@@ -2192,6 +2192,31 @@ class TestDissectTns:
         assert len(r[4].split(',')) == 2 and r[4].startswith('0026'), r
         assert r[5] == '0x0000000000000005' and r[6] == '0x0e', r
 
+    def test_tns_app_context(self, cmd_tshark, capture_file, test_env):
+        '''An application context namespace is set or cleared with a
+        piggyback in front of the next call. A zero byte ahead of the
+        namespace comes from field version 12.1 on, and the call behind
+        the piggyback decodes in either form.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_app_context.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_piggyback.app_context_op',
+            '-T', 'fields',
+            '-E', 'aggregator=|',
+            '-e', 'tns.data_piggyback.app_context_op',
+            '-e', 'tns.data_piggyback.app_context_namespace',
+            '-e', 'tns.data_piggyback.app_context_attr',
+            '-e', 'tns.data_piggyback.app_context_value',
+            '-e', 'tns.data_oci.id',
+            '-e', 'data.len',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['1', 'CLIENTCONTEXT', 'ATTR1|ATTR2', 'VALUE1|V2', '0x0e', '', ''],
+            ['2', 'CLIENTCONTEXT', '', '', '0x0e', '', ''],
+        ], rows
+
     def test_tns_rowid_render(self, cmd_tshark, capture_file, test_env):
         '''ROWID and UROWID values are rendered as the strings Oracle prints:
         an 18-character extended rowid, and "*" + base-64 for a logical

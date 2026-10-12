@@ -181,6 +181,7 @@ void proto_register_tns(void);
 #define TTI_CLOSE_CURSORS       105
 #define TTI_SET_END_TO_END_ATTR 135
 #define TTI_SET_SCHEMA          152
+#define TTI_APP_CONTEXT         154
 #define TTI_SESSION_RELEASE     163
 #define TTI_SESSION_STATE       176
 #define TTI_PIPELINE_BEGIN      199
@@ -542,6 +543,10 @@ static int hf_tns_data_tpc_external_name;
 static int hf_tns_data_lob_text;
 static int hf_tns_data_lob_total_size;
 static int hf_tns_data_pgy_schema;
+static int hf_tns_data_pgy_app_ctx_op;
+static int hf_tns_data_pgy_app_ctx_namespace;
+static int hf_tns_data_pgy_app_ctx_attr;
+static int hf_tns_data_pgy_app_ctx_value;
 static int hf_tns_data_pgy_session_state;
 static int hf_tns_data_pgy_e2e_flags;
 static int hf_tns_data_pgy_client_id;
@@ -614,6 +619,7 @@ static int ett_tns_irs;
 static int ett_tns_out_binds;
 static int ett_sql;
 static int ett_tns_kod;
+static int ett_tns_app_ctx;
 
 static expert_field ei_tns_connect_data_next_packet;
 static expert_field ei_tns_data_descriptor_size_mismatch;
@@ -1132,6 +1138,13 @@ static const value_string tns_iov_bind_dirs[] = {
 	{16, "OUT"},
 	{32, "IN"},
 	{48, "IN OUT"},
+	{0, NULL}
+};
+
+/* What an application-context piggyback does to its namespace. */
+static const value_string tns_app_ctx_ops[] = {
+	{1, "Set"},
+	{2, "Clear"},
 	{0, NULL}
 };
 
@@ -4094,6 +4107,64 @@ static int dissect_tns_piggyback_body(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			offset += get_field_with_length(tvb, pinfo, offset, &schema);
 			if ( schema )
 				proto_tree_add_string(tree, hf_tns_data_pgy_schema, tvb, start, offset - start, schema);
+			break;
+		}
+
+		case TTI_APP_CONTEXT:
+		{
+			/* Set or clear an application context namespace, as
+			 * DBMS_SESSION.SET_CONTEXT or CLEAR_CONTEXT would, without a
+			 * round trip of its own: a pointer and the namespace's ub4
+			 * length, a pointer and the ub4 number of attributes, a ub2
+			 * operation (1 set, 2 clear), a zero byte from field
+			 * version 12.1 on, the namespace, and then each attribute
+			 * and its value in the bytes_with_length form, followed by
+			 * a ub4 0. */
+			const char *ns = NULL;
+			unsigned fv = tns_field_version(pinfo);
+			int num = 0;
+			uint32_t op;
+
+			offset += 1;                                   /* pointer */
+			offset += get_sb4_custom(tvb, offset, &v);     /* namespace length */
+			offset += 1;                                   /* pointer */
+			offset += get_sb4_custom(tvb, offset, &num);
+			start = offset;
+			offset += get_sb4_custom(tvb, offset, &v);
+			op = (uint32_t)v;
+			proto_tree_add_uint(tree, hf_tns_data_pgy_app_ctx_op, tvb, start, offset - start, op);
+			/* Without a negotiated field version, the namespace's length
+			 * byte, never zero, tells whether the zero byte is there. */
+			if ( fv ? fv >= TNS_FV_12_1 : tvb_get_uint8(tvb, offset) == 0 )
+				offset += 1;
+			start = offset;
+			offset += get_dalc_custom(tvb, pinfo, offset, &ns);
+			if ( ns )
+			{
+				proto_tree_add_string(tree, hf_tns_data_pgy_app_ctx_namespace, tvb, start, offset - start, ns);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s %s]",
+					val_to_str_const(op, tns_app_ctx_ops, "Change"), ns);
+			}
+			for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+			{
+				proto_tree *attr_tree;
+				proto_item *attr_item;
+				const char *attr = NULL, *value = NULL;
+				int attr_start = offset;
+
+				attr_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tns_app_ctx, &attr_item, "Context Attribute");
+				start = offset;
+				offset += get_field_with_length(tvb, pinfo, offset, &attr);
+				if ( attr )
+					proto_tree_add_string(attr_tree, hf_tns_data_pgy_app_ctx_attr, tvb, start, offset - start, attr);
+				start = offset;
+				offset += get_field_with_length(tvb, pinfo, offset, &value);
+				if ( value )
+					proto_tree_add_string(attr_tree, hf_tns_data_pgy_app_ctx_value, tvb, start, offset - start, value);
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_item_append_text(attr_item, ": %s = %s", attr ? attr : "", value ? value : "");
+				proto_item_set_len(attr_item, offset - attr_start);
+			}
 			break;
 		}
 
@@ -8399,6 +8470,18 @@ void proto_register_tns(void)
 		{ &hf_tns_data_pgy_schema, {
 			"Current Schema", "tns.data_piggyback.schema", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_app_ctx_op, {
+			"Application Context Operation", "tns.data_piggyback.app_context_op", FT_UINT16, BASE_DEC,
+			VALS(tns_app_ctx_ops), 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_app_ctx_namespace, {
+			"Application Context Namespace", "tns.data_piggyback.app_context_namespace", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_app_ctx_attr, {
+			"Attribute", "tns.data_piggyback.app_context_attr", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_app_ctx_value, {
+			"Value", "tns.data_piggyback.app_context_value", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
 		{ &hf_tns_data_pgy_session_state, {
 			"Session State", "tns.data_piggyback.session_state", FT_UINT64, BASE_HEX,
 			NULL, 0x0, "Request boundary: the client begins or ends a request", HFILL }},
@@ -8621,6 +8704,7 @@ void proto_register_tns(void)
 		&ett_tns_setdt_override,
 		&ett_tns_oer,
 		&ett_tns_kod,
+		&ett_tns_app_ctx,
 		&ett_tns_call_status,
 		&ett_tns_warn_flags,
 		&ett_tns_auth_mode,
