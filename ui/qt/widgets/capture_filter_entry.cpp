@@ -72,6 +72,9 @@ CaptureFilterEntry::CaptureFilterEntry(QWidget *parent) :
     connect(this, &FilterExpressionEdit::applied, this, [this](const QString &) {
         emit startCapture();
     });
+    connect(this, &FilterEdit::syntaxStateChanged, this, [this](FilterEdit::SyntaxState s) {
+        updateStatus(s);
+    });
 
     // Bookmark menu behaviour.
     connect(this, &FilterExpressionEdit::saveBookmarkRequested, this, [this](const QString &expr) {
@@ -140,6 +143,18 @@ void CaptureFilterEntry::setConflict(bool conflict)
 {
     conflict_ = conflict;
     updatePlaceholderText();
+}
+
+void CaptureFilterEntry::updateStatus(SyntaxState state)
+{
+    if (state == SyntaxState::Invalid || state == SyntaxState::Deprecated) {
+        const QString msg = lastError();
+        mainApp->pushStatus(MainApplication::FilterSyntax, msg);
+        setToolTip(state == SyntaxState::Invalid ? lastErrorFull() : msg);
+    } else {
+        mainApp->popStatus(MainApplication::FilterSyntax);
+        setToolTip(QString());
+    }
 }
 
 QPair<const QString, bool> CaptureFilterEntry::getSelectedFilter()

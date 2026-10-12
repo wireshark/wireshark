@@ -67,6 +67,7 @@ protected:
 
 private:
     void updatePlaceholderText();
+    void updateStatus(SyntaxState state);
 
     bool conflict_; /**< Whether there are conflicting filters for different interfaces */
 };
