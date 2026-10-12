@@ -404,7 +404,7 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuf
 
         bool found = false;
         for (unsigned n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
-            if ((s_gnb_ran_functions_table.gnb[n].id_len = id_len) &&
+            if ((s_gnb_ran_functions_table.gnb[n].id_len == id_len) &&
                 (memcmp(s_gnb_ran_functions_table.gnb[n].id_value, id_value, id_len) == 0)) {
                 /* Already have an entry for this gnb. */
                 found = true;
@@ -640,7 +640,7 @@ static void update_conversation_from_gnb_id(asn1_ctx_t *actx)
         uint8_t *id_value = &e2ap_data->gnb_id_bytes[0];
 
         for (unsigned n=0; n<s_gnb_ran_functions_table.num_gnbs; n++) {
-            if ((s_gnb_ran_functions_table.gnb[n].id_len = id_len) &&
+            if ((s_gnb_ran_functions_table.gnb[n].id_len == id_len) &&
                 (memcmp(s_gnb_ran_functions_table.gnb[n].id_value, id_value, id_len) == 0)) {
 
                 /* Have an entry for this gnb.  Set direct pointer to existing data (used by original conversation). */
