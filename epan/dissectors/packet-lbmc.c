@@ -3362,6 +3362,27 @@ typedef struct
 #define L_LBMC_CNTL_ROUTE_INFO_NEIGHBOR_HDR_T_EGRESS_COST SIZEOF(lbmc_cntl_route_info_neighbor_hdr_t, egress_cost)
 #define L_LBMC_CNTL_ROUTE_INFO_NEIGHBOR_HDR_T (int) sizeof(lbmc_cntl_route_info_neighbor_hdr_t)
 
+/* LBMC control route information neighbor extended (route group) header.
+ * The group ID list that follows is variable-length, sized by hdr_len --
+ * not part of this fixed struct. */
+typedef struct
+{
+    lbm_uint8_t next_hdr;
+    lbm_uint8_t hdr_len;
+    lbm_uint16_t flags;
+    lbm_uint32_t node_id;
+} lbmc_cntl_route_info_nbr_ext_hdr_t;
+#define O_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_NEXT_HDR OFFSETOF(lbmc_cntl_route_info_nbr_ext_hdr_t, next_hdr)
+#define L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_NEXT_HDR SIZEOF(lbmc_cntl_route_info_nbr_ext_hdr_t, next_hdr)
+#define O_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_HDR_LEN OFFSETOF(lbmc_cntl_route_info_nbr_ext_hdr_t, hdr_len)
+#define L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_HDR_LEN SIZEOF(lbmc_cntl_route_info_nbr_ext_hdr_t, hdr_len)
+#define O_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_FLAGS OFFSETOF(lbmc_cntl_route_info_nbr_ext_hdr_t, flags)
+#define L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_FLAGS SIZEOF(lbmc_cntl_route_info_nbr_ext_hdr_t, flags)
+#define O_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_NODE_ID OFFSETOF(lbmc_cntl_route_info_nbr_ext_hdr_t, node_id)
+#define L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_NODE_ID SIZEOF(lbmc_cntl_route_info_nbr_ext_hdr_t, node_id)
+#define L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T (int) sizeof(lbmc_cntl_route_info_nbr_ext_hdr_t)
+#define L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_GROUP_SZ 2
+
 /* LBMC control gateway name header. */
 #define O_LBMC_CNTL_GATEWAY_NAME_HDR_T_NEXT_HDR OFFSETOF(lbmc_basic_hdr_t, next_hdr)
 #define L_LBMC_CNTL_GATEWAY_NAME_HDR_T_NEXT_HDR SIZEOF(lbmc_basic_hdr_t, next_hdr)
@@ -3839,6 +3860,7 @@ typedef struct
 #define LBMC_NHDR_UME_STORE_INFO_EXT 0x69
 #define LBMC_NHDR_UME_PSRC_ELECTION_TOKEN 0x6A
 #define LBMC_NHDR_TCP_SID 0x6B
+#define LBMC_NHDR_ROUTE_INFO_NBR_EXT 0x6E
 
 #define LBMC_NHDR_EXTOPT 0xFE
 
@@ -4218,6 +4240,7 @@ static const value_string lbmc_next_header[] =
     { LBMC_NHDR_SRI, "Source registration information" },
     { LBMC_NHDR_ROUTE_INFO, "Route information" },
     { LBMC_NHDR_ROUTE_INFO_NEIGHBOR, "Route information neighbor" },
+    { LBMC_NHDR_ROUTE_INFO_NBR_EXT, "Route information neighbor extended (route groups)" },
     { LBMC_NHDR_GATEWAY_NAME, "Gateway name" },
     { LBMC_NHDR_AUTHENTICATION, "Authentication" },
     { LBMC_NHDR_HMAC, "HMAC" },
@@ -5588,6 +5611,13 @@ static int hf_lbmc_route_info_neighbor_flags_ignore;
 static int hf_lbmc_route_info_neighbor_node_id;
 static int hf_lbmc_route_info_neighbor_ingress_cost;
 static int hf_lbmc_route_info_neighbor_egress_cost;
+static int hf_lbmc_route_info_nbr_ext;
+static int hf_lbmc_route_info_nbr_ext_next_hdr;
+static int hf_lbmc_route_info_nbr_ext_hdr_len;
+static int hf_lbmc_route_info_nbr_ext_flags;
+static int hf_lbmc_route_info_nbr_ext_flags_ignore;
+static int hf_lbmc_route_info_nbr_ext_node_id;
+static int hf_lbmc_route_info_nbr_ext_group;
 static int hf_lbmc_gateway_name;
 static int hf_lbmc_gateway_name_next_hdr;
 static int hf_lbmc_gateway_name_hdr_len;
@@ -5987,6 +6017,8 @@ static int ett_lbmc_route_info;
 static int ett_lbmc_route_info_flags;
 static int ett_lbmc_route_info_neighbor;
 static int ett_lbmc_route_info_neighbor_flags;
+static int ett_lbmc_route_info_nbr_ext;
+static int ett_lbmc_route_info_nbr_ext_flags;
 static int ett_lbmc_gateway_name;
 static int ett_lbmc_gateway_name_flags;
 static int ett_lbmc_auth_request;
@@ -9644,6 +9676,48 @@ static int dissect_nhdr_route_info_neighbor(tvbuff_t * tvb, unsigned offset, pac
     return (L_LBMC_CNTL_ROUTE_INFO_NEIGHBOR_HDR_T);
 }
 
+static int dissect_nhdr_route_info_nbr_ext(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+{
+    proto_item * subtree_item = NULL;
+    proto_tree * subtree = NULL;
+    uint8_t hdrlen = 0;
+    static int * const flags[] =
+    {
+        &hf_lbmc_route_info_nbr_ext_flags_ignore,
+        NULL
+    };
+    int len_dissected = 0;
+    int groups_len = 0;
+    int num_groups = 0;
+    int idx;
+    proto_item * hdrlen_item = NULL;
+
+    hdrlen = tvb_get_uint8(tvb, offset + O_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_HDR_LEN);
+    subtree_item = proto_tree_add_item(tree, hf_lbmc_route_info_nbr_ext, tvb, offset, (int)hdrlen, ENC_NA);
+    subtree = proto_item_add_subtree(subtree_item, ett_lbmc_route_info_nbr_ext);
+    proto_tree_add_item(subtree, hf_lbmc_route_info_nbr_ext_next_hdr, tvb, offset + O_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_NEXT_HDR, L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_route_info_nbr_ext_hdr_len, tvb, offset + O_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_HDR_LEN, L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, offset + O_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_FLAGS, hf_lbmc_route_info_nbr_ext_flags, ett_lbmc_route_info_nbr_ext_flags, flags, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lbmc_route_info_nbr_ext_node_id, tvb, offset + O_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_NODE_ID, L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_NODE_ID, ENC_BIG_ENDIAN);
+    len_dissected = L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T;
+    groups_len = (int) hdrlen - len_dissected;
+    if (groups_len >= 0 && (groups_len % L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_GROUP_SZ) == 0)
+    {
+        num_groups = groups_len / L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_GROUP_SZ;
+        for (idx = 0; idx < num_groups; idx++)
+        {
+            proto_tree_add_item(subtree, hf_lbmc_route_info_nbr_ext_group, tvb, offset + len_dissected + (idx * L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_GROUP_SZ), L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_GROUP_SZ, ENC_BIG_ENDIAN);
+        }
+        len_dissected += groups_len;
+    }
+    else
+    {
+        expert_add_info(pinfo, hdrlen_item, &ei_lbmc_analysis_length_incorrect);
+    }
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
+}
+
 static int dissect_nhdr_gateway_name(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
@@ -10802,6 +10876,7 @@ bool lbmc_test_lbmc_header(tvbuff_t * tvb, unsigned offset)
         case LBMC_NHDR_SRI:
         case LBMC_NHDR_ROUTE_INFO:
         case LBMC_NHDR_ROUTE_INFO_NEIGHBOR:
+        case LBMC_NHDR_ROUTE_INFO_NBR_EXT:
         case LBMC_NHDR_GATEWAY_NAME:
         case LBMC_NHDR_AUTHENTICATION:
         case LBMC_NHDR_HMAC:
@@ -11222,6 +11297,9 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
                     break;
                 case LBMC_NHDR_ROUTE_INFO_NEIGHBOR:
                     dissected_hdr_len = dissect_nhdr_route_info_neighbor(hdr_tvb, 0, pinfo, subtree);
+                    break;
+                case LBMC_NHDR_ROUTE_INFO_NBR_EXT:
+                    dissected_hdr_len = dissect_nhdr_route_info_nbr_ext(hdr_tvb, 0, pinfo, subtree);
                     break;
                 case LBMC_NHDR_GATEWAY_NAME:
                     dissected_hdr_len = dissect_nhdr_gateway_name(hdr_tvb, 0, pinfo, subtree);
@@ -13772,6 +13850,20 @@ void proto_register_lbmc(void)
             { "Ingress Cost", "lbmc.route_info_neighbor.ingress_cost", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_route_info_neighbor_egress_cost,
             { "Egress Cost", "lbmc.route_info_neighbor.egress_cost", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_route_info_nbr_ext,
+            { "Route Information Neighbor Extended", "lbmc.route_info_nbr_ext", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_route_info_nbr_ext_next_hdr,
+            { "Next Header", "lbmc.route_info_nbr_ext.next_hdr", FT_UINT8, BASE_DEC_HEX, VALS(lbmc_next_header), 0x0, NULL, HFILL } },
+        { &hf_lbmc_route_info_nbr_ext_hdr_len,
+            { "Header Length", "lbmc.route_info_nbr_ext.hdr_len", FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_route_info_nbr_ext_flags,
+            { "Flags", "lbmc.route_info_nbr_ext.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_route_info_nbr_ext_flags_ignore,
+            { "Ignore", "lbmc.route_info_nbr_ext.flags.ignore", FT_BOOLEAN, L_LBMC_CNTL_ROUTE_INFO_NBR_EXT_HDR_T_FLAGS * 8, TFS(&lbm_ignore_flag), LBMC_OPT_IGNORE, NULL, HFILL } },
+        { &hf_lbmc_route_info_nbr_ext_node_id,
+            { "Node ID", "lbmc.route_info_nbr_ext.node_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_route_info_nbr_ext_group,
+            { "Route Group", "lbmc.route_info_nbr_ext.group", FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_gateway_name,
             { "Gateway Name", "lbmc.gateway_name", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_gateway_name_next_hdr,
@@ -14356,6 +14448,8 @@ void proto_register_lbmc(void)
         &ett_lbmc_route_info_flags,
         &ett_lbmc_route_info_neighbor,
         &ett_lbmc_route_info_neighbor_flags,
+        &ett_lbmc_route_info_nbr_ext,
+        &ett_lbmc_route_info_nbr_ext_flags,
         &ett_lbmc_gateway_name,
         &ett_lbmc_gateway_name_flags,
         &ett_lbmc_auth_request,
