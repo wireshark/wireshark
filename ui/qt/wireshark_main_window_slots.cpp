@@ -59,8 +59,10 @@ DIAG_ON(frame-larger-than=)
 #include "epan/epan_dissect.h"
 #include "epan/filter_expressions.h"
 #include "epan/prefs.h"
+#include "epan/print.h"
 #include "epan/uat.h"
 #include "epan/uat-int.h"
+#include "epan/field_urls.h"
 #include "epan/secrets.h"
 #include <wsutil/value_string.h>
 
@@ -4296,6 +4298,26 @@ void WiresharkMainWindow::on_actionContextFilterFieldReference_triggered()
     bool ok = false;
     int field_id = wa->data().toInt(&ok);
     if (!ok) return;
+
+    // A user-defined URL (fieldurls file) for the selected field, or failing that
+    // its protocol, takes precedence over the online field reference. field_id is
+    // the protocol, so the selected field comes from the capture file.
+    capture_file *cf = capture_file_.capFile();
+    if (cf && cf->edt && cf->finfo_selected && cf->finfo_selected->hfinfo) {
+        const char *field_abbrev = cf->finfo_selected->hfinfo->abbrev;
+        const char *proto_abbrev_str = proto_registrar_get_abbrev(field_id);
+        char *field_value = NULL;
+        if (field_url_needs_value(field_abbrev, proto_abbrev_str)) {
+            field_value = get_node_field_value(cf->finfo_selected, cf->edt);
+        }
+        char *custom_url = field_url_for(field_abbrev, proto_abbrev_str, field_value);
+        g_free(field_value);
+        if (custom_url) {
+            QDesktopServices::openUrl(QUrl(QString::fromUtf8(custom_url)));
+            g_free(custom_url);
+            return;
+        }
+    }
 
     const QString proto_abbrev = proto_registrar_get_abbrev(field_id);
 

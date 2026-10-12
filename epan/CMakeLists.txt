@@ -70,6 +70,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	export_object.h
 	exported_pdu.h
 	fifo_string_cache.h
+	field_urls.h
 	filter_expressions.h
 	aggregation_fields.h
 	follow.h
@@ -174,6 +175,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	exported_pdu.c
 	fifo_string_cache.c
 	file_packet_provider.c
+	field_urls.c
 	filter_expressions.c
 	aggregation_fields.c
 	follow.c

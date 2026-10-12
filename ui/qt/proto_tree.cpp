@@ -20,6 +20,7 @@
 #include <epan/color_filters.h>
 #include <epan/dissectors/packet-frame.h>
 #include <epan/tag_rules.h>
+#include <epan/field_urls.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/cfile.h>
 
@@ -240,6 +241,23 @@ void ProtoTree::ctxOpenUrlWiki()
     else
     {
         if (field_id != hf_text_only) {
+            // A user-defined URL (fieldurls file) for the field, or failing that
+            // its protocol, takes precedence over the online field reference.
+            const char *field_abbrev = proto_registrar_get_abbrev(finfo.headerInfo().id);
+            const QByteArray proto_abbrev_utf8 = proto_abbrev.toUtf8();
+            epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
+            char *field_value = NULL;
+            if (edt && finfo.fieldInfo() && field_url_needs_value(field_abbrev, proto_abbrev_utf8.constData())) {
+                field_value = get_node_field_value(finfo.fieldInfo(), edt);
+            }
+            char *custom_url = field_url_for(field_abbrev, proto_abbrev_utf8.constData(), field_value);
+            g_free(field_value);
+            if (custom_url) {
+                QDesktopServices::openUrl(QUrl(QString::fromUtf8(custom_url)));
+                g_free(custom_url);
+                return;
+            }
+
             url = QString(WS_DOCS_URL "dfref/%1/%2.html")
                 .arg(proto_abbrev[0])
                 .arg(proto_abbrev);
@@ -432,6 +450,19 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         {
             const QString proto_field_abbrev = proto_registrar_get_abbrev(finfo->headerInfo().id);
             url.append(QStringLiteral("#%1").arg(proto_field_abbrev));
+        }
+        const char *field_abbrev = proto_registrar_get_abbrev(finfo->headerInfo().id);
+        const QByteArray proto_abbrev_utf8 = proto_abbrev.toUtf8();
+        epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
+        char *field_value = NULL;
+        if (edt && finfo->fieldInfo() && field_url_needs_value(field_abbrev, proto_abbrev_utf8.constData())) {
+            field_value = get_node_field_value(finfo->fieldInfo(), edt);
+        }
+        char *custom_url = field_url_for(field_abbrev, proto_abbrev_utf8.constData(), field_value);
+        g_free(field_value);
+        if (custom_url) {
+            url = QString::fromUtf8(custom_url);
+            g_free(custom_url);
         }
         action->setProperty("toolTip", url);
     }

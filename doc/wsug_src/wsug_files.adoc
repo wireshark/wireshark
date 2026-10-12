@@ -168,6 +168,7 @@ _/usr/local/etc_.
 |__disabled_protos__|Disabled protocols.
 |__dmacros__|Display filter macros.
 |_ethers_|Ethernet name resolution.
+|_fieldurls_|Custom URLs for the _Filter Field Reference_ action.
 |_hosts_|IPv4 and IPv6 name resolution.
 |_ipxnets_|IPX name resolution.
 |_manuf_|Ethernet name resolution.
@@ -348,6 +349,75 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 
 The settings from this file are read in at program start, and reloaded when
 opening a new capture file or changing the configuration profile, and never
+written by Wireshark.
+--
+
+fieldurls::
++
+--
+Wireshark uses the _fieldurls_ file to override the page opened by the
+_Filter Field Reference_ item in the packet details context menu.
+
+The _fieldurls_ file is read from the personal configuration folder only and is
+shared by all configuration profiles.
+
+Each line in this file consists of a field or protocol abbreviation followed by
+a URL, separated by whitespace or tab. Lines beginning with `#` are comments.
+When the menu item is used, an entry for the selected field is used if there is
+one, otherwise an entry for its protocol, otherwise the online display filter
+reference page.
+
+A URL can contain the following placeholders:
+
+* `${fieldname}`: The abbreviation of the selected field with each `.` replaced by `-`, for example `tcp-len`.
+* `${fieldnameraw}`: The abbreviation of the selected field as is, for example `tcp.len`.
+* `${fieldvalue}`: The value of the selected field with each `.` and `:` replaced by `-`, for example `10-0-0-1` for an IPv4 address, percent-encoded.
+* `${fieldvalueraw}`: The value of the selected field, percent-encoded, with `.` kept. A `:` in an IPv6 address becomes `%3A`.
+
+Other text, including unknown `${...}` sequences, is left as is.
+
+Instead of one URL, a line can choose a URL by the value of the selected field.
+After the abbreviation, put one or more rules of the form `{items}=URL`,
+separated by whitespace, optionally followed by a URL to use when no rule
+matches. The first rule whose items match the value is used. If no rule matches
+and there is no final URL, the line is ignored for that field, so the entry for
+the protocol (or the online reference) is used instead.
+
+The items are separated by commas. An item can be a value, such as `443` or
+`GET`, or for numbers an inclusive range such as `8000..8080`. Numbers can be
+decimal or hexadecimal (`0x01bb`).
+
+An item can also be an IPv4 or IPv6 address, an inclusive address range such as
+`10.0.0.5..10.0.0.9`, or a network in CIDR notation such as `10.0.0.0/8` or
+`2700:7a00::/32`. These are compared as addresses, so any spelling of an IPv6
+address matches, and an IPv4 item only matches IPv4 values and an IPv6 item only
+IPv6 values. It does not matter which field is used; a value that is an address
+is compared as one.
+
+An item can also be put in double quotes, which is needed if it contains
+whitespace, a comma, a `}` or a `"` (use `\"` and `\\`) and makes it always match
+as text, so `"80"` is not a number and `"10.0.0.0/8"` is not a network.
+
+Flags can be placed between the `}` and the `=`:
+
+* `i`: ignore case when comparing text.
+* `*`: match if the value contains an item, instead of being equal to it. All
+items are then compared as text, and ranges cannot be used.
+
+A rule that cannot be understood is ignored, and a warning is logged.
+
+An example is:
+----
+tcp.len    https://www.rfc-editor.org/rfc/rfc9293.html
+http       https://example.com/our-http-notes
+ip         https://example.com/fields/${fieldname}?value=${fieldvalueraw}
+tcp.srcport {8000..8080}=http://porteightthousand.com {443,843}=http://tls.com http://else.com
+http.user_agent {"Mozilla Firefox",curl}*i=https://example.com/browsers https://example.com/other
+ip.src {10.0.0.0/8,192.168.0.0/16}=https://example.com/internal/${fieldvalue} https://example.com/external/${fieldvalue}
+ipv6.src {2608:7700::/32}=https://example.com/ipv6/${fieldvalueraw}
+----
+
+The settings from this file are read the first time they are needed, and never
 written by Wireshark.
 --
 
