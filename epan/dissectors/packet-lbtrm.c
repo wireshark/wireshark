@@ -444,6 +444,8 @@ typedef struct
 #define LBTRM_NAK_PARITY_FORMAT 0x1
 #define LBTRM_NAK_HDR_FORMAT(x) (x & 0xF)
 #define LBTRM_NAK_HDR_FORMAT_MASK 0x0F
+#define LBTRM_NAK_HDR_PARITY_UNDERSTOOD_FLAG 0x8000
+#define LBTRM_NAK_HDR_DONT_CONFIRM_FLAG 0x4000
 
 /* LBT-RM NAK Confirmation */
 typedef struct
@@ -810,6 +812,8 @@ static int hf_lbtrm_sm_reserved;
 static int hf_lbtrm_nak;
 static int hf_lbtrm_nak_num_naks;
 static int hf_lbtrm_nak_format;
+static int hf_lbtrm_nak_hdr_parity_understood;
+static int hf_lbtrm_nak_hdr_dont_confirm;
 static int hf_lbtrm_nak_list;
 static int hf_lbtrm_nak_list_nak;
 static int hf_lbtrm_ncf;
@@ -968,6 +972,8 @@ static int dissect_lbtrm_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     nak_tree = proto_item_add_subtree(nak_item, ett_lbtrm_nak);
     proto_tree_add_item_ret_uint16(nak_tree, hf_lbtrm_nak_num_naks, tvb, offset + O_LBTRM_NAK_HDR_T_NUM_NAKS, L_LBTRM_NAK_HDR_T_NUM_NAKS, ENC_BIG_ENDIAN, &num_naks);
     proto_tree_add_item(nak_tree, hf_lbtrm_nak_format, tvb, offset + O_LBTRM_NAK_HDR_T_FORMAT, L_LBTRM_NAK_HDR_T_FORMAT, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nak_tree, hf_lbtrm_nak_hdr_parity_understood, tvb, offset + O_LBTRM_NAK_HDR_T_FORMAT, L_LBTRM_NAK_HDR_T_FORMAT, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nak_tree, hf_lbtrm_nak_hdr_dont_confirm, tvb, offset + O_LBTRM_NAK_HDR_T_FORMAT, L_LBTRM_NAK_HDR_T_FORMAT, ENC_BIG_ENDIAN);
     len = L_LBTRM_NAK_HDR_T;
     if (!lbtrm_expert_separate_naks)
     {
@@ -1608,7 +1614,11 @@ void proto_register_lbtrm(void)
         { &hf_lbtrm_nak_num_naks,
             { "Number of NAKs", "lbtrm.nak.num_naks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_nak_format,
-            { "Format", "lbtrm.nak.format", FT_UINT8, BASE_HEX, VALS(lbtrm_nak_format), LBTRM_NAK_HDR_FORMAT_MASK, NULL, HFILL } },
+            { "Format", "lbtrm.nak.format", FT_UINT16, BASE_HEX, VALS(lbtrm_nak_format), LBTRM_NAK_HDR_FORMAT_MASK, NULL, HFILL } },
+        { &hf_lbtrm_nak_hdr_parity_understood,
+            { "Parity Understood", "lbtrm.nak.parity_understood", FT_BOOLEAN, 16, TFS(&tfs_set_notset), LBTRM_NAK_HDR_PARITY_UNDERSTOOD_FLAG, "Set if the sender of this NAK understands parity-based FEC", HFILL } },
+        { &hf_lbtrm_nak_hdr_dont_confirm,
+            { "Don't Confirm", "lbtrm.nak.dont_confirm", FT_BOOLEAN, 16, TFS(&tfs_set_notset), LBTRM_NAK_HDR_DONT_CONFIRM_FLAG, "Set if the source should not send a NAK confirmation (NCF) in response to this NAK", HFILL } },
         { &hf_lbtrm_nak_list,
             { "NAK List", "lbtrm.nak.list", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_nak_list_nak,
