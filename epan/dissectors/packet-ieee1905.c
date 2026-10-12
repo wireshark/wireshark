@@ -32,6 +32,10 @@
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include <epan/proto_data.h>
+#include <epan/crypt/dot1905decrypt.h>
+#include <epan/uat.h>
+#include <epan/strutil.h>
+#include <wsutil/array.h>
 #include "packet-wps.h"
 #include "packet-wifi-dpp.h"
 #include "packet-ieee80211.h"
@@ -1059,6 +1063,7 @@ static int ett_ap_wf6_agent_role_flags;
 static int ett_ap_wf6_supported_flags;
 static int ett_ap_wf6_mimo_max_flags;
 static int ett_ap_wf6_gen_flags;
+static int ett_encrypted_decrypted;
 static int ett_agent_list_agent_list;
 static int ett_agent_list_agent;
 static int ett_cac_request_flags;
@@ -1186,6 +1191,7 @@ static expert_field ei_ieee1905_malformed_tlv;
 static expert_field ei_ieee1905_extraneous_tlv_data;
 
 typedef enum {
+    DECRYPT_CMDU_OCTETS_KEY,
     TUNNELED_MESSAGE_TYPE_KEY,
     TUNNELED_MESSAGE_TYPE_SET_KEY
 } ieee1905_proto_key_t;
@@ -1927,6 +1933,287 @@ static const value_string ieee1905_error_code_vals[] = {
   { 0x06, "Backhaul steering request authentication or association Rejected by target BSS" },
   { 0, NULL }
 };
+
+/*
+ * Decryption User Access Table
+ */
+
+/* UAT entry structure. */
+typedef struct {
+    /* Input fro GUI */
+    char *almac1;
+    char *almac2;
+    char *key;
+
+    /* Parsed */
+    struct {
+        bool        valid;
+        uint8_t     almac1[6];
+        uint8_t     almac2[6];
+        GByteArray *key;
+        bool        gtk;
+    } bin;
+} uat_key_record_t;
+
+static bool              enable_decryption = true;
+static uat_key_record_t *uat_key_records;
+static uat_t            *uat;
+static unsigned          uat_num_keys;
+
+static const uint8_t     broadcast_mac[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
+static int mac_str_to_mac(const char *mac_str, uint8_t *mac)
+{
+    return sscanf(mac_str, "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+                  mac, mac + 1, mac + 2, mac + 3, mac + 4, mac + 5) == 6 ? 0 : -1;
+}
+
+static void *
+uat_key_record_copy_cb(void* n, const void* o, size_t size _U_)
+{
+    uat_key_record_t *new_key = n;
+    const uat_key_record_t *old_key = o;
+
+    new_key->almac1 = g_strdup(old_key->almac1);
+    new_key->almac2 = g_strdup(old_key->almac2);
+    new_key->key    = g_strdup(old_key->key);
+
+    new_key->bin.valid = old_key->bin.valid;
+
+    memcpy(new_key->bin.almac1, old_key->bin.almac1, 6);
+    memcpy(new_key->bin.almac2, old_key->bin.almac2, 6);
+
+    if (old_key->bin.key) {
+        new_key->bin.key = byte_array_dup(old_key->bin.key);
+    }
+
+    return new_key;
+}
+
+static bool
+uat_key_record_update_cb(void* r, char** err)
+{
+    uat_key_record_t *rec = r;
+    char *p;
+
+    rec->bin.valid = false;
+
+    if (rec->key == NULL) {
+        *err = g_strdup("Key can't be blank");
+        return false;
+    }
+
+    if (rec->almac1 == NULL || rec->almac2 == NULL) {
+        *err = g_strdup("ALMAC can't be blank");
+        return false;
+    }
+
+    *err = NULL;
+    g_strstrip(rec->almac1);
+    g_strstrip(rec->almac2);
+    g_strstrip(rec->key);
+
+    /* Parse almac1 */
+    if (strlen(rec->almac1) == 0) {
+        memcpy(rec->bin.almac1, broadcast_mac, 6);
+    } else {
+        if (mac_str_to_mac(rec->almac1, rec->bin.almac1)) {
+            *err = g_strdup("Invalid ALMAC1");
+            return false;
+        }
+    }
+
+    /* Parse almac1 */
+    if (strlen(rec->almac2) == 0) {
+        memcpy(rec->bin.almac2, broadcast_mac, 6);
+    } else {
+        if (mac_str_to_mac(rec->almac2, rec->bin.almac2)) {
+            *err = g_strdup("Invalid ALMAC2");
+            return false;
+        }
+    }
+
+    /* Parse key */
+    p = rec->key;
+    if (!strncmp(p, "ptk:", 4)) {
+        p += 4;
+    } else if (!strncmp(p, "gtk:", 4)) {
+        rec->bin.gtk = true;
+        p += 4;
+    } else {
+        *err = g_strdup("Key must start with 'ptk:' or 'gtk:'");
+        return false;
+    }
+
+    g_strstrip(p);
+
+    if (rec->bin.key) {
+        g_byte_array_free(rec->bin.key, true);
+    }
+    rec->bin.key = g_byte_array_new();
+    if (!hex_str_to_bytes(p, rec->bin.key, false) || rec->bin.key->len != DOT1905DECRYPT_KEY_LEN) {
+        *err = g_strdup("Key must be a 256 bit hexadecimal string");
+         g_byte_array_free(rec->bin.key, true);
+         rec->bin.key = NULL;
+         return false;
+    }
+
+    rec->bin.valid = true;
+
+    return true;
+}
+
+static void
+uat_key_record_free_cb(void*r)
+{
+    uat_key_record_t* rec = r;
+
+    g_free(rec->almac1);
+    g_free(rec->almac2);
+    g_free(rec->key);
+
+    if (rec->bin.key) {
+        g_byte_array_free(rec->bin.key, true);
+    }
+}
+
+UAT_CSTRING_CB_DEF(uat_key_records, almac1, uat_key_record_t)
+UAT_CSTRING_CB_DEF(uat_key_records, almac2, uat_key_record_t)
+UAT_CSTRING_CB_DEF(uat_key_records, key,    uat_key_record_t)
+
+/*
+ * Decryption
+ */
+#define DECRYPT_CMDU_OCTETS    6
+#define DECRYPT_COUNTER_OCTETS 6
+
+static int
+dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static bool
+is_mac_equal(const uint8_t *mac1, const uint8_t *mac2)
+{
+    return !memcmp(mac1, mac2, 6);
+}
+
+static bool
+is_broadcast_mac(const uint8_t *mac)
+{
+    return is_mac_equal(mac, broadcast_mac);
+}
+
+static void
+// NOLINTNEXTLINE(misc-no-recursion)
+decrypt_encrypted_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_tree *decrypt_tree = NULL;
+    proto_item *decrypt_item = NULL;
+    bool has_valid_key = false;
+
+    decrypt_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                          ett_encrypted_decrypted,
+                                          &decrypt_item, "Decrypted");
+
+    if (!enable_decryption) {
+        proto_item_append_text(decrypt_item, ": Disabled");
+        return;
+    }
+
+    for (unsigned int i = 0; i < uat_num_keys; i++) {
+         uat_key_record_t *rec = &uat_key_records[i];
+
+        if (rec->bin.valid) {
+            has_valid_key = true;
+            break;
+        }
+    }
+
+    if (!has_valid_key) {
+        proto_item_append_text(decrypt_item, ": No (valid) decryption keys configured");
+        return;
+    }
+
+    /* Get data from CMDU and Encrypted TLV */
+    const uint8_t *cmdu = p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, DECRYPT_CMDU_OCTETS_KEY);
+
+    const uint8_t *tx_counter = tvb_get_ptr(tvb, offset, DECRYPT_COUNTER_OCTETS);
+    offset += DECRYPT_COUNTER_OCTETS;
+
+    const uint8_t *source_al_mac = tvb_get_ptr(tvb, offset, 6);
+    offset += 6;
+
+    const uint8_t *dest_al_mac = tvb_get_ptr(tvb, offset, 6);
+    offset += 6;
+
+    uint16_t encrypted_data_len = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    const uint8_t *encrypted_data = tvb_get_ptr(tvb, offset, encrypted_data_len);
+
+    /* Get decrypted_data_len and buffer */
+    uint8_t *decrypted_data = NULL;
+    size_t   decrypted_data_len = 0;
+
+    if (Dot1905DecryptGetDecryptLength(encrypted_data_len, &decrypted_data_len)) {
+        proto_item_append_text(decrypt_item, ": Encrypted data too short");
+        return;
+    }
+
+    /* Add dummy EOM TLV to avoid dissect warning by dissect_ieee1905_tlvs */
+    decrypted_data_len += 3;
+    decrypted_data = wmem_alloc0(pinfo->pool, decrypted_data_len);
+
+    /* Decryption parameters */
+    const uint8_t *params[]      = {cmdu,                tx_counter,             source_al_mac, dest_al_mac};
+    size_t         params_lens[] = {DECRYPT_CMDU_OCTETS, DECRYPT_COUNTER_OCTETS, 6,             6};
+
+    /* Loop over all available keys */
+    bool success = false;
+
+    for (unsigned int i = 0; i < uat_num_keys; i++) {
+         uat_key_record_t *rec = &uat_key_records[i];
+         tvbuff_t *decrypted_tvb;
+
+         /* Skip invalid */
+         if (!rec->bin.valid) {
+             continue;
+         }
+
+         /* Skip GTK */
+         if (rec->bin.gtk) {
+             continue;
+         }
+
+        /* Check source/dest al mac */
+        if        ((is_broadcast_mac(rec->bin.almac1) || is_mac_equal(rec->bin.almac1, source_al_mac)) &&
+                   (is_broadcast_mac(rec->bin.almac2) || is_mac_equal(rec->bin.almac2, dest_al_mac  ))) {
+            /* ok */
+        } else if ((is_broadcast_mac(rec->bin.almac1) || is_mac_equal(rec->bin.almac1, dest_al_mac  )) &&
+                   (is_broadcast_mac(rec->bin.almac2) || is_mac_equal(rec->bin.almac2, source_al_mac))) {
+            /* ok */
+        } else {
+            continue;
+        }
+
+        if (Dot1905DecryptDecrypt(rec->bin.key->data, rec->bin.key->len,
+                                  encrypted_data, encrypted_data_len,
+                                  array_length(params), params, params_lens,
+                                  decrypted_data)) {
+              continue;
+        }
+
+        decrypted_tvb = tvb_new_child_real_data(tvb, decrypted_data, (unsigned)decrypted_data_len, (unsigned)decrypted_data_len);
+
+        dissect_ieee1905_tlvs(decrypted_tvb, pinfo, decrypt_tree);
+
+        success = true;
+        break;
+    }
+
+    if (!success) {
+        proto_item_append_text(decrypt_item, ": No valid decryption key found");
+    }
+}
 
 /*
  * Minimum message has a single End of Message TLV with 3 bytes, plus 8 byte
@@ -6240,9 +6527,11 @@ dissect_mic(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect an Encrypted TLV
  */
 static int
-dissect_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_,
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_encrypted(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
+    unsigned offset_start = offset;
     uint16_t enc_len = 0;
 
     proto_tree_add_item(tree, hf_ieee1905_encrypted_enc_transmission_count,
@@ -6257,14 +6546,15 @@ dissect_encrypted(tvbuff_t *tvb, packet_info *pinfo _U_,
                         offset, 6, ENC_NA);
     offset += 6;
 
-    enc_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ieee1905_encrypted_enc_output_field_len, tvb,
-                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_ieee1905_encrypted_enc_output_field_len, tvb,
+                        offset, 2, ENC_BIG_ENDIAN, &enc_len);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_encrypted_enc_output_field, tvb,
                         offset, enc_len, ENC_NA);
     offset += enc_len;
+
+    decrypt_encrypted_tlv(tvb, pinfo, tree, offset_start);
 
     return offset;
 }
@@ -9708,6 +9998,7 @@ dissect_supported_cipher_suites(tvbuff_t *tvb, packet_info *pinfo _U_,
  * Dissect each of the TLV types we know about
  */
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, unsigned offset, uint8_t tlv_type, uint16_t tlv_len)
 {
@@ -10346,6 +10637,7 @@ static int * const tlv_len_headers[] = {
 #endif
 
 static int
+// NOLINTNEXTLINE(misc-no-recursion)
 dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     bool eom_seen;
@@ -10545,6 +10837,13 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     uint8_t frag_id = tvb_get_uint8(tvb, 6);
     uint8_t flags = tvb_get_uint8(tvb, 7);
     tvbuff_t *next_tvb = NULL;
+
+    /* If decryption is enabled the first 6 bytes of the CMDU need to be stored */
+    if (enable_decryption) {
+        uint8_t *p = wmem_memdup(pinfo->pool, tvb_get_ptr(tvb, 0, DECRYPT_CMDU_OCTETS), DECRYPT_CMDU_OCTETS);
+
+        p_add_proto_data(pinfo->pool, pinfo, proto_ieee1905, DECRYPT_CMDU_OCTETS_KEY, p);
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ieee1905");
 
@@ -14654,6 +14953,7 @@ proto_register_ieee1905(void)
         &ett_ap_wf6_supported_flags,
         &ett_ap_wf6_mimo_max_flags,
         &ett_ap_wf6_gen_flags,
+        &ett_encrypted_decrypted,
         &ett_agent_list_agent_list,
         &ett_agent_list_agent,
         &ett_channel_scan_result_neigh,
@@ -14789,9 +15089,17 @@ proto_register_ieee1905(void)
              "TLV has extra data or an incorrect length", EXPFILL }},
     };
 
+    /* Decryption User Access Table */
+    static uat_field_t uat_flds[] = {
+        UAT_FLD_CSTRING(uat_key_records, almac1, "ALMAC1", "AL MAC Address 1 (optional)"),
+        UAT_FLD_CSTRING(uat_key_records, almac2, "ALMAC2", "AL MAC Address 2 (optional)"),
+        UAT_FLD_CSTRING(uat_key_records, key,    "Key", "ptk|gtk:<hexadecimal 256 bit key>"),
+        UAT_END_FIELDS
+    };
+
     expert_module_t *expert_ieee1905 = NULL;
 
-    proto_ieee1905 = proto_register_protocol("IEEE 1905.1a", "ieee1905", "ieee1905");
+    proto_ieee1905 = proto_register_protocol("IEEE 1905.1a", "IEEE 1905", "ieee1905");
 
     proto_register_field_array(proto_ieee1905, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -14803,6 +15111,36 @@ proto_register_ieee1905(void)
                               &ieee1905_reassembly_table_functions);
 
     ieee1905_handle = register_dissector("ieee1905", dissect_ieee1905, proto_ieee1905);
+
+    module_t *ieee1905_module;
+    ieee1905_module = prefs_register_protocol(proto_ieee1905, NULL);
+    prefs_register_bool_preference(ieee1905_module, "enable_decryption", "Enable decryption",
+                                   "Enable IEEE1905 decryption", &enable_decryption);
+
+    uat = uat_new("Decryption Keys",
+                  sizeof(uat_key_record_t), /* record size */
+                  "ieee1905_keys",          /* filename */
+                  true,                     /* from_profile */
+                  &uat_key_records,         /* data_ptr */
+                  &uat_num_keys,            /* numitems_ptr */
+                  UAT_AFFECTS_DISSECTION,   /* affects dissection of packets, but not set of named fields */
+                  NULL,                     /* help */
+                  uat_key_record_copy_cb,   /* copy callback */
+                  uat_key_record_update_cb, /* update callback */
+                  uat_key_record_free_cb,   /* free callback */
+                  NULL,                     /* post update callback - update the WEP/WPA keys */
+                  NULL,                     /* reset callback */
+                  uat_flds);                /* UAT field definitions */
+
+    prefs_register_uat_preference(ieee1905_module,
+                                  "key_table",
+                                  "Decryption keys",
+                                  "ieee1905 keys\n"
+                                  "Example:\n"
+                                  "ptk:<hexadecimal 256 bit key>\n"
+                                  "gtk:<hexadecimal 256 bit key>\n"
+                                  "Invalid keys will be ignored.",
+                                  uat);
 }
 
 void
