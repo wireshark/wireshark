@@ -7206,8 +7206,10 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 
 	if ( cd_len > 0)
 	{
-		/* Long Connect Data (> 221 bytes?) is not in the Connect PDU
-		 * but sent in an immediately following Data PDU.
+		/* A server reads at most 230 bytes of connect data from the
+		 * CONNECT, so a longer descriptor is not in it: the CONNECT
+		 * ends at the data offset, and the descriptor follows in a
+		 * Data packet of its own.
 		 */
 		if (tvb_reported_length_remaining(tvb, tns_offset + cd_offset)) {
 			proto_tree_add_item(connect_tree, hf_tns_connect_data, tvb,
@@ -8732,7 +8734,7 @@ void proto_register_tns(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_tns_connect_data_next_packet, { "tns.connect_data.next_packet", PI_REQUEST_CODE, PI_CHAT, "Long Connect Data (> 221 bytes) carried in subsequent Data packet", EXPFILL }},
+		{ &ei_tns_connect_data_next_packet, { "tns.connect_data.next_packet", PI_REQUEST_CODE, PI_CHAT, "Long Connect Data (over 230 bytes) carried in subsequent Data packet", EXPFILL }},
 		{ &ei_tns_data_descriptor_size_mismatch, { "tns.data_descriptor.size_mismatch", PI_PROTOCOL, PI_WARN, "Data size from summing row sizes differs from size in descriptor", EXPFILL }},
 		{ &ei_tns_data_piggyback_cursors, { "tns.data.piggyback.cursors.invalid", PI_MALFORMED, PI_ERROR, "Cursor count is larger than the data left in the packet", EXPFILL }},
 		{ &ei_tns_data_count_too_large, { "tns.data.count.invalid", PI_MALFORMED, PI_ERROR, "Count is larger than the data left in the packet", EXPFILL }},

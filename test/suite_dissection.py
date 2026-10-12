@@ -2192,6 +2192,25 @@ class TestDissectTns:
         assert len(r[4].split(',')) == 2 and r[4].startswith('0026'), r
         assert r[5] == '0x0000000000000005' and r[6] == '0x0e', r
 
+    def test_tns_connect_long(self, cmd_tshark, capture_file, test_env):
+        '''A connect descriptor over 230 bytes is not in the CONNECT: the
+        CONNECT gives its length and offset but ends there, and the
+        descriptor follows in a Data packet of its own.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_connect_long.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.connect_data_length',
+            '-e', 'tns.connect_data.next_packet',
+            '-e', 'tns.connect_data',
+            '-e', '_ws.col.info',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert len(rows) == 2, rows
+        assert rows[0][0] == '238' and rows[0][1] != '' and rows[0][2] == '', rows[0]
+        assert rows[1][2].startswith('(DESCRIPTION=') and len(rows[1][2]) == 238, rows[1]
+        assert rows[1][3].endswith('Connect Data'), rows[1]
+
     def test_tns_app_context(self, cmd_tshark, capture_file, test_env):
         '''An application context namespace is set or cleared with a
         piggyback in front of the next call. A zero byte ahead of the
