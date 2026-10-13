@@ -71350,7 +71350,11 @@ dissect_nr_rrc_DLDedicatedMessageSegment_r16_IEs(tvbuff_t *tvb _U_, int offset _
       reassembled_tvb = process_reassembled_data(nr_priv->dcch_segment, 0, actx->pinfo, "Reassembled DL Dedicated Message",
                                                  frag_data, &nr_rrc_dcch_segment_frag_items, NULL, tree);
       if (reassembled_tvb) {
+        /* The reassembled message can itself be a segment, which would
+         * reassemble and dissect recursively, so bound the depth. */
+        increment_dissection_depth(actx->pinfo);
         dissect_DL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+        decrement_dissection_depth(actx->pinfo);
       }
     }
   }
@@ -81224,7 +81228,11 @@ dissect_nr_rrc_ULDedicatedMessageSegment_r16_IEs(tvbuff_t *tvb _U_, int offset _
       reassembled_tvb = process_reassembled_data(nr_priv->dcch_segment, 0, actx->pinfo, "Reassembled UL Dedicated Message",
                                                  frag_data, &nr_rrc_dcch_segment_frag_items, NULL, tree);
       if (reassembled_tvb) {
+        /* The reassembled message can itself be a segment, which would
+         * reassemble and dissect recursively, so bound the depth. */
+        increment_dissection_depth(actx->pinfo);
         dissect_nr_rrc_UL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+        decrement_dissection_depth(actx->pinfo);
       }
     }
   }
