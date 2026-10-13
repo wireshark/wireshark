@@ -29,6 +29,13 @@ static int hf_mcdata_num_payloads;
 static int hf_mcdata_payload_len;
 static int hf_mcdata_payload_cont_type;
 static int hf_mcdata_payload_val_text;
+static int hf_mcdata_loc_sign_of_lat;
+static int hf_mcdata_loc_latitude;
+static int hf_mcdata_loc_longitude;
+static int hf_mcdata_loc_dir_alt;
+static int hf_mcdata_loc_altitude;
+static int hf_mcdata_loc_timestamp_len;
+static int hf_mcdata_loc_time_iso8601;
 static int hf_mcdata_payload_val_bytes;
 static int hf_mcdata_status_val;
 static int hf_mcdata_date_time;
@@ -207,6 +214,18 @@ static const value_string notification_type_vals[] = {
     { 0, NULL }
 };
 
+// 3GPP TS 23.032 7.3.1
+static const value_string sign_of_latitude_vals[] = {
+    { 0,  "North"},
+    { 1,  "South"},
+    { 0,  NULL }
+};
+
+static const value_string dir_of_alt_vals[] = {
+    { 0,  "Altitude expresses height"},
+    { 1,  "Altitude expresses depth"},
+    { 0,  NULL }
+};
 
 static unsigned dissect_payload(unsigned offset, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     uint16_t len;
@@ -226,6 +245,31 @@ static unsigned dissect_payload(unsigned offset, tvbuff_t *tvb, packet_info *pin
         case 10: // CODED TEXT
             proto_tree_add_item(tree, hf_mcdata_payload_val_text,  tvb, offset, len - 1, ENC_UTF_8);
             break;
+        case 5:    // LOCATION
+        {
+            /* The length of location information payload content is 6 bytes. The first 3 bytes contain the latitude
+               information and the next 3 bytes contain the longitude information coded as in clause 6.1 in 3GPP TS 23.032 [47].
+             */
+            uint32_t    uvalue32;
+            int32_t     svalue32;
+            char        *deg_lat_str;
+            char        *deg_lon_str;
+            proto_item *lat_item, *long_item;
+            proto_tree_add_item(tree, hf_mcdata_loc_sign_of_lat, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* convert degrees (X/0x7fffff) * 90 = degrees */
+            lat_item = proto_tree_add_item_ret_uint(tree, hf_mcdata_loc_latitude, tvb, offset, 3, ENC_BIG_ENDIAN, &uvalue32);
+            deg_lat_str = wmem_strdup_printf(pinfo->pool, "%s%.5f",
+                (uvalue32 & 0x00800000) ? "-" : "",
+                ((double)(uvalue32 & 0x7fffff)/8388607.0) * 90);
+            proto_item_append_text(lat_item, " (%s degrees)", deg_lat_str);
+            long_item = proto_tree_add_item_ret_int(tree, hf_mcdata_loc_longitude, tvb, offset + 3, 3, ENC_BIG_ENDIAN, &svalue32);
+            svalue32 |= (svalue32 & 0x800000) ? 0xff000000 : 0x00000000;
+            /* (X/0xffffff) *360 = degrees */
+            deg_lon_str = wmem_strdup_printf(pinfo->pool, "%.5f",
+                ((double)svalue32/16777215.0) * 360);
+            proto_item_append_text(long_item, " (%s degrees)", deg_lon_str);
+        }
+            break;
         case 6:  // ENHANCED STATUS
             proto_tree_add_item(tree, hf_mcdata_status_val,  tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
@@ -234,12 +278,22 @@ static unsigned dissect_payload(unsigned offset, tvbuff_t *tvb, packet_info *pin
             proto_tree_add_item(tree, hf_mcdata_payload_val_bytes,  tvb, offset, len - 1, ENC_NA);
             break;
         case 8:  // LOCATION ALTITUDE
-            //Todo: The length of the location altitude payload content is 2 bytes coded as in clause 6.3 in 3GPP TS 23.032
-            proto_tree_add_item(tree, hf_mcdata_payload_val_bytes,  tvb, offset, len - 1, ENC_NA);
+            /* The length of the location altitude payload content is 2 bytes coded as in clause 6.3 in 3GPP TS 23.032 */
+            /*D: Direction of Altitude */
+            proto_tree_add_item(tree, hf_mcdata_loc_dir_alt, tvb, offset, 2, ENC_BIG_ENDIAN);
+            /* Altitude */
+            proto_tree_add_item(tree, hf_mcdata_loc_altitude, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case 9:  // LOCATION TIMESTAMP
-            //Todo: The length of location timestamp is contained as a binary value in the first octet of the payload
-            proto_tree_add_item(tree, hf_mcdata_payload_val_bytes,  tvb, offset, len - 1, ENC_NA);
+        {
+            /* The length of location timestamp is contained as a binary value in the first octet of the payload
+               and the value of the location timestamp is contained in the remaining octets of the payload content in
+               the format "yyyy-mm-dd hh:mm:ss.fffff" per ISO 8601. */
+            uint8_t ts_len8;
+            proto_tree_add_item_ret_uint8(tree, hf_mcdata_loc_timestamp_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ts_len8);
+            const uint8_t* time_str;
+            proto_tree_add_item_ret_string(tree, hf_mcdata_loc_time_iso8601, tvb, offset + 1, ts_len8, ENC_ASCII | ENC_NA, pinfo->pool, &time_str);
+         }
             break;
         default:
             proto_tree_add_item(tree, hf_mcdata_payload_val_bytes,  tvb, offset, len - 1, ENC_NA);
@@ -511,6 +565,13 @@ void proto_register_mcdata(void) {
         { &hf_mcdata_payload_len,               { "Payload length", "mcdata.pl.payload.len",  FT_UINT16, BASE_DEC,  NULL, 0x0, NULL, HFILL }},
         { &hf_mcdata_payload_cont_type,         { "Payload content type", "mcdata.pl.payload.content.type",  FT_UINT8, BASE_DEC,  VALS(payload_content_type_vals), 0x0, NULL, HFILL }},
         { &hf_mcdata_payload_val_text,          { "Payload text value",  "mcdata.pl.payload.text.val",  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_mcdata_loc_sign_of_lat,           { "Sign of latitude", "mcdata.sign.of.latitude", FT_UINT8, BASE_DEC, VALS(sign_of_latitude_vals), 0x80, NULL, HFILL }},
+        { &hf_mcdata_loc_latitude,              { "Degrees of latitude", "mcdata.latitude", FT_UINT24, BASE_DEC, NULL, 0x7fffff, NULL, HFILL }},
+        { &hf_mcdata_loc_longitude,             { "Degrees of longitude", "mcdata.longitude", FT_INT24, BASE_DEC, NULL, 0xffffff, NULL, HFILL }},
+        { &hf_mcdata_loc_dir_alt,               { "Direction of altitude", "mcdata.loc.dir.alt", FT_UINT16, BASE_DEC, VALS(dir_of_alt_vals), 0x8000, NULL, HFILL }},
+        { &hf_mcdata_loc_altitude,              { "Altitude in meters", "mcdata.loc.altitude", FT_UINT16, BASE_DEC, NULL, 0x7fff, NULL, HFILL }},
+        { &hf_mcdata_loc_timestamp_len,         { "Location timestamp length", "mcdata.loc.timestamp.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_mcdata_loc_time_iso8601,          { "Location timestamp", "mcdata.loc.time", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mcdata_payload_val_bytes,         { "Payload value",  "mcdata.pl.payload.val", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mcdata_status_val,                { "Enhanced status value", "mcdata.pl.status.val",  FT_UINT16, BASE_DEC,  NULL, 0x0, NULL, HFILL }},
         { &hf_mcdata_date_time,                 { "Date and time", "mcdata.sig.date.and.time",   FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,NULL, HFILL }},
