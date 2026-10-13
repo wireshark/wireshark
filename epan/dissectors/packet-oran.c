@@ -7188,6 +7188,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
     if (PINFO_FD_VISITED(pinfo) && result) {
         /* Show list of frames that have corresponding U-plane data */
         wmem_list_frame_t *list_frame;
+
+        /* Some frames may answer > 1 section, so fashion a set using wmem_tree.. */
+        wmem_tree_t *frames_set = wmem_tree_new(NULL);
+
         for (list_frame = wmem_list_head(result->u_plane_frames); list_frame != NULL; list_frame = wmem_list_frame_next(list_frame)) {
             corresponding_uplane_frame *frame = wmem_list_frame_data(list_frame);
             proto_item *uplane_frame_ti = proto_tree_add_uint(oran_tree, hf_oran_corresponding_uplane_frame, tvb, 0, 0,
@@ -7195,11 +7199,15 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             proto_item_append_text(uplane_frame_ti, "  sectionId:%2u symbol:%2u PRBs %3u->%3u  (in %uus)",
                                    frame->sectionId, frame->symbol, frame->startPrbu, frame->startPrbu+frame->numPrbu-1, frame->gap_in_usecs);
             proto_item_set_generated(uplane_frame_ti);
+
+            wmem_tree_insert32(frames_set, frame->frame_number, NULL);
         }
         /* Also show total number of corresponding u-plane frames */
-        proto_item *uplane_frame_count_ti = proto_tree_add_uint(oran_tree, hf_oran_corresponding_uplane_frames_total, tvb, 0, 0,
-                                                                wmem_list_count(result->u_plane_frames));
+
+        proto_item *uplane_frame_count_ti = proto_tree_add_uint(oran_tree, hf_oran_corresponding_uplane_frames_total, tvb, 0, 0,                                                       wmem_tree_count(frames_set));
         proto_item_set_generated(uplane_frame_count_ti);
+        /* No longer need this set/tree */
+        wmem_tree_destroy(frames_set, false, false);
     }
 
     return tvb_captured_length(tvb);
