@@ -1570,28 +1570,37 @@ static bool nstrace_read_v20(wtap *wth, wtap_rec *rec,
         }\
         nst_dataSize = nspr_getv20recordsize(hdp);\
         rec_size = nst_dataSize - nstrace_tmpbuff_off;\
-        nsg_nextPageOffset = ((nstrace_buf_offset + rec_size) >= (unsigned)nstrace->nstrace_buflen) ?\
-        ((nstrace_buf_offset + rec_size) - (NSPR_PAGESIZE_TRACE - 1)) : 0;\
-        /* Copy record data */\
-        while (nsg_nextPageOffset) {\
+        /* Copy record data, reading the next page while the record */\
+        /* reaches the end of the current one (even exactly) */\
+        while (nstrace_buf_offset + rec_size >= nstrace_buflen) {\
             /* Copy everything from this page */\
-            while (nstrace_buf_offset < nstrace->nstrace_buflen) {\
+            while (nstrace_buf_offset < nstrace_buflen) {\
                 nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
             }\
             nstrace->current_page_file_offset += nstrace_buflen;\
-            nstrace_buflen = NSPR_PAGESIZE_TRACE;\
             /* Read the next page */\
             bytes_read = file_read(nstrace_buf, NSPR_PAGESIZE_TRACE, wth->fh);\
+            if (bytes_read < 0) {\
+                *err = file_error(wth->fh, err_info);\
+                g_free(nstrace_tmpbuff);\
+                return false;\
+            }\
             if ( !file_eof(wth->fh) && bytes_read != NSPR_PAGESIZE_TRACE) {\
                 g_free(nstrace_tmpbuff);\
                 return false;\
-            } else {\
-                nstrace_buf_offset = 0;\
             }\
+            nstrace_buf_offset = 0;\
             nstrace_buflen = bytes_read;\
             rec_size = nst_dataSize - nstrace_tmpbuff_off;\
-            nsg_nextPageOffset = ((nstrace_buf_offset + rec_size) >= (unsigned)nstrace->nstrace_buflen) ?\
-            ((nstrace_buf_offset + rec_size) - (NSPR_PAGESIZE_TRACE- 1)): 0;\
+            if (nstrace_buflen == 0) {\
+                if (rec_size != 0) {\
+                    /* The record continues past the end of the file */\
+                    *err = WTAP_ERR_SHORT_READ;\
+                    g_free(nstrace_tmpbuff);\
+                    return false;\
+                }\
+                break;\
+            }\
         } \
         /* Copy the rest of the record */\
         while (nstrace_tmpbuff_off < nst_dataSize) {\
@@ -1614,7 +1623,7 @@ static bool nstrace_read_v30(wtap *wth, wtap_rec *rec,
     uint32_t nstrace_buf_offset = nstrace->nstrace_buf_offset;
     uint32_t nstrace_buflen = nstrace->nstrace_buflen;
     uint8_t* nstrace_tmpbuff;
-    uint32_t nstrace_tmpbuff_off=0,nst_dataSize=0,rec_size=0,nsg_nextPageOffset=0;
+    uint32_t nstrace_tmpbuff_off=0,nst_dataSize=0,rec_size=0;
     nspr_hd_v20_t *hdp;
     int bytes_read = 0;
 
