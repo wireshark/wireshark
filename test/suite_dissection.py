@@ -2211,6 +2211,37 @@ class TestDissectTns:
         assert rows[1][2].startswith('(DESCRIPTION=') and len(rows[1][2]) == 238, rows[1]
         assert rows[1][3].endswith('Connect Data'), rows[1]
 
+    def test_tns_txn_priority(self, cmd_tshark, capture_file, test_env):
+        '''A 23ai client sets its transaction priority with an ALTER SESSION
+        piggyback in front of the next call, an empty value restoring the
+        default, and the server reports it back as keyword 204 of a
+        session-state sync.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_txn_priority.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'frame.number > 1',
+            '-T', 'fields',
+            '-e', 'tns.data_piggyback.alter_session_param',
+            '-e', 'tns.data_piggyback.alter_session_value',
+            '-e', 'tns.data_kv.keyword',
+            '-e', 'tns.data_oci.id',
+            '-e', 'data.len',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['TXN_PRIORITY', 'low', '', '0x0e', '', ''],
+            ['', '', '204', '', '', ''],
+            ['TXN_PRIORITY', '', '', '0x0e', '', ''],
+        ], rows
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_txn_priority.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert ': TXN_PRIORITY' in stdout, stdout
+        assert 'Session Parameter: TXN_PRIORITY = (default)' in stdout, stdout
+
     def test_tns_app_context(self, cmd_tshark, capture_file, test_env):
         '''An application context namespace is set or cleared with a
         piggyback in front of the next call. A zero byte ahead of the

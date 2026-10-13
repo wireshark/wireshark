@@ -185,6 +185,7 @@ void proto_register_tns(void);
 #define TTI_SESSION_RELEASE     163
 #define TTI_SESSION_STATE       176
 #define TTI_PIPELINE_BEGIN      199
+#define TTI_ALTER_SESSION       204
 #define TTI_PIPELINE_END        200
 #define TTI_END_USER_SEC_CTX    205
 
@@ -547,6 +548,8 @@ static int hf_tns_data_pgy_app_ctx_op;
 static int hf_tns_data_pgy_app_ctx_namespace;
 static int hf_tns_data_pgy_app_ctx_attr;
 static int hf_tns_data_pgy_app_ctx_value;
+static int hf_tns_data_pgy_alter_param;
+static int hf_tns_data_pgy_alter_value;
 static int hf_tns_data_pgy_session_state;
 static int hf_tns_data_pgy_e2e_flags;
 static int hf_tns_data_pgy_client_id;
@@ -620,6 +623,7 @@ static int ett_tns_out_binds;
 static int ett_sql;
 static int ett_tns_kod;
 static int ett_tns_app_ctx;
+static int ett_tns_alter_session;
 
 static expert_field ei_tns_connect_data_next_packet;
 static expert_field ei_tns_data_descriptor_size_mismatch;
@@ -969,6 +973,7 @@ static const value_string tns_kv_keywords[] = {
 	{168, "CURRENT_SCHEMA"},
 	{172, "EDITION"},
 	{201, "TRANSACTION_ID"},
+	{204, "TXN_PRIORITY"},
 	{0, NULL}
 };
 
@@ -1345,6 +1350,7 @@ static const value_string tns_data_oci_subfuncs[] = {
 	{187, "Notify"},
 	{199, "Pipeline begin"},
 	{200, "Pipeline end"},
+	{204, "Alter session"},
 	{205, "End-user security context"},
 	{0, NULL}
 };
@@ -4164,6 +4170,44 @@ static int dissect_tns_piggyback_body(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				offset += get_sb4_custom(tvb, offset, &v);
 				proto_item_append_text(attr_item, ": %s = %s", attr ? attr : "", value ? value : "");
 				proto_item_set_len(attr_item, offset - attr_start);
+			}
+			break;
+		}
+
+		case TTI_ALTER_SESSION:
+		{
+			/* Change session parameters, as ALTER SESSION would, without
+			 * a round trip of its own - a 23ai client sets its
+			 * transaction priority (TXN_PRIORITY) this way: a ub4 of
+			 * flags, a pointer and the ub4 number of parameters, then
+			 * each parameter and its value in the bytes_with_length form
+			 * and a ub4 flag, 1 when the value is empty to restore the
+			 * database default. */
+			int num = 0;
+
+			offset += get_sb4_custom(tvb, offset, &v);     /* flags */
+			offset += 1;                                   /* pointer */
+			offset += get_sb4_custom(tvb, offset, &num);
+			for ( int i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+			{
+				proto_tree *par_tree;
+				proto_item *par_item;
+				const char *param = NULL, *value = NULL;
+				int par_start = offset;
+
+				par_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tns_alter_session, &par_item, "Session Parameter");
+				start = offset;
+				offset += get_field_with_length(tvb, pinfo, offset, &param);
+				if ( param )
+					proto_tree_add_string(par_tree, hf_tns_data_pgy_alter_param, tvb, start, offset - start, param);
+				start = offset;
+				offset += get_field_with_length(tvb, pinfo, offset, &value);
+				proto_tree_add_string(par_tree, hf_tns_data_pgy_alter_value, tvb, start, offset - start, value ? value : "");
+				offset += get_sb4_custom(tvb, offset, &v);
+				proto_item_append_text(par_item, ": %s = %s", param ? param : "", value ? value : "(default)");
+				proto_item_set_len(par_item, offset - par_start);
+				if ( param )
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s=%s]", param, value ? value : "default");
 			}
 			break;
 		}
@@ -8484,6 +8528,12 @@ void proto_register_tns(void)
 		{ &hf_tns_data_pgy_app_ctx_value, {
 			"Value", "tns.data_piggyback.app_context_value", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_alter_param, {
+			"Session Parameter", "tns.data_piggyback.alter_session_param", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_pgy_alter_value, {
+			"Value", "tns.data_piggyback.alter_session_value", FT_STRING, BASE_NONE,
+			NULL, 0x0, "Empty to restore the database default", HFILL }},
 		{ &hf_tns_data_pgy_session_state, {
 			"Session State", "tns.data_piggyback.session_state", FT_UINT64, BASE_HEX,
 			NULL, 0x0, "Request boundary: the client begins or ends a request", HFILL }},
@@ -8707,6 +8757,7 @@ void proto_register_tns(void)
 		&ett_tns_oer,
 		&ett_tns_kod,
 		&ett_tns_app_ctx,
+		&ett_tns_alter_session,
 		&ett_tns_call_status,
 		&ett_tns_warn_flags,
 		&ett_tns_auth_mode,
