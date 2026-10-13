@@ -254,7 +254,7 @@ static bool parseFieldTS(cCLLog_logFileInfo_t *pInfo, char *pField, cCLLog_messa
     memset(&tm, 0, sizeof tm);
 
     /* YYYYMMDDThhmmss */
-    sscanf(timeStampStringFull, "%4u%2u%2u%2u%2u%2u%3d",
+    if (sscanf(timeStampStringFull, "%4u%2u%2u%2u%2u%2u%3d",
             &tm.tm_year,
             &tm.tm_mon,
             &tm.tm_mday,
@@ -262,7 +262,11 @@ static bool parseFieldTS(cCLLog_logFileInfo_t *pInfo, char *pField, cCLLog_messa
             &tm.tm_min,
             &tm.tm_sec,
             &ms
-            );
+            ) != 7) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("cllog: time stamp is not valid");
+        return false;
+    }
     tm.tm_mon -= 1;
     tm.tm_year -= 1900;
 
