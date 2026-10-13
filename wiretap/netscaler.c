@@ -867,6 +867,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, char **err_info)
         {
             return WTAP_OPEN_ERROR;
         }
+        nstrace->current_page_file_offset = 0;
 
         /* Read the first page of data */
         if (!nstrace_read_page(wth, err, err_info)) {
