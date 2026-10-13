@@ -155,6 +155,10 @@ void proto_register_tns(void);
 #define TNS_OCI_ALL8_IND2_NARROW 23
 #define TNS_OCI_ALL8_IND2_WIDE   27
 
+/* The encoding flag of an OCI client's TTI_DTY, which sends no type
+ * table. */
+#define TNS_DTY_ENCODING_OCI     2
+
 /* An OCI client's object-type describe (TTI_KOD): the opcodes of its
  * request, where the request's name or REF sits from the TTI_FUN byte,
  * the kinds of message in its reply, and the last byte of SYS.KOTTD's
@@ -355,6 +359,10 @@ static int hf_tns_data_sns_integrity;
 static int hf_tns_data_setdt_charset_in;
 static int hf_tns_data_setdt_charset_out;
 static int hf_tns_data_setdt_flag;
+static int hf_tns_data_setdt_tz;
+static int hf_tns_data_setdt_tz_offset;
+static int hf_tns_data_setdt_tzfile;
+static int hf_tns_data_setdt_ncharset;
 static int hf_tns_data_setdt_caphdr;
 static int hf_tns_data_setdt_caphdr_version;
 static int hf_tns_data_setdt_caphdr_flags;
@@ -4673,6 +4681,25 @@ static int dissect_tns_kod_image(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	return offset;
 }
 
+/* The 11-byte time zone block of an OCI client's data-type round, in the
+ * request and the reply alike: the hours, minutes and seconds of the
+ * offset from UTC at bytes 4 to 6, each biased by 60. Returns the offset
+ * past it. */
+static int dissect_tns_dty_tz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	int h, m, sec;
+	bool negative;
+
+	proto_tree_add_item(tree, hf_tns_data_setdt_tz, tvb, offset, 11, ENC_NA);
+	h = tvb_get_uint8(tvb, offset + 4) - 60;
+	m = tvb_get_uint8(tvb, offset + 5) - 60;
+	sec = tvb_get_uint8(tvb, offset + 6) - 60;
+	negative = h < 0 || m < 0 || sec < 0;
+	proto_item_set_generated(proto_tree_add_string(tree, hf_tns_data_setdt_tz_offset, tvb, offset + 4, 3,
+		wmem_strdup_printf(pinfo->pool, "%c%02d:%02d:%02d", negative ? '-' : '+', abs(h), abs(m), abs(sec))));
+	return offset + 11;
+}
+
 /* Read the error text after an OCI status block: a length byte for up to
  * 252 bytes, else 0xFE and chunks until a zero length. The chunk lengths
  * are single bytes from an 11g server and ub4 LE from an 18c one, and
@@ -4723,6 +4750,20 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	switch ( data_func_id )
 	{
+		case SQLNET_SET_DATATYPES:
+			/* The answer to an OCI client's data-type round: the
+			 * database's time zone block and, when the client sent one,
+			 * the timezone file version as a ub4 BE. */
+			if ( !tvb_bytes_exist(tvb, offset, 11) )
+				return offset;
+			offset = dissect_tns_dty_tz(tvb, pinfo, data_tree, offset);
+			if ( tvb_bytes_exist(tvb, offset, 4) )
+			{
+				proto_tree_add_item(data_tree, hf_tns_data_setdt_tzfile, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+			}
+			return offset;
+
 		case SQLNET_INVOKE_USER_CB:
 		{
 			/* A message of a TTI_KOD reply: a by-name reply's header,
@@ -5001,6 +5042,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			 * is shown whole. */
 			proto_tree *caphdr_tree, *ov_tree;
 			proto_item *caphdr_item, *ov_item;
+			uint32_t dty_flag;
 			uint8_t caps_len;
 
 			if ( !is_request )
@@ -5037,7 +5079,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			offset += 2;
 			proto_tree_add_item(data_tree, hf_tns_data_setdt_charset_out, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
-			proto_tree_add_item(data_tree, hf_tns_data_setdt_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint(data_tree, hf_tns_data_setdt_flag, tvb, offset, 1, ENC_BIG_ENDIAN, &dty_flag);
 			offset += 1;
 
 			caps_len = tvb_get_uint8(tvb, offset);
@@ -5066,6 +5108,28 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			caps_len = tvb_get_uint8(tvb, offset);
 			proto_tree_add_item(data_tree, hf_tns_data_setdt_tblhdr, tvb, offset, 1 + caps_len, ENC_NA);
 			offset += 1 + caps_len;
+
+			if ( dty_flag == TNS_DTY_ENCODING_OCI )
+			{
+				/* An OCI client - sqlplus, thick python-oracledb - sends
+				 * no type table: the server keeps its own representations,
+				 * the fixed-width integers of the OCI dialect, which this
+				 * flag is the first sign of. In the table's place come the
+				 * session's time zone block, from 11.2 on a ub4 BE
+				 * timezone file version, and the national charset as a
+				 * little-endian ub2. */
+				if ( !PINFO_FD_VISITED(pinfo) )
+					tns_get_conv_info(pinfo)->oci_dialect = true;
+				offset = dissect_tns_dty_tz(tvb, pinfo, data_tree, offset);
+				if ( tvb_reported_length_remaining(tvb, offset) >= 6 )
+				{
+					proto_tree_add_item(data_tree, hf_tns_data_setdt_tzfile, tvb, offset, 4, ENC_BIG_ENDIAN);
+					offset += 4;
+				}
+				proto_tree_add_item(data_tree, hf_tns_data_setdt_ncharset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+				break;
+			}
 
 			ov_item = proto_tree_add_item(data_tree, hf_tns_data_setdt_overrides, tvb, offset, -1, ENC_NA);
 			ov_tree = proto_item_add_subtree(ov_item, ett_tns_setdt_overrides);
@@ -8044,6 +8108,18 @@ void proto_register_tns(void)
 		{ &hf_tns_data_setdt_charset_out, {
 			"Charset Out", "tns.data_setdt.charset_out", FT_UINT16, BASE_DEC,
 			VALS(tns_charsets), 0x0, "NLS_NCHAR charset id", HFILL }},
+		{ &hf_tns_data_setdt_tz, {
+			"Time Zone Block", "tns.data_setdt.tz", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_tz_offset, {
+			"Time Zone Offset", "tns.data_setdt.tz_offset", FT_STRING, BASE_NONE,
+			NULL, 0x0, "The offset from UTC the time zone block carries", HFILL }},
+		{ &hf_tns_data_setdt_tzfile, {
+			"Timezone File Version", "tns.data_setdt.tzfile_version", FT_UINT32, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_setdt_ncharset, {
+			"National Charset", "tns.data_setdt.ncharset", FT_UINT16, BASE_DEC,
+			VALS(tns_charsets), 0x0, NULL, HFILL }},
 		{ &hf_tns_data_setdt_flag, {
 			"Flag", "tns.data_setdt.flag", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},

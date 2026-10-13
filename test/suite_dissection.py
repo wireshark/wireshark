@@ -2936,6 +2936,33 @@ class TestDissectTns:
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['20001', 'ORA-20001: ' + 'A' * 321, '', '']] * 2, rows
 
+    def test_tns_oci_dty(self, cmd_tshark, capture_file, test_env):
+        '''An OCI client's TTI_DTY has encoding flag 2 and no type table: a
+        time zone block, from 11.2 on a timezone file version, and the
+        national charset follow its capabilities, and the server answers
+        with its own time zone block. The flag marks the client as an OCI
+        one, so a status block after it is read in the OCI layout.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_dty.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_setdt.field_version',
+            '-e', 'tns.data_setdt.tz_offset',
+            '-e', 'tns.data_setdt.tzfile_version',
+            '-e', 'tns.data_setdt.ncharset',
+            '-e', 'tns.data_oer.oci_status',
+            '-e', 'data.len',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['6', '+00:00:00', '14', '2000', '', '', ''],
+            ['', '+00:00:00', '14', '', '', '', ''],
+            ['', '', '', '', '1', '', ''],
+            ['4', '+00:00:00', '', '2000', '', '', ''],
+            ['', '+00:00:00', '', '', '', '', ''],
+        ], rows
+
     def test_tns_oci_kod(self, cmd_tshark, capture_file, test_env):
         '''An OCI client describes an object type with TTI_KOD, by name or
         by REF. The reply is a name header for a by-name call, a record
