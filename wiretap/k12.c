@@ -1141,6 +1141,9 @@ static bool k12_dump_src_setting(k12_src_desc_t *src_desc, wtap_dumper *wdh, int
         } record;
     } obj;
 
+    /* Fields we don't set, and padding, are written as zero */
+    memset(&obj, 0, sizeof obj);
+
     obj.record.type = g_htonl(K12_REC_SRCDSC);
     obj.record.unk32_1 = g_htonl(0x00000001);
     obj.record.input = g_htonl(src_desc->input);
@@ -1282,10 +1285,15 @@ static bool k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
     obj.record.type = g_htonl(K12_REC_PACKET);
     obj.record.frame_len = g_htonl(rec->rec_header.packet_header.caplen);
     obj.record.input = g_htonl(pseudo_header->k12.input);
+    obj.record.datum_1 = 0;
+    obj.record.datum_2 = 0;
 
     obj.record.ts = GUINT64_TO_BE((((uint64_t)rec->ts.secs - 631152000) * 2000000) + (rec->ts.nsecs / 1000 * 2));
 
     memcpy(obj.record.frame,ws_buffer_start_ptr(&rec->data),rec->rec_header.packet_header.caplen);
+    /* Zero the padding up to the rounded up record length */
+    memset(obj.record.frame + rec->rec_header.packet_header.caplen, 0,
+           len - K12_PACKET_FRAME - rec->rec_header.packet_header.caplen);
 
     return k12_dump_record(wdh,len,obj.buffer, err);
 }
