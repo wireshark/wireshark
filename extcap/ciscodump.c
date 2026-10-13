@@ -207,6 +207,7 @@ static int read_output_bytes(ssh_channel channel, int bytes, char* outbuf)
 			outbuf[bytes_read] = chr;
 		bytes_read++;
 	}
+	/* read_output_bytes_any NUL terminates here. */
 	return EXIT_SUCCESS;
 }
 
@@ -1472,7 +1473,7 @@ static int check_ios_version(ssh_channel channel, CISCO_SW_TYPE *sw_type)
 	int sw_minor = 0;
 	char* cur;
 
-	memset(version, 0x0, 255);
+	memset(version, 0x0, sizeof(version));
 
 	/* Discard any login message */
 	if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
@@ -1480,7 +1481,8 @@ static int check_ios_version(ssh_channel channel, CISCO_SW_TYPE *sw_type)
 
 	if (ssh_channel_write(channel, cmdline_version, (uint32_t)strlen(cmdline_version)) == SSH_ERROR)
 		return false;
-	if (read_output_bytes(channel, 255, version) == EXIT_FAILURE)
+	/* Leave room for the terminating NUL */
+	if (read_output_bytes(channel, sizeof(version) - 1, version) == EXIT_FAILURE)
 		return false;
 
 	/* Discard any subsequent text */
