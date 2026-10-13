@@ -3689,6 +3689,39 @@ typedef struct
 #define L_LBMC_CNTL_TCP_SID_HDR_T_SID SIZEOF(lbmc_cntl_tcp_sid_hdr_t, sid)
 #define L_LBMC_CNTL_TCP_SID_HDR_T (int) sizeof(lbmc_cntl_tcp_sid_hdr_t)
 
+/* LBMC control transport security header. */
+typedef struct
+{
+    lbm_uint8_t next_hdr;
+    lbm_uint8_t hdr_len;
+    lbm_uint16_t flags;
+    lbm_uint8_t state;
+    lbm_uint8_t protocol_proposed;
+    lbm_uint16_t reserved1;
+    lbm_uint32_t protocols_accepted;
+    lbm_uint32_t reserved2;
+    lbm_uint8_t session_id[8];
+} lbmc_cntl_transport_security_hdr_t;
+#define O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_NEXT_HDR OFFSETOF(lbmc_cntl_transport_security_hdr_t, next_hdr)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_NEXT_HDR SIZEOF(lbmc_cntl_transport_security_hdr_t, next_hdr)
+#define O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_HDR_LEN OFFSETOF(lbmc_cntl_transport_security_hdr_t, hdr_len)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_HDR_LEN SIZEOF(lbmc_cntl_transport_security_hdr_t, hdr_len)
+#define O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_FLAGS OFFSETOF(lbmc_cntl_transport_security_hdr_t, flags)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_FLAGS SIZEOF(lbmc_cntl_transport_security_hdr_t, flags)
+#define O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_STATE OFFSETOF(lbmc_cntl_transport_security_hdr_t, state)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_STATE SIZEOF(lbmc_cntl_transport_security_hdr_t, state)
+#define O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOL_PROPOSED OFFSETOF(lbmc_cntl_transport_security_hdr_t, protocol_proposed)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOL_PROPOSED SIZEOF(lbmc_cntl_transport_security_hdr_t, protocol_proposed)
+#define O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_RESERVED1 OFFSETOF(lbmc_cntl_transport_security_hdr_t, reserved1)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_RESERVED1 SIZEOF(lbmc_cntl_transport_security_hdr_t, reserved1)
+#define O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOLS_ACCEPTED OFFSETOF(lbmc_cntl_transport_security_hdr_t, protocols_accepted)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOLS_ACCEPTED SIZEOF(lbmc_cntl_transport_security_hdr_t, protocols_accepted)
+#define O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_RESERVED2 OFFSETOF(lbmc_cntl_transport_security_hdr_t, reserved2)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_RESERVED2 SIZEOF(lbmc_cntl_transport_security_hdr_t, reserved2)
+#define O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_SESSION_ID OFFSETOF(lbmc_cntl_transport_security_hdr_t, session_id)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_SESSION_ID SIZEOF(lbmc_cntl_transport_security_hdr_t, session_id)
+#define L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T (int) sizeof(lbmc_cntl_transport_security_hdr_t)
+
 /* LBMC extended configuration option. */
 typedef struct
 {
@@ -3860,6 +3893,7 @@ typedef struct
 #define LBMC_NHDR_UME_STORE_INFO_EXT 0x69
 #define LBMC_NHDR_UME_PSRC_ELECTION_TOKEN 0x6A
 #define LBMC_NHDR_TCP_SID 0x6B
+#define LBMC_NHDR_TRANSPORT_SECURITY 0x6C
 #define LBMC_NHDR_ROUTE_INFO_NBR_EXT 0x6E
 
 #define LBMC_NHDR_EXTOPT 0xFE
@@ -4107,6 +4141,22 @@ typedef struct
 #define LBMC_UMQ_CMD_RESP_ERROR_NOHMAC 0x12
 #define LBMC_UMQ_CMD_RESP_ERROR_NOAUTHOR 0x13
 
+#define LBMC_TRANSPORT_SECURITY_STATE_PROPOSE 1
+#define LBMC_TRANSPORT_SECURITY_STATE_REJECT 2
+#define LBMC_TRANSPORT_SECURITY_STATE_CHANGE 3
+
+#define LBMC_TRANSPORT_SECURITY_PROTOCOL_NULL 0
+#define LBMC_TRANSPORT_SECURITY_PROTOCOL_BLACKHOLE 1
+#define LBMC_TRANSPORT_SECURITY_PROTOCOL_NONE 2
+#define LBMC_TRANSPORT_SECURITY_PROTOCOL_TLS 3
+#define LBMC_TRANSPORT_SECURITY_PROTOCOL_LZ4 4
+#define LBMC_TRANSPORT_SECURITY_PROTOCOL_LZ4_TLS 5
+
+#define LBMC_TRANSPORT_SECURITY_PROTOCOLS_ACCEPTED_NONE (1u << (LBMC_TRANSPORT_SECURITY_PROTOCOL_NONE - 1))
+#define LBMC_TRANSPORT_SECURITY_PROTOCOLS_ACCEPTED_TLS (1u << (LBMC_TRANSPORT_SECURITY_PROTOCOL_TLS - 1))
+#define LBMC_TRANSPORT_SECURITY_PROTOCOLS_ACCEPTED_LZ4 (1u << (LBMC_TRANSPORT_SECURITY_PROTOCOL_LZ4 - 1))
+#define LBMC_TRANSPORT_SECURITY_PROTOCOLS_ACCEPTED_LZ4_TLS (1u << (LBMC_TRANSPORT_SECURITY_PROTOCOL_LZ4_TLS - 1))
+
 #define LBMC_EXTOPT_FLAG_IGNORE 0x80
 #define LBMC_EXTOPT_FLAG_IGNORE_SUBTYPE 0x40
 #define LBMC_EXTOPT_FLAG_MORE_FRAGMENT 0x20
@@ -4254,6 +4304,7 @@ static const value_string lbmc_next_header[] =
     { LBMC_NHDR_UME_PSRC_ELECTION_TOKEN, "Proxy source election token" },
     { LBMC_NHDR_NONE, "None" },
     { LBMC_NHDR_TCP_SID, "TCP session ID" },
+    { LBMC_NHDR_TRANSPORT_SECURITY, "Transport security" },
     { 0x0, NULL }
 };
 
@@ -4514,6 +4565,25 @@ static const value_string lbmc_umq_cmd_response_error_code[] =
     { LBMC_UMQ_CMD_RESP_ERROR_AUTHFAIL, "Authentication failed" },
     { LBMC_UMQ_CMD_RESP_ERROR_NOHMAC, "HMAC failed" },
     { LBMC_UMQ_CMD_RESP_ERROR_NOAUTHOR, "Not authorized" },
+    { 0x0, NULL }
+};
+
+static const value_string lbmc_transport_security_state[] =
+{
+    { LBMC_TRANSPORT_SECURITY_STATE_PROPOSE, "Propose" },
+    { LBMC_TRANSPORT_SECURITY_STATE_REJECT, "Reject" },
+    { LBMC_TRANSPORT_SECURITY_STATE_CHANGE, "Change" },
+    { 0x0, NULL }
+};
+
+static const value_string lbmc_transport_security_protocol[] =
+{
+    { LBMC_TRANSPORT_SECURITY_PROTOCOL_NULL, "Null" },
+    { LBMC_TRANSPORT_SECURITY_PROTOCOL_BLACKHOLE, "Blackhole" },
+    { LBMC_TRANSPORT_SECURITY_PROTOCOL_NONE, "None (plaintext)" },
+    { LBMC_TRANSPORT_SECURITY_PROTOCOL_TLS, "TLS" },
+    { LBMC_TRANSPORT_SECURITY_PROTOCOL_LZ4, "LZ4 compression" },
+    { LBMC_TRANSPORT_SECURITY_PROTOCOL_LZ4_TLS, "LZ4 compression + TLS" },
     { 0x0, NULL }
 };
 
@@ -5747,6 +5817,21 @@ static int hf_lbmc_tcp_sid_hdr_len;
 static int hf_lbmc_tcp_sid_flags;
 static int hf_lbmc_tcp_sid_flags_ignore;
 static int hf_lbmc_tcp_sid_sid;
+static int hf_lbmc_transport_security;
+static int hf_lbmc_transport_security_next_hdr;
+static int hf_lbmc_transport_security_hdr_len;
+static int hf_lbmc_transport_security_flags;
+static int hf_lbmc_transport_security_flags_ignore;
+static int hf_lbmc_transport_security_state;
+static int hf_lbmc_transport_security_protocol_proposed;
+static int hf_lbmc_transport_security_reserved1;
+static int hf_lbmc_transport_security_protocols_accepted;
+static int hf_lbmc_transport_security_protocols_accepted_none;
+static int hf_lbmc_transport_security_protocols_accepted_tls;
+static int hf_lbmc_transport_security_protocols_accepted_lz4;
+static int hf_lbmc_transport_security_protocols_accepted_lz4_tls;
+static int hf_lbmc_transport_security_reserved2;
+static int hf_lbmc_transport_security_session_id;
 static int hf_lbmc_extopt;
 static int hf_lbmc_extopt_next_hdr;
 static int hf_lbmc_extopt_hdr_len;
@@ -6049,6 +6134,9 @@ static int ett_lbmc_ume_psrc_election_token;
 static int ett_lbmc_ume_psrc_election_token_flags;
 static int ett_lbmc_tcp_sid;
 static int ett_lbmc_tcp_sid_flags;
+static int ett_lbmc_transport_security;
+static int ett_lbmc_transport_security_flags;
+static int ett_lbmc_transport_security_protocols_accepted;
 static int ett_lbmc_extopt;
 static int ett_lbmc_extopt_flags;
 static int ett_lbmc_extopt_cfgopt;
@@ -6074,6 +6162,7 @@ static expert_field ei_lbmc_analysis_no_reassembly;
 static expert_field ei_lbmc_analysis_missing_reassembly_frame;
 static expert_field ei_lbmc_analysis_invalid_fragment;
 static expert_field ei_lbmc_extopt_fragment_offset;
+static expert_field ei_lbmc_transport_security_blackhole;
 
 /* Extended option reassembly structures. */
 #define LBMC_EXTOPT_REASSEMBLED_DATA_MAX_LEN 65536
@@ -10159,6 +10248,45 @@ static int dissect_nhdr_tcp_sid(tvbuff_t * tvb, unsigned offset, packet_info * p
     return (L_LBMC_CNTL_TCP_SID_HDR_T);
 }
 
+static int dissect_nhdr_transport_security(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
+{
+    proto_item * subtree_item = NULL;
+    proto_tree * subtree = NULL;
+    proto_item * protocol_proposed_item = NULL;
+    uint8_t protocol_proposed;
+    static int * const flags[] =
+    {
+        &hf_lbmc_transport_security_flags_ignore,
+        NULL
+    };
+    static int * const protocols_accepted_flags[] =
+    {
+        &hf_lbmc_transport_security_protocols_accepted_none,
+        &hf_lbmc_transport_security_protocols_accepted_tls,
+        &hf_lbmc_transport_security_protocols_accepted_lz4,
+        &hf_lbmc_transport_security_protocols_accepted_lz4_tls,
+        NULL
+    };
+
+    subtree_item = proto_tree_add_item(tree, hf_lbmc_transport_security, tvb, offset, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T, ENC_NA);
+    subtree = proto_item_add_subtree(subtree_item, ett_lbmc_transport_security);
+    proto_tree_add_item(subtree, hf_lbmc_transport_security_next_hdr, tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_NEXT_HDR, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lbmc_transport_security_hdr_len, tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_HDR_LEN, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_FLAGS, hf_lbmc_transport_security_flags, ett_lbmc_transport_security_flags, flags, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lbmc_transport_security_state, tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_STATE, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_STATE, ENC_BIG_ENDIAN);
+    protocol_proposed = tvb_get_uint8(tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOL_PROPOSED);
+    protocol_proposed_item = proto_tree_add_item(subtree, hf_lbmc_transport_security_protocol_proposed, tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOL_PROPOSED, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOL_PROPOSED, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lbmc_transport_security_reserved1, tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_RESERVED1, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_RESERVED1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(subtree, tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOLS_ACCEPTED, hf_lbmc_transport_security_protocols_accepted, ett_lbmc_transport_security_protocols_accepted, protocols_accepted_flags, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lbmc_transport_security_reserved2, tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_RESERVED2, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_RESERVED2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_lbmc_transport_security_session_id, tvb, offset + O_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_SESSION_ID, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_SESSION_ID, ENC_NA);
+    if (protocol_proposed == LBMC_TRANSPORT_SECURITY_PROTOCOL_BLACKHOLE)
+    {
+        expert_add_info(pinfo, protocol_proposed_item, &ei_lbmc_transport_security_blackhole);
+    }
+    return (L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T);
+}
+
 static int dissect_nhdr_extopt_cfgopt(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
 {
     /*
@@ -10712,6 +10840,10 @@ static const char * lbmc_determine_msg_type(const uint8_t * header_array, bool r
     {
         return ("TCP-SID");
     }
+    else if (header_array[LBMC_NHDR_TRANSPORT_SECURITY] != 0)
+    {
+        return ("TCP Transport Security");
+    }
     return (NULL);
 }
 
@@ -10888,6 +11020,7 @@ bool lbmc_test_lbmc_header(tvbuff_t * tvb, unsigned offset)
         case LBMC_NHDR_UME_STORE_INFO_EXT:
         case LBMC_NHDR_UME_PSRC_ELECTION_TOKEN:
         case LBMC_NHDR_TCP_SID:
+        case LBMC_NHDR_TRANSPORT_SECURITY:
         case LBMC_NHDR_EXTOPT:
             break;
         default:
@@ -11351,6 +11484,9 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, unsigned offset, packet_info * pinf
                     break;
                 case LBMC_NHDR_TCP_SID:
                     dissected_hdr_len = dissect_nhdr_tcp_sid(hdr_tvb, 0, pinfo, subtree, &tcp_sid_info);
+                    break;
+                case LBMC_NHDR_TRANSPORT_SECURITY:
+                    dissected_hdr_len = dissect_nhdr_transport_security(hdr_tvb, 0, pinfo, subtree);
                     break;
                 case LBMC_NHDR_EXTOPT:
                     dissected_hdr_len = dissect_nhdr_extopt(hdr_tvb, 0, pinfo, subtree, reassembly);
@@ -14122,6 +14258,36 @@ void proto_register_lbmc(void)
             { "Ignore", "lbmc.tcp_sid.flags.ignore", FT_BOOLEAN, L_LBMC_CNTL_TCP_SID_HDR_T_FLAGS * 8, TFS(&lbm_ignore_flag), LBMC_OPT_IGNORE, NULL, HFILL } },
         { &hf_lbmc_tcp_sid_sid,
             { "Session ID", "lbmc.tcp_sid.sid", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security,
+            { "Transport Security", "lbmc.transport_security", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security_next_hdr,
+            { "Next Header", "lbmc.transport_security.next_hdr", FT_UINT8, BASE_DEC_HEX, VALS(lbmc_next_header), 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security_hdr_len,
+            { "Header Length", "lbmc.transport_security.hdr_len", FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security_flags,
+            { "Flags", "lbmc.transport_security.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security_flags_ignore,
+            { "Ignore", "lbmc.transport_security.flags.ignore", FT_BOOLEAN, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_FLAGS * 8, TFS(&lbm_ignore_flag), LBMC_OPT_IGNORE, NULL, HFILL } },
+        { &hf_lbmc_transport_security_state,
+            { "State", "lbmc.transport_security.state", FT_UINT8, BASE_DEC_HEX, VALS(lbmc_transport_security_state), 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security_protocol_proposed,
+            { "Protocol Proposed", "lbmc.transport_security.protocol_proposed", FT_UINT8, BASE_DEC_HEX, VALS(lbmc_transport_security_protocol), 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security_reserved1,
+            { "Reserved", "lbmc.transport_security.reserved1", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security_protocols_accepted,
+            { "Protocols Accepted", "lbmc.transport_security.protocols_accepted", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security_protocols_accepted_none,
+            { "None (plaintext)", "lbmc.transport_security.protocols_accepted.none", FT_BOOLEAN, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOLS_ACCEPTED * 8, NULL, LBMC_TRANSPORT_SECURITY_PROTOCOLS_ACCEPTED_NONE, NULL, HFILL } },
+        { &hf_lbmc_transport_security_protocols_accepted_tls,
+            { "TLS", "lbmc.transport_security.protocols_accepted.tls", FT_BOOLEAN, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOLS_ACCEPTED * 8, NULL, LBMC_TRANSPORT_SECURITY_PROTOCOLS_ACCEPTED_TLS, NULL, HFILL } },
+        { &hf_lbmc_transport_security_protocols_accepted_lz4,
+            { "LZ4 compression", "lbmc.transport_security.protocols_accepted.lz4", FT_BOOLEAN, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOLS_ACCEPTED * 8, NULL, LBMC_TRANSPORT_SECURITY_PROTOCOLS_ACCEPTED_LZ4, NULL, HFILL } },
+        { &hf_lbmc_transport_security_protocols_accepted_lz4_tls,
+            { "LZ4 compression + TLS", "lbmc.transport_security.protocols_accepted.lz4_tls", FT_BOOLEAN, L_LBMC_CNTL_TRANSPORT_SECURITY_HDR_T_PROTOCOLS_ACCEPTED * 8, NULL, LBMC_TRANSPORT_SECURITY_PROTOCOLS_ACCEPTED_LZ4_TLS, NULL, HFILL } },
+        { &hf_lbmc_transport_security_reserved2,
+            { "Reserved", "lbmc.transport_security.reserved2", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbmc_transport_security_session_id,
+            { "Session ID", "lbmc.transport_security.session_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_extopt,
             { "Extended Option", "lbmc.extopt", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_extopt_next_hdr,
@@ -14480,6 +14646,9 @@ void proto_register_lbmc(void)
         &ett_lbmc_ume_psrc_election_token_flags,
         &ett_lbmc_tcp_sid,
         &ett_lbmc_tcp_sid_flags,
+        &ett_lbmc_transport_security,
+        &ett_lbmc_transport_security_flags,
+        &ett_lbmc_transport_security_protocols_accepted,
         &ett_lbmc_extopt,
         &ett_lbmc_extopt_flags,
         &ett_lbmc_extopt_cfgopt,
@@ -14508,6 +14677,7 @@ void proto_register_lbmc(void)
         { &ei_lbmc_analysis_missing_reassembly_frame, { "lbmc.analysis.missing_reassembly_frame", PI_UNDECODED, PI_WARN, "Message not reassembled - reassembly data missing from capture", EXPFILL } },
         { &ei_lbmc_analysis_invalid_fragment, { "lbmc.analysis.invalid_fragment", PI_MALFORMED, PI_ERROR, "Invalid fragment", EXPFILL } },
         { &ei_lbmc_extopt_fragment_offset, { "lbmc.extopt.fragment_offset.invalid", PI_PROTOCOL, PI_ERROR, "Invalid fragment offset", EXPFILL } },
+        { &ei_lbmc_transport_security_blackhole, { "lbmc.transport_security.blackhole", PI_SECURITY, PI_WARN, "Transport security negotiation failed - connection black-holed (no further data will be exchanged, by design, to avoid an insecure fallback)", EXPFILL } },
     };
 
     module_t * lbmc_module = NULL;
