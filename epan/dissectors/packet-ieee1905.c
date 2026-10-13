@@ -494,7 +494,10 @@ static int hf_ieee1905_ap_wf6_gen_mu_edca;
 static int hf_ieee1905_ap_wf6_gen_twt_requester;
 static int hf_ieee1905_ap_wf6_gen_twt_responder;
 static int hf_ieee1905_ap_wf6_gen_reserved;
-static int hf_ieee1905_agent_list_bytes;
+static int hf_ieee1905_agent_list_agent_num;
+static int hf_ieee1905_agent_list_al_mac_addr;
+static int hf_ieee1905_agent_list_multiap_profile;
+static int hf_ieee1905_agent_list_security;
 static int hf_ieee1905_mic_group_temporal_key_id;
 static int hf_ieee1905_mic_integrity_transmission_counter;
 static int hf_ieee1905_mic_source_la_mac_id;
@@ -838,6 +841,11 @@ static int hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_num;
 static int hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_bssid;
 static int hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_mac_addr;
 static int hf_ieee1905_associated_sta_mld_configuration_affiliated_sta_reserved;
+static int hf_ieee1905_mld_structure_mld_mac_addr;
+static int hf_ieee1905_mld_structure_reserved;
+static int hf_ieee1905_mld_structure_affiliated_num;
+static int hf_ieee1905_mld_structure_affiliated_mac_addr;
+static int hf_ieee1905_mld_structure_affiliated_reserved;
 static int hf_ieee1905_affiliated_sta_metrics_sta_mac_addr;
 static int hf_ieee1905_affiliated_sta_metrics_bytes_sent;
 static int hf_ieee1905_affiliated_sta_metrics_bytes_rcvd;
@@ -1027,6 +1035,8 @@ static int ett_ap_wf6_agent_role_flags;
 static int ett_ap_wf6_supported_flags;
 static int ett_ap_wf6_mimo_max_flags;
 static int ett_ap_wf6_gen_flags;
+static int ett_agent_list_agent_list;
+static int ett_agent_list_agent;
 static int ett_cac_request_flags;
 static int ett_cac_request_radio_list;
 static int ett_cac_request_radio;
@@ -1118,6 +1128,8 @@ static int ett_backhaul_sta_mld_configuration_affiliated_bsta_flags;
 static int ett_associated_sta_mld_configuration_flags;
 static int ett_associated_sta_mld_configuration_affiliated_sta_list;
 static int ett_associated_sta_mld_configuration_affiliated_sta;
+static int ett_mld_structure_affiliated_list;
+static int ett_mld_structure_affiliated;
 static int ett_eht_operations_radio_list;
 static int ett_eht_operations_radio;
 static int ett_eht_operations_radio_bss_list;
@@ -1450,6 +1462,7 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define AGENT_AP_MLD_CONFIGURATION_TLV          0xE0
 #define BACKHAUL_STA_MLD_CONFIGURATION_TLV      0xE1
 #define ASSOCIATED_STA_MLD_CONFIGURATION_TLV    0xE2
+#define MLD_STRUCTURE_TLV                       0xE3
 #define AFFILIATED_STA_METRICS_TLV              0xE4
 #define AFFILIATED_AP_METRICS_TLV               0xE5
 #define EHT_OPERATIONS_TLV                      0xE7
@@ -1589,6 +1602,7 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { AGENT_AP_MLD_CONFIGURATION_TLV,          "Agent AP MLD Configuration" },
   { BACKHAUL_STA_MLD_CONFIGURATION_TLV,      "Backhaul STA MLD Configuration" },
   { ASSOCIATED_STA_MLD_CONFIGURATION_TLV,    "Associated STA MLD Configuration" },
+  { MLD_STRUCTURE_TLV,                       "MLD Structure" },
   { AFFILIATED_STA_METRICS_TLV,              "Affiliated STA Metrics" },
   { AFFILIATED_AP_METRICS_TLV,               "Affiliated AP Metrics" },
   { EHT_OPERATIONS_TLV,                      "EHT Operations" },
@@ -6078,13 +6092,66 @@ dissect_ap_wf6_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset;
 }
 
+/*
+ * Dissect an Agent List TLV
+ */
+static const range_string agent_list_multiap_profile_rvals[] = {
+    { 0, 0,   "Reserved" },
+    { 1, 1,   "Multi-AP Profile-1" },
+    { 2, 2,   "Multi-AP Profile-2" },
+    { 3, 3,   "Multi-AP Profile-3" },
+    { 4, 255, "Reserved" },
+    { 0, 0,   NULL }
+};
+
+static const range_string agent_list_security_rvals[] = {
+    { 0, 0,   "1905 Security Not Enabled" },
+    { 1, 1,   "1905 Security Enabled" },
+    { 2, 255, "Reserved" },
+    { 0, 0,   NULL }
+};
+
 static int
 dissect_agent_list(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, unsigned offset, uint16_t len)
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
-    proto_tree_add_item(tree, hf_ieee1905_agent_list_bytes, tvb, offset,
-                        len, ENC_NA);
-    offset += len;
+    proto_tree *agent_list = NULL;
+    proto_item *agent_list_item = NULL;
+    uint8_t count;
+    unsigned start_list_offset;
+
+    proto_tree_add_item_ret_uint8(tree, hf_ieee1905_agent_list_agent_num,
+                                  tvb, offset, 1, ENC_NA, &count);
+    offset++;
+
+    agent_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                        ett_agent_list_agent_list,
+                                        &agent_list_item, "Agent List");
+
+    start_list_offset = offset;
+
+    for (uint8_t i = 0; i < count; i++) {
+        proto_tree *agent_tree = NULL;
+        proto_item *agent_tree_item = NULL;
+
+        agent_tree = proto_tree_add_subtree_format(agent_list, tvb, offset, -1,
+                                                   ett_agent_list_agent,
+                                                   &agent_tree_item, "Agent %u", i);
+
+        proto_tree_add_item(agent_tree, hf_ieee1905_agent_list_al_mac_addr, tvb,
+                            offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item(agent_tree, hf_ieee1905_agent_list_multiap_profile, tvb,
+                            offset, 1, ENC_NA);
+        offset++;
+
+        proto_tree_add_item(agent_tree, hf_ieee1905_agent_list_security, tvb,
+                            offset, 1, ENC_NA);
+        offset++;
+    }
+
+    proto_item_set_len(agent_list_item, offset - start_list_offset);
 
     return offset;
 }
@@ -8838,6 +8905,59 @@ dissect_associated_sta_mld_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset;
 }
 
+
+/*
+ * Dissect a MLD Structure TLV:
+ */
+static int
+dissect_mld_structure(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    proto_tree *aff_list = NULL;
+    proto_item *aff_list_item = NULL;
+    uint8_t aff_count;
+    unsigned aff_list_start = 0;
+
+    proto_tree_add_item(tree, hf_ieee1905_mld_structure_mld_mac_addr,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(tree, hf_ieee1905_mld_structure_reserved,
+                        tvb, offset, 25, ENC_NA);
+    offset += 25;
+
+    proto_tree_add_item_ret_uint8(tree, hf_ieee1905_mld_structure_affiliated_num,
+                                  tvb, offset, 1, ENC_NA, &aff_count);
+    offset++;
+
+    aff_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                      ett_mld_structure_affiliated_list,
+                                      &aff_list_item, "Affiliated List");
+
+    aff_list_start = offset;
+
+    for (uint8_t i = 0; i < aff_count; i++) {
+        proto_tree *aff_tree = NULL;
+        proto_item *aff_item = NULL;
+
+        aff_tree = proto_tree_add_subtree_format(aff_list, tvb, offset,
+                                                 -1, ett_mld_structure_affiliated,
+                                                  &aff_item, "Affiliated STA %u", i);
+
+        proto_tree_add_item(aff_tree, hf_ieee1905_mld_structure_affiliated_mac_addr,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_item(aff_tree, hf_ieee1905_mld_structure_affiliated_reserved,
+                            tvb, offset, 26, ENC_NA);
+        offset += 26;
+    }
+
+    proto_item_set_len(aff_list_item, offset - aff_list_start);
+
+    return offset;
+}
+
 /*
  * Dissect an Affiliated STA Metrics TLV:
  */
@@ -9982,6 +10102,10 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
     case ASSOCIATED_STA_MLD_CONFIGURATION_TLV:
         offset = dissect_associated_sta_mld_configuration(tvb, pinfo, tree, offset,
                                                           tlv_len);
+        break;
+
+    case MLD_STRUCTURE_TLV:
+        offset = dissect_mld_structure(tvb, pinfo, tree, offset, tlv_len);
         break;
 
     case AFFILIATED_STA_METRICS_TLV:
@@ -12230,9 +12354,21 @@ proto_register_ieee1905(void)
             "ieee1905.ap_wifi_6_capabilities.general_flags.reserved",
             FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
 
-        { &hf_ieee1905_agent_list_bytes,
-          { "Agent List", "ieee1905.agent_list.agent_list_data",
-            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ieee1905_agent_list_agent_num,
+          { "Number of agents", "ieee1905.wifi_7_agent_capabilities.num_agents",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_list_al_mac_addr,
+          { "AL MAC Address", "ieee1905.agent_list.al_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_list_multiap_profile,
+          { "MultiAP Profile", "ieee1905.agent_list.multiap_profile",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(agent_list_multiap_profile_rvals), 0, NULL, HFILL }},
+
+        { &hf_ieee1905_agent_list_security,
+          { "Security", "ieee1905.agent_list.security",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(agent_list_security_rvals), 0, NULL, HFILL }},
 
         { &hf_ieee1905_mic_group_temporal_key_id,
           { "Group Temporal Key ID", "ieee1905.mic.group_temporal_key_id",
@@ -13751,6 +13887,26 @@ proto_register_ieee1905(void)
           { "Reserved", "ieee1905.associated_sta_mld_configuration.affiliated_sta_reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+        { &hf_ieee1905_mld_structure_mld_mac_addr,
+          { "MLD MAC Addr", "ieee1905.mld_structure.mld_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_mld_structure_reserved,
+          { "Reserved", "ieee1905.mld_structure.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_mld_structure_affiliated_num,
+          { "Number of Affiliated", "ieee1905.mld_structure.affiliated_num",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_mld_structure_affiliated_mac_addr,
+          { "Affiliated MAC Addr", "ieee1905.mld_structure.affiliated.mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_mld_structure_affiliated_reserved,
+          { "Reserved", "ieee1905.mld_structure.affiliated.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         { &hf_ieee1905_affiliated_sta_metrics_sta_mac_addr,
           { "STA MAC Address", "ieee1905.affiliated_sta_metrics.sta_mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -14191,6 +14347,8 @@ proto_register_ieee1905(void)
         &ett_ap_wf6_supported_flags,
         &ett_ap_wf6_mimo_max_flags,
         &ett_ap_wf6_gen_flags,
+        &ett_agent_list_agent_list,
+        &ett_agent_list_agent,
         &ett_channel_scan_result_neigh,
         &ett_channel_scan_result_flags,
         &ett_cac_request_flags,
@@ -14284,6 +14442,8 @@ proto_register_ieee1905(void)
         &ett_associated_sta_mld_configuration_flags,
         &ett_associated_sta_mld_configuration_affiliated_sta_list,
         &ett_associated_sta_mld_configuration_affiliated_sta,
+        &ett_mld_structure_affiliated_list,
+        &ett_mld_structure_affiliated,
         &ett_eht_operations_radio_list,
         &ett_eht_operations_radio,
         &ett_eht_operations_radio_bss_list,
