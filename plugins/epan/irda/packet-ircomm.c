@@ -253,7 +253,8 @@ static bool dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet_inf
 
 
             ti = proto_tree_add_item(tree, hf_ircomm_param, tvb, offset, p_len + 2, ENC_NA);
-            p_tree = proto_item_add_subtree(ti, ett_param[list_index * MAX_PARAMETERS + n]);
+            p_tree = proto_item_add_subtree(ti, ett_param[MIN(list_index, MAX_IAP_ENTRIES - 1) * MAX_PARAMETERS +
+                                                              MIN(n, MAX_PARAMETERS - 1)]);
 
             buf[0] = 0;
 
