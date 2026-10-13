@@ -262,9 +262,15 @@ peak_trc_parse(wtap* wth, peak_trc_state_t* state, int64_t* offset, int* err, ch
             double days_since_epoch = g_strtod(parts[1], NULL);
             days_since_epoch -= 25569.0;
             time_t ts = 0;
-            struct tm* t = gmtime(&ts);
-            t->tm_sec += (int)(days_since_epoch * 24 * 3600);
-            state->trace_start = mktime(t);
+            struct tm* start_tm = gmtime(&ts);
+            if (start_tm == NULL) // Extremely unlikely
+            {
+                *err_info = ws_strdup("peak_trc: unable to convert start time");
+                g_strfreev(parts);
+                return WTAP_OPEN_ERROR;
+            }
+            start_tm->tm_sec += (int)(days_since_epoch * 24 * 3600);
+            state->trace_start = mktime(start_tm);
             state->trace_start_nsec = 0;
 
             found_timestamp = true;
