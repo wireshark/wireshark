@@ -820,7 +820,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
                         ti = proto_tree_add_item(tree, hf_iap_list_entry, tvb, offset, 2 + 1 + attr_len, ENC_NA);
                         proto_item_append_text(ti, "%d", n + 1);
-                        entry_tree = proto_item_add_subtree(ti, ett_iap_entry[n]);
+                        entry_tree = proto_item_add_subtree(ti, ett_iap_entry[MIN(n, MAX_IAP_ENTRIES - 1)]);
 
                         proto_tree_add_item(entry_tree, hf_iap_obj_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
@@ -1268,7 +1268,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
         if (tree)
         {
             ti = proto_tree_add_item(tree, hf_negotiation_param, tvb, offset, p_len + 2, ENC_NA);
-            p_tree = proto_item_add_subtree(ti, ett_param[n]);
+            p_tree = proto_item_add_subtree(ti, ett_param[MIN(n, MAX_PARAMETERS - 1)]);
 
             pv = tvb_get_uint8(tvb, offset+2);
             buf[0] = 0;
