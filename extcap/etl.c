@@ -196,14 +196,22 @@ static PROVIDER_FILTER g_provider_filters[32];
 static BOOL g_is_live_session;
 
 static GHashTable* g_etw_frags;
+/* The reassembled buffer is given a NetBIOS session header with a 24-bit length */
+#define ETW_FRAG_MAX_LEN (4 + 0xFFFFFF)
+/* Reassemblies are keyed by thread, so record which protocol started one */
+typedef enum {
+    ETW_FRAG_SMB,
+    ETW_FRAG_LDAP,
+} etw_frag_type;
 typedef struct _etw_frag {
+    etw_frag_type type;
     CHAR PeerAddressFmt[64];  // 46 max for IPv6 address, 1 for ':' and 5 for the port
     PWTAP_ETL_RECORD_CONTEXT ctx;
     GByteArray* buf;
 } etw_frag;
 static void etw_frag_free(etw_frag* frag);
-static etw_frag* etw_frag_new();
-static etw_frag* etw_frag_get(PEVENT_RECORD ev, bool begin);
+static etw_frag* etw_frag_new(etw_frag_type type);
+static etw_frag* etw_frag_get(PEVENT_RECORD ev, bool begin, etw_frag_type type);
 static void etw_frag_remove(PEVENT_RECORD ev);
 
 static void WINAPI event_callback(PEVENT_RECORD ev);
@@ -876,7 +884,7 @@ static ULONG wtap_etl_rec_build(
     {
         extended_data_offset = hdr_offset;
         extended_data_ptrs = g_malloc(sizeof(char*) * ev->ExtendedDataCount);
-        USHORT extended_data_length = 0;
+        ULONG extended_data_length = 0;
         for (USHORT i = 0; i < ev->ExtendedDataCount; i++)
         {
             // It doesn't make sense to send the pointer, so we swap it for
@@ -1061,9 +1069,10 @@ void wtap_etl_rec_dump(char* etl_record, ULONG total_packet_length, ULONG origin
 
 /* Context-related functions */
 
-static etw_frag* etw_frag_new()
+static etw_frag* etw_frag_new(etw_frag_type type)
 {
     etw_frag* frag = g_malloc(sizeof(etw_frag));
+    frag->type = type;
     frag->buf = g_byte_array_new();
     frag->ctx = ctx_init();
     return frag;
@@ -1076,19 +1085,21 @@ static void etw_frag_free(etw_frag* frag)
     g_free(frag);
 }
 
-static etw_frag* etw_frag_get(PEVENT_RECORD ev, bool begin)
+static etw_frag* etw_frag_get(PEVENT_RECORD ev, bool begin, etw_frag_type type)
 {
     etw_frag* frag;
     if (begin)
     {
         /* We need a new buffer */
-        frag = etw_frag_new();
+        frag = etw_frag_new(type);
         g_hash_table_replace(g_etw_frags, GINT_TO_POINTER(ev->EventHeader.ThreadId), frag);
     }
     else
     {
-        /* We get an existing buffer */
+        /* We get an existing buffer, if another protocol didn't start it */
         frag = g_hash_table_lookup(g_etw_frags, GINT_TO_POINTER(ev->EventHeader.ThreadId));
+        if (frag != NULL && frag->type != type)
+            frag = NULL;
     }
     return frag;
 }
@@ -1108,7 +1119,11 @@ static void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
     PWTAP_ETL_RECORD_CONTEXT ctx;
 
     /* 0x80000000 mask the function to host message */
-    is_inbound = ((*(INT32*)(ev->UserData)) & 0x80000000) ? true : false;
+    if (ev->UserDataLength >= sizeof(INT32)) {
+        INT32 header;
+        memcpy(&header, ev->UserData, sizeof(header));
+        is_inbound = (header & 0x80000000) ? true : false;
+    }
 
     // Build packet
     ctx = ctx_init();
@@ -1149,14 +1164,17 @@ static void etw_dump_write_smb_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
         if (ev->EventHeader.EventDescriptor.Keyword & 0x40000000) /* PacketStart */
         {
             // Beginning of the buffer
-            frag = etw_frag_get(ev, true);
+            frag = etw_frag_get(ev, true, ETW_FRAG_SMB);
             if (frag == NULL) goto end;
 
             // Extract "PeerAddress" from blob
             SOCKADDR_STORAGE* pPeerAddress = (SOCKADDR_STORAGE*)ADD_OFFSET_TO_POINTER(Buffer, 8);
+            DWORD PeerAddressLength = (Length > 8) ? Length - 8 : 0;
 
-            // Format PeerAddress
-            if (pPeerAddress->ss_family == AF_INET || pPeerAddress->ss_family == AF_INET6)
+            // Format PeerAddress, if the blob is long enough for it
+            if (PeerAddressLength >= sizeof(ADDRESS_FAMILY) &&
+                ((pPeerAddress->ss_family == AF_INET && PeerAddressLength >= sizeof(struct sockaddr_in)) ||
+                 (pPeerAddress->ss_family == AF_INET6 && PeerAddressLength >= sizeof(struct sockaddr_in6))))
             {
                 Length = sizeof(frag->PeerAddressFmt);
 
@@ -1192,8 +1210,15 @@ static void etw_dump_write_smb_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
         {
             // Middle / End of the buffer
 
-            frag = etw_frag_get(ev, false);
+            frag = etw_frag_get(ev, false, ETW_FRAG_SMB);
             if (frag == NULL) goto end;
+
+            if (Length > ETW_FRAG_MAX_LEN - frag->buf->len)
+            {
+                // Too long; discard the reassembly
+                etw_frag_remove(ev);
+                goto end;
+            }
 
             // Append data
             g_byte_array_append(frag->buf, Buffer, Length);
@@ -1227,18 +1252,22 @@ static void etw_dump_write_smb_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
     {
         // Event 40000 = Full I/O.
 
-        SOCKADDR_STORAGE PeerAddress;
+        SOCKADDR_STORAGE PeerAddress = { 0 };
+        DWORD PeerAddressLength = 0;
         PWTAP_ETL_RECORD_CONTEXT ctx = ctx_init();
         CHAR PeerAddressFmt[64] = { 0 };  // 46 max for IPv6 address, 1 for ':' and 5 for the port
 
         // Get "PeerAddress" property
         DataDescriptor.PropertyName = (ULONGLONG)&L"PeerAddress";
         DataDescriptor.ArrayIndex = ULONG_MAX;
-        status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(PeerAddress), (PBYTE)&PeerAddress);
+        status = TdhGetPropertySize(ev, 0, NULL, 1, &DataDescriptor, &PeerAddressLength);
+        if (status != NO_ERROR || PeerAddressLength > sizeof(PeerAddress)) goto nfend;
+        status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, PeerAddressLength, (PBYTE)&PeerAddress);
         if (status != NO_ERROR) goto nfend;
 
-        // Format PeerAddress
-        if (PeerAddress.ss_family == AF_INET || PeerAddress.ss_family == AF_INET6)
+        // Format PeerAddress, if the property is long enough for it
+        if ((PeerAddress.ss_family == AF_INET && PeerAddressLength >= sizeof(struct sockaddr_in)) ||
+            (PeerAddress.ss_family == AF_INET6 && PeerAddressLength >= sizeof(struct sockaddr_in6)))
         {
             Length = sizeof(PeerAddressFmt);
 
@@ -1273,7 +1302,7 @@ static void etw_dump_write_smb_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp)
         if (status != NO_ERROR) goto nfend;
         if (PropertySize > 0xFFFFFF)
             // Size cannot be longer than 3 octets
-            return;
+            goto nfend;
         Length = PropertySize + 4;  // Make room for the Netbios header
         Buffer = g_malloc(Length);
         status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, PropertySize, ADD_OFFSET_TO_POINTER(Buffer, 4));
@@ -1351,7 +1380,7 @@ static void etw_dump_write_webio_event(PEVENT_RECORD ev, ULARGE_INTEGER timestam
     WTAP_ETL_RECORD* etl_record = NULL;
     ULONG total_packet_length = 0;
     PROPERTY_DATA_DESCRIPTOR DataDescriptor = { 0 };
-    DWORD Length = 0;
+    DWORD Length = 0, PropertySize = 0;
     ULONG status;
     ULONGLONG SessionId = 0;
     BYTE* Buffer = NULL;
@@ -1371,7 +1400,6 @@ static void etw_dump_write_webio_event(PEVENT_RECORD ev, ULARGE_INTEGER timestam
     // That is okay because Windows only runs on Little Endian currently
     status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(DWORD), (PBYTE)&Length);
     if (status != NO_ERROR) goto end;
-    Buffer = g_malloc(Length);
 
     if (ev->EventHeader.EventDescriptor.Id == 100 || ev->EventHeader.EventDescriptor.Id == 101)
     {
@@ -1384,7 +1412,14 @@ static void etw_dump_write_webio_event(PEVENT_RECORD ev, ULARGE_INTEGER timestam
         DataDescriptor.PropertyName = (ULONGLONG)&L"Data";
     }
     DataDescriptor.ArrayIndex = ULONG_MAX;
-    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, Length, Buffer);
+    // Allocate the size of the property itself, not the "Length"
+    // property, and use no more than that.
+    status = TdhGetPropertySize(ev, 0, NULL, 1, &DataDescriptor, &PropertySize);
+    if (status != NO_ERROR) goto end;
+    if (Length > PropertySize)
+        Length = PropertySize;
+    Buffer = g_malloc(PropertySize);
+    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, PropertySize, Buffer);
     if (status != NO_ERROR) goto end;
 
     ctx_add_tlv_user_data(ctx, Buffer, Length);
@@ -1433,13 +1468,13 @@ static void etw_dump_write_ldap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp
     {
         // Beginning of the buffer
 
-        frag = etw_frag_get(ev, true);
+        frag = etw_frag_get(ev, true, ETW_FRAG_LDAP);
     }
     else if (Length >= 3 && memcmp(Message, "End", 3) == 0)
     {
         // End of the buffer
 
-        frag = etw_frag_get(ev, false);
+        frag = etw_frag_get(ev, false, ETW_FRAG_LDAP);
         if (frag == NULL) goto end;
 
         ctx_add_tlv_user_data(frag->ctx, frag->buf->data, frag->buf->len);
@@ -1455,7 +1490,7 @@ static void etw_dump_write_ldap_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp
     {
         // Data (in hexdump format)
 
-        frag = etw_frag_get(ev, false);
+        frag = etw_frag_get(ev, false, ETW_FRAG_LDAP);
         if (frag == NULL) goto end;
 
         // Decode the hexdump ("XX XX ... XX") into a bounded local buffer
@@ -1493,7 +1528,7 @@ static void etw_dump_write_bthport_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
     WTAP_ETL_RECORD* etl_record = NULL;
     ULONG total_packet_length = 0;
     PROPERTY_DATA_DESCRIPTOR DataDescriptor = { 0 };
-    DWORD DataLen = 0;
+    DWORD DataLen = 0, PropertySize = 0;
     DWORD Type = 0;
     ULONG status;
     BYTE* Buffer = NULL;
@@ -1505,13 +1540,18 @@ static void etw_dump_write_bthport_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
     DataDescriptor.ArrayIndex = ULONG_MAX;
     status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(DWORD), (PBYTE)&DataLen);
     if (status != NO_ERROR) goto end;
-    Buffer = g_malloc(DataLen + 1);
     if (DataLen == 0) goto end;
 
-    // Get "BIP_Data" property
+    // Get "BIP_Data" property. Allocate the size of the property itself,
+    // not the "BIP_DataLen" property, and use no more than that.
     DataDescriptor.PropertyName = (ULONGLONG)&L"BIP_Data";
     DataDescriptor.ArrayIndex = ULONG_MAX;
-    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, DataLen, Buffer + 1);
+    status = TdhGetPropertySize(ev, 0, NULL, 1, &DataDescriptor, &PropertySize);
+    if (status != NO_ERROR || PropertySize == 0) goto end;
+    if (DataLen > PropertySize)
+        DataLen = PropertySize;
+    Buffer = g_malloc(PropertySize + 1);
+    status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, PropertySize, Buffer + 1);
     if (status != NO_ERROR) goto end;
 
     // Get "BIP_Type" property
