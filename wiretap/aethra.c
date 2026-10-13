@@ -261,6 +261,8 @@ packet, hdr.rec_type, rec->rec_header.packet_header.caplen, hdr.flags);
 #endif
 			break;
 		}
+		/* Discard the data if the record is being skipped */
+		ws_buffer_clean(buf);
 	}
 
 found:
