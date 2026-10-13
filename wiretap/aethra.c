@@ -233,6 +233,8 @@ static bool aethra_read(wtap *wth, wtap_rec *rec, int *err,
 			ws_debug("Packet %u: type 0x%02x, packet_size %u, flags 0x%02x\n", aethra->packet_number, hdr.rec_type, rec->rec_header.packet_header.caplen, hdr.flags);
 			break;
 		}
+		/* Discard the data if the record is being skipped */
+		ws_buffer_clean(&rec->data);
 	}
 
 found:
