@@ -7581,11 +7581,12 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
     /* udCompHdr (if preferences indicate will be present) */
     bool included = (includeUdCompHeader==1) ||   /* 1 means present.. */
                     (includeUdCompHeader==2 && udcomphdr_appears_present(state, direction, tvb, offset)); /* heuristic */
+    bool udCompHdr_ignored = direction == 0 && pref_override_ul_compression; /* Ignore UL if configured to */
     if (included) {
         /* 7.5.2.10 */
         /* Extract these values to inform how wide IQ samples in each PRB will be. */
         offset = dissect_udcomphdr(tvb, pinfo, section_tree, offset, false,
-                                   direction == 0 && pref_override_ul_compression, /* Ignore UL if configured to */
+                                   udCompHdr_ignored,
                                    sample_bit_width_ptr,
                                    &compression, &ud_comp_meth_item, tap_info);
 
@@ -7599,7 +7600,8 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
                                    reserved);
         }
     }
-    else {
+
+    if (!included || udCompHdr_ignored) {
         /* No fields to dissect - just showing comp values from prefs */
         /* iqWidth */
         proto_item *iq_width_item = proto_tree_add_uint(section_tree, hf_oran_udCompHdrIqWidth_pref, tvb, 0, 0, *sample_bit_width_ptr);
