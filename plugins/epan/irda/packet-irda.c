@@ -571,7 +571,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
             if (conv)
             {
                 iap_conv = (iap_conversation_t*)conversation_get_proto_data(conv, proto_iap);
-                while (1)
+                while (iap_conv)
                 {
                     if (iap_conv->iap_query_frame == pinfo->num)
                     {
@@ -580,7 +580,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
                     }
                     if (iap_conv->pnext == NULL)
                     {
-                        iap_conv->pnext = wmem_new(wmem_file_scope(), iap_conversation_t);
+                        iap_conv->pnext = wmem_new0(wmem_file_scope(), iap_conversation_t);
                         iap_conv = iap_conv->pnext;
                         break;
                     }
@@ -590,14 +590,12 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
             else
             {
                 conv = conversation_new(pinfo->num, &srcaddr, &destaddr, CONVERSATION_NONE, pinfo->srcport, pinfo->destport, 0);
-                iap_conv = wmem_new(wmem_file_scope(), iap_conversation_t);
+                iap_conv = wmem_new0(wmem_file_scope(), iap_conversation_t);
                 conversation_add_proto_data(conv, proto_iap, (void*)iap_conv);
             }
             if (iap_conv)
             {
-                iap_conv->pnext           = NULL;
                 iap_conv->iap_query_frame = pinfo->num;
-                iap_conv->pattr_dissector = NULL;
             }
 
             char   *class_name = (char *) tvb_get_string_enc(pinfo->pool, tvb, offset + 1 + 1, clen, ENC_ASCII|ENC_NA);
@@ -1220,7 +1218,7 @@ void add_lmp_conversation(packet_info* pinfo, uint8_t dlsap, bool ttp, dissector
     if (conv)
     {
         lmp_conv = (lmp_conversation_t*)conversation_get_proto_data(conv, proto_irlmp);
-        while (1)
+        while (lmp_conv)
         {
             /* Does entry already exist? */
             if (lmp_conv->iap_result_frame == pinfo->num)
@@ -1228,7 +1226,7 @@ void add_lmp_conversation(packet_info* pinfo, uint8_t dlsap, bool ttp, dissector
 
             if (lmp_conv->pnext == NULL)
             {
-                lmp_conv->pnext = wmem_new(wmem_file_scope(), lmp_conversation_t);
+                lmp_conv->pnext = wmem_new0(wmem_file_scope(), lmp_conversation_t);
                 lmp_conv = lmp_conv->pnext;
                 break;
             }
@@ -1238,11 +1236,10 @@ void add_lmp_conversation(packet_info* pinfo, uint8_t dlsap, bool ttp, dissector
     else
     {
         conv = conversation_new(pinfo->num, &destaddr, &srcaddr, CONVERSATION_NONE, dlsap, 0, NO_PORT2);
-        lmp_conv = wmem_new(wmem_file_scope(), lmp_conversation_t);
+        lmp_conv = wmem_new0(wmem_file_scope(), lmp_conversation_t);
         conversation_add_proto_data(conv, proto_irlmp, (void*)lmp_conv);
     }
 
-    lmp_conv->pnext            = NULL;
     lmp_conv->iap_result_frame = pinfo->num;
     lmp_conv->ttp              = ttp;
     lmp_conv->dissector        = dissector;
