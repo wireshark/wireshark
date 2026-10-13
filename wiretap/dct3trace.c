@@ -72,8 +72,13 @@ static const char dct3trace_magic_line2[] = "<dump>";
 static const char dct3trace_magic_record_start[]  = "<l1 ";
 static const char dct3trace_magic_record_end[]  = "</l1>";
 
-#define RINGBUFFER_START_SIZE INT_MAX
 #define RINGBUFFER_CHUNK_SIZE 1024
+/* The buffer is filled incrementally in RINGBUFFER_CHUNK_SIZE reads and grows
+ * on demand, so only reserve a small amount up front. Reserving a huge amount
+ * here would mean a large allocation for every file we accept, which glib
+ * treats as fatal if it fails.
+ */
+#define RINGBUFFER_START_SIZE (64 * RINGBUFFER_CHUNK_SIZE)
 
 #define MAX_PACKET_LEN 23
 
