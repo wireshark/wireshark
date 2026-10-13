@@ -497,6 +497,11 @@ private slots:
     void on_actionAudioRoutingMuteInvert_triggered();
 
     /**
+     * @brief Unmutes the selected streams and mutes all other streams.
+     */
+    void on_actionAudioRoutingSolo_triggered();
+
+    /**
      * @brief Handles selection changes in the stream tree widget.
      */
     void on_streamTreeWidget_itemSelectionChanged();

@@ -959,6 +959,9 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
                 } else if (keyEvent.modifiers() == Qt::ControlModifier) {
                     on_actionAudioRoutingMuteInvert_triggered();
                     return true;
+                } else if (keyEvent.modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {
+                    on_actionAudioRoutingSolo_triggered();
+                    return true;
                 } else  {
                     on_actionAudioRoutingMute_triggered();
                     return true;
@@ -1862,6 +1865,22 @@ void RtpPlayerDialog::on_actionAudioRoutingMuteInvert_triggered()
 
         QTreeWidgetItem *ti = items[i];
         invertAudioMutingOnItem(ti);
+    }
+    block_redraw_ = false;
+    ui->audioPlot->replot();
+    updateHintLabel();
+    unlockUI();
+}
+
+// Listen to the selected streams only: unmute them and mute all the others
+void RtpPlayerDialog::on_actionAudioRoutingSolo_triggered()
+{
+    lockUI();
+
+    block_redraw_ = true;
+    for (int i = 0; i < ui->streamTreeWidget->topLevelItemCount(); i++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(i);
+        changeAudioRoutingOnItem(ti, AudioRouting(ti->isSelected() ? AUDIO_UNMUTED : AUDIO_MUTED, channel_any));
     }
     block_redraw_ = false;
     ui->audioPlot->replot();

@@ -616,6 +616,7 @@
    <addaction name="actionAudioRoutingMute"/>
    <addaction name="actionAudioRoutingUnmute"/>
    <addaction name="actionAudioRoutingMuteInvert"/>
+   <addaction name="actionAudioRoutingSolo"/>
    <addaction name="actionAudioRoutingP"/>
    <addaction name="actionAudioRoutingL"/>
    <addaction name="actionAudioRoutingLR"/>
@@ -652,6 +653,17 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionAudioRoutingSolo">
+   <property name="text">
+    <string>Solo</string>
+   </property>
+   <property name="toolTip">
+    <string>Unmute selected streams and mute all other streams</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+M</string>
    </property>
   </action>
   <action name="actionAudioRoutingP">
