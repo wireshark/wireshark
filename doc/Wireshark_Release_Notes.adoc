@@ -422,6 +422,10 @@ For backwards compatibility, if an extcap describe toolbar controls in
 its interface configuration it will be assumed to have "T" support.
 More information is available in the Developer's Guide.
 
+// == Prior Versions
+
+// === Wireshark 5.0.0 included the following changes.
+
 == Getting Wireshark
 
 Wireshark source code and installation packages are available from

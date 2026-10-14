@@ -159,9 +159,9 @@ if(WIN32)
 endif()
 
 # Updated by tools/make-version.py
-set(PROJECT_MAJOR_VERSION 4)
-set(PROJECT_MINOR_VERSION 7)
-set(PROJECT_PATCH_VERSION 5)
+set(PROJECT_MAJOR_VERSION 5)
+set(PROJECT_MINOR_VERSION 0)
+set(PROJECT_PATCH_VERSION 0)
 set(PROJECT_BUILD_VERSION 0)
 set(PROJECT_VERSION_EXTENSION "")
 
@@ -171,8 +171,8 @@ endif()
 
 set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
 
-set(STRATOSHARK_MAJOR_VERSION 0)
-set(STRATOSHARK_MINOR_VERSION 10)
+set(STRATOSHARK_MAJOR_VERSION 1)
+set(STRATOSHARK_MINOR_VERSION 0)
 
 set(STRATOSHARK_VERSION "${STRATOSHARK_MAJOR_VERSION}.${STRATOSHARK_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
 
@@ -324,7 +324,7 @@ if(WIN32)
 		endif()
 		if(WIRESHARK_BASE_DIR)
 			file( TO_CMAKE_PATH "${WIRESHARK_BASE_DIR}" _ws_base_dir )
-			set( _PROJECT_LIB_DIR "${_ws_base_dir}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
+			set( _PROJECT_LIB_DIR "${_ws_base_dir}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs-5.0" )
 			unset(_ws_base_dir)
 		elseif( DEFINED ENV{WIRESHARK_LIB_DIR} )
 			message(DEPRECATION "Support for the WIRESHARK_LIB_DIR environment variable will be removed in the future. Use WIRESHARK_BASE_DIR instead.")
@@ -553,8 +553,8 @@ endif()
 # Banner shown at top right of Qt welcome screen.
 if(DEFINED ENV{WIRESHARK_VERSION_FLAVOR})
 	set(VERSION_FLAVOR "$ENV{WIRESHARK_VERSION_FLAVOR}")
-else()
-	set(VERSION_FLAVOR "Development Build")
+# else()
+# 	set(VERSION_FLAVOR "Development Build")
 endif()
 
 # Used in .rc files and manifests

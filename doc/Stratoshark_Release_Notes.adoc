@@ -253,6 +253,9 @@ Building with Qt 5 is no longer supported.
 
 // === Major API Changes
 
+// == Prior Versions
+
+// === Stratoshark 1.0.0 included the following changes.
 
 == Getting Stratoshark
 

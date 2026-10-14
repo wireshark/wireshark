@@ -1,5 +1,5 @@
-wireshark (4.7.5) UNRELEASED; urgency=low
+wireshark (5.0.0) UNRELEASED; urgency=low
 
   * Self-made package
 
- -- Wireshark Self-made package <wireshark@example.com>  Wed, 07 Oct 2026 14:26:31 -0700
+ -- Wireshark Self-made package <wireshark@example.com>  Wed, 14 Oct 2026 13:40:22 -0700
