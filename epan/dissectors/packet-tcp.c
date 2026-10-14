@@ -39,6 +39,8 @@
 #include <wsutil/ws_assert.h>
 #include <wsutil/nstime.h>
 
+#include "packet-ip.h"
+#include "packet-ipv6.h"
 #include "packet-tcp.h"
 
 
@@ -442,6 +444,9 @@ static int hf_tcp_syncookie_option_ecn;
 static int hf_tcp_syncookie_option_sack;
 static int hf_tcp_syncookie_option_wscale;
 static int hf_tcp_ns_reset_window_error_code;
+static int hf_tcp_tcpfp;
+static int hf_tcp_tcpfp_raw;
+static int hf_tcp_tcpfp_hint;
 
 static int ett_tcp;
 static int ett_tcp_completeness;
@@ -514,6 +519,7 @@ static expert_field ei_tcp_option_sack_dsack;
 static expert_field ei_tcp_option_snack_sequence;
 static expert_field ei_tcp_option_wscale_shift_invalid;
 static expert_field ei_tcp_option_mss_absent;
+static expert_field ei_tcp_tcpfp_scanner;
 static expert_field ei_tcp_option_mss_present;
 static expert_field ei_tcp_option_mss_exceeded;
 static expert_field ei_tcp_option_sack_perm_absent;
@@ -9102,6 +9108,185 @@ dissect_tcp_rst_payload(tvbuff_t *tvb, proto_tree *tree, int offset, int length)
     }
 }
 
+/*
+ * nDPI TCP fingerprint (TCPFP) option value policy: number of value
+ * octets to emit for option "kind" at offset "i" of the option region,
+ * or -1 if the (ephemeral) option must be dropped completely.
+ * See https://github.com/ntop/nDPI/blob/dev/fingerprint/nDPI_TCP_fingerprint.md
+ */
+static int
+tcp_tcpfp_option_value_len(tvbuff_t *tvb, int opt_offset, unsigned n, uint8_t kind, unsigned i)
+{
+    switch (kind) {
+    case TCPOPT_MSS:
+    case TCPOPT_TIMESTAMP:
+    case TCPOPT_MD5:
+    case TCPOPT_AO:
+        /* Path-dependent, per-connection or per-segment values: kind only */
+        return 0;
+    case TCPOPT_MPTCP:
+        /* Keep subtype/version (+ flags for MP_CAPABLE) */
+        if (i + 2 >= n)
+            return 0;
+        return (tvb_get_uint8(tvb, opt_offset + i + 2) >> 4) == 0 ? 2 : 1;
+    case TCPOPT_TFO:
+        return -1;
+    case TCPOPT_EXP_FD:
+    case TCPOPT_EXP_FE:
+        /* RFC 6994: keep the ExID, drop the experimental TFO */
+        if (i + 3 >= n)
+            return 0;
+        return tvb_get_ntohs(tvb, opt_offset + i + 2) == 0xF989 ? -1 : 2;
+    default:
+        /* Assumed to be a stack constant */
+        return 255;
+    }
+}
+
+/*
+ * Known nDPI TCP fingerprints (test vectors of the specification) and a
+ * human readable hint of the stack that produced them. This is a hint,
+ * not an identification: every fingerprint input is sender-controlled.
+ */
+static const string_string tcp_tcpfp_hint_vals[] = {
+    { "2_64_64240_789c1d1f",   "Linux" },
+    { "2_64_64800_789c1d1f",   "Linux (IPv6)" },
+    { "2_64_64240_1d00dd35",   "Linux with MPTCP" },
+    { "2_64_65535_58b6a464",   "Android" },
+    { "2_64_65535_2b9b4c52",   "FreeBSD" },
+    { "194_64_65535_e76f0f14", "macOS/iPadOS" },
+    { "2_64_65535_e76f0f14",   "iOS/iPadOS" },
+    { "2_64_65535_2b6d3038",   "macOS/iOS (older release)" },
+    { "194_64_65535_2b6d3038", "macOS/iOS (older release)" },
+    { "2_128_64240_47466ece",  "Windows 10" },
+    { "2_128_65535_47466ece",  "Windows 11" },
+    { "2_255_16384_85adcf01",  "Network device (BGP with TCP-MD5)" },
+    { "2_255_1024_00000000",   "Stateless scanner (probably masscan)" },
+    { "2_255_65535_00000000",  "Stateless scanner (probably zmap)" },
+    { NULL, NULL }
+};
+
+/* MurmurHash3_x86_32, 4-octet blocks read little-endian */
+static uint32_t
+tcp_tcpfp_murmur3_32(const uint8_t *data, size_t len, uint32_t seed)
+{
+    const uint32_t c1 = 0xcc9e2d51, c2 = 0x1b873593;
+    size_t   nblocks = len / 4;
+    uint32_t h = seed, k;
+
+    for (size_t b = 0; b < nblocks; b++) {
+        k = pletohu32(data + b * 4);
+        k *= c1;
+        k = (k << 15) | (k >> 17);
+        k *= c2;
+        h ^= k;
+        h = (h << 13) | (h >> 19);
+        h = h * 5 + 0xe6546b64;
+    }
+
+    if (len & 3) {
+        /* Tail octets, little-endian */
+        k = 0;
+        for (size_t t = len & 3; t > 0; t--)
+            k = (k << 8) | data[nblocks * 4 + t - 1];
+        k *= c1;
+        k = (k << 15) | (k >> 17);
+        k *= c2;
+        h ^= k;
+    }
+
+    h ^= (uint32_t)len;
+    h ^= h >> 16;
+    h *= 0x85ebca6b;
+    h ^= h >> 13;
+    h *= 0xc2b2ae35;
+    h ^= h >> 16;
+    return h;
+}
+
+/*
+ * Compute the nDPI native TCP fingerprint (v0.5)
+ * "<flags>_<ttl_bucket>_<window>_<options_hash>" of a SYN segment.
+ * The raw (pre-hash) options string, e.g. "2,4,8,1,3:7", is returned in "raw".
+ */
+static char *
+tcp_tcpfp_compute(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
+                const struct tcpheader *tcph, uint8_t ttl, const char **raw)
+{
+    wmem_strbuf_t *strbuf = wmem_strbuf_new(scope, "");
+    int      opt_offset = offset + TCPH_MIN_LEN;
+    unsigned n = tcph->th_hlen - TCPH_MIN_LEN;
+    unsigned i = 0;
+    size_t   nop_start = 0;
+    bool     in_nop_run = false, skip_nops = false;
+    unsigned ttl_bucket;
+
+    while (i < n) {
+        uint8_t kind = tvb_get_uint8(tvb, opt_offset + i);
+        int     vlen;
+        unsigned olen;
+
+        if (kind == TCPOPT_NOP) {
+            if (!skip_nops) {
+                /* NOP not adjacent to a dropped option */
+                if (!in_nop_run) {
+                    nop_start = wmem_strbuf_get_len(strbuf);
+                    in_nop_run = true;
+                }
+                wmem_strbuf_append(strbuf, wmem_strbuf_get_len(strbuf) ? ",1" : "1");
+            }
+            i++;
+            continue;
+        }
+
+        vlen = (kind != TCPOPT_EOL) ? tcp_tcpfp_option_value_len(tvb, opt_offset, n, kind, i) : 0;
+        if (vlen < 0) {
+            /* Dropped option: remove the NOP padding (and its separator) preceding it */
+            if (in_nop_run)
+                wmem_strbuf_truncate(strbuf, nop_start);
+            skip_nops = true;
+        } else {
+            skip_nops = false;
+        }
+        in_nop_run = false;
+
+        if (vlen >= 0)
+            wmem_strbuf_append_printf(strbuf, "%s%u",
+                                      wmem_strbuf_get_len(strbuf) ? "," : "", kind);
+        if (kind == TCPOPT_EOL)
+            break; /* The rest is padding */
+        if (i + 1 >= n)
+            break; /* truncated option */
+        olen = tvb_get_uint8(tvb, opt_offset + i + 1);
+        if (olen == 0)
+            break; /* malformed option */
+        if (olen > 2 && vlen > 0) {
+            unsigned end = MIN(MIN(i + olen, n), i + 2 + (unsigned)vlen);
+
+            for (unsigned j = i + 2; j < end; j++)
+                wmem_strbuf_append_printf(strbuf, ":%u", tvb_get_uint8(tvb, opt_offset + j));
+        }
+        i += olen;
+    }
+
+    if (ttl <= 32)
+        ttl_bucket = 32;
+    else if (ttl <= 64)
+        ttl_bucket = 64;
+    else if (ttl <= 128)
+        ttl_bucket = 128;
+    else if (ttl <= 192)
+        ttl_bucket = 192;
+    else
+        ttl_bucket = 255;
+
+    *raw = wmem_strbuf_get_str(strbuf);
+    return wmem_strdup_printf(scope, "%u_%u_%u_%08x",
+                              tcph->th_flags, ttl_bucket, tcph->th_win,
+                              tcp_tcpfp_murmur3_32((const uint8_t *)*raw,
+                                                   wmem_strbuf_get_len(strbuf), 0));
+}
+
 static int
 dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -9723,6 +9908,50 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
         }
         proto_item_set_generated(tf);
+    }
+
+    /* nDPI TCP fingerprint, computed only for SYN segments without ACK
+     * whose header is fully captured, and only when the IP TTL/Hop Limit is
+     * known (https://github.com/ntop/nDPI/blob/dev/fingerprint/nDPI_TCP_fingerprint.md). */
+    if ((tcph->th_flags & (TH_SYN|TH_ACK)) == TH_SYN &&
+        tvb_bytes_exist(tvb, offset, tcph->th_hlen)) {
+        ws_ip4 *ip4 = WS_IP4_PTR(data);
+        ws_ip6 *ip6 = WS_IP6_PTR(data);
+
+        if (ip4 || ip6) {
+            proto_item *ntf_fp_item = NULL;
+
+            if (tcp_tree) {
+                const char *ntf_raw;
+                char *ntf = tcp_tcpfp_compute(pinfo->pool, tvb, offset, tcph,
+                                            ip4 ? ip4->ip_ttl : ip6->ip6_hop, &ntf_raw);
+                const char *ntf_hint = try_str_to_str(ntf, tcp_tcpfp_hint_vals);
+                proto_item *ntf_item;
+
+                ntf_fp_item = proto_tree_add_string(tcp_tree, hf_tcp_tcpfp, tvb, offset, tcph->th_hlen, ntf);
+                proto_item_set_generated(ntf_fp_item);
+                if (ntf_hint) {
+                    /* proto_item_append_text(ntf_fp_item, " (%s)", ntf_hint); */
+                    ntf_item = proto_tree_add_string(tcp_tree, hf_tcp_tcpfp_hint, tvb, offset, tcph->th_hlen, ntf_hint);
+                    proto_item_set_generated(ntf_item);
+                }
+                ntf_item = proto_tree_add_string(tcp_tree, hf_tcp_tcpfp_raw, tvb, offset + TCPH_MIN_LEN,
+                                                 tcph->th_hlen - TCPH_MIN_LEN, ntf_raw);
+                proto_item_set_generated(ntf_item);
+            }
+
+            /* Every mainstream stack sends at least MSS: a SYN without
+             * options is typical of stateless scanners. Reported also
+             * without a tree, so that it shows up in the expert info
+             * dialog and in the status bar. */
+            if (tcph->th_hlen == TCPH_MIN_LEN) {
+                const char *scanner = (tcph->th_win == 1024) ? " (probably masscan)" :
+                                      (tcph->th_win == 65535) ? " (probably zmap)" : "";
+
+                expert_add_info_format(pinfo, ntf_fp_item, &ei_tcp_tcpfp_scanner,
+                                       "(Probable) Massive scanner detected%s: SYN without TCP options", scanner);
+            }
+        }
     }
 
     tf = proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
@@ -11344,6 +11573,19 @@ proto_register_tcp(void)
           { "Client Contiguous Streams", "tcp.stream.client.contiguity_count", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Number of contiguous streams for the client flow once all TCP packets are parsed", HFILL}},
 
+        /* https://github.com/ntop/nDPI/blob/dev/fingerprint/nDPI_TCP_fingerprint.md */
+        { &hf_tcp_tcpfp,
+          { "TCP Fingerprint", "tcp.fingerprint", FT_STRING, BASE_NONE, NULL, 0x0,
+            "TCP fingerprint of the initial SYN", HFILL }},
+
+        { &hf_tcp_tcpfp_raw,
+          { "TCP Fingerprint Raw Options", "tcp.fingerprint.raw", FT_STRING, BASE_NONE, NULL, 0x0,
+            "Comma-separated decimal serialization of the TCP options hashed by the TCP fingerprint", HFILL }},
+
+        { &hf_tcp_tcpfp_hint,
+          { "TCP Fingerprint Hint", "tcp.fingerprint.hint", FT_STRING, BASE_NONE, NULL, 0x0,
+            "Stack (e.g. operating system) that typically produces this TCP fingerprint; a hint, not an identification", HFILL }},
+
         { &hf_tcp_stream_srv_contiguity_count,
           { "Server Contiguous Streams", "tcp.stream.server.contiguity_count", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Number of contiguous streams for the server flow once all TCP packets are parsed", HFILL}},
@@ -11457,6 +11699,7 @@ proto_register_tcp(void)
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},
         { &ei_tcp_option_wscale_shift_invalid, { "tcp.options.wscale.shift.invalid", PI_PROTOCOL, PI_WARN, "Window scale shift exceeds 14", EXPFILL }},
         { &ei_tcp_option_mss_absent, { "tcp.options.mss.absent", PI_PROTOCOL, PI_NOTE, "The SYN packet does not contain a MSS option", EXPFILL }},
+        { &ei_tcp_tcpfp_scanner, { "tcp.fingerprint.scanner", PI_SECURITY, PI_WARN, "Massive scanner detected: SYN without TCP options", EXPFILL }},
         { &ei_tcp_option_mss_present, { "tcp.options.mss.present", PI_PROTOCOL, PI_WARN, "The non-SYN packet does contain a MSS option", EXPFILL }},
         { &ei_tcp_option_mss_exceeded, { "tcp.options.mss.exceeded", PI_PROTOCOL, PI_NOTE, "This packet's length exceeds MSS (common with TSO or incomplete conversations)", EXPFILL }},
         { &ei_tcp_option_sack_perm_absent, { "tcp.options.sack_perm.absent", PI_PROTOCOL, PI_NOTE, "The SYN packet does not contain a SACK PERM option", EXPFILL }},

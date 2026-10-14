@@ -4003,3 +4003,34 @@ class TestDissectDnsUpdateLease:
         assert '2' in stdout
         assert '300' in stdout
         assert '600' in stdout
+
+class TestTcpFingerprint:
+    # Test cases come from
+    # https://github.com/ntop/nDPI/blob/dev/fingerprint/nDPI_TCP_fingerprint.md#appendix-a--test-vectors
+    @pytest.mark.parametrize("tcpfp_case", [
+            # capture file, packet number, fingerprint, option list
+            ('fp_tcp_linux_ubuntu24.pcap', 1, '2_64_64240_789c1d1f', '2,4,8,1,3:7'),
+            ('fp_tcp_android13.pcapng', 1, '2_64_65535_58b6a464', '2,4,8,1,3:10'),
+            ('fp_tcp_android16.pcapng', 1, '2_64_65535_58b6a464', '2,4,8,1,3:10'),
+            ('fp_tcp_freebsd15.pcap', 3, '2_64_65535_2b9b4c52', '2,1,3:6,4,8'),
+            ('fp_tcp_macos27.pcapng', 1, '194_64_65535_e76f0f14', '2,1,3:6,1,1,8,4,0'),
+            ('fp_tcp_iPadOS27.pcapng', 1, '194_64_65535_e76f0f14', '2,1,3:6,1,1,8,4,0'),
+            ('fp_tcp_iOS27_iphone.pcapng', 1, '2_64_65535_e76f0f14', '2,1,3:6,1,1,8,4,0'),
+            ('fp_tcp_iOS18_iPad.pcapng', 1, '2_64_65535_e76f0f14', '2,1,3:6,1,1,8,4,0'),
+            ('fp_tcp_iOS15_iPhone.pcapng', 1, '194_64_65535_2b6d3038', '2,1,3:5,1,1,8,4,0'),
+            ('fp_tcp_win10.pcapng', 1, '2_128_64240_47466ece', '2,1,3:8,1,1,4'),
+            ('fp_tcp_win11.pcapng', 1, '2_128_65535_47466ece', '2,1,3:8,1,1,4'),
+            ('fp_tcp_win11.pcapng', 3, '2_128_65535_47466ece', '2,1,3:8,1,1,4'),
+        ])
+    def test_tcpfp(self, cmd_tshark, capture_file, test_env, tcpfp_case):
+        (cap_file, frame_num, fp, fp_raw) = tcpfp_case
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(os.path.join("tcpfp", cap_file)),
+                '-Y', 'frame.number == '+str(frame_num),
+                '-Tfields',
+                '-e', 'tcp.fingerprint',
+                '-e', 'tcp.fingerprint.raw',
+            ), encoding='utf-8', env=test_env)
+        (out_fp, out_fp_raw) = stdout.strip().split()
+        assert out_fp == fp
+        assert out_fp_raw == fp_raw
