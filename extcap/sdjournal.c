@@ -68,6 +68,26 @@ static const struct ws_option longopts[] = {
 #define ENTRY_BUF_LENGTH WTAP_MAX_PACKET_SIZE_STANDARD
 #define MAX_EXPORT_ENTRY_LENGTH (ENTRY_BUF_LENGTH - 4 - 4 - 4) // Block type - total length - total length
 
+/*
+ * journalctl -o export uses the binary-safe format unless a field is
+ * valid UTF-8 without control characters, which systemd defines as C0
+ * other than TAB, plus DEL and C1 (U+007F to U+009F).
+ */
+static bool sdj_field_is_binary(const uint8_t *str, size_t len)
+{
+	if (!g_utf8_validate((const char *) str, (ssize_t) len, NULL))
+		return true;
+
+	for (size_t i = 0; i < len; i++) {
+		if ((str[i] < 0x20 && str[i] != '\t') || str[i] == 0x7f)
+			return true;
+		/* U+0080 to U+009F. The UTF-8 is valid, so 0xc2 is a lead byte. */
+		if (str[i] == 0xc2 && str[i + 1] <= 0x9f)
+			return true;
+	}
+	return false;
+}
+
 static int sdj_dump_entries(sd_journal *jnl, ws_cwstream* fp)
 {
 	int ret = EXIT_SUCCESS;
@@ -132,7 +152,7 @@ static int sdj_dump_entries(sd_journal *jnl, ws_cwstream* fp)
 				ws_warning("Invalid field.");
 				goto end;
 			}
-			if (g_utf8_validate((const char *) fld_data, (ssize_t) fld_len, NULL)) {
+			if (!sdj_field_is_binary((const uint8_t *) fld_data, fld_len)) {
 				// Allow for two trailing newlines, one here and one
 				// at the end of the buffer.
 				if (fld_len > MAX_EXPORT_ENTRY_LENGTH-data_end-2) {
