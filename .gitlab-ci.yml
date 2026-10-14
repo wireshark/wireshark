@@ -331,10 +331,8 @@ Source Package:
     - ninja release_notes
     - WIRESHARK_VERSION=$(< wireshark_version.txt)
     - cp -v "doc/Wireshark Release Notes.html" ../wireshark-release-notes-${WIRESHARK_VERSION}.html
-    - cp -v "doc/Wireshark Release Notes.txt" ../wireshark-release-notes-${WIRESHARK_VERSION}.txt
     - STRATOSHARK_VERSION=$(< stratoshark_version.txt)
     - cp -v "doc/Stratoshark Release Notes.html" ../stratoshark-release-notes-${STRATOSHARK_VERSION}.html
-    - cp -v "doc/Stratoshark Release Notes.txt" ../stratoshark-release-notes-${STRATOSHARK_VERSION}.txt
     - cd ..
   after_script:
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
