@@ -467,6 +467,17 @@
     <bool>true</bool>
    </property>
   </action>
+  <action name="actionMA">
+   <property name="text">
+    <string>EWMA moving average</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle Moving Average algorithm between EWMA and SMA</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </action>
   <action name="actionCrosshairs">
    <property name="text">
     <string>Crosshairs</string>
