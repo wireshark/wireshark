@@ -21,7 +21,7 @@
 WiresharkFileDialog::WiresharkFileDialog(QWidget *parent, const QString &caption, const QString &directory, const QString &filter) :
     QFileDialog(parent, caption, directory, filter)
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // Add /Volumes to the sidebar. We might want to call
     // setFilter(QDir::Hidden | QDir::AllEntries) in addition to or instead
     // of this as recommended in QTBUG-6805 and QTBUG-6875, but you can

@@ -340,7 +340,7 @@ void LuaDebuggerFilesController::showContextMenu(const QPoint &pos)
 
     QMenu menu(host_);
     QAction *openAct = menu.addAction(QObject::tr("Open Source"));
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     QAction *revealAct = menu.addAction(QObject::tr("Show in Finder"));
 #else
     QAction *revealAct = menu.addAction(QObject::tr("Show in Folder"));

@@ -38,7 +38,7 @@ ApplyLineEdit::ApplyLineEdit(QString linePlaceholderText, QWidget * parent)
             "}"
             );
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     setAttribute(Qt::WA_MacSmallSize, true);
     apply_button_->setAttribute(Qt::WA_MacSmallSize, true);
 #endif

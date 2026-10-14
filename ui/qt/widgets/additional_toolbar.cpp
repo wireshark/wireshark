@@ -149,7 +149,7 @@ QWidget * AdditionalToolbarWidgetAction::createWidget(QWidget * parent)
     barItem->setToolTip(toolbar_item->tooltip);
     barItem->setProperty(propertyName, VariantPointer<ext_toolbar_t>::asQVariant(toolbar_item));
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     barItem->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
@@ -256,7 +256,7 @@ QWidget * AdditionalToolbarWidgetAction::createLabelFrame(ext_toolbar_t * item, 
     QLabel * strLabel = new QLabel(item->name, frame);
     strLabel->setToolTip(item->tooltip);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     frame->setAttribute(Qt::WA_MacSmallSize, true);
     strLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
@@ -309,7 +309,7 @@ QWidget * AdditionalToolbarWidgetAction::createTextEditor(ext_toolbar_t * item, 
     strEdit->setEmptyAllowed(toolbar_item->is_required);
     strEdit->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     strEdit->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
@@ -471,7 +471,7 @@ QWidget * AdditionalToolbarWidgetAction::createSelector(ext_toolbar_t * item, QW
     myBox->setModel(sourceModel);
     myBox->setCurrentIndex(selIndex);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     myBox->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 

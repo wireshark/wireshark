@@ -304,7 +304,7 @@ PacketList::PacketList(QWidget *parent) :
     // to track hovered_frame_num_ for the cross-pane hover highlight.
     setMouseTracking(true);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     setAttribute(Qt::WA_MacShowFocusRect, true);
 #endif
 

@@ -237,7 +237,7 @@ FolderListModel::FolderListModel(QObject * parent):
         appendRow(QStringList() << tr("MIB/PIB path") << path.trimmed() << tr("SMI MIB/PIB search path"));
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     /* Mac Extras */
     QString extras_path = QStringLiteral("%1/../Resources/Extras").arg(mainApp->applicationDirPath());
     appendRow(QStringList() << tr("macOS Extras") << QDir::cleanPath(extras_path) << tr("Extra macOS packages"));
@@ -539,7 +539,7 @@ void AboutDialog::handleCopyMenu(QPoint pos)
 
     if (ui->tabWidget->currentWidget() == ui->tab_plugins)
     {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         QString show_in_str = tr("Show in Finder");
 #else
         QString show_in_str = tr("Show in Folder");

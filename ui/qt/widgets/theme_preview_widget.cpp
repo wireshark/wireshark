@@ -262,7 +262,7 @@ void ThemePreviewWidget::drawWindowControls(QPainter &p, const QRectF &titleRect
 {
     // Window controls, hard-coded per platform: macOS draws traffic
     // lights on the left, Windows/Linux draw min/max/close on the right.
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     Q_UNUSED(darkChrome);
 
     const qreal dotD   = 12.0;

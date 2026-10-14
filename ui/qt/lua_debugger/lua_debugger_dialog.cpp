@@ -1587,7 +1587,7 @@ void LuaDebuggerDialog::updateStatusLabel()
      * indicator in the title. */
     QString title = QStringLiteral("[*]%1").arg(tr("Lua Debugger"));
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // On macOS we separate with a unicode em dash
     title += QString(" " UTF8_EM_DASH " ");
 #else

@@ -118,7 +118,7 @@ HexDataSourceView::HexDataSourceView(const QByteArray &data, packet_char_enc enc
 
     setMouseTracking(true);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     setAttribute(Qt::WA_MacShowFocusRect, true);
 #endif
 }

@@ -155,7 +155,7 @@ void TLSKeylogDialog::on_browseProgramPath()
     if (file_name.isEmpty()) {
         return;
     }
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     if (file_name.endsWith(".app")) {
         QString base_name = QFileInfo(file_name).baseName();
         QString bundle_exe_name = QStringLiteral("%1/Contents/MacOS/%2").arg(file_name, base_name);

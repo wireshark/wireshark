@@ -308,7 +308,7 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
 
         // Draw the borders by hand. We could try to do this in the
         // style sheet but it's a pain.
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
         QColor divider_color = Qt::gray;
 #else
         QColor divider_color = palette().shadow().color();

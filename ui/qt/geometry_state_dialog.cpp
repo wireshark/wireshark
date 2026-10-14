@@ -55,7 +55,7 @@ void GeometryStateDialog::loadGeometry(int width, int height, const QString &dia
     }
 }
 
-#ifndef Q_OS_MAC
+#ifndef Q_OS_MACOS
 void GeometryStateDialog::setWindowModality(Qt::WindowModality modality)
 {
     if (modality != windowModality()) {

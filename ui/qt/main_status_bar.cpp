@@ -102,7 +102,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
                                 ));
 #endif
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     profile_status_.setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 

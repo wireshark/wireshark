@@ -62,7 +62,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->newToolButton->setIconByName("list-add");
     pd_ui_->deleteToolButton->setIconByName("list-remove");
     pd_ui_->copyToolButton->setIconByName("list-copy");
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     pd_ui_->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);

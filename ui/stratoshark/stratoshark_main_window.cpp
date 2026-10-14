@@ -461,13 +461,13 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
 #endif
 
     // Set OS specific shortcuts for fullscreen mode
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     main_ui_->actionViewFullScreen->setShortcut(QKeySequence::FullScreen);
 #else
     main_ui_->actionViewFullScreen->setShortcut(QKeySequence(Qt::Key_F11));
 #endif
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
 
     main_ui_->goToPacketLabel->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToLineEdit->setAttribute(Qt::WA_MacSmallSize, true);
@@ -476,7 +476,7 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
 
     main_ui_->actionEditPreferences->setMenuRole(QAction::PreferencesRole);
 
-#endif // Q_OS_MAC
+#endif // Q_OS_MACOS
 
     connect(main_ui_->goToGo, &QPushButton::pressed, this, &StratosharkMainWindow::goToGoClicked);
     connect(main_ui_->goToCancel, &QPushButton::pressed, this, &StratosharkMainWindow::goToCancelClicked);
@@ -707,7 +707,7 @@ StratosharkMainWindow::~StratosharkMainWindow()
         disconnect(previous_focus_, &QWidget::destroyed, this, &StratosharkMainWindow::resetPreviousFocus);
     }
 
-#ifndef Q_OS_MAC
+#ifndef Q_OS_MACOS
     // Below dialogs inherit GeometryStateDialog
     // For reasons described in geometry_state_dialog.h no parent is set when
     // instantiating the dialogs and as a result objects are not automatically
@@ -832,7 +832,7 @@ void StratosharkMainWindow::updateStyleSheet()
     // palette (generally whether the theme is dark or not.) Some of these
     // widgets only have style sheets that vary with whether theme is dark
     // on macOS. (XXX - We could just update them all anyway.)
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     main_ui_->addressEditorFrame->updateStyleSheet();
     main_ui_->columnEditorFrame->updateStyleSheet();
     main_ui_->filterExpressionFrame->updateStyleSheet();
@@ -1065,7 +1065,7 @@ void StratosharkMainWindow::loadWindowGeometry()
 {
     int min_sensible_dimension = 200;
 
-#ifndef Q_OS_MAC
+#ifndef Q_OS_MACOS
     if (recent.gui_geometry_main_maximized) {
         // [save|restore]Geometry does a better job (on Linux and Windows)
         // of restoring to the original monitor because it saves
@@ -1864,7 +1864,7 @@ bool StratosharkMainWindow::tryClosingCaptureFile(QString before_what, FileClose
             }
             discard_button = msg_dialog.addButton(discard_button_text, QMessageBox::DestructiveRole);
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
             /*
              * In macOS, the "default button" is not necessarily the
              * button that has the input focus; Enter/Return activates
@@ -2031,7 +2031,7 @@ void StratosharkMainWindow::initMainToolbarIcons()
     main_ui_->actionGoLastPacket->setIcon(ThemedIcon("nav-last"));
     main_ui_->actionGoPreviousConversationPacket->setIcon(ThemedIcon("nav-previous"));
     main_ui_->actionGoNextConversationPacket->setIcon(ThemedIcon("nav-next"));
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     main_ui_->actionGoPreviousConversationPacket->setShortcut(QKeySequence(Qt::META | Qt::Key_Comma));
     main_ui_->actionGoNextConversationPacket->setShortcut(QKeySequence(Qt::META | Qt::Key_Period));
 #endif

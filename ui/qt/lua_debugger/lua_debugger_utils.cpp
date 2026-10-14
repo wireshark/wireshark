@@ -883,7 +883,7 @@ void styleLuaDebuggerHeaderPlusMinusButton(QToolButton *btn, int side, const QFo
 void styleLuaDebuggerHeaderIconOnlyButton(QToolButton *btn, int side)
 {
     btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     const int btnSide = side;
 #else
     const int btnSide = qMax(1, side - 2);

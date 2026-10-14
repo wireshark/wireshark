@@ -50,7 +50,7 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     proxyModel_.setFilterCaseSensitivity(Qt::CaseInsensitive);
     proxyModel_.setFilterKeyColumn(-1);
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     eo_ui_->progressLabel->setAttribute(Qt::WA_MacSmallSize, true);
     eo_ui_->progressBar->setAttribute(Qt::WA_MacSmallSize, true);
 #endif

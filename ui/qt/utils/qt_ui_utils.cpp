@@ -47,7 +47,7 @@
 #include <QUrl>
 #include <QScreen>
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
 #include <ui/macosx/cocoa_bridge.h>
 #elif !defined(Q_OS_WIN) && defined(QT_DBUS_LIB)
 #include <QtDBus/QDBusConnection>
@@ -265,7 +265,7 @@ void desktop_show_in_folder(const QString file_path)
     QString path = QDir::toNativeSeparators(file_path);
     arguments << "/select," << path + "";
     success = QProcess::startDetached(command, arguments);
-#elif defined(Q_OS_MAC)
+#elif defined(Q_OS_MACOS)
     CocoaBridge::showInFinder(file_path.toUtf8());
     success = true;
 #elif defined(QT_DBUS_LIB)

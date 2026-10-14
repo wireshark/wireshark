@@ -28,7 +28,6 @@ class SyntaxLineEdit : public QLineEdit
 {
     Q_OBJECT
     Q_PROPERTY(SyntaxState syntaxState READ syntaxState)
-    Q_ENUMS(SyntaxState)
 
 public:
     /**
@@ -47,6 +46,7 @@ public:
         Deprecated, /**< The current text is valid but uses a deprecated construct. */
         Valid       /**< The current text passes validation. */
     };
+    Q_ENUM(SyntaxState)
 
     /**
      * @brief Returns the current syntax validation state.

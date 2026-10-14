@@ -59,7 +59,7 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
     ui->copyToolButton->setIconByName("list-copy");
     ui->clearToolButton->setIconByName("list-clear");
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
@@ -80,7 +80,7 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
     originalPrefs_ = tag_rules_get_prefs();
     pendingPrefs_  = originalPrefs_;
     // combobox index 0 = Ctrl+Shift+Click, 1 = Click, 2 = Right-click only
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ui->linkClickComboBox->setItemText(0, tr("Shift+Command+Click"));
 #endif
     int clickIdx = 0;

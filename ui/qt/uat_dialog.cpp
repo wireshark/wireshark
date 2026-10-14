@@ -48,7 +48,7 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ui->moveDownToolButton->setIconByName("list-move-down");
     ui->clearToolButton->setIconByName("list-clear");
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);

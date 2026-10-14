@@ -178,7 +178,7 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     ui->addRemote->setIconByName("list-add");
     ui->delRemote->setIconByName("list-remove");
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);
     ui->delPipe->setAttribute(Qt::WA_MacSmallSize, true);
     ui->addRemote->setAttribute(Qt::WA_MacSmallSize, true);

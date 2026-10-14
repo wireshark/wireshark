@@ -1662,7 +1662,7 @@ void WiresharkMainWindow::initViewColorizeMenu()
         color_num++;
     }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     // Spotlight uses Cmd+Space
     main_ui_->actionViewColorizeResetColorization->setShortcut(QKeySequence("Meta+Space"));
 #endif

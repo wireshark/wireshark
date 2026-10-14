@@ -45,7 +45,7 @@ UatFrame::UatFrame(QWidget *parent) :
     ui->moveDownToolButton->setIconByName("list-move-down");
     ui->clearToolButton->setIconByName("list-clear");
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
@@ -136,7 +136,7 @@ void UatFrame::copyFromProfile(QString filename)
 
 void UatFrame::showEvent(QShowEvent *)
 {
-#ifndef Q_OS_MAC
+#ifndef Q_OS_MACOS
     ui->copyFromProfileButton->setFixedHeight(ui->copyToolButton->geometry().height());
 #endif
 }

@@ -130,7 +130,7 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf) :
     ui->moveUpwardsToolButton->setIconByName("list-move-up");
     ui->moveDownwardsToolButton->setIconByName("list-move-down");
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);

@@ -157,7 +157,7 @@ private:
      */
     void copyAsRasterTriggered();
 
-#if defined(QT_SVG_LIB) && !defined(Q_OS_MAC) && 0
+#if defined(QT_SVG_LIB) && !defined(Q_OS_MACOS) && 0
     /**
      * @brief Slot triggered to copy the diagram as an SVG graphic.
      */

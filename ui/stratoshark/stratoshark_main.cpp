@@ -105,7 +105,7 @@
 #include "epan/crypt/dot11decrypt_ws.h"
 
 /* Handle the addition of View menu items without request */
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
 #include <ui/macosx/cocoa_bridge.h>
 #endif
 
@@ -437,7 +437,7 @@ int main(int argc, char *qt_argv[])
     ws_log_console_open = LOG_CONSOLE_OPEN_ALWAYS;
 #endif /* DEBUG_STARTUP_TIME */
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     /* Disable automatic addition of tab menu entries in view menu */
     CocoaBridge::cleanOSGeneratedMenuItems();
 #endif

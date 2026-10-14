@@ -137,7 +137,7 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, c
         msg_dialog.setDefaultButton(QMessageBox::Cancel);
     }
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     /*
      * In macOS, the "default button" is not necessarily the button that
      * has the input focus; Enter/Return activates the default button, and

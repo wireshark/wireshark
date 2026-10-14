@@ -27,7 +27,7 @@ LabelStack::LabelStack(QWidget *parent) :
     temporary_ctx_(-1),
     shrinkable_(false)
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     setAttribute(Qt::WA_MacSmallSize, true);
 #endif
     fillLabel();

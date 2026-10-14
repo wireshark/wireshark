@@ -40,7 +40,7 @@
 #include "utils/workspace_state.h"
 #include "widgets/display_filter_entry.h"
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
 #include <ui/macosx/cocoa_bridge.h>
 #endif
 
@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
     use_capturing_title_(false),
     recent_captures_menu_(nullptr),
     no_recent_files_action_(nullptr)
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     , dock_menu_(nullptr)
 #endif
 {
@@ -556,7 +556,7 @@ void MainWindow::updateTitlebar()
 
 void MainWindow::setIconForCaptureInProgress(bool capture_in_progress)
 {
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     CocoaBridge::setCaptureIcon(capture_in_progress);
 #else
     const QIcon &icon = capture_in_progress ? mainApp->captureIcon() : mainApp->normalIcon();
@@ -576,7 +576,7 @@ void MainWindow::populateRecentCapturesMenu()
     }
     recent_captures_menu_->clear();
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     if (dock_menu_) {
         dock_menu_->clear();
     }
@@ -584,7 +584,7 @@ void MainWindow::populateRecentCapturesMenu()
 
     const QList<RecentFileInfo>& recentFiles = WorkspaceState::instance()->recentCaptureFiles();
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     int shortcut = Qt::Key_0;
 #endif
 
@@ -599,7 +599,7 @@ void MainWindow::populateRecentCapturesMenu()
         ra->setEnabled(rfi.accessible);
         recent_captures_menu_->insertAction(NULL, ra);
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
         if (shortcut <= Qt::Key_9) {
             ra->setShortcut(Qt::META | (Qt::Key)shortcut);
             shortcut++;
@@ -612,7 +612,7 @@ void MainWindow::populateRecentCapturesMenu()
             });
         }
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
         if (dock_menu_) {
             QAction *rda = new QAction(dock_menu_);
             QFileInfo fi(filename);

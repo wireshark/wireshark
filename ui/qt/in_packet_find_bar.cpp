@@ -49,7 +49,7 @@ InPacketFindBar::InPacketFindBar(ProtoTree *tree, QWidget *parent) :
     ui_->search_edit_->setPlaceholderText(QString());
     ui_->search_edit_->updateSearchSyntax(true, false);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     foreach (QWidget *w, findChildren<QWidget *>()) {
         w->setAttribute(Qt::WA_MacSmallSize, true);
     }

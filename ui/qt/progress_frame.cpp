@@ -118,7 +118,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
     progress_dialog_.progress_frame = this;
     progress_dialog_.top_level_window = window();
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ui->label->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
@@ -128,7 +128,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
             "}"));
 
     ui->progressBar->setStyleSheet(
-#if !defined(Q_OS_MAC) && !defined(Q_OS_WIN)
+#if !defined(Q_OS_MACOS) && !defined(Q_OS_WIN)
     // Many platform themes and styles customize QProgressBar to look
     // native, and Qt warns that if a style sheet is set for one part,
     // then other sub-controls must be styled as well. On KDE, at least,

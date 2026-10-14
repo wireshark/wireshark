@@ -428,7 +428,7 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     is_reloading_lua_(false),
     if_notifier_(NULL),
     active_captures_(0)
-#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
+#if defined(Q_OS_MACOS) || defined(Q_OS_WIN)
     , normal_icon_(windowIcon())
 #endif
 {

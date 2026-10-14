@@ -43,7 +43,7 @@
 WelcomePage::WelcomePage(QWidget *parent) :
     QFrame(parent),
     welcome_ui_(new Ui::WelcomePage),
-    #ifdef Q_OS_MAC
+    #ifdef Q_OS_MACOS
     show_in_str_(tr("Show in Finder")),
     #else
     show_in_str_(tr("Show in Folder")),
@@ -94,7 +94,7 @@ WelcomePage::WelcomePage(QWidget *parent) :
         welcome_ui_->openFileSectionRecentList->setVisible(false);
     }
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     welcome_ui_->openFileSectionRecentList->setAttribute(Qt::WA_MacShowFocusRect, false);
 #endif
 

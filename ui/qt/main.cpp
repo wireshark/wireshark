@@ -110,7 +110,7 @@
 #include "epan/crypt/dot11decrypt_ws.h"
 
 /* Handle the addition of View menu items without request */
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
 #include <ui/macosx/cocoa_bridge.h>
 #endif
 
@@ -240,13 +240,13 @@ gather_wireshark_qt_compiled_info(feature_list l)
 #else
     without_feature(l, "QtMultimedia");
 #endif
-#if !defined(Q_OS_WIN) && !defined(Q_OS_MAC)
+#if !defined(Q_OS_WIN) && !defined(Q_OS_MACOS)
 #ifdef QT_DBUS_LIB
     with_feature(l, "QtDBus");
 #else
     without_feature(l, "QtDBus");
 #endif
-#endif /* !Q_OS_WIN && !Q_OS_MAC */
+#endif /* !Q_OS_WIN && !Q_OS_MACOS */
 
     QString update_info = SoftwareUpdate::info();
     if (!update_info.isEmpty()) {
@@ -506,7 +506,7 @@ int main(int argc, char *qt_argv[])
     ws_log_console_open = LOG_CONSOLE_OPEN_ALWAYS;
 #endif /* DEBUG_STARTUP_TIME */
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     /* Disable automatic addition of tab menu entries in view menu */
     CocoaBridge::cleanOSGeneratedMenuItems();
 #endif

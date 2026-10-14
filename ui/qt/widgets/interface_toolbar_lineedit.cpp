@@ -106,7 +106,7 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             )
             .arg(apsz.width() + frameWidth);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     style_sheet += QStringLiteral(
             "InterfaceToolbarLineEdit {"
             "  border: 1px solid palette(shadow);"

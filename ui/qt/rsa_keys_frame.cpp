@@ -32,7 +32,7 @@ RsaKeysFrame::RsaKeysFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ui->addFileButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->addItemButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteItemButton->setAttribute(Qt::WA_MacSmallSize, true);

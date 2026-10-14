@@ -369,7 +369,7 @@ protected:
 
     /** Action representing no recent files available. */
     QAction *no_recent_files_action_;
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_MACOS)
     /** The dock menu specific to macOS. */
     QMenu *dock_menu_;
 #endif

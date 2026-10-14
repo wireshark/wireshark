@@ -42,7 +42,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     ui->deleteToolButton->setIconByName("list-remove");
     ui->copyToolButton->setIconByName("list-copy");
 
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);

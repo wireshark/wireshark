@@ -30,7 +30,7 @@ AdaptiveToolButton::AdaptiveToolButton(QWidget *parent) :
     // tool buttons. Must precede the metric queries below: the macOS style folds
     // the control-size class into the values it reports for this widget, so
     // querying first would capture the larger regular-size value.
-#ifdef Q_OS_MAC
+#ifdef Q_OS_MACOS
     setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
