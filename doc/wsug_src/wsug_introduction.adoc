@@ -344,6 +344,7 @@ Windows releases.
 The git change log provides good information about changes in each
 release:
 
+* https://gitlab.com/wireshark/wireshark/commits/release-5.0[release-5.0]
 * https://gitlab.com/wireshark/wireshark/commits/release-4.6[release-4.6]
 * https://gitlab.com/wireshark/wireshark/commits/release-4.4[release-4.4]
 * https://gitlab.com/wireshark/wireshark/commits/release-4.2[release-4.2]
@@ -378,6 +379,9 @@ notes for each release can be found below.
 [width="100%",cols="10%,15%,15%,55%",options="header",]
 |===
 |Version |Stable Release Date |End of Support |Notes
+
+|5.0 |November 2026 |Release {plus} 18 or more months |Support ends when 5.2.0 is released.
+
 |4.6 |October 8, 2025 |Release {plus} 18 or more months |Last release to officially support Windows 10. Last release to support Red Hat EL 8.
 Last release to support Qt 5. Last release to use odd-development/even-stable release numbering. Support ends when 5.1.0 is released.
 
