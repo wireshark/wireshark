@@ -877,6 +877,10 @@ static int hf_ieee1905_eht_operations_radio_bss_ccfs1;
 static int hf_ieee1905_eht_operations_radio_bss_disabled_subchannel_bitmap;
 static int hf_ieee1905_available_spectrum_inquiry_request_object;
 static int hf_ieee1905_available_spectrum_inquiry_response_object;
+static int hf_ieee1905_rsn_diagnostic_report_rsn_error;
+static int hf_ieee1905_rsn_diagnostic_report_reserved;
+static int hf_ieee1905_rsn_diagnostic_report_frame_body_len;
+static int hf_ieee1905_rsn_diagnostic_report_frame_body;
 static int hf_ieee1905_rsn_parameter_configuration_radio_num;
 static int hf_ieee1905_rsn_parameter_configuration_radio_id;
 static int hf_ieee1905_rsn_parameter_configuration_radio_reserved;
@@ -1119,6 +1123,7 @@ static int ett_eht_operations_radio;
 static int ett_eht_operations_radio_bss_list;
 static int ett_eht_operations_radio_bss;
 static int ett_eht_operations_radio_bss_flags;
+static int ett_rsn_diagnostic_report_frame_body;
 static int ett_rsn_parameter_configuration_radio_list;
 static int ett_rsn_parameter_configuration_radio;
 static int ett_rsn_parameter_configuration_radio_bss_list;
@@ -1450,6 +1455,7 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define EHT_OPERATIONS_TLV                      0xE7
 #define AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV  0xE8
 #define AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV 0xE9
+#define RSN_DIAGNOSTIC_REPORT_TLV               0xEA
 #define RSN_PARAMETER_CONFIGURATION_TLV         0xEB
 #define BSS_ADVANCED_CONFIGURATION_TLV          0xEC
 #define SUPPORTED_CIPHER_SUITES_TLV             0xED
@@ -1588,6 +1594,7 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { EHT_OPERATIONS_TLV,                      "EHT Operations" },
   { AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV,  "Available Spectrum Inquiry Request" },
   { AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV, "Available Spectrum Inquiry Response" },
+  { RSN_DIAGNOSTIC_REPORT_TLV,               "RSN Diagnostic Report" },
   { RSN_PARAMETER_CONFIGURATION_TLV,         "RSN Parameter Configuration" },
   { BSS_ADVANCED_CONFIGURATION_TLV,          "BSS Advanced Configuration" },
   { SUPPORTED_CIPHER_SUITES_TLV,             "Supported Cipher Suites" },
@@ -9087,6 +9094,94 @@ dissect_available_spectrum_inquiry_response(tvbuff_t *tvb, packet_info *pinfo _U
 }
 
 /*
+ * Dissect a RSN Diagnostic Report TLV:
+ */
+#define RSN_ERROR_FRAME_TYPE_RESERVED               0
+#define RSN_ERROR_FRAME_TYPE_AUTHENTICATION         1
+#define RSN_ERROR_FRAME_TYPE_ASSOCIATION            2
+#define RSN_ERROR_FRAME_TYPE_EAPOL_MESSAGE_2        3
+#define RSN_ERROR_FRAME_TYPE_EAPOL_MESSAGE_4        4
+#define RSN_ERROR_FRAME_TYPE_FILS                   5
+#define RSN_ERROR_FRAME_TYPE_PASN                   6
+#define RSN_ERROR_FRAME_TYPE_STA_INITIATED_DEAUTH   7
+#define RSN_ERROR_FRAME_TYPE_RESERVED_RANGE_FIRST   8
+#define RSN_ERROR_FRAME_TYPE_RESERVED_RANGE_LAST  255
+
+static const range_string rsn_diagnostic_report_rsn_error_rvals[] = {
+    { RSN_ERROR_FRAME_TYPE_RESERVED,             RSN_ERROR_FRAME_TYPE_RESERVED,            "Reserved"              },
+    { RSN_ERROR_FRAME_TYPE_AUTHENTICATION,       RSN_ERROR_FRAME_TYPE_AUTHENTICATION,      "Authentication"        },
+    { RSN_ERROR_FRAME_TYPE_ASSOCIATION,          RSN_ERROR_FRAME_TYPE_ASSOCIATION,         "Association"           },
+    { RSN_ERROR_FRAME_TYPE_EAPOL_MESSAGE_2,      RSN_ERROR_FRAME_TYPE_EAPOL_MESSAGE_2,     "EAPOL Message 2"       },
+    { RSN_ERROR_FRAME_TYPE_EAPOL_MESSAGE_4,      RSN_ERROR_FRAME_TYPE_EAPOL_MESSAGE_4,     "EAPOL Message 4"       },
+    { RSN_ERROR_FRAME_TYPE_FILS,                 RSN_ERROR_FRAME_TYPE_FILS,                "FILS"                  },
+    { RSN_ERROR_FRAME_TYPE_PASN,                 RSN_ERROR_FRAME_TYPE_PASN,                "PASN"                  },
+    { RSN_ERROR_FRAME_TYPE_STA_INITIATED_DEAUTH, RSN_ERROR_FRAME_TYPE_STA_INITIATED_DEAUTH, "STA Initiated Deauth" },
+    { RSN_ERROR_FRAME_TYPE_RESERVED_RANGE_FIRST, RSN_ERROR_FRAME_TYPE_RESERVED_RANGE_LAST,  "Reserved"             },
+    { 0, 0, NULL }
+};
+
+static int
+dissect_rsn_diagnostic_report(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    uint8_t error_frame = 0;
+    uint16_t frame_len = 0;
+    proto_item *frame_item = NULL;
+    proto_tree *frame_tree;
+    tvbuff_t *frame_tvb;
+
+    proto_tree_add_item_ret_uint8(tree, hf_ieee1905_rsn_diagnostic_report_rsn_error,
+                                  tvb, offset, 1, ENC_NA, &error_frame);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee1905_rsn_diagnostic_report_reserved,
+                        tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    proto_tree_add_item_ret_uint16(tree, hf_ieee1905_rsn_diagnostic_report_frame_body_len,
+                                   tvb, offset, 2, ENC_BIG_ENDIAN, &frame_len);
+    offset += 2;
+
+    if (frame_len > 0) {
+        frame_item = proto_tree_add_item(tree, hf_ieee1905_rsn_diagnostic_report_frame_body,
+                                         tvb, offset, frame_len, ENC_NA);
+
+        frame_tree = proto_item_add_subtree(frame_item, ett_rsn_diagnostic_report_frame_body);
+
+        frame_tvb = tvb_new_subset_length(tvb, offset, frame_len);
+
+        /* Call other dissector depending on frame type */
+        switch (error_frame) {
+            case RSN_ERROR_FRAME_TYPE_AUTHENTICATION:
+                dissect_ieee80211_mgt(MGT_TO_FCF(MGT_AUTHENTICATION), frame_tvb, pinfo, frame_tree);
+            break;
+            case RSN_ERROR_FRAME_TYPE_ASSOCIATION:
+                dissect_ieee80211_mgt(MGT_TO_FCF(MGT_ASSOC_REQ), frame_tvb, pinfo, frame_tree);
+            break;
+            case RSN_ERROR_FRAME_TYPE_EAPOL_MESSAGE_2:
+            case RSN_ERROR_FRAME_TYPE_EAPOL_MESSAGE_4: {
+                /* EAPOL dissector removes useful info from Protocol and Info columns so store it */
+                char *col_info_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_INFO));
+                char *col_protocol_text = wmem_strdup(pinfo->pool, col_get_text(pinfo->cinfo, COL_PROTOCOL));
+
+                call_dissector(eapol_handle, frame_tvb, pinfo, frame_tree);
+
+                /* Restore Protocol and Info columns */
+                col_set_str(pinfo->cinfo, COL_INFO, col_info_text);
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, col_protocol_text);
+            }
+            break;
+            default:
+            break;
+        }
+
+        offset += frame_len;
+    }
+
+    return offset;
+}
+
+/*
  * Dissect a RSN Parameter Configuration TLV:
  */
 static int
@@ -9912,6 +10007,10 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
     case AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV:
         offset = dissect_available_spectrum_inquiry_response(tvb, pinfo, tree, offset,
                                                              tlv_len);
+        break;
+
+    case RSN_DIAGNOSTIC_REPORT_TLV:
+        offset = dissect_rsn_diagnostic_report(tvb, pinfo, tree, offset, tlv_len);
         break;
 
     case RSN_PARAMETER_CONFIGURATION_TLV:
@@ -13808,6 +13907,23 @@ proto_register_ieee1905(void)
           { "Object", "ieee1905.available_spectrum_inquiry_response.object",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+        { &hf_ieee1905_rsn_diagnostic_report_rsn_error,
+          { "RSN Error Frame", "ieee1905.rsn_diagnostic_report.rsn_error",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING,
+            RVALS(rsn_diagnostic_report_rsn_error_rvals), 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_diagnostic_report_reserved,
+          { "Reserved", "ieee1905.rsn_diagnostic_report.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_diagnostic_report_frame_body_len,
+          { "Frame Body Length ", "ieee1905.rsn_diagnostic_report.frame_body_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_rsn_diagnostic_report_frame_body,
+          { "Frame Body", "ieee1905.rsn_diagnostic_report.frame_body",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         { &hf_ieee1905_rsn_parameter_configuration_radio_num,
           { "Number of radios", "ieee1905.rsn_parameter_configuration.num_radio",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -14173,6 +14289,7 @@ proto_register_ieee1905(void)
         &ett_eht_operations_radio_bss_list,
         &ett_eht_operations_radio_bss,
         &ett_eht_operations_radio_bss_flags,
+        &ett_rsn_diagnostic_report_frame_body,
         &ett_rsn_parameter_configuration_radio_list,
         &ett_rsn_parameter_configuration_radio,
         &ett_rsn_parameter_configuration_radio_bss_list,
