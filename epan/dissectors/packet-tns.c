@@ -1584,7 +1584,6 @@ static int get_strtype_custom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	len = tvb_get_uint8(tvb, offset);
 	if (len == 254) {
 		int actual_len = 0;
-		len = 0;
 		do { // walk over the chunks
 			len = tvb_get_uint8(tvb, offset  + ret);
 			ret++; // 1st byte with the chunk size
