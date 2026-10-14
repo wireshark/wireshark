@@ -124,7 +124,6 @@ dissect_st2038(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             if (all_remaining_bytes_ff(tvb, byte_offset)) {
                 proto_tree_add_item(root, hf_st2038_stuffing_bytes, tvb,
                                     byte_offset, remaining, ENC_NA);
-                bit_offset = total_bits;
                 break;
             }
 
