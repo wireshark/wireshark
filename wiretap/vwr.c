@@ -1875,10 +1875,13 @@ static bool vwr_read_s3_W_rec(wtap *wth, wtap_rec *record,
      * the PLCP, and the statistics trailer.
      */
     if (IS_TX == 3) {       /*IS_TX =3, i.e., command type is RF Modified*/
-        if ((unsigned)rec_size < OCTO_MODIFIED_RF_LEN) {
+        /* We read the RF fields for all ports from the original record.
+         * It could be slightly shorter than this but it's probably ok to
+         * call the record bad if it doesn't have the full original header. */
+        if ((unsigned)rec_size < OCTO_RF_MOD_ACTUAL_LEN) {
             *err_info = ws_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
                                         rec_size,
-                                        OCTO_MODIFIED_RF_LEN);
+                                        OCTO_RF_MOD_ACTUAL_LEN);
             *err = WTAP_ERR_BAD_FILE;
             return false;
         }
