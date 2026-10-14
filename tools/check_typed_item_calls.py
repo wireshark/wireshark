@@ -1435,11 +1435,11 @@ class Item:
             # N.B., if last entry in set is removed, see around 18,000 warnings
             self.check_digits_all_zeros(self.mask)
 
-        # N.B. these checks are already done by checkApis.pl
+        # N.B. these checks are already done by check_apis.py
         if 'RVALS' in strings and 'BASE_RANGE_STRING' not in display:
             result.warn(filename, hf, 'filter "' + filter + ' strings has RVALS but display lacks BASE_RANGE_STRING')
 
-        # For RVALS, is BASE_RANGE_STRING also set (checked by checkApis.pl)?
+        # For RVALS, is BASE_RANGE_STRING also set (checked by check_apis.py)?
         if 'VALS_EXT_PTR' in strings and 'BASE_EXT_STRING' not in display:
             result.warn(filename, hf, 'filter "' + filter + ' strings has VALS_EXT_PTR but display lacks BASE_EXT_STRING')
 
