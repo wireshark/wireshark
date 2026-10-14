@@ -45,8 +45,8 @@ ws_uninstall_path_helper = 'Remove Wireshark from the system path.pkg'
 # ULFO - UDIF lzfse-compressed image (OS X 10.11+ only)
 # ULMO - UDIF lzma-compressed image (macOS 10.15+ only)
 #
-# diskutil uses ULFO by default.
-format = defines.get('format', 'ULFO')
+# diskutil uses ULFO by default, but ULMO creates smaller images.
+format = defines.get('format', 'ULMO')
 
 # Compression level (if relevant)
 compression_level = 9
