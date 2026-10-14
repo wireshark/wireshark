@@ -30,7 +30,7 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
     apply_button_->setCursor(Qt::ArrowCursor);
     apply_button_->setEnabled(false);
     apply_button_->setToolTip(tr("Apply changes"));
-    apply_button_->setIconSize(QSize(24, 14));
+    apply_button_->setIconSize(QSize(21, 14));
 
     updateStyleSheet(isValid());
 

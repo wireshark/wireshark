@@ -206,10 +206,11 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     apply_button_->setIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/filter-apply.svg"),
                                              QPalette::Base));
     apply_button_->setToolTip(tr("Apply this filter"));
-    // The apply glyph is a wide 24x14 chevron (its native SVG size); set that
-    // fixed so a square box doesn't squeeze it short. AdaptiveToolButton scales
-    // width and height independently, so the 24:14 aspect holds under zoom.
-    apply_button_->setBaseIconSize(QSize(24, 14));
+    // The apply glyph is a wide 36x24 arrow (its native SVG size). Set a fixed
+    // base icon size with the correct (3:2) aspect ratio and height so that a
+    // square box doesn't squeeze it short. AdaptiveToolButton scales its width
+    // and height independently, so the 3:2 aspect ratio holds under zoom.
+    apply_button_->setBaseIconSize(QSize(21, 14));
     apply_button_->setVisible(false);
     connect(apply_button_, &QAbstractButton::clicked, this, &FilterExpressionEdit::applyExpression);
 

@@ -134,7 +134,7 @@ void DisplayFilterEdit::setType(DisplayFilterEditType type)
         apply_button_ = new StockIconToolButton(this);
         apply_button_->setIcon(ContrastAdaptIcon("filter-apply"));
         apply_button_->setToolTip(tr("Apply display filter"));
-        apply_button_->setIconSize(QSize(24, 14));
+        apply_button_->setIconSize(QSize(21, 14));
         apply_button_->setStyleSheet(buttonStyle);
         apply_button_->setVisible(false);
 

@@ -411,9 +411,9 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     icon.setPalette(previewPal);
     icon.paint(&p, bookmark);
 
-    // Right affordances: apply pill (24:14), clear ✕, and the combo caret —
-    // each tinted to its own Filter* token so the preview surfaces them.
-    const int applyW = iconH * 24 / 14;
+    // Right affordances: apply pill (21:14, aka 3:2), clear ✕, and the combo
+    // caret — each tinted to its own Filter* token so the preview surfaces them.
+    const int applyW = iconH * 21 / 14;
     QRect caret(field.right() - pad - 9, field.center().y() - 4, 9, 8);
     QRect apply(caret.left() - 6 - applyW, field.center().y() - iconH / 2, applyW, iconH);
     QRect clear(apply.left() - 4 - iconH,  field.center().y() - iconH / 2, iconH, iconH);

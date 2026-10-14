@@ -40,7 +40,7 @@
  *
  * Defaults: the base icon size is the style's PM_SmallIconSize (so the platform
  * icon contract is honoured unless a caller sets something else, e.g. a wide
- * apply glyph via setBaseIconSize(QSize(24, 14))), and the icon padding is the
+ * apply glyph via setBaseIconSize(QSize(21, 14))), and the icon padding is the
  * style's PM_DefaultFrameWidth (~1px).
  */
 class AdaptiveToolButton : public QToolButton
