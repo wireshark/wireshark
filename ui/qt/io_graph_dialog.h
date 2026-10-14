@@ -796,5 +796,11 @@ private slots:
      * @param checked true to use a logarithmic scale; false for linear.
      */
     void actionLogScaleTriggered(bool checked);
+
+    /**
+     * @brief Toggle the Moving Average algo to EWMA or SMA.
+     * @param checked true to use the EWMA algo; false for SMA.
+     */
+    void actionMATriggered(bool checked);
 };
 #endif // IO_GRAPH_DIALOG_H

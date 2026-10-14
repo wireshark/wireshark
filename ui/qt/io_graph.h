@@ -91,6 +91,12 @@ public:
     void setAOT(bool asAOT);
 
     /**
+     * @brief Sets whether the Moving Average should be computed with EWMA algorithm.
+     * @param useEWMA True to enable EWMA algorithm, False for SMA.
+     */
+    void setMA(bool useEWMA);
+
+    /**
      * @brief Checks if the graph displays values as an Average Over Time (AOT).
      * @return True if AOT is enabled, false otherwise.
      */
@@ -346,6 +352,9 @@ private:
 
     /** Flag indicating if values are interpreted as an average over time. */
     bool asAOT_; // Average Over Time interpretation
+
+    /** Flag indicating if moving average value uses the EWMA algo. */
+    bool useEWMA_; // True for EWMA, False for SMA
 
     /** The name of the value unit type for display purposes. */
     const char* type_unit_name_;

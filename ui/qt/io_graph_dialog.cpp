@@ -282,6 +282,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_
     connect(ui->actionLegend, &QAction::triggered, this, &IOGraphDialog::actionLegendTriggered);
     connect(ui->actionTimeOfDay, &QAction::triggered, this, &IOGraphDialog::actionTimeOfDayTriggered);
     connect(ui->actionLogScale, &QAction::triggered, this, &IOGraphDialog::actionLogScaleTriggered);
+    connect(ui->actionMA, &QAction::triggered, this, &IOGraphDialog::actionMATriggered);
 
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
@@ -355,6 +356,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_
     ctx_menu_.addAction(ui->actionToggleTimeOrigin);
     ctx_menu_.addAction(ui->actionTimeOfDay);
     ctx_menu_.addAction(ui->actionLogScale);
+    ctx_menu_.addAction(ui->actionMA);
     ctx_menu_.addAction(ui->actionCrosshairs);
     ctx_menu_.addAction(ui->actionLegend);
 
@@ -2044,6 +2046,18 @@ void IOGraphDialog::actionLogScaleTriggered(bool checked)
             iop->yAxis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
         }
     }
+    iop->replot();
+}
+
+void IOGraphDialog::actionMATriggered(bool checked)
+{
+    QCustomPlot *iop = ui->ioPlot;
+
+    // downward propagation to every graph
+    foreach(IOGraph* iog, ioGraphs_) {
+        iog->setMA(checked);
+    }
+
     iop->replot();
 }
 

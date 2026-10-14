@@ -538,6 +538,9 @@ Switch between showing the absolute time of day or the time relative from the st
 Log scale::
 Switch between a logarithmic or linear Y axis.
 
+EWMA moving average::
+Switch between the EWMA algorithm or SMA for computing the moving average.
+
 Automatic updates::
 Redraw each graph automatically.
 

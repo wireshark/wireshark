@@ -40,6 +40,7 @@ IOGraph::IOGraph(QCustomPlot* parent, const char* type_unit_name) :
     hf_index_(-1),
     interval_(0),
     asAOT_(false),
+    useEWMA_(false),
     type_unit_name_(type_unit_name),
     cur_idx_(-1)
 {
@@ -155,6 +156,21 @@ void IOGraph::setAOT(bool asAOT)
     bool old_val = asAOT_;
     asAOT_ = asAOT;
     if (old_val != asAOT) {
+        if (visible_ && need_retap_) {
+            need_retap_ = false;
+            emit requestRetap();
+        }
+        else {
+            emit requestRecalc();
+        }
+    }
+}
+
+void IOGraph::setMA(bool useEWMA)
+{
+    bool old_val = useEWMA_;
+    useEWMA_ = useEWMA;
+    if (old_val != useEWMA) {
         if (visible_ && need_retap_) {
             need_retap_ = false;
             emit requestRetap();
@@ -362,27 +378,55 @@ void IOGraph::recalcGraphData(capture_file* cap_file)
     }
 
     double ts_offset = startOffset();
+
+    /* For the EWMA algo we need to determine the alpha factor from the Span value,
+     * and it's also handy to only compute once its complement.
+     */
+    double f_alpha = 0;
+    double c_alpha = 0;
+
+    if (moving_avg_period_ > 0) {
+        /* compute alpha from the span given in GUI */
+        f_alpha = 2.0/(moving_avg_period_ + 1);
+
+        /* compute the complement to alpha */
+        c_alpha = 1.0 - f_alpha;
+    }
+
+    double awg_ewma = 0;
+    /* initialize the moving average */
+    if(cur_idx_ > 0)
+        awg_ewma = getItemValue(0, cap_file);
+
     for (int i = 0; i <= cur_idx_; i++) {
         double ts = (double)i * interval_ / SCALE_F + ts_offset;
         double val = getItemValue(i, cap_file);
 
         if (moving_avg_period_ > 0) {
-            if (i != 0) {
-                mavg_left++;
-                if (mavg_left > moving_avg_period_ / 2) {
-                    mavg_left--;
-                    mavg_in_average_count--;
-                    mavg_cumulated -= getItemValue(mavg_to_remove, cap_file);
-                    mavg_to_remove += 1;
-                }
-                if (mavg_to_add <= (unsigned int)cur_idx_) {
-                    mavg_in_average_count++;
-                    mavg_cumulated += getItemValue(mavg_to_add, cap_file);
-                    mavg_to_add += 1;
-                }
+
+            /* EWMA moving average */
+            if(useEWMA_) {
+                awg_ewma = (f_alpha * getItemValue(i, cap_file)) + ( c_alpha * awg_ewma );
+                val = awg_ewma;
             }
-            if (mavg_in_average_count > 0) {
-                val = mavg_cumulated / mavg_in_average_count;
+            else { // class SMA
+                if (i != 0) {
+                    mavg_left++;
+                    if (mavg_left > moving_avg_period_ / 2) {
+                        mavg_left--;
+                        mavg_in_average_count--;
+                        mavg_cumulated -= getItemValue(mavg_to_remove, cap_file);
+                        mavg_to_remove += 1;
+                    }
+                    if (mavg_to_add <= (unsigned int)cur_idx_) {
+                        mavg_in_average_count++;
+                        mavg_cumulated += getItemValue(mavg_to_add, cap_file);
+                        mavg_to_add += 1;
+                    }
+                }
+                if (mavg_in_average_count > 0) {
+                    val = mavg_cumulated / mavg_in_average_count;
+                }
             }
         }
 
