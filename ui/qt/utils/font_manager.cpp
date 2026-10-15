@@ -77,8 +77,10 @@ FontManager::FontManager(QObject *parent)
     base_monospace_ = guaranteeMonospace(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 
     // Catch external (OS) application-font changes.  See eventFilter().
-    if (qApp)
+    if (qApp) {
+        base_tool_button_font_ = QApplication::font("QToolButton");
         qApp->installEventFilter(this);
+    }
 
     // Mirror the resolved monospace font into prefs.gui_font_name once the
     // app is up, so the preferences dialog and anything else reading the
@@ -243,8 +245,14 @@ void FontManager::applyApplicationFont()
 
     const QFont desired = applicationFont();
     // Only push when it differs, to avoid a redundant ApplicationFontChange.
-    if (qApp->font().toString() != desired.toString())
+    if (qApp->font().toString() != desired.toString()) {
         qApp->setFont(desired);
+        if (!regular_overridden_ && base_tool_button_font_ != base_regular_) {
+            QApplication::setFont((zoom_scope_ == ZoomScope::AppWide) ? zoomed(base_tool_button_font_)
+                                                                      : base_tool_button_font_,
+                                  "QToolButton");
+        }
+    }
 }
 
 void FontManager::syncMonospacePref()

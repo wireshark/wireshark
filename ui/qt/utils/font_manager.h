@@ -145,6 +145,10 @@ private:
     // an external OS font change is NOT adopted (our override wins).
     bool regular_overridden_ = false;
 
+    // Platform QToolButton font (smaller on macOS), captured before the first
+    // QApplication::setFont(), which discards per-class fonts.
+    QFont base_tool_button_font_;
+
     QFont applicationFont() const;          ///< what gets pushed to QApplication
     QFont zoomed(const QFont &base) const;  ///< base with the zoom factor applied
     void  applyApplicationFont();           ///< push applicationFont() onto qApp
