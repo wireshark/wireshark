@@ -482,7 +482,7 @@ Ubuntu APT Test:
     GIT_STRATEGY: none
   needs: [ 'Ubuntu APT Package' ]
 
-Arch Linux :
+.Arch Linux :
   extends: .build-linux
   rules: !reference [.if-merged]
   image: registry.gitlab.com/wireshark/wireshark-containers/arch-dev
@@ -806,7 +806,7 @@ macOS Universal Package:
 
 
 # Build the Wireshark API Reference
-WSAR:
+.WSAR:
   extends: .build-linux
   image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   when: manual
