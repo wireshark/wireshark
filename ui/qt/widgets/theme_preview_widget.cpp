@@ -381,7 +381,7 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     const QColor window     = c(ThemeManager::PaletteWindow,     pal.color(QPalette::Window));
     const QColor fieldBdr   = c(ThemeManager::FieldBorder,       pal.color(QPalette::Mid));
     const QColor sep        = c(ThemeManager::Separator,         pal.color(QPalette::Mid));
-    const QColor windowText = c(ThemeManager::PaletteWindowText, pal.color(QPalette::WindowText));
+    // const QColor windowText = c(ThemeManager::PaletteWindowText, pal.color(QPalette::WindowText));
     const QColor validBg    = c(ThemeManager::FilterValid,       QColor("#296700"));
 
     // Band background and bottom separator.
@@ -411,11 +411,11 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     icon.setPalette(previewPal);
     icon.paint(&p, bookmark);
 
-    // Right affordances: apply pill (21:14, aka 3:2), clear ✕, and the combo
-    // caret — each tinted to its own Filter* token so the preview surfaces them.
+    // Right affordances: apply pill (21:14, aka 3:2), clear ✕, and the history
+    // chevron — each tinted to its own Filter* token so the preview surfaces them.
     const int applyW = iconH * 21 / 14;
-    QRect caret(field.right() - pad - 9, field.center().y() - 4, 9, 8);
-    QRect apply(caret.left() - 6 - applyW, field.center().y() - iconH / 2, applyW, iconH);
+    QRect history(field.right() - 4 - iconH, field.center().y() - iconH / 2, iconH, iconH);
+    QRect apply(history.left() - 6 - applyW, field.center().y() - iconH / 2, applyW, iconH);
     QRect clear(apply.left() - 4 - iconH,  field.center().y() - iconH / 2, iconH, iconH);
     icon = ContrastAdaptIcon("filter-clear");
     icon.setPalette(previewPal);
@@ -423,15 +423,9 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     icon = ContrastAdaptIcon("filter-apply");
     icon.setPalette(previewPal);
     icon.paint(&p, apply);
-
-    // Recent-filters dropdown caret (combo chrome), on the window background.
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.setPen(Qt::NoPen);
-    p.setBrush(windowText);
-    QPolygonF tri;
-    tri << caret.topLeft() << caret.topRight()
-        << QPointF(caret.center().x(), caret.bottom());
-    p.drawPolygon(tri);
+    icon = ContrastAdaptIcon("filter-history");
+    icon.setPalette(previewPal);
+    icon.paint(&p, history);
 
     // Central green text box, between the two affordance zones — the only part
     // carrying the FilterValid tint.  Text uses the contrasting colour of the
