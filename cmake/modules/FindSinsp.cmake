@@ -99,6 +99,7 @@ endif()
     scap
     scap_engine_nodriver
     scap_engine_noop
+    scap_engine_raw_block
     scap_engine_savefile
     scap_engine_source_plugin
     scap_engine_test_input
