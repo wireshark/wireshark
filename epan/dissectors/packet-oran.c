@@ -18,7 +18,7 @@
   */
 
 #include <config.h>
-
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 #include <epan/packet.h>
@@ -27,6 +27,8 @@
 #include <epan/tap.h>
 #include <epan/tfs.h>
 #include <epan/reassemble.h>
+
+#include <epan/unit_strings.h>
 
 #include <wsutil/ws_roundup.h>
 #include <wsutil/ws_padding_to.h>
@@ -513,6 +515,11 @@ static int hf_oran_c_section_common;
 static int hf_oran_c_section;
 static int hf_oran_u_section;
 
+static const unit_name_string units_decibelfs = { " dBFS", NULL };
+static int hf_oran_u_prb_power;
+static int hf_oran_u_total_power;
+static int hf_oran_u_peak_power;
+
 static int hf_oran_u_section_ul_symbol_time;
 static int hf_oran_u_section_ul_symbol_frames;
 static int hf_oran_u_section_ul_symbol_first_frame;
@@ -925,23 +932,23 @@ static const range_string section_types[] = {
     { SEC_C_SINR_REPORTING,    SEC_C_SINR_REPORTING,    "SINR Reporting" },
     { SEC_C_RRM_MEAS_REPORTS,  SEC_C_RRM_MEAS_REPORTS,  "RRM Measurement Reports" },
     { SEC_C_REQUEST_RRM_MEAS,  SEC_C_REQUEST_RRM_MEAS,  "Request RRM Measurements" },
-    { 12,                      255,                     "Reserved for future use" },
+    { SEC_C_MAX_INDEX,         255,                     "Reserved for future use" },
     { 0, 0, NULL} };
 
 static const range_string section_types_short[] = {
-    { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "(Unused RBs)        " },
-    { SEC_C_NORMAL,            SEC_C_NORMAL,            "(Most channels)     " },
-    { SEC_C_RSVD2,             SEC_C_RSVD2,             "(reserved)          " },
+    { SEC_C_UNUSED_RB,         SEC_C_UNUSED_RB,         "(Unused RBs)" },
+    { SEC_C_NORMAL,            SEC_C_NORMAL,            "(Most channels)" },
+    { SEC_C_RSVD2,             SEC_C_RSVD2,             "(reserved)" },
     { SEC_C_PRACH,             SEC_C_PRACH,             "(PRACH/mixed-\u03bc)" },
-    { SEC_C_SLOT_CONTROL,      SEC_C_SLOT_CONTROL,      "(Slot info)         " },
+    { SEC_C_SLOT_CONTROL,      SEC_C_SLOT_CONTROL,      "(Slot info)" },
     { SEC_C_UE_SCHED,          SEC_C_UE_SCHED,          "(UE scheduling info)" },
-    { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "(Channel info)      " },
-    { SEC_C_LAA,               SEC_C_LAA,               "(LAA)               " },
-    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "(ACK/NACK)          " },
-    { SEC_C_SINR_REPORTING,    SEC_C_SINR_REPORTING,    "(SINR Reporting)    " },
-    { SEC_C_RRM_MEAS_REPORTS,  SEC_C_RRM_MEAS_REPORTS,  "(RRM Meas Reports)  " },
-    { SEC_C_REQUEST_RRM_MEAS,  SEC_C_REQUEST_RRM_MEAS,  "(Req RRM Meas)      " },
-    { 12,                      255,                     "Reserved for future use" },
+    { SEC_C_CH_INFO,           SEC_C_CH_INFO,           "(Channel info)" },
+    { SEC_C_LAA,               SEC_C_LAA,               "(LAA)" },
+    { SEC_C_ACK_NACK_FEEDBACK, SEC_C_ACK_NACK_FEEDBACK, "(ACK/NACK)" },
+    { SEC_C_SINR_REPORTING,    SEC_C_SINR_REPORTING,    "(SINR Reporting)" },
+    { SEC_C_RRM_MEAS_REPORTS,  SEC_C_RRM_MEAS_REPORTS,  "(RRM Meas Reports)" },
+    { SEC_C_REQUEST_RRM_MEAS,  SEC_C_REQUEST_RRM_MEAS,  "(Req RRM Meas)" },
+    { SEC_C_MAX_INDEX,         255,                     "Reserved for future use" },
     { 0, 0, NULL }
 };
 
@@ -1056,7 +1063,7 @@ static const value_string meas_type_id_vals[] = {
     { 6,  "DMRS-SNR per antenna" },
     { 7,  "UE positioning measurement report" },
     { 8,  "UE radial speed measurement report" },
-    { 9,  "UE post-equalization MU inteference measurement" },
+    { 9,  "UE post-equalization MU interference measurement" },
     { 10, "UE TPMI and rank recommendation measurement" },
     { 11, "UE layer pre-equalization SINR report" },
     { 0, NULL}
@@ -7220,7 +7227,7 @@ static int dissect_oran_u_re(tvbuff_t *tvb, proto_tree *tree,
                              int comp_meth,
                              uint32_t exponent,
                              section_mod_compr_config_t *mod_compr_params,
-                             uint8_t re)
+                             uint8_t re, float * const re_power)
 {
     /* I */
     unsigned i_bits = tvb_get_bits32(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
@@ -7236,7 +7243,7 @@ static int dissect_oran_u_re(tvbuff_t *tvb, proto_tree *tree,
     proto_item *q_ti = proto_tree_add_float(tree, hf_oran_qSample, tvb, samples_offset/8, sample_len_in_bytes, q_value);
     proto_item_set_text(q_ti, "qSample: % 0.7f  0x%04x (RE-%2u in the PRB)", q_value, q_bits, sample_number);
     samples_offset += sample_bit_width;
-
+    *re_power = i_value*i_value + q_value*q_value;
     /* Update RE stats */
     tap_info->num_res++;
     /* if (i_value == 0.0 && q_value == 0.0) { */
@@ -7560,6 +7567,24 @@ static int dissect_oran_u_section_header(tvbuff_t *tvb, packet_info *pinfo, unsi
     return offset;
 }
 
+/* unscaled_power_correction computes correction required to rescale reported power in order to report dBFS */
+static float unscaled_power_correction(int sample_bit_width, unsigned compression) {
+    /* Logic for COMP_NONE and COMP_BLOCK_FP.  No adjustment required for COMP_MODULATION */
+    float correction = 0.0f;
+    switch(compression) {
+    case COMP_BLOCK_FP:
+    case BFP_AND_SELECTIVE_RE:
+        correction = 20.0f*((float)(M_LOG10E/M_LOG2E))*((sample_bit_width-1) + 15);
+        break;
+    case COMP_NONE:
+        correction = 20.0f*((float)(M_LOG10E/M_LOG2E))*(sample_bit_width-1);
+        break;
+    default:
+        break;
+    }
+    return correction;
+}
+
 static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned offset,
                                   proto_tree * oran_tree,
                                   proto_item * protocol_item,
@@ -7575,6 +7600,11 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
                                                               tvb, offset, 0, "", "Section");
     proto_tree *section_tree = proto_item_add_subtree(sectionHeading, ett_oran_u_section);
     section_details_t *section_details = NULL;
+
+    /* Total (section) power and peak power */
+    float total_power = 0.0f;
+    float peak_power = 0.0f;
+    int peak_location = 0;
 
     /* Section Header fields [fixed parts] (darker green part) */
     uint32_t sectionId = 0, rb, startPrbu = 0, numPrbu = 0;
@@ -7773,6 +7803,7 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
         /* Work out how many REs / PRB */
         unsigned res_per_prb = 12;
         uint16_t sresmask_to_use = 0x0fff;
+        float rb_power = 0.0f;
 
         if (compression >= BFP_AND_SELECTIVE_RE) {
             /* Work out which mask should be used */
@@ -7827,12 +7858,20 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
             unsigned samples_start = offset;
             unsigned samples = 0;
 
+            float re_power = 0.0f;
             if (compression >= BFP_AND_SELECTIVE_RE) {
                 /* Use sresmask to pick out which REs are present */
                 for (unsigned n=1; n<=12; n++) {
                     if (sresmask_to_use & (1<<(n-1))) {
-                        samples_offset = dissect_oran_u_re(tvb, rb_tree,
-                                                           n, samples_offset, tap_info, *sample_bit_width_ptr, compression, exponent, mod_compr_config, n);
+                        int new_samples_offset =
+                            dissect_oran_u_re(tvb, rb_tree, n, samples_offset, tap_info, *sample_bit_width_ptr,
+                                              compression, exponent, mod_compr_config, n, &re_power);
+                        rb_power += re_power;
+                        if ( re_power > peak_power ) {
+                            peak_power = re_power;
+                            peak_location = samples_offset;
+                        }
+                        samples_offset = new_samples_offset;
                         samples++;
                     }
                 }
@@ -7840,8 +7879,15 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
             else {
                 /* All 12 REs are present */
                 for (unsigned n=1; n<=12; n++) {
-                    samples_offset = dissect_oran_u_re(tvb, rb_tree,
-                                                       n, samples_offset, tap_info, *sample_bit_width_ptr, compression, exponent, mod_compr_config, n);
+                    int new_samples_offset =
+                        dissect_oran_u_re(tvb, rb_tree, n, samples_offset, tap_info, *sample_bit_width_ptr,
+                                          compression, exponent, mod_compr_config, n, &re_power);
+                    rb_power += re_power;
+                    if ( re_power > peak_power ) {
+                        peak_power = re_power;
+                        peak_location = samples_offset;
+                    }
+                    samples_offset = new_samples_offset;
                     samples++;
                 }
             }
@@ -7865,6 +7911,18 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
                 proto_item *nonzero_ti = proto_tree_add_item(rb_tree, hf_oran_nonzero_prb, tvb, samples_start, nBytesForSamples, ENC_NA);
                 proto_item_set_hidden(nonzero_ti);
             }
+            if (rb_power > 0.0f ) {
+                /* Zero bit pattern does not infer zero power (see modComp) */
+                rb_power = rb_power/samples;
+                total_power += rb_power;
+                float rb_power_dB = (float) (10.0*log10(rb_power));
+                if ( show_unscaled_values ) {
+                    rb_power_dB = rb_power_dB - unscaled_power_correction(*sample_bit_width_ptr,compression);
+                }
+                proto_item_append_text(prbHeading, " [%3.2f dBFS]", rb_power_dB);
+                proto_item * rb_power_ti = proto_tree_add_float(rb_tree, hf_oran_u_prb_power, tvb, samples_start, nBytesForSamples, rb_power_dB);
+                proto_item_set_generated(rb_power_ti);
+            }
         }
 
         tap_info->num_prbs++;
@@ -7883,6 +7941,28 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
         expert_add_info_format(pinfo, ud_comp_len_ti, &ei_oran_ud_comp_len_wrong_size,
                                "udCompLen indicates %u bytes in section, but dissected %u instead",
                                ud_comp_len, offset-section_start_offset);
+    }
+    /* Show total power: average over full bandwidth */
+    if ( pref_showIQSampleValues ) {
+        if ( total_power > 0.0f ) {
+            float power_dBFS = (float)(10.0*log10(total_power/numPrbu));
+            if ( show_unscaled_values ) {
+                power_dBFS = power_dBFS - unscaled_power_correction(*sample_bit_width_ptr,compression);
+            }
+            proto_item *ti = proto_tree_add_float(section_tree, hf_oran_u_total_power, tvb, section_start_offset, offset-section_start_offset, power_dBFS);
+            proto_item_set_generated(ti);
+            proto_item_append_text(sectionHeading, " [Mean Power %3.2f dBFS]", power_dBFS);
+        } else {
+            proto_item_append_text(sectionHeading, " [all zeros]");
+        }
+
+        if ( peak_power > 0.0 ) {
+            float peak_to_average = peak_power / ((total_power/numPrbu));
+            peak_to_average = (float) (10.0*log10(peak_to_average));
+            unsigned sample_size = (peak_location + 2*(*sample_bit_width_ptr) + 7)/8 - peak_location/8;
+            proto_item *ti = proto_tree_add_float(section_tree, hf_oran_u_peak_power, tvb, section_start_offset+(peak_location/8), sample_size, peak_to_average);
+            proto_item_set_generated(ti);
+        }
     }
     return offset;
 }
@@ -7925,7 +8005,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     uint32_t seqId, subSeqId, e;
     offset = addSeqid(tvb, oran_tree, offset, ORAN_U_PLANE, &seqId, &seqIdItem, pinfo, &subSeqId, &e);
 
-    uint32_t frameId  = 0, subframeId = 0, slotId = 0, symbolId = 0, direction;
+    uint32_t frameId  = 0, subframeId = 0, slotId = 0, symbolId = 0, direction = 0;
 
     /* Add buffer to the reassembly ahead of cycling through the options */
     if (do_radio_transport_layer_reassembly && (e !=1 || subSeqId!= 0)) {
@@ -8129,7 +8209,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         sample_bit_width = pref_sample_bit_width_uplink;
         compression = pref_iqCompressionUplink;
         includeUdCompHeader = pref_includeUdCompHeaderUplink;
-    } else {
+    }
+    else {
         sample_bit_width = pref_sample_bit_width_downlink;
         compression = pref_iqCompressionDownlink;
         includeUdCompHeader = pref_includeUdCompHeaderDownlink;
@@ -11230,6 +11311,27 @@ proto_register_oran(void)
             NULL, HFILL}
         },
 
+        { &hf_oran_u_total_power,
+           { "Mean Power", "oran_fh_cus.power",
+             FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
+             UNS(&units_decibelfs), 0x0,
+             "Average power of whole section (dBFS)", HFILL}
+        },
+
+        { &hf_oran_u_peak_power,
+           { "PAPR", "oran_fh_cus.papr",
+             FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
+             UNS(&units_decibels), 0x0,
+             "Peak-to-average power ratio (dB)", HFILL}
+        },
+
+        { &hf_oran_u_prb_power,
+           { "PRB Mean Power", "oran_fh_cus.prbpower",
+             FT_FLOAT, BASE_NONE|BASE_UNIT_STRING,
+             UNS(&units_decibelfs), 0x0,
+             "Average power of PRB (dBFS)", HFILL}
+        },
+
         /* Link back to UL C-plane where udCompHdr was recorded */
         { &hf_oran_ul_cplane_ud_comp_hdr_frame,
           { "C-Plane UL udCompHdr frame", "oran_fh_cus.ul-cplane.udCompHdr",
@@ -11434,7 +11536,7 @@ proto_register_oran(void)
         { &ei_oran_se30_not_ul, { "oran_fh_cus.se30_not_ul", PI_MALFORMED, PI_WARN, "SE30 should only be sent in uplink direction", EXPFILL }},
         { &ei_oran_se30_unknown_ueid, { "oran_fh_cus.se30_unknown_ue", PI_MALFORMED, PI_WARN, "SE30 UEId not recognised from SE10", EXPFILL }},
         { &ei_oran_beamid_bfws_not_found, { "oran_fh_cus.beamid_bfws_not_found", PI_SEQUENCE, PI_WARN, "Have bundle with disableBFWs but no definition found", EXPFILL }},
-        { &ei_oran_syminc_set_for_uplane, { "oran_fh_cus.syminc_set_for_uplane", PI_MALFORMED, PI_ERROR, "symcInc is prohibited in the U-Plane", EXPFILL }},
+        { &ei_oran_syminc_set_for_uplane, { "oran_fh_cus.syminc_set_for_uplane", PI_MALFORMED, PI_ERROR, "symInc is prohibited in the U-Plane", EXPFILL }},
         { &ei_oran_cplane_entry_not_found, { "oran_fh_cus.cplane_entry_not_found", PI_SEQUENCE, PI_WARN, "C-plane for this U-plane section not found", EXPFILL }},
         { &ei_oran_se12_rb_set, { "oran_fh_cus.se12_rb_set", PI_MALFORMED, PI_WARN, "rb should not be set when SE12 is present", EXPFILL }}
     };
