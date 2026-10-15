@@ -160,6 +160,8 @@ packaging/portableapps/WiresharkPortable/
 packaging/portableapps/Files/
 packaging/portableapps/appinfo.ini
 wireshark-win??-libs*/
+# MSBuild response file
+Directory.Build.rsp
 
 # macOS Stuff
 .DS_Store

@@ -213,6 +213,8 @@ workflow:
     - $env:CMAKE_PREFIX_PATH = "C:\Qt\$($env:WINDOWS_QT_VERSION)\$($env:AQT_ARCH)"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
     - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars$($env:VCVARS_ARCH).bat`" && set " | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+    # MSBuild defaults
+    - Set-Content -Path Directory.Build.rsp -Value ("-maxCpuCount -verbosity:minimal")
     # Testing / debugging only.
     # - cmd.exe /c "set CI_PIPELINE_SOURCE"
     # - cmd.exe /c "set CI_PROJECT_URL"
@@ -583,20 +585,20 @@ Windows x64 Package:
       -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
       -DFALCO_PLUGIN_DLLS="libunwind.dll"
       -DENABLE_SIGNED_NSIS=on ..
-    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.slnx
-    - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
-    - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
-    - msbuild /verbosity:minimal /maxcpucount stratoshark_nsis_prep.vcxproj
-    - msbuild /verbosity:minimal /maxcpucount wireshark_wix_prep.vcxproj
+    - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" Wireshark.slnx
+    - msbuild test-programs.vcxproj
+    - msbuild wireshark_nsis_prep.vcxproj
+    - msbuild stratoshark_nsis_prep.vcxproj
+    - msbuild wireshark_wix_prep.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
-    - msbuild /verbosity:minimal wireshark_nsis.vcxproj
-    - msbuild /verbosity:minimal stratoshark_nsis.vcxproj
-    - msbuild /verbosity:minimal wireshark_wix.vcxproj
+    - msbuild wireshark_nsis.vcxproj
+    - msbuild stratoshark_nsis.vcxproj
+    - msbuild wireshark_wix.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\Wireshark-*.msi
-    - msbuild /verbosity:minimal wireshark_portableapps.vcxproj
+    - msbuild wireshark_portableapps.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\portableapps\WiresharkPortable*.exe
     - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-x64.exe packaging\nsis\Stratoshark-*-x64.exe packaging\wix\Wireshark-*-x64.msi packaging\portableapps\WiresharkPortable??_*.paf.exe
-    - msbuild /verbosity:minimal pdb_zip_package.vcxproj
+    - msbuild pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
     - rclone config create wireshark @(-split $env:WS_RCLONE_REMOTE_OPTS) --no-output
@@ -638,15 +640,15 @@ Windows Arm64 Package:
       -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
       -DFALCO_PLUGIN_DLLS="libunwind.dll"
       -DENABLE_SIGNED_NSIS=on ..
-    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.slnx
-    - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
-    - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
-    - msbuild /verbosity:minimal /maxcpucount stratoshark_nsis_prep.vcxproj
+    - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" Wireshark.slnx
+    - msbuild test-programs.vcxproj
+    - msbuild wireshark_nsis_prep.vcxproj
+    - msbuild stratoshark_nsis_prep.vcxproj
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
-    - msbuild /verbosity:minimal wireshark_nsis.vcxproj
-    - msbuild /verbosity:minimal stratoshark_nsis.vcxproj
+    - msbuild wireshark_nsis.vcxproj
+    - msbuild stratoshark_nsis.vcxproj
     - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-arm64.exe packaging\nsis\Stratoshark-*-arm64.exe
-    - msbuild /verbosity:minimal pdb_zip_package.vcxproj
+    - msbuild pdb_zip_package.vcxproj
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
     - rclone config create wireshark @(-split $env:WS_RCLONE_REMOTE_OPTS) --no-output
@@ -1087,8 +1089,8 @@ Windows Build:
       -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
       -DFALCO_PLUGIN_DLLS="libunwind.dll"
       ..
-    - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug Wireshark.slnx
-    - msbuild /verbosity:minimal /maxcpucount /property:Configuration=Debug test-programs.vcxproj
+    - msbuild -property:Configuration=Debug Wireshark.slnx
+    - msbuild -property:Configuration=Debug test-programs.vcxproj
     - C:\Windows\py.exe -m pip install --quiet jsonschema
     - C:\Windows\py.exe -m pytest --build-type=Debug --disable-gui --enable-stratoshark --junitxml=../windows_tests.xml
   artifacts:

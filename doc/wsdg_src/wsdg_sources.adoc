@@ -286,6 +286,9 @@ or on Windows,
 > msbuild /m /p:Configuration=Debug Wireshark.slnx
 ----
 
+MSBuild uses one CPU and generates verbose output by default.
+You can make it faster and less noisy by using the `-maxCpuCount` and `-verbosity` https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-command-line-reference[flags], either on the command line or by placing them in a _Directory.Build.rsp_ https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-response-files[response file].
+
 [#ChSrcRunFirstTime]
 === Run Your Version Of Wireshark
 
