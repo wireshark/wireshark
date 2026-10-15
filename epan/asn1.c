@@ -254,6 +254,10 @@ double asn1_get_real(const uint8_t *real_ptr, int len, int *err) {
 
     /* 8.5.7.4 d) Next octet defines length of exponent */
     if (lenE == 4) {
+      if (len < 1) {
+        *err = EINVAL;
+        return val;
+      }
       lenE = *p;
       p++;
       len--;
