@@ -26,6 +26,7 @@
 #include "main_status_bar.h"
 #include "profile_dialog.h"
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/capture_file.h>
@@ -79,7 +80,7 @@ packets_bar_update(void)
     cur_main_status_bar_->updateCaptureStatistics(NULL);
 }
 
-static const int icon_size = 14; // px
+static const int base_icon_size = 14; // px, before zoom
 
 MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent),
@@ -120,7 +121,6 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
             "}";
 
     expert_button_ = new QToolButton(this);
-    expert_button_->setIconSize(QSize(icon_size, icon_size));
     expert_button_->setStyleSheet(button_ss);
     expert_button_->setAccessibleName(tr("Expert information"));
     expert_button_->setAccessibleDescription(tr("Opens the expert information dialog, showing errors, warnings, and other relevant information about the capture."));
@@ -131,7 +131,6 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     ThemedIcon comment_icon(QStringLiteral(":/svg_icons/capture-comment.svg"), ThemeManager::PaletteText);
     comment_button_ = new QToolButton(this);
     comment_button_->setIcon(comment_icon);
-    comment_button_->setIconSize(QSize(icon_size, icon_size));
     comment_button_->setStyleSheet(button_ss);
     comment_button_->setAccessibleName(tr("Capture comment"));
     comment_button_->setAccessibleDescription(tr("Opens the Capture File Properties dialog to view or edit capture-level comments."));
@@ -141,7 +140,15 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     connect(expert_button_, &QToolButton::clicked, this, &MainStatusBar::showExpertInfo);
     connect(comment_button_, &QToolButton::clicked, this, &MainStatusBar::editCaptureComment);
 
-    info_progress_hb->setContentsMargins(icon_size / 2, 0, 0, 0);
+    auto applyIconSize = [this]() {
+        const int s = qRound(base_icon_size * FontManager::zoomFactor());
+        expert_button_->setIconSize(QSize(s, s));
+        comment_button_->setIconSize(QSize(s, s));
+    };
+    applyIconSize();
+    connect(FontManager::instance(), &FontManager::zoomChanged, this, applyIconSize);
+
+    info_progress_hb->setContentsMargins(base_icon_size / 2, 0, 0, 0);
 
     info_status_.setTemporaryContext(STATUS_CTX_TEMPORARY);
     info_status_.setShrinkable(true);

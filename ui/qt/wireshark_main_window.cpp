@@ -2131,6 +2131,10 @@ void WiresharkMainWindow::updateMainToolbarIconSize()
 #endif
     icon_size = qRound(icon_size * FontManager::zoomFactor());
     main_ui_->mainToolBar->setIconSize(QSize(icon_size, icon_size));
+
+    // Base size matches the iconSize set in wireshark_main_window.ui.
+    const int filter_icon_size = qRound(14 * FontManager::zoomFactor());
+    main_ui_->displayFilterToolBar->setIconSize(QSize(filter_icon_size, filter_icon_size));
 }
 
 void WiresharkMainWindow::initMainToolbarIcons()
