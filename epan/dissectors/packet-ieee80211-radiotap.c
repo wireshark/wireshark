@@ -2337,7 +2337,8 @@ dissect_radiotap_eht(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	uint32_t known = 0;
 	uint32_t ru_alloc_1_known;
 	uint32_t ru_x_alloc;
-	uint16_t len = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
+	/* This is signed so that the len > 0 check below works. */
+	int len = tvb_get_uint16(tvb, offset - 2, ENC_LITTLE_ENDIAN);
 	proto_item *data = NULL, *item = NULL;
 	proto_tree *sub_tree = NULL, *user_info_tree = NULL;
 	bool data_ru_mru_size_known = false;
