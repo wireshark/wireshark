@@ -222,7 +222,7 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     // Fixed, like the other glyphs, rather than derived from a style metric:
     // PM_MenuButtonIndicator (12px in QCommonStyle) is 20px on Breeze, which
     // made the box far wider than the caret drawn in it.
-    history_button_->setBaseIconSize(QSize(24, 24));
+    history_button_->setBaseIconSize(QSize(14, 14));
     history_button_->setVisible(false);
     connect(history_button_, &QAbstractButton::clicked, this, [this]() {
         populateHistoryMenu();

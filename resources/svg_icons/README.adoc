@@ -60,7 +60,7 @@ If you add, modify, or remove an icon please update this list to match.
 * capture-restart.svg: {designed-by-aaron}
 * capture-start.svg: {designed-by-aaron}
 * capture-stop.svg: Modified {raw-assets-url-prefix}Stop/SVG/ic_fluent_stop_24_filled.svg[Stop]
-* document-open.svg: // To do
+* document-open.svg: {raw-assets-url-prefix}Folder/SVG/ic_fluent_folder_24_regular.svg[Folder]
 * expert-chat.svg Modified {raw-assets-url-prefix}Circle/SVG/ic_fluent_circle_24_regular.svg[Circle]
 * expert-comment.svg Modified {raw-assets-url-prefix}Circle/SVG/ic_fluent_circle_24_regular.svg[Circle]
 * expert-error.svg Modified {raw-assets-url-prefix}Circle/SVG/ic_fluent_circle_24_regular.svg[Circle]
@@ -74,17 +74,17 @@ If you add, modify, or remove an icon please update this list to match.
 * filter-clear.svg: Modified {raw-assets-url-prefix}Dismiss%20Square/SVG/ic_fluent_dismiss_square_24_filled.svg[Dismiss Square]
 * filter-deprecated.svg: {raw-assets-url-prefix}Warning/SVG/ic_fluent_warning_24_regular.svg[Warning]
 * filter-dropdown.svg: // To do
-* filter-history.svg: // To do
+* filter-history.svg: {raw-assets-url-prefix}Chevron%20Down/SVG/ic_fluent_chevron_down_24_filled.svg[Chevron Down]
 * filter-invalid.svg: {raw-assets-url-prefix}Prohibited/SVG/ic_fluent_prohibited_24_regular.svg[Prohibited]
 * find.svg: {raw-assets-url-prefix}Search/SVG/ic_fluent_search_24_regular.svg
 * folder.svg {raw-assets-url-prefix}Folder/SVG/ic_fluent_folder_24_regular.svg[Folder]
 * layout-reset-\*.svg: {designed-by-aaron}
-* list-add.svg {raw-assets-url-prefix}Add/SVG/ic_fluent_add_24_regular.svg[Add]
+* list-add.svg {raw-assets-url-prefix}Add/SVG/ic_fluent_add_24_filled.svg[Add]
 * list-clear.svg {raw-assets-url-prefix}Text%20Grammar%20Dismiss/SVG/ic_fluent_text_grammar_dismiss_24_regular.svg[Text Grammar Dismiss]
 * list-copy.svg {raw-assets-url-prefix}Copy/SVG/ic_fluent_copy_24_regular.svg[Copy]
-* list-move-down.svg {raw-assets-url-prefix}Chevron%20Down/SVG/ic_fluent_chevron_down_24_regular.svg[Chevron Down]
-* list-move-up.svg {raw-assets-url-prefix}Chevron%20Up/SVG/ic_fluent_chevron_up_24_regular.svg[Chevron Up]
-* list-remove.svg {raw-assets-url-prefix}Subtract/SVG/ic_fluent_subtract_24_regular.svg[Subtract]
+* list-move-down.svg {raw-assets-url-prefix}Chevron%20Down/SVG/ic_fluent_chevron_down_24_filled.svg[Chevron Down]
+* list-move-up.svg {raw-assets-url-prefix}Chevron%20Up/SVG/ic_fluent_chevron_up_24_filled.svg[Chevron Up]
+* list-remove.svg {raw-assets-url-prefix}Subtract/SVG/ic_fluent_subtract_24_filled.svg[Subtract]
 * lua-debug-continue.svg {raw-assets-url-prefix}Play/SVG/ic_fluent_play_24_filled.svg[Play]
 * lua-debug-run-to-line.svg {raw-assets-url-prefix}Text%20First%20Line/SVG/ic_fluent_text_first_line_20_regular.svg[Text First Line]
 * lua-debug-step-in.svg {raw-assets-url-prefix}Arrow%20Step%20In/SVG/ic_fluent_arrow_step_in_20_filled.svg[Arrow Step In]
