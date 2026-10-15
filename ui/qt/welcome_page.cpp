@@ -62,6 +62,8 @@ WelcomePage::WelcomePage(QWidget *parent) :
     welcome_ui_->sidebarContainer->setVisible(false);
 
     updateStyleSheets();
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &WelcomePage::updateStyleSheets);
 
     /* Handle Recent Capture Files List */
     // In welcome_page.cpp or wherever the list is created

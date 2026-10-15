@@ -341,6 +341,8 @@ PacketList::PacketList(QWidget *parent) :
     gbl_cur_packet_list = this;
 
     connect(packet_list_proxy_model_, &PacketListProxyModel::goToPacket, this, [=](int packet) { goToPacket(packet); });
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &PacketList::colorsChanged);
     connect(mainApp, &MainApplication::addressResolutionChanged, this, &PacketList::redrawVisiblePacketsDontSelectCurrent);
     connect(mainApp, &MainApplication::columnDataChanged, this, &PacketList::redrawVisiblePacketsDontSelectCurrent);
     connect(mainApp, &MainApplication::preferencesChanged, this, [=]() {

@@ -358,6 +358,11 @@ protected slots:
 
 private slots:
     /**
+     * @brief Rebuilds this view's stylesheet from the current theme.
+     */
+    void updateStyleSheet();
+
+    /**
      * @brief Updates the content width of the tree columns.
      */
     void updateContentWidth();

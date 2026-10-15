@@ -25,6 +25,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/drag_label.h>
@@ -75,11 +76,9 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     setAttribute(Qt::WA_MacShowFocusRect, true);
 #endif
 
-    setStyleSheet(QStringLiteral(
-        "QTreeView:item:hover {"
-        "  background-color: %1;"
-        "  color: palette(text);"
-        "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb)));
+    updateStyleSheet();
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &ProtoTree::updateStyleSheet);
 
     // Shrink down to a small but nonzero size in the main splitter.
     int one_em = fontMetrics().height();
@@ -111,6 +110,15 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     }
 
     viewport()->installEventFilter(this);
+}
+
+void ProtoTree::updateStyleSheet()
+{
+    setStyleSheet(QStringLiteral(
+        "QTreeView:item:hover {"
+        "  background-color: %1;"
+        "  color: palette(text);"
+        "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb)));
 }
 
 void ProtoTree::clear() {
