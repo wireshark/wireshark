@@ -178,6 +178,7 @@ _/usr/local/etc_.
 |_ss7pcs_|SS7 point code resolution.
 |_subnets_|IPv4 subnet name resolution.
 |_subnetsipv6_|IPv6 subnet name resolution.
+|_tagrules.jsonc_|Tagging rules.
 |_vlans_|VLAN ID name resolution.
 |_wka_|Well-known MAC addresses.
 |===
@@ -591,6 +592,28 @@ Conversations Statistics dialogs for the IPv4 protocol when the IPv4 user
 preference _Aggregate subnets in Statistics Dialogs_ is enabled. In this
 case, when an IPv4 address matches a subnet, the statistics dialog will
 show this subnet instead of the IPv4 address.
+--
+
+tagrules.jsonc::
++
+--
+This file contains all the tagging rules that you have defined and saved in the current configuration profile.
+It contains an array of JSON objects, each representing a tagging rule, with the following format:
+
+----
+{ "Rule name": {
+    "filter": "<display filter string>",
+    "tag": "<emoji or short text shown in the packet list>",
+    "url": "<optional URL opened when the tag is clicked>",
+    "comment": "<optional comment>",
+    "enabled": "<boolean value>"
+    }
+}
+----
+
+An optional object named __prefs_for_tagging_rules__ holds the tag display preferences (__separator__, __emoji_size__ and __click__).
+
+When you press the OK button in the “Tagging Rules” dialog box, all the current tagging rules are written to the personal tagrules.jsonc file.
 --
 
 vlans::

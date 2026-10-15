@@ -142,7 +142,7 @@ public:
 
     /**
      * @brief Load rules from an arbitrary path into the model (replaces current contents).
-     * @param path     Full path to a tagrules file.
+     * @param path     Full path to a tagrules.jsonc file.
      * @param err      Set to error message on failure.
      * @return True on success.
      */

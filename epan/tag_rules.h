@@ -20,7 +20,7 @@ extern "C" {
 struct epan_dfilter;
 struct epan_dissect;
 
-#define TAGRULES_FILE_NAME         "tagrules"         /**< Per-profile tagrules file. */
+#define TAGRULES_FILE_NAME         "tagrules.jsonc"   /**< Per-profile tagrules file (JSONC). */
 
 /** @file
  *  Tagging rules — associate user-defined tags with packets via display filters.
@@ -38,8 +38,8 @@ typedef enum {
 /**
  * @brief Display preferences for the tagging subsystem.
  *
- * Stored in the profile's tagrules file as a header comment:
- * #prefs:sep=XX,emoji_size=N,click=N
+ * Stored in the profile's tagrules.jsonc file as a leading
+ * "prefs_for_tagging_rules" element.
  */
 typedef struct _tag_prefs {
     char                  separator;    /**< Between tags when >1 match; '\0' = none. */
@@ -71,7 +71,7 @@ typedef void (*tag_rule_add_cb_func)(tag_rule_t *rule, void *user_data);
 /**
  * @brief Initialize the tag rules subsystem (read from file).
  *
- * Loads from the active profile's tagrules file.
+ * Loads from the active profile's tagrules.jsonc file.
  */
 WS_DLL_PUBLIC void tag_rules_init(void);
 
@@ -83,7 +83,7 @@ WS_DLL_PUBLIC void tag_rules_init(void);
 WS_DLL_PUBLIC void tag_rules_reload(void);
 
 /**
- * @brief Write tag rules to the active profile's tagrules file.
+ * @brief Write tag rules to the active profile's tagrules.jsonc file.
  *
  * @return true if the write succeeded, false otherwise.
  */
@@ -162,7 +162,7 @@ WS_DLL_PUBLIC void tag_rules_set_prefs(const tag_prefs_t *prefs);
 /**
  * @brief Read tag rules from a file into a new GSList without touching the active list.
  *
- * @param path     Full path to a tagrules file.
+ * @param path     Full path to a tagrules.jsonc file.
  * @param err_msg  Set to error string on failure; caller g_frees. May be NULL.
  * @return Newly allocated GSList of tag_rule_t*, or NULL on error. Caller owns the list.
  */
@@ -175,7 +175,7 @@ WS_DLL_PUBLIC GSList *tag_rules_read_path(const char *path, char **err_msg);
  *
  * @param list     GSList of tag_rule_t* to write.
  * @param path     Full path to write.
- * @param prefs    Prefs to embed in the file header (may be NULL for defaults).
+ * @param prefs    Prefs to embed in the file (may be NULL for defaults).
  * @param err_msg  Set to error string on failure; caller g_frees.
  * @return true on success.
  */

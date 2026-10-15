@@ -139,7 +139,7 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
         ui->pathLabel->setToolTip(tr("Open ") + TAGRULES_FILE_NAME);
         ui->pathLabel->setEnabled(true);
     } else {
-        ui->pathLabel->setText(tr("(no tagrules file yet — will be created on save)"));
+        ui->pathLabel->setText(tr("(no tagrules.jsonc file yet — will be created on save)"));
         ui->pathLabel->setEnabled(false);
     }
 

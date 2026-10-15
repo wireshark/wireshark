@@ -21,81 +21,39 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
-#include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include <wsutil/wsjson.h>
+#include <wsutil/json_dumper.h>
 
 #include <epan/dfilter/dfilter.h>
 #include <epan/epan_dissect.h>
 #include "tag_rules.h"
 
 /*
- * Each line in the tagrules file has one of these formats:
+ * The tagrules file is a JSONC file (JSON with // and block comments): a
+ * top-level array of single-key objects, each of the form
  *
- *  @<name>@<filter>@<tag_content>@<tag_url>@<comment>
- * !@<name>@<filter>@<tag_content>@<tag_url>@<comment>
+ *  { "<rule name>": { "filter": "...", "tag": "...", "url": "...",
+ *                     "comment": "...", "enabled": true } }
  *
- * A leading '!' marks the rule as disabled.
- * Lines beginning with '#' are comments and are ignored.
- * The first four fields are escape-encoded: '\@' → '@', '\\' → '\'.
- * The comment field (last) is unescaped and may contain '@' freely; it runs
- * to end-of-line.
+ * "tag", "url", "comment" and "enabled" are optional ("enabled" defaults to
+ * true).  An optional element keyed TAG_PREFS_KEY holds the display prefs:
  *
- * The active list is loaded from and written to a single tagrules file in
- * the active profile's directory.
+ *  { "prefs_for_tagging_rules": { "separator": ",", "emoji_size": 80,
+ *                                 "click": "ctrl" } }
+ *
+ * "click" is one of "single", "ctrl" or "none".
+ *
+ * The active list is loaded from and written to a single tagrules.jsonc file
+ * in the active profile's directory.
  */
+
+/* Reserved element name used for the display prefs; not a valid rule name. */
+#define TAG_PREFS_KEY "prefs_for_tagging_rules"
 
 /* The currently active tag rule list */
 static GSList *tag_rule_list;
-
-/*
- * Escape '@' and '\' in a field value so '@' can safely be used as the
- * column delimiter.  Returns a newly g_malloc'd string; caller must g_free.
- */
-static char *
-escape_field(const char *s)
-{
-    GString *out = g_string_sized_new(strlen(s) + 4);
-    for (; *s; s++) {
-        if (*s == '\\' || *s == '@')
-            g_string_append_c(out, '\\');
-        g_string_append_c(out, *s);
-    }
-    return g_string_free(out, false);
-}
-
-/*
- * Read one field from the file, stopping at an unescaped '@', '\n', or EOF.
- * On return *c_out holds the character that terminated the read.
- * Writes the unescaped value into buf (g_realloc'd as needed); sets *len_inout.
- * Returns the number of bytes written (excluding the NUL terminator).
- */
-static int
-read_escaped_field(FILE *f, char **buf, uint32_t *len_inout, int *c_out)
-{
-    uint32_t i = 0;
-    int c;
-    while (1) {
-        c = ws_getc_unlocked(f);
-        if (c == EOF || c == '\n' || c == '@')
-            break;
-        if (c == '\\') {
-            int next = ws_getc_unlocked(f);
-            if (next == EOF || next == '\n') {
-                if (i >= *len_inout) { *len_inout *= 2; *buf = (char *)g_realloc(*buf, *len_inout + 1); }
-                (*buf)[i++] = (char)c;
-                c = next;
-                break;
-            }
-            c = next;
-        }
-        if (i >= *len_inout) { *len_inout *= 2; *buf = (char *)g_realloc(*buf, *len_inout + 1); }
-        (*buf)[i++] = (char)c;
-    }
-    (*buf)[i] = '\0';
-    *c_out = c;
-    return (int)i;
-}
 
 /* Display preferences for the active profile */
 static tag_prefs_t tag_prefs = { '\0', 0, TAG_LINK_CLICK_CTRL };
@@ -172,7 +130,41 @@ tag_rule_list_delete(GSList **list)
  * File I/O — read
  * ------------------------------------------------------------------------- */
 
-#define INIT_BUF_SIZE 128
+static const char *
+click_mode_to_str(tag_link_click_mode_t mode)
+{
+    switch (mode) {
+    case TAG_LINK_CLICK_SINGLE: return "single";
+    case TAG_LINK_CLICK_NONE:   return "none";
+    case TAG_LINK_CLICK_CTRL:
+    default:                    return "ctrl";
+    }
+}
+
+/* Parse the TAG_PREFS_KEY properties object into tag_prefs. */
+static void
+read_tag_prefs(char *buf, jsmntok_t *props)
+{
+    char    *str;
+    int64_t  val;
+
+    str = json_get_string(buf, props, "separator");
+    if (str != NULL)
+        tag_prefs.separator = str[0];
+
+    if (json_get_int(buf, props, "emoji_size", &val))
+        tag_prefs.emoji_size = (int)val;
+
+    str = json_get_string(buf, props, "click");
+    if (str != NULL) {
+        if (strcmp(str, "single") == 0)
+            tag_prefs.link_click = TAG_LINK_CLICK_SINGLE;
+        else if (strcmp(str, "ctrl") == 0)
+            tag_prefs.link_click = TAG_LINK_CLICK_CTRL;
+        else if (strcmp(str, "none") == 0)
+            tag_prefs.link_click = TAG_LINK_CLICK_NONE;
+    }
+}
 
 /*
  * Read tagrules from an already-open file.  Rules are appended to
@@ -185,256 +177,198 @@ read_tagrules_file(const char *path, FILE *f,
                    GSList **list_out,
                    tag_rule_add_cb_func add_cb, void *cb_data)
 {
-    char     *name;
-    char     *filter;
-    char     *tag_content;
-    char     *tag_url;
-    char     *comment;
-    uint32_t  name_len        = INIT_BUF_SIZE;
-    uint32_t  filter_len      = INIT_BUF_SIZE;
-    uint32_t  tag_content_len = INIT_BUF_SIZE;
-    uint32_t  tag_url_len     = INIT_BUF_SIZE;
-    uint32_t  comment_len     = INIT_BUF_SIZE;
-    uint32_t  i;
-    int       c;
-    bool      disabled         = false;
-    bool      skip_end_of_line = false;
-    int       ret              = 0;
+    long        size;
+    char       *buf;
+    size_t      nread;
+    int         num_tokens;
+    jsmntok_t  *tokens;
+    int         array_len;
+    jsmntok_t  *element;
 
-    name        = (char *)g_malloc(name_len + 1);
-    filter      = (char *)g_malloc(filter_len + 1);
-    tag_content = (char *)g_malloc(tag_content_len + 1);
-    tag_url     = (char *)g_malloc(tag_url_len + 1);
-    comment     = (char *)g_malloc(comment_len + 1);
+    if (fseek(f, 0, SEEK_END) == -1)
+        return errno;
+    size = ftell(f);
+    if (size < 0)
+        return errno;
+    if (fseek(f, 0, SEEK_SET) == -1)
+        return errno;
+    if (size == 0)
+        return 0;
 
-    while (1) {
+    buf = (char *)g_malloc(size + 1);
+    nread = fread(buf, 1, size, f);
+    if (ferror(f)) {
+        int ret = errno;
+        g_free(buf);
+        return ret;
+    }
+    buf[nread] = '\0';
 
-        /* Skip to end of current (bad/comment) line if requested */
-        if (skip_end_of_line) {
-            do {
-                c = ws_getc_unlocked(f);
-            } while (c != EOF && c != '\n');
-            if (c == EOF)
-                break;
-            disabled = false;
-            skip_end_of_line = false;
-        }
-
-        /* Skip whitespace (including blank lines) */
-        while ((c = ws_getc_unlocked(f)) != EOF && g_ascii_isspace(c)) {
-            if (c == '\n') {
-                disabled = false;   /* reset disabled flag across blank lines */
-            }
-        }
-
-        if (c == EOF)
-            break;
-
-        /* Leading '!' means disabled */
-        if (c == '!') {
-            disabled = true;
-            continue;
-        }
-
-        /* '#prefs:' header — parse display prefs */
-        if (c == '#') {
-            /* Read the rest of the line to check for #prefs: */
-            char pref_line[256];
-            int pi = 0;
-            while (pi < (int)(sizeof(pref_line) - 1)) {
-                int pc = ws_getc_unlocked(f);
-                if (pc == EOF || pc == '\n') break;
-                pref_line[pi++] = (char)pc;
-            }
-            pref_line[pi] = '\0';
-            if (g_str_has_prefix(pref_line, "prefs:")) {
-                char *kv = pref_line + 6; /* skip "prefs:" */
-                gchar **pairs = g_strsplit(kv, ",", -1);
-                for (int pi2 = 0; pairs[pi2]; pi2++) {
-                    gchar **kv2 = g_strsplit(pairs[pi2], "=", 2);
-                    if (kv2[0] && kv2[1]) {
-                        if (strcmp(kv2[0], "sep") == 0) {
-                            /* stored as 2-digit hex to avoid comma ambiguity */
-                            unsigned v = 0;
-                            if (sscanf(kv2[1], "%02x", &v) == 1 && v != 0)
-                                tag_prefs.separator = (char)v;
-                            else
-                                tag_prefs.separator = '\0';
-                        }
-                        else if (strcmp(kv2[0], "emoji_size") == 0) {
-                            int32_t v32 = 0;
-                            if (ws_strtoi32(kv2[1], NULL, &v32))
-                                tag_prefs.emoji_size = (int)v32;
-                        } else if (strcmp(kv2[0], "click") == 0) {
-                            int32_t v32 = 0;
-                            if (ws_strtoi32(kv2[1], NULL, &v32))
-                                tag_prefs.link_click = (tag_link_click_mode_t)v32;
-                        }
-                    }
-                    g_strfreev(kv2);
-                }
-                g_strfreev(pairs);
-            }
-            disabled = false;
-            skip_end_of_line = false;
-            continue;
-        }
-
-        /* Anything other than '@' starts an invalid line */
-        if (c != '@') {
-            skip_end_of_line = true;
-            continue;
-        }
-
-        /* ----------------------------------------------------------------
-         * We consumed the first '@'.  Now read: name @ filter @ tag_content
-         * and then the remainder of the line as comment.
-         * ---------------------------------------------------------------- */
-
-        /* Read name (escaped) */
-        i = read_escaped_field(f, &name, &name_len, &c);
-
-        if (c == EOF || c == '\n') {
-            disabled = false;
-            skip_end_of_line = false;
-            continue;
-        }
-        if (i == 0) {
-            skip_end_of_line = true;
-            continue;
-        }
-
-        /* Read filter (escaped) */
-        i = read_escaped_field(f, &filter, &filter_len, &c);
-
-        if (c == EOF || c == '\n') {
-            disabled = false;
-            skip_end_of_line = false;
-            continue;
-        }
-        if (i == 0) {
-            skip_end_of_line = true;
-            continue;
-        }
-
-        /* Read tag_content (escaped) */
-        read_escaped_field(f, &tag_content, &tag_content_len, &c);
-
-        /* Read tag_url (escaped) */
-        tag_url[0] = '\0';
-        if (c == '@')
-            read_escaped_field(f, &tag_url, &tag_url_len, &c);
-
-        /*
-         * Read the rest of the line as the comment.  The comment may
-         * contain '@' characters; we simply read until '\n' or EOF.
-         * If we already hit '\n' or EOF while reading tag_url, the
-         * comment is empty.
-         */
-        i = 0;
-        if (c == '@') {
-            while (1) {
-                c = ws_getc_unlocked(f);
-                if (c == EOF || c == '\n')
-                    break;
-                if (i >= comment_len) {
-                    comment_len *= 2;
-                    comment = (char *)g_realloc(comment, comment_len + 1);
-                }
-                comment[i++] = (char)c;
-            }
-        }
-        comment[i] = '\0';
-
-        /* We have a complete rule — compile the filter and store it */
-        {
-            tag_rule_t *rule;
-            dfilter_t  *temp_dfilter = NULL;
-            df_error_t *df_err       = NULL;
-
-            if (!disabled && filter[0] != '\0' &&
-                !dfilter_compile(filter, &temp_dfilter, &df_err)) {
-                report_warning("Disabling tag rule: Could not compile \"%s\" "
-                               "in tagrules file \"%s\".\n%s",
-                               name, path, df_err->msg);
-                df_error_free(&df_err);
-                disabled = true;
-            }
-
-            rule           = tag_rule_new(name, filter, tag_content, tag_url, comment);
-            rule->disabled = disabled;
-
-            if (list_out) {
-                /* Internal call: store compiled filter directly */
-                rule->c_tagfilter = temp_dfilter;
-                *list_out = g_slist_append(*list_out, rule);
-            } else {
-                /* External (import/clone) call: caller doesn't need compiled filter */
-                dfilter_free(temp_dfilter);
-                add_cb(rule, cb_data);
-            }
-        }
-
-        /* Reset for next rule */
-        disabled         = false;
-        skip_end_of_line = false;
+    if (!json_strip_jsonc_comments(buf)) {
+        report_warning("Error parsing tagrules.jsonc file\n\"%s\": unterminated block comment.", path);
+        g_free(buf);
+        return 0;
     }
 
-    if (ferror(f))
-        ret = errno;
+    num_tokens = json_parse(buf, NULL, 0);
+    if (num_tokens <= 0) {
+        /* All comments/whitespace or invalid. Just treat it as empty. */
+        g_free(buf);
+        return 0;
+    }
 
-    g_free(name);
-    g_free(filter);
-    g_free(tag_content);
-    g_free(tag_url);
-    g_free(comment);
-    return ret;
+    tokens = (jsmntok_t *)g_malloc(num_tokens * sizeof(jsmntok_t));
+    if (json_parse(buf, tokens, num_tokens) <= 0 || tokens[0].type != JSMN_ARRAY) {
+        report_warning("Error parsing tagrules.jsonc file\n\"%s\": invalid JSON.", path);
+        g_free(tokens);
+        g_free(buf);
+        return 0;
+    }
+
+    array_len = json_get_array_len(&tokens[0]);
+    element = json_get_array_index(&tokens[0], 0);
+
+    for (int i = 0; i < array_len; i++, element = json_get_next_object(element)) {
+        char       *name, *filter, *tag_content, *tag_url, *comment;
+        bool        enabled = true;
+        dfilter_t  *temp_dfilter = NULL;
+        df_error_t *df_err = NULL;
+        tag_rule_t *rule;
+        jsmntok_t  *name_tok, *properties_tok;
+
+        if (element->type != JSMN_OBJECT || element->size != 1)
+            continue;
+
+        /* "<rule name>": { ... } */
+        name_tok = element + 1;
+        properties_tok = name_tok + 1;
+        if (name_tok->type != JSMN_STRING || properties_tok->type != JSMN_OBJECT)
+            continue;
+
+        name = g_strndup(&buf[name_tok->start], (gsize)(name_tok->end - name_tok->start));
+        if (!json_decode_string_inplace(name) || name[0] == '\0') {
+            g_free(name);
+            continue;
+        }
+
+        if (strcmp(name, TAG_PREFS_KEY) == 0) {
+            read_tag_prefs(buf, properties_tok);
+            g_free(name);
+            continue;
+        }
+
+        filter      = json_get_string(buf, properties_tok, "filter");
+        tag_content = json_get_string(buf, properties_tok, "tag");
+        tag_url     = json_get_string(buf, properties_tok, "url");
+        comment     = json_get_string(buf, properties_tok, "comment");
+        json_get_boolean(buf, properties_tok, "enabled", &enabled);
+
+        /* A rule needs a filter */
+        if (filter == NULL || filter[0] == '\0') {
+            g_free(name);
+            continue;
+        }
+
+        if (enabled && !dfilter_compile(filter, &temp_dfilter, &df_err)) {
+            report_warning("Disabling tag rule: Could not compile \"%s\" "
+                           "in tagrules.jsonc file \"%s\".\n%s",
+                           name, path, df_err->msg);
+            df_error_free(&df_err);
+            enabled = false;
+        }
+
+        rule           = tag_rule_new(name, filter, tag_content, tag_url, comment);
+        rule->disabled = !enabled;
+        g_free(name);
+
+        if (list_out) {
+            /* Internal call: store compiled filter directly */
+            rule->c_tagfilter = temp_dfilter;
+            *list_out = g_slist_append(*list_out, rule);
+        } else {
+            /* External (import/clone) call: caller doesn't need compiled filter */
+            dfilter_free(temp_dfilter);
+            add_cb(rule, cb_data);
+        }
+    }
+
+    g_free(tokens);
+    g_free(buf);
+    return 0;
 }
 
 /* ---------------------------------------------------------------------------
  * File I/O — write
  * ------------------------------------------------------------------------- */
 
-/*
- * Write a single rule to file f.
- * The comment field is written last; because it is delimited by end-of-line
- * rather than '@', it may contain '@' characters without escaping.
- */
+/* Write a single rule to the dumper. */
 static void
-write_tagrule(tag_rule_t *rule, FILE *f)
+write_tagrule(tag_rule_t *rule, json_dumper *dumper)
 {
-    char *ename    = escape_field(rule->rule_name    ? rule->rule_name    : "");
-    char *efilter  = escape_field(rule->filter_text  ? rule->filter_text  : "");
-    char *etag     = escape_field(rule->tag_content  ? rule->tag_content  : "");
-    char *eurl     = escape_field(rule->tag_url      ? rule->tag_url      : "");
-    fprintf(f, "%s@%s@%s@%s@%s@%s\n",
-            rule->disabled ? "!" : "",
-            ename, efilter, etag, eurl,
-            rule->comment); /* comment is end-of-line terminated — no escaping needed */
-    g_free(ename);
-    g_free(efilter);
-    g_free(etag);
-    g_free(eurl);
+    if (rule->rule_name == NULL || strcmp(rule->rule_name, TAG_PREFS_KEY) == 0) {
+        ws_warning("Not saving tag rule with reserved or missing name \"%s\"",
+                   rule->rule_name ? rule->rule_name : "");
+        return;
+    }
+
+    json_dumper_begin_object(dumper);
+    json_dumper_set_member_name(dumper, rule->rule_name);
+    json_dumper_begin_object(dumper);
+    json_dumper_set_member_name_const(dumper, "filter");
+    json_dumper_value_string(dumper, rule->filter_text ? rule->filter_text : "");
+    json_dumper_set_member_name_const(dumper, "tag");
+    json_dumper_value_string(dumper, rule->tag_content ? rule->tag_content : "");
+    json_dumper_set_member_name_const(dumper, "url");
+    json_dumper_value_string(dumper, rule->tag_url ? rule->tag_url : "");
+    json_dumper_set_member_name_const(dumper, "comment");
+    json_dumper_value_string(dumper, rule->comment ? rule->comment : "");
+    json_dumper_set_member_name_const(dumper, "enabled");
+    json_dumper_value_anyf(dumper, "%s", rule->disabled ? "false" : "true");
+    json_dumper_end_object(dumper);
+    json_dumper_end_object(dumper);
 }
 
 static void
-write_tagrule_cb(void *rule_arg, void *f_arg)
+write_tagrule_cb(void *rule_arg, void *dumper_arg)
 {
-    write_tagrule((tag_rule_t *)rule_arg, (FILE *)f_arg);
+    write_tagrule((tag_rule_t *)rule_arg, (json_dumper *)dumper_arg);
+}
+
+static void
+write_tag_prefs(const tag_prefs_t *tprefs, json_dumper *dumper)
+{
+    char sep[2] = { tprefs->separator, '\0' };
+
+    json_dumper_begin_object(dumper);
+    json_dumper_set_member_name_const(dumper, TAG_PREFS_KEY);
+    json_dumper_begin_object(dumper);
+    json_dumper_set_member_name_const(dumper, "separator");
+    json_dumper_value_string(dumper, sep);
+    json_dumper_set_member_name_const(dumper, "emoji_size");
+    json_dumper_value_anyf(dumper, "%d", tprefs->emoji_size);
+    json_dumper_set_member_name_const(dumper, "click");
+    json_dumper_value_string(dumper, click_mode_to_str(tprefs->link_click));
+    json_dumper_end_object(dumper);
+    json_dumper_end_object(dumper);
 }
 
 static bool
 write_tagrules_file(GSList *list, FILE *f, const tag_prefs_t *tprefs)
 {
-    fprintf(f, "# This file was created by Wireshark. Edit with care.\n");
-    if (tprefs) {
-        fprintf(f, "#prefs:sep=%02x,emoji_size=%d,click=%d\n",
-                (unsigned char)tprefs->separator,
-                tprefs->emoji_size,
-                (int)tprefs->link_click);
-    }
-    g_slist_foreach(list, write_tagrule_cb, f);
-    return true;
+    json_dumper dumper = {
+        .output_file = f,
+        .flags = JSON_DUMPER_FLAGS_PRETTY_PRINT,
+    };
+
+    fprintf(f, "// This file was created by Wireshark. Edit with care.\n");
+
+    json_dumper_begin_array(&dumper);
+    if (tprefs)
+        write_tag_prefs(tprefs, &dumper);
+    g_slist_foreach(list, write_tagrule_cb, &dumper);
+    json_dumper_end_array(&dumper);
+
+    return json_dumper_finish(&dumper);
 }
 
 /* ---------------------------------------------------------------------------
@@ -524,9 +458,19 @@ tag_rules_write_path(GSList *list, const char *path,
 bool
 tag_rules_write(void)
 {
+    char *pf_dir_path;
     char *path;
     char *err_msg = NULL;
     bool  ok;
+
+    /* Create the directory that holds personal configuration files,
+       if necessary. */
+    if (create_persconffile_dir(NULL, &pf_dir_path) == -1) {
+        report_warning("Can't create directory\n\"%s\"\nfor tagrules.jsonc file: %s.",
+                       pf_dir_path, g_strerror(errno));
+        g_free(pf_dir_path);
+        return false;
+    }
 
     path = get_persconffile_path(TAGRULES_FILE_NAME, true, NULL);
     ok = tag_rules_write_path(tag_rule_list, path, &tag_prefs, &err_msg);

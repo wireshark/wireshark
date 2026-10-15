@@ -566,8 +566,9 @@ page.
 To manage tagging rules, select menu:View[Tagging Rules...]. Wireshark will
 display the "Tagging Rules" dialog box.
 
-Tagging rules are stored in the current configuration profile, the same way
-coloring rules are, so different profiles can have different sets of tags.
+Tagging rules are stored in the current configuration profile, in a
+__tagrules.jsonc__ file, the same way coloring rules are, so different
+profiles can have different sets of tags.
 
 You can create a new rule by clicking on the btn:[+] button. You can delete
 one or more rules by clicking the btn:[-] button. The "copy" button will
