@@ -150,16 +150,19 @@ static int sdj_dump_entries(sd_journal *jnl, ws_cwstream* fp)
 					break;
 				}
 				ptrdiff_t name_len = eq_ptr - (const uint8_t *) fld_data;
+				size_t value_len = fld_len - name_len - 1;
 				uint64_t le_data_len;
-				le_data_len = htole64(fld_len - name_len - 1);
+				le_data_len = htole64(value_len);
 				memcpy(entry_buff+data_end, fld_data, name_len);
 				data_end+= name_len;
 				entry_buff[data_end] = '\n';
 				data_end++;
 				memcpy(entry_buff+data_end, &le_data_len, 8);
 				data_end += 8;
-				memcpy(entry_buff+data_end, (const uint8_t *) fld_data + name_len + 1, fld_len - name_len);
-				data_end += fld_len - name_len;
+				memcpy(entry_buff+data_end, (const uint8_t *) fld_data + name_len + 1, value_len);
+				data_end += (uint32_t) value_len;
+				entry_buff[data_end] = '\n';
+				data_end++;
 			}
 		}
 
