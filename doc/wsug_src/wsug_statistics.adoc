@@ -230,14 +230,22 @@ exported without special formatting, but this can be enabled if needed.
 
 The btn:[Follow Stream...] button will show the stream contents as described
 in <<ChAdvFollowStream>> dialog. The btn:[Graph...] button will show a
-Time Sequence graph as described in <<ChStatTCPStreamGraphs>>. The
-btn:[I/O Graphs...] will open the I/O Graph dialog described in
+Time Sequence graph as described in <<ChStatTCPStreamGraphs>>.
+
+The btn:[I/O Graphs...] will open the I/O Graph dialog described in
 <<ChStatIOGraphs>>, with the selected conversations.
 
 
 btn:[Protocol] lets you choose which traffic type tabs are shown.
 See <<ChStatEndpoints>> for a list of endpoint types. The enabled types
 are saved in your profile settings, as well as the last opened tab.
+
+While at first sight all tabs seem to display the very same counters,
+it is not exactly the case. For example TCP and UDP will show Port columns
+when IP won't of course. Specific to TCP, a Flows column shows how many
+times data was sent unidirectionally to the other host before the latter
+started sending data or the connection was finally closed (think of 'turns'
+in the TCP Follow Stream plus 1 - if both sides sent data at least once).
 
 [TIP]
 ====
