@@ -1238,6 +1238,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-metamako.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mgcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi-sysex.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-midi-sysex_digitech.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mih.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mikey.c

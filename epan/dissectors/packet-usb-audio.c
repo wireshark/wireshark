@@ -18,6 +18,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
+#include "packet-midi.h"
 #include "packet-usb.h"
 
 /* XXX - we use the same macro for mpeg sections,
@@ -1012,9 +1013,12 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
         padding_size = 3 - event_size;
         if (event_size > 0)
         {
-            /* TODO: Create MIDI dissector and pass the event data to it */
-            const uint8_t *event_data = tvb_get_ptr(tvb, offset+1, event_size);
-            proto_tree_add_bytes(tree, hf_midi_event, tvb, offset+1, event_size, event_data);
+            if (is_sysex_code(code)) {
+                proto_tree_add_item(tree, hf_midi_event, tvb, offset+1, event_size, ENC_NA);
+            } else {
+                tvbuff_t* midi_tvb = tvb_new_subset_length(tvb, offset+1, event_size);
+                dissect_midi1_message(midi_tvb, pinfo, tree, 0, NULL, true);
+            }
         }
         if (padding_size > 0)
         {
@@ -2925,7 +2929,7 @@ dissect_usb_audio_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
     switch (urb->conv->interfaceSubclass)
     {
         case AUDIO_IF_SUBCLASS_MIDISTREAMING:
-            col_set_str(pinfo->cinfo, COL_INFO, "USB-MIDI Event Packets");
+            col_set_str(pinfo->cinfo, COL_INFO, "USB-MIDI Event Packets: ");
 
             for (i = 0; i < length / 4; i++)
             {
