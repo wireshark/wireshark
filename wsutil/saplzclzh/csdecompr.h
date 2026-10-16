@@ -488,8 +488,16 @@ typedef struct CSC
 
  COUNT_INT LARGE_ARRAY htab [HSIZE];      /* hash table ........*/
  CODE_ENTRY LARGE_ARRAY codetab [CSIZE];  /* code table ........*/
- CODE_ENTRY Prefixtab[(BUF_SIZE1)/4]; /* = (CODE_ENTRY *) &CsDeWindowBuf[0]; */
- BYTE_TYP Suffixtab[(BUF_SIZE2)/4]; /* = (BYTE_TYP *) &CsDeInterBuf[0]; */
+ /* Both tables are indexed by code, which is less than 1 << maxbits,
+  * and maxbits is at most CS_BITS + 1. (Sizing them from BUF_SIZE1
+  * and BUF_SIZE2 made them too small on 32-bit platforms, where
+  * HUFTREE and COUNT_INT are smaller.) The output stack (DE_STACK)
+  * follows the code table in Suffixtab. Every entry's prefix is a
+  * smaller code, so the stack never holds more than DE_TAB_SIZE
+  * characters. */
+#define DE_TAB_SIZE (1 << (CS_BITS + 1))
+ CODE_ENTRY Prefixtab[DE_TAB_SIZE]; /* = (CODE_ENTRY *) &CsDeWindowBuf[0]; */
+ BYTE_TYP Suffixtab[2 * DE_TAB_SIZE]; /* = (BYTE_TYP *) &CsDeInterBuf[0]; */
  CODE_INT hsize; /* = HSIZE; */     /* for dynamic table sizing .......*/
 
 
