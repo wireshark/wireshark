@@ -18,6 +18,7 @@
 #include <ui/qt/models/packet_list_record.h>
 #include <ui/qt/utils/color_utils.h>
 
+#include <epan/column.h>
 #include <epan/frame_data.h>
 #include <epan/prefs.h>
 
@@ -220,6 +221,13 @@ void PinnedColumnView::drawRow(QPainter *painter, const QStyleOptionViewItem &op
                 QModelIndex col_index = index.siblingAtColumn(logical_col);
                 QStyleOptionViewItem col_option = option;
                 col_option.rect = visualRect(col_index);
+                if (get_column_format(logical_col) == COL_TAG) {
+                    painter->save();
+                    painter->fillRect(col_option.rect, hover_bg);
+                    painter->restore();
+                    packet_list->tagColumnDelegate().paintContent(painter, col_option, col_index);
+                    continue;
+                }
                 ColorUtils::paintFlatCell(painter, this, col_option, col_index, hover_bg, text_color);
             }
         }
