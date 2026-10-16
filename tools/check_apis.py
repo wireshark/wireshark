@@ -548,7 +548,7 @@ def check_proto_tree_add_XXX(file_contents, filename, result):
         if (re.search(r',\s*tvb_get_', args, re.DOTALL) and
             re.match(r'^proto_tree_add_(time|bytes|ipxnet|ipv4|ipv6|ether|guid|oid|string|boolean|float|double|uint|uint64|int|int64|eui64|bitmask_list_value)$', func)):
 
-                result.error(": {filename} uses {func} with tvb_get_*. Use proto_tree_add_item instead")
+                result.error(f"{filename} uses {func} with tvb_get_*. Use proto_tree_add_item instead")
                 # Print out the function args to make it easier
                 # to find the offending code.  But first make
                 # it readable by eliminating extra white space.
@@ -565,7 +565,7 @@ def check_proto_tree_add_XXX(file_contents, filename, result):
         if (re.search(r',\s*ENC_', args_no_parens, re.DOTALL) and
             not re.search(r'proto_tree_add_(time|item|bitmask|[a-z0-9]+_bits_format_value|bits_item|bits_ret_val|item_ret_int|item_ret_uint|bytes_item|checksum)', func)):
 
-            result.error(": {filename} uses {func} with ENC_*.")
+            result.error(f"{filename} uses {func} with ENC_*.")
             # Print out the function args to make it easier
             # to find the offending code.  But first make
             # it readable by eliminating extra white space.
@@ -635,39 +635,39 @@ def check_hf_entries(file_contents, filename, result):
         if re.match(r'"\s+', blurb):
             result.error(f"the blurb for {hf} ({blurb}) has leading space in {filename}")
         if re.search(r'\s+"', blurb):
-            result.error(": the blurb for {hf} ({blurb}) has trailing space in {filename}")
+            result.error(f"the blurb for {hf} ({blurb}) has trailing space in {filename}")
         if re.search(r'\s+', abbrev):
-            result.error(": the abbreviation for {hf} ({abbrev}) has white space in {filename}")
+            result.error(f"the abbreviation for {hf} ({abbrev}) has white space in {filename}")
         if f'"{hf}"' == name:
-            result.error(": name is the hf_variable_name in field {name} ({abbrev}) in {filename}")
+            result.error(f"name is the hf_variable_name in field {name} ({abbrev}) in {filename}")
         if f'"{hf}"' == abbrev:
-            result.error(": abbreviation is the hf_variable_name in field {name} ({abbrev}) in {filename}")
+            result.error(f"abbreviation is the hf_variable_name in field {name} ({abbrev}) in {filename}")
         if ft != "FT_BOOLEAN" and re.match(r'^TFS\(.*\)', convert):
-            result.error(": {hf} uses a true/false string but is an {ft} instead of FT_BOOLEAN in {filename}")
+            result.error(f"{hf} uses a true/false string but is an {ft} instead of FT_BOOLEAN in {filename}")
         if ft == "FT_BOOLEAN" and re.match(r'^VALS\(.*\)', convert):
-            result.error(": {hf} uses a value_string but is an FT_BOOLEAN in {filename}")
+            result.error(f"{hf} uses a value_string but is an FT_BOOLEAN in {filename}")
         if ft == "FT_BOOLEAN" and not re.match(r'^(?:0x)?0+$', bitmask) and re.match(r'^BASE_', display):
-            result.error(": {hf}: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in {filename}")
+            result.error(f"{hf}: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in {filename}")
         if ft == "FT_BOOLEAN" and not re.match(r'^(?:(?:0[xX]0?)?0$|NULL$|TFS)', convert):
-            result.error(": {hf}: FT_BOOLEAN with non-null 'convert' field missing TFS in {filename}")
+            result.error(f"{hf}: FT_BOOLEAN with non-null 'convert' field missing TFS in {filename}")
         if re.search(r'RVALS', convert) and 'BASE_RANGE_STRING' not in display:
-            result.error(": {hf} uses RVALS but 'display' does not include BASE_RANGE_STRING in {filename}")
+            result.error(f"{hf} uses RVALS but 'display' does not include BASE_RANGE_STRING in {filename}")
         if re.search(r'VALS64', convert) and 'BASE_VAL64_STRING' not in display:
-            result.error(": {hf} uses VALS64 but 'display' does not include BASE_VAL64_STRING in {filename}")
+            result.error(f"{hf} uses VALS64 but 'display' does not include BASE_VAL64_STRING in {filename}")
         if 'BASE_EXT_STRING' in display and not re.match(r'^(?:VALS_EXT_PTR\(|&)', convert):
-            result.error(": {hf}: BASE_EXT_STRING should use VALS_EXT_PTR for 'strings' instead of '{convert}' in {filename}")
+            result.error(f"{hf}: BASE_EXT_STRING should use VALS_EXT_PTR for 'strings' instead of '{convert}' in {filename}")
         if 'BASE_UNIT_STRING' in display and not re.match(r'^(?:(?:0[xX]0?)?0$|NULL$|UNS)', convert):
-            result.error(": {hf}: BASE_UNIT_STRING with non-null 'convert' field missing UNS in {filename}")
+            result.error(f"{hf}: BASE_UNIT_STRING with non-null 'convert' field missing UNS in {filename}")
         if re.match(r'^FT_U?INT(?:8|16|24|32)$', ft) and re.match(r'^VALS64\(', convert):
-            result.error(": {hf}: 32-bit field must use VALS instead of VALS64 in {filename}")
+            result.error(f"{hf}: 32-bit field must use VALS instead of VALS64 in {filename}")
         if re.match(r'^FT_U?INT(?:40|48|56|64)$', ft) and re.match(r'^VALS\(', convert):
-            result.error(": {hf}: 64-bit field must use VALS64 instead of VALS in {filename}")
+            result.error(f"{hf}: 64-bit field must use VALS64 instead of VALS in {filename}")
         if re.match(r'^(?:VALS|VALS64|RVALS)\(&.*\)', convert):
             m2 = re.match(r'^(VALS|VALS64|RVALS)', convert)
-            result.error(f": {hf} is passing the address of a pointer to {m2.group(1)} in {filename}")
+            result.error(f"{hf} is passing the address of a pointer to {m2.group(1)} in {filename}")
         if (not re.match(r'^(?:(?:0[xX]0?)?0$|NULL$|VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES)', convert) and
                 'BASE_CUSTOM' not in display):
-            result.error(": non-null {hf} 'convert' field missing 'VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in {filename} ?")
+            result.error(f"non-null {hf} 'convert' field missing 'VALS|VALS64|VALS_EXT_PTR|RVALS|TIME_VALS|TFS|UNS|CF_FUNC|FRAMENUM_TYPE|&|STRINGS_ENTERPRISES' in {filename} ?")
 
 
 def extract_balanced_parens(text):
@@ -776,7 +776,7 @@ def check_try_catch(file_words, file_contents, filename, result):
     items = re.findall(r'\bTRY\s*\{(.+?)\}\s*\\?\s*ENDTRY\b', file_contents, re.DOTALL)
     for block in items:
         if re.search(r'\breturn\b', block):
-            result.error(": return is forbidden in TRY/CATCH in {filename}")
+            result.error(f"return is forbidden in TRY/CATCH in {filename}")
 
         goto_labels = re.findall(r'\bgoto\s+(\w+)', block)
         seen = set()
@@ -786,7 +786,7 @@ def check_try_catch(file_words, file_contents, filename, result):
             seen.add(goto_label)
 
             if not re.search(r'^\s*' + re.escape(goto_label) + r'\s*:', block, re.MULTILINE):
-                result.error(": goto to label '{goto_label}' outside TRY/CATCH is forbidden in {filename}")
+                result.error(f"goto to label '{goto_label}' outside TRY/CATCH is forbidden in {filename}")
 
 
 def remove_if0_code(code, filename):
@@ -932,7 +932,7 @@ def checkFile(filename, source_dir, check_hf, check_value_string_array, debug_fl
         result.warn(f"{filename} has an SVN Id tag. Please remove it!")
 
     if re.search(r'tab-width:\s*[0-7|9]+|tabstop=[0-7|9]+|tabSize=[0-7|9]+', file_contents):
-        result.error("Found modelines with tabstops set to something other than 8 in {filename}")
+        result.error(f"Found modelines with tabstops set to something other than 8 in {filename}")
 
     # Remove C/C++ comments
     file_contents = remove_comments(file_contents)
