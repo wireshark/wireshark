@@ -13,6 +13,7 @@
 #include <ui/qt/main_application.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_styler.h>
 
 #include <ui/qt/main_window.h>
 
@@ -118,7 +119,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
     painter->save();
 
-    if (QApplication::style()->objectName().contains("vista")) {
+    if (ThemeStyler::baseStyleName().startsWith("windows")) { // windows11, windowsvista
         // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
         // doesn't appear to be a more general way to do this.
         option_vi.palette.setColor(QPalette::All, QPalette::HighlightedText, option_vi.palette.color(QPalette::Active, QPalette::Text));

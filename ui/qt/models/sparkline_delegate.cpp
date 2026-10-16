@@ -10,6 +10,7 @@
 #include <ui/qt/models/sparkline_delegate.h>
 
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/theme_styler.h>
 
 #include <QApplication>
 #include <QPainter>
@@ -108,9 +109,12 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     painter->save();
 
-    if (QApplication::style()->objectName().contains("vista")) {
-        // QWindowsVistaStyle::drawControl does this internally. Unfortunately there
-        // doesn't appear to be a more general way to do this.
+    if (ThemeStyler::baseStyleName().startsWith("windows")) // windows11, windowsvista
+    {
+        // QWindowsVistaStyle::drawControl (and the Windows 11 style, which derives
+        // from it) do this internally: selected items keep the normal text color
+        // on a light selection background. Unfortunately there doesn't appear to
+        // be a more general way to do this.
         option_vi.palette.setColor(QPalette::All, QPalette::HighlightedText, option_vi.palette.color(QPalette::Active, QPalette::Text));
     }
 

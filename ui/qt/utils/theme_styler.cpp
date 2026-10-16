@@ -18,12 +18,21 @@
 #include <QPainter>
 #include <QStyleOptionViewItem>
 
+static QString base_style_name_;
+
 ThemeStyler::ThemeStyler(QStyle *style) : QProxyStyle(style)
 {
+    base_style_name_ = baseStyle()->objectName();
 }
 
 ThemeStyler::ThemeStyler(const QString &key) : QProxyStyle(key)
 {
+    base_style_name_ = baseStyle()->objectName();
+}
+
+QString ThemeStyler::baseStyleName()
+{
+    return base_style_name_;
 }
 
 int ThemeStyler::styleHint(StyleHint hint, const QStyleOption *option,
