@@ -3602,8 +3602,11 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
     }
 
     if (passed) {
+        frame_data *seq_frame;
+
         frame_data_set_after_dissect(&fdlocal, &cum_bytes);
-        cf->provider.prev_cap = cf->provider.prev_dis = frame_data_sequence_add(cf->provider.frames, &fdlocal);
+        seq_frame = frame_data_sequence_add(cf->provider.frames, &fdlocal);
+        cf->provider.prev_cap = cf->provider.prev_dis = seq_frame;
 
         /* If we're not doing dissection then there won't be any dependent frames.
          * More importantly, edt.pi.fd.dependent_frames won't be initialized because
@@ -3613,8 +3616,12 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
          */
         if (edt && cf->dfcode) {
             elapsed_start = g_get_monotonic_time();
-            if (dfilter_apply_edt(cf->dfcode, edt) && edt->pi.fd->dependent_frames) {
-                g_hash_table_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
+            if (seq_frame->passed_dfilter && dfilter_apply_edt(cf->dfcode, edt)) {
+                if (edt->pi.fd->dependent_frames) {
+                    g_hash_table_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
+                }
+            } else {
+                seq_frame->passed_dfilter = 0;
             }
 
             if (selected_frame_number != 0 && selected_frame_number == cf->count + 1) {
