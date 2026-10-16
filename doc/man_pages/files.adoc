@@ -435,6 +435,28 @@ Wireshark will read the legacy __colorfilters__ file if it exists, followed by _
 Wireshark will write the legacy __colorfilters__ file only if it exists.
 --
 
+Tagging Rules::
++
+--
+The personal __tagrules.jsonc__ file contains the tagging rules of the current configuration profile.
+It contains an array of named JSON objects with the following key:value pairs:
+
+    [
+        { "Rule name": {
+            "filter": "<display filter string>",
+            "tag": "<emoji or short text>",
+            "url": "<optional URL>",
+            "comment": "<optional comment>",
+            "enabled": "<boolean value>"
+            }
+        }
+    ]
+
+An optional object named __prefs_for_tagging_rules__ holds the tag display preferences.
+The file uses the same directory as the personal preferences file.
+It is written through the menu:View[Tagging Rules...] dialog.
+--
+
 Plugins::
 +
 --

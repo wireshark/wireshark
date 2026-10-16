@@ -72,7 +72,7 @@ private:
 
     tag_prefs_t originalPrefs_; // saved at open; restored if user cancels
     tag_prefs_t pendingPrefs_;
-    QString profilePath_;   // path to the active profile's tagrules file
+    QString profilePath_;   // path to the active profile's tagrules.jsonc file
 
     TaggingRulesModel    tagRuleModel_;
     TaggingRulesDelegate tagRuleDelegate_;
