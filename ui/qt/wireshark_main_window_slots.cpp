@@ -1165,8 +1165,9 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
             << main_ui_->actionViewColorizeConversation7 << main_ui_->actionViewColorizeConversation8
             << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
 
+    QList<frame_data *> frames;
     if (capture_file_.capFile()) {
-        QList<frame_data *> frames = selectedFrames();
+        frames = selectedFrames();
         frame_data * current_frame = 0;
         if (frames.count() > 0)
             current_frame = frames.at(0);
@@ -1223,15 +1224,19 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
         }
     }
 
-    QList<int> rows = selectedRows(true);
     if (main_ui_->searchFrame) {
+        // Only the frame number of a single selected packet is used.
+        QList<int> rows;
+        if (frames.count() == 1) {
+            rows << frames.at(0)->num;
+        }
         main_ui_->searchFrame->setSelectedFrames(rows, frame_selected);
     }
 
-    main_ui_->actionCopyListAsText->setEnabled(rows.count() > 0);
-    main_ui_->actionCopyListAsCSV->setEnabled(rows.count() > 0);
-    main_ui_->actionCopyListAsYAML->setEnabled(rows.count() > 0);
-    main_ui_->actionCopyListAsHTML->setEnabled(rows.count() > 0);
+    main_ui_->actionCopyListAsText->setEnabled(frames.count() > 0);
+    main_ui_->actionCopyListAsCSV->setEnabled(frames.count() > 0);
+    main_ui_->actionCopyListAsYAML->setEnabled(frames.count() > 0);
+    main_ui_->actionCopyListAsHTML->setEnabled(frames.count() > 0);
 
     main_ui_->actionEditMarkSelected->setEnabled(frame_selected || multi_selection);
     packet_list_->updatePinActions(main_ui_->actionViewPinSelectedRows, main_ui_->actionViewUnpinAllRows);
@@ -1246,7 +1251,7 @@ void WiresharkMainWindow::setMenusForSelectedPacket()
         linkTypes = capture_file_.capFile()->linktypes;
 
     bool enableEditComments = linkTypes && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET);
-    main_ui_->menuPacketComment->setEnabled(enableEditComments && selectedFrames().count() > 0);
+    main_ui_->menuPacketComment->setEnabled(enableEditComments && frames.count() > 0);
     main_ui_->actionDeleteAllPacketComments->setEnabled(enableEditComments);
 
     main_ui_->actionEditIgnoreSelected->setEnabled(frame_selected || multi_selection);

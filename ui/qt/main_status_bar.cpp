@@ -452,7 +452,9 @@ void MainStatusBar::showCaptureStatistics()
 
     QList<int> rows;
     MainWindow * mw = mainApp->mainWindow();
-    if (mw) {
+    // Only a single selected packet is shown, so don't build the
+    // list of a large selection.
+    if (mw && !mw->hasSelection()) {
         rows = mw->selectedRows(true);
     }
 
