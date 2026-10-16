@@ -176,7 +176,7 @@ The following features are either new or have been significantly updated since v
   Building with this support requires the optional packagekit-glib2 library,
   version 1.1.12 or later.
 
-* The Windows installers now ship with Npcap 1.88.
+* The Windows installers now ship with Npcap 1.89.
   They previously shipped with Npcap 1.83.
 
 * The Windows and macOS installers now ship with Qt 6.11.1.
