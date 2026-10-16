@@ -121,11 +121,13 @@ static expert_field ei_tftp_blocknum_will_wrap;
 static expert_field ei_tftp_windowsize_range;
 static expert_field ei_tftp_msftwindow_unrecognized;
 static expert_field ei_tftp_windowsize_change;
+static expert_field ei_tftp_oack_late;
 
 #define LIKELY_TSIZE_PROBE_KEY 0
 #define FULL_BLOCKNUM_KEY 1
 #define CONVERSATION_KEY 2
 #define WINDOWSIZE_CHANGE_KEY 3
+#define LATE_OPTIONS_ACK_KEY 4
 
 static dissector_handle_t tftp_handle;
 
@@ -300,25 +302,27 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
         tftp_info->tsize_requested = true;
       }
     } else if (opcode == TFTP_OACK) {
+      /* Don't change tftp_info for options that arrive after the transfer
+       * of data has begun. */
       if (!g_ascii_strcasecmp((const char *)optionname, "blksize")) {
         int blocksize = (int)strtol((const char *)optionvalue, NULL, 10);
         if (blocksize < 8 || blocksize > 65464) {
           expert_add_info(pinfo, opt_tree, &ei_tftp_blocksize_range);
-        } else {
+        } else if (!PINFO_FD_VISITED(pinfo) && tftp_info->next_block_num == 1) {
           tftp_info->blocksize = blocksize;
         }
       } else if (!g_ascii_strcasecmp((const char *)optionname, "windowsize")) {
         int windowsize = (int)strtol((const char *)optionvalue, NULL, 10);
         if (windowsize < 1 || windowsize > 65535) {
           expert_add_info(pinfo, opt_tree, &ei_tftp_windowsize_range);
-        } else {
+        } else if (!PINFO_FD_VISITED(pinfo) && tftp_info->next_block_num == 1) {
           tftp_info->windowsize = windowsize;
         }
       } else if (!g_ascii_strcasecmp((const char *)optionname, "msftwindow")) {
-        if (!g_strcmp0((const char *)optionvalue, "27182")) {
-          tftp_info->dynamic_windowing_active = true;
-        } else {
+        if (g_strcmp0((const char *)optionvalue, "27182") != 0) {
           expert_add_info(pinfo, opt_tree, &ei_tftp_msftwindow_unrecognized);
+        } else if (!PINFO_FD_VISITED(pinfo) && tftp_info->next_block_num == 1) {
+          tftp_info->dynamic_windowing_active = true;
         }
       }
     }
@@ -513,6 +517,8 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     proto_item_set_generated(ti);
 
     bytes = tvb_reported_length_remaining(tvb, offset);
+    /* XXX - What if bytes is *larger* than the blocksize? What if there are
+     * multiple blocks with size smaller than the blocksize? */
     is_last_package = (bytes < tftp_info->blocksize);
 
     /* Sequence analysis on blocknums (first pass only) */
@@ -596,13 +602,23 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
       if (PINFO_FD_VISITED(pinfo)) {
         if (blocknum == 1 && !tftp_info->payload_data) {
+          /* XXX - This can allocate data which is leaked if the frame is being
+           * dissected for other reasons, e.g. if the file is long and the
+           * Export Objects dialog was opened before idle dissection for the
+           * columns completed. It might be easier just to always (re-)allocate in
+           * file scope as in the other branch, at the cost of a single copy.
+           * Also note that if tftp_defragment is true, then we are already
+           * collecting data in the reassembly head and could just use that.
+           */
           tftp_info->payload_data = (uint8_t *)g_try_malloc((size_t)tftp_info->file_length);
         }
       } else {
         /* We allocate this in file scope so that it doesn't leak if it
          * turns out we don't have all the blocks so we never send this
-         * to the tap.
-         */
+         * to the tap. That means we have to copy it when we actually send
+         * it to the tap, since the tap frees it. (Alternatively we could
+         * add a wmem callback to be called if tftp_info->payload_data were
+         * non-NULL, to avoid the copy.) */
         tftp_info->payload_data = (uint8_t *)wmem_realloc(wmem_file_scope(), tftp_info->payload_data, (size_t)tftp_info->file_length);
       }
 
@@ -613,6 +629,8 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
       }
       payload_data_offset =
           (tftp_info->next_tap_block_num - 1) * tftp_info->blocksize;
+
+      DISSECTOR_ASSERT_CMPINT(payload_data_offset + bytes, <=, tftp_info->file_length);
 
       /* Copy data to its place in the payload_data */
       tvb_memcpy(tvb, tftp_info->payload_data + payload_data_offset, offset,
@@ -631,7 +649,11 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
         /* Set payload */
         eo_info->payload_len = tftp_info->file_length;
-        eo_info->payload_data = tftp_info->payload_data;
+        if (PINFO_FD_VISITED(pinfo)) {
+          eo_info->payload_data = tftp_info->payload_data;
+        } else {
+          eo_info->payload_data = g_memdup2(tftp_info->payload_data, tftp_info->file_length);
+        }
 
         /* Send to tap */
         tap_queue_packet(tftp_eo_tap, pinfo, eo_info);
@@ -727,6 +749,19 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     break;
 
   case TFTP_OACK:
+    /* RFC 2347 says options can be negotiated "prior to the transfer."
+     * New values for Microsoft's dynamic window size are sent in an ACK,
+     * not an OACK. */
+    if (!PINFO_FD_VISITED(pinfo)) {
+      if (tftp_info->next_block_num != 1) {
+        expert_add_info(pinfo, tftp_tree, &ei_tftp_oack_late);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp, LATE_OPTIONS_ACK_KEY, GUINT_TO_POINTER(1));
+      }
+    } else {
+      if (GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_tftp, LATE_OPTIONS_ACK_KEY)) != 0) {
+        expert_add_info(pinfo, tftp_tree, &ei_tftp_oack_late);
+      }
+    }
     tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
                          opcode, tftp_info);
     break;
@@ -1114,6 +1149,7 @@ proto_register_tftp(void)
      { &ei_tftp_windowsize_range, { "tftp.windowsize_range", PI_RESPONSE_CODE, PI_WARN, "TFTP windowsize out of range", EXPFILL }},
      { &ei_tftp_msftwindow_unrecognized, { "tftp.msftwindow.unrecognized", PI_RESPONSE_CODE, PI_WARN, "Unrecognized msftwindow option", EXPFILL }},
      { &ei_tftp_windowsize_change, { "tftp.windowsize.change", PI_SEQUENCE, PI_CHAT, "TFTP window size is changing", EXPFILL }},
+     { &ei_tftp_oack_late, { "tftp.oack.late", PI_PROTOCOL, PI_WARN, "Option negotiation after transfer start ignored", EXPFILL }},
   };
 
   module_t *tftp_module;
