@@ -2553,6 +2553,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
         /* Register conversation for this interface in case CONTROL messages are sent to it */
         usb_trans_info->interface_info = get_usb_iface_conv_info(pinfo, interface_num);
+        usb_trans_info->interface_info->config_desc_frame_num = pinfo->num;
 
         alternate_setting.altSetting = alt_setting;
         alternate_setting.interfaceClass = tvb_get_uint8(tvb, offset);
@@ -4238,6 +4239,12 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
         default:
             break;
+    }
+
+    if (urb && urb->conv && pinfo->fd &&
+        urb->conv->interfaceClass != IF_CLASS_UNKNOWN &&
+        urb->conv->config_desc_frame_num != 0) {
+        mark_frame_as_depended_upon(pinfo->fd, urb->conv->config_desc_frame_num);
     }
 
     /* try "usb.protocol" on interface level */
