@@ -4034,3 +4034,29 @@ class TestTcpFingerprint:
         (out_fp, out_fp_raw) = stdout.strip().split()
         assert out_fp == fp
         assert out_fp_raw == fp_raw
+
+
+class TestDissectDnsEdnsExpire:
+    def test_edns_expire_query(self, cmd_tshark, capture_file, test_env):
+        '''EDNS EXPIRE option in query (zero-length) is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_edns_expire.pcap'),
+                '-Y', 'frame.number == 1',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+            ), encoding='utf-8', env=test_env)
+        # Option code 9 (EDNS EXPIRE), no data
+        assert '9' in stdout
+
+    def test_edns_expire_response(self, cmd_tshark, capture_file, test_env):
+        '''EDNS EXPIRE option in response with expire value is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_edns_expire.pcap'),
+                '-Y', 'frame.number == 2',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.edns_expire',
+            ), encoding='utf-8', env=test_env)
+        # Option code 9, expire 86400 seconds
+        assert '9' in stdout
+        assert '86400' in stdout

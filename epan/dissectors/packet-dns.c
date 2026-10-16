@@ -514,6 +514,7 @@ static int hf_dns_opt_mqtype;
 static int hf_dns_opt_key_tag;
 static int hf_dns_opt_ul_lease;
 static int hf_dns_opt_ul_key_lease;
+static int hf_dns_opt_edns_expire;
 static int hf_dns_nsec3_algo;
 static int hf_dns_nsec3_flags;
 static int hf_dns_nsec3_flag_optout;
@@ -1214,7 +1215,7 @@ static const value_string edns0_opt_code_vals[] = {
   { O_N3U,               "N3U - NSEC3 Hash Understood (RFC6975)" },
   { O_CLIENT_SUBNET_EXP, "Experimental - CSUBNET - Client subnet"  },
   { O_CLIENT_SUBNET,     "CSUBNET - Client subnet"  },
-  { O_EDNS_EXPIRE,       "EDNS EXPIRE (RFC7314)" },
+  { O_EDNS_EXPIRE,       "EDNS Expire" },
   { O_COOKIE,            "COOKIE" },
   { O_EDNS_TCP_KA,       "EDNS TCP Keepalive" },
   { O_PADDING,           "PADDING" },
@@ -3497,6 +3498,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                   cur_offset += 4;
                   rropt_len  -= 4;
               }
+          }
+          break;
+
+          case O_EDNS_EXPIRE: /* EDNS Expire (RFC7314) */
+          {
+              if (optlen == 0) {
+                  break; /* query: no data */
+              }
+              if (optlen != 4) {
+                  expert_add_info(pinfo, rroptlen, &ei_dns_opt_bad_length);
+                  break;
+              }
+              proto_tree_add_item(rropt_tree, hf_dns_opt_edns_expire, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+              cur_offset += 4;
+              rropt_len  -= 4;
           }
           break;
 
@@ -7632,6 +7648,11 @@ proto_register_dns(void)
       { "Lease", "dns.opt.ul.lease",
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
         "Lease duration in seconds (RFC9664)", HFILL }},
+
+    { &hf_dns_opt_edns_expire,
+      { "Expire", "dns.opt.edns_expire",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
+        "Zone expire time in seconds (RFC7314)", HFILL }},
 
     { &hf_dns_opt_ul_key_lease,
       { "Key Lease", "dns.opt.ul.key_lease",
