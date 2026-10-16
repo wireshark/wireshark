@@ -1943,7 +1943,6 @@ void PacketList::drawCurrentPacket(bool scroll)
         // Includes pinned packets selected in the pinned-row strip that are
         // filtered out of this view, which selRows doesn't.
         const QList<frame_data *> frames = selectedFrames(false);
-        QModelIndexList selRows = selectionModel()->selectedRows(0);
         if (frames.count() > 1)
         {
             foreach (const frame_data *fdata, frames)
@@ -1975,6 +1974,8 @@ void PacketList::drawCurrentPacket(bool scroll)
              * a pinned packet that's filtered out. */
             multiSelect = false;
             selected_fdata = frames.at(0);
+            // Only one packet, so this is cheap.
+            const QModelIndexList selRows = selectionModel()->selectedRows(0);
             if (scroll && selRows.count() > 0 && selRows.at(0).isValid()) {
                 if (currentIndex().siblingAtColumn(0) != selRows.at(0)) {
                     // Not the currentIndex. Set the current index, which will
@@ -3027,6 +3028,13 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
 
 PacketList::PinAction PacketList::selectedRowsPinAction() const
 {
+    // Selecting more packets than can be pinned means that at least
+    // that many minus those already pinned are unpinned, which would
+    // exceed the limit; don't build the list of a large selection.
+    if (pinned_rows_model_ && selectedFrameCount(PinnedRowsModel::kMaxPinnedRows + 1) > PinnedRowsModel::kMaxPinnedRows) {
+        return PinRowsOverLimit;
+    }
+
     const QList<frame_data *> frames = selectedFrames();
     if (frames.isEmpty() || !pinned_rows_model_) {
         return NoPinAction;
