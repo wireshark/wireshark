@@ -396,9 +396,6 @@ cf_close(capture_file *cf)
     /* no open_routine type */
     cf->open_type = WTAP_TYPE_AUTO;
 
-    /* Clean up the record information. */
-    wtap_rec_cleanup(&cf->rec);
-
     /* Clear the packet list. */
     packet_list_freeze();
     packet_list_clear();
@@ -415,6 +412,13 @@ cf_close(capture_file *cf)
         cf->provider.frames_modified_blocks = NULL;
     }
     cf_unselect_packet(cf);   /* nothing to select */
+
+    /* Clean up the record information. This must come after freeing the
+     * dissection of the selected packet, which points into the record's
+     * data (e.g., the addresses in its packet_info), as clearing the
+     * packet list above can update the UI from that dissection. */
+    wtap_rec_cleanup(&cf->rec);
+
     cf->first_displayed = 0;
     cf->last_displayed = 0;
 
