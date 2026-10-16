@@ -24,6 +24,12 @@ public:
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
         QPainter *painter, const QWidget *widget = nullptr) const override;
 
+    // The object name of the underlying (native) style, e.g. "windows11",
+    // "windowsvista", "fusion", or "macos". QApplication::style() returns
+    // either this proxy or a QStyleSheetStyle wrapping it, neither of which
+    // has a useful objectName().
+    static QString baseStyleName();
+
     static QString buttonStyleSheet(const QString &objectname, const QColor &baseColor);
 };
 
