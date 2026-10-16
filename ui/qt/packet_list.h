@@ -293,6 +293,15 @@ public:
     QList<frame_data *> selectedFrames(bool fall_back_to_current = true) const;
 
     /**
+     * @brief Counts the selected packets, as selectedFrames(false) would
+     * return, stopping early once the count reaches a limit.
+     * @param limit The maximum count to return. <= 0 indicates no limit.
+     * @return The number of selected packets, or limit if there are at
+     * least that many.
+     */
+    int selectedFrameCount(int limit = 0) const;
+
+    /**
      * @brief Creates a summary text for a specific packet.
      * @param frame_num The packet's frame number.
      * @param type The format type for the summary.

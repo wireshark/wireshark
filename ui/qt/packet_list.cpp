@@ -59,6 +59,7 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QSet>
 #include <QUrl>
 #include <QClipboard>
 #include <QContextMenuEvent>
@@ -711,12 +712,82 @@ void PacketList::setProtoTree (ProtoTree *proto_tree) {
 
 bool PacketList::uniqueSelectActive()
 {
-    return selectedFrames(false).count() == 1;
+    return selectedFrameCount(2) == 1;
 }
 
 bool PacketList::multiSelectActive()
 {
-    return selectedFrames(false).count() > 1;
+    return selectedFrameCount(2) > 1;
+}
+
+int PacketList::selectedFrameCount(int limit) const
+{
+    // Like selectedFrames(false).count(), but stops once limit packets
+    // have been found. selectedRows() builds an index for every selected
+    // row, which is slow when many packets are selected, so walk the
+    // selection ranges instead.
+    int count = 0;
+
+    // QAbstractItemModel is limited to ints for row numbers, thus this
+    // function uses ints instead of an unsigned type or qsizetype.
+    if (limit <= 0)
+        limit = INT_MAX;
+
+    if (selectionModel() && selectionModel()->hasSelection()) {
+        const QItemSelection selection = selectionModel()->selection();
+        const int last_column = model()->columnCount() - 1;
+        // A row can appear in more than one range (e.g., split by column),
+        // which can't happen if there's only one range.
+        const bool track_rows = selection.size() > 1;
+        QSet<int> rows;
+        for (const QItemSelectionRange &range : selection) {
+            if (range.parent().isValid()) {
+                continue;
+            }
+            // selectedRows() only counts rows that are selected in their
+            // entirety. That's always true for a range that spans every
+            // column, as with SelectRows; isRowSelected() is slow, as it
+            // copies and searches every range.
+            const bool whole_rows = range.left() <= 0 && range.right() >= last_column;
+            for (int row = range.top(); row <= range.bottom(); row++) {
+                if (!packet_list_proxy_model_->getRowFdata(row)) {
+                    continue;
+                }
+                if (!whole_rows && !selectionModel()->isRowSelected(row)) {
+                    continue;
+                }
+                if (track_rows) {
+                    if (rows.contains(row)) {
+                        continue;
+                    }
+                    rows.insert(row);
+                }
+                if (++count >= limit) {
+                    return limit;
+                }
+            }
+        }
+    }
+
+    // See selectedFrames(); the pinned-row strip is small.
+    if (pinned_selection_model_ && pinned_selection_model_->hasSelection()) {
+        foreach (QModelIndex idx, pinned_selection_model_->selectedRows(0)) {
+            PacketListRecord *record = static_cast<PacketListRecord *>(idx.internalPointer());
+            frame_data *fdata = record ? record->frameData() : nullptr;
+            if (!fdata) {
+                continue;
+            }
+            int row = packet_list_proxy_model_->rowOfPacket(fdata);
+            if (row >= 0 && selectionModel() && selectionModel()->isRowSelected(row)) {
+                continue;
+            }
+            if (++count >= limit) {
+                return limit;
+            }
+        }
+    }
+
+    return count;
 }
 
 QList<int> PacketList::selectedRows(bool useFrameNum)
