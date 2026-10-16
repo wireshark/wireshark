@@ -331,6 +331,7 @@ Linux mac80211_hwsim Netlink
 Linux Open vSwitch Netlink (OVS)
 MCData
 MCTP over SMBus/I2C
+Media over QUIC Lite (moq-lite)
 MIDI System Exclusive DigiTech
 Mikrotik RoMON
 Multicast Router Discovery (MRD)

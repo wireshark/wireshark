@@ -1291,6 +1291,193 @@ class TestDissectQuic:
         assert not grep_output(stdout, 'Warns')
         assert not grep_output(stdout, 'Errors')
 
+@pytest.mark.parametrize("pass_args", [(), ("-2",)], ids=["one-pass", "two-pass"])
+class TestDissectMoqLite:
+    '''
+    moq-lite-05 over QUIC. The capture was generated with aioquic and exercises
+    every message of the draft, including a frame that spans several QUIC
+    packets and a group delivered as a datagram.
+    '''
+    def test_moq_lite_messages(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Every moq-lite message is dissected on the expected stream.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-lite-05.pcapng.gz'),
+                '-Y', 'moql',
+                '-T', 'fields', '-e', 'moql.message_type',
+            ), encoding='utf-8', env=test_env)
+        messages = [m for line in stdout.splitlines() for m in line.split(',') if m]
+        # SETUP, ANNOUNCE_REQUEST, ANNOUNCE_OK, 2x ANNOUNCE_BROADCAST, ...
+        assert messages.count('1') == 2      # SETUP, one per direction
+        assert messages.count('10') == 2     # ANNOUNCE_BROADCAST
+        assert messages.count('23') == 5     # FRAME
+        # Every message of the draft appears at least once.
+        assert set(messages) == {'1', '8', '9', '10', '11', '12', '14', '15',
+                                 '16', '17', '18', '19', '20', '21', '22', '23'}
+
+    def test_moq_lite_subscription(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Group streams and datagrams are matched to their subscription.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-lite-05.pcapng.gz'),
+                '-Y', 'moql.group_sequence',
+                '-T', 'fields', '-e', 'moql.group_sequence',
+                '-e', 'moql.broadcast_path', '-e', 'moql.track_name',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, '^6\t/room/alice\tvideo$')      # FETCH
+        assert grep_output(stdout, '^8\t/room/alice\tvideo$')      # GROUP
+        assert grep_output(stdout, '^12\t/room/alice\tvideo$')     # datagram
+        # The GROUP and each of its three FRAMEs carry the annotation.
+        assert grep_output(stdout, r'^7\t(/room/alice,){3}/room/alice\t(video,){3}video$')
+
+    def test_moq_lite_frame_timestamps(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Frame timestamps accumulate the zigzag encoded deltas.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-lite-05.pcapng.gz'),
+                '-Y', 'moql.frame.timestamp',
+                '-T', 'fields', '-e', 'moql.frame.timestamp_delta',
+                '-e', 'moql.frame.timestamp',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, '^0,33,-3\t0,33,30$')
+
+    def test_moq_lite_reassembly(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''A frame spanning several QUIC packets is reassembled.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-lite-05.pcapng.gz'),
+                '-Y', 'moql.message_length > 1000',
+                '-T', 'fields', '-e', 'moql.message_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['5120']
+
+    def test_moq_lite_no_reassembly(self, cmd_tshark, capture_file, test_env, pass_args):
+        """Disabling reassembly leaves the split frame incomplete."""
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-lite-05.pcapng.gz'),
+                '-o', 'moql.desegment:FALSE',
+                '-Y', 'moql.incomplete_message || moql.message_length == 5120',
+                '-T', 'fields', '-e', 'moql.incomplete_message',
+                '-e', 'moql.message_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip()
+        assert all(line.startswith('1\t') for line in stdout.splitlines())
+        assert '5120' not in stdout
+
+    def test_moq_lite_expert(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Only the deliberately unknown stream type is flagged.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-lite-05.pcapng.gz'),
+                '-zexpert,warn,moql', '-Y', 'moql',
+                ), encoding='utf-8', env=test_env)
+        assert not grep_output(stdout, 'Errors')
+        assert count_output(stdout, 'Unknown bidirectional stream type') == 1
+        assert 'Warns (1)' in stdout
+
+
+@pytest.mark.parametrize("pass_args", [(), ("-2",)], ids=["one-pass", "two-pass"])
+class TestDissectMoqLiteEdges:
+    @pytest.mark.parametrize("name,delta", [("positive", (1 << 61) - 1),
+                                           ("negative", -(1 << 61))])
+    def test_timestamp_limits(self, cmd_tshark, capture_file, test_env, pass_args, name, delta):
+        rows = self.read(cmd_tshark, capture_file, test_env, pass_args,
+                         f'moql.message_type == 23 && moql.track_name == "{name}"',
+                         "moql.frame.timestamp", "moql.frame.time", "moql.protocol_violation")
+        expected = []
+        for count in range(1, 5):
+            timestamp = delta * count
+            nanos = abs(timestamp) * 1_000_000_000 // ((1 << 62) - 1)
+            seconds, fraction = divmod(nanos, 1_000_000_000)
+            sign = "-" if timestamp < 0 else ""
+            expected.append([str(timestamp), f"{sign}{seconds}.{fraction:09d}", ""])
+        # Once the running sum overflows, subsequent absolute times are unknown.
+        assert rows == expected + [["", "", "1"], ["", "", "1"]]
+
+    def test_track_identity(self, cmd_tshark, capture_file, test_env, pass_args):
+        rows = self.read(cmd_tshark, capture_file, test_env, pass_args,
+                         'moql.frame.timestamp == 1000 && moql.broadcast_path != "/nul"',
+                         "moql.broadcast_path", "moql.track_name", "moql.frame.time")
+        assert rows == [
+            ["/long", "t" * 400 + "A", "1.000000000"],
+            ["/long", "t" * 400 + "B", "0.500000000"],
+            [r"/a\\nb", "c", "1.000000000"],
+            ["/a", r"b\\nc", "0.500000000"],
+        ]
+
+    def test_embedded_nul_identity(self, cmd_tshark, capture_file, test_env, pass_args):
+        rows = self.read(cmd_tshark, capture_file, test_env, pass_args,
+                         'moql.frame.timestamp == 1000 && moql.broadcast_path == "/nul"',
+                         "moql.frame.time")
+        assert rows == [["1.000000000"], ["0.500000000"], ["0.250000000"]]
+
+    def test_draft04_alpn(self, cmd_tshark, capture_file, test_env, pass_args):
+        rows = self.read(cmd_tshark, capture_file, test_env, pass_args,
+                         'moql.frame.payload == 6f:6c:64',
+                         "moql.message_type", "moql.frame.timestamp", "_ws.malformed")
+        assert rows == [["23", "", ""]]
+
+    @staticmethod
+    def read(cmd_tshark, capture_file, test_env, pass_args, display_filter, *fields):
+        command = [
+            cmd_tshark, *pass_args,
+            '-r', capture_file('moq-lite-edge.pcapng.gz'),
+            '-d', 'udp.port==4433,quic',
+            '-Y', display_filter,
+            '-T', 'fields',
+        ]
+        for field in fields:
+            command.extend(('-e', field))
+
+        output = subprocess.check_output(
+            command, encoding='utf-8', env=test_env
+        )
+        return [line.split('\t') for line in output.splitlines()]
+
+class TestDissectMoqLiteDatagram:
+    @pytest.mark.parametrize("encoded,value", [
+        ("3f", "63"),
+        ("4040", "64"),
+        ("80004000", "16384"),
+        ("c000000040000000", "1073741824"),
+        ("ffffffffffffffff", "4611686018427387903"),
+    ])
+    def test_varints(self, cmd_text2pcap, cmd_tshark, result_file, test_env, encoded, value):
+        """All QUIC varint widths preserve IDs, sequences and timestamps."""
+        fields = self.dissect(cmd_text2pcap, cmd_tshark, result_file, test_env,
+                              bytes.fromhex(encoded * 3 + "abcd"))
+        assert fields == [value, value, value, "abcd", "", ""]
+
+    @pytest.mark.parametrize("payload", [
+        "40", "8000", "c0000000",  # truncated subscription ID
+        "0040", "00008000",      # truncated sequence or timestamp
+    ])
+    def test_truncated(self, cmd_text2pcap, cmd_tshark, result_file, test_env, payload):
+        """A truncated varint is reported as malformed without crashing."""
+        fields = self.dissect(cmd_text2pcap, cmd_tshark, result_file, test_env,
+                              bytes.fromhex(payload))
+        assert "_ws.malformed" in fields[-1].split(",")
+
+    @pytest.mark.parametrize("size,violation", [(1200, ""), (1201, "1")])
+    def test_size_limit(self, cmd_text2pcap, cmd_tshark, result_file, test_env, size, violation):
+        """The datagram limit includes its three varint headers."""
+        fields = self.dissect(cmd_text2pcap, cmd_tshark, result_file, test_env,
+                              b"\x00" * size)
+        assert fields[4:] == [violation, ""]
+        assert len(fields[3]) == (size - 3) * 2
+
+    @staticmethod
+    def dissect(cmd_text2pcap, cmd_tshark, result_file, test_env, payload):
+        # Exported PDUs invoke the real datagram dissector without QUIC encryption.
+        text_file = result_file("moql.txt")
+        capture = result_file("moql.pcapng")
+        with open(text_file, "w") as output:
+            for offset in range(0, len(payload), 16):
+                output.write(f"{offset:06x}  {payload[offset:offset + 16].hex(' ')}\n")
+        subprocess.check_call((cmd_text2pcap, "-q", "-P", "moq-lite.datagram",
+                               text_file, capture), env=test_env)
+        command = [cmd_tshark, "-r", capture, "-T", "fields"]
+        for field in ("moql.subscribe_id", "moql.group_sequence", "moql.datagram.timestamp",
+                      "moql.frame.payload", "moql.protocol_violation", "_ws.malformed"):
+            command.extend(("-e", field))
+        return subprocess.check_output(command, encoding="utf-8", env=test_env).rstrip("\n").split("\t")
+
+
 class TestDecompressSmb2:
     @staticmethod
     def extract_compressed_payload(cmd_tshark, capture_file, test_env, frame_num):
