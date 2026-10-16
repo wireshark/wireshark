@@ -274,7 +274,6 @@ TrafficTypesList::TrafficTypesList(QWidget *parent) :
     _model = nullptr;
     _sortModel = nullptr;
 
-    setAlternatingRowColors(true);
     setRootIsDecorated(false);
 }
 
