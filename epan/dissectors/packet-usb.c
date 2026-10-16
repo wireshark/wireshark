@@ -4824,6 +4824,14 @@ static usb_trans_info_t
             ti = proto_tree_add_uint(tree, hf_usb_request_in, tvb, 0, 0, usb_trans_info->request_in);
             proto_item_set_generated(ti);
 
+            if (pinfo->fd) {
+                uint8_t transfer_type = urb->transfer_type;
+                if (transfer_type == URB_UNKNOWN)
+                    transfer_type = urb->conv->descriptor_transfer_type;
+                if (transfer_type == URB_CONTROL)
+                    mark_frame_as_depended_upon(pinfo->fd, usb_trans_info->request_in);
+            }
+
             t = pinfo->abs_ts;
             nstime_delta(&deltat, &t, &usb_trans_info->req_time);
             ti = proto_tree_add_time(tree, hf_usb_time, tvb, 0, 0, &deltat);
