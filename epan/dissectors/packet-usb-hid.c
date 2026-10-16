@@ -263,6 +263,7 @@ struct _report_descriptor {
     uint16_t                bus_id;
     uint16_t                device_address;
     uint8_t                 interface;
+    uint32_t                frame_num;
 
     int                     desc_length;
     uint8_t                *desc_body;
@@ -4491,7 +4492,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 
 /* Dissector for HID "GET DESCRIPTOR" subtype. */
 int
-dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, urb_info_t *urb)
+dissect_usb_hid_get_report_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, urb_info_t *urb)
 {
     proto_item *item;
     proto_tree *tree;
@@ -4513,6 +4514,7 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
         data->bus_id = urb->bus_id;
         data->device_address = urb->device_address;
         data->interface = urb->conv->interfaceNum;
+        data->frame_num = pinfo->num;
         data->desc_length = offset - old_offset;
         data->desc_body = (uint8_t*) tvb_memdup(scope, tvb, old_offset, data->desc_length);
 
@@ -5408,6 +5410,9 @@ dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         uint8_t report_id = tvb_get_bits8(tvb, hid_bit_offset, 8);
 
         if (rdesc) {
+            if (pinfo->fd) {
+                mark_frame_as_depended_upon(pinfo->fd, rdesc->frame_num);
+            }
             if (rdesc->uses_report_id) {
                 proto_tree_add_item(hid_tree, hf_usbhid_report_id, tvb, hid_bit_offset / 8, 1, ENC_NA);
                 hid_bit_offset += 8;
