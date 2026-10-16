@@ -2,16 +2,10 @@
 // Wireshark Midnight Blue Theme
 // =====================================================================
 //
-// Deep navy surfaces with cool blue accents, tuned for dark mode.
-// Light mode is a cool "daybreak" companion with pale blue-gray surfaces.
+// Deep navy surfaces with cool blue accents.  Light mode uses pale
+// blue-gray surfaces; dark mode uses midnight navy.
 //
 // Format: JSONC — standard JSON with C-style comments.
-//
-// Color value convention:
-//   Each color is { "light": "#hex", "dark": "#hex" }.
-//
-// To use as a personal theme, copy this file to your personal themes
-// directory and select it in Edit → Preferences → Appearance.
 // =====================================================================
 
 {
@@ -27,20 +21,20 @@
 	},
 
 	// -----------------------------------------------------------------
-	// Brand — midnight navy identity
+	// Brand
 	// -----------------------------------------------------------------
 	"brand": {
-		"primary": { "light": "#1e4a8a", "dark": "#6b9fff" },
-		"deep":    { "light": "#0f1b30", "dark": "#060a14" }
+		"primary": { "light": "#5a8fd8", "dark": "#3d5a80" },
+		"deep":    { "light": "#c5d5eb", "dark": "#060a14" }
 	},
 
 	// -----------------------------------------------------------------
-	// Accent — semantic colors legible on navy surfaces
+	// Accent
 	// -----------------------------------------------------------------
 	"accent": {
-		"success": { "light": "#afffaf", "dark": "#006600" },
-		"warning": { "light": "#ffffaf", "dark": "#666600" },
-		"error":   { "light": "#ffafaf", "dark": "#660000" },
+		"success": { "light": "#2e7d4f", "dark": "#4ade80" },
+		"warning": { "light": "#c45c1a", "dark": "#fbbf24" },
+		"error":   { "light": "#b91c1c", "dark": "#f87171" },
 		"info":    { "light": "#2563eb", "dark": "#93c5fd" }
 	},
 
@@ -48,24 +42,24 @@
 	// Expert info severity colors
 	// -----------------------------------------------------------------
 	"expert": {
-		"comment":    { "light": "#86efac", "dark": "#4ade80" },
-		"chat":       { "light": "#93c5fd", "dark": "#60a5fa" },
-		"note":       { "light": "#67e8f9", "dark": "#22d3ee" },
-		"warn":       { "light": "#fde047", "dark": "#facc15" },
-		"error":      { "light": "#fca5a5", "dark": "#f87171" },
-		"foreground": { "light": "#0c1220", "dark": "#0c1220" }
+		"comment":    { "light": "#c8f0d4", "dark": "#1a3328" },
+		"chat":       { "light": "#c8daf8", "dark": "#1a2840" },
+		"note":       { "light": "#c8f0f8", "dark": "#1a3340" },
+		"warn":       { "light": "#f8f0c8", "dark": "#3d3520" },
+		"error":      { "light": "#f8d0d0", "dark": "#3d2020" },
+		"foreground": { "light": "#141c2e", "dark": "#d4dce8" }
 	},
 
 	// -----------------------------------------------------------------
 	// Packet display state colors
 	// -----------------------------------------------------------------
 	"packets": {
-		"selection":     { "light": "#1e4a8a", "dark": "#243a5c" },
-		"selectionText": { "light": "#ffffff", "dark": "#eef2f8" },
-		"inactive":      { "light": "#e8ecf5", "dark": "#161f32" },
-		"inactiveText":  { "light": "#141c2e", "dark": "#d4dce8" },
-		"marked":        { "light": "#001a33", "dark": "#001a33" },
-		"markedText":    { "light": "#ffffff", "dark": "#ffffff" },
+		"selection":     { "light": "#b8d4f8", "dark": "#243a5c" },
+		"selectionText": { "light": "#141c2e", "dark": "#eef2f8" },
+		"inactive":      { "light": "#b8d4f8", "dark": "#243a5c" },
+		"inactiveText":  { "light": "#141c2e", "dark": "#eef2f8" },
+		"marked":        { "light": "#9ec5e8", "dark": "#1a2840" },
+		"markedText":    { "light": "#141c2e", "dark": "#eef2f8" },
 		"ignored":       { "light": "#f4f6fc", "dark": "#0a0e18" },
 		"ignoredText":   { "light": "#6b7280", "dark": "#6b7a94" },
 		"hidden":        { "light": "#4a5568", "dark": "#8b9bb5" }
@@ -82,7 +76,17 @@
 	},
 
 	// -----------------------------------------------------------------
-	// QPalette overrides — navy-tinted surfaces
+	// Filter validity tints
+	// -----------------------------------------------------------------
+	"filter": {
+		"valid":      { "light": "#afffaf", "dark": "#1a3d28" },
+		"invalid":    { "light": "#ffafaf", "dark": "#4a2020" },
+		"deprecated": { "light": "#ffffaf", "dark": "#3d3520" },
+		"history":    { "light": "#5a6478", "dark": "#a8b4c8" }
+	},
+
+	// -----------------------------------------------------------------
+	// QPalette overrides
 	// -----------------------------------------------------------------
 	"palette": {
 		"window":          { "light": "#e8ecf5", "dark": "#10182a" },
@@ -92,11 +96,20 @@
 		"alternateBase":   { "light": "#dde3f0", "dark": "#141e32" },
 		"mid":             { "light": "#5a6478", "dark": "#7a8aa3" },
 		"midlight":        { "light": "#c5cee0", "dark": "#1e2a42" },
-		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
+		"highlight":       { "light": "#b8d4f8", "dark": "#243a5c" },
+		"highlightedText": { "light": "#141c2e", "dark": "#ffffff" }
 	},
 
 	// -----------------------------------------------------------------
-	// Graph colors — blue-first 14-slot cycle
+	// Separator
+	// -----------------------------------------------------------------
+	"separator": {
+		"light": "#c5cee0",
+		"dark":  "#1e2a42"
+	},
+
+	// -----------------------------------------------------------------
+	// Graph colors
 	// -----------------------------------------------------------------
 	"graphs": [
 		{ "light": "#1e4a8a", "dark": "#6b9fff" },
@@ -106,7 +119,7 @@
 		{ "light": "#991b1b", "dark": "#f87171" },
 		{ "light": "#92400e", "dark": "#fbbf24" },
 		{ "light": "#0369a1", "dark": "#38bdf8" },
-		{ "light": "#3d5a80", "dark": "#3d5a80" },
+		{ "light": "#3d5a80", "dark": "#6b8cb8" },
 		{ "light": "#155e75", "dark": "#0e7490" },
 		{ "light": "#6d28d9", "dark": "#5b21b6" },
 		{ "light": "#14532d", "dark": "#166534" },
