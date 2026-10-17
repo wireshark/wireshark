@@ -88,13 +88,17 @@ WelcomePage::WelcomePage(QWidget *parent) :
     connect(welcome_ui_->openFileSectionRecentList, &QListView::customContextMenuRequested,
         this, &WelcomePage::showCaptureFilesContextMenu);
 
-    if (WorkspaceState::instance()->recentCaptureFiles().size() > 0) {
-        welcome_ui_->openFileSectionLabel->setVisible(true);
-        welcome_ui_->openFileSectionRecentList->setVisible(true);
-    } else {
-        welcome_ui_->openFileSectionLabel->setVisible(false);
-        welcome_ui_->openFileSectionRecentList->setVisible(false);
-    }
+    // Show the Open section only when there are recent files, and keep it
+    // (and the layout) up to date as files are added or removed.
+    auto updateOpenSection = [this]() {
+        bool has_recent = !WorkspaceState::instance()->recentCaptureFiles().isEmpty();
+        welcome_ui_->openFileSectionLabel->setVisible(has_recent);
+        welcome_ui_->openFileSectionRecentList->setVisible(has_recent);
+        updateSidebarLayout();
+    };
+    updateOpenSection();
+    connect(WorkspaceState::instance(), &WorkspaceState::recentCaptureFilesChanged, this, updateOpenSection);
+    connect(WorkspaceState::instance(), &WorkspaceState::stateLoaded, this, updateOpenSection);
 
 #ifdef Q_OS_MACOS
     welcome_ui_->openFileSectionRecentList->setAttribute(Qt::WA_MacShowFocusRect, false);
