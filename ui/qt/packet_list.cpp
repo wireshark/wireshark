@@ -544,18 +544,26 @@ void PacketList::colorsChanged()
                                  inactive_fg.name(),
                                  inactive_bg.name());
 
+    // The QTreeView::item:selected rules above make Qt draw selected cells
+    // through its generic stylesheet path instead of the native style. That
+    // path draws a focus frame around the current cell, even after a mouse
+    // click, which the windows11 style (Qt 6.7+) renders as a prominent
+    // rounded double outline. Only the row should look selected, so
+    // suppress the outline. macOS draws no item focus frame either way.
+    const QString no_focus_outline = "QTreeView { outline: 0; }";
+
     // Hover highlighting is painted manually in drawRow() (driven by
     // hovered_frame_num_) rather than through a :hover stylesheet
     // selector, since the mouse hovering a pinned overlay view needs to
     // highlight the corresponding row in every pane, not just the one
     // widget Qt considers "hovered".
-    QString full_style = active_style + inactive_style;
+    QString full_style = no_focus_outline + active_style + inactive_style;
 
     // Cache the plain flat colors (no :active/:!active selector -- see
     // applyOverlayActiveState()) so window-activation changes can pick the
     // right one without recomputing from ThemeManager every time.
-    overlay_active_flat_style_ = plain_style_format.arg(active_fg.name(), active_bg.name());
-    overlay_inactive_flat_style_ = plain_style_format.arg(inactive_fg.name(), inactive_bg.name());
+    overlay_active_flat_style_ = no_focus_outline + plain_style_format.arg(active_fg.name(), active_bg.name());
+    overlay_inactive_flat_style_ = no_focus_outline + plain_style_format.arg(inactive_fg.name(), inactive_bg.name());
 
     set_style_sheet_ = true;
     setStyleSheet(full_style);
