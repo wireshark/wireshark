@@ -201,6 +201,15 @@ static int hf_erldp_flags_local_ext;
 static int hf_erldp_flags_altact_sig;
 static int hf_erldp_flags_native_records;
 static int hf_erldp_flags_spare;
+static int hf_erldp_flags_high;
+static int hf_erldp_flags_high_spawn;
+static int hf_erldp_flags_high_name_me;
+static int hf_erldp_flags_high_v4_nc;
+static int hf_erldp_flags_high_alias;
+static int hf_erldp_flags_high_local_ext;
+static int hf_erldp_flags_high_altact_sig;
+static int hf_erldp_flags_high_native_records;
+static int hf_erldp_flags_high_spare;
 static int hf_erldp_creation;
 static int hf_erldp_challenge;
 static int hf_erldp_digest;
@@ -958,7 +967,7 @@ static int dissect_etf_type_ret_tree(const char *label, packet_info *pinfo, tvbu
 static bool is_handshake(tvbuff_t *tvb, int offset) {
   uint32_t len = tvb_get_ntohs(tvb, offset);
   uint8_t tag = tvb_get_uint8(tvb, offset + 2);
-  return ((len > 0) && strchr("nNras", tag) && (len == (uint32_t)tvb_captured_length_remaining(tvb, offset + 2)));
+  return ((len > 0) && strchr("nNcras", tag) && (len == (uint32_t)tvb_captured_length_remaining(tvb, offset + 2)));
 }
 
 /*--- dissect_erldp_handshake -------------------------------------------------*/
@@ -968,6 +977,19 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   bool is_challenge = false;
   uint32_t str_len;
   const uint8_t *str;
+
+  /* The flags above bit 31, as the complement message carries them */
+  static int * const erldp_flags_high_flags[] = {
+    &hf_erldp_flags_high_spare,
+    &hf_erldp_flags_high_native_records,
+    &hf_erldp_flags_high_altact_sig,
+    &hf_erldp_flags_high_local_ext,
+    &hf_erldp_flags_high_alias,
+    &hf_erldp_flags_high_v4_nc,
+    &hf_erldp_flags_high_name_me,
+    &hf_erldp_flags_high_spawn,
+    NULL
+  };
 
   static int * const erldp_flags_flags[] = {
     &hf_erldp_flags_spare,
@@ -1055,6 +1077,15 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       offset += 2;
       proto_tree_add_item_ret_string(tree, hf_erldp_name, tvb, offset, str_len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", (is_challenge) ? "SEND_CHALLENGE" : "SEND_NAME", str);
+      break;
+
+    case 'c' :
+      proto_tree_add_bitmask(tree, tvb, offset, hf_erldp_flags_high,
+         ett_erldp_flags, erldp_flags_high_flags, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_creation, tvb, offset, 4, ENC_BIG_ENDIAN);
+      /*offset += 4;*/
+      col_set_str(pinfo->cinfo, COL_INFO, "SEND_COMPLEMENT");
       break;
 
     case 'r' :
@@ -1290,6 +1321,33 @@ void proto_register_erldp(void) {
                         NULL, HFILL }},
     { &hf_erldp_flags_spare, { "Spare", "erldp.flags.spare",
                         FT_UINT64, BASE_DEC, NULL,  ~(0ULL) << 39,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_high, { "Flags High", "erldp.flags_high",
+                        FT_UINT32, BASE_HEX, NULL, 0x0,
+                        "The flags above bit 31", HFILL}},
+    { &hf_erldp_flags_high_spawn, { "Spawn", "erldp.flags.spawn",
+                        FT_BOOLEAN, 32, NULL, 0x00000001,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_high_name_me, { "Name ME", "erldp.flags.name_me",
+                        FT_BOOLEAN, 32, NULL, 0x00000002,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_high_v4_nc, { "V4 NC", "erldp.flags.v4_nc",
+                        FT_BOOLEAN, 32, NULL, 0x00000004,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_high_alias, { "Alias", "erldp.flags.alias",
+                        FT_BOOLEAN, 32, NULL, 0x00000008,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_high_local_ext, { "Local Ext", "erldp.flags.local_ext",
+                        FT_BOOLEAN, 32, NULL, 0x00000010,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_high_altact_sig, { "AltAct Sig", "erldp.flags.altact_sig",
+                        FT_BOOLEAN, 32, NULL, 0x00000020,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_high_native_records, { "Native Records", "erldp.flags.native_records",
+                        FT_BOOLEAN, 32, NULL, 0x00000040,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_high_spare, { "Spare", "erldp.flags.spare",
+                        FT_UINT32, BASE_DEC, NULL, 0xffffff80,
                         NULL, HFILL }},
     { &hf_erldp_creation, { "Creation", "erldp.creation",
                         FT_UINT32, BASE_DEC, NULL, 0x0,

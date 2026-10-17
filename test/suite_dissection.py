@@ -984,6 +984,28 @@ class TestDissectErldp:
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == 'a@127.0.0.1'
 
+    def test_erldp_complement(self, cmd_tshark, capture_file, test_env):
+        '''After an old name message, the complement message carries the high flags and the creation'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_complement.pcap'),
+                '-d', 'tcp.port==45000,erldp',
+                '-T', 'fields', '-e', '_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'SEND_NAME a@127.0.0.1', 'SEND_STATUS ok', 'SEND_CHALLENGE b@127.0.0.1',
+            'SEND_COMPLEMENT', 'SEND_CHALLENGE_REPLY', 'SEND_CHALLENGE_ACK',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_complement.pcap'),
+                '-d', 'tcp.port==45000,erldp',
+                '-Y', 'erldp.flags_high && erldp.flags.spawn && erldp.flags.alias'
+                      ' && erldp.flags.altact_sig && erldp.flags.native_records'
+                      ' && erldp.flags.name_me == 0 && erldp.flags.spare == 0',
+                '-T', 'fields', '-e', 'frame.number', '-e', 'erldp.flags_high',
+                '-e', 'erldp.creation',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '4\t0x0000006d\t1554098974'
+
     def test_erldp_ctlmsg(self, cmd_tshark, capture_file, test_env):
         '''The control messages added in OTP 24 to 28 are named'''
         stdout = subprocess.check_output((cmd_tshark,
