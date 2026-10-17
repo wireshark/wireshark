@@ -1018,6 +1018,17 @@ class TestDissectErldp:
             'ALTACT_SIG_SEND', 'ALTACT_SIG_SEND', 'ALTACT_SIG_SEND',
         ]
 
+    def test_erldp_small_big(self, cmd_tshark, capture_file, test_env):
+        '''A bignum of up to 8 bytes is shown once, as a decimal integer'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_ctlmsg.pcap'),
+                '-d', 'tcp.port==45000,erldp',
+                '-Y', 'erldp.small_big_ext_len',
+                '-T', 'fields', '-e', 'erldp.big_ext_int', '-e', 'erldp.big_ext_str',
+            ), encoding='utf-8', env=test_env)
+        # The Id of UNLINK_ID and UNLINK_ID_ACK
+        assert stdout.splitlines() == ['1234605616436508552\t'] * 2
+
     def test_erldp_altact_flags(self, cmd_tshark, capture_file, test_env):
         '''The flags of ALTACT_SIG_SEND tell what To is and what kind of signal it is'''
         stdout = subprocess.check_output((cmd_tshark,

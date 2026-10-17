@@ -452,7 +452,7 @@ static int dissect_etf_big_ext(tvbuff_t *tvb, packet_info *pinfo, int offset, ui
         if (value_str)
           *value_str = wmem_strdup_printf(pinfo->pool, "%s%" PRIu64,
                                           sign ? "-"  : "", big_val);
-      } if (len < 64) {
+      } else if (len < 64) {
         wmem_strbuf_t *strbuf = wmem_strbuf_new_sized(pinfo->pool, len*1+3+1);
 
         wmem_strbuf_append(strbuf, "0x");
