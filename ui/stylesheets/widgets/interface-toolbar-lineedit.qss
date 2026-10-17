@@ -3,28 +3,32 @@
  * toolbar with an inline "apply" button on the right.
  *
  * Rules:
+ *   - The field gets the same 1px rounded FieldBorder frame as
+ *     FilterEdit, on every platform, so the frame follows the theme.
+ *     (Qt's native macOS style draws no visible frame for embedded
+ *     QLineEdits, and a plain padding rule alone would leave the frame
+ *     to the platform style instead of the theme.)
+ *     The padding matches the line edits in the find / go to packet
+ *     frames (accordion-frame.qss), so they all get the same height.
  *   - The apply button is a flat StockIconToolButton with no border,
  *     transparent background, and no padding; the explicit
  *     `background: transparent` also disables the platform style on
  *     Windows so the button blends into the line edit.
  *
  * Applied via ThemeManager::styleSheet("widgets/interface-toolbar-lineedit")
- * from InterfaceToolbarLineEdit::updateStyleSheet(); the caller
- * appends runtime-dependent rules on top:
- *   - padding-right (derived from the apply-button sizeHint and the
- *     style's frame width),
- *   - on macOS, a 1px rounded palette(shadow) border around the line
- *     edit — Qt's native macOS style does not draw a visible frame
- *     for embedded QLineEdits, so we add one to match the other
- *     platforms.
+ * from InterfaceToolbarLineEdit::updateStyleSheet(); the caller appends
+ * the runtime-dependent padding-right (apply-button width + gap).
  *
  * Invalid-state background is NOT set here; it comes from the global
  * `QLineEdit[wsValidation="invalid"]` rule in application.qss and is
  * toggled via ThemeManager::setValidationState().
- *
- * No wstheme(...) colour tokens are needed here; all colours come
- * from the current QPalette, so light/dark mode flips automatically.
  * =================================================================== */
+
+InterfaceToolbarLineEdit {
+    border: 1px solid wstheme(FieldBorder);
+    border-radius: 3px;
+    padding: 1px;
+}
 
 QToolButton {
     border: none;

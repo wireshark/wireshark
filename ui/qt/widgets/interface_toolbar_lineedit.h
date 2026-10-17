@@ -77,6 +77,12 @@ private:
      */
     void updateStyleSheet(bool is_valid);
 
+    /** @brief Scales the apply button icon with the application zoom. */
+    void updateApplyButtonZoom();
+
+    /** @brief Sizes and places the apply button inside the frame. */
+    void updateApplyButtonGeometry();
+
     /** Pointer to the embedded apply button. */
     StockIconToolButton *apply_button_;
 
