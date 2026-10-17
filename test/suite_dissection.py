@@ -984,6 +984,18 @@ class TestDissectErldp:
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == 'a@127.0.0.1'
 
+    def test_erldp_ctlmsg(self, cmd_tshark, capture_file, test_env):
+        '''The control messages added in OTP 24 to 28 are named'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_ctlmsg.pcap'),
+                '-d', 'tcp.port==45000,erldp',
+                '-T', 'fields', '-e', '_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            'ALIAS_SEND', 'ALIAS_SEND_TT', 'UNLINK_ID', 'UNLINK_ID_ACK',
+            'ALTACT_SIG_SEND', 'ALTACT_SIG_SEND', 'ALTACT_SIG_SEND',
+        ]
+
 class TestDissectTcp:
     @staticmethod
     def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=None):

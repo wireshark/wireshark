@@ -136,6 +136,11 @@ static const value_string erldp_ctlmsg_vals[] = {
   { 30, "SPAWN_REQUEST_TT" },
   { 31, "SPAWN_REPLY" },
   { 32, "SPAWN_REPLY_TT" },
+  { 33, "ALIAS_SEND" },
+  { 34, "ALIAS_SEND_TT" },
+  { 35, "UNLINK_ID" },
+  { 36, "UNLINK_ID_ACK" },
+  { 37, "ALTACT_SIG_SEND" },
   {  0, NULL }
 };
 
