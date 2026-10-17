@@ -996,6 +996,23 @@ class TestDissectErldp:
             'ALTACT_SIG_SEND', 'ALTACT_SIG_SEND', 'ALTACT_SIG_SEND',
         ]
 
+    def test_erldp_altact_flags(self, cmd_tshark, capture_file, test_env):
+        '''The flags of ALTACT_SIG_SEND tell what To is and what kind of signal it is'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_ctlmsg.pcap'),
+                '-d', 'tcp.port==45000,erldp',
+                '-Y', 'erldp.altact_flags',
+                '-T', 'fields', '-e', 'frame.number', '-e', 'erldp.altact_flags',
+                '-e', 'erldp.altact_flags.prio', '-e', 'erldp.altact_flags.token',
+                '-e', 'erldp.altact_flags.alias', '-e', 'erldp.altact_flags.name',
+                '-e', 'erldp.altact_flags.exit',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t0x09\tTrue\tFalse\tFalse\tTrue\tFalse',    # priority, to a name
+            '6\t0x06\tFalse\tTrue\tTrue\tFalse\tFalse',    # to an alias, with a token
+            '7\t0x10\tFalse\tFalse\tFalse\tFalse\tTrue',   # an exit signal
+        ]
+
 class TestDissectTcp:
     @staticmethod
     def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=None):

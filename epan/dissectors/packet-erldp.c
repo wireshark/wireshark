@@ -61,6 +61,14 @@
 #define ATOM_CACHE_REF      'R'
 #define COMPRESSED          'P'
 
+#define DOP_ALTACT_SIG_SEND 37
+
+#define ALTACT_SIG_FLG_PRIO   0x01
+#define ALTACT_SIG_FLG_TOKEN  0x02
+#define ALTACT_SIG_FLG_ALIAS  0x04
+#define ALTACT_SIG_FLG_NAME   0x08
+#define ALTACT_SIG_FLG_EXIT   0x10
+
 void proto_register_erldp(void);
 void proto_reg_handoff_erldp(void);
 
@@ -140,7 +148,7 @@ static const value_string erldp_ctlmsg_vals[] = {
   { 34, "ALIAS_SEND_TT" },
   { 35, "UNLINK_ID" },
   { 36, "UNLINK_ID_ACK" },
-  { 37, "ALTACT_SIG_SEND" },
+  { DOP_ALTACT_SIG_SEND, "ALTACT_SIG_SEND" },
   {  0, NULL }
 };
 
@@ -236,6 +244,12 @@ static int hf_erldp_new_fun_ext_arity;
 static int hf_erldp_new_fun_ext_uniq;
 static int hf_erldp_new_fun_ext_index;
 static int hf_erldp_new_fun_ext_num_free;
+static int hf_erldp_altact_flags;
+static int hf_erldp_altact_flags_prio;
+static int hf_erldp_altact_flags_token;
+static int hf_erldp_altact_flags_alias;
+static int hf_erldp_altact_flags_name;
+static int hf_erldp_altact_flags_exit;
 
 static int hf_etf_tag;
 static int hf_etf_dist_header_tag;
@@ -268,6 +282,7 @@ static int ett_etf_flags;
 static int ett_etf_acrs;
 static int ett_etf_acr;
 static int ett_etf_tmp;
+static int ett_etf_altact_flags;
 
 static int ett_etf_fragment;
 static int ett_etf_fragments;
@@ -304,6 +319,7 @@ static const fragment_items etf_frag_items = {
 /*--- External Term Format ---*/
 
 static int dissect_etf_type(const char *label, packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
+static int dissect_etf_type_ret_tree(const char *label, packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, proto_tree **ret_tree);
 static int dissect_etf_pdu_data(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 
 static int dissect_etf_dist_header(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree) {
@@ -692,13 +708,31 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
 }
 
 static int dissect_etf_pdu_data(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree) {
-  uint8_t ctl_op;
+  uint8_t ctl_op = 0;
+  int ctl_offset = offset;
+  proto_tree *ctl_tree = NULL;
+
+  static int * const altact_flags[] = {
+    &hf_erldp_altact_flags_prio,
+    &hf_erldp_altact_flags_token,
+    &hf_erldp_altact_flags_alias,
+    &hf_erldp_altact_flags_name,
+    &hf_erldp_altact_flags_exit,
+    NULL
+  };
 
   if ((tvb_get_uint8(tvb, offset) == SMALL_TUPLE_EXT) && (tvb_get_uint8(tvb, offset + 2) == SMALL_INTEGER_EXT)) {
     ctl_op = tvb_get_uint8(tvb, offset + 3);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pinfo->pool, ctl_op, VALS(erldp_ctlmsg_vals), "unknown ControlMessage operation (%d)"));
   }
-  offset = dissect_etf_type("ControlMessage", pinfo, tvb, offset, tree);
+  offset = dissect_etf_type_ret_tree("ControlMessage", pinfo, tvb, offset, tree, &ctl_tree);
+
+  /* {37, Flags, SenderPid, To} or {37, Flags, SenderPid, To, Token} */
+  if ((ctl_op == DOP_ALTACT_SIG_SEND) && (tvb_get_uint8(tvb, ctl_offset + 1) >= 4) &&
+      (tvb_get_uint8(tvb, ctl_offset + 4) == SMALL_INTEGER_EXT)) {
+    proto_tree_add_bitmask(ctl_tree, tvb, ctl_offset + 5, hf_erldp_altact_flags,
+                           ett_etf_altact_flags, altact_flags, ENC_NA);
+  }
   if (tvb_reported_length_remaining(tvb, offset) > 0)
     offset = dissect_etf_type("Message", pinfo, tvb, offset, tree);
 
@@ -804,6 +838,11 @@ static int dissect_etf_versioned_type(const char *label, packet_info *pinfo, tvb
 
 // NOLINTNEXTLINE(misc-no-recursion)
 static int dissect_etf_type(const char *label, packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree) {
+  return dissect_etf_type_ret_tree(label, pinfo, tvb, offset, tree, NULL);
+}
+
+// NOLINTNEXTLINE(misc-no-recursion)
+static int dissect_etf_type_ret_tree(const char *label, packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree, proto_tree **ret_tree) {
   int begin = offset;
   uint32_t tag;
   proto_item *ti;
@@ -823,6 +862,9 @@ static int dissect_etf_type(const char *label, packet_info *pinfo, tvbuff_t *tvb
     proto_item_append_text(ti, ": %s", value_str);
 
   proto_item_set_len(ti, offset - begin);
+
+  if (ret_tree)
+    *ret_tree = etf_tree;
 
   return offset;
 }
@@ -1301,6 +1343,24 @@ void proto_register_erldp(void) {
     { &hf_erldp_new_fun_ext_num_free, { "Num Free", "erldp.new_fun_ext.num_free",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
+    { &hf_erldp_altact_flags, { "AltAct Flags", "erldp.altact_flags",
+                        FT_UINT8, BASE_HEX, NULL, 0x0,
+                        "ALTACT_SIG_SEND flags", HFILL}},
+    { &hf_erldp_altact_flags_prio, { "Priority", "erldp.altact_flags.prio",
+                        FT_BOOLEAN, 8, NULL, ALTACT_SIG_FLG_PRIO,
+                        "This is a priority signal", HFILL}},
+    { &hf_erldp_altact_flags_token, { "Token", "erldp.altact_flags.token",
+                        FT_BOOLEAN, 8, NULL, ALTACT_SIG_FLG_TOKEN,
+                        "A sequential trace token follows To", HFILL}},
+    { &hf_erldp_altact_flags_alias, { "Alias", "erldp.altact_flags.alias",
+                        FT_BOOLEAN, 8, NULL, ALTACT_SIG_FLG_ALIAS,
+                        "To is a process alias (a reference)", HFILL}},
+    { &hf_erldp_altact_flags_name, { "Name", "erldp.altact_flags.name",
+                        FT_BOOLEAN, 8, NULL, ALTACT_SIG_FLG_NAME,
+                        "To is a registered name (an atom)", HFILL}},
+    { &hf_erldp_altact_flags_exit, { "Exit", "erldp.altact_flags.exit",
+                        FT_BOOLEAN, 8, NULL, ALTACT_SIG_FLG_EXIT,
+                        "The signal is an exit signal, not a message", HFILL}},
 
     /*---  ---*/
     { &hf_erldp_length_4, { "Length", "erldp.len",
@@ -1391,6 +1451,7 @@ void proto_register_erldp(void) {
     &ett_etf_acrs,
     &ett_etf_acr,
     &ett_etf_tmp,
+    &ett_etf_altact_flags,
     &ett_etf_fragment,
     &ett_etf_fragments,
   };
