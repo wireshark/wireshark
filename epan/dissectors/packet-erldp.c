@@ -175,11 +175,15 @@ static int hf_erldp_flags_exit_payload;
 static int hf_erldp_flags_fragments;
 static int hf_erldp_flags_handshake_23;
 static int hf_erldp_flags_unlink_id;
+static int hf_erldp_flags_mandatory_25_digest;
 static int hf_erldp_flags_reserved;
 static int hf_erldp_flags_spawn;
 static int hf_erldp_flags_name_me;
 static int hf_erldp_flags_v4_nc;
 static int hf_erldp_flags_alias;
+static int hf_erldp_flags_local_ext;
+static int hf_erldp_flags_altact_sig;
+static int hf_erldp_flags_native_records;
 static int hf_erldp_flags_spare;
 static int hf_erldp_creation;
 static int hf_erldp_challenge;
@@ -834,11 +838,15 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
   static int * const erldp_flags_flags[] = {
     &hf_erldp_flags_spare,
+    &hf_erldp_flags_native_records,
+    &hf_erldp_flags_altact_sig,
+    &hf_erldp_flags_local_ext,
     &hf_erldp_flags_alias,
     &hf_erldp_flags_v4_nc,
     &hf_erldp_flags_name_me,
     &hf_erldp_flags_spawn,
     &hf_erldp_flags_reserved,
+    &hf_erldp_flags_mandatory_25_digest,
     &hf_erldp_flags_unlink_id,
     &hf_erldp_flags_handshake_23,
     &hf_erldp_flags_fragments,
@@ -1120,8 +1128,11 @@ void proto_register_erldp(void) {
     { &hf_erldp_flags_unlink_id, { "Unlink Id", "erldp.flags.unlink_id",
                         FT_BOOLEAN, 64, NULL, 0x2000000,
                         NULL, HFILL }},
+    { &hf_erldp_flags_mandatory_25_digest, { "Mandatory 25 Digest", "erldp.flags.mandatory_25_digest",
+                        FT_BOOLEAN, 64, NULL, 0x4000000,
+                        NULL, HFILL }},
     { &hf_erldp_flags_reserved, { "Reserved", "erldp.flags.reserved",
-                        FT_UINT64, BASE_DEC, NULL, 0xfc000000,
+                        FT_UINT64, BASE_DEC, NULL, 0xf8000000,
                         NULL, HFILL }},
     { &hf_erldp_flags_spawn, { "Spawn", "erldp.flags.spawn",
                         FT_BOOLEAN, 64, NULL, 1ULL << 32,
@@ -1135,8 +1146,17 @@ void proto_register_erldp(void) {
     { &hf_erldp_flags_alias, { "Alias", "erldp.flags.alias",
                         FT_BOOLEAN, 64, NULL, 1ULL << 35,
                         NULL, HFILL }},
+    { &hf_erldp_flags_local_ext, { "Local Ext", "erldp.flags.local_ext",
+                        FT_BOOLEAN, 64, NULL, 1ULL << 36,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_altact_sig, { "AltAct Sig", "erldp.flags.altact_sig",
+                        FT_BOOLEAN, 64, NULL, 1ULL << 37,
+                        NULL, HFILL }},
+    { &hf_erldp_flags_native_records, { "Native Records", "erldp.flags.native_records",
+                        FT_BOOLEAN, 64, NULL, 1ULL << 38,
+                        NULL, HFILL }},
     { &hf_erldp_flags_spare, { "Spare", "erldp.flags.spare",
-                        FT_UINT64, BASE_DEC, NULL,  ~(0ULL) << 36,
+                        FT_UINT64, BASE_DEC, NULL,  ~(0ULL) << 39,
                         NULL, HFILL }},
     { &hf_erldp_creation, { "Creation", "erldp.creation",
                         FT_UINT32, BASE_DEC, NULL, 0x0,

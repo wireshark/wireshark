@@ -971,6 +971,19 @@ class TestDissectRtpproxy:
         # Only the first frame (no trailing LF) is flagged; the second has one.
         assert stdout.strip() == '1'
 
+class TestDissectErldp:
+    def test_erldp_flags(self, cmd_tshark, capture_file, test_env):
+        '''The distribution flags added in OTP 25 to 29 are named, not left in Reserved or Spare'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_flags.pcap'),
+                '-d', 'tcp.port==45000,erldp',
+                '-Y', 'erldp.flags.mandatory_25_digest && erldp.flags.altact_sig'
+                      ' && erldp.flags.native_records && erldp.flags.local_ext == 0'
+                      ' && erldp.flags.reserved == 0 && erldp.flags.spare == 0',
+                '-T', 'fields', '-e', 'erldp.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'a@127.0.0.1'
+
 class TestDissectTcp:
     @staticmethod
     def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=None):
