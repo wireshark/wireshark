@@ -514,6 +514,7 @@ static int hf_dns_opt_mqtype;
 static int hf_dns_opt_key_tag;
 static int hf_dns_opt_ul_lease;
 static int hf_dns_opt_ul_key_lease;
+static int hf_dns_opt_nsid;
 static int hf_dns_opt_edns_expire;
 static int hf_dns_nsec3_algo;
 static int hf_dns_nsec3_flags;
@@ -1208,7 +1209,7 @@ static const value_string edns0_opt_code_vals[] = {
   { 0,                       "Reserved" },
   { O_LLQ,               "LLQ - Long-lived query" },
   { O_UL,                "Update Lease" },
-  { O_NSID,              "NSID - Name Server Identifier" },
+  { O_NSID,              "Name Server Identifier" },
   { O_OWNER,             "Owner (reserved)" },
   { O_DAU,               "DAU - DNSSEC Algorithm Understood (RFC6975)" },
   { O_DHU,               "DHU - DS Hash Understood (RFC6975)" },
@@ -3498,6 +3499,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                   cur_offset += 4;
                   rropt_len  -= 4;
               }
+          }
+          break;
+
+          case O_NSID: /* Name Server Identifier (RFC5001) */
+          {
+              if (optlen == 0) {
+                  break; /* query: no data */
+              }
+              proto_tree_add_item(rropt_tree, hf_dns_opt_nsid, tvb, cur_offset, optlen, ENC_NA);
+              cur_offset += optlen;
+              rropt_len  -= optlen;
           }
           break;
 
@@ -7649,15 +7661,20 @@ proto_register_dns(void)
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
         "Lease duration in seconds (RFC9664)", HFILL }},
 
-    { &hf_dns_opt_edns_expire,
-      { "Expire", "dns.opt.edns_expire",
-        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
-        "Zone expire time in seconds (RFC7314)", HFILL }},
-
     { &hf_dns_opt_ul_key_lease,
       { "Key Lease", "dns.opt.ul.key_lease",
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
         "KEY RR lease duration in seconds (RFC9664)", HFILL }},
+
+    { &hf_dns_opt_nsid,
+      { "NSID", "dns.opt.nsid",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Name Server Identifier (RFC5001)", HFILL }},
+
+    { &hf_dns_opt_edns_expire,
+      { "Expire", "dns.opt.edns_expire",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
+        "Zone expire time in seconds (RFC7314)", HFILL }},
 
     { &hf_dns_count_questions,
       { "Questions", "dns.count.queries",

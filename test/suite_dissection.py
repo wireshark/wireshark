@@ -4247,3 +4247,29 @@ class TestDissectDnsEdnsExpire:
         # Option code 9, expire 86400 seconds
         assert '9' in stdout
         assert '86400' in stdout
+
+
+class TestDissectDnsNsid:
+    def test_nsid_query(self, cmd_tshark, capture_file, test_env):
+        '''NSID option in query (zero-length) is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_nsid.pcap'),
+                '-Y', 'frame.number == 1',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+            ), encoding='utf-8', env=test_env)
+        # Option code 3 (NSID), no data
+        assert '3' in stdout
+
+    def test_nsid_response(self, cmd_tshark, capture_file, test_env):
+        '''NSID option in response with identifier bytes is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_nsid.pcap'),
+                '-Y', 'frame.number == 2',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.nsid',
+            ), encoding='utf-8', env=test_env)
+        # Option code 3, NSID = hex of "nyc-dns-01"
+        assert '3' in stdout
+        assert '6e79632d646e732d3031' in stdout
