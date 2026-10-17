@@ -15,6 +15,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/tfs.h>
 #include <epan/reassemble.h>
 #include "packet-tcp.h"
@@ -246,6 +247,10 @@ static int hf_erldp_new_fun_ext_arity;
 static int hf_erldp_new_fun_ext_uniq;
 static int hf_erldp_new_fun_ext_index;
 static int hf_erldp_new_fun_ext_num_free;
+static int hf_erldp_ref_ext_id;
+static int hf_erldp_local_ext_hash;
+static int hf_erldp_local_ext_data;
+static int hf_erldp_undecoded;
 static int hf_erldp_record_ext_num_fields;
 static int hf_erldp_record_ext_flags;
 static int hf_erldp_record_ext_flags_exported;
@@ -293,6 +298,8 @@ static int ett_etf_record_flags;
 
 static int ett_etf_fragment;
 static int ett_etf_fragments;
+
+static expert_field ei_erldp_unknown_tag;
 
 /* Preferences */
 static bool erldp_desegment = true;
@@ -533,6 +540,24 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
         *value_str = (const char *)str_val;
       break;
 
+    case ATOM_EXT:
+      proto_tree_add_item_ret_uint(tree, hf_erldp_atom_length2, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item_ret_string(tree, hf_erldp_atom_text, tvb, offset, len, ENC_NA|ENC_ISO_8859_1, pinfo->pool, &str_val);
+      offset += len;
+      if (value_str)
+        *value_str = (const char *)str_val;
+      break;
+
+    case SMALL_ATOM_EXT:
+      proto_tree_add_item_ret_uint(tree, hf_erldp_atom_length, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
+      offset++;
+      proto_tree_add_item_ret_string(tree, hf_erldp_atom_text, tvb, offset, len, ENC_NA|ENC_ISO_8859_1, pinfo->pool, &str_val);
+      offset += len;
+      if (value_str)
+        *value_str = (const char *)str_val;
+      break;
+
     case SMALL_ATOM_UTF8_EXT:
       proto_tree_add_item_ret_uint(tree, hf_erldp_atom_length, tvb, offset, 1, ENC_BIG_ENDIAN, &len);
       offset++;
@@ -642,6 +667,14 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
       offset += len;
       break;
 
+    case REFERENCE_EXT:
+      offset = dissect_etf_type("Node", pinfo, tvb, offset, tree);
+      proto_tree_add_item(tree, hf_erldp_ref_ext_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_erldp_new_ref_ext_creation, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset++;
+      break;
+
     case NEW_REFERENCE_EXT:
       proto_tree_add_item_ret_uint(tree, hf_erldp_new_ref_ext_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
       offset += 2;
@@ -733,6 +766,25 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
           snprintf(buf, sizeof(buf), "Value[%u]", i + 1);
           offset = dissect_etf_type(buf, pinfo, tvb, offset, tree);
       }
+      break;
+
+    case LOCAL_EXT:
+      /* A hash, then an encoding known only to the node that made it */
+      proto_tree_add_item(tree, hf_erldp_local_ext_hash, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      len = tvb_reported_length_remaining(tvb, offset);
+      if (len > 0)
+        proto_tree_add_item(tree, hf_erldp_local_ext_data, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+
+    default:
+      /* Its length is unknown, so nothing after it can be decoded */
+      proto_tree_add_expert(tree, pinfo, &ei_erldp_unknown_tag, tvb, offset - 1, 1);
+      len = tvb_reported_length_remaining(tvb, offset);
+      if (len > 0)
+        proto_tree_add_item(tree, hf_erldp_undecoded, tvb, offset, len, ENC_NA);
+      offset += len;
       break;
   }
 
@@ -1377,6 +1429,18 @@ void proto_register_erldp(void) {
     { &hf_erldp_new_fun_ext_num_free, { "Num Free", "erldp.new_fun_ext.num_free",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
+    { &hf_erldp_ref_ext_id, { "ID", "erldp.ref_ext.id",
+                        FT_UINT32, BASE_HEX, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_local_ext_hash, { "Hash", "erldp.local_ext.hash",
+                        FT_UINT32, BASE_HEX, NULL, 0x0,
+                        "Checked by the decoder to match the encoder", HFILL}},
+    { &hf_erldp_local_ext_data, { "Local Data", "erldp.local_ext.data",
+                        FT_BYTES, BASE_NONE, NULL, 0x0,
+                        "Terms in a format known only to the node that encoded them", HFILL}},
+    { &hf_erldp_undecoded, { "Undecoded Data", "erldp.undecoded",
+                        FT_BYTES, BASE_NONE, NULL, 0x0,
+                        NULL, HFILL}},
     { &hf_erldp_record_ext_num_fields, { "Num Fields", "erldp.record_ext.num_fields",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
@@ -1503,6 +1567,13 @@ void proto_register_erldp(void) {
     &ett_etf_fragments,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_erldp_unknown_tag, { "erldp.unknown_tag", PI_UNDECODED, PI_WARN,
+                        "Unknown term tag; the rest of the message is not decoded", EXPFILL }},
+  };
+
+  expert_module_t *expert_erldp;
+
   /* Register protocol and dissector */
   proto_erldp = proto_register_protocol("Erlang Distribution Protocol", "ErlDP", "erldp");
   reassembly_table_register(&erldp_reassembly_table,
@@ -1513,6 +1584,8 @@ void proto_register_erldp(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_erldp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_erldp = expert_register_protocol(proto_erldp);
+  expert_register_field_array(expert_erldp, ei, array_length(ei));
 
 }
 

@@ -1026,6 +1026,29 @@ class TestDissectErldp:
             '0\tFalse\ta@127.0.0.1,b@127.0.0.1,shop,empty,done',
         ]
 
+    def test_erldp_old_tags(self, cmd_tshark, capture_file, test_env):
+        '''Deprecated atoms and references are decoded, local data is kept
+        opaque, and an unknown tag is flagged rather than silently misread'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_old_tags.pcap'),
+                '-d', 'tcp.port==45000,erldp',
+                '-T', 'fields', '-e', 'erldp.atom_text', '-e', 'erldp.ref_ext.id',
+                '-e', 'erldp.local_ext.hash', '-e', 'erldp.undecoded',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            # Latin-1 atoms, then the atom after the reference
+            'a@127.0.0.1,b@127.0.0.1,h\u00e9llo,b@127.0.0.1,done\t0x0000002a\t\t',
+            'a@127.0.0.1,b@127.0.0.1\t\t0xc0ffee11\t',
+            'a@127.0.0.1,b@127.0.0.1\t\t\t02037704646f6e65',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_old_tags.pcap'),
+                '-d', 'tcp.port==45000,erldp',
+                '-Y', 'erldp.unknown_tag',
+                '-T', 'fields', '-e', 'frame.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '3'
+
 class TestDissectTcp:
     @staticmethod
     def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=None):
