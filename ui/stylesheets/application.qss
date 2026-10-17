@@ -104,16 +104,20 @@ FilterEdit {
     padding: 0px 1px;
 }
 
-/* The contrasting foreground is computed per-tint from the background
- * luminance in FilterEdit::setState() and applied via the widget palette. */
+/* The tinted states set their contrasting foreground here too, so it follows
+ * the tint when the theme or light/dark mode changes. Untinted states have
+ * no color rule and inherit the application palette. */
 FilterEdit[syntaxState="valid"] {
     background-color: wstheme(FilterValid);
+    color: wstheme(TextOnFilterValid);
 }
 FilterEdit[syntaxState="invalid"] {
     background-color: wstheme(FilterInvalid);
+    color: wstheme(TextOnFilterInvalid);
 }
 FilterEdit[syntaxState="deprecated"] {
     background-color: wstheme(FilterDeprecated);
+    color: wstheme(TextOnFilterDeprecated);
 }
 
 /* -------------------------------------------------------------------

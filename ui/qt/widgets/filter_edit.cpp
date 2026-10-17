@@ -13,10 +13,7 @@
 
 #include <ui/qt/models/filter_validator.h>
 #include <ui/qt/models/filter_completer.h>
-#include <ui/qt/utils/theme_manager.h>
-#include <ui/qt/utils/themes/color_math.h>
 
-#include <QApplication>
 #include <QPainter>
 #include <QStyle>
 #include <QStyleOptionFrame>
@@ -140,34 +137,9 @@ void FilterEdit::setState(SyntaxState state)
         return;
     }
 
-    // The background tint comes from the global QSS (theme tokens). A single
-    // fixed text color can't serve all tints — valid/invalid are dark, the
-    // deprecated tint is bright — so compute the contrasting foreground from the
-    // active background and apply it via the palette. Non-tinted states restore
-    // the inherited text color.
-    const ThemeManager *theme = ThemeManager::instance();
-    QPalette pal = palette();
-    QColor fg;
-    switch (state_) {
-    case SyntaxState::Valid:
-        fg = ColorMath::contrastingText(theme->color(ThemeManager::FilterValid));
-        break;
-    case SyntaxState::Invalid:
-        fg = ColorMath::contrastingText(theme->color(ThemeManager::FilterInvalid));
-        break;
-    case SyntaxState::Deprecated:
-        fg = ColorMath::contrastingText(theme->color(ThemeManager::FilterDeprecated));
-        break;
-    default:
-        fg = qApp->palette().color(QPalette::Text); // inherited/base text
-        break;
-    }
-    pal.setColor(QPalette::Text, fg);
-    setPalette(pal);
-
     // The syntaxState QSS property changed; re-evaluate the stylesheet so the
-    // new tint applies. addAction-based chrome reflows itself, so there is no
-    // geometry to recompute here.
+    // new tint and its contrasting text color apply. addAction-based chrome
+    // reflows itself, so there is no geometry to recompute here.
     style()->unpolish(this);
     style()->polish(this);
     update();
