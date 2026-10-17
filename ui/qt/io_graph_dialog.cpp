@@ -27,6 +27,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/tango_colors.h> //provides some default colors
 #include <ui/qt/widgets/qcustomplot.h>
@@ -456,6 +457,10 @@ void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QS
     if (main_window != nullptr) {
         connect(main_window, &MainWindow::framesSelected, this, &IOGraphDialog::selectedFrameChanged);
     }
+
+    // Track the plot last: the title element added above is only themed
+    // once it exists.
+    PlotTheme::track(iop);
 }
 
 IOGraphDialog::~IOGraphDialog()

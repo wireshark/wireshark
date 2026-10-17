@@ -697,7 +697,7 @@ void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option,
     if (prefs.gui_packet_list_separator) {
         QRect rect = visualRect(index);
 
-        painter->setPen(QColor(Qt::white));
+        painter->setPen(ColorUtils::rowSeparatorColor(palette()));
         painter->drawLine(0, rect.y() + rect.height() - 1, width(), rect.y() + rect.height() - 1);
     }
 }
@@ -3653,7 +3653,7 @@ void PacketList::drawNearOverlay()
                         }
                     } else {
                         // All filters paused, draw no color
-                        painter.fillRect(0, cur_line, o_width, row_height, QColor(Qt::white));
+                        painter.fillRect(0, cur_line, o_width, row_height, palette().color(QPalette::Base));
                     }
                 } else if (fdata->color_filter) {
                     // Single color fallback

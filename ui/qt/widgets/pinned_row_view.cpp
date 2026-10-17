@@ -300,7 +300,7 @@ void PinnedRowView::drawRow(QPainter *painter, const QStyleOptionViewItem &optio
         // freeze-column change, even while this exact row was
         // legitimately being painted with a real, nonzero rect via
         // option.rect at the same moment).
-        painter->setPen(QColor(Qt::white));
+        painter->setPen(ColorUtils::rowSeparatorColor(palette()));
         painter->drawLine(0, option.rect.y() + option.rect.height() - 1,
                            width(), option.rect.y() + option.rect.height() - 1);
     }

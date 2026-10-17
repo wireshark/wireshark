@@ -21,6 +21,7 @@
 #include <QStyleOptionViewItem>
 
 class QPainter;
+class QPalette;
 class QAbstractItemView;
 
 /**
@@ -120,10 +121,21 @@ public:
                                const QColor &bg, const QColor &fg);
 
     /**
-     * @brief Returns an appropriate warning background color for the current mode.
+     * @brief Returns the warning background color for the current theme.
+     * Taken from the FilterDeprecated theme token, the same tint used for
+     * deprecated display filter text.
      * @return The background color.
      */
     static const QColor warningBackground();
+
+    /**
+     * @brief Color of the 1px separator line between packet list rows.
+     * Equal to Base when Base is light; on a dark Base it is a mid gray
+     * halfway to Text so the line stays visible over light coloring rules.
+     * @param palette The palette of the view that paints the rows.
+     * @return The separator color.
+     */
+    static QColor rowSeparatorColor(const QPalette &palette);
 
     /**
      * @brief Returns an appropriate foreground color for disabled text.

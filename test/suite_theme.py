@@ -263,6 +263,27 @@ def derived_tokens(theme, mode):
 
     filter_valid   = explicit_filter_valid   or tint_with_alpha(base, accent_success, 85)
     filter_invalid = explicit_filter_invalid or tint_with_alpha(base, accent_error,   85)
+    explicit_filter_deprecated = _pick(theme, 'filter', 'deprecated', mode)
+    accent_warning = _pick(theme, 'accent', 'warning', mode)
+    filter_deprecated = (explicit_filter_deprecated
+                         or tint_with_alpha(base, accent_warning, 85))
+
+    # Secondary text: Text faded 40% toward Base, lifted to 4.5:1.
+    muted_text = ensure_contrast(mix(text, base, 0.40), base, 4.5)
+
+    # Link follows a pinned highlight, else brand.primary, lifted to
+    # 4.5:1 against Base.
+    link = ensure_contrast(_pick(theme, 'palette', 'highlight', mode)
+                           or brand_primary, base, 4.5)
+
+    # Ignored / hidden rows fade WindowText toward Base unless the
+    # theme pins them.
+    window_text = palette['windowText']
+    ignored_text = (_pick(theme, 'packets', 'ignoredText', mode)
+                    or mix(base, window_text, 0.50))
+    hidden = (_pick(theme, 'packets', 'hidden', mode)
+              or mix(base, window_text, 0.40))
+
     filter_busy      = explicit_filter_busy    or base
     filter_busy_text = explicit_filter_busy_tx or mix(text, base, 0.5)
 
@@ -276,6 +297,15 @@ def derived_tokens(theme, mode):
         'headerGradientEnd': gradient_end,
         'filterValid':       filter_valid,
         'filterInvalid':     filter_invalid,
+        'filterDeprecated':  filter_deprecated,
+        'warningBackground': filter_deprecated,
+        'mutedText':         muted_text,
+        'link':              link,
+        'ignoredText':       ignored_text,
+        'hidden':            hidden,
+        'textOnFilterValid':      contrasting_text(filter_valid),
+        'textOnFilterInvalid':    contrasting_text(filter_invalid),
+        'textOnFilterDeprecated': contrasting_text(filter_deprecated),
         'filterBusy':        filter_busy,
         'filterBusyText':    filter_busy_text,
     }
@@ -355,14 +385,28 @@ class TestDerivedContrast:
     @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
     def test_filter_valid_holds_its_auto_foreground(self, theme_path, mode):
         t = derived_tokens(_load_theme(theme_path), mode)
-        fg = contrasting_text(t['filterValid'])
-        assert contrast_ratio(fg, t['filterValid']) >= 4.5
+        assert contrast_ratio(t['textOnFilterValid'], t['filterValid']) >= 4.5
 
     @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
     def test_filter_invalid_holds_its_auto_foreground(self, theme_path, mode):
         t = derived_tokens(_load_theme(theme_path), mode)
-        fg = contrasting_text(t['filterInvalid'])
-        assert contrast_ratio(fg, t['filterInvalid']) >= 4.5
+        assert contrast_ratio(t['textOnFilterInvalid'], t['filterInvalid']) >= 4.5
+
+    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
+    def test_filter_deprecated_holds_its_auto_foreground(self, theme_path, mode):
+        t = derived_tokens(_load_theme(theme_path), mode)
+        assert contrast_ratio(t['textOnFilterDeprecated'],
+                              t['filterDeprecated']) >= 4.5
+
+    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
+    def test_muted_text_meets_aa_against_base(self, theme_path, mode):
+        t = derived_tokens(_load_theme(theme_path), mode)
+        assert contrast_ratio(t['mutedText'], t['base']) >= 4.5
+
+    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
+    def test_link_meets_aa_against_base(self, theme_path, mode):
+        t = derived_tokens(_load_theme(theme_path), mode)
+        assert contrast_ratio(t['link'], t['base']) >= 4.5
 
     @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
     def test_filter_busy_text_meets_low_contrast_target(self, theme_path, mode):

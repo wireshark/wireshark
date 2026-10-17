@@ -10,8 +10,11 @@
 #include "in_packet_find_delegate.h"
 #include <ui/qt/in_packet_search.h>
 
+#include <QApplication>
 #include <QPainter>
+#include <QStyle>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 
 InPacketFindDelegate::InPacketFindDelegate(InPacketSearch *search, QObject *parent) :
     QStyledItemDelegate(parent),
@@ -44,6 +47,20 @@ void InPacketFindDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
             }
 
             painter->restore();
+
+            // Draw the item over the fill with text that contrasts with it.
+            QStyleOptionViewItem opt(option);
+            initStyleOption(&opt, index);
+            const QColor fill = is_current ? current_color : match_color;
+            const QColor text = ColorMath::contrastingText(fill);
+            opt.palette.setColor(QPalette::All, QPalette::Text, text);
+            if (!(opt.state & QStyle::State_Selected)) {
+                opt.backgroundBrush = QBrush();
+            }
+            const QWidget *w = opt.widget;
+            QStyle *s = w ? w->style() : QApplication::style();
+            s->drawControl(QStyle::CE_ItemViewItem, &opt, painter, w);
+            return;
         }
     }
 

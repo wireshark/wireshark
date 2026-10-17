@@ -69,6 +69,13 @@ public:
     void clearMarkerDifferences();
 
     /**
+     * @brief Recolors existing marker items from the current theme.
+     *
+     * Call after a theme change. Does not replot.
+     */
+    void applyMarkerColors();
+
+    /**
      * @brief Retrieves the index of the currently selected marker.
      * @return The selected marker index.
      */
@@ -194,6 +201,18 @@ private:
      * @param visible whether the marker is visible.
      */
     void markerMoved(const int idx, const double newPos, const bool visible);
+
+    /** @brief Applies the theme colors to a marker title box. */
+    void styleMarkerTitle(QCPItemText* title) const;
+
+    /** @brief Applies the theme pen to a marker line. */
+    void styleMarkerLine(QCPItemStraightLine* line) const;
+
+    /** @brief Applies the theme pen to a marker difference arrow. */
+    void styleMarkerDiffLine(QCPItemLine* line) const;
+
+    /** @brief Applies the theme text color to a marker label. */
+    void styleMarkerText(QCPItemText* label) const;
 
     /**
      * @brief Sorts and returns a list of markers by their X position.

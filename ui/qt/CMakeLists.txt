@@ -100,6 +100,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/font_manager.h
 	utils/frame_information.h
 	utils/idata_printable.h
+	utils/plot_theme.h
 	utils/profile_switcher.h
 	utils/proto_node.h
 	utils/qt_ui_utils.h
@@ -463,6 +464,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/field_information.cpp
 	utils/font_manager.cpp
 	utils/frame_information.cpp
+	utils/plot_theme.cpp
 	utils/profile_switcher.cpp
 	utils/proto_node.cpp
 	utils/qt_ui_utils.cpp

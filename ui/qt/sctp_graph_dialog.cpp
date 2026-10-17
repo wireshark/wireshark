@@ -24,6 +24,8 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/qcustomplot.h>
+#include <ui/qt/utils/plot_theme.h>
+#include <ui/qt/utils/theme_manager.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include "main_application.h"
 
@@ -41,6 +43,7 @@ SCTPGraphDialog::SCTPGraphDialog(QWidget *parent, const sctp_assoc_info_t *assoc
     selected_assoc_id = assoc->assoc_id;
 
     ui->setupUi(this);
+    PlotTheme::track(ui->sctpPlot);
     Qt::WindowFlags flags = Qt::Window | Qt::WindowSystemMenuHint
             | Qt::WindowMinimizeButtonHint
             | Qt::WindowMaximizeButtonHint
@@ -222,8 +225,9 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
     if (xs.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
         gr->setName(QStringLiteral("SACK"));
-        myScatter.setPen(QPen(Qt::red));
-        myScatter.setBrush(Qt::red);
+        const QColor color = ThemeManager::instance()->graphColor(4);
+        myScatter.setPen(QPen(color));
+        myScatter.setBrush(color);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xs, ys);
@@ -235,8 +239,9 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
     if (xg.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
         gr->setName(QStringLiteral("GAP"));
-        myScatter.setPen(QPen(Qt::green));
-        myScatter.setBrush(Qt::green);
+        const QColor color = ThemeManager::instance()->graphColor(3);
+        myScatter.setPen(QPen(color));
+        myScatter.setBrush(color);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xg, yg);
@@ -248,8 +253,9 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
     if (xn.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
         gr->setName(QStringLiteral("NR_GAP"));
-        myScatter.setPen(QPen(Qt::blue));
-        myScatter.setBrush(Qt::blue);
+        const QColor color = ThemeManager::instance()->graphColor(1);
+        myScatter.setPen(QPen(color));
+        myScatter.setBrush(color);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xn, yn);
@@ -261,8 +267,9 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
     if (xd.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
         gr->setName(QStringLiteral("DUP"));
-        myScatter.setPen(QPen(Qt::cyan));
-        myScatter.setBrush(Qt::cyan);
+        const QColor color = ThemeManager::instance()->graphColor(6);
+        myScatter.setPen(QPen(color));
+        myScatter.setBrush(color);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xd, yd);
@@ -317,8 +324,9 @@ void SCTPGraphDialog::drawTSNGraph(const sctp_assoc_info_t* selected_assoc)
     if (xt.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph();
         gr->setName(QStringLiteral("TSN"));
-        myScatter.setPen(QPen(Qt::black));
-        myScatter.setBrush(Qt::black);
+        const QColor color = ThemeManager::instance()->graphColor(0);
+        myScatter.setPen(QPen(color));
+        myScatter.setBrush(color);
         ui->sctpPlot->graph(graphcount)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(graphcount)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(graphcount)->setData(xt, yt);

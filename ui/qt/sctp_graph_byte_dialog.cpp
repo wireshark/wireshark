@@ -19,6 +19,8 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/qcustomplot.h>
+#include <ui/qt/utils/plot_theme.h>
+#include <ui/qt/utils/theme_manager.h>
 #include "sctp_graph_dialog.h"
 #include "sctp_assoc_analyse_dialog.h"
 
@@ -34,6 +36,7 @@ SCTPGraphByteDialog::SCTPGraphByteDialog(QWidget *parent, const sctp_assoc_info_
     selected_assoc_id = assoc->assoc_id;
 
     ui->setupUi(this);
+    PlotTheme::track(ui->sctpPlot);
     Qt::WindowFlags flags = Qt::Window | Qt::WindowSystemMenuHint
             | Qt::WindowMinimizeButtonHint
             | Qt::WindowMaximizeButtonHint
@@ -108,8 +111,9 @@ void SCTPGraphByteDialog::drawBytesGraph(const sctp_assoc_info_t *selected_assoc
     if (xb.size() > 0) {
         QCPGraph *gr = ui->sctpPlot->addGraph(ui->sctpPlot->xAxis, ui->sctpPlot->yAxis);
         gr->setName(tr("Bytes"));
-        myScatter.setPen(QPen(Qt::red));
-        myScatter.setBrush(Qt::red);
+        const QColor color = ThemeManager::instance()->graphColor(4);
+        myScatter.setPen(QPen(color));
+        myScatter.setBrush(color);
         ui->sctpPlot->graph(0)->setScatterStyle(myScatter);
         ui->sctpPlot->graph(0)->setLineStyle(QCPGraph::lsNone);
         ui->sctpPlot->graph(0)->setData(xb, yb);

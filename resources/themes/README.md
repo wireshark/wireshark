@@ -141,6 +141,22 @@ Omitted keys derive from `accent.success` / `accent.error` /
 themes ship the historical GTK-era saturated dark green / dark red
 look that alpha-tinting an accent can never reach.
 
+The derived tints are 33 % of the accent mixed onto `palette.base`.
+
+Other tokens derived from the palette when a theme does not pin them:
+
+- Ignored and hidden packet text fade `palette.windowText` toward
+  `palette.base` (50 % and 40 %), so they stay readable on any background.
+- `muted` text is `palette.text` faded 40 % toward `palette.base`, raised to
+  at least 4.5:1 contrast against `palette.base`.
+- Links (`palette.link`) are raised to at least 4.5:1 contrast against
+  `palette.base`.
+- The accent alias `HighlightColorOrange` (search match highlight) follows
+  `accent.warning`.
+- The text on the filter validity tints (`TextOnFilterValid`,
+  `TextOnFilterInvalid`, `TextOnFilterDeprecated`) is the
+  `contrastingText()` of the matching `filter` tint, black or white.
+
 #### `separator` (optional) — hairline divider colour
 
 Single `{light, dark}` pair used for dividers between cards and
@@ -295,6 +311,8 @@ adjustment for dark mode in a future iteration.
 | Token        | Purpose |
 |--------------|---------|
 | `warning-bg` | Warning background (status bar, time shift dialog) |
+
+The warning background is the `filter.deprecated` tint.
 
 ### `json` — JSON syntax highlighting
 

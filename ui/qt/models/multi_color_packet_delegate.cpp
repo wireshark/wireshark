@@ -13,6 +13,7 @@
 #include "multi_color_packet_delegate.h"
 #include "packet_list_record.h"
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/themes/color_math.h>
 #include <ui/qt/packet_list.h>
 #include <ui/qt/widgets/pinned_column_view.h>
 #include <ui/qt/widgets/pinned_row_view.h>
@@ -456,17 +457,13 @@ void MultiColorPacketDelegate::drawShiftRightBackground(QPainter *painter,
 
 QColor MultiColorPacketDelegate::calculateForeground(const QList<QColor> &backgrounds) const
 {
-    // Calculate average luminance of all background colors
-    double total_luma = 0.0;
+    // Average the backgrounds and pick the text color that contrasts with it
+    int r = 0, g = 0, b = 0;
     for (const QColor &bg : backgrounds) {
-        // Use ITU-R BT.709 coefficients
-        double luma = 0.2126 * bg.redF() +
-                     0.7152 * bg.greenF() +
-                     0.0722 * bg.blueF();
-        total_luma += luma;
+        r += bg.red();
+        g += bg.green();
+        b += bg.blue();
     }
-    double avg_luma = total_luma / backgrounds.size();
-
-    // Return black for light backgrounds, white for dark backgrounds
-    return (avg_luma > 0.5) ? Qt::black : Qt::white;
+    const int n = static_cast<int>(backgrounds.size());
+    return ColorMath::contrastingText(QColor(r / n, g / n, b / n));
 }

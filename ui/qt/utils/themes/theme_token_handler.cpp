@@ -97,21 +97,25 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // values.  Read them from the theme's palette overrides if set,
     // otherwise fall back to the current QApplication palette.
     const QColor baseColor   = pickPaletteValue(tokens, ThemeManager::PaletteBase,       QPalette::Base,       isDarkMode, palette);
-    const QColor windowColor = pickPaletteValue(tokens, ThemeManager::PaletteText,       QPalette::Window,     isDarkMode, palette);
+    const QColor windowColor = pickPaletteValue(tokens, ThemeManager::PaletteWindow,     QPalette::Window,     isDarkMode, palette);
     const QColor textColor   = pickPaletteValue(tokens, ThemeManager::PaletteWindowText, QPalette::WindowText, isDarkMode, palette);
 
+    const QColor paletteTextColor = pickPaletteValue(tokens, ThemeManager::PaletteText, QPalette::Text, isDarkMode, palette);
+
     assign(tokens, ThemeManager::PacketsSelection,
-           ColorMath::mix(ThemeColorPair { baseColor,   baseColor   }, brandPrimary,                                30));
+           ColorMath::mix(ThemeColorPair { baseColor,   baseColor   }, brandPrimary,                                0.30));
     assign(tokens, ThemeManager::PacketsInactive,
-           ColorMath::mix(ThemeColorPair { windowColor, windowColor }, brandPrimary,                                40));
+           ColorMath::mix(ThemeColorPair { windowColor, windowColor }, brandPrimary,                                0.40));
     assign(tokens, ThemeManager::PacketsMarked,   ColorMath::darken(brandPrimary, 65));
     // PacketsIgnored (bg) intentionally has no derivation — when the
     // theme omits it the consumer leaves the row's normal background
     // alone (matches the historical white-on-row visual).
+    // Ignored and hidden rows fade the text toward Base, so they stay
+    // readable on any background instead of drifting toward an accent.
     assign(tokens, ThemeManager::PacketsIgnoredText,
-           ColorMath::mix(ThemeColorPair { textColor, textColor }, successPair, 50));
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, ThemeColorPair { textColor, textColor }, 0.50));
     assign(tokens, ThemeManager::PacketsHidden,
-           ColorMath::mix(ThemeColorPair { textColor, textColor }, successPair, 40));
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, ThemeColorPair { textColor, textColor }, 0.40));
 
     // Foreground fallbacks — only kicks in when a custom theme provides
     // a bg tint but omits its <bg>Text sibling.  contrastingText picks
@@ -126,9 +130,9 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // Conversation
     const ThemeColorPair accentError = tokens.value(ThemeManager::AccentError);
     assign(tokens, ThemeManager::ConversationClient,
-           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, accentError, 102));
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, accentError, 102.0 / 255.0));
     assign(tokens, ThemeManager::ConversationServer,
-           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, brandPrimary, 102));
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, brandPrimary, 102.0 / 255.0));
     // Stream-side text fallback: warm for client (saturated accent.error),
     // cool for server (saturated brand.primary).  Direction flips by mode
     // so the fg stays readable on both the light and dark bg tints.
@@ -145,22 +149,21 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // overpowering the field background.  Themes that prefer the
     // legacy saturated GTK/Tango look ship explicit hex values in
     // theme.filter and let assign()'s only-if-missing semantics keep
-    // them intact.  Foreground for valid/invalid/deprecated is the
-    // caller's problem: pair with QPalette::Text, which contrasts
-    // against Base.
+    // them intact.  The foreground on each tint is derived below as
+    // TextOnFilter*, so the text stays readable whichever side of the
+    // luminance threshold the tint lands on.
     assign(tokens, ThemeManager::FilterValid,
-           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, tokens.value(ThemeManager::AccentSuccess), 85));
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, tokens.value(ThemeManager::AccentSuccess), 85.0 / 255.0));
     assign(tokens, ThemeManager::FilterInvalid,
-           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, tokens.value(ThemeManager::AccentError), 85));
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, tokens.value(ThemeManager::AccentError), 85.0 / 255.0));
     assign(tokens, ThemeManager::FilterDeprecated,
-           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, tokens.value(ThemeManager::AccentWarning), 85));
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, tokens.value(ThemeManager::AccentWarning), 85.0 / 255.0));
 
     // Filter Busy — bg and fg used while a capture filter compiles
     // off-thread.  Default bg is palette.base (no tint) and fg is the
     // text colour faded 50% into base, which matches the placeholder-
     // text look QLineEdit shows for empty fields.  Themes can ship a
     // more distinct look via theme.filter.busy / theme.filter.busyText.
-    const QColor paletteTextColor = pickPaletteValue(tokens, ThemeManager::PaletteText, QPalette::Text, isDarkMode, palette);
     assign(tokens, ThemeManager::FilterBusy,
            ThemeColorPair { baseColor, baseColor });
     assign(tokens, ThemeManager::FilterBusyText,
@@ -287,6 +290,12 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     assign(tokens, ThemeManager::Separator,
            ThemeColorPair { separator, separator });
 
+    // Secondary text: Text faded 40 % toward Base, then lifted to the
+    // 4.5:1 WCAG text contrast minimum against Base.
+    const QColor mutedText = ColorMath::ensureContrast(
+        ColorMath::mix(paletteTextColor, baseColor, 0.40), baseColor, 4.5);
+    assign(tokens, ThemeManager::MutedText, ThemeColorPair { mutedText, mutedText });
+
     // Foregrounds for solid accent surfaces — auto-pick black or white
     // per contrastingText().  These give QSS rules a single token to
     // paint text on accent backgrounds without each theme having to
@@ -301,6 +310,14 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
            ColorMath::contrastingText(tokens.value(ThemeManager::AccentError)));
     assign(tokens, ThemeManager::TextOnInfo,
            ColorMath::contrastingText(tokens.value(ThemeManager::AccentInfo)));
+
+    // Foreground for the filter validity tints.
+    assign(tokens, ThemeManager::TextOnFilterValid,
+           ColorMath::contrastingText(tokens.value(ThemeManager::FilterValid)));
+    assign(tokens, ThemeManager::TextOnFilterInvalid,
+           ColorMath::contrastingText(tokens.value(ThemeManager::FilterInvalid)));
+    assign(tokens, ThemeManager::TextOnFilterDeprecated,
+           ColorMath::contrastingText(tokens.value(ThemeManager::FilterDeprecated)));
 
     // Update bar — all from accent.success
     assign(tokens, ThemeManager::UpdateGradientStart,    ColorMath::darken(successPair, 65));
@@ -329,6 +346,6 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
            ColorMath::disabled(ColorMath::hoverBg(ColorMath::contrastingText(dBarEnd), dBarEnd), dBarEnd));
 
     // Accent aliases (derived)
-    assign(tokens, ThemeManager::HighlightColorOrange, successPair);
+    assign(tokens, ThemeManager::HighlightColorOrange, tokens.value(ThemeManager::AccentWarning));
     assign(tokens, ThemeManager::HighlightColorGreen,  successPair);
 }

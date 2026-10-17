@@ -225,9 +225,9 @@ public:
         // for hairlines between cards / sections; themes can override
         // it via the JSONC "separator" top-level key when the derived
         // value is too pronounced (Stratoshark uses an explicit value
-        // matching its midlight).  MutedText is reserved for future
-        // use — no consumer in tree today, but kept in the enum so
-        // themes can grow into it without a binary-compat break.
+        // matching its midlight).  MutedText is a derived de-emphasized
+        // text color (palette text mixed toward base, contrast-adapted
+        // to base) for secondary labels and plot reference lines.
         FieldBorder,
         Separator,
         MutedText,
@@ -276,6 +276,13 @@ public:
         TextOnWarning,
         TextOnError,
         TextOnInfo,
+
+        // Foreground on the filter validity tints, derived as the
+        // contrastingText() of the matching Filter* token.  Named
+        // `TextOn*` for the same section-grouping reason as above.
+        TextOnFilterValid,
+        TextOnFilterInvalid,
+        TextOnFilterDeprecated,
 
         // None
         NoRole
@@ -527,6 +534,8 @@ private:
 
     // Flattened token -> color value, one map per mode
     QHash<ThemeManager::ThemeToken, ThemeColorPair> themeColors_;
+    /** Token map of the loaded theme as parsed, before derivation. */
+    QHash<ThemeManager::ThemeToken, ThemeColorPair> parsedColors_;
     QList<ThemeColorPair> graphColors_;
 
     QHash<QString, ThemeSectionInfo> sections_;

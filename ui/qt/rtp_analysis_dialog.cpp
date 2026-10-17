@@ -39,6 +39,7 @@
 #include <QCheckBox>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/rtp_player_dialog.h>
@@ -277,6 +278,7 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
     ui->streamGraph->xAxis->setLabel("Arrival Time");
     ui->streamGraph->yAxis->setLabel("Value (ms)");
+    PlotTheme::track(ui->streamGraph);
 
     QPushButton *prepare_button = ui->buttonBox->addButton(ui->actionPrepareButton->text(), QDialogButtonBox::ActionRole);
     prepare_button->setToolTip(ui->actionPrepareButton->toolTip());
