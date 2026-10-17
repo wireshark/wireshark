@@ -83,6 +83,13 @@ public:
      */
     void setApplyActionVisible(bool visible);
 
+    /**
+     * @brief Records the expression currently in effect. While the field text
+     *        equals it, the apply action stays disabled. An empty string means
+     *        nothing is applied.
+     */
+    void setAppliedExpression(const QString &expression);
+
     /** @brief True when the apply action is present (explicit-apply mode). */
     bool isApplyActionVisible() const { return apply_visible_; }
 
@@ -170,8 +177,8 @@ protected:
 private:
     void rebuildBookmarkEntries(); /**< Refresh the dynamic bookmark section. */
     void populateHistoryMenu();    /**< (Re)fill the recent-list popup on show. */
-    void updateClearVisible();     /**< Clear button visible iff text non-empty. */
-    void updateApplyEnabled();     /**< Apply enabled iff non-empty and not Invalid. */
+    void updateClearVisible();     /**< Clear button visible iff text non-empty or a filter is applied. */
+    void updateApplyEnabled();     /**< Apply enabled iff the text differs from the applied expression and is not Invalid. */
     void updateRemoveEnabled();    /**< "Remove current" enabled on exact match. */
     void updateBookmarkState();    /**< Swap to the matching glyph when text is saved. */
     void updateInlineMargins();    /**< Reserve text margins for the shown inline buttons. */
@@ -211,6 +218,7 @@ private:
     QConcatenateTablesProxyModel *completion_source_; /**< Widget-owned merge. */
 
     bool apply_visible_;         /**< Explicit-apply mode flag. */
+    QString applied_expression_; /**< Expression in effect; apply is disabled while text() matches it. */
     bool buttons_left_aligned_;  /**< Inline buttons clustered left vs right-anchored. */
 };
 
