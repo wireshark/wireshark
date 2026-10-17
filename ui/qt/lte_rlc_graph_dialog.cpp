@@ -18,7 +18,8 @@
 #include <epan/tvbuff-int.h>
 #include <epan/tvbuff.h>
 
-#include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/utils/plot_theme.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <QMenu>
 #include <QRubberBand>
@@ -35,9 +36,6 @@
 
 #include <ui/tap-rlc-graph.h>
 
-
-const QRgb graph_color_ack =         tango_sky_blue_4;    // Blue for ACK lines
-const QRgb graph_color_nack =        tango_scarlet_red_3; // Red for NACKs
 
 // Size of selectable packet points in the base graph
 const double pkt_point_size_ = 3.0;
@@ -155,16 +153,19 @@ void LteRlcGraphDialog::completeGraph(bool may_be_empty)
     // Set colours/styles for each of the traces on the graph.
     QCustomPlot *sp = ui->rlcPlot;
     base_graph_ = sp->addGraph(); // All: Selectable segments
-    base_graph_->setPen(QPen(QBrush(Qt::black), 0.25));
-
     reseg_graph_ = sp->addGraph();
-    reseg_graph_->setPen(QPen(QBrush(Qt::lightGray), 0.25));
-
     acks_graph_ = sp->addGraph();
-    acks_graph_->setPen(QPen(QBrush(graph_color_ack), 1.0));
-
     nacks_graph_ = sp->addGraph();
-    nacks_graph_->setPen(QPen(QBrush(graph_color_nack), 0.25));
+
+    // Series colors come from the theme and are reapplied when it changes.
+    auto apply_series_colors = [this]() {
+        ThemeManager *tm = ThemeManager::instance();
+        base_graph_->setPen(QPen(QBrush(PlotTheme::textColor()), 0.25));
+        reseg_graph_->setPen(QPen(QBrush(tm->color(ThemeManager::MutedText)), 0.25));
+        acks_graph_->setPen(QPen(QBrush(tm->color(ThemeManager::AccentInfo)), 1.0));
+        nacks_graph_->setPen(QPen(QBrush(tm->color(ThemeManager::AccentError)), 0.25));
+    };
+    PlotTheme::track(sp, apply_series_colors);
 
     // Create tracer
     tracer_ = new QCPItemTracer(sp);

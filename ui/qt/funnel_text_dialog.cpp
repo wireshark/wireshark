@@ -18,6 +18,8 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "main_application.h"
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 
 // To do:
 // - Add "Find next" to highlighting.
@@ -145,7 +147,9 @@ void FunnelTextDialog::on_findLineEdit_textChanged(const QString &pattern)
     QRegularExpression re(pattern, QRegularExpression::CaseInsensitiveOption |
                           QRegularExpression::UseUnicodePropertiesOption);
     QTextCharFormat plain_fmt, highlight_fmt;
-    highlight_fmt.setBackground(Qt::yellow);
+    const QColor highlight_bg = ThemeManager::instance()->color(ThemeManager::HighlightColorOrange);
+    highlight_fmt.setBackground(highlight_bg);
+    highlight_fmt.setForeground(ColorMath::contrastingText(highlight_bg));
     QTextCursor csr(ui->textEdit->document());
     int position = csr.position();
 

@@ -402,6 +402,12 @@ private:
     /** @brief Calculates and plots the window scale graph. */
     void fillWindowScale();
 
+    /** @brief Applies the theme's graph colors to the series, scatter styles and y axes. */
+    void applySeriesColors();
+
+    /** @brief Colors the secondary y axis labels for the current graph type. */
+    void applyYAxis2Color();
+
     /**
      * @brief Constructs a descriptive string for the stream.
      * @return The description string.

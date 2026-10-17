@@ -22,6 +22,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/widgets/resize_header_view.h>
 
 #include <ui/qt/widgets/qcp_spacer_legend_item.h>
@@ -232,7 +233,6 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf) :
     // Set the bottom margin to 0.
     plot->axisRect(0)->setAutoMargins(QCP::MarginSides(QCP::msAll).setFlag(QCP::msBottom, false));
     plot->axisRect(0)->setMargins(QMargins());
-    plot->axisRect(0)->setBackground(QBrush(QColor::fromRgb(162, 210, 255)));
     // And make sure it uses as little vertical space as possible.
     plot->axisRect(0)->setMinimumSize(0, 0);
     plot->axisRect(0)->setMaximumSize(QWIDGETSIZE_MAX, 0);
@@ -276,6 +276,19 @@ PlotDialog::PlotDialog(QWidget& parent, CaptureFile& cf) :
     rubber_band_ = new QRubberBand(QRubberBand::Rectangle, plot);
     rubber_band_->setVisible(false);
     tracer_ = new QCPItemTracer(plot);
+
+    // PlotTheme recolors every axis with the text color; with multiple
+    // y axes each value axis follows its graph instead.
+    PlotTheme::track(plot, [this]() {
+        ui->plot->applyMarkerColors();
+        if (!ui->actionEnableMultiYAxes->isChecked()) {
+            return;
+        }
+        for (int i = 0; i < ui->plot->graphCount(); i++) {
+            QCPGraph *graph = ui->plot->graph(i);
+            Plot::setAxisColor(graph->valueAxis(), graph->pen());
+        }
+    });
 }
 
 void PlotDialog::initialize(QWidget& parent, uat_field_t* plot_fields, bool show_default)
@@ -482,6 +495,7 @@ QCPAxisRect* PlotDialog::getAxisRect(int idx) {
         {
             axis->setLayer("axes");
             axis->grid()->setLayer("grid");
+            PlotTheme::applyToAxis(axis);
         }
         axisRect->setAutoMargins(QCP::MarginSides(QCP::msLeft | QCP::msRight));
         axisRect->setMargins(QMargins());
@@ -524,7 +538,7 @@ void PlotDialog::syncPlotSettings(int row)
     QRgb color = uat_model_->data(uat_model_->index(row, plotColColor), Qt::DecorationRole).value<QColor>().rgb();
     plot->setColor(color);
     Plot::setAxisColor(plot->graph()->valueAxis(),
-        !ui->actionEnableMultiYAxes->isChecked() ? QPen(Qt::black) : QPen(color));
+        !ui->actionEnableMultiYAxes->isChecked() ? QPen(PlotTheme::textColor()) : QPen(color));
     QString data_str = uat_model_->data(uat_model_->index(row, plotColStyle)).toString();
     plot->setPlotStyle((Graph::PlotStyles)str_to_val(qUtf8Printable(data_str), plot_graph_style_vs, 0));
     plot->setYAxisFactor(uat_model_->data(uat_model_->index(row, plotColYAxisFactor)).toDouble());
@@ -1967,12 +1981,13 @@ void PlotDialog::on_actionEnableMultiYAxes_triggered(bool checked)
                 QCPAxis* y_axis = axisRect->addAxis(type);
                 y_axis->setLayer("axes");
                 y_axis->grid()->setLayer("grid");
+                PlotTheme::applyToAxis(y_axis);
                 graph->setValueAxis(y_axis);
                 axes << y_axis;
             } else {
                 graph->setValueAxis(defaultValueAxis);
             }
-            Plot::setAxisColor(graph->valueAxis(), !checked ? QPen(Qt::black) : graph->pen());
+            Plot::setAxisColor(graph->valueAxis(), !checked ? QPen(PlotTheme::textColor()) : graph->pen());
         }
         for (QCPAxis* axis : axisRect->axes(QCPAxis::atLeft | QCPAxis::atRight)) {
             if (!axes.contains(axis) && axis->visible() && axis != defaultValueAxis) { // keep the default y axis
@@ -1980,7 +1995,7 @@ void PlotDialog::on_actionEnableMultiYAxes_triggered(bool checked)
             }
         }
         if (graphs.isEmpty()) {
-            Plot::setAxisColor(defaultValueAxis, QPen(Qt::black));
+            Plot::setAxisColor(defaultValueAxis, QPen(PlotTheme::textColor()));
         }
         QList<QCPAxis*> bottomAxes = axisRect->axes(QCPAxis::atBottom);
         QList<QCPAxis*> leftRightAxes = axisRect->axes(QCPAxis::atLeft | QCPAxis::atRight);

@@ -15,6 +15,8 @@
 
 #include <epan/tag_rules.h>
 
+#include <ui/qt/utils/themes/color_math.h>
+
 #include <QApplication>
 #include <QDesktopServices>
 #include <QFontInfo>
@@ -167,7 +169,17 @@ void TagColumnDelegate::paintContent(QPainter *painter, const QStyleOptionViewIt
 
     painter->save();
     painter->setClipRect(option.rect);
-    painter->setPen(Qt::black);
+    QColor text_color = option.palette.color(QPalette::Text);
+    if (option.state & QStyle::State_Selected) {
+        text_color = option.palette.color(QPalette::HighlightedText);
+    } else {
+        // The model's foreground role carries the coloring rule's text color.
+        const QVariant fg = index.data(Qt::ForegroundRole);
+        if (fg.canConvert<QBrush>() && fg.value<QBrush>().style() != Qt::NoBrush) {
+            text_color = fg.value<QBrush>().color();
+        }
+    }
+    painter->setPen(text_color);
     for (int i = 0; i < runs.size(); i++) {
         QFont f = fontForRun(runs.at(i), option);
         painter->setFont(f);

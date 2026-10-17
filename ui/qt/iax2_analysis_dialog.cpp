@@ -33,6 +33,7 @@
 #include <QTemporaryFile>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/theme_manager.h>
@@ -225,6 +226,7 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     ui->streamGraph->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->streamGraph, &QCustomPlot::customContextMenuRequested, this,
                 &Iax2AnalysisDialog::showGraphMenu);
+    PlotTheme::track(ui->streamGraph);
 
     QStringList header_labels;
     for (int i = 0; i < ui->forwardTreeWidget->columnCount(); i++) {

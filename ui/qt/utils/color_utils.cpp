@@ -8,8 +8,8 @@
  */
 
 #include <ui/qt/utils/color_utils.h>
-#include <ui/qt/utils/tango_colors.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 
 #include <QAbstractItemView>
 #include <QApplication>
@@ -132,10 +132,16 @@ void ColorUtils::paintFlatCell(QPainter *painter, const QAbstractItemView *view,
 
 const QColor ColorUtils::warningBackground()
 {
-    if (ThemeManager::isDark()) {
-        return QColor(tango_butter_6);
+    return ThemeManager::instance()->color(ThemeManager::FilterDeprecated);
+}
+
+QColor ColorUtils::rowSeparatorColor(const QPalette &palette)
+{
+    const QColor base = palette.color(QPalette::Base);
+    if (ColorMath::isDark(base)) {
+        return ColorMath::mix(base, palette.color(QPalette::Text), 0.5);
     }
-    return QColor(tango_butter_2);
+    return base;
 }
 
 const QColor ColorUtils::disabledForeground()

@@ -32,18 +32,21 @@ QLineEdit[wsValidation="valid"],
 QComboBox[wsValidation="valid"],
 QAbstractItemView[wsValidation="valid"] {
     background-color: wstheme(FilterValid);
+    color: wstheme(TextOnFilterValid);
 }
 
 QLineEdit[wsValidation="invalid"],
 QComboBox[wsValidation="invalid"],
 QAbstractItemView[wsValidation="invalid"] {
     background-color: wstheme(FilterInvalid);
+    color: wstheme(TextOnFilterInvalid);
 }
 
 QLineEdit[wsValidation="deprecated"],
 QComboBox[wsValidation="deprecated"],
 QAbstractItemView[wsValidation="deprecated"] {
     background-color: wstheme(FilterDeprecated);
+    color: wstheme(TextOnFilterDeprecated);
 }
 
 /* Labels don't paint their own background reliably; for an invalid
@@ -66,12 +69,15 @@ QLabel[wsValidation="invalid"] {
 
 SyntaxLineEdit[syntaxState="4"] {   /* Valid */
     background-color: wstheme(FilterValid);
+    color: wstheme(TextOnFilterValid);
 }
 SyntaxLineEdit[syntaxState="2"] {   /* Invalid */
     background-color: wstheme(FilterInvalid);
+    color: wstheme(TextOnFilterInvalid);
 }
 SyntaxLineEdit[syntaxState="3"] {   /* Deprecated */
     background-color: wstheme(FilterDeprecated);
+    color: wstheme(TextOnFilterDeprecated);
 }
 
 /* -------------------------------------------------------------------

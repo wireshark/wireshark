@@ -21,6 +21,8 @@
 
 #include "epan/addr_resolv.h"
 
+#include "ui/qt/utils/plot_theme.h"
+#include "ui/qt/utils/theme_manager.h"
 #include "ui/qt/widgets/qcustomplot.h"
 
 DisStreamAnalysisDialog *DisStreamAnalysisDialog::pinstance_ = nullptr;
@@ -129,11 +131,14 @@ DisStreamAnalysisDialog::DisStreamAnalysisDialog(QWidget &parent, CaptureFile &c
     audio_plot_->setInteraction(QCP::iRangeDrag, true);
     audio_plot_->setInteraction(QCP::iRangeZoom, true);
     start_marker_pos_ = new QCPItemStraightLine(audio_plot_);
-    start_marker_pos_->setPen(QPen(Qt::green, 3));
     start_marker_pos_->setVisible(false);
     playback_marker_pos_ = new QCPItemStraightLine(audio_plot_);
-    playback_marker_pos_->setPen(QPen(Qt::black, 1));
     playback_marker_pos_->setVisible(false);
+    PlotTheme::track(audio_plot_, [this]() {
+        start_marker_pos_->setPen(QPen(ThemeManager::instance()->color(ThemeManager::AccentSuccess), 3));
+        playback_marker_pos_->setPen(QPen(PlotTheme::textColor(), 1));
+    });
+
     layout->addWidget(audio_plot_);
 
     hint_label_->setTextFormat(Qt::RichText);
@@ -431,10 +436,12 @@ DisStreamAnalysisDialog::updatePlot()
         return;
     }
 
+    ThemeManager *tm = ThemeManager::instance();
+
     if (!audio_stream_->visualTimestamps().isEmpty()) {
         QCPGraph *wave_graph = audio_plot_->addGraph();
         wave_graph->setName(tr("Waveform"));
-        wave_graph->setPen(QPen(QColor(70, 110, 180)));
+        wave_graph->setPen(QPen(tm->graphColor(1)));
         wave_graph->setData(audio_stream_->visualTimestamps(), audio_stream_->visualSamples());
         audio_plot_->legend->setVisible(true);
     }
@@ -443,7 +450,7 @@ DisStreamAnalysisDialog::updatePlot()
         QCPGraph *jitter_graph = audio_plot_->addGraph();
         jitter_graph->setName(tr("Jitter Spikes"));
         jitter_graph->setLineStyle(QCPGraph::lsNone);
-        jitter_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, QColor(200, 50, 50), Qt::white, 8));
+        jitter_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, tm->color(ThemeManager::AccentError), tm->color(ThemeManager::PaletteBase), 8));
         jitter_graph->setData(audio_stream_->jitterTimestamps(), audio_stream_->jitterSamples());
         audio_plot_->legend->setVisible(true);
     }
@@ -452,7 +459,7 @@ DisStreamAnalysisDialog::updatePlot()
         QCPGraph *loss_graph = audio_plot_->addGraph();
         loss_graph->setName(tr("Estimated Loss"));
         loss_graph->setLineStyle(QCPGraph::lsNone);
-        loss_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle, QColor(230, 180, 40), Qt::white, 8));
+        loss_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle, tm->color(ThemeManager::AccentWarning), tm->color(ThemeManager::PaletteBase), 8));
         loss_graph->setData(audio_stream_->lossTimestamps(), audio_stream_->lossSamples());
         audio_plot_->legend->setVisible(true);
     }
@@ -461,7 +468,7 @@ DisStreamAnalysisDialog::updatePlot()
         QCPGraph *problem_graph = audio_plot_->addGraph();
         problem_graph->setName(tr("Problem Packets"));
         problem_graph->setLineStyle(QCPGraph::lsNone);
-        problem_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond, QColor(60, 140, 220), Qt::white, 8));
+        problem_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond, tm->color(ThemeManager::AccentInfo), tm->color(ThemeManager::PaletteBase), 8));
         problem_graph->setData(audio_stream_->problemTimestamps(), audio_stream_->problemSamples());
         audio_plot_->legend->setVisible(true);
     }

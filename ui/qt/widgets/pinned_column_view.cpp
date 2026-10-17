@@ -235,7 +235,7 @@ void PinnedColumnView::drawRow(QPainter *painter, const QStyleOptionViewItem &op
 
     if (prefs.gui_packet_list_separator) {
         QRect rect = visualRect(index);
-        painter->setPen(QColor(Qt::white));
+        painter->setPen(ColorUtils::rowSeparatorColor(palette()));
         painter->drawLine(0, rect.y() + rect.height() - 1, width(), rect.y() + rect.height() - 1);
     }
 }

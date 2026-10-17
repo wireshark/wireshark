@@ -21,12 +21,13 @@
 #include <epan/prefs-int.h>
 #include <wsutil/utf8_entities.h>
 
-#include <ui/qt/utils/tango_colors.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "progress_frame.h"
 #include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include "ui/qt/widgets/qcp_axis_ticker_si.h"
+#include "ui/qt/utils/plot_theme.h"
+#include "ui/qt/utils/theme_manager.h"
 #include "ui/recent.h"
 
 #include <QCursor>
@@ -59,14 +60,11 @@
 const int moving_avg_period_ = 20;
 #endif
 
-const QRgb graph_color_1 = tango_sky_blue_5;
-const QRgb graph_color_2 = tango_butter_6;
-const QRgb graph_color_3 = tango_chameleon_5;
-const QRgb graph_color_4 = tango_scarlet_red_4;
-const QRgb graph_color_5 = tango_scarlet_red_6;
-
 // Size of selectable packet points in the base graph
 const double pkt_point_size_ = 3.0;
+
+// Pen width of the stream series
+const qreal series_pen_width_ = 0.5;
 
 // Don't accidentally zoom into a 1x1 rect if you happen to click on the graph
 // in zoom mode.
@@ -307,20 +305,16 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     sp->plotLayout()->insertRow(0);
     sp->plotLayout()->addElement(0, 0, title_);
 
-    qreal pen_width = 0.5;
     // Base Graph - enables selecting segments (both data and SACKs)
     base_graph_ = sp->addGraph();
-    base_graph_->setPen(QPen(QBrush(graph_color_1), pen_width));
 
     // Throughput Graph - rate of sent bytes
     tput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
-    tput_graph_->setPen(QPen(QBrush(graph_color_2), pen_width));
     tput_graph_->setLineStyle(QCPGraph::lsStepLeft);
     tput_graph_->setName(tr("Throughput"));
 
     // Goodput Graph - rate of ACKed bytes
     goodput_graph_ = sp->addGraph(sp->xAxis, sp->yAxis2);
-    goodput_graph_->setPen(QPen(QBrush(graph_color_3), pen_width));
     goodput_graph_->setLineStyle(QCPGraph::lsStepLeft);
     goodput_graph_->setName(tr("Goodput"));
 
@@ -331,7 +325,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     seg_graph_->setName(tr("Segments"));
     seg_eb_ = new QCPErrorBarsNotSelectable(sp->xAxis, sp->yAxis);
     seg_eb_->setErrorType(QCPErrorBars::etValueError);
-    seg_eb_->setPen(QPen(QBrush(graph_color_1), pen_width));
     seg_eb_->setSymbolGap(0.0); // draw error spine as single line
     seg_eb_->setWhiskerWidth(pkt_point_size_);
     seg_eb_->setName(tr("Segments"));
@@ -339,23 +332,12 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
 
     // Ack Graph - displays ack numbers from reverse packets
     ack_graph_ = sp->addGraph();
-    ack_graph_->setPen(QPen(QBrush(graph_color_2), pen_width));
     ack_graph_->setLineStyle(QCPGraph::lsStepLeft);
     ack_graph_->setName(tr("ACK"));
 
     // Duplicate ACK Graph - displays duplicate ack ticks
-    // QCustomPlot doesn't have QCPScatterStyle::ssTick so we have to make our own.
-    int tick_len = 3;
-    tick_len *= devicePixelRatio();
-    QPainterPath da_path;
-    da_path.lineTo(0, tick_len);
-    QPen da_tick_pen;
-    da_tick_pen.setColor(graph_color_2);
-    da_tick_pen.setWidthF(pen_width);
-    QCPScatterStyle da_ss = QCPScatterStyle(da_path, da_tick_pen);
     dup_ack_graph_ = new DupAckGraph(sp->xAxis, sp->yAxis);
     dup_ack_graph_->setLineStyle(QCPGraph::lsNone);
-    dup_ack_graph_->setScatterStyle(da_ss);
     dup_ack_graph_->setName(tr("Dup ACKs"));
 
     // Sack Graph - displays highest number (most recent) SACK block
@@ -365,7 +347,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     sack_graph_->setName(tr("SACK"));
     sack_eb_ = new QCPErrorBarsNotSelectable(sp->xAxis, sp->yAxis);
     sack_eb_->setErrorType(QCPErrorBars::etValueError);
-    sack_eb_->setPen(QPen(QBrush(graph_color_4), pen_width));
     sack_eb_->setSymbolGap(0.0); // draw error spine as single line
     sack_eb_->setWhiskerWidth(0.0);
     sack_eb_->setName(tr("Most recent SACK"));
@@ -378,7 +359,6 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     sack2_graph_->setName(tr("SACK 2"));
     sack2_eb_ = new QCPErrorBarsNotSelectable(sp->xAxis, sp->yAxis);
     sack2_eb_->setErrorType(QCPErrorBars::etValueError);
-    sack2_eb_->setPen(QPen(QBrush(graph_color_5), pen_width));
     sack2_eb_->setSymbolGap(0.0); // draw error spine as single line
     sack2_eb_->setWhiskerWidth(0.0);
     sack2_eb_->setName(tr("Subsequent SACKs"));
@@ -386,14 +366,12 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
 
     // RWin graph - displays upper extent of RWIN advertised on reverse packets
     rwin_graph_ = sp->addGraph();
-    rwin_graph_->setPen(QPen(QBrush(graph_color_3), pen_width));
     rwin_graph_->setLineStyle(QCPGraph::lsStepLeft);
     rwin_graph_->setName(tr("Receive Window"));
 
     // Zero Window Graph - displays zero window crosses (x)
     zero_win_graph_ = sp->addGraph();
     zero_win_graph_->setLineStyle(QCPGraph::lsNone);
-    zero_win_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, graph_color_1, 5));
     zero_win_graph_->setName(tr("Zero Window"));
 
     // Most graphs have Seconds as the x-Axis
@@ -426,8 +404,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
 
     sp->setMouseTracking(true);
 
-    sp->yAxis->setLabelColor(QColor(graph_color_1));
-    sp->yAxis->setTickLabelColor(QColor(graph_color_1));
+    PlotTheme::track(sp, [this]() { applySeriesColors(); });
 
     tracer_->setVisible(false);
     toggleTracerStyle(true);
@@ -663,6 +640,50 @@ void TCPStreamDialog::findStream()
 
     tapping_ = true;
     graph_segment_list_get(cap_file_.capFile(), &graph_);
+}
+
+// Series and the colored y axes follow the theme's graph colors, which
+// change with the theme and with light/dark mode.
+void TCPStreamDialog::applySeriesColors()
+{
+    QCustomPlot *sp = ui->streamPlot;
+    const ThemeManager *tm = ThemeManager::instance();
+    auto set_pen = [](QCPAbstractPlottable *p, const QColor &c) {
+        p->setPen(QPen(QBrush(c), series_pen_width_));
+    };
+    const QColor c1 = tm->graphColor(1);
+    const QColor c2 = tm->graphColor(2);
+    const QColor c3 = tm->graphColor(3);
+    set_pen(base_graph_, c1);
+    set_pen(tput_graph_, c2);
+    set_pen(goodput_graph_, c3);
+    set_pen(seg_eb_, c1);
+    set_pen(ack_graph_, c2);
+    set_pen(sack_eb_, tm->graphColor(4));
+    set_pen(sack2_eb_, tm->graphColor(5));
+    set_pen(rwin_graph_, c3);
+
+    // QCustomPlot doesn't have QCPScatterStyle::ssTick so we have to make our own.
+    const int tick_len = 3 * devicePixelRatio();
+    QPainterPath da_path;
+    da_path.lineTo(0, tick_len);
+    QPen da_tick_pen(c2);
+    da_tick_pen.setWidthF(series_pen_width_);
+    dup_ack_graph_->setScatterStyle(QCPScatterStyle(da_path, da_tick_pen));
+    zero_win_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCross, c1, 5));
+
+    sp->yAxis->setLabelColor(c1);
+    sp->yAxis->setTickLabelColor(c1);
+    applyYAxis2Color();
+}
+
+void TCPStreamDialog::applyYAxis2Color()
+{
+    QCustomPlot *sp = ui->streamPlot;
+    const ThemeManager *tm = ThemeManager::instance();
+    const QColor y2 = tm->graphColor(graph_.type == GRAPH_WSCALE ? 3 : 2);
+    sp->yAxis2->setLabelColor(y2);
+    sp->yAxis2->setTickLabelColor(y2);
 }
 
 void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
@@ -1424,8 +1445,7 @@ void TCPStreamDialog::fillThroughput()
     QCustomPlot *sp = ui->streamPlot;
     sp->yAxis->setLabel(segment_length_label_);
     sp->yAxis2->setLabel(average_throughput_label_);
-    sp->yAxis2->setLabelColor(QColor(graph_color_2));
-    sp->yAxis2->setTickLabelColor(QColor(graph_color_2));
+    applyYAxis2Color();
     setAxisUnits(sp->yAxis2, FORMAT_SIZE_UNIT_BITS_S);
     sp->yAxis2->setVisible(true);
 
@@ -1914,8 +1934,7 @@ void TCPStreamDialog::fillWindowScale()
      */
     sp->yAxis->setLabel(cwnd_label_);
     sp->yAxis2->setLabel(window_size_label_);
-    sp->yAxis2->setLabelColor(QColor(graph_color_3));
-    sp->yAxis2->setTickLabelColor(QColor(graph_color_3));
+    applyYAxis2Color();
     setAxisUnits(sp->yAxis2, FORMAT_SIZE_UNIT_BYTES);
 
     sp->yAxis2->setVisible(true);

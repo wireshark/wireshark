@@ -258,8 +258,12 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
 #endif
         for (QPalette::ColorRole role : brandRoles) {
             // Links follow an explicit selection color rather than brand.primary.
-            const QColor c = (role == QPalette::Link && explicitHighlight.isValid())
+            QColor c = (role == QPalette::Link && explicitHighlight.isValid())
                     ? explicitHighlight : brandPrimary;
+            // Link text is drawn on Base, so a dark brand color must be
+            // lifted until it stays readable there in either scheme.
+            if (role == QPalette::Link)
+                c = ColorMath::ensureContrast(c, baseColor, 4.5);
             pal.setColor(QPalette::Active,   role, c);
             pal.setColor(QPalette::Inactive, role, c);
             pal.setColor(QPalette::Disabled, role, ColorMath::disabled(c, baseColor));

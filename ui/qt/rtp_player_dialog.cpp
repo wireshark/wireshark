@@ -30,10 +30,10 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/widgets/qcustomplot.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_audio_stream.h"
-#include <ui/qt/utils/tango_colors.h>
 #include <widgets/rtp_audio_graph.h>
 #include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
@@ -222,7 +222,6 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     cur_play_pos_->setVisible(false);
 
     start_marker_pos_ = new QCPItemStraightLine(ui->audioPlot);
-    start_marker_pos_->setPen(QPen(Qt::green,4));
     setStartPlayMarker(0);
     drawStartPlayMarker();
     start_marker_pos_->setVisible(true);
@@ -232,6 +231,9 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
 
     datetime_ticker_->setDateTimeFormat("yyyy-MM-dd\nhh:mm:ss.zzz");
 
+    PlotTheme::track(ui->audioPlot, [this]() {
+        start_marker_pos_->setPen(QPen(ThemeManager::instance()->color(ThemeManager::AccentSuccess), 4));
+    });
     ui->audioPlot->xAxis->setNumberFormat("gb");
     ui->audioPlot->xAxis->setNumberPrecision(3);
     ui->audioPlot->xAxis->setTicker(datetime_ticker_);
@@ -526,6 +528,9 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
 
     ui->audioPlot->clearGraphs();
 
+    ThemeManager *tm = ThemeManager::instance();
+    const QColor scatter_fill = tm->color(ThemeManager::PaletteBase);
+
     if (relative_timestamps) {
         ui->audioPlot->xAxis->setTicker(number_ticker_);
     } else {
@@ -591,7 +596,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             // Sequence numbers
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
-            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, tango_aluminium_6, Qt::white, mainApp->font().pointSize())); // Arbitrary
+            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, PlotTheme::textColor(), scatter_fill, mainApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->outOfSequenceTimestamps(relative_timestamps), audio_stream->outOfSequenceSamples(y_offset));
             ti->setData(graph_sequence_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
@@ -607,7 +612,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             // Jitter drops
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
-            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, tango_scarlet_red_5, Qt::white, mainApp->font().pointSize())); // Arbitrary
+            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, tm->color(ThemeManager::AccentError), scatter_fill, mainApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->jitterDroppedTimestamps(relative_timestamps), audio_stream->jitterDroppedSamples(y_offset));
             ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
@@ -623,7 +628,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             // Wrong timestamps
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
-            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond, tango_sky_blue_5, Qt::white, mainApp->font().pointSize())); // Arbitrary
+            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond, tm->color(ThemeManager::AccentInfo), scatter_fill, mainApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->wrongTimestampTimestamps(relative_timestamps), audio_stream->wrongTimestampSamples(y_offset));
             ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
@@ -639,7 +644,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             // Inserted silence
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
-            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle, tango_butter_5, Qt::white, mainApp->font().pointSize())); // Arbitrary
+            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle, tm->color(ThemeManager::AccentWarning), scatter_fill, mainApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->insertedSilenceTimestamps(relative_timestamps), audio_stream->insertedSilenceSamples(y_offset));
             ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));

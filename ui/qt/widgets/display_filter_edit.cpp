@@ -25,6 +25,7 @@
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/filter_action.h>
 #include <ui/qt/display_filter_expression_dialog.h>
@@ -309,7 +310,7 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
         // Draw the borders by hand. We could try to do this in the
         // style sheet but it's a pain.
 #ifdef Q_OS_MACOS
-        QColor divider_color = Qt::gray;
+        QColor divider_color = ThemeManager::instance()->color(ThemeManager::FieldBorder);
 #else
         QColor divider_color = palette().shadow().color();
 #endif

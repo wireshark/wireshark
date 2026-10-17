@@ -280,6 +280,7 @@ void ThemeManager::init(const QString &theme)
 void ThemeManager::cleanup()
 {
     themeColors_.clear();
+    parsedColors_.clear();
     graphColors_.clear();
     info_ = ThemeInfo();
 }
@@ -490,6 +491,10 @@ void ThemeManager::reapplyForSchemeChange()
     // that reacts to that event and reads a ThemeManager token must find the
     // token map already up to date.  Building the palette without applying it
     // first lets us complete token derivation before the signal fires.
+    // Start from the parsed map: deriveAll() only fills tokens that are
+    // absent, so re-deriving over the previous scheme's results would keep
+    // its stale values.
+    themeColors_ = parsedColors_;
     const QPalette newPalette = ThemePaletteBuilder::build(themeColors_, isDarkMode(), colorRoleCache_, paletteRoleCache_, baselineForBuild());
     ThemeTokenHandler::deriveAll(themeColors_, isDarkMode(), newPalette);
     QApplication::setPalette(newPalette);
@@ -769,7 +774,8 @@ bool ThemeManager::loadTheme(const QString &theme)
     // returns false only for hard failures, so on success we can take
     // the result wholesale.
     info_           = result.info;
-    themeColors_    = result.colors;
+    parsedColors_   = result.colors;
+    themeColors_    = parsedColors_;
     graphColors_    = result.graphColors;
 
     // Build the palette, derive tokens against it, then push it to

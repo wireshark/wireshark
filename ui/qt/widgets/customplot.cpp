@@ -13,6 +13,8 @@
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/widgets/customplot.h>
+#include <ui/qt/utils/plot_theme.h>
+#include <ui/qt/utils/theme_manager.h>
 
 static const QString marker_title_object_name_ = "marker_title_%1";
 static const QString marker_label_object_name_ = "marker_label_%1";
@@ -67,6 +69,57 @@ void CustomPlot::clearMarkerDifferences()
     }
 }
 
+void CustomPlot::styleMarkerTitle(QCPItemText* title) const
+{
+    ThemeManager* tm = ThemeManager::instance();
+    title->setBrush(QBrush(tm->color(ThemeManager::PaletteHighlight)));
+    title->setColor(tm->color(ThemeManager::PaletteHighlightedText));
+}
+
+void CustomPlot::styleMarkerLine(QCPItemStraightLine* line) const
+{
+    QPen pen(ThemeManager::instance()->color(ThemeManager::MutedText));
+    pen.setStyle(Qt::DashLine);
+    pen.setWidth(1);
+    line->setPen(pen);
+}
+
+void CustomPlot::styleMarkerDiffLine(QCPItemLine* line) const
+{
+    line->setPen(QPen(ThemeManager::instance()->color(ThemeManager::MutedText)));
+}
+
+void CustomPlot::styleMarkerText(QCPItemText* label) const
+{
+    label->setColor(PlotTheme::textColor());
+}
+
+void CustomPlot::applyMarkerColors()
+{
+    for (const Marker* m : markers()) {
+        const int idx = m->index();
+        if (QCPItemText* title = markerTitle(idx)) {
+            styleMarkerTitle(title);
+        }
+        for (int i = 0; i < axisRectCount() - 1; i++) {
+            if (QCPItemStraightLine* line = markerLine(idx, i)) {
+                styleMarkerLine(line);
+            }
+        }
+        for (int g = 0; g < graphCount(); g++) {
+            if (QCPItemText* dataPoint = markerDataPoint(itemIndex(idx, g))) {
+                styleMarkerText(dataPoint);
+            }
+        }
+    }
+    for (QCPItemLine* line : findChildren<QCPItemLine*>(marker_diff_line_object_name_)) {
+        styleMarkerDiffLine(line);
+    }
+    for (QCPItemText* label : findChildren<QCPItemText*>(marker_diff_label_object_name_)) {
+        styleMarkerText(label);
+    }
+}
+
 void CustomPlot::showMarkerDifferences()
 {
     const QList<const Marker*> ordered = orderedMarkers(visibleMarkers());
@@ -85,13 +138,13 @@ void CustomPlot::showMarkerDifferences()
             line->end->setCoords(x2, y_diff);
             line->setHead(QCPLineEnding(QCPLineEnding::esSpikeArrow, 10, 5));
             line->setTail(QCPLineEnding(QCPLineEnding::esSpikeArrow, 10, 5));
-            line->setPen(QPen(Qt::gray));
+            styleMarkerDiffLine(line);
 
             QCPItemText* label = new QCPItemText(this);
             label->setObjectName(marker_diff_label_object_name_);
             label->setPositionAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
             label->setFont(QFont(font().family(), 8, QFont::DemiBold));
-            label->setColor(Qt::black);
+            styleMarkerText(label);
             label->setBrush(QBrush(Qt::transparent));
 
             double difference = qAbs(x2 - x1);
@@ -128,9 +181,8 @@ void CustomPlot::addTitleMarker(const Marker* marker)
     updateQCPItemText(mTitle, marker->name(), QPointF(marker->xCoord(), axisRect(0)->axis(QCPAxis::AxisType::atLeft)->range().upper));
     mTitle->setFont(QFont(font().family(), 10, QFont::Bold));
     mTitle->setPadding(QMargins(3, 0, 3, 0));
-    mTitle->setColor(Qt::lightGray);
     mTitle->setPositionAlignment(Qt::AlignHCenter | Qt::AlignTop);
-    mTitle->setBrush(QBrush(Qt::darkBlue));
+    styleMarkerTitle(mTitle);
     mTitle->pen().setWidth(150);
     mTitle->setObjectName(marker_title_object_name_.arg(marker->index()));
 }
@@ -176,10 +228,7 @@ void CustomPlot::addMarkerElements(const Marker* marker)
         const QCPAxis* axis = axisRect(i)->axis(QCPAxis::AxisType::atLeft);
         QCPItemStraightLine* mLine = markerLine(marker->index(), i, true);
         mLine->setVisible(visible);
-        QPen pen(Qt::darkGray);
-        pen.setStyle(Qt::DashLine);
-        pen.setWidth(1);
-        mLine->setPen(pen);
+        styleMarkerLine(mLine);
         mLine->setClipToAxisRect(true);
         mLine->setClipAxisRect(axisRect(i));
         mLine->point1->setCoords(marker->xCoord(), axis->range().lower);
@@ -241,7 +290,7 @@ void CustomPlot::addDataPointsMarker(QCPGraph* graph, int graph_idx, const int m
     QCPItemText* dataPoint = markerDataPoint(itemIndex(marker_idx, graph_idx), true);
     visible = visible && canAddDataPoint(graph, x);
     dataPoint->setFont(QFont(font().family(), 8, QFont::Medium));
-    dataPoint->setColor(Qt::black);
+    styleMarkerText(dataPoint);
     updateDataPointMarker(dataPoint, x, graph, visible);
 }
 
