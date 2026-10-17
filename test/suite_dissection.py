@@ -9,6 +9,7 @@
 '''Dissection tests'''
 
 import os.path
+import struct
 import subprocess
 import sys
 
@@ -3620,6 +3621,50 @@ class TestDissectUsbHid:
                 '-Tfields', '-eusbhid.data.padding',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '03,ff07\n01,b907\n00,0000'
+
+class TestDissectUsbPtp:
+    def test_usb_ptp_class_data_type(self, cmd_text2pcap, cmd_tshark, result_file, test_env):
+        '''PTP must not use class data that another USB class stored on its interface.'''
+        def urb(urb_id, event, xfer_type, endpoint, setup=None, data=b''):
+            # Linux usbmon header (LINKTYPE_USB_LINUX_MMAPPED) followed by the data
+            setup_flag = 0 if setup else ord('-')
+            data_flag = 0 if data else ord('<')
+            status = -115 if event == 'S' else 0
+            return struct.pack('<QBBBBHbbqiiII8siiII', urb_id, ord(event), xfer_type, endpoint, 1, 1,
+                               setup_flag, data_flag, 0, 0, status, len(data), len(data),
+                               setup or bytes(8), 0, 0, 0, 0) + data
+
+        config_descriptor = bytes.fromhex(
+            '090239000201008032'    # configuration, 2 interfaces
+            '09040000010a000000'    # interface 0, alternate setting 0: CDC Data
+            '07058102000200'        # bulk IN endpoint 0x81
+            '090400010106010100'    # interface 0, alternate setting 1: Still Image (PTP)
+            '07058102000200'        # bulk IN endpoint 0x81
+            '090401000106010100'    # interface 1: Still Image (PTP)
+            '07058202000200')       # bulk IN endpoint 0x82
+        ptp_response = bytes.fromhex('0c00000003000120' '01000000')    # OK, transaction 1
+        packets = [
+            urb(1, 'S', 2, 0x80, setup=bytes.fromhex('8006000200003900')),    # GET_DESCRIPTOR
+            urb(1, 'C', 2, 0x80, data=config_descriptor),
+            urb(2, 'C', 3, 0x81, data=bytes(4)),                             # CDC Data on interface 0
+            urb(3, 'S', 2, 0x00, setup=bytes.fromhex('010b010000000000')),    # SET_INTERFACE 0 to setting 1
+            urb(4, 'C', 3, 0x81, data=ptp_response),                         # PTP on interface 0
+            urb(5, 'C', 3, 0x82, data=ptp_response),                         # PTP on interface 1
+        ]
+        text_file = result_file('usb-ptp.txt')
+        capture = result_file('usb-ptp.pcapng')
+        with open(text_file, 'w') as f:
+            for packet in packets:
+                f.write(f'000000  {packet.hex(" ")}\n')
+        subprocess.check_call((cmd_text2pcap, '-q', '-l', '220', text_file, capture), env=test_env)
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture,
+                '-Y', 'usbcom || usb-ptp.container.length',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        # Interface 0's class data belongs to CDC Data, so PTP leaves frame 5 undissected.
+        assert stdout == '3\tUSBCOM\n6\tUSB-PTP\n'
 
 class TestDissectUltraEthernet:
     def test_uet_crc(self, cmd_tshark, capture_file, test_env):
