@@ -30,16 +30,23 @@ FollowStreamText::FollowStreamText(QWidget *parent) :
 {
     setMouseTracking(true);
 //    setMaximumBlockCount(1);
-    QTextDocument *text_doc = document();
-    /* https://qt-project.atlassian.net/browse/QTBUG-715
-     * Zooming a Q[Plain]TextEdit uses the text edit's font, not
-     * the document's default font. Set both. (#21137)
-     * XXX - Should we pass true to monospaceFont so as to default
-     * to the zoomed size? (Cf. #13992) */
-    text_doc->setDefaultFont(FontManager::monospaceFont());
-    setFont(FontManager::monospaceFont());
+    // Own the font: start at the current zoom level and follow the
+    // FontManager for later zoom and monospace font changes, so the
+    // stream text scales together with the rest of the dialog.
+    connect(FontManager::instance(), &FontManager::monospaceFontChanged,
+            this, &FollowStreamText::setMonospaceFont);
+    setMonospaceFont(FontManager::zoomedMonospaceFont());
 
     metainfo_fg_ = ColorUtils::alphaBlend(palette().windowText(), palette().window(), 0.35);
+}
+
+void FollowStreamText::setMonospaceFont(const QFont &mono_font)
+{
+    /* https://qt-project.atlassian.net/browse/QTBUG-715
+     * Zooming a Q[Plain]TextEdit uses the text edit's font, not
+     * the document's default font. Set both. (#21137) */
+    document()->setDefaultFont(mono_font);
+    setFont(mono_font);
 }
 
 const int FollowStreamText::max_document_length_ = 500 * 1000 * 1000; // Just a guess

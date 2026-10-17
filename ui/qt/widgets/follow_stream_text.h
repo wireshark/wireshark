@@ -91,6 +91,12 @@ public slots:
      */
     void clear();
 
+    /**
+     * @brief Applies a monospace font to the document and the widget.
+     * @param mono_font The font to use, normally the zoomed monospace font.
+     */
+    void setMonospaceFont(const QFont &mono_font);
+
 private:
     /**
      * @brief Maps a character position in the text edit to its corresponding packet number.
