@@ -54,6 +54,7 @@
 #define FUN_EXT             'u'
 #define MAP_EXT             't'
 #define LOCAL_EXT           'y'
+#define RECORD_EXT          'C'
 
 #define DIST_HEADER         'D'
 #define DIST_FRAG_HEADER    'E'
@@ -103,6 +104,7 @@ static const value_string etf_tag_vals[] = {
   { FUN_EXT             , "FUN_EXT" },
   { MAP_EXT             , "MAP_EXT" },
   { LOCAL_EXT           , "LOCAL_EXT" },
+  { RECORD_EXT          , "RECORD_EXT" },
   { DIST_HEADER         , "DIST_HEADER" },
   { DIST_FRAG_HEADER    , "DIST_FRAG_HEADER" },
   { ATOM_CACHE_REF      , "ATOM_CACHE_REF" },
@@ -244,6 +246,10 @@ static int hf_erldp_new_fun_ext_arity;
 static int hf_erldp_new_fun_ext_uniq;
 static int hf_erldp_new_fun_ext_index;
 static int hf_erldp_new_fun_ext_num_free;
+static int hf_erldp_record_ext_num_fields;
+static int hf_erldp_record_ext_flags;
+static int hf_erldp_record_ext_flags_exported;
+static int hf_erldp_record_ext_flags_reserved;
 static int hf_erldp_altact_flags;
 static int hf_erldp_altact_flags_prio;
 static int hf_erldp_altact_flags_token;
@@ -283,6 +289,7 @@ static int ett_etf_acrs;
 static int ett_etf_acr;
 static int ett_etf_tmp;
 static int ett_etf_altact_flags;
+static int ett_etf_record_flags;
 
 static int ett_etf_fragment;
 static int ett_etf_fragments;
@@ -454,6 +461,12 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
   uint32_t len, i, uint_val;
   uint32_t id;
   const uint8_t *str_val;
+
+  static int * const record_flags[] = {
+    &hf_erldp_record_ext_flags_reserved,
+    &hf_erldp_record_ext_flags_exported,
+    NULL
+  };
 
   increment_dissection_depth(pinfo);
 
@@ -699,6 +712,27 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
       offset = dissect_etf_type("Module", pinfo, tvb, offset, tree);
       offset = dissect_etf_type("Function", pinfo, tvb, offset, tree);
       offset = dissect_etf_type("Arity", pinfo, tvb, offset, tree);
+      break;
+
+    case RECORD_EXT:
+      proto_tree_add_item_ret_uint(tree, hf_erldp_record_ext_num_fields, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
+      offset += 4;
+      proto_tree_add_bitmask(tree, tvb, offset, hf_erldp_record_ext_flags,
+                             ett_etf_record_flags, record_flags, ENC_NA);
+      offset += 1;
+      offset = dissect_etf_type("Module", pinfo, tvb, offset, tree);
+      offset = dissect_etf_type("Name", pinfo, tvb, offset, tree);
+
+      for (i = 0; i < len; i++) {
+          char buf[ITEM_LABEL_LENGTH];
+          snprintf(buf, sizeof(buf), "Field Name[%u]", i + 1);
+          offset = dissect_etf_type(buf, pinfo, tvb, offset, tree);
+      }
+      for (i = 0; i < len; i++) {
+          char buf[ITEM_LABEL_LENGTH];
+          snprintf(buf, sizeof(buf), "Value[%u]", i + 1);
+          offset = dissect_etf_type(buf, pinfo, tvb, offset, tree);
+      }
       break;
   }
 
@@ -1343,6 +1377,18 @@ void proto_register_erldp(void) {
     { &hf_erldp_new_fun_ext_num_free, { "Num Free", "erldp.new_fun_ext.num_free",
                         FT_UINT32, BASE_DEC, NULL, 0x0,
                         NULL, HFILL}},
+    { &hf_erldp_record_ext_num_fields, { "Num Fields", "erldp.record_ext.num_fields",
+                        FT_UINT32, BASE_DEC, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_record_ext_flags, { "Flags", "erldp.record_ext.flags",
+                        FT_UINT8, BASE_HEX, NULL, 0x0,
+                        NULL, HFILL}},
+    { &hf_erldp_record_ext_flags_exported, { "Exported", "erldp.record_ext.flags.exported",
+                        FT_BOOLEAN, 8, NULL, 0x01,
+                        "The record is exported from its module", HFILL}},
+    { &hf_erldp_record_ext_flags_reserved, { "Reserved", "erldp.record_ext.flags.reserved",
+                        FT_UINT8, BASE_HEX, NULL, 0xfe,
+                        NULL, HFILL}},
     { &hf_erldp_altact_flags, { "AltAct Flags", "erldp.altact_flags",
                         FT_UINT8, BASE_HEX, NULL, 0x0,
                         "ALTACT_SIG_SEND flags", HFILL}},
@@ -1452,6 +1498,7 @@ void proto_register_erldp(void) {
     &ett_etf_acr,
     &ett_etf_tmp,
     &ett_etf_altact_flags,
+    &ett_etf_record_flags,
     &ett_etf_fragment,
     &ett_etf_fragments,
   };

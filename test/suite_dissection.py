@@ -1013,6 +1013,19 @@ class TestDissectErldp:
             '7\t0x10\tFalse\tFalse\tFalse\tFalse\tTrue',   # an exit signal
         ]
 
+    def test_erldp_record_ext(self, cmd_tshark, capture_file, test_env):
+        '''A native record (OTP 29) is decoded, and so is the term after it'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_record.pcap'),
+                '-d', 'tcp.port==45000,erldp',
+                '-T', 'fields', '-e', 'erldp.record_ext.num_fields',
+                '-e', 'erldp.record_ext.flags.exported', '-e', 'erldp.atom_text',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\tTrue\ta@127.0.0.1,b@127.0.0.1,users,user,name,age,done',
+            '0\tFalse\ta@127.0.0.1,b@127.0.0.1,shop,empty,done',
+        ]
+
 class TestDissectTcp:
     @staticmethod
     def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=None):
