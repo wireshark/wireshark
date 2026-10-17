@@ -253,6 +253,9 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
         emit validityChanged(s == FilterEdit::SyntaxState::Valid ||
                              s == FilterEdit::SyntaxState::Deprecated);
     });
+    // updateApplyEnabled() holds the apply action off while a debounced
+    // validation is pending (the state is stale); re-evaluate once it has run.
+    connect(this, &FilterEdit::validated, this, &FilterExpressionEdit::updateApplyEnabled);
     connect(this, &QLineEdit::returnPressed, this, &FilterExpressionEdit::applyExpression);
 
     // Button widths change with zoom; keep the reserved text margins in step so
@@ -473,6 +476,7 @@ void FilterExpressionEdit::updateApplyEnabled()
     // is only "nothing to do" when no filter is currently applied.
     apply_button_->setEnabled(apply_visible_ &&
                               text() != applied_expression_ &&
+                              !isValidationPending() &&
                               state() != FilterEdit::SyntaxState::Invalid);
 }
 

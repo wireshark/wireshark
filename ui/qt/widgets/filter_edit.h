@@ -105,6 +105,13 @@ signals:
     /** @brief Emitted whenever the syntax state changes. */
     void syntaxStateChanged(FilterEdit::SyntaxState state);
 
+    /**
+     * @brief Emitted after every validation run, whether or not the state
+     *        changed. Lets subclasses refresh anything that was held back while
+     *        a debounced validation was pending.
+     */
+    void validated();
+
 protected:
     /**
      * @brief Sets the state, re-polishes the style for the new QSS property, and
@@ -113,6 +120,9 @@ protected:
     void setState(SyntaxState state);
 
     void paintEvent(QPaintEvent *event) override;
+
+    /** @brief True while a debounced validation is queued, i.e. state() is stale. */
+    bool isValidationPending() const;
 
     /**
      * @brief Runs the validator against the current text and updates the state.
