@@ -202,8 +202,11 @@ void FilterEdit::paintEvent(QPaintEvent *event)
     QStyleOptionFrame opt;
     initStyleOption(&opt);
 
-    // get rect
-    const QRect cr = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this);
+    // Contents rect minus the reserved text margins: subclasses such as
+    // FilterExpressionEdit reserve those for inline buttons and paint an opaque
+    // neutral strip over them after this runs, which would hide the icon.
+    const QRect cr = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this)
+                         .marginsRemoved(textMargins());
     QRect sir(0, 0, 14, 14); 
     const int textWidth = fontMetrics().boundingRect(text()).width();
     const int margin = 2 * 6 + 1;
