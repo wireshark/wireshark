@@ -27,6 +27,7 @@
 
 #include "main_application.h"
 
+#include <QBoxLayout>
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QDir>
@@ -306,6 +307,21 @@ void WelcomePage::showEvent(QShowEvent *event)
  */
 void WelcomePage::updateSidebarLayout()
 {
+    // Open and Capture go side-by-side if preferred, there are recent files
+    // to list, and each column gets at least kMinColumnWidth; otherwise
+    // they are stacked. The container width doesn't depend on the direction,
+    // so this can't oscillate.
+    static const int kMinColumnWidth = 320;
+    QBoxLayout *content = welcome_ui_->mainContentLayout;
+    static const int kColumnSpacing = 24;
+    bool sideBySide = recent.gui_welcome_page_side_by_side &&
+            !WorkspaceState::instance()->recentCaptureFiles().isEmpty() &&
+            welcome_ui_->mainContentContainer->width() >= 2 * kMinColumnWidth + kColumnSpacing;
+    content->setDirection(sideBySide ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+    content->setSpacing(sideBySide ? kColumnSpacing : -1);
+    content->setStretch(0, sideBySide ? 1 : 0);
+    content->setStretch(1, sideBySide ? 1 : 0);
+
     int available = welcome_ui_->sidebarContainer->height();
     if (available <= 0)
         return;

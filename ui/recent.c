@@ -89,6 +89,7 @@
 #define RECENT_GUI_TSD_MA_WINDOW_SIZE           "gui.tsd_ma_window_size"
 #define RECENT_GUI_TSD_THROUGHPUT_SHOW          "gui.tsd_throughput_show"
 #define RECENT_GUI_TSD_GOODPUT_SHOW             "gui.tsd_goodput_show"
+#define RECENT_KEY_SIDE_BY_SIDE                 "gui.welcome_page.side_by_side"
 #define RECENT_KEY_SIDEBAR_LEARN_VISIBLE        "gui.welcome_page.sidebar.learn_visible"
 #define RECENT_KEY_SIDEBAR_TIPS_VISIBLE         "gui.welcome_page.sidebar.tips_visible"
 #define RECENT_KEY_THEME_NAME                   "gui.theme_name"
@@ -991,6 +992,10 @@ write_recent(void)
     write_recent_enum(rf, "Find packet search type", RECENT_GUI_SEARCH_TYPE, search_type_values,
                       recent.gui_search_type);
 
+    write_recent_boolean(rf, "Welcome page prefer Open and Capture side-by-side",
+            RECENT_KEY_SIDE_BY_SIDE,
+            recent.gui_welcome_page_side_by_side);
+
     write_recent_boolean(rf, "Welcome page sidebar Learn section visible",
             RECENT_KEY_SIDEBAR_LEARN_VISIBLE,
             recent.gui_welcome_page_sidebar_learn_visible);
@@ -1402,6 +1407,8 @@ read_set_recent_common_pair_static(char *key, const char *value,
         recent.gui_search_type = (search_type_type)str_to_val(value, search_type_values, SEARCH_TYPE_DISPLAY_FILTER);
     } else if (strcmp(key, RECENT_GUI_CUSTOM_COLORS) == 0) {
         recent.custom_colors = prefs_get_string_list(value);
+    } else if (strcmp(key, RECENT_KEY_SIDE_BY_SIDE) == 0) {
+        parse_recent_boolean(value, &recent.gui_welcome_page_side_by_side);
     } else if (strcmp(key, RECENT_KEY_SIDEBAR_LEARN_VISIBLE) == 0) {
         parse_recent_boolean(value, &recent.gui_welcome_page_sidebar_learn_visible);
     } else if (strcmp(key, RECENT_KEY_SIDEBAR_TIPS_VISIBLE) == 0) {
@@ -1729,6 +1736,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_fileopen_remembered_dir = NULL;
 
     /* defaults for the welcome page sidebar */
+    recent.gui_welcome_page_side_by_side = false;
     recent.gui_welcome_page_sidebar_learn_visible = true;
     recent.gui_welcome_page_sidebar_tips_visible = true;
     recent.gui_welcome_page_sidebar_tips_events = true;
