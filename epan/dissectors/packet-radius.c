@@ -193,7 +193,6 @@ static int hf_radius_egress_vlan_name;
 
 
 static int ett_radius;
-static int ett_radius_avp;
 
 static int ett_radius_authenticator;
 static int ett_radius_ascend;
@@ -1324,7 +1323,7 @@ add_avp_to_tree(proto_tree *avp_tree, proto_item *avp_item, packet_info *pinfo, 
 		}
 	}
 
-	proto_item_append_text(avp_item, " val=");
+	proto_item_append_text(avp_item, ": ");
 
 	if (dictionary_entry->dissector) {
 		add_avp_to_tree_with_dissector(avp_tree, avp_item, pinfo, tvb, dictionary_entry->dissector, avp_length, offset);
@@ -1549,14 +1548,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			dictionary_entry = &no_dictionary_entry;
 		}
 
-		avp_item = proto_tree_add_bytes_format_value(tree, hf_radius_avp, tvb, offset, avp_length,
-					       NULL, "t=%s", dictionary_entry->name);
-		if (avp_is_extended)
-			proto_item_append_text(avp_item, "(%u.%u)", avp_type0, avp_type1);
-		else
-			proto_item_append_text(avp_item, "(%u)", avp_type0);
-
-		proto_item_append_text(avp_item, " l=%u", avp_length);
+		avp_item = proto_tree_add_bytes_format(tree, hf_radius_avp, tvb, offset, avp_length, NULL, "%s", dictionary_entry->name);
 
 		avp_length -= 2;
 		offset += 2;
@@ -1572,6 +1564,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 		if (avp_type0 == RADIUS_ATTR_TYPE_VENDOR_SPECIFIC || (avp_is_extended && avp_type1 == RADIUS_ATTR_TYPE_VENDOR_SPECIFIC)) {
 			radius_vendor_info_t *vendor;
 			proto_tree *vendor_tree;
+			proto_item *avp_item_vsa = avp_item;
 			int max_offset = offset + avp_length;
 			const char *vendor_str;
 			int vendor_offset;
@@ -1593,8 +1586,6 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			if (!vendor) {
 				vendor = &no_vendor;
 			}
-			proto_item_append_text(avp_item, " vnd=%s(%u)", vendor_str,
-					       vendor_id);
 
 			vendor_tree = proto_item_add_subtree(avp_item, vendor->ett);
 
@@ -1692,19 +1683,14 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 					dictionary_entry = &no_dictionary_entry;
 				}
 
-				if (vendor->has_flags) {
-					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
-								       dictionary_entry->ett, &avp_item, "VSA: t=%s(%u) l=%u C=0x%02x",
-								       dictionary_entry->name, avp_vsa_type, avp_vsa_len+avp_vsa_header_len, avp_vsa_flags);
-				} else if (avp_is_extended) {
-					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
-								       dictionary_entry->ett, &avp_item, "EVS: t=%s(%u) l=%u",
-								        dictionary_entry->name, avp_vsa_type, avp_vsa_len+avp_vsa_header_len);
+				if (avp_item_vsa == avp_item) {
+					proto_item_append_text(avp_item_vsa, ": %s", dictionary_entry->name);
 				} else {
-					avp_tree = proto_tree_add_subtree_format(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
-								       dictionary_entry->ett, &avp_item, "VSA: t=%s(%u) l=%u",
-								       dictionary_entry->name, avp_vsa_type, avp_vsa_len+avp_vsa_header_len);
+					proto_item_append_text(avp_item_vsa, ", %s", dictionary_entry->name);
 				}
+
+				avp_tree = proto_tree_add_subtree(vendor_tree, tvb, offset-avp_vsa_header_len, avp_vsa_len+avp_vsa_header_len,
+								       dictionary_entry->ett, &avp_item, dictionary_entry->name);
 
 				proto_tree_add_item(avp_tree, hf_radius_avp_vendor_type, tvb, vendor_offset, vendor->type_octets, ENC_BIG_ENDIAN);
 				vendor_offset += vendor->type_octets;
@@ -1984,7 +1970,6 @@ static int
 dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_tree *radius_tree = NULL;
-	proto_tree *avptree = NULL;
 	proto_item *ti, *hidden_item, *authenticator_item = NULL;
 	unsigned avplength;
 	e_radiushdr rh;
@@ -2330,9 +2315,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	if (avplength > 0) {
 		/* list the attribute value pairs */
-		avptree = proto_tree_add_subtree(radius_tree, tvb, HDR_LENGTH,
-			avplength, ett_radius_avp, NULL, "Attribute Value Pairs");
-		dissect_attribute_value_pairs(avptree, pinfo, tvb, HDR_LENGTH,
+		dissect_attribute_value_pairs(radius_tree, pinfo, tvb, HDR_LENGTH,
 			avplength, radius_call);
 	}
 
@@ -2828,7 +2811,6 @@ register_radius_fields(const char *unused _U_)
 
 	int *base_ett[] = {
 		&ett_radius,
-		&ett_radius_avp,
 		&ett_radius_authenticator,
 		&ett_radius_ascend,
 		&ett_eap,
