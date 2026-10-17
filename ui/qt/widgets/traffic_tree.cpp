@@ -553,7 +553,6 @@ TrafficTree::TrafficTree(QString baseName, GList ** recentColumnList, QWidget *p
     _exportRole = ATapDataModel::UNFORMATTED_DISPLAYDATA;
     _header = nullptr;
 
-    setAlternatingRowColors(true);
     setRootIsDecorated(false);
     setSortingEnabled(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
