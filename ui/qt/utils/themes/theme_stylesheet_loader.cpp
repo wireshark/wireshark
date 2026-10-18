@@ -60,7 +60,7 @@ QString ThemeStyleSheetLoader::load(const QString  &name,
 
     // Replace all wstheme(RoleName) references with resolved color
     // values.  RoleName must match a ThemeToken enum identifier
-    // exactly (case-sensitive), e.g. wstheme(HeaderGradientStart).
+    // exactly (case-sensitive), e.g. wstheme(HeaderBackground).
     static const QRegularExpression tokenRe(
         QStringLiteral("wstheme\\(\\s*([A-Za-z][A-Za-z0-9]*)\\s*\\)"));
 

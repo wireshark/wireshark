@@ -158,7 +158,7 @@ QPalette ThemePreviewWidget::previewPalette() const
     set(QPalette::Mid,             ThemeManager::PaletteMid);
     set(QPalette::Midlight,        ThemeManager::PaletteMidLight);
     set(QPalette::HighlightedText, ThemeManager::PaletteHighlightedText);
-    set(QPalette::Highlight,       ThemeManager::PacketsSelection);
+    set(QPalette::Highlight,       ThemeManager::PaletteHighlight);
     return pal;
 }
 

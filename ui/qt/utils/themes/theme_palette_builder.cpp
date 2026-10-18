@@ -85,8 +85,9 @@ QPalette ThemePaletteBuilder::builtInLightPalette()
     // Mirrors Qt Fusion's default light palette so a Wireshark "Light"
     // mode looks like a stock Fusion-light application — familiar to
     // users who were already running Wireshark that way.  Highlight /
-    // Link / Accent are placeholders; apply() overlays brand.primary
-    // over them.
+    // Link / Accent are placeholders; build() overlays the theme's
+    // selection color (Highlight, Link) and brand.primary (Accent) over
+    // them.
 
     QPalette p;
 
@@ -133,8 +134,9 @@ QPalette ThemePaletteBuilder::builtInDarkPalette()
     // Values based on QuantumCD's widely-reused "dark Fusion palette"
     // (https://gist.github.com/QuantumCD/6245215), with Disabled-group
     // coverage added so our own disabled() math works out.  Highlight /
-    // Link / Accent are placeholders — apply() overlays the theme's
-    // brand.primary over these before pushing the palette.
+    // Link / Accent are placeholders; build() overlays the theme's
+    // selection color (Highlight, Link) and brand.primary (Accent) over
+    // them.
 
     QPalette p;
 
@@ -226,48 +228,54 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
     }
 
     // Brand-driven overlay: Highlight, HighlightedText, Link (and
-    // Accent on Qt 6.6+).  Themes get these for free from brand.primary;
-    // no need to declare them in the palette section.
+    // Accent on Qt 6.6+).
     //
-    // Highlight and HighlightedText can be pre-empted: when
-    // `palette.highlight` / `palette.highlightedText` is declared, the loops above already
-    // applied it, and the contrastingText() auto-derivation below
-    // would otherwise overwrite that choice.  Some saturated
-    // mid-tone brand colours sit on the WCAG luminance threshold where
-    // contrastingText flips to black even though white reads better
-    // (#0e9aa7 teal is one such case); themes can pin white here.
+    // Highlight is the selection color of every view except the packet
+    // list (lists, the details tree, the bytes pane) and the base of the
+    // welcome header.  It resolves to `palette.highlight` when the theme
+    // declares it, else to the theme's own `packets.selection`, so a
+    // selection looks the same in every pane without the theme repeating
+    // the value, else to brand.primary.  Only declared values count:
+    // callers pass the parsed token map, before
+    // ThemeTokenHandler::deriveAll() fills PacketsSelection from
+    // brand.primary.
+    //
+    // HighlightedText is the theme's `palette.highlightedText` when it
+    // pins one (a saturated selection color can sit where
+    // contrastingText() picks black although the theme wants white),
+    // else contrastingText() of the resolved highlight.  Either way it is
+    // lifted to body-text contrast against that highlight: the highlight
+    // may come from packets.selection or brand.primary, so a pin chosen
+    // for one color must not turn unreadable on another.  Every Qt-drawn
+    // selection and every delegate that paints selected text reads this
+    // role, so this is the one place the selection text is checked.
     const QColor brandPrimary = sideOf(tokens, ThemeManager::BrandPrimary, isDarkMode);
     if (brandPrimary.isValid()) {
-        const QColor explicitHighlight =
-                sideOf(tokens, ThemeManager::PaletteHighlight, isDarkMode);
-        const QColor explicitHighlightedText =
-                sideOf(tokens, ThemeManager::PaletteHighlightedText, isDarkMode);
-        const QColor effectiveHighlightedText = explicitHighlightedText.isValid()
-                ? explicitHighlightedText
-                : ColorMath::contrastingText(explicitHighlight.isValid() ? explicitHighlight : brandPrimary);
-        if (!explicitHighlightedText.isValid())
-            pal.setColor(QPalette::HighlightedText, effectiveHighlightedText);
-        pal.setColor(QPalette::Disabled, QPalette::HighlightedText,
-                     ColorMath::disabled(effectiveHighlightedText, baseColor));
+        QColor highlight = sideOf(tokens, ThemeManager::PaletteHighlight, isDarkMode);
+        if (!highlight.isValid())
+            highlight = sideOf(tokens, ThemeManager::PacketsSelection, isDarkMode);
+        if (!highlight.isValid())
+            highlight = brandPrimary;
 
-        QList<QPalette::ColorRole> brandRoles = { QPalette::Link };
-        if (!explicitHighlight.isValid())
-            brandRoles << QPalette::Highlight;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
-        brandRoles << QPalette::Accent;
-#endif
-        for (QPalette::ColorRole role : brandRoles) {
-            // Links follow an explicit selection color rather than brand.primary.
-            QColor c = (role == QPalette::Link && explicitHighlight.isValid())
-                    ? explicitHighlight : brandPrimary;
-            // Link text is drawn on Base, so a dark brand color must be
-            // lifted until it stays readable there in either scheme.
-            if (role == QPalette::Link)
-                c = ColorMath::ensureContrast(c, baseColor, 4.5);
+        auto setAllGroups = [&pal, &baseColor](QPalette::ColorRole role, const QColor &c) {
             pal.setColor(QPalette::Active,   role, c);
             pal.setColor(QPalette::Inactive, role, c);
             pal.setColor(QPalette::Disabled, role, ColorMath::disabled(c, baseColor));
-        }
+        };
+        const QColor pinnedHighlightedText =
+                sideOf(tokens, ThemeManager::PaletteHighlightedText, isDarkMode);
+        setAllGroups(QPalette::HighlightedText, ColorMath::readableText(
+                pinnedHighlightedText.isValid() ? pinnedHighlightedText
+                                                : ColorMath::contrastingText(highlight),
+                highlight));
+        setAllGroups(QPalette::Highlight, highlight);
+        // Links follow the selection color.  Link text is drawn on Base,
+        // so a dark selection color must be lifted until it stays
+        // readable there in either scheme.
+        setAllGroups(QPalette::Link, ColorMath::readableText(highlight, baseColor));
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+        setAllGroups(QPalette::Accent, brandPrimary);
+#endif
     }
 
     return pal;

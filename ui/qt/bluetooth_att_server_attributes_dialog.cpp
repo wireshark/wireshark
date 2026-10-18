@@ -10,6 +10,7 @@
 #include "bluetooth_att_server_attributes_dialog.h"
 #include <ui_bluetooth_att_server_attributes_dialog.h>
 
+#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/theme_manager.h>
 
 #include "epan/epan.h"
@@ -87,9 +88,9 @@ BluetoothAttServerAttributesDialog::BluetoothAttServerAttributesDialog(QWidget &
 
     ui->tableTreeWidget->sortByColumn(column_number_handle, Qt::AscendingOrder);
 
-    ui->tableTreeWidget->setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/bluetooth-table")));
+    ui->tableTreeWidget->setStyleSheet(ColorUtils::itemHoverStyleSheet(QStringLiteral("QTreeView")));
     connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
-        ui->tableTreeWidget->setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/bluetooth-table")));
+        ui->tableTreeWidget->setStyleSheet(ColorUtils::itemHoverStyleSheet(QStringLiteral("QTreeView")));
     });
 
     context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Cell);

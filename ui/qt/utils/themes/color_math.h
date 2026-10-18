@@ -42,8 +42,8 @@ public:
     /** Mix `c` toward contrastingText(bg) until contrastRatio(result, bg)
      *  >= minRatio.  Binary-searches the mix ratio (24 iterations →
      *  < 0.001 precision).  Used to enforce WCAG contrast on derived
-     *  tokens (section headers against the base, header-gradient end
-     *  against the title text) without forcing every theme author to
+     *  tokens (section headers against the base, the welcome header
+     *  against its title text) without forcing every theme author to
      *  hand-pick the values.  When `c` already meets the target it is
      *  returned unchanged.  If the math can't reach the target (rare;
      *  only when `c` is already on the same luminance side as
@@ -56,6 +56,32 @@ public:
      *  math helper; independent of the running app's theme. */
     static bool isDark(const QColor &color);
 
+    /** Minimum contrast ratio at which a fill reads as its own surface
+     *  next to a neighboring one: a hover tint against the selection
+     *  it is derived from, the welcome header against the window. */
+    static constexpr qreal DistinctSurfaceRatio = 1.5;
+
+    /** Minimum contrast ratio for body text against its surface
+     *  (WCAG AA). */
+    static constexpr qreal ReadableTextRatio = 4.5;
+
+    /** Hover fill for an item view, derived from that view's own
+     *  selection color so the view uses one highlight hue.  A 55 % tint
+     *  of `selection` over `base`, pushed away from `selection` until
+     *  the two are DistinctSurfaceRatio apart, so a hovered row never
+     *  reads as a second selection.  Dark selections sit too close to
+     *  the base for any in-between tint to be distinct from both, so in
+     *  dark schemes the fill ends up lighter than the selection. */
+    static QColor selectionHoverFill(const QColor &base, const QColor &selection);
+
+    /** `text` lifted to ReadableTextRatio against `surface`;
+     *  returned unchanged when it already reads. */
+    static QColor readableText(const QColor &text, const QColor &surface);
+
+    /** True when `text` already reaches ReadableTextRatio against
+     *  `surface`, i.e. readableText() would return it unchanged. */
+    static bool isReadable(const QColor &text, const QColor &surface);
+
     // ---------------------------------------------------------------
     // Mix / shade
     // ---------------------------------------------------------------
@@ -66,7 +92,7 @@ public:
     static ThemeColorPair mix(const ThemeColorPair &a, const ThemeColorPair &b, qreal ratio = 0.5);
 
     /** Mix the given color with black at percent %.  Hover typically
-     *  8-12 %, pressed 16-20 %, gradient backdrop 50-65 %. */
+     *  8-12 %, pressed 16-20 %, bar backdrop 50-65 %. */
     static QColor         darken(const QColor &c, int percent);
     static ThemeColorPair darken(const ThemeColorPair &p, int percent);
 
@@ -99,7 +125,7 @@ public:
 
     /** Same as contrastingText(), but with the caller supplying the
      *  backdrop explicitly — useful when rendering onto a known
-     *  surface (e.g. the blue header gradient) rather than the
+     *  surface (e.g. the welcome header bar) rather than the
      *  app palette. */
     static QColor         contrastingTextOver(const QColor &surface, const QColor &backdrop);
 

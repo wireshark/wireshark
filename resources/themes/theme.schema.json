@@ -37,13 +37,12 @@
         },
 
         "brand": {
-            "description": "Two colors that define the theme's visual identity. `primary` drives header gradient end, selection highlight, section header hover, link accents. `deep` drives header gradient start.",
+            "description": "The color that defines the theme's visual identity. `primary` drives the selection highlight when neither palette.highlight nor packets.selection is set (and with it the welcome header bar), section header hover and link accents.",
             "type": "object",
-            "required": ["primary", "deep"],
+            "required": ["primary"],
             "additionalProperties": false,
             "properties": {
-                "primary": { "$ref": "#/$defs/colorPair" },
-                "deep":    { "$ref": "#/$defs/colorPair" }
+                "primary": { "$ref": "#/$defs/colorPair" }
             }
         },
 
@@ -75,7 +74,7 @@
         },
 
         "packets": {
-            "description": "Optional packet-display state colors. For each state the unsuffixed key is the row background tint; the matching *Text key is the foreground. `hidden` is text-only (no background) — it dims items rendered on the normal row bg. When a *Text key is omitted, the foreground is derived via contrastingText() against the bg. When `ignored` (bg) is omitted, the row's normal background is used unchanged.",
+            "description": "Optional packet-display state colors. For each state the unsuffixed key is the row background tint; the matching *Text key is the foreground. `hidden` is text-only (no background) — it dims items rendered on the normal row bg. When a *Text key is omitted, the foreground is derived via contrastingText() against the bg; pinned or derived, selectionText, inactiveText and markedText are lifted to at least 4.5:1 against their bg. When `ignored` (bg) is omitted, the row's normal background is used unchanged.",
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -104,7 +103,7 @@
         },
 
         "palette": {
-            "description": "Optional QPalette role overrides. Selective merge: only specified roles replace the system default. `Highlight`, `Link`, and (Qt 6.6+) `Accent` are always overridden from brand.primary regardless of this section. `HighlightedText` is auto-derived via contrastingText(brand.primary) but can be pinned here for themes whose brand colour sits on the WCAG luminance threshold.",
+            "description": "Optional QPalette role overrides. Selective merge: only specified roles replace the system default. `highlight` is the selection color of lists, the packet details tree, the bytes pane and the welcome header; when omitted it falls back to packets.selection, then brand.primary. `Link` follows the resolved highlight (raised to 4.5:1 against base); `Accent` (Qt 6.6+) is always brand.primary. `highlightedText` is derived via contrastingText() of the resolved highlight but can be pinned here for selection colours that sit on the WCAG luminance threshold; pinned or derived, it is lifted to at least 4.5:1 against the resolved highlight.",
             "type": "object",
             "additionalProperties": false,
             "properties": {

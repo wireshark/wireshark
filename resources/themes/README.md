@@ -149,8 +149,13 @@ Other tokens derived from the palette when a theme does not pin them:
   `palette.base` (50 % and 40 %), so they stay readable on any background.
 - `muted` text is `palette.text` faded 40 % toward `palette.base`, raised to
   at least 4.5:1 contrast against `palette.base`.
-- Links (`palette.link`) are raised to at least 4.5:1 contrast against
-  `palette.base`.
+- The selection color of lists, the packet details tree, the bytes pane
+  and the welcome header (`palette.highlight`) falls back to
+  `packets.selection`, then `brand.primary`.  Links (`palette.link`)
+  follow it, raised to at least 4.5:1 contrast against `palette.base`.
+- Selection text (`palette.highlightedText`, `packets.selectionText`,
+  `packets.inactiveText`, `packets.markedText`), pinned or derived, is
+  raised to at least 4.5:1 contrast against its own background.
 - The accent alias `HighlightColorOrange` (search match highlight) follows
   `accent.warning`.
 - The text on the filter validity tints (`TextOnFilterValid`,
@@ -194,28 +199,26 @@ Accepted formats:
 
 ### Token naming in QSS
 
-Nested keys are joined with dots to form the QSS token name, prefixed
-and suffixed with `@`:
-
-```jsonc
-// In theme.jsonc:
-"header": {
-    "gradient-start": { "light": "#1e3a5f", "dark": "#0f1b30" }
-}
-```
+Stylesheets reference theme colors as `wstheme(TokenName)`, where
+`TokenName` is a `ThemeManager::ThemeToken` enum name (case-sensitive).
+The loader replaces each occurrence with the resolved `#rrggbb` value for
+the current appearance:
 
 ```css
-/* In a .qss file: */
 #welcomeHeader {
-    background: qlineargradient(
-        stop:0 @header.gradient-start@,
-        stop:1 @header.gradient-end@
-    );
+    background-color: wstheme(HeaderBackground);
 }
 ```
 
-The ThemeManager resolves `@header.gradient-start@` to `#1e3a5f` (light)
-or `#0f1b30` (dark) depending on the current appearance.
+Many tokens are not keys in `theme.jsonc` but are derived at load time
+from the theme's inputs, for example:
+
+- `HeaderBackground`: the palette Highlight darkened 40 %, kept at least
+  1.5:1 from the window and at least 4.5:1 from its title text.
+- `HeaderText` / `HeaderTextMuted`: the welcome header title and version
+  colors (HighlightedText when it reads on the bar, else black or white;
+  the version label faded toward the bar, at least 3.0:1).
+- `UpdateBackground`: `accent.success` darkened 60 %.
 
 ## Color sections reference
 
@@ -225,12 +228,12 @@ token falls back to the default theme's value.
 
 ### `text` — Global text colors
 
-| Token            | Purpose |
-|------------------|---------|
-| `primary`        | Primary content text |
-| `muted`          | Secondary labels, file sizes, metadata |
-| `on-dark`        | Text on dark gradient backgrounds (always white) |
-| `on-dark-muted`  | De-emphasized text on dark backgrounds (50% white) |
+| Token             | Purpose |
+|-------------------|---------|
+| `primary`         | Primary content text |
+| `muted`           | Secondary labels, file sizes, metadata |
+| `HeaderText`      | Derived, see Token naming |
+| `HeaderTextMuted` | Derived, see Token naming |
 
 ### `accent` — Global accent colors
 
@@ -246,24 +249,21 @@ token falls back to the default theme's value.
 |-----------------|---------|
 | `bg`            | Main content area background |
 | `border`        | Dividers, card borders, separators |
-| `hover-bg`      | Row hover in file lists, interface lists |
 | `selected-bg`   | Selected row background |
 | `selected-text`  | Selected row text |
 | `sidebar-bg`    | Learn card and sidebar backgrounds |
 
 ### `header` — Welcome page header bar
 
-| Token            | Purpose |
-|------------------|---------|
-| `gradient-start` | Left/top stop of the blue gradient |
-| `gradient-end`   | Right/bottom stop of the blue gradient |
+| Token        | Purpose |
+|--------------|---------|
+| `background` | `HeaderBackground`, derived, see Token naming |
 
 ### `update` — Update notification bar
 
 | Token                | Purpose |
 |----------------------|---------|
-| `gradient-start`     | Left stop of the green gradient |
-| `gradient-end`       | Right stop of the green gradient |
+| `background`         | `UpdateBackground`, derived, see Token naming |
 | `border`             | Bottom border of the update bar |
 | `text`               | Primary update message text |
 | `text-highlight`     | Bold version name within the message |

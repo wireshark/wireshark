@@ -21,9 +21,9 @@ namespace {
 
 // Only-if-missing assignment: leaves any theme-provided explicit value
 // intact (matches the old ThemeManager::derive(..., overwrite=false)
-// behavior).  `overwrite=true` forces the replacement — not used today
-// but kept on the signature to match the old API in case a derivation
-// ever needs it.
+// behavior).  `overwrite=true` forces the replacement; the state-text
+// guard in deriveAll() uses it to rewrite a pinned value that is not
+// readable on its fill.
 void assign(TokenMap &tokens,
             ThemeToken role,
             const ThemeColorPair &newPair,
@@ -64,17 +64,23 @@ QColor pickPaletteValue(const TokenMap &tokens,
     return palette.color(qtRole);
 }
 
+// readableText() for one side of a pair.  A side the theme leaves
+// invalid stays invalid, so assign() can still fill it later.
+QColor readableSide(const QColor &text, const QColor &fill)
+{
+    return text.isValid() && fill.isValid() ? ColorMath::readableText(text, fill) : text;
+}
+
 } // namespace
 
 void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPalette &palette)
 {
     const ThemeColorPair successPair  = tokens.value(ThemeManager::AccentSuccess);
     const ThemeColorPair brandPrimary = tokens.value(ThemeManager::BrandPrimary);
-    const ThemeColorPair brandDeep    = tokens.value(ThemeManager::BrandDeep);
 
     const QColor mid        = palette.color(QPalette::Mid);
-    const QColor lBarEnd    = ColorMath::darken(successPair.light, 60);
-    const QColor dBarEnd    = ColorMath::darken(successPair.dark, 60);
+    // Flat update bar; the dismiss button tints are computed on it.
+    const ThemeColorPair updateBg   = ColorMath::darken(successPair, 60);
     const ThemeColorPair disabledBg = ColorMath::darken(successPair, 40);
 
     // Expert — alpha-blended accent variants.
@@ -117,15 +123,26 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     assign(tokens, ThemeManager::PacketsHidden,
            ColorMath::mix(ThemeColorPair { baseColor, baseColor }, ThemeColorPair { textColor, textColor }, 0.40));
 
-    // Foreground fallbacks — only kicks in when a custom theme provides
-    // a bg tint but omits its <bg>Text sibling.  contrastingText picks
-    // white/black per WCAG luminance against each side of the pair.
-    assign(tokens, ThemeManager::PacketsSelectionText,
-           ColorMath::contrastingText(tokens.value(ThemeManager::PacketsSelection)));
-    assign(tokens, ThemeManager::PacketsInactiveText,
-           ColorMath::contrastingText(tokens.value(ThemeManager::PacketsInactive)));
-    assign(tokens, ThemeManager::PacketsMarkedText,
-           ColorMath::contrastingText(tokens.value(ThemeManager::PacketsMarked)));
+    // State text: the theme's pin, else black or white by WCAG luminance
+    // against the state's fill.  Either way it is lifted to body-text
+    // contrast against that fill, per mode, so a pin chosen for another
+    // shade (or a fill derived from brand.primary) never turns unreadable.
+    // The packet list and every other consumer read these tokens, so this
+    // is the one place the state text is checked.
+    const struct { ThemeToken text; ThemeToken fill; } stateText[] = {
+        { ThemeManager::PacketsSelectionText, ThemeManager::PacketsSelection },
+        { ThemeManager::PacketsInactiveText,  ThemeManager::PacketsInactive  },
+        { ThemeManager::PacketsMarkedText,    ThemeManager::PacketsMarked    },
+    };
+    for (const auto &st : stateText) {
+        const ThemeColorPair fill = tokens.value(st.fill);
+        assign(tokens, st.text, ColorMath::contrastingText(fill));
+        const ThemeColorPair text = tokens.value(st.text);
+        assign(tokens, st.text,
+               ThemeColorPair { readableSide(text.light, fill.light),
+                                readableSide(text.dark,  fill.dark) },
+               true);
+    }
 
     // Conversation
     const ThemeColorPair accentError = tokens.value(ThemeManager::AccentError);
@@ -211,55 +228,34 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
            ThemeColorPair { ColorMath::darken(accentInfo.light, 30),
                             ColorMath::lighten(accentInfo.dark,  30) });
 
-    // Text on dark surfaces (derived from brand) — computed first so the
-    // HeaderGradientEnd derivation below can clamp against them.
-    //
-    // TextOnDarkMuted is the foreground for "secondary" labels sitting on
-    // the brand gradient (e.g. the version string under the title).  It
-    // is intentionally less prominent than TextOnDark, but it must stay
-    // readable across the whole gradient — including over portions that
-    // get close to brand.primary.  ColorMath::disabled() blends 40% of
-    // the bg into white, which collapses contrast for themes whose
-    // brand.deep approaches pure black (mid-gray text on bright primary
-    // ⇒ ~1.5:1).  Using a 0.25 mix instead keeps the muted text closer
-    // to white (~75% mix) so it survives the brighter half of the
-    // gradient without becoming as bold as the title.
-    //
-    // Themes that pin palette.highlight get a flat header in the list
-    // selection color; others keep the brand.deep -> brand.primary gradient.
-    const ThemeColorPair highlight = tokens.value(ThemeManager::PaletteHighlight);
-    const bool flatHeader = highlight.light.isValid() && highlight.dark.isValid();
-    const ThemeColorPair headerBg = flatHeader ? highlight : brandDeep;
-    const QColor textOnDarkLight       = ColorMath::contrastingText(headerBg.light);
-    const QColor textOnDarkDark        = ColorMath::contrastingText(headerBg.dark);
-    const QColor textOnDarkMutedLight  = ColorMath::mix(textOnDarkLight, headerBg.light, 0.25);
-    const QColor textOnDarkMutedDark   = ColorMath::mix(textOnDarkDark,  headerBg.dark,  0.25);
-    assign(tokens, ThemeManager::TextOnDark,
-           ThemeColorPair { textOnDarkLight, textOnDarkDark });
-    assign(tokens, ThemeManager::TextOnDarkMuted,
-           ThemeColorPair { textOnDarkMutedLight, textOnDarkMutedDark });
-
-    // Header gradient — START is brand.deep (intentionally near-black).
-    // END auto-adjusts via two ensureContrast passes so BOTH the title
-    // (TextOnDark, 4.5:1) and the version label (TextOnDarkMuted, 3.0:1)
-    // stay readable against it.  Without this clamp, themes whose
-    // brand.primary is bright fail by one to two stops (e.g. the old
-    // Wireshark dark #5b9ee6 → title 2.8, version 1.6).  Themes whose
-    // primary is already dark enough are unaffected — ensureContrast
-    // short-circuits when the ratio is already met.  A flat header uses
-    // the highlight color for both stops, unclamped.
-    if (flatHeader) {
-        assign(tokens, ThemeManager::HeaderGradientStart, highlight);
-        assign(tokens, ThemeManager::HeaderGradientEnd,   highlight);
-    } else {
-        QColor gradientEndLight = ColorMath::ensureContrast(brandPrimary.light, textOnDarkLight,      4.5);
-        gradientEndLight        = ColorMath::ensureContrast(gradientEndLight,   textOnDarkMutedLight, 3.0);
-        QColor gradientEndDark  = ColorMath::ensureContrast(brandPrimary.dark,  textOnDarkDark,       4.5);
-        gradientEndDark         = ColorMath::ensureContrast(gradientEndDark,    textOnDarkMutedDark,  3.0);
-        assign(tokens, ThemeManager::HeaderGradientStart, brandDeep);
-        assign(tokens, ThemeManager::HeaderGradientEnd,
-               ThemeColorPair { gradientEndLight, gradientEndDark });
-    }
+    // Welcome header bar: a flat, darkened shade of the selection color.
+    // Highlight / HighlightedText come from the palette built for this
+    // theme (palette.highlight, else packets.selection, else
+    // brand.primary, as resolved by ThemePaletteBuilder), so the choice
+    // is made in one place.  The bar is first kept apart from the
+    // window so it never melts into it (a dark selection darkened by
+    // 40 % lands almost on a dark window), then shifted only as far as
+    // the title needs to read.  The version label is the title color
+    // faded 25 % toward the bar, lifted back to 3.0:1 if that overshoots.
+    const QColor highlight     = palette.color(QPalette::Active, QPalette::Highlight);
+    const QColor highlightText = palette.color(QPalette::Active, QPalette::HighlightedText);
+    QColor headerBg = ColorMath::ensureContrast(ColorMath::darken(highlight, 40),
+                                                windowColor, ColorMath::DistinctSurfaceRatio);
+    // The title keeps HighlightedText when that reads on the bar, else
+    // it switches to black or white outright.  readableText() would stop
+    // at a grey just at the threshold (inverted, midnight-blue light),
+    // too weak for a title.
+    const QColor headerText = ColorMath::isReadable(highlightText, headerBg)
+            ? highlightText : ColorMath::contrastingText(headerBg);
+    headerBg = ColorMath::ensureContrast(headerBg, headerText,
+            ColorMath::ReadableTextRatio);
+    const QColor headerMuted = ColorMath::ensureContrast(
+            ColorMath::mix(headerText, headerBg, 0.25), headerBg, 3.0);
+    // The palette describes only the current mode; deriveAll() runs again
+    // on every mode switch, so both halves carry the current value.
+    assign(tokens, ThemeManager::HeaderBackground, ThemeColorPair { headerBg,    headerBg });
+    assign(tokens, ThemeManager::HeaderText,        ThemeColorPair { headerText,  headerText });
+    assign(tokens, ThemeManager::HeaderTextMuted,   ThemeColorPair { headerMuted, headerMuted });
 
     // Section headers — ensureContrast against palette.base at 4.5:1 so
     // welcome-page labels ("Open", "Capture", "Learn") stay readable on
@@ -299,7 +295,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // Foregrounds for solid accent surfaces — auto-pick black or white
     // per contrastingText().  These give QSS rules a single token to
     // paint text on accent backgrounds without each theme having to
-    // hand-tune the contrast (or rely on a fixed `wstheme(TextOnDark)`
+    // hand-tune the contrast (or rely on one fixed text color
     // that may not fit a bright accent — see #headerBuildLabel and
     // #updateDownload in welcome-header.qss).
     assign(tokens, ThemeManager::TextOnSuccess,
@@ -320,8 +316,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
            ColorMath::contrastingText(tokens.value(ThemeManager::FilterDeprecated)));
 
     // Update bar — all from accent.success
-    assign(tokens, ThemeManager::UpdateGradientStart,    ColorMath::darken(successPair, 65));
-    assign(tokens, ThemeManager::UpdateGradientEnd,      ColorMath::darken(successPair, 60));
+    assign(tokens, ThemeManager::UpdateBackground,       updateBg);
     assign(tokens, ThemeManager::UpdateBorder,           ColorMath::withAlpha(successPair, 51));
     assign(tokens, ThemeManager::UpdateText,             ColorMath::lighten(successPair, 50));
     assign(tokens, ThemeManager::UpdateTextHighlight,    ColorMath::lighten(successPair, 70));
@@ -338,12 +333,12 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
            ColorMath::disabled(ColorMath::contrastingText(disabledBg.dark),  disabledBg.dark));
     // Dismiss hover: subtle tint of contrasting color onto the bar
     assign(tokens, ThemeManager::UpdateDismissHoverBg,
-           ColorMath::hoverBg(ColorMath::contrastingText(lBarEnd), lBarEnd),
-           ColorMath::hoverBg(ColorMath::contrastingText(dBarEnd), dBarEnd));
+           ColorMath::hoverBg(ColorMath::contrastingText(updateBg.light), updateBg.light),
+           ColorMath::hoverBg(ColorMath::contrastingText(updateBg.dark), updateBg.dark));
     // Dismiss pressed: same pattern but use disabled() for a stronger blend
     assign(tokens, ThemeManager::UpdateDismissPressedBg,
-           ColorMath::disabled(ColorMath::hoverBg(ColorMath::contrastingText(lBarEnd), lBarEnd), lBarEnd),
-           ColorMath::disabled(ColorMath::hoverBg(ColorMath::contrastingText(dBarEnd), dBarEnd), dBarEnd));
+           ColorMath::disabled(ColorMath::hoverBg(ColorMath::contrastingText(updateBg.light), updateBg.light), updateBg.light),
+           ColorMath::disabled(ColorMath::hoverBg(ColorMath::contrastingText(updateBg.dark), updateBg.dark), updateBg.dark));
 
     // Accent aliases (derived)
     assign(tokens, ThemeManager::HighlightColorOrange, tokens.value(ThemeManager::AccentWarning));

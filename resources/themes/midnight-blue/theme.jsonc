@@ -24,8 +24,7 @@
 	// Brand
 	// -----------------------------------------------------------------
 	"brand": {
-		"primary": { "light": "#5a8fd8", "dark": "#3d5a80" },
-		"deep":    { "light": "#c5d5eb", "dark": "#060a14" }
+		"primary": { "light": "#5a8fd8", "dark": "#3d5a80" }
 	},
 
 	// -----------------------------------------------------------------
@@ -96,7 +95,6 @@
 		"alternateBase":   { "light": "#dde3f0", "dark": "#141e32" },
 		"mid":             { "light": "#5a6478", "dark": "#7a8aa3" },
 		"midlight":        { "light": "#c5cee0", "dark": "#1e2a42" },
-		"highlight":       { "light": "#b8d4f8", "dark": "#243a5c" },
 		"highlightedText": { "light": "#141c2e", "dark": "#ffffff" }
 	},
 

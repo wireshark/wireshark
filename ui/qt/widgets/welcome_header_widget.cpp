@@ -38,7 +38,7 @@ WelcomeHeaderWidget::WelcomeHeaderWidget(QWidget *parent) :
     // selection) changes.  QEvent::ApplicationPaletteChange alone isn't
     // reliable here — it only fires when the QPalette actually differs,
     // and a light/dark flip on a theme with no palette overrides may not
-    // change any palette roles this widget's gradient depends on.
+    // change any palette roles this widget's colors depend on.
     // Rebuilt on themeChanged, which the ThemeManager also emits on a zoom
     // change — so the header (whose text sizes live in the stylesheet) reloads
     // its zoom-scaled stylesheet automatically, no font handling needed here.

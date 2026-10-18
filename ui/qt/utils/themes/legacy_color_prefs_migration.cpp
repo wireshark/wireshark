@@ -254,8 +254,7 @@ QString buildJsonc(const QHash<QString, QString> &customizations)
     // the user's visual state does not drift under them.
     out += QStringLiteral(
         "\t\"brand\": {\n"
-        "\t\t\"primary\": { \"light\": \"#2c6fb5\", \"dark\": \"#5b9ee6\" },\n"
-        "\t\t\"deep\":    { \"light\": \"#1e3a5f\", \"dark\": \"#0f1b30\" }\n"
+        "\t\t\"primary\": { \"light\": \"#2c6fb5\", \"dark\": \"#5b9ee6\" }\n"
         "\t},\n\n"
         "\t\"accent\": {\n"
         "\t\t\"success\": { \"light\": \"#4caf50\", \"dark\": \"#4caf50\" },\n"

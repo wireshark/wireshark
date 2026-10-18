@@ -66,11 +66,11 @@ QLabel#learnLink:hover {
 /* -----------------------------------------------------------------
  * Action buttons — colored buttons driven by JSON config
  *
- * Only background-color and hover color are set per-button in code
- * from the learn_card.json configuration.
+ * Background and text colors are set per button in code
+ * (ThemeStyler::buttonStyleSheet()), from the learn_card.json
+ * configuration.
  * ----------------------------------------------------------------- */
 QPushButton#learnButton {
-    color: wstheme(TextOnDark);
     border: none;
     border-radius: 6px;
     padding: 10px 12px;

@@ -10,12 +10,11 @@
 //
 // The web spec uses a CSS-custom-properties token system (one token per
 // surface).  Wireshark's theme system instead derives most tokens from
-// six required inputs (brand.primary, brand.deep, four accent.*) — see
+// five required inputs (brand.primary, four accent.*) — see
 // resources/themes/README.md for the full token vocabulary.  This file
 // maps the web tokens to the Wireshark inputs as follows:
 //
 //   web --color-action          → brand.primary
-//   web hero-gradient end stop  → brand.deep
 //   web --color-bg              → palette.base
 //   web --color-bg-alt          → palette.window / palette.alternateBase
 //   web --color-text            → palette.text / palette.windowText
@@ -41,16 +40,11 @@
 	// Brand
 	//
 	//   primary — web --color-action (link / CTA / selection / link-like).
-	//             Drives the welcome header gradient END stop, selection
-	//             highlight, section header hover, sparkline stroke, and
-	//             the splash progress bar.
-	//
-	//   deep    — web hero-gradient bottom stop (#0a2a32 light, #03161a
-	//             dark).  Drives the welcome header gradient START.
+	//             Drives section header hover, sparkline stroke, and the
+	//             splash progress bar.
 	// -----------------------------------------------------------------
 	"brand": {
-		"primary": { "light": "#0e9aa7", "dark": "#2bc1cf" },
-		"deep":    { "light": "#0a2a32", "dark": "#03161a" }
+		"primary": { "light": "#0e9aa7", "dark": "#2bc1cf" }
 	},
 
 	// -----------------------------------------------------------------
@@ -77,18 +71,23 @@
 	// -----------------------------------------------------------------
 	// Packet display state colors
 	//
-	// Selection: brand-saturated teal — distinct from any pastel
+	// Selection: brand-saturated teal, distinct from any pastel
 	// color-filter rule backgrounds and immediately legible as "active".
-	// Marked: deep brand — strong visual weight for flagged rows.
+	// Light mode uses the brand teal darkened 15 % (#0b828d), so the
+	// white selection text reaches 4.5:1; the palette highlight (lists,
+	// details tree, bytes pane, welcome header) follows it.
+	// Marked: deep brand in light mode.  In dark mode the inverse of the
+	// base row (palette.text as fill, palette.base as text), which stands
+	// clearly apart from the dark selection and the inactive selection.
 	// Inactive: low-saturation surface tint matching --color-bg-alt.
 	// -----------------------------------------------------------------
 	"packets": {
-		"selection":     { "light": "#0e9aa7", "dark": "#1a3a40" },
+		"selection":     { "light": "#0b828d", "dark": "#1a3a40" },
 		"selectionText": { "light": "#ffffff", "dark": "#e8f3f5" },
 		"inactive":      { "light": "#eef6f7", "dark": "#1f3338" },
 		"inactiveText":  { "light": "#1a2a30", "dark": "#d9e7ea" },
-		"marked":        { "light": "#003540", "dark": "#003540" },
-		"markedText":    { "light": "#ffffff", "dark": "#ffffff" },
+		"marked":        { "light": "#003540", "dark": "#d9e7ea" },
+		"markedText":    { "light": "#ffffff", "dark": "#0a1418" },
 		"ignored":       { "light": "#fbfcfd", "dark": "#0a1418" },
 		"ignoredText":   { "light": "#7a8b91", "dark": "#5a6d74" },
 		"hidden":        { "light": "#5a6d74", "dark": "#8aa1a6" }
@@ -155,11 +154,11 @@
 		"alternateBase":   { "light": "#e7f1f3", "dark": "#102228" },
 		"mid":             { "light": "#5a6d74", "dark": "#8aa1a6" },
 		"midlight":        { "light": "#d6e3e6", "dark": "#1f3338" },
-		// brand.primary #0e9aa7 sits just *above* the WCAG luminance
-		// threshold (L≈0.26), so the auto-derived HighlightedText flips
-		// to black — but white reads better against this teal in
-		// practice (contrast ~3.4:1 vs. black ~6.2:1, both AA-large;
-		// white feels right for a saturated brand colour).  Pin it.
+		// The light selection color #0b828d (packets.selection) sits on
+		// the WCAG luminance threshold: contrastingText() picks black
+		// (4.59:1) although white reads as well (4.57:1) and suits a
+		// saturated brand colour.  Pin white.  The palette builder still
+		// lifts any pin to 4.5:1 against the selection.
 		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
 	},
 
