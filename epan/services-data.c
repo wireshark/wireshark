@@ -5466,6 +5466,7 @@ static const ws_services_entry_t global_tcp_services_table[] = {
     { 4912, "lutap",            "Technicolor LUT Access Protocol" },
     { 4913, "lutcp",            "LUTher Control Protocol" },
     { 4915, "frcs",             "Fibics Remote Control Service" },
+    { 4930, "fmsg",             "Host-to-host messaging" },
     { 4953, "dbsyncarbiter",    "Synchronization Arbiter" },
     { 4971, "burp",             "BackUp and Restore Program" },
     { 4984, "webyast",          "WebYast" },
