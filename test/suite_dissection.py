@@ -2416,6 +2416,20 @@ class TestDissectTns:
         assert 'Column 2 (REFCURSOR): cursor 5' in stdout, stdout
         assert 'Malformed' not in stdout, stdout
 
+    def test_tns_refcursor_bind(self, cmd_tshark, capture_file, test_env):
+        '''A client's REF CURSOR bind is a count of cursor ids and the ids:
+        none for an OUT bind, the cursor passed for an IN one. The bind
+        after it decodes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_refcursor_bind.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Bind 1 (REFCURSOR): a new cursor' in stdout, stdout
+        assert 'Bind 1 (REFCURSOR): cursor 3' in stdout, stdout
+        assert stdout.count('Bind 2 (NUMBER): 7') == 2, stdout
+        assert 'Malformed' not in stdout, stdout
+
     def test_tns_implicit_results(self, cmd_tshark, capture_file, test_env):
         '''The implicit result sets message carries, per result, a describe
         and the cursor id to fetch it with; the status behind it follows.'''

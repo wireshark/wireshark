@@ -443,6 +443,7 @@ static int hf_tns_data_col_csform;
 static int hf_tns_data_col_max_size;
 static int hf_tns_data_col_max_elements;
 static int hf_tns_data_bind_num_elements;
+static int hf_tns_data_bind_cursor_count;
 static int hf_tns_data_col_nulls_ok;
 static int hf_tns_data_col_name;
 static int hf_tns_data_col_uds_flags;
@@ -2945,6 +2946,39 @@ static int dissect_tns_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_tree *ct;
 			int end, cursor = 0, start;
 			const tns_call_t *call = tns_answered_call(pinfo);
+
+			if ( kind == TNS_VALUE_BIND )
+			{
+				/* A client's REF CURSOR bind carries no DALC but a ub4
+				 * count, then that many ub4 cursor ids: none for an
+				 * OUT bind, which asks the server to open one, and the
+				 * id of the cursor an IN bind passes. */
+				wmem_strbuf_t *ids = wmem_strbuf_new(pinfo->pool, "");
+				int count = 0;
+
+				end = offset + get_sb4_custom(tvb, offset, &count);
+				for ( int i = 0; i < count; i++ )
+				{
+					end += get_sb4_custom(tvb, end, &cursor);
+					wmem_strbuf_append_printf(ids, "%s%d", i ? ", " : "", cursor);
+				}
+				ci = proto_tree_add_bytes_format(tree, hf, tvb, offset, end - offset, NULL,
+					"%s %d (%s): %s%s", prefix, idx,
+					val_to_str_const(dtype, tns_data_types, "unknown"),
+					count == 0 ? "a new cursor" : count == 1 ? "cursor " : "cursors ",
+					wmem_strbuf_get_str(ids));
+				ct = proto_item_add_subtree(ci, ett_tns_value);
+				start = offset;
+				offset += get_sb4_custom(tvb, offset, &count);
+				proto_tree_add_uint(ct, hf_tns_data_bind_cursor_count, tvb, start, offset - start, count);
+				for ( int i = 0; i < count; i++ )
+				{
+					start = offset;
+					offset += get_sb4_custom(tvb, offset, &cursor);
+					proto_tree_add_uint(ct, hf_tns_cursor, tvb, start, offset - start, cursor);
+				}
+				return offset;
+			}
 
 			/* Rows a TTI_FETCH returns carry a cursor cut short before
 			 * 23ai: the length byte and the id, with no describe. An
@@ -8385,6 +8419,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_bind_num_elements, {
 			"Array Elements", "tns.data_bind.num_elements", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_bind_cursor_count, {
+			"Cursor Count", "tns.data_bind.cursor_count", FT_UINT32, BASE_DEC,
+			NULL, 0x0, "The cursor ids a REF CURSOR bind passes; none asks for a new cursor", HFILL }},
 		{ &hf_tns_data_col_max_size, {
 			"Max Size", "tns.data_col.max_size", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }},
