@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-10-04
+ * ESTA codes download date: 2026-10-18
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -513,6 +513,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x06D1, "BIRUN ELECTRONIC INDUSTRIAL CO., LTD" },
   { 0x06D2, "LIGHTSTAR (BEIJING) ELECTRONIC CORPORATION" },
   { 0x06D3, "Boerner Distribution International GmbH" },
+  { 0x06D4, "LED House Co., Ltd." },
   { 0x06D8, "GUANGZHOU SUN-YUN TECHNOLOGY CO.,LTD" },
   { 0x06D9, "ELECTROCONCEPT SARL" },
   { 0x06DC, "SOMPI2.0 BV" },
@@ -1186,6 +1187,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1888, "GUANZHOU KAVON STAGE EQUIPMENT CO., LTD." },
   { 0x1896, "Triple E Ltd" },
   { 0x18A6, "Steadfast Technology" },
+  { 0x18FC, "Cinema Balloons Kft." },
   { 0x1900, "ADJ Products LLC" },
   { 0x1901, "Zhongshan Hiline Electronics Co., Ltd." },
   { 0x1938, "Solid State Luminaires" },
@@ -1206,6 +1208,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1A46, "StageMatter" },
   { 0x1A58, "Wuxi Seastar Lighting Co.,Ltd." },
   { 0x1AAF, "Gigacolor technology Co., Ltd." },
+  { 0x1AE2, "Jonas Rüter" },
   { 0x1AFA, "TMB" },
   { 0x1AFD, "Shenzhen ZMO Information Technology Co., Ltd." },
   { 0x1B7E, "Kaltech Lighting Systems" },
@@ -1216,6 +1219,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1CAB, "LTT sp. z o.o." },
   { 0x1E42, "SSE GmbH" },
   { 0x1E8D, "Moda Light" },
+  { 0x1E96, "Rekjndäl Systems" },
   { 0x1ECF, "Masiero s.r.l." },
   { 0x1ED8, "Antari Lighting And Effects Ltd." },
   { 0x2009, "Zboxes Intelligent Technology (Shanghai) Co., Ltd." },
@@ -1320,6 +1324,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x2C1A, "DMX4ALL GmbH" },
   { 0x2C2A, "XTBA" },
   { 0x2CE0, "Lighting Services Inc." },
+  { 0x2DB9, "Guangzhou Yeguang Lingdong Technology Co., Ltd." },
   { 0x2DC8, "Stellascapes" },
   { 0x2DDD, "Waylight" },
   { 0x2DDE, "Luminlite Electronics Co., Ltd." },

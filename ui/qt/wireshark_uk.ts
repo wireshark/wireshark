@@ -9572,6 +9572,17 @@ on an existing breakpoint, toggle its active state</source>
     </message>
 </context>
 <context>
+    <name>PinnedRowsModel</name>
+    <message>
+        <source>This packet is pinned but doesn&apos;t match the display filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This packet is pinned but has been aggregated into a later row with the same key.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Plot</name>
     <message>
         <source>Field cannot be empty.</source>
@@ -12544,6 +12555,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Solo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams and mute all other streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Route audio to left channel of selected streams</source>
         <translation type="unfinished"></translation>
     </message>
@@ -15273,7 +15292,8 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished">Відкрити </translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16360,6 +16380,14 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Frame</source>
         <translation type="unfinished">Кадр</translation>
+    </message>
+    <message>
+        <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefer Open and Capture sections side-by-side</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Tips Section</source>
@@ -18590,6 +18618,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Ви не можете експортувати пакети до поточного файлу захоплення.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation type="unfinished"></translation>
@@ -18645,16 +18681,6 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

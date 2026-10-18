@@ -1820,15 +1820,15 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Carpeta temporal</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory in which to write temporary capture files. Leave empty to use the system default. Overridden by the --temp-dir option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Carpeta temporal on escriure els fitxers de captura temporals. Deixeu-ho buit si voleu fer servir el lloc per defecte del sistema. Queda sobreescrit per l&apos;opció --temp-dir.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished">Navega…</translation>
+        <translation>Navega…</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -1852,7 +1852,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Temporary Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Carpeta temporal</translation>
     </message>
 </context>
 <context>
@@ -2152,7 +2152,7 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     </message>
     <message>
         <source>Compress with Zstandard</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprimeix amb el Zstandard</translation>
     </message>
 </context>
 <context>
@@ -4688,7 +4688,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Annotations</source>
-        <translation type="unfinished"></translation>
+        <translation>Notes</translation>
     </message>
     <message>
         <source>Add annotation…</source>
@@ -4752,7 +4752,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>…as UTF-8</source>
-        <translation type="unfinished"></translation>
+        <translation>…com a UTF-8</translation>
     </message>
     <message>
         <source>Comment: %1</source>
@@ -9425,24 +9425,8 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
 <context>
     <name>PacketList</name>
     <message>
-        <source>Unpin Row</source>
-        <translation type="vanished">No fixis la columna</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="vanished">Fixa la columna a dalt (s&apos;ha assolit el màx de %1)</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top</source>
-        <translation type="vanished">Fixa la columna a dalt</translation>
-    </message>
-    <message>
         <source>Go to Packet</source>
         <translation>Vés al paquet</translation>
-    </message>
-    <message>
-        <source>Unpin All Rows</source>
-        <translation type="vanished">Deixa de fixar columnes</translation>
     </message>
     <message>
         <source>Tag Links</source>
@@ -9573,22 +9557,6 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Columna</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 només es pot ordenar amb %2 o menys files visibles; augmenteu la memòria cau a les preferències de disposició.</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">S&apos;ordena «%1»…</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">S&apos;ordena…</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation>Marcat</translation>
     </message>
@@ -9609,19 +9577,19 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Columna</translation>
+        <translation>Columna</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 només es pot ordenar amb %2 o menys files visibles; augmenteu la memòria cau a les preferències de disposició.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">S&apos;ordena «%1»…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">S&apos;ordena…</translation>
+        <translation>S&apos;ordena…</translation>
     </message>
 </context>
 <context>
@@ -9695,6 +9663,17 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <message>
         <source>Select a path</source>
         <translation>Tria un camí</translation>
+    </message>
+</context>
+<context>
+    <name>PinnedRowsModel</name>
+    <message>
+        <source>This packet is pinned but doesn&apos;t match the display filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This packet is pinned but has been aggregated into a later row with the same key.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10773,7 +10752,7 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     </message>
     <message>
         <source>Tagging Rules...</source>
-        <translation type="unfinished"></translation>
+        <translation>Regles d&apos;etiquetatge...</translation>
     </message>
     <message>
         <source>Tag Links</source>
@@ -12718,6 +12697,14 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <message>
         <source>Invert muting of selected streams</source>
         <translation>Inverteix l&apos;estat de silenciador dels fluxos seleccionats</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams and mute all other streams</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Route audio to left channel of selected streams</source>
@@ -15383,11 +15370,11 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <name>TaggingRulesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Diàleg</translation>
+        <translation>Diàleg</translation>
     </message>
     <message>
         <source>Follow Link:</source>
-        <translation type="unfinished"></translation>
+        <translation>Segueix l&apos;enllaç:</translation>
     </message>
     <message>
         <source>How to open a tag link in the packet list.</source>
@@ -15399,11 +15386,11 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Clic</translation>
     </message>
     <message>
         <source>Right-click only</source>
-        <translation type="unfinished"></translation>
+        <translation>Només amb clic dret</translation>
     </message>
     <message>
         <source>Emoji Size:</source>
@@ -15483,7 +15470,7 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>Import…</source>
-        <translation type="unfinished">Importa…</translation>
+        <translation>Importa…</translation>
     </message>
     <message>
         <source>Select a file and add its rules to the end of the list.</source>
@@ -15506,7 +15493,8 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
         <translation type="unfinished">Obre</translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16422,10 +16410,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation>Versió de l&apos;aplicació en execució</translation>
     </message>
     <message>
-        <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
-    </message>
-    <message>
         <source>Variant of the application running</source>
         <translation>Variant de l&apos;aplicació en execució</translation>
     </message>
@@ -16597,6 +16581,14 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>Frame</source>
         <translation>Trama</translation>
+    </message>
+    <message>
+        <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefer Open and Capture sections side-by-side</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Tips Section</source>
@@ -18269,7 +18261,7 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished">Deixa de fixar columnes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unpin all of the packets pinned to the top of the packet list</source>
@@ -18510,10 +18502,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>Show Linked Packet in New Window</source>
         <translation>Mostra el paquet enllaçat en una finestra nova</translation>
-    </message>
-    <message>
-        <source>Aggregation in Live Capture</source>
-        <translation type="vanished">Agregació en captura en directe</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18831,6 +18819,14 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation>No podeu exportar paquets al fitxer de captura actual.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Voleu desar els canvis que heu fet%1?</translation>
@@ -18888,16 +18884,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Tipus de fitxer desconegut retornat per un diàleg d&apos;exportació.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished">Vista d&apos;agregació — mostra les trames agrupades segons la configuració dels camps d&apos;agregació.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished">Vista d&apos;agregació — mostra les trames agrupades segons la configuració dels camps d&apos;agregació. Per a activar-la, aneu a Preferències → Agregació.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

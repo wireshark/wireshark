@@ -84,6 +84,7 @@ memcache.desegment_pdus: FALSE
 mbrtu.desegment: FALSE
 mbtcp.desegment: FALSE
 monero.desegment: FALSE
+moql.desegment: FALSE
 mq.desegment: FALSE
 mq.reassembly: FALSE
 mysql.desegment_buffers: FALSE

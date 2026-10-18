@@ -9483,22 +9483,6 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Colonne</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 ne peut être trié qu&apos;avec %2 lignes visibles ou moins ; augmentez la taille du cache dans les préférences de mise en page</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">Tri de &quot;%1&quot;…</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">Tri en cours ...</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation type="unfinished">Marqués</translation>
     </message>
@@ -9519,19 +9503,19 @@ on an existing breakpoint, toggle its active state</source>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Colonne</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 ne peut être trié qu&apos;avec %2 lignes visibles ou moins ; augmentez la taille du cache dans les préférences de mise en page</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">Tri de &quot;%1&quot;…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">Tri en cours ...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9605,6 +9589,17 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Select a path</source>
         <translation>Sélectionner un chemin</translation>
+    </message>
+</context>
+<context>
+    <name>PinnedRowsModel</name>
+    <message>
+        <source>This packet is pinned but doesn&apos;t match the display filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This packet is pinned but has been aggregated into a later row with the same key.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12591,6 +12586,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation>Inverser la mise en sourdine des flux sélectionnés</translation>
     </message>
     <message>
+        <source>Solo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams and mute all other streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Route audio to left channel of selected streams</source>
         <translation>Acheminer l&apos;audio vers le canal gauche des flux sélectionnés</translation>
     </message>
@@ -15335,7 +15338,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16421,6 +16425,14 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Frame</source>
         <translation type="unfinished">Trame</translation>
+    </message>
+    <message>
+        <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefer Open and Capture sections side-by-side</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Tips Section</source>
@@ -18651,6 +18663,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Vous ne pouvez pas exporter les paquets de la capture en cours.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Voulez-vous enregistrer les modifications que vous aver apportées %1 ?</translation>
@@ -18707,16 +18727,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Type de fichier inconnu renvoyé par la boîte de dialogue d&apos;exportation.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsaved packets…</source>

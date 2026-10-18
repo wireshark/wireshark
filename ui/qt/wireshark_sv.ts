@@ -727,7 +727,7 @@
     </message>
     <message>
         <source>Lua expression — pause when truthy</source>
-        <translation>Lua-uttryck — pausa när resultatet är sant</translation>
+        <translation>Lua-uttryck: pausa när resultatet är sant</translation>
     </message>
     <message>
         <source>Evaluated each time control reaches this line; locals, upvalues, and globals are visible like Watch / Evaluate.
@@ -753,11 +753,11 @@ Körningsfel behandlas som falska (tyst) och visas som en varningsikon på raden
     </message>
     <message>
         <source>Log message — supports {expr} and tags such as {filename}, {basename}, {line}, {function}, {hits}, {timestamp}, {delta}…</source>
-        <translation>Loggmeddelande — stöder {expr} och taggar som {filename}, {basename}, {line}, {function}, {hits}, {timestamp}, {delta}…</translation>
+        <translation>Loggmeddelande: stöder {expr} och taggar som {filename}, {basename}, {line}, {function}, {hits}, {timestamp}, {delta}…</translation>
     </message>
     <message>
         <source>Logpoints write a message to the Evaluate output (and Wireshark&apos;s info log) each time the line is reached. By default execution continues without pausing; tick the Pause box on this editor to also pause after emitting (useful for log-then-inspect without duplicating the breakpoint). The line is emitted verbatim — there is no automatic file:line prefix. Inside {} the text is evaluated as a Lua expression in this frame and converted to text the same way tostring() does; reserved tags below shadow any same-named Lua local / upvalue / global. Origin: {filename}, {basename}, {line}, {function}, {what}. Counters and scope: {hits}, {depth}, {thread}. Time: {timestamp}, {datetime}, {epoch}, {epoch_ms}, {elapsed}, {delta}. Use {{ and }} for literal { and }. Per-placeholder errors substitute &apos;&lt;error: ...&gt;&apos; without aborting the line.</source>
-        <translation>Loggpunkter skriver ett meddelande till utdata för Utvärdera (och Wiresharks informationslogg) varje gång raden nås. Som standard fortsätter körningen utan paus; markera rutan Pausa i denna redigerare för att också pausa efter utskrift (användbart för att logga och sedan inspektera utan att duplicera brytpunkten). Raden skrivs ut ordagrant — det finns inget automatiskt fil:rad-prefix. Inuti {} utvärderas texten som ett Lua-uttryck i denna ram och konverteras till text på samma sätt som tostring() gör; reserverade taggar nedan skuggar en lokal/upvalue/global Lua-variabel med samma namn. Ursprung: {filename}, {basename}, {line}, {function}, {what}. Räknare och omfång: {hits}, {depth}, {thread}. Tid: {timestamp}, {datetime}, {epoch}, {epoch_ms}, {elapsed}, {delta}. Använd {{ och }} för bokstavliga { och }. Fel per platshållare ersätts med &apos;&lt;error: ...&gt;&apos; utan att raden avbryts.</translation>
+        <translation>Loggpunkter skriver ett meddelande till utdata för Utvärdera (och Wiresharks informationslogg) varje gång raden nås. Som standard fortsätter körningen utan paus; markera rutan Pausa i denna redigerare för att också pausa efter utskrift (användbart för att logga och sedan inspektera utan att duplicera brytpunkten). Raden skrivs ut ordagrant: det finns inget automatiskt fil:rad-prefix. Inuti {} utvärderas texten som ett Lua-uttryck i denna ram och konverteras till text på samma sätt som tostring() gör; reserverade taggar nedan skuggar en lokal/upvalue/global Lua-variabel med samma namn. Ursprung: {filename}, {basename}, {line}, {function}, {what}. Räknare och omfång: {hits}, {depth}, {thread}. Tid: {timestamp}, {datetime}, {epoch}, {epoch_ms}, {elapsed}, {delta}. Använd {{ och }} för bokstavliga { och }. Fel per platshållare ersätts med &apos;&lt;error: ...&gt;&apos; utan att raden avbryts.</translation>
     </message>
     <message>
         <source>from</source>
@@ -777,9 +777,9 @@ from — pause on every hit from N onwards.
 every — pause on hits N, 2N, 3N…
 once — pause once on the N-th hit and deactivate the breakpoint.</source>
         <translation>Jämförelseläge för träffantalet:
-från — pausa vid varje träff från N och framåt.
-varje — pausa vid träffarna N, 2N, 3N…
-en gång — pausa en gång vid den N:e träffen och inaktivera brytpunkten.</translation>
+från: pausa vid varje träff från N och framåt.
+varje: pausa vid träffarna N, 2N, 3N…
+en gång: pausa en gång vid den N:e träffen och inaktivera brytpunkten.</translation>
     </message>
     <message>
         <source>Pause</source>
@@ -1403,7 +1403,7 @@ Av = endast loggpunkt (följer den historiska konventionen ”loggpunkter pausar
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta. Vanligen fångar ett nätverkskort endast trafik som skickas till dess egen nätverksadress. Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot; markerar du det här alternativet. Se vanliga frågor för mer information om att fånga paket från ett växlat nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable promiscuous mode on all interfaces</source>
@@ -1525,7 +1525,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for some more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vanligen kommer ett trådlöst nätverkskort bara fånga trafiken som skickas till och från dess egen nätverksadress, och fångar endast &lt;em&gt;användardata&lt;/em&gt;trafik med &amp;quot;falska&amp;quot; Ethernethuvuden. Om du vill fånga all trafik som trådlösa nätverkskort kan &amp;quot;se&amp;quot;, eller är intresserad av 802.11:s hanterings- eller styrpaket, eller radionivåinformation, markera detta alternativ. Övervakningslägets tillgänglighet beror på det trådlösa kortet och drivrutinen. Se Wiki:n för några fler detaljer om att fånga paket på WLAN-nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vanligen fångar ett trådlöst nätverkskort bara trafik som skickas till eller från dess egen nätverksadress. Det fångar endast &lt;em&gt;användardata&lt;/em&gt; med &amp;quot;falska&amp;quot; Ethernethuvuden. Om du vill fånga all trafik som trådlösa nätverkskort kan &amp;quot;se&amp;quot; eller är intresserad av 802.11-hanterings- eller styrpaket eller radiolagerinformation markerar du det här alternativet. Tillgången till övervakningsläge beror på det trådlösa kortet och drivrutinen. Se wikin för mer information om att fånga paket i trådlösa nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable monitor mode on all 802.11 interfaces</source>
@@ -1557,7 +1557,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Date and time before the file index number. This causes files to sort in creation time order, and keeps files from the same batch closely ordered.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Datum och tid före filindexnummer. Detta gör att filer sorteras i den ordning de skapas, och håller filer från samma omgång ordnade nära varandra.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Datum och tid före filindexnumret. Filer sorteras då i skapelseordning och filer från samma omgång hålls nära varandra.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>NNNNN_YYYYmmDDHHMMSS</source>
@@ -1569,19 +1569,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Create a new interface bookmark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa ett nytt bokmärke för gränssnitt.</translation>
     </message>
     <message>
         <source>Remove this interface bookmark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort det här bokmärket för gränssnitt.</translation>
     </message>
     <message>
         <source>Processes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Processer:</translation>
     </message>
     <message>
         <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sökvägar till körbara filer, kommandorader och användarnamn lagras i fångstfilen. En kommandorad kan innehålla ett lösenord.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1705,15 +1705,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Don&apos;t record processes</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrera inte processer</translation>
     </message>
     <message>
         <source>Record process IDs and names</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrera process-ID:n och namn</translation>
     </message>
     <message>
         <source>Record process IDs, names, paths, command lines and users</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrera process-ID:n, namn, sökvägar, kommandorader och användare</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
@@ -1729,15 +1729,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Not supported on this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stöds inte på den här plattformen.</translation>
     </message>
     <message>
         <source>Process information can only be recorded in pcapng files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Processinformation kan bara registreras i pcapng-filer.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Registrera vilka processer på den här datorn som skickade eller tog emot varje paket för paket i TCP- och UDP-socklar. Vilka processer som kan identifieras beror på dina behörigheter och paket från mycket kortlivade socklar kan missas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1768,7 +1768,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta. Vanligen fångar ett nätverkskort endast trafik som skickas till dess egen nätverksadress. Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot; markerar du det här alternativet. Se vanliga frågor för mer information om att fånga paket från ett växlat nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in promiscuous mode</source>
@@ -1776,7 +1776,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Usually a wireless network card will only capture the traffic sent to and from its own network address, and only captures &lt;em&gt;user data&lt;/em&gt; traffic with &amp;quot;fake&amp;quot; Ethernet headers. If you want to capture all traffic that wireless network cards can &amp;quot;see&amp;quot;, or are interested in 802.11 management or control packets, or radio-layer information, mark this option. Monitor mode availability depends on the wireless card and driver. See the Wiki for more details of capturing packets on WLAN networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vanligen kommer ett trådlöst nätverkskort bara fånga trafiken som skickas till och från dess egen nätverksadress, och fångar endast &lt;em&gt;användardata&lt;/em&gt;trafik med &amp;quot;falska&amp;quot; Ethernethuvuden. Om du vill fånga all trafik som trådlösa nätverkskort kan &amp;quot;se&amp;quot;, eller är intresserad av 802.11:s hanterings- eller styrpaket, eller radionivåinformation, markera detta alternativ. Övervakningslägets tillgänglighet beror på det trådlösa kortet och drivrutinen. Se Wiki:n för fler detaljer om att fånga paket på WLAN-nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vanligen fångar ett trådlöst nätverkskort bara trafik som skickas till eller från dess egen nätverksadress. Det fångar endast &lt;em&gt;användardata&lt;/em&gt; med &amp;quot;falska&amp;quot; Ethernethuvuden. Om du vill fånga all trafik som trådlösa nätverkskort kan &amp;quot;se&amp;quot; eller är intresserad av 802.11-hanterings- eller styrpaket eller radiolagerinformation markerar du det här alternativet. Tillgången till övervakningsläge beror på det trådlösa kortet och drivrutinen. Se wikin för information om att fånga paket i trådlösa nätverk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture packets in monitor mode on 802.11 devices</source>
@@ -1792,11 +1792,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Record the processes that packets belong to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrera processerna som paketen tillhör:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vad som ska registreras i pcapng-filer om processerna på den här datorn som skickade eller tog emot varje paket. Sökvägar till körbara filer, kommandorader och användarnamn kan vara känsliga: en kommandorad kan innehålla ett lösenord.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1820,15 +1820,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillfällig katalog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory in which to write temporary capture files. Leave empty to use the system default. Overridden by the --temp-dir option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Katalog där tillfälliga fångstfiler skrivs. Lämna tom för att använda systemets standard. Åsidosätts av flaggan --temp-dir.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>Bläddra…</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -1840,19 +1840,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Nothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget</translation>
     </message>
     <message>
         <source>Process IDs and names</source>
-        <translation type="unfinished"></translation>
+        <translation>Process-ID:n och namn</translation>
     </message>
     <message>
         <source>Process IDs, names, paths, command lines and users</source>
-        <translation type="unfinished"></translation>
+        <translation>Process-ID:n, namn, sökvägar, kommandorader och användare</translation>
     </message>
     <message>
         <source>Temporary Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillfällig katalog</translation>
     </message>
 </context>
 <context>
@@ -2152,7 +2152,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Compress with Zstandard</source>
-        <translation type="unfinished"></translation>
+        <translation>Komprimera med Zstandard</translation>
     </message>
 </context>
 <context>
@@ -2921,7 +2921,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation>Inställningar för filterknapp...</translation>
+        <translation>Inställningar för filterknappar…</translation>
     </message>
 </context>
 <context>
@@ -2989,7 +2989,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relationer kan användas för att begränsa fält till specifika värden.  Varje relation gör följande:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Matcha alla paket som innehåller detta fält&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med ett visst värde.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med en sträng (contains) eller reguljärt uttryck (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med en uppsättning värden&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relationer kan användas för att begränsa fält till specifika värden.  Varje relation gör följande:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Matcha alla paket som innehåller detta fält&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Operatorerna &quot;==&quot; och &quot;!=&quot; med flera&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med ett visst värde.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med en sträng (contains) eller reguljärt uttryck (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med en uppsättning värden&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </translation>
     </message>
@@ -3326,7 +3326,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Save As…</source>
-        <translation>Spara som …</translation>
+        <translation>Spara som…</translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -3734,7 +3734,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>%1 Select Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Välj mapp</translation>
     </message>
 </context>
 <context>
@@ -3948,7 +3948,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>Inställningar för filterknappar…</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -4019,7 +4019,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Filter Button Preferences…</source>
         <oldsource>Filter Button Preferences...</oldsource>
-        <translation>Filterknappinställningar …</translation>
+        <translation>Inställningar för filterknappar…</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -4688,7 +4688,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Annotations</source>
-        <translation type="unfinished"></translation>
+        <translation>Anteckningar</translation>
     </message>
     <message>
         <source>Add annotation…</source>
@@ -4704,7 +4704,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Offset markers</source>
-        <translation type="unfinished"></translation>
+        <translation>Förskjutningsmarkörer</translation>
     </message>
     <message>
         <source>Start byte for offset</source>
@@ -4752,7 +4752,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>…as UTF-8</source>
-        <translation type="unfinished"></translation>
+        <translation>…som UTF-8</translation>
     </message>
     <message>
         <source>Comment: %1</source>
@@ -5173,7 +5173,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Save As…</source>
-        <translation>Spara som …</translation>
+        <translation>Spara som…</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5373,7 +5373,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Spara grafen som …</translation>
+        <translation>Spara grafen som…</translation>
     </message>
 </context>
 <context>
@@ -5572,7 +5572,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Spara grafen som …</translation>
+        <translation>Spara grafen som…</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
@@ -5844,19 +5844,19 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and UDP header</source>
-        <translation>Föregå varje ram med ett Ethernet-, IP-, och UDP-huvud</translation>
+        <translation>Förse varje ram med huvuden för Ethernet, IP och UDP</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and TCP header</source>
-        <translation>Föregå varje ram med ett Ethernet-, IP-, och TCP-huvud</translation>
+        <translation>Förse varje ram med huvuden för Ethernet, IP och TCP</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and SCTP header</source>
-        <translation>Föregå varje ram med ett Ethernet-, IP-, och SCTP-huvud</translation>
+        <translation>Förse varje ram med huvuden för Ethernet, IP och SCTP</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</source>
-        <translation>Föregå varje ram med ett Ethernet-, IP-, och SCTP (DATA)-huvud</translation>
+        <translation>Förse varje ram med huvuden för Ethernet, IP och SCTP (DATA)</translation>
     </message>
     <message>
         <source>Source address:</source>
@@ -6307,7 +6307,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Optimize</source>
-        <translation type="unfinished"></translation>
+        <translation>Optimera</translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -6315,7 +6315,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Trafik</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -7299,23 +7299,23 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>75%</source>
-        <translation>75%</translation>
+        <translation>75 %</translation>
     </message>
     <message>
         <source>80%</source>
-        <translation>80%</translation>
+        <translation>80 %</translation>
     </message>
     <message>
         <source>85%</source>
-        <translation>85%</translation>
+        <translation>85 %</translation>
     </message>
     <message>
         <source>90%</source>
-        <translation>90%</translation>
+        <translation>90 %</translation>
     </message>
     <message>
         <source>95%</source>
-        <translation>95%</translation>
+        <translation>95 %</translation>
     </message>
     <message>
         <source>Separator style:</source>
@@ -7674,7 +7674,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Save As…</source>
-        <translation>Spara som …</translation>
+        <translation>Spara som…</translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
@@ -7718,7 +7718,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Spara grafen som …</translation>
+        <translation>Spara grafen som…</translation>
     </message>
 </context>
 <context>
@@ -7977,11 +7977,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>ON — Break on Lua errors</source>
-        <translation>PÅ — bryt vid Lua-fel</translation>
+        <translation>PÅ: bryt vid Lua-fel</translation>
     </message>
     <message>
         <source>OFF — Break on Lua errors</source>
-        <translation>AV — bryt vid Lua-fel</translation>
+        <translation>AV: bryt vid Lua-fel</translation>
     </message>
     <message>
         <source>Files</source>
@@ -8367,7 +8367,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Expression — re-evaluated on every pause.</source>
-        <translation>Uttryck — utvärderas på nytt vid varje paus.</translation>
+        <translation>Uttryck: utvärderas på nytt vid varje paus.</translation>
     </message>
 </context>
 <context>
@@ -8549,22 +8549,22 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation>Från zip-fil...</translation>
+        <translation>Från zip-fil…</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation>Från katalog...</translation>
+        <translation>Från katalog…</translation>
     </message>
     <message>
         <source>Selected Personal Profile…</source>
         <oldsource>Selected Personal Profile...</oldsource>
-        <translation>Vald personlig profil...</translation>
+        <translation>Vald personlig profil…</translation>
     </message>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation>Alla personliga profiler...</translation>
+        <translation>Alla personliga profiler…</translation>
     </message>
     <message>
         <source>Packets: %1</source>
@@ -8598,7 +8598,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>…as %1</source>
-        <translation>... som %1</translation>
+        <translation>…som %1</translation>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
@@ -9143,7 +9143,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Spara grafen som …</translation>
+        <translation>Spara grafen som…</translation>
     </message>
 </context>
 <context>
@@ -9425,28 +9425,12 @@ växla aktivt läge på en befintlig brytpunkt</translation>
 <context>
     <name>PacketList</name>
     <message>
-        <source>Unpin Row</source>
-        <translation type="vanished">Lossa rad</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="vanished">Fäst rad överst (maxgränsen %1 har nåtts)</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top</source>
-        <translation type="vanished">Fäst rad överst</translation>
-    </message>
-    <message>
         <source>Go to Packet</source>
         <translation>Gå till paket</translation>
     </message>
     <message>
-        <source>Unpin All Rows</source>
-        <translation type="vanished">Lossa alla rader</translation>
-    </message>
-    <message>
         <source>Tag Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Tagglänkar</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -9482,24 +9466,24 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Unpin Selected Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Lossa markeringen för valda rader</translation>
     </message>
     <message numerus="yes">
         <source>Pin Selected Rows (max %Ln)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Fäst markerad rad, högst %Ln</numerusform>
+            <numerusform>Fäst markerade rader, högst %Ln</numerusform>
         </translation>
     </message>
     <message>
         <source>Pin Selected Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fäst markerade rader</translation>
     </message>
     <message numerus="yes">
         <source>At most %Ln rows can be pinned.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Högst %Ln rad kan fästas.</numerusform>
+            <numerusform>Högst %Ln rader kan fästas.</numerusform>
         </translation>
     </message>
 </context>
@@ -9573,22 +9557,6 @@ växla aktivt läge på en befintlig brytpunkt</translation>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Kolumn</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 kan bara sorteras med %2 eller färre synliga rader; öka cachestorleken i inställningarna av layout</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">Sorterar ”%1” …</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">Sortering …</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation>Markerad</translation>
     </message>
@@ -9609,19 +9577,19 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Kolumn</translation>
+        <translation>Kolumn</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 kan bara sorteras med %2 eller färre synliga rader; öka cachestorleken i inställningarna av layout</translation>
+        <translation>%1 kan bara sorteras med %2 eller färre synliga rader. Öka cachestorleken i layoutinställningarna</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">Sorterar ”%1” …</translation>
+        <translation>Sorterar &quot;%1&quot;…</translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">Sortering …</translation>
+        <translation>Sorterar…</translation>
     </message>
 </context>
 <context>
@@ -9695,6 +9663,17 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>Select a path</source>
         <translation>Välj en sökväg</translation>
+    </message>
+</context>
+<context>
+    <name>PinnedRowsModel</name>
+    <message>
+        <source>This packet is pinned but doesn&apos;t match the display filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This packet is pinned but has been aggregated into a later row with the same key.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10085,7 +10064,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation>Spara som...</translation>
+        <translation>Spara som…</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -10197,7 +10176,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Spara graf som...</translation>
+        <translation>Spara grafen som…</translation>
     </message>
 </context>
 <context>
@@ -10456,12 +10435,12 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>From Zip File…</source>
         <oldsource>From Zip File...</oldsource>
-        <translation>Från zip-fil...</translation>
+        <translation>Från zip-fil…</translation>
     </message>
     <message>
         <source>From Directory…</source>
         <oldsource>From Directory...</oldsource>
-        <translation>Från katalog …</translation>
+        <translation>Från katalog…</translation>
     </message>
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
@@ -10474,7 +10453,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>All Personal Profiles…</source>
         <oldsource>All Personal Profiles...</oldsource>
-        <translation>Alla personliga profiler …</translation>
+        <translation>Alla personliga profiler…</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -10733,7 +10712,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Distribution…</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördelning…</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -10773,11 +10752,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Tagging Rules...</source>
-        <translation type="unfinished"></translation>
+        <translation>Taggningsregler…</translation>
     </message>
     <message>
         <source>Tag Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Tagglänkar</translation>
     </message>
     <message>
         <source>Coloring Rule Preferences...</source>
@@ -11745,15 +11724,15 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>(logpoint — also pauses)</source>
-        <translation>(loggpunkt — pausar också)</translation>
+        <translation>(loggpunkt: pausar också)</translation>
     </message>
     <message>
         <source>(logpoint — does not pause)</source>
-        <translation>(loggpunkt — pausar inte)</translation>
+        <translation>(loggpunkt: pausar inte)</translation>
     </message>
     <message>
         <source>Condition error on last evaluation — treated as false (silent). Edit or reset the breakpoint to clear.</source>
-        <translation>Villkorsfel vid senaste utvärderingen — behandlas som falskt (tyst). Redigera eller återställ brytpunkten för att rensa.</translation>
+        <translation>Villkorsfel vid senaste utvärderingen: behandlas som falskt (tyst). Redigera eller återställ brytpunkten för att rensa.</translation>
     </message>
     <message>
         <source>Condition error: %1</source>
@@ -11788,7 +11767,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <message>
         <source>All breakpoints are inactive — click to activate all
 %1: add or remove on the current line in the editor</source>
-        <translation>Alla brytpunkter är inaktiva — klicka för att aktivera alla
+        <translation>Alla brytpunkter är inaktiva: klicka för att aktivera alla
 %1: lägg till eller ta bort på den aktuella raden i redigeraren</translation>
     </message>
     <message>
@@ -11903,7 +11882,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <name>ResizeHeaderView</name>
     <message>
         <source>Resize all %1 to contents</source>
-        <translation>Ändra storlek på allla %1 till innehållet</translation>
+        <translation>Ändra storlek på alla %1 efter innehållet</translation>
     </message>
 </context>
 <context>
@@ -12231,7 +12210,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Key could not be added: %1</source>
-        <translation>Nyckeln kunde inte läggas till %1</translation>
+        <translation>Det gick inte att lägga till nyckeln: %1</translation>
     </message>
     <message>
         <source>RSA private key (*.pem *.p12 *.pfx *.key);;All Files (</source>
@@ -12466,7 +12445,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Spara grafen som …</translation>
+        <translation>Spara grafen som…</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
@@ -12720,6 +12699,14 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
         <translation>Invertera tystandet av de valda strömmarna</translation>
     </message>
     <message>
+        <source>Solo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams and mute all other streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Route audio to left channel of selected streams</source>
         <translation>Skicka audio till vänsterkanalen av de valda strömmarna</translation>
     </message>
@@ -12921,7 +12908,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>&amp;Add to playlist</source>
-        <translation>&amp;Lägg till till spellistan</translation>
+        <translation>&amp;Lägg till i spellistan</translation>
     </message>
     <message>
         <source>Add new set to existing playlist in RTP Player</source>
@@ -12942,7 +12929,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <message>
         <source>Decoding streams…</source>
         <oldsource>Decoding streams...</oldsource>
-        <translation>Avkodar strömmar...</translation>
+        <translation>Avkodar strömmar…</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -13166,7 +13153,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected streams and add it to it</source>
-        <translation>Öppna analysfönstret för de valda strömmarna och lägg till till det</translation>
+        <translation>Öppna analysfönstret för de valda strömmarna och lägg till dem där</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -13347,7 +13334,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <name>SCTPAllAssocsDialog</name>
     <message>
         <source>Wireshark - SCTP Associations</source>
-        <translation>Wireshark — SCTP-associationer</translation>
+        <translation>Wireshark: SCTP associationer</translation>
     </message>
     <message>
         <source>ID</source>
@@ -13386,7 +13373,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <name>SCTPAssocAnalyseDialog</name>
     <message>
         <source>Wireshark - Analyse Association</source>
-        <translation>Wireshark — analysera associationer</translation>
+        <translation>Wireshark: analysera association</translation>
     </message>
     <message>
         <source>TabWidget</source>
@@ -13762,7 +13749,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Spara grafen som …</translation>
+        <translation>Spara grafen som…</translation>
     </message>
 </context>
 <context>
@@ -14014,7 +14001,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Spara grafen som …</translation>
+        <translation>Spara grafen som…</translation>
     </message>
     <message>
         <source>Flow</source>
@@ -14451,7 +14438,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>UTF-8 Unescaped</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8 utan escape-sekvenser</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -14756,7 +14743,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Rcv Win</source>
-        <translation>Mot.fnst.</translation>
+        <translation>Mott.fnst</translation>
     </message>
     <message>
         <source>Display graph of Outstanding Bytes vs Time</source>
@@ -15224,7 +15211,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation>Spara som …</translation>
+        <translation>Spara som…</translation>
     </message>
     <message>
         <source>No Capture Data</source>
@@ -15244,11 +15231,11 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source> (MA)</source>
-        <translation>(GM)</translation>
+        <translation> (GM)</translation>
     </message>
     <message>
         <source> (%1 Segment MA)</source>
-        <translation>(%1-segments GM)</translation>
+        <translation> (%1 segment GM)</translation>
     </message>
     <message>
         <source> [not enough data]</source>
@@ -15324,7 +15311,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation>Spara grafen som …</translation>
+        <translation>Spara grafen som…</translation>
     </message>
 </context>
 <context>
@@ -15382,170 +15369,171 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <name>TaggingRulesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialogruta</translation>
     </message>
     <message>
         <source>Follow Link:</source>
-        <translation type="unfinished"></translation>
+        <translation>Följ länk:</translation>
     </message>
     <message>
         <source>How to open a tag link in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hur en tagglänk öppnas i paketlistan.</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+Click</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Klicka</translation>
     </message>
     <message>
         <source>Right-click only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast högerklick</translation>
     </message>
     <message>
         <source>Emoji Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Emoji-storlek:</translation>
     </message>
     <message>
         <source>Emoji size as a percentage of the row height. Does not affect text tag labels or the separator character.</source>
-        <translation type="unfinished"></translation>
+        <translation>Emojistorlek som procent av radhöjden. Påverkar inte textetiketter för taggar eller avgränsartecknet.</translation>
     </message>
     <message>
         <source>100%</source>
-        <translation type="unfinished"></translation>
+        <translation>100 %</translation>
     </message>
     <message>
         <source>90%</source>
-        <translation type="unfinished">90%</translation>
+        <translation>90 %</translation>
     </message>
     <message>
         <source>80%</source>
-        <translation type="unfinished">80%</translation>
+        <translation>80 %</translation>
     </message>
     <message>
         <source>70%</source>
-        <translation type="unfinished"></translation>
+        <translation>70 %</translation>
     </message>
     <message>
         <source>60%</source>
-        <translation type="unfinished"></translation>
+        <translation>60 %</translation>
     </message>
     <message>
         <source>50%</source>
-        <translation type="unfinished"></translation>
+        <translation>50 %</translation>
     </message>
     <message>
         <source>Separator:</source>
-        <translation type="unfinished"></translation>
+        <translation>Avgränsare:</translation>
     </message>
     <message>
         <source>Single character shown between tags when more than one rule matches. Leave empty for none.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ett enstaka tecken som visas mellan taggar när fler än en regel matchar. Lämna tomt om ingen avgränsare ska användas.</translation>
     </message>
     <message>
         <source>Save these tagging rules and open the Coloring Rules dialog with this rule&apos;s filter and name pre-filled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara dessa taggningsregler och öppna dialogrutan Färgregler med den här regelns filter och namn ifyllda.</translation>
     </message>
     <message>
         <source>Copy to Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera till färgregel</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Ett tips.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;En ledtråd.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Add a new tagging rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till en ny taggningsregel.</translation>
     </message>
     <message>
         <source>Delete this tagging rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort den här taggningsregeln.</translation>
     </message>
     <message>
         <source>Duplicate this tagging rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplicera den här taggningsregeln.</translation>
     </message>
     <message>
         <source>Clear all tagging rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensa alla taggningsregler.</translation>
     </message>
     <message>
         <source>Tagging Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Taggningsregler %1</translation>
     </message>
     <message>
         <source>Shift+Command+Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+Command+Click</translation>
     </message>
     <message>
         <source>Import…</source>
-        <translation type="unfinished">Importera …</translation>
+        <translation>Importera…</translation>
     </message>
     <message>
         <source>Select a file and add its rules to the end of the list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj en fil och lägg till dess regler längst ned i listan.</translation>
     </message>
     <message>
         <source>Export…</source>
-        <translation type="unfinished">Exportera …</translation>
+        <translation>Exportera…</translation>
     </message>
     <message>
         <source>Save rules to a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara reglerna i en fil.</translation>
     </message>
     <message>
         <source>Copy tagging rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera taggningsregler från en annan profil.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Öppna </translation>
+        <translation>Öppna </translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
-        <translation type="unfinished"></translation>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
+        <translation type="unfinished">Taggregelfil saknas och skapas när du sparar</translation>
     </message>
     <message>
         <source>Click to edit. Drag to move. Sample Emojis &lt;a href=&quot;https://emojipedia.org&quot;&gt;here&lt;/a&gt;. All matching rules are applied.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klicka för att redigera. Dra för att flytta. Exempel på emoji finns &lt;a href=&quot;https://emojipedia.org&quot;&gt;här&lt;/a&gt;. Alla matchande regler tillämpas.</translation>
     </message>
     <message>
         <source>Import Tagging Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Importera taggningsregler</translation>
     </message>
     <message>
         <source>Export %1 Tagging Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportera %1 taggningsregler</translation>
     </message>
 </context>
 <context>
     <name>TaggingRulesModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filter</translation>
+        <translation>Filter</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Tagg</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Länk</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">Kommentar</translation>
+        <translation>Kommentar</translation>
     </message>
     <message>
         <source>New tagging rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny taggningsregel</translation>
     </message>
 </context>
 <context>
@@ -15729,7 +15717,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>The inspector reports any widget in this application under the cursor — including child dialogs. Widgets that belong to this debug window are skipped so the last hovered target stays pinned. Hold Alt+Shift and click any widget to pin it: this turns off tracking and locks the readout onto that widget (re-check the box above to resume). Note: on macOS, tool windows are hidden whenever another application has focus, so tracking pauses until Wireshark is frontmost again.</source>
-        <translation>Inspektören rapporterar varje komponent i programmet under markören — även underordnade dialogrutor. Komponenter som hör till det här felsökningsfönstret hoppas över, så att det senast hovrade målet förblir fäst. Håll ned Alt+Skift och klicka på en komponent för att fästa den: detta stänger av följningen och låser utdata till komponenten (markera rutan ovan igen för att återuppta). Observera: på macOS döljs verktygsfönster när ett annat program har fokus, så följningen pausas tills Wireshark åter är längst fram.</translation>
+        <translation>Inspektören rapporterar varje komponent i programmet under markören, även underordnade dialogrutor. Komponenter som hör till det här felsökningsfönstret hoppas över, så att det senast hovrade målet förblir fäst. Håll ned Alt+Skift och klicka på en komponent för att fästa den: detta stänger av följningen och låser utdata till komponenten (markera rutan ovan igen för att återuppta). Observera: på macOS döljs verktygsfönster när ett annat program har fokus, så följningen pausas tills Wireshark åter är längst fram.</translation>
     </message>
     <message>
         <source>Cursor (global):</source>
@@ -16421,10 +16409,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Version av programmet som körs just nu</translation>
     </message>
     <message>
-        <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
-    </message>
-    <message>
         <source>Variant of the application running</source>
         <translation>Variant av programmet som körs</translation>
     </message>
@@ -16596,6 +16580,14 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>Frame</source>
         <translation>Ram</translation>
+    </message>
+    <message>
+        <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefer Open and Capture sections side-by-side</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Tips Section</source>
@@ -18260,19 +18252,19 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Pin Selected Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fäst markerade rader</translation>
     </message>
     <message>
         <source>Keep the selected packets at the top of the packet list, or unpin them if they are all pinned</source>
-        <translation type="unfinished"></translation>
+        <translation>Behåll de markerade paketen högst upp i paketlistan eller lossa markeringen om alla redan är fästa</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished">Lossa alla rader</translation>
+        <translation>Lossa markeringen för alla rader</translation>
     </message>
     <message>
         <source>Unpin all of the packets pinned to the top of the packet list</source>
-        <translation type="unfinished"></translation>
+        <translation>Lossa markeringen för alla paket som är fästa högst upp i paketlistan</translation>
     </message>
     <message>
         <source>Reset layout to default size</source>
@@ -18296,7 +18288,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Year, Day of Year, and Time of Day (1970/001 01:02:03.123456)</source>
-        <translation>År, dag på året, och tid på dagen (1970/001 01:02:03.123456)</translation>
+        <translation>År, dag på året och tid på dagen (1970/001 01:02:03.123456)</translation>
     </message>
     <message>
         <source>Show packet times as the year, day of the year and time of day.</source>
@@ -18500,19 +18492,15 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>&amp;Tagging Rules…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Taggningsregler…</translation>
     </message>
     <message>
         <source>Edit the packet tagging rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera taggningsreglerna för paket.</translation>
     </message>
     <message>
         <source>Show Linked Packet in New Window</source>
         <translation>Visa länkade paket i ett nytt fönster</translation>
-    </message>
-    <message>
-        <source>Aggregation in Live Capture</source>
-        <translation type="vanished">Samla i live-fångst</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18683,7 +18671,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Aggregate Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Sammanställ paket</translation>
     </message>
     <message>
         <source>Expert Information</source>
@@ -18830,6 +18818,14 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Du kan inte exportera paket till den nuvarande fångstfilen.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation>Visa ramar grupperade efter dina konfigurerade sammanställningsfält.</translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation>Visa ramar grupperade efter dina konfigurerade sammanställningsfält. Aktivera funktionen under Inställningar → Sammanställning.</translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Vill du spara ändringarna du gjort%1?</translation>
@@ -18889,18 +18885,8 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Okänd filtyp returnerad av exportdialogen.</translation>
     </message>
     <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished">Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished">Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält. Aktivera den via Inställningar → Aggregering.</translation>
-    </message>
-    <message>
         <source>Unsaved packets…</source>
-        <translation>Osparade paket...</translation>
+        <translation>Osparade paket…</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
