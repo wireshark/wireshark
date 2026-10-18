@@ -93,8 +93,8 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Satırı Kopyala</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -942,26 +942,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <source>Automatically detect file type</source>
         <translation>Dosya türünü otomatik olarak algıla</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paketinden sonra hata</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paketinde zaman aşımına uğradı</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paketi</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Paketleri başa ekle</translation>
@@ -1041,20 +1021,20 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation>
-            <numerusform>%1, %Ln veri kaydından sonra hata</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation>
-            <numerusform>%1, %Ln veri kaydında zaman aşımına uğradı</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation>
-            <numerusform>%1, %Ln veri kaydı</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -3798,8 +3778,8 @@ Relative to reference: n/a (outside reference range)</source>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation>
-            <numerusform>Kümedeki %Ln Dosyaları</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -4258,18 +4238,6 @@ Relative to reference: n/a (outside reference range)</source>
         <source>Print</source>
         <translation>Yazdır</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln istemci pkt,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln sunucu pkt,</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4320,20 +4288,20 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;istemci&lt;/span&gt; pkt,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;sunucu&lt;/span&gt; pkt,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation>
-            <numerusform>%Ln dönüşü.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -4386,14 +4354,14 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation>
-            <numerusform>%Ln toplam akış.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max sub stream ID for the selected stream: %Ln</source>
-        <translation>
-            <numerusform>Seçilen akış için azami alt akış kimliği: %Ln</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -6310,7 +6278,7 @@ Relative to reference: n/a (outside reference range)</source>
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation type="unfinished">
-            <numerusform>Satırı Kopyala</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -8392,8 +8360,8 @@ on an existing breakpoint, toggle its active state</source>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation>
-            <numerusform>%Ln bayt</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -9103,7 +9071,7 @@ on an existing breakpoint, toggle its active state</source>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <translation type="unfinished">
-            <numerusform>%Ln bayt</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -9453,22 +9421,6 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Sütun</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 yalnızca %2 veya daha az görünür satırla sıralanabilir; Düzen tercihlerinde önbellek boyutunu artırın</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">&quot;%1&quot; sıralanıyor…</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">Sıralanıyor ...</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation type="unfinished">İşaretlenmiş</translation>
     </message>
@@ -9489,19 +9441,19 @@ on an existing breakpoint, toggle its active state</source>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Sütun</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 yalnızca %2 veya daha az görünür satırla sıralanabilir; Düzen tercihlerinde önbellek boyutunu artırın</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">&quot;%1&quot; sıralanıyor…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">Sıralanıyor ...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10153,7 +10105,7 @@ on an existing breakpoint, toggle its active state</source>
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation type="unfinished">
-            <numerusform>Satırı Kopyala</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -10338,21 +10290,9 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Dışa aktarmak için zip dosyasını seçin</translation>
     </message>
     <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln seçilmiş kişisel profil</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln seçilmiş kişisel profil</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>%Ln profile(s) exported</source>
-        <translation>
-            <numerusform>%Ln profili dışa aktarıldı</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -10381,14 +10321,14 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation>
-            <numerusform>%Ln profili içe aktarıldı</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
-            <numerusform>, %Ln profili atlandı</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -13807,14 +13747,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation>
-            <numerusform>%Ln düğümü</numerusform>
+        <translation type="unfinished">
+            <numerusform>%Ln node</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation>
-            <numerusform>%Ln öğesi</numerusform>
+        <translation type="unfinished">
+            <numerusform>%Ln item</numerusform>
         </translation>
     </message>
     <message>
@@ -14201,8 +14141,8 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation>
-            <numerusform>Çerçeve %1, %2, %Ln bayt.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -15288,7 +15228,8 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished">Aç </translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18603,6 +18544,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Paketleri geçerli yakalama dosyasına aktaramazsınız.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>%1 yaptığınız değişiklikleri kaydetmek istiyor musunuz?</translation>
@@ -18659,16 +18608,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Dışa aktarma iletişim kutusu tarafından döndürülen bilinmeyen dosya türü.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -18778,13 +18717,6 @@ Preferences → Protocols → TCP to use this table.</source>
         <source>No Keys</source>
         <translation>Anahtar Yok</translation>
     </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSL Oturum Anahtarlarını Dışa Aktar (%Ln anahtarı)</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Ham veriler (*.bin *.dat *.raw);;Tüm Dosyalar (</translation>
@@ -18892,8 +18824,8 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation>
-            <numerusform>TLS Oturum Anahtarlarını Dışa Aktar (%Ln anahtarı)</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

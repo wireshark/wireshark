@@ -93,10 +93,10 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Копировать Строку</numerusform>
-            <numerusform>Копировать Строки</numerusform>
-            <numerusform>Копировать Строки</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -950,32 +950,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <source>Automatically detect file type</source>
         <translation>Автоматически определить тип файла</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, ошибка после %Ln пакета</numerusform>
-            <numerusform>%1, ошибка после %Ln пакетов</numerusform>
-            <numerusform>%1, ошибка после %Ln пакетов</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, тайм-аут при %Ln пакете</numerusform>
-            <numerusform>%1, тайм-аут при %Ln пакетах</numerusform>
-            <numerusform>%1, тайм-аут при %Ln пакетах</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln пакет</numerusform>
-            <numerusform>%1, %Ln пакетов</numerusform>
-            <numerusform>%1, %Ln пакетов</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Добавить пакеты к началу файла</translation>
@@ -1055,26 +1029,26 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation>
-            <numerusform>%1, ошибка после %Ln записи данных</numerusform>
-            <numerusform>%1, ошибка после %Ln записей данных</numerusform>
-            <numerusform>%1, ошибка после %Ln записей данных</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation>
-            <numerusform>%1, тайм-аут при %Ln записи данных</numerusform>
-            <numerusform>%1, тайм-аут при %Ln записях данных</numerusform>
-            <numerusform>%1, тайм-аут при %Ln записях данных</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation>
-            <numerusform>%1, %Ln запись данных</numerusform>
-            <numerusform>%1, %Ln записи данных</numerusform>
-            <numerusform>%1, %Ln записи данных</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -3820,10 +3794,10 @@ Relative to reference: n/a (outside reference range)</source>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation>
-            <numerusform>%Ln Файл в Наборе</numerusform>
-            <numerusform>%Ln Файлов в Наборе</numerusform>
-            <numerusform>%Ln Файлов в Наборе</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -4282,22 +4256,6 @@ Relative to reference: n/a (outside reference range)</source>
         <source>Print</source>
         <translation>Печать</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет клиента, </numerusform>
-            <numerusform>%Ln пакеты клиента, </numerusform>
-            <numerusform>%Ln пакеты клиента, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет сервера, </numerusform>
-            <numerusform>%Ln пакеты сервера, </numerusform>
-            <numerusform>%Ln пакеты сервера, </numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4348,26 +4306,26 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакет&lt;/span&gt; клиента, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакеты &lt;/span&gt; клиента, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакеты &lt;/span&gt; клиента, </numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакет&lt;/span&gt; сервера, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакеты&lt;/span&gt; сервера, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакеты&lt;/span&gt; сервера, </numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation>
-            <numerusform>%Ln очередь.</numerusform>
-            <numerusform>%Ln очереди.</numerusform>
-            <numerusform>%Ln очереди.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -4420,18 +4378,18 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation>
-            <numerusform>%Ln поток.</numerusform>
-            <numerusform>%Ln всего потоков.</numerusform>
-            <numerusform>%Ln всего потоков.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max sub stream ID for the selected stream: %Ln</source>
-        <translation>
-            <numerusform>Максимальный ИД подпотока для выбранного потока: %Ln</numerusform>
-            <numerusform>Максимальный ИД подпотока для выбранного потока: %Ln</numerusform>
-            <numerusform>Максимальный ИД подпотока для выбранного потока: %Ln</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -6348,9 +6306,9 @@ Relative to reference: n/a (outside reference range)</source>
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation type="unfinished">
-            <numerusform>Копировать Строку</numerusform>
-            <numerusform>Копировать Строки</numerusform>
-            <numerusform>Копировать Строки</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -8444,18 +8402,18 @@ on an existing breakpoint, toggle its active state</source>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation>
-            <numerusform>%Ln байт</numerusform>
-            <numerusform>%Ln байт</numerusform>
-            <numerusform>%Ln байт</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln bit(s)</source>
-        <translation>
-            <numerusform>%Ln бит</numerusform>
-            <numerusform>%Ln бита</numerusform>
-            <numerusform>%Ln бит</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -9160,18 +9118,18 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
-        <translation>
-            <numerusform>%Ln байт</numerusform>
-            <numerusform>%Ln байта</numerusform>
-            <numerusform>%Ln байт</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln bit(s)</source>
-        <translation>
-            <numerusform>%Ln бит</numerusform>
-            <numerusform>%Ln бита</numerusform>
-            <numerusform>%Ln бит</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -9519,22 +9477,6 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Столбец</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 может быть отсортирован только на %2 или меньшее количество видимых строк; необходимо увеличить размер кэша в параметрах разметки</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">Сортировка «%1»…</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">Сортировка …</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation type="unfinished">Отмечено</translation>
     </message>
@@ -9555,19 +9497,19 @@ on an existing breakpoint, toggle its active state</source>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Столбец</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 может быть отсортирован только на %2 или меньшее количество видимых строк; необходимо увеличить размер кэша в параметрах разметки</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">Сортировка «%1»…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">Сортировка …</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10219,9 +10161,9 @@ on an existing breakpoint, toggle its active state</source>
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation type="unfinished">
-            <numerusform>Копировать Строку</numerusform>
-            <numerusform>Копировать Строки</numerusform>
-            <numerusform>Копировать Строки</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -10408,27 +10350,11 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Выбрать zip-файл для экспорта</translation>
     </message>
     <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln выбранный личный профиль</numerusform>
-            <numerusform>… %Ln выбранных личных профиля</numerusform>
-            <numerusform>… %Ln выбранных личных профиля</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln выбранный личный профиль</numerusform>
-            <numerusform>%Ln выбранных личных профиля</numerusform>
-            <numerusform>%Ln выбранных личных профиля</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>%Ln profile(s) exported</source>
-        <translation>
-            <numerusform>%Ln профиль экспортирован.</numerusform>
-            <numerusform>%Ln профилей экспортировано</numerusform>
-            <numerusform>%Ln профилей экспортировано</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -10457,18 +10383,18 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation>
-            <numerusform>%Ln профиль импортирован</numerusform>
-            <numerusform>%Ln профилей импортировано</numerusform>
-            <numerusform>%Ln профилей импортировано</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
-            <numerusform>, %Ln профиль пропущен</numerusform>
-            <numerusform>, %Ln профилей пропущено</numerusform>
-            <numerusform>, %Ln профилей пропущено</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -13902,18 +13828,18 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation>
-            <numerusform>%Ln узел</numerusform>
-            <numerusform>%Ln узлы</numerusform>
-            <numerusform>%Ln узлы</numerusform>
+        <translation type="unfinished">
+            <numerusform>%Ln node</numerusform>
+            <numerusform>%Ln nodes</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation>
-            <numerusform>%Ln пункт</numerusform>
-            <numerusform>%Ln пункты</numerusform>
-            <numerusform>%Ln пункты</numerusform>
+        <translation type="unfinished">
+            <numerusform>%Ln item</numerusform>
+            <numerusform>%Ln items</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -14300,10 +14226,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation>
-            <numerusform>Кадр %1, %2, %Ln байт.</numerusform>
-            <numerusform>Кадр %1, %2, %Ln байты.</numerusform>
-            <numerusform>Кадр %1, %2, %Ln байты.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -14408,10 +14334,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <translation>
-            <numerusform>Используя %Ln байт.</numerusform>
-            <numerusform>Используя %Ln байта.</numerusform>
-            <numerusform>Используя %Ln байт.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -15391,7 +15317,8 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished">Открыть </translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18708,6 +18635,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Экспорт пакетов в текущий файл захвата невозможен.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Сохранить внесённые изменения%1?</translation>
@@ -18765,16 +18700,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Диалог экспорта вернул неизвестный тип файла.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -18883,15 +18808,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>No Keys</source>
         <translation>Отсутствуют ключи</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Экспорт ключей сеанса SSL (%Ln ключ)</numerusform>
-            <numerusform>Экспорт ключей сеанса SSL (%Ln ключа)</numerusform>
-            <numerusform>Экспорт ключей сеанса SSL (%Ln ключей)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
@@ -19002,10 +18918,10 @@ Preferences → Protocols → TCP to use this table.</source>
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation>
-            <numerusform>Экспорт ключей сеанса TLS (%Ln ключ)</numerusform>
-            <numerusform>Экспорт ключей сеанса TLS (%Ln ключа)</numerusform>
-            <numerusform>Экспорт ключей сеанса TLS (%Ln ключей)</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

@@ -951,29 +951,6 @@ Desactivat = només punt de registre (coincideix amb la convenció històrica «
         <source>Automatically detect file type</source>
         <translation>Detecta automàticament el tipus de fitxer</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, error després d&apos;%Ln paquet</numerusform>
-            <numerusform>%1, error després de %Ln paquets</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, fi del temps d&apos;espera al cap d&apos;%Ln paquet</numerusform>
-            <numerusform>%1, fi del temps d&apos;espera al cap de %Ln paquets</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paquet</numerusform>
-            <numerusform>%1, %Ln paquets</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Anteposa els paquets</translation>
@@ -4281,20 +4258,6 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Print</source>
         <translation>Imprimeix</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln paq. de client,</numerusform>
-            <numerusform>%Ln paq. de clients,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln paq. de serv.,</numerusform>
-            <numerusform>%Ln paq. de serv.,</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -8039,30 +8002,9 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
         <source>Code View Theme:</source>
         <translation>Tema de la vista de codi:</translation>
     </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation type="vanished">
-            <numerusform>Esteu segur que voleu traure el punt d&apos;interrupció?</numerusform>
-            <numerusform>Esteu segur que voleu traure els %Ln punts d&apos;interrupció?</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation type="vanished">
-            <numerusform>Esteu segur que voleu traure el punt de vigilància?</numerusform>
-            <numerusform>Esteu segur que voleu traure els %Ln punts de vigilància?</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Type: %1</source>
         <translation>Tipus: %1</translation>
-    </message>
-    <message numerus="yes">
-        <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation type="vanished">
-            <numerusform>Hi ha canvis sense desar en %Ln fitxer obert.</numerusform>
-            <numerusform>Hi ha canvis sense desar en %Ln fitxers oberts.</numerusform>
-        </translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -9425,24 +9367,8 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
 <context>
     <name>PacketList</name>
     <message>
-        <source>Unpin Row</source>
-        <translation type="vanished">No fixis la columna</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="vanished">Fixa la columna a dalt (s&apos;ha assolit el màx de %1)</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top</source>
-        <translation type="vanished">Fixa la columna a dalt</translation>
-    </message>
-    <message>
         <source>Go to Packet</source>
         <translation>Vés al paquet</translation>
-    </message>
-    <message>
-        <source>Unpin All Rows</source>
-        <translation type="vanished">Deixa de fixar columnes</translation>
     </message>
     <message>
         <source>Tag Links</source>
@@ -9573,22 +9499,6 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Columna</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 només es pot ordenar amb %2 o menys files visibles; augmenteu la memòria cau a les preferències de disposició.</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">S&apos;ordena «%1»…</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">S&apos;ordena…</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation>Marcat</translation>
     </message>
@@ -9609,19 +9519,19 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Columna</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 només es pot ordenar amb %2 o menys files visibles; augmenteu la memòria cau a les preferències de disposició.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">S&apos;ordena «%1»…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">S&apos;ordena…</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10491,20 +10401,6 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <message>
         <source>Select zip file for export</source>
         <translation>Tria el fitxer zip a exportar</translation>
-    </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln perfil personal seleccionat</numerusform>
-            <numerusform>… %Ln perfils personals seleccionats</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln perfil personal seleccionat</numerusform>
-            <numerusform>%Ln perfils personals seleccionats</numerusform>
-        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
@@ -15506,7 +15402,8 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
         <translation type="unfinished">Obre</translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16420,10 +16317,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>Version of the application currently running</source>
         <translation>Versió de l&apos;aplicació en execució</translation>
-    </message>
-    <message>
-        <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
     </message>
     <message>
         <source>Variant of the application running</source>
@@ -18269,7 +18162,7 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished">Deixa de fixar columnes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unpin all of the packets pinned to the top of the packet list</source>
@@ -18510,10 +18403,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>Show Linked Packet in New Window</source>
         <translation>Mostra el paquet enllaçat en una finestra nova</translation>
-    </message>
-    <message>
-        <source>Aggregation in Live Capture</source>
-        <translation type="vanished">Agregació en captura en directe</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18831,6 +18720,14 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation>No podeu exportar paquets al fitxer de captura actual.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Voleu desar els canvis que heu fet%1?</translation>
@@ -18888,16 +18785,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Tipus de fitxer desconegut retornat per un diàleg d&apos;exportació.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished">Vista d&apos;agregació — mostra les trames agrupades segons la configuració dels camps d&apos;agregació.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished">Vista d&apos;agregació — mostra les trames agrupades segons la configuració dels camps d&apos;agregació. Per a activar-la, aneu a Preferències → Agregació.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -19006,14 +18893,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>No Keys</source>
         <translation>Sense claus</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Exporta la clau de sessió SSL (%Ln clau)</numerusform>
-            <numerusform>Exporta les claus de sessió SSL (%Ln claus)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

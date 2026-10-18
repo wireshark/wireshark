@@ -942,26 +942,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <source>Automatically detect file type</source>
         <translation>파일 형식을 자동으로 감지</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, 패킷 %Ln개 이후 오류</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, 패킷 %Ln개 이후 시간 초과</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, 패킷 %Ln개</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>앞쪽에 패킷 넣기</translation>
@@ -4257,18 +4237,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Print</source>
         <translation>인쇄</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>클라이언트 패킷 %Ln개,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>서버 패킷 %Ln개,</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -7751,7 +7719,7 @@ Relative to reference: n/a (outside reference range)</source>
     <message numerus="yes">
         <source>There are unsaved changes in %Ln open file(s).</source>
         <translation type="unfinished">
-            <numerusform>열려진 %Ln 파일에 저장되지 않은 변경사항이 있습니다.</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -7968,12 +7936,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Type: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation type="vanished">
-            <numerusform>열려진 %Ln 파일에 저장되지 않은 변경사항이 있습니다.</numerusform>
-        </translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -9459,22 +9421,6 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">열</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1(으)로는 표시된 행이 %2개 이하일 때만 정렬할 수 있습니다. 레이아웃 설정에서 캐시 크기를 증가시키십시오</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">&quot;%1&quot; 정렬 중…</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">정렬 중 …</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation type="unfinished">마크됨</translation>
     </message>
@@ -9495,19 +9441,19 @@ on an existing breakpoint, toggle its active state</source>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">열</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1(으)로는 표시된 행이 %2개 이하일 때만 정렬할 수 있습니다. 레이아웃 설정에서 캐시 크기를 증가시키십시오</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">&quot;%1&quot; 정렬 중…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">정렬 중 …</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10342,18 +10288,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Select zip file for export</source>
         <translation>내보낼 ZIP 파일 선택</translation>
-    </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… 선택한 개인 프로필 %Ln개</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>선택한 개인 프로필 %Ln개</numerusform>
-        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
@@ -15294,7 +15228,8 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18609,6 +18544,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>현재 캡처 파일로 패킷을 내보낼 수 없습니다.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>변경 사항을 저장하시겠습니까%1?</translation>
@@ -18665,16 +18608,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>내보내기 대화 상자에서 알 수 없는 파일 형식을 반환했습니다.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -18783,13 +18716,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>No Keys</source>
         <translation>키 없음</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSL 세션 키 내보내기(키 %Ln개)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

@@ -93,10 +93,10 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Cóipeáil Ró</numerusform>
-            <numerusform>Cóipeáil Rónna</numerusform>
-            <numerusform>Cóipeáil Rónna</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -853,18 +853,18 @@ As = pointe loga amháin (meaitseálann sé an coinbhinsiún stairiúil &quot;n�
     </message>
     <message numerus="yes">
         <source>%n interface(s)</source>
-        <translation>
-            <numerusform>%n comhéadan(anna)</numerusform>
-            <numerusform>%n comhéadan(anna)</numerusform>
-            <numerusform>%n comhéadan(anna)</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
-        <translation>
-            <numerusform>%n comhéadan taispeánta, %1 i bhfolach</numerusform>
-            <numerusform>%n comhéadain taispeánta, %1 i bhfolach</numerusform>
-            <numerusform>%n comhéadain taispeánta, %1 i bhfolach</numerusform>
+        <translation type="unfinished">
+            <numerusform>%n interface shown, %1 hidden</numerusform>
+            <numerusform>%n interfaces shown, %1 hidden</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -945,41 +945,15 @@ As = pointe loga amháin (meaitseálann sé an coinbhinsiún stairiúil &quot;n�
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation>
-            <numerusform>%Ln lá</numerusform>
-            <numerusform>%Ln laethanta</numerusform>
-            <numerusform>%Ln laethanta</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>Automatically detect file type</source>
         <translation>Aimsigh cineál comhaid go huathoibríoch</translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, earráid i ndiaidh %Ln paicéad</numerusform>
-            <numerusform>%1, earráid i ndiaidh %Ln paicéid</numerusform>
-            <numerusform>%1, earráid i ndiaidh %Ln paicéid</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, imithe thar am ag %Ln paicéad</numerusform>
-            <numerusform>%1, imithe thar am ag %Ln paicéid</numerusform>
-            <numerusform>%1, imithe thar am ag %Ln paicéid</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paicéad</numerusform>
-            <numerusform>%1, %Ln paicéid</numerusform>
-            <numerusform>%1, %Ln paicéid</numerusform>
-        </translation>
     </message>
     <message>
         <source>Prepend packets</source>
@@ -1060,26 +1034,26 @@ As = pointe loga amháin (meaitseálann sé an coinbhinsiún stairiúil &quot;n�
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation>
-            <numerusform>%1, earráid i ndiaidh taifead sonraí %Ln</numerusform>
-            <numerusform>%1, earráid i ndiaidh taifead sonraí %Ln</numerusform>
-            <numerusform>%1, earráid i ndiaidh taifead sonraí %Ln</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation>
-            <numerusform>%1, imithe thar am ag taifead sonraí %Ln</numerusform>
-            <numerusform>%1, imithe thar am ag %Ln taifead sonraí</numerusform>
-            <numerusform>%1, imithe thar am ag %Ln taifead sonraí</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation>
-            <numerusform>%1, %Ln taifead sonraí</numerusform>
-            <numerusform>%1, %Ln taifid sonraí</numerusform>
-            <numerusform>%1, %Ln taifid sonraí</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -1163,10 +1137,10 @@ As = pointe loga amháin (meaitseálann sé an coinbhinsiún stairiúil &quot;n�
     </message>
     <message numerus="yes">
         <source>%Ln day(s)</source>
-        <translation>
-            <numerusform>%Ln lá</numerusform>
-            <numerusform>%Ln laethanta</numerusform>
-            <numerusform>%Ln laethanta</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -3833,10 +3807,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation>
-            <numerusform>%Ln Comhad i Set</numerusform>
-            <numerusform>%Ln Comhaid i Set</numerusform>
-            <numerusform>%Ln Comhaid i Set</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -4295,22 +4269,6 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <source>Print</source>
         <translation>Priontáil</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln cliant pkt,</numerusform>
-            <numerusform>%Ln cliant pkts,</numerusform>
-            <numerusform>%Ln cliant pkts,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Lln freastalaí pkt,</numerusform>
-            <numerusform>%Lln freastalaí pkts,</numerusform>
-            <numerusform>%Lln freastalaí pkts,</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4361,26 +4319,26 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliant&lt;/span&gt; pkt, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliant&lt;/span&gt; pkts, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;cliant&lt;/span&gt; pkts, </numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;freastalaí&lt;/span&gt; pkt, </numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;freastalaí&lt;/span&gt;pkts,</numerusform>
-            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;freastalaí&lt;/span&gt;pkts,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation>
-            <numerusform>%Ln cas</numerusform>
-            <numerusform>%Ln casadh</numerusform>
-            <numerusform>%Ln casadh</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -4433,18 +4391,18 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation>
-            <numerusform>%Ln sruth.</numerusform>
-            <numerusform>%Ln sruthanna san iomlán.</numerusform>
-            <numerusform>%Ln sruthanna san iomlán.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Max sub stream ID for the selected stream: %Ln</source>
-        <translation>
-            <numerusform>Aitheantas an fhoshrutha uasta don sruth roghnaithe: %Ln</numerusform>
-            <numerusform>Aitheantas an fhoshrutha uasta don sruth roghnaithe: %Ln</numerusform>
-            <numerusform>Aitheantas an fhoshrutha uasta don sruth roghnaithe: %Ln</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -6393,10 +6351,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Cóipeáil Sraith</numerusform>
-            <numerusform>Cóipeáil Sraitheanna</numerusform>
-            <numerusform>Cóipeáil Sraitheanna</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -7842,10 +7800,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <name>LuaDebuggerCodeTabsController</name>
     <message numerus="yes">
         <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation>
-            <numerusform>Tá athruithe gan sábháil i %Ln comhad oscailte.</numerusform>
-            <numerusform>Tá athruithe neamhshábháilte i %Ln comhad oscailte.</numerusform>
-            <numerusform>Tá athruithe neamhshábháilte i %Ln comhad oscailte.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -8064,33 +8022,9 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <source>Code View Theme:</source>
         <translation>Téama Radharc Cód:</translation>
     </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation type="vanished">
-            <numerusform>An bhfuil tú cinnte gur mian leat pointe briste %Ln a bhaint?</numerusform>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation type="vanished">
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln faire a bhaint?</numerusform>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln faire a bhaint?</numerusform>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln faire a bhaint?</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Type: %1</source>
         <translation>Cineál: %1</translation>
-    </message>
-    <message numerus="yes">
-        <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation type="vanished">
-            <numerusform>Tá athruithe gan sábháil i %Ln comhad oscailte.</numerusform>
-            <numerusform>Tá athruithe gan sábháil i %Ln comhaid oscailte.</numerusform>
-            <numerusform>Tá athruithe gan sábháil i %Ln comhaid oscailte.</numerusform>
-        </translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -8362,10 +8296,10 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message numerus="yes">
         <source>Watch expression is too long (maximum %Ln characters).</source>
-        <translation>
-            <numerusform>Tá an abairt faire rófhada (uasmhéid %Ln carachtar).</numerusform>
-            <numerusform>Tá an abairt faire rófhada (uasmhéid %Ln carachtar).</numerusform>
-            <numerusform>Tá an abairt faire rófhada (uasmhéid %Ln carachtar).</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -8519,18 +8453,18 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <message numerus="yes">
         <source>%Ln byte(s)</source>
         <oldsource>, %1 bytes</oldsource>
-        <translation>
-            <numerusform>%Ln beart</numerusform>
-            <numerusform>%Ln bearta</numerusform>
-            <numerusform>%Ln bearta</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln bit(s)</source>
-        <translation>
-            <numerusform>%Ln giotán</numerusform>
-            <numerusform>%Ln giotáin</numerusform>
-            <numerusform>%Ln giotáin</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -9235,18 +9169,18 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message numerus="yes">
         <source>%Ln byte(s)</source>
-        <translation>
-            <numerusform>%Ln beart</numerusform>
-            <numerusform>%Ln bearta</numerusform>
-            <numerusform>%Ln bearta</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln bit(s)</source>
-        <translation>
-            <numerusform>%Ln giotán</numerusform>
-            <numerusform>%Ln giotáin</numerusform>
-            <numerusform>%Ln giotáin</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -9460,24 +9394,8 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
 <context>
     <name>PacketList</name>
     <message>
-        <source>Unpin Row</source>
-        <translation type="vanished">Díphionnaigh an Ró</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="vanished">Biorraigh an Ró go dtí an Barr (baintear amach an t-uasmhéid %1)</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top</source>
-        <translation type="vanished">Biorraigh an Ró go dtí an Barr</translation>
-    </message>
-    <message>
         <source>Go to Packet</source>
         <translation>Téigh chuig an bpacáiste</translation>
-    </message>
-    <message>
-        <source>Unpin All Rows</source>
-        <translation type="vanished">Díphionnaigh gach ró</translation>
     </message>
     <message>
         <source>Tag Links</source>
@@ -9610,22 +9528,6 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Colún</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">Ní féidir %1 a shórtáil ach le %2 nó níos lú sraitheanna infheicthe; méadaigh méid na taisce i sainroghanna Leagan Amach</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">&quot;%1&quot; á shórtáil…</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">Sórtáil…</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation>Marcáilte</translation>
     </message>
@@ -9646,19 +9548,19 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Colún</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">Ní féidir %1 a shórtáil ach le %2 nó níos lú sraitheanna infheicthe; méadaigh méid na taisce i sainroghanna Leagan Amach</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">&quot;%1&quot; á shórtáil…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">Sórtáil…</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10342,10 +10244,10 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Cóipeáil ró</numerusform>
-            <numerusform>Cóipeáil rónna</numerusform>
-            <numerusform>Cóipeáil rónna</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -10504,10 +10406,10 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <message numerus="yes">
         <source>%Ln Selected Personal Profile(s)…</source>
         <oldsource>%Ln Selected Personal Profile(s)...</oldsource>
-        <translation>
-            <numerusform>%Ln Próifíl Phearsanta Roghnaithe…</numerusform>
-            <numerusform>%Ln Próifílí Pearsanta Roghnaithe…</numerusform>
-            <numerusform>%Ln Próifílí Pearsanta Roghnaithe…</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -10532,27 +10434,11 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Roghnaigh comhad zip le heaspórtáil</translation>
     </message>
     <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln próifíl pearsanta roghnaithe</numerusform>
-            <numerusform>… %Ln próifílí pearsanta roghnaithe</numerusform>
-            <numerusform>… %Ln próifílí pearsanta roghnaithe</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln próifíl pearsanta roghnaithe</numerusform>
-            <numerusform>%Ln próifílí pearsanta roghnaithe</numerusform>
-            <numerusform>%Ln próifílí pearsanta roghnaithe</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>%Ln profile(s) exported</source>
-        <translation>
-            <numerusform>%Ln próifíl easpórtáilte</numerusform>
-            <numerusform>%Ln próifílí easpórtáilte</numerusform>
-            <numerusform>%Ln próifílí easpórtáilte</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -10581,18 +10467,18 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation>
-            <numerusform>%Ln próifíl iompórtáilte</numerusform>
-            <numerusform>%Ln próifílí iompórtáilte</numerusform>
-            <numerusform>%Ln próifílí iompórtáilte</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
-        <translation>
-            <numerusform>, %Ln próifíl scipeála</numerusform>
-            <numerusform>, %Ln próifílí scipeála</numerusform>
-            <numerusform>, %Ln próifílí scipeála</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -11708,10 +11594,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln uaireadóir a bhaint?</numerusform>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln uaireadóirí a bhaint?</numerusform>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln uaireadóirí a bhaint?</numerusform>
+        <translation type="unfinished">
+            <numerusform>Are you sure you want to remove %Ln watch?</numerusform>
+            <numerusform>Are you sure you want to remove %Ln watches?</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -11752,10 +11638,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointe briste a bhaint?</numerusform>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
-            <numerusform>An bhfuil tú cinnte gur mian leat %Ln pointí briste a bhaint?</numerusform>
+        <translation type="unfinished">
+            <numerusform>Are you sure you want to remove %Ln breakpoint?</numerusform>
+            <numerusform>Are you sure you want to remove %Ln breakpoints?</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -12366,10 +12252,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message numerus="yes">
         <source> %Ln stream(s), </source>
-        <translation>
-            <numerusform>sruth %Ln,</numerusform>
-            <numerusform>sruthanna %Ln,</numerusform>
-            <numerusform>sruthanna %Ln,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -13014,10 +12900,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message numerus="yes">
         <source>%Ln stream(s)</source>
-        <translation>
-            <numerusform>sruth %Ln</numerusform>
-            <numerusform>sruthanna %Ln</numerusform>
-            <numerusform>sruthanna %Ln</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -13375,18 +13261,18 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message numerus="yes">
         <source>%Ln stream(s)</source>
-        <translation>
-            <numerusform>sruth %Ln</numerusform>
-            <numerusform>sruthanna %Ln</numerusform>
-            <numerusform>sruthanna %Ln</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>, %1 selected, %Ln total packet(s)</source>
-        <translation>
-            <numerusform>, %1 roghnaithe, %Ln paicéad iomlán</numerusform>
-            <numerusform>, %1 roghnaithe, %Ln paicéid san iomlán</numerusform>
-            <numerusform>, %1 roghnaithe, %Ln paicéid san iomlán</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -14031,18 +13917,18 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation>
-            <numerusform>%Ln nód</numerusform>
-            <numerusform>%Ln nóid</numerusform>
-            <numerusform>%Ln nóid</numerusform>
+        <translation type="unfinished">
+            <numerusform>%Ln node</numerusform>
+            <numerusform>%Ln nodes</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation>
-            <numerusform>%Ln mír</numerusform>
-            <numerusform>%Ln míreanna</numerusform>
-            <numerusform>%Ln míreanna</numerusform>
+        <translation type="unfinished">
+            <numerusform>%Ln item</numerusform>
+            <numerusform>%Ln items</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -14429,10 +14315,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation>
-            <numerusform>Fráma %1, %2, %Ln beart.</numerusform>
-            <numerusform>Fráma %1, %2, %Ln bearta.</numerusform>
-            <numerusform>Fráma %1, %2, %Ln bearta.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -14537,10 +14423,10 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message numerus="yes">
         <source>Using %Ln byte(s).</source>
-        <translation>
-            <numerusform>Ag baint úsáide as %Ln beart.</numerusform>
-            <numerusform>Ag baint úsáide as %Ln bearta.</numerusform>
-            <numerusform>Ag baint úsáide as %Ln bearta.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -15560,7 +15446,8 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16474,10 +16361,6 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     <message>
         <source>Version of the application currently running</source>
         <translation>Leagan den fheidhmchlár atá ag rith faoi láthair</translation>
-    </message>
-    <message>
-        <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
     </message>
     <message>
         <source>Variant of the application running</source>
@@ -18324,7 +18207,7 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished">Díphionnaigh gach ró</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unpin all of the packets pinned to the top of the packet list</source>
@@ -18565,10 +18448,6 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     <message>
         <source>Show Linked Packet in New Window</source>
         <translation>Taispeáin Paicéad Nasctha i bhFuinneog Nua</translation>
-    </message>
-    <message>
-        <source>Aggregation in Live Capture</source>
-        <translation type="vanished">Comhiomlánú i nGabháil Bheo</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18886,6 +18765,14 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation>Ní féidir leat paicéid a easpórtáil chuig an gcomhad gabhála reatha.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>An bhfuil fonn ort na hathruithe atá déanta agat %1 a shábháil?</translation>
@@ -18943,16 +18830,6 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Cineál anaithnid comhaid curtha ar ais ag dialóg easpórtála.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished">Radharc Comhiomlánaithe — taispeánann sé frámaí grúpáilte de réir do réimsí comhiomlánaithe cumraithe.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished">Amharc Comhiomlánaithe — taispeánann sé frámaí grúpáilte de réir do réimsí comhiomlánaithe cumraithe. Chun é a ghníomhachtú, téigh go Roghanna → Comhiomlánú.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -19062,15 +18939,6 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <source>No Keys</source>
         <translation>Gan Eochracha</translation>
     </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Easpórtáil Eochracha Seisiúin SSL (%Ln eochair)</numerusform>
-            <numerusform>Easpórtáil Eochracha Seisiúin SSL (%Ln eochracha)</numerusform>
-            <numerusform>Easpórtáil Eochracha Seisiúin SSL (%Ln eochracha)</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Sonraí amha (*.bin *.dat *.raw);; Gach Comhad (</translation>
@@ -19148,10 +19016,10 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message numerus="yes">
         <source>Delete comments from %Ln packet(s)</source>
-        <translation>
-            <numerusform>Scrios tráchtanna ón bpacáiste %Ln</numerusform>
-            <numerusform>Scrios tráchtanna ó phaicéid %Ln</numerusform>
-            <numerusform>Scrios tráchtanna ó phaicéid %Ln</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -19180,10 +19048,10 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation>
-            <numerusform>Easpórtáil Eochracha Seisiúin TLS (%Ln eochair)</numerusform>
-            <numerusform>Easpórtáil Eochracha Seisiúin TLS (%Ln eochracha)</numerusform>
-            <numerusform>Easpórtáil Eochracha Seisiúin TLS (%Ln eochracha)</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

@@ -2152,7 +2152,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Compress with Zstandard</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprimi con Zstandard</translation>
     </message>
 </context>
 <context>
@@ -3734,7 +3734,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>%1 Select Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Seleziona cartella</translation>
     </message>
 </context>
 <context>
@@ -4347,22 +4347,22 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%n pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
-            <numerusform>%n pacchetti &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pacchetti &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
-            <numerusform>%n pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
-            <numerusform>%n pacchetti &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pacchetto &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
+            <numerusform>%Ln pacchetti &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt;, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
         <translation>
-            <numerusform>%n turno.</numerusform>
-            <numerusform>%n turni.</numerusform>
+            <numerusform>%Ln turno.</numerusform>
+            <numerusform>%Ln turni.</numerusform>
         </translation>
     </message>
     <message>
@@ -4416,8 +4416,8 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
         <translation>
-            <numerusform>%n flusso.</numerusform>
-            <numerusform>%n flussi totali.</numerusform>
+            <numerusform>%Ln flusso.</numerusform>
+            <numerusform>%Ln flussi totali.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -4688,7 +4688,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Annotations</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotazioni</translation>
     </message>
     <message>
         <source>Add annotation…</source>
@@ -4704,7 +4704,7 @@ Relativo al riferimento: n/d (al di fuori dell&apos;intervallo di riferimento)</
     </message>
     <message>
         <source>Offset markers</source>
-        <translation type="unfinished"></translation>
+        <translation>Marcatori di offset</translation>
     </message>
     <message>
         <source>Start byte for offset</source>
@@ -9427,24 +9427,8 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
 <context>
     <name>PacketList</name>
     <message>
-        <source>Unpin Row</source>
-        <translation type="vanished">Sblocca riga</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="vanished">Blocca riga in alto (%1 massimo raggiunto)</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top</source>
-        <translation type="vanished">Blocca riga in alto</translation>
-    </message>
-    <message>
         <source>Go to Packet</source>
         <translation>Vai al pacchetto</translation>
-    </message>
-    <message>
-        <source>Unpin All Rows</source>
-        <translation type="vanished">Sblocca tutte le righe</translation>
     </message>
     <message>
         <source>Tag Links</source>
@@ -9484,24 +9468,24 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     </message>
     <message>
         <source>Unpin Selected Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Sblocca le righe selezionate</translation>
     </message>
     <message numerus="yes">
         <source>Pin Selected Rows (max %Ln)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Fissa le righe selezionate (max %Ln)</numerusform>
+            <numerusform>Fissa le righe selezionate (max %Ln)</numerusform>
         </translation>
     </message>
     <message>
         <source>Pin Selected Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fissa le righe selezionate</translation>
     </message>
     <message numerus="yes">
         <source>At most %Ln rows can be pinned.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>È possibile fissare al massimo %Ln righe.</numerusform>
+            <numerusform>È possibile fissare al massimo %Ln righe.</numerusform>
         </translation>
     </message>
 </context>
@@ -9575,22 +9559,6 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Colonna</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 può essere ordinato solo con %2 o meno righe visibili; aumenta la dimensione della cache nelle preferenze di disposizione</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">Ordinamento di &quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">Ordinamento...</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation>Marcati</translation>
     </message>
@@ -9611,19 +9579,19 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Colonna</translation>
+        <translation>Colonna</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 può essere ordinato solo con %2 o meno righe visibili; aumenta la dimensione della cache nelle preferenze di disposizione</translation>
+        <translation>%1 può essere ordinato solo con %2 o meno righe visibili; aumenta la dimensione della cache nelle preferenze di Disposizione</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">Ordinamento di &quot;%1&quot;...</translation>
+        <translation>Ordinamento di &quot;%1&quot;...</translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">Ordinamento...</translation>
+        <translation>Ordinamento...</translation>
     </message>
 </context>
 <context>
@@ -10550,8 +10518,8 @@ su un breakpoint esistente, attiva o disattiva il suo stato</translation>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
         <translation>
-            <numerusform>, %Ln profilo importato</numerusform>
-            <numerusform>, %Ln profili importati</numerusform>
+            <numerusform>, %Ln profilo saltato</numerusform>
+            <numerusform>, %Ln profili saltati</numerusform>
         </translation>
     </message>
     <message>
@@ -12323,7 +12291,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <message numerus="yes">
         <source> %Ln stream(s), </source>
         <translation>
-            <numerusform>%Ln flusso.</numerusform>
+            <numerusform>%Ln flusso,</numerusform>
             <numerusform>%1 flussi,</numerusform>
         </translation>
     </message>
@@ -12970,7 +12938,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <message numerus="yes">
         <source>%Ln stream(s)</source>
         <translation>
-            <numerusform>%Ln flusso.</numerusform>
+            <numerusform>%Ln flusso</numerusform>
             <numerusform>%1 flussi</numerusform>
         </translation>
     </message>
@@ -13330,7 +13298,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <message numerus="yes">
         <source>%Ln stream(s)</source>
         <translation>
-            <numerusform>%Ln flusso.</numerusform>
+            <numerusform>%Ln flusso</numerusform>
             <numerusform>%1 flussi</numerusform>
         </translation>
     </message>
@@ -13984,15 +13952,15 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     <message numerus="yes">
         <source>%Ln node(s)</source>
         <translation>
-            <numerusform>%n nodo</numerusform>
-            <numerusform>%n nodi</numerusform>
+            <numerusform>%Ln nodo</numerusform>
+            <numerusform>%Ln nodi</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
         <translation>
-            <numerusform>%n voce</numerusform>
-            <numerusform>%n voci</numerusform>
+            <numerusform>%Ln elemento</numerusform>
+            <numerusform>%Ln elementi</numerusform>
         </translation>
     </message>
     <message>
@@ -14454,7 +14422,7 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
     </message>
     <message>
         <source>UTF-8 Unescaped</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8 senza escape</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -15508,8 +15476,9 @@ Questo riavvierà tutti gli script Lua e potrebbe influire sull&apos;analisi del
         <translation>Apri</translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
-        <translation>(nessun file con le regole di etichettatura ancora presente — sarà creato al salvataggio) </translation>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
+        <translation type="unfinished">(nessun file con le regole di etichettatura ancora presente — sarà creato al salvataggio) </translation>
     </message>
     <message>
         <source>Click to edit. Drag to move. Sample Emojis &lt;a href=&quot;https://emojipedia.org&quot;&gt;here&lt;/a&gt;. All matching rules are applied.</source>
@@ -16422,10 +16391,6 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     <message>
         <source>Version of the application currently running</source>
         <translation>Versione dell&apos;applicazione attualmente in esecuzione</translation>
-    </message>
-    <message>
-        <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
     </message>
     <message>
         <source>Variant of the application running</source>
@@ -18263,19 +18228,19 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Pin Selected Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fissa le righe selezionate</translation>
     </message>
     <message>
         <source>Keep the selected packets at the top of the packet list, or unpin them if they are all pinned</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantieni i pacchetti selezionati in cima all&apos;elenco dei pacchetti, oppure sbloccali se sono tutti fissati</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished">Sblocca tutte le righe</translation>
+        <translation>Sblocca tutte le righe</translation>
     </message>
     <message>
         <source>Unpin all of the packets pinned to the top of the packet list</source>
-        <translation type="unfinished"></translation>
+        <translation>Sblocca tutti i pacchetti fissati in cima all&apos;elenco dei pacchetti</translation>
     </message>
     <message>
         <source>Reset layout to default size</source>
@@ -18514,10 +18479,6 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>Mostra il pacchetto collegato in una nuova finestra</translation>
     </message>
     <message>
-        <source>Aggregation in Live Capture</source>
-        <translation type="vanished">Aggregazione durante la cattura</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>Nuova regola di colorazione...</translation>
@@ -18686,7 +18647,7 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     </message>
     <message>
         <source>Aggregate Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggrega pacchetfi</translation>
     </message>
     <message>
         <source>Expert Information</source>
@@ -18833,6 +18794,14 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <translation>Non puoi esportare pacchetti sul file di cattura attuale.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation>Visualizza i frame raggruppati in base ai campi di aggregazione configurati.</translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation>Visualizza i frame raggruppati in base ai campi di aggregazione configurati. Per attivarla, vai su Preferenze → Aggregazione.</translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Vuoi salvare le modifiche che hai apportato%1?</translation>
@@ -18890,16 +18859,6 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Tipo di file sconosciuto restituito dalla finestra di esportazione. </translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished">Vista di aggregazione: visualizza i frame raggruppati in base ai campi di aggregazione configurati.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished">Vista aggregazione: mostra i frame raggruppati in base ai campi di aggregazione configurati. Per attivarla, vai su Preferenze → Aggregazione.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -19013,8 +18972,8 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
         <source>Export SSL Session Keys (%Ln key(s))</source>
         <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
         <translation type="vanished">
-            <numerusform>Esporta chiavi di sessione SSL (%Ln chiave)</numerusform>
-            <numerusform>Esporta chiavi di sessione SSL (%Ln chiavi)</numerusform>
+            <numerusform>Esporta le chiavi di sessione SSL (%Ln chiave)</numerusform>
+            <numerusform>Esporta le chiavi di sessione SSL (%Ln chiavi)</numerusform>
         </translation>
     </message>
     <message>
@@ -19126,8 +19085,8 @@ Preferenze → Protocolli → TCP per utilizzare questa tabella.</translation>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
         <translation>
-            <numerusform>Esporta chiavi di sessione TLS (%Ln chiave)</numerusform>
-            <numerusform>Esporta chiavi di sessione TLS (%Ln chiavi)</numerusform>
+            <numerusform>Esporta le chiavi di sessione TLS (%Ln chiave)</numerusform>
+            <numerusform>Esporta le chiavi di sessione TLS (%Ln chiavi)</numerusform>
         </translation>
     </message>
     <message>

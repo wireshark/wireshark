@@ -951,29 +951,6 @@ Av = endast loggpunkt (följer den historiska konventionen ”loggpunkter pausar
         <source>Automatically detect file type</source>
         <translation>Detektera automatiskt filtyp</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paket</numerusform>
-            <numerusform>%1, %Ln paket</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Lägg paket före</translation>
@@ -4281,20 +4258,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Print</source>
         <translation>Skriv</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln klientpaket,</numerusform>
-            <numerusform>%Ln klientpaket,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln serverpaket,</numerusform>
-            <numerusform>%Ln serverpaket,</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -8039,30 +8002,9 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <source>Code View Theme:</source>
         <translation>Tema för kodvy:</translation>
     </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation type="vanished">
-            <numerusform>Är du säker på att du vill ta bort %Ln brytpunkt?</numerusform>
-            <numerusform>Är du säker på att du vill ta bort %Ln brytpunkter?</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation type="vanished">
-            <numerusform>Är du säker på att du vill ta bort %Ln bevakning?</numerusform>
-            <numerusform>Är du säker på att du vill ta bort %Ln bevakningar?</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Type: %1</source>
         <translation>Typ: %1</translation>
-    </message>
-    <message numerus="yes">
-        <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation type="vanished">
-            <numerusform>Det finns osparade ändringar i %Ln öppen fil.</numerusform>
-            <numerusform>Det finns osparade ändringar i %Ln öppna filer.</numerusform>
-        </translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -9425,24 +9367,8 @@ växla aktivt läge på en befintlig brytpunkt</translation>
 <context>
     <name>PacketList</name>
     <message>
-        <source>Unpin Row</source>
-        <translation type="vanished">Lossa rad</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top (max %1 reached)</source>
-        <translation type="vanished">Fäst rad överst (maxgränsen %1 har nåtts)</translation>
-    </message>
-    <message>
-        <source>Pin Row to Top</source>
-        <translation type="vanished">Fäst rad överst</translation>
-    </message>
-    <message>
         <source>Go to Packet</source>
         <translation>Gå till paket</translation>
-    </message>
-    <message>
-        <source>Unpin All Rows</source>
-        <translation type="vanished">Lossa alla rader</translation>
     </message>
     <message>
         <source>Tag Links</source>
@@ -9573,22 +9499,6 @@ växla aktivt läge på en befintlig brytpunkt</translation>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Kolumn</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 kan bara sorteras med %2 eller färre synliga rader; öka cachestorleken i inställningarna av layout</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">Sorterar ”%1” …</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">Sortering …</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation>Markerad</translation>
     </message>
@@ -9609,19 +9519,19 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Kolumn</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 kan bara sorteras med %2 eller färre synliga rader; öka cachestorleken i inställningarna av layout</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">Sorterar ”%1” …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">Sortering …</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10491,20 +10401,6 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>Select zip file for export</source>
         <translation>Välj zip-fil för exporten</translation>
-    </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln vad personlig profil</numerusform>
-            <numerusform>… %Ln valda personliga profiler</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln vald personlig profil</numerusform>
-            <numerusform>%Ln valda personliga profiler</numerusform>
-        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
@@ -15505,7 +15401,8 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
         <translation type="unfinished">Öppna </translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16419,10 +16316,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>Version of the application currently running</source>
         <translation>Version av programmet som körs just nu</translation>
-    </message>
-    <message>
-        <source>4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</source>
-        <translation type="vanished">4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)</translation>
     </message>
     <message>
         <source>Variant of the application running</source>
@@ -18268,7 +18161,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished">Lossa alla rader</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unpin all of the packets pinned to the top of the packet list</source>
@@ -18509,10 +18402,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>Show Linked Packet in New Window</source>
         <translation>Visa länkade paket i ett nytt fönster</translation>
-    </message>
-    <message>
-        <source>Aggregation in Live Capture</source>
-        <translation type="vanished">Samla i live-fångst</translation>
     </message>
     <message>
         <source>New Coloring Rule…</source>
@@ -18830,6 +18719,14 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Du kan inte exportera paket till den nuvarande fångstfilen.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Vill du spara ändringarna du gjort%1?</translation>
@@ -18887,16 +18784,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Okänd filtyp returnerad av exportdialogen.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished">Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished">Aggregeringsvy — visar ramar grupperade efter dina konfigurerade aggregeringsfält. Aktivera den via Inställningar → Aggregering.</translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -19005,14 +18892,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>No Keys</source>
         <translation>Inga nycklar</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nyckel)</numerusform>
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nycklar)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

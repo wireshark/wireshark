@@ -950,29 +950,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <source>Automatically detect file type</source>
         <translation>Dateityp automatisch erkennen</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, Fehler nach %Ln Paket</numerusform>
-            <numerusform>%1, Fehler nach %Ln Paketen</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, Zeitüberschreitung nach %Ln Paket</numerusform>
-            <numerusform>%1, Zeitüberschreitung nach %Ln Paketen</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln Paket</numerusform>
-            <numerusform>%1, %Ln Pakete</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Pakete vorne einfügen</translation>
@@ -4280,20 +4257,6 @@ Relativ zur Referenz: n. v. (außerhalb des Referenzbereichs)</translation>
     <message>
         <source>Print</source>
         <translation>Drucken</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln Client Paket,</numerusform>
-            <numerusform>%Ln Client Pakete,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln Server Paket,</numerusform>
-            <numerusform>%Ln Server Pakete,</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -8002,30 +7965,9 @@ on an existing breakpoint, toggle its active state</source>
         <source>Code View Theme:</source>
         <translation>Farbschema für Codeanzeige</translation>
     </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
-        <translation type="vanished">
-            <numerusform>Wollen Sie sicher %Ln Haltepunkt löschen?</numerusform>
-            <numerusform>Wollen Sie sicher %Ln Haltepunkte löschen?</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Are you sure you want to remove %Ln watch(es)?</source>
-        <translation type="vanished">
-            <numerusform>Wollen Sie sicher %Ln Watch löschen?</numerusform>
-            <numerusform>Wollen Sie sicher %Ln Watches löschen?</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Type: %1</source>
         <translation>Typ: %1</translation>
-    </message>
-    <message numerus="yes">
-        <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation type="vanished">
-            <numerusform>Es gibt ungespeicherte Änderungen in %Ln geöffneten Datei.</numerusform>
-            <numerusform>Es gibt ungespeicherte Änderungen in %Ln geöffneten Dateien.</numerusform>
-        </translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -9520,22 +9462,6 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Spalte</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 kann nur mit %2 oder weniger sichtbaren Einträgen sortiert werden; Zwischenspeichergröße in Layout-Einstellungen erhöhen</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">&quot;%1&quot; wird sortiert…</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">Sortiere ...</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation>Markiert</translation>
     </message>
@@ -9556,19 +9482,19 @@ on an existing breakpoint, toggle its active state</source>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Spalte</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 kann nur mit %2 oder weniger sichtbaren Einträgen sortiert werden; Zwischenspeichergröße in Layout-Einstellungen erhöhen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">&quot;%1&quot; wird sortiert…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">Sortiere ...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10405,20 +10331,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Select zip file for export</source>
         <translation>Zum Exportieren eine Zipdatei auswählen</translation>
-    </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln ausgewähltes persönliches Profil</numerusform>
-            <numerusform>… %Ln ausgewählte persönliche Profile</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln ausgewähltes persönliches Profil</numerusform>
-            <numerusform>%Ln ausgewählte persönliche Profile</numerusform>
-        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
@@ -15377,7 +15289,8 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished">Öffnen</translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18378,10 +18291,6 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Verknüpftes Paket in einem neuen Fenster anzeigen</translation>
     </message>
     <message>
-        <source>Aggregation in Live Capture</source>
-        <translation type="vanished">Aggregation während der Aufzeichnung</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>Neue Einfärbungsregel</translation>
@@ -18697,6 +18606,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Pakete können nicht in die aktuelle Mitschnittdatei exportiert werden.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Wollen Sie die durchgeführten Änderungen speichern%1?</translation>
@@ -18754,16 +18671,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Exportieren Dialog meldet einen unbekannten Dateityp</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -18872,14 +18779,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSL Session Keys exportieren (%Ln Key)</numerusform>
-            <numerusform>SSL Session Key exportieren (%Ln Keys)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

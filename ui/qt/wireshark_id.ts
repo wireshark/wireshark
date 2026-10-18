@@ -942,26 +942,6 @@ Off = logpoint only (matches the historical &quot;logpoints never pause&quot; co
         <source>Automatically detect file type</source>
         <translation>Secara otomatis deteksi tipe berkas</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, galat setelah %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, habis waktu pada %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paket</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Sisip ke depan paket</translation>
@@ -4261,18 +4241,6 @@ Relatif ke acuan: t/t (di luar rentang acuan)</translation>
     <message>
         <source>Print</source>
         <translation>Cetak</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln pkt klien, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln pkt server, </numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -7975,12 +7943,6 @@ on an existing breakpoint, toggle its active state</source>
         <source>Type: %1</source>
         <translation>Tipe: %1</translation>
     </message>
-    <message numerus="yes">
-        <source>There are unsaved changes in %Ln open file(s).</source>
-        <translation type="vanished">
-            <numerusform>Ada perubahan belum tersimpan dalam %Ln berkas yang terbuka.</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Remove All Breakpoints</source>
         <translation type="unfinished"></translation>
@@ -9465,22 +9427,6 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PacketListModel</name>
     <message>
-        <source>Column</source>
-        <translation type="vanished">Kolom</translation>
-    </message>
-    <message>
-        <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="vanished">%1 hanya dapat diurutkan dengan baris tampak %2 atau kurang; naikkan ukuran singgahan dalam preferensi Tata Letak</translation>
-    </message>
-    <message>
-        <source>Sorting &quot;%1&quot;…</source>
-        <translation type="vanished">Mengurutkan &quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>Sorting …</source>
-        <translation type="vanished">Mengurutkan ...</translation>
-    </message>
-    <message>
         <source>Marked</source>
         <translation type="unfinished">Ditandai</translation>
     </message>
@@ -9501,19 +9447,19 @@ on an existing breakpoint, toggle its active state</source>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished">Kolom</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished">%1 hanya dapat diurutkan dengan baris tampak %2 atau kurang; naikkan ukuran singgahan dalam preferensi Tata Letak</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished">Mengurutkan &quot;%1&quot;...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished">Mengurutkan ...</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10348,18 +10294,6 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Select zip file for export</source>
         <translation>Pilih berkas zip untuk diekspor</translation>
-    </message>
-    <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>... %Ln profil pribadi yang dipilih</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>%Ln profil pribadi yang dipilih</numerusform>
-        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
@@ -15337,7 +15271,8 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <translation type="unfinished">Buka </translation>
     </message>
     <message>
-        <source>(no tagrules file yet — will be created on save)</source>
+        <source>(no tagrules.jsonc file yet — will be created on save)</source>
+        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18337,10 +18272,6 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Tunjukkan Paket Tertaut dalam Jendela Baru</translation>
     </message>
     <message>
-        <source>Aggregation in Live Capture</source>
-        <translation type="vanished">Agregasi dalam Penangkapan Live</translation>
-    </message>
-    <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>Aturan Pewarnaan Baru...</translation>
@@ -18656,6 +18587,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Anda tidak bisa mengekspor paket ke berkas tangkapan saat ini.</translation>
     </message>
     <message>
+        <source>Display frames grouped by your configured aggregation fields.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
         <oldsource>Do you want to save the captured packets</oldsource>
         <translation>Apakah Anda hendak menyimpan perubahan yang telah Anda buat%1?</translation>
@@ -18713,16 +18652,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Unknown file type returned by export dialog.</source>
         <translation>Tipe berkas yang tidak dikenal dikembalikan oleh dialog ekspor.</translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <oldsource>Aggregation View — displays frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</oldsource>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unsaved packets…</source>
@@ -18831,13 +18760,6 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>No Keys</source>
         <translation>Tidak Ada Kunci</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Ekspor Kunci Sesi SSL (%Ln kunci)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
