@@ -972,7 +972,6 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-
                 /* Get filter type (0 is libpcap, 1 is BPF program, others are unspecified.) */
                 proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_interface_filter_type, tvb, offset, 1, ENC_NA, &if_filter_type);
                 offset++;
@@ -992,7 +991,7 @@ int dissect_options(proto_tree *tree, packet_info *pinfo,
                     proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_filter_unknown, tvb, offset, option_length - 1, ENC_NA);
                     proto_item_append_text(option_item, " = unknown (type %u)", if_filter_type);
                     break;
-		}
+                }
                 offset += option_length - 1;
 
                 break;
@@ -2070,15 +2069,15 @@ int dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, struct in
     }
     CATCH(ReportedBoundsError) {
         /*
-            * The body didn't fit in the block.
-            * Mark the length as being too small.
-            */
+         * The body didn't fit in the block.
+         * Mark the length as being too small.
+         */
         expert_add_info(pinfo, block_length_item, &ei_block_length_below_block_content_length);
     }
     CATCH_ALL {
         /*
-            * Just rethrow other exceptions to the ultimate handler.
-            */
+         * Just rethrow other exceptions to the ultimate handler.
+         */
         RETHROW;
     }
     ENDTRY;
