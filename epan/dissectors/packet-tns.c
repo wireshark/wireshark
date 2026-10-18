@@ -91,6 +91,7 @@ void proto_register_tns(void);
  * TNS_CCAP_FIELD_VERSION_* name them. The wire shape of several messages
  * depends on the one a connection negotiates. */
 #define TNS_CCAP_FIELD_VERSION  7
+#define TNS_FV_10_2             4   /* older than any python-oracledb names */
 #define TNS_FV_11_2             6
 #define TNS_FV_12_1             7
 #define TNS_FV_12_2             8
@@ -6203,8 +6204,9 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 					call->bind_rec = binds;
 				}
 			}
-			else if ( oci_id == TTI_ALL8 && tvb_bytes_exist(tvb, fun_start + TNS_OCI_ALL8_IND, 8)
-				&& tvb_get_ntoh64(tvb, fun_start + TNS_OCI_ALL8_IND) == TNS_OCI_INDICATOR )
+			else if ( oci_id == TTI_ALL8 && ((tvb_bytes_exist(tvb, fun_start + TNS_OCI_ALL8_IND, 8)
+				&& tvb_get_ntoh64(tvb, fun_start + TNS_OCI_ALL8_IND) == TNS_OCI_INDICATOR)
+				|| (tns_is_oci(pinfo) && tns_field_version(pinfo) == TNS_FV_10_2)) )
 			{
 				/* An OCI client's execute (sqlplus and other thick
 				 * clients): a fixed preamble of 8-byte pointer indicators
@@ -6219,12 +6221,22 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * A session at the 12c band inserts 64 zero bytes ahead
 				 * of a narrow preamble's SQL, which moves from 176 to
 				 * 240; the byte before the SQL is its length, never
-				 * zero, so which one holds shows. */
+				 * zero, so which one holds shows.
+				 *
+				 * sqlplus 10.2 sends a third form: narrow, but with the
+				 * SQL at 148. Its pointer fields hold real addresses, not
+				 * the indicator, so only the session's field version
+				 * tells this form apart. */
 				int base = fun_start, bind_count_off, sql_off;
 				uint32_t cursor, sql_len_decl, bind_count;
-				bool wide, band_12c = false;
+				bool wide, band_12c = false, form_10_2 = false;
 
-				if ( tvb_bytes_exist(tvb, base + TNS_OCI_ALL8_IND2_WIDE, 8)
+				if ( tns_is_oci(pinfo) && tns_field_version(pinfo) == TNS_FV_10_2 )
+				{
+					wide = false;
+					form_10_2 = true;
+				}
+				else if ( tvb_bytes_exist(tvb, base + TNS_OCI_ALL8_IND2_WIDE, 8)
 					&& tvb_get_ntoh64(tvb, base + TNS_OCI_ALL8_IND2_WIDE) == TNS_OCI_INDICATOR )
 					wide = true;
 				else if ( tvb_bytes_exist(tvb, base + TNS_OCI_ALL8_IND2_NARROW, 8)
@@ -6239,8 +6251,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				/* the SQL length, as the client's character set has it */
 				sql_len_decl = tvb_get_letohl(tvb, base + TNS_OCI_ALL8_SQLLEN3);
 				bind_count_off = base + (wide ? 83 : 71);
-				sql_off = base + (wide ? 196 : 176);
-				if ( !wide && sql_len_decl > 0 && tvb_bytes_exist(tvb, base + 239, 1)
+				sql_off = base + (form_10_2 ? 148 : wide ? 196 : 176);
+				if ( !wide && !form_10_2 && sql_len_decl > 0 && tvb_bytes_exist(tvb, base + 239, 1)
 					&& tvb_get_uint8(tvb, base + 175) == 0 )
 				{
 					uint8_t prefix = tvb_get_uint8(tvb, base + 239);
@@ -6254,7 +6266,7 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				}
 				proto_tree_add_string(data_tree, hf_tns_data_all8_oci_preamble, tvb, base, 0,
 					wide ? "OCI, wide (8-byte slots)" : band_12c ? "OCI, narrow (4-byte slots), 12c band"
-					: "OCI, narrow (4-byte slots)");
+					: form_10_2 ? "OCI, narrow (4-byte slots), 10.2" : "OCI, narrow (4-byte slots)");
 				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, base + TNS_OCI_ALL8_CURSOR, 4, cursor);
 				bind_count = tvb_get_letohl(tvb, bind_count_off);
 				proto_tree_add_uint(data_tree, hf_tns_data_all8_bind_count, tvb, bind_count_off, 4, bind_count);

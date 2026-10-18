@@ -2677,6 +2677,28 @@ class TestDissectTns:
             ['OCI, narrow (4-byte slots)', '5', '1', 'SELECT :v FROM DUAL'],
         ], rows
 
+    def test_tns_oci_10_2_all8(self, cmd_tshark, capture_file, test_env):
+        '''sqlplus 10.2 sends a narrow preamble with the SQL at 148 and real
+        addresses in its pointer fields; the session's field version, from
+        its data-type round, says which form it is.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_10_2_all8.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_all8.oci_preamble',
+            '-T', 'fields',
+            '-e', 'frame.number',
+            '-e', 'tns.data_all8.oci_preamble',
+            '-e', 'tns.data_all8.bind_count',
+            '-e', 'tns.data_all8.sql',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        # Frame 5, on a connection whose negotiation was not seen, is not
+        # taken for one.
+        assert rows == [
+            ['3', 'OCI, narrow (4-byte slots), 10.2', '0', 'SELECT USER FROM DUAL'],
+            ['4', 'OCI, narrow (4-byte slots), 10.2', '1', 'BEGIN :r := 42; END;\\n'],
+        ], rows
+
     def test_tns_oci_sql_length(self, cmd_tshark, capture_file, test_env):
         '''An OCI client declares the SQL's byte length in AL32UTF8 and three
         times it in any other character set; the SQL decodes either way.'''
