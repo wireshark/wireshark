@@ -34,6 +34,7 @@ DIAG_ON(restrict)
 #include <ui_interface_toolbar.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
+#include <epan/prefs.h>
 #include "ui/capture_opts.h"
 #include "ui/capture_globals.h"
 #include <capture/sync_pipe.h>
@@ -971,7 +972,7 @@ void InterfaceToolbar::interfaceListChanged()
     for (unsigned i = 0; i < global_capture_opts.all_ifaces->len; i++)
     {
         interface_t *device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        if (device->hidden)
+        if (!prefs.gui_interfaces_show_hidden && device->hidden)
             continue;
 
         if (interface_.contains(device->name))
