@@ -19,8 +19,8 @@ client (sqlplus), whose TTI_DTY has encoding flag 2 and no type table.
               on a second connection, without the timezone file version
               either way
 
-The two requests are the ones sqlplus sends, as recorded in seerdb's
-protocol notes. Bytes are built by hand.
+The two requests are the ones sqlplus sends, as captured off a live
+session. Bytes are built by hand.
 """
 import os
 import struct

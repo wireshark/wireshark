@@ -8,7 +8,7 @@
 """Generate test/captures/tns_oci_kod.pcap: an OCI client (sqlplus 23.26)
 describing an object type with TTI_KOD (function 92), as it does for
 DBMSOUTPUT_LINESARRAY under "set serveroutput on". The message bodies
-are the ones captured off a live 11g and 18c in seerdb's protocol notes.
+are the ones captured off a live 11g and 18c.
 
     Frame 1 - by name: opcode 3, "DBMSOUTPUT_LINESARRAY"
     Frame 2 - the reply: the name header (schema PYO, the type's REF),

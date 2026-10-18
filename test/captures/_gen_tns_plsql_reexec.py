@@ -19,8 +19,8 @@ answered with no IOV.
     Frame 4 - its reply: a TTI_RXD per iteration with the OUT value, 21
               and 17, each with its actual length, then TTI_OER
 
-Bytes are built by hand in the Oracle 11g wire shape, from the re-execute
-captured off 23ai in seerdb's protocol notes.
+Bytes are built by hand in the Oracle 11g wire shape, from a re-execute
+captured off 23ai.
 """
 import os
 import struct
