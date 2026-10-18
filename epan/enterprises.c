@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-10-10) */
+/* (last updated 2026-10-15) */
 
 #include "config.h"
 
@@ -11193,7 +11193,7 @@ static const char * const table[] =
     "CRoL",                                                                               // 11171
     "Die Informatik-Werkstatt GmbH",                                                      // 11172
     "Directory Solutions",                                                                // 11173
-    "DX Antenna Co., Ltd.",                                                               // 11174
+    "Nippon DX Antenna Co., Ltd.",                                                        // 11174
     "Epic Group plc",                                                                     // 11175
     "Objective Pathology Services Limited",                                               // 11176
     "Grapevine Interactive (Pty) Ltd",                                                    // 11177
@@ -16121,7 +16121,7 @@ static const char * const table[] =
     "Pinion Group, LLC",                                                                  // 16099
     "Iron Mountain",                                                                      // 16100
     "Cadero, Inc.",                                                                       // 16101
-    "Miharu Communications Inc.",                                                         // 16102
+    "Furukawa Miharu Solutions Corporation",                                              // 16102
     "Nilgiri Networks",                                                                   // 16103
     "KeyCOM Information Technology CO.,Ltd",                                              // 16104
     "Standard Information Data Centre of Ministry of Education P.R.C",                    // 16105
@@ -23376,7 +23376,7 @@ static const char * const table[] =
     "Niska AB",                                                                           // 23354
     "Gosh Enterprises, Inc.",                                                             // 23355
     "TRYSKEL",                                                                            // 23356
-    "Twenty Four Nine Development Ltd",                                                   // 23357
+    "General Syntax Corporation Limited",                                                 // 23357
     "Typhon SARL",                                                                        // 23358
     "Hexod",                                                                              // 23359
     "Pacific Union College",                                                              // 23360
@@ -38894,7 +38894,7 @@ static const char * const table[] =
     "JSC Prompribor",                                                                     // 38872
     "Alex Bolgov",                                                                        // 38873
     "ENABIL Solutions Ltd.",                                                              // 38874
-    "UnifiedPost S.A.",                                                                   // 38875
+    "Banqup SA",                                                                          // 38875
     "Mork",                                                                               // 38876
     "BPM Advanced Technology Company",                                                    // 38877
     "s.d.i. s.p.a.",                                                                      // 38878
@@ -51881,7 +51881,7 @@ static const char * const table[] =
     "IDS Ingegneria Dei Sistemi",                                                         // 51859
     "Syscom",                                                                             // 51860
     "Safe Stamper",                                                                       // 51861
-    "East Coast Simulation",                                                              // 51862
+    "Christopher Collins",                                                                // 51862
     "serv.it Gesellschaft für IT Services mbH",                                           // 51863
     "PayamPardaz",                                                                        // 51864
     "Ian Bobbitt",                                                                        // 51865
@@ -62275,7 +62275,7 @@ static const char * const table[] =
     "Bas Westerbaan",                                                                     // 62253
     "KWD Automotive AG & Co. KG",                                                         // 62254
     "Mats Klepsland",                                                                     // 62255
-    "Trusthub, LLC",                                                                      // 62256
+    NULL,                                                                                 // 62256
     "candifloss.cc",                                                                      // 62257
     "Blokkus S.A.S.",                                                                     // 62258
     "MD West One",                                                                        // 62259
@@ -64894,7 +64894,7 @@ static const char * const table[] =
     "Elemenik",                                                                           // 64872
     "Kendal College",                                                                     // 64873
     "Shanghai Hema Optical Co., Ltd.",                                                    // 64874
-    "CivicBrands",                                                                        // 64875
+    "Means+Measures LLC",                                                                 // 64875
     "Nestor cv",                                                                          // 64876
     "Beacon Link Inc.",                                                                   // 64877
     "Prima Vista Solusi",                                                                 // 64878
@@ -66263,7 +66263,7 @@ static const char * const table[] =
     "Massive Beams GmbH",                                                                 // 66241
     "La Famosa",                                                                          // 66242
     "Università degli Studi di Salerno",                                                  // 66243
-    "DefenXee Private Limited",                                                           // 66244
+    "TrustPlane",                                                                         // 66244
     "Emma Paki",                                                                          // 66245
     "Shanghai Xiongzhan Information Technology Co., Ltd.",                                // 66246
     "smuPweb Ltda",                                                                       // 66247
@@ -67172,7 +67172,106 @@ static const char * const table[] =
     "CANDA Solutions",                                                                    // 67150
     "Observatoire des Sciences de l’Univers de Grenoble - OSUG",                          // 67151
     "Emporia Energy",                                                                     // 67152
-    "Henry Willis"                                                                        // 67153
+    "Henry Willis",                                                                       // 67153
+    "Shanghai Yuxun Network Technology Co., Ltd.",                                        // 67154
+    "Seven Fortunas, Inc.",                                                               // 67155
+    "Veysel GÜVEN",                                                                       // 67156
+    "Earth Metabolome Initiative",                                                        // 67157
+    "Quantum Bridge Technologies Inc.",                                                   // 67158
+    "Tabith LLC",                                                                         // 67159
+    "Hangzhou Kangxuan Technology Co.,LTD",                                               // 67160
+    "TRUTEK MÜHENDiSLiK VE TEKNOLOJİK ÜRÜNLER SANAYi VE TiCARET ANONiM ŞiRKETi",          // 67161
+    "Overview Technology Solutions Inc.",                                                 // 67162
+    "Validated One",                                                                      // 67163
+    "Link2Trust bv",                                                                      // 67164
+    "SHENZHEN PREVAIL TECHNOLOGY CO., LTD.",                                              // 67165
+    "Blaylar Health EHR",                                                                 // 67166
+    "Rizki Yandri",                                                                       // 67167
+    "Attila Kalcso",                                                                      // 67168
+    "Insane Cyber",                                                                       // 67169
+    "Kyndryl France",                                                                     // 67170
+    "Fairmat",                                                                            // 67171
+    "TSD IT b.v.",                                                                        // 67172
+    "Hosted Network",                                                                     // 67173
+    "MobilALLY LLC",                                                                      // 67174
+    "Ether Healthcare",                                                                   // 67175
+    "Jordan Escobar",                                                                     // 67176
+    "Xologie Ltd",                                                                        // 67177
+    "LiangLu",                                                                            // 67178
+    "河南良露信息技术有限公司 / Henan Lianglu Information Technology Co., Ltd.",                      // 67179
+    "Polar Monitoring Pty Ltd",                                                           // 67180
+    "SECUEDGE NETWORK TECHNOLOGIES PRIVATE LIMITED",                                      // 67181
+    "Radiarch",                                                                           // 67182
+    "egos.tech",                                                                          // 67183
+    "BAYOOMED GmbH",                                                                      // 67184
+    "LIU, ZHAOSHENG",                                                                     // 67185
+    "Networked Energy Services",                                                          // 67186
+    "Qubiten Systems, INC.",                                                              // 67187
+    "AndroWorx",                                                                          // 67188
+    "Shenyang Jovotek Technology Co.,Ltd",                                                // 67189
+    "Beitsing Jinru Communication Technology Co., Ltd",                                   // 67190
+    "EYL, Inc.",                                                                          // 67191
+    "Ionian University",                                                                  // 67192
+    "BIODATA DEVICES SL",                                                                 // 67193
+    "State tax Inspectorate under the Ministry of Finance of the Republic of Lithuania",  // 67194
+    "AsterSQL",                                                                           // 67195
+    "Velor Technologies LLC",                                                             // 67196
+    "Greggs plc",                                                                         // 67197
+    "Carrier Energy",                                                                     // 67198
+    "Datarex s. r. o.",                                                                   // 67199
+    "Thomas Christopher Nevin",                                                           // 67200
+    "Simigo.ai",                                                                          // 67201
+    "Adihadi",                                                                            // 67202
+    "Lockwood Technology Solutions, LLC",                                                 // 67203
+    "Elim Foursquare Gospel Alliance",                                                    // 67204
+    "Proxelera Pvt Ltd",                                                                  // 67205
+    "WardAI",                                                                             // 67206
+    "PrimeCare Medical, Inc.",                                                            // 67207
+    "somos",                                                                              // 67208
+    "Telmobil INC",                                                                       // 67209
+    "Noaberkracht",                                                                       // 67210
+    "Magistrat der Stadt Lampertheim",                                                    // 67211
+    "IT-BUDGET GmbH",                                                                     // 67212
+    "FLINK LLC",                                                                          // 67213
+    "TELMA SAS",                                                                          // 67214
+    "Rimatel SA",                                                                         // 67215
+    "Mobile Power, Ltd.",                                                                 // 67216
+    "Sensorise Smart Solutions Private Limited",                                          // 67217
+    "Airbus DS PSS",                                                                      // 67218
+    "PressHat",                                                                           // 67219
+    "STRATEC SE",                                                                         // 67220
+    "Jim Shorkey Auto Group",                                                             // 67221
+    "BAAR Technologies Inc.",                                                             // 67222
+    "RADIOCOMS SYSTEMES",                                                                 // 67223
+    "Hoth Technologies LLC",                                                              // 67224
+    "Tychon, LLC",                                                                        // 67225
+    "DDSALLY LLC",                                                                        // 67226
+    "XMS Group UK",                                                                       // 67227
+    "Yang Zhijian",                                                                       // 67228
+    "Surpedia Technologies Co., Ltd.",                                                    // 67229
+    "Dingjunshan Digital Media Technology (Shenzhen) Co., Ltd.",                          // 67230
+    "HEIM Infrastrukturbau GmbH",                                                         // 67231
+    "Fox Solutions Pvt. Ltd.",                                                            // 67232
+    "Digiyo S.A",                                                                         // 67233
+    "Planteam Servernetzwerk",                                                            // 67234
+    "RELAW GmbH",                                                                         // 67235
+    "Firefly Aerospace",                                                                  // 67236
+    "Ultreia Comunicaciones, SL",                                                         // 67237
+    "Bridgewell Communications LLC",                                                      // 67238
+    "Daily Fantasy Technologies Private Limited",                                         // 67239
+    "穆航 (Mu Hang)",                                                                       // 67240
+    "TALTUL TECHNOLOGIES LTD",                                                            // 67241
+    "Michael Kappe",                                                                      // 67242
+    "Unico, LLC",                                                                         // 67243
+    "HavocAI, Inc.",                                                                      // 67244
+    "PsyData Labs L.L.C.",                                                                // 67245
+    "Wazi Technical Solutions, LLC",                                                      // 67246
+    "Maisel GmbH",                                                                        // 67247
+    "Sunrise AI Inc.",                                                                    // 67248
+    "Mustard Seed Networks",                                                              // 67249
+    "INSPIRAL",                                                                           // 67250
+    "mailiko",                                                                            // 67251
+    "INSTINCT IA"                                                                         // 67252
 };
 
 const char* global_enterprises_lookup(uint32_t value)
