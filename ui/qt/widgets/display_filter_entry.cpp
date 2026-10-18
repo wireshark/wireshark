@@ -85,6 +85,7 @@ DisplayFilterEntry::DisplayFilterEntry(QWidget *parent) :
     });
     connect(this, &FilterExpressionEdit::cleared, this, [this]() {
         last_applied_.clear();
+        setAppliedExpression(QString());
         emit filterPackets(QString(), true);
     });
     connect(this, &FilterEdit::syntaxStateChanged, this, [this](FilterEdit::SyntaxState s) {
@@ -160,6 +161,7 @@ void DisplayFilterEntry::displayFilterSuccess(bool success)
     // base re-enables the apply action on the next edit or state change.
     if (success)
         last_applied_ = text();
+    setAppliedExpression(success ? text() : QString());
 }
 
 void DisplayFilterEntry::updateStatus(SyntaxState state)
