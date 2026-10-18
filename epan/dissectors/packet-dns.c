@@ -1990,7 +1990,7 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
   ttl_item = proto_tree_add_item_ret_uint(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ENC_BIG_ENDIAN, &ttl_value);
   // storing ttl in the context-specific array and then increments its array's
   // index for storing ttl of the next record
-  if (dns_qr_statistics_enabled) {
+  if (dns_qr_statistics_enabled && p_dns_qr_r_rx_ttls && p_dns_qr_r_rx_ttl_index) {
     // cap (or limit check) has been put in-place to avoid overflow
     // check https://gitlab.com/wireshark/wireshark/-/issues/19700
     if (*p_dns_qr_r_rx_ttl_index < TTL_MAXIMUM_ELEMENTS) {
