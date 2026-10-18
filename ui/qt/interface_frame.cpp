@@ -301,6 +301,11 @@ void InterfaceFrame::toggleHiddenInterfaces()
     source_model_.interfaceListChanged();
     proxy_model_.toggleFilterHidden();
 
+    // Let subscribers such as InterfaceToolbar re-read the interface list.
+    MainWindow *mainWindow = mainApp->mainWindow();
+    if (mainWindow && mainWindow->interfaceListManager())
+        mainWindow->interfaceListManager()->notifyListChanged();
+
     emit typeSelectionChanged();
 }
 
