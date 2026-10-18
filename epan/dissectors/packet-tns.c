@@ -1765,8 +1765,8 @@ static const uint8_t *tns_dalc_bytes(tvbuff_t *tvb, packet_info *pinfo, int offs
  * every field after it, so they have to be spelled out rather than left
  * to the default.
  *
- * The chunk lengths in the 0xFE form are single bytes up to field version
- * 12.1, and variable-length ub4s from 12.2 on.
+ * The chunk lengths in the 0xFE form are plain counts, a single byte (up
+ * to 255) below field version 12.1 and a variable-length ub4 from 12.1 on.
  *
  * Returns the number of bytes consumed from the tvb and, when content
  * is non-empty, a UTF-8 string allocated from pinfo->pool. */
