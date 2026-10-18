@@ -12,12 +12,10 @@
 #include <ui/qt/widgets/interface_toolbar_lineedit.h>
 #include <ui/qt/widgets/stock_icon_tool_button.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 
 #include <QStyle>
-
-// To do:
-// - Make a narrower apply button
 
 InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString validation_regex, bool is_required) :
     QLineEdit(parent),
@@ -30,7 +28,7 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
     apply_button_->setCursor(Qt::ArrowCursor);
     apply_button_->setEnabled(false);
     apply_button_->setToolTip(tr("Apply changes"));
-    apply_button_->setIconSize(QSize(21, 14));
+    updateApplyButtonZoom();
 
     updateStyleSheet(isValid());
 
@@ -41,6 +39,19 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
     connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
         updateStyleSheet(isValid());
     });
+    connect(FontManager::instance(), &FontManager::zoomChanged, this, [this]() {
+        updateApplyButtonZoom();
+        updateStyleSheet(isValid());
+        updateApplyButtonGeometry();
+    });
+}
+
+void InterfaceToolbarLineEdit::updateApplyButtonZoom()
+{
+    // The apply icon is 21x14 at zoom 1.0 and scales with the application zoom.
+    const qreal factor = FontManager::zoomFactor();
+    apply_button_->setIconSize(QSize(qMax(1, qRound(21 * factor)),
+                                     qMax(1, qRound(14 * factor))));
 }
 
 void InterfaceToolbarLineEdit::validateText()
@@ -104,29 +115,24 @@ void InterfaceToolbarLineEdit::updateStyleSheet(bool is_valid)
             "  padding-right: %1px;"
             "}"
             )
-            .arg(apsz.width() + frameWidth);
-
-#ifdef Q_OS_MACOS
-    style_sheet += QStringLiteral(
-            "InterfaceToolbarLineEdit {"
-            "  border: 1px solid palette(shadow);"
-            "  border-radius: 3px;"
-            "}"
-            );
-#endif
+            .arg(apsz.width() + 2 * frameWidth);
 
     setStyleSheet(style_sheet);
     ThemeManager::setValidationState(this,
             is_valid || !isEnabled() ? QString() : QStringLiteral("invalid"));
 }
 
-void InterfaceToolbarLineEdit::resizeEvent(QResizeEvent *)
+void InterfaceToolbarLineEdit::updateApplyButtonGeometry()
 {
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QSize apsz = apply_button_->sizeHint();
 
-    apply_button_->move(contentsRect().right() - frameWidth - apsz.width() + 2,
-                        contentsRect().top());
-    apply_button_->setMinimumHeight(contentsRect().height());
-    apply_button_->setMaximumHeight(contentsRect().height());
+    apply_button_->move(contentsRect().right() - frameWidth - apsz.width(),
+                        contentsRect().top() + frameWidth);
+    apply_button_->setFixedSize(apsz.width(), contentsRect().height() - 2 * frameWidth);
+}
+
+void InterfaceToolbarLineEdit::resizeEvent(QResizeEvent *)
+{
+    updateApplyButtonGeometry();
 }
