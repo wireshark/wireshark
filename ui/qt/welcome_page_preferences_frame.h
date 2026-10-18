@@ -45,6 +45,9 @@ private:
     /** @brief Qt Designer–generated UI object. */
     Ui::WelcomePagePreferencesFrame *ui;
 
+    /** @brief Stashed state of the side-by-side layout preference. */
+    bool stashed_side_by_side_;
+
     /** @brief Stashed visibility state of the Learn panel. */
     bool stashed_learn_visible_;
 

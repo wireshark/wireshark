@@ -24,6 +24,32 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
+    <widget class="QCheckBox" name="sideBySideCheckBox">
+     <property name="toolTip">
+      <string>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</string>
+     </property>
+     <property name="text">
+      <string>Prefer Open and Capture sections side-by-side</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_0">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Policy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QLabel" name="tipsSectionLabel">

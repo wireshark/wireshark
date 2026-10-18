@@ -20,6 +20,7 @@ WelcomePagePreferencesFrame::WelcomePagePreferencesFrame(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    connect(ui->sideBySideCheckBox, &QCheckBox::toggled, this, [this](bool checked) { stashed_side_by_side_ = checked; });
     connect(ui->learnVisibleCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::learnVisibleToggled);
     connect(ui->tipsVisibleCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsVisibleToggled);
     connect(ui->tipsEventsCheckBox, &QCheckBox::toggled, this, &WelcomePagePreferencesFrame::tipsEventsToggled);
@@ -29,6 +30,7 @@ WelcomePagePreferencesFrame::WelcomePagePreferencesFrame(QWidget *parent) :
     connect(ui->tipsIntervalSpinBox, qOverload<int>(&QSpinBox::valueChanged), this, &WelcomePagePreferencesFrame::tipsIntervalValueChanged);
     connect(ui->restoreButtonBox, &QDialogButtonBox::clicked, this, &WelcomePagePreferencesFrame::restoreButtonBoxClicked);
 
+    stashed_side_by_side_ = recent.gui_welcome_page_side_by_side;
     stashed_learn_visible_ = recent.gui_welcome_page_sidebar_learn_visible;
     stashed_tips_visible_ = recent.gui_welcome_page_sidebar_tips_visible;
     stashed_tips_events_ = recent.gui_welcome_page_sidebar_tips_events;
@@ -37,6 +39,7 @@ WelcomePagePreferencesFrame::WelcomePagePreferencesFrame(QWidget *parent) :
     stashed_tips_auto_advance_ = recent.gui_welcome_page_sidebar_tips_auto_advance;
     stashed_tips_interval_ = recent.gui_welcome_page_sidebar_tips_interval;
 
+    ui->sideBySideCheckBox->setChecked(stashed_side_by_side_);
     ui->learnVisibleCheckBox->setChecked(stashed_learn_visible_);
     ui->tipsVisibleCheckBox->setChecked(stashed_tips_visible_);
     ui->tipsEventsCheckBox->setChecked(stashed_tips_events_);
@@ -55,6 +58,7 @@ WelcomePagePreferencesFrame::~WelcomePagePreferencesFrame()
 
 void WelcomePagePreferencesFrame::unstash()
 {
+    recent.gui_welcome_page_side_by_side = stashed_side_by_side_;
     recent.gui_welcome_page_sidebar_learn_visible = stashed_learn_visible_;
     recent.gui_welcome_page_sidebar_tips_visible = stashed_tips_visible_;
     recent.gui_welcome_page_sidebar_tips_events = stashed_tips_events_;
@@ -116,6 +120,7 @@ void WelcomePagePreferencesFrame::tipsIntervalValueChanged(int value)
 
 void WelcomePagePreferencesFrame::restoreButtonBoxClicked(QAbstractButton *)
 {
+    stashed_side_by_side_ = false;
     stashed_learn_visible_ = true;
     stashed_tips_visible_ = true;
     stashed_tips_events_ = true;
@@ -124,6 +129,7 @@ void WelcomePagePreferencesFrame::restoreButtonBoxClicked(QAbstractButton *)
     stashed_tips_auto_advance_ = true;
     stashed_tips_interval_ = 8;
 
+    ui->sideBySideCheckBox->setChecked(stashed_side_by_side_);
     ui->learnVisibleCheckBox->setChecked(stashed_learn_visible_);
     ui->tipsVisibleCheckBox->setChecked(stashed_tips_visible_);
     ui->tipsEventsCheckBox->setChecked(stashed_tips_events_);

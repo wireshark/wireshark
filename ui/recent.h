@@ -240,6 +240,7 @@ typedef struct recent_settings_tag {
     double gui_tsgd_ma_window_size;    /**< Moving average window size used in the TCP Stream Graph dialog */
 
     /* --- Welcome page sidebar / banner slides --- */
+    bool     gui_welcome_page_side_by_side;                /**< True if the welcome page prefers Open and Capture side-by-side (falls back to stacked when narrow) */
     bool     gui_welcome_page_sidebar_learn_visible;       /**< True if the Learn sidebar panel is expanded on the welcome page */
     bool     gui_welcome_page_sidebar_tips_visible;        /**< True if the Tips/News sidebar panel is expanded on the welcome page */
     bool     gui_welcome_page_sidebar_tips_events;         /**< True if event slides are shown in the banner */

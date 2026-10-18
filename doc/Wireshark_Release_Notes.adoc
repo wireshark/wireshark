@@ -95,6 +95,8 @@ The following changes have been made since version 4.6.0:
 * Welcome Page Overhaul
   The welcome page has been redesigned to be more informative and easier to navigate. It now highlights the learning sections better and includes a new sidebar with tips and tricks for using Wireshark effectively. The welcome page is now also more accessible, with improved keyboard navigation and screen reader support.
 
+* The welcome page has a new preference to show the Open and Capture sections side-by-side. It falls back to stacked when the window is too narrow.
+
 * Lua Debugger
   A built-in Lua script debugger has been added. It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces. The debugger can be opened from the menu:Tools[Lua Debugger] menu.
 
