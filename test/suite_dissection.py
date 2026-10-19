@@ -2660,21 +2660,26 @@ class TestDissectTns:
 
     def test_tns_oci_all8(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's execute has a fixed preamble in one of two widths,
-        told apart by where its second pointer indicator sits. The cursor
-        id, bind count and SQL are found in both.'''
+        told apart by where its second pointer indicator sits. The options,
+        cursor id, bind count and SQL are found in both; SET AUTOCOMMIT ON
+        shows as the options' commit bit.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_oci_all8.pcap'),
             '-d', 'tcp.port==1521,tns',
             '-T', 'fields',
             '-e', 'tns.data_all8.oci_preamble',
+            '-e', 'tns.data_all8.options',
+            '-e', 'tns.data_all8.options.commit',
             '-e', 'tns.data.cursor',
             '-e', 'tns.data_all8.bind_count',
             '-e', 'tns.data_all8.sql',
         ), encoding='utf-8', env=test_env)
         rows = [r.split('\t') for r in stdout.strip().splitlines()]
         assert rows == [
-            ['OCI, wide (8-byte slots)', '0', '0', 'SELECT * FROM DUAL'],
-            ['OCI, narrow (4-byte slots)', '5', '1', 'SELECT :v FROM DUAL'],
+            ['OCI, wide (8-byte slots)', '0x00000000', 'False', '0', '0', 'SELECT * FROM DUAL'],
+            ['OCI, narrow (4-byte slots)', '0x00000000', 'False', '5', '1', 'SELECT :v FROM DUAL'],
+            ['OCI, narrow (4-byte slots)', '0x00008021', 'False', '0', '0', 'INSERT INTO T VALUES (1)'],
+            ['OCI, narrow (4-byte slots)', '0x00008121', 'True', '0', '0', 'INSERT INTO T VALUES (1)'],
         ], rows
 
     def test_tns_oci_10_2_all8(self, cmd_tshark, capture_file, test_env):
@@ -2688,6 +2693,7 @@ class TestDissectTns:
             '-T', 'fields',
             '-e', 'frame.number',
             '-e', 'tns.data_all8.oci_preamble',
+            '-e', 'tns.data_all8.options',
             '-e', 'tns.data_all8.bind_count',
             '-e', 'tns.data_all8.sql',
         ), encoding='utf-8', env=test_env)
@@ -2695,8 +2701,8 @@ class TestDissectTns:
         # Frame 5, on a connection whose negotiation was not seen, is not
         # taken for one.
         assert rows == [
-            ['3', 'OCI, narrow (4-byte slots), 10.2', '0', 'SELECT USER FROM DUAL'],
-            ['4', 'OCI, narrow (4-byte slots), 10.2', '1', 'BEGIN :r := 42; END;\\n'],
+            ['3', 'OCI, narrow (4-byte slots), 10.2', '0x00008061', '0', 'SELECT USER FROM DUAL'],
+            ['4', 'OCI, narrow (4-byte slots), 10.2', '0x00040429', '1', 'BEGIN :r := 42; END;\\n'],
         ], rows
 
     def test_tns_oci_sql_length(self, cmd_tshark, capture_file, test_env):

@@ -150,6 +150,7 @@ void proto_register_tns(void);
 /* An OCI client's execute preamble: offsets from the TTI_FUN byte, and
  * the 8-byte pointer indicator its fixed slots sit between. */
 #define TNS_OCI_INDICATOR        UINT64_C(0xfeffffffffffffff)
+#define TNS_OCI_ALL8_OPTIONS     3
 #define TNS_OCI_ALL8_CURSOR      7
 #define TNS_OCI_ALL8_IND         11
 #define TNS_OCI_ALL8_SQLLEN3     19
@@ -6225,8 +6226,11 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * slots are 8 bytes wide or 4, fixed for a connection;
 				 * the second indicator tells which - it sits at 27 in the
 				 * wide form and 23 in the narrow one, and the two cannot
-				 * both hold. The cursor id and SQL length precede every
-				 * slot and do not move; the bind count and the SQL do.
+				 * both hold. The options, cursor id and SQL length
+				 * precede every slot and do not move; the bind count and
+				 * the SQL do. The options are the thin client's bits,
+				 * little-endian: SET AUTOCOMMIT ON sets the commit bit on
+				 * each statement rather than sending a commit of its own.
 				 * A session at the 12c band inserts 64 zero bytes ahead
 				 * of a narrow preamble's SQL, which moves from 176 to
 				 * 240; the byte before the SQL is its length, never
@@ -6276,6 +6280,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				proto_tree_add_string(data_tree, hf_tns_data_all8_oci_preamble, tvb, base, 0,
 					wide ? "OCI, wide (8-byte slots)" : band_12c ? "OCI, narrow (4-byte slots), 12c band"
 					: form_10_2 ? "OCI, narrow (4-byte slots), 10.2" : "OCI, narrow (4-byte slots)");
+				proto_tree_add_bitmask(data_tree, tvb, base + TNS_OCI_ALL8_OPTIONS, hf_tns_data_all8_options,
+					ett_tns_all8_options, tns_all8_options, ENC_LITTLE_ENDIAN);
 				proto_tree_add_uint(data_tree, hf_tns_cursor, tvb, base + TNS_OCI_ALL8_CURSOR, 4, cursor);
 				bind_count = tvb_get_letohl(tvb, bind_count_off);
 				proto_tree_add_uint(data_tree, hf_tns_data_all8_bind_count, tvb, bind_count_off, 4, bind_count);
