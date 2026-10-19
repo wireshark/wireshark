@@ -3156,6 +3156,28 @@ class TestDissectTns:
         assert 'compiled with errors' in rows[0][3], rows[0]
         assert rows[1][:4] == ['0', '0x00', 'False', ''], rows[1]
 
+    def test_tns_oer_flags(self, cmd_tshark, capture_file, test_env):
+        '''Below 12.1 the third of a status's six one-byte fields is a
+        variable-length ub2, which a warning makes two bytes wide; the
+        warning flags after it are read in place on either side of 12.1,
+        and with no field version known.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oer_flags.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_oer.warn_flags',
+            '-T', 'fields',
+            '-e', 'frame.number',
+            '-e', 'tns.data_oer.warn_flags',
+            '-e', 'tns.data_oer.rowcount64',
+            '-e', '_ws.expert.message',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['2', '0x05', '', ''],
+            ['4', '0x05', '1', ''],
+            ['5', '0x05', '', ''],
+        ], rows
+
     def test_tns_parse_only(self, cmd_tshark, capture_file, test_env):
         '''An execute that asks for no work - no EXECUTE, DEFINE or FETCH -
         is a parse, whether or not it sets the PARSE bit: a parse of a

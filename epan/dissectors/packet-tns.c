@@ -5292,14 +5292,23 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			}
 			/* error position (skipped) */
 			offset += get_sb4_custom(tvb, offset, &v);
-			/* 6 single-byte fields: sql_type, fatal, flags,
-			 * user_cursor_opts, upi_param, warn_flags. Five are
+			/* 6 fields: sql_type, fatal, flags, user_cursor_opts,
+			 * upi_param, warn_flags. All are single bytes except flags
+			 * below 12.1, a variable-length ub2: 00 when zero, but two
+			 * bytes once a warning (an aggregate that skipped NULLs)
+			 * sets it. With no field version known, a byte that cannot
+			 * be a ub2's width is the single-byte form. Five are
 			 * diagnostic; the last is not. Its bit 0x20 says the
 			 * statement created a PL/SQL object that compiled with
 			 * errors - the call succeeded, the error code is 0 and the
 			 * reply is otherwise indistinguishable from a clean one, so
 			 * this bit is the only sign the object is invalid. */
-			offset += 5;
+			offset += 2;
+			if ( tns_field_version(pinfo) < TNS_FV_12_1 && tvb_get_uint8(tvb, offset) <= 2 )
+				offset += get_sb4_custom(tvb, offset, &v);
+			else
+				offset += 1;
+			offset += 2;
 			tns_add_warn_flags(tvb, pinfo, oer_tree, offset);
 			offset += 1;
 			/* The rowid of the last row the statement touched: ub4
