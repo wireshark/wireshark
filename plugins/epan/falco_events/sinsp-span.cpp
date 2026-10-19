@@ -1006,15 +1006,45 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
     uint16_t sfe_idx = 0;
     int16_t cpu_id = 0;
     int64_t proc_id = 0;
+    int event_category = evt->get_info()->category;
 
-    // First check for internal events.
+    // First check for internal or otherwise unwanted events.
     // XXX We should skip this if "Show internal events" is enabled.
-    if (evt->get_info()->category & (EC_INTERNAL|EC_METAEVENT)) {
+
+    // XXX EC_METAEVENT appears to be a superset of EC_INTERNAL, but it
+    // doesn't hurt to check both. Both are bitmasks.
+    if (event_category & (EC_INTERNAL|EC_METAEVENT)) {
         append_empty_cache_entry(sinsp_span);
         return;
     }
 
+    // https://github.com/falcosecurity/libs/blob/master/driver/event_table.c
+    #define SUBCATEGORY_MASK 0x3f
+    // Tracepoint events. EC_TRACEPOINT is a bitmask, EC_SCHEDULER, EC_PROCESS, etc are enums.
+    // We want procexit and signaldeliver.
+    // switch: EC_SCHEDULER | EC_TRACEPOINT
+    // procexit: EC_PROCESS | EC_TRACEPOINT
+    // signaldeliver: EC_SIGNAL | EC_TRACEPOINT
+    // page_fault: EC_OTHER | EC_TRACEPOINT
+    if (event_category & EC_SCHEDULER) {
+        int subcategory = event_category & SUBCATEGORY_MASK;
+        if (subcategory != EC_PROCESS && subcategory != EC_SIGNAL) {
+            append_empty_cache_entry(sinsp_span);
+            return;
+        }
+    }
+
+    // Finally, skip over value-less events.
     auto sfc = ssi->syscall_event_filter_checks[ssi->evt_category_idx].get();
+#if SINSP_CHECK_VERSION(0, 26, 0)
+    if (!sfc->extract(evt, values) || values.size() < 1) {
+#else
+    if (!sfc->extract(evt, values, false) || values.size() < 1) {
+#endif
+        append_empty_cache_entry(sinsp_span);
+        return;
+    }
+
     for (size_t fc_idx = 0; fc_idx < ssi->syscall_event_filter_checks.size(); fc_idx++) {
         sfc = ssi->syscall_event_filter_checks[fc_idx].get();
         values.clear();
