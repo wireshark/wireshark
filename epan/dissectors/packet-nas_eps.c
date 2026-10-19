@@ -7300,24 +7300,16 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 /* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
                 /* Use preferences settings to override this behavior */
                 /* No decipher mechanism selected, returning without trying to decipher */
-                if (!g_nas_eps_null_decipher)
-                {
-                    col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
-                    return tvb_captured_length(tvb);
-                }
-                /* Force deciphering with EEA2*/
-                else if (g_nas_eps_decipher_key != NULL)
-                {
+                if (g_nas_eps_decipher_key != NULL) {
+                    /* Force deciphering with EEA2*/
                     tvbuff_t *tvb_deciphered = deciphering_eea2_msg(pinfo, tvb, offset - 1, len - 6);
 
-                    if (!tvb_deciphered)
-                    {
+                    if (!tvb_deciphered) {
                         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
                         return tvb_captured_length(tvb);
                     }
                     uint32_t pd_deciphered = tvb_get_uint8(tvb_deciphered, 0);
-                    if ((pd_deciphered != 7) && (pd_deciphered != 15) && ((pd_deciphered & 0x0f) != 2))
-                    {
+                    if ((pd_deciphered != 7) && (pd_deciphered != 15) && ((pd_deciphered & 0x0f) != 2)) {
                         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
                         return tvb_captured_length(tvb);
                     }
@@ -7325,10 +7317,14 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                     tvb = tvb_deciphered;
                     offset = 0;
                     proto_tree_add_item(nas_eps_tree, hf_nas_eps_deciphered_msg, tvb, offset, len, ENC_NA);
+                } else {
+                    pd = tvb_get_uint8(tvb,offset);
+                    if (!g_nas_eps_null_decipher || ((pd != 7) && (pd != 15) && ((pd&0x0f) != 2))) {
+                        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Ciphered message");
+                        return tvb_captured_length(tvb);
+                    }
                 }
-            }
-            else
-            {
+            } else {
                 /* msg_auth_code == 0, probably not ciphered */
                 /* Sequence number  Sequence number 9.6 M   V   1 */
                 proto_tree_add_item(nas_eps_tree, hf_nas_eps_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
