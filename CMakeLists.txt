@@ -1956,24 +1956,29 @@ else()
 	set(_datafile_dir "${CMAKE_BINARY_DIR}/run")
 endif()
 
+# XXX We should probably drop this and use {WIRE,STRATO}SHARK_DATAFILE_DIR instead.
 set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
 
+# Application-specific data files (coloring rules, profiles, protocol
+# dictionaries, etc.). Wireshark and Stratoshark share DATAFILE_DIR on
+# Windows and UN*X, so each application gets its own share/<app> subdirectory
+# there. This matches the layout of the macOS application bundles.
+# XXX This must match get_datafile_dir() in wsutil/filesystem.c.
 if(ENABLE_APPLICATION_BUNDLE)
 	if(CMAKE_CFG_INTDIR STREQUAL ".")
-		set(_stratoshark_datafile_dir "${CMAKE_BINARY_DIR}/run/Stratoshark.app/Contents/Resources/share/stratoshark")
+		set(_bundle_run_dir "${CMAKE_BINARY_DIR}/run")
 	else()
 		# Xcode
-		set(_stratoshark_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Stratoshark.app/Contents/Resources/share/stratoshark")
+		set(_bundle_run_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}")
 	endif()
-	set(STRATOSHARK_DATAFILE_DIR ${_stratoshark_datafile_dir} CACHE INTERNAL "Build time log analysis data file location.")
-# XXX We need to update wsutil/filesystem.c and packaging/nsis/*stratoshark* to match.
-# elseif(NOT CMAKE_CFG_INTDIR STREQUAL ".")
-# 	# Visual Studio, Xcode, etc.
-# 	set(_stratoshark_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/share/stratoshark")
-# else()
-# 	# Makefile, Ninja, etc.
-# 	set(_stratoshark_datafile_dir "${CMAKE_BINARY_DIR}/run/share/stratoshark")
+	set(_wireshark_datafile_dir "${_bundle_run_dir}/Wireshark.app/Contents/Resources/share/wireshark")
+	set(_stratoshark_datafile_dir "${_bundle_run_dir}/Stratoshark.app/Contents/Resources/share/stratoshark")
+else()
+	set(_wireshark_datafile_dir "${DATAFILE_DIR}/share/wireshark")
+	set(_stratoshark_datafile_dir "${DATAFILE_DIR}/share/stratoshark")
 endif()
+set(WIRESHARK_DATAFILE_DIR ${_wireshark_datafile_dir} CACHE INTERNAL "Build time Wireshark-specific data file location.")
+set(STRATOSHARK_DATAFILE_DIR ${_stratoshark_datafile_dir} CACHE INTERNAL "Build time Stratoshark-specific data file location.")
 
 # wsutil must be added after DATAFILE_DIR is set such that filesystem.c can
 # learn about the directory location.
@@ -2741,7 +2746,25 @@ if(WIN32)
 	endforeach()
 endif()
 
-foreach(_install_file ${INSTALL_FILES} ${DOC_FILES})
+# Application data files need to go in each application's data directory. Documentation
+# is looked up relative to the program directory when running from the build directory
+# (see get_docfile_path()), so it stays in DATAFILE_DIR.
+foreach(_install_file ${INSTALL_FILES})
+	get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
+	get_filename_component(_install_basename "${_install_file}" NAME)
+	set(_output_file "${WIRESHARK_DATAFILE_DIR}/${_install_basename}")
+	add_custom_command(OUTPUT "${_output_file}"
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${_install_file_src}"
+			"${_output_file}"
+		DEPENDS
+			docs
+			"${_install_file}"
+	)
+	list(APPEND copy_data_files_depends "${_output_file}")
+endforeach()
+
+foreach(_install_file ${DOC_FILES})
 	get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
 	get_filename_component(_install_basename "${_install_file}" NAME)
 	set(_output_file "${DATAFILE_DIR}/${_install_basename}")
@@ -2758,187 +2781,216 @@ endforeach()
 
 if (BUILD_stratoshark)
 	if (ENABLE_APPLICATION_BUNDLE)
-		foreach(_install_file ${STRATOSHARK_INSTALL_FILES} ${DOC_FILES})
-			get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
-			get_filename_component(_install_basename "${_install_file}" NAME)
-			set(_output_file "${STRATOSHARK_DATAFILE_DIR}/${_install_basename}")
-			add_custom_command(OUTPUT "${_output_file}"
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					"${_install_file_src}"
-					"${_output_file}"
-				DEPENDS
-					docs
-					"${_install_file}"
-			)
-			list(APPEND copy_data_files_depends "${_output_file}")
-		endforeach()
+		# The documentation lives in the bundle's share directory.
+		set(_stratoshark_install_files ${STRATOSHARK_INSTALL_FILES} ${DOC_FILES})
 	else()
-		# XXX The default profile (coloring_rules.jsonc, dfilters) is at the
-		# top-level resources directory for both Wireshark and Stratoshark.
+		# DOC_FILES are shared via DATAFILE_DIR. Stratoshark also needs
+		# the data files that its installers pick up in addition to
+		# STRATOSHARK_INSTALL_FILES.
+		set(_stratoshark_install_files ${STRATOSHARK_INSTALL_FILES}
+			resources/share/wireshark/ipmap.html
+			resources/share/wireshark/smi_modules
+			wka
+		)
 	endif()
+	foreach(_install_file ${_stratoshark_install_files})
+		get_filename_component(_install_file_src "${_install_file}" ABSOLUTE)
+		get_filename_component(_install_basename "${_install_file}" NAME)
+		set(_output_file "${STRATOSHARK_DATAFILE_DIR}/${_install_basename}")
+		add_custom_command(OUTPUT "${_output_file}"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${_install_file_src}"
+				"${_output_file}"
+			DEPENDS
+				docs
+				"${_install_file}"
+		)
+		list(APPEND copy_data_files_depends "${_output_file}")
+	endforeach()
 endif()
 
 set(_protocol_data_dir ${CMAKE_SOURCE_DIR}/resources/protocols)
-# Glob patterns relative to the source directory that should be copied to
-# ${DATAFILE_DIR} (including directory prefixes)
-# TODO shouldn't this use full (relative) paths instead of glob patterns?
-set(DATA_FILES_SRC
-	${_protocol_data_dir}/tpncp/tpncp.dat
-	${_protocol_data_dir}/trdp/iec_61375-2-3.xml
-	${_protocol_data_dir}/wimaxasncp/*.dtd
-	${_protocol_data_dir}/wimaxasncp/*.xml
-)
 
-# Copy all paths from the source tree to the data directory. Directories are
-# automatically created if missing as the filename is given.
-file(GLOB _data_files RELATIVE ${_protocol_data_dir} ${DATA_FILES_SRC})
-foreach(_data_file ${_data_files})
-	add_custom_command(OUTPUT "${DATAFILE_DIR}/${_data_file}"
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			${_protocol_data_dir}/${_data_file}
-			${DATAFILE_DIR}/${_data_file}
-		DEPENDS
-			${_protocol_data_dir}/${_data_file}
+# Copy the protocol data files (dictionaries, DTDs, etc.) to the given data
+# directory.
+function(COPY_PROTOCOL_DATA_FILES _dest)
+	set(_protocol_depends)
+	# Glob patterns relative to the source directory that should be copied to
+	# ${_dest} (including directory prefixes)
+	# TODO shouldn't this use full (relative) paths instead of glob patterns?
+	set(DATA_FILES_SRC
+		${_protocol_data_dir}/tpncp/tpncp.dat
+		${_protocol_data_dir}/trdp/iec_61375-2-3.xml
+		${_protocol_data_dir}/wimaxasncp/*.dtd
+		${_protocol_data_dir}/wimaxasncp/*.xml
 	)
-	list(APPEND copy_data_files_depends ${DATAFILE_DIR}/${_data_file})
-endforeach()
 
-file(GLOB _dtds_src_files RELATIVE ${_protocol_data_dir} ${_protocol_data_dir}/dtds/*.dtd)
+	# Copy all paths from the source tree to the data directory. Directories are
+	# automatically created if missing as the filename is given.
+	file(GLOB _data_files RELATIVE ${_protocol_data_dir} ${DATA_FILES_SRC})
+	foreach(_data_file ${_data_files})
+		add_custom_command(OUTPUT "${_dest}/${_data_file}"
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${_protocol_data_dir}/${_data_file}
+				${_dest}/${_data_file}
+			DEPENDS
+				${_protocol_data_dir}/${_data_file}
+		)
+		list(APPEND _protocol_depends ${_dest}/${_data_file})
+	endforeach()
 
-set (_dtds_data_files)
-set (_dtds_dep_files)
-foreach(_data_file ${_dtds_src_files})
-	list(APPEND _dtds_data_files ${DATAFILE_DIR}/${_data_file})
-	list(APPEND _dtds_dep_files ${_protocol_data_dir}/${_data_file})
-endforeach()
+	file(GLOB _dtds_src_files RELATIVE ${_protocol_data_dir} ${_protocol_data_dir}/dtds/*.dtd)
 
-add_custom_command(
-	OUTPUT ${_dtds_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/dtds
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${_dtds_src_files}
-		${DATAFILE_DIR}/dtds
-	VERBATIM
-	DEPENDS ${_dtds_dep_files}
-	WORKING_DIRECTORY ${_protocol_data_dir}
-)
+	set (_dtds_data_files)
+	set (_dtds_dep_files)
+	foreach(_data_file ${_dtds_src_files})
+		list(APPEND _dtds_data_files ${_dest}/${_data_file})
+		list(APPEND _dtds_dep_files ${_protocol_data_dir}/${_data_file})
+	endforeach()
 
-file(GLOB _diameter_src_files RELATIVE ${_protocol_data_dir}
-	${_protocol_data_dir}/diameter/*.dtd
-	${_protocol_data_dir}/diameter/*.ent
-	${_protocol_data_dir}/diameter/*.xml
-)
+	add_custom_command(
+		OUTPUT ${_dtds_data_files}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_dest}/dtds
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${_dtds_src_files}
+			${_dest}/dtds
+		VERBATIM
+		DEPENDS ${_dtds_dep_files}
+		WORKING_DIRECTORY ${_protocol_data_dir}
+	)
 
-set (_diameter_data_files)
-set (_diameter_dep_files)
-foreach(_data_file ${_diameter_src_files})
-	list(APPEND _diameter_data_files ${DATAFILE_DIR}/${_data_file})
-	list(APPEND _diameter_dep_files ${_protocol_data_dir}/${_data_file})
-endforeach()
+	file(GLOB _diameter_src_files RELATIVE ${_protocol_data_dir}
+		${_protocol_data_dir}/diameter/*.dtd
+		${_protocol_data_dir}/diameter/*.ent
+		${_protocol_data_dir}/diameter/*.xml
+	)
 
-add_custom_command(
-	OUTPUT ${_diameter_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/diameter
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${_diameter_src_files}
-		${DATAFILE_DIR}/diameter
-	VERBATIM
-	DEPENDS ${_diameter_dep_files}
-	WORKING_DIRECTORY ${_protocol_data_dir}
-)
+	set (_diameter_data_files)
+	set (_diameter_dep_files)
+	foreach(_data_file ${_diameter_src_files})
+		list(APPEND _diameter_data_files ${_dest}/${_data_file})
+		list(APPEND _diameter_dep_files ${_protocol_data_dir}/${_data_file})
+	endforeach()
 
-file(GLOB _radius_src_files RELATIVE ${_protocol_data_dir}
-	CONFIGURE_DEPENDS
-	${_protocol_data_dir}/radius/README.radius_dictionary
-	${_protocol_data_dir}/radius/custom.includes
-	${_protocol_data_dir}/radius/dictionary
-	${_protocol_data_dir}/radius/dictionary.*
-)
+	add_custom_command(
+		OUTPUT ${_diameter_data_files}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_dest}/diameter
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${_diameter_src_files}
+			${_dest}/diameter
+		VERBATIM
+		DEPENDS ${_diameter_dep_files}
+		WORKING_DIRECTORY ${_protocol_data_dir}
+	)
 
-set (_radius_data_files)
-set (_radius_dep_files)
-foreach(_data_file ${_radius_src_files})
-	list(APPEND _radius_data_files ${DATAFILE_DIR}/${_data_file})
-	list(APPEND _radius_dep_files ${_protocol_data_dir}/${_data_file})
-endforeach()
+	file(GLOB _radius_src_files RELATIVE ${_protocol_data_dir}
+		CONFIGURE_DEPENDS
+		${_protocol_data_dir}/radius/README.radius_dictionary
+		${_protocol_data_dir}/radius/custom.includes
+		${_protocol_data_dir}/radius/dictionary
+		${_protocol_data_dir}/radius/dictionary.*
+	)
 
-add_custom_command(
-	OUTPUT ${_radius_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/radius
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${_radius_src_files}
-		${DATAFILE_DIR}/radius
-	VERBATIM
-	DEPENDS ${_radius_dep_files}
-	WORKING_DIRECTORY ${_protocol_data_dir}
-)
+	set (_radius_data_files)
+	set (_radius_dep_files)
+	foreach(_data_file ${_radius_src_files})
+		list(APPEND _radius_data_files ${_dest}/${_data_file})
+		list(APPEND _radius_dep_files ${_protocol_data_dir}/${_data_file})
+	endforeach()
 
-file(GLOB _json_dict_src_files RELATIVE ${_protocol_data_dir}
-	${_protocol_data_dir}/json/*.xml
-	${_protocol_data_dir}/json/*.txt
-)
+	add_custom_command(
+		OUTPUT ${_radius_data_files}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_dest}/radius
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${_radius_src_files}
+			${_dest}/radius
+		VERBATIM
+		DEPENDS ${_radius_dep_files}
+		WORKING_DIRECTORY ${_protocol_data_dir}
+	)
 
-set (_json_dict_data_files)
-set (_json_dict_dep_files)
-foreach(_data_file ${_json_dict_src_files})
-	list(APPEND _json_dict_data_files ${DATAFILE_DIR}/${_data_file})
-	list(APPEND _json_dict_dep_files ${_protocol_data_dir}/${_data_file})
-endforeach()
+	file(GLOB _json_dict_src_files RELATIVE ${_protocol_data_dir}
+		${_protocol_data_dir}/json/*.xml
+		${_protocol_data_dir}/json/*.txt
+	)
 
-add_custom_command(
-	OUTPUT ${_json_dict_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/json
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${_json_dict_src_files}
-		${DATAFILE_DIR}/json
-	VERBATIM
-	DEPENDS ${_json_dict_dep_files}
-	WORKING_DIRECTORY ${_protocol_data_dir}
-)
+	set (_json_dict_data_files)
+	set (_json_dict_dep_files)
+	foreach(_data_file ${_json_dict_src_files})
+		list(APPEND _json_dict_data_files ${_dest}/${_data_file})
+		list(APPEND _json_dict_dep_files ${_protocol_data_dir}/${_data_file})
+	endforeach()
 
-file(GLOB _protobuf_src_files RELATIVE ${_protocol_data_dir}
-	${_protocol_data_dir}/protobuf/*.proto
-)
-set (_protobuf_data_files)
-set (_protobuf_dep_files)
-foreach(_data_file ${_protobuf_src_files})
-	list(APPEND _protobuf_data_files ${DATAFILE_DIR}/${_data_file})
-	list(APPEND _protobuf_dep_files ${_protocol_data_dir}/${_data_file})
-endforeach()
+	add_custom_command(
+		OUTPUT ${_json_dict_data_files}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_dest}/json
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${_json_dict_src_files}
+			${_dest}/json
+		VERBATIM
+		DEPENDS ${_json_dict_dep_files}
+		WORKING_DIRECTORY ${_protocol_data_dir}
+	)
 
-add_custom_command(
-	OUTPUT ${_protobuf_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/protobuf
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${_protobuf_src_files}
-		${DATAFILE_DIR}/protobuf
-	VERBATIM
-	DEPENDS ${_protobuf_dep_files}
-	WORKING_DIRECTORY ${_protocol_data_dir}
-)
+	file(GLOB _protobuf_src_files RELATIVE ${_protocol_data_dir}
+		${_protocol_data_dir}/protobuf/*.proto
+	)
+	set (_protobuf_data_files)
+	set (_protobuf_dep_files)
+	foreach(_data_file ${_protobuf_src_files})
+		list(APPEND _protobuf_data_files ${_dest}/${_data_file})
+		list(APPEND _protobuf_dep_files ${_protocol_data_dir}/${_data_file})
+	endforeach()
 
-file(GLOB _qualcomm_src_files RELATIVE ${_protocol_data_dir}
-	${_protocol_data_dir}/qualcomm/*.dtd
-	${_protocol_data_dir}/qualcomm/*.xml
-)
+	add_custom_command(
+		OUTPUT ${_protobuf_data_files}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_dest}/protobuf
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${_protobuf_src_files}
+			${_dest}/protobuf
+		VERBATIM
+		DEPENDS ${_protobuf_dep_files}
+		WORKING_DIRECTORY ${_protocol_data_dir}
+	)
 
-set (_qualcomm_data_files)
-set (_qualcomm_dep_files)
-foreach(_data_file ${_qualcomm_src_files})
-	list(APPEND _qualcomm_data_files ${DATAFILE_DIR}/${_data_file})
-	list(APPEND _qualcomm_dep_files ${_protocol_data_dir}/${_data_file})
-endforeach()
+	file(GLOB _qualcomm_src_files RELATIVE ${_protocol_data_dir}
+		${_protocol_data_dir}/qualcomm/*.dtd
+		${_protocol_data_dir}/qualcomm/*.xml
+	)
 
-add_custom_command(
-	OUTPUT ${_qualcomm_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/qualcomm
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		${_qualcomm_src_files}
-		${DATAFILE_DIR}/qualcomm
-	VERBATIM
-	DEPENDS ${_qualcomm_dep_files}
-	WORKING_DIRECTORY ${_protocol_data_dir}
-)
+	set (_qualcomm_data_files)
+	set (_qualcomm_dep_files)
+	foreach(_data_file ${_qualcomm_src_files})
+		list(APPEND _qualcomm_data_files ${_dest}/${_data_file})
+		list(APPEND _qualcomm_dep_files ${_protocol_data_dir}/${_data_file})
+	endforeach()
+
+	add_custom_command(
+		OUTPUT ${_qualcomm_data_files}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${_dest}/qualcomm
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${_qualcomm_src_files}
+			${_dest}/qualcomm
+		VERBATIM
+		DEPENDS ${_qualcomm_dep_files}
+		WORKING_DIRECTORY ${_protocol_data_dir}
+	)
+
+	list(APPEND _protocol_depends
+		${_dtds_data_files}
+		${_diameter_data_files}
+		${_qualcomm_data_files}
+		${_radius_data_files}
+		${_json_dict_data_files}
+		${_protobuf_data_files}
+	)
+	set(copy_data_files_depends ${copy_data_files_depends} ${_protocol_depends} PARENT_SCOPE)
+endfunction()
+
+COPY_PROTOCOL_DATA_FILES(${WIRESHARK_DATAFILE_DIR})
+if (BUILD_stratoshark AND NOT ENABLE_APPLICATION_BUNDLE)
+	COPY_PROTOCOL_DATA_FILES(${STRATOSHARK_DATAFILE_DIR})
+endif()
 
 if (GLOBAL_PROFILE_DATA_DIR)
 	set(_profiles_src_dir ${GLOBAL_PROFILE_DATA_DIR})
@@ -2948,13 +3000,13 @@ endif()
 	file(GLOB WIRESHARK_PROFILE_FILES RELATIVE ${_profiles_src_dir} ${_profiles_src_dir}/*/*)
 set (_profiles_data_files)
 foreach(_data_file ${WIRESHARK_PROFILE_FILES})
-	list(APPEND _profiles_data_files "${DATAFILE_DIR}/profiles/${_data_file}")
+	list(APPEND _profiles_data_files "${WIRESHARK_DATAFILE_DIR}/profiles/${_data_file}")
 endforeach()
 
 add_custom_command(
 	OUTPUT ${_profiles_data_files}
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${_profiles_src_dir}" "${DATAFILE_DIR}/profiles"
+		"${_profiles_src_dir}" "${WIRESHARK_DATAFILE_DIR}/profiles"
 )
 
 
@@ -2968,7 +3020,7 @@ if (BUILD_stratoshark)
 endif()
 
 set (_stratoshark_profiles_data_files)
-if (BUILD_stratoshark AND ENABLE_APPLICATION_BUNDLE)
+if (BUILD_stratoshark)
 	foreach(_data_file ${STRATOSHARK_PROFILE_FILES})
 		list(APPEND _stratoshark_profiles_data_files "${STRATOSHARK_DATAFILE_DIR}/profiles/${_data_file}")
 	endforeach()
@@ -2980,12 +3032,6 @@ if (BUILD_stratoshark AND ENABLE_APPLICATION_BUNDLE)
 endif()
 
 list(APPEND copy_data_files_depends
-	${_dtds_data_files}
-	${_diameter_data_files}
-	${_qualcomm_data_files}
-	${_radius_data_files}
-	${_json_dict_data_files}
-	${_protobuf_data_files}
 	${_profiles_data_files}
 	${_stratoshark_profiles_data_files}
 )
