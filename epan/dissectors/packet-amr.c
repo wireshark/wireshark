@@ -22,6 +22,8 @@
 #include <epan/asn1.h>
 #include <epan/tfs.h>
 
+#include <wsutil/strtoi.h>
+
 #include "packet-rtp.h"
 #include "packet-amr.h"
 
@@ -50,10 +52,13 @@ static int hf_amr_nb_cmr;
 static int hf_amr_wb_cmr;
 static int hf_amr_payload_decoded_as;
 static int hf_amr_reserved;
+static int hf_amr_ill;
+static int hf_amr_ilp;
 static int hf_amr_toc_f;
 static int hf_amr_nb_toc_ft;
 static int hf_amr_wb_toc_ft;
 static int hf_amr_toc_q;
+static int hf_amr_crc;
 
 static int hf_amr_speech_data;
 static int hf_amr_frame_data;
@@ -86,9 +91,14 @@ static expert_field ei_amr_reserved_bits_not0;
 static expert_field ei_amr_padding_bits_not0;
 static expert_field ei_amr_padding_bits_correct;
 static expert_field ei_amr_reserved;
+static expert_field ei_amr_ill_too_big;
+static expert_field ei_amr_ilp_too_big;
 
 static int   amr_encoding_type         = AMR_OA;
 static int   pref_amr_mode             = AMR_NB;
+static unsigned amr_interleaving_mode;
+static bool  amr_crc_mode;
+static bool  amr_robust_sorting_mode;
 
 static const value_string amr_encoding_type_value[] = {
     {AMR_OA, "RFC 3267 octet-aligned mode"},
@@ -101,14 +111,14 @@ static const value_string amr_encoding_type_value[] = {
 
 /* Table 1a of 3GPP TS 26.201*/
 static const value_string amr_nb_codec_mode_vals[] = {
-    {0,            "AMR 4,75 kbit/s"},
-    {1,            "AMR 5,15 kbit/s"},
-    {2,            "AMR 5,90 kbit/s"},
-    {3,            "AMR 6,70 kbit/s (PDC-EFR)"},
-    {4,            "AMR 7,40 kbit/s (TDMA-EFR)"},
-    {5,            "AMR 7,95 kbit/s"},
-    {6,            "AMR 10,2 kbit/s"},
-    {7,            "AMR 12,2 kbit/s (GSM-EFR)"},
+    {0,            "AMR 4.75 kbit/s"},
+    {1,            "AMR 5.15 kbit/s"},
+    {2,            "AMR 5.90 kbit/s"},
+    {3,            "AMR 6.70 kbit/s (PDC-EFR)"},
+    {4,            "AMR 7.40 kbit/s (TDMA-EFR)"},
+    {5,            "AMR 7.95 kbit/s"},
+    {6,            "AMR 10.2 kbit/s"},
+    {7,            "AMR 12.2 kbit/s (GSM-EFR)"},
     {AMR_NB_SID,   "AMR SID (Comfort Noise Frame)"},
     {9,            "GSM-EFR SID"},
     {10,           "TDMA-EFR SID "},
@@ -155,14 +165,14 @@ CMR (4 bits): Indicates a codec mode request sent to the speech
       mode request is present, and other values are for future use.
 */
 static const value_string amr_nb_codec_mode_request_vals[] = {
-    {0,  "AMR 4,75 kbit/s"},
-    {1,  "AMR 5,15 kbit/s"},
-    {2,  "AMR 5,90 kbit/s"},
-    {3,  "AMR 6,70 kbit/s (PDC-EFR)"},
-    {4,  "AMR 7,40 kbit/s (TDMA-EFR)"},
-    {5,  "AMR 7,95 kbit/s"},
-    {6,  "AMR 10,2 kbit/s"},
-    {7,  "AMR 12,2 kbit/s (GSM-EFR)"},
+    {0,  "AMR 4.75 kbit/s"},
+    {1,  "AMR 5.15 kbit/s"},
+    {2,  "AMR 5.90 kbit/s"},
+    {3,  "AMR 6.70 kbit/s (PDC-EFR)"},
+    {4,  "AMR 7.40 kbit/s (TDMA-EFR)"},
+    {5,  "AMR 7.95 kbit/s"},
+    {6,  "AMR 10.2 kbit/s"},
+    {7,  "AMR 12.2 kbit/s (GSM-EFR)"},
     {8,  "Illegal Frametype - For future use"},
     {9,  "Illegal Frametype - For future use"},
     {10, "Illegal Frametype - For future use"},
@@ -228,7 +238,17 @@ static const unsigned int Framebits_WB[] = {132, 177, 253, 285, 317, 365, 397, 4
 static void
 amr_apply_prefs(void) {
     wmem_map_insert(amr_default_fmtp, "octet-align", (amr_encoding_type == AMR_OA) ? "1" : "0");
+    char *interleaving = wmem_map_insert(amr_default_fmtp, "interleaving", wmem_strdup_printf(wmem_epan_scope(), "%u", amr_interleaving_mode));
+    wmem_free(wmem_epan_scope(), interleaving);
+    wmem_map_insert(amr_default_fmtp, "crc", amr_crc_mode ? "1" : "0");
+    wmem_map_insert(amr_default_fmtp, "robust-sorting", amr_robust_sorting_mode ? "1" : "0");
 }
+
+typedef struct _amr_params_t {
+    unsigned encoding;
+    unsigned interleaving;
+    bool crc;
+} amr_params_t;
 
 /* See 3GPP TS 26.101 chapter 4 for AMR-NB IF1 */
 static int
@@ -426,16 +446,30 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode
 }
 
 static void
-dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_mode)
+dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_mode, amr_params_t *amr_params)
+
 {
+    proto_item *ti;
     int         offset     = 0;
     int         bit_offset = 0;
     uint8_t     octet;
     int         ft;
     int         ft_payload_bits = 0;
     unsigned    bytes_needed_for_frames = 0;
+    uint8_t     ill, ilp;
     proto_tree *toc_tree;
+    wmem_array_t *toc_frames;
 
+    /*    In octet-aligned mode, the payload header consists of a 4-bit CMR, 4
+     * reserved bits, and optionally, an 8-bit interleaving header, as shown
+     * below:
+     *
+     *    0                   1
+     *    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
+     *   +-+-+-+-+-+-+-+-+- - - - - - - -
+     *   |  CMR  |R|R|R|R|  ILL  |  ILP  |
+     *   +-+-+-+-+-+-+-+-+- - - - - - - -
+     */
     octet = tvb_get_uint8(tvb,offset);
 
     if (amr_mode == AMR_NB) {
@@ -451,6 +485,20 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
     }
     offset     += 1;
     bit_offset += 4;
+
+    if (amr_params->interleaving) {
+        ti = proto_tree_add_item_ret_uint8(tree, hf_amr_ill, tvb, offset, 1, ENC_NA, &ill);
+        if ((unsigned)(ill + 1) > amr_params->interleaving) {
+            expert_add_info(pinfo, ti, &ei_amr_ill_too_big);
+        }
+        ti = proto_tree_add_item_ret_uint8(tree, hf_amr_ilp, tvb, offset, 1, ENC_NA, &ilp);
+        if (ilp > ill) {
+            expert_add_info(pinfo, ti, &ei_amr_ilp_too_big);
+        }
+        offset += 1;
+        bit_offset += 8;
+    }
+
     /*
      *  A ToC entry takes the following format in octet-aligned mode:
      *
@@ -469,6 +517,7 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
      */
     toc_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_amr_toc, NULL, "Payload Table of Contents");
 
+    toc_frames = wmem_array_new(pinfo->pool, sizeof(unsigned));
     do {
         octet = tvb_get_uint8(tvb,offset);
 
@@ -484,6 +533,7 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
             proto_tree_add_bits_item(toc_tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             ft_payload_bits = Framebits_WB[ft];
         }
+        wmem_array_append_one(toc_frames, ft_payload_bits);
         bytes_needed_for_frames += (ft_payload_bits + 7)/8;
         bit_offset += 4;
         /* Q bit: */
@@ -496,6 +546,14 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
         bit_offset += 2;
         offset     += 1;
     } while ((octet & 0x80) == 0x80);
+
+    if (amr_params->crc) {
+        for (unsigned i = 0; i < wmem_array_get_count(toc_frames); ++i) {
+            proto_tree_add_item(toc_tree, hf_amr_crc, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            bit_offset += 8;
+        }
+    }
 
     /* Check if we have enough data available for our frames */
     if (tvb_reported_length_remaining(tvb, offset) < bytes_needed_for_frames) {
@@ -530,11 +588,12 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
 
 /* Code to actually dissect the packets */
 static void
-dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode, unsigned encoding)
+dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_mode, struct _rtp_info *rtp_info)
 {
     int         offset     = 0;
     uint8_t     octet;
     proto_item *item;
+    amr_params_t  amr_params = { amr_encoding_type, amr_interleaving_mode, amr_crc_mode };
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -543,11 +602,45 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
     ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, ENC_NA);
     amr_tree = proto_item_add_subtree(ti, ett_amr);
 
-    item = proto_tree_add_uint(amr_tree, hf_amr_payload_decoded_as, tvb, offset, 4, encoding);
-    proto_item_set_len(item, tvb_reported_length(tvb));
+    if (rtp_info) {
+        if (rtp_info->info_payload_fmtp_map) {
+            /* If the map is non-NULL, then the RTP conversation was set up by
+             * a SDP (even if the fmtp attribute was not present, in which case
+             * the map is empty.) According to RFC 4867, if octet-align is
+             * "0 or if not present, bandwidth-efficient operation is employed."
+             */
+            char *octet_aligned = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "octet-align");
+            if (g_strcmp0(octet_aligned, "1") == 0) {
+                amr_params.encoding = AMR_OA;
+            } else {
+                amr_params.encoding = AMR_BE;
+            }
+            const char *interleaving = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "interleaving");
+            if (interleaving && ws_strtou(interleaving, NULL, &amr_params.interleaving)) {
+                amr_params.encoding = AMR_OA;
+            }
+            const char *crc = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "crc");
+            if (g_strcmp0(crc, "1") == 0) {
+                amr_params.crc = true;
+                amr_params.encoding = AMR_OA;
+            }
+            const char *robust_sorting = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "robust-sorting");
+            if (g_strcmp0(robust_sorting, "1") == 0) {
+                amr_params.encoding = AMR_OA;
+            }
+        } else {
+            /* If the map is NULL, then we were called by RTP, but the RTP
+             * conversation was set by Decode As or similar, and we should
+             * use the preference settings.
+             */
+            rtp_info->info_payload_fmtp_map = amr_default_fmtp;
+        }
+    }
+
+    item = proto_tree_add_uint(amr_tree, hf_amr_payload_decoded_as, tvb, offset, tvb_reported_length(tvb), amr_params.encoding);
     proto_item_set_generated(item);
 
-    switch (encoding) {
+    switch (amr_params.encoding) {
     case AMR_OA: /* RFC 3267 Octet aligned */
         break;
     case AMR_BE: /* RFC 3267 Bandwidth-efficient */
@@ -580,7 +673,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
         return;
     }
 
-    dissect_amr_oa(tvb, pinfo, amr_tree, amr_mode);
+    dissect_amr_oa(tvb, pinfo, amr_tree, amr_mode, &amr_params);
     return;
 }
 
@@ -588,72 +681,20 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
 static int
 dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    struct _rtp_info *rtp_info = NULL;
-    unsigned encoding = amr_encoding_type;
-
-    if (data) {
-        rtp_info = (struct _rtp_info*)data;
-        if (rtp_info->info_payload_fmtp_map) {
-            /* If the map is non-NULL, then the RTP conversation was set up by
-             * a SDP (even if the fmtp attribute was not present, in which case
-             * the map is empty.) According to RFC 4867, if octet-align is
-             * "0 or if not present, bandwidth-efficient operation is employed."
-             */
-            char *octet_aligned = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "octet-align");
-            if (g_strcmp0(octet_aligned, "1") == 0) {
-                encoding = AMR_OA;
-            } else {
-                encoding = AMR_BE;
-            }
-        } else {
-            /* If the map is NULL, then we were called by RTP, but the RTP
-             * conversation was set by Decode As or similar, and we should
-             * use the preference settings.
-             */
-            rtp_info->info_payload_fmtp_map = amr_default_fmtp;
-        }
-    }
-
-/* Make entries in Protocol column and Info column on summary display */
+    /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR");
 
-    dissect_amr_common(tvb, pinfo, tree, pref_amr_mode, encoding);
+    dissect_amr_common(tvb, pinfo, tree, pref_amr_mode, (struct _rtp_info*)data);
     return tvb_captured_length(tvb);
 }
 
 static int
 dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    struct _rtp_info *rtp_info = NULL;
-    unsigned encoding = amr_encoding_type;
-
-    if (data) {
-        rtp_info = (struct _rtp_info*)data;
-        if (rtp_info->info_payload_fmtp_map) {
-            /* If the map is non-NULL, then the RTP conversation was set up by
-             * a SDP (even if the fmtp attribute was not present, in which case
-             * the map is empty.) According to RFC 4867, if octet-align is
-             * "0 or if not present, bandwidth-efficient operation is employed."
-             */
-            char *octet_aligned = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "octet-align");
-            if (g_strcmp0(octet_aligned, "1") == 0) {
-                encoding = AMR_OA;
-            } else {
-                encoding = AMR_BE;
-            }
-        } else {
-            /* If the map is NULL, then we were called by RTP, but the RTP
-             * conversation was set by Decode As or similar, and we should
-             * use the preference settings.
-             */
-            rtp_info->info_payload_fmtp_map = amr_default_fmtp;
-        }
-    }
-
-/* Make entries in Protocol column and Info column on summary display */
+    /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR-WB");
 
-    dissect_amr_common(tvb, pinfo, tree, AMR_WB, encoding);
+    dissect_amr_common(tvb, pinfo, tree, AMR_WB, (struct _rtp_info*)data);
     return tvb_captured_length(tvb);
 }
 
@@ -746,6 +787,16 @@ proto_register_amr(void)
             FT_UINT8, BASE_DEC, NULL, 0x0f,
             "Reserved bits", HFILL }
         },
+        { &hf_amr_ill,
+            { "Interleaving Length", "amr.ill",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            "Interleaving length is L+1 in frame-blocks", HFILL }
+        },
+        { &hf_amr_ilp,
+            { "Interleaving Index", "amr.ilp",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            "Interleaving index for frame-blocks in this payload", HFILL }
+        },
         { &hf_amr_payload_decoded_as,
             { "Payload decoded as",           "amr.payload_decoded_as",
             FT_UINT32, BASE_DEC, VALS(amr_encoding_type_value), 0x0,
@@ -770,6 +821,11 @@ proto_register_amr(void)
             { "Q bit",           "amr.toc.q",
             FT_BOOLEAN, BASE_NONE, TFS(&toc_q_bit_vals), 0x0,
             "Frame quality indicator bit", HFILL }
+        },
+        { &hf_amr_crc,
+            { "CRC",           "amr.crc",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            "CRC calculated over the class A bits in the frame", HFILL }
         },
         { &hf_amr_speech_data,
             { "Speech data",           "amr.speech_data",
@@ -872,6 +928,8 @@ proto_register_amr(void)
         { &ei_amr_padding_bits_not0, { "amr.padding_bits_not0", PI_MALFORMED, PI_ERROR, "Padding bits error - MUST be 0", EXPFILL }},
         { &ei_amr_padding_bits_correct, { "amr.padding_bits_correct", PI_PROTOCOL, PI_NOTE, "Padding bits correct", EXPFILL }},
         { &ei_amr_reserved, { "amr.reserved.not_zero", PI_PROTOCOL, PI_WARN, "Reserved != 0, wrongly encoded or not octet aligned. Decoding as bandwidth-efficient mode", EXPFILL }},
+        { &ei_amr_ill_too_big, { "amr.ill.too_big", PI_PROTOCOL, PI_WARN, "ILL + 1 greater than maximum number of frame-blocks allowed", EXPFILL }},
+        { &ei_amr_ilp_too_big, { "amr.ilp.too_big", PI_PROTOCOL, PI_WARN, "ILP greater than ILL", EXPFILL }},
     };
 
     static const enum_val_t encoding_types[] = {
@@ -914,6 +972,25 @@ proto_register_amr(void)
                        "The AMR mode",
                        "The AMR mode",
                        &pref_amr_mode, modes, AMR_NB);
+
+    prefs_register_uint_preference(amr_module, "interleaving",
+                        "Frame-block interleaving",
+                        "Maximum number of frame-blocks in an interleaving "
+                        "group in octet-aligned mode, if parameters are not "
+                        "specified via SDP (0 for interleaving not used).",
+                        10, &amr_interleaving_mode);
+
+    prefs_register_bool_preference(amr_module, "crc",
+                        "Frame CRC present",
+                        "Whether frame CRCs are present in octet-aligned mode, "
+                        "if parameters are not specified via SDP",
+                        &amr_crc_mode);
+
+    prefs_register_bool_preference(amr_module, "robust_sorting",
+                        "Robust sorting used",
+                        "Whether robust sorting is used in octet-aligned mode, "
+                        "if parameters are not specified via SDP",
+                        &amr_robust_sorting_mode);
 
     amr_handle = register_dissector("amr", dissect_amr, proto_amr);
     amr_wb_handle = register_dissector("amr-wb", dissect_amr_wb, proto_amr_wb);
