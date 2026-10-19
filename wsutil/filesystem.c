@@ -1050,7 +1050,14 @@ get_datafile_dir(const char* app_env_var_prefix)
          * If so, perhaps we should read that from the registry,
          * instead.
          */
-        if (progfile_dir != NULL) {
+        if (progfile_dir != NULL && running_in_build_directory_flag) {
+            /*
+             * We're running from the build directory, where
+             * each application has its own share/<app> data
+             * subdirectory.
+             */
+            datafile_dir = g_build_filename(progfile_dir, "share", app_lower, (char *)NULL);
+        } else if (progfile_dir != NULL) {
             /*
              * Yes, we do; use that.
              */
@@ -1074,11 +1081,13 @@ get_datafile_dir(const char* app_env_var_prefix)
          * if we're started with special privileges, so we need
          * only check it; we don't need to call started_with_special_privs().)
          *
-         * Data files (dtds/, radius/, etc.) are copied to the build
-         * directory during the build which also contains executables. A special
-         * exception is macOS (when built with an app bundle).
+         * Data files (dtds/, radius/, etc.) are copied to the share/<app>
+         * subdirectory of the build directory during the build. The
+         * build directory also contains executables, and is shared by
+         * all applications. A special exception is macOS (when built with
+         * an app bundle).
          */
-        datafile_dir = g_strdup(progfile_dir);
+        datafile_dir = g_build_filename(progfile_dir, "share", app_lower, (char *)NULL);
     } else {
         if (g_path_is_absolute(DATA_DIR)) {
             datafile_dir = g_build_filename(DATA_DIR, app_lower, (char *)NULL);

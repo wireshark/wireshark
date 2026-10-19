@@ -169,11 +169,12 @@ set(WIX_CANDLE_DEFINES
 	-dWiresharkMinorVersion=${PROJECT_MINOR_VERSION}
 	-dAssetDir=${CMAKE_SOURCE_DIR}/packaging/wix
 	-dBuildOutputDir=${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}
-	-dDiameterDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/diameter
-	-dQualcommDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/qualcomm
+	-dStagingDatafileDir=${WIRESHARK_DATAFILE_DIR}
+	-dDiameterDir=${WIRESHARK_DATAFILE_DIR}/diameter
+	-dQualcommDir=${WIRESHARK_DATAFILE_DIR}/qualcomm
 	-dIconDir=${CMAKE_SOURCE_DIR}/resources/icons
 	-dQtTranslationDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/translations
-	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/radius
+	-dRadiusDictDir=${WIRESHARK_DATAFILE_DIR}/radius
 	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/snmp/mibs
 	-dUsersGuideDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/doc/wsug_html_chunked
 	${d_smi_dir}
@@ -246,7 +247,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# RadiusDict.wxs. Collects all Radius dictionary files in
 		# "output" radius directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/RadiusDict.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/radius
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${WIRESHARK_DATAFILE_DIR}/radius
 					${WIX_HEAT_FLAGS} -cg CG.RadiusDict -dr dirRadius -var var.RadiusDictDir
 					-out ${_wix_binary_dir}/RadiusDict.wxs
 		)
@@ -254,7 +255,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# Diameter.wxs. Collects all Diameter XML dictionary files
 		# in "output" diameter directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/Diameter.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/diameter
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${WIRESHARK_DATAFILE_DIR}/diameter
 					${WIX_HEAT_FLAGS} -cg CG.Diameter -dr dirDiameter -var var.DiameterDir
 					-out ${_wix_binary_dir}/Diameter.wxs
 		)
@@ -262,7 +263,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# Qualcomm.wxs. Collects all Qualcomm XML dictionary files
 		# in "output" qualcomm directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/Qualcomm.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/qualcomm
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${WIRESHARK_DATAFILE_DIR}/qualcomm
 					${WIX_HEAT_FLAGS} -cg CG.Qualcomm -dr dirQualcomm -var var.QualcommDir
 					-out ${_wix_binary_dir}/Qualcomm.wxs
 		)

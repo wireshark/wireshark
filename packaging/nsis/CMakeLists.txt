@@ -270,12 +270,16 @@ if (BUILD_stratoshark)
 endif()
 
 file(TO_NATIVE_PATH "${DATAFILE_DIR}" _staging_dir)
+file(TO_NATIVE_PATH "${WIRESHARK_DATAFILE_DIR}" _wireshark_datafile_dir)
+file(TO_NATIVE_PATH "${STRATOSHARK_DATAFILE_DIR}" _stratoshark_datafile_dir)
 file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _outfile_dir)
 file(TO_NATIVE_PATH "${CMAKE_CURRENT_BINARY_DIR}" _nsis_include_dir)
 
 # Variables we can't set via config.nsh.
 set(NSIS_OPTIONS
 	-DSTAGING_DIR=${_staging_dir}
+	-DWIRESHARK_STAGING_DATAFILE_DIR=${_wireshark_datafile_dir}
+	-DSTRATOSHARK_STAGING_DATAFILE_DIR=${_stratoshark_datafile_dir}
 	-DOUTFILE_DIR=${_outfile_dir}
 	-DNSIS_INCLUDE_DIR=${_nsis_include_dir}
 	-V2

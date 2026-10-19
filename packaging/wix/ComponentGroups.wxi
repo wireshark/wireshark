@@ -37,7 +37,7 @@
           <File Id="filREADME_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.txt" />
         </Component>
         <Component Id="cmpWka" Guid="*">
-          <File Id="filWka" KeyPath="yes" Source="$(var.Staging.Dir)\wka" />
+          <File Id="filWka" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\wka" />
         </Component>
         <Component Id="cmpPdml2html_xsl" Guid="*">
           <File Id="filPdml2html_xsl" KeyPath="yes" Source="$(var.Staging.Dir)\pdml2html.xsl" />
@@ -61,7 +61,7 @@
           <File Id="filExtcap_html" KeyPath="yes" Source="$(var.Staging.Dir)\extcap.html" />
         </Component>
         <Component Id="cmpIpmap_html" Guid="*">
-          <File Id="filIpmap_html" KeyPath="yes" Source="$(var.Staging.Dir)\ipmap.html" />
+          <File Id="filIpmap_html" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\ipmap.html" />
         </Component>
         <Component Id="cmpReleaseNotes_html" Guid="*">
           <File Id="filReleaseNotes_html" KeyPath="yes" Source="$(var.Staging.Dir)\Wireshark Release Notes.html" />
@@ -93,16 +93,16 @@
     <Fragment>
       <DirectoryRef Id="INSTALLFOLDER">
         <Component Id="cmpCfilters" Guid="*">
-          <File Id="filCfilters" KeyPath="yes" Source="$(var.Staging.Dir)\cfilters" />
+          <File Id="filCfilters" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\cfilters" />
         </Component>
         <Component Id="cmpColoringRules" Guid="*">
-          <File Id="filColoringRules" KeyPath="yes" Source="$(var.Staging.Dir)\coloring_rules.jsonc" />
+          <File Id="filColoringRules" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\coloring_rules.jsonc" />
         </Component>
         <Component Id="cmpDfilters" Guid="*">
-          <File Id="filDfilters" KeyPath="yes" Source="$(var.Staging.Dir)\dfilters" />
+          <File Id="filDfilters" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\dfilters" />
         </Component>
         <Component Id="cmpSmi_modules" Guid="*">
-          <File Id="filSmi_modules" KeyPath="yes" Source="$(var.Staging.Dir)\smi_modules" />
+          <File Id="filSmi_modules" KeyPath="yes" Source="$(var.Staging.Datafile.Dir)\smi_modules" />
         </Component>
       </DirectoryRef>
     </Fragment>
