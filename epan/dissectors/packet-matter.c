@@ -458,7 +458,9 @@ dissect_matter_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         case 0x15: // Structure
         case 0x16: // Array
         case 0x17: // List
+            increment_dissection_depth(pinfo);
             offset += dissect_matter_tlv(tvb_new_subset_remaining(tvb, offset), pinfo, tree_element, data);
+            decrement_dissection_depth(pinfo);
             break;
         default:
             goto unsupported_control;
