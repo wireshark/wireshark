@@ -433,7 +433,6 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
     uint8_t     octet;
     int         ft;
     int         ft_payload_bits = 0;
-    unsigned    bits_used_for_frames = 0;
     unsigned    bytes_needed_for_frames = 0;
     proto_tree *toc_tree;
 
@@ -485,8 +484,7 @@ dissect_amr_oa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int amr_
             proto_tree_add_bits_item(toc_tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             ft_payload_bits = Framebits_WB[ft];
         }
-        bits_used_for_frames += ft_payload_bits;
-        bytes_needed_for_frames += (bits_used_for_frames + 7)/8;
+        bytes_needed_for_frames += (ft_payload_bits + 7)/8;
         bit_offset += 4;
         /* Q bit: */
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_q, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
