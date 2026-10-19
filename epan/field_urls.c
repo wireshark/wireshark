@@ -142,6 +142,7 @@ parse_address(const char *str, bool *is_v6, uint32_t *v4, ws_in6_addr *v6)
         *v4 = g_ntohl(addr4);
         return true;
     }
+    *v4 = 0; // This helps avoid compiler maybe-uninit warnings
     if (ws_inet_pton6(str, v6)) {
         *is_v6 = true;
         return true;
