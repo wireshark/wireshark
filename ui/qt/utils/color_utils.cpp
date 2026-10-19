@@ -93,14 +93,17 @@ QString ColorUtils::themeLinkStyle()
     return link_style;
 }
 
-const QColor ColorUtils::hoverBackground()
+QString ColorUtils::itemHoverStyleSheet(const QString &selector)
 {
-    const QColor hover_color = ThemeManager::instance()->color(ThemeManager::BrandPrimary);
-#if defined(Q_OS_MACOS)
-    return hover_color;
-#else
-    return ColorUtils::alphaBlend(QApplication::palette().window().color(), hover_color, 0.5);
-#endif
+    // Read the application palette: ThemeManager installs it before
+    // emitting themeChanged, while a widget's own palette may not have
+    // been propagated yet when its restyle slot runs.
+    const QPalette pal = QApplication::palette();
+    const QColor hover_bg = ColorMath::selectionHoverFill(pal.color(QPalette::Base),
+                                                          pal.color(QPalette::Highlight));
+    const QColor hover_fg = ColorMath::readableText(pal.color(QPalette::Text), hover_bg);
+    return QStringLiteral("%1:item:hover { background-color: %2; color: %3; }")
+            .arg(selector, hover_bg.name(), hover_fg.name());
 }
 
 void ColorUtils::paintFlatCell(QPainter *painter, const QAbstractItemView *view,

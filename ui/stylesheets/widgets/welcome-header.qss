@@ -1,8 +1,8 @@
 /* ===================================================================
- * Wireshark Welcome Page Header — Gradient Header Bar
+ * Wireshark Welcome Page Header — Header Bar
  *
  * Widget hierarchy:
- *   #welcomeHeader            — QWidget, the blue gradient header bar
+ *   #welcomeHeader            — QWidget, the flat header bar
  *     #headerTitle            — QLabel, "Wireshark"
  *     #headerVersion          — QLabel, full version string
  *     #headerBuildLabel       — QLabel, "Development Build" pill badge
@@ -24,7 +24,6 @@
  * values are allowed in this file.
  *
  * Notes:
- *   - QWidget backgrounds with gradients use the `background` shorthand.
  *   - The pulsing dot shape is stylesheet-driven (border-radius makes it
  *     round); the animation uses QPropertyAnimation on a
  *     QGraphicsOpacityEffect attached to #updateDot.  Respect
@@ -39,14 +38,10 @@
 
 
 /* -----------------------------------------------------------------
- * Welcome Header — gradient bar
+ * Welcome Header — flat bar, a darker shade of the selection color
  * ----------------------------------------------------------------- */
 #welcomeHeader {
-    background: qlineargradient(
-        spread:pad, x1:0, y1:0, x2:1, y2:1,
-        stop:0 wstheme(HeaderGradientStart),
-        stop:1 wstheme(HeaderGradientEnd)
-    );
+    background-color: wstheme(HeaderBackground);
     min-height: 64px;
 }
 
@@ -55,10 +50,10 @@
  * Title label — "Wireshark"
  * ----------------------------------------------------------------- */
 #headerTitle {
-    color: wstheme(TextOnDark);
+    color: wstheme(HeaderText);
     font-size: 16px;
     font-weight: 600;
-    /* No background — sits on the gradient */
+    /* No background — sits on the header bar */
     background: transparent;
     padding: 0;
 }
@@ -68,7 +63,7 @@
  * Version label — "4.7.0 (v4.7.0rc0-2438-g68ddfc1bcba4)"
  * ----------------------------------------------------------------- */
 #headerVersion {
-    color: wstheme(TextOnDarkMuted);
+    color: wstheme(HeaderTextMuted);
     font-size: 11px;
     font-weight: 400;
     background: transparent;
@@ -105,11 +100,7 @@
  * Shown below #welcomeHeader when an update is available.
  * ================================================================= */
 #updateHeader {
-    background: qlineargradient(
-        spread:pad, x1:0, y1:0.5, x2:1, y2:0.5,
-        stop:0 wstheme(UpdateGradientStart),
-        stop:1 wstheme(UpdateGradientEnd)
-    );
+    background-color: wstheme(UpdateBackground);
     border-bottom: 1px solid wstheme(UpdateBorder);
     min-height: 36px;
 }
@@ -220,7 +211,7 @@
  * Dismiss button — "×" to close the update bar
  *
  * QToolButton with autoRaise(true).  Borderless by default, subtle
- * highlight on hover.  Sits on the green gradient in both themes,
+ * highlight on hover.  Sits on the green update bar in both themes,
  * so the colors come from the shared update.* tokens.
  *
  * Connect clicked() → updateHeader->setVisible(false).

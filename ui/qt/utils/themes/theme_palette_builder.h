@@ -42,9 +42,12 @@
  *     platforms.
  *
  * Theme-provided palette overrides (the `palette:` section of
- * `theme.jsonc`) are applied on top of the baseline.  Brand-driven
- * roles (`Highlight`, `Link`, `Accent`, `HighlightedText`) are always
- * overlaid last, so themes don't need to set them.
+ * `theme.jsonc`) are applied on top of the baseline.  The selection
+ * roles (`Highlight`, `HighlightedText`, `Link`) and `Accent` are
+ * overlaid last, so themes don't need to set them: Highlight resolves to
+ * `palette.highlight`, else `packets.selection`, else `brand.primary`;
+ * HighlightedText is derived from it unless pinned; Link follows it;
+ * Accent is `brand.primary`.
  */
 class ThemePaletteBuilder
 {

@@ -60,11 +60,11 @@ struct ThemeColorPair {
  *   themes/system_theme_detector*.{h,cpp,mm} — platform-native OS
  *                                            light/dark detection.
  *
- * A theme file (resources/themes/<name>/theme.jsonc) declares six
- * mandatory colors — `brand.primary`, `brand.deep`, and four
- * `accent.*` values.  Every other token the UI consumes (Header*,
- * Section*, Update*, Packets*, Conversation*, Expert*, TextOnDark*,
- * …) is derived from those inputs by ThemeTokenHandler at load time.
+ * A theme file (resources/themes/<name>/theme.jsonc) declares five
+ * mandatory colors — `brand.primary` and four `accent.*` values.
+ * Every other token the UI consumes (Header*, Section*, Update*,
+ * Packets*, Conversation*, Expert*, …) is derived from those
+ * inputs by ThemeTokenHandler at load time.
  *
  * Stylesheets reference tokens via `wstheme(TokenName)`.  The loader
  * rewrites each occurrence to the resolved `#rrggbb` hex value at
@@ -115,7 +115,6 @@ public:
     enum ThemeToken {
         // Brand
         BrandPrimary,
-        BrandDeep,
 
         // Accent
         AccentSuccess,
@@ -197,21 +196,22 @@ public:
         PaletteAlternateBase,
         PaletteMid,
         PaletteMidLight,
-        // Selection background — when omitted, builder uses brand.primary.
+        // Selection background — when omitted, the builder uses
+        // packets.selection, else brand.primary.
         PaletteHighlight,
-        // Selection foreground — when omitted, builder picks via
-        // contrastingText(brand.primary).  Themes whose brand colour
-        // sits on the WCAG luminance threshold (e.g. saturated mid-tone
-        // teals/blues where contrastingText flips to black even though
-        // white reads better) can pin this explicitly to white.
+        // Selection foreground — when omitted, the builder picks
+        // contrastingText() of the resolved highlight.  Themes whose
+        // selection colour sits on the WCAG luminance threshold (e.g.
+        // saturated mid-tone teals/blues where contrastingText flips to
+        // black even though white reads better) can pin this explicitly
+        // to white.
         PaletteHighlightedText,
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
         PaletteAccent,
 #endif
 
-        // Header (derived from brand)
-        HeaderGradientStart,
-        HeaderGradientEnd,
+        // Welcome header bar (derived from the palette's Highlight)
+        HeaderBackground,
 
         // Section headers (derived from brand + QPalette)
         SectionHeader,
@@ -232,13 +232,12 @@ public:
         Separator,
         MutedText,
 
-        // Text on dark surfaces (derived from brand)
-        TextOnDark,
-        TextOnDarkMuted,
+        // Welcome header title and version text (derived with HeaderBackground)
+        HeaderText,
+        HeaderTextMuted,
 
         // Update bar (derived from accent.success)
-        UpdateGradientStart,
-        UpdateGradientEnd,
+        UpdateBackground,
         UpdateBorder,
         UpdateText,
         UpdateTextHighlight,
@@ -270,8 +269,8 @@ public:
         // any enum name starting with "accent" as a required input in
         // the "accent" JSONC section (theme_manager.cpp section loop),
         // so `Accent*Text` derived tokens would make the parser demand
-        // them from every theme file.  Following the existing
-        // `TextOnDark` precedent keeps them ungrouped.
+        // them from every theme file.  The `TextOn*` prefix keeps
+        // them out of the accent section.
         TextOnSuccess,
         TextOnWarning,
         TextOnError,
@@ -355,7 +354,7 @@ public:
      * Returns the resolved color value for a given ThemeToken in
      * the current light/dark mode.
      *
-     * @param role  The ThemeToken enum value, e.g. ThemeManager::HeaderGradientStart
+     * @param role  The ThemeToken enum value, e.g. ThemeManager::HeaderBackground
      * @return The color defined for the role in the current mode, or an invalid QColor if
      *         the role is not defined.
      */

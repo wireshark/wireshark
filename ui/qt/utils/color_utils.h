@@ -88,12 +88,17 @@ public:
      */
     static QString themeLinkStyle();
 
-
     /**
-     * @brief Returns an appropriate background color for hovered abstract items.
-     * @return The background color.
+     * @brief Stylesheet rule for the hover state of an item view's items.
+     *
+     * The fill is ColorMath::selectionHoverFill() of the application
+     * palette's Base and Highlight, the text ColorMath::readableText() of
+     * its Text on that fill, so hover is a tint of the view's own
+     * selection color.
+     * @param selector Type selector of the view, e.g. "QTreeView".
+     * @return "<selector>:item:hover { background-color: ...; color: ...; }"
      */
-    static const QColor hoverBackground();
+    static QString itemHoverStyleSheet(const QString &selector);
 
     /**
      * @brief Paints a single cell with a flat background/text color,
@@ -101,7 +106,7 @@ public:
      * marked, ignored) the model would otherwise contribute -- used for
      * PacketList's and its pinned overlay panes' manually-driven hover
      * highlight (see PacketList::drawRow()), where hovering needs to show
-     * a flat theme color regardless of the row's own coloring.
+     * the flat hover fill regardless of the row's own coloring.
      *
      * QStyledItemDelegate::paint() can't be reused for this directly: its
      * own initStyleOption() re-fetches Qt::BackgroundRole from the model

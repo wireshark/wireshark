@@ -838,7 +838,6 @@ qrc_add_files(
 	FILES
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/application.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/accordion-frame.qss
-	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/bluetooth-table.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/capture-card.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/interface-toolbar-lineedit.qss
 	${CMAKE_SOURCE_DIR}/ui/stylesheets/widgets/learn-card.qss

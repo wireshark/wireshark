@@ -23,9 +23,9 @@
  * / expert / packets / conversation / palette from the theme), and
  * enriches it in place with the generated tokens:
  *
- *   Header*                       (from brand)
  *   SectionHeader / SectionHeaderHover   (from brand + QPalette::Mid)
- *   TextOnDark / TextOnDarkMuted  (from brand.deep)
+ *   HeaderBackground / HeaderText / HeaderTextMuted
+ *                                 (from QPalette Highlight / HighlightedText / Window)
  *   Update*                       (from accent.success)
  *   Packets*                      (from brand + palette base/text)
  *   Conversation*                 (from brand + accent + base)
@@ -34,7 +34,7 @@
  *
  * Only-if-missing semantics: if a theme has already supplied a
  * specific token explicitly (e.g. a theme that overrides
- * `HeaderGradientStart`), the derivation leaves that value alone.
+ * `PacketsSelection`), the derivation leaves that value alone.
  * Matches the behavior ThemeManager::derive() had with
  * overwrite=false.
  */

@@ -18,7 +18,6 @@
 #include <ui/qt/widgets/pinned_overlay_view.h>
 #include <ui/qt/utils/color_utils.h>
 
-#include <epan/column.h>
 #include <epan/frame_data.h>
 #include <epan/prefs.h>
 
@@ -253,42 +252,11 @@ void PinnedRowView::drawRow(QPainter *painter, const QStyleOptionViewItem &optio
 
     // The hover highlight is driven by hovered_frame_num_ rather than Qt's
     // native per-widget hover state, since the mouse hovering a pinned
-    // overlay view needs to highlight this row here too -- native :hover
-    // styling only ever reacts to the mouse being over this specific
-    // widget. Painted even on a selected row so hover wins over
-    // selection, matching PacketList::drawRow(). Uses
-    // ColorUtils::paintFlatCell() rather than re-invoking each column's
-    // delegate with overridden palette roles -- see
-    // PacketList::drawRow()'s own comment (this mirrors it exactly) for
-    // why: QStyledItemDelegate::paint() re-fetches Qt::BackgroundRole
-    // from the model via initStyleOption(), clobbering any
-    // backgroundBrush/palette override made beforehand, so a
-    // colored/marked/ignored row's own background always won that fight
-    // instead of the flat hover color.
+    // overlay view needs to highlight this row here too. See
+    // PacketList::paintHoveredRow().
     if (packet_list && prefs.gui_packet_list_hover_style) {
         if (fdata && (int)fdata->num == packet_list->hoveredFrameNum()) {
-            QColor hover_bg = ColorUtils::hoverBackground();
-            QColor text_color = palette().color(QPalette::Text);
-            for (int visual_col = 0; visual_col < header()->count(); visual_col++) {
-                int logical_col = header()->logicalIndex(visual_col);
-                if (isColumnHidden(logical_col)) {
-                    continue;
-                }
-                QModelIndex col_index = index.siblingAtColumn(logical_col);
-                QStyleOptionViewItem col_option = option;
-                col_option.rect = visualRect(col_index);
-                if (get_column_format(logical_col) == COL_TAG) {
-                    // See PacketList::drawRow()'s own comment for why the tag
-                    // column needs its content painted separately rather than
-                    // through paintFlatCell().
-                    painter->save();
-                    painter->fillRect(col_option.rect, hover_bg);
-                    painter->restore();
-                    packet_list->tagColumnDelegate().paintContent(painter, col_option, col_index);
-                    continue;
-                }
-                ColorUtils::paintFlatCell(painter, this, col_option, col_index, hover_bg, text_color);
-            }
+            packet_list->paintHoveredRow(painter, this, option, index);
         }
     }
 

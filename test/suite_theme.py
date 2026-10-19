@@ -7,8 +7,8 @@
 
 Validates that every bundled `theme.jsonc` under `resources/themes/*/`
 loads cleanly against `resources/themes/theme.schema.json`, and that
-the derived semantic tokens (SectionHeader, FieldBorder, HeaderGradientEnd,
-filter validity tints, filter-busy fade) meet WCAG contrast targets
+the derived semantic tokens (SectionHeader, FieldBorder, HeaderBackground, hover
+fills, filter validity tints, filter-busy fade) meet WCAG contrast targets
 for every shipped theme in both light and dark modes.
 
 The contrast assertions re-implement the relevant slice of
@@ -196,6 +196,32 @@ def ensure_contrast(color, bg, min_ratio):
     return out if contrast_ratio(out, bg) >= min_ratio else target
 
 
+DISTINCT_SURFACE_RATIO = 1.5  # ColorMath::DistinctSurfaceRatio
+READABLE_TEXT_RATIO = 4.5     # ColorMath::ReadableTextRatio
+
+
+def darken(color, percent):
+    '''Mirror of ColorMath::darken (integer channel scaling).'''
+    r, g, b = _hex_to_rgb(color)
+    return _rgb_to_hex(*(c * (100 - percent) // 100 for c in (r, g, b)))
+
+
+def selection_hover_fill(base, selection):
+    '''Mirror of ColorMath::selectionHoverFill.'''
+    return ensure_contrast(mix(base, selection, 0.55), selection,
+                           DISTINCT_SURFACE_RATIO)
+
+
+def readable_text(text, surface):
+    '''Mirror of ColorMath::readableText.'''
+    return ensure_contrast(text, surface, READABLE_TEXT_RATIO)
+
+
+def is_readable(text, surface):
+    '''Mirror of ColorMath::isReadable.'''
+    return contrast_ratio(text, surface) >= READABLE_TEXT_RATIO
+
+
 def tint_with_alpha(base, accent, alpha255):
     '''Alpha-compositing accent (with alpha) over opaque base — same
     formula ColorMath::mix uses internally.'''
@@ -231,8 +257,8 @@ def derived_tokens(theme, mode):
     '''Return the subset of derived tokens the contrast assertions need.
 
     Mirrors theme_token_handler.cpp's deriveAll() for the new tokens
-    (SectionHeader, FieldBorder, Separator, HeaderGradientEnd, Filter*)
-    plus the inputs they depend on (TextOnDark / TextOnDarkMuted).
+    (SectionHeader, FieldBorder, Separator, HeaderBackground, Filter*)
+    plus the inputs they depend on (HeaderText / HeaderTextMuted).
     '''
     palette = _resolve_palette(theme, mode)
     base = palette['base']
@@ -240,15 +266,30 @@ def derived_tokens(theme, mode):
     text = palette['text']
 
     brand_primary = _pick(theme, 'brand', 'primary', mode)
-    brand_deep    = _pick(theme, 'brand', 'deep',    mode)
     accent_success = _pick(theme, 'accent', 'success', mode)
     accent_error   = _pick(theme, 'accent', 'error',   mode)
 
-    text_on_dark       = contrasting_text(brand_deep)
-    text_on_dark_muted = mix(text_on_dark, brand_deep, 0.25)
-
-    gradient_end = ensure_contrast(brand_primary, text_on_dark,       4.5)
-    gradient_end = ensure_contrast(gradient_end, text_on_dark_muted, 3.0)
+    # Welcome header: the palette's effective selection color darkened,
+    # kept apart from the window, then clamped for the title (4.5) and
+    # the faded version label (3.0). The selection color resolves as
+    # palette.highlight, else packets.selection, else brand.primary;
+    # highlightedText is pinned or the
+    # contrasting text of that color, lifted to 4.5:1 against it.
+    highlight = (_pick(theme, 'palette', 'highlight', mode)
+                 or _pick(theme, 'packets', 'selection', mode)
+                 or brand_primary)
+    highlight_text = readable_text(
+        _pick(theme, 'palette', 'highlightedText', mode)
+        or contrasting_text(highlight), highlight)
+    window = palette['window']
+    header_bg = ensure_contrast(darken(highlight, 40), window,
+                                DISTINCT_SURFACE_RATIO)
+    text_on_dark = (highlight_text
+                    if is_readable(highlight_text, header_bg)
+                    else contrasting_text(header_bg))
+    header_bg = ensure_contrast(header_bg, text_on_dark, READABLE_TEXT_RATIO)
+    text_on_dark_muted = ensure_contrast(mix(text_on_dark, header_bg, 0.25),
+                                         header_bg, 3.0)
 
     section_header = ensure_contrast(mid, base, 4.5)
     field_border   = ensure_contrast(mid, base, 3.0)
@@ -271,10 +312,8 @@ def derived_tokens(theme, mode):
     # Secondary text: Text faded 40% toward Base, lifted to 4.5:1.
     muted_text = ensure_contrast(mix(text, base, 0.40), base, 4.5)
 
-    # Link follows a pinned highlight, else brand.primary, lifted to
-    # 4.5:1 against Base.
-    link = ensure_contrast(_pick(theme, 'palette', 'highlight', mode)
-                           or brand_primary, base, 4.5)
+    # Link follows the highlight, lifted to 4.5:1 against Base.
+    link = readable_text(highlight, base)
 
     # Ignored / hidden rows fade WindowText toward Base unless the
     # theme pins them.
@@ -289,12 +328,16 @@ def derived_tokens(theme, mode):
 
     return {
         'base':              base,
+        'window':            window,
+        'highlight':         highlight,
+        'highlightText':     highlight_text,
+        'text':              text,
         'sectionHeader':     section_header,
         'fieldBorder':       field_border,
         'separator':         separator,
-        'textOnDark':        text_on_dark,
-        'textOnDarkMuted':   text_on_dark_muted,
-        'headerGradientEnd': gradient_end,
+        'headerText':         text_on_dark,
+        'headerTextMuted':    text_on_dark_muted,
+        'headerBackground':  header_bg,
         'filterValid':       filter_valid,
         'filterInvalid':     filter_invalid,
         'filterDeprecated':  filter_deprecated,
@@ -326,8 +369,8 @@ class TestEnsureContrast:
         ('#646464', '#1e1e1e', 4.5),   # SectionHeader on dark base
         ('#a8a8a8', '#ffffff', 3.0),   # FieldBorder on light base
         ('#646464', '#1e1e1e', 3.0),   # FieldBorder on dark base
-        ('#5b9ee6', '#000000', 4.5),   # bright primary vs textOnDark
-        ('#0e9aa7', '#000000', 3.0),   # Stratoshark teal vs textOnDarkMuted
+        ('#5b9ee6', '#000000', 4.5),   # bright primary vs headerText
+        ('#0e9aa7', '#000000', 3.0),   # Stratoshark teal vs headerTextMuted
         ('#204a87', '#000000', 4.5),   # already passes — short-circuit
     ])
     def test_meets_target(self, color, bg, min_ratio):
@@ -359,7 +402,7 @@ class TestDerivedContrast:
     derived tokens must meet their target contrast ratios against the
     surface they sit on.  Without these assertions, a theme can ship
     that looks fine in one mode but goes invisible (SectionHeader on
-    dark base) or unreadable (HeaderGradientEnd vs version label) in
+    dark base) or unreadable (header bar vs version label) in
     the other — exactly the class of bug the new derivations close.'''
 
     @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
@@ -373,14 +416,19 @@ class TestDerivedContrast:
         assert contrast_ratio(t['fieldBorder'], t['base']) >= 3.0
 
     @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_header_gradient_end_holds_title(self, theme_path, mode):
+    def test_header_background_holds_title(self, theme_path, mode):
         t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['textOnDark'], t['headerGradientEnd']) >= 4.5
+        assert contrast_ratio(t['headerText'], t['headerBackground']) >= READABLE_TEXT_RATIO
 
     @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_header_gradient_end_holds_muted_version(self, theme_path, mode):
+    def test_header_background_holds_muted_version(self, theme_path, mode):
         t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['textOnDarkMuted'], t['headerGradientEnd']) >= 3.0
+        assert contrast_ratio(t['headerTextMuted'], t['headerBackground']) >= 3.0
+
+    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
+    def test_header_background_stands_out_from_window(self, theme_path, mode):
+        t = derived_tokens(_load_theme(theme_path), mode)
+        assert contrast_ratio(t['headerBackground'], t['window']) >= DISTINCT_SURFACE_RATIO
 
     @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
     def test_filter_valid_holds_its_auto_foreground(self, theme_path, mode):
@@ -417,6 +465,83 @@ class TestDerivedContrast:
         assert contrast_ratio(t['filterBusyText'], t['filterBusy']) >= 3.0
 
 
+class TestHoverFill:
+    '''The hover fill derived from a selection color must stay visibly
+    different from the selection and keep its text readable.'''
+
+    @staticmethod
+    def _cases(theme, mode):
+        t = derived_tokens(theme, mode)
+        text = t['text']
+        for role in ('selection', 'inactive'):
+            sel = _pick(theme, 'packets', role, mode)
+            if sel:
+                yield role, t['base'], sel, text
+        yield 'highlight', t['base'], t['highlight'], text
+
+    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
+    def test_hover_fill_distinct_from_selection(self, theme_path, mode):
+        for role, base, sel, _ in self._cases(_load_theme(theme_path), mode):
+            fill = selection_hover_fill(base, sel)
+            assert contrast_ratio(fill, sel) >= DISTINCT_SURFACE_RATIO, role
+
+    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
+    def test_hover_text_readable(self, theme_path, mode):
+        for role, base, sel, text in self._cases(_load_theme(theme_path), mode):
+            fill = selection_hover_fill(base, sel)
+            assert contrast_ratio(readable_text(text, fill), fill) >= READABLE_TEXT_RATIO, role
+
+
+class TestInvertedHighlight:
+    @pytest.mark.parametrize('mode', ['light', 'dark'])
+    def test_highlight_stays_brand_primary(self, mode):
+        '''Inverted selects in its brand color on purpose; its
+        packets.selection would otherwise take over the highlight.'''
+        path = next(p for p in _bundled_themes() if p.parent.name == 'inverted')
+        theme = _load_theme(path)
+        assert (derived_tokens(theme, mode)['highlight'].lower()
+                == _pick(theme, 'brand', 'primary', mode).lower())
+
+
+class TestSelectionText:
+    '''Selection text is checked centrally (palette builder, token
+    handler): pinned or derived it is lifted to 4.5:1 on its fill.  The
+    shipped themes are designed so that check leaves their pins alone.
+    These tests fail when a theme value change makes a pin depend on the
+    check, which would turn the designed text color into a grey.'''
+
+    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
+    def test_highlighted_text_pin_reads_on_highlight(self, theme_path, mode):
+        theme = _load_theme(theme_path)
+        pin = _pick(theme, 'palette', 'highlightedText', mode)
+        if pin:
+            assert is_readable(pin, derived_tokens(theme, mode)['highlight'])
+
+    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
+    def test_packet_state_text_pins_read_on_fill(self, theme_path, mode):
+        theme = _load_theme(theme_path)
+        for state in ('selection', 'inactive', 'marked'):
+            fill = _pick(theme, 'packets', state, mode)
+            pin = _pick(theme, 'packets', state + 'Text', mode)
+            if fill and pin:
+                assert is_readable(pin, fill), state
+
+
+class TestStratosharkMarked:
+    @pytest.mark.parametrize('mode', ['light', 'dark'])
+    def test_marked_stands_apart_from_selection_states(self, mode):
+        '''A marked row must not read as the selected or the unfocused
+        selected row; Stratoshark dark once used one near-black teal for
+        all three.  Asserted for Stratoshark only: other shipped themes
+        do not meet it yet.'''
+        path = next(p for p in _bundled_themes() if p.parent.name == 'stratoshark')
+        theme = _load_theme(path)
+        marked = _pick(theme, 'packets', 'marked', mode)
+        for state in ('selection', 'inactive'):
+            assert (contrast_ratio(marked, _pick(theme, 'packets', state, mode))
+                    >= DISTINCT_SURFACE_RATIO), state
+
+
 # =====================================================================
 # Migration / schema flexibility checks
 # =====================================================================
@@ -431,7 +556,6 @@ class TestSchemaFlexibility:
             'meta':  {'name': 'Test', 'version': 1},
             'brand': {
                 'primary': {'light': '#204a87', 'dark': '#5b9ee6'},
-                'deep':    {'light': '#112347', 'dark': '#0a1828'},
             },
             'accent': {
                 'success': {'light': '#73d216', 'dark': '#8ae234'},
@@ -451,7 +575,6 @@ class TestSchemaFlexibility:
             'meta':  {'name': 'Test', 'version': 1},
             'brand': {
                 'primary': {'light': '#204a87', 'dark': '#5b9ee6'},
-                'deep':    {'light': '#112347', 'dark': '#0a1828'},
             },
             'accent': {
                 'success': {'light': '#73d216', 'dark': '#8ae234'},

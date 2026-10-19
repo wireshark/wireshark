@@ -68,6 +68,24 @@ QColor ColorMath::ensureContrast(const QColor &c, const QColor &bg, qreal minRat
     return contrastRatio(out, bg) >= minRatio ? out : target;
 }
 
+QColor ColorMath::selectionHoverFill(const QColor &base, const QColor &selection)
+{
+    // 55 % keeps the tint visibly related to the selection hue while
+    // leaving light schemes room to stay apart from the selection
+    // without the contrast clamp having to move it at all.
+    return ensureContrast(mix(base, selection, 0.55), selection, DistinctSurfaceRatio);
+}
+
+QColor ColorMath::readableText(const QColor &text, const QColor &surface)
+{
+    return ensureContrast(text, surface, ReadableTextRatio);
+}
+
+bool ColorMath::isReadable(const QColor &text, const QColor &surface)
+{
+    return contrastRatio(text, surface) >= ReadableTextRatio;
+}
+
 bool ColorMath::isDark(const QColor &color)
 {
     return relativeLuminance(color) < THRESHOLD_EQUALIBRIUM_WCAG;

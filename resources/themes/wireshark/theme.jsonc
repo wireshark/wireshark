@@ -37,22 +37,19 @@
 	},
 
 	// -----------------------------------------------------------------
-	// Brand — the two colors that define the visual identity.
+	// Brand — the color that defines the visual identity.
 	//
-	// "primary" is the main brand hue — drives header gradient end
-	// (after WCAG clamp), selection highlight, section header hover,
-	// sparkline stroke, link accents, and the splash progress bar.
-	//
-	// "deep" is the darkest brand shade — drives header gradient start.
+	// "primary" drives section header hover, sparkline stroke, link
+	// accents and the splash progress bar, and the selection highlight
+	// when neither palette.highlight nor packets.selection is set (this
+	// theme sets packets.selection).  The welcome header bar is a darker
+	// shade of the selection color.
 	//
 	// Light primary is Tango sky_blue_4 (the classic Wireshark blue);
-	// deep is a darker derivative for the gradient start.  Dark mode
-	// uses a brighter primary so it reads against dark surfaces and a
-	// near-black deep with a hint of blue for the gradient.
+	// dark mode uses a primary that reads against dark surfaces.
 	// -----------------------------------------------------------------
 	"brand": {
-		"primary": { "light": "#a5cdff", "dark": "#314f78" },
-		"deep":    { "light": "#084ad9", "dark": "#0a1828" }
+		"primary": { "light": "#a5cdff", "dark": "#314f78" }
 	},
 
 	// -----------------------------------------------------------------
@@ -233,23 +230,18 @@
 	//
 	// "highlight" and "highlightedText" are the selection colors of all
 	// lists except the packet list.
-	// When omitted: highlight = brand.primary, highlightedText =
-	// contrastingTextColor(highlight).
+	// When omitted: highlight = packets.selection if set, else
+	// brand.primary; highlightedText = contrastingText(highlight).
 	//
 	// NOT in this section (auto-derived):
-	//   Link           = highlight if set, else brand.primary
+	//   Link           = highlight
 	//   Accent         = brand.primary (Qt 6.6+)
 	//
-	// The default theme only sets the selection colors; everything else
+	// The default theme only sets the selection text color; everything else
 	// uses the system palette as-is.  See the Solarized example for how
 	// to override.
 	// -----------------------------------------------------------------
 	"palette": {
-		// Selection light is #3072cc (not the macOS-system #3a7ad2);
-		// the macOS value lands at 4.29:1 against white, just short of
-		// AA.  #3072cc is the smallest nudge that clears 4.5:1 while
-		// reading as the same blue.
-		"highlight":       { "light": "#3072cc", "dark": "#2a4068" },
 		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
 		// "window":        { "light": "#...", "dark": "#..." },
 		// "windowText":    { "light": "#...", "dark": "#..." },

@@ -85,7 +85,7 @@ QString ThemeStyler::buttonStyleSheet(const QString &objectname, const QColor &b
 
     QString resultStyle = buttonStyle.arg(objectname, "", baseColor.name(), ColorMath::contrastingText(baseColor).name());
     resultStyle += buttonStyle.arg(objectname, ":hover", hovorColor.name(), ColorMath::contrastingText(hovorColor).name());
-    resultStyle += buttonStyle.arg(objectname, ":pressed", pressedColor.name(), ColorMath::contrastingText(baseColor).name());
+    resultStyle += buttonStyle.arg(objectname, ":pressed", pressedColor.name(), ColorMath::contrastingText(pressedColor).name());
 
     return resultStyle;
 }

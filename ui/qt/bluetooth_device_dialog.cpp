@@ -10,6 +10,7 @@
 #include "bluetooth_device_dialog.h"
 #include <ui_bluetooth_device_dialog.h>
 
+#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/theme_manager.h>
 
 #include "epan/epan.h"
@@ -112,9 +113,9 @@ BluetoothDeviceDialog::BluetoothDeviceDialog(QWidget &parent, CaptureFile &cf, Q
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 
-    ui->tableWidget->setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/bluetooth-table")));
+    ui->tableWidget->setStyleSheet(ColorUtils::itemHoverStyleSheet(QStringLiteral("QTableView")));
     connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
-        ui->tableWidget->setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/bluetooth-table")));
+        ui->tableWidget->setStyleSheet(ColorUtils::itemHoverStyleSheet(QStringLiteral("QTableView")));
     });
 
     context_menu_.addActions(QList<QAction *>() << ui->actionMark_Unmark_Cell);

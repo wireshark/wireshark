@@ -401,13 +401,8 @@ void WelcomePage::updateStyleSheets()
 {
     QString welcome_ss = ThemeManager::styleSheet(QStringLiteral("welcome-page"));
 #if !defined(Q_OS_WIN)
-    welcome_ss += QStringLiteral(
-                "QAbstractItemView:item:hover {"
-                "  background-color: %1;"
-                "  color: palette(text);"
-                "}"
-                )
-            .arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
+    // Same hover fill as the other item views.
+    welcome_ss += ColorUtils::itemHoverStyleSheet(QStringLiteral("QAbstractItemView"));
 #endif
     setStyleSheet(welcome_ss);
 

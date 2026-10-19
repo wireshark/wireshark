@@ -114,11 +114,7 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
 
 void ProtoTree::updateStyleSheet()
 {
-    setStyleSheet(QStringLiteral(
-        "QTreeView:item:hover {"
-        "  background-color: %1;"
-        "  color: palette(text);"
-        "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb)));
+    setStyleSheet(ColorUtils::itemHoverStyleSheet(QStringLiteral("QTreeView")));
 }
 
 void ProtoTree::clear() {
