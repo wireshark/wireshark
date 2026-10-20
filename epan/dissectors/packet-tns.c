@@ -6194,6 +6194,31 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				offset = dissect_tns_aq_call(tvb, pinfo, data_tree, offset, oci_id);
 			else if ( oci_id == TTI_TPC_TXN_SWITCH || oci_id == TTI_TPC_TXN_CHANGE_STATE )
 				offset = dissect_tns_tpc_call(tvb, pinfo, data_tree, offset, oci_id);
+			else if ( oci_id == TTI_REEXECUTE && tns_is_oci(pinfo) && tvb_bytes_exist(tvb, fun_start + 3, 8) )
+			{
+				/* An OCI client's re-execute, as sqlplus runs a block
+				 * again for each SERVEROUTPUT batch after the first: the
+				 * cursor id and the execution count as fixed-width
+				 * little-endian ub4s, eight zero bytes, then a TTI_RXD
+				 * row of the values of the binds that send one. */
+				proto_tree_add_item(data_tree, hf_tns_cursor, tvb, fun_start + 3, 4, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(data_tree, hf_tns_data_reexec_iterations, tvb, fun_start + 7, 4, ENC_LITTLE_ENDIAN);
+				offset = fun_start + 11;
+			}
+			else if ( oci_id == TTI_ALL8 && tns_is_oci(pinfo) && tvb_bytes_exist(tvb, fun_start + TNS_OCI_ALL8_IND, 8)
+				&& tvb_get_ntoh64(tvb, fun_start + TNS_OCI_ALL8_IND) == 0 )
+			{
+				/* An OCI client's execute of an open cursor by its id,
+				 * as sqlplus prints a REF CURSOR variable: no SQL, so no
+				 * pointer where the first indicator goes. The options and
+				 * the cursor id sit where every other OCI execute has
+				 * them. */
+				proto_tree_add_string(data_tree, hf_tns_data_all8_oci_preamble, tvb, fun_start, 0, "OCI, by cursor id");
+				proto_tree_add_bitmask(data_tree, tvb, fun_start + TNS_OCI_ALL8_OPTIONS, hf_tns_data_all8_options,
+					ett_tns_all8_options, tns_all8_options, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(data_tree, hf_tns_cursor, tvb, fun_start + TNS_OCI_ALL8_CURSOR, 4, ENC_LITTLE_ENDIAN);
+				offset = fun_start + TNS_OCI_ALL8_IND;
+			}
 			else if ( oci_id == TTI_REEXECUTE || oci_id == TTI_REEXECUTE_AND_FETCH )
 			{
 				/* Re-execute of a cursor whose statement already ran and

@@ -2669,6 +2669,7 @@ class TestDissectTns:
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_oci_all8.pcap'),
             '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_all8.sql',
             '-T', 'fields',
             '-e', 'tns.data_all8.oci_preamble',
             '-e', 'tns.data_all8.options',
@@ -3397,6 +3398,28 @@ class TestDissectTns:
         ), encoding='utf-8', env=test_env)
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
         assert rows == [['2', '15', '']], rows
+
+    def test_tns_oci_reexecute(self, cmd_tshark, capture_file, test_env):
+        '''An OCI client runs an open cursor again in two ways: an execute
+        with no SQL that names the cursor, as sqlplus prints a REF CURSOR,
+        and a re-execute with fixed-width fields, as it fetches the next
+        SERVEROUTPUT batch.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_all8.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'frame.number >= 5',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.oci_preamble',
+            '-e', 'tns.data_all8.options',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data_reexec.iterations',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['OCI, by cursor id', '0x00000040', '256', '', ''],
+            ['', '', '4', '1', ''],
+        ], rows
 
     def test_tns_array_binds(self, cmd_tshark, capture_file, test_env):
         '''An associative-array bind's value is an element count and the
