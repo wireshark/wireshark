@@ -3013,6 +3013,27 @@ class TestDissectTns:
             ['', '', '', ''],
         ], rows
 
+    def test_tns_ano_version(self, cmd_tshark, capture_file, test_env):
+        '''A release word from 18c on packs the release update's fields,
+        an older one the major, minor, component and patch set.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_ano_version.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_sns.cli_vers',
+            '-e', 'tns.data_sns.srv_vers',
+        ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['387588096', '352518144', '186647040', '301989888'], stdout
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_ano_version.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        assert 'Client Version: 23.26.2.0.0' in stdout, stdout
+        assert 'Server Version: 21.3.0.0.0' in stdout, stdout
+        assert 'Client Version: 11.2.0.2.0' in stdout, stdout
+        assert 'Server Version: 18.0.0.0.0' in stdout, stdout
+
     def test_tns_ano_encrypted(self, cmd_tshark, capture_file, test_env):
         '''Once the server has picked an encryption algorithm and the client
         has sent its second round, data packets are ciphertext and are not

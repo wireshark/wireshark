@@ -2600,7 +2600,20 @@ static void vsnum_to_vstext_basecustom(char *result, uint32_t vsnum)
 	/*
 	 * Translate hex value to human readable version value, described at
 	 * http://docs.oracle.com/cd/B28359_01/server.111/b28310/dba004.htm
+	 * From 18c the word holds a release update's fields instead: major,
+	 * update, revision, increment and extension, as python-oracledb
+	 * reads them.
 	 */
+	if ( (vsnum >> 24) >= 18 )
+	{
+		snprintf(result, ITEM_LABEL_LENGTH, "%u.%u.%u.%u.%u",
+			 vsnum >> 24,
+			(vsnum >> 16) & 0xff,
+			(vsnum >> 12) & 0xf,
+			(vsnum >>  4) & 0xff,
+			 vsnum & 0xf);
+		return;
+	}
 	snprintf(result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d.%d",
 		 vsnum >> 24,
 		(vsnum >> 20) & 0xf,
