@@ -4908,6 +4908,18 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_command, tvb, base + 22, 1, ENC_NA);
 			if ( !full )
 				return base + 24;
+			/* The warning flags of the thin error block, at 27 where a
+			 * DML's status has the rowid of the row it touched instead:
+			 * the DML command types are INSERT, UPDATE, DELETE and
+			 * UPSERT. */
+			switch ( tvb_get_uint8(tvb, base + 22) )
+			{
+				case 2: case 6: case 7: case 189:
+					break;
+				default:
+					tns_add_warn_flags(tvb, pinfo, oer_tree, base + 27);
+					break;
+			}
 			/* the sequence number of the call this answers - the client's
 			 * own, not the counter at offset 5 */
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_call_seq, tvb, base + 49, 2, ENC_LITTLE_ENDIAN);

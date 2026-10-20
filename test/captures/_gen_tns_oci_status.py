@@ -19,6 +19,10 @@ an OCI client (sqlplus), whose integers are fixed-width little-endian.
               type 3 (SELECT)
     Frame 7 - a commit call
     Frame 8 - its 7-byte TTI_STA: call status 5, sequence 7
+    Frame 9 - an OCI execute of a CREATE PROCEDURE that does not compile
+    Frame 10 - its 136-byte status: success, command type 24 (CREATE
+              PROCEDURE), the warning flags 0x21 at 27 saying the
+              procedure was created with compilation errors
 
 Bytes are built by hand.
 """
@@ -164,7 +168,7 @@ def oci_all8(seq, sql):
     return bytes(b)
 
 
-def oci_oer(status, seq, rowcount, err, pos, command, call_seq, compact=False):
+def oci_oer(status, seq, rowcount, err, pos, command, call_seq, compact=False, warn=0):
     b = bytearray(24 if compact else 136)
     b[0] = TTI_OER
     b[1] = status
@@ -176,6 +180,7 @@ def oci_oer(status, seq, rowcount, err, pos, command, call_seq, compact=False):
     b[20] = pos
     b[22] = command
     if not compact:
+        b[27] = warn
         b[49:51] = _s.pack("<H", call_seq)
         b[52] = 1
         b[56:58] = _s.pack("<H", 0x0136)
@@ -193,6 +198,8 @@ frames = [
     (False, oci_oer(1, 6, 0, 0, 0, 3, 0, compact=True)),
     (True, bytes([TTI_FUN, FUNC_COMMIT, 8])),
     (False, bytes([TTI_STA]) + _s.pack("<IH", 5, 7)),
+    (True, oci_all8(9, b"CREATE OR REPLACE PROCEDURE P AS BEGIN X; END;")),
+    (False, oci_oer(1, 8, 0, 0, 0, 24, 9, warn=0x21)),
 ]
 
 

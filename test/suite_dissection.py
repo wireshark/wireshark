@@ -2726,7 +2726,8 @@ class TestDissectTns:
         '''A server answers an OCI client with a fixed-width little-endian
         status block - 136 bytes, or a compact 24 - and a 7-byte TTI_STA
         for a commit. Its fields are decoded once the conversation is known
-        to be an OCI client's.'''
+        to be an OCI client's. Outside a DML's status, the full block's
+        warning flags say an object was created with compilation errors.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_oci_status.pcap'),
             '-d', 'tcp.port==1521,tns',
@@ -2739,14 +2740,20 @@ class TestDissectTns:
             '-e', 'tns.data_oer.call_seq',
             '-e', 'tns.data_oer.message',
             '-e', 'tns.data_sta.seq',
+            '-e', 'tns.data_oer.warn_flags',
+            '-e', 'tns.data_oer.warn_flags.compilation_error',
         ), encoding='utf-8', env=test_env)
         rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
-        assert len(rows) == 4, rows
+        assert len(rows) == 5, rows
         assert rows[0][:5] == ['5', '942', '0', '3', '4'], rows[0]
         assert rows[0][5].startswith('ORA-00942'), rows[0]
+        assert rows[0][7:] == ['0x00', 'False'], rows[0]
         assert rows[1][:5] == ['1', '0', '1', '2', '6'], rows[1]
+        assert rows[1][7:] == ['', ''], rows[1]
         assert rows[2][:5] == ['1', '0', '0', '3', ''], rows[2]
         assert rows[3][6] == '7', rows[3]
+        assert rows[4][:5] == ['1', '0', '0', '24', '9'], rows[4]
+        assert rows[4][7:] == ['0x21', 'True'], rows[4]
 
     def test_tns_returning(self, cmd_tshark, capture_file, test_env):
         '''DML RETURNING ... INTO: the return binds send no value in the
