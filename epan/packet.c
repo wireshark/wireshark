@@ -40,6 +40,7 @@
 #include <epan/prefs.h>
 #include <epan/range.h>
 
+#include <wsutil/please_report_bug.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
@@ -748,6 +749,17 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype, wtap_rec *rec,
 		 * filtered out, and should not be filtered out,
 		 * as those lengths are not necessarily invalid.
 		 */
+		if (fd->cap_len > ws_buffer_length(&rec->data)) {
+			/* Something has definitely gone wrong. This could be if
+			 * wtap_seek_read() returns a different record than what
+			 * wtap_read() did on the sequential pass, because of a
+			 * bug in the wiretap module. */
+			ws_critical("Length of record buffer (%zu) less than claimed captured length (%u).\n%s\n"
+				    "This may be from a third-party libwiretap plugin instead.\n"
+				    "In such case, please report it to the plugin developers.",
+				    ws_buffer_length(&rec->data), fd->cap_len, please_report_bug());
+			ws_buffer_assure_space(&rec->data, fd->cap_len - ws_buffer_length(&rec->data));
+		}
 		edt->tvb = tvb_new_real_data(ws_buffer_start_ptr(&rec->data),
                     fd->cap_len, fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
@@ -828,6 +840,17 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 		}
 		file_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
 
+		if (fd->cap_len > ws_buffer_length(&rec->data)) {
+			/* Something has definitely gone wrong. This could be if
+			 * wtap_seek_read() returns a different record than what
+			 * wtap_read() did on the sequential pass, because of a
+			 * bug in the wiretap module. */
+			ws_critical("Length of record buffer (%zu) less than claimed captured length (%u).\n%s\n"
+				    "This may be from a third-party libwiretap plugin instead.\n"
+				    "In such case, please report it to the plugin developers.",
+				    ws_buffer_length(&rec->data), fd->cap_len, please_report_bug());
+			ws_buffer_assure_space(&rec->data, fd->cap_len - ws_buffer_length(&rec->data));
+		}
 		edt->tvb = tvb_new_real_data(ws_buffer_start_ptr(&rec->data),
                     fd->cap_len, fd->pkt_len > INT_MAX ? INT_MAX : fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
