@@ -8330,6 +8330,7 @@ dissect_lix2_T_requestPCO(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned off
 
   actx->pinfo->link_dir = P2P_DIR_UL;
 
+  offset = dissect_lix2_PDNPCO(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
@@ -8341,6 +8342,7 @@ dissect_lix2_T_requestAPCO(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
 
   actx->pinfo->link_dir = P2P_DIR_UL;
 
+  offset = dissect_lix2_PDNPCO(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
