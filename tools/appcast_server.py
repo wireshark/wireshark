@@ -110,15 +110,19 @@ def main():
     )
 
     parser.add_argument(
-        "--title", required=True, help="Application title shown in the appcast"
+        "--title",
+        default="Wireshark",
+        help="Application title shown in the appcast (default: %(default)s)"
     )
     parser.add_argument(
         "--version",
-        required=True,
-        help="Version string advertised as available (e.g. 2.0.0)",
+        default="999.9.9",
+        help="Version string advertised as available (default: %(default)s)",
     )
     parser.add_argument(
-        "--release-notes", required=True, help="URL to the release notes page"
+        "--release-notes",
+        default="https://www.wireshark.org/update/relnotes/wireshark-4.4.4.html",
+        help="URL to the release notes page (default: %(default)s)"
     )
     parser.add_argument(
         "--download-url",
@@ -133,10 +137,10 @@ def main():
         "(default: omit = all platforms)",
     )
     parser.add_argument(
-        "--port", type=int, default=8080, help="Port to listen on (default: 8080)"
+        "--port", type=int, default=9999, help="Port to listen on (default: %(default)s)"
     )
     parser.add_argument(
-        "--bind", default="0.0.0.0", help="Address to bind to (default: 0.0.0.0)"
+        "--bind", default="0.0.0.0", help="Address to bind to (default: %(default)s)"
     )
 
     args = parser.parse_args()

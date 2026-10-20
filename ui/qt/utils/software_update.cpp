@@ -38,7 +38,7 @@
  *
  * Example call:
  *  > python3 tools/appcast_server.py --title "Wireshark" --version 4.7.1  \
- *      --release-notes "https://www.wireshark.org/docs/relnotes/wireshark-4.6.0.html" \
+ *      --release-notes "https://www.wireshark.org/update/relnotes/wireshark-4.6.0.html" \
  *      --port 9999
  */
 //#define UPDATE_TEST
