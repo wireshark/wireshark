@@ -578,11 +578,11 @@ static bool erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
   uint32_t     packet_size, bytes_read;
   GPtrArray *anchor_mappings_to_update;
 
-  *data_offset = file_tell(wth->fh);
 
   anchor_mappings_to_update = g_ptr_array_new_with_free_func(erf_anchor_mapping_destroy);
 
-  do {
+  while (true) {
+    *data_offset = file_tell(wth->fh);
     if (!erf_read_header(wth, wth->fh, rec, &erf_header,
                          err, err_info, &bytes_read, &packet_size,
                          anchor_mappings_to_update)) {
@@ -590,26 +590,38 @@ static bool erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
       return false;
     }
 
-    if (!wtap_read_packet_bytes(wth->fh, buf, packet_size, err, err_info)) {
+    if (erf_header.type != ERF_TYPE_PAD)
+      break;
+
+    /* Free the block created for the PAD record.
+     * erf_read_header() could skip the pad records, but we'd want it to
+     * return the data offset of the beginning of the non-PAD record so
+     * seek_read would go to the proper location instead of having to skip
+     * the pad block each time. */
+    wtap_block_unref(rec->block);
+    /* Skip the pad record bytes. It's a short file error if they're absent. */
+    if (!wtap_read_bytes(wth->fh, NULL, packet_size, err, err_info)) {
       g_ptr_array_free(anchor_mappings_to_update, true);
       return false;
     }
+  }
 
-    /*
-     * If Provenance metadata record, frame buffer could hold the meta erf tags.
-     * It can also contain per packet comments which can be associated to another
-     * frame.
-     */
-    if ((erf_header.type & 0x7F) == ERF_TYPE_META && packet_size > 0)
-    {
-      if (populate_summary_info((erf_t*) wth->priv, wth, &rec->rec_header.packet_header.pseudo_header, buf, packet_size, anchor_mappings_to_update, err, err_info) < 0) {
-        g_ptr_array_free(anchor_mappings_to_update, true);
-        return false;
-      }
+  if (!wtap_read_packet_bytes(wth->fh, buf, packet_size, err, err_info)) {
+    g_ptr_array_free(anchor_mappings_to_update, true);
+    return false;
+  }
+  /*
+   * If Provenance metadata record, frame buffer could hold the meta erf tags.
+   * It can also contain per packet comments which can be associated to another
+   * frame.
+   */
+  if ((erf_header.type & 0x7F) == ERF_TYPE_META && packet_size > 0)
+  {
+    if (populate_summary_info((erf_t*) wth->priv, wth, &rec->rec_header.packet_header.pseudo_header, buf, packet_size, anchor_mappings_to_update, err, err_info) < 0) {
+      g_ptr_array_free(anchor_mappings_to_update, true);
+      return false;
     }
-
-  } while ( erf_header.type == ERF_TYPE_PAD );
-
+  }
   g_ptr_array_free(anchor_mappings_to_update, true);
 
   return true;
@@ -628,13 +640,27 @@ static bool erf_seek_read(wtap *wth, int64_t seek_off,
 
   anchor_mappings_to_update = g_ptr_array_new_with_free_func(erf_anchor_mapping_destroy);
 
-  do {
+  while (true) {
     if (!erf_read_header(wth, wth->random_fh, rec, &erf_header,
                          err, err_info, NULL, &packet_size, anchor_mappings_to_update)) {
       g_ptr_array_free(anchor_mappings_to_update, true);
       return false;
     }
-  } while ( erf_header.type == ERF_TYPE_PAD );
+
+    if (erf_header.type != ERF_TYPE_PAD)
+      break;
+
+    /* This should never happen in normal use because we skipped the pad
+     * records in the sequential pass. Should we assert here, or issue a
+     * ws_critical log warning? */
+    /* Free the block created for the PAD record. */
+    wtap_block_unref(rec->block);
+    /* Skip the pad record bytes. It's a short file error if they're absent. */
+    if (!wtap_read_bytes(wth->fh, NULL, packet_size, err, err_info)) {
+      g_ptr_array_free(anchor_mappings_to_update, true);
+      return false;
+    }
+  }
 
   g_ptr_array_free(anchor_mappings_to_update, true);
 
