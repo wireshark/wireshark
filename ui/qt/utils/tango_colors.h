@@ -12,8 +12,9 @@
 #ifndef __TANGO_COLORS_H__
 #define __TANGO_COLORS_H__
 
-// http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
-// with added hues from http://emilis.info/other/extended_tango/
+// https://web.archive.org/web/20190930092532/http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
+// with added hues from
+// https://web.archive.org/web/20250210055446/https://emilis.info/other/extended_tango/
 // (all colors except aluminium)
 
 const QRgb tango_aluminium_1   = 0xeeeeec;
