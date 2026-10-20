@@ -2597,7 +2597,8 @@ class TestDissectTns:
     def test_tns_timestamp_tz_render(self, cmd_tshark, capture_file, test_env):
         '''TIMESTAMP WITH TIME ZONE holds the instant in UTC plus the zone.
         An offset zone is shown in local time with the offset, a named zone
-        in UTC with its region id.'''
+        in UTC with its region id. The form a server sends an OCI client
+        holds the local time already, flagged in the zone's hour byte.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_timestamp_tz.pcap'),
             '-d', 'tcp.port==1521,tns',
@@ -2606,6 +2607,8 @@ class TestDissectTns:
         assert '(TIMESTAMP WITH TIME ZONE): 2024-01-15 10:30:00 +02:00' in stdout, stdout
         assert '(TIMESTAMP WITH TIME ZONE): 2024-01-15 20:00:00.500000000 -03:30' in stdout, stdout
         assert '(TIMESTAMP WITH TIME ZONE): 2024-06-01 12:00:00 UTC (time zone region 64)' in stdout, stdout
+        assert '(TIMESTAMP WITH TIME ZONE): 2024-01-02 03:04:05.500000000 -05:30' in stdout, stdout
+        assert '(TIMESTAMP WITH TIME ZONE): 2024-01-01 00:30:00 +02:00' in stdout, stdout
 
     def test_tns_interval_render(self, cmd_tshark, capture_file, test_env):
         '''INTERVAL values are rendered as Oracle writes an interval

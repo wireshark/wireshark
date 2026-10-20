@@ -16,9 +16,14 @@ column values.
                        is 2024-01-15 20:00:00.500000000 -03:30
                 row 3: 2024-06-01 12:00:00 UTC in time zone region 64,
                        whose low zone byte is 0
+                row 4: 2024-01-02 03:04:05.5 -05:30 as an 18c server
+                       sends it to an OCI client: the wall clock at the
+                       offset, flagged by bit 0x40 of the hour byte
+                row 5: 2024-01-01 00:30:00 +02:00 in that form, a date
+                       the UTC instant would put on the day before
 
-The wall-clock bytes hold the instant in UTC. Bytes are built by hand in
-the Oracle 11g wire shape.
+Except in rows 4 and 5, the wall-clock bytes hold the instant in UTC.
+Bytes are built by hand in the Oracle 11g wire shape.
 """
 import os
 import struct
@@ -159,7 +164,9 @@ frames = [
     (False, dcb([dcb_column(TYPE_TIMESTAMP_TZ, 13, b"T")])),
     (False, bytes([TTI_RXD]) + tstz(2024, 1, 15, 8, 30, 0, 0, [22, 60])
      + bytes([TTI_RXD]) + tstz(2024, 1, 15, 23, 30, 0, 500000000, [17, 30])
-     + bytes([TTI_RXD]) + tstz(2024, 6, 1, 12, 0, 0, 0, [0x81, 0x00])),
+     + bytes([TTI_RXD]) + tstz(2024, 6, 1, 12, 0, 0, 0, [0x81, 0x00])
+     + bytes([TTI_RXD]) + dalc(bytes.fromhex("787c01020405061dcd65004f1e"))
+     + bytes([TTI_RXD]) + dalc(bytes.fromhex("787c0101011f0100000000563c"))),
 ]
 
 

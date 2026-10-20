@@ -1966,7 +1966,9 @@ static void tns_civil_from_days(int64_t z, int64_t *y, unsigned *m, unsigned *d)
  * bytes. With the top bit of the first clear they are an offset, hour
  * + 20 and minute + 60, and the value is shown in local time with that
  * offset; with it set they hold a named zone's region id,
- * ((b0 & 0x7f) << 6) + (b1 >> 2), and the value is shown in UTC.
+ * ((b0 & 0x7f) << 6) + (b1 >> 2), and the value is shown in UTC. A
+ * server sends an OCI client the wall clock at the offset instead, and
+ * says so with bit 0x40 of the hour byte.
  * Returns a pinfo->pool string, or NULL. */
 static const char *tns_format_timestamp_tz(packet_info *pinfo, const uint8_t *data, int len)
 {
@@ -1986,11 +1988,14 @@ static const char *tns_format_timestamp_tz(packet_info *pinfo, const uint8_t *da
 		return wmem_strdup_printf(pinfo->pool, "%s UTC (time zone region %u)", utc,
 			((unsigned)(data[11] & 0x7f) << 6) + (data[12] >> 2));
 
-	/* Shift the UTC wall clock by the offset, in whole minutes. */
-	tz_hour = data[11] - 20;
+	/* Shift the UTC wall clock by the offset, in whole minutes, unless
+	 * it is the local one already. */
+	tz_hour = (data[11] & 0x3f) - 20;
 	tz_min = data[12] - 60;
 	days = tns_days_from_civil((data[0] - 100) * 100 + (data[1] - 100), data[2], data[3]);
-	minutes = days * 1440 + (data[4] - 1) * 60 + (data[5] - 1) + tz_hour * 60 + tz_min;
+	minutes = days * 1440 + (data[4] - 1) * 60 + (data[5] - 1);
+	if ( !(data[11] & 0x40) )
+		minutes += tz_hour * 60 + tz_min;
 	days = minutes >= 0 ? minutes / 1440 : -((-minutes + 1439) / 1440);
 	minute_of_day = (int)(minutes - days * 1440);
 	tns_civil_from_days(days, &year, &month, &day);
