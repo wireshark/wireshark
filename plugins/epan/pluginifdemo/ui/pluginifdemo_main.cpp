@@ -69,8 +69,15 @@ PluginIfTypeSortFilterProxyModel::PluginIfTypeSortFilterProxyModel(QObject * par
 
 void PluginIfTypeSortFilterProxyModel::setFilterElement(ext_toolbar_item_t filterType)
 {
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        beginFilterChange();
+    #endif
     m_filterType = filterType;
-    invalidateFilter();
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+        endFilterChange();
+    #else
+        invalidateFilter();
+    #endif
 }
 
 bool PluginIfTypeSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
