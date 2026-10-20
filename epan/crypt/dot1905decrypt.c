@@ -10,9 +10,7 @@
  * Code originates from hostap project and is modified to use gcrypt
  */
 
-#include <stdlib.h>
 #include <stdbool.h>
-#include <inttypes.h>
 
 #include <glib.h>
 #include <gcrypt.h>

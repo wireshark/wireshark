@@ -33,9 +33,11 @@
 #include <epan/unit_strings.h>
 #include <epan/proto_data.h>
 #include <epan/crypt/dot1905decrypt.h>
+#include <epan/crypt/dot1905mic.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
 #include <wsutil/array.h>
+#include <wsutil/pint.h>
 #include "packet-wps.h"
 #include "packet-wifi-dpp.h"
 #include "packet-ieee80211.h"
@@ -1128,6 +1130,7 @@ static int ett_r2_steering_sta_list;
 static int ett_r2_steering_target_list;
 static int ett_r2_steering_target;
 static int ett_mic_group_temporal_key;
+static int ett_mic_check;
 static int ett_ieee1905_spatial_reuse_color;
 static int ett_ieee1905_spatial_reuse_hesiga;
 static int ett_ieee1905_spatial_reuse_rep_color;
@@ -1189,9 +1192,14 @@ static int ett_ieee1905_fragments;
 
 static expert_field ei_ieee1905_malformed_tlv;
 static expert_field ei_ieee1905_extraneous_tlv_data;
+static expert_field ei_ieee1905_mic_check_unsupported;
+static expert_field ei_ieee1905_mic_check_failed;
 
 typedef enum {
-    DECRYPT_CMDU_OCTETS_KEY,
+    DECRYPT_MIC_CMDU_OCTETS_KEY,
+    MIC_TLVS_KEY,
+    MIC_TLVS_LEN_KEY,
+    MIC_EOM_KEY,
     TUNNELED_MESSAGE_TYPE_KEY,
     TUNNELED_MESSAGE_TYPE_SET_KEY
 } ieee1905_proto_key_t;
@@ -2084,8 +2092,8 @@ UAT_CSTRING_CB_DEF(uat_key_records, key,    uat_key_record_t)
 /*
  * Decryption
  */
-#define DECRYPT_CMDU_OCTETS    6
-#define DECRYPT_COUNTER_OCTETS 6
+#define DECRYPT_MIC_CMDU_OCTETS 6
+#define DECRYPT_COUNTER_OCTETS  6
 
 static int
 dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -2122,7 +2130,7 @@ decrypt_encrypted_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     for (unsigned int i = 0; i < uat_num_keys; i++) {
          uat_key_record_t *rec = &uat_key_records[i];
 
-        if (rec->bin.valid) {
+        if (rec->bin.valid && !rec->bin.gtk) {
             has_valid_key = true;
             break;
         }
@@ -2134,7 +2142,7 @@ decrypt_encrypted_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
 
     /* Get data from CMDU and Encrypted TLV */
-    const uint8_t *cmdu = p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, DECRYPT_CMDU_OCTETS_KEY);
+    const uint8_t *cmdu = p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, DECRYPT_MIC_CMDU_OCTETS_KEY);
 
     const uint8_t *tx_counter = tvb_get_ptr(tvb, offset, DECRYPT_COUNTER_OCTETS);
     offset += DECRYPT_COUNTER_OCTETS;
@@ -2164,8 +2172,8 @@ decrypt_encrypted_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     decrypted_data = wmem_alloc0(pinfo->pool, decrypted_data_len);
 
     /* Decryption parameters */
-    const uint8_t *params[]      = {cmdu,                tx_counter,             source_al_mac, dest_al_mac};
-    size_t         params_lens[] = {DECRYPT_CMDU_OCTETS, DECRYPT_COUNTER_OCTETS, 6,             6};
+    const uint8_t *params[]      = {cmdu,                    tx_counter,             source_al_mac, dest_al_mac};
+    size_t         params_lens[] = {DECRYPT_MIC_CMDU_OCTETS, DECRYPT_COUNTER_OCTETS, 6,             6};
 
     /* Loop over all available keys */
     bool success = false;
@@ -2199,7 +2207,7 @@ decrypt_encrypted_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
                                   encrypted_data, encrypted_data_len,
                                   array_length(params), params, params_lens,
                                   decrypted_data)) {
-              continue;
+            continue;
         }
 
         decrypted_tvb = tvb_new_child_real_data(tvb, decrypted_data, (unsigned)decrypted_data_len, (unsigned)decrypted_data_len);
@@ -2212,6 +2220,140 @@ decrypt_encrypted_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
     if (!success) {
         proto_item_append_text(decrypt_item, ": No valid decryption key found");
+    }
+}
+
+#define MIC_TLV_OCTETS 13
+
+static void
+check_mic_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_item *check_item = NULL;
+    bool has_valid_key = false;
+
+    proto_tree_add_subtree(tree, tvb, offset, -1,
+                           ett_mic_check,
+                           &check_item, "Check");
+
+    if (!enable_decryption) {
+        proto_item_append_text(check_item, ": Disabled");
+        return;
+    }
+
+    for (unsigned int i = 0; i < uat_num_keys; i++) {
+         uat_key_record_t *rec = &uat_key_records[i];
+
+        if (rec->bin.valid && rec->bin.gtk) {
+            has_valid_key = true;
+            break;
+        }
+    }
+
+    if (!has_valid_key) {
+        proto_item_append_text(check_item, ": No (valid) GTK configured");
+        return;
+    }
+
+    /* Check if packet lenghts where correct */
+    if (!GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_EOM_KEY))) {
+        proto_item_append_text(check_item, ": Invalid TLV lenghts");
+        return;
+    }
+
+    /* Check version */
+    uint8_t version = tvb_get_uint8(tvb, offset) & 0x30 >> 4;
+
+    if (version != 1) {
+        proto_item_append_text(check_item, ": Unsupported version [%d]", version);
+        expert_add_info(pinfo, check_item, &ei_ieee1905_mic_check_unsupported);
+        return;
+    }
+
+    /* Get 13 first bytes from MIC TLV */
+    const uint8_t *mic_tlv = tvb_get_ptr(tvb, offset, MIC_TLV_OCTETS);
+    offset += MIC_TLV_OCTETS;
+
+    /* Get MIC */
+    uint16_t mic_len = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    if (mic_len != DOT1905MIC_HASH_LEN) {
+        proto_item_append_text(check_item, ": Unsupported MIC length [%d]", mic_len);
+        expert_add_info(pinfo, check_item, &ei_ieee1905_mic_check_unsupported);
+        return;
+    }
+
+    const uint8_t *mic = tvb_get_ptr(tvb, offset, mic_len);
+
+    /* Get CMDU and TLVs */
+    const uint8_t *cmdu     = p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, DECRYPT_MIC_CMDU_OCTETS_KEY);
+    const uint8_t *tlvs     = p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_TLVS_KEY);
+    uint16_t       tlvs_len = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_TLVS_LEN_KEY));
+
+    /* Construct data on which MIC is to be checked - allocate larger buffer then needed (part of tlvs is omitted) */
+    uint8_t  *data = wmem_alloc0(pinfo->pool, DECRYPT_MIC_CMDU_OCTETS + tlvs_len);
+    uint16_t  data_len = 0;
+
+    /* 6 first bytes from CMDU */
+    memcpy(data + data_len, cmdu, DECRYPT_MIC_CMDU_OCTETS);
+    data_len += DECRYPT_MIC_CMDU_OCTETS;
+
+    /* 13 first bytes from MIC TLV  */
+    memcpy(data + data_len, mic_tlv, MIC_TLV_OCTETS);
+    data_len += MIC_TLV_OCTETS;
+
+    /* Copy all TLV except the MIC TLV itself and include EOM TLV */
+    /* Note: TLV lenghts are guaranteed to be ok at this point */
+    const uint8_t *p = tlvs;
+
+    do {
+        uint8_t tlv_type = p[0];
+        uint16_t tlv_len = pntohu16(p + 1);
+        uint16_t tlv_tot_len = 3 + tlv_len;
+
+        if (tlv_type != MIC_TLV) {
+            memcpy(data + data_len, p, tlv_tot_len);
+            data_len += tlv_tot_len;
+        }
+
+        p += tlv_tot_len;
+    } while (p < tlvs + tlvs_len);
+
+    /* Loop over all available keys */
+    bool success = false;
+
+    for (unsigned int i = 0; i < uat_num_keys; i++) {
+         uat_key_record_t *rec = &uat_key_records[i];
+         uint8_t hash[DOT1905MIC_HASH_LEN];
+
+         /* Skip invalid */
+         if (!rec->bin.valid) {
+             continue;
+         }
+
+         /* Skip PTK */
+         if (!rec->bin.gtk) {
+             continue;
+         }
+
+         /* Derive MIC */
+         if (Dot1905MICDerive(rec->bin.key->data, rec->bin.key->len, data, data_len, hash)) {
+             continue;
+         }
+
+         /* Check MIC */
+         if (memcmp(mic, hash, mic_len)) {
+             continue;
+         }
+
+         success = true;
+         break;
+    }
+
+    proto_item_append_text(check_item, success ? ": Success" : ": Failed");
+
+    if (!success) {
+        expert_add_info(pinfo, check_item, &ei_ieee1905_mic_check_failed);
     }
 }
 
@@ -6497,6 +6639,7 @@ static int
 dissect_mic(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, unsigned offset, uint16_t len _U_)
 {
+    unsigned offset_start = offset;
     uint16_t mic_len = 0;
 
     proto_tree_add_bitmask(tree, tvb, offset,
@@ -6519,6 +6662,8 @@ dissect_mic(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ieee1905_mic_bytes, tvb, offset, mic_len,
                         ENC_NA);
     offset += mic_len;
+
+    check_mic_tlv(tvb, pinfo, tree, offset_start);
 
     return offset;
 }
@@ -10641,11 +10786,41 @@ static int
 dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     bool eom_seen;
+    bool mic_seen = false;
+    uint8_t tlv_type;
+    uint16_t tlv_len;
     unsigned offset = 0;
 
+    /* If decryption is enabled check if there is a MIC TLV. If yes store all TLVs */
+    if (enable_decryption) {
+        do {
+            tlv_type = tvb_get_uint8(tvb, offset);
+            tlv_len = tvb_get_ntohs(tvb, offset + 1);
+
+            if (tlv_len > tvb_reported_length_remaining(tvb, offset + 3)) {
+                /* Wrong length */
+                break;
+            }
+
+            eom_seen = (tlv_type == EOM_TLV) ? true : false;
+            if (tlv_type == MIC_TLV) {
+                mic_seen = true;
+            }
+
+            offset += 3 + tlv_len;
+        } while (eom_seen == false);
+
+        if (eom_seen && mic_seen) {
+            uint8_t *p = wmem_memdup(pinfo->pool, tvb_get_ptr(tvb, 0, offset), offset);
+
+            p_add_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_TLVS_KEY, p);
+            p_add_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_TLVS_LEN_KEY, GUINT_TO_POINTER(offset));
+            p_add_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_EOM_KEY, GUINT_TO_POINTER(true));
+        }
+    }
+
+    offset = 0;
     do {
-        uint8_t tlv_type;
-        uint16_t tlv_len;
         proto_item *tlv_tree;
 
         tlv_type = tvb_get_uint8(tvb, offset);
@@ -10840,9 +11015,9 @@ dissect_ieee1905(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     /* If decryption is enabled the first 6 bytes of the CMDU need to be stored */
     if (enable_decryption) {
-        uint8_t *p = wmem_memdup(pinfo->pool, tvb_get_ptr(tvb, 0, DECRYPT_CMDU_OCTETS), DECRYPT_CMDU_OCTETS);
+        uint8_t *p = wmem_memdup(pinfo->pool, tvb_get_ptr(tvb, 0, DECRYPT_MIC_CMDU_OCTETS), DECRYPT_MIC_CMDU_OCTETS);
 
-        p_add_proto_data(pinfo->pool, pinfo, proto_ieee1905, DECRYPT_CMDU_OCTETS_KEY, p);
+        p_add_proto_data(pinfo->pool, pinfo, proto_ieee1905, DECRYPT_MIC_CMDU_OCTETS_KEY, p);
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ieee1905");
@@ -15020,6 +15195,7 @@ proto_register_ieee1905(void)
         &ett_r2_steering_target_list,
         &ett_r2_steering_target,
         &ett_mic_group_temporal_key,
+        &ett_mic_check,
         &ett_ieee1905_spatial_reuse_color,
         &ett_ieee1905_spatial_reuse_hesiga,
         &ett_ieee1905_spatial_reuse_rep_color,
@@ -15087,6 +15263,14 @@ proto_register_ieee1905(void)
         { &ei_ieee1905_extraneous_tlv_data,
           { "ieee1905.tlv.extra_data", PI_PROTOCOL, PI_WARN,
              "TLV has extra data or an incorrect length", EXPFILL }},
+
+        { &ei_ieee1905_mic_check_unsupported,
+          { "ieee1905.mic.check.unsupported", PI_PROTOCOL, PI_WARN,
+            "MIC check unsupported", EXPFILL }},
+
+        { &ei_ieee1905_mic_check_failed,
+          { "ieee1905.mic.check.failed", PI_PROTOCOL, PI_WARN,
+            "MIC check failed", EXPFILL }},
     };
 
     /* Decryption User Access Table */

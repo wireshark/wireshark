@@ -8,8 +8,9 @@
  * Code originates from hostap project and is modified to use gcrypt
  */
 
-#ifndef _DOT1905DECRYPT_H
-#define _DOT1905DECRYPT_H
+#pragma once
+#include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,5 +26,3 @@ int Dot1905DecryptDecrypt(const uint8_t *key, size_t key_len, const uint8_t *dat
 #ifdef  __cplusplus
 }
 #endif
-
-#endif /* _DOT1905DECRYPT_H */
