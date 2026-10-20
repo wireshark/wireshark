@@ -2136,7 +2136,7 @@ decompress(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t length, int c
  */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int end_offset _U_)
+dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item  *message_ti;
     proto_tree  *subtree;
@@ -2232,7 +2232,7 @@ dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
  */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_kafka_message_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int end_offset _U_)
+dissect_kafka_message_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_item *batch_ti;
     proto_tree *subtree;
@@ -2306,34 +2306,35 @@ dissect_kafka_message_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int end_offset)
+dissect_kafka_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     int8_t      magic_byte;
     uint32_t    message_size;
 
-    if (offset + 12 > end_offset) {
+    if (tvb_reported_length_remaining(tvb, offset) < 12) {
         // in this case we deal with truncated message, where the size part may be also truncated
         // actually we may add truncated info
-        proto_tree_add_item(tree, hf_kafka_truncated_content, tvb, offset, end_offset-offset, ENC_NA);
-        return end_offset;
+        proto_tree_add_item(tree, hf_kafka_truncated_content, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+        return tvb_reported_length(tvb);
     }
     message_size = tvb_get_uint32(tvb, offset + 8, ENC_BIG_ENDIAN);
-    if (offset + 12 + message_size > (uint32_t)end_offset) {
+    if (tvb_reported_length_remaining(tvb, offset + 12) < message_size) {
         // in this case we deal with truncated message, where the truncation point falls somewhere
         // in the message body
-        proto_tree_add_item(tree, hf_kafka_truncated_content, tvb, offset, end_offset-offset, ENC_NA);
-        return end_offset;
+        proto_tree_add_item(tree, hf_kafka_truncated_content, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+        return tvb_reported_length(tvb);
     }
 
     magic_byte = tvb_get_uint8(tvb, offset + 16);
     int message_offset = 0;
     increment_dissection_depth(pinfo);
     if (magic_byte < 2) {
-        message_offset = dissect_kafka_message_old(tvb, pinfo, tree, offset, end_offset);
+        message_offset = dissect_kafka_message_old(tvb, pinfo, tree, offset);
     } else {
-        message_offset = dissect_kafka_message_new(tvb, pinfo, tree, offset, end_offset);
+        message_offset = dissect_kafka_message_new(tvb, pinfo, tree, offset);
     }
     decrement_dissection_depth(pinfo);
+    DISSECTOR_ASSERT_CMPINT(message_offset, >, offset);
     return message_offset;
 }
 
@@ -2343,25 +2344,26 @@ dissect_kafka_regular_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
     proto_item *ti;
     proto_tree *subtree;
-    int         end_offset = offset + len;
+    tvbuff_t   *message_set_tvb = tvb_new_subset_length(tvb, offset, len);
+    int message_offset = 0;
 
-    subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_message_set, &ti, "Message Set");
+    subtree = proto_tree_add_subtree(tree, message_set_tvb, 0, -1, ett_kafka_message_set, &ti, "Message Set");
     /* If set came from a compressed message, make it obvious in tree root */
     if (codec != KAFKA_MESSAGE_CODEC_NONE) {
         proto_item_append_text(subtree, " [from compressed %s message]", val_to_str_const(codec, kafka_message_codecs, "Unknown"));
     }
 
-    while (offset < end_offset) {
-        offset = dissect_kafka_message(tvb, pinfo, subtree, offset, end_offset);
+    while (tvb_reported_length_remaining(message_set_tvb, message_offset)) {
+        message_offset = dissect_kafka_message(message_set_tvb, pinfo, subtree, message_offset);
     }
 
-    if (offset != end_offset) {
+    if (tvb_reported_length_remaining(message_set_tvb, message_offset)) {
         expert_add_info(pinfo, ti, &ei_kafka_bad_message_set_length);
     }
 
-    proto_item_set_end(ti, tvb, offset);
+    proto_item_set_end(ti, message_set_tvb, message_offset);
 
-    return offset;
+    return offset + message_offset;
 }
 
 static int
