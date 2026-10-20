@@ -6104,22 +6104,36 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 			{
 				/* An object-type describe, sent only by an OCI client: a
 				 * ub4 LE opcode and a frame of zeros, then by name a ub4
-				 * 2, the schema's length, a ub4 0, the name buffer's
-				 * length (three times the name's characters) and the
-				 * name behind a length byte; by REF the REF of the type
-				 * wanted. The bytes after them are not understood. */
+				 * 2, the schema's buffer length (three times its
+				 * characters, 0 for none) and, when there is one, the
+				 * schema behind a length byte, a ub4 0, the name's buffer
+				 * length and the name behind a length byte; by REF the
+				 * REF of the type wanted. The bytes after them are not
+				 * understood. */
 				uint32_t opcode;
 				int o = fun_start + TNS_KOD_FRAME, sys_type;
 
 				if ( !PINFO_FD_VISITED(pinfo) )
 					tns_get_conv_info(pinfo)->oci_dialect = true;
 				proto_tree_add_item_ret_uint(data_tree, hf_tns_data_kod_opcode, tvb, fun_start + 3, 4, ENC_LITTLE_ENDIAN, &opcode);
-				if ( opcode == TNS_KOD_BY_NAME && tvb_bytes_exist(tvb, o, 17) && tvb_get_letohl(tvb, o + 4) == 0 )
+				if ( opcode == TNS_KOD_BY_NAME && tvb_bytes_exist(tvb, o, 8) )
 				{
-					const char *name;
-					uint8_t len = tvb_get_uint8(tvb, o + 16);
-					proto_tree_add_item_ret_string(data_tree, hf_tns_data_kod_name, tvb, o + 17, len, ENC_UTF_8, pinfo->pool, (const uint8_t **)&name);
-					col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", name);
+					const char *schema = NULL, *name;
+					int p = o + 8;
+					uint8_t len;
+
+					if ( tvb_get_letohl(tvb, o + 4) != 0 )
+					{
+						len = tvb_get_uint8(tvb, p);
+						proto_tree_add_item_ret_string(data_tree, hf_tns_data_kod_schema, tvb, p + 1, len, ENC_UTF_8, pinfo->pool, (const uint8_t **)&schema);
+						p += 1 + len;
+					}
+					len = tvb_get_uint8(tvb, p + 8);
+					proto_tree_add_item_ret_string(data_tree, hf_tns_data_kod_name, tvb, p + 9, len, ENC_UTF_8, pinfo->pool, (const uint8_t **)&name);
+					if ( schema )
+						col_append_fstr(pinfo->cinfo, COL_INFO, " [%s.%s]", schema, name);
+					else
+						col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", name);
 				}
 				else if ( opcode == TNS_KOD_BY_REF )
 					dissect_tns_kod_ref(tvb, data_tree, o, hf_tns_data_kod_oid, &sys_type);

@@ -3356,7 +3356,7 @@ class TestDissectTns:
         per type descriptor and a status; a descriptor that is an instance
         of SYS.KOTTD names the type, its version and its typecode. The
         12c band's longer header and bare record descriptor are read
-        too.'''
+        too, and a by-name call that names the schema.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_oci_kod.pcap'),
             '-d', 'tcp.port==1521,tns',
@@ -3378,7 +3378,9 @@ class TestDissectTns:
             ['', '2|1', 'PYO|SYS', 'DBMSOUTPUT_LINESARRAY|DBMSOUTPUT_LINESARRAY', '0x01', '122', '0', '', ''],
             ['4', '', '', '', '0x01', '', '', '', ''],
             ['', '1', 'SYS', 'KOTTD', '0x01', '108', '0', '', ''],
-        ] * 2, rows
+        ] * 2 + [
+            ['3', '', 'SYS', 'XMLTYPE', '', '', '', '', ''],
+        ], rows
 
     def test_tns_oci_fetch(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's fetch carries the cursor id and the row count as
