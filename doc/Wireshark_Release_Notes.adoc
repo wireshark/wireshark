@@ -25,6 +25,12 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 4.7.4:
 
+* I/O Graphs now support exponential weighted moving averages (EWMA) along with simple moving averages (SMA).
+
+* Many style and theme issues have been fixed.
+
+* Initial support for https://github.com/ntop/nDPI/blob/dev/fingerprint/nDPI_TCP_fingerprint.md[nDPI TCP fingerprints] has been added.
+
 // https://developer.apple.com/news/?id=w4atic4c
 // https://developer.apple.com/help/account/certificates/replace-developer-id-certificates
 * macOS disk images and applications are now signed using certificates issued by Apple's Developer ID Certification Authority (G2).
@@ -34,9 +40,8 @@ The following changes have been made since version 4.7.3:
 
 * You can now https://www.wireshark.org/docs/wsug_html/#ChCustTaggingSection[tag packets] with emojis, text, or URLs similar to coloring rules.
 * The user interface icons have been refreshed, and now scale with the menu:View[] zoom settings.
-* The packet bytes pane can show text as UTF-8. Multi-byte characters are
-  drawn over the column of their first byte with a “]” over their last byte,
-  and hovering over any of those bytes highlights the whole character.
+* The packet bytes pane can show text as UTF-8.
+  Multi-byte characters are drawn over the column of their first byte with a “]” over their last byte, and hovering over any of those bytes highlights the whole character.
 * Holding down kbd:[↓] and kbd:[↑] will move rapidly through the packet list.
 * Coloring rules are now saved as a https://jsonc.org/[JSONC] (JSON with comments) file.
   The legacy `colorfilters` file is only read, and converted, when no personal `coloring_rules.jsonc` exists;
@@ -50,8 +55,7 @@ The following changes have been made since version 4.7.2:
 * The minimum supported Windows version is Windows 10 21H2 (build 19044) or
   Windows Server 2022.
 * Display filter operators' English forms like "and" and "or" are case-insensitive.
-* Display filter string literals can be surrounded by appropriate pairs of
-  directional ("smart" or "curly") double quotes instead of straight double
+* Display filter string literals can be surrounded by appropriate pairs of directional (“smart” or “curly”) double quotes instead of "straight" double
   quotes.
 * The Export Packet Dissections CSV output is UTF-8 CSV (with optional BOM) by
   default; the previous format which escapes non-ASCII characters is still
@@ -73,13 +77,13 @@ The following changes have been made since version 4.7.1:
 
 * The Follow Stream window is more responsive and has more filtering options.
 
-* HTTP/3 improvements:
-  Reassembly is implemented.
-  Decompression is implemented for gzip/deflate, brotli, and zstd.
-  Media type dissectors are called for the Content-Type.
-  Follow Stream is implemented. wsbuglink:20610[].
-  Export Objects is implemented.
-  Request/response tracking is implemented.
+* The following improvements have been added to the HTTP/3 dissector:
+  ** Reassembly is implemented.
+  ** Decompression is implemented for gzip/deflate, brotli, and zstd.
+  ** Media type dissectors are called for the Content-Type.
+  ** Follow Stream is implemented. wsbuglink:20610[].
+  ** Export Objects is implemented.
+  ** Request/response tracking is implemented.
 
 The following changes have been made since version 4.7.0:
 
@@ -95,34 +99,35 @@ The following issues have been fixed:
 
 The following changes have been made since version 4.6.0:
 
-* Welcome Page Overhaul
-  The welcome page has been redesigned to be more informative and easier to navigate. It now highlights the learning sections better and includes a new sidebar with tips and tricks for using Wireshark effectively. The welcome page is now also more accessible, with improved keyboard navigation and screen reader support.
+* The welcome page has been redesigned to be more informative and easier to navigate.
+  It now highlights the learning sections better and includes a new sidebar with tips and tricks for using Wireshark effectively.
+  The welcome page is now also more accessible, with improved keyboard navigation and screen reader support.
 
-* The welcome page has a new preference to show the Open and Capture sections side-by-side. It falls back to stacked when the window is too narrow.
+* The welcome page has a new preference to show the Open and Capture sections side-by-side.
+  It falls back to stacked when the window is too narrow.
 
-* Lua Debugger
-  A built-in Lua script debugger has been added. It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces. The debugger can be opened from the menu:Tools[Lua Debugger] menu.
+* A built-in Lua script debugger has been added.
+  It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces.
+  The debugger can be opened from the menu:Tools[Lua Debugger] menu.
 
-* Themes
-  Wireshark now drives the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet pane font, and preview the result on a mockup of a capture window. A built-in default theme ships with Wireshark, and additional themes can be installed as JSONC (JSON with Comments) files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme. Graph and plot windows (I/O Graph, TCP Stream, SCTP, RTP, and others) now take their grid, text and series colors from the theme, and the display filter field text, packet list row separators, and links stay readable in light and dark themes.
-  Personal themes can now be dropped as single `.jsonc` files into _$HOME/.local/lib/wireshark/themes_ (Unix) or _%APPDATA%\Wireshark\themes_ (Windows); the filename becomes the theme's name in the dropdown. The exact path is shown in the About dialog's _Folders_ tab.
+* Wireshark now has a theme engine.
+  Wireshark now drives the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet pane font, and preview the result on a mockup of a capture window. A built-in default theme ships with Wireshark, and additional themes can be installed as https://jsonc.org/[JSONC (JSON with Comments)] files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme. Graph and plot windows (I/O Graph, TCP Stream, SCTP, RTP, and others) now take their grid, text and series colors from the theme, and the display filter field text, packet list row separators, and links stay readable in light and dark themes.
+  Personal themes can now be dropped as single `.jsonc` files into _$HOME/.local/lib/wireshark/themes_ (Unix) or _%APPDATA%\Wireshark\themes_ (Windows). The exact path is shown in the About dialog's _Folders_ tab.
   On first launch after the upgrade, Wireshark checks the Default profile's preferences for customized values of the removed per-color settings. If any are found, a personal theme named _Personal (Migrated)_ is created automatically in the personal themes directory, the legacy keys are removed from the Default profile's preferences file, and the theme is activated so the original visual customizations are preserved. The migration runs once: the generated _personal.jsonc_ can be edited, renamed, or deleted by hand at any time.
-  The welcome page section headers ("Open", "Capture", "Learn") and the filter validity tints have been restored to the historical Classic look (Tango sky_blue brand, saturated GTK-era dark green / dark red filter backgrounds).
+  The welcome page section headers ("Open", "Capture", "Learn") and the filter validity tints have been restored to the historical Classic look (Tango sky_blue brand, saturated GTK-era green and red filter backgrounds).
   Selected and hovered rows now share one color family: the hover color of the packet list, details tree, welcome page lists and JSON view is derived from the selection color, so themes no longer define a separate hover color, and the colored gradients of the welcome page header and update bar have been replaced by flat colors. Themes that set `packets.selection` but not `palette.highlight` now use that color for selection in lists, the details tree and the bytes pane (and for the welcome page header); `palette.highlight` still overrides it. The `brand.deep` color and the `header` and `update` gradient tokens are no longer used and can be removed from personal themes. The text of selected and marked rows is now checked against its background when the theme is applied and lifted to a readable contrast (4.5:1) if a theme's pinned text color would be hard to read, and the text of a pressed button is chosen against the pressed color. The Bluetooth dialog tables use the same derived hover color as the other lists.
 
 * The Default profile now has additional column "Delta", showing the delta time from the previous displayed packet.
 
 * Wireshark ships a “Processes” configuration profile, which adds the new "PID" and "Proc Name" columns, showing the process on the capturing host that sent or received each packet when that was recorded.
 
-* Name Resolution
-  SMI paths are now searched recursively. This makes it easier to use MIBs provided by libsmi.
+* Name Resolution SMI paths are now searched recursively.
+  This makes it easier to use MIBs provided by libsmi.
 
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
 //=== Bug Fixes
-
-* wsbuglink:21115[Wireshark Profile Import RCE via Zip-Slip Vulnerability ] - A critical issue that caused Wireshark to crash when importing malformed zip files has been fixed. This bug was reported by Joohyun Park, Hyuk Kwon, Yonghwa Lee, Taisic Yun, Sangjun Song (Theori), with Xint and has been resolved in this release.
 
 //The following bugs have been fixed:
 //* wsbuglink:5000[]

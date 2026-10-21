@@ -29,6 +29,10 @@ If you or your organization would like to contribute or become a sponsor, please
 
 The following changes have been made since version 0.10.4:
 
+* The Windows and macOS installers now ship with Falco libs 0.26.1, which adds a raw scap/pcapng block processing engine.
+
+* Many style and theme issues have been fixed.
+
 // https://developer.apple.com/news/?id=w4atic4c
 // https://developer.apple.com/help/account/certificates/replace-developer-id-certificates
 * macOS disk images and applications are now signed using certificates issued by Apple's Developer ID Certification Authority (G2).
@@ -41,7 +45,7 @@ The following changes have been made since version 0.10.3:
 * The event bytes pane can show text as UTF-8. Multi-byte characters are
   drawn over the column of their first byte with a “]” over their last byte,
   and hovering over any of those bytes highlights the whole character.
-* Coloring rules are now saved as a JSONC file.
+* Coloring rules are now saved as a https://jsonc.org/[JSONC] (JSON with comments) file.
   The legacy `colorfilters` file is only read, and converted, when no personal `coloring_rules.jsonc` exists;
   otherwise only the JSONC file is used, so deleted rules no longer reappear from an old legacy file.
   A personal `coloring_rules.jsonc` that cannot be parsed is now reported instead of silently treated as empty.
@@ -80,31 +84,19 @@ The following changes have been made since version 0.9.3:
 
 * Stratoshark can now read https://learn.microsoft.com/en-us/sysinternals/downloads/procmon[Process Monitor] (Procmon) files.
 
-* Welcome Page Redesign
-  The welcome page has been redesigned to be more informative and easier to navigate. It now highlights the learning sections better and includes a new sidebar with tips and tricks for using Wireshark effectively. The welcome page is now also more accessible, with improved keyboard navigation and screen reader support.
+* The welcome page has been redesigned to be more informative and easier to navigate.
+  It now highlights the learning sections better and includes a new sidebar with tips and tricks for using Wireshark effectively.
+  The welcome page is now also more accessible, with improved keyboard navigation and screen reader support.
 
-* Lua Debugger
-  A built-in Lua script debugger has been added. It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces.
+* A built-in Lua script debugger has been added.
+  It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces.
 
-* Themes
+* Stratoshark now has a theme engine.
   Stratoshark now uses the same theme system as Wireshark, driving the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet pane font, and preview the result. A built-in default theme ships with Stratoshark, and additional themes can be installed as JSONC (JSON with Comments) files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme. Graph and plot windows (I/O Graph, TCP Stream, SCTP, RTP, and others) now take their grid, text and series colors from the theme, and the display filter field text, packet list row separators, and links stay readable in light and dark themes.
-  Personal themes can now be dropped as single `.jsonc` files into _$HOME/.local/lib/stratoshark/themes_ (Unix) or _%APPDATA%\Stratoshark\themes_ (Windows); the filename becomes the theme's name in the dropdown. The exact path is shown in the About dialog's _Folders_ tab.
+  Personal themes can now be dropped as single `.jsonc` files into _$HOME/.local/lib/stratoshark/themes_ (Unix) or _%APPDATA%\Stratoshark\themes_ (Windows). The exact path is shown in the About dialog's _Folders_ tab.
   On first launch after the upgrade, Stratoshark checks the Default profile's preferences for customized values of the removed per-color settings. If any are found, a personal theme named _Personal (Migrated)_ is created automatically in the personal themes directory, the legacy keys are removed from the Default profile's preferences file, and the theme is activated so the original visual customizations are preserved. The migration runs once: the generated _personal.jsonc_ can be edited, renamed, or deleted by hand at any time.
   The welcome page section headers ("Open", "Capture", "Learn") and the filter validity tints have been restored to the historical Classic look (Tango sky_blue brand, saturated GTK-era dark green / dark red filter backgrounds).
   Selected and hovered rows now share one color family: the hover color of the packet list, details tree, welcome page lists and JSON view is derived from the selection color, so themes no longer define a separate hover color, and the colored gradients of the welcome page header and update bar have been replaced by flat colors. Themes that set `packets.selection` but not `palette.highlight` now use that color for selection in lists, the details tree and the bytes pane (and for the welcome page header); `palette.highlight` still overrides it. The `brand.deep` color and the `header` and `update` gradient tokens are no longer used and can be removed from personal themes. The text of selected and marked rows is now checked against its background when the theme is applied and lifted to a readable contrast (4.5:1) if a theme's pinned text color would be hard to read, and the text of a pressed button is chosen against the pressed color. The Stratoshark theme uses a deeper teal (#0b828d) for the selection in light mode and pale marked rows (#d9e7ea with dark text) in dark mode, so selected and marked rows are clearly distinguishable.
-
-// XXX This should just describe what changed.
-// * The capture and display filter fields have a refreshed, consistent look and
-//   feel. As you type, the field colors itself to show at a glance whether the
-//   filter is valid, invalid, or uses deprecated syntax, and that feedback now
-//   appears immediately in place. Each field carries the same set of in-line
-//   buttons — a bookmark to save and manage your filters, a clear button, an
-//   apply button, and a drop-down listing your recently used filters — and as you
-//   type it suggests completions drawn from field names together with your recent
-//   and saved filters. Recent display filters are now reached from that drop-down
-//   rather than from a combo box. The colors follow the active theme and adapt to
-//   the Light and Dark appearances. (When a capture filter names a host, the field
-//   may pause briefly while the name is resolved.)
 
 * Zooming (menu:View[Zoom In] / menu:View[Zoom Out]) now scales the whole window, including the capture and display filter fields and other window elements.
   Previously only the packet list and detail pane text size changed.
@@ -145,8 +137,7 @@ The following changes have been made since version 0.9.1:
 * The system call dissector now has a "falcoevents.fd.stream" field, which provides a unique number for each file descriptor.
   The "Follow File Descriptor Stream" feature now uses this field to track streams. wsbuglink:20538[]
 
-* We now ship universal macOS installers instead of separate packages
-for Arm64 and Intel. wsbuglink:17294[]
+* We now ship universal macOS installers instead of separate packages for Arm64 and Intel. wsbuglink:17294[]
 
 The following changes have been made since version 0.9.0:
 
