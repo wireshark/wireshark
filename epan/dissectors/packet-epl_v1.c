@@ -253,8 +253,7 @@ dissect_epl_v1_pres(proto_tree *epl_v1_tree, tvbuff_t *tvb, int offset)
 	offset += 1;
 
 	/* get length of data */
-	proto_tree_add_item(epl_v1_tree, hf_epl_v1_pres_poll_size_in, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item_ret_uint16(epl_v1_tree, hf_epl_v1_pres_poll_size_in, tvb, offset, 2, ENC_LITTLE_ENDIAN, &len);
 	offset += 6;
 
 	if(len>0){

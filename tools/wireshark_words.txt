@@ -723,6 +723,7 @@ deinterlaced
 deinterlacer
 deinterlacing
 deinterleaved
+dektec
 deleg
 deletions
 delhi
@@ -998,6 +999,7 @@ epdcch
 eperm
 ephemeris
 epoll
+epriv
 epsem
 epson
 equinf
@@ -1105,6 +1107,7 @@ february
 fhandle
 fiber
 fibre
+fieldurls
 fileinfoack
 filenet
 fileseg
@@ -2894,6 +2897,7 @@ sessionkey
 setattr
 setcap
 setconf
+setdt
 setiv
 setkey
 settl
@@ -3006,6 +3010,7 @@ spooled
 spooler
 spoolss
 sprintf
+spriv
 sqdlighting
 sqlite
 sqlwarn
@@ -3166,6 +3171,7 @@ synphasor
 syntaxes
 synthesiser
 syscall
+syscom
 sysdig
 sysex
 sysframe
@@ -3364,6 +3370,7 @@ uboot
 ubuntu
 ucase
 ucast
+udcomphdr
 udisk
 udpcp
 udpdump
@@ -3807,5 +3814,3 @@ zquarter
 zsssr
 zugtyp
 zürich
-dektec
-syscom

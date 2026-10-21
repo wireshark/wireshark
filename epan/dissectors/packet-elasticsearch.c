@@ -201,8 +201,7 @@ static int elasticsearch_partial_dissect_address(tvbuff_t *tvb, packet_info *pin
     address_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_elasticsearch_address, &address_item, "Address" );
 
     /* Address type */
-    proto_tree_add_item(address_tree, hf_elasticsearch_address_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-    address_type_id = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(address_tree, hf_elasticsearch_address_type, tvb, offset, 2, ENC_BIG_ENDIAN, &address_type_id);
     offset += 2;
     /* Only socket address types are supported (and only make sense to be supported) */
     if(address_type_id != ADDRESS_TYPE_SOCKET) {

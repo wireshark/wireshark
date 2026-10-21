@@ -194,9 +194,8 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      proto_tree_add_item(esio_transfer_header_tree,
                                          hf_esio_src_stn_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                      offset += 4;
-                     esio_nbr_data_transfers = tvb_get_uint8(tvb,offset);
-                     proto_tree_add_item(esio_transfer_header_tree,
-                                         hf_esio_data_nbr, tvb, offset, 1, ENC_BIG_ENDIAN);
+                     proto_tree_add_item_ret_uint8(esio_transfer_header_tree,
+                                                   hf_esio_data_nbr, tvb, offset, 1, ENC_BIG_ENDIAN, &esio_nbr_data_transfers);
                      offset += 1;
                      proto_tree_add_item(esio_transfer_header_tree,
                                          hf_esio_data_flags, tvb, offset, 1, ENC_BIG_ENDIAN);

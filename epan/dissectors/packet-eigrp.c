@@ -816,8 +816,7 @@ dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
     uint8_t     addr_len;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        addr_len = tvb_get_uint8(tvb, offset);
-        ti_addrlen = proto_tree_add_item(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti_addrlen = proto_tree_add_item_ret_uint8(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, ENC_BIG_ENDIAN, &addr_len);
         offset += 1;
 
         if (tvb_reported_length_remaining(tvb, offset) < addr_len) {

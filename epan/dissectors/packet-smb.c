@@ -10324,7 +10324,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 			offset = dissect_smb_access_mask(tvb, tr, offset, isdir, SMB_ACCESS_MAXIMAL);
 
 			tr = proto_tree_add_subtree(tree, tvb, offset, 4,
-				ett_smb_nt_access_mask, NULL, "Guest Maximal Access Rightss");
+				ett_smb_nt_access_mask, NULL, "Guest Maximal Access Rights");
 			offset = dissect_smb_access_mask(tvb, tr, offset, isdir, SMB_ACCESS_GUEST);
 		}
 

@@ -877,8 +877,7 @@ static void dissect_osd2_query_list_descriptor(packet_info *pinfo, tvbuff_t *tvb
         }
 
         /* query minimum attribute value length */
-        proto_tree_add_item(tree, hf_scsi_osd2_query_minimum_attribute_value_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-        min_value_length = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item_ret_uint(tree, hf_scsi_osd2_query_minimum_attribute_value_length, tvb, offset, 2, ENC_BIG_ENDIAN, &min_value_length);
         offset += 2;
 
         /* query minimum attribute value */
@@ -889,8 +888,7 @@ static void dissect_osd2_query_list_descriptor(packet_info *pinfo, tvbuff_t *tvb
         offset += min_value_length;
 
         /* query maximum attribute value length */
-        item = proto_tree_add_item(tree, hf_scsi_osd2_query_maximum_attribute_value_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-        max_value_length = tvb_get_ntohs(tvb, offset);
+        item = proto_tree_add_item_ret_uint(tree, hf_scsi_osd2_query_maximum_attribute_value_length, tvb, offset, 2, ENC_BIG_ENDIAN, &max_value_length);
         offset += 2;
 
         /* xxx query maximum attribute value */
@@ -960,8 +958,7 @@ dissect_osd2_cdb_continuation(packet_info *pinfo, tvbuff_t *tvb, uint32_t offset
         offset += 1;
 
         /* descriptor pad length */
-        proto_tree_add_item(tree, hf_scsi_osd2_cdb_continuation_descriptor_pad_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-        padlen = tvb_get_uint8(tvb, offset)&7;
+        proto_tree_add_item_ret_uint(tree, hf_scsi_osd2_cdb_continuation_descriptor_pad_length, tvb, offset, 1, ENC_BIG_ENDIAN, &padlen);
         offset += 1;
 
         /* descriptor length */

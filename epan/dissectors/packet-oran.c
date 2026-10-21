@@ -3808,7 +3808,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* Applies only to section types 1,3 and 5 */
                 /* N.B. there may be multiple instances of this SE in the same frame */
 
-                /* There may be one or 2 entries, depending upon extlen */
+                /* There may be one or 2 entries, depending upon extLen */
                 int sets = 1, reserved_bits = 0;
                 switch (extlen) {
                     case 2:
@@ -3831,10 +3831,11 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         }
                         break;
 
+                    /* TODO: it seems that it could be longer.. */
                     default:
                         /* Malformed error!!! */
                         expert_add_info_format(pinfo, extlen_ti, &ei_oran_extlen_wrong,
-                                               "For section 5, extlen must be 2, 3 or 4, but %u was dissected",
+                                               "For SE5 (modCompr additional params), extLen must be 2, 3 or 4, but %u was dissected",
                                                extlen);
                         break;
                 }

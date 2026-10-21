@@ -1446,9 +1446,9 @@ static int dissect_config_frame(tvbuff_t *tvb, packet_info* pinfo, proto_item *c
 	/* TIME_BASE and NUM_PMU */
 	offset += 1; /* skip the reserved byte */
 	proto_tree_add_item(config_tree, hf_conf_timebase, tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
-	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint16(config_tree, hf_conf_numpmu,   tvb, offset, 2, ENC_BIG_ENDIAN, &num_pmu);
 	/* add number of included PMUs to the text in the list view  */
-	num_pmu = tvb_get_ntohs(tvb, offset); offset += 2;
+	offset += 2;
 	proto_item_append_text(config_item, ", %"PRIu16" PMU(s) included", num_pmu);
 
 	/* dissect the repeating PMU blocks */
@@ -1542,12 +1542,10 @@ static int dissect_config_3_frame(tvbuff_t *tvb, packet_info* pinfo, proto_item 
 	proto_tree_add_item(config_tree, hf_conf_timebase, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 
-	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, ENC_BIG_ENDIAN);
-
-	/* add number of included PMUs to the text in the list view  */
-	num_pmu = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item_ret_uint16(config_tree, hf_conf_numpmu,   tvb, offset, 2, ENC_BIG_ENDIAN, &num_pmu);
 	offset += 2;
 
+	/* add number of included PMUs to the text in the list view  */
 	proto_item_append_text(config_item, ", %"PRIu16" PMU(s) included", num_pmu);
 
 	/* dissect the repeating PMU blocks */

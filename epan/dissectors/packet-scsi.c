@@ -3467,7 +3467,7 @@ static const range_string desc_type_rval[] = {
         { BLOCK_TO_BLOCK, BLOCK_TO_BLOCK, "Block to block" },
         { 0x3, 0x3, "Stream to stream" },
         { 0x4, 0x4, "Inline to stream" },
-        { 0x5, 0x5, "Embedded to strem" },
+        { 0x5, 0x5, "Embedded to stream" },
         { 0x6, 0x6, "Stream to discard" },
         { 0x7, 0x7, "Verify CSCD" },
         { 0x0, 0xBF, "Segment descriptors" },

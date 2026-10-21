@@ -5395,8 +5395,7 @@ dissect_btle_broadcast_iso(tvbuff_t *tvb,
     data_header_item = proto_tree_add_item(btle_tree,  hf_data_header, tvb, offset, 2, ENC_NA);
     data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
 
-    proto_tree_add_item(data_header_tree, hf_data_header_llid_broadcastiso, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    llid = tvb_get_uint8(tvb, offset) & 0x03;
+    proto_tree_add_item_ret_uint8(data_header_tree, hf_data_header_llid_broadcastiso, tvb, offset, 1, ENC_LITTLE_ENDIAN, &llid);
     proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_transmission_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(data_header_tree, hf_data_header_rfu_67, tvb, offset, 1, ENC_LITTLE_ENDIAN);

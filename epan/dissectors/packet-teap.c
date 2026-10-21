@@ -493,8 +493,7 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     case TEAP_BASIC_PWD_AUTH_RESPONSE:
     {
       uint8_t auth_len;
-      auth_len = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(tlv_tree, hf_teap_user_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint8(tlv_tree, hf_teap_user_len, tvb, offset, 1, ENC_BIG_ENDIAN, &auth_len);
       offset += 1;
       proto_tree_add_item(tlv_tree, hf_teap_username, tvb, offset, auth_len, ENC_ASCII);
       offset += auth_len;

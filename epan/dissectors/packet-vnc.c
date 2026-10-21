@@ -60,7 +60,7 @@
    Check types, etc against IANA list
    Optimize: Do col_set(..., COL_INFO) once (after fetching message type & before dispatching ?)
    Dispatch via a message table (instead of using a switch(...)
-   Msg type 150: client-server: enable/disable (1+9 bytes); server-client: endofContinousUpdates(1+0 bytes) ?
+   Msg type 150: client-server: enable/disable (1+9 bytes); server-client: endofContinuousUpdates(1+0 bytes) ?
 */
 
 #include "config.h"

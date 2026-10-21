@@ -1,4 +1,4 @@
-/* packet-ccsds.c
+/* packet-ccsds-sp.c
  * Routines for CCSDS Space Packet dissection
  * Copyright 2000, Scott Hovis scott.hovis@ums.msfc.nasa.gov
  * Enhanced 2008, Matt Dunkle Matthew.L.Dunkle@nasa.gov

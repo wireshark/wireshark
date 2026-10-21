@@ -136,8 +136,7 @@ dissect_dvb_sdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
         proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_running_status,             tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_free_ca_mode,               tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(dvb_sdt_service_tree, hf_dvb_sdt_descriptors_loop_length,    tvb, offset, 2, ENC_BIG_ENDIAN);
-        descriptor_len = tvb_get_ntohs(tvb, offset) & DVB_SDT_DESCRIPTORS_LOOP_LENGTH_MASK;
+        proto_tree_add_item_ret_uint(dvb_sdt_service_tree, hf_dvb_sdt_descriptors_loop_length, tvb, offset, 2, ENC_BIG_ENDIAN, &descriptor_len);
         offset += 2;
 
         offset += proto_mpeg_descriptor_loop_dissect(tvb, pinfo, offset, descriptor_len, dvb_sdt_service_tree);

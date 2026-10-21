@@ -6125,8 +6125,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, packet_info* pinfo, struct _netlib
                         cur += msg_len;
                     }
 
-                    msg_len = tvb_get_uint16(tvb, cur, encoding);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_assemblyqualifiedname_length, tvb, cur, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item_ret_uint16(col_tree, hf_tds_colmetadata_assemblyqualifiedname_length, tvb, cur, 2, ENC_LITTLE_ENDIAN, &msg_len);
                     cur += 2;
                     if(msg_len != 0) {
                         msg_len *= 2;
