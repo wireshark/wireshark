@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/srt_table.h>
@@ -111,6 +112,9 @@ static const char smb_comp_transform_header_label[] = "SMB2 Compression Transfor
 static const char smb_bad_header_label[] = "Bad SMB2 Header";
 
 static int proto_smb2;
+
+/* pinfo proto data key, set while dissecting decompressed data */
+#define SMB2_PROTO_DATA_DECOMPRESSING 0
 static int hf_smb2_cmd;
 static int hf_smb2_nt_status;
 static int hf_smb2_response_to;
@@ -822,6 +826,7 @@ static expert_field ei_smb2_invalid_getinfo_offset;
 static expert_field ei_smb2_invalid_getinfo_size;
 static expert_field ei_smb2_empty_getinfo_buffer;
 static expert_field ei_smb2_invalid_signature;
+static expert_field ei_smb2_nested_compression;
 
 static int smb2_tap;
 static int smb2_eo_tap;
@@ -1362,6 +1367,9 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	 * for the last received response accomplishes this goal without requiring the TCP pref
 	 * "Do not call subdissectors for error packets" to be set. */
 	if (si->saved->frame_res != pinfo->num)
+		return TAP_PACKET_DONT_REDRAW;
+
+	if (si->opcode >= SMB2_NUM_PROCEDURES)
 		return TAP_PACKET_DONT_REDRAW;
 
 	smb2_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
@@ -2618,7 +2626,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			if (si->conv) {
 				eo_file_info = (smb2_eo_file_info_t *)wmem_map_lookup(si->session->files,&policy_hnd);
 				if (!eo_file_info) {
-					eo_file_info = wmem_new(wmem_file_scope(), smb2_eo_file_info_t);
+					eo_file_info = wmem_new0(wmem_file_scope(), smb2_eo_file_info_t);
 					policy_hnd_hashtablekey = wmem_new(wmem_file_scope(), e_ctx_hnd);
 					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
 					eo_file_info->end_of_file=0;
@@ -2667,11 +2675,12 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 				if (eo_file_info) {
 					si->eo_file_info=eo_file_info;
 				} else { /* XXX This should never happen */
-					eo_file_info = wmem_new(wmem_file_scope(), smb2_eo_file_info_t);
+					eo_file_info = wmem_new0(wmem_file_scope(), smb2_eo_file_info_t);
 					policy_hnd_hashtablekey = wmem_new(wmem_file_scope(), e_ctx_hnd);
 					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
 					eo_file_info->end_of_file=0;
 					wmem_map_insert(si->session->files,policy_hnd_hashtablekey,eo_file_info);
+					si->eo_file_info=eo_file_info;
 				}
 			}
 
@@ -4059,7 +4068,7 @@ dissect_smb2_share_redirect_error(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	ips_item = proto_tree_add_item(tree, hf_smb2_error_redir_ip_list, tvb, offset, 0, ENC_NA);
 	ips_tree = proto_item_add_subtree(ips_item, ett_smb2_error_redir_ip_list);
 	for (i = 0; i < ip_count; i++)
-		offset += dissect_windows_sockaddr_storage(tvb, pinfo, ips_tree, offset, -1);
+		offset = dissect_windows_sockaddr_storage(tvb, pinfo, ips_tree, offset, -1);
 
 	/* resource name */
 	dissect_smb2_olb_off_string(pinfo, tree, tvb, &res_olb, offset, OLB_TYPE_UNICODE_STRING);
@@ -11117,7 +11126,7 @@ dissect_smb2_chained_comp_payload(packet_info *pinfo, proto_tree *tree,
 		*ok = false;
 	}
 
-	if (!*ok && (lz_based || SMB2_COMP_ALG_NONE)) {
+	if (!*ok && (lz_based || alg == SMB2_COMP_ALG_NONE)) {
 		goto out;
 	}
 
@@ -11565,6 +11574,9 @@ dissect_smb2_signature(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree
 	return;
 }
 
+static void
+dissect_smb2_decompressed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool first_in_chain)
@@ -11812,7 +11824,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 						eo_file_info = (smb2_eo_file_info_t *)wmem_map_lookup(si->session->files,&ssi->policy_hnd);
 						if (!eo_file_info) { /* XXX This should never happen */
 							/* assert(1==0); */
-							eo_file_info = wmem_new(wmem_file_scope(), smb2_eo_file_info_t);
+							eo_file_info = wmem_new0(wmem_file_scope(), smb2_eo_file_info_t);
 							policy_hnd_hashtablekey = wmem_new(wmem_file_scope(), e_ctx_hnd);
 							memcpy(policy_hnd_hashtablekey, &ssi->policy_hnd, sizeof(e_ctx_hnd));
 							eo_file_info->end_of_file=0;
@@ -11882,6 +11894,12 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
 			chain_offset = offset;
 		}
+	} else if (msg_type == SMB2_COMP_HEADER &&
+		   p_get_proto_data(pinfo->pool, pinfo, proto_smb2, SMB2_PROTO_DATA_DECOMPRESSING)) {
+		/* decompressed data never contains another compression
+		 * transform; refuse to multiply the decompression cost */
+		proto_tree_add_expert(header_tree, pinfo, &ei_smb2_nested_compression, tvb, offset, -1);
+		offset += tvb_reported_length_remaining(tvb, offset);
 	} else if (msg_type == SMB2_COMP_HEADER) {
 		proto_tree *comp_tree;
 		proto_item *decomp_item;
@@ -11908,7 +11926,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 							     ett_smb2_decompressed, &decomp_item,
 							     "Decompressed SMB3 data");
 			proto_item_set_generated(decomp_item);
-			dissect_smb2(plain_tvb, pinfo, decomp_tree, false);
+			dissect_smb2_decompressed(plain_tvb, pinfo, decomp_tree);
 		}
 
 		offset += tvb_reported_length_remaining(tvb, offset);
@@ -11930,6 +11948,20 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, bool fi
 
 	decrement_dissection_depth(pinfo);
 	return offset;
+}
+
+static void
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_smb2_decompressed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	p_add_proto_data(pinfo->pool, pinfo, proto_smb2, SMB2_PROTO_DATA_DECOMPRESSING, GUINT_TO_POINTER(1));
+	TRY {
+		dissect_smb2(tvb, pinfo, tree, false);
+	}
+	FINALLY {
+		p_remove_proto_data(pinfo->pool, pinfo, proto_smb2, SMB2_PROTO_DATA_DECOMPRESSING);
+	}
+	ENDTRY;
 }
 
 static bool
@@ -14951,6 +14983,7 @@ proto_register_smb2(void)
 		{ &ei_smb2_invalid_getinfo_size, { "smb2.invalid_getinfo_size", PI_MALFORMED, PI_ERROR, "Input buffer length goes past the end of the message", EXPFILL }},
 		{ &ei_smb2_empty_getinfo_buffer, { "smb2.empty_getinfo_buffer", PI_PROTOCOL, PI_WARN, "Input buffer length is empty for a quota request", EXPFILL }},
 		{ &ei_smb2_invalid_signature, { "smb2.invalid_signature", PI_MALFORMED, PI_ERROR, "Invalid Signature", EXPFILL }},
+		{ &ei_smb2_nested_compression, { "smb2.nested_compression", PI_MALFORMED, PI_ERROR, "Compression transform inside compressed data", EXPFILL }},
 	};
 
 	expert_module_t* expert_smb2;
