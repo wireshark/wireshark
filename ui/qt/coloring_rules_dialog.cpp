@@ -90,15 +90,15 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QS
     export_button_ = ui->buttonBox->addButton(tr("Export…"), QDialogButtonBox::ApplyRole);
     export_button_->setToolTip(tr("Save filters in a file."));
 
-    CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, COLORFILTERS_FILE_NAME, tr("Copy coloring rules from another profile."));
+    CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, COLORING_RULES_FILE_NAME, tr("Copy coloring rules from another profile."));
     ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
     connect(copy_button, &CopyFromProfileButton::copyProfile, this, &ColoringRulesDialog::copyFromProfile);
 
-    QString abs_path = gchar_free_to_qstring(get_persconffile_path(COLORFILTERS_FILE_NAME, true, application_configuration_environment_prefix()));
+    QString abs_path = gchar_free_to_qstring(get_persconffile_path(COLORING_RULES_FILE_NAME, true, application_configuration_environment_prefix()));
     if (file_exists(abs_path.toUtf8().constData())) {
         ui->pathLabel->setText(abs_path);
         ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
-        ui->pathLabel->setToolTip(tr("Open ") + COLORFILTERS_FILE_NAME);
+        ui->pathLabel->setToolTip(tr("Open ") + COLORING_RULES_FILE_NAME);
         ui->pathLabel->setEnabled(true);
     }
 

@@ -60,7 +60,7 @@
  * such as #RRGGBB instead.
  */
 
-static int read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb);
+static int read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb, bool require_json);
 static int read_legacy_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb);
 
 /* the currently active filters */
@@ -328,6 +328,7 @@ static bool
 color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* app_env_var_prefix)
 {
     char     *path;
+    char     *legacy_path;
     FILE     *f;
     int       ret;
 
@@ -335,62 +336,73 @@ color_filters_get(char** err_msg, color_filter_add_cb_func add_cb, const char* a
     color_filters_add_tmp(&color_filter_list);
 
     /*
-     * Try to get the user's legacy filters first, for backward
-     * compatibility.
-     *
-     * Get the path for the file that would have their filters, and
-     * try to open it.
-     */
-    path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, app_env_var_prefix);
-    if ((f = ws_fopen(path, "r")) == NULL) {
-        if (errno != ENOENT) {
-            /* Error trying to open the file; give up. */
-            *err_msg = ws_strdup_printf("Could not open filter file\n\"%s\": %s.", path,
-                                       g_strerror(errno));
-            g_free(path);
-            return false;
-        }
-        g_free(path);
-        /* Try the personal coloring_rules.jsonc below. */
-    } else {
-        ret = read_legacy_filters_file(path, f, &color_filter_list, add_cb);
-        fclose(f);
-        g_free(path);
-        if (ret != 0) {
-            *err_msg = ws_strdup_printf("Error reading filter file\n\"%s\": %s.",
-                                       path, g_strerror(errno));
-            return false;
-        }
-    }
-
-    /*
-     * Now try to read the user's coloring rules, in the current JSONC
-     * format. Legacy rules with the same name will be replaced.
+     * Resolve both personal paths up front, although at most one file is
+     * read. get_persconffile_path() registers each name as a profile file,
+     * which makes profile copy and the Default profile reset include it.
+     * Resolving the legacy name only when it is read would let a reset
+     * remove coloring_rules.jsonc but keep a stale colorfilters, whose
+     * rules would then come back on the next start.
      */
     path = get_persconffile_path(COLORING_RULES_FILE_NAME, true, app_env_var_prefix);
-    if ((f = ws_fopen(path, "r")) == NULL) {
-        if (errno != ENOENT) {
-            *err_msg = ws_strdup_printf("Could not open coloring rules file\n\"%s\": %s.", path,
-                                       g_strerror(errno));
+    legacy_path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, app_env_var_prefix);
+
+    /*
+     * If the personal coloring_rules.jsonc exists, it is the user's rule
+     * list and the only file read. A legacy colorfilters file next to it
+     * is an older copy kept for older versions; reading it as well would
+     * bring back rules the user has since deleted or changed.
+     */
+    if ((f = ws_fopen(path, "r")) != NULL) {
+        ret = read_filters_file(path, f, &color_filter_list, add_cb, true);
+        fclose(f);
+        if (ret != 0) {
+            *err_msg = ws_strdup_printf("Error reading coloring rules file\n\"%s\": %s.",
+                                       path, g_strerror(ret));
+            g_free(legacy_path);
             g_free(path);
             return false;
         }
-        /* They don't have any filters; try to read the global filters */
+        g_free(legacy_path);
         g_free(path);
-        return color_filters_read_globals(&color_filter_list, err_msg, add_cb, app_env_var_prefix);
+        return true;
     }
-
-    ret = read_filters_file(path, f, &color_filter_list, add_cb);
-    fclose(f);
-    if (ret != 0) {
-        *err_msg = ws_strdup_printf("Error reading coloring rules file\n\"%s\": %s.",
-                                   path, g_strerror(errno));
+    if (errno != ENOENT) {
+        *err_msg = ws_strdup_printf("Could not open coloring rules file\n\"%s\": %s.", path,
+                                   g_strerror(errno));
+        g_free(legacy_path);
         g_free(path);
         return false;
     }
-
     g_free(path);
-    return true;
+
+    /*
+     * No personal coloring_rules.jsonc. A legacy colorfilters file from a
+     * version before the JSONC format is the complete personal rule list,
+     * so the global rules are not added to it. The next save writes it
+     * out as coloring_rules.jsonc.
+     */
+    if ((f = ws_fopen(legacy_path, "r")) != NULL) {
+        ret = read_legacy_filters_file(legacy_path, f, &color_filter_list, add_cb);
+        fclose(f);
+        if (ret != 0) {
+            *err_msg = ws_strdup_printf("Error reading filter file\n\"%s\": %s.",
+                                       legacy_path, g_strerror(ret));
+            g_free(legacy_path);
+            return false;
+        }
+        g_free(legacy_path);
+        return true;
+    }
+    if (errno != ENOENT) {
+        *err_msg = ws_strdup_printf("Could not open filter file\n\"%s\": %s.", legacy_path,
+                                   g_strerror(errno));
+        g_free(legacy_path);
+        return false;
+    }
+    g_free(legacy_path);
+
+    /* They don't have any personal rules; try to read the global rules */
+    return color_filters_read_globals(&color_filter_list, err_msg, add_cb, app_env_var_prefix);
 }
 
 /* Initialize the filter structures (reading from file) for general running, including app startup */
@@ -840,7 +852,7 @@ hex_str_to_color(const char *str, color_t *color)
 }
 
 static int
-read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb)
+read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_cb_func add_cb, bool require_json)
 {
     long        size;
     char       *buf;
@@ -880,8 +892,21 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
     }
 
     num_tokens = json_parse(buf, NULL, 0);
-    if (num_tokens <= 0) {
-        /* All comments/whitespace) or invalid. Just treat it as empty. */
+    if (num_tokens == 0) {
+        /* Only comments and whitespace: a valid, empty rule list. */
+        g_free(buf);
+        return 0;
+    }
+    if (num_tokens < 0) {
+        /*
+         * Not JSON at all. For the personal and global rule files that is
+         * an error the user must see, since none of the file's rules are
+         * used. An imported file may be in the legacy format, which never
+         * parses as JSON, so it just yields no rules here.
+         */
+        if (require_json) {
+            report_warning("Error parsing coloring rules file\n\"%s\": invalid JSON.", path);
+        }
         g_free(buf);
         return 0;
     }
@@ -946,20 +971,10 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
 
         if (user_data == &color_filter_list) {
             GSList **cfl = (GSList **)user_data;
-            GSList  *existing;
 
             /* internal call */
             colorf->c_colorfilter = temp_dfilter;
-
-            /* A JSONC rule with the same name as an already-loaded
-             * (legacy) rule replaces it, rather than duplicating it. */
-            existing = g_slist_find_custom(*cfl, colorf->filter_name, color_filters_find_by_name_cb);
-            if (existing != NULL) {
-                color_filter_delete((color_filter_t *)existing->data);
-                existing->data = colorf;
-            } else {
-                *cfl = g_slist_append(*cfl, colorf);
-            }
+            *cfl = g_slist_append(*cfl, colorf);
         } else {
             /* external call */
             /* just editing, don't need the compiled filter */
@@ -1164,7 +1179,7 @@ color_filters_read_globals(void *user_data, char** err_msg, color_filter_add_cb_
 
     /* Don't try to read the legacy colorfilters file, unlike the personal config. */
 
-    ret = read_filters_file(path, f, user_data, add_cb);
+    ret = read_filters_file(path, f, user_data, add_cb, true);
     fclose(f);
     if (ret != 0) {
         *err_msg = ws_strdup_printf("Error reading global coloring rules file\n\"%s\": %s.",
@@ -1205,7 +1220,7 @@ color_filters_import(const char *path, void *user_data, char **err_msg, color_fi
     }
 
     /* read_filters_file() seeks to the start of the file. */
-    ret = read_filters_file(path, f, user_data, add_cb);
+    ret = read_filters_file(path, f, user_data, add_cb, false);
     fclose(f);
     if (ret != 0) {
         *err_msg = ws_strdup_printf("Error reading filter file\n\"%s\": %s.",
@@ -1337,7 +1352,10 @@ color_filters_write(GSList *cfl, const char* app_name, const char* app_env_var_p
         return false;
     }
 
-    /* Only write the legacy colorfilters file if it already exists. */
+    /*
+     * Keep an existing legacy colorfilters file current for older versions,
+     * which read only that file. Never create it.
+     */
     path = get_persconffile_path(COLORFILTERS_FILE_NAME, true, app_env_var_prefix);
     if (g_file_test(path, G_FILE_TEST_EXISTS)) {
         if ((f = ws_fopen(path, "w+")) == NULL) {

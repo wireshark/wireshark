@@ -42,7 +42,10 @@ The following changes have been made since version 0.10.3:
   drawn over the column of their first byte with a “]” over their last byte,
   and hovering over any of those bytes highlights the whole character.
 * Coloring rules are now saved as a JSONC file.
-  The legacy file format is still supported, but support will be removed in a future release.
+  The legacy `colorfilters` file is only read, and converted, when no personal `coloring_rules.jsonc` exists;
+  otherwise only the JSONC file is used, so deleted rules no longer reappear from an old legacy file.
+  A personal `coloring_rules.jsonc` that cannot be parsed is now reported instead of silently treated as empty.
+  Support for the legacy file format will be removed in a future release.
 * Support for automatic update notification and updates on Linux distributions supporting PackageKit >= 1.1.12.
 
 The following changes have been made since version 0.10.2:

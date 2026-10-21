@@ -431,7 +431,8 @@ background and foreground colors are appended:
   @tcp@tcp@[59345,58980,65534][0,0,0]
   @udp@udp@[28834,57427,65533][0,0,0]
 
-Wireshark will read the legacy __colorfilters__ file if it exists, followed by __coloring_rules.jsonc__.
+Wireshark will read the personal legacy __colorfilters__ file only if the personal __coloring_rules.jsonc__ file does not exist; it is then used on its own, without the global coloring rules.
+If the personal __coloring_rules.jsonc__ file exists but cannot be parsed, an error is reported and none of its rules are used; neither the legacy __colorfilters__ file nor the global coloring rules are read in its place.
 Wireshark will write the legacy __colorfilters__ file only if it exists.
 --
 
