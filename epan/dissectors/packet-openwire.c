@@ -881,6 +881,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     else if (tvb_reported_length_remaining(tvb, offset) >= 1)
     {
         /* Check for complex types */
+        increment_dissection_depth(pinfo);
         proto_tree    *object_tree;
         proto_item    *ti;
         ti = proto_tree_add_item(tree, particularize(field, hf_openwire_type_object), tvb, startOffset, -1, ENC_NA);
@@ -1063,6 +1064,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
             offset += tvb_captured_length_remaining(tvb, offset);
         }
         proto_item_set_len(ti, offset - startOffset);
+        decrement_dissection_depth(pinfo);
 
     }
     return (offset - startOffset);
