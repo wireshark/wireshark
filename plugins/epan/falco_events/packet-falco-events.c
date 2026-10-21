@@ -1535,7 +1535,7 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
                     }
 
                     if (lookup) {
-                        add_geoip_info(tree, bi, bi->hf_geoip_ids[addr_fld_idx * GEOIP_FIELD_COUNT], pinfo, tvb, 0, 0, lookup);
+                        add_geoip_info(tree, bi, addr_fld_idx * GEOIP_FIELD_COUNT, pinfo, tvb, 0, 0, lookup);
                     }
                     // XXX Add conversation support.
                 }
