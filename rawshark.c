@@ -912,6 +912,7 @@ raw_pipe_read(wtap_rec *rec, int *err, char **err_info, int64_t *data_offset) {
         bytes_needed -= (unsigned int)bytes_read;
         *data_offset += bytes_read;
         ptr += bytes_read;
+        ws_buffer_increase_length(&rec->data, bytes_read);
     }
     return true;
 }
