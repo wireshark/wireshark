@@ -38,6 +38,11 @@ ProfileSwitcher::ProfileSwitcher(QObject *parent) :
     connect(mainApp, &MainApplication::profileChanging, this, &ProfileSwitcher::disableSwitching);
 }
 
+ProfileSwitcher::~ProfileSwitcher()
+{
+    clearProfileFilters();
+}
+
 void ProfileSwitcher::captureEventHandler(CaptureEvent ev)
 {
     if (ev.captureContext() != CaptureEvent::File) {
