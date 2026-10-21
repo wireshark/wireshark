@@ -9655,9 +9655,14 @@ ieee1905_fragment_hash(const void *k)
         return 0;
     }
 
-    const uint8_t src_len = key->src.len;
-    const uint8_t dst_len = key->dst.len;
-    const uint8_t hash_buf_len = src_len + dst_len + sizeof(uint8_t) + sizeof(uint32_t);
+    /* The address can be a string which concatenates the string representation
+     * of the BDADDR (which might look up the OUI but is limited by MAXNAMELEN
+     * in addr_resolv to 64 bytes) and the Bluetooth friendly device name, which
+     * is a maximum of 248 bytes. (See [Vol 2] Part C, Section 4.3.5 and Vol 3
+     * Part C, Sect 3.2.2.) */
+    const uint16_t src_len = key->src.len;
+    const uint16_t dst_len = key->dst.len;
+    const unsigned hash_buf_len = src_len + dst_len + sizeof(uint8_t) + sizeof(uint32_t);
     uint8_t* hash_buf = (uint8_t*)wmem_alloc(NULL, hash_buf_len);
 
     memcpy(hash_buf, key->src.data, src_len);
