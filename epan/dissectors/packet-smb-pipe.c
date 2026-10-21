@@ -189,6 +189,7 @@ static int ett_lanman_server;
 
 static expert_field ei_smb_pipe_bogus_netwkstauserlogon;
 static expert_field ei_smb_pipe_bad_type;
+static expert_field ei_smb_pipe_entry_no_data;
 
 /*
  * See
@@ -1605,9 +1606,13 @@ get_count(const char *desc, int *countp)
 	}
 
 	while ((c = *desc) != '\0' && g_ascii_isdigit(c)) {
-		count = (count * 10) + c - '0';
+		/* counts larger than any SMB payload make no sense */
+		if (count <= 0xFFFF)
+			count = (count * 10) + c - '0';
 		desc++;
 	}
+	if (count > 0xFFFF)
+		count = 0xFFFF;
 
 	*countp = count;	/* XXX - what if it's 0? */
 	return desc;
@@ -2558,11 +2563,14 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 			/* auxiliary data */
 			if (trp->aux_data_descrip != NULL) {
 				for (j = 0; j < aux_count; j++) {
+					int old_offset = offset;
 					offset = dissect_transact_data(
 					    tvb, offset, convert,
 					    pinfo, entry_tree,
-					    trp->data_descrip,
+					    trp->aux_data_descrip,
 					    lanman->resp_aux_data, NULL, smb_info);
+					if (offset <= old_offset)
+						break;
 				}
 			}
 
@@ -2573,6 +2581,16 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 				 */
 				proto_item_set_len(entry_item,
 				    offset - start_offset);
+			}
+
+			/*
+			 * An entry whose descriptor consumes no data
+			 * would be repeated for every remaining entry.
+			 */
+			if (offset <= start_offset) {
+				proto_tree_add_expert(entry_tree, pinfo,
+				    &ei_smb_pipe_entry_no_data, tvb, offset, 0);
+				break;
 			}
 		}
 	}
@@ -2735,10 +2753,13 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			/* auxiliary data */
 			if (aux_data_descrip != NULL) {
 				for (i = 0; i < aux_count; i++) {
+					int old_offset = offset;
 					offset = dissect_transact_data(d_tvb,
 					    offset, -1, pinfo, data_tree,
 					    aux_data_descrip,
 					    lanman->req_aux_data, NULL, smb_info);
+					if (offset <= old_offset)
+						break;
 				}
 			}
 
@@ -3880,6 +3901,7 @@ proto_register_smb_pipe(void)
 	static ei_register_info ei[] = {
 		{ &ei_smb_pipe_bogus_netwkstauserlogon, { "smb_pipe.bogus_netwkstauserlogon_parameters", PI_PROTOCOL, PI_WARN, "Bogus NetWkstaUserLogon parameters", EXPFILL }},
 		{ &ei_smb_pipe_bad_type, { "smb_pipe.bad_type", PI_PROTOCOL, PI_ERROR, "Bad type field", EXPFILL }},
+		{ &ei_smb_pipe_entry_no_data, { "smb_pipe.entry_no_data", PI_MALFORMED, PI_ERROR, "Entry contains no data; remaining entries not dissected", EXPFILL }},
 	};
 
 	expert_module_t* expert_smb_pipe;
