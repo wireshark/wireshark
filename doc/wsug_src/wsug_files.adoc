@@ -223,8 +223,9 @@ It contains an array of JSON objects, each representing a coloring rule, with th
 }
 ----
 
-At program start, if there is a __coloring_rules.jsonc__ file in the personal configuration folder, it is read.
-If that doesn't exist, Wireshark will attempt to read the global __coloring_rules.jsonc__ file.
+At program start, if there is a __coloring_rules.jsonc__ file in the personal configuration folder, only that file is read.
+If it doesn't exist, a legacy __colorfilters__ file in the personal configuration folder, written by versions before Wireshark 5.0, is read instead and converted to __coloring_rules.jsonc__ the next time the coloring rules are saved.
+If neither exists, Wireshark will attempt to read the global __coloring_rules.jsonc__ file.
 
 When you press the Save button in the “Coloring Rules” dialog box, all the current color filters are written to the personal color filters file.
 --
