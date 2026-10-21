@@ -1530,6 +1530,43 @@ class TestSharkd:
             {"jsonrpc":"2.0","id":1,"error":{"code":-4005,"message":"Unable to set the preference: Unknown preference"}},
         ))
 
+    def test_sharkd_req_load_wg_keylog_after_dsb(self, run_sharkd_session, capture_file, result_file):
+        keylog_file = result_file('wireguard.keys')
+        with open(keylog_file, 'w') as f:
+            f.write('\n'.join((
+                # PSK without a preceding ephemeral key in this file.
+                'PRESHARED_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=',
+                'REMOTE_STATIC_PUBLIC_KEY=YDCttCs9e1J52/g9vEnwJJa+2x6RqaayAYMpSVQfGEY=',
+                'LOCAL_STATIC_PRIVATE_KEY=AKeZaHwBxjiKLFnkY2unvEdOTtg4AL+M9dQXfopFVFk=',
+                'LOCAL_EPHEMERAL_PRIVATE_KEY=iCv2VTi/BC/q0egU931KXrrQ4TSwXaezMgrhh7uCbXs=',
+                'PRESHARED_KEY=//////////////////////////////////////////8=',
+                'LOCAL_EPHEMERAL_PRIVATE_KEY=0G6t5j1B/We65MXVEBIGuRGYadwB2ITdvJovtAuATmc=',
+                'PRESHARED_KEY=iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIg=',
+            )))
+        outputs = run_sharkd_session([json.dumps(x) for x in (
+            # The embedded secrets end with an ephemeral key without a PSK.
+            {"jsonrpc":"2.0", "id":1, "method":"load",
+            "params":{"file": capture_file('wireguard-ping-tcp-dsb.pcapng')}
+            },
+            {"jsonrpc":"2.0", "id":2, "method":"setconf",
+            "params":{"name": "wg.keylog_file", "value": keylog_file}
+            },
+            {"jsonrpc":"2.0", "id":3, "method":"load",
+            "params":{"file": capture_file('wireguard-psk.pcap')}
+            },
+            {"jsonrpc":"2.0", "id":4, "method":"frames",
+            "params":{"filter": "wg.handshake_ok == 1"}
+            },
+        )])
+        assert len(outputs) == 4
+        assert outputs[:3] == (
+            {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":2,"result":{"status":"OK"}},
+            {"jsonrpc":"2.0","id":3,"result":{"status":"OK"}},
+        )
+        assert outputs[3]['id'] == 4
+        assert [frame['num'] for frame in outputs[3]['result']] == [2, 4]
+
     def test_sharkd_req_dumpconf_bad(self, check_sharkd_session):
         check_sharkd_session((
             {"jsonrpc":"2.0", "id":1, "method":"dumpconf",
