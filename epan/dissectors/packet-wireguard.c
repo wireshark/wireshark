@@ -167,8 +167,8 @@ static FILE *wg_keylog_file;
  * file must have a PSK line after other keys. If not, then it is assumed that
  * the session does not use a PSK.
  *
- * This pointer is cleared when the key log file is reset (i.e. when the capture
- * file closes).
+ * This pointer is cleared when the key log is reset (including when the capture
+ * file closes), even when no key log file was opened.
  */
 static wg_ekey_t *wg_keylog_last_ekey;
 
@@ -628,8 +628,8 @@ wg_keylog_reset(void)
     if (wg_keylog_file) {
         fclose(wg_keylog_file);
         wg_keylog_file = NULL;
-        wg_keylog_last_ekey = NULL;
     }
+    wg_keylog_last_ekey = NULL;
 }
 
 static void wg_keylog_process_lines(const void *data, unsigned datalen);
