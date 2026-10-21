@@ -174,6 +174,32 @@ struct pcapng_option {
  */
 #define MAX_BLOCK_SIZE (MIN_EPB_SIZE + WTAP_MAX_PACKET_SIZE_DBUS + 131072)
 
+static uint32_t
+pcapng_max_block_size(uint32_t block_type)
+{
+    switch (block_type) {
+    case BLOCK_TYPE_SYSDIG_MI:
+    case BLOCK_TYPE_SYSDIG_PL_V1:
+    case BLOCK_TYPE_SYSDIG_FDL_V1:
+    case BLOCK_TYPE_SYSDIG_IL_V1:
+    case BLOCK_TYPE_SYSDIG_UL_V1:
+    case BLOCK_TYPE_SYSDIG_PL_V2:
+    case BLOCK_TYPE_SYSDIG_PL_V3:
+    case BLOCK_TYPE_SYSDIG_PL_V4:
+    case BLOCK_TYPE_SYSDIG_PL_V5:
+    case BLOCK_TYPE_SYSDIG_PL_V6:
+    case BLOCK_TYPE_SYSDIG_PL_V7:
+    case BLOCK_TYPE_SYSDIG_PL_V8:
+    case BLOCK_TYPE_SYSDIG_PL_V9:
+    case BLOCK_TYPE_SYSDIG_FDL_V2:
+    case BLOCK_TYPE_SYSDIG_IL_V2:
+    case BLOCK_TYPE_SYSDIG_UL_V2:
+        return MIN_BLOCK_SIZE + MAX_FALCO_META_BLOCK_SIZE;
+    default:
+        return MAX_BLOCK_SIZE;
+    }
+}
+
 /* Note: many of the defined structures for block data are defined in wtap.h */
 
 /* Packet data - used for both Enhanced Packet Block and the obsolete Packet Block data */
@@ -3186,6 +3212,7 @@ pcapng_read_block(wtap *wth, FILE_T fh,
     block_return_val ret;
     pcapng_block_header_t bh;
     uint32_t block_padded_length;
+    uint32_t max_block_size;
     uint32_t block_content_length;
 
     wblock->block = NULL;
@@ -3293,10 +3320,11 @@ pcapng_read_block(wtap *wth, FILE_T fh,
            any address space or memory+backing store for anything else.
 
            We do that by imposing a maximum block size of MAX_BLOCK_SIZE. */
-        if (block_padded_length < bh.block_total_length || block_padded_length > MAX_BLOCK_SIZE) {
+        max_block_size = pcapng_max_block_size(bh.block_type);
+        if (block_padded_length < bh.block_total_length || block_padded_length > max_block_size) {
             *err = WTAP_ERR_BAD_FILE;
             *err_info = ws_strdup_printf("pcapng: total block length %u is too large (> %u)",
-                                        bh.block_total_length, MAX_BLOCK_SIZE);
+                                        bh.block_total_length, max_block_size);
             return false;
         }
 

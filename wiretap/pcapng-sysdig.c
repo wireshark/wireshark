@@ -394,7 +394,8 @@ pcapng_read_meta_event_block(wtap* wth _U_, FILE_T fh, uint32_t block_type,
     mev_mand->mev_data_len = block_content_length;
 
     /* Sanity check: assume event data can't be larger than 1 GiB */
-    if (mev_mand->mev_data_len > 1024 * 1024 * 1024) {
+    if (mev_mand->mev_data_len > MAX_FALCO_META_BLOCK_SIZE)
+    {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("pcapng: Sysdig mev block is too large: %u", mev_mand->mev_data_len);
         return false;
