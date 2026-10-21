@@ -154,13 +154,6 @@ enable_el_extra_repos() {
 
 	echo "Detected RHEL-family distribution (${ID:-unknown} ${VERSION_ID:-}); enabling EPEL and CRB."
 
-	# EPEL provides asciidoctor and many optional packages.
-	if ! $PM -y install epel-release 2>/dev/null; then
-		echo "Could not install epel-release automatically." >&2
-		echo "If packages are missing, install it manually, e.g.:" >&2
-		echo "    $PM -y install epel-release" >&2
-	fi
-
 	# CRB (RHEL 9/10, Rocky 9/10, Alma 9/10) is called PowerTools on EL8.
 	# dnf config-manager is the preferred way to toggle it.
 	if type dnf >/dev/null 2>&1; then
@@ -175,6 +168,13 @@ enable_el_extra_repos() {
 		yum-config-manager --enable powertools 2>/dev/null ||
 		yum-config-manager --enable PowerTools 2>/dev/null ||
 		echo "Could not enable CRB/PowerTools automatically; some -devel packages may be missing." >&2
+	fi
+
+	# EPEL provides asciidoctor and many optional packages, and depends on CRB.
+	if ! $PM -y install epel-release 2>/dev/null; then
+		echo "Could not install epel-release automatically." >&2
+		echo "If packages are missing, install it manually, e.g.:" >&2
+		echo "    $PM -y install epel-release" >&2
 	fi
 
 	# The 'devel' repo (Rocky and CentOS Stream only; absent on RHEL and
