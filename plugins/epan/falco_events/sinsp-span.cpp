@@ -35,8 +35,10 @@
 //   we spend a lot of time hashing strings.
 // - Handle list fields.
 
+#ifndef SINSP_CHECK_VERSION
 #define SINSP_CHECK_VERSION(major, minor, micro) \
     (((SINSP_VERSION_MAJOR << 16) + (SINSP_VERSION_MINOR << 8) + SINSP_VERSION_MICRO) >= ((major << 16) + (minor << 8) + micro))
+#endif
 
 // epan/address.h and driver/ppm_events_public.h both define PT_NONE, so
 // handle libsinsp calls here.
@@ -148,7 +150,7 @@ std::set<std::string> g_fields_to_skip = {
 
 sinsp_span_t *create_sinsp_span()
 {
-    sinsp_span_t *span = new(sinsp_span_t);
+    sinsp_span_t *span = new sinsp_span_t();
     span->inspector.set_internal_events_mode(true);
     span->inspector.set_buffer_format(sinsp_evt::PF_EOLS_COMPACT);
 
@@ -721,6 +723,17 @@ static void ensure_cache_size(sinsp_span_t *sinsp_span, uint64_t evt_num)
     sinsp_span->sfe_infos.resize(evt_num);
 }
 
+// Append a single empty cache entry, for events that don't map to a displayable
+// frame (internal events, syscall enter events, scap-converter drops, etc.).
+// Each such event still corresponds to one input block / frame, so it must
+// consume exactly one cache slot to keep frame numbers aligned with the event
+// stream (libsinsp's event numbering does not necessarily match the frame
+// numbering, e.g. when the scap converter drops or merges events).
+static void append_empty_cache_entry(sinsp_span_t *sinsp_span)
+{
+    ensure_cache_size(sinsp_span, sinsp_span->sfe_ptrs.size() + 1);
+}
+
 void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
 {
     sinsp_span->sfe_slab = NULL;
@@ -751,8 +764,6 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath)
 
 static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, sinsp_evt *evt)
 {
-    uint64_t evt_num = evt->get_num();
-
     // libsinsp requires that events be processed in order so we cache our extracted
     // data during the first pass. We don't know how many fields we're going to extract
     // during an event, so we preallocate slabs of `sfe_slab_prealloc` entries.
@@ -785,17 +796,27 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
     // First check for internal events.
     // XXX We should skip this if "Show internal events" is enabled.
     auto sfc = ssi->syscall_event_filter_checks[ssi->evt_category_idx].get();
+#if SINSP_CHECK_VERSION(0, 26, 0)
+    if (!sfc->extract(evt, values) || values.size() < 1) {
+#else
     if (!sfc->extract(evt, values, false) || values.size() < 1) {
+#endif
+        append_empty_cache_entry(sinsp_span);
         return;
     }
     if (strcmp((const char *) values[0].ptr, "internal") == 0) {
+        append_empty_cache_entry(sinsp_span);
         return;
     }
 
     for (size_t fc_idx = 0; fc_idx < ssi->syscall_event_filter_checks.size(); fc_idx++) {
         sfc = ssi->syscall_event_filter_checks[fc_idx].get();
         values.clear();
+#if SINSP_CHECK_VERSION(0, 26, 0)
+        if (!sfc->extract(evt, values) || values.size() < 1) {
+#else
         if (!sfc->extract(evt, values, false) || values.size() < 1) {
+#endif
             continue;
         }
         auto ffi = ssi->syscall_filter_fields[fc_idx];
@@ -879,10 +900,17 @@ static void add_syscall_event_to_cache(sinsp_span_t *sinsp_span, sinsp_source_in
 
     sinsp_span->sfe_slab_offset += sfe_idx;
 
-    ensure_cache_size(sinsp_span, evt_num);
-    sinsp_span->sfe_ptrs[evt_num - 1] = sfe_block;
-    sinsp_span->sfe_lengths[evt_num - 1] = sfe_idx;
-    sinsp_span->sfe_infos[evt_num - 1] = evt->get_info();
+    // Cache this event in the next sequential slot. The cache is indexed by
+    // frame number, not by libsinsp's event number (evt->get_num()), because
+    // the two can diverge: libsinsp may consume more than one input block per
+    // emitted event (e.g. the scap converter merging syscall enter/exit pairs)
+    // so its event numbering lags the frame numbering. Each input block maps to
+    // exactly one frame and one cache slot, so we append in event order.
+    size_t cache_idx = sinsp_span->sfe_ptrs.size();
+    ensure_cache_size(sinsp_span, cache_idx + 1);
+    sinsp_span->sfe_ptrs[cache_idx] = sfe_block;
+    sinsp_span->sfe_lengths[cache_idx] = sfe_idx;
+    sinsp_span->sfe_infos[cache_idx] = evt->get_info();
 
     return;
 }
@@ -947,7 +975,15 @@ bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t
             int32_t res = sinsp_span->inspector.next(&evt);
             switch (res) {
             case SCAP_TIMEOUT:
+                // No event currently available; retry without consuming a slot.
+                break;
             case SCAP_FILTERED_EVENT:
+                // libsinsp read and consumed an event but is not reporting it to
+                // us (e.g. a syscall enter event kept only for state, or an event
+                // dropped by the scap converter). It still corresponds to one
+                // input block / frame, so record an empty slot to keep the cache
+                // aligned with the frame numbering.
+                append_empty_cache_entry(sinsp_span);
                 break;
             case SCAP_UNEXPECTED_BLOCK:
                 ws_debug("Filling unexpected block gap from %d to %u", (int) sinsp_span->sfe_ptrs.size(), frame_num);
