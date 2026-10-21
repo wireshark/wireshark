@@ -119,11 +119,11 @@ SIPCellularAccessInfo/accessInfo sipaccessinfo
 # as per clause 10.5.6.3 of 3GPP TS 24.008 [5], starting with octet 3.
 #
 
-#.FN_BODY PDNProtocolConfigurationOptions/requestPCO
+#.FN_HDR PDNProtocolConfigurationOptions/requestPCO
 
   actx->pinfo->link_dir = P2P_DIR_UL;
 
-#.FN_BODY PDNProtocolConfigurationOptions/requestAPCO
+#.FN_HDR PDNProtocolConfigurationOptions/requestAPCO
 
   actx->pinfo->link_dir = P2P_DIR_UL;
 
