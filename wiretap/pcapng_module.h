@@ -74,6 +74,13 @@ extern "C" {
 #define PEN_WIRESHARK                          32622
 #define WIRESHARK_CB_ENTRY_PROCESS_INFORMATION 3          /* Process Information Block body */
 
+/*
+ * Falco libs meta event blocks (process list, file descriptor list, etc.)
+ * can be very large, and a process list from a busy host can exceed
+ * MAX_BLOCK_SIZE. Allow up to 1 GiB for those block types.
+ */
+#define MAX_FALCO_META_BLOCK_SIZE (1024U * 1024U * 1024U)
+
 /* TODO: the following are not yet well defined in the draft spec,
  * and do not yet have block type values assigned to them:
  * Alternative Packet Blocks
