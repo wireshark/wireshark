@@ -60,7 +60,7 @@ static int hf_vcdu_bitream_all_data_anomaly;
 static int hf_vcdu_ccsds_continuation_packet;
 
 /* although technically not part of the vcdu header, the
- * first header pointer (for ccsds), and the last bit
+ * first header pointer (for CCSDS Space Packets), and the last bit
  * pointer (for bitstream), are more easily processed by
  * simply adding them to the tail end of the vcdu header
  * branch rather than creating a distinct branch for them
@@ -582,8 +582,8 @@ proto_register_vcdu(void)
       { &hf_vcdu_bitream_all_data, { "Bitream ALL Data", "vcdu.bitream.all_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_vcdu_bitream_all_data_anomaly, { "Bitream ALL Data (Anomaly)", "vcdu.bitream.all_data_anomaly", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_vcdu_bitream_all_fill, { "Bitream ALL Fill", "vcdu.bitream.all_fill", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_vcdu_ccsds_all_fill, { "Ccsds ALL Fill", "vcdu.ccsds.all_fill", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_vcdu_ccsds_continuation_packet, { "Ccsds Continuation Packet", "vcdu.ccsds_continuation_packet", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_vcdu_ccsds_all_fill, { "CCSDS Space Paclet ALL Fill", "vcdu.ccsds.all_fill", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_vcdu_ccsds_continuation_packet, { "CCSDS Space Packet Continuation Packet", "vcdu.ccsds_continuation_packet", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_vcdu_data, { "Data", "vcdu.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         /* not really part of the vcdu header, but it's easier this way */

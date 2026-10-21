@@ -1,5 +1,5 @@
 /* packet-ccsds.c
- * Routines for CCSDS dissection
+ * Routines for CCSDS Space Packet dissection
  * Copyright 2000, Scott Hovis scott.hovis@ums.msfc.nasa.gov
  * Enhanced 2008, Matt Dunkle Matthew.L.Dunkle@nasa.gov
  *
@@ -23,17 +23,31 @@ void proto_reg_handoff_ccsds(void);
 /*
  * See
  *
- *  https://public.ccsds.org/Pubs/133x0b1s.pdf section 4.1  -- CCSDS 133.0-B-1 replaces CCSDS 701.0-B-2
+ *  https://ccsds.org/Pubs/133x0b1s.pdf Space Packet Protocol section 4.1  -- CCSDS 133.0-B-1 replaces CCSDS 701.0-B-2
+ *  https://ccsds.org/Pubs/133x0b2e2.pdf Space Packet Protocol section 4.1 -- CCSDS 133.0-B-2, replaces CCSDS 133.0-B-1
  *  http://everyspec.com/NASA/NASA-JSC/NASA-SSP-PUBS/download.php?spec=SSP_52050E.003096.pdf section 3.1.3
  *
  * for some information.
+ *
+ * See
+ *
+ *  https://arc.aiaa.org/doi/pdf/10.2514/6.2002-T5-11
+ *
+ * for a discussion of a restructuring of the CCSDS protocol definitions
+ * that combined:
+ *
+ *   * the Source Packet from CCSDS 102.0 - https://ccsds.org/Pubs/102x0b5s.pdf;
+ *   * the CCSDS Packet from CCSDS 701.0 - https://ccsds.org/Pubs/701x0b3s.pdf;
+ *   * the TC Packet from CCSDS 203.0 - https://ccsds.org/Pubs/203x0b2s.pdf;
+ *
+ * all of which had the same format, into the Space Packet.
  */
 
 
 /* Initialize the protocol and registered fields */
 static int proto_ccsds;
 
-/* primary ccsds header */
+/* primary header */
 static int hf_ccsds_header_flags;
 static int hf_ccsds_apid;
 static int hf_ccsds_version;
@@ -43,19 +57,19 @@ static int hf_ccsds_seqnum;
 static int hf_ccsds_seqflag;
 static int hf_ccsds_length;
 
-/* common ccsds secondary header */
+/* common secondary header */
 static int hf_ccsds_coarse_time;
 static int hf_ccsds_fine_time;
 static int hf_ccsds_timeid;
 static int hf_ccsds_checkword_flag;
 
-/* payload specific ccsds secondary header */
+/* payload specific secondary header */
 static int hf_ccsds_zoe;
 static int hf_ccsds_packet_type_unused;
 static int hf_ccsds_vid;
 static int hf_ccsds_dcc;
 
-/* core specific ccsds secondary header */
+/* core specific secondary header */
 /* static int hf_ccsds_spare1; */
 static int hf_ccsds_packet_type;
 /* static int hf_ccsds_spare2; */
@@ -68,7 +82,7 @@ static int hf_ccsds_frame_id;
 static int hf_ccsds_embedded_time;
 static int hf_ccsds_user_data;
 
-/* ccsds checkword (checksum) */
+/* Checkword (checksum) */
 static int hf_ccsds_checkword;
 static int hf_ccsds_checkword_good;
 static int hf_ccsds_checkword_bad;
@@ -109,8 +123,6 @@ static int global_dissect_checkword = 2;
 /* some basic sizing parameters */
 enum
 {
-    IP_HEADER_LENGTH = 48,
-    VCDU_HEADER_LENGTH = 6,
     CCSDS_PRIMARY_HEADER_LENGTH = 6,
     CCSDS_SECONDARY_HEADER_LENGTH = 10
 };
@@ -252,7 +264,7 @@ static value_string_ext ccsds_secondary_header_format_id_ext = VALUE_STRING_EXT_
 
 
 
-/* convert ccsds embedded time to a human readable string - NOT THREAD SAFE */
+/* convert CCSDS embedded time to a human readable string - NOT THREAD SAFE */
 static const char* embedded_time_to_string ( wmem_allocator_t *pool, int coarse_time, int fine_time )
 {
     static int utcdiff    = 0;
@@ -283,7 +295,9 @@ static const char* embedded_time_to_string ( wmem_allocator_t *pool, int coarse_
 }
 
 
-/* Code to actually dissect the packets */
+/*
+ * Dissect CCSDS Space Packet.
+ */
 static int
 dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -316,8 +330,8 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         NULL
     };
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CCSDS");
-    col_set_str(pinfo->cinfo, COL_INFO, "CCSDS Packet");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CCSDS SP");
+    col_set_str(pinfo->cinfo, COL_INFO, "CCSDS Space Packet");
 
     first_word = tvb_get_ntohs(tvb, 0);
     col_add_fstr(pinfo->cinfo, COL_INFO, "APID %4d (0x%03X)", first_word&HDR_APID, first_word&HDR_APID);
@@ -340,9 +354,9 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     ccsds_packet = proto_tree_add_item(tree, proto_ccsds, tvb, 0, length, ENC_NA);
     ccsds_tree   = proto_item_add_subtree(ccsds_packet, ett_ccsds);
 
-            /* build the ccsds primary header tree */
+    /* build the primary header tree */
     primary_header_tree = proto_tree_add_subtree(ccsds_tree, tvb, offset, CCSDS_PRIMARY_HEADER_LENGTH,
-                            ett_ccsds_primary_header, &primary_header, "Primary CCSDS Header");
+                            ett_ccsds_primary_header, &primary_header, "Primary Header");
 
     proto_tree_add_bitmask(primary_header_tree, tvb, offset, hf_ccsds_header_flags,
                     ett_ccsds_primary_header_flags, header_flags, ENC_BIG_ENDIAN);
@@ -361,13 +375,75 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     offset += 2;
     proto_item_set_end(primary_header, tvb, offset);
 
-    /* build the ccsds secondary header tree */
+    /*
+     * Build the secondary header tree.
+     *
+     * 133.0 says this consists of:
+     *
+     *   a time code field that "shall consist of one of the CCSDS
+     *   segmented binary or unsegmented binary time codes specified
+     *   in reference [3].", reference [3] being "Time Code Formats
+     * . Issue 4. Recommendation for Space Data System Standards (Blue
+     *   Book), CCSDS 301.0-B-4. Washington, D.C.: CCSDS, November 2010";
+     *
+     * followed by an ancillary data field not specified by 133.0.
+     *
+     * 102.0 says this consists of:
+     *
+     *   "a PACKET SECONDARY HEADER DATA FIELD;
+     *    or a PACKET SECONDARY HEADER TIME CODE FIELD;
+     *    or a PACKET SECONDARY HEADER TIME CODE FIELD followed by a
+     *    PACKET SECONDARY HEADER DATA FIELD."
+     *
+     * where "a PACKET SECONDARY HEADER DATA FIELD" isn't defined by 102.0
+     * and "a PACKET SECONDARY HEADER TIME CODE FIELD" "shall consist of
+     * one of the CCSDS segmented binary or unsegmented binary time codes
+     * specified in Reference [3]", reference [3] being "Time Code Formats
+     * Recommendation for Space Data Systems Standards, CCSDS
+     * 301.0-B-2. Blue Book. Issue 2. Washington, D.C.: CCSDS, April 1990.
+     *
+     * 701.0 says this is "specified by the source end user" and gives,
+     * in Annex A, a secondary header for time stamping, which "shall
+     * consist of:
+     *
+     *    a Time Code Field only; or
+     *    an Ancillary Data Field only; or
+     *    a Time Code Field followed by an Ancillary Data Field"
+     *
+     * wbere "it is preferred that the Packet Secondary Header Time Code Field
+     * should contain one of the CCSDS segmented binary or unsegmented binary
+     * time codes specified in Reference [20]", where reference [20] is
+     * "'Time Code Formats', Recommendation for Space Data Systems Standards,
+     * CCSDS 301.0-B-2, Blue Book, Issue 2 (Washington, D.C.: CCSDS, April
+     * 1990 or later issue)."
+     *
+     * 203.0 says:
+     *
+     * "The purpose of the Secondary Header is to provide a means for
+     * encoding, within a TC Packet, any ancillary data (time, sending
+     * address, data field format, etc.) which may be necessary for the
+     * interpretation of the application data contained within the packet.
+     *
+     * If a Secondary Header is present, this shall be indicated by
+     * setting the Secondary Header Flag to value "1".  At present, the
+     * CCSDS has not developed recommendations for the internal format
+     * of the Secondary Header: therefore, local conventions may be used as
+     * required.  However, in order to permit future standardization of
+     * this data structure the most-significant bit (Bit 0) of the
+     * leading octet within the Secondary Header shall be reserved and
+     * assigned as follows whenever the Secondary Header Flag is set to
+     * value "1":
+     *
+     *              Bit 0 = "0" : non-CCSDS-defined Secondary Header follows
+     *              Bit 0 = "1" : CCSDS-defined Secondary Header follows"
+     *
+     */
     if ( first_word & HDR_SECHDR )
     {
         secondary_header_tree = proto_tree_add_subtree(ccsds_tree, tvb, offset, CCSDS_SECONDARY_HEADER_LENGTH,
-                        ett_ccsds_secondary_header, &secondary_header, "Secondary CCSDS Header");
+                        ett_ccsds_secondary_header, &secondary_header, "CCSDS Space Packet Secondary Header");
 
-        /* command ccsds secondary header flags */
+        /* command secondary header flags */
         proto_tree_add_item_ret_uint(secondary_header_tree, hf_ccsds_coarse_time, tvb, offset, 4, ENC_BIG_ENDIAN, &coarse_time);
         offset += 4;
 
@@ -396,7 +472,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               break;
         }
 
-        /* payload specific ccsds secondary header flags */
+        /* payload specific secondary header flags */
         if ( first_word & HDR_TYPE )
         {
             proto_tree_add_item(secondary_header_tree, hf_ccsds_zoe, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -410,7 +486,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             offset += 2;
         }
 
-        /* core specific ccsds secondary header flags */
+        /* core specific secondary header flags */
         else
         {
             /* proto_tree_add_item(secondary_header_tree, hf_ccsds_spare1, tvb, offset, 1, ENC_BIG_ENDIAN); */
@@ -431,25 +507,25 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             ++offset;
         }
 
-                    /* finish the ccsds secondary header */
+        /* finish the secondary header */
         proto_item_set_end(secondary_header, tvb, offset);
     }
 
     /* If there wasn't a full packet, then don't allow a tree item for checkword. */
     if (reported_length < ccsds_length || ccsds_length < CCSDS_PRIMARY_HEADER_LENGTH + CCSDS_SECONDARY_HEADER_LENGTH) {
-        /* Label CCSDS payload 'User Data' */
+        /* Label payload 'User Data' */
         if (length > offset)
             proto_tree_add_item(ccsds_tree, hf_ccsds_user_data, tvb, offset, length-offset, ENC_NA);
         offset += length-offset;
         if (checkword_flag == 1)
             expert_add_info(pinfo, checkword_item, &ei_ccsds_checkword);
     }
-    /*  Handle checkword according to CCSDS preference setting. */
+    /*  Handle checkword according to preference setting. */
     else {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
-        /* Look for a subdissector for the CCSDS payload */
+        /* Look for a subdissector for the payload */
         if (!dissector_try_uint(ccsds_dissector_table, first_word&HDR_APID, next_tvb, pinfo, tree)) {
-          /* If no subdissector is found, label the CCSDS payload as 'User Data' */
+          /* If no subdissector is found, label the payload as 'User Data' */
           proto_tree_add_item(ccsds_tree, hf_ccsds_user_data, tvb, offset, length-offset-2*checkword_flag, ENC_NA);
         }
         offset += length-offset-2*checkword_flag;
@@ -485,7 +561,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         }
     }
 
-    /* Give the data dissector any bytes past the CCSDS packet length */
+    /* Give the data dissector any bytes past the packet length */
     call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     return tvb_captured_length(tvb);
 }
@@ -496,7 +572,7 @@ proto_register_ccsds(void)
 {
     static hf_register_info hf[] = {
 
-            /* primary ccsds header flags */
+        /* primary header flags */
         { &hf_ccsds_header_flags,
             { "Header Flags",           "ccsds.header_flags",
             FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -539,7 +615,7 @@ proto_register_ccsds(void)
         },
 
 
-            /* common ccsds secondary header flags */
+        /* common secondary header flags */
         { &hf_ccsds_coarse_time,
             { "Coarse Time",           "ccsds.coarse_time",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -562,7 +638,7 @@ proto_register_ccsds(void)
         },
 
 
-            /* payload specific ccsds secondary header flags */
+        /* payload specific secondary header flags */
         { &hf_ccsds_zoe,
             { "ZOE TLM",           "ccsds.zoe",
             FT_UINT8, BASE_DEC, NULL, 0x10,
@@ -585,7 +661,7 @@ proto_register_ccsds(void)
         },
 
 
-            /* core specific ccsds secondary header flags */
+        /* core specific secondary header flags */
 #if 0
         { &hf_ccsds_spare1,
             { "Spare Bit 1",           "ccsds.spare1",
@@ -648,9 +724,9 @@ proto_register_ccsds(void)
             NULL, HFILL }
         },
         { &hf_ccsds_checkword,
-            { "CCSDS checkword",   "ccsds.checkword",
+            { "Checkword",   "ccsds.checkword",
             FT_UINT16, BASE_HEX, NULL, 0x0,
-            "CCSDS checkword: 16-bit running sum of all bytes excluding the checkword", HFILL }
+            "Checkword: 16-bit running sum of all bytes excluding the checkword", HFILL }
         },
         { &hf_ccsds_checkword_good,
             { "Good",              "ccsds.checkword_good",
@@ -678,12 +754,12 @@ proto_register_ccsds(void)
         { &ei_ccsds_checkword, { "ccsds.no_checkword", PI_PROTOCOL, PI_WARN, "Packet does not contain a Checkword", EXPFILL }},
     };
 
-    /* Define the CCSDS preferences module */
+    /* Define the preferences module */
     module_t *ccsds_module;
     expert_module_t* expert_ccsds;
 
     /* Register the protocol name and description */
-    proto_ccsds = proto_register_protocol("CCSDS", "CCSDS", "ccsds");
+    proto_ccsds = proto_register_protocol("CCSDS Space Packet", "CCSDS SP", "ccsds");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ccsds, hf, array_length(hf));
@@ -691,18 +767,18 @@ proto_register_ccsds(void)
     expert_ccsds = expert_register_protocol(proto_ccsds);
     expert_register_field_array(expert_ccsds, ei, array_length(ei));
 
-    ccsds_handle = register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
+    ccsds_handle = register_dissector("ccsds", dissect_ccsds, proto_ccsds);
 
     /* Register preferences module */
     ccsds_module = prefs_register_protocol(proto_ccsds, NULL);
 
     prefs_register_enum_preference(ccsds_module, "global_pref_checkword",
-        "How to handle the CCSDS checkword",
-        "Specify how the dissector should handle the CCSDS checkword",
+        "How to handle the CCSDS Checkword",
+        "Specify how the dissector should handle the Ccheckword",
         &global_dissect_checkword, dissect_checkword, false);
 
     /* Dissector table for sub-dissectors */
-    ccsds_dissector_table = register_dissector_table("ccsds.apid", "CCSDS apid", proto_ccsds, FT_UINT16, BASE_DEC);
+    ccsds_dissector_table = register_dissector_table("ccsds.apid", "CCSDS SP apid", proto_ccsds, FT_UINT16, BASE_DEC);
 }
 
 

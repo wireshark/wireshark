@@ -76,7 +76,8 @@ dissect_802_3(volatile int length, bool is_802_2, tvbuff_t *tvb,
       call_dissector(llc_handle, next_tvb, pinfo, tree);
     else {
       /* Check if first three bits of payload are 0x7.
-         If so, then payload is IPX.  If not, then it's CCSDS.
+         If so, then payload is IPX.  If not, then it's a CCSDS
+         Space Packet.
          Refer to packet-eth.c for setting of is_802_2 variable. */
       if (tvb_get_bits8(next_tvb, 0, 3) == 7)
         call_dissector(ipx_handle, next_tvb, pinfo, tree);

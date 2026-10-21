@@ -191,7 +191,7 @@ static int hf_ehs_dz_udsm_num_pkts_xmtd_rollover;
 
 static dissector_handle_t ehs_handle;
 
-/* handle to ccsds packet dissector */
+/* handle to CCSDS Space Packet dissector */
 static dissector_handle_t ccsds_handle;
 
 /* Initialize the subtree pointers */
@@ -240,7 +240,7 @@ enum
   EHS_SECONDARY_HEADER_SIZE     = 12
 };
 
-/* determine if a ccsds primary header indicates a secondary exists */
+/* determine if a CCSDS Space Packet primary header indicates a secondary exists */
 #define HDR_SECHDR   0x0800
 
 
@@ -367,7 +367,7 @@ static const value_string ehs_data_zone_aoslos_indicator[] =
 
 static const value_string ehs_data_zone_udsm_ccsds_vs_bpdu[] =
 {
-  { 0, "CCSDS" },
+  { 0, "CCSDS SP" },
   { 1, "BPDU" },
   { 0, NULL }
 };
@@ -508,7 +508,7 @@ aoslos_secondary_header_dissector ( proto_tree* ehs_secondary_header_tree, tvbuf
 }
 
 
-/* payload ccsds secondary header dissector */
+/* payload CCSDS Space Packet secondary header dissector */
 static void
 payload_ccsds_secondary_header_dissector ( proto_tree* ehs_secondary_header_tree, tvbuff_t* tvb, int* offset )
 {
@@ -525,7 +525,7 @@ payload_ccsds_secondary_header_dissector ( proto_tree* ehs_secondary_header_tree
 }
 
 
-/* core ccsds secondary header dissector */
+/* core CCSDS Space Packet secondary header dissector */
 static void
 core_ccsds_secondary_header_dissector ( proto_tree* ehs_secondary_header_tree, tvbuff_t* tvb, int* offset )
 {
@@ -1158,7 +1158,7 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
    */
   ehs_secondary_header_dissector ( protocol, ehs_secondary_header_tree, tvb, &offset );
 
-  /* for ccsds protocol types pass the remaining packet off to the ccsds packet dissector */
+  /* for CCSDS Space Packet protocol types pass the remaining packet off to the CCSDS Space Packet dissector */
   switch ( protocol )
   {
   case EHS_PROTOCOL__TDM_TELEMETRY:
@@ -1784,7 +1784,7 @@ proto_register_ehs(void)
 
       /* udsm protocol data zone */
       { &hf_ehs_dz_udsm_ccsds_vs_bpdu,
-        { "CCSDS vs BPDU", "ehs.dz.udsm_ccsds_vs_bpdu",
+        { "CCSDS Space Packet vs BPDU", "ehs.dz.udsm_ccsds_vs_bpdu",
           FT_UINT8, BASE_DEC, VALS(ehs_data_zone_udsm_ccsds_vs_bpdu), 0x80,
           NULL, HFILL }
       },

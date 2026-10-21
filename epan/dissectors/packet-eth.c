@@ -56,7 +56,7 @@ static bool eth_check_fcs;
 static bool eth_interpret_as_fw1_monitor;
 /* When capturing on a Cisco FEX some frames start with an extra destination mac */
 static bool eth_deduplicate_dmac;
-/* Preference settings defining conditions for which the CCSDS dissector is called */
+/* Preference settings defining conditions for which the CCSDS Space Packet dissector is called */
 static bool ccsds_heuristic_length;
 static bool ccsds_heuristic_version;
 static bool ccsds_heuristic_header;
@@ -679,8 +679,8 @@ static bool check_is_802_2(tvbuff_t *tvb, int fcs_len)
     if (tvb_get_ntohs(tvb, 14) == 0xffff) {
         is_802_2 = false;
     }
-    /* Is this a CCSDS payload instead of an 802.2 (LLC)?
-       Check the conditions enabled by the user for CCSDS presence */
+    /* Is this a CCSDS Space Packrt payload instead of an 802.2 (LLC)?
+       Check the conditions enabled by the user for Space Packet recognition */
     else if (ccsds_heuristic_length || ccsds_heuristic_version ||
              ccsds_heuristic_header || ccsds_heuristic_bit) {
       bool CCSDS_len = true;
@@ -715,7 +715,7 @@ static bool check_is_802_2(tvbuff_t *tvb, int fcs_len)
             CCSDS_len = false;
         }
       }
-      /* Check if CCSDS Version number (first 3 bits of payload) is zero */
+      /* Check if Space Packet Version number (first 3 bits of payload) is zero */
       if ((ccsds_heuristic_version) && (tvb_get_bits8(tvb, 8*ETH_HEADER_SIZE, 3)!=0))
         CCSDS_ver = false;
       /* Check if Secondary Header Flag (4th bit of payload) is set to one. */
@@ -1254,29 +1254,29 @@ proto_register_eth(void)
                                  &eth_deduplicate_dmac);
 
   prefs_register_static_text_preference(eth_module, "ccsds_heuristic",
-                                        "Dissect as CCSDS if",
+                                        "Dissect as CCSDS Space Packrt if",
                                         "These are the conditions to match a payload against in order to determine if this\n"
-                                        "is a CCSDS (Consultative Committee for Space Data Systems) packet within\n"
+                                        "is a CCSDS (Consultative Committee for Space Data Systems) Space Packet within\n"
                                         "an 802.3 packet. A packet is considered as a possible CCSDS packet only if\n"
                                         "one or more of the conditions are checked.");
 
   prefs_register_bool_preference(eth_module, "ccsds_heuristic_length",
-                                 "CCSDS Length in header matches payload size",
+                                 "CCSDS Space Packet Length in header matches payload size",
                                  "Set the condition that must be true for the CCSDS dissector to be called",
                                  &ccsds_heuristic_length);
 
   prefs_register_bool_preference(eth_module, "ccsds_heuristic_version",
-                                 "CCSDS Version # is zero",
+                                 "CCSDS Space Packet Version # is zero",
                                  "Set the condition that must be true for the CCSDS dissector to be called",
                                  &ccsds_heuristic_version);
 
   prefs_register_bool_preference(eth_module, "ccsds_heuristic_header",
-                                 "CCSDS Secondary Header Flag is set",
+                                 "CCSDS Space Packet Secondary Header Flag is set",
                                  "Set the condition that must be true for the CCSDS dissector to be called",
                                  &ccsds_heuristic_header);
 
   prefs_register_bool_preference(eth_module, "ccsds_heuristic_bit",
-                                 "CCSDS Spare bit is cleared",
+                                 "CCSDS Space Packet Spare bit is cleared",
                                  "Set the condition that must be true for the CCSDS dissector to be called",
                                  &ccsds_heuristic_bit);
 
