@@ -3191,6 +3191,7 @@ void StratosharkMainWindow::connectHelpMenuActions()
     connect(main_ui_->actionHelpMPTShark, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_TSHARK); });
     connect(main_ui_->actionHelpWebsite, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_STRATOSHARK_HOME); });
     connect(main_ui_->actionHelpFAQ, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_FAQ); });
+    connect(main_ui_->actionHelpDiscord, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_DISCORD); });
     connect(main_ui_->actionHelpAsk, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_ASK); });
     connect(main_ui_->actionHelpDownloads, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_STRATOSHARK_DOWNLOAD); });
     connect(main_ui_->actionHelpWiki, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_STRATOSHARK_WIKI); });

@@ -207,6 +207,8 @@ The following features are either new or have been significantly updated since v
 * The Windows and macOS installers now ship with Qt 6.11.1.
   They previously shipped with Qt 6.9.3.
 
+* The Help menu has a new menu:Help[Discord] entry, which opens the invitation to the Wireshark Discord server.
+
 // XXX This should just describe what changed.
 // * The capture and display filter fields have a refreshed, consistent look and
 //   feel. As you type, the field colors itself to show at a glance whether the

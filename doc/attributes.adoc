@@ -36,6 +36,7 @@ endif::[]
 :wireshark-main-url: https://www.wireshark.org/
 :wireshark-gitlab-project-url: https://gitlab.com/wireshark/wireshark
 :wireshark-qa-url: https://ask.wireshark.org/
+:wireshark-discord-url: https://discord.gg/fT2jvkawGj
 :wireshark-foundation-url: https://wiresharkfoundation.org/
 :sharkfest-url: https://sharkfest.wireshark.org/
 :wireshark-wiki-url: https://wiki.wireshark.org/

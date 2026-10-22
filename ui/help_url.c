@@ -90,6 +90,9 @@ topic_action_url(topic_action_e action)
     case(ONLINEPAGE_ASK):
         url = g_strdup(WS_Q_AND_A_URL);
         break;
+    case(ONLINEPAGE_DISCORD):
+        url = g_strdup(WS_DISCORD_URL);
+        break;
     case(ONLINEPAGE_SAMPLE_FILES):
         url = g_strdup(WS_WIKI_URL("SampleCaptures"));
         break;
