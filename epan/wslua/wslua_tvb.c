@@ -814,6 +814,10 @@ WSLUA_METHOD TvbRange_le_float(lua_State* L) {
        The range must be 4 or 8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     switch (tvbr->len) {
         case 4:
@@ -1713,6 +1717,11 @@ WSLUA_METAMETHOD TvbRange__eq(lua_State* L) {
     /* Checks whether the contents of two <<lua_class_TvbRange,`TvbRange`>>s are equal. */
     TvbRange tvb_l = checkTvbRange(L,1);
     TvbRange tvb_r = checkTvbRange(L,2);
+
+    if (tvb_l->tvb->expired || tvb_r->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     /* it is not an error if their ds_tvb are different... they're just not equal */
     if (tvb_l->len == tvb_r->len &&
