@@ -784,6 +784,10 @@ You can launch it directly from the Statistics menu, then you can type a filter 
 a right-click on some field found in the packet details tree, which will display the results for the
 given clicked field.
 
+Once the dialog is opened, you can edit the input filter and ask for a joint distribution by using the "," (comma)
+character as the separator up to 4 fields.
+For example: ip.ttl,ip.src will show all of the TTLs for each IP seen in the capture.
+
 .The “Distribution” window
 image::images/ws-stats-distribution.png[{screenshot-attrs}]
 

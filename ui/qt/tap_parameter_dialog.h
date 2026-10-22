@@ -32,6 +32,8 @@ class QTreeWidget;
 class QTreeWidgetItem;
 class QVBoxLayout;
 
+class DisplayFilterEdit;
+
 namespace Ui {
 class TapParameterDialog;
 }
@@ -182,6 +184,12 @@ protected:
      * @return Current display filter expression, or an empty string if none is set.
      */
     QString displayFilter();
+
+    /**
+     * @brief Returns the current display filter object.
+     * @return Current display filter widget.
+     */
+    DisplayFilterEdit *filterEdit() const;
 
     /**
      * @brief Sets the display filter line edit to the given expression.

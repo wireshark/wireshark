@@ -12,6 +12,23 @@
 
 #include "tap_parameter_dialog.h"
 
+#include <ui/qt/widgets/syntax_line_edit.h>
+
+/*
+ * Defines a Variable for building any distribution
+ */
+struct Variable {
+
+    /* hf abbrev of this variable */
+    QString name;
+
+    /* type as returned by hfi_supports_distribution() */
+    int     type;
+
+    /* All hf indices for this hf */
+    QList<int> hf_indices;
+};
+
 /**
  * @brief Dialog for displaying distribution statistics,
  *        with an occurence count, percentages, and an Entropy indicator.
@@ -47,15 +64,24 @@ protected:
      */
     void updateWidgets() override;
 
+
 private:
-    int               packet_count_;       /**< Total number of packets processed by the tap. */
+    int               packet_count_;       /**< Total number of packets processed by the tap (matching the filter). */
+    int               observations_;       /**< Total number of observations for a distribution ( >= packet_count_ ). */
     QString           displayFilter_;      /**< Display filter string applied when the dialog was opened. */
     bool              tap_registered_;     /**< true if a tap listener is currently registered. */
     int               hf_index_;
     bool              needsQuotes_;
     int               field_type_;
     wmem_allocator_t  *allocator;
-    wmem_map_t        *fvalues_map;
+    wmem_map_t        *fvalues_map_;
+
+    bool retap_running_ = false;
+
+    /* variables and String for managing the input filter */
+    QList<Variable> pending_variables_;
+    QString         pending_text_;
+    QList<Variable> variables_;
 
     /**
      * @brief Tap callback invoked when the tap is reset (e.g. on retap); clears
@@ -91,11 +117,6 @@ private:
     static void tapRemoveAll(void *ws_dlg_ptr);
 
     /**
-     * @brief Create an item.
-     */
-    static void createItem(void*, void*, void*);
-
-    /**
      * @brief Insert a key in the distribution map.
      */
     static void insertOccurence(void*, void*, void*);
@@ -124,6 +145,21 @@ private:
      */
     QList<QVariant> treeItemData(QTreeWidgetItem *it) const override;
 
+    /**
+     * @brief Parses text and returns true if it can be splitted in valid tokens.
+     * @param text       The text to be parsed and splitted
+     * @param variables  A list of tokens to be returned
+     * @return boolean (true if it can be splitted, false otherwise)
+     */
+    bool parseFields(const QString &text, QList<Variable> &variables) const;
+
+    /**
+     * @brief Checks the input text syntax and returns its state
+     * @param text         The text to be checked
+     * @return State value (Empty/Valid/Invalid)
+     */
+    SyntaxLineEdit::SyntaxState checkInput(const QString &text);
+
 private slots:
     /**
      * @brief Clears and rebuilds the entire network/station tree from accumulated
@@ -142,6 +178,12 @@ private slots:
      * @param filter The new display filter string.
      */
     void filterUpdated(QString filter);
+
+    /**
+     * @brief Runs some logic when the display filter is changed.
+     * @param filter The new display filter string.
+     */
+    void onFilterTextChanged(const QString &filter);
 };
 
 #endif // DISTRIBUTIONDIALOG_H
