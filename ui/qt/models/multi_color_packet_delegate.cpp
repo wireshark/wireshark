@@ -139,46 +139,41 @@ MultiColorPacketDelegate::MultiColorPacketDelegate(QWidget *parent)
 {
 }
 
-void MultiColorPacketDelegate::paint(QPainter *painter,
-                                     const QStyleOptionViewItem &option,
-                                     const QModelIndex &index) const
+bool MultiColorPacketDelegate::paintMultiColorBackground(QPainter *painter,
+                                                         const QStyleOptionViewItem &option,
+                                                         const QModelIndex &index,
+                                                         QColor *fg_out) const
 {
     PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
     if (!record) {
-        QStyledItemDelegate::paint(painter, option, index);
-        return;
+        return false;
     }
 
     const frame_data *fdata = record->frameData();
     if (!fdata) {
-        QStyledItemDelegate::paint(painter, option, index);
-        return;
+        return false;
     }
 
     // Check if colorization is enabled (respects "Draw packets using coloring rules" button)
     if (!recent.packet_list_colorize) {
-        QStyledItemDelegate::paint(painter, option, index);
-        return;
+        return false;
     }
 
     // Check if multi-color row painting is active (skip Off and Scrollbar Only modes)
     if (prefs.gui_packet_list_multi_color_mode == PACKET_LIST_MULTI_COLOR_MODE_OFF ||
         prefs.gui_packet_list_multi_color_mode == PACKET_LIST_MULTI_COLOR_MODE_SCROLLBAR_ONLY ||
         !record->hasMultipleColors()) {
-        QStyledItemDelegate::paint(painter, option, index);
-        return;
+        return false;
     }
 
     // Handle priority: ignored > marked > colored
     if (fdata->ignored || fdata->marked) {
-        QStyledItemDelegate::paint(painter, option, index);
-        return;
+        return false;
     }
 
     // If selected or hovered, use default rendering to show feedback
     if (option.state & (QStyle::State_Selected | QStyle::State_MouseOver)) {
-        QStyledItemDelegate::paint(painter, option, index);
-        return;
+        return false;
     }
 
     // Colors of the matching rules; the first is the primary rule. A
@@ -186,8 +181,7 @@ void MultiColorPacketDelegate::paint(QPainter *painter,
     const QList<ColoringRuleColors> colors =
         index.data(PacketListModel::COLORING_RULE_COLORS).value<QList<ColoringRuleColors>>();
     if (colors.size() < 2) {
-        QStyledItemDelegate::paint(painter, option, index);
-        return;
+        return false;
     }
 
     QList<QColor> bg_colors;
@@ -226,6 +220,23 @@ void MultiColorPacketDelegate::paint(QPainter *painter,
         primary_fg = calculateForeground(bg_colors);
     }
 
+    painter->restore();
+
+    if (fg_out)
+        *fg_out = primary_fg;
+    return true;
+}
+
+void MultiColorPacketDelegate::paint(QPainter *painter,
+                                     const QStyleOptionViewItem &option,
+                                     const QModelIndex &index) const
+{
+    QColor primary_fg;
+    if (!paintMultiColorBackground(painter, option, index, &primary_fg)) {
+        QStyledItemDelegate::paint(painter, option, index);
+        return;
+    }
+
     // Now draw the text properly using Qt's rendering
     QStyleOptionViewItem text_option = option;
     initStyleOption(&text_option, index);
@@ -242,8 +253,6 @@ void MultiColorPacketDelegate::paint(QPainter *painter,
 
     // Use the widget style to draw the item content (text, icons) without background
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &text_option, painter, nullptr);
-
-    painter->restore();
 }
 
 void MultiColorPacketDelegate::drawStripedBackground(QPainter *painter,

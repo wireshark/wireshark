@@ -1877,6 +1877,7 @@ void PacketList::setColumnDelegate()
     }
 
     // Tag column delegate is installed on every COL_TAG column regardless of other delegates
+    tag_column_delegate_.setMultiColorDelegate(&multi_color_delegate_);
     for (unsigned i = 0; i < prefs.num_cols; i++) {
         if (get_column_format(i) == COL_TAG) {
             setItemDelegateForColumn(i, &tag_column_delegate_);

@@ -11,6 +11,7 @@
  */
 
 #include "tag_column_delegate.h"
+#include "multi_color_packet_delegate.h"
 #include "packet_list_record.h"
 
 #include <epan/tag_rules.h>
@@ -135,12 +136,22 @@ static QList<TagSeg> segmentsFromIndex(const QModelIndex &index)
 
 TagColumnDelegate::TagColumnDelegate(QWidget *parent)
     : QStyledItemDelegate(parent)
+    , multi_color_delegate_(nullptr)
 {
 }
 
 void TagColumnDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
+    // Rows with several matching coloring rules get this cell's slice of the
+    // row-wide multi-color pattern rather than the model's single
+    // BackgroundRole color.
+    if (multi_color_delegate_ &&
+        multi_color_delegate_->paintMultiColorBackground(painter, option, index)) {
+        paintContent(painter, option, index);
+        return;
+    }
+
     QStyleOptionViewItem bg_option = option;
     initStyleOption(&bg_option, index);
     bg_option.text.clear();

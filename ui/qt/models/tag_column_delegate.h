@@ -18,6 +18,7 @@
 #include <QStyledItemDelegate>
 
 class QPainter;
+class MultiColorPacketDelegate;
 
 class TagColumnDelegate : public QStyledItemDelegate
 {
@@ -34,12 +35,17 @@ public:
      * by this delegate's own background fill (which paint() does via
      * initStyleOption(), re-fetching Qt::BackgroundRole from the model).
      */
+    void setMultiColorDelegate(const MultiColorPacketDelegate *delegate) { multi_color_delegate_ = delegate; }
+
     void paintContent(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 protected:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
+
+private:
+    const MultiColorPacketDelegate *multi_color_delegate_;
 };
 
 #endif // TAG_COLUMN_DELEGATE_H
