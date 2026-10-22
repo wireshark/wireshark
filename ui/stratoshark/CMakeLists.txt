@@ -111,7 +111,6 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update_backend.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/stock_icon.h
-	${CMAKE_SOURCE_DIR}/ui/qt/utils/tango_colors.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_manager.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_styler.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/color_math.h
