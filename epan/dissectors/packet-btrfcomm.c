@@ -837,7 +837,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         rfcomm_data->adapter_id         = l2cap_data->adapter_id;
         rfcomm_data->chandle            = l2cap_data->chandle;
         rfcomm_data->cid                = l2cap_data->cid;
-        rfcomm_data->is_local_psm       = l2cap_data->is_local_psm;
+        rfcomm_data->is_local_psm       = (dlci & 0x01) ? !l2cap_data->is_local_psm : l2cap_data->is_local_psm;
         rfcomm_data->dlci               = dlci;
         rfcomm_data->remote_bd_addr_oui = l2cap_data->remote_bd_addr_oui;
         rfcomm_data->remote_bd_addr_id  = l2cap_data->remote_bd_addr_id;
