@@ -24,18 +24,13 @@
 #include "app/application_flavor.h"
 
 #include "epan/addr_resolv.h"
-#include "epan/column-utils.h"
-#include "epan/disabled_protos.h"
-#include "epan/ftypes/ftypes.h"
 #include "epan/prefs.h"
 #include "epan/proto.h"
 #include "epan/tap.h"
 #include "epan/timestamp.h"
-#include "epan/decode_as.h"
 #include "epan/dfilter/dfilter-macro.h"
 
 #include "ui/commandline.h"
-#include "ui/decode_as_utils.h"
 #include "ui/preference_utils.h"
 #include "ui/language.h"
 #include "ui/recent.h"
@@ -46,7 +41,6 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/software_update.h>
 #include <ui/qt/utils/theme_manager.h>
-#include "coloring_rules_dialog.h"
 
 #include "epan/color_filters.h"
 #include "epan/tag_rules.h"
@@ -56,14 +50,8 @@
 #include <capture/iface_monitor.h>
 #endif
 
-#include "wsutil/filter_files.h"
 #include "ui/capture_globals.h"
-#include "ui/file_dialog.h"
 #include "ui/recent_utils.h"
-
-#ifdef HAVE_LIBPCAP
-#include "ui/capture.h"
-#endif
 
 #include "wsutil/utf8_entities.h"
 
