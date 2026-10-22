@@ -3181,8 +3181,11 @@ prefs_register_modules(void)
      * Any changes are signaled in other ways, so PREF_EFFECT_GUI doesn't
      * explicitly do anything, but wslua_set_preference expects *some*
      * effect flag to be set if the preference was changed.
-     * We have to do this again for all the submodules (except for the
-     * layout submodule, which has its own effect flag).
+     * We have to do this again for all the submodules, which don't inherit
+     * the flags from their parent. The layout submodule and color submodule
+     * have their own effect flags, though note that not all preferences in
+     * those submodules need the specific flag; some are just grouped in the
+     * submodule to present to the user in the same dialog page as the others.
      */
     unsigned gui_effect_flags = prefs_get_module_effect_flags(gui_module);
     gui_effect_flags |= PREF_EFFECT_GUI;
@@ -3479,10 +3482,12 @@ prefs_register_modules(void)
 
     /* User Interface : Layout */
     gui_layout_module = prefs_register_subtree(gui_module, prefs_modules, "Layout", "Layout", gui_layout_callback);
+    /* Most of the preferences in Layout aren't actually "Layout" preferences,
+     * from the point of view of triggering a re-layout of the splitter, etc.
+     * So most get the default GUI effect flags. */
+    prefs_set_module_effect_flags(gui_layout_module, gui_effect_flags);
     /* Adjust the preference effects of layout GUI for better handling of preferences at Wireshark (GUI) level */
-    layout_gui_flags = prefs_get_module_effect_flags(gui_layout_module);
-    layout_gui_flags |= PREF_EFFECT_GUI_LAYOUT;
-    layout_gui_flags &= (~PREF_EFFECT_DISSECTION);
+    layout_gui_flags = gui_effect_flags | PREF_EFFECT_GUI_LAYOUT;
 
     prefs_register_uint_preference(gui_layout_module, "layout_type",
                                    "Layout type",
