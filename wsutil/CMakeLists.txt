@@ -444,9 +444,15 @@ target_link_libraries(wsutil
 )
 
 target_include_directories(wsutil SYSTEM
-	PRIVATE
+	# Installed public headers include <glib.h> (via wireshark.h) and
+	# <gcrypt.h> (via wsutil/wsgcrypt.h) unconditionally. These must stay
+	# PUBLIC so that targets importing the exported CMake package, such as
+	# out-of-tree plugins linking epan, receive them; the top-level
+	# include_directories() only applies inside this source tree.
+	PUBLIC
 		${GLIB2_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
+	PRIVATE
 		${GNUTLS_INCLUDE_DIRS}
 		${GMODULE2_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
@@ -506,9 +512,10 @@ target_link_libraries(wsutil_static
 )
 
 target_include_directories(wsutil_static SYSTEM
-	PRIVATE
+	PUBLIC
 		${GLIB2_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
+	PRIVATE
 		${GNUTLS_INCLUDE_DIRS}
 		${GMODULE2_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
