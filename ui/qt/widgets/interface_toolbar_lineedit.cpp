@@ -10,12 +10,12 @@
 #include "config.h"
 
 #include <ui/qt/widgets/interface_toolbar_lineedit.h>
-#include <ui/qt/widgets/stock_icon_tool_button.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 
 #include <QStyle>
+#include <QToolButton>
 
 InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString validation_regex, bool is_required) :
     QLineEdit(parent),
@@ -23,7 +23,7 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
     is_required_(is_required),
     text_edited_(false)
 {
-    apply_button_ = new StockIconToolButton(this);
+    apply_button_ = new QToolButton(this);
     apply_button_->setIcon(ContrastAdaptIcon("filter-apply"));
     apply_button_->setCursor(Qt::ArrowCursor);
     apply_button_->setEnabled(false);
@@ -35,7 +35,7 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
     connect(this, &InterfaceToolbarLineEdit::textChanged, this, &InterfaceToolbarLineEdit::validateText);
     connect(this, &InterfaceToolbarLineEdit::textEdited, this, &InterfaceToolbarLineEdit::validateEditedText);
     connect(this, &InterfaceToolbarLineEdit::returnPressed, this, &InterfaceToolbarLineEdit::applyEditedText);
-    connect(apply_button_, &StockIconToolButton::clicked, this, &InterfaceToolbarLineEdit::applyEditedText);
+    connect(apply_button_, &QToolButton::clicked, this, &InterfaceToolbarLineEdit::applyEditedText);
     connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
         updateStyleSheet(isValid());
     });

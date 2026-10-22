@@ -19,7 +19,6 @@
 #include <QBoxLayout>
 #include <QPropertyAnimation>
 
-#include <ui/qt/widgets/stock_icon_tool_button.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include "main_application.h"
 

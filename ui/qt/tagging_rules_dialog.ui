@@ -162,7 +162,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1,0">
      <item>
-      <widget class="StockIconToolButton" name="newToolButton">
+      <widget class="QToolButton" name="newToolButton">
        <property name="toolTip">
         <string>Add a new tagging rule.</string>
        </property>
@@ -172,7 +172,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="deleteToolButton">
+      <widget class="QToolButton" name="deleteToolButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -185,7 +185,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="copyToolButton">
+      <widget class="QToolButton" name="copyToolButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -195,7 +195,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="clearToolButton">
+      <widget class="QToolButton" name="clearToolButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -260,11 +260,6 @@
    <class>TabnavTreeView</class>
    <extends>QTreeView</extends>
    <header>widgets/tabnav_tree_view.h</header>
-  </customwidget>
-  <customwidget>
-   <class>StockIconToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets/stock_icon_tool_button.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

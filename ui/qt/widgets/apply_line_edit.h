@@ -12,8 +12,7 @@
 
 #include <QLineEdit>
 #include <QString>
-
-#include <ui/qt/widgets/stock_icon_tool_button.h>
+#include <QToolButton>
 
 /**
  * @brief A QLineEdit with an embedded apply button and optional regex validation.
@@ -80,7 +79,7 @@ protected:
 private:
     QString regex_;              /**< Validation regex pattern; empty means no pattern check. */
     bool emptyAllowed_;          /**< Whether empty text is considered valid. */
-    StockIconToolButton *apply_button_; /**< Inline apply button rendered inside the line edit. */
+    QToolButton *apply_button_; /**< Inline apply button rendered inside the line edit. */
 
     /**
      * @brief Test whether @p text passes the current validation rules.

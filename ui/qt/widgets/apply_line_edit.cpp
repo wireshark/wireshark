@@ -23,7 +23,7 @@ ApplyLineEdit::ApplyLineEdit(QString linePlaceholderText, QWidget * parent)
     emptyAllowed_ = false;
     regex_ = QString();
 
-    apply_button_ = new StockIconToolButton(parent);
+    apply_button_ = new QToolButton(parent);
     apply_button_->setIcon(ContrastAdaptIcon("filter-apply"));
     apply_button_->setCursor(Qt::ArrowCursor);
     apply_button_->setEnabled(false);
@@ -49,7 +49,7 @@ ApplyLineEdit::ApplyLineEdit(QString linePlaceholderText, QWidget * parent)
     connect(this, &ApplyLineEdit::textChanged, this, &ApplyLineEdit::onTextChanged);
 
     connect(this, &ApplyLineEdit::returnPressed, this, &ApplyLineEdit::onSubmitContent);
-    connect(apply_button_, &StockIconToolButton::clicked, this, &ApplyLineEdit::onSubmitContent);
+    connect(apply_button_, &QToolButton::clicked, this, &ApplyLineEdit::onSubmitContent);
 
     handleValidation(QString(linePlaceholderText));
 

@@ -13,7 +13,7 @@
 #include <QLineEdit>
 #include <QRegularExpression>
 
-class StockIconToolButton;
+class QToolButton;
 
 /**
  * @brief A custom line edit for interface toolbars, featuring regex validation and an integrated apply button.
@@ -84,7 +84,7 @@ private:
     void updateApplyButtonGeometry();
 
     /** Pointer to the embedded apply button. */
-    StockIconToolButton *apply_button_;
+    QToolButton *apply_button_;
 
     /** The regular expression used for validating input text. */
     QRegularExpression regex_expr_;

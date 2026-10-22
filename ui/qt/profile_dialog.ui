@@ -56,7 +56,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,0,0">
      <item>
-      <widget class="StockIconToolButton" name="newToolButton">
+      <widget class="QToolButton" name="newToolButton">
        <property name="toolTip">
         <string>Create a new profile using default settings.</string>
        </property>
@@ -70,7 +70,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="deleteToolButton">
+      <widget class="QToolButton" name="deleteToolButton">
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be reset upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
@@ -81,7 +81,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="copyToolButton">
+      <widget class="QToolButton" name="copyToolButton">
        <property name="toolTip">
         <string>Copy this profile.</string>
        </property>
@@ -177,11 +177,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>StockIconToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets/stock_icon_tool_button.h</header>
-  </customwidget>
   <customwidget>
    <class>ProfileTreeView</class>
    <extends>QTreeView</extends>

@@ -65,7 +65,6 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/resolved_addresses_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/rowmove_tree_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/splash_overlay.h
-	${CMAKE_SOURCE_DIR}/ui/qt/widgets/stock_icon_tool_button.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/syntax_line_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/tabnav_tree_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/theme_preview_widget.h
@@ -386,7 +385,6 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/resolved_addresses_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/rowmove_tree_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/splash_overlay.cpp
-	${CMAKE_SOURCE_DIR}/ui/qt/widgets/stock_icon_tool_button.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/syntax_line_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/tabnav_tree_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/theme_preview_widget.cpp

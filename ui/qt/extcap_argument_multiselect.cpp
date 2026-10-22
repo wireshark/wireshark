@@ -20,8 +20,9 @@
 #include <QMenu>
 #include <QHeaderView>
 #include <QInputDialog>
+#include <QToolButton>
 
-#include <ui/qt/widgets/stock_icon_tool_button.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/theme_manager.h>
 
 #include <extcap.h>
@@ -396,11 +397,12 @@ void ExtArgTable::addChecked(QStringList checked, QStringList options)
             tableViewModel->appendRow({ item, btnItem });
 
             // Add button
-            StockIconToolButton* settingsButton = new StockIconToolButton(tableView, "capture-options");
+            QToolButton* settingsButton = new QToolButton(tableView);
+            settingsButton->setIcon(ThemedIcon("capture-options"));
             settingsButton->setFixedWidth(30);
             tableView->setIndexWidget(tableViewModel->indexFromItem(btnItem), settingsButton);
 
-            connect(settingsButton, &StockIconToolButton::clicked, this, [=]() {
+            connect(settingsButton, &QToolButton::clicked, this, [=]() {
                 QString optionValue = checked[i];
                 this->showExtcapOptionsDialogForOptionValue(item, optionValue);
             });

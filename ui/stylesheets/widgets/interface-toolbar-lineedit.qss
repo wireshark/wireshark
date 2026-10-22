@@ -10,7 +10,7 @@
  *     to the platform style instead of the theme.)
  *     The padding matches the line edits in the find / go to packet
  *     frames (accordion-frame.qss), so they all get the same height.
- *   - The apply button is a flat StockIconToolButton with no border,
+ *   - The apply button is a flat QToolButton with no border,
  *     transparent background, and no padding; the explicit
  *     `background: transparent` also disables the platform style on
  *     Windows so the button blends into the line edit.

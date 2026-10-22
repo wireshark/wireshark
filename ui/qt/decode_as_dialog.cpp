@@ -24,6 +24,7 @@
 #include "main_application.h"
 
 #include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 
 #include <QComboBox>
 #include <QFont>
@@ -51,10 +52,10 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     ui->decodeAsTreeView->setModel(model_);
     ui->decodeAsTreeView->setItemDelegate(delegate_);
 
-    ui->newToolButton->setIconByName("list-add");
-    ui->deleteToolButton->setIconByName("list-remove");
-    ui->copyToolButton->setIconByName("list-copy");
-    ui->clearToolButton->setIconByName("list-clear");
+    ui->newToolButton->setIcon(ThemedIcon("list-add"));
+    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
+    ui->copyToolButton->setIcon(ThemedIcon("list-copy"));
+    ui->clearToolButton->setIcon(ThemedIcon("list-clear"));
 
 #ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
