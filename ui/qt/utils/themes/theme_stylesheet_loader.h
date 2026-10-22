@@ -34,18 +34,10 @@ public:
     using TokenMap = QHash<ThemeManager::ThemeToken, ThemeColorPair>;
 
     /**
-     * Load `:/stylesheets/<name>.qss` and return its contents with:
-     *
-     *   - every `wstheme(RoleName)` token replaced by the resolved
-     *     `#rrggbb` hex of the corresponding ThemeToken, picked from
-     *     `tokens` using `isDarkMode` to choose the light/dark side;
-     *   - every literal `%wsmode%` occurrence replaced by the string
-     *     `"dark"` or `"light"` — intended for picking mode-specific
-     *     asset filenames inside `image: url(...)` rules, e.g.
-     *       image: url(:/stock_icons/14x14/x-filter-dropdown.%wsmode%.png);
-     *     The `%wsmode%` placeholder takes no arguments and is a plain
-     *     text substitution; it runs before the `wstheme(...)`
-     *     regex pass.
+     * Load `:/stylesheets/<name>.qss` and return its contents with
+     * every `wstheme(RoleName)` token replaced by the resolved
+     * `#rrggbb` hex of the corresponding ThemeToken, picked from
+     * `tokens` using `isDarkMode` to choose the light/dark side.
      *
      * Returns an empty QString on any of:
      *   - `name` is empty or contains illegal characters / path

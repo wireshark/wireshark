@@ -1,6 +1,5 @@
 <!-- Scalable SVG icon sources tinted at runtime by ThemedIcon (ui/qt/utils/themes).
-     Unlike stock_icons.qrc — which ships pre-rendered, per-mode raster icons —
-     these are single SVG sources recoloured to a ThemeManager token, so one
+     Each is a single SVG source recoloured to a ThemeManager token, so one
      asset follows the active theme.  Exposed under a size-agnostic /svg_icons
      prefix; all sources live in resources/svg_icons/. -->
 <RCC>

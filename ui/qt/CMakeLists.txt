@@ -974,8 +974,6 @@ endif()
 qt_add_resources(WIRESHARK_QT_QRC
 	../../resources/about.qrc
 	../../resources/languages/languages.qrc
-	../../resources/layout.qrc
-	../../resources/stock_icons.qrc
 	../../resources/theme_icons.qrc
 	${WSICON_QRC}
 	${I18N_QRC}

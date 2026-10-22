@@ -430,6 +430,10 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
             << REGISTER_TOOLS_GROUP_UNSORTED;
 
     setWindowIcon(mainApp->normalIcon());
+    // The Website and Wiki help items lead to the project's own pages, so they carry
+    // the application icon.
+    main_ui_->actionHelpWebsite->setIcon(mainApp->normalIcon());
+    main_ui_->actionHelpWiki->setIcon(mainApp->normalIcon());
     updateTitlebar();
     setMenusForCaptureFile();
     setForCapturedPackets(false);

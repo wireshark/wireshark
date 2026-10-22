@@ -267,6 +267,9 @@ The following features are either new or have been significantly updated since v
   The new `opcua.ns_offset` preference maps the namespace indexes of the file
   to those in the packets.
 
+* The Help menu entries Website and Wiki now show the Wireshark application icon on
+  Linux and Windows, and Ask (Q&A) no longer has an icon.
+
 === Removed Features and Support
 
 Dumpcap's TCP@host:port interface has been removed. Tools like `socat`, `ncat`,
