@@ -44,6 +44,8 @@ public:
      */
     explicit ProfileSwitcher(QObject *parent = nullptr);
 
+    ~ProfileSwitcher();
+
 public slots:
     /**
      * @brief Handles capture lifecycle events (e.g. file open/close, capture start/stop)
