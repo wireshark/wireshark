@@ -41,6 +41,7 @@ typedef enum {
     ONLINEPAGE_SAMPLE_CAPTURES,                     /**< Online sample captures repository */
     ONLINEPAGE_SECURITY,                            /**< Wireshark security advisories page */
     ONLINEPAGE_ASK,                                 /**< Wireshark Q&A community forum (ask.wireshark.org) */
+    ONLINEPAGE_DISCORD,                             /**< Wireshark community Discord server */
     ONLINEPAGE_DFILTER_REF,                         /**< Display filter reference documentation */
 
     /* pages online at stratoshark.org */

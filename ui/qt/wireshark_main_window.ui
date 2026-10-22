@@ -295,6 +295,7 @@
     <addaction name="separator"/>
     <addaction name="actionHelpWebsite"/>
     <addaction name="actionHelpFAQ"/>
+    <addaction name="actionHelpDiscord"/>
     <addaction name="actionHelpAsk"/>
     <addaction name="actionHelpDownloads"/>
     <addaction name="actionHelpWiki"/>
@@ -1087,6 +1088,11 @@
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::AboutRole</enum>
+   </property>
+  </action>
+  <action name="actionHelpDiscord">
+   <property name="text">
+    <string>Discord</string>
    </property>
   </action>
   <action name="actionHelpAsk">

@@ -821,6 +821,7 @@ image::images/ws-help-menu.png[{screenshot-attrs}]
 |menu:Manual Pages[...]|| This menu item starts a Web browser showing one of the locally installed html manual pages.
 |menu:Website[]|| This menu item starts a Web browser showing the webpage from: link:{wireshark-main-url}[].
 |menu:FAQs[]|| This menu item starts a Web browser showing various FAQs.
+|menu:Discord[]|| This menu item starts a Web browser showing the invitation to the Wireshark Discord server: link:{wireshark-discord-url}[].
 |menu:Downloads[]|| This menu item starts a Web browser showing the downloads from: link:{wireshark-download-url}[].
 |menu:Wiki[]|| This menu item starts a Web browser showing the front page from: link:{wireshark-wiki-url}[].
 |menu:Sample Captures[]|| This menu item starts a Web browser showing the sample captures from: link:{wireshark-wiki-url}SampleCaptures[].

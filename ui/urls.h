@@ -15,6 +15,7 @@
 #define WS_DOCS_URL      "https://www.wireshark.org/docs/"
 #define WS_FAQ_URL       "https://www.wireshark.org/faq.html"
 #define WS_Q_AND_A_URL   "https://ask.wireshark.org"
+#define WS_DISCORD_URL   "https://discord.gg/fT2jvkawGj"
 #define WS_WIKI_HOME_URL "https://wiki.wireshark.org"
 
 #define SS_HOME_PAGE_URL "https://stratoshark.org"

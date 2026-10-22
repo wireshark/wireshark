@@ -218,6 +218,8 @@ The following features are either new or have been significantly updated since v
   In the Frame tree, the context menu of a coloring rule now offers Disable and Enable,
   which change the rule itself, are saved with the coloring rules and re-dissect the capture.
 
+* The Help menu has a new menu:Help[Discord] entry, which opens the invitation to the Wireshark Discord server.
+
 //* The Windows installers now ship with Qt 6.5.2.
 //  They previously shipped with Qt 6.2.3.
 
