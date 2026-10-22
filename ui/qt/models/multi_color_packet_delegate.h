@@ -46,6 +46,19 @@ public:
      */
     MultiColorPacketDelegate(QWidget *parent = 0);
 
+    /**
+     * @brief Paint only the multi-color row background for an item.
+     *
+     * Lets other delegates (e.g. TagColumnDelegate) draw this column's slice
+     * of the row-wide stripe / shift-right pattern before painting their own
+     * content on top.
+     * @param fg_out If non-null, receives the foreground color to use.
+     * @return true if a multi-color background was drawn; false if the item
+     *         doesn't qualify (the caller should paint its normal background).
+     */
+    bool paintMultiColorBackground(QPainter *painter, const QStyleOptionViewItem &option,
+                                   const QModelIndex &index, QColor *fg_out = nullptr) const;
+
 protected:
     /**
      * @brief Renders the item using the given painter and style option.
