@@ -21,7 +21,6 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_player_dialog.h"
 #include "sequence_dialog.h"
-#include <ui/qt/utils/stock_icon.h>
 #include "progress_frame.h"
 #include "main_application.h"
 #include <ui/qt/models/voip_calls_info_model.h>

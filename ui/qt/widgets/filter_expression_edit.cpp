@@ -15,7 +15,6 @@
 #include <ui/qt/models/filter_history_model.h>
 #include <ui/qt/models/bookmark_model.h>
 #include <ui/qt/utils/font_manager.h>
-#include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>

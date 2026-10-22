@@ -21,7 +21,7 @@
  * @brief A QIcon that keeps an SVG's own colours and adapts each one for
  *        contrast against the surface it is painted on.
  *
- * Companion to StockIcon and ThemedIcon, and a deliberate inverse of ThemedIcon:
+ * Companion to ThemedIcon, and a deliberate inverse of it:
  * ThemedIcon throws the SVG's colours away and flattens the silhouette to one
  * theme token, which destroys multi-colour icons.  ContrastAdaptIcon instead
  * treats the SVG as authoritative — it reads the colours out of the markup and

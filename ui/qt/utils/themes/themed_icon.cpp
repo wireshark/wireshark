@@ -11,6 +11,7 @@
 
 #include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/themes/token_palette.h>
+#include <ui/qt/utils/themes/icon_engine_utils.h>
 
 #include <QApplication>
 #include <QIconEngine>
@@ -108,7 +109,7 @@ private:
         switch (mode) {
         case QIcon::Disabled: {
             QColor c = resolve(token_);
-            c.setAlphaF(c.alphaF() * 0.4);
+            c.setAlphaF(c.alphaF() * kIconDisabledOpacity);
             return c;
         }
         case QIcon::Active:
@@ -127,9 +128,7 @@ private:
 
     QPixmap render(const QSize &logical, qreal scale, const QColor &color) const
     {
-        QPixmap pm(logical * scale);
-        pm.setDevicePixelRatio(scale);
-        pm.fill(Qt::transparent);
+        QPixmap pm = transparentIconPixmap(logical, scale);
 
         QSvgRenderer renderer(path_);
         QPainter p(&pm);

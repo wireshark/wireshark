@@ -13,6 +13,7 @@
 #include <ui/qt/utils/themes/color_math.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/token_palette.h>
+#include <ui/qt/utils/themes/icon_engine_utils.h>
 
 #include <QApplication>
 #include <QFile>
@@ -35,9 +36,6 @@ qreal &defaultMinContrastRef()
     static qreal value = ColorMath::IconContrastRatio;
     return value;
 }
-
-// Opacity applied to the whole icon in QIcon::Disabled mode (matches ThemedIcon).
-constexpr qreal kDisabledOpacity = 0.4;
 
 // Fit @p src into @p box preserving aspect ratio, centred.
 QRectF aspectFit(QSizeF src, const QRectF &box)
@@ -320,9 +318,7 @@ private:
     QPixmap render(const QSize &logical, qreal scale, QIcon::Mode mode,
                    QIcon::State state, const QColor &bg) const
     {
-        QPixmap pm(logical * scale);
-        pm.setDevicePixelRatio(scale);
-        pm.fill(Qt::transparent);
+        QPixmap pm = transparentIconPixmap(logical, scale);
         if (svg_.isEmpty())
             return pm;
 
@@ -331,7 +327,7 @@ private:
         // Disabled: dim the whole rendering, as ThemedIcon does, rather than
         // per-colour so overlapping shapes don't show through each other.
         if (mode == QIcon::Disabled)
-            p.setOpacity(kDisabledOpacity);
+            p.setOpacity(kIconDisabledOpacity);
         const QRectF box(QPointF(0, 0), QSizeF(logical));
         renderer.render(&p, aspectFit(renderer.defaultSize(), box));
         p.end();

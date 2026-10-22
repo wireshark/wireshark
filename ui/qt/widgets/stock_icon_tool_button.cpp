@@ -9,7 +9,6 @@
 
 #include <ui/qt/widgets/stock_icon_tool_button.h>
 
-#include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 

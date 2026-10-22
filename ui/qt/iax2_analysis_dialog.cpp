@@ -35,7 +35,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/themed_shape_icon.h>
 #include <ui/qt/utils/theme_manager.h>
 #include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
@@ -226,7 +226,6 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     ui->streamGraph->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->streamGraph, &QCustomPlot::customContextMenuRequested, this,
                 &Iax2AnalysisDialog::showGraphMenu);
-    PlotTheme::track(ui->streamGraph);
 
     QStringList header_labels;
     for (int i = 0; i < ui->forwardTreeWidget->columnCount(); i++) {
@@ -243,13 +242,21 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
     for (int i = 0; i < num_graphs_; i++) {
         QCPGraph *graph = ui->streamGraph->addGraph();
-        QColor graphColor = ThemeManager::instance()->graphColor(i);
-        graph->setPen(QPen(graphColor));
         graph->setName(graph_cbs[i]->text());
         graphs_ << graph;
         graph_cbs[i]->setChecked(true);
-        graph_cbs[i]->setIcon(StockIcon::colorIcon(ThemeManager::instance()->graphColor(i), QPalette::Text));
+        graph_cbs[i]->setIcon(ThemedShapeIcon(ThemedShapeIcon::Square, ThemedShapeIcon::PaletteColor{i}, ThemeManager::PaletteText));
     }
+
+    // Series colours come from the theme's graph palette.  track() applies
+    // them now and again on every theme or light/dark switch, so the lines
+    // keep matching their legend icons.
+    PlotTheme::track(ui->streamGraph, [this]() {
+        for (int i = 0; i < graphs_.count(); i++) {
+            graphs_[i]->setPen(QPen(ThemeManager::instance()->graphColor(i)));
+        }
+    });
+
     ui->streamGraph->xAxis->setLabel("Arrival Time");
     ui->streamGraph->yAxis->setLabel("Value (ms)");
 

@@ -111,7 +111,6 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/rtp_audio_silence_generator.h
 	utils/software_update.h
 	utils/software_update_backend.h
-	utils/stock_icon.h
 	utils/theme_manager.h
 	utils/theme_styler.h
 	utils/themes/color_math.h
@@ -124,6 +123,8 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/themes/themed_icon.h
 	utils/themes/token_palette.h
 	utils/themes/contrast_adapt_icon.h
+	utils/themes/themed_shape_icon.h
+	utils/themes/icon_engine_utils.h
 	utils/variant_pointer.h
 	utils/wireshark_mime_data.h
 	utils/wireshark_zip_helper.h
@@ -475,7 +476,6 @@ set(WIRESHARK_UTILS_SRCS
 	utils/rtp_audio_silence_generator.cpp
 	utils/software_update.cpp
 	${WIRESHARK_SOFTWARE_UPDATE_PLATFORM_SRC}
-	utils/stock_icon.cpp
 	utils/theme_manager.cpp
 	utils/theme_styler.cpp
 	utils/themes/color_math.cpp
@@ -486,6 +486,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/themes/theme_token_handler.cpp
 	utils/themes/themed_icon.cpp
 	utils/themes/contrast_adapt_icon.cpp
+	utils/themes/themed_shape_icon.cpp
 	utils/themes/system_theme_detector_common.cpp
 	${WIRESHARK_THEMES_PLATFORM_SRC}
 	utils/wireshark_mime_data.cpp

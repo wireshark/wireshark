@@ -59,7 +59,6 @@
 
 #include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/models/sparkline_delegate.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
