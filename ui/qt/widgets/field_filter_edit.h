@@ -13,7 +13,6 @@
 #include <ui/qt/widgets/syntax_line_edit.h>
 
 class QEvent;
-class StockIconToolButton;
 
 /**
  * @brief A specialized line edit for entering and validating field filters with auto-completion.

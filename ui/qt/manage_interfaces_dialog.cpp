@@ -34,6 +34,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 
 #include "main_application.h"
 #include <ui/qt/main_window.h>
@@ -173,10 +174,10 @@ ManageInterfacesDialog::ManageInterfacesDialog(QWidget *parent) :
     loadGeometry();
     setAttribute(Qt::WA_DeleteOnClose, true);
 
-    ui->addPipe->setIconByName("list-add");
-    ui->delPipe->setIconByName("list-remove");
-    ui->addRemote->setIconByName("list-add");
-    ui->delRemote->setIconByName("list-remove");
+    ui->addPipe->setIcon(ThemedIcon("list-add"));
+    ui->delPipe->setIcon(ThemedIcon("list-remove"));
+    ui->addRemote->setIcon(ThemedIcon("list-add"));
+    ui->delRemote->setIcon(ThemedIcon("list-remove"));
 
 #ifdef Q_OS_MACOS
     ui->addPipe->setAttribute(Qt::WA_MacSmallSize, true);

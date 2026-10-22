@@ -12,6 +12,7 @@
 #include <wsutil/filesystem.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 
 #include "ui/profile.h"
 #include "ui/recent.h"
@@ -32,6 +33,7 @@
 #include <QFont>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QToolButton>
 #include <QTreeWidgetItem>
 #include <QUrl>
 #include <QComboBox>
@@ -59,9 +61,9 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 
     ok_button_ = pd_ui_->buttonBox->button(QDialogButtonBox::Ok);
 
-    pd_ui_->newToolButton->setIconByName("list-add");
-    pd_ui_->deleteToolButton->setIconByName("list-remove");
-    pd_ui_->copyToolButton->setIconByName("list-copy");
+    pd_ui_->newToolButton->setIcon(ThemedIcon("list-add"));
+    pd_ui_->deleteToolButton->setIcon(ThemedIcon("list-remove"));
+    pd_ui_->copyToolButton->setIcon(ThemedIcon("list-copy"));
 #ifdef Q_OS_MACOS
     pd_ui_->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
@@ -115,9 +117,9 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     connect(pd_ui_->lineProfileFilter, &QLineEdit::textChanged, this, &ProfileDialog::filterChanged);
 
     // Setup button handling
-    connect(pd_ui_->newToolButton, &StockIconToolButton::clicked, this, &ProfileDialog::newToolButtonClicked);
-    connect(pd_ui_->deleteToolButton, &StockIconToolButton::clicked, this, &ProfileDialog::deleteToolButtonClicked);
-    connect(pd_ui_->copyToolButton, &StockIconToolButton::clicked, this, &ProfileDialog::copyToolButtonClicked);
+    connect(pd_ui_->newToolButton, &QToolButton::clicked, this, &ProfileDialog::newToolButtonClicked);
+    connect(pd_ui_->deleteToolButton, &QToolButton::clicked, this, &ProfileDialog::deleteToolButtonClicked);
+    connect(pd_ui_->copyToolButton, &QToolButton::clicked, this, &ProfileDialog::copyToolButtonClicked);
     connect(pd_ui_->buttonBox, &QDialogButtonBox::accepted, this, &ProfileDialog::buttonBoxAccepted);
     connect(pd_ui_->buttonBox, &QDialogButtonBox::helpRequested, this, &ProfileDialog::buttonBoxHelpRequested);
 

@@ -13,7 +13,6 @@
 #include <ui/qt/widgets/syntax_line_edit.h>
 
 class QEvent;
-class StockIconToolButton;
 
 /**
  * @brief A line edit widget that provides syntax validation and auto-completion for dissector names.

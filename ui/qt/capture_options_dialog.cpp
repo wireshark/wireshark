@@ -60,6 +60,7 @@
 #include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/models/sparkline_delegate.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <ui/qt/models/pref_models.h>
@@ -178,8 +179,8 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     // Allow renaming bookmarks here, but not in other views like the welcome screen.
     cache_model_->setBookmarkRenameEnabled(true);
 
-    ui->newToolButton->setIconByName("list-add");
-    ui->deleteToolButton->setIconByName("list-remove");
+    ui->newToolButton->setIcon(ThemedIcon("list-add"));
+    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
 
     ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
 

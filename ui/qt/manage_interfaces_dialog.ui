@@ -96,7 +96,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="StockIconToolButton" name="addPipe">
+          <widget class="QToolButton" name="addPipe">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a new pipe using default settings.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -106,7 +106,7 @@
           </widget>
          </item>
          <item>
-          <widget class="StockIconToolButton" name="delPipe">
+          <widget class="QToolButton" name="delPipe">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected pipe from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -157,7 +157,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="StockIconToolButton" name="addRemote">
+          <widget class="QToolButton" name="addRemote">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add a remote host and its interfaces&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -167,7 +167,7 @@
           </widget>
          </item>
          <item>
-          <widget class="StockIconToolButton" name="delRemote">
+          <widget class="QToolButton" name="delRemote">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove the selected host from the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -221,13 +221,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>StockIconToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets/stock_icon_tool_button.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

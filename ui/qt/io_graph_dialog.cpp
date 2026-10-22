@@ -29,6 +29,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/widgets/qcustomplot.h>
 #include <ui/qt/widgets/qcp_string_legend_item.h>
 #include <ui/qt/widgets/qcp_axis_ticker_si.h>
@@ -242,12 +243,12 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_
     setAttribute(Qt::WA_DeleteOnClose, true);
     QCustomPlot *iop = ui->ioPlot;
 
-    ui->newToolButton->setIconByName("list-add");
-    ui->deleteToolButton->setIconByName("list-remove");
-    ui->copyToolButton->setIconByName("list-copy");
-    ui->clearToolButton->setIconByName("list-clear");
-    ui->moveUpwardsToolButton->setIconByName("list-move-up");
-    ui->moveDownwardsToolButton->setIconByName("list-move-down");
+    ui->newToolButton->setIcon(ThemedIcon("list-add"));
+    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
+    ui->copyToolButton->setIcon(ThemedIcon("list-copy"));
+    ui->clearToolButton->setIcon(ThemedIcon("list-clear"));
+    ui->moveUpwardsToolButton->setIcon(ThemedIcon("list-move-up"));
+    ui->moveDownwardsToolButton->setIcon(ThemedIcon("list-move-down"));
 
 #ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);

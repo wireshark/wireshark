@@ -24,6 +24,7 @@
 #include "main_application.h"
 
 #include "ui/qt/utils/qt_ui_utils.h"
+#include "ui/qt/utils/themes/themed_icon.h"
 #include "ui/qt/widgets/copy_from_profile_button.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
@@ -63,10 +64,10 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter, QS
         ui->coloringRulesTreeView->resizeColumnToContents(i);
     }
 
-    ui->newToolButton->setIconByName("list-add");
-    ui->deleteToolButton->setIconByName("list-remove");
-    ui->copyToolButton->setIconByName("list-copy");
-    ui->clearToolButton->setIconByName("list-clear");
+    ui->newToolButton->setIcon(ThemedIcon("list-add"));
+    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
+    ui->copyToolButton->setIcon(ThemedIcon("list-copy"));
+    ui->clearToolButton->setIcon(ThemedIcon("list-clear"));
 
 #ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);

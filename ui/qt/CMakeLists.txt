@@ -67,7 +67,6 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/rowmove_tree_view.h
 	widgets/rtp_audio_graph.h
 	widgets/splash_overlay.h
-	widgets/stock_icon_tool_button.h
 	widgets/syntax_line_edit.h
 	widgets/tabnav_tree_view.h
 	widgets/theme_preview_widget.h
@@ -413,7 +412,6 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/rowmove_tree_view.cpp
 	widgets/rtp_audio_graph.cpp
 	widgets/splash_overlay.cpp
-	widgets/stock_icon_tool_button.cpp
 	widgets/syntax_line_edit.cpp
 	widgets/tabnav_tree_view.cpp
 	widgets/theme_preview_widget.cpp

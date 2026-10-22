@@ -50,7 +50,7 @@
     </widget>
    </item>
    <item>
-    <widget class="StockIconToolButton" name="stopButton">
+    <widget class="QToolButton" name="stopButton">
      <property name="text">
       <string/>
      </property>
@@ -64,13 +64,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>StockIconToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets/stock_icon_tool_button.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

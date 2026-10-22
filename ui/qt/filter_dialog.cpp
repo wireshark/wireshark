@@ -22,6 +22,7 @@
 #include <QSortFilterProxyModel>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/widgets/filter_edit.h>
 #include <ui/qt/models/capture_filter_validator.h>
 #include <ui/qt/widgets/display_filter_edit.h>
@@ -38,9 +39,9 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 2 / 3);
     setWindowIcon(mainApp->normalIcon());
 
-    ui->newToolButton->setIconByName("list-add");
-    ui->deleteToolButton->setIconByName("list-remove");
-    ui->copyToolButton->setIconByName("list-copy");
+    ui->newToolButton->setIcon(ThemedIcon("list-add"));
+    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
+    ui->copyToolButton->setIcon(ThemedIcon("list-copy"));
 
 #ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);

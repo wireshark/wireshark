@@ -19,6 +19,7 @@
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 
 #include <QDesktopServices>
 #include <QPushButton>
@@ -41,12 +42,12 @@ UatDialog::UatDialog(QWidget *parent, epan_uat *uat) :
     ok_button_ = ui->buttonBox->button(QDialogButtonBox::Ok);
     help_button_ = ui->buttonBox->button(QDialogButtonBox::Help);
 
-    ui->newToolButton->setIconByName("list-add");
-    ui->deleteToolButton->setIconByName("list-remove");
-    ui->copyToolButton->setIconByName("list-copy");
-    ui->moveUpToolButton->setIconByName("list-move-up");
-    ui->moveDownToolButton->setIconByName("list-move-down");
-    ui->clearToolButton->setIconByName("list-clear");
+    ui->newToolButton->setIcon(ThemedIcon("list-add"));
+    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
+    ui->copyToolButton->setIcon(ThemedIcon("list-copy"));
+    ui->moveUpToolButton->setIcon(ThemedIcon("list-move-up"));
+    ui->moveDownToolButton->setIcon(ThemedIcon("list-move-down"));
+    ui->clearToolButton->setIcon(ThemedIcon("list-clear"));
 
 #ifdef Q_OS_MACOS
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);

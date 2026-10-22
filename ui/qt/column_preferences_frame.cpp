@@ -16,6 +16,7 @@
 #include <ui/preference_utils.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 #include "column_preferences_frame.h"
 #include <ui_column_preferences_frame.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
@@ -54,8 +55,8 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->columnTreeView->setDragDropMode(QAbstractItemView::InternalMove);
     ui->columnTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    ui->newToolButton->setIconByName("list-add");
-    ui->deleteToolButton->setIconByName("list-remove");
+    ui->newToolButton->setIcon(ThemedIcon("list-add"));
+    ui->deleteToolButton->setIcon(ThemedIcon("list-remove"));
 
     ui->columnTreeView->setModel(proxyModel_);
     delegate_ = new ColumnTypeDelegate();

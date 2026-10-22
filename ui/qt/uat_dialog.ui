@@ -33,7 +33,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0,1">
      <item>
-      <widget class="StockIconToolButton" name="newToolButton">
+      <widget class="QToolButton" name="newToolButton">
        <property name="toolTip">
         <string>Create a new entry.</string>
        </property>
@@ -43,7 +43,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="deleteToolButton">
+      <widget class="QToolButton" name="deleteToolButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -53,7 +53,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="copyToolButton">
+      <widget class="QToolButton" name="copyToolButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -66,7 +66,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="moveUpToolButton">
+      <widget class="QToolButton" name="moveUpToolButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -79,7 +79,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="moveDownToolButton">
+      <widget class="QToolButton" name="moveDownToolButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -92,7 +92,7 @@
       </widget>
      </item>
      <item>
-      <widget class="StockIconToolButton" name="clearToolButton">
+      <widget class="QToolButton" name="clearToolButton">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -147,11 +147,6 @@
    <class>RowMoveTreeView</class>
    <extends>QTreeView</extends>
    <header>widgets/rowmove_tree_view.h</header>
-  </customwidget>
-  <customwidget>
-   <class>StockIconToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets/stock_icon_tool_button.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -55,7 +55,7 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
-          <widget class="StockIconToolButton" name="newToolButton">
+          <widget class="QToolButton" name="newToolButton">
            <property name="toolTip">
             <string>Create a new interface bookmark.</string>
            </property>
@@ -69,7 +69,7 @@
           </widget>
          </item>
          <item>
-          <widget class="StockIconToolButton" name="deleteToolButton">
+          <widget class="QToolButton" name="deleteToolButton">
            <property name="toolTip">
             <string>Remove this interface bookmark.</string>
            </property>
@@ -1088,11 +1088,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
    <class>CaptureFilterEntry</class>
    <extends>QLineEdit</extends>
    <header>widgets/capture_filter_entry.h</header>
-  </customwidget>
-  <customwidget>
-   <class>StockIconToolButton</class>
-   <extends>QToolButton</extends>
-   <header>widgets/stock_icon_tool_button.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
