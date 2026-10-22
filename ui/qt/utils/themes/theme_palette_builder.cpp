@@ -27,8 +27,7 @@ QColor sideOf(const TokenMap &tokens, ThemeManager::ThemeToken role, bool isDark
 {
     if (role == ThemeManager::NoRole)
         return QColor();
-    const ThemeColorPair p = tokens.value(role, ThemeColorPair());
-    return isDarkMode ? p.dark : p.light;
+    return tokens.value(role, ThemeColorPair()).forMode(isDarkMode);
 }
 
 // Baseline palette to start from, before applying theme overrides.

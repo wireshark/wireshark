@@ -38,6 +38,9 @@ struct ThemeSectionInfo {
 struct ThemeColorPair {
     QColor light;
     QColor dark;
+
+    /** The color for a mode: @c dark when @p isDarkMode, else @c light. */
+    QColor forMode(bool isDarkMode) const { return isDarkMode ? dark : light; }
 };
 
 /**
@@ -221,8 +224,9 @@ public:
         // FieldBorder is the WCAG-enforced derivation of palette.mid
         // against palette.base (≥ 3.0:1 ratio), used to frame
         // interactive controls without overshooting like palette.shadow
-        // does in light mode.  Separator is a softer mix of base + mid
-        // for hairlines between cards / sections; themes can override
+        // does in light mode.  Separator is a softer mix of base + mid,
+        // kept DividerRatio apart from base, for hairlines between
+        // sections; themes can override
         // it via the JSONC "separator" top-level key when the derived
         // value is too pronounced (Stratoshark uses an explicit value
         // matching its midlight).  MutedText is a derived de-emphasized
@@ -231,6 +235,27 @@ public:
         FieldBorder,
         Separator,
         MutedText,
+
+        // Raised surfaces ("cards") on Base and the colors drawn on
+        // them.  CardBackground is kept CardSurfaceRatio* apart from
+        // Base, starting from the theme's palette.alternateBase pin
+        // or Base; CardBorder frames it and is used for lines on it.
+        // CardSectionHeader*, CardLink and CardFocusRing are the
+        // section header, link and focus colors re-derived to read
+        // on the card; CardLinkHover is the item hover fill with the
+        // card as base, moved toward the card until CardLink reads on
+        // it.  OverlayCard* is the card surface for overlays over a
+        // black scrim, such as the startup splash: the lighter of
+        // Base and CardBackground, with its own border.
+        CardBackground,
+        CardBorder,
+        CardSectionHeader,
+        CardSectionHeaderHover,
+        CardLink,
+        CardLinkHover,
+        CardFocusRing,
+        OverlayCardBackground,
+        OverlayCardBorder,
 
         // Welcome header title and version text (derived with HeaderBackground)
         HeaderText,
@@ -287,6 +312,15 @@ public:
         NoRole
     };
     Q_ENUM(ThemeToken)
+
+    /**
+     * ThemeToken enumerator named exactly @p name (case-sensitive),
+     * as written in wstheme() stylesheet references and in theme
+     * resources such as learn_card.json and SVG token maps.
+     *
+     * @return The token, or NoRole when no enumerator has that name.
+     */
+    static ThemeToken tokenFromName(const QString &name);
 
     static ThemeManager* instance();
 

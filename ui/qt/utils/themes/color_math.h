@@ -65,6 +65,34 @@ public:
      *  (WCAG AA). */
     static constexpr qreal ReadableTextRatio = 4.5;
 
+    /** Minimum contrast ratio at which a raised card reads as its own
+     *  surface on Base in dark mode.  Softer than DistinctSurfaceRatio:
+     *  a card is a grouping, not a state. */
+    static constexpr qreal CardSurfaceRatioDark = 1.25;
+
+    /** The same for light mode.  A light base shows a smaller
+     *  luminance step as clearly, so the card stays a faint gray. */
+    static constexpr qreal CardSurfaceRatioLight = 1.11;
+
+    /** Minimum contrast ratio of a divider or border line against the
+     *  surface it sits on: separators on Base, card borders and lines
+     *  drawn on a card. */
+    static constexpr qreal DividerRatio = 1.6;
+
+    /** WCAG minimum contrast ratio for non-text elements (control
+     *  borders, progress fills) against their neighbor. */
+    static constexpr qreal NonTextRatio = 3.0;
+
+    /** Minimum contrast ratio for text that may be quieter than
+     *  body text: large or secondary text such as a version label
+     *  or transient state text (WCAG AA for large text). */
+    static constexpr qreal LargeTextRatio = 3.0;
+
+    /** Default minimum contrast ratio of a contrast-adapted icon
+     *  glyph against the surface it is drawn on.  Tuned for icon
+     *  visibility without shifting colors too far. */
+    static constexpr qreal IconContrastRatio = 1.6;
+
     /** Hover fill for an item view, derived from that view's own
      *  selection color so the view uses one highlight hue.  A 55 % tint
      *  of `selection` over `base`, pushed away from `selection` until

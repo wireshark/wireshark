@@ -225,6 +225,16 @@ ThemeManager* ThemeManager::instance()
     return instance_;
 }
 
+ThemeManager::ThemeToken ThemeManager::tokenFromName(const QString &name)
+{
+    bool ok = false;
+    const int value = QMetaEnum::fromType<ThemeToken>().keyToValue(
+            name.toUtf8().constData(), &ok);
+    if (!ok || value == NoRole)
+        return NoRole;
+    return static_cast<ThemeToken>(value);
+}
+
 QString ThemeManager::defaultThemeName()
 {
     // Wireshark is the universal default; only Stratoshark overrides
@@ -532,7 +542,7 @@ QColor ThemeManager::color(ThemeToken role) const
     const bool builderResolved = role == PaletteHighlight || role == PaletteHighlightedText;
     auto it = builderResolved ? themeColors_.constEnd() : themeColors_.constFind(role);
     if (it != themeColors_.constEnd()) {
-        const QColor c = isDarkMode() ? it.value().dark : it.value().light;
+        const QColor c = it.value().forMode(isDarkMode());
         if (c.isValid())
             return c;
     }
@@ -687,7 +697,7 @@ ThemeManager::previewTheme(const QString &internalName, PreviewScheme scheme) co
     QHash<ThemeToken, QColor> out;
     out.reserve(result.colors.size());
     for (auto it = result.colors.constBegin(); it != result.colors.constEnd(); ++it) {
-        out.insert(it.key(), wantDark ? it.value().dark : it.value().light);
+        out.insert(it.key(), it.value().forMode(wantDark));
     }
 
     // deriveAll() only *reads* the palette tokens (to derive tints); it
@@ -829,7 +839,7 @@ QColor ThemeManager::graphColor(int idx) const
 
     const ThemeColorPair &p = graphColors_.at(idx % graphColors_.size());
 
-    return isDarkMode() ? p.dark : p.light;
+    return p.forMode(isDarkMode());
 }
 
 // TODO: the default color should be defined by switch in the theme file itself
@@ -841,7 +851,7 @@ QColor ThemeManager::graphDefaultColor() const
     }
 
     const ThemeColorPair &p = graphColors_.first();
-    return isDarkMode() ? p.dark : p.light;
+    return p.forMode(isDarkMode());
 }
 
 

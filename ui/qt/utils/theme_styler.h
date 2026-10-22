@@ -30,6 +30,17 @@ public:
     // has a useful objectName().
     static QString baseStyleName();
 
+    /**
+     * Style sheet for a filled push button.
+     *
+     * @param objectname Object name the rules are scoped to
+     *                   (QPushButton#objectname).
+     * @param baseColor  Fill seed, darkened until a white label
+     *                   reaches ReadableTextRatio; hover and
+     *                   pressed are darker still, and the label
+     *                   is white in every state.
+     * @return The style sheet text.
+     */
     static QString buttonStyleSheet(const QString &objectname, const QColor &baseColor);
 };
 

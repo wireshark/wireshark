@@ -18,7 +18,6 @@
 #include <QFile>
 #include <QHash>
 #include <QIconEngine>
-#include <QMetaEnum>
 #include <QPaintDevice>
 #include <QPainter>
 #include <QPixmap>
@@ -33,7 +32,7 @@ namespace {
 // Function-local static avoids static-init-order issues.
 qreal &defaultMinContrastRef()
 {
-    static qreal value = 1.6;
+    static qreal value = ColorMath::IconContrastRatio;
     return value;
 }
 
@@ -239,7 +238,6 @@ private:
         static const QRegularExpression colorAttr(QStringLiteral("\\bcolor\\s*=\\s*\"([^\"]+)\""));
         static const QRegularExpression tokenAttr(QStringLiteral("\\btoken\\s*=\\s*\"([^\"]+)\""));
 
-        const QMetaEnum me = QMetaEnum::fromType<ThemeManager::ThemeToken>();
         auto it = mapEl.globalMatch(svg_);
         while (it.hasNext()) {
             const QString el = it.next().captured(0);
@@ -253,11 +251,10 @@ private:
             // Accept an optional "ThemeToken:" / "ThemeManager::" style prefix.
             QString name = tm.captured(1);
             name = name.mid(name.lastIndexOf(QLatin1Char(':')) + 1);
-            bool ok = false;
-            const int value = me.keyToValue(name.toUtf8().constData(), &ok);
-            if (!ok || value == ThemeManager::NoRole)
+            const ThemeManager::ThemeToken token = ThemeManager::tokenFromName(name);
+            if (token == ThemeManager::NoRole)
                 continue;
-            token_maps_.insert(color.name(), static_cast<ThemeManager::ThemeToken>(value));
+            token_maps_.insert(color.name(), token);
         }
     }
 

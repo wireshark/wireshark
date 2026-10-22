@@ -24,6 +24,10 @@
  * enriches it in place with the generated tokens:
  *
  *   SectionHeader / SectionHeaderHover   (from brand + QPalette::Mid)
+ *   FieldBorder / Separator       (from QPalette::Mid + Base)
+ *   Card* / OverlayCard*          (from palette.alternateBase pin or Base,
+ *                                 Separator, Highlight, Link)
+ *   SyntaxKey                     (from QPalette::Mid + Base)
  *   HeaderBackground / HeaderText / HeaderTextMuted
  *                                 (from QPalette Highlight / HighlightedText / Window)
  *   Update*                       (from accent.success)

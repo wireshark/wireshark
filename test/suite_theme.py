@@ -14,7 +14,9 @@ for every shipped theme in both light and dark modes.
 The contrast assertions re-implement the relevant slice of
 `ui/qt/utils/themes/color_math.cpp` and
 `ui/qt/utils/themes/theme_token_handler.cpp` in Python so we can verify
-the contract without launching Qt.  The reference QPalette values used
+the contract without launching Qt.  Every ratio constant is read from
+`ui/qt/utils/themes/color_math.h`, so the tests follow the header.  The
+reference QPalette values used
 when a theme leaves a role unspecified mirror the SYSTEM_PALETTE
 constant in
 `analysis/welcome_page_theme_contrast/welcome_theme_contrast.html`, so
@@ -33,6 +35,7 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+COLOR_MATH_H = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'themes' / 'color_math.h'
 SCHEMA_PATH = REPO_ROOT / 'resources' / 'themes' / 'theme.schema.json'
 THEME_ROOT = REPO_ROOT / 'resources' / 'themes'
 
@@ -42,7 +45,9 @@ THEME_ROOT = REPO_ROOT / 'resources' / 'themes'
 # platform/style, but the derivation contract is "produce something
 # readable against whatever palette.base ends up being" — so the test
 # pins a representative palette and asserts the derivation holds.
-REFERENCE_PALETTE = {
+REFERENCE_PALETTES = {}
+
+REFERENCE_PALETTES['generic'] = {
     'light': {
         'base': '#ffffff',
         'text': '#000000',
@@ -65,10 +70,46 @@ REFERENCE_PALETTE = {
     },
 }
 
+# The second palette reproduces the platform where Mid sits below Base
+# (macOS dark mode, Qt 6.11): the plain Base/Mid mix is then
+# indistinguishable from the page.  Shadow is copied from the generic
+# palette, it was not measured.
+REFERENCE_PALETTES['macos-qt611'] = {
+    'light': {
+        'base': '#ffffff',
+        'text': '#000000',
+        'window': '#ffffff',
+        'windowText': '#000000',
+        'alternateBase': '#ffffff',
+        'mid': '#b6b6b6',
+        'midlight': '#ffffff',
+        'shadow': '#5a5a5a',
+    },
+    'dark': {
+        'base': '#171717',
+        'text': '#ffffff',
+        'window': '#1e1e1e',
+        'windowText': '#ffffff',
+        'alternateBase': '#8e8e8e',
+        'mid': '#151515',
+        'midlight': '#1f1f1f',
+        'shadow': '#000000',
+    },
+}
+
 # WCAG luminance threshold — above it, black-on-color is the better
 # foreground; below, white.  Matches THRESHOLD_EQUALIBRIUM_WCAG in
 # color_math.cpp.
 WCAG_LUMINANCE_THRESHOLD = 0.179
+
+
+def _color_math_constant(name):
+    '''Value of `static constexpr qreal NAME` in color_math.h.'''
+    m = re.search(r'static\s+constexpr\s+qreal\s+' + re.escape(name)
+                  + r'\s*=\s*([0-9.]+)\s*;', COLOR_MATH_H.read_text(encoding='utf-8'))
+    if not m:
+        raise AssertionError(f'{name} not found in {COLOR_MATH_H}')
+    return float(m.group(1))
 
 
 def _strip_jsonc(text):
@@ -127,8 +168,8 @@ class TestThemeSchema:
         '''Every bundled theme.jsonc validates against theme.schema.json.'''
         jsonschema = pytest.importorskip('jsonschema')
 
-        schema = json.loads(SCHEMA_PATH.read_text())
-        data = json.loads(_strip_jsonc(theme_path.read_text()))
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        data = json.loads(_strip_jsonc(theme_path.read_text(encoding='utf-8')))
         jsonschema.Draft202012Validator(schema).validate(data)
 
 
@@ -196,8 +237,13 @@ def ensure_contrast(color, bg, min_ratio):
     return out if contrast_ratio(out, bg) >= min_ratio else target
 
 
-DISTINCT_SURFACE_RATIO = 1.5  # ColorMath::DistinctSurfaceRatio
-READABLE_TEXT_RATIO = 4.5     # ColorMath::ReadableTextRatio
+DISTINCT_SURFACE_RATIO = _color_math_constant('DistinctSurfaceRatio')
+READABLE_TEXT_RATIO = _color_math_constant('ReadableTextRatio')
+CARD_SURFACE_RATIO_DARK = _color_math_constant('CardSurfaceRatioDark')
+CARD_SURFACE_RATIO_LIGHT = _color_math_constant('CardSurfaceRatioLight')
+DIVIDER_RATIO = _color_math_constant('DividerRatio')
+NON_TEXT_RATIO = _color_math_constant('NonTextRatio')
+LARGE_TEXT_RATIO = _color_math_constant('LargeTextRatio')
 
 
 def darken(color, percent):
@@ -244,8 +290,8 @@ def _pick(theme, section, key, mode):
     return entry.get(mode)
 
 
-def _resolve_palette(theme, mode):
-    out = dict(REFERENCE_PALETTE[mode])
+def _resolve_palette(theme, mode, reference='generic'):
+    out = dict(REFERENCE_PALETTES[reference][mode])
     palette = theme.get('palette') or {}
     for role, pair in palette.items():
         if pair and pair.get(mode):
@@ -253,14 +299,14 @@ def _resolve_palette(theme, mode):
     return out
 
 
-def derived_tokens(theme, mode):
+def derived_tokens(theme, mode, reference='generic'):
     '''Return the subset of derived tokens the contrast assertions need.
 
     Mirrors theme_token_handler.cpp's deriveAll() for the new tokens
     (SectionHeader, FieldBorder, Separator, HeaderBackground, Filter*)
     plus the inputs they depend on (HeaderText / HeaderTextMuted).
     '''
-    palette = _resolve_palette(theme, mode)
+    palette = _resolve_palette(theme, mode, reference)
     base = palette['base']
     mid = palette['mid']
     text = palette['text']
@@ -270,11 +316,12 @@ def derived_tokens(theme, mode):
     accent_error   = _pick(theme, 'accent', 'error',   mode)
 
     # Welcome header: the palette's effective selection color darkened,
-    # kept apart from the window, then clamped for the title (4.5) and
-    # the faded version label (3.0). The selection color resolves as
+    # kept apart from the window, then clamped for the title
+    # (READABLE_TEXT_RATIO) and the faded version label
+    # (LARGE_TEXT_RATIO). The selection color resolves as
     # palette.highlight, else packets.selection, else brand.primary;
-    # highlightedText is pinned or the
-    # contrasting text of that color, lifted to 4.5:1 against it.
+    # highlightedText is pinned or the contrasting text of that
+    # color, lifted to READABLE_TEXT_RATIO against it.
     highlight = (_pick(theme, 'palette', 'highlight', mode)
                  or _pick(theme, 'packets', 'selection', mode)
                  or brand_primary)
@@ -289,13 +336,15 @@ def derived_tokens(theme, mode):
                     else contrasting_text(header_bg))
     header_bg = ensure_contrast(header_bg, text_on_dark, READABLE_TEXT_RATIO)
     text_on_dark_muted = ensure_contrast(mix(text_on_dark, header_bg, 0.25),
-                                         header_bg, 3.0)
+                                         header_bg, LARGE_TEXT_RATIO)
 
-    section_header = ensure_contrast(mid, base, 4.5)
-    field_border   = ensure_contrast(mid, base, 3.0)
+    section_header = readable_text(mid, base)
+    section_header_hover = readable_text(brand_primary, base)
+    field_border   = ensure_contrast(mid, base, NON_TEXT_RATIO)
 
     explicit_sep = (theme.get('separator') or {}).get(mode)
-    separator    = explicit_sep or mix(base, mid, 135 / 255.0)
+    separator    = explicit_sep or ensure_contrast(
+        mix(base, mid, 135 / 255.0), base, DIVIDER_RATIO)
 
     explicit_filter_valid   = _pick(theme, 'filter', 'valid',   mode)
     explicit_filter_invalid = _pick(theme, 'filter', 'invalid', mode)
@@ -309,10 +358,12 @@ def derived_tokens(theme, mode):
     filter_deprecated = (explicit_filter_deprecated
                          or tint_with_alpha(base, accent_warning, 85))
 
-    # Secondary text: Text faded 40% toward Base, lifted to 4.5:1.
-    muted_text = ensure_contrast(mix(text, base, 0.40), base, 4.5)
+    # Secondary text: Text faded 40% toward Base, lifted to
+    # READABLE_TEXT_RATIO.
+    muted_text = ensure_contrast(mix(text, base, 0.40), base,
+                                 READABLE_TEXT_RATIO)
 
-    # Link follows the highlight, lifted to 4.5:1 against Base.
+    # Link follows the highlight, lifted to READABLE_TEXT_RATIO against Base.
     link = readable_text(highlight, base)
 
     # Ignored / hidden rows fade WindowText toward Base unless the
@@ -326,6 +377,30 @@ def derived_tokens(theme, mode):
     filter_busy      = explicit_filter_busy    or base
     filter_busy_text = explicit_filter_busy_tx or mix(text, base, 0.5)
 
+    # Raised card on Base.  The source is the theme's own alternateBase
+    # pin only (never the platform palette), else Base.
+    card_source = _pick(theme, 'palette', 'alternateBase', mode) or base
+    card = ensure_contrast(
+        card_source, base,
+        CARD_SURFACE_RATIO_DARK if mode == 'dark' else CARD_SURFACE_RATIO_LIGHT)
+    card_border = ensure_contrast(separator, card, DIVIDER_RATIO)
+    card_section_header = readable_text(section_header, card)
+    card_section_header_hover = readable_text(section_header_hover, card)
+    # Link lifted against the card until it reads on the card's hover fill;
+    # the fill gives way only when the link cannot get there.
+    card_link_hover_base = selection_hover_fill(card, highlight)
+    card_link = ensure_contrast(
+        link, card,
+        READABLE_TEXT_RATIO * contrast_ratio(card_link_hover_base, card))
+    card_link_hover = ensure_contrast(
+        card_link_hover_base, card_link, READABLE_TEXT_RATIO)
+    card_focus_ring = readable_text(highlight, card)
+    overlay_card = card if luminance(card) > luminance(base) else base
+    overlay_card_border = ensure_contrast(separator, overlay_card, DIVIDER_RATIO)
+    splash_fill = ensure_contrast(brand_primary, overlay_card_border,
+                                  NON_TEXT_RATIO)
+    syntax_key = readable_text(mid, base)
+
     return {
         'base':              base,
         'window':            window,
@@ -335,6 +410,18 @@ def derived_tokens(theme, mode):
         'sectionHeader':     section_header,
         'fieldBorder':       field_border,
         'separator':         separator,
+        'separatorPinned':   bool(explicit_sep),
+        'card':              card,
+        'cardBorder':        card_border,
+        'cardSectionHeader': card_section_header,
+        'cardSectionHeaderHover': card_section_header_hover,
+        'cardLink':          card_link,
+        'cardLinkHover':     card_link_hover,
+        'cardFocusRing':     card_focus_ring,
+        'overlayCard':       overlay_card,
+        'overlayCardBorder': overlay_card_border,
+        'splashFill':        splash_fill,
+        'syntaxKey':         syntax_key,
         'headerText':         text_on_dark,
         'headerTextMuted':    text_on_dark_muted,
         'headerBackground':  header_bg,
@@ -355,7 +442,87 @@ def derived_tokens(theme, mode):
 
 
 def _load_theme(theme_path):
-    return json.loads(_strip_jsonc(theme_path.read_text()))
+    return json.loads(_strip_jsonc(theme_path.read_text(encoding='utf-8')))
+
+
+# =====================================================================
+# Learn card action buttons — Python mirror of
+# ThemeStyler::buttonStyleSheet() and LearnCardWidget::resolveButtonColor().
+# =====================================================================
+
+LEARN_CARD_JSON = REPO_ROOT / 'resources' / 'json' / 'learn_card.json'
+LEARN_CARD_SCHEMA = REPO_ROOT / 'resources' / 'json' / 'learn_card.schema.json'
+THEME_MANAGER_H = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'theme_manager.h'
+
+
+def _theme_token_names():
+    '''Enumerator names of `enum ThemeToken` in theme_manager.h.'''
+    text = THEME_MANAGER_H.read_text(encoding='utf-8')
+    body = re.search(r'enum\s+ThemeToken\s*\{(.*?)\};', text, re.S).group(1)
+    body = re.sub(r'//[^\n]*', '', body)
+    body = re.sub(r'/\*.*?\*/', '', body, flags=re.S)
+    return {m.group(1) for m in re.finditer(r'([A-Za-z_]\w*)\s*(?:=[^,]*)?(?:,|$)', body)}
+
+
+def _learn_card_buttons():
+    return json.loads(LEARN_CARD_JSON.read_text(encoding='utf-8'))['buttons']
+
+
+def _learn_button_seed(theme, color, mode):
+    '''Seed color of a button: hex as is, a token name via the theme's
+    own top-level sections (the first part of the name is the section,
+    the rest the key).  None when it does not resolve.'''
+    if color.startswith('#'):
+        return color
+    lowered = color.lower()
+    for section in sorted(theme, key=len, reverse=True):
+        if not isinstance(theme[section], dict) or not lowered.startswith(section.lower()):
+            continue
+        rest = lowered[len(section):]
+        for key in theme[section]:
+            if key.lower() == rest:
+                return _pick(theme, section, key, mode)
+    return None
+
+
+def _learn_button_fill(theme, color, mode):
+    seed = _learn_button_seed(theme, color, mode)
+    if seed is None:
+        return None
+    return ensure_contrast(seed, '#ffffff', READABLE_TEXT_RATIO)
+
+
+class TestLearnCardButtons:
+    def test_json_matches_schema(self):
+        '''learn_card.json validates against learn_card.schema.json.'''
+        jsonschema = pytest.importorskip('jsonschema')
+        schema = json.loads(LEARN_CARD_SCHEMA.read_text(encoding='utf-8'))
+        data = json.loads(LEARN_CARD_JSON.read_text(encoding='utf-8'))
+        validator = jsonschema.validators.validator_for(schema)
+        validator(schema).validate(data)
+
+    def test_token_names_exist_in_enum(self):
+        '''Every non-hex button color names a ThemeToken enumerator.'''
+        names = _theme_token_names()
+        assert 'AccentError' in names  # the parser found the enum
+        for button in _learn_card_buttons():
+            if not button['color'].startswith('#'):
+                assert button['color'] in names, button['label']
+
+    @pytest.mark.parametrize('theme_path', _bundled_themes(),
+                             ids=lambda p: p.parent.name)
+    @pytest.mark.parametrize('mode', ['light', 'dark'])
+    def test_white_label_readable_in_every_state(self, theme_path, mode):
+        '''White reaches READABLE_TEXT_RATIO on fill, hover and pressed.'''
+        theme = _load_theme(theme_path)
+        for button in _learn_card_buttons():
+            fill = _learn_button_fill(theme, button['color'], mode)
+            assert fill is not None, button['label']
+            for state, color in (('fill', fill),
+                                 ('hover', darken(fill, 12)),
+                                 ('pressed', darken(fill, 20))):
+                assert (contrast_ratio('#ffffff', color)
+                        >= READABLE_TEXT_RATIO - 0.01), (button['label'], state)
 
 
 # =====================================================================
@@ -389,11 +556,15 @@ class TestEnsureContrast:
 
 
 def _theme_mode_params():
-    '''(theme_path, mode) pairs for every bundled theme × {light, dark}.'''
+    '''(theme_path, mode, reference) for every bundled theme × {light,
+    dark} × reference palette.'''
     params = []
     for path in _bundled_themes():
-        params.append(pytest.param(path, 'light', id=f'{path.parent.name}-light'))
-        params.append(pytest.param(path, 'dark',  id=f'{path.parent.name}-dark'))
+        for mode in ('light', 'dark'):
+            for reference in REFERENCE_PALETTES:
+                params.append(pytest.param(
+                    path, mode, reference,
+                    id=f'{path.parent.name}-{mode}-{reference}'))
     return params
 
 
@@ -405,64 +576,171 @@ class TestDerivedContrast:
     dark base) or unreadable (header bar vs version label) in
     the other — exactly the class of bug the new derivations close.'''
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_section_header_meets_aa_against_base(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['sectionHeader'], t['base']) >= 4.5
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_section_header_meets_aa_against_base(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['sectionHeader'], t['base']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_field_border_meets_non_text_contrast(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['fieldBorder'], t['base']) >= 3.0
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_field_border_meets_non_text_contrast(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['fieldBorder'], t['base']) >= NON_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_header_background_holds_title(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_header_background_holds_title(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['headerText'], t['headerBackground']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_header_background_holds_muted_version(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['headerTextMuted'], t['headerBackground']) >= 3.0
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_header_background_holds_muted_version(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['headerTextMuted'], t['headerBackground']) >= LARGE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_header_background_stands_out_from_window(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_header_background_stands_out_from_window(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['headerBackground'], t['window']) >= DISTINCT_SURFACE_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_filter_valid_holds_its_auto_foreground(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['textOnFilterValid'], t['filterValid']) >= 4.5
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_filter_valid_holds_its_auto_foreground(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['textOnFilterValid'], t['filterValid']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_filter_invalid_holds_its_auto_foreground(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['textOnFilterInvalid'], t['filterInvalid']) >= 4.5
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_filter_invalid_holds_its_auto_foreground(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['textOnFilterInvalid'], t['filterInvalid']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_filter_deprecated_holds_its_auto_foreground(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_filter_deprecated_holds_its_auto_foreground(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['textOnFilterDeprecated'],
-                              t['filterDeprecated']) >= 4.5
+                              t['filterDeprecated']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_muted_text_meets_aa_against_base(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['mutedText'], t['base']) >= 4.5
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_muted_text_meets_aa_against_base(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['mutedText'], t['base']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_link_meets_aa_against_base(self, theme_path, mode):
-        t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['link'], t['base']) >= 4.5
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_link_meets_aa_against_base(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['link'], t['base']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_filter_busy_text_meets_low_contrast_target(self, theme_path, mode):
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_filter_busy_text_meets_low_contrast_target(self, theme_path, mode, reference):
         '''Filter-busy fg is intentionally faded (matches QLineEdit's
-        placeholder fade); 3.0:1 is the lower target for "transient
-        state" text.'''
-        t = derived_tokens(_load_theme(theme_path), mode)
-        assert contrast_ratio(t['filterBusyText'], t['filterBusy']) >= 3.0
+        placeholder fade); LARGE_TEXT_RATIO is the lower target for
+        "transient state" text.'''
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['filterBusyText'], t['filterBusy']) >= LARGE_TEXT_RATIO
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_card_stands_out_from_base(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        ratio = (CARD_SURFACE_RATIO_DARK if mode == 'dark'
+                 else CARD_SURFACE_RATIO_LIGHT)
+        assert contrast_ratio(t['card'], t['base']) >= ratio - 1e-6
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_card_border_visible_on_card(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['cardBorder'], t['card']) >= DIVIDER_RATIO - 1e-6
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_derived_separator_visible_on_base(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        if t['separatorPinned']:
+            pytest.skip('separator pinned by the theme')
+        assert contrast_ratio(t['separator'], t['base']) >= DIVIDER_RATIO - 1e-6
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_card_section_headers_readable_on_card(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        for key in ('cardSectionHeader', 'cardSectionHeaderHover'):
+            assert contrast_ratio(t[key], t['card']) >= READABLE_TEXT_RATIO - 1e-6, key
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_card_link_readable_on_card_and_hover(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['cardLink'], t['card']) >= READABLE_TEXT_RATIO - 1e-6
+        assert contrast_ratio(t['cardLink'], t['cardLinkHover']) >= READABLE_TEXT_RATIO - 1e-6
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_card_link_hover_distinct_from_card(self, theme_path, mode, reference):
+        # The fill keeps its own distance from the card unless the link forces it to move;
+        # both are rounded to 8-bit channels, so the bound holds to within that rounding.
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert (contrast_ratio(t['cardLinkHover'], t['card'])
+                >= DISTINCT_SURFACE_RATIO - 0.01)
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_card_focus_ring_visible_on_link_hover(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert (contrast_ratio(t['cardFocusRing'], t['cardLinkHover'])
+                >= DIVIDER_RATIO - 1e-6)
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_card_focus_ring_readable_on_card(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['cardFocusRing'], t['card']) >= READABLE_TEXT_RATIO - 1e-6
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_overlay_card_border_visible(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert (contrast_ratio(t['overlayCardBorder'], t['overlayCard'])
+                >= DIVIDER_RATIO - 1e-6)
+
+    @pytest.mark.parametrize('mode', ['light', 'dark'])
+    @pytest.mark.parametrize('reference', list(REFERENCE_PALETTES))
+    def test_overlay_card_is_lighter_of_card_and_base(self, mode, reference):
+        path = next(p for p in _bundled_themes() if p.parent.name == 'wireshark')
+        t = derived_tokens(_load_theme(path), mode, reference)
+        assert t['overlayCard'] == (t['card'] if mode == 'dark' else t['base'])
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_splash_fill_visible_on_overlay_border(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert (contrast_ratio(t['splashFill'], t['overlayCardBorder'])
+                >= NON_TEXT_RATIO - 1e-6)
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_syntax_key_readable_on_base(self, theme_path, mode, reference):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        assert contrast_ratio(t['syntaxKey'], t['base']) >= READABLE_TEXT_RATIO - 1e-6
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_learn_card_buttons_stand_out_from_card(self, theme_path, mode, reference):
+        '''Each Learn card button fill is kept DISTINCT_SURFACE_RATIO
+        apart from the card it sits on, on both reference palettes.'''
+        theme = _load_theme(theme_path)
+        t = derived_tokens(theme, mode, reference)
+        for button in _learn_card_buttons():
+            fill = _learn_button_fill(theme, button['color'], mode)
+            assert fill is not None, button['label']
+            assert (contrast_ratio(fill, t['card'])
+                    >= DISTINCT_SURFACE_RATIO - 1e-6), button['label']
+
+
+class TestMacosDarkRegression:
+    '''On the macOS palette Mid sits below Base, which flattened the old
+    separator and left the Learn card invisible.'''
+
+    @staticmethod
+    def _wireshark():
+        path = next(p for p in _bundled_themes() if p.parent.name == 'wireshark')
+        return _load_theme(path)
+
+    def test_old_separator_formula_stays_flat(self):
+        pal = REFERENCE_PALETTES['macos-qt611']['dark']
+        old = mix(pal['base'], pal['mid'], 135 / 255.0)
+        assert contrast_ratio(old, pal['base']) < 1.05
+
+    def test_card_and_separator_differ_from_base(self):
+        t = derived_tokens(self._wireshark(), 'dark', 'macos-qt611')
+        assert t['card'] != t['base']
+        assert t['separator'] != t['base']
+        assert contrast_ratio(t['separator'], t['base']) >= DIVIDER_RATIO - 1e-6
 
 
 class TestHoverFill:
@@ -470,8 +748,8 @@ class TestHoverFill:
     different from the selection and keep its text readable.'''
 
     @staticmethod
-    def _cases(theme, mode):
-        t = derived_tokens(theme, mode)
+    def _cases(theme, mode, reference):
+        t = derived_tokens(theme, mode, reference)
         text = t['text']
         for role in ('selection', 'inactive'):
             sel = _pick(theme, 'packets', role, mode)
@@ -479,15 +757,15 @@ class TestHoverFill:
                 yield role, t['base'], sel, text
         yield 'highlight', t['base'], t['highlight'], text
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_hover_fill_distinct_from_selection(self, theme_path, mode):
-        for role, base, sel, _ in self._cases(_load_theme(theme_path), mode):
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_hover_fill_distinct_from_selection(self, theme_path, mode, reference):
+        for role, base, sel, _ in self._cases(_load_theme(theme_path), mode, reference):
             fill = selection_hover_fill(base, sel)
             assert contrast_ratio(fill, sel) >= DISTINCT_SURFACE_RATIO, role
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_hover_text_readable(self, theme_path, mode):
-        for role, base, sel, text in self._cases(_load_theme(theme_path), mode):
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_hover_text_readable(self, theme_path, mode, reference):
+        for role, base, sel, text in self._cases(_load_theme(theme_path), mode, reference):
             fill = selection_hover_fill(base, sel)
             assert contrast_ratio(readable_text(text, fill), fill) >= READABLE_TEXT_RATIO, role
 
@@ -505,20 +783,21 @@ class TestInvertedHighlight:
 
 class TestSelectionText:
     '''Selection text is checked centrally (palette builder, token
-    handler): pinned or derived it is lifted to 4.5:1 on its fill.  The
-    shipped themes are designed so that check leaves their pins alone.
-    These tests fail when a theme value change makes a pin depend on the
-    check, which would turn the designed text color into a grey.'''
+    handler): pinned or derived it is lifted to READABLE_TEXT_RATIO on
+    its fill.  The shipped themes are designed so that check leaves
+    their pins alone.  These tests fail when a theme value change makes
+    a pin depend on the check, which would turn the designed text color
+    into a grey.'''
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_highlighted_text_pin_reads_on_highlight(self, theme_path, mode):
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_highlighted_text_pin_reads_on_highlight(self, theme_path, mode, reference):
         theme = _load_theme(theme_path)
         pin = _pick(theme, 'palette', 'highlightedText', mode)
         if pin:
-            assert is_readable(pin, derived_tokens(theme, mode)['highlight'])
+            assert is_readable(pin, derived_tokens(theme, mode, reference)['highlight'])
 
-    @pytest.mark.parametrize('theme_path,mode', _theme_mode_params())
-    def test_packet_state_text_pins_read_on_fill(self, theme_path, mode):
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_packet_state_text_pins_read_on_fill(self, theme_path, mode, reference):
         theme = _load_theme(theme_path)
         for state in ('selection', 'inactive', 'marked'):
             fill = _pick(theme, 'packets', state, mode)
@@ -551,7 +830,7 @@ class TestSchemaFlexibility:
     def test_theme_without_filter_or_separator_parses(self):
         '''Per design, filter and separator are both optional.'''
         jsonschema = pytest.importorskip('jsonschema')
-        schema = json.loads(SCHEMA_PATH.read_text())
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
         minimal = {
             'meta':  {'name': 'Test', 'version': 1},
             'brand': {
@@ -570,7 +849,7 @@ class TestSchemaFlexibility:
         '''The Wireshark theme ships filter; Stratoshark ships both —
         if either schema rule regresses this catches it directly.'''
         jsonschema = pytest.importorskip('jsonschema')
-        schema = json.loads(SCHEMA_PATH.read_text())
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
         full = {
             'meta':  {'name': 'Test', 'version': 1},
             'brand': {
