@@ -10,6 +10,7 @@
 #ifndef __PACKET_LLC_H__
 #define __PACKET_LLC_H__
 
+#include <epan/packet.h>
 #include "ws_symbol_export.h"
 
 /*
