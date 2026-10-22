@@ -253,13 +253,15 @@ Qt provides a number of colors via the https://doc.qt.io/qt-5/qpalette.html[QPal
 class. Use this class when you need a standard color provided by the
 underlying operating system.
 
-Wireshark uses an extended version of the
-https://en.wikipedia.org/wiki/Tango_Desktop_Project[Tango Color Palette]
-for many interface elements that require custom colors. This includes the
-I/O graphs, sequence diagrams, and RTP streams. Please use this palette
-(defined in wsrepofile:ui/qt/utils/tango_colors.h[] and the
-`ColorUtils` class in wsrepofile:ui/qt/utils/color_utils.h[]) if *QPalette*
-doesn't meet your needs.
+Custom interface colors, such as those used by the I/O graphs, sequence
+diagrams, and RTP streams, come from the active theme. Themes are managed by
+the `ThemeManager` class in wsrepofile:ui/qt/utils/theme_manager.h[] and
+defined by the theme files in wsrepodir:resources/themes[] (the format is
+described in wsrepofile:resources/themes/README.md[]). If *QPalette*
+doesn't meet your needs, use `ThemeManager::color()` with a `ThemeToken`,
+or `ThemeManager::graphColor()` for plot series, together with the helpers
+in the `ColorUtils` class (wsrepofile:ui/qt/utils/color_utils.h[]), instead
+of hard-coding RGB values.
 
 Wireshark supports dark themes (aka “dark mode”) on some platforms. We
 leverage Qt's dark theme support when possible, but have implemented our

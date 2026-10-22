@@ -112,7 +112,6 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/software_update.h
 	utils/software_update_backend.h
 	utils/stock_icon.h
-	utils/tango_colors.h
 	utils/theme_manager.h
 	utils/theme_styler.h
 	utils/themes/color_math.h

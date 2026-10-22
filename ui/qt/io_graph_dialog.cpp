@@ -29,7 +29,6 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/utils/theme_manager.h>
-#include <ui/qt/utils/tango_colors.h> //provides some default colors
 #include <ui/qt/widgets/qcustomplot.h>
 #include <ui/qt/widgets/qcp_string_legend_item.h>
 #include <ui/qt/widgets/qcp_axis_ticker_si.h>
