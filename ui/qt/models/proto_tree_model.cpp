@@ -14,6 +14,7 @@
 #include <wsutil/wslog.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/coloring_rule_utils.h>
 #include <ui/qt/utils/theme_manager.h>
 
 #include <QApplication>
@@ -162,6 +163,9 @@ QVariant ProtoTreeModel::data(const QModelIndex &index, int role) const
         if (finfo.isLink()) {
             return ColorUtils::themeLinkBrush();
         }
+        if (ColoringRuleUtils::isDisabledEntryItem(index_node)) {
+            return ColorUtils::disabledForeground();
+        }
         if (finfo.headerInfo().type == FT_PROTOCOL) {
             return QApplication::palette().windowText();
         }
@@ -173,6 +177,20 @@ QVariant ProtoTreeModel::data(const QModelIndex &index, int role) const
             font.setUnderline(true);
             return font;
         }
+        if (ColoringRuleUtils::isDisabledEntryItem(index_node)) {
+            QFont font;
+            font.setItalic(true);
+            return font;
+        }
+        break;
+    case ColoringRuleEntryRole:
+    {
+        ColoringRuleEntry entry;
+        if (ColoringRuleUtils::entryForNode(index_node, &entry)) {
+            return QVariant::fromValue(entry);
+        }
+        break;
+    }
     default:
         break;
     }

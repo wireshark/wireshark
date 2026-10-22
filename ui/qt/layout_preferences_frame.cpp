@@ -91,6 +91,11 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     ui->packetListMultiColorDetailsCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_multi_color_details_, pref_stashed));
     ui->packetListMultiColorDetailsCheckBox->setStyleSheet(indent_ss);
 
+    pref_coloring_rules_include_disabled_ = prefFromPrefPtr(&prefs.gui_coloring_rules_include_disabled);
+    ui->coloringRulesIncludeDisabledCheckBox->setChecked(prefs_get_bool_value(pref_coloring_rules_include_disabled_, pref_stashed));
+    ui->coloringRulesIncludeDisabledCheckBox->setStyleSheet(indent_ss);
+    ui->coloringRulesIncludeDisabledCheckBox->setToolTip(QString::fromUtf8(prefs_get_description(pref_coloring_rules_include_disabled_)));
+
     pref_packet_list_multi_color_mode_ = prefFromPrefPtr(&prefs.gui_packet_list_multi_color_mode);
     pref_packet_list_multi_color_shift_percent_ = prefFromPrefPtr(&prefs.gui_packet_list_multi_color_shift_percent);
     pref_packet_list_multi_color_separator_ = prefFromPrefPtr(&prefs.gui_packet_list_multi_color_separator);
@@ -459,6 +464,7 @@ void LayoutPreferencesFrame::on_restoreButtonBox_clicked(QAbstractButton *)
     ui->statusBarShowSelectedPacketCheckBox->setChecked(prefs_get_bool_value(pref_show_selected_packet_, pref_default));
     ui->statusBarShowFileLoadTimeCheckBox->setChecked(prefs_get_bool_value(pref_show_file_load_time_, pref_default));
     ui->packetListMultiColorDetailsCheckBox->setChecked(prefs_get_bool_value(pref_packet_list_multi_color_details_, pref_default));
+    ui->coloringRulesIncludeDisabledCheckBox->setChecked(prefs_get_bool_value(pref_coloring_rules_include_disabled_, pref_default));
     reset_stashed_pref(pref_packet_list_multi_color_mode_);
     reset_stashed_pref(pref_packet_list_multi_color_shift_percent_);
     reset_stashed_pref(pref_packet_list_multi_color_separator_);
@@ -507,6 +513,11 @@ void LayoutPreferencesFrame::on_statusBarShowFileLoadTimeCheckBox_toggled(bool c
 void LayoutPreferencesFrame::on_packetListMultiColorDetailsCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_packet_list_multi_color_details_, (bool) checked, pref_stashed);
+}
+
+void LayoutPreferencesFrame::on_coloringRulesIncludeDisabledCheckBox_toggled(bool checked)
+{
+    prefs_set_bool_value(pref_coloring_rules_include_disabled_, checked, pref_stashed);
 }
 
 void LayoutPreferencesFrame::on_packetListMultiColorOffRadioButton_toggled(bool checked)

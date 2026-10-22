@@ -98,11 +98,23 @@ public:
     proto_node *protoNode() const;
 
     /**
+     * @brief Retrieves the field information of the underlying node.
+     * @return The node's field_info, or nullptr if the node is invalid or has none.
+     */
+    field_info *fieldInfo() const;
+
+    /**
+     * @brief Retrieves the header field id of the underlying node.
+     * @return The node's header field id, or -1 if the node has no header field.
+     */
+    int hfId() const;
+
+    /**
      * @brief Retrieves a specific child node by its row index.
      * @param row The index of the child node to retrieve.
      * @return A pointer to the child ProtoNode.
      */
-    ProtoNode *child(int row);
+    ProtoNode *child(int row) const;
 
     /**
      * @brief Retrieves the total number of child nodes.
@@ -114,13 +126,13 @@ public:
      * @brief Retrieves the row index of this node relative to its parent.
      * @return The row index.
      */
-    int row();
+    int row() const;
 
     /**
      * @brief Retrieves the parent node of this node.
      * @return A pointer to the parent ProtoNode.
      */
-    ProtoNode *parentNode();
+    ProtoNode *parentNode() const;
 
     /**
      * @brief Retrieves the display label text for this node.

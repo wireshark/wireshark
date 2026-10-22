@@ -4952,9 +4952,8 @@ cf_select_packet(capture_file *cf, frame_data *fdata)
     cf->edt = epan_dissect_new(cf->epan, true, true);
 
     /* Prime for color filter evaluation so dissect_frame stores all matching
-     * filters in proto_data, reflecting current session state (e.g., after
-     * pause/resume of coloring rules which triggers a full redissect that
-     * clears per-frame proto_data). */
+     * rules in proto_data for the current coloring rules; they may have
+     * changed since the frame was last dissected. */
     if (color_filters_used()) {
         color_filters_prime_edt(cf->edt);
         cf->current_frame->need_colorize = 1;

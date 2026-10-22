@@ -366,6 +366,7 @@ typedef struct _e_prefs {
     gui_packet_list_multi_color_mode_e      gui_packet_list_multi_color_mode;            /**< Multi-color stripe display mode */
     unsigned                                gui_packet_list_multi_color_shift_percent;   /**< Primary color width percentage (75–95) for SHIFT_RIGHT mode */
     bool                                    gui_packet_list_multi_color_details;         /**< If true, show all matching color rules in the packet details tree */
+    bool                                    gui_coloring_rules_include_disabled;         /**< If true, disabled coloring rules are matched and listed in the packet details, but never color a packet */
     gui_packet_list_multi_color_separator_e gui_packet_list_multi_color_separator;       /**< Separator style between adjacent color stripes */
 
     /* Decimal places for statistics calculations */

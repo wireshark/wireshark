@@ -12,13 +12,12 @@
 
 #include "multi_color_packet_delegate.h"
 #include "packet_list_record.h"
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/coloring_rule_utils.h>
 #include <ui/qt/utils/themes/color_math.h>
 #include <ui/qt/packet_list.h>
 #include <ui/qt/widgets/pinned_column_view.h>
 #include <ui/qt/widgets/pinned_row_view.h>
 
-#include <epan/color_filters.h>
 #include <epan/prefs.h>
 #include <ui/recent.h>
 
@@ -176,45 +175,31 @@ void MultiColorPacketDelegate::paint(QPainter *painter,
         return;
     }
 
-    // Conversation color filters take full precedence — render as solid single color
-    if (fdata->color_filter &&
-        strncmp(((const color_filter_t *)fdata->color_filter)->filter_name,
-                CONVERSATION_COLOR_PREFIX, strlen(CONVERSATION_COLOR_PREFIX)) == 0) {
-        QStyledItemDelegate::paint(painter, option, index);
-        return;
-    }
-
     // If selected or hovered, use default rendering to show feedback
     if (option.state & (QStyle::State_Selected | QStyle::State_MouseOver)) {
         QStyledItemDelegate::paint(painter, option, index);
         return;
     }
 
-    // Collect colors from matching filters (skip paused filters)
-    QList<QColor> bg_colors;
-    const color_filter_t *primary_filter = NULL;
-    const GSList *filters = record->matchingColorFilters();
-    for (const GSList *item = filters; item != NULL; item = g_slist_next(item)) {
-        const color_filter_t *colorf = (const color_filter_t *)item->data;
-        // Skip session-disabled (paused) filters
-        if (!color_filter_is_session_disabled(colorf->filter_name)) {
-            bg_colors.append(ColorUtils::fromColorT(&colorf->bg_color));
-            if (!primary_filter) {
-                primary_filter = colorf;  // First non-paused filter is primary
-            }
-        }
-    }
-
-    if (bg_colors.isEmpty()) {
+    // Colors of the matching rules; the first is the primary rule. A
+    // conversation rule comes alone and is drawn as a solid single color.
+    const QList<ColoringRuleColors> colors =
+        index.data(PacketListModel::COLORING_RULE_COLORS).value<QList<ColoringRuleColors>>();
+    if (colors.size() < 2) {
         QStyledItemDelegate::paint(painter, option, index);
         return;
+    }
+
+    QList<QColor> bg_colors;
+    for (const ColoringRuleColors &rule_colors : colors) {
+        bg_colors.append(rule_colors.background);
     }
 
     // Draw custom multi-color background
     painter->save();
 
     // Get primary color filter for text color
-    QColor primary_fg = ColorUtils::fromColorT(&primary_filter->fg_color);
+    QColor primary_fg = colors.first().foreground;
 
     OverlayWidget overlay = OverlayWidget::resolve(option.widget);
 

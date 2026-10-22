@@ -3633,6 +3633,15 @@ prefs_register_modules(void)
     prefs_set_preference_effect(gui_module, "packet_list_multi_color_details",
                                 PREF_EFFECT_DISSECTION);
 
+    prefs_register_bool_preference(gui_module, "coloring_rules_include_disabled",
+                                   "Show disabled coloring rules",
+                                   "Also match disabled coloring rules and list them in the packet details, marked as disabled. Disabled rules never color packets.",
+                                   &prefs.gui_coloring_rules_include_disabled);
+    /* Matching disabled rules are added to the packet details tree,
+     * so changing it requires re-dissection to take effect immediately. */
+    prefs_set_preference_effect(gui_module, "coloring_rules_include_disabled",
+                                PREF_EFFECT_DISSECTION);
+
     prefs_register_enum_preference(gui_layout_module, "packet_list_multi_color_separator",
                                    "Color Stripe Separator Style",
                                    "Shape of the boundary between color stripes: Vertical, Diagonal (candy-cane), or Bubble (half-moon)",
@@ -4276,6 +4285,7 @@ prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, in
     prefs.gui_packet_list_multi_color_mode = PACKET_LIST_MULTI_COLOR_MODE_OFF;
     prefs.gui_packet_list_multi_color_shift_percent = 85;
     prefs.gui_packet_list_multi_color_details = false;
+    prefs.gui_coloring_rules_include_disabled = false;
     prefs.gui_packet_list_multi_color_separator = PACKET_LIST_MULTI_COLOR_SEPARATOR_DIAGONAL;
     wmem_free(pref_scope, prefs.gui_interfaces_hide_types);
     prefs.gui_interfaces_hide_types = wmem_strdup(pref_scope, "");

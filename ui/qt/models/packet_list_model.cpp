@@ -22,6 +22,7 @@
 #include <epan/color_filters.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/coloring_rule_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/main_status_bar.h>
@@ -624,6 +625,8 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
             return QVariant::fromValue<TagSegmentList>(record->tagColumnSegments());
         return QVariant();
     }
+    case PacketListModel::COLORING_RULE_COLORS:
+        return QVariant::fromValue(ColoringRuleUtils::matchColors(record));
     default:
         return QVariant();
     }
