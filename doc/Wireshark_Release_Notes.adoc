@@ -265,6 +265,9 @@ The following features are either new or have been significantly updated since v
   content-encoded bodies are uncompressed, controlled by the new
   `ajp13.decompress_body` preference.
 
+* The Help menu entries Website and Wiki now show the Wireshark application icon on
+  Linux and Windows, and Ask (Q&A) no longer has an icon.
+
 === Removed Features and Support
 
 Dumpcap's TCP@host:port interface has been removed. Tools like `socat`, `ncat`,

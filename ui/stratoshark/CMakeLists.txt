@@ -882,9 +882,7 @@ endif()
 qt_add_resources(STRATOSHARK_QT_QRC
 	${CMAKE_SOURCE_DIR}/resources/about.qrc
 	${CMAKE_SOURCE_DIR}/resources/languages/languages.qrc
-	${CMAKE_SOURCE_DIR}/resources/layout.qrc
 	${SSICON_QRC}
-	${CMAKE_SOURCE_DIR}/resources/stock_icons.qrc
 	${CMAKE_SOURCE_DIR}/resources/theme_icons.qrc
 	${STRATOSHARK_I18N_QRC}
 	${STRATOSHARK_AUTHORS_QRC}

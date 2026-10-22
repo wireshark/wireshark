@@ -1047,10 +1047,6 @@
    </property>
   </action>
   <action name="actionHelpWebsite">
-   <property name="icon">
-    <iconset resource="../../resources/stock_icons.qrc">
-     <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
-   </property>
    <property name="text">
     <string>Website</string>
    </property>
@@ -1066,10 +1062,6 @@
    </property>
   </action>
   <action name="actionHelpWiki">
-   <property name="icon">
-    <iconset resource="../../resources/stock_icons.qrc">
-     <normaloff>:/menu/help/wsicon16.png</normaloff>:/menu/help/wsicon16.png</iconset>
-   </property>
    <property name="text">
     <string>Wiki</string>
    </property>
@@ -1096,15 +1088,8 @@
    </property>
   </action>
   <action name="actionHelpAsk">
-   <property name="icon">
-    <iconset resource="../../resources/stock_icons.qrc">
-     <normaloff>:/menu/help/wsicon-ask.png</normaloff>:/menu/help/wsicon-ask.png</iconset>
-   </property>
    <property name="text">
     <string>Ask (Q&amp;&amp;A)</string>
-   </property>
-   <property name="iconVisibleInMenu">
-    <bool>true</bool>
    </property>
   </action>
   <action name="actionGoNextPacket">
@@ -3339,9 +3324,7 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../../resources/stock_icons.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>actionFileQuit</sender>

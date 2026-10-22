@@ -268,9 +268,10 @@ leverage Qt's dark theme support when possible, but have implemented our
 own support and workarounds in some cases. You can ensure that your code
 includes proper dark theme support by doing the following:
 
-* You can use a macOS-style template icon by creating a monochrome SVG
-document with “.template” appended to the name, e.g.
-`resources/stock_icons/24x24/edit-find.template.svg`.
+* Use SVG icons from `resources/svg_icons/` through `ThemedIcon` (monochrome icons,
+recoloured to the active theme) or `ContrastAdaptIcon` (multi-colour icons whose colours are
+adjusted for contrast). Both follow theme and dark mode changes without extra code. See
+`resources/svg_icons/README.adoc` for adding an icon.
 * Qt draws unvisited links *Qt::blue* no matter what. You can work
 around this by using `ColorUtils::themeLinkBrush()` and
 `ColorUtils::themeLinkStyle()`.

@@ -47,16 +47,6 @@ QString ThemeStyleSheetLoader::load(const QString  &name,
 
     QString qss = QString::fromUtf8(f.readAll());
 
-    // Replace the `%wsmode%` placeholder with the current effective
-    // mode as a plain string — "dark" or "light".  Intended for QSS
-    // that needs to pick a mode-specific asset by filename (e.g.
-    //   image: url(:/stock_icons/14x14/x-filter-dropdown.%wsmode%.png);
-    // ).  Placeholder takes no arguments; it's a simple textual
-    // substitution done before the wstheme(...) regex so the
-    // resolver's grammar stays purely color-typed.
-    qss.replace(QStringLiteral("%wsmode%"),
-                isDarkMode ? QStringLiteral("dark") : QStringLiteral("light"));
-
     // Replace all wstheme(RoleName) references with resolved color
     // values.  RoleName must match a ThemeToken enum identifier
     // exactly (case-sensitive), e.g. wstheme(HeaderBackground).
