@@ -135,7 +135,7 @@
         },
 
         "separator": {
-            "description": "Optional hairline/divider color used between cards and sections. When omitted, derived as a 53% mix of palette.base toward palette.mid. Themes whose palette.mid doubles as muted text (e.g. Stratoshark) should set this explicitly to a softer value so dividers stay subtle.",
+            "description": "Optional hairline/divider color used between sections. When omitted, derived as a 53% mix of palette.base toward palette.mid, raised to at least 1.6:1 contrast against palette.base. Themes whose palette.mid doubles as muted text (e.g. Stratoshark) should set this explicitly to a softer value.",
             "$ref": "#/$defs/colorPair"
         },
 

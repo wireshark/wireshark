@@ -14,7 +14,6 @@
 #include <QColor>
 #include <QFile>
 #include <QIODevice>
-#include <QMetaEnum>
 #include <QRegularExpression>
 
 QString ThemeStyleSheetLoader::load(const QString  &name,
@@ -64,21 +63,14 @@ QString ThemeStyleSheetLoader::load(const QString  &name,
     static const QRegularExpression tokenRe(
         QStringLiteral("wstheme\\(\\s*([A-Za-z][A-Za-z0-9]*)\\s*\\)"));
 
-    static const QMetaEnum roleEnum =
-        QMetaEnum::fromType<ThemeManager::ThemeToken>();
-
     qsizetype offset = 0;
     QRegularExpressionMatch match;
     while ((match = tokenRe.match(qss, offset)).hasMatch()) {
         const QString token = match.captured(1);
-        bool ok = false;
-        const int roleInt = roleEnum.keyToValue(token.toUtf8().constData(), &ok);
+        const ThemeManager::ThemeToken role = ThemeManager::tokenFromName(token);
         QColor value;
-        if (ok && roleInt != ThemeManager::NoRole) {
-            const ThemeColorPair pair = tokens.value(
-                static_cast<ThemeManager::ThemeToken>(roleInt), ThemeColorPair());
-            value = isDarkMode ? pair.dark : pair.light;
-        }
+        if (role != ThemeManager::NoRole)
+            value = tokens.value(role, ThemeColorPair()).forMode(isDarkMode);
         if (value.isValid()) {
             qss.replace(match.capturedStart(), match.capturedLength(), value.name());
             offset = match.capturedStart() + value.name().length();

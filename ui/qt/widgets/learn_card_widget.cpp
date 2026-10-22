@@ -36,17 +36,15 @@ LearnCardWidget::LearnCardWidget(QWidget *parent) :
     ui_->setupUi(this);
 
     loadLinksFromRessource();
+    applyTheme();
     setupLinks();
-    setupActionButtons();
-    setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/learn-card")));
 
-    // Reload the stylesheet whenever the theme (or its light/dark
-    // selection) changes.  QEvent::ApplicationPaletteChange alone isn't
-    // reliable — a mode flip on a theme with no palette overrides may
-    // not produce a palette delta large enough for Qt to propagate.
-    connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, [this]() {
-        setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/learn-card")));
-    });
+    // Re-apply the theme whenever it (or its light/dark selection)
+    // changes.  QEvent::ApplicationPaletteChange alone isn't reliable —
+    // a mode flip on a theme with no palette overrides may not produce
+    // a palette delta large enough for Qt to propagate.
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &LearnCardWidget::applyTheme);
 
     connect(ui_->learnHeader, &ClickableLabel::clicked, this, []() {
         QDesktopServices::openUrl(QUrl(WS_DOCS_URL));
@@ -109,7 +107,6 @@ void LearnCardWidget::loadLinksFromRessource()
         button.label = button_obj.value(QStringLiteral("label")).toString();
         button.tooltip = button_obj.value(QStringLiteral("tooltip")).toString();
         button.color = button_obj.value(QStringLiteral("color")).toString();
-        button.hover_color = button_obj.value(QStringLiteral("hover_color")).toString();
         button.validity = LearnCardWidget::AllVersions;
         if (button_obj.contains(QStringLiteral("scheme"))) {
             QString scheme_str = button_obj.value(QStringLiteral("scheme")).toString();
@@ -170,6 +167,31 @@ void LearnCardWidget::setupLinks()
 
     if (links_collapsed_)
         link_layout->addStretch(1);
+
+    applyCardLinkPalette();
+}
+
+void LearnCardWidget::applyTheme()
+{
+    setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/learn-card")));
+    setupActionButtons();
+    applyCardLinkPalette();
+}
+
+void LearnCardWidget::applyCardLinkPalette()
+{
+    // Rich-text anchors take their color from QPalette::Link; a QSS
+    // color rule does not reach them.  The card link is lifted to read
+    // on the card and on its hover fill, so the labels get it locally
+    // and the application Link stays as it is.
+    const QColor card_link = ThemeManager::instance()->color(ThemeManager::CardLink);
+    const QList<QLabel *> labels = ui_->learnLinkContainer->findChildren<QLabel *>(
+        QStringLiteral("learnLink"), Qt::FindDirectChildrenOnly);
+    for (QLabel *label : labels) {
+        QPalette pal = label->palette();
+        pal.setColor(QPalette::Link, card_link);
+        label->setPalette(pal);
+    }
 }
 
 void LearnCardWidget::setupActionButtons()
@@ -190,7 +212,12 @@ void LearnCardWidget::setupActionButtons()
                 continue;
         }
 
-        QColor button_color = button.color.isValid() ? button.color : defColor;
+        QColor button_color = resolveButtonColor(button.color);
+        if (!button_color.isValid()) {
+            qWarning("LearnCardWidget: cannot resolve button color \"%s\"",
+                     qUtf8Printable(button.color));
+            button_color = defColor;
+        }
 
         auto *action_button = new QPushButton(button.label, ui_->learnButtonContainer);
         action_button->setObjectName(QStringLiteral("learnButton"));
@@ -203,6 +230,19 @@ void LearnCardWidget::setupActionButtons()
         });
         button_layout->addWidget(action_button);
     }
+}
+
+QColor LearnCardWidget::resolveButtonColor(const QString &spec)
+{
+    if (spec.startsWith(QLatin1Char('#')))
+        return QColor(spec);
+
+    // A name is a ThemeToken enumerator, so the value follows the
+    // active theme and light/dark mode.
+    const ThemeManager::ThemeToken token = ThemeManager::tokenFromName(spec);
+    if (token == ThemeManager::NoRole)
+        return QColor();
+    return ThemeManager::instance()->color(token);
 }
 
 void LearnCardWidget::setLinksCollapsed(bool collapsed)
@@ -230,7 +270,7 @@ bool LearnCardWidget::event(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::ApplicationPaletteChange:
-        setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/learn-card")));
+        applyTheme();
         break;
     case QEvent::LanguageChange:
         ui_->retranslateUi(this);

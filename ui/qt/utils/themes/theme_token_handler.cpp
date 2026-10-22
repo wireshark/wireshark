@@ -58,8 +58,7 @@ QColor pickPaletteValue(const TokenMap &tokens,
                         const QPalette &palette)
 {
     if (tokens.contains(role)) {
-        const ThemeColorPair &p = tokens.value(role);
-        return isDarkMode ? p.dark : p.light;
+        return tokens.value(role).forMode(isDarkMode);
     }
     return palette.color(qtRole);
 }
@@ -211,7 +210,8 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     }
 
     // Syntax highlighting — readable foreground text on PaletteBase.
-    // Keys reuse the palette's Mid role (naturally a mode-aware gray).
+    // Keys use the palette's Mid role, lifted to body-text
+    // contrast against Base: on macOS dark mode Mid sits below Base.
     // String / number colours shift the accent away from the
     // background: darker in light mode (toward black), lighter in
     // dark mode (toward white) — mirroring how the Tango palette
@@ -219,8 +219,9 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     const QColor midColor = pickPaletteValue(tokens, ThemeManager::PaletteMid, QPalette::Mid, isDarkMode, palette);
     const ThemeColorPair accentSuccess = tokens.value(ThemeManager::AccentSuccess);
     const ThemeColorPair accentInfo    = tokens.value(ThemeManager::AccentInfo);
+    const QColor keyColor = ColorMath::readableText(midColor, baseColor);
     assign(tokens, ThemeManager::SyntaxKey,
-           ThemeColorPair { midColor, midColor });
+           ThemeColorPair { keyColor, keyColor });
     assign(tokens, ThemeManager::SyntaxString,
            ThemeColorPair { ColorMath::darken(accentSuccess.light, 30),
                             ColorMath::lighten(accentSuccess.dark,  30) });
@@ -236,7 +237,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // window so it never melts into it (a dark selection darkened by
     // 40 % lands almost on a dark window), then shifted only as far as
     // the title needs to read.  The version label is the title color
-    // faded 25 % toward the bar, lifted back to 3.0:1 if that overshoots.
+    // faded 25 % toward the bar, lifted back to LargeTextRatio if that overshoots.
     const QColor highlight     = palette.color(QPalette::Active, QPalette::Highlight);
     const QColor highlightText = palette.color(QPalette::Active, QPalette::HighlightedText);
     QColor headerBg = ColorMath::ensureContrast(ColorMath::darken(highlight, 40),
@@ -250,47 +251,124 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     headerBg = ColorMath::ensureContrast(headerBg, headerText,
             ColorMath::ReadableTextRatio);
     const QColor headerMuted = ColorMath::ensureContrast(
-            ColorMath::mix(headerText, headerBg, 0.25), headerBg, 3.0);
+            ColorMath::mix(headerText, headerBg, 0.25), headerBg,
+            ColorMath::LargeTextRatio);
     // The palette describes only the current mode; deriveAll() runs again
     // on every mode switch, so both halves carry the current value.
     assign(tokens, ThemeManager::HeaderBackground, ThemeColorPair { headerBg,    headerBg });
     assign(tokens, ThemeManager::HeaderText,        ThemeColorPair { headerText,  headerText });
     assign(tokens, ThemeManager::HeaderTextMuted,   ThemeColorPair { headerMuted, headerMuted });
 
-    // Section headers — ensureContrast against palette.base at 4.5:1 so
+    // Section headers — lifted to ReadableTextRatio against palette.base so
     // welcome-page labels ("Open", "Capture", "Learn") stay readable on
     // every shipped theme regardless of whether the theme overrides
     // palette.mid.  Replaces the legacy `mid, mid` assignment that left
     // the labels invisible on dark Wireshark.
-    const QColor sectionHeader      = ColorMath::ensureContrast(mid,                  baseColor, 4.5);
-    const QColor sectionHeaderHover = ColorMath::ensureContrast(brandPrimary.dark,    baseColor, 4.5);
+    const QColor sectionHeader      = ColorMath::readableText(mid,               baseColor);
+    const QColor sectionHeaderHover = ColorMath::readableText(brandPrimary.dark, baseColor);
     // Light-mode hover uses the light brand value; the off-mode slot is
     // unused at runtime but is filled symmetrically.
-    const QColor sectionHeaderHoverLight = ColorMath::ensureContrast(brandPrimary.light, baseColor, 4.5);
+    const QColor sectionHeaderHoverLight = ColorMath::readableText(brandPrimary.light, baseColor);
     assign(tokens, ThemeManager::SectionHeader,
            ThemeColorPair { sectionHeader, sectionHeader });
     assign(tokens, ThemeManager::SectionHeaderHover,
            ThemeColorPair { sectionHeaderHoverLight, sectionHeaderHover });
 
     // Structural form chrome — FieldBorder frames interactive controls
-    // (3.0:1 against base, the WCAG non-text contrast minimum).
-    // Separator is a softer divider; defaults to a 53% mix of base
-    // toward mid for hairlines between cards.  Themes can pin Separator
-    // via the JSONC "separator" top-level key (Stratoshark does, since
-    // its palette.mid intentionally doubles as muted text and would
-    // produce too-pronounced dividers otherwise).
-    const QColor fieldBorder = ColorMath::ensureContrast(mid, baseColor, 3.0);
-    const QColor separator   = ColorMath::mix(baseColor, mid, 135.0 / 255.0);
+    // (NonTextRatio against base, the WCAG non-text minimum).
+    // Separator is a softer divider: a 53% mix of base toward mid,
+    // lifted to DividerRatio against base.  The lift matters where the
+    // platform's Mid sits at or below Base (macOS dark mode), which left
+    // the plain mix indistinguishable from the page.  Themes can pin
+    // Separator via the JSONC "separator" top-level key (Stratoshark
+    // does, since its palette.mid intentionally doubles as muted text);
+    // a pin is kept as authored.
+    const QColor fieldBorder = ColorMath::ensureContrast(mid, baseColor, ColorMath::NonTextRatio);
+    const QColor separator   = ColorMath::ensureContrast(
+            ColorMath::mix(baseColor, mid, 135.0 / 255.0),
+            baseColor, ColorMath::DividerRatio);
     assign(tokens, ThemeManager::FieldBorder,
            ThemeColorPair { fieldBorder, fieldBorder });
     assign(tokens, ThemeManager::Separator,
            ThemeColorPair { separator, separator });
 
-    // Secondary text: Text faded 40 % toward Base, then lifted to the
-    // 4.5:1 WCAG text contrast minimum against Base.
+    // Secondary text: Text faded 40 % toward Base, then lifted to
+    // ReadableTextRatio (the WCAG text minimum) against Base.
     const QColor mutedText = ColorMath::ensureContrast(
-        ColorMath::mix(paletteTextColor, baseColor, 0.40), baseColor, 4.5);
+            ColorMath::mix(paletteTextColor, baseColor, 0.40), baseColor,
+            ColorMath::ReadableTextRatio);
     assign(tokens, ThemeManager::MutedText, ThemeColorPair { mutedText, mutedText });
+
+    // Raised surfaces ("cards") on Base: the welcome page Learn card and
+    // the overlay cards.  The platform AlternateBase is no usable source
+    // (macOS reports an opaque light gray for it in dark mode), so the
+    // card starts from the theme's own alternateBase when it pins one,
+    // else from Base, and is moved away from Base until it reads as its
+    // own surface.  ensureContrast() moves toward white on a dark base
+    // and toward black on a light one.  A light base shows a smaller
+    // step as clearly, hence the lower light ratio.
+    const ThemeColorPair altBasePin = tokens.value(ThemeManager::PaletteAlternateBase);
+    const QColor altBaseSide = altBasePin.forMode(isDarkMode);
+    const QColor cardBg = ColorMath::ensureContrast(
+            altBaseSide.isValid() ? altBaseSide : baseColor, baseColor,
+            isDarkMode ? ColorMath::CardSurfaceRatioDark : ColorMath::CardSurfaceRatioLight);
+
+    // The card border and the lines drawn on the card start from
+    // Separator (pinned or derived) and are kept DividerRatio apart from
+    // the card: a pinned Separator can sit almost on the lifted card.
+    const ThemeColorPair separatorPair = tokens.value(ThemeManager::Separator);
+    const QColor separatorSide = separatorPair.forMode(isDarkMode);
+    const QColor cardBorder = ColorMath::ensureContrast(separatorSide, cardBg, ColorMath::DividerRatio);
+
+    // Text and states on the card.  Section header and link colors are
+    // derived against Base and lose contrast on the lifted card, so they
+    // are lifted again against it.
+    // The card link is lifted against the card only, far enough that
+    // it reads on the item-view hover fill computed with the card as
+    // base: WCAG ratios multiply along one luminance axis, so a link
+    // ReadableTextRatio times the fill's own contrast to the card away
+    // from the card reads at ReadableTextRatio on that fill.  A
+    // rich-text anchor has one color for both states, so where the
+    // link cannot get that far, the fill gives way and is moved until
+    // the link reads on it.
+    // The focus ring is the selection color lifted to text contrast
+    // against the card.
+    const ThemeColorPair sectionHeaderPair      = tokens.value(ThemeManager::SectionHeader);
+    const ThemeColorPair sectionHeaderHoverPair = tokens.value(ThemeManager::SectionHeaderHover);
+    const QColor cardSectionHeader = ColorMath::readableText(
+            sectionHeaderPair.forMode(isDarkMode), cardBg);
+    const QColor cardSectionHeaderHover = ColorMath::readableText(
+            sectionHeaderHoverPair.forMode(isDarkMode), cardBg);
+    const QColor cardLinkHoverBase = ColorMath::selectionHoverFill(cardBg, highlight);
+    const QColor cardLink = ColorMath::ensureContrast(
+            palette.color(QPalette::Active, QPalette::Link), cardBg,
+            ColorMath::ReadableTextRatio * ColorMath::contrastRatio(cardLinkHoverBase, cardBg));
+    const QColor cardLinkHover = ColorMath::ensureContrast(
+            cardLinkHoverBase, cardLink, ColorMath::ReadableTextRatio);
+    const QColor cardFocusRing = ColorMath::readableText(highlight, cardBg);
+
+    // Overlay cards sit over a black scrim, such as the startup splash.
+    // The scrim darkens the window behind, so the card stands out best
+    // as the lighter of Base and the card surface: the card in dark
+    // mode, Base in light mode, where a gray card would sink into the
+    // darkened window.
+    const QColor overlayCardBg =
+            ColorMath::relativeLuminance(cardBg) > ColorMath::relativeLuminance(baseColor)
+            ? cardBg : baseColor;
+    const QColor overlayCardBorder = ColorMath::ensureContrast(
+            separatorSide, overlayCardBg, ColorMath::DividerRatio);
+
+    // The palette describes only the current mode; both halves carry
+    // the current value, as for the welcome header.
+    assign(tokens, ThemeManager::CardBackground,         ThemeColorPair { cardBg,                 cardBg });
+    assign(tokens, ThemeManager::CardBorder,             ThemeColorPair { cardBorder,             cardBorder });
+    assign(tokens, ThemeManager::CardSectionHeader,      ThemeColorPair { cardSectionHeader,      cardSectionHeader });
+    assign(tokens, ThemeManager::CardSectionHeaderHover, ThemeColorPair { cardSectionHeaderHover, cardSectionHeaderHover });
+    assign(tokens, ThemeManager::CardLink,               ThemeColorPair { cardLink,               cardLink });
+    assign(tokens, ThemeManager::CardLinkHover,          ThemeColorPair { cardLinkHover,          cardLinkHover });
+    assign(tokens, ThemeManager::CardFocusRing,          ThemeColorPair { cardFocusRing,          cardFocusRing });
+    assign(tokens, ThemeManager::OverlayCardBackground,  ThemeColorPair { overlayCardBg,          overlayCardBg });
+    assign(tokens, ThemeManager::OverlayCardBorder,      ThemeColorPair { overlayCardBorder,      overlayCardBorder });
 
     // Foregrounds for solid accent surfaces — auto-pick black or white
     // per contrastingText().  These give QSS rules a single token to

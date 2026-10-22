@@ -57,7 +57,7 @@
 		},
 		"button": {
 			"type": "object",
-			"required": ["label", "url", "tooltip", "color", "hover"],
+			"required": ["label", "url", "tooltip", "color"],
 			"properties": {
 				"label": {
 					"type": "string",
@@ -74,13 +74,8 @@
 				},
 				"color": {
 					"type": "string",
-					"pattern": "^#[0-9A-Fa-f]{6}$",
-					"description": "Background color of the button in hex format."
-				},
-				"hover": {
-					"type": "string",
-					"pattern": "^#[0-9A-Fa-f]{6}$",
-					"description": "Background color of the button on hover in hex format."
+					"pattern": "^(#[0-9A-Fa-f]{6}|[A-Z][A-Za-z0-9]*)$",
+					"description": "Fill color of the button: a hex value or the name of a Wireshark theme token (e.g. AccentError), which follows the active theme and light/dark mode. The fill is darkened until the white label reads at 4.5:1; hover and pressed are derived from it."
 				}
 			},
 			"additionalProperties": false

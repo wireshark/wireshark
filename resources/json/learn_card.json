@@ -39,15 +39,13 @@
 			"label": "Discord",
 			"url": "https://discord.gg/fT2jvkawGj",
 			"tooltip": "Join the Wireshark Discord server to chat with other users and developers.",
-			"color": "#5865F2",
-			"hover": "#4752C4"
+			"color": "#5865F2"
 		},
 		{
 			"label": "Donate",
 			"url": "https://wiresharkfoundation.org/donate/",
 			"tooltip": "Support the Wireshark project by making a donation to the Wireshark Foundation.",
-			"color": "#C0392B",
-			"hover": "#A93226"
+			"color": "AccentError"
 		}
 	]
 }

@@ -18,11 +18,11 @@
 
 
 /* -----------------------------------------------------------------
- * Card container — rounded border with background
+ * Card container — raised surface with border, from the shared card tokens
  * ----------------------------------------------------------------- */
 LearnCardWidget {
-    background-color: palette(alternateBase);
-    border: 1px solid wstheme(Separator);
+    background-color: wstheme(CardBackground);
+    border: 1px solid wstheme(CardBorder);
     border-radius: 6px;
 }
 
@@ -30,36 +30,52 @@ LearnCardWidget {
 /* -----------------------------------------------------------------
  * Header label — "Learn"
  *
- * Colors come from the shared section header tokens so the Open,
- * Capture and Learn headers always look identical.
+ * Colors are the shared section header colors, re-derived to read on
+ * the card surface.
  * ----------------------------------------------------------------- */
 QLabel#learnHeader {
-    color: wstheme(SectionHeader);
+    color: wstheme(CardSectionHeader);
     padding: 10px 12px;
 }
 
 QLabel#learnHeader:hover {
-    color: wstheme(SectionHeaderHover);
+    color: wstheme(CardSectionHeaderHover);
 }
 
 
 /* -----------------------------------------------------------------
- * Header separator — 1px horizontal line
+ * Header separator — 1px horizontal line (lines on the card use the
+ * card border token)
  * ----------------------------------------------------------------- */
 QFrame#learnHeaderSeparator {
-    color: palette(mid);
+    color: wstheme(CardBorder);
 }
 
 
 /* -----------------------------------------------------------------
  * Link labels — clickable rich-text links
+ *
+ * The anchor color is the CardLink token, set as the labels'
+ * QPalette::Link in LearnCardWidget (QSS color does not reach rich-text
+ * anchors).  Hover is the item hover fill on the card, moved toward the
+ * card until the link reads on it.  Keyboard focus is a ring in a
+ * border reserved in every state, so focusing does not
+ * shift the layout; the native anchor selection is turned off so focus
+ * and hover never look alike.
  * ----------------------------------------------------------------- */
 QLabel#learnLink {
+    border: 2px solid transparent;
     border-radius: 4px;
+    selection-background-color: transparent;
+    selection-color: wstheme(CardLink);
 }
 
 QLabel#learnLink:hover {
-    background-color: palette(midlight);
+    background-color: wstheme(CardLinkHover);
+}
+
+QLabel#learnLink:focus {
+    border-color: wstheme(CardFocusRing);
 }
 
 
@@ -68,7 +84,8 @@ QLabel#learnLink:hover {
  *
  * Background and text colors are set per button in code
  * (ThemeStyler::buttonStyleSheet()), from the learn_card.json
- * configuration.
+ * configuration (a hex seed or a theme token name, darkened until the
+ * white label reads).
  * ----------------------------------------------------------------- */
 QPushButton#learnButton {
     border: none;
@@ -79,8 +96,9 @@ QPushButton#learnButton {
 
 
 /* -----------------------------------------------------------------
- * Button container — separator line above action buttons
+ * Button container — separator line above action buttons, in the card
+ * border token
  * ----------------------------------------------------------------- */
 QWidget#learnButtonContainer {
-    border-top: 1px solid wstheme(Separator);
+    border-top: 1px solid wstheme(CardBorder);
 }

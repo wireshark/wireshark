@@ -88,14 +88,16 @@ private:
         QString url;           /**< URL opened when the button is clicked. */
         QString label;         /**< Button face text. */
         QString tooltip;       /**< Tooltip shown on hover. */
-        QColor color;          /**< Normal background colour of the button. */
-        QColor hover_color;    /**< Background colour applied when the button is hovered. */
+        /** "#RRGGBB" seed or ThemeToken name, resolved when the
+         *  buttons are styled. */
+        QString color;
         ValidityType validity; /**< Build scope in which this button is displayed. */
     };
 
     Ui::LearnCardWidget *ui_; /**< Qt Designer–generated UI form. */
     QList<LinkType> links_;   /**< Links loaded from the resource, filtered by validity. */
-    QList<ButtonType> buttons_; /**< Action buttons loaded from the resource, filtered by validity. */
+    /** Action buttons loaded from the resource, filtered by validity. */
+    QList<ButtonType> buttons_;
     bool links_collapsed_;    /**< true when the links section is in its collapsed state. */
 
     /**
@@ -112,6 +114,27 @@ private:
      * @brief Create and insert action button widgets from @c buttons_.
      */
     void setupActionButtons();
+
+    /**
+     * @brief Re-apply everything the theme drives: the card style
+     * sheet, the action buttons (their fill can come from a theme
+     * token) and the card link color.
+     */
+    void applyTheme();
+
+    /**
+     * @brief Set the card link color (CardLink) as QPalette::Link
+     * of every link label.
+     */
+    void applyCardLinkPalette();
+
+    /**
+     * @brief Resolve a button color spec for the current theme and mode.
+     * @param spec "#RRGGBB" or a ThemeToken name.
+     * @return The color, or an invalid QColor if @p spec cannot be
+     * resolved.
+     */
+    static QColor resolveButtonColor(const QString &spec);
 };
 
 #endif //LEARN_CARD_WIDGET_H

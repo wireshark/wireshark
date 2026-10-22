@@ -19,6 +19,7 @@
 #include <wsutil/utf8_entities.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 #include <app/application_flavor.h>
 
 #ifdef HAVE_LUA
@@ -49,15 +50,10 @@ static const int kSubtextAlpha = 160;
 static const int kBarHeight = 6;
 static const int kCardBgAlpha = 200;
 static const int kCardBgAlphaLight = 190;
-static const int kCardBorderAlpha = 30;
-static const int kCardBorderAlphaLight = 25;
-static const int kBarTrackAlpha = 25;
-static const int kBarTrackAlphaLight = 20;
 static const int kVignetteEdgeAlpha = 178;
 static const int kVignetteEdgeAlphaLight = 140;
 static const int kVignetteCenterAlpha = 30;
 static const int kVignetteCenterAlphaLight = 10;
-static const int kBarFillAlpha = 200;
 
 SplashOverlay *SplashOverlay::instance_ = nullptr;
 
@@ -112,13 +108,6 @@ void SplashOverlay::paintEvent(QPaintEvent *)
 
     bool dark = ThemeManager::isDark();
     ThemeManager *theme = ThemeManager::instance();
-    // ThemePaletteBuilder has already pushed the mode-correct palette
-    // to qApp, so Base/Mid are the authoritative source here.  Don't
-    // use ThemeManager::color(PaletteBase/Mid) — those tokens are only
-    // populated when the theme defines an explicit override, and the
-    // default theme doesn't, so they resolve to an invalid QColor
-    // (rendered as opaque black).
-    const QPalette appPalette = QApplication::palette();
 
     // --- Radial vignette background ---
     // Scrim over the window-behind: mode-independent black, alpha-modulated.
@@ -153,10 +142,15 @@ void SplashOverlay::paintEvent(QPaintEvent *)
     int card_y = static_cast<int>(height() * kCardVerticalPosition);
     QRectF card_rect(card_x, card_y, card_w, kCardHeight);
 
-    QColor card_bg = appPalette.color(QPalette::Base);
+    // Card surface and border come from the shared overlay tokens: the
+    // surface is the one that stands out from the scrim in each mode,
+    // the border is kept DividerRatio apart from it.  The card keeps a
+    // little translucency; border and track are opaque, since a
+    // translucent line over the vignette composites back toward the
+    // scrim.
+    QColor card_bg = theme->color(ThemeManager::OverlayCardBackground);
     card_bg.setAlpha(dark ? kCardBgAlpha : kCardBgAlphaLight);
-    QColor card_border = appPalette.color(QPalette::Mid);
-    card_border.setAlpha(dark ? kCardBorderAlpha : kCardBorderAlphaLight);
+    const QColor card_border = theme->color(ThemeManager::OverlayCardBorder);
 
     painter.setPen(QPen(card_border, 1.0));
     painter.setBrush(card_bg);
@@ -201,8 +195,7 @@ void SplashOverlay::paintEvent(QPaintEvent *)
     const int bar_y = card_y + kCardHeight - kCardPadding - kBarHeight;
     QRectF bar_bg_rect(card_x + kCardPadding, bar_y, card_w - 2 * kCardPadding, kBarHeight);
 
-    QColor bar_bg = appPalette.color(QPalette::Mid);
-    bar_bg.setAlpha(dark ? kBarTrackAlpha : kBarTrackAlphaLight);
+    const QColor bar_bg = card_border;
     painter.setPen(Qt::NoPen);
     painter.setBrush(bar_bg);
     painter.drawRoundedRect(bar_bg_rect, kBarHeight / 2.0, kBarHeight / 2.0);
@@ -212,8 +205,10 @@ void SplashOverlay::paintEvent(QPaintEvent *)
         qreal fill_w = (card_w - 2 * kCardPadding) * fraction;
 
         QRectF bar_fill_rect(card_x + kCardPadding, bar_y, fill_w, kBarHeight);
-        QColor bar_fill = theme->color(ThemeManager::BrandPrimary);
-        bar_fill.setAlpha(kBarFillAlpha);
+        // brand.primary lifted to the WCAG non-text minimum against the
+        // track, so the bar reads on every theme.
+        const QColor bar_fill = ColorMath::ensureContrast(
+            theme->color(ThemeManager::BrandPrimary), bar_bg, ColorMath::NonTextRatio);
 
         painter.setBrush(bar_fill);
         painter.drawRoundedRect(bar_fill_rect, kBarHeight / 2.0, kBarHeight / 2.0);

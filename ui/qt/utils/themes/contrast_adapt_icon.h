@@ -101,10 +101,11 @@ public:
      * @brief Minimum WCAG contrast ratio every ContrastAdaptIcon holds against
      *        its background.
      *
-     * A single global knob rather than a per-call argument: defaults to 1.6
-     * (tuned for icon visibility without shifting colours too far) and is
-     * captured by each icon when it is constructed, so set it once at start-up
-     * before icons are created.  Higher values shift colours more aggressively.
+     * A single global knob rather than a per-call argument: defaults to
+     * ColorMath::IconContrastRatio (tuned for icon visibility without shifting
+     * colours too far) and is captured by each icon when it is constructed, so
+     * set it once at start-up before icons are created.  Higher values shift
+     * colours more aggressively.
      */
     static void  setDefaultMinContrast(qreal ratio);
     static qreal defaultMinContrast();
