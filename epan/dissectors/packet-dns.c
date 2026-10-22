@@ -1871,7 +1871,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 static void
 add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
   const char *name, int namelen, int type,
-  packet_info *pinfo, bool is_mdns)
+  packet_info *pinfo, bool is_mdns, bool is_dso_reconfirm)
 {
   uint32_t    ttl_value;
   proto_item *ttl_item;
@@ -1930,6 +1930,12 @@ add_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
     proto_tree_add_item(rr_tree, hf_dns_rr_class, tvb, offset, 2, ENC_BIG_ENDIAN);
   }
   offset += 2;
+
+  // RFC8765 RECONFIRM has no TTL or RDLEN
+  if (is_dso_reconfirm) {
+    return;
+  }
+
   ttl_item = proto_tree_add_item_ret_uint(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ENC_BIG_ENDIAN, &ttl_value);
   // storing ttl in the context-specific array and then increments its array's
   // index for storing ttl of the next record
@@ -2502,7 +2508,7 @@ dissect_dnscrypt(proto_tree *tree, tvbuff_t *tvb, int offset, unsigned length)
 static int
 dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   proto_tree *dns_tree, packet_info *pinfo,
-  bool is_mdns, wmem_list_t *dns_type_list)
+  bool is_mdns, bool is_dso_reconfirm, wmem_list_t *dns_type_list)
 {
   const char   *name;
   char         *name_out;
@@ -2539,13 +2545,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   type_name = val_to_str_ext(pinfo->pool, dns_type, &dns_types_vals_ext, "Unknown (%d)");
   class_name = val_to_str_const(dns_class, dns_classes, "Unknown");
 
-  data_offset += 4;
-  cur_offset += 4;
+  if (is_dso_reconfirm) {
+    data_len = (uint16_t)tvb_reported_length_remaining(tvb, cur_offset);
+  } else {
+    data_offset += 4;
+    cur_offset += 4;
 
-  data_len = tvb_get_ntohs(tvb, data_offset);
+    data_len = tvb_get_ntohs(tvb, data_offset);
 
-  data_offset += 2;
-  cur_offset  += 2;
+    data_offset += 2;
+    cur_offset  += 2;
+  }
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s", type_name);
   if (is_mdns && flush) {
@@ -2559,13 +2569,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
    * format it for display.
    */
   name_out = format_text(pinfo->pool, name, name_len);
-  if (dns_type != DNS_T_OPT) {
+  if (dns_type != DNS_T_OPT || is_dso_reconfirm) {
     rr_tree = proto_tree_add_subtree_format(dns_tree, tvb, offsetx,
                               (data_offset - data_start) + data_len,
                               ett_dns_rr, &trr, "%s: type %s, class %s",
                               name_out, type_name, class_name);
     add_rr_to_tree(rr_tree, tvb, offsetx, name_out, used_bytes - 4,
-                             dns_type, pinfo, is_mdns);
+                             dns_type, pinfo, is_mdns, is_dso_reconfirm);
   } else  {
     rr_tree = proto_tree_add_subtree_format(dns_tree, tvb, offsetx,
                               (data_offset - data_start) + data_len,
@@ -4728,7 +4738,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
   qatree = proto_tree_add_subtree(dns_tree, tvb, start_off, -1, ett_dns_ans, &ti, name);
   while (count-- > 0) {
     add_off = dissect_dns_answer(
-      tvb, cur_off, dns_data_offset, qatree, pinfo, is_mdns, answers);
+      tvb, cur_off, dns_data_offset, qatree, pinfo, is_mdns, false, answers);
     cur_off += add_off;
   }
   proto_item_set_len(ti, cur_off - start_off);
@@ -4800,8 +4810,12 @@ dissect_dso_data(tvbuff_t *tvb, int offset, int dns_data_offset, packet_info *pi
       case DSO_TYPE_PUSH:
         rr_types = wmem_list_new(pinfo->pool);
         while (offset < tlv_end) {
-          offset += dissect_dns_answer(tlv_tvb, offset, dns_data_offset, dso_tlv_tree, pinfo, false, rr_types);
+          offset += dissect_dns_answer(tlv_tvb, offset, dns_data_offset, dso_tlv_tree, pinfo, false, false, rr_types);
         }
+        break;
+      case DSO_TYPE_RECONFIRM:
+        rr_types = wmem_list_new(pinfo->pool);
+        offset += dissect_dns_answer(tlv_tvb, offset, dns_data_offset, dso_tlv_tree, pinfo, false, true, rr_types);
         break;
       default:
         if (dso_tlv_length > 0) {
