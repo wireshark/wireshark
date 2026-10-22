@@ -628,8 +628,21 @@ static int init_error_handler(lua_State* LS) {
     return 1;
 }
 
+static bool wslua_gc_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event, void *user_data _U_)
+{
+    if (event == WMEM_CB_FREE_EVENT && L) {
+        // In Lua 5.3 and earlier lua_gc() takes an int as the third parameter.
+        // In 5.4 and later it is variadic and the last parameter is ignored
+        // for LUA_GCCOLLECT.
+        lua_gc(L, LUA_GCCOLLECT, 0);
+    }
+
+    return true;
+}
+
 
 static bool init_routine_initialized;
+static unsigned file_gc_cb_id;
 static void wslua_init_routine(void) {
 
     if ( ! init_routine_initialized ) {
@@ -645,6 +658,8 @@ static void wslua_init_routine(void) {
          */
         lua_prime_all_fields(NULL);
         init_routine_initialized = true;
+
+        file_gc_cb_id = wmem_register_callback(wmem_file_scope(), wslua_gc_cb, NULL);
     }
 
     if (L) {
@@ -2096,7 +2111,10 @@ void wslua_cleanup(void) {
         lua_close(L);
         L = NULL;
     }
-    init_routine_initialized = false;
+    if (init_routine_initialized) {
+        wmem_unregister_callback(wmem_file_scope(), file_gc_cb_id);
+        init_routine_initialized = false;
+    }
 }
 
 lua_State* wslua_state(void) { return L; }
