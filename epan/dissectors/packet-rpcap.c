@@ -109,6 +109,8 @@ static int hf_auth_password;
 static int hf_auth_reply;
 static int hf_auth_minvers;
 static int hf_auth_maxvers;
+static int hf_auth_padding;
+static int hf_auth_byte_order_magic;
 
 static int hf_open_request;
 
@@ -784,7 +786,7 @@ dissect_rpcap_auth_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
                           proto_tree *parent_tree, int offset)
 {
   proto_tree *tree;
-  proto_item *ti;
+  proto_item *auth_reply_item;
   uint32_t minvers, maxvers;
 
   /*
@@ -793,15 +795,46 @@ dissect_rpcap_auth_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
    * Dissect the payload if we have any.
    */
   if (tvb_reported_length_remaining(tvb, offset) != 0) {
-    ti = proto_tree_add_item (parent_tree, hf_auth_reply, tvb, offset, -1, ENC_NA);
-    tree = proto_item_add_subtree (ti, ett_auth_reply);
+    auth_reply_item = proto_tree_add_item (parent_tree, hf_auth_reply, tvb, offset, -1, ENC_NA);
+    tree = proto_item_add_subtree (auth_reply_item, ett_auth_reply);
 
     proto_tree_add_item_ret_uint (tree, hf_auth_minvers, tvb, offset, 1, ENC_BIG_ENDIAN, &minvers);
     offset += 1;
 
     proto_tree_add_item_ret_uint (tree, hf_auth_maxvers, tvb, offset, 1, ENC_BIG_ENDIAN, &maxvers);
+    offset += 1;
 
-    proto_item_append_text (ti, ", minimum version %u, maximum version %u", minvers, maxvers);
+    proto_item_append_text (auth_reply_item, ", minimum version %u, maximum version %u", minvers, maxvers);
+
+    if (tvb_reported_length_remaining(tvb, offset) != 0) {
+      /* We also should have padding and a server byte-order indication */
+#define MAGIC_NUMBER_SIZE 4
+      static const uint8_t big_endian_magic[MAGIC_NUMBER_SIZE] = {
+          0xa1, 0xb2, 0xc3, 0xd4
+      };
+      static const uint8_t little_endian_magic[MAGIC_NUMBER_SIZE] = {
+          0xd4, 0xc3, 0xb2, 0xa1
+      };
+      proto_item *magic_number_item;
+      const char *magic;
+
+      proto_tree_add_item (tree, hf_auth_padding, tvb, offset, 2, ENC_NA);
+      offset += 2;
+
+      magic_number_item = proto_tree_add_item (tree, hf_auth_byte_order_magic, tvb, offset, MAGIC_NUMBER_SIZE, ENC_NA);
+      if (tvb_memeql(tvb, offset, big_endian_magic, MAGIC_NUMBER_SIZE) == 0) {
+        magic = "lig-endian";
+      } else if (tvb_memeql(tvb, offset, little_endian_magic, MAGIC_NUMBER_SIZE) == 0) {
+        magic = "little-endian";
+      } else {
+        /*
+         * Not a valid byte-endian magic number.
+         */
+        magic = "invalid";
+      }
+      proto_item_append_text (magic_number_item, " (%s)", magic);
+      proto_item_append_text (auth_reply_item, ", byte order %s", magic);
+    }
   }
 }
 
@@ -1356,6 +1389,12 @@ proto_register_rpcap (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_auth_maxvers,
       { "Maximum version number supported", "rpcap.auth_maxvers", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_auth_padding,
+      { "Padding", "rpcap.auth_padding", FT_NONE, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_auth_byte_order_magic,
+      { "Byte-order magic", "rpcap.auth_byte_order_magic", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
 
     /* Open request */
