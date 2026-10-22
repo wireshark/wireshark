@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>414</width>
-    <height>409</height>
+    <width>498</width>
+    <height>663</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Frame</string>
   </property>
   <property name="frameShape">
-   <enum>QFrame::NoFrame</enum>
+   <enum>QFrame::Shape::NoFrame</enum>
   </property>
   <property name="frameShadow">
-   <enum>QFrame::Plain</enum>
+   <enum>QFrame::Shadow::Plain</enum>
   </property>
   <property name="lineWidth">
    <number>0</number>
@@ -337,10 +337,10 @@
    <item>
     <spacer name="verticalSpacer_2">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
+      <enum>QSizePolicy::Policy::Fixed</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -382,11 +382,11 @@
     <layout class="QHBoxLayout" name="packetListCachedRows">
      <item>
       <widget class="QLabel" name="packetListCachedRowsLabel">
-       <property name="text">
-        <string>Maximum number of cached rows (affects sorting)</string>
-       </property>
        <property name="toolTip">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If more than this many rows are displayed, then sorting by columns that require packet dissection will be disabled. Increasing this number increases memory consumption by caching column values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Maximum number of cached rows (affects sorting)</string>
        </property>
       </widget>
      </item>
@@ -399,8 +399,11 @@
      </item>
      <item>
       <spacer name="packetListCachedRowsHorizontalSpacer">
-       <property name="orientation">
-        <enum>Qt:Horizontal</enum>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
        </property>
       </spacer>
      </item>
@@ -416,10 +419,10 @@
    <item>
     <spacer name="verticalSpacer_3">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
+      <enum>QSizePolicy::Policy::Fixed</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -453,10 +456,10 @@
    <item>
     <spacer name="verticalSpacerMultiColor">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
+      <enum>QSizePolicy::Policy::Fixed</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -469,7 +472,7 @@
    <item>
     <layout class="QVBoxLayout" name="multiColorGroupLayout">
      <property name="spacing">
-      <number>2</number>
+      <number>-1</number>
      </property>
      <item>
       <widget class="QLabel" name="packetListMultiColorModeLabel">
@@ -552,7 +555,7 @@
        <item>
         <spacer name="multiColorModeHorizontalSpacer">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -606,7 +609,7 @@
        <item>
         <spacer name="separatorModeHorizontalSpacer">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -625,12 +628,19 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="coloringRulesIncludeDisabledCheckBox">
+       <property name="text">
+        <string>Show disabled coloring rules</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
@@ -643,19 +653,20 @@
    <item>
     <widget class="QDialogButtonBox" name="restoreButtonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::RestoreDefaults</set>
+      <set>QDialogButtonBox::StandardButton::RestoreDefaults</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="separatorModeButtonGroup"/>
   <buttongroup name="layoutButtonGroup"/>
   <buttongroup name="pane3ButtonGroup"/>
-  <buttongroup name="pane2ButtonGroup"/>
-  <buttongroup name="pane1ButtonGroup"/>
   <buttongroup name="multiColorModeButtonGroup"/>
-  <buttongroup name="separatorModeButtonGroup"/>
+  <buttongroup name="pane1ButtonGroup"/>
+  <buttongroup name="pane2ButtonGroup"/>
  </buttongroups>
 </ui>

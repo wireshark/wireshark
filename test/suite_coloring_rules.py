@@ -5,7 +5,10 @@
 #
 '''Coloring rules file loading tests'''
 
+import json
 import os.path
+import re
+from pathlib import Path
 
 import pytest
 
@@ -76,3 +79,115 @@ class TestColoringRules:
         names, stderr = run_coloring(legacy=LEGACY_TCP, jsonc='garbage')
         assert names == set()
         assert 'invalid JSON' in stderr
+
+
+DETAILS_ON = ('-o', 'gui.packet_list_multi_color_details:TRUE')
+INCLUDE_ON = ('-o', 'gui.coloring_rules_include_disabled:TRUE')
+
+RULES_R = (('UDP rule', 'udp', True), ('IP rule', 'ip', True),
+           ('DHCP off', 'dhcp', False), ('Broken off', 'bogus.field.xyz', False))
+RULES_S = (('UDP rule', 'udp', True), ('TCP rule', 'tcp', True),
+           ('DHCP off', 'dhcp', False))
+RULES_D = (('TCP rule', 'tcp', True), ('DHCP off', 'dhcp', False))
+
+NESTED_ENABLED = (
+    '    [Coloring Rules: 2]\n'
+    '        [UDP rule]\n'
+    '            [Filter String: udp]\n'
+    '        [IP rule]\n'
+    '            [Filter String: ip]\n')
+NESTED_DISABLED = (
+    '        [DHCP off]\n'
+    '            [Filter String: dhcp]\n'
+    '            [Disabled: True]\n')
+
+
+@pytest.fixture
+def run_rules(cmd_tshark, capture_file, conf_path, test_env):
+    '''Writes a personal JSONC file from (name, filter, enabled) tuples, runs tshark
+    on dhcp.pcap with the given extra arguments and returns stdout.'''
+    def run_real(rules, *args):
+        content = json.dumps([{name: {'filter': flt,
+                                      'foreground': '#000000',
+                                      'background': '#ffffff',
+                                      'enabled': enabled}}
+                              for name, flt, enabled in rules], indent=2)
+        with open(os.path.join(conf_path, 'coloring_rules.jsonc'), 'w') as f:
+            f.write(content + '\n')
+        proc = subprocesstest.check_run(
+            (cmd_tshark, '-r', capture_file('dhcp.pcap')) + args,
+            capture_output=True, env=test_env)
+        return proc.stdout
+    return run_real
+
+
+class TestColoringRulesDisabled:
+    def test_no_rules_by_default(self, run_rules):
+        '''Without a pref that needs coloring rules, tshark lists none.'''
+        out = run_rules(RULES_R, '-V')
+        assert 'Coloring Rule' not in out
+
+    def test_single_rule_flat(self, run_rules):
+        '''One shown rule keeps the flat name and string items.'''
+        out = run_rules(RULES_S, *DETAILS_ON, '-V')
+        assert ('    [Coloring Rule Name: UDP rule]\n'
+                '    [Coloring Rule String: udp]\n') in out
+        assert 'Coloring Rules:' not in out
+        assert 'Disabled' not in out
+
+    def test_multiple_rules_nested(self, run_rules):
+        '''Several enabled matches are nested below a count item.'''
+        out = run_rules(RULES_R, *DETAILS_ON, '-V')
+        assert NESTED_ENABLED in out
+        assert 'Disabled' not in out
+
+    def test_include_disabled_nested(self, run_rules):
+        '''A disabled matching rule is listed with its disabled flag.'''
+        out = run_rules(RULES_R, *INCLUDE_ON, '-V')
+        assert '[Coloring Rules: 2]' in out
+        assert '[UDP rule]' in out
+        assert NESTED_DISABLED in out
+        assert out.count('[Disabled: True]') == 4
+        assert 'Broken off' not in out
+        assert 'IP rule' not in out
+
+    def test_details_and_include(self, run_rules):
+        '''Both prefs list the enabled and the disabled matches.'''
+        out = run_rules(RULES_R, *DETAILS_ON, *INCLUDE_ON, '-V')
+        assert out.count('[Coloring Rules: 3]') == 4
+
+    def test_only_disabled_flat(self, run_rules):
+        '''A frame matching only a disabled rule gets the flat items plus the flag.'''
+        out = run_rules(RULES_D, *INCLUDE_ON, '-V')
+        assert '[Coloring Rule Name: DHCP off]' in out
+        assert '[Coloring Rule String: dhcp]' in out
+        assert '[Coloring Rule Disabled: True]' in out
+        assert 'Coloring Rules:' not in out
+
+    def test_name_field_lists_disabled(self, run_rules):
+        '''The name field carries the enabled and the disabled rule.'''
+        out = run_rules(RULES_R, *INCLUDE_ON, '-T', 'fields',
+                        '-e', 'frame.coloring_rule.name')
+        lines = out.splitlines()
+        assert len(lines) == 4
+        assert all(line.strip() == 'UDP rule,DHCP off' for line in lines)
+
+    def test_display_filters(self, run_rules):
+        '''The disabled and count fields are filterable.'''
+        for flt in ('frame.coloring_rule.disabled', 'frame.coloring_rule.count'):
+            out = run_rules(RULES_R, *INCLUDE_ON, '-Y', flt)
+            assert len(out.splitlines()) == 4
+        out = run_rules(RULES_R, *DETAILS_ON, '-Y', 'frame.coloring_rule.disabled')
+        assert out.strip() == ''
+
+
+def test_qt_field_names_registered(cmd_tshark, test_env):
+    '''Every coloring rule field named in the Qt coloring rule helper exists.'''
+    src = Path(__file__).resolve().parent.parent / 'ui' / 'qt' / 'utils' / 'coloring_rule_utils.cpp'
+    used = set(re.findall(r'"(frame\.coloring_rule\.[a-z_]+)"', src.read_text()))
+    assert used
+    proc = subprocesstest.check_run((cmd_tshark, '-G', 'fields'),
+                                    capture_output=True, env=test_env)
+    registered = {line.split('\t')[2] for line in proc.stdout.splitlines()
+                  if line.startswith('F\t')}
+    assert used <= registered

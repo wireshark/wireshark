@@ -93,8 +93,10 @@ static int hf_frame_verdict_xdp;
 static int hf_frame_verdict_unknown;
 static int hf_frame_drop_count;
 static int hf_frame_protocols;
+static int hf_frame_color_filter_count;
 static int hf_frame_color_filter_name;
 static int hf_frame_color_filter_text;
+static int hf_frame_color_filter_disabled;
 static int hf_frame_section_number;
 static int hf_frame_interface_id;
 static int hf_frame_interface_name;
@@ -134,6 +136,8 @@ static int ett_hash;
 static int ett_verdict;
 static int ett_process;
 static int ett_frame_tags;
+static int ett_frame_color_filters;
+static int ett_frame_color_filter;
 
 static expert_field ei_comments_text;
 static expert_field ei_arrive_time_out_of_range;
@@ -563,23 +567,71 @@ handle_packet_option(wtap_block_t block _U_, unsigned option_id,
 	return true;
 }
 
-static void
-add_color_filter_to_tree(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-                         const color_filter_t *colorf)
+/* Conversation (temporary) coloring rules are never listed. With "details"
+ * every other matching rule is listed; otherwise the rule that colors the
+ * frame and the disabled matches, which exist only while
+ * gui.coloring_rules_include_disabled is set. */
+static bool
+color_filter_entry_shown(const color_filter_t *colorf,
+                         const color_filter_t *primary, bool details)
 {
+	if (color_filter_is_tmp(colorf))
+		return false;
+	return details || colorf == primary || !colorf->enabled;
+}
+
+/* A single listed rule keeps the flat items directly under the Frame item. */
+static void
+add_color_filter_flat(proto_tree *tree, tvbuff_t *tvb, const color_filter_t *colorf)
+{
+	proto_item *item;
+
 	ensure_tree_item(tree, 1);
-	const char *display_name = colorf->filter_name;
-	if (color_filter_is_session_disabled(colorf->filter_name)) {
-		display_name = wmem_strdup_printf(pinfo->pool, "[PAUSED] %s", colorf->filter_name);
-	}
-	proto_item *item = proto_tree_add_string(tree, hf_frame_color_filter_name, tvb,
-	                                         0, 0, display_name);
+	item = proto_tree_add_string(tree, hf_frame_color_filter_name, tvb,
+	                             0, 0, colorf->filter_name);
 	proto_item_set_generated(item);
 
 	ensure_tree_item(tree, 1);
 	item = proto_tree_add_string(tree, hf_frame_color_filter_text, tvb,
 	                             0, 0, colorf->filter_text);
 	proto_item_set_generated(item);
+
+	if (!colorf->enabled) {
+		ensure_tree_item(tree, 1);
+		item = proto_tree_add_boolean(tree, hf_frame_color_filter_disabled, tvb,
+		                              0, 0, true);
+		proto_item_set_generated(item);
+	}
+}
+
+/* One of several listed rules: the name item shows only the rule name and
+ * holds the filter string and, for a disabled rule, the disabled flag. */
+static void
+add_color_filter_nested(proto_tree *tree, tvbuff_t *tvb, const color_filter_t *colorf)
+{
+	proto_item *item;
+	proto_tree *rule_tree;
+
+	ensure_tree_item(tree, 1);
+	item = proto_tree_add_string_format(tree, hf_frame_color_filter_name, tvb,
+	                                    0, 0, colorf->filter_name, "%s",
+	                                    colorf->filter_name);
+	proto_item_set_generated(item);
+	rule_tree = proto_item_add_subtree(item, ett_frame_color_filter);
+
+	ensure_tree_item(rule_tree, 1);
+	item = proto_tree_add_string_format(rule_tree, hf_frame_color_filter_text, tvb,
+	                                    0, 0, colorf->filter_text,
+	                                    "Filter String: %s", colorf->filter_text);
+	proto_item_set_generated(item);
+
+	if (!colorf->enabled) {
+		ensure_tree_item(rule_tree, 1);
+		item = proto_tree_add_boolean_format(rule_tree, hf_frame_color_filter_disabled,
+		                                     tvb, 0, 0, true, "Disabled: %s",
+		                                     tfs_get_true_false(true));
+		proto_item_set_generated(item);
+	}
 }
 
 /* Key of the per-packet data holding the process ID, for the conversation filter. */
@@ -1521,7 +1573,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		 * Store matches in proto_data so the display code below can show
 		 * multiple matching rules in the frame tree. This enables multi-color
 		 * support in TShark when --color flag is used. */
-		color_filter = color_filters_colorize_packet_all(fr_data->color_edt, wmem_file_scope(), &matches);
+		color_filter = color_filters_colorize_packet_all(fr_data->color_edt, wmem_file_scope(), &matches,
+		                                                 prefs.gui_coloring_rules_include_disabled);
 		pinfo->fd->color_filter = color_filter;
 		pinfo->fd->need_colorize = 0;
 
@@ -1541,37 +1594,54 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	}
 
 	if (fh_tree) {
-		/* Retrieve all matching filters from proto_data (stored during colorization above).
-		 * This enables multi-color display for both GUI and TShark. */
+		bool details = prefs.gui_packet_list_multi_color_details;
+		bool include = prefs.gui_coloring_rules_include_disabled;
+		bool list = details || include;
+		/* Retrieve all matching rules stored during colorization above. */
 		wmem_list_t *matches = (wmem_list_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_frame, 0);
-		/* If proto_data was cleared (e.g., after rescan_packets() without color priming)
-		 * but we have a known primary color filter, re-run colorization now. The full
-		 * protocol tree has already been built by sub-dissectors above, so dfilter
-		 * evaluation works correctly without prior priming. */
-		if (!matches && color_filter != NULL && prefs.gui_packet_list_multi_color_details) {
-			color_filters_colorize_packet_all(fr_data->color_edt, wmem_file_scope(), &matches);
+		/* If proto_data was cleared (e.g., after rescan_packets() without color
+		 * priming), re-run colorization now. The full protocol tree has been
+		 * built by the sub-dissectors above, so dfilter evaluation works
+		 * without priming. With disabled rules included, a frame can match
+		 * only disabled rules and then has no primary rule. */
+		if (!matches && list && (color_filter != NULL || include)) {
+			color_filters_colorize_packet_all(fr_data->color_edt, wmem_file_scope(), &matches, include);
 			if (matches) {
 				p_add_proto_data(wmem_file_scope(), pinfo, proto_frame, 0, matches);
 			}
 		}
 
-		/* Show all matching color filters if packet details multi-color is enabled.
-		 * This is controlled independently from packet list and scrollbar display. */
-		if (matches && prefs.gui_packet_list_multi_color_details) {
-			/* Show all matching color filters from stored list */
+		/* Count first: one listed rule keeps the flat items, several get a
+		 * "Coloring Rules" item with one subtree per rule. */
+		const color_filter_t *first_shown = NULL;
+		unsigned shown = 0;
+		if (matches && list) {
 			for (wmem_list_frame_t *lf = wmem_list_head(matches); lf != NULL; lf = wmem_list_frame_next(lf)) {
 				const color_filter_t *colorf = (const color_filter_t *)wmem_list_frame_data(lf);
-				/* Skip conversation color filters (temporary filters) */
-				if (strncmp(colorf->filter_name, CONVERSATION_COLOR_PREFIX, strlen(CONVERSATION_COLOR_PREFIX)) == 0) {
-					continue;
+				if (color_filter_entry_shown(colorf, color_filter, details)) {
+					if (shown == 0)
+						first_shown = colorf;
+					shown++;
 				}
-				add_color_filter_to_tree(fh_tree, tvb, pinfo, colorf);
 			}
-		} else if (color_filter != NULL) {
-			/* Fallback to single filter if no stored matches */
-			/* Skip conversation color filters (temporary filters) */
-			if (strncmp(color_filter->filter_name, CONVERSATION_COLOR_PREFIX, strlen(CONVERSATION_COLOR_PREFIX)) != 0) {
-				add_color_filter_to_tree(fh_tree, tvb, pinfo, color_filter);
+		} else if (color_filter != NULL && color_filter_entry_shown(color_filter, color_filter, details)) {
+			first_shown = color_filter;
+			shown = 1;
+		}
+
+		if (shown == 1) {
+			add_color_filter_flat(fh_tree, tvb, first_shown);
+		} else if (shown > 1) {
+			ensure_tree_item(fh_tree, 1);
+			proto_item *rules_item = proto_tree_add_uint(fh_tree, hf_frame_color_filter_count,
+			                                             tvb, 0, 0, shown);
+			proto_item_set_generated(rules_item);
+			proto_tree *rules_tree = proto_item_add_subtree(rules_item, ett_frame_color_filters);
+			for (wmem_list_frame_t *lf = wmem_list_head(matches); lf != NULL; lf = wmem_list_frame_next(lf)) {
+				const color_filter_t *colorf = (const color_filter_t *)wmem_list_frame_data(lf);
+				if (color_filter_entry_shown(colorf, color_filter, details)) {
+					add_color_filter_nested(rules_tree, tvb, colorf);
+				}
 			}
 		}
 	}
@@ -1735,6 +1805,11 @@ static void common_register_frame(bool use_packets)
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Protocols carried by this frame", HFILL }},
 
+		{ &hf_frame_color_filter_count,
+		  { "Coloring Rules", "frame.coloring_rule.count",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Number of coloring rules listed for this frame", HFILL }},
+
 		{ &hf_frame_color_filter_name,
 		  { "Coloring Rule Name", "frame.coloring_rule.name",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1744,6 +1819,11 @@ static void common_register_frame(bool use_packets)
 		  { "Coloring Rule String", "frame.coloring_rule.string",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "The frame matched this coloring rule string", HFILL }},
+
+		{ &hf_frame_color_filter_disabled,
+		  { "Coloring Rule Disabled", "frame.coloring_rule.disabled",
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		    "The frame matched this coloring rule, but the rule is disabled and does not color frames", HFILL }},
 
 		{ &hf_frame_section_number,
 		  { "Section number", "frame.section_number",
@@ -2008,6 +2088,8 @@ static void common_register_frame(bool use_packets)
 		&ett_verdict,
 		&ett_process,
 		&ett_frame_tags,
+		&ett_frame_color_filters,
+		&ett_frame_color_filter,
 	};
 
 	static ei_register_info ei[] = {

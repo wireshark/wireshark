@@ -51,17 +51,14 @@ bool ProtoNode::isChild() const
     return node_ && node_->parent;
 }
 
-ProtoNode* ProtoNode::parentNode()
+ProtoNode* ProtoNode::parentNode() const
 {
     return parent_;
 }
 
 QString ProtoNode::labelText() const
 {
-    if (!node_) {
-        return QString();
-    }
-    field_info *fi = PNODE_FINFO(node_);
+    field_info *fi = fieldInfo();
     if (!fi) {
         return QString();
     }
@@ -96,7 +93,7 @@ int ProtoNode::childrenCount() const
     return (int)m_children.count();
 }
 
-int ProtoNode::row()
+int ProtoNode::row() const
 {
     if (!isChild()) {
         return -1;
@@ -118,7 +115,18 @@ proto_node * ProtoNode::protoNode() const
     return node_;
 }
 
-ProtoNode* ProtoNode::child(int row)
+field_info *ProtoNode::fieldInfo() const
+{
+    return node_ ? PNODE_FINFO(node_) : nullptr;
+}
+
+int ProtoNode::hfId() const
+{
+    const field_info *fi = fieldInfo();
+    return (fi && fi->hfinfo) ? fi->hfinfo->id : -1;
+}
+
+ProtoNode* ProtoNode::child(int row) const
 {
     if (row < 0 || row >= m_children.size())
         return nullptr;

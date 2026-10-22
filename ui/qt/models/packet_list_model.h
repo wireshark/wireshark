@@ -38,13 +38,16 @@ class PacketListModel : public QAbstractItemModel
 public:
 
     /**
-     * @brief Custom roles used for header data.
+     * @brief Custom roles.
      */
     enum {
         /** Role indicating if the header can display strings. */
         HEADER_CAN_DISPLAY_STRINGS = Qt::UserRole,
         /** Role indicating if the header can display details. */
         HEADER_CAN_DISPLAY_DETAILS,
+        /** Item data: QList<ColoringRuleColors>, the colors the packet is
+         *  drawn with (ColoringRuleUtils::matchColors()). */
+        COLORING_RULE_COLORS,
     };
 
     /**

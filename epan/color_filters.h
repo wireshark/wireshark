@@ -9,6 +9,7 @@
  */
 #pragma once
 #include <glib.h>
+#include <string.h>
 
 #include "ws_symbol_export.h"
 
@@ -45,6 +46,18 @@ typedef struct _color_filter {
 
                                     /* only used outside of color_filters.c (beside init) */
 } color_filter_t;
+
+/**
+ * @brief Tells whether a rule is a conversation (temporary) coloring rule.
+ * @param colorf the rule
+ * @return true if the rule name starts with CONVERSATION_COLOR_PREFIX
+ */
+static inline bool
+color_filter_is_tmp(const color_filter_t *colorf)
+{
+    return strncmp(colorf->filter_name, CONVERSATION_COLOR_PREFIX,
+                   strlen(CONVERSATION_COLOR_PREFIX)) == 0;
+}
 
 /** @brief A color filter was added (while importing).
  * (color_filters.c calls this for every filter coming in)
@@ -133,6 +146,9 @@ color_filters_reset_tmp(char **err_msg);
  * @brief Prime the epan_dissect_t with all the compiled
  * color filters of the current filter list.
  *
+ * Disabled filters count only when gui.coloring_rules_include_disabled
+ * is set.
+ *
  * @param edt the epan dissector details
  */
 WS_DLL_PUBLIC void color_filters_prime_edt(struct epan_dissect *edt);
@@ -140,6 +156,9 @@ WS_DLL_PUBLIC void color_filters_prime_edt(struct epan_dissect *edt);
 /**
  * @brief Check if any of the enabled compiled color filters of the current
  * filter list depend on a given header field.
+ *
+ * Disabled filters count only when gui.coloring_rules_include_disabled
+ * is set.
  *
  * @param hfid The header field ID to check
  * @return true if the color filter contains the header field.
@@ -151,6 +170,9 @@ color_filters_use_hfid(int hfid);
  * @brief Check if any of the enabled compiled color filters of the current
  * filter list depend on any field in a given protocol.
  *
+ * Disabled filters count only when gui.coloring_rules_include_disabled
+ * is set.
+ *
  * @param proto_id The protocol ID to check
  * @return true if the color filter contains a field from the protocol
  */
@@ -158,73 +180,18 @@ WS_DLL_PUBLIC bool
 color_filters_use_proto(int proto_id);
 
 /**
- * @brief Colorize a specific packet.
- *
- * @param edt the dissected packet
- * @return the matching color filter or NULL
- */
-WS_DLL_PUBLIC const color_filter_t *
-color_filters_colorize_packet(struct epan_dissect *edt);
-
-/**
  * @brief Colorize a packet with ALL matching filters.
  *
  * @param edt the dissected packet
  * @param scope wmem allocator to use for the returned list (e.g. wmem_file_scope())
  * @param matches output parameter: wmem_list_t of matching color_filter_t* (can be NULL)
- * @return the first matching color filter or NULL (for backward compatibility)
+ * @param include_disabled also match disabled, non-conversation filters; they
+ * are added to matches but are never returned
+ * @return the first matching enabled color filter or NULL
  */
 WS_DLL_PUBLIC const color_filter_t *
 color_filters_colorize_packet_all(struct epan_dissect *edt,
-        wmem_allocator_t *scope, wmem_list_t **matches);
-
-/**
- * @brief Set a color filter as session-disabled (paused).
- *
- * @param filter_name the name of the filter to disable/enable
- * @param disabled true to disable, false to enable
- */
-WS_DLL_PUBLIC void
-color_filter_set_session_disabled(const char *filter_name, bool disabled);
-
-/**
- * @brief Check if a color filter is session-disabled.
- *
- * @param filter_name the name of the filter to check
- * @return true if disabled, false otherwise
- */
-WS_DLL_PUBLIC bool
-color_filter_is_session_disabled(const char *filter_name);
-
-/**
- * @brief Clear all session-disabled filters.
- */
-WS_DLL_PUBLIC void
-color_filter_clear_session_disabled(void);
-
-/**
- * @brief Write paused filters to profile directory.
- *
- * @param app_env_var_prefix The prefix for the application environment variable
- */
-WS_DLL_PUBLIC void
-color_filter_write_paused(const char *app_env_var_prefix);
-
-/**
- * @brief Read paused filters from profile directory.
- *
- * @param app_env_var_prefix The prefix for the application environment variable
- */
-WS_DLL_PUBLIC void
-color_filter_read_paused(const char *app_env_var_prefix);
-
-/**
- * @brief Resume all paused filters (clears all session-disabled filters and saves to profile).
- *
- * @param app_env_var_prefix The prefix for the application environment variable
- */
-WS_DLL_PUBLIC void
-color_filter_resume_all(const char *app_env_var_prefix);
+        wmem_allocator_t *scope, wmem_list_t **matches, bool include_disabled);
 
 /**
  * @brief Clone the currently active filter list.

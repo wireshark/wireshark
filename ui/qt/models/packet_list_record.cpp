@@ -229,7 +229,9 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_columns, boo
         if (prefs.gui_packet_list_multi_color_mode != PACKET_LIST_MULTI_COLOR_MODE_OFF ||
             prefs.gui_packet_list_multi_color_details) {
             wmem_list_t *wm_matches = NULL;
-            fdata_->color_filter = color_filters_colorize_packet_all(&edt, wmem_file_scope(), &wm_matches);
+            // The record's matches drive packet colors, stripes and the minimap,
+            // so disabled rules stay out.
+            fdata_->color_filter = color_filters_colorize_packet_all(&edt, wmem_file_scope(), &wm_matches, false);
             if (wm_matches) {
                 for (wmem_list_frame_t *lf = wmem_list_head(wm_matches); lf != NULL; lf = wmem_list_frame_next(lf)) {
                     color_filters_ = g_slist_append(color_filters_, wmem_list_frame_data(lf));

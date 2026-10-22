@@ -17,13 +17,13 @@
 #include <epan/print.h>
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
-#include <epan/color_filters.h>
 #include <epan/dissectors/packet-frame.h>
 #include <epan/tag_rules.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/cfile.h>
 
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/coloring_rule_utils.h>
 #include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/variant_pointer.h>
@@ -38,6 +38,7 @@
 #include <ui/qt/plot_action.h>
 #include <ui/qt/protocol_preferences_menu.h>
 #include <ui/qt/models/pref_models.h>
+#include <ui/simple_dialog.h>
 #include <ui/all_files_wildcard.h>
 #include <ui/urls.h>
 #include "main_application.h"
@@ -49,6 +50,7 @@
 #include <QItemSelectionModel>
 #include <QScrollBar>
 #include <QStack>
+#include <QTimer>
 #include <QUrl>
 #include <QClipboard>
 #include <QWindow>
@@ -512,13 +514,10 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         ctx_menu->addSeparator();
     }
 
-    // Add actions for coloring rule fields
-    bool is_color_rule_name = fi && fi->hfinfo &&
-        strcmp(fi->hfinfo->abbrev, "frame.coloring_rule.name") == 0;
-    bool is_color_rule_string = fi && fi->hfinfo &&
-        strcmp(fi->hfinfo->abbrev, "frame.coloring_rule.string") == 0;
-
-    if (is_color_rule_name || is_color_rule_string) {
+    // Add actions for coloring rule entries
+    const QVariant rule_entry_data = index.data(ProtoTreeModel::ColoringRuleEntryRole);
+    if (rule_entry_data.isValid()) {
+        const ColoringRuleEntry rule_entry = rule_entry_data.value<ColoringRuleEntry>();
         // "Coloring Rule Preferences..." positioned right below Protocol Preferences
         ctx_menu->addAction(tr("Coloring Rule Preferences..."), [this]() {
             emit showProtocolPreferences(PrefsModel::typeToString(PrefsModel::Layout));
@@ -531,43 +530,23 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
                 coloring_rules_action->trigger();
         });
 
-        // Pause/Resume and Resume All (only when multi-color details is enabled)
-        if (prefs.gui_packet_list_multi_color_details) {
-            QString filter_name;
-            if (is_color_rule_name) {
-                filter_name = finfo->toString();
-            } else {
-                // frame.coloring_rule.string: the name field is always the previous sibling
-                QModelIndex nameIdx = index.sibling(index.row() - 1, 0);
-                if (nameIdx.isValid()) {
-                    FieldInformation nameInfo(proto_tree_model_->protoNodeFromIndex(nameIdx), nullptr);
-                    filter_name = nameInfo.toString();
+        if (!rule_entry.name.isEmpty()) {
+            const bool enable = rule_entry.disabled;
+            const QString action_text = enable ? tr("Enable Coloring Rule") : tr("Disable Coloring Rule");
+
+            ctx_menu->addAction(action_text, [this, rule_entry, enable]() {
+                QString err;
+                if (!ColoringRuleUtils::setRuleEnabled(rule_entry, enable, &err)) {
+                    return;
                 }
-            }
-            if (filter_name.startsWith("[PAUSED] ")) {
-                filter_name = filter_name.mid(9);
-            }
-
-            if (!filter_name.isEmpty()) {
-                bool is_paused = color_filter_is_session_disabled(filter_name.toUtf8().constData());
-                QString action_text = is_paused ? tr("Resume Coloring Rule") : tr("Pause Coloring Rule");
-
-                ctx_menu->addAction(action_text, [this, filter_name, is_paused]() {
-                    color_filter_set_session_disabled(filter_name.toUtf8().constData(), !is_paused);
-                    QTimer::singleShot(0, this, [this]() {
-                        emit redissectPacketsRequested();
-                    });
+                if (!err.isEmpty()) {
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
+                }
+                QTimer::singleShot(0, this, [this]() {
+                    emit redissectPacketsRequested();
                 });
-
-                ctx_menu->addAction(tr("Resume All Coloring Rules"), [this]() {
-                    color_filter_resume_all(NULL);
-                    QTimer::singleShot(0, this, [this]() {
-                        emit redissectPacketsRequested();
-                    });
-                });
-            }
+            });
         }
-
     }
 
     ctx_menu->addSeparator();

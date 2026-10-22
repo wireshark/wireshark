@@ -632,6 +632,10 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     connect(proto_tree_, &ProtoTree::showProtocolPreferences, this, &StratosharkMainWindow::showPreferencesDialog);
     connect(proto_tree_, SIGNAL(editProtocolPreference(pref_t*,module_t*)),
             main_ui_->preferenceEditorFrame, SLOT(editPreference(pref_t*,module_t*)));
+    connect(proto_tree_, &ProtoTree::recolorPacketsRequested,
+            packet_list_, &PacketList::recolorPackets);
+    connect(proto_tree_, &ProtoTree::redissectPacketsRequested,
+            this, &StratosharkMainWindow::redissectPackets);
 
     connect(main_ui_->statusBar, &MainStatusBar::showExpertInfo, this, [=]() {
         statCommandExpertInfo(NULL, NULL);

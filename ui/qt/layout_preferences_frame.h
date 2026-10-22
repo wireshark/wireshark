@@ -91,6 +91,9 @@ private:
     /** Preference for multi-color details in the packet list. */
     pref_t *pref_packet_list_multi_color_details_;
 
+    /** Preference for including disabled coloring rules in the packet details. */
+    pref_t *pref_coloring_rules_include_disabled_;
+
     /** Preference for the multi-color separator style in the packet list. */
     pref_t *pref_packet_list_multi_color_separator_;
 
@@ -279,6 +282,12 @@ private slots:
      * @param checked True if checked.
      */
     void on_packetListMultiColorDetailsCheckBox_toggled(bool checked);
+
+    /**
+     * @brief Slot triggered when the show disabled coloring rules checkbox is toggled.
+     * @param checked True if checked.
+     */
+    void on_coloringRulesIncludeDisabledCheckBox_toggled(bool checked);
 
     /**
      * @brief Slot triggered when the multi-color mode is set to off.

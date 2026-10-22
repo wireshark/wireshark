@@ -202,6 +202,16 @@ The following features are either new or have been significantly updated since v
   Building with this support requires the optional packagekit-glib2 library,
   version 1.1.12 or later.
 
+* Disabled coloring rules can now be shown in the packet details.
+  With the new preference `gui.coloring_rules_include_disabled` (menu:Edit[Preferences > Appearance > Layout],
+  "Show disabled coloring rules", off by default) a disabled rule that matches a packet is listed
+  under the Frame tree, dimmed and in italics, and can be found with the `frame.coloring_rule.*` fields.
+  Disabled rules never color packets. When several rules match, they are listed as a
+  "Coloring Rules" subtree with one entry per rule (name, filter string and a Disabled flag);
+  the new `frame.coloring_rule.count` field holds the number of listed rules.
+  In the Frame tree, the context menu of a coloring rule now offers Disable and Enable,
+  which change the rule itself, are saved with the coloring rules and re-dissect the capture.
+
 //* The Windows installers now ship with Qt 6.5.2.
 //  They previously shipped with Qt 6.2.3.
 

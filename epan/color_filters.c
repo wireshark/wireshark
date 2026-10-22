@@ -74,9 +74,6 @@ static GSList *color_filter_valid_list;
 /* Color Filters can en-/disabled. */
 static bool filters_enabled = true;
 
-/* Session-level disabled (paused) filters */
-static GHashTable *session_disabled_filters;
-
 /* Remember if there are temporary coloring filters set to
  * add sensitivity to the "Reset Coloring 1-10" menu item
  */
@@ -413,14 +410,7 @@ color_filters_init(char** err_msg, color_filter_add_cb_func add_cb, const char* 
     color_filter_list_delete(&color_filter_list);
 
     /* now try to construct the filters list */
-    bool result = color_filters_get(err_msg, add_cb, app_env_var_prefix);
-
-    /* Load paused filters from profile after loading color filters */
-    if (result) {
-        color_filter_read_paused(app_env_var_prefix);
-    }
-
-    return result;
+    return color_filters_get(err_msg, add_cb, app_env_var_prefix);
 }
 
 bool
@@ -440,11 +430,6 @@ color_filters_cleanup(void)
 {
     /* delete the previously deleted filters */
     color_filter_list_delete(&color_filter_deleted_list);
-
-    if (session_disabled_filters) {
-        g_hash_table_destroy(session_disabled_filters);
-        session_disabled_filters = NULL;
-    }
 }
 
 typedef struct _color_clone
@@ -472,6 +457,58 @@ color_filters_clone(void *user_data, color_filter_add_cb_func add_cb)
     g_slist_foreach(color_filter_list, color_filters_clone_cb, &clone_data);
 }
 
+/* A rule takes part in matching if it compiled and is enabled. A disabled
+ * rule takes part only when asked to, and never a disabled conversation
+ * rule: unused conversation slots are compiled as "frame" and would match
+ * every packet. */
+static bool
+color_filter_in_play(const color_filter_t *colorf, bool include_disabled)
+{
+    if (colorf->c_colorfilter == NULL)
+        return false;
+    if (colorf->enabled)
+        return true;
+    return include_disabled && !color_filter_is_tmp(colorf);
+}
+
+/* Compiles a filter without reporting errors. Disabled rules are compiled
+ * this way so that they can be matched while disabled rules are shown; one
+ * that does not compile simply never matches. */
+static dfilter_t *
+color_filter_compile_quiet(const char *text)
+{
+    dfilter_t *df = NULL;
+    df_error_t *df_err = NULL;
+
+    if (!dfilter_compile(text, &df, &df_err)) {
+        df_error_free(&df_err);
+    }
+    return df;
+}
+
+/* Compiles the filter of a rule read from a file. An enabled rule that does
+ * not compile is reported and disabled. A disabled rule is compiled quietly
+ * when compile_disabled is set (rules read into the list used for matching)
+ * and not at all otherwise (rules read for editing). */
+static dfilter_t *
+color_filter_compile_read(const char *name, const char *text, bool *enabled,
+                          bool compile_disabled, const char *path,
+                          const char *file_kind)
+{
+    dfilter_t *df = NULL;
+    df_error_t *df_err = NULL;
+
+    if (!*enabled) {
+        return compile_disabled ? color_filter_compile_quiet(text) : NULL;
+    }
+    if (!dfilter_compile(text, &df, &df_err)) {
+        report_warning("Disabling color filter: Could not compile \"%s\" in %s \"%s\".\n%s",
+                       name, file_kind, path, df_err->msg);
+        df_error_free(&df_err);
+        *enabled = false;
+    }
+    return df;
+}
 
 static void
 color_filter_compile_cb(void *filter_arg, void *err)
@@ -482,8 +519,13 @@ color_filter_compile_cb(void *filter_arg, void *err)
 
     ws_assert(colorf->c_colorfilter == NULL);
 
-    /* If the filter is disabled it doesn't matter if it compiles or not. */
-    if (!colorf->enabled) return;
+    /* Disabled conversation rules are never used. */
+    if (!colorf->enabled) {
+        if (!color_filter_is_tmp(colorf)) {
+            colorf->c_colorfilter = color_filter_compile_quiet(colorf->filter_text);
+        }
+        return;
+    }
 
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &df_err)) {
         *err_msg = ws_strdup_printf("Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
@@ -577,7 +619,7 @@ prime_edt(void *data, void *user_data)
     color_filter_t *colorf = (color_filter_t *)data;
     epan_dissect_t *edt    = (epan_dissect_t *)user_data;
 
-    if (colorf->c_colorfilter != NULL)
+    if (color_filter_in_play(colorf, prefs.gui_coloring_rules_include_disabled))
         epan_dissect_prime_with_dfilter(edt, colorf->c_colorfilter);
 }
 
@@ -596,7 +638,7 @@ find_hfid(const void *data, const void *user_data)
     color_filter_t *colorf = (color_filter_t *)data;
     int hfid = GPOINTER_TO_INT(user_data);
 
-    if ((colorf->enabled) && colorf->c_colorfilter != NULL) {
+    if (color_filter_in_play(colorf, prefs.gui_coloring_rules_include_disabled)) {
         if (dfilter_interested_in_field(colorf->c_colorfilter, hfid)) {
             return 0;
         }
@@ -619,7 +661,7 @@ find_proto(const void *data, const void *user_data)
     color_filter_t *colorf = (color_filter_t *)data;
     int proto_id = GPOINTER_TO_INT(user_data);
 
-    if ((colorf->enabled) && colorf->c_colorfilter != NULL) {
+    if (color_filter_in_play(colorf, prefs.gui_coloring_rules_include_disabled)) {
         if (dfilter_interested_in_proto(colorf->c_colorfilter, proto_id)) {
             return 0;
         }
@@ -636,35 +678,9 @@ color_filters_use_proto(int proto_id)
     return (item != NULL);
 }
 
-/* * Return the color_t for later use */
-const color_filter_t *
-color_filters_colorize_packet(epan_dissect_t *edt)
-{
-    GSList         *curr;
-    color_filter_t *colorf;
-
-    /* If we have color filters, "search" for the matching one. */
-    if ((edt->tree != NULL) && (color_filters_used())) {
-        curr = color_filter_list;
-
-        while(curr != NULL) {
-            colorf = (color_filter_t *)curr->data;
-            if ( (colorf->enabled) &&
-                 (colorf->c_colorfilter != NULL) &&
-                 dfilter_apply_edt(colorf->c_colorfilter, edt) &&
-                 !color_filter_is_session_disabled(colorf->filter_name)) {
-                return colorf;
-            }
-            curr = g_slist_next(curr);
-        }
-    }
-
-    return NULL;
-}
-
 const color_filter_t *
 color_filters_colorize_packet_all(epan_dissect_t *edt,
-        wmem_allocator_t *scope, wmem_list_t **matches)
+        wmem_allocator_t *scope, wmem_list_t **matches, bool include_disabled)
 {
     const color_filter_t *first_match = NULL;
 
@@ -676,13 +692,9 @@ color_filters_colorize_packet_all(epan_dissect_t *edt,
     if ((edt->tree != NULL) && (color_filters_used())) {
         for (GSList *curr = color_filter_list; curr != NULL; curr = g_slist_next(curr)) {
             color_filter_t *colorf = (color_filter_t *)curr->data;
-            if ((colorf->enabled) &&
-                (colorf->c_colorfilter != NULL) &&
+            if (color_filter_in_play(colorf, include_disabled) &&
                 dfilter_apply_edt(colorf->c_colorfilter, edt)) {
 
-                bool is_session_disabled = color_filter_is_session_disabled(colorf->filter_name);
-
-                /* Add to matches list even if paused (for Frame tree display) */
                 if (matches) {
                     if (*matches == NULL) {
                         *matches = wmem_list_new(scope);
@@ -690,8 +702,8 @@ color_filters_colorize_packet_all(epan_dissect_t *edt,
                     wmem_list_append(*matches, colorf);
                 }
 
-                /* Only use non-paused filters for first_match */
-                if (!first_match && !is_session_disabled) {
+                /* A disabled rule never colors the packet */
+                if (!first_match && colorf->enabled) {
                     first_match = colorf;  /* Backward compatibility */
                 }
             }
@@ -699,132 +711,6 @@ color_filters_colorize_packet_all(epan_dissect_t *edt,
     }
 
     return first_match;
-}
-
-void
-color_filter_set_session_disabled(const char *filter_name, bool disabled)
-{
-    if (!filter_name) return;
-
-    if (!session_disabled_filters) {
-        session_disabled_filters = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-    }
-
-    if (disabled) {
-        g_hash_table_insert(session_disabled_filters, g_strdup(filter_name), GINT_TO_POINTER(1));
-    } else {
-        g_hash_table_remove(session_disabled_filters, filter_name);
-    }
-
-    /* Auto-save to profile directory after every change */
-    color_filter_write_paused(NULL);  /* NULL uses default env prefix */
-}
-
-bool
-color_filter_is_session_disabled(const char *filter_name)
-{
-    if (!filter_name || !session_disabled_filters) {
-        return false;
-    }
-    return g_hash_table_contains(session_disabled_filters, filter_name);
-}
-
-void
-color_filter_clear_session_disabled(void)
-{
-    if (session_disabled_filters) {
-        g_hash_table_remove_all(session_disabled_filters);
-    }
-    /* Restore from profile directory after clearing (workaround for rescan) */
-    color_filter_read_paused(NULL);
-}
-
-#define PAUSED_FILTERS_FILE "paused_filters"
-
-/* Get profile-specific paused filters file path */
-static char *
-get_paused_filters_path(const char *app_env_var_prefix)
-{
-    /* Use profile-specific path (true = use profile directory) */
-    return get_persconffile_path(PAUSED_FILTERS_FILE, true, app_env_var_prefix);
-}
-
-/* Save paused filters to profile directory */
-void
-color_filter_write_paused(const char *app_env_var_prefix)
-{
-    if (!session_disabled_filters) return;
-
-    char *path = get_paused_filters_path(app_env_var_prefix);
-    if (!path) return;
-
-    FILE *f = ws_fopen(path, "w");
-    if (!f) {
-        g_free(path);
-        return;
-    }
-
-    /* Write each paused filter name, one per line */
-    GHashTableIter iter;
-    gpointer key, value;
-    g_hash_table_iter_init(&iter, session_disabled_filters);
-    while (g_hash_table_iter_next(&iter, &key, &value)) {
-        fprintf(f, "%s\n", (const char*)key);
-    }
-
-    fclose(f);
-    g_free(path);
-}
-
-/* Read paused filters from profile directory */
-void
-color_filter_read_paused(const char *app_env_var_prefix)
-{
-    char *path = get_paused_filters_path(app_env_var_prefix);
-    if (!path) return;
-
-    FILE *f = ws_fopen(path, "r");
-    g_free(path);
-
-    if (!f) return;  /* File doesn't exist yet - that's OK */
-
-    char line[1024];
-    while (fgets(line, sizeof(line), f)) {
-        /* Remove trailing newline/whitespace */
-        line[strcspn(line, "\r\n")] = 0;
-        g_strstrip(line);  /* GLib function to trim whitespace */
-
-        if (line[0] && line[0] != '#') {  /* Skip empty lines and comments */
-            /* Add to session_disabled_filters without triggering auto-save */
-            if (!session_disabled_filters) {
-                session_disabled_filters = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
-            }
-            g_hash_table_insert(session_disabled_filters, g_strdup(line), GINT_TO_POINTER(1));
-        }
-    }
-
-    fclose(f);
-}
-
-/* Resume all paused filters (clears all and saves empty file) */
-void
-color_filter_resume_all(const char *app_env_var_prefix)
-{
-    /* Clear the hash table */
-    if (session_disabled_filters) {
-        g_hash_table_remove_all(session_disabled_filters);
-    }
-
-    /* Write empty file to profile directory */
-    char *path = get_paused_filters_path(app_env_var_prefix);
-    if (!path) return;
-
-    FILE *f = ws_fopen(path, "w");
-    if (f) {
-        /* Write empty file (or just close it) */
-        fclose(f);
-    }
-    g_free(path);
 }
 
 /* Parse a "#rrggbb" or "rrggbb" string into a color_t. Returns false (and
@@ -927,7 +813,6 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
         bool        enabled = true;
         color_t     fg_color = { 0, 0, 0 }, bg_color = { 0, 0, 0 };
         dfilter_t  *temp_dfilter = NULL;
-        df_error_t *df_err = NULL;
         const char *filter_exp;
         color_filter_t *colorf;
         jsmntok_t  *name_tok, *properties_tok;
@@ -959,12 +844,9 @@ read_filters_file(const char *path, FILE *f, void *user_data, color_filter_add_c
 
         filter_exp = filter_str ? filter_str : "";
 
-        if (enabled && !dfilter_compile(filter_exp, &temp_dfilter, &df_err)) {
-            report_warning("Disabling color filter: Could not compile \"%s\" in coloring rules file \"%s\".\n%s",
-                            name, path, df_err->msg);
-            df_error_free(&df_err);
-            enabled = false;
-        }
+        temp_dfilter = color_filter_compile_read(name, filter_exp, &enabled,
+                                                 user_data == &color_filter_list,
+                                                 path, "coloring rules file");
 
         colorf = color_filter_new(name, filter_exp, &bg_color, &fg_color, enabled);
         g_free(name);
@@ -1100,15 +982,11 @@ read_legacy_filters_file(const char *path, FILE *f, void *user_data, color_filte
             color_t bg_color, fg_color;
             color_filter_t *colorf;
             dfilter_t *temp_dfilter = NULL;
-            df_error_t *df_err = NULL;
+            bool enabled = !disabled;
 
-            if (!disabled && !dfilter_compile(filter_exp, &temp_dfilter, &df_err)) {
-                report_warning("Disabling color filter: Could not compile \"%s\" in colorfilters file \"%s\".\n%s", name, path, df_err->msg);
-                df_error_free(&df_err);
-
-                /* skip_end_of_line = true; */
-                disabled = true;
-            }
+            temp_dfilter = color_filter_compile_read(name, filter_exp, &enabled,
+                                                     user_data == &color_filter_list,
+                                                     path, "colorfilters file");
 
             fg_color.red = fg_r;
             fg_color.green = fg_g;
@@ -1119,7 +997,7 @@ read_legacy_filters_file(const char *path, FILE *f, void *user_data, color_filte
             bg_color.blue = bg_b;
 
             colorf = color_filter_new(name, filter_exp, &bg_color,
-                                      &fg_color, !disabled);
+                                      &fg_color, enabled);
             if(user_data == &color_filter_list) {
                 GSList **cfl = (GSList **)user_data;
 

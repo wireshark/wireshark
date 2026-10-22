@@ -27,6 +27,15 @@ class ProtoTreeModel : public QAbstractItemModel
 
 public:
     /**
+     * @brief Custom item data roles.
+     */
+    enum {
+        /** ColoringRuleEntry of a coloring rule item of the Frame tree;
+         *  an invalid QVariant for every other item. */
+        ColoringRuleEntryRole = Qt::UserRole,
+    };
+
+    /**
      * @brief Constructs an empty ProtoTreeModel with no root node.
      * @param parent Optional parent QObject.
      */

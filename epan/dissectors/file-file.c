@@ -277,7 +277,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		 * Store matches in proto_data so the display code below can show
 		 * multiple matching rules in the frame tree. This enables multi-color
 		 * support in TShark when --color flag is used. */
-		color_filter = color_filters_colorize_packet_all(file_data->color_edt, wmem_file_scope(), &matches);
+		color_filter = color_filters_colorize_packet_all(file_data->color_edt, wmem_file_scope(), &matches, false);
 		pinfo->fd->color_filter = color_filter;
 		pinfo->fd->need_colorize = 0;
 
