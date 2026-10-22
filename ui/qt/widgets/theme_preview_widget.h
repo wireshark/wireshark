@@ -183,7 +183,7 @@ private:
     /** Text-alignment flags for packet-list column @p idx. */
     int cellFlags(int idx) const;
 
-    /** Band 1: main toolbar — the real colour application StockIcons. The
+    /** Band 1: main toolbar — the real colour application toolbar icons. The
      *  toolbar tracks the icon theme, not the colour theme, so it carries no
      *  ThemeManager colour token. */
     void drawToolbar(QPainter &p, const Layout &layout);

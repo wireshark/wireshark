@@ -128,7 +128,7 @@ DIAG_ON(frame-larger-than=)
 #include "resolved_addresses_dialog.h"
 #include "show_packet_bytes_dialog.h"
 #include "stats_tree_dialog.h"
-#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/themed_shape_icon.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 #include "keyboard_shortcuts_dialog.h"
 #include "supported_protocols_dialog.h"
@@ -1509,7 +1509,7 @@ void StratosharkMainWindow::initViewColorizeMenu()
         if (colorf) {
             QColor bg = ColorUtils::fromColorT(colorf->bg_color);
             QColor fg = ColorUtils::fromColorT(colorf->fg_color);
-            cc_action->setIcon(StockIcon::colorIcon(bg.rgb(), fg.rgb(), QString::number(color_num)));
+            cc_action->setIcon(ThemedShapeIcon(ThemedShapeIcon::Square, bg, fg, QString::number(color_num)));
         }
         color_num++;
     }

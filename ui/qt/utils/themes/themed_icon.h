@@ -21,9 +21,8 @@
  * @brief A QIcon that renders an SVG silhouette recoloured to a ThemeManager
  *        token, tracking light/dark and theme changes automatically.
  *
- * Companion to StockIcon.  StockIcon selects a pre-made, per-mode raster
- * resource; ThemedIcon renders one SVG and tints it to a live theme colour, so
- * a single asset follows the active theme without per-mode variants.  The tint
+ * Renders one SVG and tints it to a live theme colour, so a single asset
+ * follows the active theme without per-mode raster variants.  The tint
  * uses CompositionMode_SourceIn, which flattens the rendered shape to the
  * resolved colour — the source SVG's own colours (even gradients) don't matter,
  * only its alpha silhouette.

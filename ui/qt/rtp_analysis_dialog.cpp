@@ -43,7 +43,7 @@
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/rtp_player_dialog.h>
-#include <ui/qt/utils/stock_icon.h>
+#include <ui/qt/utils/themes/themed_shape_icon.h>
 #include <ui/qt/main_application.h>
 #include <ui/qt/packet_list.h>
 #include <ui/qt/wireshark_main_window.h>
@@ -278,7 +278,13 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
     ui->streamGraph->xAxis->setLabel("Arrival Time");
     ui->streamGraph->yAxis->setLabel("Value (ms)");
-    PlotTheme::track(ui->streamGraph);
+    // Series colours come from the theme's graph palette; re-read them on a
+    // theme or light/dark switch so the lines keep matching their legend icons.
+    PlotTheme::track(ui->streamGraph, [this]() {
+        for (int i = 0; i < tabs_.count(); i++) {
+            applyTabColors(tabs_[i], i);
+        }
+    });
 
     QPushButton *prepare_button = ui->buttonBox->addButton(ui->actionPrepareButton->text(), QDialogButtonBox::ActionRole);
     prepare_button->setToolTip(ui->actionPrepareButton->toolTip());
@@ -388,18 +394,16 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     ti->setText(marker_col_, tr("Marker"));
     ti->setText(status_col_, tr("Status"));
 
-    QColor color = ThemeManager::instance()->graphColor(tab_seq++);
+    new_tab->graph_color_idx = tab_seq++;
     ui->tabWidget->setUpdatesEnabled(false);
     horizontalLayout->addWidget(new_tab->tree_widget);
     new_tab_no = ui->tabWidget->count() - 1;
     // Used when tab contains IPs
     //ui->tabWidget->insertTab(new_tab_no, tab, *new_tab->tab_name);
     ui->tabWidget->insertTab(new_tab_no, tab, tr("Stream %1").arg(tab_seq - 1));
-    ui->tabWidget->tabBar()->setTabTextColor(new_tab_no, color);
     ui->tabWidget->tabBar()->setTabToolTip(new_tab_no, *new_tab->tab_name);
     ui->tabWidget->setUpdatesEnabled(true);
 
-    QPen pen = QPen(color);
     QCPScatterStyle jitter_shape;
     QCPScatterStyle diff_shape;
     QCPScatterStyle delta_shape;
@@ -413,18 +417,16 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     new_tab->jitter_graph = ui->streamGraph->addGraph();
     new_tab->diff_graph = ui->streamGraph->addGraph();
     new_tab->delta_graph = ui->streamGraph->addGraph();
-    new_tab->jitter_graph->setPen(pen);
-    new_tab->diff_graph->setPen(pen);
-    new_tab->delta_graph->setPen(pen);
     new_tab->jitter_graph->setScatterStyle(jitter_shape);
     new_tab->diff_graph->setScatterStyle(diff_shape);
     new_tab->delta_graph->setScatterStyle(delta_shape);
+    applyTabColors(new_tab, new_tab_no);
 
     new_tab->graphHorizontalLayout = new QHBoxLayout();
 
     new_tab->stream_checkbox = new QCheckBox(tr("Stream %1").arg(tab_seq - 1), ui->graphTab);
     new_tab->stream_checkbox->setChecked(true);
-    new_tab->stream_checkbox->setIcon(StockIcon::colorIcon(color.rgb(), QPalette::Text));
+    new_tab->stream_checkbox->setIcon(ThemedShapeIcon(ThemedShapeIcon::Square, ThemedShapeIcon::PaletteColor{new_tab->graph_color_idx}, ThemeManager::PaletteText));
     new_tab->graphHorizontalLayout->addWidget(new_tab->stream_checkbox);
     new_tab->graphHorizontalLayout->addItem(new QSpacerItem(10, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
@@ -435,7 +437,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
 
     new_tab->jitter_checkbox = new QCheckBox(tr("Stream %1 Jitter").arg(tab_seq - 1), ui->graphTab);
     new_tab->jitter_checkbox->setChecked(true);
-    new_tab->jitter_checkbox->setIcon(StockIcon::colorIconCircle(color.rgb(), QPalette::Text));
+    new_tab->jitter_checkbox->setIcon(ThemedShapeIcon(ThemedShapeIcon::Circle, ThemedShapeIcon::PaletteColor{new_tab->graph_color_idx}, ThemeManager::PaletteText));
     new_tab->graphHorizontalLayout->addWidget(new_tab->jitter_checkbox);
     new_tab->graphHorizontalLayout->addItem(new QSpacerItem(10, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
@@ -446,7 +448,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
 
     new_tab->diff_checkbox = new QCheckBox(tr("Stream %1 Difference").arg(tab_seq - 1), ui->graphTab);
     new_tab->diff_checkbox->setChecked(true);
-    new_tab->diff_checkbox->setIcon(StockIcon::colorIconCross(color.rgb(), QPalette::Text));
+    new_tab->diff_checkbox->setIcon(ThemedShapeIcon(ThemedShapeIcon::Cross, ThemedShapeIcon::PaletteColor{new_tab->graph_color_idx}, ThemeManager::PaletteText));
     new_tab->graphHorizontalLayout->addWidget(new_tab->diff_checkbox);
     new_tab->graphHorizontalLayout->addItem(new QSpacerItem(10, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
@@ -457,7 +459,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
 
     new_tab->delta_checkbox = new QCheckBox(tr("Stream %1 Delta").arg(tab_seq - 1), ui->graphTab);
     new_tab->delta_checkbox->setChecked(true);
-    new_tab->delta_checkbox->setIcon(StockIcon::colorIconTriangle(color.rgb(), QPalette::Text));
+    new_tab->delta_checkbox->setIcon(ThemedShapeIcon(ThemedShapeIcon::Triangle, ThemedShapeIcon::PaletteColor{new_tab->graph_color_idx}, ThemeManager::PaletteText));
     new_tab->graphHorizontalLayout->addWidget(new_tab->delta_checkbox);
     new_tab->graphHorizontalLayout->addItem(new QSpacerItem(10, 5, QSizePolicy::Expanding, QSizePolicy::Minimum));
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
@@ -471,6 +473,17 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     ui->layout->addLayout(new_tab->graphHorizontalLayout);
 
     return new_tab_no;
+}
+
+// A stream's tab title and its graphs share one entry of the theme's graph
+// palette, which changes with the theme and with light/dark mode.
+void RtpAnalysisDialog::applyTabColors(const tab_info_t *tab, int tab_no)
+{
+    const QColor color = ThemeManager::instance()->graphColor(tab->graph_color_idx);
+    ui->tabWidget->tabBar()->setTabTextColor(tab_no, color);
+    for (QCPGraph *graph : { tab->jitter_graph, tab->diff_graph, tab->delta_graph }) {
+        graph->setPen(QPen(color));
+    }
 }
 
 // Handles all row checkBoxes

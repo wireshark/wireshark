@@ -25,7 +25,6 @@
 #include "wsutil/filesystem.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include "main_application.h"
 #include <ui/qt/main_window.h>

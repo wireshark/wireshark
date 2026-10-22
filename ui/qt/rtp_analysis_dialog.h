@@ -92,6 +92,10 @@ typedef struct {
 
     /** Pointer to the checkbox for delta graph visibility. */
     QCheckBox *delta_checkbox;
+
+    /** Index into the theme's graph palette (ThemeManager::graphColor()) used for
+     *  this stream's graphs, tab text and legend icons. */
+    int graph_color_idx;
 } tab_info_t;
 
 /**
@@ -428,6 +432,17 @@ private:
      * @return The index of the newly added tab.
      */
     int addTabUI(tab_info_t *new_tab);
+
+    /**
+     * @brief Colours a stream tab's title and its jitter, difference and delta
+     *        graphs with the theme's graph colour for the stream.
+     *
+     * The only place these colours are set, so a theme or light/dark switch
+     * recolours everything that was coloured when the tab was created.
+     * @param tab Tab info whose graphs are coloured.
+     * @param tab_no Index of the tab's page in the tab widget.
+     */
+    void applyTabColors(const tab_info_t *tab, int tab_no);
 
     /**
      * @brief Gets the tab info structure for the currently active tab.
