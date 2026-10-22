@@ -160,10 +160,21 @@ static expert_field ei_lua_proto_interface_error;
 
 static int ett_wslua_traceback;
 
+/* The pinfo->pool on which lua_pinfo_end() is currently registered, so that
+ * it is registered only once per packet even with multiple or nested Lua
+ * dissector calls. */
+static wmem_allocator_t *lua_pinfo_end_pool;
+
 static bool
-lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
+lua_pinfo_end(wmem_allocator_t *allocator, wmem_cb_event_t event _U_,
         void *user_data _U_)
 {
+    /* Only forget the pool if it's the one we last registered on; if another
+     * pool was registered on since, its callback is still pending. */
+    if (allocator == lua_pinfo_end_pool) {
+        lua_pinfo_end_pool = NULL;
+    }
+
     clear_outstanding_Tvb();
     clear_outstanding_TvbRange();
     clear_outstanding_Pinfo();
@@ -176,6 +187,19 @@ lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 
     /* keep invoking this callback later? */
     return false;
+}
+
+/* Make sure that the Lua objects pushed while dissecting this packet are
+ * expired when the packet's pool is freed. Call this before pushing any
+ * objects, so that they are expired even if a Wireshark exception escapes
+ * from the Lua call. */
+static void
+register_lua_pinfo_end(packet_info *pinfo)
+{
+    if (pinfo->pool != lua_pinfo_end_pool) {
+        wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
+        lua_pinfo_end_pool = pinfo->pool;
+    }
 }
 
 static int wslua_not_register_menu(lua_State* LS) {
@@ -343,6 +367,8 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 
+    register_lua_pinfo_end(pinfo);
+
     /*
      * almost equivalent to Lua:
      * dissectors[current_proto](tvb,pinfo,tree)
@@ -424,11 +450,6 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
                     "Lua Error: did not find the %s dissector in the dissectors table", pinfo->current_proto);
     }
 
-    // XXX - Should this be registered before the lua_pcall, in case there's
-    // an exception? Also, as there can be nested dissector calls, should we
-    // try to avoid registering it more than once?
-    wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
-
     CLEANUP_CALL_AND_POP;
 
     lua_pinfo = saved_lua_pinfo;
@@ -468,6 +489,8 @@ bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
      * table of keys of the Proto->name, and their value is the function.
      * So it's like registry[table_ref][heur_list_name][proto_name] = func
      */
+
+    register_lua_pinfo_end(pinfo);
 
     // Create a new thread with an independent execution stack and,
     // importantly, a independent linked list errorJmp of lua_longjmp.
@@ -550,11 +573,6 @@ bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
     }
 
 end:
-    // XXX - Should this be registered before the lua_pcall, in case there's
-    // an exception? Also, as there can be nested dissector calls, should we
-    // try to avoid registering it more than once?
-    wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
-
     CLEANUP_CALL_AND_POP;
 
     lua_pinfo = saved_lua_pinfo;
