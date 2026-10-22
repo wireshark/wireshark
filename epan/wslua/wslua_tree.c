@@ -993,12 +993,16 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
     tvbr = shiftTvbRange(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
 
     if (!tvbr) {
-        tvbr = wmem_new(lua_pinfo->pool, struct _wslua_tvbrange);
-        tvbr->tvb = shiftTvb(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
-        if (!tvbr->tvb) {
-            tvbr->tvb = wmem_new(lua_pinfo->pool, struct _wslua_tvb);
+        /* Not a TvbRange; use the Tvb if one was passed, otherwise the
+         * Tvb of the current dissection. Don't modify the passed Tvb. */
+        Tvb tvb = shiftTvb(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
+        if (tvb && tvb->expired) {
+            luaL_error(L,"expired tvb");
+            return 0;
         }
-        tvbr->tvb->ws_tvb = lua_tvb;
+        tvbr = wmem_new(lua_pinfo->pool, struct _wslua_tvbrange);
+        tvbr->tvb = wmem_new(lua_pinfo->pool, struct _wslua_tvb);
+        tvbr->tvb->ws_tvb = tvb ? tvb->ws_tvb : lua_tvb;
         tvbr->offset = 0;
         tvbr->len = 0;
     }
