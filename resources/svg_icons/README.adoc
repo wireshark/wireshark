@@ -40,7 +40,7 @@ The following snippet shows examples of each element:
 ----
 <ws:states xmlns:ws="urn:x-wireshark-icon">
   <ws:map-token color="#212121" token="PaletteText"/>
-  <ws:swap base="#2960f6" active="#2050f5" selected="#1c47f5" normal-on="#73d216"/>
+  <ws:swap base="#2960f6" active="#2050f5" selected="#1c47f5" normal-on="#2e7d32"/>
 </ws:states>
 ----
 

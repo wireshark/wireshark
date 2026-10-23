@@ -1949,7 +1949,6 @@ bool WiresharkMainWindow::tryClosingCaptureFile(QString before_what, FileCloseCo
             msg_dialog.setText(question);
             msg_dialog.setInformativeText(infotext);
 
-            // XXX Text comes from ui/gtk/stock_icons.[ch]
             // Note that the button roles differ from the GTK+ version.
             // Cancel = RejectRole
             // Save = AcceptRole

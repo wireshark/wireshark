@@ -163,7 +163,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // is 85 (~33%) rather than the historical 102 (~40%); the lower
     // value keeps the default Material-leaning accents from
     // overpowering the field background.  Themes that prefer the
-    // legacy saturated GTK/Tango look ship explicit hex values in
+    // legacy saturated GTK look ship explicit hex values in
     // theme.filter and let assign()'s only-if-missing semantics keep
     // them intact.  The foreground on each tint is derived below as
     // TextOnFilter*, so the text stays readable whichever side of the
@@ -203,7 +203,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // defaults to palette.mid (a mode-aware gray) rather than a saturated accent.
     // It brightens to a strong colour on hover/press, supplied per-mode by the
     // button's ThemedIcon; this token only sets the resting tint.  The default
-    // theme pins the classic combo-arrow Tango grays via theme.filter.history.
+    // theme pins fixed grays via theme.filter.history.
     {
         const QColor midGray = pickPaletteValue(tokens, ThemeManager::PaletteMid, QPalette::Mid, isDarkMode, palette);
         assign(tokens, ThemeManager::FilterHistory, ThemeColorPair { midGray, midGray });
@@ -214,8 +214,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // contrast against Base: on macOS dark mode Mid sits below Base.
     // String / number colours shift the accent away from the
     // background: darker in light mode (toward black), lighter in
-    // dark mode (toward white) — mirroring how the Tango palette
-    // pairs chameleon_5/_3 and sky_blue_5/_3 did pre-theme.
+    // dark mode (toward white).
     const QColor midColor = pickPaletteValue(tokens, ThemeManager::PaletteMid, QPalette::Mid, isDarkMode, palette);
     const ThemeColorPair accentSuccess = tokens.value(ThemeManager::AccentSuccess);
     const ThemeColorPair accentInfo    = tokens.value(ThemeManager::AccentInfo);

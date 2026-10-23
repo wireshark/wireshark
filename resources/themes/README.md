@@ -10,7 +10,7 @@ singleton at application startup.
 resources/themes/
     README.md               ← this file
     theme.schema.json       ← JSON Schema for theme.jsonc validation
-    wireshark/              ← built-in Wireshark theme (Tango-based)
+    wireshark/              ← built-in Wireshark theme (classic Wireshark colors)
         theme.jsonc         ← color definitions (required)
         images/             ← theme-specific images (optional, future)
     stratoshark/            ← built-in Stratoshark theme (Cloud teal)
@@ -349,7 +349,7 @@ The warning background is the `filter.deprecated` tint.
 
 Rotating color cycle for I/O graphs, TCP stream graphs, LTE RLC
 graphs, and RTP player scatter plots.  Slots 1-7 are saturated,
-8-14 are pastel.  All derived from the Tango palette.
+8-14 are pastel.
 
 ### `sequence` — Sequence diagram colors (1-10)
 

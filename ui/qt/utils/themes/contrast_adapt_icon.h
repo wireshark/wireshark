@@ -41,11 +41,11 @@
  * alternates in the SVG itself, with one element per base colour (ignored by the
  * renderer):
  *
- *   <ws:swap base="#729fcf" active="#3465a4" selected="#204a87" on="#73d216"/>
+ *   <ws:swap base="#2960f6" active="#2050f5" selected="#1c47f5" normal-on="#2e7d32"/>
  *
  * In Active/Selected mode the engine swaps that base colour for the named
- * alternate before contrast-adapting it.  The optional "on" attribute names the
- * colour for QIcon::On (e.g. a checked toggle button); a mode-specific
+ * alternate before contrast-adapting it.  The optional "normal-on" attribute
+ * names the colour for QIcon::On (e.g. a checked toggle button); a mode-specific
  * active/selected colour takes precedence over it when both apply.
  *
  * A drawn colour can instead track the theme by binding it to a
