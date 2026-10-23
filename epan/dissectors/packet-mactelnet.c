@@ -72,13 +72,15 @@ static const value_string clienttypenames[] = {
 /* Known control-packet types */
 static const value_string controlpackettypenames[] = {
     { 0, "Begin authentication" },
-    { 1, "Encryption key" },
-    { 2, "Password" },
-    { 3, "Username" },
-    { 4, "Terminal type" },
-    { 5, "Terminal width" },
-    { 6, "Terminal height" },
-    { 9, "End authentication" },
+    { 0x1000000, "Encryption key" },
+    { 0x2000000, "Password" },
+    { 0x3000000, "Username" },
+    { 0x4000000, "Terminal type" },
+    { 0x5000000, "Terminal width" },
+    { 0x6000000, "Terminal height" },
+    { 0x7000000, "Authentication failure" },
+    { 0x8000000, "Server failure" },
+    { 0x9000000, "End authentication" },
     { 0, NULL }
 };
 
@@ -192,8 +194,8 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         if (type == 1) {
             while(tvb_reported_length_remaining(tvb, offset) > 0) {
                 if ((tvb_reported_length_remaining(tvb, offset) > 4) && (tvb_get_ntohl(tvb, offset) == control_packet)) {
-                    uint8_t datatype;
-                    uint32_t datalength;
+                    uint32_t datatype;
+                    uint8_t datalength;
 
                     /* Add subtree for control packet */
                     mactelnet_control_item = proto_tree_add_item(mactelnet_tree, hf_mactelnet_control, tvb, offset, -1, ENC_NA);
@@ -202,13 +204,13 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     proto_tree_add_item(mactelnet_control_tree, hf_mactelnet_control_packet, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
 
-                    /* Control packet type (1) */
-                    proto_tree_add_item_ret_uint8(mactelnet_control_tree, hf_mactelnet_datatype, tvb, offset, 1, ENC_NA, &datatype);
-                    offset += 1;
-
-                    /* Control packet length (4) */
-                    proto_tree_add_item_ret_uint(mactelnet_control_tree, hf_mactelnet_control_length, tvb, offset, 4, ENC_BIG_ENDIAN, &datalength);
+                    /* Control packet type (4) */
+                    proto_tree_add_item_ret_uint(mactelnet_control_tree, hf_mactelnet_datatype, tvb, offset, 4, ENC_BIG_ENDIAN, &datatype);
                     offset += 4;
+
+                    /* Control packet length (1) */
+                    proto_tree_add_item_ret_uint8(mactelnet_control_tree, hf_mactelnet_control_length, tvb, offset, 1, ENC_NA, &datalength);
+                    offset += 1;
 
                     switch (datatype) {
                         case 1: /* Encryption Key */
@@ -304,7 +306,7 @@ proto_register_mactelnet(void)
         },
         { &hf_mactelnet_datatype,
           { "Data Packet Type", "mactelnet.data_type",
-            FT_UINT8, BASE_HEX, VALS(controlpackettypenames) , 0x0,
+            FT_UINT32, BASE_HEX, VALS(controlpackettypenames) , 0x0,
             NULL, HFILL }
         },
         { &hf_mactelnet_control,
@@ -314,7 +316,7 @@ proto_register_mactelnet(void)
         },
         { &hf_mactelnet_control_length,
           { "Control Data Length", "mactelnet.control_length",
-            FT_UINT32, BASE_DEC, NULL , 0x0,
+            FT_UINT8, BASE_DEC, NULL , 0x0,
             "Control packet length", HFILL }
         },
         { &hf_mactelnet_control_encryption_key,
