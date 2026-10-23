@@ -402,7 +402,7 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     int data_off = offset + noeql_len + 1 + 8; // \n + data len
                     next_offset = data_off + (int) data_len + 1;
                     if (proto_registrar_get_ftype(hf_idx) == FT_STRING) {
-                        proto_item *bin_ti = proto_tree_add_item(sje_tree, hf_idx, tvb, data_off, (int) data_len, ENC_NA);
+                        proto_item *bin_ti = proto_tree_add_item(sje_tree, hf_idx, tvb, data_off, (int) data_len, ENC_UTF_8);
                         proto_tree *bin_tree = proto_item_add_subtree(bin_ti, ett_systemd_binary_data);
                         proto_tree_add_item(bin_tree, hf_sj_binary_data_len, tvb, offset + noeql_len + 1, 8, ENC_LITTLE_ENDIAN);
                         if (hf_idx == hf_sj_message) {
