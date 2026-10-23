@@ -18,9 +18,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 
 #include "packet-ber.h"
+#include "packet-e212.h"
 #include "packet-media-type.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
@@ -33,6 +35,9 @@ static int proto_sgp22;
 static int hf_sgp22_tag_len1;
 static int hf_sgp22_tag_len2;
 static int hf_sgp22_tag_01;
+static int hf_sgp22_bsp_payload;
+static int hf_sgp22_bsp_mac;
+static int hf_sgp22_bsp_reassembled;
 static int hf_sgp22_BoundProfilePackage_PDU;      /* BoundProfilePackage */
 static int hf_sgp22_ProfileInstallationResult_PDU;  /* ProfileInstallationResult */
 static int hf_sgp22_ExpirationDate_PDU;           /* ExpirationDate */
@@ -98,18 +103,18 @@ static int hf_sgp22_GetBoundProfilePackageRequest_PDU;  /* GetBoundProfilePackag
 static int hf_sgp22_GetBoundProfilePackageResponse_PDU;  /* GetBoundProfilePackageResponse */
 static int hf_sgp22_HandleNotification_PDU;       /* HandleNotification */
 static int hf_sgp22_AuthenticateClientResponseEs11_PDU;  /* AuthenticateClientResponseEs11 */
-static int hf_sgp22_mccMnc;                       /* OCTET_STRING_SIZE_3 */
+static int hf_sgp22_mccMnc;                       /* T_mccMnc */
 static int hf_sgp22_gid1;                         /* OCTET_STRING */
 static int hf_sgp22_gid2;                         /* OCTET_STRING */
 static int hf_sgp22_initialiseSecureChannelRequest;  /* InitialiseSecureChannelRequest */
 static int hf_sgp22_firstSequenceOf87;            /* T_firstSequenceOf87 */
-static int hf_sgp22_firstSequenceOf87_item;       /* OCTET_STRING */
+static int hf_sgp22_firstSequenceOf87_item;       /* T_firstSequenceOf87_item */
 static int hf_sgp22_sequenceOf88;                 /* T_sequenceOf88 */
-static int hf_sgp22_sequenceOf88_item;            /* OCTET_STRING */
+static int hf_sgp22_sequenceOf88_item;            /* T_sequenceOf88_item */
 static int hf_sgp22_secondSequenceOf87;           /* T_secondSequenceOf87 */
-static int hf_sgp22_secondSequenceOf87_item;      /* OCTET_STRING */
+static int hf_sgp22_secondSequenceOf87_item;      /* T_secondSequenceOf87_item */
 static int hf_sgp22_sequenceOf86;                 /* T_sequenceOf86 */
-static int hf_sgp22_sequenceOf86_item;            /* OCTET_STRING */
+static int hf_sgp22_sequenceOf86_item;            /* T_sequenceOf86_item */
 static int hf_sgp22_profileInstallationResultData;  /* ProfileInstallationResultData */
 static int hf_sgp22_euiccSignPIR;                 /* EuiccSignPIR */
 static int hf_sgp22_transactionId;                /* TransactionId */
@@ -413,6 +418,8 @@ static int hf_sgp22_T_pprFlags_consentRequired;
 
 static int ett_sgp22;
 static int ett_sgp22_tagList;
+static int ett_sgp22_bsp_segment;
+static int ett_sgp22_mccMnc;
 static int ett_sgp22_UICCCapability;
 static int ett_sgp22_PprIds;
 static int ett_sgp22_OperatorId;
@@ -546,7 +553,10 @@ static int ett_sgp22_AuthenticateClientOkEs11;
 static int ett_sgp22_SEQUENCE_OF_EventEntries;
 static int ett_sgp22_EventEntries;
 
+static expert_field ei_sgp22_bsp_segment_short;
+
 static dissector_handle_t sgp22_handle;
+static dissector_table_t sgp22_request_table;
 
 static const value_string sgp22_tag_vals[] = {
   { 0x4F, "isdpAid" },
@@ -588,6 +598,83 @@ static int dissect_sgp22_taglist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   }
 
   return offset;
+}
+
+/* A BoundProfilePackage part is split into segments of at most 1020 bytes without regard
+ * to its content (SGP.22 2.5.3), each carrying a trailing 8 byte C-MAC (SGP.22 2.6.4.4). */
+#define SGP22_BSP_MAC_LEN 8
+
+enum {
+  SGP22_BSP_SEQ_FIRST_87,
+  SGP22_BSP_SEQ_88,
+  SGP22_BSP_SEQ_SECOND_87,
+  SGP22_BSP_SEQ_86,
+  SGP22_BSP_SEQ_MAX
+};
+
+typedef struct {
+  proto_tree *tree[SGP22_BSP_SEQ_MAX];
+  wmem_array_t *payload[SGP22_BSP_SEQ_MAX];
+} sgp22_bpp_t;
+
+static void sgp22_bsp_add_segment(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, unsigned seq)
+{
+  sgp22_bpp_t *bpp = (sgp22_bpp_t *)actx->private_data;
+  proto_tree *subtree;
+  tvbuff_t *payload;
+  int len;
+
+  if (!tvb || !bpp) {
+    return;
+  }
+
+  len = tvb_reported_length(tvb);
+  if (len <= SGP22_BSP_MAC_LEN) {
+    expert_add_info(actx->pinfo, actx->created_item, &ei_sgp22_bsp_segment_short);
+    return;
+  }
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_sgp22_bsp_segment);
+  proto_tree_add_item(subtree, hf_sgp22_bsp_payload, tvb, 0, len - SGP22_BSP_MAC_LEN, ENC_NA);
+  proto_tree_add_item(subtree, hf_sgp22_bsp_mac, tvb, len - SGP22_BSP_MAC_LEN, SGP22_BSP_MAC_LEN, ENC_NA);
+
+  if (!bpp->payload[seq]) {
+    bpp->payload[seq] = wmem_array_new(actx->pinfo->pool, sizeof(tvbuff_t *));
+  }
+  payload = tvb_new_subset_length(tvb, 0, len - SGP22_BSP_MAC_LEN);
+  wmem_array_append_one(bpp->payload[seq], payload);
+  bpp->tree[seq] = tree;
+}
+
+static void sgp22_bsp_reassemble(asn1_ctx_t *actx, sgp22_bpp_t *bpp)
+{
+  for (unsigned seq = 0; seq < SGP22_BSP_SEQ_MAX; seq++) {
+    wmem_array_t *segments = bpp->payload[seq];
+    tvbuff_t *next_tvb;
+    unsigned count;
+
+    if (!segments) {
+      continue;
+    }
+
+    count = wmem_array_get_count(segments);
+    if (count > 1) {
+      next_tvb = tvb_new_composite();
+      for (unsigned i = 0; i < count; i++) {
+        tvb_composite_append(next_tvb, *(tvbuff_t **)wmem_array_index(segments, i));
+      }
+      tvb_composite_finalize(next_tvb);
+      add_new_data_source(actx->pinfo, next_tvb, "Reassembled BSP");
+      proto_tree_add_item(bpp->tree[seq], hf_sgp22_bsp_reassembled, next_tvb, 0, -1, ENC_NA);
+    } else {
+      next_tvb = *(tvbuff_t **)wmem_array_index(segments, 0);
+    }
+
+    if ((seq == SGP22_BSP_SEQ_88) && (tvb_reported_length(next_tvb) > 2)) {
+      /* The '88' segments are MACed only, not encrypted (SGP.22 2.5.4.3). */
+      dissector_try_uint(sgp22_request_table, tvb_get_ntohs(next_tvb, 0), next_tvb, actx->pinfo, bpp->tree[seq]);
+    }
+  }
 }
 
 /*--- Cyclic dependencies ---*/
@@ -809,9 +896,19 @@ dissect_sgp22_PprIds(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _
 
 
 static unsigned
-dissect_sgp22_OCTET_STRING_SIZE_3(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_sgp22_T_mccMnc(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+
   offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
-                                                   3, 3, hf_index, NULL);
+                                                   3, 3, hf_index, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp22_mccMnc);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, true);
+  }
+
 
   return offset;
 }
@@ -828,7 +925,7 @@ dissect_sgp22_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
 
 
 static const ber_sequence_t OperatorId_sequence[] = {
-  { &hf_sgp22_mccMnc        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgp22_OCTET_STRING_SIZE_3 },
+  { &hf_sgp22_mccMnc        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_sgp22_T_mccMnc },
   { &hf_sgp22_gid1          , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_OCTET_STRING },
   { &hf_sgp22_gid2          , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_sgp22_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
@@ -887,8 +984,23 @@ dissect_sgp22_InitialiseSecureChannelRequest(bool implicit_tag _U_, tvbuff_t *tv
 }
 
 
+
+static unsigned
+dissect_sgp22_T_firstSequenceOf87_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  sgp22_bsp_add_segment(actx, tree, parameter_tvb, SGP22_BSP_SEQ_FIRST_87);
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t T_firstSequenceOf87_sequence_of[1] = {
-  { &hf_sgp22_firstSequenceOf87_item, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_sgp22_OCTET_STRING },
+  { &hf_sgp22_firstSequenceOf87_item, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_sgp22_T_firstSequenceOf87_item },
 };
 
 static unsigned
@@ -900,8 +1012,23 @@ dissect_sgp22_T_firstSequenceOf87(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsi
 }
 
 
+
+static unsigned
+dissect_sgp22_T_sequenceOf88_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  sgp22_bsp_add_segment(actx, tree, parameter_tvb, SGP22_BSP_SEQ_88);
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t T_sequenceOf88_sequence_of[1] = {
-  { &hf_sgp22_sequenceOf88_item, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_sgp22_OCTET_STRING },
+  { &hf_sgp22_sequenceOf88_item, BER_CLASS_CON, 8, BER_FLAGS_IMPLTAG, dissect_sgp22_T_sequenceOf88_item },
 };
 
 static unsigned
@@ -913,8 +1040,23 @@ dissect_sgp22_T_sequenceOf88(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned 
 }
 
 
+
+static unsigned
+dissect_sgp22_T_secondSequenceOf87_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  sgp22_bsp_add_segment(actx, tree, parameter_tvb, SGP22_BSP_SEQ_SECOND_87);
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t T_secondSequenceOf87_sequence_of[1] = {
-  { &hf_sgp22_secondSequenceOf87_item, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_sgp22_OCTET_STRING },
+  { &hf_sgp22_secondSequenceOf87_item, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_sgp22_T_secondSequenceOf87_item },
 };
 
 static unsigned
@@ -926,8 +1068,23 @@ dissect_sgp22_T_secondSequenceOf87(bool implicit_tag _U_, tvbuff_t *tvb _U_, uns
 }
 
 
+
+static unsigned
+dissect_sgp22_T_sequenceOf86_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb = NULL;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+  sgp22_bsp_add_segment(actx, tree, parameter_tvb, SGP22_BSP_SEQ_86);
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t T_sequenceOf86_sequence_of[1] = {
-  { &hf_sgp22_sequenceOf86_item, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_sgp22_OCTET_STRING },
+  { &hf_sgp22_sequenceOf86_item, BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_sgp22_T_sequenceOf86_item },
 };
 
 static unsigned
@@ -950,8 +1107,16 @@ static const ber_sequence_t BoundProfilePackage_U_sequence[] = {
 
 static unsigned
 dissect_sgp22_BoundProfilePackage_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  void *saved_private_data = actx->private_data;
+  sgp22_bpp_t *bpp = wmem_new0(actx->pinfo->pool, sgp22_bpp_t);
+
+  actx->private_data = bpp;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    BoundProfilePackage_U_sequence, hf_index, ett_sgp22_BoundProfilePackage_U);
+
+  sgp22_bsp_reassemble(actx, bpp);
+  actx->private_data = saved_private_data;
 
   return offset;
 }
@@ -4961,6 +5126,18 @@ void proto_register_sgp22(void)
       { "Tag", "sgp22.tag_01",
         FT_UINT8, BASE_HEX, VALS(sgp22_tag_01_vals), 0,
         NULL, HFILL }},
+    { &hf_sgp22_bsp_payload,
+      { "BSP payload", "sgp22.bsp.payload",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sgp22_bsp_mac,
+      { "BSP C-MAC", "sgp22.bsp.mac",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sgp22_bsp_reassembled,
+      { "Reassembled BSP", "sgp22.bsp.reassembled",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sgp22_BoundProfilePackage_PDU,
       { "BoundProfilePackage", "sgp22.BoundProfilePackage_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5224,7 +5401,7 @@ void proto_register_sgp22(void)
     { &hf_sgp22_mccMnc,
       { "mccMnc", "sgp22.mccMnc",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_3", HFILL }},
+        NULL, HFILL }},
     { &hf_sgp22_gid1,
       { "gid1", "sgp22.gid1",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -5244,7 +5421,7 @@ void proto_register_sgp22(void)
     { &hf_sgp22_firstSequenceOf87_item,
       { "firstSequenceOf87 item", "sgp22.firstSequenceOf87_item",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_sgp22_sequenceOf88,
       { "sequenceOf88", "sgp22.sequenceOf88",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5252,7 +5429,7 @@ void proto_register_sgp22(void)
     { &hf_sgp22_sequenceOf88_item,
       { "sequenceOf88 item", "sgp22.sequenceOf88_item",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_sgp22_secondSequenceOf87,
       { "secondSequenceOf87", "sgp22.secondSequenceOf87",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5260,7 +5437,7 @@ void proto_register_sgp22(void)
     { &hf_sgp22_secondSequenceOf87_item,
       { "secondSequenceOf87 item", "sgp22.secondSequenceOf87_item",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_sgp22_sequenceOf86,
       { "sequenceOf86", "sgp22.sequenceOf86",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5268,7 +5445,7 @@ void proto_register_sgp22(void)
     { &hf_sgp22_sequenceOf86_item,
       { "sequenceOf86 item", "sgp22.sequenceOf86_item",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_sgp22_profileInstallationResultData,
       { "profileInstallationResultData", "sgp22.profileInstallationResultData_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6470,6 +6647,8 @@ void proto_register_sgp22(void)
   static int *ett[] = {
     &ett_sgp22,
     &ett_sgp22_tagList,
+    &ett_sgp22_bsp_segment,
+    &ett_sgp22_mccMnc,
     &ett_sgp22_UICCCapability,
     &ett_sgp22_PprIds,
     &ett_sgp22_OperatorId,
@@ -6604,13 +6783,23 @@ void proto_register_sgp22(void)
     &ett_sgp22_EventEntries,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_sgp22_bsp_segment_short,
+      { "sgp22.bsp.segment_too_short", PI_MALFORMED, PI_ERROR,
+        "BSP segment is too short to hold a C-MAC", EXPFILL }},
+  };
+
+  expert_module_t *expert_sgp22;
+
   proto_sgp22 = proto_register_protocol("SGP.22 GSMA Remote SIM Provisioning (RSP)", "SGP.22", "sgp22");
   proto_register_field_array(proto_sgp22, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_sgp22 = expert_register_protocol(proto_sgp22);
+  expert_register_field_array(expert_sgp22, ei, array_length(ei));
 
   sgp22_handle = register_dissector("sgp22", dissect_sgp22, proto_sgp22);
 
-  register_dissector_table("sgp22.request", "SGP.22 Request", proto_sgp22, FT_UINT16, BASE_HEX);
+  sgp22_request_table = register_dissector_table("sgp22.request", "SGP.22 Request", proto_sgp22, FT_UINT16, BASE_HEX);
   register_dissector_table("sgp22.response", "SGP.22 Response", proto_sgp22, FT_UINT16, BASE_HEX);
 }
 

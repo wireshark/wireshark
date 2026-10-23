@@ -114,6 +114,51 @@ RemoteProfileProvisioningResponse/_untag VAL_PTR = &choice
     dissect_sgp22_taglist(parameter_tvb, actx->pinfo, subtree);
   }
 
+#.FN_BODY OperatorId/mccMnc VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_sgp22_mccMnc);
+    dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, true);
+  }
+
+#.FN_HDR BoundProfilePackage/_untag
+  void *saved_private_data = actx->private_data;
+  sgp22_bpp_t *bpp = wmem_new0(actx->pinfo->pool, sgp22_bpp_t);
+
+  actx->private_data = bpp;
+
+#.FN_FTR BoundProfilePackage/_untag
+  sgp22_bsp_reassemble(actx, bpp);
+  actx->private_data = saved_private_data;
+
+#.FN_BODY BoundProfilePackage/_untag/firstSequenceOf87/_item VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  sgp22_bsp_add_segment(actx, tree, parameter_tvb, SGP22_BSP_SEQ_FIRST_87);
+
+#.FN_BODY BoundProfilePackage/_untag/sequenceOf88/_item VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  sgp22_bsp_add_segment(actx, tree, parameter_tvb, SGP22_BSP_SEQ_88);
+
+#.FN_BODY BoundProfilePackage/_untag/secondSequenceOf87/_item VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  sgp22_bsp_add_segment(actx, tree, parameter_tvb, SGP22_BSP_SEQ_SECOND_87);
+
+#.FN_BODY BoundProfilePackage/_untag/sequenceOf86/_item VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  sgp22_bsp_add_segment(actx, tree, parameter_tvb, SGP22_BSP_SEQ_86);
+
 #.FN_BODY GetEuiccDataRequest/_untag/tagList
   tvbuff_t *parameter_tvb = NULL;
 
