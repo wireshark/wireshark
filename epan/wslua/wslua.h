@@ -251,7 +251,6 @@ struct _wslua_cols {
 
 struct _wslua_private_table {
     GHashTable *table;
-    bool is_allocated;
     bool expired;
 };
 
