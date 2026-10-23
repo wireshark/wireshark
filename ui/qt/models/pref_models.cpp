@@ -312,6 +312,8 @@ void PrefsModel::populate()
     appearance_item->prependChild(appearance_subitem);
     appearance_subitem = new PrefsItem(PrefsModel::FontAndColors, appearance_item);
     appearance_item->prependChild(appearance_subitem);
+    appearance_subitem = new PrefsItem(PrefsModel::Fonts, appearance_item);
+    appearance_item->prependChild(appearance_subitem);
     appearance_subitem = new PrefsItem(PrefsModel::WelcomePage, appearance_item);
     appearance_item->prependChild(appearance_subitem);
 
@@ -341,13 +343,14 @@ QString PrefsModel::typeToString(PrefsModelType type)
         case Appearance: typeStr = tr("Appearance"); break;
         case Layout: typeStr = tr("Layout"); break;
         case Columns: typeStr = tr("Columns"); break;
-        case FontAndColors: typeStr = tr("Theme and Font"); break;
+        case FontAndColors: typeStr = tr("Theme"); break;
         case WelcomePage: typeStr = tr("Welcome Page"); break;
         case Capture: typeStr = tr("Capture"); break;
         case Expert: typeStr = tr("Expert"); break;
         case FilterButtons: typeStr = tr("Filter Buttons"); break;
         case RSAKeys: typeStr = tr("RSA Keys"); break;
         case Aggregation: typeStr = tr("Aggregation"); break;
+        case Fonts: typeStr = tr("Fonts"); break;
     }
 
     return typeStr;
@@ -366,7 +369,10 @@ QString PrefsModel::typeToHelp(PrefsModelType type)
             helpStr = QStringLiteral("ChCustPreferencesSection.html#_columns");
             break;
         case FontAndColors:
-            helpStr = QStringLiteral("ChCustPreferencesSection.html#_font_and_colors");
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#ChCustPrefsThemeSection");
+            break;
+        case Fonts:
+            helpStr = QStringLiteral("ChCustPreferencesSection.html#ChCustPrefsFontsSection");
             break;
         case Layout:
             helpStr = QStringLiteral("ChCustPreferencesSection.html#_layout");
@@ -868,8 +874,17 @@ bool ModulePrefsModel::lessThan(const QModelIndex &source_left, const QModelInde
         return left_priority < right_priority;
     }
 
-    // Fallback: case-insensitive alphabetical order
-    return left_name.compare(right_name, Qt::CaseInsensitive) < 0;
+    // The Fonts page follows the Theme page directly instead of sorting by
+    // its own title: sort it under the Theme title, after Theme on a tie.
+    const QString fontsName = PrefsModel::typeToString(PrefsModel::Fonts);
+    const QString themeName = PrefsModel::typeToString(PrefsModel::FontAndColors);
+    const QString left_key = (left_name == fontsName) ? themeName : left_name;
+    const QString right_key = (right_name == fontsName) ? themeName : right_name;
+    const int order = left_key.compare(right_key, Qt::CaseInsensitive);
+    if (order != 0) {
+        return order < 0;
+    }
+    return left_name != fontsName && right_name == fontsName;
 }
 
 bool ModulePrefsModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

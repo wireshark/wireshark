@@ -40,6 +40,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/filter_expression_toolbar.h
 	widgets/find_line_edit.h
 	widgets/follow_stream_text.h
+	widgets/font_selection_widget.h
 	widgets/hex_data_source_view.h
 	widgets/interface_toolbar_lineedit.h
 	widgets/json_data_source_view.h
@@ -244,6 +245,8 @@ set(WIRESHARK_QT_HEADERS
 	follow_stream_action.h
 	follow_stream_dialog.h
 	font_color_preferences_frame.h
+	font_preferences_frame.h
+	font_selection_dialog.h
 	funnel_statistics.h
 	funnel_string_dialog.h
 	funnel_text_dialog.h
@@ -386,6 +389,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/filter_expression_toolbar.cpp
 	widgets/find_line_edit.cpp
 	widgets/follow_stream_text.cpp
+	widgets/font_selection_widget.cpp
 	widgets/hex_data_source_view.cpp
 	widgets/interface_toolbar_lineedit.cpp
 	widgets/json_data_source_view.cpp
@@ -603,6 +607,8 @@ set(WIRESHARK_QT_SRC
 	follow_stream_action.cpp
 	follow_stream_dialog.cpp
 	font_color_preferences_frame.cpp
+	font_preferences_frame.cpp
+	font_selection_dialog.cpp
 	funnel_string_dialog.cpp
 	funnel_text_dialog.cpp
 	geometry_state_dialog.cpp
@@ -777,6 +783,8 @@ set(WIRESHARK_QT_UI
 	firewall_rules_dialog.ui
 	follow_stream_dialog.ui
 	font_color_preferences_frame.ui
+	font_preferences_frame.ui
+	font_selection_dialog.ui
 	funnel_string_dialog.ui
 	funnel_text_dialog.ui
 	gsm_map_summary_dialog.ui
@@ -845,6 +853,7 @@ set(WIRESHARK_QT_UI
 
 set(WIRESHARK_QT_WIDGETS_UI
 	widgets/capture_card_widget.ui
+	widgets/font_selection_widget.ui
 	widgets/learn_card_widget.ui
 	widgets/welcome_header_widget.ui
 )

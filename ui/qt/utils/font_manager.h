@@ -82,6 +82,27 @@ public:
      *  absolute font sizes baked into a stylesheet. */
     static qreal zoomFactor();
 
+    /** Resolves a font descriptor (QFont::toString() form) or bare family name
+     *  without touching FontManager state. */
+    static QFont fontFromName(const QString &name);
+    /** Returns @p font, or a fixed-pitch substitute when it is proportional.
+     *  Only the substitute is reset to the normal (upright) style. */
+    static QFont guaranteeMonospace(const QFont &font);
+    /**
+     * The font a theme's font descriptor resolves to, without the
+     * gui.font_name preference: the system general (or fixed) font when
+     * @p fontName is empty, else fontFromName(); a monospace result is
+     * passed through guaranteeMonospace().
+     */
+    static QFont themeFont(const QString &fontName, bool monospace);
+    /**
+     * The monospace font the gui.font_name preference resolves to. A family the
+     * user picked is used as chosen, also a proportional one; a family that is
+     * not installed, or a fixed-pitch family Qt matched to a proportional face,
+     * is passed through guaranteeMonospace().
+     */
+    static QFont preferenceMonospaceFont(const QFont &font);
+
     // --- Mutators & queries ---
 
     /**
@@ -98,9 +119,10 @@ public:
 
     /**
      * Sets the monospace font.  The user preference gui.font_name always wins
-     * when set; otherwise @p fontName; otherwise the system fixed font.  The
-     * result is guaranteed to be fixed-pitch.  Emits monospaceFontChanged when
-     * the resolved font actually changes.
+     * when set; otherwise @p fontName; otherwise the system fixed font.  A
+     * theme or system font is guaranteed to be fixed-pitch; the preference
+     * font is resolved by preferenceMonospaceFont().  Emits
+     * monospaceFontChanged when the resolved font actually changes.
      *
      * @param fontName  font descriptor, or empty.
      */
@@ -154,9 +176,6 @@ private:
     void  applyApplicationFont();           ///< push applicationFont() onto qApp
     void  applyZoom();                      ///< re-push + emit after a zoom change
     void  syncMonospacePref();              ///< mirror base_monospace_ into prefs.gui_font_name
-
-    static QFont fontFromName(const QString &name);  ///< fromString() or bare family
-    static QFont guaranteeMonospace(const QFont &font);
 };
 
 #endif /* FONT_MANAGER_H */

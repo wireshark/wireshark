@@ -42,6 +42,9 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFontDatabase>
+#include <QGroupBox>
+#include <QLabel>
+#include <QPalette>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QUrl>
@@ -234,6 +237,44 @@ void smooth_font_size(QFont &font) {
         }
         last_size = cur_size;
     }
+}
+
+// QApplication::font() has an empty resolve mask, so a child font derived
+// from it would resolve weight and size against a parent's bold, larger
+// font. Mark both as explicitly set so a reset to it takes effect.
+static QFont explicit_application_font()
+{
+    QFont font = QApplication::font();
+    font.setWeight(font.weight());
+    font.setPointSizeF(font.pointSizeF());
+    return font;
+}
+
+void set_section_title_font(QGroupBox *box)
+{
+    // Qt propagates a widget's font to its children, so set the emphasized
+    // font on the group box (which renders its title with it), then restore
+    // the body font on the widgets inside so only the title grows.
+    const QFont body_font = explicit_application_font();
+    QFont title_font = body_font;
+    title_font.setBold(true);
+    title_font.setPointSizeF(body_font.pointSizeF() + 2);
+    box->setFont(title_font);
+    const QList<QWidget *> children = box->findChildren<QWidget *>();
+    for (QWidget *child : children) {
+        child->setFont(body_font);
+    }
+}
+
+void set_hint_label_style(QLabel *label)
+{
+    QFont hint_font = explicit_application_font();
+    hint_font.setItalic(true);
+    label->setFont(hint_font);
+    QPalette hint_palette = label->palette();
+    hint_palette.setColor(QPalette::WindowText,
+                          hint_palette.color(QPalette::Disabled, QPalette::WindowText));
+    label->setPalette(hint_palette);
 }
 
 bool qActionLessThan(const QAction * a1, const QAction * a2) {

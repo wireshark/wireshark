@@ -47,6 +47,7 @@
       <widget class="LayoutPreferencesFrame" name="layoutFrame"/>
       <widget class="ColumnPreferencesFrame" name="columnFrame"/>
       <widget class="FontColorPreferencesFrame" name="fontandcolorFrame"/>
+      <widget class="FontPreferencesFrame" name="fontsFrame"/>
       <widget class="WelcomePagePreferencesFrame" name="welcomePageFrame"/>
       <widget class="CapturePreferencesFrame" name="captureFrame"/>
       <widget class="UatFrame" name="expertFrame"/>
@@ -148,6 +149,12 @@
    <class>FontColorPreferencesFrame</class>
    <extends>QFrame</extends>
    <header>font_color_preferences_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FontPreferencesFrame</class>
+   <extends>QFrame</extends>
+   <header>font_preferences_frame.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
