@@ -297,12 +297,11 @@ struct _wslua_cols {
 };
 
 /**
- * @brief Wraps a GHashTable for use as a Lua private data table, tracking ownership and expiry.
+ * @brief Wraps a GHashTable for use as a Lua private data table, tracking expiry.
  */
 struct _wslua_private_table {
-    GHashTable* table;        /**< The underlying hash table storing key-value pairs for the private data. */
-    bool        is_allocated; /**< True if this wrapper allocated the hash table and is responsible for freeing it. */
-    bool        expired;      /**< True if the table is no longer valid. */
+    GHashTable* table;   /**< The underlying hash table storing key-value pairs for the private data. */
+    bool        expired; /**< True if the table is no longer valid. */
 };
 
 /**
