@@ -39,6 +39,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/filter_expression_toolbar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/find_line_edit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/follow_stream_text.h
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/font_selection_widget.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/hex_data_source_view.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/interface_toolbar_lineedit.h
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/json_data_source_view.h
@@ -231,6 +232,8 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/follow_stream_action.h
 	${CMAKE_SOURCE_DIR}/ui/qt/follow_stream_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/font_color_preferences_frame.h
+	${CMAKE_SOURCE_DIR}/ui/qt/font_preferences_frame.h
+	${CMAKE_SOURCE_DIR}/ui/qt/font_selection_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_statistics.h
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_string_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_text_dialog.h
@@ -360,6 +363,7 @@ set(WIRESHARK_WIDGET_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/filter_expression_toolbar.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/find_line_edit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/follow_stream_text.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/font_selection_widget.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/hex_data_source_view.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/interface_toolbar_lineedit.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/json_data_source_view.cpp
@@ -566,6 +570,8 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/follow_stream_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/follow_stream_action.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/font_color_preferences_frame.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/font_preferences_frame.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/font_selection_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_string_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_text_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/geometry_state_dialog.cpp
@@ -706,6 +712,8 @@ set(WIRESHARK_QT_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/filter_expression_frame.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/follow_stream_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/font_color_preferences_frame.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/font_preferences_frame.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/font_selection_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_string_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_text_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/import_text_dialog.ui
@@ -752,6 +760,7 @@ set(WIRESHARK_QT_UI
 
 set(WIRESHARK_QT_WIDGETS_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/capture_card_widget.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/widgets/font_selection_widget.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/learn_card_widget.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/widgets/welcome_header_widget.ui
 )

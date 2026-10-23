@@ -11,31 +11,13 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include "font_color_preferences_frame.h"
-#include <ui/qt/models/pref_models.h>
 #include <ui_font_color_preferences_frame.h>
 #include <ui/qt/utils/theme_manager.h>
-#include "main_application.h"
-#include "wsutil/array.h"
 
 #include <ui/recent.h>
 
-#include <QApplication>
-#include <QFontDialog>
 #include <QFormLayout>
-#include <QGroupBox>
-#include <QLabel>
-#include <QPalette>
 #include <QVBoxLayout>
-
-#include <epan/prefs-int.h>
-
-//: These are pangrams. Feel free to replace with nonsense text that spans your alphabet.
-//: https://en.wikipedia.org/wiki/Pangram
-static const char *font_pangrams_[] = {
-    QT_TRANSLATE_NOOP("FontColorPreferencesFrame", "Example GIF query packets have jumbo window sizes"),
-    QT_TRANSLATE_NOOP("FontColorPreferencesFrame", "Lazy badgers move unique waxy jellyfish packets")
-};
-const int num_font_pangrams_ = array_length(font_pangrams_);
 
 FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     QFrame(parent),
@@ -84,10 +66,6 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     connect(ui->themeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
         this, &FontColorPreferencesFrame::themeIndexChanged);
 
-    pref_qt_gui_font_name_ = prefFromPrefPtr(&prefs.gui_font_name);
-
-    cur_font_.fromString(prefs_get_string_value(pref_qt_gui_font_name_, pref_stashed));
-
     // Repaint the preview when the live theme changes underneath us.
     // ThemeManager emits themeChanged whenever the OS scheme flips while
     // the live mode is System (the detector hook re-applies and signals),
@@ -97,36 +75,11 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     connect(ThemeManager::instance(), &ThemeManager::themeChanged,
             this, &FontColorPreferencesFrame::refreshPreview);
 
-    // Section headers: bold and 2pt larger than the body font.  Qt propagates
-    // a widget's font to its children, so set the emphasized font on each
-    // group box (which renders its title with it) then restore the body font
-    // on the controls inside — including the combos and preview created above
-    // — so only the titles grow.  Done last, after those children exist.
-    QFont bodyFont = QApplication::font();
-    QFont headerFont = bodyFont;
-    headerFont.setBold(true);
-    headerFont.setPointSizeF(bodyFont.pointSizeF() + 2);
-    const QList<QGroupBox *> sectionBoxes = { ui->fontGroupBox, ui->themeGroupBox };
-    for (QGroupBox *box : sectionBoxes) {
-        box->setFont(headerFont);
-        const QList<QWidget *> boxChildren = box->findChildren<QWidget *>();
-        for (QWidget *child : boxChildren)
-            child->setFont(bodyFont);
-    }
-
-    // Theme author and description hints: muted + italic like the page's
-    // other hint labels.  Styled after the body-font reset above so the
-    // italics survive it.  Description is shown verbatim from the theme's
-    // meta.description; author is shown as "Theme by <author>".
-    QFont hintFont = bodyFont;
-    hintFont.setItalic(true);
-    QPalette hintPalette = ui->themeAuthorLabel->palette();
-    hintPalette.setColor(QPalette::WindowText,
-                         hintPalette.color(QPalette::Disabled, QPalette::WindowText));
-    for (QLabel *hint : { ui->themeAuthorLabel, ui->themeDescriptionLabel }) {
-        hint->setFont(hintFont);
-        hint->setPalette(hintPalette);
-    }
+    // Section title and theme hints share their styling with the Fonts page.
+    // Done last, after the combos and the preview above exist.
+    set_section_title_font(ui->themeGroupBox);
+    set_hint_label_style(ui->themeAuthorLabel);
+    set_hint_label_style(ui->themeDescriptionLabel);
 }
 
 FontColorPreferencesFrame::~FontColorPreferencesFrame()
@@ -136,28 +89,11 @@ FontColorPreferencesFrame::~FontColorPreferencesFrame()
 
 void FontColorPreferencesFrame::showEvent(QShowEvent *)
 {
-    GRand *rand_state = g_rand_new();
-    QString pangram = QStringLiteral("%1 0123456789").arg(font_pangrams_[g_rand_int_range(rand_state, 0, num_font_pangrams_)]);
-    ui->fontSampleLineEdit->setText(pangram);
-    ui->fontSampleLineEdit->setCursorPosition(0);
-    g_rand_free(rand_state);
-
     updateWidgets();
 }
 
 void FontColorPreferencesFrame::updateWidgets()
 {
-    int margin = style()->pixelMetric(QStyle::PM_LayoutLeftMargin);
-
-    ui->fontPushButton->setText(
-        cur_font_.family() + " " + cur_font_.styleName() + " " +
-        QString::number(cur_font_.pointSizeF(), 'f', 1));
-
-    QString line_edit_ss =
-        QStringLiteral("QLineEdit { margin-left: %1px; }").arg(margin);
-    ui->fontSampleLineEdit->setStyleSheet(line_edit_ss);
-    ui->fontSampleLineEdit->setFont(cur_font_);
-
     if (ui->colorSchemeComboBox) {
         ui->colorSchemeComboBox->setCurrentIndex(
             ui->colorSchemeComboBox->findData(stashed_color_scheme_));
@@ -193,19 +129,6 @@ void FontColorPreferencesFrame::unstash()
         : g_strdup(stashed_theme_name_.toUtf8().constData());
 
     recent.gui_color_scheme = stashed_color_scheme_;
-}
-
-void FontColorPreferencesFrame::on_fontPushButton_clicked()
-{
-    bool ok;
-    // QFontDialog::MonospacedFonts might not be supported on Mac by the native
-    // dialog (or Linux GTK3 prior to Qt 6.12). Use DontUseNativeDialog option?
-    QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, mainApp->windowTitleString(tr("Font")), QFontDialog::MonospacedFonts);
-    if (ok) {
-        prefs_set_string_value(pref_qt_gui_font_name_, new_font.toString().toStdString().c_str(), pref_stashed);
-        cur_font_ = new_font;
-        updateWidgets();
-    }
 }
 
 void FontColorPreferencesFrame::refreshPreview()

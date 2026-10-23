@@ -96,7 +96,7 @@ The following changes have been made since version 0.9.3:
   It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces.
 
 * Stratoshark now has a theme engine.
-  Stratoshark now uses the same theme system as Wireshark, driving the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme and Font] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, set the packet pane font, and preview the result. A built-in default theme ships with Stratoshark, and additional themes can be installed as JSONC (JSON with Comments) files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme. Graph and plot windows (I/O Graph, TCP Stream, SCTP, RTP, and others) now take their grid, text and series colors from the theme, and the display filter field text, packet list row separators, and links stay readable in light and dark themes.
+  Stratoshark now uses the same theme system as Wireshark, driving the colors used throughout the GUI from a single theme instead of many individual color preferences. The renamed menu:Appearance[Theme] preferences page lets you pick a theme, switch between Light, Dark, and System appearance, and preview the result. A built-in default theme ships with Stratoshark, and additional themes can be installed as JSONC (JSON with Comments) files. The previous per-color settings (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) are now provided by the active theme. Graph and plot windows (I/O Graph, TCP Stream, SCTP, RTP, and others) now take their grid, text and series colors from the theme, and the display filter field text, packet list row separators, and links stay readable in light and dark themes.
   Personal themes can now be dropped as single `.jsonc` files into _$HOME/.local/lib/stratoshark/themes_ (Unix) or _%APPDATA%\Stratoshark\themes_ (Windows). The exact path is shown in the About dialog's _Folders_ tab.
   On first launch after the upgrade, Stratoshark checks the Default profile's preferences for customized values of the removed per-color settings. If any are found, a personal theme named _Personal (Migrated)_ is created automatically in the personal themes directory, the legacy keys are removed from the Default profile's preferences file, and the theme is activated so the original visual customizations are preserved. The migration runs once: the generated _personal.jsonc_ can be edited, renamed, or deleted by hand at any time.
   The welcome page section headers ("Open", "Capture", "Learn") and the filter validity tints have been restored to the historical Classic look (classic blue brand color, saturated GTK-era dark green / dark red filter backgrounds).
@@ -218,6 +218,19 @@ The following features are either new or have been significantly updated since v
 
 * The Help menu entries Website and Wiki now show the Stratoshark application icon
   on Linux and Windows (previously they had no icon), and Ask (Q&A) no longer has an icon.
+
+* The monospace font used in the packet list, packet details, packet bytes and other text views
+  is now chosen on the new menu:Edit[Preferences > Appearance > Fonts] page, below Theme,
+  instead of in the Theme page and the system font dialog.
+  The page lists the font families, each drawn in its own typeface, with a filter field,
+  a "Show only monospaced fonts" option (on by default), the styles of the family,
+  the size (steps of 0.5 points, can be typed) and a sample.
+  Strikeout and Underline can be set, and bold or oblique styles are now applied
+  (they were stored but ignored before). An italic or underlined font hides the italic and underline markers
+  in the packet details, so only their colors mark disabled coloring rules and links then.
+  The inline page also fixes the font selection on macOS, where the native font panel
+  ignored the monospaced filter and offered no usable size control.
+  wsbuglink:21688[]
 
 //* The Windows installers now ship with Qt 6.5.2.
 //  They previously shipped with Qt 6.2.3.

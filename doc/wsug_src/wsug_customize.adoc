@@ -904,16 +904,13 @@ Selecting _Show file load time_ adds the time it took to load the capture file t
 
 The button _Restore Defaults_ allows you to get back to a working basic configuration.
 
-==== Theme and Font
+[#ChCustPrefsThemeSection]
+==== Theme
 
-These preferences let you choose the application theme, the light or dark appearance mode, and the font used in the packet panes.
+These preferences let you choose the application theme and the light or dark appearance mode.
 
-.Theme and font preferences
+.Theme preferences
 image::images/ws-pref-appearance-theme-and-font.png[{screenshot-attrs}]
-
-The _Main window font_ button opens a font chooser for the font used in the packet list, the packet details and the other packet panes.
-A mono spaced font usually gives the cleanest presentation, but a proportional font can be used as well.
-The sample text below the button previews the currently selected font.
 
 The _Appearance mode_ setting controls whether Wireshark uses a light or a dark color scheme.
 _System_ follows the operating system setting, while _Light_ and _Dark_ force the respective scheme regardless of the system setting.
@@ -951,6 +948,20 @@ The file format is identical to the bundled themes; see the _README.md_ next to 
 
 If a personal theme file shares a name with a built-in theme (for example _default.jsonc_), the built-in copy wins and the personal file is ignored with a warning on stderr.
 This guarantees that core themes the application falls back to can never be accidentally shadowed by a broken override.
+
+[#ChCustPrefsFontsSection]
+==== Fonts
+
+These preferences let you choose the monospace font, which is used in the packet list, the packet details, the packet bytes and the other text views.
+
+The font families are listed on the left, each drawn in its own typeface, the styles of the selected family in the middle and the sizes on the right.
+Type in the field above the family list to show only the families whose name contains the text.
+_Show only monospaced fonts_ limits the family list to fixed-pitch fonts and is selected by default; a proportional font breaks the column alignment in the packet bytes pane.
+The size can also be typed, in steps of 0.5 points.
+_Strikeout_ and _Underline_ apply to all text in the packet panes.
+An italic or underlined font hides the italic and underline markers that the packet details use for disabled coloring rules and for links; only their colors mark them then.
+The sample shows the font as it will be applied.
+Changes take effect once you accept the preferences dialog with btn:[OK].
 
 ==== Welcome Page
 

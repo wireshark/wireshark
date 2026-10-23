@@ -46,13 +46,14 @@ public:
         Appearance,              /**< Appearance settings page. */
         Layout,                  /**< Layout settings page. */
         Columns,                 /**< Packet list column settings page. */
-        FontAndColors,           /**< Font and color settings page. */
+        FontAndColors,           /**< Theme settings page. */
         WelcomePage,             /**< Welcome / start page settings. */
         Capture,                 /**< Capture settings page. */
         Expert,                  /**< Expert information settings page. */
         FilterButtons,           /**< Filter toolbar button settings page. */
         RSAKeys,                 /**< RSA key decryption settings page. */
-        Aggregation              /**< Aggregation settings page. */
+        Aggregation,             /**< Aggregation settings page. */
+        Fonts                    /**< Monospace font settings page. */
     };
 
     /**

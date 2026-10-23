@@ -139,9 +139,7 @@ qreal FontManager::zoomFactor()
 
 void FontManager::setRegularFont(const QString &fontName)
 {
-    const QFont resolved = fontName.isEmpty()
-        ? QFontDatabase::systemFont(QFontDatabase::GeneralFont)
-        : fontFromName(fontName);
+    const QFont resolved = themeFont(fontName, false);
 
     const QString prev = base_regular_.toString();
     base_regular_       = resolved;
@@ -161,21 +159,37 @@ void FontManager::setMonospaceFont(const QString &fontName)
     const QString prefName = prefs.gui_font_name
         ? QString::fromUtf8(prefs.gui_font_name) : QString();
 
-    QFont resolved;
-    if (!prefName.isEmpty())
-        resolved = fontFromName(prefName);
-    else if (!fontName.isEmpty())
-        resolved = fontFromName(fontName);
-    else
-        resolved = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-
-    resolved = guaranteeMonospace(resolved);
+    const QFont resolved = prefName.isEmpty()
+        ? themeFont(fontName, true)
+        : preferenceMonospaceFont(fontFromName(prefName));
 
     const QString prev = base_monospace_.toString();
     base_monospace_    = resolved;
 
     if (base_monospace_.toString() != prev)
         emit monospaceFontChanged(zoomed(base_monospace_));
+}
+
+QFont FontManager::themeFont(const QString &fontName, bool monospace)
+{
+    const QFont font = fontName.isEmpty()
+        ? QFontDatabase::systemFont(monospace ? QFontDatabase::FixedFont
+                                              : QFontDatabase::GeneralFont)
+        : fontFromName(fontName);
+    return monospace ? guaranteeMonospace(font) : font;
+}
+
+QFont FontManager::preferenceMonospaceFont(const QFont &font)
+{
+    // The Fonts preferences page can list every family, so a family the
+    // user picked is applied as chosen. The fallback is only for a family
+    // that is missing, or a fixed-pitch family that Qt matched to a
+    // proportional face.
+    const QString family = font.family();
+    if (QFontDatabase::hasFamily(family) && !QFontDatabase::isFixedPitch(family)) {
+        return font;
+    }
+    return guaranteeMonospace(font);
 }
 
 // --------------------------------------------------------------------
@@ -302,9 +316,8 @@ QFont FontManager::guaranteeMonospace(const QFont &font)
     if (!QFontInfo(cleanFont).fixedPitch()) {
         cleanFont.setFamilies(monospaceFallbacks());
         cleanFont.setStyleHint(QFont::Monospace);
+        cleanFont.setStyle(QFont::StyleNormal);
     }
-
-    cleanFont.setStyle(QFont::StyleNormal);
 
     return cleanFont;
 }
