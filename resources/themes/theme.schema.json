@@ -43,6 +43,13 @@
             }
         },
 
+        "contrast": {
+            "type": "string",
+            "enum": ["standard", "high"],
+            "default": "standard",
+            "description": "Ratio set for derived colors; high also forces the high-contrast set regardless of the Contrast preference."
+        },
+
         "brand": {
             "description": "The color that defines the theme's visual identity. `primary` drives the selection highlight when neither palette.highlight nor packets.selection is set (and with it the welcome header bar), section header hover and link accents.",
             "type": "object",

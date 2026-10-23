@@ -77,7 +77,7 @@ public:
         QColor opaque_fill = fill;
         opaque_fill.setAlpha(255);
         const QColor outline = ColorMath::ensureContrast(base, opaque_fill,
-                                                         ColorMath::NonTextRatio);
+                                                         ColorMath::activeRatios().nonText);
         // The glyph is text, so it has to read, not just be visible.
         const QColor glyph = glyph_.isEmpty() ? outline
                                               : ColorMath::readableText(base, opaque_fill);

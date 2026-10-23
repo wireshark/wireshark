@@ -17,7 +17,12 @@
 #include <ui/recent.h>
 
 #include <QFormLayout>
+#include <QSignalBlocker>
 #include <QVBoxLayout>
+
+// Item data roles of the theme combo box entries.
+static const int theme_author_role_        = Qt::UserRole + 1;
+static const int theme_high_contrast_role_ = Qt::UserRole + 2;
 
 FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     QFrame(parent),
@@ -38,6 +43,22 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     connect(ui->colorSchemeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
         this, &FontColorPreferencesFrame::colorSchemeIndexChanged);
 
+    // Contrast — System / Standard / High.  Stashed like the appearance
+    // mode and committed to recent.gui_contrast on Apply.
+    stashed_contrast_ = recent.gui_contrast;
+
+    ui->contrastComboBox->clear();
+    ui->contrastComboBox->addItem(tr("System"),   GUI_CONTRAST_SYSTEM);
+    ui->contrastComboBox->addItem(tr("Standard"), GUI_CONTRAST_STANDARD);
+    ui->contrastComboBox->addItem(tr("High"),     GUI_CONTRAST_HIGH);
+    ui->contrastComboBox->setItemData(ui->contrastComboBox->findData(GUI_CONTRAST_SYSTEM),
+        ThemeManager::canDetectSystemContrast()
+            ? tr("System follows the operating system contrast setting (Qt 6.10 or later).")
+            : tr("The operating system contrast setting cannot be read with this Qt version; System acts as Standard."),
+        Qt::ToolTipRole);
+    connect(ui->contrastComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        this, &FontColorPreferencesFrame::contrastIndexChanged);
+
     // Theme picker — populated from ThemeManager::availableThemes().
     // Persists its selection in recent_common.gui_theme_name via the
     // frame's stash/unstash flow, so the choice survives profile switches.
@@ -55,7 +76,8 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
         // the preview (set in refreshPreview()) so the dropdown stays clean.
         // The author is stashed in a private item-data role to feed it.
         ui->themeComboBox->addItem(t.name, t.internalName);
-        ui->themeComboBox->setItemData(i, t.author, Qt::UserRole + 1);
+        ui->themeComboBox->setItemData(i, t.author, theme_author_role_);
+        ui->themeComboBox->setItemData(i, t.contrast == ThemeContrast::High, theme_high_contrast_role_);
         if (!t.description.isEmpty())
             ui->themeComboBox->setItemData(i, t.description, Qt::ToolTipRole);
         if (t.internalName == stashed_theme_name_)
@@ -99,6 +121,32 @@ void FontColorPreferencesFrame::updateWidgets()
             ui->colorSchemeComboBox->findData(stashed_color_scheme_));
     }
 
+    updateContrastCombo();
+    refreshPreview();
+}
+
+void FontColorPreferencesFrame::updateContrastCombo()
+{
+    if (!ui->contrastComboBox || !ui->themeComboBox)
+        return;
+
+    const bool forced = ui->themeComboBox->itemData(
+        ui->themeComboBox->currentIndex(), theme_high_contrast_role_).toBool();
+    const QSignalBlocker blocker(ui->contrastComboBox);
+    ui->contrastComboBox->setCurrentIndex(ui->contrastComboBox->findData(
+        forced ? GUI_CONTRAST_HIGH : stashed_contrast_));
+    ui->contrastComboBox->setEnabled(!forced);
+    ui->contrastLabel->setEnabled(!forced);
+    ui->contrastComboBox->setToolTip(forced
+        ? tr("The selected theme always uses high contrast.")
+        : QString());
+}
+
+void FontColorPreferencesFrame::contrastIndexChanged(int)
+{
+    if (!ui->contrastComboBox)
+        return;
+    stashed_contrast_ = ui->contrastComboBox->currentData().toInt();
     refreshPreview();
 }
 
@@ -118,6 +166,7 @@ void FontColorPreferencesFrame::themeIndexChanged(int)
     // recent_common on Apply.  Not applied live — a switch here requires
     // the user to accept the preferences dialog.
     stashed_theme_name_ = ui->themeComboBox->currentData().toString();
+    updateContrastCombo();
     refreshPreview();
 }
 
@@ -129,6 +178,7 @@ void FontColorPreferencesFrame::unstash()
         : g_strdup(stashed_theme_name_.toUtf8().constData());
 
     recent.gui_color_scheme = stashed_color_scheme_;
+    recent.gui_contrast = stashed_contrast_;
 }
 
 void FontColorPreferencesFrame::refreshPreview()
@@ -140,7 +190,7 @@ void FontColorPreferencesFrame::refreshPreview()
     if (ui->themeComboBox) {
         const int idx = ui->themeComboBox->currentIndex();
         const QString author = ui->themeComboBox->itemData(
-            idx, Qt::UserRole + 1).toString();
+            idx, theme_author_role_).toString();
         ui->themeAuthorLabel->setText(
             author.isEmpty() ? QString() : tr("Theme by %1").arg(author));
         const QString description = ui->themeComboBox->itemData(
@@ -173,5 +223,5 @@ void FontColorPreferencesFrame::refreshPreview()
     // safe — the preview just falls back to the live ThemeManager's
     // colors token-by-token.
     ui->previewWidget->setPreviewColors(
-        ThemeManager::instance()->previewTheme(stashed_theme_name_, previewScheme));
+        ThemeManager::instance()->previewTheme(stashed_theme_name_, previewScheme, stashed_contrast_));
 }

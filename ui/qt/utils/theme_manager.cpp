@@ -42,6 +42,10 @@
 #include <QStyleHints>
 #include <QWidget>
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+#include <QAccessibilityHints>
+#endif
+
 ThemeManager* ThemeManager::instance_{nullptr};
 QMutex ThemeManager::mutex_;
 
@@ -113,6 +117,17 @@ ThemeManager::ThemeManager(QObject *parent)
             return;
         reapplyForSchemeChange();
     });
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    // Follow the OS increase-contrast setting live.  Only a change of the
+    // effective level re-themes: with gui.contrast Standard or High, or a
+    // theme that declares high contrast, the OS setting has no effect.
+    connect(qApp->styleHints()->accessibility(), &QAccessibilityHints::contrastPreferenceChanged,
+            this, [this](Qt::ContrastPreference) {
+        if (effectiveContrast(recent.gui_contrast, info_.contrast) != contrast_)
+            applyTheme();
+    });
+#endif
 
     /** CONVENIENCE PRE-CACHING
      *
@@ -419,6 +434,46 @@ ThemeManager::ThemeMode ThemeManager::mode() const
     return mode_;
 }
 
+ThemeContrast ThemeManager::contrast() const
+{
+    return contrast_;
+}
+
+bool ThemeManager::canDetectSystemContrast()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool ThemeManager::systemPrefersHighContrast()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    return qApp->styleHints()->accessibility()->contrastPreference() == Qt::ContrastPreference::HighContrast;
+#else
+    return false;
+#endif
+}
+
+ThemeContrast ThemeManager::effectiveContrast(int gui_contrast, ThemeContrast declared)
+{
+    // A theme that declares high contrast is built for it, so the user
+    // setting can only raise the level, never lower it.
+    if (declared == ThemeContrast::High)
+        return ThemeContrast::High;
+    switch (gui_contrast) {
+    case GUI_CONTRAST_HIGH:
+        return ThemeContrast::High;
+    case GUI_CONTRAST_SYSTEM:
+        return systemPrefersHighContrast() ? ThemeContrast::High : ThemeContrast::Standard;
+    case GUI_CONTRAST_STANDARD:
+    default:
+        return ThemeContrast::Standard;
+    }
+}
+
 void ThemeManager::setMode(ThemeMode newMode)
 {
     if (newMode == mode_)
@@ -495,20 +550,39 @@ void ThemeManager::reapplyForSchemeChange()
         osBaseline_ = s->standardPalette();
 #endif
 
+    applyTheme();
+}
+
+void ThemeManager::applyTheme()
+{
+    // The ratio set is process-global and read by runtime consumers
+    // (icons, styler, splash) through their default arguments, so it has
+    // to be switched before the palette is built and themeChanged fires.
+    contrast_ = effectiveContrast(recent.gui_contrast, info_.contrast);
+    ColorMath::setActiveContrast(contrast_);
+
     // Build the palette first, derive tokens against it, THEN push it to
     // QApplication.  On Qt 5, QApplication::setPalette() dispatches
     // ApplicationPaletteChange synchronously before returning, so any widget
     // that reacts to that event and reads a ThemeManager token must find the
     // token map already up to date.  Building the palette without applying it
     // first lets us complete token derivation before the signal fires.
+    // osBaseline_ is the pristine OS palette captured at construction
+    // (refreshed on scheme flips), so overrides from a previous theme,
+    // including ones the current theme does not re-declare, are discarded.
     // Start from the parsed map: deriveAll() only fills tokens that are
-    // absent, so re-deriving over the previous scheme's results would keep
-    // its stale values.
+    // absent, so re-deriving over the previous results would keep their
+    // stale values.
     themeColors_ = parsedColors_;
-    const QPalette newPalette = ThemePaletteBuilder::build(themeColors_, isDarkMode(), colorRoleCache_, paletteRoleCache_, baselineForBuild());
-    ThemeTokenHandler::deriveAll(themeColors_, isDarkMode(), newPalette);
+    const QPalette newPalette = ThemePaletteBuilder::build(themeColors_, isDarkMode(), colorRoleCache_, paletteRoleCache_, baselineForBuild(), ColorMath::activeRatios());
+    ThemeTokenHandler::deriveAll(themeColors_, isDarkMode(), newPalette, ColorMath::activeRatios());
     QApplication::setPalette(newPalette);
     applyApplicationStyleSheet();
+
+    // Notify consumers.  At first-startup time this is a no-op (the GUI
+    // hasn't been built yet, no listeners), but on every later apply
+    // widgets that cached resolved wstheme(...) output need to re-run
+    // loadStyleSheet() against the fresh token table.
     emit themeChanged();
 }
 
@@ -637,7 +711,7 @@ void ThemeManager::setValidationState(QWidget *w, const QString &state)
 }
 
 QHash<ThemeManager::ThemeToken, QColor>
-ThemeManager::previewTheme(const QString &internalName, PreviewScheme scheme) const
+ThemeManager::previewTheme(const QString &internalName, PreviewScheme scheme, int gui_contrast) const
 {
     // Mirrors the loadTheme() pipeline (parse → build palette → derive
     // tokens) but operates on stack-local data so the live theme state,
@@ -690,9 +764,14 @@ ThemeManager::previewTheme(const QString &internalName, PreviewScheme scheme) co
     const QPalette previewBaseline = wantDark
         ? ThemePaletteBuilder::builtInDarkPalette()
         : ThemePaletteBuilder::builtInLightPalette();
+    // The ratio set is passed explicitly rather than switched globally, so
+    // the preview can show a contrast level that is not applied yet.
+    const int level = gui_contrast == UseRecentContrast ? recent.gui_contrast : gui_contrast;
+    const ColorMath::ContrastRatios ratios =
+        ColorMath::ratiosFor(effectiveContrast(level, result.info.contrast));
     const QPalette previewPalette = ThemePaletteBuilder::build(
-        result.colors, wantDark, colorRoleCache_, paletteRoleCache_, previewBaseline);
-    ThemeTokenHandler::deriveAll(result.colors, wantDark, previewPalette);
+        result.colors, wantDark, colorRoleCache_, paletteRoleCache_, previewBaseline, ratios);
+    ThemeTokenHandler::deriveAll(result.colors, wantDark, previewPalette, ratios);
 
     QHash<ThemeToken, QColor> out;
     out.reserve(result.colors.size());
@@ -795,29 +874,9 @@ bool ThemeManager::loadTheme(const QString &theme)
     // the result wholesale.
     info_           = result.info;
     parsedColors_   = result.colors;
-    themeColors_    = parsedColors_;
     graphColors_    = result.graphColors;
 
-    // Build the palette, derive tokens against it, then push it to
-    // QApplication.  Order matters: on Qt 5, setPalette() dispatches
-    // ApplicationPaletteChange synchronously before returning, so widgets
-    // reacting to that event must find the token map already populated.
-    // Building without applying first lets derivation complete before the
-    // signal fires.  osBaseline_ is the pristine OS palette captured at
-    // construction (refreshed on scheme flips), so each theme load starts
-    // from a clean baseline and overrides from a previous theme — including
-    // ones the new theme does not re-declare — are discarded here.
-    const QPalette newPalette = ThemePaletteBuilder::build(themeColors_, isDarkMode(), colorRoleCache_, paletteRoleCache_, baselineForBuild());
-    ThemeTokenHandler::deriveAll(themeColors_, isDarkMode(), newPalette);
-    QApplication::setPalette(newPalette);
-    applyApplicationStyleSheet();
-
-    // Notify consumers.  At first-startup time this is a no-op (the GUI
-    // hasn't been built yet, no listeners), but on every later load —
-    // mode flip, user-initiated theme switch, font-pref reapply —
-    // widgets that cached resolved wstheme(...) output need to re-run
-    // loadStyleSheet() against the fresh token table.
-    emit themeChanged();
+    applyTheme();
 
     // Apply fonts after the theme is fully in place, so the font change is
     // sequenced after themeChanged rather than racing it.  The FontManager

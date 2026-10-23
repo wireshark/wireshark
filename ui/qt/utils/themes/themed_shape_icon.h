@@ -31,8 +31,9 @@
  *
  * The given outline colour is a starting point.  Where it is too close to the
  * fill (a black outline on a dark series colour, a white one on a pale series
- * colour) it is moved until it reaches ColorMath::NonTextRatio against
- * the fill; a glyph is lifted to ColorMath::ReadableTextRatio.  Colours that
+ * colour) it is moved until it reaches the active non-text ratio
+ * (ColorMath::activeRatios()) against the fill; a glyph is lifted to the
+ * active readable-text ratio.  Colours that
  * already contrast enough are drawn as given.
  *
  * Nothing is rasterised ahead of time.  paint() draws vectors with the caller's

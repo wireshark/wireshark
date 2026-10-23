@@ -124,7 +124,7 @@
  *       anim->start();
  * ----------------------------------------------------------------- */
 #updateDot {
-    background-color: wstheme(AccentSuccess);
+    background-color: wstheme(UpdateDot);
     border-radius: 3px;          /* half of 6px = circle */
     min-width: 6px;
     max-width: 6px;
@@ -183,7 +183,9 @@
 #updateDownload {
     /* UpdateButtonBg == AccentSuccess by derivation, so the matching
        contrast-aware foreground is TextOnSuccess (auto-picks black on
-       bright greens, white on darker greens). */
+       bright greens, white on darker greens).  In high contrast the
+       button background moves until TextOnSuccess reads on it at
+       body-text contrast. */
     color: wstheme(TextOnSuccess);
     font-size: 11px;
     font-weight: 500;

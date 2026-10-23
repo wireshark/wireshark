@@ -872,6 +872,7 @@ add_theme(NAME "inverted" TARGET stratoshark )
 add_theme(NAME "midnight-blue" TARGET stratoshark )
 add_theme(NAME "protan-deutan" TARGET stratoshark )
 add_theme(NAME "tritan" TARGET stratoshark )
+add_theme(NAME "high-contrast" TARGET stratoshark )
 qrc_finalize(NAME themes TARGET stratoshark OUTPUT_VAR STRATOSHARK_THEMES_QRC)
 
 # Drop the file modification time of source files from generated files

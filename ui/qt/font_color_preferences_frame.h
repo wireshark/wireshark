@@ -68,9 +68,26 @@ private:
     int        stashed_color_scheme_;
 
     /**
+     * Stashed contrast level (GUI_CONTRAST_SYSTEM / _STANDARD / _HIGH).
+     * Committed to recent.gui_contrast in unstash(); only the preview
+     * reflects it until then.  Kept apart from the combo selection, which
+     * shows High (display only) while the selected theme declares it.
+     */
+    int        stashed_contrast_;
+
+    /**
      * @brief Updates the UI widgets to reflect the current preferences.
      */
     void updateWidgets();
+
+    /**
+     * @brief Syncs the contrast combo with the selected theme.
+     *
+     * A theme that declares high contrast forces the combo to High and
+     * disables it; otherwise the stashed user choice is shown and the
+     * combo is enabled.
+     */
+    void updateContrastCombo();
 
 private slots:
     /**
@@ -80,6 +97,12 @@ private slots:
     void colorSchemeIndexChanged(int index);
 
     void themeIndexChanged(int index);
+
+    /**
+     * @brief Slot triggered when the contrast combo box index changes.
+     * @param index The index of the newly selected contrast level.
+     */
+    void contrastIndexChanged(int index);
 
     /**
      * @brief Refreshes the theme preview. Stub in Task 8; wired in Task 12.

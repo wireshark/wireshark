@@ -36,6 +36,11 @@
 		"description": "The built-in Wireshark theme with the classic Wireshark colors."
 	},
 
+	// Contrast: "standard" (default) or "high".  "high" makes Wireshark
+	// use the stricter contrast ratios for derived colors with this theme,
+	// whatever the Contrast preference says.
+	// "contrast": "standard",
+
 	// -----------------------------------------------------------------
 	// Brand — the color that defines the visual identity.
 	//

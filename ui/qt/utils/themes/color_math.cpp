@@ -68,22 +68,76 @@ QColor ColorMath::ensureContrast(const QColor &c, const QColor &bg, qreal minRat
     return contrastRatio(out, bg) >= minRatio ? out : target;
 }
 
-QColor ColorMath::selectionHoverFill(const QColor &base, const QColor &selection)
+// The ratio set every derivation reads through activeRatios().  Process
+// global and GUI-thread only, like the theme state that sets it.
+static ColorMath::ContrastRatios activeContrastRatios = ColorMath::ratiosFor(ThemeContrast::Standard);
+
+const ColorMath::ContrastRatios &ColorMath::activeRatios()
+{
+    return activeContrastRatios;
+}
+
+void ColorMath::setActiveContrast(ThemeContrast level)
+{
+    activeContrastRatios = ratiosFor(level);
+}
+
+ColorMath::TextOnFill ColorMath::readableOnFill(const QColor &text, const QColor &fill, qreal minRatio)
+{
+    TextOnFill out { ensureContrast(text, fill, minRatio), fill };
+    if (contrastRatio(out.text, out.fill) < minRatio) {
+        out.fill = ensureContrast(out.fill, out.text, minRatio);
+    }
+    return out;
+}
+
+QColor ColorMath::readableFill(const QColor &fill, const ContrastRatios &ratios)
+{
+    const QColor text = contrastingText(fill);
+    if (contrastRatio(text, fill) >= ratios.readableText) {
+        return fill;
+    }
+    return ensureContrast(fill, text, ratios.readableText);
+}
+
+ColorMath::TextOnFill ColorMath::selectionHover(const QColor &base, const QColor &selection,
+                                                const QColor &text, const ContrastRatios &ratios)
+{
+    // In Standard this is the fill and text the item views computed
+    // before contrast levels existed.  In High the fill moves for its
+    // text only while it stays distinct from the selection; otherwise
+    // the text falls back to black or white (readableText's
+    // out-of-reach case).
+    QColor fill = selectionHoverFill(base, selection, ratios);
+    if (ratios.level == ThemeContrast::High
+            && contrastRatio(text, fill) < ratios.readableText) {
+        const QColor lifted = ensureContrast(fill, text, ratios.readableText);
+        if (contrastRatio(lifted, selection) >= ratios.distinctSurface) {
+            fill = lifted;
+        }
+    }
+    return TextOnFill { readableText(text, fill, ratios), fill };
+}
+
+QColor ColorMath::selectionHoverFill(const QColor &base, const QColor &selection,
+                                     const ContrastRatios &ratios)
 {
     // 55 % keeps the tint visibly related to the selection hue while
     // leaving light schemes room to stay apart from the selection
     // without the contrast clamp having to move it at all.
-    return ensureContrast(mix(base, selection, 0.55), selection, DistinctSurfaceRatio);
+    return ensureContrast(mix(base, selection, 0.55), selection, ratios.distinctSurface);
 }
 
-QColor ColorMath::readableText(const QColor &text, const QColor &surface)
+QColor ColorMath::readableText(const QColor &text, const QColor &surface,
+                               const ContrastRatios &ratios)
 {
-    return ensureContrast(text, surface, ReadableTextRatio);
+    return ensureContrast(text, surface, ratios.readableText);
 }
 
-bool ColorMath::isReadable(const QColor &text, const QColor &surface)
+bool ColorMath::isReadable(const QColor &text, const QColor &surface,
+                           const ContrastRatios &ratios)
 {
-    return contrastRatio(text, surface) >= ReadableTextRatio;
+    return contrastRatio(text, surface) >= ratios.readableText;
 }
 
 bool ColorMath::isDark(const QColor &color)
@@ -199,22 +253,25 @@ ThemeColorPair ColorMath::contrastingText(const ThemeColorPair &surfacePair)
     };
 }
 
+QColor ColorMath::compositeOver(const QColor &surface, const QColor &backdrop)
+{
+    if (surface.alphaF() >= 1.0)
+        return surface;
+
+    // Standard alpha blending ("over" operator).
+    const qreal a = surface.alphaF();
+    return QColor::fromRgbF(
+        surface.redF()   * a + backdrop.redF()   * (1.0 - a),
+        surface.greenF() * a + backdrop.greenF() * (1.0 - a),
+        surface.blueF()  * a + backdrop.blueF()  * (1.0 - a)
+    );
+}
+
 QColor ColorMath::contrastingTextOver(const QColor &surface, const QColor &backdrop)
 {
-    QColor effective = surface;
-
-    // If the color is translucent, composite it over the backdrop
-    // using standard alpha blending ("over" operator).
-    if (surface.alphaF() < 1.0) {
-        const qreal a = surface.alphaF();
-        effective = QColor::fromRgbF(
-            surface.redF()   * a + backdrop.redF()   * (1.0 - a),
-            surface.greenF() * a + backdrop.greenF() * (1.0 - a),
-            surface.blueF()  * a + backdrop.blueF()  * (1.0 - a)
-        );
-    }
-
-    return relativeLuminance(effective) > THRESHOLD_EQUALIBRIUM_WCAG ? Qt::black : Qt::white;
+    return relativeLuminance(compositeOver(surface, backdrop)) > THRESHOLD_EQUALIBRIUM_WCAG
+        ? Qt::black
+        : Qt::white;
 }
 
 QColor ColorMath::disabled(const QColor &color, const QColor &background)

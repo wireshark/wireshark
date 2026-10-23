@@ -99,11 +99,10 @@ QString ColorUtils::itemHoverStyleSheet(const QString &selector)
     // emitting themeChanged, while a widget's own palette may not have
     // been propagated yet when its restyle slot runs.
     const QPalette pal = QApplication::palette();
-    const QColor hover_bg = ColorMath::selectionHoverFill(pal.color(QPalette::Base),
-                                                          pal.color(QPalette::Highlight));
-    const QColor hover_fg = ColorMath::readableText(pal.color(QPalette::Text), hover_bg);
+    const ColorMath::TextOnFill hover = ColorMath::selectionHover(
+            pal.color(QPalette::Base), pal.color(QPalette::Highlight), pal.color(QPalette::Text));
     return QStringLiteral("%1:item:hover { background-color: %2; color: %3; }")
-            .arg(selector, hover_bg.name(), hover_fg.name());
+            .arg(selector, hover.fill.name(), hover.text.name());
 }
 
 void ColorUtils::paintFlatCell(QPainter *painter, const QAbstractItemView *view,

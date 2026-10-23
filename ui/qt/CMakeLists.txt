@@ -964,6 +964,7 @@ add_theme(NAME "inverted")
 add_theme(NAME "midnight-blue")
 add_theme(NAME "protan-deutan")
 add_theme(NAME "tritan")
+add_theme(NAME "high-contrast")
 qrc_finalize(NAME themes OUTPUT_VAR THEMES_QRC)
 
 # Drop the file modification time of source files from generated files
