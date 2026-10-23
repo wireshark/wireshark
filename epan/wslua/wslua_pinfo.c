@@ -62,7 +62,7 @@ WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
        indistinguishable from a regular comma-separated string in
        the debugger's Variables view. */
     PrivateTable priv = toPrivateTable(L,1);
-    if (!priv || !priv->table) {
+    if (!priv || !priv->table || priv->expired) {
         lua_pushstring(L, "PrivateTable: (expired)");
         WSLUA_RETURN(1);
     }
