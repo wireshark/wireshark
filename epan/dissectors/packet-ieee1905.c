@@ -14235,7 +14235,7 @@ proto_register_ieee1905(void)
             FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
 
         { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_link_mapping_size,
-          { "Link Mapping Size", "ieee1905.tid_to_link_mapping_policy.mapping.flags2.direction",
+          { "Link Mapping Size", "ieee1905.tid_to_link_mapping_policy.mapping.flags2.link_mapping_size",
             FT_UINT8, BASE_DEC, VALS(tid_to_link_mapping_policy_mapping_flags2_link_mapping_size_vals), 0x04, NULL, HFILL }},
 
         { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_reserved,
