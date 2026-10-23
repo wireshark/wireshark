@@ -592,8 +592,9 @@ static int hf_oran_bf;      /* to match frames that configure beamforming in any
 static int hf_oran_zero_prb;
 static int hf_oran_nonzero_prb;
 static int hf_oran_bundle_weights_all_zero;
-
 static int hf_oran_ul_cplane_ud_comp_hdr_frame;
+static int hf_oran_delta_to_expected_ul_symbol_time;
+static int hf_oran_delta_to_expected_dl_symbol_time;
 
 /* For reassembly */
 static int hf_oran_fragments;
@@ -814,6 +815,9 @@ static unsigned us_allowed_for_ul_in_symbol = 0;
 
 /* Reassemble U-Plane (at Radio Transport layer) */
 static bool do_radio_transport_layer_reassembly = true;
+
+/* Expected symbol duration. Initialize to 100MHz case (Mu=1) */
+static unsigned pref_symbol_time = 36;
 
 /* Link U-plane back to C-plane using sectionIds */
 static bool link_planes_together = true;
@@ -7378,13 +7382,50 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
         /* Some frames may answer > 1 section, so fashion a set using wmem_tree.. */
         wmem_tree_t *frames_set = wmem_tree_new(NULL);
 
+        unsigned first_gap = 0;
+        unsigned first_symbol = 0;
+        unsigned first_gap_delta = 0;
+        bool first_section = true;
+
         for (list_frame = wmem_list_head(result->u_plane_frames); list_frame != NULL; list_frame = wmem_list_frame_next(list_frame)) {
             corresponding_uplane_frame *frame = wmem_list_frame_data(list_frame);
+
+            if (!wmem_tree_contains32(frames_set, frame->frame_number)) {
+                /* Only check/show gap for first section from a given wireshark frame */
+                if (first_gap == 0) {
+                    first_gap = frame->gap_in_usecs;
+                    first_symbol = frame->symbol;
+                }
+                else {
+                    /* Compare calculated vs actual arrival times */
+                    first_gap_delta = frame->gap_in_usecs - first_gap;
+                    unsigned expected_delta = pref_symbol_time * (frame->symbol-first_symbol);
+                    proto_item *delta_ti = proto_tree_add_int(oran_tree,
+                                                              (direction==0) ? hf_oran_delta_to_expected_ul_symbol_time : hf_oran_delta_to_expected_dl_symbol_time,
+                                                              tvb, 0, 0, first_gap_delta-expected_delta);
+                    proto_item_append_text (delta_ti, " (%u symbols since first, assuming %uus/symbol)", frame->symbol-first_symbol, pref_symbol_time);
+                    proto_item_set_generated(delta_ti);
+                }
+            }
+
+            /* Show link to U-plane frame */
             proto_item *uplane_frame_ti = proto_tree_add_uint(oran_tree, hf_oran_corresponding_uplane_frame, tvb, 0, 0,
                                                               frame->frame_number);
-            proto_item_append_text(uplane_frame_ti, "  sectionId:%2u symbol:%2u PRBs %3u->%3u  (in %uus)",
-                                   frame->sectionId, frame->symbol, frame->startPrbu, frame->startPrbu+frame->numPrbu-1, frame->gap_in_usecs);
+            proto_item_append_text(uplane_frame_ti, "  sectionId:%2u symbol:%2u PRBs %3u->%3u",
+                                   frame->sectionId, frame->symbol, frame->startPrbu, frame->startPrbu+frame->numPrbu-1);
             proto_item_set_generated(uplane_frame_ti);
+
+            if (first_section) {
+                /* Only show timings on first entry for a frame */
+                proto_item_append_text(uplane_frame_ti, "  (in %uus)", frame->gap_in_usecs);
+                first_section = false;
+            }
+
+            if (first_gap_delta) {
+                /* Only show timings on first entry for a frame */
+                proto_item_append_text(uplane_frame_ti, "  (in %uus) +%u", frame->gap_in_usecs, first_gap_delta);
+                first_gap_delta = 0;
+            }
 
             wmem_tree_insert32(frames_set, frame->frame_number, NULL);
         }
@@ -11589,6 +11630,18 @@ proto_register_oran(void)
             FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
             NULL, HFILL}
         },
+        { &hf_oran_delta_to_expected_ul_symbol_time,
+          { "Delta to expected UL symbol time", "oran_fh_cus.delta-expected-ul-symbol-time",
+            FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            "usec difference vs time predicted by first symbol timing and configurable duration", HFILL}
+        },
+        { &hf_oran_delta_to_expected_dl_symbol_time,
+          { "Delta to expected DL symbol time", "oran_fh_cus.delta-expected-dl-symbol-time",
+            FT_INT32, BASE_DEC,
+            NULL, 0x0,
+            "Difference vs time predicted by first symbol timing and configurable duration", HFILL}
+        },
 
         /* For ext11, where was a beamId (last) defined? */
         { &hf_oran_bfws_frame_defined,
@@ -11883,10 +11936,14 @@ proto_register_oran(void)
                                    "Attempt Radio Transport layer reassembly", "",
                                    &do_radio_transport_layer_reassembly);
     prefs_register_obsolete_preference(oran_module, "oran.k_antenna_ports");
+    prefs_register_uint_preference(oran_module, "oran.symbol_time", "Symbol duration in us",
+        "e.g., 36us for 100MHz, Mu=1", 10, &pref_symbol_time);
 
     prefs_register_bool_preference(oran_module, "oran.link_planes",
                                    "Link C-plane and U-plane using sectionId", "",
                                    &link_planes_together);
+
+
 
 
     flow_states_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
