@@ -153,7 +153,7 @@ struct _wslua_pinfo {
  * @brief Represents a sub-range of a Lua tvbuff, defined by an offset and length within the parent tvb.
  */
 struct _wslua_tvbrange {
-    struct _wslua_tvb* tvb;    /**< The parent Lua tvbuff from which this range is derived. */
+    struct _wslua_tvb  tvb;    /**< The range's own wrapper of the parent tvbuff, private to this range. */
     unsigned           offset; /**< Byte offset within the parent tvbuff at which this range begins. */
     unsigned           len;    /**< Length in bytes of this range within the parent tvbuff. */
 };

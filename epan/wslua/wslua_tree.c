@@ -89,7 +89,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             {
                 /* GByteArray and its data will be g_free'd by Lua */
                 GByteArray *gba = g_byte_array_new();
-                item = proto_tree_add_bytes_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_bytes_item(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                    tvbr->offset, tvbr->len, encoding,
                                                    gba, &endoff, &err);
                 if (err == 0) {
@@ -104,7 +104,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             {
                /* nstime_t will be g_free'd by Lua */
                 nstime_t *nstime = g_new0(nstime_t, 1);
-                item = proto_tree_add_time_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_time_item(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                    tvbr->offset, tvbr->len, encoding,
                                                    nstime, &endoff, &err);
                 if (err == 0) {
@@ -120,7 +120,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_INT32:
             {
                 int32_t ret;
-                item = proto_tree_add_item_ret_int(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_int(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                 tvbr->offset, tvbr->len, encoding,
                                                 &ret);
                 lua_pushinteger(L, (lua_Integer)ret);
@@ -134,7 +134,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_INT64:
             {
                 int64_t ret;
-                item = proto_tree_add_item_ret_int64(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_int64(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                 tvbr->offset, tvbr->len, encoding,
                                                 &ret);
                 pushInt64(L, ret);
@@ -149,7 +149,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_UINT32:
             {
                 uint32_t ret;
-                item = proto_tree_add_item_ret_uint(tree_item-> tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_uint(tree_item-> tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
                 lua_pushinteger(L, (lua_Integer)ret);
@@ -163,7 +163,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_UINT64:
             {
                 uint64_t ret;
-                item = proto_tree_add_item_ret_uint64(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_uint64(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
                 pushUInt64(L, ret);
@@ -174,7 +174,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_BOOLEAN:
             {
                 bool ret;
-                item = proto_tree_add_item_ret_boolean(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_boolean(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
                 lua_pushboolean(L, ret);
@@ -190,7 +190,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             {
                 const uint8_t *ret;
                 unsigned len;
-                item = proto_tree_add_item_ret_string_and_length(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_string_and_length(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     NULL, &ret, &len);
                 lua_pushstring(L, (const char*)ret);
@@ -202,7 +202,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_FLOAT:
             {
                 float ret;
-                item = proto_tree_add_item_ret_float(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_float(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
                 lua_pushnumber(L, (lua_Number)ret);
@@ -213,7 +213,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_DOUBLE:
             {
                 double ret;
-                item = proto_tree_add_item_ret_double(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_double(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
                 lua_pushnumber(L, (lua_Number)ret);
@@ -225,7 +225,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             {
                 Address addr = g_new(address,1);
                 ws_in4_addr ret;
-                item = proto_tree_add_item_ret_ipv4(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_ipv4(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
                 alloc_address_wmem(NULL, addr, AT_IPv4, sizeof(ret), &ret);
@@ -238,7 +238,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             {
                 Address addr = g_new(address, 1);
                 ws_in6_addr ret;
-                item = proto_tree_add_item_ret_ipv6(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_ipv6(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
                 alloc_address_wmem(NULL, addr, AT_IPv6, sizeof(ret), &ret);
@@ -252,7 +252,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
                 Address addr = g_new(address, 1);
                 uint8_t bytes[FT_ETHER_LEN];
 
-                item = proto_tree_add_item_ret_ether(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                item = proto_tree_add_item_ret_ether(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     bytes);
                 alloc_address_wmem(NULL, addr, AT_ETHER, sizeof(bytes), bytes);
@@ -262,7 +262,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             break;
 
         default:
-            item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, encoding);
+            item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb.ws_tvb, tvbr->offset, tvbr->len, encoding);
             lua_pushnil(L);
             lua_pushnil(L);
             break;
@@ -369,15 +369,14 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     ett = field->ett;
 
     tvbr = shiftTvbRange(L,1);
-    if (tvbr && tvbr->tvb->expired) {
+    if (tvbr && tvbr->tvb.expired) {
         luaL_error(L,"expired tvb");
         return 0;
     }
     if (!tvbr) {
         /* No TvbRange specified */
-        tvbr = wmem_new(lua_pinfo->pool, struct _wslua_tvbrange);
-        tvbr->tvb = wmem_new(lua_pinfo->pool, struct _wslua_tvb);
-        tvbr->tvb->ws_tvb = lua_tvb;
+        tvbr = wmem_new0(lua_pinfo->pool, struct _wslua_tvbrange);
+        tvbr->tvb.ws_tvb = lua_tvb;
         tvbr->offset = 0;
         tvbr->len = 0;
     }
@@ -397,15 +396,15 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
 
         case ENC_UTF_16:
         case ENC_UCS_2:
-            tvbr->len = tvb_unicode_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
+            tvbr->len = tvb_unicode_strsize (tvbr->tvb.ws_tvb, tvbr->offset);
             break;
 
         default:
-            if (!tvb_find_uint8_remaining(tvbr->tvb->ws_tvb, tvbr->offset, 0, NULL)) {
+            if (!tvb_find_uint8_remaining(tvbr->tvb.ws_tvb, tvbr->offset, 0, NULL)) {
                 luaL_error(L,"out of bounds");
                 return 0;
             }
-            tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
+            tvbr->len = tvb_strsize (tvbr->tvb.ws_tvb, tvbr->offset);
             break;
         }
     }
@@ -415,7 +414,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
         item = try_add_packet_field(L, tree_item, tvbr, hfid, type, encoding, &errx);
         err = errx;
     } CATCH_ALL {
-        show_exception(tvbr->tvb->ws_tvb, lua_pinfo, tree_item->tree, EXCEPT_CODE, GET_MESSAGE);
+        show_exception(tvbr->tvb.ws_tvb, lua_pinfo, tree_item->tree, EXCEPT_CODE, GET_MESSAGE);
         error = "Lua programming error";
     } ENDTRY;
 
@@ -479,15 +478,14 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
     }
 
     tvbr = shiftTvbRange(L,1);
-    if (tvbr && tvbr->tvb->expired) {
+    if (tvbr && tvbr->tvb.expired) {
         THROW_LUA_ERROR("expired tvb");
         return 0;
     }
 
     if (!tvbr) {
-        tvbr = wmem_new(lua_pinfo->pool, struct _wslua_tvbrange);
-        tvbr->tvb = wmem_new(lua_pinfo->pool, struct _wslua_tvb);
-        tvbr->tvb->ws_tvb = lua_tvb;
+        tvbr = wmem_new0(lua_pinfo->pool, struct _wslua_tvbrange);
+        tvbr->tvb.ws_tvb = lua_tvb;
         tvbr->offset = 0;
         tvbr->len = 0;
     }
@@ -496,11 +494,11 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
         /* hfid is > 0 when the first arg was a ProtoField or Proto */
 
         if (type == FT_STRINGZ) {
-            if (!tvb_find_uint8_remaining(tvbr->tvb->ws_tvb, tvbr->offset, 0, NULL)) {
+            if (!tvb_find_uint8_remaining(tvbr->tvb.ws_tvb, tvbr->offset, 0, NULL)) {
                 THROW_LUA_ERROR("out of bounds");
                 return 0;
             }
-            tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
+            tvbr->len = tvb_strsize (tvbr->tvb.ws_tvb, tvbr->offset);
         }
 
         if (lua_gettop(L)) {
@@ -516,7 +514,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
 
             switch(type) {
                 case FT_PROTOCOL:
-                    item = proto_tree_add_item(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,ENC_NA);
+                    item = proto_tree_add_item(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,ENC_NA);
                     lua_pushinteger(L,0);
                     lua_insert(L,1);
                     break;
@@ -533,7 +531,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                             /* this needs to use checkinteger so that it can accept a Lua boolean and coerce it to an int */
                             val = (uint64_t) (wslua_tointeger(L,1));
                         }
-                        item = proto_tree_add_boolean(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,val);
+                        item = proto_tree_add_boolean(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,val);
                     }
                     break;
                 case FT_CHAR:
@@ -546,7 +544,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                         THROW_LUA_ERROR("Expected number for unsigned integer field");
                         return 0;
                     }
-                    item = proto_tree_add_uint(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,wslua_checkuint32(L,1));
+                    item = proto_tree_add_uint(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,wslua_checkuint32(L,1));
                     break;
                 case FT_INT8:
                 case FT_INT16:
@@ -556,21 +554,21 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                         THROW_LUA_ERROR("Expected number for integer field");
                         return 0;
                     }
-                    item = proto_tree_add_int(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,wslua_checkint32(L,1));
+                    item = proto_tree_add_int(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,wslua_checkint32(L,1));
                     break;
                 case FT_FLOAT:
                     if (!lua_isnumber(L,1)) {
                         THROW_LUA_ERROR("Expected number for FT_FLOAT field");
                         return 0;
                     }
-                    item = proto_tree_add_float(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(float)luaL_checknumber(L,1));
+                    item = proto_tree_add_float(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,(float)luaL_checknumber(L,1));
                     break;
                 case FT_DOUBLE:
                     if (!lua_isnumber(L,1)) {
                         THROW_LUA_ERROR("Expected number for FT_DOUBLE field");
                         return 0;
                     }
-                    item = proto_tree_add_double(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(double)luaL_checknumber(L,1));
+                    item = proto_tree_add_double(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,(double)luaL_checknumber(L,1));
                     break;
                 case FT_ABSOLUTE_TIME:
                 case FT_RELATIVE_TIME:
@@ -578,7 +576,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                         THROW_LUA_ERROR("Expected NSTime for %s field", (type==FT_ABSOLUTE_TIME ? "FT_ABSOLUTE_TIME" : "FT_RELATIVE_TIME"));
                         return 0;
                     }
-                    item = proto_tree_add_time(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,checkNSTime(L,1));
+                    item = proto_tree_add_time(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,checkNSTime(L,1));
                     break;
                 case FT_STRING:
                 case FT_STRINGZ:
@@ -588,7 +586,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                             THROW_LUA_ERROR("Expected string for %s field", (type==FT_STRING ? "FT_STRING" : "FT_STRINGZ") );
                             return 0;
                         }
-                        item = proto_tree_add_string(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,value);
+                        item = proto_tree_add_string(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,value);
                     }
                     break;
                 case FT_BYTES:
@@ -598,7 +596,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                             THROW_LUA_ERROR("Expected bytes for FT_BYTES field");
                             return 0;
                         }
-                        item = proto_tree_add_bytes(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len, (const uint8_t*)value);
+                        item = proto_tree_add_bytes(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len, (const uint8_t*)value);
                     }
                     break;
                 case FT_UINT64:
@@ -606,14 +604,14 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                         THROW_LUA_ERROR("Expected UInt64 for FT_UINT64 field");
                         return 0;
                     }
-                    item = proto_tree_add_uint64(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,checkUInt64(L,1));
+                    item = proto_tree_add_uint64(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,checkUInt64(L,1));
                     break;
                 case FT_INT64:
                     if (!isInt64(L,1)) {
                         THROW_LUA_ERROR("Expected Int64 for FT_INT64 field");
                         return 0;
                     }
-                    item = proto_tree_add_int64(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,checkInt64(L,1));
+                    item = proto_tree_add_int64(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,checkInt64(L,1));
                     break;
                 case FT_IPv4:
                     {
@@ -631,7 +629,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                          * the pointer as if it were so aligned.
                          */
                         memcpy(&addr_value, addr->data, sizeof addr_value);
-                        item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,addr_value);
+                        item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb.ws_tvb,tvbr->offset,tvbr->len,addr_value);
                     }
                     break;
                 case FT_IPv6:
@@ -642,7 +640,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                             return 0;
                         }
 
-                        item = proto_tree_add_ipv6(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, (const ws_in6_addr *)addr->data);
+                        item = proto_tree_add_ipv6(tree_item->tree, hfid, tvbr->tvb.ws_tvb, tvbr->offset, tvbr->len, (const ws_in6_addr *)addr->data);
                     }
                     break;
                 case FT_ETHER:
@@ -653,7 +651,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                             return 0;
                         }
 
-                        item = proto_tree_add_ether(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, (const uint8_t *)addr->data);
+                        item = proto_tree_add_ether(tree_item->tree, hfid, tvbr->tvb.ws_tvb, tvbr->offset, tvbr->len, (const uint8_t *)addr->data);
                     }
                     break;
                 case FT_UINT_BYTES:
@@ -677,7 +675,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
                 return 0;
             }
             /* the Lua stack is empty - no value was given - so decode the value from the tvb */
-            item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+            item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb.ws_tvb, tvbr->offset, tvbr->len, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
         }
 
         if ( lua_gettop(L) ) {
@@ -695,7 +693,7 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
             const int hf = get_hf_wslua_text();
             if (hf > -1) {
                 /* use proto_tree_add_none_format() instead? */
-                item = proto_tree_add_item(tree_item->tree, hf, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, ENC_NA);
+                item = proto_tree_add_item(tree_item->tree, hf, tvbr->tvb.ws_tvb, tvbr->offset, tvbr->len, ENC_NA);
                 proto_item_set_text(item, "%s", s);
             } else {
                 THROW_LUA_ERROR("Internal error: hf_wslua_text not registered");
@@ -999,7 +997,7 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
     }
 
     tvbr = shiftTvbRange(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
-    if (tvbr && tvbr->tvb->expired) {
+    if (tvbr && tvbr->tvb.expired) {
         luaL_error(L,"expired tvb");
         return 0;
     }
@@ -1012,9 +1010,8 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
             luaL_error(L,"expired tvb");
             return 0;
         }
-        tvbr = wmem_new(lua_pinfo->pool, struct _wslua_tvbrange);
-        tvbr->tvb = wmem_new(lua_pinfo->pool, struct _wslua_tvb);
-        tvbr->tvb->ws_tvb = tvb ? tvb->ws_tvb : lua_tvb;
+        tvbr = wmem_new0(lua_pinfo->pool, struct _wslua_tvbrange);
+        tvbr->tvb.ws_tvb = tvb ? tvb->ws_tvb : lua_tvb;
         tvbr->offset = 0;
         tvbr->len = 0;
     }
@@ -1022,11 +1019,11 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
     if (lua_gettop(L) >= WSLUA_OPTARG_TreeItem_add_proto_expert_info_TEXT) {
         str = wslua_checkstring_only(L, WSLUA_OPTARG_TreeItem_add_proto_expert_info_TEXT);
         proto_tree_add_expert_format(ti->tree, lua_pinfo, &expert->ids,
-                                     tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,
+                                     tvbr->tvb.ws_tvb, tvbr->offset, tvbr->len,
                                      "%s", str);
     } else {
         proto_tree_add_expert(ti->tree, lua_pinfo, &expert->ids,
-                              tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
+                              tvbr->tvb.ws_tvb, tvbr->offset, tvbr->len);
     }
 
     /* copy the TreeItem userdata so we give it back */
