@@ -1827,7 +1827,6 @@ bool StratosharkMainWindow::tryClosingCaptureFile(QString before_what, FileClose
             msg_dialog.setText(question);
             msg_dialog.setInformativeText(infotext);
 
-            // XXX Text comes from ui/gtk/stock_icons.[ch]
             // Note that the button roles differ from the GTK+ version.
             // Cancel = RejectRole
             // Save = AcceptRole

@@ -134,9 +134,9 @@
 	// -----------------------------------------------------------------
 	// Graphs — reversed order + shifted hues
 	//
-	// Instead of the Tango palette, uses a completely different
-	// color set so any graph that still shows Tango colors is
-	// clearly not reading from the theme.
+	// Uses a color set unrelated to the default theme's graph colors,
+	// so any graph that still shows the default colors is clearly
+	// not reading from the theme.
 	// -----------------------------------------------------------------
 	"graphs": [
 		{ "light": "#d81b60", "dark": "#f48fb1" },

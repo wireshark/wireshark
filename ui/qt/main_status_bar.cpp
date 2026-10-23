@@ -240,9 +240,6 @@ void MainStatusBar::expertUpdate() {
         stock_name.append("chat");
         tt_text.prepend(tr("CHAT"));
         break;
-//    case(PI_COMMENT):
-//        m_expertStatus.setText("<img src=\":/expert/expert_comment.png\"></img>");
-//        break;
     default:
         stock_name.append("none");
         tt_text = tr("No expert information");

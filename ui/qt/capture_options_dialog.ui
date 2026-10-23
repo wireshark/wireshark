@@ -62,20 +62,12 @@
            <property name="text">
             <string/>
            </property>
-           <property name="icon">
-            <iconset>
-             <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-           </property>
           </widget>
          </item>
          <item>
           <widget class="QToolButton" name="deleteToolButton">
            <property name="toolTip">
             <string>Remove this interface bookmark.</string>
-           </property>
-           <property name="icon">
-            <iconset>
-             <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
            </property>
           </widget>
          </item>

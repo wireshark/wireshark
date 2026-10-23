@@ -33,7 +33,7 @@
 		"name": "Wireshark",
 		"version": 1,
 		"author": "Wireshark Foundation",
-		"description": "The built-in Wireshark theme, based on the Tango palette."
+		"description": "The built-in Wireshark theme with the classic Wireshark colors."
 	},
 
 	// -----------------------------------------------------------------
@@ -45,8 +45,8 @@
 	// theme sets packets.selection).  The welcome header bar is a darker
 	// shade of the selection color.
 	//
-	// Light primary is Tango sky_blue_4 (the classic Wireshark blue);
-	// dark mode uses a primary that reads against dark surfaces.
+	// The light primary is a pale blue; dark mode uses a deeper blue
+	// that reads against dark surfaces.
 	// -----------------------------------------------------------------
 	"brand": {
 		"primary": { "light": "#a5cdff", "dark": "#314f78" }
@@ -59,11 +59,8 @@
 	// explicit theme.filter override is present), status indicators,
 	// expert info fallbacks, and the "Development Build" badge.
 	//
-	// Default sources (Tango classic palette):
-	//   success — chameleon_3 (light) / _2 (dark)
-	//   warning — orange_3   (light) / _2 (dark)
-	//   error   — scarlet_4  (light) / _3 (dark)
-	//   info    — sky_blue_4 (light) / _3 (dark)
+	// Light values are darker shades that hold contrast on light
+	// surfaces; dark values are lighter shades for dark surfaces.
 	// -----------------------------------------------------------------
 	"accent": {
 		"success": { "light": "#4caf50", "dark": "#8ae234" },
@@ -157,15 +154,15 @@
 	//
 	// Dark values sit under the WCAG luminance threshold (0.179) so
 	// ColorMath::contrastingText() picks white automatically — avoids
-	// the black-on-saturated-green look brighter chameleon shades
+	// the black-on-saturated-green look brighter greens
 	// would cause in dark mode, and dims the red so it doesn't pop.
 	//
 	// "deprecated", "busy", and "busyText" are intentionally omitted;
 	// they derive from accent.warning / palette.base / palette.text.
 	//
 	// "history" is the resting tint of the recent-filters drop-down arrow.
-	// Pinned to the classic combo-arrow Tango grays (aluminium_4 /
-	// aluminium_2) so the default theme matches the pre-ThemeManager look;
+	// Pinned to the grays of the classic combo-box arrow so the default
+	// theme matches the pre-ThemeManager look;
 	// the glyph brightens to a strong colour on hover/press in the widget.
 	// -----------------------------------------------------------------
 	"filter": {
@@ -266,11 +263,9 @@
 	// No backfill: if a custom theme defines 5 colors, only those 5
 	// are used — the remaining 9 from the default are NOT appended.
 	//
-	// Origin: Tango palette.
-	//   Light mode uses darker shades (_5/_6) for readability on
-	//   white backgrounds.
-	//   Dark mode uses lighter shades (_3) for readability on
-	//   dark backgrounds.
+	// Light mode uses darker shades for readability on light
+	// backgrounds; dark mode uses lighter shades for readability on
+	// dark backgrounds.
 	// -----------------------------------------------------------------
 	"graphs": [
 		{ "light": "#2e3436", "dark": "#babdb6" },
