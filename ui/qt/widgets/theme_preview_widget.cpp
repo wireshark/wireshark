@@ -746,30 +746,26 @@ void ThemePreviewWidget::drawStatusBar(QPainter &p, const Layout &layout)
     const QColor mid        = c(ThemeManager::PaletteMid,        pal.color(QPalette::Mid));
     const QColor sep        = c(ThemeManager::Separator,         pal.color(QPalette::Mid));
     const QColor windowText = c(ThemeManager::PaletteWindowText, pal.color(QPalette::WindowText));
-    // The expert-severity LED.  The sample packets include Bad-TCP items
-    // (retransmission / dup ack), so the worst displayed severity is a warning —
-    // the dot uses ExpertWarn, the same token the live status bar would show.
-    const QColor expertWarn = c(ThemeManager::ExpertWarn, QColor("#e8b500"));
-
     const QRect &statusRect = layout.statusRect;
     p.fillRect(statusRect, window);
     p.setPen(sep);
     p.drawLine(statusRect.topLeft(), statusRect.topRight());
 
-    const double expertDotD = layout.labelFm.height() * 0.5;
-    const QRectF expertDotRect(statusRect.left() + 8,
-                               statusRect.center().y() - expertDotD / 2.0,
-                               expertDotD, expertDotD);
-    p.save();
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.setPen(Qt::NoPen);
-    p.setBrush(expertWarn);
-    p.drawEllipse(expertDotRect);
-    p.restore();
+    // The expert-severity indicator.  The sample packets include Bad-TCP items
+    // (retransmission / dup ack), so the worst displayed severity is a warning;
+    // draw the same icon the live status bar would show, in the previewed
+    // theme's colours.
+    const int iconSide = qRound(layout.labelFm.height());
+    const QRect expertIconRect(statusRect.left() + 8,
+                               statusRect.center().y() - iconSide / 2,
+                               iconSide, iconSide);
+    ContrastAdaptIcon expertIcon(QStringLiteral(":/svg_icons/expert-warn.svg"), window);
+    expertIcon.setTokenColors(colors_);
+    expertIcon.paint(&p, expertIconRect, Qt::AlignCenter);
 
     p.setFont(layout.labelFont);
     p.setPen(windowText);
-    p.drawText(QRectF(expertDotRect.right() + 6, statusRect.top(),
+    p.drawText(QRectF(expertIconRect.left() + iconSide + 6, statusRect.top(),
                       statusRect.width(), statusRect.height()),
                Qt::AlignVCenter | Qt::AlignLeft,
                tr("Ready"));

@@ -32,6 +32,13 @@
                 "author": {
                     "type": "string",
                     "description": "Theme author or organization."
+                },
+                "colorVision": {
+                    "type": "array",
+                    "description": "Color vision deficiencies the theme is designed for. Bundled themes that list any are tested to keep their semantic colors (accents, filter validity, conversation, expert backgrounds, graphs) distinguishable under each. Not read by ThemeParser.",
+                    "items": { "enum": ["protanopia", "deuteranopia", "tritanopia"] },
+                    "minItems": 1,
+                    "uniqueItems": true
                 }
             }
         },

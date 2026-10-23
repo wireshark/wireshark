@@ -1,0 +1,156 @@
+// =====================================================================
+// Wireshark Tritanopia Theme
+// =====================================================================
+//
+// For blue-yellow color vision deficiency (tritanopia and its milder
+// form).  Every color that carries meaning (display filter validity,
+// accents, expert information, graphs) comes from the Okabe-Ito /
+// Wong palette, with lightness chosen per mode so the colors stay
+// apart under tritanopia.
+//
+// test/suite_theme.py checks that these colors stay distinguishable
+// under every deficiency listed in meta.colorVision.  Packet coloring
+// rules are profile data, not part of a theme, and do not change.
+//
+// Format: JSONC — standard JSON with C-style comments.
+// =====================================================================
+
+{
+	// =================================================================
+	// REQUIRED SECTIONS
+	// =================================================================
+
+	"meta": {
+		"name": "Tritanopia",
+		"version": 1,
+		"author": "Wireshark Foundation",
+		"description": "Okabe-Ito colors that stay distinct with blue-yellow color vision deficiency.",
+		"colorVision": ["tritanopia"]
+	},
+
+	// -----------------------------------------------------------------
+	// Brand
+	//
+	// Copied from the default theme: a theme cannot inherit from another
+	// one, and an omitted key would be derived from brand, accent or the
+	// system palette instead.
+	// test/suite_theme.py fails when this copy and the default drift apart.
+	// -----------------------------------------------------------------
+	"brand": {
+		"primary": { "light": "#a5cdff", "dark": "#314f78" }
+	},
+
+	// -----------------------------------------------------------------
+	// Accent
+	// -----------------------------------------------------------------
+	"accent": {
+		"success": { "light": "#007a55", "dark": "#2fbf8f" },
+		"warning": { "light": "#c27a00", "dark": "#e69f00" },
+		"error":   { "light": "#c0182a", "dark": "#ff6b6b" },
+		"info":    { "light": "#3a3a8c", "dark": "#b0a8f0" }
+	},
+
+	// =================================================================
+	// OPTIONAL SECTIONS
+	// =================================================================
+
+	// -----------------------------------------------------------------
+	// Expert info severity colors
+	//
+	// Pale tints in light mode and dark tints with light text in dark
+	// mode.  The status bar icon also draws its outline and mark in the
+	// foreground color, and each severity has its own icon shape.
+	// -----------------------------------------------------------------
+	"expert": {
+		"comment":    { "light": "#b9e6b0", "dark": "#24502e" },
+		"chat":       { "light": "#e8e4f4", "dark": "#3d3d46" },
+		"note":       { "light": "#7ccfd4", "dark": "#00606a" },
+		"warn":       { "light": "#f7cf8a", "dark": "#7a5200" },
+		"error":      { "light": "#f08080", "dark": "#901c28" },
+		"foreground": { "light": "#000000", "dark": "#ececec" }
+	},
+
+	// -----------------------------------------------------------------
+	// Packet display state colors
+	//
+	// Copied from the default theme: a theme cannot inherit from another
+	// one, and an omitted key would be derived from brand, accent or the
+	// system palette instead.
+	// test/suite_theme.py fails when this copy and the default drift apart.
+	// -----------------------------------------------------------------
+	"packets": {
+		"selection":     { "light": "#3072cc", "dark": "#2a4068" },
+		"selectionText": { "light": "#ffffff", "dark": "#ffffff" },
+		"inactive":      { "light": "#3072cc", "dark": "#2a4068" },
+		"inactiveText":  { "light": "#ffffff", "dark": "#ffffff" },
+		"marked":        { "light": "#002033", "dark": "#002033" },
+		"markedText":    { "light": "#ffffff", "dark": "#ffffff" },
+		"ignored":       { "light": "#ffffff", "dark": "#1a1a1a" },
+		"ignoredText":   { "light": "#808080", "dark": "#808080" },
+		"hidden":        { "light": "#444444", "dark": "#999999" }
+	},
+
+	// -----------------------------------------------------------------
+	// Filter validity tints
+	//
+	// valid / invalid / deprecated differ in lightness as well as hue.
+	// history is copied from the default theme (see brand).
+	// -----------------------------------------------------------------
+	"filter": {
+		"valid":      { "light": "#b4ecc4", "dark": "#0b5a30" },
+		"invalid":    { "light": "#f6a5a5", "dark": "#6e0f18" },
+		"deprecated": { "light": "#fbe6b8", "dark": "#5c4600" },
+		"history":    { "light": "#555753", "dark": "#d3d7cf" }
+	},
+
+	// -----------------------------------------------------------------
+	// Follow Stream colors
+	//
+	// Copied from the default theme: a theme cannot inherit from another
+	// one, and an omitted key would be derived from brand, accent or the
+	// system palette instead.
+	// test/suite_theme.py fails when this copy and the default drift apart.
+	// -----------------------------------------------------------------
+	"conversation": {
+		"client":     { "light": "#fbedcd", "dark": "#3a2010" },
+		"clientText": { "light": "#800000", "dark": "#ffb088" },
+		"server":     { "light": "#edeefb", "dark": "#1a1a3a" },
+		"serverText": { "light": "#000080", "dark": "#a0b4ff" }
+	},
+
+	// -----------------------------------------------------------------
+	// Palette
+	//
+	// Copied from the default theme: a theme cannot inherit from another
+	// one, and an omitted key would be derived from brand, accent or the
+	// system palette instead.
+	// test/suite_theme.py fails when this copy and the default drift apart.
+	// -----------------------------------------------------------------
+	"palette": {
+		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
+	},
+
+	// -----------------------------------------------------------------
+	// Graph colors
+	//
+	// Slots 1-7: neutral plus six Okabe-Ito hues, pairwise distinct
+	// under the targeted deficiencies.  Slots 8-14: pastel tints of
+	// the same hues for the rotating graph users.
+	// -----------------------------------------------------------------
+	"graphs": [
+		{ "light": "#2e3436", "dark": "#babdb6" },
+		{ "light": "#ce5900", "dark": "#e76b13" },
+		{ "light": "#005531", "dark": "#38b88b" },
+		{ "light": "#006fa2", "dark": "#b0f0ff" },
+		{ "light": "#653300", "dark": "#956100" },
+		{ "light": "#ca77a5", "dark": "#eba1c8" },
+		{ "light": "#4096d8", "dark": "#006fa2" },
+		{ "light": "#babdb6", "dark": "#555753" },
+		{ "light": "#f5b98a", "dark": "#7a3600" },
+		{ "light": "#8fc9a8", "dark": "#1a5c40" },
+		{ "light": "#9ecae9", "dark": "#2a6a80" },
+		{ "light": "#d9b98a", "dark": "#5a3a00" },
+		{ "light": "#ecc4da", "dark": "#6a3a55" },
+		{ "light": "#b8d8f2", "dark": "#00405f" }
+	]
+}

@@ -12,10 +12,13 @@
 #include <ui/qt/utils/themes/token_palette.h>
 
 #include <QColor>
+#include <QHash>
 #include <QIcon>
 #include <QPalette>
 #include <QSize>
 #include <QString>
+
+#include <memory>
 
 /**
  * @brief A QIcon that keeps an SVG's own colours and adapts each one for
@@ -53,10 +56,10 @@
  *
  *   <ws:map-token color="#212121" token="PaletteText"/>
  *
- * Every use of that colour is then painted with the token's current theme colour
- * (not contrast-adapted), and the mapping wins over a <ws:swap> for the same
- * colour.  Icons that declare nothing simply keep
- * their drawn colours in every mode.
+ * Every use of that colour is then painted with the token's current theme colour,
+ * or the colour given with setTokenColors() (not contrast-adapted), and the
+ * mapping wins over a <ws:swap> for the same colour.  Icons that declare nothing
+ * simply keep their drawn colours in every mode.
  */
 class ContrastAdaptIcon : public QIcon
 {
@@ -118,12 +121,25 @@ public:
      */
     void setPalette(const QPalette &palette);
 
+    /**
+     * @brief Paint @c ws:map-token colours from @p colors instead of the live theme.
+     *
+     * For previews of a theme that is not the active one.  A token without a
+     * valid entry in @p colors still resolves via the live theme (or the
+     * palette for Palette* tokens).  Affects every copy of this icon, like
+     * setPalette().
+     */
+    void setTokenColors(const QHash<ThemeManager::ThemeToken, QColor> &colors);
+
 private:
-    // Private delegate: the engine shares @p palette so setPalette() can reach it.
+    // Private delegate: the engine shares @p palette and @p token_colors so
+    // setPalette() and setTokenColors() can reach them.
     ContrastAdaptIcon(const QString &svg_resource_path,
                       QPalette::ColorRole surface_role,
                       const QColor &explicit_background,
-                      QSize size, IconPaletteRef palette);
+                      QSize size, IconPaletteRef palette,
+                      IconTokenColorsRef token_colors);
 
     IconPaletteRef palette_;
+    IconTokenColorsRef token_colors_;
 };

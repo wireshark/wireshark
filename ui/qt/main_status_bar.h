@@ -173,6 +173,12 @@ private:
     void setReadyMsg();
 
     /**
+     * @brief Sizes the status bar icons: the expert indicator is one line of
+     *        status text high, the comment button keeps its zoomed base size.
+     */
+    void applyIconSizes();
+
+    /**
      * @brief Configures the status bar for a capture file.
      */
     void setStatusbarForCaptureFile();

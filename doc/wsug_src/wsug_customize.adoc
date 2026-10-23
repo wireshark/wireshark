@@ -919,6 +919,9 @@ The _Theme_ setting selects the color theme applied to the application.
 Themes bundle the colors used throughout the GUI — including the packet list selection, marked and ignored packets, the “Follow Stream” client and server text, and valid and invalid display filter highlighting — so these colors are no longer configured individually.
 When the selected theme declares an author, it is shown below the preview.
 
+Two bundled themes are made for color vision deficiency: _Protanopia & Deuteranopia_ for red-green and _Tritanopia_ for blue-yellow color blindness.
+They change the theme colors, such as display filter highlighting, expert information and graphs, but not the packet list coloring rules, which you can adjust in menu:View[Coloring Rules...].
+
 [NOTE]
 ====
 The individual color settings from earlier versions of Wireshark (for example marked and ignored packets, the “Follow Stream” client and server text, display filter validity, and the selected packet) have been removed.

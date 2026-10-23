@@ -1155,8 +1155,9 @@ This statusbar is shown while no capture file is loaded, e.g., when Wireshark is
 .The Statusbar with a loaded capture file
 image::images/ws-statusbar-loaded.png[{statusbar-attrs}]
 
-The colorized bullet...:: on the left shows the highest expert information level found in the currently loaded capture file.
+The expert level icon...:: on the left shows the highest expert information level found in the currently loaded capture file.
 Hovering the mouse over this icon will show a description of the expert info level, and clicking the icon will bring up the Expert Information dialog box.
+Each level has its own shape, so the level can be told apart without relying on color.
 For a detailed description of this dialog and each expert level, see <<ChAdvExpert>>.
 
 The edit icon...:: on the left side lets you add a comment to the capture file using the <<ChStatSummary,Capture File Properties>> dialog.

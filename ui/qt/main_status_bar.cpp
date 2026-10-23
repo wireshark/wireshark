@@ -140,13 +140,8 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     connect(expert_button_, &QToolButton::clicked, this, &MainStatusBar::showExpertInfo);
     connect(comment_button_, &QToolButton::clicked, this, &MainStatusBar::editCaptureComment);
 
-    auto applyIconSize = [this]() {
-        const int s = qRound(base_icon_size * FontManager::zoomFactor());
-        expert_button_->setIconSize(QSize(s, s));
-        comment_button_->setIconSize(QSize(s, s));
-    };
-    applyIconSize();
-    connect(FontManager::instance(), &FontManager::zoomChanged, this, applyIconSize);
+    applyIconSizes();
+    connect(FontManager::instance(), &FontManager::zoomChanged, this, &MainStatusBar::applyIconSizes);
 
     info_progress_hb->setContentsMargins(base_icon_size / 2, 0, 0, 0);
 
@@ -248,6 +243,7 @@ void MainStatusBar::expertUpdate() {
 
     ContrastAdaptIcon expert_icon(QStringLiteral(":/svg_icons/") + stock_name.toLatin1() + QStringLiteral(".svg"),
                                   QPalette::Window);
+    applyIconSizes();
     expert_button_->setIcon(expert_icon);
     expert_button_->setToolTip(tt_text);
     expert_button_->show();
@@ -274,6 +270,18 @@ void MainStatusBar::setReadyMsg()
     info_status_.pushText(std::move(ready_msg), STATUS_CTX_MAIN);
 }
 
+void MainStatusBar::applyIconSizes()
+{
+    // The expert indicator is as tall as a line of the status text next to it:
+    // large enough for its severity shapes and marks to read clearly, without
+    // towering over the text, and it follows the font when it is zoomed.
+    const int expert_side = info_status_.fontMetrics().height();
+    expert_button_->setIconSize(QSize(expert_side, expert_side));
+
+    const int comment_side = qRound(base_icon_size * FontManager::zoomFactor());
+    comment_button_->setIconSize(QSize(comment_side, comment_side));
+}
+
 void MainStatusBar::changeEvent(QEvent *event)
 {
     if (event->type() == QEvent::LanguageChange) {
@@ -282,6 +290,9 @@ void MainStatusBar::changeEvent(QEvent *event)
         setStatusbarForCaptureFile();
         showCaptureStatistics();
         setProfileName();
+    }
+    if (event->type() == QEvent::FontChange || event->type() == QEvent::ApplicationFontChange) {
+        applyIconSizes();
     }
     QStatusBar::changeEvent(event);
 }
