@@ -29,12 +29,20 @@ setups keep working.
 
 Themes that list `meta.colorVision` are checked for distinguishable semantic colors
 and strong graph slots, and every expert severity icon has its own shape.
+
+The derived-token assertions run once per contrast level (Standard and
+High, the two ratio sets of color_math.h).  A theme that declares
+`"contrast": "high"` runs at High only, because the application never
+derives it with the Standard set.  At High the mirror also applies the
+high-contrast rules of theme_token_handler.cpp and
+theme_palette_builder.cpp, where readability wins over pinned colors.
 '''
 
 import itertools
 import json
 import math
 import re
+import sys
 from pathlib import Path
 
 import pytest
@@ -43,6 +51,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 COLOR_MATH_H = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'themes' / 'color_math.h'
 SCHEMA_PATH = REPO_ROOT / 'resources' / 'themes' / 'theme.schema.json'
 THEME_ROOT = REPO_ROOT / 'resources' / 'themes'
+THEME_README = THEME_ROOT / 'README.md'
+THEME_PARSER_CPP = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'themes' / 'theme_parser.cpp'
 
 # Reference QPalette values used when a theme omits the role.  Matches
 # SYSTEM_PALETTE in welcome_theme_contrast.html so the test asserts the
@@ -242,18 +252,67 @@ def ensure_contrast(color, bg, min_ratio):
     return out if contrast_ratio(out, bg) >= min_ratio else target
 
 
-DISTINCT_SURFACE_RATIO = _color_math_constant('DistinctSurfaceRatio')
-READABLE_TEXT_RATIO = _color_math_constant('ReadableTextRatio')
-CARD_SURFACE_RATIO_DARK = _color_math_constant('CardSurfaceRatioDark')
-DIVIDER_RATIO = _color_math_constant('DividerRatio')
-NON_TEXT_RATIO = _color_math_constant('NonTextRatio')
-LARGE_TEXT_RATIO = _color_math_constant('LargeTextRatio')
+# The derivation ratios: module global, color_math.h constant (its High
+# value is the constant of the same name with a "High" suffix) and the row
+# label of the contrast table in resources/themes/README.md.
+RATIOS = (
+    ('DISTINCT_SURFACE_RATIO', 'DistinctSurfaceRatio', 'distinct surface'),
+    ('READABLE_TEXT_RATIO', 'ReadableTextRatio', 'readable text'),
+    ('CARD_SURFACE_RATIO_DARK', 'CardSurfaceRatioDark', 'dark card surface'),
+    ('DIVIDER_RATIO', 'DividerRatio', 'divider'),
+    ('NON_TEXT_RATIO', 'NonTextRatio', 'non-text'),
+    ('LARGE_TEXT_RATIO', 'LargeTextRatio', 'large text'),
+    ('ICON_CONTRAST_RATIO', 'IconContrastRatio', 'icon'),
+)
+
+# The ratio set of each contrast level, keyed like the theme `contrast`
+# field values.
+RATIO_SETS = {
+    'standard': {name: _color_math_constant(constant) for name, constant, _ in RATIOS},
+    'high': {name: _color_math_constant(constant + 'High') for name, constant, _ in RATIOS},
+}
+
+# The active level and its ratios.  The autouse fixture
+# _contrast_level_ratios switches them per test from the test's
+# `contrast` parameter, so the helpers below read the active set.
+CONTRAST_LEVEL = 'standard'
+DISTINCT_SURFACE_RATIO = RATIO_SETS['standard']['DISTINCT_SURFACE_RATIO']
+READABLE_TEXT_RATIO = RATIO_SETS['standard']['READABLE_TEXT_RATIO']
+CARD_SURFACE_RATIO_DARK = RATIO_SETS['standard']['CARD_SURFACE_RATIO_DARK']
+DIVIDER_RATIO = RATIO_SETS['standard']['DIVIDER_RATIO']
+NON_TEXT_RATIO = RATIO_SETS['standard']['NON_TEXT_RATIO']
+LARGE_TEXT_RATIO = RATIO_SETS['standard']['LARGE_TEXT_RATIO']
+ICON_CONTRAST_RATIO = RATIO_SETS['standard']['ICON_CONTRAST_RATIO']
+
+
+@pytest.fixture(autouse=True)
+def _contrast_level_ratios(request, monkeypatch):
+    '''Make the ratio set of the test's `contrast` parameter (Standard
+    when the test has none) the module's active set.'''
+    callspec = getattr(request.node, 'callspec', None)
+    level = callspec.params.get('contrast', 'standard') if callspec else 'standard'
+    module = sys.modules[__name__]
+    monkeypatch.setattr(module, 'CONTRAST_LEVEL', level)
+    for name, value in RATIO_SETS[level].items():
+        monkeypatch.setattr(module, name, value)
+    return level
+
+
+def high_contrast():
+    '''True when the active level is High, where the high-contrast rules run.'''
+    return CONTRAST_LEVEL == 'high'
 
 
 def darken(color, percent):
     '''Mirror of ColorMath::darken (integer channel scaling).'''
     r, g, b = _hex_to_rgb(color)
     return _rgb_to_hex(*(c * (100 - percent) // 100 for c in (r, g, b)))
+
+
+def lighten(color, percent):
+    '''Mirror of ColorMath::lighten (integer channel scaling toward white).'''
+    r, g, b = _hex_to_rgb(color)
+    return _rgb_to_hex(*(c + (255 - c) * percent // 100 for c in (r, g, b)))
 
 
 def selection_hover_fill(base, selection):
@@ -270,6 +329,56 @@ def readable_text(text, surface):
 def is_readable(text, surface):
     '''Mirror of ColorMath::isReadable.'''
     return contrast_ratio(text, surface) >= READABLE_TEXT_RATIO
+
+
+def readable_on_fill(text, fill, min_ratio):
+    '''Mirror of ColorMath::readableOnFill: (text, fill), the text lifted
+    first, the fill moved away from it only when the text cannot reach
+    `min_ratio`.'''
+    text = ensure_contrast(text, fill, min_ratio)
+    if contrast_ratio(text, fill) < min_ratio:
+        fill = ensure_contrast(fill, text, min_ratio)
+    return text, fill
+
+
+def readable_fill(fill):
+    '''Mirror of ColorMath::readableFill: the fill moved away from its
+    contrasting text until that text reads at READABLE_TEXT_RATIO.'''
+    text = contrasting_text(fill)
+    if contrast_ratio(text, fill) >= READABLE_TEXT_RATIO:
+        return fill
+    return ensure_contrast(fill, text, READABLE_TEXT_RATIO)
+
+
+def selection_hover(base, selection, text):
+    '''Mirror of ColorMath::selectionHover: (fill, text) of a hovered row.
+    At High the fill moves toward readability of `text` only while it
+    stays DISTINCT_SURFACE_RATIO from the selection.'''
+    fill = selection_hover_fill(base, selection)
+    if high_contrast() and contrast_ratio(text, fill) < READABLE_TEXT_RATIO:
+        lifted = ensure_contrast(fill, text, READABLE_TEXT_RATIO)
+        if contrast_ratio(lifted, selection) >= DISTINCT_SURFACE_RATIO:
+            fill = lifted
+    return fill, readable_text(text, fill)
+
+
+def bar_for_faded_label(bar, title, min_ratio):
+    '''Mirror of barForFadedLabel() in theme_token_handler.cpp: the welcome
+    header bar moved toward contrasting_text(title) until the title faded
+    25 % toward the bar reads at `min_ratio`.'''
+    def label_reads(candidate):
+        return contrast_ratio(mix(title, candidate, 0.25), candidate) >= min_ratio
+    if label_reads(bar):
+        return bar
+    target = contrasting_text(title)
+    lo, hi = 0.0, 1.0
+    for _ in range(24):
+        m = (lo + hi) / 2.0
+        if label_reads(mix(bar, target, m)):
+            hi = m
+        else:
+            lo = m
+    return mix(bar, target, hi)
 
 
 def tint_with_alpha(base, accent, alpha255):
@@ -303,12 +412,123 @@ def _resolve_palette(theme, mode, reference='generic'):
     return out
 
 
+# Expert severity fill keys and the accent each derives from when the
+# theme leaves it unpinned (ExpertNone has no theme key).
+EXPERT_FILL_ACCENTS = (
+    ('none', 'info'),
+    ('comment', 'success'),
+    ('chat', 'info'),
+    ('note', 'info'),
+    ('warn', 'warning'),
+    ('error', 'error'),
+)
+
+# Translucent derived expert fills: alpha of ColorMath::withAlpha(accent, 102).
+EXPERT_FILL_ALPHA = 102
+
+
+def expert_tokens(theme, mode, base):
+    '''(foreground, {key: fill as drawn on Base}) of the expert severities.
+
+    Mirrors deriveAll(): an unpinned fill is the accent at alpha 102, its
+    foreground the contrasting text of the translucent comment fill over
+    the mode's backdrop (ColorMath::contrastingText).  At High a fill on
+    which the foreground misses READABLE_TEXT_RATIO becomes its composite
+    on Base, moved until the foreground reads.'''
+    backdrop = '#000000' if mode == 'dark' else '#ffffff'
+    foreground = (_pick(theme, 'expert', 'foreground', mode)
+                  or contrasting_text(tint_with_alpha(
+                      backdrop, _pick(theme, 'accent', 'success', mode), EXPERT_FILL_ALPHA)))
+    fills = {}
+    for key, accent in EXPERT_FILL_ACCENTS:
+        pin = _pick(theme, 'expert', key, mode)
+        fill = pin or tint_with_alpha(base, _pick(theme, 'accent', accent, mode),
+                                      EXPERT_FILL_ALPHA)
+        if high_contrast():
+            fill = ensure_contrast(fill, foreground, READABLE_TEXT_RATIO)
+        fills[key] = fill
+    return foreground, fills
+
+
+def conversation_tokens(theme, mode, base):
+    '''{(text key, fill key): (text, fill)} of the Follow Stream sides.
+
+    Mirrors deriveAll(): the theme's pins, else accent.error (client) and
+    brand.primary (server) tinted on Base, with text darkened (light) or
+    lightened (dark).  At High each pair goes through readable_on_fill().'''
+    pairs = {}
+    for side, accent in (('client', _pick(theme, 'accent', 'error', mode)),
+                         ('server', _pick(theme, 'brand', 'primary', mode))):
+        fill = (_pick(theme, 'conversation', side, mode)
+                or tint_with_alpha(base, accent, 102))
+        text = (_pick(theme, 'conversation', side + 'Text', mode)
+                or (darken(accent, 30) if mode == 'light' else lighten(accent, 50)))
+        if high_contrast():
+            text, fill = readable_on_fill(text, fill, READABLE_TEXT_RATIO)
+        pairs[(side + 'Text', side)] = (text, fill)
+    return pairs
+
+
+def update_bar_tokens(theme, mode):
+    '''The welcome page update bar tokens, all derived from accent.success.
+
+    Mirrors deriveAll().  At High the bar text and links are lifted to
+    READABLE_TEXT_RATIO on the bar (the bar giving way when its text still
+    misses), the download button states move until TextOnSuccess reads on
+    them, and the dot keeps NON_TEXT_RATIO from the bar.'''
+    success = _pick(theme, 'accent', 'success', mode)
+    t = {
+        'background': darken(success, 60),
+        'text': lighten(success, 50),
+        'textHighlight': lighten(success, 70),
+        'link': lighten(success, 30),
+        'linkHover': lighten(success, 50),
+        'linkPressed': darken(success, 20),
+        'buttonBg': success,
+        'buttonHover': darken(success, 8),
+        'buttonPressed': darken(success, 16),
+        'buttonText': contrasting_text(success),
+        'dot': success,
+    }
+    if high_contrast():
+        t['text'] = ensure_contrast(t['text'], t['background'], READABLE_TEXT_RATIO)
+        t['background'] = ensure_contrast(t['background'], t['text'], READABLE_TEXT_RATIO)
+        for key in UPDATE_BAR_TEXT_KEYS[1:]:
+            t[key] = ensure_contrast(t[key], t['background'], READABLE_TEXT_RATIO)
+        for key in UPDATE_BAR_BUTTON_KEYS:
+            t[key] = ensure_contrast(t[key], t['buttonText'], READABLE_TEXT_RATIO)
+        t['dot'] = ensure_contrast(success, t['background'], NON_TEXT_RATIO)
+    return t
+
+
+# Update bar tokens drawn as text on the bar, and the button fills that
+# carry TextOnSuccess.
+UPDATE_BAR_TEXT_KEYS = ('text', 'textHighlight', 'link', 'linkHover', 'linkPressed')
+UPDATE_BAR_BUTTON_KEYS = ('buttonBg', 'buttonHover', 'buttonPressed')
+
+
+def packet_state_fill(theme, mode, state):
+    '''The fill of a pinned packet state (selection, inactive, marked) as
+    deriveAll() leaves it, None when the theme does not pin it.  Its text
+    is the pin or the contrasting text, lifted to READABLE_TEXT_RATIO;
+    at High the fill moves when the text cannot get there.'''
+    fill = _pick(theme, 'packets', state, mode)
+    if not fill:
+        return None
+    text = readable_text(_pick(theme, 'packets', state + 'Text', mode)
+                         or contrasting_text(fill), fill)
+    if high_contrast():
+        text, fill = readable_on_fill(text, fill, READABLE_TEXT_RATIO)
+    return fill
+
+
 def derived_tokens(theme, mode, reference='generic'):
     '''Return the subset of derived tokens the contrast assertions need.
 
     Mirrors theme_token_handler.cpp's deriveAll() for the new tokens
     (SectionHeader, FieldBorder, Separator, HeaderBackground, Filter*)
-    plus the inputs they depend on (HeaderText / HeaderTextMuted).
+    plus the inputs they depend on (HeaderText / HeaderTextMuted), and the
+    expert, conversation and update bar tokens the High rules move.
     '''
     palette = _resolve_palette(theme, mode, reference)
     base = palette['base']
@@ -326,12 +546,20 @@ def derived_tokens(theme, mode, reference='generic'):
     # palette.highlight, else packets.selection, else brand.primary;
     # highlightedText is pinned or the contrasting text of that
     # color, lifted to READABLE_TEXT_RATIO against it.
+    # At High the pair goes through readable_on_fill(): when the text
+    # cannot reach READABLE_TEXT_RATIO the highlight itself moves.
+    # The header bar then also moves until the faded version label reads
+    # at READABLE_TEXT_RATIO (its target at High).
     highlight = (_pick(theme, 'palette', 'highlight', mode)
                  or _pick(theme, 'packets', 'selection', mode)
                  or brand_primary)
-    highlight_text = readable_text(
-        _pick(theme, 'palette', 'highlightedText', mode)
-        or contrasting_text(highlight), highlight)
+    highlight_text_source = (_pick(theme, 'palette', 'highlightedText', mode)
+                             or contrasting_text(highlight))
+    if high_contrast():
+        highlight_text, highlight = readable_on_fill(
+            highlight_text_source, highlight, READABLE_TEXT_RATIO)
+    else:
+        highlight_text = readable_text(highlight_text_source, highlight)
     window = palette['window']
     header_bg = ensure_contrast(darken(highlight, 40), window,
                                 DISTINCT_SURFACE_RATIO)
@@ -339,8 +567,11 @@ def derived_tokens(theme, mode, reference='generic'):
                     if is_readable(highlight_text, header_bg)
                     else contrasting_text(header_bg))
     header_bg = ensure_contrast(header_bg, text_on_dark, READABLE_TEXT_RATIO)
-    text_on_dark_muted = ensure_contrast(mix(text_on_dark, header_bg, 0.25),
-                                         header_bg, LARGE_TEXT_RATIO)
+    if high_contrast():
+        header_bg = bar_for_faded_label(header_bg, text_on_dark, READABLE_TEXT_RATIO)
+    text_on_dark_muted = ensure_contrast(
+        mix(text_on_dark, header_bg, 0.25), header_bg,
+        READABLE_TEXT_RATIO if high_contrast() else LARGE_TEXT_RATIO)
 
     section_header = readable_text(mid, base)
     section_header_hover = readable_text(brand_primary, base)
@@ -361,6 +592,12 @@ def derived_tokens(theme, mode, reference='generic'):
     accent_warning = _pick(theme, 'accent', 'warning', mode)
     filter_deprecated = (explicit_filter_deprecated
                          or tint_with_alpha(base, accent_warning, 85))
+    # At High each tint, pinned or derived, moves until its black or
+    # white text reads at READABLE_TEXT_RATIO.
+    if high_contrast():
+        filter_valid = readable_fill(filter_valid)
+        filter_invalid = readable_fill(filter_invalid)
+        filter_deprecated = readable_fill(filter_deprecated)
 
     # Secondary text: Text faded 40% toward Base, lifted to
     # READABLE_TEXT_RATIO.
@@ -377,9 +614,15 @@ def derived_tokens(theme, mode, reference='generic'):
                     or mix(base, window_text, 0.50))
     hidden = (_pick(theme, 'packets', 'hidden', mode)
               or mix(base, window_text, 0.40))
+    # At High both are lifted against Base, pins included.
+    if high_contrast():
+        ignored_text = ensure_contrast(ignored_text, base, READABLE_TEXT_RATIO)
+        hidden = ensure_contrast(hidden, base, READABLE_TEXT_RATIO)
 
     filter_busy      = explicit_filter_busy    or base
     filter_busy_text = explicit_filter_busy_tx or mix(text, base, 0.5)
+    if high_contrast():
+        filter_busy_text = ensure_contrast(filter_busy_text, filter_busy, LARGE_TEXT_RATIO)
 
     # Raised card on Base.  The source is the theme's own alternateBase
     # pin only (never the platform palette), else Base.  Dark mode lifts
@@ -412,8 +655,13 @@ def derived_tokens(theme, mode, reference='generic'):
     splash_fill = ensure_contrast(brand_primary, overlay_card_border,
                                   NON_TEXT_RATIO)
     syntax_key = readable_text(mid, base)
+    expert_foreground, expert_fills = expert_tokens(theme, mode, base)
 
     return {
+        'expertForeground':  expert_foreground,
+        'expertFills':       expert_fills,
+        'conversation':      conversation_tokens(theme, mode, base),
+        'updateBar':         update_bar_tokens(theme, mode),
         'base':              base,
         'window':            window,
         'highlight':         highlight,
@@ -567,16 +815,31 @@ class TestEnsureContrast:
 # =====================================================================
 
 
-def _theme_mode_params():
-    '''(theme_path, mode, reference) for every bundled theme × {light,
-    dark} × reference palette.'''
+THEME_MODE_ARGS = 'theme_path,mode,reference,contrast'
+
+
+def _theme_contrast_levels(theme_path):
+    '''The contrast levels a theme is derived with: High only when it
+    declares "contrast": "high" (theme_parser.cpp), else both.'''
+    if _load_theme(theme_path).get('contrast') == 'high':
+        return ('high',)
+    return tuple(RATIO_SETS)
+
+
+def _theme_mode_params(levels=tuple(RATIO_SETS)):
+    '''(theme_path, mode, reference, contrast) for every bundled theme ×
+    {light, dark} × reference palette × the theme's contrast levels that
+    are in `levels`.'''
     params = []
     for path in _bundled_themes():
         for mode in ('light', 'dark'):
             for reference in REFERENCE_PALETTES:
-                params.append(pytest.param(
-                    path, mode, reference,
-                    id=f'{path.parent.name}-{mode}-{reference}'))
+                for contrast in _theme_contrast_levels(path):
+                    if contrast not in levels:
+                        continue
+                    params.append(pytest.param(
+                        path, mode, reference, contrast,
+                        id=f'{path.parent.name}-{mode}-{reference}-{contrast}'))
     return params
 
 
@@ -588,74 +851,89 @@ class TestDerivedContrast:
     dark base) or unreadable (header bar vs version label) in
     the other — exactly the class of bug the new derivations close.'''
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_section_header_meets_aa_against_base(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_section_header_meets_aa_against_base(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['sectionHeader'], t['base']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_field_border_meets_non_text_contrast(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_field_border_meets_non_text_contrast(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['fieldBorder'], t['base']) >= NON_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_header_background_holds_title(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_header_background_holds_title(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['headerText'], t['headerBackground']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_header_background_holds_muted_version(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_header_background_holds_muted_version(self, theme_path, mode, reference, contrast):
+        '''The version label reads at LARGE_TEXT_RATIO, at High at
+        READABLE_TEXT_RATIO (its target there).'''
         t = derived_tokens(_load_theme(theme_path), mode, reference)
-        assert contrast_ratio(t['headerTextMuted'], t['headerBackground']) >= LARGE_TEXT_RATIO
+        target = READABLE_TEXT_RATIO if high_contrast() else LARGE_TEXT_RATIO
+        assert contrast_ratio(t['headerTextMuted'], t['headerBackground']) >= target
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_header_background_stands_out_from_window(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_header_background_stands_out_from_window(self, theme_path, mode, reference, contrast):
+        '''At High the title wins: a bar held DISTINCT_SURFACE_RATIO from a
+        near-black window cannot also hold a white title and its faded
+        label at READABLE_TEXT_RATIO, so a closer bar passes when that
+        window-distinct bar would miss the title or the label.'''
         t = derived_tokens(_load_theme(theme_path), mode, reference)
+        if (high_contrast()
+                and contrast_ratio(t['headerBackground'], t['window']) < DISTINCT_SURFACE_RATIO):
+            distinct_bar = ensure_contrast(darken(t['highlight'], 40), t['window'],
+                                           DISTINCT_SURFACE_RATIO)
+            title = t['headerText']
+            assert (not is_readable(title, distinct_bar)
+                    or not is_readable(mix(title, distinct_bar, 0.25), distinct_bar))
+            return
         assert contrast_ratio(t['headerBackground'], t['window']) >= DISTINCT_SURFACE_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_filter_valid_holds_its_auto_foreground(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_filter_valid_holds_its_auto_foreground(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['textOnFilterValid'], t['filterValid']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_filter_invalid_holds_its_auto_foreground(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_filter_invalid_holds_its_auto_foreground(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['textOnFilterInvalid'], t['filterInvalid']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_filter_deprecated_holds_its_auto_foreground(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_filter_deprecated_holds_its_auto_foreground(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['textOnFilterDeprecated'],
                               t['filterDeprecated']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_muted_text_meets_aa_against_base(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_muted_text_meets_aa_against_base(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['mutedText'], t['base']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_link_meets_aa_against_base(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_link_meets_aa_against_base(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['link'], t['base']) >= READABLE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_filter_busy_text_meets_low_contrast_target(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_filter_busy_text_meets_low_contrast_target(self, theme_path, mode, reference, contrast):
         '''Filter-busy fg is intentionally faded (matches QLineEdit's
         placeholder fade); LARGE_TEXT_RATIO is the lower target for
         "transient state" text.'''
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['filterBusyText'], t['filterBusy']) >= LARGE_TEXT_RATIO
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_dark_card_stands_out_from_base(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_dark_card_stands_out_from_base(self, theme_path, mode, reference, contrast):
         if mode != 'dark':
             pytest.skip('light cards are not lifted')
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['card'], t['base']) >= CARD_SURFACE_RATIO_DARK - 1e-6
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_light_card_is_pin_or_base(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_light_card_is_pin_or_base(self, theme_path, mode, reference, contrast):
         '''A light card is the theme's alternateBase pin or Base, never a
         lifted gray: the border alone sets it apart from the page.'''
         if mode != 'light':
@@ -664,53 +942,60 @@ class TestDerivedContrast:
         t = derived_tokens(theme, mode, reference)
         assert t['card'] == (_pick(theme, 'palette', 'alternateBase', 'light') or t['base'])
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_card_border_visible_on_card(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_card_border_visible_on_card(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['cardBorder'], t['card']) >= DIVIDER_RATIO - 1e-6
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_derived_separator_visible_on_base(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_derived_separator_visible_on_base(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         if t['separatorPinned']:
             pytest.skip('separator pinned by the theme')
         assert contrast_ratio(t['separator'], t['base']) >= DIVIDER_RATIO - 1e-6
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_card_section_headers_readable_on_card(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_card_section_headers_readable_on_card(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         for key in ('cardSectionHeader', 'cardSectionHeaderHover'):
             assert contrast_ratio(t[key], t['card']) >= READABLE_TEXT_RATIO - 1e-6, key
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_card_link_readable_on_card_and_hover(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_card_link_readable_on_card_and_hover(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['cardLink'], t['card']) >= READABLE_TEXT_RATIO - 1e-6
         # Light hover is transient state text, held to the large-text ratio.
         hover_ratio = READABLE_TEXT_RATIO if mode == 'dark' else LARGE_TEXT_RATIO
         assert contrast_ratio(t['cardLink'], t['cardLinkHover']) >= hover_ratio - 1e-6
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_card_link_hover_distinct_from_card(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_card_link_hover_distinct_from_card(self, theme_path, mode, reference, contrast):
+        '''The fill keeps READABLE_TEXT_RATIO / LARGE_TEXT_RATIO from the
+        card (DISTINCT_SURFACE_RATIO in Standard); at High in dark mode the
+        link target wins and only the link on the fill is asserted.'''
         # The fill keeps its own distance from the card unless the link forces it to move;
         # both are rounded to 8-bit channels, so the bound holds to within that rounding.
         t = derived_tokens(_load_theme(theme_path), mode, reference)
+        if high_contrast() and mode == 'dark':
+            assert (contrast_ratio(t['cardLink'], t['cardLinkHover'])
+                    >= READABLE_TEXT_RATIO - 1e-6)
+            return
         assert (contrast_ratio(t['cardLinkHover'], t['card'])
-                >= DISTINCT_SURFACE_RATIO - 0.01)
+                >= READABLE_TEXT_RATIO / LARGE_TEXT_RATIO - 0.01)
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_card_focus_ring_visible_on_link_hover(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_card_focus_ring_visible_on_link_hover(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert (contrast_ratio(t['cardFocusRing'], t['cardLinkHover'])
                 >= DIVIDER_RATIO - 1e-6)
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_card_focus_ring_readable_on_card(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_card_focus_ring_readable_on_card(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['cardFocusRing'], t['card']) >= READABLE_TEXT_RATIO - 1e-6
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_overlay_card_border_visible(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_overlay_card_border_visible(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert (contrast_ratio(t['overlayCardBorder'], t['overlayCard'])
                 >= DIVIDER_RATIO - 1e-6)
@@ -729,21 +1014,24 @@ class TestDerivedContrast:
         t = derived_tokens(_load_theme(path), 'light', reference)
         assert t['cardLink'] == t['link']
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_splash_fill_visible_on_overlay_border(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_splash_fill_visible_on_overlay_border(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert (contrast_ratio(t['splashFill'], t['overlayCardBorder'])
                 >= NON_TEXT_RATIO - 1e-6)
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_syntax_key_readable_on_base(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_syntax_key_readable_on_base(self, theme_path, mode, reference, contrast):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['syntaxKey'], t['base']) >= READABLE_TEXT_RATIO - 1e-6
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_learn_card_buttons_stand_out_from_card(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params(levels=('standard',)))
+    def test_learn_card_buttons_stand_out_from_card(self, theme_path, mode, reference, contrast):
         '''Each Learn card button fill is kept DISTINCT_SURFACE_RATIO
-        apart from the card it sits on, on both reference palettes.'''
+        apart from the card it sits on, on both reference palettes.
+        Standard only: at High a white label at READABLE_TEXT_RATIO needs a
+        fill too dark to stand DISTINCT_SURFACE_RATIO off a dark card, and
+        the label wins.'''
         theme = _load_theme(theme_path)
         t = derived_tokens(theme, mode, reference)
         for button in _learn_card_buttons():
@@ -783,29 +1071,36 @@ class TestHoverFill:
         t = derived_tokens(theme, mode, reference)
         text = t['text']
         for role in ('selection', 'inactive'):
-            sel = _pick(theme, 'packets', role, mode)
+            sel = packet_state_fill(theme, mode, role)
             if sel:
                 yield role, t['base'], sel, text
         yield 'highlight', t['base'], t['highlight'], text
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_hover_fill_distinct_from_selection(self, theme_path, mode, reference):
-        for role, base, sel, _ in self._cases(_load_theme(theme_path), mode, reference):
-            fill = selection_hover_fill(base, sel)
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_hover_fill_distinct_from_selection(self, theme_path, mode, reference, contrast):
+        for role, base, sel, text in self._cases(_load_theme(theme_path), mode, reference):
+            fill, _ = selection_hover(base, sel, text)
             assert contrast_ratio(fill, sel) >= DISTINCT_SURFACE_RATIO, role
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_hover_text_readable(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params())
+    def test_hover_text_readable(self, theme_path, mode, reference, contrast):
+        '''At High READABLE_TEXT_RATIO can be out of reach on a fill that
+        must stay distinct from the selection; the text is then black or
+        white (the contrasting text of the fill).'''
         for role, base, sel, text in self._cases(_load_theme(theme_path), mode, reference):
-            fill = selection_hover_fill(base, sel)
-            assert contrast_ratio(readable_text(text, fill), fill) >= READABLE_TEXT_RATIO, role
+            fill, hover_text = selection_hover(base, sel, text)
+            if high_contrast() and contrast_ratio(hover_text, fill) < READABLE_TEXT_RATIO:
+                assert hover_text == contrasting_text(fill), role
+                continue
+            assert contrast_ratio(hover_text, fill) >= READABLE_TEXT_RATIO, role
 
 
 class TestInvertedHighlight:
     @pytest.mark.parametrize('mode', ['light', 'dark'])
     def test_highlight_stays_brand_primary(self, mode):
         '''Inverted selects in its brand color on purpose; its
-        packets.selection would otherwise take over the highlight.'''
+        packets.selection would otherwise take over the highlight.
+        Standard only: it checks the designed pin, which High moves.'''
         path = next(p for p in _bundled_themes() if p.parent.name == 'inverted')
         theme = _load_theme(path)
         assert (derived_tokens(theme, mode)['highlight'].lower()
@@ -820,15 +1115,17 @@ class TestSelectionText:
     a pin depend on the check, which would turn the designed text color
     into a grey.'''
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_highlighted_text_pin_reads_on_highlight(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params(levels=('standard',)))
+    def test_highlighted_text_pin_reads_on_highlight(self, theme_path, mode, reference, contrast):
+        '''Standard only: it checks the designed pins, which High moves.'''
         theme = _load_theme(theme_path)
         pin = _pick(theme, 'palette', 'highlightedText', mode)
         if pin:
             assert is_readable(pin, derived_tokens(theme, mode, reference)['highlight'])
 
-    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_packet_state_text_pins_read_on_fill(self, theme_path, mode, reference):
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params(levels=('standard',)))
+    def test_packet_state_text_pins_read_on_fill(self, theme_path, mode, reference, contrast):
+        '''Standard only: it checks the designed pins, which High moves.'''
         theme = _load_theme(theme_path)
         for state in ('selection', 'inactive', 'marked'):
             fill = _pick(theme, 'packets', state, mode)
@@ -843,13 +1140,107 @@ class TestStratosharkMarked:
         '''A marked row must not read as the selected or the unfocused
         selected row; Stratoshark dark once used one near-black teal for
         all three.  Asserted for Stratoshark only: other shipped themes
-        do not meet it yet.'''
+        do not meet it yet.  Standard only: it checks the designed pins,
+        which High moves.'''
         path = next(p for p in _bundled_themes() if p.parent.name == 'stratoshark')
         theme = _load_theme(path)
         marked = _pick(theme, 'packets', 'marked', mode)
         for state in ('selection', 'inactive'):
             assert (contrast_ratio(marked, _pick(theme, 'packets', state, mode))
                     >= DISTINCT_SURFACE_RATIO), state
+
+
+# =====================================================================
+# Contrast levels — the Standard and High ratio sets, the files that
+# repeat them, and the high-contrast rules.
+# =====================================================================
+
+
+class TestContrastLevels:
+    def test_high_ratios_not_below_standard(self):
+        '''High never asks for less contrast than Standard.'''
+        for name, _, _ in RATIOS:
+            assert RATIO_SETS['high'][name] >= RATIO_SETS['standard'][name], name
+
+    def test_ratio_table_covers_color_math_constants(self):
+        '''RATIOS names every ratio constant of color_math.h and its High sibling.'''
+        declared = set(re.findall(r'static\s+constexpr\s+qreal\s+(\w+)\s*=',
+                                  COLOR_MATH_H.read_text(encoding='utf-8')))
+        listed = {c for _, constant, _ in RATIOS for c in (constant, constant + 'High')}
+        assert declared == listed
+
+    def test_readme_contrast_table_matches_ratio_sets(self):
+        '''The README contrast table lists the ratios of color_math.h.'''
+        rows = re.findall(r'^\|\s*([^|`]+?)\s*\|\s*`([0-9.]+):1`\s*\|\s*`([0-9.]+):1`\s*\|\s*$',
+                          THEME_README.read_text(encoding='utf-8'), re.M)
+        table = {label: (float(standard), float(high)) for label, standard, high in rows}
+        expected = {label: (RATIO_SETS['standard'][name], RATIO_SETS['high'][name])
+                    for name, _, label in RATIOS}
+        assert table == expected
+
+    def test_contrast_values_match_schema_and_parser(self):
+        '''The schema `contrast` enum, the values theme_parser.cpp compares
+        and the ratio sets name the same levels.'''
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        enum = set(schema['properties']['contrast']['enum'])
+        parsed = set(re.findall(r'\bcontrast\s*[!=]=\s*QStringLiteral\("([^"]*)"\)',
+                                THEME_PARSER_CPP.read_text(encoding='utf-8')))
+        assert enum == parsed == set(RATIO_SETS)
+
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params(levels=('high',)))
+    def test_expert_fills_read_with_foreground(self, theme_path, mode, reference, contrast):
+        '''Each expert severity fill, as drawn on Base, holds
+        ExpertForeground at READABLE_TEXT_RATIO.'''
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        for key, fill in t['expertFills'].items():
+            assert (contrast_ratio(t['expertForeground'], fill)
+                    >= READABLE_TEXT_RATIO - 1e-6), key
+
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params(levels=('high',)))
+    def test_conversation_text_reads_on_fill(self, theme_path, mode, reference, contrast):
+        t = derived_tokens(_load_theme(theme_path), mode, reference)
+        for keys, (text, fill) in t['conversation'].items():
+            assert contrast_ratio(text, fill) >= READABLE_TEXT_RATIO - 1e-6, keys
+
+    @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params(levels=('high',)))
+    def test_update_bar_readable(self, theme_path, mode, reference, contrast):
+        '''Text and links read on the bar, TextOnSuccess on every button
+        state, and the dot keeps NON_TEXT_RATIO from the bar.'''
+        u = derived_tokens(_load_theme(theme_path), mode, reference)['updateBar']
+        for key in UPDATE_BAR_TEXT_KEYS:
+            assert contrast_ratio(u[key], u['background']) >= READABLE_TEXT_RATIO - 1e-6, key
+        for key in UPDATE_BAR_BUTTON_KEYS:
+            assert contrast_ratio(u['buttonText'], u[key]) >= READABLE_TEXT_RATIO - 1e-6, key
+        assert contrast_ratio(u['dot'], u['background']) >= NON_TEXT_RATIO - 1e-6
+
+    @pytest.mark.parametrize('contrast', ['high'])
+    def test_dark_hover_falls_back_to_contrasting_text(self, contrast):
+        '''Default theme, dark, High on the macOS palette: a fill that holds
+        the white text at READABLE_TEXT_RATIO would sit too close to the
+        selection, so the fill stays and the text turns black (6.1:1).'''
+        theme = _load_theme(THEME_ROOT / 'wireshark' / 'theme.jsonc')
+        t = derived_tokens(theme, 'dark', 'macos-qt611')
+        selection = packet_state_fill(theme, 'dark', 'selection')
+        fill, text = selection_hover(t['base'], selection, t['text'])
+        assert fill == '#838b97'
+        assert text == contrasting_text(fill) == '#000000'
+        assert contrast_ratio(text, fill) < READABLE_TEXT_RATIO
+
+    @pytest.mark.parametrize('contrast', ['high'])
+    @pytest.mark.parametrize('mode,header,update_bar', [
+        ('light', '#062457', '#002800'),
+        ('dark', '#283e52', '#316431'),
+    ])
+    def test_high_contrast_theme_signed_off_values(self, mode, header, update_bar, contrast):
+        '''The welcome header and update bar of the High Contrast theme
+        keep the values of the signed-off design.'''
+        theme = _load_theme(THEME_ROOT / 'high-contrast' / 'theme.jsonc')
+        t = derived_tokens(theme, mode, 'macos-qt611')
+        assert t['headerBackground'] == header
+        assert contrast_ratio(t['headerText'], t['headerBackground']) >= READABLE_TEXT_RATIO
+        u = t['updateBar']
+        assert u['background'] == update_bar
+        assert contrast_ratio(u['text'], u['background']) >= READABLE_TEXT_RATIO
 
 
 # =====================================================================

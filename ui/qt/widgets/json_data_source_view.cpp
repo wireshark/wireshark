@@ -166,11 +166,11 @@ void JsonDataSourceView::paintEvent(QPaintEvent *)
                     // Hover: a tint of the selection color.  Keep the
                     // syntax colors, each lifted to body-text contrast on
                     // the tint; unclamped, some vanish on it.
-                    const QColor hover_bg = ColorMath::selectionHoverFill(
-                                palette().color(QPalette::Base), highlight);
-                    format_range.format.setBackground(hover_bg);
-                    format_range.format.setForeground(
-                                ColorMath::readableText(palette().color(QPalette::Text), hover_bg));
+                    const ColorMath::TextOnFill hover = ColorMath::selectionHover(
+                                palette().color(QPalette::Base), highlight,
+                                palette().color(QPalette::Text));
+                    format_range.format.setBackground(hover.fill);
+                    format_range.format.setForeground(hover.text);
                     fmt_list.append(format_range);
                     for (const QTextLayout::FormatRange &syntax : text_line.fmt_list) {
                         if (!syntax.format.hasProperty(QTextFormat::ForegroundBrush)) {
@@ -185,7 +185,7 @@ void JsonDataSourceView::paintEvent(QPaintEvent *)
                         clamped.start = start;
                         clamped.length = end - start;
                         clamped.format.setForeground(
-                                    ColorMath::readableText(syntax.format.foreground().color(), hover_bg));
+                                    ColorMath::readableText(syntax.format.foreground().color(), hover.fill));
                         fmt_list.append(clamped);
                     }
                 } else {

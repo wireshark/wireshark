@@ -91,10 +91,10 @@ public:
     /**
      * @brief Stylesheet rule for the hover state of an item view's items.
      *
-     * The fill is ColorMath::selectionHoverFill() of the application
-     * palette's Base and Highlight, the text ColorMath::readableText() of
-     * its Text on that fill, so hover is a tint of the view's own
-     * selection color.
+     * The fill and text come from ColorMath::selectionHover() of the
+     * application palette's Base, Highlight and Text, so hover is a tint
+     * of the view's own selection color. In high contrast the text may
+     * switch to black or white to stay readable on the fill.
      * @param selector Type selector of the view, e.g. "QTreeView".
      * @return "<selector>:item:hover { background-color: ...; color: ...; }"
      */

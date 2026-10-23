@@ -11,14 +11,15 @@
 #define THEME_PALETTE_BUILDER_H
 
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 
 #include <QHash>
 #include <QPalette>
 #include <QString>
 
 /**
- * Builds the `QApplication::palette()` from the current theme's token
- * map and mode, and pushes it via `QApplication::setPalette()`.
+ * Builds the application palette from the current theme's token map and
+ * mode; ThemeManager pushes it via `QApplication::setPalette()`.
  *
  * The baseline palette comes from:
  *
@@ -73,22 +74,15 @@ public:
      *                          ThemeManager; used as the baseline on
      *                          macOS and Windows Qt ≥ 6.8.  Ignored on
      *                          Linux and Windows Qt < 6.8.
+     * @param ratios            The contrast ratio set derived roles
+     *                          (HighlightedText, Link) are lifted to.
      */
     static QPalette build(const TokenMap                                     &tokens,
                           bool                                                isDarkMode,
                           const QHash<QString, ThemeManager::ThemeToken>     &tokenNameCache,
                           const QHash<QString, QPalette::ColorRole>          &paletteRoleCache,
-                          const QPalette                                     &osBaseline);
-
-    /**
-     * Convenience wrapper: calls build() and pushes the result via
-     * `QApplication::setPalette()`.
-     */
-    static void apply(const TokenMap                                     &tokens,
-                      bool                                                isDarkMode,
-                      const QHash<QString, ThemeManager::ThemeToken>     &tokenNameCache,
-                      const QHash<QString, QPalette::ColorRole>          &paletteRoleCache,
-                      const QPalette                                     &osBaseline);
+                          const QPalette                                     &osBaseline,
+                          const ColorMath::ContrastRatios                    &ratios);
 
     /**
      * Built-in dark QPalette used as the baseline on non-macOS

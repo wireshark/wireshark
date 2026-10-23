@@ -1,0 +1,84 @@
+// =====================================================================
+// Wireshark High Contrast Theme
+// =====================================================================
+//
+// Black on white in light mode, white on black in dark mode.  The
+// theme declares "contrast": "high", so every derived color (hover
+// fills, separators, card borders, muted text, links, icon colors) is
+// held to the high-contrast ratio set whatever the Contrast setting in
+// Preferences says.
+//
+// Format: JSONC — standard JSON with C-style comments.
+// =====================================================================
+
+{
+	"meta": {
+		"name": "High Contrast",
+		"version": 1,
+		"author": "Wireshark Foundation",
+		"description": "Black on white and white on black, with stronger borders, separators and selection."
+	},
+	// Selects the high-contrast ratio set for every derived color.
+	"contrast": "high",
+	"brand": {
+		"primary": { "light": "#0b3d91", "dark": "#7cc4ff" }
+	},
+	"accent": {
+		"success": { "light": "#006400", "dark": "#7dff7d" },
+		"warning": { "light": "#8a4b00", "dark": "#ffc04d" },
+		"error":   { "light": "#b00000", "dark": "#ff7a7a" },
+		"info":    { "light": "#0b3d91", "dark": "#7cc4ff" }
+	},
+	"expert": {
+		"comment":    { "light": "#b7f774", "dark": "#b7f774" },
+		"chat":       { "light": "#80b7f7", "dark": "#80b7f7" },
+		"note":       { "light": "#a0ffff", "dark": "#a0ffff" },
+		"warn":       { "light": "#f7f253", "dark": "#f7f253" },
+		"error":      { "light": "#ff8080", "dark": "#ff8080" },
+		"foreground": { "light": "#000000", "dark": "#000000" }
+	},
+	"packets": {
+		"selection":     { "light": "#0b3d91", "dark": "#7cc4ff" },
+		"selectionText": { "light": "#ffffff", "dark": "#000000" },
+		"inactive":      { "light": "#595959", "dark": "#c0c0c0" },
+		"inactiveText":  { "light": "#ffffff", "dark": "#000000" },
+		"marked":        { "light": "#000000", "dark": "#ffffff" },
+		"markedText":    { "light": "#ffffff", "dark": "#000000" },
+		"ignored":       { "light": "#ffffff", "dark": "#000000" },
+		"ignoredText":   { "light": "#595959", "dark": "#a6a6a6" },
+		"hidden":        { "light": "#595959", "dark": "#a6a6a6" }
+	},
+	"filter": {
+		"valid":      { "light": "#b3ffb3", "dark": "#004d00" },
+		"invalid":    { "light": "#ffb3b3", "dark": "#5c0000" },
+		"deprecated": { "light": "#ffff99", "dark": "#4d4d00" },
+		"history":    { "light": "#000000", "dark": "#ffffff" }
+	},
+	"conversation": {
+		"client":     { "light": "#fff0e0", "dark": "#2a1200" },
+		"clientText": { "light": "#7a0000", "dark": "#ffc9a8" },
+		"server":     { "light": "#e8ecff", "dark": "#000a2a" },
+		"serverText": { "light": "#00006b", "dark": "#c2d0ff" }
+	},
+	"palette": {
+		"window":          { "light": "#ffffff", "dark": "#000000" },
+		"windowText":      { "light": "#000000", "dark": "#ffffff" },
+		"base":            { "light": "#ffffff", "dark": "#000000" },
+		"text":            { "light": "#000000", "dark": "#ffffff" },
+		"alternateBase":   { "light": "#ffffff", "dark": "#000000" },
+		"mid":             { "light": "#000000", "dark": "#ffffff" },
+		"midlight":        { "light": "#ffffff", "dark": "#000000" },
+		"highlight":       { "light": "#0b3d91", "dark": "#7cc4ff" },
+		"highlightedText": { "light": "#ffffff", "dark": "#000000" }
+	},
+	"separator": { "light": "#000000", "dark": "#ffffff" },
+	"graphs": [
+		{ "light": "#000000", "dark": "#ffffff" },
+		{ "light": "#0b3d91", "dark": "#7cc4ff" },
+		{ "light": "#b00000", "dark": "#ff7a7a" },
+		{ "light": "#006400", "dark": "#7dff7d" },
+		{ "light": "#6a1b9a", "dark": "#e1a6ff" },
+		{ "light": "#8a4b00", "dark": "#ffc04d" },
+		{ "light": "#005f5f", "dark": "#5ff5f5" }
+	]
+}

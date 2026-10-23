@@ -67,6 +67,17 @@ bool ThemeParser::parse(const QString &internalName,
     out.info.description   = meta.value(QStringLiteral("description")).toString();
     out.info.author        = meta.value(QStringLiteral("author")).toString();
 
+    // The top-level "contrast" field sits beside "meta": it selects the
+    // ratio set the derived colors are computed with, not descriptive data.
+    // An unknown value falls back to standard so a typo never fails the load.
+    const QString contrast = root.value(QStringLiteral("contrast")).toString();
+    if (contrast == QStringLiteral("high")) {
+        out.info.contrast = ThemeContrast::High;
+    } else if (!contrast.isEmpty() && contrast != QStringLiteral("standard")) {
+        qWarning("ThemeParser: unknown contrast \"%s\" in theme \"%s\"; using standard",
+                 qUtf8Printable(contrast), qUtf8Printable(out.info.name));
+    }
+
     // Step 2 - color sections
     out.colors.clear();
     for (auto it = sections_.constBegin(); it != sections_.constEnd(); ++it) {

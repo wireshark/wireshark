@@ -144,7 +144,7 @@ void SplashOverlay::paintEvent(QPaintEvent *)
 
     // Card surface and border come from the shared overlay tokens: the
     // surface is the one that stands out from the scrim in each mode,
-    // the border is kept DividerRatio apart from it.  The card keeps a
+    // the border is kept the divider ratio apart from it.  The card keeps a
     // little translucency; border and track are opaque, since a
     // translucent line over the vignette composites back toward the
     // scrim.
@@ -208,7 +208,7 @@ void SplashOverlay::paintEvent(QPaintEvent *)
         // brand.primary lifted to the WCAG non-text minimum against the
         // track, so the bar reads on every theme.
         const QColor bar_fill = ColorMath::ensureContrast(
-            theme->color(ThemeManager::BrandPrimary), bar_bg, ColorMath::NonTextRatio);
+            theme->color(ThemeManager::BrandPrimary), bar_bg, ColorMath::activeRatios().nonText);
 
         painter.setBrush(bar_fill);
         painter.drawRoundedRect(bar_fill_rect, kBarHeight / 2.0, kBarHeight / 2.0);

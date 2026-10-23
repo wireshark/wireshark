@@ -691,9 +691,8 @@ void PacketList::paintHoveredRow(QPainter *painter, const QTreeView *view,
     const QColor selection = ThemeManager::instance()->color(
             selectionIsActive() ? ThemeManager::PacketsSelection : ThemeManager::PacketsInactive);
     const QPalette &pal = view->palette();
-    const QColor hover_bg = ColorMath::selectionHoverFill(pal.color(QPalette::Base), selection);
-    const QColor text_color = ColorMath::readableText(pal.color(QPalette::Text), hover_bg);
-
+    const ColorMath::TextOnFill hover = ColorMath::selectionHover(
+            pal.color(QPalette::Base), selection, pal.color(QPalette::Text));
     for (int visual_col = 0; visual_col < view->header()->count(); visual_col++) {
         int logical_col = view->header()->logicalIndex(visual_col);
         if (view->isColumnHidden(logical_col)) {
@@ -710,12 +709,12 @@ void PacketList::paintHoveredRow(QPainter *painter, const QTreeView *view,
             // (not the delegate's own background fill, which would
             // clobber the hover color with the model's background role).
             painter->save();
-            painter->fillRect(col_option.rect, hover_bg);
+            painter->fillRect(col_option.rect, hover.fill);
             painter->restore();
             tag_column_delegate_.paintContent(painter, col_option, col_index);
             continue;
         }
-        ColorUtils::paintFlatCell(painter, view, col_option, col_index, hover_bg, text_color);
+        ColorUtils::paintFlatCell(painter, view, col_option, col_index, hover.fill, hover.text);
     }
 }
 

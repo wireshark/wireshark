@@ -11,24 +11,14 @@
 
 #include "ui/qt/utils/themes/theme_palette_builder.h"
 #include "ui/qt/utils/themes/color_math.h"
+#include "ui/qt/utils/themes/theme_token_handler.h"
 
-#include <QApplication>
 #include <QStyle>
 #include <QStyleHints>
 
 using TokenMap = ThemePaletteBuilder::TokenMap;
 
 namespace {
-
-// Pick the effective (light/dark) side of a pair stored in the token
-// map.  Returns an invalid QColor when the token is absent or its pair
-// contains no valid color for the requested side.
-QColor sideOf(const TokenMap &tokens, ThemeManager::ThemeToken role, bool isDarkMode)
-{
-    if (role == ThemeManager::NoRole)
-        return QColor();
-    return tokens.value(role, ThemeColorPair()).forMode(isDarkMode);
-}
 
 // Baseline palette to start from, before applying theme overrides.
 //
@@ -183,7 +173,8 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
                                     bool                                                isDarkMode,
                                     const QHash<QString, ThemeManager::ThemeToken>     &tokenNameCache,
                                     const QHash<QString, QPalette::ColorRole>          &paletteRoleCache,
-                                    const QPalette                                     &osBaseline)
+                                    const QPalette                                     &osBaseline,
+                                    const ColorMath::ContrastRatios                    &ratios)
 {
     QPalette pal = baselinePalette(isDarkMode, osBaseline);
 
@@ -205,7 +196,7 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
         const QString             &roleName = it.key();
         const QPalette::ColorRole  qpRole   = it.value();
         const ThemeManager::ThemeToken token = tokenNameCache.value(roleName, ThemeManager::NoRole);
-        const QColor c = sideOf(tokens, token, isDarkMode);
+        const QColor c = ThemeTokenHandler::sideOf(tokens, token, isDarkMode);
         if (!c.isValid())
             continue;
         pal.setColor(QPalette::Active,   qpRole, c);
@@ -220,11 +211,19 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
         const QString             &roleName = it.key();
         const QPalette::ColorRole  qpRole   = it.value();
         const ThemeManager::ThemeToken token = tokenNameCache.value(roleName, ThemeManager::NoRole);
-        const QColor c = sideOf(tokens, token, isDarkMode);
+        const QColor c = ThemeTokenHandler::sideOf(tokens, token, isDarkMode);
         if (!c.isValid())
             continue;
         pal.setColor(QPalette::Disabled, qpRole, ColorMath::disabled(c, baseColor));
     }
+
+    // Sets a role in the Active and Inactive groups, and its Disabled
+    // variant blended toward Base.
+    const auto setAllGroups = [&pal, &baseColor](QPalette::ColorRole role, const QColor &c) {
+        pal.setColor(QPalette::Active,   role, c);
+        pal.setColor(QPalette::Inactive, role, c);
+        pal.setColor(QPalette::Disabled, role, ColorMath::disabled(c, baseColor));
+    };
 
     // Brand-driven overlay: Highlight, HighlightedText, Link (and
     // Accent on Qt 6.6+).
@@ -248,43 +247,65 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
     // for one color must not turn unreadable on another.  Every Qt-drawn
     // selection and every delegate that paints selected text reads this
     // role, so this is the one place the selection text is checked.
-    const QColor brandPrimary = sideOf(tokens, ThemeManager::BrandPrimary, isDarkMode);
+    const QColor brandPrimary = ThemeTokenHandler::sideOf(tokens, ThemeManager::BrandPrimary, isDarkMode);
     if (brandPrimary.isValid()) {
-        QColor highlight = sideOf(tokens, ThemeManager::PaletteHighlight, isDarkMode);
+        QColor highlight = ThemeTokenHandler::sideOf(tokens, ThemeManager::PaletteHighlight, isDarkMode);
         if (!highlight.isValid())
-            highlight = sideOf(tokens, ThemeManager::PacketsSelection, isDarkMode);
+            highlight = ThemeTokenHandler::sideOf(tokens, ThemeManager::PacketsSelection, isDarkMode);
         if (!highlight.isValid())
             highlight = brandPrimary;
 
-        auto setAllGroups = [&pal, &baseColor](QPalette::ColorRole role, const QColor &c) {
-            pal.setColor(QPalette::Active,   role, c);
-            pal.setColor(QPalette::Inactive, role, c);
-            pal.setColor(QPalette::Disabled, role, ColorMath::disabled(c, baseColor));
-        };
         const QColor pinnedHighlightedText =
-                sideOf(tokens, ThemeManager::PaletteHighlightedText, isDarkMode);
-        setAllGroups(QPalette::HighlightedText, ColorMath::readableText(
-                pinnedHighlightedText.isValid() ? pinnedHighlightedText
-                                                : ColorMath::contrastingText(highlight),
-                highlight));
+                ThemeTokenHandler::sideOf(tokens, ThemeManager::PaletteHighlightedText, isDarkMode);
+        const QColor highlightedTextSource = pinnedHighlightedText.isValid()
+                ? pinnedHighlightedText : ColorMath::contrastingText(highlight);
+        QColor highlightedText;
+        if (ratios.level == ThemeContrast::High) {
+            // High contrast: readability wins over the theme's pinned
+            // selection.  The text is lifted first; when it cannot reach
+            // body-text contrast the highlight gives way, and the link
+            // below follows the moved highlight.
+            const ColorMath::TextOnFill selection = ColorMath::readableOnFill(
+                    highlightedTextSource, highlight, ratios.readableText);
+            highlightedText = selection.text;
+            highlight = selection.fill;
+        } else {
+            highlightedText = ColorMath::readableText(highlightedTextSource, highlight, ratios);
+        }
+        setAllGroups(QPalette::HighlightedText, highlightedText);
         setAllGroups(QPalette::Highlight, highlight);
         // Links follow the selection color.  Link text is drawn on Base,
         // so a dark selection color must be lifted until it stays
         // readable there in either scheme.
-        setAllGroups(QPalette::Link, ColorMath::readableText(highlight, baseColor));
+        setAllGroups(QPalette::Link, ColorMath::readableText(highlight, baseColor, ratios));
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
         setAllGroups(QPalette::Accent, brandPrimary);
 #endif
     }
 
-    return pal;
-}
+    // High contrast: the roles a theme cannot pin are derived from the
+    // theme's own colors, so a platform baseline (such as a Windows
+    // high-contrast scheme) does not mix its colors into the theme.
+    // Buttons and tooltips take the window surface with readable window
+    // text, placeholder text is Text faded halfway into Base and lifted
+    // to the large-text ratio, and the bevel roles keep the non-text
+    // ratio from the window.
+    if (ratios.level == ThemeContrast::High) {
+        const QColor window     = pal.color(QPalette::Active, QPalette::Window);
+        const QColor windowText = pal.color(QPalette::Active, QPalette::WindowText);
+        const QColor windowTextReadable = ColorMath::readableText(windowText, window, ratios);
+        setAllGroups(QPalette::Button,      window);
+        setAllGroups(QPalette::ButtonText,  windowTextReadable);
+        setAllGroups(QPalette::ToolTipBase, window);
+        setAllGroups(QPalette::ToolTipText, windowTextReadable);
+        setAllGroups(QPalette::PlaceholderText, ColorMath::ensureContrast(
+                ColorMath::mix(baseColor, pal.color(QPalette::Active, QPalette::Text), 0.5),
+                baseColor, ratios.largeText));
+        for (QPalette::ColorRole role : { QPalette::Dark, QPalette::Shadow }) {
+            setAllGroups(role, ColorMath::ensureContrast(pal.color(QPalette::Active, role),
+                                                         window, ratios.nonText));
+        }
+    }
 
-void ThemePaletteBuilder::apply(const TokenMap                                     &tokens,
-                                bool                                                isDarkMode,
-                                const QHash<QString, ThemeManager::ThemeToken>     &tokenNameCache,
-                                const QHash<QString, QPalette::ColorRole>          &paletteRoleCache,
-                                const QPalette                                     &osBaseline)
-{
-    QApplication::setPalette(build(tokens, isDarkMode, tokenNameCache, paletteRoleCache, osBaseline));
+    return pal;
 }

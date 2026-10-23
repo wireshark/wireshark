@@ -153,6 +153,16 @@ typedef enum {
 
 
 /**
+ * @brief Contrast level the user selected for the Qt theme.
+ */
+typedef enum {
+    GUI_CONTRAST_SYSTEM,   /**< Follow the operating system contrast setting */
+    GUI_CONTRAST_STANDARD, /**< Standard contrast */
+    GUI_CONTRAST_HIGH      /**< High contrast */
+} gui_contrast_e;
+
+
+/**
  * @brief Persisted GUI state and preferences restored across Wireshark sessions.
  */
 typedef struct recent_settings_tag {
@@ -265,6 +275,14 @@ typedef struct recent_settings_tag {
      * per-profile preference gui.color_scheme.
      */
     int      gui_color_scheme;
+
+    /**
+     * Selected contrast level (GUI_CONTRAST_SYSTEM / _STANDARD / _HIGH).
+     * Lives in recent_common so the choice is global and persists across
+     * profile switches, mirroring gui_color_scheme.  A theme that declares
+     * high contrast is shown in high contrast regardless of this value.
+     */
+    int      gui_contrast;
     bool     gui_welcome_page_sidebar_tips_slides_test;    /**< True if test/debug slides are included in the banner rotation */
 
 } recent_settings_t;

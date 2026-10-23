@@ -915,6 +915,11 @@ image::images/ws-pref-appearance-theme-and-font.png[{screenshot-attrs}]
 The _Appearance mode_ setting controls whether Wireshark uses a light or a dark color scheme.
 _System_ follows the operating system setting, while _Light_ and _Dark_ force the respective scheme regardless of the system setting.
 
+The _Contrast_ setting raises the contrast of the colors Wireshark derives from the theme, such as selection, hover, separators, secondary text and links.
+_Standard_ uses the theme as designed, _High_ uses stricter contrast targets, and _System_ follows the operating system's high-contrast or increased-contrast setting (this requires Wireshark built with Qt 6.10 or later; otherwise _System_ behaves like _Standard_).
+The bundled _High Contrast_ theme always uses the high-contrast targets.
+Changing the contrast does not change the selected theme or the packet coloring rules.
+
 The _Theme_ setting selects the color theme applied to the application.
 Themes bundle the colors used throughout the GUI — including the packet list selection, marked and ignored packets, the “Follow Stream” client and server text, and valid and invalid display filter highlighting — so these colors are no longer configured individually.
 When the selected theme declares an author, it is shown below the preview.

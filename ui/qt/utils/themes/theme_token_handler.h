@@ -11,6 +11,7 @@
 #define THEME_TOKEN_HANDLER_H
 
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/color_math.h>
 
 #include <QHash>
 #include <QPalette>
@@ -48,6 +49,13 @@ public:
     using TokenMap = QHash<ThemeManager::ThemeToken, ThemeColorPair>;
 
     /**
+     * The color of @p role for one mode: the dark side when
+     * @p isDarkMode, else the light side.  Invalid when @p role is
+     * NoRole, absent from @p tokens, or has no valid color on that side.
+     */
+    static QColor sideOf(const TokenMap &tokens, ThemeManager::ThemeToken role, bool isDarkMode);
+
+    /**
      * Enriches `tokens` in-place with every derived role.
      *
      * @param tokens     Map populated from theme.jsonc parsing.
@@ -69,8 +77,13 @@ public:
      *                   tokens must be ready before that call).
      *                   Defaults to QApplication::palette() for
      *                   backwards-compatible call sites.
+     * @param ratios     The contrast ratio set every derivation targets.
+     *                   Passed explicitly rather than read from
+     *                   ColorMath::activeRatios(), so a preview can
+     *                   derive for a contrast level that is not applied.
      */
-    static void deriveAll(TokenMap &tokens, bool isDarkMode, const QPalette &palette);
+    static void deriveAll(TokenMap &tokens, bool isDarkMode, const QPalette &palette,
+                          const ColorMath::ContrastRatios &ratios);
 };
 
 #endif /* THEME_TOKEN_HANDLER_H */

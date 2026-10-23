@@ -15,15 +15,22 @@
 #include <QColor>
 
 /**
- * Pure color-math helpers, independent of the running app's theme or
- * palette.
+ * Pure color-math helpers, with two deliberate couplings to the running
+ * theme:
  *
- * Every method is static and side-effect-free except
- * contrastingText(QColor) which — when the surface has alpha — asks
- * ThemeManager for the current app mode to pick a fallback backdrop.
- * That coupling is deliberate: the caller wants "the right foreground
- * for this translucent surface as rendered right now", which is a
- * theme-runtime question.
+ *   - contrastingText(QColor), when the surface has alpha, asks
+ *     ThemeManager for the current app mode to pick a fallback backdrop.
+ *     The caller wants "the right foreground for this translucent
+ *     surface as rendered right now", which is a theme-runtime question.
+ *   - The active contrast ratio set.  setActiveContrast() changes it
+ *     (process-global, GUI thread; ThemeManager sets it before each
+ *     apply), and activeRatios() and every default `ratios` argument
+ *     read it, so runtime consumers follow the applied level.  Code that
+ *     may derive for another level (ThemeTokenHandler::deriveAll(),
+ *     ThemePaletteBuilder::build(), theme previews) passes a set
+ *     explicitly.
+ *
+ * Every other method is static and side-effect-free.
  */
 class ColorMath
 {
@@ -56,56 +63,106 @@ public:
      *  math helper; independent of the running app's theme. */
     static bool isDark(const QColor &color);
 
-    /** Minimum contrast ratio at which a fill reads as its own surface
-     *  next to a neighboring one: a hover tint against the selection
-     *  it is derived from, the welcome header against the window. */
-    static constexpr qreal DistinctSurfaceRatio = 1.5;
+    /**
+     * One set of derivation contrast ratios.  ratiosFor() builds the
+     * Standard and the High set; activeRatios() is the set the
+     * running theme was derived with.
+     */
+    struct ContrastRatios {
+        ThemeContrast level;    ///< The contrast level this set belongs to
+        /** Body text against its surface (WCAG AA, AAA in High). */
+        qreal readableText;
+        /** Text that may be quieter than body text: large or secondary
+         *  text such as a version label or transient state text. */
+        qreal largeText;
+        /** Non-text elements (control borders, progress fills)
+         *  against their neighbor. */
+        qreal nonText;
+        /** A divider or border line against the surface it sits on:
+         *  separators on Base, card borders and lines drawn on a card. */
+        qreal divider;
+        /** A fill against a neighboring one it must read apart from: a
+         *  hover tint against the selection it is derived from, the
+         *  welcome header against the window. */
+        qreal distinctSurface;
+        /** A raised card against Base in dark mode.  Softer than
+         *  distinctSurface: a card is a grouping, not a state.  Light
+         *  mode needs no lift, because the card border sets the card
+         *  apart on a light base. */
+        qreal cardSurfaceDark;
+        /** A contrast-adapted icon glyph against the surface it is
+         *  drawn on. */
+        qreal icon;
+    };
 
-    /** Minimum contrast ratio for body text against its surface
-     *  (WCAG AA). */
-    static constexpr qreal ReadableTextRatio = 4.5;
+    /** The ratio set for a contrast level. */
+    static constexpr ContrastRatios ratiosFor(ThemeContrast level)
+    {
+        const bool high = level == ThemeContrast::High;
+        ContrastRatios r {};
+        r.level           = level;
+        r.readableText    = high ? ReadableTextRatioHigh    : ReadableTextRatio;
+        r.largeText       = high ? LargeTextRatioHigh       : LargeTextRatio;
+        r.nonText         = high ? NonTextRatioHigh         : NonTextRatio;
+        r.divider         = high ? DividerRatioHigh         : DividerRatio;
+        r.distinctSurface = high ? DistinctSurfaceRatioHigh : DistinctSurfaceRatio;
+        r.cardSurfaceDark = high ? CardSurfaceRatioDarkHigh : CardSurfaceRatioDark;
+        r.icon            = high ? IconContrastRatioHigh    : IconContrastRatio;
+        return r;
+    }
 
-    /** Minimum contrast ratio at which a raised card reads as its own
-     *  surface on Base in dark mode.  Softer than DistinctSurfaceRatio:
-     *  a card is a grouping, not a state.  Light mode needs no lift,
-     *  because the card border sets the card apart on a light base. */
-    static constexpr qreal CardSurfaceRatioDark = 1.25;
+    /** The ratio set of the applied contrast level (Standard until
+     *  setActiveContrast() is called).  GUI thread only. */
+    static const ContrastRatios &activeRatios();
 
-    /** Minimum contrast ratio of a divider or border line against the
-     *  surface it sits on: separators on Base, card borders and lines
-     *  drawn on a card. */
-    static constexpr qreal DividerRatio = 1.6;
+    /** Make the ratio set of @p level the active one.  Called by
+     *  ThemeManager before it derives the palette and tokens. */
+    static void setActiveContrast(ThemeContrast level);
 
-    /** WCAG minimum contrast ratio for non-text elements (control
-     *  borders, progress fills) against their neighbor. */
-    static constexpr qreal NonTextRatio = 3.0;
+    /** A text color and the fill it is drawn on. */
+    struct TextOnFill {
+        QColor text;
+        QColor fill;
+    };
 
-    /** Minimum contrast ratio for text that may be quieter than
-     *  body text: large or secondary text such as a version label
-     *  or transient state text (WCAG AA for large text). */
-    static constexpr qreal LargeTextRatio = 3.0;
+    /** `text` lifted to `minRatio` against `fill`; when it cannot get
+     *  there, `fill` moves away from the lifted text until the pair
+     *  reads at `minRatio`. */
+    static TextOnFill readableOnFill(const QColor &text, const QColor &fill, qreal minRatio);
 
-    /** Default minimum contrast ratio of a contrast-adapted icon
-     *  glyph against the surface it is drawn on.  Tuned for icon
-     *  visibility without shifting colors too far. */
-    static constexpr qreal IconContrastRatio = 1.6;
+    /** `fill` unchanged when its contrastingText() reads on it at the
+     *  set's readableText ratio, else moved away from that text until
+     *  it does. */
+    static QColor readableFill(const QColor &fill, const ContrastRatios &ratios = activeRatios());
+
+    /** Hover fill and text for an item view: the fill is
+     *  selectionHoverFill(), the text `text` made readable on it.  In
+     *  High the fill moves toward readability of `text` as long as it
+     *  stays distinct from `selection`. */
+    static TextOnFill selectionHover(const QColor &base, const QColor &selection,
+                                     const QColor &text,
+                                     const ContrastRatios &ratios = activeRatios());
 
     /** Hover fill for an item view, derived from that view's own
      *  selection color so the view uses one highlight hue.  A 55 % tint
      *  of `selection` over `base`, pushed away from `selection` until
-     *  the two are DistinctSurfaceRatio apart, so a hovered row never
-     *  reads as a second selection.  Dark selections sit too close to
-     *  the base for any in-between tint to be distinct from both, so in
-     *  dark schemes the fill ends up lighter than the selection. */
-    static QColor selectionHoverFill(const QColor &base, const QColor &selection);
+     *  the two are the set's distinctSurface ratio apart, so a hovered
+     *  row never reads as a second selection.  Dark selections sit too
+     *  close to the base for any in-between tint to be distinct from
+     *  both, so in dark schemes the fill ends up lighter than the
+     *  selection. */
+    static QColor selectionHoverFill(const QColor &base, const QColor &selection,
+                                     const ContrastRatios &ratios = activeRatios());
 
-    /** `text` lifted to ReadableTextRatio against `surface`;
+    /** `text` lifted to the set's readableText ratio against `surface`;
      *  returned unchanged when it already reads. */
-    static QColor readableText(const QColor &text, const QColor &surface);
+    static QColor readableText(const QColor &text, const QColor &surface,
+                               const ContrastRatios &ratios = activeRatios());
 
-    /** True when `text` already reaches ReadableTextRatio against
-     *  `surface`, i.e. readableText() would return it unchanged. */
-    static bool isReadable(const QColor &text, const QColor &surface);
+    /** True when `text` already reaches the set's readableText ratio
+     *  against `surface`, i.e. readableText() would return it unchanged. */
+    static bool isReadable(const QColor &text, const QColor &surface,
+                           const ContrastRatios &ratios = activeRatios());
 
     // ---------------------------------------------------------------
     // Mix / shade
@@ -148,6 +205,10 @@ public:
     static QColor         contrastingText(const QColor &surface);
     static ThemeColorPair contrastingText(const ThemeColorPair &pair);
 
+    /** `surface` composited over the opaque `backdrop` with the "over"
+     *  operator; an opaque `surface` is returned unchanged. */
+    static QColor         compositeOver(const QColor &surface, const QColor &backdrop);
+
     /** Same as contrastingText(), but with the caller supplying the
      *  backdrop explicitly — useful when rendering onto a known
      *  surface (e.g. the welcome header bar) rather than the
@@ -161,6 +222,27 @@ public:
     /** Subtle hover tint: mix(color, background, 0.1). */
     static QColor         hoverBg(const QColor &c, const QColor &background);
     static ThemeColorPair hoverBg(const ThemeColorPair &p, const QColor &background);
+
+private:
+    // The ratio values behind ratiosFor().  Private so that every
+    // consumer goes through a ContrastRatios set and follows the
+    // active contrast level.  The ...High siblings are the high
+    // contrast targets: WCAG AAA for text (7:1 body, 4.5:1 large
+    // text) and stronger non-text, divider and surface distances.
+    static constexpr qreal DistinctSurfaceRatio = 1.5;
+    static constexpr qreal DistinctSurfaceRatioHigh = 3.0;
+    static constexpr qreal ReadableTextRatio = 4.5;
+    static constexpr qreal ReadableTextRatioHigh = 7.0;
+    static constexpr qreal CardSurfaceRatioDark = 1.25;
+    static constexpr qreal CardSurfaceRatioDarkHigh = 1.6;
+    static constexpr qreal DividerRatio = 1.6;
+    static constexpr qreal DividerRatioHigh = 3.0;
+    static constexpr qreal NonTextRatio = 3.0;
+    static constexpr qreal NonTextRatioHigh = 4.5;
+    static constexpr qreal LargeTextRatio = 3.0;
+    static constexpr qreal LargeTextRatioHigh = 4.5;
+    static constexpr qreal IconContrastRatio = 1.6;
+    static constexpr qreal IconContrastRatioHigh = 4.5;
 };
 
 #endif /* COLOR_MATH_H */

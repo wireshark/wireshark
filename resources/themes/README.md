@@ -15,7 +15,9 @@ resources/themes/
         images/             ← theme-specific images (optional, future)
     stratoshark/            ← built-in Stratoshark theme (Cloud teal)
         theme.jsonc
-    inverted/               ← diagnostic high-contrast theme
+    inverted/               ← diagnostic inverted-color theme
+        theme.jsonc
+    high-contrast/          ← high contrast theme (High ratio set)
         theme.jsonc
     protan-deutan/          ← color vision theme: protanopia & deuteranopia
         theme.jsonc
@@ -54,7 +56,7 @@ appears in the *Theme* dropdown under *Preferences → Appearance*.
 ```
 $HOME/.local/lib/wireshark/themes/
     midnight.jsonc      ← internal name "midnight"
-    high-contrast.jsonc ← internal name "high-contrast"
+    solarized.jsonc     ← internal name "solarized"
 ```
 
 ### Conflict resolution
@@ -152,48 +154,49 @@ Other tokens derived from the palette when a theme does not pin them:
 - Ignored and hidden packet text fade `palette.windowText` toward
   `palette.base` (50 % and 40 %), so they stay readable on any background.
 - `muted` text is `palette.text` faded 40 % toward `palette.base`, raised to
-  at least 4.5:1 contrast against `palette.base`.
-- The selection color of lists, the packet details tree, the bytes pane
-  and the welcome header (`palette.highlight`) falls back to
-  `packets.selection`, then `brand.primary`.  Links (`palette.link`)
-  follow it, raised to at least 4.5:1 contrast against `palette.base`.
+  at least the readable text ratio against `palette.base`.
+- The selection color of lists, the packet details tree, the bytes pane and
+  the welcome header (`palette.highlight`) falls back to
+  `packets.selection`, then `brand.primary`.  Links (`palette.link`) follow
+  it, raised to at least the readable text ratio against `palette.base`.
 - Selection text (`palette.highlightedText`, `packets.selectionText`,
   `packets.inactiveText`, `packets.markedText`), pinned or derived, is
-  raised to at least 4.5:1 contrast against its own background.
+  raised to at least the readable text ratio against its own background.
 - The accent alias `HighlightColorOrange` (search match highlight) follows
   `accent.warning`.
 - The text on the filter validity tints (`TextOnFilterValid`,
   `TextOnFilterInvalid`, `TextOnFilterDeprecated`) is the
   `contrastingText()` of the matching `filter` tint, black or white.
 - Cards (the welcome page Learn card) use `CardBackground`:
-  `palette.alternateBase` when the theme sets it, else `palette.base`,
-  moved to at least 1.25:1 contrast against `palette.base` in dark
-  themes, and used unchanged in light themes, where the border sets the
-  card apart from the page. Their border and the lines on them (`CardBorder`)
-  start from the separator, moved to at least 1.6:1 against the card.
-  Section headers and the keyboard focus ring on the card are raised to
-  at least 4.5:1 against it. In dark themes, links on the card are raised far
-  enough that they read at 4.5:1 on the list hover fill computed on the
-  card; where that is not possible, the fill is moved toward the card
-  until they do. In light themes, links keep `palette.link`, raised only
-  to 4.5:1 against the card if needed, and the hover fill is moved toward
-  the card until they read at 3:1 on it.
+  `palette.alternateBase` when the theme sets it, else `palette.base`, moved
+  to at least the dark card surface ratio against `palette.base` in dark
+  themes, and used unchanged in light themes, where the border sets the card
+  apart from the page. Their border and the lines on them (`CardBorder`)
+  start from the separator, moved to at least the divider ratio against the
+  card. Section headers and the keyboard focus ring on the card are raised
+  to at least the readable text ratio against it. In dark themes, links on
+  the card are raised far enough that they read at the readable text ratio
+  on the list hover fill computed on the card; where that is not possible,
+  the fill is moved toward the card until they do. In light themes, links
+  keep `palette.link`, raised only to the readable text ratio against the
+  card if needed, and the hover fill is moved toward the card until they
+  read at the large text ratio on it.
 - Overlay cards (the startup progress card) use the lighter of
-  `palette.base` and the card background, with their own border at
-  1.6:1. The progress fill is `brand.primary` raised to at least 3:1
-  against the track.
-- JSON keys (`SyntaxKey`) use `palette.mid` raised to at least 4.5:1
-  against `palette.base`.
-- The Learn card's Donate button is filled with `accent.error`,
-  darkened until its white label reads at 4.5:1 (dark-mode accents
-  become deeper); hover and pressed darken further. Changing
-  `accent.error` therefore recolors that button.
+  `palette.base` and the card background, with their own border at the
+  divider ratio. The progress fill is `brand.primary` raised to at least the
+  non-text ratio against the track.
+- JSON keys (`SyntaxKey`) use `palette.mid` raised to at least the readable
+  text ratio against `palette.base`.
+- The Learn card's Donate button is filled with `accent.error`, darkened
+  until its white label reads at the readable text ratio (dark-mode accents
+  become deeper); hover and pressed darken further. Changing `accent.error`
+  therefore recolors that button.
 
 #### `separator` (optional) — hairline divider colour
 
 Single `{light, dark}` pair used for dividers between sections. When
 omitted, derived as a 53 % mix of `palette.base` toward `palette.mid`,
-raised to at least 1.6:1 contrast against `palette.base`; a pin is used
+raised to at least the divider ratio against `palette.base`; a pin is used
 as written. Themes whose `palette.mid` doubles as muted text (e.g.
 Stratoshark) should set this explicitly to a softer value.
 
@@ -203,6 +206,7 @@ Stratoshark) should set this explicitly to a softer value.
 |---------|--------|----------|-------------|
 | `meta`  | object | yes      | Theme metadata (see below) |
 | `colors`| object | yes      | Nested color definitions |
+| `contrast` | string | no    | `standard` (default) or `high`; `high` forces the high-contrast ratios for this theme (see Contrast) |
 
 ### `meta` — Theme metadata
 
@@ -241,12 +245,64 @@ the current appearance:
 Many tokens are not keys in `theme.jsonc` but are derived at load time
 from the theme's inputs, for example:
 
-- `HeaderBackground`: the palette Highlight darkened 40 %, kept at least
-  1.5:1 from the window and at least 4.5:1 from its title text.
+- `HeaderBackground`: the palette Highlight darkened 40 %, kept at least the
+  distinct surface ratio from the window and at least the readable text
+  ratio from its title text.
 - `HeaderText` / `HeaderTextMuted`: the welcome header title and version
   colors (HighlightedText when it reads on the bar, else black or white;
-  the version label faded toward the bar, at least 3.0:1).
+  the version label faded toward the bar, at least the large text ratio).
 - `UpdateBackground`: `accent.success` darkened 60 %.
+
+### Contrast
+
+Many colors are derived from the theme (see the bullets above) and are held
+to minimum contrast ratios. Two ratio sets exist, *Standard* and *High*.
+The named ratios below are what the derivation bullets refer to.
+
+| Ratio | Standard | High |
+|-------|----------|------|
+| readable text | `4.5:1` | `7.0:1` |
+| large text | `3.0:1` | `4.5:1` |
+| non-text | `3.0:1` | `4.5:1` |
+| divider | `1.6:1` | `3.0:1` |
+| distinct surface | `1.5:1` | `3.0:1` |
+| dark card surface | `1.25:1` | `1.6:1` |
+| icon | `1.6:1` | `4.5:1` |
+
+The top-level `"contrast"` field (`"standard"` or `"high"`, default
+`"standard"`) lets a theme require the High set. The effective level is High
+when the loaded theme declares `"contrast": "high"`, or the *Contrast*
+preference (*Preferences → Appearance*) is *High*, or the preference is
+*System* and the operating system reports a high-contrast setting. The
+preference never rewrites the selected theme. Detecting the operating system
+setting requires Wireshark built with Qt 6.10 or later; with older Qt
+versions *System* behaves like *Standard*. Older versions of Wireshark ignore
+the field and load the theme as a normal theme.
+
+In High:
+
+- Derived colors use the High column above; pinned colors are used as
+  written unless a rule below moves them.
+- Text on selection, hover, filter tints, expert severities, conversation
+  colors, the welcome header and the update bar is lifted to the readable
+  text ratio; when that is out of reach for the text, the fill moves instead.
+- Ignored and hidden packet text, and the busy filter text, are lifted
+  against their background.
+- The selection hover fill is moved to the distinct surface ratio, and its
+  text switches to black or white when the view text cannot reach the
+  readable text ratio on it.
+- Palette roles a theme cannot set (button, tooltip, placeholder text,
+  shadow) come from theme tokens, never from the operating system's
+  high-contrast colors.
+- Button, combo box and line edit frames use the `FieldBorder` color with
+  the Fusion style; the macOS and Windows 11 styles keep their native frames.
+
+Two cases are unreachable at the High ratios and the readable text wins: the
+welcome header bar in dark themes cannot be both the distinct surface ratio
+from a near-black window and the readable text ratio from a white title (the
+title wins, the bar has no border), and the Learn card buttons (white label at
+the readable text ratio) stay closer than the distinct surface ratio to a dark
+card.
 
 ## Color sections reference
 

@@ -645,7 +645,8 @@ public:
      * Used by this view's drawRow() and the pinned overlay views' drawRow()
      * overrides, so all three show the same fill. The fill is derived from
      * the selection color currently in use (active or inactive, following
-     * focus like the selection itself), see ColorMath::selectionHoverFill().
+     * focus like the selection itself), see ColorMath::selectionHover(). In high
+     * contrast the text may switch to black or white.
      *
      * @param painter The painter drawRow() received.
      * @param view The view being painted (this, or a pinned overlay view).

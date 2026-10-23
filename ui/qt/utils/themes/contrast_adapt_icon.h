@@ -32,6 +32,10 @@
  * nudging only lightness (hue preserved) and only when a colour falls below the
  * target ratio.  Multi-colour and per-state colours survive; the code merely
  * guarantees the icon stays legible whatever the theme paints behind it.
+ * minContrast is the icon ratio of the active contrast level
+ * (ColorMath::activeRatios()), so high contrast adapts the drawn colours
+ * further.  Colours bound to a theme token (see below) are not adapted at
+ * either level.
  *
  * The background is resolved from QIcon::Mode (see contrast_adapt_icon.cpp for
  * why it must be), so theme/light-dark changes re-render automatically via the
@@ -72,8 +76,9 @@ public:
      *        QPalette::Base for icons inside item views.
      * @param size Nominal render size used when a null size is asked.
      *
-     * The minimum contrast ratio is not a per-call parameter — it is a global
-     * default (see setDefaultMinContrast()).
+     * The minimum contrast ratio is not a per-call parameter: it is the icon
+     * ratio of the active contrast level (ColorMath::activeRatios()), read at
+     * render time, so a contrast level change re-renders the icon.
      */
     explicit ContrastAdaptIcon(const QString &svg_resource_path,
                                QPalette::ColorRole surface_role = QPalette::Window,
@@ -99,19 +104,6 @@ public:
         QString path = QStringLiteral(":/svg_icons/") + QLatin1String(name) + QStringLiteral(".svg");
         *this = ContrastAdaptIcon(path, QPalette::Window);
     }
-
-    /**
-     * @brief Minimum WCAG contrast ratio every ContrastAdaptIcon holds against
-     *        its background.
-     *
-     * A single global knob rather than a per-call argument: defaults to
-     * ColorMath::IconContrastRatio (tuned for icon visibility without shifting
-     * colours too far) and is captured by each icon when it is constructed, so
-     * set it once at start-up before icons are created.  Higher values shift
-     * colours more aggressively.
-     */
-    static void  setDefaultMinContrast(qreal ratio);
-    static qreal defaultMinContrast();
 
     /**
      * @brief Set a custom palette for drawing this icon instead of the application palette.

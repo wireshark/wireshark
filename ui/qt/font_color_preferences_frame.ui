@@ -64,6 +64,16 @@
          </widget>
         </item>
         <item row="0" column="2">
+         <widget class="QLabel" name="contrastLabel">
+          <property name="text">
+           <string>Contrast:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QComboBox" name="contrastComboBox"/>
+        </item>
+        <item row="0" column="4">
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>
@@ -86,7 +96,7 @@
         <item row="1" column="1">
          <widget class="QComboBox" name="themeComboBox"/>
         </item>
-        <item row="1" column="2">
+        <item row="1" column="2" colspan="3">
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>
