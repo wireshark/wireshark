@@ -1703,6 +1703,28 @@ void wslua_init(register_cb cb, void *client_data) {
 #else
         L = lua_newstate(wslua_allocf, NULL);
 #endif
+
+#if LUA_VERSION_NUM >= 505
+        // Many of our per-packet objects (Tvb, TvbRange, Pinfo, etc.) are
+        // short-lived full userdata with __gc metamethods. In incremental
+        // mode Lua 5.5 does not keep up with them: an object with a
+        // finalizer takes two collection cycles to free, and the pause
+        // before the next cycle is based on the inflated heap size, so
+        // memory use grows with the number of packets dissected (#21672).
+        // Lua 5.4 also has this problem, but not on our dedicated
+        // per-call threads.
+        //
+        // Generational mode keeps the heap small in both versions.
+        // If this is ever extended to Lua 5.4, it must only be done for
+        // 5.4.5 and later; earlier 5.4 releases have several bugs in
+        // generational collection (see https://www.lua.org/bugs.html).
+        // In 5.4 LUA_GCGEN takes two additional int parameters (0 for
+        // the defaults); in 5.5 it takes none.
+        //
+        // XXX - Remove this once the per-packet objects no longer need
+        // finalizers.
+        lua_gc(L, LUA_GCGEN);
+#endif
     }
 
     WSLUA_INIT(L);
