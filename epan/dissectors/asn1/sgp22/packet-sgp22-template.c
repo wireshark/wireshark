@@ -13,9 +13,11 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 
 #include "packet-ber.h"
+#include "packet-e212.h"
 #include "packet-media-type.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
@@ -28,13 +30,21 @@ static int proto_sgp22;
 static int hf_sgp22_tag_len1;
 static int hf_sgp22_tag_len2;
 static int hf_sgp22_tag_01;
+static int hf_sgp22_bsp_payload;
+static int hf_sgp22_bsp_mac;
+static int hf_sgp22_bsp_reassembled;
 #include "packet-sgp22-hf.c"
 
 static int ett_sgp22;
 static int ett_sgp22_tagList;
+static int ett_sgp22_bsp_segment;
+static int ett_sgp22_mccMnc;
 #include "packet-sgp22-ett.c"
 
+static expert_field ei_sgp22_bsp_segment_short;
+
 static dissector_handle_t sgp22_handle;
+static dissector_table_t sgp22_request_table;
 
 static const value_string sgp22_tag_vals[] = {
   { 0x4F, "isdpAid" },
@@ -76,6 +86,83 @@ static int dissect_sgp22_taglist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   }
 
   return offset;
+}
+
+/* A BoundProfilePackage part is split into segments of at most 1020 bytes without regard
+ * to its content (SGP.22 2.5.3), each carrying a trailing 8 byte C-MAC (SGP.22 2.6.4.4). */
+#define SGP22_BSP_MAC_LEN 8
+
+enum {
+  SGP22_BSP_SEQ_FIRST_87,
+  SGP22_BSP_SEQ_88,
+  SGP22_BSP_SEQ_SECOND_87,
+  SGP22_BSP_SEQ_86,
+  SGP22_BSP_SEQ_MAX
+};
+
+typedef struct {
+  proto_tree *tree[SGP22_BSP_SEQ_MAX];
+  wmem_array_t *payload[SGP22_BSP_SEQ_MAX];
+} sgp22_bpp_t;
+
+static void sgp22_bsp_add_segment(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, unsigned seq)
+{
+  sgp22_bpp_t *bpp = (sgp22_bpp_t *)actx->private_data;
+  proto_tree *subtree;
+  tvbuff_t *payload;
+  int len;
+
+  if (!tvb || !bpp) {
+    return;
+  }
+
+  len = tvb_reported_length(tvb);
+  if (len <= SGP22_BSP_MAC_LEN) {
+    expert_add_info(actx->pinfo, actx->created_item, &ei_sgp22_bsp_segment_short);
+    return;
+  }
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_sgp22_bsp_segment);
+  proto_tree_add_item(subtree, hf_sgp22_bsp_payload, tvb, 0, len - SGP22_BSP_MAC_LEN, ENC_NA);
+  proto_tree_add_item(subtree, hf_sgp22_bsp_mac, tvb, len - SGP22_BSP_MAC_LEN, SGP22_BSP_MAC_LEN, ENC_NA);
+
+  if (!bpp->payload[seq]) {
+    bpp->payload[seq] = wmem_array_new(actx->pinfo->pool, sizeof(tvbuff_t *));
+  }
+  payload = tvb_new_subset_length(tvb, 0, len - SGP22_BSP_MAC_LEN);
+  wmem_array_append_one(bpp->payload[seq], payload);
+  bpp->tree[seq] = tree;
+}
+
+static void sgp22_bsp_reassemble(asn1_ctx_t *actx, sgp22_bpp_t *bpp)
+{
+  for (unsigned seq = 0; seq < SGP22_BSP_SEQ_MAX; seq++) {
+    wmem_array_t *segments = bpp->payload[seq];
+    tvbuff_t *next_tvb;
+    unsigned count;
+
+    if (!segments) {
+      continue;
+    }
+
+    count = wmem_array_get_count(segments);
+    if (count > 1) {
+      next_tvb = tvb_new_composite();
+      for (unsigned i = 0; i < count; i++) {
+        tvb_composite_append(next_tvb, *(tvbuff_t **)wmem_array_index(segments, i));
+      }
+      tvb_composite_finalize(next_tvb);
+      add_new_data_source(actx->pinfo, next_tvb, "Reassembled BSP");
+      proto_tree_add_item(bpp->tree[seq], hf_sgp22_bsp_reassembled, next_tvb, 0, -1, ENC_NA);
+    } else {
+      next_tvb = *(tvbuff_t **)wmem_array_index(segments, 0);
+    }
+
+    if ((seq == SGP22_BSP_SEQ_88) && (tvb_reported_length(next_tvb) > 2)) {
+      /* The '88' segments are MACed only, not encrypted (SGP.22 2.5.4.3). */
+      dissector_try_uint(sgp22_request_table, tvb_get_ntohs(next_tvb, 0), next_tvb, actx->pinfo, bpp->tree[seq]);
+    }
+  }
 }
 
 #include "packet-sgp22-fn.c"
@@ -123,22 +210,46 @@ void proto_register_sgp22(void)
       { "Tag", "sgp22.tag_01",
         FT_UINT8, BASE_HEX, VALS(sgp22_tag_01_vals), 0,
         NULL, HFILL }},
+    { &hf_sgp22_bsp_payload,
+      { "BSP payload", "sgp22.bsp.payload",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sgp22_bsp_mac,
+      { "BSP C-MAC", "sgp22.bsp.mac",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sgp22_bsp_reassembled,
+      { "Reassembled BSP", "sgp22.bsp.reassembled",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 #include "packet-sgp22-hfarr.c"
   };
 
   static int *ett[] = {
     &ett_sgp22,
     &ett_sgp22_tagList,
+    &ett_sgp22_bsp_segment,
+    &ett_sgp22_mccMnc,
 #include "packet-sgp22-ettarr.c"
   };
+
+  static ei_register_info ei[] = {
+    { &ei_sgp22_bsp_segment_short,
+      { "sgp22.bsp.segment_too_short", PI_MALFORMED, PI_ERROR,
+        "BSP segment is too short to hold a C-MAC", EXPFILL }},
+  };
+
+  expert_module_t *expert_sgp22;
 
   proto_sgp22 = proto_register_protocol("SGP.22 GSMA Remote SIM Provisioning (RSP)", "SGP.22", "sgp22");
   proto_register_field_array(proto_sgp22, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_sgp22 = expert_register_protocol(proto_sgp22);
+  expert_register_field_array(expert_sgp22, ei, array_length(ei));
 
   sgp22_handle = register_dissector("sgp22", dissect_sgp22, proto_sgp22);
 
-  register_dissector_table("sgp22.request", "SGP.22 Request", proto_sgp22, FT_UINT16, BASE_HEX);
+  sgp22_request_table = register_dissector_table("sgp22.request", "SGP.22 Request", proto_sgp22, FT_UINT16, BASE_HEX);
   register_dissector_table("sgp22.response", "SGP.22 Response", proto_sgp22, FT_UINT16, BASE_HEX);
 }
 
