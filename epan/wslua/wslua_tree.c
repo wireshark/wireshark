@@ -374,6 +374,10 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     ett = field->ett;
 
     tvbr = shiftTvbRange(L,1);
+    if (tvbr && tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
     if (!tvbr) {
         /* No TvbRange specified */
         tvbr = wmem_new(lua_pinfo->pool, struct _wslua_tvbrange);
@@ -476,6 +480,10 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
     }
 
     tvbr = shiftTvbRange(L,1);
+    if (tvbr && tvbr->tvb->expired) {
+        THROW_LUA_ERROR("expired tvb");
+        return 0;
+    }
 
     if (!tvbr) {
         tvbr = wmem_new(lua_pinfo->pool, struct _wslua_tvbrange);
@@ -932,6 +940,10 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
     }
 
     tvbr = shiftTvbRange(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
+    if (tvbr && tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
 
     if (!tvbr) {
         tvbr = wmem_new(lua_pinfo->pool, struct _wslua_tvbrange);
