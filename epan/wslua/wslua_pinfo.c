@@ -197,9 +197,6 @@ static int PrivateTable__gc(lua_State* L) {
     if (!priv->expired) {
         priv->expired = true;
     } else {
-        if (priv->is_allocated) {
-            g_hash_table_destroy (priv->table);
-        }
         g_free(priv);
     }
 
@@ -452,20 +449,32 @@ static int Pinfo_get_columns(lua_State *L) {
 }
 
 /* WSLUA_ATTRIBUTE Pinfo_private RO Access to the private table entries. */
+static bool
+private_table_free_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+{
+    packet_info *pinfo = (packet_info*)user_data;
+
+    g_hash_table_destroy(pinfo->private_table);
+    pinfo->private_table = NULL;
+
+    return false;
+}
+
 static int Pinfo_get_private(lua_State *L) {
     PrivateTable priv = NULL;
     Pinfo pinfo = checkPinfo(L,1);
     const char* privname = luaL_optstring(L,2,NULL);
-    bool is_allocated = false;
 
     if (!pinfo->ws_pinfo->private_table) {
         pinfo->ws_pinfo->private_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-        is_allocated = true;
+        /* Destroy it at the end of the packet; the packet_info is valid
+         * until its pool is freed. Any PrivateTable referring to it will
+         * have expired by then. */
+        wmem_register_callback(pinfo->ws_pinfo->pool, private_table_free_cb, pinfo->ws_pinfo);
     }
 
     priv = (PrivateTable)g_malloc(sizeof(struct _wslua_private_table));
     priv->table = pinfo->ws_pinfo->private_table;
-    priv->is_allocated = is_allocated;
     priv->expired = false;
 
     if (!privname) {
