@@ -240,7 +240,6 @@ def ensure_contrast(color, bg, min_ratio):
 DISTINCT_SURFACE_RATIO = _color_math_constant('DistinctSurfaceRatio')
 READABLE_TEXT_RATIO = _color_math_constant('ReadableTextRatio')
 CARD_SURFACE_RATIO_DARK = _color_math_constant('CardSurfaceRatioDark')
-CARD_SURFACE_RATIO_LIGHT = _color_math_constant('CardSurfaceRatioLight')
 DIVIDER_RATIO = _color_math_constant('DividerRatio')
 NON_TEXT_RATIO = _color_math_constant('NonTextRatio')
 LARGE_TEXT_RATIO = _color_math_constant('LargeTextRatio')
@@ -378,22 +377,30 @@ def derived_tokens(theme, mode, reference='generic'):
     filter_busy_text = explicit_filter_busy_tx or mix(text, base, 0.5)
 
     # Raised card on Base.  The source is the theme's own alternateBase
-    # pin only (never the platform palette), else Base.
+    # pin only (never the platform palette), else Base.  Dark mode lifts
+    # it away from Base; light mode uses it as-is.
     card_source = _pick(theme, 'palette', 'alternateBase', mode) or base
-    card = ensure_contrast(
-        card_source, base,
-        CARD_SURFACE_RATIO_DARK if mode == 'dark' else CARD_SURFACE_RATIO_LIGHT)
+    card = (ensure_contrast(card_source, base, CARD_SURFACE_RATIO_DARK)
+            if mode == 'dark' else card_source)
     card_border = ensure_contrast(separator, card, DIVIDER_RATIO)
     card_section_header = readable_text(section_header, card)
     card_section_header_hover = readable_text(section_header_hover, card)
-    # Link lifted against the card until it reads on the card's hover fill;
-    # the fill gives way only when the link cannot get there.
+    # Dark: link lifted against the card until it reads on the card's hover
+    # fill; the fill gives way only when the link cannot get there.
+    # Light: the link keeps the application link color (lifted only if it
+    # does not read on the card) and the hover fill moves toward the card
+    # until the link reads on it at LARGE_TEXT_RATIO.
     card_link_hover_base = selection_hover_fill(card, highlight)
-    card_link = ensure_contrast(
-        link, card,
-        READABLE_TEXT_RATIO * contrast_ratio(card_link_hover_base, card))
-    card_link_hover = ensure_contrast(
-        card_link_hover_base, card_link, READABLE_TEXT_RATIO)
+    if mode == 'dark':
+        card_link = ensure_contrast(
+            link, card,
+            READABLE_TEXT_RATIO * contrast_ratio(card_link_hover_base, card))
+        card_link_hover = ensure_contrast(
+            card_link_hover_base, card_link, READABLE_TEXT_RATIO)
+    else:
+        card_link = readable_text(link, card)
+        card_link_hover = ensure_contrast(
+            card_link_hover_base, card_link, LARGE_TEXT_RATIO)
     card_focus_ring = readable_text(highlight, card)
     overlay_card = card if luminance(card) > luminance(base) else base
     overlay_card_border = ensure_contrast(separator, overlay_card, DIVIDER_RATIO)
@@ -636,11 +643,21 @@ class TestDerivedContrast:
         assert contrast_ratio(t['filterBusyText'], t['filterBusy']) >= LARGE_TEXT_RATIO
 
     @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
-    def test_card_stands_out_from_base(self, theme_path, mode, reference):
+    def test_dark_card_stands_out_from_base(self, theme_path, mode, reference):
+        if mode != 'dark':
+            pytest.skip('light cards are not lifted')
         t = derived_tokens(_load_theme(theme_path), mode, reference)
-        ratio = (CARD_SURFACE_RATIO_DARK if mode == 'dark'
-                 else CARD_SURFACE_RATIO_LIGHT)
-        assert contrast_ratio(t['card'], t['base']) >= ratio - 1e-6
+        assert contrast_ratio(t['card'], t['base']) >= CARD_SURFACE_RATIO_DARK - 1e-6
+
+    @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
+    def test_light_card_is_pin_or_base(self, theme_path, mode, reference):
+        '''A light card is the theme's alternateBase pin or Base, never a
+        lifted gray: the border alone sets it apart from the page.'''
+        if mode != 'light':
+            pytest.skip('dark cards are lifted')
+        theme = _load_theme(theme_path)
+        t = derived_tokens(theme, mode, reference)
+        assert t['card'] == (_pick(theme, 'palette', 'alternateBase', 'light') or t['base'])
 
     @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
     def test_card_border_visible_on_card(self, theme_path, mode, reference):
@@ -664,7 +681,9 @@ class TestDerivedContrast:
     def test_card_link_readable_on_card_and_hover(self, theme_path, mode, reference):
         t = derived_tokens(_load_theme(theme_path), mode, reference)
         assert contrast_ratio(t['cardLink'], t['card']) >= READABLE_TEXT_RATIO - 1e-6
-        assert contrast_ratio(t['cardLink'], t['cardLinkHover']) >= READABLE_TEXT_RATIO - 1e-6
+        # Light hover is transient state text, held to the large-text ratio.
+        hover_ratio = READABLE_TEXT_RATIO if mode == 'dark' else LARGE_TEXT_RATIO
+        assert contrast_ratio(t['cardLink'], t['cardLinkHover']) >= hover_ratio - 1e-6
 
     @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
     def test_card_link_hover_distinct_from_card(self, theme_path, mode, reference):
@@ -697,6 +716,13 @@ class TestDerivedContrast:
         path = next(p for p in _bundled_themes() if p.parent.name == 'wireshark')
         t = derived_tokens(_load_theme(path), mode, reference)
         assert t['overlayCard'] == (t['card'] if mode == 'dark' else t['base'])
+
+    @pytest.mark.parametrize('reference', list(REFERENCE_PALETTES))
+    def test_light_card_link_is_application_link(self, reference):
+        '''Light card links keep the application link color.'''
+        path = next(p for p in _bundled_themes() if p.parent.name == 'wireshark')
+        t = derived_tokens(_load_theme(path), 'light', reference)
+        assert t['cardLink'] == t['link']
 
     @pytest.mark.parametrize('theme_path,mode,reference', _theme_mode_params())
     def test_splash_fill_visible_on_overlay_border(self, theme_path, mode, reference):

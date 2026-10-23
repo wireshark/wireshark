@@ -62,12 +62,22 @@ QFrame#learnHeaderSeparator {
  * border reserved in every state, so focusing does not
  * shift the layout; the native anchor selection is turned off so focus
  * and hover never look alike.
+ *
+ * Border and padding together are the label's text inset: 4px
+ * vertical, 10px horizontal expanded, 4px all round when collapsed
+ * (property "collapsed", set by LearnCardWidget).  Change them
+ * together, or the rows grow and the capped card clips them.
  * ----------------------------------------------------------------- */
 QLabel#learnLink {
     border: 2px solid transparent;
     border-radius: 4px;
+    padding: 2px 8px;
     selection-background-color: transparent;
     selection-color: wstheme(CardLink);
+}
+
+QLabel#learnLink[collapsed="true"] {
+    padding: 2px;
 }
 
 QLabel#learnLink:hover {

@@ -163,13 +163,17 @@ Other tokens derived from the palette when a theme does not pin them:
   `contrastingText()` of the matching `filter` tint, black or white.
 - Cards (the welcome page Learn card) use `CardBackground`:
   `palette.alternateBase` when the theme sets it, else `palette.base`,
-  moved to at least 1.25:1 (dark) or 1.11:1 (light) contrast against
-  `palette.base`. Their border and the lines on them (`CardBorder`)
+  moved to at least 1.25:1 contrast against `palette.base` in dark
+  themes, and used unchanged in light themes, where the border sets the
+  card apart from the page. Their border and the lines on them (`CardBorder`)
   start from the separator, moved to at least 1.6:1 against the card.
   Section headers and the keyboard focus ring on the card are raised to
-  at least 4.5:1 against it. Links on the card are raised far enough that
-  they read at 4.5:1 on the list hover fill computed on the card; where
-  that is not possible, the fill is moved toward the card until they do.
+  at least 4.5:1 against it. In dark themes, links on the card are raised far
+  enough that they read at 4.5:1 on the list hover fill computed on the
+  card; where that is not possible, the fill is moved toward the card
+  until they do. In light themes, links keep `palette.link`, raised only
+  to 4.5:1 against the card if needed, and the hover fill is moved toward
+  the card until they read at 3:1 on it.
 - Overlay cards (the startup progress card) use the lighter of
   `palette.base` and the card background, with their own border at
   1.6:1. The progress fill is `brand.primary` raised to at least 3:1
