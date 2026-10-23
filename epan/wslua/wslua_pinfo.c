@@ -55,11 +55,9 @@ WSLUA_CLASS_DEFINE(PrivateTable,FAIL_ON_NULL_OR_EXPIRED("PrivateTable"));
 
 WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
     /* Gets debugging type information about the private table. */
-    PrivateTable priv = toPrivateTable(L,1);
+    PrivateTable priv = checkPrivateTable(L,1);
     GString *key_string;
     GList *keys, *key;
-
-    if (!priv) return 0;
 
     key_string = g_string_new ("");
     keys = g_hash_table_get_keys (priv->table);
