@@ -68,6 +68,9 @@
 	-->
 	<key>SUAutomaticallyUpdate</key>
 	<false/>
+	<!-- Require that the update be a Developer ID signed disk image -->
+	<key>SUVerifyUpdateBeforeExtraction</key>
+	<true/>
 
 	<!-- Run in compatibility mode without Liquid Glass -->
 	<key>UIDesignRequiresCompatibility</key>
