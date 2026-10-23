@@ -864,6 +864,30 @@ static int hf_ieee1905_affiliated_ap_metrics_mcast_bytes_rcvd;
 static int hf_ieee1905_affiliated_ap_metrics_bcast_bytes_sent;
 static int hf_ieee1905_affiliated_ap_metrics_bcast_bytes_rcvd;
 static int hf_ieee1905_affiliated_ap_metrics_reserved;
+static int hf_ieee1905_tid_to_link_mapping_policy_flags;
+static int hf_ieee1905_tid_to_link_mapping_policy_flags_bsta_config;
+static int hf_ieee1905_tid_to_link_mapping_policy_flags_reserved;
+static int hf_ieee1905_tid_to_link_mapping_policy_mld_mac_addr;
+static int hf_ieee1905_tid_to_link_mapping_policy_flags2;
+static int hf_ieee1905_tid_to_link_mapping_policy_flags2_ttlm_negotiation;
+static int hf_ieee1905_tid_to_link_mapping_policy_flags2_reserved;
+static int hf_ieee1905_tid_to_link_mapping_policy_reserved;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_num;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags_add;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags_reserved;
+static int hf_ieee1905_tid_to_link_mapping_policy_sta_mld_mac_addr;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_direction;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_default_link_mapping;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_mapping_switch_time_present;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_expected_duration_present;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_link_mapping_size;
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_reserved;
+static int hf_ieee1905_tid_to_link_mapping_policy_link_mapping_presence_indicator;
+static int hf_ieee1905_tid_to_link_mapping_policy_expected_duration;
+static int hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[8];
+static int hf_ieee1905_tid_to_link_mapping_policy_mapping_reserved;
 static int hf_ieee1905_eht_operations_reserved;
 static int hf_ieee1905_eht_operations_radio_num;
 static int hf_ieee1905_eht_operations_radio_id;
@@ -1130,6 +1154,12 @@ static int ett_associated_sta_mld_configuration_affiliated_sta_list;
 static int ett_associated_sta_mld_configuration_affiliated_sta;
 static int ett_mld_structure_affiliated_list;
 static int ett_mld_structure_affiliated;
+static int ett_tid_to_link_mapping_policy_flags;
+static int ett_tid_to_link_mapping_policy_flags2;
+static int ett_tid_to_link_mapping_policy_mapping_flags;
+static int ett_tid_to_link_mapping_policy_mapping_flags2;
+static int ett_tid_to_link_mapping_mapping_list;
+static int ett_tid_to_link_mapping_mapping;
 static int ett_eht_operations_radio_list;
 static int ett_eht_operations_radio;
 static int ett_eht_operations_radio_bss_list;
@@ -1465,6 +1495,7 @@ static value_string_ext ieee1905_message_type_vals_ext = VALUE_STRING_EXT_INIT(i
 #define MLD_STRUCTURE_TLV                       0xE3
 #define AFFILIATED_STA_METRICS_TLV              0xE4
 #define AFFILIATED_AP_METRICS_TLV               0xE5
+#define TID_TO_LINK_MAPPING_POLICY_TLV          0xE6
 #define EHT_OPERATIONS_TLV                      0xE7
 #define AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV  0xE8
 #define AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV 0xE9
@@ -1605,6 +1636,7 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { MLD_STRUCTURE_TLV,                       "MLD Structure" },
   { AFFILIATED_STA_METRICS_TLV,              "Affiliated STA Metrics" },
   { AFFILIATED_AP_METRICS_TLV,               "Affiliated AP Metrics" },
+  { TID_TO_LINK_MAPPING_POLICY_TLV,          "TID To Link Mapping Policy" },
   { EHT_OPERATIONS_TLV,                      "EHT Operations" },
   { AVAILABLE_SPECTRUM_INQUIRY_REQUEST_TLV,  "Available Spectrum Inquiry Request" },
   { AVAILABLE_SPECTRUM_INQUIRY_RESPONSE_TLV, "Available Spectrum Inquiry Response" },
@@ -9063,6 +9095,147 @@ dissect_affiliated_ap_metrics(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 /*
+ * Dissect a TID To Link Mapping Policy TLV:
+ */
+
+static int* const tid_to_link_mapping_policy_flags_headers[] = {
+    &hf_ieee1905_tid_to_link_mapping_policy_flags_bsta_config,
+    &hf_ieee1905_tid_to_link_mapping_policy_flags_reserved,
+    NULL
+};
+
+static int* const tid_to_link_mapping_policy_flags2_headers[] = {
+    &hf_ieee1905_tid_to_link_mapping_policy_flags2_ttlm_negotiation,
+    &hf_ieee1905_tid_to_link_mapping_policy_flags2_reserved,
+    NULL
+};
+
+static int* const tid_to_link_mapping_policy_mapping_flags_headers[] = {
+    &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags_add,
+    &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags_reserved,
+    NULL
+};
+
+static int* const tid_to_link_mapping_policy_mapping_flags2_headers[] = {
+    &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_direction,
+    &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_default_link_mapping,
+    &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_mapping_switch_time_present,
+    &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_expected_duration_present,
+    &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_link_mapping_size,
+    &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_reserved,
+    NULL
+};
+
+static const value_string tid_to_link_mapping_policy_mapping_flags2_direction_vals[] = {
+    { 0, "Downlink" },
+    { 1, "Uplink" },
+    { 2, "Downlink And Uplink" },
+    { 3, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string tid_to_link_mapping_policy_mapping_flags2_link_mapping_size_vals[] = {
+    { 0, "2 Octets" },
+    { 1, "1 Octet" },
+    { 0, NULL }
+};
+
+static int
+dissect_tid_to_link_mapping_policy_tlv(tvbuff_t *tvb, packet_info *pinfo _U_,
+        proto_tree *tree, unsigned offset, uint16_t len _U_)
+{
+    proto_tree *mapping_list = NULL;
+    proto_item *mapping_list_item = NULL;
+    uint16_t mappings_count = 0;
+    unsigned mapping_list_start = 0;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_tid_to_link_mapping_policy_flags,
+                           ett_tid_to_link_mapping_policy_flags,
+                           tid_to_link_mapping_policy_flags_headers, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee1905_tid_to_link_mapping_policy_mld_mac_addr,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee1905_tid_to_link_mapping_policy_flags2,
+                           ett_tid_to_link_mapping_policy_flags2,
+                           tid_to_link_mapping_policy_flags2_headers, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee1905_tid_to_link_mapping_policy_reserved,
+                        tvb, offset, 22, ENC_NA);
+    offset += 22;
+
+    proto_tree_add_item_ret_uint16(tree, hf_ieee1905_tid_to_link_mapping_policy_mapping_num,
+                                   tvb, offset, 2, ENC_BIG_ENDIAN, &mappings_count);
+    offset += 2;
+
+    mapping_list = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                          ett_tid_to_link_mapping_mapping_list,
+                                          &mapping_list_item, "Mapping List");
+
+    mapping_list_start = offset;
+
+    for (uint16_t i = 0; i < mappings_count; i++) {
+        proto_tree *mapping_tree = NULL;
+        proto_item *mapping_item = NULL;
+        unsigned mapping_start = offset;
+        uint8_t presence;
+
+        mapping_tree = proto_tree_add_subtree_format(mapping_list, tvb, offset,
+                                                     -1, ett_tid_to_link_mapping_mapping_list,
+                                                     &mapping_item, "Mapping %u", i);
+
+        proto_tree_add_bitmask(mapping_tree, tvb, offset,
+                               hf_ieee1905_tid_to_link_mapping_policy_mapping_flags,
+                               ett_tid_to_link_mapping_policy_mapping_flags,
+                               tid_to_link_mapping_policy_mapping_flags_headers, ENC_NA);
+        offset++;
+
+        proto_tree_add_item(mapping_tree, hf_ieee1905_tid_to_link_mapping_policy_sta_mld_mac_addr,
+                            tvb, offset, 6, ENC_NA);
+        offset += 6;
+
+        proto_tree_add_bitmask(mapping_tree, tvb, offset,
+                               hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2,
+                               ett_tid_to_link_mapping_policy_mapping_flags2,
+                               tid_to_link_mapping_policy_mapping_flags2_headers, ENC_NA);
+        offset++;
+
+        proto_tree_add_item_ret_uint8(mapping_tree, hf_ieee1905_tid_to_link_mapping_policy_link_mapping_presence_indicator,
+                                      tvb, offset, 1, ENC_NA, &presence);
+        offset++;
+
+        proto_tree_add_item(mapping_tree, hf_ieee1905_tid_to_link_mapping_policy_expected_duration,
+                            tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+
+        /* Mapping for each bit set in the presence indicator (standard is confusing about which bit is TID 0) */
+        for (uint8_t tid = 0; tid < 8; tid++) {
+            if (presence & (1 << tid)) {
+                proto_tree_add_item(mapping_tree, hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[tid],
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+            }
+
+        }
+
+        proto_tree_add_item(mapping_tree, hf_ieee1905_tid_to_link_mapping_policy_mapping_reserved,
+                        tvb, offset, 7, ENC_NA);
+        offset += 7;
+
+        proto_item_set_len(mapping_item, offset - mapping_start);
+    }
+
+    proto_item_set_len(mapping_list_item, offset - mapping_list_start);
+
+    return offset;
+}
+
+/*
  * Dissect an EHT Operations TLV:
  */
 static int* const eht_operations_radio_bss_flags_headers[] = {
@@ -10116,6 +10289,11 @@ dissect_ieee1905_tlv_data(tvbuff_t *tvb, packet_info *pinfo,
     case AFFILIATED_AP_METRICS_TLV:
         offset = dissect_affiliated_ap_metrics(tvb, pinfo, tree, offset,
                                                tlv_len);
+        break;
+
+    case TID_TO_LINK_MAPPING_POLICY_TLV:
+        offset = dissect_tid_to_link_mapping_policy_tlv(tvb, pinfo, tree, offset,
+                                                        tlv_len);
         break;
 
     case EHT_OPERATIONS_TLV:
@@ -13984,6 +14162,130 @@ proto_register_ieee1905(void)
           { "Reserved", "ieee1905.affiliated_ap_metrics.reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+        { &hf_ieee1905_tid_to_link_mapping_policy_mld_mac_addr,
+          { "MLD MAC Address", "ieee1905.tid_to_link_mapping_policy.mld_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_flags,
+          { "Flags", "ieee1905.tid_to_link_mapping_policy.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_flags_bsta_config,
+          { "bSTA Config", "ieee1905.tid_to_link_mapping_policy.flags.bsta_config",
+            FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_flags_reserved,
+          { "Reserved", "ieee1905.tid_to_link_mapping_policy.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_flags2,
+          { "Flags2", "ieee1905.tid_to_link_mapping_policy.flags2",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_flags2_ttlm_negotiation,
+          { "TTLM Negotiation", "ieee1905.tid_to_link_mapping_policy.flags2.ttlm_negotiation",
+            FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_flags2_reserved,
+          { "Reserved", "ieee1905.tid_to_link_mapping_policy.flags2.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_reserved,
+          { "Reserved", "ieee1905.tid_to_link_mapping_policy.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_num,
+          { "Number of Mappings", "ieee1905.tid_to_link_mapping_polic.num_mappings",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags,
+          { "Flags", "ieee1905.tid_to_link_mapping_policy.mapping.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags_add,
+          { "Add", "ieee1905.tid_to_link_mapping_policy.mapping.flags.add",
+            FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags_reserved,
+          { "Reserved", "ieee1905.tid_to_link_mapping_policy.mapping.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_sta_mld_mac_addr,
+          { "STA MLD MAC Address", "ieee1905.tid_to_link_mapping_policy.sta_mld_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2,
+          { "Flags2", "ieee1905.tid_to_link_mapping_policy.mapping.flags2",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_direction,
+          { "Direction", "ieee1905.tid_to_link_mapping_policy.mapping.flags2.direction",
+            FT_UINT8, BASE_DEC, VALS(tid_to_link_mapping_policy_mapping_flags2_direction_vals), 0xc0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_default_link_mapping,
+          { "Default Link Mapping", "ieee1905.tid_to_link_mapping_policy.mapping.flags2.default_link_mapping",
+            FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_mapping_switch_time_present,
+          { "Mapping Switch Time Present", "ieee1905.tid_to_link_mapping_policy.mapping.flags2.mapping_switch_time_present",
+            FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_expected_duration_present,
+          { "Expected Duration Present", "ieee1905.tid_to_link_mapping_policy.mapping.flags2.expected_duration_present",
+            FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_link_mapping_size,
+          { "Link Mapping Size", "ieee1905.tid_to_link_mapping_policy.mapping.flags2.direction",
+            FT_UINT8, BASE_DEC, VALS(tid_to_link_mapping_policy_mapping_flags2_link_mapping_size_vals), 0x04, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_flags2_reserved,
+          { "Reserved", "ieee1905.tid_to_link_mapping_policy.mapping.flags2.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_link_mapping_presence_indicator,
+          { "Link Mapping Presence Indicator", "ieee1905.tid_to_link_mapping_policy.link_mapping_presence_indicator",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_expected_duration,
+          { "Expected Duration (TU)", "ieee1905.tid_to_link_mapping_policy.expected_duration",
+            FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[0],
+          {"Link Mapping Of TID 0", "ieee1905.eht.tid_to_link_mapping_policy.tid_0.link_mapping",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[1],
+          {"Link Mapping Of TID 1", "ieee1905.eht.tid_to_link_mapping_policy.tid_1.link_mapping",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[2],
+          {"Link Mapping Of TID 2", "ieee1905.eht.tid_to_link_mapping_policy.tid_2.link_mapping",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[3],
+          {"Link Mapping Of TID 3", "ieee1905.eht.tid_to_link_mapping_policy.tid_3.link_mapping",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[4],
+          {"Link Mapping Of TID 4", "ieee1905.eht.tid_to_link_mapping_policy.tid_4.link_mapping",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[5],
+          {"Link Mapping Of TID 5", "ieee1905.eht.tid_to_link_mapping_policy.tid_5.link_mapping",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[6],
+          {"Link Mapping Of TID 6", "ieee1905.eht.tid_to_link_mapping_policy.tid_6.link_mapping",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee190t_tid_to_link_mapping_policy_tid_n_link_mapping[7],
+          {"Link Mapping Of TID 7", "ieee1905.eht.tid_to_link_mapping_policy.tid_7.link_mapping",
+            FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_ieee1905_tid_to_link_mapping_policy_mapping_reserved,
+          { "Reserved", "ieee1905.tid_to_link_mapping_policy.mapping.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         { &hf_ieee1905_eht_operations_reserved,
           { "Reserved", "ieee1905.eht_operations.reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -14449,6 +14751,12 @@ proto_register_ieee1905(void)
         &ett_associated_sta_mld_configuration_affiliated_sta,
         &ett_mld_structure_affiliated_list,
         &ett_mld_structure_affiliated,
+        &ett_tid_to_link_mapping_policy_flags,
+        &ett_tid_to_link_mapping_policy_flags2,
+        &ett_tid_to_link_mapping_policy_mapping_flags,
+        &ett_tid_to_link_mapping_policy_mapping_flags2,
+        &ett_tid_to_link_mapping_mapping_list,
+        &ett_tid_to_link_mapping_mapping,
         &ett_eht_operations_radio_list,
         &ett_eht_operations_radio,
         &ett_eht_operations_radio_bss_list,
