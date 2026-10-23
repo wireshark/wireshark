@@ -37,7 +37,7 @@ void Push_Columns(lua_State *L, Columns c)
 }
 
 
-WSLUA_CLASS_DEFINE(Column,FAIL_ON_NULL("Column")); /* A Column in the packet list. */
+WSLUA_CLASS_DEFINE(Column,FAIL_ON_NULL_OR_EXPIRED("Column")); /* A Column in the packet list. */
 
 struct col_names_t {
     const char* name;
@@ -117,10 +117,16 @@ static const char*  col_id_to_name(int id) {
 
 
 WSLUA_METAMETHOD Column__tostring(lua_State *L) {
-    Column c = checkColumn(L,1);
+    /* Bypass checkColumn (which raises on expired/null) so the debugger
+     * Variables view can still render an expired Column. Its column_info
+     * may no longer exist. */
+    Column c = toColumn(L,1);
     const char* text;
 
-    if (!c->cinfo) {
+    if (!c || c->expired) {
+        lua_pushstring(L, "(expired)");
+    }
+    else if (!c->cinfo) {
         text = col_id_to_name(c->col);
         lua_pushfstring(L, "(%s)", text ? text : "unknown");
     }
@@ -266,9 +272,14 @@ WSLUA_METAMETHOD Columns__tostring(lua_State *L) {
        value can mean the column is unconfigured, hasn't been
        written yet, or that cinfo is NULL (e.g. while dissecting
        for the details pane). Returns `Columns: (no cinfo)` when
-       there is no column_info to inspect at all. */
+       there is no column_info to inspect at all, and
+       `Columns: (expired)` after the end of the packet. */
     Columns cols = checkColumns(L,1);
-    if (!cols || !cols->cinfo) {
+    if (!cols || cols->expired) {
+        lua_pushstring(L, "Columns: (expired)");
+        WSLUA_RETURN(1);
+    }
+    if (!cols->cinfo) {
         lua_pushstring(L, "Columns: (no cinfo)");
         WSLUA_RETURN(1);
     }
