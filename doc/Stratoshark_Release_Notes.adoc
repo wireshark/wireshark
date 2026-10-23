@@ -201,8 +201,8 @@ The following features are either new or have been significantly updated since v
   contacts wireshark.org; the update itself is installed through the desktop's
   software center (e.g. GNOME Software or KDE Discover). Self-compiled builds
   and Flatpak, Snap or AppImage installations are not checked.
-  Building with this support requires the optional packagekit-glib2 library,
-  version 1.1.12 or later.
+  PackageKit is queried over D-Bus, so building with this support only
+  requires the Qt DBus module.
 
 * Disabled coloring rules can now be shown in the packet details.
   With the new preference `gui.coloring_rules_include_disabled` (menu:Edit[Preferences > Appearance > Layout],

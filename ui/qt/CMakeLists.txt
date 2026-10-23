@@ -450,7 +450,7 @@ if(HAVE_SOFTWARE_UPDATE AND WIN32)
 	set(WIRESHARK_SOFTWARE_UPDATE_PLATFORM_SRC utils/software_update_backend_win.cpp)
 elseif(HAVE_SOFTWARE_UPDATE AND APPLE)
 	set(WIRESHARK_SOFTWARE_UPDATE_PLATFORM_SRC utils/software_update_backend_mac.cpp)
-elseif(PACKAGEKIT_FOUND)
+elseif(HAVE_SOFTWARE_UPDATE)
 	set(WIRESHARK_SOFTWARE_UPDATE_PLATFORM_SRC utils/software_update_backend_linux.cpp)
 else()
 	set(WIRESHARK_SOFTWARE_UPDATE_PLATFORM_SRC utils/software_update_backend_stub.cpp)
@@ -1058,7 +1058,6 @@ target_include_directories(qtui
 		${PCAP_INCLUDE_DIRS}
 		${SPEEXDSP_INCLUDE_DIRS}
 		${WINSPARKLE_INCLUDE_DIRS}
-		${PACKAGEKIT_INCLUDE_DIRS}
 		$<$<CXX_COMPILER_ID:MSVC>:${ZLIB_INCLUDE_DIRS}>
 		$<$<CXX_COMPILER_ID:MSVC>:${ZLIBNG_INCLUDE_DIRS}>
 	PRIVATE

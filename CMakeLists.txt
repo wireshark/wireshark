@@ -1595,9 +1595,9 @@ if(BUILD_wireshark OR BUILD_stratoshark)
 	if(APPLE)
 		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE 2)
 	endif()
-	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-		# 1.1.12 is the version shipped with RHEL 8
-		ws_find_package(PACKAGEKIT ENABLE_PACKAGEKIT HAVE_SOFTWARE_UPDATE "1.1.12")
+	# PackageKit is queried over D-Bus, no library needed
+	if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND Qt6DBus_FOUND)
+		set(HAVE_SOFTWARE_UPDATE 1)
 	endif()
 	if(NOT DEFINED MOC_OPTIONS)
 		# Squelch moc verbose "nothing to do" output
@@ -2186,11 +2186,6 @@ set_package_properties(NL PROPERTIES
 	URL "https://www.infradead.org/~tgr/libnl/"
 	DESCRIPTION "Libraries for using the Netlink protocol on Linux"
 	PURPOSE "Support for managing wireless 802.11 interfaces"
-)
-set_package_properties(PACKAGEKIT PROPERTIES
-	URL "https://www.freedesktop.org/software/PackageKit/"
-	DESCRIPTION "D-Bus abstraction layer for package management (packagekit-glib2)"
-	PURPOSE "Checking for distribution updates of Wireshark on Linux"
 )
 set_package_properties(MaxMindDB PROPERTIES
 	URL "https://github.com/maxmind/libmaxminddb"
@@ -3377,7 +3372,6 @@ if(BUILD_wireshark AND QT_FOUND)
 		${SOCKET_LIBRARY}
 		${WIN_VERSION_LIBRARY}
 		${WINSPARKLE_LIBRARIES}
-		${PACKAGEKIT_LIBRARIES}
 		$<$<BOOL:${WIN32}>:uxtheme.lib>
 		${SPEEXDSP_LIBRARIES}
 		${ZLIB_LIBRARIES}
@@ -3498,7 +3492,6 @@ if(BUILD_stratoshark AND QT_FOUND)
 		${SOCKET_LIBRARY}
 		${WIN_VERSION_LIBRARY}
 		${WINSPARKLE_LIBRARIES}
-		${PACKAGEKIT_LIBRARIES}
 		$<$<BOOL:${WIN32}>:uxtheme.lib>
 		${SPEEXDSP_LIBRARIES}
 		${ZLIB_LIBRARIES}

@@ -5,6 +5,9 @@
  * the running executable. Self-compiled builds are not owned by any package
  * and never report updates.
  *
+ * PackageKit is talked to directly over D-Bus instead of through
+ * packagekit-glib2, which would drag gobject/gio into the link.
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -14,49 +17,149 @@
 
 #include <config.h>
 
-/*
- * PackageKit 1.1.x (e.g. RHEL 8) still declared the packagekit-glib2 API as
- * unstable, and packagekit.h stops with an #error unless the caller defines
- * I_KNOW_THE_PACKAGEKIT_GLIB2_API_IS_SUBJECT_TO_CHANGE. Starting with 1.2.0
- * the API is considered stable and the check is gone. The version has to
- * come from CMake: PK_CHECK_VERSION lives in pk-version.h, which can only be
- * included through packagekit.h, after the check already happened.
- */
-#ifdef PACKAGEKIT_REQUIRES_API_ACK
-#define I_KNOW_THE_PACKAGEKIT_GLIB2_API_IS_SUBJECT_TO_CHANGE
-#endif
-
-/* Must come before any Qt header, gio uses "signals" as an identifier */
-#include <packagekit-glib2/packagekit.h>
-
 #include "app/application_flavor.h"
 
 #include "ui/qt/utils/software_update_backend.h"
 #include "ui/qt/utils/software_update.h"
 
+/* CMake only selects this backend with Qt DBus, guard anyway */
+#ifdef QT_DBUS_LIB
+
 #include <QCoreApplication>
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusObjectPath>
+#include <QDBusPendingCallWatcher>
+#include <QDBusPendingReply>
 #include <QDesktopServices>
 
-// ponytail: async callbacks are delivered through the GLib main context, which
-// Qt drives on Linux by default. Running with QT_NO_GLIB=1 silences update checks.
+#include <functional>
+
+namespace {
+
+constexpr const char *kPkService = "org.freedesktop.PackageKit";
+constexpr const char *kPkPath = "/org/freedesktop/PackageKit";
+constexpr const char *kPkIface = "org.freedesktop.PackageKit";
+constexpr const char *kPkTransactionIface = "org.freedesktop.PackageKit.Transaction";
+
+/* PkFilterEnum values as bitfield (1 << enum), see pk-enum.h */
+constexpr qulonglong kPkFilterNone = 1ULL << 1;
+constexpr qulonglong kPkFilterInstalled = 1ULL << 2;
+
+/* A package id is "name;version;arch;data" */
+QString packageIdPart(const QString &packageId, int part)
+{
+    return packageId.section(';', part, part);
+}
+
+} // namespace
+
+/**
+ * One PackageKit transaction: creates it, runs a single method on it and
+ * collects the package ids it reports. Deletes itself once finished.
+ * finished is called exactly once, with the packages reported so far, also
+ * if the transaction failed.
+ */
+class PackageKitTransaction : public QObject
+{
+    Q_OBJECT
+
+public:
+    PackageKitTransaction(QObject *parent, const QString &method, const QVariantList &args,
+                          std::function<void(const QStringList &)> finished) :
+        QObject(parent),
+        method_(method),
+        args_(args),
+        finished_(std::move(finished))
+    {
+        QDBusMessage msg = QDBusMessage::createMethodCall(kPkService, kPkPath, kPkIface, "CreateTransaction");
+        watch(QDBusConnection::systemBus().asyncCall(msg), &PackageKitTransaction::onCreated);
+    }
+
+private slots:
+    void onPackage(uint, const QString &packageId, const QString &)
+    {
+        packageIds_ << packageId;
+    }
+
+    void onErrorCode(uint, const QString &details)
+    {
+        qWarning("SoftwareUpdate: PackageKit: %s", qPrintable(details));
+    }
+
+    void onFinished(uint, uint)
+    {
+        finish();
+    }
+
+private:
+    QString method_;
+    QVariantList args_;
+    std::function<void(const QStringList &)> finished_;
+    QStringList packageIds_;
+    bool done_ = false;
+
+    void watch(const QDBusPendingCall &call, void (PackageKitTransaction::*handler)(QDBusPendingCallWatcher *))
+    {
+        QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
+        connect(watcher, &QDBusPendingCallWatcher::finished, this, handler);
+    }
+
+    /* Reports D-Bus errors and finishes the transaction on failure */
+    bool failed(QDBusPendingCallWatcher *watcher)
+    {
+        watcher->deleteLater();
+        if (!watcher->isError()) {
+            return false;
+        }
+        qWarning("SoftwareUpdate: PackageKit: %s", qPrintable(watcher->error().message()));
+        finish();
+        return true;
+    }
+
+    void onCreated(QDBusPendingCallWatcher *watcher)
+    {
+        if (failed(watcher)) {
+            return;
+        }
+        const QString path = QDBusPendingReply<QDBusObjectPath>(*watcher).value().path();
+
+        /* Signals must be connected before the method runs or results may be missed */
+        QDBusConnection bus = QDBusConnection::systemBus();
+        bus.connect(kPkService, path, kPkTransactionIface, "Package", this, SLOT(onPackage(uint,QString,QString)));
+        bus.connect(kPkService, path, kPkTransactionIface, "ErrorCode", this, SLOT(onErrorCode(uint,QString)));
+        bus.connect(kPkService, path, kPkTransactionIface, "Finished", this, SLOT(onFinished(uint,uint)));
+
+        QDBusMessage msg = QDBusMessage::createMethodCall(kPkService, path, kPkTransactionIface, method_);
+        msg.setArguments(args_);
+        watch(bus.asyncCall(msg), &PackageKitTransaction::onStarted);
+    }
+
+    void onStarted(QDBusPendingCallWatcher *watcher)
+    {
+        /* Results arrive through the signals; only failures matter here */
+        failed(watcher);
+    }
+
+    void finish()
+    {
+        if (done_) {
+            return;
+        }
+        done_ = true;
+        finished_(packageIds_);
+        deleteLater();
+    }
+};
+
+// ponytail: in-flight transactions are dropped, not cancelled on the daemon.
+// They are read-only queries, so letting them run to completion is harmless.
 class PackageKitUpdateBackend : public SoftwareUpdateBackend
 {
 public:
-    PackageKitUpdateBackend() :
-        client_(pk_client_new()),
-        cancellable_(g_cancellable_new())
-    {}
-
-    ~PackageKitUpdateBackend() override
-    {
-        g_cancellable_cancel(cancellable_);
-        g_object_unref(cancellable_);
-        g_object_unref(client_);
-    }
-
     QString info() const override
     {
-        return QString("PackageKit %1.%2.%3").arg(PK_MAJOR_VERSION).arg(PK_MINOR_VERSION).arg(PK_MICRO_VERSION);
+        return QStringLiteral("PackageKit");
     }
 
     /* Updates come from the distribution, never from our servers */
@@ -65,10 +168,12 @@ public:
     void init(const QUrl &, bool) override
     {
         /* Find the installed package that owns our executable */
-        QByteArray exePath = QCoreApplication::applicationFilePath().toUtf8();
-        gchar *values[] = { exePath.data(), NULL };
-        pk_client_search_files_async(client_, pk_bitfield_value(PK_FILTER_ENUM_INSTALLED), values,
-                                     cancellable_, NULL, NULL, &PackageKitUpdateBackend::onSearchFilesFinished, this);
+        const QVariantList args { kPkFilterInstalled, QStringList { QCoreApplication::applicationFilePath() } };
+        new PackageKitTransaction(&transactions_, "SearchFiles", args, [this](const QStringList &packageIds) {
+            if (!packageIds.isEmpty()) {
+                packageName_ = packageIdPart(packageIds.first(), 0);
+            }
+        });
     }
 
     /* PackageKit is only used for checking. Installing is left to the
@@ -83,13 +188,9 @@ public:
 
     void cleanup() override
     {
-        /* The callback of a cancelled query must not touch the backend (it
-         * may already be gone), so the in-flight state is reset here instead.
-         * A fresh cancellable keeps the backend usable; a cancelled one stays
-         * cancelled and g_cancellable_reset() is undefined while in use. */
-        g_cancellable_cancel(cancellable_);
-        g_object_unref(cancellable_);
-        cancellable_ = g_cancellable_new();
+        /* Deleting the transactions disconnects them, no callback touches us afterwards */
+        const QObjectList transactions = transactions_.children();
+        qDeleteAll(transactions);
         checkRunning_ = false;
     }
 
@@ -102,82 +203,36 @@ public:
         }
 
         checkRunning_ = true;
-        pk_client_get_updates_async(client_, pk_bitfield_value(PK_FILTER_ENUM_NONE),
-                                    cancellable_, NULL, NULL, &PackageKitUpdateBackend::onGetUpdatesFinished, this);
+        new PackageKitTransaction(&transactions_, "GetUpdates", { kPkFilterNone }, [this](const QStringList &packageIds) {
+            checkRunning_ = false;
+            for (const QString &packageId : packageIds) {
+                if (packageIdPart(packageId, 0) == packageName_) {
+                    emit SoftwareUpdate::instance()->updateAvailable(packageIdPart(packageId, 1), QString());
+                    break;
+                }
+            }
+        });
         return true;
     }
 
 private:
-    PkClient *client_;
-    GCancellable *cancellable_;
+    QObject transactions_; /**< Parent of all in-flight transactions. */
     QString packageName_; /**< Empty if the executable is not owned by a package. */
     bool checkRunning_ = false; /**< A get-updates query is in flight. */
-
-    /**
-     * @brief Finish an async PackageKit call and return its packages.
-     * @param packages Set to the packages, or nullptr if the call failed.
-     *                 The caller owns the returned array.
-     * @return false if the call was cancelled. The backend may already be
-     *         gone then and must not be touched.
-     */
-    static bool finishPackages(GObject *source, GAsyncResult *res, GPtrArray **packages)
-    {
-        GError *error = NULL;
-        PkResults *results = pk_client_generic_finish(PK_CLIENT(source), res, &error);
-        *packages = nullptr;
-        if (!results) {
-            bool cancelled = g_error_matches(error, G_IO_ERROR, G_IO_ERROR_CANCELLED);
-            if (!cancelled) {
-                qWarning("SoftwareUpdate: PackageKit: %s", error->message);
-            }
-            g_error_free(error);
-            return !cancelled;
-        }
-        *packages = pk_results_get_package_array(results);
-        g_object_unref(results);
-        return true;
-    }
-
-    static void onSearchFilesFinished(GObject *source, GAsyncResult *res, gpointer user_data)
-    {
-        GPtrArray *packages;
-        if (!finishPackages(source, res, &packages) || !packages) {
-            return;
-        }
-
-        if (packages->len > 0) {
-            PkPackage *package = PK_PACKAGE(g_ptr_array_index(packages, 0));
-            static_cast<PackageKitUpdateBackend *>(user_data)->packageName_ = pk_package_get_name(package);
-        }
-        g_ptr_array_unref(packages);
-    }
-
-    static void onGetUpdatesFinished(GObject *source, GAsyncResult *res, gpointer user_data)
-    {
-        GPtrArray *packages;
-        if (!finishPackages(source, res, &packages)) {
-            return;
-        }
-
-        PackageKitUpdateBackend *backend = static_cast<PackageKitUpdateBackend *>(user_data);
-        backend->checkRunning_ = false;
-        if (!packages) {
-            return;
-        }
-
-        const QString packageName = backend->packageName_;
-        for (unsigned i = 0; i < packages->len; i++) {
-            PkPackage *package = PK_PACKAGE(g_ptr_array_index(packages, i));
-            if (packageName == pk_package_get_name(package)) {
-                emit SoftwareUpdate::instance()->updateAvailable(pk_package_get_version(package), QString());
-                break;
-            }
-        }
-        g_ptr_array_unref(packages);
-    }
 };
 
 SoftwareUpdateBackend *SoftwareUpdateBackend::create()
 {
     return new PackageKitUpdateBackend();
 }
+
+#include "software_update_backend_linux.moc"
+
+#else /* QT_DBUS_LIB */
+
+SoftwareUpdateBackend *SoftwareUpdateBackend::create()
+{
+    return nullptr;
+}
+
+#endif /* QT_DBUS_LIB */
