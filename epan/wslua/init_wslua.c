@@ -160,6 +160,13 @@ static expert_field ei_lua_proto_interface_error;
 
 static int ett_wslua_traceback;
 
+uint64_t wslua_packet_generation;
+
+void wslua_expire_packet_objects(void)
+{
+    wslua_packet_generation++;
+}
+
 /* The pinfo->pool on which lua_pinfo_end() is currently registered, so that
  * it is registered only once per packet even with multiple or nested Lua
  * dissector calls. */
@@ -175,14 +182,7 @@ lua_pinfo_end(wmem_allocator_t *allocator, wmem_cb_event_t event _U_,
         lua_pinfo_end_pool = NULL;
     }
 
-    clear_outstanding_Tvb();
-    clear_outstanding_TvbRange();
-    clear_outstanding_Pinfo();
-    clear_outstanding_Column();
-    clear_outstanding_Columns();
-    clear_outstanding_PrivateTable();
-    clear_outstanding_TreeItem();
-    clear_outstanding_FieldInfo();
+    wslua_expire_packet_objects();
     clear_outstanding_FuncSavers(NULL);
 
     /* keep invoking this callback later? */
@@ -319,6 +319,10 @@ typedef struct {
     tvbuff_t *saved_lua_tvb;
     packet_info *saved_lua_pinfo;
     struct _wslua_treeitem *saved_lua_tree;
+    /* A copy of the root TreeItem passed to the dissector, which lua_tree
+     * points to during the call. (The dissector need not keep a reference
+     * to the TreeItem, so it could be garbage collected.) */
+    struct _wslua_treeitem lua_tree;
 } wslua_dissect_call_t;
 
 static void lua_resetthread_cb(void *user_data) {
@@ -439,7 +443,8 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
         // After call, stack: [ error_handler_func, dissector, tvb, pinfo ]
         push_Pinfo(L1,pinfo);
         // After call, stack: [ error_handler_func, dissector, tvb, pinfo, TreeItem ]
-        lua_tree = push_TreeItem(L1, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+        call.lua_tree = *push_TreeItem(L1, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+        lua_tree = &call.lua_tree;
         proto_item_set_hidden(lua_tree->item);
 
         if  ( lua_pcall(L1, /*num_args=*/3, /*num_results=*/1, /*error_handler_func_stack_position=*/1) ) {
@@ -557,7 +562,8 @@ bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
 
     push_Tvb(L1,tvb);
     push_Pinfo(L1,pinfo);
-    lua_tree = push_TreeItem(L1, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+    call.lua_tree = *push_TreeItem(L1, tree, proto_tree_add_item(tree, hf_wslua_fake, tvb, 0, 0, ENC_NA));
+    lua_tree = &call.lua_tree;
     proto_item_set_hidden(lua_tree->item);
 
     /* Push a message handler so runtime VM errors are routed through the

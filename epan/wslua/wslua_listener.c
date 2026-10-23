@@ -77,7 +77,7 @@ static int tap_packet_cb_error_handler(lua_State* L) {
 static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data, tap_flags_t flags _U_) {
     Listener tap = (Listener)tapdata;
     tap_packet_status retval = TAP_PACKET_DONT_REDRAW;
-    TreeItem lua_tree_tap;
+    struct _wslua_treeitem lua_tree_tap = { 0 };
     int status;
 
     if (tap->packet_ref == LUA_NOREF) return TAP_PACKET_DONT_REDRAW; /* XXX - report error and return TAP_PACKET_FAILED? */
@@ -97,8 +97,9 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
 
     lua_pinfo = pinfo;
     lua_tvb = edt->tvb;
-    lua_tree_tap = create_TreeItem(edt->tree, NULL);
-    lua_tree = lua_tree_tap;
+    lua_tree_tap.tree = edt->tree;
+    lua_tree_tap.generation = wslua_packet_generation;
+    lua_tree = &lua_tree_tap;
 
     status = lua_pcall(tap->L, 3, 1, 1);
     if (status == LUA_OK) {
@@ -122,18 +123,11 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
         }
     }
 
-    clear_outstanding_Pinfo();
-    clear_outstanding_Tvb();
-    /* The pinfo private_table may be destroyed at the end of the packet. */
-    clear_outstanding_PrivateTable();
-    /* The column_info may not outlive the packet. */
-    clear_outstanding_Column();
-    clear_outstanding_Columns();
+    wslua_expire_packet_objects();
 
     lua_pinfo = NULL;
     lua_tvb = NULL;
     lua_tree = NULL;
-    g_free(lua_tree_tap);
 
     return retval;
 }

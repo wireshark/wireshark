@@ -132,20 +132,19 @@
 #endif
 
 /**
- * @brief Wraps a tvbuff_t with ownership and expiry tracking for use in the Lua scripting environment.
+ * @brief Wraps a tvbuff_t with expiry tracking for use in the Lua scripting environment.
  */
 struct _wslua_tvb {
-    tvbuff_t* ws_tvb;    /**< The underlying tvbuff exposed to Lua. */
-    bool      expired;   /**< True if the tvbuff is no longer valid (e.g. the packet dissection has ended). */
-    bool      need_free; /**< True if this wrapper owns the tvbuff and is responsible for freeing it. */
+    tvbuff_t* ws_tvb;     /**< The underlying tvbuff exposed to Lua. */
+    uint64_t  generation; /**< The wslua_packet_generation in which this was created; see WSLUA_EXPIRED(). */
 };
 
 /**
  * @brief Wraps a packet_info pointer with expiry tracking for use in the Lua scripting environment.
  */
 struct _wslua_pinfo {
-    packet_info* ws_pinfo; /**< The underlying packet_info exposed to Lua. */
-    bool         expired;  /**< True if the packet_info is no longer valid after the dissection frame has ended. */
+    packet_info* ws_pinfo;   /**< The underlying packet_info exposed to Lua. */
+    uint64_t     generation; /**< The wslua_packet_generation in which this was created; see WSLUA_EXPIRED(). */
 };
 
 
@@ -283,34 +282,34 @@ struct _wslua_distbl_t {
  * @brief Wraps a single column within a column_info for access from the Lua scripting environment.
  */
 struct _wslua_col_info {
-    column_info* cinfo;   /**< The column_info this object references. */
-    int          col;     /**< Zero-based index of the specific column within cinfo. */
-    bool         expired; /**< True if the column_info is no longer valid after the dissection frame has ended. */
+    column_info* cinfo;      /**< The column_info this object references. */
+    int          col;        /**< Zero-based index of the specific column within cinfo. */
+    uint64_t     generation; /**< The wslua_packet_generation in which this was created; see WSLUA_EXPIRED(). */
 };
 
 /**
  * @brief Wraps a column_info for bulk column access from the Lua scripting environment.
  */
 struct _wslua_cols {
-    column_info* cinfo;   /**< The column_info providing access to all columns for the current packet. */
-    bool         expired; /**< True if the column_info is no longer valid after the dissection frame has ended. */
+    column_info* cinfo;      /**< The column_info providing access to all columns for the current packet. */
+    uint64_t     generation; /**< The wslua_packet_generation in which this was created; see WSLUA_EXPIRED(). */
 };
 
 /**
  * @brief Wraps a GHashTable for use as a Lua private data table, tracking expiry.
  */
 struct _wslua_private_table {
-    GHashTable* table;   /**< The underlying hash table storing key-value pairs for the private data. */
-    bool        expired; /**< True if the table is no longer valid. */
+    GHashTable* table;      /**< The underlying hash table storing key-value pairs for the private data. */
+    uint64_t    generation; /**< The wslua_packet_generation in which this was created; see WSLUA_EXPIRED(). */
 };
 
 /**
  * @brief Wraps a proto_item and its associated proto_tree for manipulation from the Lua scripting environment.
  */
 struct _wslua_treeitem {
-    proto_item* item;    /**< The protocol tree item this object represents. */
-    proto_tree* tree;    /**< The protocol subtree rooted at this item, used to add child items. */
-    bool        expired; /**< True if the tree item is no longer valid after the dissection frame has ended. */
+    proto_item* item;       /**< The protocol tree item this object represents. */
+    proto_tree* tree;       /**< The protocol subtree rooted at this item, used to add child items. */
+    uint64_t    generation; /**< The wslua_packet_generation in which this was created; see WSLUA_EXPIRED(). */
 };
 
 /**
@@ -325,8 +324,8 @@ struct _wslua_header_field_info {
  * @brief Wraps a field_info for access from the Lua scripting environment, tracking validity.
  */
 struct _wslua_field_info {
-    field_info* ws_fi;   /**< The underlying field_info containing the matched field's value and position. */
-    bool        expired; /**< True if the field_info is no longer valid after the dissection frame has ended. */
+    field_info* ws_fi;      /**< The underlying field_info containing the matched field's value and position. */
+    uint64_t    generation; /**< The wslua_packet_generation in which this was created; see WSLUA_EXPIRED(). */
 };
 
 /**
@@ -562,6 +561,90 @@ C shift##C(lua_State* L,int i) { \
 } \
 typedef int dummy##C
 
+/*
+ * Classes whose objects are created per packet (Tvb, TvbRange, Pinfo,
+ * TreeItem, etc.) are defined with WSLUA_CLASS_DEFINE_INLINE instead.
+ * C is a pointer to a struct (or other object type), and that object is
+ * stored in the full userdata itself instead of separately allocated.
+ * Such classes have no __gc metamethod, so that the Lua garbage collector
+ * can free them in a single cycle, and knows their size.
+ *
+ * Objects that refer to Wireshark structures which are only valid during
+ * the dissection of a packet record the wslua_packet_generation in which
+ * they were created and are expired once it changes, which is checked
+ * with WSLUA_EXPIRED() before each access.
+ *
+ * toXxx and checkXxx return a pointer into the userdata, which is valid
+ * only as long as the userdata is reachable, e.g. on the stack.
+ * pushXxx(L,v) copies the object pointed to by v into a new userdata and
+ * returns a pointer to the copy.
+ * shiftXxx(L,i,buf) copies the object into buf before removing it from
+ * the stack (after which it may be collected), and returns buf.
+ *
+ * WSLUA_CLASS_DEFINE_INLINE_BASE does not define pushXxx, so that a class
+ * whose objects have variable size (such as Address) can define its own.
+ */
+#define WSLUA_CLASS_DEFINE_INLINE_BASE(C,check_code) \
+C to##C(lua_State* L, int idx) { \
+    C v = (C)lua_touserdata (L, idx); \
+    if (!v) luaL_error(L, "bad argument %d (%s expected, got %s)", idx, #C, lua_typename(L, lua_type(L, idx))); \
+    return v; \
+} \
+C check##C(lua_State* L, int idx) { \
+    C p; \
+    luaL_checktype(L,idx,LUA_TUSERDATA); \
+    p = (C)luaL_checkudata(L, idx, #C); \
+    check_code; \
+    return p; \
+} \
+bool is##C(lua_State* L,int i) { \
+    void *p; \
+    if(!lua_isuserdata(L,i)) return false; \
+    p = lua_touserdata(L, i); \
+    lua_getfield(L, LUA_REGISTRYINDEX, #C); \
+    if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
+    lua_pop(L, 2); \
+    return p ? true : false; \
+} \
+C shift##C(lua_State* L,int i,C buf) { \
+    C p; \
+    if(!lua_isuserdata(L,i)) return NULL; \
+    p = (C)lua_touserdata(L, i); \
+    lua_getfield(L, LUA_REGISTRYINDEX, #C); \
+    if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
+    lua_pop(L, 2); \
+    if (p) { *buf = *p; lua_remove(L,i); return buf; }\
+    else return NULL;\
+} \
+typedef int dummy##C
+
+#define WSLUA_CLASS_DEFINE_INLINE(C,check_code) \
+C push##C(lua_State* L, C v) { \
+    C p; \
+    luaL_checkstack(L,2,"Unable to grow stack\n"); \
+    p = (C)lua_newuserdata(L,sizeof(*v)); *p = *v; \
+    luaL_getmetatable(L, #C); lua_setmetatable(L, -2); \
+    return p; \
+}\
+WSLUA_CLASS_DEFINE_INLINE_BASE(C,check_code)
+
+/**
+ * @brief Incremented whenever the Wireshark structures referred to by
+ * per-packet Lua objects might be freed, expiring all such objects.
+ */
+extern uint64_t wslua_packet_generation;
+
+/** True if a per-packet object was created before the last call to wslua_expire_packet_objects(). */
+#define WSLUA_EXPIRED(obj) ((obj)->generation != wslua_packet_generation)
+
+/**
+ * @brief Expires all existing per-packet Lua objects (Tvb, TvbRange, Pinfo, etc.)
+ *
+ * Call this when the Wireshark structures they refer to (such as at the
+ * end of the dissection of a packet) might no longer be valid.
+ */
+extern void wslua_expire_packet_objects(void);
+
 /**
  * @brief Defines a single attribute entry in a Lua class attribute dispatch table, binding a field name to its getter and setter.
  */
@@ -604,12 +687,11 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, bo
         .attrs              = ATTRS \
     }; \
     wslua_register_classinstance_meta(L, &C ## _class); \
-    WSLUA_REGISTER_GC(C); \
 }
 
-#define WSLUA_REGISTER_META(C)  __WSLUA_REGISTER_META(C, NULL)
+#define WSLUA_REGISTER_META(C)  { __WSLUA_REGISTER_META(C, NULL) WSLUA_REGISTER_GC(C); }
 #define WSLUA_REGISTER_META_WITH_ATTRS(C) \
-    __WSLUA_REGISTER_META(C, C ## _attributes)
+    { __WSLUA_REGISTER_META(C, C ## _attributes) WSLUA_REGISTER_GC(C); }
 
 #define __WSLUA_REGISTER_CLASS(C, ATTRS) { \
     const wslua_class C ## _class = { \
@@ -621,11 +703,21 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, bo
         .attrs              = ATTRS \
     }; \
     wslua_register_class(L, &C ## _class); \
-    WSLUA_REGISTER_GC(C); \
 }
 
-#define WSLUA_REGISTER_CLASS(C)  __WSLUA_REGISTER_CLASS(C, NULL)
+#define WSLUA_REGISTER_CLASS(C)  { __WSLUA_REGISTER_CLASS(C, NULL) WSLUA_REGISTER_GC(C); }
 #define WSLUA_REGISTER_CLASS_WITH_ATTRS(C) \
+    { __WSLUA_REGISTER_CLASS(C, C ## _attributes) WSLUA_REGISTER_GC(C); }
+
+/* For classes without a __gc metamethod, such as those defined with
+ * WSLUA_CLASS_DEFINE_INLINE, and other classes whose objects need no
+ * finalization and might be created frequently. (Objects whose metatable
+ * has a __gc field take an extra garbage collection cycle to be freed.) */
+#define WSLUA_REGISTER_META_NOGC(C)  __WSLUA_REGISTER_META(C, NULL)
+#define WSLUA_REGISTER_META_WITH_ATTRS_NOGC(C) \
+    __WSLUA_REGISTER_META(C, C ## _attributes)
+#define WSLUA_REGISTER_CLASS_NOGC(C)  __WSLUA_REGISTER_CLASS(C, NULL)
+#define WSLUA_REGISTER_CLASS_WITH_ATTRS_NOGC(C) \
     __WSLUA_REGISTER_CLASS(C, C ## _attributes)
 
 #define WSLUA_INIT(L) \
@@ -847,18 +939,8 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, bo
         luaL_argerror(L,idx,"expired " s); \
     }
 
-/* Clears or marks references that connects Lua to Wireshark structures */
-#define CLEAR_OUTSTANDING(C, marker, marker_val) void clear_outstanding_##C(void) { \
-    while (outstanding_##C->len) { \
-        C p = (C)g_ptr_array_remove_index_fast(outstanding_##C,0); \
-        if (p) { \
-            if (p->marker != marker_val) \
-                p->marker = marker_val; \
-            else \
-                g_free(p); \
-        } \
-    } \
-}
+/* For classes defined with WSLUA_CLASS_DEFINE_INLINE */
+#define FAIL_ON_EXPIRED(s) if (WSLUA_EXPIRED(p)) luaL_argerror(L,idx,"expired " s)
 
 #define WSLUA_CLASS_DECLARE(C) \
 extern C to##C(lua_State* L, int idx); \
@@ -867,6 +949,14 @@ extern C* push##C(lua_State* L, C v); \
 extern int C##_register(lua_State* L); \
 extern bool is##C(lua_State* L,int i); \
 extern C shift##C(lua_State* L,int i)
+
+#define WSLUA_CLASS_DECLARE_INLINE(C) \
+extern C to##C(lua_State* L, int idx); \
+extern C check##C(lua_State* L, int idx); \
+extern C push##C(lua_State* L, C v); \
+extern int C##_register(lua_State* L); \
+extern bool is##C(lua_State* L,int i); \
+extern C shift##C(lua_State* L,int i,C buf)
 
 
 /* Throws a Wireshark exception, catchable via normal exceptions.h routines. */
@@ -1190,15 +1280,6 @@ extern void lua_prime_all_fields(proto_tree* tree);
 extern int Proto_commit(lua_State* L);
 
 /**
- * @brief Creates a new TreeItem.
- *
- * @param tree The parent proto_tree.
- * @param item The associated proto_item.
- * @return A newly created TreeItem.
- */
-extern TreeItem create_TreeItem(proto_tree* tree, proto_item* item);
-
-/**
  * @brief Clears outstanding function savers associated with a Lua state.
  *
  * @param L The Lua state to clear function savers for.
@@ -1264,16 +1345,7 @@ extern uint64_t getUInt64(lua_State *L, int i);
  * @param tvb The tvbuff_t to push.
  * @return A pointer to the pushed Tvb object.
  */
-extern Tvb* push_Tvb(lua_State* L, tvbuff_t* tvb);
-
-/**
- * @brief Pushes a Tvb object onto the Lua stack.
- *
- * @param L The Lua state.
- * @param t The Tvb object to push.
- * @return An integer indicating success or failure of the push operation.
- */
-extern int push_wsluaTvb(lua_State* L, Tvb t);
+extern Tvb push_Tvb(lua_State* L, tvbuff_t* tvb);
 
 /**
  * @brief Pushes a TvbRange object onto the Lua stack.
@@ -1287,45 +1359,13 @@ extern int push_wsluaTvb(lua_State* L, Tvb t);
 extern bool push_TvbRange(lua_State* L, tvbuff_t* tvb, int offset, int len);
 
 /**
- * @brief Clears all outstanding Tvb objects.
- *
- * This function removes and frees all Tvb objects from the outstanding_Tvb array.
- */
-extern void clear_outstanding_Tvb(void);
-
-/**
- * @brief Clears all outstanding TvbRange objects.
- */
-extern void clear_outstanding_TvbRange(void);
-
-/**
  * @brief Pushes a packet information structure onto the Lua stack.
  *
  * @param L The Lua state.
  * @param p The Wireshark packet information structure.
  * @return A pointer to the pushed packet information structure.
  */
-extern Pinfo* push_Pinfo(lua_State* L, packet_info* p);
-
-/**
- * @brief Clears all outstanding Pinfo objects.
- */
-extern void clear_outstanding_Pinfo(void);
-
-/**
- * @brief Clears all outstanding Column objects.
- */
-extern void clear_outstanding_Column(void);
-
-/**
- * @brief Clears all outstanding Column objects.
- */
-extern void clear_outstanding_Columns(void);
-
-/**
- * @brief Clears any outstanding PrivateTable entries.
- */
-extern void clear_outstanding_PrivateTable(void);
+extern Pinfo push_Pinfo(lua_State* L, packet_info* p);
 
 /**
  * @brief Retrieves the value of hf_wslua_text.
@@ -1345,23 +1385,13 @@ extern int get_hf_wslua_text(void);
 extern TreeItem push_TreeItem(lua_State *L, proto_tree *tree, proto_item *item);
 
 /**
- * @brief Clears all outstanding TreeItem objects.
- */
-extern void clear_outstanding_TreeItem(void);
-
-/**
  * @brief Pushes a field information object onto the Lua stack.
  *
  * @param L The Lua state.
  * @param f The field information to push.
  * @return A pointer to the pushed field information.
  */
-extern FieldInfo* push_FieldInfo(lua_State *L, field_info* f);
-
-/**
- * @brief Clears any outstanding FieldInfo structures.
- */
-extern void clear_outstanding_FieldInfo(void);
+extern FieldInfo push_FieldInfo(lua_State *L, field_info* f);
 
 /**
  * @brief Prints the stack of a Lua state with a given prefix.

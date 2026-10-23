@@ -21,8 +21,8 @@
 
 #include "wslua.h"
 
-/* any call to checkFieldInfo() will now error on null or expired, so no need to check again */
-WSLUA_CLASS_DEFINE(FieldInfo,FAIL_ON_NULL_OR_EXPIRED("FieldInfo"));
+/* any call to checkFieldInfo() will now error on expired, so no need to check again */
+WSLUA_CLASS_DEFINE_INLINE(FieldInfo,FAIL_ON_EXPIRED("FieldInfo"));
 /*
    An extracted Field from dissected packet data. A `FieldInfo` object can only be used within
    the callback functions of dissectors, post-dissectors, heuristic-dissectors, and taps.
@@ -31,17 +31,13 @@ WSLUA_CLASS_DEFINE(FieldInfo,FAIL_ON_NULL_OR_EXPIRED("FieldInfo"));
    or `Field()` before-hand, or it can be called on new fields created by Lua from a `ProtoField`.
  */
 
-static GPtrArray* outstanding_FieldInfo;
-
-FieldInfo* push_FieldInfo(lua_State* L, field_info* f) {
-    FieldInfo fi = (FieldInfo) g_malloc(sizeof(struct _wslua_field_info));
-    fi->ws_fi = f;
-    fi->expired = false;
-    g_ptr_array_add(outstanding_FieldInfo,fi);
-    return pushFieldInfo(L,fi);
+FieldInfo push_FieldInfo(lua_State* L, field_info* f) {
+    struct _wslua_field_info fi = {
+        .ws_fi = f,
+        .generation = wslua_packet_generation,
+    };
+    return pushFieldInfo(L,&fi);
 }
-
-CLEAR_OUTSTANDING(FieldInfo,expired,true)
 
 /* WSLUA_ATTRIBUTE FieldInfo_len RO The length of this field. */
 WSLUA_METAMETHOD FieldInfo__len(lua_State* L) {
@@ -407,21 +403,6 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
     return 1;
 }
 
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_META */
-static int FieldInfo__gc(lua_State* L) {
-    FieldInfo fi = toFieldInfo(L,1);
-
-    if (!fi) return 0;
-
-    if (!fi->expired)
-        fi->expired = true;
-    else
-        /* do NOT free fi->ws_fi */
-        g_free(fi);
-
-    return 0;
-}
-
 /* This table is ultimately registered as a sub-table of the class' metatable,
  * and if __index/__newindex is invoked then it calls the appropriate function
  * from this table for getting/setting the members.
@@ -457,7 +438,7 @@ WSLUA_META FieldInfo_meta[] = {
 };
 
 int FieldInfo_register(lua_State* L) {
-    WSLUA_REGISTER_META_WITH_ATTRS(FieldInfo);
+    WSLUA_REGISTER_META_WITH_ATTRS_NOGC(FieldInfo);
     return 0;
 }
 
@@ -999,11 +980,6 @@ int Field_register(lua_State* L) {
 
     WSLUA_REGISTER_FUNCTION(request_fields);
     WSLUA_REGISTER_FUNCTION(request_protocol_fields);
-
-    if (outstanding_FieldInfo != NULL) {
-        g_ptr_array_unref(outstanding_FieldInfo);
-    }
-    outstanding_FieldInfo = g_ptr_array_new();
 
     return 0;
 }

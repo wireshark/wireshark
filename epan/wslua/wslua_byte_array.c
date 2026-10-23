@@ -678,7 +678,7 @@ WSLUA_METHOD ByteArray_tvb (lua_State *L) {
     ByteArray ba = checkByteArray(L,1);
     const char* name = luaL_optstring(L,WSLUA_ARG_ByteArray_tvb_NAME,"Unnamed") ;
     uint8_t* data;
-    Tvb tvb;
+    tvbuff_t* tvb;
 
     if (!lua_tvb) {
         luaL_error(L,"Tvbs can only be created and used in dissectors");
@@ -687,14 +687,11 @@ WSLUA_METHOD ByteArray_tvb (lua_State *L) {
 
     data = (uint8_t *)g_memdup2(ba->data, ba->len);
 
-    tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
-    tvb->ws_tvb = tvb_new_child_real_data(lua_tvb, data, ba->len,ba->len);
-    tvb->expired = false;
-    tvb->need_free = false;
-    tvb_set_free_cb(tvb->ws_tvb, g_free);
+    tvb = tvb_new_child_real_data(lua_tvb, data, ba->len,ba->len);
+    tvb_set_free_cb(tvb, g_free);
 
-    add_new_data_source(lua_pinfo, tvb->ws_tvb, name);
-    push_wsluaTvb(L,tvb);
+    add_new_data_source(lua_pinfo, tvb, name);
+    push_Tvb(L,tvb);
     WSLUA_RETURN(1); /* The created <<lua_class_Tvb,`Tvb`>>. */
 }
 

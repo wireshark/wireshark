@@ -23,36 +23,18 @@
 
 static int wslua_ett = -1;
 
-static GPtrArray* outstanding_TreeItem;
-
-
 /* pushing a TreeItem with a NULL item or subtree is completely valid for this function */
 TreeItem push_TreeItem(lua_State *L, proto_tree *tree, proto_item *item) {
-    TreeItem ti = g_new(struct _wslua_treeitem, 1);
+    struct _wslua_treeitem ti = {
+        .tree = tree,
+        .item = item,
+        .generation = wslua_packet_generation,
+    };
 
-    ti->tree = tree;
-    ti->item = item;
-    ti->expired = false;
-
-    g_ptr_array_add(outstanding_TreeItem, ti);
-
-    return *(pushTreeItem(L,ti));
+    return pushTreeItem(L,&ti);
 }
 
-/* creates the TreeItem but does NOT push it into Lua */
-TreeItem create_TreeItem(proto_tree* tree, proto_item* item)
-{
-    TreeItem tree_item = (TreeItem)g_malloc(sizeof(struct _wslua_treeitem));
-    tree_item->tree = tree;
-    tree_item->item = item;
-    tree_item->expired = false;
-
-    return tree_item;
-}
-
-CLEAR_OUTSTANDING(TreeItem, expired, true)
-
-WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"));
+WSLUA_CLASS_DEFINE_INLINE(TreeItem,FAIL_ON_EXPIRED("TreeItem"));
 /* <<lua_class_TreeItem,`TreeItem`>>s represent information in the https://www.wireshark.org/docs/wsug_html_chunked/ChUsePacketDetailsPaneSection.html[packet details] pane of Wireshark, and the packet details view of TShark.
    A <<lua_class_TreeItem,`TreeItem`>> represents a node in the tree, which might also be a subtree and have a list of children.
    The children of a subtree have zero or more siblings which are other children of the same <<lua_class_TreeItem,`TreeItem`>> subtree.
@@ -337,12 +319,14 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
 #define WSLUA_OPTARG_TreeItem_add_packet_field_TVBRANGE 3 /* The <<lua_class_TvbRange,`TvbRange`>> of bytes in the packet this tree item covers/represents. */
 #define WSLUA_ARG_TreeItem_add_packet_field_ENCODING 4 /* The field's encoding in the `TvbRange`. */
 #define WSLUA_OPTARG_TreeItem_add_packet_field_LABEL 5 /* One or more strings to append to the created <<lua_class_TreeItem,`TreeItem`>>. */
+    struct _wslua_treeitem tree_item_buf;
+    struct _wslua_tvbrange tvbr_buf;
     volatile TvbRange tvbr;
     ProtoField field;
     int hfid;
     volatile int ett;
     ftenum_t type;
-    TreeItem tree_item = shiftTreeItem(L,1);
+    TreeItem tree_item = shiftTreeItem(L,1,&tree_item_buf);
     unsigned encoding;
     proto_item* item = NULL;
     volatile int nargs;
@@ -352,7 +336,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     if (!tree_item) {
         return luaL_error(L,"not a TreeItem!");
     }
-    if (tree_item->expired) {
+    if (WSLUA_EXPIRED(tree_item)) {
         luaL_error(L,"expired TreeItem");
         return 0;
     }
@@ -368,15 +352,16 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     type = field->type;
     ett = field->ett;
 
-    tvbr = shiftTvbRange(L,1);
-    if (tvbr && tvbr->tvb.expired) {
+    tvbr = shiftTvbRange(L,1,&tvbr_buf);
+    if (tvbr && WSLUA_EXPIRED(&tvbr->tvb)) {
         luaL_error(L,"expired tvb");
         return 0;
     }
     if (!tvbr) {
         /* No TvbRange specified */
-        tvbr = wmem_new0(lua_pinfo->pool, struct _wslua_tvbrange);
+        tvbr = &tvbr_buf;
         tvbr->tvb.ws_tvb = lua_tvb;
+        tvbr->tvb.generation = wslua_packet_generation;
         tvbr->offset = 0;
         tvbr->len = 0;
     }
@@ -446,19 +431,21 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
  * THROW_LUA_ERROR should be used insteadof lua[L]_error.
  */
 static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
+    struct _wslua_treeitem tree_item_buf;
+    struct _wslua_tvbrange tvbr_buf;
     TvbRange tvbr;
     Proto proto;
     ProtoField field;
     int hfid = -1;
     int ett = -1;
     ftenum_t type = FT_NONE;
-    TreeItem tree_item  = shiftTreeItem(L,1);
+    TreeItem tree_item  = shiftTreeItem(L,1,&tree_item_buf);
     proto_item* item = NULL;
 
     if (!tree_item) {
         THROW_LUA_ERROR("not a TreeItem!");
     }
-    if (tree_item->expired) {
+    if (WSLUA_EXPIRED(tree_item)) {
         THROW_LUA_ERROR("expired TreeItem");
         return 0;
     }
@@ -477,15 +464,16 @@ static int TreeItem_add_item_any(lua_State *L, bool little_endian) {
         ett = field->ett;
     }
 
-    tvbr = shiftTvbRange(L,1);
-    if (tvbr && tvbr->tvb.expired) {
+    tvbr = shiftTvbRange(L,1,&tvbr_buf);
+    if (tvbr && WSLUA_EXPIRED(&tvbr->tvb)) {
         THROW_LUA_ERROR("expired tvb");
         return 0;
     }
 
     if (!tvbr) {
-        tvbr = wmem_new0(lua_pinfo->pool, struct _wslua_tvbrange);
+        tvbr = &tvbr_buf;
         tvbr->tvb.ws_tvb = lua_tvb;
+        tvbr->tvb.generation = wslua_packet_generation;
         tvbr->offset = 0;
         tvbr->len = 0;
     }
@@ -988,6 +976,8 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
                                                               text). */
     TreeItem ti = checkTreeItem(L,1);
     ProtoExpert expert = checkProtoExpert(L,WSLUA_ARG_TreeItem_add_proto_expert_info_EXPERT);
+    struct _wslua_tvbrange tvbr_buf;
+    struct _wslua_tvb tvb_buf;
     TvbRange tvbr;
     const char* str;
 
@@ -996,8 +986,8 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
         return 0;
     }
 
-    tvbr = shiftTvbRange(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
-    if (tvbr && tvbr->tvb.expired) {
+    tvbr = shiftTvbRange(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB,&tvbr_buf);
+    if (tvbr && WSLUA_EXPIRED(&tvbr->tvb)) {
         luaL_error(L,"expired tvb");
         return 0;
     }
@@ -1005,13 +995,14 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
     if (!tvbr) {
         /* Not a TvbRange; use the Tvb if one was passed, otherwise the
          * Tvb of the current dissection. Don't modify the passed Tvb. */
-        Tvb tvb = shiftTvb(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
-        if (tvb && tvb->expired) {
+        Tvb tvb = shiftTvb(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB,&tvb_buf);
+        if (tvb && WSLUA_EXPIRED(tvb)) {
             luaL_error(L,"expired tvb");
             return 0;
         }
-        tvbr = wmem_new0(lua_pinfo->pool, struct _wslua_tvbrange);
+        tvbr = &tvbr_buf;
         tvbr->tvb.ws_tvb = tvb ? tvb->ws_tvb : lua_tvb;
+        tvbr->tvb.generation = wslua_packet_generation;
         tvbr->offset = 0;
         tvbr->len = 0;
     }
@@ -1353,7 +1344,7 @@ static int TreeItem_children_iterator(lua_State *L) {
      * state's allocations, are freed with the packet, when it expires. */
     TreeItem ti = toTreeItem(L, lua_upvalueindex(2));
 
-    if (!ti || ti->expired) {
+    if (!ti || WSLUA_EXPIRED(ti)) {
         return luaL_error(L, "expired TreeItem");
     }
 
@@ -1533,7 +1524,7 @@ WSLUA_METHOD TreeItem_children(lua_State *L) {
         THROW_LUA_ERROR("not a TreeItem!");
         return 0;
     }
-    if (ti->expired) {
+    if (WSLUA_EXPIRED(ti)) {
         THROW_LUA_ERROR("expired TreeItem");
         return 0;
     }
@@ -1657,7 +1648,7 @@ WSLUA_METHOD TreeItem_get_field_info(lua_State *L) {
         THROW_LUA_ERROR("not a TreeItem!");
         return 0;
     }
-    if (ti->expired) {
+    if (WSLUA_EXPIRED(ti)) {
         THROW_LUA_ERROR("expired TreeItem");
         return 0;
     }
@@ -1695,7 +1686,7 @@ WSLUA_METAMETHOD TreeItem__tostring(lua_State* L) {
 
     if (!ti) {
         lua_pushstring(L, "TreeItem: (null)");
-    } else if (ti->expired) {
+    } else if (WSLUA_EXPIRED(ti)) {
         lua_pushstring(L, "TreeItem: (expired)");
     } else if (!ti->item) {
         lua_pushstring(L, "TreeItem: (no item)");
@@ -1710,17 +1701,6 @@ WSLUA_METAMETHOD TreeItem__tostring(lua_State* L) {
     }
 
     return 1;
-}
-
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int TreeItem__gc(lua_State* L) {
-    TreeItem ti = toTreeItem(L,1);
-    if (!ti) return 0;
-    if (!ti->expired)
-        ti->expired = true;
-    else
-        g_free(ti);
-    return 0;
 }
 
 WSLUA_ATTRIBUTES TreeItem_attributes[] = {
@@ -1761,11 +1741,7 @@ WSLUA_META TreeItem_meta[] = {
 int TreeItem_register(lua_State *L) {
     int* etts[] = { &wslua_ett };
     wslua_ett = -1; /* Reset to support reload Lua plugins */
-    WSLUA_REGISTER_CLASS_WITH_ATTRS(TreeItem);
-    if (outstanding_TreeItem != NULL) {
-        g_ptr_array_unref(outstanding_TreeItem);
-    }
-    outstanding_TreeItem = g_ptr_array_new();
+    WSLUA_REGISTER_CLASS_WITH_ATTRS_NOGC(TreeItem);
     proto_register_subtree_array(etts,1);
     return 0;
 }
