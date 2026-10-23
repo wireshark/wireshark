@@ -117,6 +117,9 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
     clear_outstanding_Tvb();
     /* The pinfo private_table may be destroyed at the end of the packet. */
     clear_outstanding_PrivateTable();
+    /* The column_info may not outlive the packet. */
+    clear_outstanding_Column();
+    clear_outstanding_Columns();
 
     lua_pinfo = NULL;
     lua_tvb = NULL;

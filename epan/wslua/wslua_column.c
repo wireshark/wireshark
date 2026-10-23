@@ -37,7 +37,7 @@ void Push_Columns(lua_State *L, Columns c)
 }
 
 
-WSLUA_CLASS_DEFINE(Column,FAIL_ON_NULL("Column")); /* A Column in the packet list. */
+WSLUA_CLASS_DEFINE(Column,FAIL_ON_NULL_OR_EXPIRED("Column")); /* A Column in the packet list. */
 
 struct col_names_t {
     const char* name;
@@ -115,10 +115,16 @@ static const char*  col_id_to_name(int id) {
 
 
 WSLUA_METAMETHOD Column__tostring(lua_State *L) {
-    Column c = checkColumn(L,1);
+    Column c = toColumn(L,1);
     const char* text;
 
-    if (!c->cinfo) {
+    /* Use toColumn, not checkColumn (which raises an error on an expired
+     * Column), so that an expired Column can still be printed. Its
+     * column_info may no longer exist. */
+    if (!c || c->expired) {
+        lua_pushstring(L, "(expired)");
+    }
+    else if (!c->cinfo) {
         text = col_id_to_name(c->col);
         lua_pushfstring(L, "(%s)", text ? text : "unknown");
     }
