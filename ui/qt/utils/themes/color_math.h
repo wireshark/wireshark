@@ -67,12 +67,9 @@ public:
 
     /** Minimum contrast ratio at which a raised card reads as its own
      *  surface on Base in dark mode.  Softer than DistinctSurfaceRatio:
-     *  a card is a grouping, not a state. */
+     *  a card is a grouping, not a state.  Light mode needs no lift,
+     *  because the card border sets the card apart on a light base. */
     static constexpr qreal CardSurfaceRatioDark = 1.25;
-
-    /** The same for light mode.  A light base shows a smaller
-     *  luminance step as clearly, so the card stays a faint gray. */
-    static constexpr qreal CardSurfaceRatioLight = 1.11;
 
     /** Minimum contrast ratio of a divider or border line against the
      *  surface it sits on: separators on Base, card borders and lines

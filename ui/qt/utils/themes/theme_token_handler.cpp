@@ -303,15 +303,16 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // the overlay cards.  The platform AlternateBase is no usable source
     // (macOS reports an opaque light gray for it in dark mode), so the
     // card starts from the theme's own alternateBase when it pins one,
-    // else from Base, and is moved away from Base until it reads as its
-    // own surface.  ensureContrast() moves toward white on a dark base
-    // and toward black on a light one.  A light base shows a smaller
-    // step as clearly, hence the lower light ratio.
+    // else from Base.  In dark mode it is moved toward white until it
+    // reads as its own surface.  In light mode it is used as-is: its
+    // border sets it apart on a light base, and a lift toward black
+    // would turn a white base into a gray card.
     const ThemeColorPair altBasePin = tokens.value(ThemeManager::PaletteAlternateBase);
     const QColor altBaseSide = altBasePin.forMode(isDarkMode);
-    const QColor cardBg = ColorMath::ensureContrast(
-            altBaseSide.isValid() ? altBaseSide : baseColor, baseColor,
-            isDarkMode ? ColorMath::CardSurfaceRatioDark : ColorMath::CardSurfaceRatioLight);
+    const QColor cardSource = altBaseSide.isValid() ? altBaseSide : baseColor;
+    const QColor cardBg = isDarkMode
+            ? ColorMath::ensureContrast(cardSource, baseColor, ColorMath::CardSurfaceRatioDark)
+            : cardSource;
 
     // The card border and the lines drawn on the card start from
     // Separator (pinned or derived) and are kept DividerRatio apart from
@@ -321,16 +322,23 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     const QColor cardBorder = ColorMath::ensureContrast(separatorSide, cardBg, ColorMath::DividerRatio);
 
     // Text and states on the card.  Section header and link colors are
-    // derived against Base and lose contrast on the lifted card, so they
-    // are lifted again against it.
-    // The card link is lifted against the card only, far enough that
-    // it reads on the item-view hover fill computed with the card as
-    // base: WCAG ratios multiply along one luminance axis, so a link
-    // ReadableTextRatio times the fill's own contrast to the card away
-    // from the card reads at ReadableTextRatio on that fill.  A
+    // derived against Base and lose contrast on a lifted or pinned card, so
+    // they are lifted again against it.
+    // In dark mode the card link is lifted against the card only, far
+    // enough that it reads on the item-view hover fill computed with the
+    // card as base: WCAG ratios multiply along one luminance axis, so a
+    // link ReadableTextRatio times the fill's own contrast to the card
+    // away from the card reads at ReadableTextRatio on that fill.  A
     // rich-text anchor has one color for both states, so where the
     // link cannot get that far, the fill gives way and is moved until
     // the link reads on it.
+    // In light mode the link keeps the application Link color, lifted
+    // only when it does not read on the card, because a light card
+    // leaves too little room to lift it past a distinct fill.  The
+    // hover counts as transient state text there: the fill is moved
+    // toward the card until the link reads on it at LargeTextRatio, and
+    // because ReadableTextRatio / LargeTextRatio equals
+    // DistinctSurfaceRatio the fill stays its own surface on the card.
     // The focus ring is the selection color lifted to text contrast
     // against the card.
     const ThemeColorPair sectionHeaderPair      = tokens.value(ThemeManager::SectionHeader);
@@ -340,11 +348,20 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     const QColor cardSectionHeaderHover = ColorMath::readableText(
             sectionHeaderHoverPair.forMode(isDarkMode), cardBg);
     const QColor cardLinkHoverBase = ColorMath::selectionHoverFill(cardBg, highlight);
-    const QColor cardLink = ColorMath::ensureContrast(
-            palette.color(QPalette::Active, QPalette::Link), cardBg,
-            ColorMath::ReadableTextRatio * ColorMath::contrastRatio(cardLinkHoverBase, cardBg));
-    const QColor cardLinkHover = ColorMath::ensureContrast(
-            cardLinkHoverBase, cardLink, ColorMath::ReadableTextRatio);
+    const QColor paletteLink = palette.color(QPalette::Active, QPalette::Link);
+    QColor cardLink;
+    QColor cardLinkHover;
+    if (isDarkMode) {
+        cardLink = ColorMath::ensureContrast(
+                paletteLink, cardBg,
+                ColorMath::ReadableTextRatio * ColorMath::contrastRatio(cardLinkHoverBase, cardBg));
+        cardLinkHover = ColorMath::ensureContrast(
+                cardLinkHoverBase, cardLink, ColorMath::ReadableTextRatio);
+    } else {
+        cardLink = ColorMath::readableText(paletteLink, cardBg);
+        cardLinkHover = ColorMath::ensureContrast(
+                cardLinkHoverBase, cardLink, ColorMath::LargeTextRatio);
+    }
     const QColor cardFocusRing = ColorMath::readableText(highlight, cardBg);
 
     // Overlay cards sit over a black scrim, such as the startup splash.

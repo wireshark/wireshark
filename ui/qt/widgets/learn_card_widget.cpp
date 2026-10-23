@@ -150,9 +150,10 @@ void LearnCardWidget::setupLinks()
 
         auto *link_label = new QLabel(ui_->learnLinkContainer);
         QString labelText = links_collapsed_ ? link.short_label : link.label;
-        int contentMargin = links_collapsed_ ? 4 : 10;
 
         link_label->setObjectName(QStringLiteral("learnLink"));
+        /* Selects the compact inset in learn-card.qss */
+        link_label->setProperty("collapsed", links_collapsed_);
         link_label->setTextFormat(Qt::RichText);
         link_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
         link_label->setOpenExternalLinks(true);
@@ -161,7 +162,6 @@ void LearnCardWidget::setupLinks()
         /* Accessible name needs to be the full label for screen readers */
         link_label->setAccessibleName(link.label);
         link_label->setAccessibleDescription(link.tooltip);
-        link_label->setContentsMargins(contentMargin, 4, contentMargin, 4);
         link_layout->addWidget(link_label);
     }
 
@@ -181,9 +181,10 @@ void LearnCardWidget::applyTheme()
 void LearnCardWidget::applyCardLinkPalette()
 {
     // Rich-text anchors take their color from QPalette::Link; a QSS
-    // color rule does not reach them.  The card link is lifted to read
-    // on the card and on its hover fill, so the labels get it locally
-    // and the application Link stays as it is.
+    // color rule does not reach them.  CardLink is derived to read on
+    // the card and on its hover fill (in dark mode it is lifted past
+    // the application Link), so the labels get it locally, and the
+    // application Link stays as it is.
     const QColor card_link = ThemeManager::instance()->color(ThemeManager::CardLink);
     const QList<QLabel *> labels = ui_->learnLinkContainer->findChildren<QLabel *>(
         QStringLiteral("learnLink"), Qt::FindDirectChildrenOnly);

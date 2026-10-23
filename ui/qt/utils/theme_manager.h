@@ -237,14 +237,18 @@ public:
         MutedText,
 
         // Raised surfaces ("cards") on Base and the colors drawn on
-        // them.  CardBackground is kept CardSurfaceRatio* apart from
-        // Base, starting from the theme's palette.alternateBase pin
-        // or Base; CardBorder frames it and is used for lines on it.
-        // CardSectionHeader*, CardLink and CardFocusRing are the
-        // section header, link and focus colors re-derived to read
-        // on the card; CardLinkHover is the item hover fill with the
-        // card as base, moved toward the card until CardLink reads on
-        // it.  OverlayCard* is the card surface for overlays over a
+        // them.  In dark mode CardBackground is kept CardSurfaceRatioDark
+        // apart from Base, starting from the theme's palette.alternateBase
+        // pin or Base; in light mode it is that color unchanged.
+        // CardBorder frames it and is used for lines on it.
+        // CardSectionHeader* and CardFocusRing are the section header
+        // and focus colors re-derived to read on the card.  CardLink is
+        // the application Link in light mode (lifted only when it does
+        // not read on the card), lifted further in dark mode so that it
+        // reads on CardLinkHover at body-text contrast.  CardLinkHover
+        // is the item hover fill with the card as base, moved toward
+        // the card until CardLink reads on it (large-text contrast in
+        // light mode).  OverlayCard* is the card surface for overlays over a
         // black scrim, such as the startup splash: the lighter of
         // Base and CardBackground, with its own border.
         CardBackground,

@@ -260,7 +260,7 @@ void WelcomePage::showEvent(QShowEvent *event)
  *                of compact state. This is stable because sizeHint()
  *                reports what the widget *wants*, while compact mode is
  *                enforced via setMaximumHeight().
- *   - learnMax:  LearnCardWidget::maximumHeight()  (from .ui: 240)
+ *   - learnMax:  LearnCardWidget::maximumHeight()  (from .ui: 260)
  *   - learnMin:  LearnCardWidget::minimumHeight()   (from .ui: 110)
  *   - spacing:   sidebarLayout->spacing()            (from .ui: 16)
  *
@@ -286,12 +286,12 @@ void WelcomePage::showEvent(QShowEvent *event)
  *
  * Decision zones (with current widget sizes):
  *
- *   available >= 636 (linksExpandAt)
+ *   available >= 656 (linksExpandAt)
  *     -> full tips + expanded links
  *
- *   available >= 506 (tipsExpandAt)  and  < 636
+ *   available >= 506 (tipsExpandAt)  and  < 656
  *     -> full tips + collapsed links
- *     (between 616-635: hysteresis zone for links -- keeps current state
+ *     (between 636-655: hysteresis zone for links -- keeps current state
  *      if already expanded, won't re-expand if collapsed)
  *
  *   available >= 486 (tipsCompactAt)  and  < 506
