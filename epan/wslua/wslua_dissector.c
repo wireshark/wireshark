@@ -214,12 +214,6 @@ WSLUA_ATTRIBUTE_GET(Dissector,protocol_short_name, {
     }
 });
 
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int Dissector__gc(lua_State* L _U_) {
-    /* do NOT free Dissector */
-    return 0;
-}
-
 WSLUA_ATTRIBUTES Dissector_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(Dissector,description),
     WSLUA_ATTRIBUTE_ROREG(Dissector,protocol_short_name),
@@ -242,7 +236,8 @@ WSLUA_META Dissector_meta[] = {
 };
 
 int Dissector_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS_WITH_ATTRS(Dissector);
+    /* No __gc; do NOT free Dissector */
+    WSLUA_REGISTER_CLASS_WITH_ATTRS_NOGC(Dissector);
     return 0;
 }
 

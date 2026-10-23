@@ -108,40 +108,39 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 return 1;
             }
         case FT_ETHER: {
-                Address eth = (Address)g_malloc(sizeof(address));
-                alloc_address_tvb(NULL,eth,AT_ETHER,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
-                pushAddress(L,eth);
+                address eth;
+                set_address_tvb(&eth,AT_ETHER,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
+                pushAddress(L,&eth);
                 return 1;
             }
         case FT_IPv4:{
-                Address ipv4 = (Address)g_malloc(sizeof(address));
-                alloc_address_tvb(NULL,ipv4,AT_IPv4,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
-                pushAddress(L,ipv4);
+                address ipv4;
+                set_address_tvb(&ipv4,AT_IPv4,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
+                pushAddress(L,&ipv4);
                 return 1;
             }
         case FT_IPv6: {
-                Address ipv6 = (Address)g_malloc(sizeof(address));
-                alloc_address_tvb(NULL,ipv6,AT_IPv6,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
-                pushAddress(L,ipv6);
+                address ipv6;
+                set_address_tvb(&ipv6,AT_IPv6,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
+                pushAddress(L,&ipv6);
                 return 1;
             }
         case FT_FCWWN: {
-                Address fcwwn = (Address)g_malloc(sizeof(address));
-                alloc_address_tvb(NULL,fcwwn,AT_FCWWN,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
-                pushAddress(L,fcwwn);
+                address fcwwn;
+                set_address_tvb(&fcwwn,AT_FCWWN,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
+                pushAddress(L,&fcwwn);
                 return 1;
             }
         case FT_IPXNET:{
-                Address ipx = (Address)g_malloc(sizeof(address));
-                alloc_address_tvb(NULL,ipx,AT_IPX,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
-                pushAddress(L,ipx);
+                address ipx;
+                set_address_tvb(&ipx,AT_IPX,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
+                pushAddress(L,&ipx);
                 return 1;
             }
         case FT_ABSOLUTE_TIME:
         case FT_RELATIVE_TIME: {
-                NSTime nstime = (NSTime)g_malloc(sizeof(nstime_t));
-                *nstime = *fvalue_get_time(fi->ws_fi->value);
-                pushNSTime(L,nstime);
+                nstime_t nstime = *fvalue_get_time(fi->ws_fi->value);
+                pushNSTime(L,&nstime);
                 return 1;
             }
         case FT_STRING:

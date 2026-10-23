@@ -223,14 +223,12 @@ static int FrameInfo_set_time (lua_State* L) {
 
 static int FrameInfo_get_time (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
-    NSTime nstime = (NSTime)g_malloc(sizeof(nstime_t));
+    nstime_t nstime;
 
-    if (!nstime) return 0;
+    nstime.secs  = fi->rec->ts.secs;
+    nstime.nsecs = fi->rec->ts.nsecs;
 
-    nstime->secs  = fi->rec->ts.secs;
-    nstime->nsecs = fi->rec->ts.nsecs;
-
-    pushNSTime(L,nstime);
+    pushNSTime(L,&nstime);
 
     return 1; /* An NSTime object of the frame's timestamp. */
 }
@@ -441,14 +439,12 @@ static int FrameInfoConst_get_comment (lua_State* L) {
 /* WSLUA_ATTRIBUTE FrameInfoConst_time RO The packet timestamp as an NSTime object. */
 static int FrameInfoConst_get_time (lua_State* L) {
     FrameInfoConst fi = checkFrameInfoConst(L,1);
-    NSTime nstime = (NSTime)g_malloc(sizeof(nstime_t));
+    nstime_t nstime;
 
-    if (!nstime) return 0;
+    nstime.secs  = fi->rec->ts.secs;
+    nstime.nsecs = fi->rec->ts.nsecs;
 
-    nstime->secs  = fi->rec->ts.secs;
-    nstime->nsecs = fi->rec->ts.nsecs;
-
-    pushNSTime(L,nstime);
+    pushNSTime(L,&nstime);
 
     return 1; /* An NSTime object of the frame's timestamp. */
 }

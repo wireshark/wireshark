@@ -53,8 +53,8 @@ def get_tap_info(tap_name, header_file, struct_name, enum_types):
         'int16_t': 'lua_pushinteger(L,(lua_Integer)v->STR);',
         'int32': 'lua_pushinteger(L,(lua_Integer)v->STR);',
         'bool': 'lua_pushboolean(L,(int)v->STR);',
-        'address': '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, &(v->STR)); pushAddress(L,a); }',
-        'address*': '{ Address a = (Address)g_malloc(sizeof(address)); copy_address(a, v->STR); pushAddress(L,a); }',
+        'address': '{ address a; copy_address_shallow(&a, &(v->STR)); pushAddress(L,&a); }',
+        'address*': '{ address a; copy_address_shallow(&a, v->STR); pushAddress(L,&a); }',
         'nstime_t': 'lua_pushnumber(L,(lua_Number)nstime_to_sec(&(v->STR)));',
         'nstime_t*': 'lua_pushnumber(L,(lua_Number)nstime_to_sec(v->STR));',
     }

@@ -544,11 +544,6 @@ WSLUA_METHOD Int64_bswap(lua_State* L) {
     WSLUA_RETURN(1); /* The <<lua_class_Int64,`Int64`>> object. */
 }
 
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META. */
-static int Int64__gc(lua_State* L _U_) {
-    return 0;
-}
-
 WSLUA_METHODS Int64_methods[] = {
     WSLUA_CLASS_FNREG(Int64,new),
     WSLUA_CLASS_FNREG(Int64,max),
@@ -591,7 +586,7 @@ WSLUA_META Int64_meta[] = {
 };
 
 extern int Int64_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(Int64);
+    WSLUA_REGISTER_CLASS_NOGC(Int64);
     return 0;
 }
 
@@ -1017,11 +1012,6 @@ WSLUA_METHOD UInt64_bswap(lua_State* L) {
     WSLUA_RETURN(1); /* The <<lua_class_UInt64,`UInt64`>> object. */
 }
 
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int UInt64__gc(lua_State* L _U_) {
-    return 0;
-}
-
 WSLUA_METHODS UInt64_methods[] = {
     WSLUA_CLASS_FNREG(UInt64,new),
     WSLUA_CLASS_FNREG(UInt64,max),
@@ -1064,7 +1054,7 @@ WSLUA_META UInt64_meta[] = {
 };
 
 extern int UInt64_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(UInt64);
+    WSLUA_REGISTER_CLASS_NOGC(UInt64);
     return 0;
 }
 

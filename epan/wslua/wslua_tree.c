@@ -84,13 +84,12 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_ABSOLUTE_TIME:
         case FT_RELATIVE_TIME:
             {
-               /* nstime_t will be g_free'd by Lua */
-                nstime_t *nstime = g_new0(nstime_t, 1);
+                nstime_t nstime = NSTIME_INIT_ZERO;
                 item = proto_tree_add_time_item(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                    tvbr->offset, tvbr->len, encoding,
-                                                   nstime, &endoff, &err);
+                                                   &nstime, &endoff, &err);
                 if (err == 0) {
-                    pushNSTime(L,nstime);
+                    pushNSTime(L,&nstime);
                     lua_pushinteger(L, endoff);
                 }
             }
@@ -205,40 +204,40 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
 
         case FT_IPv4:
             {
-                Address addr = g_new(address,1);
+                address addr;
                 ws_in4_addr ret;
                 item = proto_tree_add_item_ret_ipv4(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
-                alloc_address_wmem(NULL, addr, AT_IPv4, sizeof(ret), &ret);
-                pushAddress(L, addr);
+                set_address(&addr, AT_IPv4, sizeof(ret), &ret);
+                pushAddress(L, &addr);
                 lua_pushinteger(L, tvbr->offset + tvbr->len);
             }
             break;
 
         case FT_IPv6:
             {
-                Address addr = g_new(address, 1);
+                address addr;
                 ws_in6_addr ret;
                 item = proto_tree_add_item_ret_ipv6(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     &ret);
-                alloc_address_wmem(NULL, addr, AT_IPv6, sizeof(ret), &ret);
-                pushAddress(L, addr);
+                set_address(&addr, AT_IPv6, sizeof(ret), &ret);
+                pushAddress(L, &addr);
                 lua_pushinteger(L, tvbr->offset + tvbr->len);
             }
             break;
 
         case FT_ETHER:
             {
-                Address addr = g_new(address, 1);
+                address addr;
                 uint8_t bytes[FT_ETHER_LEN];
 
                 item = proto_tree_add_item_ret_ether(tree_item->tree, hfid, tvbr->tvb.ws_tvb,
                                                     tvbr->offset, tvbr->len, encoding,
                                                     bytes);
-                alloc_address_wmem(NULL, addr, AT_ETHER, sizeof(bytes), bytes);
-                pushAddress(L, addr);
+                set_address(&addr, AT_ETHER, sizeof(bytes), bytes);
+                pushAddress(L, &addr);
                 lua_pushinteger(L, tvbr->offset + tvbr->len);
             }
             break;

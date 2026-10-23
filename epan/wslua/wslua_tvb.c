@@ -762,7 +762,7 @@ WSLUA_METHOD TvbRange_le_float(lua_State* L) {
 WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
     /* Get an IPv4 Address from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Address,`Address`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
-    Address addr;
+    address addr;
 
     if (!tvbr) return 0;
     if (WSLUA_EXPIRED(&tvbr->tvb)) {
@@ -775,9 +775,8 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
         return 0;
     }
 
-    addr = g_new(address,1);
-    alloc_address_tvb(NULL,addr,AT_IPv4,sizeof(uint32_t),tvbr->tvb.ws_tvb,tvbr->offset);
-    pushAddress(L,addr);
+    set_address_tvb(&addr,AT_IPv4,sizeof(uint32_t),tvbr->tvb.ws_tvb,tvbr->offset);
+    pushAddress(L,&addr);
 
     WSLUA_RETURN(1); /* The IPv4 <<lua_class_Address,`Address`>> object. */
 }
@@ -785,7 +784,7 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
 WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
     /* Get an Little Endian IPv4 Address from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Address,`Address`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
-    Address addr;
+    address addr;
     uint32_t ip_addr;
 
     if (!tvbr) return 0;
@@ -799,10 +798,9 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
         return 0;
     }
 
-    addr = g_new(address,1);
     ip_addr = GUINT32_SWAP_LE_BE(tvb_get_ipv4(tvbr->tvb.ws_tvb,tvbr->offset));
-    alloc_address_wmem(NULL, addr, AT_IPv4, sizeof(ip_addr), &ip_addr);
-    pushAddress(L,addr);
+    set_address(&addr, AT_IPv4, sizeof(ip_addr), &ip_addr);
+    pushAddress(L,&addr);
 
     WSLUA_RETURN(1); /* The IPv4 <<lua_class_Address,`Address`>> object. */
 }
@@ -810,7 +808,7 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
 WSLUA_METHOD TvbRange_ipv6(lua_State* L) {
     /* Get an IPv6 Address from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Address,`Address`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
-    Address addr;
+    address addr;
 
     if (!tvbr) return 0;
     if (WSLUA_EXPIRED(&tvbr->tvb)) {
@@ -823,9 +821,8 @@ WSLUA_METHOD TvbRange_ipv6(lua_State* L) {
         return 0;
     }
 
-    addr = g_new(address,1);
-    alloc_address_tvb(NULL,addr,AT_IPv6,16,tvbr->tvb.ws_tvb,tvbr->offset);
-    pushAddress(L,addr);
+    set_address_tvb(&addr,AT_IPv6,16,tvbr->tvb.ws_tvb,tvbr->offset);
+    pushAddress(L,&addr);
 
     WSLUA_RETURN(1); /* The IPv6 <<lua_class_Address,`Address`>> object. */
 }
@@ -833,7 +830,7 @@ WSLUA_METHOD TvbRange_ipv6(lua_State* L) {
 WSLUA_METHOD TvbRange_ether(lua_State* L) {
     /* Get an Ethernet Address from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_Address,`Address`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
-    Address addr;
+    address addr;
 
     if (!tvbr) return 0;
     if (WSLUA_EXPIRED(&tvbr->tvb)) {
@@ -846,9 +843,8 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
         return 0;
     }
 
-    addr = g_new(address,1);
-    alloc_address_tvb(NULL,addr,AT_ETHER,6,tvbr->tvb.ws_tvb,tvbr->offset);
-    pushAddress(L,addr);
+    set_address_tvb(&addr,AT_ETHER,6,tvbr->tvb.ws_tvb,tvbr->offset);
+    pushAddress(L,&addr);
 
     WSLUA_RETURN(1); /* The Ethernet <<lua_class_Address,`Address`>> object. */
 }
@@ -857,7 +853,7 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
     /* Obtain a time_t structure from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_NSTime,`NSTime`>> object. */
 #define WSLUA_OPTARG_TvbRange_nstime_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);
-    NSTime nstime;
+    nstime_t nstime;
     const unsigned encoding = (unsigned) luaL_optinteger(L, WSLUA_OPTARG_TvbRange_nstime_ENCODING, 0);
 
     if (!tvbr) return 0;
@@ -871,35 +867,31 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
         return 0;
     }
 
-    nstime = g_new(nstime_t,1);
-
     if (encoding == 0) {
         if (tvbr->len == 4) {
-          nstime->secs = tvb_get_ntohl(tvbr->tvb.ws_tvb, tvbr->offset);
-          nstime->nsecs = 0;
+          nstime.secs = tvb_get_ntohl(tvbr->tvb.ws_tvb, tvbr->offset);
+          nstime.nsecs = 0;
         } else if (tvbr->len == 8) {
-          nstime->secs = tvb_get_ntohl(tvbr->tvb.ws_tvb, tvbr->offset);
-          nstime->nsecs = tvb_get_ntohl(tvbr->tvb.ws_tvb, tvbr->offset + 4);
+          nstime.secs = tvb_get_ntohl(tvbr->tvb.ws_tvb, tvbr->offset);
+          nstime.nsecs = tvb_get_ntohl(tvbr->tvb.ws_tvb, tvbr->offset + 4);
         } else {
-          g_free(nstime);
           WSLUA_ERROR(TvbRange_nstime,"The range must be 4 or 8 bytes long");
           return 0;
         }
-        pushNSTime(L, nstime);
+        pushNSTime(L, &nstime);
         lua_pushinteger(L, tvbr->len);
     }
     else {
         unsigned endoff = 0;
         nstime_t *retval = tvb_get_string_time(tvbr->tvb.ws_tvb, tvbr->offset, tvbr->len,
-                                               encoding, nstime, &endoff);
+                                               encoding, &nstime, &endoff);
         if (!retval || endoff == 0) {
-            g_free(nstime);
             /* push nil nstime and offset */
             lua_pushnil(L);
             lua_pushnil(L);
         }
         else {
-            pushNSTime(L, nstime);
+            pushNSTime(L, &nstime);
             lua_pushinteger(L, endoff);
         }
     }
@@ -910,7 +902,7 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
 WSLUA_METHOD TvbRange_le_nstime(lua_State* L) {
     /* Obtain a nstime from a <<lua_class_TvbRange,`TvbRange`>>, as an <<lua_class_NSTime,`NSTime`>> object. */
     TvbRange tvbr = checkTvbRange(L,1);
-    NSTime nstime;
+    nstime_t nstime;
 
     if (!tvbr) return 0;
     if (WSLUA_EXPIRED(&tvbr->tvb)) {
@@ -918,21 +910,18 @@ WSLUA_METHOD TvbRange_le_nstime(lua_State* L) {
         return 0;
     }
 
-    nstime = g_new(nstime_t,1);
-
     if (tvbr->len == 4) {
-      nstime->secs = tvb_get_letohl(tvbr->tvb.ws_tvb, tvbr->offset);
-      nstime->nsecs = 0;
+      nstime.secs = tvb_get_letohl(tvbr->tvb.ws_tvb, tvbr->offset);
+      nstime.nsecs = 0;
     } else if (tvbr->len == 8) {
-      nstime->secs = tvb_get_letohl(tvbr->tvb.ws_tvb, tvbr->offset);
-      nstime->nsecs = tvb_get_letohl(tvbr->tvb.ws_tvb, tvbr->offset + 4);
+      nstime.secs = tvb_get_letohl(tvbr->tvb.ws_tvb, tvbr->offset);
+      nstime.nsecs = tvb_get_letohl(tvbr->tvb.ws_tvb, tvbr->offset + 4);
     } else {
-      g_free(nstime);
       WSLUA_ERROR(TvbRange_nstime,"The range must be 4 or 8 bytes long");
       return 0;
     }
 
-    pushNSTime(L, nstime);
+    pushNSTime(L, &nstime);
 
     WSLUA_RETURN(1); /* The <<lua_class_NSTime,`NSTime`>> object. */
 }

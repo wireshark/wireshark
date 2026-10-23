@@ -26,7 +26,7 @@
 /* WSLUA_CONTINUE_MODULE Pinfo */
 
 
-WSLUA_CLASS_DEFINE(NSTime,FAIL_ON_NULL("NSTime"));
+WSLUA_CLASS_DEFINE_INLINE(NSTime,NOP);
 /* NSTime represents a nstime_t.  This is an object with seconds and nanoseconds. */
 
 WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {
@@ -36,12 +36,11 @@ WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {
     lua_Integer secs = luaL_optinteger(L,WSLUA_OPTARG_NSTime_new_SECONDS,0);
     lua_Integer nsecs = luaL_optinteger(L,WSLUA_OPTARG_NSTime_new_NSECONDS,0);
 
-    NSTime nstime = g_new(nstime_t, 1);
-    if (!nstime) return 0;
-    nstime->secs = (time_t) secs;
-    nstime->nsecs = (int) nsecs;
+    nstime_t nstime;
+    nstime.secs = (time_t) secs;
+    nstime.nsecs = (int) nsecs;
 
-    pushNSTime(L,nstime);
+    pushNSTime(L,&nstime);
 
     WSLUA_RETURN(1); /* The new NSTime object. */
 }
@@ -98,10 +97,10 @@ WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
 WSLUA_METAMETHOD NSTime__add(lua_State* L) { /* Calculates the sum of two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
-    NSTime time3 = (NSTime)g_malloc (sizeof (nstime_t));
+    nstime_t time3;
 
-    nstime_sum (time3, time1, time2);
-    pushNSTime (L, time3);
+    nstime_sum (&time3, time1, time2);
+    pushNSTime (L, &time3);
 
     return 1;
 }
@@ -109,21 +108,21 @@ WSLUA_METAMETHOD NSTime__add(lua_State* L) { /* Calculates the sum of two NSTime
 WSLUA_METAMETHOD NSTime__sub(lua_State* L) { /* Calculates the diff of two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
-    NSTime time3 = (NSTime)g_malloc (sizeof (nstime_t));
+    nstime_t time3;
 
-    nstime_delta (time3, time1, time2);
-    pushNSTime (L, time3);
+    nstime_delta (&time3, time1, time2);
+    pushNSTime (L, &time3);
 
     return 1;
 }
 
 WSLUA_METAMETHOD NSTime__unm(lua_State* L) { /* Calculates the negative NSTime. */
     NSTime time1 = checkNSTime(L,1);
-    NSTime time2 = (NSTime)g_malloc (sizeof (nstime_t));
+    nstime_t time2;
 
-    nstime_set_zero (time2);
-    nstime_subtract (time2, time1);
-    pushNSTime (L, time2);
+    nstime_set_zero (&time2);
+    nstime_subtract (&time2, time1);
+    pushNSTime (L, &time2);
 
     return 1;
 }
@@ -176,16 +175,6 @@ WSLUA_ATTRIBUTE_INTEGER_SETTER(NSTime,secs,time_t);
 WSLUA_ATTRIBUTE_INTEGER_GETTER(NSTime,nsecs);
 WSLUA_ATTRIBUTE_INTEGER_SETTER(NSTime,nsecs,int);
 
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int NSTime__gc(lua_State* L) {
-    NSTime nstime = toNSTime(L,1);
-
-    if (!nstime) return 0;
-
-    g_free (nstime);
-    return 0;
-}
-
 /* This table is ultimately registered as a sub-table of the class' metatable,
  * and if __index/__newindex is invoked then it calls the appropriate function
  * from this table for getting/setting the members.
@@ -215,7 +204,7 @@ WSLUA_META NSTime_meta[] = {
 };
 
 int NSTime_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS_WITH_ATTRS(NSTime);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS_NOGC(NSTime);
     return 0;
 }
 

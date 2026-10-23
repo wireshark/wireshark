@@ -223,9 +223,7 @@ static int Pinfo__tostring(lua_State *L) {
 
 #define PINFO_ADDRESS_GETTER(name) \
     WSLUA_ATTRIBUTE_GET(Pinfo,name, { \
-      Address addr = g_new(address,1); \
-      copy_address(addr, &(obj->ws_pinfo->name)); \
-      pushAddress(L,addr); \
+      pushAddress(L, &(obj->ws_pinfo->name)); \
     })
 
 /*
@@ -467,32 +465,26 @@ static int Pinfo_get_private(lua_State *L) {
 /* WSLUA_ATTRIBUTE Pinfo_hi RW Higher Address of this Packet. */
 static int Pinfo_get_hi(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
-    Address addr;
 
-    addr = (Address)g_malloc(sizeof(address));
     if (cmp_address(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) >= 0) {
-        copy_address(addr, &(pinfo->ws_pinfo->src));
+        pushAddress(L, &(pinfo->ws_pinfo->src));
     } else {
-        copy_address(addr, &(pinfo->ws_pinfo->dst));
+        pushAddress(L, &(pinfo->ws_pinfo->dst));
     }
 
-    pushAddress(L,addr);
     return 1;
 }
 
 /* WSLUA_ATTRIBUTE Pinfo_lo RO Lower Address of this Packet. */
 static int Pinfo_get_lo(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
-    Address addr;
 
-    addr = (Address)g_malloc(sizeof(address));
     if (cmp_address(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) < 0) {
-        copy_address(addr, &(pinfo->ws_pinfo->src));
+        pushAddress(L, &(pinfo->ws_pinfo->src));
     } else {
-        copy_address(addr, &(pinfo->ws_pinfo->dst));
+        pushAddress(L, &(pinfo->ws_pinfo->dst));
     }
 
-    pushAddress(L,addr);
     return 1;
 }
 

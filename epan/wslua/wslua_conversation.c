@@ -175,12 +175,6 @@ WSLUA_METAMETHOD Conversation__tostring(lua_State *L) {
 }
 
 
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int Conversation__gc(lua_State* L _U_) {
-    /* Don't free. Conversation struct managed in Wireshark */
-    return 0;
-}
-
 WSLUA_CONSTRUCTOR Conversation_find(lua_State* L) {
     /* Searches for a `Conversation` instance matching criteria. If one does not exist and 'create'
        is true, one will be created, otherwise `nil` will be returned. Note that, although there are
@@ -479,7 +473,8 @@ WSLUA_META Conversation_meta[] = {
 };
 
 int Conversation_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS_WITH_ATTRS(Conversation);
+    /* No __gc; the conversation struct is managed in Wireshark */
+    WSLUA_REGISTER_CLASS_WITH_ATTRS_NOGC(Conversation);
 
     return 0;
 }
