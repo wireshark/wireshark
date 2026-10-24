@@ -236,10 +236,10 @@ static aeron_frame_info_t * aeron_frame_info_lookup(wmem_tree_key_t * key)
 
 static aeron_frame_info_t * aeron_frame_info_find(uint32_t frame, uint32_t ofs)
 {
-    wmem_tree_key_t * key = aeron_frame_info_key_build(NULL, frame, ofs);
-    aeron_frame_info_t* aeron_frame = (aeron_frame_info_lookup(key));
-    wmem_free(NULL, key);
-    return aeron_frame;
+    uint32_t key_value[2] = { frame, ofs };
+    wmem_tree_key_t key[2] = { { 2, key_value }, { 0, NULL } };
+
+    return (aeron_frame_info_lookup(key));
 }
 
 static aeron_frame_info_t * aeron_frame_info_add(wmem_allocator_t* allocator, uint32_t frame, uint32_t ofs)
@@ -2162,6 +2162,11 @@ static void aeron_msg_process(tvbuff_t * tvb, unsigned offset, packet_info * pin
                                 */
                                 msg = NULL;
                             }
+                            else if (msg->complete)
+                            {
+                                /* A retransmission of the start of a message we already have */
+                                return;
+                            }
                         }
                         if (msg == NULL)
                         {
@@ -2174,8 +2179,8 @@ static void aeron_msg_process(tvbuff_t * tvb, unsigned offset, packet_info * pin
                         msg = aeron_term_msg_find_le(term, info->term_offset);
                         if (msg != NULL)
                         {
-                            /* Is this the next expected term offset? */
-                            if (msg->next_expected_term_offset == info->term_offset)
+                            /* Is this the next expected term offset of a message that isn't complete yet? */
+                            if (!msg->complete && (msg->next_expected_term_offset == info->term_offset))
                             {
                                 /* Yes - we can add the fragment to the message */
                             }
