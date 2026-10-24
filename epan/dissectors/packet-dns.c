@@ -516,6 +516,11 @@ static int hf_dns_opt_ul_lease;
 static int hf_dns_opt_ul_key_lease;
 static int hf_dns_opt_nsid;
 static int hf_dns_opt_edns_expire;
+static int hf_dns_opt_llq_version;
+static int hf_dns_opt_llq_opcode;
+static int hf_dns_opt_llq_error;
+static int hf_dns_opt_llq_id;
+static int hf_dns_opt_llq_lease;
 static int hf_dns_nsec3_algo;
 static int hf_dns_nsec3_flags;
 static int hf_dns_nsec3_flag_optout;
@@ -770,7 +775,7 @@ typedef struct _dns_conv_info_t {
 #define F_RCODE         (0xF<<0)        /* reply code */
 
 /* Optcode values for EDNS0 options (RFC 2671) */
-#define O_LLQ            1              /* Long-lived query (on-hold, draft-sekar-dns-llq) */
+#define O_LLQ            1              /* Long-Lived Queries (RFC8764) */
 #define O_UL             2              /* Update Lease (RFC9664) */
 #define O_NSID           3              /* Name Server Identifier (RFC 5001) */
 #define O_OWNER          4              /* Owner, reserved (draft-cheshire-edns0-owner-option) */
@@ -1207,7 +1212,7 @@ static value_string_ext dns_types_description_vals_ext = VALUE_STRING_EXT_INIT(d
 
 static const value_string edns0_opt_code_vals[] = {
   { 0,                       "Reserved" },
-  { O_LLQ,               "LLQ - Long-lived query" },
+  { O_LLQ,               "Long-Lived Query" },
   { O_UL,                "Update Lease" },
   { O_NSID,              "Name Server Identifier" },
   { O_OWNER,             "Owner (reserved)" },
@@ -3483,6 +3488,30 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
         proto_tree_add_item(rropt_tree, hf_dns_opt_data, tvb, cur_offset, optlen, ENC_NA);
         switch(optcode) {
+
+          case O_LLQ: /* Long-Lived Queries (RFC8764) */
+          {
+              if (optlen != 18) {
+                  expert_add_info(pinfo, rroptlen, &ei_dns_opt_bad_length);
+                  break;
+              }
+              proto_tree_add_item(rropt_tree, hf_dns_opt_llq_version, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+              cur_offset += 2;
+              rropt_len  -= 2;
+              proto_tree_add_item(rropt_tree, hf_dns_opt_llq_opcode, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+              cur_offset += 2;
+              rropt_len  -= 2;
+              proto_tree_add_item(rropt_tree, hf_dns_opt_llq_error, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+              cur_offset += 2;
+              rropt_len  -= 2;
+              proto_tree_add_item(rropt_tree, hf_dns_opt_llq_id, tvb, cur_offset, 8, ENC_BIG_ENDIAN);
+              cur_offset += 8;
+              rropt_len  -= 8;
+              proto_tree_add_item(rropt_tree, hf_dns_opt_llq_lease, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
+              cur_offset += 4;
+              rropt_len  -= 4;
+          }
+          break;
 
           case O_UL: /* Update Lease (RFC9664) */
           {
@@ -7673,6 +7702,31 @@ proto_register_dns(void)
       { "Expire", "dns.opt.edns_expire",
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
         "Zone expire time in seconds (RFC7314)", HFILL }},
+
+    { &hf_dns_opt_llq_version,
+      { "LLQ Version", "dns.opt.llq.version",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "LLQ protocol version (RFC8764)", HFILL }},
+
+    { &hf_dns_opt_llq_opcode,
+      { "LLQ Opcode", "dns.opt.llq.opcode",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "LLQ operation code (RFC8764)", HFILL }},
+
+    { &hf_dns_opt_llq_error,
+      { "LLQ Error", "dns.opt.llq.error",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "LLQ error code (RFC8764)", HFILL }},
+
+    { &hf_dns_opt_llq_id,
+      { "LLQ ID", "dns.opt.llq.id",
+        FT_UINT64, BASE_HEX, NULL, 0x0,
+        "LLQ identifier (RFC8764)", HFILL }},
+
+    { &hf_dns_opt_llq_lease,
+      { "LLQ Lease", "dns.opt.llq.lease",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_seconds), 0x0,
+        "LLQ lease lifetime in seconds (RFC8764)", HFILL }},
 
     { &hf_dns_count_questions,
       { "Questions", "dns.count.queries",

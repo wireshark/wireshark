@@ -10057,3 +10057,34 @@ class TestDissectAtRl:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['1', '2', '3', '4', '5', '6']
+
+
+class TestDissectDnsLlq:
+    def test_llq_setup_request(self, cmd_tshark, capture_file, test_env):
+        '''LLQ Setup request is decoded correctly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_llq.pcap'),
+                '-Y', 'frame.number == 1',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.llq.version',
+                '-e', 'dns.opt.llq.opcode',
+                '-e', 'dns.opt.llq.error',
+                '-e', 'dns.opt.llq.lease',
+            ), encoding='utf-8', env=test_env)
+        assert '1' in stdout   # option code
+        assert '7200' in stdout  # lease
+
+    def test_llq_setup_response(self, cmd_tshark, capture_file, test_env):
+        '''LLQ Setup response with assigned ID is decoded correctly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_llq.pcap'),
+                '-Y', 'frame.number == 2',
+                '-Tfields',
+                '-e', 'dns.opt.code',
+                '-e', 'dns.opt.llq.id',
+                '-e', 'dns.opt.llq.lease',
+            ), encoding='utf-8', env=test_env)
+        assert '1' in stdout         # option code
+        assert '0x0000000000bc614e' in stdout  # LLQ ID = 12345678
+        assert '3600' in stdout      # lease
