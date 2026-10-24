@@ -70,13 +70,15 @@ public:
     ContrastAdaptIconEngine(const QString &path, qreal min_contrast,
                             QPalette::ColorRole surface_role,
                             QColor explicit_bg, QSize size,
-                            IconPaletteRef palette) :
+                            IconPaletteRef palette,
+                            IconTokenColorsRef token_colors) :
         path_(path),
         min_contrast_(min_contrast),
         surface_role_(surface_role),
         explicit_bg_(explicit_bg),
         size_(size),
-        palette_(palette)
+        palette_(palette),
+        token_colors_(token_colors)
     {
         path_ = path;
         QFile f(path);
@@ -134,7 +136,7 @@ public:
     {
         ContrastAdaptIconEngine *e =
             new ContrastAdaptIconEngine(path_, min_contrast_, surface_role_, explicit_bg_,
-                                        size_, palette_);
+                                        size_, palette_, token_colors_);
         e->svg_ = svg_;
         e->swaps_ = swaps_;
         e->token_maps_ = token_maps_;
@@ -256,10 +258,16 @@ private:
         }
     }
 
-    // Current colour of a mapped token, falling back to the palette text colour
-    // when the theme does not supply it.
+    // Current colour of a mapped token: a caller-supplied override first, then the
+    // live theme, falling back to the palette text colour when the theme does not
+    // supply it.
     QColor tokenColor(ThemeManager::ThemeToken token) const
     {
+        if (token_colors_) {
+            const QColor c = token_colors_->value(token);
+            if (c.isValid())
+                return c;
+        }
         return resolveIconToken(token, iconPalettePtr(palette_));
     }
 
@@ -341,6 +349,7 @@ private:
     QColor explicit_bg_;
     QSize size_;
     IconPaletteRef palette_;
+    IconTokenColorsRef token_colors_;
     QHash<QString, StateColors> swaps_;
     QHash<QString, ThemeManager::ThemeToken> token_maps_;
 };
@@ -350,26 +359,33 @@ private:
 ContrastAdaptIcon::ContrastAdaptIcon(const QString &svg_resource_path,
                                      QPalette::ColorRole surface_role, QSize size) :
     ContrastAdaptIcon(svg_resource_path, surface_role, QColor(), size,
-                      makeIconPaletteRef())
+                      makeIconPaletteRef(), makeIconTokenColorsRef())
 {
 }
 
 ContrastAdaptIcon::ContrastAdaptIcon(const QString &svg_resource_path,
                                      const QColor &explicit_background, QSize size) :
     ContrastAdaptIcon(svg_resource_path, QPalette::Window, explicit_background,
-                      size, makeIconPaletteRef())
+                      size, makeIconPaletteRef(), makeIconTokenColorsRef())
 {
 }
 
 ContrastAdaptIcon::ContrastAdaptIcon(const QString &svg_resource_path,
                                      QPalette::ColorRole surface_role,
                                      const QColor &explicit_background,
-                                     QSize size, IconPaletteRef palette) :
+                                     QSize size, IconPaletteRef palette,
+                                     IconTokenColorsRef token_colors) :
     QIcon(new ContrastAdaptIconEngine(svg_resource_path, defaultMinContrastRef(),
                                       surface_role, explicit_background, size,
-                                      palette)),
-    palette_(palette)
+                                      palette, token_colors)),
+    palette_(palette),
+    token_colors_(token_colors)
 {
+}
+
+void ContrastAdaptIcon::setTokenColors(const QHash<ThemeManager::ThemeToken, QColor> &colors)
+{
+    *token_colors_ = colors;
 }
 
 void ContrastAdaptIcon::setPalette(const QPalette &palette)

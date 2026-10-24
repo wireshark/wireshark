@@ -26,9 +26,14 @@ variant C.
 `jsonschema` is an optional test dependency; tests self-skip when the
 package is not installed so existing `pip install pytest pytest-xdist`
 setups keep working.
+
+Themes that list `meta.colorVision` are checked for distinguishable semantic colors
+and strong graph slots, and every expert severity icon has its own shape.
 '''
 
+import itertools
 import json
+import math
 import re
 from pathlib import Path
 
@@ -909,3 +914,280 @@ class TestSchemaFlexibility:
         }
         assert _resolve_palette(theme, 'light')['mid'] == '#5a5a5a'
         assert _resolve_palette(theme, 'dark')['mid']  == '#a0a0a0'
+
+
+# =====================================================================
+# Color vision deficiency themes — themes that list deficiencies in
+# meta.colorVision must keep every semantic color set distinguishable
+# under normal vision and under each listed deficiency.
+# =====================================================================
+
+# Full-severity (1.0) dichromacy simulation matrices in linear RGB from
+# Machado, Oliveira and Fernandes, "A Physiologically-based Model for
+# Simulation of Color Vision Deficiency", IEEE TVCG 15(6), 2009.  The
+# keys are the enum values of meta.colorVision in theme.schema.json.
+CVD_MATRICES = {
+    'protanopia': ((0.152286, 1.052583, -0.204868),
+                   (0.114503, 0.786281, 0.099216),
+                   (-0.003882, -0.048116, 1.051998)),
+    'deuteranopia': ((0.367322, 0.860646, -0.227968),
+                     (0.280085, 0.672501, 0.047413),
+                     (-0.011820, 0.042940, 0.968881)),
+    'tritanopia': ((1.255528, -0.076749, -0.178779),
+                   (-0.078411, 0.930809, 0.147602),
+                   (0.004733, 0.691367, 0.303900)),
+}
+
+# The graph list holds strong colors first and pastel tints of the same
+# hues after them (slots 1-7 and 8-14 in resources/themes/README.md).
+# The tints repeat the hues on purpose, so only the strong slots must be
+# told apart; they are also the only slots the fixed-slot users read
+# (TCP stream graph 1-5, SCTP graphs 0/1/3/4/6, DIS analysis 1).
+STRONG_GRAPH_SLOTS = 7
+
+# Semantic color sets and the minimum CIEDE2000 difference between any
+# two members.  None as keys means the strong graph slots; keys starting
+# with ALL_EXCEPT mean every key theme.schema.json declares for the
+# section except the ones listed after it, so a key added to the schema
+# is checked without editing this table.  The floors
+# are the values of the bundled color vision themes at the time they
+# were designed; raise a floor when the values improve, never lower it
+# to make a new value pass.  Accents are weakest for success / info in
+# dark protanopia; the expert backgrounds are lowest because the
+# Severity column, the tooltip and the status bar icon shape name the
+# severity as well, and five tints cannot all reach the strong colors.
+ALL_EXCEPT = '*'
+
+CVD_SETS = (
+    ('accent', (ALL_EXCEPT,), 8.0),
+    ('filter', ('valid', 'invalid', 'deprecated'), 9.5),
+    ('conversation', ('client', 'server'), 10.0),
+    ('conversation', ('clientText', 'serverText'), 10.0),
+    ('expert', (ALL_EXCEPT, 'foreground'), 6.5),
+    ('graphs', None, 10.0),
+)
+
+# Sections the color vision themes copy from the default theme, because
+# a theme cannot inherit from another one and an omitted key is derived
+# from brand / accent instead (theme_token_handler.cpp), which would
+# change the selection, Follow Stream and history colors.  None means
+# every key the default theme sets in that section.  The test below
+# fails when the copies and the default theme drift apart.
+DEFAULT_THEME_COPIES = (
+    ('brand', None),
+    ('packets', None),
+    ('palette', None),
+    ('conversation', None),
+    ('filter', ('history',)),
+)
+
+
+def _linear_to_srgb(v):
+    v = max(0.0, min(1.0, v))
+    return 255.0 * (v * 12.92 if v <= 0.0031308 else 1.055 * v ** (1 / 2.4) - 0.055)
+
+
+def simulate_cvd(hex_str, deficiency):
+    '''hex_str as seen with full-severity `deficiency`, as an 8-bit RGB triple.'''
+    lin = [_srgb_to_linear(v) for v in _hex_to_rgb(hex_str)]
+    return tuple(_linear_to_srgb(sum(m * c for m, c in zip(row, lin)))
+                 for row in CVD_MATRICES[deficiency])
+
+
+def _rgb_to_lab(rgb):
+    '''CIELAB (D65) of an 8-bit sRGB triple.'''
+    r, g, b = (_srgb_to_linear(v) for v in rgb)
+    x = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047
+    y = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    z = (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883
+
+    def f(t):
+        return t ** (1 / 3) if t > 216 / 24389 else (24389 / 27 * t + 16) / 116
+    fx, fy, fz = f(x), f(y), f(z)
+    return (116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz))
+
+
+def ciede2000(lab1, lab2):
+    '''CIEDE2000 color difference (Sharma, Wu and Dalal, 2005).'''
+    l1, a1, b1 = lab1
+    l2, a2, b2 = lab2
+    c_bar = (math.hypot(a1, b1) + math.hypot(a2, b2)) / 2
+    g = 0.5 * (1 - math.sqrt(c_bar ** 7 / (c_bar ** 7 + 25 ** 7)))
+    a1p, a2p = (1 + g) * a1, (1 + g) * a2
+    c1p, c2p = math.hypot(a1p, b1), math.hypot(a2p, b2)
+    h1p = math.degrees(math.atan2(b1, a1p)) % 360 if c1p else 0.0
+    h2p = math.degrees(math.atan2(b2, a2p)) % 360 if c2p else 0.0
+    dlp = l2 - l1
+    dcp = c2p - c1p
+    if c1p * c2p == 0:
+        dhp = 0.0
+    else:
+        dhp = h2p - h1p
+        if dhp > 180:
+            dhp -= 360
+        elif dhp < -180:
+            dhp += 360
+    dhp_big = 2 * math.sqrt(c1p * c2p) * math.sin(math.radians(dhp / 2))
+    l_bar = (l1 + l2) / 2
+    cp_bar = (c1p + c2p) / 2
+    if c1p * c2p == 0:
+        hp_bar = h1p + h2p
+    elif abs(h1p - h2p) <= 180:
+        hp_bar = (h1p + h2p) / 2
+    elif h1p + h2p < 360:
+        hp_bar = (h1p + h2p + 360) / 2
+    else:
+        hp_bar = (h1p + h2p - 360) / 2
+    t = (1 - 0.17 * math.cos(math.radians(hp_bar - 30))
+         + 0.24 * math.cos(math.radians(2 * hp_bar))
+         + 0.32 * math.cos(math.radians(3 * hp_bar + 6))
+         - 0.20 * math.cos(math.radians(4 * hp_bar - 63)))
+    d_theta = 30 * math.exp(-((hp_bar - 275) / 25) ** 2)
+    r_c = 2 * math.sqrt(cp_bar ** 7 / (cp_bar ** 7 + 25 ** 7))
+    s_l = 1 + 0.015 * (l_bar - 50) ** 2 / math.sqrt(20 + (l_bar - 50) ** 2)
+    s_c = 1 + 0.045 * cp_bar
+    s_h = 1 + 0.015 * cp_bar * t
+    r_t = -math.sin(math.radians(2 * d_theta)) * r_c
+    return math.sqrt((dlp / s_l) ** 2 + (dcp / s_c) ** 2 + (dhp_big / s_h) ** 2
+                     + r_t * (dcp / s_c) * (dhp_big / s_h))
+
+
+def _schema_section_keys(section):
+    '''Keys theme.schema.json declares for `section`, in schema order.'''
+    props = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))['properties']
+    return tuple(props[section]['properties'])
+
+
+def _cvd_keys(section, keys):
+    '''The keys a CVD_SETS row checks, with ALL_EXCEPT resolved.'''
+    if keys and keys[0] == ALL_EXCEPT:
+        return tuple(k for k in _schema_section_keys(section) if k not in keys[1:])
+    return keys
+
+
+def _color_vision_themes():
+    '''(path, deficiencies) of the bundled themes that list meta.colorVision.'''
+    themes = []
+    for theme_path in _bundled_themes():
+        targets = _load_theme(theme_path).get('meta', {}).get('colorVision')
+        if targets:
+            themes.append((theme_path, tuple(targets)))
+    return themes
+
+
+def _color_vision_params():
+    params = []
+    for theme_path, targets in _color_vision_themes():
+        for mode in ('light', 'dark'):
+            for section, keys, minimum in CVD_SETS:
+                keys = _cvd_keys(section, keys)
+                name = section if keys is None else f'{section}.{keys[0]}'
+                params.append(pytest.param(theme_path, mode, section, keys, minimum,
+                                           targets,
+                                           id=f'{theme_path.parent.name}-{mode}-{name}'))
+    return params
+
+
+class TestColorVisionThemes:
+    @pytest.mark.parametrize('theme_path,mode,section,keys,minimum,targets',
+                             _color_vision_params())
+    def test_semantic_set_stays_distinct(self, theme_path, mode, section, keys,
+                                         minimum, targets):
+        theme = _load_theme(theme_path)
+        if keys is None:
+            entries = (theme.get(section) or [])[:STRONG_GRAPH_SLOTS]
+            colors = {f'{section}[{i}]': e.get(mode) for i, e in enumerate(entries)}
+        else:
+            colors = {k: _pick(theme, section, k, mode) for k in keys}
+        missing = [k for k, v in colors.items() if not v]
+        assert len(colors) >= 2 and not missing, \
+            f'{theme_path.parent.name} must pin {section} {missing or "(two or more)"} ({mode})'
+        for vision in ('normal',) + targets:
+            labs = {k: _rgb_to_lab(_hex_to_rgb(v) if vision == 'normal'
+                                   else simulate_cvd(v, vision))
+                    for k, v in colors.items()}
+            worst = min((ciede2000(labs[a], labs[b]), a, b)
+                        for a, b in itertools.combinations(labs, 2))
+            assert worst[0] >= minimum, \
+                (f'{theme_path.parent.name} {mode} {vision}: {worst[1]} / {worst[2]} '
+                 f'differ by CIEDE2000 {worst[0]:.1f} < {minimum}')
+
+    @pytest.mark.parametrize('theme_path', [p for p, _ in _color_vision_themes()],
+                             ids=lambda p: p.parent.name)
+    def test_default_theme_copies_match(self, theme_path):
+        '''The sections copied from the default theme still equal it.'''
+        default = _load_theme(THEME_ROOT / 'wireshark' / 'theme.jsonc')
+        theme = _load_theme(theme_path)
+        for section, keys in DEFAULT_THEME_COPIES:
+            for key in keys or sorted(default.get(section) or {}):
+                assert (theme.get(section) or {}).get(key) == default[section][key], \
+                    f'{theme_path.parent.name} {section}.{key} differs from the default theme'
+
+    def test_sets_name_schema_keys(self):
+        '''CVD_SETS keys and exclusions exist in the schema, so a renamed key fails here.'''
+        props = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))['properties']
+        for section, keys, _ in CVD_SETS:
+            assert section in props
+            if keys is None:
+                continue
+            named = keys[1:] if keys[0] == ALL_EXCEPT else keys
+            for key in named:
+                assert key in props[section]['properties'], f'{section}.{key}'
+            assert len(_cvd_keys(section, keys)) >= 2, f'{section} checks fewer than two keys'
+
+    def test_matrices_match_schema_enum(self):
+        '''Every deficiency the schema accepts has a simulation matrix.'''
+        meta = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))['properties']['meta']
+        assert set(meta['properties']['colorVision']['items']['enum']) == set(CVD_MATRICES)
+
+    @pytest.mark.parametrize('lab1,lab2,expected', [
+        ((50, 2.6772, -79.7751), (50, 0, -82.7485), 2.0425),
+        ((50, 2.5, 0), (73, 25, -18), 27.1492),
+        ((2.0776, 0.0795, -1.135), (0.9033, -0.0636, -0.5514), 0.9082),
+    ])
+    def test_ciede2000_reference_pairs(self, lab1, lab2, expected):
+        '''Pairs from Sharma, Wu and Dalal's CIEDE2000 test data.'''
+        assert ciede2000(lab1, lab2) == pytest.approx(expected, abs=1e-4)
+
+
+# =====================================================================
+# Expert severity icons — one SVG per Expert* token (except the text
+# color ExpertForeground), each bound to its token and drawn with its
+# own shape so severity does not depend on color alone.  Outline ring
+# and mark use ExpertForeground, the text color on the same fill.
+# =====================================================================
+
+SVG_ICON_ROOT = REPO_ROOT / 'resources' / 'svg_icons'
+
+
+def _expert_icon_tokens():
+    '''Expert* severity tokens of the ThemeToken enum, e.g. "ExpertWarn".'''
+    return sorted(n for n in _theme_token_names()
+                  if n.startswith('Expert') and n != 'ExpertForeground')
+
+
+def _expert_icon_path(token):
+    '''The SVG of an expert severity token, e.g. ExpertWarn -> expert-warn.svg.'''
+    return SVG_ICON_ROOT / f'expert-{token[len("Expert"):].lower()}.svg'
+
+
+class TestExpertIcons:
+    def test_each_severity_icon_maps_its_token(self):
+        for token in _expert_icon_tokens():
+            path = _expert_icon_path(token)
+            text = path.read_text(encoding='utf-8')
+            for mapped in (token, 'ExpertForeground'):
+                assert re.search(r'<ws:map-token\b[^>]*\btoken="' + mapped + '"', text), \
+                    f'{path.name} does not map a color to {mapped}'
+
+    def test_severity_icons_have_distinct_shapes(self):
+        shapes = {}
+        for token in _expert_icon_tokens():
+            path = _expert_icon_path(token)
+            text = path.read_text(encoding='utf-8')
+            geometry = tuple(sorted(' '.join(d.split())
+                                    for d in re.findall(r'\sd="([^"]*)"', text)))
+            assert geometry, f'{path.name} draws no <path>'
+            shapes.setdefault(geometry, []).append(path.name)
+        same = [names for names in shapes.values() if len(names) > 1]
+        assert not same, f'expert icons share one shape: {same}'

@@ -13,6 +13,7 @@
 
 #include <QApplication>
 #include <QColor>
+#include <QHash>
 #include <QPalette>
 
 #include <memory>
@@ -29,6 +30,18 @@ using IconPaletteRef = std::shared_ptr<std::optional<QPalette>>;
 inline IconPaletteRef makeIconPaletteRef()
 {
     return std::make_shared<std::optional<QPalette>>();
+}
+
+/**
+ * @brief Token colour overrides shared between a ContrastAdaptIcon and its
+ *        engine, so that ContrastAdaptIcon::setTokenColors() reaches the engine
+ *        even though QIcon hides it.  Empty means "use the live theme".
+ */
+using IconTokenColorsRef = std::shared_ptr<QHash<ThemeManager::ThemeToken, QColor>>;
+
+inline IconTokenColorsRef makeIconTokenColorsRef()
+{
+    return std::make_shared<QHash<ThemeManager::ThemeToken, QColor>>();
 }
 
 inline const QPalette *iconPalettePtr(const IconPaletteRef &ref)

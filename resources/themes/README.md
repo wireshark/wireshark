@@ -17,6 +17,10 @@ resources/themes/
         theme.jsonc
     inverted/               ← diagnostic high-contrast theme
         theme.jsonc
+    protan-deutan/          ← color vision theme: protanopia & deuteranopia
+        theme.jsonc
+    tritan/                 ← color vision theme: tritanopia
+        theme.jsonc
     my-custom-theme/
         theme.jsonc
         images/
@@ -208,6 +212,7 @@ Stratoshark) should set this explicitly to a softer value.
 | `version`     | int    | yes      | Schema version, currently `1` |
 | `description` | string | no       | One-line description |
 | `author`      | string | no       | Theme author or organization |
+| `colorVision` | array  | no       | Deficiencies the theme targets (`protanopia`, `deuteranopia`, `tritanopia`); bundled themes that set it are checked by `test/suite_theme.py` for distinguishable semantic colors. Packet coloring rules are profile data and are not part of a theme. |
 
 ### Color values
 
