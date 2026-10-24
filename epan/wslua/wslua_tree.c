@@ -1349,6 +1349,13 @@ typedef struct
 static int TreeItem_children_iterator(lua_State *L) {
     /* Retrieve the iterator state from the closure's upvalue */
     TreeItem_iterator_state *state = (TreeItem_iterator_state *)lua_touserdata(L, lua_upvalueindex(1));
+    /* The TreeItem being iterated over; the nodes in the state, and the
+     * state's allocations, are freed with the packet, when it expires. */
+    TreeItem ti = toTreeItem(L, lua_upvalueindex(2));
+
+    if (!ti || ti->expired) {
+        return luaL_error(L, "expired TreeItem");
+    }
 
     /* Continue iterating while we have nodes to process */
     /* Either from current sibling chain OR from recursive stack */
@@ -1602,9 +1609,11 @@ WSLUA_METHOD TreeItem_children(lua_State *L) {
         }
     }
 
-    /* Push the iterator function as a closure with state as upvalue */
+    /* Push the iterator function as a closure with state and the TreeItem
+     * as upvalues */
     /* The state userdata is kept alive as long as the closure exists */
-    lua_pushcclosure(L, TreeItem_children_iterator, 1);
+    lua_pushvalue(L, 1);
+    lua_pushcclosure(L, TreeItem_children_iterator, 2);
 
     WSLUA_RETURN(1); /* An iterator function for use in Lua for loops. */
 }
