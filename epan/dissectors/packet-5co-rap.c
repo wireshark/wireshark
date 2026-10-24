@@ -27,6 +27,7 @@
 #define WS_LOG_DOMAIN "5co-rap"
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <epan/unit_strings.h>
 #include <wsutil/utf8_entities.h>
@@ -71,7 +72,7 @@ enum fiveco_functions
 
 /* Forward references to functions */
 static uint8_t
-checksum_fiveco(tvbuff_t * byte_tab, uint16_t start_offset, uint16_t size);
+checksum_fiveco(tvbuff_t * byte_tab, unsigned start_offset, unsigned size);
 static int fiveco_hash_equal(const void *v, const void *w);
 
 /* Register decoding functions prototypes */
@@ -653,6 +654,7 @@ dissect_FiveCoRAP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     conversation_t *conversation;
     FCOSConvKey conversation_key, *new_conversation_key_p;
     FCOSConvDevices *types_models_p;
+    FCOSConvDevices *frame_types_models_p;
 #ifdef DEBUG_5CORAP
     uint32_t types_models_count = 0;
 #endif
@@ -706,6 +708,24 @@ dissect_FiveCoRAP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 #endif
 
+    /* The conversation state keeps changing as the first pass goes on.
+     * Remember what it was when this frame was first dissected and,
+     * on later passes, start from that instead.
+     */
+    if (!PINFO_FD_VISITED(pinfo))
+    {
+        frame_types_models_p = wmem_new(wmem_file_scope(), FCOSConvDevices);
+        *frame_types_models_p = *types_models_p;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_FiveCoRAP, pinfo->curr_layer_num, frame_types_models_p);
+    }
+    else
+    {
+        frame_types_models_p = (FCOSConvDevices *)p_get_proto_data(wmem_file_scope(), pinfo, proto_FiveCoRAP, pinfo->curr_layer_num);
+        types_models_p = wmem_new0(pinfo->pool, FCOSConvDevices);
+        if (frame_types_models_p)
+            *types_models_p = *frame_types_models_p;
+    }
+
     /* Loop because several fiveco packets can be present in one TCP packet */
     while (tcp_data_offset < tcp_data_length) {
 
@@ -723,7 +743,7 @@ dissect_FiveCoRAP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 /*****************************************************************************/
 /* This function returns the calculated checksum (IP based)                  */
 /*****************************************************************************/
-static uint8_t checksum_fiveco(tvbuff_t *byte_tab, uint16_t start_offset, uint16_t size)
+static uint8_t checksum_fiveco(tvbuff_t *byte_tab, unsigned start_offset, unsigned size)
 {
 	uint32_t sum			= 0;
     uint32_t i;
