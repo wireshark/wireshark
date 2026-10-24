@@ -272,9 +272,23 @@ static int dissector_error_handler(lua_State *LS) {
     return -2;
 }
 
+/* The state of a call to a Lua dissector, which lua_resetthread_cb()
+ * cleans up and restores even if a Wireshark exception escapes. */
+typedef struct {
+    lua_State *L1;
+    tvbuff_t *saved_lua_tvb;
+    packet_info *saved_lua_pinfo;
+    struct _wslua_treeitem *saved_lua_tree;
+} wslua_dissect_call_t;
+
 static void lua_resetthread_cb(void *user_data) {
 
-    lua_State *L1 = (lua_State*)user_data;
+    wslua_dissect_call_t *call = (wslua_dissect_call_t*)user_data;
+    lua_State *L1 = call->L1;
+
+    lua_pinfo = call->saved_lua_pinfo;
+    lua_tree = call->saved_lua_tree;
+    lua_tvb = call->saved_lua_tvb;
 
     ws_debug("freeing thread: %p", L1);
     clear_outstanding_FuncSavers(L1);
@@ -316,9 +330,11 @@ static void lua_resetthread_cb(void *user_data) {
 
 int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     int consumed_bytes = tvb_captured_length(tvb);
-    tvbuff_t *saved_lua_tvb = lua_tvb;
-    packet_info *saved_lua_pinfo = lua_pinfo;
-    struct _wslua_treeitem *saved_lua_tree = lua_tree;
+    wslua_dissect_call_t call = {
+        .saved_lua_tvb = lua_tvb,
+        .saved_lua_pinfo = lua_pinfo,
+        .saved_lua_tree = lua_tree,
+    };
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 
@@ -338,12 +354,13 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     // prevents the new thread from being garbage collected.)
     lua_State *L1 = lua_newthread(L);
     ws_debug("new Lua thread: %p", L1);
+    call.L1 = L1;
 
     // Make sure that even in the case of an uncaught Wireshark exception
-    // that the thread is reset and garbage collected. (This could possibly
-    // be a TRY..FINALLY block that also does some handling to put the
-    // Lua call stack in the tree.)
-    CLEANUP_PUSH(lua_resetthread_cb, L1);
+    // that the thread is reset and garbage collected, and the globals
+    // restored. (This could possibly be a TRY..FINALLY block that also
+    // does some handling to put the Lua call stack in the tree.)
+    CLEANUP_PUSH(lua_resetthread_cb, &call);
     // Note this macro declares struct except_stacknode except_sn and
     // pushes it to the top of the exception stack.
 
@@ -409,10 +426,6 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 
     CLEANUP_CALL_AND_POP;
 
-    lua_pinfo = saved_lua_pinfo;
-    lua_tree = saved_lua_tree;
-    lua_tvb = saved_lua_tvb;
-
     return consumed_bytes;
 
 }
@@ -426,11 +439,11 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
  */
 bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     bool result = false;
-    tvbuff_t *saved_lua_tvb = lua_tvb;
-    packet_info *saved_lua_pinfo = lua_pinfo;
-    struct _wslua_treeitem *saved_lua_tree = lua_tree;
-    lua_tvb = tvb;
-    lua_pinfo = pinfo;
+    wslua_dissect_call_t call = {
+        .saved_lua_tvb = lua_tvb,
+        .saved_lua_pinfo = lua_pinfo,
+        .saved_lua_tree = lua_tree,
+    };
 
     ws_assert(tvb && pinfo);
 
@@ -439,6 +452,9 @@ bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
                 "internal error in heur_dissect_lua: NULL list name or current proto");
         return false;
     }
+
+    lua_tvb = tvb;
+    lua_pinfo = pinfo;
 
     /* heuristic functions are stored in a table in the registry; the registry has a
      * table at reference lua_heur_dissectors_table_ref, and that table has keys for
@@ -453,8 +469,9 @@ bool heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
     // prevents the new thread from being garbage collected.)
     lua_State *L1 = lua_newthread(L);
     ws_debug("new Lua thread: %p", L1);
+    call.L1 = L1;
 
-    CLEANUP_PUSH(lua_resetthread_cb, L1);
+    CLEANUP_PUSH(lua_resetthread_cb, &call);
     // Note this macro declares struct except_stacknode except_sn and
     // pushes it to the top of the exception stack.
 
@@ -528,10 +545,6 @@ end:
     wmem_register_callback(pinfo->pool, lua_pinfo_end, NULL);
 
     CLEANUP_CALL_AND_POP;
-
-    lua_pinfo = saved_lua_pinfo;
-    lua_tree = saved_lua_tree;
-    lua_tvb = saved_lua_tvb;
 
     return result;
 }
