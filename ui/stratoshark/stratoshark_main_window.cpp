@@ -60,6 +60,7 @@ DIAG_ON(frame-larger-than=)
 #include "interface_toolbar.h"
 #include "packet_list.h"
 #include <ui/qt/widgets/packet_list_pane.h>
+#include "preferences_dialog.h"
 #include "proto_tree.h"
 #include "simple_dialog.h"
 #include "tap_parameter_dialog.h"
@@ -714,6 +715,11 @@ StratosharkMainWindow::~StratosharkMainWindow()
     disconnect(main_ui_->mainStack, &QStackedWidget::currentChanged, this, &StratosharkMainWindow::mainStackChanged);
     if (previous_focus_ != nullptr) {
         disconnect(previous_focus_, &QWidget::destroyed, this, &StratosharkMainWindow::resetPreviousFocus);
+    }
+    if (preferences_dialog_) {
+        // The dialog is a child of this window and is deleted after our
+        // members, so its destroyed() handler must not touch them.
+        disconnect(preferences_dialog_, nullptr, this, nullptr);
     }
 
 #ifndef Q_OS_MACOS

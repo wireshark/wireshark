@@ -2221,6 +2221,10 @@ unsigned pref_get_changed_flags(pref_t *pref, void *unstash_data_p)
 
     case PREF_DECODE_AS_RANGE:
     case PREF_RANGE:
+        if (pref->stashed_val.range == NULL) {
+            ws_debug("stashed pref %s is NULL", prefs_get_name(pref));
+            break;
+        }
         if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
         }
@@ -2330,6 +2334,10 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
     case PREF_DECODE_AS_RANGE:
     {
         const char* table_name = prefs_get_dissector_table(pref);
+        if (pref->stashed_val.range == NULL) {
+            ws_debug("stashed pref %s is NULL", prefs_get_name(pref));
+            break;
+        }
         if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
             uint32_t i, j;
 
@@ -2387,6 +2395,10 @@ pref_unstash(pref_t *pref, void *unstash_data_p)
     }
 
     case PREF_RANGE:
+        if (pref->stashed_val.range == NULL) {
+            ws_debug("stashed pref %s is NULL", prefs_get_name(pref));
+            break;
+        }
         if (!ranges_are_equal(*pref->varp.range, pref->stashed_val.range)) {
             wmem_free(pref->scope, *pref->varp.range);
             *pref->varp.range = range_copy(pref->scope, pref->stashed_val.range);

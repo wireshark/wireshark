@@ -83,6 +83,7 @@ class WelcomePage;
 class PacketCommentDialog;
 class PacketDiagram;
 class PacketList;
+class PreferencesDialog;
 class ProtoTree;
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
 class WirelessFrame;
@@ -287,6 +288,7 @@ private:
     QPoint dragStartPosition; /**< Mouse position recorded at the start of a drag operation. */
 
     QPointer<TLSKeylogDialog> tlskeylog_dialog_; /**< Modeless TLS keylog dialog; null when not open. */
+    QPointer<PreferencesDialog> preferences_dialog_; /**< Open Preferences dialog; null when none exists. */
 
     /**
      * @brief Freezes the packet list and disables UI elements during long operations.
