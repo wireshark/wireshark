@@ -489,9 +489,9 @@ dissect_FiveCoLegacy_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         case EASY_IP_ADDRESS_CONFIG:
             proto_tree_add_item(fiveco_data_tree, hf_fiveco_EasyIPMAC, tvb, offset, 6, ENC_NA);
             offset += 6;
-            proto_tree_add_item(fiveco_data_tree, hf_fiveco_EasyIPIP, tvb, offset + 6, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fiveco_data_tree, hf_fiveco_EasyIPIP, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(fiveco_data_tree, hf_fiveco_EasyIPSM, tvb, offset + 10, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fiveco_data_tree, hf_fiveco_EasyIPSM, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
         case I2C_READ_ANSWER:
@@ -673,7 +673,7 @@ dispVersion(char* result, uint32_t version)
         int nHWHigh = (version >> 24) & 0xFF;
         int nHWLow = (version >> 16) & 0xFF;
         int nFWHigh = (version >> 8) & 0xFF;
-        int nFWLow = (version >> 8) & 0xFF;
+        int nFWLow = version & 0xFF;
         snprintf(result, ITEM_LABEL_LENGTH, "HW: %d.%d / FW: %d.%d", nHWHigh, nHWLow, nFWHigh, nFWLow);
     }
 }
