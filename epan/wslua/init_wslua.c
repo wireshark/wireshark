@@ -167,6 +167,8 @@ void wslua_expire_packet_objects(void)
     wslua_packet_generation++;
 }
 
+uint64_t wslua_file_generation;
+
 /* The pinfo->pool on which lua_pinfo_end() is currently registered, so that
  * it is registered only once per packet even with multiple or nested Lua
  * dissector calls. */
@@ -667,6 +669,11 @@ static int init_error_handler(lua_State* LS) {
 
 static bool wslua_gc_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event, void *user_data _U_)
 {
+    if (event == WMEM_CB_FREE_EVENT) {
+        // Objects such as Conversation refer to file scoped memory.
+        wslua_file_generation++;
+    }
+
     if (event == WMEM_CB_FREE_EVENT && L) {
         // In Lua 5.3 and earlier lua_gc() takes an int as the third parameter.
         // In 5.4 and later it is variadic and the last parameter is ignored
@@ -679,7 +686,6 @@ static bool wslua_gc_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event, 
 
 
 static bool init_routine_initialized;
-static unsigned file_gc_cb_id;
 static void wslua_init_routine(void) {
 
     if ( ! init_routine_initialized ) {
@@ -695,8 +701,6 @@ static void wslua_init_routine(void) {
          */
         lua_prime_all_fields(NULL);
         init_routine_initialized = true;
-
-        file_gc_cb_id = wmem_register_callback(wmem_file_scope(), wslua_gc_cb, NULL);
     }
 
     if (L) {
@@ -1852,6 +1856,14 @@ void wslua_init(register_cb cb, void *client_data, const char* app_env_var_prefi
 #else
         L = lua_newstate(wslua_allocf, NULL);
 #endif
+        // Keep this registered when the Lua state is closed and recreated,
+        // as when Lua plugins are reloaded, because the file scope can be
+        // freed before the next init routine is called.
+        static bool file_gc_cb_registered;
+        if (!file_gc_cb_registered) {
+            wmem_register_callback(wmem_file_scope(), wslua_gc_cb, NULL);
+            file_gc_cb_registered = true;
+        }
 
 #if LUA_VERSION_NUM >= 505
         // Many of our per-packet objects (Tvb, TvbRange, Pinfo, etc.) are
@@ -2170,10 +2182,7 @@ void wslua_cleanup(void) {
         lua_close(L);
         L = NULL;
     }
-    if (init_routine_initialized) {
-        wmem_unregister_callback(wmem_file_scope(), file_gc_cb_id);
-        init_routine_initialized = false;
-    }
+    init_routine_initialized = false;
 }
 
 lua_State* wslua_state(void) { return L; }

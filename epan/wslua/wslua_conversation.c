@@ -95,14 +95,30 @@ static conversation_type int_to_convtype_enum(int type) {
     return (conversation_type)type;
 }
 
-WSLUA_CLASS_DEFINE(Conversation,NOP);
-/* Conversation object, used to attach conversation data or a conversation dissector */
+WSLUA_CLASS_DEFINE_INLINE(Conversation,if (WSLUA_FILE_EXPIRED(p)) luaL_argerror(L,idx,"expired Conversation"));
+/* Conversation object, used to attach conversation data or a conversation dissector.
+   Conversations are freed, and so `Conversation` objects expire, when the capture file is closed
+   or the packets are redissected (e.g., when preferences change, or tshark's `-M` option resets
+   the session). An expired `Conversation` cannot be used. */
+
+/*
+ * Conversations are allocated in wmem_file_scope(); a Conversation records
+ * the wslua_file_generation in which it was created, and is expired when
+ * the file scope is freed.
+ */
+Conversation push_Conversation(lua_State* L, conversation_t* conv) {
+    struct _wslua_conversation c = {
+        .conv = conv,
+        .generation = wslua_file_generation,
+    };
+    return pushConversation(L,&c);
+}
 
 WSLUA_METAMETHOD Conversation__eq(lua_State *L) { /* Compares two Conversation objects. */
     Conversation conv1 = checkConversation(L,1);
     Conversation conv2 = checkConversation(L,2);
 
-    lua_pushboolean(L, conv1 == conv2);
+    lua_pushboolean(L, conv1->conv == conv2->conv);
 
     WSLUA_RETURN(1); /* True if both objects refer to the same underlying conversation structure. False otherwise. */
 }
@@ -133,11 +149,12 @@ WSLUA_METAMETHOD Conversation__tostring(lua_State *L) {
        The convtype is the trailing component of the matching
        `convtypes.*` enum (e.g. `TCP`, `UDP`); see convtype_enums
        above. */
-    Conversation conv = checkConversation(L,1);
-    if (!conv) {
-        lua_pushstring(L, "Conversation: (null)");
+    Conversation c = toConversation(L,1);
+    if (WSLUA_FILE_EXPIRED(c)) {
+        lua_pushstring(L, "Conversation: (expired)");
         WSLUA_RETURN(1);
     }
+    conversation_t *conv = c->conv;
 
     conversation_type ctype = CONVERSATION_NONE;
     if (conv->key_ptr) {
@@ -243,7 +260,7 @@ WSLUA_CONSTRUCTOR Conversation_find(lua_State* L) {
     }
 
 
-    Conversation conv = find_conversation(frameNum, addr1, addr2, ctype, port1, port2, options);
+    conversation_t *conv = find_conversation(frameNum, addr1, addr2, ctype, port1, port2, options);
 
     if (conv == NULL && create) {
         int optsNew = 0;
@@ -264,7 +281,7 @@ WSLUA_CONSTRUCTOR Conversation_find(lua_State* L) {
     }
 
     if (conv) {
-        pushConversation(L, conv);
+        push_Conversation(L, conv);
     } else {
         lua_pushnil(L);
     }
@@ -305,14 +322,14 @@ WSLUA_CONSTRUCTOR Conversation_find_by_id(lua_State* L) {
         ctype = str_to_convtype_enum(luaL_checkstring(L,WSLUA_ARG_Conversation_find_CTYPE));
     }
 
-    Conversation conv = find_conversation_by_id(frameNum, ctype, idNum);
+    conversation_t *conv = find_conversation_by_id(frameNum, ctype, idNum);
 
     if ((conv == NULL) && create) {
         conv = conversation_new_by_id(frameNum, ctype, idNum);
     }
 
     if (conv) {
-        pushConversation(L, conv);
+        push_Conversation(L, conv);
     } else {
         lua_pushnil(L);
     }
@@ -332,7 +349,7 @@ WSLUA_CONSTRUCTOR Conversation_find_from_pinfo(lua_State* L) {
     Pinfo p = checkPinfo(L,WSLUA_ARG_Conversation_find_from_pinfo_PINFO);
     bool create = wslua_optbool(L,WSLUA_OPTARG_Conversation_find_from_pinfo_CREATE,true);
 
-    Conversation conv;
+    conversation_t *conv;
 
     if (create) {
         conv = find_or_create_conversation(p->ws_pinfo);
@@ -341,7 +358,7 @@ WSLUA_CONSTRUCTOR Conversation_find_from_pinfo(lua_State* L) {
     }
 
     if (conv) {
-        pushConversation(L, conv);
+        push_Conversation(L, conv);
     } else {
         lua_pushnil(L);
     }
@@ -367,7 +384,7 @@ WSLUA_METAMETHOD Conversation__newindex(lua_State* L) {
     /* Sets protocol data for a specific protocol */
 #define WSLUA_ARG_Conversation__newindex_INDEX 2 /* The protocol index to set. Must be a <<lua_class_Proto,`Proto`>> */
 #define WSLUA_ARG_Conversation__newindex_VALUE 3 /* The protocol data to set (any valid lua object) */
-    Conversation conv = checkConversation(L,1);
+    conversation_t *conv = checkConversation(L,1)->conv;
     Proto proto = checkProto(L,WSLUA_ARG_Conversation__newindex_INDEX);
 
     luaL_checkany(L, WSLUA_ARG_Conversation__newindex_VALUE);
@@ -408,7 +425,7 @@ WSLUA_METAMETHOD Conversation__newindex(lua_State* L) {
 WSLUA_METAMETHOD Conversation__index(lua_State* L) {
     /* Get protocol data for a specific protocol */
 #define WSLUA_ARG_Conversation__index_INDEX 2 /* The protocol index to get. Must be a <<lua_class_Proto,`Proto`>> */
-    Conversation conv = checkConversation(L,1);
+    conversation_t *conv = checkConversation(L,1)->conv;
     Proto proto = checkProto(L,WSLUA_ARG_Conversation__index_INDEX);
 
     wslua_conv_data_t *cd = conversation_get_proto_data(conv, proto->hfid);
@@ -425,7 +442,7 @@ WSLUA_METAMETHOD Conversation__index(lua_State* L) {
 /* WSLUA_ATTRIBUTE Conversation_dissector WO Sets the dissector to be used for the conversation.
    Accepted types are either a <<lua_class_Proto,`Proto`>> with assigned dissector, or a <<lua_class_Dissector,`Dissector`>>. */
 WSLUA_ATTR_SET Conversation_set_dissector(lua_State* L) {
-    Conversation conv = checkConversation(L,1);
+    conversation_t *conv = checkConversation(L,1)->conv;
     Dissector handle;
 
     if (isProto(L,2)) {

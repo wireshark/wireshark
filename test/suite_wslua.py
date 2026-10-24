@@ -344,6 +344,10 @@ class TestWslua:
         '''wslua conversation'''
         check_lua_script('conversation.lua', dns_port_pcap, True)
 
+    def test_wslua_conversation_expiry(self, check_lua_script):
+        '''wslua conversation expiry when the file scope is freed'''
+        check_lua_script('conversation_expiry.lua', dns_port_pcap, True, '-M', '2')
+
     def test_wslua_gcrypt(self, check_lua_script):
         '''wslua gcrypt'''
         check_lua_script('gcrypt.lua', empty_pcap, True)
