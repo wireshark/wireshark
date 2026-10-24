@@ -631,6 +631,40 @@ static int rtmpt_message_header_length(int id)
         }
 }
 
+static uint32_t rtmpt_chunk_stream_id(const uint8_t *basic_header)
+{
+        uint32_t id = basic_header[0] & 0x3f;
+
+        if (id == 0)
+                return basic_header[1] + 64;
+        if (id == 1)
+                return pletohu16(basic_header+1) + 64;
+        return id;
+}
+
+/* A type 3 header that continues a message whose header had an extended
+ * timestamp repeats it (#15718). Returns the length of that timestamp for
+ * the type 3 header starting at seq, so the whole header can be reassembled
+ * when it is split across TCP segments.
+ */
+static int rtmpt_type3_ext_ts_length(rtmpt_conv_t *rconv, int cdir, const uint8_t *basic_header, uint32_t seq)
+{
+        uint32_t        id = rtmpt_chunk_stream_id(basic_header);
+        rtmpt_id_t     *ti;
+        rtmpt_packet_t *tp;
+
+        if (id > RTMPT_ID_MAX)
+                return 0;
+        ti = (rtmpt_id_t *)wmem_tree_lookup32(rconv->ids[cdir], id);
+        if (!ti)
+                return 0;
+        tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(ti->packets, seq-1);
+        if (tp && tp->resident && tp->have < tp->want && tp->chunkhave == tp->chunkwant
+            && tp->have > tp->bhlen + 3 && pntohu24(tp->data.p+tp->bhlen) == 0xffffff)
+                return 4;
+        return 0;
+}
+
 /* Lightweight access to AMF0 blobs - more complete dissection is done
  * in dissect_rtmpt_body_command */
 
@@ -2226,26 +2260,34 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                 if (tf) {
                                         /* The preceding segment contained an incomplete chunk header */
 
-                                        want = tf->len - tf->have;
-                                        if (remain<want)
-                                                want = remain;
-
-                                        tvb_memcpy(tvb, tf->saved.d+tf->have, offset, want);
-
                                         id = tf->saved.d[0];
                                         header_type = (id>>6) & 3;
                                         basic_hlen = rtmpt_basic_header_length(id);
 
-                                        if ((header_type < 3) && (tf->have < (basic_hlen+3)) && (tf->have+want >= (basic_hlen+3))) {
-                                                if (pntohu24(tf->saved.d+basic_hlen) == 0xffffff) {
-                                                        tf->len += 4;
-                                                }
-                                        }
+                                        /* Whether there is an extended timestamp is
+                                         * known only once enough of the header is here,
+                                         * and then the header wants 4 more bytes.
+                                         */
+                                        while (tf->have < tf->len && remain > 0) {
+                                                want = tf->len - tf->have;
+                                                if (remain<want)
+                                                        want = remain;
 
-                                        tf->have += want;
-                                        tf->lastseq = seq+want-1;
-                                        remain -= want;
-                                        offset += want;
+                                                tvb_memcpy(tvb, tf->saved.d+tf->have, offset, want);
+
+                                                if ((header_type < 3) && (tf->have < (basic_hlen+3)) && (tf->have+want >= (basic_hlen+3))) {
+                                                        if (pntohu24(tf->saved.d+basic_hlen) == 0xffffff) {
+                                                                tf->len += 4;
+                                                        }
+                                                } else if ((header_type == 3) && (tf->have < basic_hlen) && (tf->have+want >= basic_hlen)) {
+                                                        tf->len += rtmpt_type3_ext_ts_length(rconv, cdir, tf->saved.d, tf->seq);
+                                                }
+
+                                                tf->have += want;
+                                                tf->lastseq = seq+offset+want-1;
+                                                remain -= want;
+                                                offset += want;
+                                        }
 
                                         if (tf->have < tf->len) {
                                                 return;
@@ -2277,6 +2319,8 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                         if (tvb_get_ntoh24(tvb, offset+basic_hlen) == 0xffffff) {
                                                 message_hlen += 4;
                                         }
+                                } else if ((header_type == 3) && (remain >= basic_hlen)) {
+                                        message_hlen += rtmpt_type3_ext_ts_length(rconv, cdir, tvb_get_ptr(tvb, offset, basic_hlen), seq+offset);
                                 }
 
                                 if (remain < (basic_hlen+message_hlen)) {
@@ -2306,11 +2350,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         basic_hlen = rtmpt_basic_header_length(id);
                         message_hlen = tf->len - basic_hlen;
 
-                        id = id & 0x3f;
-                        if (id == 0)
-                                id = tf->saved.d[1] + 64;
-                        else if (id == 1)
-                                id = pletohu16(tf->saved.d+1) + 64;
+                        id = rtmpt_chunk_stream_id(tf->saved.d);
                 }
 
                 /* Calculate header values, defaulting from previous packets with same id */
@@ -2501,14 +2541,9 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                         tp->chunkwant = tp->want - tp->have;
                         }
                 } else {
-                        if (header_type == 3 && tp->resident && tp->have > tp->bhlen + 3
-                            && pntohu24(tp->data.p+tp->bhlen) == 0xffffff) {
-                                /* Header type 3 resends the extended time stamp if the last message on the chunk
-                                 * stream had an extended timestamp.
-                                 * See: https://gitlab.com/wireshark/wireshark/-/issues/15718
-                                 */
-                                message_hlen += 4;
-                        }
+                        /* message_hlen includes any extended timestamp that
+                         * header type 3 resends; see rtmpt_type3_ext_ts_length().
+                         */
                         ws_noisy("Old packet cdir=%d seq=%d ti=%p tp=%p header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d",
                                  cdir, seq+offset,
                                  ti, tp, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
@@ -2517,8 +2552,11 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         if (tp->chunkwant > tp->want-tp->have)
                                 tp->chunkwant = tp->want - tp->have;
 
-                        offset += basic_hlen + message_hlen;
-                        remain -= basic_hlen + message_hlen;
+                        if (!tf) {
+                                /* A reassembled header was already consumed */
+                                offset += basic_hlen + message_hlen;
+                                remain -= basic_hlen + message_hlen;
+                        }
                 }
 
                 tf = NULL;
