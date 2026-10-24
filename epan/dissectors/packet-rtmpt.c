@@ -174,19 +174,6 @@ static dissector_handle_t rtmpt_http_handle;
 
 static bool rtmpt_desegment = true;
 
-/* Native Bandwidth Detection (using the checkBandwidth(), onBWCheck(),
- * onBWDone() calls) transmits a series of increasing size packets over
- * the course of 2 seconds. On a fast link the largest packet can just
- * exceed 256KB, but setting the limit there can cause massive memory
- * usage, especially with fuzzed packets where the length value is bogus.
- * Limit the initial allocation size and realloc if needed, i.e., in
- * future frames if the bytes are actually there.
- * This initial max allocation size can be reduced further if need be,
- * but keep it at least 18 so that the headers fit without checking,
- * See https://gitlab.com/wireshark/wireshark/-/issues/6898
- */
-#define RTMPT_INIT_ALLOC_SIZE 32768
-
 #define RTMP_PORT                     1935 /* Not IANA registered */
 
 #define RTMPT_MAGIC                   0x03
@@ -2460,14 +2447,17 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         } else {
                                 /* Some more reassembly required */
                                 tp->resident = true;
-                                /* tp->want is how much data we think we want.
-                                 * If it's a really big number, we don't want
-                                 * to allocate it all at once, due to memory
-                                 * exhaustion on fuzzed data (#6898).
-                                 * RTMPT_INIT_ALLOC_SIZE should always be larger
-                                 * than basic_hlen + message_hlen.
+                                /* tp->want is how much data we think we want,
+                                 * up to a 24-bit length from the packet. Don't
+                                 * allocate it all at once, due to memory
+                                 * exhaustion on fuzzed data (#6898). Allocate
+                                 * just the header; the body is added below as
+                                 * the bytes arrive. Even a fixed initial size
+                                 * (it used to be 32 KiB) is a large multiplier,
+                                 * as each message on a chunk stream can declare
+                                 * a large length and send only a byte.
                                  */
-                                tp->alloc = MIN(tp->want, RTMPT_INIT_ALLOC_SIZE);
+                                tp->alloc = basic_hlen + message_hlen;
                                 tp->data.p = (uint8_t *)wmem_alloc(wmem_file_scope(), tp->alloc);
 
                                 if (tf && tf->ishdr) {
