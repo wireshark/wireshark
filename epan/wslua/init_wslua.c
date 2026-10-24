@@ -160,6 +160,8 @@ static int ett_wslua_traceback;
 
 uint64_t wslua_file_generation;
 
+uint64_t wslua_state_generation;
+
 static bool
 lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
         void *user_data _U_)
@@ -1735,6 +1737,8 @@ void wslua_init(register_cb cb, void *client_data) {
 #else
         L = lua_newstate(wslua_allocf, NULL);
 #endif
+        wslua_state_generation++;
+
         // Keep this registered when the Lua state is closed and recreated,
         // as when Lua plugins are reloaded, because the file scope can be
         // freed before the next init routine is called.

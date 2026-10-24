@@ -224,6 +224,7 @@ typedef struct _wslua_proto_t {
 typedef struct _wslua_conv_data_t {
     conversation_t* conv;
     int data_ref;
+    uint64_t state_generation; /* The wslua_state_generation of the Lua state that holds data_ref */
 } wslua_conv_data_t;
 
 /* a "DissectorTable" object can be different things under the hood,
@@ -414,6 +415,11 @@ extern uint64_t wslua_file_generation;
 
 /* True if an object referring to file scoped memory was created before wmem_file_scope() was last freed. */
 #define WSLUA_FILE_EXPIRED(obj) ((obj)->generation != wslua_file_generation)
+
+/* Incremented whenever a new Lua state is created (e.g., when Lua plugins
+ * are reloaded), so that references into an earlier, closed state held by
+ * Wireshark structures can be recognized and not used. */
+extern uint64_t wslua_state_generation;
 
 #define WSLUA_CLASS_DEFINE(C,check_code) \
     WSLUA_CLASS_DEFINE_BASE(C,check_code,NULL)
