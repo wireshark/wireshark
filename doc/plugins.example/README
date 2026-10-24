@@ -1,35 +1,56 @@
+This is an example of how to build a Wireshark plugin out-of-tree and how to
+compile and test a toy post-dissector plugin. Building this way doesn't require
+building the entire Wireshark project every time or installing Wireshark
+specific development dependencies (unless your plugin uses them too). It can
+also simplify source distribution and installation of your plugin project
+because the CMake configuration provides the expected plugin folders for that
+particular Wireshark installation (which can be different from the defaults).
+You can adapt the toy project provided here to your own needs.
 
-This is an example of how to build a Wireshark plugin out-of-tree. This
-is an alternative, more recent way to build Wireshark binary plugins,
-than the one in the "Plugins" chapter in the Developer's Guide, and
-describes in detail how to include a new plugin into the project source
-tree (here called in-tree build). Building a plugin out-of-tree doesn't
-require rebuilding the whole Wireshark source tree every time.
+This is an alternative to bundling plugins with the entire Wireshark source
+code tree, which used to be the only supported way to build a binary plugin.
+The "Plugins" chapter in the Developer's Guide should contain more information
+about the integration steps required if you would like to learn more
+about using that method.
 
-You always need to rebuild plugins for each major.minor Wireshark version.
-Binary compatibility is never guaranteed between those releases and Wireshark
-will explicitly check for which version the plugin was built and refuse
-to load it otherwise.
+A note about binary compatibility: you always need to rebuild plugins for each
+major.minor Wireshark version. Binary compatibility is never guaranteed between
+those releases and Wireshark will explicitly check for which version the plugin
+was built and refuse to load it otherwise.
 
-Note that the out-of-tree method builds the plugin using CMake's Config-file
-mechanism[1] for configuration. In other words the plugin build system uses
-the Wireshark headers that were installed on the system using "sudo make install-headers"
-or equivalent (as configured from WiresharkConfig.cmake). This is not the same
-as an in-tree build.
+The out-of-tree method builds the plugin using CMake's Config-file mechanism[1]
+for configuration. In other words the plugin build system uses the Wireshark
+headers that were installed on the system. Note that development headers are
+not installed by default (this is a common source of issues). If encountering
+errors configuring your plugin build using CMake please check you have
+Wireshark development headers installed before anything else:
+  $ ls <prefix>/include/wireshark
 
-You should of course adapt this trivial example to your own needs.
+To install them you need to include the "Development" component of the CMake
+installation. The usual way to do that is to explicitly include the
+`install-headers` build target (assuming here the Ninja generator is being used
+and the installation prefix being used requires elevated privileges):
+  $ sudo ninja install install-headers  # Include development headers and
+                                        # support files
 
-To build/install the plugin:
+Alternatively you can use the cmake(1) command:
+  $ sudo cmake --install <builddir> --component Unspecified Development
 
-$ mkdir build && cd build
-$ cmake ..
-$ make
-$ sudo make install
+This is slightly more verbose but works with any generator. See the CMake
+manual[2] for further details.
+
+To build/install the hello word plugin from the plugin project source dir:
+
+  $ mkdir build && cd build
+  $ cmake -G Ninja ..
+  $ ninja
+  $ sudo ninja install
 
 If your WiresharkConfig.cmake file is not in one of the standard cmake search
 paths you will have to tell cmake where to find it. You can do so using
 CMAKE_PREFIX_PATH, for example:
 
-$ cmake -DCMAKE_PREFIX_PATH="/opt/wireshark" ..
+  $ cmake -G Ninja -DCMAKE_PREFIX_PATH="/opt/wireshark" ..
 
 [1]https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html#config-file-packages
+[2]https://cmake.org/cmake/help/latest/manual/cmake.1.html#install-a-project
