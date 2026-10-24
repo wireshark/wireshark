@@ -50,14 +50,15 @@ FrameInfo* push_FrameInfo(lua_State* L, wtap_rec *rec) {
 WSLUA_METAMETHOD FrameInfo__tostring(lua_State* L) {
     /* Returns a short label of the form
        `FrameInfo: encap=<name> caplen=<c> len=<r>`, or
-       `FrameInfo: (expired)` when there is no backing wtap_rec.
+       `FrameInfo: (expired)` once the callback it was passed to
+       has returned.
        The previous form dumped raw rec_type/presence_flags/
        pkt_encap integers and leaked the raw block pointer; the
        symbolic encapsulation name is enough to identify a frame
        in the debugger. */
     FrameInfo fi = toFrameInfo(L,1);
 
-    if (!fi || !fi->rec) {
+    if (!fi || !fi->rec || fi->expired) {
         lua_pushstring(L, "FrameInfo: (expired)");
         WSLUA_RETURN(1);
     }

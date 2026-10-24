@@ -61,13 +61,13 @@ CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const bool first_time) {
 WSLUA_METAMETHOD CaptureInfo__tostring(lua_State* L) {
     /* Returns a short label of the form
        `CaptureInfo: file_type=<name> encap=<name> snaplen=<n>`,
-       or `CaptureInfo: (expired)` once the underlying wtap handle
-       is gone. The previous form dumped raw numeric ids; their
+       or `CaptureInfo: (expired)` once the callback it was passed to
+       has returned. The previous form dumped raw numeric ids; their
        symbolic names are much more useful for debugging a
        FileHandler. */
     CaptureInfo fi = toCaptureInfo(L,1);
 
-    if (!fi || !fi->wth) {
+    if (!fi || !fi->wth || fi->expired) {
         lua_pushstring(L, "CaptureInfo: (expired)");
         WSLUA_RETURN(1);
     }
@@ -337,12 +337,12 @@ CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wtap_dumper *wdh) {
 WSLUA_METAMETHOD CaptureInfoConst__tostring(lua_State* L) {
     /* Returns a short label of the form
        `CaptureInfoConst: file_type=<name> encap=<name> snaplen=<n>`,
-       or `CaptureInfoConst: (expired)` once the underlying
-       wtap_dumper is gone. Like CaptureInfo.__tostring, symbolic
+       or `CaptureInfoConst: (expired)` once the callback it was
+       passed to has returned. Like CaptureInfo.__tostring, symbolic
        names are preferred over raw enum ids for debugger use. */
     CaptureInfoConst fi = toCaptureInfoConst(L,1);
 
-    if (!fi || !fi->wdh) {
+    if (!fi || !fi->wdh || fi->expired) {
         lua_pushstring(L, "CaptureInfoConst: (expired)");
         WSLUA_RETURN(1);
     }
