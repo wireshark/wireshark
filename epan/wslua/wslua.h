@@ -305,6 +305,14 @@ struct _wslua_private_table {
 };
 
 /**
+ * @brief Wraps a conversation_t, which is allocated in file scope, tracking expiry.
+ */
+struct _wslua_conversation {
+    conversation_t* conv;       /**< The underlying conversation. */
+    uint64_t        generation; /**< The wslua_file_generation in which this was created; see WSLUA_FILE_EXPIRED(). */
+};
+
+/**
  * @brief Wraps a proto_item and its associated proto_tree for manipulation from the Lua scripting environment.
  */
 struct _wslua_treeitem {
@@ -506,7 +514,7 @@ typedef tvbparse_elem_t* Node;
 typedef tvbparse_action_t* Shortcut;
 typedef struct _wslua_dir* Dir;
 typedef struct _wslua_private_table* PrivateTable;
-typedef conversation_t* Conversation;
+typedef struct _wslua_conversation* Conversation;
 typedef char* Struct;
 
 /*
@@ -561,6 +569,15 @@ C shift##C(lua_State* L,int i) { \
     else return retval;\
 } \
 typedef int dummy##C
+
+/**
+ * @brief Incremented whenever wmem_file_scope() is freed, expiring all
+ * Lua objects (such as Conversation) that refer to file scoped memory.
+ */
+extern uint64_t wslua_file_generation;
+
+/** True if an object referring to file scoped memory was created before wmem_file_scope() was last freed. */
+#define WSLUA_FILE_EXPIRED(obj) ((obj)->generation != wslua_file_generation)
 
 /**
  * @brief Defines a single attribute entry in a Lua class attribute dispatch table, binding a field name to its getter and setter.
@@ -844,6 +861,12 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, bo
 #define FAIL_ON_NULL_OR_EXPIRED(s) if (!*p) { \
         luaL_argerror(L,idx,"null " s); \
     } else if ((*p)->expired) { \
+        luaL_argerror(L,idx,"expired " s); \
+    }
+
+#define FAIL_ON_NULL_OR_FILE_EXPIRED(s) if (!*p) { \
+        luaL_argerror(L,idx,"null " s); \
+    } else if (WSLUA_FILE_EXPIRED(*p)) { \
         luaL_argerror(L,idx,"expired " s); \
     }
 
@@ -1326,6 +1349,15 @@ extern void clear_outstanding_Columns(void);
  * @brief Clears any outstanding PrivateTable entries.
  */
 extern void clear_outstanding_PrivateTable(void);
+
+/**
+ * @brief Pushes a Conversation onto the Lua stack.
+ *
+ * @param L The Lua state.
+ * @param conv The conversation, which must be allocated in the current file scope.
+ * @return A pointer to the pushed Conversation object.
+ */
+extern Conversation push_Conversation(lua_State* L, conversation_t* conv);
 
 /**
  * @brief Retrieves the value of hf_wslua_text.
