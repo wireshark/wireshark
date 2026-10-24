@@ -19,4 +19,7 @@ extern const value_string midi_channels[];
 
 int dissect_midi1_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, uint8_t *runningstatus, bool first_command);
 
+unsigned int
+dissect_midi_ump_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, unsigned int offset, const unsigned int encoding);
+
 #endif /* __PACKET_MIDI_H__ */

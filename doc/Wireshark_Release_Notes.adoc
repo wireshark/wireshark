@@ -378,6 +378,7 @@ Mikrotik RoMON
 Multicast Router Discovery (MRD)
 MySQL X Protocol (MySQLX)
 NATS
+Network MIDI 2.0
 NMEA 2000
 Object Transform Protocol (OTP)
 OPC UA PubSub UADP

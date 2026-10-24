@@ -97,6 +97,41 @@ dissect_midi_sysex_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
     return tvb_captured_length(tvb);
 }
 
+static int
+dissect_midi_sysex_no_framing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+{
+    unsigned offset = 0;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIDI SysEx");
+    col_set_str(pinfo->cinfo, COL_INFO, "MIDI System Exclusive Message");
+
+    proto_item* pi = proto_tree_add_protocol_format(parent_tree, proto_midi_sysex, tvb, 0, -1, "MIDI System Exclusive Message");
+    proto_tree* tree = proto_item_add_subtree(pi, ett_midi_sysex);
+
+    uint32_t manufacturer_id = tvb_get_uint8(tvb, offset);
+    if (manufacturer_id == 0) {
+        manufacturer_id = tvb_get_ntoh24(tvb, offset);
+        proto_tree_add_item(tree, hf_sysex_three_byte_manufacturer_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+    } else {
+        manufacturer_id = manufacturer_id << 16;
+        proto_tree_add_item(tree, hf_sysex_manufacturer_id, tvb, offset, 1, ENC_NA);
+        offset++;
+    }
+
+    if (tvb_reported_length_remaining(tvb, offset)) {
+        tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
+        offset += dissector_try_uint(sysex_manufacturer_dissector_table, manufacturer_id, payload_tvb, pinfo, tree);
+    }
+
+    unsigned remaining = tvb_reported_length_remaining(tvb, offset);
+    if (remaining) {
+        proto_tree_add_expert(tree, pinfo, &ei_sysex_undecoded, tvb, offset, remaining);
+    }
+
+    return tvb_captured_length(tvb);
+}
+
 void
 proto_register_midi_sysex(void)
 {
@@ -137,6 +172,7 @@ proto_register_midi_sysex(void)
         "MIDI SysEx manufacturer", proto_midi_sysex, FT_UINT24, BASE_HEX);
 
     register_dissector("midi_sysex", dissect_midi_sysex_message, proto_midi_sysex);
+    register_dissector("midi_sysex_inner", dissect_midi_sysex_no_framing, proto_midi_sysex);
 }
 
 void

@@ -28,12 +28,14 @@
 #include <epan/tfs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/reassemble.h>
 #include "data-midi-sysex-id.h"
 #include "packet-midi.h"
 
 /* protocols and header fields */
 static int proto_midi;
 static dissector_handle_t midi_handle;
+static dissector_handle_t midi_sysex_handle;
 
 static dissector_handle_t midi_sysex_common_rt_handle;
 static dissector_handle_t midi_sysex_common_nrt_handle;
@@ -42,6 +44,13 @@ static dissector_table_t sysex_manufacturer_dissector_table;
 
 static int ett_midi;
 static int ett_midi1_command;
+static int ett_midi_ump;
+static int ett_midi_ump_stream_request;
+static int ett_midi_ump_stream_fb_disc;
+
+static int ett_midi2_attr_data;
+static int ett_midi2_program_options;
+static int ett_midi2_note_manage;
 
 static int ett_midi_sysex_data;
 static int ett_midi_sysex_edu;
@@ -49,12 +58,17 @@ static int ett_midi_sysex_manu;
 static int ett_midi_sysex_common_rt;
 static int ett_midi_sysex_common_nrt;
 static int ett_midi_sysex_common_tune_note;
+static int ett_midi_sysex_ci_proc_supported_features;
+static int ett_midi_sysex_ci_proc_requested_system_messages;
+static int ett_midi_sysex_ci_proc_requested_channel_messages;
+static int ett_midi_sysex_ci_proc_requested_note_messages;
+static int ett_midi_sysex_ci_supported_categories;
 
 static int hf_midi1_command;
 
-static int hf_midi_channel_status;
+static int hf_midi1_channel_status;
 static int hf_midi_channel;
-static int hf_midi1_note;
+static int hf_midi_note;
 static int hf_midi1_velocity;
 static int hf_midi1_pressure;
 static int hf_midi1_controller;
@@ -70,10 +84,123 @@ static int hf_midi_spp;
 static int hf_midi_song_select;
 static int hf_midi_unknown_data;
 
+static int hf_midi_ump;
+static int hf_midi_ump_mt;
+static int hf_midi_ump_group;
+static int hf_midi_ump_reserved;
+static int hf_midi_ump_utility_status;
+static int hf_midi_ump_utility_jr;
+static int hf_midi_ump_utility_dc_tpq;
+static int hf_midi_ump_utility_dc;
+static int hf_midi_ump_data64_status;
+static int hf_midi_ump_data64_length;
+static int hf_midi_ump_data64_data;
+static int hf_midi_ump_data64_pad;
+static int hf_midi_ump_data128_status;
+static int hf_midi_ump_data128_length;
+static int hf_midi_ump_data128_stream_id;
+static int hf_midi_ump_data128_data;
+static int hf_midi_ump_data128_mds_chunk_len;
+static int hf_midi_ump_data128_mds_chunk_count;
+static int hf_midi_ump_data128_mds_chunk_num;
+static int hf_midi_ump_data128_mds_payload;
+
+static int hf_midi_ump_flex_format;
+static int hf_midi_ump_flex_address;
+static int hf_midi_ump_flex_channel;
+static int hf_midi_ump_flex_status_bank;
+static int hf_midi_ump_flex_status_00;
+static int hf_midi_ump_flex_status_01;
+static int hf_midi_ump_flex_status_02;
+static int hf_midi_ump_flex_status;
+static int hf_midi_ump_flex_data;
+static int hf_midi_ump_flex_data_text;
+static int hf_midi_ump_flex_data_tempo;
+static int hf_midi_ump_flex_data_ts_num;
+static int hf_midi_ump_flex_data_ts_den;
+static int hf_midi_ump_flex_data_ts_notes;
+static int hf_midi_ump_flex_data_met_clocks;
+static int hf_midi_ump_flex_data_met_bar_1;
+static int hf_midi_ump_flex_data_met_bar_2;
+static int hf_midi_ump_flex_data_met_bar_3;
+static int hf_midi_ump_flex_data_met_sub_1;
+static int hf_midi_ump_flex_data_met_sub_2;
+static int hf_midi_ump_flex_data_sig_sharps;
+static int hf_midi_ump_flex_data_sig_tonic;
+static int hf_midi_ump_flex_data_chord_tonic;
+static int hf_midi_ump_flex_data_chord_bass;
+static int hf_midi_ump_flex_data_chord_sharps;
+static int hf_midi_ump_flex_data_chord_note;
+static int hf_midi_ump_flex_data_chord_type;
+static int hf_midi_ump_flex_data_chord_alt_type;
+static int hf_midi_ump_flex_data_chord_alt_deg;
+
+static int hf_midi_ump_stream_form;
+static int hf_midi_ump_stream_status;
+static int hf_midi_ump_stream_ver_major;
+static int hf_midi_ump_stream_ver_minor;
+static int hf_midi_ump_stream_request;
+static int hf_midi_ump_stream_request_e;
+static int hf_midi_ump_stream_request_d;
+static int hf_midi_ump_stream_request_n;
+static int hf_midi_ump_stream_request_i;
+static int hf_midi_ump_stream_request_s;
+static int hf_midi_ump_stream_ep_info_s;
+static int hf_midi_ump_stream_ep_info_fbs;
+static int hf_midi_ump_stream_ep_info_m2;
+static int hf_midi_ump_stream_ep_info_m1;
+static int hf_midi_ump_stream_rx_jr;
+static int hf_midi_ump_stream_tx_jr;
+static int hf_midi_ump_stream_ep_name;
+static int hf_midi_ump_stream_prod_id;
+static int hf_midi_ump_stream_protocol;
+static int hf_midi_ump_stream_fb_num;
+static int hf_midi_ump_stream_fb_disc;
+static int hf_midi_ump_stream_fb_disc_info;
+static int hf_midi_ump_stream_fb_disc_name;
+static int hf_midi_ump_stream_fb_active;
+static int hf_midi_ump_stream_fb_ui_hint;
+static int hf_midi_ump_stream_fb_midi_1;
+static int hf_midi_ump_stream_fb_dir;
+static int hf_midi_ump_stream_fb_group;
+static int hf_midi_ump_stream_fb_group_span;
+static int hf_midi_ump_stream_fb_ci_version;
+static int hf_midi_ump_stream_fb_sysex8_count;
+static int hf_midi_ump_stream_fb_name;
+
+static int hf_midi2_channel_status;
+static int hf_midi2_attribute_type;
+static int hf_midi2_velocity;
+static int hf_midi2_attr_data;
+static int hf_midi2_attr_data_pitch_semitones;
+static int hf_midi2_attr_data_pitch_fract;
+static int hf_midi2_pressure;
+static int hf_midi2_controller_value;
+static int hf_midi2_program_options;
+static int hf_midi2_program_options_bank_valid;
+static int hf_midi2_program_bank_msb;
+static int hf_midi2_program_bank_lsb;
+static int hf_midi2_channel_pressure;
+static int hf_midi2_pitch_bend;
+static int hf_midi2_per_note_controller;
+static int hf_midi2_per_note_controller_value;
+static int hf_midi2_param_bank;
+static int hf_midi2_param_index;
+static int hf_midi2_param_value;
+static int hf_midi2_param_delta;
+static int hf_midi2_note_manage;
+static int hf_midi2_note_manage_detach;
+static int hf_midi2_note_manage_reset;
+static int hf_midi2_per_note_pitch_bend;
+
+static int hf_midi_sysex8_manu;
+static int hf_midi_sysex8_device_id;
+static int hf_midi_sysex8_sub_id_1;
+static int hf_midi_sysex8_sub_id_2;
+
 
 static int hf_midi_sysex_manu_short;
 static int hf_midi_sysex_manu_long;
-static int hf_midi_sysex_manu_data;
 static int hf_midi_sysex_edu_data;
 
 static int hf_midi_sysex_common_device_id;
@@ -194,6 +321,121 @@ static int hf_midi_sysex_mmc_data;
 
 static int hf_midi_sysex_downloadable_sounds_msg_type;
 
+static int hf_midi_sysex_ci_msg_type;
+static int hf_midi_sysex_ci_major_version;
+static int hf_midi_sysex_ci_minor_version;
+static int hf_midi_sysex_ci_src_muid;
+static int hf_midi_sysex_ci_dst_muid;
+static int hf_midi_sysex_ci_reserved;
+
+static int hf_midi_sysex_ci_prof_id;
+static int hf_midi_sysex_ci_prof_count_enabled;
+static int hf_midi_sysex_ci_prof_count_disabled;
+static int hf_midi_sysex_ci_prof_chans;
+static int hf_midi_sysex_ci_prof_inquiry_target;
+static int hf_midi_sysex_ci_prof_inquiry_target_data_len;
+static int hf_midi_sysex_ci_prof_inquiry_target_data;
+static int hf_midi_sysex_ci_prof_data_len;
+static int hf_midi_sysex_ci_prof_data;
+static int hf_midi_sysex_ci_prop_sim_supported;
+static int hf_midi_sysex_ci_prop_ver_major;
+static int hf_midi_sysex_ci_prop_ver_minor;
+static int hf_midi_sysex_ci_prop_request_id;
+static int hf_midi_sysex_ci_prop_header_len;
+static int hf_midi_sysex_ci_prop_header;
+static int hf_midi_sysex_ci_prop_chunk_count;
+static int hf_midi_sysex_ci_prop_chunk_num;
+static int hf_midi_sysex_ci_prop_data_len;
+static int hf_midi_sysex_ci_prop_data;
+static int hf_midi_sysex_ci_proc_supported_features;
+static int hf_midi_sysex_ci_proc_supported_features_msg_report;
+static int hf_midi_sysex_ci_proc_message_data_control;
+static int hf_midi_sysex_ci_proc_requested_system_messages;
+static int hf_midi_sysex_ci_proc_requested_system_messages_mtc_qf;
+static int hf_midi_sysex_ci_proc_requested_system_messages_song_pos;
+static int hf_midi_sysex_ci_proc_requested_system_messages_song_sel;
+static int hf_midi_sysex_ci_proc_requested_channel_messages;
+static int hf_midi_sysex_ci_proc_requested_channel_messages_pitch_bend;
+static int hf_midi_sysex_ci_proc_requested_channel_messages_cc;
+static int hf_midi_sysex_ci_proc_requested_channel_messages_rpn;
+static int hf_midi_sysex_ci_proc_requested_channel_messages_nrpn;
+static int hf_midi_sysex_ci_proc_requested_channel_messages_pc;
+static int hf_midi_sysex_ci_proc_requested_channel_messages_pressure;
+static int hf_midi_sysex_ci_proc_requested_note_messages;
+static int hf_midi_sysex_ci_proc_requested_note_messages_notes;
+static int hf_midi_sysex_ci_proc_requested_note_messages_pressure;
+static int hf_midi_sysex_ci_proc_requested_note_messages_pitch_bend;
+static int hf_midi_sysex_ci_proc_requested_note_messages_registered_per_note;
+static int hf_midi_sysex_ci_proc_requested_note_messages_assigned_per_note;
+static int hf_midi_sysex_ci_device_manu_short;
+static int hf_midi_sysex_ci_device_manu_long;
+static int hf_midi_sysex_ci_supported_categories;
+static int hf_midi_sysex_ci_supported_categories_0;
+static int hf_midi_sysex_ci_supported_categories_1;
+static int hf_midi_sysex_ci_supported_categories_2;
+static int hf_midi_sysex_ci_supported_categories_3;
+static int hf_midi_sysex_ci_supported_categories_4;
+static int hf_midi_sysex_ci_supported_categories_5;
+static int hf_midi_sysex_ci_supported_categories_6;
+static int hf_midi_sysex_ci_max_sysex;
+static int hf_midi_sysex_ci_output_path_id;
+static int hf_midi_sysex_ci_function_block;
+static int hf_midi_sysex_ci_ep_info_status;
+static int hf_midi_sysex_ci_ep_info_len;
+static int hf_midi_sysex_ci_ep_info_data;
+static int hf_midi_product_instance_id;
+static int hf_midi_sysex_ci_ack_original_id;
+static int hf_midi_sysex_ci_ack_status_code;
+static int hf_midi_sysex_ci_ack_status_data;
+static int hf_midi_sysex_ci_ack_details;
+static int hf_midi_sysex_ci_ack_msg_len;
+static int hf_midi_sysex_ci_ack_message;
+static int hf_midi_sysex_ci_invalid_muid;
+static int hf_midi_sysex_ci_nak_original_id;
+static int hf_midi_sysex_ci_nak_status_code;
+static int hf_midi_sysex_ci_nak_status_data;
+static int hf_midi_sysex_ci_nak_details;
+static int hf_midi_sysex_ci_nak_msg_len;
+static int hf_midi_sysex_ci_nak_message;
+
+
+static int ett_midi_ump_data64_msg_fragment;
+static int ett_midi_ump_data64_msg_fragments;
+static int hf_midi_ump_data64_msg_fragments;
+static int hf_midi_ump_data64_msg_fragment;
+static int hf_midi_ump_data64_msg_fragment_overlap;
+static int hf_midi_ump_data64_msg_fragment_overlap_conflicts;
+static int hf_midi_ump_data64_msg_fragment_multiple_tails;
+static int hf_midi_ump_data64_msg_fragment_too_long_fragment;
+static int hf_midi_ump_data64_msg_fragment_error;
+static int hf_midi_ump_data64_msg_fragment_count;
+static int hf_midi_ump_data64_msg_reassembled_in;
+static int hf_midi_ump_data64_msg_reassembled_length;
+static int hf_midi_ump_data64_msg_reassembled_data;
+
+static reassembly_table midi_ump_data64_reassembly_table;
+
+static const fragment_items midi_ump_data64_msg_frag_items = {
+    /* Fragment subtrees */
+    &ett_midi_ump_data64_msg_fragment,
+    &ett_midi_ump_data64_msg_fragments,
+    /* Fragment fields */
+    &hf_midi_ump_data64_msg_fragments,
+    &hf_midi_ump_data64_msg_fragment,
+    &hf_midi_ump_data64_msg_fragment_overlap,
+    &hf_midi_ump_data64_msg_fragment_overlap_conflicts,
+    &hf_midi_ump_data64_msg_fragment_multiple_tails,
+    &hf_midi_ump_data64_msg_fragment_too_long_fragment,
+    &hf_midi_ump_data64_msg_fragment_error,
+    &hf_midi_ump_data64_msg_fragment_count,
+    /* Reassembled in field */
+    &hf_midi_ump_data64_msg_reassembled_in,
+    /* Reassembled length field */
+    &hf_midi_ump_data64_msg_reassembled_length,
+    &hf_midi_ump_data64_msg_reassembled_data,
+    /* Tag */
+    "Message fragments"
+};
 
 
 static const value_string midi_note_values[] = {
@@ -500,9 +742,342 @@ static const char rtp_midi_common_status_sysex_segment[]          = "Middle Syse
 static const char rtp_midi_common_status_sysex_segment_complete[] = "Full Sysex-Command";
 static const char rtp_midi_common_status_sysex_cancel[]           = "Sysex-Cancel";
 
-/*
- * MIDI Universal Non-Realtime System Exclusive Messages (sysex-manu-id=0x7e)
- */
+
+
+
+#define MIDI_UMP_MT_UTILITY   0x0
+#define MIDI_UMP_MT_SYSTEM    0x1
+#define MIDI_UMP_MT_MIDI_1    0x2
+#define MIDI_UMP_MT_DATA_64   0x3
+#define MIDI_UMP_MT_MIDI_2    0x4
+#define MIDI_UMP_MT_DATA_128  0x5
+#define MIDI_UMP_MT_FLEX_DATA 0xD
+#define MIDI_UMP_MT_STREAM    0xF
+static const value_string midi_ump_mt_name[] = {
+    { MIDI_UMP_MT_UTILITY,   "Utility" },
+    { MIDI_UMP_MT_SYSTEM,    "System RealTime/Common" },
+    { MIDI_UMP_MT_MIDI_1,    "MIDI 1.0 Channel Voice" },
+    { MIDI_UMP_MT_DATA_64,   "8-Byte Data Messages (SysEx)" },
+    { MIDI_UMP_MT_MIDI_2,    "MIDI 2.0 Channel Voice" },
+    { MIDI_UMP_MT_DATA_128,  "16-Byte Data Messages" },
+    { MIDI_UMP_MT_FLEX_DATA, "Flex Data Messages" },
+    { MIDI_UMP_MT_STREAM,    "UMP Stream Messages" },
+    { 0, NULL }
+};
+static const value_string midi_ump_mt_name_short[] = {
+    { MIDI_UMP_MT_UTILITY,   "Utility" },
+    { MIDI_UMP_MT_SYSTEM,    "System" },
+    { MIDI_UMP_MT_MIDI_1,    "MIDI 1.0" },
+    { MIDI_UMP_MT_DATA_64,   "SysEx" },
+    { MIDI_UMP_MT_MIDI_2,    "MIDI 2.0" },
+    { MIDI_UMP_MT_DATA_128,  "SysEx8" },
+    { MIDI_UMP_MT_FLEX_DATA, "Flex Data" },
+    { MIDI_UMP_MT_STREAM,    "Stream" },
+    { 0, NULL }
+};
+static const unsigned int midi_ump_message_size[] = {
+    /* 0x0 */ 4,  /* MIDI_UMP_MT_UTILITY */
+    /* 0x1 */ 4,  /* MIDI_UMP_MT_SYSTEM */
+    /* 0x2 */ 4,  /* MIDI_UMP_MT_MIDI_1 */
+    /* 0x3 */ 8,  /* MIDI_UMP_MT_DATA_64 */
+    /* 0x4 */ 8,  /* MIDI_UMP_MT_MIDI_2 */
+    /* 0x5 */ 16, /* MIDI_UMP_MT_DATA_128 */
+    /* 0x6 */ 4,
+    /* 0x7 */ 4,
+    /* 0x8 */ 8,
+    /* 0x9 */ 8,
+    /* 0xA */ 8,
+    /* 0xB */ 12,
+    /* 0xC */ 12,
+    /* 0xD */ 16,
+    /* 0xE */ 16,
+    /* 0xF */ 16
+};
+
+
+#define MIDI_UMP_UTILITY_STATUS_NOOP     0x0
+#define MIDI_UMP_UTILITY_STATUS_JR_CLOCK 0x1
+#define MIDI_UMP_UTILITY_STATUS_JR_TIME  0x2
+#define MIDI_UMP_UTILITY_STATUS_DC_TPQ   0x3
+#define MIDI_UMP_UTILITY_STATUS_DC       0x4
+static const value_string midi_ump_utility_status_name[] = {
+    { MIDI_UMP_UTILITY_STATUS_NOOP,     "NOOP" },
+    { MIDI_UMP_UTILITY_STATUS_JR_CLOCK, "JR Clock" },
+    { MIDI_UMP_UTILITY_STATUS_JR_TIME,  "JR Timestamp" },
+    { MIDI_UMP_UTILITY_STATUS_DC_TPQ,   "DC Ticks Per Quarter Note" },
+    { MIDI_UMP_UTILITY_STATUS_DC,       "DC Ticks Since Last Event" },
+    { 0, NULL }
+};
+
+#define MIDI_UMP_DATA64_STATUS_SINGLE   0x0
+#define MIDI_UMP_DATA64_STATUS_START    0x1
+#define MIDI_UMP_DATA64_STATUS_CONTINUE 0x2
+#define MIDI_UMP_DATA64_STATUS_END      0x3
+static const value_string midi_ump_data64_status_name[] = {
+    { MIDI_UMP_DATA64_STATUS_SINGLE,   "SysEx in 1 UMP" },
+    { MIDI_UMP_DATA64_STATUS_START,    "SysEx Start" },
+    { MIDI_UMP_DATA64_STATUS_CONTINUE, "SysEx Continue" },
+    { MIDI_UMP_DATA64_STATUS_END,      "SysEx End" },
+    { 0, NULL }
+};
+
+#define MIDI_UMP_MIDI2_REGISTERED_PER_NOTE 0x0
+#define MIDI_UMP_MIDI2_ASSIGNABLE_PER_NOTE 0x1
+#define MIDI_UMP_MIDI2_REGISTERED_CONTROL  0x2
+#define MIDI_UMP_MIDI2_ASSIGNABLE_CONTROL  0x3
+#define MIDI_UMP_MIDI2_REL_REG_CONTROL     0x4
+#define MIDI_UMP_MIDI2_REL_ASS_CONTROL     0x5
+#define MIDI_UMP_MIDI2_PER_NOTE_PITCH_BEND 0x6
+#define MIDI_UMP_MIDI2_PER_NOTE_MANAGEMENT 0xF
+static const value_string midi_ump_midi2_status_name[] = {
+    { MIDI_STATUS_CHAN_NOTE_OFF,          "Note Off" },
+    { MIDI_STATUS_CHAN_NOTE_ON,           "Note On" },
+    { MIDI_STATUS_CHAN_POLY_PRESSURE,     "Poly Pressure" },
+    { MIDI_STATUS_CHAN_CONTROL_CHANGE,    "Control Change" },
+    { MIDI_STATUS_CHAN_PROGRAM_CHANGE,    "Program Change" },
+    { MIDI_STATUS_CHAN_CHANNEL_PRESSURE,  "Channel Pressure" },
+    { MIDI_STATUS_CHAN_PITCH_BEND,        "Pitch Bend" },
+    { MIDI_UMP_MIDI2_REGISTERED_PER_NOTE, "Registered Per-Note Ctrl." },
+    { MIDI_UMP_MIDI2_ASSIGNABLE_PER_NOTE, "Assignable Per-Note Ctrl." },
+    { MIDI_UMP_MIDI2_REGISTERED_CONTROL,  "Registered Ctrl. (RPN)" },
+    { MIDI_UMP_MIDI2_ASSIGNABLE_CONTROL,  "Assignable Ctrl. (NRPN)" },
+    { MIDI_UMP_MIDI2_REL_REG_CONTROL,     "Relative Registered Ctrl." },
+    { MIDI_UMP_MIDI2_REL_ASS_CONTROL,     "Relative Assignable Ctrl." },
+    { MIDI_UMP_MIDI2_PER_NOTE_PITCH_BEND, "Per-Note Pitch Bend" },
+    { MIDI_UMP_MIDI2_PER_NOTE_MANAGEMENT, "Per-Note Management" },
+    { 0, NULL }
+};
+
+#define MIDI_UMP_MIDI2_ATTR_TYPE_PITCH79 0x03
+static const value_string midi2_attribute_type[] = {
+    { 0x00, "No Attribute Data" },
+    { 0x01, "Manufacturer Specific" },
+    { 0x02, "Profile Specific" },
+    { 0x03, "Pitch 7.9" },
+    { 0, NULL }
+};
+
+#define MIDI_UMP_DATA128_STATUS_SINGLE      0x0
+#define MIDI_UMP_DATA128_STATUS_START       0x1
+#define MIDI_UMP_DATA128_STATUS_CONTINUE    0x2
+#define MIDI_UMP_DATA128_STATUS_END         0x3
+#define MIDI_UMP_DATA128_STATUS_MDS_HEADER  0x8
+#define MIDI_UMP_DATA128_STATUS_MDS_PAYLOAD 0x9
+static const value_string midi_ump_data128_status_name[] = {
+    { MIDI_UMP_DATA128_STATUS_SINGLE,      "SysEx8 in 1 UMP" },
+    { MIDI_UMP_DATA128_STATUS_START,       "SysEx8 Start" },
+    { MIDI_UMP_DATA128_STATUS_CONTINUE,    "SysEx8 Continue" },
+    { MIDI_UMP_DATA128_STATUS_END,         "SysEx8 End" },
+    { MIDI_UMP_DATA128_STATUS_MDS_HEADER,  "Mixed Data Set Header" },
+    { MIDI_UMP_DATA128_STATUS_MDS_PAYLOAD, "Mixed Data Set Payload" },
+    { 0, NULL }
+};
+
+static const value_string midi_ump_data128_stream_id_specials[] = {
+    { 0x1, "Unexpected EndOfData Valid" },
+    { 0xF, "Unexpected EndOfData Incomplete" },
+    { 0, NULL }
+};
+
+static const value_string midi_ump_flex_format[] = {
+    { 0, "Complete Flex Data Message" },
+    { 1, "Flex Data Start" },
+    { 2, "Flex Data Continue" },
+    { 3, "Flex Data End" },
+    { 0, NULL }
+};
+static const value_string midi_ump_flex_address[] = {
+    { 0, "Channel" },
+    { 1, "Group" },
+    { 0, NULL }
+};
+static const value_string midi_ump_flex_status_bank[] = {
+    { 0, "Setup & Performance" },
+    { 1, "Metadata Text" },
+    { 2, "Performance Text" },
+    { 0, NULL }
+};
+
+#define MIDI_UMP_FLEX_DATA_STATUS_SET_TEMPO      0x00
+#define MIDI_UMP_FLEX_DATA_STATUS_SET_TIME_SIG   0x01
+#define MIDI_UMP_FLEX_DATA_STATUS_SET_METRONOME  0x02
+#define MIDI_UMP_FLEX_DATA_STATUS_SET_KEY_SIG    0x05
+#define MIDI_UMP_FLEX_DATA_STATUS_SET_CHORD_NAME 0x06
+static const value_string midi_ump_flex_data_bank_00_status_name[] = {
+    { MIDI_UMP_FLEX_DATA_STATUS_SET_TEMPO,      "SysEx8 in 1 UMP" },
+    { MIDI_UMP_FLEX_DATA_STATUS_SET_TIME_SIG,   "SysEx8 Start" },
+    { MIDI_UMP_FLEX_DATA_STATUS_SET_METRONOME,  "SysEx8 Continue" },
+    { MIDI_UMP_FLEX_DATA_STATUS_SET_KEY_SIG,    "SysEx8 End" },
+    { MIDI_UMP_FLEX_DATA_STATUS_SET_CHORD_NAME, "Mixed Data Set Header" },
+    { 0, NULL }
+};
+static const value_string midi_ump_flex_data_bank_01_status_name[] = {
+    { 0x00, "Unknown Metadata Text Event" },
+    { 0x01, "Project Name" },
+    { 0x02, "Composition (Song) Name" },
+    { 0x03, "MIDI Clip Name" },
+    { 0x04, "Copyright Notice" },
+    { 0x05, "Composer Name" },
+    { 0x06, "Lyricist Name" },
+    { 0x07, "Arranger Name" },
+    { 0x08, "Publisher Name" },
+    { 0x09, "Primary Performer Name" },
+    { 0x0A, "Accompanying Performer Name" },
+    { 0x0B, "Recording/Concert Date" },
+    { 0x0C, "Recording/Concert Location" },
+    { 0, NULL }
+};
+static const value_string midi_ump_flex_data_bank_02_status_name[] = {
+    { 0x00, "Unknown Performance Text Events" },
+    { 0x01, "Lyrics" },
+    { 0x02, "Lyrics Language" },
+    { 0x03, "Ruby" },
+    { 0x04, "Ruby Language" },
+    { 0, NULL }
+};
+
+static const value_string midi_ump_flex_data_note[] = {
+    { 0x0, "unknown or non-standard" },
+    { 0x1, "A" },
+    { 0x2, "B" },
+    { 0x3, "C" },
+    { 0x4, "D" },
+    { 0x5, "E" },
+    { 0x6, "F" },
+    { 0x7, "G" },
+    { 0, NULL }
+};
+static const value_string midi_ump_flex_data_chord_type[] = {
+    { 0x00, "Clear Chord - No Chord" },
+    { 0x01, "Major" },
+    { 0x02, "Major 6th" },
+    { 0x03, "Major 7th" },
+    { 0x04, "Major 9th" },
+    { 0x05, "Major 11th" },
+    { 0x06, "Major 13th" },
+    { 0x07, "Minor" },
+    { 0x08, "Minor 6th" },
+    { 0x09, "Minor 7th" },
+    { 0x0A, "Minor 9th" },
+    { 0x0B, "Minor 11th" },
+    { 0x0C, "Minor 13th" },
+    { 0x0D, "Dominant" },
+    { 0x0E, "Dominant ninth" },
+    { 0x0F, "Dominant 11th" },
+    { 0x10, "Dominant 13th" },
+    { 0x11, "Augmented" },
+    { 0x12, "Augmented seventh" },
+    { 0x13, "Diminished" },
+    { 0x14, "Diminished seventh" },
+    { 0x15, "Half diminished" },
+    { 0x16, "Major-minor or Minor-major" },
+    { 0x17, "Pedal" },
+    { 0x18, "Power" },
+    { 0x19, "Suspended 2nd" },
+    { 0x1A, "Suspended 4th" },
+    { 0x1B, "7 Suspended 4th" },
+    { 0, NULL }
+};
+static const value_string midi_ump_flex_data_chord_alt_type[] = {
+    { 0, "No alteration" },
+    { 1, "Add degree" },
+    { 2, "Subtract degree" },
+    { 3, "Raise degree" },
+    { 4, "Lower degree" },
+    { 0, NULL }
+};
+
+#define MIDI_UMP_STREAM_STATUS_ENDPOINT_DISCOVERY       0x00
+#define MIDI_UMP_STREAM_STATUS_ENDPOINT_INFO            0x01
+#define MIDI_UMP_STREAM_STATUS_DEVICE_IDENTITY          0x02
+#define MIDI_UMP_STREAM_STATUS_ENDPOINT_NAME            0x03
+#define MIDI_UMP_STREAM_STATUS_PRODUCT_INSTANCE_ID      0x04
+#define MIDI_UMP_STREAM_STATUS_STREAM_CONFIGURATION_REQ 0x05
+#define MIDI_UMP_STREAM_STATUS_STREAM_CONFIGURATION     0x06
+#define MIDI_UMP_STREAM_STATUS_FUNCTION_BLOCK_DISCOVERY 0x10
+#define MIDI_UMP_STREAM_STATUS_FUNCTION_BLOCK_INFO      0x11
+#define MIDI_UMP_STREAM_STATUS_FUNCTION_BLOCK_NAME      0x12
+#define MIDI_UMP_STREAM_STATUS_START_OF_CLIP            0x20
+#define MIDI_UMP_STREAM_STATUS_END_OF_CLIP              0x21
+static const value_string midi_ump_stream_data_status_name[] = {
+    { MIDI_UMP_STREAM_STATUS_ENDPOINT_DISCOVERY,       "Endpoint Discovery" },
+    { MIDI_UMP_STREAM_STATUS_ENDPOINT_INFO,            "Endpoint Info" },
+    { MIDI_UMP_STREAM_STATUS_DEVICE_IDENTITY,          "Device Identity" },
+    { MIDI_UMP_STREAM_STATUS_ENDPOINT_NAME,            "Endpoint Name" },
+    { MIDI_UMP_STREAM_STATUS_PRODUCT_INSTANCE_ID,      "Product Instance ID" },
+    { MIDI_UMP_STREAM_STATUS_STREAM_CONFIGURATION_REQ, "Stream Configuration Request" },
+    { MIDI_UMP_STREAM_STATUS_STREAM_CONFIGURATION,     "Stream Configuration" },
+    { MIDI_UMP_STREAM_STATUS_FUNCTION_BLOCK_DISCOVERY, "Function Block Discovery" },
+    { MIDI_UMP_STREAM_STATUS_FUNCTION_BLOCK_INFO,      "Function Block Info" },
+    { MIDI_UMP_STREAM_STATUS_FUNCTION_BLOCK_NAME,      "Function Block name" },
+    { MIDI_UMP_STREAM_STATUS_START_OF_CLIP,            "Start Of Clip" },
+    { MIDI_UMP_STREAM_STATUS_END_OF_CLIP,              "End of Clip" },
+    { 0, NULL }
+};
+
+static const value_string midi_ump_stream_format[] = {
+    { 0, "Complete Message" },
+    { 1, "Start of Message" },
+    { 2, "Continuation of Message" },
+    { 3, "End of Message" },
+    { 0, NULL }
+};
+static const value_string midi_ump_stream_protocol[] = {
+    { 1, "MIDI 1.0 Protocol" },
+    { 2, "MIDI 2.0 Protocol" },
+    { 0, NULL }
+};
+static const value_string midi_ump_stream_fb_ui_hint[] = {
+    { 0, "unknown or undeclared" },
+    { 1, "primarily Receiver" },
+    { 2, "primarily Sender" },
+    { 3, "Sender and Receiver" },
+    { 0, NULL }
+};
+static const value_string midi_ump_stream_fb_midi_1[] = {
+    { 0, "Not MIDI 1.0" },
+    { 1, "MIDI 1.0: Don't restrict Bandwidth" },
+    { 2, "MIDI 1.0: Restrict Bandwidth to 31.25Kbps" },
+    { 0, NULL }
+};
+static const value_string midi_ump_stream_fb_dir[] = {
+    { 1, "Input, Receive only" },
+    { 2, "Output, Transmits only" },
+    { 3, "Bidirectional Connection" },
+    { 0, NULL }
+};
+static const value_string midi_ump_stream_fb_sysex8_count[] = {
+    { 0, "SysEx8 Not Supported"},
+    { 0, NULL }
+};
+
+static int* const midi2_program_options[] = {
+    &hf_midi2_program_options_bank_valid,
+    NULL
+};
+static int* const midi2_note_manage_fields[] = {
+    &hf_midi2_note_manage_detach,
+    &hf_midi2_note_manage_reset,
+    NULL
+};
+
+static int* const midi_ump_stream_request_fields[] = {
+    &hf_midi_ump_stream_request_e,
+    &hf_midi_ump_stream_request_d,
+    &hf_midi_ump_stream_request_n,
+    &hf_midi_ump_stream_request_i,
+    &hf_midi_ump_stream_request_s,
+    NULL
+};
+static int* const midi_ump_stream_fb_disc_fields[] = {
+    &hf_midi_ump_stream_fb_disc_info,
+    &hf_midi_ump_stream_fb_disc_name,
+    NULL
+};
+
+
+
+/* MIDI Universal Non-Realtime System Exclusive Messages (sysex-manu-id=0x7e) */
 #define MIDI_SYSEX_NRT_SAMPLE_DUMP_HEADER     0x01
 #define MIDI_SYSEX_NRT_SAMPLE_DATA_PACKET     0x02
 #define MIDI_SYSEX_NRT_SAMPLE_DUMP_REQUEST    0x03
@@ -513,6 +1088,7 @@ static const char rtp_midi_common_status_sysex_cancel[]           = "Sysex-Cance
 #define MIDI_SYSEX_NRT_MIDI_TUNING_STANDARD   0x08
 #define MIDI_SYSEX_NRT_GENERAL_MIDI           0x09
 #define MIDI_SYSEX_NRT_DOWNLOADABLE_SOUNDS    0x0a
+#define MIDI_SYSEX_NRT_CAPABILITY_INQUIRY     0x0d
 #define MIDI_SYSEX_NRT_END_OF_FILE            0x7b
 #define MIDI_SYSEX_NRT_WAIT                   0x7c
 #define MIDI_SYSEX_NRT_CANCEL                 0x7d
@@ -529,6 +1105,7 @@ static const value_string midi_sysex_common_nrt[] = {
     { MIDI_SYSEX_NRT_MIDI_TUNING_STANDARD,   "Midi Tuning Standard" },
     { MIDI_SYSEX_NRT_GENERAL_MIDI,           "General MIDI (GM)" },
     { MIDI_SYSEX_NRT_DOWNLOADABLE_SOUNDS,    "Downloadable Sounds (DLS)" },
+    { MIDI_SYSEX_NRT_CAPABILITY_INQUIRY,     "Capability Inquiry (MIDI-CI)" },
     { MIDI_SYSEX_NRT_END_OF_FILE,            "End Of File" },
     { MIDI_SYSEX_NRT_WAIT,                   "Wait" },
     { MIDI_SYSEX_NRT_CANCEL,                 "Cancel" },
@@ -537,9 +1114,7 @@ static const value_string midi_sysex_common_nrt[] = {
     { 0, NULL }
 };
 
-/*
- * MIDI Universal Realtime System Exclusive Messages (sysex-manu-id=0x7F)
- */
+/* MIDI Universal Realtime System Exclusive Messages (sysex-manu-id=0x7F) */
 #define MIDI_SYSEX_RT_MIDI_TIME_CODE                0x01
 #define MIDI_SYSEX_RT_MIDI_SHOW_CONTROL             0x02
 #define MIDI_SYSEX_RT_NOTATION_INFORMATION          0x03
@@ -559,7 +1134,6 @@ static const value_string midi_sysex_common_rt[] = {
     { MIDI_SYSEX_RT_MIDI_TUNING_STANDARD,          "MIDI Tuning Standard" },
     { 0, NULL }
 };
-
 
 /* MIDI Time-Code Non-Realtime */
 static const value_string midi_mtc_sysex_cue_nrt[] = {
@@ -683,6 +1257,162 @@ static const value_string midi_sysex_common_nrt_dls[] = {
     { 0, NULL }
 };
 
+#define MIDI_SYSEX_CI_PROF_INQ          0x20
+#define MIDI_SYSEX_CI_PROF_INQ_REP      0x21
+#define MIDI_SYSEX_CI_PROF_ON            0x22
+#define MIDI_SYSEX_CI_PROF_OFF           0x23
+#define MIDI_SYSEX_CI_PROF_ENABLED       0x24
+#define MIDI_SYSEX_CI_PROF_DISABLED      0x25
+#define MIDI_SYSEX_CI_PROF_ADDED         0x26
+#define MIDI_SYSEX_CI_PROF_REMOVED       0x27
+#define MIDI_SYSEX_CI_PROF_DETAILS       0x28
+#define MIDI_SYSEX_CI_PROF_DETAILS_REP   0x29
+#define MIDI_SYSEX_CI_PROF_SPECIFIC_DATA 0x2F
+#define MIDI_SYSEX_CI_PROP_CAPABILITY     0x30
+#define MIDI_SYSEX_CI_PROP_CAPABILITY_REP 0x31
+#define MIDI_SYSEX_CI_PROP_HAS_DATA       0x32
+#define MIDI_SYSEX_CI_PROP_HAS_DATA_REP   0x33
+#define MIDI_SYSEX_CI_PROP_GET_DATA       0x34
+#define MIDI_SYSEX_CI_PROP_GET_DATA_REP   0x35
+#define MIDI_SYSEX_CI_PROP_SET_DATA       0x36
+#define MIDI_SYSEX_CI_PROP_SET_DATA_REP   0x37
+#define MIDI_SYSEX_CI_PROP_SUB            0x38
+#define MIDI_SYSEX_CI_PROP_SUB_REP        0x39
+#define MIDI_SYSEX_CI_PROP_NOTIFY         0x3F
+#define MIDI_SYSEX_CI_PROC_CAPABILITIES       0x40
+#define MIDI_SYSEX_CI_PROC_CAPABILITIES_REP   0x41
+#define MIDI_SYSEX_CI_PROC_MESSAGE_REPORT     0x42
+#define MIDI_SYSEX_CI_PROC_MESSAGE_REPORT_REP 0x43
+#define MIDI_SYSEX_CI_PROC_MESSAGE_REPORT_END 0x44
+#define MIDI_SYSEX_CI_DISC            0x70
+#define MIDI_SYSEX_CI_DISC_REP        0x71
+#define MIDI_SYSEX_CI_EP_INFO         0x72
+#define MIDI_SYSEX_CI_EP_INFO_REP     0x73
+#define MIDI_SYSEX_CI_ACK             0x7D
+#define MIDI_SYSEX_CI_MUID_INVALIDATE 0x7E
+#define MIDI_SYSEX_CI_NAK            0x7F
+static const value_string midi_sysex_common_nrt_ci[] = {
+    { 0x10, "DEPRECATED: Initiate Protocol Negotiation" },
+    { 0x11, "DEPRECATED: Reply to Initiate Protocol Negotiation" },
+    { 0x12, "DEPRECATED: Set New Selected Protocol" },
+    { 0x13, "DEPRECATED: Test New Protocol Initiator to Responder" },
+    { 0x14, "DEPRECATED: Test New Protocol Responder to Initiator" },
+    { 0x15, "DEPRECATED: Confirmation Protocol Established" },
+
+    { 0x20, "Profile Inquiry Initiator" },
+    { 0x21, "Reply to Profile Inquiry Responder" },
+    { 0x22, "Set Profile On Initiator" },
+    { 0x23, "Set Profile Off Initiator" },
+    { 0x24, "Profile Enabled Report Initiator or Responder" },
+    { 0x25, "Profile Disabled Report Initiator or Responder" },
+    { 0x26, "Profile Added Report Responder" },
+    { 0x27, "Profile Removed Report Responder" },
+    { 0x28, "Profile Details Inquiry Initiator" },
+    { 0x29, "Reply to Profile Details Inquiry Responder" },
+    { 0x2F, "Profile Specific Data Initiator or Responder" },
+
+    { 0x30, "Inquiry: Property Exchange Capabilities Initiator" },
+    { 0x31, "Reply to Property Exchange Capabilities Responder" },
+    { 0x32, "Inquiry: Has Property Data (Reserved)" },
+    { 0x33, "Reply to Has Property Data (Reserved)" },
+    { 0x34, "Inquiry: Get Property Data Initiator" },
+    { 0x35, "Reply to Get Property Data Responder" },
+    { 0x36, "Inquiry: Set Property Data Initiator" },
+    { 0x37, "Reply to Set Property Data Responder" },
+    { 0x38, "Subscription Initiator or Responder" },
+    { 0x39, "Reply to Subscription Initiator or Responder" },
+    { 0x3F, "Notify Initiator or Responder" },
+
+    { 0x40, "Inquiry: Process Inquiry Capabilities Initiator" },
+    { 0x41, "Reply to Process Inquiry Capabilities Responder" },
+    { 0x42, "Inquiry: MIDI Message Report Initiator" },
+    { 0x43, "Reply to MIDI Message Report Responder" },
+    { 0x44, "End of MIDI Message Report Responder" },
+
+    { 0x70, "Discovery Initiator" },
+    { 0x71, "Reply to Discovery Responder" },
+    { 0x72, "Inquiry: Endpoint Information Initiator" },
+    { 0x73, "Reply to Endpoint Information Responder" },
+    { 0x7D, "MIDI-CI ACK Initiator or Responder" },
+    { 0x7E, "Invalidate MUID Initiator or Responder" },
+    { 0x7F, "MIDI-CI NAK" },
+    { 0, NULL }
+};
+
+static const value_string midi_sysex_ci_muid[] = {
+    { 0x0FFFFFFF, "Broadcast" },
+    { 0, NULL }
+};
+
+static const value_string midi_sysex_ci_proc_message_data_control[] = {
+    { 0x00, "No Data, Query capabilities" },
+    { 0x01, "Non-Default Controllers" },
+    { 0x7F, "Full Report" },
+    { 0, NULL }
+};
+static const value_string midi_sysex_ci_ep_info_status[] = {
+    { 0x00, "Product Instance ID" },
+    { 0, NULL }
+};
+static const value_string midi_sysex_ci_ack_status_code[] = {
+    { 0x00, "ACK" },
+    { 0x10, "Timeout Wait" },
+    { 0, NULL }
+};
+static const value_string midi_sysex_ci_nak_status_code[] = {
+    { 0x00, "NAK" },
+    { 0x01, "MIDI-CI message not supported" },
+    { 0x02, "MIDI-CI version not supported" },
+    { 0x03, "Channel/Group/Function Block Not in use" },
+    { 0x04, "Profile not supported" },
+    { 0x20, "Terminate Inquiry" },
+    { 0x21, "Property Exchange Chunks out of sequence" },
+    { 0x40, "Error occurred, please retry" },
+    { 0x41, "Message was malformed" },
+    { 0x42, "Timeout has occurred" },
+    { 0x43, "Busy, try again" },
+    { 0, NULL }
+};
+
+static int* const midi_sysex_ci_proc_supported_features[] = {
+    &hf_midi_sysex_ci_proc_supported_features_msg_report,
+    NULL
+};
+static int* const midi_sysex_ci_proc_requested_system_messages[] = {
+    &hf_midi_sysex_ci_proc_requested_system_messages_mtc_qf,
+    &hf_midi_sysex_ci_proc_requested_system_messages_song_pos,
+    &hf_midi_sysex_ci_proc_requested_system_messages_song_sel,
+    NULL
+};
+static int* const midi_sysex_ci_proc_requested_channel_messages[] = {
+    &hf_midi_sysex_ci_proc_requested_channel_messages_pitch_bend,
+    &hf_midi_sysex_ci_proc_requested_channel_messages_cc,
+    &hf_midi_sysex_ci_proc_requested_channel_messages_rpn,
+    &hf_midi_sysex_ci_proc_requested_channel_messages_nrpn,
+    &hf_midi_sysex_ci_proc_requested_channel_messages_pc,
+    &hf_midi_sysex_ci_proc_requested_channel_messages_pressure,
+    NULL
+};
+static int* const midi_sysex_ci_proc_requested_note_messages[] = {
+    &hf_midi_sysex_ci_proc_requested_note_messages_notes,
+    &hf_midi_sysex_ci_proc_requested_note_messages_pressure,
+    &hf_midi_sysex_ci_proc_requested_note_messages_pitch_bend,
+    &hf_midi_sysex_ci_proc_requested_note_messages_registered_per_note,
+    &hf_midi_sysex_ci_proc_requested_note_messages_assigned_per_note,
+    NULL
+};
+
+static int* const midi_sysex_ci_supported_categories[] = {
+    &hf_midi_sysex_ci_supported_categories_0,
+    &hf_midi_sysex_ci_supported_categories_1,
+    &hf_midi_sysex_ci_supported_categories_2,
+    &hf_midi_sysex_ci_supported_categories_3,
+    &hf_midi_sysex_ci_supported_categories_4,
+    &hf_midi_sysex_ci_supported_categories_5,
+    &hf_midi_sysex_ci_supported_categories_6,
+    NULL
+};
+
 #define MIDI_SYSEX_COMMON_RT_MTC_FULL_MESSAGE 0x01
 #define MIDI_SYSEX_COMMON_RT_MTC_USER_BITS    0x02
 static const value_string midi_sysex_common_rt_mtc[] = {
@@ -753,7 +1483,6 @@ static const value_string midi_sysex_msc_command_format[] = {
 };
 static value_string_ext midi_sysex_msc_command_format_ext =
     VALUE_STRING_EXT_INIT(midi_sysex_msc_command_format);
-
 
 #define MIDI_SYSEX_MSC_COMMAND_EXTENSIONS     0x00
 #define MIDI_SYSEX_MSC_COMMAND_GO             0x01
@@ -946,7 +1675,6 @@ static const value_string midi_sysex_common_rt_device_control[] = {
     { MIDI_SYSEX_COMMON_RT_DC_MASTER_BALANCE, "Master Balance" },
     { 0, NULL }
 };
-
 
 static const value_string midi_sysex_common_rt_mmc_commands[] = {
     { 0x00, "reserved for extensions" },
@@ -1334,6 +2062,254 @@ dissect_sysex7_common_nrt_dls(tvbuff_t *tvb, proto_tree *tree, unsigned int offs
     return offset;
 }
 
+
+static unsigned int
+dissect_sysex7_common_nrt_ci_prof(tvbuff_t *tvb, proto_tree *tree, unsigned int offset, uint8_t msg_type) {
+    uint16_t len;
+    switch (msg_type) {
+        case MIDI_SYSEX_CI_PROF_INQ:
+            break;
+        case MIDI_SYSEX_CI_PROF_INQ_REP:
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_prof_count_enabled, tvb, offset, &len);
+            offset += 2;
+            for (int i = 0; i < len; i++) {
+                proto_tree_add_item(tree, hf_midi_sysex_ci_prof_id, tvb, offset, 5, ENC_NA);
+                offset += 5;
+            }
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_prof_count_disabled, tvb, offset, &len);
+            offset += 2;
+            for (int i = 0; i < len; i++) {
+                proto_tree_add_item(tree, hf_midi_sysex_ci_prof_id, tvb, offset, 5, ENC_NA);
+                offset += 5;
+            }
+            break;
+        case MIDI_SYSEX_CI_PROF_ON:
+        case MIDI_SYSEX_CI_PROF_ENABLED:
+        case MIDI_SYSEX_CI_PROF_DISABLED:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prof_id, tvb, offset, 5, ENC_NA);
+            offset += 5;
+            if (tvb_reported_length_remaining(tvb, offset)) {
+                proto_tree_midi_14bit(tree, hf_midi_sysex_ci_prof_chans, tvb, offset, NULL);
+                offset += 2;
+            }
+            break;
+        case MIDI_SYSEX_CI_PROF_OFF:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prof_id, tvb, offset, 5, ENC_NA);
+            offset += 5;
+            if (tvb_reported_length_remaining(tvb, offset)) {
+                proto_tree_add_item(tree, hf_midi_sysex_ci_reserved, tvb, offset, 2, ENC_NA);
+                offset += 2;
+            }
+            break;
+        case MIDI_SYSEX_CI_PROF_ADDED:
+        case MIDI_SYSEX_CI_PROF_REMOVED:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prof_id, tvb, offset, 5, ENC_NA);
+            offset += 5;
+            break;
+        case MIDI_SYSEX_CI_PROF_DETAILS:
+        case MIDI_SYSEX_CI_PROF_DETAILS_REP:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prof_id, tvb, offset, 5, ENC_NA);
+            offset += 5;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prof_inquiry_target, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            if (msg_type == MIDI_SYSEX_CI_PROF_DETAILS_REP) {
+                proto_tree_midi_14bit(tree, hf_midi_sysex_ci_prof_inquiry_target_data_len, tvb, offset, &len);
+                offset += 2;
+                proto_tree_add_item(tree, hf_midi_sysex_ci_prof_inquiry_target_data, tvb, offset, len, ENC_NA);
+                offset += len;
+            }
+            break;
+        case MIDI_SYSEX_CI_PROF_SPECIFIC_DATA:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prof_id, tvb, offset, 5, ENC_NA);
+            offset += 5;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_prof_data_len, tvb, offset, &len);
+            offset += 2;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prof_data, tvb, offset, len, ENC_NA);
+            offset += len;
+            break;
+    }
+    return offset;
+}
+static unsigned int
+dissect_sysex7_common_nrt_ci_prop(tvbuff_t *tvb, proto_tree *tree, unsigned int offset, uint8_t msg_type) {
+    uint16_t len;
+    switch (msg_type) {
+        case MIDI_SYSEX_CI_PROP_CAPABILITY:
+        case MIDI_SYSEX_CI_PROP_CAPABILITY_REP:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prop_sim_supported, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            if (tvb_reported_length_remaining(tvb, offset)) {
+                proto_tree_add_item(tree, hf_midi_sysex_ci_prop_ver_major, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(tree, hf_midi_sysex_ci_prop_ver_minor, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+            break;
+        case MIDI_SYSEX_CI_PROP_GET_DATA:
+        case MIDI_SYSEX_CI_PROP_GET_DATA_REP:
+        case MIDI_SYSEX_CI_PROP_SET_DATA:
+        case MIDI_SYSEX_CI_PROP_SET_DATA_REP:
+        case MIDI_SYSEX_CI_PROP_SUB:
+        case MIDI_SYSEX_CI_PROP_SUB_REP:
+        case MIDI_SYSEX_CI_PROP_NOTIFY:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prop_request_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_prop_header_len, tvb, offset, &len);
+            offset += 2;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prop_header, tvb, offset, len, ENC_NA);
+            offset += len;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_prop_chunk_count, tvb, offset, NULL);
+            offset += 2;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_prop_chunk_num, tvb, offset, NULL);
+            offset += 2;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_prop_data_len, tvb, offset, &len);
+            offset += 2;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_prop_data, tvb, offset, len, ENC_NA);
+            offset += len;
+            break;
+    }
+    return offset;
+}
+static unsigned int
+dissect_sysex7_common_nrt_ci_proc(tvbuff_t *tvb, proto_tree *tree, unsigned int offset, uint8_t msg_type) {
+    switch (msg_type) {
+        case MIDI_SYSEX_CI_PROC_CAPABILITIES:
+            break;
+        case MIDI_SYSEX_CI_PROC_CAPABILITIES_REP:
+            proto_tree_add_bitmask(tree, tvb, offset, hf_midi_sysex_ci_proc_supported_features,
+                ett_midi_sysex_ci_proc_supported_features, midi_sysex_ci_proc_supported_features, ENC_NA);
+            offset += 1;
+            break;
+        case MIDI_SYSEX_CI_PROC_MESSAGE_REPORT:
+        case MIDI_SYSEX_CI_PROC_MESSAGE_REPORT_REP:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_proc_message_data_control, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_midi_sysex_ci_proc_requested_system_messages,
+                ett_midi_sysex_ci_proc_requested_system_messages, midi_sysex_ci_proc_requested_system_messages, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_reserved, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_midi_sysex_ci_proc_requested_channel_messages,
+                ett_midi_sysex_ci_proc_requested_channel_messages, midi_sysex_ci_proc_requested_channel_messages, ENC_NA);
+            offset += 1;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_midi_sysex_ci_proc_requested_note_messages,
+                ett_midi_sysex_ci_proc_requested_note_messages, midi_sysex_ci_proc_requested_note_messages, ENC_NA);
+            offset += 1;
+            break;
+        case MIDI_SYSEX_CI_PROC_MESSAGE_REPORT_END:
+            break;
+    }
+    return offset;
+}
+static unsigned int
+dissect_sysex7_common_nrt_ci_management(tvbuff_t *tvb, proto_tree *tree, unsigned int offset, uint8_t msg_type) {
+    uint16_t len;
+    switch (msg_type) {
+        case MIDI_SYSEX_CI_DISC:
+        case MIDI_SYSEX_CI_DISC_REP:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_device_manu_short, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_device_manu_long, tvb, offset, NULL);
+            offset += 2;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_gen_info_device_family, tvb, offset, NULL);
+            offset += 2;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_gen_info_family_member, tvb, offset, NULL);
+            offset += 2;
+            proto_tree_midi_28bit(tree, hf_midi_sysex_gen_info_software_rev, tvb, offset, NULL);
+            offset += 4;
+            proto_tree_add_bitmask(tree, tvb, offset, hf_midi_sysex_ci_supported_categories,
+                ett_midi_sysex_ci_supported_categories, midi_sysex_ci_supported_categories, ENC_NA);
+            offset += 1;
+            proto_tree_midi_28bit(tree, hf_midi_sysex_ci_max_sysex, tvb, offset, NULL);
+            offset += 4;
+            if (tvb_reported_length_remaining(tvb, offset)) {
+                proto_tree_add_item(tree, hf_midi_sysex_ci_output_path_id, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                if (msg_type == MIDI_SYSEX_CI_DISC_REP) {
+                    proto_tree_add_item(tree, hf_midi_sysex_ci_function_block, tvb, offset, 1, ENC_NA);
+                    offset += 1;
+                }
+            }
+            break;
+        case MIDI_SYSEX_CI_EP_INFO:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_ep_info_status, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+        case MIDI_SYSEX_CI_EP_INFO_REP: {
+            uint8_t status;
+            proto_tree_add_item_ret_uint8(tree, hf_midi_sysex_ci_ep_info_status, tvb, offset, 1, ENC_NA, &status);
+            offset += 1;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_ep_info_len, tvb, offset, &len);
+            offset += 2;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_ep_info_data, tvb, offset, len, ENC_NA);
+            if (status == 0)
+                proto_tree_add_item(tree, hf_midi_product_instance_id, tvb, offset, len, ENC_ASCII);
+            offset += len;
+            break;
+        }
+        case MIDI_SYSEX_CI_ACK:
+            proto_tree_add_item(tree, hf_midi_sysex_ci_ack_original_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_ack_status_code, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_ack_status_data, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_ack_details, tvb, offset, 5, ENC_NA);
+            offset += 5;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_ack_msg_len, tvb, offset, &len);
+            offset += 2;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_ack_message, tvb, offset, len, ENC_NA);
+            offset += len;
+            break;
+        case MIDI_SYSEX_CI_MUID_INVALIDATE:
+            proto_tree_midi_28bit(tree, hf_midi_sysex_ci_invalid_muid, tvb, offset, NULL);
+            offset += 4;
+            break;
+        case MIDI_SYSEX_CI_NAK:
+            if (tvb_reported_length_remaining(tvb, offset) == 0) break;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_nak_original_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_nak_status_code, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_nak_status_data, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_nak_details, tvb, offset, 5, ENC_NA);
+            offset += 5;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_ci_nak_msg_len, tvb, offset, &len);
+            offset += 2;
+            proto_tree_add_item(tree, hf_midi_sysex_ci_nak_message, tvb, offset, len, ENC_NA);
+            offset += len;
+            break;
+    }
+    return offset;
+}
+
+/* SysEx-Common Non-Realtime Capability Inquiry */
+static unsigned int
+dissect_sysex7_common_nrt_ci(tvbuff_t *tvb, proto_tree *tree, unsigned int offset) {
+    uint8_t msg_typ;
+    proto_tree_add_item_ret_uint8(tree, hf_midi_sysex_ci_msg_type, tvb, offset, 1, ENC_NA, &msg_typ);
+    offset++;
+    proto_tree_add_item(tree, hf_midi_sysex_ci_major_version, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_midi_sysex_ci_minor_version, tvb, offset, 1, ENC_NA);
+    offset++;
+    proto_tree_midi_28bit(tree, hf_midi_sysex_ci_src_muid, tvb, offset, NULL);
+    offset += 4;
+    proto_tree_midi_28bit(tree, hf_midi_sysex_ci_dst_muid, tvb, offset, NULL);
+    offset += 4;
+
+    if ((msg_typ & 0xF0) == 0x20) {
+        offset = dissect_sysex7_common_nrt_ci_prof(tvb, tree, offset, msg_typ);
+    } else if ((msg_typ & 0xF0) == 0x30) {
+        offset = dissect_sysex7_common_nrt_ci_prop(tvb, tree, offset, msg_typ);
+    } else if ((msg_typ & 0xF0) == 0x40) {
+        offset = dissect_sysex7_common_nrt_ci_proc(tvb, tree, offset, msg_typ);
+    } else if ((msg_typ & 0xF0) == 0x70) {
+        offset = dissect_sysex7_common_nrt_ci_management(tvb, tree, offset, msg_typ);
+    }
+    return offset;
+}
+
 /* SysEx-common Non-Realtime MIDI Time Code Cueing */
 static unsigned int
 dissect_sysex7_common_nrt_mtc_cue(tvbuff_t *tvb, proto_tree *tree, unsigned int offset) {
@@ -1421,7 +2397,6 @@ dissect_sysex7_common_rt_mtc(tvbuff_t *tvb, proto_tree *tree, unsigned int offse
 
     return offset;
 }
-
 
 static void
 decode_sysex7_msc_q_str(proto_tree* tree, int hfindex, tvbuff_t* tvb, unsigned int* offset, bool required) {
@@ -1757,8 +2732,7 @@ dissect_sysex7_common_rt_mmc_response(tvbuff_t *tvb, proto_tree *tree, unsigned 
 }
 
 
-
-/* SysEx-Common Non-Realtime */
+/* SysEx-Common Non-Realtime: 0x7E */
 static int
 dissect_sysex7_common_nrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
     uint8_t common_nrt;
@@ -1807,6 +2781,9 @@ dissect_sysex7_common_nrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
         case MIDI_SYSEX_NRT_DOWNLOADABLE_SOUNDS:
             offset = dissect_sysex7_common_nrt_dls(tvb, command_tree, offset);
             break;
+        case MIDI_SYSEX_NRT_CAPABILITY_INQUIRY:
+            offset = dissect_sysex7_common_nrt_ci(tvb, command_tree, offset);
+            break;
         case MIDI_SYSEX_NRT_END_OF_FILE:
         case MIDI_SYSEX_NRT_WAIT:
         case MIDI_SYSEX_NRT_CANCEL:
@@ -1827,7 +2804,7 @@ dissect_sysex7_common_nrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
     return offset;
 }
 
-/* SysEx-Common Realtime */
+/* SysEx-Common Realtime: 0x7F */
 static int
 dissect_sysex7_common_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_) {
     uint8_t common_rt;
@@ -1881,12 +2858,679 @@ dissect_sysex7_common_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     return offset;
 }
 
-/* SysEx-Common Educational */
+/* SysEx-Common Educational: 0x7D */
 static int
 dissect_sysex7_common_educational(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void* data _U_) {
     /* No real meaning to this, we just take all the data and return */
     proto_tree_add_item(parent_tree, hf_midi_sysex_edu_data, tvb, 0, -1, ENC_NA);
     return tvb_reported_length(tvb);
+}
+
+
+
+/* Helpers to allow parsing variable endianness UMP packets
+ * Network MIDI 2.0 uses big endian, and USB MIDI 2.0 uses little endian.
+ * So both are actually required.
+ */
+#define UMP_ENCODING be ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN
+
+#define UMP_WORD_BYTE_1 be ? offset : offset+3, 1
+#define UMP_WORD_BYTE_2 be ? offset+1 : offset+2, 1
+#define UMP_WORD_BYTE_3 be ? offset+2 : offset+1, 1
+#define UMP_WORD_BYTE_4 be ? offset+3 : offset, 1
+
+#define UMP_WORD_BYTES_1_2 be ? offset : offset+2, 2
+#define UMP_WORD_BYTES_3_4 be ? offset+2 : offset, 2
+
+#define UMP_WORD_BYTES_1_3 be ? offset : offset+1, 3
+#define UMP_WORD_BYTES_2_4 be ? offset+1 : offset, 3
+
+/* MIDI UMP Message type 0x0: Utility */
+static void
+dissect_midi_ump_utility(tvbuff_t* tvb, proto_tree* tree, unsigned int offset, bool be) {
+    uint8_t status;
+    proto_tree_add_item_ret_uint8(tree, hf_midi_ump_utility_status, tvb, UMP_WORD_BYTE_2, ENC_NA, &status);
+
+    switch (status) {
+        case MIDI_UMP_UTILITY_STATUS_NOOP:
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+            break;
+        case MIDI_UMP_UTILITY_STATUS_JR_CLOCK:
+        case MIDI_UMP_UTILITY_STATUS_JR_TIME:
+            proto_tree_add_item(tree, hf_midi_ump_utility_jr, tvb, UMP_WORD_BYTES_3_4, UMP_ENCODING);
+            break;
+        case MIDI_UMP_UTILITY_STATUS_DC_TPQ:
+            proto_tree_add_item(tree, hf_midi_ump_utility_dc_tpq, tvb, UMP_WORD_BYTES_3_4, UMP_ENCODING);
+            break;
+        case MIDI_UMP_UTILITY_STATUS_DC:
+            proto_tree_add_item(tree, hf_midi_ump_utility_dc, tvb, UMP_WORD_BYTES_2_4, UMP_ENCODING);
+            break;
+        default:
+            proto_tree_add_item(tree, hf_midi_unknown_data, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+            break;
+    }
+}
+
+/* MIDI UMP Message type 0x1: System Common & System Real Time */
+static void
+dissect_midi_ump_system(tvbuff_t* tvb, proto_tree* tree, unsigned int offset, bool be) {
+    uint8_t status;
+    proto_tree_add_item_ret_uint8(tree, hf_midi_common_status, tvb, UMP_WORD_BYTE_2, ENC_NA, &status);
+
+    switch (status) {
+        case MIDI_STATUS_COMMON_MTC_QUARTER_FRAME:
+            proto_tree_add_item(tree, hf_midi_quarter_frame_type, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_quarter_frame_value, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            break;
+        case MIDI_STATUS_COMMON_SONG_POSITION_POINTER: {
+            /* Special Handling: byte 3 is lsb. byte 4 is msb */
+            uint16_t v = tvb_get_uint16(tvb, be ? offset+2 : offset, be ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+            v = ((v&0x7F00) >> 1) | (v&0x7F);
+            proto_tree_add_uint(tree, hf_midi_spp, tvb, UMP_WORD_BYTES_3_4, v);
+            break;
+        }
+        case MIDI_STATUS_COMMON_SONG_SELECT:
+            proto_tree_add_item(tree, hf_midi_song_select, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            break;
+        case MIDI_STATUS_COMMON_TUNE_REQUEST:
+        case MIDI_STATUS_COMMON_REALTIME_TIMING_CLOCK:
+        case MIDI_STATUS_COMMON_REALTIME_START:
+        case MIDI_STATUS_COMMON_REALTIME_CONTINUE:
+        case MIDI_STATUS_COMMON_REALTIME_STOP:
+        case MIDI_STATUS_COMMON_REALTIME_ACTIVE_SENSING:
+        case MIDI_STATUS_COMMON_REALTIME_SYSTEM_RESET:
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+            break;
+        default:
+            proto_tree_add_item(tree, hf_midi_unknown_data, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+            break;
+    }
+}
+
+/* MIDI UMP Message type 0x2: MIDI 1.0 Channel Voice Messages */
+static void
+dissect_midi_ump_midi1(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned int offset, bool be, proto_item* parent) {
+    uint8_t status, chan;
+    proto_tree_add_item_ret_uint8(tree, hf_midi1_channel_status, tvb, UMP_WORD_BYTE_2, ENC_NA, &status);
+    proto_tree_add_item_ret_uint8(tree, hf_midi_channel, tvb, UMP_WORD_BYTE_2, ENC_NA, &chan);
+    chan += 1;
+    const char* status_str = val_to_str_const(status, midi_channel_status, "");
+    const char* note_str;
+
+    uint8_t a, b;
+    switch (status) {
+        case MIDI_STATUS_CHAN_NOTE_OFF:
+        case MIDI_STATUS_CHAN_NOTE_ON:
+            proto_tree_add_item_ret_uint8(tree, hf_midi_note, tvb, UMP_WORD_BYTE_3, ENC_NA, &a);
+            proto_tree_add_item_ret_uint8(tree, hf_midi1_velocity, tvb, UMP_WORD_BYTE_4, ENC_NA, &b);
+            if (status == MIDI_STATUS_CHAN_NOTE_ON && b == 0)
+                status_str = midi_channel_status_special_off;
+            note_str = val_to_str_ext_const(a, &midi_note_values_ext, "");
+            proto_item_append_text(parent, " %s (c=%d, n=%s, v=%d)", status_str, chan, note_str, b);
+            break;
+        case MIDI_STATUS_CHAN_POLY_PRESSURE:
+            proto_tree_add_item_ret_uint8(tree, hf_midi_note, tvb, UMP_WORD_BYTE_3, ENC_NA, &a);
+            proto_tree_add_item_ret_uint8(tree, hf_midi1_pressure, tvb, UMP_WORD_BYTE_4, ENC_NA, &b);
+            note_str = val_to_str_ext_const(a, &midi_note_values_ext, "");
+            proto_item_append_text(parent, " %s (c=%d, n=%s, p=%d)", status_str, chan, note_str, b);
+            break;
+        case MIDI_STATUS_CHAN_CONTROL_CHANGE:
+            proto_tree_add_item_ret_uint8(tree, hf_midi1_controller, tvb, UMP_WORD_BYTE_3, ENC_NA, &a);
+            proto_tree_add_item_ret_uint8(tree, hf_midi1_controller_value, tvb, UMP_WORD_BYTE_4, ENC_NA, &b);
+            note_str = val_to_str_ext(pinfo->pool, a, &midi_controller_values_ext, "%d");
+            proto_item_append_text(parent, " %s (c=%d, ctrl=%s, p=%d)", status_str, chan, note_str, b);
+            break;
+        case MIDI_STATUS_CHAN_PROGRAM_CHANGE:
+            proto_tree_add_item_ret_uint8(tree, hf_midi1_program, tvb, UMP_WORD_BYTE_3, ENC_NA, &a);
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            proto_item_append_text(parent, " %s (c=%d, p=%d)", status_str, chan, a);
+            break;
+        case MIDI_STATUS_CHAN_CHANNEL_PRESSURE:
+            proto_tree_add_item_ret_uint8(tree, hf_midi1_channel_pressure, tvb, UMP_WORD_BYTE_3, ENC_NA, &a);
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            proto_item_append_text(parent, " %s (c=%d, p=%d)", status_str, chan, a);
+            break;
+        case MIDI_STATUS_CHAN_PITCH_BEND: {
+            uint16_t v = tvb_get_uint16(tvb, be ? offset+2 : offset, be ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+            v = ((v&0x7F00) >> 1) | (v&0x7F);
+            proto_tree_add_uint(tree, hf_midi1_pitch_bend, tvb, UMP_WORD_BYTES_3_4, v);
+            proto_item_append_text(parent, " %s (c=%d, pb=%d)", status_str, chan, v);
+            break;
+        }
+        default:
+            proto_tree_add_item(tree, hf_midi_unknown_data, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+            break;
+    }
+}
+
+/* MIDI UMP Message type 0x3: 8-Byte Data Messages */
+static void
+dissect_midi_ump_data64(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned int offset, bool be, uint8_t group_num) {
+    uint8_t status, len;
+    proto_item* data = NULL;
+    proto_tree_add_item_ret_uint8(tree, hf_midi_ump_data64_status, tvb, UMP_WORD_BYTE_2, ENC_NA, &status);
+    proto_tree_add_item_ret_uint8(tree, hf_midi_ump_data64_length, tvb, UMP_WORD_BYTE_2, ENC_NA, &len);
+    len = len > 6 ? 6 : len;
+
+    // can do data here, is common to all message types
+    if (be) {
+        if (len) {
+            data = proto_tree_add_item(tree, hf_midi_ump_data64_data, tvb, offset+2, len, ENC_NA);
+        }
+        if (len < 6) {
+            proto_tree_add_item(tree, hf_midi_ump_data64_pad, tvb, offset+2+len, 6-len, ENC_NA);
+        }
+    } else {
+        /* The data bytes could be broken up into multiple different sections */
+        proto_tree_add_item(tree, hf_midi_ump_data64_data, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(tree, hf_midi_ump_data64_data, tvb, offset+4, 4, ENC_NA);
+    }
+    if (data == NULL)
+        return;
+
+    /* fits in a single message, so we can dissect it (maybe) */
+    if (status == MIDI_UMP_DATA64_STATUS_SINGLE) {
+        tvbuff_t* single_tvb = tvb_new_subset_length(tvb, offset+2, len);
+        bool save_writable = col_get_writable(pinfo->cinfo, COL_INFO);
+        col_set_writable(pinfo->cinfo, COL_INFO, false);
+        call_dissector(midi_sysex_handle, single_tvb, pinfo, tree);
+        col_set_writable(pinfo->cinfo, COL_INFO, save_writable);
+        return;
+    }
+
+    bool save_fragmented = pinfo->fragmented;
+    fragment_head* frag_sysex_msg = fragment_add_seq_next(
+        &midi_ump_data64_reassembly_table,
+        tvb, offset+2,
+        pinfo,
+        group_num,
+        NULL,
+        len,
+        status != MIDI_UMP_DATA64_STATUS_END
+    );
+    if (frag_sysex_msg == NULL) {
+        pinfo->fragmented = save_fragmented;
+        return;
+    }
+    tvbuff_t* assemble_tvb = process_reassembled_data(
+        tvb, offset+1, pinfo, "Reassembled SysEx",
+        frag_sysex_msg, &midi_ump_data64_msg_frag_items,
+        NULL, tree
+    );
+    pinfo->fragmented = save_fragmented;
+    if (assemble_tvb == NULL)
+        return;
+
+    bool save_writable = col_get_writable(pinfo->cinfo, COL_INFO);
+    col_set_writable(pinfo->cinfo, COL_INFO, false);
+    call_dissector(midi_sysex_handle, assemble_tvb, pinfo, tree);
+    col_set_writable(pinfo->cinfo, COL_INFO, save_writable);
+}
+
+/* MIDI UMP Message type 0x4: MIDI 2.0 Channel Voice Messages */
+static void
+dissect_midi_ump_midi2(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned int offset, bool be, proto_item* parent) {
+    uint8_t status, chan;
+    proto_tree_add_item_ret_uint8(tree, hf_midi2_channel_status, tvb, UMP_WORD_BYTE_2, ENC_NA, &status);
+    proto_tree_add_item_ret_uint8(tree, hf_midi_channel, tvb, UMP_WORD_BYTE_2, ENC_NA, &chan);
+    chan += 1;
+    const char* status_str = val_to_str_const(status, midi_ump_midi2_status_name, "");
+    const char* note_str;
+
+    uint8_t v8_0, v8_1, v8_2;
+    uint16_t v16_0;
+    uint32_t v32_0;
+    int32_t v32_1;
+
+    switch (status) {
+        case MIDI_STATUS_CHAN_NOTE_OFF:
+        case MIDI_STATUS_CHAN_NOTE_ON: {
+            proto_tree_add_item_ret_uint8(tree, hf_midi_note, tvb, UMP_WORD_BYTE_3, ENC_NA, &v8_0);
+            proto_tree_add_item_ret_uint8(tree, hf_midi2_attribute_type, tvb, UMP_WORD_BYTE_4, ENC_NA, &v8_1);
+            offset += 4;
+            proto_tree_add_item_ret_uint16(tree, hf_midi2_velocity, tvb, UMP_WORD_BYTES_1_2, UMP_ENCODING, &v16_0);
+            proto_item* pi = proto_tree_add_item(tree, hf_midi2_attr_data, tvb, UMP_WORD_BYTES_3_4, UMP_ENCODING);
+            if (v8_1 == MIDI_UMP_MIDI2_ATTR_TYPE_PITCH79) {
+                proto_tree* t = proto_item_add_subtree(pi, ett_midi2_attr_data);
+                uint8_t n = tvb_get_uint8(tvb, be ? offset+2 : offset+1) >> 1;
+                proto_tree_add_uint(t, hf_midi2_attr_data_pitch_semitones, tvb, UMP_WORD_BYTE_3, n);
+                proto_tree_add_item(t, hf_midi2_attr_data_pitch_fract, tvb, UMP_WORD_BYTES_3_4, UMP_ENCODING);
+            }
+
+            if (status == MIDI_STATUS_CHAN_NOTE_ON && v16_0 == 0)
+                status_str = midi_channel_status_special_off;
+            note_str = val_to_str_ext_const(v8_0, &midi_note_values_ext, "");
+            proto_item_append_text(parent, " %s (c=%d, n=%s, v=%d)", status_str, chan, note_str, v16_0);
+            break;
+        }
+        case MIDI_STATUS_CHAN_POLY_PRESSURE:
+            proto_tree_add_item_ret_uint8(tree, hf_midi_note, tvb, UMP_WORD_BYTE_3, ENC_NA, &v8_0);
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item_ret_uint32(tree, hf_midi2_pressure, tvb, offset, 4, UMP_ENCODING, &v32_0);
+
+            note_str = val_to_str_ext_const(v8_0, &midi_note_values_ext, "");
+            proto_item_append_text(parent, " %s (c=%d, n=%s, p=%u)", status_str, chan, note_str, v32_0);
+            break;
+        case MIDI_STATUS_CHAN_CONTROL_CHANGE:
+            proto_tree_add_item_ret_uint8(tree, hf_midi1_controller, tvb, UMP_WORD_BYTE_3, ENC_NA, &v8_0);
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item_ret_uint32(tree, hf_midi2_controller_value, tvb, offset, 4, UMP_ENCODING, &v32_0);
+
+            note_str = val_to_str_ext(pinfo->pool, v8_0, &midi_controller_values_ext, "%d");
+            proto_item_append_text(parent, " %s (c=%d, ctrl=%s, p=%u)", status_str, chan, note_str, v32_0);
+            break;
+        case MIDI_STATUS_CHAN_PROGRAM_CHANGE:
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, be?offset+3:offset, hf_midi2_program_options,
+                ett_midi2_program_options, midi2_program_options, ENC_NA);
+            offset += 4;
+            proto_tree_add_item_ret_uint8(tree, hf_midi1_program, tvb, UMP_WORD_BYTE_1, ENC_NA, &v8_0);
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_2, ENC_NA);
+            proto_tree_add_item_ret_uint8(tree, hf_midi2_program_bank_msb, tvb, UMP_WORD_BYTE_3, ENC_NA, &v8_1);
+            proto_tree_add_item_ret_uint8(tree, hf_midi2_program_bank_lsb, tvb, UMP_WORD_BYTE_4, ENC_NA, &v8_2);
+
+            proto_item_append_text(parent, " %s (c=%d, p=%d, b=0x%02x 0x%02x)", status_str, chan, v8_0, v8_1, v8_2);
+            break;
+        case MIDI_STATUS_CHAN_CHANNEL_PRESSURE:
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item_ret_uint32(tree, hf_midi2_channel_pressure, tvb, offset, 4, UMP_ENCODING, &v32_0);
+
+            proto_item_append_text(parent, " %s (c=%d, p=%u)", status_str, chan, v32_0);
+            break;
+        case MIDI_STATUS_CHAN_PITCH_BEND:
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item_ret_uint32(tree, hf_midi2_pitch_bend, tvb, offset, 4, UMP_ENCODING, &v32_0);
+
+            proto_item_append_text(parent, " %s (c=%d, pb=%u)", status_str, chan, v32_0);
+            break;
+        case MIDI_UMP_MIDI2_REGISTERED_PER_NOTE:
+        case MIDI_UMP_MIDI2_ASSIGNABLE_PER_NOTE:
+            proto_tree_add_item_ret_uint8(tree, hf_midi_note, tvb, UMP_WORD_BYTE_3, ENC_NA, &v8_0);
+            proto_tree_add_item_ret_uint8(tree, hf_midi2_per_note_controller, tvb, UMP_WORD_BYTE_4, ENC_NA, &v8_1);
+            offset += 4;
+            proto_tree_add_item_ret_uint32(tree, hf_midi2_per_note_controller_value, tvb, offset, 4, UMP_ENCODING, &v32_0);
+
+            note_str = val_to_str_ext_const(v8_0, &midi_note_values_ext, "");
+            proto_item_append_text(parent, " %s (c=%d, n=%s, ctrl=0x%02x, v=%u)", status_str, chan, note_str, v8_1, v32_0);
+            break;
+        case MIDI_UMP_MIDI2_REGISTERED_CONTROL:
+        case MIDI_UMP_MIDI2_ASSIGNABLE_CONTROL:
+            proto_tree_add_item_ret_uint8(tree, hf_midi2_param_bank, tvb, UMP_WORD_BYTE_3, ENC_NA, &v8_0);
+            proto_tree_add_item_ret_uint8(tree, hf_midi2_param_index, tvb, UMP_WORD_BYTE_4, ENC_NA, &v8_1);
+            offset += 4;
+            proto_tree_add_item_ret_uint32(tree, hf_midi2_param_value, tvb, offset, 4, UMP_ENCODING, &v32_0);
+
+            proto_item_append_text(parent, " %s (c=%d, ctrl=0x%02x 0x%02x, v=%u)", status_str, chan, v8_0, v8_1, v32_0);
+            break;
+        case MIDI_UMP_MIDI2_REL_REG_CONTROL:
+        case MIDI_UMP_MIDI2_REL_ASS_CONTROL:
+            proto_tree_add_item_ret_uint8(tree, hf_midi2_param_bank, tvb, UMP_WORD_BYTE_3, ENC_NA, &v8_0);
+            proto_tree_add_item_ret_uint8(tree, hf_midi2_param_index, tvb, UMP_WORD_BYTE_4, ENC_NA, &v8_1);
+            offset += 4;
+            proto_tree_add_item_ret_int(tree, hf_midi2_param_delta, tvb, offset, 4, UMP_ENCODING, &v32_1);
+
+            proto_item_append_text(parent, " %s (c=%d, ctrl=0x%02x 0x%02x, d=%d)", status_str, chan, v8_0, v8_1, v32_1);
+            break;
+        case MIDI_UMP_MIDI2_PER_NOTE_PITCH_BEND:
+            proto_tree_add_item_ret_uint8(tree, hf_midi_note, tvb, UMP_WORD_BYTE_3, ENC_NA, &v8_0);
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item_ret_uint32(tree, hf_midi2_per_note_pitch_bend, tvb, offset, 4, UMP_ENCODING, &v32_0);
+
+            note_str = val_to_str_ext_const(v8_0, &midi_note_values_ext, "");
+            proto_item_append_text(parent, " %s (c=%d, n=%s, pb=%u)", status_str, chan, note_str, v32_0);
+            break;
+        case MIDI_UMP_MIDI2_PER_NOTE_MANAGEMENT:
+            proto_tree_add_item_ret_uint8(tree, hf_midi_note, tvb, UMP_WORD_BYTE_3, ENC_NA, &v8_0);
+            v8_1 = tvb_get_uint8(tvb, be ? offset+3:offset);
+            proto_tree_add_bitmask(tree, tvb, be ? offset+3:offset, hf_midi2_note_manage,
+                ett_midi2_note_manage, midi2_note_manage_fields, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 4, ENC_NA);
+
+            note_str = val_to_str_ext_const(v8_0, &midi_note_values_ext, "");
+            proto_item_append_text(parent, " %s (c=%d, n=%s, f=0x%02x%s%s)", status_str, chan, note_str,
+                v8_1, v8_1&2?" d":"", v8_1?" s":""
+            );
+            break;
+        default:
+            if (be)
+                proto_tree_add_item(tree, hf_midi_unknown_data, tvb, offset+2, 6, ENC_NA);
+            else {
+                proto_tree_add_item(tree, hf_midi_unknown_data, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_unknown_data, tvb, offset+4, 4, ENC_NA);
+            }
+            break;
+    }
+}
+
+/* MIDI UMP Message type 0x5: 16-Byte Data Messages */
+static void
+dissect_midi_ump_data128(tvbuff_t* tvb, proto_tree* tree, unsigned int offset, bool be) {
+    uint8_t status;
+    proto_tree_add_item_ret_uint8(tree, hf_midi_ump_data128_status, tvb, UMP_WORD_BYTE_2, ENC_NA, &status);
+
+    if (status <= MIDI_UMP_DATA128_STATUS_END) {
+        uint8_t len;
+        proto_tree_add_item_ret_uint8(tree, hf_midi_ump_data128_length, tvb, UMP_WORD_BYTE_2, ENC_NA, &len);
+
+        proto_tree_add_item(tree, hf_midi_ump_data128_stream_id, tvb, UMP_WORD_BYTE_3, ENC_NA);
+
+        /* Should probably do the dissector things here, but we don't have any yet */
+        if (be && len > 0) {
+            proto_tree_add_item(tree, hf_midi_ump_data128_data, tvb, offset+3, len-1, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset+3+(len-1), 13-(len-1), ENC_NA);
+            if (len >= 2 && (status == MIDI_UMP_DATA128_STATUS_SINGLE || status == MIDI_UMP_DATA128_STATUS_START))
+                proto_tree_add_item(tree, hf_midi_sysex8_manu, tvb, offset+3, 2, UMP_ENCODING);
+        } else {
+            proto_tree_add_item(tree, hf_midi_ump_data128_data, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_data128_data, tvb, offset, 12, ENC_NA);
+        }
+    } else if (status == MIDI_UMP_DATA128_STATUS_MDS_HEADER) {
+        proto_tree_add_item(tree, hf_midi_ump_data128_mds_chunk_len, tvb, UMP_WORD_BYTES_3_4, UMP_ENCODING);
+        offset += 4;
+        proto_tree_add_item(tree, hf_midi_ump_data128_mds_chunk_count, tvb, UMP_WORD_BYTES_1_2, UMP_ENCODING);
+        proto_tree_add_item(tree, hf_midi_ump_data128_mds_chunk_num, tvb, UMP_WORD_BYTES_3_4, UMP_ENCODING);
+        offset += 4;
+        proto_tree_add_item(tree, hf_midi_sysex8_manu, tvb, UMP_WORD_BYTES_1_2, UMP_ENCODING);
+        proto_tree_add_item(tree, hf_midi_sysex8_device_id, tvb, UMP_WORD_BYTES_3_4, UMP_ENCODING);
+        offset += 4;
+        proto_tree_add_item(tree, hf_midi_sysex8_sub_id_1, tvb, UMP_WORD_BYTES_1_2, UMP_ENCODING);
+        proto_tree_add_item(tree, hf_midi_sysex8_sub_id_2, tvb, UMP_WORD_BYTES_3_4, UMP_ENCODING);
+    } else if (status == MIDI_UMP_DATA128_STATUS_MDS_PAYLOAD) {
+        proto_tree_add_item(tree, hf_midi_ump_data128_mds_payload, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+        offset += 4;
+        proto_tree_add_item(tree, hf_midi_ump_data128_mds_payload, tvb, offset, 12, ENC_NA);
+    } else {
+        proto_tree_add_item(tree, hf_midi_unknown_data, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+        offset += 4;
+        proto_tree_add_item(tree, hf_midi_unknown_data, tvb, offset, 12, ENC_NA);
+    }
+}
+
+/* MIDI UMP Message type 0xD: Flex Data Messages */
+static void
+dissect_midi_ump_flex_data(tvbuff_t* tvb, proto_tree* tree, unsigned int offset, bool be) {
+    uint8_t format, bank, status;
+    proto_tree_add_item_ret_uint8(tree, hf_midi_ump_flex_format, tvb, UMP_WORD_BYTE_2, ENC_NA, &format);
+    proto_tree_add_item(tree, hf_midi_ump_flex_address, tvb, UMP_WORD_BYTE_2, ENC_NA);
+    proto_tree_add_item(tree, hf_midi_ump_flex_channel, tvb, UMP_WORD_BYTE_2, ENC_NA);
+
+    proto_tree_add_item_ret_uint8(tree, hf_midi_ump_flex_status_bank, tvb, UMP_WORD_BYTE_3, ENC_NA, &bank);
+    if (bank == 0x00)
+        proto_tree_add_item_ret_uint8(tree, hf_midi_ump_flex_status_00, tvb, UMP_WORD_BYTE_4, ENC_NA, &status);
+    else if (bank == 0x01)
+        proto_tree_add_item_ret_uint8(tree, hf_midi_ump_flex_status_01, tvb, UMP_WORD_BYTE_4, ENC_NA, &status);
+    else if (bank == 0x02)
+        proto_tree_add_item_ret_uint8(tree, hf_midi_ump_flex_status_02, tvb, UMP_WORD_BYTE_4, ENC_NA, &status);
+    else
+        proto_tree_add_item_ret_uint8(tree, hf_midi_ump_flex_status, tvb, UMP_WORD_BYTE_4, ENC_NA, &status);
+    offset += 4;
+
+    if (format != 0) {
+        proto_tree_add_item(tree, hf_midi_ump_flex_data, tvb, offset, 12, ENC_NA);
+        return;
+    }
+    /* Now we have a complete message so we can do things with it */
+
+    if (bank == 0) {
+        /* some known messages */
+        switch (status) {
+            case MIDI_UMP_FLEX_DATA_STATUS_SET_TEMPO:
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_tempo, tvb, offset, 4, UMP_ENCODING);
+                offset += 4;
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 8, ENC_NA);
+                break;
+            case MIDI_UMP_FLEX_DATA_STATUS_SET_TIME_SIG:
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_ts_num, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_ts_den, tvb, UMP_WORD_BYTE_2, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_ts_notes, tvb, UMP_WORD_BYTE_3, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_4, ENC_NA);
+                offset += 4;
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 8, ENC_NA);
+                break;
+            case MIDI_UMP_FLEX_DATA_STATUS_SET_METRONOME:
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_met_clocks, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_met_bar_1, tvb, UMP_WORD_BYTE_2, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_met_bar_2, tvb, UMP_WORD_BYTE_3, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_met_bar_3, tvb, UMP_WORD_BYTE_4, ENC_NA);
+                offset += 4;
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_met_sub_1, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_met_sub_2, tvb, UMP_WORD_BYTE_2, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+                offset += 4;
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 4, ENC_NA);
+                break;
+            case MIDI_UMP_FLEX_DATA_STATUS_SET_KEY_SIG:
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_sig_sharps, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_flex_data_sig_tonic, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_2_4, ENC_NA);
+                offset += 4;
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 8, ENC_NA);
+                break;
+            case MIDI_UMP_FLEX_DATA_STATUS_SET_CHORD_NAME: {
+                proto_tree* tonic = proto_tree_add_subtree(tree, tvb, offset, 8, hf_midi_ump_flex_data_chord_tonic, NULL, "Tonic");
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_sharps, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_note, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_type, tvb, UMP_WORD_BYTE_2, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_alt_type, tvb, UMP_WORD_BYTE_3, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_alt_deg, tvb, UMP_WORD_BYTE_3, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_alt_type, tvb, UMP_WORD_BYTE_4, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_alt_deg, tvb, UMP_WORD_BYTE_4, ENC_NA);
+                offset += 4;
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_alt_type, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_alt_deg, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_alt_type, tvb, UMP_WORD_BYTE_2, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_alt_deg, tvb, UMP_WORD_BYTE_2, ENC_NA);
+                proto_tree_add_item(tonic, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+                offset += 4;
+                proto_tree* bass = proto_tree_add_subtree(tree, tvb, offset, 4, hf_midi_ump_flex_data_chord_bass, NULL, "Bass");
+                proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_sharps, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_note, tvb, UMP_WORD_BYTE_1, ENC_NA);
+                proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_type, tvb, UMP_WORD_BYTE_2, ENC_NA);
+                proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_alt_type, tvb, UMP_WORD_BYTE_3, ENC_NA);
+                proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_alt_deg, tvb, UMP_WORD_BYTE_3, ENC_NA);
+                proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_alt_type, tvb, UMP_WORD_BYTE_4, ENC_NA);
+                proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_alt_deg, tvb, UMP_WORD_BYTE_4, ENC_NA);
+                break;
+            }
+            default:
+                proto_tree_add_item(tree, hf_midi_ump_flex_data, tvb, offset, 12, ENC_NA);
+                break;
+        }
+    } else if (be && (bank == 1 || bank == 2)) {
+        /* Can decode as text */
+        proto_tree_add_item(tree, hf_midi_ump_flex_data_text, tvb, offset, 12, ENC_UTF_8);
+    } else {
+        /* still unknown */
+        proto_tree_add_item(tree, hf_midi_ump_flex_data, tvb, offset, 12, ENC_NA);
+    }
+}
+
+/* MIDI UMP Message type 0xF: UMP Stream Messages */
+static void
+dissect_midi_ump_stream(tvbuff_t* tvb, proto_tree* tree, unsigned int offset, bool be) {
+    uint8_t form;
+    uint16_t status;
+    proto_tree_add_item_ret_uint8(tree, hf_midi_ump_stream_form, tvb, UMP_WORD_BYTE_1, ENC_NA, &form);
+    proto_tree_add_item_ret_uint16(tree, hf_midi_ump_stream_status, tvb, UMP_WORD_BYTES_1_2, UMP_ENCODING, &status);
+
+    switch (status) {
+        case MIDI_UMP_STREAM_STATUS_ENDPOINT_DISCOVERY:
+            proto_tree_add_item(tree, hf_midi_ump_stream_ver_major, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_ver_minor, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_1_3, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, be ? offset+3:offset, hf_midi_ump_stream_request,
+                ett_midi_ump_stream_request, midi_ump_stream_request_fields, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 8, ENC_NA);
+            break;
+        case MIDI_UMP_STREAM_STATUS_ENDPOINT_INFO:
+            proto_tree_add_item(tree, hf_midi_ump_stream_ver_major, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_ver_minor, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_stream_ep_info_s, tvb, UMP_WORD_BYTE_1, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_ep_info_fbs, tvb, UMP_WORD_BYTE_1, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_ep_info_m2, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_ep_info_m1, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_rx_jr, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_tx_jr, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 8, ENC_NA);
+            break;
+        case MIDI_UMP_STREAM_STATUS_DEVICE_IDENTITY:
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTE_1, ENC_NA);
+            /* NOTE: I think the endianness might be wrong here */
+            proto_tree_add_item(tree, hf_midi_sysex_manu_short, tvb, UMP_WORD_BYTE_2, ENC_NA);
+            proto_tree_midi_14bit(tree, hf_midi_sysex_manu_long, tvb, be ? offset+2 : offset, NULL);
+            offset += 4;
+            proto_tree_midi_14bit(tree, hf_midi_sysex_gen_info_device_family, tvb, be ? offset : offset+2, NULL);
+            proto_tree_midi_14bit(tree, hf_midi_sysex_gen_info_family_member, tvb, be ? offset+2 : offset, NULL);
+            offset += 4;
+            proto_tree_midi_28bit(tree, hf_midi_sysex_gen_info_software_rev, tvb, offset, NULL);
+            break;
+        case MIDI_UMP_STREAM_STATUS_ENDPOINT_NAME:
+            if (be) {
+                proto_tree_add_item(tree, hf_midi_ump_stream_ep_name, tvb, offset+2, 14, ENC_UTF_8);
+            } else {
+                proto_tree_add_item(tree, hf_midi_ump_stream_ep_name, tvb, UMP_WORD_BYTES_3_4, ENC_UTF_8);
+                offset += 4;
+                proto_tree_add_item(tree, hf_midi_ump_stream_ep_name, tvb, offset, 12, ENC_UTF_8);
+            }
+            break;
+        case MIDI_UMP_STREAM_STATUS_PRODUCT_INSTANCE_ID:
+            if (be) {
+                proto_tree_add_item(tree, hf_midi_ump_stream_prod_id, tvb, offset+2, 14, ENC_UTF_8);
+            } else {
+                proto_tree_add_item(tree, hf_midi_ump_stream_prod_id, tvb, UMP_WORD_BYTES_3_4, ENC_UTF_8);
+                offset += 4;
+                proto_tree_add_item(tree, hf_midi_ump_stream_prod_id, tvb, offset, 12, ENC_UTF_8);
+            }
+            break;
+        case MIDI_UMP_STREAM_STATUS_STREAM_CONFIGURATION_REQ:
+        case MIDI_UMP_STREAM_STATUS_STREAM_CONFIGURATION:
+            proto_tree_add_item(tree, hf_midi_ump_stream_protocol, tvb, UMP_WORD_BYTE_3, ENC_UTF_8);
+            proto_tree_add_item(tree, hf_midi_ump_stream_rx_jr, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_tx_jr, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 12, ENC_NA);
+            break;
+        case MIDI_UMP_STREAM_STATUS_FUNCTION_BLOCK_DISCOVERY:
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_num, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_bitmask(tree, tvb, be ? offset+3:offset, hf_midi_ump_stream_fb_disc,
+                ett_midi_ump_stream_fb_disc, midi_ump_stream_fb_disc_fields, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 12, ENC_NA);
+            break;
+        case MIDI_UMP_STREAM_STATUS_FUNCTION_BLOCK_INFO:
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_active, tvb, UMP_WORD_BYTE_2, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_num, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_ui_hint, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_midi_1, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_dir, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_group, tvb, UMP_WORD_BYTE_1, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_group_span, tvb, UMP_WORD_BYTE_2, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_ci_version, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_sysex8_count, tvb, UMP_WORD_BYTE_4, ENC_NA);
+            offset += 4;
+            proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 8, ENC_NA);
+            break;
+        case MIDI_UMP_STREAM_STATUS_FUNCTION_BLOCK_NAME:
+            proto_tree_add_item(tree, hf_midi_ump_stream_fb_num, tvb, UMP_WORD_BYTE_3, ENC_NA);
+            if (be) {
+                proto_tree_add_item(tree, hf_midi_ump_stream_fb_name, tvb, offset+3, 13, ENC_NA);
+            } else {
+                proto_tree_add_item(tree, hf_midi_ump_stream_fb_name, tvb, UMP_WORD_BYTE_4, ENC_UTF_8);
+                offset += 4;
+                proto_tree_add_item(tree, hf_midi_ump_stream_fb_name, tvb, offset, 12, ENC_NA);
+            }
+            break;
+        case MIDI_UMP_STREAM_STATUS_START_OF_CLIP:
+        case MIDI_UMP_STREAM_STATUS_END_OF_CLIP:
+            if (be) {
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 14, ENC_NA);
+            } else {
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+                offset += 4;
+                proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 12, ENC_NA);
+            }
+            break;
+        default:
+            break;
+    }
+
+}
+
+unsigned int
+dissect_midi_ump_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, unsigned int offset, const unsigned int encoding) {
+    uint8_t message_type, group=0;
+    bool be = encoding == ENC_BIG_ENDIAN;
+
+    proto_item* pi = proto_tree_add_item(parent_tree, hf_midi_ump, tvb, offset, 4, ENC_NA);
+    proto_tree* tree = proto_item_add_subtree(pi, ett_midi_ump);
+
+    proto_tree_add_item_ret_uint8(tree, hf_midi_ump_mt, tvb, UMP_WORD_BYTE_1, ENC_NA, &message_type);
+
+    unsigned int message_len = midi_ump_message_size[message_type];
+    proto_item_set_len(pi, message_len);
+
+    if (message_type != MIDI_UMP_MT_UTILITY && message_type != MIDI_UMP_MT_STREAM) {
+        proto_tree_add_item_ret_uint8(tree, hf_midi_ump_group, tvb, UMP_WORD_BYTE_1, ENC_NA, &group);
+        proto_item_append_text(pi, ", Group %d", group);
+    }
+
+    proto_item_append_text(pi, ", %s", val_to_str(pinfo-> pool, message_type, midi_ump_mt_name_short, "mt=%d"));
+
+    switch (message_type) {
+        case MIDI_UMP_MT_UTILITY:
+            dissect_midi_ump_utility(tvb, tree, offset, be);
+            break;
+        case MIDI_UMP_MT_SYSTEM:
+            dissect_midi_ump_system(tvb, tree, offset, be);
+            break;
+        case MIDI_UMP_MT_MIDI_1:
+            dissect_midi_ump_midi1(tvb, pinfo, tree, offset, be, pi);
+            break;
+        case MIDI_UMP_MT_DATA_64:
+            dissect_midi_ump_data64(tvb, pinfo, tree, offset, be, group);
+            break;
+        case MIDI_UMP_MT_MIDI_2:
+            dissect_midi_ump_midi2(tvb, pinfo, tree, offset, be, pi);
+            break;
+        case MIDI_UMP_MT_DATA_128:
+            dissect_midi_ump_data128(tvb, tree, offset, be);
+            break;
+        case MIDI_UMP_MT_FLEX_DATA:
+            dissect_midi_ump_flex_data(tvb, tree, offset, be);
+            break;
+        case MIDI_UMP_MT_STREAM:
+            dissect_midi_ump_stream(tvb, tree, offset, be);
+            break;
+        default:
+            if (be) {
+                proto_tree_add_item(tree, hf_midi_unknown_data, tvb, offset+2, message_len-2, ENC_NA);
+            } else {
+                proto_tree_add_item(tree, hf_midi_unknown_data, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
+                if (message_len > 4) {
+                    proto_tree_add_item(tree, hf_midi_unknown_data, tvb, offset+4, message_len-4, ENC_NA);
+                }
+            }
+            break;
+    }
+
+    offset += message_len;
+    return offset;
 }
 
 
@@ -2067,12 +3711,12 @@ dissect_midi1_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, u
 
         /* dissect the first byte of the message here */
         if (using_rs) {
-            proto_item* pi = proto_tree_add_uint(command_tree, hf_midi_channel_status, tvb, offset, 0, octet);
+            proto_item* pi = proto_tree_add_uint(command_tree, hf_midi1_channel_status, tvb, offset, 0, octet);
             proto_item_set_generated(pi);
             pi = proto_tree_add_uint(command_tree, hf_midi_channel, tvb, offset, 0, octet);
             proto_item_set_generated(pi);
         } else {
-            proto_tree_add_item(command_tree, hf_midi_channel_status, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(command_tree, hf_midi1_channel_status, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(command_tree, hf_midi_channel, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
@@ -2090,7 +3734,7 @@ dissect_midi1_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, u
         const char* note_str;
         switch (octet >> 4) {
             case MIDI_STATUS_CHAN_NOTE_OFF:
-                proto_tree_add_item_ret_uint8(command_tree, hf_midi1_note, tvb, offset, 1, ENC_NA, &a);
+                proto_tree_add_item_ret_uint8(command_tree, hf_midi_note, tvb, offset, 1, ENC_NA, &a);
                 offset += 1;
                 proto_tree_add_item_ret_uint8(command_tree, hf_midi1_velocity, tvb, offset, 1, ENC_NA, &b);
                 offset += 1;
@@ -2099,7 +3743,7 @@ dissect_midi1_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, u
                 proto_item_append_text(command, " %s (c=%d, n=%s, v=%d)", status_str, chan, note_str, b);
                 break;
             case MIDI_STATUS_CHAN_NOTE_ON:
-                proto_tree_add_item_ret_uint8(command_tree, hf_midi1_note, tvb, offset, 1, ENC_NA, &a);
+                proto_tree_add_item_ret_uint8(command_tree, hf_midi_note, tvb, offset, 1, ENC_NA, &a);
                 offset += 1;
                 proto_tree_add_item_ret_uint8(command_tree, hf_midi1_velocity, tvb, offset, 1, ENC_NA, &b);
                 offset += 1;
@@ -2111,7 +3755,7 @@ dissect_midi1_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, u
                 proto_item_append_text(command, " %s (c=%d, n=%s, v=%d)", status_str, chan, note_str, b);
                 break;
             case MIDI_STATUS_CHAN_POLY_PRESSURE:
-                proto_tree_add_item_ret_uint8(command_tree, hf_midi1_note, tvb, offset, 1, ENC_NA, &a);
+                proto_tree_add_item_ret_uint8(command_tree, hf_midi_note, tvb, offset, 1, ENC_NA, &a);
                 offset += 1;
                 proto_tree_add_item_ret_uint8(command_tree, hf_midi1_pressure, tvb, offset, 1, ENC_NA, &b);
                 offset += 1;
@@ -2262,7 +3906,7 @@ proto_register_midi(void) {
             NULL, HFILL }
         },
 
-        { &hf_midi_channel_status,
+        { &hf_midi1_channel_status,
             { "Channel Status", "midi.channel_status",
             FT_UINT8, BASE_HEX,
             VALS(midi_channel_status), 0xf0,
@@ -2274,7 +3918,7 @@ proto_register_midi(void) {
             VALS(midi_channels), 0x0f,
             NULL, HFILL }
         },
-        { &hf_midi1_note,
+        { &hf_midi_note,
             { "Note", "midi.note",
             FT_UINT8, BASE_DEC | BASE_EXT_STRING,
             &midi_note_values_ext, 0x7f,
@@ -2360,6 +4004,665 @@ proto_register_midi(void) {
             NULL, HFILL }
         },
 
+        { &hf_midi_ump,
+            { "UMP", "midi.ump",
+            FT_NONE, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_mt,
+            { "Message Type", "midi.ump.mt",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_mt_name), 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_group,
+            { "Group", "midi.ump.group",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_reserved,
+            { "Reserved", "midi.ump.reserved",
+            FT_NONE, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_utility_status,
+            { "Status", "midi.ump.utility.status",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_utility_status_name), 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_utility_jr,
+            { "JR Timestamp", "midi.ump.utility.jr_time",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_utility_dc_tpq,
+            { "Ticks Per 1/4 Note", "midi.ump.utility.dc_tpq",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_utility_dc,
+            { "Ticks Since Last Event", "midi.ump.utility.dc",
+            FT_UINT24, BASE_DEC,
+            NULL, 0x0FFFFF,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_status,
+            { "Status", "midi.ump.data64.status",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_data64_status_name), 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_length,
+            { "Data Length", "midi.ump.data64.len",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_data,
+            { "Data", "midi.ump.data64.data",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_pad,
+            { "Padding", "midi.ump.data64.pad",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data128_status,
+            { "Status", "midi.ump.data128.status",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_data128_status_name), 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data128_length,
+            { "Length", "midi.ump.data128.length",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data128_stream_id,
+            { "Stream Id", "midi.ump.data128.stream_id",
+            FT_UINT8, BASE_DEC | BASE_SPECIAL_VALS,
+            VALS(midi_ump_data128_stream_id_specials), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data128_data,
+            { "Data", "midi.ump.data128.data",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data128_mds_chunk_len,
+            { "Chunk Len", "midi.ump.data128.mds.chunk_len",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data128_mds_chunk_count,
+            { "Chunk Count", "midi.ump.data128.mds.chunk_count",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data128_mds_chunk_num,
+            { "Chunk Num", "midi.ump.data128.mds.chunk_num",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data128_mds_payload,
+            { "Payload", "midi.ump.data128.mds.payload",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_midi_ump_flex_format,
+            { "Flex Data Format", "midi.ump.flex.format",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_format), 0x60,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_address,
+            { "Flex Data Address", "midi.ump.flex.address",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_address), 0x30,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_channel,
+            { "Channel", "midi.ump.flex.channel",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_status_bank,
+            { "Flex Data Status Bank", "midi.ump.flex.status_bank",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_status_bank), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_status,
+            { "Flex Data Status", "midi.ump.flex.status",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_status_00,
+            { "Flex Data Status", "midi.ump.flex.status",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_data_bank_00_status_name), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_status_01,
+            { "Flex Data Status", "midi.ump.flex.status",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_data_bank_01_status_name), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_status_02,
+            { "Flex Data Status", "midi.ump.flex.status",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_data_bank_02_status_name), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data,
+            { "Flex Data", "midi.ump.flex.data",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_text,
+            { "Text Content", "midi.ump.flex.data.text",
+            FT_STRINGZPAD, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_tempo,
+            { "Tempo (10ns / quarter note)", "midi.ump.flex.data.tempo",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_ts_num,
+            { "TimeSig Numerator", "midi.ump.flex.data.ts.num",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_ts_den,
+            { "TimeSig Denominator", "midi.ump.flex.data.ts.den",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_ts_notes,
+            { "TimeSig 1/32 notes", "midi.ump.flex.data.ts.notes",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_met_clocks,
+            { "Metronome Clocks per Tick", "midi.ump.flex.data.met.clocks",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_met_bar_1,
+            { "Bar Accent 1", "midi.ump.flex.data.met.bar_1",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_met_bar_2,
+            { "Bar Accent 2", "midi.ump.flex.data.met.bar_2",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_met_bar_3,
+            { "Bar Accent 3", "midi.ump.flex.data.met.bar_3",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_met_sub_1,
+            { "Subdivision Clicks 1", "midi.ump.flex.data.met.sub_1",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_met_sub_2,
+            { "Subdivision Clicks 2", "midi.ump.flex.data.met.sub_2",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_sig_sharps,
+            { "KeySig Sharps", "midi.ump.flex.data.sig.sharps",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_sig_tonic,
+            { "KeySig Tonic Note", "midi.ump.flex.data.sig.tonic",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_data_note), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_chord_tonic,
+            { "Chord Tonic Note", "midi.ump.flex.data.chord.tonic",
+            FT_NONE, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_chord_bass,
+            { "Chord Bass Note", "midi.ump.flex.data.chord.bass",
+            FT_NONE, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_chord_sharps,
+            { "Sharps/Flats", "midi.ump.flex.data.chord.sharps",
+            FT_UINT8, BASE_DEC,
+            NULL, 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_chord_note,
+            { "Note", "midi.ump.flex.data.chord.note",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_data_note), 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_chord_type,
+            { "Chord Type", "midi.ump.flex.data.chord.type",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_data_chord_type), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_chord_alt_type,
+            { "Alteration Type", "midi.ump.flex.data.chord.alt_type",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_flex_data_chord_alt_type), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_flex_data_chord_alt_deg,
+            { "Alteration Degree", "midi.ump.flex.data.chord.alt_deg",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_midi_ump_stream_form,
+            { "Stream Format", "midi.ump.stream.format",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_stream_format), 0x0C,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_status,
+            { "Stream Status", "midi.ump.stream.status",
+            FT_UINT16, BASE_HEX,
+            VALS(midi_ump_stream_data_status_name), 0x03FF,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_ver_major,
+            { "UMP Version Major", "midi.ump.stream.ver_major",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_ver_minor,
+            { "UMP Version Minor", "midi.ump.stream.ver_minor",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_request,
+            { "Request Bitmap", "midi.ump.stream.request",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_request_e,
+            { "Endpoint Info", "midi.ump.stream.request.e",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_request_d,
+            { "Device Identity", "midi.ump.stream.request.d",
+            FT_BOOLEAN, 8,
+            NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_request_n,
+            { "Endpoint Name", "midi.ump.stream.request.n",
+            FT_BOOLEAN, 8,
+            NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_request_i,
+            { "Product Instance Id", "midi.ump.stream.request.i",
+            FT_BOOLEAN, 8,
+            NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_request_s,
+            { "Stream Configuration", "midi.ump.stream.request.s",
+            FT_BOOLEAN, 8,
+            NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_ep_info_s,
+            { "Static Function Blocks", "midi.ump.stream.ep_info.s",
+            FT_BOOLEAN, 8,
+            NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_ep_info_fbs,
+            { "Function Block Count", "midi.ump.stream.ep_info.fbs",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_ep_info_m2,
+            { "MIDI 2.0 Supported", "midi.ump.stream.ep_info.m2",
+            FT_BOOLEAN, 8,
+            NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_ep_info_m1,
+            { "MIDI 1.0 Supported", "midi.ump.stream.ep_info.m1",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_rx_jr,
+            { "Receive JR Supported", "midi.ump.stream.rx_jr",
+            FT_BOOLEAN, 8,
+            NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_tx_jr,
+            { "Transmit JR Supported", "midi.ump.stream.tx_jr",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_ep_name,
+            { "Endpoint Name", "midi.ump.stream.ep_name",
+            FT_STRINGZPAD, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_prod_id,
+            { "Product Instance Id", "midi.ump.stream.prod_id",
+            FT_STRINGZPAD, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_protocol,
+            { "MIDI Protocol", "midi.ump.stream.protocol",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_stream_protocol), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_num,
+            { "Function Block Number", "midi.ump.stream.fb.num",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_disc,
+            { "asdf", "midi.ump.stream.fb.disc",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_disc_info,
+            { "Request Function Block Info", "midi.ump.stream.fb.disc.info",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_disc_name,
+            { "Request Function Block Name", "midi.ump.stream.fb.disc.name",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_active,
+            { "Active", "midi.ump.stream.fb.active",
+            FT_BOOLEAN, 8,
+            NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_ui_hint,
+            { "UI Hint", "midi.ump.stream.fb.ui_hint",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_stream_fb_ui_hint), 0x30,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_midi_1,
+            { "MIDI 1.0 Support", "midi.ump.stream.fb.midi_1",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_stream_fb_midi_1), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_dir,
+            { "Direction", "midi.ump.stream.fb.dir",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_stream_fb_dir), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_group,
+            { "First Group", "midi.ump.stream.fb.group",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_group_span,
+            { "Group Span", "midi.ump.stream.fb.group_span",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_ci_version,
+            { "MIDI-CI Version", "midi.ump.stream.fb.ci_version",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_sysex8_count,
+            { "Max SysEx8 Streams", "midi.ump.stream.fb.sysex8_count",
+            FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS,
+            VALS(midi_ump_stream_fb_sysex8_count), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_stream_fb_name,
+            { "Function Block Name", "midi.ump.stream.fb.name",
+            FT_STRINGZPAD, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_midi2_channel_status,
+            { "Channel Status", "midi.channel_status",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_ump_midi2_status_name), 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_attribute_type,
+            { "Attribute Type", "midi.attribute_type",
+            FT_UINT8, BASE_HEX,
+            VALS(midi2_attribute_type), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_velocity,
+            { "Velocity", "midi.velocity",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_attr_data,
+            { "Attribute Data", "midi.attr_data",
+            FT_UINT16, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_attr_data_pitch_semitones,
+            { "Semitone", "midi.attr_data.semitone",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+            &midi_note_values_ext, 0xFE,
+            NULL, HFILL }
+        },
+        { &hf_midi2_attr_data_pitch_fract,
+            { "Fraction of Semitone", "midi.attr_data.frac_semitone",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x01FF,
+            NULL, HFILL }
+        },
+        { &hf_midi2_pressure,
+            { "Pressure", "midi.pressure",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_controller_value,
+            { "Value", "midi.controller_value",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_program_options,
+            { "Options", "midi.program_options",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_program_options_bank_valid,
+            { "Bank Valid", "midi.program_options.bank_valid",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi2_program_bank_msb,
+            { "Bank MSB", "midi.program_bank_msb",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_midi2_program_bank_lsb,
+            { "Bank LSB", "midi.program_bank_lsb",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_midi2_channel_pressure,
+            { "Pressure", "midi.channel_pressure",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_pitch_bend,
+            { "Pitch Bend", "midi.pitch_bend",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_per_note_controller,
+            { "Per-Note Controller", "midi.per_note_controller",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_per_note_controller_value,
+            { "Value", "midi.per_note_controller_value",
+            FT_INT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_param_bank,
+            { "Parameter Bank", "midi.param_bank",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_midi2_param_index,
+            { "Parameter Index", "midi.param_index",
+            FT_UINT8, BASE_HEX,
+            NULL, 0x7F,
+            NULL, HFILL }
+        },
+        { &hf_midi2_param_value,
+            { "Value", "midi.param_value",
+            FT_INT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_param_delta,
+            { "Delta", "midi.param_delta",
+            FT_INT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_note_manage,
+            { "Options", "midi.note_manage",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi2_note_manage_detach,
+            { "Detach Per-Note Controllers", "midi.note_manage.detach",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi2_note_manage_reset,
+            { "Reset Per-Note Controllers", "midi.note_manage.reset",
+            FT_BOOLEAN, 8,
+            NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_midi2_per_note_pitch_bend,
+            { "Pitch Bend", "midi.per_note_pitch_bend",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_midi_sysex8_manu,
+            { "Manufacturer", "midi.sysex8.manu",
+            FT_UINT16, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex8_device_id,
+            { "Device Id", "midi.sysex8.device_id",
+            FT_UINT16, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex8_sub_id_1,
+            { "Sub Id #1", "midi.sysex8.sub_id_1",
+            FT_UINT16, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex8_sub_id_2,
+            { "Sub Id #2", "midi.sysex8.sub_id_2",
+            FT_UINT16, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+
         { &hf_midi_sysex_manu_short,
             { "Manufacturer (short)", "midi.sysex.manufacturer_short",
             FT_UINT8, BASE_HEX | BASE_EXT_STRING,
@@ -2370,12 +4673,6 @@ proto_register_midi(void) {
             { "Manufacturer (long)", "midi.sysex.manufacturer_long",
             FT_UINT16, BASE_HEX | BASE_EXT_STRING,
             &midi_sysex_extended_id_vals_ext, 0x7f7f,
-            NULL, HFILL }
-        },
-        { &hf_midi_sysex_manu_data,
-            { "Manufacturer specific data", "midi.sysex.manu_data",
-            FT_BYTES, BASE_NONE,
-            NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_midi_sysex_edu_data,
@@ -3032,17 +5329,550 @@ proto_register_midi(void) {
             VALS(midi_sysex_common_nrt_dls), 0x7f,
             NULL, HFILL }
         },
+
+        { &hf_midi_sysex_ci_msg_type,
+            { "Message Type", "midi.sysex.ci.msg_type",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_sysex_common_nrt_ci), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_major_version,
+            { "Major Version", "midi.sysex.ci.major_version",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x70,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_minor_version,
+            { "Minor Version", "midi.sysex.ci.minor_version",
+            FT_UINT8, BASE_DEC,
+            NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_src_muid,
+            { "Source MUID", "midi.sysex.ci.src_muid",
+            FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+            VALS(midi_sysex_ci_muid), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_dst_muid,
+            { "Destination MUID", "midi.sysex.ci.dst_muid",
+            FT_UINT32, BASE_HEX|BASE_SPECIAL_VALS,
+            VALS(midi_sysex_ci_muid), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_reserved,
+            { "Reserved", "midi.sysex.ci.reserved",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prof_id,
+            { "Profile Id", "midi.sysex.ci.prof.id",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prof_count_enabled,
+            { "Enabled Profile Count", "midi.sysex.ci.prof.count_enabled",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prof_count_disabled,
+            { "Disabled Profile Count", "midi.sysex.ci.prof.count_disabled",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prof_chans,
+            { "Profile Channel Count", "midi.sysex.ci.prof.chans",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prof_inquiry_target,
+            { "Inquiry Target", "midi.sysex.ci.prof.inquiry_target",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prof_inquiry_target_data_len,
+            { "Inquiry Target Data Len", "midi.sysex.ci.prof.inquiry_target.data_len",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prof_inquiry_target_data,
+            { "Inquiry Target Data", "midi.sysex.ci.prof.inquiry_target.data",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prof_data_len,
+            { "Profile Specific Data Len", "midi.sysex.ci.prof.data_len",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prof_data,
+            { "Profile Specific Data", "midi.sysex.ci.prof.data",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_sim_supported,
+            { "Simultaneous Requests Supported", "midi.sysex.ci.prop.sim_supported",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_ver_major,
+            { "Property Exchange Major Version", "midi.sysex.ci.prop.ver_major",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_ver_minor,
+            { "Property Exchange Minor Version", "midi.sysex.ci.prop.ver_minor",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_request_id,
+            { "Request Id", "midi.sysex.ci.prop.request_id",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_header_len,
+            { "Header Length", "midi.sysex.ci.prop.header_len",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_header,
+            { "Header Data", "midi.sysex.ci.prop.header",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_chunk_count,
+            { "Chunk Count", "midi.sysex.ci.prop.chunk_count",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_chunk_num,
+            { "Chunk Number", "midi.sysex.ci.prop.chunk_num",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_data_len,
+            { "Property Data Len", "midi.sysex.ci.prop.data_len",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_prop_data,
+            { "Property Data", "midi.sysex.ci.prop.data",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_supported_features,
+            { "Process Inquiry Supported Features", "midi.sysex.ci.proc.supported_features",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_supported_features_msg_report,
+            { "MIDI Message Report", "midi.sysex.ci.proc.supported_features.msg_report",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_message_data_control,
+            { "Message Data Control", "midi.sysex.ci.proc.message_data_control",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_sysex_ci_proc_message_data_control), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_system_messages,
+            { "Requested System Messages", "midi.sysex.ci.proc.requested_system_messages",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_system_messages_mtc_qf,
+            { "MTC Quarter Frame", "midi.sysex.ci.proc.requested_system_messages.mtc_qf",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_system_messages_song_pos,
+            { "Song Position", "midi.sysex.ci.proc.requested_system_messages.song_pos",
+            FT_BOOLEAN, 8,
+            NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_system_messages_song_sel,
+            { "Song Select", "midi.sysex.ci.proc.requested_system_messages.song_sel",
+            FT_BOOLEAN, 8,
+            NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_channel_messages,
+            { "Requested Channel Messages", "midi.sysex.ci.proc.requested_channel_messages",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_channel_messages_pitch_bend,
+            { "Pitch Bend", "midi.sysex.ci.proc.requested_channel_messages.pitch_bend",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_channel_messages_cc,
+            { "Control Change", "midi.sysex.ci.proc.requested_channel_messages.cc",
+            FT_BOOLEAN, 8,
+            NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_channel_messages_rpn,
+            { "RPN", "midi.sysex.ci.proc.requested_channel_messages.rpn",
+            FT_BOOLEAN, 8,
+            NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_channel_messages_nrpn,
+            { "NRPN", "midi.sysex.ci.proc.requested_channel_messages.nrpn",
+            FT_BOOLEAN, 8,
+            NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_channel_messages_pc,
+            { "Program Change", "midi.sysex.ci.proc.requested_channel_messages.pc",
+            FT_BOOLEAN, 8,
+            NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_channel_messages_pressure,
+            { "Channel Pressure", "midi.sysex.ci.proc.requested_channel_messages.pressure",
+            FT_BOOLEAN, 8,
+            NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_note_messages,
+            { "Requested Note Messages", "midi.sysex.ci.proc.requested_note_messages",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_note_messages_notes,
+            { "Notes", "midi.sysex.ci.proc.requested_note_messages.notes",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_note_messages_pressure,
+            { "Poly Pressure", "midi.sysex.ci.proc.requested_note_messages.pressure",
+            FT_BOOLEAN, 8,
+            NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_note_messages_pitch_bend,
+            { "Per-Note Pitch Bend", "midi.sysex.ci.proc.requested_note_messages.pitch_bend",
+            FT_BOOLEAN, 8,
+            NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_note_messages_registered_per_note,
+            { "Registered Per-Note Controller", "midi.sysex.ci.proc.requested_note_messages.registered_per_note",
+            FT_BOOLEAN, 8,
+            NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_proc_requested_note_messages_assigned_per_note,
+            { "Assignable Per-Note Controller", "midi.sysex.ci.proc.requested_note_messages.assigned_per_note",
+            FT_BOOLEAN, 8,
+            NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_device_manu_short,
+            { "Device Manufacturer (Short)", "midi.sysex.ci.device_manu_short",
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+            &midi_sysex_id_vals_ext, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_device_manu_long,
+            { "Device Manufacturer (Long)", "midi.sysex.ci.device_manu_long",
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+            &midi_sysex_extended_id_vals_ext, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_supported_categories,
+            { "Supported Ci Categories", "midi.sysex.ci.supported_categories",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_supported_categories_0,
+            { "0x00-0x0F Reserved", "midi.sysex.ci.supported_categories.0",
+            FT_BOOLEAN, 8,
+            NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_supported_categories_1,
+            { "0x10-0x1F Protocol Negotiation (Deprecated)", "midi.sysex.ci.supported_categories.1",
+            FT_BOOLEAN, 8,
+            NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_supported_categories_2,
+            { "0x20-0x2F Profile Configuration", "midi.sysex.ci.supported_categories.2",
+            FT_BOOLEAN, 8,
+            NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_supported_categories_3,
+            { "0x30-0x3F Property Exchange", "midi.sysex.ci.supported_categories.3",
+            FT_BOOLEAN, 8,
+            NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_supported_categories_4,
+            { "0x40-0x4F Process Inquiry", "midi.sysex.ci.supported_categories.4",
+            FT_BOOLEAN, 8,
+            NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_supported_categories_5,
+            { "0x50-0x5F Reserved", "midi.sysex.ci.supported_categories.5",
+            FT_BOOLEAN, 8,
+            NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_supported_categories_6,
+            { "0x60-0x6F Reserved", "midi.sysex.ci.supported_categories.6",
+            FT_BOOLEAN, 8,
+            NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_max_sysex,
+            { "Maximum SysEx Size", "midi.sysex.ci.max_sysex",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_output_path_id,
+            { "Output Path Id", "midi.sysex.ci.output_path_id",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_function_block,
+            { "Function Block Number", "midi.sysex.ci.function_block",
+            FT_UINT8, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_ep_info_status,
+            { "Ep Info Status", "midi.sysex.ci.ep_info.status",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_sysex_ci_ep_info_status), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_ep_info_len,
+            { "EP Info Data Length", "midi.sysex.ci.ep_info.len",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_ep_info_data,
+            { "EP Info Data", "midi.sysex.ci.ep_info.data",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_product_instance_id,
+            { "Product Instance Id", "midi.sysex.ci.product_instance_id",
+            FT_STRING, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_ack_original_id,
+            { "Original Transaction Sub-Id", "midi.sysex.ci.ack.original_id",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_sysex_common_nrt_ci), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_ack_status_code,
+            { "ACK Status Code", "midi.sysex.ci.ack.status_code",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_sysex_ci_ack_status_code), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_ack_status_data,
+            { "ACK Status Data", "midi.sysex.ci.ack.status_data",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_ack_details,
+            { "ACK Details", "midi.sysex.ci.ack.details",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_ack_msg_len,
+            { "Message Len", "midi.sysex.ci.ack.msg_len",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_ack_message,
+            { "Message", "midi.sysex.ci.ack.message",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_invalid_muid,
+            { "Target MUID", "midi.sysex.ci.invalid_muid",
+            FT_UINT32, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_nak_original_id,
+            { "Original Transaction Sub-Id", "midi.sysex.ci.nak.original_id",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_sysex_common_nrt_ci), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_nak_status_code,
+            { "NAK Status Code", "midi.sysex.ci.nak.status_code",
+            FT_UINT8, BASE_HEX,
+            VALS(midi_sysex_ci_nak_status_code), 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_nak_status_data,
+            { "NAK Status Data", "midi.sysex.ci.nak.status_data",
+            FT_UINT8, BASE_HEX,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_nak_details,
+            { "NAK Details", "midi.sysex.ci.nak.details",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_nak_msg_len,
+            { "Message Len", "midi.sysex.ci.nak.msg_len",
+            FT_UINT16, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_sysex_ci_nak_message,
+            { "Message", "midi.sysex.ci.nak.message",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_midi_ump_data64_msg_fragments,
+            { "Message fragments", "midi.ump.data64.fragments",
+            FT_NONE, BASE_NONE,
+            NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_fragment,
+            { "Message fragment", "midi.ump.data64.fragment",
+            FT_FRAMENUM, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_fragment_overlap,
+            { "Message fragment overlap", "midi.ump.data64.fragment.overlap",
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_fragment_overlap_conflicts,
+            { "Message fragment overlapping with conflicting data",
+              "midi.ump.data64.fragment.overlap.conflicts",
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_fragment_multiple_tails,
+            { "Message has multiple tail fragments",
+              "midi.ump.data64.fragment.multiple_tails",
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_fragment_too_long_fragment,
+            { "Message fragment too long", "midi.ump.data64.fragment.too_long_fragment",
+            FT_BOOLEAN, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_fragment_error,
+            { "Message defragmentation error", "midi.ump.data64.fragment.error",
+            FT_FRAMENUM, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_fragment_count,
+            { "Message fragment count", "midi.ump.data64.fragment.count",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_reassembled_in,
+            { "Reassembled in", "midi.ump.data64.reassembled.in",
+            FT_FRAMENUM, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_reassembled_length,
+            { "Reassembled length", "midi.ump.data64.reassembled.length",
+            FT_UINT32, BASE_DEC,
+            NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_midi_ump_data64_msg_reassembled_data,
+            { "Reassembled data", "midi.ump.data64.reassembled.data",
+            FT_BYTES, BASE_NONE,
+            NULL, 0,
+            NULL, HFILL }
+        }
     };
 
     static int *ett[] = {
         &ett_midi,
         &ett_midi1_command,
+        &ett_midi_ump,
+        &ett_midi_ump_stream_request,
+        &ett_midi_ump_stream_fb_disc,
+        &ett_midi2_attr_data,
+        &ett_midi2_program_options,
+        &ett_midi2_note_manage,
         &ett_midi_sysex_data,
         &ett_midi_sysex_edu,
         &ett_midi_sysex_manu,
         &ett_midi_sysex_common_rt,
         &ett_midi_sysex_common_nrt,
         &ett_midi_sysex_common_tune_note,
+        &ett_midi_sysex_ci_proc_supported_features,
+        &ett_midi_sysex_ci_proc_requested_system_messages,
+        &ett_midi_sysex_ci_proc_requested_channel_messages,
+        &ett_midi_sysex_ci_proc_requested_note_messages,
+        &ett_midi_sysex_ci_supported_categories,
+        &ett_midi_ump_data64_msg_fragment,
+        &ett_midi_ump_data64_msg_fragments,
     };
 
 
@@ -3055,11 +5885,16 @@ proto_register_midi(void) {
         "MIDI 1.0",     /* dissector description    */
         dissect_midi1,  /* dissector function       */
         proto_midi       /* protocol being dissected */
-   );
+    );
 
-   midi_sysex_common_rt_handle = register_dissector("midi_sysex_rt", dissect_sysex7_common_rt, proto_midi);
-   midi_sysex_common_nrt_handle = register_dissector("midi_sysex_nrt", dissect_sysex7_common_nrt, proto_midi);
-   midi_sysex_common_edu_handle = register_dissector("midi_sysex_edu", dissect_sysex7_common_educational, proto_midi);
+    midi_sysex_common_rt_handle = register_dissector("midi_sysex_rt", dissect_sysex7_common_rt, proto_midi);
+    midi_sysex_common_nrt_handle = register_dissector("midi_sysex_nrt", dissect_sysex7_common_nrt, proto_midi);
+    midi_sysex_common_edu_handle = register_dissector("midi_sysex_edu", dissect_sysex7_common_educational, proto_midi);
+
+    reassembly_table_register(&midi_ump_data64_reassembly_table, &addresses_reassembly_table_functions);
+
+    /* sysex8_dissector_table = register_dissector_table("midi.sysex8.manufacturer",
+        "MIDI SysEx8 manufacturer", proto_midi_sysex8, FT_UINT24, BASE_HEX); */
 }
 
 void
@@ -3082,6 +5917,8 @@ proto_reg_handoff_midi(void) {
         MIDI_SYSEX_ID_EDUCATIONAL_NON_COMMERCIAL_USE << 16,
         midi_sysex_common_edu_handle
     );
+
+    midi_sysex_handle = find_dissector_add_dependency("midi_sysex_inner", proto_midi);
 }
 
 /*
