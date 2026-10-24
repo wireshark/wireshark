@@ -331,6 +331,7 @@ dissect_usb_ptp_get_device_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
     offset+=2;
     usb_ptp_device_info->VendorExtensionID = tvb_get_letohl(tvb, offset);
     vendor_extension_id = tvb_get_letohs(tvb, offset);
+    /* TODO: is this field 2 or 4 bytes? */
     proto_tree_add_item(tree,hf_devinfo_vendorextensionid            ,tvb,offset,4,  ENC_LITTLE_ENDIAN);
     offset+=4;
     usb_ptp_device_info->VendorExtensionVersion = tvb_get_letohs(tvb, offset);

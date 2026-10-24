@@ -449,8 +449,7 @@ dissect_fb_zero_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti_puflags = proto_tree_add_item(fb_zero_tree, hf_fb_zero_puflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     puflags_tree = proto_item_add_subtree(ti_puflags, ett_fb_zero_puflags);
     proto_tree_add_item(puflags_tree, hf_fb_zero_puflags_vrsn, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(puflags_tree, hf_fb_zero_puflags_unknown, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    puflags = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(puflags_tree, hf_fb_zero_puflags_unknown, tvb, offset, 1, ENC_LITTLE_ENDIAN, &puflags);
     offset += 1;
 
     if(puflags & PUFLAGS_VRSN){

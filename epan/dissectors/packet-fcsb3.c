@@ -599,8 +599,7 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
                                      "0x%x"));
 
     if (tree) {
-        link_ctl = tvb_get_uint8 (tvb, offset+1);
-        proto_tree_add_item (tree, hf_sbccs_dib_linkctlfn, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8 (tree, hf_sbccs_dib_linkctlfn, tvb, offset+1, 1, ENC_BIG_ENDIAN, &link_ctl);
 
         ctl_info = tvb_get_ntohs (tvb, offset+2);
         switch (link_ctl) {

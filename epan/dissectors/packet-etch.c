@@ -356,8 +356,7 @@ read_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 
   uint32_t     type_code;
 
-  type_code = tvb_get_uint8(tvb, *offset);
-  proto_tree_add_item(etch_tree, hf_etch_typecode, tvb, *offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(etch_tree, hf_etch_typecode, tvb, *offset, 1, ENC_BIG_ENDIAN, &type_code);
   (*offset)++;
   return type_code;
 }

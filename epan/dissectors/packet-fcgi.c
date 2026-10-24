@@ -250,12 +250,10 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
       proto_tree_add_item(fcgi_tree, hf_fcgi_id, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
-      clen = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(fcgi_tree, hf_fcgi_content_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint16(fcgi_tree, hf_fcgi_content_length, tvb, offset, 2, ENC_BIG_ENDIAN, &clen);
       offset += 2;
 
-      plen = tvb_get_uint8(tvb, offset);
-      proto_tree_add_item(fcgi_tree, hf_fcgi_padding_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint8(fcgi_tree, hf_fcgi_padding_length, tvb, offset, 1, ENC_BIG_ENDIAN, &plen);
       offset += 1;
 
       offset += 1;

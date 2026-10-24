@@ -929,9 +929,7 @@ dissect_swils_rdi(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *rdi_tree, u
     unsigned i, plen, numrec;
 
     if (rdi_tree) {
-        plen = tvb_get_ntohs(tvb, offset+2);
-
-        proto_tree_add_item(rdi_tree, hf_swils_rdi_payload_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(rdi_tree, hf_swils_rdi_payload_len, tvb, offset+2, 2, ENC_BIG_ENDIAN, &plen);
         proto_tree_add_item(rdi_tree, hf_swils_rdi_req_sname, tvb, offset+4, 8, ENC_NA);
 
         /* 12 is the length of the initial header and 4 is the size of each
@@ -1071,16 +1069,15 @@ dissect_swils_lsack(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *lsa_tree,
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     int         offset = 0;
-    int         num_lsrechdr, i;
+    unsigned    num_lsrechdr, i;
     proto_tree *lsrechdr_tree;
 
     if (lsa_tree) {
         dissect_swils_fspf_hdr(tvb, lsa_tree, offset);
 
         proto_tree_add_item(lsa_tree, hf_swils_lsack_flags, tvb, offset+23, 1, ENC_BIG_ENDIAN);
-        num_lsrechdr = tvb_get_ntohl(tvb, offset+24);
 
-        proto_tree_add_item(lsa_tree, hf_swils_lsack_num_of_lsr_headers, tvb, offset+24, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(lsa_tree, hf_swils_lsack_num_of_lsr_headers, tvb, offset+24, 4, ENC_BIG_ENDIAN, &num_lsrechdr);
 
         offset = 28;
 
@@ -1155,15 +1152,13 @@ static void
 dissect_swils_zone_mbr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree, unsigned offset)
 {
     uint8_t mbrtype;
-    int     idlen;
+    unsigned idlen;
     proto_item* ti;
 
-    mbrtype = tvb_get_uint8(tvb, offset);
-    ti = proto_tree_add_uint(zmbr_tree, hf_swils_zone_mbrtype, tvb,
-                        offset, 1, mbrtype);
+    ti = proto_tree_add_item_ret_uint8(zmbr_tree, hf_swils_zone_mbrtype, tvb,
+                              offset, 1, ENC_NA, &mbrtype);
     proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrflags, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-    idlen = tvb_get_uint8(tvb, offset+3);
-    proto_tree_add_item(zmbr_tree, hf_swils_zone_mbr_identifier_length, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(zmbr_tree, hf_swils_zone_mbr_identifier_length, tvb, offset+3, 1, ENC_BIG_ENDIAN, &idlen);
     switch (mbrtype) {
     case FC_SWILS_ZONEMBR_WWN:
         proto_tree_add_item(zmbr_tree, hf_swils_zone_mbrid_fcwwn, tvb,

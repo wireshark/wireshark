@@ -1654,8 +1654,7 @@ dissect_sipregistration(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, unsi
 
   proto_tree_add_item_ret_uint8(local_tree, hf_reload_sipregistration_type, tvb,offset+local_offset,1, ENC_BIG_ENDIAN, &type);
   local_offset += 1;
-  length_field = tvb_get_ntohs(tvb, offset+local_offset);
-  proto_tree_add_item(local_tree, hf_reload_length_uint16, tvb,offset+local_offset,2, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint16(local_tree, hf_reload_length_uint16, tvb,offset+local_offset,2, ENC_BIG_ENDIAN, &length_field);
   local_offset += 2;
   if (length_field>0) {
     ti_sipregistrationdata = proto_tree_add_item(local_tree, hf_reload_sipregistration_data, tvb, offset, length_field, ENC_NA);
@@ -1775,12 +1774,12 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
     datavalue_tree = proto_item_add_subtree(ti_datavalue,ett_reload_datavalue);
     proto_tree_add_item(datavalue_tree, hf_reload_datavalue_exists, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (kind != NULL) {
+      uint32_t length_field;
       switch(kind->id) {
 
       case DATAKINDID_TURNSERVICE:
       {
-        uint32_t length_field = tvb_get_ntohl(tvb, offset+1);
-        proto_tree_add_item(datavalue_tree,  hf_reload_length_uint32, tvb, offset+1,4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(datavalue_tree,  hf_reload_length_uint32, tvb, offset+1,4, ENC_BIG_ENDIAN, &length_field);
         if (length_field>0) {
           dissect_turnserver(tvb, pinfo, datavalue_tree, offset+1+4, length_field);
         }
@@ -1789,8 +1788,7 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
 
       case DATAKINDID_SIP_REGISTRATION:
       {
-        uint32_t length_field = tvb_get_ntohl(tvb, offset+1);
-        proto_tree_add_item(datavalue_tree,  hf_reload_length_uint32, tvb, offset+1,4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(datavalue_tree,  hf_reload_length_uint32, tvb, offset+1,4, ENC_BIG_ENDIAN, &length_field);
         if (length_field>0) {
           dissect_sipregistration(tvb, pinfo, datavalue_tree, offset+1+4, length_field);
         }
@@ -1800,8 +1798,7 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
       case DATAKINDID_CERTIFICATE_BY_NODE:
       case DATAKINDID_CERTIFICATE_BY_USER:
       {
-        uint32_t length_field = tvb_get_ntohl(tvb, offset+1);
-        proto_tree_add_item(datavalue_tree,  hf_reload_length_uint32, tvb, offset+1,4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(datavalue_tree,  hf_reload_length_uint32, tvb, offset+1,4, ENC_BIG_ENDIAN, &length_field);
         if (length_field>0) {
           asn1_ctx_t asn1_ctx;
 
@@ -1814,8 +1811,7 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
 
       case DATAKINDID_REDIR:
       {
-        uint32_t length_field = tvb_get_ntohl(tvb, offset+1);
-        proto_tree_add_item(datavalue_tree,  hf_reload_length_uint32, tvb, offset+1,4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(datavalue_tree,  hf_reload_length_uint32, tvb, offset+1,4, ENC_BIG_ENDIAN, &length_field);
         if (length_field>0) {
           dissect_redirserviceprovider(tvb, pinfo, datavalue_tree, offset+1+4, length_field);
         }
@@ -3757,19 +3753,19 @@ static int dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pro
     error_tree = proto_item_add_subtree(ti_error, ett_reload_error_response);
     proto_tree_add_item(error_tree, hf_reload_error_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_item_append_text(ti_error, ": %s", val_to_str_const(error_code, errorcodes, "Unknown"));
+    uint16_t local_length;
+
     switch(error_code) {
     case ERRORCODE_GENERATIONCOUNTERTOOLOW:
     {
-      uint16_t local_length = tvb_get_ntohs(tvb, offset+2);
-      proto_tree_add_item(error_tree, hf_reload_length_uint16, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint16(error_tree, hf_reload_length_uint16, tvb, offset+2, 2, ENC_BIG_ENDIAN, &local_length);
       dissect_storeans(tvb, pinfo, error_tree, offset+4, local_length);
     }
     break;
 
     case ERRORCODE_UNKNOWNKIND:
     {
-      uint16_t local_length = tvb_get_ntohs(tvb, offset+2);
-      proto_tree_add_item(error_tree, hf_reload_length_uint16, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item_ret_uint16(error_tree, hf_reload_length_uint16, tvb, offset+2, 2, ENC_BIG_ENDIAN, &local_length);
       dissect_kindid_list(tvb, pinfo, error_tree, offset+4, local_length);
     }
     break;
@@ -4005,8 +4001,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   {
     proto_item *ti_tmp;
     uint32_t tmp;
-    tmp = tvb_get_ntohl(tvb,28);
-    ti_tmp = proto_tree_add_item(reload_forwarding_tree, hf_reload_max_response_length, tvb, 28, 4, ENC_BIG_ENDIAN);
+    ti_tmp = proto_tree_add_item_ret_uint(reload_forwarding_tree, hf_reload_max_response_length, tvb, 28, 4, ENC_BIG_ENDIAN, &tmp);
     if (0 == tmp) {
       proto_item_append_text(ti_tmp, "\n  [Response length not restricted]");
     }

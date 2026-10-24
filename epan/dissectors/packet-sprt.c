@@ -1008,8 +1008,7 @@ dissect_sprt_data(tvbuff_t *tvb,
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_selmod, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_compr_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            selcompr = (tvb_get_uint8(tvb, offset) & 0xF0) >> 4;
-            proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_selected_compr, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8(sprt_payload_tree, hf_sprt_payload_msg_connect_selected_compr, tvb, offset, 1, ENC_BIG_ENDIAN, &selcompr);
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_selected_err_corr, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_msg_connect_tdsr, tvb, offset, 2, ENC_BIG_ENDIAN);

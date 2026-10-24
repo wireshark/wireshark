@@ -2234,7 +2234,7 @@ static uint32_t
 dissect_spice_agent_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const uint32_t message_type, proto_item* msgtype_item, uint32_t message_len, uint32_t offset)
 {
     proto_tree *agent_tree;
-    uint32_t n_monitors = 0, i;
+    uint32_t n_monitors, i;
 
     switch (message_type) {
         case VD_AGENT_MOUSE_STATE:
@@ -2246,8 +2246,7 @@ dissect_spice_agent_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 1;
             break;
         case VD_AGENT_MONITORS_CONFIG:
-            n_monitors = tvb_get_letohl(tvb, offset);
-            proto_tree_add_item(tree, hf_agent_num_monitors, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_agent_num_monitors, tvb, offset, 4, ENC_LITTLE_ENDIAN, &n_monitors);
             offset += 4;
             proto_tree_add_item(tree, hf_vd_agent_monitors_config_flag_use_pos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;

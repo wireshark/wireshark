@@ -66,7 +66,7 @@
 
 #ifndef SYMLINK_FLAG_RELATIVE
 /* Defined in ntifs.h on Windows normally but in winnt.h on MSYS2. */
-#define SYMLINK_FLAG_RELATIVE 0x00000001
+#define SYMLINK_FLAG_RELATIVE 0x01
 #endif
 
 #define NT_STATUS_PENDING		0x00000103
@@ -6095,8 +6095,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* dialect count */
-	dc = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_dialect_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint16(tree, hf_smb2_dialect_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &dc);
 	offset += 2;
 
 	/* security mode, skip second byte */
@@ -7782,8 +7781,7 @@ dissect_smb2_rw_rdma_transform(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &c_olb, OLB_O_UINT16_S_UINT16, hf_smb2_channel_info_blob);
 
 	/* channel */
-	channel = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN, &channel);
 	offset += 4;
 
 	/* the write channel info blob itself */
@@ -7894,8 +7892,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* length */
-	length = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_write_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_write_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
 	offset += 4;
 
 	/* offset */
@@ -8782,8 +8779,7 @@ dissect_smb2_FSCTL_VALIDATE_NEGOTIATE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_
 		offset++;
 
 		/* dialect count */
-		dc = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(tree, hf_smb2_dialect_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint16(tree, hf_smb2_dialect_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &dc);
 		offset += 2;
 
 		for ( ; dc>0; dc--) {
@@ -9278,8 +9274,7 @@ dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 	case REPARSE_TAG_LX_SYMLINK:
 		/* WSL symlink layout version */
-		wsl_version = tvb_get_letohl(tvb, offset);
-		proto_tree_add_item(tree, hf_smb2_wsl_symlink_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(tree, hf_smb2_wsl_symlink_version, tvb, offset, 4, ENC_LITTLE_ENDIAN, &wsl_version);
 		offset += 4;
 		length -= 4;
 
@@ -9831,13 +9826,11 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 1;
 
 	/* length */
-	len = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_read_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_read_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &len);
 	offset += 4;
 
 	/* offset */
-	off = tvb_get_letoh64(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item_ret_uint64(tree, hf_smb2_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN, &off);
 	offset += 8;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" PRIu64, len, off);

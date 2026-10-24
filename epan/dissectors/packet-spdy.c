@@ -1231,8 +1231,7 @@ static int dissect_spdy_rst_stream_payload(
 
   /* Get status. */
 
-  ti = proto_tree_add_item(frame_tree, hf_spdy_rst_stream_status, tvb, offset, 4, ENC_BIG_ENDIAN);
-  rst_status = tvb_get_ntohl(tvb, offset);
+  ti = proto_tree_add_item_ret_uint(frame_tree, hf_spdy_rst_stream_status, tvb, offset, 4, ENC_BIG_ENDIAN, &rst_status);
   if (try_val_to_str(rst_status, rst_stream_status_names) == NULL) {
     /* Handle boundary conditions. */
     expert_add_info_format(pinfo, ti, &ei_spdy_invalid_rst_stream,
@@ -1420,8 +1419,7 @@ static int dissect_spdy_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     frame.version = 0; /* Version doesn't apply to DATA. */
 
     /* Add stream ID. */
-    stream_id = tvb_get_ntohl(tvb, offset) & SPDY_STREAM_ID_MASK;
-    proto_tree_add_item(spdy_tree, hf_spdy_streamid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(spdy_tree, hf_spdy_streamid, tvb, offset, 4, ENC_BIG_ENDIAN, &stream_id);
     offset += 4;
   }
 
