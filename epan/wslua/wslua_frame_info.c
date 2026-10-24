@@ -53,6 +53,8 @@ WSLUA_METAMETHOD FrameInfo__tostring(lua_State* L) {
 
     if (!fi) {
         lua_pushstring(L,"FrameInfo pointer is NULL!");
+    } else if (fi->expired) {
+        lua_pushstring(L,"FrameInfo has expired");
     } else {
         if (fi->rec)
             lua_pushfstring(L, "FrameInfo: rec_type=%d, presence_flags=%d, caplen=%d, len=%d, pkt_encap=%d, block='%p'",

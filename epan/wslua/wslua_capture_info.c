@@ -64,6 +64,8 @@ WSLUA_METAMETHOD CaptureInfo__tostring(lua_State* L) {
 
     if (!fi || !fi->wth) {
         lua_pushstring(L,"CaptureInfo pointer is NULL!");
+    } else if (fi->expired) {
+        lua_pushstring(L,"CaptureInfo has expired");
     } else {
         wtap *wth = fi->wth;
         lua_pushfstring(L, "CaptureInfo: file_type_subtype=%d, snapshot_length=%d, file_encap=%d, file_tsprec=%d",
@@ -330,6 +332,8 @@ WSLUA_METAMETHOD CaptureInfoConst__tostring(lua_State* L) {
 
     if (!fi || !fi->wdh) {
         lua_pushstring(L,"CaptureInfoConst pointer is NULL!");
+    } else if (fi->expired) {
+        lua_pushstring(L,"CaptureInfoConst has expired");
     } else {
         wtap_dumper *wdh = fi->wdh;
         lua_pushfstring(L, "CaptureInfoConst: file_type_subtype=%d, snaplen=%d, encap=%d, compression_type=%d",
