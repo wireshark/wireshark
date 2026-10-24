@@ -590,8 +590,8 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(sw2_tree, hf_picc_operating_felica_424k, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(sw2_tree, hf_picc_operating_felica_212k, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(sw2_tree, hf_picc_operating_topaz, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(sw2_tree, hf_picc_operating_iso_14443_type_b, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(sw2_tree, hf_picc_operating_iso_14443_type_a, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sw2_tree, hf_picc_operating_iso_14443_type_b, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sw2_tree, hf_picc_operating_iso_14443_type_a, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             offset += 1;
         }
