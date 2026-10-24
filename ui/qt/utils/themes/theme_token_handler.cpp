@@ -384,8 +384,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
                                                 windowColor, ratios.distinctSurface);
     // The title keeps HighlightedText when that reads on the bar, else
     // it switches to black or white outright.  readableText() would stop
-    // at a grey just at the threshold (inverted, midnight-blue light),
-    // too weak for a title.
+    // at a grey just at the threshold (inverted), too weak for a title.
     const QColor headerText = ColorMath::isReadable(highlightText, headerBg, ratios)
             ? highlightText : ColorMath::contrastingText(headerBg);
     headerBg = ColorMath::ensureContrast(headerBg, headerText,
