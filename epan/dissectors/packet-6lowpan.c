@@ -563,7 +563,9 @@ typedef struct {
     uint8_t cid;    /* Context Identifier */
 } lowpan_context_key;
 
-/* Context hash table map data. */
+/* Context hash table map data. The hash table maps each key to a
+ * wmem_tree, keyed by frame number, of the contexts that key has had,
+ * so that every pass sees the context that was in use at that frame. */
 typedef struct {
     unsigned   frame;  /* Frame where the context was discovered. */
     uint8_t plen;   /* Prefix length. */
@@ -637,7 +639,7 @@ static uint8_t      lowpan_parse_nhc_proto  (tvbuff_t *tvb, int offset);
 /* Context table helpers */
 static unsigned     lowpan_context_hash     (const void *key);
 static gboolean             lowpan_context_equal    (const void *a, const void *b);
-static lowpan_context_data *lowpan_context_find(uint8_t cid, uint16_t pan);
+static lowpan_context_data *lowpan_context_find(uint8_t cid, uint16_t pan, unsigned frame);
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -710,30 +712,40 @@ lowpan_context_equal(const void *a, const void *b)
  *  PARAMETERS
  *      cid             ; Context identifier.
  *      pan             ; PAN identifier.
+ *      frame           ; Frame number.
  *  RETURNS
  *      lowpan_context_data *;
  *---------------------------------------------------------------
  */
 static lowpan_context_data *
-lowpan_context_find(uint8_t cid, uint16_t pan)
+lowpan_context_find(uint8_t cid, uint16_t pan, unsigned frame)
 {
     lowpan_context_key  key;
+    wmem_tree_t         *history;
     lowpan_context_data *data;
 
     /* Check for the internal link-local context. */
     if (cid == LOWPAN_CONTEXT_LINK_LOCAL) return &lowpan_context_local;
 
-    /* Lookup the context from the table. */
+    /* Lookup the context from the table, using only contexts learned
+     * before this frame. Static contexts from the preferences have
+     * frame 0, and frame numbers start at 1. */
     key.pan = pan;
     key.cid = cid;
-    data = (lowpan_context_data *)g_hash_table_lookup(lowpan_context_table, &key);
-    if (data) return data;
+    history = (wmem_tree_t *)g_hash_table_lookup(lowpan_context_table, &key);
+    if (history) {
+        data = (lowpan_context_data *)wmem_tree_lookup32_le(history, frame - 1);
+        if (data) return data;
+    }
 
     /* If we didn't find a match, try again with the broadcast PAN. */
     if (pan != IEEE802154_BCAST_PAN) {
         key.pan = IEEE802154_BCAST_PAN;
-        data = (lowpan_context_data *)g_hash_table_lookup(lowpan_context_table, &key);
-        if (data) return data;
+        history = (wmem_tree_t *)g_hash_table_lookup(lowpan_context_table, &key);
+        if (history) {
+            data = (lowpan_context_data *)wmem_tree_lookup32_le(history, frame - 1);
+            if (data) return data;
+        }
     }
 
     /* If the lookup failed, return the default context (::/0) */
@@ -760,8 +772,7 @@ lowpan_context_insert(uint8_t cid, uint16_t pan, uint8_t plen, ws_in6_addr *pref
 {
     lowpan_context_key  key;
     lowpan_context_data *data;
-    void *              pkey;
-    void *              pdata;
+    wmem_tree_t         *history;
 
     /* Sanity! */
     if (plen > 128) return;
@@ -771,23 +782,29 @@ lowpan_context_insert(uint8_t cid, uint16_t pan, uint8_t plen, ws_in6_addr *pref
     /* Search the context table for an existing entry. */
     key.pan = pan;
     key.cid = cid;
-    if (g_hash_table_lookup_extended(lowpan_context_table, &key, NULL, &pdata)) {
-        /* Context already exists. */
-        data = (lowpan_context_data *)pdata;
-        if ( (data->plen == plen) && (memcmp(&data->prefix, prefix, (plen+7)/8) == 0) ) {
+    history = (wmem_tree_t *)g_hash_table_lookup(lowpan_context_table, &key);
+    if (history) {
+        data = (lowpan_context_data *)wmem_tree_lookup32_le(history, frame);
+        if (data && (data->plen == plen) && (memcmp(&data->prefix, prefix, (plen+7)/8) == 0) ) {
             /* Context already exists with no change. */
             return;
         }
     }
-    pkey = wmem_memdup(NULL, &key, sizeof(key));
+    else {
+        history = wmem_tree_new(NULL);
+        g_hash_table_insert(lowpan_context_table, wmem_memdup(NULL, &key, sizeof(key)), history);
+    }
 
-    /* Create a new context */
-    data = wmem_new(NULL, lowpan_context_data);
+    /* Reuse the context if one was already learned in this frame. */
+    data = (lowpan_context_data *)wmem_tree_lookup32(history, frame);
+    if (!data) {
+        data = wmem_new(NULL, lowpan_context_data);
+        wmem_tree_insert32(history, frame, data);
+    }
     data->frame = frame;
     data->plen = plen;
     memset(&data->prefix, 0, sizeof(ws_in6_addr)); /* Ensure zero padding */
     lowpan_pfxcpy(&data->prefix, prefix, plen);
-    g_hash_table_insert(lowpan_context_table, pkey, data);
 } /* lowpan_context_insert */
 
 /*FUNCTION:------------------------------------------------------
@@ -806,6 +823,23 @@ lowpan_context_free(void *data)
 {
     wmem_free(NULL, data);
 } /* lowpan_context_free */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      lowpan_context_history_free
+ *  DESCRIPTION
+ *     Frees a context history in the context hash table
+ *  PARAMETERS
+ *      data            ; Pointer to value
+ *  RETURNS
+ *      void            ;
+ *---------------------------------------------------------------
+ */
+static void
+lowpan_context_history_free(void *data)
+{
+    wmem_tree_destroy((wmem_tree_t *)data, false, true);
+} /* lowpan_context_history_free */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1965,8 +1999,8 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int dg
      * Don't display their origin until after we decompress the address in case
      * the address modes indicate that we should use a different context.
      */
-    sctx = lowpan_context_find(iphc_sci, hint_panid);
-    dctx = lowpan_context_find(iphc_dci, hint_panid);
+    sctx = lowpan_context_find(iphc_sci, hint_panid, pinfo->num);
+    dctx = lowpan_context_find(iphc_dci, hint_panid, pinfo->num);
 
     /*=====================================================
      * Parse Traffic Class and Flow Label
@@ -3600,7 +3634,7 @@ proto_register_6lowpan(void)
     module_t    *prefs_module;
     expert_module_t* expert_6lowpan;
 
-    lowpan_context_table = g_hash_table_new_full(lowpan_context_hash, lowpan_context_equal, lowpan_context_free, lowpan_context_free);
+    lowpan_context_table = g_hash_table_new_full(lowpan_context_hash, lowpan_context_equal, lowpan_context_free, lowpan_context_history_free);
 
     proto_6lowpan = proto_register_protocol("IPv6 over Low power Wireless Personal Area Networks", "6LoWPAN", "6lowpan");
     proto_register_field_array(proto_6lowpan, hf, array_length(hf));
@@ -3671,6 +3705,9 @@ proto_init_6lowpan(void)
     lowpan_context_local.frame = 0;
     lowpan_context_local.plen = LOWPAN_CONTEXT_LINK_LOCAL_BITS;
     memcpy(&lowpan_context_local.prefix, lowpan_llprefix, sizeof(lowpan_llprefix));
+
+    /* Forget the contexts learned from the previous capture file. */
+    g_hash_table_remove_all(lowpan_context_table);
 
     /* Reload static contexts from our preferences. */
     prefs_6lowpan_apply();

@@ -2854,7 +2854,7 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
                 }
                 /* Update the 6LoWPAN dissectors with new context information. */
                 hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
-                if ((opt_len <= 24) && hints) {
+                if ((opt_len <= 24) && hints && !PINFO_FD_VISITED(pinfo)) {
                     lowpan_context_insert(context_id, hints->src_pan, context_len, &context_prefix, pinfo->num);
                 }
             }
