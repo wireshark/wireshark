@@ -380,7 +380,10 @@ static bool wslua_conv_cleanup_cb(wmem_allocator_t *alloc, wmem_cb_event_t event
     if (event == WMEM_CB_FREE_EVENT) {
         lua_State* L = wslua_state();
         wslua_conv_data_t *cd = (wslua_conv_data_t *)data;
-        if (L != NULL) {
+        /* If Lua plugins have been reloaded since the data was set, the
+         * reference was into the old (closed) Lua state; unreferencing it
+         * in the current state would free a slot that may be in use. */
+        if (L != NULL && cd->state_generation == wslua_state_generation) {
             luaL_unref(L, LUA_REGISTRYINDEX, cd->data_ref);
         }
     }
@@ -397,6 +400,12 @@ WSLUA_METAMETHOD Conversation__newindex(lua_State* L) {
     luaL_checkany(L, WSLUA_ARG_Conversation__newindex_VALUE);
 
     wslua_conv_data_t *cd = conversation_get_proto_data(conv, proto->hfid);
+
+    if (cd != NULL && cd->state_generation != wslua_state_generation) {
+        /* Set in a Lua state that has since been closed. */
+        cd->data_ref = LUA_NOREF;
+        cd->state_generation = wslua_state_generation;
+    }
 
     if (lua_isnoneornil(L, WSLUA_ARG_Conversation__newindex_VALUE)) {
         if (cd != NULL) {
@@ -415,6 +424,7 @@ WSLUA_METAMETHOD Conversation__newindex(lua_State* L) {
 
         cd->conv = conv;
         cd->data_ref = LUA_NOREF;
+        cd->state_generation = wslua_state_generation;
 
         conversation_add_proto_data(conv, proto->hfid, cd);
     }
@@ -437,7 +447,7 @@ WSLUA_METAMETHOD Conversation__index(lua_State* L) {
 
     wslua_conv_data_t *cd = conversation_get_proto_data(conv, proto->hfid);
 
-    if (cd == NULL || cd->data_ref == LUA_NOREF) {
+    if (cd == NULL || cd->data_ref == LUA_NOREF || cd->state_generation != wslua_state_generation) {
         lua_pushnil(L);
     } else {
         lua_rawgeti(L, LUA_REGISTRYINDEX, cd->data_ref);

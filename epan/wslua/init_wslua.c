@@ -162,6 +162,8 @@ static int ett_wslua_traceback;
 
 uint64_t wslua_file_generation;
 
+uint64_t wslua_state_generation;
+
 /* The pinfo->pool on which lua_pinfo_end() is currently registered, so that
  * it is registered only once per packet even with multiple or nested Lua
  * dissector calls. */
@@ -1850,6 +1852,8 @@ void wslua_init(register_cb cb, void *client_data, const char* app_env_var_prefi
 #else
         L = lua_newstate(wslua_allocf, NULL);
 #endif
+        wslua_state_generation++;
+
         // Keep this registered when the Lua state is closed and recreated,
         // as when Lua plugins are reloaded, because the file scope can be
         // freed before the next init routine is called.

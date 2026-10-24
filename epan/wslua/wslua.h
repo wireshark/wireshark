@@ -265,6 +265,7 @@ typedef struct _wslua_proto_t {
 typedef struct _wslua_conv_data_t {
     conversation_t* conv;     /**< The conversation this data is associated with. */
     int             data_ref; /**< Lua registry reference to the dissector-supplied data table for this conversation. */
+    uint64_t        state_generation; /**< The wslua_state_generation of the Lua state that holds data_ref. */
 } wslua_conv_data_t;
 
 /**
@@ -578,6 +579,13 @@ extern uint64_t wslua_file_generation;
 
 /** True if an object referring to file scoped memory was created before wmem_file_scope() was last freed. */
 #define WSLUA_FILE_EXPIRED(obj) ((obj)->generation != wslua_file_generation)
+
+/**
+ * @brief Incremented whenever a new Lua state is created (e.g., when Lua
+ * plugins are reloaded), so that references into an earlier, closed state
+ * held by Wireshark structures can be recognized and not used.
+ */
+extern uint64_t wslua_state_generation;
 
 /**
  * @brief Defines a single attribute entry in a Lua class attribute dispatch table, binding a field name to its getter and setter.
