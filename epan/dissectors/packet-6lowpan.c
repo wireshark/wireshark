@@ -2834,6 +2834,7 @@ dissect_6lowpan_frag_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         if (tvb_reported_length(tvb) < IPv6_HDR_SIZE) {
             expert_add_info_format(pinfo, length_item, &ei_6lowpan_bad_ipv6_header_length,
                 "Length is less than IPv6 header length %u", IPv6_HDR_SIZE);
+            return NULL;
         }
         frag_tvb = dissect_6lowpan_hc1(tvb, pinfo, tree, tvb_reported_length(tvb), siid, diid);
     }
@@ -2842,6 +2843,7 @@ dissect_6lowpan_frag_headers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         if (tvb_reported_length(tvb) < IPv6_HDR_SIZE) {
             expert_add_info_format(pinfo, length_item, &ei_6lowpan_bad_ipv6_header_length,
                 "Length is less than IPv6 header length %u", IPv6_HDR_SIZE);
+            return NULL;
         }
         frag_tvb = dissect_6lowpan_iphc(tvb, pinfo, tree, tvb_reported_length(tvb), siid, diid);
     }
