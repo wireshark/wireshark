@@ -350,6 +350,66 @@ Source Package:
       - wireshark-release-notes-*.html
       - stratoshark-release-notes-*.html
 
+Linux x86_64 Package:
+  extends: .build-ubuntu
+  rules:
+    - !reference [.if-w-w-only-merged]
+    - !reference [.if-2x-daily-schedule]
+  script:
+    # Wireshark only. Stratoshark should get its own installer.
+    - cmake --preset=ninja_ccache $CMAKE_ARGS -DBUILD_stratoshark=OFF -DBUILD_strato=OFF ..
+    - ninja
+    # For convenience create all components in a single installer instead of one installer per component, which is the current default.
+    # Leave out the UserGuide and DeveloperGuide components, for a smaller binary package. The user and developer guides are available online.
+    - cpack -G STGZ
+      -D CPACK_COMPONENTS_GROUPING=ALL_COMPONENTS_IN_ONE
+      -D "CPACK_COMPONENTS_ALL=Unspecified;Development"
+      .
+  artifacts:
+    paths:
+      - build/wireshark-*-linux-x86_64.sh
+      - build/wireshark-*-linux-x86_64.sh.sha256
+    expire_in: 3 days
+
+Plugin Config Test:
+  variables:
+    QT_QPA_PLATFORM: offscreen
+  stage: test
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
+  tags:
+    - saas-linux-small-amd64
+  needs:
+    - job: 'Linux x86_64 Package'
+  rules:
+    - !reference [.if-w-w-only-merged]
+    - !reference [.if-2x-daily-schedule]
+  before_script:
+    - ls -l build/wireshark-*-linux-x86_64.sh
+    - mkdir -p /opt/wireshark
+    - sh build/wireshark-*-linux-x86_64.sh --prefix=/opt/wireshark --skip-license
+    - cp -r doc/plugins.example /tmp/hello
+    # Remove the source and build trees so that a path in the installed
+    # config that points into them fails here instead of resolving.
+    - cd /
+    - find "$CI_PROJECT_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+  script:
+    - /opt/wireshark/bin/wireshark --version
+    - /opt/wireshark/bin/tshark --version
+    - cmake -S /tmp/hello -B /tmp/hello-build -G Ninja -DCMAKE_PREFIX_PATH=/opt/wireshark
+    - cmake --build /tmp/hello-build
+    - cmake --build /tmp/hello-build --target copy_plugin
+    - /opt/wireshark/bin/tshark -G plugins > /tmp/plugins.txt 2> /tmp/plugins-errors.txt || true
+    - cat /tmp/plugins.txt
+    - |
+      if ! grep -q '^hello\.so' /tmp/plugins.txt; then
+        echo "ERROR: tshark did not load the hello.so plugin."
+        echo "Plugin load errors:"
+        cat /tmp/plugins-errors.txt
+        echo "hello.so installed at:"
+        find /opt/wireshark -name hello.so
+        exit 1
+      fi
+
 # Job to generate packages for Debian stable
 Debian Stable APT Package:
   extends: .build-linux
