@@ -277,7 +277,7 @@ workflow:
       -DBUILD_stratoshark=on
       -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
       -DFALCO_PLUGINS="libcloudtrail.so;libgcpaudit.so;libk8saudit.so"
-      -DTEST_EXTRA_ARGS="--enable-stratoshark"
+      -DTEST_EXTRA_ARGS=""
       ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
@@ -719,7 +719,7 @@ macOS Universal Package:
       -DBUILD_stratoshark=on
       -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
       -DFALCO_PLUGINS="libcloudtrail.so;libgcpaudit.so;libk8saudit.so"
-      -DTEST_EXTRA_ARGS="--enable-stratoshark;--enable-release"
+      -DTEST_EXTRA_ARGS="--enable-release"
       ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
