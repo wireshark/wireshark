@@ -373,13 +373,19 @@ WSLUA_METHOD File_seek(lua_State* L) {
 }
 
 static int File_lines_iterator(lua_State* L) {
-    FILE_T ft = *(FILE_T *)lua_touserdata(L, lua_upvalueindex(1));
+    /* The upvalue is the File itself, so that it isn't collected while
+     * the iterator exists, and so that the iterator can't be used after
+     * the File has expired (when the FILE_T may have been closed). */
+    File f = toFile(L, lua_upvalueindex(1));
     int success;
 
-    if (ft == NULL)
+    if (!f || f->expired)
+        return luaL_error(L, "expired File in lines iterator");
+
+    if (f->file == NULL)
         return luaL_error(L, "Error getting File handle for lines iterator");
 
-    success = File_read_line(L, ft);
+    success = File_read_line(L, f->file);
 
     /* if (ferror(ft))
         return luaL_error(L, "%s", g_strerror(errno));
@@ -390,7 +396,6 @@ static int File_lines_iterator(lua_State* L) {
 WSLUA_METHOD File_lines(lua_State* L) {
     /* Lua iterator function for retrieving ASCII File lines, similar to Lua's `file:lines()`.  See Lua 5.x ref manual for `file:lines()`. */
     File f = checkFile(L,1);
-    FILE_T ft = NULL;
 
     if (!f->file)
         return luaL_error(L, "Error getting File handle for lines");
@@ -400,9 +405,7 @@ WSLUA_METHOD File_lines(lua_State* L) {
         return 0;
     }
 
-    ft = f->file;
-
-    lua_pushlightuserdata(L, ft);
+    lua_pushvalue(L, 1);
     lua_pushcclosure(L, File_lines_iterator, 1);
 
     return 1;
