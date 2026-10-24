@@ -11,6 +11,7 @@
 
 #include "welcome_page_preferences_frame.h"
 #include <ui_welcome_page_preferences_frame.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <ui/recent.h>
 
@@ -49,6 +50,10 @@ WelcomePagePreferencesFrame::WelcomePagePreferencesFrame(QWidget *parent) :
     ui->tipsIntervalSpinBox->setValue(static_cast<int>(stashed_tips_interval_));
 
     updateTipsSubCheckboxes();
+
+    set_section_title_font(ui->generalGroupBox);
+    set_section_title_font(ui->tipsGroupBox);
+    set_section_title_font(ui->learnGroupBox);
 }
 
 WelcomePagePreferencesFrame::~WelcomePagePreferencesFrame()

@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <epan/prefs-int.h>
 #include <ui/qt/models/pref_models.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 
 LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
@@ -54,14 +55,6 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
              "  margin-left: %1px;"
              "}"
              ).arg(indent);
-    ui->packetListSeparatorCheckBox->setStyleSheet(indent_ss);
-    ui->packetListHeaderShowColumnDefinition->setStyleSheet(indent_ss);
-    ui->packetListHoverStyleCheckbox->setStyleSheet(indent_ss);
-    ui->packetListAllowSorting->setStyleSheet(indent_ss);
-    ui->packetListCachedRowsLabel->setStyleSheet(indent_ss);
-    ui->statusBarShowSelectedPacketCheckBox->setStyleSheet(indent_ss);
-    ui->statusBarShowFileLoadTimeCheckBox->setStyleSheet(indent_ss);
-
     if (QLayout *lay = findChild<QLayout *>("multiColorModeLayout"))
         lay->setContentsMargins(indent, 0, 0, 0);
     if (QLayout *lay = findChild<QLayout *>("separatorModeLayout"))
@@ -143,6 +136,10 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     ui->packetListMultiColorSeparatorVerticalRadioButton->setEnabled(stripe_mode);
     ui->packetListMultiColorSeparatorDiagonalRadioButton->setEnabled(stripe_mode);
     ui->packetListMultiColorSeparatorBubbleRadioButton->setEnabled(stripe_mode);
+
+    set_section_title_font(ui->paneLayoutGroupBox);
+    set_section_title_font(ui->packetListGroupBox);
+    set_section_title_font(ui->statusBarGroupBox);
 }
 
 LayoutPreferencesFrame::~LayoutPreferencesFrame()

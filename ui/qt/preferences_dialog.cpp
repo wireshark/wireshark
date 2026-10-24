@@ -190,6 +190,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
     pd_ui_->advancedView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(pd_ui_->advancedView, &QTreeView::customContextMenuRequested, this, &PreferencesDialog::handleCopyMenu);
+
+    set_section_title_font(pd_ui_->advancedGroupBox);
 }
 
 PreferencesDialog::~PreferencesDialog()

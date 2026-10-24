@@ -66,6 +66,8 @@ UatFrame::UatFrame(QWidget *parent) :
     // start editing as soon as the field is selected or when typing starts
     ui->uatTreeView->setEditTriggers(ui->uatTreeView->editTriggers() |
             QAbstractItemView::CurrentChanged | QAbstractItemView::AnyKeyPressed);
+
+    set_section_title_font(ui->uatGroupBox);
 }
 
 UatFrame::~UatFrame()
@@ -121,6 +123,7 @@ void UatFrame::setUat(epan_uat *uat)
     }
 
     setWindowTitle(title);
+    ui->uatGroupBox->setTitle(title);
 }
 
 void UatFrame::copyFromProfile(QString filename)
