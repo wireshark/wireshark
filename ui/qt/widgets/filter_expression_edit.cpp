@@ -183,8 +183,8 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     clear_button_ = new AdaptiveToolButton(this);
     clear_button_->setIconPadding(1);
     clear_button_->setBaseIconSize(QSize(14, 14));
-    // Neutral grey at rest, red on hover/press — carried by the icon's own
-    // <ws:swap> state contract in filter-clear.svg, contrast-adapted to the field.
+    // Neutral grey at rest, the theme's FilterClear on hover/press. The SVG's
+    // <ws:map-token> carries this, and both are contrast-adapted to the field.
     clear_button_->setIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/filter-clear.svg"),
                                              QPalette::Base));
     clear_button_->setToolTip(tr("Clear the filter"));
@@ -195,11 +195,11 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
         emit cleared();
     });
 
-    // Blue when there is something to apply (item 6). The state tint stays in
-    // the text area (paintEvent fences the icon strips with the neutral field
-    // bg), so the blue glyph reads as its own affordance rather than clashing
-    // with a green "valid" field. Disabled (nothing to apply) dims via the
-    // engine's Disabled mode.
+    // Painted with the theme's FilterApply when there is something to apply.
+    // The state tint stays in the text area (paintEvent fences the
+    // icon strips with the neutral field bg), so the glyph reads as its own
+    // affordance rather than clashing with a green "valid" field. Disabled
+    // (nothing to apply) dims via the engine's Disabled mode.
     apply_button_ = new AdaptiveToolButton(this);
     apply_button_->setIconPadding(1);
     apply_button_->setIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/filter-apply.svg"),

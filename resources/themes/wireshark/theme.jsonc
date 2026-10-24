@@ -168,12 +168,19 @@
 	// "history" is the resting tint of the recent-filters drop-down arrow.
 	// Pinned to the grays of the classic combo-box arrow so the default
 	// theme matches the pre-ThemeManager look;
-	// the glyph brightens to a strong colour on hover/press in the widget.
+	// the glyph lightens slightly on hover/press, then the contrast guard applies.
+	//
+	// "bookmarkMatch" is the bookmark glyph of a filter that is already
+	// saved.  Pinned to the classic yellow the glyph is drawn in, in both
+	// modes, so the default theme keeps its familiar look; derived, it
+	// would follow accent.warning (orange).  The other glyph colours
+	// (bookmark, bookmarkCapture, clear, apply) follow the accents.
 	// -----------------------------------------------------------------
 	"filter": {
 		"valid":      { "light": "#afffaf", "dark": "#006600" },
 		"invalid":    { "light": "#ffafaf", "dark": "#660000" },
 		"deprecated": { "light": "#ffffaf", "dark": "#666600" },
+		"bookmarkMatch": { "light": "#c4a000", "dark": "#c4a000" },
 		"history":    { "light": "#555753", "dark": "#d3d7cf" }
 	},
 

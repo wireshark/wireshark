@@ -293,3 +293,8 @@ ThemeColorPair ColorMath::hoverBg(const ThemeColorPair &pair, const QColor &back
 {
     return ThemeColorPair { hoverBg(pair.light, background), hoverBg(pair.dark, background) };
 }
+
+QColor ColorMath::hoverEmphasis(const QColor &color)
+{
+    return color.lighter(HoverEmphasisFactor);
+}

@@ -33,13 +33,20 @@ For color icons use ContrastAdaptIcon.
 ContrastAdaptIcon lets you control how colors are rendered via custom SVG elements.
 
 The `ws:swap` element lets you replace the base theme / normal icon mode color with other colors for the active, selected, and "on" (toggled) icon states.
-The `ws:map-token` element lets you replace the specified color
+The `ws:map-token` element lets you replace the specified color with a
+theme token's colour, in every mode (`token`) or only in the active or
+selected mode (`active`, `selected`; selected falls back to active).
+`active` and `selected` take a token name or `emphasis`, a slight
+brightening of the `token` colour. Token colours are used as they are,
+unless `adapt="contrast"` adapts them for contrast like drawn colours.
 The following snippet shows examples of each element:
 
 [source,xml]
 ----
 <ws:states xmlns:ws="urn:x-wireshark-icon">
   <ws:map-token color="#212121" token="PaletteText"/>
+  <ws:map-token color="#4e72a5" token="FilterApply" active="emphasis" adapt="contrast"/>
+  <ws:map-token color="#888a85" active="FilterClear" adapt="contrast"/>
   <ws:swap base="#2960f6" active="#2050f5" selected="#1c47f5" normal-on="#2e7d32"/>
 </ws:states>
 ----

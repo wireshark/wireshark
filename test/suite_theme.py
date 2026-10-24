@@ -1582,3 +1582,90 @@ class TestExpertIcons:
             shapes.setdefault(geometry, []).append(path.name)
         same = [names for names in shapes.values() if len(names) > 1]
         assert not same, f'expert icons share one shape: {same}'
+
+
+# =====================================================================
+# Filter-line glyphs: each inline filter affordance SVG paints its
+# Filter* token, contrast-guarded, and the schema and README accept
+# exactly the theme.filter keys the parser accepts (the lowercased
+# suffix of every Filter* token).
+# =====================================================================
+
+# SVG file names do not follow the token names, so this pairing is
+# test data; test_glyph_tokens_exist_in_enum keeps it honest.
+FILTER_GLYPH_ICONS = {
+    'FilterBookmark':        'bookmark-display.svg',
+    'FilterBookmarkCapture': 'bookmark-capture.svg',
+    'FilterBookmarkMatch':   'bookmark-match.svg',
+    'FilterClear':           'filter-clear.svg',
+    'FilterApply':           'filter-apply.svg',
+    'FilterHistory':         'filter-history.svg',
+}
+
+
+def _svg_map_tokens(svg):
+    '''The <ws:map-token> elements of an SVG icon under SVG_ICON_ROOT, as attribute dicts.'''
+    text = (SVG_ICON_ROOT / svg).read_text(encoding='utf-8')
+    return [dict(re.findall(r'([\w-]+)="([^"]*)"', el))
+            for el in re.findall(r'<ws:map-token\b[^>]*>', text)]
+
+
+def _readme_filter_rows():
+    '''The rows of the README `filter` key table, as {key: purpose text}.'''
+    readme = THEME_README.read_text(encoding='utf-8')
+    section = re.search(r'^#### `filter`.*?(?=^#)', readme, re.M | re.S).group(0)
+    return dict(re.findall(r'^\|\s*`(\w+)`\s*\|(.*)\|\s*$', section, re.M))
+
+
+class TestFilterGlyphIcons:
+    def test_glyph_tokens_exist_in_enum(self):
+        names = _theme_token_names()
+        for token in FILTER_GLYPH_ICONS:
+            assert token in names, token
+
+    def test_each_glyph_icon_maps_its_token(self):
+        for token, svg in FILTER_GLYPH_ICONS.items():
+            maps = [m for m in _svg_map_tokens(svg)
+                    if token in (m.get('token'), m.get('active'))]
+            assert maps, f'{svg} does not map a color to {token}'
+            assert all(m.get('adapt') == 'contrast' for m in maps), \
+                f'{svg}: the {token} binding is not contrast-guarded'
+
+    def test_schema_filter_keys_match_enum(self):
+        '''theme.schema.json lists exactly the theme.filter keys the
+        parser derives from the Filter* enumerators.'''
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        keys = {k.lower() for k in schema['properties']['filter']['properties']}
+        tokens = {n[len('Filter'):].lower()
+                  for n in _theme_token_names() if n.startswith('Filter')}
+        assert keys == tokens
+
+    def test_readme_filter_table_matches_schema(self):
+        '''The README `filter` key table lists the schema's filter keys.'''
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        assert set(_readme_filter_rows()) == set(schema['properties']['filter']['properties'])
+
+    def test_readme_glyph_defaults_match_handler(self):
+        '''Each README glyph row names exactly the accent that
+        theme_token_handler.cpp derives that key from when a theme omits it.'''
+        src = (REPO_ROOT / 'ui' / 'qt' / 'utils' / 'themes'
+               / 'theme_token_handler.cpp').read_text(encoding='utf-8')
+        pairs = re.findall(r'assign\(tokens,\s*ThemeManager::Filter(\w+),\s*'
+                           r'tokens\.value\(ThemeManager::Accent(\w+)\)\)', src)
+        assert pairs, 'no Filter* defaults from Accent* found in theme_token_handler.cpp'
+        rows = {k.lower(): text for k, text in _readme_filter_rows().items()}
+        for suffix, accent in pairs:
+            named = re.findall(r'`(accent\.\w+)`', rows[suffix.lower()])
+            assert named == [f'accent.{accent.lower()}'], suffix
+
+    def test_default_theme_pins_drawn_match_colour(self):
+        '''The wireshark theme pins filter.bookmarkMatch, in both modes, to
+        the colour bookmark-match.svg draws: the classic saved-filter yellow.'''
+        theme_path = THEME_ROOT / 'wireshark' / 'theme.jsonc'
+        theme = json.loads(_strip_jsonc(theme_path.read_text(encoding='utf-8')))
+        pin = theme['filter']['bookmarkMatch']
+        drawn = [m['color'].lower() for m in _svg_map_tokens('bookmark-match.svg')
+                 if m.get('token') == 'FilterBookmarkMatch']
+        assert drawn, 'bookmark-match.svg does not map FilterBookmarkMatch'
+        assert pin['light'].lower() == drawn[0]
+        assert pin['dark'].lower() == drawn[0]
