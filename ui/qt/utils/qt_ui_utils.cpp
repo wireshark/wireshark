@@ -254,15 +254,22 @@ void set_section_title_font(QGroupBox *box)
 {
     // Qt propagates a widget's font to its children, so set the emphasized
     // font on the group box (which renders its title with it), then restore
-    // the body font on the widgets inside so only the title grows.
-    const QFont body_font = explicit_application_font();
-    QFont title_font = body_font;
-    title_font.setBold(true);
-    title_font.setPointSizeF(body_font.pointSizeF() + 2);
-    box->setFont(title_font);
+    // the font each widget inside had so only the title grows. That also
+    // keeps the smaller font of widgets with Qt::WA_MacSmallSize.
     const QList<QWidget *> children = box->findChildren<QWidget *>();
-    for (QWidget *child : children) {
-        child->setFont(body_font);
+    QList<QFont> child_fonts;
+    for (const QWidget *child : children) {
+        QFont font = child->font();
+        font.setWeight(font.weight());
+        font.setPointSizeF(font.pointSizeF());
+        child_fonts.append(font);
+    }
+    QFont title_font = explicit_application_font();
+    title_font.setBold(true);
+    title_font.setPointSizeF(title_font.pointSizeF() + 2);
+    box->setFont(title_font);
+    for (qsizetype i = 0; i < children.size(); i++) {
+        children[i]->setFont(child_fonts[i]);
     }
 }
 

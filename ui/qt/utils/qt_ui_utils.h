@@ -231,8 +231,8 @@ void smooth_font_size(QFont &font);
 
 /**
  * Give a preferences section group box a bold title 2 points larger than
- * the application font, and keep the application font on every widget
- * inside it. Call it after all child widgets exist.
+ * the application font, and keep the font every widget inside it has.
+ * Call it after all child widgets exist and Qt::WA_MacSmallSize is set.
  *
  * @param box The group box.
  */
@@ -240,8 +240,7 @@ void set_section_title_font(QGroupBox *box);
 
 /**
  * Style a hint label: the application font in italic, drawn in the
- * disabled window text color. Call it after set_section_title_font() on
- * the enclosing group box, which would otherwise reset the font.
+ * disabled window text color.
  *
  * @param label The hint label.
  */

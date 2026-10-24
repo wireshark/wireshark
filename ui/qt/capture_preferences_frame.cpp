@@ -18,6 +18,7 @@
 
 #include "capture_preferences_frame.h"
 #include <ui/qt/models/pref_models.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include <ui_capture_preferences_frame.h>
 #include "main_application.h"
@@ -69,6 +70,8 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     QRect geom = ui->defaultInterfaceSpacer->geometry();
     geom.setWidth(margin);
     ui->defaultInterfaceSpacer->setGeometry(geom);
+
+    set_section_title_font(ui->captureGroupBox);
 }
 
 CapturePreferencesFrame::~CapturePreferencesFrame()

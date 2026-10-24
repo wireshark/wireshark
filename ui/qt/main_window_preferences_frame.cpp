@@ -132,6 +132,8 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
 
     connect(ui->languageComboBox, &QComboBox::currentIndexChanged,
         this, &MainWindowPreferencesFrame::languageComboBoxCurrentIndexChanged);
+
+    set_section_title_font(ui->appearanceGroupBox);
 }
 
 MainWindowPreferencesFrame::~MainWindowPreferencesFrame()

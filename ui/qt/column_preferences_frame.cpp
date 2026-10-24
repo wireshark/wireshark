@@ -71,6 +71,8 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
 
     connect(ui->columnTreeView->selectionModel(), &QItemSelectionModel::selectionChanged,
         this, &ColumnPreferencesFrame::selectionChanged);
+
+    set_section_title_font(ui->columnsGroupBox);
 }
 
 ColumnPreferencesFrame::~ColumnPreferencesFrame()

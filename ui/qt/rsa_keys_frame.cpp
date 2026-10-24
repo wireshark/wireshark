@@ -15,6 +15,7 @@
 #include <ui_rsa_keys_frame.h>
 
 #include "ui/qt/widgets/wireshark_file_dialog.h"
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <wsutil/report_message.h>
 #include <epan/prefs.h>
 #include <QMessageBox>
@@ -53,6 +54,8 @@ RsaKeysFrame::RsaKeysFrame(QWidget *parent) :
     ui->keysView->setModel(rsa_keys_model_);
     connect(ui->keysView->selectionModel(), &QItemSelectionModel::currentChanged,
            this, &RsaKeysFrame::keyCurrentChanged);
+
+    set_section_title_font(ui->groupBox);
 }
 #else   /* ! HAVE_LIBGNUTLS */
 RsaKeysFrame::RsaKeysFrame(QWidget *parent) : QFrame(parent) { }

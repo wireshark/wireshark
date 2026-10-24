@@ -44,8 +44,7 @@ FontPreferencesFrame::FontPreferencesFrame(QWidget *parent) :
             this, &FontPreferencesFrame::fontChanged);
 
     // Section title and hints share their styling with the Theme page.
-    // Done after all children exist; the title helper resets the body font
-    // of every child, so the hint styling comes last.
+    // Done after all children exist.
     set_section_title_font(ui->fontGroupBox);
     set_hint_label_style(ui->proportionalHintLabel);
     set_hint_label_style(ui->markerHintLabel);

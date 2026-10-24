@@ -27,6 +27,7 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -349,19 +350,18 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
 
     if (!module) return;
 
-    /* Show the preference's description at the top of the page */
-    QFont font;
-    font.setBold(true);
-    QLabel *label = new QLabel(module->description);
-    label->setFont(font);
-    ui->verticalLayout->addWidget(label);
+    /* Show the preference's description as the title of the page */
+    QGroupBox *box = new QGroupBox(title_to_shortcut(module->description));
+    QVBoxLayout *box_layout = new QVBoxLayout(box);
+    ui->verticalLayout->addWidget(box);
 
     prefSearchData searchData;
-    searchData.layout = ui->verticalLayout;
+    searchData.layout = box_layout;
     searchData.moduleName = module->name;
 
     /* Add items for each of the preferences */
     prefs_pref_foreach(module, pref_show, &searchData);
+    set_section_title_font(box);
 
     foreach (QLineEdit *le, findChildren<QLineEdit *>()) {
         pref_t *pref = VariantPointer<pref_t>::asPtr(le->property(pref_prop_));
