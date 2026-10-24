@@ -454,8 +454,8 @@ static int Pinfo_set_conversation(lua_State *L) {
 
 static int Pinfo_get_conversation(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
-    Conversation conv = find_or_create_conversation(pinfo->ws_pinfo);
-    pushConversation(L, conv);
+    conversation_t *conv = find_or_create_conversation(pinfo->ws_pinfo);
+    push_Conversation(L, conv);
     WSLUA_RETURN(1);
 }
 

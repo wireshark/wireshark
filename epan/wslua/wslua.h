@@ -254,6 +254,12 @@ struct _wslua_private_table {
     bool expired;
 };
 
+/* Conversations are allocated in file scope; see WSLUA_FILE_EXPIRED() */
+struct _wslua_conversation {
+    conversation_t* conv;
+    uint64_t generation; /* The wslua_file_generation in which this was created */
+};
+
 struct _wslua_treeitem {
     proto_item* item;
     proto_tree* tree;
@@ -390,7 +396,7 @@ typedef tvbparse_elem_t* Node;
 typedef tvbparse_action_t* Shortcut;
 typedef struct _wslua_dir* Dir;
 typedef struct _wslua_private_table* PrivateTable;
-typedef conversation_t* Conversation;
+typedef struct _wslua_conversation* Conversation;
 typedef char* Struct;
 
 /*
@@ -402,6 +408,13 @@ typedef char* Struct;
  * WSLUA_CLASS_DEFINE must be used with a trailing ';'
  * (a dummy typedef is used to be syntactically correct)
  */
+/* Incremented whenever wmem_file_scope() is freed, expiring all Lua
+ * objects (such as Conversation) that refer to file scoped memory. */
+extern uint64_t wslua_file_generation;
+
+/* True if an object referring to file scoped memory was created before wmem_file_scope() was last freed. */
+#define WSLUA_FILE_EXPIRED(obj) ((obj)->generation != wslua_file_generation)
+
 #define WSLUA_CLASS_DEFINE(C,check_code) \
     WSLUA_CLASS_DEFINE_BASE(C,check_code,NULL)
 
@@ -705,6 +718,12 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, bo
         luaL_argerror(L,idx,"expired " s); \
     }
 
+#define FAIL_ON_NULL_OR_FILE_EXPIRED(s) if (!*p) { \
+        luaL_argerror(L,idx,"null " s); \
+    } else if (WSLUA_FILE_EXPIRED(*p)) { \
+        luaL_argerror(L,idx,"expired " s); \
+    }
+
 /* Clears or marks references that connects Lua to Wireshark structures */
 #define CLEAR_OUTSTANDING(C, marker, marker_val) void clear_outstanding_##C(void) { \
     while (outstanding_##C->len) { \
@@ -839,6 +858,7 @@ extern void clear_outstanding_Tvb(void);
 extern void clear_outstanding_TvbRange(void);
 
 extern Pinfo* push_Pinfo(lua_State* L, packet_info* p);
+extern Conversation push_Conversation(lua_State* L, conversation_t* conv);
 extern void clear_outstanding_Pinfo(void);
 extern void clear_outstanding_Column(void);
 extern void clear_outstanding_Columns(void);
