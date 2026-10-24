@@ -7765,7 +7765,7 @@ static int dissect_oran_u_section_header(tvbuff_t *tvb, packet_info *pinfo, unsi
                     }
 
                     if (total_gap > 0) {
-                        proto_item *cplane_delta_ti = proto_tree_add_uint(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint32_t)total_gap);
+                        proto_item *cplane_delta_ti = proto_tree_add_uint64(section_tree, hf_oran_corresponding_cplane_frame_time_delta, tvb, 0, 0, (uint64_t)total_gap);
                         proto_item_set_generated(cplane_delta_ti);
                     }
 
@@ -11725,7 +11725,7 @@ proto_register_oran(void)
         /* Time since corresponding C-plane frame for U-plane */
         { &hf_oran_corresponding_cplane_frame_time_delta,
           { "Time since C-plane frame", "oran_fh_cus.cplane-frame-time-delta",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+            FT_UINT64, BASE_DEC, NULL, 0x0,
             "Microseconds since C-plane frame", HFILL}
         },
         /* Corresponding U-plane frame for C-plane */
