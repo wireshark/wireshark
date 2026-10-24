@@ -547,7 +547,7 @@ static void
 decode_sse(proto_tree *ext_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned ext_len, proto_item *ext_len_item)
 {
     uint8_t     msid_len;
-    uint8_t     msid_start_offset;
+    unsigned    msid_start_offset;
     uint8_t     msid_num_digits;
     uint8_t     msid_index;
     char       *msid_digits;
@@ -687,6 +687,10 @@ decode_bcmcs(proto_tree* ext_tree, packet_info *pinfo, tvbuff_t* tvb, unsigned o
                 ext_len   -= 1;
                 entry_len  = 1;
             } else {
+                /* Don't let an entry run past the end of the extension */
+                if (entry_len > ext_len) {
+                    entry_len = (uint8_t)ext_len;
+                }
                 ext_len = ext_len - entry_len;
             }
             entry_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, entry_len,
