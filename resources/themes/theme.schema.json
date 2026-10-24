@@ -135,7 +135,7 @@
         },
 
         "filter": {
-            "description": "Optional filter-validity tint overrides. Every key is independently optional; omitted ones derive from accent + palette.base. `valid`, `invalid`, `deprecated` are bg tints for the filter-edit field. `busy` and `busyText` are the bg + fg used while a capture filter is being compiled off-thread (the legacy GTK behavior, exposed here so themes can pin a more distinct visual than the default placeholder fade). `history` is the resting tint of the recent-filters drop-down arrow (defaults to palette.mid; the arrow brightens on hover/press in the widget). Explicit values let themes ship saturated tints (such as the classic dark-green/dark-red look) that alpha-tinting an accent can never reach.",
+            "description": "Optional filter tint and glyph colour overrides. Every key is independently optional; omitted ones derive from accent + palette.base. `valid`, `invalid`, `deprecated` are bg tints for the filter-edit field. `busy` and `busyText` are the bg + fg used while a capture filter is being compiled off-thread (the legacy GTK behavior, exposed here so themes can pin a more distinct visual than the default placeholder fade). `history` is the resting tint of the recent-filters drop-down arrow (defaults to palette.mid). `bookmark`, `bookmarkCapture`, `bookmarkMatch`, `clear` and `apply` are the glyph colours of the inline filter affordances (display and capture bookmark, the bookmark of a saved filter, the clear glyph on hover/press, the apply arrow), derived from the matching accent when omitted (see README). All filter glyphs, the arrow included, brighten slightly on hover/press and are kept legible against the field. Explicit values let themes ship saturated tints (such as the classic dark-green/dark-red look) that alpha-tinting an accent can never reach.",
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -144,6 +144,11 @@
                 "deprecated": { "$ref": "#/$defs/colorPair" },
                 "busy":       { "$ref": "#/$defs/colorPair" },
                 "busyText":   { "$ref": "#/$defs/colorPair" },
+                "bookmark":        { "$ref": "#/$defs/colorPair" },
+                "bookmarkCapture": { "$ref": "#/$defs/colorPair" },
+                "bookmarkMatch":   { "$ref": "#/$defs/colorPair" },
+                "clear":           { "$ref": "#/$defs/colorPair" },
+                "apply":           { "$ref": "#/$defs/colorPair" },
                 "history":    { "$ref": "#/$defs/colorPair" }
             }
         },

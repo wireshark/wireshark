@@ -130,9 +130,9 @@ Editors that support JSON Schema (VS Code, IntelliJ, etc.) can use it
 for autocompletion and error checking by adding a `$schema` reference
 or configuring the schema association in editor settings.
 
-#### `filter` (optional) — filter-validity tint overrides
+#### `filter` (optional) — filter tint and glyph colour overrides
 
-Five optional subkeys, each a `{light, dark}` pair:
+Optional subkeys, each a `{light, dark}` pair:
 
 | Key          | Purpose |
 |--------------|---------|
@@ -141,9 +141,18 @@ Five optional subkeys, each a `{light, dark}` pair:
 | `deprecated` | Background tint when the filter uses a deprecated field |
 | `busy`       | Background while a capture filter is being compiled off-thread |
 | `busyText`   | Foreground for the busy state (mirrors QLineEdit placeholder fade) |
+| `history`    | Resting tint of the recent-filters drop-down arrow |
+| `bookmark`   | Bookmark glyph of the display filter; default `accent.info` |
+| `bookmarkCapture` | Bookmark glyph of the capture filter; default `accent.success` |
+| `bookmarkMatch` | Bookmark glyph when the current filter is saved; default `accent.warning` |
+| `clear`      | Clear glyph on hover/press (neutral grey at rest); default `accent.error` |
+| `apply`      | Apply arrow; default `accent.info` |
 
-Omitted keys derive from `accent.success` / `accent.error` /
-`accent.warning` / `palette.base` / `palette.text`.  Explicit values let
+Omitted tint keys derive from `accent.success` / `accent.error` /
+`accent.warning` / `palette.base` / `palette.text`; `history` derives
+from `palette.mid`; the glyph keys default to the accent named in their
+row.  Glyphs brighten slightly on hover and are kept at the icon contrast
+ratio against the filter field.  Explicit values let
 themes ship the historical GTK-era saturated dark green / dark red
 look that alpha-tinting an accent can never reach.
 

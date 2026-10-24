@@ -13,7 +13,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <ws:states xmlns:ws="urn:x-wireshark-icon">
-    <ws:swap base="#73d216" active="#8ae234" selected="#4e9a06"/>
+    <ws:map-token color="#73d216" token="FilterBookmarkCapture" active="emphasis" adapt="contrast"/>
   </ws:states>
   <defs
      id="defs1" />

@@ -223,6 +223,12 @@ public:
     static QColor         hoverBg(const QColor &c, const QColor &background);
     static ThemeColorPair hoverBg(const ThemeColorPair &p, const QColor &background);
 
+    /** Hover colour of an icon glyph whose icon names no explicit hover
+     *  colour: `c.lighter(HoverEmphasisFactor)`, a slight brightening
+     *  with the hue kept.  Shared by the theme icon engines so every
+     *  glyph lights up alike. */
+    static QColor         hoverEmphasis(const QColor &c);
+
 private:
     // The ratio values behind ratiosFor().  Private so that every
     // consumer goes through a ContrastRatios set and follows the
@@ -243,6 +249,19 @@ private:
     static constexpr qreal LargeTextRatioHigh = 4.5;
     static constexpr qreal IconContrastRatio = 1.6;
     static constexpr qreal IconContrastRatioHigh = 4.5;
+
+    // Percentage passed to QColor::lighter() by hoverEmphasis().
+    // lighter() multiplies the HSV value by factor / 100, so 115 makes a
+    // glyph about 15% brighter and keeps its hue; a colour already at full
+    // value loses saturation instead and moves toward white.  The step is
+    // small on purpose: hover should read as the same glyph lighting up,
+    // not as a different colour (a 30% mix toward the text colour was
+    // rejected as too dark).  Legibility is not this factor's job: the
+    // contrast-adapting icon engine runs the result through
+    // ensureContrast() against the field afterwards.  An int, not a
+    // qreal, because lighter() takes an integer percentage; the qreal
+    // constants above are contrast ratios only.
+    static constexpr int HoverEmphasisFactor = 115;
 };
 
 #endif /* COLOR_MATH_H */

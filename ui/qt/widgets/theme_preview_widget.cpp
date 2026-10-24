@@ -404,12 +404,17 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     const int   iconH = qMin(14, field.height() - 4);
     const int   pad   = 5;
 
-    // Left affordance: bookmark, tinted to FilterBookmark, on the window bg.
+    // Left affordance: bookmark, painted with FilterBookmark, on the window bg.
     QRect bookmark(field.left() + pad, field.center().y() - iconH / 2, iconH, iconH);
     const QPalette previewPal = previewPalette();
-    ContrastAdaptIcon icon("bookmark-display");
-    icon.setPalette(previewPal);
-    icon.paint(&p, bookmark);
+    // Each glyph paints the previewed theme's own Filter* token, not the live one.
+    auto paintGlyph = [&](const char *name, const QRect &r) {
+        ContrastAdaptIcon glyph(name);
+        glyph.setPalette(previewPal);
+        glyph.setTokenColors(colors_);
+        glyph.paint(&p, r);
+    };
+    paintGlyph("bookmark-display", bookmark);
 
     // Right affordances: apply pill (21:14, aka 3:2), clear ✕, and the history
     // chevron — each tinted to its own Filter* token so the preview surfaces them.
@@ -417,15 +422,9 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     QRect history(field.right() - 4 - iconH, field.center().y() - iconH / 2, iconH, iconH);
     QRect apply(history.left() - 6 - applyW, field.center().y() - iconH / 2, applyW, iconH);
     QRect clear(apply.left() - 4 - iconH,  field.center().y() - iconH / 2, iconH, iconH);
-    icon = ContrastAdaptIcon("filter-clear");
-    icon.setPalette(previewPal);
-    icon.paint(&p, clear);
-    icon = ContrastAdaptIcon("filter-apply");
-    icon.setPalette(previewPal);
-    icon.paint(&p, apply);
-    icon = ContrastAdaptIcon("filter-history");
-    icon.setPalette(previewPal);
-    icon.paint(&p, history);
+    paintGlyph("filter-clear", clear);
+    paintGlyph("filter-apply", apply);
+    paintGlyph("filter-history", history);
 
     // Central green text box, between the two affordance zones — the only part
     // carrying the FilterValid tint.  Text uses the contrasting colour of the

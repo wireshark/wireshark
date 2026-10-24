@@ -34,8 +34,8 @@
  * guarantees the icon stays legible whatever the theme paints behind it.
  * minContrast is the icon ratio of the active contrast level
  * (ColorMath::activeRatios()), so high contrast adapts the drawn colours
- * further.  Colours bound to a theme token (see below) are not adapted at
- * either level.
+ * further.  Colours bound to a theme token (see below) are not adapted unless
+ * the binding asks for it.
  *
  * The background is resolved from QIcon::Mode (see contrast_adapt_icon.cpp for
  * why it must be), so theme/light-dark changes re-render automatically via the
@@ -59,11 +59,19 @@
  * ThemeManager::ThemeToken, by name:
  *
  *   <ws:map-token color="#212121" token="PaletteText"/>
+ *   <ws:map-token color="#4e72a5" token="FilterApply" active="emphasis" adapt="contrast"/>
+ *   <ws:map-token color="#888a85" active="FilterClear" adapt="contrast"/>
  *
- * Every use of that colour is then painted with the token's current theme colour,
- * or the colour given with setTokenColors() (not contrast-adapted), and the
- * mapping wins over a <ws:swap> for the same colour.  Icons that declare nothing
- * simply keep their drawn colours in every mode.
+ * "token" paints every use of that colour with the token's current theme
+ * colour, or the colour given with setTokenColors(), in every mode.
+ * "active" and "selected" bind QIcon::Active / QIcon::Selected only: a
+ * token name, or "emphasis" for a slight brightening of the "token"
+ * colour.  Selected falls back to "active".  Without "token", the other
+ * modes keep the drawn colour, contrast-adapted as usual.  Token colours
+ * are used as-is, unless adapt="contrast" asks for the same contrast
+ * adaptation drawn colours get.  A mapping wins over a <ws:swap> for the
+ * same colour.  Icons that declare nothing simply keep their drawn colours
+ * in every mode.
  */
 class ContrastAdaptIcon : public QIcon
 {

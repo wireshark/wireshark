@@ -45,8 +45,8 @@ CaptureFilterEntry::CaptureFilterEntry(QWidget *parent) :
     completionModel()->addSourceModel(completer->primitivesModel());
     completer->setModel(completionModel());
 
-    // Capture chrome and mode. Green bookmark (distinct from display's blue);
-    // yellow when the filter is saved.
+    // Capture chrome and mode: FilterBookmarkCapture (its own token, distinct
+    // from display), FilterBookmarkMatch when the filter is saved.
     setBookmarkIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/bookmark-capture.svg"), QPalette::Base),
                     ContrastAdaptIcon(QStringLiteral(":/svg_icons/bookmark-match.svg"), QPalette::Base));
     setBookmarkMenuLabels(tr("Saved Capture Filters"),

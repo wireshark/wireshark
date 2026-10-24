@@ -25,6 +25,7 @@
 #include <QPixmapCache>
 #include <QRectF>
 #include <QRegularExpression>
+#include <QStringList>
 #include <QSvgRenderer>
 
 namespace {
@@ -47,6 +48,36 @@ const QRegularExpression &paintColorRe()
     static const QRegularExpression re(
         QStringLiteral("(?:fill|stroke|stop-color)\\s*[:=]\\s*[\"']?\\s*(#[0-9a-fA-F]{3,8})"));
     return re;
+}
+
+// The start tags of every <name ...> element in @p svg, with or without a
+// namespace prefix (<ws:swap ...>, <swap ...>).  The icon engine reads its
+// own elements this way; the SVG renderer ignores them.
+QStringList elementTags(const QString &svg, const QString &name)
+{
+    const QRegularExpression re(QStringLiteral("<[\\w:]*%1\\b[^>]*>")
+                                    .arg(QRegularExpression::escape(name)));
+    QStringList tags;
+    auto it = re.globalMatch(svg);
+    while (it.hasNext())
+        tags << it.next().captured(0);
+    return tags;
+}
+
+// The attributes of one start tag, as name -> value.  Names match exactly,
+// so "base" never matches inside "data-base".  An empty value counts as
+// absent, and the first occurrence of a name wins.
+QHash<QString, QString> elementAttributes(const QString &tag)
+{
+    static const QRegularExpression re(QStringLiteral("([\\w:-]+)\\s*=\\s*\"([^\"]*)\""));
+    QHash<QString, QString> attrs;
+    auto it = re.globalMatch(tag);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch m = it.next();
+        if (!m.captured(2).isEmpty() && !attrs.contains(m.captured(1)))
+            attrs.insert(m.captured(1), m.captured(2));
+    }
+    return attrs;
 }
 
 /**
@@ -112,7 +143,7 @@ public:
                                 .arg(int(state))
                                 .arg(bg.rgba())
                                 .arg(min_contrast)
-                                .arg(tokenSignature())
+                                .arg(tokenSignature(mode, state, bg, min_contrast))
                                 .arg(logical.width())
                                 .arg(logical.height())
                                 .arg(scale);
@@ -190,65 +221,118 @@ private:
 
     void parseSwaps()
     {
-        static const QRegularExpression swapEl(QStringLiteral("<[\\w:]*swap\\b[^>]*>"));
-        static const QRegularExpression baseAttr(QStringLiteral("\\bbase\\s*=\\s*\"([^\"]+)\""));
-        static const QRegularExpression activeAttr(QStringLiteral("\\bactive\\s*=\\s*\"([^\"]+)\""));
-        static const QRegularExpression selectedAttr(QStringLiteral("\\bselected\\s*=\\s*\"([^\"]+)\""));
-        static const QRegularExpression normal_onAttr(QStringLiteral("\\bnormal-on\\s*=\\s*\"([^\"]+)\""));
-
-        auto it = swapEl.globalMatch(svg_);
-        while (it.hasNext()) {
-            const QString el = it.next().captured(0);
-            const QRegularExpressionMatch bm = baseAttr.match(el);
-            const QColor base = bm.hasMatch() ? QColor(bm.captured(1)) : QColor();
+        const QStringList tags = elementTags(svg_, QStringLiteral("swap"));
+        for (const QString &tag : tags) {
+            const QHash<QString, QString> attrs = elementAttributes(tag);
+            const QColor base(attrs.value(QStringLiteral("base")));
             if (!base.isValid())
                 continue;
+            // An absent attribute gives an invalid colour: no swap for that state.
             StateColors sc;
-            const QRegularExpressionMatch am = activeAttr.match(el);
-            const QRegularExpressionMatch sm = selectedAttr.match(el);
-            const QRegularExpressionMatch nom = normal_onAttr.match(el);
-            if (am.hasMatch())
-                sc.active = QColor(am.captured(1));
-            if (sm.hasMatch())
-                sc.selected = QColor(sm.captured(1));
-            if (nom.hasMatch())
-                sc.normal_on = QColor(nom.captured(1));
+            sc.active = QColor(attrs.value(QStringLiteral("active")));
+            sc.selected = QColor(attrs.value(QStringLiteral("selected")));
+            sc.normal_on = QColor(attrs.value(QStringLiteral("normal-on")));
             // Key on the canonical #rrggbb form so it matches the drawn literal
             // regardless of how either was spelled.
             swaps_.insert(base.name(), sc);
         }
     }
 
+    // How a <ws:map-token> binding paints its colour in Active or Selected
+    // mode: a token, or "emphasis" (ColorMath::hoverEmphasis() of the binding's
+    // "token" colour).  Neither set: the mode is not bound.
+    struct ModeBinding {
+        ThemeManager::ThemeToken token = ThemeManager::NoRole;
+        bool emphasis = false;
+        bool isSet() const { return emphasis || token != ThemeManager::NoRole; }
+    };
+
+    // One <ws:map-token> element.  "token" binds the colour in every mode;
+    // "active"/"selected" bind it in that mode only and win over "token"
+    // there; Selected falls back to "active".  "adapt" guards the painted
+    // colour for contrast like a drawn colour.
+    struct TokenBinding {
+        ThemeManager::ThemeToken token = ThemeManager::NoRole;
+        ModeBinding active;
+        ModeBinding selected;
+        bool adapt = false;
+
+        ModeBinding forMode(QIcon::Mode mode) const
+        {
+            if (mode == QIcon::Active)
+                return active;
+            if (mode == QIcon::Selected)
+                return selected.isSet() ? selected : active;
+            return ModeBinding();
+        }
+    };
+
+    // A token named as in the ThemeManager::ThemeToken enum, with an optional
+    // "ThemeToken:" / "ThemeManager::" style prefix.
+    static ThemeManager::ThemeToken tokenNamed(QString name)
+    {
+        name = name.mid(name.lastIndexOf(QLatin1Char(':')) + 1);
+        return ThemeManager::tokenFromName(name);
+    }
+
+    // Parse an "active"/"selected" value into @p mb.  False when it names
+    // neither "emphasis" nor a known token.
+    static bool parseModeBinding(const QString &value, ModeBinding *mb)
+    {
+        if (value == QLatin1String("emphasis")) {
+            mb->emphasis = true;
+            return true;
+        }
+        mb->token = tokenNamed(value);
+        return mb->token != ThemeManager::NoRole;
+    }
+
     // Colours an icon may bind to a ThemeManager token, via a
     // <ws:map-token color="#212121" token="PaletteText"/> element (ignored by the
-    // SVG renderer).  The token is named as in the ThemeManager::ThemeToken enum.
-    // Every drawn occurrence of "color" is painted with the token's current theme
-    // colour instead, in all modes.  The token's colour is the theme's own choice
-    // for that role, so it is used as-is rather than contrast-adapted, and takes
-    // precedence over a <ws:swap> for the same colour.
+    // SVG renderer).  Tokens are named as in the ThemeManager::ThemeToken enum.
+    // "token" paints every drawn occurrence of "color" with the token's current
+    // theme colour in every mode.  "active" and "selected" bind one mode only
+    // (a token name, or "emphasis" for a slight brightening of the "token"
+    // colour); Selected falls back to "active".  Without "token", the other
+    // modes keep the drawn colour, swapped and adapted like an unbound colour.
+    // Token colours are used as-is, unless adapt="contrast" asks for the same
+    // contrast adaptation drawn colours get.  A mapping wins over a <ws:swap>
+    // for the same colour.
     void parseTokenMaps()
     {
-        static const QRegularExpression mapEl(QStringLiteral("<[\\w:]*map-token\\b[^>]*>"));
-        static const QRegularExpression colorAttr(QStringLiteral("\\bcolor\\s*=\\s*\"([^\"]+)\""));
-        static const QRegularExpression tokenAttr(QStringLiteral("\\btoken\\s*=\\s*\"([^\"]+)\""));
-
-        auto it = mapEl.globalMatch(svg_);
-        while (it.hasNext()) {
-            const QString el = it.next().captured(0);
-            const QRegularExpressionMatch cm = colorAttr.match(el);
-            const QRegularExpressionMatch tm = tokenAttr.match(el);
-            if (!cm.hasMatch() || !tm.hasMatch())
-                continue;
-            const QColor color = QColor(cm.captured(1));
+        const QStringList tags = elementTags(svg_, QStringLiteral("map-token"));
+        for (const QString &tag : tags) {
+            const QHash<QString, QString> attrs = elementAttributes(tag);
+            const QColor color(attrs.value(QStringLiteral("color")));
             if (!color.isValid())
                 continue;
-            // Accept an optional "ThemeToken:" / "ThemeManager::" style prefix.
-            QString name = tm.captured(1);
-            name = name.mid(name.lastIndexOf(QLatin1Char(':')) + 1);
-            const ThemeManager::ThemeToken token = ThemeManager::tokenFromName(name);
-            if (token == ThemeManager::NoRole)
+            // Any attribute naming something unknown drops the whole element,
+            // so a misspelling paints the drawn colour rather than half a binding.
+            TokenBinding b;
+            bool ok = true;
+            const QString token = attrs.value(QStringLiteral("token"));
+            if (!token.isEmpty()) {
+                b.token = tokenNamed(token);
+                ok = b.token != ThemeManager::NoRole;
+            }
+            const QString active = attrs.value(QStringLiteral("active"));
+            if (ok && !active.isEmpty())
+                ok = parseModeBinding(active, &b.active);
+            const QString selected = attrs.value(QStringLiteral("selected"));
+            if (ok && !selected.isEmpty())
+                ok = parseModeBinding(selected, &b.selected);
+            const QString adapt = attrs.value(QStringLiteral("adapt"));
+            if (ok && !adapt.isEmpty()) {
+                b.adapt = adapt == QLatin1String("contrast");
+                ok = b.adapt;
+            }
+            // "emphasis" brightens the "token" colour, so it needs one.
+            if ((b.active.emphasis || b.selected.emphasis) && b.token == ThemeManager::NoRole)
+                ok = false;
+            if (!ok || (b.token == ThemeManager::NoRole && !b.active.isSet() && !b.selected.isSet()))
                 continue;
-            token_maps_.insert(color.name(), token);
+            // Key on the canonical #rrggbb form, like parseSwaps().
+            token_maps_.insert(color.name(), b);
         }
     }
 
@@ -265,25 +349,39 @@ private:
         return resolveIconToken(token, iconPalettePtr(palette_));
     }
 
-    // Folded into the pixmap cache key so a theme change that alters a mapped
-    // token's colour (without altering the background) still misses the cache.
-    quint32 tokenSignature() const
+    // Folded into the pixmap cache key so a theme change that alters the
+    // colour a binding paints in this mode (without altering the background)
+    // still misses the cache.
+    quint32 tokenSignature(QIcon::Mode mode, QIcon::State state, const QColor &bg,
+                           qreal min_contrast) const
     {
         quint32 sig = 0;
         for (auto it = token_maps_.cbegin(); it != token_maps_.cend(); ++it)
-            sig ^= qHash(it.key()) ^ quint32(tokenColor(it.value()).rgba());
+            sig ^= qHash(it.key())
+                   ^ quint32(finalColor(QColor(it.key()), mode, state, bg, min_contrast).rgba());
         return sig;
     }
 
     // Resolve a drawn colour to what should actually be painted: swap to the
     // declared per-state colour when one exists for this mode, then adapt that
-    // for contrast against the mode's background.
+    // for contrast against the mode's background.  A mapped colour paints its
+    // token for this mode (guarded only with adapt="contrast").
     QColor finalColor(const QColor &base, QIcon::Mode mode, QIcon::State state,
                       const QColor &bg, qreal min_contrast) const
     {
         const auto mapped = token_maps_.constFind(base.name());
-        if (mapped != token_maps_.constEnd())
-            return tokenColor(mapped.value());
+        if (mapped != token_maps_.constEnd()) {
+            const TokenBinding &b = mapped.value();
+            const ModeBinding mb = b.forMode(mode);
+            QColor c;
+            if (mb.token != ThemeManager::NoRole)
+                c = tokenColor(mb.token);
+            else if (b.token != ThemeManager::NoRole)
+                c = mb.emphasis ? ColorMath::hoverEmphasis(tokenColor(b.token)) : tokenColor(b.token);
+            if (c.isValid())
+                return b.adapt ? ColorMath::ensureContrast(c, bg, min_contrast) : c;
+            // No token binds this mode: paint the drawn colour below.
+        }
 
         QColor src = base;
         const auto it = swaps_.constFind(base.name());
@@ -345,7 +443,7 @@ private:
     IconPaletteRef palette_;
     IconTokenColorsRef token_colors_;
     QHash<QString, StateColors> swaps_;
-    QHash<QString, ThemeManager::ThemeToken> token_maps_;
+    QHash<QString, TokenBinding> token_maps_;
 };
 
 } // namespace

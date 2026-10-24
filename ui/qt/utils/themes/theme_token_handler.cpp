@@ -341,9 +341,9 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
 
     // The recent-filters arrow reads as a subtle disclosure caret at rest, so it
     // defaults to palette.mid (a mode-aware gray) rather than a saturated accent.
-    // It brightens to a strong colour on hover/press, supplied per-mode by the
-    // button's ThemedIcon; this token only sets the resting tint.  The default
-    // theme pins fixed grays via theme.filter.history.
+    // It lightens slightly on hover/press (the emphasis binding in
+    // filter-history.svg, contrast-guarded); this token only sets the resting
+    // tint.  The default theme pins fixed grays via theme.filter.history.
     {
         const QColor midGray = pickPaletteValue(tokens, ThemeManager::PaletteMid, QPalette::Mid, isDarkMode, palette);
         assign(tokens, ThemeManager::FilterHistory, ThemeColorPair { midGray, midGray });
