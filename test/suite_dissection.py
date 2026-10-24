@@ -3428,6 +3428,35 @@ class TestDissectTns:
             ['', '', '4', '1', ''],
         ], rows
 
+    def test_tns_oci_binds(self, cmd_tshark, capture_file, test_env):
+        '''An OCI client's execute carries a fixed-width descriptor per
+        bind, 49 bytes from 12c and 41 before, and the row of values. A
+        bind with a buffer wider than 4000 bytes sends its value last, an
+        NCHAR value is UTF-16, and a repeated name sends none.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_binds.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-T', 'fields',
+            '-e', 'tns.data_col.type',
+            '-e', 'tns.data_col.max_length',
+            '-e', 'tns.data_col.csform',
+            '-e', 'tns.data_bind.oci_flags.repeat',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        six = ['1,1,96,96,1,2', '21,12000,39,10,18,22', '1,1,1,2,2,0',
+               'False,False,False,False,False,False', '']
+        assert rows == [six, six, ['2,2', '22,0', '0,0', 'False,True', '']], rows
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_binds.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-O', 'tns',
+        ), encoding='utf-8', env=test_env)
+        values = [line.strip() for line in stdout.splitlines() if line.strip().startswith('Bind ') and '(' in line]
+        six = ['Bind 1 (VARCHAR): abc', 'Bind 3 (CHAR): ij', 'Bind 4 (CHAR): ?',
+               'Bind 5 (VARCHAR): ?', 'Bind 6 (NUMBER): 42', 'Bind 2 (VARCHAR): defgh']
+        assert values == six + six + ['Bind 1 (NUMBER): 42'], values
+
     def test_tns_array_binds(self, cmd_tshark, capture_file, test_env):
         '''An associative-array bind's value is an element count and the
         elements, in the request and in the OUT reply alike.'''
