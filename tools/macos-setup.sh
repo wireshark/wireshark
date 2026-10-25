@@ -223,8 +223,8 @@ else
     #
     PYTHON3_VERSION=3.12.1
 fi
-BROTLI_VERSION=1.0.9
-# minizip
+BROTLI_VERSION=1.2.1
+# minizip/minizipng
 MINIZIPNG_VERSION=4.0.7
 ZLIB_VERSION=1.3
 # Uncomment to enable automatic updates using Sparkle
