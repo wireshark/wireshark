@@ -362,6 +362,13 @@ ${OrIf} ${AtMostWin2012R2}
   Quit
 ${EndIf}
 
+${IfNot} ${AtLeastBuild} 14393
+  MessageBox MB_OK \
+    "Windows 10 versions before 1607 are no longer supported.$\nPlease install ${PROGRAM_NAME} 4.2 instead." \
+    /SD IDOK
+  Quit
+${EndIf}
+
 !insertmacro IsWiresharkRunning
 
   ; Default control values.
