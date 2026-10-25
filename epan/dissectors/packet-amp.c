@@ -125,6 +125,7 @@ static const value_string opcode[] = {
     { 0, "Register Agent" },
     { 1, "Report Set" },
     { 2, "Perform Control" },
+    { 3, "Table Set" },
     { 0, NULL }
 };
 
@@ -340,7 +341,6 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, uns
     unsigned int numTNVCEntries = 0;
 
     proto_tree *amp_tree = NULL;
-    proto_tree *amp_items_tree = NULL;
     proto_tree *amp_register_tree = NULL;
     proto_tree *amp_report_set_tree = NULL;
     proto_tree *amp_report_tree = NULL;
@@ -439,7 +439,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, uns
 
             // How many reports?
             tmpObj2 = cbor_info(tvb, offset); // Should come back a CBOR array of some size
-            offset += tmpObj.size;
+            offset += tmpObj2.size;
 
             for ( j=0; j<tmpObj2.uint; j++ ) {
                 // Internals of each report per section 8.4.7 of https://tools.ietf.org/pdf/draft-birrane-dtn-amp-07.pdf
@@ -478,7 +478,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, uns
                 }
                 //proto_tree_add_uint(amp_ari_tree, hf_ari_struct, tvb, offset, 1, ariFlags);
 
-                if ( (ariFlags & 0x0F) != 0x03 )
+                if ( (ariFlags & 0x0F) != 0x03 && tmpObj3.uint > 0 )
                 {
                     // ARI is NOT Literal
                     proto_tree_add_item(amp_report_tree, hf_amp_report_bytestring, tvb, offset+1, (int) tmpObj3.uint-1, ENC_NA);
@@ -530,7 +530,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, uns
                 }
 
                 // TNVC data items
-                for ( k=0; k<numTNVCEntries-2; k++ ) {
+                for ( k=0; k+2<numTNVCEntries; k++ ) {
                     tmpObj3 = cbor_info(tvb, offset);
                     switch ( tmpObj3.type ) {
                     case 0x02: // bytestring
@@ -568,12 +568,15 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, uns
                         proto_tree_add_item(amp_report_TNVC_tree, hf_amp_report_data, tvb, offset+tmpObj3.size, (int) tmpObj3.uint, 0x00);
                         break;
                     }
-                    if ( tmpObj3.totalSize > 0 ) {
-                        DISSECTOR_ASSERT(tmpObj3.totalSize <= INT32_MAX);
-                        offset += (int)tmpObj3.totalSize;
-                    } else {
+                    if ( tmpObj3.totalSize == 0 ) {
                         break;
                     }
+                    /* Arrays have no known size, and a string length can exceed the packet */
+                    if ( tmpObj3.totalSize > tvb_reported_length_remaining(tvb, offset) ) {
+                        proto_tree_add_expert_remaining(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset);
+                        return;
+                    }
+                    offset += (unsigned)tmpObj3.totalSize;
                 }
 
             }
@@ -589,8 +592,8 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, uns
 
         case 0x03: // Table Set
             // TODO
-            //amp_table_sub_tree = proto_item_add_subtree(amp_items_tree, ett_amp);
-            amp_table_tree = proto_tree_add_subtree(amp_items_tree, tvb, offset, -1,
+            //amp_table_sub_tree = proto_item_add_subtree(amp_message_tree, ett_amp);
+            amp_table_tree = proto_tree_add_subtree(amp_message_tree, tvb, offset-1, -1,
                                             ett_amp_message, &amp_message, "AMP Message: Table-Set");
             proto_tree_add_item(amp_table_tree, hf_amp_cbor_header, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
