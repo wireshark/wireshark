@@ -178,10 +178,14 @@ def features(cmd_tshark, make_env):
         tshark_v = ''
     gcry_m = re.search(r'\+Gcrypt +([0-9]+)\.([0-9]+)', tshark_v)
     gcry_ver = (int(gcry_m.group(1)),int(gcry_m.group(2)))
+    lua_versions = [tuple(map(int, version)) for version in
+                    re.findall(r'\+Lua (\d+)\.(\d+)\.(\d+)', tshark_v)]
     return types.SimpleNamespace(
         have_x64='Compiler info: 64-bit' in tshark_v,
         have_lua='+Lua' in tshark_v,
         have_lua_unicode='(UfW patched)' in tshark_v,
+        # wslua uses generational garbage collection with Lua 5.4.5 and later
+        have_lua_gc_generational=bool(lua_versions) and min(lua_versions) >= (5, 4, 5),
         have_nghttp2='+nghttp2' in tshark_v,
         have_nghttp3='+nghttp3' in tshark_v,
         have_kerberos='+Kerberos' in tshark_v,
