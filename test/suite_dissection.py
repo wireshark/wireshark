@@ -4633,3 +4633,77 @@ class TestDissectAcn:
             [[str(u) for u in range(1, 17)], [str(u) for u in range(17, 33)],
              [str(u) for u in range(33, 40)]],
         ]
+
+
+AJP13_OPTS = ('-d', 'tcp.port==8009,ajp13')  # 8009 is nvme-tcp by default
+
+
+class TestDissectAjp13:
+    def test_ajp13_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, method, coded and named header and request
+        attribute decodes without malformed packets, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *AJP13_OPTS,
+                '-r', capture_file('ajp13_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('AJP13') == 111
+        assert protocols.count('TCP') == 30
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *AJP13_OPTS, *passes,
+                    '-r', capture_file('ajp13_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ajp13_large_query_string(self, cmd_tshark, capture_file, test_env):
+        '''A request with a 31000 octet URI and 11000 null query_string
+        attributes decodes. It used to keep a copy of the URI for each
+        attribute, about 1.4 GB.'''
+        stdout = subprocess.check_output((cmd_tshark, *AJP13_OPTS,
+                '-r', capture_file('ajp13_coverage.pcap.gz'),
+                '-Y', 'ajp13.query_string',
+                '-Tfields', '-eframe.number', '-eajp13.uri',
+                '-e', 'ajp13.query_string', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == ['4', '58', '137']
+        number, uri, query_strings = frames[2]
+        assert uri.endswith('/big')
+        assert query_strings == '|' * 10999
+
+    def test_ajp13_export_objects(self, cmd_tshark, capture_file, features, test_env, tmp_path):
+        '''Request and response bodies are reassembled and exported,
+        uncompressed, and the query string is appended to the URI once.'''
+        export_dir = tmp_path / 'export'
+        export_dir.mkdir()
+        subprocess.check_call((cmd_tshark, *AJP13_OPTS,
+                '-r', capture_file('ajp13_coverage.pcap.gz'),
+                '-q', '--export-objects', f'ajp13,{export_dir}',
+            ), env=test_env)
+        text = b'The quick brown fox jumps over the lazy servlet. ' * 8
+        files = {p.name: p.read_bytes() for p in export_dir.iterdir()}
+        assert sorted(files) == [
+            'bad.txt', 'big%3f', 'c.txt', 'd.txt', 'form%3fa=1&b=2', 'form%3fa=1&b=2(1)',
+            'index.html%3fq=all&x=1', 'items(1).json', 'items.json',
+            'object118.text%2fplain', 'raw', 'raw(1)', 'z.txt',
+        ]
+        # The large request: a single "?" for the 11000 empty query strings
+        assert files['big%3f'] == b'big response\n'
+        # Request body over three body packets
+        assert files['form%3fa=1&b=2'] == b'name=alice&city=springfield&x=1'
+        # gzip response over three chunks and four segments, deflate,
+        # x-gzip, x-deflate and an unknown encoding
+        assert files['form%3fa=1&b=2(1)'] == text
+        assert files['d.txt'] == text
+        assert files['c.txt'] == text
+        assert files['raw'] == text
+        assert files['items.json'] == files['items(1).json']
+        assert files['items.json'].startswith(b'{"items":[{"id":0},')
+        # Data that is not gzip is exported as it is
+        assert files['bad.txt'] == b'this is not gzip data'
+        if features.have_brotli:
+            assert files['raw(1)'] == text
+        if features.have_zstd:
+            assert files['z.txt'] == text[:200]
