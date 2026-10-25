@@ -205,6 +205,10 @@ static port_type exp_pdu_port_type_to_ws_port_type(uint32_t type)
         return PT_IBQP;
     case EXP_PDU_PT_BLUETOOTH:
         return PT_BLUETOOTH;
+    case EXP_PDU_PT_IWARP_MPA:
+        return PT_IWARP_MPA;
+    case EXP_PDU_PT_MCTP:
+        return PT_MCTP;
     case EXP_PDU_PT_EXCHG:
     case EXP_PDU_PT_TIPC:
     case EXP_PDU_PT_TDMOP:
@@ -214,7 +218,6 @@ static port_type exp_pdu_port_type_to_ws_port_type(uint32_t type)
         break;
     }
 
-    DISSECTOR_ASSERT(false);
     return PT_NONE;
 }
 
@@ -272,6 +275,75 @@ dissect_3gpp_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tag_tree, int off
     }
 }
 
+/* The length a tag must have at least, for the tags of a fixed size */
+static unsigned
+exp_pdu_tag_min_len(uint32_t tag)
+{
+    switch (tag) {
+    case EXP_PDU_TAG_DVBCI_EVT:
+        return 1;
+    case EXP_PDU_TAG_TCP_INFO_DATA:
+        return 2;
+    case EXP_PDU_TAG_IPV4_SRC:
+    case EXP_PDU_TAG_IPV4_DST:
+    case EXP_PDU_TAG_PORT_TYPE:
+    case EXP_PDU_TAG_SRC_PORT:
+    case EXP_PDU_TAG_DST_PORT:
+    case EXP_PDU_TAG_ORIG_FNO:
+    case EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL:
+    case EXP_PDU_TAG_P2P_DIRECTION:
+    case EXP_PDU_TAG_LINK_DIRECTION:
+        return 4;
+    case EXP_PDU_TAG_SS7_OPC:
+    case EXP_PDU_TAG_SS7_DPC:
+        return 7;
+    case EXP_PDU_TAG_IPV6_SRC:
+    case EXP_PDU_TAG_IPV6_DST:
+        return 16;
+    default:
+        return 0;
+    }
+}
+
+static int
+compare_handle_name(const void *a, const void *b)
+{
+    return g_strcmp0(dissector_handle_get_dissector_name((dissector_handle_t)a), (const char *)b);
+}
+
+static void
+find_tcp_heur_protocol(const char *table_name _U_, struct heur_dtbl_entry *entry, void *user_data)
+{
+    int *proto_id = (int *)user_data;
+
+    if (entry->protocol && proto_get_id(entry->protocol) == *proto_id)
+        *proto_id = -1;
+}
+
+/*
+ * The TCP information tag is only valid for a dissector that TCP calls,
+ * which expects a struct tcpinfo; any other dissector would read it as
+ * a structure of its own. TCP calls the dissectors of its port table,
+ * and conversation dissectors, which are set by its heuristic
+ * dissectors (PROXY, for example).
+ */
+static bool
+handle_takes_tcpinfo(dissector_handle_t handle)
+{
+    const char *name = dissector_handle_get_dissector_name(handle);
+    int proto_id;
+
+    if (name && g_slist_find_custom(dissector_table_get_dissector_handles(find_dissector_table("tcp.port")),
+                                    name, compare_handle_name))
+        return true;
+
+    proto_id = dissector_handle_get_protocol_index(handle);
+    if (proto_id == -1)
+        return false;
+    heur_dissector_table_foreach("tcp", find_tcp_heur_protocol, &proto_id);
+    return proto_id == -1;
+}
+
 /* Code to actually dissect the packets */
 static int
 dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -294,7 +366,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     uint32_t dvb_ci_dir;
     uint32_t dissector_table_val=0;
     dissector_table_t dis_tbl;
-    void* dissector_data = NULL;
+    struct tcpinfo *tcpdata = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Exported PDU");
 
@@ -309,6 +381,12 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         proto_tree_add_item_ret_uint16(tag_tree, hf_exported_pdu_tag_len, tvb, offset, 2, ENC_BIG_ENDIAN, &tag_len);
         proto_item_set_len(ti, 4 + tag_len);
         offset+=2;
+
+        if (tag_len < exp_pdu_tag_min_len(tag)) {
+            proto_tree_add_expert(tag_tree, pinfo, &ei_exported_pdu_unexpected_tag_length, tvb, offset, tag_len);
+            offset += tag_len;
+            continue;
+        }
 
         switch(tag) {
             case EXP_PDU_TAG_DISSECTOR_NAME:
@@ -407,13 +485,17 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 break;
             case EXP_PDU_TAG_TCP_INFO_DATA:
                 {
-                struct tcpinfo* tcpdata = wmem_new0(pinfo->pool, struct tcpinfo);
                 uint32_t u32;
+
+                tcpdata = wmem_new0(pinfo->pool, struct tcpinfo);
 
                 item = proto_tree_add_item(tag_tree, hf_exported_pdu_dissector_data, tvb, offset, tag_len, ENC_NA);
 
                 proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_ddata_version, tvb, offset, 2, ENC_BIG_ENDIAN, &u32);
-                if (u32 == 1) {
+                if (u32 == 1 && tag_len < 19) {
+                    proto_tree_add_expert(tag_tree, pinfo, &ei_exported_pdu_unexpected_tag_length, tvb, offset, tag_len);
+                }
+                else if (u32 == 1) {
                     /* Keep old bytes-only field, but hide it */
                     proto_item_set_hidden(item);
 
@@ -426,7 +508,6 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     proto_tree_add_item_ret_uint(tag_tree, hf_exported_pdu_ddata_urgent_pointer, tvb, offset+17, 2, ENC_BIG_ENDIAN, &u32);
                     tcpdata->urgent_pointer = u32;
 
-                    dissector_data = tcpdata;
                 }
                 else { /* Only version 1 is currently supported */
                     proto_tree_add_expert(tag_tree, pinfo, &ei_exported_pdu_unsupported_version, tvb, offset, tag_len);
@@ -456,7 +537,9 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             case EXP_PDU_TAG_3GPP_UE_ID:
             {
                 const uint8_t *id_type, *id_value;
-                int type_sz = (int)tvb_strsize(tvb, offset);
+                /* The type ends with a null, inside the tag */
+                int type_sz = tvb_strnlen(tvb, offset, tag_len);
+                type_sz = (type_sz == -1) ? tag_len : type_sz + 1;
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_3gpp_ue_id_type, tvb, offset, type_sz, ENC_UTF_8 | ENC_NA, pinfo->pool, &id_type);
                 proto_tree_add_item_ret_string(tag_tree, hf_exported_pdu_3gpp_ue_id_value, tvb, offset + type_sz, tag_len - type_sz, ENC_UTF_8 | ENC_NA, pinfo->pool, &id_value);
                 if (strcmp((const char*)id_type, "IMSI") == 0)
@@ -479,6 +562,11 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item_set_len(exported_pdu_ti, offset);
 
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
+
+    /* TCP dissectors expect TCP information, even when the tag is missing */
+    if (tcpdata == NULL) {
+        tcpdata = wmem_new0(pinfo->pool, struct tcpinfo);
+    }
     proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_exported_pdu, payload_tvb, 0, -1, ENC_NA);
 
     switch(next_proto_type) {
@@ -491,7 +579,8 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 if (!col_info_str) {
                     col_clear(pinfo->cinfo, COL_INFO);
                 }
-                call_dissector_with_data(proto_handle, payload_tvb, pinfo, tree, dissector_data);
+                call_dissector_with_data(proto_handle, payload_tvb, pinfo, tree,
+                        handle_takes_tcpinfo(proto_handle) ? tcpdata : NULL);
             }
             break;
         case EXPORTED_PDU_NEXT_HEUR_DISSECTOR_STR:
@@ -504,21 +593,24 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 if (!col_info_str) {
                     col_clear(pinfo->cinfo, COL_INFO);
                 }
-                call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree, dissector_data);
+                call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree,
+                        g_strcmp0(heur_diss->list_name, "tcp") == 0 ? tcpdata : NULL);
             }
             break;
         }
         case EXPORTED_PDU_NEXT_DIS_TABLE_STR:
         {
             dis_tbl = find_dissector_table(dissector_table);
-            if (dis_tbl) {
+            /* Only integer tables can be looked up with the value tag */
+            if (dis_tbl && FT_IS_UINT(dissector_table_get_type(dis_tbl))) {
                 if (!col_proto_str) {
                     col_clear(pinfo->cinfo, COL_PROTOCOL);
                 }
                 if (!col_info_str) {
                     col_clear(pinfo->cinfo, COL_INFO);
                 }
-                dissector_try_uint_with_data(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, true, dissector_data);
+                dissector_try_uint_with_data(dis_tbl, dissector_table_val, payload_tvb, pinfo, tree, true,
+                        strcmp(dissector_table, "tcp.port") == 0 ? tcpdata : NULL);
             }
         }
         default:
