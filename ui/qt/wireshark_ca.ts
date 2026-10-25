@@ -1740,6 +1740,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
         <translation>Trama</translation>
     </message>
     <message>
+        <source>Capture</source>
+        <translation type="unfinished">Captura</translation>
+    </message>
+    <message>
         <source>Default interface</source>
         <translation>Interfície per defecte</translation>
     </message>
@@ -2056,6 +2060,10 @@ Per exemple, si es tria un interval d&apos;una hora, es crearà un fitxer cada h
     <message>
         <source>Frame</source>
         <translation>Trama</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation type="unfinished">Columnes</translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -4454,11 +4462,11 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Main window font:</source>
-        <translation>Font de la finestra principal</translation>
+        <translation type="vanished">Font de la finestra principal</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation>Tria una font</translation>
+        <translation type="vanished">Tria una font</translation>
     </message>
     <message>
         <source>Theme</source>
@@ -4475,11 +4483,11 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation>Exemple de paquets de sol·licitud GIF que tenen mides de finestra enormes</translation>
+        <translation type="vanished">Exemple de paquets de sol·licitud GIF que tenen mides de finestra enormes</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation>Els teixons mandrosos mouen paquets únics de meduses ceroses</translation>
+        <translation type="vanished">Els teixons mandrosos mouen paquets únics de meduses ceroses</translation>
     </message>
     <message>
         <source>System</source>
@@ -4507,7 +4515,121 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Font</translation>
+        <translation type="vanished">Font</translation>
+    </message>
+</context>
+<context>
+    <name>FontPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">Trama</translation>
+    </message>
+    <message>
+        <source>Monospace font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Used by the packet list, packet details, packet bytes and other text views.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 is not a monospaced font. Hex bytes and aligned columns will not line up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionDialog</name>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished">Font</translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionWidget</name>
+    <message>
+        <source>&amp;Family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>St&amp;yle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font sizes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show only &amp;monospaced fonts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stri&amp;keout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Underline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Example GIF query packets have jumbo window sizes</source>
+        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
+        <translation type="unfinished">Exemple de paquets de sol·licitud GIF que tenen mides de finestra enormes</translation>
+    </message>
+    <message>
+        <source>Lazy badgers move unique waxy jellyfish packets</source>
+        <translation type="unfinished">Els teixons mandrosos mouen paquets únics de meduses ceroses</translation>
+    </message>
+    <message>
+        <source>(Platform default)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (not installed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No matching font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Per defecte</translation>
     </message>
 </context>
 <context>
@@ -5057,6 +5179,14 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
         <translation>Commuta entre escala lineal o logarítmica a l&apos;eix de les Y</translation>
+    </message>
+    <message>
+        <source>EWMA moving average</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Moving Average algorithm between EWMA and SMA</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -7202,7 +7332,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation>Configuració de la llista de paquets:</translation>
+        <translation type="vanished">Configuració de la llista de paquets:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -7230,7 +7360,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation>Configuració de la barra d&apos;estat:</translation>
+        <translation type="vanished">Configuració de la barra d&apos;estat:</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
@@ -7243,6 +7373,10 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Packet list multi-color display mode:</source>
         <translation>Mode de colors de la visualització de les llistes de paquets:</translation>
+    </message>
+    <message>
+        <source>Pane Layout</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Off</source>
@@ -7299,6 +7433,14 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Display multiple colors in packet details</source>
         <translation>Mostra múltiples colors als detalls dels paquets.</translation>
+    </message>
+    <message>
+        <source>Show disabled coloring rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status Bar</source>
+        <translation type="unfinished">Barra d&apos;estat</translation>
     </message>
 </context>
 <context>
@@ -8564,6 +8706,10 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <message>
         <source>Frame</source>
         <translation>Trama</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation type="unfinished">Aparença</translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
@@ -10194,6 +10340,10 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Advanced</source>
+        <translation type="unfinished">Avançat</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Cerca:</translation>
     </message>
@@ -10241,7 +10391,11 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     </message>
     <message>
         <source>Theme and Font</source>
-        <translation>Tema i tipus de lletra</translation>
+        <translation type="vanished">Tema i tipus de lletra</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation type="unfinished">Tema</translation>
     </message>
     <message>
         <source>Welcome Page</source>
@@ -10266,6 +10420,10 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     <message>
         <source>Aggregation</source>
         <translation>Agregació</translation>
+    </message>
+    <message>
+        <source>Fonts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10684,16 +10842,24 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
         <translation>Regles d&apos;acoloriment...</translation>
     </message>
     <message>
+        <source>Enable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resume Coloring Rule</source>
-        <translation>Posa la regla d&apos;acoloriment en marxa</translation>
+        <translation type="vanished">Posa la regla d&apos;acoloriment en marxa</translation>
     </message>
     <message>
         <source>Pause Coloring Rule</source>
-        <translation>Posa la regla d&apos;acoloriment en pausa</translation>
+        <translation type="vanished">Posa la regla d&apos;acoloriment en pausa</translation>
     </message>
     <message>
         <source>Resume All Coloring Rules</source>
-        <translation>Posa totes les regles d&apos;acoloriment en marxa</translation>
+        <translation type="vanished">Posa totes les regles d&apos;acoloriment en marxa</translation>
     </message>
     <message>
         <source>Copied %1</source>
@@ -15403,7 +15569,6 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>(no tagrules.jsonc file yet — will be created on save)</source>
-        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16493,7 +16658,23 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>Tips Section</source>
-        <translation>Secció de consells</translation>
+        <translation type="vanished">Secció de consells</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">General</translation>
+    </message>
+    <message>
+        <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefer Open and Capture sections side-by-side</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tips</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
@@ -16528,8 +16709,12 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation> s</translation>
     </message>
     <message>
+        <source>Learn</source>
+        <translation type="unfinished">Aprèn</translation>
+    </message>
+    <message>
         <source>Learn Section</source>
-        <translation>Secció d&apos;aprenentatge</translation>
+        <translation type="vanished">Secció d&apos;aprenentatge</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
@@ -17903,6 +18088,10 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>Display Filter Reference</source>
         <translation>Mostra la referència del filtre</translation>
+    </message>
+    <message>
+        <source>Discord</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>First Packet in Conversation</source>

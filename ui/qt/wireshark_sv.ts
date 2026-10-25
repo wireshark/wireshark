@@ -951,6 +951,29 @@ Av = endast loggpunkt (följer den historiska konventionen ”loggpunkter pausar
         <source>Automatically detect file type</source>
         <translation>Detektera automatiskt filtyp</translation>
     </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, fel efter %Ln paket</numerusform>
+            <numerusform>%1, fel efter %Ln paket</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, tiden gick ut vid %Ln paket</numerusform>
+            <numerusform>%1, tiden gick ut vid %Ln paket</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln paket</numerusform>
+            <numerusform>%1, %Ln paket</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Lägg paket före</translation>
@@ -1546,19 +1569,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Create a new interface bookmark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Skapa ett nytt bokmärke för gränssnitt.</translation>
     </message>
     <message>
         <source>Remove this interface bookmark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort det här bokmärket för gränssnitt.</translation>
     </message>
     <message>
         <source>Processes:</source>
-        <translation type="unfinished"></translation>
+        <translation>Processer:</translation>
     </message>
     <message>
         <source>Executable paths, command lines and user names will be stored in the capture file. A command line can contain a password.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sökvägar till körbara filer, kommandorader och användarnamn kommer att lagras i fångstfilen. En kommandorad kan innehålla ett lösenord.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1682,15 +1705,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Don&apos;t record processes</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrera inte processer</translation>
     </message>
     <message>
         <source>Record process IDs and names</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrera process-ID:n och namn</translation>
     </message>
     <message>
         <source>Record process IDs, names, paths, command lines and users</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrera process-ID:n, namn, sökvägar, kommandorader och användare</translation>
     </message>
     <message>
         <source>Leave blank to use a temporary file</source>
@@ -1706,15 +1729,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Not supported on this platform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stödjs inte på denna plattform.</translation>
     </message>
     <message>
         <source>Process information can only be recorded in pcapng files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Processinformation kan bara registreras i pcapng-filer.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Record which processes on this computer sent or received each packet, for the packets of TCP and UDP sockets. Which processes can be identified depends on your privileges, and the packets of very short-lived sockets can be missed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Registrera vilka processer på den här datorn som skickade eller tog emot varje paket för paket i TCP- och UDP-uttag. Vilka processer som kan identifieras beror på dina behörigheter, och paket från mycket kortlivade socklar kan missas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Error</source>
@@ -1738,6 +1761,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Frame</source>
         <translation>Ram</translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Default interface</source>
@@ -1769,11 +1796,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Record the processes that packets belong to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Registrera processerna som paketen tillhör:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;What to record, in pcapng files, of the processes on this computer that sent or received each packet. Executable paths, command lines and user names can be sensitive: a command line can contain a password.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vad som ska registreras i pcapng-filer om processerna på den här datorn som skickade eller tog emot varje paket. Sökvägar till körbara filer, kommandorader och användarnamn kan vara känsliga: en kommandorad kan innehålla ett lösenord.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1797,15 +1824,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillfällig katalog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directory in which to write temporary capture files. Leave empty to use the system default. Overridden by the --temp-dir option.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Katalog dit tillfälliga fångstfiler skall skrivas. Lämna tomt för att använda systemstandarden. Åsidosätts av flaggan --temp-dir.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation>Bläddra …</translation>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
@@ -1817,19 +1844,19 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Nothing</source>
-        <translation type="unfinished"></translation>
+        <translation>Inget</translation>
     </message>
     <message>
         <source>Process IDs and names</source>
-        <translation type="unfinished"></translation>
+        <translation>Process-ID:n och namn</translation>
     </message>
     <message>
         <source>Process IDs, names, paths, command lines and users</source>
-        <translation type="unfinished"></translation>
+        <translation>Process-ID:n, namn, sökvägar, kommandorader och användare</translation>
     </message>
     <message>
         <source>Temporary Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>T</translation>
     </message>
 </context>
 <context>
@@ -2058,6 +2085,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ram</translation>
     </message>
     <message>
+        <source>Columns</source>
+        <translation type="unfinished">Kolumner</translation>
+    </message>
+    <message>
         <source>Add a new column</source>
         <translation>Lägg till en ny kolumn</translation>
     </message>
@@ -2129,7 +2160,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Compress with Zstandard</source>
-        <translation type="unfinished"></translation>
+        <translation>Komprimera med Zstandard</translation>
     </message>
 </context>
 <context>
@@ -3711,7 +3742,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>%1 Select Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Välj mapp</translation>
     </message>
 </context>
 <context>
@@ -3925,7 +3956,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Filter Button Preferences…</source>
-        <translation type="unfinished"></translation>
+        <translation>Inställningar för filterknapp …</translation>
     </message>
     <message>
         <source>Manage saved filters</source>
@@ -4259,6 +4290,20 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <source>Print</source>
         <translation>Skriv</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln klientpaket, </numerusform>
+            <numerusform>%Ln klientpaket, </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln serverpaket,</numerusform>
+            <numerusform>%Ln serverpaket,</numerusform>
+        </translation>
+    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -4454,11 +4499,11 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Main window font:</source>
-        <translation>Huvudfönstrets typsnitt:</translation>
+        <translation type="vanished">Huvudfönstrets typsnitt:</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation>Välj typsnitt</translation>
+        <translation type="vanished">Välj typsnitt</translation>
     </message>
     <message>
         <source>Theme</source>
@@ -4475,11 +4520,11 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation>Flygande bäckasiner söka hwila på mjuka tuvor</translation>
+        <translation type="vanished">Flygande bäckasiner söka hwila på mjuka tuvor</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation>Yxmördaren Julia Blomqvist på fäktning i Schweiz</translation>
+        <translation type="vanished">Yxmördaren Julia Blomqvist på fäktning i Schweiz</translation>
     </message>
     <message>
         <source>System</source>
@@ -4507,7 +4552,121 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Font</source>
-        <translation>Typsnitt</translation>
+        <translation type="vanished">Typsnitt</translation>
+    </message>
+</context>
+<context>
+    <name>FontPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">Ram</translation>
+    </message>
+    <message>
+        <source>Monospace font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Used by the packet list, packet details, packet bytes and other text views.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 is not a monospaced font. Hex bytes and aligned columns will not line up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionDialog</name>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished">Typsnitt</translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionWidget</name>
+    <message>
+        <source>&amp;Family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>St&amp;yle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font sizes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show only &amp;monospaced fonts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stri&amp;keout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Underline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Example GIF query packets have jumbo window sizes</source>
+        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
+        <translation type="unfinished">Flygande bäckasiner söka hwila på mjuka tuvor</translation>
+    </message>
+    <message>
+        <source>Lazy badgers move unique waxy jellyfish packets</source>
+        <translation type="unfinished">Yxmördaren Julia Blomqvist på fäktning i Schweiz</translation>
+    </message>
+    <message>
+        <source>(Platform default)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (not installed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No matching font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Standard</translation>
     </message>
 </context>
 <context>
@@ -4651,7 +4810,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Annotations</source>
-        <translation type="unfinished"></translation>
+        <translation>Anteckningar</translation>
     </message>
     <message>
         <source>Add annotation…</source>
@@ -4667,7 +4826,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Offset markers</source>
-        <translation type="unfinished"></translation>
+        <translation>Förskjutningsmarkörer</translation>
     </message>
     <message>
         <source>Start byte for offset</source>
@@ -4715,7 +4874,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>…as UTF-8</source>
-        <translation type="unfinished"></translation>
+        <translation>…som UTF-8</translation>
     </message>
     <message>
         <source>Comment: %1</source>
@@ -5057,6 +5216,14 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
         <translation>Växla Y-axeln mellan logaritmisk och linjär skala</translation>
+    </message>
+    <message>
+        <source>EWMA moving average</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Moving Average algorithm between EWMA and SMA</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -6270,7 +6437,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Optimize</source>
-        <translation type="unfinished"></translation>
+        <translation>Optimera</translation>
     </message>
     <message>
         <source>Capture Filter</source>
@@ -6278,7 +6445,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Traffic</source>
-        <translation type="unfinished"></translation>
+        <translation>Trafik</translation>
     </message>
     <message>
         <source>Addresses</source>
@@ -7202,7 +7369,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation>Paketlisteinställningar:</translation>
+        <translation type="vanished">Paketlisteinställningar:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -7230,7 +7397,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation>Statusradinställningar:</translation>
+        <translation type="vanished">Statusradinställningar:</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
@@ -7243,6 +7410,10 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Packet list multi-color display mode:</source>
         <translation>Flerfärgsläge för paketlistan:</translation>
+    </message>
+    <message>
+        <source>Pane Layout</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Off</source>
@@ -7299,6 +7470,14 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Display multiple colors in packet details</source>
         <translation>Visa flera färger i paketdetaljer</translation>
+    </message>
+    <message>
+        <source>Show disabled coloring rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status Bar</source>
+        <translation type="unfinished">Statusfält</translation>
     </message>
 </context>
 <context>
@@ -8002,9 +8181,30 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <source>Code View Theme:</source>
         <translation>Tema för kodvy:</translation>
     </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
+        <translation type="vanished">
+            <numerusform>Är du säker på att du vill ta bort %Ln brytpunkt?</numerusform>
+            <numerusform>Är du säker på att du vill ta bort %Ln brytpunkter?</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Are you sure you want to remove %Ln watch(es)?</source>
+        <translation type="vanished">
+            <numerusform>Är du säker på att du vill ta bort %Ln bevakning?</numerusform>
+            <numerusform>Är du säker på att du vill ta bort %Ln bevakningar?</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Type: %1</source>
         <translation>Typ: %1</translation>
+    </message>
+    <message numerus="yes">
+        <source>There are unsaved changes in %Ln open file(s).</source>
+        <translation type="vanished">
+            <numerusform>Det finns osparade ändringar i %Ln öppen fil.</numerusform>
+            <numerusform>Det finns osparade ändringar i %Ln öppna filer.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Remove All Breakpoints</source>
@@ -8564,6 +8764,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>Frame</source>
         <translation>Ram</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation type="unfinished">Utseende</translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
@@ -9372,7 +9576,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Tag Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Tagglänkar</translation>
     </message>
     <message>
         <source>Summary as Text</source>
@@ -9408,24 +9612,24 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Unpin Selected Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Lösgör markerade rader</translation>
     </message>
     <message numerus="yes">
         <source>Pin Selected Rows (max %Ln)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Fäst markerad rad (högst %Ln)</numerusform>
+            <numerusform>Fäst markerade rader (högst %Ln)</numerusform>
         </translation>
     </message>
     <message>
         <source>Pin Selected Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fäst markerade rader</translation>
     </message>
     <message numerus="yes">
         <source>At most %Ln rows can be pinned.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Högst %Ln rad kan fästas.</numerusform>
+            <numerusform>Högst %Ln rader kan fästas.</numerusform>
         </translation>
     </message>
 </context>
@@ -9519,19 +9723,19 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>PacketListProxyModel</name>
     <message>
         <source>Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Kolumn</translation>
     </message>
     <message>
         <source>%1 can only be sorted with %2 or fewer visible rows; increase cache size in Layout preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 kan bara sorteras med %2 eller färre synliga rader; öka cachestorleken i inställningarna av layout</translation>
     </message>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <translation type="unfinished"></translation>
+        <translation>Sorterar ”%1” …</translation>
     </message>
     <message>
         <source>Sorting …</source>
-        <translation type="unfinished"></translation>
+        <translation>Sorterar …</translation>
     </message>
 </context>
 <context>
@@ -10194,6 +10398,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Advanced</source>
+        <translation type="unfinished">Avancerat</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Sök:</translation>
     </message>
@@ -10241,7 +10449,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Theme and Font</source>
-        <translation>Tema och teckensnitt</translation>
+        <translation type="vanished">Tema och teckensnitt</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation type="unfinished">Tema</translation>
     </message>
     <message>
         <source>Welcome Page</source>
@@ -10266,6 +10478,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>Aggregation</source>
         <translation>Aggregering</translation>
+    </message>
+    <message>
+        <source>Fonts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10401,6 +10617,20 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>Select zip file for export</source>
         <translation>Välj zip-fil för exporten</translation>
+    </message>
+    <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln markerad personlig profil</numerusform>
+            <numerusform>… %Ln markerade personliga profiler</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>%Ln markerad personlig profil</numerusform>
+            <numerusform>%Ln markerade personliga profiler</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
@@ -10629,7 +10859,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Distribution…</source>
-        <translation type="unfinished"></translation>
+        <translation>Fördelning …</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -10669,11 +10899,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Tagging Rules...</source>
-        <translation type="unfinished"></translation>
+        <translation>Taggningsregler…</translation>
     </message>
     <message>
         <source>Tag Links</source>
-        <translation type="unfinished"></translation>
+        <translation>Tagglänkar</translation>
     </message>
     <message>
         <source>Coloring Rule Preferences...</source>
@@ -10684,16 +10914,24 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <translation>Färgregler…</translation>
     </message>
     <message>
+        <source>Enable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resume Coloring Rule</source>
-        <translation>Återuppta färgregel</translation>
+        <translation type="vanished">Återuppta färgregel</translation>
     </message>
     <message>
         <source>Pause Coloring Rule</source>
-        <translation>Pausa färgregel</translation>
+        <translation type="vanished">Pausa färgregel</translation>
     </message>
     <message>
         <source>Resume All Coloring Rules</source>
-        <translation>Återuppta alla färgregler</translation>
+        <translation type="vanished">Återuppta alla färgregler</translation>
     </message>
     <message>
         <source>Copied %1</source>
@@ -14347,7 +14585,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>UTF-8 Unescaped</source>
-        <translation type="unfinished"></translation>
+        <translation>UTF-8 utan sekvenser</translation>
     </message>
     <message>
         <source>YAML</source>
@@ -15278,171 +15516,170 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <name>TaggingRulesDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Follow Link:</source>
-        <translation type="unfinished"></translation>
+        <translation>Följ länk:</translation>
     </message>
     <message>
         <source>How to open a tag link in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hur en tagglänk i paketlistan öppnas.</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Sift+Klick</translation>
     </message>
     <message>
         <source>Click</source>
-        <translation type="unfinished"></translation>
+        <translation>K</translation>
     </message>
     <message>
         <source>Right-click only</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast högerklick</translation>
     </message>
     <message>
         <source>Emoji Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>Emoji-storlek:</translation>
     </message>
     <message>
         <source>Emoji size as a percentage of the row height. Does not affect text tag labels or the separator character.</source>
-        <translation type="unfinished"></translation>
+        <translation>Emojistorlek som procent av radhöjden. Påverkar inte textetiketter för taggar eller avgränsartecknet.</translation>
     </message>
     <message>
         <source>100%</source>
-        <translation type="unfinished"></translation>
+        <translation>100 %</translation>
     </message>
     <message>
         <source>90%</source>
-        <translation type="unfinished">90%</translation>
+        <translation>90 %</translation>
     </message>
     <message>
         <source>80%</source>
-        <translation type="unfinished">80%</translation>
+        <translation>80 %</translation>
     </message>
     <message>
         <source>70%</source>
-        <translation type="unfinished"></translation>
+        <translation>70 %</translation>
     </message>
     <message>
         <source>60%</source>
-        <translation type="unfinished"></translation>
+        <translation>60 %</translation>
     </message>
     <message>
         <source>50%</source>
-        <translation type="unfinished"></translation>
+        <translation>50 %</translation>
     </message>
     <message>
         <source>Separator:</source>
-        <translation type="unfinished"></translation>
+        <translation>Avgränsare:</translation>
     </message>
     <message>
         <source>Single character shown between tags when more than one rule matches. Leave empty for none.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ett enstaka tecken som visas mellan taggar när fler än en regel matchar. Lämna tomt om ingen avgränsare ska användas.</translation>
     </message>
     <message>
         <source>Save these tagging rules and open the Coloring Rules dialog with this rule&apos;s filter and name pre-filled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara dessa taggningsregler och öppna dialogrutan Färgregler med den här regelns filter och namn ifyllda.</translation>
     </message>
     <message>
         <source>Copy to Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera till färgregel</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Ett tips.&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;Ett tips.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Add a new tagging rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till en ny taggningsregel.</translation>
     </message>
     <message>
         <source>Delete this tagging rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort den här taggningsregeln.</translation>
     </message>
     <message>
         <source>Duplicate this tagging rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplicera den här taggningsregeln.</translation>
     </message>
     <message>
         <source>Clear all tagging rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rensa alla taggningsregler.</translation>
     </message>
     <message>
         <source>Tagging Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Taggningsregler %1</translation>
     </message>
     <message>
         <source>Shift+Command+Click</source>
-        <translation type="unfinished"></translation>
+        <translation>Sift+Kommando+Klick</translation>
     </message>
     <message>
         <source>Import…</source>
-        <translation type="unfinished">Importera …</translation>
+        <translation>Importera …</translation>
     </message>
     <message>
         <source>Select a file and add its rules to the end of the list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Välj en fil och lägg till dess regler  listan.</translation>
     </message>
     <message>
         <source>Export…</source>
-        <translation type="unfinished">Exportera …</translation>
+        <translation>Exportera …</translation>
     </message>
     <message>
         <source>Save rules to a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara reglerna i en fil.</translation>
     </message>
     <message>
         <source>Copy tagging rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiera taggningsregler från en annan profil.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Öppna </translation>
+        <translation>Öppna </translation>
     </message>
     <message>
         <source>(no tagrules.jsonc file yet — will be created on save)</source>
-        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>(det finns ingen tagrules.jsonc-fil ännu — kommer att skapas när man sparar)</translation>
     </message>
     <message>
         <source>Click to edit. Drag to move. Sample Emojis &lt;a href=&quot;https://emojipedia.org&quot;&gt;here&lt;/a&gt;. All matching rules are applied.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klicka för att redigera. Dra för att flytta. Exempel på emoji finns &lt;a href=&quot;https://emojipedia.org&quot;&gt;här&lt;/a&gt;. Alla matchande regler tillämpas.</translation>
     </message>
     <message>
         <source>Import Tagging Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Importera taggningsregler</translation>
     </message>
     <message>
         <source>Export %1 Tagging Rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportera %1 taggningsregler</translation>
     </message>
 </context>
 <context>
     <name>TaggingRulesModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Namn</translation>
+        <translation>Namn</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filter</translation>
+        <translation>Filter</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Tagg</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation type="unfinished"></translation>
+        <translation>Länk</translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished">Kommentar</translation>
+        <translation>Kommentar</translation>
     </message>
     <message>
         <source>New tagging rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Ny taggningsregel</translation>
     </message>
 </context>
 <context>
@@ -16492,7 +16729,23 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Tips Section</source>
-        <translation>Tipsavsnitt</translation>
+        <translation type="vanished">Tipsavsnitt</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished">Allmänt</translation>
+    </message>
+    <message>
+        <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefer Open and Capture sections side-by-side</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tips</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
@@ -16527,8 +16780,12 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation> s</translation>
     </message>
     <message>
+        <source>Learn</source>
+        <translation type="unfinished">Lär dig</translation>
+    </message>
+    <message>
         <source>Learn Section</source>
-        <translation>Avsnittet Lär dig</translation>
+        <translation type="vanished">Avsnittet Lär dig</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
@@ -17904,6 +18161,10 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Referens för visningsfilter</translation>
     </message>
     <message>
+        <source>Discord</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>First Packet in Conversation</source>
         <translation>Första paketet i konversationen</translation>
     </message>
@@ -18153,19 +18414,19 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Pin Selected Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Fäst markerade rader</translation>
     </message>
     <message>
         <source>Keep the selected packets at the top of the packet list, or unpin them if they are all pinned</source>
-        <translation type="unfinished"></translation>
+        <translation>Behåll de markerade paketen högst upp i paketlistan eller lossa markeringen om alla redan är fästa</translation>
     </message>
     <message>
         <source>Unpin All Rows</source>
-        <translation type="unfinished"></translation>
+        <translation>Lossa alla rader</translation>
     </message>
     <message>
         <source>Unpin all of the packets pinned to the top of the packet list</source>
-        <translation type="unfinished"></translation>
+        <translation>Lossa markeringen för alla paket som är fästa högst upp i paketlistan</translation>
     </message>
     <message>
         <source>Reset layout to default size</source>
@@ -18393,11 +18654,11 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>&amp;Tagging Rules…</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Taggningsregler …</translation>
     </message>
     <message>
         <source>Edit the packet tagging rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Redigera taggningsreglerna för paket.</translation>
     </message>
     <message>
         <source>Show Linked Packet in New Window</source>
@@ -18572,7 +18833,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Aggregate Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Sammanställ paket</translation>
     </message>
     <message>
         <source>Expert Information</source>
@@ -18720,11 +18981,11 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Display frames grouped by your configured aggregation fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa ramar grupperade efter dina konfigurerade sammanställningsfält.</translation>
     </message>
     <message>
         <source>Display frames grouped by your configured aggregation fields. To activate, go to Preferences → Aggregation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa ramar grupperade efter dina konfigurerade sammanställningsfält. Aktivera funktionen under Inställningar → Sammanställning.</translation>
     </message>
     <message>
         <source>Do you want to save the changes you&apos;ve made%1?</source>
@@ -18892,6 +19153,14 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>No Keys</source>
         <translation>Inga nycklar</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>Exportera SSL-sessionsnycklar (%Ln-nyckel)</numerusform>
+            <numerusform>Exportera SSL-sessionsnycklar (%Ln-nycklar)</numerusform>
+        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

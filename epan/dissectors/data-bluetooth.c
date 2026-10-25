@@ -901,6 +901,8 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2C41,   "TPMS Signing Key" },
     { 0x2C42,   "Cookware Device ID" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xFC21,   "Plejd AB" },
+    { 0xFC22,   "InPlay, Inc." },
     { 0xFC23,   "Helvar Oy Ab" },
     { 0xFC24,   "Electronics and Telecommunications Research Institute" },
     { 0xFC25,   "Trackonomy Systems, Inc." },
@@ -5698,6 +5700,14 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x1130,   "Pi Variables, Inc." },
     { 0x1131,   "Chirp Innovation, LLC" },
     { 0x1132,   "Nicrew Technology Co., Limited" },
+    { 0x1133,   "THE KEEON Co., Ltd." },
+    { 0x1134,   "Barksdale, Inc." },
+    { 0x1135,   "Shenzhen GetD Technology Co.,Ltd." },
+    { 0x1136,   "Loop" },
+    { 0x1137,   "Eberlein Innovations EOOD" },
+    { 0x1138,   "Crane Aerospace & Electronics" },
+    { 0x1139,   "NaturalCycles Nordic AB" },
+    { 0x113A,   "Celadon, Inc." },
     { 0xFFFF,   "For use in internal and interoperability tests" },
     {      0,   NULL }
 };
@@ -6478,6 +6488,8 @@ const btatt_handle_strings_t btatt_handle_strings[] = {
     { 0x2c41,   "Bluetooth GATT Attribute TPMS Signing Key (UUID 0x2c41)", "BT GATT TPMS Signing Key (UUID 0x2c41)", "btgatt.uuid0x2c41" },
     { 0x2c42,   "Bluetooth GATT Attribute Cookware Device ID (UUID 0x2c42)", "BT GATT Cookware Device ID (UUID 0x2c42)", "btgatt.uuid0x2c42" },
     /* Members - https://bitbucket.org/bluetooth-SIG/public/raw/HEAD/assigned_numbers/uuids/member_uuids.yaml */
+    { 0xfc21,   "Bluetooth GATT Attribute Plejd AB (UUID 0xfc21)", "BT GATT Plejd AB (UUID 0xfc21)", "btgatt.uuid0xfc21" },
+    { 0xfc22,   "Bluetooth GATT Attribute InPlay, Inc. (UUID 0xfc22)", "BT GATT InPlay, Inc. (UUID 0xfc22)", "btgatt.uuid0xfc22" },
     { 0xfc23,   "Bluetooth GATT Attribute Helvar Oy Ab (UUID 0xfc23)", "BT GATT Helvar Oy Ab (UUID 0xfc23)", "btgatt.uuid0xfc23" },
     { 0xfc24,   "Bluetooth GATT Attribute Electronics and Telecommunications Research Institute (UUID 0xfc24)", "BT GATT Electronics and Telecommunications Research Institute (UUID 0xfc24)", "btgatt.uuid0xfc24" },
     { 0xfc25,   "Bluetooth GATT Attribute Trackonomy Systems, Inc. (UUID 0xfc25)", "BT GATT Trackonomy Systems, Inc. (UUID 0xfc25)", "btgatt.uuid0xfc25" },
