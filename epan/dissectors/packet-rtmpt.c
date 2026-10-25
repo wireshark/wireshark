@@ -2355,6 +2355,22 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                     cdir, seq+offset,
                                     ti, tp, header_type, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
 
+                        if (tp && tp->resident && tp->have < tp->want) {
+                                /* The previous message on this chunk stream
+                                 * was never completed, and this header starts
+                                 * a new one. Incomplete messages are not added
+                                 * to rconv->packets, so its data will never be
+                                 * used. Free it, and mark the message complete
+                                 * so that nothing is appended to it later.
+                                 */
+                                wmem_free(wmem_file_scope(), tp->data.p);
+                                tp->data.p    = NULL;
+                                tp->alloc     = 0;
+                                tp->want      = tp->have;
+                                tp->chunkwant = 0;
+                                tp->chunkhave = 0;
+                        }
+
                         if (!ti) {
                                 ti = wmem_new(wmem_file_scope(), rtmpt_id_t);
                                 ti->packets = wmem_tree_new(wmem_file_scope());
