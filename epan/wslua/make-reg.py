@@ -19,7 +19,7 @@ import re
 def parse_file(file_content):
     # extract classes, functions, and internal functions
     # and return them as a tuple
-    CLASS_PATTERN = r'WSLUA_CLASS_DEFINE(_BASE|_INLINE(?:_BASE)?)?\050\s*([A-Za-z0-9]+)'
+    CLASS_PATTERN = r'WSLUA_CLASS_DEFINE(_BASE(?:_PUSH)?|_INLINE(?:_BASE)?)?\050\s*([A-Za-z0-9]+)'
     FUNCTION_PATTERN = r'WSLUA_FUNCTION\s+wslua_([a-z_0-9]+)'
     INTERNAL_FUNCTION_PATTERN = r'WSLUA_INTERNAL_FUNCTION\s+wslua_([a-z_0-9]+)'
 

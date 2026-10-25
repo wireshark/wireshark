@@ -24,7 +24,9 @@
 /* WSLUA_CONTINUE_MODULE Tvb */
 
 
-WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("ByteArray"));
+/* The contents of a ByteArray are allocated outside of Lua, so report
+ * them to the garbage collector when it is pushed, or when it grows. */
+WSLUA_CLASS_DEFINE_BASE_PUSH(ByteArray,FAIL_ON_NULL("ByteArray"),NULL,wslua_gc_report_external(L,v->len));
 
 WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) {
     /*
@@ -131,6 +133,7 @@ WSLUA_METHOD ByteArray_prepend(lua_State* L) {
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_prepend_PREPENDED);
 
     g_byte_array_prepend(ba,ba2->data,ba2->len);
+    wslua_gc_report_external(L,ba2->len);
 
     return 0;
 }
@@ -142,6 +145,7 @@ WSLUA_METHOD ByteArray_append(lua_State* L) {
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_append_APPENDED);
 
     g_byte_array_append(ba,ba2->data,ba2->len);
+    wslua_gc_report_external(L,ba2->len);
 
     return 0;
 }
@@ -163,6 +167,7 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
         g_byte_array_set_size(ba,siz);
     } else { /* fill */
         padding = (uint8_t *)g_malloc0(sizeof(uint8_t)*(siz - ba->len));
+        wslua_gc_report_external(L,siz - ba->len);
         g_byte_array_append(ba,padding,siz - ba->len);
         g_free(padding);
     }

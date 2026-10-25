@@ -12,8 +12,9 @@
 local testlib = require("testlib")
 
 local FIN = "finalizers"
+local BA = "bytearray"
 
-testlib.init({ [FIN] = 2 })
+testlib.init({ [FIN] = 2, [BA] = 1 })
 
 local args = { ... }
 local generational = args[1] == "generational"
@@ -64,5 +65,24 @@ else
     testlib.test(FIN, "peak heap growth (skipped)", true)
     testlib.test(FIN, "generational mode (skipped)", true)
 end
+
+testlib.testing(BA, "ByteArrays in incremental mode")
+
+-- The contents of a ByteArray are allocated outside of Lua, and reported
+-- to the garbage collector. A script can switch to incremental mode, where
+-- that is the only thing keeping the ByteArrays (which have finalizers)
+-- from accumulating. (Lua 5.3 only has incremental mode.)
+local mode = gc_mode()
+pcall(collectgarbage, "incremental")
+-- Without reporting, this grows to about 8 MB (of userdata only, while
+-- holding about 300 MB of ByteArray contents.)
+local peak = peak_heap(10000, function()
+    for _ = 1, 20 do
+        local ba = ByteArray.new()
+        ba:set_size(1500)
+    end
+end)
+pcall(collectgarbage, mode)
+testlib.test(BA, string.format("peak heap growth %.0f KB", peak), peak < 1024)
 
 testlib.getResults()

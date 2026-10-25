@@ -238,7 +238,7 @@ QUOTED_RE           = r'"([^"]*)"'
 # XXX We might want to create a "LuaClass" class similar to LuaFunction
 # and move these there.
 def extract_class_definitions(c_file, c_buf, module, classes, functions):
-    for m in re.finditer(r'WSLUA_CLASS_DEFINE(?:_BASE|_INLINE(?:_BASE)?)?\(\s*([A-Z][a-zA-Z0-9]+).*?\);' + TRAILING_COMMENT_RE, c_buf, re.MULTILINE|re.DOTALL):
+    for m in re.finditer(r'WSLUA_CLASS_DEFINE(?:_BASE(?:_PUSH)?|_INLINE(?:_BASE)?)?\(\s*([A-Z][a-zA-Z0-9]+).*?\);' + TRAILING_COMMENT_RE, c_buf, re.MULTILINE|re.DOTALL):
         raw_desc = m.group(4)
         if raw_desc is None:
             raw_desc = ''

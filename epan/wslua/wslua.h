@@ -530,6 +530,13 @@ typedef char* Struct;
     WSLUA_CLASS_DEFINE_BASE(C,check_code,NULL)
 
 #define WSLUA_CLASS_DEFINE_BASE(C,check_code,retval) \
+    WSLUA_CLASS_DEFINE_BASE_PUSH(C,check_code,retval,)
+
+/*
+ * push_code is run in push##C after the new userdata is created,
+ * with the pushed value in v.
+ */
+#define WSLUA_CLASS_DEFINE_BASE_PUSH(C,check_code,retval,push_code) \
 C to##C(lua_State* L, int idx) { \
     C* v = (C*)lua_touserdata (L, idx); \
     if (!v) luaL_error(L, "bad argument %d (%s expected, got %s)", idx, #C, lua_typename(L, lua_type(L, idx))); \
@@ -547,6 +554,7 @@ C* push##C(lua_State* L, C v) { \
     luaL_checkstack(L,2,"Unable to grow stack\n"); \
     p = (C*)lua_newuserdata(L,sizeof(C)); *p = v; \
     luaL_getmetatable(L, #C); lua_setmetatable(L, -2); \
+    push_code; \
     return p; \
 }\
 bool is##C(lua_State* L,int i) { \
@@ -669,6 +677,16 @@ extern uint64_t wslua_file_generation;
  * held by Wireshark structures can be recognized and not used.
  */
 extern uint64_t wslua_state_generation;
+
+/**
+ * @brief Reports memory allocated outside of Lua for a Lua object (such as
+ * the contents of a ByteArray) to the garbage collector, which otherwise
+ * only counts memory allocated by Lua.
+ *
+ * @param L The Lua state.
+ * @param bytes The number of bytes allocated.
+ */
+extern void wslua_gc_report_external(lua_State* L, size_t bytes);
 
 /**
  * @brief Defines a single attribute entry in a Lua class attribute dispatch table, binding a field name to its getter and setter.

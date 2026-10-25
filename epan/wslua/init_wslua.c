@@ -687,6 +687,40 @@ static bool wslua_gc_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event, 
 }
 
 
+/* Bytes allocated outside of Lua, but owned by Lua objects (such as the
+ * contents of a ByteArray), that have not yet been reported to the
+ * garbage collector. */
+static size_t wslua_gc_unreported;
+
+/* The garbage collector only knows about memory allocated by Lua itself.
+ * Report memory allocated for a Lua object outside of Lua, so that the
+ * collector runs as if it had been allocated by Lua, and so collects
+ * the objects that own it often enough. This is particularly important
+ * for objects with finalizers; see wslua_init(). */
+void wslua_gc_report_external(lua_State* LS, size_t bytes)
+{
+    wslua_gc_unreported += bytes;
+    if (wslua_gc_unreported < 1024) {
+        return;
+    }
+    // Don't step the collector if a script has stopped it.
+    if (!lua_gc(LS, LUA_GCISRUNNING, 0)) {
+        wslua_gc_unreported = 0;
+        return;
+    }
+#if LUA_VERSION_NUM >= 505
+    // In Lua 5.5 the step size is in bytes, and is a size_t.
+    lua_gc(LS, LUA_GCSTEP, wslua_gc_unreported);
+    wslua_gc_unreported = 0;
+#else
+    // In Lua 5.4 and earlier the step size is in KB, and is an int.
+    // (0 does a basic step, instead of nothing.)
+    int kb = (int)MIN(wslua_gc_unreported / 1024, INT_MAX);
+    lua_gc(LS, LUA_GCSTEP, kb);
+    wslua_gc_unreported -= (size_t)kb * 1024;
+#endif
+}
+
 static bool init_routine_initialized;
 static void wslua_init_routine(void) {
 
