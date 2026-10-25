@@ -1472,17 +1472,25 @@ afs_hash (const void *v)
 static void
 dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 {
-	int old_offset = ptvcursor_current_offset(cursor), offset;
+	int offset;
 	int32_t bytes;
 	int i, n, pos, neg, acl;
 	proto_tree* tree = ptvcursor_tree(cursor);
 	tvbuff_t* tvb = ptvcursor_tvbuff(cursor);
 	char user[128] = "[Unknown]"; /* Be sure to adjust sscanf()s below if length is changed... */
+	const char *acl_str;
+	int64_t acl_end;
 
 	bytes = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
 	ptvcursor_add(cursor, hf_afs_fs_acl_datasize, 4, ENC_BIG_ENDIAN);
+	acl_end = (int64_t)ptvcursor_current_offset(cursor) + bytes;
 
-	if (sscanf(GETSTR, "%d %n", &pos, &n) != 1) {
+	/* Format the text once and step through it, rather than formatting
+	 * the rest of the packet again for each entry.
+	 */
+	acl_str = GETSTR;
+
+	if (sscanf(acl_str, "%d %n", &pos, &n) != 1) {
 		/* does not matter what we return, if this fails,
 		 * we can't dissect anything else in the packet either.
 		 */
@@ -1491,32 +1499,39 @@ dissect_acl(ptvcursor_t *cursor, packet_info* pinfo, struct rxinfo *rxinfo _U_)
 	proto_tree_add_uint(tree, hf_afs_fs_acl_count_positive, tvb,
 		ptvcursor_current_offset(cursor), n, pos);
 	ptvcursor_advance(cursor, n);
+	acl_str += n;
 
-	if (sscanf(GETSTR, "%d %n", &neg, &n) != 1) {
+	if (sscanf(acl_str, "%d %n", &neg, &n) != 1) {
 		return;
 	}
 	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, tvb,
 		ptvcursor_current_offset(cursor), n, neg);
 	ptvcursor_advance(cursor, n);
+	acl_str += n;
 
 	/*
 	 * This wacky order preserves the order used by the "fs" command
 	 */
 	offset = ptvcursor_current_offset(cursor);
 	for (i = 0; i < pos; i++) {
-		if (sscanf(GETSTR, "%127s %d %n", user, &acl, &n) != 2) {
+		if (sscanf(acl_str, "%127s %d %n", user, &acl, &n) != 2) {
 			return;
 		}
 		ACLOUT(user,1,acl,n);
 		offset += n;
+		acl_str += n;
+		if (offset >= acl_end) {
+			return;
+		}
 	}
 	for (i = 0; i < neg; i++) {
-		if (sscanf(GETSTR, "%127s %d %n", user, &acl, &n) != 2) {
+		if (sscanf(acl_str, "%127s %d %n", user, &acl, &n) != 2) {
 			return;
 		}
 		ACLOUT(user,0,acl,n);
 		offset += n;
-		if (offset >= old_offset+bytes ) {
+		acl_str += n;
+		if (offset >= acl_end) {
 			return;
 		}
 	}
@@ -3168,7 +3183,7 @@ proto_register_afs(void)
 	{ &hf_afs_fs_xstats_collnumber, { "Collection Number", "afs.fs.xstats.collnumber",
 		FT_UINT32, BASE_DEC, VALS(xstat_collections), 0, NULL, HFILL }},
 	{ &hf_afs_fs_xstats_timestamp, { "XStats Timestamp", "afs.fs.xstats.timestamp",
-		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
+		FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_cps_spare1, { "CPS Spare1", "afs.fs.cps.spare1",
 		FT_UINT32, BASE_DEC, 0, 0, NULL, HFILL }},
 	{ &hf_afs_fs_cps_spare2, { "CPS Spare2", "afs.fs.cps.spare2",
