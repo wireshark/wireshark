@@ -74,6 +74,7 @@ class FilterDialog;
 class FunnelStatistics;
 class PacketCommentDialog;
 class PacketList;
+class PreferencesDialog;
 class ProtoTree;
 class FilterExpressionToolBar;
 class WiresharkApplication;
@@ -250,6 +251,7 @@ private:
     FunnelStatistics          *funnel_statistics_;  /**< Lua funnel statistics manager. */
     QList<QPair<QAction *, bool>> freeze_actions_; /**< Actions whose enabled state is saved and restored around freeze/thaw. */
     QPointer<QWidget>          freeze_focus_;      /**< Widget to restore focus to after thawing. */
+    QPointer<PreferencesDialog> preferences_dialog_; /**< Open Preferences dialog; null when none exists. */
     QMap<QAction *, ts_type>   td_actions;         /**< Map from timestamp-display menu actions to ts_type values. */
     QMap<QAction *, ts_precision> tp_actions;      /**< Map from timestamp-precision menu actions to ts_precision values. */
     bool                       was_maximized_;     /**< @c true if the window was maximised before going full-screen. */
