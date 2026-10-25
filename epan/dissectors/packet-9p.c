@@ -1509,7 +1509,9 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		proto_tree_add_item_ret_uint16(ninep_tree, hf_9P_nwalk, tvb, offset, 2, ENC_LITTLE_ENDIAN, &u16);
 		offset += 2;
 
-		for(i = 0 ; i < u16; i++) {
+		/* I can't imagine anyone having a directory depth more than 25,
+		   Limit to 10 times that to be sure, 2^16 is too much */
+		for(i = 0 ; i < u16 && i < 250; i++) {
 			if (!pinfo->fd->visited) {
 				_9p_len = tvb_get_letohs(tvb, offset);
 				tvb_s = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
@@ -1517,13 +1519,9 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				wmem_strbuf_append(tmppath, tvb_s);
 			}
 
-			if (i < 250) {
-				offset += _9p_dissect_string(tvb, ninep_tree, offset, hf_9P_wname, ett_9P_wname);
-			}
+			offset += _9p_dissect_string(tvb, ninep_tree, offset, hf_9P_wname, ett_9P_wname);
 		}
 
-		/* I can't imagine anyone having a directory depth more than 25,
-		   Limit to 10 times that to be sure, 2^16 is too much */
 		if(u16 > 250) {
 			expert_add_info(pinfo, ti, &ei_9P_first_250);
 		}
