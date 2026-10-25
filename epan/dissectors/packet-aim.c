@@ -608,10 +608,11 @@ aim_get_message( unsigned char *msg, tvbuff_t *tvb, int msg_offset, int msg_leng
 	int new_length = msg_length;
 
 
+	memset( msg, '\0', 1000);
+
 	/* make sure nothing bigger than 1000 bytes is printed */
 	if( msg_length > 999 ) return;
 
-	memset( msg, '\0', 1000);
 	i = 0;
 	c = 0;
 
