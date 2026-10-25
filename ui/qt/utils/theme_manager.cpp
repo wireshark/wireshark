@@ -901,19 +901,6 @@ QColor ThemeManager::graphColor(int idx) const
     return p.forMode(isDarkMode());
 }
 
-// TODO: the default color should be defined by switch in the theme file itself
-QColor ThemeManager::graphDefaultColor() const
-{
-    if (graphColors_.isEmpty()) {
-        qWarning("ThemeManager: no graph colors defined in theme \"%s\"", qUtf8Printable(info_.name));
-        return QColor();
-    }
-
-    const ThemeColorPair &p = graphColors_.first();
-    return p.forMode(isDarkMode());
-}
-
-
 qsizetype ThemeManager::graphColorCount() const
 {
     return graphColors_.size();

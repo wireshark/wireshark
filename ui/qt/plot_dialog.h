@@ -19,7 +19,7 @@
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>
 #include <ui/qt/widgets/customplot.h>
-#include "wireshark_dialog.h"
+#include "graph_dialog.h"
 
 #include <QPointer>
 #include <QMenu>
@@ -92,7 +92,7 @@ static const value_string plot_graph_style_vs[] = {
 /**
  * @brief Dialog for configuring and displaying packet field value plots.
  */
-class PlotDialog : public WiresharkDialog
+class PlotDialog : public GraphDialog
 {
     Q_OBJECT
 
@@ -181,16 +181,18 @@ protected:
     /**
      * @brief Add a fully-specified plot to the dialog.
      *
+     * The plot color is the theme palette color of the new row
+     * (see GraphDialog::newGraphColor()).
+     *
      * @param checked       Whether the plot starts enabled.
      * @param name          Display name shown in the legend.
      * @param dfilter       Display filter expression (empty = no filter).
-     * @param color_idx     RGB pen colour.
      * @param style         Plot style (line, dot, bar, stacked bar, etc.).
      * @param yfield        Header field abbreviation for the Y-axis values.
      * @param y_axis_factor Multiplier applied to all Y values before plotting
      *                      (default: Graph::default_y_axis_factor_).
      */
-    void addPlot(bool checked, const QString& name, const QString& dfilter, QColor color_idx,
+    void addPlot(bool checked, const QString& name, const QString& dfilter,
                  Graph::PlotStyles style, const QString &yfield,
                  double y_axis_factor = Graph::default_y_axis_factor_);
 
@@ -427,7 +429,6 @@ private:
     CopyFromProfileButton *copy_profile_bt_; /**< Button for copying settings from another profile. */
 
     // Model and delegate chosen over UatFrame to allow custom button layout.
-    QPointer<UatModel> uat_model_;  /**< UAT-backed table model for plot rows. */
     UatDelegate *uat_delegate_;     /**< Item delegate providing in-place editors for UAT fields. */
 
     /** Plot objects in UAT row order; must stay synchronised with uat_model_. */
@@ -451,28 +452,7 @@ private:
     bool abs_time_;                      /**< true = absolute time X axis; false = elapsed time. */
     double last_right_clicked_pos_;      /**< X-axis position of the most recent right-click, in plot units. */
 
-    /**
-     * @brief Theme-default color last assigned to each UAT row.
-     *
-     * Indexed by UAT row position.  onThemeChanged() refreshes only rows
-     * whose current color still equals the recorded default — i.e. rows the
-     * user has not customized.  Best-effort: row delete or reorder leaves
-     * stale keys, in which case the affected rows are skipped on the next
-     * theme flip rather than wrongly overwritten.
-     */
-    QHash<int, QColor> themeDefaultColors_;
-
 private slots:
-    /**
-     * @brief Refresh theme-default plot colors after a theme change.
-     *
-     * For each UAT row whose current color still equals the previously
-     * recorded theme default, replace it with the new theme's
-     * graphColor(row) and resync the Plot.  User-customized rows are
-     * left untouched.
-     */
-    void onThemeChanged();
-
     /**
      * @brief Commit pending UAT edits to the registration tables.
      */

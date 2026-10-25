@@ -600,8 +600,6 @@ public:
      */
     QColor graphColor(int idx) const;
 
-    QColor graphDefaultColor() const;
-
     /**
      * @brief Returns the number of graph colors defined in the theme.
      *
