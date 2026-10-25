@@ -272,14 +272,11 @@ void MainStatusBar::setReadyMsg()
 
 void MainStatusBar::applyIconSizes()
 {
-    // The expert indicator is as tall as a line of the status text next to it:
-    // large enough for its severity shapes and marks to read clearly, without
-    // towering over the text, and it follows the font when it is zoomed.
-    const int expert_side = info_status_.fontMetrics().height();
-    expert_button_->setIconSize(QSize(expert_side, expert_side));
-
-    const int comment_side = qRound(base_icon_size * FontManager::zoomFactor());
-    comment_button_->setIconSize(QSize(comment_side, comment_side));
+    // Not sized from the status text, which has a smaller font on macOS, nor
+    // from a style metric, so they match the display filter toolbar icons.
+    const int side = qRound(base_icon_size * FontManager::zoomFactor());
+    expert_button_->setIconSize(QSize(side, side));
+    comment_button_->setIconSize(QSize(side, side));
 }
 
 void MainStatusBar::changeEvent(QEvent *event)
