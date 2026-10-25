@@ -4249,13 +4249,14 @@ static const value_string lbmc_next_header[] =
     { LBMC_NHDR_UME_STORE_GROUP, "Store group" },
     { LBMC_NHDR_UME_STORE_INFO, "Store info" },
     { LBMC_NHDR_UME_LJ_INFO, "UME late-join info" },
+    { LBMC_NHDR_UME_RANGED_RXREQ, "UME ranged retransmission request" },
     { LBMC_NHDR_TSNI, "Topic sequence info" },
     { LBMC_NHDR_UMQ_REG, "UMQ registration" },
     { LBMC_NHDR_UMQ_REG_RESP, "UMQ registration response" },
     { LBMC_NHDR_UMQ_ACK, "UMQ ACK" },
     { LBMC_NHDR_UMQ_RCR, "UMQ receiver control record" },
     { LBMC_NHDR_UMQ_KA, "UMQ keepalive" },
-    { LBMC_NHDR_UMQ_RXREQ, "UME retransmission request" },
+    { LBMC_NHDR_UMQ_RXREQ, "UMQ retransmission request" },
     { LBMC_NHDR_UMQ_QMGMT, "UMQ queue management" },
     { LBMC_NHDR_UMQ_RESUB_REQ, "UMQ resubmission request" },
     { LBMC_NHDR_UMQ_RESUB_RESP, "UMQ resubmission response" },
@@ -4290,7 +4291,6 @@ static const value_string lbmc_next_header[] =
     { LBMC_NHDR_SRI, "Source registration information" },
     { LBMC_NHDR_ROUTE_INFO, "Route information" },
     { LBMC_NHDR_ROUTE_INFO_NEIGHBOR, "Route information neighbor" },
-    { LBMC_NHDR_ROUTE_INFO_NBR_EXT, "Route information neighbor extended (route groups)" },
     { LBMC_NHDR_GATEWAY_NAME, "Gateway name" },
     { LBMC_NHDR_AUTHENTICATION, "Authentication" },
     { LBMC_NHDR_HMAC, "HMAC" },
@@ -4299,12 +4299,13 @@ static const value_string lbmc_next_header[] =
     { LBMC_NHDR_TOPIC_IDX, "Topic index" },
     { LBMC_NHDR_TOPIC_SOURCE, "Topic source" },
     { LBMC_NHDR_TOPIC_SOURCE_EXFUNC, "Topic source extended functionality" },
-    { LBMC_NHDR_EXTOPT, "Extended option" },
     { LBMC_NHDR_UME_STORE_INFO_EXT, "Store extended information" },
     { LBMC_NHDR_UME_PSRC_ELECTION_TOKEN, "Proxy source election token" },
-    { LBMC_NHDR_NONE, "None" },
     { LBMC_NHDR_TCP_SID, "TCP session ID" },
     { LBMC_NHDR_TRANSPORT_SECURITY, "Transport security" },
+    { LBMC_NHDR_ROUTE_INFO_NBR_EXT, "Route information neighbor extended (route groups)" },
+    { LBMC_NHDR_EXTOPT, "Extended option" },
+    { LBMC_NHDR_NONE, "None" },
     { 0x0, NULL }
 };
 
@@ -6635,7 +6636,7 @@ static int dissect_nhdr_request(tvbuff_t * tvb, unsigned offset, packet_info * p
     return (L_LBMC_TCP_REQUEST_HDR_T);
 }
 
-static int dissect_nhdr_topicname(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_topicname(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -6670,7 +6671,7 @@ static int dissect_nhdr_topicname(tvbuff_t * tvb, unsigned offset, packet_info *
     return (len_dissected);
 }
 
-static int dissect_nhdr_apphdr(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_apphdr(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -6767,7 +6768,7 @@ static int dissect_nhdr_apphdr_chain_msgprop_element(tvbuff_t * tvb, unsigned of
     return (len_dissected);
 }
 
-static int dissect_nhdr_apphdr_chain(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree, uint32_t * msg_prop_len)
+static int dissect_nhdr_apphdr_chain(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, uint32_t * msg_prop_len)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -8305,7 +8306,7 @@ static int dissect_nhdr_umq_rxreq(tvbuff_t * tvb, unsigned offset, packet_info *
     return (len_dissected);
 }
 
-static int dissect_nhdr_umq_qmgmt(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_umq_qmgmt(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -8455,7 +8456,7 @@ static int dissect_nhdr_advertisement(tvbuff_t * tvb, unsigned offset, packet_in
     return (L_LBMC_CNTL_ADVERTISEMENT_HDR_T);
 }
 
-static int dissect_nhdr_storename(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_storename(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -8541,7 +8542,7 @@ static int dissect_nhdr_umq_lf(tvbuff_t * tvb, unsigned offset, packet_info * pi
     return (L_LBMC_CNTL_UMQ_LF_HDR_T);
 }
 
-static int dissect_nhdr_ctxinfo(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_ctxinfo(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -9293,7 +9294,7 @@ static int dissect_nhdr_umq_rcv_msg_retrieve_entry(tvbuff_t * tvb, unsigned offs
     return (L_LBMC_CNTL_UMQ_RCV_MSG_RETRIEVE_ENTRY_HDR_T);
 }
 
-static int dissect_nhdr_umq_rcv_msg_retrieve(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_umq_rcv_msg_retrieve(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -9504,7 +9505,7 @@ static int dissect_nhdr_umq_cmd_resp_ctx_topic_list_appset_entry(tvbuff_t * tvb,
     return (len_dissected);
 }
 
-static int dissect_nhdr_umq_cmd_resp_ctx_topic_list_topic_entry(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_umq_cmd_resp_ctx_topic_list_topic_entry(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -9540,7 +9541,7 @@ static int dissect_nhdr_umq_cmd_resp_ctx_topic_list_topic_entry(tvbuff_t * tvb, 
     return (len_dissected);
 }
 
-static int dissect_nhdr_umq_cmd_resp_ctx_topic_list(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_umq_cmd_resp_ctx_topic_list(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -9765,7 +9766,7 @@ static int dissect_nhdr_route_info_neighbor(tvbuff_t * tvb, unsigned offset, pac
     return (L_LBMC_CNTL_ROUTE_INFO_NEIGHBOR_HDR_T);
 }
 
-static int dissect_nhdr_route_info_nbr_ext(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_route_info_nbr_ext(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -9807,7 +9808,7 @@ static int dissect_nhdr_route_info_nbr_ext(tvbuff_t * tvb, unsigned offset, pack
     return (len_dissected);
 }
 
-static int dissect_nhdr_gateway_name(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_gateway_name(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -10000,7 +10001,7 @@ static int dissect_nhdr_auth_result(tvbuff_t * tvb, unsigned offset, packet_info
     return (L_LBMC_CNTL_AUTH_RESULT_HDR_T);
 }
 
-static int dissect_nhdr_auth_unknown(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_nhdr_auth_unknown(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -10555,32 +10556,16 @@ static int dissect_msg_properties(tvbuff_t * tvb, unsigned offset, packet_info *
         uint32_t key_offset;
         uint32_t value_offset;
         uint32_t type;
-        int actual_key_offset;
-        int actual_value_offset;
         int key_len;
         int value_len;
         proto_item * type_item = NULL;
 
-        if (encoding == ENC_LITTLE_ENDIAN)
-        {
-            key_offset = tvb_get_letohl(tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET);
-            value_offset = tvb_get_letohl(tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_VALUE_OFFSET);
-            type = tvb_get_letohl(tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_TYPE);
-        }
-        else
-        {
-            key_offset = tvb_get_ntohl(tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET);
-            value_offset = tvb_get_ntohl(tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_VALUE_OFFSET);
-            type = tvb_get_ntohl(tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_TYPE);
-        }
-        actual_key_offset = (int) key_offset;
-        actual_value_offset = (int) value_offset;
         field_item = proto_tree_add_item(subtree, hf_lbm_msg_properties_hdr, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET, L_LBM_MSG_PROPERTIES_HDR_T, encoding);
         field_tree = proto_item_add_subtree(field_item, ett_lbm_msg_properties_hdr);
-        proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_key_offset, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET, L_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET, encoding);
-        proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_value_offset, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_VALUE_OFFSET, L_LBM_MSG_PROPERTIES_HDR_T_VALUE_OFFSET, encoding);
+        proto_tree_add_item_ret_uint(field_tree, hf_lbm_msg_properties_hdr_key_offset, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET, L_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET, encoding, &key_offset);
+        proto_tree_add_item_ret_uint(field_tree, hf_lbm_msg_properties_hdr_value_offset, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_VALUE_OFFSET, L_LBM_MSG_PROPERTIES_HDR_T_VALUE_OFFSET, encoding, &value_offset);
         proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_hash, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_HASH, L_LBM_MSG_PROPERTIES_HDR_T_HASH, encoding);
-        type_item = proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_type, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_TYPE, L_LBM_MSG_PROPERTIES_HDR_T_TYPE, encoding);
+        type_item = proto_tree_add_item_ret_uint(field_tree, hf_lbm_msg_properties_hdr_type, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_TYPE, L_LBM_MSG_PROPERTIES_HDR_T_TYPE, encoding, &type);
         switch (type)
         {
             case LBM_MSG_PROPERTY_BOOLEAN:
@@ -10599,43 +10584,43 @@ static int dissect_msg_properties(tvbuff_t * tvb, unsigned offset, packet_info *
                 value_len = 8;
                 break;
             case LBM_MSG_PROPERTY_STRING:
-                value_len = (int)tvb_strsize(tvb, actual_value_offset);
+                value_len = (int)tvb_strsize(tvb, value_offset);
                 break;
             default:
                 expert_add_info_format(pinfo, type_item, &ei_lbmc_analysis_invalid_value, "Invalid LBMC Message Properties type 0x%08x", type);
                 value_len = 4;
                 break;
         }
-        key_len = (int)tvb_strsize(tvb, actual_key_offset);
-        proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_key, tvb, offset + actual_key_offset, key_len, encoding);
+        key_len = (int)tvb_strsize(tvb, key_offset);
+        proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_key, tvb, offset + key_offset, key_len, encoding);
         switch (type)
         {
             case LBM_MSG_PROPERTY_BOOLEAN:
-                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_boolean_value, tvb, offset + actual_value_offset, value_len, encoding);
+                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_boolean_value, tvb, offset + value_offset, value_len, encoding);
                 break;
             case LBM_MSG_PROPERTY_BYTE:
-                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_byte_value, tvb, offset + actual_value_offset, value_len, encoding);
+                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_byte_value, tvb, offset + value_offset, value_len, encoding);
                 break;
             case LBM_MSG_PROPERTY_SHORT:
-                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_short_value, tvb, offset + actual_value_offset, value_len, encoding);
+                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_short_value, tvb, offset + value_offset, value_len, encoding);
                 break;
             case LBM_MSG_PROPERTY_INT:
-                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_int_value, tvb, offset + actual_value_offset, value_len, encoding);
+                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_int_value, tvb, offset + value_offset, value_len, encoding);
                 break;
             case LBM_MSG_PROPERTY_FLOAT:
-                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_float_value, tvb, offset + actual_value_offset, value_len, encoding);
+                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_float_value, tvb, offset + value_offset, value_len, encoding);
                 break;
             case LBM_MSG_PROPERTY_LONG:
-                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_long_value, tvb, offset + actual_value_offset, value_len, encoding);
+                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_long_value, tvb, offset + value_offset, value_len, encoding);
                 break;
             case LBM_MSG_PROPERTY_DOUBLE:
-                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_double_value, tvb, offset + actual_value_offset, value_len, encoding);
+                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_double_value, tvb, offset + value_offset, value_len, encoding);
                 break;
             case LBM_MSG_PROPERTY_STRING:
-                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_string_value, tvb, offset + actual_value_offset, value_len, encoding);
+                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_string_value, tvb, offset + value_offset, value_len, encoding);
                 break;
             default:
-                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_unknown_value, tvb, offset + actual_value_offset, value_len, encoding);
+                proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_unknown_value, tvb, offset + value_offset, value_len, encoding);
                 break;
         }
         field_offset += L_LBM_MSG_PROPERTIES_HDR_T;

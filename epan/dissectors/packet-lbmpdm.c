@@ -787,7 +787,7 @@ static int dissect_segment_data(tvbuff_t * tvb, int offset, packet_info * pinfo 
     return (seglen);
 }
 
-static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, lbmpdm_offset_table_t * * offset_table, int encoding)
+static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, lbmpdm_offset_table_t * * offset_table, int encoding)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;

@@ -2903,7 +2903,7 @@ static void lbmr_topic_ads_transport_stats_tree_init(stats_tree * tree)
     lbmr_stats_tree_handle_topic_ads_transport = stats_tree_create_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, STAT_DT_INT, true);
 }
 
-static tap_packet_status lbmr_topic_ads_transport_stats_tree_packet(stats_tree * tree, packet_info * pinfo _U_, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
+static tap_packet_status lbmr_topic_ads_transport_stats_tree_packet(stats_tree * tree, packet_info * pinfo, epan_dissect_t * edt _U_, const void * data, tap_flags_t flags _U_)
 {
     const lbm_lbmr_topic_advertisement_tap_info_t * info = (const lbm_lbmr_topic_advertisement_tap_info_t *) data;
     int transport_node;
@@ -4207,7 +4207,7 @@ static int dissect_lbmr_qqrs(tvbuff_t * tvb, int offset, uint8_t qqr_count, pack
 /*----------------------------------------------------------------------------*/
 /* LBMR Queue Information Record dissection functions.                        */
 /*----------------------------------------------------------------------------*/
-static int dissect_lbmr_qir_queue_blk(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, const char * queue_name,
+static int dissect_lbmr_qir_queue_blk(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * queue_name,
     const char * topic_name, lbmr_contents_t * contents)
 {
     uint16_t port = 0;
