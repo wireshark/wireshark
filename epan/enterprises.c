@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-10-15) */
+/* (last updated 2026-10-23) */
 
 #include "config.h"
 
@@ -65347,7 +65347,7 @@ static const char * const table[] =
     "NetCuras",                                                                           // 65325
     "Azerconnect Group",                                                                  // 65326
     "ATSN Ltd",                                                                           // 65327
-    "Multrees Investor Services",                                                         // 65328
+    NULL,                                                                                 // 65328
     "Hunt Electric",                                                                      // 65329
     "Voltra",                                                                             // 65330
     "XIPE Networks LLC",                                                                  // 65331
@@ -67271,7 +67271,102 @@ static const char * const table[] =
     "Mustard Seed Networks",                                                              // 67249
     "INSPIRAL",                                                                           // 67250
     "mailiko",                                                                            // 67251
-    "INSTINCT IA"                                                                         // 67252
+    "INSTINCT IA",                                                                        // 67252
+    "JSC Smartcom Holding",                                                               // 67253
+    "TACO EV Component Solutions Pvt. Ltd",                                               // 67254
+    "Kugan Daniil",                                                                       // 67255
+    "Nexwave Networks OU",                                                                // 67256
+    "Diddy Netsight",                                                                     // 67257
+    "Carrizales",                                                                         // 67258
+    "ANA Healthcare",                                                                     // 67259
+    "ENAT IP, LLC",                                                                       // 67260
+    "Nossic",                                                                             // 67261
+    "Hazon Labs",                                                                         // 67262
+    "RENEWABLE ENERGY SYSTEM INTEGRATION PTY LTD",                                        // 67263
+    "MEC electronics Entwicklung und Produktion GmbH",                                    // 67264
+    "IRLS Sachsen",                                                                       // 67265
+    "Vigensis GmbH",                                                                      // 67266
+    "Docloop doo",                                                                        // 67267
+    "Plessey Semiconductors Ltd",                                                         // 67268
+    "Ambibox GmbH",                                                                       // 67269
+    "AUTENFIRMA S.A.S.",                                                                  // 67270
+    "Function Health",                                                                    // 67271
+    "NETWWORKS TECH",                                                                     // 67272
+    "Greenlabs Technologies S.R.L.",                                                      // 67273
+    "Thakaa Med for Information Technology Co. (ThakaaMed)",                              // 67274
+    "ID CONTROL SERVICOS DE TECNOLOGIA LTDA",                                             // 67275
+    "Seth M. Price",                                                                      // 67276
+    "Mediot AI",                                                                          // 67277
+    "André Santos",                                                                       // 67278
+    "Sodibur Reunion",                                                                    // 67279
+    "Manuel FLURY",                                                                       // 67280
+    "Jomaro GmbH",                                                                        // 67281
+    "Télavie",                                                                            // 67282
+    "Intrinsic MFG",                                                                      // 67283
+    "tstolt",                                                                             // 67284
+    "UNISOC",                                                                             // 67285
+    "S3C SRL",                                                                            // 67286
+    "DNI Solutions",                                                                      // 67287
+    "Shenzhen Noble Opto CO.,Ltd",                                                        // 67288
+    "BatteriesLab",                                                                       // 67289
+    "Monterey-Salinas Transit District",                                                  // 67290
+    "AMANPROTECT",                                                                        // 67291
+    "NextHop DOOEL Skopje",                                                               // 67292
+    "Teleryn Broadcast",                                                                  // 67293
+    "STR llc",                                                                            // 67294
+    "SGCL Project",                                                                       // 67295
+    "NAS",                                                                                // 67296
+    "Atea AS",                                                                            // 67297
+    "Spatium North Inc.",                                                                 // 67298
+    "trypando",                                                                           // 67299
+    "Gravitas Cyber Solutions LLC",                                                       // 67300
+    "Braemac",                                                                            // 67301
+    "Roelingnet",                                                                         // 67302
+    "ITZg GefStdStff",                                                                    // 67303
+    "ArcSaver Inc.",                                                                      // 67304
+    "raebbit networks GmbH",                                                              // 67305
+    "Voltfactory GmbH",                                                                   // 67306
+    "Diagnoly",                                                                           // 67307
+    "LLC GEOSAP",                                                                         // 67308
+    "AIS Clinics & Hospital SRL",                                                         // 67309
+    "TORC Robotics, Inc.",                                                                // 67310
+    "Integrated System Technologies Limited",                                             // 67311
+    "ComUE Lyon Saint-Étienne",                                                           // 67312
+    "DirectDemocracyS",                                                                   // 67313
+    "Ralliant",                                                                           // 67314
+    "Organización Talumm SAS",                                                            // 67315
+    "Ensitec Tecnologia de Produtos Ltda",                                                // 67316
+    "VERITSYS TECNOLOGIA LTDA",                                                           // 67317
+    "Foshan Trafficon Technology Co., Ltd",                                               // 67318
+    "China Merchants Shipbuilding Industry Digital Technology (Jiangsu) Co., Ltd.",       // 67319
+    "LANLI",                                                                              // 67320
+    "Vertell",                                                                            // 67321
+    "AuthFi Private Limited",                                                             // 67322
+    "Z&D",                                                                                // 67323
+    "Overwatch Labs",                                                                     // 67324
+    "t3ra",                                                                               // 67325
+    "JOINTER SOLUCOES EM TECNOLOGIA LTDA",                                                // 67326
+    "Kevin Pietsch",                                                                      // 67327
+    "ARFNET",                                                                             // 67328
+    "City of Hutto",                                                                      // 67329
+    "SmithSoft Pty Ltd",                                                                  // 67330
+    "Automaze IT Solutions B.V.",                                                         // 67331
+    "OKTE, a.s.",                                                                         // 67332
+    "Wavesurf Technologies",                                                              // 67333
+    "POWER GLOBAL",                                                                       // 67334
+    "FISEGO Holding GmbH",                                                                // 67335
+    "Signal Dynamics, LLC",                                                               // 67336
+    "TRIGO GmbH",                                                                         // 67337
+    "Aramco Digital",                                                                     // 67338
+    "ZTPass Inc.",                                                                        // 67339
+    "Sun Point Global LLC",                                                               // 67340
+    "Guangzhou Punp Electronics Manufacturing Co., Ltd.",                                 // 67341
+    "Megalith B.V.",                                                                      // 67342
+    "datAInsights GmbH",                                                                  // 67343
+    "Secureletter.inc",                                                                   // 67344
+    "Lab0nline",                                                                          // 67345
+    "Shenzhen Silicon Dynamic Networks Co.,Ltd.",                                         // 67346
+    "PRESTAR SERVICOS E SOLUCOES LTDA"                                                    // 67347
 };
 
 const char* global_enterprises_lookup(uint32_t value)

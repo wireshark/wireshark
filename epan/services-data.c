@@ -6180,6 +6180,7 @@ static const ws_services_entry_t global_udp_services_table[] = {
     { 7982, "sossd-disc",       "Spotlight on SQL Server Desktop Agent Discovery" },
     { 7998, "usicontentpush",   "USI Content Push Service" },
     { 8006, "wpl-disc",         "World Programming analytics discovery" },
+    { 8011, "bier-echo",        "The UDP destination port number for the IP/UDP encapsulated BIER Echo Reply message." },
     { 8017, "cisco-cloudsec",   "Cisco Cloudsec Dataplane Port Number" },
     { 8060, "aero",             "Asymmetric Extended Route Optimization (AERO)" },
     { 8111, "skynetflow",       "Skynetflow network services" },
