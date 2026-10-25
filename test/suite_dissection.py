@@ -4810,3 +4810,64 @@ class TestDissectAim:
                     '-Tfields', '-eframe.number', '-e_ws.col.info',
                 ), encoding='utf-8', env=test_env)
         assert aim_info() == aim_info('-2')
+
+
+class TestDissectAfs:
+    def test_afs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every RX data packet is dissected as AFS, with no malformed
+        packets or error expert infos.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 392
+        assert protocols.count('AFS (RX)') == 391
+        assert protocols.count('RX') == 1
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs_coverage.pcap.gz'),
+                '-Y', '_ws.malformed || _ws.expert.severity == error',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_afs_full_tree(self, cmd_tshark, capture_file, test_env):
+        '''With the whole tree shown every field is added, which is where
+        a field added with the wrong encoding shows up as a dissector bug,
+        as the get-xstats timestamp did.'''
+        for defragment in ('FALSE', 'TRUE'):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('afs_coverage.pcap.gz'),
+                    '-o', 'afs.defragment:' + defragment,
+                    '-V', '-O', 'afs',
+                ), encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+            assert 'Expert Info (Error' not in stdout
+
+    def test_afs_defragment(self, cmd_tshark, capture_file, test_env):
+        '''With afs.defragment, the multi-packet store-data request and
+        fetch-data reply are reassembled.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs_coverage.pcap.gz'),
+                '-o', 'afs.defragment:TRUE',
+                '-Y', 'afs.fragment.count',
+                '-Tfields', '-eframe.number', '-eafs.fragment.count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['382', '3', '386', '2']
+
+    def test_afs_store_acl(self, cmd_tshark, capture_file, test_env):
+        '''Store ACL requests with a huge positive count and with 16000
+        entries in one datagram decode quickly and completely.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('afs_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 389',
+                '-Tfields', '-eframe.number', '-eafs.fs.acl.count.positive',
+                '-eafs.fs.acl.entity', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [(f[0], f[1], len(f[2].split('|'))) for f in frames] == [
+            ('389', '2', 3),
+            ('390', '2147483647', 1),
+            ('391', '2147483647', 1),
+            ('392', '16000', 16000),
+        ]
