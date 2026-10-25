@@ -1114,7 +1114,6 @@ AI Trailer Reminder:
   allow_failure: true
   rules:
     - !reference [.if-plain-merge-request]
-    - if: '$CI_PIPELINE_SOURCE == "push"'
   script:
     - |
       zero="0000000000000000000000000000000000000000"
