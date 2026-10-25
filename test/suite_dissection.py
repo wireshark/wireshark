@@ -4578,3 +4578,58 @@ class TestDissectDnsNsid:
         # Option code 3, NSID = hex of "nyc-dns-01"
         assert '3' in stdout
         assert '6e79632d646e732d3031' in stdout
+
+
+# acn_coverage.pcap.gz is synthetic: every packet was generated, to cover
+# as much of the ACN dissector as possible (ACN SDT and DMP, ETC blobs,
+# sACN, Magic Bullet and RDMnet). Its heuristics ship disabled.
+ACN_OPTS = ('--enable-heuristic', 'acn',
+            '--enable-heuristic', 'rdmnet_udp',
+            '--enable-heuristic', 'rdmnet_tcp',
+            '-o', 'acn.dmx_enable:TRUE')
+
+
+class TestDissectAcn:
+    def test_acn_heuristics_disabled_by_default(self, cmd_tshark, capture_file, test_env):
+        '''Nothing is dissected as ACN unless the heuristics are enabled.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('acn_coverage.pcap.gz'),
+                '-Y', 'acn || magic || rdmnet',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_acn_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every part of the capture is found by its heuristic, with no
+        malformed packets.'''
+        stdout = subprocess.check_output((cmd_tshark, *ACN_OPTS,
+                '-r', capture_file('acn_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('ACN') == 56
+        assert protocols.count('MAGIC') == 18
+        assert protocols.count('RDMnet') == 43
+        stdout = subprocess.check_output((cmd_tshark, *ACN_OPTS,
+                '-r', capture_file('acn_coverage.pcap.gz'),
+                '-Y', '_ws.malformed || _ws.expert.severity == error',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_acn_sacn_universe_discovery(self, cmd_tshark, capture_file, test_env):
+        '''Universe lists are shown 16 to a line, including lists of more
+        than one universe, which made fortified builds abort.'''
+        stdout = subprocess.check_output((cmd_tshark, *ACN_OPTS,
+                '-r', capture_file('acn_coverage.pcap.gz'),
+                '-Y', 'acn.dmx.discovery.list',
+                '-Tfields', '-eacn.dmx.discovery.list', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        lists = [[line.split() for line in frame.split('|')[1:]] for frame in stdout.splitlines()]
+        assert lists == [
+            [['1', '2', '3']],
+            [['10', '5', '20', '1']],
+            [],
+            [[str(u) for u in range(1, 17)], [str(u) for u in range(17, 33)],
+             [str(u) for u in range(33, 40)]],
+        ]
