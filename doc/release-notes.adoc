@@ -23,6 +23,12 @@ https://www.wireshark.org/certifications[the Wireshark Foundation].
 
 == What’s New
 
+This is expected to be the final release of the 4.4 branch.
+
+This is the last release branch with official support for Windows 10 version 1607 and Windows Server 2016.
+
+This is the last release branch with official support for macOS 11.
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
