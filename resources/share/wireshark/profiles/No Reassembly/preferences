@@ -3,6 +3,7 @@
 ####### Protocols ########
 
 aim.desegment: FALSE
+ajp13.reassemble_body: FALSE
 aol.desegment: FALSE
 atp.desegment: FALSE
 bzr.desegment: FALSE

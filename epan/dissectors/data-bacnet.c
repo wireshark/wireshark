@@ -1506,7 +1506,7 @@ BACnetVendorIdentifiers[] = {
     { 1492, "Caleb Controls" },
     { 1493, "InBiot Monitoring S.L" },
     { 1494, "Qingdao Haier Air Conditioner Electric Co., Ltd." },
-    { 1495, "Hangzhou Weiyl Technology Co., Ltd." },
+    { 1495, "Weiyi Technology (Zhejiang) Co., Ltd." },
     { 1496, "yord sàrl" },
     { 1497, "Infinitum Electric" },
     { 1498, "Red Bean Systems Limited" },
@@ -1685,6 +1685,11 @@ BACnetVendorIdentifiers[] = {
     { 1672, "Shenzhen Beilai Technology Co., Ltd." },
     { 1673, "Havkon Elektronik San. Ve Tic. Ltd. Sti." },
     { 1674, "Shenzhen DAS IOT Technology Co., Ltd." },
+    { 1675, "Axiom Industries Limited" },
+    { 1676, "DEUTA Controls GmbH" },
+    { 1677, "Latina Control Comercio, Servicos e Fabricacao Ltda" },
+    { 1678, "Hamel Building Technologies LLC" },
+    { 1679, "Airmaster A/S" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

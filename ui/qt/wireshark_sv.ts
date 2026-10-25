@@ -1763,6 +1763,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ram</translation>
     </message>
     <message>
+        <source>Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Default interface</source>
         <translation>Standardgränssnitt</translation>
     </message>
@@ -2079,6 +2083,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Frame</source>
         <translation>Ram</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation type="unfinished">Kolumner</translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -4491,15 +4499,19 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Main window font:</source>
-        <translation>Huvudfönstrets typsnitt:</translation>
+        <translation type="vanished">Huvudfönstrets typsnitt:</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation>Välj typsnitt</translation>
+        <translation type="vanished">Välj typsnitt</translation>
     </message>
     <message>
         <source>Theme</source>
         <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Contrast:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Theme Author Information</source>
@@ -4512,11 +4524,11 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation>Flygande bäckasiner söka hwila på mjuka tuvor</translation>
+        <translation type="vanished">Flygande bäckasiner söka hwila på mjuka tuvor</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation>Yxmördaren Julia Blomqvist på fäktning i Schweiz</translation>
+        <translation type="vanished">Yxmördaren Julia Blomqvist på fäktning i Schweiz</translation>
     </message>
     <message>
         <source>System</source>
@@ -4539,12 +4551,146 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>Tema:</translation>
     </message>
     <message>
+        <source>Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System follows the operating system contrast setting (Qt 6.10 or later).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The operating system contrast setting cannot be read with this Qt version; System acts as Standard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected theme always uses high contrast.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Theme by %1</source>
         <translation>Tema av %1</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Typsnitt</translation>
+        <translation type="vanished">Typsnitt</translation>
+    </message>
+</context>
+<context>
+    <name>FontPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">Ram</translation>
+    </message>
+    <message>
+        <source>Monospace font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Used by the packet list, packet details, packet bytes and other text views.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 is not a monospaced font. Hex bytes and aligned columns will not line up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionDialog</name>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished">Typsnitt</translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionWidget</name>
+    <message>
+        <source>&amp;Family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>St&amp;yle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font sizes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show only &amp;monospaced fonts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stri&amp;keout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Underline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Example GIF query packets have jumbo window sizes</source>
+        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
+        <translation type="unfinished">Flygande bäckasiner söka hwila på mjuka tuvor</translation>
+    </message>
+    <message>
+        <source>Lazy badgers move unique waxy jellyfish packets</source>
+        <translation type="unfinished">Yxmördaren Julia Blomqvist på fäktning i Schweiz</translation>
+    </message>
+    <message>
+        <source>(Platform default)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (not installed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No matching font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Standard</translation>
     </message>
 </context>
 <context>
@@ -5094,6 +5240,14 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
         <translation>Växla Y-axeln mellan logaritmisk och linjär skala</translation>
+    </message>
+    <message>
+        <source>EWMA moving average</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Moving Average algorithm between EWMA and SMA</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -7239,7 +7393,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation>Paketlisteinställningar:</translation>
+        <translation type="vanished">Paketlisteinställningar:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -7267,7 +7421,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation>Statusradinställningar:</translation>
+        <translation type="vanished">Statusradinställningar:</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
@@ -7280,6 +7434,10 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Packet list multi-color display mode:</source>
         <translation>Flerfärgsläge för paketlistan:</translation>
+    </message>
+    <message>
+        <source>Pane Layout</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Off</source>
@@ -7336,6 +7494,14 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Display multiple colors in packet details</source>
         <translation>Visa flera färger i paketdetaljer</translation>
+    </message>
+    <message>
+        <source>Show disabled coloring rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status Bar</source>
+        <translation type="unfinished">Statusfält</translation>
     </message>
 </context>
 <context>
@@ -8624,6 +8790,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <translation>Ram</translation>
     </message>
     <message>
+        <source>Appearance</source>
+        <translation type="unfinished">Utseende</translation>
+    </message>
+    <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
         <translation>Att markera detta kommer spara storleken, positionen och maximeringstillståndet för huvudfönstret.</translation>
     </message>
@@ -9669,11 +9839,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>PinnedRowsModel</name>
     <message>
         <source>This packet is pinned but doesn&apos;t match the display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det här paketet är fäst men matchar inte visningsfiltret.</translation>
     </message>
     <message>
         <source>This packet is pinned but has been aggregated into a later row with the same key.</source>
-        <translation type="unfinished"></translation>
+        <translation>Det här paketet är fäst men har slagits ihop med en senare rad med samma nyckel.</translation>
     </message>
 </context>
 <context>
@@ -10263,6 +10433,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Advanced</source>
+        <translation type="unfinished">Avancerat</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Sök:</translation>
     </message>
@@ -10310,7 +10484,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Theme and Font</source>
-        <translation>Tema och teckensnitt</translation>
+        <translation type="vanished">Tema och teckensnitt</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation type="unfinished">Tema</translation>
     </message>
     <message>
         <source>Welcome Page</source>
@@ -10335,6 +10513,10 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <message>
         <source>Aggregation</source>
         <translation>Aggregering</translation>
+    </message>
+    <message>
+        <source>Fonts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10767,16 +10949,24 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <translation>Färgregler…</translation>
     </message>
     <message>
+        <source>Enable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resume Coloring Rule</source>
-        <translation>Återuppta färgregel</translation>
+        <translation type="vanished">Återuppta färgregel</translation>
     </message>
     <message>
         <source>Pause Coloring Rule</source>
-        <translation>Pausa färgregel</translation>
+        <translation type="vanished">Pausa färgregel</translation>
     </message>
     <message>
         <source>Resume All Coloring Rules</source>
-        <translation>Återuppta alla färgregler</translation>
+        <translation type="vanished">Återuppta alla färgregler</translation>
     </message>
     <message>
         <source>Copied %1</source>
@@ -11776,6 +11966,14 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
         <translation>Klicka för att inaktivera alla brytpunkter
 %1: lägg till eller ta bort på den aktuella raden i redigeraren</translation>
     </message>
+    <message>
+        <source>Count</source>
+        <translation type="unfinished">Antal</translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished">Procent</translation>
+    </message>
 </context>
 <context>
     <name>RecentCaptureFilesListModel</name>
@@ -12700,11 +12898,11 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo</translation>
     </message>
     <message>
         <source>Unmute selected streams and mute all other streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Slå på ljudet för de markerade strömmarna och stäng av ljudet för alla andra strömmar</translation>
     </message>
     <message>
         <source>Route audio to left channel of selected streams</source>
@@ -15493,8 +15691,7 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>(no tagrules.jsonc file yet — will be created on save)</source>
-        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
-        <translation type="unfinished">Taggregelfil saknas och skapas när du sparar</translation>
+        <translation>(filen tagrules.jsonc finns ännu inte och skapas när du sparar)</translation>
     </message>
     <message>
         <source>Click to edit. Drag to move. Sample Emojis &lt;a href=&quot;https://emojipedia.org&quot;&gt;here&lt;/a&gt;. All matching rules are applied.</source>
@@ -16582,16 +16779,24 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Ram</translation>
     </message>
     <message>
+        <source>General</source>
+        <translation type="unfinished">Allmänt</translation>
+    </message>
+    <message>
         <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa avsnitten Öppna och Fånga bredvid varandra när fönstret är tillräckligt brett, annars ovanför varandra.</translation>
     </message>
     <message>
         <source>Prefer Open and Capture sections side-by-side</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa helst avsnitten Öppna och Fånga bredvid varandra</translation>
     </message>
     <message>
         <source>Tips Section</source>
-        <translation>Tipsavsnitt</translation>
+        <translation type="vanished">Tipsavsnitt</translation>
+    </message>
+    <message>
+        <source>Tips</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
@@ -16626,8 +16831,12 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation> s</translation>
     </message>
     <message>
+        <source>Learn</source>
+        <translation type="unfinished">Lär dig</translation>
+    </message>
+    <message>
         <source>Learn Section</source>
-        <translation>Avsnittet Lär dig</translation>
+        <translation type="vanished">Avsnittet Lär dig</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
@@ -18001,6 +18210,10 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>Display Filter Reference</source>
         <translation>Referens för visningsfilter</translation>
+    </message>
+    <message>
+        <source>Discord</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>First Packet in Conversation</source>

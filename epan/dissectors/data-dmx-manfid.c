@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-10-18
+ * ESTA codes download date: 2026-10-25
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -365,6 +365,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x04B5, "Major" },
   { 0x04B6, "IntiLED" },
   { 0x04B8, "Guangzhou Hongcai Stage Equipment Co., Ltd." },
+  { 0x04BE, "NOLO SAS" },
   { 0x04C4, "Ephesus Lighting, Inc." },
   { 0x04CA, "RT-DMX" },
   { 0x04CC, "Yubang Ruiying (Zhongshan) Electronics Co., LTD" },
@@ -1128,6 +1129,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x122A, "Guangzhou Magic Technology Co., Ltd." },
   { 0x1234, "ESTA" },
   { 0x1238, "Tirso Lighting" },
+  { 0x123C, "Arman Nurzhanov" },
   { 0x1240, "Canary Yellow Applications" },
   { 0x1254, "Griffin Lighting Solutions Inc." },
   { 0x125A, "Dongguan Xuancaixin Optoelectronic Technology Co., Ltd." },
@@ -1177,6 +1179,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x170F, "Kezun Stage Lighting Equipment Co., Ltd." },
   { 0x174E, "Nordgas SNe-lightingsystem" },
   { 0x1750, "Yuesheng International Limited" },
+  { 0x17FA, "AXN Systems" },
   { 0x1808, "Guangzhou Jinye Electronic Technology Co., Ltd." },
   { 0x1809, "Rotolight" },
   { 0x180A, "Guangdong Longjoin Optoelectronics Technology Co. Ltd." },
@@ -1185,11 +1188,13 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1872, "Super-Can Industry Growing Co. Ltd." },
   { 0x1873, "Zhongshan Wellmake Electronic Technology Co., Ltd." },
   { 0x1888, "GUANZHOU KAVON STAGE EQUIPMENT CO., LTD." },
+  { 0x188A, "Kim Min Seok" },
   { 0x1896, "Triple E Ltd" },
   { 0x18A6, "Steadfast Technology" },
   { 0x18FC, "Cinema Balloons Kft." },
   { 0x1900, "ADJ Products LLC" },
   { 0x1901, "Zhongshan Hiline Electronics Co., Ltd." },
+  { 0x1902, "STAGEVision tech" },
   { 0x1938, "Solid State Luminaires" },
   { 0x1998, "PLS Electronics Ltd." },
   { 0x19A7, "Djip Co Industries" },
@@ -1266,6 +1271,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x2338, "Humanlitech Co., Ltd." },
   { 0x2339, "Sky-Skan Europe GmbH" },
   { 0x233A, "4 Frames Lost UG" },
+  { 0x2394, "Oriol Calabuig Alemany" },
   { 0x23B2, "Gekko Technology Ltd." },
   { 0x2421, "HB-Laserkomponenten GmbH" },
   { 0x242A, "Hungaroflash" },
@@ -1324,7 +1330,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x2C1A, "DMX4ALL GmbH" },
   { 0x2C2A, "XTBA" },
   { 0x2CE0, "Lighting Services Inc." },
-  { 0x2DB9, "Guangzhou Yeguang Lingdong Technology Co., Ltd." },
+  { 0x2DB9, "Guangzhou Jiuhao Electronic Technology Co., Ltd." },
   { 0x2DC8, "Stellascapes" },
   { 0x2DDD, "Waylight" },
   { 0x2DDE, "Luminlite Electronics Co., Ltd." },

@@ -1774,6 +1774,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
         <translation>Fráma</translation>
     </message>
     <message>
+        <source>Capture</source>
+        <translation type="unfinished">Gabháil</translation>
+    </message>
+    <message>
         <source>Default interface</source>
         <translation>Comhéadan réamhshocraithe</translation>
     </message>
@@ -2091,6 +2095,10 @@ Mar shampla, bain úsáid as 1 uair an chloig chun comhad nua a chruthú gach ua
     <message>
         <source>Frame</source>
         <translation>Fráma</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation type="unfinished">Colúin</translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -4511,15 +4519,19 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Main window font:</source>
-        <translation>Cló na príomhfhuinneoige:</translation>
+        <translation type="vanished">Cló na príomhfhuinneoige:</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation>Roghnaigh Cló</translation>
+        <translation type="vanished">Roghnaigh Cló</translation>
     </message>
     <message>
         <source>Theme</source>
         <translation>Téama</translation>
+    </message>
+    <message>
+        <source>Contrast:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Theme Author Information</source>
@@ -4532,11 +4544,11 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation>Sampla tá méideanna fuinneoige jumbo ag paicéid iarratais GIF</translation>
+        <translation type="vanished">Sampla tá méideanna fuinneoige jumbo ag paicéid iarratais GIF</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation>Bogann broic leisciúla paicéid smugairle róin céir ar leith</translation>
+        <translation type="vanished">Bogann broic leisciúla paicéid smugairle róin céir ar leith</translation>
     </message>
     <message>
         <source>System</source>
@@ -4559,12 +4571,146 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
         <translation>Téama:</translation>
     </message>
     <message>
+        <source>Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System follows the operating system contrast setting (Qt 6.10 or later).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The operating system contrast setting cannot be read with this Qt version; System acts as Standard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected theme always uses high contrast.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Theme by %1</source>
         <translation>Téama le %1</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Cló</translation>
+        <translation type="vanished">Cló</translation>
+    </message>
+</context>
+<context>
+    <name>FontPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">Fráma</translation>
+    </message>
+    <message>
+        <source>Monospace font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Used by the packet list, packet details, packet bytes and other text views.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 is not a monospaced font. Hex bytes and aligned columns will not line up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionDialog</name>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished">Cló</translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionWidget</name>
+    <message>
+        <source>&amp;Family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>St&amp;yle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font sizes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show only &amp;monospaced fonts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stri&amp;keout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Underline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Example GIF query packets have jumbo window sizes</source>
+        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
+        <translation type="unfinished">Sampla tá méideanna fuinneoige jumbo ag paicéid iarratais GIF</translation>
+    </message>
+    <message>
+        <source>Lazy badgers move unique waxy jellyfish packets</source>
+        <translation type="unfinished">Bogann broic leisciúla paicéid smugairle róin céir ar leith</translation>
+    </message>
+    <message>
+        <source>(Platform default)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (not installed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No matching font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5114,6 +5260,14 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
         <translation>Scoránaigh Y-ais idir scála logartamach agus líneach</translation>
+    </message>
+    <message>
+        <source>EWMA moving average</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Moving Average algorithm between EWMA and SMA</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -7262,7 +7416,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation>Socruithe liosta paicéad:</translation>
+        <translation type="vanished">Socruithe liosta paicéad:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -7290,7 +7444,7 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation>Socruithe an Bharra Stádais:</translation>
+        <translation type="vanished">Socruithe an Bharra Stádais:</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
@@ -7303,6 +7457,10 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Packet list multi-color display mode:</source>
         <translation>Mód taispeána il-dhathach liosta paicéad:</translation>
+    </message>
+    <message>
+        <source>Pane Layout</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Off</source>
@@ -7359,6 +7517,14 @@ I gcoibhneas leis an tagairt: n/a (lasmuigh den raon tagartha)</translation>
     <message>
         <source>Display multiple colors in packet details</source>
         <translation>Taispeáin dathanna iolracha i sonraí an phaicéid</translation>
+    </message>
+    <message>
+        <source>Show disabled coloring rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status Bar</source>
+        <translation type="unfinished">Barra Stádais</translation>
     </message>
 </context>
 <context>
@@ -8655,6 +8821,10 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <message>
         <source>Frame</source>
         <translation>Fráma</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation type="unfinished">Dealramh</translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
@@ -10300,6 +10470,10 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Advanced</source>
+        <translation type="unfinished">Ard</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Cuardaigh:</translation>
     </message>
@@ -10348,7 +10522,11 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     </message>
     <message>
         <source>Theme and Font</source>
-        <translation>Téama agus Cló</translation>
+        <translation type="vanished">Téama agus Cló</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation type="unfinished">Téama</translation>
     </message>
     <message>
         <source>Welcome Page</source>
@@ -10373,6 +10551,10 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
     <message>
         <source>Aggregation</source>
         <translation>Comhiomlánú</translation>
+    </message>
+    <message>
+        <source>Fonts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10812,16 +10994,24 @@ ar phointe briste atá ann cheana féin, lascraigh a staid ghníomhach</translat
         <translation>Rialacha Dathúcháin...</translation>
     </message>
     <message>
+        <source>Enable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resume Coloring Rule</source>
-        <translation>Riail Dathúcháin Athscríbhinní</translation>
+        <translation type="vanished">Riail Dathúcháin Athscríbhinní</translation>
     </message>
     <message>
         <source>Pause Coloring Rule</source>
-        <translation>Riail Dathúcháin Sos</translation>
+        <translation type="vanished">Riail Dathúcháin Sos</translation>
     </message>
     <message>
         <source>Resume All Coloring Rules</source>
-        <translation>Lean ar aghaidh leis na Rialacha Dathúcháin go léir</translation>
+        <translation type="vanished">Lean ar aghaidh leis na Rialacha Dathúcháin go léir</translation>
     </message>
     <message>
         <source>Copied %1</source>
@@ -11822,6 +12012,14 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
 %1: add or remove on the current line in the editor</source>
         <translation>Cliceáil chun na pointí briste go léir a dhíghníomhachtú
 %1: cuir leis nó bain ar an líne reatha san eagarthóir</translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation type="unfinished">Comhaireamh</translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished">Céatadán</translation>
     </message>
 </context>
 <context>
@@ -15548,7 +15746,6 @@ Atosóidh sé seo na scripteanna Lua go léir agus d&apos;fhéadfadh sé difear 
     </message>
     <message>
         <source>(no tagrules.jsonc file yet — will be created on save)</source>
-        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16638,6 +16835,10 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation>Fráma</translation>
     </message>
     <message>
+        <source>General</source>
+        <translation type="unfinished">Ginearálta</translation>
+    </message>
+    <message>
         <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16647,7 +16848,11 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     </message>
     <message>
         <source>Tips Section</source>
-        <translation>Roinn Leideanna</translation>
+        <translation type="vanished">Roinn Leideanna</translation>
+    </message>
+    <message>
+        <source>Tips</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
@@ -16682,8 +16887,12 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
         <translation> s</translation>
     </message>
     <message>
+        <source>Learn</source>
+        <translation type="unfinished">Foghlaim</translation>
+    </message>
+    <message>
         <source>Learn Section</source>
-        <translation>Rannóg Foghlama</translation>
+        <translation type="vanished">Rannóg Foghlama</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
@@ -18057,6 +18266,10 @@ Sainroghanna → Prótacail → TCP chun an tábla seo a úsáid.</translation>
     <message>
         <source>Display Filter Reference</source>
         <translation>Tagairt Scagaire Taispeána</translation>
+    </message>
+    <message>
+        <source>Discord</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>First Packet in Conversation</source>

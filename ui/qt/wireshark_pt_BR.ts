@@ -1758,6 +1758,10 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
         <translation>Quadro</translation>
     </message>
     <message>
+        <source>Capture</source>
+        <translation type="unfinished">Capturar</translation>
+    </message>
+    <message>
         <source>Default interface</source>
         <translation>Interface padrão</translation>
     </message>
@@ -2074,6 +2078,10 @@ Por exemplo, use 1 hora para que um novo arquivo seja criado a cada hora, de hor
     <message>
         <source>Frame</source>
         <translation>Quadro</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation type="unfinished">Colunas</translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -4479,14 +4487,18 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Main window font:</source>
-        <translation>Fonte da janela principal:</translation>
+        <translation type="vanished">Fonte da janela principal:</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation>Selecionar fonte</translation>
+        <translation type="vanished">Selecionar fonte</translation>
     </message>
     <message>
         <source>Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Contrast:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4500,11 +4512,11 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation>Pacotes de consulta GIF de exemplo têm tamanhos de janela jumbo</translation>
+        <translation type="vanished">Pacotes de consulta GIF de exemplo têm tamanhos de janela jumbo</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation>Texugos preguiçosos movem pacotes únicos e cerosos de água-viva</translation>
+        <translation type="vanished">Texugos preguiçosos movem pacotes únicos e cerosos de água-viva</translation>
     </message>
     <message>
         <source>System</source>
@@ -4527,12 +4539,146 @@ Relative to reference: n/a (outside reference range)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System follows the operating system contrast setting (Qt 6.10 or later).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The operating system contrast setting cannot be read with this Qt version; System acts as Standard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected theme always uses high contrast.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Theme by %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Fonte</translation>
+        <translation type="vanished">Fonte</translation>
+    </message>
+</context>
+<context>
+    <name>FontPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">Quadro</translation>
+    </message>
+    <message>
+        <source>Monospace font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Used by the packet list, packet details, packet bytes and other text views.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 is not a monospaced font. Hex bytes and aligned columns will not line up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionDialog</name>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished">Fonte</translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionWidget</name>
+    <message>
+        <source>&amp;Family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>St&amp;yle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font sizes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show only &amp;monospaced fonts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stri&amp;keout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Underline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Example GIF query packets have jumbo window sizes</source>
+        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
+        <translation type="unfinished">Pacotes de consulta GIF de exemplo têm tamanhos de janela jumbo</translation>
+    </message>
+    <message>
+        <source>Lazy badgers move unique waxy jellyfish packets</source>
+        <translation type="unfinished">Texugos preguiçosos movem pacotes únicos e cerosos de água-viva</translation>
+    </message>
+    <message>
+        <source>(Platform default)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (not installed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No matching font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Padrão</translation>
     </message>
 </context>
 <context>
@@ -5049,6 +5195,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
         <translation>Alternar eixo Y entre escala logarítmica e linear</translation>
+    </message>
+    <message>
+        <source>EWMA moving average</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Moving Average algorithm between EWMA and SMA</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -7194,7 +7348,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation>Configurações da Lista de Pacotes:</translation>
+        <translation type="vanished">Configurações da Lista de Pacotes:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -7222,7 +7376,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation>Configurações da Barra de Status:</translation>
+        <translation type="vanished">Configurações da Barra de Status:</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
@@ -7234,6 +7388,10 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Packet list multi-color display mode:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pane Layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7290,6 +7448,14 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Display multiple colors in packet details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show disabled coloring rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status Bar</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8555,6 +8721,10 @@ on an existing breakpoint, toggle its active state</source>
     <message>
         <source>Frame</source>
         <translation>Quadro</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation type="unfinished">Aparência</translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
@@ -10163,6 +10333,10 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Advanced</source>
+        <translation type="unfinished">Avançado</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>Buscar:</translation>
     </message>
@@ -10209,7 +10383,7 @@ on an existing breakpoint, toggle its active state</source>
         <translation>Colunas</translation>
     </message>
     <message>
-        <source>Theme and Font</source>
+        <source>Theme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10234,6 +10408,10 @@ on an existing breakpoint, toggle its active state</source>
     </message>
     <message>
         <source>Aggregation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fonts</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -10667,15 +10845,11 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resume Coloring Rule</source>
+        <source>Enable Coloring Rule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Pause Coloring Rule</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resume All Coloring Rules</source>
+        <source>Disable Coloring Rule</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11669,6 +11843,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Click to deactivate all breakpoints
 %1: add or remove on the current line in the editor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation type="unfinished">Contagem</translation>
+    </message>
+    <message>
+        <source>Percent</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -15348,7 +15530,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>(no tagrules.jsonc file yet — will be created on save)</source>
-        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16436,6 +16617,10 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished">Quadro</translation>
     </message>
     <message>
+        <source>General</source>
+        <translation type="unfinished">Geral</translation>
+    </message>
+    <message>
         <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16444,7 +16629,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Tips Section</source>
+        <source>Tips</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16480,7 +16665,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Learn Section</source>
+        <source>Learn</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17855,6 +18040,10 @@ Preferences → Protocols → TCP to use this table.</source>
     <message>
         <source>Display Filter Reference</source>
         <translation>Referência do Filtro de Exibição</translation>
+    </message>
+    <message>
+        <source>Discord</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>First Packet in Conversation</source>

@@ -1751,6 +1751,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>フレーム</translation>
     </message>
     <message>
+        <source>Capture</source>
+        <translation type="unfinished">キャプチャ</translation>
+    </message>
+    <message>
         <source>Default interface</source>
         <translation>デフォルトインターフェース</translation>
     </message>
@@ -2067,6 +2071,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Frame</source>
         <translation>フレーム</translation>
+    </message>
+    <message>
+        <source>Columns</source>
+        <translation type="unfinished">列</translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -4468,15 +4476,19 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Main window font:</source>
-        <translation>メインウインドウのフォント:</translation>
+        <translation type="vanished">メインウインドウのフォント:</translation>
     </message>
     <message>
         <source>Select Font</source>
-        <translation>フォントの選択</translation>
+        <translation type="vanished">フォントの選択</translation>
     </message>
     <message>
         <source>Theme</source>
         <translation>テーマ</translation>
+    </message>
+    <message>
+        <source>Contrast:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Theme Author Information</source>
@@ -4489,11 +4501,11 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation>サンプルのGIF形式のクエリパケットは巨大なウインドウサイズを持ちます。</translation>
+        <translation type="vanished">サンプルのGIF形式のクエリパケットは巨大なウインドウサイズを持ちます。</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation>Geraldさんが作成したpangram すべての文字を１文字使う回文 Lazy badgers move unique waxy jellyfish packets.</translation>
+        <translation type="vanished">Geraldさんが作成したpangram すべての文字を１文字使う回文 Lazy badgers move unique waxy jellyfish packets.</translation>
     </message>
     <message>
         <source>System</source>
@@ -4516,12 +4528,146 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>テーマ:</translation>
     </message>
     <message>
+        <source>Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System follows the operating system contrast setting (Qt 6.10 or later).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The operating system contrast setting cannot be read with this Qt version; System acts as Standard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected theme always uses high contrast.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Theme by %1</source>
         <translation>%1 によるテーマ</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>フォント</translation>
+        <translation type="vanished">フォント</translation>
+    </message>
+</context>
+<context>
+    <name>FontPreferencesFrame</name>
+    <message>
+        <source>Frame</source>
+        <translation type="unfinished">フレーム</translation>
+    </message>
+    <message>
+        <source>Monospace font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Used by the packet list, packet details, packet bytes and other text views.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 is not a monospaced font. Hex bytes and aligned columns will not line up.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionDialog</name>
+    <message>
+        <source>Font</source>
+        <translation type="unfinished">フォント</translation>
+    </message>
+</context>
+<context>
+    <name>FontSelectionWidget</name>
+    <message>
+        <source>&amp;Family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>St&amp;yle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Font sizes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show only &amp;monospaced fonts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stri&amp;keout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Underline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Example GIF query packets have jumbo window sizes</source>
+        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
+        <translation type="unfinished">サンプルのGIF形式のクエリパケットは巨大なウインドウサイズを持ちます。</translation>
+    </message>
+    <message>
+        <source>Lazy badgers move unique waxy jellyfish packets</source>
+        <translation type="unfinished">Geraldさんが作成したpangram すべての文字を１文字使う回文 Lazy badgers move unique waxy jellyfish packets.</translation>
+    </message>
+    <message>
+        <source>(Platform default)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (not installed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No matching font families</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">デフォルト</translation>
     </message>
 </context>
 <context>
@@ -5071,6 +5217,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Toggle Y-axis between logarithmic and linear scale</source>
         <translation>Y軸を対数スケールと線形スケールで切り替える</translation>
+    </message>
+    <message>
+        <source>EWMA moving average</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Moving Average algorithm between EWMA and SMA</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -7213,7 +7367,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Packet List settings:</source>
-        <translation>パケット一覧設定:</translation>
+        <translation type="vanished">パケット一覧設定:</translation>
     </message>
     <message>
         <source>Show packet separator</source>
@@ -7241,7 +7395,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Status Bar settings:</source>
-        <translation>ステータスバー設定:</translation>
+        <translation type="vanished">ステータスバー設定:</translation>
     </message>
     <message>
         <source>Show selected packet number</source>
@@ -7254,6 +7408,10 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Packet list multi-color display mode:</source>
         <translation>パケット一覧マルチカラー表示モード:</translation>
+    </message>
+    <message>
+        <source>Pane Layout</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Off</source>
@@ -7310,6 +7468,14 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Display multiple colors in packet details</source>
         <translation>パケット詳細部に複数の色を表示します</translation>
+    </message>
+    <message>
+        <source>Show disabled coloring rules</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Status Bar</source>
+        <translation type="unfinished">ステータスバー</translation>
     </message>
 </context>
 <context>
@@ -8585,6 +8751,10 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <message>
         <source>Frame</source>
         <translation>フレーム</translation>
+    </message>
+    <message>
+        <source>Appearance</source>
+        <translation type="unfinished">外観</translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
@@ -10222,6 +10392,10 @@ Shift+クリック: 空行では無効なブレークポイントを追加
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Advanced</source>
+        <translation type="unfinished">高度</translation>
+    </message>
+    <message>
         <source>Search:</source>
         <translation>検索:</translation>
     </message>
@@ -10268,7 +10442,11 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>Theme and Font</source>
-        <translation>テーマとフォント</translation>
+        <translation type="vanished">テーマとフォント</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation type="unfinished">テーマ</translation>
     </message>
     <message>
         <source>Welcome Page</source>
@@ -10293,6 +10471,10 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     <message>
         <source>Aggregation</source>
         <translation>集約</translation>
+    </message>
+    <message>
+        <source>Fonts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -10718,16 +10900,24 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>色付けルール...</translation>
     </message>
     <message>
+        <source>Enable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable Coloring Rule</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resume Coloring Rule</source>
-        <translation>色付けルールを復元</translation>
+        <translation type="vanished">色付けルールを復元</translation>
     </message>
     <message>
         <source>Pause Coloring Rule</source>
-        <translation>色付けルールを停止</translation>
+        <translation type="vanished">色付けルールを停止</translation>
     </message>
     <message>
         <source>Resume All Coloring Rules</source>
-        <translation>すべての色付けルールを復元</translation>
+        <translation type="vanished">すべての色付けルールを復元</translation>
     </message>
     <message>
         <source>Copied %1</source>
@@ -11723,6 +11913,14 @@ This will restart all Lua scripts and may affect capture analysis.</source>
 %1: add or remove on the current line in the editor</source>
         <translation>クリックしてすべてのブレークポイントを無効化します
 %1: エディタの現在の行で追加または削除</translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation type="unfinished">カウント</translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished">パーセント</translation>
     </message>
 </context>
 <context>
@@ -15433,7 +15631,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>(no tagrules.jsonc file yet — will be created on save)</source>
-        <oldsource>(no tagrules file yet — will be created on save)</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16523,6 +16720,10 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation>フレーム</translation>
     </message>
     <message>
+        <source>General</source>
+        <translation type="unfinished">一般</translation>
+    </message>
+    <message>
         <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -16532,7 +16733,11 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     </message>
     <message>
         <source>Tips Section</source>
-        <translation>TIPSセクション</translation>
+        <translation type="vanished">TIPSセクション</translation>
+    </message>
+    <message>
+        <source>Tips</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
@@ -16567,8 +16772,12 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation> s</translation>
     </message>
     <message>
+        <source>Learn</source>
+        <translation type="unfinished">学習</translation>
+    </message>
+    <message>
         <source>Learn Section</source>
-        <translation>学習セクション</translation>
+        <translation type="vanished">学習セクション</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
@@ -17942,6 +18151,10 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     <message>
         <source>Display Filter Reference</source>
         <translation>表示フィルタ参照</translation>
+    </message>
+    <message>
+        <source>Discord</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>First Packet in Conversation</source>
