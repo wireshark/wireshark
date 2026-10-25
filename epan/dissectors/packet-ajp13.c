@@ -793,6 +793,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   unsigned nhdr;
   unsigned i;
   ajp13_trans_info *trans = NULL;
+  const char *query_string = NULL;
 
   if (ajp13_tree)
     proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, ENC_NA);
@@ -1005,10 +1006,16 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_string(ajp13_tree, *req_attributes[aid],
                             tvb, apos, 1+aval_len+2, aval);
 
-      if (trans && aid == 0x05)  /* query_string */
-        trans->uri = wmem_strdup_printf(wmem_file_scope(), "%s?%s", trans->uri, aval);
+      if (aid == 0x05)  /* query_string */
+        query_string = aval;
     }
   }
+
+  /* Append the query string once, after the loop: each copy of the URI is
+   * kept for the life of the file.
+   */
+  if (trans && query_string)
+    trans->uri = wmem_strdup_printf(wmem_file_scope(), "%s?%s", trans->uri, query_string);
 }
 
 
