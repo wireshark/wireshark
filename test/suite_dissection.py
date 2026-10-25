@@ -4707,3 +4707,106 @@ class TestDissectAjp13:
             assert files['raw(1)'] == text
         if features.have_zstd:
             assert files['z.txt'] == text[:200]
+
+
+# TCP port 5190 belongs to the "aol" dissector by default.
+AIM_OPTS = ('-d', 'tcp.port==5190,aim')
+
+
+class TestDissectAim:
+    def test_aim_port_not_aim_by_default(self, cmd_tshark, capture_file, test_env):
+        '''Port 5190 goes to the AOL dissector unless Decode As says AIM.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aim_coverage.pcap.gz'),
+                '-Y', 'aim',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_aim_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every SNAC family is dissected, with no malformed packets and
+        no errors.'''
+        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+                '-r', capture_file('aim_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 261
+        assert protocols.count('AIM') == 14
+        assert protocols.count('AIM Administration') == 10
+        assert protocols.count('AIM Advertisements') == 3
+        assert protocols.count('AIM BOS') == 8
+        assert protocols.count('AIM Buddylist') == 11
+        assert protocols.count('AIM Chat') == 17
+        assert protocols.count('AIM ChatNav') == 9
+        assert protocols.count('AIM Directory') == 5
+        assert protocols.count('AIM Email') == 4
+        assert protocols.count('AIM Generic') == 33
+        assert protocols.count('AIM ICQ') == 11
+        assert protocols.count('AIM Invitation') == 3
+        assert protocols.count('AIM Location') == 12
+        assert protocols.count('AIM Messaging') == 26
+        assert protocols.count('AIM Popup') == 7
+        assert protocols.count('AIM Signon') == 9
+        assert protocols.count('AIM SSI') == 35
+        assert protocols.count('AIM SST') == 7
+        assert protocols.count('AIM Stats') == 4
+        assert protocols.count('AIM Translate') == 3
+        assert protocols.count('AIM User Lookup') == 3
+        assert protocols.count('TLSv1.2') == 11
+        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+                '-r', capture_file('aim_coverage.pcap.gz'),
+                '-Y', '_ws.malformed || _ws.expert.severity == error',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_aim_chat_long_messages(self, cmd_tshark, capture_file, test_env):
+        '''Chat messages longer than 999 octets are not shown, and the
+        Info column does not pick up an uninitialised buffer.'''
+        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+                '-r', capture_file('aim_coverage.pcap.gz'),
+                '-Y', 'aim_chat && aim.datalen > 999',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '151\tAIM Chat, Outgoing Message -> ',
+            '152\tAIM Chat, Incoming Messagefrom:  -> ',
+        ]
+
+    def test_aim_chat_short_messages(self, cmd_tshark, capture_file, test_env):
+        '''The text of a short chat message is taken from the HTML.'''
+        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+                '-r', capture_file('aim_coverage.pcap.gz'),
+                '-Y', 'aim_chat.screen_name == "bob"',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'AIM Chat, Incoming Messagefrom: bob -> llmmtthh',
+            'AIM Chat, Incoming Messagefrom: bob -> Hi everybody',
+            'AIM Chat, Incoming Messagefrom: bob -> hi',
+        ]
+
+    def test_aim_tls_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''AIM in a TLS session (NULL cipher) is found by the aim_tls
+        heuristic when it is enabled.'''
+        stdout = subprocess.check_output((cmd_tshark, *AIM_OPTS,
+                '--enable-heuristic', 'aim_tls',
+                '-r', capture_file('aim_coverage.pcap.gz'),
+                '-Y', 'tls && aim',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'New Connection',
+            'AIM Generic, Server Ready',
+        ]
+
+    def test_aim_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes give the same AIM output.'''
+        def aim_info(*opts):
+            return subprocess.check_output((cmd_tshark, *AIM_OPTS, *opts,
+                    '-r', capture_file('aim_coverage.pcap.gz'),
+                    '-Y', 'aim',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+        assert aim_info() == aim_info('-2')
