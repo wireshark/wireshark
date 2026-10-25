@@ -4871,3 +4871,84 @@ class TestDissectAfs:
             ('391', '2147483647', 1),
             ('392', '16000', 16000),
         ]
+
+
+# The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
+AIN_OPTS = ('-o', 'mtp3.standard:ANSI')
+
+
+class TestDissectAin:
+    def test_ain_needs_ansi_mtp3(self, cmd_tshark, capture_file, test_env):
+        '''With the default (ITU) MTP3 standard the ANSI SCCP addresses do
+        not route to TCAP, so nothing is dissected as AIN.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ain_coverage.pcap.gz'),
+                '-Y', 'ain',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_ain_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every operation is dissected, with no malformed packets and no
+        warning or error expert infos.'''
+        stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+                '-r', capture_file('ain_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 131
+        assert protocols.count('AIN') == 130
+        # the Reject is not passed to AIN
+        assert protocols.count('ANSI TCAP') == 1
+        stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+                '-r', capture_file('ain_coverage.pcap.gz'),
+                '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_ain_parameters(self, cmd_tshark, capture_file, test_env):
+        '''The hand-written AINDigits, CarrierFormat and AMAslpID bodies and
+        the ExtensionParameter OID callback decode their values.'''
+        for dfilter, frames in (
+                ('ain.bcd_digits == "9085551212"', 47),
+                ('ain.carrier_bcd_digits == "0288"', 17),
+                ('ain.amaslpid == "123456789"', 29),
+                ('ain.ext_type_oid == "2.5.4.3" && x509sat.printableString == "AIN synthetic extension"', 121),
+                ):
+            stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+                    '-r', capture_file('ain_coverage.pcap.gz'),
+                    '-Y', dfilter,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == frames, dfilter
+
+    def test_ain_return_result(self, cmd_tshark, capture_file, test_env):
+        '''An Invoke and its ReturnResult in one package (it used to hit
+        DISSECTOR_ASSERT_NOT_REACHED in dissect_ain()) decodes the result
+        of the invoked operation.'''
+        stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+                '-r', capture_file('ain_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-e_ws.col.info', '-eain.actResult', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == 'activityTest ReturnResult \t0\t\n'
+        # Every ReturnResult (one for each of the 12 operations with a
+        # result, more for those sent several times) gets its operation
+        stdout = subprocess.check_output((cmd_tshark, *AIN_OPTS,
+                '-r', capture_file('ain_coverage.pcap.gz'),
+                '-Y', '_ws.col.info contains "ReturnResult"',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 33
+        assert 'Unknown' not in stdout
+
+    def test_ain_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''Two passes give the same AIN output as one.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *AIN_OPTS, *passes,
+                    '-r', capture_file('ain_coverage.pcap.gz'),
+                    '-O', 'ain', '-V',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
