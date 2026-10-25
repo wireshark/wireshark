@@ -59,10 +59,30 @@ static bool acl_reassembly = true;
 typedef struct _multi_fragment_pdu_t {
     uint32_t first_frame;
     uint32_t last_frame;
-    uint16_t tot_len;
+    unsigned tot_len;
     char    *reassembled;
+    unsigned alloc_len;         /* allocated length of reassembled */
     int      cur_off;           /* counter used by reassembly */
 } multi_fragment_pdu_t;
+
+/* Append to the reassembly buffer, growing it as data actually arrives
+ * rather than allocating the claimed total length up front. */
+static void
+mfp_append(multi_fragment_pdu_t *mfp, tvbuff_t *tvb, int offset, int len)
+{
+    if (len <= 0)
+        return;
+
+    if ((unsigned)(mfp->cur_off + len) > mfp->alloc_len) {
+        unsigned new_len = MIN(2 * mfp->alloc_len, mfp->tot_len);
+
+        new_len = MAX(new_len, (unsigned)(mfp->cur_off + len));
+        mfp->reassembled = (char *) wmem_realloc(wmem_file_scope(), mfp->reassembled, new_len);
+        mfp->alloc_len = new_len;
+    }
+    tvb_memcpy(tvb, (uint8_t *) mfp->reassembled + mfp->cur_off, offset, len);
+    mfp->cur_off += len;
+}
 
 typedef struct _chandle_data_t {
     wmem_tree_t *start_fragments;  /* indexed by pinfo->num */
@@ -431,11 +451,12 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 mfp->first_frame = pinfo->num;
                 mfp->last_frame  = 0;
                 mfp->tot_len     = l2cap_length + 4;
-                mfp->reassembled = (char *) wmem_alloc(wmem_file_scope(), mfp->tot_len);
+                mfp->reassembled = NULL;
+                mfp->alloc_len   = 0;
+                mfp->cur_off     = 0;
                 len = tvb_captured_length_remaining(tvb, offset);
-                if (len <= mfp->tot_len) {
-                    tvb_memcpy(tvb, (uint8_t *) mfp->reassembled, offset, len);
-                    mfp->cur_off = len;
+                if ((unsigned)len <= mfp->tot_len) {
+                    mfp_append(mfp, tvb, offset, len);
                     wmem_tree_insert32(chandle_data->start_fragments, pinfo->num, mfp);
                 }
             } else {
@@ -453,14 +474,13 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             mfp = (multi_fragment_pdu_t *)wmem_tree_lookup32_le(chandle_data->start_fragments, pinfo->num);
             if (!pinfo->fd->visited) {
                 len = tvb_captured_length_remaining(tvb, offset);
-                if (mfp != NULL && !mfp->last_frame && mfp->tot_len > mfp->cur_off) {
+                if (mfp != NULL && !mfp->last_frame && mfp->tot_len > (unsigned)mfp->cur_off) {
                     int avail = mfp->tot_len - mfp->cur_off;
                     if (len > avail) {
                         len = avail;
                     }
-                    tvb_memcpy(tvb, (uint8_t *) mfp->reassembled + mfp->cur_off, offset, len);
-                    mfp->cur_off += len;
-                    if (mfp->cur_off == mfp->tot_len) {
+                    mfp_append(mfp, tvb, offset, len);
+                    if ((unsigned)mfp->cur_off == mfp->tot_len) {
                         mfp->last_frame = pinfo->num;
                     }
                 }
