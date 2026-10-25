@@ -314,7 +314,7 @@ static int dissect_lbmpdm_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
     return tvb_captured_length(tvb);
 }
 
-static bool test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
+static bool test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data)
 {
     int encoding = 0;
     uint32_t packet_len = 0;
