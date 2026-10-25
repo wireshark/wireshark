@@ -24,7 +24,7 @@
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/uat_delegate.h>
 
-#include "wireshark_dialog.h"
+#include "graph_dialog.h"
 
 #include <QPointer>
 #include <QMenu>
@@ -112,7 +112,7 @@ static const value_string io_graph_style_vs[] = {
  * variants (e.g. flow graphs, conversation graphs) while reusing the core
  * plot and scheduling machinery.
  */
-class IOGraphDialog : public WiresharkDialog
+class IOGraphDialog : public GraphDialog
 {
     Q_OBJECT
 
@@ -162,15 +162,17 @@ public:
      *                       (i.e. traffic not matched by any other graph).
      * @param name           Display name shown in the legend.
      * @param dfilter        Display filter expression for the graph.
-     * @param color_idx      RGB pen colour.
      * @param style          Plot style (line, bar, dot, etc.).
      * @param value_units    Y-axis unit.
      * @param yfield         Y-axis field expression.
      * @param moving_average Window size for the moving average, or 0 to disable.
      * @param yaxisfactor    Multiplier applied to all Y values before plotting.
+     *
+     * The graph color is the theme palette color of the new row
+     * (GraphDialog::newGraphColor()).
      */
     void addGraph(bool checked, bool asAOT, QString name, QString dfilter,
-                  QColor color_idx, IOGraph::PlotStyles style,
+                  IOGraph::PlotStyles style,
                   io_graph_item_unit_t value_units, QString yfield,
                   int moving_average, double yaxisfactor);
 
@@ -197,17 +199,6 @@ public:
     void addGraph(bool copy_from_current = false);
 
     /**
-     * @brief Add the default graph(s) for this dialog type.
-     *
-     * Called by initialize() to populate an empty graph table. Subclasses
-     * may override this to provide a different default set.
-     *
-     * @param enabled Whether the default graph should start enabled.
-     * @param idx     Index hint passed to the default graph factory.
-     */
-    virtual void addDefaultGraph(bool enabled, int idx = 0);
-
-    /**
      * @brief Synchronise the QCustomPlot graph object for @p row with
      * its UAT model row data.
      *
@@ -225,6 +216,18 @@ public:
      */
     qsizetype graphCount() const;
 
+protected:
+
+    /**
+     * @brief Add a graph to this dialog type.
+     *
+     * Called by initialize() for the two default graphs and by the new-graph
+     * button; the preset alternates with the row number of the new graph.
+     * Subclasses may override this to provide a different default set.
+     *
+     * @param enabled Whether the new graph should start enabled.
+     */
+    virtual void insertGraph(bool enabled);
 
 public slots:
     /**
@@ -453,7 +456,6 @@ private:
     CopyFromProfileButton *copy_profile_bt_; /**< Button that copies graph settings from another profile. */
 
     // Model and delegate chosen over UatFrame to allow custom button layout.
-    QPointer<UatModel> uat_model_;  /**< UAT-backed table model for graph rows. */
     UatDelegate *uat_delegate_;     /**< Item delegate providing in-place editors for UAT fields. */
 
     /** Graph objects in UAT row order; must stay synchronised with uat_model_. */
@@ -478,17 +480,6 @@ private:
 
     QSharedPointer<QCPAxisTicker>         number_ticker_;   /**< Numeric axis ticker for relative time display. */
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_; /**< Date/time axis ticker for time-of-day display. */
-
-    /**
-     * @brief Theme-default color last assigned to each UAT row.
-     *
-     * Indexed by UAT row position.  onThemeChanged() refreshes only rows
-     * whose current color still equals the recorded default — i.e. rows the
-     * user has not customized via the color editor.  The map is best-effort:
-     * row delete or reorder leaves stale keys, in which case the affected
-     * rows are skipped on the next theme flip rather than wrongly overwritten.
-     */
-    QHash<int, QColor> themeDefaultColors_;
 
 
     /** @brief Zoom both axes in or out by a fixed factor. @param in true to zoom in. */
@@ -561,17 +552,6 @@ private:
 
 
 private slots:
-    /**
-     * @brief Refresh theme-default graph colors after a theme change.
-     *
-     * For each UAT row whose current color still equals the previously
-     * recorded theme default, replace it with the new theme's
-     * graphColor(row) and resync the IOGraph.  User-customized rows
-     * (where the current color no longer matches the recorded default)
-     * are left untouched.
-     */
-    void onThemeChanged();
-
     /**
      * @brief Apply pending UAT changes to the registration tables.
      *

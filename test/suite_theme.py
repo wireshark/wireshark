@@ -1333,7 +1333,8 @@ CVD_MATRICES = {
 # hues after them (slots 1-7 and 8-14 in resources/themes/README.md).
 # The tints repeat the hues on purpose, so only the strong slots must be
 # told apart; they are also the only slots the fixed-slot users read
-# (TCP stream graph 1-5, SCTP graphs 0/1/3/4/6, DIS analysis 1).
+# (TCP stream graph 1-5, SCTP graphs 0/1/3/4/6, DIS analysis 1, I/O Graph
+# and Plot defaults 0/1).
 STRONG_GRAPH_SLOTS = 7
 
 # Semantic color sets and the minimum CIEDE2000 difference between any
@@ -1539,6 +1540,68 @@ class TestColorVisionThemes:
     def test_ciede2000_reference_pairs(self, lab1, lab2, expected):
         '''Pairs from Sharma, Wu and Dalal's CIEDE2000 test data.'''
         assert ciede2000(lab1, lab2) == pytest.approx(expected, abs=1e-4)
+
+
+# GraphDialog gives a new row the palette color of its row number, so the
+# two default series of the I/O Graph and Plot dialogs use slots 0 and 1.
+DEFAULT_SERIES_SLOTS = (0, 1)
+# The default series must be as far apart as any two strong graph slots.
+GRAPH_SLOT_FLOOR = next(m for s, k, m in CVD_SETS if s == 'graphs' and k is None)
+GRAPH_DIALOG_CPP = REPO_ROOT / 'ui' / 'qt' / 'graph_dialog.cpp'
+GRAPH_DIALOG_SUBCLASSES = (
+    REPO_ROOT / 'ui' / 'qt' / 'io_graph_dialog.cpp',
+    REPO_ROOT / 'ui' / 'qt' / 'plot_dialog.cpp',
+    REPO_ROOT / 'ui' / 'stratoshark' / 'stratoshark_io_graph_dialog.cpp',
+    REPO_ROOT / 'ui' / 'stratoshark' / 'stratoshark_plot_dialog.cpp',
+)
+
+
+class TestGraphDefaultSeries:
+    '''The I/O Graph and Plot dialogs color their rows through GraphDialog,
+    which uses the row number as palette slot.'''
+
+    def test_default_slots_are_distinct_strong_slots(self):
+        assert len(set(DEFAULT_SERIES_SLOTS)) == len(DEFAULT_SERIES_SLOTS)
+        assert all(i < STRONG_GRAPH_SLOTS for i in DEFAULT_SERIES_SLOTS)
+
+    @pytest.mark.parametrize('theme_path', _bundled_themes(),
+                             ids=lambda p: p.parent.name)
+    @pytest.mark.parametrize('mode', ('light', 'dark'))
+    def test_default_series_colors_differ(self, theme_path, mode):
+        graphs = _load_theme(theme_path).get('graphs') or []
+        assert graphs, f'{theme_path.parent.name} has no graph colors'
+        first, second = (graphs[i % len(graphs)].get(mode) for i in DEFAULT_SERIES_SLOTS)
+        assert first and second, \
+            f'{theme_path.parent.name} must pin both default series slots ({mode})'
+        diff = ciede2000(_rgb_to_lab(_hex_to_rgb(first)), _rgb_to_lab(_hex_to_rgb(second)))
+        assert diff >= GRAPH_SLOT_FLOOR, \
+            (f'{theme_path.parent.name} {mode}: default series {first} / {second} '
+             f'differ by CIEDE2000 {diff:.1f} < {GRAPH_SLOT_FLOOR}')
+
+    def test_new_row_color_follows_row_number(self):
+        source = GRAPH_DIALOG_CPP.read_text(encoding='utf-8')
+        assert re.search(r'graphColor\(\s*uat_model_\s*\?\s*uat_model_->rowCount\(\)', source), \
+            'GraphDialog::newGraphColor() must use the new row number as palette slot'
+
+    @pytest.mark.parametrize('dialog', GRAPH_DIALOG_SUBCLASSES, ids=lambda p: p.name)
+    def test_dialogs_color_rows_through_graph_dialog(self, dialog):
+        source = dialog.read_text(encoding='utf-8')
+        for chooser in ('graphColor(', 'GraphColorsList'):
+            assert chooser not in source, \
+                f'{dialog.name} must not choose palette colors itself ({chooser})'
+
+    @pytest.mark.parametrize('dialog', GRAPH_DIALOG_SUBCLASSES[:2], ids=lambda p: p.name)
+    def test_dialogs_use_new_graph_color(self, dialog):
+        assert 'newGraphColor()' in dialog.read_text(encoding='utf-8'), \
+            f'{dialog.name} must color new rows with GraphDialog::newGraphColor()'
+
+    def test_no_separate_default_graph_color(self):
+        offenders = [str(p.relative_to(REPO_ROOT))
+                     for p in sorted((REPO_ROOT / 'ui').rglob('*'))
+                     if p.suffix in ('.c', '.cpp', '.h') and p.is_file()
+                     and 'graphDefaultColor' in p.read_text(encoding='utf-8', errors='replace')]
+        assert not offenders, \
+            f'graphDefaultColor is back; default series use palette slots: {offenders}'
 
 
 # =====================================================================

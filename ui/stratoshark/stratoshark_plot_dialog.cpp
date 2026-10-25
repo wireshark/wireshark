@@ -12,8 +12,6 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/plot_graph_uat.h>
 
-#include <ui/qt/utils/theme_manager.h>
-
 static uat_field_t plot_event_fields[] = {
     UAT_FLD_BOOL(plot, enabled, "Enabled", "Graph visibility"),
     UAT_FLD_DEC(plot, group, "Group #", "Which group the plot belongs to"),
@@ -63,7 +61,6 @@ void StratosharkPlotDialog::addDefaultPlot(bool enabled, bool filtered)
 {
     QString filter = filtered ? "evt.type == \"read\"" : QString();
     QString name = filtered ? tr("Event latency") : tr("Frame num.");
-    QColor color = filtered ? ThemeManager::instance()->graphColor(0) : ThemeManager::instance()->graphDefaultColor();
     Graph::PlotStyles style = filtered ? Graph::psDotStepLine : Graph::psLine;
-    addPlot(enabled, name, filter, color, style, filtered ? "evt.latency" : "frame.number");
+    addPlot(enabled, name, filter, style, filtered ? "evt.latency" : "frame.number");
 }

@@ -253,6 +253,7 @@ set(WIRESHARK_QT_HEADERS
 	geometry_state_dialog.h
 	glib_mainloop_on_qeventloop.h
 	graph.h
+	graph_dialog.h
 	gsm_map_summary_dialog.h
 	iax2_analysis_dialog.h
 	imsi_list_dialog.h
@@ -613,6 +614,7 @@ set(WIRESHARK_QT_SRC
 	funnel_text_dialog.cpp
 	geometry_state_dialog.cpp
 	glib_mainloop_on_qeventloop.cpp
+	graph_dialog.cpp
 	iax2_analysis_dialog.cpp
 	imsi_list_dialog.cpp
 	import_text_dialog.cpp

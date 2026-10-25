@@ -62,14 +62,14 @@ public:
                     bool is_sibling_dialog = false,
                     const QVector<QString> convFilters = QVector<QString>());
 
-    /**
-     * @brief Adds a Stratoshark-appropriate default graph to the dialog.
-     * @param enabled @c true if the graph should be visible immediately.
-     * @param idx     Zero-based index controlling which default graph preset to add.
-     */
-    virtual void addDefaultGraph(bool enabled, int idx = 0) override;
-
 protected:
+    /**
+     * @brief Add a Stratoshark preset graph: even rows all events as a line,
+     *        odd rows execve events as dots.
+     * @param enabled @c true if the graph should be visible immediately.
+     */
+    virtual void insertGraph(bool enabled) override;
+
     /**
      * @brief Returns the display name used when saving filtered graph data.
      * @return Stratoshark-specific filtered name string.

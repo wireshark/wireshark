@@ -28,7 +28,6 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/plot_theme.h>
-#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/widgets/qcustomplot.h>
 #include <ui/qt/widgets/qcp_string_legend_item.h>
@@ -218,9 +217,8 @@ static void io_graph_post_update_cb() {
 } // extern "C"
 
 IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_unit_name) :
-    WiresharkDialog(parent, cf),
+    GraphDialog(parent, cf, colColor),
     ui(new Ui::IOGraphDialog),
-    uat_model_(nullptr),
     uat_delegate_(nullptr),
     base_graph_(nullptr),
     tracer_(nullptr),
@@ -287,9 +285,6 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
     stat_timer_->start(stat_update_interval_);
-
-    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
-            this, &IOGraphDialog::onThemeChanged);
 
     // Intervals (ms)
     // #6441 asks for arbitrary values. We could probably do that with
@@ -399,8 +394,9 @@ void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QS
                 }
             }
         } else {
-            addDefaultGraph(true, 0);
-            addDefaultGraph(true, 1);
+            /* No existing graphs, insert default ones */
+            insertGraph(true);
+            insertGraph(true);
         }
 
         if (! filterExists && (!displayFilter.isEmpty() || !yfield.isEmpty())) {
@@ -418,8 +414,9 @@ void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QS
             }
         }
         else {
-            addDefaultGraph(true, 0);
-            addDefaultGraph(true, 1);
+            /* No existing graphs, insert default ones */
+            insertGraph(true);
+            insertGraph(true);
         }
         /* Filtered packets */
         if (!displayFilter.isEmpty() || !yfield.isEmpty()) {
@@ -427,8 +424,7 @@ void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QS
         }
         /* selected conversations from a sibling dialog (typically conversations dialog) */
         for (int i = 0; i < convFilters.size(); ++i) {
-            QColor graphColor = ThemeManager::instance()->graphColor(uat_model_->rowCount());
-            addGraph(true, false, convFilters.at(i), convFilters.at(i), graphColor,
+            addGraph(true, false, convFilters.at(i), convFilters.at(i),
                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
         }
     }
@@ -519,11 +515,12 @@ QString IOGraphDialog::getYFieldName(io_graph_item_unit_t value_units, const QSt
     return QString(val_to_str_const(value_units, y_axis_packet_vs, "Unknown")).replace("Y Field", yfield);
 }
 
-void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfilter, QColor color, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, double y_axis_factor)
+void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfilter, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, double y_axis_factor)
 {
     if (uat_model_ == nullptr)
         return;
 
+    const QColor color = newGraphColor();
     QVariantList newRowData;
     newRowData.append(checked ? Qt::Checked : Qt::Unchecked);
     newRowData.append(name);
@@ -542,9 +539,6 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString name, QString dfi
         qDebug() << "Failed to add a new record";
         return;
     }
-    // Record the theme-derived default so onThemeChanged() can refresh
-    // it later without overwriting subsequent user customizations.
-    themeDefaultColors_.insert(newIndex.row(), color);
     ui->graphUat->setCurrentIndex(newIndex);
 }
 
@@ -563,8 +557,7 @@ void IOGraphDialog::addGraph(bool checked, bool asAOT, QString dfilter, io_graph
     } else {
         graph_name = getYFieldName(value_units, yfield);
     }
-    QColor graphColor = ThemeManager::instance()->graphColor(uat_model_->rowCount());
-    addGraph(checked, asAOT, std::move(graph_name), dfilter, graphColor,
+    addGraph(checked, asAOT, std::move(graph_name), dfilter,
         IOGraph::psLine, value_units, yfield, DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
 }
 
@@ -588,7 +581,7 @@ void IOGraphDialog::addGraph(bool copy_from_current)
         }
         ui->graphUat->setCurrentIndex(copyIdx);
     } else {
-        addDefaultGraph(false);
+        insertGraph(false);
         copyIdx = uat_model_->index(uat_model_->rowCount() - 1, 0);
     }
 
@@ -612,12 +605,20 @@ void IOGraphDialog::createIOGraph(int currentRow)
     iog->setNeedRetap(true);
 }
 
-void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
+void IOGraphDialog::insertGraph(bool enabled)
 {
-    QString graph_name = (idx % 2 == 0) ? tr("All Packets") : tr("TCP Errors");
-    QColor graphColor = (idx % 2 == 0) ? ThemeManager::instance()->graphColor(idx) : ThemeManager::instance()->graphDefaultColor();
-    Graph::PlotStyles style = (idx % 2 == 0) ? IOGraph::psLine : IOGraph::psBar;
-    addGraph(enabled, false, graph_name, QString(), graphColor, style, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
+    if (uat_model_ == nullptr)
+        return;
+
+    QStringList graphNames = { tr("All Packets"), tr("TCP Errors") };
+    QStringList filters = { QString(), QStringLiteral("tcp.analysis.flags") };
+    QList plotStyles = { IOGraph::psLine, IOGraph::psBar };
+
+    const int idx = uat_model_->rowCount();
+
+    addGraph(enabled, false, graphNames[idx % graphNames.size()], filters[idx % filters.size()],
+             plotStyles[idx % plotStyles.size()], IOG_ITEM_UNIT_PACKETS, QString(),
+             DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
 }
 
 int IOGraphDialog::getYAxisValue(const QString& data)
@@ -713,38 +714,6 @@ void IOGraphDialog::scheduleRetap(bool now)
     if (now) updateStatistics();
 }
 
-void IOGraphDialog::onThemeChanged()
-{
-    if (!uat_model_)
-        return;
-
-    ThemeManager *tm = ThemeManager::instance();
-    bool anyUpdated = false;
-    for (int row = 0; row < uat_model_->rowCount(); ++row) {
-        const QColor current = uat_model_->data(
-            uat_model_->index(row, colColor), Qt::DecorationRole
-        ).value<QColor>();
-
-        // Only refresh rows the user has not customized — i.e. rows whose
-        // current color still matches the theme default we last recorded.
-        if (!themeDefaultColors_.contains(row) ||
-            themeDefaultColors_.value(row) != current)
-            continue;
-
-        const QColor next = tm->graphColor(row);
-        if (next == current)
-            continue;
-
-        uat_model_->setData(uat_model_->index(row, colColor),
-                            next, Qt::DecorationRole);
-        themeDefaultColors_.insert(row, next);
-        syncGraphSettings(row);
-        anyUpdated = true;
-    }
-    if (anyUpdated)
-        scheduleReplot(true);
-}
-
 void IOGraphDialog::reloadFields()
 {
     emit reloadValueUnitFields();
@@ -765,7 +734,7 @@ void IOGraphDialog::captureFileClosing()
     // disabled, updating the model from elsewhere (e.g., other dialogs)
     // will still change it, so we'd need to copy the information into
     // a new model.
-    uat_model_ = nullptr;
+    setUatModel(nullptr);
     ui->graphUat->setModel(nullptr);
     ui->graphUat->setVisible(false);
     WiresharkDialog::captureFileClosing();
@@ -1509,7 +1478,8 @@ void IOGraphDialog::loadProfileGraphs(uat_field_t* io_graph_fields)
         connect(mainApp, &MainApplication::profileChanging, IOGraphDialog::applyChanges);
     }
 
-    uat_model_ = static_uat_model_;
+    setUatModel(static_uat_model_);
+
     uat_delegate_ = new UatDelegate(ui->graphUat);
     ui->graphUat->setModel(uat_model_);
     ui->graphUat->setItemDelegate(uat_delegate_);
@@ -1614,20 +1584,7 @@ void IOGraphDialog::modelRowsMoved(const QModelIndex &source, int sourceStart, i
     // Either destinationRow < sourceStart, or destinationRow > sourceEnd.
     // When moving rows down the same parent, the rows are placed _before_
     // destinationRow, otherwise it's the row to which items are moved.
-    if (destinationRow < sourceStart) {
-        for (int i = 0; i <= sourceEnd - sourceStart; i++) {
-            // When moving up the same parent, moving an earlier
-            // item doesn't change the row.
-            ioGraphs_.move(sourceStart + i, destinationRow + i);
-        }
-    } else {
-        for (int i = 0; i <= sourceEnd - sourceStart; i++) {
-            // When moving down the same parent, moving an earlier
-            // item means the next items move up (so all the moved
-            // rows are always at sourceStart.)
-            ioGraphs_.move(sourceStart, destinationRow - 1);
-        }
-    }
+    moveListRows(ioGraphs_, sourceStart, sourceEnd, destinationRow);
 
     // setting a QCPLayerable to its current layer moves it to the end
     // as though it were the last added. Do that for all the plottables

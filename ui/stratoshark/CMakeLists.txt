@@ -240,6 +240,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/geometry_state_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/glib_mainloop_on_qeventloop.h
 	${CMAKE_SOURCE_DIR}/ui/qt/graph.h
+	${CMAKE_SOURCE_DIR}/ui/qt/graph_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/import_text_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_frame.h
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar.h
@@ -576,6 +577,7 @@ set(WIRESHARK_QT_SRC
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_text_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/geometry_state_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/glib_mainloop_on_qeventloop.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/graph_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/import_text_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_frame.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/interface_toolbar.cpp
