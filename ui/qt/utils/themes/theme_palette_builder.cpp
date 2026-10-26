@@ -298,27 +298,61 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
 #endif
     }
 
-    // High contrast: the roles a theme cannot pin are derived from the
-    // theme's own colors, so a platform baseline (such as a Windows
-    // high-contrast scheme) does not mix its colors into the theme.
-    // Buttons and tooltips take the window surface with readable window
-    // text, placeholder text is Text faded halfway into Base and lifted
-    // to the large-text ratio, and the bevel roles keep the non-text
-    // ratio from the window.
-    if (ratios.level == ThemeContrast::High) {
+    const bool highContrast = ratios.level == ThemeContrast::High;
+
+    // Buttons take the window surface with readable window text in high
+    // contrast, so a platform baseline (such as a Windows high-contrast
+    // scheme) does not mix its colors into the theme.
+#ifdef Q_OS_MACOS
+    // On macOS they also do so whenever the theme sets a window color for
+    // this mode.  QMacStyle fills item view header sections, the packet
+    // list column header among them, with Button and labels them in
+    // ButtonText, so without this a tinted window keeps the system grey
+    // header.  Themes without a window color keep the system roles, since
+    // every build starts from the baseline.
+    const bool buttonFollowsWindow = highContrast
+            || ThemeTokenHandler::sideOf(tokens, ThemeManager::PaletteWindow, isDarkMode).isValid();
+#else
+    const bool buttonFollowsWindow = highContrast;
+#endif
+
+    if (buttonFollowsWindow) {
         const QColor window     = pal.color(QPalette::Active, QPalette::Window);
         const QColor windowText = pal.color(QPalette::Active, QPalette::WindowText);
         const QColor windowTextReadable = ColorMath::readableText(windowText, window, ratios);
-        setAllGroups(QPalette::Button,      window);
-        setAllGroups(QPalette::ButtonText,  windowTextReadable);
-        setAllGroups(QPalette::ToolTipBase, window);
-        setAllGroups(QPalette::ToolTipText, windowTextReadable);
-        setAllGroups(QPalette::PlaceholderText, ColorMath::ensureContrast(
-                ColorMath::mix(baseColor, pal.color(QPalette::Active, QPalette::Text), 0.5),
-                baseColor, ratios.largeText));
-        for (QPalette::ColorRole role : { QPalette::Dark, QPalette::Shadow }) {
-            setAllGroups(role, ColorMath::ensureContrast(pal.color(QPalette::Active, role),
-                                                         window, ratios.nonText));
+        QColor buttonText = windowTextReadable;
+#ifdef Q_OS_MACOS
+        // Push buttons and combo boxes draw native bezels that ignore
+        // Button but label them in ButtonText, so the text is lifted
+        // against the baseline bezel as well.  The bezel lift moves toward
+        // the bezel's contrasting text, which can lose contrast on a window
+        // of the opposite lightness; the header is drawn on the window, so
+        // the lifted text is kept only while it still reads there.
+        if (!highContrast) {
+            const QColor bezel = pal.color(QPalette::Active, QPalette::Button);
+            const QColor onBezel = ColorMath::readableText(windowTextReadable, bezel, ratios);
+            if (ColorMath::isReadable(onBezel, window, ratios))
+                buttonText = onBezel;
+        }
+#endif
+        setAllGroups(QPalette::Button,     window);
+        setAllGroups(QPalette::ButtonText, buttonText);
+
+        // High contrast: the other roles a theme cannot pin are derived
+        // from the theme's own colors as well.  Tooltips take the window
+        // surface with readable window text, placeholder text is Text
+        // faded halfway into Base and lifted to the large-text ratio, and
+        // the bevel roles keep the non-text ratio from the window.
+        if (highContrast) {
+            setAllGroups(QPalette::ToolTipBase, window);
+            setAllGroups(QPalette::ToolTipText, windowTextReadable);
+            setAllGroups(QPalette::PlaceholderText, ColorMath::ensureContrast(
+                    ColorMath::mix(baseColor, pal.color(QPalette::Active, QPalette::Text), 0.5),
+                    baseColor, ratios.largeText));
+            for (QPalette::ColorRole role : { QPalette::Dark, QPalette::Shadow }) {
+                setAllGroups(role, ColorMath::ensureContrast(pal.color(QPalette::Active, role),
+                                                             window, ratios.nonText));
+            }
         }
     }
 
