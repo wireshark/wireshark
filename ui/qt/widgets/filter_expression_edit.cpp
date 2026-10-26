@@ -15,6 +15,7 @@
 #include <ui/qt/models/filter_history_model.h>
 #include <ui/qt/models/bookmark_model.h>
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
@@ -53,8 +54,9 @@ public:
         QWidget(parent)
     {
         QHBoxLayout *layout = new QHBoxLayout(this);
-        layout->setContentsMargins(12, 3, 12, 3);
-        layout->setSpacing(18);
+        layout->setContentsMargins(ZoomScaling::scaledPixels(12), ZoomScaling::scaledPixels(3),
+                                   ZoomScaling::scaledPixels(12), ZoomScaling::scaledPixels(3));
+        layout->setSpacing(ZoomScaling::scaledPixels(18));
 
         // Monospace expression, sized to match the surrounding menu text.
         QLabel *expr_label = new QLabel(expr, this);
@@ -259,6 +261,11 @@ FilterExpressionEdit::FilterExpressionEdit(QWidget *parent) :
     connect(FontManager::instance(), &FontManager::zoomChanged,
             this, &FilterExpressionEdit::updateInlineMargins);
 
+    // The entries carry explicit point sizes and margins taken when they were
+    // built, so rebuild them once the menu font has been updated for a zoom step.
+    connect(FontManager::instance(), &FontManager::applicationFontChanged,
+            this, &FilterExpressionEdit::rebuildBookmarkEntries);
+
     updateClearVisible();
     updateApplyEnabled();
     updateRemoveEnabled();
@@ -398,7 +405,8 @@ void FilterExpressionEdit::rebuildBookmarkEntries()
     QFont header_font = base;
     header_font.setPointSizeF(qMax(1.0, base.pointSizeF() - 1.0));
     header->setFont(header_font);
-    header->setContentsMargins(12, 5, 12, 2);
+    header->setContentsMargins(ZoomScaling::scaledPixels(12), ZoomScaling::scaledPixels(5),
+                               ZoomScaling::scaledPixels(12), ZoomScaling::scaledPixels(2));
 
     QWidgetAction *header_action = new QWidgetAction(this);
     header_action->setDefaultWidget(header);

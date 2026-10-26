@@ -10,6 +10,7 @@
 #include <ui/qt/widgets/learn_card_widget.h>
 #include <ui_learn_card_widget.h>
 
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/theme_styler.h>
 #include <ui/qt/utils/workspace_state.h>
@@ -34,6 +35,7 @@ LearnCardWidget::LearnCardWidget(QWidget *parent) :
     links_collapsed_(false)
 {
     ui_->setupUi(this);
+    ZoomScaling::scaleSizeLimits(this);
 
     loadLinksFromRessource();
     applyTheme();
@@ -139,6 +141,9 @@ void LearnCardWidget::setupLinks()
         link_layout->setContentsMargins(16, 4, 16, 4);
         link_layout->setSpacing(0);
     }
+    // Registers the layout for zoom updates; the replaced layout is deleted
+    // above, which ends its connection.
+    ZoomScaling::scaleLayoutMetrics(link_layout);
 
     for (const LinkType &link : links_) {
         if (link.validity != LearnCardWidget::AllVersions) {

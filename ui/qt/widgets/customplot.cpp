@@ -13,6 +13,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/widgets/customplot.h>
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/utils/theme_manager.h>
 
@@ -21,13 +22,51 @@ static const QString marker_label_object_name_ = "marker_label_%1";
 static const QString marker_line_object_name_ = "marker_line_%1";
 static const QString marker_diff_line_object_name_ = "marker_diff_line_";
 static const QString marker_diff_label_object_name_ = "marker_diff_label_";
+
+// Marker label fonts: point sizes are design values, scaled with the text zoom.
+static QFont markerTitleFont(const QString& family)
+{
+    return FontManager::scaledFont(QFont(family, 10, QFont::Bold));
+}
+
+static QFont markerDiffFont(const QString& family)
+{
+    return FontManager::scaledFont(QFont(family, 8, QFont::DemiBold));
+}
+
+static QFont markerDataPointFont(const QString& family)
+{
+    return FontManager::scaledFont(QFont(family, 8, QFont::Medium));
+}
+
 CustomPlot::CustomPlot(QWidget* widget):
     QCustomPlot(widget),
     selected_marker_idx_(-1),
     data_point_visible_(true),
     marker_diff_visible_(false),
     dragging_(false)
-{}
+{
+    // The marker items keep the font they were created with, so give the
+    // existing ones the new size when the zoom level changes.
+    connect(FontManager::instance(), &FontManager::zoomChanged, this, [this]() {
+        const QString family = font().family();
+        for (const Marker* m : markers()) {
+            const int idx = m->index();
+            if (QCPItemText* title = markerTitle(idx)) {
+                title->setFont(markerTitleFont(family));
+            }
+            for (int g = 0; g < graphCount(); g++) {
+                if (QCPItemText* dataPoint = markerDataPoint(itemIndex(idx, g))) {
+                    dataPoint->setFont(markerDataPointFont(family));
+                }
+            }
+        }
+        for (QCPItemText* label : findChildren<QCPItemText*>(marker_diff_label_object_name_)) {
+            label->setFont(markerDiffFont(family));
+        }
+        replot();
+    });
+}
 
 CustomPlot::~CustomPlot()
 {
@@ -143,7 +182,7 @@ void CustomPlot::showMarkerDifferences()
             QCPItemText* label = new QCPItemText(this);
             label->setObjectName(marker_diff_label_object_name_);
             label->setPositionAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
-            label->setFont(QFont(font().family(), 8, QFont::DemiBold));
+            label->setFont(markerDiffFont(font().family()));
             styleMarkerText(label);
             label->setBrush(QBrush(Qt::transparent));
 
@@ -179,7 +218,7 @@ void CustomPlot::addTitleMarker(const Marker* marker)
     mTitle->setVisible(marker->visible());
     tracer()->setClipAxisRect(axisRect(0));
     updateQCPItemText(mTitle, marker->name(), QPointF(marker->xCoord(), axisRect(0)->axis(QCPAxis::AxisType::atLeft)->range().upper));
-    mTitle->setFont(QFont(font().family(), 10, QFont::Bold));
+    mTitle->setFont(markerTitleFont(font().family()));
     mTitle->setPadding(QMargins(3, 0, 3, 0));
     mTitle->setPositionAlignment(Qt::AlignHCenter | Qt::AlignTop);
     styleMarkerTitle(mTitle);
@@ -289,7 +328,7 @@ void CustomPlot::addDataPointsMarker(QCPGraph* graph, int graph_idx, const int m
 {
     QCPItemText* dataPoint = markerDataPoint(itemIndex(marker_idx, graph_idx), true);
     visible = visible && canAddDataPoint(graph, x);
-    dataPoint->setFont(QFont(font().family(), 8, QFont::Medium));
+    dataPoint->setFont(markerDataPointFont(font().family()));
     styleMarkerText(dataPoint);
     updateDataPointMarker(dataPoint, x, graph, visible);
 }

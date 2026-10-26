@@ -96,6 +96,7 @@
 #include "lua_debugger_utils.h"
 #include "main_application.h"
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include "main_window.h"
 #include "utils/themes/themed_icon.h"
 #include "widgets/collapsible_section.h"
@@ -470,6 +471,7 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
 
     // Compact toolbar styling with consistent icons
     ui->toolBar->setIconSize(QSize(18, 18));
+    ZoomScaling::scaleIconSize(ui->toolBar);
     ui->toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
 
     // Enable/Disable checkbox with colored icon
@@ -570,6 +572,12 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
     {
         connect(FontManager::instance(), &FontManager::monospaceFontChanged, this, &LuaDebuggerDialog::onMonospaceFontUpdated,
                 Qt::UniqueConnection);
+        /* The panels use the regular font for their headers and carry pixel
+         * sized chrome, so follow the application font and the zoom level too. */
+        connect(FontManager::instance(), &FontManager::applicationFontChanged, this,
+                [this]() { fontPolicy_.applyToPanels(); });
+        connect(FontManager::instance(), &FontManager::zoomChanged, this,
+                &LuaDebuggerDialog::updateEnabledCheckboxIcon);
         connect(mainApp, &MainApplication::preferencesChanged, this, &LuaDebuggerDialog::onPreferencesChanged,
                 Qt::UniqueConnection);
         /*
@@ -1317,6 +1325,8 @@ void LuaDebuggerDialog::onCodeViewContextMenu(const QPoint &pos)
 void LuaDebuggerDialog::onMonospaceFontUpdated(const QFont &font)
 {
     fontPolicy_.applyToCodeEditors(font);
+    /* The panels use the zoomed monospace font as well. */
+    fontPolicy_.applyToPanels();
 }
 
 void LuaDebuggerDialog::onMainAppInitialized()
@@ -1526,11 +1536,14 @@ void LuaDebuggerDialog::updateEnabledCheckboxIcon()
     // crisp on Retina / HiDPI displays instead of being upscaled from
     // a 16x16 bitmap.
     const qreal dpr = enabledCheckBox->devicePixelRatioF();
-    QPixmap pixmap(QSize(16, 16) * dpr);
+    /* The circle is drawn in a 16 unit design square, scaled to the zoomed icon size. */
+    const int iconSide = ZoomScaling::scaledPixels(16);
+    QPixmap pixmap(QSize(iconSide, iconSide) * dpr);
     pixmap.setDevicePixelRatio(dpr);
     pixmap.fill(Qt::transparent);
     QPainter painter(&pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
+    painter.scale(iconSide / 16.0, iconSide / 16.0);
 
     const DebuggerUiStatus uiStatus = currentDebuggerUiStatus();
     QColor fill;
@@ -1577,6 +1590,7 @@ void LuaDebuggerDialog::updateEnabledCheckboxIcon()
     QIcon icon;
     icon.addPixmap(pixmap, QIcon::Normal);
     icon.addPixmap(pixmap, QIcon::Disabled);
+    enabledCheckBox->setIconSize(QSize(iconSide, iconSide));
     enabledCheckBox->setIcon(icon);
 }
 
@@ -2076,6 +2090,7 @@ void LuaDebuggerDialog::createCollapsibleSections()
     QFormLayout *settingsLayout = new QFormLayout(settingsWidget);
     settingsLayout->setContentsMargins(4, 4, 4, 4);
     settingsLayout->setSpacing(6);
+    ZoomScaling::scaleLayoutMetrics(settingsLayout);
 
     themeComboBox = new QComboBox();
     themeComboBox->addItem(tr("Auto (follow color scheme)"), WSLUA_DEBUGGER_THEME_AUTO);

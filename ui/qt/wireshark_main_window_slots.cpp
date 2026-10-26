@@ -2577,6 +2577,15 @@ void WiresharkMainWindow::connectViewMenuActions()
         FontManager::instance()->resetZoom();
     });
 
+    // Zoom In and Zoom Out stop at the zoom limits.  Set them now too: the
+    // stored zoom level is applied before the main window exists.
+    auto update_zoom_actions = [this]() {
+        main_ui_->actionViewZoomIn->setEnabled(FontManager::instance()->canZoomIn());
+        main_ui_->actionViewZoomOut->setEnabled(FontManager::instance()->canZoomOut());
+    };
+    update_zoom_actions();
+    connect(FontManager::instance(), &FontManager::zoomChanged, this, update_zoom_actions);
+
     connect(main_ui_->actionViewExpandSubtrees, &QAction::triggered,
             proto_tree_, &ProtoTree::expandSubtrees);
 

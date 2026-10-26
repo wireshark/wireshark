@@ -22,6 +22,7 @@
 #include "main_application.h"
 #include "main_status_bar.h"
 #include "utils/qt_ui_utils.h"
+#include <ui/qt/utils/zoom_scaling.h>
 
 #include <QKeyEvent>
 #include <QCheckBox>
@@ -62,6 +63,8 @@ SearchFrame::SearchFrame(QWidget *parent) :
     saved_full_search_type_(-1)
 {
     sf_ui_->setupUi(this);
+    ZoomScaling::scaleSizeLimits(sf_ui_->findButton);
+    ZoomScaling::scaleSizeLimits(sf_ui_->cancelButton);
     sf_ui_->searchLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
 
     connect(sf_ui_->findButton, &QPushButton::clicked, this, &SearchFrame::executeSearch);
@@ -77,9 +80,7 @@ SearchFrame::SearchFrame(QWidget *parent) :
     }
 
 #ifdef Q_OS_MACOS
-    foreach (QWidget *w, findChildren<QWidget *>()) {
-        w->setAttribute(Qt::WA_MacSmallSize, true);
-    }
+    ZoomScaling::scaleMacControlSizes(this);
 #endif
 
     applyRecentSearchSettings();

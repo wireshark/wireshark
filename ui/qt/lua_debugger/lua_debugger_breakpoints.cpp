@@ -83,6 +83,7 @@
 #include "lua_debugger_settings.h"
 #include "lua_debugger_utils.h"
 #include "widgets/collapsible_section.h"
+#include <ui/qt/utils/zoom_scaling.h>
 #include <epan/wslua/wslua_debugger.h>
 
 /* ===== breakpoint_modes ===== */
@@ -659,7 +660,7 @@ QWidget *LuaDbgBreakpointConditionDelegate::createEditor(QWidget *parent, const 
      * mode — a fixed stock pixmap would be near-invisible in
      * one of the two themes. */
     pauseChk->setIcon(makePauseIcon(editor->palette()));
-    pauseChk->setIconSize(QSize(16, 16));
+    pauseChk->setIconSize(QSize(ZoomScaling::scaledPixels(16), ZoomScaling::scaledPixels(16)));
     /* Stylesheet drives the on/off background: transparent when
      * unchecked (just the bars on the cell background), full
      * Highlight-color rounded chip filling the button when
@@ -2636,23 +2637,24 @@ CollapsibleSection *LuaDebuggerDialog::createBreakpointsSection(QWidget *parent)
     breakpointsTree->setContextMenuPolicy(Qt::CustomContextMenu);
     breakpointsSection->setContentWidget(breakpointsTree);
     {
-        const int hdrH = breakpointsSection->titleButtonHeight();
-        const QFont hdrTitleFont = breakpointsSection->titleButtonFont();
         auto *const bpHeaderBtnRow = new QWidget(breakpointsSection);
         auto *const bpHeaderBtnLayout = new QHBoxLayout(bpHeaderBtnRow);
         bpHeaderBtnLayout->setContentsMargins(0, 0, 0, 0);
         bpHeaderBtnLayout->setSpacing(4);
+        ZoomScaling::scaleLayoutMetrics(bpHeaderBtnLayout);
         bpHeaderBtnLayout->setAlignment(Qt::AlignVCenter);
         QToolButton *const bpErrBreakBtn = new QToolButton(bpHeaderBtnRow);
         breakpointHeaderBreakOnErrorButton_ = bpErrBreakBtn;
 
         /* Refresh the icon and tooltip to reflect the current checked state. */
-        auto updateErrBreakChrome = [this, hdrH, hdrTitleFont]() {
+        auto updateErrBreakChrome = [this]() {
             if (!breakpointHeaderBreakOnErrorButton_)
                 return;
             bool checked = breakpointHeaderBreakOnErrorButton_->isChecked();
-            QIcon icon = luaDbgErrorBreakHeaderIcon(checked, hdrH, devicePixelRatioF(),
-                                                    hdrTitleFont, palette());
+            /* Read the title row live: it changes with the text zoom. */
+            QIcon icon = luaDbgErrorBreakHeaderIcon(checked, breakpointsSection->titleButtonHeight(),
+                                                    devicePixelRatioF(), breakpointsSection->titleButtonFont(),
+                                                    palette());
             breakpointHeaderBreakOnErrorButton_->setIcon(icon);
             breakpointHeaderBreakOnErrorButton_->setToolTip(
                 checked ? tr("ON \u2014 Break on Lua errors")
@@ -2662,40 +2664,24 @@ CollapsibleSection *LuaDebuggerDialog::createBreakpointsSection(QWidget *parent)
         bpErrBreakBtn->setCheckable(true);
         bpErrBreakBtn->setChecked(wslua_debugger_get_error_break_enabled());
 
-        styleLuaDebuggerHeaderIconOnlyButton(bpErrBreakBtn, hdrH);
         bpErrBreakBtn->setAutoRaise(true);
         bpErrBreakBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
-        updateErrBreakChrome();  /* Seed icon and tooltip from the initial state. */
 
         connect(bpErrBreakBtn, &QToolButton::toggled, this, updateErrBreakChrome);
         QToolButton *const bpTglBtn = new QToolButton(bpHeaderBtnRow);
         breakpointHeaderToggleButton_ = bpTglBtn;
-        styleLuaDebuggerHeaderBreakpointToggleButton(bpTglBtn, hdrH);
-        bpTglBtn->setIcon(luaDbgBreakpointHeaderIconForMode(nullptr, LuaDbgBpHeaderIconMode::NoBreakpoints, hdrH,
-                                                            bpTglBtn->devicePixelRatioF()));
         bpTglBtn->setAutoRaise(true);
         bpTglBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
         bpTglBtn->setEnabled(false);
         bpTglBtn->setToolTip(tr("No breakpoints"));
         QToolButton *const bpEditBtn = new QToolButton(bpHeaderBtnRow);
         breakpointHeaderEditButton_ = bpEditBtn;
-        /* Painted via luaDbgPaintedGlyphButtonIcon so the disabled
-         * pixmap is baked from the palette's disabled-text gray instead
-         * of QStyle::generatedIconPixmap()'s synthesised filter, keeping
-         * the disabled tone in step with the neighbouring +/- buttons. */
-        {
-            QIcon gear = luaDbgPaintedGlyphButtonIcon(kLuaDbgHeaderEdit, hdrH, devicePixelRatioF(),
-                                                     hdrTitleFont, palette(), /*margin=*/2);
-            bpEditBtn->setIcon(gear);
-        }
-        styleLuaDebuggerHeaderIconOnlyButton(bpEditBtn, hdrH);
         bpEditBtn->setAutoRaise(true);
         bpEditBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
         bpEditBtn->setEnabled(false);
         bpEditBtn->setToolTip(tr("Edit Breakpoint"));
         QToolButton *const bpRemBtn = new QToolButton(bpHeaderBtnRow);
         breakpointHeaderRemoveButton_ = bpRemBtn;
-        styleLuaDebuggerHeaderPlusMinusButton(bpRemBtn, hdrH, hdrTitleFont);
         bpRemBtn->setText(kLuaDbgHeaderMinus);
         bpRemBtn->setAutoRaise(true);
         bpRemBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
@@ -2704,17 +2690,45 @@ CollapsibleSection *LuaDebuggerDialog::createBreakpointsSection(QWidget *parent)
             tr("Remove Breakpoint (%1)").arg(QKeySequence(QKeySequence::Delete).toString(QKeySequence::NativeText)));
         QToolButton *const bpRemAllBtn = new QToolButton(bpHeaderBtnRow);
         breakpointHeaderRemoveAllButton_ = bpRemAllBtn;
-        {
-            QIcon icon = luaDbgPaintedGlyphButtonIcon(kLuaDbgHeaderRemoveAll, hdrH, devicePixelRatioF(),
-                                                     hdrTitleFont, palette(), /*margin=*/2);
-            bpRemAllBtn->setIcon(icon);
-        }
-        styleLuaDebuggerHeaderIconOnlyButton(bpRemAllBtn, hdrH);
         bpRemAllBtn->setAutoRaise(true);
         bpRemAllBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
         bpRemAllBtn->setEnabled(false);
         bpRemAllBtn->setToolTip(
             tr("Remove All Breakpoints (%1)").arg(kLuaDbgCtxRemoveAllBreakpoints.toString(QKeySequence::NativeText)));
+        /* The buttons are sized to the title row and the icons are painted at
+         * that size, so size them now and again whenever the section's title
+         * row changes (application font or zoom). */
+        const auto applyHeaderSizes = [this, bpErrBreakBtn, bpTglBtn, bpEditBtn, bpRemBtn, bpRemAllBtn,
+                                       updateErrBreakChrome]()
+        {
+            const int side = breakpointsSection->titleButtonHeight();
+            const QFont titleFont = breakpointsSection->titleButtonFont();
+            styleLuaDebuggerHeaderIconOnlyButton(bpErrBreakBtn, side);
+            updateErrBreakChrome();
+            styleLuaDebuggerHeaderBreakpointToggleButton(bpTglBtn, side);
+            /* Painted via luaDbgPaintedGlyphButtonIcon so the disabled
+             * pixmap is baked from the palette's disabled-text gray instead
+             * of QStyle::generatedIconPixmap()'s synthesised filter, keeping
+             * the disabled tone in step with the neighbouring +/- buttons. */
+            bpEditBtn->setIcon(luaDbgPaintedGlyphButtonIcon(kLuaDbgHeaderEdit, side, devicePixelRatioF(),
+                                                            titleFont, palette(), /*margin=*/2));
+            styleLuaDebuggerHeaderIconOnlyButton(bpEditBtn, side);
+            styleLuaDebuggerHeaderPlusMinusButton(bpRemBtn, side, titleFont);
+            bpRemAllBtn->setIcon(luaDbgPaintedGlyphButtonIcon(kLuaDbgHeaderRemoveAll, side, devicePixelRatioF(),
+                                                              titleFont, palette(), /*margin=*/2));
+            styleLuaDebuggerHeaderIconOnlyButton(bpRemAllBtn, side);
+            /* The toggle-all icon follows the button size; repaint it. This
+             * does nothing until wireBreakpointsPanel() hands the buttons to
+             * the controller. */
+            breakpointsController_.updateHeaderButtonState();
+        };
+        applyHeaderSizes();
+        /* Seed the toggle-all icon for the empty state; once the controller
+         * has the buttons, updateHeaderButtonState() paints it per mode. */
+        bpTglBtn->setIcon(luaDbgBreakpointHeaderIconForMode(nullptr, LuaDbgBpHeaderIconMode::NoBreakpoints,
+                                                            breakpointsSection->titleButtonHeight(),
+                                                            bpTglBtn->devicePixelRatioF()));
+        connect(breakpointsSection, &CollapsibleSection::titleMetricsChanged, bpHeaderBtnRow, applyHeaderSizes);
         bpHeaderBtnLayout->addWidget(bpErrBreakBtn);
         bpHeaderBtnLayout->addWidget(bpTglBtn);
         bpHeaderBtnLayout->addWidget(bpRemBtn);

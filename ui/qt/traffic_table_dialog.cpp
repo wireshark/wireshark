@@ -21,6 +21,7 @@
 #include <ui/qt/main_window.h>
 #include <ui/qt/widgets/traffic_tab.h>
 #include <ui/qt/widgets/traffic_types_list.h>
+#include <ui/qt/utils/zoom_scaling.h>
 
 #include <QCheckBox>
 #include <QClipboard>
@@ -41,6 +42,7 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const Q
     ui(new Ui::TrafficTableDialog)
 {
     ui->setupUi(this);
+    ZoomScaling::scaleSizeLimits(ui->widget);
     loadGeometry(parent.width(), parent.height() * 3 / 4);
 
     ui->absoluteTimeCheckBox->hide();

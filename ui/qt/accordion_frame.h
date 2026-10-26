@@ -55,15 +55,23 @@ protected:
     virtual void showEvent(QShowEvent *) override { emit visibilityChanged(true); }
 
 private:
-    int frame_height_;           /**< Natural height of the frame used as the animation target. */
+    int frame_height_;           /**< Height measured by animatedShow(); only the end value of the show animation. */
+    int design_max_height_;      /**< maximumHeight before the first animation or zoom step (the .ui value); -1 until read. */
     QPropertyAnimation *animation_; /**< Animation that drives the maximumHeight property. */
 
+    /** @brief The height cap at the current zoom level. */
+    int zoomedMaxHeight();
 
 private slots:
     /**
      * @brief Finalise the state of the frame after an animation completes.
      */
     void animationFinished();
+
+    /**
+     * @brief Re-apply the height cap after a zoom step unless an animation is running.
+     */
+    void applyZoomedMaxHeight();
 };
 
 #endif // ACCORDION_FRAME_H

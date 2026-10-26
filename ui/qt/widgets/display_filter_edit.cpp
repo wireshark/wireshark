@@ -23,6 +23,8 @@
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/models/pref_models.h>
@@ -123,7 +125,6 @@ void DisplayFilterEdit::setType(DisplayFilterEditType type)
         bookmark_button_->setMenu(new QMenu(bookmark_button_));
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
         bookmark_button_->setToolTip(tr("Manage saved bookmarks."));
-        bookmark_button_->setIconSize(QSize(14, 14));
         bookmark_button_->setStyleSheet(buttonStyle);
         bookmark_button_->setVisible(false);
 
@@ -131,7 +132,6 @@ void DisplayFilterEdit::setType(DisplayFilterEditType type)
         clear_button_->setCursor(Qt::ArrowCursor);
         clear_button_->setIcon(ContrastAdaptIcon("filter-clear"));
         clear_button_->setToolTip(tr("Clear display filter"));
-        clear_button_->setIconSize(QSize(14, 14));
         clear_button_->setStyleSheet(buttonStyle);
         clear_button_->setVisible(false);
 
@@ -139,9 +139,22 @@ void DisplayFilterEdit::setType(DisplayFilterEditType type)
         apply_button_->setCursor(Qt::ArrowCursor);
         apply_button_->setIcon(ContrastAdaptIcon("filter-apply"));
         apply_button_->setToolTip(tr("Apply display filter"));
-        apply_button_->setIconSize(QSize(21, 14));
         apply_button_->setStyleSheet(buttonStyle);
         apply_button_->setVisible(false);
+
+        // The icons are 14x14 (apply 21x14) at zoom level 0. The button size
+        // hints change with them, and the style sheet derives from those.
+        auto update_icon_sizes = [this]() {
+            const QSize square(ZoomScaling::scaledPixels(14), ZoomScaling::scaledPixels(14));
+            bookmark_button_->setIconSize(square);
+            clear_button_->setIconSize(square);
+            apply_button_->setIconSize(QSize(ZoomScaling::scaledPixels(21), ZoomScaling::scaledPixels(14)));
+        };
+        update_icon_sizes();
+        connect(FontManager::instance(), &FontManager::zoomChanged, this, [this, update_icon_sizes]() {
+            update_icon_sizes();
+            alignActionButtons();
+        });
 
         connect(clear_button_, &QToolButton::clicked, this, &DisplayFilterEdit::clearFilter);
         connect(apply_button_, &QToolButton::clicked, this, &DisplayFilterEdit::applyDisplayFilter);

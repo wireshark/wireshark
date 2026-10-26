@@ -18,6 +18,7 @@
 
 #include <wsutil/utf8_entities.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/color_math.h>
 #include <app/application_flavor.h>
@@ -40,10 +41,12 @@ static const int info_update_freq_ = 65; // ~15 fps
 static const int kLogoSize = 64;
 static const int kCardPadding = 16;
 static const int kCardCornerRadius = kCardPadding / 2;
+static const int kCardMinWidth = 320;
 static const int kCardHeight = 100;
 static const qreal kCardVerticalPosition = 0.38;
 static const int kTitleHeight = 22;
 static const qreal kTitleFontScale = 1.05;
+static const int kSubtextGap = 2;
 static const int kSubtextHeight = kTitleHeight - 4;
 static const qreal kSubtextFontScale = 1.0;
 static const int kSubtextAlpha = 160;
@@ -103,6 +106,11 @@ void SplashOverlay::fadeOut()
 
 void SplashOverlay::paintEvent(QPaintEvent *)
 {
+    // The pixel constants are zoom level 0 design values.  The splash is
+    // painted with the font of the persisted zoom level and zoom actions are
+    // not reachable while it shows, so scaling at paint time is enough.
+    auto px = [](int value) { return ZoomScaling::scaledPixels(value); };
+
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -129,18 +137,18 @@ void SplashOverlay::paintEvent(QPaintEvent *)
         : QStringLiteral(":/ssicon/ssicon256.png");
     QPixmap logo(icon_path);
     if (!logo.isNull()) {
-        QPixmap scaled = logo.scaled(kLogoSize, kLogoSize,
+        QPixmap scaled = logo.scaled(px(kLogoSize), px(kLogoSize),
             Qt::KeepAspectRatio, Qt::SmoothTransformation);
         int logo_x = (width() - scaled.width()) / 2;
-        int logo_y = static_cast<int>(height() * kCardVerticalPosition) - scaled.height() - kCardPadding;
+        int logo_y = static_cast<int>(height() * kCardVerticalPosition) - scaled.height() - px(kCardPadding);
         painter.drawPixmap(logo_x, logo_y, scaled);
     }
 
     // --- Progress card ---
-    const int card_w = qMax(320, static_cast<int>(width() * 0.6));
+    const int card_w = qMax(px(kCardMinWidth), static_cast<int>(width() * 0.6));
     int card_x = (width() - card_w) / 2;
     int card_y = static_cast<int>(height() * kCardVerticalPosition);
-    QRectF card_rect(card_x, card_y, card_w, kCardHeight);
+    QRectF card_rect(card_x, card_y, card_w, px(kCardHeight));
 
     // Card surface and border come from the shared overlay tokens: the
     // surface is the one that stands out from the scrim in each mode,
@@ -154,13 +162,13 @@ void SplashOverlay::paintEvent(QPaintEvent *)
 
     painter.setPen(QPen(card_border, 1.0));
     painter.setBrush(card_bg);
-    painter.drawRoundedRect(card_rect, kCardCornerRadius, kCardCornerRadius);
+    painter.drawRoundedRect(card_rect, px(kCardCornerRadius), px(kCardCornerRadius));
 
     QColor text_color = palette().color(QPalette::Text);
 
     // --- Action title (bold, slightly larger) ---
-    QRectF title_rect(card_x + kCardPadding, card_y + kCardPadding,
-                      card_w - 2 * kCardPadding, kTitleHeight);
+    QRectF title_rect(card_x + px(kCardPadding), card_y + px(kCardPadding),
+                      card_w - 2 * px(kCardPadding), px(kTitleHeight));
 
     QFont title_font = font();
     title_font.setPointSizeF(font().pointSizeF() * kTitleFontScale);
@@ -174,9 +182,9 @@ void SplashOverlay::paintEvent(QPaintEvent *)
 
     // --- Action subtext (smaller, dimmer) ---
     if (!action_subtext_.isEmpty()) {
-        QRectF sub_rect(card_x + kCardPadding,
-                        card_y + kCardPadding + kTitleHeight + 2,
-                        card_w - 2 * kCardPadding, kSubtextHeight);
+        QRectF sub_rect(card_x + px(kCardPadding),
+                        card_y + px(kCardPadding) + px(kTitleHeight) + px(kSubtextGap),
+                        card_w - 2 * px(kCardPadding), px(kSubtextHeight));
 
         QFont sub_font = font();
         sub_font.setPointSizeF(font().pointSizeF() * kSubtextFontScale);
@@ -192,26 +200,26 @@ void SplashOverlay::paintEvent(QPaintEvent *)
     }
 
     // --- Progress bar ---
-    const int bar_y = card_y + kCardHeight - kCardPadding - kBarHeight;
-    QRectF bar_bg_rect(card_x + kCardPadding, bar_y, card_w - 2 * kCardPadding, kBarHeight);
+    const int bar_y = card_y + px(kCardHeight) - px(kCardPadding) - px(kBarHeight);
+    QRectF bar_bg_rect(card_x + px(kCardPadding), bar_y, card_w - 2 * px(kCardPadding), px(kBarHeight));
 
     const QColor bar_bg = card_border;
     painter.setPen(Qt::NoPen);
     painter.setBrush(bar_bg);
-    painter.drawRoundedRect(bar_bg_rect, kBarHeight / 2.0, kBarHeight / 2.0);
+    painter.drawRoundedRect(bar_bg_rect, px(kBarHeight) / 2.0, px(kBarHeight) / 2.0);
 
     if (register_max_ > 0 && register_cur_ > 0) {
         qreal fraction = qMin(1.0, static_cast<qreal>(register_cur_) / register_max_);
-        qreal fill_w = (card_w - 2 * kCardPadding) * fraction;
+        qreal fill_w = (card_w - 2 * px(kCardPadding)) * fraction;
 
-        QRectF bar_fill_rect(card_x + kCardPadding, bar_y, fill_w, kBarHeight);
+        QRectF bar_fill_rect(card_x + px(kCardPadding), bar_y, fill_w, px(kBarHeight));
         // brand.primary lifted to the WCAG non-text minimum against the
         // track, so the bar reads on every theme.
         const QColor bar_fill = ColorMath::ensureContrast(
             theme->color(ThemeManager::BrandPrimary), bar_bg, ColorMath::activeRatios().nonText);
 
         painter.setBrush(bar_fill);
-        painter.drawRoundedRect(bar_fill_rect, kBarHeight / 2.0, kBarHeight / 2.0);
+        painter.drawRoundedRect(bar_fill_rect, px(kBarHeight) / 2.0, px(kBarHeight) / 2.0);
     }
 }
 

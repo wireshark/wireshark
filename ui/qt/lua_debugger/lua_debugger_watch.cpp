@@ -61,6 +61,7 @@
 #include "lua_debugger_stack.h"
 #include "lua_debugger_variables.h"
 #include "widgets/collapsible_section.h"
+#include <ui/qt/utils/zoom_scaling.h>
 #include <epan/wslua/wslua_debugger.h>
 
 using namespace LuaDebuggerItems;
@@ -1821,19 +1822,18 @@ CollapsibleSection *LuaDebuggerDialog::createWatchSection(QWidget *parent)
         auto *watchOuter = new QVBoxLayout(watchWrap);
         watchOuter->setContentsMargins(0, 0, 0, 0);
         watchOuter->setSpacing(4);
+        ZoomScaling::scaleLayoutMetrics(watchOuter);
         watchOuter->addWidget(watchTree, 1);
         watchSection->setContentWidget(watchWrap);
     }
     {
-        const int hdrH = watchSection->titleButtonHeight();
-        const QFont hdrTitleFont = watchSection->titleButtonFont();
         auto *const watchHeaderBtnRow = new QWidget(watchSection);
         auto *const watchHeaderBtnLayout = new QHBoxLayout(watchHeaderBtnRow);
         watchHeaderBtnLayout->setContentsMargins(0, 0, 0, 0);
         watchHeaderBtnLayout->setSpacing(4);
+        ZoomScaling::scaleLayoutMetrics(watchHeaderBtnLayout);
         watchHeaderBtnLayout->setAlignment(Qt::AlignVCenter);
         QToolButton *const watchAddBtn = new QToolButton(watchHeaderBtnRow);
-        styleLuaDebuggerHeaderPlusMinusButton(watchAddBtn, hdrH, hdrTitleFont);
         watchAddBtn->setText(kLuaDbgHeaderPlus);
         watchAddBtn->setAutoRaise(true);
         watchAddBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
@@ -1843,7 +1843,6 @@ CollapsibleSection *LuaDebuggerDialog::createWatchSection(QWidget *parent)
             tr("Add Watch (%1)").arg(ui->actionAddWatch->shortcut().toString(QKeySequence::NativeText)));
         connect(watchAddBtn, &QToolButton::clicked, ui->actionAddWatch, &QAction::trigger);
         QToolButton *const watchRemBtn = new QToolButton(watchHeaderBtnRow);
-        styleLuaDebuggerHeaderPlusMinusButton(watchRemBtn, hdrH, hdrTitleFont);
         watchRemBtn->setText(kLuaDbgHeaderMinus);
         watchRemBtn->setAutoRaise(true);
         watchRemBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
@@ -1851,17 +1850,26 @@ CollapsibleSection *LuaDebuggerDialog::createWatchSection(QWidget *parent)
         watchRemBtn->setToolTip(
             tr("Remove Watch (%1)").arg(QKeySequence(QKeySequence::Delete).toString(QKeySequence::NativeText)));
         QToolButton *const watchRemAllBtn = new QToolButton(watchHeaderBtnRow);
-        {
-            QIcon icon = luaDbgPaintedGlyphButtonIcon(kLuaDbgHeaderRemoveAll, hdrH, devicePixelRatioF(),
-                                                     hdrTitleFont, palette(), /*margin=*/2);
-            watchRemAllBtn->setIcon(icon);
-        }
-        styleLuaDebuggerHeaderIconOnlyButton(watchRemAllBtn, hdrH);
         watchRemAllBtn->setAutoRaise(true);
         watchRemAllBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
         watchRemAllBtn->setEnabled(false);
         watchRemAllBtn->setToolTip(
             tr("Remove All Watches (%1)").arg(kLuaDbgCtxWatchRemoveAll.toString(QKeySequence::NativeText)));
+        /* The buttons are sized to the title row and the icons are painted at
+         * that size, so size them now and again whenever the section's title
+         * row changes (application font or zoom). */
+        const auto applyHeaderSizes = [this, watchAddBtn, watchRemBtn, watchRemAllBtn]()
+        {
+            const int side = watchSection->titleButtonHeight();
+            const QFont titleFont = watchSection->titleButtonFont();
+            styleLuaDebuggerHeaderPlusMinusButton(watchAddBtn, side, titleFont);
+            styleLuaDebuggerHeaderPlusMinusButton(watchRemBtn, side, titleFont);
+            watchRemAllBtn->setIcon(luaDbgPaintedGlyphButtonIcon(kLuaDbgHeaderRemoveAll, side, devicePixelRatioF(),
+                                                                 titleFont, palette(), /*margin=*/2));
+            styleLuaDebuggerHeaderIconOnlyButton(watchRemAllBtn, side);
+        };
+        applyHeaderSizes();
+        connect(watchSection, &CollapsibleSection::titleMetricsChanged, watchHeaderBtnRow, applyHeaderSizes);
         watchHeaderBtnLayout->addWidget(watchAddBtn);
         watchHeaderBtnLayout->addWidget(watchRemBtn);
         watchHeaderBtnLayout->addWidget(watchRemAllBtn);

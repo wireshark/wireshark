@@ -83,6 +83,7 @@
 
 #include "ui/qt/conversation_dialog.h"
 #include "ui/qt/utils/theme_manager.h"
+#include "ui/qt/utils/font_manager.h"
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
 #include "ui/qt/glib_mainloop_on_qeventloop.h"
@@ -680,6 +681,7 @@ int main(int argc, char *qt_argv[])
         g_free(rf_path);
     }
     wsApp->applyCustomColorsFromRecent();
+    FontManager::instance()->restoreZoomLevel();
 
     // Initialize our language
     read_language_prefs(application_configuration_environment_prefix());
@@ -804,6 +806,8 @@ int main(int argc, char *qt_argv[])
      * preferences to the capture options.
      */
     commandline_override_prefs(argc, argv, true);
+    // A -o gui.zoom_level:N override lands in the recent settings only now.
+    FontManager::instance()->restoreZoomLevel();
 
     /* Register the extcap preferences. We do this after seeing if the
      * capture_no_extcap preference is set in the configuration file

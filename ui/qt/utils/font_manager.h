@@ -10,9 +10,12 @@
 #ifndef FONT_MANAGER_H
 #define FONT_MANAGER_H
 
+#include <QByteArray>
 #include <QFont>
+#include <QList>
 #include <QMutex>
 #include <QObject>
+#include <QPair>
 
 /**
  * Single authority for the application's fonts.
@@ -33,7 +36,18 @@
  *     setters, so this class emits its normal font signals once the theme is
  *     in place — no separate silent path);
  *   - a zoom action (zoomIn/zoomOut/resetZoom);
- *   - the OS changing the system font (caught via QEvent::ApplicationFontChange).
+ *   - the OS changing the system font (caught via QEvent::ThemeChange, after
+ *     which the system general font is re-read and adopted unless a theme or
+ *     preference overrides the regular font).
+ *
+ * Per-class fonts: the platform gives some widget classes their own font
+ * (on macOS menus, tool buttons and small/mini controls are smaller than the
+ * general font).  QApplication::setFont() without a class name discards
+ * them, so the constructor captures every class font the platform defined,
+ * and each push of the application font re-pushes them, zoomed.  While the
+ * regular font is the platform general font the captured class fonts are
+ * used as they are; otherwise each class font is the regular font with the
+ * platform's size ratio between that class and the general font.
  *
  * Consumer contract: a font-using widget owns its own font handling.  In its
  * constructor it seeds the current font from the static accessors (e.g.
@@ -78,9 +92,14 @@ public:
     static QFont zoomedMonospaceFont();
 
     /** Current zoom multiplier relative to the base regular font (1.0 at zoom
-     *  level 0).  Use to scale sizes that are not expressed as a QFont — e.g.
-     *  absolute font sizes baked into a stylesheet. */
+     *  level 0).  For fractional values such as stylesheet font sizes; scale
+     *  pixel values with ZoomScaling::scaledPixels() and fonts with
+     *  scaledFont() instead of multiplying by this factor. */
     static qreal zoomFactor();
+
+    /** @p base with the current zoom level applied, in the same way as the
+     *  regular and monospace fonts. */
+    static QFont scaledFont(const QFont &base);
 
     /** Resolves a font descriptor (QFont::toString() form) or bare family name
      *  without touching FontManager state. */
@@ -131,8 +150,36 @@ public:
     void zoomIn();
     void zoomOut();
     void resetZoom();
+    /**
+     * Sets the zoom level, clamped to MinZoomLevel..MaxZoomLevel, and stores
+     * the clamped level in recent.gui_zoom_level, also when it is unchanged.
+     */
     void setZoomLevel(int level);
+
+    /**
+     * Applies the stored zoom level (recent.gui_zoom_level).  Call it
+     * after every recent_read_profile_static() (at startup before the
+     * main window is created, and after a profile switch) and after
+     * the command line recent overrides (-o gui.zoom_level:N).
+     */
+    void restoreZoomLevel();
     int  zoomLevel() const { return zoom_level_; }
+
+    /** Lowest and highest zoom level. */
+    static constexpr int MinZoomLevel = -10;
+    static constexpr int MaxZoomLevel = 10;
+    /** Whether zoomIn() would change the zoom level. */
+    bool canZoomIn() const { return zoom_level_ < MaxZoomLevel; }
+    /** Whether zoomOut() would change the zoom level. */
+    bool canZoomOut() const { return zoom_level_ > MinZoomLevel; }
+
+    /**
+     * Pushes the application font and every captured per-class font again,
+     * and notifies all widgets, even when the application font did not
+     * change.  Needed after QApplication::setStyle(), which rebuilds Qt's
+     * per-class font table from the platform theme.
+     */
+    void reapplyApplicationFonts();
 
 signals:
     /** The regular font changed (theme load excepted — see class docs). */
@@ -147,11 +194,18 @@ protected:
     explicit FontManager(QObject *parent = nullptr);
     ~FontManager();
 
-    // Catches QEvent::ApplicationFontChange on qApp.  Distinguishes our own
-    // push from an external/OS change by comparing the now-current
+    // Catches two events on qApp.
+    //
+    // QEvent::ThemeChange: Qt sends it after a platform theme change (an OS
+    // font change, but also a light/dark switch).  The system general font is
+    // re-read and, when it differs from the last value seen and no theme/pref
+    // overrides regular, adopted as the new base regular font.
+    //
+    // QEvent::ApplicationFontChange: a third-party QApplication::setFont()
+    // call.  Distinguishes our own push from it by comparing the now-current
     // qApp->font() against applicationFont() (the value we would push): when
-    // they match the change is ours and is ignored; when they differ the OS
-    // changed the font and we adopt it (unless a theme/pref overrides regular).
+    // they match the change is ours and is ignored; when they differ the
+    // font is adopted (unless a theme/pref overrides regular).
     bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
@@ -167,13 +221,26 @@ private:
     // an external OS font change is NOT adopted (our override wins).
     bool regular_overridden_ = false;
 
-    // Platform QToolButton font (smaller on macOS), captured before the first
-    // QApplication::setFont(), which discards per-class fonts.
-    QFont base_tool_button_font_;
+    // System general font at construction.  While base_regular_ equals it,
+    // the captured class fonts are used as they are (see classFont()).
+    QFont base_platform_general_;
+    // System general font as last seen by the QEvent::ThemeChange handler.
+    QFont last_system_general_;
+    // Per-class fonts the platform defined (hash key, font), captured in the
+    // constructor before the first QApplication::setFont(), which discards
+    // them.  Only keys the platform actually set are listed.
+    QList<QPair<QByteArray, QFont>> base_class_fonts_;
+
+    /// Adopts @p font as the base regular font, re-pushes fonts and notifies.
+    void adoptRegularFont(const QFont &font);
 
     QFont applicationFont() const;          ///< what gets pushed to QApplication
     QFont zoomed(const QFont &base) const;  ///< base with the zoom factor applied
-    void  applyApplicationFont();           ///< push applicationFont() onto qApp
+    /// Unzoomed font for a class whose platform font is @p platformClass.
+    QFont classFont(const QFont &platformClass) const;
+    /// Push applicationFont() onto qApp when it differs (or always when
+    /// @p force), then the per-class fonts, then notify all widgets.
+    void  applyApplicationFont(bool force = false);
     void  applyZoom();                      ///< re-push + emit after a zoom change
     void  syncMonospacePref();              ///< mirror base_monospace_ into prefs.gui_font_name
 };

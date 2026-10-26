@@ -21,6 +21,7 @@
 
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include "main_application.h"
+#include <ui/qt/utils/zoom_scaling.h>
 
 // To do:
 // - Add an NSProgressIndicator to the dock icon on macOS.
@@ -165,6 +166,7 @@ ProgressFrame::ProgressFrame(QWidget *parent) :
 
     ui->stopButton->setIcon(ContrastAdaptIcon("filter-clear"));
     ui->stopButton->setIconSize(QSize(14, 14));
+    ZoomScaling::scaleIconSize(ui->stopButton);
     ui->stopButton->setStyleSheet(
             "QToolButton {"
             "  border: none;"

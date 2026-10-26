@@ -99,6 +99,15 @@ class CollapsibleSection : public QWidget
      */
     void toggled(bool expanded);
 
+    /**
+     * @brief The title row height or font changed, after an application
+     *        font change or a zoom step.
+     *
+     * Header trailing controls sized from titleButtonHeight() or
+     * titleButtonFont() re-read them here.
+     */
+    void titleMetricsChanged();
+
   private slots:
     /**
      * @brief Toggle the content area visibility and emit the toggled signal.
@@ -106,7 +115,19 @@ class CollapsibleSection : public QWidget
      */
     void onToggle(bool checked);
 
+    /**
+     * @brief Apply the title metrics again, pin a collapsed section to the
+     *        new title row height and emit titleMetricsChanged().
+     */
+    void refreshTitleMetrics();
+
   private:
+    /**
+     * @brief Set the bold zoomed title font, measure titleH_ and pin the
+     *        header row and the trailing widget to it.
+     */
+    void applyTitleMetrics();
+
     QToolButton *toggleButton;
     QFrame *headerLine;
     QHBoxLayout *headerLayout_ = nullptr;
@@ -118,8 +139,8 @@ class CollapsibleSection : public QWidget
     /** Non-null if setHeaderTrailingWidget; owned as child, cleared on replace. */
     QWidget *headerTrailingWidget_ = nullptr;
     int savedHeight;
-    /** Cached header row height, captured once from toggleButton->sizeHint()
-     *  at construction. The platform style's sizeFromContents(CT_ToolButton)
+    /** Cached header row height, measured from toggleButton->sizeHint()
+     *  with RightArrow by applyTitleMetrics(). The platform style's sizeFromContents(CT_ToolButton)
      *  consults opt.arrowType, so a live sizeHint() varies by 1-2px between
      *  RightArrow and DownArrow; using a cached value keeps headerHeight()
      *  and titleButtonHeight() stable across toggles. */

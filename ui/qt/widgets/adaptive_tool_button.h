@@ -28,17 +28,19 @@
  *      return exactly `iconSize + 2*iconPadding`, so the host can place a box that
  *      hugs the glyph instead of a fixed, oversized one.
  *
- *   2. **Zoom-aware icon.** The icon is sized from a *base* (logical) size taken
- *      at zoom 1.0 and scaled by FontManager::zoomFactor(), recomputed whenever
- *      the zoom changes. The glyph therefore grows and shrinks with the
- *      surrounding text instead of staying a fixed pixel size.
+ *   2. **Zoom-aware icon.** The icon size is recomputed whenever the zoom
+ *      changes. By default it is the style's PM_SmallIconSize, which already
+ *      follows the zoom (ThemeStyler scales it). An explicit base set with
+ *      setBaseIconSize() is the size at Normal Size and is scaled through
+ *      ZoomScaling::scaledPixels(). The glyph therefore grows and shrinks with
+ *      the surrounding text instead of staying a fixed pixel size.
  *
  * It deliberately does NOT position itself. Placement within the host (anchoring,
  * text-margin reservation, dividers) is the container's job; this widget only
  * reports how much room it needs. The flat appearance (no frame or fill) is
  * supplied by the global AdaptiveToolButton rule in application.qss.
  *
- * Defaults: the base icon size is the style's PM_SmallIconSize (so the platform
+ * Defaults: the icon size is the style's PM_SmallIconSize (so the platform
  * icon contract is honoured unless a caller sets something else, e.g. a wide
  * apply glyph via setBaseIconSize(QSize(21, 14))), and the icon padding is the
  * style's PM_DefaultFrameWidth (~1px).
@@ -51,17 +53,22 @@ public:
     explicit AdaptiveToolButton(QWidget *parent = nullptr);
 
     /**
-     * @brief Sets the logical icon size at zoom 1.0.
+     * @brief Sets the logical icon size at Normal Size (zoom level 0).
      *
-     * The effective icon size (QToolButton::iconSize()) is this value scaled by
-     * the current zoom factor; it updates automatically on zoom changes. Pass a
-     * non-square size for glyphs that are not 1:1 (e.g. the apply chevron).
+     * The effective icon size (QToolButton::iconSize()) is each dimension of
+     * this value passed through ZoomScaling::scaledPixels(); it updates
+     * automatically on zoom changes. Pass a non-square size for glyphs that
+     * are not 1:1 (e.g. the apply chevron).
      *
-     * If never set, the base size defaults to the style's PM_SmallIconSize.
+     * If never set, or set to an invalid QSize, the icon size is the style's
+     * PM_SmallIconSize, re-queried on every zoom change.
      */
     void setBaseIconSize(const QSize &size);
 
-    /** @brief The logical icon size at zoom 1.0. */
+    /**
+     * @brief The logical icon size at Normal Size set by setBaseIconSize(),
+     *        or an invalid QSize when the button follows PM_SmallIconSize.
+     */
     QSize baseIconSize() const { return base_icon_size_; }
 
     /**
@@ -83,10 +90,11 @@ public:
     QSize minimumSizeHint() const override;
 
 private:
-    /** @brief Recomputes the effective icon size from base size * zoom factor. */
+    /** @brief Recomputes the effective icon size for the current zoom level. */
     void applyZoom();
 
-    QSize base_icon_size_; /**< Logical icon size at zoom 1.0. */
+    QSize base_icon_size_; /**< Logical icon size at Normal Size; invalid when
+                                the style's PM_SmallIconSize is used. */
     int   icon_padding_;   /**< Symmetric px padding around the icon. */
 };
 

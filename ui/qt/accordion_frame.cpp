@@ -12,6 +12,8 @@
 #include "accordion_frame.h"
 
 #include "ui/util.h"
+#include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 
 #include <QLayout>
@@ -21,7 +23,8 @@ const int duration_ = 150;
 
 AccordionFrame::AccordionFrame(QWidget *parent) :
     QFrame(parent),
-    frame_height_(0)
+    frame_height_(0),
+    design_max_height_(-1)
 {
     updateStyleSheet();
     connect(ThemeManager::instance(), &ThemeManager::themeChanged,
@@ -31,6 +34,28 @@ AccordionFrame::AccordionFrame(QWidget *parent) :
     animation_->setDuration(duration_);
     animation_->setEasingCurve(QEasingCurve::InOutQuad);
     connect(animation_, &QPropertyAnimation::finished, this, &AccordionFrame::animationFinished);
+    connect(FontManager::instance(), &FontManager::zoomChanged,
+            this, &AccordionFrame::applyZoomedMaxHeight);
+}
+
+int AccordionFrame::zoomedMaxHeight()
+{
+    // Subclasses set their .ui size limits after this class's constructor,
+    // and the animations below overwrite maximumHeight, so the design cap is
+    // read once, before the first animation or zoom step writes it.
+    if (design_max_height_ < 0) {
+        design_max_height_ = maximumHeight();
+    }
+    return ZoomScaling::scaledSizeLimit(design_max_height_);
+}
+
+void AccordionFrame::applyZoomedMaxHeight()
+{
+    // animationFinished() applies the cap when a running animation ends.
+    if (animation_->state() == QAbstractAnimation::Running) {
+        return;
+    }
+    setMaximumHeight(zoomedMaxHeight());
 }
 
 void AccordionFrame::animatedShow()
@@ -39,6 +64,10 @@ void AccordionFrame::animatedShow()
         show();
         return;
     }
+
+    // A previous animation can leave maximumHeight at an old measured
+    // height, which is too small after a zoom in. Measure under the cap.
+    setMaximumHeight(zoomedMaxHeight());
 
     if (!display_is_remote()) {
         QWidget *parent = parentWidget();
@@ -70,7 +99,7 @@ void AccordionFrame::animatedHide()
     }
 
     if (!display_is_remote()) {
-        animation_->setStartValue(frame_height_);
+        animation_->setStartValue(height());
         animation_->setEndValue(0);
         animation_->start();
     } else {
@@ -82,8 +111,10 @@ void AccordionFrame::animationFinished()
 {
     if (animation_->currentValue().toInt() < 1) {
         hide();
-        setMaximumHeight(frame_height_);
     }
+    // After a show the measured height must not stay the cap, or the frame
+    // cannot grow with later font or zoom changes.
+    setMaximumHeight(zoomedMaxHeight());
 }
 
 void AccordionFrame::updateStyleSheet()

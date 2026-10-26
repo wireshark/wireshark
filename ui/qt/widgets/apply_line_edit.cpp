@@ -9,6 +9,8 @@
 
 #include <ui/qt/widgets/apply_line_edit.h>
 
+#include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 
@@ -28,8 +30,11 @@ ApplyLineEdit::ApplyLineEdit(QString linePlaceholderText, QWidget * parent)
     apply_button_->setCursor(Qt::ArrowCursor);
     apply_button_->setEnabled(false);
     apply_button_->setToolTip(tr("Apply changes"));
-    apply_button_->setIconSize(QSize(21, 14));
+    // The apply icon is 21x14 and the button at most 30 wide at zoom level 0.
     apply_button_->setMaximumWidth(30);
+    ZoomScaling::scaleSizeLimits(apply_button_);
+    apply_button_->setIconSize(QSize(21, 14));
+    ZoomScaling::scaleIconSize(apply_button_);
     apply_button_->setStyleSheet(
             "QToolButton {"
             "  border: none;"
@@ -52,6 +57,13 @@ ApplyLineEdit::ApplyLineEdit(QString linePlaceholderText, QWidget * parent)
     connect(apply_button_, &QToolButton::clicked, this, &ApplyLineEdit::onSubmitContent);
 
     handleValidation(QString(linePlaceholderText));
+
+    connect(FontManager::instance(), &FontManager::zoomChanged, this, [this]() {
+        // The paddings are derived from the button size hint, which changes with
+        // the icon size.  This runs after the icon size update because that
+        // connection (scaleIconSize above) was made first.
+        handleValidation(text());
+    });
 
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 }

@@ -27,6 +27,7 @@
 #include <QStatusBar>
 
 class CaptureFile;
+class QHBoxLayout;
 class QToolButton;
 
 /**
@@ -141,6 +142,9 @@ private:
     /** Button to trigger capture comments. */
     QToolButton *comment_button_;
 
+    /** Layout of the info area; its left margin follows the zoom level. */
+    QHBoxLayout *info_progress_hb_ = nullptr;
+
     /** Stack of info status labels. */
     LabelStack info_status_;
 
@@ -171,6 +175,12 @@ private:
      * @brief Sets the ready message depending on the current locale.
      */
     void setReadyMsg();
+
+    /**
+     * @brief Sizes the expert and comment buttons like the display filter
+     *        toolbar icons and sets the left margin of the info area.
+     */
+    void applyIconSizes();
 
     /**
      * @brief Configures the status bar for a capture file.

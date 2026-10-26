@@ -19,6 +19,7 @@
 #include "widgets/in_packet_find_edit.h"
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 
 int InPacketFindBar::open_instances_ = 0;
 
@@ -40,6 +41,8 @@ InPacketFindBar::InPacketFindBar(ProtoTree *tree, QWidget *parent) :
 {
     ui_ = new Ui::InPacketFindBar();
     ui_->setupUi(this);
+    ZoomScaling::scaleSizeLimits(ui_->find_button_);
+    ZoomScaling::scaleSizeLimits(ui_->cancel_button_);
     updateStyleSheet();
 
     search_->installDelegate();
@@ -50,9 +53,7 @@ InPacketFindBar::InPacketFindBar(ProtoTree *tree, QWidget *parent) :
     ui_->search_edit_->updateSearchSyntax(true, false);
 
 #ifdef Q_OS_MACOS
-    foreach (QWidget *w, findChildren<QWidget *>()) {
-        w->setAttribute(Qt::WA_MacSmallSize, true);
-    }
+    ZoomScaling::scaleMacControlSizes(this);
 #endif
 
     QPalette pal = palette();

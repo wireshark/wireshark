@@ -24,6 +24,7 @@
 #include <QKeyEvent>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/zoom_scaling.h>
 
 // To do:
 // - Fill in currently resolved address.
@@ -35,12 +36,11 @@ AddressEditorFrame::AddressEditorFrame(QWidget *parent) :
     cap_file_(NULL)
 {
     ui->setupUi(this);
+    ZoomScaling::scaleSizeLimits(ui->buttonBox);
     ui->addressComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
 #ifdef Q_OS_MACOS
-    foreach (QWidget *w, findChildren<QWidget *>()) {
-        w->setAttribute(Qt::WA_MacSmallSize, true);
-    }
+    ZoomScaling::scaleMacControlSizes(this);
 #endif
 }
 

@@ -18,6 +18,7 @@
 
 #include <ui/qt/widgets/syntax_line_edit.h>
 
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/theme_manager.h>
@@ -463,7 +464,8 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
         return;
     }
 
-    QRect sir = QRect(0, 0, 14, 14); // QIcon::paint scales, which is not what we want.
+    const int icon_side = ZoomScaling::scaledPixels(14);
+    QRect sir = QRect(0, 0, icon_side, icon_side); // QIcon::paint scales, which is not what we want.
     int textWidth = fontMetrics().boundingRect(text()).width();
     // Qt always adds a margin of 6px between the border and text, see
     // QLineEditPrivate::effectiveLeftTextMargin and
