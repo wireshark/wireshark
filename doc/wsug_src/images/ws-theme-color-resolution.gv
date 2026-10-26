@@ -1,0 +1,33 @@
+// dot -Tsvg -o doc/wsug_src/images/ws-theme-color-resolution.svg doc/wsug_src/images/ws-theme-color-resolution.gv
+
+digraph G {
+    graph [ fontname = "Georgia", fontsize = 12 ];
+    node [ fontname = "Georgia", fontsize = 12, shape=box, style=rounded ];
+    edge [ fontname = "Georgia", fontsize = 11 ];
+    rankdir = TB;
+    ranksep = 0.4;
+    nodesep = 0.4;
+
+    subgraph cluster_stored {
+        label = "Colors in the theme";
+        style = rounded;
+        q [ label="Set in the theme file?", shape=diamond, style="" ];
+        value [ label="Use the value" ];
+        auto [ label="Auto: follows\nanother color" ];
+        q -> value [ label="yes" ];
+        q -> auto [ label="no" ];
+        auto -> value;
+    }
+
+    derived [ label="Derived color:\ncomputed from set or auto colors,\nnever stored" ];
+    contrast [ label="Contrast preference\nmay raise contrast" ];
+    ui [ label="Used in the UI" ];
+
+    value -> derived;
+    value -> contrast;
+    derived -> contrast;
+    contrast -> ui;
+
+    note [ label="Resolved separately for\nthe light and the dark side", shape=note, style="" ];
+    ui -> note [ style=dotted, arrowhead=none ];
+}

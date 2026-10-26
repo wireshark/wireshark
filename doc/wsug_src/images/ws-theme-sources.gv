@@ -1,0 +1,24 @@
+// dot -Tsvg -o doc/wsug_src/images/ws-theme-sources.svg doc/wsug_src/images/ws-theme-sources.gv
+
+digraph G {
+    graph [ fontname = "Georgia", fontsize = 12 ];
+    node [ fontname = "Georgia", fontsize = 12, shape=box, style=rounded ];
+    edge [ fontname = "Georgia", fontsize = 11 ];
+    rankdir = TB;
+    ranksep = 0.5;
+    nodesep = 0.4;
+
+    bundled [ label="Bundled themes\n(built in, read-only)" ];
+    personal [ label="Personal themes folder\n(.jsonc files)" ];
+    list [ label="Theme list\n(Preferences > Theme, Theme Designer)" ];
+    active [ label="Active theme" ];
+    share [ label="File to share", style="rounded,dashed" ];
+
+    bundled -> list;
+    personal -> list;
+    list -> active [ label="Preferences OK or Use Theme" ];
+    bundled -> personal [ label="Save As", style=dashed ];
+    personal -> share [ label="Export", style=dashed ];
+    designer [ label="Theme Designer actions:\nNew, Copy, Import", shape=note, style="" ];
+    designer -> personal [ label="creates a file" ];
+}

@@ -924,6 +924,7 @@ The _Theme_ setting selects the color theme applied to the application.
 Themes bundle the colors used throughout the GUI — including the packet list selection, marked and ignored packets, the “Follow Stream” client and server text, and valid and invalid display filter highlighting — so these colors are no longer configured individually.
 When the selected theme declares an author, it is shown below the preview.
 The btn:[Theme Designer...] button next to the _Theme_ setting opens the <<ChCustThemeDesigner,Theme Designer>>, where themes can be created and edited.
+See <<ChCustThemesSection>> for how themes work and how to create and manage your own.
 
 Two bundled themes are made for color vision deficiency: _Protanopia & Deuteranopia_ for red-green and _Tritanopia_ for blue-yellow color blindness.
 They change the theme colors, such as display filter highlighting, expert information and graphs, but not the packet list coloring rules, which you can adjust in menu:View[Coloring Rules...].
@@ -938,84 +939,6 @@ These colors now come from the selected theme.
 
 The preview shows a mockup of a capture window rendered with the selected theme and appearance mode, so you can see how the combination will look before applying it.
 Changes to the appearance mode and theme take effect once you accept the preferences dialog with btn:[OK]; the preview itself updates immediately as you try different combinations.
-
-[#ChCustPersonalThemes]
-===== Personal themes
-
-In addition to the themes bundled with the application, Wireshark looks for user-supplied themes in a personal themes directory:
-
-* On Unix-like systems: _$HOME/.local/lib/wireshark/themes_
-* On Windows: _%APPDATA%\Wireshark\themes_
-
-(For Stratoshark, replace _wireshark_ / _Wireshark_ with _stratoshark_ / _Stratoshark_.)
-
-Personal themes are single _.jsonc_ files dropped directly into that directory — there is no per-theme subdirectory.
-The filename (without the _.jsonc_ extension) becomes the theme's internal name and is what appears in the _Theme_ dropdown.
-For example, _midnight.jsonc_ shows up as a selectable theme named _midnight_.
-
-The exact path can also be seen under menu:Help[About Wireshark] in the _Folders_ tab, labelled _Personal Themes_.
-menu:Help[Personal Themes Folder] opens it in the file manager and offers to create it when it does not exist yet.
-
-The file format is identical to the bundled themes; see the _README.md_ next to the built-in _default_ theme in the source distribution for the schema and the list of supported color tokens.
-
-If a personal theme file shares a name with a built-in theme (for example _default.jsonc_), the built-in copy wins and the personal file is ignored with a warning on stderr.
-This guarantees that core themes the application falls back to can never be accidentally shadowed by a broken override.
-
-[#ChCustThemeDesigner]
-===== Theme Designer
-
-The Theme Designer creates and edits personal themes without editing the _.jsonc_ files by hand.
-It is opened with the btn:[Theme Designer...] button on the _Theme_ preferences page or with menu:View[Internals > Theme Designer...].
-
-The dialog lists the available themes in two groups, _Bundled_ and _Personal_.
-The editor on the right has the _Name_, _Author_ and _Description_ fields, an _Appearance_ selection of _Light_ or _Dark_, and the tabs _Colors_, _Fonts_ and _Code_.
-The description is a single line; it wraps in the field.
-The path of the personal themes folder below the theme list is a link that opens the folder.
-The _Appearance_ selection only chooses which side of the theme is shown in the editor and in the preview.
-It does not change the appearance mode of the application.
-Next to the editor, the tabs _Welcome Page_ and _Packet List_ show samples of the draft theme.
-Clicking a part of a sample selects its color in the _Colors_ tab.
-The context menu of a sample lists all colors of that part and saves the sample as an image.
-
-Bundled themes are read-only.
-Editing a bundled theme creates a draft, and btn:[Save As...] stores it as a new personal theme.
-Personal themes can be edited and saved in place, renamed and deleted.
-kbd:[Ctrl+S] (kbd:[Cmd+S] on macOS) saves like btn:[Save]; pressing kbd:[Enter] in a field does not save.
-btn:[New...] creates a personal theme from the default colors, and btn:[Copy...] creates a personal theme from the selected theme.
-The file name of a personal theme is made from its name; a name already in use gets a number appended.
-Renaming a theme changes its file name as well.
-
-btn:[Import...] copies a theme file into the personal themes directory, and btn:[Export...] saves the selected theme to a file, so themes can be shared.
-Imported files are normalized and are limited to 1 MiB.
-An import is rejected when a color value is not a color or when a top-level section is unknown.
-Unknown colors inside a known section are skipped, and the import reports them.
-A theme file that contains invalid entries still loads, and the invalid entries are left out when the theme is saved again.
-
-The _Colors_ tab shows the colors that a theme file can set.
-A theme file sets only some colors.
-Every other color the user interface needs is _derived_: Wireshark computes it from one or more set colors, for example a darker shade of the highlight color for the Welcome Page header, or black or white text chosen to stay readable on a background.
-Derived colors are listed under _Derived (read-only)_.
-They cannot be edited or stored in a theme file; the description below the list names the colors each one is computed from.
-To change a derived color, change its source: _Go to_ in the context menu of a derived color selects the source color.
-A color that is not set in the theme shows _auto_ and its current value; it follows another color until you set it, and _Go to_ in its context menu selects that color.
-A color you changed is marked _edited_, and a derived color whose value changed as a consequence of your edits is marked _changed_.
-btn:[Revert] next to the light or dark value of an edited color restores that value, and _Revert Color_ in the context menu of an edited color restores both.
-The _Fonts_ tab sets the regular and the monospace font of the theme.
-_Revert Font_ in the context menu of a changed font restores it.
-If a monospace font is chosen on the <<ChCustPrefsFontsSection,Fonts>> preferences page, that font overrides the monospace font of the theme.
-The _Code_ tab shows the theme file as it will be written.
-_Compare with_ selects the theme or saved file the changes are counted against, and the changes can be stepped through.
-
-Unsaved changes are marked with an asterisk in the window title and in the theme list.
-btn:[Revert] discards them.
-Closing the dialog or selecting another theme asks whether to save unsaved changes.
-
-When the dialog was opened from the Internals menu, btn:[Use Theme] saves nothing but makes the selected theme the active one.
-It is available only when the theme has no unsaved changes.
-When the dialog was opened from the preferences, there is no btn:[Use Theme] button.
-The theme saved in the designer is selected on the preferences page and becomes active when the preferences are accepted with btn:[OK].
-Cancelling the preferences keeps the theme that is currently active.
-If you delete the active theme from the preferences and then cancel them, the deletion takes effect for the running application on the next start, when Wireshark falls back to the default theme.
 
 [#ChCustPrefsFontsSection]
 ==== Fonts
@@ -1331,6 +1254,447 @@ $ wireshark -o "gui.prepend_window_title:External Network" &
 
 For more information, including how to specify a <<ChUserTable,User Accessible Table>>
 entry on the command line, see the documentation for `-o` in <<ChCustCommandLine>>.
+
+[#ChCustThemesSection]
+
+=== Themes
+
+A theme sets the colors of the Wireshark user interface: the selection in the packet list and in every other list, marked and ignored packets, the “Follow Stream” client and server text, display filter highlighting, expert information, graphs and the Welcome Page.
+It can also set the general window and list colors, and the regular and the monospace font.
+The packet coloring rules are not part of a theme; they belong to the configuration profile (see <<ChCustColorizationSection>>).
+
+Wireshark comes with a set of bundled themes, and you can add personal themes of your own.
+Most people pick a bundled theme, or copy one and change one or two colors.
+The Theme Designer is made for exactly that: you click the part of the user interface you want to change, and it selects the color that paints it.
+A complete theme of your own is possible as well, but it takes more care, because Wireshark computes many colors from the few that a theme sets.
+
+This section covers:
+
+* how themes work and where their colors come from (<<ChCustThemesConcepts>>),
+* how to select, create, share and remove themes (<<ChCustThemesManaging>>),
+* the Theme Designer (<<ChCustThemeDesigner>>),
+* how to design a theme, with a worked example (<<ChCustThemesDesigning>>),
+* the theme file format, for editing by hand (<<ChCustThemesByHand>>),
+* what to do when a theme does not look as expected (<<ChCustThemesTroubleshooting>>).
+
+[#ChCustThemesConcepts]
+==== How themes work
+
+A theme is a single _.jsonc_ file, which is JSON that may contain `//` and `/* */` comments.
+The file is made of sections:
+
+* `meta` holds the name of the theme, and optionally its author and a one-line description.
+* `brand` and `accent` are required.
+`brand.primary` is the main color of the theme.
+The four accent colors `accent.success`, `accent.warning`, `accent.error` and `accent.info` mark states, for example a valid or an invalid display filter.
+* `expert`, `packets`, `conversation`, `palette` and `filter` are optional.
+They set the expert information backgrounds, the packet list states (selected, marked, ignored), the “Follow Stream” client and server colors, the general window, list and selection colors, and the display filter highlighting.
+* `separator`, `graphs` and `fonts` are optional as well.
+
+Every color has two values: one for the light and one for the dark appearance.
+The _Appearance mode_ preference (see <<ChCustPrefsThemeSection>>) decides which of the two is in use.
+A theme therefore always describes two color schemes, and changing one side of a color leaves the other side as it is.
+
+Each color of a theme is in one of three states:
+
+Set:: The theme file contains a value for the color, and Wireshark uses it.
+
+Auto:: The theme file could contain a value, but it does not.
+The color then follows another color.
+For example, when `packets.selection` is not set, it is a light tint of `brand.primary` over the list background.
+
+Derived:: The color cannot be stored in a theme file at all.
+Wireshark computes it from set or auto colors, for example the Welcome Page header, which is a darker shade of the selection color, or text that is made black or white to stay readable on its background.
+
+The _Contrast_ preference raises the contrast of the colors Wireshark computes.
+Text on a selection or on a packet list state is kept readable on its background even when the theme sets that text color.
+
+.How a color gets its value
+image::images/ws-theme-color-resolution.svg[{medium-screenshot-attrs}]
+
+.Theme colors and system colors
+Wireshark used to take its colors from the operating system.
+Today the general colors (window, list background, text and buttons) still start from a baseline palette: on macOS, and on Windows with Wireshark built with Qt 6.8 or later, this is the palette of the operating system; on Linux and on older Windows builds it is a light and a dark palette of Wireshark's own, because the Linux platform themes do not follow a light or dark mode chosen by an application.
+The `palette` section of a theme replaces only the roles it sets; every other role keeps the baseline.
+The bundled _Wireshark Default_ theme sets no `palette` role, so apart from the colors below it looks like the system.
+The selection color, the link color and the accent color always come from the theme.
+On macOS and Windows 11, a theme that sets `palette.window` also tints the title bar of the windows, and on macOS also the toolbars.
+Windows 10, Linux and themes without `palette.window` keep the native title bar and toolbars.
+
+[#ChCustThemesManaging]
+==== Managing themes
+
+.Where themes come from
+image::images/ws-theme-sources.svg[{medium-screenshot-attrs}]
+
+_Bundled_ themes are built into Wireshark and cannot be changed.
+_Personal_ themes are _.jsonc_ files in your personal themes folder (see <<ChCustPersonalThemes>>).
+Both kinds are listed in the _Theme_ setting of the preferences and in the Theme Designer.
+
+To choose the active theme, open menu:Edit[Preferences...], go to menu:Appearance[Theme], select the theme in the _Theme_ setting, and accept the preferences with btn:[OK].
+The preview on that page shows the selected theme in the selected appearance mode before you apply it.
+In the Theme Designer opened from menu:View[Internals > Theme Designer...], btn:[Use Theme] makes the selected theme the active one.
+
+.The Theme preferences page
+image::images/ws-pref-appearance-theme.png[{screenshot-attrs}]
+
+New themes are created in the Theme Designer:
+
+* btn:[New...] copies the brand and accent colors of the default theme; every other color is auto.
+* btn:[Copy...] keeps every color the selected theme sets.
+
+So a copy of _Wireshark Default_ keeps its blue `packets.selection`, and changing only `brand.primary` in that copy changes no selection color at all, while a new theme lets the selection colors follow `brand.primary` (see <<ChCustThemesSelection>>).
+
+Both buttons ask for a name and show the file name the theme is stored in (made from the name as you type) and its folder.
+The dialog has no field for the author; you enter it in the designer after the theme is created.
+The file name of a personal theme is made from its name; a name already used by a bundled or personal theme gets a number appended.
+The dialog of btn:[Copy...] is titled _Copy Theme_ and additionally names the theme it copies.
+
+.The New Theme dialog
+image::images/ws-theme-designer-new.png[{small-screenshot-attrs}]
+
+btn:[Rename...] changes the name of a personal theme and its file name as well.
+btn:[Delete] removes the file of a personal theme after asking; this cannot be undone.
+Bundled themes cannot be renamed or deleted.
+
+Themes are shared as files.
+btn:[Export...] saves the selected theme to a file, and btn:[Import...] copies a theme file into the personal themes folder.
+Imported files are normalized and are limited to 1 MiB.
+An import is refused when the file is not a theme, when a color value is not a color, when a top-level section is unknown or when a required color is missing; a dialog lists the reasons, and nothing is copied.
+Unknown colors inside a known section are skipped, and the import reports them as notes.
+You can also copy a theme file into the personal themes folder yourself.
+
+[#ChCustPersonalThemes]
+===== Personal themes
+
+In addition to the themes bundled with the application, Wireshark looks for user-supplied themes in a personal themes directory:
+
+* On Unix-like systems: _$HOME/.local/lib/wireshark/themes_
+* On Windows: _%APPDATA%\Wireshark\themes_
+
+(For Stratoshark, replace _wireshark_ / _Wireshark_ with _stratoshark_ / _Stratoshark_.)
+
+Personal themes are single _.jsonc_ files dropped directly into that directory — there is no per-theme subdirectory.
+The filename (without the _.jsonc_ extension) becomes the theme's internal name and is what appears in the _Theme_ dropdown.
+For example, _midnight.jsonc_ shows up as a selectable theme named _midnight_.
+
+The exact path can also be seen under menu:Help[About Wireshark] in the _Folders_ tab, labelled _Personal Themes_.
+menu:Help[Personal Themes Folder] opens it in the file manager and offers to create it when it does not exist yet.
+
+The file format is identical to the bundled themes; see the _README.md_ next to the built-in _default_ theme in the source distribution for the schema and the list of supported color tokens.
+
+If a personal theme file shares a name with a built-in theme (for example _default.jsonc_), the built-in copy wins and the personal file is ignored with a warning on stderr.
+This guarantees that core themes the application falls back to can never be accidentally shadowed by a broken override.
+
+[#ChCustThemeDesigner]
+==== The Theme Designer
+
+The Theme Designer creates and edits personal themes without editing the _.jsonc_ files by hand.
+It is opened with the btn:[Theme Designer...] button on the _Theme_ preferences page or with menu:View[Internals > Theme Designer...].
+
+.The Theme Designer
+image::images/ws-theme-designer.png[{screenshot-attrs}]
+
+The dialog has three columns:
+
+* The theme list shows the available themes in two groups, _Bundled_ and _Personal_, with the buttons btn:[New...], btn:[Copy...], btn:[Rename...], btn:[Delete], btn:[Import...] and btn:[Export...].
+When a bundled theme is selected, the notice _Bundled themes cannot be modified_ appears below the list.
+The path of the personal themes folder is a link that opens the folder.
+* The editor has the _Name_, _Author_ and _Description_ fields, the _Appearance_ selection of _Light_ or _Dark_, and the tabs _Colors_, _Fonts_ and _Code_.
+The description is a single line; it wraps in the field.
+* The tabs _Welcome Page_ and _Packet List_ show samples of the draft theme.
+
+The _Appearance_ selection only chooses which side of the theme is edited and shown in the samples.
+It does not change the appearance mode of the application.
+
+Bundled themes are read-only.
+Editing a bundled theme creates a draft, and btn:[Save As...] stores it as a new personal theme.
+Personal themes can be edited and saved in place, renamed and deleted.
+How btn:[New...] and btn:[Copy...] differ is described in <<ChCustThemesManaging>>.
+
+[#ChCustThemeDesignerFindColor]
+===== Finding the color of an element
+
+Clicking a part of a sample selects its color in the _Colors_ tab.
+Hovering over a sample names the color under the mouse pointer.
+The context menu of a sample lists all colors of that spot, toggles _Show Coloring Rules_ for the packet list sample and saves the sample as an image.
+A part that no theme color paints selects nothing, and the status line says _Not a theme color_.
+Links have no color of their own; clicking a link selects the color it follows.
+
+.Clicking the selected packet selects packets.selection
+image::images/ws-theme-designer-click-select.png[{screenshot-attrs}]
+
+The _Colors_ tab shows the colors that a theme file can set.
+Type in _Filter colors_ to show only the colors whose name contains the text.
+The description below the list explains where the selected color is used and which other colors it affects.
+
+A color that is not set in the theme shows _auto_ and its current value; it follows another color until you set it, and _Go to_ in its context menu selects that color.
+
+.An auto color and its description
+image::images/ws-theme-designer-auto-color.png[{medium-screenshot-attrs}]
+
+Every other color the user interface needs is derived: Wireshark computes it from one or more set colors, for example a darker shade of the highlight color for the Welcome Page header, or black or white text chosen to stay readable on a background.
+Derived colors are listed under _Derived (read-only)_.
+They cannot be edited or stored in a theme file; the description below the list names the colors each one is computed from.
+To change a derived color, change its source: the context menu of a derived color has a _Go to_ entry that selects the source color, such as _Go to highlight_, and entries such as _Also uses window_ or _Also uses HeaderText (derived)_ that select further sources.
+An _Also uses_ entry that ends in _(derived)_ leads to another derived color, from which you follow its _Go to_ entry again.
+
+.Go to on a derived color
+image::images/ws-theme-designer-derived-goto.png[{medium-screenshot-attrs}]
+
+So the way from “this looks wrong” to the color to change is: click the element in a sample; if the selected color is auto or derived, follow _Go to_ until you reach a color you can set.
+
+[#ChCustThemeDesignerEditing]
+===== Editing and saving
+
+A selected color shows its light and its dark value.
+Type a value as _#rrggbb_ or pick it with btn:[Choose...].
+A value that is not a color is marked, and the theme cannot be saved until it is fixed.
+btn:[Use Auto] removes a set value, so that the color follows its source again; the required brand and accent colors are marked _required_ and cannot be removed.
+The _graphs_ group holds the graph colors, which are added and removed with btn:[Add Color] and btn:[Remove Color].
+
+A color you changed is marked _edited_, and a color whose value changed as a consequence of your edits is marked _changed_.
+_Changed only_ shows only edited and changed colors.
+btn:[Revert] next to the light or dark value of an edited color restores that value, and _Revert Color_ in the context menu of an edited color restores both.
+The status line counts the edited and changed colors.
+
+.An edited color with Changed only selected
+image::images/ws-theme-designer-edited.png[{screenshot-attrs}]
+
+Unsaved changes are marked with an asterisk in the window title and in the theme list.
+btn:[Save] saves a personal theme in place; for a bundled theme the button is btn:[Save As...] and stores a new personal theme.
+kbd:[Ctrl+S] (kbd:[Cmd+S] on macOS) saves like btn:[Save]; pressing kbd:[Enter] in a field does not save.
+btn:[Revert] at the bottom of the dialog discards all unsaved changes.
+Closing the dialog or selecting another theme asks whether to save unsaved changes.
+
+When the dialog was opened from the Internals menu, btn:[Use Theme] saves nothing but makes the selected theme the active one.
+It is available only when the theme has no unsaved changes.
+In this case, saving the active theme applies the change right away.
+When the dialog was opened from the preferences, there is no btn:[Use Theme] button.
+The theme saved in the designer is selected on the preferences page and becomes active when the preferences are accepted with btn:[OK].
+Cancelling the preferences keeps the theme that is currently active.
+If you delete the active theme from the preferences and then cancel them, the deletion takes effect for the running application on the next start, when Wireshark falls back to the default theme.
+
+[#ChCustThemeDesignerFontsCode]
+===== Fonts and code
+
+The _Fonts_ tab sets the regular and the monospace font of the theme.
+Default values use the platform fonts and are not written to the file, so the theme stays portable.
+_Revert Font_ in the context menu of a changed font restores it.
+If a monospace font is chosen on the <<ChCustPrefsFontsSection,Fonts>> preferences page, that font overrides the monospace font of the theme, and the _Fonts_ tab says so in an information box that names the preferred font, for example “monospace 9.0”.
+That note appears whenever a monospace font preference is set, including the one a fresh profile already has.
+
+.The Fonts tab
+image::images/ws-theme-designer-fonts.png[{medium-screenshot-attrs}]
+
+The _Code_ tab shows the theme file as it will be written, and whether it is valid.
+_Compare with_ selects the theme or saved file the changes are counted against, and btn:[Previous Change] and btn:[Next Change] step through them.
+btn:[Copy to Clipboard] copies the file text.
+
+.The Code tab comparing with the saved file
+image::images/ws-theme-designer-code.png[{medium-screenshot-attrs}]
+
+[#ChCustThemesDesigning]
+==== Designing a theme
+
+Start from the theme closest to what you want:
+
+* To change one or two colors of a theme you like, select it and use btn:[Copy...].
+* To build a palette around one color, use btn:[New...] and set `brand.primary`; the selection colors, the packet states and many other colors follow it.
+
+Then change one color at a time.
+Click the element you want to change in a sample, follow _Go to_ until you reach a color you can set, set it, and look at both samples.
+Check both sides, light and dark, before you use the theme (see <<ChCustThemesLightDark>>).
+
+[#ChCustThemesSelection]
+===== Selection and hover colors
+
+The packet list has selection colors of its own; every other view uses the selection color of the palette.
+
+[options="header",cols="4,3,3"]
+|===
+|View |Selection color |Hover color
+|Packet list rows, while the packet list has the focus |`packets.selection` |derived from `packets.selection`
+|Packet list rows, while another pane or window has the focus |`packets.inactive` |derived from `packets.inactive`
+|Packet details, packet bytes pane, and every other list, tree and table, such as the profile list, the interface list on the Welcome Page and the lists in dialogs |`palette.highlight` |derived from `palette.highlight`
+|===
+
+When these colors are not set, they follow other colors:
+
+* An unset `packets.selection` is a light tint of `brand.primary` over the list background.
+* An unset `packets.inactive` is a tint of `brand.primary` over the window color.
+* An unset `palette.highlight` is `packets.selection` when the theme sets `packets.selection`, else `brand.primary` itself.
+An auto `packets.selection` does not count here.
+
+The hover color of each view is a tint of that view's selection color over the list background, so it changes with the selection.
+The packet list shows a hover color only when _Enable mouse-over colorization_ is selected on the _Layout_ preferences page.
+Links follow the selection color of the palette as well, adjusted to stay readable.
+
+.Which color selects in which view
+image::images/ws-theme-selection-chain.svg[{medium-screenshot-attrs}]
+
+The consequence: in a theme that sets only `brand.primary`, the packet list selects with a pale tint of that color, while every other list selects with `brand.primary` itself.
+To make all views use the same selection color, set `packets.selection`; `palette.highlight` then follows it.
+To give the packet list a selection of its own, set `palette.highlight` as well; the packet list then uses `packets.selection` and every other view `palette.highlight`.
+
+[#ChCustThemesForestGreen]
+===== Example: a “Forest Green” theme
+
+This example builds a green theme and shows why the packet list and the other lists can select in different greens, and how to make them match.
+
+. Open menu:View[Internals > Theme Designer...] and click btn:[New...].
+Name the theme `Forest Green` and click btn:[Create].
+Enter your name in _Author_.
+. In the _Colors_ tab, select `brand.primary` and set the light value to `#2e7d32` and the dark value to `#2f6b35`.
+Click btn:[Save].
+. Look at the samples.
+In the _Packet List_ sample, the selected packet is a pale green: `packets.selection` is auto, a light tint of `brand.primary`.
+In the _Welcome Page_ sample, the header and the selected interface are full green: `palette.highlight` is auto: it follows `packets.selection` only when the theme sets it, so here it is `brand.primary` itself.
++
+.Forest Green with auto selection: packet list
+image::images/ws-theme-forest-green-auto-packets.png[{medium-screenshot-attrs}]
++
+.Forest Green with auto selection: Welcome Page
+image::images/ws-theme-forest-green-auto-welcome.png[{medium-screenshot-attrs}]
+. Click the selected packet in the _Packet List_ sample.
+The designer selects `packets.selection`, which shows _auto_.
+Set its light value to `#2e7d32` and its dark value to `#2f6b35`, and click btn:[Save].
+. Now the packet list selects in the same full green as the other lists, and the hover colors follow.
+The _Welcome Page_ sample does not change: `palette.highlight` now follows `packets.selection`, which has the same green.
++
+.Forest Green with packets.selection set: packet list
+image::images/ws-theme-forest-green-matched-packets.png[{medium-screenshot-attrs}]
++
+. Click btn:[Use Theme] to make the theme active.
+
+The _Packet List_ sample paints its bytes pane in the packet list selection, while the packet bytes pane of the main window uses `palette.highlight`.
+
+The saved file _forest-green.jsonc_ in the personal themes folder looks like this:
+
+[source,json]
+----
+// Forest Green
+// Theme file for Wireshark and Stratoshark. Edit with View > Internals > Theme Designer.
+{
+    "meta": {
+        "name": "Forest Green",
+        "version": 1,
+        "author": "Wireshark User"
+    },
+    "brand": {
+        "primary": { "light": "#2e7d32", "dark": "#2f6b35" }
+    },
+    "accent": {
+        "success": { "light": "#4caf50", "dark": "#8ae234" },
+        "warning": { "light": "#e8652d", "dark": "#fcaf3e" },
+        "error":   { "light": "#cc0000", "dark": "#ef2929" },
+        "info":    { "light": "#3465a4", "dark": "#729fcf" }
+    },
+    "packets": {
+        "selection": { "light": "#2e7d32", "dark": "#2f6b35" }
+    }
+}
+----
+
+The accent colors are the ones btn:[New...] copied from the default theme.
+
+To keep a packet list selection that differs from the other lists, for example one that suits your coloring rules, also set `palette.highlight` to the green and give `packets.selection` the color you want for the packet list.
+
+[#ChCustThemesWelcomeHeader]
+===== Welcome Page header
+
+The header of the Welcome Page has no color of its own and no gradient.
+It is derived: a darker shade of the selection color of the palette (`palette.highlight`), kept apart from the window color and readable under its title.
+The title is the selection text color when that is readable on the header, else black or white.
+
+To change the header, change the color it follows: `palette.highlight` if the theme sets it, else `packets.selection` if the theme sets it, else `brand.primary` (see <<ChCustThemesSelection>>).
+In the designer, select the header color under _Derived (read-only)_ or click the header in the _Welcome Page_ sample, and use _Go to_.
+
+[#ChCustThemesLightDark]
+===== Checking light and dark
+
+Every color has a light and a dark value, and every edit changes only the side selected in _Appearance_.
+To review the other side, select _Dark_ (or _Light_) in the designer; the samples switch to that side.
+This does not change the appearance mode of the application.
+
+.The Dark side of Forest Green
+image::images/ws-theme-designer-dark.png[{screenshot-attrs}]
+
+A color that reads well on a light background can be too bright or too dull on a dark one, so check both sides of every color you set.
+Then use the theme and set _Appearance mode_ on the _Theme_ preferences page to _Light_ and to _Dark_ to see it in the whole application.
+
+[#ChCustThemesByHand]
+==== Editing theme files by hand
+
+Theme files are plain text and can be edited in any editor.
+Personal theme files are in the personal themes folder (see <<ChCustPersonalThemes>>).
+A minimal theme contains the `meta` section and the required `brand` and `accent` colors:
+
+[source,json]
+----
+{
+    // Shown in the Theme setting
+    "meta": { "name": "My Theme", "version": 1 },
+    "brand": {
+        "primary": { "light": "#1a73e8", "dark": "#8ab4f8" }
+    },
+    "accent": {
+        "success": { "light": "#2e7d32", "dark": "#66bb6a" },
+        "warning": { "light": "#ed6c02", "dark": "#ffa726" },
+        "error":   { "light": "#d32f2f", "dark": "#f44336" },
+        "info":    { "light": "#0288d1", "dark": "#29b6f6" }
+    }
+}
+----
+
+Every color is an object with a `light` and a `dark` value, written as _#rrggbb_ or, with transparency, _#aarrggbb_.
+Every other color can be added to its section; what you leave out is auto or derived.
+The full list of colors and sections is in _resources/themes/README.md_ and the JSON schema _resources/themes/theme.schema.json_ in the Wireshark sources.
+An editor that supports JSON schemas can use the schema to complete and check theme files.
+
+Wireshark does not watch theme files for changes.
+The active theme is read at start and again each time the preferences are accepted with btn:[OK].
+The Theme Designer reads a theme file each time the theme is selected in its list.
+
+[#ChCustThemesTroubleshooting]
+==== Troubleshooting themes
+
+An import is refused::
+The file contains a value that is not a color, an unknown top-level section, or misses a required brand or accent color.
+The error dialog lists the reasons, one per line with the line number where there is one; fix the file and import it again.
+A section that is present but empty, such as `"accent": {}`, is reported once for every required color it lacks, so one mistake can produce several lines.
++
+.A refused import
+image::images/ws-theme-import-error.png[{small-screenshot-attrs}]
+
+An import reports notes::
+Unknown colors inside a known section are skipped, and the import succeeds with “Imported with N notes.”; the notes are in the tool tip of the status line.
+This happens for example with `brand.deep` from older theme files, which is no longer a theme color.
+
+A theme loads with problems::
+A theme file that contains invalid entries still loads, and the invalid entries are left out when the theme is saved again.
+If the active theme cannot be loaded at all, Wireshark falls back to the default theme.
+
+A personal theme does not appear::
+A personal theme whose file name (without _.jsonc_) equals the name of a bundled theme is ignored.
+Rename the file.
+
+btn:[Use Theme] is disabled::
+The theme has unsaved changes, or it is already the active theme.
+Save or revert the changes first.
+
+My lists use different selection colors::
+The packet list and the other views use different colors; see <<ChCustThemesSelection>> and the example <<ChCustThemesForestGreen>>.
+
+The dark side looks wrong::
+Every color has its own dark value; see <<ChCustThemesLightDark>>.
+
+The title bar or the toolbars keep the system colors::
+Only macOS and Windows 11 tint the title bar, and only macOS the toolbars, and only for themes that set `palette.window` (see <<ChCustThemesConcepts>>).
+
+Which color is where?::
+menu:View[Internals > Theme Debug] shows the colors of the active theme and how they were derived.
+In the Theme Designer, click the element in a sample (see <<ChCustThemeDesignerFindColor>>).
 
 [#ChCustConfigProfilesSection]
 
