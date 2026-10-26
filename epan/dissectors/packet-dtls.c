@@ -2178,6 +2178,9 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         if ((msg_type == SSL_HND_CLIENT_HELLO || msg_type == SSL_HND_SERVER_HELLO)) {
+            if (msg_type == SSL_HND_CLIENT_HELLO) {
+                tls_check_client_hello_random(ssl, sub_tvb, 0);
+            }
             /* Prepare for renegotiation by resetting the state. */
             ssl_reset_session(session, ssl, msg_type == SSL_HND_CLIENT_HELLO);
         }
@@ -2258,11 +2261,9 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
              * (https://tools.ietf.org/html/rfc6347#page-18). This is also
              * important for correct calculation of Extended Master Secret.
              */
-            if (ssl && ssl->handshake_data.data_len) {
-              ssl_debug_printf("%s erasing previous handshake_messages: %d\n", G_STRFUNC, ssl->handshake_data.data_len);
-              wmem_free(wmem_file_scope(), ssl->handshake_data.data);
-              ssl->handshake_data.data = NULL;
-              ssl->handshake_data.data_len = 0;
+            if (ssl) {
+              ssl_debug_printf("%s erasing previous handshake_messages\n", G_STRFUNC);
+              tls_transcript_reset(&ssl->handshake_transcript);
             }
             dissect_dtls_hnd_hello_verify_request(&dissect_dtls_hf, sub_tvb, pinfo,
                                                   ssl_hand_tree, 0, length);

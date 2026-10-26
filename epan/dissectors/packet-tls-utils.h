@@ -533,6 +533,17 @@ typedef struct _SslSession {
 
 struct cert_key_id; /* defined in epan/secrets.h */
 
+/* A handshake transcript, used for the Extended Master Secret (RFC 7627),
+ * the TLS 1.3 secrets when only a PSK is used, and the Encrypted Client
+ * Hello confirmation. The messages are buffered until the hash function is
+ * known (from the version and cipher suite in the ServerHello or
+ * HelloRetryRequest); after that, only the digest state is kept. */
+typedef struct _tls_transcript {
+    StringInfo   buffer;    /* allocated in file scope */
+    gcry_md_hd_t md;        /* NULL until the hash function is known */
+    bool         failed;    /* the hash can't be calculated */
+} tls_transcript_t;
+
 /* This holds state information for a SSL conversation */
 typedef struct _SslDecryptSession {
     unsigned char _master_secret[SSL_MASTER_SECRET_LENGTH];
@@ -544,7 +555,7 @@ typedef struct _SslDecryptSession {
     StringInfo server_random;
     StringInfo client_random;
     StringInfo master_secret;
-    StringInfo handshake_data;
+    tls_transcript_t handshake_transcript;
     /* the data store for this StringInfo must be allocated explicitly with a capture lifetime scope */
     StringInfo pre_master_secret;
     unsigned char _server_data_for_iv[24];
@@ -567,7 +578,10 @@ typedef struct _SslDecryptSession {
     bool       has_early_data;
     bool       has_psk;
     bool       has_key_share;
-    StringInfo ech_transcript;
+    tls_transcript_t ech_transcript;
+    /* The random of the last ClientHello, used to tell whether a ClientHello
+     * after a HelloRetryRequest is ClientHello2 or a new handshake. */
+    unsigned char last_client_hello_random[32];
 
     /* DTLS counters for handshake retransmission detection. */
     uint32_t server_next_receive_seq;
@@ -672,6 +686,16 @@ tls_get_session(conversation_t *conversation, int proto_ssl, uint8_t curr_layer_
 /** Resets the decryption parameters for the next decoder. */
 extern void
 ssl_reset_session(SslSession *session, SslDecryptSession *ssl, bool is_client);
+
+/** Checks the random of a ClientHello before ssl_reset_session, to tell
+ * whether a ClientHello after a HelloRetryRequest starts a new handshake.
+ * offset is the start of the ClientHello body (after the handshake header). */
+extern void
+tls_check_client_hello_random(SslDecryptSession *ssl, tvbuff_t *tvb, uint32_t offset);
+
+/** Discards a handshake transcript. */
+extern void
+tls_transcript_reset(tls_transcript_t *transcript);
 
 /** Set server address and port */
 extern void

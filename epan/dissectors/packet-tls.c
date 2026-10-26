@@ -3181,22 +3181,19 @@ dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
         offset += 3;
 
         if ((msg_type == SSL_HND_CLIENT_HELLO || msg_type == SSL_HND_SERVER_HELLO)) {
+            if (msg_type == SSL_HND_CLIENT_HELLO) {
+                /* If this is ClientHello2 after a HelloRetryRequest, the
+                 * transcript is kept (RFC 8446 4.4.1); check that it is. */
+                tls_check_client_hello_random(ssl, tvb, offset);
+            }
             /* Prepare for renegotiation by resetting the state. */
-            /* XXX - If this is TLS 1.3, renegotiation is not allowed, but if
-             * this is a ClientHello after a HelloRetryRequest, then the
-             * handshake data needs to be preserved according to
-             * https://www.rfc-editor.org/info/rfc9846/#name-the-transcript-hash
-             * instead of completely dropped.
-             */
             ssl_reset_session(session, ssl, msg_type == SSL_HND_CLIENT_HELLO);
         }
 
         /*
          * Add handshake message (including type, length, etc.) to hash (for
          * Extended Master Secret or TLS 1.3 secrets when using psk_ke).
-         *
-         * XXX - If is_hrr is true, the handshake hash needs to be handled
-         * specially.
+         * A HelloRetryRequest is handled in ssl_dissect_hnd_srv_hello.
          */
         ssl_calculate_handshake_hash(ssl, tvb, hs_offset, 4 + length, msg_type, is_from_server);
 

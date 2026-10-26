@@ -3509,39 +3509,214 @@ prf(SslDecryptSession *ssl, StringInfo *secret, const char *usage,
     }
 }
 
+/* Handshake transcript {{{ */
+
+/* Only the messages before the hash function is known (the ClientHello and
+ * the ServerHello or HelloRetryRequest, each at most 2^24 + 11 bytes) are
+ * buffered, so this should only be reached with bogus messages, such as
+ * repeated ClientHellos after a TLS 1.3 draft HelloRetryRequest. */
+#define TLS_TRANSCRIPT_MAX_BUFFER (64 * 1024 * 1024)
+
+static void
+tls_transcript_close(tls_transcript_t *transcript)
+{
+    if (transcript->md) {
+        gcry_md_close(transcript->md);
+        transcript->md = NULL;
+    }
+}
+
+void
+tls_transcript_reset(tls_transcript_t *transcript)
+{
+    wmem_free(wmem_file_scope(), transcript->buffer.data);
+    transcript->buffer.data = NULL;
+    transcript->buffer.data_len = 0;
+    tls_transcript_close(transcript);
+    transcript->failed = false;
+}
+
+/* Gives up on the transcript until it is reset. */
+static void
+tls_transcript_fail(tls_transcript_t *transcript)
+{
+    tls_transcript_reset(transcript);
+    transcript->failed = true;
+}
+
+static bool
+tls_transcript_is_empty(const tls_transcript_t *transcript)
+{
+    return transcript->md == NULL && transcript->buffer.data_len == 0;
+}
+
+static void
+tls_transcript_add(tls_transcript_t *transcript, const uint8_t *data, unsigned len)
+{
+    if (transcript->failed || len == 0)
+        return;
+
+    if (transcript->md) {
+        gcry_md_write(transcript->md, data, len);
+        return;
+    }
+
+    if (len > TLS_TRANSCRIPT_MAX_BUFFER - transcript->buffer.data_len) {
+        ssl_debug_printf("%s transcript too long before the hash is known\n", G_STRFUNC);
+        tls_transcript_fail(transcript);
+        return;
+    }
+    transcript->buffer.data = (unsigned char *)wmem_realloc(wmem_file_scope(), transcript->buffer.data,
+                                                            transcript->buffer.data_len + len);
+    memcpy(transcript->buffer.data + transcript->buffer.data_len, data, len);
+    transcript->buffer.data_len += len;
+}
+
+/* Returns a new digest handle (which must be closed) with the transcript so
+ * far for the given hash function(s), or NULL. algo2 is 0 or a second hash
+ * function, for the concatenated MD5 and SHA-1 of TLS 1.0 and 1.1. */
+static gcry_md_hd_t
+tls_transcript_copy(const tls_transcript_t *transcript, int algo, int algo2)
+{
+    gcry_md_hd_t md = NULL;
+
+    if (transcript->failed)
+        return NULL;
+
+    if (transcript->md) {
+        if (!gcry_md_is_enabled(transcript->md, algo) ||
+            (algo2 && !gcry_md_is_enabled(transcript->md, algo2))) {
+            ssl_debug_printf("%s transcript uses a different hash\n", G_STRFUNC);
+            return NULL;
+        }
+        if (gcry_md_copy(&md, transcript->md) != 0)
+            return NULL;
+    } else {
+        if (gcry_md_open(&md, algo, 0) != 0)
+            return NULL;
+        if (algo2 && gcry_md_enable(md, algo2) != 0) {
+            gcry_md_close(md);
+            return NULL;
+        }
+        gcry_md_write(md, transcript->buffer.data, transcript->buffer.data_len);
+    }
+    return md;
+}
+
+/* Gets the hash of the transcript so far, which can be continued. */
+static bool
+tls_transcript_hash(const tls_transcript_t *transcript, int algo,
+                    uint8_t *out, unsigned *out_len)
+{
+    gcry_md_hd_t md = tls_transcript_copy(transcript, algo, 0);
+
+    if (!md)
+        return false;
+    *out_len = gcry_md_get_algo_dlen(algo);
+    memcpy(out, gcry_md_read(md, algo), *out_len);
+    gcry_md_close(md);
+    return true;
+}
+
+/* Starts hashing the transcript with the given hash function(s) (see
+ * tls_transcript_copy), keeping only the digest state from now on. */
+static bool
+tls_transcript_set_hash(tls_transcript_t *transcript, int algo, int algo2)
+{
+    if (transcript->failed)
+        return false;
+
+    if (transcript->md) {
+        /* Already started, e.g. after a HelloRetryRequest. */
+        if (gcry_md_is_enabled(transcript->md, algo) &&
+            (!algo2 || gcry_md_is_enabled(transcript->md, algo2))) {
+            return true;
+        }
+        ssl_debug_printf("%s hash function changed\n", G_STRFUNC);
+        tls_transcript_fail(transcript);
+        return false;
+    }
+
+    gcry_md_hd_t md = tls_transcript_copy(transcript, algo, algo2);
+    if (!md) {
+        tls_transcript_fail(transcript);
+        return false;
+    }
+    tls_transcript_reset(transcript);
+    transcript->md = md;
+    return true;
+}
+
+/* RFC 8446 4.4.1: After a HelloRetryRequest, ClientHello1 is replaced in
+ * the transcript by a message_hash message containing its hash. Everything
+ * in the transcript except the last keep_len bytes (the HelloRetryRequest,
+ * if it has already been added) is replaced. */
+static bool
+tls_transcript_hello_retry(tls_transcript_t *transcript, int algo, unsigned keep_len)
+{
+    uint8_t message_hash[4 + DIGEST_MAX_SIZE];
+    uint8_t *keep = NULL;
+    gcry_md_hd_t md;
+
+    if (transcript->failed)
+        return false;
+
+    if (keep_len > 0) {
+        /* The start of the HelloRetryRequest isn't known after a previous one
+         * (which isn't allowed anyway.) */
+        if (transcript->md || keep_len > transcript->buffer.data_len) {
+            tls_transcript_fail(transcript);
+            return false;
+        }
+        transcript->buffer.data_len -= keep_len;
+        keep = transcript->buffer.data + transcript->buffer.data_len;
+    }
+
+    md = tls_transcript_copy(transcript, algo, 0);
+    if (!md) {
+        tls_transcript_fail(transcript);
+        return false;
+    }
+    message_hash[0] = SSL_HND_MESSAGE_HASH;
+    message_hash[1] = 0;
+    message_hash[2] = 0;
+    message_hash[3] = gcry_md_get_algo_dlen(algo);
+    memcpy(message_hash + 4, gcry_md_read(md, algo), message_hash[3]);
+    gcry_md_reset(md);
+    gcry_md_write(md, message_hash, 4 + message_hash[3]);
+    if (keep_len > 0)
+        gcry_md_write(md, keep, keep_len);
+
+    tls_transcript_reset(transcript);
+    transcript->md = md;
+    return true;
+}
+/* Handshake transcript }}} */
+
 static int tls_handshake_hash(SslDecryptSession* ssl, StringInfo* out)
 {
-    SSL_MD5_CTX  md5;
-    SSL_SHA_CTX  sha;
+    gcry_md_hd_t md;
 
-    if (ssl_data_alloc(out, 36) < 0)
+    md = tls_transcript_copy(&ssl->handshake_transcript, GCRY_MD_MD5, GCRY_MD_SHA1);
+    if (!md)
         return -1;
-
-    if (ssl_md5_init(&md5) != 0)
+    if (ssl_data_alloc(out, 36) < 0) {
+        gcry_md_close(md);
         return -1;
-    ssl_md5_update(&md5,ssl->handshake_data.data,ssl->handshake_data.data_len);
-    ssl_md5_final(out->data,&md5);
-    ssl_md5_cleanup(&md5);
-
-    if (ssl_sha_init(&sha) != 0)
-        return -1;
-    ssl_sha_update(&sha,ssl->handshake_data.data,ssl->handshake_data.data_len);
-    ssl_sha_final(out->data+16,&sha);
-    ssl_sha_cleanup(&sha);
+    }
+    memcpy(out->data, gcry_md_read(md, GCRY_MD_MD5), 16);
+    memcpy(out->data + 16, gcry_md_read(md, GCRY_MD_SHA1), 20);
+    gcry_md_close(md);
     return 0;
 }
 
 static int tls12_handshake_hash(SslDecryptSession* ssl, int md, StringInfo* out)
 {
-    SSL_MD  mc;
-    uint8_t tmp[48];
+    uint8_t tmp[DIGEST_MAX_SIZE];
     unsigned  len;
 
-    if (ssl_md_init(&mc, md) != 0)
+    if (!tls_transcript_hash(&ssl->handshake_transcript, md, tmp, &len))
         return -1;
-    ssl_md_update(&mc,ssl->handshake_data.data,ssl->handshake_data.data_len);
-    ssl_md_final(&mc, tmp, &len);
-    ssl_md_cleanup(&mc);
 
     if (ssl_data_alloc(out, len) < 0)
         return -1;
@@ -4082,7 +4257,6 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
             ssl_debug_printf("%s:PRF(pre_master_secret_extended)\n", G_STRFUNC);
             ssl_print_string("pre master secret",&ssl_session->pre_master_secret);
-            DISSECTOR_ASSERT(ssl_session->handshake_data.data_len > 0);
 
             switch(ssl_session->session.version) {
             case TLSV1_VERSION:
@@ -4108,9 +4282,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
                 return -1;
             }
 
-            wmem_free(wmem_file_scope(), ssl_session->handshake_data.data);
-            ssl_session->handshake_data.data = NULL;
-            ssl_session->handshake_data.data_len = 0;
+            tls_transcript_reset(&ssl_session->handshake_transcript);
 
             if (!prf(ssl_session, &ssl_session->pre_master_secret, "extended master secret",
                      &handshake_hashed_data,
@@ -5281,6 +5453,17 @@ tls_get_session(conversation_t *conversation, int proto_ssl, uint8_t curr_layer_
 
 }
 
+static bool
+ssl_session_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
+{
+    SslDecryptSession *ssl_session = (SslDecryptSession *) user_data;
+
+    tls_transcript_close(&ssl_session->handshake_transcript);
+    tls_transcript_close(&ssl_session->ech_transcript);
+
+    return false;
+}
+
 /* get ssl data for this session. if no ssl data is found allocate a new one*/
 SslDecryptSession *
 ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle, uint8_t curr_layer_num)
@@ -5330,10 +5513,8 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle, uin
     ssl_session->client_data_for_iv.data = ssl_session->_client_data_for_iv;
     ssl_session->app_data_segment.data = NULL;
     ssl_session->app_data_segment.data_len = 0;
-    ssl_session->handshake_data.data=NULL;
-    ssl_session->handshake_data.data_len=0;
-    ssl_session->ech_transcript.data=NULL;
-    ssl_session->ech_transcript.data_len=0;
+    /* The transcripts were zeroed by wmem_new0. */
+    wmem_register_callback(wmem_file_scope(), ssl_session_destroy_cb, ssl_session);
 
     /* Initialize parameters which are not necessary specific to decryption. */
     ssl_session->session.version = SSL_VER_UNKNOWN;
@@ -5368,6 +5549,24 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle, uin
     return ssl_session;
 }
 
+void
+tls_check_client_hello_random(SslDecryptSession *ssl, tvbuff_t *tvb, uint32_t offset)
+{
+    /* RFC 8446 4.1.2: After a HelloRetryRequest, the client sends the same
+     * ClientHello with only certain changes, which don't include the random.
+     * A different random means this is a new handshake, e.g. a new connection
+     * reusing the addresses and ports with the TCP handshake missing. */
+    if (!ssl || !tvb_bytes_exist(tvb, offset + 2, 32))
+        return;
+
+    if ((ssl->state & SSL_HELLO_RETRY_REQUEST) &&
+        tvb_memeql(tvb, offset + 2, ssl->last_client_hello_random, 32) != 0) {
+        ssl_debug_printf("%s ClientHello after a HelloRetryRequest has a new random, assuming a new handshake\n", G_STRFUNC);
+        ssl->state &= ~SSL_HELLO_RETRY_REQUEST;
+    }
+    tvb_memcpy(tvb, ssl->last_client_hello_random, offset + 2, 32);
+}
+
 void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, bool is_client)
 {
     /* TLS 1.3 forbids renegotiation (and the version cannot change upon
@@ -5387,17 +5586,13 @@ void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, bool is_clie
             ssl->master_secret.data_len = 0;
             ssl->client_random.data_len = 0;
             ssl->has_early_data = false;
-            if (ssl->handshake_data.data_len > 0) {
-                // The EMS handshake hash starts with at the Client Hello,
-                // ensure that any messages before it are forgotten.
-                wmem_free(wmem_file_scope(), ssl->handshake_data.data);
-                ssl->handshake_data.data = NULL;
-                ssl->handshake_data.data_len = 0;
-            }
-            if (ssl->ech_transcript.data_len > 0 && !(ssl->state & SSL_HELLO_RETRY_REQUEST)) {
-                wmem_free(wmem_file_scope(), ssl->ech_transcript.data);
-                ssl->ech_transcript.data = NULL;
-                ssl->ech_transcript.data_len = 0;
+            if (!(ssl->state & SSL_HELLO_RETRY_REQUEST)) {
+                // The transcript starts with the Client Hello, ensure that
+                // any messages before it are forgotten. After a Hello Retry
+                // Request, the transcript continues with ClientHello2 (see
+                // tls_check_client_hello_random.)
+                tls_transcript_reset(&ssl->handshake_transcript);
+                tls_transcript_reset(&ssl->ech_transcript);
             }
         } else {
             clear_flags |= SSL_SERVER_EXTENDED_MASTER_SECRET | SSL_NEW_SESSION_TICKET;
@@ -6073,13 +6268,18 @@ tls13_load_secret_from_psk(SslDecryptSession *tls, bool is_from_server,
 
     /* XXX - If Encrypted Client Hello was accepted (do client/server pairs
      * support ECHO with psk_ke?) then we should use ech_transcript instead
-     * of handshake_data. Perhaps we should consolidate some of that handling,
-     * though note that we would have to keep both transcripts around after
-     * the ClientHello until the ServerHello indicated whether ECHO was
-     * accepted or not. */
-    if (!tls13_derive_secret(hash_algo, &prk_string,
+     * of handshake_transcript. Both are kept until the ServerHello indicates
+     * whether ECHO was accepted or not, though the ECH transcript doesn't
+     * currently get the messages after the ServerHello. */
+    uint8_t transcript_hash[DIGEST_MAX_SIZE];
+    unsigned transcript_hash_len;
+    if (!tls_transcript_hash(&tls->handshake_transcript, hash_algo, transcript_hash, &transcript_hash_len)) {
+        ssl_debug_printf("%s can't get the transcript hash\n", G_STRFUNC);
+        return NULL;
+    }
+    if (!tls13_hkdf_expand_label_context(hash_algo, &prk_string,
                         tls13_hkdf_label_prefix(tls), label,
-                        tls->handshake_data.data, tls->handshake_data.data_len,
+                        transcript_hash, transcript_hash_len,
                         dig->len, &derived_secret))
         return NULL;
 
@@ -8606,7 +8806,7 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_inf
     } else {
         if (is_hrr) {
             proto_item_append_text(ti_rnd, " (HelloRetryRequest magic)");
-        } else if (from_server && (session->ech || (ssl && ssl->ech_transcript.data_len))) {
+        } else if (from_server && (session->ech || (ssl && !tls_transcript_is_empty(&ssl->ech_transcript)))) {
             /* We can't calculate the transcript hash until we have the Cipher
              * Suite, which comes later, so save this so we can show it in the
              * tree on the first pass. */
@@ -9439,46 +9639,37 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                     tls_save_crandom(ssl, mk_map);
 
                     tvb_memcpy(ech_tvb, ssl->client_random.data, 2, 32);
-                    if (ssl->ech_transcript.data_len > UINT32_MAX - 4 - hello_length) {
-                        /* This can't be a valid transcript; start over. */
-                        ssl_debug_printf("%s ECH transcript too long\n", G_STRFUNC);
-                        wmem_free(wmem_file_scope(), ssl->ech_transcript.data);
-                        ssl->ech_transcript.data = NULL;
-                        ssl->ech_transcript.data_len = 0;
-                    }
-                    uint32_t len_offset = ssl->ech_transcript.data_len;
-                    if (ssl->ech_transcript.data_len > 0)
-                        ssl->ech_transcript.data = (unsigned char*)wmem_realloc(wmem_file_scope(), ssl->ech_transcript.data,
-                                                                         ssl->ech_transcript.data_len + hello_length + 4);
-                    else
-                        ssl->ech_transcript.data = (unsigned char*)wmem_alloc(wmem_file_scope(), hello_length + 4);
-                    ssl->ech_transcript.data[ssl->ech_transcript.data_len] = SSL_HND_CLIENT_HELLO;
-                    ssl->ech_transcript.data[ssl->ech_transcript.data_len + 1] = 0;
+                    /* Build ClientHelloInner here and then add it to the
+                     * transcript, which might only keep the digest state. */
+                    unsigned char *inner = (unsigned char*)wmem_alloc(pinfo->pool, hello_length + 4);
+                    uint32_t inner_len;
+                    inner[0] = SSL_HND_CLIENT_HELLO;
+                    inner[1] = 0;
                     /* Copy ClientHelloInner up to the legacy_session_id field. */
-                    tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len + 4, 0, 34);
-                    ssl->ech_transcript.data_len += 38;
+                    tvb_memcpy(ech_tvb, inner + 4, 0, 34);
+                    inner_len = 38;
                     /* Now copy the legacy_session_id field from ClientHelloOuter. */
-                    ssl->ech_transcript.data[ssl->ech_transcript.data_len] = ssl->session_id.data_len;
-                    ssl->ech_transcript.data_len++;
-                    memcpy(&ssl->ech_transcript.data[ssl->ech_transcript.data_len], ssl->session_id.data, ssl->session_id.data_len);
-                    ssl->ech_transcript.data_len += ssl->session_id.data_len;
+                    inner[inner_len] = ssl->session_id.data_len;
+                    inner_len++;
+                    memcpy(&inner[inner_len], ssl->session_id.data, ssl->session_id.data_len);
+                    inner_len += ssl->session_id.data_len;
                     /* Skip past the legacy_session_id field in ClientHelloInner
                      * (which should be the empty string, i.e. just a 0 size.) */
                     uint32_t ech_offset = 35 + tvb_get_uint8(ech_tvb, 34);
                     /* Copy the Cipher Suites from ClientHelloInner. */
-                    tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, ech_offset,
+                    tvb_memcpy(ech_tvb, inner + inner_len, ech_offset,
                                2 + tvb_get_ntohs(ech_tvb, ech_offset));
-                    ssl->ech_transcript.data_len += 2 + tvb_get_ntohs(ech_tvb, ech_offset);
+                    inner_len += 2 + tvb_get_ntohs(ech_tvb, ech_offset);
                     ech_offset += 2 + tvb_get_ntohs(ech_tvb, ech_offset);
                     /* Copy the Compression Methods */
-                    tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, ech_offset,
+                    tvb_memcpy(ech_tvb, inner + inner_len, ech_offset,
                                1 + tvb_get_uint8(ech_tvb, ech_offset));
-                    ssl->ech_transcript.data_len += 1 + tvb_get_uint8(ech_tvb, ech_offset);
+                    inner_len += 1 + tvb_get_uint8(ech_tvb, ech_offset);
                     ech_offset += 1 + tvb_get_uint8(ech_tvb, ech_offset);
                     /* Now replace extensions in ech_outer_extensions with the
                      * data from ClientHelloOuter. */
-                    uint32_t ech_extensions_len_offset = ssl->ech_transcript.data_len;
-                    ssl->ech_transcript.data_len += 2;
+                    uint32_t ech_extensions_len_offset = inner_len;
+                    inner_len += 2;
                     uint32_t extensions_end = ech_offset + tvb_get_ntohs(ech_tvb, ech_offset) + 2;
                     ech_offset += 2;
                     bool ech_outer_extensions_found = false;
@@ -9489,9 +9680,9 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                         ech_offset += 2;
                         if (ext_type != SSL_HND_HELLO_EXT_ECH_OUTER_EXTENSIONS) {
                             /* Copy this extension directly */
-                            tvb_memcpy(ech_tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len,
+                            tvb_memcpy(ech_tvb, inner + inner_len,
                                        ech_offset - 4, 4 + ext_len);
-                            ssl->ech_transcript.data_len += 4 + ext_len;
+                            inner_len += 4 + ext_len;
                             ech_offset += ext_len;
                         } else if (ext_len > 0) {
                             if (ech_outer_extensions_found) {
@@ -9529,9 +9720,9 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                                     uint16_t outer_ext_type = tvb_get_ntohs(tvb, outer_offset);
                                     uint16_t outer_ext_len = tvb_get_ntohs(tvb, outer_offset + 2);
                                     if (ext_type == outer_ext_type) {
-                                        tvb_memcpy(tvb, ssl->ech_transcript.data + ssl->ech_transcript.data_len, outer_offset,
+                                        tvb_memcpy(tvb, inner + inner_len, outer_offset,
                                                    4 + outer_ext_len);
-                                        ssl->ech_transcript.data_len += 4 + outer_ext_len;
+                                        inner_len += 4 + outer_ext_len;
                                         outer_offset += 4 + outer_ext_len;
                                         found = true;
                                         break;
@@ -9546,9 +9737,10 @@ ssl_dissect_hnd_hello_ext_ech(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_in
                             }
                         }
                     }
-                    uint16_t ech_extensions_len = ssl->ech_transcript.data_len - ech_extensions_len_offset - 2;
-                    phtonu16(&ssl->ech_transcript.data[ech_extensions_len_offset], ech_extensions_len);
-                    phtonu16(&ssl->ech_transcript.data[len_offset + 2], ssl->ech_transcript.data_len - len_offset - 4);
+                    uint16_t ech_extensions_len = inner_len - ech_extensions_len_offset - 2;
+                    phtonu16(&inner[ech_extensions_len_offset], ech_extensions_len);
+                    phtonu16(&inner[2], inner_len - 4);
+                    tls_transcript_add(&ssl->ech_transcript, inner, inner_len);
                 }
                 uint32_t ech_padding_begin = (uint32_t)ssl_dissect_hnd_cli_hello(hf, ech_tvb, pinfo, payload_tree, 0, decrypted_len, session,
                                                                                ssl, NULL, mk_map);
@@ -10378,124 +10570,142 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     return initial_offset + offset;
 }
 
-static void
-tls_calculate_ech_handshake_hash(SslDecryptSession *ssl, tvbuff_t *tvb, uint32_t offset, uint32_t length, bool is_hrr)
+/* The hash function(s) for the handshake transcript, matching what
+ * ssl_generate_keyring_material and tls13_load_secret_from_psk use. */
+static bool
+tls_transcript_hash_algos(SslDecryptSession *ssl, int *algo, int *algo2)
 {
-    /* Note length here, unlike ssh_calculate_handshake_hash, does *not* include
+    *algo2 = 0;
+    switch (ssl->session.version) {
+    case TLSV1_VERSION:
+    case TLSV1DOT1_VERSION:
+    case DTLSV1DOT0_VERSION:
+    case DTLSV1DOT0_OPENSSL_VERSION:
+    case TLCPV1_VERSION:
+        *algo = GCRY_MD_MD5;
+        *algo2 = GCRY_MD_SHA1;
+        return true;
+    default:
+        break;
+    }
+
+    if (!(ssl->state & SSL_CIPHER))
+        return false;
+
+    switch (ssl->session.version) {
+    case TLSV1DOT3_VERSION:
+    case DTLSV1DOT3_VERSION:
+        *algo = ssl_get_digest_by_name(ssl_cipher_suite_dig(ssl->cipher_suite)->name);
+        return *algo != 0;
+    default:
+        *algo = ssl->cipher_suite->dig == DIG_SHA384 ? GCRY_MD_SHA384 : GCRY_MD_SHA256;
+        return true;
+    }
+}
+
+static void
+tls_calculate_ech_handshake_hash(packet_info *pinfo, SslDecryptSession *ssl, tvbuff_t *tvb, uint32_t offset, uint32_t length, bool is_hrr)
+{
+    /* Note length here, unlike ssl_calculate_handshake_hash, does *not* include
      * the 4 bytes for the handshake type and length fields themselves. */
-    if (ssl && ssl->ech_transcript.data_len > 0 && (ssl->state & SSL_CIPHER) && ssl->client_random.data_len > 0) {
-        /* RFC 9849 7.2 Backend Server */
-        /* Check that the entire message is present and find the confirmation
-         * before doing anything else, so that a truncated or malformed message
-         * doesn't throw an exception here (leaking the digest context and
-         * preventing the extensions from being dissected.) */
-        if (length < 34 || !tvb_bytes_exist(tvb, offset, length)) {
-            return;
-        }
-        if (ssl->ech_transcript.data_len > UINT32_MAX - 4 - length) {
-            ssl_debug_printf("%s ECH transcript too long\n", G_STRFUNC);
-            return;
-        }
-        /* The ServerHello confirmation is the last 8 bytes of the random. */
-        uint32_t confirmation_offset = offset + 26;
-        bool zero_confirmation = !is_hrr;
-        if (is_hrr) {
-            /* The HelloRetryRequest confirmation is in the extension. */
-            uint32_t hrr_offset = offset + 34;
-            uint32_t message_end = offset + length;
-            uint32_t extensions_end = hrr_offset;
-            if (message_end - hrr_offset >= 1) {
-                /* legacy_session_id_echo, cipher_suite, legacy_compression_method */
-                hrr_offset += tvb_get_uint8(tvb, hrr_offset) + 1 + 3;
-                if (hrr_offset <= message_end && message_end - hrr_offset >= 2) {
-                    extensions_end = hrr_offset + 2 + tvb_get_ntohs(tvb, hrr_offset);
-                    hrr_offset += 2;
-                    if (extensions_end > message_end) {
-                        extensions_end = message_end;
-                    }
+    if (!ssl || tls_transcript_is_empty(&ssl->ech_transcript) || !(ssl->state & SSL_CIPHER) || ssl->client_random.data_len == 0)
+        return;
+
+    /* RFC 9849 7.2 Backend Server */
+    int hash_algo = ssl_get_digest_by_name(ssl_cipher_suite_dig(ssl->cipher_suite)->name);
+    if (!hash_algo)
+        return;
+
+    /* Check that the entire message is present and find the confirmation
+     * before using the transcript, so that a truncated or malformed message
+     * doesn't throw an exception here (preventing the extensions from being
+     * dissected, or leaving the transcript partially updated.) */
+    if (length < 34 || !tvb_bytes_exist(tvb, offset, length))
+        return;
+    /* The ServerHello confirmation is the last 8 bytes of the random. */
+    uint32_t confirmation_offset = offset + 26;
+    bool zero_confirmation = !is_hrr;
+    if (is_hrr) {
+        /* The HelloRetryRequest confirmation is in the extension. */
+        uint32_t hrr_offset = offset + 34;
+        uint32_t message_end = offset + length;
+        uint32_t extensions_end = hrr_offset;
+        if (message_end - hrr_offset >= 1) {
+            /* legacy_session_id_echo, cipher_suite, legacy_compression_method */
+            hrr_offset += tvb_get_uint8(tvb, hrr_offset) + 1 + 3;
+            if (hrr_offset <= message_end && message_end - hrr_offset >= 2) {
+                extensions_end = hrr_offset + 2 + tvb_get_ntohs(tvb, hrr_offset);
+                hrr_offset += 2;
+                if (extensions_end > message_end) {
+                    extensions_end = message_end;
                 }
             }
-            while (hrr_offset <= extensions_end && extensions_end - hrr_offset >= 4) {
-                uint16_t ext_type = tvb_get_ntohs(tvb, hrr_offset);
-                uint16_t ext_len = tvb_get_ntohs(tvb, hrr_offset + 2);
-                if (ext_type == SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO && ext_len == 8 &&
-                    extensions_end - hrr_offset >= 12) {
-                    confirmation_offset = hrr_offset + 4;
-                    zero_confirmation = true;
-                    break;
-                }
-                hrr_offset += 4 + ext_len;
-            }
         }
-        int hash_algo = ssl_get_digest_by_name(ssl_cipher_suite_dig(ssl->cipher_suite)->name);
-        SSL_MD mc;
-        if (hash_algo && ssl_md_init(&mc, hash_algo) == 0) {
-            unsigned char transcript_hash[DIGEST_MAX_SIZE];
-            unsigned char prk[DIGEST_MAX_SIZE];
-            unsigned char *ech_verify_out = NULL;
-            unsigned int  len;
-            const uint8_t *message = tvb_get_ptr(tvb, offset, length);
-            uint8_t prefix[4] = {SSL_HND_SERVER_HELLO, 0x00, 0x00, 0x00};
-            phtonu24(&prefix[1], length);
-            ssl_md_update(&mc, ssl->ech_transcript.data, ssl->ech_transcript.data_len);
-            if (is_hrr) {
-                /* RFC 8446 4.4.1 The Transcript Hash
-                 * Special synthetic handshake following a HelloRetryRequest */
-                ssl_md_final(&mc, transcript_hash, &len);
-                wmem_free(wmem_file_scope(), ssl->ech_transcript.data);
-                ssl->ech_transcript.data_len = 4 + len;
-                ssl->ech_transcript.data = (unsigned char*)wmem_alloc(wmem_file_scope(), 4 + len + 4 + length);
-                ssl->ech_transcript.data[0] = SSL_HND_MESSAGE_HASH;
-                ssl->ech_transcript.data[1] = 0;
-                ssl->ech_transcript.data[2] = 0;
-                ssl->ech_transcript.data[3] = len;
-                memcpy(ssl->ech_transcript.data + 4, transcript_hash, len);
-                ssl_md_reset(&mc);
-                ssl_md_update(&mc, ssl->ech_transcript.data, 4 + len);
-            } else {
-                ssl->ech_transcript.data = wmem_realloc(wmem_file_scope(), ssl->ech_transcript.data,
-                                                        ssl->ech_transcript.data_len + 4 + length);
+        while (hrr_offset <= extensions_end && extensions_end - hrr_offset >= 4) {
+            uint16_t ext_type = tvb_get_ntohs(tvb, hrr_offset);
+            uint16_t ext_len = tvb_get_ntohs(tvb, hrr_offset + 2);
+            if (ext_type == SSL_HND_HELLO_EXT_ENCRYPTED_CLIENT_HELLO && ext_len == 8 &&
+                extensions_end - hrr_offset >= 12) {
+                confirmation_offset = hrr_offset + 4;
+                zero_confirmation = true;
+                break;
             }
-            memcpy(ssl->ech_transcript.data + ssl->ech_transcript.data_len, prefix, 4);
-            memcpy(ssl->ech_transcript.data + ssl->ech_transcript.data_len + 4, message, length);
-            ssl->ech_transcript.data_len += 4 + length;
-            /* The confirmation is calculated with the confirmation bytes
-             * set to zero. */
-            ssl_md_update(&mc, prefix, 4);
-            if (zero_confirmation) {
-                uint8_t zeros[8] = { 0 };
-                uint32_t confirmation_pos = confirmation_offset - offset;
-                ssl_md_update(&mc, message, confirmation_pos);
-                ssl_md_update(&mc, zeros, 8);
-                ssl_md_update(&mc, message + confirmation_pos + 8, length - confirmation_pos - 8);
-            } else {
-                ssl_md_update(&mc, message, length);
-            }
-            ssl_md_final(&mc, transcript_hash, &len);
-            ssl_md_cleanup(&mc);
-            hkdf_extract(hash_algo, NULL, 0, ssl->client_random.data, 32, prk);
-            StringInfo prk_string = {prk, len};
-            if (tls13_hkdf_expand_label_context(hash_algo, &prk_string, tls13_hkdf_label_prefix(ssl),
-                                            is_hrr ? "hrr ech accept confirmation" : "ech accept confirmation",
-                                            transcript_hash, len, 8, &ech_verify_out)) {
-                memcpy(is_hrr ? ssl->session.hrr_ech_confirmation : ssl->session.ech_confirmation, ech_verify_out, 8);
-                if (tvb_memeql(tvb, confirmation_offset, ech_verify_out, 8) == -1) {
-                    if (is_hrr) {
-                        ssl->session.hrr_ech_declined = true;
-                        ssl->session.first_ch_ech_frame = 0;
-                    }
-                    memcpy(ssl->client_random.data, ssl->session.client_random.data, ssl->session.client_random.data_len);
-                    ssl_print_data("Updated Client Random", ssl->client_random.data, 32);
-                }
-                wmem_free(NULL, ech_verify_out);
-            }
-            /* XXX - If ECH is accepted, then the ECH transcript should be used
-             * instead of the handshake_data for various purposes, like PSK KE.
-             * If declined, then we don't need the full transcript anymore.
-             */
-            ssl->session.ech = true;
+            hrr_offset += 4 + ext_len;
         }
     }
+    uint8_t *message = (uint8_t *)wmem_alloc(pinfo->pool, 4 + length);
+    message[0] = SSL_HND_SERVER_HELLO;
+    phtonu24(&message[1], length);
+    tvb_memcpy(tvb, message + 4, offset, length);
+    uint8_t *zeroed = (uint8_t *)wmem_memdup(pinfo->pool, message, 4 + length);
+    if (zero_confirmation) {
+        memset(zeroed + 4 + confirmation_offset - offset, 0, 8);
+    }
+
+    if (is_hrr) {
+        /* RFC 8446 4.4.1 The Transcript Hash
+         * Special synthetic handshake following a HelloRetryRequest */
+        if (!tls_transcript_hello_retry(&ssl->ech_transcript, hash_algo, 0))
+            return;
+    }
+
+    unsigned char transcript_hash[DIGEST_MAX_SIZE];
+    unsigned char prk[DIGEST_MAX_SIZE];
+    unsigned char *ech_verify_out = NULL;
+    unsigned int  len;
+    gcry_md_hd_t md = tls_transcript_copy(&ssl->ech_transcript, hash_algo, 0);
+    if (!md)
+        return;
+    gcry_md_write(md, zeroed, 4 + length);
+    len = gcry_md_get_algo_dlen(hash_algo);
+    memcpy(transcript_hash, gcry_md_read(md, hash_algo), len);
+    gcry_md_close(md);
+
+    /* The transcript continues with the actual message. */
+    if (tls_transcript_set_hash(&ssl->ech_transcript, hash_algo, 0))
+        tls_transcript_add(&ssl->ech_transcript, message, 4 + length);
+
+    hkdf_extract(hash_algo, NULL, 0, ssl->client_random.data, 32, prk);
+    StringInfo prk_string = {prk, len};
+    if (tls13_hkdf_expand_label_context(hash_algo, &prk_string, tls13_hkdf_label_prefix(ssl),
+                                    is_hrr ? "hrr ech accept confirmation" : "ech accept confirmation",
+                                    transcript_hash, len, 8, &ech_verify_out)) {
+        memcpy(is_hrr ? ssl->session.hrr_ech_confirmation : ssl->session.ech_confirmation, ech_verify_out, 8);
+        if (tvb_memeql(tvb, confirmation_offset, ech_verify_out, 8) == -1) {
+            if (is_hrr) {
+                ssl->session.hrr_ech_declined = true;
+                ssl->session.first_ch_ech_frame = 0;
+            }
+            memcpy(ssl->client_random.data, ssl->session.client_random.data, ssl->session.client_random.data_len);
+            ssl_print_data("Updated Client Random", ssl->client_random.data, 32);
+        }
+        wmem_free(NULL, ech_verify_out);
+    }
+    /* XXX - If ECH is accepted, then the ECH transcript should be used
+     * instead of the handshake_transcript for various purposes, like PSK KE.
+     * If declined, then we don't need the ECH transcript anymore.
+     */
+    ssl->session.ech = true;
 }
 
 void
@@ -10581,7 +10791,7 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* With the Cipher Suite, we can now calculate the ECH handshake hash.
      * Do it now so we have it before the encrypted_client_hello extension
      * in a HRR. */
-    tls_calculate_ech_handshake_hash(ssl, tvb, initial_offset, offset_end - initial_offset, is_hrr);
+    tls_calculate_ech_handshake_hash(pinfo, ssl, tvb, initial_offset, offset_end - initial_offset, is_hrr);
 
     if (session->ech) {
         tls_ech_confirm_t *ech_confirm = p_get_proto_data(pinfo->pool, pinfo, hf->hf.hs_ech_confirm, hf->hf.hs_ech_confirm);
@@ -10618,6 +10828,25 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                            offset_end,
                                            is_hrr ? SSL_HND_HELLO_RETRY_REQUEST : SSL_HND_SERVER_HELLO,
                                            session, ssl, is_dtls, ja3, NULL, NULL);
+    }
+
+    if (ssl) {
+        /* The version and cipher suite are known now, so we know the hash
+         * function and can keep only the digest state of the transcript. */
+        int algo, algo2;
+        if (!tls_transcript_hash_algos(ssl, &algo, &algo2)) {
+            ssl_debug_printf("%s can't determine the transcript hash\n", G_STRFUNC);
+            tls_transcript_fail(&ssl->handshake_transcript);
+        } else if (is_hrr) {
+            /* The HelloRetryRequest itself is already in the transcript. */
+            tls_transcript_hello_retry(&ssl->handshake_transcript, algo,
+                                       (is_dtls ? 12 : 4) + offset_end - initial_offset);
+        } else {
+            tls_transcript_set_hash(&ssl->handshake_transcript, algo, algo2);
+        }
+        if (!is_hrr) {
+            ssl->state &= ~SSL_HELLO_RETRY_REQUEST;
+        }
     }
 
     ja3_hash = g_compute_checksum_for_string(G_CHECKSUM_MD5, wmem_strbuf_get_str(ja3),
@@ -12415,15 +12644,12 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint
      * format as TLS 1.3). We don't know at the point of the ClientHello which
      * version will be used, so PSK only likely doesn't work for DTLS 1.3 yet.
      *
-     * XXX - When the server responds with a HelloRetryRequest, for subsequent
+     * When the server responds with a HelloRetryRequest, for subsequent
      * hashes (other than the first PSK Binder, see 4.2.11.2) ClientHello1 is
      * replaced with a synthetic handshake message of type "message_hash",
-     * per RFC 8446 4.4.1. We aren't concerned with that now, as a HRR generally
-     * rules out PSK-only key exchange, which is what we calculate the hash for
-     * here. (The possible exception is when a server sends a HRR to reject
-     * early data but the server and client otherwise agree on psk_ke, if
-     * any client/server pairs support that.) We do support that in the context
-     * of computing the hash for Encrypted Client Hello; see elsewhere.
+     * per RFC 8446 4.4.1. That is done in ssl_dissect_hnd_srv_hello, once
+     * the cipher suite (and thus the hash function) is known; after that,
+     * only the digest state of the transcript is kept.
      */
     case TLSV1DOT3_VERSION:
     case DTLSV1DOT3_VERSION:
@@ -12467,28 +12693,39 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint
         break;
     }
 
-    uint32_t old_length = ssl_session->handshake_data.data_len;
-    ssl_debug_printf("Calculating hash with offset %d %d\n", offset, length);
-    if (length > UINT32_MAX - old_length) {
-        /* This can't be a valid transcript; leave it as is. */
-        ssl_debug_printf("%s handshake transcript too long\n", G_STRFUNC);
-        return;
+    /* Until the ServerHello gives the hash function, the transcript should
+     * only have the ClientHello (in DTLS, possibly a HelloVerifyRequest,
+     * which resets the transcript) and the ServerHello or HelloRetryRequest
+     * itself; there's no point in buffering anything else. */
+    if (ssl_session->handshake_transcript.md == NULL) {
+        switch (msg_type) {
+        case SSL_HND_CLIENT_HELLO:
+        case SSL_HND_SERVER_HELLO:
+        case SSL_HND_HELLO_RETRY_REQUEST:
+        case SSL_HND_HELLO_VERIFY_REQUEST:
+            break;
+        default:
+            if (!ssl_session->handshake_transcript.failed) {
+                ssl_debug_printf("%s handshake message %u before the ServerHello\n", G_STRFUNC, msg_type);
+                tls_transcript_fail(&ssl_session->handshake_transcript);
+            }
+            return;
+        }
     }
+
+    ssl_debug_printf("Calculating hash with offset %d %d\n", offset, length);
     if (tvb) {
         if (tvb_bytes_exist(tvb, offset, length)) {
-            ssl_session->handshake_data.data = (unsigned char *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
-            tvb_memcpy(tvb, ssl_session->handshake_data.data + old_length, offset, length);
-            ssl_session->handshake_data.data_len += length;
+            tls_transcript_add(&ssl_session->handshake_transcript, tvb_get_ptr(tvb, offset, length), length);
         }
     } else {
         /* DTLS calculates the hash as if each handshake message had been
          * sent as a single fragment (RFC 6347, section 4.2.6) and passes
          * in a null tvbuff to add 3 bytes for a zero fragment offset.
          */
+        static const uint8_t zeros[3];
         DISSECTOR_ASSERT_CMPINT(length, <, 4);
-        ssl_session->handshake_data.data = (unsigned char *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
-        memset(ssl_session->handshake_data.data + old_length, 0, length);
-        ssl_session->handshake_data.data_len += length;
+        tls_transcript_add(&ssl_session->handshake_transcript, zeros, length);
     }
 }
 
