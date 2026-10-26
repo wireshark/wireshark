@@ -12266,6 +12266,11 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint
     if (ssl_session && ssl_session->session.version != TLSV1DOT3_VERSION && !(ssl_session->state & SSL_MASTER_SECRET)) {
         uint32_t old_length = ssl_session->handshake_data.data_len;
         ssl_debug_printf("Calculating hash with offset %d %d\n", offset, length);
+        if (length > UINT32_MAX - old_length) {
+            /* This can't be a valid transcript; leave it as is. */
+            ssl_debug_printf("%s handshake transcript too long\n", G_STRFUNC);
+            return;
+        }
         if (tvb) {
             if (tvb_bytes_exist(tvb, offset, length)) {
                 ssl_session->handshake_data.data = (unsigned char *)wmem_realloc(wmem_file_scope(), ssl_session->handshake_data.data, old_length + length);
