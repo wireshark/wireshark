@@ -451,10 +451,15 @@ from GTK+ `graph_analysis.c`.  Currently identical in light and dark.
 
 The theme file defines colors for Wireshark-specific UI elements.  The
 standard Qt palette roles (`base`, `text`, `window`, `highlight`, etc.)
-remain OS-provided by default.  Stylesheet files may still use
-`palette(base)`, `palette(text)`, etc. for structural colors that should
-follow the platform convention.
+come from the operating system unless the theme's optional `palette`
+section sets them; only the roles listed there replace the system
+values (see `theme.schema.json` for the roles a theme can set).
+Stylesheet files use `palette(base)`, `palette(text)`, etc. for
+structural colors, so they follow the theme where it sets a role and
+the platform convention otherwise.
 
-A future extension may allow themes to override palette roles via an
-optional `"palette"` section, enabling full visual control without
-modifying system settings.
+On macOS, a theme that sets `palette.window` also paints the top
+toolbars in the unified title and toolbar area in that color, with a
+`separator` line below the last toolbar row.  The title bar stays the
+native system color.  Themes without `palette.window` keep the
+native toolbar look.
