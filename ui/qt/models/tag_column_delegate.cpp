@@ -40,7 +40,7 @@ struct TagSeg {
 static int emojiPixelSize(const QStyleOptionViewItem &option) {
     tag_prefs_t prefs = tag_rules_get_prefs();
     int pct = (prefs.emoji_size > 0) ? prefs.emoji_size : 100;
-    int row_h = option.rect.height() > 0 ? option.rect.height() : 16;
+    int row_h = option.rect.height() > 0 ? option.rect.height() : option.fontMetrics.height();
     return qMax(1, row_h * pct / 100);
 }
 

@@ -27,6 +27,7 @@
 
 #include "lua_debugger_dialog.h"
 #include "lua_debugger_utils.h"
+#include <ui/qt/utils/zoom_scaling.h>
 #include "widgets/collapsible_section.h"
 #include <epan/wslua/wslua_debugger.h>
 
@@ -163,6 +164,7 @@ CollapsibleSection *LuaDebuggerDialog::createEvaluateSection(QWidget *parent)
     QVBoxLayout *evalMainLayout = new QVBoxLayout(evalWidget);
     evalMainLayout->setContentsMargins(0, 0, 0, 0);
     evalMainLayout->setSpacing(4);
+    ZoomScaling::scaleLayoutMetrics(evalMainLayout);
 
     /* Held as a member so the input/output split (including either pane
      * being collapsed to zero by the user) persists via

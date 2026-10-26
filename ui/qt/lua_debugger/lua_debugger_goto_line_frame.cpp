@@ -16,7 +16,6 @@
 #include <ui_lua_debugger_goto_line_frame.h>
 
 #include <QApplication>
-#include <QGuiApplication>
 #include <QIntValidator>
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -26,13 +25,22 @@
 #include <QTextCursor>
 #include <QTimer>
 
+#include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
+
 #include "lua_debugger_code_editor.h"
 
 LuaDebuggerGoToLineFrame::LuaDebuggerGoToLineFrame(QWidget *parent)
     : AccordionFrame(parent), ui_(new Ui::LuaDebuggerGoToLineFrame)
 {
     ui_->setupUi(this);
-    setFont(QGuiApplication::font());
+    /* Pinned to the application font so the dialog's monospace font does not
+     * leak into the bar; re-set on every application font change (zoom). */
+    setFont(FontManager::zoomedFont());
+    connect(FontManager::instance(), &FontManager::applicationFontChanged, this,
+            &QWidget::setFont);
+    /* The .ui caps the field width in pixels; scale the cap with the text so a long line number stays visible. */
+    ZoomScaling::scaleSizeLimits(ui_->lineLineEdit);
     ui_->lineLineEdit->setValidator(new QIntValidator(1, 999999999, ui_->lineLineEdit));
     updateStyleSheet();
 

@@ -4914,6 +4914,11 @@ set_target_properties(test-programs PROPERTIES
 	EXCLUDE_FROM_DEFAULT_BUILD True
 )
 
+# Built only when the Qt UI is (ui/qt is added above).
+if(TARGET qt_zoom_scaling_test)
+	add_dependencies(test-programs qt_zoom_scaling_test)
+endif()
+
 # Add target to enable capturing from the build directory. Requires Linux capabilities
 # and running with sudo.
 if(TARGET dumpcap AND SETCAP_EXECUTABLE)

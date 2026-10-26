@@ -10,7 +10,12 @@
 #
 '''EPAN unit tests'''
 
+import os
 import subprocess
+import sys
+from pathlib import Path
+
+import pytest
 
 
 class TestUnitTests:
@@ -59,6 +64,17 @@ class TestUnitTests:
         subprocess.check_call((program('test_wsutil'),
             '--verbose'
         ), env=base_env)
+
+    def test_unit_qt_zoom_scaling(self, program_path, base_env):
+        '''qt_zoom_scaling_test'''
+        prog = os.path.join(program_path, 'qt_zoom_scaling_test' +
+            ('.exe' if sys.platform.startswith('win32') else ''))
+        if not os.access(prog, os.X_OK):
+            pytest.skip('Qt not built')
+        stylesheets = Path(__file__).resolve().parent.parent / 'ui' / 'stylesheets'
+        files = sorted(stylesheets.rglob('*.qss'))
+        assert files, 'no stylesheets found'
+        subprocess.check_call([prog, '1.21', *map(str, files)], env=base_env)
 
     def test_unit_fieldcount(self, cmd_tshark, test_env):
         '''fieldcount'''

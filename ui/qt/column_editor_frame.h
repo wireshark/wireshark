@@ -124,6 +124,14 @@ private:
      * @param index The index of the newly selected column type.
      */
     void typeChanged(int index);
+
+    /**
+     * @brief Sets the width limits that derive from size hints.
+     *
+     * The size hints follow the font, so this runs at construction and
+     * after every zoom step.
+     */
+    void updateWidthLimits();
 };
 
 #endif // COLUMN_EDITOR_FRAME_H

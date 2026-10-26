@@ -33,6 +33,7 @@ DIAG_ON(restrict)
 #include <ui/qt/manager/interface_list_manager.h>
 #include <ui_interface_toolbar.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/zoom_scaling.h>
 
 #include <epan/prefs.h>
 #include "ui/capture_opts.h"
@@ -92,10 +93,7 @@ InterfaceToolbar::InterfaceToolbar(QWidget *parent, const iface_toolbar *toolbar
     initializeControls(toolbar);
 
 #ifdef Q_OS_MACOS
-    foreach (QWidget *w, findChildren<QWidget *>())
-    {
-        w->setAttribute(Qt::WA_MacSmallSize, true);
-    }
+    ZoomScaling::scaleMacControlSizes(this);
 #endif
 
     if (!use_spacer_)
@@ -206,6 +204,7 @@ QWidget *InterfaceToolbar::createButton(iface_toolbar_control *control)
 {
     QPushButton *button = new QPushButton(QString().fromUtf8((char *)control->display));
     button->setMaximumHeight(27);
+    ZoomScaling::scaleSizeLimits(button);
     button->setToolTip(QString().fromUtf8(control->tooltip));
 
     switch (control->ctrl_role)

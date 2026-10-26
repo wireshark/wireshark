@@ -19,6 +19,7 @@
 #include <QDebug>
 #include <epan/prefs-int.h>
 #include <ui/qt/models/pref_models.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 
@@ -39,6 +40,10 @@ LayoutPreferencesFrame::LayoutPreferencesFrame(QWidget *parent) :
     ui->layout4ToolButton->setIcon(ThemedIcon("layout-reset-4"));
     ui->layout5ToolButton->setIcon(ThemedIcon("layout-reset-5"));
     ui->layout6ToolButton->setIcon(ThemedIcon("layout-reset-6"));
+
+    for (QToolButton *button : {ui->layout1ToolButton, ui->layout2ToolButton, ui->layout3ToolButton,
+                                ui->layout4ToolButton, ui->layout5ToolButton, ui->layout6ToolButton})
+        ZoomScaling::scaleIconSize(button);
 
     QString image_pad_ss = "QToolButton { padding: 0.3em; }";
     ui->layout1ToolButton->setStyleSheet(image_pad_ss);

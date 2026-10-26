@@ -42,6 +42,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/workspace_state.h>
@@ -258,6 +259,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui(new Ui::AboutDialog)
 {
     ui->setupUi(this);
+    ZoomScaling::scaleSizeLimits(ui->label_title);
     setAttribute(Qt::WA_DeleteOnClose, true);
     QFile f_acknowledgements;
     QFile f_license;

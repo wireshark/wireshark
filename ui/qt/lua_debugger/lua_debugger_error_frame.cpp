@@ -17,7 +17,6 @@
 #include <ui_lua_debugger_error_frame.h>
 
 #include <QApplication>
-#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QResizeEvent>
 #include <QSizePolicy>
@@ -26,6 +25,8 @@
 #include <QTextDocument>
 #include <QAbstractTextDocumentLayout>
 #include <QTimer>
+
+#include <ui/qt/utils/font_manager.h>
 
 #include <cmath>
 
@@ -56,7 +57,11 @@ LuaDebuggerErrorFrame::LuaDebuggerErrorFrame(QWidget *parent)
     : QFrame(parent), ui_(new Ui::LuaDebuggerErrorFrame)
 {
     ui_->setupUi(this);
-    setFont(QGuiApplication::font());
+    /* Pinned to the application font so the dialog's monospace font does not
+     * leak into the bar; re-set on every application font change (zoom). */
+    setFont(FontManager::zoomedFont());
+    connect(FontManager::instance(), &FontManager::applicationFontChanged, this,
+            &QWidget::setFont);
 
     /* Keep the frame as compact as possible; height follows text content. */
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);

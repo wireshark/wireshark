@@ -27,6 +27,7 @@
 #include "profile_dialog.h"
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/capture_file.h>
@@ -80,8 +81,6 @@ packets_bar_update(void)
     cur_main_status_bar_->updateCaptureStatistics(NULL);
 }
 
-static const int base_icon_size = 14; // px, before zoom
-
 MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent),
     cap_file_(NULL),
@@ -90,7 +89,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
 {
     QSplitter *splitter = new QSplitter(this);
     QWidget *info_progress = new QWidget(this);
-    QHBoxLayout *info_progress_hb = new QHBoxLayout(info_progress);
+    info_progress_hb_ = new QHBoxLayout(info_progress);
 
 #if defined(Q_OS_WIN)
     // Handles are the same color as widgets, at least on Windows 7.
@@ -143,18 +142,16 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     applyIconSizes();
     connect(FontManager::instance(), &FontManager::zoomChanged, this, &MainStatusBar::applyIconSizes);
 
-    info_progress_hb->setContentsMargins(base_icon_size / 2, 0, 0, 0);
-
     info_status_.setTemporaryContext(STATUS_CTX_TEMPORARY);
     info_status_.setShrinkable(true);
     info_status_.setAccessibleName(tr("Information"));
     info_status_.setAccessibleDescription(tr("Displays general information, status messages, and expert severity details."));
 
-    info_progress_hb->addWidget(expert_button_);
-    info_progress_hb->addWidget(comment_button_);
-    info_progress_hb->addWidget(&info_status_);
-    info_progress_hb->addWidget(&progress_frame_);
-    info_progress_hb->addStretch(10);
+    info_progress_hb_->addWidget(expert_button_);
+    info_progress_hb_->addWidget(comment_button_);
+    info_progress_hb_->addWidget(&info_status_);
+    info_progress_hb_->addWidget(&progress_frame_);
+    info_progress_hb_->addStretch(10);
 
     // LabelStack does setStyleSheet for QLabel but ClickableLabel does not
     packet_status_.setAccessibleName(tr("Packet statistics"));
@@ -272,11 +269,12 @@ void MainStatusBar::setReadyMsg()
 
 void MainStatusBar::applyIconSizes()
 {
-    // Not sized from the status text, which has a smaller font on macOS, nor
-    // from a style metric, so they match the display filter toolbar icons.
-    const int side = qRound(base_icon_size * FontManager::zoomFactor());
+    // Both indicators match the display filter toolbar icons. They are not
+    // sized from the status text, whose font is smaller on macOS.
+    const int side = ZoomScaling::barIconSize();
     expert_button_->setIconSize(QSize(side, side));
     comment_button_->setIconSize(QSize(side, side));
+    info_progress_hb_->setContentsMargins(side / 2, 0, 0, 0);
 }
 
 void MainStatusBar::changeEvent(QEvent *event)

@@ -12,6 +12,7 @@
 #include <ui/qt/widgets/adaptive_tool_button.h>
 
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 
 #include <QStyle>
 
@@ -27,17 +28,13 @@ AdaptiveToolButton::AdaptiveToolButton(QWidget *parent) :
     setCursor(Qt::PointingHandCursor);
 
     // Match the compact macOS control-size class used by the app's other inline
-    // tool buttons. Must precede the metric queries below: the macOS style folds
-    // the control-size class into the values it reports for this widget, so
-    // querying first would capture the larger regular-size value.
+    // tool buttons. Must precede the metric queries below and in applyZoom():
+    // the macOS style folds the control-size class into the values it reports
+    // for this widget, so querying first would capture the larger regular-size
+    // value.
 #ifdef Q_OS_MACOS
     setAttribute(Qt::WA_MacSmallSize, true);
 #endif
-
-    // Default base size honours the platform icon contract; callers override per
-    // glyph (e.g. a wide apply chevron).
-    const int icon_size = style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, this);
-    base_icon_size_ = QSize(icon_size, icon_size);
 
     // Default padding is the style's frame width (a crisp hairline that stays
     // stable across platforms); callers may override via setIconPadding().
@@ -82,9 +79,16 @@ QSize AdaptiveToolButton::minimumSizeHint() const
 
 void AdaptiveToolButton::applyZoom()
 {
-    const qreal factor = FontManager::zoomFactor();
-    const QSize eff(qMax(1, qRound(base_icon_size_.width()  * factor)),
-                    qMax(1, qRound(base_icon_size_.height() * factor)));
+    QSize eff;
+    if (base_icon_size_.isValid()) {
+        eff = QSize(ZoomScaling::scaledPixels(base_icon_size_.width()),
+                    ZoomScaling::scaledPixels(base_icon_size_.height()));
+    } else {
+        // Default: the platform icon contract. The style scales this metric
+        // with the zoom itself, so it must not be scaled again here.
+        const int icon_size = style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, this);
+        eff = QSize(icon_size, icon_size);
+    }
     setIconSize(eff);
     updateGeometry();
 }

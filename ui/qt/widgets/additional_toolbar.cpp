@@ -12,6 +12,7 @@
 #include <ui/qt/widgets/additional_toolbar.h>
 #include <ui/qt/widgets/apply_line_edit.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/main_application.h>
 
@@ -46,6 +47,7 @@ AdditionalToolBar * AdditionalToolBar::create(QWidget * parent, ext_toolbar_t * 
     result->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     result->layout()->setContentsMargins(0, 0, 0, 0);
     result->layout()->setSpacing(4);
+    ZoomScaling::scaleLayoutMetrics(result->layout());
 
     GList * walker = toolbar->children;
     bool spacerNeeded = true;
@@ -150,7 +152,7 @@ QWidget * AdditionalToolbarWidgetAction::createWidget(QWidget * parent)
     barItem->setProperty(propertyName, VariantPointer<ext_toolbar_t>::asQVariant(toolbar_item));
 
 #ifdef Q_OS_MACOS
-    barItem->setAttribute(Qt::WA_MacSmallSize, true);
+    ZoomScaling::scaleMacControlSize(barItem);
 #endif
 
     return barItem;
@@ -257,8 +259,8 @@ QWidget * AdditionalToolbarWidgetAction::createLabelFrame(ext_toolbar_t * item, 
     strLabel->setToolTip(item->tooltip);
 
 #ifdef Q_OS_MACOS
-    frame->setAttribute(Qt::WA_MacSmallSize, true);
-    strLabel->setAttribute(Qt::WA_MacSmallSize, true);
+    ZoomScaling::scaleMacControlSize(frame);
+    ZoomScaling::scaleMacControlSize(strLabel);
 #endif
 
     frameLayout->addWidget(strLabel);
@@ -310,7 +312,7 @@ QWidget * AdditionalToolbarWidgetAction::createTextEditor(ext_toolbar_t * item, 
     strEdit->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
 #ifdef Q_OS_MACOS
-    strEdit->setAttribute(Qt::WA_MacSmallSize, true);
+    ZoomScaling::scaleMacControlSize(strEdit);
 #endif
 
     frame->layout()->addWidget(strEdit);
@@ -472,7 +474,7 @@ QWidget * AdditionalToolbarWidgetAction::createSelector(ext_toolbar_t * item, QW
     myBox->setCurrentIndex(selIndex);
 
 #ifdef Q_OS_MACOS
-    myBox->setAttribute(Qt::WA_MacSmallSize, true);
+    ZoomScaling::scaleMacControlSize(myBox);
 #endif
 
     frame->layout()->addWidget(myBox);

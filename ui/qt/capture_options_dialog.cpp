@@ -169,7 +169,8 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     // The extcap-config decoration is a ContrastAdaptIcon; scale the tree's
     // icons with the application zoom level (consumer-side).
     auto applyIconSize = [this]() {
-        const int s = qRound(style()->pixelMetric(QStyle::PM_SmallIconSize) * FontManager::zoomFactor());
+        // The style's icon metric already follows the zoom.
+        const int s = style()->pixelMetric(QStyle::PM_SmallIconSize);
         ui->interfaceTree->setIconSize(QSize(s, s));
     };
     applyIconSize();

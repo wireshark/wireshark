@@ -17,6 +17,8 @@
 #include <ui/tap-tcp-stream.h>
 #include <wsutil/nstime.h>
 
+#include <ui/qt/utils/zoom_scaling.h>
+
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QHBoxLayout>
@@ -96,6 +98,7 @@ TcpDedupDialog::TcpDedupDialog(QWidget &parent, CaptureFile &cf) :
     stream_edit_->setValidator(new QIntValidator(0, INT_MAX, stream_edit_));
     stream_edit_->setText(QString::number(stream_));
     stream_edit_->setFixedWidth(80);
+    ZoomScaling::scaleSizeLimits(stream_edit_);
     stream_edit_->setAlignment(Qt::AlignRight);
 
     connect(table_, &QTableWidget::cellDoubleClicked, this, [this](int row, int) {

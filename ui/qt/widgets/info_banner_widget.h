@@ -315,6 +315,11 @@ private:
     QRect buttonRect() const;
 
     /**
+     * @brief Apply the zoom-scaled fixed width and the minimum and maximum heights.
+     */
+    void applyScaledSizes();
+
+    /**
      * @brief Convert a type name string from JSON to a @c BannerSlideType.
      *
      * @param type_str The raw type string from JSON (e.g. @c "news").

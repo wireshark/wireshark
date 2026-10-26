@@ -16,6 +16,7 @@
 
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <wsutil/report_message.h>
 #include <epan/prefs.h>
 #include <QMessageBox>
@@ -32,6 +33,7 @@ RsaKeysFrame::RsaKeysFrame(QWidget *parent) :
     pkcs11_libs_model_(0)
 {
     ui->setupUi(this);
+    ZoomScaling::scaleSizeLimits(ui->libsView);
 
 #ifdef Q_OS_MACOS
     ui->addFileButton->setAttribute(Qt::WA_MacSmallSize, true);

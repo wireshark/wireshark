@@ -14,6 +14,8 @@
 #include <ui/recent.h>
 
 #include <ui/preference_utils.h>
+#include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 
 #include "main_application.h"
 
@@ -31,12 +33,11 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
     cur_column_(-1)
 {
     ui->setupUi(this);
+    ZoomScaling::scaleSizeLimits(ui->buttonBox);
     ui->fieldsNameLineEdit->setType(CustomColumnToEnter);
 
 #ifdef Q_OS_MACOS
-    foreach (QWidget *w, findChildren<QWidget *>()) {
-        w->setAttribute(Qt::WA_MacSmallSize, true);
-    }
+    ZoomScaling::scaleMacControlSizes(this);
 #endif
 
     for (int i = 0; i < NUM_COL_FMTS; i++) {
@@ -50,11 +51,6 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
     //
     ui->horizontalLayout->setStretchFactor(ui->titleLineEdit, 2);
     ui->horizontalLayout->setStretchFactor(ui->occurrenceLineEdit, 1);
-    ui->occurrenceLineEdit->setMaximumWidth(ui->occurrenceLineEdit->sizeHint().width());
-    // On Windows, this is necessary to make the popup be the width of the
-    // longest item, instead of the width matching the combobox and using
-    // ellipses. (Linux has the popup wider by default.)
-    ui->typeComboBox->view()->setMinimumWidth(ui->typeComboBox->sizeHint().width());
     // This lets the typeComboBox shrink a bit if the width is very small.
     ui->typeComboBox->setMinimumContentsLength(20);
 
@@ -69,6 +65,9 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
     connect(ui->typeComboBox, &QComboBox::currentIndexChanged, this,
             &ColumnEditorFrame::typeChanged);
 
+    updateWidthLimits();
+    connect(FontManager::instance(), &FontManager::zoomChanged,
+            this, &ColumnEditorFrame::updateWidthLimits);
 }
 
 ColumnEditorFrame::~ColumnEditorFrame()
@@ -129,6 +128,16 @@ void ColumnEditorFrame::typeChanged(int index)
         ui->horizontalLayout->setStretchFactor(ui->typeComboBox, 2);
         ui->horizontalLayout->setStretchFactor(ui->fieldsNameLineEdit, 1);
     }
+}
+
+void ColumnEditorFrame::updateWidthLimits()
+{
+    ui->occurrenceLineEdit->setMaximumWidth(ui->occurrenceLineEdit->sizeHint().width());
+    // On Windows, this is necessary to make the popup be the width of the
+    // longest item, instead of the width matching the combobox and using
+    // ellipses. (Linux has the popup wider by default.)
+    ui->typeComboBox->view()->setMinimumWidth(ui->typeComboBox->sizeHint().width());
+    typeChanged(ui->typeComboBox->currentIndex());
 }
 
 void ColumnEditorFrame::editColumn(int column)

@@ -10,20 +10,18 @@
 #include "collapsible_section.h"
 
 #include <QFont>
-#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QSplitter>
 #include <QSizePolicy>
 
+#include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
+
 CollapsibleSection::CollapsibleSection(const QString &title, QWidget *parent)
     : QWidget(parent), savedHeight(100)
 {
-    QFont headerFont(QGuiApplication::font());
-    headerFont.setBold(true);
-
     // Toggle button with arrow indicator
     toggleButton = new QToolButton(this);
-    toggleButton->setFont(headerFont);
     toggleButton->setStyleSheet(
         QStringLiteral("QToolButton { border: none; font-weight: bold; }"));
     toggleButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -31,13 +29,6 @@ CollapsibleSection::CollapsibleSection(const QString &title, QWidget *parent)
     toggleButton->setText(title);
     toggleButton->setCheckable(true);
     toggleButton->setChecked(false);
-    /* Cache the title row height from the initial sizeHint (RightArrow) and
-     * use it to pin headerContainer_ below. The platform style's
-     * sizeFromContents(CT_ToolButton) consults opt.arrowType, so a live
-     * sizeHint() varies by 1-2px between RightArrow and DownArrow; pinning
-     * the container at this fixed value keeps the header row, the HLine
-     * (AlignVCenter), and headerHeight()/titleButtonHeight() stable. */
-    titleH_ = toggleButton->sizeHint().height();
     toggleButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     // Horizontal line after header
@@ -50,6 +41,7 @@ CollapsibleSection::CollapsibleSection(const QString &title, QWidget *parent)
     headerLayout_ = new QHBoxLayout();
     headerLayout_->setContentsMargins(0, 0, 0, 0);
     headerLayout_->setSpacing(4);
+    ZoomScaling::scaleLayoutMetrics(headerLayout_);
     headerLayout_->addWidget(toggleButton, 0, Qt::AlignVCenter);
     headerLayout_->addWidget(headerLine, 1, Qt::AlignVCenter);
 
@@ -58,7 +50,6 @@ CollapsibleSection::CollapsibleSection(const QString &title, QWidget *parent)
      * This is what stops the HLine from drifting on toggle. */
     headerContainer_ = new QWidget(this);
     headerContainer_->setLayout(headerLayout_);
-    headerContainer_->setFixedHeight(titleH_);
     headerContainer_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     // Content area - initially hidden
@@ -70,8 +61,11 @@ CollapsibleSection::CollapsibleSection(const QString &title, QWidget *parent)
     mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(2);
+    ZoomScaling::scaleLayoutMetrics(mainLayout);
     mainLayout->addWidget(headerContainer_);
     mainLayout->addWidget(contentArea, 1);
+
+    applyTitleMetrics();
 
     /* Size policy in splitter: Expanding-Y so an expanded section actively
      * pulls surplus vertical space rather than leaving it unallocated; when
@@ -85,6 +79,49 @@ CollapsibleSection::CollapsibleSection(const QString &title, QWidget *parent)
      * connection would invoke onToggle() twice. */
     connect(toggleButton, &QToolButton::clicked, this,
             &CollapsibleSection::onToggle);
+
+    /* The title font and the title row height derive from the application
+     * font and the zoom level, so measure and pin them again when either
+     * changes. */
+    connect(FontManager::instance(), &FontManager::applicationFontChanged, this,
+            &CollapsibleSection::refreshTitleMetrics);
+    connect(FontManager::instance(), &FontManager::zoomChanged, this,
+            &CollapsibleSection::refreshTitleMetrics);
+}
+
+void CollapsibleSection::applyTitleMetrics()
+{
+    QFont font(FontManager::zoomedFont());
+    font.setBold(true);
+    toggleButton->setFont(font);
+
+    /* Cache the title row height from the sizeHint with RightArrow and use
+     * it to pin headerContainer_. The platform style's
+     * sizeFromContents(CT_ToolButton) consults opt.arrowType, so a live
+     * sizeHint() varies by 1-2px between RightArrow and DownArrow; pinning
+     * the container at this fixed value keeps the header row, the HLine
+     * (AlignVCenter), and headerHeight()/titleButtonHeight() stable. */
+    const Qt::ArrowType arrow = toggleButton->arrowType();
+    toggleButton->setArrowType(Qt::ArrowType::RightArrow);
+    titleH_ = toggleButton->sizeHint().height();
+    toggleButton->setArrowType(arrow);
+
+    headerContainer_->setFixedHeight(titleH_);
+    if (headerTrailingWidget_)
+    {
+        headerTrailingWidget_->setFixedHeight(titleH_);
+    }
+}
+
+void CollapsibleSection::refreshTitleMetrics()
+{
+    applyTitleMetrics();
+    if (!toggleButton->isChecked())
+    {
+        setMinimumHeight(titleH_);
+        setMaximumHeight(titleH_);
+    }
+    emit titleMetricsChanged();
 }
 
 void CollapsibleSection::setContentWidget(QWidget *contentWidget)

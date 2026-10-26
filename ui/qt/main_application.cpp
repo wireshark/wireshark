@@ -39,6 +39,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/software_update.h>
 #include <ui/qt/utils/theme_manager.h>
 
@@ -258,6 +259,7 @@ void MainApplication::setConfigurationProfile(const char *profile_name, bool wri
             rf_path, g_strerror(rf_open_errno));
         g_free(rf_path);
     }
+    FontManager::instance()->restoreZoomLevel();
     if (recent.gui_fileopen_remembered_dir &&
         test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
         set_last_open_dir(recent.gui_fileopen_remembered_dir);
@@ -468,6 +470,9 @@ MainApplication::MainApplication(int &argc,  char **argv) :
     connect(&tap_update_timer_, &QTimer::timeout, this, &MainApplication::updateTaps);
 
     setStyle(new ThemeStyler);
+    // setStyle() rebuilds Qt's per-class font table from the platform theme,
+    // dropping the zoomed or overridden class fonts pushed by ThemeManager.
+    FontManager::instance()->reapplyApplicationFonts();
 
     connect(qApp, &QApplication::aboutToQuit, this, &MainApplication::cleanup);
 }

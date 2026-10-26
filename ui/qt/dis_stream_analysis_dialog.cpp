@@ -21,6 +21,7 @@
 
 #include "epan/addr_resolv.h"
 
+#include "ui/qt/utils/zoom_scaling.h"
 #include "ui/qt/utils/plot_theme.h"
 #include "ui/qt/utils/theme_manager.h"
 #include "ui/qt/widgets/qcustomplot.h"
@@ -125,6 +126,7 @@ DisStreamAnalysisDialog::DisStreamAnalysisDialog(QWidget &parent, CaptureFile &c
     layout->addLayout(form_layout);
 
     audio_plot_->setMinimumHeight(220);
+    ZoomScaling::scaleSizeLimits(audio_plot_);
     audio_plot_->legend->setVisible(true);
     audio_plot_->xAxis->setLabel(tr("Capture Time (s)"));
     audio_plot_->yAxis->setLabel(tr("Amplitude"));

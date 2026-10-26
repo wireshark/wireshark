@@ -17,13 +17,14 @@
 
 #include <QApplication>
 #include <QEvent>
-#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QTimer>
+
+#include <ui/qt/utils/font_manager.h>
 
 LuaDebuggerFindFrame::LuaDebuggerFindFrame(QWidget *parent) : AccordionFrame(parent), ui_(new Ui::LuaDebuggerFindFrame)
 {
@@ -32,7 +33,11 @@ LuaDebuggerFindFrame::LuaDebuggerFindFrame(QWidget *parent) : AccordionFrame(par
     ui_->findReplaceGrid->setColumnStretch(0, 0);
     ui_->findReplaceGrid->setColumnStretch(1, 1);
     ui_->findReplaceGrid->setColumnStretch(2, 0);
-    setFont(QGuiApplication::font());
+    /* Pinned to the application font so the dialog's monospace font does not
+     * leak into the bar; re-set on every application font change (zoom). */
+    setFont(FontManager::zoomedFont());
+    connect(FontManager::instance(), &FontManager::applicationFontChanged, this,
+            &QWidget::setFont);
     updateStyleSheet();
 
     /* No manual button connects (connectSlotsByName). Enter: filter Return — returnPressed can double-fire. */

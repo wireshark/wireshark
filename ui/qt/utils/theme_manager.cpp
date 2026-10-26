@@ -22,6 +22,7 @@
 #include <ui/qt/utils/themes/theme_stylesheet_loader.h>
 #include <ui/qt/utils/themes/theme_token_handler.h>
 #include <ui/qt/utils/workspace_state.h>
+#include <ui/qt/utils/zoom_scaling.h>
 
 #include <epan/prefs.h>
 
@@ -37,7 +38,6 @@
 #include <QFont>
 #include <QMetaEnum>
 #include <QPalette>
-#include <QRegularExpression>
 #include <QSet>
 #include <QStyle>
 #include <QStyleHints>
@@ -226,9 +226,12 @@ ThemeManager::ThemeManager(QObject *parent)
     // feeds it the configured font names during loadTheme().
     FontManager::instance();
 
-    // Zoom changes the stylesheet output (loadStyleSheet scales font sizes by
-    // the zoom factor), so a zoom is a "themed stylesheets changed" event for
-    // stylesheet consumers.  Re-emit it as themeChanged so they reload.
+    // Zoom changes the stylesheet output (loadStyleSheet scales font sizes and
+    // lengths by the zoom factor), so a zoom is a "themed stylesheets changed"
+    // event for stylesheet consumers.  Re-emit it as themeChanged so they
+    // reload.  FontManager has already re-polished the widgets for the new
+    // style metrics, and the application stylesheet does not depend on the
+    // zoom, so it is not re-applied.
     connect(FontManager::instance(), &FontManager::zoomChanged,
             this, &ThemeManager::themeChanged);
 }
@@ -609,7 +612,11 @@ void ThemeManager::applyApplicationStyleSheet()
 {
     if (!qApp)
         return;
-    qApp->setStyleSheet(loadStyleSheet(QStringLiteral("application")));
+    // Unlike loadStyleSheet(), not scaled by the zoom factor: the sheet
+    // only holds hairlines and one small corner radius, and this way a
+    // zoom step never has to replace it.
+    qApp->setStyleSheet(ThemeStyleSheetLoader::load(QStringLiteral("application"),
+                                                    themeColors_, isDarkMode()));
 }
 
 ThemeManager::ThemeMode ThemeManager::modeFromPrefs(int gui_color_scheme)
@@ -655,63 +662,13 @@ QColor ThemeManager::color(ThemeToken role) const
     return QColor();
 }
 
-namespace {
-// Qt stylesheets express font size both as "font-size: Npx" and inside the
-// "font:" shorthand (e.g. "font: bold 14px ..."), and only support absolute
-// px/pt units (no relative em/%).  Scale the size component of either form by
-// the current zoom factor so themed text zooms with the rest of the UI.
-// No-op at zoom level 0 (factor 1.0).
-QString scaleStyleSheetFontSizes(const QString &qss, qreal factor)
-{
-    if (qFuzzyCompare(factor, qreal(1.0)))
-        return qss;
-
-    // "font:" or "font-size:" with the value up to ';' or '}'.  The optional
-    // "-size" is anchored to ':' so this never matches font-weight/-family/etc.
-    static const QRegularExpression propRe(
-        QStringLiteral("\\bfont(?:-size)?\\s*:\\s*([^;}]*)"));
-    // A size token (the only px/pt token inside a font value).
-    static const QRegularExpression sizeRe(
-        QStringLiteral("([0-9]+(?:\\.[0-9]+)?)(px|pt)"));
-
-    QString out;
-    out.reserve(qss.size());
-    qsizetype last = 0;
-    auto it = propRe.globalMatch(qss);
-    while (it.hasNext()) {
-        const QRegularExpressionMatch m = it.next();
-        out += qss.mid(last, m.capturedStart(1) - last);
-
-        const QString value = m.captured(1);
-        QString scaledValue;
-        scaledValue.reserve(value.size());
-        qsizetype vlast = 0;
-        auto vit = sizeRe.globalMatch(value);
-        while (vit.hasNext()) {
-            const QRegularExpressionMatch vm = vit.next();
-            scaledValue += value.mid(vlast, vm.capturedStart() - vlast);
-            const double scaled = vm.captured(1).toDouble() * factor;
-            scaledValue += QStringLiteral("%1%2")
-                               .arg(qMax(1, qRound(scaled)))
-                               .arg(vm.captured(2));
-            vlast = vm.capturedEnd();
-        }
-        scaledValue += value.mid(vlast);
-
-        out += scaledValue;
-        last = m.capturedEnd(1);
-    }
-    out += qss.mid(last);
-    return out;
-}
-} // namespace
-
 QString ThemeManager::loadStyleSheet(const QString &name) const
 {
     const QString qss = ThemeStyleSheetLoader::load(name, themeColors_, isDarkMode());
     // The FontManager owns text zoom; apply it to the resolved stylesheet here
-    // so callers just re-fetch the stylesheet to pick up a new zoom level.
-    return scaleStyleSheetFontSizes(qss, FontManager::zoomFactor());
+    // (font sizes and lengths) so callers just re-fetch the stylesheet to pick
+    // up a new zoom level.
+    return ZoomScaling::scaleStyleSheetLengths(qss, FontManager::zoomFactor());
 }
 
 QString ThemeManager::styleSheet(const QString &name)

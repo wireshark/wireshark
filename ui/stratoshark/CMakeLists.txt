@@ -111,6 +111,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update_backend.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_manager.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/zoom_scaling.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_styler.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/color_math.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/legacy_color_prefs_migration.h
@@ -467,6 +468,8 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update.cpp
 	${WIRESHARK_SOFTWARE_UPDATE_PLATFORM_SRC}
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_manager.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/zoom_scaling.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/zoom_scaling_widgets.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_styler.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/color_math.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/legacy_color_prefs_migration.cpp

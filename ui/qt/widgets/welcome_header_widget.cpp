@@ -14,6 +14,7 @@
 #include <epan/prefs.h>
 
 #include <ui/qt/main_application.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/software_update.h>
 #include <ui/qt/utils/theme_manager.h>
 
@@ -32,6 +33,10 @@ WelcomeHeaderWidget::WelcomeHeaderWidget(QWidget *parent) :
     header_ui_(new Ui::WelcomeHeaderWidget)
 {
     header_ui_->setupUi(this);
+
+    // The size limits come from welcome-header.qss, which scales with the zoom.
+    ZoomScaling::scaleIconSize(header_ui_->updateDismiss);
+
     updateStyleSheet();
 
     // Rebuild the stylesheet whenever the theme (or its light/dark

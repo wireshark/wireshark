@@ -16,6 +16,7 @@
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/main_application.h>
+#include <ui/qt/utils/zoom_scaling.h>
 
 #include <QPushButton>
 #include <QKeyEvent>
@@ -28,11 +29,10 @@ FilterExpressionFrame::FilterExpressionFrame(QWidget *parent) :
     ui(new Ui::FilterExpressionFrame)
 {
     ui->setupUi(this);
+    ZoomScaling::scaleSizeLimits(ui->buttonBox);
 
 #ifdef Q_OS_MACOS
-    foreach (QWidget *w, findChildren<QWidget *>()) {
-        w->setAttribute(Qt::WA_MacSmallSize, true);
-    }
+    ZoomScaling::scaleMacControlSizes(this);
 #endif
 
     editExpression_ = -1;

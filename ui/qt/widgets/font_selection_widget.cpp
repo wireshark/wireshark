@@ -11,6 +11,7 @@
 #include <ui_font_selection_widget.h>
 
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include "wsutil/array.h"
 
 #include <glib.h>
@@ -140,6 +141,10 @@ FontSelectionWidget::FontSelectionWidget(QWidget *parent) :
     ui(new Ui::FontSelectionWidget)
 {
     ui->setupUi(this);
+    ZoomScaling::scaleSizeLimits(ui->styleListWidget);
+    ZoomScaling::scaleSizeLimits(ui->sizeSpinBox);
+    ZoomScaling::scaleSizeLimits(ui->sizeListWidget);
+    ZoomScaling::scaleSizeLimits(ui->effectsGroupBox);
     setFocusProxy(ui->familyListWidget);
 
     // The pangram spans the alphabet; the hex dump line shows how the packet

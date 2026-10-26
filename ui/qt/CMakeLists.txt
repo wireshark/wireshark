@@ -112,6 +112,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/software_update.h
 	utils/software_update_backend.h
 	utils/theme_manager.h
+	utils/zoom_scaling.h
 	utils/theme_styler.h
 	utils/themes/color_math.h
 	utils/themes/legacy_color_prefs_migration.h
@@ -493,6 +494,8 @@ set(WIRESHARK_UTILS_SRCS
 	utils/software_update.cpp
 	${WIRESHARK_SOFTWARE_UPDATE_PLATFORM_SRC}
 	utils/theme_manager.cpp
+	utils/zoom_scaling.cpp
+	utils/zoom_scaling_widgets.cpp
 	utils/theme_styler.cpp
 	utils/themes/color_math.cpp
 	utils/themes/legacy_color_prefs_migration.cpp
@@ -1099,6 +1102,30 @@ set_target_properties(qtui PROPERTIES
 	AUTOUIC ON
 	# AUTORCC not needed with qt_add_resources
 	#AUTORCC ON
+)
+
+# Regression test for the stylesheet length scaling; Qt Core and Widgets
+# headers only, no QApplication. Run by test/suite_unittests.py.
+add_executable(qt_zoom_scaling_test EXCLUDE_FROM_ALL
+	utils/zoom_scaling.cpp
+	utils/zoom_scaling_test.cpp
+)
+
+target_include_directories(qt_zoom_scaling_test
+	PRIVATE
+		${CMAKE_SOURCE_DIR}
+		${CMAKE_BINARY_DIR}
+)
+
+target_link_libraries(qt_zoom_scaling_test Qt${qtver}::Core Qt${qtver}::Widgets)
+
+set_target_properties(qt_zoom_scaling_test PROPERTIES
+	FOLDER "Tests"
+	EXCLUDE_FROM_DEFAULT_BUILD True
+	AUTOMOC OFF
+	AUTOUIC OFF
+	AUTORCC OFF
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 # Qt also provides translation catalogs for strings used in Qt modules

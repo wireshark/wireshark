@@ -12,6 +12,7 @@
 #include <ui/qt/widgets/interface_toolbar_lineedit.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 
 #include <QStyle>
@@ -48,10 +49,9 @@ InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString vali
 
 void InterfaceToolbarLineEdit::updateApplyButtonZoom()
 {
-    // The apply icon is 21x14 at zoom 1.0 and scales with the application zoom.
-    const qreal factor = FontManager::zoomFactor();
-    apply_button_->setIconSize(QSize(qMax(1, qRound(21 * factor)),
-                                     qMax(1, qRound(14 * factor))));
+    // The apply icon is 21x14 at zoom level 0 and scales with the application zoom.
+    apply_button_->setIconSize(QSize(ZoomScaling::scaledPixels(21),
+                                     ZoomScaling::scaledPixels(14)));
 }
 
 void InterfaceToolbarLineEdit::validateText()

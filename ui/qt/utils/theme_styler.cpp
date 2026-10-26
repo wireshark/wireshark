@@ -9,6 +9,7 @@
 
 #include "ui/qt/utils/theme_styler.h"
 
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/color_math.h>
 
@@ -21,6 +22,7 @@
 #include <QPainter>
 #include <QPen>
 #include <QRectF>
+#include <QStyleOptionButton>
 #include <QStyleOptionToolBar>
 #include <QStyleOptionViewItem>
 #include <QToolBar>
@@ -57,6 +59,50 @@ static bool isLastTopToolBarRow(const QMainWindow *mainWindow, const QWidget *to
 }
 #endif
 
+// Pixel metrics that follow the application zoom. Icon sizes and the
+// splitter width scale on every base style. The control metrics are not
+// scaled on macOS: AppKit draws check boxes, radio buttons, scroll bars and
+// sliders at fixed control sizes, so a larger rect would only add empty
+// space around the native control.
+struct ZoomedPixelMetric {
+    QStyle::PixelMetric metric;
+    bool scaleOnMacOS;
+};
+
+static const ZoomedPixelMetric zoomed_pixel_metrics[] = {
+    { QStyle::PM_SmallIconSize,            true },
+    { QStyle::PM_LargeIconSize,            true },
+    { QStyle::PM_ToolBarIconSize,          true },
+    { QStyle::PM_ListViewIconSize,         true },
+    { QStyle::PM_IconViewIconSize,         true },
+    { QStyle::PM_TabBarIconSize,           true },
+    { QStyle::PM_ButtonIconSize,           true },
+    { QStyle::PM_MessageBoxIconSize,       true },
+    { QStyle::PM_SplitterWidth,            true },
+    { QStyle::PM_IndicatorWidth,           false },
+    { QStyle::PM_IndicatorHeight,          false },
+    { QStyle::PM_ExclusiveIndicatorWidth,  false },
+    { QStyle::PM_ExclusiveIndicatorHeight, false },
+    { QStyle::PM_ScrollBarExtent,          false },
+    { QStyle::PM_ScrollBarSliderMin,       false },
+    { QStyle::PM_SliderThickness,          false },
+    { QStyle::PM_SliderControlThickness,   false },
+    { QStyle::PM_SliderLength,             false },
+    { QStyle::PM_ToolBarExtensionExtent,   false },
+    { QStyle::PM_ToolBarHandleExtent,      false },
+};
+
+static bool isZoomedPixelMetric(QStyle::PixelMetric metric)
+{
+    for (const ZoomedPixelMetric &entry : zoomed_pixel_metrics) {
+        if (entry.metric == metric) {
+            return entry.scaleOnMacOS
+                    || ThemeStyler::baseStyleName() != QLatin1String("macos");
+        }
+    }
+    return false;
+}
+
 ThemeStyler::ThemeStyler(QStyle *style) : QProxyStyle(style)
 {
     base_style_name_ = baseStyle()->objectName();
@@ -78,6 +124,54 @@ int ThemeStyler::styleHint(StyleHint hint, const QStyleOption *option,
     if (hint == QStyle::SH_MessageBox_TextInteractionFlags)
             return QProxyStyle::styleHint(hint, option, widget, returnData) | Qt::TextSelectableByMouse;
     return QProxyStyle::styleHint(hint, option, widget, returnData);
+}
+
+int ThemeStyler::pixelMetric(PixelMetric metric, const QStyleOption *option,
+    const QWidget *widget) const
+{
+    // A native style may compute this metric from others through
+    // proxy()->pixelMetric(), which lands here again. Those nested values
+    // are inputs of the outer metric and must stay unscaled, otherwise the
+    // outer result would carry the zoom factor twice.
+    if (metric_depth_ > 0)
+        return QProxyStyle::pixelMetric(metric, option, widget);
+
+    ++metric_depth_;
+    const int base = QProxyStyle::pixelMetric(metric, option, widget);
+    --metric_depth_;
+
+    // Non-positive values are "not applicable" markers or resets.
+    if (base <= 0 || !isZoomedPixelMetric(metric))
+        return base;
+    return ZoomScaling::scaledPixels(base);
+}
+
+QSize ThemeStyler::sizeFromContents(ContentsType type, const QStyleOption *option,
+    const QSize &contentsSize, const QWidget *widget) const
+{
+    QSize size = QProxyStyle::sizeFromContents(type, option, contentsSize, widget);
+#ifdef Q_OS_MACOS
+    // QMacStyle grows a push button above its bezel height once the
+    // content is taller than the default, and then paints every non-flat
+    // push button that is not exactly the bezel height as a square bezel.
+    // Keep the bezel height while the zoomed content still fits the
+    // bezel's title rect. The probes call the base implementation, not this
+    // proxy, so they do not recurse.
+    const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton *>(option);
+    if (type == CT_PushButton && button && !(button->features & QStyleOptionButton::Flat)
+            && baseStyleName() == QLatin1String("macos")) {
+        const int bezel = QProxyStyle::sizeFromContents(type, option,
+                QSize(contentsSize.width(), 0), widget).height();
+        if (size.height() > bezel) {
+            QStyleOptionButton probe = *button;
+            probe.rect = QRect(0, 0, size.width(), bezel);
+            const QRect title = QProxyStyle::subElementRect(SE_PushButtonContents, &probe, widget);
+            if (contentsSize.height() <= title.height())
+                size.setHeight(bezel);
+        }
+    }
+#endif
+    return size;
 }
 
 void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *option,

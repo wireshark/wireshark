@@ -19,6 +19,8 @@
 #include "welcome_page.h"
 #include <ui_welcome_page.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/models/recentcapturefiles_list_model.h>
@@ -53,6 +55,7 @@ WelcomePage::WelcomePage(QWidget *parent) :
 
 {
     welcome_ui_->setupUi(this);
+    ZoomScaling::scaleSizeLimits(welcome_ui_->sidebarContainer);
 
     setContentsMargins(0, 0, 0, 0);
     setAccessibleName(tr("Welcome page"));
@@ -65,6 +68,9 @@ WelcomePage::WelcomePage(QWidget *parent) :
     updateStyleSheets();
     connect(ThemeManager::instance(), &ThemeManager::themeChanged,
             this, &WelcomePage::updateStyleSheets);
+    // The column breakpoint depends on the zoomed text size.
+    connect(FontManager::instance(), &FontManager::zoomChanged,
+            this, &WelcomePage::updateSidebarLayout);
 
     /* Handle Recent Capture Files List */
     // In welcome_page.cpp or wherever the list is created
@@ -264,7 +270,7 @@ void WelcomePage::showEvent(QShowEvent *event)
  *   - learnMin:  LearnCardWidget::minimumHeight()   (from .ui: 110)
  *   - spacing:   sidebarLayout->spacing()            (from .ui: 16)
  *
- * Hysteresis (kHysteresis = 20px):
+ * Hysteresis (20px at zoom 0, scaled with the zoom level):
  *   Without hysteresis, at the exact collapse threshold the layout
  *   oscillates: collapsing a widget frees space, which satisfies the
  *   expand threshold, which expands, which exceeds the threshold again.
@@ -308,17 +314,19 @@ void WelcomePage::showEvent(QShowEvent *event)
 void WelcomePage::updateSidebarLayout()
 {
     // Open and Capture go side-by-side if preferred, there are recent files
-    // to list, and each column gets at least kMinColumnWidth; otherwise
+    // to list, and each column gets at least min_column_width; otherwise
     // they are stacked. The container width doesn't depend on the direction,
     // so this can't oscillate.
-    static const int kMinColumnWidth = 320;
+    // Both are zoom level 0 design values, scaled because the columns hold
+    // zoomed text.
+    const int min_column_width = ZoomScaling::scaledPixels(320);
     QBoxLayout *content = welcome_ui_->mainContentLayout;
-    static const int kColumnSpacing = 24;
+    const int column_spacing = ZoomScaling::scaledPixels(24);
     bool sideBySide = recent.gui_welcome_page_side_by_side &&
             !WorkspaceState::instance()->recentCaptureFiles().isEmpty() &&
-            welcome_ui_->mainContentContainer->width() >= 2 * kMinColumnWidth + kColumnSpacing;
+            welcome_ui_->mainContentContainer->width() >= 2 * min_column_width + column_spacing;
     content->setDirection(sideBySide ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
-    content->setSpacing(sideBySide ? kColumnSpacing : -1);
+    content->setSpacing(sideBySide ? column_spacing : -1);
     content->setStretch(0, sideBySide ? 1 : 0);
     content->setStretch(1, sideBySide ? 1 : 0);
 
@@ -326,7 +334,8 @@ void WelcomePage::updateSidebarLayout()
     if (available <= 0)
         return;
 
-    static const int kHysteresis = 20;
+    // Compared with zoomed heights, so the band is scaled like them.
+    const int hysteresis = ZoomScaling::scaledPixels(20);
 
     int spacing = welcome_ui_->sidebarLayout->spacing();
     int tipsFull = welcome_ui_->tipsSectionCard->sizeHint().height();
@@ -338,11 +347,11 @@ void WelcomePage::updateSidebarLayout()
 
     // Level 1: links collapse when full tips + expanded learn don't fit.
     int linksCollapseAt = tipsFull + spacing + learnMax;
-    int linksExpandAt = linksCollapseAt + kHysteresis;
+    int linksExpandAt = linksCollapseAt + hysteresis;
 
     // Level 2: tips compact when full tips + collapsed learn don't fit.
     int tipsCompactAt = tipsFull + spacing + learnMin;
-    int tipsExpandAt = tipsCompactAt + kHysteresis;
+    int tipsExpandAt = tipsCompactAt + hysteresis;
 
     bool collapseLinks;
     bool compactTips = welcome_ui_->tipsSectionCard->isCompactMode();

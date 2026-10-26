@@ -161,7 +161,8 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     // The extcap-config decoration is a ContrastAdaptIcon; as the consuming view
     // the tree scales its icons with the application zoom level.
     auto applyIconSize = [this]() {
-        const int s = qRound(style()->pixelMetric(QStyle::PM_SmallIconSize) * FontManager::zoomFactor());
+        // The style's icon metric already follows the zoom.
+        const int s = style()->pixelMetric(QStyle::PM_SmallIconSize);
         ui->interfaceTree->setIconSize(QSize(s, s));
     };
     applyIconSize();

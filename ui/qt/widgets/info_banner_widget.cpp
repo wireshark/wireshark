@@ -31,6 +31,8 @@
 #endif
 
 #include <ui/recent.h>
+#include <ui/qt/utils/font_manager.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <app/application_flavor.h>
 
@@ -40,6 +42,8 @@
 /*
  * Layout constants for slide rendering.
  * Used by both paintEvent() and buttonRect() to keep layout in sync.
+ * All values are design values at zoom level 0; every use goes through
+ * px() so the card follows the text zoom.
  */
 
 /* Vertical margin above the first content element (tag pill). */
@@ -86,6 +90,12 @@ static constexpr int kBtnPaddingH          = 24;
 /* Extra margin around each navigation dot for hit-testing (enlarges the tap target). */
 static constexpr int kDotHitMargin         = 6;
 
+/* Scale a design pixel value (zoom level 0) to the current text zoom. */
+static int px(int value)
+{
+    return ZoomScaling::scaledPixels(value);
+}
+
 
 InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
     QFrame(parent)
@@ -107,14 +117,24 @@ InfoBannerWidget::InfoBannerWidget(QWidget *parent) :
 
     setMouseTracking(true);
     setFrameShape(QFrame::NoFrame);
-    setFixedWidth(kCardWidth);
-    setMinimumHeight(kCardHeightCompact);
-    setMaximumHeight(kCardHeight);
+    applyScaledSizes();
 
     connect(auto_advance_timer_, &QTimer::timeout, this, &InfoBannerWidget::advanceSlide);
     connect(ThemeManager::instance(), &ThemeManager::themeChanged, this,
             [this]() { update(); });
+    connect(FontManager::instance(), &FontManager::zoomChanged, this, [this]() {
+        applyScaledSizes();
+        updateGeometry();
+        update();
+    });
     auto_advance_timer_->stop();
+}
+
+void InfoBannerWidget::applyScaledSizes()
+{
+    setFixedWidth(px(kCardWidth));
+    setMinimumHeight(px(kCardHeightCompact));
+    setMaximumHeight(px(compact_mode_ ? kCardHeightCompact : kCardHeight));
 }
 
 BannerSlideType InfoBannerWidget::typeFromString(const QString &type_str)
@@ -646,8 +666,7 @@ void InfoBannerWidget::setCompactMode(bool compact)
     if (compact_mode_ == compact)
         return;
     compact_mode_ = compact;
-    int h = compact_mode_ ? kCardHeightCompact : kCardHeight;
-    setMaximumHeight(h);
+    applyScaledSizes();
     updateGeometry();
     update();
 }
@@ -662,12 +681,12 @@ QSize InfoBannerWidget::sizeHint() const
     // Always return the full preferred size regardless of compact state.
     // Compact mode is expressed through maximumHeight(), not sizeHint().
     // This allows parent layouts to know the ideal size for layout decisions.
-    return QSize(kCardWidth, kCardHeight);
+    return QSize(px(kCardWidth), px(kCardHeight));
 }
 
 QSize InfoBannerWidget::minimumSizeHint() const
 {
-    return QSize(kCardWidth, kCardHeightCompact);
+    return QSize(px(kCardWidth), px(kCardHeightCompact));
 }
 
 void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
@@ -691,7 +710,7 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
 
     const BannerSlide &slide = slides_[current_slide_];
     const QRectF r = rect();
-    const int content_width = static_cast<int>(r.width()) - kContentLeftMargin - kContentRightMargin;
+    const int content_width = static_cast<int>(r.width()) - px(kContentLeftMargin) - px(kContentRightMargin);
     const bool is_seasonal = (slide.type == BannerSeasonal);
 
     // --- Card background gradient ---
@@ -723,21 +742,21 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(gradient);
-    painter.drawRoundedRect(r, kCardRadius, kCardRadius);
+    painter.drawRoundedRect(r, px(kCardRadius), px(kCardRadius));
 
     int y;
     if (!compact_mode_) {
         // --- Illustration area ---
-        QRectF illus_rect(0, 0, r.width(), kIllustrationHeight);
+        QRectF illus_rect(0, 0, r.width(), px(kIllustrationHeight));
 
         // Top-rounded, flat-bottom clip shape
         QPainterPath clip_path;
-        clip_path.moveTo(8, 0);
-        clip_path.arcTo(QRectF(0, 0, 16, 16), 90, 90);
-        clip_path.lineTo(0, kIllustrationHeight);
-        clip_path.lineTo(r.width(), kIllustrationHeight);
-        clip_path.lineTo(r.width(), 8);
-        clip_path.arcTo(QRectF(r.width() - 16, 0, 16, 16), 0, 90);
+        clip_path.moveTo(px(8), 0);
+        clip_path.arcTo(QRectF(0, 0, px(16), px(16)), 90, 90);
+        clip_path.lineTo(0, px(kIllustrationHeight));
+        clip_path.lineTo(r.width(), px(kIllustrationHeight));
+        clip_path.lineTo(r.width(), px(8));
+        clip_path.arcTo(QRectF(r.width() - px(16), 0, px(16), px(16)), 0, 90);
         clip_path.closeSubpath();
 
         bool has_image = false;
@@ -768,7 +787,7 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
             painter.drawPath(clip_path);
 
             QFont illus_font = font();
-            illus_font.setPixelSize(kNormalFontSize);
+            illus_font.setPixelSize(px(kNormalFontSize));
             illus_font.setCapitalization(QFont::AllUppercase);
             illus_font.setLetterSpacing(QFont::AbsoluteSpacing, 2.0);
             painter.setFont(illus_font);
@@ -776,14 +795,14 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
             painter.drawText(illus_rect, Qt::AlignCenter, slide.tag.toUpper());
         }
 
-        y = kIllustrationHeight + kContentTopMargin;
+        y = px(kIllustrationHeight) + px(kContentTopMargin);
     } else {
-        y = kContentTopMargin;
+        y = px(kContentTopMargin);
     }
 
     // Tag / subheader pill
     QFont tag_font = font();
-    tag_font.setPixelSize(kSmallFontSize);
+    tag_font.setPixelSize(px(kSmallFontSize));
     tag_font.setBold(true);
     tag_font.setCapitalization(QFont::AllUppercase);
     tag_font.setLetterSpacing(QFont::AbsoluteSpacing, 0.5);
@@ -791,91 +810,91 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
 
     QString tag_text = slide.tag.toUpper();
     QFontMetrics tag_fm(tag_font);
-    int pill_h = tag_fm.height() + 6;
-    int pill_w = tag_fm.horizontalAdvance(tag_text) + 14;
-    QRectF pill_rect(kContentLeftMargin, y, pill_w, pill_h);
+    int pill_h = tag_fm.height() + px(6);
+    int pill_w = tag_fm.horizontalAdvance(tag_text) + px(14);
+    QRectF pill_rect(px(kContentLeftMargin), y, pill_w, pill_h);
 
     painter.setBrush(QColor(0, 0, 0, 60));
     painter.setPen(Qt::NoPen);
-    painter.drawRoundedRect(pill_rect, 3, 3);
+    painter.drawRoundedRect(pill_rect, px(3), px(3));
 
     painter.setPen(QColor(255, 255, 255, 200));
     painter.drawText(pill_rect, Qt::AlignCenter, tag_text);
 
-    y += pill_h + kSectionSpacing;
+    y += pill_h + px(kSectionSpacing);
 
     // --- Title ---
     QFont title_font = font();
-    title_font.setPixelSize(kTitleFontSize);
+    title_font.setPixelSize(px(kTitleFontSize));
     title_font.setBold(true);
     painter.setFont(title_font);
     painter.setPen(Qt::white);
 
-    QRectF title_rect(kContentLeftMargin, y, content_width, kTitleFontSize + 5);
+    QRectF title_rect(px(kContentLeftMargin), y, content_width, px(kTitleFontSize + 5));
     painter.drawText(title_rect, Qt::AlignLeft | Qt::AlignVCenter, slide.title);
 
-    y += kTitleAdvance;
+    y += px(kTitleAdvance);
 
     bool descriptionEmpty = slide.description.isEmpty() && slide.description_sub.isEmpty();
     // --- Description highlight box (skip for seasonal slides) ---
     if (!is_seasonal && !descriptionEmpty) {
         QFont desc_font = font();
-        desc_font.setPixelSize(kNormalFontSize);
+        desc_font.setPixelSize(px(kNormalFontSize));
         painter.setFont(desc_font);
         QFontMetrics desc_fm(desc_font);
 
-        int box_inner_width = content_width - kDescBoxPadding * 2;
+        int box_inner_width = content_width - px(kDescBoxPadding) * 2;
         int line1_h = slide.description.isEmpty() ? 0 : desc_fm.height();
         int line2_h = slide.description_sub.isEmpty() ? 0 : desc_fm.height();
-        int box_h = kDescBoxPadding * 2 + line1_h + (line2_h > 0 ? line2_h + kDescLineSpacing : 0);
+        int box_h = px(kDescBoxPadding) * 2 + line1_h + (line2_h > 0 ? line2_h + px(kDescLineSpacing) : 0);
 
-        QRectF desc_box(kContentLeftMargin, y, content_width, box_h);
+        QRectF desc_box(px(kContentLeftMargin), y, content_width, box_h);
         painter.setBrush(QColor(255, 255, 255, 25));
         painter.setPen(Qt::NoPen);
-        painter.drawRoundedRect(desc_box, kCardRadius - 2, kCardRadius - 2);
+        painter.drawRoundedRect(desc_box, px(kCardRadius - 2), px(kCardRadius - 2));
 
-        int text_y = y + kDescBoxPadding;
+        int text_y = y + px(kDescBoxPadding);
         if (line1_h > 0) {
             painter.setPen(QColor(255, 255, 255, 230));
-            painter.drawText(QRectF(kContentLeftMargin + kDescBoxPadding, text_y, box_inner_width, line1_h),
+            painter.drawText(QRectF(px(kContentLeftMargin) + px(kDescBoxPadding), text_y, box_inner_width, line1_h),
                              Qt::AlignLeft | Qt::AlignVCenter,
                              desc_fm.elidedText(slide.description, Qt::ElideRight, box_inner_width));
-            text_y += line1_h + kDescLineSpacing;
+            text_y += line1_h + px(kDescLineSpacing);
         }
         if (line2_h > 0) {
             painter.setPen(QColor(255, 255, 255, 170));
-            painter.drawText(QRectF(kContentLeftMargin + kDescBoxPadding, text_y, box_inner_width, line2_h),
+            painter.drawText(QRectF(px(kContentLeftMargin) + px(kDescBoxPadding), text_y, box_inner_width, line2_h),
                              Qt::AlignLeft | Qt::AlignVCenter,
                              desc_fm.elidedText(slide.description_sub, Qt::ElideRight, box_inner_width));
         }
 
-        y += box_h + kSectionSpacing;
+        y += box_h + px(kSectionSpacing);
     }
 
     // --- Body text (skip in compact mode) ---
     if (!compact_mode_ && !slide.body_text.isEmpty()) {
         QFont body_font = font();
-        body_font.setPixelSize(is_seasonal ? kBodyFontSize + 3 : kBodyFontSize);
+        body_font.setPixelSize(px(is_seasonal ? kBodyFontSize + 3 : kBodyFontSize));
         painter.setFont(body_font);
         painter.setPen(QColor(255, 255, 255, is_seasonal ? 220 : 160));
 
-        int body_h = is_seasonal ? kBodyHeightSeasonal : kBodyHeight;
-        QRectF body_rect(kContentLeftMargin, y, content_width, body_h);
+        int body_h = is_seasonal ? px(kBodyHeightSeasonal) : px(kBodyHeight);
+        QRectF body_rect(px(kContentLeftMargin), y, content_width, body_h);
         painter.drawText(body_rect, Qt::AlignLeft | Qt::TextWordWrap, slide.body_text);
 
-        y += body_h + kBodyBottomSpacing;
+        y += body_h + px(kBodyBottomSpacing);
     }
 
     // --- Action button ---
     if (!slide.button_label.isEmpty()) {
         QFont btn_font = font();
-        btn_font.setPixelSize(kNormalFontSize);
+        btn_font.setPixelSize(px(kNormalFontSize));
         btn_font.setBold(true);
         painter.setFont(btn_font);
         QFontMetrics btn_fm(btn_font);
 
-        int btn_h = btn_fm.height() + kBtnPaddingV;
-        int btn_w = btn_fm.horizontalAdvance(slide.button_label) + kBtnPaddingH;
+        int btn_h = btn_fm.height() + px(kBtnPaddingV);
+        int btn_w = btn_fm.horizontalAdvance(slide.button_label) + px(kBtnPaddingH);
         int btn_x = static_cast<int>((r.width() - btn_w) / 2.0);
         QRectF btn_rect(btn_x, y, btn_w, btn_h);
 
@@ -886,7 +905,7 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
             painter.setBrush(Qt::NoBrush);
             painter.setPen(QPen(QColor(255, 255, 255, 180), 1.0));
         }
-        painter.drawRoundedRect(btn_rect, kBtnPaddingV / 3, kBtnPaddingV / 3);
+        painter.drawRoundedRect(btn_rect, px(kBtnPaddingV) / 3, px(kBtnPaddingV) / 3);
 
         painter.setPen(QColor(255, 255, 255, hovered_ ? 255 : 220));
         painter.drawText(btn_rect, Qt::AlignCenter, slide.button_label);
@@ -894,12 +913,12 @@ void InfoBannerWidget::paintEvent(QPaintEvent * /* event */)
 
     // --- Navigation dots ---
     int num_slides = static_cast<int>(slides_.size());
-    int total_dots_width = num_slides * (kDotRadius * 2) + (num_slides - 1) * (kDotSpacing - kDotRadius * 2);
+    int total_dots_width = num_slides * (px(kDotRadius) * 2) + (num_slides - 1) * (px(kDotSpacing) - px(kDotRadius) * 2);
     int dots_x = (static_cast<int>(r.width()) - total_dots_width) / 2;
-    int dots_y = static_cast<int>(r.height()) - kDotBottomMargin;
+    int dots_y = static_cast<int>(r.height()) - px(kDotBottomMargin);
 
     for (int i = 0; i < num_slides; ++i) {
-        QRectF dot(dots_x + i * kDotSpacing, dots_y - kDotRadius, kDotRadius * 2, kDotRadius * 2);
+        QRectF dot(dots_x + i * px(kDotSpacing), dots_y - px(kDotRadius), px(kDotRadius) * 2, px(kDotRadius) * 2);
         if (i == current_slide_) {
             painter.setBrush(QColor(255, 255, 255, 230));
         } else {
@@ -922,41 +941,41 @@ QRect InfoBannerWidget::buttonRect() const
 
     // --- Tag pill ---
     QFont tag_font = font();
-    tag_font.setPixelSize(kSmallFontSize);
+    tag_font.setPixelSize(px(kSmallFontSize));
     tag_font.setBold(true);
     QFontMetrics tag_fm(tag_font);
-    int pill_h = tag_fm.height() + 6;
+    int pill_h = tag_fm.height() + px(6);
 
-    int y = compact_mode_ ? kContentTopMargin : (kIllustrationHeight + kContentTopMargin);
-    y += pill_h + kSectionSpacing;
+    int y = compact_mode_ ? px(kContentTopMargin) : (px(kIllustrationHeight) + px(kContentTopMargin));
+    y += pill_h + px(kSectionSpacing);
 
     // --- Title ---
-    y += kTitleAdvance;
+    y += px(kTitleAdvance);
 
     // --- Description highlight box (skip for seasonal slides) ---
     if (!is_seasonal && !descriptionEmpty) {
         QFont desc_font = font();
-        desc_font.setPixelSize(kNormalFontSize);
+        desc_font.setPixelSize(px(kNormalFontSize));
         QFontMetrics desc_fm(desc_font);
         int line1_h = slide.description.isEmpty() ? 0 : desc_fm.height();
         int line2_h = slide.description_sub.isEmpty() ? 0 : desc_fm.height();
-        int box_h = kDescBoxPadding * 2 + line1_h + (line2_h > 0 ? line2_h + kDescLineSpacing : 0);
-        y += box_h + kSectionSpacing;
+        int box_h = px(kDescBoxPadding) * 2 + line1_h + (line2_h > 0 ? line2_h + px(kDescLineSpacing) : 0);
+        y += box_h + px(kSectionSpacing);
     }
 
     // --- Body text (skip in compact mode) ---
     if (!compact_mode_ && !slide.body_text.isEmpty()) {
-        int body_h = is_seasonal ? kBodyHeightSeasonal : kBodyHeight;
-        y += body_h + kBodyBottomSpacing;
+        int body_h = is_seasonal ? px(kBodyHeightSeasonal) : px(kBodyHeight);
+        y += body_h + px(kBodyBottomSpacing);
     }
 
     // --- Action button ---
     QFont btn_font = font();
-    btn_font.setPixelSize(kNormalFontSize);
+    btn_font.setPixelSize(px(kNormalFontSize));
     btn_font.setBold(true);
     QFontMetrics btn_fm(btn_font);
-    int btn_h = btn_fm.height() + kBtnPaddingV;
-    int btn_w = btn_fm.horizontalAdvance(slide.button_label) + kBtnPaddingH;
+    int btn_h = btn_fm.height() + px(kBtnPaddingV);
+    int btn_w = btn_fm.horizontalAdvance(slide.button_label) + px(kBtnPaddingH);
     int btn_x = (width() - btn_w) / 2;
 
     return QRect(btn_x, y, btn_w, btn_h);
@@ -966,16 +985,16 @@ QRect InfoBannerWidget::dotRect(int index) const
 {
     const QRectF r = rect();
     int num_slides = static_cast<int>(slides_.size());
-    int total_dots_width = num_slides * (kDotRadius * 2) + (num_slides - 1) * (kDotSpacing - kDotRadius * 2);
+    int total_dots_width = num_slides * (px(kDotRadius) * 2) + (num_slides - 1) * (px(kDotSpacing) - px(kDotRadius) * 2);
     int dots_x = (static_cast<int>(r.width()) - total_dots_width) / 2;
-    int dots_y = static_cast<int>(r.height()) - kDotBottomMargin;
+    int dots_y = static_cast<int>(r.height()) - px(kDotBottomMargin);
 
-    int hit_margin = kDotHitMargin;
+    int hit_margin = px(kDotHitMargin);
     return QRect(
-        dots_x + index * kDotSpacing - hit_margin,
-        dots_y - kDotRadius - hit_margin,
-        kDotRadius * 2 + hit_margin * 2,
-        kDotRadius * 2 + hit_margin * 2
+        dots_x + index * px(kDotSpacing) - hit_margin,
+        dots_y - px(kDotRadius) - hit_margin,
+        px(kDotRadius) * 2 + hit_margin * 2,
+        px(kDotRadius) * 2 + hit_margin * 2
     );
 }
 

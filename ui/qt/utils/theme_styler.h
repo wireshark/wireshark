@@ -22,6 +22,51 @@ public:
         const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const override;
 
     /**
+     * Return a pixel metric of the base style, scaled with the application
+     * zoom for a fixed set of metrics.
+     *
+     * Icon sizes and the splitter width are scaled on every base style.
+     * Indicator (check box, radio button), scroll bar, slider and tool bar
+     * extension/handle metrics are scaled on every base style except macOS,
+     * where AppKit draws those controls at fixed control sizes. All other
+     * metrics are returned unchanged.
+     *
+     * Native styles compute some metrics from other metrics through
+     * proxy()->pixelMetric(), which calls back into this proxy. Only the
+     * outermost call is scaled; nested calls return the base value, so no
+     * metric is scaled twice. At Normal Size the base value is returned.
+     *
+     * @param metric The metric to return.
+     * @param option The style option, may be null.
+     * @param widget The widget the metric is for, may be null.
+     * @return The metric in pixels.
+     */
+    int pixelMetric(PixelMetric metric, const QStyleOption *option = nullptr,
+        const QWidget *widget = nullptr) const override;
+
+    /**
+     * Return the size of a control for the given contents size.
+     *
+     * The macOS style draws a non-flat push button as the rounded themed
+     * bezel only when the button has exactly its default height. Zoomed
+     * fonts make the content taller, the base style then returns a taller
+     * button and draws it as an opaque square bezel. On the macOS base
+     * style the push button height is held at the bezel height as long as
+     * the content still fits the bezel's title rect; above that the base
+     * result stands, so the text is never clipped. Both limits are queried
+     * from the base style. On all other styles and controls the base result
+     * is returned unchanged.
+     *
+     * @param type The contents type.
+     * @param option The style option, may be null.
+     * @param contentsSize The size of the contents.
+     * @param widget The widget the size is for, may be null.
+     * @return The size of the control.
+     */
+    QSize sizeFromContents(ContentsType type, const QStyleOption *option,
+        const QSize &contentsSize, const QWidget *widget = nullptr) const override;
+
+    /**
      * Draw a primitive through the base style, with two adjustments.
      *
      * On macOS 26 and later, item view check boxes are drawn on a
@@ -90,6 +135,11 @@ protected:
      * when one of its toolbars is shown, hidden, moved or resized.
      */
     bool eventFilter(QObject *watched, QEvent *event) override;
+
+private:
+    // Nesting depth of pixelMetric() calls. Styles run on the GUI thread
+    // only, so a plain counter is enough.
+    mutable int metric_depth_ = 0;
 };
 
 

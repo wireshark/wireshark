@@ -471,6 +471,12 @@ public:
      * resolved color values.  Thin delegator; see
      * `ThemeStyleSheetLoader::load()` for the full semantics.
      *
+     * The result is scaled by the current text zoom: font sizes (px and
+     * pt in `font` / `font-size`) and every other `Npx` length greater
+     * than 1 (heights, radii, padding, margins, sizes) grow with
+     * FontManager::zoomFactor().  `0px` and `1px`, comments and `url()`
+     * are left alone, and zoom level 0 returns the text unchanged.
+     *
      * The stylesheet is always looked up under :/stylesheets/, with a
      * ".qss" extension automatically appended.  The name is sanitized
      * to prevent path traversal: it must consist of alphanumerics,
@@ -716,7 +722,9 @@ private:
      * Loads `:/stylesheets/application.qss`, resolves its wstheme(...)
      * tokens against the current palette, and pushes the result onto
      * qApp via setStyleSheet().  Invoked on every theme/mode flip so
-     * the global rules stay in sync with the active mode.
+     * the global rules stay in sync with the active mode.  The sheet is
+     * not scaled by the zoom factor and a zoom step does not re-apply it,
+     * so it must not hold font sizes or lengths that should zoom.
      */
     void applyApplicationStyleSheet();
 

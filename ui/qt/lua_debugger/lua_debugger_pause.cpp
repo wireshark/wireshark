@@ -33,6 +33,7 @@
 #include "main_application.h"
 #include "main_window.h"
 #include <ui/qt/models/packet_list_record.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 
 namespace
@@ -256,14 +257,16 @@ void LuaDebuggerPauseController::endFreeze()
 
 namespace
 {
-/* Shared geometry constants — tuned to match SplashOverlay's card
- * proportions so the pause banner reads as part of the same visual
- * family. */
+/* Shared geometry design values, in pixels at normal text size — tuned to
+ * match SplashOverlay's card proportions so the pause banner reads as part
+ * of the same visual family. They are scaled with the text zoom when the
+ * card is painted (see PauseGeometry). */
 constexpr int kCardPadding = 16;
-constexpr int kCardCornerRadius = kCardPadding / 2;
 constexpr int kCardHeight = 100;
+constexpr int kCardMinWidth = 360;
 constexpr qreal kCardVerticalPosition = 0.38;
 constexpr int kTitleHeight = 22;
+constexpr int kSubtextOffset = 4;
 constexpr qreal kTitleFontScale = 1.05;
 constexpr qreal kSubtextFontScale = 1.0;
 /* Subtext is bold; use near-full foreground alpha so it stays readable. */
@@ -274,8 +277,24 @@ constexpr int kGlyphBarWidth = 5;
 constexpr int kGlyphBarHeight = 22;
 constexpr int kGlyphBarGap = 5;
 constexpr int kGlyphBarRadius = 2;
-constexpr int kGlyphTotalWidth = 2 * kGlyphBarWidth + kGlyphBarGap;
 constexpr int kGlyphTitleSpacing = 12;
+
+/* The design values above, scaled for the current text zoom. */
+struct PauseGeometry
+{
+    int cardPadding = ZoomScaling::scaledPixels(kCardPadding);
+    int cardCornerRadius = cardPadding / 2;
+    int cardHeight = ZoomScaling::scaledPixels(kCardHeight);
+    int cardMinWidth = ZoomScaling::scaledPixels(kCardMinWidth);
+    int titleHeight = ZoomScaling::scaledPixels(kTitleHeight);
+    int subtextOffset = ZoomScaling::scaledPixels(kSubtextOffset);
+    int glyphBarWidth = ZoomScaling::scaledPixels(kGlyphBarWidth);
+    int glyphBarHeight = ZoomScaling::scaledPixels(kGlyphBarHeight);
+    int glyphBarGap = ZoomScaling::scaledPixels(kGlyphBarGap);
+    int glyphBarRadius = ZoomScaling::scaledPixels(kGlyphBarRadius);
+    int glyphTotalWidth = 2 * glyphBarWidth + glyphBarGap;
+    int glyphTitleSpacing = ZoomScaling::scaledPixels(kGlyphTitleSpacing);
+};
 } // namespace
 
 LuaDebuggerPauseOverlay::LuaDebuggerPauseOverlay(QWidget *parent)
@@ -333,6 +352,8 @@ void LuaDebuggerPauseOverlay::paintEvent(QPaintEvent *)
     const QColor edge_color = dark ? QColor(0, 0, 0, 220) : QColor(0, 0, 0, 175);
     const QColor center_color = dark ? QColor(0, 0, 0, 130) : QColor(0, 0, 0, 105);
 
+    const PauseGeometry g;
+
     const QPointF center(width() / 2.0, height() / 2.0);
     const qreal radius = qMax(width(), height()) * 0.75;
 
@@ -342,17 +363,17 @@ void LuaDebuggerPauseOverlay::paintEvent(QPaintEvent *)
     painter.fillRect(rect(), vignette);
 
     /* Centered card — same dimensions and colors as SplashOverlay. */
-    const int card_w = qMax(360, static_cast<int>(width() * 0.6));
+    const int card_w = qMax(g.cardMinWidth, static_cast<int>(width() * 0.6));
     const int card_x = (width() - card_w) / 2;
     const int card_y = static_cast<int>(height() * kCardVerticalPosition);
-    const QRectF card_rect(card_x, card_y, card_w, kCardHeight);
+    const QRectF card_rect(card_x, card_y, card_w, g.cardHeight);
 
     const QColor card_bg = dark ? QColor(40, 40, 46, 230) : QColor(255, 255, 255, 222);
     const QColor card_border = dark ? QColor(255, 255, 255, 40) : QColor(0, 0, 0, 35);
 
     painter.setPen(QPen(card_border, 1.0));
     painter.setBrush(card_bg);
-    painter.drawRoundedRect(card_rect, kCardCornerRadius, kCardCornerRadius);
+    painter.drawRoundedRect(card_rect, g.cardCornerRadius, g.cardCornerRadius);
 
     const QColor text_color = dark ? QColor(220, 220, 225) : QColor(50, 50, 55);
 
@@ -360,16 +381,16 @@ void LuaDebuggerPauseOverlay::paintEvent(QPaintEvent *)
     painter.setPen(Qt::NoPen);
     painter.setBrush(text_color);
 
-    const int glyph_y = card_y + kCardPadding + (kTitleHeight - kGlyphBarHeight) / 2;
-    const int bar1_x = card_x + kCardPadding;
-    const int bar2_x = bar1_x + kGlyphBarWidth + kGlyphBarGap;
-    painter.drawRoundedRect(QRectF(bar1_x, glyph_y, kGlyphBarWidth, kGlyphBarHeight), kGlyphBarRadius, kGlyphBarRadius);
-    painter.drawRoundedRect(QRectF(bar2_x, glyph_y, kGlyphBarWidth, kGlyphBarHeight), kGlyphBarRadius, kGlyphBarRadius);
+    const int glyph_y = card_y + g.cardPadding + (g.titleHeight - g.glyphBarHeight) / 2;
+    const int bar1_x = card_x + g.cardPadding;
+    const int bar2_x = bar1_x + g.glyphBarWidth + g.glyphBarGap;
+    painter.drawRoundedRect(QRectF(bar1_x, glyph_y, g.glyphBarWidth, g.glyphBarHeight), g.glyphBarRadius, g.glyphBarRadius);
+    painter.drawRoundedRect(QRectF(bar2_x, glyph_y, g.glyphBarWidth, g.glyphBarHeight), g.glyphBarRadius, g.glyphBarRadius);
 
     /* Title (bold, slightly larger) — same style as SplashOverlay. */
-    const int text_left = card_x + kCardPadding + kGlyphTotalWidth + kGlyphTitleSpacing;
-    const int text_width = card_w - (text_left - card_x) - kCardPadding;
-    QRectF title_rect(text_left, card_y + kCardPadding, text_width, kTitleHeight);
+    const int text_left = card_x + g.cardPadding + g.glyphTotalWidth + g.glyphTitleSpacing;
+    const int text_width = card_w - (text_left - card_x) - g.cardPadding;
+    QRectF title_rect(text_left, card_y + g.cardPadding, text_width, g.titleHeight);
 
     QFont title_font = font();
     title_font.setPointSizeF(font().pointSizeF() * kTitleFontScale);
@@ -384,8 +405,8 @@ void LuaDebuggerPauseOverlay::paintEvent(QPaintEvent *)
     /* Subtext (smaller). */
     if (!subtext_text_.isEmpty())
     {
-        const int sub_top = card_y + kCardPadding + kTitleHeight + 4;
-        const int sub_height = kCardHeight - (sub_top - card_y) - kCardPadding;
+        const int sub_top = card_y + g.cardPadding + g.titleHeight + g.subtextOffset;
+        const int sub_height = g.cardHeight - (sub_top - card_y) - g.cardPadding;
         QRectF sub_rect(text_left, sub_top, text_width, sub_height);
 
         QFont sub_font = font();

@@ -11,6 +11,7 @@
 
 #include <ui/qt/theme_debug_dialog.h>
 
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
 #include "main_application.h"
 
@@ -299,6 +300,7 @@ void ThemeDebugDialog::buildUi()
         widget_stylesheet_ = new QPlainTextEdit(page);
         widget_stylesheet_->setReadOnly(true);
         widget_stylesheet_->setMaximumHeight(90);
+        ZoomScaling::scaleSizeLimits(widget_stylesheet_);
         widget_stylesheet_->setPlaceholderText(tr("(no stylesheet)"));
         layout->addWidget(widget_stylesheet_);
 

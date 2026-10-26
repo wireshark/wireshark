@@ -20,6 +20,7 @@
 #include <ui_preference_editor_frame.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 #include <wsutil/utf8_entities.h>
 #include <app/application_flavor.h>
@@ -40,11 +41,10 @@ PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
     new_range_(NULL)
 {
     ui->setupUi(this);
+    ZoomScaling::scaleSizeLimits(ui->buttonBox);
 
 #ifdef Q_OS_MACOS
-    foreach (QWidget *w, findChildren<QWidget *>()) {
-        w->setAttribute(Qt::WA_MacSmallSize, true);
-    }
+    ZoomScaling::scaleMacControlSizes(this);
 #endif
 
     connect(ui->preferenceBrowseButton, &QPushButton::clicked, this, &PreferenceEditorFrame::browsePushButtonClicked);
