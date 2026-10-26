@@ -819,9 +819,8 @@ void ThemePreviewWidget::drawStatusBar(QPainter &p, const Layout &layout)
 
     // Reserve the bottom-right corner for the resize grip.
     const int gripW = 16;
-    const QString stats = tr("Profile: Default") + QStringLiteral("    ")
-        + tr("Packets: %1").arg(kPreviewPacketCount) + QStringLiteral(" · ")
-        + tr("Displayed: %1 (100.0%)").arg(kPreviewPacketCount);
+    const QString stats = tr("Packets: %1").arg(kPreviewPacketCount)
+        + QStringLiteral("      ") + tr("Profile: Default");
     p.drawText(statusRect.adjusted(8, 0, -8 - gripW, 0),
                Qt::AlignVCenter | Qt::AlignRight, stats);
 
