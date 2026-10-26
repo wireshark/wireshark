@@ -213,7 +213,7 @@ frames = [
     (True, lob_read(2, blob, 3)),
     (False, reply(blob, b"abc", 3)),
     (True, lob_read(3, clob8, 5)),
-    (False, reply(clob8, "héllo".encode("utf-8"), 5)),
+    (False, reply(clob8, "héllo".encode(), 5)),
 ]
 
 

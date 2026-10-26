@@ -718,9 +718,9 @@ THEME_MANAGER_H = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'theme_manager.h'
 def _theme_token_names():
     '''Enumerator names of `enum ThemeToken` in theme_manager.h.'''
     text = THEME_MANAGER_H.read_text(encoding='utf-8')
-    body = re.search(r'enum\s+ThemeToken\s*\{(.*?)\};', text, re.S).group(1)
+    body = re.search(r'enum\s+ThemeToken\s*\{(.*?)\};', text, re.DOTALL).group(1)
     body = re.sub(r'//[^\n]*', '', body)
-    body = re.sub(r'/\*.*?\*/', '', body, flags=re.S)
+    body = re.sub(r'/\*.*?\*/', '', body, flags=re.DOTALL)
     return {m.group(1) for m in re.finditer(r'([A-Za-z_]\w*)\s*(?:=[^,]*)?(?:,|$)', body)}
 
 
@@ -1172,7 +1172,7 @@ class TestContrastLevels:
     def test_readme_contrast_table_matches_ratio_sets(self):
         '''The README contrast table lists the ratios of color_math.h.'''
         rows = re.findall(r'^\|\s*([^|`]+?)\s*\|\s*`([0-9.]+):1`\s*\|\s*`([0-9.]+):1`\s*\|\s*$',
-                          THEME_README.read_text(encoding='utf-8'), re.M)
+                          THEME_README.read_text(encoding='utf-8'), re.MULTILINE)
         table = {label: (float(standard), float(high)) for label, standard, high in rows}
         expected = {label: (RATIO_SETS['standard'][name], RATIO_SETS['high'][name])
                     for name, _, label in RATIOS}
@@ -1676,8 +1676,8 @@ def _svg_map_tokens(svg):
 def _readme_filter_rows():
     '''The rows of the README `filter` key table, as {key: purpose text}.'''
     readme = THEME_README.read_text(encoding='utf-8')
-    section = re.search(r'^#### `filter`.*?(?=^#)', readme, re.M | re.S).group(0)
-    return dict(re.findall(r'^\|\s*`(\w+)`\s*\|(.*)\|\s*$', section, re.M))
+    section = re.search(r'^#### `filter`.*?(?=^#)', readme, re.MULTILINE | re.DOTALL).group(0)
+    return dict(re.findall(r'^\|\s*`(\w+)`\s*\|(.*)\|\s*$', section, re.MULTILINE))
 
 
 class TestFilterGlyphIcons:

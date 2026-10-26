@@ -40,14 +40,14 @@
 
 """Wireshark IDL compiler back-end."""
 
-from __future__ import print_function
 
 import contextlib
 import sys
 from os import path
 
-from idl2wrs_gen import wireshark_gen_C
 from omniidl import idlast, idltype, output
+
+from idl2wrs_gen import wireshark_gen_C
 
 
 class WiresharkVisitor:

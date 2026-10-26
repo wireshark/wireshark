@@ -1578,8 +1578,7 @@ class TestDissectMoqLiteDatagram:
         text_file = result_file("moql.txt")
         capture = result_file("moql.pcapng")
         with open(text_file, "w") as output:
-            for offset in range(0, len(payload), 16):
-                output.write(f"{offset:06x}  {payload[offset:offset + 16].hex(' ')}\n")
+            output.writelines(f"{offset:06x}  {payload[offset:offset + 16].hex(' ')}\n" for offset in range(0, len(payload), 16))
         subprocess.check_call((cmd_text2pcap, "-q", "-P", "moq-lite.datagram",
                                text_file, capture), env=test_env)
         command = [cmd_tshark, "-r", capture, "-T", "fields"]
@@ -3914,8 +3913,7 @@ class TestDissectUsbPtp:
         text_file = result_file('usb-ptp.txt')
         capture = result_file('usb-ptp.pcapng')
         with open(text_file, 'w') as f:
-            for packet in packets:
-                f.write(f'000000  {packet.hex(" ")}\n')
+            f.writelines(f'000000  {packet.hex(" ")}\n' for packet in packets)
         subprocess.check_call((cmd_text2pcap, '-q', '-l', '220', text_file, capture), env=test_env)
 
         stdout = subprocess.check_output((cmd_tshark,

@@ -44,11 +44,11 @@ def get_url_lines(url):
         lines = response.read().decode().splitlines()
         response.close()
     except urllib.error.HTTPError as err:
-        exit_msg("HTTP error fetching {0}: {1}".format(url, err.reason))
+        exit_msg(f"HTTP error fetching {url}: {err.reason}")
     except urllib.error.URLError as err:
-        exit_msg("URL error fetching {0}: {1}".format(url, err.reason))
+        exit_msg(f"URL error fetching {url}: {err.reason}")
     except OSError as err:
-        exit_msg("OS error fetching {0}: {1}".format(url, err.strerror))
+        exit_msg(f"OS error fetching {url}: {err.strerror}")
     except Exception:
         exit_msg("Unexpected error:", sys.exc_info()[0])
 
@@ -130,8 +130,7 @@ def get_event_params():
             event_name = ei.group(1)
             src_param_count = int(ei.group(2))
             if len(ep) != src_param_count:
-                err_msg = '{}: found {} parameters. Expected {}. Params: {}'.format(
-                    event_name, len(ep), src_param_count, repr(ep))
+                err_msg = f'{event_name}: found {len(ep)} parameters. Expected {src_param_count}. Params: {ep!r}'
                 if len(ep) > src_param_count:
                     logging.warning(err_msg)
                     del ep[src_param_count:]
@@ -164,8 +163,7 @@ def get_event_params():
 
                 for pt_pat, force_pf in force_param_formats.items():
                     if re.match(pt_pat, param_type) and param_format != force_pf:
-                        err_msg = 'Forcing {} {} format to {}. Params: {}'.format(
-                            event_name, param_type, force_pf, repr(ep))
+                        err_msg = f'Forcing {event_name} {param_type} format to {force_pf}. Params: {ep!r}'
                         logging.warning(err_msg)
                         param_format = force_pf
 
@@ -234,7 +232,7 @@ def main():
     idx_id_to_name = { '': 'no' }
     parameter_index_l = []
 
-    for en in range (0, len(event_nums)):
+    for en in range (len(event_nums)):
         param_id = ''
         param_l = []
         event_var = event_d[en].lower()
@@ -252,7 +250,7 @@ def main():
                 ', &'.join(param_l)
             )
         else:
-            ei_str = '#define {}_indexes {}_indexes'.format(event_var, idx_id_to_name[param_id])
+            ei_str = f'#define {event_var}_indexes {idx_id_to_name[param_id]}_indexes'
 
         parameter_index_l.append(ei_str)
 
@@ -292,7 +290,7 @@ def main():
     header_fields_re = re.compile(r'/\*\s+' + header_fields_c, flags = re.IGNORECASE)
     header_fields_l = []
     for hf_name in sorted(hf_d.keys()):
-        header_fields_l.append('static int {};'.format(hf_name))
+        header_fields_l.append(f'static int {hf_name};')
 
     event_names_c = 'Event names'
     event_names_re = re.compile(r'/\*\s+' + event_names_c, flags = re.IGNORECASE)
@@ -300,21 +298,21 @@ def main():
     event_str_l = list(set(event_name_l))
     event_str_l.sort()
     for evt_str in event_str_l:
-        event_names_l.append('#define EVT_STR_{0:24s} "{1:s}"'.format(evt_str.upper(), evt_str))
+        event_names_l.append(f'#define EVT_STR_{evt_str.upper():24s} "{evt_str:s}"')
 
     event_definitions_c = 'Event definitions'
     event_definitions_re = re.compile(r'/\*\s+' + event_definitions_c, flags = re.IGNORECASE)
     event_definitions_l = []
     for evt in event_nums:
-        event_definitions_l.append('#define EVT_{0:24s} {1:3d}'.format(event_d[evt], evt))
+        event_definitions_l.append(f'#define EVT_{event_d[evt]:24s} {evt:3d}')
 
     value_strings_c = 'Value strings'
     value_strings_re = re.compile(r'/\*\s+' + value_strings_c, flags = re.IGNORECASE)
     value_strings_l = []
     for evt in event_nums:
-        evt_num = 'EVT_{},'.format(event_d[evt])
+        evt_num = f'EVT_{event_d[evt]},'
         evt_str = 'EVT_STR_' + event_d[evt].upper()
-        value_strings_l.append('    {{ {0:<32s} {1:s} }},'.format(evt_num, evt_str))
+        value_strings_l.append(f'    {{ {evt_num:<32s} {evt_str:s} }},')
 
     parameter_index_c = 'Parameter indexes'
     parameter_index_re = re.compile(r'/\*\s+' + parameter_index_c, flags = re.IGNORECASE)
@@ -324,9 +322,9 @@ def main():
     event_tree_re = re.compile(r'/\*\s+' + event_tree_c, flags = re.IGNORECASE)
     event_tree_l = []
     for evt in event_nums:
-        evt_num = 'EVT_{}'.format(event_d[evt])
-        evt_idx = '{}_indexes'.format(event_d[evt].lower())
-        event_tree_l.append('    {{ {}, {} }},'.format(evt_num, evt_idx))
+        evt_num = f'EVT_{event_d[evt]}'
+        evt_idx = f'{event_d[evt].lower()}_indexes'
+        event_tree_l.append(f'    {{ {evt_num}, {evt_idx} }},')
 
     # Syscall codes
     syscall_code_d = get_syscall_code_defines()
@@ -349,16 +347,8 @@ def main():
         fieldconvert = 'NULL'
         vs_name = param_to_value_string_name(param)
         if vs_name in value_string_l and 'INT' in param_type:
-            fieldconvert = 'VALS({})'.format(vs_name)
-        header_field_reg_l.append('        {{ &{}, {{ "{}", "sysdig.param.{}.{}", FT_{}, BASE_{}, {}, 0, NULL, HFILL }} }},'.format(
-            hf_name,
-            param_desc,
-            event_name,
-            param_name,
-            param_type,
-            param_format,
-            fieldconvert
-            ))
+            fieldconvert = f'VALS({vs_name})'
+        header_field_reg_l.append(f'        {{ &{hf_name}, {{ "{param_desc}", "sysdig.param.{event_name}.{param_name}", FT_{param_type}, BASE_{param_format}, {fieldconvert}, 0, NULL, HFILL }} }},')
 
     for line in dissector_lines:
         fill_comment = None
@@ -391,13 +381,10 @@ def main():
 
         if fill_comment is not None:
             # Write our comment followed by the content
-            print(('Generating {}, {:d} lines'.format(fill_comment, len(fill_l))))
-            dissector_f.write('/* {}. Automatically generated by epan/dissectors/generators/{} */\n'.format(
-                fill_comment,
-                os.path.basename(__file__)
-                ))
+            print(f'Generating {fill_comment}, {len(fill_l):d} lines')
+            dissector_f.write(f'/* {fill_comment}. Automatically generated by epan/dissectors/generators/{os.path.basename(__file__)} */\n')
             for line in fill_l:
-                dissector_f.write('{}\n'.format(line))
+                dissector_f.write(f'{line}\n')
             # Fill each section only once
             del fill_l[:]
         else:

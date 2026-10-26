@@ -281,7 +281,7 @@ def retrieve_uuids():
     Sanity check to see if enough entries were retrieved
     '''
     if (uuid_count < MIN_UUIDS):
-        print("There are fewer UUIDs than expected: got {count} but was expecting {minimum}".format(count=uuid_count, minimum=MIN_UUIDS), file=sys.stderr)
+        print(f"There are fewer UUIDs than expected: got {uuid_count} but was expecting {MIN_UUIDS}", file=sys.stderr)
         sys.exit(1)
 
     return uuids_sources
@@ -359,7 +359,7 @@ def retrieve_company_ids():
     Sanity check to see if enough entries were retrieved
     '''
     if company_id_count < MIN_COMPANY_IDS:
-        print("There are fewer company IDs than expected: got {count} but was expecting {minimum}".format(count=company_id_count, minimum=MIN_COMPANY_IDS), file=sys.stderr)
+        print(f"There are fewer company IDs than expected: got {company_id_count} but was expecting {MIN_COMPANY_IDS}", file=sys.stderr)
         sys.exit(1)
 
     return company_ids_sources

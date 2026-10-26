@@ -121,7 +121,7 @@ def main():
         manf_name = row[2].rstrip(" ").lstrip(" ")
 
         if prev_hex == hex_code:
-            if hex_code not in SPECIALS.keys():
+            if hex_code not in SPECIALS:
                 print(f"WARNING: Duplicate ManfID 0x{hex_code} doesn't have a merged form")
             continue
         manf_name = SPECIALS.get(hex_code, manf_name)

@@ -233,7 +233,7 @@ def make_ett(name, indent):
     code = indent + indent + '&ett_%s,' % name
     return code
 
-class EnumStore(object):
+class EnumStore:
     __RE_ENUM_VALUE = re.compile(
         r'\s+?(?P<value>\w+)(?:\ /\*.*?\*\/)?(?:\s*=\s*(?P<expression>.*?))?(?:\s*,|$)',
         re.MULTILINE | re.DOTALL)

@@ -52,7 +52,7 @@ def xml2obj(src):
         return non_id_char.sub('_',
     name)
 
-    class DataNode(object):
+    class DataNode:
         def __init__(self):
             self._attrs = {}    # XML attributes and child elements
             self.data = None    # child text data
@@ -138,7 +138,7 @@ def xml2obj(src):
             global indent_str
             indentation += 1
             indent_str = ''
-            for x in range(0, indentation):
+            for x in range(indentation):
                 indent_str += '  '
 
         def decr_indent(self):
@@ -146,7 +146,7 @@ def xml2obj(src):
             global indent_str
             indentation -= 1
             indent_str = ''
-            for x in range(0, indentation):
+            for x in range(indentation):
                 indent_str += '  '
 
         def indent_out(self, string):
@@ -312,7 +312,7 @@ def xml2obj(src):
             if self.type in int_sizes:
                 self.intsize = int_sizes[self.type]
             else:
-                print(("ERROR integer %s with type: %s, could not be found" %(self.name, self.type)))
+                print("ERROR integer %s with type: %s, could not be found" %(self.name, self.type))
 
             if self.declare == "yes" or self.make_additional_info == "yes":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
@@ -370,7 +370,7 @@ def xml2obj(src):
                     else:
                         ret += self.indent_out('%s = tvb_get_uint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(self.name))
 
-            if self.name in si_fields.keys():
+            if self.name in si_fields:
                 if self.endianness == "big":
                     ret += self.indent_out('%s = tvb_get_ntohs(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(si_fields[self.name]))
                 else:
@@ -421,7 +421,7 @@ def xml2obj(src):
             if self.type in enum_sizes:
                 self.intsize = enum_sizes[self.type]
             else:
-                print(("ERROR enum %s with type: %s, could not be found" %(self.name, self.type)))
+                print("ERROR enum %s with type: %s, could not be found" %(self.name, self.type))
 
             if self.declare == "yes":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
@@ -487,7 +487,7 @@ def xml2obj(src):
                     ret += self.indent_out('if (%s < %s) {\n' %(variable,self.size_fieldname))
                 self.incr_indent()
 
-            if self.name in si_fields.keys():
+            if self.name in si_fields:
                 ret += self.indent_out('%s = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));\n' %(si_fields[self.name]))
 
             if self.declare == "yes":
@@ -586,18 +586,18 @@ def xml2obj(src):
             elif self.basemessage.dynamic == "yes":
                 ret += self.indent_out('%s_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), -1)+1;\n' %self.name)
                 ret += self.indent_out('if (%s_len > 1) {\n' %self.name)
-                if self.name in si_fields.keys():
+                if self.name in si_fields:
                     ret += self.indent_out('  %s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s_len));\n' %(si_fields[self.name], self.name))
                 ret += self.indent_out('  ptvcursor_add(cursor, hf_skinny_%s, %s_len, ENC_ASCII);\n' %(self.name, self.name))
                 ret += self.indent_out('} else {\n')
                 ret += self.indent_out('  ptvcursor_advance(cursor, 1);\n')
                 ret += self.indent_out('}\n')
             elif self.size_fieldname:
-                if self.name in si_fields.keys():
+                if self.name in si_fields:
                     ret += self.indent_out('%s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(si_fields[self.name], self.size_fieldname))
                 ret += self.indent_out('ptvcursor_add(cursor, hf_skinny_%s, %s, ENC_ASCII);\n' %(self.name, self.size_fieldname))
             else:
-                if self.name in si_fields.keys():
+                if self.name in si_fields:
                     ret += self.indent_out('%s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(si_fields[self.name], self.size))
                 if self.make_additional_info == "yes":
                     ret += self.indent_out('uint32_t %s_len;\n' %(self.name))
@@ -937,8 +937,7 @@ def xml2obj(src):
                             self.runningtotal = 0
 
                         self.runningtotal += field.intsize
-                        if self.runningtotal > self.maxsize:
-                            self.maxsize = self.runningtotal
+                        self.maxsize = max(self.maxsize, self.runningtotal)
 
             self.intsize = self.maxsize
 
@@ -1015,7 +1014,7 @@ def xml2obj(src):
             objecttype = {"message": Message(), "fields": Fields(), "enum" : Enum(), "bitfield" : BitField(), "struct": Struct(), "union": Union(), "integer": Integer(), "string": String(), "ether": Ether(), "ip": Ip(), "ipv4or6": Ipv4or6(), "xml": XML(), "code": Code()}
             self.previous = self.current
             self.stack.append((self.current, self.text_parts))
-            if name in objecttype.keys():
+            if name in objecttype:
                 self.current = objecttype[name]
             else:
                 self.current = DataNode()

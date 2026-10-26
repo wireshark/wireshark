@@ -485,7 +485,7 @@ class wireshark_gen_C:
         self.st.out(self.template_comment_attributes_start)
 
         for n in atlist:
-            for i in n.declarators():   #
+            for i in n.declarators():
                 sname = self.namespace(i, "_")
                 atname = i.identifier()
                 self.st.out(self.template_attributes_declare_Java_get, sname=sname, atname=atname)
@@ -933,35 +933,7 @@ class wireshark_gen_C:
         if self.DEBUG:
             print("//XXX isSeqNativeType: kind = ", pt)
 
-        if pt == idltype.tk_ulong:
-            return 1
-        elif pt == idltype.tk_longlong:
-            return 1
-        elif pt == idltype.tk_ulonglong:
-            return 1
-        elif pt == idltype.tk_short:
-            return 1
-        elif pt == idltype.tk_long:
-            return 1
-        elif pt == idltype.tk_ushort:
-            return 1
-        elif pt == idltype.tk_float:
-            return 1
-        elif pt == idltype.tk_double:
-            return 1
-        elif pt == idltype.tk_boolean:
-            return 1
-        elif pt == idltype.tk_octet:
-            return 1
-        elif pt == idltype.tk_enum:
-            return 1
-        elif pt == idltype.tk_string:
-            return 1
-        elif pt == idltype.tk_wstring:
-            return 1
-        elif pt == idltype.tk_wchar:
-            return 1
-        elif pt == idltype.tk_char:
+        if pt == idltype.tk_ulong or pt == idltype.tk_longlong or pt == idltype.tk_ulonglong or pt == idltype.tk_short or pt == idltype.tk_long or pt == idltype.tk_ushort or pt == idltype.tk_float or pt == idltype.tk_double or pt == idltype.tk_boolean or pt == idltype.tk_octet or pt == idltype.tk_enum or pt == idltype.tk_string or pt == idltype.tk_wstring or pt == idltype.tk_wchar or pt == idltype.tk_char:
             return 1
         else:
             return 0

@@ -216,8 +216,7 @@ class PTVC(NamedList):
 
                 highest_var = highest_var + 1
                 var = highest_var
-                if highest_var > global_highest_var:
-                    global_highest_var = highest_var
+                global_highest_var = max(global_highest_var, highest_var)
                 named_vars[var_name] = var
             else:
                 var = NO_VAR
@@ -258,15 +257,8 @@ class PTVC(NamedList):
             # Fields that don't have a length determinable at run-time
             # cannot be variable-length.
             if type(ptvc_rec.Length()) is tuple:
-                if isinstance(ptvc_rec.Field(), nstring):
+                if isinstance(ptvc_rec.Field(), nstring) or isinstance(ptvc_rec.Field(), nbytes) or isinstance(ptvc_rec.Field(), struct):
                     expected_offset = -1
-                    pass
-                elif isinstance(ptvc_rec.Field(), nbytes):
-                    expected_offset = -1
-                    pass
-                elif isinstance(ptvc_rec.Field(), struct):
-                    expected_offset = -1
-                    pass
                 else:
                     field = ptvc_rec.Field()
                     assert 0, "Cannot make PTVC from %s, type %s" % \
@@ -345,9 +337,7 @@ class PTVCRecord:
             return 1
         elif self.length < other.length:
             return -1
-        elif self.length > other.length:
-            return 1
-        elif self.endianness != other.endianness:
+        elif self.length > other.length or self.endianness != other.endianness:
             return 1
         else:
             return 0
@@ -6552,7 +6542,7 @@ static expert_field ei_ncp_value_too_large;
     # Print the value_string's
     for var in sorted_vars:
         if isinstance(var, val_string):
-            print("")
+            print()
             print(var.Code())
 
     # Determine which error codes are not used
@@ -6719,7 +6709,7 @@ static expert_field ei_ncp_value_too_large;
             sys.stdout.write("%s, " % (val,))
 
         print("-1 };")
-        print("")
+        print()
 
 
 
@@ -6819,7 +6809,7 @@ static expert_field ei_ncp_value_too_large;
     print("    0")
     print("};\n")
 
-    print("")
+    print()
 
     # proto_register_ncp2222()
     print("""
@@ -8618,7 +8608,7 @@ def main():
     # Create the output file
     try:
         out_file = open(out_filename, "w")
-    except IOError:
+    except OSError:
         sys.exit("Could not open %s for writing: %s" % (out_filename,
                 IOError))
 
@@ -8646,7 +8636,7 @@ def main():
         traceback.print_exc(20, msg)
         try:
             out_file.close()
-        except IOError:
+        except OSError:
             msg.write("Could not close %s: %s\n" % (out_filename, IOError))
 
         try:

@@ -76,11 +76,11 @@ def retrieve_vendors():
         lines = response.read().decode()
         response.close()
     except urllib.error.HTTPError as err:
-        exit_msg("HTTP error fetching {0}: {1}".format(url, err.reason))
+        exit_msg(f"HTTP error fetching {url}: {err.reason}")
     except urllib.error.URLError as err:
-        exit_msg("URL error fetching {0}: {1}".format(url, err.reason))
+        exit_msg(f"URL error fetching {url}: {err.reason}")
     except OSError as err:
-        exit_msg("OS error fetching {0}: {1}".format(url, err.strerror))
+        exit_msg(f"OS error fetching {url}: {err.strerror}")
     except Exception:
         exit_msg("Unexpected error:", sys.exc_info()[0])
 

@@ -19,7 +19,6 @@ Bytes are constructed by hand in the Oracle 11g wire shape.
 """
 import os
 import struct
-import sys
 
 
 def ub4(val: int) -> bytes:
