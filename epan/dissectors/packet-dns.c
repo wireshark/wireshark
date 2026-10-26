@@ -2546,7 +2546,15 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   class_name = val_to_str_const(dns_class, dns_classes, "Unknown");
 
   if (is_dso_reconfirm) {
-    data_len = (uint16_t)tvb_reported_length_remaining(tvb, cur_offset);
+    unsigned remaining = tvb_reported_length_remaining(tvb, cur_offset);
+    if (remaining > UINT16_MAX) {
+      // Defensive check: should not be reachable as dissect_dso_data caps length.
+      ws_warning("uncapped tvb when parsing Reconfirm DSO TLV");
+      proto_tree_add_expert(dns_tree, pinfo, &ei_dns_extraneous_data, tvb,
+                            cur_offset + UINT16_MAX, remaining - UINT16_MAX);
+      remaining = UINT16_MAX;
+    }
+    data_len = (uint16_t)remaining;
   } else {
     data_offset += 4;
     cur_offset += 4;
