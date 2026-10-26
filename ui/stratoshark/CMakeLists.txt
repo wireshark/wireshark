@@ -114,6 +114,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_styler.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/color_math.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/legacy_color_prefs_migration.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_title_bar.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_palette_builder.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_parser.h
@@ -420,13 +421,25 @@ set(WIRESHARK_MANAGER_SRCS
 set (STRATOSHARK_MANAGER_SRCS ${WIRESHARK_MANAGER_SRCS})
 
 if(APPLE)
-	set(WIRESHARK_THEMES_PLATFORM_SRC ${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_mac.mm)
+	set(WIRESHARK_THEMES_PLATFORM_SRC
+		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_mac.mm
+		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_title_bar_mac.mm
+	)
 elseif(WIN32)
-	set(WIRESHARK_THEMES_PLATFORM_SRC ${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_win.cpp)
+	set(WIRESHARK_THEMES_PLATFORM_SRC
+		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_win.cpp
+		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_title_bar_win.cpp
+	)
 elseif(UNIX)
-	set(WIRESHARK_THEMES_PLATFORM_SRC ${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_unix.cpp)
+	set(WIRESHARK_THEMES_PLATFORM_SRC
+		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_unix.cpp
+		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_title_bar_stub.cpp
+	)
 else()
-	set(WIRESHARK_THEMES_PLATFORM_SRC ${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_stub.cpp)
+	set(WIRESHARK_THEMES_PLATFORM_SRC
+		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_stub.cpp
+		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_title_bar_stub.cpp
+	)
 endif()
 
 if(HAVE_SOFTWARE_UPDATE AND WIN32)
@@ -465,6 +478,7 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/contrast_adapt_icon.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/themed_shape_icon.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_common.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_title_bar_common.cpp
 	${WIRESHARK_THEMES_PLATFORM_SRC}
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_mime_data.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/wireshark_zip_helper.cpp

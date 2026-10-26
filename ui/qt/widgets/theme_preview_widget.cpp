@@ -13,6 +13,7 @@
 #include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/themes/color_math.h>
+#include <ui/qt/utils/themes/native_title_bar.h>
 
 #include <epan/color_filters.h>
 
@@ -108,9 +109,11 @@ ThemePreviewWidget::ThemePreviewWidget(QWidget *parent)
     setContentsMargins(0, 0, 0, 0);
 }
 
-void ThemePreviewWidget::setPreviewColors(const QHash<ThemeManager::ThemeToken, QColor> &colors)
+void ThemePreviewWidget::setPreviewColors(const QHash<ThemeManager::ThemeToken, QColor> &colors,
+                                          bool declaresWindow)
 {
     colors_ = colors;
+    declaresWindow_ = declaresWindow;
     update();
 }
 
@@ -219,14 +222,21 @@ ThemePreviewWidget::Layout ThemePreviewWidget::buildLayout(const QRect &content)
 }
 
 ThemePreviewWidget::WindowChrome
-ThemePreviewWidget::paintWindowChrome(QPainter &p, const QRect &outer, const QColor &window)
+ThemePreviewWidget::paintWindowChrome(QPainter &p, const QRect &outer, const QColor &window,
+                                      const NativeTitleBar::Style &titleBar)
 {
     // Hard-coded grey shades imitating the host window manager, chosen light
     // or dark to match the previewed appearance.  None of these are
     // ThemeManager tokens — they are OS furniture; only the light/dark variant
     // tracks the mode.  The traffic-light dots keep their fixed OS colours.
-    const bool   darkChrome   = window.lightness() < 128;
-    const QColor chromeBg      = darkChrome ? QColor("#2c2d30") : QColor("#e4e4e6");
+    // When the theme declares palette.window the title bar fill is instead the
+    // previewed window colour, on every platform (NativeTitleBar::previewStyle);
+    // the light/dark flag then comes from that style.
+    const bool   tinted        = titleBar.background.isValid();
+    const bool   darkChrome    = tinted ? titleBar.darkBackground
+                                        : window.lightness() < 128;
+    const QColor chromeBg      = tinted ? titleBar.background
+                                        : (darkChrome ? QColor("#2c2d30") : QColor("#e4e4e6"));
     const QColor chromeBorder  = darkChrome ? QColor("#1f2023") : QColor("#c4c4c8");
 
     // Inset by half the 1px pen so the stroked border stays inside the widget
@@ -244,7 +254,7 @@ ThemePreviewWidget::paintWindowChrome(QPainter &p, const QRect &outer, const QCo
     const QRectF titleRect(frameRect.left(), frameRect.top(),
                            frameRect.width(), kTitleBarH);
     p.fillRect(titleRect, chromeBg);
-    drawWindowControls(p, titleRect, darkChrome);
+    drawWindowControls(p, titleRect, darkChrome, tinted ? titleBar.text : QColor());
 
     // Reset brush so the content's drawRect() outlines below aren't filled with
     // a leftover chrome colour, and drop AA for crisp packet rows.
@@ -258,12 +268,14 @@ ThemePreviewWidget::paintWindowChrome(QPainter &p, const QRect &outer, const QCo
     return WindowChrome{ framePath, chromeBorder, content };
 }
 
-void ThemePreviewWidget::drawWindowControls(QPainter &p, const QRectF &titleRect, bool darkChrome)
+void ThemePreviewWidget::drawWindowControls(QPainter &p, const QRectF &titleRect, bool darkChrome,
+                                            const QColor &glyphColorOverride)
 {
     // Window controls, hard-coded per platform: macOS draws traffic
     // lights on the left, Windows/Linux draw min/max/close on the right.
 #if defined(Q_OS_MACOS)
     Q_UNUSED(darkChrome);
+    Q_UNUSED(glyphColorOverride);
 
     const qreal dotD   = 12.0;
     const qreal dotGap = 8.0;
@@ -281,7 +293,9 @@ void ThemePreviewWidget::drawWindowControls(QPainter &p, const QRectF &titleRect
     const qreal glyph      = 10.0;
     const qreal glyphPitch = 18.0;   // 10px glyph box + 8px gap
     const qreal cy         = titleRect.center().y();
-    const QColor glyphColor = darkChrome ? QColor("#c8c9cd") : QColor("#4a4a4a");
+    const QColor glyphColor = glyphColorOverride.isValid()
+                                  ? glyphColorOverride
+                                  : (darkChrome ? QColor("#c8c9cd") : QColor("#4a4a4a"));
     p.setBrush(Qt::NoBrush);
     p.setPen(QPen(glyphColor, 1.2));
     // Close (rightmost): an X.
@@ -800,11 +814,15 @@ void ThemePreviewWidget::paintEvent(QPaintEvent *)
     // colour, so resolve that one token up front and hand it to the chrome.
     const QColor window = c(ThemeManager::PaletteWindow,
                             QApplication::palette().color(QPalette::Window));
+    const QColor windowText = c(ThemeManager::PaletteWindowText,
+                                QApplication::palette().color(QPalette::WindowText));
+    const NativeTitleBar::Style titleBar =
+        NativeTitleBar::previewStyle(declaresWindow_, window, windowText);
 
     // Faux OS window chrome: rounded frame, title bar and window controls.
     // Installs the rounded clip; returns the content rect plus what the final
     // border stroke needs.
-    const WindowChrome chrome = paintWindowChrome(p, outer, window);
+    const WindowChrome chrome = paintWindowChrome(p, outer, window, titleBar);
 
     // Geometry + fonts for every content band, derived once.
     const Layout layout = buildLayout(chrome.content);

@@ -15,6 +15,7 @@
 #include <ui/qt/utils/font_manager.h>
 #include <ui/qt/utils/themes/color_math.h>
 #include <ui/qt/utils/themes/legacy_color_prefs_migration.h>
+#include <ui/qt/utils/themes/native_title_bar.h>
 #include <ui/qt/utils/themes/system_theme_detector.h>
 #include <ui/qt/utils/themes/theme_palette_builder.h>
 #include <ui/qt/utils/themes/theme_parser.h>
@@ -117,6 +118,12 @@ ThemeManager::ThemeManager(QObject *parent)
             return;
         reapplyForSchemeChange();
     });
+
+    // Paint native title bars in the theme's window color.  Created before
+    // any window exists so every window's first Show passes its filter;
+    // Qt parent-child ownership deletes it with the ThemeManager.
+    NativeTitleBar *titleBar = new NativeTitleBar(this);
+    connect(this, &ThemeManager::themeChanged, titleBar, &NativeTitleBar::applyToAll);
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
     // Follow the OS increase-contrast setting live.  Only a change of the
@@ -723,13 +730,15 @@ void ThemeManager::setValidationState(QWidget *w, const QString &state)
 }
 
 QHash<ThemeManager::ThemeToken, QColor>
-ThemeManager::previewTheme(const QString &internalName, PreviewScheme scheme, int gui_contrast) const
+ThemeManager::previewTheme(const QString &internalName, PreviewScheme scheme, int gui_contrast, bool *declaresWindow) const
 {
     // Mirrors the loadTheme() pipeline (parse → build palette → derive
     // tokens) but operates on stack-local data so the live theme state,
     // QApplication palette, and stylesheet are not touched.  See the
     // header for the public contract.
     QHash<ThemeToken, QColor> empty;
+    if (declaresWindow)
+        *declaresWindow = false;
 
     // Resolve the caller's PreviewScheme into a concrete light/dark
     // bool here so the rest of the pipeline stays a pure function of
@@ -784,6 +793,13 @@ ThemeManager::previewTheme(const QString &internalName, PreviewScheme scheme, in
     const QPalette previewPalette = ThemePaletteBuilder::build(
         result.colors, wantDark, colorRoleCache_, paletteRoleCache_, previewBaseline, ratios);
     ThemeTokenHandler::deriveAll(result.colors, wantDark, previewPalette, ratios);
+
+    // Same map and same test as colorIsAvailable() on the applied theme
+    // (loadTheme() keeps the parsed and derived map in themeColors_).  Read
+    // before the palette tokens are pinned below, which adds PaletteWindow
+    // to every preview.
+    if (declaresWindow)
+        *declaresWindow = result.colors.contains(PaletteWindow);
 
     QHash<ThemeToken, QColor> out;
     out.reserve(result.colors.size());

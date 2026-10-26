@@ -26,6 +26,7 @@ class QContextMenuEvent;
 class QSize;
 
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/native_title_bar.h>
 
 /**
  * Static, hand-painted 3-pane mockup of a Wireshark capture window
@@ -51,8 +52,13 @@ public:
      *                from ThemeManager::previewTheme().  Passing an
      *                empty hash is valid — every lookup will fall back
      *                to the live ThemeManager.
+     * @param declaresWindow  whether the previewed theme declares
+     *                palette.window, as reported by
+     *                ThemeManager::previewTheme().  When true the faux
+     *                title bar is tinted with the previewed window color.
      */
-    void setPreviewColors(const QHash<ThemeManager::ThemeToken, QColor> &colors);
+    void setPreviewColors(const QHash<ThemeManager::ThemeToken, QColor> &colors,
+                          bool declaresWindow = false);
 
     /**
      * Toggles overlaying the live coloring rules on the sample packet rows.
@@ -82,6 +88,10 @@ protected:
 
 private:
     QHash<ThemeManager::ThemeToken, QColor> colors_;
+
+    /// Whether the previewed theme declares palette.window (from
+    /// previewTheme()); decides if the faux title bar is tinted.
+    bool declaresWindow_ = false;
 
     /// Whether the sample rows overlay the live coloring rules (off = theme
     /// colors only).  Toggled via setShowColoringRules() or the context menu.
@@ -157,17 +167,22 @@ private:
     /**
      * Paints the rounded frame, title bar and window controls, installs the
      * rounded clip path, and returns what strokeWindowFrame() needs plus the
-     * content rectangle.  @p window selects the light/dark chrome variant.
+     * content rectangle.  A valid @p titleBar background (see
+     * NativeTitleBar::previewStyle()) tints the title bar; otherwise
+     * @p window selects the light/dark grey chrome variant.
      */
     WindowChrome paintWindowChrome(QPainter &p, const QRect &outer,
-                                   const QColor &window);
+                                   const QColor &window,
+                                   const NativeTitleBar::Style &titleBar);
 
     /**
      * Draws the per-platform window buttons into @p titleRect: macOS traffic
      * lights on the left, Windows/Linux min/max/close glyphs on the right
-     * (tinted for @p darkChrome).
+     * (tinted for @p darkChrome, or drawn in @p glyphColor when that is
+     * valid).
      */
-    void drawWindowControls(QPainter &p, const QRectF &titleRect, bool darkChrome);
+    void drawWindowControls(QPainter &p, const QRectF &titleRect, bool darkChrome,
+                            const QColor &glyphColor);
 
     /** Strokes the rounded outer border on top of the finished content. */
     void strokeWindowFrame(QPainter &p, const WindowChrome &chrome);
