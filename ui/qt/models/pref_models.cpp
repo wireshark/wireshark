@@ -874,17 +874,8 @@ bool ModulePrefsModel::lessThan(const QModelIndex &source_left, const QModelInde
         return left_priority < right_priority;
     }
 
-    // The Fonts page follows the Theme page directly instead of sorting by
-    // its own title: sort it under the Theme title, after Theme on a tie.
-    const QString fontsName = PrefsModel::typeToString(PrefsModel::Fonts);
-    const QString themeName = PrefsModel::typeToString(PrefsModel::FontAndColors);
-    const QString left_key = (left_name == fontsName) ? themeName : left_name;
-    const QString right_key = (right_name == fontsName) ? themeName : right_name;
-    const int order = left_key.compare(right_key, Qt::CaseInsensitive);
-    if (order != 0) {
-        return order < 0;
-    }
-    return left_name != fontsName && right_name == fontsName;
+    // Fallback: case-insensitive alphabetical order
+    return left_name.compare(right_name, Qt::CaseInsensitive) < 0;
 }
 
 bool ModulePrefsModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
