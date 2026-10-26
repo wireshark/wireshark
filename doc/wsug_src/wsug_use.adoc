@@ -492,7 +492,7 @@ See <<ChWorkPacketSepView>> for details.
 |menu:Conversation Hash Tables[]| Shows the tuples (address and port combinations) used to identify each conversation.
 |menu:Dissector Tables[]| Shows tables of subdissector relationships.
 |menu:Supported Protocols[]| Displays supported protocols and protocol fields.
-|menu:Theme Debug[]| Shows the colors of the active theme and how they were derived.
+|menu:Theme Debug[]| Shows the colors of the active theme and how they were derived. See <<ChCustThemesTroubleshooting>>.
 |menu:Theme Designer...[]| Creates and edits personal themes. See <<ChCustThemeDesigner>>.
 |===
 

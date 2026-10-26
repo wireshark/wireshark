@@ -331,7 +331,7 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChStatPlots.html");
         break;
     case(HELP_THEME_DESIGNER_DIALOG):
-        url = user_guide_url("ChCustPreferencesSection.html#ChCustThemeDesigner");
+        url = user_guide_url("ChCustThemesSection.html#ChCustThemeDesigner");
         break;
 
     case(TOPIC_ACTION_NONE):

@@ -343,6 +343,7 @@ set(WSUG_GRAPHICS
 	wsug_src/images/ws-pref-appearance-columns.png
 	wsug_src/images/ws-pref-appearance-layout.png
 	wsug_src/images/ws-pref-appearance-theme-and-font.png
+	wsug_src/images/ws-pref-appearance-theme.png
 	wsug_src/images/ws-pref-appearance.png
 	wsug_src/images/ws-pref-capture.png
 	wsug_src/images/ws-pref-expert.png
@@ -383,6 +384,25 @@ set(WSUG_GRAPHICS
 	wsug_src/images/ws-tel-seq-dialog.png
 	wsug_src/images/ws-tel-voip-calls.png
 	wsug_src/images/ws-telephony-menu.png
+	wsug_src/images/ws-theme-color-resolution.gv
+	wsug_src/images/ws-theme-color-resolution.svg
+	wsug_src/images/ws-theme-designer-auto-color.png
+	wsug_src/images/ws-theme-designer-click-select.png
+	wsug_src/images/ws-theme-designer-code.png
+	wsug_src/images/ws-theme-designer-dark.png
+	wsug_src/images/ws-theme-designer-derived-goto.png
+	wsug_src/images/ws-theme-designer-edited.png
+	wsug_src/images/ws-theme-designer-fonts.png
+	wsug_src/images/ws-theme-designer-new.png
+	wsug_src/images/ws-theme-designer.png
+	wsug_src/images/ws-theme-forest-green-auto-packets.png
+	wsug_src/images/ws-theme-forest-green-auto-welcome.png
+	wsug_src/images/ws-theme-forest-green-matched-packets.png
+	wsug_src/images/ws-theme-import-error.png
+	wsug_src/images/ws-theme-selection-chain.gv
+	wsug_src/images/ws-theme-selection-chain.svg
+	wsug_src/images/ws-theme-sources.gv
+	wsug_src/images/ws-theme-sources.svg
 	wsug_src/images/ws-time-reference.png # GTK+
 	wsug_src/images/ws-tools-menu.png
 	wsug_src/images/ws-view-menu.png

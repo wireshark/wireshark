@@ -1,0 +1,30 @@
+// dot -Tsvg -o doc/wsug_src/images/ws-theme-selection-chain.svg doc/wsug_src/images/ws-theme-selection-chain.gv
+
+digraph G {
+    graph [ fontname = "Georgia", fontsize = 12 ];
+    node [ fontname = "Georgia", fontsize = 12, shape=box, style=rounded ];
+    edge [ fontname = "Georgia", fontsize = 11 ];
+    rankdir = TB;
+    ranksep = 0.6;
+    nodesep = 0.4;
+
+    brand [ label="brand.primary" ];
+    psel [ label="packets.selection" ];
+    pinact [ label="packets.inactive" ];
+    phi [ label="palette.highlight" ];
+    rows [ label="Packet list rows\n(only target of packets.selection)" ];
+    others [ label="Packet details, bytes pane,\nother lists, trees and tables,\nwelcome interface list" ];
+    header [ label="Welcome header" ];
+    hover [ label="Hover", style="rounded,dashed" ];
+
+    brand -> psel [ label="if not set:\nlight tint of brand.primary" ];
+    psel -> rows;
+    brand -> pinact [ label="if not set:\ntint of brand.primary" ];
+    pinact -> rows [ label="rows without focus" ];
+    brand -> phi [ label="if not set and\npackets.selection not set" ];
+    psel -> phi [ label="if not set: only when\npackets.selection is set" ];
+    phi -> others;
+    phi -> header [ label="darker shade" ];
+    rows -> hover [ style=dashed, label="derived from the\nview's selection" ];
+    others -> hover [ style=dashed ];
+}
