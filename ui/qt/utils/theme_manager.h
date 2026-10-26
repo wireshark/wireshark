@@ -647,9 +647,11 @@ private:
     // Pristine OS palette snapshot used as the baseline when the palette
     // builder constructs a new theme palette.  Captured once at ctor
     // entry (before any setPalette() call could pollute QApplication's
-    // live palette), and refreshed from `qApp->style()->standardPalette()`
-    // whenever the effective light/dark scheme changes (mode flip or OS
-    // notification).  Using this snapshot instead of
+    // live palette), and refreshed whenever the effective light/dark
+    // scheme changes (mode flip or OS notification): on macOS by dropping
+    // the application palette and reading back the platform palette Qt
+    // resolves, on Windows (Qt ≥ 6.8) from
+    // `qApp->style()->standardPalette()`.  Using this snapshot instead of
     // QApplication::palette() prevents the previous theme's palette
     // overrides from leaking into the next theme's baseline — without it,
     // switching from a theme with palette overrides (e.g. "inverted") to

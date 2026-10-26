@@ -24,8 +24,8 @@
  * The baseline palette comes from:
  *
  *   - macOS (any supported Qt) and Windows on Qt ≥ 6.8: a caller-
- *     supplied `osBaseline` snapshot.  ThemeManager captures this from
- *     the platform style at construction time (when the palette is
+ *     supplied `osBaseline` snapshot.  ThemeManager captures the
+ *     platform palette at construction time (when the palette is
  *     pristine) and refreshes it whenever the effective scheme flips.
  *     Reading `QApplication::palette()` here would be wrong: once the
  *     builder has pushed any palette via `setPalette()`, subsequent

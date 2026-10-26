@@ -538,14 +538,26 @@ void ThemeManager::reapplyForSchemeChange()
 
     // Refresh the OS baseline AFTER applyToStyleHints() — on Qt ≥ 6.8 the
     // setColorScheme() pin propagates synchronously into the platform
-    // style, so qApp->style()->standardPalette() now reflects the new
-    // scheme.  standardPalette() is the style's own definition; unlike
-    // QApplication::palette() it is independent of any prior setPalette()
-    // calls, so it cannot carry overrides from a previous theme.  Only
+    // theme, so the platform palette now reflects the new scheme.  Only
     // refresh on platforms where the OS palette is trusted; on Linux and
-    // Qt < 6.8 Windows the baseline is the built-in light/dark palette
-    // and osBaseline_ is unused.
-#if defined(Q_OS_MACOS) || (defined(Q_OS_WIN) && QT_VERSION >= QT_VERSION_CHECK(6, 8, 0))
+    // Qt < 6.8 Windows the baseline is the built-in light/dark palette and
+    // osBaseline_ is unused.
+#if defined(Q_OS_MACOS)
+    // QStyle::standardPalette() cannot be used here: QMacStyle returns a
+    // default-constructed QPalette, which is a copy of the current
+    // application palette, i.e. the palette we applied last.  After a
+    // Light -> Dark switch the baseline would stay light and the Inactive
+    // text roles and derived tokens would be built from light colors.
+    // Instead drop the application palette so Qt resolves it entirely from
+    // the platform theme, and read that back, which is what the constructor
+    // captures at startup.  This costs one extra ApplicationPaletteChange
+    // round, so it stays here and out of applyTheme(): theme, font and
+    // contrast reloads do not change the platform palette.
+    QApplication::setPalette(QPalette());
+    osBaseline_ = QApplication::palette();
+#elif defined(Q_OS_WIN) && QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    // The Windows styles provide their own standard palette for the
+    // scheme set through QStyleHints.
     if (QStyle *s = qApp->style())
         osBaseline_ = s->standardPalette();
 #endif

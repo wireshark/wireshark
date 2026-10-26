@@ -24,7 +24,7 @@ namespace {
 //
 //   - macOS (any Qt) and
 //     Windows (Qt ≥ 6.8): caller-supplied snapshot.  ThemeManager
-//                         takes this from the platform style at
+//                         captures the platform palette at
 //                         construction time (pristine, before any
 //                         setPalette() pollution) and refreshes it on
 //                         scheme flips.  Reading
