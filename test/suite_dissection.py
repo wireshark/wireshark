@@ -5030,3 +5030,128 @@ class TestDissectAmp:
         assert stdout.strip() == '1|0\t42\tagent-10'
         # The same over UDP
         assert frames[55] == ['udp-mgr', 'udp', '', '77', '']
+
+
+# amr_coverage.pcapng.gz is synthetic: every packet was generated, to
+# cover as much of the AMR dissector as possible. SIP/SDP sets up RTP
+# with AMR and AMR-WB in every fmtp variant; one RTP flow has no SDP and
+# needs Decode As; the rest are Exported PDUs (named AMR dissectors and
+# an H.245 TerminalCapabilitySet with the AMR capabilities).
+AMR_OPTS = ('-d', 'udp.port==50000,rtp',
+            '-d', 'rtp.pt==97,amr',
+            '-d', 'rtp.pt==98,amr_wb')
+
+
+class TestDissectAmr:
+    def test_amr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every part of the capture decodes, with no malformed packets or
+        errors, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+                '-r', capture_file('amr_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 113
+        # 9 AMR and 8 AMR-WB frames are IF1/IF2
+        assert protocols.count('AMR') == 61
+        assert protocols.count('AMR-WB') == 45
+        assert protocols.count('SIP/SDP') == 4
+        assert protocols.count('SIP') == 2
+        assert protocols.count('H.245') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS, *passes,
+                    '-r', capture_file('amr_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_amr_exported_pdu_tcp_info(self, cmd_tshark, capture_file, test_env):
+        '''An exported PDU for "amr" or "amr-wb" with a TCP information tag
+        decodes as AMR with the preferences (octet-aligned). The struct
+        tcpinfo used to be handed to AMR, which read it as RTP
+        information and crashed.'''
+        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+                '-r', capture_file('amr_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu.tcp_dissector_data.version == 1',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-eamr.payload_decoded_as', '-eamr.nb.toc.ft', '-eamr.wb.toc.ft',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '90\tAMR\t0\t7\t',
+            '91\tAMR-WB\t0\t\t8',
+        ]
+
+    def test_amr_sdp_fmtp(self, cmd_tshark, capture_file, test_env):
+        '''The SDP fmtp parameters of each RTP payload type choose the
+        format: octet-aligned for octet-align=1, crc=1, interleaving or
+        robust-sorting, bandwidth-efficient otherwise.'''
+        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+                '-r', capture_file('amr_coverage.pcapng.gz'),
+                '-Y', 'rtp && udp.port != 50000 && !amr.reserved.not_zero',
+                '-Tfields', '-ertp.p_type', '-eamr.payload_decoded_as',
+            ), encoding='utf-8', env=test_env)
+        formats = {}
+        for line in stdout.splitlines():
+            pt, fmt = line.split('\t')
+            formats.setdefault(int(pt), set()).add(fmt)
+        assert formats == {
+            96: {'1'}, 97: {'0'}, 98: {'0'}, 99: {'0'}, 100: {'0'}, 101: {'1'}, 102: {'0'},
+            104: {'1'}, 105: {'0'}, 106: {'0'}, 107: {'0'}, 108: {'0'}, 109: {'1'},
+        }
+        # CRCs and interleaving headers from the SDP
+        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+                '-r', capture_file('amr_coverage.pcapng.gz'),
+                '-Y', 'amr.crc || amr.ill',
+                '-Tfields', '-eframe.number', '-eamr.crc', '-eamr.ill', '-eamr.ilp',
+                '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert '39\t0xa0,0xa1,0xa2\t\t' in lines
+        assert '43\t\t3\t3' in lines
+        assert '80\t0xa0,0xa1\t\t' in lines
+        assert len(lines) == 14
+
+    def test_amr_preferences(self, cmd_tshark, capture_file, test_env):
+        '''The encoding preference applies to RTP set up by Decode As and
+        to exported PDUs, not to RTP set up by SDP.'''
+        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+                '-o', 'amr.encoding.version:bw_efficient',
+                '-r', capture_file('amr_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {23, 85, 88, 90, 92}',
+                '-Tfields', '-eframe.number', '-eamr.payload_decoded_as',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['23\t0', '85\t1', '88\t1', '90\t1', '92\t1']
+
+    def test_amr_h245_capability(self, cmd_tshark, capture_file, test_env):
+        '''The AMR names the H.245 generic audio capability parameters.'''
+        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+                '-r', capture_file('amr_coverage.pcapng.gz'),
+                '-Y', 'h245', '-O', 'h245', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'genericAudioCapability (20): H.245 - GSM AMR Capability Identifier' in stdout
+        for name in ('maxAl-sduAudioFrames', 'gsmAmrComfortNoise', 'gsmEfrComfortNoise',
+                     'is-641ComfortNoise', 'pdcEFRComfortNoise', 'maxAl-sduFrames',
+                     'octetAlign', 'modeSet', 'modeChangePeriod', 'modeChangeNeighbour',
+                     'robustSorting', 'interleaving'):
+            assert f': {name}\n' in stdout
+
+    def test_amr_if1_if2(self, cmd_tshark, capture_file, test_env):
+        '''The IF1 and IF2 dissectors, called by name.'''
+        stdout = subprocess.check_output((cmd_tshark, *AMR_OPTS,
+                '-r', capture_file('amr_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu.prot_name matches "^amr_if"',
+                '-Tfields', '-eexported_pdu.prot_name',
+                '-eamr.nb.if1.ft', '-eamr.wb.if1.ft', '-eamr.nb.if2.ft', '-eamr.wb.if2.ft',
+                '-eamr.if1.sti', '-eamr.if2.sti',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert [line[0] for line in lines] == \
+            ['amr_if1_nb'] * 5 + ['amr_if1_wb'] * 4 + ['amr_if2_nb'] * 4 + ['amr_if2_wb'] * 4
+        assert [line[1] for line in lines[:5]] == ['7', '0', '8', '8', '5']
+        assert [line[2] for line in lines[5:9]] == ['8', '0', '9', '2']
+        assert [line[3] for line in lines[9:13]] == ['7', '2', '8', '15']
+        assert [line[4] for line in lines[13:]] == ['8', '1', '9', '15']
+        # SID frames: SID_UPDATE in IF1, SID_UPDATE in IF2
+        assert lines[2][5] == 'True' and lines[7][5] == 'True'
+        assert lines[11][6] == 'True' and lines[15][6] == 'True'
