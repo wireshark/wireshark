@@ -532,6 +532,14 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     main_ui_->actionViewFullScreen->setShortcut(QKeySequence(Qt::Key_F11));
 #endif
 
+    // Ctrl+= zooms in as well, so the user does not need Shift on
+    // keyboards where '+' shares a key with '='. Set once here: the
+    // palette change handler re-runs initMainToolbarIcons(), and
+    // appending there would duplicate the sequence and make it ambiguous.
+    QList<QKeySequence> zi_seq = main_ui_->actionViewZoomIn->shortcuts();
+    zi_seq << QKeySequence(Qt::CTRL | Qt::Key_Equal);
+    main_ui_->actionViewZoomIn->setShortcuts(zi_seq);
+
 #if defined(Q_OS_MACOS)
 
     ZoomScaling::scaleMacControlSize(main_ui_->goToPacketLabel);
@@ -2197,10 +2205,7 @@ void WiresharkMainWindow::initMainToolbarIcons()
 
     main_ui_->actionViewColorizePacketList->setIcon(ContrastAdaptIcon("view-colorize"));
 
-    QList<QKeySequence> zi_seq = main_ui_->actionViewZoomIn->shortcuts();
-    zi_seq << QKeySequence(Qt::CTRL | Qt::Key_Equal);
     main_ui_->actionViewZoomIn->setIcon(ThemedIcon("zoom-in"));
-    main_ui_->actionViewZoomIn->setShortcuts(zi_seq);
     main_ui_->actionViewZoomOut->setIcon(ThemedIcon("zoom-out"));
     main_ui_->actionViewNormalSize->setIcon(ThemedIcon("zoom-reset"));
     main_ui_->actionViewResizeColumns->setIcon(ThemedIcon("view-resize-columns"));
