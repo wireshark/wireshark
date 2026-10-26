@@ -5155,3 +5155,111 @@ class TestDissectAmr:
         # SID frames: SID_UPDATE in IF1, SID_UPDATE in IF2
         assert lines[2][5] == 'True' and lines[7][5] == 'True'
         assert lines[11][6] == 'True' and lines[15][6] == 'True'
+
+
+
+class TestDissectExportedPdu:
+    def run_fields(self, cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('exported_pdu_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_exported_pdu_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every tag and the three ways to name the next dissector decode
+        without malformed packets, in one and two passes.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.splitlines()
+        assert len(protocols) == 104
+        assert protocols.count('HTTP') == 10
+        assert protocols.count('DNS') == 10
+        assert protocols.count('Rlogin') == 6
+        assert protocols.count('NBSS') == 6
+        assert protocols.count('RTMP') == 3
+        assert protocols.count('TLSv1.3') == 3
+        assert protocols.count('FINGER') == 3
+        assert protocols.count('SIP') == 3
+        assert protocols.count('MPA') == 2
+        assert protocols.count('WHOIS') == 2
+        assert protocols.count('AMR') == 1
+        assert protocols.count('AMR-WB') == 1
+        assert protocols.count('SS7') == 4
+        assert protocols.count('CI+ SAC message') == 2
+        assert protocols.count('Exported PDU') == 6
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_exported_pdu_tcpinfo_not_for_amr(self, cmd_tshark, capture_file, test_env):
+        '''AMR named with a TCP information tag decodes. The struct tcpinfo
+        used to be passed to it, read as a struct _rtp_info, and crashed.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'amr', '-Tfields', '-eframe.number', '-eexported_pdu.prot_name',
+                '-eexported_pdu.tcp_dissector_data.version', '-eamr.nb.toc.ft', '-eamr.wb.toc.ft')
+        assert stdout.splitlines() == ['35\tamr\t1\t7\t', '36\tamr-wb\t1\t\t8']
+
+    def test_exported_pdu_tcpinfo_for_tcp(self, cmd_tshark, capture_file, test_env):
+        '''The TCP information still reaches dissectors that TCP calls:
+        by name, through a "tcp" heuristic and through the tcp.port table.'''
+        # rlogin sees the urgent pointer: tcp.port table (14, 33), by name (25)
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rlogin.control_message', '-Tfields', '-eframe.number',
+                '-erlogin.control_message')
+        assert stdout.splitlines() == ['14\t0x80', '25\t0x02', '33\t0x10']
+        # NBSS rejects a PDU without TCP information: with it by table (15,
+        # 16, 34) and by name (26); with no tag (40) or an unsupported
+        # version (41) it is given empty TCP information
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'nbss', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['15', '16', '26', '34', '40', '41']
+        # RTMP names the handshake from the sequence numbers; MPA is found by
+        # the iwarp_mpa_tcp heuristic (19) and by name (28)
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rtmpt || iwarp_mpa', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '17\tHandshake C0+C1', '18\tHandshake S0+S1+S2', '19\t40009 > 40100 MPA Request Frame',
+            '27\tHandshake C0+C1', '28\t40022 > 40101 MPA Request Frame']
+        # The rtmpt_tcp heuristic matches the server handshake at sequence
+        # number 1 and acknowledgment 1538 only
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '--enable-heuristic', 'rtmpt_tcp', '-Y', 'frame.number == 32',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert stdout.strip() == 'RTMP\tHandshake S0+S1+S2'
+
+    def test_exported_pdu_tags(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values of the address, 3GPP and column tags, and the
+        warnings for unknown tags, short 3GPP identities and unsupported
+        TCP information versions.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'exported_pdu.3gpp.id_type || exported_pdu.3gpp_ue_id_type',
+                '-Tfields', '-eframe.number', '-eexported_pdu.3gpp.ci',
+                '-eexported_pdu.3gpp.eci', '-eexported_pdu.3gpp.nci',
+                '-ee212.assoc.imsi', '-E', 'occurrence=f')
+        lines = stdout.splitlines()
+        assert lines[:3] == ['88\t0x5678\t\t\t', '89\t\t0x0abcdef1\t\t', '90\t\t\t0x0000000123456789\t']
+        assert lines[7:9] == ['96\t\t\t\t001010123456789', '97\t\t\t\t310410987654321']
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {20, 65, 67, 77, 80}', '-Tfields', '-eframe.number',
+                '-e_ws.col.def_src', '-e_ws.col.def_dst', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '20\t2001:db8::1\t2001:db8::2\tGET /index.html HTTP/1.1 ',
+            '65\t2001:db8::1\t2001:db8::2\tStandard query 0x1234 A example.com',
+            '67\t4661\t1384\tSS7 standard 1',
+            '77\t10.1.0.1\t10.1.0.2\tStandard query 0x1234 A example.com',
+            '80\t\t\tno dissector tag']
+        # frames with each warning
+        for expert, count in (('exported_pdu.tag.unknown', 3),
+                              ('exported_pdu.tag_len.unexpected', 4),
+                              ('exported_pdu.tcp_dissector_data.version.invalid', 3)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                    '-Y', expert, '-Tfields', '-eframe.number')
+            assert count_output(stdout) == count
+
+    def test_exported_pdu_user_data_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The User Data PDU tag uses the dissector in the preference.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-o', 'exported_pdu.user_data_pdu:http', '-Y', 'frame.number == 87',
+                '-Tfields', '-ehttp.request.uri')
+        assert stdout.strip() == '/index.html'
