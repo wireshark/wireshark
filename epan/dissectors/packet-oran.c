@@ -7440,7 +7440,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                     proto_item *delta_ti = proto_tree_add_int(oran_tree,
                                                               (direction==0) ? hf_oran_delta_to_expected_ul_symbol_time : hf_oran_delta_to_expected_dl_symbol_time,
                                                               tvb, 0, 0, first_gap_delta-expected_delta);
-                    proto_item_append_text (delta_ti, " (%u symbols since first, assuming %uus/symbol)", frame->symbol-first_symbol, pref_symbol_time);
+                    proto_item_append_text (delta_ti, " (%u symbols since first, assuming %u\u03bcs/symbol)", frame->symbol-first_symbol, pref_symbol_time);
                     proto_item_set_generated(delta_ti);
                 }
             }
@@ -7448,19 +7448,25 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             /* Show link to U-plane frame */
             proto_item *uplane_frame_ti = proto_tree_add_uint(oran_tree, hf_oran_corresponding_uplane_frame, tvb, 0, 0,
                                                               frame->frame_number);
-            proto_item_append_text(uplane_frame_ti, "  sectionId:%2u symbol:%2u PRBs %3u->%3u",
-                                   frame->sectionId, frame->symbol, frame->startPrbu, frame->startPrbu+frame->numPrbu-1);
+            proto_item_append_text(uplane_frame_ti, "  sectionId:%2u symbol:%2u ", frame->sectionId, frame->symbol);
+            if (frame->numPrbu > 1) {
+                proto_item_append_text(uplane_frame_ti, "PRBs %3u->%3u", frame->startPrbu, frame->startPrbu+frame->numPrbu-1);
+            }
+            else {
+                proto_item_append_text(uplane_frame_ti, "PRB: %3u", frame->startPrbu);
+            }
+
             proto_item_set_generated(uplane_frame_ti);
 
             if (first_section) {
                 /* Only show timings on first entry for a frame */
-                proto_item_append_text(uplane_frame_ti, "  (in %uus)", frame->gap_in_usecs);
+                proto_item_append_text(uplane_frame_ti, "  (in %u\u03bcs)", frame->gap_in_usecs);
                 first_section = false;
             }
 
             if (first_gap_delta) {
                 /* Only show timings on first entry for a frame */
-                proto_item_append_text(uplane_frame_ti, "  (in %uus) +%u", frame->gap_in_usecs, first_gap_delta);
+                proto_item_append_text(uplane_frame_ti, "  (in %u\u03bcs) +%u", frame->gap_in_usecs, first_gap_delta);
                 first_gap_delta = 0;
             }
 
@@ -8433,9 +8439,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                     if (total_gap > us_allowed_for_ul_in_symbol) {
                         expert_add_info_format(pinfo, ti, &ei_oran_ul_uplane_symbol_too_long,
-                                               "UL U-Plane Tx took longer (%u us) than limit set in preferences (%u us)",
+                                               "UL U-Plane Tx took longer (%u\u03bcs) than limit set in preferences (%u\u03bcs)",
                                                total_gap, us_allowed_for_ul_in_symbol);
-                        proto_item_append_text(timingHeader, "  (%uus since first frame seen for symbol)", total_gap);
+                        proto_item_append_text(timingHeader, "  (%u\u03bcs since first frame seen for symbol)", total_gap);
                     }
 
                     /* Show how many frames were received */
