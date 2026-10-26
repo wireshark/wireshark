@@ -285,7 +285,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		offset += str_len;
 
 		/* Terminal type/speed. */
-		if (!tvb_find_uint8_remaining(tvb, offset, '/', &slash_offset))
+		if (tvb_find_uint8_remaining(tvb, offset, '/', &slash_offset))
 		{
 			const char* str = NULL;
 			uint32_t term_len = 0;
