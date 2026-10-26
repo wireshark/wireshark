@@ -2456,7 +2456,7 @@ static void
 decrypt_verifier(tvbuff_t *tvb, packet_info *pinfo);
 
 static int
-dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   volatile int          offset              = 0;
   proto_tree *volatile  ntlmssp_tree        = NULL;
@@ -2468,6 +2468,13 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   uint32_t              ntlm_magic_size     = 4;
   uint32_t              ntlm_signature_size = 8;
   uint32_t              ntlm_seq_size       = 4;
+  gssapi_encrypt_info_t *encrypt_info        = (gssapi_encrypt_info_t *)data;
+  tvbuff_t             *decr_tvb;
+
+  if (encrypt_info != NULL) {
+    encrypt_info->gssapi_data_encrypted = true;
+    encrypt_info->gssapi_decrypted_tvb = NULL;
+  }
 
   length = tvb_captured_length (tvb);
   /* signature + seq + real payload */
@@ -2513,7 +2520,11 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     memset(key, 0, sizeof(key));
     tvb_memcpy(tvb, key, offset, ntlm_signature_size + ntlm_seq_size);
     /* Try to decrypt */
-    decrypt_data_payload (tvb, offset+(ntlm_signature_size + ntlm_seq_size), encrypted_block_length-(ntlm_signature_size + ntlm_seq_size), pinfo, ntlmssp_tree, key);
+    decr_tvb = decrypt_data_payload (tvb, offset+(ntlm_signature_size + ntlm_seq_size), encrypted_block_length-(ntlm_signature_size + ntlm_seq_size), pinfo, ntlmssp_tree, key);
+    /* Return the plaintext to the protocol using this GSS-API wrapper. */
+    if (encrypt_info != NULL) {
+      encrypt_info->gssapi_decrypted_tvb = decr_tvb;
+    }
     store_verifier (tvb, offset, ntlm_signature_size + ntlm_seq_size, pinfo);
     decrypt_verifier (tvb, pinfo);
     /* let's try to hook ourselves here */

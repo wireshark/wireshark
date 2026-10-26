@@ -300,9 +300,9 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* Maybe it's new NTLMSSP payload */
 			if ((tvb_captured_length_remaining(gss_tvb, start_offset)>16) &&
 			   ((tvb_memeql(gss_tvb, start_offset, (const uint8_t*)"\x01\x00\x00\x00", 4) == 0))) {
-				return_offset = call_dissector(ntlmssp_payload_handle,
+				return_offset = call_dissector_with_data(ntlmssp_payload_handle,
 							tvb_new_subset_remaining(gss_tvb, start_offset),
-							pinfo, subtree);
+							pinfo, subtree, encrypt_info);
 				encrypt_info->gssapi_data_encrypted = true;
 				goto done;
 			}
