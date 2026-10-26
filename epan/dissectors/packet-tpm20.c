@@ -117,6 +117,7 @@ static int ett_tpm_attrib;
 static expert_field ei_invalid_tag;
 static expert_field ei_invalid_auth_size;
 static expert_field ei_invalid_num_sessions;
+static expert_field ei_no_command;
 
 void proto_register_tpm20(void);
 void proto_reg_handoff_tpm20(void);
@@ -1053,7 +1054,11 @@ dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		entry->com_pnum = last_command_pnum;
 	}
 	tpm_entry *command_entry = (tpm_entry *)wmem_tree_lookup32(cmd_tree, entry->com_pnum);
-	DISSECTOR_ASSERT(command_entry != NULL);
+	if (command_entry == NULL) {
+		/* No command seen before this response */
+		proto_tree_add_expert(tree, pinfo, &ei_no_command, tvb, offset, -1);
+		return;
+	}
 
 	handl_map.command = command_entry->command;
 	handl_map.num_req_handles = 0;
@@ -1369,12 +1374,14 @@ static ei_register_info ei[] = {
 	{ &ei_invalid_tag, { "tpm.invalid_tag", PI_PROTOCOL, PI_ERROR, "Invalid Header Tag", EXPFILL }},
 	{ &ei_invalid_auth_size, { "tpm.invalid_auth_size", PI_PROTOCOL, PI_ERROR, "Auth area size too small", EXPFILL }},
 	{ &ei_invalid_num_sessions, { "tpm.invalid_num_sessions", PI_PROTOCOL, PI_ERROR, "Maximum number of sessions exceeded", EXPFILL }},
+	{ &ei_no_command, { "tpm.no_command", PI_SEQUENCE, PI_NOTE, "Response to a command that was not captured", EXPFILL }},
 };
 
 static void
 tpm_init(void)
 {
 	cmd_tree = wmem_tree_new(wmem_file_scope());
+	last_command_pnum = 0;
 }
 
 void
