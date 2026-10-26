@@ -67,9 +67,7 @@
 		"text":            { "light": "#000000", "dark": "#ffffff" },
 		"alternateBase":   { "light": "#ffffff", "dark": "#000000" },
 		"mid":             { "light": "#000000", "dark": "#ffffff" },
-		"midlight":        { "light": "#ffffff", "dark": "#000000" },
-		"highlight":       { "light": "#0b3d91", "dark": "#7cc4ff" },
-		"highlightedText": { "light": "#ffffff", "dark": "#000000" }
+		"midlight":        { "light": "#ffffff", "dark": "#000000" }
 	},
 	"separator": { "light": "#000000", "dark": "#ffffff" },
 	"graphs": [

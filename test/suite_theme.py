@@ -41,6 +41,7 @@ theme_palette_builder.cpp, where readability wins over pinned colors.
 import itertools
 import json
 import math
+import os
 import re
 import sys
 from pathlib import Path
@@ -544,17 +545,21 @@ def derived_tokens(theme, mode, reference='generic'):
     # (READABLE_TEXT_RATIO) and the faded version label
     # (LARGE_TEXT_RATIO). The selection color resolves as
     # palette.highlight, else packets.selection, else brand.primary;
-    # highlightedText is pinned or the contrasting text of that
+    # highlightedText is pinned, else packets.selectionText when the
+    # color is packets.selection, else the contrasting text of that
     # color, lifted to READABLE_TEXT_RATIO against it.
     # At High the pair goes through readable_on_fill(): when the text
     # cannot reach READABLE_TEXT_RATIO the highlight itself moves.
     # The header bar then also moves until the faded version label reads
     # at READABLE_TEXT_RATIO (its target at High).
-    highlight = (_pick(theme, 'palette', 'highlight', mode)
-                 or _pick(theme, 'packets', 'selection', mode)
-                 or brand_primary)
-    highlight_text_source = (_pick(theme, 'palette', 'highlightedText', mode)
-                             or contrasting_text(highlight))
+    highlight_pin = _pick(theme, 'palette', 'highlight', mode)
+    selection = _pick(theme, 'packets', 'selection', mode)
+    highlight = highlight_pin or selection or brand_primary
+    highlight_text_source = (
+        _pick(theme, 'palette', 'highlightedText', mode)
+        or (not highlight_pin and selection
+            and _pick(theme, 'packets', 'selectionText', mode))
+        or contrasting_text(highlight))
     if high_contrast():
         highlight_text, highlight = readable_on_fill(
             highlight_text_source, highlight, READABLE_TEXT_RATIO)
@@ -620,9 +625,11 @@ def derived_tokens(theme, mode, reference='generic'):
         hidden = ensure_contrast(hidden, base, READABLE_TEXT_RATIO)
 
     filter_busy      = explicit_filter_busy    or base
-    filter_busy_text = explicit_filter_busy_tx or mix(text, base, 0.5)
-    if high_contrast():
-        filter_busy_text = ensure_contrast(filter_busy_text, filter_busy, LARGE_TEXT_RATIO)
+    # Pinned or derived, the busy text is lifted to LARGE_TEXT_RATIO
+    # against the busy fill at every contrast level.
+    filter_busy_text = ensure_contrast(
+        explicit_filter_busy_tx or mix(text, base, 0.5),
+        filter_busy, LARGE_TEXT_RATIO)
 
     # Raised card on Base.  The source is the theme's own alternateBase
     # pin only (never the platform palette), else Base.  Dark mode lifts
@@ -716,12 +723,17 @@ THEME_MANAGER_H = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'theme_manager.h'
 
 
 def _theme_token_names():
-    '''Enumerator names of `enum ThemeToken` in theme_manager.h.'''
+    '''Enumerator names of `enum ThemeToken` in theme_manager.h, in
+    declaration order.  Comments and preprocessor lines (the Qt version
+    block inside the enum) are dropped; `= value` initializers are
+    accepted.'''
     text = THEME_MANAGER_H.read_text(encoding='utf-8')
-    body = re.search(r'enum\s+ThemeToken\s*\{(.*?)\};', text, re.S).group(1)
+    body = re.search(r'enum\s+ThemeToken\s*\{(.*?)\};', text, re.DOTALL).group(1)
+    body = re.sub(r'/\*.*?\*/', '', body, flags=re.DOTALL)
     body = re.sub(r'//[^\n]*', '', body)
-    body = re.sub(r'/\*.*?\*/', '', body, flags=re.S)
-    return {m.group(1) for m in re.finditer(r'([A-Za-z_]\w*)\s*(?:=[^,]*)?(?:,|$)', body)}
+    body = re.sub(r'^\s*#.*$', '', body, flags=re.M)
+    return [m.group(1) for m in
+            re.finditer(r'\b([A-Za-z_]\w*)\s*(?:=[^,]*)?(?:,|$)', body)]
 
 
 def _learn_card_buttons():
@@ -1097,14 +1109,95 @@ class TestHoverFill:
 
 class TestInvertedHighlight:
     @pytest.mark.parametrize('mode', ['light', 'dark'])
-    def test_highlight_stays_brand_primary(self, mode):
-        '''Inverted selects in its brand color on purpose; its
-        packets.selection would otherwise take over the highlight.
+    def test_highlight_pin_wins_over_selection(self, mode):
+        '''Inverted pins palette.highlight apart from its pale
+        packets.selection; the pin, not the selection, is the highlight.
         Standard only: it checks the designed pin, which High moves.'''
         path = next(p for p in _bundled_themes() if p.parent.name == 'inverted')
         theme = _load_theme(path)
-        assert (derived_tokens(theme, mode)['highlight'].lower()
-                == _pick(theme, 'brand', 'primary', mode).lower())
+        pin = _pick(theme, 'palette', 'highlight', mode)
+        assert pin
+        assert pin.lower() != _pick(theme, 'packets', 'selection', mode).lower()
+        assert derived_tokens(theme, mode)['highlight'].lower() == pin.lower()
+
+
+class TestNoRedundantPins:
+    '''A pin equal to what the theme system derives for the key anyway
+    is a copy that goes stale when its source changes.  A color sets
+    both sides, so a pin is redundant only when both sides equal the
+    value derived without it.'''
+
+    # (section, key, derived_tokens() key)
+    CHECKS = [
+        ('palette', 'highlight',       'highlight'),
+        ('palette', 'highlightedText', 'highlightText'),
+        ('filter',  'busyText',        'filterBusyText'),
+    ]
+
+    @pytest.mark.parametrize('check', CHECKS, ids=lambda c: c[1])
+    @pytest.mark.parametrize('theme_path', _bundled_themes(),
+                             ids=lambda p: p.parent.name)
+    def test_pin_is_not_derived(self, theme_path, check):
+        section, key, token = check
+        theme = _load_theme(theme_path)
+        pins = {mode: _pick(theme, section, key, mode)
+                for mode in ('light', 'dark')}
+        if not all(pins.values()):
+            pytest.skip('no %s pin' % key)
+        unpinned = dict(theme, **{section: {
+            name: value for name, value in theme[section].items()
+            if name != key}})
+        assert not all(
+            derived_tokens(unpinned, mode, reference)[token].lower()
+            == pins[mode].lower()
+            for mode in pins for reference in REFERENCE_PALETTES)
+
+
+# Themes whose source has a single light variant share that light side.
+# The theme format has no include, so each file carries a copy.
+SHARED_LIGHT_FAMILIES = [
+    ('catppuccin-frappe', 'catppuccin-macchiato', 'catppuccin-mocha'),
+    ('tokyo-night', 'tokyo-night-storm'),
+]
+
+
+def _light_side(theme):
+    '''Every light value of a theme by section (and key); meta is skipped.'''
+    out = {}
+    for section, value in theme.items():
+        if section == 'meta':
+            continue
+        if isinstance(value, list):
+            out[section] = [entry['light'] for entry in value]
+        elif isinstance(value, dict) and 'light' in value:
+            out[section] = value['light']
+        elif isinstance(value, dict):
+            out[section] = {key: pair['light'] for key, pair in value.items()
+                            if isinstance(pair, dict) and 'light' in pair}
+    return out
+
+
+class TestSharedLightSides:
+    @pytest.mark.parametrize('family', SHARED_LIGHT_FAMILIES, ids=lambda f: f[0])
+    def test_family_light_sides_match(self, family):
+        '''The copies of a shared light side stay identical.'''
+        sides = [_light_side(_load_theme(THEME_ROOT / stem / 'theme.jsonc'))
+                 for stem in family]
+        for stem, side in zip(family[1:], sides[1:]):
+            assert side == sides[0], stem
+
+
+class TestReadmeLayout:
+    def test_readme_lists_every_bundled_theme(self):
+        '''The README directory layout names every bundled theme directory,
+        and besides them only the my-custom-theme example.'''
+        readme = THEME_README.read_text(encoding='utf-8')
+        layout = re.search(r'^## Directory layout\n(.*?)^## ', readme,
+                           re.M | re.S).group(1)
+        listed = set(re.findall(r'^ {4}([\w-]+)/', layout, re.M))
+        bundled = {p.parent.name for p in _bundled_themes()}
+        assert listed - bundled == {'my-custom-theme'}
+        assert bundled <= listed
 
 
 class TestSelectionText:
@@ -1180,11 +1273,15 @@ class TestContrastLevels:
 
     def test_contrast_values_match_schema_and_parser(self):
         '''The schema `contrast` enum, the values theme_parser.cpp compares
-        and the ratio sets name the same levels.'''
+        (ThemeFormat constants in theme_format.h) and the ratio sets name the
+        same levels.'''
         schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
         enum = set(schema['properties']['contrast']['enum'])
-        parsed = set(re.findall(r'\bcontrast\s*[!=]=\s*QStringLiteral\("([^"]*)"\)',
-                                THEME_PARSER_CPP.read_text(encoding='utf-8')))
+        values = dict(re.findall(r'inline const QLatin1String (Contrast\w+)\("([^"]*)"\);',
+                                 FORMAT_HEADER.read_text(encoding='utf-8')))
+        compared = re.findall(r'\bcontrast\s*[!=]=\s*ThemeFormat::(\w+)',
+                              THEME_PARSER_CPP.read_text(encoding='utf-8'))
+        parsed = {values[name] for name in compared}
         assert enum == parsed == set(RATIO_SETS)
 
     @pytest.mark.parametrize(THEME_MODE_ARGS, _theme_mode_params(levels=('high',)))
@@ -1348,6 +1445,8 @@ STRONG_GRAPH_SLOTS = 7
 # dark protanopia; the expert backgrounds are lowest because the
 # Severity column, the tooltip and the status bar icon shape name the
 # severity as well, and five tints cannot all reach the strong colors.
+# expert.none is the background of items without a severity, so it is
+# not one of the severities that must be told apart.
 ALL_EXCEPT = '*'
 
 CVD_SETS = (
@@ -1355,7 +1454,7 @@ CVD_SETS = (
     ('filter', ('valid', 'invalid', 'deprecated'), 9.5),
     ('conversation', ('client', 'server'), 10.0),
     ('conversation', ('clientText', 'serverText'), 10.0),
-    ('expert', (ALL_EXCEPT, 'foreground'), 6.5),
+    ('expert', (ALL_EXCEPT, 'foreground', 'none'), 6.5),
     ('graphs', None, 10.0),
 )
 
@@ -1713,8 +1812,8 @@ class TestFilterGlyphIcons:
         theme_token_handler.cpp derives that key from when a theme omits it.'''
         src = (REPO_ROOT / 'ui' / 'qt' / 'utils' / 'themes'
                / 'theme_token_handler.cpp').read_text(encoding='utf-8')
-        pairs = re.findall(r'assign\(tokens,\s*ThemeManager::Filter(\w+),\s*'
-                           r'tokens\.value\(ThemeManager::Accent(\w+)\)\)', src)
+        pairs = re.findall(r'assign\(\s*ThemeManager::Filter(\w+),\s*'
+                           r'tokens\.value\(ThemeManager::Accent(\w+)\),', src)
         assert pairs, 'no Filter* defaults from Accent* found in theme_token_handler.cpp'
         rows = {k.lower(): text for k, text in _readme_filter_rows().items()}
         for suffix, accent in pairs:
@@ -1732,3 +1831,235 @@ class TestFilterGlyphIcons:
         assert drawn, 'bookmark-match.svg does not map FilterBookmarkMatch'
         assert pin['light'].lower() == drawn[0]
         assert pin['dark'].lower() == drawn[0]
+
+
+# =====================================================================
+# ThemeWriter schema coverage
+# =====================================================================
+
+WRITER_SOURCE = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'themes' / 'theme_writer.cpp'
+HANDLER_SOURCE = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'themes' / 'theme_token_handler.cpp'
+BUILDER_SOURCE = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'themes' / 'theme_palette_builder.cpp'
+STYLESHEET_ROOT = REPO_ROOT / 'ui' / 'stylesheets'
+# Designer sources that must take every color from the theme system.
+DESIGNER_SOURCES = [REPO_ROOT / 'ui' / 'qt' / p for p in (
+    'theme_designer_dialog.cpp', 'widgets/theme_color_editor.cpp',
+    'widgets/theme_code_view.cpp', 'widgets/theme_welcome_preview.cpp')]
+MANAGER_SOURCE = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'theme_manager.cpp'
+FORMAT_HEADER = REPO_ROOT / 'ui' / 'qt' / 'utils' / 'themes' / 'theme_format.h'
+
+
+def _writer_descriptions():
+    '''Entries of ThemeWriter's description table as (token, text).'''
+    text = WRITER_SOURCE.read_text(encoding='utf-8')
+    return re.findall(
+        r'\{\s*ThemeManager::(\w+),\s*'
+        r'QT_TRANSLATE_NOOP\("ThemeWriter",\s*"((?:[^"\\]|\\.)*)"\)\s*\}', text)
+
+
+def _settable_keys():
+    '''(token, section, key) per settable token, by ThemeManager's rule:
+    the section the lower-cased name starts with, the rest with its first
+    letter lowered.  The schema tests below check the rule's output.'''
+    sections = _manager_sections()
+    out = []
+    for name in _theme_token_names():
+        for section in sections:
+            if name.lower().startswith(section):
+                rest = name[len(section):]
+                out.append((name, section, rest[0].lower() + rest[1:]))
+                break
+    return out
+
+
+def _manager_sections():
+    '''Color sections of ThemeManager's sections_ table as {name: required}.'''
+    text = MANAGER_SOURCE.read_text(encoding='utf-8')
+    block = re.search(r'\bsections_\s*=\s*\{(.*?)\n\s*\};', text, re.S).group(1)
+    block = re.sub(r'//[^\n]*', '', block)
+    return {name: flag == 'true'
+            for name, flag in re.findall(r'\{\s*"(\w+)",\s*\{\s*(true|false)\b', block)}
+
+
+def _format_root_keys():
+    '''ThemeFormat::NonSectionRootKeys as file key names.'''
+    text = FORMAT_HEADER.read_text(encoding='utf-8')
+    consts = dict(re.findall(r'inline const QLatin1String (\w+)\("(\w+)"\);', text))
+    block = re.search(r'NonSectionRootKeys\[\]\s*=\s*\{(.*?)\};', text, re.S).group(1)
+    return [consts[name] for name in re.findall(r'\b(\w+)\b', block)]
+
+
+def _derive_all_assignments():
+    '''(token, source text or None) per assign() call in deriveAll().'''
+    text = HANDLER_SOURCE.read_text(encoding='utf-8')
+    body = text[text.index('void ThemeTokenHandler::deriveAll('):]
+    out = []
+    for token, args in re.findall(r'\bassign\(\s*ThemeManager::(\w+),(.*?)\);', body, re.S):
+        m = re.search(r'QT_TRANSLATE_NOOP\(\s*"ThemeTokenHandler",\s*"((?:[^"\\]|\\.)+)"\s*\)\s*$',
+                      args.strip(), re.S)
+        out.append((token, m.group(1) if m else None))
+    return out
+
+
+def _source_tokens_pattern():
+    '''The name regex of ThemeTokenHandler::sourceTokens(), read from the C++ source.'''
+    text = HANDLER_SOURCE.read_text(encoding='utf-8')
+    body = text[text.index('ThemeTokenHandler::sourceTokens('):]
+    m = re.search(r'QRegularExpression\s+\w+\(\s*QStringLiteral\("((?:[^"\\]|\\.)+)"\)', body)
+    assert m, 'no QRegularExpression in ThemeTokenHandler::sourceTokens()'
+    # The C++ literal doubles each backslash; unicode_escape undoes that.
+    return m.group(1).encode().decode('unicode_escape')
+
+
+class TestThemeWriterCoverage:
+    def test_key_table_keys_exist_in_schema(self):
+        '''Every key the writer can emit is spelled as in the schema.'''
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        rows = _settable_keys()
+        assert rows
+        for token, section, key in rows:
+            props = schema['properties'][section]['properties']
+            assert key in props, f'{token}: {section}.{key} is not in the schema'
+
+    def test_schema_keys_are_settable(self):
+        '''Every key of a color section in the schema is a settable token.'''
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        derived = {(section, key) for _, section, key in _settable_keys()}
+        for section in _manager_sections():
+            for key in schema['properties'][section]['properties']:
+                assert (section, key) in derived, f'{section}.{key} has no ThemeToken'
+
+    def test_every_settable_token_has_a_description(self):
+        '''The writer's description table mirrors the settable tokens exactly.'''
+        described = [token for token, _ in _writer_descriptions()]
+        assert 'BrandPrimary' in _theme_token_names()
+        assert len(described) == len(set(described)), 'duplicate description entry'
+        settable = {token for token, _, _ in _settable_keys()}
+        assert set(described) == settable, (
+            f'missing: {sorted(settable - set(described))}, '
+            f'not settable: {sorted(set(described) - settable)}')
+
+    def test_maximal_document_matches_schema(self):
+        '''A document using every writer key validates against the schema.'''
+        jsonschema = pytest.importorskip('jsonschema')
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        pair = {'light': '#000000', 'dark': '#000000'}
+        doc = {
+            'meta': {'name': 'Maximal', 'version': 1, 'author': 'A',
+                     'description': 'D'},
+            'separator': pair,
+            'graphs': [pair, pair],
+            'fonts': {
+                'regular': {'family': 'Sans', 'size': 12},
+                'monospace': {'family': 'Mono', 'size': 12},
+            },
+        }
+        for _, section, key in _settable_keys():
+            doc.setdefault(section, {})[key] = pair
+        jsonschema.Draft202012Validator(schema).validate(doc)
+
+    def test_extra_theme_dir_matches_schema(self):
+        '''Validate written themes when WS_THEME_EXTRA_DIR points at a folder.'''
+        jsonschema = pytest.importorskip('jsonschema')
+        extra = os.environ.get('WS_THEME_EXTRA_DIR')
+        if not extra:
+            pytest.skip('WS_THEME_EXTRA_DIR is not set')
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        files = sorted(Path(extra).glob('*.jsonc'))
+        assert files, f'no *.jsonc files in {extra}'
+        for path in files:
+            data = json.loads(_strip_jsonc(path.read_text(encoding='utf-8')))
+            jsonschema.Draft202012Validator(schema).validate(data)
+
+
+class TestThemeSystemIsTheSource:
+    def test_key_table_rows_have_descriptions(self):
+        '''Every settable key has a description, and the regex saw every row.'''
+        rows = _writer_descriptions()
+        text = WRITER_SOURCE.read_text(encoding='utf-8')
+        assert len(rows) == len(re.findall(r'\{\s*ThemeManager::\w+,', text))
+        assert all(description for _, description in rows)
+
+    def test_every_derived_token_is_derived_with_a_source(self):
+        '''Each token the parser cannot set is assigned in deriveAll() with a rule text.'''
+        assignments = _derive_all_assignments()
+        assert assignments
+        missing_text = [t for t, s in assignments if not s]
+        assert not missing_text, f'assign() without a source text: {missing_text}'
+        assigned = {t for t, _ in assignments}
+        derived_only = [n for n in _theme_token_names()
+                        if not n.lower().startswith(tuple(_manager_sections())) and n != 'NoRole']
+        missing = [n for n in derived_only if n not in assigned]
+        assert not missing, f'tokens deriveAll() never assigns: {missing}'
+
+    @pytest.mark.parametrize('path', [HANDLER_SOURCE, BUILDER_SOURCE], ids=lambda p: p.name)
+    def test_rule_texts_name_known_colors(self, path):
+        '''Every color a rule text names resolves to a ThemeToken.
+
+        Reads the regex of ThemeTokenHandler::sourceTokens(), which backs the
+        "Go to" entries of the color editor, from its source.
+        '''
+        texts = re.findall(
+            r'QT_TRANSLATE_NOOP\(\s*"ThemeTokenHandler",\s*"((?:[^"\\]|\\.)+)"\s*\)',
+            path.read_text(encoding='utf-8'))
+        assert texts, f'no rule texts found in {path.name}'
+        names = re.compile(_source_tokens_pattern())
+        known = {n.lower() for n in _theme_token_names()}
+        unknown = []
+        for text in texts:
+            for name in names.findall(text):
+                if name.replace('.', '').lower() not in known:
+                    unknown.append(f'{name!r} in {text!r}')
+        assert not unknown, unknown
+
+    def test_rule_text_lookup_matches_token_for_name(self):
+        '''test_rule_texts_name_known_colors repeats ThemeManager::tokenForName().
+
+        Python cannot call the C++ lookup, so the test drops the dots,
+        lower-cases the name and compares it with the lower-cased
+        enumerators.  This fails when the C++ lookup stops doing exactly that.
+        '''
+        text = MANAGER_SOURCE.read_text(encoding='utf-8')
+        start = text.index('ThemeManager::tokenForName(')
+        body = text[start:text.index('\n}\n', start)]
+        assert "key.remove('.')" in body
+        assert 'colorRoleCache_.value(key.toLower(), NoRole)' in body
+        assert re.search(r'QString\(me\.key\(i\)\)\.toLower\(\);\s*'
+                         r'colorRoleCache_\.insert\(key,', text)
+
+    def test_stylesheet_tokens_exist(self):
+        '''Every wstheme(Name) in the bundled style sheets names a ThemeToken.'''
+        names = set(_theme_token_names())
+        unknown = []
+        for path in sorted(STYLESHEET_ROOT.rglob('*.qss')):
+            for name in re.findall(r'wstheme\(\s*(\w+)\s*\)', path.read_text(encoding='utf-8')):
+                if name not in names:
+                    unknown.append(f'{path.name}: {name}')
+        assert not unknown, unknown
+
+    @pytest.mark.parametrize('path', DESIGNER_SOURCES, ids=lambda p: p.name)
+    def test_designer_computes_no_colors(self, path):
+        '''The Theme Designer reads colors from the theme system, never computes them.'''
+        text = path.read_text(encoding='utf-8')
+        for pattern in (r'ColorMath::', r'QColor\(\s*"#',
+                        r'#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?\b'):
+            assert not re.search(pattern, text), f'{path.name}: {pattern}'
+
+    def test_required_sections_match_schema(self):
+        '''Required sections and their keys are the schema's required ones.'''
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        sections = _manager_sections()
+        assert 'brand' in sections
+        required = {name for name, req in sections.items() if req}
+        assert required == set(schema['required']) - {'meta'}
+        rows = _settable_keys()
+        for name in required:
+            keys = {key for _, section, key in rows if section == name}
+            assert keys == set(schema['properties'][name].get('required', [])), name
+
+    def test_root_keys_match_schema(self):
+        '''Reserved root keys plus color sections are the schema's root properties.'''
+        schema = json.loads(SCHEMA_PATH.read_text(encoding='utf-8'))
+        reserved = _format_root_keys()
+        assert 'meta' in reserved
+        assert set(reserved) | set(_manager_sections()) == set(schema['properties'])

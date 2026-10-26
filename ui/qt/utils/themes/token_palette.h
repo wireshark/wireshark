@@ -70,7 +70,7 @@ inline QColor resolveIconToken(ThemeManager::ThemeToken token, const QPalette *p
         case ThemeManager::PaletteWindowText:      return palette->color(QPalette::WindowText);
         case ThemeManager::PaletteAlternateBase:   return palette->color(QPalette::AlternateBase);
         case ThemeManager::PaletteMid:             return palette->color(QPalette::Mid);
-        case ThemeManager::PaletteMidLight:        return palette->color(QPalette::Midlight);
+        case ThemeManager::PaletteMidlight:        return palette->color(QPalette::Midlight);
         case ThemeManager::PaletteHighlightedText: return palette->color(QPalette::HighlightedText);
         default: break;
         }

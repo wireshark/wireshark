@@ -82,14 +82,9 @@ profile_name_is_valid(const char* name)
     bool valid = true;
 
 #ifdef _WIN32
-    char* invalid_dir_char = "\\/:*?\"<>|";
-    int i;
-
-    for (i = 0; i < 9; i++) {
-        if (strchr(name, invalid_dir_char[i])) {
-            /* Invalid character in directory */
-            valid = false;
-        }
+    if (strpbrk(name, WS_FILENAME_RESERVED_PRINTABLE_CHARS)) {
+        /* Invalid character in directory */
+        valid = false;
     }
     if (name[0] == '.' || name[strlen(name) - 1] == '.') {
         /* Profile name cannot start or end with period */

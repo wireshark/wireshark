@@ -486,6 +486,12 @@ QFont FontManager::fontFromName(const QString &name)
     return f;
 }
 
+QString FontManager::displayName(const QFont &font)
+{
+    return font.family() + " " + font.styleName() + " "
+           + QString::number(font.pointSizeF(), 'f', 1);
+}
+
 QFont FontManager::guaranteeMonospace(const QFont &font)
 {
     QFont cleanFont = font;

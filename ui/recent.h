@@ -269,6 +269,13 @@ typedef struct recent_settings_tag {
     char       *gui_theme_name;
 
     /**
+     * Object name of the Theme Designer preview tab shown last.  NULL or
+     * unknown selects the first tab.  Lives in recent_common next to
+     * gui_theme_name.
+     */
+    char       *gui_theme_designer_preview;
+
+    /**
      * Active appearance mode (COLOR_SCHEME_DEFAULT / _LIGHT / _DARK).
      * Lives in recent_common so the choice is global and persists across
      * profile switches, mirroring gui_theme_name.  Was formerly the

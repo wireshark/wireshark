@@ -330,6 +330,9 @@ topic_action_url(topic_action_e action)
     case(HELP_STATS_PLOT_DIALOG):
         url = user_guide_url("ChStatPlots.html");
         break;
+    case(HELP_THEME_DESIGNER_DIALOG):
+        url = user_guide_url("ChCustPreferencesSection.html#ChCustThemeDesigner");
+        break;
 
     case(TOPIC_ACTION_NONE):
     default:

@@ -15,7 +15,7 @@
 //   - Expert: inverted intensity (dark on light, light on dark)
 //   - Packets: high-contrast, unusual color choices
 //   - Conversation: swapped warm/cool assignments
-//   - Palette: distinctly tinted surfaces (warm cream light, deep indigo dark)
+//   - Palette: distinctly tinted surfaces (cyan window light, steel blue dark)
 //   - Graphs: reversed order + complementary hues
 //
 // If any UI element looks the same with this theme as with the default,
@@ -111,24 +111,25 @@
 	// -----------------------------------------------------------------
 	// Palette — distinctly tinted surfaces
 	//
-	// Light mode: warm cream/sand tones (Solarized-esque)
-	// Dark mode: deep indigo/navy tones (clearly not system gray)
+	// Light mode: a cyan window around warm cream panes, brown text
+	// Dark mode: a steel blue window around deep indigo panes, cream text
 	//
 	// These should make it immediately obvious whether a widget is
 	// reading from QPalette or has hardcoded surface colors.
 	// -----------------------------------------------------------------
 	"palette": {
-		"window":        { "light": "#f5f0e0", "dark": "#121228" },
+		"window":        { "light": "#3db9d1", "dark": "#335e8f" },
 		"windowText":    { "light": "#3e2723", "dark": "#e8d5b5" },
 		"base":          { "light": "#faf5e8", "dark": "#0a0a20" },
-		"text":          { "light": "#33241a", "dark": "#e0d0b8" },
+		"text":          { "light": "#5f4936", "dark": "#fff3df" },
 		"alternateBase": { "light": "#efe8d5", "dark": "#181835" },
 		"mid":           { "light": "#c8b898", "dark": "#2a2a50" },
 		"midlight":      { "light": "#e8e0cc", "dark": "#1e1e40" },
 		// Lists, the details tree, the bytes pane and the welcome header
-		// select in the brand orange; without this key they would follow
-		// the pale packets.selection amber.
-		"highlight":     { "light": "#e65100", "dark": "#ffab40" }
+		// select in gold (light) and green (dark), apart from both the
+		// brand orange and the pale packets.selection amber they would
+		// otherwise follow.
+		"highlight":     { "light": "#dda239", "dark": "#7fb047" }
 	},
 
 	// -----------------------------------------------------------------

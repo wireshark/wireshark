@@ -1,0 +1,123 @@
+// =====================================================================
+// Wireshark Solarized Theme
+// =====================================================================
+//
+// Colors from Solarized by Ethan Schoonover (MIT license),
+// https://ethanschoonover.com/solarized/.  Light mode is Solarized
+// Light, dark mode is Solarized Dark; the eight accents are the same in
+// both.  Only the color values are taken over.
+//
+// Format: JSONC: standard JSON with C-style comments.
+// =====================================================================
+
+{
+	"meta": {
+		"name": "Solarized",
+		"version": 1,
+		"author": "Wireshark Foundation",
+		"description": "Colors from Solarized by Ethan Schoonover (MIT)."
+	},
+
+	// -----------------------------------------------------------------
+	// Brand: Solarized blue in both modes.
+	// -----------------------------------------------------------------
+	"brand": {
+		"primary": { "light": "#268bd2", "dark": "#268bd2" }
+	},
+
+	// -----------------------------------------------------------------
+	// Accent: success, warning, error and info from the source palette.
+	// The filter field tints (valid, invalid, deprecated) derive from
+	// these; the theme does not pin them.
+	// -----------------------------------------------------------------
+	"accent": {
+		"success": { "light": "#859900", "dark": "#859900" },
+		"warning": { "light": "#cb4b16", "dark": "#cb4b16" },
+		"error":   { "light": "#dc322f", "dark": "#dc322f" },
+		"info":    { "light": "#268bd2", "dark": "#268bd2" }
+	},
+
+	// -----------------------------------------------------------------
+	// Expert info fills: each severity color laid over palette.base,
+	// with one foreground that reads on all five fills.
+	// -----------------------------------------------------------------
+	"expert": {
+		"comment":    { "light": "#dfdfaa", "dark": "#284c26" },
+		"chat":       { "light": "#c7dbdf", "dark": "#0b4865" },
+		"note":       { "light": "#c8e1d0", "dark": "#0d4e53" },
+		"warn":       { "light": "#ebdbaa", "dark": "#364726" },
+		"error":      { "light": "#f5c5b6", "dark": "#422d34" },
+		"foreground": { "light": "#4a5c62", "dark": "#aab6b7" }
+	},
+
+	// -----------------------------------------------------------------
+	// Packets: the selection colors of the Solarized editor themes
+	// (a sand yellow in light mode, a deep teal in dark mode); the
+	// inactive selection uses the secondary background.
+	// -----------------------------------------------------------------
+	"packets": {
+		"selection":     { "light": "#dfca88", "dark": "#005a6f" },
+		"selectionText": { "light": "#002b36", "dark": "#fdf6e3" },
+		"inactive":      { "light": "#eee8d5", "dark": "#073642" },
+		"inactiveText":  { "light": "#576c73", "dark": "#8b9b9d" },
+		"marked":        { "light": "#073642", "dark": "#93a1a1" },
+		"markedText":    { "light": "#fdf6e3", "dark": "#002b36" }
+	},
+
+	// -----------------------------------------------------------------
+	// Follow Stream: a red-tinted client and a blue-tinted server,
+	// each text color lifted until it reads on its fill.
+	// -----------------------------------------------------------------
+	"conversation": {
+		"client":     { "light": "#f9decd", "dark": "#212c35" },
+		"clientText": { "light": "#c02c29", "dark": "#e66b68" },
+		"server":     { "light": "#e3e9e1", "dark": "#06394d" },
+		"serverText": { "light": "#1e6da4", "dark": "#54a4dc" }
+	},
+
+	// -----------------------------------------------------------------
+	// Filter: the saved-filter bookmark glyph in Solarized yellow,
+	// the history arrow in the secondary content tone.
+	// -----------------------------------------------------------------
+	"filter": {
+		"bookmarkMatch": { "light": "#b58900", "dark": "#b58900" },
+		"history":       { "light": "#586e75", "dark": "#93a1a1" }
+	},
+
+	// -----------------------------------------------------------------
+	// Palette: light = Solarized Light (base3 background, base2
+	// window, base01 text), dark = Solarized Dark (base03
+	// background, base02 window, base0 text).
+	// -----------------------------------------------------------------
+	"palette": {
+		"window":          { "light": "#eee8d5", "dark": "#073642" },
+		"windowText":      { "light": "#586e75", "dark": "#93a1a1" },
+		"base":            { "light": "#fdf6e3", "dark": "#002b36" },
+		"text":            { "light": "#586e75", "dark": "#839496" },
+		"alternateBase":   { "light": "#eee8d5", "dark": "#073642" },
+		"mid":             { "light": "#93a1a1", "dark": "#586e75" },
+		"midlight":        { "light": "#eee8d5", "dark": "#073642" }
+	},
+
+	// -----------------------------------------------------------------
+	// Graph colors: the accents first, then softer variants of the
+	// same hues laid over the background, so a second round of series
+	// stays apart from the first.
+	// -----------------------------------------------------------------
+	"graphs": [
+		{ "light": "#268bd2", "dark": "#268bd2" },
+		{ "light": "#dc322f", "dark": "#dc322f" },
+		{ "light": "#859900", "dark": "#859900" },
+		{ "light": "#b58900", "dark": "#b58900" },
+		{ "light": "#d33682", "dark": "#d33682" },
+		{ "light": "#2aa198", "dark": "#2aa198" },
+		{ "light": "#cb4b16", "dark": "#cb4b16" },
+		{ "light": "#6c71c4", "dark": "#6c71c4" },
+		{ "light": "#7cb6d9", "dark": "#176594" },
+		{ "light": "#e98077", "dark": "#842f32" },
+		{ "light": "#b5be5b", "dark": "#506d16" },
+		{ "light": "#d2b55b", "dark": "#6d6316" },
+		{ "light": "#e483a9", "dark": "#7f3264" },
+		{ "light": "#7ec3b6", "dark": "#197271" }
+	]
+}

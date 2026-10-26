@@ -93,6 +93,7 @@
 #define RECENT_KEY_SIDEBAR_LEARN_VISIBLE        "gui.welcome_page.sidebar.learn_visible"
 #define RECENT_KEY_SIDEBAR_TIPS_VISIBLE         "gui.welcome_page.sidebar.tips_visible"
 #define RECENT_KEY_THEME_NAME                   "gui.theme_name"
+#define RECENT_KEY_THEME_DESIGNER_PREVIEW       "gui.theme_designer_preview"
 #define RECENT_KEY_COLOR_SCHEME                 "gui.color_scheme"
 #define RECENT_KEY_CONTRAST                     "gui.contrast"
 #define RECENT_KEY_SIDEBAR_TIPS_EVENTS          "gui.welcome_page.sidebar.tips_events"
@@ -1037,6 +1038,12 @@ write_recent(void)
             recent.gui_theme_name ? recent.gui_theme_name
                                   : application_flavor_name_lower());
 
+    if (recent.gui_theme_designer_preview && *recent.gui_theme_designer_preview) {
+        fprintf(rf, "\n# Theme Designer preview tab shown last.\n");
+        fprintf(rf, RECENT_KEY_THEME_DESIGNER_PREVIEW ": %s\n",
+                recent.gui_theme_designer_preview);
+    }
+
     write_recent_enum(rf, "Appearance mode", RECENT_KEY_COLOR_SCHEME,
                       gui_color_scheme_values, recent.gui_color_scheme);
 
@@ -1442,6 +1449,9 @@ read_set_recent_common_pair_static(char *key, const char *value,
     } else if (strcmp(key, RECENT_KEY_THEME_NAME) == 0) {
         g_free(recent.gui_theme_name);
         recent.gui_theme_name = (value && *value) ? g_strdup(value) : NULL;
+    } else if (strcmp(key, RECENT_KEY_THEME_DESIGNER_PREVIEW) == 0) {
+        g_free(recent.gui_theme_designer_preview);
+        recent.gui_theme_designer_preview = (value && *value) ? g_strdup(value) : NULL;
     } else if (strcmp(key, RECENT_KEY_COLOR_SCHEME) == 0) {
         recent.gui_color_scheme = (int)str_to_val(value, gui_color_scheme_values, COLOR_SCHEME_DEFAULT);
     } else if (strcmp(key, RECENT_KEY_CONTRAST) == 0) {
@@ -2083,6 +2093,7 @@ recent_cleanup(void)
     g_free(recent.gui_geometry_main_extra_split);
     g_free(recent.gui_fileopen_remembered_dir);
     g_free(recent.gui_theme_name);
+    g_free(recent.gui_theme_designer_preview);
     g_list_free_full(recent.gui_additional_toolbars, g_free);
     g_list_free_full(recent.interface_toolbars, g_free);
     prefs_clear_string_list(recent.conversation_tabs);

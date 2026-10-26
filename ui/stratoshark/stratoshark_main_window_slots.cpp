@@ -133,6 +133,7 @@ DIAG_ON(frame-larger-than=)
 #include "keyboard_shortcuts_dialog.h"
 #include "supported_protocols_dialog.h"
 #include "theme_debug_dialog.h"
+#include "theme_designer_dialog.h"
 #include "tap_parameter_dialog.h"
 #include "time_shift_dialog.h"
 #include "uat_dialog.h"
@@ -2322,6 +2323,11 @@ void StratosharkMainWindow::connectViewMenuActions()
         theme_debug_dlg->show();
     });
 
+    connect(main_ui_->actionViewInternalsThemeDesigner, &QAction::triggered, this, [this]() {
+        ThemeDesignerDialog *theme_designer_dlg = new ThemeDesignerDialog(this);
+        theme_designer_dlg->show();
+    });
+
     connect(main_ui_->actionViewShowPacketInNewWindow, &QAction::triggered, this,
             [this]() { openPacketDialog(); });
 
@@ -3224,6 +3230,9 @@ void StratosharkMainWindow::connectHelpMenuActions()
     });
 
     connect(main_ui_->actionHelpContents, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(HELP_CONTENT); });
+    connect(main_ui_->actionHelpPersonalThemesFolder, &QAction::triggered, this, [this]() {
+        desktop_open_folder(WorkspaceState::instance()->personalThemesPath(), this);
+    });
     connect(main_ui_->actionHelpMPStratoshark, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_STRATOSHARK); });
     connect(main_ui_->actionHelpMPWireshark_Filter, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_WIRESHARK_FILTER); });
     connect(main_ui_->actionHelpMPCapinfos, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_CAPINFOS); });

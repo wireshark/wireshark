@@ -292,6 +292,7 @@
     </widget>
     <addaction name="actionHelpContents"/>
     <addaction name="menuHelpManualPages"/>
+    <addaction name="actionHelpPersonalThemesFolder"/>
     <addaction name="separator"/>
     <addaction name="actionHelpWebsite"/>
     <addaction name="actionHelpFAQ"/>
@@ -410,6 +411,7 @@
      <addaction name="actionViewInternalsSupportedProtocols"/>
      <addaction name="actionViewInternalsKeyboardShortcuts"/>
      <addaction name="actionViewInternalsThemeDebug"/>
+     <addaction name="actionViewInternalsThemeDesigner"/>
     </widget>
     <widget class="QMenu" name="menuAdditionalToolbars">
      <property name="title">
@@ -2788,6 +2790,14 @@
     <string>Show the active theme, main window geometry, and live widget info</string>
    </property>
   </action>
+  <action name="actionViewInternalsThemeDesigner">
+   <property name="text">
+    <string>Theme D&amp;esigner…</string>
+   </property>
+   <property name="toolTip">
+    <string>Create, copy, edit, import and export personal themes</string>
+   </property>
+  </action>
   <action name="actionTelephonyGsmMapSummary">
    <property name="text">
     <string>MAP Summary</string>
@@ -3258,6 +3268,14 @@
   <action name="actionHelpReleaseNotes">
    <property name="text">
     <string>Release Notes</string>
+   </property>
+  </action>
+  <action name="actionHelpPersonalThemesFolder">
+   <property name="text">
+    <string>Personal Themes Folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the folder that holds your own theme files</string>
    </property>
   </action>
   <action name="actionHelpCheckUpdates">

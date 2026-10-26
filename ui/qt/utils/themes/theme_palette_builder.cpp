@@ -174,7 +174,8 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
                                     const QHash<QString, ThemeManager::ThemeToken>     &tokenNameCache,
                                     const QHash<QString, QPalette::ColorRole>          &paletteRoleCache,
                                     const QPalette                                     &osBaseline,
-                                    const ColorMath::ContrastRatios                    &ratios)
+                                    const ColorMath::ContrastRatios                    &ratios,
+                                    QHash<ThemeManager::ThemeToken, const char *>      *sources)
 {
     QPalette pal = baselinePalette(isDarkMode, osBaseline);
 
@@ -241,7 +242,9 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
     // HighlightedText is the theme's `palette.highlightedText` when it
     // pins one (a saturated selection color can sit where
     // contrastingText() picks black although the theme wants white),
-    // else contrastingText() of the resolved highlight.  Either way it is
+    // else the theme's `packets.selectionText` when the highlight is the
+    // theme's `packets.selection`, so a theme states its selection text
+    // once, else contrastingText() of the resolved highlight.  Either way it is
     // lifted to body-text contrast against that highlight: the highlight
     // may come from packets.selection or brand.primary, so a pin chosen
     // for one color must not turn unreadable on another.  Every Qt-drawn
@@ -249,16 +252,24 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
     // role, so this is the one place the selection text is checked.
     const QColor brandPrimary = ThemeTokenHandler::sideOf(tokens, ThemeManager::BrandPrimary, isDarkMode);
     if (brandPrimary.isValid()) {
-        QColor highlight = ThemeTokenHandler::sideOf(tokens, ThemeManager::PaletteHighlight, isDarkMode);
-        if (!highlight.isValid())
-            highlight = ThemeTokenHandler::sideOf(tokens, ThemeManager::PacketsSelection, isDarkMode);
-        if (!highlight.isValid())
-            highlight = brandPrimary;
+        const QColor pinnedHighlight =
+                ThemeTokenHandler::sideOf(tokens, ThemeManager::PaletteHighlight, isDarkMode);
+        const QColor selectionFill =
+                ThemeTokenHandler::sideOf(tokens, ThemeManager::PacketsSelection, isDarkMode);
+        QColor highlight = pinnedHighlight.isValid() ? pinnedHighlight
+                         : selectionFill.isValid()   ? selectionFill
+                                                     : brandPrimary;
+        if (sources)
+            sources->insert(ThemeManager::PaletteHighlight,
+                QT_TRANSLATE_NOOP("ThemeTokenHandler", "packets.selection when set, else brand.primary"));
 
-        const QColor pinnedHighlightedText =
+        QColor highlightedTextSource =
                 ThemeTokenHandler::sideOf(tokens, ThemeManager::PaletteHighlightedText, isDarkMode);
-        const QColor highlightedTextSource = pinnedHighlightedText.isValid()
-                ? pinnedHighlightedText : ColorMath::contrastingText(highlight);
+        if (!highlightedTextSource.isValid() && !pinnedHighlight.isValid() && selectionFill.isValid())
+            highlightedTextSource =
+                    ThemeTokenHandler::sideOf(tokens, ThemeManager::PacketsSelectionText, isDarkMode);
+        if (!highlightedTextSource.isValid())
+            highlightedTextSource = ColorMath::contrastingText(highlight);
         QColor highlightedText;
         if (ratios.level == ThemeContrast::High) {
             // High contrast: readability wins over the theme's pinned
@@ -273,11 +284,15 @@ QPalette ThemePaletteBuilder::build(const TokenMap                              
             highlightedText = ColorMath::readableText(highlightedTextSource, highlight, ratios);
         }
         setAllGroups(QPalette::HighlightedText, highlightedText);
+        if (sources)
+            sources->insert(ThemeManager::PaletteHighlightedText,
+                QT_TRANSLATE_NOOP("ThemeTokenHandler", "packets.selectionText when palette.highlight is packets.selection, else black or white on palette.highlight, kept readable on it"));
         setAllGroups(QPalette::Highlight, highlight);
         // Links follow the selection color.  Link text is drawn on Base,
         // so a dark selection color must be lifted until it stays
         // readable there in either scheme.
-        setAllGroups(QPalette::Link, ColorMath::readableText(highlight, baseColor, ratios));
+        setAllGroups(QPalette::Link, ColorMath::readableText(
+                pal.color(QPalette::Active, kLinkSourceRole), baseColor, ratios));
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
         setAllGroups(QPalette::Accent, brandPrimary);
 #endif

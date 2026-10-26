@@ -492,6 +492,8 @@ See <<ChWorkPacketSepView>> for details.
 |menu:Conversation Hash Tables[]| Shows the tuples (address and port combinations) used to identify each conversation.
 |menu:Dissector Tables[]| Shows tables of subdissector relationships.
 |menu:Supported Protocols[]| Displays supported protocols and protocol fields.
+|menu:Theme Debug[]| Shows the colors of the active theme and how they were derived.
+|menu:Theme Designer...[]| Creates and edits personal themes. See <<ChCustThemeDesigner>>.
 |===
 
 
@@ -819,6 +821,7 @@ image::images/ws-help-menu.png[{screenshot-attrs}]
 |Menu Item|Accelerator|Description
 |menu:User's Guide[]|F1| This menu item brings up the Wireshark User's Guide you're reading right now.
 |menu:Manual Pages[...]|| This menu item starts a Web browser showing one of the locally installed html manual pages.
+|menu:Personal Themes Folder[]|| This menu item opens the folder for your own theme files in the file manager. If the folder does not exist yet, it offers to create it.
 |menu:Website[]|| This menu item starts a Web browser showing the webpage from: link:{wireshark-main-url}[].
 |menu:FAQs[]|| This menu item starts a Web browser showing various FAQs.
 |menu:Discord[]|| This menu item starts a Web browser showing the invitation to the Wireshark Discord server: link:{wireshark-discord-url}[].

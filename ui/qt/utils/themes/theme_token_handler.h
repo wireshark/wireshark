@@ -14,6 +14,7 @@
 #include <ui/qt/utils/themes/color_math.h>
 
 #include <QHash>
+#include <QList>
 #include <QPalette>
 
 /**
@@ -35,7 +36,12 @@
  *   Packets*                      (from brand + palette base/text)
  *   Conversation*                 (from brand + accent + base)
  *   Expert*                       (from accent variants — alpha-blend)
- *   AccentOrange / AccentGreen    (aliases from accent.success)
+ *   Filter*                       (from accent + base)
+ *   Syntax*                       (from palette.mid + accent)
+ *   FieldBorder / Separator / MutedText  (from palette base/mid/text)
+ *   TextOn*                       (black or white on accent / filter tints)
+ *   Diff* / Notice*               (from base + accent)
+ *   HighlightColorOrange / HighlightColorGreen  (aliases from accent)
  *
  * Only-if-missing semantics: if a theme has already supplied a
  * specific token explicitly (e.g. a theme that overrides
@@ -47,6 +53,8 @@ class ThemeTokenHandler
 {
 public:
     using TokenMap = QHash<ThemeManager::ThemeToken, ThemeColorPair>;
+    /** Rule text per token, untranslated; translate in the "ThemeTokenHandler" context. */
+    using SourceMap = QHash<ThemeManager::ThemeToken, const char *>;
 
     /**
      * The color of @p role for one mode: the dark side when
@@ -81,9 +89,23 @@ public:
      *                   Passed explicitly rather than read from
      *                   ColorMath::activeRatios(), so a preview can
      *                   derive for a contrast level that is not applied.
+     * @param sources    When not null, receives for every token this
+     *                   function assigns the rule it applied, as written
+     *                   next to the rule (QT_TRANSLATE_NOOP).  Recorded
+     *                   whether or not the theme already set the token.
      */
     static void deriveAll(TokenMap &tokens, bool isDarkMode, const QPalette &palette,
-                          const ColorMath::ContrastRatios &ratios);
+                          const ColorMath::ContrastRatios &ratios,
+                          SourceMap *sources = nullptr);
+
+    /**
+     * The colors an untranslated rule text names, in order of first
+     * appearance (the main source first), without duplicates.
+     *
+     * @param source  a rule text as recorded by deriveAll() or
+     *                ThemePaletteBuilder::build().
+     */
+    static QList<ThemeManager::ThemeToken> sourceTokens(const char *source);
 };
 
 #endif /* THEME_TOKEN_HANDLER_H */

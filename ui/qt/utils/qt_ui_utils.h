@@ -32,6 +32,7 @@ class QFont;
 class QGroupBox;
 class QLabel;
 class QRect;
+class QWidget;
 
 #ifdef __cplusplus
 extern "C" {
@@ -269,6 +270,17 @@ bool qStringCaseLessThan(const QString &s1, const QString &s2);
  * @param file_path Path to the file.
  */
 void desktop_show_in_folder(const QString file_path);
+
+/**
+ * Open a folder in the desktop file manager.  When the folder does not
+ * exist, ask whether to create it first.
+ *
+ * @param dir_path Path to the folder.
+ * @param parent Parent of the question and error message boxes.
+ * @return true if the folder exists and was handed to the desktop shell; false
+ *         for an empty path, which opens nothing.
+ */
+bool desktop_open_folder(const QString &dir_path, QWidget *parent);
 
 /**
  * Test to see if a rect is visible on screen.

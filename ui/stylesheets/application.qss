@@ -56,6 +56,40 @@ QLabel[wsValidation="invalid"] {
     color: wstheme(AccentError);
 }
 
+/* Secondary (muted) text.  Set the dynamic property `wsText` to
+ * "muted", in the .ui form or with setProperty(). */
+QLabel[wsText="muted"] {
+    color: wstheme(MutedText);
+}
+
+/* Theme Designer code view. */
+QPlainTextEdit#themeCodeEdit {
+    border: 1px solid wstheme(FieldBorder);
+    background-color: palette(base);
+    color: palette(text);
+}
+
+/* -------------------------------------------------------------------
+ * Notice banners — a framed, tinted message block.  The property
+ * `wsNotice` takes "info" or "error";
+ * helper: ThemeManager::setNoticeState(widget, "info").
+ * ------------------------------------------------------------------- */
+QFrame[wsNotice="info"] {
+    background-color: wstheme(NoticeInfo);
+    border: 1px solid wstheme(NoticeInfoBorder);
+    border-radius: 5px;
+    padding: 6px 9px;
+    color: palette(text);
+}
+
+QFrame[wsNotice="error"] {
+    background-color: wstheme(NoticeError);
+    border: 1px solid wstheme(NoticeErrorBorder);
+    border-radius: 5px;
+    padding: 6px 9px;
+    color: palette(text);
+}
+
 /* -------------------------------------------------------------------
  * SyntaxLineEdit — dedicated tinted backgrounds matching the widget's
  * own `syntaxState` Q_PROPERTY.  Kept as a separate pass from

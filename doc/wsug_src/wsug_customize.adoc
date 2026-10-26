@@ -923,9 +923,12 @@ Changing the contrast does not change the selected theme or the packet coloring 
 The _Theme_ setting selects the color theme applied to the application.
 Themes bundle the colors used throughout the GUI — including the packet list selection, marked and ignored packets, the “Follow Stream” client and server text, and valid and invalid display filter highlighting — so these colors are no longer configured individually.
 When the selected theme declares an author, it is shown below the preview.
+The btn:[Theme Designer...] button next to the _Theme_ setting opens the <<ChCustThemeDesigner,Theme Designer>>, where themes can be created and edited.
 
 Two bundled themes are made for color vision deficiency: _Protanopia & Deuteranopia_ for red-green and _Tritanopia_ for blue-yellow color blindness.
 They change the theme colors, such as display filter highlighting, expert information and graphs, but not the packet list coloring rules, which you can adjust in menu:View[Coloring Rules...].
+
+Further bundled themes take their colors from popular editor color schemes: _Solarized_, _Catppuccin Frappé_, _Catppuccin Macchiato_ and _Catppuccin Mocha_ (all with Catppuccin Latte as the light side), and _Tokyo Night_ and _Tokyo Night Storm_ (both with Tokyo Night Light as the light side).
 
 [NOTE]
 ====
@@ -951,11 +954,68 @@ The filename (without the _.jsonc_ extension) becomes the theme's internal name 
 For example, _midnight.jsonc_ shows up as a selectable theme named _midnight_.
 
 The exact path can also be seen under menu:Help[About Wireshark] in the _Folders_ tab, labelled _Personal Themes_.
+menu:Help[Personal Themes Folder] opens it in the file manager and offers to create it when it does not exist yet.
 
 The file format is identical to the bundled themes; see the _README.md_ next to the built-in _default_ theme in the source distribution for the schema and the list of supported color tokens.
 
 If a personal theme file shares a name with a built-in theme (for example _default.jsonc_), the built-in copy wins and the personal file is ignored with a warning on stderr.
 This guarantees that core themes the application falls back to can never be accidentally shadowed by a broken override.
+
+[#ChCustThemeDesigner]
+===== Theme Designer
+
+The Theme Designer creates and edits personal themes without editing the _.jsonc_ files by hand.
+It is opened with the btn:[Theme Designer...] button on the _Theme_ preferences page or with menu:View[Internals > Theme Designer...].
+
+The dialog lists the available themes in two groups, _Bundled_ and _Personal_.
+The editor on the right has the _Name_, _Author_ and _Description_ fields, an _Appearance_ selection of _Light_ or _Dark_, and the tabs _Colors_, _Fonts_ and _Code_.
+The description is a single line; it wraps in the field.
+The path of the personal themes folder below the theme list is a link that opens the folder.
+The _Appearance_ selection only chooses which side of the theme is shown in the editor and in the preview.
+It does not change the appearance mode of the application.
+Next to the editor, the tabs _Welcome Page_ and _Packet List_ show samples of the draft theme.
+Clicking a part of a sample selects its color in the _Colors_ tab.
+The context menu of a sample lists all colors of that part and saves the sample as an image.
+
+Bundled themes are read-only.
+Editing a bundled theme creates a draft, and btn:[Save As...] stores it as a new personal theme.
+Personal themes can be edited and saved in place, renamed and deleted.
+kbd:[Ctrl+S] (kbd:[Cmd+S] on macOS) saves like btn:[Save]; pressing kbd:[Enter] in a field does not save.
+btn:[New...] creates a personal theme from the default colors, and btn:[Copy...] creates a personal theme from the selected theme.
+The file name of a personal theme is made from its name; a name already in use gets a number appended.
+Renaming a theme changes its file name as well.
+
+btn:[Import...] copies a theme file into the personal themes directory, and btn:[Export...] saves the selected theme to a file, so themes can be shared.
+Imported files are normalized and are limited to 1 MiB.
+An import is rejected when a color value is not a color or when a top-level section is unknown.
+Unknown colors inside a known section are skipped, and the import reports them.
+A theme file that contains invalid entries still loads, and the invalid entries are left out when the theme is saved again.
+
+The _Colors_ tab shows the colors that a theme file can set.
+A theme file sets only some colors.
+Every other color the user interface needs is _derived_: Wireshark computes it from one or more set colors, for example a darker shade of the highlight color for the Welcome Page header, or black or white text chosen to stay readable on a background.
+Derived colors are listed under _Derived (read-only)_.
+They cannot be edited or stored in a theme file; the description below the list names the colors each one is computed from.
+To change a derived color, change its source: _Go to_ in the context menu of a derived color selects the source color.
+A color that is not set in the theme shows _auto_ and its current value; it follows another color until you set it, and _Go to_ in its context menu selects that color.
+A color you changed is marked _edited_, and a derived color whose value changed as a consequence of your edits is marked _changed_.
+btn:[Revert] next to the light or dark value of an edited color restores that value, and _Revert Color_ in the context menu of an edited color restores both.
+The _Fonts_ tab sets the regular and the monospace font of the theme.
+_Revert Font_ in the context menu of a changed font restores it.
+If a monospace font is chosen on the <<ChCustPrefsFontsSection,Fonts>> preferences page, that font overrides the monospace font of the theme.
+The _Code_ tab shows the theme file as it will be written.
+_Compare with_ selects the theme or saved file the changes are counted against, and the changes can be stepped through.
+
+Unsaved changes are marked with an asterisk in the window title and in the theme list.
+btn:[Revert] discards them.
+Closing the dialog or selecting another theme asks whether to save unsaved changes.
+
+When the dialog was opened from the Internals menu, btn:[Use Theme] saves nothing but makes the selected theme the active one.
+It is available only when the theme has no unsaved changes.
+When the dialog was opened from the preferences, there is no btn:[Use Theme] button.
+The theme saved in the designer is selected on the preferences page and becomes active when the preferences are accepted with btn:[OK].
+Cancelling the preferences keeps the theme that is currently active.
+If you delete the active theme from the preferences and then cancel them, the deletion takes effect for the running application on the next start, when Wireshark falls back to the default theme.
 
 [#ChCustPrefsFontsSection]
 ==== Fonts

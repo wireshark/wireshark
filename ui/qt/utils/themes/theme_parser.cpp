@@ -10,16 +10,19 @@
 #include <config.h>
 
 #include "ui/qt/utils/themes/theme_parser.h"
+#include "ui/qt/utils/themes/theme_format.h"
+#include "ui/qt/utils/themes/theme_writer.h"
 
 #include <QColor>
 #include <QDebug>
 #include <QFile>
 #include <QFont>
 #include <QJsonArray>
-#include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonParseError>
 #include <QStringList>
+
+#include <algorithm>
+#include <iterator>
 
 // --------------------------------------------------------------------
 // ThemeParser
@@ -34,46 +37,58 @@ ThemeParser::ThemeParser(const QHash<QString, ThemeSectionInfo>       &sections,
 
 bool ThemeParser::parse(const QString &internalName,
                         const QString &resourcePath,
-                        Result        &out)
+                        Result        &out,
+                        QString       *errorString)
 {
     QFile f(resourcePath);
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning("ThemeParser: failed to open theme \"%s\" (%s)",
                  qUtf8Printable(internalName), qUtf8Printable(resourcePath));
+        if (errorString)
+            *errorString = tr("Could not open \"%1\".").arg(resourcePath);
         return false;
     }
 
-    const QByteArray raw  = f.readAll();
-    const QByteArray json = stripJsoncComments(raw);
+    return parseData(internalName, f.readAll(), out, errorString);
+}
 
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(json, &parseError);
-    if (doc.isNull()) {
+bool ThemeParser::parseData(const QString    &internalName,
+                            const QByteArray &raw,
+                            Result           &out,
+                            QString          *errorString)
+{
+    out.report = ThemeParseReport();
+    if (!jsonc_.parse(raw)) {
         qWarning().noquote().nospace()
-            << "ThemeParser: failed to parse " << resourcePath
-            << ": " << parseError.errorString()
-            << " (offset " << parseError.offset << ")";
+            << "ThemeParser: failed to parse theme \"" << internalName
+            << "\": " << jsonc_.errorString()
+            << " (line " << jsonc_.errorLine() << ", column " << jsonc_.errorColumn() << ")";
+        if (errorString) {
+            *errorString = jsonc_.errorLine() > 0
+                ? tr("Line %1, column %2: %3").arg(jsonc_.errorLine()).arg(jsonc_.errorColumn()).arg(jsonc_.errorString())
+                : jsonc_.errorString();
+        }
         return false;
     }
 
-    const QJsonObject root = doc.object();
+    const QJsonObject root = jsonc_.document().object();
 
     // Step 1 - meta section
-    const QJsonObject meta = root.value(QStringLiteral("meta")).toObject();
+    const QJsonObject meta = root.value(ThemeFormat::Meta).toObject();
     out.info               = ThemeInfo();
-    out.info.name          = meta.value(QStringLiteral("name")).toString();
+    out.info.name          = meta.value(ThemeFormat::MetaName).toString();
     out.info.internalName  = internalName;
-    out.info.version       = meta.value(QStringLiteral("version")).toInt();
-    out.info.description   = meta.value(QStringLiteral("description")).toString();
-    out.info.author        = meta.value(QStringLiteral("author")).toString();
+    out.info.version       = meta.value(ThemeFormat::MetaVersion).toInt();
+    out.info.description   = meta.value(ThemeFormat::MetaDescription).toString();
+    out.info.author        = meta.value(ThemeFormat::MetaAuthor).toString();
 
     // The top-level "contrast" field sits beside "meta": it selects the
     // ratio set the derived colors are computed with, not descriptive data.
     // An unknown value falls back to standard so a typo never fails the load.
-    const QString contrast = root.value(QStringLiteral("contrast")).toString();
-    if (contrast == QStringLiteral("high")) {
+    const QString contrast = root.value(ThemeFormat::Contrast).toString();
+    if (contrast == ThemeFormat::ContrastHigh) {
         out.info.contrast = ThemeContrast::High;
-    } else if (!contrast.isEmpty() && contrast != QStringLiteral("standard")) {
+    } else if (!contrast.isEmpty() && contrast != ThemeFormat::ContrastStandard) {
         qWarning("ThemeParser: unknown contrast \"%s\" in theme \"%s\"; using standard",
                  qUtf8Printable(contrast), qUtf8Printable(out.info.name));
     }
@@ -86,101 +101,94 @@ bool ThemeParser::parse(const QString &internalName,
         if (sectionInfo.required && !root.contains(sectionName)) {
             qWarning("ThemeParser: missing required section \"%s\" in theme \"%s\"",
                      qUtf8Printable(sectionName), qUtf8Printable(out.info.name));
+            if (errorString)
+                *errorString = tr("missing required section \"%1\"").arg(sectionName);
             return false;
         }
-        parseSection(root, sectionName, sectionInfo, out.info, out.colors);
+        parseSection(root, sectionName, sectionInfo, out.info, out);
     }
 
     // Step 2b - separator (single top-level ColorPair, not a section-
     // with-subkeys).  Kept outside sections_ because the JSON shape is
-    // { "separator": { "light": "...", "dark": "..." } } rather than
+    // an object holding the light and dark colors rather than
     // the section-with-subkeys form parseSection() expects.  When
     // absent ThemeTokenHandler derives Separator from palette.base +
     // palette.mid.
-    if (root.contains(QStringLiteral("separator"))) {
-        const QJsonObject sepObj = root.value(QStringLiteral("separator")).toObject();
-        if (!sepObj.isEmpty())
+    if (root.contains(ThemeFormat::Separator)) {
+        const QJsonObject sepObj = root.value(ThemeFormat::Separator).toObject();
+        if (!sepObj.isEmpty()) {
+            checkColorPair(sepObj, ThemeFormat::Separator,
+                           ThemeFormat::Separator, QString(), out);
             out.colors[ThemeManager::Separator] = parseColorPair(sepObj);
+        }
     }
 
     // Step 3 - graphs
     out.graphColors.clear();
-    const QJsonArray graphs = root.value(QStringLiteral("graphs")).toArray();
-    for (int i = 0; i < graphs.size(); ++i)
-        out.graphColors << parseColorPair(graphs[i].toObject());
+    const QJsonArray graphs = root.value(ThemeFormat::Graphs).toArray();
+    for (int i = 0; i < graphs.size(); ++i) {
+        const QJsonObject graphObj = graphs[i].toObject();
+        checkColorPair(graphObj, ThemeFormat::graphPath(i),
+                       ThemeFormat::Graphs, QString(), out);
+        out.graphColors << parseColorPair(graphObj);
+    }
 
     // Step 4 - fonts
-    parseFonts(root.value(QStringLiteral("fonts")).toObject(), out);
+    parseFonts(root.value(ThemeFormat::Fonts).toObject(), out);
+
+    // Step 5 - root keys the format does not know
+    for (auto it = root.constBegin(); it != root.constEnd(); ++it) {
+        if (std::find(std::begin(ThemeFormat::NonSectionRootKeys),
+                      std::end(ThemeFormat::NonSectionRootKeys),
+                      it.key()) != std::end(ThemeFormat::NonSectionRootKeys)
+            || sections_.contains(it.key()))
+            continue;
+        out.report.messages << withLine(jsonc_.lineOf(it.key()),
+            tr("unknown section \"%1\".").arg(it.key()));
+        out.report.unknownTopLevelKeys++;
+    }
 
     return true;
 }
 
-// --------------------------------------------------------------------
-// Helpers — moved verbatim from the former ThemeManager implementation.
-// --------------------------------------------------------------------
-
-// XXX Should we use json_strip_jsonc_comments?
-QByteArray ThemeParser::stripJsoncComments(const QByteArray &jsonc)
+QString ThemeParser::withLine(int line, const QString &message)
 {
-    QByteArray result;
-    result.reserve(jsonc.size());
+    return line > 0 ? tr("Line %1: %2").arg(line).arg(message) : message;
+}
 
-    const auto len = jsonc.size();
-    int i = 0;
-    while (i < len) {
-        const char c = jsonc.at(i);
-
-        // --- Inside a string literal: copy verbatim ---
-        if (c == '"') {
-            result.append(c);
-            i++;
-            while (i < len) {
-                char sc = jsonc.at(i);
-                result.append(sc);
-                i++;
-                if (sc == '\\' && i < len) {
-                    result.append(jsonc.at(i));
-                    i++;
-                } else if (sc == '"') {
-                    break;
-                }
-            }
+void ThemeParser::checkColorPair(const QJsonObject &obj,
+                                 const QString     &path,
+                                 const QString     &section,
+                                 const QString     &key,
+                                 Result            &out)
+{
+    static const QStringList sides = { ThemeFormat::Light, ThemeFormat::Dark };
+    int present = 0;
+    int validSides = 0;
+    for (const QString &side : sides) {
+        if (!obj.contains(side))
+            continue;
+        present++;
+        const QJsonValue v = obj.value(side);
+        if (v.isString() && QColor(v.toString()).isValid()) {
+            validSides++;
             continue;
         }
-
-        // --- Line comment: // until end of line ---
-        if (c == '/' && i + 1 < len && jsonc.at(i + 1) == '/') {
-            i += 2;
-            while (i < len && jsonc.at(i) != '\n')
-                i++;
-            // Keep the newline so that line numbers stay meaningful
-            // in parse-error messages
-            continue;
-        }
-
-        // --- Block comment: /* ... */ ---
-        if (c == '/' && i + 1 < len && jsonc.at(i + 1) == '*') {
-            i += 2;
-            while (i + 1 < len) {
-                if (jsonc.at(i) == '*' && jsonc.at(i + 1) == '/') {
-                    i += 2;
-                    break;
-                }
-                // Preserve newlines for line-number accuracy
-                if (jsonc.at(i) == '\n')
-                    result.append('\n');
-                i++;
-            }
-            continue;
-        }
-
-        // --- Ordinary character ---
-        result.append(c);
-        i++;
+        const QString text = v.isString() ? v.toString() : v.toVariant().toString();
+        out.report.messages << withLine(jsonc_.lineOf(section, key),
+            tr("%1.%2: \"%3\" is not a color.").arg(path, side, text));
+        out.report.invalidValues++;
     }
 
-    return result;
+    if (present == 1 && validSides == 1) {
+        out.report.messages << withLine(jsonc_.lineOf(section, key),
+            tr("%1: only one side set, the other side uses the same value.").arg(path));
+    }
 }
+
+// --------------------------------------------------------------------
+// Helpers
+// --------------------------------------------------------------------
 
 QColor ThemeParser::parseColor(const QString &colorStr)
 {
@@ -192,8 +200,8 @@ QColor ThemeParser::parseColor(const QString &colorStr)
 
 ThemeColorPair ThemeParser::parseColorPair(const QJsonObject &obj)
 {
-    QColor light = parseColor(obj.value(QStringLiteral("light")).toString());
-    QColor dark  = parseColor(obj.value(QStringLiteral("dark")).toString());
+    QColor light = parseColor(obj.value(ThemeFormat::Light).toString());
+    QColor dark  = parseColor(obj.value(ThemeFormat::Dark).toString());
 
     if (!light.isValid() && !dark.isValid()) {
         qWarning("ThemeParser: color token has no \"light\" or \"dark\" value");
@@ -222,7 +230,7 @@ void ThemeParser::parseSection(const QJsonObject                               &
                                const QString                                   &sectionName,
                                const ThemeSectionInfo                          &sectionInfo,
                                const ThemeInfo                                 &info,
-                               QHash<ThemeManager::ThemeToken, ThemeColorPair>  &out)
+                               Result                                          &result)
 {
     QJsonObject section  = root.value(sectionName).toObject();
     QStringList tokenList = sectionInfo.tokens;
@@ -231,14 +239,19 @@ void ThemeParser::parseSection(const QJsonObject                               &
         const QString key = it.key().toLower();
         if (!it.value().isObject()) {
             qWarning("ThemeParser: expected object for token \"%s%s\" in theme \"%s\"; skipping",
-                     qUtf8Printable(sectionName), qUtf8Printable(key),
+                     qUtf8Printable(sectionName), qUtf8Printable(it.key()),
                      qUtf8Printable(info.name));
+            result.report.messages << withLine(jsonc_.lineOf(sectionName, it.key()),
+                tr("%1.%2: not a color pair.").arg(sectionName, it.key()));
+            result.report.invalidValues++;
             continue;
         }
         if (!tokenList.contains(key)) {
             qWarning("ThemeParser: unknown/invalid token \"%s%s\" in theme \"%s\"; skipping",
-                     qUtf8Printable(sectionName), qUtf8Printable(key),
+                     qUtf8Printable(sectionName), qUtf8Printable(it.key()),
                      qUtf8Printable(info.name));
+            result.report.messages << withLine(jsonc_.lineOf(sectionName, it.key()),
+                tr("%1.%2: unknown color, skipped.").arg(sectionName, it.key()));
             continue;
         }
         if (sectionInfo.required)
@@ -246,8 +259,12 @@ void ThemeParser::parseSection(const QJsonObject                               &
 
         const ThemeManager::ThemeToken role =
             stringToToken(QStringLiteral("%1%2").arg(sectionName, key));
-        if (role != ThemeManager::NoRole)
-            out[role] = parseColorPair(it.value().toObject());
+        if (role != ThemeManager::NoRole) {
+            const QJsonObject pairObj = it.value().toObject();
+            checkColorPair(pairObj, ThemeWriter::keyPath(role),
+                           sectionName, it.key(), result);
+            result.colors[role] = parseColorPair(pairObj);
+        }
     }
 
     if (sectionInfo.required && !tokenList.isEmpty()) {
@@ -255,27 +272,37 @@ void ThemeParser::parseSection(const QJsonObject                               &
                  qUtf8Printable(tokenList.join(", ")),
                  qUtf8Printable(sectionName),
                  qUtf8Printable(info.name));
+        for (const QString &missing : std::as_const(tokenList)) {
+            result.report.messages << tr("%1: missing required color \"%2\".")
+                                          .arg(sectionName, missing);
+        }
     }
 }
 
-QString ThemeParser::fontDescriptor(const QJsonObject &obj)
+QString ThemeParser::fontDescriptor(const ThemeFontHint &hint)
 {
     // Returns a QFont::toString() descriptor for the theme's declared font, or
     // an empty string when the theme specifies nothing.  No resolution,
     // validation, or fallback happens here — FontManager owns all of that.
-    if (obj.isEmpty())
+    if (!hint.isSet())
         return QString();
 
     QFont f;
-    const QString family = obj.value(QStringLiteral("family")).toString();
-    const int     size   = obj.value(QStringLiteral("size")).toInt(0);
-
-    if (!family.isEmpty())
-        f.setFamily(family);
-    if (size > 0)
-        f.setPointSize(size);
+    if (!hint.family.isEmpty())
+        f.setFamily(hint.family);
+    if (hint.pointSize > 0)
+        f.setPointSize(hint.pointSize);
 
     return f.toString();
+}
+
+ThemeFontHint ThemeParser::fontHint(const QJsonObject &obj)
+{
+    ThemeFontHint hint;
+    hint.family    = obj.value(ThemeFormat::FontFamily).toString();
+    const int size = obj.value(ThemeFormat::FontSize).toInt(0);
+    hint.pointSize = qMax(size, 0);
+    return hint;
 }
 
 void ThemeParser::parseFonts(const QJsonObject &fontsObj, Result &out)
@@ -284,6 +311,8 @@ void ThemeParser::parseFonts(const QJsonObject &fontsObj, Result &out)
     // gui.font_name precedence, the fixed-pitch guarantee, and the system
     // fallback — now lives in FontManager.  An empty descriptor means the
     // theme specifies nothing for that font.
-    out.regularFontName   = fontDescriptor(fontsObj.value(QStringLiteral("regular")).toObject());
-    out.monospaceFontName = fontDescriptor(fontsObj.value(QStringLiteral("monospace")).toObject());
+    out.regularFont       = fontHint(fontsObj.value(ThemeFormat::FontRegular).toObject());
+    out.monospaceFont     = fontHint(fontsObj.value(ThemeFormat::FontMonospace).toObject());
+    out.regularFontName   = fontDescriptor(out.regularFont);
+    out.monospaceFontName = fontDescriptor(out.monospaceFont);
 }

@@ -119,18 +119,6 @@
 	},
 
 	// -----------------------------------------------------------------
-	// Palette
-	//
-	// Copied from the default theme: a theme cannot inherit from another
-	// one, and an omitted key would be derived from brand, accent or the
-	// system palette instead.
-	// test/suite_theme.py fails when this copy and the default drift apart.
-	// -----------------------------------------------------------------
-	"palette": {
-		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
-	},
-
-	// -----------------------------------------------------------------
 	// Graph colors
 	//
 	// Slots 1-7: neutral plus six Okabe-Ito hues, pairwise distinct

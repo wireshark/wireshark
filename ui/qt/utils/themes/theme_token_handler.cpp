@@ -12,39 +12,14 @@
 #include "ui/qt/utils/themes/theme_token_handler.h"
 #include "ui/qt/utils/themes/color_math.h"
 
+#include <QCoreApplication>
 #include <QPalette>
+#include <QRegularExpression>
 
 using TokenMap = ThemeTokenHandler::TokenMap;
 using ThemeToken = ThemeManager::ThemeToken;
 
 namespace {
-
-// Only-if-missing assignment: leaves any theme-provided explicit value
-// intact (matches the old ThemeManager::derive(..., overwrite=false)
-// behavior).  `overwrite=true` forces the replacement; the state-text
-// guard in deriveAll() uses it to rewrite a pinned value that is not
-// readable on its fill.
-void assign(TokenMap &tokens,
-            ThemeToken role,
-            const ThemeColorPair &newPair,
-            bool overwrite = false)
-{
-    ThemeColorPair pair = tokens.value(role, ThemeColorPair());
-    if (overwrite || !pair.light.isValid())
-        pair.light = newPair.light;
-    if (overwrite || !pair.dark.isValid())
-        pair.dark = newPair.dark;
-    tokens[role] = pair;
-}
-
-void assign(TokenMap &tokens,
-            ThemeToken role,
-            const QColor &light,
-            const QColor &dark,
-            bool overwrite = false)
-{
-    assign(tokens, role, ThemeColorPair { light, dark }, overwrite);
-}
 
 // Picks the effective color for a palette-override role, falling back
 // to `palette` when the theme doesn't override that role.  Using the
@@ -138,11 +113,28 @@ QColor ThemeTokenHandler::sideOf(const TokenMap &tokens, ThemeToken role, bool i
 }
 
 void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPalette &palette,
-                                  const ColorMath::ContrastRatios &ratios)
+                                  const ColorMath::ContrastRatios &ratios, SourceMap *sources)
 {
     // The high-contrast rules below run only at the High level, so the
     // Standard level derives exactly what the theme was designed with.
     const bool highContrast = ratios.level == ThemeContrast::High;
+
+    // Only-if-missing: a side the theme already set is kept.  `overwrite`
+    // forces the replacement; the state-text guard below uses it to rewrite
+    // a pinned value that is not readable on its fill.  Each rule names
+    // itself next to the math, so the Theme Designer shows the rule without
+    // a copy of this function.
+    auto assign = [&tokens, sources](ThemeToken role, const ThemeColorPair &value,
+                                     const char *source, bool overwrite = false) {
+        ThemeColorPair pair = tokens.value(role);
+        if (overwrite || !pair.light.isValid())
+            pair.light = value.light;
+        if (overwrite || !pair.dark.isValid())
+            pair.dark = value.dark;
+        tokens[role] = pair;
+        if (sources)
+            sources->insert(role, source);
+    };
 
     const ThemeColorPair successPair  = tokens.value(ThemeManager::AccentSuccess);
     const ThemeColorPair brandPrimary = tokens.value(ThemeManager::BrandPrimary);
@@ -154,18 +146,24 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
 
     // Expert — alpha-blended accent variants.  The high-contrast rule
     // below walks the same table.
-    const struct { ThemeToken fill; ThemeToken accent; } expertFills[] = {
-        { ThemeManager::ExpertNone,    ThemeManager::AccentInfo    },
-        { ThemeManager::ExpertComment, ThemeManager::AccentSuccess },
-        { ThemeManager::ExpertChat,    ThemeManager::AccentInfo    },
-        { ThemeManager::ExpertNote,    ThemeManager::AccentInfo    },
-        { ThemeManager::ExpertWarn,    ThemeManager::AccentWarning },
-        { ThemeManager::ExpertError,   ThemeManager::AccentError   },
+    const struct { ThemeToken fill; ThemeToken accent; const char *source; } expertFills[] = {
+        { ThemeManager::ExpertNone,    ThemeManager::AccentInfo,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.info at 40% opacity") },
+        { ThemeManager::ExpertComment, ThemeManager::AccentSuccess,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success at 40% opacity") },
+        { ThemeManager::ExpertChat,    ThemeManager::AccentInfo,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.info at 40% opacity") },
+        { ThemeManager::ExpertNote,    ThemeManager::AccentInfo,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.info at 40% opacity") },
+        { ThemeManager::ExpertWarn,    ThemeManager::AccentWarning,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.warning at 40% opacity") },
+        { ThemeManager::ExpertError,   ThemeManager::AccentError,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.error at 40% opacity") },
     };
     for (const auto &ef : expertFills)
-        assign(tokens, ef.fill, ColorMath::withAlpha(tokens.value(ef.accent), 102));
-    assign(tokens, ThemeManager::ExpertForeground,
-           ColorMath::contrastingText(tokens.value(ThemeManager::ExpertComment)));
+        assign(ef.fill, ColorMath::withAlpha(tokens.value(ef.accent), 102), ef.source);
+    assign(ThemeManager::ExpertForeground,
+           ColorMath::contrastingText(tokens.value(ThemeManager::ExpertComment)), QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on expert.comment"));
 
     // Packets / Conversation — need concrete Base / Text / WindowText
     // values.  Read them from the theme's palette overrides if set,
@@ -196,20 +194,20 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
         }
     }
 
-    assign(tokens, ThemeManager::PacketsSelection,
-           ColorMath::mix(ThemeColorPair { baseColor,   baseColor   }, brandPrimary,                                0.30));
-    assign(tokens, ThemeManager::PacketsInactive,
-           ColorMath::mix(ThemeColorPair { windowColor, windowColor }, brandPrimary,                                0.40));
-    assign(tokens, ThemeManager::PacketsMarked,   ColorMath::darken(brandPrimary, 65));
+    assign(ThemeManager::PacketsSelection,
+           ColorMath::mix(ThemeColorPair { baseColor,   baseColor   }, brandPrimary,                                0.30), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 30% toward brand.primary"));
+    assign(ThemeManager::PacketsInactive,
+           ColorMath::mix(ThemeColorPair { windowColor, windowColor }, brandPrimary,                                0.40), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.window 40% toward brand.primary"));
+    assign(ThemeManager::PacketsMarked,   ColorMath::darken(brandPrimary, 65), QT_TRANSLATE_NOOP("ThemeTokenHandler", "brand.primary 65% darker"));
     // PacketsIgnored (bg) intentionally has no derivation — when the
     // theme omits it the consumer leaves the row's normal background
     // alone (matches the historical white-on-row visual).
     // Ignored and hidden rows fade the text toward Base, so they stay
     // readable on any background instead of drifting toward an accent.
-    assign(tokens, ThemeManager::PacketsIgnoredText,
-           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, ThemeColorPair { textColor, textColor }, 0.50));
-    assign(tokens, ThemeManager::PacketsHidden,
-           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, ThemeColorPair { textColor, textColor }, 0.40));
+    assign(ThemeManager::PacketsIgnoredText,
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, ThemeColorPair { textColor, textColor }, 0.50), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 50% toward palette.windowText"));
+    assign(ThemeManager::PacketsHidden,
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, ThemeColorPair { textColor, textColor }, 0.40), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 40% toward palette.windowText"));
     // High contrast: ignored and hidden rows are still read, so their
     // faded text, pinned or derived, is lifted to body-text contrast
     // against Base.  Readability wins over the theme's pinned value.
@@ -228,19 +226,22 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // shade (or a fill derived from brand.primary) never turns unreadable.
     // The packet list and every other consumer read these tokens, so this
     // is the one place the state text is checked.
-    const struct { ThemeToken text; ThemeToken fill; } stateText[] = {
-        { ThemeManager::PacketsSelectionText, ThemeManager::PacketsSelection },
-        { ThemeManager::PacketsInactiveText,  ThemeManager::PacketsInactive  },
-        { ThemeManager::PacketsMarkedText,    ThemeManager::PacketsMarked    },
+    const struct { ThemeToken text; ThemeToken fill; const char *source; } stateText[] = {
+        { ThemeManager::PacketsSelectionText, ThemeManager::PacketsSelection,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on packets.selection, kept readable on it") },
+        { ThemeManager::PacketsInactiveText,  ThemeManager::PacketsInactive,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on packets.inactive, kept readable on it") },
+        { ThemeManager::PacketsMarkedText,    ThemeManager::PacketsMarked,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on packets.marked, kept readable on it") },
     };
     for (const auto &st : stateText) {
         const ThemeColorPair fill = tokens.value(st.fill);
-        assign(tokens, st.text, ColorMath::contrastingText(fill));
+        assign(st.text, ColorMath::contrastingText(fill), st.source);
         const ThemeColorPair text = tokens.value(st.text);
-        assign(tokens, st.text,
+        assign(st.text,
                ThemeColorPair { liftSide(text.light, fill.light, ratios.readableText),
                                 liftSide(text.dark,  fill.dark,  ratios.readableText) },
-               true);
+               st.source, true);
         // High contrast: readableText() falls back to black or white when
         // the pin cannot reach the target; when even that misses, the
         // fill gives way.  Readability wins over the theme's pinned fill.
@@ -250,19 +251,19 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
 
     // Conversation
     const ThemeColorPair accentError = tokens.value(ThemeManager::AccentError);
-    assign(tokens, ThemeManager::ConversationClient,
-           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, accentError, 102.0 / 255.0));
-    assign(tokens, ThemeManager::ConversationServer,
-           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, brandPrimary, 102.0 / 255.0));
+    assign(ThemeManager::ConversationClient,
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, accentError, 102.0 / 255.0), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 40% toward accent.error"));
+    assign(ThemeManager::ConversationServer,
+           ColorMath::mix(ThemeColorPair { baseColor, baseColor }, brandPrimary, 102.0 / 255.0), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 40% toward brand.primary"));
     // Stream-side text fallback: warm for client (saturated accent.error),
     // cool for server (saturated brand.primary).  Direction flips by mode
     // so the fg stays readable on both the light and dark bg tints.
-    assign(tokens, ThemeManager::ConversationClientText,
+    assign(ThemeManager::ConversationClientText,
            ThemeColorPair { ColorMath::darken (accentError.light, 30),
-                            ColorMath::lighten(accentError.dark,  50) });
-    assign(tokens, ThemeManager::ConversationServerText,
+                            ColorMath::lighten(accentError.dark,  50) }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.error 30% darker (light) / 50% lighter (dark)"));
+    assign(ThemeManager::ConversationServerText,
            ThemeColorPair { ColorMath::darken (brandPrimary.light, 30),
-                            ColorMath::lighten(brandPrimary.dark,  50) });
+                            ColorMath::lighten(brandPrimary.dark,  50) }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "brand.primary 30% darker (light) / 50% lighter (dark)"));
     // High contrast: the stream text reads on its tint at body-text
     // contrast, the tint giving way when the text cannot get there.
     // Readability wins over the theme's pinned values.
@@ -282,14 +283,21 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // them intact.  The foreground on each tint is derived below as
     // TextOnFilter*, so the text stays readable whichever side of the
     // luminance threshold the tint lands on.
-    const struct { ThemeToken tint; ThemeToken accent; ThemeToken text; } filterTints[] = {
-        { ThemeManager::FilterValid,      ThemeManager::AccentSuccess, ThemeManager::TextOnFilterValid      },
-        { ThemeManager::FilterInvalid,    ThemeManager::AccentError,   ThemeManager::TextOnFilterInvalid    },
-        { ThemeManager::FilterDeprecated, ThemeManager::AccentWarning, ThemeManager::TextOnFilterDeprecated },
+    const struct { ThemeToken tint; ThemeToken accent; const char *source; const char *highSource; } filterTints[] = {
+        { ThemeManager::FilterValid,      ThemeManager::AccentSuccess,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 33% toward accent.success"),
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 33% toward accent.success, moved until black or white text is readable on it") },
+        { ThemeManager::FilterInvalid,    ThemeManager::AccentError,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 33% toward accent.error"),
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 33% toward accent.error, moved until black or white text is readable on it") },
+        { ThemeManager::FilterDeprecated, ThemeManager::AccentWarning,
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 33% toward accent.warning"),
+          QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 33% toward accent.warning, moved until black or white text is readable on it") },
     };
     for (const auto &ft : filterTints)
-        assign(tokens, ft.tint,
-               ColorMath::mix(ThemeColorPair { baseColor, baseColor }, tokens.value(ft.accent), 85.0 / 255.0));
+        assign(ft.tint,
+               ColorMath::mix(ThemeColorPair { baseColor, baseColor }, tokens.value(ft.accent), 85.0 / 255.0),
+               ft.source);
     // High contrast: each tint, pinned or derived, moves away from its
     // black or white text until that text reads at body-text contrast;
     // the TextOnFilter* tokens below are then picked on the final tint.
@@ -297,10 +305,10 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     if (highContrast) {
         for (const auto &ft : filterTints) {
             const ThemeColorPair tint = tokens.value(ft.tint);
-            assign(tokens, ft.tint,
+            assign(ft.tint,
                    ThemeColorPair { tint.light.isValid() ? ColorMath::readableFill(tint.light, ratios) : tint.light,
                                     tint.dark.isValid()  ? ColorMath::readableFill(tint.dark,  ratios) : tint.dark },
-                   true);
+                   ft.highSource, true);
         }
     }
 
@@ -309,23 +317,22 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // text colour faded 50% into base, which matches the placeholder-
     // text look QLineEdit shows for empty fields.  Themes can ship a
     // more distinct look via theme.filter.busy / theme.filter.busyText.
-    assign(tokens, ThemeManager::FilterBusy,
-           ThemeColorPair { baseColor, baseColor });
-    assign(tokens, ThemeManager::FilterBusyText,
+    assign(ThemeManager::FilterBusy,
+           ThemeColorPair { baseColor, baseColor }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base"));
+    assign(ThemeManager::FilterBusyText,
            ColorMath::mix(ThemeColorPair { paletteTextColor, paletteTextColor },
                           ThemeColorPair { baseColor, baseColor },
-                          0.5));
-    // High contrast: the busy text is transient state text, lifted to the
-    // large-text ratio against the busy fill.  Readability wins over the
-    // theme's pinned value.
-    if (highContrast) {
-        const ThemeColorPair busy     = tokens.value(ThemeManager::FilterBusy);
-        const ThemeColorPair busyText = tokens.value(ThemeManager::FilterBusyText);
-        assign(tokens, ThemeManager::FilterBusyText,
-               ThemeColorPair { liftSide(busyText.light, busy.light, ratios.largeText),
-                                liftSide(busyText.dark,  busy.dark,  ratios.largeText) },
-               true);
-    }
+                          0.5), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.text 50% toward palette.base, lifted to the large text ratio on filter.busy"));
+    // The busy text is transient state text: pinned or derived, it is
+    // lifted to the large-text ratio against the busy fill, per mode, at
+    // every contrast level.  The fade misses that ratio where Text and
+    // Base are close; where it already reads, the lift leaves it alone.
+    // Readability wins over the theme's pinned value.
+    const ThemeColorPair busy     = tokens.value(ThemeManager::FilterBusy);
+    const ThemeColorPair busyText = tokens.value(ThemeManager::FilterBusyText);
+    tokens[ThemeManager::FilterBusyText] =
+           ThemeColorPair { liftSide(busyText.light, busy.light, ratios.largeText),
+                            liftSide(busyText.dark,  busy.dark,  ratios.largeText) };
 
     // Inline filter-affordance glyph colours (bookmark / clear / apply icon
     // fills).  These are full-strength glyph tints, not the alpha bg tints
@@ -333,11 +340,11 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // assign()'s only-if-missing semantics let a theme pin explicit values via
     // theme.filter.bookmark / .bookmarkcapture / .bookmarkmatch / .clear /
     // .apply while still guaranteeing every theme has the tokens defined.
-    assign(tokens, ThemeManager::FilterBookmark,        tokens.value(ThemeManager::AccentInfo));
-    assign(tokens, ThemeManager::FilterBookmarkCapture, tokens.value(ThemeManager::AccentSuccess));
-    assign(tokens, ThemeManager::FilterBookmarkMatch,   tokens.value(ThemeManager::AccentWarning));
-    assign(tokens, ThemeManager::FilterClear,           tokens.value(ThemeManager::AccentError));
-    assign(tokens, ThemeManager::FilterApply,           tokens.value(ThemeManager::AccentInfo));
+    assign(ThemeManager::FilterBookmark,        tokens.value(ThemeManager::AccentInfo), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.info"));
+    assign(ThemeManager::FilterBookmarkCapture, tokens.value(ThemeManager::AccentSuccess), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success"));
+    assign(ThemeManager::FilterBookmarkMatch,   tokens.value(ThemeManager::AccentWarning), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.warning"));
+    assign(ThemeManager::FilterClear,           tokens.value(ThemeManager::AccentError), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.error"));
+    assign(ThemeManager::FilterApply,           tokens.value(ThemeManager::AccentInfo), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.info"));
 
     // The recent-filters arrow reads as a subtle disclosure caret at rest, so it
     // defaults to palette.mid (a mode-aware gray) rather than a saturated accent.
@@ -346,7 +353,7 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // tint.  The default theme pins fixed grays via theme.filter.history.
     {
         const QColor midGray = pickPaletteValue(tokens, ThemeManager::PaletteMid, QPalette::Mid, isDarkMode, palette);
-        assign(tokens, ThemeManager::FilterHistory, ThemeColorPair { midGray, midGray });
+        assign(ThemeManager::FilterHistory, ThemeColorPair { midGray, midGray }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.mid"));
     }
 
     // Syntax highlighting — readable foreground text on PaletteBase.
@@ -359,14 +366,14 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     const ThemeColorPair accentSuccess = tokens.value(ThemeManager::AccentSuccess);
     const ThemeColorPair accentInfo    = tokens.value(ThemeManager::AccentInfo);
     const QColor keyColor = ColorMath::readableText(midColor, baseColor, ratios);
-    assign(tokens, ThemeManager::SyntaxKey,
-           ThemeColorPair { keyColor, keyColor });
-    assign(tokens, ThemeManager::SyntaxString,
+    assign(ThemeManager::SyntaxKey,
+           ThemeColorPair { keyColor, keyColor }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.mid, kept readable on palette.base"));
+    assign(ThemeManager::SyntaxString,
            ThemeColorPair { ColorMath::darken(accentSuccess.light, 30),
-                            ColorMath::lighten(accentSuccess.dark,  30) });
-    assign(tokens, ThemeManager::SyntaxNumber,
+                            ColorMath::lighten(accentSuccess.dark,  30) }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 30% darker (light) / lighter (dark)"));
+    assign(ThemeManager::SyntaxNumber,
            ThemeColorPair { ColorMath::darken(accentInfo.light, 30),
-                            ColorMath::lighten(accentInfo.dark,  30) });
+                            ColorMath::lighten(accentInfo.dark,  30) }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.info 30% darker (light) / lighter (dark)"));
 
     // Welcome header bar: a flat, darkened shade of the selection color.
     // Highlight / HighlightedText come from the palette built for this
@@ -402,9 +409,12 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
             highContrast ? ratios.readableText : ratios.largeText);
     // The palette describes only the current mode; deriveAll() runs again
     // on every mode switch, so both halves carry the current value.
-    assign(tokens, ThemeManager::HeaderBackground, ThemeColorPair { headerBg,    headerBg });
-    assign(tokens, ThemeManager::HeaderText,        ThemeColorPair { headerText,  headerText });
-    assign(tokens, ThemeManager::HeaderTextMuted,   ThemeColorPair { headerMuted, headerMuted });
+    assign(ThemeManager::HeaderBackground, ThemeColorPair { headerBg,    headerBg },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.highlight 40% darker, kept apart from palette.window and readable under HeaderText"));
+    assign(ThemeManager::HeaderText,       ThemeColorPair { headerText,  headerText },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.highlightedText if readable on HeaderBackground, else black or white"));
+    assign(ThemeManager::HeaderTextMuted,  ThemeColorPair { headerMuted, headerMuted },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "HeaderText 25% toward HeaderBackground, kept at the large text ratio (readable text ratio in high contrast)"));
 
     // Section headers — lifted to the readableText ratio against palette.base so
     // welcome-page labels ("Open", "Capture", "Learn") stay readable on
@@ -416,10 +426,10 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // Light-mode hover uses the light brand value; the off-mode slot is
     // unused at runtime but is filled symmetrically.
     const QColor sectionHeaderHoverLight = ColorMath::readableText(brandPrimary.light, baseColor, ratios);
-    assign(tokens, ThemeManager::SectionHeader,
-           ThemeColorPair { sectionHeader, sectionHeader });
-    assign(tokens, ThemeManager::SectionHeaderHover,
-           ThemeColorPair { sectionHeaderHoverLight, sectionHeaderHover });
+    assign(ThemeManager::SectionHeader,
+           ThemeColorPair { sectionHeader, sectionHeader }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.mid, kept readable on palette.base"));
+    assign(ThemeManager::SectionHeaderHover,
+           ThemeColorPair { sectionHeaderHoverLight, sectionHeaderHover }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "brand.primary, kept readable on palette.base"));
 
     // Structural form chrome — FieldBorder frames interactive controls
     // (the nonText ratio against base, the WCAG non-text minimum).
@@ -434,17 +444,32 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     const QColor separator   = ColorMath::ensureContrast(
             ColorMath::mix(baseColor, mid, 135.0 / 255.0),
             baseColor, ratios.divider);
-    assign(tokens, ThemeManager::FieldBorder,
-           ThemeColorPair { fieldBorder, fieldBorder });
-    assign(tokens, ThemeManager::Separator,
-           ThemeColorPair { separator, separator });
+    assign(ThemeManager::FieldBorder,
+           ThemeColorPair { fieldBorder, fieldBorder }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.mid, kept at the non-text ratio to palette.base"));
+    assign(ThemeManager::Separator,
+           ThemeColorPair { separator, separator }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 53% toward palette.mid, kept at the divider ratio to palette.base"));
 
     // Secondary text: Text faded 40 % toward Base, then lifted to
     // the readableText ratio (the WCAG text minimum) against Base.
     const QColor mutedText = ColorMath::ensureContrast(
             ColorMath::mix(paletteTextColor, baseColor, 0.40), baseColor,
             ratios.readableText);
-    assign(tokens, ThemeManager::MutedText, ThemeColorPair { mutedText, mutedText });
+    assign(ThemeManager::MutedText, ThemeColorPair { mutedText, mutedText }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.text 40% toward palette.base, kept readable on palette.base"));
+
+    // Diff line tints and notice banners.  Only the current mode's base is
+    // known here (as for the filter tints), so each side mixes that base
+    // with its own accent.
+    auto tint = [&baseColor](const ThemeColorPair &accent, qreal light, qreal dark) {
+        return ThemeColorPair { ColorMath::mix(baseColor, accent.light, light),
+                                ColorMath::mix(baseColor, accent.dark, dark) };
+    };
+    assign(ThemeManager::DiffAdded,         tint(accentSuccess, 0.16, 0.22), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 16% (light) / 22% (dark) toward accent.success"));
+    assign(ThemeManager::DiffChanged,       tint(accentInfo,    0.16, 0.30), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 16% (light) / 30% (dark) toward accent.info"));
+    assign(ThemeManager::DiffRemoved,       tint(accentError,   0.10, 0.22), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 10% (light) / 22% (dark) toward accent.error"));
+    assign(ThemeManager::NoticeInfo,        tint(accentInfo,    0.10, 0.22), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 10% (light) / 22% (dark) toward accent.info"));
+    assign(ThemeManager::NoticeInfoBorder,  tint(accentInfo,    0.45, 0.45), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 45% toward accent.info"));
+    assign(ThemeManager::NoticeError,       tint(accentError,   0.08, 0.22), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 8% (light) / 22% (dark) toward accent.error"));
+    assign(ThemeManager::NoticeErrorBorder, tint(accentError,   0.50, 0.50), QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.base 50% toward accent.error"));
 
     // Raised surfaces ("cards") on Base: the welcome page Learn card and
     // the overlay cards.  The platform AlternateBase is no usable source
@@ -526,15 +551,24 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
 
     // The palette describes only the current mode; both halves carry
     // the current value, as for the welcome header.
-    assign(tokens, ThemeManager::CardBackground,         ThemeColorPair { cardBg,                 cardBg });
-    assign(tokens, ThemeManager::CardBorder,             ThemeColorPair { cardBorder,             cardBorder });
-    assign(tokens, ThemeManager::CardSectionHeader,      ThemeColorPair { cardSectionHeader,      cardSectionHeader });
-    assign(tokens, ThemeManager::CardSectionHeaderHover, ThemeColorPair { cardSectionHeaderHover, cardSectionHeaderHover });
-    assign(tokens, ThemeManager::CardLink,               ThemeColorPair { cardLink,               cardLink });
-    assign(tokens, ThemeManager::CardLinkHover,          ThemeColorPair { cardLinkHover,          cardLinkHover });
-    assign(tokens, ThemeManager::CardFocusRing,          ThemeColorPair { cardFocusRing,          cardFocusRing });
-    assign(tokens, ThemeManager::OverlayCardBackground,  ThemeColorPair { overlayCardBg,          overlayCardBg });
-    assign(tokens, ThemeManager::OverlayCardBorder,      ThemeColorPair { overlayCardBorder,      overlayCardBorder });
+    assign(ThemeManager::CardBackground,         ThemeColorPair { cardBg,                 cardBg },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.alternateBase when set, else palette.base; in dark mode kept at the dark card surface ratio to palette.base"));
+    assign(ThemeManager::CardBorder,             ThemeColorPair { cardBorder,             cardBorder },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "Separator, kept at the divider ratio to CardBackground"));
+    assign(ThemeManager::CardSectionHeader,      ThemeColorPair { cardSectionHeader,      cardSectionHeader },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "SectionHeader, kept readable on CardBackground"));
+    assign(ThemeManager::CardSectionHeaderHover, ThemeColorPair { cardSectionHeaderHover, cardSectionHeaderHover },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "SectionHeaderHover, kept readable on CardBackground"));
+    assign(ThemeManager::CardLink,               ThemeColorPair { cardLink,               cardLink },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "the palette link color, kept readable on CardBackground and on CardLinkHover"));
+    assign(ThemeManager::CardLinkHover,          ThemeColorPair { cardLinkHover,          cardLinkHover },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "hover fill of palette.highlight on CardBackground, moved until CardLink reads on it"));
+    assign(ThemeManager::CardFocusRing,          ThemeColorPair { cardFocusRing,          cardFocusRing },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.highlight, kept readable on CardBackground"));
+    assign(ThemeManager::OverlayCardBackground,  ThemeColorPair { overlayCardBg,          overlayCardBg },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "the lighter of palette.base and CardBackground"));
+    assign(ThemeManager::OverlayCardBorder,      ThemeColorPair { overlayCardBorder,      overlayCardBorder },
+           QT_TRANSLATE_NOOP("ThemeTokenHandler", "Separator, kept at the divider ratio to OverlayCardBackground"));
 
     // Foregrounds for solid accent surfaces — auto-pick black or white
     // per contrastingText().  These give QSS rules a single token to
@@ -542,43 +576,47 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // hand-tune the contrast (or rely on one fixed text color
     // that may not fit a bright accent — see #headerBuildLabel and
     // #updateDownload in welcome-header.qss).
-    assign(tokens, ThemeManager::TextOnSuccess,
-           ColorMath::contrastingText(successPair));
-    assign(tokens, ThemeManager::TextOnWarning,
-           ColorMath::contrastingText(tokens.value(ThemeManager::AccentWarning)));
-    assign(tokens, ThemeManager::TextOnError,
-           ColorMath::contrastingText(tokens.value(ThemeManager::AccentError)));
-    assign(tokens, ThemeManager::TextOnInfo,
-           ColorMath::contrastingText(tokens.value(ThemeManager::AccentInfo)));
+    assign(ThemeManager::TextOnSuccess,
+           ColorMath::contrastingText(successPair), QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on accent.success"));
+    assign(ThemeManager::TextOnWarning,
+           ColorMath::contrastingText(tokens.value(ThemeManager::AccentWarning)), QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on accent.warning"));
+    assign(ThemeManager::TextOnError,
+           ColorMath::contrastingText(tokens.value(ThemeManager::AccentError)), QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on accent.error"));
+    assign(ThemeManager::TextOnInfo,
+           ColorMath::contrastingText(tokens.value(ThemeManager::AccentInfo)), QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on accent.info"));
 
     // Foreground for the filter validity tints.
-    for (const auto &ft : filterTints)
-        assign(tokens, ft.text, ColorMath::contrastingText(tokens.value(ft.tint)));
+    assign(ThemeManager::TextOnFilterValid,
+           ColorMath::contrastingText(tokens.value(ThemeManager::FilterValid)), QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on filter.valid"));
+    assign(ThemeManager::TextOnFilterInvalid,
+           ColorMath::contrastingText(tokens.value(ThemeManager::FilterInvalid)), QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on filter.invalid"));
+    assign(ThemeManager::TextOnFilterDeprecated,
+           ColorMath::contrastingText(tokens.value(ThemeManager::FilterDeprecated)), QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white on filter.deprecated"));
 
     // Update bar — all from accent.success
-    assign(tokens, ThemeManager::UpdateBackground,       updateBg);
-    assign(tokens, ThemeManager::UpdateBorder,           ColorMath::withAlpha(successPair, 51));
-    assign(tokens, ThemeManager::UpdateText,             ColorMath::lighten(successPair, 50));
-    assign(tokens, ThemeManager::UpdateTextHighlight,    ColorMath::lighten(successPair, 70));
-    assign(tokens, ThemeManager::UpdateLink,             ColorMath::lighten(successPair, 30));
-    assign(tokens, ThemeManager::UpdateLinkHover,        ColorMath::lighten(successPair, 50));
-    assign(tokens, ThemeManager::UpdateLinkPressed,      ColorMath::darken(successPair, 20));
-    assign(tokens, ThemeManager::UpdateButtonBg,         successPair);
-    assign(tokens, ThemeManager::UpdateButtonHover,      ColorMath::darken(successPair, 8));
-    assign(tokens, ThemeManager::UpdateButtonPressed,    ColorMath::darken(successPair, 16));
-    assign(tokens, ThemeManager::UpdateButtonDisabledBg, disabledBg);
+    assign(ThemeManager::UpdateBackground,       updateBg, QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 60% darker"));
+    assign(ThemeManager::UpdateBorder,           ColorMath::withAlpha(successPair, 51), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success at 20% opacity"));
+    assign(ThemeManager::UpdateText,             ColorMath::lighten(successPair, 50), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 50% lighter"));
+    assign(ThemeManager::UpdateTextHighlight,    ColorMath::lighten(successPair, 70), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 70% lighter"));
+    assign(ThemeManager::UpdateLink,             ColorMath::lighten(successPair, 30), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 30% lighter"));
+    assign(ThemeManager::UpdateLinkHover,        ColorMath::lighten(successPair, 50), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 50% lighter"));
+    assign(ThemeManager::UpdateLinkPressed,      ColorMath::darken(successPair, 20), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 20% darker"));
+    assign(ThemeManager::UpdateButtonBg,         successPair, QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success"));
+    assign(ThemeManager::UpdateButtonHover,      ColorMath::darken(successPair, 8), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 8% darker"));
+    assign(ThemeManager::UpdateButtonPressed,    ColorMath::darken(successPair, 16), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 16% darker"));
+    assign(ThemeManager::UpdateButtonDisabledBg, disabledBg, QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success 40% darker"));
     // Disabled button text: contrasting text faded toward the disabled button bg
-    assign(tokens, ThemeManager::UpdateButtonDisabledText,
-           ColorMath::disabled(ColorMath::contrastingText(disabledBg.light), disabledBg.light),
-           ColorMath::disabled(ColorMath::contrastingText(disabledBg.dark),  disabledBg.dark));
+    assign(ThemeManager::UpdateButtonDisabledText,
+           ThemeColorPair { ColorMath::disabled(ColorMath::contrastingText(disabledBg.light), disabledBg.light),
+                            ColorMath::disabled(ColorMath::contrastingText(disabledBg.dark),  disabledBg.dark) }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "black or white faded toward UpdateButtonDisabledBg"));
     // Dismiss hover: subtle tint of contrasting color onto the bar
-    assign(tokens, ThemeManager::UpdateDismissHoverBg,
-           dismissHoverBg(updateBg.light), dismissHoverBg(updateBg.dark));
+    assign(ThemeManager::UpdateDismissHoverBg,
+           ThemeColorPair { dismissHoverBg(updateBg.light), dismissHoverBg(updateBg.dark) }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "hover tint on the update bar"));
     // Dismiss pressed: same pattern but use disabled() for a stronger blend
-    assign(tokens, ThemeManager::UpdateDismissPressedBg,
-           dismissPressedBg(updateBg.light), dismissPressedBg(updateBg.dark));
+    assign(ThemeManager::UpdateDismissPressedBg,
+           ThemeColorPair { dismissPressedBg(updateBg.light), dismissPressedBg(updateBg.dark) }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "pressed tint on the update bar"));
     // The status dot; kept apart from the update bar in high contrast.
-    assign(tokens, ThemeManager::UpdateDot,              successPair);
+    assign(ThemeManager::UpdateDot,              successPair, QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success, kept at the non-text ratio to UpdateBackground in high contrast"));
 
     // High contrast: the bar's text and links read at body-text contrast
     // on it, the bar giving way when even its lightest text still misses;
@@ -615,6 +653,26 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     }
 
     // Accent aliases (derived)
-    assign(tokens, ThemeManager::HighlightColorOrange, tokens.value(ThemeManager::AccentWarning));
-    assign(tokens, ThemeManager::HighlightColorGreen,  successPair);
+    assign(ThemeManager::HighlightColorOrange, tokens.value(ThemeManager::AccentWarning), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.warning"));
+    assign(ThemeManager::HighlightColorGreen,  successPair, QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success"));
+}
+
+QList<ThemeManager::ThemeToken> ThemeTokenHandler::sourceTokens(const char *source)
+{
+    // Names follow ThemeManager's name rule: a dotted theme key
+    // (palette.highlight) or an enumerator (HeaderText).  The test suite
+    // reads this pattern from here and checks that every rule text resolves
+    // with it, so this is the only copy.
+    static const QRegularExpression names(
+        QStringLiteral("\\b([a-z]+\\.[A-Za-z]+|[A-Z][A-Za-z0-9]+)\\b"));
+    QList<ThemeManager::ThemeToken> out;
+    if (!source)
+        return out;
+    QRegularExpressionMatchIterator it = names.globalMatch(QString::fromLatin1(source));
+    while (it.hasNext()) {
+        const ThemeManager::ThemeToken token = ThemeManager::instance()->tokenForName(it.next().captured(1));
+        if (token != ThemeManager::NoRole && !out.contains(token))
+            out << token;
+    }
+    return out;
 }

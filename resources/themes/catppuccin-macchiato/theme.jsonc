@@ -1,0 +1,124 @@
+// =====================================================================
+// Wireshark Catppuccin Macchiato Theme
+// =====================================================================
+//
+// Colors from Catppuccin (MIT license, (c) 2021 Catppuccin),
+// https://github.com/catppuccin/catppuccin, following its style guide.
+// Light mode is Latte, the only light flavor, so the three Catppuccin
+// themes share their light side; dark mode is Macchiato.  Only the
+// color values are taken over.
+//
+// Format: JSONC: standard JSON with C-style comments.
+// =====================================================================
+
+{
+	"meta": {
+		"name": "Catppuccin Macchiato",
+		"version": 1,
+		"author": "Wireshark Foundation",
+		"description": "Colors from Catppuccin Macchiato and Latte (MIT)."
+	},
+
+	// -----------------------------------------------------------------
+	// Brand: Mauve, the usual Catppuccin accent.
+	// -----------------------------------------------------------------
+	"brand": {
+		"primary": { "light": "#8839ef", "dark": "#c6a0f6" }
+	},
+
+	// -----------------------------------------------------------------
+	// Accent: Green, Yellow, Red and Blue, the style guide colors for
+	// success, warnings, errors and links.  The filter field tints
+	// (valid, invalid, deprecated) derive from these; the theme does
+	// not pin them.
+	// -----------------------------------------------------------------
+	"accent": {
+		"success": { "light": "#40a02b", "dark": "#a6da95" },
+		"warning": { "light": "#df8e1d", "dark": "#eed49f" },
+		"error":   { "light": "#d20f39", "dark": "#ed8796" },
+		"info":    { "light": "#1e66f5", "dark": "#8aadf4" }
+	},
+
+	// -----------------------------------------------------------------
+	// Expert info fills: each severity color laid over palette.base,
+	// with one foreground that reads on all five fills.
+	// -----------------------------------------------------------------
+	"expert": {
+		"comment":    { "light": "#c3ddc2", "dark": "#4b5d55" },
+		"chat":       { "light": "#bbcef5", "dark": "#434f72" },
+		"note":       { "light": "#b9d9de", "dark": "#435b65" },
+		"warn":       { "light": "#ebd8bf", "dark": "#615b58" },
+		"error":      { "light": "#e8b8c6", "dark": "#604456" },
+		"foreground": { "light": "#4c4f69", "dark": "#cbd3f5" }
+	},
+
+	// -----------------------------------------------------------------
+	// Packets: the style guide selection, Overlay 2 at 25 % over
+	// Base (15 % for the inactive selection), written as opaque
+	// colors; marked rows in Mauve with Base text (text on accents).
+	// -----------------------------------------------------------------
+	"packets": {
+		"selection":     { "light": "#d2d4dc", "dark": "#404459" },
+		"selectionText": { "light": "#4c4f69", "dark": "#cad3f5" },
+		"inactive":      { "light": "#dee0e6", "dark": "#35384d" },
+		"inactiveText":  { "light": "#4c4f69", "dark": "#cad3f5" },
+		"marked":        { "light": "#8839ef", "dark": "#c6a0f6" },
+		"markedText":    { "light": "#eff1f5", "dark": "#24273a" }
+	},
+
+	// -----------------------------------------------------------------
+	// Follow Stream: a red-tinted client and a blue-tinted server,
+	// each text color lifted until it reads on its fill.
+	// -----------------------------------------------------------------
+	"conversation": {
+		"client":     { "light": "#ecd6de", "dark": "#423548" },
+		"clientText": { "light": "#c10e35", "dark": "#ed8796" },
+		"server":     { "light": "#d6e0f5", "dark": "#333b56" },
+		"serverText": { "light": "#1b5ad9", "dark": "#8aadf4" }
+	},
+
+	// -----------------------------------------------------------------
+	// Filter: the saved-filter bookmark glyph in Yellow, the history
+	// arrow in Overlay 2.
+	// -----------------------------------------------------------------
+	"filter": {
+		"bookmarkMatch": { "light": "#df8e1d", "dark": "#eed49f" },
+		"history":       { "light": "#7c7f93", "dark": "#939ab7" }
+	},
+
+	// -----------------------------------------------------------------
+	// Palette: light = Latte, dark = Macchiato.  Base background,
+	// Mantle window and alternate rows, Text for all text, Overlay 1
+	// as the secondary tone, Surface 0 for quiet borders.
+	// -----------------------------------------------------------------
+	"palette": {
+		"window":          { "light": "#e6e9ef", "dark": "#1e2030" },
+		"windowText":      { "light": "#4c4f69", "dark": "#cad3f5" },
+		"base":            { "light": "#eff1f5", "dark": "#24273a" },
+		"text":            { "light": "#4c4f69", "dark": "#cad3f5" },
+		"alternateBase":   { "light": "#e6e9ef", "dark": "#1e2030" },
+		"mid":             { "light": "#8c8fa1", "dark": "#8087a2" },
+		"midlight":        { "light": "#ccd0da", "dark": "#363a4f" }
+	},
+
+	// -----------------------------------------------------------------
+	// Graph colors: thirteen accent colors and Overlay 2, in the same
+	// order in light (Latte) and dark mode.
+	// -----------------------------------------------------------------
+	"graphs": [
+		{ "light": "#1e66f5", "dark": "#8aadf4" },
+		{ "light": "#d20f39", "dark": "#ed8796" },
+		{ "light": "#40a02b", "dark": "#a6da95" },
+		{ "light": "#df8e1d", "dark": "#eed49f" },
+		{ "light": "#8839ef", "dark": "#c6a0f6" },
+		{ "light": "#179299", "dark": "#8bd5ca" },
+		{ "light": "#fe640b", "dark": "#f5a97f" },
+		{ "light": "#ea76cb", "dark": "#f5bde6" },
+		{ "light": "#04a5e5", "dark": "#91d7e3" },
+		{ "light": "#e64553", "dark": "#ee99a0" },
+		{ "light": "#7287fd", "dark": "#b7bdf8" },
+		{ "light": "#209fb5", "dark": "#7dc4e4" },
+		{ "light": "#dd7878", "dark": "#f0c6c6" },
+		{ "light": "#7c7f93", "dark": "#939ab7" }
+	]
+}

@@ -14,28 +14,7 @@
 #include <errno.h>
 
 #include "file_util.h"
-
-static char *
-sanitize_prefix(const char *prefix)
-{
-  if (!prefix) {
-      return NULL;
-  }
-
-  /* The characters in "delimiters" come from:
-   * https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions.
-   * Add to the list as necessary for other OS's.
-   */
-  const char *delimiters = "<>:\"/\\|?*"
-    "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a"
-    "\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14"
-    "\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f";
-
-  /* Sanitize the prefix to resolve bug 7877 */
-  char *safe_prefx = g_strdup(prefix);
-  safe_prefx = g_strdelimit(safe_prefx, delimiters, '-');
-  return safe_prefx;
-}
+#include "filesystem.h"
 
  /**
  * Create a tempfile with the given prefix (e.g. "wireshark"). The path
@@ -54,7 +33,8 @@ int
 create_tempfile(const char *tempdir, char **namebuf, const char *pfx, const char *sfx, GError **err)
 {
   int fd;
-  char *safe_pfx = sanitize_prefix(pfx);
+  /* Sanitize the prefix to resolve bug 7877 */
+  char *safe_pfx = filename_sanitize(pfx, '-');
 
   if (tempdir == NULL || tempdir[0] == '\0') {
     /* Use OS default tempdir behaviour */
@@ -121,7 +101,7 @@ create_tempdir(const char *parent_dir, const char *tmpl, GError **err)
       parent_dir = g_get_tmp_dir();
   }
 
-  char *safe_pfx = sanitize_prefix(tmpl);
+  char *safe_pfx = filename_sanitize(tmpl, '-');
   if (safe_pfx == NULL) {
     safe_pfx = g_strdup("wireshark_XXXXXX");
   }

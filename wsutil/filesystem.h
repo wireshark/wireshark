@@ -654,6 +654,40 @@ WS_DLL_PUBLIC bool config_file_exists_with_entries(const char *fname, char comme
 WS_DLL_PUBLIC bool files_identical(const char *fname1, const char *fname2);
 
 /**
+ * @brief The printable characters of WS_FILENAME_RESERVED_CHARS: the
+ * reserved characters of Windows file names
+ * (https://learn.microsoft.com/windows/win32/fileio/naming-a-file#naming-conventions).
+ *
+ * Use this set where the characters are shown to the user, for example
+ * in a message that lists the characters a name must not contain.
+ */
+#define WS_FILENAME_RESERVED_PRINTABLE_CHARS "<>:\"/\\|?*"
+
+/**
+ * @brief Characters that are not allowed in a file name on at least one
+ * supported platform.
+ *
+ * WS_FILENAME_RESERVED_PRINTABLE_CHARS plus the control characters
+ * 0x01-0x1f, which covers the other platforms.
+ */
+#define WS_FILENAME_RESERVED_CHARS WS_FILENAME_RESERVED_PRINTABLE_CHARS \
+    "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a" \
+    "\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14" \
+    "\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
+
+/**
+ * @brief Returns a copy of a file name with every WS_FILENAME_RESERVED_CHARS
+ * character replaced.
+ *
+ * @param name The file name, not a path: '/' and '\\' are replaced too.
+ *             May be NULL.
+ * @param replacement The character put in place of each reserved character.
+ * @return A newly allocated string to be freed with g_free(), or NULL when
+ *         name is NULL.
+ */
+WS_DLL_PUBLIC char *filename_sanitize(const char *name, char replacement);
+
+/**
  * @brief Create hash value using same metrics as files_identical()
  *
  * Creates a hash value from a file path to help determine if files resolve to

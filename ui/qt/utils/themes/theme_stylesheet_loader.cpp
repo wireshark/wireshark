@@ -14,7 +14,40 @@
 #include <QColor>
 #include <QFile>
 #include <QIODevice>
+#include <QMetaEnum>
 #include <QRegularExpression>
+#include <QSet>
+
+namespace {
+
+// Names of the palette roles in Qt's style sheet grammar, derived from the
+// QPalette::ColorRole enumerators (AlternateBase -> alternate-base).
+const QHash<QString, QPalette::ColorRole> &paletteRoleNames()
+{
+    static const QHash<QString, QPalette::ColorRole> names = [] {
+        QHash<QString, QPalette::ColorRole> hash;
+        const QMetaEnum roles = QMetaEnum::fromType<QPalette::ColorRole>();
+        for (int i = 0; i < roles.keyCount(); ++i) {
+            const int value = roles.value(i);
+            if (value == QPalette::NoRole || value == QPalette::NColorRoles)
+                continue;
+            const QString key = QString::fromLatin1(roles.key(i));
+            QString name;
+            for (qsizetype j = 0; j < key.size(); ++j) {
+                if (j > 0 && key.at(j).isUpper())
+                    name += QLatin1Char('-');
+                name += key.at(j).toLower();
+            }
+            // Qt's grammar spells the tool tip roles tooltip-base and tooltip-text
+            name.replace(QStringLiteral("tool-tip-"), QStringLiteral("tooltip-"));
+            hash.insert(name, static_cast<QPalette::ColorRole>(value));
+        }
+        return hash;
+    }();
+    return names;
+}
+
+} // namespace
 
 QString ThemeStyleSheetLoader::load(const QString  &name,
                                     const TokenMap &tokens,
@@ -79,4 +112,36 @@ QString ThemeStyleSheetLoader::load(const QString  &name,
     }
 
     return qss;
+}
+
+QString ThemeStyleSheetLoader::resolvePaletteRoles(const QString &sheet, const QPalette &palette)
+{
+    static const QRegularExpression re(QStringLiteral("palette\\(\\s*([A-Za-z-]+)\\s*\\)"),
+                                       QRegularExpression::CaseInsensitiveOption);
+    const QHash<QString, QPalette::ColorRole> &roles = paletteRoleNames();
+    QString out;
+    qsizetype last = 0;
+    QRegularExpressionMatchIterator it = re.globalMatch(sheet);
+    while (it.hasNext()) {
+        const QRegularExpressionMatch m = it.next();
+        const QString name = m.captured(1).toLower();
+        QString replacement = m.captured(0);
+        const auto role = roles.constFind(name);
+        if (role != roles.constEnd()) {
+            replacement = palette.color(QPalette::Active, role.value()).name();
+        } else {
+            // An unknown name comes from a shipped sheet, not from the colors
+            // being previewed, so report it once instead of on every update.
+            static QSet<QString> warned;
+            if (!warned.contains(name)) {
+                warned.insert(name);
+                qWarning("ThemeStyleSheetLoader: unknown palette role \"palette(%s)\"; left as written",
+                         qUtf8Printable(name));
+            }
+        }
+        out += sheet.mid(last, m.capturedStart() - last) + replacement;
+        last = m.capturedEnd();
+    }
+    out += sheet.mid(last);
+    return out;
 }
