@@ -9307,7 +9307,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     uint16_t   real_window;
     unsigned   captured_length_remaining;
     bool       desegment_ok;
-    struct tcpinfo tcpinfo;
+    struct tcpinfo tcpinfo = {0};
     struct tcpheader *tcph;
     proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL, *scaled_pi;
     conversation_t *conv=NULL;
