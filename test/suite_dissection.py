@@ -24929,8 +24929,8 @@ class TestDissectCimetrics:
         summaries = [l for l in stdout.splitlines() if l.startswith('BACnet MS/TP, Src')]
         assert summaries == [
             'BACnet MS/TP, Src (5), Dst (10), Token',
-            'BACnet MS/TP, Src (10), Dst (11), Poll For Master',
-            'BACnet MS/TP, Src (11), Dst (10), Reply To Poll For Master',
+            'BACnet MS/TP, Src (10), Dst (11), Poll For Manager',
+            'BACnet MS/TP, Src (11), Dst (10), Reply To Poll For Manager',
             'BACnet MS/TP, Src (10), Dst (11), Test_Request',
             'BACnet MS/TP, Src (11), Dst (10), Test_Response',
             'BACnet MS/TP, Src (10), Dst (11), BACnet Data Expecting Reply',

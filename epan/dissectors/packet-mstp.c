@@ -2,10 +2,10 @@
  * Routines for BACnet MS/TP datalink dissection
  * Copyright 2008 Steve Karg <skarg@users.sourceforge.net> Alabama
  *
- * This is described in Clause 9 of ANSI/ASHRAE Standard 135-2004,
+ * This is described in Clause 9 of ANSI/ASHRAE Standard 135-2024,
  * BACnet - A Data Communication Protocol for Building Automation
- * and Contrl Networks; clause 9 "describes a Master-Slave/Token-Passing
- * (MS/TP) data link protocol, which provides the same services to the
+ * and Control Networks; clause 9 "describes a Multidrop Serial Bus/Token
+ * Passing (MS/TP) data link protocol, which provides the same services to the
  * network layer as ISO 8802-2 Logical Link Control. It uses services
  * provided by the EIA-485 physical layer."  See section 9.3 for the
  * frame format.
@@ -38,8 +38,8 @@ void proto_reg_handoff_mstp(void);
 /* MS/TP Frame Type */
 /* Frame Types 8 through 127 are reserved by ASHRAE. */
 #define MSTP_TOKEN                                    0x00
-#define MSTP_POLL_FOR_MASTER                          0x01
-#define MSTP_REPLY_TO_POLL_FOR_MASTER                 0x02
+#define MSTP_POLL_FOR_MANAGER                         0x01
+#define MSTP_REPLY_TO_POLL_FOR_MANAGER                0x02
 #define MSTP_TEST_REQUEST                             0x03
 #define MSTP_TEST_RESPONSE                            0x04
 #define MSTP_BACNET_DATA_EXPECTING_REPLY              0x05
@@ -52,8 +52,8 @@ void proto_reg_handoff_mstp(void);
 static const value_string
 bacnet_mstp_frame_type_name[] = {
 	{MSTP_TOKEN,                                    "Token"},
-	{MSTP_POLL_FOR_MASTER,                          "Poll For Master"},
-	{MSTP_REPLY_TO_POLL_FOR_MASTER,                 "Reply To Poll For Master"},
+	{MSTP_POLL_FOR_MANAGER,                         "Poll For Manager"},
+	{MSTP_REPLY_TO_POLL_FOR_MANAGER,                "Reply To Poll For Manager"},
 	{MSTP_TEST_REQUEST,                             "Test_Request"},
 	{MSTP_TEST_RESPONSE,                            "Test_Response"},
 	{MSTP_BACNET_DATA_EXPECTING_REPLY,              "BACnet Data Expecting Reply"},
