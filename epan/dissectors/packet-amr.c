@@ -592,7 +592,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
 {
     int         offset     = 0;
     uint8_t     octet;
-    proto_item *item;
+    proto_item *item, *decoded_as_item;
     amr_params_t  amr_params = { amr_encoding_type, amr_interleaving_mode, amr_crc_mode };
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -637,8 +637,8 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
         }
     }
 
-    item = proto_tree_add_uint(amr_tree, hf_amr_payload_decoded_as, tvb, offset, tvb_reported_length(tvb), amr_params.encoding);
-    proto_item_set_generated(item);
+    decoded_as_item = proto_tree_add_uint(amr_tree, hf_amr_payload_decoded_as, tvb, offset, tvb_reported_length(tvb), amr_params.encoding);
+    proto_item_set_generated(decoded_as_item);
 
     switch (amr_params.encoding) {
     case AMR_OA: /* RFC 3267 Octet aligned */
@@ -669,12 +669,48 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int amr_
         item = proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         expert_add_info(pinfo, item, &ei_amr_reserved);
         proto_item_set_generated(item);
+        proto_item_append_text(decoded_as_item, ", reserved bits set: bandwidth-efficient");
         dissect_amr_be(tvb, pinfo, amr_tree, amr_mode);
         return;
     }
 
     dissect_amr_oa(tvb, pinfo, amr_tree, amr_mode, &amr_params);
     return;
+}
+
+/* The IF1 and IF2 dissectors called by name */
+static proto_tree *
+add_amr_if_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const char *name)
+{
+    proto_item *ti;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, name);
+    ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, ENC_NA);
+    return proto_item_add_subtree(ti, ett_amr);
+}
+
+static int
+dissect_amr_nb_if1_named(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    return dissect_amr_nb_if1(tvb, pinfo, add_amr_if_tree(tvb, pinfo, tree, "AMR"), data);
+}
+
+static int
+dissect_amr_wb_if1_named(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    return dissect_amr_wb_if1(tvb, pinfo, add_amr_if_tree(tvb, pinfo, tree, "AMR-WB"), data);
+}
+
+static int
+dissect_amr_nb_if2_named(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    return dissect_amr_nb_if2(tvb, pinfo, add_amr_if_tree(tvb, pinfo, tree, "AMR"), data);
+}
+
+static int
+dissect_amr_wb_if2_named(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    return dissect_amr_wb_if2(tvb, pinfo, add_amr_if_tree(tvb, pinfo, tree, "AMR-WB"), data);
 }
 
 /* Code to actually dissect the packets */
@@ -689,7 +725,7 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 static int
-dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR-WB");
@@ -994,10 +1030,10 @@ proto_register_amr(void)
 
     amr_handle = register_dissector("amr", dissect_amr, proto_amr);
     amr_wb_handle = register_dissector("amr-wb", dissect_amr_wb, proto_amr_wb);
-    register_dissector("amr_if1_nb", dissect_amr_nb_if1, proto_amr);
-    register_dissector("amr_if1_wb", dissect_amr_wb_if1, proto_amr);
-    register_dissector("amr_if2_nb", dissect_amr_nb_if2, proto_amr);
-    register_dissector("amr_if2_wb", dissect_amr_wb_if2, proto_amr);
+    register_dissector("amr_if1_nb", dissect_amr_nb_if1_named, proto_amr);
+    register_dissector("amr_if1_wb", dissect_amr_wb_if1_named, proto_amr);
+    register_dissector("amr_if2_nb", dissect_amr_nb_if2_named, proto_amr);
+    register_dissector("amr_if2_wb", dissect_amr_wb_if2_named, proto_amr);
 
     oid_add_from_string("G.722.2 (AMR-WB) audio capability","0.0.7.7222.1.0");
 
