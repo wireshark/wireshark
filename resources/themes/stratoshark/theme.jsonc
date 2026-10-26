@@ -30,7 +30,7 @@
 	// =================================================================
 
 	"meta": {
-		"name": "Stratoshark",
+		"name": "Stratoshark Default",
 		"version": 1,
 		"author": "Stratoshark Project",
 		"description": "Default Stratoshark theme based on the Cloud teal palette from stratoshark.org."

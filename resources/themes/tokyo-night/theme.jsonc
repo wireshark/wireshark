@@ -1,0 +1,137 @@
+// =====================================================================
+// Wireshark Tokyo Night Theme
+// =====================================================================
+//
+// Colors from the Tokyo Night VS Code theme by Enkia (MIT license,
+// (c) 2018-present Enkia), https://github.com/tokyo-night/tokyo-night-vscode-theme.
+// Light mode is Tokyo Night Light, dark mode is Tokyo Night.  Only the
+// color values are taken over.
+//
+// Format: JSONC: standard JSON with C-style comments.
+// =====================================================================
+
+{
+	"meta": {
+		"name": "Tokyo Night",
+		"version": 1,
+		"author": "Wireshark Foundation",
+		"description": "Colors from the Tokyo Night theme by Enkia (MIT)."
+	},
+
+	// -----------------------------------------------------------------
+	// Brand: the button and progress bar blue of the editor theme.
+	// -----------------------------------------------------------------
+	"brand": {
+		"primary": { "light": "#2959aa", "dark": "#3d59a1" }
+	},
+
+	// -----------------------------------------------------------------
+	// Accent: success, warning, error and info from the source palette.
+	// The filter field tints (valid, invalid, deprecated) derive from
+	// these; the theme does not pin them.
+	// -----------------------------------------------------------------
+	"accent": {
+		"success": { "light": "#33635c", "dark": "#73daca" },
+		"warning": { "light": "#8f5e15", "dark": "#e0af68" },
+		"error":   { "light": "#bd4040", "dark": "#db4b4b" },
+		"info":    { "light": "#2959aa", "dark": "#7aa2f7" }
+	},
+
+	// -----------------------------------------------------------------
+	// Expert info fills: each severity color laid over palette.base,
+	// with one foreground that reads on all five fills.
+	// -----------------------------------------------------------------
+	"expert": {
+		"comment":    { "light": "#b9c6c9", "dark": "#355457" },
+		"chat":       { "light": "#b7c4dc", "dark": "#374465" },
+		"note":       { "light": "#acc8d3", "dark": "#385167" },
+		"warn":       { "light": "#d0c5b7", "dark": "#55473a" },
+		"error":      { "light": "#dcbdc2", "dark": "#542931" },
+		"foreground": { "light": "#343b59", "dark": "#b8bfdd" }
+	},
+
+	// -----------------------------------------------------------------
+	// Packets: dark mode uses the editor selection color at 50 % over
+	// the background (30 % for the inactive selection), written as
+	// opaque colors, so a selected row stands apart from the alternate
+	// row tint.  Tokyo Night Light's selection gray is too close to its
+	// line highlight, so light mode uses the link blue at 25 %.  Marked
+	// rows in the brand blue with white text.
+	// -----------------------------------------------------------------
+	"packets": {
+		"selection":     { "light": "#b7c4dc", "dark": "#363c52" },
+		"selectionText": { "light": "#343b59", "dark": "#a9b1d6" },
+		"inactive":      { "light": "#d5d6df", "dark": "#2a2e40" },
+		"inactiveText":  { "light": "#343b59", "dark": "#a9b1d6" },
+		"marked":        { "light": "#2959aa", "dark": "#3d59a1" },
+		"markedText":    { "light": "#ffffff", "dark": "#ffffff" }
+	},
+
+	// -----------------------------------------------------------------
+	// Follow Stream: a red-tinted client and a blue-tinted server,
+	// each text color lifted until it reads on its fill.
+	// -----------------------------------------------------------------
+	"conversation": {
+		"client":     { "light": "#e1d3d8", "dark": "#37222c" },
+		"clientText": { "light": "#8c4351", "dark": "#f7768e" },
+		"server":     { "light": "#cfd6e5", "dark": "#282f45" },
+		"serverText": { "light": "#2959aa", "dark": "#7aa2f7" }
+	},
+
+	// -----------------------------------------------------------------
+	// Filter: "bookmarkMatch" stays the classic yellow of the saved
+	// filter glyph in both modes; derived, it would follow
+	// accent.warning.  The history arrow uses the side bar text color.
+	// -----------------------------------------------------------------
+	"filter": {
+		"bookmarkMatch": { "light": "#c4a000", "dark": "#c4a000" },
+		"history":       { "light": "#363c4d", "dark": "#a9b1d6" }
+	},
+
+	// -----------------------------------------------------------------
+	// Palette: light = Tokyo Night Light, dark = Tokyo Night.  Editor
+	// background as base, side bar background as window, the line
+	// highlight as alternate rows, the description color as the
+	// secondary tone and the panel border as the quiet border tone.
+	// -----------------------------------------------------------------
+	"palette": {
+		"window":          { "light": "#d6d8df", "dark": "#16161e" },
+		"windowText":      { "light": "#363c4d", "dark": "#a9b1d6" },
+		"base":            { "light": "#e6e7ed", "dark": "#1a1b26" },
+		"text":            { "light": "#343b59", "dark": "#a9b1d6" },
+		"alternateBase":   { "light": "#dcdee3", "dark": "#1e202e" },
+		"mid":             { "light": "#707280", "dark": "#515670" },
+		"midlight":        { "light": "#c1c2c7", "dark": "#101014" }
+	},
+
+	// -----------------------------------------------------------------
+	// Separator: pinned to the panel border (palette.midlight), as
+	// the derived one would mix in the secondary tone.
+	// -----------------------------------------------------------------
+	"separator": {
+		"light": "#c1c2c7",
+		"dark":  "#101014"
+	},
+
+	// -----------------------------------------------------------------
+	// Graph colors: the accents first, then softer variants of the
+	// same hues laid over the background, so a second round of series
+	// stays apart from the first.
+	// -----------------------------------------------------------------
+	"graphs": [
+		{ "light": "#2959aa", "dark": "#7aa2f7" },
+		{ "light": "#8c4351", "dark": "#f7768e" },
+		{ "light": "#33635c", "dark": "#73daca" },
+		{ "light": "#8f5e15", "dark": "#e0af68" },
+		{ "light": "#7b43ba", "dark": "#bb9af7" },
+		{ "light": "#006c86", "dark": "#7dcfff" },
+		{ "light": "#2959aa", "dark": "#3d59a1" },
+		{ "light": "#7592c5", "dark": "#546ca3" },
+		{ "light": "#b0858f", "dark": "#9f5264" },
+		{ "light": "#7b9896", "dark": "#4f8e88" },
+		{ "light": "#b2956b", "dark": "#91744e" },
+		{ "light": "#a685ce", "dark": "#7b67a3" },
+		{ "light": "#5c9daf", "dark": "#5587a8" },
+		{ "light": "#7592c5", "dark": "#2f4070" }
+	]
+}

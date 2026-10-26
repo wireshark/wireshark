@@ -44,6 +44,7 @@
 #include <QFontDatabase>
 #include <QGroupBox>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPalette>
 #include <QProcess>
 #include <QRegularExpression>
@@ -361,6 +362,26 @@ void desktop_show_in_folder(const QString file_path)
         QFileInfo file_info(file_path);
         QDesktopServices::openUrl(QUrl::fromLocalFile(file_info.dir().absolutePath()));
     }
+}
+
+bool desktop_open_folder(const QString &dir_path, QWidget *parent)
+{
+    if (dir_path.isEmpty())
+        return false;
+
+    if (!QDir(dir_path).exists()) {
+        if (QMessageBox::question(parent, QObject::tr("The directory does not exist"),
+                                  QObject::tr("Should the directory %1 be created?").arg(dir_path))
+                != QMessageBox::Yes)
+            return false;
+        if (!QDir().mkpath(dir_path)) {
+            QMessageBox::warning(parent, QObject::tr("The directory could not be created"),
+                                 QObject::tr("The directory %1 could not be created.").arg(dir_path));
+            return false;
+        }
+    }
+    const QUrl url = QUrl::fromLocalFile(dir_path);
+    return url.isValid() && QDesktopServices::openUrl(url);
 }
 
 bool rect_on_screen(const QRect &rect)

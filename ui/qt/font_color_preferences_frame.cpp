@@ -13,6 +13,7 @@
 #include "font_color_preferences_frame.h"
 #include <ui_font_color_preferences_frame.h>
 #include <ui/qt/utils/theme_manager.h>
+#include "theme_designer_dialog.h"
 
 #include <ui/recent.h>
 
@@ -62,29 +63,11 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     // Theme picker — populated from ThemeManager::availableThemes().
     // Persists its selection in recent_common.gui_theme_name via the
     // frame's stash/unstash flow, so the choice survives profile switches.
-    ui->themeComboBox->clear();
     // Resolve empty/legacy "default" to the flavor's preferred default so
     // the dropdown shows a real, currently-shipped theme selected on
     // first run instead of an entry that no longer exists.
-    stashed_theme_name_ = ThemeManager::resolveThemeName(
-            QString::fromUtf8(recent.gui_theme_name));
-    const QList<ThemeInfo> themes = ThemeManager::availableThemes();
-    int selectedIdx = -1;
-    for (int i = 0; i < themes.size(); ++i) {
-        const ThemeInfo &t = themes.at(i);
-        // Show the theme name only; the author moves to a hint label below
-        // the preview (set in refreshPreview()) so the dropdown stays clean.
-        // The author is stashed in a private item-data role to feed it.
-        ui->themeComboBox->addItem(t.name, t.internalName);
-        ui->themeComboBox->setItemData(i, t.author, theme_author_role_);
-        ui->themeComboBox->setItemData(i, t.contrast == ThemeContrast::High, theme_high_contrast_role_);
-        if (!t.description.isEmpty())
-            ui->themeComboBox->setItemData(i, t.description, Qt::ToolTipRole);
-        if (t.internalName == stashed_theme_name_)
-            selectedIdx = i;
-    }
-    if (selectedIdx >= 0)
-        ui->themeComboBox->setCurrentIndex(selectedIdx);
+    stashed_theme_name_ = ThemeManager::selectedThemeName();
+    populateThemeCombo();
     connect(ui->themeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
         this, &FontColorPreferencesFrame::themeIndexChanged);
 
@@ -102,6 +85,48 @@ FontColorPreferencesFrame::FontColorPreferencesFrame(QWidget *parent) :
     set_section_title_font(ui->themeGroupBox);
     set_hint_label_style(ui->themeAuthorLabel);
     set_hint_label_style(ui->themeDescriptionLabel);
+}
+
+void FontColorPreferencesFrame::populateThemeCombo()
+{
+    QSignalBlocker blocker(ui->themeComboBox);
+    ui->themeComboBox->clear();
+    const QList<ThemeInfo> themes = ThemeManager::availableThemes();
+
+    int selectedIdx = -1;
+
+    // availableThemes() lists built-in themes first; separate them from the
+    // personal ones that follow.
+    bool separatorAdded = false;
+    for (const ThemeInfo &t : themes) {
+        if (!t.builtIn && !separatorAdded && ui->themeComboBox->count() > 0) {
+            ui->themeComboBox->insertSeparator(ui->themeComboBox->count());
+            separatorAdded = true;
+        }
+
+        // Show the theme name only; the author moves to a hint label below
+        // the preview (set in refreshPreview()) so the dropdown stays clean.
+        // The author is stashed in a private item-data role to feed it.
+        const int i = ui->themeComboBox->count();
+        ui->themeComboBox->addItem(t.name, t.internalName);
+        ui->themeComboBox->setItemData(i, t.author, theme_author_role_);
+        ui->themeComboBox->setItemData(i, t.contrast == ThemeContrast::High, theme_high_contrast_role_);
+        if (!t.description.isEmpty())
+            ui->themeComboBox->setItemData(i, t.description, Qt::ToolTipRole);
+        if (t.internalName == stashed_theme_name_)
+            selectedIdx = i;
+    }
+
+    if (selectedIdx >= 0) {
+        ui->themeComboBox->setCurrentIndex(selectedIdx);
+    } else if (!themes.isEmpty()) {
+        // The stashed theme vanished (e.g. its file was removed).
+        ui->themeComboBox->setCurrentIndex(0);
+        stashed_theme_name_ = themes.at(0).internalName;
+    }
+
+    updateContrastCombo();
+    refreshPreview();
 }
 
 FontColorPreferencesFrame::~FontColorPreferencesFrame()
@@ -170,12 +195,26 @@ void FontColorPreferencesFrame::themeIndexChanged(int)
     refreshPreview();
 }
 
+void FontColorPreferencesFrame::on_themeDesignerPushButton_clicked()
+{
+    ThemeDesignerDialog *dialog = new ThemeDesignerDialog(
+            window(), ThemeDesignerDialog::Context::Preferences, stashed_theme_name_);
+    dialog->setWindowModality(Qt::WindowModal);
+    connect(dialog, &ThemeDesignerDialog::themeSaved, this, [this](const QString &stem) {
+        stashed_theme_name_ = stem;
+        populateThemeCombo();
+    });
+    connect(dialog, &ThemeDesignerDialog::themeRemoved, this, [this](const QString &stem) {
+        if (stashed_theme_name_ == stem)
+            stashed_theme_name_ = ThemeManager::defaultThemeName();
+        populateThemeCombo();
+    });
+    dialog->show();
+}
+
 void FontColorPreferencesFrame::unstash()
 {
-    g_free(recent.gui_theme_name);
-    recent.gui_theme_name = stashed_theme_name_.isEmpty()
-        ? nullptr
-        : g_strdup(stashed_theme_name_.toUtf8().constData());
+    ThemeManager::setSelectedThemeName(stashed_theme_name_);
 
     recent.gui_color_scheme = stashed_color_scheme_;
     recent.gui_contrast = stashed_contrast_;
@@ -192,7 +231,7 @@ void FontColorPreferencesFrame::refreshPreview()
         const QString author = ui->themeComboBox->itemData(
             idx, theme_author_role_).toString();
         ui->themeAuthorLabel->setText(
-            author.isEmpty() ? QString() : tr("Theme by %1").arg(author));
+            author.isEmpty() ? QString() : tr("Author: %1").arg(author));
         const QString description = ui->themeComboBox->itemData(
             idx, Qt::ToolTipRole).toString();
         ui->themeDescriptionLabel->setText(description);

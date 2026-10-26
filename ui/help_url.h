@@ -124,7 +124,8 @@ typedef enum {
     HELP_IAX2_ANALYSIS_DIALOG,                      /**< Help for the IAX2 Stream Analysis dialog */
     HELP_TELEPHONY_RTP_PLAYER_DIALOG,               /**< Help for the RTP Player dialog */
     HELP_STAT_FLOW_GRAPH,                           /**< Help for the Flow Graph / Sequence diagram dialog */
-    HELP_STATS_PLOT_DIALOG                          /**< Help for the Stats Plot dialog */
+    HELP_STATS_PLOT_DIALOG,                         /**< Help for the Stats Plot dialog */
+    HELP_THEME_DESIGNER_DIALOG                      /**< Help for the Theme Designer dialog */
 } topic_action_e;
 
 /** Given a page in the Wireshark User's Guide return its URL. Returns a

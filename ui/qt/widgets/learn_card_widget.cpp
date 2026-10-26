@@ -178,8 +178,16 @@ void LearnCardWidget::setupLinks()
 
 void LearnCardWidget::applyTheme()
 {
-    setStyleSheet(ThemeManager::styleSheet(QStringLiteral("widgets/learn-card")));
+    applyStyleSheet();
     setupActionButtons();
+    if (!styled_by_parent_)
+        card_link_color_ = ThemeManager::instance()->color(ThemeManager::CardLink);
+    applyCardLinkPalette();
+}
+
+void LearnCardWidget::setCardLinkColor(const QColor &color)
+{
+    card_link_color_ = color;
     applyCardLinkPalette();
 }
 
@@ -190,7 +198,7 @@ void LearnCardWidget::applyCardLinkPalette()
     // the card and on its hover fill (in dark mode it is lifted past
     // the application Link), so the labels get it locally, and the
     // application Link stays as it is.
-    const QColor card_link = ThemeManager::instance()->color(ThemeManager::CardLink);
+    const QColor card_link = card_link_color_;
     const QList<QLabel *> labels = ui_->learnLinkContainer->findChildren<QLabel *>(
         QStringLiteral("learnLink"), Qt::FindDirectChildrenOnly);
     for (QLabel *label : labels) {
@@ -270,6 +278,17 @@ void LearnCardWidget::setLinksCollapsed(bool collapsed)
 bool LearnCardWidget::isLinksCollapsed() const
 {
     return links_collapsed_;
+}
+
+void LearnCardWidget::setStyledByParent(bool styled_by_parent)
+{
+    styled_by_parent_ = styled_by_parent;
+    applyStyleSheet();
+}
+
+void LearnCardWidget::applyStyleSheet()
+{
+    setStyleSheet(styled_by_parent_ ? QString() : ThemeManager::styleSheet(QStringLiteral("widgets/learn-card")));
 }
 
 bool LearnCardWidget::event(QEvent *event)

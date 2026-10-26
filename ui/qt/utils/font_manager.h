@@ -104,6 +104,8 @@ public:
     /** Resolves a font descriptor (QFont::toString() form) or bare family name
      *  without touching FontManager state. */
     static QFont fontFromName(const QString &name);
+    /** Family, style name and point size with one decimal, e.g. "Menlo Regular 12.0". */
+    static QString displayName(const QFont &font);
     /** Returns @p font, or a fixed-pitch substitute when it is proportional.
      *  Only the substitute is reset to the normal (upright) style. */
     static QFont guaranteeMonospace(const QFont &font);

@@ -89,6 +89,14 @@ private:
      */
     void updateContrastCombo();
 
+    /**
+     * @brief (Re)fills the theme combo box from the available themes.
+     *
+     * Selects the stashed theme, or the first entry (updating the stash) when
+     * the stashed theme no longer exists.
+     */
+    void populateThemeCombo();
+
 private slots:
     /**
      * @brief Slot triggered when the color scheme combo box index changes.
@@ -108,6 +116,11 @@ private slots:
      * @brief Refreshes the theme preview. Stub in Task 8; wired in Task 12.
      */
     void refreshPreview();
+
+    /**
+     * @brief Slot triggered when the Theme Designer button is clicked.
+     */
+    void on_themeDesignerPushButton_clicked();
 };
 
 #endif // FONT_COLOR_PREFERENCES_FRAME_H

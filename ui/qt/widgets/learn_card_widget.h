@@ -50,6 +50,27 @@ public:
      */
     bool isLinksCollapsed() const;
 
+    /**
+     * @brief Leave the card's styling to an ancestor's style sheet.
+     *
+     * By default the card sets the live learn-card style sheet on itself and
+     * renews it on every theme change.  A widget's own sheet wins over its
+     * ancestors', so a preview that styles the card from its own sheet (the
+     * Theme Designer's draft preview) turns this off.
+     *
+     * @param styled_by_parent true to clear the card's own sheet and keep it clear.
+     */
+    void setStyledByParent(bool styled_by_parent);
+
+    /**
+     * @brief Set the link color of the card (normally CardLink of the live
+     * theme).  A card styled by its parent keeps this color across theme
+     * changes, so the parent can set the color of the theme it shows.
+     *
+     * @param color the link color.
+     */
+    void setCardLinkColor(const QColor &color);
+
 protected:
     /**
      * @brief Handle widget events, including palette and style changes.
@@ -99,6 +120,8 @@ private:
     /** Action buttons loaded from the resource, filtered by validity. */
     QList<ButtonType> buttons_;
     bool links_collapsed_;    /**< true when the links section is in its collapsed state. */
+    bool styled_by_parent_ = false; /**< true when an ancestor's style sheet styles the card. */
+    QColor card_link_color_;        /**< Link color of the link labels, see setCardLinkColor(). */
 
     /**
      * @brief Load link and button definitions from the embedded resource file.
@@ -123,8 +146,8 @@ private:
     void applyTheme();
 
     /**
-     * @brief Set the card link color (CardLink) as QPalette::Link
-     * of every link label.
+     * @brief Set the card link color (CardLink, or the color given to
+     * setCardLinkColor()) as QPalette::Link of every link label.
      */
     void applyCardLinkPalette();
 
@@ -135,6 +158,9 @@ private:
      * resolved.
      */
     static QColor resolveButtonColor(const QString &spec);
+
+    /** @brief Set the live learn-card sheet unless styled by a parent. */
+    void applyStyleSheet();
 };
 
 #endif //LEARN_CARD_WIDGET_H

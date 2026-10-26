@@ -13,6 +13,7 @@
 #include <ui/qt/utils/theme_manager.h>
 
 #include <QHash>
+#include <QPalette>
 #include <QString>
 
 /**
@@ -60,6 +61,21 @@ public:
     static QString load(const QString  &name,
                         const TokenMap &tokens,
                         bool            isDarkMode);
+
+    /**
+     * Replaces every `palette(<role>)` in @p sheet with @p palette's Active color
+     * for that role.  Qt resolves palette() in style sheets against the
+     * application palette, not the widget's, so a sheet previewing another
+     * palette resolves the references itself.  Role names are the ones Qt's
+     * style sheet grammar accepts, derived from QPalette::ColorRole.  A name
+     * that matches no role is left as written (Qt ignores it on the live page
+     * too) and logged with qWarning once per name.
+     *
+     * @param sheet   Style sheet text.
+     * @param palette Palette whose Active colors are substituted.
+     * @return The sheet with the palette() references resolved.
+     */
+    static QString resolvePaletteRoles(const QString &sheet, const QPalette &palette);
 };
 
 #endif /* THEME_STYLESHEET_LOADER_H */

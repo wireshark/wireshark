@@ -74,10 +74,11 @@
         },
 
         "expert": {
-            "description": "Optional expert-info severity colors. When omitted, derived from accent values at 40% alpha.",
+            "description": "Optional expert-info severity colors. When omitted, derived from accent values at 40% alpha. `none` is the background of expert items without a severity.",
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "none":       { "$ref": "#/$defs/colorPair" },
                 "comment":    { "$ref": "#/$defs/colorPair" },
                 "chat":       { "$ref": "#/$defs/colorPair" },
                 "note":       { "$ref": "#/$defs/colorPair" },
@@ -117,7 +118,7 @@
         },
 
         "palette": {
-            "description": "Optional QPalette role overrides. Selective merge: only specified roles replace the system default. `highlight` is the selection color of lists, the packet details tree, the bytes pane and the welcome header; when omitted it falls back to packets.selection, then brand.primary. `Link` follows the resolved highlight (raised to 4.5:1 against base); `Accent` (Qt 6.6+) is always brand.primary. `highlightedText` is derived via contrastingText() of the resolved highlight but can be pinned here for selection colours that sit on the WCAG luminance threshold; pinned or derived, it is lifted to at least 4.5:1 against the resolved highlight.",
+            "description": "Optional QPalette role overrides. Selective merge: only specified roles replace the system default. `highlight` is the selection color of lists, the packet details tree, the bytes pane and the welcome header; when omitted it falls back to packets.selection, then brand.primary. `Link` follows the resolved highlight (raised to 4.5:1 against base); `Accent` (Qt 6.6+) is always brand.primary. `highlightedText` falls back to packets.selectionText when the highlight resolves to packets.selection, else to contrastingText() of the resolved highlight; it can be pinned here for selection colours that sit on the WCAG luminance threshold; pinned or derived, it is lifted to at least 4.5:1 against the resolved highlight.",
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -135,21 +136,21 @@
         },
 
         "filter": {
-            "description": "Optional filter tint and glyph colour overrides. Every key is independently optional; omitted ones derive from accent + palette.base. `valid`, `invalid`, `deprecated` are bg tints for the filter-edit field. `busy` and `busyText` are the bg + fg used while a capture filter is being compiled off-thread (the legacy GTK behavior, exposed here so themes can pin a more distinct visual than the default placeholder fade). `history` is the resting tint of the recent-filters drop-down arrow (defaults to palette.mid). `bookmark`, `bookmarkCapture`, `bookmarkMatch`, `clear` and `apply` are the glyph colours of the inline filter affordances (display and capture bookmark, the bookmark of a saved filter, the clear glyph on hover/press, the apply arrow), derived from the matching accent when omitted (see README). All filter glyphs, the arrow included, brighten slightly on hover/press and are kept legible against the field. Explicit values let themes ship saturated tints (such as the classic dark-green/dark-red look) that alpha-tinting an accent can never reach.",
+            "description": "Optional filter tint and glyph colour overrides. Every key is independently optional; omitted ones derive from accent + palette.base. `valid`, `invalid`, `deprecated` are bg tints for the filter-edit field. `busy` and `busyText` are the bg + fg used while a capture filter is being compiled off-thread (the legacy GTK behavior, exposed here so themes can pin a more distinct visual than the default placeholder fade). Pinned or derived, `busyText` is lifted to at least 3:1 against `busy` (4.5:1 in High). `history` is the resting tint of the recent-filters drop-down arrow (defaults to palette.mid). `bookmark`, `bookmarkCapture`, `bookmarkMatch`, `clear` and `apply` are the glyph colours of the inline filter affordances (display and capture bookmark, the bookmark of a saved filter, the clear glyph on hover/press, the apply arrow), derived from the matching accent when omitted (see README). All filter glyphs, the arrow included, brighten slightly on hover/press and are kept legible against the field. Explicit values let themes ship saturated tints (such as the classic dark-green/dark-red look) that alpha-tinting an accent can never reach.",
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "valid":      { "$ref": "#/$defs/colorPair" },
-                "invalid":    { "$ref": "#/$defs/colorPair" },
-                "deprecated": { "$ref": "#/$defs/colorPair" },
-                "busy":       { "$ref": "#/$defs/colorPair" },
-                "busyText":   { "$ref": "#/$defs/colorPair" },
+                "valid":           { "$ref": "#/$defs/colorPair" },
+                "invalid":         { "$ref": "#/$defs/colorPair" },
+                "deprecated":      { "$ref": "#/$defs/colorPair" },
+                "busy":            { "$ref": "#/$defs/colorPair" },
+                "busyText":        { "$ref": "#/$defs/colorPair" },
+                "history":         { "$ref": "#/$defs/colorPair" },
                 "bookmark":        { "$ref": "#/$defs/colorPair" },
                 "bookmarkCapture": { "$ref": "#/$defs/colorPair" },
                 "bookmarkMatch":   { "$ref": "#/$defs/colorPair" },
                 "clear":           { "$ref": "#/$defs/colorPair" },
-                "apply":           { "$ref": "#/$defs/colorPair" },
-                "history":    { "$ref": "#/$defs/colorPair" }
+                "apply":           { "$ref": "#/$defs/colorPair" }
             }
         },
 
@@ -188,7 +189,7 @@
     "$defs": {
 
         "colorValue": {
-            "description": "A CSS color string: \"#rrggbb\", \"#rrggbbaa\", or \"rgba(r,g,b,a)\" with alpha 0-255 (QSS convention, NOT 0-1).",
+            "description": "A color string as read by Qt's QColor: \"#rrggbb\" or \"#aarrggbb\" (alpha FIRST, so \"#80ff0000\" is half-transparent red). The pattern also admits \"rgba(r,g,b,a)\" with alpha 0-255, but QColor does not parse that form: the parser rejects it with a warning and the color is treated as missing. Use hex.",
             "type": "string",
             "pattern": "^(#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?|rgba\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*\\))$"
         },

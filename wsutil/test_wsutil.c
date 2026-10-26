@@ -336,6 +336,19 @@ static void test_json_strip_jsonc_comments_unterminated_block_comment(void)
     g_assert_false(json_strip_jsonc_comments(buf));
 }
 
+#include "filesystem.h"
+
+static void test_filename_sanitize(void)
+{
+    char *s = filename_sanitize("a<b>c:d\"e/f\\g|h?i*j\x01k\x1fl", '-');
+    g_assert_cmpstr(s, ==, "a-b-c-d-e-f-g-h-i-j-k-l");
+    g_free(s);
+    s = filename_sanitize("plain name.txt", '_');
+    g_assert_cmpstr(s, ==, "plain name.txt");
+    g_free(s);
+    g_assert_null(filename_sanitize(NULL, '-'));
+}
+
 #include "str_util.h"
 
 static void test_format_size(void)
@@ -2156,6 +2169,8 @@ int main(int argc, char **argv)
     g_test_add_func("/wsjson/strip_jsonc_comments_basic", test_json_strip_jsonc_comments_basic);
     g_test_add_func("/wsjson/strip_jsonc_comments_string_slashes", test_json_strip_jsonc_comments_string_slashes);
     g_test_add_func("/wsjson/strip_jsonc_comments_unterminated_block_comment", test_json_strip_jsonc_comments_unterminated_block_comment);
+
+    g_test_add_func("/filesystem/filename_sanitize", test_filename_sanitize);
 
     g_test_add_func("/str_util/format_size", test_format_size);
     g_test_add_func("/str_util/format_units", test_format_units);

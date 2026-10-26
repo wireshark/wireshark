@@ -2478,6 +2478,15 @@ file_exists(const char *fname)
     }
 }
 
+char *
+filename_sanitize(const char *name, char replacement)
+{
+    if (!name) {
+        return NULL;
+    }
+    return g_strdelimit(g_strdup(name), WS_FILENAME_RESERVED_CHARS, replacement);
+}
+
 bool config_file_exists_with_entries(const char *fname, char comment_char)
 {
     bool start_of_line = true;

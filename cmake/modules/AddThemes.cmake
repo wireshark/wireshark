@@ -7,6 +7,10 @@
 # 	The disk_name is the name of the theme directory under resources/themes,
 # 	and alias is an optional name to use in the resource file instead of the disk name.
 #
+# add_bundled_themes([TARGET <target>])
+# 	Adds every directory under resources/themes that holds a theme.jsonc,
+# 	so the theme directories are the only list of bundled themes.
+#
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 if(NOT COMMAND qrc_add_file)
@@ -32,4 +36,16 @@ function(add_theme)
                  ALIAS "${_alias_name}/theme.jsonc"
 		 TARGET "${ARG_TARGET}")
 
+endfunction()
+
+function(add_bundled_themes)
+    cmake_parse_arguments(ARG "" "TARGET" "" ${ARGN})
+    file(GLOB _theme_files CONFIGURE_DEPENDS
+         "${CMAKE_SOURCE_DIR}/resources/themes/*/theme.jsonc")
+    list(SORT _theme_files)
+    foreach(_theme_file IN LISTS _theme_files)
+        get_filename_component(_theme_dir "${_theme_file}" DIRECTORY)
+        get_filename_component(_theme_name "${_theme_dir}" NAME)
+        add_theme(NAME "${_theme_name}" TARGET "${ARG_TARGET}")
+    endforeach()
 endfunction()

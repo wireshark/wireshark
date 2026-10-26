@@ -60,7 +60,6 @@
 #include <QClipboard>
 #include <QMenu>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QPlainTextEdit>
 
 AuthorListModel::AuthorListModel(QObject * parent) :
@@ -502,28 +501,7 @@ void AboutDialog::urlDoubleClicked(const QModelIndex &idx)
         return;
 
     QString urlText = table->model()->data(idx).toString();
-    if (urlText.isEmpty())
-        return;
-
-    if (! QDir(urlText).exists())
-    {
-        if (QMessageBox::question(this, tr("The directory does not exist"),
-                          tr("Should the directory %1 be created?").arg(urlText)) == QMessageBox::Yes)
-        {
-            if (! QDir().mkpath(urlText))
-            {
-                QMessageBox::warning(this, tr("The directory could not be created"),
-                                     tr("The directory %1 could not be created.").arg(urlText));
-            }
-        }
-    }
-
-    if (QDir(urlText).exists())
-    {
-        QUrl url = QUrl::fromLocalFile(urlText);
-        if (url.isValid())
-            QDesktopServices::openUrl(url);
-    }
+    desktop_open_folder(urlText, this);
 }
 
 void AboutDialog::handleCopyMenu(QPoint pos)

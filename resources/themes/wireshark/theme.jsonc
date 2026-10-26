@@ -2,9 +2,10 @@
 // Wireshark Default Theme
 // =====================================================================
 //
-// The built-in theme shipped with Wireshark.  Every value here serves
-// as the fallback for custom themes — custom themes only need to
-// override what they want to change.
+// The built-in theme shipped with Wireshark.  Other themes only need
+// to set the colors they want to change; every color they omit is
+// derived from their brand, accent and palette colors, not taken from
+// this file.
 //
 // Format: JSONC — standard JSON with C-style comments.
 //
@@ -13,15 +14,15 @@
 //   "light" is used when the system/user selects light appearance,
 //   "dark" when dark appearance is active.
 //
-// Color formats accepted:
+// Color formats accepted (parsed by Qt's QColor):
 //   "#rrggbb"              — opaque hex
-//   "#rrggbbaa"            — hex with alpha
-//   "rgba(r, g, b, a)"    — CSS-style, alpha 0–255 (QSS convention)
+//   "#aarrggbb"            — hex with alpha, alpha FIRST
+//   "rgba(...)" is NOT accepted; use hex.
 //
-// To create a custom theme, copy this file, change "name", and adjust
-// any values you like.  Place it in your personal configuration
-// directory under themes/<name>/theme.jsonc and select it in
-// Edit → Preferences → Appearance.
+// To create a custom theme, use View → Internals → Theme Designer, or
+// copy this file to <stem>.jsonc in the personal themes directory,
+// change "name", and select it in Edit → Preferences → Appearance →
+// Theme and Font.
 // =====================================================================
 
 {
@@ -30,7 +31,7 @@
 	// =================================================================
 
 	"meta": {
-		"name": "Wireshark",
+		"name": "Wireshark Default",
 		"version": 1,
 		"author": "Wireshark Foundation",
 		"description": "The built-in Wireshark theme with the classic Wireshark colors."
@@ -240,18 +241,18 @@
 	// "highlight" and "highlightedText" are the selection colors of all
 	// lists except the packet list.
 	// When omitted: highlight = packets.selection if set, else
-	// brand.primary; highlightedText = contrastingText(highlight).
+	// brand.primary; highlightedText = packets.selectionText when the
+	// highlight is packets.selection, else contrastingText(highlight).
 	//
 	// NOT in this section (auto-derived):
 	//   Link           = highlight
 	//   Accent         = brand.primary (Qt 6.6+)
 	//
-	// The default theme only sets the selection text color; everything else
-	// uses the system palette as-is.  See the Solarized example for how
-	// to override.
+	// The default theme sets no role: lists select in the packet
+	// selection colors, and everything else uses the system palette
+	// as-is.  See the Solarized theme for how to override.
 	// -----------------------------------------------------------------
 	"palette": {
-		"highlightedText": { "light": "#ffffff", "dark": "#ffffff" }
 		// "window":        { "light": "#...", "dark": "#..." },
 		// "windowText":    { "light": "#...", "dark": "#..." },
 		// "base":          { "light": "#...", "dark": "#..." },

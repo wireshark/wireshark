@@ -56,6 +56,12 @@ public:
     using TokenMap = QHash<ThemeManager::ThemeToken, ThemeColorPair>;
 
     /**
+     * The palette role the Link role is derived from in build().  Code that
+     * traces a link color back to a theme token starts from this role.
+     */
+    static constexpr QPalette::ColorRole kLinkSourceRole = QPalette::Highlight;
+
+    /**
      * Build and return the full QPalette from the token map without
      * pushing it to QApplication.  Callers that need the palette value
      * before it is applied (e.g. to derive tokens first) should call
@@ -76,13 +82,19 @@ public:
      *                          Linux and Windows Qt < 6.8.
      * @param ratios            The contrast ratio set derived roles
      *                          (HighlightedText, Link) are lifted to.
+     * @param sources           When not null, receives the rule text (untranslated,
+     *                          QT_TRANSLATE_NOOP in the "ThemeTokenHandler" context)
+     *                          of the roles build() resolves itself, Highlight and
+     *                          HighlightedText, while brand.primary is declared.
+     *                          Same type as ThemeTokenHandler::SourceMap.
      */
     static QPalette build(const TokenMap                                     &tokens,
                           bool                                                isDarkMode,
                           const QHash<QString, ThemeManager::ThemeToken>     &tokenNameCache,
                           const QHash<QString, QPalette::ColorRole>          &paletteRoleCache,
                           const QPalette                                     &osBaseline,
-                          const ColorMath::ContrastRatios                    &ratios);
+                          const ColorMath::ContrastRatios                    &ratios,
+                          QHash<ThemeManager::ThemeToken, const char *>      *sources = nullptr);
 
     /**
      * Built-in dark QPalette used as the baseline on non-macOS

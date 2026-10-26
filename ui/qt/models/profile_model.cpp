@@ -23,6 +23,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/unique_name.h>
 #include <ui/qt/utils/wireshark_zip_helper.h>
 
 #include <QApplication>
@@ -747,20 +748,17 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, ProfileItem::StatusTyp
     QRegularExpression rx("\\s+(\\(\\s*" + tr("copy", "noun") + "\\s*\\d*\\))");
     parentName.replace(rx, "");
 
-    QString new_name;
     /* if copy is global and name has not been used before, use that, else create first copy */
-    if (item->isGlobal() && findByNameAndVisibility(parentName) < 0)
-        new_name = QString(item->getName());
-    else
-        new_name = QStringLiteral("%1 (%2)").arg(parentName, tr("copy", "noun"));
-
-    /* check if copy already exists and iterate, until an unused version is found */
-    int cnt = 1;
-    while (findByNameAndVisibility(new_name) >= 0)
-    {
-        new_name = QStringLiteral("%1 (%2 %3)").arg(parentName, tr("copy", "noun"), QString::number(cnt));
-        cnt++;
-    }
+    const QString first_name = (item->isGlobal() && findByNameAndVisibility(parentName) < 0)
+                                   ? QString(item->getName())
+                                   : QStringLiteral("%1 (%2)").arg(parentName, tr("copy", "noun"));
+    /* iterate until an unused version is found */
+    const QString new_name = uniqueName(
+        [&](int n) {
+            return n == 0 ? first_name
+                          : QStringLiteral("%1 (%2 %3)").arg(parentName, tr("copy", "noun"), QString::number(n));
+        },
+        [this](const QString &name) { return findByNameAndVisibility(name) >= 0; });
 
     /* if this would be a copy, but the original is already a new one, this is a copy as well */
     if (new_status == ProfileItem::StatusType::Copy && item->getStatus() == ProfileItem::StatusType::New)
@@ -1157,8 +1155,7 @@ void ProfileModel::importProfilesFromDir(QString dirname, int& skippedCnt, QStri
 QString ProfileModel::illegalCharacters()
 {
 #ifdef _WIN32
-    /* According to https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions */
-    return QStringLiteral("<>:\"/\\|?*");
+    return QString::fromLatin1(WS_FILENAME_RESERVED_PRINTABLE_CHARS);
 #else
     return QDir::separator();
 #endif
