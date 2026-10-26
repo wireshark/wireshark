@@ -4950,3 +4950,83 @@ class TestDissectAin:
                     '-O', 'ain', '-V',
                 ), encoding='utf-8', env=test_env))
         assert outputs[0] == outputs[1]
+
+
+# AMP is reached by default from BPv6 bundles on UDP port 4556; frames
+# 54-56 are AMP directly on UDP, which is only offered in Decode As.
+AMP_OPTS = ('-d', 'udp.port==40001,amp')
+
+
+class TestDissectAmp:
+    def amp_fields(self, cmd_tshark, capture_file, test_env, *fields, opts=AMP_OPTS):
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('amp_coverage.pcap.gz'),
+                '-Tfields', '-E', 'aggregator=|', '-e', 'frame.number', *args,
+            ), encoding='utf-8', env=test_env)
+        return {int(line.split('\t')[0]): line.split('\t')[1:] for line in stdout.splitlines()}
+
+    def test_amp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, CBOR head form and TNVC data item kind
+        decodes without malformed packets or error expert infos, in one
+        and two passes, with and without the UDP Decode As.'''
+        for opts, bundle, amp, udp in (((), 53, 0, 3), (AMP_OPTS, 53, 3, 0)):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('amp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert protocols.count('Bundle') == bundle
+            assert protocols.count('AMP') == amp
+            assert protocols.count('UDP') == udp
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                        '-r', capture_file('amp_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_amp_in_bundles(self, cmd_tshark, capture_file, test_env):
+        '''Bundles with service numbers 5 and 6 carry AMP by default: all
+        but frame 39 (only a timestamp) have an AMP message.'''
+        frames = self.amp_fields(cmd_tshark, capture_file, test_env, 'amp.opcode', opts=())
+        with_messages = [n for n, (opcodes,) in frames.items() if opcodes]
+        assert with_messages == [n for n in range(1, 54) if n != 39]
+
+    def test_amp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Several messages in one PDU, with Perform Control, Table Set and
+        undefined opcodes between Register Agent messages.'''
+        frames = self.amp_fields(cmd_tshark, capture_file, test_env,
+                                 'amp.opcode', 'amp.agent_name')
+        assert frames[40] == ['0|2|0|3|4|5|6|7|0', 'agent-7|agent-8|agent-9']
+        assert frames[2] == ['0', 'agent-2.example']
+        assert frames[54] == ['0', 'udp-agent']
+
+    def test_amp_tnvc_items(self, cmd_tshark, capture_file, test_env):
+        '''TNVC data items of valid sizes are all dissected, and the
+        dissector steps over each one correctly. A larger-than-packet
+        item stops the loop with an expert info ("AMP: Stop at a TNVC item
+        larger than the packet"); these must not be affected.'''
+        frames = self.amp_fields(cmd_tshark, capture_file, test_env,
+                                 'amp.rx_name', 'amp.string', 'amp.report.integer8_small',
+                                 'amp.report.integer', 'amp.report.data')
+        # Every item kind: strings, uvast of every size, a non-integer
+        # uvast, a byte string of an unhandled type, a text string and
+        # an integer item
+        assert frames[46] == ['mgr-1', 'ifInOctets|' + 'x' * 30, '23',
+                              '200|4660|305419896|1311768467463790320', '726177|41']
+        # Two reports with timestamps
+        assert frames[44] == ['mgr-1|mgr-2.example', 'ok', '5', '', '']
+        # The PDU goes on after the TNVC items: a Register Agent follows
+        stdout = subprocess.check_output((cmd_tshark, *AMP_OPTS,
+                '-r', capture_file('amp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 53',
+                '-Tfields', '-eamp.opcode', '-eamp.report.integer', '-eamp.agent_name',
+                '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '1|0\t42\tagent-10'
+        # The same over UDP
+        assert frames[55] == ['udp-mgr', 'udp', '', '77', '']
