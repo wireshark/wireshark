@@ -1461,6 +1461,629 @@ class TestDissectTls:
         self.check_tls_out_of_order(cmd_tshark, capture_file,
             test_env, extraArgs=['-2'])
 
+class TestDissectMoqt:
+    @staticmethod
+    def _vi64(value):
+        '''Encode a draft-18 MOQT variable-length integer.'''
+        length = max(1, min(9, (value.bit_length() + 6) // 7))
+        if length == 9:
+            return b'\xff' + value.to_bytes(8, 'big')
+        encoded = bytearray(value.to_bytes(length, 'big'))
+        encoded[0] |= ((1 << (length - 1)) - 1) << (9 - length)
+        return bytes(encoded)
+
+    @classmethod
+    def _namespace(cls, fields):
+        return (cls._vi64(len(fields)) +
+                b''.join(cls._vi64(len(field)) + field for field in fields))
+
+    @classmethod
+    def _message(cls, message_type, payload):
+        return cls._vi64(message_type) + len(payload).to_bytes(2, 'big') + payload
+
+    @classmethod
+    def _parameters(cls, entries):
+        previous_type = 0
+        encoded = cls._vi64(len(entries))
+        for parameter_type, value in entries:
+            encoded += cls._vi64(parameter_type - previous_type) + value
+            previous_type = parameter_type
+        return encoded
+
+    @classmethod
+    def _key_values(cls, entries):
+        previous_type = 0
+        encoded = b''
+        for value_type, value in entries:
+            encoded += cls._vi64(value_type - previous_type) + value
+            previous_type = value_type
+        return encoded
+
+    @staticmethod
+    def _hexdump(packets):
+        packet_dumps = []
+        for packet in packets:
+            lines = []
+            for offset in range(0, len(packet), 16):
+                chunk = packet[offset:offset + 16]
+                lines.append(f'{offset:08x}  {chunk.hex(" ")}')
+            packet_dumps.append('\n'.join(lines))
+        return '\n\n'.join(packet_dumps) + '\n'
+
+    @classmethod
+    def _make_capture(cls, cmd_text2pcap, result_file, base_env,
+                      name, dissector, packets):
+        text_path = result_file(f'{name}.txt')
+        capture_path = result_file(f'{name}.pcapng')
+        with open(text_path, 'w') as text_file:
+            text_file.write(cls._hexdump(packets))
+        subprocess.check_call(
+            (cmd_text2pcap, '-q', '-P', dissector, text_path, capture_path),
+            env=base_env)
+        return capture_path
+
+    @staticmethod
+    def _matching_frames(cmd_tshark, capture_path, test_env, display_filter,
+                         extra_args=()):
+        stdout = subprocess.check_output((
+            cmd_tshark,
+            *extra_args,
+            '-r', capture_path,
+            '-Y', display_filter,
+            '-Tfields', '-e', 'frame.number',
+        ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    @staticmethod
+    def _field_rows(cmd_tshark, capture_path, test_env, display_filter,
+                    fields, extra_args=()):
+        '''Keep numeric expectations readable despite hexadecimal field display.'''
+        command = [cmd_tshark, *extra_args, '-r', capture_path,
+                   '-Y', display_filter, '-Tfields']
+        for field in fields:
+            command.extend(('-e', field))
+        stdout = subprocess.check_output(command, encoding='utf-8', env=test_env)
+        rows = []
+        for line in stdout.splitlines():
+            row = []
+            for column in line.split('\t'):
+                values = column.split(',')
+                row.append(','.join(str(int(value, 16))
+                                    if value.startswith('0x') else value
+                                    for value in values))
+            rows.append(row)
+        return rows
+
+    def test_moqt_draft18_control_messages(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env):
+        '''Verify draft-18 setup, request, response, error and fetch fields.'''
+        vi = self._vi64
+        namespace = self._namespace
+
+        setup_options = (
+            vi(1) + vi(5) + b'/demo' +
+            vi(3) + vi(100) +
+            vi(3) + vi(7) + b'moxygen'
+        )
+        subscribe_parameters = (
+            vi(3) +
+            vi(0x20) + bytes((42,)) +
+            vi(1) + vi(3) + vi(3) + vi(10) + vi(2) +
+            vi(1) + bytes((1,))
+        )
+        subscribe = (
+            vi(0) + namespace((b'example', b'live')) +
+            vi(5) + b'video' + subscribe_parameters
+        )
+        subscribe_ok = (
+            vi(7) +
+            vi(1) + vi(9) + vi(10) + vi(3) +
+            vi(0x0e) + vi(55)
+        )
+        request_error_redirect = (
+            vi(0x34) + vi(0) + vi(5) + b'moved' +
+            vi(12) + b'moqt://other' +
+            namespace((b'alt',)) + vi(6) + b'video2'
+        )
+        fetch = (
+            vi(2) + vi(1) +
+            namespace((b'example', b'archive')) + vi(5) + b'audio' +
+            vi(1) + vi(0) + vi(20) + vi(0) +
+            vi(0)
+        )
+
+        packets = (
+            self._message(0x2f00, setup_options),
+            self._message(0x03, subscribe),
+            self._message(0x04, subscribe_ok),
+            self._message(0x05, request_error_redirect),
+            self._message(0x16, fetch),
+        )
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            'moqt-draft18-control', 'moqt', packets)
+
+        frames = self._matching_frames
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type') == ['1', '2', '3', '4', '5']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.setup.option.type == 7') == ['1']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.parameter.type == 0x21 && '
+                      'moqt.filter.type == 3') == ['2']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.track_alias == 7 && '
+                      'moqt.property.type == 0x0e && '
+                      'moqt.property.integer == 55') == ['3']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.status_code == 0x34 && '
+                      'moqt.uri contains "other"') == ['4']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.fetch.type == 1 && '
+                      'moqt.request_id == 2 && moqt.group_id == 20') == ['5']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      '_ws.malformed') == []
+
+    def test_moqt_draft18_data_streams(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env):
+        '''Verify draft-18 subgroup and fetch stream object serialization.'''
+        vi = self._vi64
+        subgroup = (
+            vi(0x54) + vi(7) + vi(10) + vi(2) + bytes((9,)) +
+            vi(0) + vi(3) + b'abc' +
+            vi(0) + vi(0) + vi(3)
+        )
+        fetch_stream = (
+            vi(5) + vi(4) +
+            vi(0x1c) + vi(10) + vi(0) + bytes((5,)) + vi(2) + b'\xaa\xbb' +
+            vi(0x00) + vi(1) + b'\xcc' +
+            vi(0x8c) + vi(11) + vi(0)
+        )
+        first_object_subgroup = (
+            vi(0x32) + vi(8) + vi(11) +
+            vi(7) + vi(1) + b'z'
+        )
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            'moqt-draft18-streams', 'moqt',
+            (subgroup, fetch_stream, first_object_subgroup))
+
+        frames = self._matching_frames
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.stream.type == 0x54 && '
+                      'moqt.track_alias == 7 && '
+                      'moqt.subgroup_id_mode == 2 && '
+                      'moqt.flags.first_object == 1 && '
+                      'moqt.object.status == 3') == ['1']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.stream.type == 5 && '
+                      'moqt.request_id == 4 && '
+                      'moqt.fetch.flags.object_id_delta == 1 && '
+                      'moqt.fetch.flags.group_id_delta == 1 && '
+                      'moqt.fetch.flags.priority == 1 && '
+                      'moqt.fetch.serialization_flags == 0x8c') == ['2']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.stream.type == 0x32 && '
+                      'moqt.subgroup_id_mode == 1 && '
+                      'moqt.subgroup.flags.default_priority == 1 && '
+                      'moqt.subgroup_id == 7') == ['3']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      '_ws.malformed') == []
+
+    def test_moqt_draft18_remaining_control_messages(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env):
+        '''Verify every remaining draft-18 control message format.'''
+        vi = self._vi64
+        namespace = self._namespace
+        parameters = self._parameters
+        key_values = self._key_values
+        track_namespace = namespace((b'example', b'channel'))
+        authorization_token = vi(3) + vi(0) + b'token'
+
+        request_ok = (
+            parameters(((0x08, vi(5000)),)) +
+            key_values(((0x0e, vi(25)),))
+        )
+        publish = (
+            vi(8) + track_namespace + vi(5) + b'video' + vi(12) +
+            parameters(((0x03, vi(len(authorization_token)) +
+                         authorization_token),
+                        (0x10, bytes((1,))))) +
+            key_values(((0x30, vi(1)),))
+        )
+        fetch_ok = (
+            bytes((1,)) + vi(5) + vi(6) +
+            parameters(((0x20, bytes((10,))),)) +
+            key_values(((0x04, vi(500)),))
+        )
+
+        packets = (
+            self._message(0x10, vi(0) + vi(100)),
+            self._message(0x07, request_ok),
+            self._message(0x1e, parameters(())),
+            self._message(0x02, vi(6) + parameters((
+                (0x10, bytes((1,))),
+                (0x34, namespace((b'updated',))),
+            ))),
+            self._message(0x1d, publish),
+            self._message(0x0b, vi(2) + vi(3) + vi(4) + b'done'),
+            self._message(0x16, vi(10) + vi(2) + vi(0) + vi(3) +
+                          parameters(((0x0a, vi(250)),))),
+            self._message(0x16, vi(12) + vi(3) + vi(0) + vi(4) +
+                          parameters(())),
+            self._message(0x18, fetch_ok),
+            self._message(0x0d, vi(14) + track_namespace +
+                          vi(5) + b'video' + parameters(())),
+            self._message(0x06, vi(16) + track_namespace + parameters(())),
+            self._message(0x08, namespace((b'participant',))),
+            self._message(0x0e, namespace((b'participant',))),
+            self._message(0x50, vi(18) + track_namespace + parameters(())),
+            self._message(0x51, vi(20) + track_namespace +
+                          parameters(((0x10, bytes((0,))),))),
+            self._message(0x0f, namespace((b'participant',)) +
+                          vi(5) + b'audio'),
+        )
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            'moqt-draft18-all-control', 'moqt', packets)
+
+        frames = self._matching_frames
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type') == [str(i) for i in range(1, 17)]
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type == 0x10 && moqt.timeout == 100') == ['1']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type == 0x7 && '
+                      'moqt.parameter.type == 8 && '
+                      'moqt.property.type == 0x0e') == ['2']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type == 0x1d && '
+                      'moqt.token.alias_type == 3 && '
+                      'moqt.property.type == 0x30') == ['5']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type == 0xb && '
+                      'moqt.stream_count == 3') == ['6']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.fetch.type == 2 && '
+                      'moqt.parameter.type == 0x0a') == ['7']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.fetch.type == 3') == ['8']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type == 0x18 && '
+                      'moqt.fetch.end_of_track == 1 && '
+                      'moqt.property.type == 4') == ['9']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type == 0x50') == ['14']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type == 0x51 && '
+                      'moqt.parameter.type == 0x10') == ['15']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.message.type == 0xf && '
+                      'moqt.track_name == 61:75:64:69:6f') == ['16']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      '_ws.malformed || _ws.expert.severity == error') == []
+
+    def test_moqt_draft18_protocol_violations(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env):
+        '''Verify reserved encodings and malformed draft-18 data are reported.'''
+        vi = self._vi64
+        packets = (
+            self._message(0x02, vi(2) + vi(1) + vi(0x0e) + vi(1)),
+            vi(5) + vi(4) + vi(0x80) + b'bad',
+            (vi(0x11) + vi(1) + vi(2) + bytes((4,)) +
+             vi(0) + vi(2) + vi(2) + vi(10) + vi(0) + vi(3)),
+        )
+        stream_capture = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            'moqt-draft18-invalid-streams', 'moqt', packets)
+
+        datagrams = (
+            vi(0x01) + vi(1) + vi(2) + vi(3) + bytes((4,)) + vi(0) + b'x',
+            vi(0x20) + vi(1) + vi(2) + vi(3) + bytes((4,)) + vi(2),
+            vi(0x132b3e29) + b'\x00\x01',
+        )
+        datagram_capture = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            'moqt-draft18-invalid-datagrams', 'moqt.datagram', datagrams)
+
+        frames = self._matching_frames
+        assert frames(cmd_tshark, stream_capture, test_env,
+                      'moqt.parameter.unknown && '
+                      'moqt.parameter.type == 0x0e') == ['1']
+        assert frames(cmd_tshark, stream_capture, test_env,
+                      'moqt.type.invalid && '
+                      'moqt.fetch.serialization_flags == 0x80') == ['2']
+        assert frames(cmd_tshark, stream_capture, test_env,
+                      'moqt.type.invalid && '
+                      'moqt.object.status == 3') == ['3']
+        assert frames(cmd_tshark, datagram_capture, test_env,
+                      'moqt.properties.empty') == ['1']
+        assert frames(cmd_tshark, datagram_capture, test_env,
+                      'moqt.type.invalid && moqt.object.status == 2') == ['2']
+        assert frames(cmd_tshark, datagram_capture, test_env,
+                      'moqt.padding.nonzero') == ['3']
+
+    def test_moqt_draft18_datagrams(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env):
+        '''Verify payload, status, end-of-group, and padding datagrams.'''
+        vi = self._vi64
+        packets = (
+            vi(0x00) + vi(1) + vi(2) + vi(3) + bytes((4,)) + b'\xde\xad\xbe\xef',
+            vi(0x2d) + vi(1) + vi(2) + vi(2) + vi(2) + vi(9) + vi(0),
+            vi(0x0a) + vi(1) + vi(3) + vi(5) + b'x',
+            vi(0x132b3e29) + b'\x00\x00\x00',
+            vi(0x0c) + vi(2**64 - 1) + vi(2**56) + b'wide',
+        )
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            'moqt-draft18-datagrams', 'moqt.datagram', packets)
+
+        frames = self._matching_frames
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.datagram.type') == ['1', '2', '3', '4', '5']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.object.payload') == ['1', '3', '5']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.object.status == 0 && '
+                      'moqt.property.type == 2') == ['2']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.padding') == ['4']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      'moqt.track_alias == 18446744073709551615 && '
+                      'moqt.group_id == 72057594037927936') == ['5']
+        assert frames(cmd_tshark, capture_path, test_env,
+                      '_ws.malformed') == []
+
+
+    def test_moqt_draft18_namespace_prefix(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''TRACK_NAMESPACE_PREFIX is a namespace, without an outer length.'''
+        # Literal specification/review example, independent of the builders.
+        one_field = bytes.fromhex('02 01 34 01 01 78')
+        empty = bytes.fromhex('04 01 34 00')
+        multiple = (self._vi64(6) +
+                    self._parameters(((0x34, self._namespace((b'live', b'video'))),)))
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env, 'moqt-namespace-prefix',
+            'moqt', tuple(self._message(0x02, body)
+                          for body in (one_field, empty, multiple)))
+
+        assert self._field_rows(
+            cmd_tshark, capture_path, test_env, 'moqt',
+            ('moqt.namespace.count', 'moqt.namespace.field')) == [
+                ['1', '78'], ['0', ''], ['2', '6c697665,766964656f']]
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            'moqt.parameter.length || _ws.malformed || '
+            '_ws.expert.severity == error') == []
+
+    @pytest.mark.parametrize('status', (0, 3, 4))
+    def test_moqt_draft18_empty_subgroup_properties(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env, status):
+        '''A subgroup's Properties field may be empty, including on status objects.'''
+        # PROPERTIES + DEFAULT_PRIORITY, Alias 1, Group 2, Object 0.
+        subgroup = bytes.fromhex('31 01 02 00 00 00') + self._vi64(status)
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            f'moqt-empty-properties-{status}', 'moqt', (subgroup,))
+
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            f'moqt.object.status == {status} && moqt.properties.length == 0') == ['1']
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            '_ws.malformed || _ws.expert.severity == error') == []
+
+    def test_moqt_draft18_parameter_encodings(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''Exercise every parameter's wire layout, including bounded decoders.'''
+        vi = self._vi64
+        token = bytes.fromhex('03 00') + b'a'  # USE_VALUE, token type 0.
+        location_filter = vi(3) + vi(8) + vi(13)  # Absolute Start.
+        parameters = self._parameters((
+            (0x02, vi(130)),
+            (0x03, vi(len(token)) + token),
+            (0x04, vi(131)),
+            (0x06, vi(132)),
+            (0x08, vi(133)),
+            (0x09, vi(7) + vi(12)),
+            (0x0a, vi(134)),
+            (0x10, b'\x01'),
+            (0x20, b'\x2a'),
+            (0x21, vi(len(location_filter)) + location_filter),
+            (0x22, b'\x01'),
+            (0x32, vi(135)),
+            (0x34, self._namespace((b'x',))),
+        ))
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env, 'moqt-parameter-encodings',
+            'moqt', (self._message(0x02, vi(2) + parameters),))
+
+        assert self._field_rows(
+            cmd_tshark, capture_path, test_env, 'moqt',
+            ('moqt.parameter.type', 'moqt.parameter.varint',
+             'moqt.parameter.uint8', 'moqt.parameter.length',
+             'moqt.group_id', 'moqt.object_id', 'moqt.namespace.field')) == [[
+                 '2,3,4,6,8,9,10,16,32,33,34,50,52',
+                 '130,131,132,133,134,135', '1,42,1', '3,3',
+                 '7,8', '12,13', '78']]
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            '_ws.malformed || _ws.expert.severity == error') == []
+
+    @pytest.mark.parametrize('case_name, wire, fields, expected', (
+        ('fetch-datagram-ignores-subgroup-bits',
+         '05 04 1c 0a 00 05 01 61 7f 00 01 09 02 02 07 01 62',
+         ('moqt.fetch.serialization_flags', 'moqt.subgroup_id',
+          'moqt.group_id_delta', 'moqt.object_id_delta',
+          'moqt.publisher_priority', 'moqt.properties.length'),
+         ('28,127', '', '10,0', '0,1', '5,9', '2')),
+        ('fetch-explicit-subgroup-and-empty-payload',
+         '05 04 1f 0a 02 00 05 01 61 03 03 00',
+         ('moqt.subgroup_id', 'moqt.object.payload_length', 'moqt.object.status'),
+         ('2,3', '1,0', '')),
+        ('fetch-unknown-range-followed-by-object',
+         '05 04 1c 0a 00 05 01 61 81 0c 0c 00 40 01 63',
+         ('moqt.fetch.serialization_flags', 'moqt.group_id', 'moqt.object_id',
+          'moqt.object.payload'),
+         ('28,268,64', '12', '0', '61,63')),
+        ('subgroup-explicit-id-default-priority-and-properties',
+         '75 07 0a 02 00 02 02 09 01 61 00 00 00 04',
+         ('moqt.subgroup_id', 'moqt.object_id', 'moqt.properties.length',
+          'moqt.object.status', 'moqt.publisher_priority',
+          'moqt.flags.first_object'),
+         ('2', '0,1', '2,0', '4', '', 'True')),
+    ), ids=('fetch-datagram', 'fetch-explicit-subgroup',
+            'fetch-unknown-range', 'subgroup-properties'))
+    def test_moqt_draft18_flag_layouts(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env, case_name, wire, fields, expected):
+        '''Literal wire examples cover optional fields and FETCH range indicators.'''
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env, f'moqt-{case_name}',
+            'moqt', (bytes.fromhex(wire),))
+        assert self._field_rows(
+            cmd_tshark, capture_path, test_env, 'moqt', fields) == [list(expected)]
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            '_ws.malformed || _ws.expert.severity == error') == []
+
+    @pytest.mark.parametrize('value',
+                             (0, 127) + tuple(1 << (7 * n) for n in range(1, 9)) +
+                             (2**64 - 1,))
+    def test_moqt_draft18_integer_widths(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env, value):
+        '''The draft context preserves the full 1-to-9-byte vi64 range.'''
+        body = (self._vi64(2) +
+                self._parameters(((0x32, self._vi64(value)),)))
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env, f'moqt-integer-{value}',
+            'moqt', (self._message(0x02, body),))
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            f'moqt.parameter.varint == {value}') == ['1']
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            '_ws.malformed || _ws.expert.severity == error') == []
+
+    def test_moqt_draft18_nonminimal_integer(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''Section 1.4.1 permits non-minimum integer encodings.'''
+        # Request ID, parameter count, delta type 0x32 and value 37 all use
+        # two-byte encodings; the message Type uses three bytes.
+        body = bytes.fromhex('80 02 80 01 80 32 80 25')
+        packet = bytes.fromhex('c0 00 02') + len(body).to_bytes(2, 'big') + body
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env, 'moqt-nonminimal-integer',
+            'moqt', (packet,))
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            'moqt.message.type == 2 && moqt.parameter.varint == 37') == ['1']
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            '_ws.malformed || _ws.expert.severity == error') == []
+
+    def test_moqt_draft18_subgroup_object_ids(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''Measuring a PDU must not advance its prior Object ID.'''
+        packet = bytes.fromhex('30 01 02 00 01 61 00 01 62 02 01 63')
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env, 'moqt-subgroup-object-ids',
+            'moqt', (packet,))
+        assert self._field_rows(
+            cmd_tshark, capture_path, test_env, 'moqt',
+            ('moqt.object_id_delta', 'moqt.object_id')) == [['0,0,2', '0,1,4']]
+
+    def test_moqt_draft18_subgroup_object_id_overflow(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''Object ID delta addition must not wrap at 2^64 - 1.'''
+        packet = (bytes.fromhex('30 01 02') + self._vi64(2**64 - 1) +
+                  bytes.fromhex('01 61 00 01 62'))
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env, 'moqt-object-id-overflow',
+            'moqt', (packet,))
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env, 'moqt.object_id.overflow') == ['1']
+        assert self._field_rows(
+            cmd_tshark, capture_path, test_env, 'moqt',
+            ('moqt.object_id',)) == [[str(2**64 - 1)]]
+
+    @pytest.mark.parametrize('extra_args', ((), ('-2',)), ids=('first-pass', 'second-pass'))
+    def test_moqt_draft18_native_quic(
+            self, cmd_tshark, capture_file, test_env, extra_args):
+        '''Real QUIC stream state survives reassembly and redissection.
+
+        Regenerate with tools/generate-moqt-draft18-capture.py. Packet comments
+        identify cases so assertions do not depend on counting handshake frames.
+        '''
+        capture_path = capture_file('moqt-draft18-streams.pcapng.gz')
+        fields = self._field_rows
+        # The shared GnuTLS test fixtures assign UDP 4433 to DTLS.
+        # Select QUIC explicitly, independently of optional TLS libraries.
+        quic_args = ('-d', 'udp.port==4433,quic', *extra_args)
+
+        def scenario(label, wanted_fields):
+            return fields(
+                cmd_tshark, capture_path, test_env,
+                f'moqt && (frame.comment == "{label}: server" || '
+                f'frame.comment == "{label}: client")',
+                wanted_fields, quic_args)
+
+        assert scenario('subgroup-start',
+                        ('moqt.track_alias', 'moqt.group_id', 'moqt.object_id',
+                         'moqt.object.payload')) == [['1', '2', '0', '61']]
+        assert scenario('subgroup-continuation',
+                        ('moqt.track_alias', 'moqt.group_id', 'moqt.object_id',
+                         'moqt.object.payload')) == [['1', '2', '1', '62']]
+        assert scenario('implicit-subgroup-start',
+                        ('moqt.subgroup_id', 'moqt.object_id')) == [['7', '7']]
+        assert scenario('implicit-subgroup-continuation',
+                        ('moqt.subgroup_id', 'moqt.object_id')) == [['7', '8']]
+        assert scenario('split-object-end',
+                        ('moqt.track_alias', 'moqt.group_id', 'moqt.subgroup_id',
+                         'moqt.property.type', 'moqt.object.payload')) == [
+                             ['2', '3', '4', '2', '616263']]
+        assert scenario('empty-end-of-group',
+                        ('moqt.object.status', 'moqt.properties.length')) == [['3', '0']]
+        assert scenario('fetch-start',
+                        ('moqt.request_id', 'moqt.track_alias',
+                         'moqt.fetch.serialization_flags', 'moqt.object.payload')) == [
+                             ['4', '', '28', 'aabb']]
+        assert scenario('fetch-continuation',
+                        ('moqt.request_id', 'moqt.track_alias',
+                         'moqt.fetch.serialization_flags', 'moqt.object.payload')) == [
+                             ['4', '', '0', 'cc']]
+        assert scenario('fetch-range-end',
+                        ('moqt.fetch.serialization_flags', 'moqt.group_id',
+                         'moqt.object_id')) == [['140', '11', '0']]
+        assert scenario('fetch-after-range',
+                        ('moqt.request_id', 'moqt.object.payload')) == [['4', 'dd']]
+        assert scenario('namespace-prefix',
+                        ('moqt.namespace.count', 'moqt.namespace.field')) == [['1', '78']]
+        assert scenario('request-goaway',
+                        ('moqt.message.type', 'moqt.request_id',
+                         'moqt.timeout')) == [['2,16', '6', '100']]
+        assert scenario('control-goaway',
+                        ('moqt.message.type', 'moqt.request_id',
+                         'moqt.timeout')) == [['16', '12', '100']]
+        assert scenario('fin-message-end',
+                        ('moqt.message.type', 'moqt.status_code',
+                         'moqt.reason')) == [['5', '1', 'bad']]
+        assert scenario('padding-start', ('moqt.padding',)) == [['0000']]
+        assert scenario('padding-continuation', ('moqt.padding',)) == [['000000']]
+        assert scenario('fin-only', ('moqt.object.payload',)) == []
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            'moqt && (_ws.malformed || _ws.expert.severity == error)',
+            quic_args) == []
+
+
 class TestDissectRoq:
     def test_roq_recognized(self, cmd_tshark, capture_file, test_env):
         '''Verify that RTP over QUIC packets are recognized as RoQ.'''

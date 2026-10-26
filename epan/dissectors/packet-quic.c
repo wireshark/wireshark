@@ -2301,7 +2301,9 @@ again:
 
             tvbuff_t *next_tvb = tvb_new_chain(tvb, fh->tvb_data);
             add_new_data_source(pinfo, next_tvb, "Reassembled QUIC");
-            stream_info->offset = seq;
+            /* Pass the stream offset of the reassembled PDU's first byte,
+             * rather than the final STREAM fragment's offset. */
+            stream_info->offset = msp->seq;
             /* If we know that another PDU follows, don't tell the subdissector
              * that we're at FIN. It will be set on the next PDU. */
             saved_fin = stream_info->fin;
@@ -2483,6 +2485,7 @@ dissect_quic_stream_payload(tvbuff_t *tvb, int offset, int length, packet_info *
      * preference to disable reassembly.
      */
 
+    stream_info->fin_only = stream_info->fin && length == 0;
     if (length > 0) {
         /* Don't try to desegment for a zero length segment. Our methods
          * probably don't work and aren't needed. (see #19497).
