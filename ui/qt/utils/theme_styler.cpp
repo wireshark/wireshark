@@ -14,13 +14,48 @@
 
 #include <QColor>
 #include <QDebug>
+#include <QEvent>
+#include <QList>
+#include <QMainWindow>
 #include <QOperatingSystemVersion>
 #include <QPainter>
 #include <QPen>
 #include <QRectF>
+#include <QStyleOptionToolBar>
 #include <QStyleOptionViewItem>
+#include <QToolBar>
 
 static QString base_style_name_;
+
+#ifdef Q_OS_MACOS
+// The toolbars that make up the unified title and toolbar area of a
+// main window: visible, docked, in the top area. The native style
+// tests this with a private QMainWindowLayout call.
+static QList<QToolBar *> dockedTopToolBars(const QMainWindow *mainWindow)
+{
+    QList<QToolBar *> result;
+    const QList<QToolBar *> toolBars = mainWindow->findChildren<QToolBar *>(Qt::FindDirectChildrenOnly);
+    for (QToolBar *toolBar : toolBars) {
+        if (toolBar->isVisible() && !toolBar->isFloating()
+                && mainWindow->toolBarArea(toolBar) == Qt::TopToolBarArea)
+            result.append(toolBar);
+    }
+    return result;
+}
+
+// True if no other unified area toolbar sits below this one, i.e. the
+// unified area ends at its bottom. The toolbars' line position is no
+// help, since lines that hold only hidden toolbars still count.
+static bool isLastTopToolBarRow(const QMainWindow *mainWindow, const QWidget *toolBar)
+{
+    const int bottom = toolBar->geometry().bottom();
+    for (const QToolBar *other : dockedTopToolBars(mainWindow)) {
+        if (other != toolBar && other->geometry().top() > bottom)
+            return false;
+    }
+    return true;
+}
+#endif
 
 ThemeStyler::ThemeStyler(QStyle *style) : QProxyStyle(style)
 {
@@ -98,6 +133,93 @@ void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *op
                 fusionFrameRadius, fusionFrameRadius);
         painter->restore();
     }
+}
+
+void ThemeStyler::drawControl(ControlElement element, const QStyleOption *option,
+    QPainter *painter, const QWidget *widget) const
+{
+#ifdef Q_OS_MACOS
+    // In the unified title and toolbar area the macOS style fills top
+    // toolbars with transparent pixels so the window's native content
+    // border shows through, which ignores the application palette. A
+    // theme that sets palette.window expects its toolbars in that
+    // color, as on the other platforms and in non-unified mode, where
+    // the macOS style fills palette.window itself. The check runs at
+    // paint time: every theme, mode or contrast switch sets the
+    // application style sheet again, which repaints the toolbars, so
+    // switching to a theme without palette.window restores the native
+    // look.
+    if (element == CE_ToolBar && option && painter && widget) {
+        const QStyleOptionToolBar *toolBarOption = qstyleoption_cast<const QStyleOptionToolBar *>(option);
+        const QMainWindow *mainWindow = qobject_cast<const QMainWindow *>(widget->window());
+        ThemeManager *themeManager = ThemeManager::instance();
+        if (toolBarOption && toolBarOption->toolBarArea == Qt::TopToolBarArea
+                && mainWindow && mainWindow->unifiedTitleAndToolBarOnMac()
+                && themeManager->colorIsAvailable(ThemeManager::PaletteWindow)) {
+            painter->fillRect(option->rect, option->palette.window());
+            if (isLastTopToolBarRow(mainWindow, widget)) {
+                // The native separator is one pixel high.
+                constexpr int separatorHeight = 1;
+                painter->fillRect(QRect(option->rect.left(), option->rect.bottom(),
+                                        option->rect.width(), separatorHeight),
+                                  themeManager->color(ThemeManager::Separator));
+            }
+            return;
+        }
+    }
+#endif
+    QProxyStyle::drawControl(element, option, painter, widget);
+}
+
+void ThemeStyler::polish(QWidget *widget)
+{
+    QProxyStyle::polish(widget);
+#ifdef Q_OS_MACOS
+    // Which toolbar row is the last one changes when any toolbar is
+    // shown, hidden or moved, but the other toolbars keep their
+    // geometry, so Qt does not repaint them. Watch the toolbars to
+    // repaint their separator line. Installing the filter again on a
+    // repolish does not add a second entry.
+    if (qobject_cast<QToolBar *>(widget))
+        widget->installEventFilter(this);
+#endif
+}
+
+void ThemeStyler::unpolish(QWidget *widget)
+{
+#ifdef Q_OS_MACOS
+    if (qobject_cast<QToolBar *>(widget))
+        widget->removeEventFilter(this);
+#endif
+    QProxyStyle::unpolish(widget);
+}
+
+bool ThemeStyler::eventFilter(QObject *watched, QEvent *event)
+{
+#ifdef Q_OS_MACOS
+    switch (event->type()) {
+    case QEvent::Show:
+    case QEvent::Hide:
+    case QEvent::Move:
+    case QEvent::Resize:
+        if (const QToolBar *toolBar = qobject_cast<const QToolBar *>(watched)) {
+            // A toolbar shown before the layout has placed it gets a
+            // Move or Resize afterwards, which repaints again with the
+            // final geometry.
+            const QMainWindow *mainWindow = qobject_cast<const QMainWindow *>(toolBar->parentWidget());
+            if (mainWindow && mainWindow->unifiedTitleAndToolBarOnMac()) {
+                for (QToolBar *other : dockedTopToolBars(mainWindow)) {
+                    if (other != toolBar)
+                        other->update();
+                }
+            }
+        }
+        break;
+    default:
+        break;
+    }
+#endif
+    return QProxyStyle::eventFilter(watched, event);
 }
 
 QString ThemeStyler::buttonStyleSheet(const QString &objectname, const QColor &baseColor)

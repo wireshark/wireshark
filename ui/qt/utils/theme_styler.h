@@ -38,6 +38,33 @@ public:
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
         QPainter *painter, const QWidget *widget = nullptr) const override;
 
+    using QProxyStyle::polish;
+    using QProxyStyle::unpolish;
+
+    /**
+     * Draw a control through the base style, with one adjustment.
+     *
+     * On macOS the native style erases top toolbars in a main window's
+     * unified title and toolbar area to transparent, so the system
+     * content border shows instead of the palette. When the active
+     * theme sets palette.window, those toolbars are filled with the
+     * palette window color, with a separator line below the last
+     * visible toolbar row. Themes without palette.window keep the
+     * native look.
+     */
+    void drawControl(ControlElement element, const QStyleOption *option,
+        QPainter *painter, const QWidget *widget = nullptr) const override;
+
+    /**
+     * Polish a widget through the base style. On macOS, toolbars also
+     * get this style as event filter, so the separator below the last
+     * toolbar row moves when a toolbar is shown, hidden or moved.
+     */
+    void polish(QWidget *widget) override;
+
+    /** Undo polish(): remove the toolbar event filter, then unpolish. */
+    void unpolish(QWidget *widget) override;
+
     // The object name of the underlying (native) style, e.g. "windows11",
     // "windowsvista", "fusion", or "macos". QApplication::style() returns
     // either this proxy or a QStyleSheetStyle wrapping it, neither of which
@@ -56,6 +83,13 @@ public:
      * @return The style sheet text.
      */
     static QString buttonStyleSheet(const QString &objectname, const QColor &baseColor);
+
+protected:
+    /**
+     * On macOS, repaint the other top toolbars of a unified main window
+     * when one of its toolbars is shown, hidden, moved or resized.
+     */
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
 
 
