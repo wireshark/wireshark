@@ -305,6 +305,7 @@ static inline uint8_t extract_tls13_draft_version(uint32_t version) {
 #define SSL_ENCRYPT_THEN_MAC    (1<<11)
 #define SSL_SEEN_0RTT_APPDATA   (1<<12)
 #define SSL_QUIC_RECORD_LAYER   (1<<13) /* For QUIC (draft >= -13) */
+#define SSL_HELLO_RETRY_REQUEST (1<<14)
 
 #define SSL_EXTENDED_MASTER_SECRET_MASK (SSL_CLIENT_EXTENDED_MASTER_SECRET|SSL_SERVER_EXTENDED_MASTER_SECRET)
 
