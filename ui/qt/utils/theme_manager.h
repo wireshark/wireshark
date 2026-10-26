@@ -436,11 +436,18 @@ public:
      *                      level.  The default UseRecentContrast reads
      *                      recent.gui_contrast, so a caller that does not
      *                      pass it previews the saved setting.
+     * @param declaresWindow  if not null, set to whether the theme itself
+     *                      declares palette.window: the test
+     *                      colorIsAvailable(PaletteWindow) makes for the
+     *                      applied theme.  False when the theme cannot be
+     *                      loaded.  The returned hash always carries
+     *                      PaletteWindow, so it cannot answer this.
      * @return token → resolved QColor for the requested mode.
      */
     QHash<ThemeToken, QColor> previewTheme(const QString &internalName,
                                            PreviewScheme scheme,
-                                           int gui_contrast = UseRecentContrast) const;
+                                           int gui_contrast = UseRecentContrast,
+                                           bool *declaresWindow = nullptr) const;
 
     /**
      * Runs ThemeParser on @p filePath and returns true if it produces a

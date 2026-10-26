@@ -222,6 +222,10 @@ void FontColorPreferencesFrame::refreshPreview()
     // corrupt theme name or missing file), so passing an empty hash is
     // safe — the preview just falls back to the live ThemeManager's
     // colors token-by-token.
-    ui->previewWidget->setPreviewColors(
-        ThemeManager::instance()->previewTheme(stashed_theme_name_, previewScheme, stashed_contrast_));
+    bool declaresWindow = false;
+    // Evaluate previewTheme() first: it fills declaresWindow, which is read
+    // as the second argument below.
+    const auto colors = ThemeManager::instance()->previewTheme(
+        stashed_theme_name_, previewScheme, stashed_contrast_, &declaresWindow);
+    ui->previewWidget->setPreviewColors(colors, declaresWindow);
 }

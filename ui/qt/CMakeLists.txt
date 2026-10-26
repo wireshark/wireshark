@@ -115,6 +115,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/theme_styler.h
 	utils/themes/color_math.h
 	utils/themes/legacy_color_prefs_migration.h
+	utils/themes/native_title_bar.h
 	utils/themes/system_theme_detector.h
 	utils/themes/theme_palette_builder.h
 	utils/themes/theme_parser.h
@@ -442,13 +443,25 @@ set(WIRESHARK_MANAGER_SRCS
 )
 
 if(APPLE)
-	set(WIRESHARK_THEMES_PLATFORM_SRC utils/themes/system_theme_detector_mac.mm)
+	set(WIRESHARK_THEMES_PLATFORM_SRC
+		utils/themes/system_theme_detector_mac.mm
+		utils/themes/native_title_bar_mac.mm
+	)
 elseif(WIN32)
-	set(WIRESHARK_THEMES_PLATFORM_SRC utils/themes/system_theme_detector_win.cpp)
+	set(WIRESHARK_THEMES_PLATFORM_SRC
+		utils/themes/system_theme_detector_win.cpp
+		utils/themes/native_title_bar_win.cpp
+	)
 elseif(UNIX)
-	set(WIRESHARK_THEMES_PLATFORM_SRC utils/themes/system_theme_detector_unix.cpp)
+	set(WIRESHARK_THEMES_PLATFORM_SRC
+		utils/themes/system_theme_detector_unix.cpp
+		utils/themes/native_title_bar_stub.cpp
+	)
 else()
-	set(WIRESHARK_THEMES_PLATFORM_SRC utils/themes/system_theme_detector_stub.cpp)
+	set(WIRESHARK_THEMES_PLATFORM_SRC
+		utils/themes/system_theme_detector_stub.cpp
+		utils/themes/native_title_bar_stub.cpp
+	)
 endif()
 
 if(HAVE_SOFTWARE_UPDATE AND WIN32)
@@ -491,6 +504,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/themes/contrast_adapt_icon.cpp
 	utils/themes/themed_shape_icon.cpp
 	utils/themes/system_theme_detector_common.cpp
+	utils/themes/native_title_bar_common.cpp
 	${WIRESHARK_THEMES_PLATFORM_SRC}
 	utils/wireshark_mime_data.cpp
 	utils/wireshark_zip_helper.cpp
