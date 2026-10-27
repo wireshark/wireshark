@@ -8221,3 +8221,103 @@ class TestDissectAsamCmp:
         assert 'Interface ID: 0x00000010 (CAN-Body)' in stdout
         assert 'Interface CAN-Body, Type: CAN' in stdout
         assert 'Interface 0x101, Type: CAN FD' in stdout
+
+
+class TestDissectAsap:
+    def test_asap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, parameter and cause decodes without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        # Frames 21 and 22 are SCTP fragments of the message in frame 23
+        assert stdout.split() == ['ASAP'] * 20 + ['SCTP'] * 2 + ['ASAP'] * 9
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asap_coverage.pcap.gz'),
+                '-Tfields', '-easap.message_type',
+            ), encoding='utf-8', env=test_env)
+        types = set(int(t) for line in stdout.split() for t in line.split(','))
+        assert types == set(range(1, 15)) | {0x20}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('asap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_asap_in_error_pkt(self, cmd_tshark, capture_file, test_env):
+        '''Frame 30 bundles an ASAP Error with an Operation Error, the first
+        fragment of a Registration and a Keep-Alive; frame 31 holds the
+        last fragment. The Operation Error does not stop the later
+        messages from setting Info and being reassembled, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('asap_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {30,31}',
+                    '-Tfields', '-e_ws.col.info', '-easap.message_type',
+                    '-easap.pool_element_pe_identifier', '-easap.sctp_transport_port',
+                    '-easap.ipv4_address',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                'ASAP Error DATA (TSN=1) (Message Fragment) ASAP Endpoint Keep-Alive \t14,7\t\t\t',
+                'ASAP Registration \t1\t0x00000001\t5000\t192.0.2.9',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('asap_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 31', '-V',
+                ), encoding='utf-8', env=test_env)
+            assert 'Reassembled SCTP Fragments (52 bytes, 2 fragments)' in stdout
+            assert 'Type: ASAP Registration (1)' in stdout
+            assert 'Pool Handle: 706f6f6c68616e646c65 (poolhandle)' in stdout
+            assert 'Registration Life: 1000ms' in stdout
+
+    def test_asap_stat(self, cmd_tshark, capture_file, test_env):
+        '''-z asap,stat counts every tapped message once: the messages
+        after the Operation Error in frame 30 are counted, the messages
+        nested in Unrecognized message causes are not, and the undefined
+        message type has no row.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('asap_coverage.pcap.gz'),
+                    '-q', '-z', 'asap,stat',
+                ), encoding='utf-8', env=test_env)
+            # Floats are shown with the decimal separator of the locale
+            stdout = stdout.replace(',', '.')
+            assert 'ASAP Registration         |4 |12.500 % |384 |14.071 % |0.000000 |30.000000 |30.000000 |0.13 |12.80 |' in stdout
+            assert 'ASAP Endpoint Keep-Alive  |3 |9.375 % |56 |2.052 % |7.000000 |29.000000 |22.000000 |0.14 |2.55 |' in stdout
+            assert 'ASAP Handle Resolution Response |3 |9.375 % |1460 |53.499 % |6.000000 |25.000000 |19.000000 |0.16 |76.84 |' in stdout
+            assert 'ASAP Error                |2 |6.250 % |168 |6.156 % |15.000000 |29.000000 |14.000000 |0.14 |12.00 |' in stdout
+            assert 'ASAP Deregistration Response |1 |3.125 % |28 |1.026 % |4.000000 |4.000000 |' in stdout
+
+    def test_asap_values(self, cmd_tshark, capture_file, test_env):
+        '''The 32-bit DCCP service code (frames 1 and 29), the SCTP
+        reassembly of the three fragment Handle Resolution Response
+        (frame 23), the parameters ending at the message Length (frame 19)
+        and the policies in frame 7.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,19,23,29}',
+                '-Tfields', '-eframe.number', '-easap.dccp_transport_service_code',
+                '-easap.pool_handle_pool_handle', '-easap.pool_element_pe_identifier',
+            ), encoding='utf-8', env=test_env)
+        pe_ids = ','.join('0x%08x' % (0x4000 + i) for i in range(12))
+        assert stdout.splitlines() == [
+            '1\t305419896\t6563686f2d706f6f6c\t0x00001001',
+            '19\t\t6563686f2d706f6f6c,706f6f6c31\t',
+            f'23\t\t6563686f2d706f6f6c\t{pe_ids}',
+            '29\t305419896\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 7',
+                '-Tfields', '-easap.pool_member_selection_policy_type',
+                '-easap.pool_member_selection_policy_distance',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x00000001,0x00000001,0x00000002,0x00000003,0x00000004,0x00000005,'
+            '0x40000001,0x40000004,0x40000002,0x40000003,0xb0002002,0xb0002001,'
+            '0xb0001003,0x7fffffff\t25,50',
+        ]
