@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tfs.h>
@@ -135,8 +136,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *paramet
   proto_item *cause_item;
   proto_tree *cause_tree;
   tvbuff_t *parameter_tvb, *message_tvb;
-
-  pinfo->flags.in_error_pkt = true;
+  bool save_in_error_pkt;
 
   code           = tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET);
   length         = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET);
@@ -155,7 +155,16 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *paramet
     break;
   case UNRECONGNIZED_MESSAGE_CAUSE_CODE:
     message_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
-    dissect_asap(message_tvb, pinfo, cause_tree, NULL);
+    /* The unrecognized message is not tapped and does not set the columns */
+    save_in_error_pkt = pinfo->flags.in_error_pkt;
+    pinfo->flags.in_error_pkt = true;
+    TRY {
+      dissect_asap(message_tvb, pinfo, cause_tree, NULL);
+    }
+    FINALLY {
+      pinfo->flags.in_error_pkt = save_in_error_pkt;
+    }
+    ENDTRY;
     break;
   case INVALID_VALUES:
     parameter_tvb = tvb_new_subset_remaining(cause_tvb, CAUSE_INFO_OFFSET);
@@ -601,9 +610,9 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
   proto_item     *flags_item;
   proto_tree     *flags_tree;
   uint8_t         type;
+  unsigned        length, parameters_offset;
 
   type = tvb_get_uint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  /* pinfo is NULL only if dissect_asap_message is called via dissect_error_cause */
   if (!pinfo->flags.in_error_pkt) {
     tap_rec = wmem_new0(pinfo->pool, asap_tap_rec_t);
     tap_rec->type        = type;
@@ -627,10 +636,13 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
     proto_tree_add_item(asap_tree, hf_message_length, message_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
     if ((type == SERVER_ANNOUNCE_MESSAGE_TYPE) || (type == ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE)) {
       proto_tree_add_item(asap_tree, hf_server_identifier, message_tvb, SERVER_IDENTIFIER_OFFSET, SERVER_IDENTIFIER_LENGTH, ENC_BIG_ENDIAN);
-      parameters_tvb = tvb_new_subset_remaining(message_tvb, MESSAGE_VALUE_OFFSET + SERVER_IDENTIFIER_LENGTH);
+      parameters_offset = MESSAGE_VALUE_OFFSET + SERVER_IDENTIFIER_LENGTH;
     } else {
-      parameters_tvb = tvb_new_subset_remaining(message_tvb, MESSAGE_VALUE_OFFSET);
+      parameters_offset = MESSAGE_VALUE_OFFSET;
     }
+    /* The parameters end where the message length says */
+    length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET);
+    parameters_tvb = tvb_new_subset_length(message_tvb, parameters_offset, length > parameters_offset ? length - parameters_offset : 0);
     dissect_parameters(parameters_tvb, pinfo, asap_tree);
     }
 }
@@ -642,7 +654,6 @@ dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* 
   proto_item *asap_item;
   proto_tree *asap_tree;
 
-  /* pinfo is NULL only if dissect_asap is called from dissect_error_cause */
   if (!pinfo->flags.in_error_pkt) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASAP");
   }
@@ -674,9 +685,9 @@ typedef enum
 static stat_tap_table_item asap_stat_fields[] = {
   { TABLE_ITEM_STRING, TAP_ALIGN_LEFT,  "ASAP Message Type",    "%-25s"    },
   { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages ",            "%u"       },
-  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages Share (%)"  , "%1.3f %%" },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_RIGHT, "Messages Share (%)"  , "%1.3f %%" },
   { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes (B)",            "%u"       },
-  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes Share (%) ",     "%1.3f %%" },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_RIGHT, "Bytes Share (%) ",     "%1.3f %%" },
   { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "First Seen (s)",       "%1.6f"    },
   { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Last Seen (s)",        "%1.6f"    },
   { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Interval (s)",         "%1.6f"    },
@@ -719,7 +730,7 @@ static void asap_stat_init(stat_tap_table_ui* new_stat)
     items[FIRST_SEEN_COLUMN].type                  = TABLE_ITEM_NONE;
     items[FIRST_SEEN_COLUMN].value.float_value     = DBL_MAX;
     items[LAST_SEEN_COLUMN].type                   = TABLE_ITEM_NONE;
-    items[LAST_SEEN_COLUMN].value.float_value      = DBL_MIN;
+    items[LAST_SEEN_COLUMN].value.float_value      = -DBL_MAX;
     items[INTERVAL_COLUMN].type                    = TABLE_ITEM_NONE;
     items[INTERVAL_COLUMN].value.float_value       = -1.0;
     items[MESSAGE_RATE_COLUMN].type                = TABLE_ITEM_NONE;
@@ -857,7 +868,7 @@ asap_stat_reset(stat_tap_table* table)
 
     item_data = stat_tap_get_field_data(table, element, LAST_SEEN_COLUMN);
     item_data->type = TABLE_ITEM_NONE;
-    item_data->value.float_value = DBL_MIN;
+    item_data->value.float_value = -DBL_MAX;
     stat_tap_set_field_data(table, element, LAST_SEEN_COLUMN, item_data);
 
     item_data = stat_tap_get_field_data(table, element, INTERVAL_COLUMN);
@@ -901,7 +912,7 @@ proto_register_asap(void)
     { &hf_parameter_ipv6_address, { "IP Version 6 Address",        "asap.ipv6_address",                             FT_IPv6,    BASE_NONE, NULL,                             0x0,                       NULL, HFILL } },
     { &hf_dccp_port,              { "Port",                        "asap.dccp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_dccp_reserved,          { "Reserved",                    "asap.dccp_transport_reserved",                  FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
-    { &hf_dccp_service_code,      { "Service Code",                "asap.dccp_transport_service_code",              FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
+    { &hf_dccp_service_code,      { "Service Code",                "asap.dccp_transport_service_code",              FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_sctp_port,              { "Port",                        "asap.sctp_transport_port",                      FT_UINT16,  BASE_PT_SCTP,  NULL,                             0x0,                       NULL, HFILL } },
     { &hf_transport_use,          { "Transport Use",               "asap.transport_use",                            FT_UINT16,  BASE_DEC,  VALS(transport_use_values),       0x0,                       NULL, HFILL } },
     { &hf_tcp_port,               { "Port",                        "asap.tcp_transport_port",                       FT_UINT16,  BASE_PT_TCP,  NULL,                             0x0,                       NULL, HFILL } },
