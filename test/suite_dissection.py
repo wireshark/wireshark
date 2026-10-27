@@ -7615,3 +7615,81 @@ class TestDissectArp:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['132']
+
+
+# artemis_coverage.pcap.gz is synthetic: every packet was generated, to
+# cover as much of the Artemis dissector as possible.
+
+
+class TestDissectArtemis:
+    def artemis_fields(self, cmd_tshark, capture_file, test_env, *fields, opts=()):
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('artemis_coverage.pcap.gz'),
+                '-Tfields', '-E', 'aggregator=|', '-e', 'frame.number', *args,
+            ), encoding='utf-8', env=test_env)
+        return {int(line.split('\t')[0]): line.split('\t')[1:] for line in stdout.splitlines()}
+
+    def test_artemis_protocols(self, cmd_tshark, capture_file, test_env):
+        '''PDUs one per segment, several per segment and split over
+        segments, over IPv4 and IPv6, decode without malformed packets or
+        warning or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('artemis_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('ARTEMIS') == 22
+        assert protocols.count('TCP') == 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('artemis_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        frames = self.artemis_fields(cmd_tshark, capture_file, test_env, 'artemis.length')
+        pdus = sum(len(v[0].split('|')) for v in frames.values() if v[0])
+        assert pdus == 22
+
+    def test_artemis_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''PDUs split over segments are reassembled, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            frames = self.artemis_fields(cmd_tshark, capture_file, test_env,
+                                         'artemis.length', 'artemis.type', 'artemis.channel',
+                                         'tcp.segment.count', opts=passes)
+            # Three PDUs in one segment
+            assert frames[6] == ['29|9|17', '40|67|10', '2|2|0', '']
+            # 2000 octets over three segments
+            assert frames[10] == ['1996', '71', '2', '3']
+            # The length field split after two octets
+            assert frames[13] == ['109', '71', '2', '2']
+            # The end of one PDU, a whole one and the start of a third,
+            # then the rest of the third
+            assert frames[15] == ['59|69', '71|71', '2|2', '2']
+            assert frames[16] == ['79', '71', '2', '2']
+            # A 5000-octet PDU over four segments, then a PDU in the last
+            assert frames[22] == ['4996|9', '75|21', '2|2', '4']
+            # IPv6, each direction split in two
+            assert frames[36] == ['309', '30', '1', '2']
+            assert frames[38] == ['209', '31', '1', '2']
+            # Segments in the middle of a PDU carry no Artemis items
+            for n in (8, 9, 12, 14, 19, 20, 21, 35, 37):
+                assert frames[n][0] == ''
+
+    def test_artemis_fields(self, cmd_tshark, capture_file, test_env):
+        '''The header fields and the buffer.'''
+        frames = self.artemis_fields(cmd_tshark, capture_file, test_env,
+                                     'artemis.length', 'artemis.type', 'artemis.channel',
+                                     'artemis.buffer')
+        assert frames[5] == ['13', '31', '1', '0000007f']
+        # Length 9: no body
+        assert frames[17][:3] == ['9', '51', '2']
+        # Every channel octet set, type 255
+        assert frames[24] == ['11', '255', '18446744073709551615', '0102']
+        # A connection picked up in the middle, two PDUs per segment
+        assert frames[29][:3] == ['39|40', '71|71', '7|7']
+        assert frames[30][:3] == ['9|9', '21|21', '7|7']
