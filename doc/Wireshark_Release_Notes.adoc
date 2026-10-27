@@ -44,6 +44,8 @@ The following vulnerabilities have been fixed:
 // CWE-???
 // Credit:
 
+The Windows and macOS installers now ship with brotli 1.2.1, which fixes https://www.cve.org/CVERecord?id=CVE-2026-111497[CVE-2026-111497].
+
 The following bugs have been fixed:
 
 //* wsbuglink:5000[]
