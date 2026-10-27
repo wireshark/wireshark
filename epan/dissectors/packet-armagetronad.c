@@ -236,10 +236,10 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 	proto_tree_add_item(ti, hf_armagetronad_sender_id, tvb, offset, 2,
 			    ENC_BIG_ENDIAN);
 
-	new_len = wmem_strbuf_get_len(info) - 2;	/* Remove the trailing ", " */
-	if (new_len > 0)
+	if (wmem_strbuf_get_len(info) > 2) {
+		new_len = wmem_strbuf_get_len(info) - 2;	/* Remove the trailing ", " */
 		wmem_strbuf_truncate(info, new_len);
-	else
+	} else
 		info = wmem_strbuf_new(pinfo->pool, "No message");
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] from 0x%04x",
