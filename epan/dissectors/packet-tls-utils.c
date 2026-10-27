@@ -5370,6 +5370,11 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle, uin
 
 void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, bool is_client)
 {
+    /* TLS 1.3 forbids renegotiation (and the version cannot change upon
+     * renegotiation, in particular TLS 1.3 MUST NOT be [re]negotiated if a
+     * prior version was negotiated.) However, we can get here in valid TLS
+     * 1.3 for ClientHello or ServerHello following a HelloRetryRequest.
+     */
     if (ssl) {
         /* Ensure that secrets are not restored using stale identifiers. Split
          * between client and server in case the packets somehow got out of order. */
@@ -5388,6 +5393,11 @@ void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, bool is_clie
                 wmem_free(wmem_file_scope(), ssl->handshake_data.data);
                 ssl->handshake_data.data = NULL;
                 ssl->handshake_data.data_len = 0;
+            }
+            if (ssl->ech_transcript.data_len > 0 && !(ssl->state & SSL_HELLO_RETRY_REQUEST)) {
+                wmem_free(wmem_file_scope(), ssl->ech_transcript.data);
+                ssl->ech_transcript.data = NULL;
+                ssl->ech_transcript.data_len = 0;
             }
         } else {
             clear_flags |= SSL_SERVER_EXTENDED_MASTER_SECRET | SSL_NEW_SESSION_TICKET;
@@ -8568,6 +8578,10 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_inf
             ssl->state |= SSL_CLIENT_RANDOM;
         ssl_debug_printf("%s found %s RANDOM -> state 0x%02X\n", G_STRFUNC,
                 from_server ? "SERVER" : "CLIENT", ssl->state);
+
+        if (is_hrr) {
+            ssl->state |= SSL_HELLO_RETRY_REQUEST;
+        }
     }
 
     if (!from_server && session->client_random.data_len == 0) {
@@ -10551,6 +10565,11 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (ssl) {
         /* store selected cipher suite for decryption */
         ssl_set_cipher(ssl, tvb_get_ntohs(tvb, offset));
+
+        /* XXX - If we previously had a HRR, we should check to make sure the
+         * Cipher Suite did not change (similar with the supported_versions ext.
+         * https://www.rfc-editor.org/rfc/rfc9846.html#name-hello-retry-request
+         */
     }
 
     /* now the server-selected cipher suite */
@@ -10751,6 +10770,9 @@ ssl_dissect_hnd_hello_retry_request(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     /* We assume that there's nothing out there that supports only TLS 1.3
      * draft-22 but also Encrypted Client Hello, or else we should set the
      * cipher suite and call tls_calculate_ech_handshake_hash here. */
+    if (ssl) {
+        ssl->state |= SSL_HELLO_RETRY_REQUEST;
+    }
 
     ssl_dissect_hnd_extension(hf, tvb, tree, pinfo, offset,
                               offset_end, SSL_HND_HELLO_RETRY_REQUEST,
@@ -12395,7 +12417,7 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, uint
      *
      * XXX - When the server responds with a HelloRetryRequest, for subsequent
      * hashes (other than the first PSK Binder, see 4.2.11.2) ClientHello1 is
-     * replaced with a synthetic handhsake message of type "message_hash",
+     * replaced with a synthetic handshake message of type "message_hash",
      * per RFC 8446 4.4.1. We aren't concerned with that now, as a HRR generally
      * rules out PSK-only key exchange, which is what we calculate the hash for
      * here. (The possible exception is when a server sends a HRR to reject
