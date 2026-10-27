@@ -12530,7 +12530,8 @@ class TestDissectBacnet:
                     '-Y', '_ws.malformed || _ws.expert.severity >= warning',
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
-            assert count_output(stdout) == 0
+            # Frame 97 is a short NPDU in Frame Type 33, which MS/TP flags.
+            assert stdout.split() == ['97']
         one_pass = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('bacnet_coverage.pcap.gz'), '-V',
             ), encoding='utf-8', env=test_env)
@@ -25190,7 +25191,8 @@ class TestDissectCimetrics:
                     '-Y', '_ws.malformed || _ws.expert.severity >= warning',
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
-            assert count_output(stdout) == 0
+            # Frame 10 is Frame Type 48 with Length 0, which MS/TP flags.
+            assert stdout.split() == ['10']
 
     def test_cimetrics_fields(self, cmd_tshark, capture_file, test_env):
         '''The Cimetrics header, the MS/TP frame after it with good
@@ -25237,6 +25239,147 @@ class TestDissectCimetrics:
             'BACnet MS/TP, Src (11), Dst (10), Unknown Frame Type (48)',
             'BACnet MS/TP, Src (127), Dst (10), Unknown Frame Type (128)',
         ]
+
+
+# mstp-6lobac.pcapng is synthetic except frame 11, the example frame of
+# RFC 8163 Appendix D. It is written by tools/gen-mstp-test-capture.py,
+# whose docstring lists every frame.
+MSTP_CAPTURE = 'mstp-6lobac.pcapng'
+MSTP_OPTS = ('-o', '6lowpan.context0:aaaa::/64')
+
+
+def mstp_run(n):
+    '''n non-zero octets, as in the capture generator.'''
+    return bytes((i % 255) + 1 for i in range(n))
+
+
+class TestDissectMstp:
+    def mstp_fields(self, cmd_tshark, capture_file, test_env, display_filter, *fields):
+        args = [cmd_tshark, *MSTP_OPTS, '-r', capture_file(MSTP_CAPTURE), '-Tfields']
+        if display_filter:
+            args += ['-Y', display_filter]
+        for field in fields:
+            args += ['-e', field]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env)
+
+    def frame_numbers(self, cmd_tshark, capture_file, test_env, display_filter):
+        stdout = self.mstp_fields(cmd_tshark, capture_file, test_env, display_filter,
+                                  'frame.number')
+        return [int(n) for n in stdout.split()]
+
+    def test_mstp_frame_types(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is MS/TP, with the frame type the generator wrote.'''
+        stdout = self.mstp_fields(cmd_tshark, capture_file, test_env, None, 'mstp.frame_type')
+        assert [int(t) for t in stdout.split()] == (
+            [0, 1, 2, 3, 4, 5, 6, 7, 32, 33, 34, 34, 34, 35, 128] + [35] * 8 +
+            [0, 6, 34, 34, 34, 34, 34, 34] + [32, 34, 35, 35])
+
+    def test_mstp_checksums(self, cmd_tshark, capture_file, test_env):
+        '''The Extended Data CRC (CRC-32K) is shown for every COBS-encoded
+        frame that decodes, and only the three frames with a bad header CRC,
+        data CRC or CRC-32K have a bad checksum.'''
+        assert self.frame_numbers(cmd_tshark, capture_file, test_env, 'mstp.ext_data_crc') == (
+            [9, 10, 11, 12, 13, 14] + list(range(16, 24)) + [26, 32, 33, 35])
+        assert self.frame_numbers(cmd_tshark, capture_file, test_env,
+                                  'mstp.checksum.status == 0') == [24, 25, 26]
+        stdout = self.mstp_fields(cmd_tshark, capture_file, test_env, 'frame.number == 11',
+                                  'mstp.ext_data_crc')
+        assert stdout.strip() == '0x9e7259e2'
+
+    def test_mstp_dispatch(self, cmd_tshark, capture_file, test_env):
+        '''Types 5, 6, 32 and 33 go to BACnet and type 34 to 6LoWPAN, even
+        when the data CRC or CRC-32K is bad (frames 25 and 26).'''
+        assert self.frame_numbers(cmd_tshark, capture_file, test_env, 'bacnet') == [6, 7, 9, 10, 25, 32]
+        assert self.frame_numbers(cmd_tshark, capture_file, test_env, '6lowpan') == [11, 12, 13, 26, 33]
+        assert self.frame_numbers(cmd_tshark, capture_file, test_env, 'icmpv6') == [11, 12, 13, 26, 33]
+
+    def test_mstp_cobs_corner_cases(self, cmd_tshark, capture_file, test_env):
+        '''COBS blocks of exactly 254 non-zero octets (code 0xFF), at the end
+        of the data and elsewhere, and zero octets decode exactly.'''
+        expected = {
+            14: bytes(range(32)),
+            15: b'vendor data',
+            16: b'\x10\x00' + mstp_run(254) + b'\x30\x40\x50',
+            17: b'\x10\x00' + mstp_run(254),
+            18: b'\x10\x00' + mstp_run(253),
+            19: b'\x10\x00' + mstp_run(255),
+            20: mstp_run(254) + b'\x00\x60',
+            21: mstp_run(508),
+            22: b'\x00',
+            23: bytes(10),
+        }
+        stdout = self.mstp_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number >= 14 && frame.number <= 23',
+                                  'frame.number', 'data.data')
+        decoded = {int(n): bytes.fromhex(d) for n, d in (line.split('\t') for line in stdout.splitlines())}
+        assert decoded == expected
+
+    def test_mstp_cobs_errors(self, cmd_tshark, capture_file, test_env):
+        '''Damaged COBS-encoded frames are reported at the octet in error, and
+        the octets decoded before it are shown.'''
+        stdout = self.mstp_fields(cmd_tshark, capture_file, test_env, 'mstp.cobs.bad',
+                                  'frame.number', '_ws.expert.message')
+        lines = stdout.splitlines()
+        assert [int(line.split('\t')[0]) for line in lines] == [27, 28, 29]
+        assert 'runs past the end of the Encoded Data field' in lines[0]
+        assert 'Octet 0x55' in lines[1] and 'Encoded CRC-32K field' in lines[1]
+        assert 'Octet 0x55' in lines[2] and 'Encoded Data field' in lines[2]
+        assert self.frame_numbers(cmd_tshark, capture_file, test_env, 'mstp.len.bad') == [30, 31, 34, 35]
+        assert self.frame_numbers(cmd_tshark, capture_file, test_env,
+                                  '_ws.malformed || _ws.expert.severity == error') == [27, 28, 29, 30, 31, 34, 35]
+        stdout = subprocess.check_output((cmd_tshark, *MSTP_OPTS,
+                '-r', capture_file(MSTP_CAPTURE),
+                '-Y', 'frame.number >= 27 && frame.number <= 30', '-x',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout, r'^Decoded Data \(partial\) \(\d+ bytes\):') == 4
+
+    def test_mstp_length_limits(self, cmd_tshark, capture_file, test_env):
+        '''A COBS-encoded frame with a Length outside 5 to 2043 is an error
+        (Clause 9.5.3); a BACnet NPDU outside 502 to 1497 octets in Frame
+        Type 32 or 33 (Clauses 9.2 and 9.3) and an IPv6 over MS/TP frame
+        with a Length above 1510 are warnings.'''
+        assert self.frame_numbers(cmd_tshark, capture_file, test_env,
+                                  'mstp.bacnet_npdu_len.unexpected') == [32]
+        assert self.frame_numbers(cmd_tshark, capture_file, test_env,
+                                  'mstp.ipv6_len.too_long') == [33]
+        stdout = self.mstp_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number == 34 || frame.number == 35',
+                                  '_ws.expert.message')
+        assert stdout.splitlines() == [
+            'Length 0 is outside 5 to 2043, the range for COBS-encoded frames',
+            'Length 2112 is outside 5 to 2043, the range for COBS-encoded frames',
+        ]
+
+    def test_mstp_rfc8163_appendix_d(self, cmd_tshark, capture_file, test_env):
+        '''The example frame of RFC 8163 Appendix D gives the three byte dumps
+        printed there: the frame, the decoded data and CRC-32K, and the
+        decompressed IPv6 packet.'''
+        stdout = subprocess.check_output((cmd_tshark, *MSTP_OPTS,
+                '-r', capture_file(MSTP_CAPTURE),
+                '-Y', 'frame.number == 11', '-x',
+            ), encoding='utf-8', env=test_env)
+        dumps, name = {}, None
+        for line in stdout.splitlines():
+            if line.endswith('bytes):'):
+                name = line.split(' (')[0]
+                dumps[name] = bytearray()
+            elif name and len(line) > 6 and line[4:6] == '  ':
+                dumps[name] += bytes.fromhex(line[6:6 + 48])
+        # The first dump is the frame itself ("Frame" in RFC 8163, "Packet" now).
+        frame = dumps[next(iter(dumps))]
+        decoded = dumps['Decoded Data and CRC32K']
+        ipv6 = dumps['Decompressed 6LoWPAN IPHC']
+        assert (len(frame), len(decoded), len(ipv6)) == (547, 537, 558)
+        assert decoded[:15] == bytes.fromhex('78d6003a3f00000000000000010001')
+        assert decoded[-4:] == bytes.fromhex('9e7259e2')
+        assert ipv6[:40] == bytes.fromhex(
+            '60000000' '02063a3f'
+            'aaaa0000000000000000000000000001'
+            'aaaa000000000000000000fffe000001')
+        assert ipv6[40:] == decoded[15:-4]
+        stdout = self.mstp_fields(cmd_tshark, capture_file, test_env, 'frame.number == 11',
+                                  'icmpv6.checksum.status')
+        assert stdout.strip() == '1'
 
 
 class TestDissectCip:

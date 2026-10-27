@@ -22,8 +22,10 @@ mstp_frame_type_text(wmem_allocator_t* scope, uint32_t val);
 
 /**
  * Dissects the BACnet MS/TP packet after the preamble,
- * starting with the MS/TP Frame type octet.  Passes
- * the PDU, if there is one, to the BACnet dissector.
+ * starting with the MS/TP Frame type octet.  Decodes
+ * COBS-encoded frames and passes the PDU, if there is one,
+ * to the dissector registered for its frame type (BACnet,
+ * 6LoWPAN, or a vendor-specific one).
  * @param tvb the tv buffer of the current data
  * @param pinfo the packet info of the current data
  * @param tree the tree to append this item to
