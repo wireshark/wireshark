@@ -6314,3 +6314,165 @@ class TestDissectAnsiMap:
         assert counts['0x35'] == 39    # SMS Delivery Point to Point
         assert counts['0x70'] == 2     # QualificationRequest2 (the last)
         assert counts['0x67'] == 0     # not an ANSI MAP operation
+
+
+# The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
+ANSI_TCAP_OPTS = ('-o', 'mtp3.standard:ANSI')
+
+
+class TestDissectAnsiTcap:
+    def test_ansi_tcap_needs_ansi_mtp3(self, cmd_tshark, capture_file, test_env):
+        '''With the default (ITU) MTP3 standard the ANSI SCCP addresses do
+        not route to TCAP, so nothing is dissected as ANSI TCAP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                '-Y', 'ansi_tcap',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_ansi_tcap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every package type, component type, operation code family and
+        national parameter decodes without malformed packets or error expert
+        infos, and two passes give the same result as one.'''
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 135
+        assert protocols.count('ANSI TCAP') == 86
+        assert protocols.count('ANSI MAP') == 24
+        assert protocols.count('IS-637-A') == 19
+        assert protocols.count('AIN') == 3
+        assert protocols.count('LNPDQP') == 3
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS, *passes,
+                    '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS, *passes,
+                    '-r', capture_file('ansi_tcap_coverage.pcap.gz'), '-V',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_ansi_tcap_many_components(self, cmd_tshark, capture_file, test_env):
+        '''Packages of 600 components (ANSI MAP, AIN, national LNP) used to
+        fail the layer limit DISSECTOR_ASSERT() in call_dissector_work().
+        The components are handed over until the frame nears the limit,
+        the rest are reported with a warning. 400 components fit.'''
+        expected = {
+            '127': ('ansi_map', 475, 125),
+            '128': ('ansi_map', 400, 0),
+            '129': ('ain', 475, 125),
+            '130': ('lnpdqp', 475, 125),
+        }
+        for frame, (proto, handed, skipped) in expected.items():
+            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                    '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}', '-V',
+                ), encoding='utf-8', env=test_env)
+            assert 'Dissector bug' not in stdout
+            assert 'Malformed Packet' not in stdout
+            assert count_output(stdout, r'Expert Info \(Warning/Undecoded\): Too many components in one package') == skipped
+            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                    '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}',
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip().split(':').count(proto) == handed
+
+    def test_ansi_tcap_same_frame_match(self, cmd_tshark, capture_file, test_env):
+        '''A package with an Invoke, a ReturnResult and a second Invoke of
+        the same transaction: the ReturnResult is matched only with Invokes
+        of earlier frames, so it does not get the second Invoke's
+        operation, and two passes give the same result as one.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS, *passes,
+                    '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 131',
+                    '-Tfields', '-eansi_tcap.private',
+                ), encoding='utf-8', env=test_env)
+            # The two Invokes' private operation codes, and no generated
+            # operation code for the ReturnResult
+            assert stdout.strip() == '2357,2317'
+            outputs.append(subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS, *passes,
+                    '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 131', '-V',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_ansi_tcap_long_transaction_id(self, cmd_tshark, capture_file, test_env):
+        '''A transaction ID of 260 octets is used whole for invoke/result
+        matching (its length was truncated to 8 bits): a result whose ID
+        differs after the first four octets is not matched, one with the
+        same ID is.'''
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 21 && frame.number <= 23',
+                '-Tfields', '-eframe.number', '-eansi_tcap.identifier', '-eansi_tcap.national',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [len(f[1]) for f in frames] == [520, 520, 520]
+        assert frames[0][1][:8] == frames[1][1][:8] == 'c1c2c3c4'
+        assert frames[1][2] == ''
+        assert frames[2][2] == '257'
+
+    def test_ansi_tcap_matching(self, cmd_tshark, capture_file, test_env):
+        '''Invoke/result matching by transaction ID only (the default), by
+        ID and source, and by ID, source and destination: a result from a
+        relay and a result to another node.'''
+        expected = {
+            'tid': '112\t257\n114\t257\n116\t257\n',
+            'tid_source': '112\t257\n114\t257\n116\t\n',
+            'tid_source_dest': '112\t257\n114\t\n116\t\n',
+        }
+        for matchtype, result in expected.items():
+            stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                    '-o', f'ansi_tcap.transaction.matchtype:{matchtype}',
+                    '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {112, 114, 116}',
+                    '-Tfields', '-eframe.number', '-eansi_tcap.national',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == result
+        # The AIN ReturnResult gets its operation from the matched Invoke
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 108',
+                '-Tfields', '-eansi_tcap.private', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.startswith('26886\tactivityTest ReturnResult')
+
+    def test_ansi_tcap_values(self, cmd_tshark, capture_file, test_env):
+        '''Abort causes, reject problems, error codes and national
+        parameters.'''
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                '-Y', 'ansi_tcap.abortCause',
+                '-Tfields', '-eansi_tcap.abortCause',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(c) for c in range(1, 11)] + ['42', '6']
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 58',
+                '-Tfields', '-eansi_tcap.rejectProblem',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '257,258,259,260,513,514,515,516,769,770,771,1025,1026,1027,1028,1029,1281,1282,1283,1284,1285,1286'
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                '-Y', 'ansi_tcap.parameter',
+                '-Tfields', '-eansi_tcap.parameter', '-E', 'occurrence=a',
+            ), encoding='utf-8', env=test_env)
+        params = set(','.join(stdout.split()).split(','))
+        assert len(params) == 38
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_TCAP_OPTS,
+                '-r', capture_file('ansi_tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 121 || frame.number == 124 || frame.number == 125',
+                '-Tfields', '-eansi_tcap.timestamp.difference', '-eansi_tcap.generic_name.characters',
+                '-eansi_tcap.display_text',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '-5\t\t\n\tALICE\t\n\t\tHELLO\n'
