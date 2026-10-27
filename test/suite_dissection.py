@@ -7921,3 +7921,65 @@ class TestDissectArubaErm:
             ['62', '62', '0x0008'], ['64', '64', '0x0020'],
             ['66', '66', '0x0028'], ['14', '14', '0x001d']]
         assert lines[0][3] == '0x186a8b89'
+
+
+class TestDissectArubaIap:
+    def test_aruba_iap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame with the 0xbeef magic number is dissected, without
+        malformed packets or error expert infos, in one and two passes;
+        the frame without it is left to the data dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_iap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 64
+        assert protocols.count('IAP') == 63
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_iap_coverage.pcap.gz'),
+                '-Y', '!aruba_iap', '-Tfields', '-eframe.number', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['64', '46']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('aruba_iap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_aruba_iap_magic(self, cmd_tshark, capture_file, test_env):
+        '''The magic number field says it is always 0xbeef, and it is in
+        every dissected frame.'''
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                encoding='utf-8', env=test_env)
+        magic = [line.split('\t') for line in stdout.splitlines()
+                 if '\taruba_iap.magic\t' in line]
+        assert len(magic) == 1
+        assert magic[0][7] == 'Magic Number of IAP traffic (Always 0xbeef)'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_iap_coverage.pcap.gz'),
+                '-Y', 'aruba_iap', '-Tfields', '-earuba_iap.magic',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['0xbeef'] * 63
+
+    def test_aruba_iap_values(self, cmd_tshark, capture_file, test_env):
+        '''Types 3, 4, 5 and 7 carry the VC address, model and PVID; other
+        types only unknown octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_iap_coverage.pcap.gz'),
+                '-Y', 'aruba_iap.vc_ip', '-Tfields', '-earuba_iap.type',
+                '-earuba_iap.vc_ip', '-earuba_iap.model', '-earuba_iap.pvid',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert len(lines) == 57
+        assert [line[0] for line in lines[:4]] == ['3', '4', '5', '7']
+        assert lines[0][1:] == ['10.30.0.1', '10', '1', 'Aruba Instant AP VC IP: 10.30.0.1']
+        assert lines[55][1:4] == ['10.30.0.14', '71', '14']
+        assert lines[56][1:4] == ['192.0.2.1', '127', '4094']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_iap_coverage.pcap.gz'),
+                '-Y', 'aruba_iap && !aruba_iap.vc_ip', '-Tfields', '-earuba_iap.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['0', '1', '2', '6', '8', '255']
