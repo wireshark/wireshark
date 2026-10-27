@@ -806,12 +806,12 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else
   {
     /* Seeing packet for first time - check against preference settings */
-    int seconds_delta  = (int) (pinfo->abs_ts.secs - time_at_start_of_count.secs);
-    int nseconds_delta = pinfo->abs_ts.nsecs - time_at_start_of_count.nsecs;
-    int gap = (seconds_delta*1000) + (nseconds_delta / 1000000);
+    nstime_t delta;
+    nstime_delta(&delta, &pinfo->abs_ts, &time_at_start_of_count);
+    int64_t gap = ((int64_t)delta.secs * 1000) + (delta.nsecs / 1000000);
 
     /* Reset if gap exceeds period or -ve gap (indicates we're rescanning from start) */
-    if ((gap > (int)global_arp_detect_request_storm_period) ||
+    if ((gap > (int64_t)global_arp_detect_request_storm_period) ||
         (gap < 0))
     {
       /* Time period elapsed without threshold being exceeded */
@@ -1572,12 +1572,13 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) &&
       (tvb_memeql(tvb, spa_offset, tvb_get_ptr(tvb, tpa_offset, ar_pln), ar_pln) == 0)) {
     is_gratuitous = true;
-    if ((ar_op == ARPOP_REQUEST) && (tvb_memeql(tvb, tha_offset, mac_allzero, 6) == 0))
+    if ((ar_op == ARPOP_REQUEST) && (ar_hln == 6) && (tvb_memeql(tvb, tha_offset, mac_allzero, 6) == 0))
       is_announcement = true;
   }
   else {
     is_gratuitous = false;
-    if ((ar_op == ARPOP_REQUEST) && (tvb_get_ipv4(tvb, spa_offset) == 0))
+    if ((ar_op == ARPOP_REQUEST) && ARP_PRO_IS_IPv4(ar_pro, ar_pln) &&
+        (tvb_get_ipv4(tvb, spa_offset) == 0))
       is_probe = true;
   }
   switch (ar_op) {
