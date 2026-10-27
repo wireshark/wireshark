@@ -8321,3 +8321,101 @@ class TestDissectAsap:
             '0x40000001,0x40000004,0x40000002,0x40000003,0xb0002002,0xb0002001,'
             '0xb0001003,0x7fffffff\t25,50',
         ]
+
+
+class TestDissectAscend:
+    def test_ascend_records(self, cmd_tshark, capture_file, test_env):
+        '''Every record type the Ascend text reader produces (WDD with and
+        without a date, TAOS 6/7/8 wandsess and wandisp, XMIT:/RECV:,
+        PPP-OUT/PPP-IN, PRI-XMIT/PRI-RCV including a frame split over two
+        records, ETHER) decodes without malformed packets, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ascend_coverage.txt.gz'),
+                '-Tfields', '-eascend.type', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        # 1 WDS transmit, 2 WDS receive, 3 WDD, 4 ISDN transmit,
+        # 5 ISDN receive, 6 Ethernet
+        assert [t for t, p in lines] == [
+            '3', '3', '2', '1', '2', '1', '2', '1', '2', '1',
+            '1', '2', '1', '2', '1', '2', '4', '5', '4', '5',
+            '6', '6', '2', '3', '1', '2', '3', '6', '1', '2', '1']
+        protocols = [p for t, p in lines]
+        assert protocols.count('PPP LCP') == 10
+        assert protocols.count('LAPD') == 2
+        assert protocols.count('Q.931') == 1
+        assert protocols.count('TEI') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ascend_coverage.txt.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ascend_user_per_packet(self, cmd_tshark, capture_file, test_env):
+        '''Each WAN session packet shows its own user name. The reader used
+        to keep the first packet's user name for every later packet
+        (frames 3 and 4 are batch66-70/ascend_stale_user.txt); the TAOS 7
+        and 8 wandisp records have no user and show "<none>".'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ascend_coverage.txt.gz'),
+                    '-Y', 'ascend.type == 1 || ascend.type == 2',
+                    '-Tfields', '-eframe.number', '-eascend.user', '-eascend.sess',
+                ), encoding='utf-8', env=test_env)
+            assert [line.split('\t') for line in stdout.splitlines()] == [
+                ['3', 'alice', '241'], ['4', 'bob', '242'],
+                ['5', 'Max7', '20'], ['6', 'Max7', '20'],
+                ['7', 'Max7', '20'], ['8', 'Max7', '20'],
+                ['9', '<none>', '187'], ['10', '<none>', '187'],
+                ['11', '<none>', '44'], ['12', '<none>', '44'],
+                ['13', 'dave', '9'], ['14', 'dave', '9'],
+                ['15', '_erin', '11'], ['16', '_erin', '11'],
+                ['23', 'frank', '300'],
+                ['25', 'gina', '12'], ['26', 'gina', '12'],
+                ['29', '12', '34'],
+                ['30', 'hank', '5'], ['31', 'hank', '5'],
+            ]
+
+    def test_ascend_values(self, cmd_tshark, capture_file, test_env):
+        '''WDD called number and chunk, task, lengths, the 128 octet limit,
+        a frame whose header claims fewer octets than its data lines, and
+        time stamps taken from the "time:" fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ascend_coverage.txt.gz'),
+                '-Tfields', '-eframe.number', '-eascend.number', '-eascend.chunk',
+                '-eascend.task', '-eframe.len', '-eframe.cap_len',
+                '-eframe.time_relative',
+            ), encoding='utf-8', env=test_env)
+        frames = {int(f[0]): f[1:] for f in
+                  (line.split('\t') for line in stdout.splitlines())}
+        assert len(frames) == 31
+        assert frames[1] == ['5551234567', '0x002515ee', '0x00251790', '66', '66', '0.000000000']
+        assert frames[2] == ['', '0x002515ef', '0x00251790', '42', '42', '0.120000000']
+        assert frames[24][:2] == ['18005550199', '0x002515f0']
+        assert frames[3][2:] == ['0xb02614c0', '8', '8', '1.570000000']
+        # PRI-XMIT-19/1 and /2: 4 + 22 octets in one frame
+        assert frames[19][2:5] == ['0x10216fe0', '26', '26']
+        # ETHER record of 342 octets, the reader keeps 128
+        assert frames[21][3:5] == ['342', '128']
+        # 8 octets claimed, 12 in the data lines
+        assert frames[23][3:5] == ['8', '8']
+        # time: 994969.123456 uses the first two fraction digits
+        assert frames[31][5] == '15.840000000'
+
+    def test_ascend_isdn(self, cmd_tshark, capture_file, test_env):
+        '''PRI records are LAPD with the direction from the record type
+        (PRI-XMIT user to network, 0; PRI-RCV network to user, 1); the
+        frame split over two records is a Q.931 SETUP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ascend_coverage.txt.gz'),
+                '-Y', 'lapd',
+                '-Tfields', '-eframe.number', '-elapd.direction', '-eq931.message_type',
+                '-eq931.called_party_number.digits',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['17', '0', '', ''], ['18', '1', '', ''],
+            ['19', '0', '0x05', '5551'], ['20', '1', '', ''],
+        ]
