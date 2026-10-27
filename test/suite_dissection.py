@@ -5878,3 +5878,132 @@ class TestDissectAnsi801:
             ['86', '255', 'ff', ''],
             ['87', '192', '', ''],
         ]
+
+
+class TestDissectAnsi683:
+    def test_ansi_683_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every forward and reverse message and parameter block, over the
+        ansi_a.ota table, ANSI A DTAP ADDS Deliver and ANSI MAP SMDPP,
+        decodes without malformed packets or errors in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_683_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+                '-eansi_683.for_msg_type', '-eansi_683.rev_msg_type',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len(frames) == 240
+        protocols = [f[0] for f in frames]
+        assert protocols.count('exported_pdu:ansi_683') == 216
+        assert protocols.count('exported_pdu:ansi_a_dtap:ansi_683') == 12
+        assert protocols.count('exported_pdu:ansi_tcap:ansi_map:ansi_683') == 12
+        # Every message type 0-23 in both directions
+        assert {int(f[1]) for f in frames if f[1]} >= set(range(24))
+        assert {int(f[2]) for f in frames if f[2]} >= set(range(24))
+        # ANSI A and ANSI MAP alternate forward (base station) and reverse
+        # (mobile station) messages
+        for carriage in ('ansi_a_dtap', 'ansi_map'):
+            dirs = ['F' if f[1] else 'R' for f in frames if carriage in f[0]]
+            assert dirs == ['F', 'R'] * 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ansi_683_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ansi_683_reserved_bits(self, cmd_tshark, capture_file, test_env):
+        '''Reserved fields are shown after the fields before them, not over
+        them: Secure Mode Request (STOP, reserved 010), CDMA NAM block of a
+        Configuration Response (reserved 11, SLOTTED_MODE, reserved 00101),
+        OTAPA Request and Response (reserved before NAM_LOCK_IND), the
+        IMSI_T block (reserved after IMSI_T_S) and the FRESH_INCL octet.'''
+        for frame, lines in (
+                (53, ('0... .... = Secure Mode: Stop',
+                      '.... .010 = Reserved: True')),
+                (50, ('.000 0... = Security: SMCK generation using SSD_A and SSD_B',
+                      '.... .101 = Reserved: True')),
+                (75, ('11.. .... = Reserved: True',
+                      '..1. .... = Slotted Mode: 1',
+                      '...0 0101 = Reserved: True')),
+                (38, ('0... .... = OTAPA session: Stop',
+                      '.111 1111 = Reserved: True')),
+                (9, ('0... .... = FRESH_INCL: False',
+                     '.111 1111 = Reserved: True')),
+                (105, ('0000 000. = Reserved: False',
+                       '.... ...1 = NAM_LOCK indicator: 1')),
+                (5, ('The least significant 10 digits of the IMSI_T (IMSI_T_S) (34 bits): 4344454647',
+                     '.... ...1 = Reserved: True')),
+                ):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('ansi_683_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}',
+                    '-O', 'ansi_683', '-V',
+                ), encoding='utf-8', env=test_env)
+            text = [line.strip() for line in stdout.splitlines()]
+            for line in lines:
+                assert line in text, (frame, line)
+
+    def test_ansi_683_puzl_config_req(self, cmd_tshark, capture_file, test_env):
+        '''The PUZL Configuration Request block data starts after the block
+        type (it used to repeat the block type).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_683_coverage.pcap.gz'),
+                '-Y', 'ansi_683.for_msg_type == 11',
+                '-Tfields', '-eframe.number', '-eansi_683.param_block_puzl',
+                '-eansi_683.block_data',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert frames[:3] == [
+            ['40', '3', ''],
+            ['41', '128', '01020304'],
+            ['149', '1', 'aabb'],
+        ]
+
+    def test_ansi_683_mdn_and_values(self, cmd_tshark, capture_file, test_env):
+        '''Mobile directory numbers (odd, even, 15 digits) and the Secure
+        Mode random number decode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_683_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 8, 51, 219}',
+                '-Tfields', '-eansi_683.mobile_directory_number',
+                '-eansi_683.random_number_smck_generation',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == (
+            '6135550123,5550199\t\n'
+            '180055501234567\t\n'
+            '\t0xc8c9cacbcccdcecf\n'
+            '\t0xc8c9cacbcccdcecf\n')
+
+    def test_ansi_683_short_data(self, cmd_text2pcap, cmd_tshark, result_file, test_env):
+        '''A Secure Mode Request, System Tag Configuration Request and
+        System Tag Download Response one or two octets too short give the
+        Short Data expert info instead of an exception.'''
+        def ota(direction, payload):
+            # Exported PDU: dissector table "ansi_a.ota", direction as value
+            return (struct.pack('>HH', 14, 12) + b'ansi_a.ota\0\0'
+                    + struct.pack('>HHI', 32, 4, direction)
+                    + struct.pack('>HH', 0, 0) + payload)
+        packets = [
+            ota(0, bytes([15, 0x80]) + b'\x11' * 7),   # 7 of 8 random octets
+            ota(0, bytes([19, 0x01, 0x00, 0x10])),     # 2 of 3 segment octets
+            ota(1, bytes([20, 0x01, 0x00, 0x10])),     # 2 of 3 segment octets
+        ]
+        text_file = result_file('ansi_683_short.txt')
+        capture = result_file('ansi_683_short.pcapng')
+        with open(text_file, 'w') as f:
+            f.writelines(f'000000  {packet.hex(" ")}\n' for packet in packets)
+        subprocess.check_call((cmd_text2pcap, '-q', '-l', '252', text_file, capture), env=test_env)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture,
+                '-Y', 'ansi_683.short_data',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '1\n2\n3\n'
+        # Short Data is in the Malformed group, but no exception follows it
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture,
+                '-Y', '_ws.malformed.expert',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
