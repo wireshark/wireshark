@@ -246,7 +246,7 @@ fresh_handler(tvbuff_t *tvb, proto_tree *tree, unsigned len _U_, uint32_t offset
     }
 
     proto_tree_add_item(tree, hf_ansi_683_fresh_incl8, tvb, offset, 1, ENC_NA);
-    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 7, ENC_NA);
+    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+1, 7, ENC_NA);
 
     return 1;
 }
@@ -765,7 +765,7 @@ param_block_nam_mdn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, uns
 
     if (!(count & 0x01))
     {
-        proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 4, ENC_NA);
+        proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+4, 4, ENC_NA);
     }
 }
 
@@ -780,10 +780,10 @@ rev_param_block_nam_cdma(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree
 
     saved_offset = offset;
 
-    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+6, 2, ENC_NA);
+    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 2, ENC_NA);
     proto_tree_add_item(tree, hf_ansi_683_slotted_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 5, ENC_NA);
+    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+3, 5, ENC_NA);
     offset++;
 
     proto_tree_add_item(tree, hf_ansi_683_mob_p_rev_ff, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -848,7 +848,7 @@ param_block_nam_imsi_t(tvbuff_t *tvb, proto_tree *tree, unsigned len _U_, uint32
     proto_tree_add_item(tree, hf_ansi_683_imsi_t_10, tvb, offset, 5, ENC_NA);
     offset += 4;
 
-    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 1, ENC_NA);
+    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+7, 1, ENC_NA);
 }
 
 /*
@@ -974,7 +974,7 @@ for_param_block_val_spasm(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, u
     {
         proto_tree_add_item(tree, hf_ansi_683_otapa_spasm_validation_signature_indicator_80, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_ansi_683_spasm_protection_for_the_active_nam_40, tvb, offset, 1, ENC_NA);
-        proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 6, ENC_NA);
+        proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+2, 6, ENC_NA);
     }
     else
     {
@@ -1421,7 +1421,7 @@ msg_otapa_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len,
     EXACT_DATA_CHECK(len, 1);
 
     proto_tree_add_item(tree, hf_ansi_683_start_otapa_session, tvb, offset, 1, ENC_NA);
-    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 7, ENC_NA);
+    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+1, 7, ENC_NA);
 }
 
 /*
@@ -1430,7 +1430,7 @@ msg_otapa_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len,
 static void
 msg_puzl_config_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len, uint32_t offset)
 {
-    uint8_t     block_len;
+    uint32_t    block_len;
     uint32_t    saved_offset;
     proto_tree  *subtree;
     proto_item  *item;
@@ -1440,6 +1440,7 @@ msg_puzl_config_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigne
     saved_offset = offset;
 
     item = proto_tree_add_item(tree, hf_ansi_683_rev_param_block_puzl, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
     block_len = len - (offset - saved_offset);
 
     if (block_len > 0)
@@ -1667,12 +1668,12 @@ msg_secure_mode_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigne
     proto_tree_add_uint_format_value(tree, hf_ansi_683_security,
         tvb, offset, 1, oct, "%s", str);
 
-    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 3, ENC_NA);
+    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+5, 3, ENC_NA);
     offset++;
 
     if (oct & 0x80)
     {
-        SHORT_DATA_CHECK(len, 8);
+        SHORT_DATA_CHECK((len - (offset - saved_offset)), 8);
 
         proto_tree_add_item(tree, hf_ansi_683_random_number_smck_generation, tvb, offset, 8, ENC_BIG_ENDIAN);
 
@@ -1819,7 +1820,7 @@ msg_systag_config_req(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsig
      */
     if (len > (offset - saved_offset))
     {
-        SHORT_DATA_CHECK(len, 3);
+        SHORT_DATA_CHECK((len - (offset - saved_offset)), 3);
 
         subtree = proto_item_add_subtree(item, ett_segment);
 
@@ -2264,7 +2265,7 @@ msg_protocap_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned l
         proto_tree_add_item(subtree, hf_ansi_683_band_class_1_cdma, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(subtree, hf_ansi_683_band_class_3_cdma, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(subtree, hf_ansi_683_band_class_6_cdma, tvb, offset, 1, ENC_NA);
-        proto_tree_add_bits_item(subtree, hf_ansi_683_reserved8, tvb, offset<<3, 3, ENC_NA);
+        proto_tree_add_bits_item(subtree, hf_ansi_683_reserved8, tvb, (offset<<3)+5, 3, ENC_NA);
         offset++;
 
         if (add_len > 1)
@@ -2409,7 +2410,7 @@ msg_otapa_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsigned len,
 
     oct = tvb_get_uint8(tvb, offset);
 
-    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+1, 7, ENC_NA);
+    proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 7, ENC_NA);
 
     proto_tree_add_item(tree, hf_ansi_683_nam_lock_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -2519,7 +2520,7 @@ msg_puzl_download_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsig
         else
         {
             proto_tree_add_item(tree, hf_ansi_683_identifiers_present8, tvb, offset, 1, ENC_NA);
-            proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, offset<<3, 7, ENC_NA);
+            proto_tree_add_bits_item(tree, hf_ansi_683_reserved8, tvb, (offset<<3)+1, 7, ENC_NA);
             offset++;
         }
 
@@ -2943,7 +2944,7 @@ msg_systag_download_rsp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uns
     case 0x01:          /* Group Tag List Parameter */
     case 0x02:          /* Specific Tag List Parameter */
     case 0x03:          /* Call Prompt List Parameter */
-        SHORT_DATA_CHECK(len, 3);
+        SHORT_DATA_CHECK((len - (offset - saved_offset)), 3);
 
         proto_tree_add_item(tree, hf_ansi_683_segment_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -3463,7 +3464,7 @@ proto_register_ansi_683(void)
       { &hf_ansi_683_for_param_block_systag, { "System Tag Parameter Block Type", "ansi_683.param_block_systag", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(for_param_block_systag_rvals), 0x0, NULL, HFILL }},
       { &hf_ansi_683_rev_param_block_mms, { "MMS Parameter Block Type", "ansi_683.param_block_mms", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(rev_param_block_mms_rvals), 0x0, NULL, HFILL }},
       { &hf_ansi_683_for_param_block_mms, { "MMS Parameter Block Type", "ansi_683.param_block_mms", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(for_param_block_mms_rvals), 0x0, NULL, HFILL }},
-      { &hf_ansi_683_mobile_directory_number, { "Modbile directory number", "ansi_683.mobile_directory_number", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ansi_683_mobile_directory_number, { "Mobile directory number", "ansi_683.mobile_directory_number", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ansi_683_service_programming_code, { "Service programming code", "ansi_683.service_programming_code", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
