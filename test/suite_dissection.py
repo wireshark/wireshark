@@ -7423,3 +7423,72 @@ class TestDissectArinc615a:
         assert number == '105'
         assert ftype == 'Load Downloading Status'
         assert names.split('|') == ['FILE%03d.BIN' % i for i in range(40)]
+
+
+# armagetronad_coverage.pcap.gz is synthetic: every packet was generated,
+# to cover as much of the Armagetronad dissector as possible.
+
+
+class TestDissectArmagetronad:
+    def armagetronad_fields(self, cmd_tshark, capture_file, test_env, *fields):
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('armagetronad_coverage.pcap.gz'),
+                '-Tfields', '-E', 'aggregator=|', '-e', 'frame.number', *args,
+            ), encoding='utf-8', env=test_env)
+        return {int(line.split('\t')[0]): line.split('\t')[1:] for line in stdout.splitlines()}
+
+    def test_armagetronad_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every descriptor, ACKs, unknown descriptors and packets without
+        messages, on ports 4533 and 4534, over IPv4 and IPv6, decode
+        without malformed packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('armagetronad_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('Armagetronad') == 17
+        # Turned down: no payload, one octet, a DataLen past the end, one
+        # octet or none after the last message, data cut by the snapshot
+        # length
+        assert protocols.count('UDP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('armagetronad_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_armagetronad_no_message(self, cmd_tshark, capture_file, test_env):
+        '''A packet with only the SenderID shows "No message" in Info. It
+        used to show "[]".'''
+        frames = self.armagetronad_fields(cmd_tshark, capture_file, test_env,
+                                          '_ws.col.info', 'armagetronad.sender_id',
+                                          'armagetronad.message')
+        assert frames[1] == ['[No message] from 0x1234', '0x1234', '']
+        assert frames[2] == ['[No message] from 0x0000', '0x0000', '']
+
+    def test_armagetronad_messages(self, cmd_tshark, capture_file, test_env):
+        '''Messages, their fields and the Info column.'''
+        frames = self.armagetronad_fields(cmd_tshark, capture_file, test_env,
+                                          '_ws.col.info', 'armagetronad.descriptor_id',
+                                          'armagetronad.message_id', 'armagetronad.data_len',
+                                          'armagetronad.data', 'armagetronad.sender_id')
+        assert frames[4] == ['[login_accept, version] from 0x0000', '5|10', '0x0100|0x0101',
+                             '2|2', '00030000|00140015', '0x0000']
+        # An ACK carries the acked MessageIDs as data
+        assert frames[5] == ['[ack] from 0x0003', '1', '0x0000', '3', '010001010102', '0x0003']
+        # An ACK of none (empty Data)
+        assert frames[6][:4] == ['[ack] from 0x0003', '1', '0x0000', '0']
+        assert frames[12][0] == ('[Unknown (0), Chat, Unknown (12), Unknown (999), '
+                                 'Unknown (65535)] from 0x0003')
+        assert frames[12][1] == '0|200|12|999|65535'
+        # IPv6
+        assert frames[16][0] == '[ack, big_server] from 0x0000'
+        # All 47 known descriptors, none unknown
+        info = ''.join(frames[n][0] for n in range(7, 12))
+        assert info.count(', ') + 5 == 47
+        assert 'Unknown' not in info
