@@ -1666,7 +1666,7 @@ content_fill_aux(
 
     if (fill_bits)
     {
-        proto_tree_add_bits_item(tree, hf_content_fill_bits, tvb, (offset - 1)*8, fill_bits-1, ENC_NA);
+        proto_tree_add_bits_item(tree, hf_content_fill_bits, tvb, ((offset - 1)*8) + (8 - fill_bits), fill_bits, ENC_NA);
     }
 }
 
@@ -2861,7 +2861,7 @@ elem_cell_id_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t 
 
         num_cells++;
     }
-    while ((len - (curr_offset - offset)) > 0);
+    while ((curr_offset - offset) < len);
 
     proto_item_append_text(data_p->elem_item, " - %u cell%s", num_cells, plurality(num_cells, "", "s"));
 
@@ -3077,7 +3077,7 @@ elem_downlink_re_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint3
 
     num_envs = 0;
 
-    while ((len - (curr_offset - offset)) > 0)
+    while ((curr_offset - offset) < len)
     {
         subtree =
             proto_tree_add_subtree_format(tree, tvb, curr_offset, -1,
@@ -3279,7 +3279,7 @@ elem_info_rec_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t 
 
     num_recs = 0;
 
-    while ((len - (curr_offset - offset)) > 0)
+    while ((curr_offset - offset) < len)
     {
         oct = tvb_get_uint8(tvb, curr_offset);
 
@@ -4545,8 +4545,8 @@ elem_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
 
     proto_tree_add_item(tree, hf_ansi_a_reserved_bits_16_8000, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_ansi_a_sid, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_nid, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_ansi_a_pzid, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ansi_a_nid, tvb, curr_offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ansi_a_pzid, tvb, curr_offset + 4, 1, ENC_BIG_ENDIAN);
 
     sid = tvb_get_ntohs(tvb, curr_offset) & 0x7fff;
 
@@ -4562,7 +4562,9 @@ elem_acc_net_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t of
 
     curr_offset += 1;
 
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+    /* The length is unknown, (unsigned) -1, when called as a TV element */
+    if (len != UINT_MAX)
+        EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
     return curr_offset - offset;
 }
@@ -6598,12 +6600,8 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
     bool                                format_assigned;
     bool                                in_band_format_assigned;
     bool                                first_assigned_found;
-    bool                                rtp_dyn_payload_used;
     uint8_t                             rtp_payload_type;
-    rtp_dyn_payload_t                  *rtp_dyn_payload;
-
-    rtp_dyn_payload = rtp_dyn_payload_new();
-    rtp_dyn_payload_used = false;
+    rtp_dyn_payload_t                  *rtp_dyn_payload = NULL;
 
     first_assigned_found = false;
 
@@ -6754,8 +6752,9 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
         if (format_assigned &&
             (first_assigned_found == false))
         {
+            if (rtp_dyn_payload == NULL)
+                rtp_dyn_payload = rtp_dyn_payload_new();
             rtp_dyn_payload_insert(rtp_dyn_payload, rtp_payload_type, mime_type, sample_rate, 1);
-            rtp_dyn_payload_used = true;
 
             first_assigned_found = true;
             rtp_add_address(pinfo, PT_UDP, &data_p->rtp_src_addr, data_p->rtp_port, 0, "IOS5",
@@ -6764,17 +6763,16 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
 
         if (in_band_format_assigned)
         {
+            if (rtp_dyn_payload == NULL)
+                rtp_dyn_payload = rtp_dyn_payload_new();
             rtp_dyn_payload_insert(rtp_dyn_payload, rtp_payload_type, "telephone-event", sample_rate, 1);
-            rtp_dyn_payload_used = true;
         }
 
         num_bearers++;
     }
 
-    if (rtp_dyn_payload_used == false)
-    {
-        rtp_dyn_payload_free(rtp_dyn_payload);
-    }
+    /* rtp_add_address() keeps its own reference */
+    rtp_dyn_payload_free(rtp_dyn_payload);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -7171,8 +7169,8 @@ elem_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, ui
 
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
-        /* Unknown index, skip the element */
-        return tvb_reported_length_remaining(tvb, offset);
+        /* Not in this variant, e.g. an IOS 5 element in IOS 4 */
+        return 0;
     }
 
     oct = tvb_get_uint8(tvb, curr_offset);
@@ -7235,8 +7233,8 @@ elem_tv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, uin
 
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
-        /* Unknown index, skip the element */
-        return tvb_reported_length_remaining(tvb, offset);
+        /* Not in this variant, e.g. an IOS 5 element in IOS 4 */
+        return 0;
     }
 
     oct = tvb_get_uint8(tvb, curr_offset);
@@ -7295,8 +7293,8 @@ elem_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, elem_idx_t idx, 
 
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
-        /* Unknown index, skip the element */
-        return tvb_reported_length_remaining(tvb, offset);
+        /* Not in this variant, e.g. an IOS 5 element in IOS 4 */
+        return 0;
     }
 
     oct = tvb_get_uint8(tvb, curr_offset);
@@ -7332,8 +7330,8 @@ elem_lv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, uin
 
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
-        /* Unknown index, skip the element */
-        return tvb_reported_length_remaining(tvb, offset);
+        /* Not in this variant, e.g. an IOS 5 element in IOS 4 */
+        return 0;
     }
 
     dec_idx = ansi_a_elem_1_strings[idx].dec_index;
@@ -7384,8 +7382,8 @@ elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, uint
 
     if ((int) idx < 0 || idx >= ansi_a_elem_1_max-1)
     {
-        /* Unknown index, skip the element */
-        return tvb_reported_length_remaining(tvb, offset) ;
+        /* Not in this variant, e.g. an IOS 5 element in IOS 4 */
+        return 0;
     }
 
     dec_idx = ansi_a_elem_1_strings[idx].dec_index;
@@ -10114,7 +10112,8 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
          */
         oct = tvb_get_uint8(tvb, curr_offset);
 
-        for (idx=0; idx < (unsigned) ansi_a_elem_1_max; idx++)
+        /* not the terminator, which elem_tlv() does not step over */
+        for (idx=0; idx < (unsigned) ansi_a_elem_1_max - 1; idx++)
         {
             if (oct == (uint8_t) ansi_a_elem_1_strings[idx].value)
             {
@@ -10123,7 +10122,7 @@ dissect_cdma2000_a1_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
         }
 
-        if (idx == (elem_idx_t) ansi_a_elem_1_max)
+        if (idx == (elem_idx_t) ansi_a_elem_1_max - 1)
         {
             /*
              * didn't recognize the T(ype)
@@ -10565,6 +10564,10 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
+        /* The table was built for the variant in use when it was opened */
+        if ((unsigned)idx >= table->num_elements)
+            return TAP_PACKET_DONT_REDRAW;
+
         dtap_data = stat_tap_get_field_data(table, (unsigned)idx, COUNT_COLUMN);
         dtap_data->value.uint_value++;
         stat_tap_set_field_data(table, (unsigned)idx, COUNT_COLUMN, dtap_data);
@@ -10644,6 +10647,10 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
             return TAP_PACKET_DONT_REDRAW;
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
+
+        /* The table was built for the variant in use when it was opened */
+        if ((unsigned)idx >= table->num_elements)
+            return TAP_PACKET_DONT_REDRAW;
 
         dtap_data = stat_tap_get_field_data(table, (unsigned)idx, COUNT_COLUMN);
         dtap_data->value.uint_value++;
