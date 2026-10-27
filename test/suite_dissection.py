@@ -8130,3 +8130,94 @@ class TestDissectArubaUbt:
                 '-Tfields', '-eframe.number', '-eubt.msg_type',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['16\t12', '20\t16']
+
+
+ASAM_CMP_OPTS = ('-d', 'ethertype==0x99fe,asam-cmp', '-d', 'udp.port==50000,asam-cmp')
+
+
+class TestDissectAsamCmp:
+    def test_asam_cmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every data message payload type, control, status and vendor
+        message, over Ethernet and UDP, decodes without malformed packets
+        or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *ASAM_CMP_OPTS,
+                '-r', capture_file('asam_cmp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('ASAM-CMP') == 82
+        # Ethernet data messages carrying IPv4/UDP
+        assert protocols.count('UDP') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *ASAM_CMP_OPTS, *passes,
+                    '-r', capture_file('asam_cmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_asam_cmp_ctrl_vendor_length(self, cmd_tshark, capture_file, test_env):
+        '''The message after a vendor specific control message is decoded.
+        Its length used to count the vendor data twice.'''
+        stdout = subprocess.check_output((cmd_tshark, *ASAM_CMP_OPTS,
+                '-r', capture_file('asam_cmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {66, 67}',
+                '-Tfields', '-eframe.number', '-easam-cmp.msg_hdr.payload_type',
+                '-easam-cmp.msg.dsr.device_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '66\t0xff,0x01\t0x0a0b',
+            '67\t0xff,0x01\t0x0a0b',
+        ]
+
+    def test_asam_cmp_ethernet_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Ethernet in ASAM CMP is handed to the Ethernet dissector, and
+        300 levels of ASAM CMP in Ethernet stop before the tree depth limit
+        with an expert info instead of an assertion.'''
+        stdout = subprocess.check_output((cmd_tshark, *ASAM_CMP_OPTS,
+                '-r', capture_file('asam_cmp_coverage.pcap.gz'),
+                '-Y', 'asam-cmp.expert.too_deep',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['86']
+        stdout = subprocess.check_output((cmd_tshark, *ASAM_CMP_OPTS,
+                '-r', capture_file('asam_cmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {34, 37}',
+                '-Tfields', '-eframe.number', '-eudp.dstport', '-easam-cmp.hdr.device_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '34\t5678\t0x0102',
+            '37\t\t0x0102,0x0a0a',
+        ]
+
+    def test_asam_cmp_payloads(self, cmd_tshark, capture_file, test_env):
+        '''CAN data and LIN sleep frames are handed off, analog samples
+        include the last one, digital samples above 32 pins are skipped
+        and segmentation flags are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark, *ASAM_CMP_OPTS,
+                '-r', capture_file('asam_cmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 12, 23, 30, 32, 58, 59, 60}',
+                '-Tfields', '-eframe.number', '-edata.data',
+                '-easam-cmp.msg.analog.sample', '-easam-cmp.msg_hdr.seg',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        frames = {f[0]: f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+        assert frames['1'][0] == '1122334455667788'
+        assert frames['12'][3].endswith('Go-to-sleep Command')
+        assert frames['23'][3].endswith('(Digital) 0x11 0x22 0x33 0x44')
+        assert frames['30'][1] == '25.5,-24.5,8192.25'
+        assert frames['32'][1] == '42,500'
+        assert [frames[n][2] for n in ('58', '59', '60')] == ['0x01', '0x02', '0x03']
+
+    def test_asam_cmp_uat_names(self, cmd_tshark, capture_file, test_env):
+        '''Device and interface names from the UATs are shown.'''
+        stdout = subprocess.check_output((cmd_tshark, *ASAM_CMP_OPTS,
+                '-o', 'uat:ASAM_CMP_devices:"0102","Gateway ECU"',
+                '-o', 'uat:ASAM_CMP_interfaces:"10","CAN-Body","1"',
+                '-r', capture_file('asam_cmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 72}', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Device ID: 0x0102 (Gateway ECU)' in stdout
+        assert 'Interface ID: 0x00000010 (CAN-Body)' in stdout
+        assert 'Interface CAN-Body, Type: CAN' in stdout
+        assert 'Interface 0x101, Type: CAN FD' in stdout
