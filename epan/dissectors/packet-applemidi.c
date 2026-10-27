@@ -107,7 +107,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 	proto_item *ti;
 	uint16_t		 seq_num;
 	uint8_t		 count;
-	const char	*name;
+	char		*name;
 	int		 offset			= 0;
 	int		 len;
 	int		 string_size;
@@ -150,9 +150,11 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 
 		/* Name is optional */
 		if ( len > 0 ) {
-			name = (char *)tvb_get_string_enc( pinfo->pool, tvb, offset, len, ENC_UTF_8|ENC_NA );
-			string_size = (int)( strlen( name ) + 1 );
-			proto_tree_add_item( applemidi_tree, hf_applemidi_name, tvb, offset, string_size, ENC_UTF_8 );
+			/* the length in the packet, not of the name converted to UTF-8 */
+			string_size = tvb_strnlen( tvb, offset, len );
+			string_size = ( string_size < 0 ) ? len : string_size + 1;
+			proto_tree_add_item_ret_display_string( applemidi_tree, hf_applemidi_name, tvb, offset,
+				string_size, ENC_UTF_8, pinfo->pool, &name );
 			col_append_fstr( pinfo->cinfo, COL_INFO, ": peer = \"%s\"", name );
 			offset += string_size;
 		}
@@ -286,6 +288,8 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	rtp_dyn_payload_insert(rtp_dyn_payload, 97, "rtp-midi", 10000, 1);
 	rtp_add_address( pinfo, PT_UDP, &pinfo->src, pinfo->srcport, 0, APPLEMIDI_DISSECTOR_SHORTNAME,
 			 pinfo->num, false, rtp_dyn_payload);
+	/* rtp_add_address() keeps its own reference */
+	rtp_dyn_payload_free( rtp_dyn_payload );
 
 	/* call dissect_applemidi() from now on for UDP packets on this "connection"
 	   it is important to do this step after calling rtp_add_address, otherwise
