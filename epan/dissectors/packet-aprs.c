@@ -109,8 +109,6 @@ static int hf_aprs_mic_e_telemetry;
 static int hf_aprs_mic_e_status;
 
 /* Storm items */
-static int hf_aprs_storm_dir;
-static int hf_aprs_storm_spd;
 static int hf_aprs_storm_type;
 static int hf_aprs_storm_sws;
 static int hf_aprs_storm_pwg;
@@ -316,9 +314,10 @@ dissect_aprs_compression_type(	tvbuff_t	 *tvb,
 					  compression_type );
 		compression_tree = proto_item_add_subtree( tc, ett_aprs_ct );
 
-		proto_tree_add_item( compression_tree, hf_aprs_ct_gps_fix,  tvb, offset, data_len, ENC_BIG_ENDIAN );
-		proto_tree_add_item( compression_tree, hf_aprs_ct_nmea_src, tvb, offset, data_len, ENC_BIG_ENDIAN );
-		proto_tree_add_item( compression_tree, hf_aprs_ct_origin,   tvb, offset, data_len, ENC_BIG_ENDIAN );
+		/* the bits of the value, not of the octet */
+		proto_tree_add_uint( compression_tree, hf_aprs_ct_gps_fix,  tvb, offset, data_len, compression_type );
+		proto_tree_add_uint( compression_tree, hf_aprs_ct_nmea_src, tvb, offset, data_len, compression_type );
+		proto_tree_add_uint( compression_tree, hf_aprs_ct_origin,   tvb, offset, data_len, compression_type );
 		}
 
 	return new_offset;
@@ -421,7 +420,7 @@ dissect_aprs_compressed_msg(	wmem_allocator_t *scope,
 	int	    new_offset;
 	int	    data_len;
 	uint8_t	    ch;
-	uint8_t	    course;
+	int	    course;
 	double	    speed;
 	double	    range;
 	char	   *info_buffer;
@@ -585,7 +584,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 	if ( spd >= 800 )
 		spd -= 800;
 
-	cse = (((tvb_get_uint8( tvb, offset + 4 ) - 28) % 10) * 100) + ((tvb_get_uint8( tvb, offset + 5 ) - 28) * 10);
+	cse = (((tvb_get_uint8( tvb, offset + 4 ) - 28) % 10) * 100) + (tvb_get_uint8( tvb, offset + 5 ) - 28);
 	if ( cse >= 400 )
 		cse -= 400;
 
@@ -677,11 +676,7 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 	tc = proto_tree_add_item( parent_tree, hf_aprs_storm, tvb, offset, -1, ENC_ASCII );
 	storm_tree = proto_item_add_subtree( tc, ett_aprs_storm );
 
-	proto_tree_add_item( storm_tree, hf_aprs_storm_dir,  tvb, offset, 3, ENC_ASCII );
-	offset += 3;
-	offset += 1;
-	proto_tree_add_item( storm_tree, hf_aprs_storm_spd,  tvb, offset, 3, ENC_ASCII );
-	offset += 3;
+	/* The course and speed before it are the position's extension */
 	proto_tree_add_item( storm_tree, hf_aprs_storm_type, tvb, offset, 3, ENC_ASCII );
 	offset += 3;
 	proto_tree_add_item( storm_tree, hf_aprs_storm_sws,  tvb, offset, 4, ENC_ASCII );
@@ -935,33 +930,35 @@ aprs_status( proto_tree *aprs_tree, tvbuff_t *tvb, unsigned offset )
 static int
 aprs_item( wmem_allocator_t *scope, proto_tree *aprs_tree, tvbuff_t *tvb, unsigned offset )
 {
-	char *info_buffer;
-	int   data_len;
-	char *ch_ptr;
+	char	 *info_buffer;
+	int	  data_len;
+	int	  name_len;
+	unsigned  end, killed_end;
+	bool	  found;
 
 	data_len    = 10;
+	name_len    = data_len;
+
+	/* The name ends with '!' (live) or '_' (killed), in the packet */
+	found = tvb_find_uint8_length( tvb, offset, data_len, '!', &end );
+	if ( tvb_find_uint8_length( tvb, offset, data_len, '_', &killed_end ) &&
+	     ( !found || killed_end < end ) )
+		{
+		end = killed_end;
+		found = true;
+		}
+	if ( found )
+		{
+		name_len = end - offset;
+		data_len = name_len + 1;
+		}
 
 	/*
 	 * XXX - ASCII or UTF-8?
 	 * See http://www.aprs.org/aprs12/utf-8.txt
 	 */
-	info_buffer = (char *)tvb_get_string_enc( scope, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+	info_buffer = (char *)tvb_get_string_enc( scope, tvb, offset, name_len, ENC_ASCII|ENC_NA );
 
-	ch_ptr = strchr( info_buffer, '!' );
-	if ( ch_ptr != NULL )
-		{
-		data_len = (int)(ch_ptr - info_buffer + 1);
-		*ch_ptr = '\0';
-		}
-	else
-		{
-		ch_ptr = strchr( info_buffer, '!' );
-		if ( ch_ptr != NULL )
-			{
-			data_len = (int)(ch_ptr - info_buffer + 1);
-			*ch_ptr = '\0';
-			}
-		}
 	proto_tree_add_string( aprs_tree, hf_aprs_item, tvb, offset, data_len, info_buffer );
 
 	return offset + data_len;
@@ -1029,6 +1026,7 @@ aprs_position( packet_info *pinfo, proto_tree *aprs_tree, tvbuff_t *tvb, unsigne
 	uint8_t	 symbol_code	    = 0;
 	bool probably_a_msg	    = false;
 	bool probably_not_a_msg = false;
+	bool has_ext;
 
 	if ( g_ascii_isdigit( tvb_get_uint8( tvb, offset ) ) )
 		{
@@ -1038,7 +1036,9 @@ aprs_position( packet_info *pinfo, proto_tree *aprs_tree, tvbuff_t *tvb, unsigne
 		offset		= aprs_default_string( aprs_tree, tvb, offset, 9, hf_aprs_long );
 		symbol_code	= tvb_get_uint8( tvb, offset );
 		offset		= aprs_default_string( aprs_tree, tvb, offset, 1, hf_aprs_sym_code );
-		if ( gPREF_APRS_LAX )
+		/* A position may have no comment, or one too short for an extension */
+		has_ext = tvb_reported_length_remaining( tvb, offset ) >= 7;
+		if ( gPREF_APRS_LAX && has_ext )
 			{
 			switch ( tvb_get_uint8( tvb, offset ) )
 				{
@@ -1049,7 +1049,7 @@ aprs_position( packet_info *pinfo, proto_tree *aprs_tree, tvbuff_t *tvb, unsigne
 				default		: probably_not_a_msg = true; break;
 				}
 			}
-		if ( with_msg || probably_a_msg || ! probably_not_a_msg )
+		if ( has_ext && ( with_msg || probably_a_msg || ! probably_not_a_msg ) )
 			offset = dissect_aprs_msg(	tvb,
 							offset,
 							aprs_tree,
@@ -1740,16 +1740,6 @@ proto_register_aprs( void )
 		},
 		{ &hf_aprs_mic_e_status,
 			{ "Status",	"aprs.mic_e.status",
-			FT_STRING, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }
-		},
-		{ &hf_aprs_storm_dir,
-			{ "Direction",	"aprs.storm.direction",
-			FT_STRING, BASE_NONE, NULL, 0x0,
-			NULL, HFILL }
-		},
-		{ &hf_aprs_storm_spd,
-			{ "Speed (knots)",	"aprs.storm.speed",
 			FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
