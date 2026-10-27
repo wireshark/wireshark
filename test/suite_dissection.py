@@ -7183,3 +7183,148 @@ class TestDissectAprs:
                                      '-eaprs.position.lat')
             assert frames == [[str(n), '0', c, '', '4903.50N']
                               for n, c in zip(range(145, 163), comments)]
+
+
+# ar_drone_coverage.pcap.gz is synthetic: every packet was generated, to
+# cover as much of the AR Drone dissector as possible. No UDP port is
+# registered for it by default and its heuristic is disabled.
+AR_DRONE_OPTS = ('-d', 'udp.port==5556,ar_drone')
+AR_DRONE_HEUR = ('--enable-heuristic', 'ar_drone_udp')
+
+
+class TestDissectArDrone:
+    def ar_drone_fields(self, cmd_tshark, capture_file, test_env, *fields, opts=AR_DRONE_OPTS):
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('ar_drone_coverage.pcap.gz'),
+                '-Tfields', '-E', 'aggregator=|', '-e', 'frame.number', *args,
+            ), encoding='utf-8', env=test_env)
+        return {int(line.split('\t')[0]): line.split('\t')[1:] for line in stdout.splitlines()}
+
+    def ar_drone_tree(self, cmd_tshark, capture_file, test_env, frame):
+        stdout = subprocess.check_output((cmd_tshark, *AR_DRONE_OPTS,
+                '-r', capture_file('ar_drone_coverage.pcap.gz'),
+                '-Y', f'frame.number == {frame}', '-V', '-O', 'ar_drone',
+            ), encoding='utf-8', env=test_env)
+        return [line.strip() for line in stdout.splitlines() if line.startswith('    ')]
+
+    def test_ar_drone_not_by_default(self, cmd_tshark, capture_file, test_env):
+        '''Nothing is dissected as AR Drone without Decode As or the heuristic.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ar_drone_coverage.pcap.gz'),
+                '-Y', 'ar_drone',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_ar_drone_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every command decodes without malformed packets or error expert
+        infos, in one and two passes, by port and by the heuristic.'''
+        for opts, ar_drone, udp in ((AR_DRONE_OPTS, 39, 8), (AR_DRONE_HEUR, 40, 7)):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('ar_drone_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert protocols.count('ar_drone') == ar_drone
+            assert protocols.count('UDP') == udp
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                        '-r', capture_file('ar_drone_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.short || _ws.expert.severity >= warning',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_ar_drone_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command, several per packet, and their fields.'''
+        frames = self.ar_drone_fields(cmd_tshark, capture_file, test_env,
+                                      'ar_drone.command', 'ar_drone.ref.ctrl',
+                                      'ar_drone.ctrl.mode', 'ar_drone.config.name',
+                                      'ar_drone.led.anim', 'ar_drone.anim.num')
+        assert frames[27] == ['PCMD|REF|CONFIG_IDS|ANIM|FTRIM|CONFIG|LED|COMWDG|CTRL',
+                              '290718208', '5', '"control:altitude_max"', '2', '3']
+        assert frames[25][0] == 'REF|PCMD|FTRIM'
+        assert [frames[n][2] for n in range(3, 8)] == ['4', '5', '6', '0', '4']
+        # Parsing stops at data that is not an AT command
+        assert frames[29][0] == 'COMWDG'
+        assert frames[30][0] == 'REF'
+        assert frames[31][0] == 'REF|FOO'
+        assert self.ar_drone_tree(cmd_tshark, capture_file, test_env, 3)[-2] == \
+            'Control Mode: 4 (CFG_GET_CONTROL_MODE)'
+        assert self.ar_drone_tree(cmd_tshark, capture_file, test_env, 6)[-2] == \
+            'Control Mode: 0 (Unknown Mode)'
+
+    def test_ar_drone_pcmd_directions(self, cmd_tshark, capture_file, test_env):
+        '''Each direction of roll, pitch, gaz and yaw. An empty value has
+        no direction.'''
+        def values(frame):
+            return self.ar_drone_tree(cmd_tshark, capture_file, test_env, frame)[-4:]
+        assert values(14) == ['Roll: 0 (NO CHANGE)', 'Pitch: 0 (NO CHANGE)',
+                              'Gaz: 0 (NO CHANGE)', 'Yaw: 0 (NO CHANGE)']
+        assert values(15) == ['Roll: 1056964608 (ROLL RIGHT)',
+                              'Pitch: 1056964608 (PITCH BACKWARD)',
+                              'Gaz: 1056964608 (INCREASE VERT SPEED)',
+                              'Yaw: 1056964608 (ROTATE RIGHT)']
+        assert values(16) == ['Roll: -1090519040 (ROLL LEFT)',
+                              'Pitch: -1090519040 (PITCH FORWARD)',
+                              'Gaz: -1090519040 (DECREASE VERT SPEED)',
+                              'Yaw: -1090519040 (ROTATE LEFT)']
+        assert values(17) == ['Roll: -0 (NO CHANGE)', 'Pitch: -0 (NO CHANGE)',
+                              'Gaz: -0 (NO CHANGE)', 'Yaw: -0 (NO CHANGE)']
+        # The empty Roll value of the review reproducer
+        assert values(20) == ['Roll:', 'Pitch: 0 (NO CHANGE)',
+                              'Gaz: 0 (NO CHANGE)', 'Yaw: 0 (NO CHANGE)']
+        assert values(24) == ['Roll:', 'Pitch:', 'Gaz:', 'Yaw:']
+
+    def test_ar_drone_equals_sign_early(self, cmd_tshark, capture_file, test_env):
+        '''A second command with '=' at its first or second octet is not an
+        AT command and ends the packet. Its length used to wrap and the
+        packet was shown as "Packet size limited during capture".'''
+        frames = self.ar_drone_fields(cmd_tshark, capture_file, test_env,
+                                      'ar_drone.command', '_ws.short', '_ws.malformed')
+        assert frames[34] == ['REF', '', '']
+        assert frames[35] == ['COMWDG', '', '']
+
+    def test_ar_drone_not_ours_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''Through Decode As too, a packet whose first command is unknown or
+        has no '=' is left as plain UDP: nothing is added to the columns or
+        the tree (frames 42 and 43, with both ports 5556, used to get the
+        items twice).'''
+        frames = self.ar_drone_fields(cmd_tshark, capture_file, test_env,
+                                      '_ws.col.protocol', 'ar_drone.command')
+        # AT*FOO=1,2; AT*; ATX*REF=1,2; AT*COMWDG without '='; AT*=1
+        for n in (36, 40, 41, 42, 43):
+            assert frames[n] == ['UDP', ''], n
+        stdout = subprocess.check_output((cmd_tshark, *AR_DRONE_OPTS,
+                '-r', capture_file('ar_drone_coverage.pcap.gz'),
+                '-Y', 'ar_drone',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(n) for n in [*range(1, 36), 37, 38, 39, 44]]
+        stdout = subprocess.check_output((cmd_tshark, *AR_DRONE_OPTS,
+                '-r', capture_file('ar_drone_coverage.pcap.gz'),
+                '-Y', 'frame.number in {36, 42, 43}', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'AR Drone' not in stdout
+        assert stdout.count('Data (') == 3
+
+    def test_ar_drone_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic takes a known first command with a '=', on any
+        port, and leaves other packets, AT*FOO among them, untouched as
+        plain UDP.'''
+        frames = self.ar_drone_fields(cmd_tshark, capture_file, test_env,
+                                      '_ws.col.protocol', 'ar_drone.command',
+                                      opts=AR_DRONE_HEUR)
+        assert frames[36] == ['UDP', '']         # AT*FOO=1,2
+        assert frames[45] == ['ar_drone', 'REF']  # not on port 5556
+        assert frames[46] == ['UDP', '']         # AT*FOO=1
+        assert frames[47] == ['UDP', '']         # no '='
+        stdout = subprocess.check_output((cmd_tshark, *AR_DRONE_HEUR,
+                '-r', capture_file('ar_drone_coverage.pcap.gz'),
+                '-Y', 'frame.number == 36', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'AR Drone' not in stdout
+        assert 'Data (11 bytes)' in stdout
