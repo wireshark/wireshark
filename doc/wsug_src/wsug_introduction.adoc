@@ -223,6 +223,8 @@ management.
 // Windows Server 2016 (but not Windows 10 1507), but Qt 6.8 and later will not
 // without compiling Qt oneself while setting a special flag:
 // https://bugreports.qt.io/browse/QTBUG-134075
+// In 5.0 and later we use the application manifest to force the use of UTF-8
+// (codepage 65001); that requires Windows 10 version 1903 or later.
 
 * Wireshark 4.6 was the last release branch to officially support Windows 10, version 1809 and Windows Server 2019.
 * Wireshark 4.4 was the last release branch to officially support Windows 10, version 1607 and Windows Server 2016.
@@ -240,6 +242,7 @@ See the <<ChIntroReleaseLifeCycle,Wireshark release lifecycle>> section for more
 Wireshark supports macOS 11 and later.
 Similar to Windows, supported macOS versions depend on third party libraries and on Apple’s requirements.
 
+// Wireshark 5.0 ships with Qt 6.12.0, which requires macOS 14.4 and later
 // Wireshark 4.6 ships with Qt 6.9.3, which requires macOS 12 and later
 // Wireshark 4.4 ships with Qt 6.5.3, which requires macOS 11 and later
 // Wireshark 4.2 ships with Qt 6.2.4, which requires macOS 10.14 and later
@@ -249,6 +252,7 @@ Similar to Windows, supported macOS versions depend on third party libraries and
 // Wireshark 2.6 ships with Qt 5.3, which was the last release to support 10.6: https://wiki.qt.io/New_Features_in_Qt_5.3
 // "Mac OS 10.6 support is deprecated and scheduled for removal in Qt 5.4"
 
+* Wireshark 4.6 was the last release branch to support macOS 14.3.
 * Wireshark 4.4 was the last release branch to support macOS 11.
 * Wireshark 4.2 was the last release branch to support macOS 10.14.
 * Wireshark 3.6 was the last release branch to support macOS 10.13.

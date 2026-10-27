@@ -206,7 +206,7 @@ The following features are either new or have been significantly updated since v
 * The Windows installers now ship with Npcap 1.89.
   They previously shipped with Npcap 1.83.
 
-* The Windows and macOS installers now ship with Qt 6.11.1.
+* The Windows and macOS installers now ship with Qt 6.12.0.
   They previously shipped with Qt 6.9.3.
 
 * The Help menu has a new menu:Help[Discord] entry, which opens the invitation to the Wireshark Discord server.
