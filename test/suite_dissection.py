@@ -8064,3 +8064,69 @@ class TestDissectArubaPapi:
             'debug text!', '11042563100175', '42', '4660,22136', '3735928559',
             '198.51.100.9', '0102030405', '72623859790382856', 'Unknown (6)',
         ]
+
+
+class TestDissectArubaUbt:
+    def test_aruba_ubt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type and every TLV type decode without malformed
+        packets, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_ubt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['UBT'] * 34
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_ubt_coverage.pcap.gz'),
+                '-Tfields', '-eubt.msg_type',
+            ), encoding='utf-8', env=test_env)
+        assert set(int(t) for t in stdout.split()) == set(range(21)) | {99}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('aruba_ubt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_aruba_ubt_tlv_length(self, cmd_tshark, capture_file, test_env):
+        '''Dissection goes on after each TLV by its length: a SAC IP
+        address shorter than 20 octets (frame 29), silent client VLANs
+        (frames 30, 11), and SAC/server IP addresses, a node list and a
+        bucket map longer than their fixed layout (frames 31-33) are
+        followed by the TLVs after them.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_ubt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11,29..33}',
+                '-Tfields', '-eframe.number', '-eubt.tlv_type', '-eubt.username',
+                '-eubt.user_portname', '-eubt.silent_client_vlan', '-eubt.sac_ipv4',
+                '-eubt.server_ipaddressv6',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t3,7,8,9,11,18,19,20,16,22\tuser0\t1/1/0\t000a,0014,001e\t\t',
+            '29\t5,19,20\talice\tport1\t\t192.0.2.7\t',
+            '30\t22,19\tbob\t\t000a,0014\t\t',
+            '31\t5,19,17,20\tcarol\tport2\t\t192.0.2.8\t2001:db8::50',
+            '32\t13,19\tdave\t\t\t\t',
+            '33\t14,19\terin\t\t\t\t',
+        ]
+
+    def test_aruba_ubt_values(self, cmd_tshark, capture_file, test_env):
+        '''Node list and bucket map contents, and the messages without a
+        switch MAC address.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_ubt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3,5}',
+                '-Tfields', '-eubt.node_list.cluster_name', '-eubt.uac_count',
+                '-eubt.uac_ipv4', '-eubt.uac_ipv6', '-eubt.bucket_map.identifier',
+            ), encoding='utf-8', env=test_env)
+        uac4 = ','.join(['10.0.0.1'] + [f'10.0.0.{i}' for i in range(4, 13)])
+        assert stdout.splitlines() == [
+            f'cluster-one\t12\t{uac4}\t2001:db8::a01\t',
+            f'\t3\t{uac4}\t2001:db8::a01\tbucketmap-identifier-0123456789ab',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_ubt_coverage.pcap.gz'),
+                '-Y', 'ubt && !ubt.switch.mac_addr',
+                '-Tfields', '-eframe.number', '-eubt.msg_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['16\t12', '20\t16']
