@@ -7983,3 +7983,84 @@ class TestDissectArubaIap:
                 '-Y', 'aruba_iap && !aruba_iap.vc_ip', '-Tfields', '-earuba_iap.type',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['0', '1', '2', '6', '8', '255']
+
+
+class TestDissectArubaPapi:
+    def test_aruba_papi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''v2 and v3 headers, every License Manager TLV, a UBT payload,
+        data payloads and data without the PAPI magic decode without
+        malformed packets, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_papi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('PAPI') == 8
+        assert protocols.count('UBT') == 1
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('aruba_papi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_aruba_papi_headers(self, cmd_tshark, capture_file, test_env):
+        '''The v3 header carries IPv6 addresses; the packet type is shown
+        in decimal and hex (it used to be shown in octal).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_papi_coverage.pcap.gz'),
+                '-Y', 'papi.hdr.version == 3',
+                '-Tfields', '-eframe.number', '-epapi.hdr.dest.ipv6', '-epapi.hdr.src.ipv6',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t2001:db8::2\t2001:db8::1',
+            '4\t2001:db8::2\t2001:db8::1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_papi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5', '-O', 'papi',
+            ), encoding='utf-8', env=test_env)
+        assert 'Packet Type: 8 (0x0008)' in stdout
+
+    def test_aruba_papi_license_manager(self, cmd_tshark, capture_file, test_env):
+        '''License Manager TLVs, found by the destination or source port.
+        A serial number shorter than 32 octets is read by its TLV length
+        and the TLV after it is decoded (frame 6, it used to be malformed).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_papi_coverage.pcap.gz'),
+                '-Y', 'papi.licmgr',
+                '-Tfields', '-eframe.number', '-epapi.licmgr.serial_number',
+                '-epapi.licmgr.hostname', '-epapi.licmgr.ip',
+                '-epapi.licmgr.license.ap.remaining',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tCN0123456789\tcontroller-1\t10.1.2.3\t1007',
+            '2\t\t\t\t64',
+            '3\t\tv6-controller\t\t',
+            '6\tSN123456\thost\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_papi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-epapi.licmgr.type', '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '1,2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18,19,99'
+
+    def test_aruba_papi_experimental_decode(self, cmd_tshark, capture_file, test_env):
+        '''With papi.experimental_decode the payload is decoded as debug
+        items, one of each kind and an unknown one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'papi.experimental_decode:TRUE',
+                '-r', capture_file('aruba_papi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 7',
+                '-Tfields', '-epapi.debug.text', '-epapi.debug.48bits',
+                '-epapi.debug.8bits', '-epapi.debug.16bits', '-epapi.debug.32bits',
+                '-epapi.debug.ipv4', '-epapi.debug.bytes', '-epapi.debug.64bits',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            'debug text!', '11042563100175', '42', '4660,22136', '3735928559',
+            '198.51.100.9', '0102030405', '72623859790382856', 'Unknown (6)',
+        ]
