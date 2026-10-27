@@ -158,10 +158,18 @@ again:
 
     switch (type) {
     case AODV_EXT_INT:
+        if (len < 4) {
+            expert_add_info(pinfo, len_item, &ei_aodv_ext_length);
+            break;
+        }
         proto_tree_add_item(ext_tree, hf_aodv_ext_interval,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
     case AODV_EXT_NTP:
+        if (len < 8) {
+            expert_add_info(pinfo, len_item, &ei_aodv_ext_length);
+            break;
+        }
         proto_tree_add_item(ext_tree, hf_aodv_ext_timestamp,
                             tvb, offset, 8, ENC_BIG_ENDIAN);
         break;
