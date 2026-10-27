@@ -7328,3 +7328,98 @@ class TestDissectArDrone:
             ), encoding='utf-8', env=test_env)
         assert 'AR Drone' not in stdout
         assert 'Data (11 bytes)' in stdout
+
+
+class TestDissectArinc615a:
+    def test_arinc615a_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every A615A protocol file type and FIND message decodes without
+        malformed packets, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arinc615a_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('A615a') == 22
+        assert protocols.count('FIND') == 4
+        assert protocols.count('TFTP') == 67
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('arinc615a_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_arinc615a_heur_null_data(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming the "a615a" heuristic gives it no TFTP
+        file name (data == NULL). It must not be decoded as A615a (and used
+        to dereference the NULL pointer).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arinc615a_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-eexported_pdu.heur_prot_name', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['107', 'exported_pdu:data', 'a615a', '0000000841310000']
+
+    def test_arinc615a_file_types(self, cmd_tshark, capture_file, test_env):
+        '''The file type comes from the TFTP file name of the request; the
+        exception timer is present only for protocol versions after A1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arinc615a_coverage.pcapng.gz'),
+                '-Y', 'a615a',
+                '-Tfields', '-ea615a.type', '-ea615a.protocol_version',
+                '-ea615a.exception_timer', '-E', 'separator=;',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        types = sorted(set(line.split(';')[0] for line in lines))
+        assert types == [
+            'Load Configuration Initialization', 'Load Configuration List',
+            'Load Configuration Status', 'Load Downloading Answer',
+            'Load Downloading List', 'Load Downloading Media',
+            'Load Downloading Operator', 'Load Downloading Request',
+            'Load Downloading Status', 'Load Upload Initialization',
+            'Load Uploading Request', 'Load Uploading Status',
+        ]
+        assert 'Load Uploading Status;A2;30' in lines
+        assert 'Load Uploading Status;A1;' in lines
+        assert 'Load Downloading Status;A3;30' in lines
+        assert 'Load Downloading Status;A1;' in lines
+
+    def test_arinc615a_lcl(self, cmd_tshark, capture_file, test_env):
+        '''Load Configuration List: target hardware with nested part numbers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arinc615a_coverage.pcapng.gz'),
+                '-Y', 'a615a.num_hardware',
+                '-Tfields', '-ea615a.literal_name', '-ea615a.serial_number',
+                '-ea615a.num_parts', '-ea615a.designation', '-E', 'separator=;',
+                '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ('FMC_L|FMC_R;SN000123|SN000124;2|0;'
+                                  'Operational program|Navigation database')
+
+    def test_arinc615a_rejected(self, cmd_tshark, capture_file, test_env):
+        '''Files the heuristic rejects stay TFTP data: a load header file,
+        a file shorter than 6 octets, a wrong file length, no "A" version,
+        a lower case suffix and a DATA packet with no request seen.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arinc615a_coverage.pcapng.gz'),
+                '-Y', 'tftp.opcode == 3 && data',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        # 103 and 105 are the two blocks of a file that is not reassembled
+        assert stdout.split() == ['17', '89', '92', '95', '98', '100', '103', '105']
+
+    def test_arinc615a_reassembled(self, cmd_tshark, capture_file, test_env):
+        '''With TFTP reassembly a file over two blocks reaches the heuristic.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('arinc615a_coverage.pcapng.gz'),
+                '-o', 'tftp.defragment:TRUE',
+                '-Y', 'a615a.file_count == 40',
+                '-Tfields', '-eframe.number', '-ea615a.type', '-ea615a.file_name',
+                '-E', 'separator=;', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        number, ftype, names = stdout.strip().split(';')
+        assert number == '105'
+        assert ftype == 'Load Downloading Status'
+        assert names.split('|') == ['FILE%03d.BIN' % i for i in range(40)]
