@@ -7020,3 +7020,166 @@ class TestDissectAppleMidi:
         assert frames[44] == ['Note On (c=1, n=C4, v=64)']
         assert frames[11] == ['Program Change (c=3, p=5), Channel Pressure (c=3, p=48), '
                               'Pitch Bend Change (c=3, pb=8192)']
+
+
+APRS_OPTS = ('-o', 'ax25_nol3.showaprs:TRUE')  # APRS decoding is off by default
+
+
+class TestDissectAprs:
+    def run_fields(self, cmd_tshark, capture_file, test_env, *args, decimals=()):
+        stdout = subprocess.check_output((cmd_tshark, *APRS_OPTS,
+                '-r', capture_file('aprs_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        # The columns in decimals are shown with the decimal separator of the locale
+        for f in frames:
+            for c in decimals:
+                f[c] = f[c].replace(',', '.')
+        return frames
+
+    def test_aprs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every data type indicator, position format, extension, Mic-E
+        destination character, weather field, item, object and message
+        decodes without malformed packets, in one and two passes and with
+        the lax preference.'''
+        protocols = [f[0] for f in self.run_fields(cmd_tshark, capture_file, test_env,
+                                                   '-e_ws.col.protocol')]
+        assert protocols.count('APRS') == 162
+        assert protocols.count('AX.25-NoL3') == 2
+        for opts in ((), ('-2',), ('-o', 'aprs.showaprslax:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *APRS_OPTS, *opts,
+                    '-r', capture_file('aprs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        # Without the ax25_nol3 preference nothing is APRS
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aprs_coverage.pcap.gz'),
+                '-Y', 'aprs', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_aprs_compressed_course(self, cmd_tshark, capture_file, test_env):
+        '''The compressed course is (c - 33) * 4 up to 356 for 'z'; it was
+        kept in 8 bits.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'frame.number == 1 || (frame.number >= 32 && frame.number <= 35)',
+                                 '-eframe.number', '-eaprs.msg.cse', '-eaprs.msg.spd',
+                                 decimals=(2,))
+        assert frames == [['1', '356', '   1.00'], ['32', '0', '  37.23'],
+                          ['33', '88', '  37.23'], ['34', '188', '  37.23'],
+                          ['35', '356', '  37.23']]
+
+    def test_aprs_mic_e(self, cmd_tshark, capture_file, test_env):
+        '''Mic-E: the course takes the units of DC as hundreds (251 for
+        DC=30, SE=79; the units used to be multiplied by 10), speed and
+        course wrap at 800 and 400, the destination address gives the
+        latitude and the eight message codes.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'aprs.mic_e_current', '-eframe.number',
+                                 '-eaprs.mic_e_current', '-eaprs.mic_e.speed_dc',
+                                 '-eaprs.mic_e.speed_se')
+        mic_e = {int(f[0]): f[1:] for f in frames}
+        assert mic_e[2] == ['Lat: 3325.64N Long: 11220.50W, Cse: 251, Spd: 20, SSID: 0, Msg Returning',
+                            '0x1e', '0x4f']
+        assert mic_e[80][0] == 'Lat: 3325.64N Long: 07201.75W, Cse: 111, Spd: 14, SSID: 0, Msg Returning'
+        messages = [mic_e[n][0].split(', Msg ')[1] for n in range(53, 61)]
+        assert messages == ['Off Duty', 'En Route', 'In Service', 'Returning',
+                            'Committed', 'Special', 'Priority', 'Emergency']
+        # Longitude degrees with and without the offset of 100, and the
+        # 180-189 and 190-199 ranges
+        longitudes = [mic_e[n][0].split('Long: ')[1][:9] for n in range(74, 80)]
+        assert longitudes == ['05001.99W', '11001.99W', '10001.99W',
+                              '00001.99W', '10001.99W', '00501.99W']
+
+    def test_aprs_items(self, cmd_tshark, capture_file, test_env):
+        '''Item names end at the first '!' or '_' in the packet; a name with
+        octets over 0x7f is as long as in the packet (the position after it
+        decodes) and a killed item ending in '_' is found.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'aprs.item', '-eframe.number', '-eaprs.item',
+                                 '-eaprs.position.lat', '-eaprs.position.long',
+                                 decimals=(2, 3))
+        assert frames == [
+            ['3', '\ufffd' * 9, '4903.50N', '07201.75W'],
+            ['91', 'AID #2', '4903.50N', '07201.75W'],
+            ['92', 'ITEM', '4903.50N', '07201.75W'],
+            ['93', 'AB', ' 49.50', ' -72.75'],
+            ['94', 'AB', '-33.59', ' -72.75'],
+            ['95', 'TENCHARSXX', '4903.50N', '07201.75W'],
+            ['96', 'MOBIL', ' 49.50', ' -72.75'],
+            ['97', 'G1', '4903.50N', '07201.75W'],
+            ['98', '\ufffd\ufffdt\ufffd\ufffd', '4903.50N', '07201.75W'],
+            ['161', 'NOCMT', '4903.50N', '07201.75W'],
+        ]
+
+    def test_aprs_compression_type(self, cmd_tshark, capture_file, test_env):
+        '''The compression type subfields are the bits of the octet minus 33,
+        not of the octet itself.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'frame.number == 1 || (frame.number >= 41 && frame.number <= 48)',
+                                 '-eaprs.ct', '-eaprs.ct.gps_fix', '-eaprs.ct.nmea_src',
+                                 '-eaprs.ct.origin')
+        assert frames == [
+            ['0x33', '0x01', '0x02', '0x03'],
+            ['0x00', '0x00', '0x00', '0x00'],
+            ['0x09', '0x00', '0x01', '0x01'],
+            ['0x12', '0x00', '0x02', '0x02'],
+            ['0x1b', '0x00', '0x03', '0x03'],
+            ['0x24', '0x01', '0x00', '0x04'],
+            ['0x2d', '0x01', '0x01', '0x05'],
+            ['0x36', '0x01', '0x02', '0x06'],
+            ['0x3f', '0x01', '0x03', '0x07'],
+        ]
+
+    def test_aprs_lax(self, cmd_tshark, capture_file, test_env):
+        '''A position without messaging is read as having an extension
+        unless the lax preference is set, which takes only D, P, R and T.'''
+        for opts, expected in (((), [['5', '1', '5'], ['10', '1', '']]),
+                               (('-o', 'aprs.showaprslax:TRUE'), [['5', '1', '5'], ['10', '0', '']])):
+            frames = self.run_fields(cmd_tshark, capture_file, test_env, *opts,
+                                     '-Y', 'frame.number == 10 || frame.number == 5',
+                                     '-eframe.number', '-e', 'count(aprs.msg)',
+                                     '-eaprs.msg.phg.p')
+            assert frames == expected
+
+    def test_aprs_storm(self, cmd_tshark, capture_file, test_env):
+        '''Storm reports as in APRS101: the course and speed are the
+        position's extension (or the compressed course/speed), the storm
+        data starts with the type.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'aprs.storm', '-eframe.number',
+                                 '-eaprs.msg.cse', '-eaprs.msg.spd',
+                                 '-eaprs.storm.type', '-eaprs.storm.sws',
+                                 '-eaprs.storm.pwg', '-eaprs.storm.central_pressure',
+                                 '-eaprs.storm.radius_hurricane_winds',
+                                 '-eaprs.storm.radius_tropical_storms_winds',
+                                 '-eaprs.storm.radius_whole_gale',
+                                 decimals=(2,))
+        hc = ['/HC', '/150', '^200', '/0980', '>090', '&050', '%040']
+        ts = ['/TS', '/090', '^120', '/0995', '>000', '&030', '%020']
+        assert frames == [
+            ['12', '088', '036', *hc],     # '!' uncompressed
+            ['13', '088', '036', *ts],     # '!' alternate table
+            ['28', '088', '036', *hc],     # '@' with timestamp
+            ['51', '88', '  37.23', *hc],  # compressed
+            ['52', '88', '  37.23', *ts],  # compressed, alternate table
+            ['102', '088', '036', *hc],    # object with MDHM timestamp
+            ['163', '088', '036', *hc],    # '/' with timestamp, no comment
+        ]
+
+    def test_aprs_no_comment(self, cmd_tshark, capture_file, test_env):
+        '''Uncompressed positions with no comment or one of 1-6 octets
+        ('!', '=', '/', '@', an item and an object) decode with no
+        extension and no malformed packet, with and without lax mode.'''
+        comments = ['', 'A', 'PHG51', '088/03'] * 4 + ['', '']
+        for opts in ((), ('-o', 'aprs.showaprslax:TRUE')):
+            frames = self.run_fields(cmd_tshark, capture_file, test_env, *opts,
+                                     '-Y', 'frame.number >= 145 && frame.number <= 162',
+                                     '-eframe.number', '-e', 'count(aprs.msg)',
+                                     '-eaprs.comment', '-e_ws.malformed',
+                                     '-eaprs.position.lat')
+            assert frames == [[str(n), '0', c, '', '4903.50N']
+                              for n, c in zip(range(145, 163), comments)]
