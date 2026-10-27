@@ -6919,3 +6919,104 @@ class TestDissectAol:
         one_pass = aol_info()
         assert one_pass == aol_info('-2')
         assert one_pass.splitlines()[-1].startswith('67\t40000 → 5190 [PSH, ACK]')
+
+
+# applemidi_coverage.pcap.gz is synthetic: every packet was generated, to
+# cover as much of the AppleMIDI dissector as possible. Its heuristic is
+# disabled by default.
+APPLEMIDI_OPTS = ('--enable-heuristic', 'applemidi_udp')
+
+
+class TestDissectAppleMidi:
+    def applemidi_fields(self, cmd_tshark, capture_file, test_env, *fields, opts=APPLEMIDI_OPTS):
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('applemidi_coverage.pcap.gz'),
+                '-Tfields', '-E', 'aggregator=|', '-e', 'frame.number', *args,
+            ), encoding='utf-8', env=test_env)
+        return {int(line.split('\t')[0]): line.split('\t')[1:] for line in stdout.splitlines()}
+
+    def test_applemidi_heuristic_disabled_by_default(self, cmd_tshark, capture_file, test_env):
+        '''Nothing is dissected as AppleMIDI unless the heuristic is enabled.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('applemidi_coverage.pcap.gz'),
+                '-Y', 'applemidi || rtpmidi',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_applemidi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every command, on the control and data ports, over IPv4 and
+        IPv6, and RTP-MIDI after the session set-up, decode without
+        malformed packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *APPLEMIDI_OPTS,
+                '-r', capture_file('applemidi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('AppleMIDI') == 42
+        assert protocols.count('RTP-MIDI') == 14
+        # The heuristic rejects 3 octets, an unknown first command and
+        # a packet without the 0xffff signature
+        assert protocols.count('UDP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *APPLEMIDI_OPTS, *passes,
+                    '-r', capture_file('applemidi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_applemidi_commands(self, cmd_tshark, capture_file, test_env):
+        '''Each command and its fields.'''
+        frames = self.applemidi_fields(cmd_tshark, capture_file, test_env,
+                                       'applemidi.command', 'applemidi.count',
+                                       'applemidi.rtp_sequence_number',
+                                       'applemidi.bitrate_limit', 'applemidi.unknown_data')
+        assert frames[1] == ['0x494e', '', '', '', '']             # IN
+        assert frames[2] == ['0x4f4b', '', '', '', '']             # OK
+        assert frames[29] == ['0x4e4f', '', '', '', '']            # NO
+        assert frames[26] == ['0x4259', '', '', '', '']            # BY
+        assert [frames[n][1] for n in (5, 6, 7)] == ['0', '1', '2']  # CK
+        assert frames[24] == ['0x5253', '', '1', '', 'beef']       # RS
+        assert frames[20] == ['0x524c', '', '', '31250', '']       # RL
+        # An unknown command once the conversation is set up
+        assert frames[21] == ['0x5a5a', '', '', '', '01020304']
+
+    def test_applemidi_names(self, cmd_tshark, capture_file, test_env):
+        '''The name length is taken from the NUL in the packet, not from
+        the name converted to UTF-8: a name without a NUL and a name in
+        invalid UTF-8 decode without malformed packets, and what follows
+        the NUL is shown as unknown data.'''
+        frames = self.applemidi_fields(cmd_tshark, capture_file, test_env,
+                                       'applemidi.name', 'applemidi.unknown_data',
+                                       '_ws.malformed')
+        assert frames[36] == ['peer', '', '']
+        assert frames[37] == ['peer', '', '']            # no NUL
+        assert frames[38] == ['�' * 4, '7461696c', '']  # invalid UTF-8, then "tail"
+        assert frames[39] == ['Studio Köln ♫', '', '']
+        assert frames[40] == ['', '', '']                 # only the NUL
+        assert frames[41] == ['ab��', '', '']   # invalid UTF-8, no NUL
+
+    def test_applemidi_rtp_midi(self, cmd_tshark, capture_file, test_env):
+        '''After the invitation, RTP on the session's ports is dissected as
+        RTP-MIDI (dynamic payload type 97 set up by AppleMIDI), in both
+        directions, in one and two passes.'''
+        rtp_frames = [str(n) for n in range(8, 19)] + ['44', '54', '55']
+        setup = ['3'] * 11 + ['42', '51', '51']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *APPLEMIDI_OPTS, *passes,
+                    '-r', capture_file('applemidi_coverage.pcap.gz'),
+                    '-Y', 'rtpmidi',
+                    '-Tfields', '-eframe.number', '-ertp.setup-frame', '-ertp.p_type',
+                ), encoding='utf-8', env=test_env)
+            frames = [line.split('\t') for line in stdout.splitlines()]
+            assert [f[0] for f in frames] == rtp_frames
+            assert [f[1] for f in frames] == setup
+            assert all(f[2] == '97' for f in frames)
+        frames = self.applemidi_fields(cmd_tshark, capture_file, test_env, '_ws.col.info')
+        assert frames[44] == ['Note On (c=1, n=C4, v=64)']
+        assert frames[11] == ['Program Change (c=3, p=5), Channel Pressure (c=3, p=48), '
+                              'Pitch Bend Change (c=3, pb=8192)']
