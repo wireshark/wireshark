@@ -460,7 +460,7 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 proto_item_append_text(tlv_item, ": %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
             break;
             case 2: /* Serial Number */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_serial_number, tvb, offset, 32, ENC_ASCII);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_serial_number, tvb, offset, optlen, ENC_ASCII);
                 proto_item_append_text(tlv_item, ": %s", tvb_get_string_enc(pinfo->pool,tvb, offset, optlen, ENC_ASCII));
             break;
             case 3: /* Hostname */
@@ -515,7 +515,7 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         offset += optlen;
     }
 
-    proto_tree_add_item(licmgr_tree, hf_papi_licmgr_padding, tvb, offset, -1, ENC_NA);
+    proto_tree_add_item(licmgr_tree, hf_papi_licmgr_padding, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
     offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;
@@ -715,7 +715,7 @@ proto_register_papi(void)
         },
         { &hf_papi_hdr_packet_type,
             { "Packet Type", "papi.hdr.packet.type",
-            FT_UINT16, BASE_DEC|BASE_HEX, NULL, 0x0,
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_papi_hdr_packet_size,
