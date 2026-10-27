@@ -15905,7 +15905,8 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
     }
 
     /*ws_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->num);*/
-    ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)wmem_multimap_lookup32_le(TransactionId_table, buf, actx->pinfo->num);
+    /* An invoke of an earlier frame: this frame's are not all saved yet in the first pass */
+    ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)wmem_multimap_lookup32_le(TransactionId_table, buf, actx->pinfo->num - 1);
     if(ansi_map_saved_invokedata){
         OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
         ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
