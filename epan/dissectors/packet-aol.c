@@ -158,7 +158,7 @@ static unsigned dissect_aol_init(tvbuff_t *tvb, packet_info *pinfo _U_, unsigned
 
 	/* Windows version is a 32-bit value, but only the lower 16 bits are populated */
 	win_ver = tvb_get_ntohs(tvb,offset);
-	proto_tree_add_uint_format_value(data_tree,hf_aol_win_ver,tvb,offset,2,dos_ver,"%d.%d",(win_ver & 0xFF00) >> 8,win_ver & 0xFF);
+	proto_tree_add_uint_format_value(data_tree,hf_aol_win_ver,tvb,offset,2,win_ver,"%d.%d",(win_ver & 0xFF00) >> 8,win_ver & 0xFF);
 	offset += 4;
 
 	proto_tree_add_item(data_tree,hf_aol_wmem_mode,    tvb,offset,1,ENC_NA);            offset += 1;
