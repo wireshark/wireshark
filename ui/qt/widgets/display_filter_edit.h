@@ -49,6 +49,11 @@ public:
      */
     void setType(DisplayFilterEditType type);
 
+    /**
+     * @brief Disables the automatic validation of the dialog embedded Display Filter.
+     */
+    void disableAutomaticValidation();
+
 protected:
     /**
      * @brief Handles paint events for the widget.
@@ -229,6 +234,9 @@ private:
 
     /** The active style sheet string applied to the widget. */
     QString style_sheet_;
+
+    /** Flag indicating if the embedded display filter validation is the automatic (default) one. */
+    bool auto_validation_ = true;
 
     /**
      * @brief Sets the default placeholder text for the widget.

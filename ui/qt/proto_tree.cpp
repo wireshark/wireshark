@@ -361,24 +361,29 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     // Checks for the Distribution menu (enabled according to the AGG_FT value)
     /* XXX - ensure we are consistent with the Distribution Dialog. Move to a function ? */
+
     bool isDistributable = false;
-    switch(finfo->headerInfo().type) {
-        case FT_IPv4:
-        case FT_IPv6:
-            isDistributable = true;
-            break;
+    QString abbrev;
+    if (fi && fi->hfinfo) {
+        abbrev = QString::fromUtf8(fi->hfinfo->abbrev);
+        const ftenum_t type = fi->hfinfo->type;
 
-        default:
-            if (FT_IS_STRING(finfo->headerInfo().type) ||
-                FT_IS_INTEGER(finfo->headerInfo().type)) {
+        switch (type) {
+            case FT_IPv4:
+            case FT_IPv6:
                 isDistributable = true;
-            }
-            break;
-    }
+                break;
 
-    /* add Distribution menu */
-    action = ctx_menu->addAction(tr("Distribution…"), [this, finfo]() {
-        emit showDistributionDialog(finfo->headerInfo().abbreviation);
+            default:
+                isDistributable = FT_IS_STRING(type) || FT_IS_INTEGER(type);
+                break;
+        }
+    }
+    if (abbrev.isEmpty())
+        isDistributable = false;
+
+    action = ctx_menu->addAction(tr("Distribution…"), [this, abbrev]() {
+        emit showDistributionDialog(abbrev);
     });
     action->setEnabled(isDistributable);
 

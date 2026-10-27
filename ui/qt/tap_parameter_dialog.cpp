@@ -23,6 +23,7 @@
 
 #include "tap_parameter_dialog.h"
 #include <ui_tap_parameter_dialog.h>
+#include <ui/qt/widgets/display_filter_edit.h>
 
 #include <errno.h>
 
@@ -164,6 +165,11 @@ QVBoxLayout *TapParameterDialog::verticalLayout()
 QHBoxLayout *TapParameterDialog::filterLayout()
 {
     return ui->filterLayout;
+}
+
+DisplayFilterEdit *TapParameterDialog::filterEdit() const
+{
+    return ui->displayFilterLineEdit;
 }
 
 QString TapParameterDialog::displayFilter()
