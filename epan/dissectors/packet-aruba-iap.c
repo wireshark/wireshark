@@ -132,10 +132,10 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_uint, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_bytes, tvb, offset, -1, ENC_NA);
+        proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_bytes, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
 
     } else {
-        proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_bytes, tvb, offset, -1, ENC_NA);
+        proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_bytes, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
     }
 
     return tvb_reported_length(tvb);
@@ -147,7 +147,7 @@ proto_register_aruba_iap(void)
     static hf_register_info hf[] = {
         { &hf_iap_magic,
         { "Magic", "aruba_iap.magic", FT_UINT16, BASE_HEX, NULL,0x0,
-        "Magic Number of IAP traffic (Always 0x8ffd)", HFILL}},
+        "Magic Number of IAP traffic (Always 0xbeef)", HFILL}},
 
         { &hf_iap_version,
         { "Version", "aruba_iap.version", FT_UINT8, BASE_DEC, NULL, 0x0,
