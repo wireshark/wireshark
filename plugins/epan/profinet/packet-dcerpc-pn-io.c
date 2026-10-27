@@ -609,18 +609,40 @@ static int hf_pn_io_cim_cap_entry_length;
 static int hf_pn_io_cim_cap_namespace_format;
 static int hf_pn_io_cim_cap_namespace_id;
 static int hf_pn_io_cim_capability_id;
+
+/* group 0 */
 static int hf_pn_io_cim_capability_id_capability;
-static int hf_pn_io_cim_capability_id_calling_home;
+static int hf_pn_io_cim_capability_id_group0_reserved1;
 static int hf_pn_io_cim_capability_id_endpoint_list;
-static int hf_pn_io_cim_capability_id_reserved1;
+static int hf_pn_io_cim_capability_id_group0_reserved2;
 static int hf_pn_io_cim_capability_id_auditable_events;
+static int hf_pn_io_cim_capability_id_group0_reserved3;
+static int hf_pn_io_cim_capability_id_rdcp;
+static int hf_pn_io_cim_capability_id_lldp_info;
+static int hf_pn_io_cim_capability_id_group0_reserved4;
+
+/* group 1 */
 static int hf_pn_io_cim_capability_id_snmp_policy;
-static int hf_pn_io_cim_capability_id_dcp_policy;
 static int hf_pn_io_cim_capability_id_clrpc_policy;
-static int hf_pn_io_cim_capability_id_lockdown_policy;
+static int hf_pn_io_cim_capability_id_dcp_policy;
 static int hf_pn_io_cim_capability_id_port_sap_policy;
-static int hf_pn_io_cim_capability_id_reserved2;
-static int hf_pn_io_cim_cap_instance;
+static int hf_pn_io_cim_capability_id_lockdown_policy;
+static int hf_pn_io_cim_capability_id_group1_reserved;
+
+/* group 2 */
+static int hf_pn_io_cim_capability_id_calling_home;
+static int hf_pn_io_cim_capability_id_firmware_update;
+static int hf_pn_io_cim_capability_id_group2_reserved;
+
+/* CIMControlBlockReq/Rsp fields */
+
+/* ControlCommandCIM */
+static int hf_pn_io_cim_control_command;
+static int hf_pn_io_cim_control_command_done;
+static int hf_pn_io_cim_control_command_command;
+static int hf_pn_io_cim_control_command_reserved;
+/* ControlCommandStatus */
+static int hf_pn_io_cim_control_command_status;
 
 static int hf_pn_io_security;
 static int hf_pn_io_security_information;
@@ -1107,7 +1129,7 @@ static int hf_pn_io_managing_role;
 static int hf_pn_io_usage_role;
 
 /* SXP block fields */
-static int hf_pn_io_sxp_destination_endpoint;
+static int hf_pn_io_sxp_endpoint;
 static int hf_pn_io_sxp_endpoint_id;
 static int hf_pn_io_sxp_endpoint_reserved;
 static int hf_pn_io_sxp_vendor_id;
@@ -1260,6 +1282,7 @@ static int ett_pn_io_time_sync_properties;
 static int ett_pn_io_cim_station_element_id;
 static int ett_pn_io_cim_capability_entry;
 static int ett_pn_io_cim_capability_id;
+static int ett_pn_io_cim_control_command;
 static int ett_pn_io_record_policy_set_data;
 
 static int ett_pn_io_snmp_command_name;
@@ -1494,6 +1517,7 @@ static const value_string pn_io_block_type[] = {
     { 0x0312, "CIM_Capabilities" },
     { 0x0313, "ARRecordAccessPolicyAdjust" },
     { 0x0314, "ARRecordAccessPolicyReal" },
+    { 0x03FF, "CIMControlBlockReq" },
     { 0x0400, "MultipleBlockHeader"},
     { 0x0401, "COContainerContent"},
     { 0x0500, "RecordDataReadQuery"},
@@ -1558,6 +1582,7 @@ static const value_string pn_io_block_type[] = {
     { 0x8118, "PrmBeginRes"},
     { 0x811A, "SecurityResponse" },
     { 0x811C, "ReadAuditableEventsRsp" },
+    { 0x83FF, "CIMControlBlockRsp" },
     { 0x86E0, "SAMResponseBlock"},
     { 0x86F0, "SCMResponseBlock"},
     { 0xB050, "Ext-PLL Control / RTC+RTA SyncID 0 (EDD)" },
@@ -1645,18 +1670,40 @@ static int * const pn_io_sxp_capability_fields[] = {
     NULL
 };
 
-static int * const pn_io_cim_capability_id_fields[] = {
+static int * const pn_io_cim_capability_id_group0_fields[] = {
     &hf_pn_io_cim_capability_id_capability,
-    &hf_pn_io_cim_capability_id_calling_home,
+    &hf_pn_io_cim_capability_id_group0_reserved1,
     &hf_pn_io_cim_capability_id_endpoint_list,
-    &hf_pn_io_cim_capability_id_reserved1,
+    &hf_pn_io_cim_capability_id_group0_reserved2,
     &hf_pn_io_cim_capability_id_auditable_events,
+    &hf_pn_io_cim_capability_id_group0_reserved3,
+    &hf_pn_io_cim_capability_id_rdcp,
+    &hf_pn_io_cim_capability_id_lldp_info,
+    &hf_pn_io_cim_capability_id_group0_reserved4,
+    NULL
+};
+
+static int * const pn_io_cim_capability_id_group1_fields[] = {
     &hf_pn_io_cim_capability_id_snmp_policy,
-    &hf_pn_io_cim_capability_id_dcp_policy,
     &hf_pn_io_cim_capability_id_clrpc_policy,
-    &hf_pn_io_cim_capability_id_lockdown_policy,
+    &hf_pn_io_cim_capability_id_dcp_policy,
     &hf_pn_io_cim_capability_id_port_sap_policy,
-    &hf_pn_io_cim_capability_id_reserved2,
+    &hf_pn_io_cim_capability_id_lockdown_policy,
+    &hf_pn_io_cim_capability_id_group1_reserved,
+    NULL
+};
+
+static int * const pn_io_cim_capability_id_group2_fields[] = {
+    &hf_pn_io_cim_capability_id_calling_home,
+    &hf_pn_io_cim_capability_id_firmware_update,
+    &hf_pn_io_cim_capability_id_group2_reserved,
+    NULL
+};
+
+static int * const pn_io_cim_control_command_fields[] = {
+    &hf_pn_io_cim_control_command_done,
+    &hf_pn_io_cim_control_command_command,
+    &hf_pn_io_cim_control_command_reserved,
     NULL
 };
 
@@ -2005,6 +2052,35 @@ static const true_false_string tfs_pn_io_sr_properties_Reserved1 =
 
 static const true_false_string tfs_pn_io_cim_capability_supported =
     { "Supported", "Not supported" };
+
+static const value_string pn_io_cim_control_command_done_vals[] = {
+    { 0x00, "No Done" },
+    { 0x01, "Done" },
+    { 0x02, "Done with ControlCommandStatus" },
+    { 0x03, "Failed with ControlCommandStatus" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_cim_control_command_command_vals[] = {
+    { 0x00, "Reserved" },
+    { 0x01, "PrmRelease" },
+    { 0x02, "PrmBegin" },
+    { 0x03, "PrmEnd" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_cim_control_command_status_vals[] = {
+    { 0x00, 0x0F, "Reserved" },
+    { 0x10, 0x10, "OK" },
+    { 0x11, 0x2F, "Reserved for OK" },
+    { 0x30, 0x30, "PrmBegin/PrmBeginClean/CapLock not realizable" },
+    { 0x31, 0x31, "PrmEnd validation failed" },
+    { 0x32, 0x32, "Command not supported by capability" },
+    { 0x33, 0x33, "Command supported; command sequence error (end without begin)" },
+    { 0x34, 0x4F, "Reserved for Fail" },
+    { 0x50, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
 
 static const true_false_string tfs_pn_io_clrpc_control =
     { "Enable CLRPC", "Disable CLRPC" };
@@ -17244,16 +17320,16 @@ dissect_PDTraceUnitData_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-/* Dissect SXP-Destination-Endpoint: EndPointID(1) + Reserved(1) + VendorID(2) + DeviceID(2) + InstanceID(2) = 8 bytes */
+/* Dissect SXP-Endpoint: EndPointID(1) + Reserved(1) + VendorID(2) + DeviceID(2) + InstanceID(2) = 8 bytes */
 static int
-dissect_SXPDestinationEndpoint(tvbuff_t *tvb, int offset,
+dissect_SXPEndpoint(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint8_t *drep _U_)
 {
     proto_item *endpoint_item;
     proto_tree *endpoint_tree;
     uint8_t     endpoint_reserved;
 
-    endpoint_item = proto_tree_add_item(tree, hf_pn_io_sxp_destination_endpoint, tvb, offset, 8, ENC_NA);
+    endpoint_item = proto_tree_add_item(tree, hf_pn_io_sxp_endpoint, tvb, offset, 8, ENC_NA);
     endpoint_tree = proto_item_add_subtree(endpoint_item, ett_pn_io_sxp_endpoint);
 
     proto_tree_add_item(endpoint_tree, hf_pn_io_sxp_endpoint_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -17325,8 +17401,8 @@ dissect_ARSXPBlockReq_block(tvbuff_t *tvb, int offset,
     /* ARProperties */
     offset = dissect_ARProperties(tvb, offset, pinfo, tree, item, drep);
 
-    /* SXP-Destination-Endpoint (8 bytes) */
-    offset = dissect_SXPDestinationEndpoint(tvb, offset, pinfo, tree, item, drep);
+    /* SXP-Endpoint (8 bytes) */
+    offset = dissect_SXPEndpoint(tvb, offset, pinfo, tree, item, drep);
 
     /* CMInitiatorMacAdd */
     offset = dissect_pn_mac(tvb, offset, pinfo, tree,
@@ -17402,8 +17478,8 @@ dissect_ARSXPBlockRsp_block(tvbuff_t *tvb, int offset,
     /* Reserved */
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
 
-    /* SXP-Destination-Endpoint (8 bytes) */
-    offset = dissect_SXPDestinationEndpoint(tvb, offset, pinfo, tree, item, drep);
+    /* SXP-Endpoint (8 bytes) */
+    offset = dissect_SXPEndpoint(tvb, offset, pinfo, tree, item, drep);
 
     /* CMResponderMacAdd */
     offset = dissect_pn_mac(tvb, offset, pinfo, tree,
@@ -17491,7 +17567,7 @@ dissect_ARSXPBlockReq_v2_block(tvbuff_t *tvb, int offset,
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
 
     /* SXP-Endpoint-Initiator (8 bytes) */
-    offset = dissect_SXPDestinationEndpoint(tvb, offset, pinfo, tree, item, drep);
+    offset = dissect_SXPEndpoint(tvb, offset, pinfo, tree, item, drep);
 
     /* CMInitiatorMacAdd */
     offset = dissect_pn_mac(tvb, offset, pinfo, tree,
@@ -17567,7 +17643,7 @@ dissect_ARSXPBlockRsp_v2_block(tvbuff_t *tvb, int offset,
     offset += 2;
 
     /* SXP-Endpoint-Responder (8 bytes) */
-    offset = dissect_SXPDestinationEndpoint(tvb, offset, pinfo, tree, item, drep);
+    offset = dissect_SXPEndpoint(tvb, offset, pinfo, tree, item, drep);
 
     /* CMResponderMacAdd */
     offset = dissect_pn_mac(tvb, offset, pinfo, tree,
@@ -17705,15 +17781,86 @@ dissect_CIMCallingHomeAdjust_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+static int
+dissect_CIMCapabilityEntry(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, uint8_t *drep, int entry_idx, int body_end)
+{
+    proto_item *entry_item;
+    proto_item *namespace_format_item;
+    proto_tree *entry_tree;
+    int         entry_start = offset;
+    uint8_t     entry_length;
+    uint8_t     namespace_format;
+    uint16_t    namespace_id;
+
+    if (body_end - offset < 8 || tvb_captured_length_remaining(tvb, offset) < 8)
+        return offset;
+
+    entry_length = tvb_get_uint8(tvb, offset);
+    if ((entry_length != 8 && entry_length != 16) ||
+        entry_length > body_end - offset ||
+        entry_length > tvb_captured_length_remaining(tvb, offset)) {
+        return offset;
+    }
+
+    if (entry_idx < 0) {
+        entry_item = proto_tree_add_subtree(tree, tvb, offset, entry_length,
+            ett_pn_io_cim_capability_entry, NULL, "CIM_CapabilityEntry");
+    } else {
+        entry_item = proto_tree_add_subtree_format(tree, tvb, offset, entry_length,
+            ett_pn_io_cim_capability_entry, NULL, "CIM_CapabilityEntry[%d]", entry_idx);
+    }
+    entry_tree = entry_item;
+
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, entry_tree, drep,
+        hf_pn_io_cim_cap_entry_length, &entry_length);
+    namespace_format_item = proto_tree_add_item_ret_uint8(entry_tree,
+        hf_pn_io_cim_cap_namespace_format, tvb, offset, 1,
+        DREP_ENC_INTEGER(drep), &namespace_format);
+    offset += 1;
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, entry_tree, drep,
+        hf_pn_io_cim_cap_namespace_id, &namespace_id);
+
+    if (namespace_format == 0x00 && namespace_id <= 0x0002)
+    {
+        proto_item_append_text(namespace_format_item, " - group %u", namespace_id);
+    }
+
+    if (namespace_format == 0x00 && namespace_id == 0x0000) { // group 0
+        proto_tree_add_bitmask(entry_tree, tvb, offset, hf_pn_io_cim_capability_id,
+            ett_pn_io_cim_capability_id, pn_io_cim_capability_id_group0_fields, ENC_BIG_ENDIAN);
+    }
+    else if (namespace_format == 0x00 && namespace_id == 0x0001) { // group 1
+        proto_tree_add_bitmask(entry_tree, tvb, offset, hf_pn_io_cim_capability_id,
+            ett_pn_io_cim_capability_id, pn_io_cim_capability_id_group1_fields, ENC_BIG_ENDIAN);
+    }
+    else if (namespace_format == 0x00 && namespace_id == 0x0002) { // group 2
+        proto_tree_add_bitmask(entry_tree, tvb, offset, hf_pn_io_cim_capability_id,
+            ett_pn_io_cim_capability_id, pn_io_cim_capability_id_group2_fields, ENC_BIG_ENDIAN);
+    }
+    else {
+        proto_tree_add_item(entry_tree, hf_pn_io_cim_capability_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset += 4;
+
+    if (entry_length == 16) {
+        offset = dissect_SXPEndpoint(tvb, offset, pinfo, entry_tree, entry_item, drep);  // TODO: test
+    }
+
+    proto_item_set_len(entry_item, offset - entry_start);
+
+    return offset;
+}
+
 /* dissect CIMCapabilities (0x0312) */
 static int
 dissect_CIMCapabilities_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t *drep,
     uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
 {
-    uint16_t    num_entries;
-    uint16_t    entry_idx;
-    int         body_end;
+    uint16_t num_entries;
+    uint16_t entry_idx;
+    int      body_end;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -17723,59 +17870,15 @@ dissect_CIMCapabilities_block(tvbuff_t *tvb, int offset,
 
     body_end = offset + u16BodyLength;
 
-    /* NumberOfEntries */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
         hf_pn_io_cim_capabilities_number_of_entries, &num_entries);
 
-    /* CIM_CapabilityEntry entries */
     for (entry_idx = 0; entry_idx < num_entries && offset < body_end; entry_idx++) {
-        proto_item *entry_item;
-        proto_tree *entry_tree;
-        int         entry_start = offset;
-        uint8_t     entry_length;
-        uint8_t     namespace_format;
-        uint16_t    namespace_id;
-
-        if (tvb_captured_length_remaining(tvb, offset) < 8)
+        int next_offset = dissect_CIMCapabilityEntry(tvb, offset, pinfo, tree,
+            drep, entry_idx, body_end);
+        if (next_offset == offset)
             break;
-
-        /* Peek at entry length */
-        entry_length = tvb_get_uint8(tvb, offset);
-
-        entry_item = proto_tree_add_subtree_format(tree, tvb, offset, entry_length,
-            ett_pn_io_cim_capability_entry, NULL, "CIM_CapabilityEntry[%u]", entry_idx + 1);
-        entry_tree = entry_item;
-
-        /* CapEntryLength (U8) - either 8 or 16 octets */
-        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, entry_tree, drep,
-            hf_pn_io_cim_cap_entry_length, &entry_length);
-
-        /* CapNamespaceFormat (U8) */
-        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, entry_tree, drep,
-            hf_pn_io_cim_cap_namespace_format, &namespace_format);
-
-        /* CapNamespaceID (U16) */
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, entry_tree, drep,
-            hf_pn_io_cim_cap_namespace_id, &namespace_id);
-
-        /* CIMCapabilityID (U32) - bitmask only for CoreCapability (0x00, 0x0000) */
-        if (namespace_format == 0x00 && namespace_id == 0x0000) {
-            /* CoreCapability: decode as bitmask */
-            proto_tree_add_bitmask(entry_tree, tvb, offset, hf_pn_io_cim_capability_id,
-                ett_pn_io_cim_capability_id, pn_io_cim_capability_id_fields, ENC_BIG_ENDIAN);
-        } else {
-            /* Other capabilities: display as plain value */
-            proto_tree_add_item(entry_tree, hf_pn_io_cim_capability_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-        }
-        offset += 4;
-
-        /* CapInstance (U64) - only present if entry length is 16 */
-        if (entry_length == 16 && tvb_captured_length_remaining(tvb, offset) >= 8) {
-            proto_tree_add_item(entry_tree, hf_pn_io_cim_cap_instance, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
-        }
-
-        proto_item_set_len(entry_item, offset - entry_start);
+        offset = next_offset;
     }
 
     return offset;
@@ -17846,6 +17949,71 @@ dissect_ARRecordAccessPolicy_block(tvbuff_t *tvb, int offset,
 
     if (offset < body_end)
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, body_end - offset);
+
+    return offset;
+}
+
+static int
+dissect_CIMControlBlockReq_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t *drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
+{
+    e_guid_t aruuid;
+    int body_end = offset + u16BodyLength;
+
+    if (u8BlockVersionHigh != 2 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    if (u16BodyLength < 26)
+        return dissect_pn_undecoded(tvb, offset, pinfo, tree, u16BodyLength);
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_pn_io_cim_control_command,
+        ett_pn_io_cim_control_command, pn_io_cim_control_command_fields, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_ar_uuid, &aruuid);
+
+    offset = dissect_CIMCapabilityEntry(tvb, offset, pinfo, tree, drep, -1, body_end);
+
+    if (offset < body_end)
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, body_end - offset);
+
+    return offset;
+}
+
+static int
+dissect_CIMControlBlockRsp_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, uint8_t *drep,
+    uint8_t u8BlockVersionHigh, uint8_t u8BlockVersionLow, uint16_t u16BodyLength)
+{
+    e_guid_t aruuid;
+
+    if (u8BlockVersionHigh != 2 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    if (u16BodyLength < 20)
+        return dissect_pn_undecoded(tvb, offset, pinfo, tree, u16BodyLength);
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_pn_io_cim_control_command,
+        ett_pn_io_cim_control_command, pn_io_cim_control_command_fields, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_ar_uuid, &aruuid);
+
+    uint8_t status = 0;
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_cim_control_command_status, &status);
+
+    /* Reserved */
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
 
     return offset;
 }
@@ -18316,6 +18484,9 @@ dissect_block(tvbuff_t *tvb, unsigned offset,
     case(0x0314):
         dissect_ARRecordAccessPolicy_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
+    case(0x03FF):
+        dissect_CIMControlBlockReq_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
     case(0x0400):
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
@@ -18431,6 +18602,9 @@ dissect_block(tvbuff_t *tvb, unsigned offset,
         break;
     case(0x811C):
         dissect_ReadAuditableEventsRsp_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x83FF):
+        dissect_CIMControlBlockRsp_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x86E0):
         dissect_SAMResponse_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
@@ -21982,6 +22156,31 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_cim_control_command, // TODO: are all the new filter names ok?
+        { "ControlCommandCIM", "pn_io.cim_control_command",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+    },
+    { &hf_pn_io_cim_control_command_done,
+        { "Done", "pn_io.cim_control_command.done",
+            FT_UINT16, BASE_HEX, VALS(pn_io_cim_control_command_done_vals), 0x0007,
+            NULL, HFILL }
+    },
+    { &hf_pn_io_cim_control_command_command,
+        { "Command", "pn_io.cim_control_command.command",
+            FT_UINT16, BASE_HEX, VALS(pn_io_cim_control_command_command_vals), 0x00F8,
+            NULL, HFILL }
+    },
+    { &hf_pn_io_cim_control_command_reserved,
+        { "Reserved", "pn_io.cim_control_command.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFF00,
+            NULL, HFILL }
+    },
+    { &hf_pn_io_cim_control_command_status,
+        { "ControlCommandStatus", "pn_io.cim_control_status",
+            FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_cim_control_command_status_vals), 0x00,
+            NULL, HFILL }
+    },
     { &hf_pn_io_cim_cap_entry_length,
       { "CapEntryLength", "pn_io.cim_capabilities.cap_entry_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -22007,9 +22206,9 @@ proto_register_pn_io (void)
         FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000001,
         NULL, HFILL }
     },
-    { &hf_pn_io_cim_capability_id_calling_home,
-      { "CallingHome", "pn_io.cim_capabilities.capability_id.calling_home",
-        FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000002,
+    { &hf_pn_io_cim_capability_id_group0_reserved1,
+        { "Reserved", "pn_io.cim_capabilities.capability_id.group0_reserved1",
+        FT_UINT32, BASE_HEX, NULL, 0x00000002,
         NULL, HFILL }
     },
     { &hf_pn_io_cim_capability_id_endpoint_list,
@@ -22017,50 +22216,80 @@ proto_register_pn_io (void)
         FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000004,
         NULL, HFILL }
     },
-    { &hf_pn_io_cim_capability_id_reserved1,
-      { "Reserved", "pn_io.cim_capabilities.capability_id.reserved1",
+    { &hf_pn_io_cim_capability_id_group0_reserved2,
+        { "Reserved", "pn_io.cim_capabilities.capability_id.group0_reserved2",
         FT_UINT32, BASE_HEX, NULL, 0x00000008,
         NULL, HFILL }
     },
     { &hf_pn_io_cim_capability_id_auditable_events,
-      { "AuditableEvents", "pn_io.cim_capabilities.capability_id.auditable_events",
+        { "AuditableEvents", "pn_io.cim_capabilities.capability_id.auditable_events",
         FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000010,
         NULL, HFILL }
     },
-    { &hf_pn_io_cim_capability_id_snmp_policy,
-      { "SNMPPolicy", "pn_io.cim_capabilities.capability_id.snmp_policy",
-        FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000020,
+    { &hf_pn_io_cim_capability_id_group0_reserved3,
+        { "Reserved", "pn_io.cim_capabilities.capability_id.group0_reserved3",
+        FT_UINT32, BASE_HEX, NULL, 0x000003E0,
         NULL, HFILL }
     },
-    { &hf_pn_io_cim_capability_id_dcp_policy,
-      { "DCPPolicy", "pn_io.cim_capabilities.capability_id.dcp_policy",
-        FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000040,
+    { &hf_pn_io_cim_capability_id_rdcp,
+        { "RDCPPolicy", "pn_io.cim_capabilities.capability_id.rdcp",
+        FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000400,
         NULL, HFILL }
+    },
+    { &hf_pn_io_cim_capability_id_lldp_info,
+        { "LLDPInfo", "pn_io.cim_capabilities.capability_id.lldp_info",
+        FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000800,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_cim_capability_id_group0_reserved4,
+        { "Reserved", "pn_io.cim_capabilities.capability_id.group0_reserved4",
+        FT_UINT32, BASE_HEX, NULL, 0xFFFFF000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_cim_capability_id_snmp_policy,
+        { "SNMPPolicy", "pn_io.cim_capabilities.capability_id.snmp_policy",
+            FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000001,
+            NULL, HFILL }
     },
     { &hf_pn_io_cim_capability_id_clrpc_policy,
-      { "CLRPCPolicy", "pn_io.cim_capabilities.capability_id.clrpc_policy",
-        FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000080,
-        NULL, HFILL }
+        { "CLRPCPolicy", "pn_io.cim_capabilities.capability_id.clrpc_policy",
+            FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000002,
+            NULL, HFILL }
     },
-    { &hf_pn_io_cim_capability_id_lockdown_policy,
-      { "LockdownPolicy", "pn_io.cim_capabilities.capability_id.lockdown_policy",
-        FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000100,
-        NULL, HFILL }
+    { &hf_pn_io_cim_capability_id_dcp_policy,
+        { "DCPPolicy", "pn_io.cim_capabilities.capability_id.dcp_policy",
+            FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000004,
+            NULL, HFILL }
     },
     { &hf_pn_io_cim_capability_id_port_sap_policy,
-      { "PortSAPPolicy", "pn_io.cim_capabilities.capability_id.port_sap_policy",
-        FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000200,
-        NULL, HFILL }
+        { "PortSAPPolicy", "pn_io.cim_capabilities.capability_id.port_sap_policy",
+            FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000008,
+            NULL, HFILL }
     },
-    { &hf_pn_io_cim_capability_id_reserved2,
-      { "Reserved", "pn_io.cim_capabilities.capability_id.reserved2",
-        FT_UINT32, BASE_HEX, NULL, 0xFFFFFC00,
-        NULL, HFILL }
+    { &hf_pn_io_cim_capability_id_lockdown_policy,
+        { "LockdownPolicy", "pn_io.cim_capabilities.capability_id.lockdown_policy",
+            FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000010,
+            NULL, HFILL }
     },
-    { &hf_pn_io_cim_cap_instance,
-      { "CapInstance", "pn_io.cim_capabilities.cap_instance",
-        FT_UINT64, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
+    { &hf_pn_io_cim_capability_id_group1_reserved,
+        { "Reserved", "pn_io.cim_capabilities.capability_id.group1_reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFFE0,
+            NULL, HFILL }
+    },
+    { &hf_pn_io_cim_capability_id_calling_home,
+        { "CallingHome", "pn_io.cim_capabilities.capability_id.calling_home",
+            FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000001,
+            NULL, HFILL }
+    },
+    { &hf_pn_io_cim_capability_id_firmware_update,
+        { "FirmwareUpdate", "pn_io.cim_capabilities.capability_id.firmware_update",
+            FT_BOOLEAN, 32, TFS(&tfs_pn_io_cim_capability_supported), 0x00000002,
+            NULL, HFILL }
+    },
+    { &hf_pn_io_cim_capability_id_group2_reserved,
+        { "Reserved", "pn_io.cim_capabilities.capability_id.group2_reserved",
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFC,
+            NULL, HFILL }
     },
     { &hf_pn_io_port_capabilities_time_aware,
        { "PortCapabilities.TimeAware", "pn_io.port_capabilities.time_aware",
@@ -24655,8 +24884,8 @@ proto_register_pn_io (void)
         NULL, HFILL }},
 
     /* SXP block fields */
-    { &hf_pn_io_sxp_destination_endpoint,
-      { "SXP-Destination-Endpoint", "pn_io.sxp.destination_endpoint",
+    { &hf_pn_io_sxp_endpoint,
+      { "SXP-Endpoint", "pn_io.sxp.endpoint",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_pn_io_sxp_endpoint_id,
@@ -24890,6 +25119,7 @@ proto_register_pn_io (void)
         &ett_pn_io_cim_station_element_id,
         &ett_pn_io_cim_capability_entry,
         &ett_pn_io_cim_capability_id,
+        &ett_pn_io_cim_control_command,
         &ett_pn_io_record_policy_set_data,
         &ett_pn_io_snmp_command_name,
         &ett_pn_io_managing_roles,
