@@ -721,15 +721,13 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 	mess_type = tvb_get_ntohl(tvb, *offset);
 	*offset += 4;
 
-	DialogueID = tvb_get_ntohl(tvb, *offset);
-	proto_tree_add_item(service_tree, hf_ged125_DialogueID_num, tvb, *offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(service_tree, hf_ged125_DialogueID_num, tvb, *offset, 4, ENC_BIG_ENDIAN, &DialogueID);
 	*offset += 4;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Service_Control->%s DIALOGUE_ID=%u LEN=%u",
 			val_to_str(pinfo->pool, mess_type, vals_service_control_message_subvalues, "Unknown %d"), DialogueID, size);
 
-	SendSeqNo = tvb_get_ntohl(tvb, *offset);
-	ti = proto_tree_add_item(service_tree, hf_ged125_SendSeqNo_num, tvb, *offset, 4, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item_ret_uint(service_tree, hf_ged125_SendSeqNo_num, tvb, *offset, 4, ENC_BIG_ENDIAN, &SendSeqNo);
 	*offset += 4;
 
 	if ((DialogueID != SendSeqNo) &&

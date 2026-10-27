@@ -824,7 +824,7 @@ proto_register_nvme_mi(void)
             "NVMe-MI Message Type is Reserved (NVMe-MI 2.1 'NVMe-MI"
             " Message Fields'); the"
             " message body cannot be decoded and the message takes no part in"
-            " command slot tracking", EXPFILL },
+            " command slot tracking", EXPFILL }
         },
     };
 

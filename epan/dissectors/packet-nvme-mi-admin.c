@@ -618,19 +618,19 @@ proto_register_nvme_mi_admin(void)
           { "nvme-mi.admin.obsolete_flag", PI_PROTOCOL, PI_COMMENT,
             "DOFSTV/DLENV Command Flags bits are obsolete and shall be ignored"
             " by Management Endpoints compliant with NVMe-MI later than 1.1"
-            " (the 'NVMe Admin Command Request Description' figure)", EXPFILL },
+            " (the 'NVMe Admin Command Request Description' figure)", EXPFILL }
         },
         { &ei_nvme_mi_admin_invalid_dofst,
           { "nvme-mi.admin.invalid_dofst", PI_PROTOCOL, PI_WARN,
             "Data Offset is not dword-aligned (bits 1:0 must be cleared to"
             " 00b); a Management Endpoint returns Invalid Parameter (NVMe-MI"
-            " 2.1 'NVMe Admin Command Request Description')", EXPFILL },
+            " 2.1 'NVMe Admin Command Request Description')", EXPFILL }
         },
         { &ei_nvme_mi_admin_invalid_dlen,
           { "nvme-mi.admin.invalid_dlen", PI_PROTOCOL, PI_WARN,
             "Data Length must be dword-aligned and at most 4096 bytes; a"
             " Management Endpoint returns Invalid Parameter (NVMe-MI 2.1"
-            " 'NVMe Admin Command Request Description')", EXPFILL },
+            " 'NVMe Admin Command Request Description')", EXPFILL }
         },
     };
 

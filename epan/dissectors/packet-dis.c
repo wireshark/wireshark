@@ -17811,8 +17811,7 @@ static int parseField_DIS_FIELDS_VARIABLE_DATUM(tvbuff_t *tvb, proto_tree *tree,
         proto_tree_add_item(sub_tree, hf_dis_datum_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        data_length = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_dis_datum_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_tree, hf_dis_datum_length, tvb, offset, 4, ENC_BIG_ENDIAN, &data_length);
         offset += 4;
 
         lengthInBytes = data_length / 8;

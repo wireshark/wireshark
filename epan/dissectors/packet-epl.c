@@ -1853,7 +1853,7 @@ epl_address_equal(const void *a, const void *b)
 }
 
 /* FIXME
- * PDO Mappings store object/subobjct pointers and thus need to be
+ * PDO Mappings store object/subobject pointers and thus need to be
  * updated after a profile change. We purge them by resetting the
  * memory pool. As PDO Mappings are referenced via Conversations,
  * we need to fix up those too. I didn't figure out how to clear
@@ -4013,10 +4013,8 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 
 		if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
 		{
-			/* get index offset */
-			idx = tvb_get_letohs(tvb, offset);
 			/* add index item */
-			psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			psf_item = proto_tree_add_item_ret_uint16(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, ENC_LITTLE_ENDIAN, &idx);
 			/* look up index in registered profile */
 			obj = object_lookup(convo->profile, idx);
 			if (!obj)
@@ -4420,10 +4418,8 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 
 			if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
 			{
-				/* get SDO index value */
-				idx = tvb_get_letohs(tvb, dataoffset);
 				/* add index item */
-				psf_item = proto_tree_add_item(psf_od_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset+4, 2, ENC_LITTLE_ENDIAN);
+				psf_item = proto_tree_add_item_ret_uint16(psf_od_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, dataoffset, 2, ENC_LITTLE_ENDIAN, &idx);
 				/* Check profile for name */
 				obj = object_lookup(convo->profile, idx);
 				if (!obj)

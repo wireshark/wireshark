@@ -1382,8 +1382,7 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
         offset++;
         if (p_flag == 1)
         {
-            ld_size = tvb_get_uint8 (tvb, offset);
-            proto_tree_add_item (tree, hf_h264_sei_ms_layout_ldsize, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint8 (tree, hf_h264_sei_ms_layout_ldsize, tvb, offset, 1, ENC_BIG_ENDIAN, &ld_size);
             offset++;
             /* MS Errata - Microsoft seems to be setting the LD size to 16 but then including 2 layer descriptions which should be 32
              * To compensate for that, keep decoding layers as long as there are 16 or more bytes left in the SEI message.
@@ -1416,8 +1415,7 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     {
         col_append_str(pinfo->cinfo, COL_INFO, ":MS_Cropping");
         proto_item_append_text(uuid_item,"  - Microsoft Cropping Info SEI Message");
-        num_crops = tvb_get_uint8 (tvb, offset);
-        proto_tree_add_item (tree, hf_h264_sei_ms_crop_num_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8 (tree, hf_h264_sei_ms_crop_num_data, tvb, offset, 1, ENC_BIG_ENDIAN, &num_crops);
         offset++;
         proto_tree_add_item (tree, hf_h264_sei_ms_crop_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;

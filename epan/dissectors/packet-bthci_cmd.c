@@ -12298,8 +12298,9 @@ dissect_btcommon_cod(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
     proto_tree_add_item(cod_tree, hf_btcommon_cod_major_service_class_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cod_tree, hf_btcommon_cod_major_service_class_le_audio, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cod_tree, hf_btcommon_cod_major_service_class_limited_discoverable_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    major_service_classes = tvb_get_letohs(tvb, offset) >> 5;
 
+    /* Different bits, so can't use _ret_uint16() */
+    major_service_classes = tvb_get_letohs(tvb, offset) >> 5;
     proto_tree_add_item(cod_tree, hf_btcommon_cod_major_device_class, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
@@ -13252,7 +13253,7 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_cod_major_device_class,
           { "Major Device Class", "btcommon.cod.major_device_class",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_major_device_class_vals_ext, 0x1F,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_cod_major_device_class_vals_ext, 0x001F,
             NULL, HFILL }
         },
         { &hf_btcommon_cod_minor_device_class_computer,

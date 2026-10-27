@@ -4318,8 +4318,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
                 offset += 1;
                 proto_tree_add_item(tree, hf_bthci_evt_num_antenna_paths, tvb, offset, 1, ENC_NA);
                 offset += 1;
-                proto_tree_add_item(tree, hf_bthci_evt_num_steps_reported, tvb, offset, 1, ENC_NA);
-                steps = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(tree, hf_bthci_evt_num_steps_reported, tvb, offset, 1, ENC_NA, &steps);
                 offset += 1;
 
                 /* search CS configurations to find CS role and RTT type needed for dissecting mode-1 step data */

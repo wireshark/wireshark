@@ -3814,3 +3814,6 @@ zquarter
 zsssr
 zugtyp
 zürich
+krackan
+nfsv3attr
+longstr

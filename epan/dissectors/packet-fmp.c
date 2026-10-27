@@ -426,16 +426,14 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 static int
 dissect_InterpretVolMgtStuff(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
-    int length, numdisks, i, j;
+    unsigned length, numdisks, i, j;
 
-    numdisks = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_fmp_number_of_disk, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fmp_number_of_disk, tvb, offset, 4, ENC_BIG_ENDIAN, &numdisks);
     offset += 4;
 
     for (i=0; i<numdisks; i++) {
         offset = dissect_rpc_uint64(tvb, tree, hf_fmp_sig_offset, offset);
-        length = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(tree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
         offset += 4;
 
         for (j=0; j<length; j++) {
@@ -583,7 +581,7 @@ dissect_fmp_devSerial(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_fmp_VolumeDescription(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree * tree)
 {
-    int                    i,length;
+    unsigned               i,length;
     proto_tree            *Hietree;
     proto_item            *ti;
     fmpVolumeType          volumeType;
@@ -606,8 +604,7 @@ dissect_fmp_VolumeDescription(tvbuff_t *tvb, packet_info* pinfo, int offset, pro
         switch (diskIdentifierType) {
         case FMP_DISK_IDENTIFIER_SIGNATURE:
             offset = dissect_rpc_uint64(tvb, Hietree, hf_fmp_sig_offset,  offset);
-            length = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(Hietree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(Hietree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
             offset += 4;
 
             for (i=0; i<length; i++) {
@@ -640,8 +637,7 @@ dissect_fmp_VolumeDescription(tvbuff_t *tvb, packet_info* pinfo, int offset, pro
         offset = dissect_rpc_uint32(tvb, Hietree, hf_fmp_volID, offset);
 
         offset = dissect_rpc_uint64(tvb, Hietree, hf_fmp_stripeSize, offset);
-        length = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(Hietree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(Hietree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
         offset += 4;
 
         for (i=0; i<length; i++) {
@@ -653,8 +649,7 @@ dissect_fmp_VolumeDescription(tvbuff_t *tvb, packet_info* pinfo, int offset, pro
     case FMP_VOLUME_META:
         offset = dissect_rpc_uint32(tvb, Hietree, hf_fmp_volID, offset);
 
-        length = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(Hietree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(Hietree, hf_fmp_length_of_list, tvb, offset, 4, ENC_BIG_ENDIAN, &length);
         offset += 4;
         for (i=0; i<length; i++) {
             offset = dissect_rpc_uint32(tvb, Hietree, hf_fmp_volume, offset); /* FIXME: Size or length not know */
@@ -670,8 +665,7 @@ dissect_fmp_VolumeDescription(tvbuff_t *tvb, packet_info* pinfo, int offset, pro
 static int
 dissect_fmp_Hiervolume(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree * tree)
 {
-
-    int vollength;
+    unsigned vollength;
 
     offset = dissect_rpc_uint32(tvb, tree, hf_fmp_topVolumeId, offset);
     offset = dissect_rpc_uint32(tvb, tree, hf_fmp_cursor, offset);
@@ -688,15 +682,14 @@ dissect_fmp_Hiervolume(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree
        server is then responsible for sending another message containing
        additional volumes.  These RPCs exchanges may continue multiple
        times, until the client has fetched the entire hierarchical
-       volume description.  If the volume hierarchy changes duing a
+       volume description.  If the volume hierarchy changes during a
        multiple RPC sequence, the server will return an
        FMP_VOLUME_CHANGED error, and the client must discard all
        information already received and restart the request with
        FMP_Mount.
     */
 
-    vollength = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_fmp_length_of_volume_list, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_fmp_length_of_volume_list, tvb, offset, 4, ENC_BIG_ENDIAN, &vollength);
     offset += 4;
     while (vollength) {
         offset =  dissect_fmp_VolumeDescription(tvb, pinfo, offset, tree);

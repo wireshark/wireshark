@@ -1978,14 +1978,7 @@ static const value_string amqp_0_10_struct_delivery_properties_modes [] = {
     {0, NULL}
 };
 
-static const value_string amqp_0_10_file_return_codes [] = {
-    {311,    "content-too-large"},
-    {312,    "no-route"},
-    {313,    "no-consumers"},
-    {0, NULL}
-};
-
-static const value_string amqp_0_10_stream_return_codes [] = {
+static const value_string amqp_0_10_file_stream_return_codes [] = {
     {311,    "content-too-large"},
     {312,    "no-route"},
     {313,    "no-consumers"},
@@ -12226,7 +12219,7 @@ proto_register_amqp(void)
             "Request immediate delivery", HFILL}},
         {&hf_amqp_0_10_method_file_return_reply_code, {
             "Reply-code", "amqp.file.return.reply-code",
-            FT_UINT16, BASE_DEC, VALS(amqp_0_10_file_return_codes), 0x0,
+            FT_UINT16, BASE_DEC, VALS(amqp_0_10_file_stream_return_codes), 0x0,
             NULL, HFILL}},
         {&hf_amqp_0_10_method_file_return_reply_text, {
             "Reply-text", "amqp.file.return.reply-text",
@@ -12332,7 +12325,7 @@ proto_register_amqp(void)
             "Request immediate delivery", HFILL}},
         {&hf_amqp_0_10_method_stream_return_reply_code, {
             "Reply-code", "amqp.stream.return.reply-code",
-            FT_UINT16, BASE_DEC, VALS(amqp_0_10_stream_return_codes), 0x0,
+            FT_UINT16, BASE_DEC, VALS(amqp_0_10_file_stream_return_codes), 0x0,
             NULL, HFILL}},
         {&hf_amqp_0_10_method_stream_return_reply_text, {
             "Reply-text", "amqp.stream.return.reply-text",

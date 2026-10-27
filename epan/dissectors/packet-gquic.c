@@ -1487,8 +1487,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, uns
 
                 proto_tree_add_item(tag_tree, hf_gquic_tag_scfg, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII);
                 tag_offset += 4;
-                proto_tree_add_item(tag_tree, hf_gquic_tag_scfg_number, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
-                scfg_tag_number = tvb_get_uint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(tag_tree, hf_gquic_tag_scfg_number, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN, &scfg_tag_number);
                 tag_offset += 4;
 
                 dissect_gquic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number);
@@ -1801,8 +1800,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
 
                 proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_cc_error_code, tvb, offset, 4, gquic_info->encoding, &error_code);
                 offset += 4;
-                proto_tree_add_item(ft_tree, hf_gquic_frame_type_cc_reason_phrase_length, tvb, offset, 2, gquic_info->encoding);
-                len_reason = tvb_get_uint16(tvb, offset, gquic_info->encoding);
+                proto_tree_add_item_ret_uint16(ft_tree, hf_gquic_frame_type_cc_reason_phrase_length, tvb, offset, 2, gquic_info->encoding, &len_reason);
                 offset += 2;
                 proto_tree_add_item(ft_tree, hf_gquic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII);
                 offset += len_reason;
@@ -1818,8 +1816,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 offset += 4;
                 proto_tree_add_item_ret_uint(ft_tree, hf_gquic_frame_type_goaway_last_good_stream_id, tvb, offset, 4, gquic_info->encoding, &last_good_stream_id);
                 offset += 4;
-                proto_tree_add_item(ft_tree, hf_gquic_frame_type_goaway_reason_phrase_length, tvb, offset, 2, gquic_info->encoding);
-                len_reason = tvb_get_uint16(tvb, offset, gquic_info->encoding);
+                proto_tree_add_item_ret_uint16(ft_tree, hf_gquic_frame_type_goaway_reason_phrase_length, tvb, offset, 2, gquic_info->encoding, &len_reason);
                 offset += 2;
                 proto_tree_add_item(ft_tree, hf_gquic_frame_type_goaway_reason_phrase, tvb, offset, len_reason, ENC_ASCII);
                 offset += len_reason;

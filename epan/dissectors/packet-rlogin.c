@@ -161,7 +161,7 @@ rlogin_state_machine(rlogin_hash_entry_t *hash_info, tvbuff_t *tvb, packet_info 
 
 		/* Copy string into hash name */
 		/* POSIX-2024 strongly recommends that user names be composed of
-		 * characteers from the portable filename character set and that
+		 * characters from the portable filename character set and that
 		 * the first character cannot be '-'. We could check this with
 		 * module_check_valid_name and add an expert info in the tree,
 		 * since that's exactly what that function tests. (There's also
