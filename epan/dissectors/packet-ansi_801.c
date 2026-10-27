@@ -483,15 +483,13 @@ for_pr_gps_sense_ass(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 
 	proto_tree_add_item(tree, hf_ansi_801_ref_bit_num, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_ansi_801_num_dr_p, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
-
 	proto_tree_add_item(tree, hf_ansi_801_dr_size, tvb, offset, 3, ENC_BIG_ENDIAN);
-	offset++;
+	offset += 2;
 
 	proto_tree_add_item(tree, hf_ansi_801_part_num, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_ansi_801_total_parts, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_ansi_801_data_records, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset++;
+	offset += 2;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);
 }
@@ -1032,11 +1030,11 @@ rev_pr_can_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len
 
 static void (* const for_req_type_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned len, uint32_t offset) = {
 	NULL, /* Reserved */
+	for_req_loc_response,	/* Request Location Response */
 	NULL, /* no data */	/* Request MS Information */
 	NULL, /* no data */	/* Request Autonomous Measurement Weighting Factors */
 	for_req_pseudo_meas,	/* Request Pseudorange Measurement */
 	for_req_pilot_ph_meas,	/* Request Pilot Phase Measurement */
-	for_req_loc_response,	/* Request Location Response */
 	for_req_time_off_meas,	/* Request Time Offset Measurement */
 	for_req_cancel,		/* Request Cancellation */
 	NULL, /* NONE */
@@ -1346,7 +1344,8 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if ((pd_msg_type != 0x00) &&
 	    (pd_msg_type != 0x01))
 	{
-		proto_tree_add_item(tree, hf_ansi_801_proprietary_data, tvb, offset, -1, ENC_NA);
+		if (tvb_reported_length_remaining(tvb, offset) > 0)
+			proto_tree_add_item(tree, hf_ansi_801_proprietary_data, tvb, offset, -1, ENC_NA);
 		return;
 	}
 
@@ -1363,10 +1362,9 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		offset += 2;
 
 		oct = tvb_get_uint8(tvb, offset);
-		num_rsp = oct & 0xf0;
+		num_rsp = (oct & 0xf0) >> 4;
 
 		proto_tree_add_item(tree, hf_ansi_801_for_message_number_responsesF0, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
 	}
 	else
 	{
@@ -1467,7 +1465,8 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if ((pd_msg_type != 0x00) &&
 	    (pd_msg_type != 0x01))
 	{
-		proto_tree_add_item(tree, hf_ansi_801_proprietary_data, tvb, offset, -1, ENC_NA);
+		if (tvb_reported_length_remaining(tvb, offset) > 0)
+			proto_tree_add_item(tree, hf_ansi_801_proprietary_data, tvb, offset, -1, ENC_NA);
 		return;
 	}
 
@@ -1484,7 +1483,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		offset += 2;
 
 		oct = tvb_get_uint8(tvb, offset);
-		num_rsp = oct & 0xf0;
+		num_rsp = (oct & 0xf0) >> 4;
 
 		proto_tree_add_item(tree, hf_ansi_801_rev_message_number_responsesF0, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
