@@ -25381,6 +25381,18 @@ class TestDissectMstp:
                                   'icmpv6.checksum.status')
         assert stdout.strip() == '1'
 
+    def test_mstp_6lowpan_iids(self, cmd_tshark, capture_file, test_env):
+        '''IIDs elided by 6LoWPAN are derived from the MS/TP addresses
+        (RFC 8163), so the addresses, and the ICMPv6 checksums that cover
+        them, are right.'''
+        stdout = self.mstp_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number == 12 || frame.number == 13',
+                                  'ipv6.src', 'ipv6.dst', 'icmpv6.checksum.status')
+        assert stdout.splitlines() == [
+            'aaaa::ff:fe00:2\taaaa::ff:fe00:3\t1',
+            'aaaa::ff:fe00:3\taaaa::ff:fe00:2\t1',
+        ]
+
 
 class TestDissectCip:
     def test_cip_protocols(self, cmd_tshark, capture_file, test_env):

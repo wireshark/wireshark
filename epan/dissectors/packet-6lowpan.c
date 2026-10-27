@@ -22,6 +22,7 @@
 #include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/addr_resolv.h>
+#include <epan/address_types.h>
 #include <epan/proto_data.h>
 #include <epan/etypes.h>
 #include <epan/tfs.h>
@@ -586,6 +587,9 @@ static bool rfc4944_short_address_format;
 static bool iid_has_universal_local_bit;
 static bool ipv6_summary_in_tree = true;
 
+/* BACnet MS/TP addresses (RFC 8163), registered by the MS/TP dissector */
+static int mstp_address_type = -1;
+
 /* Helper macro to convert a bit offset/length into a byte count. */
 #define BITS_TO_BYTE_LEN(bitoff, bitlen)    ((bitlen)?(((bitlen) + ((bitoff)&0x07) + 7) >> 3):(0))
 
@@ -960,6 +964,10 @@ lowpan_dlsrc_to_ifcid(packet_info *pinfo, uint8_t *ifcid)
     } else if (pinfo->dl_src.type == AT_ETHER) {
         lowpan_addr48_to_ifcid((const uint8_t *)pinfo->dl_src.data, ifcid);
         return true;
+    } else if (pinfo->dl_src.type == mstp_address_type && pinfo->dl_src.len == 1) {
+        /* RFC 8163: 00 00 00 ff fe 00 00 followed by the MS/TP MAC address */
+        lowpan_addr16_to_ifcid(*(const uint8_t *)pinfo->dl_src.data, ifcid);
+        return true;
     }
 
     /* Lookup the IEEE 802.15.4 addressing hints. */
@@ -1008,6 +1016,10 @@ lowpan_dldst_to_ifcid(packet_info *pinfo, uint8_t *ifcid)
         return true;
     } else if (pinfo->dl_dst.type == AT_ETHER) {
         lowpan_addr48_to_ifcid((const uint8_t *)pinfo->dl_dst.data, ifcid);
+        return true;
+    } else if (pinfo->dl_dst.type == mstp_address_type && pinfo->dl_dst.len == 1) {
+        /* RFC 8163: 00 00 00 ff fe 00 00 followed by the MS/TP MAC address */
+        lowpan_addr16_to_ifcid(*(const uint8_t *)pinfo->dl_dst.data, ifcid);
         return true;
     }
 
@@ -3764,6 +3776,7 @@ proto_reg_handoff_6lowpan(void)
 {
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_6lowpan);
     proto_ieee802154 = proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN);
+    mstp_address_type = address_type_get_by_name("AT_MSTP");
 
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */
     dissector_add_for_decode_as(IEEE802154_PROTOABBREV_WPAN_PANID, handle_6lowpan);
