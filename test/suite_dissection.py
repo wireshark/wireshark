@@ -6800,3 +6800,122 @@ class TestDissectAodv:
             ), encoding='utf-8', env=test_env)
         # The expert info is in the Malformed group, but no exception follows it
         assert stdout == '1\t1\t5\t\t\n2\t1\t9\t\t\n'
+
+
+class TestDissectAol:
+    def test_aol_types(self, cmd_tshark, capture_file, test_env):
+        '''Every P3 frame type is dissected on port 5190 without Decode As,
+        with no malformed packets and no errors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aol_coverage.pcap.gz'),
+                '-Y', 'aol',
+                '-Tfields', '-eaol.type',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 38
+        types = stdout.replace('\n', ',').rstrip(',').split(',')
+        assert len(types) == 43
+        assert types.count('0x20') == 15    # Data
+        assert types.count('0x21') == 3     # SS Request
+        assert types.count('0x22') == 2     # SS Response
+        assert types.count('0x23') == 8     # Init
+        assert types.count('0x24') == 5     # ACK
+        assert types.count('0x25') == 2     # NAK
+        assert types.count('0x26') == 6     # Heartbeat
+        assert types.count('0x27') == 1     # unknown
+        assert types.count('0x3f') == 1     # unknown
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aol_coverage.pcap.gz'),
+                '-Y', 'aim',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('aol_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_aol_init(self, cmd_tshark, capture_file, test_env):
+        '''INIT in each layout: WAOL 1.5 (no filler), later versions (filler),
+        4.0 (unparsed tail) and one octet short (end marker missing).
+        aol.init.win_ver holds the Windows version, not the DOS version
+        (frame 61 is the batch46-55 reproducer: DOS 6.22, Windows 10.0).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aol_coverage.pcap.gz'),
+                '-Y', 'aol.type == 0x23 && aol.init_data',
+                '-Tfields', '-eframe.number', '-eaol.init.platform',
+                '-eaol.init.dos_ver', '-eaol.init.win_ver', '-eaol.init.filler',
+                '-eaol.init.conn_spd', '-eaol.udata', '-eaol.end_missing',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t0x03\t0x0616\t0x0000030a\t0x00\t0x05\t\t',
+            '31\t0x0c\t0x0616\t0x0000030a\t\t0x05\t\t',
+            '32\t0x03\t0x0616\t0x00000400\t\t\t000102030405060708090a0b0c0d0e\t',
+            '33\t0x07\t0x0700\t0x00000500\t0x01\t0x05\t\t',
+            '34\t0x03\t0x0616\t0x0000030a\t0x00\t0x05\t\t',
+            '35\t0x03\t0x0616\t0x0000030a\t\t0x0d\t\t1',
+            '61\t0x03\t0x0616\t0x00000a00\t0x00\t0x05\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aol_coverage.pcap.gz'),
+                '-Y', 'aol.init.win_ver == 0x0a00',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '61\n'
+
+    def test_aol_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''PDUs split across segments (also inside the fixed header) are
+        reassembled, and several PDUs in one segment are all dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aol_coverage.pcap.gz'),
+                '-Y', 'aol && tcp.stream == 2',
+                '-Tfields', '-eframe.number', '-eaol.len', '-eaol.token',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '45\t305\tAb',
+            '47\t17\tCd',
+            '49\t3\t',
+            '50\t3,8,3,8\tEf,Gh',
+            '51\t3,3\t',
+            '52\t55,3\tIj',
+            '53\t3\t',
+            '54\t85\tKl',
+        ]
+
+    def test_aol_desegment_pref(self, cmd_tshark, capture_file, test_env):
+        '''With aol.desegment off, the first segment of a split PDU is
+        dissected alone and reported as unreassembled.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'aol.desegment:FALSE',
+                '-r', capture_file('aol_coverage.pcap.gz'),
+                '-Y', 'aol && _ws.unreassembled',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '43\n48\n51\n53\n65\n67\n'
+
+    def test_aol_tcp_port_pref(self, cmd_tshark, capture_file, test_env):
+        '''The last connection is AOL on port 15190, dissected only once
+        the port is added to the preference.'''
+        def alt_port(*opts):
+            return subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('aol_coverage.pcap.gz'),
+                    '-Y', 'aol && tcp.port == 15190',
+                    '-Tfields', '-eaol.token',
+                ), encoding='utf-8', env=test_env)
+        assert alt_port() == ''
+        assert alt_port('-o', 'aol.tcp.port:5190,15190') == 'Pq\nRs\n'
+
+    def test_aol_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes give the same AOL output; the frame
+        with a 65535 octet length is left waiting for its data.'''
+        def aol_info(*opts):
+            return subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('aol_coverage.pcap.gz'),
+                    '-Y', 'aol || frame.number == 67',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', '-eaol.len',
+                ), encoding='utf-8', env=test_env)
+        one_pass = aol_info()
+        assert one_pass == aol_info('-2')
+        assert one_pass.splitlines()[-1].startswith('67\t40000 → 5190 [PSH, ACK]')
