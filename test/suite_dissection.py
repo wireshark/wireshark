@@ -6476,3 +6476,212 @@ class TestDissectAnsiTcap:
                 '-eansi_tcap.display_text',
             ), encoding='utf-8', env=test_env)
         assert stdout == '-5\t\t\n\tALICE\t\n\t\tHELLO\n'
+
+
+class TestDissectTcap:
+    def test_tcap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, dialogue PDU and component type, selected by
+        application context, SSN or the data fallback, decodes without
+        malformed packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 139
+        assert protocols.count('GSM MAP') == 99
+        assert protocols.count('TCAP') == 27
+        assert protocols.count('Camel-v2') == 4
+        assert protocols.count('Camel') == 2
+        assert protocols.count('INAP') == 3
+        assert protocols.count('ANSI TCAP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tcap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tcap_too_many_components(self, cmd_tshark, capture_file, test_env):
+        '''A Begin with 600 GSM MAP invokes (frame 138) used to fail the
+        layer limit assertion in call_dissector_work(). The components are
+        handed to GSM MAP until the frame is 16 layers from the limit, the
+        rest get a warning. Frame 139 has 520 components for the data
+        dissector and then one of every component type and problem code,
+        which TCAP dissects itself once the limit is near.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {138, 139}',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-e_ws.expert.message', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        frames = {}
+        for line in stdout.splitlines():
+            number, protos, experts = line.split('\t')
+            frames[number] = (protos.split(':'), experts.split('|'))
+        for number, proto, total in (('138', 'gsm_map', 600), ('139', 'data', 549)):
+            protos, experts = frames[number]
+            assert set(experts) == {'Too many components in one message, not dissected'}
+            assert protos.count(proto) >= 470
+            assert protos.count(proto) + len(experts) == total
+        # The first ~480 invokes of the reproducer are GSM MAP mo-forwardSM
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 138',
+                '-Tfields', '-egsm_old.localValue', '-egsm_old.invokeID',
+            ), encoding='utf-8', env=test_env)
+        opcodes, invoke_ids = stdout.strip('\n').split('\t')
+        opcodes = opcodes.split(',')
+        assert len(opcodes) >= 470 and set(opcodes) == {'46'}
+        assert invoke_ids.split(',')[:3] == ['0', '1', '2']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 139',
+                '-Tfields', '-etcap.generalProblem', '-etcap.invokeProblem',
+                '-etcap.returnResultProblem', '-etcap.returnErrorProblem',
+                '-etcap.nationaler', '-etcap.privateer', '-etcap.linkedID',
+                '-etcap.globalValue', '-etcap.constructor_eoc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip('\n').split('\t') == [
+            '0,1,2', '0,1,2,3,4,5,6,7', '0,1,2', '0,1,2,3,4', '-300', '70000',
+            '1', '0.4.0.0.1.2.3', '0x0000']
+
+    def test_tcap_subdissector(self, cmd_tshark, capture_file, test_env):
+        '''The components go to the subdissector of the application context
+        (also when only an earlier message of the transaction had it, or
+        the response changes it), else that of the called SSN, else data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        last = {}
+        for line in stdout.splitlines():
+            number, protos = line.split('\t')
+            last[int(number)] = protos.split(':')[-1]
+        for numbers, proto in (
+                # by ACN; dialogue-only Begin, then components without dialogue
+                ((1, 2, 22, 23), 'gsm_map'),
+                # unknown ACN: GSM MAP by SSN 6, data at SSN 10/11
+                ((26, 27, 30, 31), 'gsm_map'),
+                ((28, 29, 32, 33, 36, 38), 'data'),
+                # Unidirectional by ACN and by SSN
+                ((34, 35, 37), 'gsm_map'),
+                # CAMEL by ACN and by SSN 146, INAP by SSN 106 and by ACN
+                ((111, 112, 114, 115, 117, 118), 'camel'),
+                ((119, 120, 121), 'inap'),
+                # dialogue only, aborts
+                ((21, 24, 89, 102, 122), 'tcap'),
+                # ANSI TCAP through the ITU TCAP dissector
+                ((125,), 'ansi_tcap'),
+                # SSN 20/21: not TCAP without an SCCP users table entry
+                ((43, 44), 'data'),
+                ):
+            for number in numbers:
+                assert last[number] == proto, number
+        # The SCCP users table hands SSN 20 at PC 808 to GSM MAP over TCAP
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'uat:sccp_users:"2","808","20","GSM MAP"',
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {43, 44}',
+                '-Tfields', '-e_ws.col.info', '-etcap.srt.session_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'invoke sendAuthenticationInfo \t14,14',
+            'returnResultLast sendAuthenticationInfo \t14,14',
+        ]
+
+    def test_tcap_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Begin, Continue, End and Abort are matched into sessions: by the
+        Begin key, the Continue key in both directions, the End key; a
+        Continue from the initiator; SUA (IP addresses instead of point
+        codes); TIDs reused after an End, after the repetition and the lost
+        timeouts, or by other nodes; a duplicate Begin; unmatched messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-etcap.srt.session_id',
+                '-etcap.srt.end', '-etcap.srt.duplicate', '-etcap.srt.sessiontime',
+                '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        srt = {}
+        for line in stdout.splitlines():
+            number, *fields = line.split('\t')
+            srt[int(number)] = fields
+        for number, fields in (
+                (2, ['1', '1', '', '0.250000000']),       # End answers the Begin
+                (6, ['2', '3', '', '0.750000000']),       # Begin/Continue/Continue/End
+                (13, ['4', '12', '', '0.250000000']),     # U-Abort
+                (23, ['8', '20', '', '0.750000000']),     # dialogue-only Begin
+                (46, ['', '', '45', '']),                 # duplicate of frame 45 (session 14)
+                (47, ['14', '45', '', '2.250000000']),
+                (49, ['15', '48', '', '0.250000000']),    # TID reused after the End
+                (51, ['16', '50', '', '0.250000000']),
+                (56, ['19', '', '', '']),                 # after the repetition timeout
+                (58, ['20', '', '', '']),                 # unanswered
+                (60, ['21', '59', '', '0.250000000']),    # after the lost timeout
+                (63, ['22', '61', '', '0.500000000']),    # Continue from the initiator
+                (66, ['', '', '', '']),                   # second responder, not matched
+                (82, ['26', '78', '', '1.000000000']),    # Continue TIDs reused
+                (85, ['27', '83', '', '0.500000000']),    # same TIDs, other nodes
+                (86, ['', '', '', '']),                   # retransmitted End
+                (87, ['', '', '', '']),
+                (40, ['', '', '', '']),                   # End without a Begin
+                (130, ['45', '127', '', '0.750000000']),  # SUA
+                (132, ['46', '131', '', '0.250000000']),
+                (135, ['47', '133', '', '0.500000000']),
+                ):
+            assert srt[number] == fields, number
+        # The duplicate is shown as such
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Y', 'tcap.srt.duplicate',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['46']
+        # With a longer lost timeout the unanswered Begin's TID reused 35 s
+        # later is a duplicate too
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'tcap.losttimeout:60',
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Y', 'tcap.srt.duplicate',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['46', '59']
+        # Two passes: the Begin links to the frame that ends its session
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3, 68}',
+                '-Tfields', '-etcap.srt.begin', '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['2', '6', '72']
+
+    def test_tcap_dialogue(self, cmd_tshark, capture_file, test_env):
+        '''Dialogue portion: AARE results and diagnostics (ACN fallback),
+        P-Abort causes, ABRT sources, and dialogue PDUs nested in the user
+        information.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Y', 'tcap.p_abortCause || tcap.abort_source || tcap.result == 1',
+                '-Tfields', '-eframe.number', '-etcap.p_abortCause',
+                '-etcap.abort_source', '-etcap.dialogue_service_user',
+                '-etcap.dialogue_service_provider',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\t\t\t2\t',      # application-context-name-not-supported
+            '89\t0\t\t\t', '91\t1\t\t\t', '93\t2\t\t\t', '95\t3\t\t\t', '97\t4\t\t\t',
+            '100\t\t0\t\t', '102\t\t1\t\t',
+            '104\t\t\t\t2', '108\t\t\t\t1', '110\t\t\t1\t',
+            '116\t\t0\t\t',     # CAMEL, with a CAP U-Abort reason
+            '132\t4\t\t\t',     # SUA
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 39',
+                '-Tfields', '-etcap.UniDialoguePDU', '-etcap.DialoguePDU',
+                '-etcap.aarq_application_context_name',
+                '-etcap.audt_application_context_name',
+            ), encoding='utf-8', env=test_env)
+        # The outer AUDT is dissected as an AARQ (same tag), the nested AUDT
+        # as a UniDialoguePDU
+        assert stdout.strip('\n').split('\t') == [
+            '0', '0', '0.4.0.0.1.0.21.2,0.4.0.0.1.0.19.2', '0.4.0.0.1.0.21.2']
