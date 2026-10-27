@@ -111,7 +111,6 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "display_filter_expression_dialog.h"
 #include "dissector_tables_dialog.h"
-#include "distribution_dialog.h"
 #include "endpoint_dialog.h"
 #include "expert_info_dialog.h"
 #include "export_object_action.h"
@@ -3774,7 +3773,7 @@ void WiresharkMainWindow::openIOGraph(bool filtered, QVector<uint> typed_conv_id
     QVector<QString> conv_filters;
 
     /* maximum number of graphs to open (too many might break the dialog) */
-    uint max_conv = 10;
+    const uint max_conv = maxIOGraphFilters;
     uint count_conv = 0;
 
     /* the list received should contain at least 2 elements (conv type + conv ids) */
@@ -3820,8 +3819,13 @@ void WiresharkMainWindow::openIOGraph(bool filtered, QVector<uint> typed_conv_id
         }
     }
 
+    showIOGraphDialogForFilters(displayFilter, conv_filters);
+}
+
+void WiresharkMainWindow::showIOGraphDialogForFilters(const QString &displayFilter, const QVector<QString> &filters, const QVector<QString> &names)
+{
     IOGraphDialog *iog_dialog = new IOGraphDialog(*this, capture_file_, "Packets");
-    iog_dialog->initialize(*this, io_graph_packet_fields, displayFilter, IOG_ITEM_UNIT_PACKETS, QString(), true, conv_filters);
+    iog_dialog->initialize(*this, io_graph_packet_fields, displayFilter, IOG_ITEM_UNIT_PACKETS, QString(), true, filters, names);
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
 }
@@ -4253,18 +4257,6 @@ void WiresharkMainWindow::showEndpointsDialog()
             });
     connect(endp_dialog, &EndpointDialog::openTcpStreamGraph, this, &WiresharkMainWindow::openTcpStreamDialog);
     endp_dialog->show();
-}
-
-void WiresharkMainWindow::showDistributionDialog(const QString &abbreviation)
-{
-    DistributionDialog *dis_dialog = new DistributionDialog(*this, capture_file_, abbreviation);
-    dis_dialog->show();
-    connect(dis_dialog, &DistributionDialog::filterAction, this, &WiresharkMainWindow::filterAction);
-}
-
-void WiresharkMainWindow::showDistributionDialog()
-{
-    showDistributionDialog(QString());
 }
 
 void WiresharkMainWindow::externalMenuItemTriggered()

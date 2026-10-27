@@ -116,6 +116,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/rtp_audio_silence_generator.h
 	utils/software_update.h
 	utils/software_update_backend.h
+	utils/stat_table_exporter.h
 	utils/theme_manager.h
 	utils/zoom_scaling.h
 	utils/theme_styler.h
@@ -164,6 +165,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/decode_as_delegate.h
 	models/decode_as_model.h
 	models/dissector_tables_model.h
+	models/distribution_model.h
 	models/enabled_protocols_model.h
 	models/expert_info_model.h
 	models/expert_info_proxy_model.h
@@ -507,6 +509,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/rtp_audio_silence_generator.cpp
 	utils/software_update.cpp
 	${WIRESHARK_SOFTWARE_UPDATE_PLATFORM_SRC}
+	utils/stat_table_exporter.cpp
 	utils/theme_manager.cpp
 	utils/zoom_scaling.cpp
 	utils/zoom_scaling_widgets.cpp
@@ -552,6 +555,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/decode_as_delegate.cpp
 	models/decode_as_model.cpp
 	models/dissector_tables_model.cpp
+	models/distribution_model.cpp
 	models/enabled_protocols_model.cpp
 	models/expert_info_model.cpp
 	models/expert_info_proxy_model.cpp
@@ -807,6 +811,7 @@ set(WIRESHARK_QT_UI
 	decode_as_dialog.ui
 	display_filter_expression_dialog.ui
 	dissector_tables_dialog.ui
+	distribution_dialog.ui
 	enabled_protocols_dialog.ui
 	expert_info_dialog.ui
 	export_object_dialog.ui

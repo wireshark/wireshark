@@ -10,735 +10,576 @@
 #include "config.h"
 
 #include "distribution_dialog.h"
+#include <ui_distribution_dialog.h>
 
-#include <cmath>
-
-#include <QTreeWidget>
-#include <QTreeWidgetItem>
-
-#include <epan/packet.h>
-#include <epan/strutil.h>
-#include <epan/tap.h>
+#include <app/application_flavor.h>
 #include <epan/epan_dissect.h>
+#include <epan/tap.h>
+#include <wsutil/utf8_entities.h>
 
 #include "main_application.h"
-#include "ui/qt/ui_tap_parameter_dialog.h"
+#include "main_window.h"
+#include "progress_frame.h"
+#include <ui/qt/models/distribution_model.h>
+#include <ui/qt/models/percent_bar_delegate.h>
+#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/plot_theme.h>
+#include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/widgets/qcustomplot.h>
 
-// To do:
-// - checkbox for 'Limit to display filter'
-// - clarify/document why total of percentages may be more than 100, as it may not be intuitive for everyone
-// - handle marginal distributions values
-// - enhance column sorting
-// - convert displayed numeric values to strings if the user wants this
-// - filter field suggestions works for the 1st token only, would be cool to have it working for more
+#include <QClipboard>
+#include <QEvent>
+#include <QFontMetrics>
+#include <QHeaderView>
+#include <QItemSelectionModel>
+#include <QLabel>
+#include <QMenu>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QSortFilterProxyModel>
+#include <QTimer>
+#include <QVBoxLayout>
 
-enum {
-    col_fvalue_,
-    col_counter_,
-    col_percent_
-};
-
-/*
- * Some aggregated FTs as if they were coming from an FT_IS_ macro.
- * Helps sorting the Field Name column.
- */
-enum {
-    AGG_FT_INT,
-    AGG_FT_STRING,
-    AGG_FT_IP
-};
-
-struct _tap_elts {
-    int count;
-    QTreeWidgetItem *item;
-};
-
-/* map key definition (key width and "modalities" (values) seen */
-typedef struct {
-    guint n;
-    const char **modalities;
-} dist_key_t;
-
-/* compute a hash with the good old 31 multiplier */
-static guint dist_key_hash(gconstpointer p)
+DistributionDialog::DistributionDialog(QWidget &parent, CaptureFile &cf, const QString &fields) :
+    WiresharkDialog(parent, cf),
+    ui(new Ui::DistributionDialog),
+    model_(new DistributionModel(this)),
+    proxy_(new QSortFilterProxyModel(this)),
+    percent_delegate_(nullptr),
+    percent_column_(-1),
+    empty_hint_label_(nullptr),
+    copy_button_(nullptr),
+    save_button_(nullptr),
+    io_graph_button_(nullptr),
+    chart_bars_(nullptr),
+    chart_sized_(false),
+    columns_sized_(false)
 {
-    const dist_key_t *k = (const dist_key_t *) p;
-    guint h = 0;
+    ui->setupUi(this);
 
-    for (guint i = 0; i < k->n; i++)
-        h = h * 31 + wmem_str_hash(k->modalities[i]);
-
-    return h;
-}
-
-/* hash key equality */
-static gboolean dist_key_equal(gconstpointer a, gconstpointer b)
-{
-    const dist_key_t *ka = (const dist_key_t *) a;
-    const dist_key_t *kb = (const dist_key_t *) b;
-
-    if (ka->n != kb->n)
-        return FALSE;
-
-    for (guint i = 0; i < ka->n; i++) {
-        if (strcmp(ka->modalities[i], kb->modalities[i]) != 0)
-            return FALSE;
-    }
-
-    return TRUE;
-}
-
-/* Increment the observation counter for a given key.
- * Insert a new key when necessary.
- */
-static void dist_map_add_observation(wmem_map_t *map, wmem_allocator_t *alloc,
-                           const char *const *vals, guint n)
-{
-    // key to look for in the map
-    dist_key_t probe;
-    probe.n = n;
-    probe.modalities = (const char **) vals;
-
-    guint64 *count = (guint64 *) wmem_map_lookup(map, &probe);
-    if (count) {
-        (*count)++;
-        return;
-    }
-
-    /* key wasn't found, create one and add it to the map */
-    dist_key_t *key = wmem_new(alloc, dist_key_t);
-    const char **copy = (const char **) wmem_alloc(alloc, n * sizeof(const char *));
-    for (guint i = 0; i < n; i++)
-        copy[i] = wmem_strdup(alloc, vals[i]);
-    key->n = n;
-    key->modalities = copy;
-
-    count = wmem_new(alloc, guint64);
-    *count = 1;
-
-    wmem_map_insert(map, key, count);
-}
-
-/*
- * Return true if the given field supports this distribution stats, false otherwise.
- */
-static int
-hfi_supports_distribution(const header_field_info *hfi) {
-    if (FT_IS_STRING(hfi->type)) {
-        return FT_STRING;
-    }
-    else if(FT_IS_INTEGER(hfi->type))  {
-        return FT_INT32;
-    }
-    else {
-        switch (hfi->type) {
-        case FT_IPv4:
-        case FT_IPv6:
-            return FT_IPv4;
-        default:
-            /* not supported FT, return false */
-            return 0;
-        }
-    }
-}
-
-static gboolean
-alwaysTrue(void *key _U_, void *value _U_, void *data _U_) {
-    return true;
-}
-
-/* Normalized Shannon */
-double normalized_shannon(const int *freq, size_t n_symbols, size_t total) {
-
-    /* ensure we have enough data or there's not much sense to compute */
-    if (total == 0 || n_symbols < 2) {
-        return 0.0;
-    }
-
-    double H = 0.0;
-    for (size_t i = 0; i < n_symbols; i++) {
-        if (freq[i] == 0) continue;
-        double p = (double)freq[i] / (double)total;
-        H -= p * log2(p);
-    }
-
-    return H / log2((double)n_symbols);
-}
-
-/* Append a string to a list which stores only unique values (like QSet, but lighter) */
-static void append_unique(QStringList &list, const char *value)
-{
-    QString s = QString::fromUtf8(value);
-    if (!list.contains(s)) {
-        list.append(s);
-    }
-}
-
-class DistributionStatTreeWidgetItem : public QTreeWidgetItem
-{
-public:
-    DistributionStatTreeWidgetItem(QTreeWidget *parent, const QStringList &modalities,
-                                   const QList<int> &field_types) :
-        QTreeWidgetItem(parent), modalities_(modalities), field_types_(field_types)
-    {
-        for (int i = 0; i < modalities_.size(); i++)
-            setText(i, modalities_[i]);
-    }
-
-    int counterColumn() const { return static_cast<int>(modalities_.size()); }
-    int percentColumn() const { return static_cast<int>(modalities_.size()) + 1; }
-
-    bool isMatch(const QStringList &modalities) const { return modalities == modalities_; }
-
-    bool operator<(const QTreeWidgetItem &other) const override
-    {
-        const DistributionStatTreeWidgetItem *o =
-            static_cast<const DistributionStatTreeWidgetItem *>(&other);
-        const int col = treeWidget()->sortColumn();
-        if (col < 0) return QTreeWidgetItem::operator<(other);
-
-        switch (columnKind(col)) {
-        case ColCount:
-            return count_ < o->count_;
-        case ColPercent:
-            return percent_ < o->percent_;
-        case ColModality:
-            /* typically sorting based on an aggregate FT value */
-            switch (field_types_[col]) {
-            case AGG_FT_INT:
-                return modalities_[col].toLongLong() < o->modalities_[col].toLongLong();
-
-            /* no specific handling for Strings and IPs,
-             * though the latter would benefit of a better sorting (XXX - same in endpoints/conversations ) */
-            case AGG_FT_STRING:
-            case AGG_FT_IP:
-            default:
-                break;
-            }
-            break;
-        }
-        return QTreeWidgetItem::operator<(other);
-    }
-
-    void update(guint64 new_count) {
-        count_ = new_count;
-        setText(counterColumn(), QString::number(count_));
-        setTextAlignment(counterColumn(), Qt::AlignRight);
-    }
-
-    void updatePercentage(guint64 total) {
-        percent_ = total ? count_ * 100.0 / total : 0.0;
-        setText(percentColumn(), QString::number(percent_, 'f', 2));
-        setTextAlignment(percentColumn(), Qt::AlignRight);
-        setData(percentColumn(), Qt::UserRole, percent_);
-    }
-
-    QList<QVariant> rowData() const {
-        QList<QVariant> row;
-        for (const QString &m : modalities_) row << m;
-        row << QVariant::fromValue<qulonglong>(count_) << percent_;
-        return row;
-    }
-
-    QString filterExpression(const QStringList &field_names, const QList<bool> &quotes) const {
-        QStringList terms;
-        for (int i = 0; i < modalities_.size(); i++) {
-            terms << (quotes[i] ? QStringLiteral("%1==\"%2\"") : QStringLiteral("%1==%2"))
-                         .arg(field_names[i], modalities_[i]);
-        }
-        return terms.join(QStringLiteral(" && "));
-    }
-
-    guint64 count() const { return count_; }
-    double percent() const { return percent_; }
-
-private:
-    QStringList modalities_;
-    QList<int>  field_types_;
-    guint64     count_ = 0;
-    double      percent_ = 0;
-
-    enum ColumnKind { ColModality, ColCount, ColPercent };
-
-    ColumnKind columnKind(int col) const {
-        if (col == counterColumn()) return ColCount;
-        if (col == percentColumn()) return ColPercent;
-        return ColModality;
-    }
-
-};
-
-DistributionDialog::DistributionDialog(QWidget &parent, CaptureFile &cf, const QString &filter) :
-    TapParameterDialog(parent, cf, 0),
-    packet_count_(0),
-    observations_(0),
-    displayFilter_(""), // no default value when opening from the stats menu
-    needsQuotes_(0)
-{
-    hf_index_ = -1;
-    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
-    fvalues_map_ = wmem_map_new(allocator, dist_key_hash, dist_key_equal);
-
-    if (!registerTapListener("frame",
-                             this,
-                             displayFilter_.toUtf8().data(),
-                             TL_REQUIRES_PROTO_TREE,
-                             tapReset,
-                             tapPacket,
-                             tapDraw)) {
-        tap_registered_ = false;
-        return;
-    }
-    else {
-        tap_registered_ = true;
-    }
-
-    setWindowSubtitle(tr("Field Values Distribution"));
+    setWindowSubtitle(tr("Distribution"));
     loadGeometry(parent.width() * 4 / 5, parent.height() * 3 / 4, "DistributionDialog");
 
-    /* Override the inherited Display Filter label */
-    getUI()->label->setText("Distribution Field");
+    ui->applyButton->setToolTip(flavorText(FlavorText::ApplyToolTip));
 
-    QStringList header_labels = QStringList()
-            << tr("Field Value") << tr("Occurrences") << tr("Percent");
-    statsTreeWidget()->setHeaderLabels(header_labels);
+    proxy_->setSourceModel(model_);
+    proxy_->setSortRole(DistributionModel::SortRole);
+    proxy_->setDynamicSortFilter(true);
+    proxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
 
-    for (int col = 0; col < statsTreeWidget()->columnCount(); col++) {
-        if (col == col_fvalue_ ) continue;
-        statsTreeWidget()->headerItem()->setTextAlignment(col, Qt::AlignRight);
-    }
+    QTreeView *view = ui->distributionTreeView;
+    view->setModel(proxy_);
+    view->sortByColumn(model_->countColumn(), Qt::DescendingOrder);
+    percent_delegate_ = new PercentBarDelegate(view);
+    updatePercentDelegate();
 
-    /* override the default filter behavior (validation, background color) */
-    DisplayFilterEdit *edit = filterEdit();
-    edit->disableAutomaticValidation();
-    connect(edit, &QLineEdit::textChanged, this, &DistributionDialog::onFilterTextChanged);
+    /* The hint is laid out on the viewport, so it follows the viewport size
+     * and lets the header above it stay visible. */
+    QWidget *viewport = view->viewport();
+    QVBoxLayout *hint_layout = new QVBoxLayout(viewport);
+    empty_hint_label_ = new QLabel(flavorText(FlavorText::EmptyHint), viewport);
+    empty_hint_label_->setAlignment(Qt::AlignCenter);
+    empty_hint_label_->setWordWrap(true);
+    empty_hint_label_->setAttribute(Qt::WA_TransparentForMouseEvents);
+    empty_hint_label_->setForegroundRole(QPalette::PlaceholderText);
+    hint_layout->addWidget(empty_hint_label_);
 
-    onFilterTextChanged(edit->text());
+    /* Ctrl+C belongs to the table only, so the line edits keep copying
+     * their own text; Ctrl+S works anywhere in the dialog. */
+    view->addAction(ui->actionCopy);
+    addAction(ui->actionSaveAs);
 
-    // Set handler for when display filter string is changed.
-    connect(this, SIGNAL(updateFilter(QString)),
-            this, SLOT(filterUpdated(QString)));
-    connect(this, SIGNAL(updateFilter(QString)),
-            this, SLOT(updateLabels()));
+    copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
+    connect(copy_button_, &QPushButton::clicked, this, &DistributionDialog::copyTable);
+    save_button_ = ui->buttonBox->addButton(ui->actionSaveAs->text(), QDialogButtonBox::ActionRole);
+    connect(save_button_, &QPushButton::clicked, ui->actionSaveAs, &QAction::trigger);
+    ui->actionShowInIOGraph->setToolTip(tr("Open an I/O Graph with a graph for each selected row (at most %1)")
+                                        .arg(MainWindow::maxIOGraphFilters));
+    io_graph_button_ = ui->buttonBox->addButton(ui->actionShowInIOGraph->text(), QDialogButtonBox::ActionRole);
+    io_graph_button_->setToolTip(ui->actionShowInIOGraph->toolTip());
+    connect(io_graph_button_, &QPushButton::clicked, ui->actionShowInIOGraph, &QAction::trigger);
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
-    /*connect(applyFilterButton(), &QPushButton::clicked,
-            this, &DistributionDialog::updateSelectedFieldsAndHomonyms);*/
+    connect(view, &QTreeView::customContextMenuRequested, this, &DistributionDialog::showContextMenu);
+    connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &DistributionDialog::updateWidgets);
+    connect(view->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &DistributionDialog::updateChart);
+    connect(model_, &DistributionModel::summaryChanged, this, &DistributionDialog::updateSummary);
 
-    addFilterActions();
+    connect(ui->applyButton, &QPushButton::clicked, this, &DistributionDialog::apply);
+    connect(ui->fieldsLineEdit, &QLineEdit::returnPressed, this, &DistributionDialog::apply);
+    connect(ui->displayFilterLineEdit, &QLineEdit::returnPressed, this, &DistributionDialog::apply);
+    connect(ui->displayFilterLineEdit, &QLineEdit::textChanged, this, &DistributionDialog::updateWidgets);
 
-    if (!filter.isEmpty()) {
-        setDisplayFilter(filter);
+    ui->fieldsLineEdit->setFieldListMode(true);
+    ui->fieldsLineEdit->setMaxFields(DistributionModel::maxFields);
+    /* FieldFilterEdit connects its own check in its constructor, so this
+     * one runs after it and sees the result. */
+    connect(ui->fieldsLineEdit, &QLineEdit::textChanged, this, &DistributionDialog::checkFields);
+    ui->fieldsLineEdit->setText(fields);
+
+    QCustomPlot *plot = ui->chartPlot;
+    chart_bars_ = new QCPBars(plot->yAxis, plot->xAxis);
+    chart_bars_->setSelectable(QCP::stMultipleDataRanges);
+    plot->yAxis->setRangeReversed(true);
+    plot->yAxis->grid()->setVisible(false);
+    plot->xAxis->setLabel(tr("Count"));
+    connect(plot, &QCustomPlot::plottableClick, this, &DistributionDialog::chartBarClicked);
+    PlotTheme::track(plot, [this]() {
+        const QColor color = ThemeManager::instance()->graphColor(0);
+        const QColor selected = palette().color(QPalette::Highlight);
+        chart_bars_->setBrush(color);
+        chart_bars_->setPen(QPen(color));
+        chart_bars_->selectionDecorator()->setBrush(selected);
+        chart_bars_->selectionDecorator()->setPen(QPen(selected));
+    });
+    plot->installEventFilter(this);
+
+    updateWidgets();
+
+    if (ui->applyButton->isEnabled()) {
+        QTimer::singleShot(0, this, &DistributionDialog::apply);
     }
 }
 
 DistributionDialog::~DistributionDialog()
 {
-    wmem_destroy_allocator(allocator);
+    delete ui;
 }
 
-void DistributionDialog::updateLabels()
+QString DistributionDialog::flavorText(FlavorText id)
 {
-    /* update the window subtitle */
-    setWindowSubtitle(tr("Distribution:") + displayFilter());
+    const bool wireshark = application_flavor_is_wireshark();
+
+    switch (id) {
+    case FlavorText::SummaryOneField:
+        return wireshark
+                ? tr("%1 distinct values " UTF8_MIDDLE_DOT " %2 packets containing %3 " UTF8_MIDDLE_DOT " %4 observations " UTF8_MIDDLE_DOT " Entropy %5 (normalized Shannon)")
+                : tr("%1 distinct values " UTF8_MIDDLE_DOT " %2 events containing %3 " UTF8_MIDDLE_DOT " %4 observations " UTF8_MIDDLE_DOT " Entropy %5 (normalized Shannon)");
+    case FlavorText::SummaryAllFields:
+        return wireshark
+                ? tr("%1 distinct values " UTF8_MIDDLE_DOT " %2 packets containing all fields " UTF8_MIDDLE_DOT " %3 observations " UTF8_MIDDLE_DOT " Entropy %4 (normalized Shannon)")
+                : tr("%1 distinct values " UTF8_MIDDLE_DOT " %2 events containing all fields " UTF8_MIDDLE_DOT " %3 observations " UTF8_MIDDLE_DOT " Entropy %4 (normalized Shannon)");
+    case FlavorText::MultipleObservations:
+        return wireshark
+                ? tr("A packet can contain a field more than once, so the percentages (of packets) add up to more than 100 %.")
+                : tr("An event can contain a field more than once, so the percentages (of events) add up to more than 100 %.");
+    case FlavorText::EmptyHint:
+        return wireshark
+                ? tr("Enter one or more fields above and press Apply, for example ip.ttl, or ip.src, tcp.dstport for a joint distribution.")
+                : tr("Enter one or more fields above and press Apply, for example evt.type, or evt.type, proc.name for a joint distribution.");
+    case FlavorText::ApplyToolTip:
+        return wireshark
+                ? tr("Count the field values in the packets matching the display filter")
+                : tr("Count the field values in the events matching the display filter");
+    }
+    return QString();
 }
 
-/*
- * Inherited buttons behavior,
- * overloaded with the named field(s) type(s) check to decide if conditions
- * for calculating the distributions are met.
- * As widely accepted in the distributions literature, the ',' char is used
- * as a delimitor in a multiple fields distribution.
- * Note this is an internal delimitor to this dialog only,
- * and not compatible with the display filter syntax.
- */
+QStringList DistributionDialog::summaryTexts() const
+{
+    QStringList lines;
+    if (!model_->hasResult()) {
+        return lines;
+    }
+
+    const QString distinct = QString::number(model_->distinctValues());
+    const QString packets = QString::number(model_->packets());
+    const QString observations = QString::number(model_->observations());
+    const QString entropy = QString::number(model_->entropy(), 'f', 3);
+    const QStringList names = model_->fieldNames();
+
+    if (names.size() == 1) {
+        lines << flavorText(FlavorText::SummaryOneField)
+                 .arg(distinct, packets, names.first(), observations, entropy);
+    } else {
+        lines << flavorText(FlavorText::SummaryAllFields)
+                 .arg(distinct, packets, observations, entropy);
+    }
+    if (model_->observations() > model_->packets()) {
+        lines << flavorText(FlavorText::MultipleObservations);
+    }
+    return lines;
+}
+
+StatTableExporter::Table DistributionDialog::table(bool selected_only)
+{
+    StatTableExporter::Table table;
+    table.title = windowSubtitle();
+    table.file_name = cap_file_.fileDisplayName();
+    for (int column = 0; column < model_->columnCount(); column++) {
+        table.headers << model_->headerData(column, Qt::Horizontal).toString();
+    }
+
+    for (int row : sourceRows(selected_only)) {
+        table.rows << model_->rowData(row);
+    }
+    return table;
+}
+
+QList<int> DistributionDialog::sourceRows(bool selected_only) const
+{
+    QList<int> rows;
+    QItemSelectionModel *selection = ui->distributionTreeView->selectionModel();
+    for (int row = 0; row < proxy_->rowCount(); row++) {
+        if (selected_only && !selection->isRowSelected(row, QModelIndex())) {
+            continue;
+        }
+        rows << proxy_->mapToSource(proxy_->index(row, 0)).row();
+    }
+    return rows;
+}
+
+void DistributionDialog::updatePercentDelegate()
+{
+    const int column = model_->percentColumn();
+    if (column == percent_column_) {
+        return;
+    }
+    if (percent_column_ >= 0) {
+        ui->distributionTreeView->setItemDelegateForColumn(percent_column_, nullptr);
+    }
+    ui->distributionTreeView->setItemDelegateForColumn(column, percent_delegate_);
+    percent_column_ = column;
+}
 
 void DistributionDialog::updateWidgets()
 {
-    QList<const header_field_info *> hfis;
-    const bool fields_ok = !pending_variables_.isEmpty() && pending_text_ == displayFilter();
+    const bool busy = retapDepth() > 0;
+    const bool file_open = !file_closed_ && cap_file_.isValid();
+    const SyntaxLineEdit::SyntaxState fields_state = ui->fieldsLineEdit->syntaxState();
+    const bool fields_ok = fields_state == SyntaxLineEdit::Valid
+            || fields_state == SyntaxLineEdit::Deprecated;
+    const bool filter_ok = ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Invalid;
 
-    bool edit_enable = true;
-    bool apply_enable = fields_ok;
-    if (file_closed_ || !cap_file_.isValid()) {
-        edit_enable = false;
-        apply_enable = false;
-    }
+    ui->applyButton->setEnabled(fields_ok && filter_ok && file_open && !busy);
+    ui->resolveCheckBox->setEnabled(!busy);
+    ui->chartCheckBox->setEnabled(!busy);
 
-    getUI()->displayFilterLineEdit->setEnabled(edit_enable);
-    getUI()->applyFilterButton->setEnabled(apply_enable);
+    const bool no_data = model_->rowCount() == 0 || busy;
+    copy_button_->setEnabled(!no_data);
+    save_button_->setEnabled(!no_data);
+    ui->actionSaveAs->setEnabled(!no_data);
+    const bool has_selection = ui->distributionTreeView->selectionModel()->hasSelection();
+    ui->actionCopy->setEnabled(!no_data && has_selection);
+    io_graph_button_->setEnabled(!no_data && has_selection);
+    ui->actionShowInIOGraph->setEnabled(!no_data && has_selection);
 
     WiresharkDialog::updateWidgets();
 }
 
-void DistributionDialog::onFilterTextChanged(const QString &text)
+void DistributionDialog::beginRetapPackets()
 {
-    filterEdit()->setSyntaxState(checkInput(text));
+    WiresharkDialog::beginRetapPackets();
     updateWidgets();
 }
 
-void DistributionDialog::tapRemoveAll(void *ws_dlg_ptr)
+void DistributionDialog::endRetapPackets()
 {
-    DistributionDialog *ws_dlg = static_cast<DistributionDialog *>(ws_dlg_ptr);
-    if (!ws_dlg) return;
-
-    if (!ws_dlg->fvalues_map_) return;
-
-    wmem_map_foreach_remove(ws_dlg->fvalues_map_, alwaysTrue, NULL);
+    WiresharkDialog::endRetapPackets();
+    if (dialogClosed()) {
+        return;
+    }
+    /* Retaps started elsewhere reach this as well; without fields there is
+     * nothing to describe. */
+    if (model_->hasFields()) {
+        model_->publish();
+    }
+    updateWidgets();
+    sizeColumns();
+    updateChart();
 }
 
-void DistributionDialog::tapReset(void *ws_dlg_ptr)
+void DistributionDialog::sizeColumns()
 {
-    DistributionDialog *ws_dlg = static_cast<DistributionDialog *>(ws_dlg_ptr);
-    if (!ws_dlg) return;
-
-    tapRemoveAll(ws_dlg_ptr);
-    ws_dlg->statsTreeWidget()->clear();
-    ws_dlg->packet_count_ = 0;
-    ws_dlg->observations_ = 0;
-
-    ws_dlg->fvalues_map_ = wmem_map_new(ws_dlg->allocator, dist_key_hash, dist_key_equal);
+    if (columns_sized_ || model_->rowCount() == 0) {
+        return;
+    }
+    for (int column = 0; column < model_->percentColumn(); column++) {
+        ui->distributionTreeView->resizeColumnToContents(column);
+    }
+    columns_sized_ = true;
 }
 
-
-tap_packet_status DistributionDialog::tapPacket(void *tap_data, _packet_info *, epan_dissect_t *edt, const void *dummy _U_, tap_flags_t)
+bool DistributionDialog::eventFilter(QObject *obj, QEvent *event)
 {
-    DistributionDialog *ws_dlg = static_cast<DistributionDialog *>(tap_data);
-
-    // ensure the tap dfilter was consistently managed
-    if(!edt) {
-        return TAP_PACKET_FAILED;
+    if (obj == ui->chartPlot && event->type() == QEvent::Resize) {
+        updateChart();
     }
-
-    const int variable_count = static_cast<int>(ws_dlg->variables_.size());
-
-    // find all modalities of the given fields
-    QList<QStringList> found(variable_count);
-    for (int i = 0; i < variable_count; i++) {
-
-        /* all homonyms of this hf (typically ip.addr doesn't come alone) */
-        for (int hf : ws_dlg->variables_[i].hf_indices) {
-            GPtrArray *gp = proto_get_finfo_ptr_array(edt->tree, hf);
-            if (!gp) continue;
-
-            /* all occurences of this hf (typically ip.addr doesn't come alone) */
-            char* value;
-            for (guint j = 0; j < gp->len; j++) {
-                field_info *fi = (field_info *) g_ptr_array_index(gp, j);
-                value = fvalue_to_string_repr(ws_dlg->allocator, fi->value, FTREPR_DISPLAY,
-                                                      fi->hfinfo->display);
-                append_unique(found[i], value);
-                wmem_free(ws_dlg->allocator, value);
-            }
-        }
-        /* while unexpected (filter built over '&&'), ensure we would ignore packets not containing the given field */
-        if (found[i].isEmpty()) return TAP_PACKET_DONT_REDRAW;
-    }
-
-    QList<int> idx(variable_count, 0);
-    QList<QByteArray> utf8(variable_count);
-    QList<const char *> ptrs(variable_count);
-
-    for (;;) {
-        for (int i = 0; i < variable_count; i++) {
-            //combo[i] = found[i][idx[i]];
-            utf8[i] = found[i][idx[i]].toUtf8();
-            ptrs[i] = utf8[i].constData();
-        }
-
-        //dist_map_add_observation(ws_dlg->fvalues_map_, ws_dlg->allocator, combo.constData(), variable_count);
-        dist_map_add_observation(ws_dlg->fvalues_map_, ws_dlg->allocator, ptrs.constData(), variable_count);
-        ws_dlg->observations_++;
-
-        int k = variable_count - 1;
-        while (k >= 0 && ++idx[k] == found[k].size()) { idx[k] = 0; k--; }
-        if (k < 0) break;
-    }
-
-    /* percentages tracking */
-    ws_dlg->packet_count_++;
-
-    return TAP_PACKET_REDRAW;
+    return WiresharkDialog::eventFilter(obj, event);
 }
 
-void DistributionDialog::insertOccurence(void *key _U_, void *value, void *user_data) {
-    wmem_array_t *arr = static_cast<wmem_array_t *>(user_data);
-    wmem_array_append(arr, &static_cast<_tap_elts *>(value)->count, 1);
-}
+void DistributionDialog::checkFields()
+{
+    FieldFilterEdit *edit = ui->fieldsLineEdit;
+    QString message = edit->fieldListMessage();
+    const SyntaxLineEdit::SyntaxState state = edit->syntaxState();
 
-void DistributionDialog::setFilterQuotes(int type_filter) {
-    switch (type_filter) {
-    case FT_STRING:
-        needsQuotes_ = true;
-        break;
-    default:
-        needsQuotes_ = false;
-        break;
-    }
-}
-
-/* raw types are converted to their aggregate type, or defaults to String */
-void DistributionDialog::setFieldType(int raw_type) {
-
-    if (FT_IS_STRING(raw_type)) {
-        field_type_ = AGG_FT_STRING;
-    }
-    else if (FT_IS_INTEGER(raw_type)) {
-        field_type_ = AGG_FT_INT;
-    }
-    else {
-        switch (raw_type) {
-        case FT_IPv4:
-        case FT_IPv6:
-            field_type_ = AGG_FT_IP;
-            break;
-        default:
-            field_type_ = AGG_FT_STRING;
+    if (state == SyntaxLineEdit::Valid || state == SyntaxLineEdit::Deprecated) {
+        QList<DistributionField> fields;
+        const QString count_message = DistributionModel::parseFields(edit->fieldList(), fields);
+        if (!count_message.isEmpty()) {
+            edit->setSyntaxState(SyntaxLineEdit::Invalid);
+            message = count_message;
         }
     }
-}
 
-static const int kMaxRows = 10000;
-static const int kMaxFields = 4;
-
-struct DrawEntry {
-    const dist_key_t *key;
-    guint64           count;
-};
-
-static void dist_map_collect(gpointer key, gpointer value, gpointer user_data)
-{
-    QList<DrawEntry> *out = static_cast<QList<DrawEntry> *>(user_data);
-    out->append(DrawEntry{ (const dist_key_t *) key, *(const guint64 *) value });
-}
-
-void DistributionDialog::tapDraw(void *ws_dlg_ptr)
-{
-    DistributionDialog *ws_dlg = static_cast<DistributionDialog *>(ws_dlg_ptr);
-    if (!ws_dlg || !ws_dlg->fvalues_map_ || ws_dlg->variables_.isEmpty()) return;
-
-    QTreeWidget *tree = ws_dlg->statsTreeWidget();
-
-    /* 1. collect all entries of the map, sorted by decreasing count */
-    QList<DrawEntry> entries;
-    entries.reserve(wmem_map_size(ws_dlg->fvalues_map_));
-    wmem_map_foreach(ws_dlg->fvalues_map_, dist_map_collect, &entries);
-    std::sort(entries.begin(), entries.end(),
-              [](const DrawEntry &a, const DrawEntry &b) { return a.count > b.count; });
-
-    /* 2. rebuild the tree: 1 column per variable, then Count and Percent */
-    const bool sorting = tree->isSortingEnabled();
-    tree->setSortingEnabled(false);
-    tree->clear();
-
-    QStringList headers;
-    QList<int> types;
-    for (const Variable &v : ws_dlg->variables_) { headers << v.name; types << v.type; }
-    headers << QObject::tr("Count") << QObject::tr("Percent");
-    tree->setColumnCount(static_cast<int>(headers.size()));
-    tree->setHeaderLabels(headers);
-
-    const int shown = qMin<int>(static_cast<int>(entries.size()), kMaxRows);
-    for (int r = 0; r < shown; r++) {
-        const dist_key_t *k = entries[r].key;
-        QStringList modalities;
-        for (guint i = 0; i < k->n; i++)
-            modalities << QString::fromUtf8(k->modalities[i]);
-
-        DistributionStatTreeWidgetItem *item =
-            new DistributionStatTreeWidgetItem(tree, modalities, types);
-        item->update(entries[r].count);
-        item->updatePercentage(ws_dlg->packet_count_);
-    }
-
-    tree->setSortingEnabled(sorting);
-    tree->sortByColumn(static_cast<int>(headers.size()) - 2, Qt::DescendingOrder);
-
-    /* 3. entropy (normalized Shannon) of the joint distribution, over ALL entries, not only displayed ones */
-    if (entries.size() > 1) {
-        QList<int> freq;
-        freq.reserve(entries.size());
-        int total = 0;
-        for (const DrawEntry &e : entries) {
-            freq << (int) e.count;
-            total += (int) e.count;
-        }
-        double h = normalized_shannon(freq.data(), freq.size(), total);
-        ws_dlg->setHint(QString("Entropy (Normalized Shannon): " + QString::number(h)));
+    if (message.isEmpty()) {
+        ui->fieldsErrorLabel->clear();
+        ui->fieldsErrorLabel->hide();
     } else {
-        ws_dlg->setHint(QString());
+        ui->fieldsErrorLabel->setText(message);
+        ui->fieldsErrorLabel->setStyleSheet(QStringLiteral(
+                    "QLabel {"
+                    "  background-color: %1;"
+                    "}"
+                    )
+                .arg(ColorUtils::warningBackground().name())
+                );
+        ui->fieldsErrorLabel->show();
     }
+    updateWidgets();
 }
 
-const QString DistributionDialog::filterExpression()
+void DistributionDialog::apply()
 {
-    QString filter_expr;
-    if (statsTreeWidget()->selectedItems().count() > 0) {
-        QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
-
-        DistributionStatTreeWidgetItem *fvd_ti = static_cast<DistributionStatTreeWidgetItem *>(ti);
-
-        QStringList names;
-        QList<bool> quotes;
-        for (const Variable &v : variables_) {
-            names  << v.name;
-            quotes << (v.type == AGG_FT_STRING);
-        }
-        filter_expr = fvd_ti->filterExpression(names, quotes);
-    }
-    return filter_expr;
-}
-
-/* Return true if a text can be split into valid tokens.
- * The tokens are stored and returned in the vars list.
- * The separator is ',' and space like characters are allowed (they're trimmed).
- */
-bool DistributionDialog::parseFields(const QString &text,
-                                     QList<Variable> &vars) const
-{
-    vars.clear();
-
-    const QStringList tokens = text.split(',', Qt::SkipEmptyParts);
-
-    if (tokens.size() > kMaxFields) {
-        return false;
-    }
-
-    for (const QString &token : tokens) {
-        const QByteArray name = token.trimmed().toUtf8();
-
-        const header_field_info *first = proto_registrar_get_byname(name.constData());
-        if (!first || !hfi_supports_distribution(first)) {
-            vars.clear();
-            return false; /* first non existing field is enough to stop */
-        }
-
-        const int type = hfi_supports_distribution(first);
-        if (!type) {
-            vars.clear();
-            return false;
-        }
-
-        Variable v;
-        v.name = QString::fromUtf8(name);
-        v.type = type;
-
-        /* Rewind (shouldn't be necessary but let's avoid unexpected-hard-to-debug situations.) */
-        while (first->same_name_prev_id != -1) {
-            first = proto_registrar_get_nth(first->same_name_prev_id);
-        }
-
-        /* Identify all homonyms, if one of them isn't compatible we are not keeping any.
-         * XXX - There are not so many of them in the wild,
-         * tcp.options.mptcp.reserved.flag is one of them, for example.
-         */
-        for (const header_field_info *h = first; h; h = h->same_name_next) {
-
-            /* Check the homonym type */
-            /* XXX - maybe should we just try to not keep this homonym but still go on checking the others */
-            if (hfi_supports_distribution(h) != type) {
-                vars.clear();
-                return false;
-            }
-
-            /* OK, keep it */
-            v.hf_indices.append(h->id);
-
-            /* XXX - maybe should we also keep an indication when there are homonyms,
-             * as a user feedback ? that might help understand the situation */
-        }
-
-        vars.append(v);
-    }
-    return !vars.isEmpty();
-}
-
-/*
- * Checks the given text and returns a validity value.
- * The 'pending' objects are managed here, in order to keep track and
- * store what is entered by the user before really applying later.
- */
-SyntaxLineEdit::SyntaxState DistributionDialog::checkInput(const QString &text)
-{
-    pending_variables_.clear();
-    pending_text_.clear();
-
-    if (text.trimmed().isEmpty()) return SyntaxLineEdit::Empty;
-
-    if (!parseFields(text, pending_variables_)) {
-        pending_variables_.clear();
-        return SyntaxLineEdit::Invalid;
-    }
-    pending_text_ = text;
-
-    return SyntaxLineEdit::Valid;
-}
-
-void DistributionDialog::fillTree()
-{
-
-    if (retap_running_) return;
-
-    // filter hasn't changed
-    if (!pending_variables_.isEmpty() && pending_text_ == displayFilter_) {
-        variables_ = pending_variables_;
-    }
-    else {
-        // Take the user input or the default
-        const QString text = displayFilter_.isEmpty() ? QStringLiteral("tcp.completeness.str")
-                                                      : displayFilter_;
-
-        // if not valid, go back and wait for a better filter
-        if (!parseFields(text, variables_))
-            return;
-    }
-
-    // build the tap filter, from the variables names and apply the && operator between them
-    QStringList names;
-    for (const Variable &v : variables_) names << v.name;
-    const QByteArray tap_filter = names.join(" && ").toUtf8();
-
-    GString *errorString = set_tap_dfilter(this, tap_filter.constData());
-
-    /* Names were checked before and we believe the filter was built correctly,
-     * however we still ensure the tap filter didn't bring any error.
-     * XXX - maybe notify the user
-     */
-    if (errorString) {
-        g_string_free(errorString, TRUE);
+    if (retapDepth() > 0 || !ui->applyButton->isEnabled()) {
         return;
     }
 
-    retap_running_ = true;
-    statsTreeWidget()->setSortingEnabled(false);
+    QList<DistributionField> fields;
+    if (!DistributionModel::parseFields(ui->fieldsLineEdit->fieldList(), fields).isEmpty()) {
+        return;
+    }
+
+    removeTapListeners();
+    model_->setFields(fields);
+    const QStringList names = model_->fieldNames();
+
+    /* Only packets containing every field are counted; the display filter
+     * limits them further. */
+    QString filter = names.join(QStringLiteral(" && "));
+    const QString limit = ui->displayFilterLineEdit->text().trimmed();
+    if (!limit.isEmpty()) {
+        filter = QStringLiteral("(%1) && (%2)").arg(filter, limit);
+    }
+
+    applied_limit_ = limit;
+    columns_sized_ = false;
+    updatePercentDelegate();
+    empty_hint_label_->setVisible(!model_->hasFields());
+    setWindowSubtitle(tr("Distribution of %1").arg(names.join(QStringLiteral(", "))));
+
+    const QByteArray tap_filter = filter.toUtf8();
+    if (!registerTapListener("frame",
+                             this,
+                             tap_filter.constData(),
+                             TL_REQUIRES_PROTO_TREE,
+                             tapReset,
+                             tapPacket,
+                             tapDraw)) {
+        updateWidgets();
+        return;
+    }
+
+    ui->distributionTreeView->sortByColumn(model_->countColumn(), Qt::DescendingOrder);
     cap_file_.retapPackets();
-    tapDraw(this);
-    statsTreeWidget()->setSortingEnabled(true);
-    retap_running_ = false;
 }
 
-void DistributionDialog::captureFileClosing()
+void DistributionDialog::updateSummary()
 {
-    remove_tap_listener(this);
-
-    WiresharkDialog::captureFileClosing();
+    ui->summaryLabel->setText(summaryTexts().join('\n'));
 }
 
-void DistributionDialog::filterUpdated(QString filter)
+void DistributionDialog::showContextMenu(const QPoint &pos)
 {
-    /* don't overwrite the default value when starting */
-    if(!filter.isEmpty()) {
-        displayFilter_ = filter;
+    const QModelIndex index = ui->distributionTreeView->indexAt(pos);
+    if (!index.isValid()) {
+        return;
     }
+    const QString filter = model_->filterExpression(proxy_->mapToSource(index).row());
+
+    QMenu *menu = new QMenu(this);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+
+    for (FilterAction *fa : FilterAction::addActionSubmenus(menu)) {
+        connect(fa, &QAction::triggered, this, [this, fa, filter]() {
+            emit filterAction(filter, fa->action(), fa->actionType());
+        });
+    }
+    menu->addSeparator();
+    menu->addAction(ui->actionCopy);
+    QAction *copy_filter = FilterAction::copyFilterAction(filter, menu);
+    copy_filter->setText(tr("Copy as Filter"));
+    menu->addAction(copy_filter);
+    menu->addAction(ui->actionSaveAs);
+    menu->addSeparator();
+    menu->addAction(ui->actionShowInIOGraph);
+
+    menu->popup(ui->distributionTreeView->viewport()->mapToGlobal(pos));
 }
 
-QList<QVariant> DistributionDialog::treeItemData(QTreeWidgetItem *it) const
+void DistributionDialog::on_actionShowInIOGraph_triggered()
 {
-    DistributionStatTreeWidgetItem *nit = dynamic_cast<DistributionStatTreeWidgetItem *>(it);
-    if (nit) {
-        return nit->rowData();
+    QVector<QString> filters;
+    QVector<QString> names;
+    const QList<int> rows = sourceRows(true).mid(0, MainWindow::maxIOGraphFilters);
+    for (int source_row : rows) {
+        QString filter = model_->filterExpression(source_row);
+        if (!applied_limit_.isEmpty()) {
+            filter = QStringLiteral("(%1) && (%2)").arg(applied_limit_, filter);
+        }
+        filters << filter;
+        names << model_->rowLabel(source_row);
+    }
+    if (filters.isEmpty()) {
+        return;
+    }
+    emit showIOGraph(applied_limit_, filters, names);
+}
+
+void DistributionDialog::copyTable()
+{
+    mainApp->clipboard()->setText(QString::fromUtf8(
+            StatTableExporter::toByteArray(ST_FORMAT_PLAIN, table(false))));
+}
+
+void DistributionDialog::on_actionCopy_triggered()
+{
+    mainApp->clipboard()->setText(QString::fromUtf8(
+            StatTableExporter::toByteArray(ST_FORMAT_PLAIN, table(true))));
+}
+
+void DistributionDialog::on_actionSaveAs_triggered()
+{
+    StatTableExporter::saveAs(this, [this](st_format_type format) {
+        return StatTableExporter::toByteArray(format, table(false));
+    });
+}
+
+void DistributionDialog::on_resolveCheckBox_toggled(bool checked)
+{
+    model_->setResolveValues(checked);
+    columns_sized_ = false;
+    sizeColumns();
+    updateChart();
+}
+
+void DistributionDialog::on_chartCheckBox_toggled(bool checked)
+{
+    ui->chartPlot->setVisible(checked);
+    if (checked && !chart_sized_) {
+        /* The chart gets about 42 % of the width, less when the table
+         * columns need more, so the Percent column stays readable. */
+        QTreeView *view = ui->distributionTreeView;
+        const int total = ui->splitter->width();
+        int table_width = total - total * 42 / 100;
+        if (columns_sized_) {
+            const int percent = model_->percentColumn();
+            const int needed = view->header()->sectionPosition(percent)
+                    + static_cast<QAbstractItemView *>(view)->sizeHintForColumn(percent)
+                    + view->verticalScrollBar()->sizeHint().width()
+                    + 2 * view->frameWidth();
+            table_width = qBound(table_width, needed,
+                                 total - static_cast<QWidget *>(ui->chartPlot)->minimumSizeHint().width());
+        }
+        ui->splitter->setSizes({table_width, total - table_width});
+        chart_sized_ = true;
+    }
+    updateChart();
+}
+
+void DistributionDialog::updateChart()
+{
+    if (!ui->chartCheckBox->isChecked()) {
+        return;
     }
 
-    return QList<QVariant>();
+    QCustomPlot *plot = ui->chartPlot;
+    chart_rows_ = model_->topRows(chartRows);
+
+    QSharedPointer<QCPAxisTickerText> ticker(new QCPAxisTickerText);
+    const int label_space = plot->width() / 3;
+    const QFontMetrics fm(plot->yAxis->tickLabelFont());
+    QVector<double> keys, values;
+    QCPDataSelection selection;
+    QItemSelectionModel *sel = ui->distributionTreeView->selectionModel();
+    double max_count = 0;
+    for (int i = 0; i < chart_rows_.size(); i++) {
+        const int row = chart_rows_.at(i);
+        const double count = static_cast<double>(model_->count(row));
+        keys << i + 1;
+        values << count;
+        max_count = qMax(max_count, count);
+        ticker->addTick(i + 1, fm.elidedText(model_->rowLabel(row), Qt::ElideMiddle, label_space));
+        if (sel->isRowSelected(proxy_->mapFromSource(model_->index(row, 0)).row())) {
+            selection.addDataRange(QCPDataRange(i, i + 1));
+        }
+    }
+
+    /* One label width of space between the x-axis tick labels keeps them
+     * apart on a narrow plot; ".5" covers the half steps of small counts. */
+    const QFontMetrics x_fm(plot->xAxis->tickLabelFont());
+    const int x_label_width = x_fm.horizontalAdvance(
+            QString::number(qRound64(max_count)) + QStringLiteral(".5"));
+    plot->xAxis->ticker()->setTickCount(
+            qMax(2, (plot->width() - label_space) / (2 * x_label_width)));
+    plot->yAxis->setTicker(ticker);
+    plot->yAxis->setRange(0.5, qMax(static_cast<int>(chart_rows_.size()), 1) + 0.5);
+    plot->xAxis->setRange(0, max_count > 0 ? max_count * 1.05 : 1);
+    chart_bars_->setData(keys, values);
+    chart_bars_->setSelection(selection);
+    plot->replot();
+}
+
+void DistributionDialog::chartBarClicked(QCPAbstractPlottable *, int dataIndex)
+{
+    if (dataIndex < 0 || dataIndex >= chart_rows_.size()) {
+        return;
+    }
+
+    const QModelIndex index = proxy_->mapFromSource(model_->index(chart_rows_.at(dataIndex), 0));
+    QTreeView *view = ui->distributionTreeView;
+    view->selectionModel()->select(index,
+            QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    view->scrollTo(index);
+}
+
+void DistributionDialog::on_buttonBox_helpRequested()
+{
+    mainApp->helpTopicAction(HELP_STATS_DISTRIBUTION_DIALOG);
+}
+
+void DistributionDialog::tapReset(void *tapdata)
+{
+    DistributionDialog *dialog = static_cast<DistributionDialog *>(tapdata);
+    if (!dialog) return;
+
+    dialog->model_->clear();
+    dialog->updateChart();
+}
+
+tap_packet_status DistributionDialog::tapPacket(void *tapdata, _packet_info *, epan_dissect_t *edt,
+                                                const void *, tap_flags_t)
+{
+    DistributionDialog *dialog = static_cast<DistributionDialog *>(tapdata);
+    if (!dialog || !edt) {
+        return TAP_PACKET_FAILED;
+    }
+
+    return dialog->model_->addPacket(edt->tree) ? TAP_PACKET_REDRAW : TAP_PACKET_DONT_REDRAW;
+}
+
+void DistributionDialog::tapDraw(void *tapdata)
+{
+    DistributionDialog *dialog = static_cast<DistributionDialog *>(tapdata);
+    if (!dialog) return;
+
+    dialog->model_->publish();
+    dialog->sizeColumns();
+    dialog->updateWidgets();
+    dialog->updateChart();
 }
 
 static bool

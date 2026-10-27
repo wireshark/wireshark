@@ -499,6 +499,7 @@
     <addaction name="actionStatisticsPacketLengths"/>
     <addaction name="actionStatisticsIOGraph"/>
     <addaction name="actionStatisticsPlot"/>
+    <addaction name="actionStatisticsDistribution"/>
     <addaction name="separator"/>
     <addaction name="actionStatistics_REGISTER_STAT_GROUP_UNSORTED"/>
     <addaction name="actionStatisticsFlowGraph"/>
@@ -1575,6 +1576,14 @@
    </property>
    <property name="toolTip">
     <string>Plot display filter fields over time</string>
+   </property>
+  </action>
+  <action name="actionStatisticsDistribution">
+   <property name="text">
+    <string>Distribution</string>
+   </property>
+   <property name="toolTip">
+    <string>Distribution statistics</string>
    </property>
   </action>
   <action name="actionViewMainToolbar">

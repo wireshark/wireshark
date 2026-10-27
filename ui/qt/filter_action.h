@@ -184,6 +184,17 @@ public:
      */
     static QAction * copyFilterAction(QString filter, QWidget *par);
 
+    /**
+     * @brief Adds the Apply as Filter, Prepare as Filter, Find and Colorize submenus to a menu.
+     *
+     * Each submenu holds one FilterAction per actionTypes() of its action. The caller connects
+     * the triggered() signal of the returned actions.
+     * @param menu The menu receiving the submenus.
+     * @param before Insert the submenus before this action; append them when null.
+     * @return All created actions, in submenu order.
+     */
+    static QList<FilterAction *> addActionSubmenus(QMenu *menu, QAction *before = nullptr);
+
 signals:
 
 public slots:

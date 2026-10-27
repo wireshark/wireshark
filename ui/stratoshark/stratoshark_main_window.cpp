@@ -653,6 +653,8 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
             packet_list_, &PacketList::recolorPackets);
     connect(proto_tree_, &ProtoTree::redissectPacketsRequested,
             this, &StratosharkMainWindow::redissectPackets);
+    connect(proto_tree_, &ProtoTree::showDistributionDialog,
+            this, &MainWindow::showDistributionDialog);
 
     connect(main_ui_->statusBar, &MainStatusBar::showExpertInfo, this, [=]() {
         statCommandExpertInfo(NULL, NULL);

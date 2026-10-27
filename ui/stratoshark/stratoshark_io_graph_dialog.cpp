@@ -40,9 +40,9 @@ StratosharkIOGraphDialog::~StratosharkIOGraphDialog()
 {
 }
 
-void StratosharkIOGraphDialog::initialize(QWidget& parent, QString displayFilter, io_graph_item_unit_t value_units, QString yfield, bool is_sibling_dialog, const QVector<QString> convFilters)
+void StratosharkIOGraphDialog::initialize(QWidget& parent, QString displayFilter, io_graph_item_unit_t value_units, QString yfield, bool is_sibling_dialog, const QVector<QString> convFilters, const QVector<QString> convNames)
 {
-    IOGraphDialog::initialize(parent, io_graph_event_fields, displayFilter, value_units, yfield, is_sibling_dialog, convFilters);
+    IOGraphDialog::initialize(parent, io_graph_event_fields, displayFilter, value_units, yfield, is_sibling_dialog, convFilters, convNames);
 }
 
 void StratosharkIOGraphDialog::insertGraph(bool enabled)

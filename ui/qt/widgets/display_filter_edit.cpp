@@ -378,10 +378,6 @@ void DisplayFilterEdit::focusOutEvent(QFocusEvent *event)
 
 bool DisplayFilterEdit::checkFilter()
 {
-    if (!auto_validation_) {
-        return syntaxState() != SyntaxLineEdit::Invalid;
-    }
-
     checkFilter(text());
 
     return syntaxState() != Invalid;
@@ -389,8 +385,6 @@ bool DisplayFilterEdit::checkFilter()
 
 void DisplayFilterEdit::checkFilter(const QString& filter_text)
 {
-    if (!auto_validation_) return;
-
     if (text().length() == 0 && actions_ && actions_->checkedAction())
         actions_->checkedAction()->setChecked(false);
 
@@ -939,14 +933,4 @@ void DisplayFilterEdit::displayFilterExpression()
             this, &DisplayFilterEdit::insertFilter);
 
     dfe_dialog->show();
-}
-
-/* Disables the automatic validation by setting a flag.
- * Some subclasses of TapParameterDialog want a custom validation,
- * hence the necessity of disabling the default behavior. They still
- * need to have their own validation mechanism in this case.
- */
-void DisplayFilterEdit::disableAutomaticValidation()
-{
-    auto_validation_ = false;
 }

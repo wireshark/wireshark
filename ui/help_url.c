@@ -333,6 +333,9 @@ topic_action_url(topic_action_e action)
     case(HELP_THEME_DESIGNER_DIALOG):
         url = user_guide_url("ChCustThemesSection.html#ChCustThemeDesigner");
         break;
+    case(HELP_STATS_DISTRIBUTION_DIALOG):
+        url = user_guide_url("ChStatDistribution.html");
+        break;
 
     case(TOPIC_ACTION_NONE):
     default:

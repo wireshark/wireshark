@@ -39,6 +39,7 @@
 #include <ui/qt/plot_action.h>
 #include <ui/qt/protocol_preferences_menu.h>
 #include <ui/qt/models/pref_models.h>
+#include <ui/qt/models/distribution_model.h>
 #include <ui/simple_dialog.h>
 #include <ui/all_files_wildcard.h>
 #include <ui/urls.h>
@@ -377,25 +378,12 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
     ctx_menu->addMenu(PlotAction::createMenu(finfo->headerInfo(), ctx_menu));
 
-    // Checks for the Distribution menu (enabled according to the AGG_FT value)
-    /* XXX - ensure we are consistent with the Distribution Dialog. Move to a function ? */
-
+    // Enabled for the field types the Distribution dialog can count.
     bool isDistributable = false;
     QString abbrev;
     if (fi && fi->hfinfo) {
         abbrev = QString::fromUtf8(fi->hfinfo->abbrev);
-        const ftenum_t type = fi->hfinfo->type;
-
-        switch (type) {
-            case FT_IPv4:
-            case FT_IPv6:
-                isDistributable = true;
-                break;
-
-            default:
-                isDistributable = FT_IS_STRING(type) || FT_IS_INTEGER(type);
-                break;
-        }
+        isDistributable = DistributionModel::supportsField(fi->hfinfo);
     }
     if (abbrev.isEmpty())
         isDistributable = false;

@@ -281,6 +281,14 @@ The following features are either new or have been significantly updated since v
   ignored the monospaced filter and offered no usable size control.
   wsbuglink:21688[]
 
+* A new Distribution dialog (menu:Statistics[Distribution], or the "Distribution" entry in the packet details context menu) counts how often the values of up to four fields occur.
+  The fields are entered in a separate _Fields_ line (comma separated, with completion and validation),
+  and the _Display filter_ line limits the packets that are counted.
+  Values sort by their type (numbers, addresses), the new _Resolve values_ option shows value strings,
+  a _Show chart_ option draws a bar chart of the most frequent values, and the table updates in place during a live capture.
+  Rows can be used as filters from their context menu (including _Copy as Filter_) or sent to the I/O Graph with _Show in I/O Graph_.
+  The copied and saved text includes the Count column, `-z distribution,<fields>` opens the dialog, and the dialog has a Help button.
+
 === Removed Features and Support
 
 Dumpcap's TCP@host:port interface has been removed. Tools like `socat`, `ncat`,

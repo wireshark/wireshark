@@ -3093,6 +3093,8 @@ void StratosharkMainWindow::connectStatisticsMenuActions()
 
     connect(main_ui_->actionStatisticsPlot, &QAction::triggered, this, [=]() { showPlotDialog(); });
 
+    connect(main_ui_->actionStatisticsDistribution, &QAction::triggered, this, [this]() { showDistributionDialog(); });
+
     main_ui_->actionStatisticsFlowGraph->setVisible(false); // Hide for now.
     // connect(main_ui_->actionStatisticsFlowGraph, &QAction::triggered, this, [=]() {
     //     QMessageBox::warning(this, "Oops", "SequenceDialog depends on RTPStreamDialog");
@@ -3150,6 +3152,15 @@ void StratosharkMainWindow::showIOGraphDialog(io_graph_item_unit_t value_units, 
         connect(iog_dialog, &StratosharkIOGraphDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
         connect(this, &StratosharkMainWindow::reloadFields, iog_dialog, &StratosharkIOGraphDialog::reloadFields);
     }
+    iog_dialog->show();
+}
+
+void StratosharkMainWindow::showIOGraphDialogForFilters(const QString &displayFilter, const QVector<QString> &filters, const QVector<QString> &names)
+{
+    StratosharkIOGraphDialog *iog_dialog = new StratosharkIOGraphDialog(*this, capture_file_);
+    iog_dialog->initialize(*this, displayFilter, IOG_ITEM_UNIT_PACKETS, QString(), true, filters, names);
+    connect(iog_dialog, &StratosharkIOGraphDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
+    connect(this, &StratosharkMainWindow::reloadFields, iog_dialog, &StratosharkIOGraphDialog::reloadFields);
     iog_dialog->show();
 }
 

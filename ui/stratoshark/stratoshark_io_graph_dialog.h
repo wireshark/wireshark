@@ -54,13 +54,15 @@ public:
      * @param is_sibling_dialog @c true when this dialog is opened alongside an
      *                        existing I/O graph dialog rather than as the primary instance.
      * @param convFilters     Optional per-graph conversation filters to pre-populate.
+     * @param convNames       Legend names for @p convFilters; the filter text where missing.
      */
     void initialize(QWidget &parent,
                     QString displayFilter = QString(),
                     io_graph_item_unit_t value_units = IOG_ITEM_UNIT_PACKETS,
                     QString yfield = QString(),
                     bool is_sibling_dialog = false,
-                    const QVector<QString> convFilters = QVector<QString>());
+                    const QVector<QString> convFilters = QVector<QString>(),
+                    const QVector<QString> convNames = QVector<QString>());
 
 protected:
     /**

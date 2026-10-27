@@ -1033,6 +1033,16 @@ private slots:
      */
     void showPlotDialog(const QString &y_field = QString(), bool filtered = false) override;
 
+    /**
+     * @brief Opens an I/O Graph dialog with one graph per filter.
+     * @param displayFilter Display filter of the first graph; empty for none.
+     * @param filters       Display filters, one extra graph each (at most maxIOGraphFilters).
+     * @param names         Legend names for @p filters; the filter text where missing.
+     */
+    void showIOGraphDialogForFilters(const QString &displayFilter,
+                                     const QVector<QString> &filters,
+                                     const QVector<QString> &names = QVector<QString>()) override;
+
     /** @brief Handles a triggered external (plugin) menu item by invoking its callback. */
     void externalMenuItemTriggered();
 

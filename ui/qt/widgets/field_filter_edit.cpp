@@ -48,9 +48,61 @@ FieldFilterEdit::FieldFilterEdit(QWidget *parent) :
             static_cast<void (FieldFilterEdit::*)(const QString &)>(&FieldFilterEdit::checkFilter));
 }
 
+void FieldFilterEdit::setFieldListMode(bool enabled)
+{
+    list_mode_ = enabled;
+    setDefaultPlaceholderText();
+    checkFilter(text());
+}
+
+void FieldFilterEdit::setMaxFields(int max_fields)
+{
+    max_fields_ = max_fields;
+    setDefaultPlaceholderText();
+    checkFilter(text());
+}
+
+QStringList FieldFilterEdit::splitFieldList(const QString &text)
+{
+    QStringList tokens;
+    if (text.trimmed().isEmpty()) {
+        return tokens;
+    }
+    for (const QString &token : text.split(',')) {
+        tokens << token.trimmed();
+    }
+    return tokens;
+}
+
+QStringList FieldFilterEdit::fieldList() const
+{
+    if (!list_mode_) {
+        const QString field_word = text().trimmed();
+        return field_word.isEmpty() ? QStringList() : QStringList(field_word);
+    }
+
+    QStringList fields;
+    for (const QString &token : splitFieldList(text())) {
+        if (!token.isEmpty()) {
+            fields << token;
+        }
+    }
+    return fields;
+}
+
 void FieldFilterEdit::setDefaultPlaceholderText()
 {
-    placeholder_text_ = tr("Enter a field %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
+    if (list_mode_) {
+        if (max_fields_ > 0) {
+            placeholder_text_ = tr("Enter up to %1 fields, separated by commas%2")
+                    .arg(max_fields_).arg(UTF8_HORIZONTAL_ELLIPSIS);
+        } else {
+            placeholder_text_ = tr("Enter fields, separated by commas%1")
+                    .arg(UTF8_HORIZONTAL_ELLIPSIS);
+        }
+    } else {
+        placeholder_text_ = tr("Enter a field %1").arg(UTF8_HORIZONTAL_ELLIPSIS);
+    }
 
     setPlaceholderText(placeholder_text_);
 }
@@ -69,9 +121,69 @@ bool FieldFilterEdit::checkFilter()
     return syntaxState() != Invalid;
 }
 
+void FieldFilterEdit::checkFieldList(const QString &filter_text)
+{
+    const QStringList tokens = splitFieldList(filter_text);
+    QString invalid_msg;
+    QString deprecated_msg;
+
+    if (max_fields_ > 0) {
+        int entered = 0;
+        for (const QString &token : tokens) {
+            if (!token.isEmpty()) {
+                entered++;
+            }
+        }
+        if (entered > max_fields_) {
+            invalid_msg = tr("Up to %1 fields can be combined (%2 entered).")
+                    .arg(max_fields_).arg(entered);
+        }
+    }
+
+    for (int i = 0; invalid_msg.isEmpty() && i < tokens.size(); i++) {
+        const QString &token = tokens.at(i);
+        if (token.isEmpty()) {
+            invalid_msg = tr("Field %1 is empty.").arg(i + 1);
+            break;
+        }
+        const QByteArray token_ba = token.toUtf8();
+        if (proto_registrar_get_byname(token_ba.constData())) {
+            continue;
+        }
+        const header_field_info *hfinfo = proto_registrar_get_byalias(token_ba.constData());
+        if (!hfinfo) {
+            invalid_msg = tr("\"%1\" is neither a field nor a protocol name.").arg(token);
+        } else if (deprecated_msg.isEmpty()) {
+            deprecated_msg = tr("\"%1\" is deprecated. Use \"%2\" instead.")
+                    .arg(token, hfinfo->abbrev);
+        }
+    }
+
+    if (tokens.isEmpty()) {
+        list_message_.clear();
+        setSyntaxState(SyntaxLineEdit::Empty);
+    } else if (!invalid_msg.isEmpty()) {
+        list_message_ = invalid_msg;
+        setSyntaxState(SyntaxLineEdit::Invalid);
+        emit pushFilterSyntaxStatus(list_message_);
+    } else if (!deprecated_msg.isEmpty()) {
+        list_message_ = deprecated_msg;
+        setSyntaxState(SyntaxLineEdit::Deprecated);
+        emit pushFilterSyntaxWarning(list_message_);
+    } else {
+        list_message_.clear();
+        setSyntaxState(SyntaxLineEdit::Valid);
+    }
+}
+
 void FieldFilterEdit::checkFilter(const QString& filter_text)
 {
     popFilterSyntaxStatus();
+
+    if (list_mode_) {
+        checkFieldList(filter_text);
+        return;
+    }
 
     QString field_word = filter_text.trimmed();
 
@@ -124,8 +236,9 @@ void FieldFilterEdit::buildCompletionList(const QString &field_word, const QStri
         }
     }
 
-    // Single fields only; don't offer completion if there's a preamble.
-    if (!preamble.isEmpty()) {
+    // Single fields only; don't offer completion if there's a preamble. In
+    // list mode the preamble is the already entered fields, which end in a comma.
+    if (!preamble.isEmpty() && !(list_mode_ && preamble.endsWith(','))) {
         completion_model_->setStringList(QStringList());
         return;
     }

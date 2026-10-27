@@ -115,6 +115,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/qt_ui_utils.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update_backend.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/stat_table_exporter.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_manager.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/zoom_scaling.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_styler.h
@@ -163,6 +164,7 @@ set(WIRESHARK_MODEL_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/decode_as_delegate.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/decode_as_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/dissector_tables_model.h
+	${CMAKE_SOURCE_DIR}/ui/qt/models/distribution_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/enabled_protocols_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/expert_info_model.h
 	${CMAKE_SOURCE_DIR}/ui/qt/models/expert_info_proxy_model.h
@@ -227,6 +229,7 @@ set(WIRESHARK_QT_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/decode_as_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/display_filter_expression_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/dissector_tables_dialog.h
+	${CMAKE_SOURCE_DIR}/ui/qt/distribution_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/enabled_protocols_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/endpoint_dialog.h
 	${CMAKE_SOURCE_DIR}/ui/qt/expert_info_dialog.h
@@ -481,6 +484,7 @@ set(WIRESHARK_UTILS_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/qt_ui_utils.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/software_update.cpp
 	${WIRESHARK_SOFTWARE_UPDATE_PLATFORM_SRC}
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/stat_table_exporter.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/theme_manager.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/zoom_scaling.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/zoom_scaling_widgets.cpp
@@ -527,6 +531,7 @@ set(WIRESHARK_MODEL_SRCS
 	${CMAKE_SOURCE_DIR}/ui/qt/models/decode_as_delegate.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/decode_as_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/dissector_tables_model.cpp
+	${CMAKE_SOURCE_DIR}/ui/qt/models/distribution_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/enabled_protocols_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/expert_info_model.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/models/expert_info_proxy_model.cpp
@@ -702,6 +707,7 @@ set (STRATOSHARK_QT_SRC
 	${WIRESHARK_QT_SRC})
 
 set(WIRESHARK_QT_TAP_SRC
+	${CMAKE_SOURCE_DIR}/ui/qt/distribution_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/expert_info_dialog.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/funnel_statistics.cpp
 	${CMAKE_SOURCE_DIR}/ui/qt/graph.cpp
@@ -739,6 +745,7 @@ set(WIRESHARK_QT_UI
 	${CMAKE_SOURCE_DIR}/ui/qt/decode_as_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/display_filter_expression_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/dissector_tables_dialog.ui
+	${CMAKE_SOURCE_DIR}/ui/qt/distribution_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/enabled_protocols_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/expert_info_dialog.ui
 	${CMAKE_SOURCE_DIR}/ui/qt/extcap_options_dialog.ui

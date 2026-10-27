@@ -164,6 +164,9 @@ public:
      */
     bool addPacketMenus(QMenu * ctx_menu, GPtrArray *finfo_array);
 
+    /** @brief Maximum number of graphs opened by showIOGraphDialogForFilters() callers. */
+    static constexpr int maxIOGraphFilters = 10;
+
 public slots:
     /**
      * @brief Sets the display filter and performs an action.
@@ -201,6 +204,28 @@ public slots:
      * @param filtered True if the plot should be filtered.
      */
     virtual void showPlotDialog(const QString& y_field, bool filtered) = 0;
+
+    /**
+     * @brief Opens an I/O Graph dialog with one graph per filter.
+     * @param displayFilter Display filter of the first graph; empty for none.
+     * @param filters       Display filters, one extra graph each (at most maxIOGraphFilters).
+     * @param names         Legend names for @p filters; the filter text where missing.
+     */
+    virtual void showIOGraphDialogForFilters(const QString &displayFilter,
+                                             const QVector<QString> &filters,
+                                             const QVector<QString> &names = QVector<QString>()) = 0;
+
+    /**
+     * @brief Opens the Distribution statistics dialog.
+     * @param fields Comma-separated field list to prefill; empty for none.
+     */
+    void showDistributionDialog(const QString &fields = QString());
+
+    /**
+     * @brief Opens the Distribution statistics dialog for a stat command.
+     * @param arg Comma-separated field list, may be empty.
+     */
+    void statCommandDistribution(const char *arg, void *);
 
     /**
      * @brief Recalculates and lays out the panes.
