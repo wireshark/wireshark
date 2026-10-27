@@ -7693,3 +7693,95 @@ class TestDissectArtemis:
         # A connection picked up in the middle, two PDUs per segment
         assert frames[29][:3] == ['39|40', '71|71', '7|7']
         assert frames[30][:3] == ['9|9', '21|21', '7|7']
+
+
+class TestDissectArtnet:
+    def test_artnet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Art-Net opcode, with ArtDmx/ArtNzs DMX data and ArtRdm
+        carrying RDM for every standard PID, decodes without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('artnet_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert protocols.count('ARTNET') == 140
+        assert protocols.count('DMX Channels') == 10
+        assert protocols.count('RDM') == 289
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('artnet_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_artnet_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic takes only packets with the "Art-Net" ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('artnet_coverage.pcap.gz'),
+                '-Y', 'udp && !artnet',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['440', '441']
+
+    def test_artnet_poll_reply_node_report(self, cmd_tshark, capture_file, test_env):
+        '''The node report of an ArtPollReply is split into status code,
+        counter and text.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('artnet_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 13 && artnet.poll_reply',
+                '-Tfields', '-eframe.number',
+                '-e', 'artnet.poll_reply.node_report_status_code',
+                '-e', 'artnet.poll_reply.node_report_response_counter',
+                '-e', 'artnet.poll_reply.node_report_status_string',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert lines == [
+            ['7', '0x0001', '42', 'Power On Tests successful'],
+            ['8', '0xffff', '7', 'x'],
+            ['9', '', '', ''],                      # empty report
+            ['10', '0x0001', '42', 'A' * 51],       # 64 octets, no NUL
+            ['11', '0x00ff', '123', 'Ready'],
+            ['12', '0x0002', '9', 'Ok'],
+        ]
+
+    def test_artnet_dmx_and_vlc(self, cmd_tshark, capture_file, test_env):
+        '''ArtDmx hands its channel data to the DMX dissector, and ArtNzs
+        with the VLC magic shows the beacon payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('artnet_coverage.pcap.gz'),
+                '-Y', 'artnet.output',
+                '-Tfields', '-eartnet.output.universe', '-eartnet.output.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t512', '32767\t26', '16\t2', '1\t37']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('artnet_coverage.pcap.gz'),
+                '-Y', 'artnet.nzs.vlc_esta_man_id',
+                '-Tfields', '-eartnet.nzs.vlc_payload_beacon_url',
+                '-eartnet.nzs.vlc_payload_beacon_text',
+                '-eartnet.nzs.vlc_payload_beacon_location_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'https://example.com/beacon\t\t',
+            '\tSynthetic beacon text\t',
+            '\t\t4660',
+            '\t\t',
+            '\t\t',
+        ]
+
+    def test_artnet_tod_data(self, cmd_tshark, capture_file, test_env):
+        '''ArtTodData lists its UIDs and the universe they belong to.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('artnet_coverage.pcap.gz'),
+                '-Y', 'artnet.tod_data',
+                '-Tfields', '-eartnet.tod_data.uid_count',
+                '-eartnet.tod_control.universe', '-eartnet.tod_data.tod.dev',
+                '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert lines[0] == ['3', '1', '0x00000001,0x00000002,0x80000003']
+        assert lines[1] == ['0', '32767', '']
+        assert lines[2][:2] == ['20', '272']
+        assert len(lines[2][2].split(',')) == 20
