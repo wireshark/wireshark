@@ -711,6 +711,12 @@ tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
             break;
 
         case 0x00:
+            if (record_len == 0)
+            {
+                proto_tree_add_expert(subtree, pinfo, &ei_ansi_637_short_data, tvb_out, offset, 0);
+                break;
+            }
+
             encoding = (tvb_get_uint8(tvb_out, offset) & 0xf8) >> 3;
 
             str = val_to_str_const(encoding, ansi_tsb58_encoding_vals, "Reserved");
@@ -758,9 +764,8 @@ tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
                 break;
             }
 
-            temp_offset = offset;
             if (num_fields) {
-                text_decoder(tvb_out, pinfo, subtree, temp_offset, encoding, num_fields, num_bits,
+                text_decoder(tvb_out, pinfo, subtree, offset, encoding, num_fields, num_bits,
                     3 /* (5 bits used from 'temp_offset' octet for encoding */, 0, hf_ansi_637_tele_cmas_text);
             }
 
@@ -888,7 +893,8 @@ tele_param_user_data_cmas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 
     EXTRANEOUS_DATA_CHECK(required_octs, offset);
 
-    offset += temp_offset;      /* move 'offset' back to the correct spot in 'tvb' */
+    /* the last 3 bits of the last octet in 'tvb' are reserved */
+    offset = temp_offset + required_octs - 1;
 
     proto_tree_add_item(tree, hf_ansi_637_reserved_bits_8_07, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -901,7 +907,7 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
     uint8_t             num_fields;
     uint8_t             unused_bits;
     uint8_t             fill_bits;
-    uint16_t            reserved_bits;
+    int32_t             reserved_bits;
     uint32_t            value;
     uint32_t            orig_offset;
     uint32_t            saved_offset;
@@ -975,6 +981,12 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
     num_fields = (value & 0x07f8) >> 3;
 
     reserved_bits -= 8 + (num_fields * encoding_bit_len);
+
+    if (reserved_bits < 0)
+    {
+        proto_tree_add_expert(tree, pinfo, &ei_ansi_637_short_data, tvb, orig_offset, len);
+        return;
+    }
 
     /* NOTE: there are now 3 bits remaining in 'value' */
 
@@ -1076,7 +1088,11 @@ tele_param_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
             num_fields * encoding_bit_len, unused_bits, fill_bits, hf_ansi_637_tele_user_data_text);
     }
 
-    if (reserved_bits > 0)
+    if (reserved_bits > 7)
+    {
+        proto_tree_add_expert(tree, pinfo, &ei_ansi_637_extraneous_data, tvb, orig_offset, len);
+    }
+    else if (reserved_bits > 0)
     {
         /*
          * unlike for CMAS, the bits that can be reserved will always be
@@ -1431,7 +1447,7 @@ tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     uint64_t            num_fields;
     uint8_t             unused_bits;
     uint8_t             fill_bits;
-    uint16_t            reserved_bits;
+    int32_t             reserved_bits;
     uint32_t            orig_offset;
     enum character_set  cset = OTHER;
 
@@ -1483,8 +1499,13 @@ tele_param_mult_enc_user_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset += 8;
         reserved_bits -= 8;
 
-        unused_bits = (offset & 0x07) ? 8 - (offset & 0x07) : 0;
+        unused_bits = 8 - (offset & 0x07);
         fill_bits = 0;
+
+        if ((int32_t)((uint8_t)num_fields * encoding_bit_len) > reserved_bits) {
+            proto_tree_add_expert(tree, pinfo, &ei_ansi_637_short_data, tvb, orig_offset, len);
+            return;
+        }
 
         if (num_fields) {
             text_decoder(tvb, pinfo, tree, offset>>3, (uint8_t)encoding, (uint8_t)num_fields, (uint8_t)num_fields * encoding_bit_len,
@@ -1572,7 +1593,7 @@ tele_param_srvc_cat_prog_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     uint64_t            num_fields;
     uint8_t             unused_bits;
     uint8_t             fill_bits;
-    uint16_t            reserved_bits;
+    int32_t             reserved_bits;
     uint32_t            orig_offset;
     enum character_set  cset = OTHER;
 
@@ -1649,8 +1670,13 @@ tele_param_srvc_cat_prog_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset += 8;
         reserved_bits -= 8;
 
-        unused_bits = (offset & 0x07) ? 8 - (offset & 0x07) : 0;
+        unused_bits = 8 - (offset & 0x07);
         fill_bits = 0;
+
+        if ((int32_t)((uint8_t)num_fields * encoding_bit_len) > reserved_bits) {
+            proto_tree_add_expert(tree, pinfo, &ei_ansi_637_short_data, tvb, orig_offset, len);
+            return;
+        }
 
         if (num_fields) {
             text_decoder(tvb, pinfo, tree, offset>>3, (uint8_t)encoding, (uint8_t)num_fields, (uint8_t)num_fields * encoding_bit_len,
@@ -2354,13 +2380,13 @@ dissect_ansi_637_tele_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_ansi_637_tele_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ansi_637_tree, bool *has_private_data_p)
 {
-    uint8_t     len;
+    unsigned    len;
     uint32_t    curr_offset;
 
     curr_offset = 0;
     len = tvb_reported_length(tvb);
 
-    while ((len - curr_offset) > 0)
+    while (curr_offset < len)
     {
         if (!dissect_ansi_637_tele_param(tvb, pinfo, ansi_637_tree, &curr_offset, has_private_data_p))
         {
@@ -2389,6 +2415,9 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
         g_tree = tree;
 
         value = pinfo->match_uint;
+
+        /* Not a stale ID from the transport layer of an earlier packet */
+        ansi_637_trans_tele_id = value;
 
         /*
          * create the ansi_637 protocol tree
@@ -2555,7 +2584,7 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     int         idx;
     const char *str = NULL;
     uint8_t     oct;
-    uint8_t     len;
+    unsigned    len;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IS-637-A");
 
@@ -2612,7 +2641,7 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         len = tvb_reported_length(tvb);
 
-        while ((len - curr_offset) > 0)
+        while (curr_offset < len)
         {
             if (!dissect_ansi_637_trans_param(tvb, pinfo, ansi_637_tree, &curr_offset))
             {
