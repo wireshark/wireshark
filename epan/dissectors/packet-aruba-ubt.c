@@ -338,13 +338,13 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
     /* dealing with TLVs */
     proto_item* tlv_header;
-    tlv_header = proto_tree_add_item(message_tree, hf_ubt_tlv_header, tvb, offset, -1, ENC_NA);
+    tlv_header = proto_tree_add_item(message_tree, hf_ubt_tlv_header, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
     message_subtree = proto_item_add_subtree(tlv_header, ett_ubt);
 
     while (offset < offset_end) {
 
         /* variable to store T, L, V of TLVs & other data */
-        unsigned optlen = 0, type = 0, val = 0;
+        unsigned optlen = 0, type = 0, val = 0, tlv_end;
         bool bool_val = false;
         proto_item* tlv, * tlv_item, * tlv_item2;
 
@@ -362,6 +362,7 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
         offset += TYPE_SIZE;
         proto_tree_add_item(message_subtree2, hf_ubt_length, tvb, offset, LENGTH_SIZE, ENC_BIG_ENDIAN);
         offset += LENGTH_SIZE;
+        tlv_end = offset + optlen;
 
         /* Different data types */
         switch (type) {
@@ -834,10 +835,11 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding Silent Client VLANs as proto_item to the tree */
             tlv_item = proto_tree_add_item(message_subtree2, hf_ubt_dt_silentclientvlans, tvb, offset, optlen, ENC_NA);
             message_subtree3 = proto_item_add_subtree(tlv_item, ett_ubt_tlv);
-            proto_item_append_text(tlv, ": %u", tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN));
+            if (optlen >= 2)
+                proto_item_append_text(tlv, ": %u", tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN));
 
             /* adding each silent client VLAN assigned */
-            for (int i = 0; i < 200; i++) {
+            for (unsigned i = 0; i < optlen / 2; i++) {
                 proto_tree_add_item(message_subtree3, hf_ubt_dt_silentclientvlan, tvb, offset, 2, ENC_NA);
                 offset += 2;
             }
@@ -854,6 +856,8 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             proto_tree_add_expert_format(message_subtree2, pinfo, &ei_ubt_unknown, tvb, offset, optlen, "Unknown");
             offset += optlen;
         }
+        /* Some values are decoded with a fixed size; go on after the TLV */
+        offset = tlv_end;
     }
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_data_dissector(next_tvb, pinfo, tree);
