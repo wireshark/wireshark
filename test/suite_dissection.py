@@ -6134,3 +6134,181 @@ class TestDissectAnsiA:
                     '-Y', 'frame.number == ' + frame,
                     '-Tfields', '-eansi_a_bsmap.cause_1', '-eansi_a_bsmap.esn')
             assert stdout.strip() == '9\t0x8a123456'
+
+
+# The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
+ANSI_MAP_OPTS = ('-o', 'mtp3.standard:ANSI')
+
+
+class TestDissectAnsiMap:
+    def test_ansi_map_needs_ansi_mtp3(self, cmd_tshark, capture_file, test_env):
+        '''With the default (ITU) MTP3 standard the ANSI SCCP addresses do
+        not route to TCAP, so nothing is dissected as ANSI MAP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Y', 'ansi_map',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_ansi_map_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every operation, as Invoke and ReturnResult with all of its
+        parameters, decodes without malformed packets or error expert infos,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 336
+        assert protocols.count('ANSI MAP') == 297
+        # The Reject and the ReturnError without parameters are not passed
+        # to ANSI MAP
+        assert protocols.count('ANSI TCAP') == 2
+        # SMS bearer data handed to IS-637, IS-683 and IS-801
+        assert protocols.count('IS-637-A') == 26
+        assert protocols.count('IS-683') == 4
+        assert protocols.count('IS-801') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS, *passes,
+                    '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ansi_map_bearer_data_once(self, cmd_tshark, capture_file, test_env):
+        '''The SMS bearer data is handed to IS-637/IS-801 once, however
+        many TeleserviceIdentifier or ServiceIndicator parameters follow.
+        Each one used to dissect it again, until 600 of them failed the
+        layer limit assertion.'''
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Y', 'frame.number in {290, 291, 325, 327, 328, 329}',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        frames = dict(line.split('\t') for line in stdout.splitlines())
+        # 5 and 600 ServiceIndicator: IS-801 once
+        for number in ('290', '328', '329'):
+            assert frames[number].split(':').count('ansi_801') == 1
+        # 5, 600 and 4000 TeleserviceIdentifier: IS-637 once
+        for number in ('291', '325', '327'):
+            assert frames[number].split(':').count('ansi_637_tele') == 1
+
+    def test_ansi_map_result_operation(self, cmd_tshark, capture_file, test_env):
+        '''A ReturnResult whose Invoke ANSI MAP did not save (frame 300
+        goes to another node than the Invoke came from) is dissected with
+        the operation TCAP matched, not that of the previous packet (an SMS
+        Delivery Point to Point Invoke). ReturnError names the matched
+        operation, and a unidirectional package (no transaction ID) with
+        an Invoke and a ReturnResult decodes.'''
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Y', 'frame.number in {299, 300, 303, 306, 309, 312, 330}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '299\tSMS Delivery Point to Point Invoke ',
+            '300\tRegistration Notification ReturnResult ',
+            '303\tRegistration Notification ReturnError ',
+            '306\tLocation Request ReturnError ',
+            '309\tSMS Delivery Point to Point ReturnError ',
+            '312\tAuthentication Directive ReturnError ',
+            '330\tSMS Delivery Point to Point ReturnResult ',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Y', 'ansi_map.registrationNotificationRes_element || ansi_map.sms_CauseCode',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        frames = stdout.split()
+        assert '300' in frames and '330' in frames
+
+    def test_ansi_map_response_matching(self, cmd_tshark, capture_file, test_env):
+        '''ansi_map.transaction.matchtype: frame 295 answers a
+        RegistrationNotification VLR->HLR whose transaction ID a later
+        LocationRequest MSC-B->MC reused. Matching on the transaction ID
+        only takes the LocationRequest.'''
+        for matchtype, info in (
+                ('tid', 'Location Request ReturnResult '),
+                ('tid_source', 'Registration Notification ReturnResult '),
+                ('tid_source_dest', 'Registration Notification ReturnResult '),
+                ):
+            stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                    '-o', f'ansi_map.transaction.matchtype:{matchtype}',
+                    '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 295',
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip('\n') == info
+
+    def test_ansi_map_parameters(self, cmd_tshark, capture_file, test_env):
+        '''The hand-written parameter decoders give the expected values, and
+        the bearer data of a ReturnResult goes to the IS-683/IS-801 reverse
+        link with the ServiceIndicator saved from its Invoke.'''
+        for dfilter, frames in (
+                ('ansi_683.for_msg_type', '280 282'),
+                ('ansi_683.rev_msg_type', '281 283'),
+                ('ansi_801', '284 285 286 287 290 328 329'),
+                ('ansi_801.rev_sess_tag', '285 287'),
+                ):
+            stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                    '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                    '-Y', dfilter,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert ' '.join(stdout.split()) == frames, dfilter
+        for dfilter, count in (
+                ('ansi_map.bcd_digits == "2015550123"', 95),
+                ('ansi_map.ia5_digits == "5551212"', 38),
+                ('ansi_map.SSN == 6', 53),
+                ('ansi_map.win_trigger_list', 21),
+                ):
+            stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                    '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                    '-Y', dfilter,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == count, dfilter
+
+    def test_ansi_map_mslocation_teleservice(self, cmd_tshark, capture_file, test_env):
+        '''MSLocation with a 1 and a 2 octet resolution decodes (the
+        resolution used to be added with length -1, which always threw),
+        and a 1-octet TeleserviceIdentifier is shown with its length
+        instead of throwing.'''
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Y', 'frame.number in {334, 335}',
+                '-Tfields', '-eframe.number', '-eansi_map.mslocation.lat',
+                '-eansi_map.mslocation.long', '-eansi_map.mslocation.res',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '334\t4198964\t8410744\t5',
+            '335\t4198964\t8410744\t1281',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Y', 'frame.number == 336',
+                '-V', '-O', 'ansi_map',
+            ), encoding='utf-8', env=test_env)
+        assert 'sms-TeleserviceIdentifier: 10 length 1' in stdout
+        assert 'Malformed' not in stdout
+        assert 'IS-637' not in stdout
+
+    def test_ansi_map_statistics(self, cmd_tshark, capture_file, test_env):
+        '''-z ansi_map counts every known operation, also after the
+        unknown ones (a static flag used to stop the counting at the first
+        unknown operation code).'''
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-q', '-z', 'ansi_map',
+            ), encoding='utf-8', env=test_env)
+        counts = {}
+        for line in stdout.splitlines():
+            fields = [f.strip() for f in line.split('|')]
+            if len(fields) >= 3 and fields[0].startswith('0x'):
+                counts[fields[0]] = int(fields[2])
+        assert counts['0x0d'] == 7     # Registration Notification
+        assert counts['0x35'] == 39    # SMS Delivery Point to Point
+        assert counts['0x70'] == 2     # QualificationRequest2 (the last)
+        assert counts['0x67'] == 0     # not an ANSI MAP operation
