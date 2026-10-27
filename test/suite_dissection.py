@@ -5566,3 +5566,149 @@ class TestDissectAmqp:
                 '-Tfields', '-eamqp.message.to.string',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['sensors/equal']
+
+
+class TestDissectAnsi637:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, frames, *fields, passes=()):
+        '''Return {frame number: [field values]} for the given frames.'''
+        args = [cmd_tshark, *passes, '-r', capture_file('ansi_637_coverage.pcap.gz'),
+                '-Y', ' || '.join(f'frame.number == {n}' for n in frames),
+                '-Tfields', '-E', 'aggregator=|', '-e', 'frame.number']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        out = {}
+        for line in stdout.splitlines():
+            values = line.split('\t')
+            out[int(values[0])] = values[1:]
+        return out
+
+    def test_ansi_637_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The transport layer over SIP and the IOS A interface, the
+        teleservice layer over ANSI-41 MAP and both by name decode without
+        malformed packets or errors, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_637_coverage.pcap.gz'),
+                '-Tfields', '-e', 'frame.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 133
+        assert protocols.count('exported_pdu:ip:udp:sip:ansi_637_trans:ansi_637_tele') == 35
+        assert protocols.count('exported_pdu:ip:udp:sip:ansi_637_trans') == 26
+        assert protocols.count('exported_pdu:ansi_tcap:ansi_map:ansi_637_tele') == 60
+        assert protocols.count('exported_pdu:ansi_a_bsmap:ansi_637_trans:ansi_637_tele') == 1
+        assert protocols.count('exported_pdu:ansi_a_dtap:ansi_637_trans:ansi_637_tele') == 1
+        assert protocols.count('exported_pdu:ansi_a_dtap:ansi_637_trans') == 1
+        assert protocols.count('exported_pdu:ansi_637_trans:ansi_637_tele') == 6
+        assert protocols.count('exported_pdu:ansi_637_trans') == 1
+        assert protocols.count('exported_pdu:ansi_637_tele') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ansi_637_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-e', 'frame.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ansi_637_user_data_length(self, cmd_tshark, capture_file, test_env):
+        '''User Data longer than its text is Extraneous Data instead of an
+        assertion (GSM 7-bit) or a dissector bug (Latin); text longer than
+        its User Data is Short Data and the subparameters after it are
+        still dissected.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, (115, 116, 117),
+                          'ansi_637_tele.user_data.text', 'ansi_637_tele.subparam_id',
+                          'ansi_637.extraneous_data', 'ansi_637.short_data')
+        assert out[115][0] == '$' and out[115][2] != ''
+        assert out[116][0] == 'A' and out[116][2] != ''
+        text, subparams, extraneous, short = out[117]
+        assert text == ''
+        assert subparams == '0|1|' + '|'.join(['13'] * 8)
+        assert short != ''
+
+    def test_ansi_637_aligned_text(self, cmd_tshark, capture_file, test_env):
+        '''Multiple Encoding User Data and Service Category Program Data text
+        that starts on an octet boundary is read from the right octet.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, (73, 80, 118),
+                          'ansi_637_tele.mult_enc_user_data.text',
+                          'ansi_637_tele.srvc_cat_prog_data.text')
+        assert out[73][0] == 'AB|XYZ'
+        assert out[118][0] == 'AB|XYZ'
+        assert out[80][1] == 'Alert|Weather'
+
+    def test_ansi_637_long_messages(self, cmd_tshark, capture_file, test_env):
+        '''Transport (SIP) and teleservice (ANSI-41 MAP) messages over 255
+        octets are dissected to the end.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, (111, 112),
+                          'ansi_637_trans.param_id', 'ansi_637_trans.bearer_reply.seq_num',
+                          'ansi_637_tele.subparam_id', 'ansi_637_tele.msg_display_mode')
+        assert out[111][0] == '0|4|5|2|8|6'
+        assert out[111][1] == '33'
+        assert out[111][2] == '0|1|13|8'
+        assert out[112][2] == '0|1|1|3|15'
+        assert out[112][3] == '2'
+
+    def test_ansi_637_stale_broadcast(self, cmd_tshark, capture_file, test_env):
+        '''A teleservice message after a Broadcast transport message is not
+        decoded as CMAS, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env, (113, 114, 121, 122, 123),
+                              'ansi_637_tele.user_data.text', 'ansi_637_tele.cmas.num_fields',
+                              'ansi_637_tele.cmas.text', passes=passes)
+            assert out[113][1:] == ['19', 'Test alert']
+            assert out[114] == ['Not an alert', '', '']
+            assert out[121] == out[123] == ['\\b(H', '', '']
+            assert out[122] == ['', '', '']
+
+    def test_ansi_637_cmas(self, cmd_tshark, capture_file, test_env):
+        '''CMAS alert text in several encodings, and type 0 records of
+        length 0 reported as Short Data.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, (89, 90, 91, 96, 98, 120),
+                          'ansi_637_tele.cmas.text', 'ansi_637_tele.cmas.record_len',
+                          'ansi_637_tele.cmas.category', 'ansi_637.short_data')
+        assert out[89][0] == 'Presidential Alert: test'
+        assert out[89][1] == '22|4|10'
+        assert out[90][0] == 'Évacuez la zone'
+        assert out[91][0] == 'Ω Severe'
+        assert out[96][0] == 'Flash flood now!'
+        assert out[98][0] == 'Torn'
+        assert out[120][1] == '0|0|0'
+        assert out[120][3].count('|') == 2
+
+    def test_ansi_637_cmas_reserved_bits(self, cmd_tshark, capture_file, test_env):
+        '''CMAS in a User Data that is the last subparameter, with no type 0
+        record, type 0 after type 1 and type 0 first: no exception, and the
+        3 reserved bits after the CMAS message are in the last octet of the
+        User Data subparameter.'''
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_637_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 105 && frame.number <= 107', '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        packets = ET.fromstring(stdout).findall('packet')
+        assert len(packets) == 3
+        for packet in packets:
+            assert packet.find(".//field[@name='_ws.malformed']") is None
+            user_data = [f for f in packet.iter('field') if f.get('show') == 'User Data']
+            assert len(user_data) == 1
+            ud = user_data[0]
+            reserved = [f for f in ud if f.get('name') == 'ansi_637_tele.reserved']
+            assert len(reserved) == 1
+            assert int(reserved[0].get('pos')) == int(ud.get('pos')) + int(ud.get('size')) - 1
+
+    def test_ansi_637_encodings(self, cmd_tshark, capture_file, test_env):
+        '''User Data in each encoding, with and without a User Data Header.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, (2, 18, 38, 39, 42, 44, 47, 49, 51, 55, 57),
+                          'ansi_637_tele.user_data.text', '_ws.col.info')
+        assert out[2][0] == 'Café crème à 8 h'
+        assert out[18][0] == 'Enhanced part one'
+        assert out[18][1].endswith('(Short Message fragment 1 of 2)')
+        assert out[38][0] == 'IA5 text @ 10:30'
+        assert out[39][0] == 'Unicode Ω ☺'
+        assert out[42][0] == 'שלום'
+        assert out[44][0] == 'GSM default alphabet'
+        assert out[47][0] == '한국어'
+        assert out[49][0] == 'first part'
+        assert out[51][0] == 'second part'
+        assert out[55][0] == 'GSM part two'
+        assert out[57][0] == 'Unicode Ω part'
