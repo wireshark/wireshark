@@ -5712,3 +5712,169 @@ class TestDissectAnsi637:
         assert out[51][0] == 'second part'
         assert out[55][0] == 'GSM part two'
         assert out[57][0] == 'Unicode Ω part'
+
+
+class TestDissectAnsi801:
+    def test_ansi_801_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every forward and reverse request and response type, both
+        PD_MSG_TYPE header forms, IS-801 in ANSI MAP and ANSI A, without
+        malformed packets in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols', '-eansi_801.for_sess_tag',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len(frames) == 109
+        assert all(p.endswith(':ansi_801') for p, _ in frames)
+        assert sum(':ansi_map:' in p for p, _ in frames) == 4
+        assert sum(':ansi_a_dtap:' in p for p, _ in frames) == 2
+        # Forward link frames have the forward session tag
+        assert sum(t != '' for _, t in frames) == 59
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ansi_801_forward_requests(self, cmd_tshark, capture_file, test_env):
+        '''Each forward request type is decoded with its own fields. The
+        function table used to be one entry out of step: Request Location
+        Response was shown as data, and Pseudorange, Pilot Phase and Time
+        Offset Measurement used the function of the next type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 19 && ansi_801.for_req_type',
+                '-Tfields', '-eframe.number', '-eansi_801.for_req_type',
+                '-eansi_801.pref_resp_qual', '-eansi_801.offset_req',
+                '-eansi_801.desired_pilot_phase_resolution', '-eansi_801.height_incl',
+                '-eansi_801.use_action_time_indicator', '-eansi_801.action_time',
+                '-eansi_801.cancellation_type', '-eansi_801.data',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            # The review reproducer
+            ['1', '4', '5', 'False', '', '', '', '', '', ''],
+            ['2', '1', '5', '', '', 'False', '', '', '', ''],
+            ['3', '5', '5', 'False', 'True', '', '', '', '', ''],
+            # One frame for each type
+            ['9', '0', '', '', '', '', '', '', '', '5a'],
+            ['10', '1', '4', '', '', 'True', '', '', '', ''],
+            ['11', '2', '', '', '', '', '', '', '', ''],
+            ['12', '2', '', '', '', '', '', '', '', '0102'],
+            ['13', '3', '', '', '', '', '', '', '', ''],
+            ['14', '4', '2', 'False', '', '', '', '', '', ''],
+            ['15', '5', '1', 'False', 'True', '', '', '', '', ''],
+            ['16', '6', '', '', '', '', 'True', '21', '', ''],
+            ['17', '6', '', '', '', '', 'False', '', '', ''],
+            ['18', '7', '', '', '', '', '', '', '4', ''],
+            ['19', '7', '', '', '', '', '', '', '14', ''],
+        ]
+
+    def test_ansi_801_response_count(self, cmd_tshark, capture_file, test_env):
+        '''Messages with PD_MSG_TYPE 1: the forward response used to start
+        one octet late, and in both directions the response count was not
+        shifted down (16 times too large), so Short Data was reported after
+        the last response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                '-Y', 'ansi_801.pd_message_type == 1',
+                '-Tfields', '-eframe.number',
+                '-eansi_801.for_message_number_responses', '-eansi_801.rev_message_number_responses',
+                '-eansi_801.for_rsp_type', '-eansi_801.rev_rsp_type',
+                '-eansi_801.reject_request_type', '-e_ws.expert',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            # The review reproducer: one Reject of type 2 in each direction
+            ['4', '1', '', '0', '', '2', ''],
+            ['5', '', '1', '', '0', '2', ''],
+            ['43', '3', '', '2,1,12', '', '', ''],
+            ['44', '2', '', '0,8', '', '8', ''],
+            # A request count, requests not decoded
+            ['45', '1', '', '0', '', '8', ''],
+            ['82', '', '3', '', '2,1,6', '', ''],
+            ['83', '', '1', '', '0', '4', ''],
+            # In ANSI MAP
+            ['107', '', '1', '', '7', '', ''],
+        ]
+        # Short Data only where requests or responses are missing
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                '-Y', 'ansi_801.short_data',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['88', '90', '92', '94', '96', '97', '100', '101']
+
+    def test_ansi_801_location_response(self, cmd_tshark, capture_file, test_env):
+        '''The Provide Location Response bit fields, with and without the
+        optional velocity, clock and height parts.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                '-Y', 'frame.number in {37..41,77}',
+                '-Tfields', '-eframe.number', '-eansi_801.lat', '-eansi_801.long',
+                '-eansi_801.velocity_hor', '-eansi_801.velocity_ver',
+                '-eansi_801.clock_bias', '-eansi_801.height', '-eansi_801.reserved_bits',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['37', '33.75', '67.5', '50', '8', '250', '112', '0'],
+            ['38', '-67.5', '-135', '127.75', '', '', '-500', '0'],
+            ['39', '33.75', '67.5', '', '', '', '', '0'],
+            ['40', '33.75', '67.5', '0.25', '-62.5', '-13000', '', ''],
+            ['41', '33.75', '67.5', '', '', '', '15883', '0'],
+            ['77', '-84.375', '90', '', '', '249143', '780', ''],
+        ]
+
+    def test_ansi_801_carriage(self, cmd_tshark, capture_file, test_env):
+        '''IS-801 in ANSI MAP SMSDeliveryPointToPoint (Invoke forward,
+        ReturnResult reverse, through the saved ServiceIndicator) and in an
+        ANSI A ADDS Deliver (direction from the packet direction).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                '-Y', 'ansi_map || ansi_a_dtap',
+                '-Tfields', '-eframe.number', '-eansi_801.for_sess_tag',
+                '-eansi_801.rev_sess_tag', '-eansi_801.for_rsp_type', '-eansi_801.rev_rsp_type',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['104', '11', '', '2', ''],
+            ['105', '', '11', '', '2,1'],
+            ['106', '11', '', '4', ''],
+            ['107', '', '11', '', '7'],
+            ['108', '12', '', '5,2', ''],
+            ['109', '', '12', '', '1'],
+        ]
+
+    def test_ansi_801_sensitivity_assistance(self, cmd_tshark, capture_file, test_env):
+        '''Provide GPS Sensitivity Assistance is decoded from the octets the
+        field masks are for, within its 4 octets, also when it is the last
+        element. It used to be read one octet late, past the element.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                '-Y', 'frame.number in {28,29,108}',
+                '-Tfields', '-eframe.number', '-eansi_801.ref_bit_num',
+                '-eansi_801.num_dr_p', '-eansi_801.dr_size', '-eansi_801.part_num',
+                '-eansi_801.total_parts', '-eansi_801.data_records', '-e_ws.expert',
+            ), encoding='utf-8', env=test_env)
+        # 12 34 56 78 in each: then a Reject, last in the message, in ANSI A
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            [n, '145', '10', '43', '1', '7', '0', ''] for n in ('28', '29', '108')
+        ]
+
+    def test_ansi_801_reserved_message_type(self, cmd_tshark, capture_file, test_env):
+        '''Reserved and manufacturer specific message types, with and
+        without data after the type. Without data it used to be Malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ansi_801_coverage.pcap.gz'),
+                '-Y', 'ansi_801.pd_message_type >= 2',
+                '-Tfields', '-eframe.number', '-eansi_801.pd_message_type',
+                '-eansi_801.proprietary_data', '-e_ws.expert',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['46', '2', '010203', ''],
+            ['47', '200', 'deadbeef', ''],
+            ['48', '255', '00', ''],
+            ['49', '255', '', ''],
+            ['84', '48', '00', ''],
+            ['85', '254', '70726f7072696574617279', ''],
+            ['86', '255', 'ff', ''],
+            ['87', '192', '', ''],
+        ]
