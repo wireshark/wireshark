@@ -16,6 +16,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/address_types.h>
@@ -35,6 +36,8 @@ void proto_register_tcap(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_tcap;
+
+static expert_field ei_tcap_too_many_components;
 static int hf_tcap_tag;
 static int hf_tcap_length;
 static int hf_tcap_data;
@@ -1915,7 +1918,12 @@ proto_register_tcap(void)
 #include "packet-tcap-ettarr.c"
   };
 
+  static ei_register_info ei[] = {
+    { &ei_tcap_too_many_components, { "tcap.too_many_components", PI_UNDECODED, PI_WARN, "Too many components in one message, not dissected", EXPFILL }},
+  };
+
   module_t *tcap_module;
+  expert_module_t *expert_tcap;
 
 /* Register the protocol name and description */
   proto_tcap = proto_register_protocol("Transaction Capabilities Application Part", "TCAP", "tcap");
@@ -1923,6 +1931,8 @@ proto_register_tcap(void)
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_tcap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_tcap = expert_register_protocol(proto_tcap);
+  expert_register_field_array(expert_tcap, ei, array_length(ei));
 
   ansi_sub_dissectors = register_dissector_table("ansi_tcap.ssn", "ANSI SSN", proto_tcap, FT_UINT8, BASE_DEC);
   itu_sub_dissectors = register_dissector_table("itu_tcap.ssn", "ITU SSN", proto_tcap, FT_UINT8, BASE_DEC);
@@ -2200,6 +2210,17 @@ dissect_tcap_ITU_ComponentPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset _
       } /* OID */
   } else {
       /* We have it already */
+  }
+
+  /*
+   * Each component handed to a subdissector adds a layer; stop before
+   * the layer limit in call_dissector_work(), leaving room for the
+   * subdissectors' own layers.
+   */
+  if (is_subdissector &&
+      wmem_list_count(actx->pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+    proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_tcap_too_many_components, tvb, 0);
+    return false;
   }
 
   /* Call the sub dissector if present, and not already called */
