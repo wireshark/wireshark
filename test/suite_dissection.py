@@ -7785,3 +7785,41 @@ class TestDissectArtnet:
         assert lines[1] == ['0', '32767', '']
         assert lines[2][:2] == ['20', '272']
         assert len(lines[2][2].split(',')) == 20
+
+
+class TestDissectArubaAdp:
+    def test_aruba_adp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Requests, responses and unknown types on UDP port 8200 decode
+        without malformed packets or error expert infos, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_adp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['ADP'] * 13
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('aruba_adp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_aruba_adp_values(self, cmd_tshark, capture_file, test_env):
+        '''A request carries the AP MAC address, a response the switch
+        address; other types have only the header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_adp_coverage.pcap.gz'),
+                '-Tfields', '-eadp.version', '-eadp.type', '-eadp.id',
+                '-eadp.mac', '-eadp.switch', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert lines[0] == ['1', '1', '1', '00:0b:86:9a:00:01', '',
+                            'ADP Request Src MAC: 00:0b:86:9a:00:01']
+        assert lines[1] == ['1', '2', '1', '', '10.20.0.1',
+                            'ADP Response Switch IP: 10.20.0.1']
+        assert lines[6][2:4] == ['65535', '00:0b:86:9a:00:04']
+        assert lines[7][4] == '192.0.2.200'
+        assert lines[8][:2] == ['2', '1']
+        assert [line[1] for line in lines[10:]] == ['0', '3', '65535']
+        assert [line[3:] for line in lines[10:]] == [['', '', '']] * 3
