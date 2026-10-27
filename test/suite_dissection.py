@@ -7823,3 +7823,101 @@ class TestDissectArubaAdp:
         assert lines[8][:2] == ['2', '1']
         assert [line[1] for line in lines[10:]] == ['0', '3', '65535']
         assert [line[3:] for line in lines[10:]] == [['', '', '']] * 3
+
+
+# Aruba ERM has no default port. The capture sends ERM type N to UDP port
+# 41000 + N; the type is chosen with Decode As.
+ARUBA_ERM_OPTS = ('-o', 'aruba_erm.udp.port:41000-41006')
+
+
+class TestDissectArubaErm:
+    def test_aruba_erm_no_port(self, cmd_tshark, capture_file, test_env):
+        '''Without the port preference nothing is Aruba ERM.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aruba_erm_coverage.pcap.gz'),
+                '-Y', 'aruba_erm', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_aruba_erm_no_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''Without Decode As every frame gets the "Use Decode As" note and
+        the payload is shown as data.'''
+        stdout = subprocess.check_output((cmd_tshark, *ARUBA_ERM_OPTS,
+                '-r', capture_file('aruba_erm_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == \
+            ['ARUBA_ERM\tUse Decode AS (Aruba ERM Type) for decoding payload'] * 38
+
+    @pytest.mark.parametrize('erm_type,protocols', [
+        (0, {'802.11': 2, 'ARP': 2}),
+        (1, {'802.11': 4, 'ARP': 2}),
+        (2, {'ARUBA_ERM': 2}),
+        (3, {'802.11': 4, 'ARP': 11}),
+        (4, {'802.11': 1, 'ARP': 1}),
+        (5, {'802.11': 1, 'ARP': 5}),
+        (6, {'802.11': 1, 'ARP': 2}),
+    ])
+    def test_aruba_erm_types(self, cmd_tshark, capture_file, test_env, erm_type, protocols):
+        '''Each type decodes its frames down to 802.11 and ARP without
+        malformed packets or error expert infos, in one and two passes.
+        Type 2 (Airmagnet) is not decoded and always has an error.'''
+        opts = (*ARUBA_ERM_OPTS, '-d', f'aruba_erm.type,aruba_erm_type{erm_type}',
+                '-Y', f'udp.dstport == {41000 + erm_type}')
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('aruba_erm_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        found = stdout.splitlines()
+        assert {p: found.count(p) for p in set(found)} == protocols
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                    '-r', capture_file('aruba_erm_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.malformed',
+                    '-e', 'aruba_erm.airmagnet', '-e_ws.expert.severity',
+                ), encoding='utf-8', env=test_env)
+            for line in stdout.splitlines():
+                number, malformed, airmagnet, severities = line.split('\t')
+                assert malformed == ''
+                if erm_type == 2:
+                    assert airmagnet != ''
+                else:
+                    # warnings only (no preamble information for 11b)
+                    assert '8388608' not in severities.split(',')
+
+    def test_aruba_erm_type3(self, cmd_tshark, capture_file, test_env):
+        '''Type 3 (pcap + radio header): data rate, channel and signal, the
+        PHY guessed from the rate and channel, and no FCS when the signal
+        is 100 % (a frame the AP sent).'''
+        stdout = subprocess.check_output((cmd_tshark, *ARUBA_ERM_OPTS,
+                '-d', 'aruba_erm.type,aruba_erm_type3', '-Y', 'udp.dstport == 41003',
+                '-r', capture_file('aruba_erm_coverage.pcap.gz'),
+                '-Tfields', '-earuba_erm.incl_len', '-earuba_erm.data_rate_gen',
+                '-earuba_erm.channel', '-earuba_erm.signal_strength',
+                '-ewlan_radio.phy', '-ewlan.fcs',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert len(lines) == 15
+        # 11b, 11b, 11b, 11b (no FCS), 11g, 11a, 11a (no FCS), unknown
+        assert [line[4] for line in lines[:8]] == ['4', '4', '4', '4', '6', '5', '5', '']
+        assert lines[0][1:4] == ['1', '1', '55']
+        assert lines[3][1:4] == ['11', '13', '100']
+        assert lines[3][5] == ''
+        assert lines[6][1:4] == ['48', '149', '100']
+        assert lines[6][5] == ''
+        assert lines[7][1] == '6.5'
+        assert all(line[5] for line in lines if line[3] != '100')
+
+    def test_aruba_erm_type0(self, cmd_tshark, capture_file, test_env):
+        '''Type 0: the pcap record header and 802.11 with an FCS.'''
+        stdout = subprocess.check_output((cmd_tshark, *ARUBA_ERM_OPTS,
+                '-d', 'aruba_erm.type,aruba_erm_type0', '-Y', 'udp.dstport == 41000',
+                '-r', capture_file('aruba_erm_coverage.pcap.gz'),
+                '-Tfields', '-earuba_erm.incl_len', '-earuba_erm.orig_len',
+                '-ewlan.fc.type_subtype', '-ewlan.fcs',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert [line[:3] for line in lines] == [
+            ['62', '62', '0x0008'], ['64', '64', '0x0020'],
+            ['66', '66', '0x0028'], ['14', '14', '0x001d']]
+        assert lines[0][3] == '0x186a8b89'
