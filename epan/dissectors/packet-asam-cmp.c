@@ -1400,6 +1400,7 @@ UAT_HEX_CB_DEF(asam_cmp_interfaces, bus_id, interface_config_t)
 /*** expert info items ***/
 static expert_field ei_asam_cmp_length_mismatch;
 static expert_field ei_asam_cmp_unsupported_crc_not_zero;
+static expert_field ei_asam_cmp_too_deep;
 
 /* ID -> Name */
 static void *
@@ -2239,7 +2240,7 @@ dissect_asam_cmp_data_msg_analog(tvbuff_t *tvb, proto_tree *tree) {
 
     int data_left = tvb_captured_length(tvb) - offset;
 
-    while (data_width != 0 && data_left > data_width) {
+    while (data_width != 0 && data_left >= data_width) {
         switch (flags & 0x03) {
         case 0: {
             /* INT16 */
@@ -2287,6 +2288,16 @@ dissect_asam_cmp_data_msg_analog(tvbuff_t *tvb, proto_tree *tree) {
     return offset;
 }
 
+static void
+call_asam_cmp_ethernet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *root_tree) {
+    /* The Ethernet frame may carry ASAM CMP again; stop before the layer limit */
+    if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_asam_cmp_too_deep, tvb, 0);
+        return;
+    }
+    call_dissector(eth_handle, tvb, pinfo, root_tree);
+}
+
 static uint32_t
 dissect_asam_cmp_data_msg_ethernet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *root_tree, bool tx) {
     uint32_t offset = 0;
@@ -2327,7 +2338,7 @@ dissect_asam_cmp_data_msg_ethernet(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     if (msg_payload_type_length > 0) {
         tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, (int)msg_payload_type_length);
-        call_dissector(eth_handle, sub_tvb, pinfo, root_tree);
+        call_asam_cmp_ethernet(sub_tvb, pinfo, tree, root_tree);
         offset += msg_payload_type_length;
     }
 
@@ -2571,7 +2582,7 @@ dissect_asam_cmp_data_msg_raw_ethernet(tvbuff_t *tvb, packet_info *pinfo, proto_
 
                     if (bytes_left > 0) {
                         if (sfd_candidate == CMP_ETH_RAW_SFD_ORIG) {
-                            call_dissector(eth_handle, tvb_new_subset_length(tvb, offset, bytes_left), pinfo, root_tree);
+                            call_asam_cmp_ethernet(tvb_new_subset_length(tvb, offset, bytes_left), pinfo, tree, root_tree);
                         } else {
                             proto_tree_add_item(tree, hf_cmp_raw_eth_mpacket, tvb, offset, bytes_left, ENC_NA);
                         }
@@ -3068,20 +3079,16 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 
         proto_tree_add_item(asam_cmp_ctrl_msg_payload_tree, hf_cmp_ctrl_msg_vendor_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        asam_cmp_ctrl_msg_payload_length -= 2;
 
         proto_tree_add_item(asam_cmp_ctrl_msg_payload_tree, hf_cmp_ctrl_msg_vendor_payload_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        asam_cmp_ctrl_msg_payload_length -= 2;
 
-        if (asam_cmp_ctrl_msg_payload_length > 0) {
-            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, asam_cmp_ctrl_msg_payload_length);
+        if (asam_cmp_ctrl_msg_payload_length > 4) {
+            tvbuff_t *sub_tvb = tvb_new_subset_length(tvb, offset, asam_cmp_ctrl_msg_payload_length - 4);
             call_data_dissector(sub_tvb, pinfo, tree);
-            offset += (int)asam_cmp_ctrl_msg_payload_length;
+            offset += asam_cmp_ctrl_msg_payload_length - 4;
         }
-
-        /* we changed the payload length, so lets skip the length check by leaving */
-        return (offset + asam_cmp_ctrl_msg_payload_length) - offset_orig;
+        break;
 
     default:
         if (asam_cmp_ctrl_msg_payload_length > 0) {
@@ -3900,7 +3907,7 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_flexray_frame_id,                 { "Frame ID", "asam-cmp.msg.flexray.flags.frame_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_flexray_cycle,                    { "Cycle", "asam-cmp.msg.flexray.flags.cycle", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_flexray_frame_crc,                { "Frame CRC", "asam-cmp.msg.flexray.flags.frame_crc", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_cmp_flexray_reserved_2,               { "Reserved", "asam-cmp.msg.flexray.flags.res_2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_flexray_reserved_2,               { "Reserved", "asam-cmp.msg.flexray.flags.res_2", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_flexray_data_len,                 { "Data length", "asam-cmp.msg.flexray.flags.data_len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         /* Digital */
@@ -4345,6 +4352,7 @@ proto_register_asam_cmp(void) {
     static ei_register_info ei[] = {
         { &ei_asam_cmp_length_mismatch, {"asam-cmp.expert.length_mismatch", PI_MALFORMED, PI_WARN, "Malformed message, length mismatch!", EXPFILL } },
         { &ei_asam_cmp_unsupported_crc_not_zero, {"asam-cmp.export.deactivated_crc_not_zero", PI_MALFORMED, PI_WARN, "Unsupported CRC is not zero!", EXPFILL } },
+        { &ei_asam_cmp_too_deep, {"asam-cmp.expert.too_deep", PI_UNDECODED, PI_WARN, "Ethernet frame nested too deep, not dissected", EXPFILL } },
     };
 
     /* UATs for user_data fields */
