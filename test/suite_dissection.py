@@ -6007,3 +6007,130 @@ class TestDissectAnsi683:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 0
+
+
+ANSI_A_OPTS = ('-d', 'sccp.ssn==252,bsap')  # BSAP has no fixed SCCP SSN
+ANSI_A_IOS5 = ('-o', 'ansi_a_bsmap.global_variant:ios-5.0.1')
+
+
+class TestDissectAnsiA:
+    def ansi_a(self, cmd_tshark, capture_file, test_env, ios5, *args):
+        capture = 'ansi_a_ios5_coverage.pcap.gz' if ios5 else 'ansi_a_coverage.pcap.gz'
+        return subprocess.check_output((cmd_tshark, *ANSI_A_OPTS, *(ANSI_A_IOS5 if ios5 else ()),
+                '-r', capture_file(capture), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_ansi_a_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BSMAP and DTAP message of both variants, over M3UA/SCCP, in
+        a femtocell SIP MESSAGE and in ANSI-41 MAP, decodes without malformed
+        packets or errors, in one and two passes.'''
+        for ios5, counts in ((False, {'BSAP': 268, 'SCCP (Int. ITU)': 20, 'SIP': 12, 'ANSI MAP': 3,
+                                      'IS-637-A': 4, 'IS-683': 2, 'IS-801': 2}),
+                             (True, {'BSAP': 283, 'SCCP (Int. ITU)': 22, 'SIP': 12, 'ANSI MAP': 3,
+                                     'IS-637-A': 4, 'IS-683': 2, 'IS-801': 2,
+                                     'EVRC': 4, 'RTP': 1, 'RTP EVENT': 1})):
+            stdout = self.ansi_a(cmd_tshark, capture_file, test_env, ios5,
+                    '-Tfields', '-e_ws.col.protocol')
+            protocols = stdout.splitlines()
+            assert {p: protocols.count(p) for p in set(protocols)} == counts
+            for passes in ((), ('-2',)):
+                stdout = self.ansi_a(cmd_tshark, capture_file, test_env, ios5, *passes,
+                        '-Y', '_ws.malformed || _ws.expert.severity == error',
+                        '-Tfields', '-eframe.number')
+                assert count_output(stdout) == 0
+
+    def test_ansi_a_statistics(self, cmd_tshark, capture_file, test_env):
+        '''The BSMAP and DTAP statistics count every message of the variant
+        (56 BSMAP and 37 DTAP messages in IOS 4.0.1, 62 and 37 in IOS 5.0.1).'''
+        for ios5, rows in ((False, 93), (True, 99)):
+            stdout = self.ansi_a(cmd_tshark, capture_file, test_env, ios5,
+                    '-q', '-z', 'ansi_a,bsmap', '-z', 'ansi_a,dtap')
+            counts = [int(line.split('|')[2]) for line in stdout.splitlines() if line.startswith('0x')]
+            assert len(counts) == rows
+            assert 0 not in counts
+
+    def test_ansi_a_ios4_tag_after_status_request(self, cmd_tshark, capture_file, test_env):
+        '''In IOS 4.0.1 mode the IOS 5 only elements of Status Request are
+        skipped, and the Tag after them is shown. They used to take the
+        rest of the message.'''
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, False,
+                '-Y', 'ansi_a_bsmap.msgtype == 0x6a',
+                '-Tfields', '-eframe.number', '-eansi_a_bsmap.tag.value')
+        assert stdout.splitlines() == ['38\t16909060', '244\t16909060', '297\t42']
+
+    def test_ansi_a_access_network_identifiers(self, cmd_tshark, capture_file, test_env):
+        '''Access Network Identifiers (a TV element in Handoff Required) shows
+        SID, NID and PZID at their own offsets, and the Service Option List
+        after it is dissected. NID and PZID used to be read at the SID offset
+        and the rest of the message taken as extraneous data.'''
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, False,
+                '-Y', 'ansi_a_bsmap.nid',
+                '-Tfields', '-eframe.number', '-eansi_a_bsmap.sid', '-eansi_a_bsmap.nid',
+                '-eansi_a_bsmap.pzid', '-eansi_a_bsmap.so_list.num')
+        assert stdout.splitlines() == ['129\t257\t514\t3\t3', '296\t1\t2\t3\t1', '305\t257,291\t514\t3\t3']
+
+    def test_ansi_a_cell_list(self, cmd_tshark, capture_file, test_env):
+        '''A Cell Identifier List whose only cell runs past the element has
+        one cell. The unsigned length used to wrap and the rest of the
+        message was read as cells.'''
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, False,
+                '-Y', 'frame.number == 298',
+                '-Tfields', '-eansi_a_bsmap.cell_ci')
+        assert stdout.strip() == '0x0022'
+
+    def test_ansi_a_ios5_rtp_setup(self, cmd_tshark, capture_file, test_env):
+        '''The A2p Bearer Format-Specific Parameters set up the RTP streams
+        (IPv4 and IPv6, session or format address) with their dynamic payload
+        types, including telephone-event for an in-band signaling format.'''
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, True,
+                '-Y', 'rtp',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ertp.p_type',
+                '-ertp.setup-frame', '-ertp.setup-method')
+        assert stdout.splitlines() == [
+            '79\tEVRC\t97\t45\tIOS5',
+            '80\tRTP EVENT\t101\t45\tIOS5',
+            '153\tEVRC\t97\t152\tIOS5',
+            '154\tEVRC\t102\t148\tIOS5',
+            '214\tEVRC\t98\t211\tIOS5',
+            '327\tRTP\t98\t321\tIOS5',
+        ]
+
+    def test_ansi_a_femto(self, cmd_tshark, capture_file, test_env):
+        '''BSMAP and DTAP messages in a femtointerfacemsg SIP body.'''
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, False,
+                '-Y', 'sip',
+                '-Tfields', '-eansi_a_bsmap.msgtype', '-eansi_a_bsmap.dtap_msgtype')
+        assert stdout.splitlines() == [
+            '0x57\t', '\t0x24', '\t0x04', '0x45\t', '\t0x27', '\t0x33', '\t0x2c',
+            '\t', '0x09\t', '\t', '\t0x4a', '0x00\t',
+        ]
+
+    def test_ansi_a_fill_bits(self, cmd_tshark, capture_file, test_env):
+        '''The fill bits of bit-exact contents are the low bits of the last
+        octet, as many as the fill bit count (1 to 7). One fill bit used to
+        add a zero-width field, a dissector bug.'''
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, False,
+                '-Y', 'frame.number >= 307 && frame.number <= 310', '-V', '-O', 'ansi_a_bsmap')
+        fill = [line.strip() for line in stdout.splitlines() if '= Fill Bits:' in line]
+        assert fill == [
+            # Mobile Capabilities FCH, DCCH, FOR_PDCH, REV_PDCH (1, 3, 7, 4 fill bits)
+            '.... ...1 = Fill Bits: 1', '.... .101 = Fill Bits: 5',
+            '.101 0101 = Fill Bits: 85', '.... 1100 = Fill Bits: 12',
+            # (2, 5, 6, none)
+            '.... ..01 = Fill Bits: 1', '...1 1110 = Fill Bits: 30', '..00 0011 = Fill Bits: 3',
+            # Non-Negotiable Service Configuration Record (1, 6)
+            '.... ...1 = Fill Bits: 1', '..10 1001 = Fill Bits: 41',
+        ]
+        stdout = self.ansi_a(cmd_tshark, capture_file, test_env, False,
+                '-Y', '_ws.expert.group == "Dissector bug"', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+
+    def test_ansi_a_a1_element_type_0(self, cmd_tshark, capture_file, test_env):
+        '''A CDMA2000 A1 element of type 0x00 in ANSI-41 MAP is stepped over
+        and the element after it is decoded. It used to match the end of the
+        element table and loop forever.'''
+        for ios5, frame in ((False, '311'), (True, '334')):
+            stdout = self.ansi_a(cmd_tshark, capture_file, test_env, ios5,
+                    '-Y', 'frame.number == ' + frame,
+                    '-Tfields', '-eansi_a_bsmap.cause_1', '-eansi_a_bsmap.esn')
+            assert stdout.strip() == '9\t0x8a123456'
