@@ -6685,3 +6685,118 @@ class TestDissectTcap:
         # as a UniDialoguePDU
         assert stdout.strip('\n').split('\t') == [
             '0', '0', '0.4.0.0.1.0.21.2,0.4.0.0.1.0.19.2', '0.4.0.0.1.0.21.2']
+
+
+class TestDissectAodv:
+    def test_aodv_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type over IPv4, IPv6 and draft-01 IPv6 is
+        dissected, with no malformed packets and no errors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aodv_coverage.pcap.gz'),
+                '-Y', 'aodv',
+                '-Tfields', '-eaodv.type',
+            ), encoding='utf-8', env=test_env)
+        types = stdout.splitlines()
+        assert len(types) == 66
+        assert types.count('1') == 22     # RREQ
+        assert types.count('2') == 13     # RREP
+        assert types.count('3') == 8      # RERR
+        assert types.count('4') == 4      # RREP-ACK
+        assert types.count('16') == 9     # draft-01 IPv6 RREQ
+        assert types.count('17') == 5     # draft-01 IPv6 RREP
+        assert types.count('18') == 3     # draft-01 IPv6 RERR
+        assert types.count('19') == 2     # draft-01 IPv6 RREP-ACK
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('aodv_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_aodv_ipv6(self, cmd_tshark, capture_file, test_env):
+        '''RFC 3561 types over IPv6 have IPv6 addresses; the draft-01
+        RERR has the sequence number before the address.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aodv_coverage.pcap.gz'),
+                '-Y', 'aodv.type == 3 || aodv.type == 18',
+                '-Tfields', '-eframe.number', '-eaodv.flags.rerr_nodelete',
+                '-eaodv.destcount', '-eaodv.unreach_dest_ip',
+                '-eaodv.unreach_dest_ipv6', '-eaodv.dest_seqno',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[2] == '22\tFalse\t4\t192.0.2.7,192.0.2.8,192.0.2.9,192.0.2.10\t\t2,3,4,4294967295'
+        assert lines[6] == '43\tFalse\t3\t\t2001:db8::7,2001:db8::8,2001:db8::9\t1,2,3'
+        assert lines[9] == '59\tFalse\t3\t\t2001:db8::1,2001:db8::2,2001:db8::3\t7,8,9'
+
+    def test_aodv_extensions(self, cmd_tshark, capture_file, test_env):
+        '''Hello Interval, Timestamp, None and unknown extensions, alone
+        and chained, longer than needed (the excess is skipped).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aodv_coverage.pcap.gz'),
+                '-Y', 'aodv.ext_type && frame.number < 61',
+                '-Tfields', '-eframe.number', '-eaodv.ext_type',
+                '-eaodv.ext_length', '-eaodv.hello_interval', '-eaodv.timestamp',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t2\t4\t1000\t',
+            '9\t3\t8\t\t81985529216486895',
+            '10\t1\t2\t\t',
+            '11\t200\t3\t\t',
+            '12\t2,3,1,7\t6,9,1,1\t500\t42',
+            '18\t2\t4\t1000\t',
+            '19\t3,2\t8,4\t250\t1',
+            '36\t2,3,1,9\t4,8,2,2\t1000\t99',
+            '40\t2\t4\t1000\t',
+            '52\t2,3,1,9\t4,8,2,2\t1000\t7',
+            '56\t2,3\t4,8\t1000\t8',
+        ]
+
+    def test_aodv_many_extensions(self, cmd_tshark, capture_file, test_env):
+        '''A RREQ with 470 one octet unknown extensions and a draft-01
+        RREQ with 100 (batch46-55 reproducers) dissect every one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('aodv_coverage.pcap.gz'),
+                '-Y', 'frame.number == 61 || frame.number == 67',
+                '-Tfields', '-eaodv.ext_type',
+            ), encoding='utf-8', env=test_env)
+        assert [len(line.split(',')) for line in stdout.splitlines()] == [470, 100]
+
+    def test_aodv_udp_port_pref(self, cmd_tshark, capture_file, test_env):
+        '''Frame 28 is AODV on UDP port 6540, dissected only once the port
+        is added to the preference.'''
+        def frame28(*opts):
+            return subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('aodv_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 28',
+                    '-Tfields', '-eaodv.rreq_id', '-eaodv.flags.rreq_destinationonly',
+                ), encoding='utf-8', env=test_env)
+        assert frame28() == '\t\n'
+        assert frame28('-o', 'aodv.udp.port:654,6540') == '300\tTrue\n'
+
+    def test_aodv_short_extension(self, cmd_text2pcap, cmd_tshark, result_file, test_env):
+        '''A Hello Interval extension shorter than 4 octets and a Timestamp
+        extension shorter than 8 get the "Invalid option length" expert
+        info and are skipped, without an exception; the extension after
+        them is dissected.'''
+        def ext(t, data):
+            return struct.pack('!BB', t, len(data)) + data
+        rreq = (struct.pack('!BHBI', 1, 0x8000, 3, 7) + bytes([192, 0, 2, 9])
+                + struct.pack('!I', 5) + bytes([192, 0, 2, 1]) + struct.pack('!I', 6))
+        packets = [
+            rreq + ext(2, b'\x00\x01') + ext(2, struct.pack('!I', 5)),
+            rreq + ext(3, bytes(7)) + ext(2, struct.pack('!I', 9)),
+        ]
+        text_file = result_file('aodv_short_ext.txt')
+        capture = result_file('aodv_short_ext.pcapng')
+        with open(text_file, 'w') as f:
+            f.writelines(f'000000  {packet.hex(" ")}\n' for packet in packets)
+        subprocess.check_call((cmd_text2pcap, '-q', '-4', '192.0.2.1,192.0.2.2',
+                               '-u', '654,654', text_file, capture), env=test_env)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture,
+                '-Tfields', '-eframe.number', '-eaodv.ext_length.invalid',
+                '-eaodv.hello_interval', '-eaodv.timestamp', '-e_ws.malformed.expert',
+            ), encoding='utf-8', env=test_env)
+        # The expert info is in the Malformed group, but no exception follows it
+        assert stdout == '1\t1\t5\t\t\n2\t1\t9\t\t\n'
