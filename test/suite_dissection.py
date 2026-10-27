@@ -18,6 +18,100 @@ import pytest
 from subprocesstest import count_output, grep_output
 
 
+class TestDissectA2a:
+    '''
+    the a2a.pcapng contains a session of the demo echo agent on port 42000: agent card,
+    message:send, message:stream, tasks listing, a task fetch, and a last message:send
+    whose response carries a Message instead of a Task (frames 140 and 144).
+    '''
+    def test_a2a_message_types(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a2a.pcapng'),
+                '-Y', 'a2a',
+                '-Tfields',
+                '-ea2a.type',
+            ), encoding='utf-8', env=test_env)
+        # AgentCard, SendMessageRequest, SendMessageResponse, ...
+        assert stdout.split() == ['9', '1', '2', '1', '7', '4', '1', '2', '1', '2']
+
+    def test_a2a_plain_json_not_claimed(self, cmd_tshark, capture_file, test_env):
+        '''The /health body, {"status":"ok"}, is not an A2A message'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a2a.pcapng'),
+                '-Y', 'json && !a2a',
+                '-Tfields',
+                '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['8']
+
+    def test_a2a_message_role(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a2a.pcapng'),
+                '-Y', 'a2a.type == 1',
+                '-Tfields',
+                '-ea2a.role',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['ROLE_USER', 'ROLE_USER', 'ROLE_USER', 'ROLE_USER']
+
+    def test_a2a_message_response_role(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a2a.pcapng'),
+                '-Y', 'frame.number in {140, 144}',
+                '-Tfields',
+                '-eframe.number',
+                '-ea2a.type',
+                '-ea2a.role',
+                '-ea2a.task.state',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['140', '1', 'ROLE_USER', ''],
+            ['144', '2', 'ROLE_AGENT', ''],
+        ]
+
+    def test_a2a_task_state(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a2a.pcapng'),
+                '-Y', 'a2a',
+                '-Tfields',
+                '-ea2a.task.state',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            'TASK_STATE_COMPLETED',
+            'TASK_STATE_COMPLETED,TASK_STATE_COMPLETED',
+            'TASK_STATE_COMPLETED',
+            'TASK_STATE_COMPLETED',
+        ]
+
+    def test_a2a_task_timestamp(self, cmd_tshark, capture_file, test_env):
+        '''TaskStatus.timestamp is an RFC 3339 string decoded as a time.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a2a.pcapng'),
+                '-Y', 'a2a.type == 4',
+                '-Tfields',
+                '-ea2a.task.timestamp',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '2026-11-13T11:55:17.435289000Z'
+
+    def test_a2a_agent_card(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a2a.pcapng'),
+                '-Y', 'a2a.agent.name',
+                '-Tfields',
+                '-ea2a.agent.name',
+                '-ea2a.agent.version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Echo Agent\t1.0.0'
+
+    def test_a2a_task_list(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('a2a.pcapng'),
+                '-Y', 'a2a.type == 7',
+                '-Tfields',
+                '-ea2a.task_count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '2'
+
+
 class TestDissectHttpHeaderSyntax:
     def test_http_header_syntax_expert_warnings(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
         testin_file = result_file('http-header-syntax.txt')

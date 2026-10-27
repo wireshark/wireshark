@@ -183,8 +183,12 @@ static bool hide_extended_path_based_filtering;
 
 static bool unescape_strings;
 
+static bool try_heuristic_subdissectors = true;
+
 static dissector_handle_t text_lines_handle;
 static dissector_handle_t falco_json_handle;
+
+static heur_dissector_list_t json_heur_subdissector_list;
 
 typedef enum {
 	JSON_TOKEN_INVALID = -1,
@@ -1542,6 +1546,28 @@ json_dissect_tokens(json_parser_data_t *data)
 	return consumed;
 }
 
+/* Hand over JSON data and the parsed tokens (json_heur_data_t) to the heuristic
+ * subdissectors registered in the "json" heuristic table. A protocol that merely
+ * uses JSON as its encoding (like A2A or MCP), and that cannot be recognized by port
+ * or media type, can now register an heuristic in the "json" table and add its
+ * own layer on top of the generic JSON tree. */
+static bool
+json_call_heuristic_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, json_heur_data_t *heur_data)
+{
+	heur_dtbl_entry_t *hdtbl_entry = NULL;
+
+	if (!try_heuristic_subdissectors || json_heur_subdissector_list == NULL) {
+		return false;
+	}
+
+	if (tvb_reported_length(tvb) == 0) {
+		return false;
+	}
+
+	return dissector_try_heuristic(json_heur_subdissector_list, tvb, pinfo, tree,
+		&hdtbl_entry, heur_data);
+}
+
 static int
 dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -1560,6 +1586,15 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	media_content_info_t *content_info;
 	const char *data_name;
 	int offset;
+
+	int json_offset;
+	bool claimed = false;
+	json_heur_data_t heur_data = {
+		.content_info = data,
+		.buf = NULL,
+		.tokens = NULL,
+		.num_tokens = 0,
+	};
 
 	/* Save pinfo*/
 	parser_data.pinfo = pinfo;
@@ -1768,6 +1803,10 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	parser_data.error_offset = -1;
 	parser_data.error_msg = NULL;
 
+	/* The tokens are offset from the start of the JSON text, which is also
+	 * offset 0 of the tvbuff handed to the heuristic subdissectors. */
+	json_offset = parser_data.base_offset;
+
 	proto_tree* json_tree_plus = NULL;
 	if (json_plus) {
 		// JSON+ (dictionary-driven) dissection
@@ -1794,6 +1833,14 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		proto_tree_add_expert_format(json_tree, pinfo, &ei_json_malformed, tvb,
 			parser_data.base_offset + error_offset, error_offset < json_len ? 1 : 0,
 			"Malformed JSON: %s", parser_data.error_msg);
+	}
+
+	/* share JSON data and parsed tokens with the heuristic subdissectors */
+	if (parser_data.parse_result >= 0 && parser_data.error_offset < 0 &&
+	    parser_data.num_tokens > 0) {
+		heur_data.buf = json_buf;
+		heur_data.tokens = parser_data.tokens;
+		heur_data.num_tokens = parser_data.num_tokens;
 	}
 
 	if (json_plus) {
@@ -1825,6 +1872,14 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	proto_item_set_len(ti, offset);
 
+	/* Offer the JSON data to the heuristic subdissectors of the "json"
+	 * table, so protocols encoded in JSON can be dissected on top of the
+	 * generic JSON tree. */
+	if (offset > json_offset) {
+		tvbuff_t *json_tvb = tvb_new_subset_length(tvb, json_offset, offset - json_offset);
+		claimed = json_call_heuristic_subdissectors(json_tvb, pinfo, tree, &heur_data);
+	}
+
 	/* if we have some unparsed data, pass to data-text-lines dissector (?) */
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		tvbuff_t *next_tvb;
@@ -1832,7 +1887,9 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 
 		call_dissector_with_data(text_lines_handle, next_tvb, pinfo, tree, data);
-	} else if (data_name) {
+	} else if (data_name && !claimed) {
+		/* a subdissector that claimed the data populated the info colum in
+		 * terms of its own protocol; the media type adds nothing. */
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)", data_name);
 	}
 
@@ -3665,6 +3722,9 @@ common_register_json(void)
 	json_handle = register_dissector("json", dissect_json, proto_json);
 	json_file_handle = register_dissector("json_file", dissect_json_file, proto_json);
 
+	/* Heuristic table for JSON-based application protocols */
+	json_heur_subdissector_list = register_heur_dissector_list_with_description("json", "JSON", proto_json);
+
 	/* Use register_shutdown_routine (program-exit hook), NOT
 	 * register_cleanup_routine — the latter fires on every capture-file
 	 * close (via epan_free → cleanup_dissection), which would wipe the
@@ -3708,6 +3768,13 @@ common_register_json(void)
 		"Replace character escapes with the escaped literal value",
 		"Replace character escapes with the escaped literal value",
 		&unescape_strings);
+
+	prefs_register_bool_preference(json_module, "try_heuristic_subdissectors",
+		"Try heuristic subdissectors on the JSON payload",
+		"Offer the dissected JSON data to the heuristic dissectors"
+		" registered in the \"json\" heuristic table, so that protocols"
+		" encoded in JSON can be dissected on top of the JSON tree.",
+		&try_heuristic_subdissectors);
 
 	/* JSON+ specific preferences */
 	prefs_register_bool_preference(json_module, "plus_desegment",

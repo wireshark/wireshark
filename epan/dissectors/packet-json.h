@@ -16,6 +16,8 @@
 #ifndef _PACKET_JSON_H
 #define _PACKET_JSON_H
 
+#include <wsutil/wsjson.h>
+
 /* XXX - This should probably be a string or custom dissector table */
 extern GHashTable *json_header_fields_hash;
 
@@ -45,6 +47,29 @@ typedef struct _json_key {
     char* key_str;
     bool use_compact;
 } json_key_t;
+
+/* A struct holding data to be passed to the heuristic dissectors registered
+ * in the "json" heuristic table.
+ *
+ * It carries the parsed form of the JSON data so that a subdissector does not
+ * have to parse it again: the jsmn token array built for the JSON+ form
+ * is handed over as is.
+ *
+ * Token offsets are relative to the start of the JSON data, which is also
+ * offset 0 of the tvbuff passed to the heuristic dissector, so they can be
+ * used directly as tvbuff offsets.
+ */
+typedef struct _json_heur_data {
+    /* media_content_info_t * or NULL if not available */
+    void *content_info;
+
+    /* Pointer to the raw JSON. Not NULL terminated: use the token offsets.  */
+    const char *buf;
+
+    /* jsmn token array, NULL when the JSON could not be parsed. */
+    jsmntok_t *tokens;
+    int num_tokens;
+} json_heur_data_t;
 
 #endif /* _PACKET_JSON_H */
 

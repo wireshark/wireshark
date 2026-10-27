@@ -2375,6 +2375,8 @@ Francesco Fondelli	<francesco.fondelli[AT]gmail.com> {
 	PCEP Extensions for Association, draft-ietf-pce-association-group-00
 	BGP-LS extensions for Segment Routing, draft-gredler-idr-bgp-ls-segment-routing-ext-01
 	HL7 protocol support
+	Support for JSON heuristic subdissectors
+	Agent2Agent (A2A) Protocol support
 }
 
 Artem Tamazov           <artem.tamazov[AT]tellabs.com> {
