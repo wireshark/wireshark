@@ -7492,3 +7492,126 @@ class TestDissectArmagetronad:
         info = ''.join(frames[n][0] for n in range(7, 12))
         assert info.count(', ') + 5 == 47
         assert 'Unknown' not in info
+
+
+ARP_STORM_OPTS = ('-o', 'arp.detect_request_storms:TRUE',
+                  '-o', 'arp.detect_storm_number_of_packets:3')
+
+
+class TestDissectArp:
+    def test_arp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every opcode of ARP, RARP, DRARP, Inverse ARP, MARS and MAPOS,
+        AX.25 ARP and ATMARP decodes without malformed packets, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 153
+        assert protocols.count('ARP') == 67
+        assert protocols.count('RARP') == 8
+        assert protocols.count('DRARP') == 4
+        assert protocols.count('Inverse ARP') == 4
+        assert protocols.count('MARS') == 36
+        assert protocols.count('MAPOS') == 3
+        assert protocols.count('ATMARP') == 24
+        assert protocols.count('ATMRARP') == 2
+        assert protocols.count('Inverse ATMARP') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('arp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_arp_probe_announcement(self, cmd_tshark, capture_file, test_env):
+        '''ARP Probes and Announcements are recognized for Ethernet/IPv4
+        only. Requests with short or non-IPv4 addresses (frames 59-62)
+        used to be malformed or taken for a probe.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arp_coverage.pcap.gz'),
+                '-Y', 'arp.isprobe || arp.isannouncement || arp.isgratuitous',
+                '-Tfields', '-eframe.number', '-earp.isprobe',
+                '-earp.isannouncement', '-earp.isgratuitous',
+            ), encoding='utf-8', env=test_env)
+        flags = {int(f[0]): tuple(f[1:]) for f in
+                 (line.split('\t') for line in stdout.splitlines())}
+        assert flags[3] == ('', 'True', 'True')      # announcement
+        assert flags[4] == ('', '', 'True')          # gratuitous request
+        assert flags[6] == ('True', '', '')          # probe
+        assert flags[7] == ('True', '', '')          # probe, nonzero target
+        assert 59 not in flags and 60 not in flags and 61 not in flags
+        assert flags[62] == ('', '', 'True')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arp_coverage.pcap.gz'),
+                '-Y', 'arp.dst.nonzero.probe',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['7']
+
+    def test_arp_duplicate_address(self, cmd_tshark, capture_file, test_env):
+        '''Duplicate IP addresses are reported against the right earlier
+        frame, in one and two passes, and not at all with the preference
+        off.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('arp_coverage.pcap.gz'),
+                    '-Y', 'arp.duplicate-address-detected',
+                    '-Tfields', '-eframe.number',
+                    '-earp.duplicate-address-frame',
+                    '-earp.seconds-since-duplicate-address-frame',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '11\t10\t1', '12\t10\t2', '14\t13\t1', '21\t10\t70',
+                '22\t11,10\t70,71',
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arp_coverage.pcap.gz'),
+                '-o', 'arp.detect_duplicate_ips:FALSE',
+                '-Y', 'arp.duplicate-address-detected',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_arp_storm(self, cmd_tshark, capture_file, test_env):
+        '''Request storms are found in the 1 ms bursts of AX.25 and Ethernet
+        requests, the same in one and two passes. Frames 150-153 are
+        requests 2^29 s apart: the gap in ms used to overflow and frame
+        153 was reported as a storm.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *ARP_STORM_OPTS,
+                    '-r', capture_file('arp_coverage.pcap.gz'),
+                    '-Y', 'arp.packet-storm-detected',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['78', '142', '146']
+        # Off by default
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arp_coverage.pcap.gz'),
+                '-Y', 'arp.packet-storm-detected',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_arp_atmarp(self, cmd_tshark, capture_file, test_env):
+        '''ATMARP NSAP addresses are broken down by AFI, E.164 numbers are
+        shown as text and an unknown AFI gets a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 126 && frame.number <= 134',
+                '-Tfields', '-eframe.number', '-earp.src.atm_afi',
+                '-earp.src.atm_num_e164', '-earp.dst.atm_num_e164',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[1] for f in lines[:7]] == [
+            '0x39,0x39', '0xbd,0xbd', '0x47,0x47', '0xc5,0xc5',
+            '0x45,0x45', '0xc3,0xc3', '0x00,0x00']
+        assert lines[8][2:] == ['15551230001', '15551230002']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('arp_coverage.pcap.gz'),
+                '-Y', 'arp.src.atm_afi.unknown',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['132']
