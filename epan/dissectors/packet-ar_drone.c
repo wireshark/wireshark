@@ -110,16 +110,25 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_tree *ar_tree, *sub_tree;
     char       *command;
     char       *complete_str;
-    uint32_t    dword;
+    bool        known = false;
+    static const char *const commands[] = {
+        "AT*PCMD", "AT*REF", "AT*CONFIG_IDS", "AT*ANIM", "AT*FTRIM",
+        "AT*CONFIG", "AT*LED", "AT*COMWDG", "AT*CTRL"
+    };
 
     if (tvb_captured_length(tvb) < 4)
         return 0;
 
-    /* Make sure the packet we're dissecting is a ar_drone packet
-     *  Cheap string check for 'AT*'
+    /*
+     * Make sure the packet we're dissecting is a ar_drone packet: a known
+     * first command with a '=', before anything is added to the columns
+     * or the tree
      */
-    dword = tvb_get_ntoh24(tvb, 0);
-    if (dword != 0x41542a)
+    for (size_t i = 0; i < array_length(commands); i++) {
+        if (tvb_strneql(tvb, 0, commands[i], strlen(commands[i])) == 0)
+            known = true;
+    }
+    if (!known || !tvb_find_uint8_remaining(tvb, 0, '=', NULL))
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ar_drone");
@@ -131,6 +140,10 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     while (tvb_reported_length_remaining(tvb, master_offset) > 3)
     {
+        /* Every command starts with 'AT*', so the name below is not empty */
+        if (tvb_get_ntoh24(tvb, master_offset) != 0x41542a)
+            return master_offset;
+
         /* Get a string to compare our command strings (aka "AT*PCMD", etc.) to */
         if (!tvb_find_uint8_remaining(tvb, master_offset, '=', &offset))
             return master_offset;
@@ -199,7 +212,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             {
                 PCMD_str = " (ROLL RIGHT)";
             }
-            proto_item_append_text(ti, "%s", PCMD_str);
+            /* An empty value has no direction */
+            if (length > 0)
+                proto_item_append_text(ti, "%s", PCMD_str);
             offset += (length + 1);
 
             /* Add PCMD Pitch */
@@ -232,7 +247,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             {
                 PCMD_str = " (PITCH BACKWARD)";
             }
-            proto_item_append_text(ti, "%s", PCMD_str);
+            /* An empty value has no direction */
+            if (length > 0)
+                proto_item_append_text(ti, "%s", PCMD_str);
             offset += (length + 1);
 
             /* Add PCMD Gaz */
@@ -265,7 +282,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             {
                 PCMD_str = " (INCREASE VERT SPEED)";
             }
-            proto_item_append_text(ti, "%s", PCMD_str);
+            /* An empty value has no direction */
+            if (length > 0)
+                proto_item_append_text(ti, "%s", PCMD_str);
             offset += (length + 1);
 
             /* Add PCMD Yaw */
@@ -298,7 +317,9 @@ dissect_ar_drone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             {
                 PCMD_str = " (ROTATE RIGHT)";
             }
-            proto_item_append_text(ti, "%s", PCMD_str);
+            /* An empty value has no direction */
+            if (length > 0)
+                proto_item_append_text(ti, "%s", PCMD_str);
             offset += (length + 1);
         }
         else if (!strncmp(command, "AT*REF", 6))
