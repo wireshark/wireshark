@@ -166,18 +166,18 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	}
 
 	if (len) {
+		next_tvb = tvb_new_subset_length(tvb, 8, len);
 		switch(type) {
 		case ASF_TYPE_OPEN_SESS_RQST:
-			dissect_asf_open_session_request(tvb, pinfo, asf_tree, 8, len);
+			dissect_asf_open_session_request(next_tvb, pinfo, asf_tree, 0, len);
 			break;
 		case ASF_TYPE_OPEN_SESS_RESP:
-			dissect_asf_open_session_response(tvb, pinfo, asf_tree, 8, len);
+			dissect_asf_open_session_response(next_tvb, pinfo, asf_tree, 0, len);
 			break;
 
 		/* TODO: Add the rest as captures become available to test. */
 
 		default:
-			next_tvb = tvb_new_subset_length(tvb, 8, len);
 			call_data_dissector(next_tvb, pinfo, tree);
 			break;
 		}
