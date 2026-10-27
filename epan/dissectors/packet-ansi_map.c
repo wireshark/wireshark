@@ -2553,7 +2553,8 @@ dissect_ansi_map_mslocation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_item(subtree, hf_ansi_map_mslocation_long, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset = offset + 3;
     /* Resolution in units of 1 foot octet 7, octet 8 optional */
-    proto_tree_add_item(subtree, hf_ansi_map_mslocation_res, tvb, offset, -1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_mslocation_res, tvb, offset,
+        tvb_reported_length_remaining(tvb, offset) >= 2 ? 2 : 1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.85 NAMPSCallMode */
@@ -5406,9 +5407,11 @@ dissect_ansi_map_ServiceIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsi
 				case 1: /* CDMA OTASP Service */
 				case 3: /* CDMA OTAPA Service */
 					dissector_try_uint(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					SMS_BearerData_tvb = NULL;
 					break;
 				case 4: /* CDMA Position Determination Service */
 					dissector_try_uint(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					SMS_BearerData_tvb = NULL;
 					break;
 				default:
 					break;
@@ -10587,6 +10590,8 @@ dissect_ansi_map_SMS_BearerData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsign
 		if (ansi_map_sms_tele_id != -1)
 		{
 			dissector_try_uint(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+			/* Dissected; a repeated parameter must not dissect it again */
+			SMS_BearerData_tvb = NULL;
 		}
 		else
 		{
@@ -10594,9 +10599,11 @@ dissect_ansi_map_SMS_BearerData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsign
 				case 1: /* CDMA OTASP Service */
 				case 3: /* CDMA OTAPA Service */
 					dissector_try_uint(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					SMS_BearerData_tvb = NULL;
 					break;
 				case 4: /* CDMA Position Determination Service */
 					dissector_try_uint(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					SMS_BearerData_tvb = NULL;
 					break;
 				default:
 					break;
@@ -10623,14 +10630,15 @@ dissect_ansi_map_SMS_TeleserviceIdentifier(bool implicit_tag _U_, tvbuff_t *tvb 
 	if (parameter_tvb){
 		/* A zero length OCTET STRING will return a zero length tvb */
 		length = tvb_reported_length_remaining(parameter_tvb,0);
-		if (length <=0){
+		if (length < 2){
 			proto_item_append_text(actx->created_item, " length %u",length);
 			return offset;
 		}
-		ansi_map_sms_tele_id = tvb_get_ntohs(tvb,0);
+		ansi_map_sms_tele_id = tvb_get_ntohs(parameter_tvb,0);
 		if ((ansi_map_sms_tele_id != -1)&&(SMS_BearerData_tvb !=NULL))
 		{
 		    dissector_try_uint(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+		    SMS_BearerData_tvb = NULL;
 		}
 	}
 
@@ -15212,7 +15220,7 @@ dissect_ansi_map_win_trigger_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
-    static bool                   opCodeKnown = true;
+    bool                          opCodeKnown = true;
     static ansi_map_tap_rec_t     tap_rec[16];
     static ansi_map_tap_rec_t     *tap_p;
     static int                    tap_current=0;
@@ -15591,7 +15599,7 @@ static unsigned dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, unsigned off
 }
 
 static unsigned dissect_returnData(proto_tree *tree, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx) {
-    static bool                   opCodeKnown = true;
+    bool                          opCodeKnown = true;
     static ansi_map_tap_rec_t     tap_rec[16];
     static ansi_map_tap_rec_t     *tap_p;
     static int                    tap_current=0;
@@ -15870,6 +15878,12 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
     const char *dst_str;
     char *buf;
 
+    /* No transaction ID (unidirectional): use what TCAP matched */
+    if (p_private_tcap->TransactionID_str == NULL) {
+        OperationCode = p_private_tcap->d.OperationCode_private & 0x00ff;
+        return OperationCode;
+    }
+
     buf=(char *)wmem_alloc(actx->pinfo->pool, 1024);
 
     /* Data from the TCAP dissector */
@@ -15896,7 +15910,8 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
         OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
         ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
     }else{
-        OperationCode = OperationCode & 0x00ff;
+        /* Not the OperationCode of the last packet dissected */
+        OperationCode = p_private_tcap->d.OperationCode_private & 0x00ff;
     }
 
     return OperationCode;
@@ -15956,9 +15971,11 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         dissect_returnData(ansi_map_tree, tvb, 0, &asn1_ctx);
         break;
     case 3:
+        OperationCode = find_saved_invokedata(&asn1_ctx, p_private_tcap);
         col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError ", val_to_str_ext(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         break;
     case 4:
+        OperationCode = find_saved_invokedata(&asn1_ctx, p_private_tcap);
         col_add_fstr(pinfo->cinfo, COL_INFO,"%s Reject ", val_to_str_ext(pinfo->pool, OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         break;
     default:
@@ -16413,7 +16430,7 @@ void proto_register_ansi_map(void) {
             "Switch Number (SWNO)", HFILL }},
         { &hf_ansi_map_mslocation_res,
           { "Resolution in units of 1 foot", "ansi_map.mslocation.res",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_UINT16, BASE_DEC, NULL, 0,
             NULL, HFILL }},
         { &hf_ansi_map_nampscallmode_namps,
           { "Call Mode", "ansi_map.nampscallmode.namps",

@@ -292,6 +292,8 @@ ReturnData
 		if (ansi_map_sms_tele_id != -1)
 		{
 			dissector_try_uint(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+			/* Dissected; a repeated parameter must not dissect it again */
+			SMS_BearerData_tvb = NULL;
 		}
 		else
 		{
@@ -299,9 +301,11 @@ ReturnData
 				case 1: /* CDMA OTASP Service */
 				case 3: /* CDMA OTAPA Service */
 					dissector_try_uint(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					SMS_BearerData_tvb = NULL;
 					break;
 				case 4: /* CDMA Position Determination Service */
 					dissector_try_uint(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					SMS_BearerData_tvb = NULL;
 					break;
 				default:
 					break;
@@ -329,14 +333,15 @@ ReturnData
 	if (parameter_tvb){
 		/* A zero length OCTET STRING will return a zero length tvb */
 		length = tvb_reported_length_remaining(parameter_tvb,0);
-		if (length <=0){
+		if (length < 2){
 			proto_item_append_text(actx->created_item, " length %%u",length);
 			return offset;
 		}
-		ansi_map_sms_tele_id = tvb_get_ntohs(tvb,0);
+		ansi_map_sms_tele_id = tvb_get_ntohs(parameter_tvb,0);
 		if ((ansi_map_sms_tele_id != -1)&&(SMS_BearerData_tvb !=NULL))
 		{
 		    dissector_try_uint(is637_tele_id_dissector_table, ansi_map_sms_tele_id, SMS_BearerData_tvb, g_pinfo, g_tree);
+		    SMS_BearerData_tvb = NULL;
 		}
 	}
 
@@ -450,9 +455,11 @@ ReturnData
 				case 1: /* CDMA OTASP Service */
 				case 3: /* CDMA OTAPA Service */
 					dissector_try_uint(is683_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					SMS_BearerData_tvb = NULL;
 					break;
 				case 4: /* CDMA Position Determination Service */
 					dissector_try_uint(is801_dissector_table, ansi_map_is_invoke ? 0 : 1, SMS_BearerData_tvb, g_pinfo, g_tree);
+					SMS_BearerData_tvb = NULL;
 					break;
 				default:
 					break;
