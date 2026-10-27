@@ -8419,3 +8419,64 @@ class TestDissectAscend:
             ['17', '0', '', ''], ['18', '1', '', ''],
             ['19', '0', '0x05', '5551'], ['20', '1', '', ''],
         ]
+
+
+class TestDissectAsf:
+    def test_asf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type (and an unknown one) decodes without
+        malformed packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asf_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-easf.type',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert [p for p, t in lines].count('ASF') == 40
+        assert [p for p, t in lines].count('RMCP') == 1
+        types = [t for p, t in lines]
+        for t in ('0x80', '0x40', '0x81', '0x41', '0x82', '0x42', '0x10', '0x11',
+                  '0x12', '0x13', '0x83', '0x43', '0x84', '0x44', '0xc0', '0xc1',
+                  '0xc2', '0x55'):
+            assert t in types
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('asf_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_asf_open_session(self, cmd_tshark, capture_file, test_env):
+        '''Open Session Request and Response: session IDs, status, and the
+        authentication and integrity algorithm payloads (known, unknown,
+        end of list, empty and unknown payload types).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asf_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11..14}',
+                '-Tfields', '-easf.type', '-easf.len', '-easf.rssp_status_code',
+                '-easf.mgt_console_id', '-easf.client_id', '-easf.payload.type',
+                '-easf.payload.len', '-easf.auth_alg', '-easf.integrity_alg',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['0x83', '20', '', '16909060', '', '1,2', '8,8', '1', '1'],
+            ['0x43', '28', '0', '16909060', '168496141', '1,2', '8,8', '1', '1'],
+            ['0x83', '42', '', '7', '', '1,2,0,9,1,2', '8,7,4,8,4,5', '2', '127,1'],
+            ['0x43', '12', '4', '7', '0', '', '', '', ''],
+        ]
+
+    def test_asf_data_length(self, cmd_tshark, capture_file, test_env):
+        '''Octets after the ASF data length are not dissected as part of
+        the message: frame 29 is a 12 octet Open Session Response followed
+        by octets that look like payloads, frame 30 a 20 octet Open
+        Session Request followed by one more payload. Before the fix the
+        Open Session messages were dissected from the whole RMCP payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asf_coverage.pcap.gz'),
+                '-Y', 'frame.number in {29, 30, 41}',
+                '-Tfields', '-easf.len', '-easf.client_id', '-easf.payload.type',
+                '-easf.payload.len',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['12', '34', '', ''],
+            ['20', '', '1,2', '8,8'],
+            ['252', '', '9,0', '244,4'],
+        ]
