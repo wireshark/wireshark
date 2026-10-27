@@ -162,7 +162,7 @@ col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 #.FN_BODY TransactionID/_untag VAL_PTR = &next_tvb
 
 tvbuff_t *next_tvb;
-uint8_t len;
+unsigned len;
 
 %(DEFAULT_BODY)s
 

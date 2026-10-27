@@ -217,6 +217,7 @@ static int ett_ansi_tcap_stat;
 
 static expert_field ei_ansi_tcap_dissector_not_implemented;
 static expert_field ei_ansi_tcap_no_parameters;
+static expert_field ei_ansi_tcap_too_many_components;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static bool tcap_subdissector_used=false;
@@ -1054,7 +1055,8 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
                 break;
   }
 
-  ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)wmem_multimap_lookup32_le(TransactionId_table, buf, pinfo->num);
+  /* An invoke of an earlier frame: this frame's are not all saved yet in the first pass */
+  ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)wmem_multimap_lookup32_le(TransactionId_table, buf, pinfo->num - 1);
   if(ansi_tcap_saved_invokedata){
           ansi_tcap_private.d.OperationCode                      = ansi_tcap_saved_invokedata->OperationCode;
           ansi_tcap_private.d.OperationCode_national = ansi_tcap_saved_invokedata->OperationCode_national;
@@ -1107,6 +1109,15 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                         proto_item_set_generated(item);
                         ansi_tcap_private.d.OperationCode_item = item;
                 }
+        }
+        /*
+         * Each component handed to a subdissector adds a layer; stop before
+         * the layer limit in call_dissector_work(), leaving room for the
+         * subdissectors' own layers (e.g. ANSI MAP and IS-637).
+         */
+        if (wmem_list_count(actx->pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+                proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_ansi_tcap_too_many_components, tvb, 0);
+                return false;
         }
         if(ansi_tcap_private.d.OperationCode == 0){
                 /* national */
@@ -1348,7 +1359,7 @@ static unsigned
 dissect_ansi_tcap_TransactionID_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
 tvbuff_t *next_tvb;
-uint8_t len;
+unsigned len;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
@@ -3086,6 +3097,7 @@ proto_register_ansi_tcap(void)
     static ei_register_info ei[] = {
         { &ei_ansi_tcap_dissector_not_implemented, { "ansi_tcap.dissector_not_implemented", PI_UNDECODED, PI_WARN, "Dissector not implemented", EXPFILL }},
         { &ei_ansi_tcap_no_parameters, { "ansi_tcap.no_parameters", PI_PROTOCOL, PI_NOTE, "No parameters exist", EXPFILL }},
+        { &ei_ansi_tcap_too_many_components, { "ansi_tcap.too_many_components", PI_UNDECODED, PI_WARN, "Too many components in one package, parameters not dissected", EXPFILL }},
     };
 
     expert_module_t* expert_ansi_tcap;
