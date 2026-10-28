@@ -61,7 +61,7 @@ dissect_at_ldf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     col_clear(pinfo->cinfo,COL_INFO);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Source VLAN: %u, Port: %u",
                     tvb_get_uint16(tvb, 1, ENC_BIG_ENDIAN),
-                    tvb_get_uint16(tvb, 5, ENC_BIG_ENDIAN));
+                    tvb_get_uint32(tvb, 3, ENC_BIG_ENDIAN));
 
     /* Frame has fixed length, so we can directly set tree and reported length */
     tvb_set_reported_length(tvb, AT_LDF_FRAME_LEN);
