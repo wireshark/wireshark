@@ -8553,3 +8553,128 @@ class TestDissectExportedPduTls:
             stdout = self.run_fields(cmd_tshark, capture_file, test_env,
                     '-Y', dfilter, '-Tfields', '-E', 'occurrence=f', '-e' + field)
             assert stdout.split() == [value], field
+
+
+class TestDissectLi5g:
+    def run_fields(self, cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('li5g_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_li5g_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every PDU type, attribute type and payload format decodes
+        without malformed packets or warnings, in one and two passes.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.splitlines()
+        assert len(protocols) == 35
+        assert protocols.count('LI5G') == 31
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_li5g_header(self, cmd_tshark, capture_file, test_env):
+        '''PDU types (with an unknown one, which leaves the Info column
+        empty) and several PDUs in one frame.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 5 || frame.number == 28',
+                '-Tfields', '-eframe.number', '-eli5g.type', '-eli5g.pf', '-eli5g.pd',
+                '-eli5g.hl', '-eli5g.pl', '-e_ws.col.info')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['1', '1', '2', '2', '412', '21', 'X2 xIRI'],
+            ['2', '2', '5', '3', '46', '64', 'X3 xCC'],
+            ['3', '3', '0', '0', '40', '0', 'Keepalive'],
+            ['4', '4', '0', '0', '40', '0', 'Keepalive Acknowledgement'],
+            ['5', '9', '4', '1', '40', '6', ''],
+            ['28', '2,2,3', '5,9,0', '2,3,0', '40,40,40', '72,268,0', 'X3 xCC'],
+        ]
+
+    def test_li5g_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The conditional attributes: every defined type, the reserved
+        type 0 (frames 6 and 29), which used to fail an assertion for an
+        unregistered field, and unknown types (frame 7), which are skipped.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 6, 7, 29}', '-Tfields',
+                '-eframe.number', '-eli5g.attrType')
+        assert stdout.splitlines() == [
+            '1\t' + ','.join(str(t) for t in range(1, 23)), '6\t5,8', '7\t7', '29\t17']
+        # each value is in the attribute item and again in its subtree
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 6}', '-Tfields', '-E', 'occurrence=f',
+                '-eframe.number', '-eli5g.sq', '-eli5g.ts',
+                '-eli5g.srcip', '-eli5g.dstip', '-eli5g.srcipv6', '-eli5g.dstipv6',
+                '-eli5g.srcport', '-eli5g.dstport', '-eli5g.ipproto', '-eli5g.did')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['1', '4242', '2023-11-14T22:13:20.500000000Z', '10.1.2.3', '10.4.5.6',
+             '2001:db8::10', '2001:db8::20', '5060', '443', '17',
+             '6f70657261746f722e6578616d706c65'],
+            ['6', '2', '', '', '', '', '', '', '', '', '646964'],
+        ]
+
+    def test_li5g_supi(self, cmd_tshark, capture_file, test_env):
+        '''IMSIs in the Matched and Other Target Identifier attributes:
+        two in one header, upper case tags, and three that do not match
+        (an NAI, too few digits, not on the first line).'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'li5g.mti || li5g.oti', '-Tfields', '-eframe.number',
+                '-ee212.assoc.imsi')
+        assert stdout.splitlines() == [
+            '1\t001010123456789,310410987654321',
+            '8\t001010123456789,310410987654321',
+            '9\t',
+            '10\t',
+            '29\t001010123456789',
+        ]
+
+    def test_li5g_payload_formats(self, cmd_tshark, capture_file, test_env):
+        '''Each payload format of the li5g.payload table goes to its
+        dissector, the others to data; the addresses of the Exported PDU
+        are restored after an IP payload (frames 2 and 28).'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 7, 11..28}', '-Tfields',
+                '-eli5g.pf', '-eframe.protocols', '-e_ws.col.def_src')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['2', 'exported_pdu:li5g:xiri', '198.51.100.1'],
+            ['5', 'exported_pdu:li5g:ip:udp:syslog', '198.51.100.1'],
+            ['6', 'exported_pdu:li5g:ipv6:udp:syslog', ''],
+            ['0', 'exported_pdu:li5g', ''],
+            ['1', 'exported_pdu:li5g:data', ''],
+            ['3', 'exported_pdu:li5g:data', ''],
+            ['4', 'exported_pdu:li5g:data', ''],
+            ['6', 'exported_pdu:li5g:ipv6:udp:syslog', ''],
+            ['7', 'exported_pdu:li5g:eth:ethertype:ip:udp:syslog', '198.51.100.1'],
+            ['8', 'exported_pdu:li5g:rtp', ''],
+            ['9', 'exported_pdu:li5g:sip', ''],
+            ['10', 'exported_pdu:li5g:dhcp', ''],
+            ['11', 'exported_pdu:li5g:radius', ''],
+            ['12', 'exported_pdu:li5g:gtp:ip:udp:syslog', ''],
+            ['13', 'exported_pdu:li5g:msrp:data-text-lines', ''],
+            ['14', 'exported_pdu:li5g:HI2operations', ''],
+            ['15', 'exported_pdu:li5g:data', ''],
+            ['16', 'exported_pdu:li5g:data', ''],
+            ['17', 'exported_pdu:li5g:data', ''],
+            ['65535', 'exported_pdu:li5g:data', ''],
+            ['5,9,0', 'exported_pdu:li5g:ip:udp:syslog:sip', '198.51.100.1'],
+        ]
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 23}', '-Tfields',
+                '-elix2.deregistrationDirection', '-eHI2Operations.lawfulInterceptionIdentifier')
+        assert stdout.splitlines() == ['2\t', '\tLIID-0001']
+
+    def test_li5g_tls_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The 5G LI over TLS heuristic named in an Exported PDU accepts
+        frames 29-31 and rejects a short PDU, version 2 and PDU types 0
+        and 5, which go to data. It used to crash: it stored its handle
+        through the TLS information, which was NULL.'''
+        for args, li5g_frames in (((), ['29', '30', '31']),
+                                  (('--disable-heuristic', 'li5g_tls'), [])):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *args,
+                    '-Y', 'exported_pdu.heur_prot_name == "li5g_tls"',
+                    '-Tfields', '-eframe.number', '-eframe.protocols')
+            lines = [line.split('\t') for line in stdout.splitlines()]
+            assert [n for n, p in lines] == [str(n) for n in range(29, 36)]
+            assert [n for n, p in lines if p.startswith('exported_pdu:li5g')] == li5g_frames
+            assert [n for n, p in lines if p == 'exported_pdu:data'] == \
+                    [str(n) for n in range(29, 36) if str(n) not in li5g_frames]
