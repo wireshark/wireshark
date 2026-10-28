@@ -754,7 +754,8 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
      * not a tuple; the version number field may have the 0x80 bit set,
      * but it's not a 6-octet tuple.
      */
-    if (tvb_get_ntohs(tvb, offset) == 0) {
+    if (tvb_reported_length_remaining(tvb, offset) >= 2 &&
+        tvb_get_ntohs(tvb, offset) == 0) {
       proto_tree_add_item(rtmp_tree, hf_rtmp_version, tvb, offset+2, 1, ENC_BIG_ENDIAN);
       offset += 3;
     }
@@ -1243,13 +1244,13 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     return 0;
   }
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
-  col_clear(pinfo->cinfo, COL_INFO);
-
   atp_asp_dsi_info = (struct atp_asp_dsi_info *)data;
   request_val = get_transaction(tvb, pinfo, atp_asp_dsi_info);
   if (!request_val)
      return 0;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
+  col_clear(pinfo->cinfo, COL_INFO);
 
   fn = (uint8_t) request_val->value;
 
@@ -1703,7 +1704,7 @@ typedef struct ddp_nodes
 static int
 dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  uint16_t               len;
+  uint32_t               len;
   uint8_t                dport;
   uint8_t                sport;
   uint8_t                type;
@@ -1714,6 +1715,9 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   tvbuff_t              *new_tvb;
   ddp_nodes_t           *ddp_node = (ddp_nodes_t*)data;
 
+  if (ddp_node == NULL)
+    return 0;
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1722,8 +1726,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                              ENC_NA);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
   }
-  len = tvb_get_ntohs(tvb, 0);
-  len_item = proto_tree_add_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, len);
+  len_item = proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, ENC_BIG_ENDIAN, &len);
   if (len < DDP_SHORT_HEADER_SIZE) {
     expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
                            "Length field is shorter than the DDP header size");
