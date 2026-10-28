@@ -1466,22 +1466,46 @@ endif()
 #
 # Usage: reset_find_package(<PackageName> [<extra variables to clear>])
 function(reset_find_package _package_name)
+	# All of our _LIBRARY cache variables are uppercase even though for
+	# some the package name passed to FindPackage is mixed case
+	string(TOUPPER "${_package_name}" _package_name)
 	set(variables
 		# find_library / find_package
 		${_package_name}_LIBRARY
+		${_package_name}_LIBRARY_DEBUG
+		${_package_name}_LIBRARY_RELEASE
 		${_package_name}_INCLUDE_DIR
 		# mark_as_advanced
 		${_package_name}_LIBRARIES
 		${_package_name}_INCLUDE_DIRS
 		# Others
 		${_package_name}_DLL_DIR
+		${_package_name}_DLL_DIR_DEBUG
+		${_package_name}_DLL_DIR_RELEASE
 		${_package_name}_DLLS
+		${_package_name}_DLLS_DEBUG
+		${_package_name}_DLLS_RELEASE
 		${_package_name}_DLL
+		${_package_name}_DLL_DEBUG
 		${_package_name}_PDB
+		${_package_name}_PDB_DEBUG
 		${ARGN}
 	)
-	if(NOT ${_package_name}_LIBRARY OR EXISTS ${${_package_name}_LIBRARY})
-		# Cache variable is already missing or cache entry is valid.
+	# FindWSLibrary doesn't create _LIBRARY as a cache variable because
+	# it stores both the release and debug libraries in separate cache
+	# variables
+	if(${_package_name}_LIBRARY)
+		if (EXISTS ${${_package_name}_LIBRARY})
+			# Cache entry is valid
+			return()
+		endif()
+	elseif(${_package_name}_LIBRARY_RELEASE)
+		if (EXISTS ${${_package_name}_LIBRARY_RELEASE})
+			# Cache entry is valid
+			return()
+		endif()
+	else()
+		# Cache variables are missing
 		return()
 	endif()
 	message(STATUS "Package ${_package_name} has changed, clearing cache.")
