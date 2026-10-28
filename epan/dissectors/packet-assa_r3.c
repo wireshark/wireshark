@@ -3750,8 +3750,8 @@ dissect_r3_upstreamfields (tvbuff_t *tvb, uint32_t start_offset, uint32_t length
             cred1type = tvb_get_uint8 (tvb, offset + 8) & 0x07;
             cred2type = (tvb_get_uint8 (tvb, offset + 8) & 0x38) >> 3;
 
-            proto_tree_add_uint (declinedlog_tree, hf_r3_declinedlog_cred1type,  tvb, offset, 1, cred1type);
-            proto_tree_add_uint (declinedlog_tree, hf_r3_declinedlog_cred2type,  tvb, offset, 1, cred2type);
+            proto_tree_add_uint (declinedlog_tree, hf_r3_declinedlog_cred1type,  tvb, offset + 8, 1, cred1type);
+            proto_tree_add_uint (declinedlog_tree, hf_r3_declinedlog_cred2type,  tvb, offset + 8, 1, cred2type);
             proto_tree_add_item (declinedlog_tree, hf_r3_declinedlog_cred1,      tvb, offset +  9, 19, ENC_NA);
             proto_tree_add_item (declinedlog_tree, hf_r3_declinedlog_cred2,      tvb, offset + 28, 19, ENC_NA);
           }
@@ -4290,7 +4290,7 @@ dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, uint32_t start_offset,
   cpl_tree = proto_tree_add_subtree(tree, tvb, 1, -1, ett_r3checkpointlog, NULL, "Checkpoint Log");
 
   counter = 0;
-  for (i = 0; i < len; i += 2, counter++)
+  for (i = 1; i < len; i += 2, counter++)
   {
     unsigned     rcon      = tvb_get_uint8 (tvb, i + 0);
     unsigned     cp        = tvb_get_uint8 (tvb, i + 1);
@@ -4852,8 +4852,8 @@ dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, uint32_t start_offset, ui
     proto_tree_add_bits_item (tmp_tree [16], hf_r3_dumpm41t81_reg10_notused,    tvb, offset_in_bits, 8, ENC_LITTLE_ENDIAN);  offset_in_bits += 8;
     proto_tree_add_bits_item (tmp_tree [17], hf_r3_dumpm41t81_reg11_notused,    tvb, offset_in_bits, 8, ENC_LITTLE_ENDIAN);  offset_in_bits += 8;
     proto_tree_add_bits_item (tmp_tree [18], hf_r3_dumpm41t81_reg12_notused,    tvb, offset_in_bits, 8, ENC_LITTLE_ENDIAN);  offset_in_bits += 8;
-    proto_tree_add_bits_item (tmp_tree [19], hf_r3_dumpm41t81_reg13_rs,         tvb, offset_in_bits - 8, 4, ENC_LITTLE_ENDIAN);  offset_in_bits += 4;
-    proto_tree_add_bits_item (tmp_tree [19], hf_r3_dumpm41t81_reg13_notused,    tvb, offset_in_bits - 8, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bits_item (tmp_tree [19], hf_r3_dumpm41t81_reg13_rs,         tvb, offset_in_bits, 4, ENC_LITTLE_ENDIAN);  offset_in_bits += 4;
+    proto_tree_add_bits_item (tmp_tree [19], hf_r3_dumpm41t81_reg13_notused,    tvb, offset_in_bits, 4, ENC_LITTLE_ENDIAN);
   }
 }
 
@@ -5926,7 +5926,7 @@ dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, uint32_t start_offset, uint32_t 
 
     proto_tree_add_uint_format_value(dlfw_tree, hf_r3_firmwaredownload_crc, payload_tvb,
                                 cmdLen - 2 - 2, 2,
-                                packetCRC, "0x%04x (incorrect, should be 0x%04x)", calculatedCRC, packetCRC);
+                                packetCRC, "0x%04x (incorrect, should be 0x%04x)", packetCRC, calculatedCRC);
     tmp_item = proto_tree_add_boolean (dlfw_tree, hf_r3_firmwaredownload_crc_bad, payload_tvb,
                                        cmdLen - 2 - 2, 2, true);
     proto_item_set_generated (tmp_item);
@@ -6651,7 +6651,7 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
       proto_item *tmp_item;
 
       proto_tree_add_uint_format_value(tail_tree, hf_r3_crc, tvb, offset, 2, packetCRC,
-                                  "0x%04x (incorrect, should be 0x%04x)", calculatedCRC, packetCRC);
+                                  "0x%04x (incorrect, should be 0x%04x)", packetCRC, calculatedCRC);
       tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_crc_bad, tvb, offset, 2, true);
       proto_item_set_generated (tmp_item);
     }
@@ -6663,9 +6663,9 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
     {
       proto_item *tmp_item;
 
-      proto_tree_add_uint_format_value(tail_tree, hf_r3_xor, tvb, offset + 7, 1, packetXor,
+      proto_tree_add_uint_format_value(tail_tree, hf_r3_xor, tvb, offset + 2, 1, packetXor,
                                   "0x%02x (incorrect, should be 0x%02x)", packetXor, packetLen ^ 0xff);
-      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_xor_bad, tvb, offset + 7, 1, true);
+      tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_xor_bad, tvb, offset + 2, 1, true);
       proto_item_set_generated (tmp_item);
     }
   }
