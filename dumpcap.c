@@ -2167,10 +2167,18 @@ cap_pipe_open(char *pipename,
         else
         {
             if (!win32_is_pipe_name(pipename)) {
-                snprintf(errmsg, errmsgl,
-                    "The capture session could not be initiated because\n"
-                    "\"%s\" is neither an interface nor a pipe.", pipename);
-                *secondary_errmsg = '\0'; /* no secondary message */
+                /* This isn't a pipe name, so either the device we tried
+                   to open doesn't exist or we don't have permission to
+                   open capture devices of that sort, otherwise we wouldn't
+                   have been called to try to open the device as a pipe.
+
+                   The error message has already been filled in by
+                   cap_device_open(); don't overwrite it, under
+                   the assumption that the user intended to open
+                   a capture device rather than a pipe. (There's a chance
+                   the user meant to open a pipe and made a typo in the
+                   special named pipe prefix, but it's even less likely
+                   than the UN*X case, which we make the same assumption.) */
                 pcap_src->cap_pipe_err = PIPNEXIST;
                 return false;
             }
