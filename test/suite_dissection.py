@@ -9162,3 +9162,73 @@ class TestDissectAt:
             roles = stdout.split()
             assert roles.count('2') == dte
             assert roles.count('1') == dce
+
+
+class TestDissectAth:
+    def test_ath_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Tomcat 6 and Tomcat 7/8 heartbeats decode without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ath_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 18
+        assert protocols.count('ATH') == 17
+        # A datagram to port 45564 without the begin mark is not ATH
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ath_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        # Every heartbeat is decoded up to the end mark
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ath_coverage.pcap.gz'),
+                '-Y', 'ath.end == "TRIBES-E"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 17
+
+    def test_ath_ipv6_host(self, cmd_tshark, capture_file, test_env):
+        '''A 16 octet host is decoded as an IPv6 address and shown in the
+        Info column. It used to be an "invalid IP length" error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ath_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3',
+                '-Tfields', '-e_ws.col.info', '-eath.hlen', '-eath.ipv6',
+                '-eath.domain', '-eath.end',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == 'Heartbeat from 2001:db8::7 to domain dom\t16\t2001:db8::7\tdom\tTRIBES-E\n'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ath_coverage.pcap.gz'),
+                '-Y', 'ath.ipv6 == 2001:db8::7',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['3', '4', '8', '12', '13', '17']
+
+    def test_ath_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column for the default and a named domain, and for the
+        BABY-ALEX (shutdown) command, in both Tomcat versions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ath_coverage.pcap.gz'),
+                '-Y', 'ath',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert info[0] == 'Heartbeat from 192.0.2.7 to domain cluster-a'
+        assert info[1] == 'Heartbeat from 192.0.2.8 to default domain'
+        assert info[7] == '2001:db8::7 is leaving domain dom'
+        assert info[8] == '192.0.2.8 is leaving default domain'
+        assert info[15] == '192.0.2.7 is leaving domain cluster-6'
+        assert info[16] == '2001:db8::7 is leaving default domain'
+        # Tomcat 7/8 heartbeats have the padding and the UDP port, Tomcat 6
+        # ones do not
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ath_coverage.pcap.gz'),
+                '-Y', 'ath.uport',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(n) for n in range(1, 10)]
