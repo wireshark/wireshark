@@ -10088,3 +10088,72 @@ class TestDissectDnsLlq:
         assert '1' in stdout         # option code
         assert '0x0000000000bc614e' in stdout  # LLQ ID = 12345678
         assert '3600' in stdout      # lease
+
+
+class TestDissectAutoRp:
+    def test_auto_rp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Announcements and mappings decode without malformed packets or
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('auto_rp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['Auto-RP'] * 11
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('auto_rp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_auto_rp_trailing_data(self, cmd_tshark, capture_file, test_env):
+        '''Data after the last RP is shown as trailing junk inside the
+        Auto-RP tree, also when the RP count is 0.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('auto_rp_coverage.pcap.gz'),
+                '-Y', 'auto_rp.trailing_junk',
+                '-Tfields', '-eframe.number', '-eauto_rp.trailing_junk',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['9\tcafebabe00', '10\t0a01000702010008e5000000']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('auto_rp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9', '-O', 'auto_rp', '-V',
+            ), encoding='utf-8', env=test_env)
+        tree = stdout[stdout.index('Cisco Auto-RP\n'):].rstrip('\n').splitlines()
+        assert tree[-1] == '    Trailing junk: cafebabe00'
+        assert all(line.startswith('    ') for line in tree[1:])
+
+    def test_auto_rp_maps(self, cmd_tshark, capture_file, test_env):
+        '''RP maps and encoded groups: every PIM version, both signs (with
+        the reserved bits masked off), RPs with no groups and a 16 RP
+        mapping with 128 groups.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('auto_rp_coverage.pcap.gz'),
+                '-Tfields', '-eauto_rp.rp_count', '-eauto_rp.holdtime',
+                '-eauto_rp.rp_addr', '-eauto_rp.pim_ver', '-eauto_rp.group_num',
+                '-eauto_rp.prefix_sign', '-eauto_rp.mask_len', '-eauto_rp.group_prefix',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert frames[3] == ['3', '181', '10.1.0.1,10.1.0.3,10.1.0.2', '0,1,2', '3,0,1',
+                             '0,1,0,0', '4,16,8,32',
+                             '224.0.0.0,239.1.0.0,232.0.0.0,239.255.255.250']
+        assert frames[4] == ['0', '65535', '', '', '', '', '', '']
+        assert frames[7][3:6] == ['2', '2', '0,1']
+        assert frames[10][0] == '16'
+        assert len(frames[10][7].split(',')) == 128
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('auto_rp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert info[0] == 'RP announcement (v1 or 1+) for 1 RP'
+        assert info[3] == 'RP mapping (v1 or 1+) for 3 RPs'
+        assert info[5] == 'Unknown (v1 or 1+) for 1 RP'
+        assert info[6] == 'Unknown (vUnknown) for 1 RP'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('auto_rp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-O', 'auto_rp', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert '    Holdtime: 1 second\n' in stdout
+        assert '        Group 239.0.0.0/8 (Negative group prefix)\n' in stdout
