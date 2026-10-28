@@ -10,6 +10,7 @@
 
 #include "ftypes-int.h"
 
+#include <wsutil/str_util.h>
 #include <wsutil/ws_assert.h>
 
 /* Keep track of ftype_t's via their ftenum number */
@@ -977,10 +978,11 @@ fvalue_set_ax25(fvalue_t *fv, const uint8_t *value)
 {
 	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
 	for (size_t i = 0; i < FT_AX25_ADDR_LEN - 1; i++) {
-		if (value[i] != 0x40) {
-			/* ignore space-padding */
-			wmem_strbuf_append_c(buf, value[i] >> 1);
+		if (value[i] == 0x40) {
+			/* end of callsign, start of space-padding */
+			break;
 		}
+		wmem_strbuf_append_c(buf, printable_char_or_period(value[i] >> 1));
 	}
 	/* Ignore C-bit and reserved bits, and end of address bits. */
 	uint8_t ssid = (value[FT_AX25_ADDR_LEN - 1] >> 1) & 0x0f;
