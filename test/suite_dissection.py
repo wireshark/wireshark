@@ -8678,3 +8678,101 @@ class TestDissectLi5g:
             assert [n for n, p in lines if p.startswith('exported_pdu:li5g')] == li5g_frames
             assert [n for n, p in lines if p == 'exported_pdu:data'] == \
                     [str(n) for n in range(29, 36) if str(n) not in li5g_frames]
+
+
+# asphodel_coverage.pcap.gz is synthetic: every packet was generated, to
+# cover as much of the Asphodel dissector as possible. Its UDP heuristic
+# ships disabled; the TCP sessions are found through the conversations
+# that the UDP inquiry and responses set up.
+ASPHODEL_OPTS = ('--enable-heuristic', 'asphodel_inquiry')
+
+
+class TestDissectAsphodel:
+    def test_asphodel_heuristic_disabled_by_default(self, cmd_tshark, capture_file, test_env):
+        '''Nothing is dissected as Asphodel unless the heuristic is enabled.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asphodel_coverage.pcap.gz'),
+                '-Y', 'asphodel',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_asphodel_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Inquiries, responses and every TCP message type decode without
+        malformed packets, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *ASPHODEL_OPTS,
+                '-r', capture_file('asphodel_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('Asphodel') == 43
+        assert protocols.count('TCP') == 13
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *ASPHODEL_OPTS, *passes,
+                    '-r', capture_file('asphodel_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_asphodel_remote_param_lengths(self, cmd_tshark, capture_file, test_env):
+        '''The remote parameter lengths of a radio are read from the remote
+        fields, not from the device's own (frame 3: remote 128/64/20,
+        device 400/256/40).'''
+        stdout = subprocess.check_output((cmd_tshark, *ASPHODEL_OPTS,
+                '-r', capture_file('asphodel_coverage.pcap.gz'),
+                '-Y', 'asphodel.serial_number',
+                '-Tfields', '-eframe.number', '-easphodel.serial_number',
+                '-easphodel.max_incoming_param_length',
+                '-easphodel.max_outgoing_param_length',
+                '-easphodel.stream_packet_length',
+                '-easphodel.remote_max_incoming_param_length',
+                '-easphodel.remote_max_outgoing_param_length',
+                '-easphodel.remote_stream_packet_length',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[:2] for f in frames] == [
+            ['2', 'WM12345'], ['3', 'WMR99'], ['4', 'WMR0'], ['7', 'WM55']]
+        assert frames[0][2:] == ['400', '256', '32', '', '', '']
+        assert frames[1][2:] == ['400', '256', '40', '128', '64', '20']
+
+    def test_asphodel_bad_param_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Command buffer sizes of 2 or less, of the device and of the
+        remote, get a warning each.'''
+        stdout = subprocess.check_output((cmd_tshark, *ASPHODEL_OPTS,
+                '-r', capture_file('asphodel_coverage.pcap.gz'),
+                '-Y', 'asphodel.bad_param_length',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['4\t' + ','.join(['Bad parameter length'] * 4)]
+
+    def test_asphodel_tcp(self, cmd_tshark, capture_file, test_env):
+        '''The TCP sessions are found from the UDP responses; messages over
+        several segments are reassembled and several messages in one
+        segment are all dissected.'''
+        stdout = subprocess.check_output((cmd_tshark, *ASPHODEL_OPTS,
+                '-r', capture_file('asphodel_coverage.pcap.gz'),
+                '-Y', 'asphodel.length',
+                '-Tfields', '-eframe.number', '-easphodel.type', '-easphodel.cmd',
+                '-easphodel.length', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        frames = {f[0]: f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+        assert len(frames) == 33
+        # No op, a command and a No op, two commands
+        assert frames['28'] == ['0x00|0x00', '0x20|0x21', '3|0|4']
+        assert frames['29'] == ['0x00|0x00', '0x20|0x21', '5|5']
+        # ECHO_RAW of 380 octets over three segments, and over three
+        # segments with the length split
+        assert frames['32'] == ['0x00', '0xfc', '383']
+        assert frames['35'] == ['0x00', '0xfc', '383']
+        stdout = subprocess.check_output((cmd_tshark, *ASPHODEL_OPTS,
+                '-r', capture_file('asphodel_coverage.pcap.gz'),
+                '-Y', 'asphodel.notify || asphodel.cmd_error || asphodel.unknown_type',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\tREPLY_ERROR', '21\tREPLY_ERROR', '23\tREPLY_ERROR',
+            '36\tUnknown(05)', '47\tNotify Connect', '51\tREPLY_ERROR',
+            '54\tNotify Disconnect',
+        ]
