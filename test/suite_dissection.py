@@ -8776,3 +8776,114 @@ class TestDissectAsphodel:
             '36\tUnknown(05)', '47\tNotify Connect', '51\tREPLY_ERROR',
             '54\tNotify Disconnect',
         ]
+
+
+class TestDissectAssaR3:
+    def test_assa_r3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every command, manufacturing command, response, upstream command
+        and field decodes without malformed packets or error expert infos,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('assa_r3_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('R3') == 310
+        assert protocols.count('TCP') == 32
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('assa_r3_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_assa_r3_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every value of the command, manufacturing command, response
+        type, upstream command, upstream field, manufacturing field and
+        configuration item tables is present.'''
+        def values(field):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('assa_r3_coverage.pcap.gz'),
+                    '-Tfields', '-e', field, '-E', 'aggregator=,',
+                ), encoding='utf-8', env=test_env)
+            return {int(v, 0) for v in stdout.replace('\n', ',').split(',') if v}
+        assert values('r3.command.command') == set(range(1, 32))
+        assert values('r3.commandmfg.command') == set(range(35))
+        assert values('r3.response.responsetype') == set(range(51))
+        assert values('r3.upstreamcommand.command') == set(range(26))
+        assert values('r3.upstreamfield.type') == set(range(31)) | {254}
+        assert values('r3.mfgfield.field') == set(range(19)) | {255}
+        assert values('r3.configitem') >= set(range(157))
+
+    def test_assa_r3_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU over three segments (the first cut inside the header) and
+        a PDU finished in the segment after two others.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('assa_r3_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 324 && frame.number <= 330 && r3',
+                '-Tfields', '-eframe.number', '-etcp.segment',
+                '-er3.packetnumber', '-e', 'r3.dpac_attention', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '326\t324|325|326\t1\t',
+            '327\t\t2|3\t',
+            '328\t327|328\t4\t',
+            '329\t\t2|3|4\t',
+            '330\t\t\t~~~ds\\r\\n' + ' ' * 94,
+        ]
+
+    def test_assa_r3_fixed_offsets(self, cmd_tshark, capture_file, test_env):
+        '''The fields whose offsets were fixed: M41T81 register 0x13 from
+        the last register octet (0x50, not 0xa0), checkpoint log entries
+        after the entry pointer, the declined record credential types from
+        octet 8, the bad XOR item on the last octet, and the bad CRC text
+        with the packet CRC first.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('assa_r3_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 335',
+                '-Tfields', '-eframe.number',
+                '-er3.m41t81.reg13', '-er3.m41t81.reg13.notused',
+                '-er3.checkpointlog.rcon', '-er3.checkpointlog.checkpoint',
+                '-er3.declinedlog.cred1type', '-er3.declinedlog.cred2type',
+                '-er3.xor_bad', '-er3.crc_bad',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[:5] == [
+            '335\t0x50\t5\t\t\t\t\t\t',
+            '336\t\t\t0xff\t0x01\t\t\t\t',
+            '337\t\t\t\t\t\t\tTrue\t',
+            '338\t\t\t\t\t\t\t\tTrue',
+            '339\t\t\t\t\t2\t3\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('assa_r3_coverage.pcap.gz'),
+                '-Y', 'frame.number == 337 || frame.number == 338',
+                '-O', 'r3',
+            ), encoding='utf-8', env=test_env)
+        assert 'XOR: 0xa3 (incorrect, should be 0xf6)' in stdout
+        assert 'CRC: 0x6a8c (incorrect, should be 0x78b8)' in stdout
+
+    def test_assa_r3_mfg_fields(self, cmd_tshark, capture_file, test_env):
+        '''Checkpoint log reset types, peek/poke results, and the firmware
+        download CRC check.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('assa_r3_coverage.pcap.gz'),
+                '-Y', 'frame.number == 299',
+                '-O', 'r3',
+            ), encoding='utf-8', env=test_env)
+        for reset in ('Unknown Reset Type', 'Power-On', 'Software', 'Brown-out',
+                      'MCLR in sleep', 'WDT', 'Normal'):
+            assert reset in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('assa_r3_coverage.pcap.gz'),
+                '-Y', 'r3.peekpoke.operation',
+                '-O', 'r3',
+            ), encoding='utf-8', env=test_env)
+        assert 'Read (32 Bits @ 0x0108 = 0x44444444)' in stdout
+        assert 'Write (24 Bits: 0x777777 @ 0x0124)' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('assa_r3_coverage.pcap.gz'),
+                '-Y', 'r3.firmwaredownload.crc',
+                '-Tfields', '-eframe.number', '-er3.firmwaredownload.crc_bad',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['54\t', '56\t', '58\tTrue', '60\t', '62\t', '64\t']
