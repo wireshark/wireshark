@@ -10529,3 +10529,85 @@ class TestDissectAvsp:
         assert frames[1][4] == '41424344'
         assert len(frames[2][4]) == 46 * 2
         assert frames[4][4] == b'GRE-TGEN'.hex()
+
+
+class TestDissectAwdl:
+    def test_awdl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every AWDL TLV and the data frame header decode without
+        malformed packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('awdl_coverage.pcap.gz'),
+                '-Tfields', '-eawdl.type', '-eawdl_data.seq',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 24
+        assert sum(1 for l in lines if l.split('\t')[0]) == 16
+        assert sum(1 for l in lines if l.split('\t')[1]) == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('awdl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_awdl_ht_capabilities_zero_mcs(self, cmd_tshark, capture_file, test_env):
+        '''HT capabilities whose first Rx MCS octet is zero decode, and
+        the Version TLV after them is not lost. The zero octet used to be
+        the item length of a 32-bit field, which threw.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('awdl_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9',
+                '-Tfields', '-eawdl.tag.number', '-eawdl.ht.mcsset.rxbitmask.0to7',
+                '-eawdl.version', '-eawdl.version.device_class',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split('\t') == ['7,21', '0x00000000', '0x10,0x3e', '1']
+
+    def test_awdl_channel_sequence(self, cmd_tshark, capture_file, test_env):
+        '''The channel sequence in the channel number, legacy and
+        operating class encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('awdl_coverage.pcap.gz'),
+                '-Y', 'awdl.channelseq.channel_list',
+                '-Tfields', '-eframe.number', '-eawdl.channelseq.encoding',
+                '-eawdl.channelseq.channel.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t6,6,6,6,44,44,44,44,149,149,149,149,6,6,6,6',
+            '2\t1\t6,6,44,149',
+            '3\t3\t6,44,149',
+            '16\t0\t149',
+        ]
+
+    def test_awdl_service_response(self, cmd_tshark, capture_file, test_env):
+        '''Service responses (TXT, SRV, PTR) and service parameters.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('awdl_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5 || frame.number == 7',
+                '-Tfields', '-eawdl.dns.type', '-eawdl.dns.txt',
+                '-eawdl.dns.port', '-eawdl.serviceparams.bitmask',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16,33,12\ttxtvers=1,model=MacBookPro,\t8770\t',
+            '\t\t\t0x80000005,0x00000002',
+        ]
+
+    def test_awdl_data_frames(self, cmd_tshark, capture_file, test_env):
+        '''AWDL data frames with the short and long header hand the
+        payload to the ethertype table; the long header has TLVs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('awdl_coverage.pcap.gz'),
+                '-Y', 'awdl_data',
+                '-Tfields', '-eawdl_data.seq', '-eawdl_data.ethertype',
+                '-eawdl.tag.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0800\t\tIPv4',
+            '2\t0x86dd\t\tIPv6',
+            '3\t0x88b5\t\tAWDL Data',
+            '4\t0x86dd\t\tIPv6',
+            '5\t0x0800\t21,20,1\tIPv4',
+            '6\t0x88b5\t12\tAWDL Data',
+            '7\t0x86dd\t\tIPv6',
+            '8\t0x86dd\t7\tIPv6',
+        ]
