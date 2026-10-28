@@ -42,10 +42,56 @@ function( FindWSWinLibs _WS_LIB_SEARCH_PATH _LIB_HINT_VAR )
   endif()
 endfunction()
 
-# Add a single DLL
+# Create a SHARED IMPORTED target for each third party DLL that we need at
+# run time and register it in the WS_RUNTIME_DLL_TARGETS global property.
+# The top-level CMakeLists.txt copies each registered DLL, along with its
+# PDB if one is present, to the run directory and installs it.
+#
+# ws_add_runtime_dlls(<release DLL paths...> [DEBUG <debug DLL paths...>])
+#
+# DEBUG lists the debug counterpart of each release DLL, in the same order,
+# for packages that we link against debug import libraries in Debug builds.
+# The targets are named ws_runtime::<DLL name> and do not have an import
+# library, so they can't be linked against (yet).
+function(ws_add_runtime_dlls)
+  if(NOT USE_REPOSITORY)
+    return()
+  endif()
+  cmake_parse_arguments(_ws "" "" "DEBUG" ${ARGN})
+  set(_release_dlls ${_ws_UNPARSED_ARGUMENTS})
+  list(LENGTH _release_dlls _release_count)
+  list(LENGTH _ws_DEBUG _debug_count)
+  if(_debug_count AND NOT _debug_count EQUAL _release_count)
+    message(WARNING "Ignoring debug DLLs ${_ws_DEBUG}: they don't match release DLLs ${_release_dlls}")
+    set(_ws_DEBUG)
+  endif()
+  foreach(_dll _debug_dll IN ZIP_LISTS _release_dlls _ws_DEBUG)
+    if(NOT EXISTS "${_dll}")
+      continue()
+    endif()
+    get_filename_component(_dll_name "${_dll}" NAME_WLE)
+    string(MAKE_C_IDENTIFIER "${_dll_name}" _dll_id)
+    set(_target ws_runtime::${_dll_id})
+    # Some DLLs, such as liblzma and zstd, are shipped by more than one
+    # package. The last one found wins.
+    if(NOT TARGET ${_target})
+      add_library(${_target} SHARED IMPORTED GLOBAL)
+      set_property(GLOBAL APPEND PROPERTY WS_RUNTIME_DLL_TARGETS ${_target})
+    endif()
+    set_target_properties(${_target} PROPERTIES IMPORTED_LOCATION "${_dll}")
+    if(_debug_dll AND EXISTS "${_debug_dll}")
+      set_target_properties(${_target} PROPERTIES IMPORTED_LOCATION_DEBUG "${_debug_dll}")
+    else()
+      set_property(TARGET ${_target} PROPERTY IMPORTED_LOCATION_DEBUG)
+    endif()
+  endforeach()
+endfunction()
+
+# Add a single DLL. The debug DLL is used in Debug builds only if
+# FindWSLibrary found a debug import library (<PKG>_LIBRARY_DEBUG).
 function(AddWSWinDLL _PKG_NAME _PKG_HINTS _DLL_GLOB)
+  string(TOUPPER ${_PKG_NAME} _PKG_VAR)
   if(USE_REPOSITORY AND ${_PKG_NAME}_FOUND)
-    string(TOUPPER ${_PKG_NAME} _PKG_VAR)
     set ( ${_PKG_VAR}_DLL_DIR "${${_PKG_HINTS}}/bin"
       CACHE PATH "Path to ${_PKG_NAME} DLL"
     )
@@ -78,6 +124,13 @@ function(AddWSWinDLL _PKG_NAME _PKG_HINTS _DLL_GLOB)
       CACHE STRING "${_PKG_NAME} Debug PDB file name"
     )
     mark_as_advanced( ${_PKG_VAR}_DLL_DIR_DEBUG ${_PKG_VAR}_DLL_DEBUG ${_PKG_VAR}_PDB_DEBUG )
+
+    list(TRANSFORM ${_PKG_VAR}_DLL PREPEND "${${_PKG_VAR}_DLL_DIR}/" OUTPUT_VARIABLE _release_dlls)
+    set(_debug_dlls)
+    if(${_PKG_VAR}_LIBRARY_DEBUG)
+      list(TRANSFORM ${_PKG_VAR}_DLL_DEBUG PREPEND "${${_PKG_VAR}_DLL_DIR_DEBUG}/" OUTPUT_VARIABLE _debug_dlls)
+    endif()
+    ws_add_runtime_dlls(${_release_dlls} DEBUG ${_debug_dlls})
   else()
     set( ${_PKG_VAR}_DLL_DIR )
     set( ${_PKG_VAR}_DLL )
@@ -90,8 +143,8 @@ endfunction()
 
 # Add a list of DLLs
 function(AddWSWinDLLS _PKG_NAME _PKG_HINTS) # ...DLL globs
+  string(TOUPPER ${_PKG_NAME} _PKG_VAR)
   if(USE_REPOSITORY AND ${_PKG_NAME}_FOUND)
-    string(TOUPPER ${_PKG_NAME} _PKG_VAR)
     set ( ${_PKG_VAR}_DLL_DIR "${${_PKG_HINTS}}/bin"
       CACHE PATH "Path to ${_PKG_NAME} DLLs"
     )
@@ -117,6 +170,9 @@ function(AddWSWinDLLS _PKG_NAME _PKG_HINTS) # ...DLL globs
     )
 
     mark_as_advanced( ${_PKG_VAR}_DLL_DIR ${_PKG_VAR}_DLLS ${_PKG_VAR}_PDBS )
+
+    list(TRANSFORM ${_PKG_VAR}_DLLS PREPEND "${${_PKG_VAR}_DLL_DIR}/" OUTPUT_VARIABLE _release_dlls)
+    ws_add_runtime_dlls(${_release_dlls})
   else()
     set( ${_PKG_VAR}_DLL_DIR )
     set( ${_PKG_VAR}_DLLS )

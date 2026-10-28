@@ -36,21 +36,12 @@ IF(SMI_FOUND)
   SET( SMI_LIBRARIES ${SMI_LIBRARY} )
   SET( SMI_INCLUDE_DIRS ${SMI_INCLUDE_DIR} )
   if (WIN32)
-    set ( SMI_DLL_DIR "${SMI_HINTS}/bin"
-      CACHE PATH "Path to the SMI DLL"
-    )
     set ( SMI_SHARE_DIR "${SMI_HINTS}/share"
       CACHE PATH "Path to the SMI MIBs"
     )
-    file( GLOB _smi_dll RELATIVE "${SMI_DLL_DIR}"
-      "${SMI_DLL_DIR}/libsmi-*.dll"
-    )
-    set ( SMI_DLL ${_smi_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "SMI DLL file name"
-    )
-    mark_as_advanced( SMI_DLL_DIR SMI_DLL )
+    mark_as_advanced( SMI_SHARE_DIR )
   endif()
+  AddWSWinDLL(SMI SMI_HINTS "libsmi-*")
 
   include(CheckSymbolExists)
   cmake_push_check_state()

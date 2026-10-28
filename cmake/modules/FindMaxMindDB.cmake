@@ -78,6 +78,10 @@ IF(MAXMINDDB_FOUND)
     )
     mark_as_advanced( MAXMINDDB_DLL_DIR_RELEASE MAXMINDDB_DLL_RELEASE )
     mark_as_advanced( MAXMINDDB_DLL_DIR_DEBUG MAXMINDDB_DLL_DEBUG )
+    # vcpkg's libmaxminddb is static-only for now. Register the DLLs with
+    # ws_add_runtime_dlls() when
+    # https://github.com/maxmind/libmaxminddb/commit/3998f42bdb6678cbaa1a543057e5c81ba1668ac2
+    # percolates up to vcpkg.
   endif()
   if(MAXMINDDB_INCLUDE_DIR)
     set(_version_regex "^#define[ \t]+PACKAGE_VERSION[ \t]+\"([^\"]+)\".*")

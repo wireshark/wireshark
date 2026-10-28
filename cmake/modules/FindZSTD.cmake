@@ -52,19 +52,7 @@ find_package_handle_standard_args(ZSTD
 if( ZSTD_FOUND )
   set( ZSTD_INCLUDE_DIRS ${ZSTD_INCLUDE_DIR} )
   set( ZSTD_LIBRARIES ${ZSTD_LIBRARY} )
-  if (WIN32)
-    set ( ZSTD_DLL_DIR "${ZSTD_HINTS}/bin"
-      CACHE PATH "Path to Zstd DLL"
-    )
-    file( GLOB _zstd_dll RELATIVE "${ZSTD_DLL_DIR}"
-      "${ZSTD_DLL_DIR}/zstd*.dll"
-    )
-    set ( ZSTD_DLL ${_zstd_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "Zstd DLL file name"
-    )
-    mark_as_advanced( ZSTD_DLL_DIR ZSTD_DLL )
-  endif()
+  AddWSWinDLL(ZSTD ZSTD_HINTS "zstd*")
 else()
   set( ZSTD_INCLUDE_DIRS )
   set( ZSTD_LIBRARIES )

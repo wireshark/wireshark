@@ -87,24 +87,7 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(CARES
 IF(CARES_FOUND)
   SET( CARES_LIBRARIES ${CARES_LIBRARY} )
   SET( CARES_INCLUDE_DIRS ${CARES_INCLUDE_DIR} )
-  if (WIN32)
-    set ( CARES_DLL_DIR "${CARES_HINTS}/bin"
-      CACHE PATH "Path to C-Ares DLL"
-    )
-    file( GLOB _cares_dll RELATIVE "${CARES_DLL_DIR}"
-      "${CARES_DLL_DIR}/cares.dll"
-    )
-    set ( CARES_DLL ${_cares_dll}
-      CACHE FILEPATH "C-Ares DLL file name"
-    )
-    file( GLOB _cares_pdb RELATIVE "${CARES_DLL_DIR}"
-      "${CARES_DLL_DIR}/cares.pdb"
-    )
-    set ( CARES_PDB ${_cares_pdb}
-      CACHE FILEPATH "C-Ares PDB file name"
-    )
-    mark_as_advanced( CARES_DLL_DIR CARES_DLL CARES_PDB )
-  endif()
+  AddWSWinDLL(CARES CARES_HINTS "cares")
 ELSE(CARES_FOUND)
   SET( CARES_LIBRARIES )
   SET( CARES_INCLUDE_DIRS )

@@ -93,6 +93,10 @@ if(PCRE2_FOUND)
 			CACHE FILEPATH "PCRE2 debug PDB file name"
 		)
 		mark_as_advanced(PCRE2_RELEASE_DLL_DIR PCRE2_RELEASE_DLL PCRE2_PDB PCRE2_DEBUG_DLL_DIR PCRE2_DEBUG_DLL)
+
+		list(TRANSFORM PCRE2_RELEASE_DLL PREPEND "${PCRE2_RELEASE_DLL_DIR}/" OUTPUT_VARIABLE _pcre2_release_dlls)
+		list(TRANSFORM PCRE2_DEBUG_DLL PREPEND "${PCRE2_DEBUG_DLL_DIR}/" OUTPUT_VARIABLE _pcre2_debug_dlls)
+		ws_add_runtime_dlls(${_pcre2_release_dlls} DEBUG ${_pcre2_debug_dlls})
 	endif()
 else()
 	set(PCRE2_LIBRARIES)

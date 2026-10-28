@@ -37,19 +37,7 @@ find_package_handle_standard_args(SpeexDSP DEFAULT_MSG SPEEXDSP_LIBRARY SPEEXDSP
 if(SPEEXDSP_FOUND)
   set(SPEEXDSP_LIBRARIES ${SPEEXDSP_LIBRARY})
   set(SPEEXDSP_INCLUDE_DIRS ${SPEEXDSP_INCLUDE_DIR})
-  if(WIN32)
-    set(SPEEXDSP_DLL_DIR "${SPEEXDSP_HINTS}/bin"
-      CACHE PATH "Path to SpeexDSP DLL"
-    )
-    file(GLOB _speexdsp_dll RELATIVE "${SPEEXDSP_DLL_DIR}"
-      "${SPEEXDSP_DLL_DIR}/libspeexdsp.dll"
-    )
-    set(SPEEXDSP_DLL ${_speexdsp_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "SpeexDSP DLL file name"
-    )
-    mark_as_advanced(SPEEXDSP_DLL_DIR SPEEXDSP_DLL)
-  endif()
+  AddWSWinDLL(SPEEXDSP SPEEXDSP_HINTS "libspeexdsp")
 else()
   set(SPEEXDSP_LIBRARIES)
   set(SPEEXDSP_INCLUDE_DIRS)

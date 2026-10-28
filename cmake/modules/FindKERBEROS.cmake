@@ -123,25 +123,6 @@ if(KERBEROS_FOUND)
   endif()
 endif()
 
-if(WIN32)
-  if(KERBEROS_FOUND)
-    set(KERBEROS_DLL_DIR "${KERBEROS_HINTS}/bin"
-      CACHE PATH "Path to the Kerberos DLLs"
-    )
-    file(GLOB _kerberos_dlls RELATIVE "${KERBEROS_DLL_DIR}"
-      "${KERBEROS_DLL_DIR}/comerr??.dll"
-      "${KERBEROS_DLL_DIR}/krb5_??.dll"
-      "${KERBEROS_DLL_DIR}/k5sprt??.dll"
-    )
-    set(KERBEROS_DLLS ${_kerberos_dlls}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "Kerberos DLL list"
-    )
-    mark_as_advanced(KERBEROS_DLL_DIR KERBEROS_DLLS)
-  else()
-    set(KERBEROS_DLL_DIR)
-    set(KERBEROS_DLLS)
-  endif()
-endif()
+AddWSWinDLLS(KERBEROS KERBEROS_HINTS "comerr??" "krb5_??" "k5sprt??")
 
 mark_as_advanced(KERBEROS_LIBRARIES KERBEROS_INCLUDE_DIRS KERBEROS_DEFINITIONS)

@@ -89,21 +89,12 @@ else ()
     REQUIRED_VARS   LIBSSH_LIBRARIES LIBSSH_INCLUDE_DIRS LIBSSH_VERSION
     VERSION_VAR     LIBSSH_VERSION)
 
-  if(WIN32)
-    set(LIBSSH_DLL_DIR "${LIBSSH_HINTS}/bin"
-      CACHE PATH "Path to libssh DLLs"
-    )
-    file(GLOB _libssh_dlls RELATIVE "${LIBSSH_DLL_DIR}"
-      "${LIBSSH_DLL_DIR}/libssh.dll"
-    )
-    set(LIBSSH_DLLS ${_libssh_dlls}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "libssh DLL file name"
-    )
-    mark_as_advanced(LIBSSH_DLL_DIR LIBSSH_DLL)
-  endif()
-
   # show the LIBSSH_INCLUDE_DIRS and LIBSSH_LIBRARIES variables only in the advanced view
   mark_as_advanced(LIBSSH_INCLUDE_DIRS LIBSSH_LIBRARIES)
 
 endif()
+
+# This is outside the block above so that the DLLs are registered when
+# the results are cached.
+include(FindWSWinLibs)
+AddWSWinDLLS(LIBSSH LIBSSH_HINTS "libssh")

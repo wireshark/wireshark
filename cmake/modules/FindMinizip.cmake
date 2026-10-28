@@ -55,24 +55,7 @@ if(MINIZIP_FOUND)
   include(CheckStructHasMember)
   check_struct_has_member("zip_fileinfo" "dos_date" "minizip/zip.h" HAVE_MZCOMPAT_DOS_DATE)
 
-  if(WIN32)
-    set(MINIZIP_DLL_DIR "${MINIZIP_HINTS}/bin"
-      CACHE PATH "Path to Minizip DLL"
-    )
-    file(GLOB _minizip_dll RELATIVE "${MINIZIP_DLL_DIR}"
-      "${MINIZIP_DLL_DIR}/minizip.dll"
-    )
-    set(MINIZIP_DLL ${_minizip_dll}
-      CACHE FILEPATH "Minizip DLL file name"
-    )
-    file(GLOB _minizip_pdb RELATIVE "${MINIZIP_DLL_DIR}"
-      "${MINIZIP_DLL_DIR}/minizip.pdb"
-    )
-    set(MINIZIP_PDB ${_minizip_pdb}
-      CACHE FILEPATH "Minizip PDB file name"
-    )
-    mark_as_advanced(MINIZIP_DLL_DIR MINIZIP_DLL MINIZIP_PDB)
-  endif()
+  AddWSWinDLL(MINIZIP MINIZIP_HINTS "minizip")
 else()
   set(MINIZIP_LIBRARIES)
   set(MINIZIP_INCLUDE_DIRS)

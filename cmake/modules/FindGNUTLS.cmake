@@ -58,30 +58,7 @@ find_package_handle_standard_args(GNUTLS
 if(GNUTLS_FOUND)
   set(GNUTLS_LIBRARIES ${GNUTLS_LIBRARY})
   set(GNUTLS_INCLUDE_DIRS ${GNUTLS_INCLUDE_DIR})
-  if(WIN32)
-    set(GNUTLS_DLL_DIR "${GNUTLS_HINTS}/bin"
-      CACHE PATH "Path to the GnuTLS DLLs"
-    )
-    # Note: 32-bit glib2-2.52.2-1.34-win32ws needs libgcc_s_sjlj-1.dll too.
-    file(GLOB _gnutls_dlls RELATIVE "${GNUTLS_DLL_DIR}"
-      "${GNUTLS_DLL_DIR}/libgmp-*.dll"
-      "${GNUTLS_DLL_DIR}/libgcc_s_*.dll"
-      "${GNUTLS_DLL_DIR}/libffi-*.dll"
-      "${GNUTLS_DLL_DIR}/libgnutls-*.dll"
-      "${GNUTLS_DLL_DIR}/libhogweed-*.dll"
-      "${GNUTLS_DLL_DIR}/libiconv-*.dll"
-      "${GNUTLS_DLL_DIR}/libintl-*.dll"
-      "${GNUTLS_DLL_DIR}/libnettle-*.dll"
-      "${GNUTLS_DLL_DIR}/libp11-kit-*.dll"
-      "${GNUTLS_DLL_DIR}/libtasn1-*.dll"
-      "${GNUTLS_DLL_DIR}/libwinpthread-*.dll"
-    )
-    set(GNUTLS_DLLS ${_gnutls_dlls}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "GnuTLS DLL list"
-    )
-    mark_as_advanced(GNUTLS_DLL_DIR GNUTLS_DLLS)
-  endif()
+  AddWSWinDLLS(GNUTLS GNUTLS_HINTS "libgmp-*" "libgcc_s_*" "libffi-*" "libgnutls-*" "libhogweed-*" "libiconv-*" "libintl-*" "libnettle-*" "libp11-kit-*" "libtasn1-*" "libwinpthread-*")
 else()
   set(GNUTLS_LIBRARIES)
   set(GNUTLS_INCLUDE_DIRS)

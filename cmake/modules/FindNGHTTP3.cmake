@@ -36,24 +36,7 @@ find_package_handle_standard_args( NGHTTP3 DEFAULT_MSG NGHTTP3_LIBRARY NGHTTP3_I
 if( NGHTTP3_FOUND )
   set( NGHTTP3_INCLUDE_DIRS ${NGHTTP3_INCLUDE_DIR} )
   set( NGHTTP3_LIBRARIES ${NGHTTP3_LIBRARY} )
-  if (WIN32)
-    set ( NGHTTP3_DLL_DIR "${NGHTTP3_HINTS}/bin"
-      CACHE PATH "Path to nghttp3 DLL"
-    )
-    file( GLOB _nghttp3_dll RELATIVE "${NGHTTP3_DLL_DIR}"
-      "${NGHTTP3_DLL_DIR}/nghttp3.dll"
-    )
-    set ( NGHTTP3_DLL ${_nghttp3_dll}
-      CACHE FILEPATH "nghttp3 DLL file name"
-    )
-    file( GLOB _nghttp3_pdb RELATIVE "${NGHTTP3_DLL_DIR}"
-      "${NGHTTP3_DLL_DIR}/nghttp3.pdb"
-    )
-    set ( NGHTTP3_PDB ${_nghttp3_pdb}
-      CACHE FILEPATH "nghttp3 PDB file name"
-    )
-    mark_as_advanced( NGHTTP3_DLL_DIR NGHTTP3_DLL NGHTTP3_PDB )
-  endif()
+  AddWSWinDLL(NGHTTP3 NGHTTP3_HINTS "nghttp3")
 else()
   set( NGHTTP3_INCLUDE_DIRS )
   set( NGHTTP3_LIBRARIES )

@@ -65,20 +65,7 @@ find_package_handle_standard_args(GCRYPT
 if(GCRYPT_FOUND)
   set(GCRYPT_LIBRARIES ${GCRYPT_LIBRARY} ${GCRYPT_ERROR_LIBRARY})
   set(GCRYPT_INCLUDE_DIRS ${GCRYPT_INCLUDE_DIR})
-  if(WIN32)
-    set(GCRYPT_DLL_DIR "${GCRYPT_HINTS}/bin"
-      CACHE PATH "Path to the Libgcrypt DLLs"
-    )
-    file(GLOB _gcrypt_dlls RELATIVE "${GCRYPT_DLL_DIR}"
-      "${GCRYPT_DLL_DIR}/libgcrypt-*.dll"
-      "${GCRYPT_DLL_DIR}/libgpg-error*.dll"
-    )
-    set(GCRYPT_DLLS ${_gcrypt_dlls}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "Libgcrypt DLL list"
-    )
-    mark_as_advanced(GCRYPT_DLL_DIR GCRYPT_DLLS)
-  endif()
+  AddWSWinDLLS(GCRYPT GCRYPT_HINTS "libgcrypt-*" "libgpg-error*")
 else()
   set(GCRYPT_LIBRARIES)
   set(GCRYPT_INCLUDE_DIRS)

@@ -155,6 +155,8 @@ if(ZLIB_FOUND)
     set (ZLIB_PDB ${ZLIB_PDB}
         CACHE FILEPATH "ZLIB PDB file name"
     )
+    list(TRANSFORM ZLIB_DLLS_RELEASE PREPEND "${ZLIB_DLL_DIR}/" OUTPUT_VARIABLE _zlib_dlls)
+    ws_add_runtime_dlls(${_zlib_dlls})
     SET(ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIR})
     SET(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
 ELSE()

@@ -386,6 +386,8 @@ IF(Lua_FOUND)
       CACHE FILEPATH "LUA PDB file name"
     )
     mark_as_advanced( LUA_DLL_DIR LUA_DLL LUA_PDB )
+    list(TRANSFORM LUA_DLL PREPEND "${LUA_DLL_DIR}/" OUTPUT_VARIABLE _lua_dlls)
+    ws_add_runtime_dlls(${_lua_dlls})
   endif()
   if(LUA_DLL_DIR MATCHES ".*/lua-.*-unicode-.*")
     # Do we have Lua with Unicode for Windows patches?

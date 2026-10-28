@@ -36,19 +36,7 @@ find_package_handle_standard_args(OPUS DEFAULT_MSG OPUS_LIBRARY OPUS_INCLUDE_DIR
 if( OPUS_FOUND )
   set( OPUS_INCLUDE_DIRS ${OPUS_INCLUDE_DIR} )
   set( OPUS_LIBRARIES ${OPUS_LIBRARY} )
-  if (WIN32)
-    set ( OPUS_DLL_DIR "${OPUS_HINTS}/bin"
-      CACHE PATH "Path to opus DLL"
-    )
-    file( GLOB _opus_dll RELATIVE "${OPUS_DLL_DIR}"
-      "${OPUS_DLL_DIR}/opus.dll"
-    )
-    set ( OPUS_DLL ${_opus_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "opus DLL file name"
-    )
-    mark_as_advanced( OPUS_DLL_DIR OPUS_DLL )
-  endif()
+  AddWSWinDLL(OPUS OPUS_HINTS "opus")
 else()
   set( OPUS_INCLUDE_DIRS )
   set( OPUS_LIBRARIES )
