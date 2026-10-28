@@ -9427,3 +9427,47 @@ class TestDissectAtm:
         frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage_sniffer.enc.gz',
                                  'atm.aal5t_crc', 'frame.number', 'atm.cells', 'atm.aal5t_len', 'atm.aal5t_crc')
         assert frames == [['30', '2', '36', '0xdeadbeef']]
+
+
+class TestDissectAtmtcp:
+    def test_atmtcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Control and data messages decode without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atmtcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 28
+        assert protocols.count('ATMTCP') == 11
+        assert protocols.count('TCP') == 17
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atmtcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_atmtcp_messages(self, cmd_tshark, capture_file, test_env):
+        '''A length of 0xffffffff is a control message, anything else data;
+        the VPI, VCI and length are decoded and the rest is data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atmtcp_coverage.pcap.gz'),
+                '-Y', 'atmtcp',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eatmtcp.vpi',
+                '-eatmtcp.vci', '-eatmtcp.length', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tATMTCP Command\t0\t32\t4294967295\t104',
+            '6\tATMTCP Command\t0\t32\t4294967295\t104',
+            '8\tATMTCP Data\t0\t32\t40\t40',
+            '10\tATMTCP Data\t0\t32\t68\t68',
+            '12\tATMTCP Data\t0\t32\t0\t',
+            '14\tATMTCP Command\t4095\t65535\t4294967295\t104',
+            '16\tATMTCP Command\t4095\t65535\t4294967295\t104',
+            '18\tATMTCP Data\t4095\t65535\t1428\t1428',
+            '20\tATMTCP Data\t4095\t65535\t48\t48',
+            '22\tATMTCP Command\t0\t32\t4294967295\t104',
+            '24\tATMTCP Command\t0\t32\t4294967295\t104',
+        ]
