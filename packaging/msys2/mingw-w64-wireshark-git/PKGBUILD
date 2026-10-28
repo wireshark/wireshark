@@ -77,7 +77,7 @@ build() {
       "${extra_config[@]}" \
       -DENABLE_WERROR=OFF \
       -DUSE_qt6=ON \
-      -DENABLE_WINSPARKLE=OFF \
+      -DENABLE_SOFTWARE_UPDATE=OFF \
       -DFETCH_lua=ON \
       ../${_realname}
 
