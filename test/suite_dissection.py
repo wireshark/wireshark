@@ -8480,3 +8480,76 @@ class TestDissectAsf:
             ['20', '', '1,2', '8,8'],
             ['252', '', '9,0', '244,4'],
         ]
+
+
+class TestDissectExportedPduTls:
+    def run_fields(self, cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('exported_pdu_tls_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_exported_pdu_tls_protocols(self, cmd_tshark, capture_file, test_env):
+        '''One Exported PDU per heuristic dissector of the "tls" list,
+        named with the heuristic dissector name tag; each decodes as its
+        protocol. They used to be called without a struct tlsinfo and
+        HTTP, HTTP2, WebSphere MQ, FIX and 5G LI crashed.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eexported_pdu.heur_prot_name', '-eframe.protocols')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['http_tls', 'exported_pdu:http'],
+            ['http_tls', 'exported_pdu:http'],
+            ['http2_tls', 'exported_pdu:http2'],
+            ['mq_tls', 'exported_pdu:mq'],
+            ['fix_tls', 'exported_pdu:fix'],
+            ['li5g_tls', 'exported_pdu:li5g'],
+            # aim_tls is disabled by default: the payload goes to data
+            ['aim_tls', 'exported_pdu:data'],
+            ['rpc_tls', 'exported_pdu:rpc'],
+            ['tpkt_tls', 'exported_pdu:tpkt:cotp'],
+            ['smpp_tls', 'exported_pdu:smpp'],
+            ['rtitcp_tls', 'exported_pdu:rtitcp'],
+            ['rdpmt_tls_', 'exported_pdu:rdpmt'],
+            ['rdp_tls', 'exported_pdu:rdp'],
+            ['credssp_tls', 'exported_pdu:credssp:gss-api'],
+        ]
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '--enable-heuristic', 'aim_tls', '-Y', 'aim',
+                '-Tfields', '-eframe.number', '-eaim.channel')
+        assert stdout.splitlines() == ['7\t0x01']
+
+    def test_exported_pdu_tls_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two passes.'''
+        for args in ((), ('-2',), ('--enable-heuristic', 'aim_tls'),
+                     ('-2', '--enable-heuristic', 'aim_tls')):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *args,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_exported_pdu_tls_http(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of the crash (an HTTP response found by http_tls)
+        and an HTTP request with address and port tags.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'http', '-Tfields', '-eframe.number', '-ehttp.response.code',
+                '-ehttp.request.uri', '-e_ws.col.def_src', '-e_ws.col.def_dst')
+        assert stdout.splitlines() == [
+            '1\t200\t\t\t',
+            '2\t\t/index.html\t192.0.2.1\t192.0.2.2']
+
+    def test_exported_pdu_tls_values(self, cmd_tshark, capture_file, test_env):
+        '''A decoded value from each of the other heuristic dissectors.'''
+        for dfilter, field, value in (
+                ('http2', 'http2.type', '4'),
+                ('mq', 'mq.tsh.type', '0x09'),
+                ('fix', 'fix.MsgType', '0'),
+                ('li5g', 'li5g.type', '3'),
+                ('rpc', 'rpc.program', '100003'),
+                ('cotp', 'cotp.type', '0x0e'),
+                ('smpp', 'smpp.command_id', '0x00000015'),
+                ('rtitcp', 'rtitcp.control.kind', '0x0c01'),
+                ('rdpmt', 'rdpmt.createrequest.requestid', '0x00000001'),
+                ('rdp', 'rdp.fastpath.scancode.keycode', '0x1e'),
+                ('credssp', 'credssp.version', '6')):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                    '-Y', dfilter, '-Tfields', '-E', 'occurrence=f', '-e' + field)
+            assert stdout.split() == [value], field
