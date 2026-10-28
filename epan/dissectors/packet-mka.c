@@ -17,6 +17,7 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/uat.h>
+#include <epan/tap.h>
 #include <epan/etypes.h>
 
 #include <wsutil/pint.h>
@@ -67,12 +68,15 @@
 #define PEER_MI_KEY 5
 #define LATEST_KEY 6
 #define OLD_KEY 7
+#define CA_TAP_KEY 8
 
 void proto_register_mka(void);
 void proto_reg_handoff_mka(void);
 
 static int proto_mka;
 static int proto_eapol;
+
+static int mka_ca_tap = -1;
 
 static int hf_mka_version_id;
 static int hf_mka_basic_param_set;
@@ -654,6 +658,18 @@ mka_add_ckn_info(proto_tree *tree, tvbuff_t *tvb, int offset, uint16_t ckn_len) 
   return NULL;
 }
 
+static mka_ca_tap_t *
+get_ca_tap(packet_info *pinfo) {
+  mka_ca_tap_t *ca_tap = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CA_TAP_KEY);
+  if (ca_tap == NULL) {
+    ca_tap = wmem_new0(pinfo->pool, mka_ca_tap_t);
+    ca_tap->live_peers = wmem_array_new(pinfo->pool, MKA_MI_LEN);
+    ca_tap->potential_peers = wmem_array_new(pinfo->pool, MKA_MI_LEN);
+    p_add_proto_data(pinfo->pool, pinfo, proto_mka, CA_TAP_KEY, ca_tap);
+  }
+  return ca_tap;
+}
+
 static proto_tree *
 dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, uint16_t param_body_len) {
   unsigned sci_offset;
@@ -666,6 +682,7 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   basic_param_set_tree = proto_item_add_subtree(ti, ett_mka_basic_param_set);
 
   proto_tree_add_item(basic_param_set_tree, hf_mka_version_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+  uint8_t mka_version = tvb_get_uint8(tvb, offset);
   offset += 1;
 
   proto_tree_add_item(basic_param_set_tree, hf_mka_keyserver_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -675,7 +692,8 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   proto_tree_add_item(basic_param_set_tree, hf_mka_macsec_desired, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(basic_param_set_tree, hf_mka_macsec_capability, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-  if (tvb_get_uint8(tvb, offset) & 0x80)
+  bool key_server = (tvb_get_uint8(tvb, offset) & 0x80) != 0;
+  if (key_server)
   {
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Key Server");
   }
@@ -715,6 +733,21 @@ dissect_basic_paramset(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
 
   /* look up the CAK/CKN in the CKN table, and add a private hash table entry if it does not yet exist there */
   mka_ckn_info_t *rec = mka_add_ckn_info(basic_param_set_tree, tvb, offset, ckn_len);
+
+  /* Seed the CA tap record for every MKPDU, whether or not the CKN is known.
+   * ckn_info is NULL for an unknown CKN (unauthenticatable, SAK not
+   * unwrappable), but the CA is still tracked by its raw CKN. */
+  mka_ca_tap_t *ca_tap = get_ca_tap(pinfo);
+  ca_tap->ckn_info = rec;
+  if (ckn_len > 0 && ckn_len <= MKA_MAX_CKN_LEN_PUB) {
+    tvb_memcpy(tvb, ca_tap->ckn, offset, ckn_len);
+    ca_tap->ckn_len = ckn_len;
+  }
+  ca_tap->mka_version = mka_version;
+  ca_tap->key_server = key_server;
+  tvb_memcpy(tvb, ca_tap->actor_sci, sci_offset, MACSEC_SCI_LEN);
+  tvb_memcpy(tvb, ca_tap->actor_mi, sci_offset + MACSEC_SCI_LEN, MKA_MI_LEN);
+  ca_tap->actor_mn = tvb_get_ntohl(tvb, sci_offset + MACSEC_SCI_LEN + MKA_MI_LEN);
 
   if (NULL != rec) {
     /* add the record to the private hash table for this packet to tell ourselves about the CKN and its keys later on */
@@ -844,6 +877,14 @@ dissect_live_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
      * itself) and try all of them in the MACsec dissector, if necessary.
      */
     proto_tree_add_item(live_peer_list_set_tree, hf_mka_peer_mi, tvb, offset, MKA_MI_LEN, ENC_NA);
+    {
+      mka_ca_tap_t *ca_tap = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CA_TAP_KEY);
+      if (ca_tap) {
+        uint8_t peer_mi[MKA_MI_LEN];
+        tvb_memcpy(tvb, peer_mi, offset, MKA_MI_LEN);
+        wmem_array_append_one(ca_tap->live_peers, peer_mi);
+      }
+    }
     if (sci_map) {
       mi = tvb_memdup(pinfo->pool, tvb, offset, MKA_MI_LEN);
       if (idx >= server_ssci) {
@@ -921,6 +962,14 @@ dissect_potential_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *
 
   while (param_body_len >= 16) {
     proto_tree_add_item(potential_peer_list_set_tree, hf_mka_peer_mi, tvb, offset, MKA_MI_LEN, ENC_NA);
+    {
+      mka_ca_tap_t *ca_tap = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CA_TAP_KEY);
+      if (ca_tap) {
+        uint8_t peer_mi[MKA_MI_LEN];
+        tvb_memcpy(tvb, peer_mi, offset, MKA_MI_LEN);
+        wmem_array_append_one(ca_tap->potential_peers, peer_mi);
+      }
+    }
     offset += MKA_MI_LEN;
 
     proto_tree_add_item(potential_peer_list_set_tree, hf_mka_peer_mn, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -937,7 +986,7 @@ dissect_potential_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *
 }
 
 static proto_tree *
-dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int offset, uint16_t param_body_len) {
+dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int offset, uint16_t param_body_len) {
   proto_tree *sak_use_set_tree;
   proto_item *ti;
   bool latest_rx, old_rx;
@@ -950,6 +999,19 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
 
   proto_tree_add_item(sak_use_set_tree, hf_mka_param_set_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
+
+  mka_ca_tap_t *ca_tap = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CA_TAP_KEY);
+  if (ca_tap) {
+    uint8_t sak_use_flags = tvb_get_uint8(tvb, offset);
+
+    ca_tap->has_sak_use = true;
+    ca_tap->latest_an = (sak_use_flags & 0xc0) >> 6;
+    ca_tap->latest_tx = (sak_use_flags & 0x20) != 0;
+    ca_tap->latest_rx = (sak_use_flags & 0x10) != 0;
+    ca_tap->old_an = (sak_use_flags & 0x0c) >> 2;
+    ca_tap->old_tx = (sak_use_flags & 0x02) != 0;
+    ca_tap->old_rx = (sak_use_flags & 0x01) != 0;
+  }
 
   proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_an, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_tx, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -976,6 +1038,11 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
   }
   else if (param_body_len == 40) /* MACsec supported */
   {
+    if (ca_tap) {
+      /* Latest Key Identifier: key server MI (12) + key number (4). */
+      tvb_memcpy(tvb, ca_tap->latest_ki, offset, MKA_KI_LEN);
+      ca_tap->latest_ki_valid = true;
+    }
     proto_tree_add_item(sak_use_set_tree, hf_mka_latest_key_server_mi, tvb, offset, 12, ENC_NA);
     if (latest_rx && !PINFO_FD_VISITED(pinfo)) {
       tvb_memcpy(tvb, ki, offset, MKA_KI_LEN);
@@ -997,6 +1064,11 @@ dissect_sak_use(proto_tree *mka_tree, packet_info *pinfo _U_, tvbuff_t *tvb, int
     offset += 4;
 
     proto_tree_add_item(sak_use_set_tree, hf_mka_old_key_server_mi, tvb, offset, 12, ENC_NA);
+    if (ca_tap) {
+      /* Old Key Identifier: key server MI (12) + key number (4). */
+      tvb_memcpy(tvb, ca_tap->old_ki, offset, MKA_KI_LEN);
+      ca_tap->old_ki_valid = true;
+    }
     if (old_rx && !PINFO_FD_VISITED(pinfo)) {
       tvb_memcpy(tvb, ki, offset, MKA_KI_LEN);
     }
@@ -1070,6 +1142,19 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
 
     proto_tree_add_item_ret_uint(distributed_sak_tree, hf_mka_key_number, tvb, offset, 4, ENC_BIG_ENDIAN, &kn);
     offset += 4;
+
+    {
+      mka_ca_tap_t *ca_tap = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CA_TAP_KEY);
+      if (ca_tap) {
+        ca_tap->has_dist_sak = true;
+        ca_tap->dist_sak_an = distributed_an;
+        ca_tap->dist_sak_kn = kn;
+
+        /* KI = key server (actor) MI + key number. */
+        memcpy(ca_tap->dist_sak_ki, ca_tap->actor_mi, MKA_MI_LEN);
+        phtonu32(&ca_tap->dist_sak_ki[MKA_MI_LEN], kn);
+      }
+    }
 
     /* For AES256, the wrapped key is longer and an 8 byte cipher suite is inserted before the wrapped key data. */
     if (DISTRIBUTED_SAK_AES128_XPN_BODY_LEN <= param_body_len) {
@@ -1191,6 +1276,13 @@ dissect_distributed_sak(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb,
     tvbuff_t *sak_tvb = tvb_new_child_real_data(tvb, sak_info->sak, sak_info->sak_len, sak_info->sak_len);
     add_new_data_source(pinfo, sak_tvb, "Unwrapped SAK");
     proto_tree_add_item(distributed_sak_tree, hf_mka_aes_key_wrap_unwrapped_sak, sak_tvb, 0, sak_info->sak_len, ENC_NA);
+
+    /* Carry the unwrapped SAK in the CA tap record. */
+    mka_ca_tap_t *ca_tap = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CA_TAP_KEY);
+    if (ca_tap && sak_info->sak_len <= MKA_MAX_SAK_LEN) {
+      memcpy(ca_tap->dist_sak, sak_info->sak, sak_info->sak_len);
+      ca_tap->dist_sak_len = sak_info->sak_len;
+    }
   }
   else
   {
@@ -1347,8 +1439,11 @@ dissect_xpn(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int offset,
     pn_key->pn |= ((uint64_t)pn_msb << 32);
     mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
     sci = wmem_map_lookup(mka_mi_sci_map, mi);
-    DISSECTOR_ASSERT(sci);
-    update_lpn(pn_key, sci, pinfo->num);
+    /* sci may be NULL if the actor's MI was not recorded (e.g. MI reuse);
+     * the LPN update is best effort, so skip it rather than assert. */
+    if (sci) {
+      update_lpn(pn_key, sci, pinfo->num);
+    }
   } else {
     proto_tree_add_item(xpn_set_tree, hf_mka_latest_lowest_accept_pn_msb, tvb, offset, 4, ENC_BIG_ENDIAN);
   }
@@ -1361,9 +1456,10 @@ dissect_xpn(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, int offset,
     if (sci == NULL) {
       mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
       sci = wmem_map_lookup(mka_mi_sci_map, mi);
-      DISSECTOR_ASSERT(sci);
     }
-    update_lpn(pn_key, sci, pinfo->num);
+    if (sci) {
+      update_lpn(pn_key, sci, pinfo->num);
+    }
   } else {
     proto_tree_add_item(xpn_set_tree, hf_mka_old_lowest_accept_pn_msb, tvb, offset, 4, ENC_BIG_ENDIAN);
   }
@@ -1614,6 +1710,15 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   const uint8_t *icv_calc = calculate_icv(pinfo, icv_len);
   proto_tree_add_checksum_bytes(mka_tree, tvb, offset, hf_mka_icv, hf_mka_icv_status, &ei_mka_icv_bad, pinfo, icv_calc, icv_len, icv_calc ? PROTO_CHECKSUM_VERIFY : PROTO_CHECKSUM_NO_FLAGS);
 
+  /* Emit the CA tap record for any MKPDU with a CKN, whether or not the CKN
+   * is in the table. */
+  mka_ca_tap_t *ca_tap = p_get_proto_data(pinfo->pool, pinfo, proto_mka, CA_TAP_KEY);
+  if (ca_tap != NULL && ca_tap->ckn_len > 0 && have_tap_listener(mka_ca_tap)) {
+    ca_tap->frame_num = pinfo->num;
+    ca_tap->abs_ts = pinfo->abs_ts;
+    tap_queue_packet(mka_ca_tap, pinfo, ca_tap);
+  }
+
   return tvb_captured_length(tvb);
 }
 
@@ -1732,6 +1837,7 @@ proto_register_mka(void) {
 
   proto_mka = proto_register_protocol("MACsec Key Agreement", "EAPOL-MKA", "mka");
   register_dissector("mka", dissect_mka, proto_mka);
+  mka_ca_tap = register_tap("mka_ca");
 
   proto_register_field_array(proto_mka, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

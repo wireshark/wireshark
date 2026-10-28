@@ -1205,4 +1205,51 @@ You can see similar statistics in the menu:Statistics[Conversations] and menu:St
 
 Internet Protocol version 6 (IPv6) is a core protocol for the internet layer. It uses 128-bit addresses and routes internet traffic. Similar to <<ChStatIPv4>>, the menu:Statistics[IPv6] menu shows the packet counter in each submenu.
 
+[#ChStatMkaCa]
+
+=== EAPOL-MKA Connectivity Associations
+
+The MACsec Key Agreement (MKA) protocol establishes and maintains the
+secure Connectivity Associations (CAs) used by MACsec. The
+menu:Statistics[EAPOL-MKA > Connectivity Associations] dialog analyzes the
+MKA Protocol Data Units (MKPDUs) in a capture and presents the state of each
+CA.
+
+The analysis is also available from TShark with *-z mka,ca*.
+
+The dialog organizes the information as a tree:
+
+* Each *Connectivity Association* is identified by its CA Key Name (CKN). A
+  CKN that is configured in the MKA preferences is shown by name; an unknown
+  CKN is still listed.
+* *Peers* lists each detected participant, keyed by its Secure Channel
+  Identifier (SCI). Each peer records the Member Identifiers (MIs) it has
+  used, with the frame range and time range over which each was seen.
+* *Key Server History* lists, in order, the SCIs and MIs that acted as the
+  key server.
+* *Peer Group Formations* reconstructs each key distribution as a separate
+  episode, classified as one of:
++
+--
+  Key Server Startup:: A key server comes up with no key installed.
+  Key Server Rekey:: The current key server distributes a new key to the
+    existing group.
+  New Peer(s):: A key distribution in which at least one participant joined
+    the group since the previous formation (a new peer, or a peer that reset
+    and presents a new MI).
+  Key Server Change:: A different device takes over the key server role.
+--
++
+Each formation lists its key server, the target SAK, and its peers. For every
+peer the dialog reports the installation time (when the peer installed the
+key for receive), the formation time (when it activated the key for
+transmit), and the retirement time (when the key was rotated out). The peer
+holding the longest value for each metric is shown in bold, and a peer that
+is new to the group has its SCI and new MI shown in bold.
+
+Double-clicking a row navigates to the relevant packet. Right-clicking a row
+lets you apply or prepare a display filter scoped to that peer, key server,
+or formation. When MAC address resolution is enabled, SCIs are shown using
+the resolved name and update live if the setting changes.
+
 // End of WSUG Chapter Statistics

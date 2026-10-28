@@ -158,6 +158,12 @@ signals:
      */
     void updateFilter(QString filter);
 
+    /**
+     * @brief Emitted to navigate the packet list to a given frame.
+     * @param packet_num The frame number to select.
+     */
+    void goToPacket(int packet_num);
+
 public slots:
 
 protected:

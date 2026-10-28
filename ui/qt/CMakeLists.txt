@@ -292,6 +292,7 @@ set(WIRESHARK_QT_HEADERS
 	manuf_dialog.h
 	module_preferences_scroll_area.h
 	mtp3_summary_dialog.h
+	mka_ca_dialog.h
 	multicast_statistics_dialog.h
 	packet_comment_dialog.h
 	packet_diagram.h
@@ -767,6 +768,7 @@ set(WIRESHARK_QT_TAP_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/lte_mac_statistics_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/lte_rlc_statistics_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/mtp3_summary_dialog.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/mka_ca_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/multicast_statistics_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/plot.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/plot_dialog.cpp

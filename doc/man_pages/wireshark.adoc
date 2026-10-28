@@ -826,6 +826,22 @@ COMPARE
 EXTENDED
 --
 
+*-z* mka,ca[,__filter__]::
++
+--
+Analyze EAPOL-MKA (MACsec Key Agreement) traffic and report the
+Connectivity Associations (CAs) found in the capture.
+
+For each CA (identified by its CA Key Name, CKN) the output lists the
+detected peers (by Secure Channel Identifier and the Member Identifiers
+they used), the key server history, and each peer group formation. A
+formation is a single key distribution, classified as a key server startup,
+a rekey, a new-peer event, or a key server change, and reports per-peer
+installation, formation, and retirement times.
+
+Example: *tshark -r file.pcapng -q -z mka,ca*.
+--
+
 *-z* megaco,srt[__,filter__]::
 +
 --

@@ -25,6 +25,7 @@ set(NONGENERATED_UI_SRC
 	io_graph_item.c
 	language.c
 	mcast_stream.c
+	mka_ca_stat.c
 	packet_list_utils.c
 	packet_range.c
 	persfilepath_opt.c

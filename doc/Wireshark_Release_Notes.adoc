@@ -30,6 +30,14 @@ The following changes have been made since version 4.7.4:
 * macOS disk images and applications are now signed using certificates issued by Apple's Developer ID Certification Authority (G2).
   The previous certificate was issued by Apple's Developer ID Certification Authority, which expires in early 2027.
 
+* EAPOL-MKA (MACsec Key Agreement) gained a Connectivity Associations
+  analysis view, available from menu:Statistics[EAPOL-MKA > Connectivity
+  Associations] and from TShark with *-z mka,ca*. It groups traffic by
+  Connectivity Association (CKN), lists the detected peers and key servers,
+  and reconstructs each peer group formation (startup, rekey, new peer, and
+  key server change) with per-peer installation, formation, and retirement
+  times.
+
 The following changes have been made since version 4.7.3:
 
 * You can now https://www.wireshark.org/docs/wsug_html/#ChCustTaggingSection[tag packets] with emojis, text, or URLs similar to coloring rules.

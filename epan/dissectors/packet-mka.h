@@ -9,6 +9,9 @@
 
 #include <epan/packet.h>
 
+#define MKA_MI_LEN_PUB                  12U
+#define MKA_MAX_CKN_LEN_PUB             32U
+
 #define AES128_KEY_LEN                  16
 #define AES256_KEY_LEN                  32
 
@@ -74,6 +77,52 @@ typedef struct _mka_ckn_info {
   /* KEK/ICK data for this entry */
   mka_ckn_info_key_t key;
 } mka_ckn_info_t;
+
+/* Tap record emitted once per MKPDU carrying a CKN (known or not). */
+typedef struct _mka_ca_tap {
+  /* CA this MKPDU belongs to. ckn_info is NULL for a CKN not in the table
+   * (its MKPDUs cannot be authenticated and its SAK cannot be unwrapped). */
+  const mka_ckn_info_t *ckn_info;
+  /* Raw CKN bytes from the Basic Parameter Set, identifying the CA even when
+   * ckn_info is NULL. */
+  uint8_t ckn[MKA_MAX_CKN_LEN_PUB];
+  unsigned ckn_len;
+
+  uint32_t frame_num;
+  nstime_t abs_ts;
+
+  /* Actor identity from the Basic Parameter Set. */
+  uint8_t actor_sci[MACSEC_SCI_LEN];
+  uint8_t actor_mi[MKA_MI_LEN_PUB];
+  uint32_t actor_mn;
+  uint8_t mka_version;
+  bool key_server;
+
+  /* Distributed SAK parameter set, if present. */
+  bool has_dist_sak;
+  uint8_t dist_sak_an;
+  uint32_t dist_sak_kn;
+  uint8_t dist_sak_ki[MKA_KI_LEN];   /* server MI + key number */
+  uint8_t dist_sak[MKA_MAX_SAK_LEN]; /* unwrapped SAK (if KEK known) */
+  unsigned dist_sak_len;             /* 0 if the SAK was not unwrapped */
+
+  /* MACsec SAK Use parameter set, if present. */
+  bool has_sak_use;
+  uint8_t latest_an;
+  bool latest_tx;                    /* ltx */
+  bool latest_rx;                    /* lrx */
+  bool latest_ki_valid;
+  uint8_t latest_ki[MKA_KI_LEN];     /* latest key server MI + key number */
+  uint8_t old_an;
+  bool old_tx;                       /* otx */
+  bool old_rx;                       /* orx */
+  bool old_ki_valid;
+  uint8_t old_ki[MKA_KI_LEN];        /* old key server MI + key number */
+
+  /* Peer lists: arrays of MKA_MI_LEN_PUB-byte MIs. */
+  wmem_array_t *live_peers;
+  wmem_array_t *potential_peers;
+} mka_ca_tap_t;
 
 /* access to the table data from macsec dissector */
 const mka_ckn_info_t * get_mka_ckn_table(void);

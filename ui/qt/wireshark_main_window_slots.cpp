@@ -1772,6 +1772,7 @@ void WiresharkMainWindow::openTapParameterDialog(const QString cfg_str, const QS
 
     connect(tp_dialog, &TapParameterDialog::filterAction, this, &WiresharkMainWindow::filterAction);
     connect(tp_dialog, &TapParameterDialog::updateFilter, df_combo_box_, &QLineEdit::setText);
+    connect(tp_dialog, &TapParameterDialog::goToPacket, this, [=](int packet_num) {packet_list_->goToPacket(packet_num);});
     tp_dialog->show();
 }
 
