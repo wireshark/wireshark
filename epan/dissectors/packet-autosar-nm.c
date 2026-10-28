@@ -161,11 +161,6 @@ user_data_fields_update_cb(void *r, char **err)
     return (*err == NULL);
   }
 
-  if (rec->udf_mask >= UINT64_MAX) {
-    *err = ws_strdup_printf("mask can only be up to 64bits (name: %s)", rec->udf_name);
-    return (*err == NULL);
-  }
-
   if (rec->udf_name == NULL) {
     *err = ws_strdup_printf("Name of user data field can't be empty");
     return (*err == NULL);
@@ -182,6 +177,19 @@ user_data_fields_update_cb(void *r, char **err)
   if (c) {
     *err = ws_strdup_printf("Name of user data field can't contain '%c'", c);
     return (*err == NULL);
+  }
+
+  /* A field with a mask is registered under its value name too. */
+  if (rec->udf_mask != 0) {
+    if (rec->udf_value_desc == NULL || rec->udf_value_desc[0] == 0) {
+      *err = ws_strdup_printf("Value of user data field with a mask can't be empty (name: %s)", rec->udf_name);
+      return (*err == NULL);
+    }
+    c = proto_check_field_name(rec->udf_value_desc);
+    if (c) {
+      *err = ws_strdup_printf("Value of user data field can't contain '%c' (name: %s)", c, rec->udf_name);
+      return (*err == NULL);
+    }
   }
 
   return (*err == NULL);
@@ -389,7 +397,9 @@ static bool
 is_relevant_can_message(void *data)
 {
     const struct can_info *can_info = (struct can_info *)data;
-    DISSECTOR_ASSERT(can_info);
+    if (can_info == NULL) {
+        return false;
+    }
 
     if (can_info->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
         /* Error and RTR frames are not for us. */
