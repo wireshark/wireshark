@@ -9232,3 +9232,58 @@ class TestDissectAth:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == [str(n) for n in range(1, 10)]
+
+
+class TestDissectAtLdf:
+    def test_at_ldf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Loop detection frames decode without malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_ldf_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 6
+        assert protocols.count('AT LDF') == 5
+        # An LLC TEST frame to another address is not a loop detection frame
+        assert protocols.count('LLC') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('at_ldf_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_at_ldf_port(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the whole four octet source port. A port
+        above 65535 used to be shown as its low 16 bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_ldf_coverage.pcap.gz'),
+                '-Y', 'atldf',
+                '-Tfields', '-e_ws.col.info', '-eatldf.vlan', '-eatldf.port',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Source VLAN: 10, Port: 65541\t10\t65541',
+            'Source VLAN: 1, Port: 1\t1\t1',
+            'Source VLAN: 4094, Port: 4294967295\t4094\t4294967295',
+            'Source VLAN: 100, Port: 131075\t100\t131075',
+            'Source VLAN: 0, Port: 0\t0\t0',
+        ]
+
+    def test_at_ldf_fields(self, cmd_tshark, capture_file, test_env):
+        '''The version, TTL, identifier and text, including a 64 octet text
+        without a terminating null, and a frame with an 802.1Q tag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_ldf_coverage.pcap.gz'),
+                '-Y', 'atldf',
+                '-Tfields', '-eatldf.version', '-eatldf.ttl', '-eatldf.id',
+                '-eatldf.info', '-evlan.id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t8\t0x0011111111111111\tloop detect\t',
+            '1\t1\t0x000123456789abcd\tloop detect\t',
+            '2\t255\t0x00ffffffffffffff\t' + 'L' * 64 + '\t',
+            '1\t8\t0x0000a1b2c3d4e5f6\tloop detect\t100',
+            '1\t0\t0x0000000000000000\t\t',
+        ]
