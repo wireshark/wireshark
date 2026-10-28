@@ -145,7 +145,8 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     while(headerLen - offset > 0){
         attrType = tvb_get_ntohs(tvb, offset);
         attrLen = tvb_get_ntohs(tvb, offset+2);
-        if (attrType < LI_5G_ATTR_TYPE_MAX){
+        /* Type 0 is reserved and has no field */
+        if (attrType > 0 && attrType < LI_5G_ATTR_TYPE_MAX){
             hf_attr = hf_li5g_attrContents[attrType];
 
             attr_ti = proto_tree_add_item(li5g_tree, hf_attr, tvb, offset+4, attrLen, ENC_NA);
