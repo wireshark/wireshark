@@ -5501,7 +5501,6 @@ class TestDissectAmqp:
                      'list-item (byte): -100', 'list-item (short): -30000',
                      'list-item (int): -2000000000', 'list-item (smallint): -17',
                      'list-item (long): -77162851027281784', 'list-item (smalllong): -99',
-                     'list-item (float): 1.500000', 'list-item (double): -2.250000',
                      'list-item (decimal32): (not supported)',
                      'list-item (decimal128): (not supported)', 'list-item (char): €',
                      'list-item (timestamp): Oct  9, 2025 08:53:20.123000000',
@@ -5510,6 +5509,9 @@ class TestDissectAmqp:
                      'list-item (sym32): long-form-symbol', 'k32 (uint): 32',
                      'list-item (array of 2 elements)'):
             assert text in stdout, text
+        # Floats are shown with the decimal separator of the locale
+        for text in ('list-item (float): 1.500000', 'list-item (double): -2.250000'):
+            assert text in stdout or text.replace('.', ',') in stdout, text
 
     def test_amqp10_reassembly(self, cmd_tshark, capture_file, test_env):
         '''A transfer over three TCP segments (the first split inside the
