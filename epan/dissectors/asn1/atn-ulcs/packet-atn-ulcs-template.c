@@ -122,7 +122,6 @@ static dissector_handle_t atn_cpdlc_handle;
 
 static int proto_atn_ulcs;
 static uint32_t ulcs_context_value;
-static const char *object_identifier_id;
 
 static wmem_tree_t *aarq_data_tree;
 static wmem_tree_t *atn_conversation_tree;
@@ -254,8 +253,9 @@ static const value_string srf_b1[] =
 static const value_string atn_ses_type[] =
 {
     { 0x1d, "Short Connect (SCN) SPDU" },
-    { 0x1f, "Short Connect Accept (SAC) SPDU" },
-    { 0x1e, "Short Connect Accept Continue (SACC) SPDU" },
+    { 0x1f, "Short Connect Continue (SCNC) SPDU" },
+    { 0x1e, "Short Connect Accept (SAC) SPDU" },
+    { 0x1b, "Short Connect Accept Continue (SACC) SPDU" },
     { 0x1c, "Short Refuse (SRF) SPDU" },
     { 0x14, "Short Refuse Continue (SRFC) SPDU" },
     {0, NULL }
@@ -585,6 +585,9 @@ dissect_atn_ulcs(
     /* decode as SPDU, PPDU and ACSE PDU */
     if ( (int)(intptr_t)  data == true )
     {
+        ti = proto_tree_add_item(tree, proto_atn_ulcs, tvb, 0, -1, ENC_NA);
+        tree = proto_item_add_subtree(ti, ett_atn_ulcs);
+
         /* get session and presentation PDU's */
         value_ses_pres = tvb_get_ntohs(tvb, offset);
 

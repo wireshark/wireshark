@@ -127,7 +127,6 @@ static dissector_handle_t atn_cpdlc_handle;
 
 static int proto_atn_ulcs;
 static uint32_t ulcs_context_value;
-static const char *object_identifier_id;
 
 static wmem_tree_t *aarq_data_tree;
 static wmem_tree_t *atn_conversation_tree;
@@ -649,8 +648,6 @@ dissect_atn_ulcs_T_externalt_encoding_arbitrary(tvbuff_t *tvb _U_, uint32_t offs
     }
   }
 
-  offset += tvb_reported_length_remaining(tvb, offset);
-
 
   return offset;
 }
@@ -960,15 +957,6 @@ dissect_atn_ulcs_ACSE_requirements(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
 static unsigned
 dissect_atn_ulcs_Mechanism_name(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-    offset = dissect_per_object_identifier(
-        tvb,
-        offset,
-        actx,
-        tree,
-        hf_index,
-        NULL);
-
-
   offset = dissect_per_object_identifier(
       tvb,
       offset,
@@ -1005,20 +993,7 @@ dissect_atn_ulcs_EXTERNAL(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *ac
 static unsigned
 dissect_atn_ulcs_T_other_mechanism_value(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-    offset=call_ber_oid_callback(
-        object_identifier_id,
-        tvb,
-        offset,
-        actx->pinfo,
-        tree, NULL);
-
-
-    offset=call_ber_oid_callback(
-        object_identifier_id,
-        tvb,
-        offset,
-        actx->pinfo,
-        tree, NULL);
+    offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
 
   return offset;
@@ -1686,8 +1661,9 @@ static const value_string srf_b1[] =
 static const value_string atn_ses_type[] =
 {
     { 0x1d, "Short Connect (SCN) SPDU" },
-    { 0x1f, "Short Connect Accept (SAC) SPDU" },
-    { 0x1e, "Short Connect Accept Continue (SACC) SPDU" },
+    { 0x1f, "Short Connect Continue (SCNC) SPDU" },
+    { 0x1e, "Short Connect Accept (SAC) SPDU" },
+    { 0x1b, "Short Connect Accept Continue (SACC) SPDU" },
     { 0x1c, "Short Refuse (SRF) SPDU" },
     { 0x14, "Short Refuse Continue (SRFC) SPDU" },
     {0, NULL }
@@ -2017,6 +1993,9 @@ dissect_atn_ulcs(
     /* decode as SPDU, PPDU and ACSE PDU */
     if ( (int)(intptr_t)  data == true )
     {
+        ti = proto_tree_add_item(tree, proto_atn_ulcs, tvb, 0, -1, ENC_NA);
+        tree = proto_item_add_subtree(ti, ett_atn_ulcs);
+
         /* get session and presentation PDU's */
         value_ses_pres = tvb_get_ntohs(tvb, offset);
 

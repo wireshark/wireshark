@@ -132,36 +132,7 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 
 #.FN_BODY Authentication-value/other/other-mechanism-value
 
-    offset=call_ber_oid_callback(
-        object_identifier_id,
-        tvb,
-        offset,
-        actx->pinfo,
-        tree, NULL);
-
-#.END
-
-#.FN_BODY       Mechanism-name
-
-    offset = dissect_per_object_identifier(
-        tvb,
-        offset,
-        actx,
-        tree,
-        hf_index,
-        NULL);
-
-#.END
-
-
-#.FN_BODY Authentication-value/other/other-mechanism-value
-
-    offset=call_ber_oid_callback(
-        object_identifier_id,
-        tvb,
-        offset,
-        actx->pinfo,
-        tree, NULL);
+    offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
 
 #.END
 
@@ -568,8 +539,6 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
               NULL);
     }
   }
-
-  offset += tvb_reported_length_remaining(tvb, offset);
 
 #.END
 
