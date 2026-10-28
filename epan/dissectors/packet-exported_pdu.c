@@ -21,6 +21,7 @@
 #include "packet-mtp3.h"
 #include "packet-dvbci.h"
 #include "packet-tcp.h"
+#include "packet-tls.h"
 
 void proto_register_exported_pdu(void);
 void proto_reg_handoff_exported_pdu(void);
@@ -572,14 +573,25 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         {
             heur_dtbl_entry_t *heur_diss = find_heur_dissector_by_unique_short_name(proto_name);
             if (heur_diss) {
+                void *heur_data = NULL;
+                dissector_handle_t tls_app_handle = NULL;
+
                 if (!col_proto_str) {
                     col_clear(pinfo->cinfo, COL_PROTOCOL);
                 }
                 if (!col_info_str) {
                     col_clear(pinfo->cinfo, COL_INFO);
                 }
-                call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree,
-                        g_strcmp0(heur_diss->list_name, "tcp") == 0 ? tcpdata : NULL);
+                /* TCP and TLS heuristic dissectors expect their information */
+                if (g_strcmp0(heur_diss->list_name, "tcp") == 0) {
+                    heur_data = tcpdata;
+                } else if (g_strcmp0(heur_diss->list_name, "tls") == 0) {
+                    struct tlsinfo *tlsdata = wmem_new0(pinfo->pool, struct tlsinfo);
+                    /* Where a heuristic dissector sets the handle for later data */
+                    tlsdata->app_handle = &tls_app_handle;
+                    heur_data = tlsdata;
+                }
+                call_heur_dissector_direct(heur_diss, payload_tvb, pinfo, tree, heur_data);
             }
             break;
         }
