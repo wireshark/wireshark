@@ -150,7 +150,8 @@ dissect_atn_sl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   offset++;
 
   security_info_end = offset + len;
-  while ( offset < security_info_end ) {
+  /* each tag is 4 octets: tag name length, tag name, tag set length, tag set */
+  while ( offset + 4 <= security_info_end ) {
     /* check tag name length*/
     len = tvb_get_uint8(tvb, offset); /* check tag name length*/
     if ( len != 1 )
