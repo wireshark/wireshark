@@ -1092,7 +1092,7 @@ dissect_per_any_oid(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree
 	}
 
 	hfi = proto_registrar_get_nth(hf_index);
-	if ((is_absolute && hfi->type == FT_OID) || (is_absolute && hfi->type == FT_REL_OID)) {
+	if ((is_absolute && hfi->type == FT_OID) || (!is_absolute && hfi->type == FT_REL_OID)) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, ENC_BIG_ENDIAN);
 	} else if (FT_IS_STRING(hfi->type)) {
 		str = oid_encoded2string(actx->pinfo->pool, tvb_get_ptr(val_tvb, 0, length), length);
