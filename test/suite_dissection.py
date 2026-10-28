@@ -9733,3 +9733,85 @@ class TestDissectAtnCpdlc:
             362: ('atn-cpdlc', 'PG3'),   # empty protectedMessage
             363: ('atn-ulcs', ''),       # dst-ref 0: no conversation
         }
+
+
+class TestDissectAtnSl:
+    # ATN SL is reached only through Decode As of the CLNP security option.
+    decode_as = ('-d', 'osi.opt_security,atn_sl')
+
+    def test_atn_sl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every label decodes without malformed packets or warnings, in one
+        and two passes, with the same output both times.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.decode_as,
+                    '-r', capture_file('atn_sl_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols', '-eatn_sl.tt', '-eatn_sl.sc',
+                ), encoding='utf-8', env=test_env)
+            protocols = [line.split('\t')[0] for line in stdout.splitlines()]
+            assert len(protocols) == 51
+            assert protocols.count('eth:llc:osi:clnp:atn_sl:data') == 50
+            assert protocols.count('eth:llc:osi:clnp:data') == 1
+            outputs.append(stdout)
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.decode_as,
+                    '-r', capture_file('atn_sl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        assert outputs[0] == outputs[1]
+
+    def test_atn_sl_values(self, cmd_tshark, capture_file, test_env):
+        '''Every traffic type and security classification, alone and
+        together, and unknown values.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('atn_sl_coverage.pcap.gz'),
+                '-Tfields', '-eatn_sl.tt', '-eatn_sl.sc', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[0] for r in rows[:21]] == [
+            '1', '16', '17', '18', '19', '20', '21', '22', '23', '33', '34',
+            '35', '36', '37', '38', '39', '40', '41', '48', '96', '153']
+        assert [r[1] for r in rows[21:27]] == ['1', '2', '3', '4', '5', '119']
+        assert rows[27] == ['16', '5']
+        assert rows[28] == ['35', '2']
+        assert rows[29] == ['33|96', '']
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('atn_sl_coverage.pcap.gz'),
+                '-Y', 'frame.number == 29', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Security classification: restricted' in stdout
+        assert 'Traffic Type and Routing: AOC VHF only' in stdout
+
+    def test_atn_sl_security_info_end(self, cmd_tshark, capture_file, test_env):
+        '''Frame 31: security information length 7 with two tags in the
+        option. Only the first tag lies inside the security information;
+        the second must not be decoded from the octets after it.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('atn_sl_coverage.pcap.gz'),
+                '-Y', 'frame.number == 31',
+                '-Tfields', '-eatn_sl.tt', '-eatn_sl.sc', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '16\t\n'
+
+    def test_atn_sl_rejected(self, cmd_tshark, capture_file, test_env):
+        '''Labels that the dissector rejects (bad registration, length or
+        tag) stop the decoding at the bad tag without an error.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('atn_sl_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 32 && frame.number <= 50',
+                '-Tfields', '-eframe.number', '-eatn_sl.tt', '-eatn_sl.sc',
+            ), encoding='utf-8', env=test_env)
+        decoded = {}
+        for line in stdout.splitlines():
+            number, tt, sc = line.split('\t')
+            if tt or sc:
+                decoded[int(number)] = (tt, sc)
+        assert decoded == {
+            39: ('17', ''),     # SI length 5: one tag, then a partial one
+            40: ('', '1'),      # SI length 6
+            41: ('18', ''),     # SI length 7
+            43: ('19', ''),     # bad tag name length in the second tag
+            46: ('20', ''),     # bad SC set length in the second tag
+            48: ('', '4'),      # unknown second tag
+        }
