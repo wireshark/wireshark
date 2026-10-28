@@ -10766,3 +10766,59 @@ class TestDissectAx25Kiss:
             'Poll mode, Port 0', 'Return, Port 15', 'Unknown (7), Port 7',
             'Unknown (8), Port 8', 'Unknown (9), Port 9', 'Unknown (10), Port 10',
             'Unknown (11), Port 11', 'Unknown (13), Port 13']
+
+
+AX25_NOL3_DX_OPTS = ('-o', 'ax25_nol3.showcluster:TRUE')  # DX cluster decoding is off by default
+
+
+class TestDissectAx25Nol3:
+    def run_fields(self, cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax25_nol3_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ax25_nol3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Text, DX cluster spots and APRS-looking frames decode without
+        malformed packets, in one and two passes, with each combination
+        of the DX cluster and APRS preferences.'''
+        protocols = [f[0] for f in self.run_fields(cmd_tshark, capture_file, test_env,
+                                                   '-e_ws.col.protocol', '-e_ws.col.info')]
+        assert protocols == ['AX.25-NoL3'] * 16
+        for prefs in ((), AX25_NOL3_DX_OPTS, APRS_OPTS, (*AX25_NOL3_DX_OPTS, *APRS_OPTS)):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *prefs, *passes,
+                        '-r', capture_file('ax25_nol3_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity == error',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_ax25_nol3_dx_cluster(self, cmd_tshark, capture_file, test_env):
+        '''With the DX cluster preference, information fields that start
+        with "DX", in UI and I frames, are DX reports; the Info column
+        shows the first 15 octets.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env, *AX25_NOL3_DX_OPTS,
+                                 '-e_ws.col.protocol', '-e_ws.col.info', '-eax25_nol3.dx')
+        assert [f[0] for f in frames] == ['AX.25-NoL3'] * 3 + ['DX'] * 5 + ['AX.25-NoL3'] * 8
+        assert frames[4] == ['DX', 'DX de G4AAA:   ',
+                             'DX de G4AAA:      7074.0  JA1BBB       FT8 -12 dB         0815Z FN42\\r']
+        assert frames[5][1] == 'DX de VK2CC:   '      # an I frame
+        assert frames[6][1:] == ['DX de N0CALL: 1', 'DX de N0CALL: 1']
+        assert all(f[1] == 'Text' and f[2] == '' for f in frames[8:])
+
+    def test_ax25_nol3_aprs_and_dx(self, cmd_tshark, capture_file, test_env):
+        '''With both preferences, only UI frames with an APRS data type
+        indicator go to APRS (an I frame with the same text stays text),
+        and DX reports are still found.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 *AX25_NOL3_DX_OPTS, *APRS_OPTS, '-e_ws.col.protocol')
+        assert [f[0] for f in frames] == ['AX.25-NoL3'] * 3 + ['DX'] * 5 + ['AX.25-NoL3'] * 4 + \
+            ['APRS', 'AX.25-NoL3', 'APRS', 'AX.25-NoL3']
+        # Without the DX preference the DX reports are text
+        frames = self.run_fields(cmd_tshark, capture_file, test_env, *APRS_OPTS,
+                                 '-e_ws.col.protocol', '-eax25_nol3.dx')
+        assert [f[0] for f in frames] == ['AX.25-NoL3'] * 12 + \
+            ['APRS', 'AX.25-NoL3', 'APRS', 'AX.25-NoL3']
+        assert all(f[1] == '' for f in frames)
