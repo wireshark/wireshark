@@ -4084,7 +4084,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
     uint8_t                  transfer_type;
     bool                     use_setup_tree = false;
 
-    if (!urb) {
+    if (!urb || !urb->conv) {
         /*
          * Not enough information to choose the next protocol.
          * XXX - is there something we can still do here?
@@ -4241,7 +4241,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
             break;
     }
 
-    if (urb && urb->conv && pinfo->fd &&
+    if (pinfo->fd &&
         urb->conv->interfaceClass != IF_CLASS_UNKNOWN &&
         urb->conv->config_desc_frame_num != 0) {
         mark_frame_as_depended_upon(pinfo->fd, urb->conv->config_desc_frame_num);
