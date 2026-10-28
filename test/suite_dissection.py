@@ -8887,3 +8887,100 @@ class TestDissectAssaR3:
                 '-Tfields', '-eframe.number', '-er3.firmwaredownload.crc_bad',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['54\t', '56\t', '58\tTrue', '60\t', '62\t', '64\t']
+
+
+# asterix_coverage.pcap.gz is synthetic: every packet was generated, to
+# cover as much of the ASTERIX dissector as possible: a record with every
+# item of every UAP of the default edition of each category, records
+# written item by item, the UAP probe of categories 1 and 7, and TCP.
+# ASTERIX is only dissected when a tree is built (-V, filters, fields).
+
+
+class TestDissectAsterix:
+    def test_asterix_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every category decodes without malformed packets or errors, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asterix_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('ASTERIX') == 41
+        assert protocols.count('TCP') == 13
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('asterix_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_asterix_categories(self, cmd_tshark, capture_file, test_env):
+        '''There is a data block of every category the dissector knows.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asterix_coverage.pcap.gz'),
+                '-Tfields', '-easterix.category', '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        categories = {int(c) for c in stdout.replace(',', '\n').split()}
+        assert sorted(categories) == [
+            1, 2, 4, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20, 21, 23, 25,
+            32, 34, 48, 62, 63, 65, 150, 205, 240, 247]
+
+    def test_asterix_target_reports(self, cmd_tshark, capture_file, test_env):
+        '''Octal Mode-3/A codes, ICAO aircraft identifications (with a
+        character outside the ICAO alphabet), several records in a data
+        block and several data blocks in a datagram, and a spare bit
+        that is set.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asterix_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 4',
+                '-Tfields', '-eframe.number', '-easterix.category',
+                '-easterix.cat_7_datafield_070_MODE3A',
+                '-easterix.cat_48_datafield_240_240',
+                '-easterix.cat_48_datafield_161_TRN',
+                '-easterix.cat_62_datafield_060_MODE3A',
+                '-easterix.cat_62_datafield_245_CHR',
+                '-easterix.spare_error', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t48\t7500|2000\tRYR1234 |DLH4U   \t1234|1235\t\t\t',
+            '2\t34|48\t7500\tTEST 12?\t7\t\t\t',
+            '3\t48\t7500\tRYR1234 \t99\t\t\t1',
+            '4\t62\t\t\t\t1200\tABC 12 9\t',
+        ]
+
+    def test_asterix_uap_probe(self, cmd_tshark, capture_file, test_env):
+        '''Categories 1 and 7 have more than one UAP: every possible
+        interpretation of a data block is shown, unless a UAP is chosen in
+        the preferences.'''
+        def interpretations(*prefs, frames='asterix.category == 1 || asterix.category == 7'):
+            stdout = subprocess.check_output((cmd_tshark, *prefs,
+                    '-r', capture_file('asterix_coverage.pcap.gz'),
+                    '-Y', frames,
+                    '-Tfields', '-eframe.number', '-easterix.possible_interpretation',
+                    '-easterix.record', '-E', 'aggregator=,',
+                ), encoding='utf-8', env=test_env)
+            return [[f[0], f[1].count('1'), f[2].count('1')]
+                    for f in (line.split('\t') for line in stdout.splitlines())]
+        # frame 6: two records that are plot or track (4 interpretations of
+        # 2 records); frame 7: a plot and a track record (3 interpretations)
+        assert interpretations() == [
+            ['6', 4, 8], ['7', 3, 8], ['8', 1, 1], ['9', 1, 1], ['10', 1, 1],
+            ['13', 1, 1], ['14', 1, 1]]
+        # the plot and uplink records (frames 6, 8, 9 and 14) with the
+        # plot and uplink UAPs chosen
+        assert interpretations('-o', 'asterix.1_1_4:plot', '-o', 'asterix.7_1_12:uplink',
+                               frames='frame.number in {6, 8, 9, 14}') == [
+            ['6', 0, 2], ['8', 0, 1], ['9', 0, 1], ['14', 0, 1]]
+
+    def test_asterix_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Data blocks over TCP: two in a segment, one over three segments
+        and one split inside its header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('asterix_coverage.pcap.gz'),
+                '-Y', 'tcp.port == 8600 && asterix.category',
+                '-Tfields', '-eframe.number', '-easterix.category',
+                '-easterix.cat_48_datafield_161_TRN', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '41\t48|34\t500', '45\t48\t501', '48\t48\t502', '50\t48\t503']
