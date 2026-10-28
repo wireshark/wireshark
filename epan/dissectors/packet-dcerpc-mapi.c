@@ -8218,15 +8218,15 @@ mapi_dissect_struct_AUX_PERF_CLIENTINFO(tvbuff_t *tvb _U_, unsigned offset _U_, 
 	proto_tree *tree = NULL;
 	bool oldalign = di->no_align;
 	unsigned old_offset, cur_end_offset;
-	uint16_t MachineNameOffset;
-	uint16_t UserNameOffset;
-	uint16_t ClientIPSize;
-	uint16_t ClientIPOffset;
-	uint16_t ClientIPMaskSize;
-	uint16_t ClientIPMaskOffset;
-	uint16_t AdapterNameOffset;
-	uint16_t MacAddressSize;
-	uint16_t MacAddressOffset;
+	uint16_t MachineNameOffset = 0;
+	uint16_t UserNameOffset = 0;
+	uint16_t ClientIPSize = 0;
+	uint16_t ClientIPOffset = 0;
+	uint16_t ClientIPMaskSize = 0;
+	uint16_t ClientIPMaskOffset = 0;
+	uint16_t AdapterNameOffset = 0;
+	uint16_t MacAddressSize = 0;
+	uint16_t MacAddressOffset = 0;
 	di->no_align = true;
 	old_offset = offset;
 	if (parent_tree) {
@@ -8546,7 +8546,7 @@ mapi_dissect_struct_Logon_repl(tvbuff_t *tvb _U_, unsigned offset _U_, packet_in
 	proto_tree *tree = NULL;
 	bool oldalign = di->no_align;
 	int old_offset= offset;
-	uint32_t returnValue;
+	uint32_t returnValue = 0;
 	di->no_align = true;
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
@@ -8708,7 +8708,7 @@ mapi_dissect_RgbInOut(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_
 	add_new_data_source(pinfo, uncomp_tvb, di->ptype == PDU_REQ ? "Decrypted MAPI ROPIn PDU" : "Decrypted MAPI ROPOut PDU");
 	{
 		int uncompressed_offset= 0;
-		uint16_t total_length;
+		uint16_t total_length = 0;
 		item = proto_tree_add_item(tree, di->ptype == PDU_REQ ? hf_mapi_RgbIn_ropIn : hf_mapi_RgbOut_ropOut, uncomp_tvb, 0, tvb_reported_length(uncomp_tvb), ENC_NA);
 		tree = proto_item_add_subtree(item, di->ptype == PDU_REQ ? ett_mapi_RgbIn : ett_mapi_RgbOut);
 		uncompressed_offset = PIDL_dissect_uint16_val(uncomp_tvb, uncompressed_offset, pinfo, tree, di, drep, di->ptype == PDU_REQ ? hf_mapi_ROPInputBuffer_ropSize : hf_mapi_ROPOutputBuffer_ropSize, 0, &total_length);
