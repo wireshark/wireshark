@@ -247,7 +247,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 					if ( (kiss_param_len > 0) && gPREF_CKSUM_MODE )
 						kiss_param_len--;
 					break;
-		case KISS_DATA_FRAME_ACK: kiss_param_len = 2; kiss_param = tvb_get_uint8( tvb, offset ) & 0xff; break;
+		case KISS_DATA_FRAME_ACK: kiss_param_len = 2; kiss_param = tvb_get_ntohs( tvb, offset ); break;
 		default			: break;
 		}
 	frame_type_text = val_to_str(pinfo->pool, kiss_type, kiss_frame_types, "Unknown (%u)");
@@ -276,7 +276,7 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 		proto_tree_add_uint( kiss_tree, hf_ax25_kiss_cmd,  tvb, offset, KISS_HEADER_SIZE,
 					kiss_cmd );
 		proto_tree_add_uint( kiss_tree, hf_ax25_kiss_port, tvb, offset, KISS_HEADER_SIZE,
-					kiss_port );
+					kiss_cmd );
 		offset += KISS_HEADER_SIZE;
 
 		switch ( kiss_type  )
