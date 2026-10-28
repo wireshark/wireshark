@@ -42,8 +42,6 @@
 void proto_register_atn_cpdlc(void);
 void proto_reg_handoff_atn_cpdlc(void);
 
-static const char *object_identifier_id;
-
 /* IA5 charset (7-bit) for PER IA5 decoding */
 static const char ia5alpha[] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, \
@@ -121,6 +119,7 @@ dissect_atn_cpdlc(
     /* The use of CPDLC is *optional* as the pilot  */
     /* may always use a voice radio channel to talk to the controller.*/
 
+    proto_item *ti;
     proto_tree *atn_cpdlc_tree = NULL;
     atn_conversation_t *atn_cv = NULL;
 
@@ -154,9 +153,8 @@ dissect_atn_cpdlc(
     if(!atn_cv){ /* atn conversation not found */
       return 0; }
 
-    atn_cpdlc_tree = proto_tree_add_subtree(
-        tree, tvb, 0, -1, ett_atn_cpdlc, NULL,
-        ATN_CPDLC_PROTO );
+    ti = proto_tree_add_item(tree, proto_atn_cpdlc, tvb, 0, -1, ENC_NA);
+    atn_cpdlc_tree = proto_item_add_subtree(ti, ett_atn_cpdlc);
 
     switch(atn_cv->ae_qualifier){
         case  pmcpdlc:
@@ -280,13 +278,14 @@ dissect_atn_cpdlc_heur(
                           &pinfo->dst );
     }
 
-    if(atn_cv){ /* atn conversation found */
-      if(is_pm == true) {
-          atn_cv->ae_qualifier =  pmcpdlc; }
-      else {
-          atn_cv->ae_qualifier =  cpdlc; }
-      dissect_atn_cpdlc(tvb, pinfo, tree, NULL);
-    }
+    if(!atn_cv){ /* dissect_atn_cpdlc() needs the conversation */
+      return false; }
+
+    if(is_pm == true) {
+        atn_cv->ae_qualifier =  pmcpdlc; }
+    else {
+        atn_cv->ae_qualifier =  cpdlc; }
+    dissect_atn_cpdlc(tvb, pinfo, tree, NULL);
   }else { /* there should *always* be an atn conversation */
       is_atn_cpdlc = false;
   }
