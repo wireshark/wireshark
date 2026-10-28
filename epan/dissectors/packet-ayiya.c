@@ -14,6 +14,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 #include "packet-ip.h"
 
 void proto_register_ayiya(void);
@@ -34,6 +36,8 @@ static int hf_identity;
 static int hf_signature;
 
 static int ett_ayiya;
+
+static expert_field ei_ayiya_too_deep;
 
 static dissector_handle_t ayiya_handle;
 
@@ -77,7 +81,7 @@ static const value_string opcodes[] = {
 static int
 dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_tree *ayiya_tree;
+    proto_tree *ayiya_tree = NULL;
     unsigned offset = 0;
     int idlen, siglen, ayiya_len;
     uint8_t next_header, opcode;
@@ -116,6 +120,11 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     switch (opcode) {
     case OPCODE_FORWARD:
         payload = tvb_new_subset_remaining(tvb, offset);
+        /* The payload may carry AYIYA again; stop before the layer limit */
+        if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+            proto_tree_add_expert_remaining(ayiya_tree, pinfo, &ei_ayiya_too_deep, payload, 0);
+            break;
+        }
         dissector_try_uint(ip_dissector_table, next_header, payload, pinfo, tree);
         break;
     }
@@ -181,12 +190,18 @@ proto_register_ayiya(void)
     static int *ett[] = {
         &ett_ayiya,
     };
+    static ei_register_info ei[] = {
+        { &ei_ayiya_too_deep, { "ayiya.expert.too_deep", PI_UNDECODED, PI_WARN, "Payload nested too deep, not dissected", EXPFILL }},
+    };
+    expert_module_t *expert_ayiya;
 
     proto_ayiya = proto_register_protocol("Anything in Anything Protocol",
                           "AYIYA", "ayiya");
     ayiya_handle = register_dissector("ayiya", dissect_ayiya, proto_ayiya);
     proto_register_field_array(proto_ayiya, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ayiya = expert_register_protocol(proto_ayiya);
+    expert_register_field_array(expert_ayiya, ei, array_length(ei));
 }
 
 void
