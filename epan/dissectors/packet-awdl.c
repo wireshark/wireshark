@@ -1089,6 +1089,7 @@ awdl_tag_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   proto_item *ti, *cap_item;
   proto_tree *mcs_tree, *bit_tree, *cap_tree;
   uint8_t streams; /* 0-4 for HT and 0-8 for VHT*/
+  int mcs_len;
   int offset = 0;
   int tag_len = tvb_reported_length(tvb);
 
@@ -1128,26 +1129,28 @@ awdl_tag_ht_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   /* Check how many streams are supported */
   for (streams = 0; streams < 4 /* max streams */ && tvb_get_uint8(tvb, offset + streams) != 0; streams++) {
   }
+  /* the first octet of the Rx MCS bitmask is there even when it is zero */
+  mcs_len = streams ? streams : 1;
 
-  ti = proto_tree_add_item(tree, hf_awdl_mcsset, tvb, offset, streams, ENC_NA);
+  ti = proto_tree_add_item(tree, hf_awdl_mcsset, tvb, offset, mcs_len, ENC_NA);
   mcs_tree = proto_item_add_subtree(ti, ett_awdl_ht_mcsset_tree);
 
   /* Rx MCS Bitmask */
-  ti = proto_tree_add_item(mcs_tree, hf_awdl_mcsset_rx_bitmask, tvb, offset, streams, ENC_NA);
+  ti = proto_tree_add_item(mcs_tree, hf_awdl_mcsset_rx_bitmask, tvb, offset, mcs_len, ENC_NA);
   bit_tree = proto_item_add_subtree(ti, ett_awdl_ht_mcsbit_tree);
 
-  proto_tree_add_item(bit_tree, hf_awdl_mcsset_rx_bitmask_0to7, tvb, offset, streams, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bit_tree, hf_awdl_mcsset_rx_bitmask_0to7, tvb, offset, mcs_len, ENC_LITTLE_ENDIAN);
   offset += 1;
   if (offset < tag_len - 2) {
-    proto_tree_add_item(bit_tree, hf_awdl_mcsset_rx_bitmask_8to15, tvb, offset - 1, streams, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bit_tree, hf_awdl_mcsset_rx_bitmask_8to15, tvb, offset - 1, mcs_len, ENC_LITTLE_ENDIAN);
     offset += 1;
   }
   if (offset < tag_len - 2) {
-    proto_tree_add_item(bit_tree, hf_awdl_mcsset_rx_bitmask_16to23, tvb, offset - 2, streams, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bit_tree, hf_awdl_mcsset_rx_bitmask_16to23, tvb, offset - 2, mcs_len, ENC_LITTLE_ENDIAN);
     offset += 1;
   }
   if (offset < tag_len - 2) {
-    proto_tree_add_item(bit_tree, hf_awdl_mcsset_rx_bitmask_24to31, tvb, offset - 3, streams, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(bit_tree, hf_awdl_mcsset_rx_bitmask_24to31, tvb, offset - 3, mcs_len, ENC_LITTLE_ENDIAN);
     offset += 1;
   }
 
