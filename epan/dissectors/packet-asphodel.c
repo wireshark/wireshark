@@ -488,14 +488,14 @@ dissect_asphodel_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
     if (protocol_type & ASPHODEL_PROTOCOL_TYPE_RADIO)
     {
-        remote_incoming_cmd_buffer_size = tvb_get_ntohs(tvb, 2);
+        remote_incoming_cmd_buffer_size = tvb_get_ntohs(tvb, offset);
         ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_remote_max_incoming_param_length, tvb, offset, 2, remote_incoming_cmd_buffer_size - 2);
         if (remote_incoming_cmd_buffer_size <= 2)
         {
             expert_add_info(pinfo, ti, &ei_asphodel_bad_param_length);
         }
 
-        remote_outgoing_cmd_buffer_size = tvb_get_ntohs(tvb, 4);
+        remote_outgoing_cmd_buffer_size = tvb_get_ntohs(tvb, offset + 2);
         ti = proto_tree_add_uint(asphodel_tree, hf_asphodel_remote_max_outgoing_param_length, tvb, offset + 2, 2, remote_outgoing_cmd_buffer_size - 2);
         if (remote_outgoing_cmd_buffer_size <= 2)
         {
