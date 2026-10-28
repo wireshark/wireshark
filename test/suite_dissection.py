@@ -10611,3 +10611,97 @@ class TestDissectAwdl:
             '7\t0x86dd\t\tIPv6',
             '8\t0x86dd\t7\tIPv6',
         ]
+
+
+class TestDissectAx25:
+    def run_fields(self, cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax25_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ax25_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Command, response and version 1 frames, up to nine digipeaters,
+        every S and U frame type, an I frame for each PID and AX.25 over
+        IPv4 and IPv6 (IP protocol 93) decode without malformed packets,
+        in one and two passes.'''
+        protocols = [f[0] for f in self.run_fields(cmd_tshark, capture_file, test_env,
+                                                   '-e_ws.col.protocol')]
+        assert len(protocols) == 68
+        assert protocols.count('AX.25') == 38
+        assert protocols.count('AX.25-NoL3') == 25
+        for p in ('X.25', 'ECHO', 'ARP', 'Flexnet', 'NET/ROM'):
+            assert protocols.count(p) == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ax25_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ax25_unprintable_address(self, cmd_tshark, capture_file, test_env):
+        '''Address octets that shift to NUL, 0x01 and a carriage return
+        are shown as periods, and a callsign ends at its first space. The
+        FT_AX25 string used to hold the control characters themselves.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'frame.number >= 64',
+                                 '-eax25.dst', '-eax25.src')
+        assert frames == [['...', 'NOCALL'], ['AB', 'N0SRC'],
+                          ['ABCDEF-15', '123456-15'], ['abc-!', 'x_y'],
+                          ['', 'N0SRC']]
+
+    def test_ax25_digipeaters(self, cmd_tshark, capture_file, test_env):
+        '''Eight digipeaters are shown; a ninth is skipped.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'frame.number >= 12 && frame.number <= 13',
+                                 *['-eax25.via%d' % i for i in range(1, 9)],
+                                 '-e_ws.col.info')
+        vias = ['DIGI1'] + ['DIGI%d-%d' % (i + 1, i) for i in range(1, 8)]
+        assert frames == [vias + ['Text'], vias + ['Text']]
+
+    def test_ax25_control(self, cmd_tshark, capture_file, test_env):
+        '''S and U frames show the command or response modifier from the
+        C bits, and only I and UI frames (without the P bit) have a PID.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'frame.number >= 14 && frame.number <= 43',
+                                 '-e_ws.col.info', '-eax25.ctl.u_cmd',
+                                 '-eax25.ctl.u_resp', '-eax25.pid')
+        assert [f[0] for f in frames[:3]] == ['S, func=RR, N(R)=0', 'S P, func=RR, N(R)=1',
+                                              'S F, func=RR, N(R)=2']
+        assert [f[0] for f in frames[3:12:3]] == ['S, func=RNR, N(R)=3', 'S, func=REJ, N(R)=6',
+                                                  'S, func=SREJ, N(R)=1']
+        # SABM, SABME and DISC commands, UA and DM responses
+        # (the modifier bits are shown shifted down by two)
+        assert [f[1:3] for f in frames[12:22]] == [['0x0b', '']] * 2 + [['0x1b', '']] * 2 + \
+            [['0x10', '']] * 2 + [['', '0x18']] * 2 + [['', '0x03']] * 2
+        # XID and TEST as command and as response
+        assert [f[1:3] for f in frames[23:27]] == [['0x2b', ''], ['', '0x2b'],
+                                                   ['0x38', ''], ['', '0x38']]
+        assert frames[22][0] == 'U, func=FRMR'
+        assert frames[23][0] == 'U, func=XID'
+        assert frames[25][0] == 'U, func=TEST'
+        # UI with the P bit: no PID; a UI response has one
+        assert frames[27] == ['U P, func=UI', '0x00', '', '']
+        assert frames[28][2:] == ['0x00', '0xf0']
+        assert all(f[3] == '' for f in frames[:28])
+
+    def test_ax25_pids(self, cmd_tshark, capture_file, test_env):
+        '''The I frames go to the dissector registered for the PID or to
+        data, and AX.25 is carried over IPv4 and IPv6 as IP protocol 93.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'frame.number >= 44 && frame.number <= 63',
+                                 '-eax25.pid', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [f[0] for f in frames[:15]] == ['0x01', '0x06', '0x07', '0x08', '0xc3', '0xc4',
+                                               '0xca', '0xcb', '0xcc', '0xcd', '0xce', '0xcf',
+                                               '0xf0', '0xff', '0x55']
+        assert [f[1] for f in frames[:15]] == ['X.25'] + ['AX.25'] * 7 + \
+            ['ECHO', 'ARP', 'Flexnet', 'NET/ROM', 'AX.25-NoL3', 'AX.25', 'AX.25']
+        assert frames[1][2] == 'I, N(R)=0, N(S)=1, RFC1144 (compressed)'
+        assert frames[14][2] == 'I, N(R)=1, N(S)=6, Unknown (0x55)'
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'ip.proto == 93 || ipv6.nxt == 93',
+                                 '-eframe.number', '-eax25.src', '-eax25.dst', '-eax25.via1')
+        assert frames == [['62', 'N0SRC,AXIP-5', 'N0DST,CQ', ''],
+                          ['63', 'N0SRC,N1SRC', 'N0DST,N1DST', 'RELAY-1']]
