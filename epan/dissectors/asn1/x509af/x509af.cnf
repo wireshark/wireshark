@@ -160,12 +160,19 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
-#.FN_FTR Validity/notBefore
+#.FN_BODY Validity/notBefore
   x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  x509af_data->time_hf = hf_x509af_notBeforeTime;
+
+%(DEFAULT_BODY)s
+
   nstime_copy(&x509af_data->not_before, &x509af_data->last_time);
 
-#.FN_FTR Validity/notAfter
+#.FN_HDR Validity/notAfter
   x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  x509af_data->time_hf = hf_x509af_notAfterTime;
+
+#.FN_FTR Validity/notAfter
   nstime_copy(&x509af_data->not_after, &x509af_data->last_time);
   if (actx->pinfo->presence_flags & PINFO_HAS_TS &&
       !nstime_is_unset(&x509af_data->not_before) &&
@@ -181,6 +188,9 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 #.FN_HDR Time
   x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
   nstime_set_unset(&x509af_data->last_time);
+
+#.FN_FTR Time
+  x509af_data->time_hf = 0;
 
 #.FN_BODY Time/utcTime HF_INDEX = -1 VAL_PTR = &outstr
   char *outstr, *newstr;
@@ -200,9 +210,19 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
     old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
     old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
 
-    proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
+    if (x509af_data->time_hf) {
+        proto_tree_add_time(tree, x509af_data->time_hf, tvb, old_offset, offset - old_offset, &time_val);
+    } else {
+        proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
+    }
 
     nstime_copy(&x509af_data->last_time, &time_val);
+  }
+
+#.FN_HDR Time/generalizedTime
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  if (x509af_data->time_hf) {
+    hf_index = x509af_data->time_hf;
   }
 
 #.FN_BODY SubjectName

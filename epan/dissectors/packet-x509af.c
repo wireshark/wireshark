@@ -79,7 +79,7 @@ static int hf_x509af_notAfter;                    /* T_notAfter */
 static int hf_x509af_algorithm;                   /* AlgorithmIdentifier */
 static int hf_x509af_subjectPublicKey;            /* T_subjectPublicKey */
 static int hf_x509af_utcTime;                     /* T_utcTime */
-static int hf_x509af_generalizedTime;             /* GeneralizedTime */
+static int hf_x509af_generalizedTime;             /* T_generalizedTime */
 static int hf_x509af_Extensions_item;             /* Extension */
 static int hf_x509af_extnId;                      /* T_extnId */
 static int hf_x509af_critical;                    /* BOOLEAN */
@@ -183,6 +183,7 @@ typedef struct _x509af_private_data_t {
   nstime_t last_time;
   nstime_t not_before;
   nstime_t not_after;
+  int time_hf;
 #if 0
   // TODO: Move static global algorithm_id here.
   // (Why is the algorithm_id string wmem_file_scope()? That makes
@@ -304,7 +305,11 @@ dissect_x509af_T_utcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offs
     old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
     old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
 
-    proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
+    if (x509af_data->time_hf) {
+        proto_tree_add_time(tree, x509af_data->time_hf, tvb, old_offset, offset - old_offset, &time_val);
+    } else {
+        proto_tree_add_time(tree, hf_index, tvb, old_offset, offset - old_offset, &time_val);
+    }
 
     nstime_copy(&x509af_data->last_time, &time_val);
   }
@@ -316,7 +321,12 @@ dissect_x509af_T_utcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offs
 
 
 static unsigned
-dissect_x509af_GeneralizedTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_x509af_T_generalizedTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  if (x509af_data->time_hf) {
+    hf_index = x509af_data->time_hf;
+  }
+
   offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
@@ -331,7 +341,7 @@ const value_string x509af_Time_vals[] = {
 
 static const ber_choice_t Time_choice[] = {
   {   0, &hf_x509af_utcTime      , BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_x509af_T_utcTime },
-  {   1, &hf_x509af_generalizedTime, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_x509af_GeneralizedTime },
+  {   1, &hf_x509af_generalizedTime, BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_x509af_T_generalizedTime },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -344,6 +354,8 @@ dissect_x509af_Time(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U
                                  Time_choice, hf_index, ett_x509af_Time,
                                  NULL);
 
+  x509af_data->time_hf = 0;
+
   return offset;
 }
 
@@ -351,10 +363,14 @@ dissect_x509af_Time(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U
 
 static unsigned
 dissect_x509af_T_notBefore(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  x509af_data->time_hf = hf_x509af_notBeforeTime;
+
   offset = dissect_x509af_Time(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+
   nstime_copy(&x509af_data->not_before, &x509af_data->last_time);
+
 
   return offset;
 }
@@ -363,9 +379,11 @@ dissect_x509af_T_notBefore(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
 
 static unsigned
 dissect_x509af_T_notAfter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
+  x509af_data->time_hf = hf_x509af_notAfterTime;
+
   offset = dissect_x509af_Time(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-  x509af_private_data_t *x509af_data = x509af_get_private_data(actx->pinfo);
   nstime_copy(&x509af_data->not_after, &x509af_data->last_time);
   if (actx->pinfo->presence_flags & PINFO_HAS_TS &&
       !nstime_is_unset(&x509af_data->not_before) &&
@@ -804,6 +822,15 @@ dissect_x509af_InfoSubject(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  InfoSubject_choice, hf_index, ett_x509af_InfoSubject,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_x509af_GeneralizedTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }

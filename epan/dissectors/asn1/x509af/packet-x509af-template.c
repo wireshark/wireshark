@@ -72,6 +72,7 @@ typedef struct _x509af_private_data_t {
   nstime_t last_time;
   nstime_t not_before;
   nstime_t not_after;
+  int time_hf;
 #if 0
   // TODO: Move static global algorithm_id here.
   // (Why is the algorithm_id string wmem_file_scope()? That makes
