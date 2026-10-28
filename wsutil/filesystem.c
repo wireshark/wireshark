@@ -583,16 +583,20 @@ configuration_init_w32(const char* app_flavor, const char* arg0 _U_)
         if (progfile_dir != NULL) {
             /* We succeeded. */
             trim_progfile_dir(app_flavor);
-            /* Now try to figure out if we're running in a build directory. */
+            /*
+             * Now try to figure out if we're running in a build directory.
+             * Look for the static ui library, which is built next to the
+             * executables but never installed.
+             */
 #ifdef HAVE_MSYSTEM
-            char *wsutil_lib = g_build_filename(progfile_dir, "libwsutil.dll.a", (char *)NULL);
+            char *ui_lib = g_build_filename(progfile_dir, "libui.a", (char *)NULL);
 #else
-            char *wsutil_lib = g_build_filename(progfile_dir, "wsutil.lib", (char *)NULL);
+            char *ui_lib = g_build_filename(progfile_dir, "ui.lib", (char *)NULL);
 #endif /* HAVE_MSYSTEM */
-            if (file_exists(wsutil_lib)) {
+            if (file_exists(ui_lib)) {
                 running_in_build_directory_flag = true;
             }
-            g_free(wsutil_lib);
+            g_free(ui_lib);
         } else {
             /*
              * OK, no. What do we do now?
