@@ -9999,3 +9999,61 @@ class TestDissectAtnUlcs:
                 '-Tfields', '-eatn-ulcs.ACSE_apdu', '-eatn-ulcs.result',
             ), encoding='utf-8', env=test_env)
         assert stdout.rstrip('\n').split('\t') == ['1', '']
+
+
+class TestDissectAtRl:
+    def test_at_rl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames sent to 01:00:cd:fa:1b:ac decode as AT RL, padded,
+        unpadded, with a trailer and VLAN tagged, without malformed
+        packets, in one and two passes. Frames to other addresses are
+        rejected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_rl_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert protocols.count('AT RL') == 15
+        assert protocols.count('0xfbac') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('at_rl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_at_rl_fields(self, cmd_tshark, capture_file, test_env):
+        '''The fields, including the maximum values, and the 18 octet
+        frame length: the rest is the Ethernet padding or trailer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_rl_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 10, 11, 14}',
+                '-Tfields', '-eframe.number', '-eatrl.sequence',
+                '-eatrl.master', '-eatrl.padding', '-eatrl.vcsid',
+                '-eeth.padding', '-eeth.trailer', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t00:00:cd:00:00:01\t0000\t7\t' + '00' * 28 + '\t\tSeq: 1, VCS-ID: 7',
+            '10\t7\t00:00:cd:00:00:02\t0000\t7\t\t' + 'ff' * 10 + '\tSeq: 7, VCS-ID: 7',
+            '11\t8\t00:00:cd:00:00:02\t0000\t7\t\t\tSeq: 8, VCS-ID: 7',
+            '14\t4294967295\tff:ff:ff:ff:ff:ff\tdead\t65535\t' + '00' * 28 + '\t\tSeq: 4294967295, VCS-ID: 65535',
+        ]
+
+    def test_at_rl_role_change(self, cmd_tshark, capture_file, test_env):
+        '''The last role change time (Unix seconds, compared as epoch so
+        the test does not depend on the time zone) moves when switch 2
+        becomes the active master.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_rl_coverage.pcap.gz'),
+                '-Y', 'atrl.role_change == 1700000110',
+                '-Tfields', '-eframe.number', '-eatrl.master',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == ['7', '8', '9', '10', '11', '12', '15']
+        assert all(f[1] == '00:00:cd:00:00:02' for f in frames)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_rl_coverage.pcap.gz'),
+                '-Y', 'atrl.role_change == 1700000000',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '2', '3', '4', '5', '6']
