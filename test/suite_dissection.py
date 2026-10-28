@@ -9072,3 +9072,93 @@ class TestDissectAtalk:
                 '84\t6\tAFP', '86\t5\tASP', '91\t9\tASP',
                 '92\t\tATP', '93\t\tATP', '95\t1\tASP',
             ]
+
+
+class TestDissectAt:
+    def test_at_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every command in the table, in every form and role, decodes
+        through the USB bulk heuristic without malformed packets, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert protocols.count('USB/AT') == 271
+        assert protocols.count('GSM SMS') == 8
+        assert protocols.count('GSM SIM') == 4
+        # Transfers the heuristic rejects
+        assert protocols.count('USB') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('at_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_at_ciev_missing_index(self, cmd_tshark, capture_file, test_env):
+        '''+CIEV whose first parameter starts with CR has no indicator
+        index. It used to be dereferenced; now it is an expert info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eat.cmd', '-eat.ciev.indicator_index',
+                '-e', 'at.expert.ciev.indicator', '-e_ws.malformed',
+                '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        cmd, index, expert, malformed = stdout.rstrip('\n').split('\t')
+        assert cmd == '+CIEV'
+        assert index == ''
+        assert expert != ''
+        assert malformed == ''
+
+    def test_at_cmux_port_speed(self, cmd_tshark, capture_file, test_env):
+        '''The +CMUX port speed is decoded from its digits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_coverage.pcap.gz'),
+                '-Y', 'at.cmd == "+CMUX" && at.port_speed',
+                '-Tfields', '-eframe.number', '-eat.port_speed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t5', '3\t123456', '199\t5', '200\t6', '204\t5', '205\t4']
+
+    def test_at_sms_pdu(self, cmd_tshark, capture_file, test_env):
+        '''+CMGL and +CMGR PDU lines go to GSM SMS without the 8 octets
+        the dissector skips, including several in one transfer and a PDU
+        that arrives in the transfer after its +CMGR/+CMGL line.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('at_coverage.pcap.gz'),
+                    '-Y', 'gsm_sms',
+                    '-Tfields', '-eframe.number', '-egsm_sms.tp-oa',
+                    '-e', 'gsm_sms.sms_text', '-e', 'gsm_sms.tp.user_data_length',
+                    '-E', 'aggregator=|',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '7\t31641600986\tHow are you?\t12',
+                '178\t31641600986|31641600986\tHow are you?\t12|4',
+                '179\t31641600986\tHow are you?\t12',
+                '185\t31641600986\tHow are you?\t12',
+                '187\t31641600986\tHow are you?\t12',
+                '189\t31641600986\t\t4',
+                '196\t31641600986\tHow are you?\t12',
+                '288\t31641600986\tHow are you?\t12',
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('at_coverage.pcap.gz'),
+                '-Y', 'frame.number == 187', '-x',
+            ), encoding='utf-8', env=test_env)
+        assert 'GSM SMS payload (30 bytes)' in stdout
+
+    def test_at_roles(self, cmd_tshark, capture_file, test_env):
+        '''USB OUT transfers are the DTE and IN transfers the DCE; the
+        "Sent is DCE" preference swaps them.'''
+        for prefs, dte, dce in (((), 151, 132), (('-o', 'at.role:dce'), 132, 151)):
+            stdout = subprocess.check_output((cmd_tshark, *prefs,
+                    '-r', capture_file('at_coverage.pcap.gz'),
+                    '-Y', 'at', '-Tfields', '-eat.role',
+                ), encoding='utf-8', env=test_env)
+            roles = stdout.split()
+            assert roles.count('2') == dte
+            assert roles.count('1') == dce
