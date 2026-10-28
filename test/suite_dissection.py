@@ -10326,3 +10326,116 @@ class TestDissectAutosarIpdum:
             ['ipdu_multiplexer_over_lin', 'exported_pdu:data'],
             ['ipdu_multiplexer_over_pdu_transport', 'exported_pdu:data'],
         ]
+
+
+# AUTOSAR NM and PDU Transport have no default UDP port
+AUTOSAR_NM_OPTS = ('-d', 'udp.port==30500,autosar-nm',
+                   '-o', 'pdu_transport.udp.port:30501',
+                   '-o', 'autosar-nm.pdu_transport.ids:0x4e4d0001')
+
+
+class TestDissectAutosarNm:
+    def test_autosar_nm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''AUTOSAR NM over CAN (heuristic, CAN ID 0), CAN FD, UDP, PDU
+        Transport and Exported PDU decodes without malformed packets, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *AUTOSAR_NM_OPTS,
+                '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
+                '-Tfields', '-e', 'frame.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('can:autosar-nm') == 16
+        assert protocols.count('can:data') == 2
+        assert protocols.count('can') == 2
+        assert protocols.count('eth:ethertype:ip:udp:autosar-nm') == 4
+        assert protocols.count('eth:ethertype:ip:udp:pdu_transport') == 3
+        assert protocols.count('exported_pdu:autosar-nm') == 3
+        assert protocols.count('exported_pdu:data') == 1
+        for opts in ((), AUTOSAR_NM_OPTS):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                        '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity == error',
+                        '-Tfields', '-e', 'frame.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_autosar_nm_can_no_data(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming autosar-nm.can carries no CAN info. The
+        dissector rejects it (it used to assert) and the payload is data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 31',
+                '-Tfields', '-e', 'frame.protocols', '-e', 'exported_pdu.prot_name',
+                '-e', 'data.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'exported_pdu:data\tautosar-nm.can\t0102030405060708'
+
+    def test_autosar_nm_fields(self, cmd_tshark, capture_file, test_env):
+        '''Control Bit Vector and Source Node Identifier, two NM PDUs in
+        one PDU Transport datagram.'''
+        stdout = subprocess.check_output((cmd_tshark, *AUTOSAR_NM_OPTS,
+                '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {10, 16, 26}',
+                '-Tfields', '-e', 'autosar-nm.ctrl', '-e', 'autosar-nm.src',
+                '-e', 'autosar-nm.ctrl.pni', '-e', 'autosar-nm.user_data',
+                '-e', '_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0xff\t25\tTrue\t112233445566\tNM (CBV: 0xff, SNI: 0x19)',
+            '0x48\t35\tTrue\t' + bytes(range(62)).hex() + '\tNM (CBV: 0x48, SNI: 0x23)',
+            '0x01,0x20\t66,67\tFalse,False\t112233445566,aabb\tNM (CBV: 0x01, SNI: 0x42), NM (CBV: 0x20, SNI: 0x43)',
+        ]
+
+    def test_autosar_nm_can_id(self, cmd_tshark, capture_file, test_env):
+        '''The default CAN ID 0 matches the standard and extended ID 0
+        frames (not RTR or error frames); another ID matches only its
+        frame.'''
+        for opts, frames in (((), list(range(1, 17))),
+                             (('-o', 'autosar-nm.can_id:0x123'), [17])):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
+                    '-Y', 'can && autosar-nm',
+                    '-Tfields', '-e', 'frame.number',
+                ), encoding='utf-8', env=test_env)
+            assert [int(n) for n in stdout.split()] == frames
+
+    def test_autosar_nm_prefs(self, cmd_tshark, capture_file, test_env):
+        '''CBV version and CBV / SNI positions.'''
+        def fields(*opts):
+            return subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
+                    '-Y', 'frame.number == 3',
+                    '-Tfields', '-e', 'autosar-nm.ctrl', '-e', 'autosar-nm.src',
+                    '-e', 'autosar-nm.ctrl.pn_shutdown_request',
+                    '-e', 'autosar-nm.ctrl.nm_coord_id', '-e', 'autosar-nm.user_data',
+                    '-e', '_ws.col.info',
+                ), encoding='utf-8', env=test_env).rstrip('\n')
+        assert fields('-o', 'autosar-nm.cbv_version:20-11') == \
+            '0x02\t18\tTrue\t\t112233445566\tNM (CBV: 0x02, SNI: 0x12)'
+        assert fields('-o', 'autosar-nm.cbv_version:3.2') == \
+            '0x02\t18\t\t1\t112233445566\tNM (CBV: 0x02, SNI: 0x12)'
+        assert fields('-o', 'autosar-nm.cbv_position:1', '-o', 'autosar-nm.sni_position:0') == \
+            '0x12\t2\t\t\t112233445566\tNM (CBV: 0x12, SNI: 0x02)'
+        assert fields('-o', 'autosar-nm.cbv_position:off') == \
+            '\t18\t\t\t112233445566\tNM (SNI: 0x12)'
+        assert fields('-o', 'autosar-nm.cbv_position:off', '-o', 'autosar-nm.sni_position:off') == \
+            '\t\t\t\t0212112233445566\tNM ()'
+
+    def test_autosar_nm_user_data_fields(self, cmd_tshark, capture_file, test_env):
+        '''User data fields from the UAT, with a masked bit below the
+        field; a field longer than the frame is left out.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'uat:NM_user_data_fields:"wakeup","Wakeup reason","2","2","0",""',
+                '-o', 'uat:NM_user_data_fields:"wakeup","Wakeup bit","2","2","0100","pnc"',
+                '-o', 'uat:NM_user_data_fields:"tail","Last octets","56","8","0",""',
+                '-r', capture_file('autosar_nm_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {2, 13, 16}',
+                '-Tfields', '-e', 'autosar-nm.user_data.wakeup',
+                '-e', 'autosar-nm.user_data.wakeup.pnc', '-e', 'autosar-nm.user_data.tail',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1122\tTrue\t',
+            '\t\t',
+            '0001\tFalse\t363738393a3b3c3d',
+        ]
