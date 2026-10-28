@@ -41,6 +41,7 @@
 #include <epan/exceptions.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/address.h>
 
 #include <wsutil/str_util.h>
@@ -343,6 +344,7 @@ static expert_field ei_avsp_dzgre_a_unknown_version;
 static expert_field ei_avsp_dzgre_b_unknown_version;
 static expert_field ei_avsp_dzgre_ts_unknown_version;
 static expert_field ei_avsp_tgen_unknown_version;
+static expert_field ei_avsp_too_deep;
 
 static int
 dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
@@ -370,6 +372,12 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     avsp_ti = proto_tree_add_item(tree, proto_avsp, tvb, 0, -1,
         ENC_NA);
     avsp_tree = proto_item_add_subtree(avsp_ti, ett_avsp);
+
+    /* The encapsulated frame may carry AVSP again; stop before the layer limit */
+    if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+        proto_tree_add_expert_remaining(avsp_tree, pinfo, &ei_avsp_too_deep, tvb, 0);
+        return tvb_captured_length(tvb);
+    }
 
     /* add the subtype to avsp */
     proto_tree_add_item_ret_uint(avsp_tree, hf_avsp_subtype, tvb,
@@ -489,7 +497,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             ti = proto_tree_add_item(avsp_tree, hf_avsp_greentap_utc, tvb,
                 0, -1, ENC_NA);
             avsp_48_tree = proto_item_add_subtree(ti, ett_avsp);
-            col_set_str(pinfo->cinfo, COL_INFO, "48bit TAI timestamp");
+            col_set_str(pinfo->cinfo, COL_INFO, "48bit UTC timestamp");
             proto_tree_add_item(avsp_48_tree, hf_avsp_greentap_sec,
                 tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -669,6 +677,7 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
                     copy_address_shallow(&pinfo->net_dst, &save_net_dst);
                     copy_address_shallow(&pinfo->src, &save_src);
                     copy_address_shallow(&pinfo->dst, &save_dst);
+                    offset += sample_len;
                 }
             }
             break;
@@ -856,21 +865,21 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
             proto_tree_add_item_ret_uint(avsp_dzgre_hdr,
                     hf_avsp_dzgre_ts_switch, tvb, offset, 2, ENC_BIG_ENDIAN,
                     &u32);
-            proto_item_append_text(ti, ", Switch ID: 0x%u", u32);
+            proto_item_append_text(ti, ", Switch ID: %u", u32);
             offset += 2;
 
             /* Port ID */
             proto_tree_add_item_ret_uint(avsp_dzgre_hdr,
                     hf_avsp_dzgre_ts_port, tvb, offset, 2, ENC_BIG_ENDIAN,
                     &u32);
-            proto_item_append_text(ti, ", Port ID: 0x%u", u32);
+            proto_item_append_text(ti, ", Port ID: %u", u32);
             offset += 2;
 
             /* Policy ID */
             proto_tree_add_item_ret_uint(avsp_dzgre_hdr,
                     hf_avsp_dzgre_ts_policy, tvb, offset, 2, ENC_BIG_ENDIAN,
                     &u32);
-            proto_item_append_text(ti, ", Policy ID: 0x%u", u32);
+            proto_item_append_text(ti, ", Policy ID: %u", u32);
             offset += 2;
 
             /* Reserved */
@@ -1406,6 +1415,7 @@ void proto_register_avsp(void)
         { &ei_avsp_dzgre_b_unknown_version, { "avsp.dzgre_b.unknown_version", PI_SEQUENCE, PI_WARN, "Unknown DzGRE(B) version", EXPFILL }},
         { &ei_avsp_dzgre_ts_unknown_version, { "avsp.dzgre_ts.unknown_version", PI_SEQUENCE, PI_WARN, "Unknown DzGRE(timestamped) version", EXPFILL }},
         { &ei_avsp_tgen_unknown_version, { "avsp.tgen.unknown_version", PI_SEQUENCE, PI_WARN, "Unknown TGen version", EXPFILL }},
+        { &ei_avsp_too_deep, { "avsp.too_deep", PI_UNDECODED, PI_WARN, "AVSP nested too deep, not dissected", EXPFILL }},
     };
 
     /* Register the AVSP protocol. */
