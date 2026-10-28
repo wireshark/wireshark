@@ -235,12 +235,19 @@ static int sdj_start_export(const int start_from_entries, const bool start_from_
 		ws_warning("Can't write pcapng file header");
 		goto cleanup;
 	}
+	ws_cwstream_flush(fp, &err);
 
+	/* XXX - The various flags to sd_journal_open could be options */
 	jr = sd_journal_open(&jnl, 0);
 	if (jr < 0) {
 		ws_warning("Error opening journal: %s", g_strerror(jr));
 		goto cleanup;
 	}
+	/* XXX - sd_journal_open(3) says: "If journal files are not accessible
+	 * to the caller, this will be silently ignored." We might want to
+	 * check if sd_journal_has_runtime_files(jnl) == 0 &&
+	 * sd_journal_has_persistent_files(jnl) == 0 and warn or quit.
+	 */
 
 	jr = sd_id128_get_boot(&boot_id);
 	if (jr < 0) {
