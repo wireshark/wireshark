@@ -236,7 +236,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     offset = ctrla_offset + 1;
 
     /* msg length */
-    if (!!tvb_find_uint8_remaining(tvb, offset, 0x01, &ctrla_offset)) {
+    if (!tvb_find_uint8_remaining(tvb, offset, 0x01, &ctrla_offset)) {
         expert_add_info_format(pinfo, ti, &ei_fix_missing_field, "Missing BodyLength field");
         return tvb_captured_length(tvb);
     }
