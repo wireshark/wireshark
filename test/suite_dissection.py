@@ -10822,3 +10822,56 @@ class TestDissectAx25Nol3:
         assert [f[0] for f in frames] == ['AX.25-NoL3'] * 12 + \
             ['APRS', 'AX.25-NoL3', 'APRS', 'AX.25-NoL3']
         assert all(f[1] == '' for f in frames)
+
+
+class TestDissectAx4000:
+    def test_ax4000_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Test blocks over IP protocol 173, UDP and TCP port 3357 decode
+        without malformed packets or warnings, in one and two passes.
+        The TCP connection has two test blocks.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax4000_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('AX4000') == 14
+        assert protocols.count('TCP') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ax4000_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ax4000_fields(self, cmd_tshark, capture_file, test_env):
+        '''Fill type and index share an octet; timestamp and sequence number
+        are little-endian.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax4000_coverage.pcap.gz'),
+                '-Y', 'ax4000',
+                '-Tfields', '-eframe.number', '-eip.proto', '-eax4000.port',
+                '-eax4000.chassis', '-eax4000.fill', '-eax4000.index',
+                '-eax4000.timestamp', '-eax4000.seq', '-eax4000.crc',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == [str(n) for n in (*range(1, 13), 16, 18)]
+        assert [f[4] for f in frames[:4]] == ['0', '1', '2', '3']
+        assert frames[4] == ['5', '173', '255', '255', '3', '4095',
+                             '0xffffffff', '0xffffffff', '0xffff']
+        assert frames[6] == ['7', '17', '2', '3', '1', '291', '0x0001e240', '0x00010000', '0xbeef']
+        assert frames[12] == ['16', '6', '8', '9', '1', '900', '0x000dbba0', '0x0a0b0c0d', '0x0102']
+
+    def test_ax4000_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the timestamp in milliseconds.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax4000_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 7}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        # The timestamp is printed with the locale's decimal separator
+        assert info[0] in ('Chss:255 Prt:255 Idx:4095 Seq:0xffffffff TS:42949.672950[msec]',
+                           'Chss:255 Prt:255 Idx:4095 Seq:0xffffffff TS:42949,672950[msec]')
+        assert info[1] in ('Chss:3 Prt:2 Idx:291 Seq:0x00010000 TS:1.234560[msec]',
+                           'Chss:3 Prt:2 Idx:291 Seq:0x00010000 TS:1,234560[msec]')
