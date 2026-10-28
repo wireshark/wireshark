@@ -274,13 +274,20 @@ capture_ax25( const unsigned char *pd, int offset, int len, capture_packet_info_
 	l_offset += AX25_ADDR_LEN; /* step over dst addr point at src addr */
 	l_offset += AX25_ADDR_LEN; /* step over src addr point at either 1st via addr or control byte */
 	while ( ( pd[ l_offset - 1 ] & 0x01 ) == 0 )
+	{
+		/* the via addr and the control byte after it must be in the frame */
+		if ( ! BYTES_ARE_IN_FRAME( l_offset, len, AX25_ADDR_LEN + 1 ) )
+			return false;
 		l_offset += AX25_ADDR_LEN; /* step over a via addr */
+	}
 
 	control = pd[ l_offset ];
 
 	/* decode the pid field (if appropriate) */
 	if ( XDLC_IS_INFORMATION( control ) )
 	{
+		if ( ! BYTES_ARE_IN_FRAME( l_offset, len, 2 ) )
+			return false;
 		l_offset += 1; /* step over control byte point at pid */
 		pid = pd[ l_offset ];
 
