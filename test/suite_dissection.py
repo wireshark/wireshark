@@ -9815,3 +9815,187 @@ class TestDissectAtnSl:
             46: ('20', ''),     # bad SC set length in the second tag
             48: ('', '4'),      # unknown second tag
         }
+
+
+class TestDissectAtnUlcs:
+    def test_atn_ulcs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or errors, in one
+        and two passes, with the same frames handed to ATN-CM and
+        ATN-CPDLC both times.'''
+        layers = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            protocols = [p.split(':cotp:')[1] for p in stdout.split()]
+            assert len(protocols) == 81
+            assert protocols.count('atn-ulcs') == 52
+            assert protocols.count('atn-ulcs:atn-cm') == 19
+            assert protocols.count('atn-ulcs:atn-cpdlc') == 8
+            assert protocols.count('data') == 2
+            layers.append(protocols)
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        assert layers[0] == layers[1]
+
+    def test_atn_ulcs_spdu_protocol_item(self, cmd_tshark, capture_file, test_env):
+        '''The session/presentation (SPDU/PPDU) path adds an atn-ulcs
+        protocol item, so the display filter "atn-ulcs" matches those
+        frames too (frame 81 is the reproducer: a DT with SCN+CP).'''
+        spdu = [1, 2, 7, 8, 28, 29, 30, 31, 34] + list(range(44, 63)) + [69, 70, 73, 81]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                '-Y', 'atn-ulcs.ses.type',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert [int(n) for n in stdout.split()] == spdu
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                '-Y', 'atn-ulcs',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        frames = [int(n) for n in stdout.split()]
+        assert len(frames) == 79
+        assert set(spdu) <= set(frames)
+        assert 77 not in frames and 78 not in frames
+
+    def test_atn_ulcs_session(self, cmd_tshark, capture_file, test_env):
+        '''SCN, SCNC, SAC, SACC, SRF and SRFC SPDUs, every SRF/SRFC
+        parameter combination and every CPR error code.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                '-Y', 'atn-ulcs.ses.type',
+                '-Tfields', '-eatn-ulcs.ses.type', '-eatn-ulcs.ses.parameter-indication',
+                '-eatn-ulcs.ses.srf-b2', '-eatn-ulcs.ses.srf-b1', '-eatn-ulcs.pres.cpr-error',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert set(r[0] for r in rows) == {'0x1d', '0x1f', '0x1e', '0x1b', '0x1c', '0x14'}
+        refuse = [r for r in rows if r[0] in ('0x1c', '0x14')]
+        assert len(refuse) == 16
+        for spdu_type in ('0x1c', '0x14'):
+            params = [tuple(r[1:4]) for r in refuse if r[0] == spdu_type]
+            assert len(set(params)) == 8
+            assert sorted(int(r[4], 16) for r in refuse if r[0] == spdu_type) == list(range(8))
+        assert all(r[1:] == ['', '', '', ''] for r in rows if r not in refuse)
+
+    def test_atn_ulcs_aarq(self, cmd_tshark, capture_file, test_env):
+        '''An AARQ with every optional field, with the CM logon request in
+        its user-information.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eatn-ulcs.application_context_name',
+                '-eatn-ulcs.ap_title_form2', '-eatn-ulcs.ae_qualifier_form2',
+                '-eatn-ulcs.called_AP_invocation_identifier',
+                '-eatn-ulcs.called_AE_invocation_identifier', '-eatn-ulcs.calling_AP_title',
+                '-eatn-ulcs.calling_AP_invocation_identifier',
+                '-eatn-ulcs.calling_AE_invocation_identifier',
+                '-eatn-ulcs.sender_acse_requirements', '-eatn-ulcs.mechanism_name',
+                '-eatn-ulcs.charstring', '-eatn-ulcs.Application_context_name',
+                '-eatn-ulcs.implementation_information', '-eatn-ulcs.direct_reference',
+                '-eatn-ulcs.indirect_reference', '-eatn-ulcs.data_value_descriptor',
+                '-eatn-cm.aircraftFlightIdentification',
+                '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            '1.3.27.3.1', '1.3.27.0.0.152.1', '1|1', '1234', '-5', '1', '70000', '0',
+            'c0', '1.3.27.3.0.5', '736563726574', '1.3.27.3.1|1.3.27.3.2',
+            '554c43532d746573742d312e30', '1.3.27.3.10', '3', 'CM logon', 'KLM1234']
+
+    def test_atn_ulcs_acse(self, cmd_tshark, capture_file, test_env):
+        '''AARE results and diagnostics, release and abort PDUs,
+        authentication value alternatives and EXTERNALt encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                '-Tfields', '-eatn-ulcs.ACSE_apdu', '-eatn-ulcs.result',
+                '-eatn-ulcs.acse_service_user', '-eatn-ulcs.acse_service_provider',
+                '-eatn-ulcs.rlrq_apdu_request_reason', '-eatn-ulcs.rlre_apdu_response_reason',
+                '-eatn-ulcs.abort_source', '-eatn-ulcs.abort_diagnostic',
+                '-eatn-ulcs.calling_authentication_value',
+                '-eatn-ulcs.responding_authentication_value', '-eatn-ulcs.encoding',
+                '-eatn-ulcs.user_information',
+                '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        col = lambda i: set(v for r in rows for v in r[i].split('|') if v)
+        assert col(0) == {'0', '1', '2', '3', '4'}
+        assert col(1) == {'0', '1', '2'}
+        assert col(2) == {str(v) for v in range(15)}
+        assert col(3) == {'0', '1', '2'}
+        assert col(4) == {'1'}
+        assert col(5) == {'1'}
+        assert col(6) == {'0', '1'}
+        assert col(7) == {'3'}
+        assert col(8) | col(9) == {'0', '1', '2', '3'}
+        assert col(10) == {'0', '1', '2'}
+        assert col(11) == {'0', '1', '2'}
+
+    def test_atn_ulcs_auth_other(self, cmd_tshark, capture_file, test_env):
+        '''other-mechanism-value is a PER open type: it is not handed to
+        BER, nothing is malformed, and the field after it (frame 79) is
+        decoded at the right offset.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                    '-Y', 'atn-ulcs.other_mechanism_name',
+                    '-Tfields', '-eframe.number', '-eframe.protocols',
+                    '-eatn-ulcs.implementation_information', '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert [r[0] for r in rows] == ['12', '79', '80']
+            for r in rows:
+                assert r[1].endswith(':cotp:atn-ulcs')
+                assert r[3] == ''
+            assert rows[1][2] == b'after-auth'.hex()
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                '-Y', 'frame.number in {12, 79, 80}', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'BER' not in stdout
+        assert stdout.count('other-mechanism-name: 1.3.27.3') == 3
+
+    def test_atn_ulcs_conversations(self, cmd_tshark, capture_file, test_env):
+        '''User data is handed to ATN-CM or ATN-CPDLC by the AE qualifier
+        of the AARQ (CR, CC, DT and ED), or to the heuristic list when the
+        qualifier is not CM or CPDLC, when there is no conversation, and
+        when an AARE created a conversation without AARQ data.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        last = {}
+        for line in stdout.splitlines():
+            number, protocols = line.split('\t')
+            last[int(number)] = protocols.split(':')[-1]
+        expected = {
+            1: 'atn-cm', 2: 'atn-cm', 3: 'atn-cm', 4: 'atn-cm',       # CR/CC, qualifier 1
+            6: 'atn-cm',                                               # RLRE user-information
+            7: 'atn-cpdlc', 8: 'atn-cpdlc', 9: 'atn-cpdlc', 10: 'atn-cpdlc',
+            11: 'atn-cpdlc',                                           # ABRT user-information
+            14: 'atn-cpdlc', 15: 'atn-cpdlc', 16: 'atn-cpdlc',         # PM-CPDLC, DT and ED
+            19: 'atn-ulcs',                                            # qualifier 0, rejected
+            20: 'atn-cm', 21: 'atn-cm',                                # heuristic, then direct
+            22: 'atn-cm',                                              # qualifier 3, heuristic
+            26: 'atn-cm', 27: 'atn-ulcs',                              # no conversation
+            28: 'atn-cm',                                              # AARQ in a CC
+            30: 'atn-ulcs', 31: 'atn-ulcs',                            # unknown application
+            35: 'atn-cm',                                              # CC found the DT AARQ
+            40: 'atn-cm',                                              # second AARQ pending
+            42: 'atn-cm',                                              # AARE without AARQ data
+            43: 'atn-ulcs',                                            # AARE without any AARQ
+            71: 'atn-cm',                                              # COTP over TPKT
+            74: 'atn-ulcs',                                            # mixed NSAP lengths
+            77: 'data', 78: 'data',                                    # not ATN-ULCS
+        }
+        assert {n: last[n] for n in expected} == expected
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_ulcs_coverage.pcap.gz'),
+                '-Y', 'frame.number == 43',
+                '-Tfields', '-eatn-ulcs.ACSE_apdu', '-eatn-ulcs.result',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == ['1', '']
