@@ -8984,3 +8984,91 @@ class TestDissectAsterix:
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == [
             '41\t48|34\t500', '45\t48\t501', '48\t48\t502', '50\t48\t503']
+
+
+class TestDissectAtalk:
+    def test_atalk_protocols(self, cmd_tshark, capture_file, test_env):
+        '''LLAP, short and long DDP over LocalTalk, EtherTalk, gatewayed
+        LLAP, DLT_NULL, PPP, Cisco HDLC and Exported PDU; NBP, RTMP, ZIP,
+        ATP, ASP with AFP, PAP, ADSP and MacIP decode without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atalk_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 135
+        expected = {
+            'ADSP': 17, 'AFP': 6, 'ASP': 15, 'ATP': 12, 'DDP': 8, 'EIGRP': 1,
+            'ICMP': 2, 'LLAP': 5, 'MacIP GP': 7, 'NBP': 13, 'PAP': 11,
+            'RTMP': 11, 'ZIP': 22,
+            '': 5,   # Exported PDUs the AppleTalk dissectors reject
+        }
+        for protocol, count in expected.items():
+            assert protocols.count(protocol) == count, protocol
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atalk_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_atalk_ddp_short(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming "ddp_short" has no LLAP node addresses
+        and is rejected (it used to crash), and the reserved bits of the
+        short DDP length word are not taken as part of the length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atalk_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {12, 123}',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-eddp.len', '-enbp.object',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\tllap:ddp:nbp\t28\t=',
+            '123\texported_pdu:data\t\t',
+        ]
+
+    def test_atalk_atp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''ATP replies in several packets are reassembled: a PAP Data reply,
+        an ASP GetStatus reply carrying the AFP server status and an ASP
+        Command reply carrying an AFP GetSrvrParms reply. With reassembly
+        off each packet of a reply is dissected on its own.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atalk_coverage.pcapng.gz'),
+                '-Y', 'atp.reassembled.length',
+                '-Tfields', '-eframe.number', '-eatp.reassembled.length',
+                '-e_ws.col.protocol', '-eafp.server_name', '-eafp.vol_name',
+                '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\t62\tPAP\t\t',
+            '70\t107\tASP\tSynthetic Server\t',
+            '77\t41\tAFP\t\tMacintosh HD|Public|Projects',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atalk_coverage.pcapng.gz'),
+                '-o', 'atp.desegment:FALSE',
+                '-Y', 'atp.reassembled.length || frame.number in {19..21}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\tData  ID: 42', '20\tData  ID: 42', '21\tData  ID: 42',
+        ]
+
+    def test_atalk_asp_transactions(self, cmd_tshark, capture_file, test_env):
+        '''ASP replies are decoded with the function of their request, and
+        a reply to a transaction that was never requested is left to ATP
+        (ASP used to set its columns before rejecting it).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atalk_coverage.pcapng.gz'),
+                    '-Y', 'atp.function == 2 && ddp.src_socket == 0x82',
+                    '-Tfields', '-eframe.number', '-easp.function',
+                    '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '75\t\tATP', '76\t\tATP', '77\t2\tAFP', '80\t2\tAFP',
+                '84\t6\tAFP', '86\t5\tASP', '91\t9\tASP',
+                '92\t\tATP', '93\t\tATP', '95\t1\tASP',
+            ]
