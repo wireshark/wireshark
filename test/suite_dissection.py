@@ -10157,3 +10157,172 @@ class TestDissectAutoRp:
             ), encoding='utf-8', env=test_env)
         assert '    Holdtime: 1 second\n' in stdout
         assert '        Group 239.0.0.0/8 (Negative group prefix)\n' in stdout
+
+
+# The I-PduM dissector decodes only what its UATs describe. These are the
+# files mkautosar_ipdum.py writes to cfg/.
+AUTOSAR_IPDUM_UATS = {
+    # Message ID, number of PDUs, position, PDU ID, name, start bit,
+    # bit length, update bit (65535 = none)
+    'AUTOSAR_IPDUM_Messages': (
+        '"1","3","0","100","Pdu_A","0","16","65535"\n'
+        '"1","3","1","101","Pdu_B","16","12","63"\n'
+        '"1","3","2","102","Pdu_C","32","24","62"\n'
+        # Positions 0 and 2 of message 2 are not configured
+        '"2","4","1","200","Pdu_D","8","8","65535"\n'
+        '"2","4","3","201","Pdu_E","24","16","0"\n'
+        # Another PDU count for message 2: ignored
+        '"2","5","4","2ff","Pdu_Ignored","0","8","65535"\n'
+        '"3","1","0","300","Pdu_Long","32","64","65535"\n'
+        '"4","1","0","400","Pdu_IsoTp","0","64","65535"\n'
+    ),
+    # CAN ID (bit 31 = extended), bus ID, message ID
+    'AUTOSAR_IPDUM_Binding_CAN': (
+        '"101","0","1"\n'
+        '"80012345","0","2"\n'
+        '"102","2","3"\n'
+        '"103","0","10"\n'
+        '"104","0","4"\n'
+    ),
+    # Channel, frame ID, cycle, message ID
+    'AUTOSAR_IPDUM_Binding_FlexRay': (
+        '"0","10","0","1"\n'
+        '"1","20","5","2"\n'
+    ),
+    # Frame ID, bus ID, message ID
+    'AUTOSAR_IPDUM_Binding_LIN': (
+        '"10","0","1"\n'
+        '"11","3","2"\n'
+    ),
+    # PDU ID, message ID
+    'AUTOSAR_IPDUM_Binding_PDU_Transport': (
+        '"1000","1"\n'
+        '"1001","10"\n'
+        '"1002","4"\n'
+        '"1003","3"\n'
+    ),
+    # Interface ID, interface name, bus ID
+    'CAN_interface_mapping': '"ffffffff","can1","2"\n',
+    'LIN_interface_mapping': '"ffffffff","lin1","3"\n',
+}
+
+AUTOSAR_IPDUM_OPTS = (
+    '-o', 'pdu_transport.udp.port:50000',
+    '-o', 'iso15765.ipdum.pdu.id:1024',     # PDU 0x400
+)
+
+
+class TestDissectAutosarIpdum:
+    @pytest.fixture
+    def ipdum_env(self, conf_path, test_env):
+        for name, contents in AUTOSAR_IPDUM_UATS.items():
+            with open(os.path.join(conf_path, name), 'w') as f:
+                f.write(contents)
+        return test_env
+
+    def ipdum_fields(self, cmd_tshark, capture_file, env, *fields, passes=()):
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        stdout = subprocess.check_output((cmd_tshark, *AUTOSAR_IPDUM_OPTS, *passes,
+                '-r', capture_file('autosar_ipdum_coverage.pcapng.gz'),
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number', *args,
+            ), encoding='utf-8', env=env)
+        return {int(line.split('\t')[0]): line.split('\t')[1:] for line in stdout.splitlines()}
+
+    def test_autosar_ipdum_protocols(self, cmd_tshark, capture_file, ipdum_env):
+        '''I-PduM messages over CAN, CAN FD, FlexRay, LIN and PDU Transport
+        decode without malformed packets, in one and two passes.'''
+        frames = self.ipdum_fields(cmd_tshark, capture_file, ipdum_env, '_ws.col.protocol')
+        protocols = [f[0] for f in frames.values()]
+        assert len(protocols) == 27
+        assert protocols.count('AUTOSAR I-PduM') == 16
+        assert protocols.count('CAN') == 3
+        assert protocols.count('FLEXRAY') == 1
+        assert protocols.count('LIN') == 1
+        assert protocols.count('ISO15765') == 1
+        assert protocols.count('PDU Transport') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *AUTOSAR_IPDUM_OPTS, *passes,
+                    '-r', capture_file('autosar_ipdum_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=ipdum_env)
+            assert count_output(stdout) == 0
+
+    def test_autosar_ipdum_pdus(self, cmd_tshark, capture_file, ipdum_env):
+        '''PDUs are shown when their update bit is set (or they have none),
+        at their configured position and length, cut to the frame.'''
+        frames = self.ipdum_fields(cmd_tshark, capture_file, ipdum_env,
+                                   'ipdum.pdu.name', 'ipdum.pdu', 'ipdum.unparsed')
+        # Update bits for Pdu_B and Pdu_C in the last octet; Pdu_B ends
+        # in the middle of an octet
+        assert frames[1] == ['Pdu_A|Pdu_B|Pdu_C', '1122|3344|556677', '']
+        assert frames[2] == ['Pdu_A', '1122', '']
+        assert frames[3] == ['Pdu_A|Pdu_B', '1122|3344', '']
+        # CAN FD, FlexRay, LIN and PDU Transport
+        for frame in (11, 14, 21):
+            assert frames[frame][0] == 'Pdu_A|Pdu_B|Pdu_C'
+        assert frames[17][0] == 'Pdu_A|Pdu_B'
+        assert frames[15][0] == 'Pdu_D|Pdu_E'
+        # 64 bit PDU from bit 32 of an 8 octet frame and of a 6 octet PDU
+        assert frames[7] == ['Pdu_Long', '05060708', '']
+        assert frames[22][:2] == ['Pdu_IsoTp|Pdu_Long', '0322f19000000000|0506']
+        # Message 0x10 is bound but not in the message list
+        assert frames[9] == ['', '', 'deadbeef']
+        assert frames[21][2] == 'cafe'
+        # Not bound: CAN 0x102 on bus 0, an RTR frame, an unknown CAN ID,
+        # FlexRay cycle 1, LIN 0x11 on bus 0, PDU Transport ID 0x1004
+        for frame in (8, 10, 13, 16, 20, 23):
+            assert frames[frame] == ['', '', '']
+
+    def test_autosar_ipdum_unconfigured_position(self, cmd_tshark, capture_file, ipdum_env):
+        '''Positions that are not in the message list are skipped. Frames
+        5, 15 and 19 have octet 0 bit 0 set, the update bit of Pdu_E, and
+        used to show an extra PDU without a name and with ID 0 for the
+        unconfigured position 0 of message 2.'''
+        frames = self.ipdum_fields(cmd_tshark, capture_file, ipdum_env,
+                                   'ipdum.pdu.name', 'ipdum.pdu.id')
+        for frame in (5, 15, 19):
+            assert frames[frame] == ['Pdu_D|Pdu_E', '0x00000200|0x00000201']
+        assert frames[6] == ['Pdu_D', '0x00000200']
+        stdout = subprocess.check_output((cmd_tshark, *AUTOSAR_IPDUM_OPTS,
+                '-r', capture_file('autosar_ipdum_coverage.pcapng.gz'),
+                '-Y', 'ipdum.pdu.id == 0 || ipdum.pdu.id == 0x2ff',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=ipdum_env)
+        assert count_output(stdout) == 0
+
+    def test_autosar_ipdum_bus_id(self, cmd_tshark, capture_file, ipdum_env):
+        '''A binding for one bus applies only there; a binding for bus 0
+        applies to every bus.'''
+        frames = self.ipdum_fields(cmd_tshark, capture_file, ipdum_env,
+                                   'can.bus_id', 'lin.bus_id', 'ipdum.pdu.name')
+        # can1 is bus 2: the bus 0 binding of 0x101, the bus 2 binding of 0x102
+        assert frames[4] == ['0x00000002', '', 'Pdu_A|Pdu_C']
+        assert frames[7] == ['0x00000002', '', 'Pdu_Long']
+        assert frames[8] == ['', '', '']
+        # lin1 is bus 3: the bus 0 binding of 0x10, the bus 3 binding of 0x11
+        assert frames[18] == ['', '0x0003', 'Pdu_A|Pdu_C']
+        assert frames[19] == ['', '0x0003', 'Pdu_D|Pdu_E']
+        assert frames[20] == ['', '', '']
+
+    def test_autosar_ipdum_subdissector(self, cmd_tshark, capture_file, ipdum_env):
+        '''A PDU is handed to the dissector registered for its PDU ID.'''
+        frames = self.ipdum_fields(cmd_tshark, capture_file, ipdum_env,
+                                   'iso15765.message_type', 'iso15765.data_length_4bit')
+        assert frames[12] == ['0x00', '3']
+        assert frames[22] == ['0x00', '3']
+
+    def test_autosar_ipdum_no_data(self, cmd_tshark, capture_file, ipdum_env):
+        '''Exported PDUs naming the four I-PduM handles, which then get no
+        CAN, FlexRay, LIN or PDU Transport information, are left to the
+        data dissector. They used to hit DISSECTOR_ASSERT(data).'''
+        frames = self.ipdum_fields(cmd_tshark, capture_file, ipdum_env,
+                                   'exported_pdu.prot_name', 'frame.protocols')
+        assert [frames[f] for f in range(24, 28)] == [
+            ['ipdu_multiplexer_over_can', 'exported_pdu:data'],
+            ['ipdu_multiplexer_over_flexray', 'exported_pdu:data'],
+            ['ipdu_multiplexer_over_lin', 'exported_pdu:data'],
+            ['ipdu_multiplexer_over_pdu_transport', 'exported_pdu:data'],
+        ]
