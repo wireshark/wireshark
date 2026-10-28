@@ -10875,3 +10875,81 @@ class TestDissectAx4000:
                            'Chss:255 Prt:255 Idx:4095 Seq:0xffffffff TS:42949,672950[msec]')
         assert info[1] in ('Chss:3 Prt:2 Idx:291 Seq:0x00010000 TS:1.234560[msec]',
                            'Chss:3 Prt:2 Idx:291 Seq:0x00010000 TS:1,234560[msec]')
+
+
+class TestDissectAyiya:
+    def test_ayiya_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every operation code, identity type, hash and authentication
+        method decodes, and forwarded IPv6 and IPv4 is dissected, without
+        malformed packets in one and two passes. The only expert info of
+        warning or error severity is the nesting limit in frame 20.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ayiya_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 20
+        assert protocols.count('AYIYA') == 13
+        assert protocols.count('ICMPv6') == 4
+        assert protocols.count('ICMP') == 2
+        assert protocols.count('DISCARD') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ayiya_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['20\tPayload nested too deep, not dissected']
+
+    def test_ayiya_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header fields and the forwarded payloads.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ayiya_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 19',
+                '-Tfields', '-eayiya.opcode', '-eayiya.idtype', '-eayiya.hashmethod',
+                '-eayiya.authmethod', '-eayiya.nextheader',
+                '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        opcodes = [int(f[0], 16) for f in frames]
+        assert opcodes == [0, 0, 1, 1, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7, 0, 8, 15, 1, 1]
+        assert {int(f[1], 16) for f in frames} == {0, 1, 2, 3}
+        assert {int(f[2], 16) for f in frames} == {0, 1, 2, 3}
+        assert {int(f[3], 16) for f in frames} == {0, 1, 2, 3}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ayiya_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6, 16, 17}',
+                '-Tfields', '-eayiya.identity', '-eayiya.signature',
+            ), encoding='utf-8', env=test_env)
+        ident, sig = zip(*(line.split('\t') for line in stdout.splitlines()))
+        # 4 octet identity with an MD5 signature, then 16 and 256 octet
+        # identities with 20 and 60 octet signatures
+        assert ident[0] == '0a000002'
+        assert [len(s) // 2 for s in sig] == [16, 20, 60]
+        assert len(ident[2]) // 2 == 256
+        # Echo Request and Forward does not dissect its payload; Forward
+        # with an unregistered next header neither
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ayiya_coverage.pcap.gz'),
+                '-Y', 'frame.number in {8, 10, 18}',
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'eth:ethertype:ip:udp:ayiya',
+            'eth:ethertype:ip:udp:ayiya',
+            'eth:ethertype:ip:udp:ayiya:ip:udp:ayiya:ipv6:icmpv6:data',
+        ]
+
+    def test_ayiya_too_deep(self, cmd_tshark, capture_file, test_env):
+        '''AYIYA nested 200 times stops before the layer limit with a
+        warning instead of failing an assertion.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ayiya_coverage.pcap.gz'),
+                '-Y', 'ayiya.expert.too_deep && _ws.expert.severity == "Warning"',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == ['20']
+        layers = frames[0][1].split(':')
+        assert layers.count('ayiya') == 161
+        assert layers[-1] == 'ayiya'
