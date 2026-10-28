@@ -340,6 +340,8 @@ static void dissect_a615a_protocol_file(tvbuff_t *tvb, packet_info *pinfo, proto
 static bool dissect_a615a_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     unsigned psize = tvb_captured_length(tvb);
+    /* Only TFTP gives us the file name, which tells the file type */
+    if (data == NULL) return false;
     if (psize < 6) return false;
     if ((tvb_get_ntohl(tvb, 0) != psize) || ((char)tvb_get_uint8(tvb, 4) != 'A')) return false;
 
