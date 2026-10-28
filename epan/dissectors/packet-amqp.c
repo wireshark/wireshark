@@ -8803,7 +8803,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *prop_tree, amqp_content_params *eh_ptr)
 {
     proto_item   *ti;
-    uint16_t      prop_flags;
+    uint32_t      prop_flags;
     nstime_t      tv;
     const uint8_t *content;
 
@@ -8943,7 +8943,7 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *prop_tree)
 {
     proto_item   *ti;
-    uint16_t      prop_flags;
+    uint32_t      prop_flags;
     nstime_t      tv;
     const uint8_t *content;
 
@@ -9034,7 +9034,7 @@ dissect_amqp_0_9_content_header_stream(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *prop_tree)
 {
     proto_item   *ti;
-    uint16_t      prop_flags;
+    uint32_t      prop_flags;
     nstime_t      tv;
     const uint8_t *content;
 
@@ -9094,7 +9094,7 @@ dissect_amqp_0_9_content_header_tunnel(tvbuff_t *tvb, packet_info *pinfo,
     int offset, proto_tree *prop_tree)
 {
     proto_item *ti;
-    uint16_t    prop_flags;
+    uint32_t    prop_flags;
 
     prop_flags = tvb_get_ntohs(tvb, 19);
 
