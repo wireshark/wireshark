@@ -10705,3 +10705,64 @@ class TestDissectAx25:
                                  '-eframe.number', '-eax25.src', '-eax25.dst', '-eax25.via1')
         assert frames == [['62', 'N0SRC,AXIP-5', 'N0DST,CQ', ''],
                           ['63', 'N0SRC,N1SRC', 'N0DST,N1DST', 'RELAY-1']]
+
+
+class TestDissectAx25Kiss:
+    def run_fields(self, cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax25_kiss_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ax25_kiss_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every KISS frame type, known and unknown, decodes without
+        malformed packets, in one and two passes and in checksum mode.'''
+        protocols = [f[0] for f in self.run_fields(cmd_tshark, capture_file, test_env,
+                                                   '-e_ws.col.protocol')]
+        assert len(protocols) == 25
+        assert protocols.count('AX.25 KISS') == 17
+        assert protocols.count('AX.25') == 3
+        assert protocols.count('AX.25-NoL3') == 5
+        for opts in ((), ('-2',), ('-o', 'ax25_kiss.showcksum:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('ax25_kiss_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ax25_kiss_data_ack(self, cmd_tshark, capture_file, test_env):
+        '''The ack ID of a data frame with ack request is two octets and
+        the AX.25 frame follows it. Only the first octet used to be read.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'ax25_kiss.cmd == 12',
+                                 '-eframe.number', '-eax25_kiss.data_ack',
+                                 '-eax25.dst', '-eax25.src', '-eax25.ctl')
+        assert frames == [['14', '4660', 'NOCALL', 'N0CALL-1', '0x03'],
+                          ['15', '65534', 'NOCALL', 'N0CALL-1', '0x00'],
+                          ['16', '1', 'NOCALL', 'N0CALL-1', '0x01']]
+
+    def test_ax25_kiss_commands(self, cmd_tshark, capture_file, test_env):
+        '''The parameter of each command frame and the Info column.'''
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'frame.number >= 5 && frame.number <= 13',
+                                 '-eax25_kiss.txdelay', '-eax25_kiss.persistence',
+                                 '-eax25_kiss.slottime', '-eax25_kiss.txtail',
+                                 '-eax25_kiss.fullduplex', '-eax25_kiss.sethardware',
+                                 '-e_ws.col.info')
+        # (frame 13, Set hardware without parameter octets, is left out:
+        # tshark shows its empty item as <MISSING>)
+        assert [[v for v in f[:6] if v] for f in frames[:8]] == [
+            ['50'], ['63'], ['10'], ['5'], ['0'], ['1'], ['255'], ['01020304']]
+        assert [f[6] for f in frames] == [
+            'Tx delay 50, Port 0', 'Persistence 63, Port 0', 'Slot time 10, Port 0',
+            'Tx tail 5, Port 0', 'Full duplex 0, Port 0', 'Full duplex 1, Port 3',
+            'Tx delay 255, Port 2', 'Set hardware 0, Port 0', 'Set hardware, Port 4']
+        frames = self.run_fields(cmd_tshark, capture_file, test_env,
+                                 '-Y', 'frame.number >= 17 && frame.number <= 24',
+                                 '-e_ws.col.info')
+        assert [f[0] for f in frames] == [
+            'Poll mode, Port 0', 'Return, Port 15', 'Unknown (7), Port 7',
+            'Unknown (8), Port 8', 'Unknown (9), Port 9', 'Unknown (10), Port 10',
+            'Unknown (11), Port 11', 'Unknown (13), Port 13']
