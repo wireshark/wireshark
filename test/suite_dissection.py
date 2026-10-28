@@ -9471,3 +9471,105 @@ class TestDissectAtmtcp:
             '22\tATMTCP Command\t0\t32\t4294967295\t104',
             '24\tATMTCP Command\t0\t32\t4294967295\t104',
         ]
+
+
+class TestDissectAtnCm:
+    def test_atn_cm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CM uplink and downlink message decodes without malformed
+        packets, in one and two passes, with the same frames handed to
+        ATN-CM both times.'''
+        layers = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atn_cm_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            protocols = [p.split(':cotp:')[1] for p in stdout.split()]
+            assert len(protocols) == 105
+            assert protocols.count('atn-ulcs:atn-cm') == 97
+            assert protocols.count('atn-ulcs') == 8
+            layers.append(protocols)
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atn_cm_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        assert layers[0] == layers[1]
+
+    def test_atn_cm_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every alternative of CMAircraftMessage and CMGroundMessage, every
+        abort reason (and an extension value) and forward response, and
+        unknown extension alternatives.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_cm_coverage.pcap.gz'),
+                '-Tfields', '-eatn-cm.CMAircraftMessage', '-eatn-cm.CMGroundMessage',
+                '-eatn-cm.cmAbortReason', '-eatn-cm.cmForwardResponse',
+                '-eatn-cm.cmContactResponse',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        air = [r[0] for r in rows if r[0]]
+        ground = [r[1] for r in rows if r[1]]
+        assert len(air) == 39
+        assert len(ground) == 53
+        assert sorted(set(air)) == ['0', '1', '2']
+        assert sorted(set(ground)) == ['0', '1', '2', '3', '4', '5']
+        assert set(r[2] for r in rows if r[2]) == {str(v) for v in range(11)}
+        assert set(r[3] for r in rows if r[3]) == {'0', '1', '2'}
+        assert set(r[4] for r in rows if r[4]) == {'0', '1'}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_cm_coverage.pcap.gz'),
+                '-Y', '_ws.expert.message contains "in extension"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['19', '44', '64', '89']
+
+    def test_atn_cm_logon(self, cmd_tshark, capture_file, test_env):
+        '''A logon request with every optional field, carried in the
+        user-information of an AARQ.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_cm_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eatn-cm.aircraftFlightIdentification',
+                '-eatn-cm.facilityDesignation', '-eatn-cm.airportDeparture',
+                '-eatn-cm.airportDestination', '-eatn-cm.year', '-eatn-cm.month',
+                '-eatn-cm.day', '-eatn-cm.hours', '-eatn-cm.minutes',
+                '-eatn-cm.aeQualifier', '-eatn-cm.apAddress', '-eatn-cm.aRS',
+                '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            'KLM1234', 'EHAAZXYZ', 'EHAM', 'LFPG', '2026', '10', '29', '23', '59',
+            '2|22|3|1|255', '0|1|1', '000099|abcdef|010203']
+
+    def test_atn_cm_conversations(self, cmd_tshark, capture_file, test_env):
+        '''CM found through the AARQ AE qualifier, through the heuristic in
+        DT, CR (AARQ) and CC (AARE) user data, and not between two ground
+        systems or for data of another application.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('atn_cm_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 90',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-eatn-cm.CMAircraftMessage', '-eatn-cm.CMGroundMessage',
+            ), encoding='utf-8', env=test_env)
+        frames = {}
+        for line in stdout.splitlines():
+            number, protocols, air, ground = line.split('\t')
+            frames[int(number)] = (protocols.endswith(':atn-cm'), air, ground)
+        assert frames == {
+            90: (False, '', ''),       # AARQ without an AE qualifier
+            91: (True, '1', ''),       # heuristic, marks the connection CM
+            92: (True, '0', ''),
+            93: (True, '2', ''),
+            94: (True, '0', ''),       # CR, AARQ user-information
+            95: (True, '', '0'),       # CC, AARE user-information
+            96: (True, '1', ''),
+            97: (True, '', '2'),
+            98: (False, '', ''),       # CR, AARQ without user-information
+            99: (True, '', '0'),       # CC, heuristic
+            100: (True, '', '5'),
+            101: (False, '', ''),      # ground to ground AARQ, CM AE qualifier
+            102: (True, '', ''),       # neither uplink nor downlink
+            103: (False, '', ''),      # ground to ground, heuristic declines
+            104: (False, '', ''),      # neither CPDLC nor CM
+            105: (False, '', ''),
+        }
