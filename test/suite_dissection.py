@@ -10439,3 +10439,93 @@ class TestDissectAutosarNm:
             '\t\t',
             '0001\tFalse\t363738393a3b3c3d',
         ]
+
+
+class TestDissectAvsp:
+    def test_avsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every AVSP subtype and version, over Ethernet and GRE and nested
+        in AVSP, decodes without malformed packets, in one and two passes.
+        The only warning is the nesting limit in frame 29.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('avsp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 31
+        assert protocols.count('AVSP') == 10
+        assert protocols.count('DISCARD') == 19
+        assert protocols.count('0x1234') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('avsp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || (_ws.expert.severity >= warning && !avsp.too_deep)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_avsp_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''300 nested AVSP timestamp headers stop with avsp.too_deep
+        instead of failing an assertion at the layer limit.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('avsp_coverage.pcap.gz'),
+                    '-Y', 'avsp.too_deep',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['29']
+
+    def test_avsp_greent_samples(self, cmd_tshark, capture_file, test_env):
+        '''Each GREENT (Postcard) sample header is read after the previous
+        sample's data, so the second sample of frame 13 is decoded right.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('avsp_coverage.pcap.gz'),
+                '-Y', 'avsp.greent.hdr',
+                '-Tfields', '-eframe.number', '-eavsp.greent.sample_count',
+                '-eavsp.greent.sample.len', '-eavsp.greent.sample.ingress',
+                '-eavsp.greent.sample.egress',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\t1\t51\t101\t102',
+            '13\t2\t36,36\t1111,2222\t1112,2223',
+            '14\t0\t\t\t',
+            '15\t3\t43,48,30\t201,203,205\t202,204,206',
+        ]
+
+    def test_avsp_info_and_ids(self, cmd_tshark, capture_file, test_env):
+        '''GRE TAP UTC shows "48bit UTC timestamp" in Info and the DzGRE
+        timestamped header shows its IDs in decimal.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('avsp_coverage.pcap.gz'),
+                '-Y', 'avsp.greentap.ver && frame.number >= 30',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '30\t48bit UTC timestamp',
+            '31\t48bit TAI timestamp',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('avsp_coverage.pcap.gz'),
+                '-Y', 'avsp.dzgre_ts.hdr',
+                '-O', 'avsp',
+            ), encoding='utf-8', env=test_env)
+        assert 'Switch ID: 101, Port ID: 202, Policy ID: 303' in stdout
+        assert 'Switch ID: 102, Port ID: 203, Policy ID: 304' in stdout
+        assert '0x' not in ''.join(l for l in stdout.splitlines() if 'Switch ID:' in l)
+
+    def test_avsp_tgen(self, cmd_tshark, capture_file, test_env):
+        '''TGen payload lengths that fit, leave a trailer and run past the
+        end of the frame, and the FCS inverted bit.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('avsp_coverage.pcap.gz'),
+                '-Y', 'avsp.tgen.hdr',
+                '-Tfields', '-eframe.number', '-eavsp.tgen.hdr.payload_len',
+                '-eavsp.tgen.hdr.ctrl.fcs_inverted', '-eeth.trailer',
+                '-e', 'avsp.tgen.payload.data',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == ['20', '21', '22', '23', '27']
+        assert [f[1] for f in frames] == ['48', '4', '1000', '1', '8']
+        assert [f[2] for f in frames] == ['False', 'True', 'True', 'False', 'False']
+        assert frames[1][4] == '41424344'
+        assert len(frames[2][4]) == 46 * 2
+        assert frames[4][4] == b'GRE-TGEN'.hex()
