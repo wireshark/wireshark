@@ -41,6 +41,7 @@
 #include <epan/exceptions.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 
 #include <wsutil/str_util.h>
 
@@ -144,6 +145,7 @@ static const value_string tgen_versions[] = {
 static expert_field ei_avsp_unknown_subtype;
 static expert_field ei_avsp_ts_unknown_version;
 static expert_field ei_avsp_tgen_unknown_version;
+static expert_field ei_avsp_too_deep;
 
 static int
 dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
@@ -167,6 +169,12 @@ dissect_avsp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     avsp_ti = proto_tree_add_item(tree, proto_avsp, tvb, 0, -1,
         ENC_NA);
     avsp_tree = proto_item_add_subtree(avsp_ti, ett_avsp);
+
+    /* The encapsulated frame may carry AVSP again; stop before the layer limit */
+    if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+        proto_tree_add_expert_remaining(avsp_tree, pinfo, &ei_avsp_too_deep, tvb, 0);
+        return tvb_captured_length(tvb);
+    }
 
     /* add the subtype to avsp */
     proto_tree_add_item_ret_uint(avsp_tree, hf_avsp_subtype, tvb,
@@ -508,6 +516,7 @@ void proto_register_avsp(void)
         { &ei_avsp_unknown_subtype, { "avsp.unknown_subtype", PI_SEQUENCE, PI_WARN, "Unknown AVSP subtype", EXPFILL}},
         { &ei_avsp_ts_unknown_version, { "avsp.ts.unknown_version", PI_SEQUENCE, PI_WARN, "Unknown timestamp version", EXPFILL }},
         { &ei_avsp_tgen_unknown_version, { "avsp.tgen.unknown_version", PI_SEQUENCE, PI_WARN, "Unknown TGen version", EXPFILL }},
+        { &ei_avsp_too_deep, { "avsp.too_deep", PI_UNDECODED, PI_WARN, "AVSP nested too deep, not dissected", EXPFILL }},
     };
 
     /* Register the AVSP protocol. */
