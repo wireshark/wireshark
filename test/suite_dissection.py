@@ -9287,3 +9287,143 @@ class TestDissectAtLdf:
             '1\t8\t0x0000a1b2c3d4e5f6\tloop detect\t100',
             '1\t0\t0x0000000000000000\t\t',
         ]
+
+
+# MPLS labels 100-102 carry ATM pseudowires; MPLS has no default for them.
+ATM_OPTS = ('-d', 'mpls.label==100,mplspwatm11_or_aal5pdu',
+            '-d', 'mpls.label==101,mplspwatmaal5sdu',
+            '-d', 'mpls.label==102,mplspwatmn1cw')
+
+
+class TestDissectAtm:
+    def atm_fields(self, cmd_tshark, capture_file, test_env, capture, dfilter, *fields, extra=()):
+        args = [cmd_tshark, *ATM_OPTS, *extra, '-r', capture_file(capture), '-Tfields']
+        if dfilter:
+            args += ['-Y', dfilter]
+        for field in fields:
+            args += ['-e', field]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_atm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SunATM, ERF, Exported PDU, L2TPv3 and MPLS pseudowire frames,
+        and the DOS Sniffer cells and PDUs, decode without malformed
+        packets or errors, in one and two passes.'''
+        for capture, counts in (
+                ('atm_coverage.pcapng.gz', {'ATM': 12, 'ATM LANE': 35, 'DISCARD': 25, 'ILMI': 4,
+                                            'L2TPv3': 2, 'MPLS PW ATM N:1 CW': 2, 'OAM AAL': 20,
+                                            'SSCOP': 5, '': 6}),
+                ('atm_coverage_sniffer.enc.gz', {'AAL1': 17, 'AAL3/4': 6, 'ATM': 21, 'ATM LANE': 3,
+                                                 'DISCARD': 16, 'ILMI': 1, 'OAM AAL': 3, 'SSCOP': 2})):
+            protocols = [f[0] for f in self.atm_fields(cmd_tshark, capture_file, test_env, capture,
+                                                       None, '_ws.col.protocol')]
+            assert {p: protocols.count(p) for p in set(protocols)} == counts
+            for passes in ((), ('-2',)):
+                frames = self.atm_fields(cmd_tshark, capture_file, test_env, capture,
+                                         '_ws.malformed || _ws.expert.severity == error',
+                                         'frame.number', extra=passes)
+                assert frames == []
+
+    def test_atm_no_pseudo_header(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU that calls the LANE dissector through the
+        "atm.aal5.type" table, or an ATM dissector by name, gives it no
+        pseudo-header. LANE used to dereference it, and the named ATM
+        dissectors failed an assertion; now they reject the packet.'''
+        frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage.pcapng.gz',
+                                 'exported_pdu', 'frame.number', 'frame.protocols')
+        assert frames == [
+            ['94', 'exported_pdu'],
+            ['95', 'exported_pdu:data'], ['96', 'exported_pdu:data'], ['97', 'exported_pdu:data'],
+            ['98', 'exported_pdu:data'], ['99', 'exported_pdu:data'],
+            ['100', 'exported_pdu:ilmi'], ['101', 'exported_pdu:oamaal'],
+        ]
+
+    def test_atm_aal5_trailer(self, cmd_tshark, capture_file, test_env):
+        '''The AAL5 trailer is found, checked and removed; AAL5 PDUs shorter
+        than the 8-octet trailer (68, 69) are passed on whole instead of
+        being cut at a bogus trailer.'''
+        frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage.pcapng.gz',
+                                 'frame.number >= 58 && frame.number <= 71', 'frame.number',
+                                 'atm.cells', 'atm.aal5t_len', 'atm.aal5t_crc', 'sscop.type', 'udp.length')
+        assert frames == [
+            ['58', '2', '48', '0x0016c1c5', '', '20'],
+            ['59', '2', '48', '0x59c61d66', '', '20'],
+            ['60', '2', '88', '0x82190f44', '', '60'],
+            ['61', '', '', '', '', '20'],          # trailer length 0: no trailer
+            ['62', '', '', '', '', '20'],          # trailer length too large
+            ['63', '', '', '', '', '20'],          # more than 47 octets of padding
+            ['64', '3', '108', '0xbf01ce5d', '', ''],
+            ['65', '2', '56', '0x2e1714b1', '', '20'],
+            ['66', '2', '41', '0x8b47b4ce', '', ''],
+            ['67', '1', '16', '0x47f0ac25', '0x01', ''],
+            ['68', '', '', '', '0x03', ''],
+            ['69', '', '', '', '0x03', ''],
+            ['70', '2', '48', '0x5c60f8fd', '', '20'],
+            ['71', '2', '', '', '', '48'],         # cut short by the snapshot length
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *ATM_OPTS,
+                '-r', capture_file('atm_coverage.pcapng.gz'), '-V',
+                '-Y', 'atm.aal5t_crc || atm.aal_oamcell.crc || atm.aal3_4.crc',
+            ), encoding='utf-8', env=test_env)
+        crc_lines = [line.strip() for line in stdout.splitlines()
+                     if line.strip().startswith(('AAL5 CRC:', '.... ..'))
+                     and ('correct)' in line)]
+        assert sum(1 for line in crc_lines if line.endswith(' (correct)')) == 30
+        assert sum(1 for line in crc_lines if line.endswith(' (incorrect)')) == 3
+
+    def test_atm_le_control(self, cmd_tshark, capture_file, test_env):
+        '''Every LE Control opcode, and every TLV type in one frame.'''
+        frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage.pcapng.gz',
+                                 'atm.le_control.opcode', 'atm.le_control.opcode')
+        opcodes = [f[0] for f in frames]
+        assert len(opcodes) == 35
+        assert sorted(set(opcodes)) == [
+            '0x0001', '0x0002', '0x0003', '0x0004', '0x0005', '0x0006', '0x0007', '0x0008',
+            '0x0009', '0x000a', '0x00fe', '0x0101', '0x0102', '0x0103', '0x0104', '0x0105',
+            '0x0106', '0x0107', '0x010a', '0x01fe']
+        frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage.pcapng.gz',
+                                 'frame.number == 2', 'atm.le_control.tlv_type',
+                                 'atm.le_configure_join_frame.elan_name', extra=('-E', 'aggregator=,'))
+        tlvs, name = frames[0]
+        assert tlvs.split(',') == ['0x00a03e%02x' % i for i in list(range(1, 0x14)) + [0x2b, 0x2c, 0x2d]] + ['0x00abcdef']
+        assert bytes.fromhex(name) == b'engineering'
+
+    def test_atm_oam_and_pseudowires(self, cmd_tshark, capture_file, test_env):
+        '''OAM cells from ERF, from an Exported PDU, over L2TPv3 (the
+        session's pseudowire type and ATM sublayer come from the ICRQ) and
+        over MPLS N:1 and AAL5 SDU pseudowires.'''
+        frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage.pcapng.gz',
+                                 'oamaal', 'frame.number', 'atm.aal_oamcell.type',
+                                 extra=('-E', 'aggregator=,'))
+        assert [f[0] for f in frames] == [str(n) for n in list(range(74, 90)) + [93, 101, 104, 109, 110, 111]]
+        assert frames[-1] == ['111', '8,1']
+        frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage.pcapng.gz',
+                                 'l2tp.sid != 0', 'frame.number', 'frame.protocols')
+        assert frames == [['104', 'eth:ethertype:ip:l2tp:oamaal'],
+                          ['105', 'eth:ethertype:ip:l2tp:llc:ip:udp:discard']]
+
+    def test_atm_sniffer_cells(self, cmd_tshark, capture_file, test_env):
+        '''Raw cells with a HEC (correct, single-bit errors, uncorrectable),
+        AAL1 and AAL3/4 cells, and every traffic subtype from the DOS
+        Sniffer pseudo-header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atm_coverage_sniffer.enc.gz'), '-V',
+            ), encoding='utf-8', env=test_env)
+        hec = [line.strip() for line in stdout.splitlines() if 'Header Error Check:' in line]
+        assert len(hec) == 29
+        assert sorted(h.split('(')[1] for h in hec if 'error' in h) == [
+            'error in bit 0)', 'error in bit 19)', 'error in bit 31)', 'error in bit 32)',
+            'error in bit 39)', 'error in bit 7)', 'error in bit 8)', 'uncorrectable error)']
+        frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage_sniffer.enc.gz',
+                                 'aal3_4', 'atm.aal3_4.seg_type', 'atm.aal3_4.seq_num')
+        assert frames == [['2', '0'], ['0', '1'], ['0', '2'], ['1', '3'], ['3', '4'], ['3', '9']]
+        frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage_sniffer.enc.gz',
+                                 'atm.traffic.vcmx || atm.traffic.lane || atm.traffic.ipsilon',
+                                 'atm.traffic.vcmx', 'atm.traffic.lane', 'atm.traffic.ipsilon')
+        assert sorted(int(f[0]) for f in frames if f[0]) == [0, 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13]
+        assert sorted(int(f[1]) for f in frames if f[1]) == [0, 0, 1, 2, 3, 4, 5]
+        assert sorted(int(f[2]) for f in frames if f[2]) == [0, 0, 1, 2, 3]
+        # AAL5 trailer fields from the pseudo-header
+        frames = self.atm_fields(cmd_tshark, capture_file, test_env, 'atm_coverage_sniffer.enc.gz',
+                                 'atm.aal5t_crc', 'frame.number', 'atm.cells', 'atm.aal5t_len', 'atm.aal5t_crc')
+        assert frames == [['30', '2', '36', '0xdeadbeef']]
