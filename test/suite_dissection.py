@@ -9573,3 +9573,163 @@ class TestDissectAtnCm:
             104: (False, '', ''),      # neither CPDLC nor CM
             105: (False, '', ''),
         }
+
+
+class TestDissectAtnCpdlc:
+    def test_atn_cpdlc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Plain and protected mode CPDLC decode without malformed packets
+        or warnings, in one and two passes, with the same frames handed to
+        ATN-CPDLC both times; the protocol item makes "atn-cpdlc" match.'''
+        layers = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            protocols = [p.split(':cotp:')[1] for p in stdout.split()]
+            assert len(protocols) == 363
+            assert protocols.count('atn-ulcs:atn-cpdlc') == 340
+            assert protocols.count('atn-ulcs:atn-cm') == 3
+            assert protocols.count('atn-ulcs') == 20
+            layers.append(protocols)
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
+                    '-Y', 'atn-cpdlc',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 340
+        assert layers[0] == layers[1]
+
+    def test_atn_cpdlc_elements(self, cmd_tshark, capture_file, test_env):
+        '''Every uplink (uM0..uM237, uM237 an extension addition) and
+        downlink (dM0..dM113) message element, in plain and protected
+        messages, and route clearances in the constrained data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
+                '-Tfields', '-eatn-cpdlc.ATCUplinkMsgElementId',
+                '-eatn-cpdlc.ATCDownlinkMsgElementId',
+                '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        up, down = [], []
+        for line in stdout.splitlines():
+            u, d = line.split('\t')
+            up += [int(v) for v in u.split(',') if v]
+            down += [int(v) for v in d.split(',') if v]
+        assert set(up) == set(range(238))
+        assert set(down) == set(range(114))
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
+                '-Y', 'atn-cpdlc.routeClearanceData',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 13
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
+                '-Y', '_ws.expert.message contains "in extension"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['68', '192', '245', '325']
+
+    def test_atn_cpdlc_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Every alternative of the four PDU types, every abort reason
+        (and an extension value) and forward response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
+                '-Tfields', '-eatn-cpdlc.AircraftPDUs', '-eatn-cpdlc.GroundPDUs',
+                '-eatn-cpdlc.ProtectedAircraftPDUs', '-eatn-cpdlc.ProtectedGroundPDUs',
+                '-eatn-cpdlc.abortUser', '-eatn-cpdlc.abortProvider',
+                '-eatn-cpdlc.pmcpdlcuserabortreason',
+                '-eatn-cpdlc.pmcpdlcproviderabortreason',
+                '-eatn-cpdlc.forwardresponse', '-eatn-cpdlc.forwardMessage',
+            ), encoding='utf-8', env=test_env)
+        cols = list(zip(*[line.split('\t') for line in stdout.splitlines()]))
+        values = [set(v for v in col if v) for col in cols]
+        assert values[0] == {'0', '1', '2', '3'}
+        assert values[1] == {'0', '1', '2', '3', '4', '5'}
+        assert values[2] == {'0', '1', '2', '3'}
+        assert values[3] == {'0', '1', '2', '3', '4', '5'}
+        assert values[4] == {str(v) for v in range(8)}
+        assert values[5] == {str(v) for v in range(9)}
+        assert values[6] == {str(v) for v in range(14)}
+        assert values[7] == {str(v) for v in range(9)}
+        assert values[8] == {'0', '1', '2', '3'}
+        assert values[9] == {'0', '1'}
+
+    def test_atn_cpdlc_algorithm_identifier(self, cmd_tshark, capture_file, test_env):
+        '''The algorithmIdentifier is a PER RELATIVE-OID, and the
+        protectedMessage and integrityCheck after it are decoded from the
+        right place (frames 269-270 are the fixed reproducer).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {221, 269, 270, 272}',
+                '-Tfields', '-eframe.number', '-eatn-cpdlc.algorithmIdentifier',
+                '-eatn-cpdlc.integrityCheck', '-eatn-cpdlc.ATCUplinkMsgElementId',
+                '-eatn-cpdlc.ATCDownlinkMsgElementId',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '221\t.9.1\ta5a50ff0\t\t2',
+            '269\t.1\taa\t\t',
+            '270\t.1\taa\t1\t',
+            '272\t.128\ta5a50ff0\t5,6,7,8,9\t',
+        ]
+
+    def test_atn_cpdlc_conversations(self, cmd_tshark, capture_file, test_env):
+        '''ATN-CPDLC reached through the AE qualifier and through its
+        heuristic in DT, CR and CC user data (plain and protected, uplink
+        and downlink); data without an ATN conversation goes to ATN-CM
+        (the heuristic no longer claims it); data that is not CPDLC goes
+        to ATN-CM; two ground systems; a DT with destination reference
+        0.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('atn_cpdlc_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 326',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-eatn-cpdlc.AircraftPDUs', '-eatn-cpdlc.GroundPDUs',
+                '-eatn-cpdlc.ProtectedAircraftPDUs', '-eatn-cpdlc.ProtectedGroundPDUs',
+            ), encoding='utf-8', env=test_env)
+        frames = {}
+        for line in stdout.splitlines():
+            number, protocols, *pdus = line.split('\t')
+            last = protocols.split(':')[-1]
+            kinds = ['A', 'G', 'PA', 'PG']
+            frames[int(number)] = (last, ''.join(k + v for k, v in zip(kinds, pdus) if v))
+        assert frames == {
+            326: ('atn-ulcs', ''), 327: ('atn-ulcs', ''),  # AARQ, AARE
+            328: ('atn-cm', ''),         # CM data, both CPDLC decodes fail
+            329: ('atn-ulcs', ''), 330: ('atn-ulcs', ''),
+            331: ('atn-cpdlc', 'A2'),    # heuristic, plain downlink
+            332: ('atn-cpdlc', 'A3'),
+            333: ('atn-ulcs', ''), 334: ('atn-ulcs', ''),
+            335: ('atn-cpdlc', 'G2'),    # heuristic, plain uplink
+            336: ('atn-cpdlc', 'G3'),
+            337: ('atn-ulcs', ''), 338: ('atn-ulcs', ''),
+            339: ('atn-cpdlc', 'PA3'),   # heuristic, protected downlink
+            340: ('atn-cpdlc', 'PA3'),
+            341: ('atn-ulcs', ''), 342: ('atn-ulcs', ''),
+            343: ('atn-cpdlc', 'PG3'),   # heuristic, protected uplink
+            344: ('atn-cpdlc', 'PG3'),
+            345: ('atn-ulcs', ''), 346: ('atn-ulcs', ''),
+            347: ('atn-cm', ''),         # CM data, both CPDLC decodes fail
+            348: ('atn-cpdlc', 'A2'),    # CR, AARQ with the cpdlc qualifier
+            349: ('atn-cpdlc', 'G2'),    # CC, AARE
+            350: ('atn-cpdlc', 'A3'),
+            351: ('atn-cpdlc', 'PA3'),   # CR, heuristic
+            352: ('atn-cpdlc', 'PG2'),   # CC, direct
+            353: ('atn-ulcs', ''),       # CR, AARQ without user data
+            354: ('atn-cpdlc', 'G2'),    # CC, heuristic
+            355: ('atn-cm', ''),         # no conversation: not CPDLC
+            356: ('atn-ulcs', ''),       # ground to ground, pmcpdlc
+            357: ('atn-cpdlc', 'PA3'),
+            358: ('atn-ulcs', ''),       # ground to ground, cpdlc
+            359: ('atn-cpdlc', 'A3'),
+            360: ('atn-ulcs', ''),       # ground to ground, heuristic declines
+            361: ('atn-ulcs', ''),
+            362: ('atn-cpdlc', 'PG3'),   # empty protectedMessage
+            363: ('atn-ulcs', ''),       # dst-ref 0: no conversation
+        }
