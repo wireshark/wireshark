@@ -237,7 +237,7 @@ post_update_ipdum_message_list_read_in_data(ipdum_message_list_uat_t *data, unsi
             /* we do not care if we overwrite param */
             item->pos = data[i].pos;
             item->pdu_id = data[i].pdu_id;
-            item->name = g_strdup(data[i].name);
+            item->name = wmem_strdup(wmem_epan_scope(), data[i].name);
             item->start_pos = data[i].start_pos;
             item->bit_length = data[i].bit_length;
             item->update_bit_pos = data[i].update_bit_pos;
@@ -675,6 +675,11 @@ dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, 
         for (i = 0; i < config->num_of_items; i++) {
             bool update_bit_ok = true;
 
+            if (config->items[i].name == NULL) {
+                /* this position was not configured */
+                continue;
+            }
+
             if (config->items[i].update_bit_pos != 0xffff) {
                 int update_byte = config->items[i].update_bit_pos / 8;
                 int update_bit_mask = 1 << (config->items[i].update_bit_pos % 8);
@@ -715,7 +720,9 @@ dissect_ipdum_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, 
 static int
 dissect_ipdum_message_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     struct can_info *can_info = (struct can_info *)data;
-    DISSECTOR_ASSERT(can_info);
+    if (can_info == NULL) {
+        return 0;
+    }
 
     if (can_info->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
         /* Error and RTR frames are not for us. */
@@ -738,7 +745,9 @@ dissect_ipdum_message_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int
 dissect_ipdum_message_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     struct flexray_info *flexray_data = (struct flexray_info*)data;
-    DISSECTOR_ASSERT(flexray_data);
+    if (flexray_data == NULL) {
+        return 0;
+    }
 
     ipdum_flexray_mapping_t *flexray_mapping = get_flexray_mapping(flexray_data->ch, flexray_data->cc, flexray_data->id);
 
@@ -757,7 +766,9 @@ dissect_ipdum_message_flexray_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static int
 dissect_ipdum_message_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     lin_info_t *lininfo = (lin_info_t *)data;
-    DISSECTOR_ASSERT(lininfo);
+    if (lininfo == NULL) {
+        return 0;
+    }
 
     ipdum_lin_mapping_t *lin_mapping = get_lin_mapping(lininfo);
 
@@ -771,7 +782,9 @@ dissect_ipdum_message_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static int
 dissect_ipdum_message_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     pdu_transport_info_t *pdu_info = (pdu_transport_info_t*)data;
-    DISSECTOR_ASSERT(pdu_info);
+    if (pdu_info == NULL) {
+        return 0;
+    }
 
     ipdum_pdu_transport_mapping_t *pdu_transport_mapping = get_pdu_transport_mapping(pdu_info->id);
 
