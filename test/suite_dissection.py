@@ -16380,3 +16380,154 @@ class TestDissectBtbnep:
             '22\tBNEP\t0x0800\t32',
             '25\tBNEP\t0x0800\t32',
         ]
+
+
+class TestDissectBtbredrRf:
+    # Fields compared between one and two passes; the Bluetooth layer's
+    # [Source]/[Destination] and "Reassembled in" appear only in the second
+    # pass, so the whole -V output differs.
+    TWO_PASS_FIELDS = ('-e_ws.col.def_src', '-e_ws.col.def_dst', '-e_ws.col.info',
+                       '-eframe.protocols', '-ebtbredr_rf.packet_header.type',
+                       '-ebtbredr_rf.payload_header.llid', '-ebtbredr_rf.l2cap.fragments',
+                       '-ebtl2cap.length', '-ebtl2cap.cid', '-e_ws.expert.message')
+
+    def test_btbredr_rf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every transport and packet type, FHS, LMP and L2CAP payloads
+        decode without malformed packets or error expert infos, in one and
+        two passes, and both give the same fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 124
+        assert protocols.count('bluetooth:btbredr_rf') == 66
+        assert protocols.count('bluetooth:btbredr_rf:btbredr_fhs') == 8
+        assert protocols.count('bluetooth:btbredr_rf:btlmp') == 21
+        assert protocols.count('bluetooth:btbredr_rf:btl2cap') == 29
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btbredr_rf_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btbredr_rf_coverage.pcap.gz'), '-n',
+                    '-Tfields', *self.TWO_PASS_FIELDS,
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        # The warnings: broken header layout (4, 87-95), missing fragment
+        # start (29), incorrect CRC (99, 100, 119), incorrect HEC (101),
+        # unexpected data (103), reserved flags (104), eSCO checks (107-109)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'),
+                '-Y', '_ws.expert.severity == "Warning"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert [int(n) for n in stdout.split()] == [
+            4, 29, 87, 88, 89, 90, 91, 92, 93, 94, 95, 99, 100, 101, 103, 104,
+            107, 108, 109, 119]
+
+    def test_btbredr_rf_continuation_without_connection(self, cmd_tshark, capture_file, test_env):
+        '''An L2CAP continuation fragment on an access code without a known
+        connection (frame 118, and frame 119 from the reproducer) is shown
+        as a fragment of its 8 or 10 octets and not handed to L2CAP as a
+        complete PDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'),
+                '-Y', 'frame.number in {117, 118, 119}',
+                '-Tfields', '-eframe.protocols', '-ebtbredr_rf.payload_header.llid',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'bluetooth:btbredr_rf\t0x02\tL2CAP Fragment Start',
+            'bluetooth:btbredr_rf\t0x01\tL2CAP Fragment',
+            'bluetooth:btbredr_rf\t0x01\tL2CAP Fragment',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'),
+                '-Y', 'frame.number in {118, 119}', '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        item = '<field name="btbredr_rf.l2cap_data" showname="L2CAP Fragment" size="%d" pos="23"'
+        assert stdout.count('<field name="btbredr_rf.l2cap_data"') == 2
+        assert item % 10 in stdout and item % 8 in stdout
+
+    def test_btbredr_rf_cpb_edr(self, cmd_tshark, capture_file, test_env):
+        '''Connectionless peripheral broadcast at 2 and 3 Mb/s (transport
+        0x41 and 0x42) uses the CPB EDR packet types (67-75, 93 with the
+        broken header layout, 120 a 3-DH3 with an L2CAP PDU).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'),
+                '-Y', 'btbredr_rf.payload_transport_rate.transport == 4 && btbredr_rf.payload_transport_rate.payload != 0',
+                '-Tfields', '-eframe.number', '-ebtbredr_rf.payload_transport_rate',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [int(f[0]) for f in frames] == list(range(67, 76)) + [93, 120]
+        assert [f[1] for f in frames] == ['0x41', '0x41', '0x41', '0x42', '0x41', '0x42',
+                                          '0x41', '0x42', '0x42', '0x41', '0x42']
+        assert frames[8][2].endswith('Packet Type: undefined')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'),
+                '-Y', 'frame.number == 120',
+                '-V', '-O', 'btbredr_rf,btl2cap',
+            ), encoding='utf-8', env=test_env)
+        assert 'Type: 3-DH3 (0xb)' in stdout
+        assert 'Payload Transport Rate: 0x42, Payload: Enhanced Data Rate with 8DPSK demodulation, Transport: CPB' in stdout
+        assert 'CID: Connectionless Channel (0x0002)' in stdout
+
+    def test_btbredr_rf_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''L2CAP start and continuation fragments of the connection set up
+        by the FHS are reassembled; the retransmitted start (frame 27) is
+        left out.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'),
+                '-Y', 'btbredr_rf.l2cap.fragments',
+                '-Tfields', '-eframe.number', '-ebtbredr_rf.l2cap.fragment',
+                '-ebtbredr_rf.l2cap.reassembled.length', '-ebtl2cap.length', '-ebtl2cap.cid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '22\t21,22\t60\t56\t0x0041',
+            '25\t23,24,25\t400\t396\t0x0042',
+            '28\t26,28\t44\t40\t0x0043',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'), '-2',
+                '-Y', 'btbredr_rf.l2cap.reassembled.in',
+                '-Tfields', '-eframe.number', '-ebtbredr_rf.l2cap.reassembled.in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['21\t22', '23\t25', '24\t25', '26\t28']
+
+    def test_btbredr_rf_fhs_state(self, cmd_tshark, capture_file, test_env):
+        '''The inquiry and page FHS teach the devices and the connection:
+        later packets on the central's access code get its address as
+        source and the peripheral's as destination, and the eSCO link
+        from LMP_eSCO_link_req is checked against the eSCO packets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'), '-n',
+                '-Y', 'frame.number in {3, 5, 8, 85, 86}',
+                '-Tfields', '-e_ws.col.def_src', '-e_ws.col.def_dst',
+                '-ebtbredr_fhs.lap', '-ebtbredr_fhs.uap', '-ebtbredr_fhs.ltaddr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0a:1b:dc:0a:a1:b2\t\t0x00000000000aa1b2\t0xdc\t0',
+            '0a:1b:7d:0c:c1:d2\t0a:1b:dc:0a:a1:b2\t0x00000000000cc1d2\t0x7d\t1',
+            '0a:1b:7d:0c:c1:d2\t0a:1b:dc:0a:a1:b2\t\t\t',
+            '0a:1b:e3:0d:d1:e2\t\t0x00000000000dd1e2\t0xe3\t3',
+            '0a:1b:e3:0d:d1:e2\t00:00:00:00:00:00\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbredr_rf_coverage.pcap.gz'),
+                '-Y', 'btbredr_rf.packet_header.lt_addr == 2 || btbredr_rf.esco_incorrect_ltaddr',
+                '-Tfields', '-eframe.number', '-ebtbredr_rf.esco_incorrect_ltaddr',
+                '-ebtbredr_rf.esco_incorrect_length',
+            ), encoding='utf-8', env=test_env)
+        # 17-18 match the link (EV3, 30 octets), 100 has a bad CRC, 108 is
+        # HV1 and 109 2-EV3 before the renegotiation in 123, 124 matches it
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['17', '', ''], ['18', '', ''], ['100', '', ''], ['107', '1', ''],
+            ['108', '1', '1'], ['109', '', '1'], ['124', '', ''],
+        ]
