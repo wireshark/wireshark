@@ -11817,3 +11817,76 @@ class TestDissectBblog:
                 '-Tfields', '-eframe.protocols', '-eexported_pdu.prot_name',
             ), encoding='utf-8', env=test_env)
         assert stdout == 'exported_pdu:data\tbblog\n'
+
+
+class TestDissectBctp:
+    def test_bctp_frames(self, cmd_tshark, capture_file, test_env):
+        '''BCTP tunnelled in the H.248 Q.1950 bearer control tunnelling
+        package, in Notify events and Modify signals, decodes without
+        malformed packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bctp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 9
+        assert protocols.count('H.248/SDP') == 3
+        assert protocols.count('H.248') == 6
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bctp_coverage.pcap.gz'),
+                '-Y', 'bctp',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bctp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bctp_header(self, cmd_tshark, capture_file, test_env):
+        '''The version and tunnelled protocol indicators of every BCTP PDU,
+        including the error indicators and reserved bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bctp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ebctp.bvei', '-ebctp.bvi',
+                '-ebctp.tpei', '-ebctp.tpi',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0000\t0x0001\t0x0000\t0x0020',
+            '2\t0x0000\t0x0001\t0x0000\t0x0020',
+            '3\t0x0000\t0x0001\t0x0000\t0x0000',
+            '4\t0x0000,0x0000,0x0000\t0x0001,0x0001,0x0001\t0x0000,0x0000,0x0000\t0x0017,0x0018,0x0022',
+            '5\t0x0000\t0x0001\t0x0000\t0x0023',
+            '6\t0x0000,0x0000\t0x0001,0x0001\t0x0000,0x0000\t0x0021,0x003f',
+            '7\t0x0001\t0x001f\t0x0001\t0x0020',
+            '8\t0x0000\t0x0001\t0x0000\t0x0000',
+            '9\t0x0000\t0x0001\t0x0000\t0x0023',
+        ]
+
+    def test_bctp_tunnelled_protocol(self, cmd_tshark, capture_file, test_env):
+        '''TPI 0x20 goes to SDP (IPBCP), other TPIs up to 0x22 to data and
+        higher TPIs to data-text-lines.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bctp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esdp.ipbcp.command',
+                '-edata.data', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[1] for f in frames] == ['Request', 'Accepted', '', '', '', '', 'Request', '', '']
+        assert frames[2][2] == '01020304'
+        assert frames[3][2] == 'aabb,ccddee,00'
+        assert frames[5][2] == b'spare text'.hex()
+        assert frames[3][3].endswith('h248:bctp:data:bctp:data:bctp:data')
+        assert frames[4][3].endswith('h248:bctp:data-text-lines')
+        assert frames[5][3].endswith('h248:bctp:data:bctp:data-text-lines')
+        assert frames[7][3].endswith('h248:bctp')
+        assert frames[8][3].endswith('h248:bctp:data-text-lines')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bctp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'masked bits\\n' in stdout
