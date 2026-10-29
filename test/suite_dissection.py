@@ -12723,3 +12723,113 @@ class TestDissectBgp:
                     '-ebgp.mp_reach_nlri_ipv4_prefix',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['65001,65002\t198.51.100.0']
+
+
+class TestDissectBhttp:
+    def test_bhttp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Known- and indeterminate-length requests and responses carried
+        as HTTP bodies with Content-Type message/bhttp decode without
+        malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bhttp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 32
+        assert protocols.count('bHTTP') == 31
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bhttp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bhttp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Framing indicators, request control data, informational and
+        final status codes, content lengths and chunks, padding.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bhttp_coverage.pcap.gz'),
+                '-Y', 'bhttp',
+                '-Tfields', '-eframe.number', '-ebhttp.framing_indicator',
+                '-ebhttp.request.method', '-ebhttp.response.informational.status',
+                '-ebhttp.response.final.status', '-ebhttp.known_length_content.len',
+                '-ebhttp.indeterminate_length_content.chunk_len', '-ebhttp.padding_length',
+            ), encoding='utf-8', env=test_env)
+        frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+        assert sorted(frames) == list(range(1, 27)) + [28, 29, 30, 31, 32]
+        assert [int(frames[n][0], 16) for n in sorted(frames)] == \
+            [0] * 6 + [1] * 7 + [2] * 6 + [3] * 6 + [4, 0, 3, 3, 1, 3]
+        assert [frames[n][1] for n in range(1, 7)] == \
+            ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'GET']
+        # 103 Early Hints before 200; 102 before 204; indeterminate 103/200
+        assert frames[8][2:4] == ['103', '200']
+        assert frames[10][2:4] == ['102', '204']
+        assert frames[20][2:4] == ['103', '200']
+        # A status outside 100-599 stops the response (11, 12, 23, 29)
+        assert frames[11][2:4] == ['100', '']
+        assert frames[12][2:4] == ['', '']
+        assert frames[23][2:4] == ['100', '']
+        assert frames[29][2:4] == ['', '']
+        # Known-length content, including empty, 300 octets (2 octet
+        # varint) and 2000 octets reassembled by HTTP from two segments
+        assert [frames[n][4] for n in (2, 5, 6, 28)] == ['12', '0', '300', '2000']
+        # Indeterminate-length content chunks
+        assert frames[15][5] == '11,20'
+        assert frames[20][5] == '9,8'
+        assert frames[30][5] == '0'
+        # Padding (16 and 8 zero octets; the dissector counts one more)
+        assert frames[3][6] == '17'
+        assert frames[15][6] == '9'
+
+    def test_bhttp_fields(self, cmd_tshark, capture_file, test_env):
+        '''Field lines of known- and indeterminate-length header and
+        trailer sections, and the end of message marker.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bhttp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 8, 15, 20}',
+                '-Tfields', '-ebhttp.name', '-ebhttp.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'content-type,x-checksum\ttext/plain,abc123',
+            'link,content-type,server-timing\t</style.css>; rel=preload,text/html,db;dur=53',
+            'content-type,x-id,x-checksum\tapplication/octet-stream,42,deadbeef',
+            'link,content-type,etag\t</a.js>; rel=preload,text/plain,"xyz"',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bhttp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {16, 25}', '-V', '-O', 'bhttp',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Indeterminate-length field section: End of message') == 2
+
+    def test_bhttp_long_length(self, cmd_text2pcap, cmd_tshark, result_file, test_env):
+        '''A 62-bit field section, name or value length is not cut to 32
+        bits: a small all-0xff field section (name length 2^62-1) and a
+        field section length longer than the message are reported
+        malformed at once, without stepping back and growing the tree.'''
+        def http(body):
+            return (b'POST /g HTTP/1.1\r\nHost: example.com\r\n'
+                    b'Content-Type: message/bhttp\r\n'
+                    b'Content-Length: %d\r\n\r\n' % len(body)) + body
+        packets = [
+            # Empty control data, field section length 300, 300 x 0xff
+            http(bytes(5) + b'\x41\x2c' + b'\xff' * 300),
+            # Field section length 1048576, 300 x 0xff
+            http(bytes(5) + b'\x80\x10\x00\x00' + b'\xff' * 300),
+        ]
+        text_file = result_file('bhttp_long.txt')
+        capture = result_file('bhttp_long.pcap')
+        with open(text_file, 'w') as f:
+            for packet in packets:
+                f.writelines(f'{o:06x}  {packet[o:o + 16].hex(" ")}\n'
+                             for o in range(0, len(packet), 16))
+        subprocess.check_call((cmd_text2pcap, '-q', '-T', '40000,80', text_file, capture),
+                              env=test_env)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture, '-V', '-O', 'bhttp',
+            ), encoding='utf-8', env=test_env, timeout=60)
+        assert stdout.count('[Malformed Packet: Binary HTTP]') == 2
+        assert stdout.count('Name length: 4611686018427387903') == 1
+        assert stdout.count('Known-length field section length: 1048576') == 1
+        assert len(stdout) < 20000
