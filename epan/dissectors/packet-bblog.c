@@ -384,6 +384,13 @@ dissect_bblog_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static int
 dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    /* Only a Netflix custom block record carries the data below */
+    if (pinfo->rec->rec_type != REC_TYPE_CUSTOM_BLOCK ||
+        pinfo->rec->rec_header.custom_block_header.pen != PEN_NFLX ||
+        pinfo->rec->block == NULL) {
+        return 0;
+    }
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
     switch (pinfo->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type) {
     case BBLOG_TYPE_SKIPPED_BLOCK:
