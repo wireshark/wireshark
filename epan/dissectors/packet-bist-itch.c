@@ -167,10 +167,10 @@ dissect_bist_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     uint8_t     type      = tvb_get_uint8(tvb, offset);
 
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "bist‑ITCH");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BIST-ITCH");
     const char *type_desc = val_to_str(pinfo->pool, type, message_types_val, "Unknown (0x%02x)");
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_str(pinfo->cinfo, COL_INFO, type_desc);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", type_desc);
 
     ti = proto_tree_add_protocol_format(tree, proto_bist, tvb, 0, -1,
                                         "bist ITCH, %s", type_desc);
@@ -322,7 +322,8 @@ dissect_bist_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     }
     default: {
-        proto_tree_add_item(bist_tree, hf_bist_message, tvb, offset, -1, ENC_NA);
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+            proto_tree_add_item(bist_tree, hf_bist_message, tvb, offset, -1, ENC_NA);
         offset = tvb_captured_length(tvb);
         break;
     }
@@ -401,14 +402,14 @@ void proto_register_bist(void)
         &ett_bist_itch
     };
 
-    proto_bist = proto_register_protocol("BIST ITCH", "BIST‑ITCH", "bist_itch");
+    proto_bist = proto_register_protocol("BIST ITCH", "BIST-ITCH", "bist_itch");
     proto_register_field_array(proto_bist, hf_bist, array_length(hf_bist));
     proto_register_subtree_array(ett, array_length(ett));
 
     module_t *pref = prefs_register_protocol(proto_bist, NULL);
     prefs_register_bool_preference(pref, "show_bigint_price",
         "Show Prices as Decimals",
-        "If enabled, 4‑byte price fields are divided by 10000 and shown as doubles.",
+        "If enabled, 4-byte price fields are divided by 10000 and shown as doubles.",
         &bist_show_bigint_price);
 
     bist_handle = register_dissector("bist-itch", dissect_bist_itch, proto_bist);
