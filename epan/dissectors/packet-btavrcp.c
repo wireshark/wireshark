@@ -1192,7 +1192,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* XXX - Use the standard reassembly API; among other things, to
              * handle depended upon frames. */
             length = 0;
-            if  (fragment->state == 2) {
+            if  (fragment->state == 2 && fragment->end_frame_number == pinfo->num) {
                 unsigned    i_length = 0, new_i_length;
                 uint8_t    *reassembled;
                 bool        too_long = false;
@@ -1388,7 +1388,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_item(tree, hf_btavrcp_settings_attribute, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
 
-                    proto_tree_add_item(tree, hf_btavrcp_character_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavrcp_character_set, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
                     proto_tree_add_item_ret_uint(tree, hf_btavrcp_attribute_name_length, tvb, offset, 1, ENC_BIG_ENDIAN, &attribute_name_length);
@@ -1426,7 +1426,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_tree_add_item(tree, hf_btavrcp_settings_attribute, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
 
-                    proto_tree_add_item(tree, hf_btavrcp_character_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavrcp_character_set, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
                     proto_tree_add_item_ret_uint(tree, hf_btavrcp_attribute_value_length, tvb, offset, 1, ENC_BIG_ENDIAN, &attribute_value_length);
@@ -2296,11 +2296,11 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (timing_info->command_timestamp.nsecs > timing_info->response_timestamp.nsecs) {
                 response_time = timing_info->response_timestamp.nsecs + (1000000000 - timing_info->command_timestamp.nsecs);
                 response_time /= 1000000;
-                response_time += ((unsigned)timing_info->response_timestamp.secs - 1 - (unsigned)timing_info->command_timestamp.secs) / 1000;
+                response_time += ((unsigned)timing_info->response_timestamp.secs - 1 - (unsigned)timing_info->command_timestamp.secs) * 1000;
             } else {
                 response_time = timing_info->response_timestamp.nsecs - timing_info->command_timestamp.nsecs;
                 response_time /= 1000000;
-                response_time += ((unsigned)timing_info->response_timestamp.secs - (unsigned)timing_info->command_timestamp.secs) / 1000;
+                response_time += ((unsigned)timing_info->response_timestamp.secs - (unsigned)timing_info->command_timestamp.secs) * 1000;
             }
 
             if (timing_info->response_frame_number == 0) {
