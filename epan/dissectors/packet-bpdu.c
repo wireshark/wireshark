@@ -315,7 +315,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
   uint8_t version_1_length;
   uint16_t version_3_length;
   uint16_t version_4_length = 0;
-  uint16_t bpdu_version_4_length = 0;
+  unsigned bpdu_version_4_length = 0;
   uint8_t config_format_selector;
   uint16_t cist_bridge_identifier_bridge_priority;
   uint16_t cist_bridge_identifier_system_id_extension = 0;
@@ -867,7 +867,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_bpdu_p
                                      tvb_get_uint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT+1);
           msti_regional_root_mac_str = tvb_ether_to_str(pinfo->pool, tvb, offset+ ALT_MSTI_REGIONAL_ROOT + 2);
 
-          msti_tree = proto_tree_add_subtree_format(mstp_tree, tvb, offset, 16, ett_msti, NULL,
+          msti_tree = proto_tree_add_subtree_format(mstp_tree, tvb, offset, ALT_MSTI_MESSAGE_SIZE, ett_msti, NULL,
                                           "MSTID %d, Regional Root Identifier %d / %s",
                                           msti_regional_root_mstid,
                                           msti_regional_root_priority,
@@ -1179,7 +1179,7 @@ proto_register_bpdu(void)
         NULL, HFILL }},
     { &hf_bpdu_msti_regional_root_id,
       { "MSTI Regional Root Identifier", "mstp.msti.regional_root_id",
-        FT_UINT16,       BASE_DEC,       NULL,   0x0,
+        FT_UINT16,       BASE_DEC,       NULL,   0x0FFF,
         NULL, HFILL }},
     { &hf_bpdu_msti_regional_root_mac,
       { "Regional Root",                "mstp.msti.root.hw",
