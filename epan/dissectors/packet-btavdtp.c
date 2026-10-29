@@ -1544,7 +1544,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     l2cap_data = (btl2cap_data_t *) data;
-    DISSECTOR_ASSERT(l2cap_data);
+    if (l2cap_data == NULL)
+        goto LABEL_data;
 
     interface_id = l2cap_data->interface_id;
     adapter_id = l2cap_data->adapter_id;
