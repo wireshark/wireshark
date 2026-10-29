@@ -663,7 +663,7 @@ check_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, uint8
                             val_to_str_ext(pinfo->pool, ie_type, &bssap_plus_ie_id_values_ext, "Unknown %u"));
         (*offset)++;
         ie_len = tvb_get_uint8(tvb, *offset);
-        *offset = *offset + ie_len;
+        *offset = *offset + 1 + ie_len;
         return false;
     }
 
@@ -693,6 +693,7 @@ dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     proto_item *cgi_item;
     proto_tree *cgi_tree;
     uint8_t     ie_len;
+    unsigned    value_offset;
 
     ie_len  = tvb_get_uint8(tvb, offset+1);
     item    = proto_tree_add_item(tree, hf_bssap_cell_global_id_ie, tvb, offset, ie_len+2, ENC_NA);
@@ -702,6 +703,7 @@ dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     offset++;
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+    value_offset = offset;
     /*
      * The rest of the information element is coded as the value part
      * of the cell global id IE defined in 3GPP TS 48.018 (not including
@@ -720,9 +722,8 @@ dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
      */
     offset = offset + 6;
     de_cell_id(tvb, cgi_tree, pinfo, offset, ie_len, NULL, 0);
-    offset = offset + 2;
 
-    return offset;
+    return value_offset + ie_len;
 
 }
 /* 18.4.2 Channel needed */
@@ -791,12 +792,14 @@ dissect_bssap_dlink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
      */
     proto_tree_add_item(ie_tree, hf_bssap_tunnel_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Tunnel payload */
-    next_tvb = tvb_new_subset_length(tvb, offset, ie_len-4);
+    if (ie_len >= 1) {
+        next_tvb = tvb_new_subset_length(tvb, offset + 1, ie_len - 1);
 
-    if ((prot_disc == 2)&&(rrlp_handle))
-        call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
-    else
-        call_data_dissector(next_tvb, pinfo, ie_tree);
+        if ((prot_disc == 2)&&(rrlp_handle))
+            call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
+        else
+            call_data_dissector(next_tvb, pinfo, ie_tree);
+    }
 
 
     return offset + ie_len;
@@ -1507,12 +1510,14 @@ dissect_bssap_ulink_tunnel_payload_control_and_info(tvbuff_t *tvb, packet_info *
      */
     proto_tree_add_item(ie_tree, hf_bssap_tunnel_prio, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Tunnel payload */
-    next_tvb = tvb_new_subset_length(tvb, offset, ie_len - 4);
+    if (ie_len >= 1) {
+        next_tvb = tvb_new_subset_length(tvb, offset + 1, ie_len - 1);
 
-    if ((prot_disc == 2)&&(rrlp_handle))
-        call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
-    else
-        call_data_dissector(next_tvb, pinfo, ie_tree);
+        if ((prot_disc == 2)&&(rrlp_handle))
+            call_dissector(rrlp_handle, next_tvb, pinfo, ie_tree);
+        else
+            call_data_dissector(next_tvb, pinfo, ie_tree);
+    }
 
     return offset + ie_len;
 
@@ -2122,13 +2127,18 @@ dissect_bssap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
      *    to differentiate a BSSMAP BLOCK message from a
      *    RANAP DirectTransfer (under certain conditions)
      */
+    if (tvb_captured_length(tvb) < 3) {
+        return false;
+    }
+
     switch (tvb_get_uint8(tvb, 0))
     {
     case 0x00:
         if (tvb_get_uint8(tvb, 1) != (tvb_reported_length(tvb) - 2)) {
             return false;
         }
-        if (tvb_get_uint8(tvb, 2) == 0x40 && tvb_get_uint8(tvb, 3) != 0x01) {
+        if (tvb_get_uint8(tvb, 2) == 0x40 &&
+            (tvb_captured_length(tvb) < 4 || tvb_get_uint8(tvb, 3) != 0x01)) {
             return false;
         }
         break;
@@ -2475,7 +2485,7 @@ proto_register_bssap(void)
 
         { &hf_bssap_tunnel_prio,
           { "Tunnel Priority", "bssap.tunnel_prio",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, NULL, 0x03,
             NULL, HFILL}},
 
         { &hf_bssap_global_cn_id,
