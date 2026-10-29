@@ -11890,3 +11890,96 @@ class TestDissectBctp:
                 '-V',
             ), encoding='utf-8', env=test_env)
         assert 'masked bits\\n' in stdout
+
+
+BEEP_FIELDS = (
+    '-Tfields', '-eframe.number', '-ebeep.command', '-ebeep.more',
+    '-ebeep.channel', '-ebeep.msgno', '-ebeep.seqno', '-ebeep.size',
+    '-ebeep.ansno', '-ebeep.seq.ackno', '-ebeep.seq.window',
+    '-ebeep.mime_header', '-ebeep.payload', '-ebeep.crlf_terminator',
+)
+
+
+class TestDissectBeep:
+    def test_beep_protocols(self, cmd_tshark, capture_file, test_env):
+        '''MSG, RPY, ERR, ANS, NUL and SEQ frames, MIME headers and
+        payloads spanning frames decode without malformed packets or
+        expert infos, and one and two passes give the same BEEP fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('beep_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 27
+        assert protocols.count('BEEP') == 27
+        fields = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('beep_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            fields.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('beep_coverage.pcap.gz'),
+                    *BEEP_FIELDS,
+                ), encoding='utf-8', env=test_env))
+        assert fields[0] == fields[1]
+        assert len(fields[0].splitlines()) == 27
+
+    def test_beep_commands(self, cmd_tshark, capture_file, test_env):
+        '''Commands, more flags, MIME headers, ANS numbers and SEQ.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('beep_coverage.pcap.gz'),
+                *BEEP_FIELDS, '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[1] for f in frames] == [
+            'RPY', 'RPY', 'MSG', 'RPY', 'MSG', 'ERR', 'MSG', 'MSG', '', 'MSG',
+            'ANS', 'ANS', 'NUL', 'MSG', '', 'MSG', 'RPY', 'RPY', 'RPY', '',
+            'MSG', 'RPY', 'MSG', 'RPY', 'RPY', 'MSG', '',
+        ]
+        # Intermediate messages from the client (7) and the server (24):
+        # the frame completing each has no MIME header
+        assert [f[0] for f in frames if f[2] == "'*'"] == ['7', '24']
+        assert [f[0] for f in frames if f[10]] == ['1', '3', '7', '21', '24']
+        assert frames[6][10] == frames[23][10] == 'Content-Type: text/plain'
+        assert frames[7][11] == 'second part'
+        # ANS numbers and the SEQ frame
+        assert [f[7] for f in frames[10:12]] == ['0', '1']
+        assert frames[8][3] == '1' and frames[8][8:10] == ['128', '4096']
+        # Two messages in one frame
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('beep_coverage.pcap.gz'),
+                '-Y', 'frame.number == 16',
+                '-Tfields', '-ebeep.payload', '-ebeep.msgno', '-E', 'occurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'abc,def\t4,4,5,5'
+
+    def test_beep_payload_spanning_frames(self, cmd_tshark, capture_file, test_env):
+        '''A payload continuing from the previous frame is stepped over in
+        one pass as well as in two (it used to be parsed from its first
+        octet on the first pass), and is shown under BEEP. The dissector
+        counts the size without the MIME header's CRLF: in the reproducer
+        (frames 26-27) 3 + 17 octets are payload and "D\\r\\n" is left.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('beep_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {14, 15, 26, 27}',
+                    '-Tfields', '-eframe.number', '-ebeep.payload',
+                    '-ebeep.crlf_terminator', '-E', 'occurrence=a',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '14\t0123456789\t1,1',
+                '15\tabcdefghijABCDEFGHIJ\t1',
+                '26\tABC\t1,1',
+                '27\tDEFGHIJKLMNOPQREN,D\\r\\n\t',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('beep_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {15, 27}', '-O', 'beep',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert '    Payload: abcdefghijABCDEFGHIJ' in lines
+            assert '    Payload: DEFGHIJKLMNOPQREN' in lines
+            assert not [l for l in lines if l.startswith('Payload')]
