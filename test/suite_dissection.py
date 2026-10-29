@@ -11076,3 +11076,169 @@ class TestDissectBabel:
             'Sub-TLV Length: 8', 'Sub-TLV Length: 8',
             'Sub-TLV Length: 2', 'Sub-TLV Length: 4',
         ]
+
+
+class TestDissectBacapp:
+    def test_bacapp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every APDU type, the confirmed and unconfirmed services with their
+        ACKs and errors, segmented messages and the property value decoders
+        decode without malformed packets or expert infos of warning or error
+        severity, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-ebacapp.type',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len(frames) == 848
+        assert all(f[0] == 'BACnet-APDU' for f in frames)
+        types = [int(f[1]) for f in frames]
+        assert [types.count(t) for t in range(8)] == [156, 24, 15, 603, 9, 14, 13, 14]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bacapp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bacapp_services(self, cmd_tshark, capture_file, test_env):
+        '''All confirmed services 0-34 and unconfirmed services 0-14 are
+        present, plus an unknown service of each kind.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'),
+                '-Y', 'bacapp.type == 0',
+                '-Tfields', '-ebacapp.confirmed_service',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(set(int(s) for s in stdout.split())) == list(range(35)) + [99]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'),
+                '-Y', 'bacapp.type == 1',
+                '-Tfields', '-ebacapp.unconfirmed_service',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(set(int(s) for s in stdout.split())) == list(range(15)) + [99]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'),
+                '-Y', 'bacapp.type == 6 || bacapp.type == 7',
+                '-Tfields', '-ebacapp.reject_reason', '-ebacapp.abort_reason',
+            ), encoding='utf-8', env=test_env)
+        reasons = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[0] for r in reasons if r[0]] == ['0', '1', '2', '3', '4', '5', '6', '7', '8',
+                                                   '9', '10', '40', '70']
+        assert [r[1] for r in reasons if r[1]] == ['0', '1', '2', '3', '4', '5', '6', '7', '8',
+                                                   '9', '10', '11', '40', '70']
+
+    def test_bacapp_tree_depth(self, cmd_tshark, capture_file, test_env):
+        '''520 repeated monitoredPropertyIdentifier parameters of a
+        SubscribeCOVProperty request (frame 1) are added side by side in the
+        request's tree, not nested one level deeper each time, so the
+        maximum tree depth is not exceeded.'''
+        proc = subprocess.run((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1', '-V',
+            ), encoding='utf-8', env=test_env, capture_output=True, check=True)
+        assert 'Dissector bug' not in proc.stdout + proc.stderr
+        assert 'Malformed' not in proc.stdout
+        indents = [line[:len(line) - len(line.lstrip())] for line in proc.stdout.splitlines()
+                   if line.strip() == 'monitoredPropertyIdentifier']
+        assert len(indents) == 520
+        assert indents == [indents[0]] * 520
+
+    def test_bacapp_stale_state(self, cmd_tshark, capture_file, test_env):
+        '''Frame 2 omits the objectIdentifier, so its present-value is
+        decoded as a plain enumeration, the same in one and two passes
+        (it used to take the object type access-door of frame 3 in the
+        second pass).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bacapp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 2 || frame.number == 3', '-O', 'bacapp',
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+            frame2, frame3 = stdout.split('\n\n')[:2]
+            assert 'Present Value (enum index): 1' in frame2
+            assert 'access-door' not in frame2
+            assert 'Present Value (enum value): ' in frame3
+        assert outputs[0] == outputs[1]
+
+    def test_bacapp_priority_index(self, cmd_tshark, capture_file, test_env):
+        '''The priority-array index 200 of frame 4 is not truncated to a
+        char (it was shown as priority-array[-56]).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'priority-array[200]: NULL' in stdout
+        assert '[-56]' not in stdout
+
+    def test_bacapp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A segmented ReadPropertyMultiple-ACK, a segmented
+        WritePropertyMultiple request, and an AtomicReadFile-ACK in 258
+        segments whose sequence number wraps past 255 (with a retransmitted
+        segment 255 after segment 256) are reassembled, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bacapp_coverage.pcap.gz'),
+                    '-Y', 'bacapp.reassembled.length',
+                    '-Tfields', '-eframe.number', '-ebacapp.reassembled.length',
+                    '-ebacapp.fragment.count',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['581\t361\t4', '585\t141\t2', '847\t4137\t259']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bacapp_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 844 && frame.number <= 847',
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert [line.rsplit('(', 1)[1] for line in stdout.splitlines()] == [
+                'Message fragment 255)', 'Message fragment 256)',
+                'Message fragment 255)', 'Message Reassembled)']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 581',
+                '-Tfields', '-ebacapp.object_name', '-ebacapp.instance_number',
+                '-E', 'occurrence=a',
+            ), encoding='utf-8', env=test_env)
+        name, instances = stdout.rstrip('\n').split('\t')
+        assert name == 'Segmented Device'
+        assert instances.split(',') == ['5'] + [str(i) for i in range(40)]
+
+    def test_bacapp_values(self, cmd_tshark, capture_file, test_env):
+        '''Some decoded values: errors, vendor IDs, I-Am, Who-Is limits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'),
+                '-Y', 'bacapp.type == 5 && bacapp.error_class',
+                '-Tfields', '-ebacapp.confirmed_service', '-ebacapp.error_class',
+                '-ebacapp.error_code', '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        errors = stdout.splitlines()
+        assert '8\t5\t9' in errors
+        assert '34\t9\t200' in errors
+        assert '12\t64\t300' in errors
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'),
+                '-Y', 'bacapp.unconfirmed_service == 0 || bacapp.unconfirmed_service == 8',
+                '-Tfields', '-ebacapp.vendor_identifier', '-ebacapp.who_is.low_limit',
+                '-ebacapp.who_is.high_limit',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['8\t\t', '260\t\t', '\t\t', '\t0\t4194303']
+
+    def test_bacapp_stats(self, cmd_tshark, capture_file, test_env):
+        '''The BACnet statistics trees count every packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacapp_coverage.pcap.gz'), '-q',
+                '-z', 'bacapp_ip,tree', '-z', 'bacapp_service,tree',
+                '-z', 'bacapp_objectid,tree', '-z', 'bacapp_instanceid,tree',
+            ), encoding='utf-8', env=test_env)
+        counts = {}
+        for line in stdout.splitlines():
+            columns = [c.strip() for c in line.split('  ') if c.strip()]
+            if line.startswith('BACnet Packets by') or line.startswith(' readProperty (ComplexAck) '):
+                counts[columns[0]] = int(columns[1])
+        assert counts == {
+            'BACnet Packets by IP': 848,
+            'BACnet Packets by Service': 848,
+            'BACnet Packets by Object Type': 848,
+            'BACnet Packets by Instance ID': 848,
+            'readProperty (ComplexAck)': 320,
+        }
