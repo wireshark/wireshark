@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
@@ -93,7 +94,7 @@ static const value_string filterload_nflags[] =
  * - Payload length - 4 bytes
  * - Checksum - 4 bytes
  */
-#define BITCOIN_HEADER_LENGTH 4+12+4+4
+#define BITCOIN_HEADER_LENGTH (4+12+4+4)
 
 void proto_register_bitcoin(void);
 void proto_reg_handoff_bitcoin(void);
@@ -337,13 +338,24 @@ static unsigned
 get_bitcoin_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
                        int offset, void *data _U_)
 {
-  uint32_t length;
-  length = BITCOIN_HEADER_LENGTH;
+  uint32_t payload_length;
 
-  /* add payload length */
-  length += tvb_get_letohl(tvb, offset+16);
+  payload_length = tvb_get_letohl(tvb, offset+16);
+  /* Do not let a huge payload length wrap the PDU length to a small one */
+  if (payload_length > UINT32_MAX - BITCOIN_HEADER_LENGTH)
+    return UINT32_MAX;
 
-  return length;
+  return BITCOIN_HEADER_LENGTH + payload_length;
+}
+
+/* A varint length longer than what is left must not be cut to 32 bits,
+ * where 0xffffffff would mean "to the end of the tvb". */
+static unsigned
+check_varint_length(tvbuff_t *tvb, unsigned offset, uint64_t length)
+{
+  if (length > (uint64_t)tvb_reported_length_remaining(tvb, offset))
+    THROW(ReportedBoundsError);
+  return (unsigned)length;
 }
 
 static void
@@ -445,7 +457,7 @@ create_string_tree(proto_tree *tree, int hfindex, tvbuff_t *tvb, uint32_t* offse
 
   /* First is the length of the following string as a varint  */
   get_varint(tvb, *offset, &varint_length, &varint);
-  string_length = (int) varint;
+  string_length = check_varint_length(tvb, *offset + varint_length, varint);
 
   ti = proto_tree_add_item(tree, hfindex, tvb, *offset, varint_length + string_length, ENC_NA);
   subtree = proto_item_add_subtree(ti, ett_string);
@@ -475,7 +487,7 @@ create_data_tree(proto_tree *tree, int hfindex, tvbuff_t *tvb, uint32_t* offset)
 
   /* First is the length of the following string as a varint  */
   get_varint(tvb, *offset, &varint_length, &varint);
-  data_length = (int) varint;
+  data_length = check_varint_length(tvb, *offset + varint_length, varint);
 
   ti = proto_tree_add_item(tree, hfindex, tvb, *offset, varint_length + data_length, ENC_NA);
   subtree = proto_item_add_subtree(ti, ett_string);
@@ -488,7 +500,7 @@ create_data_tree(proto_tree *tree, int hfindex, tvbuff_t *tvb, uint32_t* offset)
 
   /* data */
   proto_tree_add_item(subtree, hf_data_value, tvb, *offset, data_length,
-                      BASE_SHOW_UTF_8_PRINTABLE);
+                      ENC_NA);
   *offset += data_length;
 
   return subtree;
@@ -652,6 +664,7 @@ dissect_bitcoin_msg_addrv2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     get_varint(tvb, offset, &length, &address_length);
     offset += length;
+    check_varint_length(tvb, offset, address_length);
 
     switch (network)
     {
@@ -1040,6 +1053,7 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo
         uint64_t    component_size;
 
         get_varint(tvb, offset, &component_size_length, &component_size);
+        check_varint_length(tvb, offset + component_size_length, component_size);
 
         subti = proto_tree_add_item(subtree, hf_msg_tx_witness_component, tvb, offset,
                                     component_size_length + (int) component_size, ENC_NA);
@@ -1377,9 +1391,10 @@ dissect_bitcoin_msg_merkleblock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   add_varint_item(subtree, tvb, offset, length, hf_msg_merkleblock_flags_size8, hf_msg_merkleblock_flags_size16,
                   hf_msg_merkleblock_flags_size32, hf_msg_merkleblock_flags_size64);
   offset += length;
+  check_varint_length(tvb, offset, count);
 
   /* The cast to unsigned is save because bitcoin messages are always smaller than 0x02000000 bytes. */
-  proto_tree_add_item(subtree, hf_msg_merkleblock_flags_data, tvb, offset, (unsigned)count, BASE_SHOW_UTF_8_PRINTABLE);
+  proto_tree_add_item(subtree, hf_msg_merkleblock_flags_data, tvb, offset, (unsigned)count, ENC_NA);
   offset += (uint32_t)count;
 
   return offset;
