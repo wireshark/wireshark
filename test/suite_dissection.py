@@ -15664,3 +15664,93 @@ class TestDissectBt3ds:
         assert lines.count('Battery Level: 255 (Battery Level Reporting Not Supported)') == 3
         assert 'Battery Level: 254' in lines
         assert 'Battery Level: 50' in lines
+
+
+class TestDissectBtamp:
+    def test_btamp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every AMP Manager command, on the L2CAP AMP Manager fixed
+        channel (ERTM I-frames) and in Exported PDUs, decodes without
+        malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btamp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 22
+        assert protocols.count('AMP') == 21
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btamp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btamp_commands(self, cmd_tshark, capture_file, test_env):
+        '''The command code of each frame, with the direction in Info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btamp_coverage.pcapng.gz'),
+                '-Y', 'btamp',
+                '-Tfields', '-ebtamp.cmd_code', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == [
+            '0x01', '0x01', '0x02', '0x03', '0x03', '0x03', '0x04', '0x05',
+            '0x06', '0x07', '0x07', '0x08', '0x09', '0x0a', '0x0b', '0x0c',
+            '0x0d', '0x0e', '0x09', '0x02', '0xff']
+        assert frames[0][1] == 'Sent AMP Command Reject'
+        assert frames[13][1] == 'Sent AMP Create Physical Link Request'
+        assert frames[16][1] == 'Rcvd AMP Disconnect Physical Link Response'
+        assert frames[17][1] == 'Sent Unknown PDU (14)'
+        assert frames[19][1] == 'UnknownDirection AMP Discover Request'
+        assert frames[20][1] == 'UnknownDirection Unknown PDU (255)'
+
+    def test_btamp_controller_lists(self, cmd_tshark, capture_file, test_env):
+        '''Controller list entries of Discover Response and Change Notify;
+        a tail shorter than an entry is not read as one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btamp_coverage.pcapng.gz'),
+                '-Y', 'btamp.cmd_code == 3 || btamp.cmd_code == 4',
+                '-Tfields', '-eframe.number', '-ebtamp.mps',
+                '-ebtamp.ctrl_id', '-ebtamp.ctrl_type', '-ebtamp.ctrl_status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t0x029e\t0,1,2\t0,1,2\t1,6,3',
+            '6\t0x03e8\t5\t1\t5',
+            '7\t0x029e\t\t\t',
+            '8\t\t1,2,3,4\t1,1,1,127\t0,2,4,127',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btamp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 5',
+                '-O', 'btamp',
+            ), encoding='utf-8', env=test_env)
+        assert 'Controller Type: 802.11 (1)' in stdout
+        assert 'Controller Type: ECMA-368 (2)' in stdout
+        assert 'Controller has full capacity available for Bluetooth operation (6)' in stdout
+
+    def test_btamp_info_and_assoc(self, cmd_tshark, capture_file, test_env):
+        '''Get Info Response values and the AMP Assoc of Get AMP Assoc
+        Response and Create Physical Link Request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btamp_coverage.pcapng.gz'),
+                '-Y', 'btamp.cmd_code == 7',
+                '-Tfields', '-eframe.number', '-ebtamp.ctrl_id', '-ebtamp.status',
+                '-ebtamp.total_bw', '-ebtamp.max_guaran_bw', '-ebtamp.min_latency',
+                '-ebtamp.guaranteed_type', '-ebtamp.assoc_size',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t1\t0\t0x00007530\t0x00004e20\t0x000003e8\tTrue\t0x02a0',
+            '12\t9\t1\t0x00000000\t0x00000000\t0x00000000\tFalse\t0x0000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btamp_coverage.pcapng.gz'),
+                '-Y', 'btamp.cmd_code == 9 || btamp.cmd_code == 10',
+                '-Tfields', '-eframe.number', '-ebtamp.lctrl_id',
+                '-ebtamp.rctrl_id', '-ebtamp.assoc',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == ['14', '15', '20']
+        assert frames[0][3] == frames[1][3] == bytes(range(1, 17)).hex()
+        assert frames[1][1:3] == ['1', '2']
