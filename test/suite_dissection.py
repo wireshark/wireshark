@@ -13016,3 +13016,133 @@ class TestDissectBier:
             ), encoding='utf-8', env=test_env)
         assert 'Dissector bug' not in stdout
         assert 'Payload nested too deep, not dissected' in stdout
+
+
+BIST_ITCH_DECODE_AS = (
+    '-d', 'udp.port==30064,moldudp64',
+    '-d', 'udp.port==30010,moldudp',
+    '-d', 'moldudp64.payload,bist_itch',
+    '-d', 'moldudp.payload,bist_itch',
+)
+
+
+class TestDissectBistItch:
+    def test_bist_itch_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type over MoldUDP64 and MoldUDP decodes without
+        malformed packets or expert infos, in one and two passes, and the
+        protocol column uses an ASCII hyphen.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_itch_coverage.pcap.gz'),
+                *BIST_ITCH_DECODE_AS,
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert protocols.count('BIST-ITCH') == 30
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bist_itch_coverage.pcap.gz'),
+                    *BIST_ITCH_DECODE_AS,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bist_itch_unknown_type(self, cmd_tshark, capture_file, test_env):
+        '''A one-octet message of an unknown type (frame 26) is not
+        malformed; with a body (frame 27) the body is the raw message.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bist_itch_coverage.pcap.gz'),
+                    *BIST_ITCH_DECODE_AS,
+                    '-Y', 'bist-itch.message_type == 0x51',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-ebist-itch.message', '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env)
+            assert [l.rstrip() for l in stdout.splitlines()] == [
+                '26\tUnknown (0x51)',
+                '27\tUnknown (0x51) \t414243444546474849',
+            ]
+
+    def test_bist_itch_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column separates the message type from the order ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_itch_coverage.pcap.gz'),
+                *BIST_ITCH_DECODE_AS,
+                '-Y', 'frame.number in {2, 5, 8, 9}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.rstrip() for l in stdout.splitlines()] == [
+            'Add Order 123456789 qty 500',
+            'Order Executed 123456789 qty 200',
+            'Order Executed w/ Price 123456790 qty 100',
+            'Order Delete 123456789',
+        ]
+
+    def test_bist_itch_add_order_tails(self, cmd_tshark, capture_file, test_env):
+        '''Add Order and Order Book Directory messages without their
+        optional trailing fields, and messages with extra bytes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_itch_coverage.pcap.gz'),
+                *BIST_ITCH_DECODE_AS,
+                '-Y', 'frame.number >= 16 && frame.number <= 25',
+                '-Tfields', '-eframe.number', '-ebist-itch.ranking_seq',
+                '-ebist-itch.quantity', '-ebist-itch.ranking_time',
+                '-ebist-itch.ranking_type', '-ebist-itch.unexpected',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\t\t\t\t\t',
+            '17\t\t\t\t\t',
+            '18\t11\t\t\t\t',
+            '19\t11\t\t\t\t',
+            '20\t11\t750\t\t\t',
+            '21\t11\t750\t\t\t',
+            '22\t11\t750\t1700000000123456789\t\teeee',
+            '23\t\t\t\t\t',
+            '24\t\t\t\t1\teeee',
+            '25\t\t\t\t\tee',
+        ]
+
+    def test_bist_itch_multiple_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message type in one MoldUDP64 datagram, and three messages
+        in a MoldUDP datagram.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_itch_coverage.pcap.gz'),
+                *BIST_ITCH_DECODE_AS,
+                '-Y', 'frame.number in {28, 29}',
+                '-Tfields', '-eframe.number', '-ebist-itch.message_type',
+                '-ebist-itch.order_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '28\t0x41,0x5a,0x4d,0x45,0x54,0x50,0x43,0x44,0x53,0x52,0x59,0x56,0x4f,0x4c\t'
+            '123456789,123456789,123456790,123456789',
+            '29\t0x41,0x45,0x44\t323456789,323456789,323456789',
+        ]
+
+    def test_bist_itch_prices(self, cmd_tshark, capture_file, test_env):
+        '''Prices are shown raw by default and divided by 10000 with the
+        show_bigint_price preference.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_itch_coverage.pcap.gz'),
+                *BIST_ITCH_DECODE_AS,
+                '-Y', 'frame.number in {3, 15}',
+                '-Tfields', '-ebist-itch.price', '-ebist-itch.best_bid_price',
+                '-ebist-itch.price_to',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1234500\t1234000\t', '\t\t999900']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_itch_coverage.pcap.gz'),
+                *BIST_ITCH_DECODE_AS,
+                '-o', 'bist_itch.show_bigint_price:TRUE',
+                '-Y', 'frame.number in {3, 15}',
+                '-Tfields', '-ebist-itch.price', '-ebist-itch.best_bid_price',
+                '-ebist-itch.price_to',
+            ), encoding='utf-8', env=test_env)
+        # Accept the locale's decimal separator in the prices.
+        expected = [['123.45', '123.4', ''], ['', '', '99.99']]
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == len(expected)
+        for got, want in zip(lines, expected):
+            assert len(got) == len(want)
+            for g, w in zip(got, want):
+                assert g in (w, w.replace('.', ','))
