@@ -6096,17 +6096,22 @@ static int dissect_udcomphdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                                          "udCompHdr");
     proto_tree *udcomphdr_tree = proto_item_add_subtree(udcomphdr_ti, ett_oran_udcomphdr);
 
-    /* udIqWidth */
-    uint32_t hdr_iq_width;
-    proto_item *iq_width_item = proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrIqWidth , tvb, offset, 1, ENC_NA, &hdr_iq_width);
-    *bit_width = (hdr_iq_width) ? hdr_iq_width : 16;
-    proto_item_append_text(iq_width_item, " (%u bits)", *bit_width);
+	uint8_t byte = tvb_get_uint8(tvb, offset);
+    uint32_t hdr_iq_width = 0, ud_comp_meth = 0;
 
-    /* udCompMeth */
-    uint32_t ud_comp_meth;
-    *comp_meth_ti = proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrMeth, tvb, offset, 1, ENC_NA, &ud_comp_meth);
-    if (comp_meth) {
-        *comp_meth = ud_comp_meth;
+    /* Don't dissect fields if ignored and correctly set to 0 */
+    if (!(ignore && byte == 0)) {
+        /* udIqWidth */
+
+        proto_item *iq_width_item = proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrIqWidth , tvb, offset, 1, ENC_NA, &hdr_iq_width);
+        *bit_width = (hdr_iq_width) ? hdr_iq_width : 16;
+        proto_item_append_text(iq_width_item, " (%u bits)", *bit_width);
+
+        /* udCompMeth */
+        *comp_meth_ti = proto_tree_add_item_ret_uint(udcomphdr_tree, hf_oran_udCompHdrMeth, tvb, offset, 1, ENC_NA, &ud_comp_meth);
+        if (comp_meth) {
+            *comp_meth = ud_comp_meth;
+        }
     }
 
     /* Populate tap header with compression settings */
