@@ -1194,6 +1194,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
     proto_tree *admin_record_tree;
     proto_item *timestamp_sequence_item;
     uint8_t     record_type;
+    uint8_t     record_flags;
     uint8_t     status;
     unsigned    start_offset = offset;
     unsigned    sdnv_length;
@@ -1205,6 +1206,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
                         ett_admin_record, &admin_record_item, "Administrative Record");
 
     proto_tree_add_item_ret_uint8(admin_record_tree, hf_bundle_admin_record_type, tvb, offset, 1, ENC_BIG_ENDIAN, &record_type);
+    record_flags = tvb_get_uint8(tvb, offset);
 
     switch (record_type)
     {
@@ -1238,7 +1240,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         proto_tree_add_item(admin_record_tree, hf_bundle_status_report_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
 
-        if (record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+        if (record_flags & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, pinfo, offset, hf_bundle_admin_fragment_offset);
             if (sdnv_length <= 0) {
                 return offset;
@@ -1342,7 +1344,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
         proto_tree_add_item(admin_record_tree, hf_bundle_custody_signal_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
         ++offset;
 
-        if (record_type & ADMIN_REC_FLAGS_FRAGMENT) {
+        if (record_flags & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, pinfo, offset, hf_bundle_admin_fragment_offset);
             if (sdnv_length <= 0) {
                 return offset;
@@ -1759,7 +1761,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         offset += sdnv_length;
 
         /* and second is the creator custodian EID */
-        if (block_length - sdnv_length < 1) {
+        if (block_length <= (int)sdnv_length) {
             expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
             *lastheader = true;
             return offset;
@@ -1857,7 +1859,7 @@ evaluate_sdnv(tvbuff_t *tvb, unsigned offset, unsigned *bytecount)
         return -1;
     }
     if (value > INT_MAX) {
-        ws_warning("evaluate_sdnv decoded a value too large to fit in an int, truncating");
+        /* Too large to fit in an int, truncate */
         return INT_MAX;
     }
     return (int)value;
@@ -1896,6 +1898,10 @@ dissect_bpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /* Custodian from Primary Block, used to validate CTEB */
     char       *bundle_custodian = NULL;
 
+
+    /* Set by a version 5 or 6 primary header; do not use the previous bundle's */
+    src_ssp = -1;
+    dst_ssp = -1;
 
     version = tvb_get_uint8(tvb, offset);  /* Primary Header Version */
     if ((version != 4) && (version != 5) && (version != 6)) {
