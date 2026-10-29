@@ -15907,3 +15907,91 @@ class TestDissectBtatt:
                 '-Tfields', '-eframe.number', '-ebtatt.device_name',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['1451\t']
+
+
+class TestDissectBtavctp:
+    def test_btavctp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''AVCTP on the control and browsing channels over HCI H4 with
+        direction, single and fragmented messages, decodes without
+        malformed packets in one and two passes. The only warnings are the
+        END packets that do not complete a message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavctp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 35
+        assert protocols.count('AVCTP') == 18
+        assert protocols.count('AVRCP') == 9
+        assert protocols.count('L2CAP') == 6
+        assert protocols.count('HCI_EVT') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavctp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['26\tUnexpected frame', '31\tUnexpected frame']
+
+    def test_btavctp_single(self, cmd_tshark, capture_file, test_env):
+        '''Single packets go to AVRCP by profile identifier (0x110E and
+        0x110C) or to data; an invalid profile without data stops after
+        the header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavctp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 5, 7, 8, 9, 32}',
+                '-Tfields', '-ebtavctp.pid', '-ebtavctp.ipid', '-eframe.protocols',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        p = 'bluetooth:hci_h4:bthci_acl:btl2cap:btavctp'
+        assert stdout.splitlines() == [
+            '0x110e\t0x00\t' + p + ':btavrcp\tRcvd Unit Info: Stable',
+            '0x110c\t0x00\t' + p + ':btavrcp\tRcvd Subunit Info: Stable',
+            '0x1234\t0x00\t' + p + ':data\tSent Command - Transaction: 3, PacketType: Single',
+            '0x1234\t0x01\t' + p + '\tRcvd Response - Transaction: 3, PacketType: Single, Invalid profile',
+            '0x110e\t0x01\t' + p + ':btavrcp\tRcvd Unit Info: Stable',
+            '0x110e\t0x00\t' + p + ':btavrcp\tSent Browsing: Command - SetBrowsedPlayer - Player ID: 1',
+        ]
+
+    def test_btavctp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''START, CONTINUE and END packets are reassembled in the END
+        frame: AVRCP GetCapabilities responses of 3 packets (frame 12) and,
+        interleaved on another connection, 2 packets (frame 19), 4 packets
+        with an unknown profile (frame 21) and a browsing command (frame
+        35), the same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavctp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {12, 19, 21, 35}',
+                    '-Tfields', '-eframe.number', '-ebtavrcp.capability.count',
+                    '-edata.data', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            p = 'bluetooth:hci_h4:bthci_acl:btl2cap:btavctp'
+            assert stdout.splitlines() == [
+                '12\t0x0d\t\t' + p + ':btavrcp',
+                '19\t0x04\t\t' + p + ':btavrcp',
+                '21\t\ta0a1a2a3a4a5a6a7\t' + p + ':data',
+                '35\t\t\t' + p + ':btavrcp',
+            ]
+
+    def test_btavctp_continue_after_end(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of the fix: a CONTINUE after the END of a 2
+        packet message (frame 24) is not added to it, so the END frame
+        (23) still reassembles in the second pass; an END after 2 of 3
+        packets (frame 26) is unexpected in both passes and the CONTINUE
+        after it (27) is not used.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavctp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {22..27}',
+                    '-Tfields', '-eframe.number', '-ebtavctp.packet_type', '-ebtavctp.nop',
+                    '-edata.data', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '22\t0x01\t2\t41414141\t',
+                '23\t0x03\t\t4141414142424242\t',
+                '24\t0x02\t\t43434343\t',
+                '25\t0x01\t3\t44444444\t',
+                '26\t0x03\t\t45454545\tUnexpected frame',
+                '27\t0x02\t\t46464646\t',
+            ]
