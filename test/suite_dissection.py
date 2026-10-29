@@ -17139,3 +17139,73 @@ class TestDissectBthciIso:
                 '-Tfields', '-eframe.number', '-ebthci_iso.disconnect_in',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['%d\t41' % n for n in range(15, 29)]
+
+
+class TestDissectBthciSco:
+    def test_bthci_sco_protocols(self, cmd_tshark, capture_file, test_env):
+        '''HCI commands and events set up two ACL connections and two
+        synchronous connections; SCO data both ways with every packet
+        status, without malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_sco_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 28
+        assert protocols.count('HCI_CMD') == 6
+        assert protocols.count('HCI_EVT') == 12
+        assert protocols.count('HCI_SCO') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_sco_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_bthci_sco_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header fields, connection, stream number and addresses, the
+        same in one and two passes. The data item covers the data after
+        the header, not the whole packet.'''
+        fields = ('-ebthci_sco.chandle', '-ebthci_sco.packet_status', '-ebthci_sco.length',
+                  '-ebthci_sco.connect_in', '-ebthci_sco.stream_number',
+                  '-e_ws.col.def_src', '-e_ws.col.def_dst')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-n',
+                    '-r', capture_file('bthci_sco_coverage.pcap.gz'),
+                    '-Y', 'bthci_sco',
+                    '-Tfields', '-eframe.number', *fields,
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        local = '00:1b:dc:00:00:01 (ws-local)'
+        headset = '00:1b:dc:00:00:a2 (ws-headset)'
+        unnamed = '00:1b:dc:00:00:b3 ()'
+        assert [line.split('\t') for line in outputs[0].splitlines()] == [
+            ['12', '0x0101', '0x0000', '60', '11', '1', local, headset],
+            ['13', '0x0101', '0x0000', '60', '11', '1', headset, local],
+            ['14', '0x0101', '0x0001', '60', '11', '1', headset, local],
+            ['15', '0x0101', '0x0002', '60', '11', '1', headset, local],
+            ['16', '0x0101', '0x0003', '60', '11', '1', headset, local],
+            ['17', '0x0101', '0x0000', '4', '11', '1', local, headset],
+            ['25', '0x0102', '0x0000', '48', '24', '2', local, unnamed],
+            ['26', '0x0102', '0x0000', '48', '24', '2', unnamed, local],
+            ['27', '0x0103', '0x0000', '10', '', '2', local, 'remote ()'],
+            ['28', '0x0103', '0x0000', '10', '', '2', 'remote ()', local],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_sco_coverage.pcap.gz'),
+                '-Y', 'bthci_sco && len(@bthci_sco.data) == bthci_sco.length',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['12', '13', '14', '15', '16', '17', '25', '26', '27', '28']
+        # The first synchronous connection is disconnected in frame 20
+        # (shown in the second pass)
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_sco_coverage.pcap.gz'),
+                '-Y', 'bthci_sco.disconnect_in',
+                '-Tfields', '-eframe.number', '-ebthci_sco.disconnect_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['%d\t20' % n for n in range(12, 18)]
