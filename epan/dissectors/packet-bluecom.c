@@ -279,7 +279,7 @@ dissect_bcp_search_data(packet_info *pinfo, proto_tree *bcp_tree, tvbuff_t *tvb,
                           "BCP Search Response: Name=%s, IpAddr=%s Error=%d",
                           tvb_get_string_enc(pinfo->pool, tvb, offset + 16, BCP_NAME_LEN, ENC_ASCII),
                           tvb_ip_to_str(pinfo->pool, tvb, offset + 12),
-                          tvb_get_letohl(tvb, offset)
+                          tvb_get_ntohl(tvb, offset)
                           );
 
         proto_tree_add_item(bcp_subtree, hf_bcp_searchrsp_error, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -540,12 +540,12 @@ static int dissect_bluecom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 break;
 
             case BCP_BLK_CMD_SEARCH:
-                col_append_str(pinfo->cinfo, COL_INFO, REQRSP(flags));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s", REQRSP(flags));
                 dissect_bcp_search_data(pinfo, bcp_tree, block_tvb, flags);
                 break;
 
             case BCP_BLK_CMD_CONNECT:
-                col_append_str(pinfo->cinfo, COL_INFO, REQRSP(flags));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " %s", REQRSP(flags));
                 dissect_bcp_connect_data(pinfo, bcp_tree, block_tvb, flags);
                 break;
 
@@ -626,7 +626,7 @@ proto_register_bluecom(void)
 
         /* BCP_SYNC_DATA */
         { &hf_bcp_sync_starttime, {
-            "StartTime", "bluecom.sync.blockflags", FT_UINT32,
+            "StartTime", "bluecom.sync.starttime", FT_UINT32,
              BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_bcp_sync_cycletime, {
             "CycleTime", "bluecom.sync.cycletime", FT_UINT32,
@@ -777,7 +777,7 @@ proto_register_bluecom(void)
 
     /* add dissector table */
     bcp_subdissector_table = register_dissector_table("bluecomseg", "bluecom SegCode", proto_bcp,
-                                                      FT_UINT8, BASE_DEC);
+                                                      FT_UINT16, BASE_DEC);
 }
 
 /*
