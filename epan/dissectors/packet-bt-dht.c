@@ -306,6 +306,12 @@ dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
   col_append_fstr(pinfo->cinfo, COL_INFO, " No=%s Msg=%s", error_no, error_msg);
   *result = wmem_strdup_printf(pinfo->pool, "error %s, %s", error_no, error_msg);
 
+  /* the list terminator */
+  if (tvb_get_uint8(tvb, offset) != 'e') {
+    return 0;
+  }
+  proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII);
+
   return offset + 1;
 }
 
@@ -802,7 +808,9 @@ dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
    * are supposed to be interpreted specially (e.g., IP/port combinations),
    * so maybe it's more trouble than it's worth.
    */
-  return dissect_bencoded_dict(tvb, pinfo, tree, 0, "BitTorrent DHT Protocol");
+  /* A malformed dictionary has been added to the tree already */
+  dissect_bencoded_dict(tvb, pinfo, tree, 0, "BitTorrent DHT Protocol");
+  return tvb_captured_length(tvb);
 }
 
 static
