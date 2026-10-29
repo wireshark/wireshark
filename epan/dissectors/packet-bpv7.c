@@ -1557,7 +1557,7 @@ static int block_dissect_sort(const void *a, const void *b) {
         return 1;
     }
 
-    return g_int_equal(&(aobj->blk_ix), &(bobj->blk_ix));
+    return (aobj->blk_ix > bobj->blk_ix) - (aobj->blk_ix < bobj->blk_ix);
 }
 
 /// Top-level protocol dissector
@@ -1898,7 +1898,9 @@ static bool dissect_status_assertion(proto_tree *tree, int hfassert, packet_info
 
 static int dissect_payload_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     bp_dissector_data_t *context = (bp_dissector_data_t *)data;
-    DISSECTOR_ASSERT(context);
+    if (!context) {
+        return 0;
+    }
     {
         const char *proto_name = col_get_text(pinfo->cinfo, COL_PROTOCOL);
         if (g_strcmp0(proto_name, proto_name_bp_admin) != 0) {
@@ -1994,14 +1996,14 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     bp_bundle_ident_t *subj = bp_bundle_ident_new(wmem_file_scope(), subj_eid, &subj_ts, NULL, NULL);
 
-    if (chunk_info->head_value > status_field_ix) {
+    if (chunk_status->head_value > status_field_ix) {
         chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
         subj->frag_offset = wscbor_require_uint64(wmem_file_scope(), chunk);
         proto_tree_add_cbor_uint64(tree_status, hf_status_rep_subj_frag_offset, pinfo, tvb, chunk, subj->frag_offset);
         status_field_ix++;
     }
 
-    if (chunk_info->head_value > status_field_ix) {
+    if (chunk_status->head_value > status_field_ix) {
         chunk = wscbor_chunk_read(pinfo->pool, tvb, &offset);
         subj->total_len = wscbor_require_uint64(wmem_file_scope(), chunk);
         proto_tree_add_cbor_uint64(tree_status, hf_status_rep_subj_payload_len, pinfo, tvb, chunk, subj->total_len);
