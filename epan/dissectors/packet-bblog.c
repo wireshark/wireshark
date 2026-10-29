@@ -489,7 +489,16 @@ dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 {
     wtapng_nflx_custom_mandatory_t *bblog_cb_mand;
 
+    /* Only a Netflix custom block record carries the data below */
+    if (pinfo->rec->rec_type != REC_TYPE_CUSTOM_BLOCK ||
+        pinfo->rec->rec_header.custom_block_header.pen != PEN_NFLX ||
+        pinfo->rec->block == NULL) {
+        return 0;
+    }
     bblog_cb_mand = (wtapng_nflx_custom_mandatory_t *)wtap_block_get_mandatory_data(pinfo->rec->block);
+    if (bblog_cb_mand == NULL) {
+        return 0;
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BBLog");
     switch (bblog_cb_mand->type) {
