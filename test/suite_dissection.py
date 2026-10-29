@@ -15572,3 +15572,95 @@ class TestDissectBssgp:
                 '-O', 'llcgprs',
             ), encoding='utf-8', env=test_env)
         assert stdout.count('(correct)') == 6
+
+
+class TestDissectBt3ds:
+    def test_bt3ds_protocols(self, cmd_tshark, capture_file, test_env):
+        '''3DS messages on the connectionless L2CAP channel and on a
+        connection oriented channel for PSM 0x0021 decode without
+        malformed packets or warnings, in one and two passes. The only
+        expert infos are the reserved value notes of frames 8-11.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bt3ds_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 15
+        assert protocols.count('3DS') == 12
+        assert protocols.count('L2CAP') == 2
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bt3ds_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bt3ds_coverage.pcap.gz'),
+                    '-Y', 'bt3ds.expert.message_opcode.reserved || bt3ds.expert.reserved || bt3ds.expert.battery_level.reserved',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['8', '9', '10', '11']
+
+    def test_bt3ds_info_direction(self, cmd_tshark, capture_file, test_env):
+        '''The Info column keeps the "Sent "/"Rcvd " prefix before the
+        message opcode, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bt3ds_coverage.pcap.gz'),
+                    '-Y', 'bt3ds',
+                    '-Tfields', '-eframe.number', '-ebtl2cap.cid', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '2\t0x0002\tSent 3DG Connection Announcement',
+                '3\t0x0002\tRcvd 3DG Connection Announcement',
+                '4\t0x0002\tRcvd 3DG Connection Announcement',
+                '5\t0x0002\tSent 3DG Connection Announcement',
+                '6\t0x0002\tRcvd 3DG Connection Announcement',
+                '7\t0x0002\tSent 3DG Connection Announcement',
+                '8\t0x0002\tSent 3DG Connection Announcement',
+                '9\t0x0002\tRcvd 3DG Connection Announcement',
+                '10\t0x0002\tSent Unknown',
+                '11\t0x0002\tRcvd 3DG Connection Announcement',
+                '14\t0x0041\tSent 3DG Connection Announcement',
+                '15\t0x0040\tRcvd 3DG Connection Announcement',
+            ]
+
+    def test_bt3ds_fields(self, cmd_tshark, capture_file, test_env):
+        '''Opcode, reserved bits, both flags and the battery level.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bt3ds_coverage.pcap.gz'),
+                '-Y', 'bt3ds',
+                '-Tfields', '-eframe.number', '-ebt3ds.message_opcode',
+                '-ebt3ds.reserved', '-ebt3ds.user_request_for_battery_level_display',
+                '-ebt3ds.association_notification', '-ebt3ds.battery_level',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0x00\t0x00\tFalse\tFalse\t50',
+            '3\t0x00\t0x00\tFalse\tTrue\t100',
+            '4\t0x00\t0x00\tTrue\tFalse\t0',
+            '5\t0x00\t0x00\tTrue\tTrue\t75',
+            '6\t0x00\t0x00\tFalse\tTrue\t255',
+            '7\t0x00\t0x00\tFalse\tFalse\t255',
+            '8\t0x00\t0x00\tFalse\tFalse\t101',
+            '9\t0x00\t0x00\tFalse\tFalse\t254',
+            '10\t0x01\t0x00\tFalse\tFalse\t20',
+            '11\t0x00\t0x3f\tTrue\tTrue\t30',
+            '14\t0x00\t0x00\tFalse\tTrue\t88',
+            '15\t0x00\t0x00\tTrue\tFalse\t255',
+        ]
+
+    def test_bt3ds_battery_not_supported(self, cmd_tshark, capture_file, test_env):
+        '''Battery level 255 is shown as "255 (Battery Level Reporting Not
+        Supported)".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bt3ds_coverage.pcap.gz'),
+                '-Y', 'bt3ds',
+                '-O', 'bt3ds',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines() if 'Battery Level:' in l]
+        assert len(lines) == 12
+        assert lines.count('Battery Level: 255 (Battery Level Reporting Not Supported)') == 3
+        assert 'Battery Level: 254' in lines
+        assert 'Battery Level: 50' in lines
