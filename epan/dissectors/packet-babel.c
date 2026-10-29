@@ -249,8 +249,8 @@ format_timestamp(const uint32_t i)
 }
 
 static int
-dissect_babel_subtlvs(tvbuff_t * tvb, uint8_t type, uint16_t beg,
-                      uint16_t end, proto_tree *message_tree)
+dissect_babel_subtlvs(tvbuff_t * tvb, uint8_t type, unsigned beg,
+                      unsigned end, proto_tree *message_tree)
 {
     proto_tree *channel_tree = NULL;
     proto_item *sub_item;
@@ -339,7 +339,7 @@ dissect_babel_subtlvs(tvbuff_t * tvb, uint8_t type, uint16_t beg,
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                   int offset, uint16_t bodylen)
+                   int offset, unsigned bodylen)
 {
     proto_item *ti = NULL;
     unsigned char  v4_prefix[16] = {0}, v6_prefix[16] = {0};
@@ -347,7 +347,7 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
     i = offset;
-    while (i-offset < bodylen) {
+    while ((unsigned)(i-offset) < bodylen) {
         uint8_t     type, len    = 0;
         uint16_t    total_length;
         proto_tree *message_tree = NULL;
@@ -394,7 +394,7 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(message_tree, hf_babel_message_nonce,
                                     tvb, message + 2, 2, ENC_BIG_ENDIAN);
             } else if (type == MESSAGE_HELLO) {
-                uint8_t unicast = tvb_get_uint8(tvb, 2);
+                unsigned unicast = (tvb_get_ntohs(tvb, message + 2) & 0x8000) ? 1 : 0;
                 proto_tree_add_subtree_format(message_tree,
                                          tvb, message + 2, 2,
                                          ett_unicast, NULL,
@@ -548,8 +548,8 @@ dissect_babel_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         i += len + 2;
     }
-    uint8_t packet_len = tvb_reported_length(tvb) - bodylen - 4;
-    if ((offset == 0) && (packet_len != 0)) {
+    if ((offset == 0) && (tvb_reported_length(tvb) > bodylen + 4)) {
+        unsigned packet_len = tvb_reported_length(tvb) - bodylen - 4;
         proto_tree * subtree;
         subtree = proto_tree_add_subtree_format(tree, tvb, 4+bodylen, packet_len,
                                                 ett_packet_trailer, NULL,
@@ -688,7 +688,7 @@ proto_register_babel(void)
         },
         { &hf_babel_subtlv_len,
           { "Sub-TLV Length", "babel.subtlv.length", FT_UINT8, BASE_DEC,
-          VALS(subtlvs), 0, NULL, HFILL }
+          NULL, 0, NULL, HFILL }
         },
         { &hf_babel_subtlv_diversity,
           { "Channel", "babel.subtlv.diversity.channel", FT_UINT8, BASE_DEC,
