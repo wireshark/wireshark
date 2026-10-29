@@ -14438,3 +14438,54 @@ class TestDissectBofl:
                 '-Tfields', '-eframe.number', '-evlan.id', '-ebofl.sequence',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['10\t42\t6']
+
+
+class TestDissectBootparams:
+    def test_bootparams_protocols(self, cmd_tshark, capture_file, test_env):
+        '''NULL, WHOAMI and GETFILE calls and replies decode without
+        malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bootparams_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 14
+        assert protocols.count('BOOTPARAMS') == 14
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bootparams_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_bootparams_fields(self, cmd_tshark, capture_file, test_env):
+        '''Replies are matched to their calls and decoded by procedure,
+        the same in one and two passes.'''
+        fields = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bootparams_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-erpc.repframe',
+                    '-ebootparams.procedure_v1', '-ebootparams.host',
+                    '-ebootparams.domain', '-ebootparams.fileid',
+                    '-ebootparams.filepath', '-ebootparams.hostaddr',
+                    '-ebootparams.routeraddr', '-ebootparams.type',
+                ), encoding='utf-8', env=test_env)
+            fields.append(stdout)
+        assert fields[0] == fields[1]
+        frames = [line.split('\t') for line in fields[0].splitlines()]
+        assert [f[2] for f in frames] == ['0', '0', '1', '1', '2', '2', '2', '2', '2', '2',
+                                          '1', '1', '2', '2']
+        # Every reply refers to the call before it
+        assert [f[1] for f in frames[1::2]] == ['1', '3', '5', '7', '9', '11', '13']
+        # WHOAMI call and reply
+        assert frames[2][7] == '192.0.2.20'
+        assert frames[3][3:10] == ['diskless1', 'example.org', '', '', '', '192.0.2.1', '1']
+        # GETFILE call and reply
+        assert frames[4][3:6] == ['diskless1', '', 'root']
+        assert frames[5][3:10] == ['bootserver', '', '', '/export/root/diskless1',
+                                   '198.51.100.5', '', '1']
+        # Unknown address types: no address follows
+        assert frames[10][7:10] == ['', '', '2']
+        assert frames[11][3:10] == ['diskless2', '', '', '', '', '', '0']
