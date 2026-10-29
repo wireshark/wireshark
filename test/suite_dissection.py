@@ -13976,3 +13976,159 @@ class TestDissectBluecom:
             '15\tboth\t4\t02:00:00:00:00:05\t0',
             '20\tmulti\t2\t\t',
         ]
+
+
+class TestDissectBluetooth:
+    def test_bluetooth_protocols(self, cmd_tshark, capture_file, test_env):
+        '''HCI over H4 with and without direction, the Linux monitor and
+        USB, LE Link Layer with and without the RF header and Exported
+        PDUs decode without malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 69
+        assert protocols.count('HCI_CMD') == 10
+        assert protocols.count('HCI_EVT') == 13
+        assert protocols.count('HCI_MON') == 1
+        assert protocols.count('L2CAP') == 2
+        assert protocols.count('SDP') == 4
+        assert protocols.count('ATT') == 13
+        assert protocols.count('LE LL') == 11
+        assert protocols.count('USB') == 6
+        assert protocols.count('Bluetooth') == 3
+        assert protocols.count('') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_bluetooth_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''Each link type reaches the Bluetooth dissector and the
+        dissector for its header; the direction comes from the
+        pseudo-header or the USB URB.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 32, 35, 37, 43, 51, 53, 64}',
+                '-Tfields', '-eframe.protocols', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'bluetooth:hci_h4:bthci_cmd\tSent Reset',
+            'bluetooth:hci_h4:bthci_cmd\tUnknownDirection Reset',
+            'bluetooth:hci_mon:bthci_cmd\tSent Reset',
+            'bluetooth:btle:btcommon:bluetooth.gaen\tADV_IND',
+            'bluetooth:btle_rf:btle:btcommon\tCONNECT_IND',
+            'usb:bluetooth:hci_usb:bthci_cmd\tSent Reset',
+            'usb:bluetooth:hci_usb:bthci_evt\tRcvd Command Complete (Reset)',
+            'exported_pdu:bluetooth:btle:btcommon\tADV_NONCONN_IND',
+        ]
+
+    def test_bluetooth_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming "bluetooth.usb" carries no URB info; it
+        is declined and shown as data instead of crashing. "bluetooth",
+        "bluetooth.bthci" and "bluetooth.btmon" have no encapsulation to
+        dispatch on and show data too.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {60..63}',
+                '-Tfields', '-eexported_pdu.prot_name', '-eframe.protocols', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'bluetooth.usb\texported_pdu:data\t01030c00',
+            'bluetooth\texported_pdu:bluetooth:data\t01030c00',
+            'bluetooth.bthci\texported_pdu:bluetooth:data\t01030c00',
+            'bluetooth.btmon\texported_pdu:bluetooth:data\t01030c00',
+        ]
+
+    def test_bluetooth_gaen(self, cmd_tshark, capture_file, test_env):
+        '''GAEN service data in an advertisement and as an Exported PDU;
+        data shorter than 20 octets is declined.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {37, 38, 65, 66}',
+                '-Tfields', '-eframe.number', '-ebluetooth.gaen.rpi', '-ebluetooth.gaen.aemd',
+                '-ebtcommon.eir_ad.entry.service_data', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '37\t101112131415161718191a1b1c1d1e1f\ta1b2c3d4\t\t',
+            '38\t\t\t01020304\t',
+            '65\t303132333435363738393a3b3c3d3e3f\t01020304\t\t',
+            '66\t\t\t\t0102030405',
+        ]
+
+    def test_bluetooth_beacons(self, cmd_tshark, capture_file, test_env):
+        '''Matter advertising data of each opcode, AltBeacon and iBeacon.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                '-Y', 'bluetooth.matter',
+                '-Tfields', '-eframe.number', '-ebluetooth.matter.opcode',
+                '-ebluetooth.matter.version', '-ebluetooth.matter.discriminator',
+                '-ebluetooth.matter.vendor_id', '-ebluetooth.matter.product_id',
+                '-ebluetooth.matter.recovery_id', '-ebluetooth.matter.flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '39\t0x00\t1\t0x0123\t0xfff1\t0x8001\t\t0x01',
+            '40\t0x01\t1\t\t\t\t0x0102030405060708\t0x02',
+            '41\t0x05\t\t\t\t\t\t',
+            '48\t0x00\t0\t0x0f00\t0xfff1\t0x8000\t\t0x00',
+            '69\t0x00\t0\t0x0f00\t0xfff1\t0x8002\t\t0x03',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                '-Y', 'alt_beacon || ibeacon',
+                '-Tfields', '-eframe.number', '-ebluetooth.alt_beacon.code',
+                '-ebluetooth.alt_beacon.reference_rssi', '-ebluetooth.apple.ibeacon.uuid128',
+                '-ebluetooth.apple.ibeacon.major', '-ebluetooth.apple.ibeacon.minor',
+                '-ebluetooth.apple.ibeacon.measured_power',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '67\t0xbeac\t-59\t\t\t\t',
+            '68\t\t\t11223344-5566-7788-99aa-bbccddeeff00\t1\t2\t-59',
+        ]
+
+    def test_bluetooth_addresses(self, cmd_tshark, capture_file, test_env):
+        '''In the second pass the Bluetooth layer shows the source and
+        destination that HCI ("host", "controller") and BTLE (BD_ADDR)
+        stored in the first pass.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 2, 43, 46}',
+                '-Tfields', '-ebluetooth.src_str', '-ebluetooth.dst_str',
+                '-ebluetooth.src', '-ebluetooth.dst',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'host\tcontroller\t\t',
+            'controller\thost\t\t',
+            '\t\tc0:ff:ee:00:00:04\tc0:ff:ee:00:00:03',
+            '\t\tc0:ff:ee:00:00:04\tc0:ff:ee:00:00:03',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                '-qz', 'conv,bluetooth',
+            ), encoding='utf-8', env=test_env)
+        conv = [line.split()[:3] for line in stdout.splitlines() if '<->' in line]
+        assert ['host', '<->', 'controller'] in conv
+        assert ['c0:ff:ee:00:00:04', '<->', 'c0:ff:ee:00:00:03'] in conv
+
+    def test_bluetooth_uuids(self, cmd_tshark, capture_file, test_env):
+        '''UUIDs of 16, 32 and 128 bits are collapsed to 16 bits where
+        possible and named from the built-in table, the built-in custom
+        UUIDs and the custom UUID preference.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluetooth_coverage.pcapng.gz'),
+                '-o', 'uat:bluetooth_uuids:"11223344-5566-7788-99AA-BBCCDDEEFF00","Coverage Custom","FALSE"',
+                '-o', 'uat:bluetooth_uuids:"12345678","Coverage 32","FALSE"',
+                '-o', 'uat:bluetooth_uuids:"3fff","Coverage 16","FALSE"',
+                '-Y', 'frame.number in {18, 26}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Sent Service Search Request : L2CAP: Coverage 16: Serial Port: Coverage 32: '
+            'Audio Source: SyncML Client: Coverage Custom',
+            'Rcvd Read By Group Type Response, Attribute List Length: 1, Apple Notification Center Service',
+        ]
