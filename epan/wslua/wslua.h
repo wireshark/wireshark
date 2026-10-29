@@ -571,6 +571,73 @@ C shift##C(lua_State* L,int i) { \
 } \
 typedef int dummy##C
 
+/*
+ * Classes whose objects are created per packet (Tvb, TvbRange, Pinfo,
+ * TreeItem, etc.) are defined with WSLUA_CLASS_DEFINE_INLINE instead.
+ * C is a pointer to a struct (or other object type), and that object is
+ * stored in the full userdata itself instead of separately allocated.
+ * Such classes have no __gc metamethod, so that the Lua garbage collector
+ * can free them in a single cycle, and knows their size.
+ *
+ * Objects that refer to Wireshark structures which are only valid during
+ * the dissection of a packet record the wslua_packet_generation in which
+ * they were created and are expired once it changes, which is checked
+ * with WSLUA_EXPIRED() before each access.
+ *
+ * toXxx and checkXxx return a pointer into the userdata, which is valid
+ * only as long as the userdata is reachable, e.g. on the stack.
+ * pushXxx(L,v) copies the object pointed to by v into a new userdata and
+ * returns a pointer to the copy.
+ * shiftXxx(L,i,buf) copies the object into buf before removing it from
+ * the stack (after which it may be collected), and returns buf.
+ *
+ * WSLUA_CLASS_DEFINE_INLINE_BASE does not define pushXxx, so that a class
+ * whose objects have variable size (such as Address) can define its own.
+ */
+#define WSLUA_CLASS_DEFINE_INLINE_BASE(C,check_code) \
+C to##C(lua_State* L, int idx) { \
+    C v = (C)lua_touserdata (L, idx); \
+    if (!v) luaL_error(L, "bad argument %d (%s expected, got %s)", idx, #C, lua_typename(L, lua_type(L, idx))); \
+    return v; \
+} \
+C check##C(lua_State* L, int idx) { \
+    C p; \
+    luaL_checktype(L,idx,LUA_TUSERDATA); \
+    p = (C)luaL_checkudata(L, idx, #C); \
+    check_code; \
+    return p; \
+} \
+bool is##C(lua_State* L,int i) { \
+    void *p; \
+    if(!lua_isuserdata(L,i)) return false; \
+    p = lua_touserdata(L, i); \
+    lua_getfield(L, LUA_REGISTRYINDEX, #C); \
+    if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
+    lua_pop(L, 2); \
+    return p ? true : false; \
+} \
+C shift##C(lua_State* L,int i,C buf) { \
+    C p; \
+    if(!lua_isuserdata(L,i)) return NULL; \
+    p = (C)lua_touserdata(L, i); \
+    lua_getfield(L, LUA_REGISTRYINDEX, #C); \
+    if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
+    lua_pop(L, 2); \
+    if (p) { *buf = *p; lua_remove(L,i); return buf; }\
+    else return NULL;\
+} \
+typedef int dummy##C
+
+#define WSLUA_CLASS_DEFINE_INLINE(C,check_code) \
+C push##C(lua_State* L, C v) { \
+    C p; \
+    luaL_checkstack(L,2,"Unable to grow stack\n"); \
+    p = (C)lua_newuserdata(L,sizeof(*v)); *p = *v; \
+    luaL_getmetatable(L, #C); lua_setmetatable(L, -2); \
+    return p; \
+}\
+WSLUA_CLASS_DEFINE_INLINE_BASE(C,check_code)
+
 /**
  * @brief Incremented whenever wmem_file_scope() is freed, expiring all
  * Lua objects (such as Conversation) that refer to file scoped memory.
@@ -629,12 +696,11 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, bo
         .attrs              = ATTRS \
     }; \
     wslua_register_classinstance_meta(L, &C ## _class); \
-    WSLUA_REGISTER_GC(C); \
 }
 
-#define WSLUA_REGISTER_META(C)  __WSLUA_REGISTER_META(C, NULL)
+#define WSLUA_REGISTER_META(C)  { __WSLUA_REGISTER_META(C, NULL) WSLUA_REGISTER_GC(C); }
 #define WSLUA_REGISTER_META_WITH_ATTRS(C) \
-    __WSLUA_REGISTER_META(C, C ## _attributes)
+    { __WSLUA_REGISTER_META(C, C ## _attributes) WSLUA_REGISTER_GC(C); }
 
 #define __WSLUA_REGISTER_CLASS(C, ATTRS) { \
     const wslua_class C ## _class = { \
@@ -646,11 +712,21 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, bo
         .attrs              = ATTRS \
     }; \
     wslua_register_class(L, &C ## _class); \
-    WSLUA_REGISTER_GC(C); \
 }
 
-#define WSLUA_REGISTER_CLASS(C)  __WSLUA_REGISTER_CLASS(C, NULL)
+#define WSLUA_REGISTER_CLASS(C)  { __WSLUA_REGISTER_CLASS(C, NULL) WSLUA_REGISTER_GC(C); }
 #define WSLUA_REGISTER_CLASS_WITH_ATTRS(C) \
+    { __WSLUA_REGISTER_CLASS(C, C ## _attributes) WSLUA_REGISTER_GC(C); }
+
+/* For classes without a __gc metamethod, such as those defined with
+ * WSLUA_CLASS_DEFINE_INLINE, and other classes whose objects need no
+ * finalization and might be created frequently. (Objects whose metatable
+ * has a __gc field take an extra garbage collection cycle to be freed.) */
+#define WSLUA_REGISTER_META_NOGC(C)  __WSLUA_REGISTER_META(C, NULL)
+#define WSLUA_REGISTER_META_WITH_ATTRS_NOGC(C) \
+    __WSLUA_REGISTER_META(C, C ## _attributes)
+#define WSLUA_REGISTER_CLASS_NOGC(C)  __WSLUA_REGISTER_CLASS(C, NULL)
+#define WSLUA_REGISTER_CLASS_WITH_ATTRS_NOGC(C) \
     __WSLUA_REGISTER_CLASS(C, C ## _attributes)
 
 #define WSLUA_INIT(L) \
@@ -898,6 +974,14 @@ extern C* push##C(lua_State* L, C v); \
 extern int C##_register(lua_State* L); \
 extern bool is##C(lua_State* L,int i); \
 extern C shift##C(lua_State* L,int i)
+
+#define WSLUA_CLASS_DECLARE_INLINE(C) \
+extern C to##C(lua_State* L, int idx); \
+extern C check##C(lua_State* L, int idx); \
+extern C push##C(lua_State* L, C v); \
+extern int C##_register(lua_State* L); \
+extern bool is##C(lua_State* L,int i); \
+extern C shift##C(lua_State* L,int i,C buf)
 
 
 /* Throws a Wireshark exception, catchable via normal exceptions.h routines. */
