@@ -15080,3 +15080,70 @@ class TestDissectBpv6:
             'ipn:1.1 > ipn:2.1 700000000.0, [multiple]\t6,6,6\t3600,3600,3600',
             'dtn://node1/app > dtn://node2/app 700000000.0, [multiple]\t6,6\t3600,3600',
         ]
+
+
+class TestDissectBrcmTag:
+    def test_brcm_tag_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every opcode, the mirror bits, a VLAN tagged frame and tags
+        shorter than 4 octets decode without malformed packets or expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brcm_tag_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['Broadcom tag'] * 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('brcm_tag_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_brcm_tag_fields(self, cmd_tshark, capture_file, test_env):
+        '''Opcode, mirror bits and the 12-bit frame octet count; the
+        destination device ID for Unicast and Egress directed, Reserved
+        for the other opcodes; nothing but the protocol item for a tag
+        shorter than 4 octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brcm_tag_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ebrcm_tag.opcode',
+                '-ebrcm_tag.mr', '-ebrcm_tag.mo', '-ebrcm_tag.frame_octet_cnt',
+                '-ebrcm_tag.dest_dev_id', '-ebrcm_tag.reserved',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00\t0x00\t0x00\t64\t1\t',
+            '2\t0x01\t0x00\t0x00\t128\t\t0',
+            '3\t0x02\t0x00\t0x00\t256\t2\t',
+            '4\t0x03\t0x00\t0x00\t512\t\t0',
+            '5\t0x04\t0x00\t0x00\t60\t\t0',
+            '6\t0x05\t0x00\t0x00\t61\t\t0',
+            '7\t0x06\t0x00\t0x00\t62\t\t0',
+            '8\t0x07\t0x00\t0x00\t63\t\t0',
+            '9\t0x00\t0x01\t0x00\t100\t3\t',
+            '10\t0x02\t0x00\t0x01\t101\t1\t',
+            '11\t0x01\t0x01\t0x01\t102\t\t0',
+            '12\t0x00\t0x00\t0x00\t291\t2\t',
+            '13\t0x02\t0x00\t0x00\t1500\t3\t',
+            '14\t0x02\t0x00\t0x00\t64\t3\t',
+            '15\t\t\t\t\t\t',
+            '16\t\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brcm_tag_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 5',
+                '-O', 'brcm-tag',
+            ), encoding='utf-8', env=test_env)
+        for opcode in ('Unicast (0x0)', 'Multicast (0x1)',
+                       'Egress directed (0x2)', 'Ingress directed (0x3)',
+                       'Unknown (0x4)'):
+            assert f'Opcode: {opcode}' in stdout
+
+    def test_brcm_tag_vlan(self, cmd_tshark, capture_file, test_env):
+        '''A Broadcom tag behind an 802.1Q VLAN tag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brcm_tag_coverage.pcap.gz'),
+                '-Y', 'vlan && brcm-tag',
+                '-Tfields', '-eframe.number', '-evlan.id', '-ebrcm_tag.opcode',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['13\t100\t0x02']
