@@ -235,7 +235,8 @@ double asn1_get_real(const uint8_t *real_ptr, int len, int *err) {
     uint64_t N = 0; /* N (supported max 8 octets/64 bit) */
     int exp = 0;
 
-    uint8_t lenE, lenN;
+    uint8_t lenE;
+    int lenN;
 
     if(octet & 0x40) S = -1; else S = 1;
     switch(octet & 0x30) {
