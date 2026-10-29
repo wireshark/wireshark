@@ -34,11 +34,6 @@
 #include "wslua.h"
 #include <math.h>
 
-WSLUA_CLASS_DEFINE(PseudoHeader,NOP);
-/*
- A pseudoheader to be used to save captured frames.
- */
-
 enum lua_pseudoheader_type {
     PHDR_NONE,
     PHDR_ETH,
@@ -57,19 +52,22 @@ enum lua_pseudoheader_type {
 
 struct lua_pseudo_header {
     enum lua_pseudoheader_type type;
-    union wtap_pseudo_header* wph;
+    union wtap_pseudo_header wph;
 };
+
+WSLUA_CLASS_DEFINE_INLINE(PseudoHeader,NOP);
+/*
+ A pseudoheader to be used to save captured frames.
+ */
 
 WSLUA_CONSTRUCTOR PseudoHeader_none(lua_State* L) {
     /*
      Creates a "no" pseudoheader.
 
     */
-    PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
-    ph->type = PHDR_NONE;
-    ph->wph = NULL;
+    struct lua_pseudo_header ph = { .type = PHDR_NONE };
 
-    pushPseudoHeader(L,ph);
+    pushPseudoHeader(L,&ph);
 
     WSLUA_RETURN(1);
     /* A null pseudoheader */
@@ -82,12 +80,10 @@ WSLUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) {
 
 #define WSLUA_OPTARG_PseudoHeader_eth_FCSLEN 1 /* The fcs length */
 
-    PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
-    ph->type = PHDR_ETH;
-    ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->eth.fcs_len = (int)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_eth_FCSLEN,-1);
+    struct lua_pseudo_header ph = { .type = PHDR_ETH };
+    ph.wph.eth.fcs_len = (int)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_eth_FCSLEN,-1);
 
-    pushPseudoHeader(L,ph);
+    pushPseudoHeader(L,&ph);
 
     WSLUA_RETURN(1); /* The ethernet pseudoheader */
 }
@@ -104,18 +100,16 @@ WSLUA_CONSTRUCTOR PseudoHeader_atm(lua_State* L) {
 #define WSLUA_OPTARG_PseudoHeader_atm_AAL5U2U 6 /* AAL5 User to User indicator */
 #define WSLUA_OPTARG_PseudoHeader_atm_AAL5LEN 7 /* AAL5 Len */
 
-    PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
-    ph->type = PHDR_ATM;
-    ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->atm.aal = (uint8_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL,5);
-    ph->wph->atm.vpi = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VPI,1);
-    ph->wph->atm.vci = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VCI,1);
-    ph->wph->atm.channel = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CHANNEL,0);
-    ph->wph->atm.cells = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CELLS,1);
-    ph->wph->atm.aal5t_u2u = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5U2U,1);
-    ph->wph->atm.aal5t_len = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5LEN,0);
+    struct lua_pseudo_header ph = { .type = PHDR_ATM };
+    ph.wph.atm.aal = (uint8_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL,5);
+    ph.wph.atm.vpi = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VPI,1);
+    ph.wph.atm.vci = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_VCI,1);
+    ph.wph.atm.channel = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CHANNEL,0);
+    ph.wph.atm.cells = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_CELLS,1);
+    ph.wph.atm.aal5t_u2u = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5U2U,1);
+    ph.wph.atm.aal5t_len = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_atm_AAL5LEN,0);
 
-    pushPseudoHeader(L,ph);
+    pushPseudoHeader(L,&ph);
     WSLUA_RETURN(1);
     /* The ATM pseudoheader */
 }
@@ -125,14 +119,12 @@ WSLUA_CONSTRUCTOR PseudoHeader_mtp2(lua_State* L) {
 #define WSLUA_OPTARG_PseudoHeader_mtp2_SENT 1 /* True if the packet is sent, False if received. */
 #define WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA 2 /* True if annex A is used.  */
 #define WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM 3 /* Link Number. */
-    PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
-    ph->type = PHDR_MTP2;
-    ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
-    ph->wph->mtp2.sent = (uint8_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_SENT,0);
-    ph->wph->mtp2.annex_a_used = (uint8_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA,0);
-    ph->wph->mtp2.link_number = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM,0);
+    struct lua_pseudo_header ph = { .type = PHDR_MTP2 };
+    ph.wph.mtp2.sent = (uint8_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_SENT,0);
+    ph.wph.mtp2.annex_a_used = (uint8_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA,0);
+    ph.wph.mtp2.link_number = (uint16_t)luaL_optinteger(L,WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM,0);
 
-    pushPseudoHeader(L,ph);
+    pushPseudoHeader(L,&ph);
     WSLUA_RETURN(1); /* The MTP2 pseudoheader */
 }
 
@@ -199,46 +191,46 @@ static const char *pseudoheader_keys_for(enum lua_pseudoheader_type t) {
  * valid for this variant. */
 static bool pseudoheader_push_value(lua_State *L, PseudoHeader ph,
                                     const char *key) {
-    if (!ph || !ph->wph || !key) return false;
+    if (!ph || ph->type == PHDR_NONE || !key) return false;
     switch (ph->type) {
         case PHDR_ETH:
             if (g_strcmp0(key, "fcs_len") == 0) {
-                lua_pushinteger(L, ph->wph->eth.fcs_len);
+                lua_pushinteger(L, ph->wph.eth.fcs_len);
                 return true;
             }
             break;
         case PHDR_ATM:
             if (g_strcmp0(key, "aal") == 0) {
-                lua_pushinteger(L, ph->wph->atm.aal); return true;
+                lua_pushinteger(L, ph->wph.atm.aal); return true;
             }
             if (g_strcmp0(key, "vpi") == 0) {
-                lua_pushinteger(L, ph->wph->atm.vpi); return true;
+                lua_pushinteger(L, ph->wph.atm.vpi); return true;
             }
             if (g_strcmp0(key, "vci") == 0) {
-                lua_pushinteger(L, ph->wph->atm.vci); return true;
+                lua_pushinteger(L, ph->wph.atm.vci); return true;
             }
             if (g_strcmp0(key, "channel") == 0) {
-                lua_pushinteger(L, ph->wph->atm.channel); return true;
+                lua_pushinteger(L, ph->wph.atm.channel); return true;
             }
             if (g_strcmp0(key, "cells") == 0) {
-                lua_pushinteger(L, ph->wph->atm.cells); return true;
+                lua_pushinteger(L, ph->wph.atm.cells); return true;
             }
             if (g_strcmp0(key, "aal5t_u2u") == 0) {
-                lua_pushinteger(L, ph->wph->atm.aal5t_u2u); return true;
+                lua_pushinteger(L, ph->wph.atm.aal5t_u2u); return true;
             }
             if (g_strcmp0(key, "aal5t_len") == 0) {
-                lua_pushinteger(L, ph->wph->atm.aal5t_len); return true;
+                lua_pushinteger(L, ph->wph.atm.aal5t_len); return true;
             }
             break;
         case PHDR_MTP2:
             if (g_strcmp0(key, "sent") == 0) {
-                lua_pushinteger(L, ph->wph->mtp2.sent); return true;
+                lua_pushinteger(L, ph->wph.mtp2.sent); return true;
             }
             if (g_strcmp0(key, "annex_a_used") == 0) {
-                lua_pushinteger(L, ph->wph->mtp2.annex_a_used); return true;
+                lua_pushinteger(L, ph->wph.mtp2.annex_a_used); return true;
             }
             if (g_strcmp0(key, "link_number") == 0) {
-                lua_pushinteger(L, ph->wph->mtp2.link_number); return true;
+                lua_pushinteger(L, ph->wph.mtp2.link_number); return true;
             }
             break;
         default:
@@ -307,12 +299,6 @@ WSLUA_METAMETHOD PseudoHeader__pairs(lua_State *L) {
     WSLUA_STATELESS_PAIRS_BODY(PseudoHeader);
 }
 
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int PseudoHeader__gc(lua_State* L _U_) {
-    /* do NOT free PseudoHeader */
-    return 0;
-}
-
 WSLUA_ATTRIBUTES PseudoHeader_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(PseudoHeader,type),
     WSLUA_ATTRIBUTE_ROREG(PseudoHeader,type_name),
@@ -334,7 +320,7 @@ WSLUA_META PseudoHeader_meta[] = {
 };
 
 int PseudoHeader_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS_WITH_ATTRS(PseudoHeader);
+    WSLUA_REGISTER_CLASS_WITH_ATTRS_NOGC(PseudoHeader);
     return 0;
 }
 
@@ -572,8 +558,8 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
 
     rec.rec_header.packet_header.len       = ba->len;
     rec.rec_header.packet_header.caplen    = ba->len;
-    if (ph->wph) {
-        rec.rec_header.packet_header.pseudo_header = *ph->wph;
+    if (ph->type != PHDR_NONE) {
+        rec.rec_header.packet_header.pseudo_header = ph->wph;
     }
 
     ws_buffer_append(&rec.data, ba->data, ba->len);
