@@ -80,6 +80,10 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item               *sub_item;
     bthci_sco_stream_number_t  *sco_stream_number;
 
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+
     ti = proto_tree_add_item(tree, proto_bthci_sco, tvb, offset, tvb_captured_length(tvb), ENC_NA);
     bthci_sco_tree = proto_item_add_subtree(ti, ett_bthci_sco);
 
@@ -110,7 +114,6 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     offset++;
 
     bluetooth_data = (bluetooth_data_t *) data;
-    DISSECTOR_ASSERT(bluetooth_data);
 
     k_interface_id      = bluetooth_data->interface_id;
     k_adapter_id        = bluetooth_data->adapter_id;
@@ -261,7 +264,7 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         set_address(&pinfo->src, AT_STRINGZ, (int)strlen(localhost_addr_name) + 1, localhost_addr_name);
     }
 
-    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_data, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+    proto_tree_add_item(bthci_sco_tree, hf_bthci_sco_data, tvb, offset, -1, ENC_NA);
 
     if (chandle_session) {
         sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
