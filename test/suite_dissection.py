@@ -11395,3 +11395,84 @@ class TestDissectBacnet:
             '96\teth:llc:cimetrics:bacnet:bacapp\t\t',
             '97\teth:llc:cimetrics:bacnet:bacapp\t257\t0000010000',
         ]
+
+
+class TestDissectBanana:
+    BANANA = ('-d', 'tcp.port==8787,banana')
+
+    def test_banana_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every element type decodes without malformed packets or error
+        expert infos, in one and two passes. Banana adds its expert infos
+        without a tree item, so they are checked with the expert tap.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('banana_coverage.pcap.gz'), *self.BANANA,
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 18
+        assert protocols.count('Banana') == 14
+        assert protocols.count('TCP') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('banana_coverage.pcap.gz'), *self.BANANA,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('banana_coverage.pcap.gz'), *self.BANANA,
+                    '-q', '-z', 'expert,warn',
+                ), encoding='utf-8', env=test_env)
+            assert 'Banana' not in stdout
+
+    def test_banana_pb_at_start(self, cmd_tshark, capture_file, test_env):
+        '''A pb element at the start of the data has no value octet before
+        it, so only the second pb element of frame 7 has a pb Profile Value
+        (not the last octet of the data).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('banana_coverage.pcap.gz'), *self.BANANA,
+                '-Y', 'frame.number == 7',
+                '-Tfields', '-ebanana.pb', '-ebanana.int', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0x01\t3\tFirst element: pb Profile'
+
+    def test_banana_large_integers(self, cmd_tshark, capture_file, test_env):
+        '''The large integer fields are named "Large Integer" and "Large
+        Negative Integer" (they were "Float").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('banana_coverage.pcap.gz'), *self.BANANA,
+                '-Y', 'frame.number == 9',
+                '-O', 'banana',
+            ), encoding='utf-8', env=test_env)
+        assert 'Large Integer: 010203040506070885' in stdout
+        assert 'Large Negative Integer: 0286' in stdout
+        assert 'Large Integer: 85' in stdout
+        assert 'Large Negative Integer: 86' in stdout
+        assert 'Float' not in stdout
+
+    def test_banana_values(self, cmd_tshark, capture_file, test_env):
+        '''Integer limits, floats, a PB call and its answer, nested and
+        short lists, and the Info column when no type tag is in the first
+        eight octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('banana_coverage.pcap.gz'), *self.BANANA,
+                '-Y', 'banana && frame.number < 18',
+                '-Tfields', '-eframe.number', '-ebanana.int', '-ebanana.neg_int',
+                '-ebanana.string', '-ebanana.pb', '-ebanana.list', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        frames = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert frames['5'] == ['1,0', '', 'root,echo,hi', '0x1a,0x0b,0x05', '7,2,1', 'First element: List']
+        assert frames['6'] == ['1', '', 'hi', '0x1b', '3', 'First element: List']
+        assert frames['8'][:2] == ['2147483647,0,300', '-2147483647,0,-16641']
+        assert frames['11'][4] == '4,0,1,1'
+        assert frames['12'][4] == '5'
+        assert frames['9'][5] == 'First element: Unknown type: 8'
+        assert frames['14'][0] == '1'
+        assert frames['14'][5] == 'First element: Unknown type: 1'
+        assert frames['15'][5] == 'First element: Unknown type: 6'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('banana_coverage.pcap.gz'), *self.BANANA,
+                '-Y', 'frame.number == 10',
+                '-Tfields', '-ebanana.float',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '-1024,0,1e+100'
