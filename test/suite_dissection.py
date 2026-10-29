@@ -15277,3 +15277,125 @@ class TestDissectBrp:
             '198.51.100.50\t192.0.2.30\t5004\t1875\t7200\t\t\t',
             '198.51.100.50\t192.0.2.30\t5004\t1875\t7200\t7100\t1\t77',
         ]
+
+
+class TestDissectBssap:
+    def test_bssap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BSSAP+ message type and IE on SCCP SSN 98, BSSAP via the
+        SCCP and SUA heuristics over connectionless and connection-oriented
+        SCCP, BSAP and BSSAP-LE decode without malformed packets, in one and
+        two passes. The only warning is the missing mandatory IE in the
+        reproducer frame 109.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 147
+        assert protocols.count('BSSAP+') == 118
+        assert protocols.count('BSSAP+/RRLP') == 4
+        assert protocols.count('BSSAP') == 10
+        assert protocols.count('BSAP') == 2
+        assert protocols.count('BSSAP-LE') == 2
+        assert protocols.count('SCCP (Int. ITU)') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bssap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '109\tMandatory IE IMSI expected but IE TMSI Found',
+            ]
+
+    def test_bssap_plus_mandatory_ie_skip(self, cmd_tshark, capture_file, test_env):
+        '''An unexpected IE where a mandatory IE should be is skipped as a
+        whole, so the VLR number after it is decoded (frame 109), and the
+        cell global identity uses its own length, so a short one is
+        followed by MS classmark 1 (frame 110).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {109, 110}',
+                '-Tfields', '-eframe.number', '-ebssap_plus.iei',
+                '-ebssap.vlr_number', '-ebssap.cell_global_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '109\t2\t491700012\t',
+            '110\t1,9,10,24,13\t\t62f210000105',
+        ]
+
+    def test_bssap_plus_tunnel(self, cmd_tshark, capture_file, test_env):
+        '''The tunnel payload starts after the control octet and has the
+        IE length minus one: RRLP, data, empty payloads and the IE lengths
+        0-3 of the reproducer (frames 111-120), and the tunnel priority is
+        the low two bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssap_coverage.pcap.gz'),
+                '-Y', 'bssap.Tom_prot_disc',
+                '-Tfields', '-eframe.number', '-ebssap.Tom_prot_disc',
+                '-ebssap.e_bit', '-ebssap.tunnel_prio', '-errlp.component',
+                '-edata.data', '-ebssap.extraneous_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '14\t2\tTrue\t2\t3\t\t',
+            '15\t2\tTrue\t2\t3\t\tdeadbeef',
+            '16\t2\tFalse\t3\t3\t\t',
+            '17\t2\tFalse\t3\t3\t\tdeadbeef',
+            '100\t0\tFalse\t1\t\t010203\t',
+            '101\t1\tTrue\t0\t\t544941313336\t',
+            '102\t0\tFalse\t3\t\t\t',
+            '103\t0\tFalse\t3\t\t\t',
+            '111\t10\tTrue\t1\t\t\t5555555555555555',
+            '112\t10\tTrue\t1\t\t\t5555555555555555',
+            '113\t10\tTrue\t1\t\t\t5555555555555555',
+            '114\t10\tTrue\t1\t\t\t5555555555555555',
+            '115\t0\tFalse\t0\t\t\t5555555555555555',
+            '116\t0\tFalse\t0\t\t\t5555555555555555',
+            '117\t0\tFalse\t0\t\t00\t5555555555555555',
+            '118\t0\tFalse\t0\t\t00\t5555555555555555',
+            '119\t0\tFalse\t0\t\t0000\t5555555555555555',
+            '120\t0\tFalse\t0\t\t0000\t5555555555555555',
+        ]
+
+    def test_bssap_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The SCCP heuristic rejects SCCP payloads of 1-3 octets (frames
+        126-129, the reproducer) and payloads whose length octet does not
+        match, accepts a BSSMAP Block, and BSSAP over SUA and
+        connection-oriented SCCP is found too.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssap_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 121',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-ebssap.pdu_type', '-ebsap.pdu_type', '-ebssap.length',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames if f[1] == 'BSSAP'] == [
+            '121', '122', '123', '124', '125', '130', '135', '136', '138', '139']
+        assert [f[0] for f in frames if f[1] == 'SCCP (Int. ITU)'] == [
+            '126', '127', '128', '129', '131', '132', '133', '134', '137', '141']
+        assert frames[130 - 121][2:] == ['0x00', '', '7']
+        assert [f[0] for f in frames if f[3]] == ['143', '144']
+        assert [f[1] for f in frames if f[0] in ('145', '146')] == ['BSSAP-LE'] * 2
+
+    def test_bssap_plus_ies(self, cmd_tshark, capture_file, test_env):
+        '''A few decoded BSSAP+ values: IMSI, SGSN number, IMEI and IMEISV,
+        CN-Id, and the Reset Indication conditional IE.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 66',
+                '-Tfields', '-ee212.imsi', '-ebssap.tmsi', '-ebssap.ptmsi',
+                '-ebssap.imei', '-ebssap.imeisv', '-ebssap.loc_inf_age',
+                '-ebssap.mobile_station_state',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == ['262012345678901', '11223344', 'c1020304',
+            '359077103254768', '3590771032547612', '42', '5\n']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssap_coverage.pcap.gz'),
+                '-Y', 'bssap.cn_id || bssap.sgsn_number || bssap.conditional_ie',
+                '-Tfields', '-eframe.number', '-ebssap.cn_id', '-ebssap.sgsn_number',
+                '-ebssap.conditional_ie',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t42\t\t'
+        assert '90\t\t491700023\t' in lines
+        assert '94\t\t\t070101' in lines
