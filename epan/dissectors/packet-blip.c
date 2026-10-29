@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -285,7 +286,7 @@ static tvbuff_t*
 decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, unsigned offset, int length)
 {
 	if(PINFO_FD_VISITED(pinfo)) {
-		const decompress_result_t* saved_data = (decompress_result_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_blip, 0);
+		const decompress_result_t* saved_data = (decompress_result_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_blip, pinfo->curr_proto_layer_num);
 		if(!saved_data) {
 			proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing data>");
 			return NULL;
@@ -346,7 +347,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, unsigned offset,
 			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_error, "Unable to decompress message, got zlib error %d", err);
 		}
 
-		p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, 0, data_to_save);
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, pinfo->curr_proto_layer_num, data_to_save);
 		return NULL;
 	}
 
@@ -366,7 +367,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, unsigned offset,
 			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_error, "Unable to decompress message, got zlib error %d", err);
 		}
 
-		p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, 0, data_to_save);
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, pinfo->curr_proto_layer_num, data_to_save);
 		return NULL;
 	}
 
@@ -380,7 +381,7 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, unsigned offset,
 	decompress_result_t* data_to_save = wmem_new0(wmem_file_scope(), decompress_result_t);
 	data_to_save->size = (size_t)bodyLength;
 	data_to_save->buf = shortened_buffer;
-	p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, 0, data_to_save);
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, pinfo->curr_proto_layer_num, data_to_save);
 
 	return decompressedChild;
 }
@@ -468,6 +469,10 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 
 	if(compressed) {
 #ifdef USE_ZLIB_OR_ZLIBNG
+		/* Throw on every pass, not only on the first one inside decompress() */
+		if (tvb_reported_length_remaining(tvb, offset) < BLIP_BODY_CHECKSUM_SIZE) {
+			THROW(ReportedBoundsError);
+		}
 		tvb_to_use = decompress(pinfo, blip_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset) - BLIP_BODY_CHECKSUM_SIZE);
 		if(!tvb_to_use) {
 			return tvb_reported_length(tvb);
@@ -498,6 +503,11 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 		proto_tree_add_item(blip_tree, hf_blip_properties_length, tvb_to_use, offset, value_properties_length_varint_length, ENC_VARINT_PROTOBUF);
 
 		offset += value_properties_length_varint_length;
+
+		/* Do not cut a 64-bit length to an int */
+		if (value_properties_length > (uint64_t)tvb_reported_length_remaining(tvb_to_use, offset)) {
+			THROW(ReportedBoundsError);
+		}
 
 		// ------------------------ BLIP Frame: Properties --------------------------------------------------
 
