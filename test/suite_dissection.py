@@ -14669,3 +14669,147 @@ class TestDissectBpq:
             '8\t\t44.0.0.2\t\tWho has 44.0.0.2? Tell 44.0.0.1',
             '12\t\t\t7\tText',
         ]
+
+
+class TestDissectBpsec:
+    def test_bpsec_protocols(self, cmd_tshark, capture_file, test_env):
+        '''BPv7 bundles with BIB and BCB blocks in the default security
+        contexts, the COSE context, a private and an unregistered context
+        decode without malformed packets or warnings, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpsec_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['BPv7'] * 13
+        for field, frames in (
+                ('bpsec.bib', '1 2 5 6 7 9 10 11 12 13'),
+                ('bpsec.bcb', '2 3 4 8 11 13'),
+                ('bpsec-defaultsc.hmac || bpsec-defaultsc.authtag', '1 2 3 4 5 13'),
+                ('bpsec-cose.msg', '6 7 8 9'),
+            ):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('bpsec_coverage.pcap.gz'),
+                    '-Y', field,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == frames.split()
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpsec_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bpsec_asb(self, cmd_tshark, capture_file, test_env):
+        '''Targets, context IDs and result IDs of every security block;
+        a BIB that is itself a BCB target (frame 4) is ciphertext and is
+        not dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpsec_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ebpsec.asb.ctxid',
+                '-ebpsec.asb.target', '-ebpsec.asb.result.id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t1\t1',
+            '2\t1,2\t0,3,0\t1,1,1',
+            '3\t2\t1\t1',
+            '4\t2\t2,1\t1,1',
+            '5\t1,1\t1,4\t1,9,1',
+            '6\t3\t1\t18,17',
+            '7\t3\t1,0\t98,97',
+            '8\t3\t1,3\t16,96,16',
+            '9\t3\t1\t18,19',
+            '10\t-5\t1\t1,-1',
+            '11\t200,200\t1,1\t1',
+            '12\t1,2\t1\t',
+            '13\t1,2\t1,1\t1,1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpsec_coverage.pcap.gz'),
+                '-Y', 'frame.number == 10',
+                '-Tfields', '-ebpsec.ctxid_priv', '-ebpsec.secsrc_diff',
+                '-ebpsec.asb.secsrc.uri',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t')[2].strip() == 'dtn://secnode/'
+
+    def test_bpsec_targets(self, cmd_tshark, capture_file, test_env):
+        '''BPv7 marks the blocks that the security blocks target, and the
+        payload of a BCB target is not dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpsec_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 3, 11}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\tPayload Size: 12',
+            '3\tPayload Size: 24, BPSec BCB target',
+            '11\tPayload Size: 8, BPSec BCB target, BPSec BIB target',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpsec_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split(',') == [
+            'Block is targed by BIB block number 2',    # primary block
+            'Block is targed by BCB block number 4',    # primary block
+            'Block is targed by BIB block number 2',    # hop count block
+        ]
+
+    def test_bpsec_defaultsc(self, cmd_tshark, capture_file, test_env):
+        '''RFC 9173 BIB-HMAC-SHA2 and BCB-AES-GCM parameters and results.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpsec_coverage.pcap.gz'),
+                '-Y', 'bpsec-defaultsc.shavar || bpsec-defaultsc.aesvar || bpsec-defaultsc.scope',
+                '-Tfields', '-eframe.number', '-ebpsec-defaultsc.shavar',
+                '-ebpsec-defaultsc.aesvar', '-ebpsec-defaultsc.scope',
+                '-ebpsec-defaultsc.wrappedkey',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t5\t\t0x0000000000000007\t' + 'a1' * 40,
+            '3\t\t1\t0x0000000000000000\t' + 'a2' * 24,
+            '4\t\t3\t0x0000000000000007\t',
+            '5\t7,99\t\t0x0000000000000001\t',
+            '13\t5\t1\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpsec_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3}',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Context ID: BIB-HMAC-SHA2 (1)' in stdout
+        assert 'Context ID: BCB-AES-GCM (2)' in stdout
+        assert 'SHA Variant: HMAC 256/256 (5)' in stdout
+        assert 'AES Variant: A128GCM (1)' in stdout
+        assert 'Expected HMAC: ' + 'b1' * 32 in stdout
+        assert 'Authentication Tag: ' + 'c1' * 16 in stdout
+
+    def test_bpsec_cose(self, cmd_tshark, capture_file, test_env):
+        '''The COSE context: header and AAD scope parameters and every
+        COSE message type as a result.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpsec_coverage.pcap.gz'),
+                '-Y', 'bpsec-cose.msg',
+                '-Tfields', '-eframe.number', '-ecose.alg.int',
+                '-ebpsec-cose.aad_scope.blknum', '-ebpsec-cose.aad_scope.flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t-7,-7,5\t0,1,-1\t0x0000000000000001,0x0000000000000003,0x0000000000000002',
+            '7\t-7,5,-6\t1\t0x0000000000000002',
+            '8\t1,1,-5,-3,-6,1\t\t',
+            '9\t-7\t1\t0x0000000000000000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpsec_coverage.pcap.gz'),
+                '-Y', 'bpsec-cose.msg',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        for name in ('Sign1', 'Sign', 'Mac0', 'Mac', 'Encrypt0', 'Encrypt'):
+            assert 'Result: COSE_%s (' % name in stdout
+            assert 'CBOR Object Signing and Encryption: COSE_%s\n' % name in stdout
+        assert 'Parameter: Additional Protected Headers (3)' in stdout
+        assert 'Parameter: Additional Unprotected Headers (4)' in stdout
+        assert 'Parameter: AAD Scope (5)' in stdout
+        assert 'Context ID: COSE (3)' in stdout
