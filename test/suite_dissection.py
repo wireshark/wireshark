@@ -15147,3 +15147,83 @@ class TestDissectBrcmTag:
                 '-Tfields', '-eframe.number', '-evlan.id', '-ebrcm_tag.opcode',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['13\t100\t0x02']
+
+
+class TestDissectBrdwlk:
+    def test_brdwlk_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Boardwalk frames with every SOF, both ethertypes, with and
+        without the packet length, and cut short by the snapshot length,
+        decode without malformed packets or expert infos, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brdwlk_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 22
+        assert protocols.count('FC') == 15
+        assert protocols.count('BLS') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('brdwlk_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('brdwlk_coverage.pcap.gz'),
+                    '-Y', 'brdwlk',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 22
+
+    def test_brdwlk_drop(self, cmd_tshark, capture_file, test_env):
+        '''brdwlk.drop is True on a frame whose packet counter does not
+        follow the previous one (counters 1, 2, 5, 6 in frames 1-4), but
+        not on 0 after 65535, and the same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('brdwlk_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-ebrdwlk.pktcnt',
+                    '-ebrdwlk.drop',
+                ), encoding='utf-8', env=test_env)
+            frames = [line.split('\t') for line in stdout.splitlines()]
+            assert frames[0:4] == [['1', '1', 'False'], ['2', '2', 'False'],
+                                   ['3', '5', 'True'], ['4', '6', 'False']]
+            assert frames[14:17] == [['15', '65535', 'True'], ['16', '0', 'False'],
+                                     ['17', '0', 'True']]
+            # Frames 20-21 are cut short and carry no counter.
+            assert frames[19:22] == [['20', '', ''], ['21', '', ''],
+                                     ['22', '5', 'True']]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('brdwlk_coverage.pcap.gz'),
+                    '-Y', 'brdwlk.drop == True',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['3', '15', '17', '22']
+
+    def test_brdwlk_header(self, cmd_tshark, capture_file, test_env):
+        '''SOF, VSAN, EOF, error flags and the original packet length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brdwlk_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6, 12, 13, 14, 18, 19}',
+                '-Tfields', '-eframe.number', '-eeth.type', '-ebrdwlk.sof',
+                '-ebrdwlk.vsan', '-ebrdwlk.eof', '-ebrdwlk.error',
+                '-ebrdwlk.plen', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t0x88ae\t0x04\t2\t0x01\t0x01\t40\tBA_ACC',
+            '12\t0x88ae\t0x08\t4095\t0x02\t0x01\t32\tLink Ctl, ACK1',
+            '13\t0x88ae\t0x09\t1\t0x04\t0xfe\t\tLink Ctl, ACK1',
+            '14\t0xabcd\t0x06\t1\t0x01\t0x01\t32\tABTS',
+            '18\t0x88ae\t0x06\t10\t0x03\t0x01\t128\tUnknown frame',
+            '19\t0x88ae\t0x06\t1\t0x01\t0x09\t400\tABTS',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brdwlk_coverage.pcap.gz'),
+                '-Y', 'frame.number == 13',
+                '-O', 'brdwlk',
+            ), encoding='utf-8', env=test_env)
+        assert 'SOF: Unknown (0x9)' in stdout
+        assert 'EOF: EOFa (0x4)' in stdout
+        assert 'Error: 0xfe, Empty Frame, No Data, Truncated, CRC, Fifo Full, Jumbo FC Frame, Ctrl Char Inside Frame' in stdout
