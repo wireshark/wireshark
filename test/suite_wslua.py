@@ -355,6 +355,12 @@ class TestWslua:
             args += ['-X', 'lua_script1:generational']
         check_lua_script('gc_pacing.lua', empty_pcap, True, *args)
 
+    def test_wslua_pseudoheader(self, check_lua_script, result_file):
+        '''wslua PseudoHeader and Dumper'''
+        check_lua_script('pseudoheader.lua', empty_pcap, True,
+            '-X', 'lua_script1:' + result_file('pseudoheader.pcap'),
+        )
+
     def test_wslua_gcrypt(self, check_lua_script):
         '''wslua gcrypt'''
         check_lua_script('gcrypt.lua', empty_pcap, True)
