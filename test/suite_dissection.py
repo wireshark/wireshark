@@ -16282,3 +16282,101 @@ class TestDissectBtavrcp:
             '162\tbluetooth:hci_h4:bthci_acl:btl2cap:btavrcp\t0x4b\t',
             '163\tbluetooth:hci_h4:bthci_acl:btl2cap:btavrcp\t0x4b\t162',
         ]
+
+
+class TestDissectBtbnep:
+    def test_btbnep_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BNEP packet type and control message, over L2CAP PSM
+        0x000F and in Exported PDUs, decodes without malformed packets or
+        warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbnep_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert protocols.count('BNEP') == 14
+        assert protocols.count('UDP') == 9
+        assert protocols.count('ARP') == 3
+        assert protocols.count('IPX') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btbnep_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btbnep_extension_headers(self, cmd_tshark, capture_file, test_env):
+        '''Extension headers use the E bit 0x80 and the type 0x7F, an
+        extension control is read right after the length octet and the
+        next header and the payload follow the extension length: chained
+        Filter Net Type Response controls (frames 22-23), an extension
+        after a control packet (24), unknown types and a control shorter
+        than its extension (25).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btbnep_coverage.pcapng.gz'),
+                    '-Y', 'btbnep.extension_type',
+                    '-Tfields', '-eframe.number', '-ebtbnep.extension_flag',
+                    '-ebtbnep.extension_type', '-ebtbnep.extension_length',
+                    '-ebtbnep.control_type',
+                    '-ebtbnep.filter_net_type_response_message',
+                    '-eip.dst', '-eudp.length',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '22\tTrue,True,False\t0x00,0x00\t3,3\t0x04,0x04\t0x0001,0x0000\t192.0.2.2\t12',
+                '23\tTrue,False\t0x00\t3\t0x04\t0x0001\t192.0.2.2\t12',
+                '24\tTrue,False\t0x00\t3\t0x02,0x06\t\t\t',
+                '25\tTrue,True,True,False\t0x15,0x00,0x7f\t4,5,0\t0x04\t0x0002\t192.0.2.2\t12',
+                '26\tTrue,False\t0x00\t2\t0x00\t\t\t',
+            ]
+
+    def test_btbnep_setup_uuids(self, cmd_tshark, capture_file, test_env):
+        '''Setup Connection Request with 16, 32 and 128-bit UUIDs: the
+        16-bit UUID is taken from octets 2-3 of the longer ones.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbnep_coverage.pcapng.gz'),
+                '-Y', 'btbnep.control_type == 1',
+                '-Tfields', '-eframe.number', '-ebtbnep.uuid_size', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t2\tSent Control - Setup Connection Request - dst: <NAP>, src: <PANU>',
+            '6\t4\tSent Control - Setup Connection Request - dst: <NAP>, src: <PANU>',
+            '7\t16\tSent Control - Setup Connection Request - dst: <GN>, src: <PANU>',
+            '29\t2\tUnknownDirection Control - Setup Connection Request - dst: <NAP>, src: <GN>',
+        ]
+
+    def test_btbnep_payloads(self, cmd_tshark, capture_file, test_env):
+        '''Ethernet payloads after each header form, an 802.3 length with
+        LLC/SNAP and raw IPX, and the payload as data with the "Dissecting
+        the top protocols" preference off.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btbnep_coverage.pcapng.gz'),
+                '-Y', 'btbnep && !btbnep.control_type',
+                '-Tfields', '-eframe.number', '-ebtbnep.bnep_type',
+                '-ebtbnep.type', '-ebtbnep.len', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\t0x00\t0x0800\t\tUDP',
+            '17\t0x02\t0x0800\t\tUDP',
+            '18\t0x03\t0x0806\t\tARP',
+            '19\t0x04\t0x0806\t\tARP',
+            '20\t0x00\t\t40\tUDP',
+            '21\t0x02\t\t30\tIPX',
+            '27\t0x7f\t0x0800\t\tUDP',
+            '28\t0x05\t0x0800\t\tUDP',
+            '30\t0x02\t0x0800\t\tUDP',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'btbnep.bnep.top_dissect:FALSE',
+                '-r', capture_file('btbnep_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {16,22,25}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-ebtbnep.type', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\tBNEP\t0x0800\t32',
+            '22\tBNEP\t0x0800\t32',
+            '25\tBNEP\t0x0800\t32',
+        ]
