@@ -327,7 +327,7 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
         auth_tree = proto_tree_add_subtree_format(tree, tvb, offset, auth_len,
-                                        ett_bfd_auth, NULL, "Authentication: %s",
+                                        ett_bfd_auth, &auth_item, "Authentication: %s",
                                         val_to_str(pinfo->pool, auth_type,
                                                    bfd_control_auth_type_values,
                                                    "Unknown Authentication Type (%d)") );
@@ -341,6 +341,12 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (auth_type) {
         case BFD_AUTH_SIMPLE:
+            if (auth_len < 4) {
+                proto_tree_add_expert_format(auth_tree, pinfo, &ei_bfd_auth_len_invalid, tvb, offset, 2,
+                        "Length of authentication section (%d) is invalid for Authentication Type: Simple Password",
+                        auth_len);
+                break;
+            }
             proto_tree_add_item_ret_string(auth_tree, hf_bfd_auth_password, tvb, offset+3,
                                     auth_len-3, ENC_ASCII|ENC_NA, pinfo->pool, &password);
             proto_item_append_text(auth_item, ": %s", password);
@@ -545,7 +551,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         if (bfd_length >= 28) {
             dissect_bfd_authentication(tvb, pinfo, bfd_tree);
         } else {
-            proto_tree_add_expert_format(bfd_tree, pinfo, &ei_bfd_auth_no_data, tvb, 24, bfd_length-24,
+            proto_tree_add_expert_format(bfd_tree, pinfo, &ei_bfd_auth_no_data, tvb, 24, bfd_length > 24 ? bfd_length - 24 : 0,
                                          "Authentication: Length of the BFD frame is invalid (%d)", bfd_length);
         }
     }
