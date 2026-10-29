@@ -1445,19 +1445,6 @@ static int TreeItem_children_iterator(lua_State *L) {
     return 0;  /* Return no values - signals end of iteration to Lua */
 }
 
-/* Garbage collector for the iterator state.
- * Currently does nothing but kept for completeness.
- */
-static int TreeItem_iterator_state_gc(lua_State *L _U_) {
-    //TreeItem_iterator_state *state = (TreeItem_iterator_state *)lua_touserdata(L, 1);
-
-    /* The filter strings array and the recursion structure were allocated from
-     * lua_pinfo->pool and are freed automatically by Wireshark.
-     * The state struct itself is freed by Lua's garbage collection.
-     */
-    return 0;
-}
-
 WSLUA_METHOD TreeItem_children(lua_State *L) {
     /* Returns an iterator function to iterate over child tree items.
 
@@ -1578,7 +1565,9 @@ WSLUA_METHOD TreeItem_children(lua_State *L) {
     }
 
     /* Create the iterator state userdata that will be used by the iterator closure */
-    /* This userdata will be garbage collected when the iterator is no longer referenced */
+    /* This userdata will be garbage collected when the iterator is no longer referenced.
+     * It needs no __gc metamethod: the filter strings array and the recursion
+     * stack are allocated from lua_pinfo->pool and freed by Wireshark. */
     TreeItem_iterator_state *state = (TreeItem_iterator_state *)lua_newuserdata(L, sizeof(TreeItem_iterator_state));
 
     /* Initialize all state fields to safe defaults */
@@ -1587,13 +1576,6 @@ WSLUA_METHOD TreeItem_children(lua_State *L) {
     state->field_filters = num_filters > 0 ? wmem_alloc_array(lua_pinfo->pool, char*, num_filters) : NULL;
     state->recursive = recursive;
     state->children = recursive ? wmem_stack_new(lua_pinfo->pool) : NULL;
-
-    /* Set up garbage collection metatable for the state userdata */
-    /* This ensures proper cleanup when iterator is no longer referenced */
-    lua_newtable(L);                       /* Create metatable */
-    lua_pushcfunction(L, TreeItem_iterator_state_gc);
-    lua_setfield(L, -2, "__gc");          /* Set __gc metamethod */
-    lua_setmetatable(L, -2);              /* Apply metatable to userdata */
 
     /* Check number of filters we were given */
     if (num_filters == 1) {
