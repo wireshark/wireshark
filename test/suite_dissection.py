@@ -11624,3 +11624,87 @@ class TestDissectBatadv:
                 '84\t15\t78\t15\t40063',
                 '86\t15\t78\t15\t40064',
             ]
+
+
+class TestDissectBat:
+    def test_bat_protocols(self, cmd_tshark, capture_file, test_env):
+        '''B.A.T.M.A.N. originator (v5, aggregated, with HNAs, unsupported
+        versions), gateway and vis (v22, v23) packets decode without
+        malformed packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bat_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 29
+        assert protocols.count('BAT_BATMAN') == 9
+        assert protocols.count('BAT_GW') == 8
+        assert protocols.count('DISCARD') == 2
+        assert protocols.count('BAT_VIS') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bat_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bat_vis_trailing(self, cmd_tshark, capture_file, test_env):
+        '''A partial last VIS entry is shown as trailing data rather than
+        dissected as a whole entry, and v23 entries are 6 octets, so all
+        three entries of frame 23 are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bat_coverage.pcap.gz'),
+                '-Y', 'bat.vis.version',
+                '-Tfields', '-eframe.number', '-ebat.vis.version',
+                '-ebat.vis.data_type', '-ebat.vis.data_ip', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\t22\t1,2,3,7\t192.0.2.10,192.0.2.11,10.9.0.0,192.0.2.12\t',
+            '21\t22\t\t\t',
+            '22\t22\t1\t192.0.2.10\tdeadbe',
+            '23\t23\t1,1,1\t192.0.2.10,192.0.2.11,192.0.2.12\t',
+            '24\t23\t1,2,3,9\t192.0.2.20,192.0.2.21,10.8.0.0,192.0.2.22\t0102030405',
+            '25\t23\t\t\t',
+            '26\t23\t\t\t07',
+            '27\t22\t1,2\t192.0.2.10,192.0.2.11\t000000000000',
+        ]
+
+    def test_bat_batman_aggregation(self, cmd_tshark, capture_file, test_env):
+        '''Aggregated originator messages and their HNAs, and the gateway
+        speeds derived from the gateway flags.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bat_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3',
+                '-Tfields', '-ebat.batman.seq', '-ebat.batman.orig',
+                '-ebat.batman.hna_len', '-ebat.batman.hna_network',
+                '-ebat.batman.hna_netmask', '-ebat.batman.gwflags.dl_speed',
+                '-ebat.batman.gwflags.ul_speed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == [
+            '10,11,12', '192.0.2.4,192.0.2.5,192.0.2.6', '1,0,2',
+            '10.4.0.0,10.6.0.0,10.6.1.0', '16,16,24', '1024,64,96',
+            '256,8,12\n',
+        ]
+
+    def test_bat_gw(self, cmd_tshark, capture_file, test_env):
+        '''Gateway types, the IP at offset 13 for IP_INVALID, and the
+        tunnelled IPv4 packet of a DATA message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bat_coverage.pcap.gz'),
+                '-Y', 'bat.gw.type',
+                '-Tfields', '-eframe.number', '-ebat.gw.type', '-ebat.gw.ip',
+                '-eudp.dstport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t1\t\t4306,9',
+            '11\t2\t\t4306',
+            '12\t2\t169.254.0.10\t4306',
+            '13\t3\t169.254.0.11\t4306',
+            '14\t3\t\t4306',
+            '15\t4\t169.254.0.12\t4306',
+            '16\t5\t169.254.0.12\t4306',
+            '17\t9\t169.254.0.13\t4306',
+            '18\t1\t\t4306,9',
+            '19\t2\t\t4306',
+        ]
