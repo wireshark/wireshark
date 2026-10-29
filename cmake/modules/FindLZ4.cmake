@@ -64,6 +64,7 @@ if( LZ4_FOUND )
   set( LZ4_INCLUDE_DIRS ${LZ4_INCLUDE_DIR} )
   set( LZ4_LIBRARIES ${LZ4_LIBRARY} )
 
+  ws_reset_checks_on_change(LZ4 "${LZ4_INCLUDE_DIRS}" HAVE_LZ4FRAME_H)
   cmake_push_check_state()
   set( CMAKE_REQUIRED_INCLUDES ${LZ4_INCLUDE_DIRS} )
   # lz4frame.h should be present at least in versions >= 1.7.3

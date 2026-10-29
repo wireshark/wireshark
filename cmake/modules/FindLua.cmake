@@ -146,6 +146,11 @@ if(POLICY CMP0159)
 endif()
 
 INCLUDE(FindWSWinLibs)
+# The DLL and PDB variables used to be cache entries. Remove those so that
+# they can't be used if the package isn't found.
+foreach(_var LUA_DLL_DIR LUA_DLL LUA_PDB)
+  unset(${_var} CACHE)
+endforeach()
 FindWSWinLibs("lua-5*" "LUA_HINTS")
 
 unset(_lua_include_subdirs)
@@ -354,6 +359,8 @@ cmake_policy(POP)
 
 IF(Lua_FOUND)
   SET( LUA_INCLUDE_DIRS ${LUA_INCLUDE_DIR} )
+  ws_reset_checks_on_change(Lua "${LUA_INCLUDE_DIR};${LUA_LIBRARIES}"
+    LUA_INTEGER_SIZE HAVE_LUA_INTEGER_SIZE HAVE_TWO_ARGUMENT_LUA_RESETTHREAD)
   cmake_push_check_state()
   include(CheckTypeSize)
   set(CMAKE_REQUIRED_INCLUDES ${LUA_INCLUDE_DIR})
@@ -364,28 +371,18 @@ IF(Lua_FOUND)
   if (WIN32)
     # Support the non-vcpkg directory structure
     if (EXISTS "${LUA_HINTS}/bin" AND IS_DIRECTORY "${LUA_HINTS}/bin")
-      set (LUA_DLL_DIR "${LUA_HINTS}/bin"
-        CACHE PATH "Path to Lua DLL"
-     )
+      set(LUA_DLL_DIR "${LUA_HINTS}/bin")
     else()
-      set (LUA_DLL_DIR "${LUA_HINTS}"
-        CACHE PATH "Path to Lua DLL"
-      )
+      set(LUA_DLL_DIR "${LUA_HINTS}")
     endif()
     file( GLOB _lua_dll RELATIVE "${LUA_DLL_DIR}"
       "${LUA_DLL_DIR}/lua*.dll"
     )
-    set ( LUA_DLL ${_lua_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "Lua DLL file name"
-    )
+    set(LUA_DLL ${_lua_dll})
     file( GLOB _lua_pdb RELATIVE "${LUA_DLL_DIR}"
       "${LUA_DLL_DIR}/lua*.pdb"
     )
-    set ( LUA_PDB ${_lua_pdb}
-      CACHE FILEPATH "LUA PDB file name"
-    )
-    mark_as_advanced( LUA_DLL_DIR LUA_DLL LUA_PDB )
+    set(LUA_PDB ${_lua_pdb})
     list(TRANSFORM LUA_DLL PREPEND "${LUA_DLL_DIR}/" OUTPUT_VARIABLE _lua_dlls)
     ws_add_runtime_dlls(${_lua_dlls})
   endif()

@@ -102,6 +102,9 @@ endif()
 
 # Try to detect the installed Kerberos vendor, assume MIT if it was not Heimdal.
 if(KERBEROS_FOUND)
+  ws_reset_checks_on_change(KERBEROS "${KERBEROS_INCLUDE_DIRS};${KERBEROS_LIBRARIES}"
+    HAVE_HEIMDAL_KERBEROS HAVE_KRB5_PAC_VERIFY HAVE_KRB5_C_FX_CF2_SIMPLE
+    HAVE_DECODE_KRB5_ENC_TKT_PART HAVE_ENCODE_KRB5_ENC_TKT_PART)
   include(CheckSymbolExists)
   include(CheckFunctionExists)
   set(CMAKE_REQUIRED_INCLUDES ${KERBEROS_INCLUDE_DIRS})

@@ -8,6 +8,7 @@
 #  MINIZIPNG_DLL_DIR      - (Windows) Path to the minizip-ng DLL.
 #  MINIZIPNG_DLLS         - (Windows) Name of the minizip-ng DLL.
 
+include(FindWSWinLibs)
 FindWSWinLibs("minizip-ng" "MINIZIPNG_HINTS")
 
 if(NOT USE_REPOSITORY)
@@ -94,13 +95,10 @@ if(MINIZIPNG_FOUND)
   # minizip-ng compatibility layer has some issues. We need to check
   # for renamed struct members to avoid an endless game of whack-a-mole.
   include(CheckStructHasMember)
+  ws_reset_checks_on_change(HAVE_MZCOMPAT_DOS_DATE "${MINIZIPNG_INCLUDE_DIR}" HAVE_MZCOMPAT_DOS_DATE)
   check_struct_has_member("zip_fileinfo" "dos_date" "minizip-ng/zip.h" HAVE_MZCOMPAT_DOS_DATE)
 
   if(WIN32)
-    set(MINIZIPNG_DLL_DIR "${MINIZIPNG_HINTS}/bin"
-      CACHE PATH "Path to Minizip DLL"
-    )
-
     # minizip-ng from vcpkg provides bz2, zstd, zlib (*not* zlib-ng),
     # and liblzma DLLs. liblzma used to be provided in the vcpkg-export
     # (glib, libxml2, and zlib) bundle, but since vcpkg tag 2025.04.09
@@ -108,8 +106,6 @@ if(MINIZIPNG_FOUND)
     # XXX - This can causes this zstd.dll to be used instead of the one
     # from the separately packaged zstd
     AddWSWinDLLS(MINIZIPNG MINIZIPNG_HINTS "bz2*" "liblzma*" "zstd*")
-
-    mark_as_advanced(MINIZIPNG_DLL_DIR MINIZIPNG_DLLS MINIZIPNG_PDBS)
   endif()
   if(MINIZIPNG_INCLUDE_DIR)
     set(_version_regex "^#define[ \t]+MZ_VERSION[ \t(]+\"([^\"]+)\".*")

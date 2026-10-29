@@ -22,6 +22,11 @@ if( GLIB2_MAIN_INCLUDE_DIR AND GLIB2_LIBRARIES )
 endif()
 
 include( FindWSWinLibs )
+# The DLL and PDB variables used to be cache entries. Remove those so that
+# they can't be used if the package isn't found.
+foreach(_var GLIB2_DLL_DIR_RELEASE GLIB2_DLL_DIR_DEBUG GLIB2_DLLS_RELEASE GLIB2_DLLS_DEBUG GLIB2_PDBS_RELEASE GLIB2_PDBS_DEBUG)
+	unset(${_var} CACHE)
+endforeach()
 FindWSWinLibs( "glib-bundle-*" "GLIB2_HINTS" )
 
 if (NOT USE_REPOSITORY)
@@ -150,12 +155,8 @@ if( GLIB2_FOUND )
 	endif()
 	set( GLIB2_INCLUDE_DIRS ${GLIB2_MAIN_INCLUDE_DIR} ${GLIB2_INTERNAL_INCLUDE_DIR} )
 	if ( USE_REPOSITORY AND GLIB2_FOUND )
-		set ( GLIB2_DLL_DIR_RELEASE "${GLIB2_HINTS}/bin"
-			CACHE PATH "Path to GLib2 release DLLs"
-		)
-		set ( GLIB2_DLL_DIR_DEBUG "${GLIB2_HINTS}/debug/bin"
-			CACHE PATH "Path to GLib2 debug DLLs"
-		)
+		set(GLIB2_DLL_DIR_RELEASE "${GLIB2_HINTS}/bin")
+		set(GLIB2_DLL_DIR_DEBUG "${GLIB2_HINTS}/debug/bin")
 
 		# GTK+ required GObject and GIO. We probably don't.
 		file( GLOB _glib2_dlls_release RELATIVE "${GLIB2_DLL_DIR_RELEASE}"
@@ -170,10 +171,7 @@ if( GLIB2_FOUND )
 			"${GLIB2_DLL_DIR_RELEASE}/iconv-2.dll"
 			"${GLIB2_DLL_DIR_RELEASE}/intl-8.dll"
 		)
-		set ( GLIB2_DLLS_RELEASE ${_glib2_dlls_release}
-			# We're storing filenames only. Should we use STRING instead?
-			CACHE FILEPATH "GLib 2 release DLL list"
-		)
+		set(GLIB2_DLLS_RELEASE ${_glib2_dlls_release})
 		file( GLOB _glib2_dlls_debug RELATIVE "${GLIB2_DLL_DIR_DEBUG}"
 			# "${GLIB2_DLL_DIR_DEBUG}/gio-2.0-0.dll"
 			"${GLIB2_DLL_DIR_DEBUG}/glib-2.0-0.dll"
@@ -186,10 +184,7 @@ if( GLIB2_FOUND )
 			"${GLIB2_DLL_DIR_DEBUG}/iconv-2.dll"
 			"${GLIB2_DLL_DIR_DEBUG}/intl-8.dll"
 		)
-		set ( GLIB2_DLLS_DEBUG ${_glib2_dlls_debug}
-			# We're storing filenames only. Should we use STRING instead?
-			CACHE FILEPATH "GLib 2 debug DLL list"
-		)
+		set(GLIB2_DLLS_DEBUG ${_glib2_dlls_debug})
 
 		file( GLOB _glib2_pdbs_release RELATIVE "${GLIB2_DLL_DIR_RELEASE}"
 			"${GLIB2_DLL_DIR_RELEASE}/glib-2.0-0.pdb"
@@ -199,9 +194,7 @@ if( GLIB2_FOUND )
 			# "${GLIB2_DLL_DIR_RELEASE}/libiconv.pdb"
 			# "${GLIB2_DLL_DIR_RELEASE}/libintl.pdb"
 		)
-		set ( GLIB2_PDBS_RELEASE ${_glib2_pdbs_release}
-			CACHE FILEPATH "GLib2 debug release PDB list"
-		)
+		set(GLIB2_PDBS_RELEASE ${_glib2_pdbs_release})
 		file( GLOB _glib2_pdbs_debug RELATIVE "${GLIB2_DLL_DIR_DEBUG}"
 			"${GLIB2_DLL_DIR_DEBUG}/glib-2.0-0.pdb"
 			"${GLIB2_DLL_DIR_DEBUG}/gmodule-2.0-0.pdb"
@@ -210,12 +203,7 @@ if( GLIB2_FOUND )
 			# "${GLIB2_DLL_DIR_DEBUG}/libiconv.pdb"
 			# "${GLIB2_DLL_DIR_DEBUG}/libintl.pdb"
 		)
-		set ( GLIB2_PDBS_DEBUG ${_glib2_pdbs_debug}
-			CACHE FILEPATH "GLib2 debug debug PDB list"
-		)
-
-		mark_as_advanced( GLIB2_DLL_DIR_RELEASE GLIB2_DLLS_RELEASE GLIB2_PDBS_RELEASE )
-		mark_as_advanced( GLIB2_DLL_DIR_DEBUG GLIB2_DLLS_DEBUG GLIB2_PDBS_DEBUG )
+		set(GLIB2_PDBS_DEBUG ${_glib2_pdbs_debug})
 
 		list(TRANSFORM GLIB2_DLLS_RELEASE PREPEND "${GLIB2_DLL_DIR_RELEASE}/" OUTPUT_VARIABLE _glib2_release_dlls)
 		list(TRANSFORM GLIB2_DLLS_DEBUG PREPEND "${GLIB2_DLL_DIR_DEBUG}/" OUTPUT_VARIABLE _glib2_debug_dlls)
