@@ -103,6 +103,75 @@ function(download_artifacts download_ok)
   set(download_ok ${download_ok} PARENT_SCOPE)
 endfunction()
 
+# Find the directories in artifacts_dir that hold any version of the
+# Windows packages in the given artifact entries.
+#
+# Packages that are extracted into ARTIFACTS_DIR are in directories named
+# <package>-<version>-..., where <package> is either the part of the
+# archive name before the version or the name of the directory that holds
+# the archive on the download server. Match both, so that we also find
+# versions left behind by earlier updates and by packages that have been
+# renamed, e.g. libgcrypt-<version> -> libgcrypt-bundle-<version>.
+# Otherwise FindWSWinLibs might find a stale version, and cache entries
+# that point to it would still look valid.
+function(get_windows_artifact_dirs artifacts_dir out_var) # ...artifact entries
+  set(package_names)
+  set(dirs)
+  foreach(artifact IN LISTS ARGN)
+    if(NOT artifact MATCHES "(https://[^:]+):([^:]+):([^:]+)")
+      continue()
+    endif()
+    set(archive_url ${CMAKE_MATCH_1})
+    set(destination_subdir ${CMAKE_MATCH_3})
+    if(NOT destination_subdir STREQUAL ".")
+      # Extracted into a fixed directory, e.g. win_flex_bison.
+      string(REGEX REPLACE "/.*" "" top_dir "${destination_subdir}")
+      list(APPEND dirs "${artifacts_dir}/${top_dir}")
+      continue()
+    endif()
+    get_filename_component(archive_file ${archive_url} NAME)
+    get_filename_component(server_dir ${archive_url} DIRECTORY)
+    get_filename_component(server_dir ${server_dir} NAME)
+    # The package name ends before the first part that starts with a digit.
+    string(REPLACE "-" ";" name_parts "${archive_file}")
+    set(package_name)
+    foreach(part IN LISTS name_parts)
+      if(part MATCHES "^[0-9]")
+        break()
+      endif()
+      list(APPEND package_name ${part})
+    endforeach()
+    list(JOIN package_name "-" package_name)
+    list(APPEND package_names ${package_name} ${server_dir})
+  endforeach()
+  list(REMOVE_DUPLICATES package_names)
+
+  file(GLOB candidates LIST_DIRECTORIES true "${artifacts_dir}/*")
+  foreach(candidate IN LISTS candidates)
+    if(NOT IS_DIRECTORY "${candidate}")
+      continue()
+    endif()
+    get_filename_component(dir_name "${candidate}" NAME)
+    foreach(package_name IN LISTS package_names)
+      string(FIND "${dir_name}" "${package_name}-" pos)
+      if(pos EQUAL 0)
+        string(LENGTH "${package_name}-" prefix_len)
+        string(SUBSTRING "${dir_name}" ${prefix_len} -1 version)
+        if(version MATCHES "^[0-9]")
+          list(APPEND dirs "${candidate}")
+          break()
+        endif()
+      endif()
+    endforeach()
+  endforeach()
+
+  # Our former all-in-one library bundle, which is in no manifest.
+  file(GLOB vcpkg_export_dirs LIST_DIRECTORIES true "${artifacts_dir}/vcpkg-export-*-windows-ws")
+  list(APPEND dirs ${vcpkg_export_dirs})
+  list(REMOVE_DUPLICATES dirs)
+  set(${out_var} ${dirs} PARENT_SCOPE)
+endfunction()
+
 function(update_artifacts)
   list(JOIN artifacts "\n" list_manifest_contents)
   set(file_manifest_contents)
@@ -121,37 +190,12 @@ function(update_artifacts)
       file(REMOVE_RECURSE "${ARTIFACTS_DIR}/${subdir}")
     endforeach()
   elseif(WIN32)
-    # XXX We need to do this more cleanly. We might want to install our Windows
-    # libraries in a common root similar to what we do for macOS.
-    file(GLOB artifact_dirs
-      ${ARTIFACTS_DIR}/asciidoctor-bundle-*-windows-ws
-      ${ARTIFACTS_DIR}/bcg729-*ws
-      ${ARTIFACTS_DIR}/brotli-*ws
-      ${ARTIFACTS_DIR}/c-ares-*-windows-ws
-      ${ARTIFACTS_DIR}/falcosecurity-*-ws
-      ${ARTIFACTS_DIR}/gnutls-*-ws
-      ${ARTIFACTS_DIR}/krb5-*-windows-ws
-      ${ARTIFACTS_DIR}/libgcrypt-bundle-*-ws
-      ${ARTIFACTS_DIR}/libilbc-*-windows-ws
-      ${ARTIFACTS_DIR}/libmaxminddb-*-windows-ws
-      ${ARTIFACTS_DIR}/libsmi-*-windows-ws
-      ${ARTIFACTS_DIR}/libssh-*-ws
-      ${ARTIFACTS_DIR}/lua-*-win*64-*
-      ${ARTIFACTS_DIR}/lz4-*-windows-ws
-      ${ARTIFACTS_DIR}/minizip-*-windows-ws
-      ${ARTIFACTS_DIR}/nghttp?-*-windows-ws
-      ${ARTIFACTS_DIR}/opencore-amr-*-ws
-      ${ARTIFACTS_DIR}/opus-*-windows-ws
-      ${ARTIFACTS_DIR}/sbc-*-windows-ws
-      ${ARTIFACTS_DIR}/snappy-*-windows-ws
-      ${ARTIFACTS_DIR}/speexdsp-*-windows-ws
-      ${ARTIFACTS_DIR}/vcpkg-export-*-windows-ws
-      ${ARTIFACTS_DIR}/WinSparkle-*
-      ${ARTIFACTS_DIR}/xxhash-*-windows-ws
-      ${ARTIFACTS_DIR}/zlib-ng-*-windows-ws
-      ${ARTIFACTS_DIR}/zstd-*-windows-ws
-      ${WIN_FLEX_BISON_DIR}
-    )
+    # XXX We might want to install our Windows libraries in a common root
+    # similar to what we do for macOS.
+    # Include the previous manifest's packages so that ones we no longer
+    # use are removed too.
+    string(REPLACE "\n" ";" previous_artifacts "${file_manifest_contents}")
+    get_windows_artifact_dirs(${ARTIFACTS_DIR} artifact_dirs ${artifacts} ${previous_artifacts})
     if (artifact_dirs)
       file(REMOVE_RECURSE ${artifact_dirs})
     endif()
