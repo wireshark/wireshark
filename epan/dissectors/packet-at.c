@@ -1144,6 +1144,11 @@ dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         *((unsigned *) *data) = value;
         break;
     case 1:
+        /* The index is missing if parameter 0 was not dissected */
+        if (*data == NULL) {
+            proto_tree_add_expert(tree, pinfo, &ei_ciev_indicator, tvb, offset, parameter_length);
+            break;
+        }
         indicator_index = *((unsigned *) *data) - 1;
         if (indicator_index > 19) {
             proto_tree_add_expert(tree, pinfo, &ei_ciev_indicator, tvb, offset, parameter_length);
@@ -1430,6 +1435,10 @@ dissect_cmgl_data_part(tvbuff_t *tvb, packet_info *pinfo,
         return true;
     }
     bytes_count = hex_length / 2;
+    if (bytes_count <= 8) {
+        expert_add_info(pinfo, pitem, &ei_empty_hex);
+        return true;
+    }
     final_arr = wmem_alloc0_array(pinfo->pool, uint8_t, bytes_count + 1);
     /* Try to parse the hex string into a byte array */
     uint8_t *pos = data_part_stream;
@@ -1443,7 +1452,7 @@ dissect_cmgl_data_part(tvbuff_t *tvb, packet_info *pinfo,
         sscanf((char *)pos, "%2hhx", &(final_arr[i-8]));
         pos += 2;
     }
-    final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count, bytes_count);
+    final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count - 8, bytes_count - 8);
     add_new_data_source(pinfo, final_tvb, "GSM SMS payload");
 
     /* Adjusting P2P direction as it is read by the SMS dissector */
@@ -1535,6 +1544,10 @@ dissect_cmgr_data_part(tvbuff_t *tvb, packet_info *pinfo,
         return true;
     }
     bytes_count = hex_length / 2;
+    if (bytes_count <= 8) {
+        expert_add_info(pinfo, pitem, &ei_empty_hex);
+        return true;
+    }
     final_arr = wmem_alloc0_array(pinfo->pool, uint8_t, bytes_count + 1);
     /* Try to parse the hex string into a byte array */
     uint8_t *pos = data_part_stream;
@@ -1548,7 +1561,7 @@ dissect_cmgr_data_part(tvbuff_t *tvb, packet_info *pinfo,
         sscanf((char *)pos, "%2hhx", &(final_arr[i-8]));
         pos += 2;
     }
-    final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count, bytes_count);
+    final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count - 8, bytes_count - 8);
     add_new_data_source(pinfo, final_tvb, "GSM SMS payload");
 
     /* Adjusting P2P direction as it is read by the SMS dissector */
@@ -1646,7 +1659,7 @@ dissect_cmux_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         }
         break;
     case 2:
-        proto_tree_add_item(tree, hf_cmux_port_speed, tvb, offset, parameter_length, ENC_NA);
+        proto_tree_add_uint(tree, hf_cmux_port_speed, tvb, offset, parameter_length, value);
         break;
     case 3:
         proto_tree_add_uint(tree, hf_cmux_n1, tvb, offset, parameter_length, value);
@@ -2199,6 +2212,9 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (role == ROLE_DTE) {
         if (command_number) {
+            command_item = proto_tree_add_none_format(tree, hf_command, tvb,
+                    offset, 0, "Command %u", command_number);
+            command_tree = proto_item_add_subtree(command_item, ett_at_command);
             at_command = at_stream;
             i_char = 0;
         } else {
