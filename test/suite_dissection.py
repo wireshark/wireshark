@@ -14611,3 +14611,61 @@ class TestDissectBpdu:
             '4\t4097\t\t\tRST. TC + Root = 4097/02:00:00:00:00:05  Cost = 20000  Port = 0x8001',
             '8\t32768\t\t28673\tMST. Root = 32768/02:00:00:00:00:01  Cost = 0  Port = 0x8001',
         ]
+
+
+class TestDissectBpq:
+    def test_bpq_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BPQ frame hands its AX.25 frame to the AX.25 dissector,
+        which decodes text, IPv4 and ARP, without malformed packets or
+        expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpq_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('AX.25-NoL3') == 6
+        assert protocols.count('AX.25') == 4
+        assert protocols.count('ECHO') == 1
+        assert protocols.count('ARP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpq_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert || !bpq || !ax25',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bpq_len(self, cmd_tshark, capture_file, test_env):
+        '''The little endian BPQ length; the tree label shows only its
+        lower 12 bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpq_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ebpq.len', '-eax25.src', '-eax25.dst',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[1] for f in frames] == ['31', '44', '20', '20', '35', '20', '56', '51',
+                                          '20', '62004', '0', '25']
+        assert frames[0][2:] == ['N0SRC-1', 'ID']
+        assert frames[7][2:] == ['N0SRC', 'QST']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpq_coverage.pcap.gz'),
+                '-Y', 'frame.number == 10',
+                '-O', 'bpq',
+            ), encoding='utf-8', env=test_env)
+        assert 'BPQ, Len: 564' in stdout
+        assert 'BPQ len: 62004' in stdout
+
+    def test_bpq_payloads(self, cmd_tshark, capture_file, test_env):
+        '''IPv4 and ARP inside the AX.25 frames, and BPQ in a VLAN.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpq_coverage.pcap.gz'),
+                '-Y', 'ip || arp || vlan',
+                '-Tfields', '-eframe.number', '-eip.dst', '-earp.dst.proto_ipv4',
+                '-evlan.id', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t44.0.0.2\t\t\tRequest',
+            '8\t\t44.0.0.2\t\tWho has 44.0.0.2? Tell 44.0.0.1',
+            '12\t\t\t7\tText',
+        ]
