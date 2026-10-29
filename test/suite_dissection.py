@@ -14391,3 +14391,50 @@ class TestDissectBmp:
             '32\t0,1,2,3,4,9\tIMPORT-POLICY,DEFAULT\t\troute accepted',
             '33\t1,4\tV6-OUT\t2001:db8::9\tsecond event',
         ]
+
+
+class TestDissectBofl:
+    def test_bofl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BOFL frame, also in a VLAN, decodes without malformed
+        packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bofl_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 10
+        assert protocols.count('BOFL') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bofl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bofl_fields(self, cmd_tshark, capture_file, test_env):
+        '''The PDU, the sequence number and the padding after them, which
+        is left out when the frame holds exactly 8 octets of BOFL.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bofl_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ebofl.pdu', '-ebofl.sequence',
+                '-ebofl.padding', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[1] for f in frames] == ['0x01010000'] * 3 + ['0x01011111'] * 2 + \
+            ['0x01010000'] * 2 + ['0xdeadbeef'] * 2 + ['0x01010000']
+        assert [f[2] for f in frames] == ['1', '2', '3', '100', '101', '4', '5',
+                                          '4294967295', '0', '6']
+        assert [len(f[3]) // 2 for f in frames] == [38, 38, 38, 38, 38, 0, 1, 38, 38, 34]
+        assert frames[3][3] == bytes(range(38)).hex()
+        assert frames[6][3] == '01'
+        assert frames[7][4] == 'PDU: 0xdeadbeef Sequence: 4294967295'
+
+    def test_bofl_vlan(self, cmd_tshark, capture_file, test_env):
+        '''BOFL is found behind an 802.1Q tag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bofl_coverage.pcap.gz'),
+                '-Y', 'vlan && bofl',
+                '-Tfields', '-eframe.number', '-evlan.id', '-ebofl.sequence',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['10\t42\t6']
