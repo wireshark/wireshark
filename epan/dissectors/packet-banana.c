@@ -136,8 +136,9 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             val_len++;
             if (val_len > MAX_ELEMENT_VAL_LEN) {
                 expert_add_info(pinfo, NULL, &ei_banana_too_many_value_bytes);
+            } else {
+                val += byte + (val << 7);
             }
-            val += byte + (val << 7);
         }
     }
 
@@ -176,7 +177,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             if (val > MAX_ELEMENT_VAL) {
                 expert_add_info_format(pinfo, NULL, &ei_banana_value_too_large, "Integer value -%" PRId64 " too large", val);
             }
-            proto_tree_add_int(tree, hf_banana_neg_int, tvb, start_offset, offset - start_offset, (int32_t) val * -1);
+            proto_tree_add_int(tree, hf_banana_neg_int, tvb, start_offset, offset - start_offset, (int32_t) -val);
             break;
         case BE_FLOAT:
             proto_tree_add_item(tree, hf_banana_float, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -196,7 +197,9 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
              * The spec says the pb dictionary value comes after the tag.
              * In real-world captures it comes before.
              */
-            proto_tree_add_item(tree, hf_banana_pb, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
+            if (val_len > 0) {
+                proto_tree_add_item(tree, hf_banana_pb, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
+            }
             break;
         default:
             return 0;
@@ -274,12 +277,12 @@ proto_register_banana(void)
                 "Banana float", HFILL }
         },
         { &hf_banana_lg_int,
-            { "Float", "banana.lg_int",
+            { "Large Integer", "banana.lg_int",
                 FT_BYTES, BASE_NONE, NULL, 0,
                 "Banana large integer", HFILL }
         },
         { &hf_banana_lg_neg_int,
-            { "Float", "banana.lg_neg_int",
+            { "Large Negative Integer", "banana.lg_neg_int",
                 FT_BYTES, BASE_NONE, NULL, 0,
                 "Banana large negative integer", HFILL }
         },
