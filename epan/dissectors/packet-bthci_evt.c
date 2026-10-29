@@ -6009,7 +6009,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             sub_item = proto_tree_add_item(tree, hf_bthci_evt_mws_transport_layers, tvb, offset, transports * 2, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_mws_transport_layers);
 
-            offset_baud_rates = offset = 1;
+            offset_baud_rates = offset;
 
             for (i_transport = 0; i_transport < transports; i_transport += 1) {
                 sub2_item = proto_tree_add_item(sub_tree, hf_bthci_evt_mws_transport_layers_item, tvb, offset, transports * 2, ENC_NA);
@@ -7814,7 +7814,8 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
             status = tvb_get_uint8(tvb, 5);
 
-            if (status == STATUS_SUCCESS && have_tap_listener(bluetooth_device_tap)) switch(opcode) {
+            /* Change Local Name also saves the name for the dissection */
+            if (status == STATUS_SUCCESS && (have_tap_listener(bluetooth_device_tap) || opcode == 0x0c13)) switch(opcode) {
             case 0x0c03: /* Reset */
 
                 tap_device = wmem_new(pinfo->pool, bluetooth_device_tap_t);
@@ -7832,6 +7833,9 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
                 break;
             case 0x0c13: /* Change Local Name */
+                /* Not set if the command was too short */
+                if (!lastest_bthci_cmd_data->data.name)
+                    break;
 
                 tap_device = wmem_new(pinfo->pool, bluetooth_device_tap_t);
                 if (bluetooth_data) {
