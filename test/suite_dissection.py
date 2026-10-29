@@ -16531,3 +16531,98 @@ class TestDissectBtbredrRf:
             ['17', '', ''], ['18', '', ''], ['100', '', ''], ['107', '1', ''],
             ['108', '1', '1'], ['109', '', '1'], ['124', '', ''],
         ]
+
+
+class TestDissectBtDht:
+    # BT-DHT has no port; its UDP heuristic is disabled by default
+    heur = ('--enable-heuristic', 'bittorrent_dht_udp')
+
+    def test_bt_dht_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every KRPC message type decodes without malformed packets or
+        error expert infos, in one and two passes. The only warning is the
+        duplicate key in frame 18.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_dht_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 22
+        assert protocols.count('BT-DHT') == 20
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.heur, *passes,
+                    '-r', capture_file('bt_dht_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['18\tDictionary has duplicate keys']
+
+    def test_bt_dht_messages(self, cmd_tshark, capture_file, test_env):
+        '''Queries, responses with nodes and peers, and errors.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_dht_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 15',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert info[0] == 'Ping'
+        assert info[2] == 'Find_node Target=999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabac'
+        assert info[3] == 'Response Nodes=2 Nodes=2'
+        assert info[5] == 'Response Peers=3'
+        assert info[8] == 'Announce_peer Info_hash=0123456789abcdef0123456789abcdef01234567'
+        assert info[13] == 'Sample_infohashes Target=aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbd'
+        # Compact peers and nodes, IPv4 and IPv6, and the BEP 42 "ip"
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_dht_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 4, 6}',
+                '-Tfields', '-ebt-dht.ip', '-ebt-dht.ip6', '-ebt-dht.port',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '192.0.2.10\t\t6881',
+            '203.0.113.1,203.0.113.2\t2001:db8::10,2001:db8::20\t6881,6882,6881,6883',
+            '198.51.100.7,198.51.100.8\t2001:db8::10\t6881,51413,6890',
+        ]
+        # Client versions: uTorrent, libtorrent 1.2.3, rTorrent,
+        # Monotorrent, XDHT
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_dht_coverage.pcap.gz'),
+                '-Y', 'bt-dht.version.client',
+                '-Tfields', '-eframe.number', '-ebt-dht.version.client',
+                '-ebt-dht.version.version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tuTorrent\t', '2\tlibtorrent\t1.2.3', '3\trTorrent\t',
+            '5\tMonotorrent\t', '7\tXDHT\t',
+        ]
+
+    def test_bt_dht_error(self, cmd_tshark, capture_file, test_env):
+        '''Error messages: number and message in the Info column, and the
+        list terminator of the error list as an item.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_dht_coverage.pcap.gz'),
+                '-Y', 'bt-dht.error',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ebt-dht.bencoded.list.terminator',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\tError No=201 Msg=A Generic Error Ocurred\te,e,e',
+            '12\tError No=203 Msg=Protocol Error, such as a malformed packet\te,e,e',
+            '13\tError No=204 Msg=\te,e,e',
+        ]
+
+    def test_bt_dht_unterminated_dict(self, cmd_tshark, capture_file, test_env):
+        '''A top level dictionary without its terminator (frame 21) is
+        dissected once and claims the packet, with the heuristic and with
+        Decode As (it used to be dissected twice and then as Data).
+        Non-DHT data in a DHT conversation is still rejected.'''
+        for args in (self.heur, ('-d', 'udp.port==6881,bt-dht')):
+            stdout = subprocess.check_output((cmd_tshark, *args,
+                    '-r', capture_file('bt_dht_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {19, 20, 21}',
+                    '-Tfields', '-eframe.protocols', '-ebt-dht.bencoded.string',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                'eth:ethertype:ip:udp:data\t',
+                'eth:ethertype:ip:udp:data\t',
+                'eth:ethertype:ip:udp:bt-dht\tr,id,' + '41' * 20,
+            ]
