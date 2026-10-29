@@ -565,6 +565,11 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			    hf_bacnet_dlen, tvb, offset, 1, bacnet_dlen,
 			    "%d invalid!",
 			    bacnet_dlen);
+			offset ++;
+			proto_tree_add_item(bacnet_tree,
+				hf_bacnet_dadr_tmp, tvb, offset,
+				bacnet_dlen, ENC_NA);
+			offset += bacnet_dlen;
 		}
 	}
 	if (bacnet_control & BAC_CONTROL_SRC) { /* SNET, SLEN, SADR */
@@ -615,6 +620,10 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 			    "%d invalid!",
 			    bacnet_slen);
 			offset ++;
+			proto_tree_add_item(bacnet_tree,
+				hf_bacnet_sadr_tmp, tvb, offset,
+				bacnet_slen, ENC_NA);
+			offset += bacnet_slen;
 		}
 	}
 	if (bacnet_control & BAC_CONTROL_DEST) { /* Hopcount */
@@ -751,7 +760,7 @@ dissect_bacnet_npdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			/* set length to reported length in header */
-			tvb_set_reported_length(tvb, bacnet_len);
+			tvb_set_reported_length(tvb, offset + bacnet_len);
 			if (is_net_msg_flg) {
 				/* decode network layer message */
 				increment_dissection_depth(pinfo);
