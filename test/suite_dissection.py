@@ -12833,3 +12833,79 @@ class TestDissectBhttp:
         assert stdout.count('Name length: 4611686018427387903') == 1
         assert stdout.count('Known-length field section length: 1048576') == 1
         assert len(stdout) < 20000
+
+
+class TestDissectBiccMst:
+    def test_bicc_mst_frames(self, cmd_tshark, capture_file, test_env):
+        '''LCLS Global Call References in BSSMAP ASSIGNMENT REQUEST and
+        HANDOVER REQUEST over SCCP/M3UA decode without malformed packets
+        or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bicc_mst_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 12
+        assert protocols.count('BSSAP') == 5
+        assert protocols.count('SCCP (Int. ITU)') == 7
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bicc_mst_coverage.pcap.gz'),
+                '-Y', 'bicc_mst',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['3', '4', '5', '6', '9']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bicc_mst_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bicc_mst_gcr_fields(self, cmd_tshark, capture_file, test_env):
+        '''The network ID, node ID and call reference ID each go to their
+        own field: the node ID is bicc_mst.lcls_gcr.node_id, not a second
+        bicc_mst.lcls_gcr.network_id.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bicc_mst_coverage.pcap.gz'),
+                '-Y', 'bicc_mst',
+                '-Tfields', '-eframe.number',
+                '-ebicc_mst.lcls_gcr.network_id_len', '-ebicc_mst.lcls_gcr.network_id',
+                '-ebicc_mst.lcls_gcr.node_id_len', '-ebicc_mst.lcls_gcr.node_id',
+                '-ebicc_mst.lcls_gcr.call_ref_id_len', '-ebicc_mst.lcls_gcr.call_ref_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t3\t62f210\t2\t1234\t5\tdeadbeef01',
+            '4\t5\t1122334455\t2\tabcd\t5\t0000000002',
+            '5\t1\t99\t2\t5678\t5\t0102030405',
+            '6\t0\t<MISSING>\t0\t<MISSING>\t0\t<MISSING>',
+            '9\t3\t00f110\t2\t0fa0\t5\t1020304050',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bicc_mst_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3',
+                '-O', 'gsm_a.bssmap',
+            ), encoding='utf-8', env=test_env)
+        assert 'LCLS GCR Network ID: 62f210' in stdout
+        assert 'LCLS GCR Node ID: 1234' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bicc_mst_coverage.pcap.gz'),
+                '-Y', 'bicc_mst.lcls_gcr.node_id == 12:34',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['3']
+
+    def test_bicc_mst_following_elements(self, cmd_tshark, capture_file, test_env):
+        '''BSSMAP continues with the LCLS elements after the GCR.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bicc_mst_coverage.pcap.gz'),
+                '-Y', 'bicc_mst',
+                '-Tfields', '-eframe.number', '-egsm_a.bssmap.elem_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t0x0b,0x01,0x89,0x8a,0x8b',
+            '4\t0x0b,0x01,0x89,0x8a,0x8b,0x8c',
+            '5\t0x0b,0x01,0x89',
+            '6\t0x0b,0x01,0x89,0x8a,0x8b',
+            '9\t0x0b,0x0a,0x12,0x05,0x05,0x89,0x8a,0x8b',
+        ]
