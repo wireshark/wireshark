@@ -12536,3 +12536,190 @@ class TestDissectBfd:
         assert frames[6][4:7] == ['192.0.2.1', '11', '2']
         assert frames[11][7] == 'pw'
         assert [f[2] for f in frames[7:9]] == ['0x01', '0x03']
+
+
+class TestDissectBgp:
+    def test_bgp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, path attribute and address family in the
+        synthetic capture decodes without malformed packets or error
+        expert infos, in one and two passes. The warnings are the expected
+        ones: unknown ORF types, next hop scope and route distinguisher,
+        unknown BGP-LS TLVs and the old TE metric length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bgp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 146
+        assert protocols.count('BGP') == 141
+        assert protocols.count('TCP') == 5
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bgp_coverage.pcap.gz'),
+                '-Y', 'bgp.type',
+                '-Tfields', '-ebgp.type',
+            ), encoding='utf-8', env=test_env)
+        types = [int(t) for line in stdout.split() for t in line.split(',')]
+        assert {t: types.count(t) for t in set(types)} == {
+            1: 4, 2: 114, 3: 13, 4: 5, 5: 5, 6: 1, 7: 1, 128: 1}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bgp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == []
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bgp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['23', '64', '76', '77', '78', '126', '129', '132']
+
+    def test_bgp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The BGP tree is the same in one and two passes: per-frame state
+        (encapsulation community, AFI/SAFI, BGP-LS protocol ID) is always
+        saved before it is read.'''
+        trees = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bgp_coverage.pcap.gz'),
+                    '-O', 'bgp',
+                ), encoding='utf-8', env=test_env)
+            trees.append([line for line in stdout.splitlines()
+                          if line.startswith((' ', 'Border Gateway Protocol'))])
+        assert len(trees[0]) > 10000
+        assert trees[0] == trees[1]
+
+    def test_bgp_fixed_offsets(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of the offset and length fixes: OPEN unknown
+        parameter, Prefix-SID SRGB and unknown TLV, RT-Constrain AS4 route
+        target, four octet flow spec value, EVPN IGMP Leave maximum
+        response time, and BGP-LS sub-TLVs in the last octets of a TLV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bgp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 51, 53, 86, 90, 114}',
+                '-Tfields', '-eframe.number', '-ebgp.open.opt.param.type', '-ebgp.cap.mp.afi',
+                '-ebgp.prefix_sid.originator_srgb_base', '-ebgp.prefix_sid.originator_srgb_range',
+                '-ebgp.prefix_sid.label_index.value', '-ebgp.prefix_sid.value',
+                '-ebgp.community_prefix', '-ebgp.flowspec_nlri.dec_val_32',
+                '-ebgp.flowspec_nlri.dec_val_8', '-ebgp.evpn.nlri.igmp_mc_max_resp_time',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t3,2\t1\t\t\t\t\t\t\t\t',
+            '51\t\t\t16000,100000\t8000,1000\t42,43\t\t\t\t\t',
+            '53\t\t\t\t\t\tdeadbeef\t\t\t\t',
+            '86\t\t\t\t\t\t\t65001:100,192.0.2.1:7,65536:7,Invalid RT type\t\t\t',
+            '90\t\t\t\t\t\t\t\t8080\t80,53\t',
+            '114\t\t\t\t\t\t\t\t\t\t100',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bgp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {127, 129, 133}',
+                '-Tfields', '-eframe.number', '-ebgp.ls.type',
+            ), encoding='utf-8', env=test_env)
+        ls_types = {int(f): t.split(',') for f, t in (line.split('\t') for line in stdout.splitlines())}
+        # SRv6 End.X and LAN End.X carry an SRv6 SID Structure sub-TLV
+        # (1252) and Application-Specific Link Attributes their link
+        # attribute sub-TLVs, each ending at the end of the TLV
+        assert ls_types[127][ls_types[127].index('1106') + 1] == '1252'
+        assert ls_types[127][ls_types[127].index('1107') + 1] == '1252'
+        assert ls_types[127][ls_types[127].index('1122') + 1:][:2] == ['1092', '1173']
+        assert ls_types[129][ls_types[129].index('1107') + 1] == '1252'
+        assert ls_types[129][-2:] == ['1122', '1095']
+        # Flex-Algo Definition whose only sub-TLV is in its last 4 octets
+        assert ls_types[133] == ['1039', '1045']
+
+    def test_bgp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''An extended message UPDATE over four TCP segments, a message
+        split inside its header, several messages in one segment, bytes
+        before the first marker, and a segment without a marker.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bgp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 137',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ebgp.type',
+                '-ebgp.length', '-etcp.reassembled.length', '-ebgp.continuation',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '137\tBGP\t4,2,4\t19,45,19\t\t',
+            '138\tTCP\t\t\t\t',
+            '139\tTCP\t\t\t\t',
+            '140\tTCP\t\t\t\t',
+            '141\tBGP\t2\t5243\t5243\t',
+            '142\tTCP\t\t\t\t',
+            '143\tBGP\t2,4\t45,19\t64\t',
+            '144\tBGP\t4\t19\t\t1',
+            '145\tTCP\t\t\t\t',
+            '146\tBGP\t2\t53\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bgp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 141',
+                '-Tfields', '-ebgp.nlri_prefix',
+            ), encoding='utf-8', env=test_env)
+        prefixes = stdout.strip().split(',')
+        assert len(prefixes) == 1300
+        assert prefixes[0] == '10.0.0.0' and prefixes[-1] == '10.5.19.0'
+
+    def test_bgp_evpn_state(self, cmd_tshark, capture_file, test_env):
+        '''With the VXLAN or VXLAN-GPE encapsulation community before
+        MP_REACH, EVPN labels and the PMSI label are VNIs; without it they
+        are MPLS labels. A 2-octet AS route target is split into the EVPN
+        local administrator fields only in an EVPN UPDATE. Same result in
+        one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bgp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {41, 100, 117, 118}',
+                    '-Tfields', '-eframe.number', '-ebgp.evpn.nlri.vni', '-ebgp.evpn.nlri.mpls_ls1',
+                    '-ebgp.ext_com.local_admin.service_id', '-ebgp.ext_com.value_an4',
+                    '-E', 'occurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '41\t\t\t\t100',
+                '100\t\t101\t100\t',
+                '117\t5000\t\t5000\t',
+                '118\t7000\t\t\t',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bgp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 117',
+                    '-Tfields', '-ebgp.evpn.nlri.vni',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip() == '5000,5001,5001,6001,5002,5003,5000'
+
+    def test_bgp_address_families(self, cmd_tshark, capture_file, test_env):
+        '''MP_REACH/MP_UNREACH of every AFI/SAFI pair the capture holds.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bgp_coverage.pcap.gz'),
+                '-Y', 'bgp.update.path_attribute.mp_reach_nlri.afi || bgp.update.path_attribute.mp_unreach_nlri.afi',
+                '-Tfields', '-ebgp.update.path_attribute.mp_reach_nlri.afi',
+                '-ebgp.update.path_attribute.mp_reach_nlri.safi',
+                '-ebgp.update.path_attribute.mp_unreach_nlri.afi',
+                '-ebgp.update.path_attribute.mp_unreach_nlri.safi',
+            ), encoding='utf-8', env=test_env)
+        reach, unreach = set(), set()
+        for line in stdout.splitlines():
+            ra, rs, ua, us = line.split('\t')
+            for afis, safis, found in ((ra, rs, reach), (ua, us, unreach)):
+                if afis:
+                    found.update(zip(map(int, afis.split(',')), map(int, safis.split(','))))
+        assert reach == {
+            (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 7), (1, 64), (1, 73), (1, 85),
+            (1, 128), (1, 129), (1, 130), (1, 132), (1, 133), (1, 134),
+            (2, 1), (2, 2), (2, 4), (2, 5), (2, 7), (2, 64), (2, 73), (2, 85), (2, 128),
+            (2, 133), (2, 134), (25, 65), (25, 70), (25, 128), (16388, 71), (16388, 72)}
+        assert unreach == {(1, 1), (1, 4), (1, 66), (1, 128), (1, 133), (2, 1), (2, 85), (2, 129),
+                           (25, 70), (196, 65), (16388, 128)}
+
+    def test_bgp_as_path_last(self, cmd_tshark, capture_file, test_env):
+        '''An UPDATE whose last attribute is a one segment 2-octet AS_PATH
+        and that has no NLRI is not malformed: the AS length heuristic no
+        longer reads past the message.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bgp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 146 && !_ws.malformed',
+                    '-Tfields', '-ebgp.update.path_attribute.as_path_segment.as2',
+                    '-ebgp.mp_reach_nlri_ipv4_prefix',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['65001,65002\t198.51.100.0']
