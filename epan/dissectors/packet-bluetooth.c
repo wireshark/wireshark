@@ -944,6 +944,10 @@ dissect_bluetooth_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 {
     bluetooth_data_t  *bluetooth_data;
 
+    /* A crafted Exported PDU file can name this without the URB info */
+    if (data == NULL)
+        return 0;
+
     bluetooth_data = dissect_bluetooth_common(tvb, pinfo, tree);
 
     /*
@@ -1369,7 +1373,9 @@ dissect_btad_gaen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
     2 bytes: Reserved for future use.
 
     We want to skip everything before the last 20 bytes, because it'll be handled by other parts of the BTLE dissector. */
-    offset = tvb_captured_length(tvb) - 20;
+    if (tvb_reported_length(tvb) < 20)
+        return 0;
+    offset = tvb_reported_length(tvb) - 20;
 
     main_item = proto_tree_add_item(tree, proto_btad_gaen, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btad_gaen);
