@@ -524,6 +524,7 @@ static int hf_ptp_sourceuuid;
 static int hf_ptp_sourceportid;
 static int hf_ptp_sequenceid;
 static int hf_ptp_controlfield;
+
 static int hf_ptp_flags;
 static int hf_ptp_flags_li61;
 static int hf_ptp_flags_li59;
@@ -2145,8 +2146,8 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     nstime_t ts;                /* time structure with seconds and nanoseconds */
 
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti, *flags_ti, *time_ti, *time2_ti;
-    proto_tree *ptp_tree = NULL, *ptp_flags_tree, *ptp_time_tree, *ptp_time2_tree;
+    proto_item *ti, *time_ti, *time2_ti;
+    proto_tree *ptp_tree = NULL, *ptp_time_tree, *ptp_time2_tree;
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv1");
@@ -2224,33 +2225,19 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_item(ptp_tree,
         hf_ptp_controlfield, tvb, PTP_CONTROLFIELD_OFFSET, 1, ENC_BIG_ENDIAN);
 
-    /* Subtree for the flag-field */
-    /* TODO: use proto_tree_add_bitmask_list() ? */
-    flags_ti = proto_tree_add_item(ptp_tree,
-        hf_ptp_flags, tvb, PTP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
-
-    ptp_flags_tree = proto_item_add_subtree(flags_ti, ett_ptp_flags);
-
-    proto_tree_add_item(ptp_flags_tree,
-        hf_ptp_flags_li61, tvb, PTP_FLAGS_LI61_OFFSET, 2, ENC_BIG_ENDIAN);
-
-    proto_tree_add_item(ptp_flags_tree,
-        hf_ptp_flags_li59, tvb, PTP_FLAGS_LI59_OFFSET, 2, ENC_BIG_ENDIAN);
-
-    proto_tree_add_item(ptp_flags_tree,
-        hf_ptp_flags_boundary_clock, tvb, PTP_FLAGS_BOUNDARY_CLOCK_OFFSET, 2, ENC_BIG_ENDIAN);
-
-    proto_tree_add_item(ptp_flags_tree,
-        hf_ptp_flags_assist, tvb, PTP_FLAGS_ASSIST_OFFSET, 2, ENC_BIG_ENDIAN);
-
-    proto_tree_add_item(ptp_flags_tree,
-        hf_ptp_flags_ext_sync, tvb, PTP_FLAGS_EXT_SYNC_OFFSET, 2, ENC_BIG_ENDIAN);
-
-    proto_tree_add_item(ptp_flags_tree,
-        hf_ptp_flags_parent, tvb, PTP_FLAGS_PARENT_STATS_OFFSET, 2, ENC_BIG_ENDIAN);
-
-    proto_tree_add_item(ptp_flags_tree,
-        hf_ptp_flags_sync_burst, tvb, PTP_FLAGS_SYNC_BURST_OFFSET, 2, ENC_BIG_ENDIAN);
+    /* flag-field */
+    static int * const  flags[] = {
+        &hf_ptp_flags_li61,
+        &hf_ptp_flags_li59,
+        &hf_ptp_flags_boundary_clock,
+        &hf_ptp_flags_assist,
+        &hf_ptp_flags_ext_sync,
+        &hf_ptp_flags_parent,
+        &hf_ptp_flags_sync_burst,
+        NULL
+    };
+    proto_tree_add_bitmask(ptp_tree, tvb, PTP_FLAGS_OFFSET,
+                           hf_ptp_flags, ett_ptp_flags, flags, ENC_BIG_ENDIAN);
 
     /* The rest of the ptp-dissector depends on the control-field  */
 
@@ -3027,9 +3014,7 @@ dissect_ptp_v2_tlvs(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_it
                 uint16_t ii, num = 0;
                 proto_tree  *ptpError_subtree;
 
-                num = tvb_get_ntohs(tvb, offset);
-
-                proto_tree_add_item(ptp_managementData_tree, hf_ptp_v2_mm_numberOfFaultRecords, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint16(ptp_managementData_tree, hf_ptp_v2_mm_numberOfFaultRecords, tvb, offset, 2, ENC_BIG_ENDIAN, &num);
                 offset += 2;
 
                 for (ii = 0; ii < num; ii++) {
