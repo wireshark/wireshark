@@ -12909,3 +12909,110 @@ class TestDissectBiccMst:
             '6\t0x0b,0x01,0x89,0x8a,0x8b',
             '9\t0x0b,0x0a,0x12,0x05,0x05,0x89,0x8a,0x8b',
         ]
+
+
+class TestDissectBier:
+    def test_bier_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BitString length and next protocol decodes, rejected
+        headers fall back to MPLS data, and there are no malformed packets
+        in one and two passes. The only expert info of warning or error
+        severity is the nesting limit in frame 28.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bier_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 28
+        assert protocols.count('DISCARD') == 16
+        assert protocols.count('Geneve/DISCARD') == 1
+        assert protocols.count('BIER') == 5
+        assert protocols.count('MPLS') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bier_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['28\tPayload nested too deep, not dissected']
+
+    def test_bier_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header fields, every BitString length and the payload of every
+        next protocol.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bier_coverage.pcap.gz'),
+                '-Y', 'bier',
+                '-Tfields', '-eframe.number', '-ebier.bsl', '-ebier.proto',
+                '-ebier.bitstring', '-ebier.bfir-id',
+                '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        # Frames 21-26 have headers BIER rejects
+        assert [int(f[0]) for f in frames] == list(range(1, 21)) + [28]
+        assert [int(f[1]) for f in frames[:7]] == list(range(1, 8))
+        assert [len(f[3]) // 2 for f in frames[:7]] == [8, 16, 32, 64, 128, 256, 512]
+        assert [int(f[4]) for f in frames[:7]] == [100, 200, 300, 400, 500, 600, 700]
+        assert [int(f[2], 16) for f in frames[7:20]] == [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 10, 63, 1]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bier_coverage.pcap.gz'),
+                '-Y', 'frame.number == 11',
+                '-Tfields', '-ebier.ver', '-ebier.entropy', '-ebier.oam',
+                '-ebier.rsv', '-ebier.dscp', '-ebier.bfir-id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['3', '0x0fffff', '0x03', '0x03', '0x003f', '65535']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bier_coverage.pcap.gz'),
+                '-Y', 'frame.number in {8..10, 12..18, 20}',
+                '-Tfields', '-eframe.protocols', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        # MPLS hands the payload to BIER without adding it to the protocols
+        assert stdout.splitlines() == [
+            'eth:ethertype:mpls:mpls:udp:discard\tDiscard',
+            'eth:ethertype:mpls:mpls:udp:discard\tDiscard',
+            'eth:ethertype:mpls:eth:ethertype:ip:udp:discard\tDiscard',
+            'eth:ethertype:mpls:data\tOAM packet',
+            'eth:ethertype:mpls:ipv6:udp:discard\tDiscard',
+            'eth:ethertype:mpls:vxlan:eth:ethertype:ip:udp:discard\tDiscard',
+            'eth:ethertype:mpls:gre:eth:ethertype:ip:udp:discard\tDiscard',
+            'eth:ethertype:mpls:geneve:eth:ethertype:ip:udp:discard\tEncapsulated Transparent Ethernet bridging, Discard',
+            'eth:ethertype:mpls:data\tReserved',
+            'eth:ethertype:mpls:data\tUnknown (0x0a)',
+            'eth:ethertype:mpls:mpls:ip:udp:discard\tDiscard',
+        ]
+        # Frame 20 nests MPLS -> BIER -> MPLS -> BIER -> IPv4
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bier_coverage.pcap.gz'),
+                '-Y', 'frame.number == 20',
+                '-Tfields', '-ebier.bfir-id', '-empls.label',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1,20', '16,200,400']
+
+    def test_bier_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''BIER bound to an MPLS label rejects a payload whose first nibble
+        is not 5, so the first nibble logic dissects it as IPv4.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bier_coverage.pcap.gz'),
+                '-d', 'mpls.label==500,bier', '-d', 'mpls.label==100,bier',
+                '-Y', 'frame.number in {1, 27}',
+                '-Tfields', '-eframe.number', '-ebier.bsl', '-eudp.dstport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t1\t9', '27\t\t9']
+
+    def test_bier_too_deep(self, cmd_tshark, capture_file, test_env):
+        '''MPLS and BIER nested 500 times stop before the layer limit
+        with a warning instead of failing an assertion.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bier_coverage.pcap.gz'),
+                '-Y', 'bier.too_deep',
+                '-Tfields', '-eframe.number', '-ebier.proto', '-e_ws.malformed',
+                '-E', 'occurrence=a', '-E', 'aggregator= ',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == ['28']
+        assert len(frames[0][1].split()) == 481
+        assert frames[0][2] == ''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bier_coverage.pcap.gz'),
+                '-Y', 'frame.number == 28', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Dissector bug' not in stdout
+        assert 'Payload nested too deep, not dissected' in stdout
