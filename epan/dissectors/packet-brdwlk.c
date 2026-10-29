@@ -262,13 +262,13 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     p_add_proto_data(wmem_file_scope(), pinfo, proto_brdwlk, 0, &packet_count);
                 }
             }
+            packet_count = pkt_cnt;
+            first_pkt = false;
         }
 
         hidden_item = proto_tree_add_boolean(brdwlk_tree, hf_brdwlk_drop,
                 tvb, offset, 0, dropped_packets);
         proto_item_set_hidden(hidden_item);
-
-        packet_count = pkt_cnt;
 
         error=tvb_get_uint8(tvb, offset+2);
         dissect_brdwlk_err(brdwlk_tree, tvb, offset+2);
