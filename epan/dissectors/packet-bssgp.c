@@ -880,7 +880,7 @@ de_bssgp_chnl_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32
 
     curr_offset = offset;
 
-    curr_offset = de_rr_chnl_needed(tvb, tree, pinfo, curr_offset, len , NULL, 0);
+    curr_offset += de_rr_chnl_needed(tvb, tree, pinfo, curr_offset, len , NULL, 0);
 
     return curr_offset-offset;
 }
@@ -1383,6 +1383,7 @@ de_bssgp_transaction_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_bssgp_transaction_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+    curr_offset += 2;
 
     return curr_offset-offset;
 }
@@ -1883,14 +1884,17 @@ de_bssgp_ran_information_app_cont_unit(tvbuff_t *tvb, proto_tree *tree, packet_i
                 proto_tree      *si_tree;
 
                 for (i=0; i < num_items; i++){
+                    /* Only set for a known message type */
+                    msg_fcn_p = NULL;
+                    ett_tree = -1;
                     oct = tvb_get_uint8(tvb,curr_offset);
                     get_rr_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
                     si_item2 = proto_tree_add_bytes_format(tree, hf_bssgp_si_item, tvb, curr_offset, 21, NULL, "SI item %u ",i+1);
                     si_item = proto_tree_add_item(tree, hf_idx, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                    si_tree = proto_item_add_subtree(si_item, ett_tree);
                     if (msg_fcn_p == NULL){
                         expert_add_info(pinfo, si_item2, &ei_bssgp_si_item);
                     }else{
+                        si_tree = proto_item_add_subtree(si_item, ett_tree);
                         (*msg_fcn_p)(tvb, si_tree, pinfo, curr_offset+1, 20);
                     }
                     curr_offset+=21;
@@ -2364,15 +2368,12 @@ static uint16_t
 de_bssgp_mbms_session_dur(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
     tvbuff_t *new_tvb;
-    uint32_t curr_offset;
-
-    curr_offset = offset;
 
     /* AVP Code: 904 MBMS-Session-Duration Registered by packet-gtp.c */
     new_tvb =tvb_new_subset_length(tvb, offset, len);
     dissector_try_uint(diameter_3gpp_avp_dissector_table, 904, new_tvb, pinfo, tree);
 
-    return curr_offset-offset;
+    return len;
 }
 /*
  * 11.3.73  MBMS Service Area Identity List
@@ -2385,15 +2386,12 @@ static uint16_t
 de_bssgp_mbms_sai_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
     tvbuff_t *new_tvb;
-    uint32_t curr_offset;
-
-    curr_offset = offset;
 
     /* AVP Code: 903 MBMS-Service-Area Registered by packet-gtp.c */
     new_tvb =tvb_new_subset_length(tvb, offset, len);
     dissector_try_uint(diameter_3gpp_avp_dissector_table, 903, new_tvb, pinfo, tree);
 
-    return curr_offset-offset;
+    return len;
 }
 /*
  * 11.3.74  MBMS Response
@@ -3042,7 +3040,7 @@ de_bssgp_velocity_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint
      * identical to that for Description of Velocity defined in 3GPP TS
      * 23.032.
      */
-    curr_offset = dissect_description_of_velocity(tvb, tree, pinfo, curr_offset, len, add_string, string_len);
+    curr_offset += dissect_description_of_velocity(tvb, tree, pinfo, curr_offset, len, add_string, string_len);
 
     return curr_offset-offset;
 }
@@ -4915,7 +4913,7 @@ bssgp_flush_ll(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t off
     /* BVCI (new) BVCI/11.3.6 O TLV 4 */
     ELEM_OPT_TELV(BSSGP_IEI_BVCI, BSSGP_PDU_TYPE, DE_BSSGP_BVCI , " - New");
     /* NSEI (new) NSEI/11.3.48 O (note) TLV 4 */
-    ELEM_OPT_TELV(0x3e, GSM_A_PDU_TYPE_RR, DE_BSSGP_NSEI , " - New");
+    ELEM_OPT_TELV(0x3e, BSSGP_PDU_TYPE, DE_BSSGP_NSEI , " - New");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
 }
@@ -4946,7 +4944,7 @@ bssgp_flush_ll_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t
     /* Number of octets affected Number of octets affected/11.3.41 M TLV 5 */
     ELEM_MAND_TELV(BSSGP_IEI_NUMBER_OF_OCTETS_AFFECTED, BSSGP_PDU_TYPE, DE_BSSGP_NO_OF_OCT_AFFECTED, NULL, ei_bssgp_missing_mandatory_element);
     /* NSEI (new) NSEI/11.3.48 C (note 2) TLV 4 */
-    ELEM_OPT_TELV(0x3e, GSM_A_PDU_TYPE_RR, DE_BSSGP_NSEI , " - New");
+    ELEM_OPT_TELV(0x3e, BSSGP_PDU_TYPE, DE_BSSGP_NSEI , " - New");
 
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_bssgp_extraneous_data);
@@ -5315,7 +5313,7 @@ bssgp_sgsn_invoke_trace(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uin
     /* Mobile Id Mobile Id/11.3.20 O TLV 3-10 */
     ELEM_OPT_TELV(0x11,GSM_A_PDU_TYPE_COMMON, DE_MID, NULL);
     /* OMC Id OMC Id/11.3.23 O TLV 4-24 */
-    ELEM_OPT_TELV(0x14,GSM_A_PDU_TYPE_COMMON, DE_BSSGP_OMC_ID, NULL);
+    ELEM_OPT_TELV(0x14, BSSGP_PDU_TYPE, DE_BSSGP_OMC_ID, NULL);
     /* TransactionId TransactionId/11.3.39 O TLV 4 */
     ELEM_OPT_TELV(0x23, BSSGP_PDU_TYPE, DE_BSSGP_TRANSACTION_ID , NULL);
 
