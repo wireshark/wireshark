@@ -74,4 +74,10 @@ if(USE_MSYSTEM)
 
 		$<TARGET_FILE_DIR:wireshark>/qt.conf
 	)
+	# MSYS2's winsparkle package can be older than the version we require,
+	# in which case we don't use it and shouldn't ship it.
+	if(WINSPARKLE_FOUND)
+		file(GLOB _winsparkle_dll ${MINGW_BIN}/libwinsparkle*.dll)
+		list(APPEND MINGW_DLLS ${_winsparkle_dll})
+	endif()
 endif()
