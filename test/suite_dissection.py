@@ -14813,3 +14813,135 @@ class TestDissectBpsec:
         assert 'Parameter: Additional Unprotected Headers (4)' in stdout
         assert 'Parameter: AAD Scope (5)' in stdout
         assert 'Context ID: COSE (3)' in stdout
+
+
+class TestDissectBpv6:
+    def test_bpv6_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Bundle protocol versions 4, 5 and 6 over UDP, TCPCL and LTP decode
+        without malformed packets or errors in one and two passes. The only
+        warnings are the CTEB/ECOS checks in frames 24 and 25 and the block
+        length errors in frames 26 and 27.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv6_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 45
+        assert protocols.count('Bundle') == 31
+        assert protocols.count('BPv7') == 1
+        assert protocols.count('UDP') == 3
+        assert protocols.count('TCPCL') == 5
+        assert protocols.count('TCP') == 5
+        for passes in ((), ('-2',)):
+            proc = subprocess.run((cmd_tshark, *passes,
+                    '-r', capture_file('bpv6_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-ebundle.offset_error',
+                    '-ebundle.block.control.cteb_invalid', '-ebundle.block.control.flags.error',
+                ), capture_output=True, encoding='utf-8', env=test_env, check=True)
+            # Over-long SDNVs are no longer reported with a log warning
+            assert 'WARNING' not in proc.stderr
+            frames = [line.split('\t') for line in proc.stdout.splitlines()]
+            assert [f[0] for f in frames] == ['24', '25', '26', '27']
+            # Two invalid CTEBs, four control flag errors, two length errors
+            assert frames[0][2] and frames[1][2] and frames[0][3] and frames[1][3]
+            assert frames[2][1] and frames[3][1]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpv6_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_bpv6_payload_ssp(self, cmd_tshark, capture_file, test_env):
+        '''The SSP offsets of a version 6 bundle choose CFDP or AMP for its
+        payload; a version 4 bundle before or after it keeps a data payload
+        in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpv6_coverage.pcap.gz'),
+                    '-Y', 'frame.number <= 5',
+                    '-Tfields', '-ebundle.version', '-ebundle.payload.data',
+                    '-ecfdp.data_length', '-eamp.agent_name',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '4\t<14 bytes>\t\t',
+                '6\t\t14\t',
+                '6\t\t\tagent',
+                '6\t\t\tagent',
+                '4\t<18 bytes>\t\t',
+            ]
+
+    def test_bpv6_admin_records(self, cmd_tshark, capture_file, test_env):
+        '''Status reports and custody signals with and without the "for a
+        fragment" flag, aggregate custody signal fills, announce record.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpv6_coverage.pcap.gz'),
+                    '-Y', 'bundle.admin.record_type',
+                    '-Tfields', '-eframe.number', '-ebundle.admin.record_type',
+                    '-ebundle.admin.record_fragment', '-ebundle.admin.fragment_offset',
+                    '-ebundle.admin.fragment_length', '-ebundle.admin.status.flag',
+                    '-ebundle.status_report_reason_code', '-ebundle.custody_signal_reason_code',
+                    '-ebundle.admin.endpoint_id', '-ebundle.custody_id_range_end',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '8\t2\tFalse\t\t\t\t\t0\tipn:2.1\t',
+                '14\t1\tFalse\t\t\t0x01\t0\t\tipn:1.2\t',
+                '15\t2\tTrue\t100\t200\t\t\t0\tipn:1.2\t',
+                '16\t1\tTrue\t1000\t500\t0x3f\t4\t\tipn:2.1\t',
+                '17\t1\tFalse\t\t\t0x10\t1\t\tipn:2.1\t',
+                '18\t2\tFalse\t\t\t\t\t3\tipn:2.1\t',
+                '19\t2\tTrue\t2000\t250\t\t\t0\tipn:2.1\t',
+                '20\t4\tFalse\t\t\t\t\t0\t\t14,19,220',
+                '21\t5\t\t\t\t\t\t\t\t',
+                '22\t3\t\t\t\t\t\t\t\t',
+            ]
+
+    def test_bpv6_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Extension blocks, and a CTEB with a block length shorter than its
+        custody ID stops the bundle with a block length error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv6_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11, 13}',
+                '-Tfields', '-ebundle.block.ecos.flow_label', '-ebundle.age_extension_block_code',
+                '-ebundle.block.previous_hop_eid', '-ebundle.block.cteb_creator_custodian_eid',
+                '-ebundle.block.ciphersuite_param_type', '-ebundle.block.ciphersuite_result_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4242\t123\t3.1\tdtn://node1/\t\t',
+            '\t\t\t\t1,3,4,5,7,8,2\t5,4,1,3,7,8,9,8',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv6_coverage.pcap.gz'),
+                '-Y', 'bundle.block.control.cteb_valid',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['6', '11', '24', '25']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv6_coverage.pcap.gz'),
+                '-Y', 'frame.number == 26',
+                '-Tfields', '-ebundle.block.cteb_custody_id', '-ebundle.block.length',
+                '-ebundle.payload.length', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '1\t0\t\tMetadata Block Length Error\n'
+
+    def test_bpv6_transports(self, cmd_tshark, capture_file, test_env):
+        '''Dictionary and CBHE endpoint IDs in the Info column, a bundle
+        reassembled from two TCP segments, several bundles in one LTP block,
+        the version 7 hand-off and SDNVs above INT_MAX.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv6_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 8, 23, 28, 38, 40, 44, 45}',
+                '-Tfields', '-e_ws.col.info', '-ebundle.version',
+                '-ebundle.primary.lifetime_sdnv',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'dtn://node1/app > dtn://node2/app 0.0\t4\t',
+            'dtn:none > dtn:none 0.0\t4\t',
+            'ipn:2.1 > ipn:1.1 2147483647.2147483647\t6\t2147483647',
+            'Payload Size: 4\t\t',
+            'dtn://node1/app > dtn://node2/app 700000000.1\t6\t3600',
+            'dtn://node1/app > dtn://node2/app 0.0\t4\t',
+            'ipn:1.1 > ipn:2.1 700000000.0, [multiple]\t6,6,6\t3600,3600,3600',
+            'dtn://node1/app > dtn://node2/app 700000000.0, [multiple]\t6,6\t3600,3600',
+        ]
