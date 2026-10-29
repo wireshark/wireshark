@@ -302,6 +302,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 		/* Padding so continue to next attribute */
 		if (first_byte == 0){
+			offset++;
 			read_attr++;
 			continue;
 		}
