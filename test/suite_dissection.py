@@ -17037,3 +17037,105 @@ class TestDissectBthciEvt:
                 '-Tfields', '-ebthci_evt.response_in_frame',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['15', '18', '25']
+
+
+class TestDissectBthciIso:
+    def test_bthci_iso_protocols(self, cmd_tshark, capture_file, test_env):
+        '''HCI commands and events set up two LE connections, three CISes
+        and a BIG; ISO carries complete and fragmented SDUs with and
+        without timestamps, without malformed packets or warnings in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_iso_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 46
+        assert protocols.count('HCI_CMD') == 8
+        assert protocols.count('HCI_EVT') == 16
+        assert protocols.count('HCI_ISO') == 7
+        assert protocols.count('ISO Data') == 15
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_iso_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_bthci_iso_sdus(self, cmd_tshark, capture_file, test_env):
+        '''Complete and reassembled SDUs, the same in one and two passes.
+        The SDU reassembled from a first fragment with a timestamp (frames
+        25 and 27) shows the timestamp, sequence number and SDU length. A
+        last fragment after the completed SDU (frame 28) is not attached
+        to it, and neither are fragments whose first fragment is not in
+        the capture (35, 36).'''
+        fields = ('-ebthci_iso.chandle', '-ebthci_iso.pb_flag', '-ebthci_iso.ts_flag',
+                  '-ebthci_iso.continuation_to', '-ebthci_iso_data.timestamp',
+                  '-ebthci_iso_data.packet_seq_num', '-ebthci_iso_data.sdu_length',
+                  '-ebthci_iso_data.status_flag')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_iso_coverage.pcap.gz'),
+                    '-Y', 'bthci_iso',
+                    '-Tfields', '-eframe.number', *fields,
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in outputs[0].splitlines())}
+        # Complete SDUs: sent without a status flag, received with status
+        # 0-3, timestamps, lost data
+        assert frames[15] == ['0x0060', '0x0002', 'False', '', '', '1', '4', '']
+        assert frames[17] == ['0x0060', '0x0002', 'True', '', '65536', '2', '2', '0']
+        assert [frames[n][7] for n in (16, 18, 19, 20)] == ['0', '1', '2', '3']
+        assert frames[21] == ['0x0060', '0x0002', 'True', '', '131072', '2', '3', '']
+        # Three fragments, no timestamp
+        assert frames[22] == ['0x0060', '0x0000', 'False', '', '', '', '', '']
+        assert frames[23] == ['0x0060', '0x0001', 'False', '22', '', '', '', '']
+        assert frames[24] == ['0x0060', '0x0003', 'False', '22', '', '6', '32', '0']
+        # Timestamp in the first fragment only
+        assert frames[25] == ['0x0060', '0x0000', 'True', '', '', '', '', '']
+        assert frames[27] == ['0x0060', '0x0003', 'False', '25', '286331153', '7', '16', '0']
+        # Stray last fragment
+        assert frames[28] == ['0x0060', '0x0003', 'False', '', '', '', '', '']
+        # Sent fragments on CIS 0x061 with a received SDU in between
+        assert frames[31] == ['0x0061', '0x0003', 'False', '29', '', '1', '10', '']
+        # BIS: fragments without a first fragment, then a complete SDU
+        assert frames[35] == ['0x0070', '0x0001', 'False', '', '', '', '', '']
+        assert frames[36] == ['0x0070', '0x0003', 'False', '', '', '', '', '']
+        assert frames[37] == ['0x0070', '0x0002', 'True', '', '196608', '1', '4', '']
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_iso_coverage.pcap.gz'),
+                '-Y', 'bthci_iso.reassembled_in',
+                '-Tfields', '-eframe.number', '-ebthci_iso.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['22\t24', '23\t24', '25\t27', '29\t31']
+
+    def test_bthci_iso_connections(self, cmd_tshark, capture_file, test_env):
+        '''CIS handles are mapped to their LE connection for the addresses
+        and the remote name; the BIS has no connection. CIS 0x060 is
+        disconnected in frame 41 (shown in the second pass).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-n',
+                    '-r', capture_file('bthci_iso_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {15, 16, 30, 37, 46}',
+                    '-Tfields', '-ebthci_iso.connect_in', '-e_ws.col.def_src', '-e_ws.col.def_dst',
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        local = '00:1b:dc:00:00:01 (ws-local)'
+        assert [line.split('\t') for line in outputs[0].splitlines()] == [
+            ['10', local, 'c0:ff:ee:00:00:c4 (ws-earbud)'],
+            ['10', 'c0:ff:ee:00:00:c4 (ws-earbud)', local],
+            ['14', 'c0:ff:ee:00:00:c4 (ws-earbud)', local],
+            ['', local, 'remote ()'],
+            ['45', local, 'c0:ff:ee:00:00:d5 ()'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_iso_coverage.pcap.gz'),
+                '-Y', 'bthci_iso.disconnect_in',
+                '-Tfields', '-eframe.number', '-ebthci_iso.disconnect_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['%d\t41' % n for n in range(15, 29)]
