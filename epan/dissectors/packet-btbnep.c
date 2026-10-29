@@ -167,12 +167,13 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned of
             offset += 1;
 
             pitem = proto_tree_add_item(tree, hf_btbnep_destination_service_uuid, tvb, offset, uuid_size, ENC_NA);
-            uuid_dst = tvb_get_ntohs(tvb, offset);
+            /* The 16-bit UUID is in octets 2-3 of a 32 or 128-bit UUID */
+            uuid_dst = tvb_get_ntohs(tvb, offset + (uuid_size >= 4 ? 2 : 0));
             proto_item_append_text(pitem, " (%s)", val_to_str_ext_const(uuid_dst, &bluetooth_uuid_vals_ext,  "Unknown uuid"));
             offset += uuid_size;
 
             pitem = proto_tree_add_item(tree, hf_btbnep_source_service_uuid, tvb, offset, uuid_size, ENC_NA);
-            uuid_src = tvb_get_ntohs(tvb, offset);
+            uuid_src = tvb_get_ntohs(tvb, offset + (uuid_size >= 4 ? 2 : 0));
             proto_item_append_text(pitem, " (%s)", val_to_str_ext_const(uuid_src, &bluetooth_uuid_vals_ext,  "Unknown uuid"));
             offset += uuid_size;
 
@@ -241,19 +242,18 @@ dissect_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
     proto_tree_add_item(tree, hf_btbnep_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_btbnep_extension_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     type = tvb_get_uint8(tvb, offset);
-    extension_flag = type & 0x01;
-    extension_type = type >> 1;
+    extension_flag = type & 0x80;
+    extension_type = type & 0x7F;
     offset += 1;
 
     proto_tree_add_item_ret_uint8(tree, hf_btbnep_extension_length, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_length);
-    offset += 2;
+    offset += 1;
 
     if (extension_type == 0x00) {
         /* Extension Control */
-        offset = dissect_control(tvb, pinfo, tree, offset);
-    } else {
-        offset += extension_length;
+        dissect_control(tvb, pinfo, tree, offset);
     }
+    offset += extension_length;
 
     increment_dissection_depth(pinfo);
     if (extension_flag) offset = dissect_extension(tvb, pinfo, tree, offset);
@@ -481,7 +481,7 @@ proto_register_btbnep(void)
         },
         { &hf_btbnep_extension_type,
             { "Extension Type",                    "btbnep.extension_type",
-            FT_UINT8, BASE_HEX, VALS(extension_type_vals), 0x00,
+            FT_UINT8, BASE_HEX, VALS(extension_type_vals), 0x7F,
             NULL, HFILL }
         },
         { &hf_btbnep_extension_length,
