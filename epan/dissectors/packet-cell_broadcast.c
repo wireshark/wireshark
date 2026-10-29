@@ -407,6 +407,8 @@ int dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto
    sms_encoding = dissect_cbs_data_coding_scheme(tvb, pinfo, cbs_tree, 0);
    offset++;
    cbs_msg_tvb = dissect_cbs_data(sms_encoding, tvb, cbs_tree, pinfo, offset );
+   if (cbs_msg_tvb == NULL)
+      return tvb_captured_length(tvb);
 
    msg_len = tvb_reported_length(cbs_msg_tvb);
    cbs_subtree = proto_tree_add_subtree_format(cbs_tree, tvb, offset, -1,
