@@ -13621,3 +13621,101 @@ class TestDissectBittorrent:
                        'Azureus v4004', 'Azureus v5770', 'BitTornado v03I',
                        'Bits on Wheels v0A0', 'Azureus v\\001\\002\\003\\004'):
             assert 'Client is ' + client in stdout
+
+
+class TestDissectBjnp:
+    def test_bjnp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BJNP device type and command code on UDP 8611-8614 decodes
+        without malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bjnp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 28
+        assert protocols.count('BJNP') == 27
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bjnp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bjnp_types_and_codes(self, cmd_tshark, capture_file, test_env):
+        '''Device types and command codes, known and unknown, in Info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bjnp_coverage.pcap.gz'),
+                '-Y', 'bjnp',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert info[:14] == [
+            'Printer Command: Discover', 'Printer Response: Discover',
+            'Printer Command: Print Job Details', 'Printer Response: Print Job Details',
+            'Printer Command: Request Closure', 'Printer Response: Request Closure',
+            'Printer Command: Get Printer Status', 'Printer Response: Get Printer Status',
+            'Printer Command: Print', 'Printer Response: Print',
+            'Printer Command: Get Printer Identity', 'Printer Response: Get Printer Identity',
+            'Printer Command: Scan Job Details', 'Printer Response: Scan Job Details',
+        ]
+        assert info[14:16] == ['Scanner Command: Discover', 'Scanner Response: Discover']
+        assert info[20:23] == [
+            'Unknown type (127): Unknown code (127)',
+            'Printer Command: Unknown code (66)',
+            'Unknown type (85): Print',
+        ]
+
+    def test_bjnp_payload_length(self, cmd_tshark, capture_file, test_env):
+        '''Empty payloads, a payload that exactly fills the datagram and one
+        shorter than the datagram; a non-printable first octet is not BJNP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bjnp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 25, 26, 27, 28}',
+                '-Tfields', '-eframe.number', '-ebjnp.seq_no', '-ebjnp.session_id',
+                '-ebjnp.payload_len', '-ebjnp.payload',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert frames[0] == ['5', '3', '259', '0', '']
+        assert frames[1] == ['25', '1', '0', '4', b'abcd'.hex()]
+        assert frames[2][:4] == ['26', '43', '3', '1024']
+        assert frames[2][4] == (bytes(range(256)) * 4).hex()
+        assert frames[3] == ['27', '44', '4', '2', b'AB'.hex()]
+        assert frames[4] == ['28', '', '', '', '']
+
+    def test_bjnp_payload_length_too_long(self, cmd_tshark, result_file, test_env):
+        '''A payload length of 0xffffffff is malformed instead of becoming
+        -1, "to the end of the packet", and showing the payload.'''
+        def frame(plen):
+            bjnp = b'BJNP' + struct.pack('>BBIHI', 0x01, 0x30, 1, 0, plen) + b'abcd'
+            udp = struct.pack('>HHHH', 40000, 8611, 8 + len(bjnp), 0) + bjnp
+            ip = struct.pack('>BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), 1, 0, 64, 17, 0,
+                             bytes((192, 0, 2, 1)), bytes((192, 0, 2, 2)))
+            s = sum(struct.unpack('>10H', ip))
+            s = (s & 0xffff) + (s >> 16)
+            s = (s & 0xffff) + (s >> 16)
+            ip = ip[:10] + struct.pack('>H', ~s & 0xffff) + ip[12:]
+            return bytes.fromhex('020000000002020000000001') + b'\x08\x00' + ip + udp
+        pcap = result_file('bjnp-payload-len.pcap')
+        with open(pcap, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            for i, plen in enumerate((4, 0xffffffff, 5)):
+                p = frame(plen)
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(p), len(p)) + p)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', pcap,
+                '-Tfields', '-eframe.number', '-ebjnp.payload_len',
+                '-ebjnp.payload',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t4\t61626364',
+            '2\t4294967295\t',
+            '3\t5\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', pcap,
+                '-Y', '_ws.malformed',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['2', '3']
