@@ -699,7 +699,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT BR/EDR RF");
 
-    if (tvb_captured_length(tvb) >= 21) {
+    if (tvb_captured_length(tvb) >= 22) {
         flags = tvb_get_uint16(tvb, 20, ENC_LITTLE_ENDIAN);
     } else {
         flags = 0;
@@ -861,7 +861,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_br_vals, "Unknown");
             packet_type_table = packet_type_cpb_br_table;
-        } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
+        } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_3)) {
             proto_tree_add_item(header_tree, hf_packet_header_broken_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
             packet_type = (tvb_get_uint8(tvb, offset + 1) >> 3) & 0xF;
@@ -926,7 +926,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
             packet_type_str = val_to_str_const(packet_type, packet_type_cpb_br_vals, "Unknown");
             packet_type_table = packet_type_cpb_br_table;
-        } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
+        } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_3)) {
             proto_tree_add_item(header_tree, hf_packet_header_type_cpb_edr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
             packet_type = (tvb_get_uint8(tvb, offset) >> 3) & 0xF;
@@ -1416,7 +1416,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
        default:
            break;
        }
-   } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_ACL | PAYLOAD_EDR_3)) {
+   } else if (payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_2) || payload_and_transport == (TRANSPORT_CPB | PAYLOAD_EDR_3)) {
        switch (packet_type) {
        case 0: // NULL
            isochronous_length = 0;
@@ -1705,6 +1705,7 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                    break;
                                }
                                pinfo->fragmented = true;
+                               next_tvb = NULL;
                                if (!frame_info->retransmit && connection_info && direction >= 0) {
                                    unsigned pdu_len = data_length - data_header;
                                    if (!pinfo->fd->visited) {
@@ -1835,6 +1836,9 @@ dissect_btbredr_fhs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     device_info_t      *device_info = NULL;
     connection_info_t  *connection_info = NULL;
     btbredr_fhs_data_t *fhs_data = (btbredr_fhs_data_t *) data;
+
+    if (fhs_data == NULL)
+        return 0;
 
     btbredr_fhs_item = proto_tree_add_item(tree, proto_btbredr_fhs, tvb, offset, -1, ENC_NA);
     btbredr_fhs_tree = proto_item_add_subtree(btbredr_fhs_item, ett_btbredr_fhs);
