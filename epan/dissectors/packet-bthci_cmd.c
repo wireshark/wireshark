@@ -3474,7 +3474,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
             offset++;
 
             item = proto_tree_add_item(tree, hf_bthci_cmd_clock_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            clock_value = tvb_get_letohs(tvb, 13) & 32767; /* only bit0-14 are valid  */
+            clock_value = tvb_get_letohs(tvb, offset) & 32767; /* only bit0-14 are valid  */
             proto_item_append_text(item, " (%g msec)", 1.25*clock_value);
             proto_tree_add_item(tree, hf_bthci_cmd_clock_offset_valid , tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
@@ -3886,7 +3886,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
             offset += 1;
 
             item = proto_tree_add_item(tree, hf_bthci_cmd_clock_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            clock_value = tvb_get_letohs(tvb, 13) & 32767; /* only bit0-14 are valid  */
+            clock_value = tvb_get_letohs(tvb, offset) & 32767; /* only bit0-14 are valid  */
             proto_item_append_text(item, " (%g msec)", 1.25 * clock_value);
 
             proto_tree_add_item(tree, hf_bthci_cmd_clock_offset_valid , tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -4483,7 +4483,8 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, unsigned offset, packet_info
 
         case 0x003e: /* Write Page Scan Mode */
             proto_tree_add_item(tree, hf_bthci_cmd_page_scan_mode,
-                    tvb, 3, 1, ENC_LITTLE_ENDIAN);
+                    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
             break;
 
         case 0x003f: /* Set AFH Host Channel Classification */
@@ -6021,7 +6022,7 @@ dissect_le_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *t
                 if (tvb_get_uint8(tvb, offset) == 0)
                     proto_item_append_text(item, " (No data)");
                 offset++;
-                proto_tree_add_item(sub_tree, hf_bthci_cmd_bn_p_to_c, tvb, offset, 1, ENC_NA);
+                item = proto_tree_add_item(sub_tree, hf_bthci_cmd_bn_p_to_c, tvb, offset, 1, ENC_NA);
                 if (tvb_get_uint8(tvb, offset) == 0)
                     proto_item_append_text(item, " (No data)");
                 offset++;
@@ -6348,8 +6349,7 @@ dissect_le_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *t
             proto_tree_add_item_ret_uint8(tree, hf_bthci_cmd_num_subevents, tvb, offset, 1, ENC_NA, &sub_events);
             offset++;
             for (int i = 0; i < sub_events; i++) {
-                length = 4 + tvb_get_uint8(tvb, offset+3);
-                sub_item = proto_tree_add_none_format(tree, hf_bthci_cmd_subevents, tvb, offset, length,
+                sub_item = proto_tree_add_none_format(tree, hf_bthci_cmd_subevents, tvb, offset, 4 + tvb_get_uint8(tvb, offset+3),
                                                       "Sub-event: %u", tvb_get_uint8(tvb, offset));
                 sub_tree = proto_item_add_subtree(sub_item, ett_adv_subevents);
 
@@ -6994,7 +6994,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     if (!pinfo->fd->visited) {
-        bthci_cmd_data = (bthci_cmd_data_t *) wmem_new(wmem_file_scope(), bthci_cmd_data_t);
+        bthci_cmd_data = (bthci_cmd_data_t *) wmem_new0(wmem_file_scope(), bthci_cmd_data_t);
         bthci_cmd_data->opcode = opcode;
         bthci_cmd_data->command_in_frame = frame_number;
         bthci_cmd_data->command_abs_ts = pinfo->abs_ts;
@@ -11585,8 +11585,11 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     char        *name = NULL;
     bluetooth_uuid_t uuid;
     uint32_t     interval, num_bis;
+    bluetooth_eir_ad_data_t default_eir_ad_data = { HCI_INTERFACE_DEFAULT, HCI_ADAPTER_DEFAULT, NULL };
 
-    DISSECTOR_ASSERT(bluetooth_eir_ad_data);
+    /* An Exported PDU file can call the registered handles without data */
+    if (bluetooth_eir_ad_data == NULL)
+        bluetooth_eir_ad_data = &default_eir_ad_data;
 
     data_size = tvb_reported_length(tvb);
 
@@ -11681,6 +11684,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             if (length == 16) { /* little heuristic for recognize Security Manager TK Value */
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, 16, ENC_NA);
                 expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
+                offset += 16;
             }
             else if (length == 8) { /* DID */
                 uint16_t      vendor_id_source;
@@ -11717,6 +11721,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             else {
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length, ENC_NA);
                 expert_add_info(pinfo, sub_item, &ei_command_unknown_command);
+                offset += length;
             }
 
             break;
@@ -11942,7 +11947,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                 if (p_get_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID) == NULL) {
                     uint8_t *value_data;
 
-                    value_data = wmem_new(wmem_file_scope(), uint8_t);
+                    value_data = wmem_new(pinfo->pool, uint8_t);
                     *value_data = organization_id;
 
                     p_add_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID, value_data);
@@ -11969,7 +11974,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                         expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
                     }
 
-                    offset += length;
+                    offset += sub_length;
                 }
 
                 length -= (3 + sub_length);
@@ -11977,12 +11982,14 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
             break;
         case 0x27: {/* LE Supported Features */
-            for (uint8_t i=0; (tvb_captured_length_remaining(tvb, offset) > 0) && (i < 8); i++) {
+            int i;
+
+            for (i = 0; i < length && i < 8; i++) {
                 proto_tree_add_bitmask(entry_tree, tvb, offset, hf_btcommon_eir_ad_le_features, ett_eir_ad_le_features, hfx_btcommon_eir_ad_le_features[i], ENC_NA);
                 offset += 1;
             }
 
-            sub_length = tvb_captured_length_remaining(tvb, offset);
+            sub_length = length - i;
             if (sub_length > 0) {
                 sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, sub_length, ENC_NA);
                 expert_add_info(pinfo, sub_item, &ei_eir_ad_unknown);
@@ -12130,7 +12137,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             if (p_get_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_MANUFACTURER_COMPANY_ID) == NULL) {
                 uint16_t *value_data;
 
-                value_data = wmem_new(wmem_file_scope(), uint16_t);
+                value_data = wmem_new(pinfo->pool, uint16_t);
                 *value_data = company_id;
 
                 p_add_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_MANUFACTURER_COMPANY_ID, value_data);
