@@ -11983,3 +11983,91 @@ class TestDissectBeep:
             assert '    Payload: abcdefghijABCDEFGHIJ' in lines
             assert '    Payload: DEFGHIJKLMNOPQREN' in lines
             assert not [l for l in lines if l.startswith('Payload')]
+
+
+class TestDissectBencode:
+    def test_bencode_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Bencode strings, integers, lists and dictionaries carried in
+        Bazaar and BitTorrent decode without malformed packets or expert
+        infos of warning or error severity, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bencode_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 17
+        assert protocols.count('BZR') == 15
+        assert protocols.count('BitTorrent') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bencode_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bencode_list_depth(self, cmd_tshark, capture_file, test_env):
+        '''600 empty lists inside a list (frame 15) decode as 601 lists:
+        each list that ends with "e" restores the dissection depth, so
+        the depth limit is not hit.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bencode_coverage.pcap.gz'),
+                    '-Y', 'count(bencode.list) == 601 && !bencode.truncated_data '
+                          '&& !_ws.expert && !_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['15']
+
+    def test_bencode_values(self, cmd_tshark, capture_file, test_env):
+        '''Strings and integers, including the int64 limits, the nesting
+        limit (11 lists, 10 dictionaries), and the BitTorrent extension
+        handshakes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bencode_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 7, 16, 17}',
+                '-Tfields', '-eframe.number', '-ebencode.str.length', '-ebencode.int',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t4,0,12,8\t',
+            '2\t\t42,0,-17,9223372036854775807,-9223372036854775808',
+            '7\t4,1,1,1,1,1,1,1,1,1,1\t10',
+            '16\t1,11,6,1,4,1,13,6,4\t1,2,6881,250',
+            '17\t1,6,13,1,13\t1,31235',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bencode_coverage.pcap.gz'),
+                '-Y', 'count(bencode.list) == 21 && count(bencode.dict) == 10',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['7']
+
+    def test_bencode_dict_entries(self, cmd_tshark, capture_file, test_env):
+        '''Dictionary entries show their key and a string or integer
+        value.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bencode_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-O', 'bzr',
+            ), encoding='utf-8', env=test_env)
+        entries = [l.strip() for l in stdout.splitlines() if 'Entry Key:' in l]
+        assert entries == [
+            'Entry Key: bar  Value: spam',
+            'Entry Key: foo  Value: 42',
+            'Entry Key: neg  Value: -1',
+            'Entry Key: list',
+            'Entry Key: sub',
+            'Entry Key: x  Value: 1',
+            'Entry Key: empty  Value:',
+        ]
+
+    def test_bencode_truncated(self, cmd_tshark, capture_file, test_env):
+        '''Values cut short (digits without a colon, an integer, list or
+        dictionary without its end, an empty value) are shown as
+        Truncated Data without an error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bencode_coverage.pcap.gz'),
+                '-Y', 'bencode.truncated_data',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['10', '11', '12', '14']
