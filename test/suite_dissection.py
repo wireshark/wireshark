@@ -14267,3 +14267,127 @@ class TestDissectBmc:
             '34\t\t\t',
             '35\t\t\t',
         ]
+
+
+class TestDissectBmp:
+    BMP_PORT = ('-d', 'tcp.port==11019,bmp')
+
+    def test_bmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BMP v3 and v4 message type, peer type, peer flag, stat type
+        and TLV decodes without malformed packets or error expert infos, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bmp_coverage.pcap.gz'), *self.BMP_PORT,
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 67
+        assert protocols.count('BMP') == 23
+        assert protocols.count('BGP') == 29
+        assert protocols.count('TCP') == 15
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bmp_coverage.pcap.gz'), *self.BMP_PORT,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bmp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message types, versions and peer types, including the messages
+        reassembled from several TCP segments (frames 61 and 63) and two
+        messages in one segment (frame 64).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bmp_coverage.pcap.gz'), *self.BMP_PORT,
+                '-Y', 'bmp',
+                '-Tfields', '-eframe.number', '-ebmp.version', '-ebmp.type',
+                '-ebmp.peer.type',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 52
+        assert lines[0] == '4\t3\t4\t'
+        assert [l.split('\t')[3] for l in lines[3:13]] == \
+            ['0', '0', '0', '0', '0', '1', '1', '1', '2', '3']
+        assert '32\t3\t100\t' in lines
+        assert '61\t4\t0\t0' in lines
+        assert '63\t3\t0\t0' in lines
+        assert '64\t3,3\t0,5\t0' in lines
+
+    def test_bmp_v4_peer_down(self, cmd_tshark, capture_file, test_env):
+        '''BMPv4 Peer Down steps over the NOTIFICATION or the FSM event code
+        before the TLVs (batch120-149/bmp_peer_down_v4_tlv.py is frame 52).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bmp_coverage.pcap.gz'), *self.BMP_PORT,
+                    '-Y', 'bmp.type == 2 && bmp.version == 4',
+                    '-Tfields', '-eframe.number', '-ebmp.peer.down.reason',
+                    '-ebgp.type', '-ebmp.tlv.type', '-ebmp.tlv.value.string',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '52\t1\t3\t\t',
+                '53\t1\t3\t3\tvrf-a',
+                '54\t2\t4\t3,4\tvrf-b',
+                '55\t3\t3\t1\t',
+                '56\t4\t\t3\tvrf-c',
+                '57\t6\t\t5\t',
+                '58\t6\t3\t4\t',
+            ]
+
+    def test_bmp_tlv_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Route Mirroring TLVs and Stats Report entries are stepped over by
+        their length (batch120-149/bmp_tlv_len_ignored.py frames 1-3 are
+        frames 29-31): the KEEPALIVE after an unknown or a long Information
+        TLV and the stat after a long one are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bmp_coverage.pcap.gz'), *self.BMP_PORT,
+                '-Y', 'bmp.type == 6',
+                '-Tfields', '-eframe.number', '-ebmp.peer.route_mirroring.type',
+                '-ebmp.peer.route_mirroring.length',
+                '-ebmp.peer.route_mirroring.code', '-ebgp.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '28\t0,1,1\t65,2,2\t0,1\t2',
+            '29\t5,0\t4,19\t\t4',
+            '30\t1,0\t4,19\t0\t4',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bmp_coverage.pcap.gz'), *self.BMP_PORT,
+                '-Y', 'bmp.type == 1',
+                '-Tfields', '-eframe.number', '-ebmp.stats.count',
+                '-ebmp.stats.type', '-ebmp.stats.length',
+                '-ebmp.stats.data.prefix_dup',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\t21\t0,1,2,3,4,5,6,11,12,13,7,8,14,15,9,10,16,17,99,0,1\t'
+            '4,4,4,4,4,4,4,4,4,4,8,8,8,8,11,11,11,11,3,8,4\t101,9',
+            '31\t2\t0,1\t8,4\t9',
+            '50\t3\t0,1,2\t4,4,4\t101',
+        ]
+
+    def test_bmp_v4_route_monitoring(self, cmd_tshark, capture_file, test_env):
+        '''Every BMPv4 TLV with its index in a Route Monitoring message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bmp_coverage.pcap.gz'), *self.BMP_PORT,
+                '-Y', 'frame.number == 49',
+                '-Tfields', '-ebmp.tlv.type', '-ebmp.tlv.index',
+                '-ebmp.tlv.group_id', '-ebmp.tlv.value.index',
+                '-ebmp.tlv.value.path_status.reason', '-ebgp.nlri_prefix',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1,2,2,3,5,5,4\t0,0,0,0,1,1,0\t32769,32770\t1,2\t0x0004\t20.0.0.0,20.0.1.0',
+        ]
+
+    def test_bmp_route_policy(self, cmd_tshark, capture_file, test_env):
+        '''Route Policy and Attribute Trace messages with every TLV type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bmp_coverage.pcap.gz'), *self.BMP_PORT,
+                '-Y', 'bmp.type == 100',
+                '-Tfields', '-eframe.number', '-ebmp.route_policy.tlv.type',
+                '-ebmp.route_policy.tlv.policy.name',
+                '-ebmp.route_policy.tlv.policy.peer_ipv6',
+                '-ebmp.route_policy.tlv.string',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '32\t0,1,2,3,4,9\tIMPORT-POLICY,DEFAULT\t\troute accepted',
+            '33\t1,4\tV6-OUT\t2001:db8::9\tsecond event',
+        ]
