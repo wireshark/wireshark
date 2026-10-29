@@ -487,7 +487,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 
-	for (i = 0; i < length_remaining; i += VIS_PACKET_V22_DATA_SIZE) {
+	for (i = 0; i + VIS_PACKET_V22_DATA_SIZE <= length_remaining; i += VIS_PACKET_V22_DATA_SIZE) {
 		next_tvb = tvb_new_subset_length(tvb, offset, VIS_PACKET_V22_DATA_SIZE);
 
 		if (have_tap_listener(bat_follow_tap)) {
@@ -608,7 +608,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	length_remaining = tvb_reported_length_remaining(tvb, offset);
 
-	for (i = 0; i < length_remaining; i += VIS_PACKET_V23_DATA_SIZE) {
+	for (i = 0; i + VIS_PACKET_V23_DATA_SIZE <= length_remaining; i += VIS_PACKET_V23_DATA_SIZE) {
 		next_tvb = tvb_new_subset_length(tvb, offset, VIS_PACKET_V23_DATA_SIZE);
 
 		if (have_tap_listener(bat_follow_tap)) {
@@ -651,7 +651,7 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		proto_item *ti;
 		proto_tree *bat_vis_entry_tree;
 
-		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, 7,
+		ti = proto_tree_add_protocol_format(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_DATA_SIZE,
 							    "VIS Entry: [%s] %s",
 							    val_to_str(pinfo->pool, vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
 							    address_with_resolution_to_str(pinfo->pool, &vis_datah->ip));
