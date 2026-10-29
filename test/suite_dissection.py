@@ -13282,3 +13282,189 @@ class TestDissectBistOuch:
             'Cancel by Order ID GlobalIndex#13',
             'Order Executed, TradedQty=42 OrderChainID#11 OrderIndex#6 GlobalIndex#42',
         ]
+
+
+class TestDissectBitcoin:
+    def test_bitcoin_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Bitcoin message type, found by the TCP heuristic, decodes
+        without malformed packets in one and two passes. The only warnings
+        are "Unknown command" for the four commands with no handler.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 146
+        assert protocols.count('Bitcoin') == 118
+        assert protocols.count('TCP') == 28
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || (_ws.expert.severity >= warning && !bitcoin.command.unknown)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                    '-Y', 'bitcoin.command.unknown',
+                    '-Tfields', '-ebitcoin.command',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['cmpctblock', 'getblocktxn', 'blocktxn', 'synthetic']
+
+    def test_bitcoin_commands(self, cmd_tshark, capture_file, test_env):
+        '''The number of PDUs of each command.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                '-Y', 'bitcoin',
+                '-Tfields', '-ebitcoin.command',
+            ), encoding='utf-8', env=test_env)
+        commands = stdout.replace('\n', ',').rstrip(',').split(',')
+        assert len(commands) == 125
+        expected = {
+            'version': 16, 'verack': 9, 'ping': 7, 'pong': 5, 'tx': 10,
+            'reject': 9, 'inv': 5, 'getdata': 5, 'notfound': 5, 'addr': 4,
+            'addrv2': 4, 'getblocks': 4, 'getheaders': 4, 'headers': 4,
+            'block': 4, 'filterload': 4, 'filteradd': 4, 'merkleblock': 4,
+            'feefilter': 2, 'sendcmpct': 2,
+        }
+        for command, count in expected.items():
+            assert commands.count(command) == count, command
+        for command in ('wtxidrelay', 'sendaddrv2', 'sendheaders', 'getaddr',
+                        'mempool', 'filterclear', 'checkorder', 'submitorder',
+                        'reply', 'alert', 'cmpctblock', 'getblocktxn',
+                        'blocktxn', 'synthetic'):
+            assert commands.count(command) == 1, command
+
+    def test_bitcoin_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Four PDUs in one segment, a block over three segments, a header
+        split after 10 octets, and a segment with the tail of one PDU, a
+        whole PDU and the head of another.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                '-Y', 'bitcoin && frame.number >= 96 && frame.number <= 107',
+                '-Tfields', '-eframe.number', '-ebitcoin.command',
+                '-ebitcoin.length', '-etcp.segment',
+                '-ebitcoin.block.num_transactions',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '96\tversion,verack,ping,pong\t101,0,8,8\t\t',
+            '99\tblock\t3164\t97,98,99\t9',
+            '101\tinv\t325\t100,101\t',
+            '103\tgetdata,ping\t73,8\t102,103\t',
+            '104\tnotfound\t37\t103,104\t',
+            '105\tping\t8\t\t',
+            '107\ttx\t521\t105,106,107\t',
+        ]
+
+    def test_bitcoin_magic_and_version(self, cmd_tshark, capture_file, test_env):
+        '''The testnet magic numbers are recognized, and the version
+        message fields depend on the protocol version. The user agent
+        length in a 3, 5 and 9 octet varint gives the same string.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                '-Y', 'bitcoin.version && frame.number >= 111',
+                '-Tfields', '-eframe.number', '-ebitcoin.magic',
+                '-ebitcoin.version.version', '-ebitcoin.version.start_height',
+                '-ebitcoin.version.relay', '-ebitcoin.string.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '111\t0xfabfb5da\t70016\t840000\t1\t/Synthetic:0.1/',
+            '112\t0xfabfb5da\t70016\t840000\t1\t/Synthetic:0.1/',
+            '119\t0x0b110907\t70016\t840000\t1\t/Synthetic:0.1/',
+            '120\t0x0b110907\t70016\t840000\t1\t/Synthetic:0.1/',
+            '127\t0x1c163f28\t70016\t840000\t1\t/Synthetic:0.1/',
+            '128\t0x1c163f28\t70016\t840000\t1\t/Synthetic:0.1/',
+            '135\t0xf9beb4d9\t60\t\t\t',
+            '136\t0xf9beb4d9\t106\t\t\t/Synthetic:0.1/',
+            '137\t0xf9beb4d9\t209\t840000\t\t/Synthetic:0.1/',
+            '138\t0xf9beb4d9\t70001\t840000\t\t/Synthetic:0.1/',
+            '139\t0xf9beb4d9\t70016\t840000\t1\t/Synthetic:0.1/',
+            '140\t0xf9beb4d9\t70016\t840000\t1\t/Synthetic:0.1/',
+            '141\t0xf9beb4d9\t70016\t840000\t1\t/Synthetic:0.1/',
+        ]
+
+    def test_bitcoin_varints(self, cmd_tshark, capture_file, test_env):
+        '''Counts and lengths in every varint size: inv counts of 9, segwit
+        witness component lengths, and reject strings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                '-Y', 'bitcoin.inv && frame.number < 30',
+                '-Tfields', '-ebitcoin.inv.count', '-ebitcoin.inv.count64',
+                '-ebitcoin.inv.type',
+            ), encoding='utf-8', env=test_env)
+        types = '0,1,2,3,4,5,1073741825,1073741826,7'
+        assert stdout.splitlines() == [f'9\t\t{types}'] * 3 + [f'\t9\t{types}']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                '-Y', 'bitcoin.tx.flag && frame.number < 60',
+                '-Tfields', '-eframe.number',
+                '-ebitcoin.tx.witness.component_count',
+                '-ebitcoin.tx.witness.component.length',
+                '-ebitcoin.tx.witness.component.length64',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '54\t2,2\t72,33,72,33\t',
+            '55\t2,2\t72,33,72,33\t',
+            '56\t2,2\t72,33,72,33\t',
+            '57\t\t\t72,33,72,33',
+            '58\t0\t\t',
+            '59\t2\t72,33\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                '-Y', 'bitcoin.reject && frame.number <= 80',
+                '-Tfields', '-ebitcoin.string.value', '-ebitcoin.reject.ccode',
+                '-ebitcoin.string.count', '-ebitcoin.string.count64',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'tx,bad-txns-inputs-missingorspent\t0x10\t2,30\t',
+            'block,reason\t0x01\t5,6\t',
+            'version,reason\t0x11\t7,6\t',
+            'tx,reason\t0x12\t2,6\t',
+            'tx,reason\t0x40\t\t2,6',
+        ]
+
+    def test_bitcoin_addrv2(self, cmd_tshark, capture_file, test_env):
+        '''addrv2 with every network id, the services as a varint.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bitcoin_coverage.pcap.gz'),
+                '-Y', 'bitcoin.addrv2',
+                '-Tfields', '-ebitcoin.addrv2.network',
+                '-ebitcoin.addrv2.address.ipv4', '-ebitcoin.addrv2.address.ipv6',
+                '-ebitcoin.addrv2.port',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1,2,3,4,5,6,7\t203.0.113.9\t2001:db8::1\t8333,8333,9050,8333,0,8333,1234'] * 4
+
+    def test_bitcoin_pdu_length_wrap(self, cmd_tshark, result_file, test_env):
+        '''A payload length of 0xffffffe8 no longer wraps the PDU length to
+        0, which made TCP add every later segment of the stream to the
+        reassembly and dissect it all again; the stream is dissected
+        quickly and nothing in it is malformed.'''
+        def csum(data):
+            s = sum(struct.unpack('!%dH' % (len(data) // 2), data))
+            while s >> 16:
+                s = (s & 0xffff) + (s >> 16)
+            return ~s & 0xffff
+        src, dst = bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2])
+        records = b''
+        seq = 1000
+        for i in range(20):
+            payload = (struct.pack('<I12sII', 0xD9B4BEF9, b'ping', 0xffffffe8, 0)
+                       if i == 0 else b'Z' * 1400)
+            tcp = struct.pack('!HHIIBBHHH', 40001, 8333, seq, 1, 0x50, 0x18, 65535, 0, 0)
+            tcp = tcp[:16] + struct.pack('!H', csum(src + dst + struct.pack('!BBH', 0, 6,
+                                         len(tcp) + len(payload)) + tcp + payload)) + tcp[18:]
+            ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 40 + len(payload), 1, 0, 64, 6, 0, src, dst)
+            ip = ip[:10] + struct.pack('!H', csum(ip)) + ip[12:]
+            packet = bytes(6) + bytes(6) + b'\x08\x00' + ip + tcp + payload
+            records += struct.pack('<IIII', 1700000000, i, len(packet), len(packet)) + packet
+            seq += len(payload)
+        capture = result_file('bitcoin_pdu_length_wrap.pcap')
+        with open(capture, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1) + records)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture,
+                '-Tfields', '-eframe.number', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env, timeout=60)
+        assert stdout.split() == [str(i) for i in range(1, 21)]
