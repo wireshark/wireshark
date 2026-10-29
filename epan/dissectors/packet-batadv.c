@@ -506,6 +506,7 @@ static int ett_batadv_tvlv_tt_change;
 static int ett_msg_fragment;
 static int ett_msg_fragments;
 
+static expert_field ei_batadv_too_deep;
 static expert_field ei_batadv_tvlv_unknown_version;
 static expert_field ei_batadv_tvlv_tt_vlan_crc;
 static expert_field ei_batadv_tvlv_tt_vlan_empty;
@@ -923,6 +924,12 @@ static int dissect_batadv_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	uint8_t version;
 
 	col_clear(pinfo->cinfo, COL_INFO);
+
+	/* The payload may carry B.A.T.M.A.N. again; stop before the layer limit */
+	if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_batadv_too_deep, tvb, 0);
+		return tvb_captured_length(tvb);
+	}
 
 	version = tvb_get_uint8(tvb, 1);
 	if (version < 15)
@@ -2207,7 +2214,7 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	copy_address_shallow(&pinfo->dst, &icmp_packeth->dst);
 
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 16);
-	icmp_packeth->uid = tvb_get_uint8(tvb, 17);
+	icmp_packeth->uid = tvb_get_uint8(tvb, 18);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
@@ -2287,8 +2294,8 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	copy_address_shallow(&pinfo->dst, &icmp_packeth->dst);
 
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, 16);
-	icmp_packeth->uid = tvb_get_uint8(tvb, 17);
-	icmp_packeth->reserved = tvb_get_uint8(tvb, 18);
+	icmp_packeth->uid = tvb_get_uint8(tvb, 18);
+	icmp_packeth->reserved = tvb_get_uint8(tvb, 19);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
@@ -3118,8 +3125,10 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 	frag_no = unicast_frag_packeth->no >> 4;
 	/* only support 2 fragments */
-	if (frag_no > 1)
+	if (frag_no > 1) {
+		pinfo->fragmented = save_fragmented;
 		return;
+	}
 
 	length_remaining = tvb_captured_length_remaining(tvb, offset);
 	if (length_remaining < 0)
@@ -4016,7 +4025,7 @@ static unsigned dissect_batadv_ogm2_v15(tvbuff_t *tvb, unsigned offset,
 	ogm2_packeth = wmem_new(pinfo->pool, struct ogm2_packet_v15);
 
 	/* Set tree info */
-	ogm2_packeth->tvlv_len = tvb_get_ntohs(tvb, 16);
+	ogm2_packeth->tvlv_len = tvb_get_ntohs(tvb, offset + 14);
 	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
 					    tvb, offset,
 					    OGM2_PACKET_V15_SIZE + ogm2_packeth->tvlv_len,
@@ -4204,13 +4213,13 @@ static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 				    proto_tree *tree)
 {
 	uint8_t type, version;
-	uint16_t length;
+	unsigned length;
 	unsigned offset = 0;
 	tvbuff_t *next_tvb;
 	proto_tree *batadv_tvlv_tree;
 	proto_item *ti;
 
-	while (offset != 0 && tvb_reported_length_remaining(tvb, offset) >= 4) {
+	while (tvb_reported_length_remaining(tvb, offset) >= 4) {
 
 		type = tvb_get_uint8(tvb, offset + 0);
 		version = tvb_get_uint8(tvb, offset + 1);
@@ -5500,6 +5509,7 @@ void proto_register_batadv(void)
 	};
 
 	static ei_register_info ei[] = {
+		{ &ei_batadv_too_deep, { "batadv.too_deep", PI_UNDECODED, PI_WARN, "Payload nested too deep, not dissected", EXPFILL }},
 		{ &ei_batadv_tvlv_unknown_version, { "batadv.error.tvlv_version_unknown", PI_UNDECODED, PI_ERROR, "BATADV Error: unknown TVLV version", EXPFILL }},
 		{ &ei_batadv_tvlv_tt_vlan_crc, { "batadv.tvlv_tt_crc_bad", PI_UNDECODED, PI_ERROR, "BATADV Error: bad TT VLAN crc", EXPFILL }},
 		{ &ei_batadv_tvlv_tt_vlan_empty, { "batadv.tvlv_tt_vlan_empty", PI_SEQUENCE, PI_WARN, "BATADV Warn: empty VLAN", EXPFILL }},
