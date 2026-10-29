@@ -580,13 +580,8 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       }
     }
 
-    /* If anything else left, dissect it ... */
-
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      increment_dissection_depth(pinfo);
-      offset += dissect_beep_tree(tvb, offset, pinfo, tree, request_val, beep_frame_data);
-      decrement_dissection_depth(pinfo);
-    }
+    /* Anything else left is dissected by the loop in dissect_beep() */
+    return offset - st_offset;
   } else if (tvb_strneql(tvb, offset, "SEQ ", 4) == 0) {
 
     if (tree) {
@@ -709,12 +704,6 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if (beep_frame_data->pl_size < 0) beep_frame_data->pl_size = 0;
       }
     }
-
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      increment_dissection_depth(pinfo);
-      offset += dissect_beep_tree(tvb, offset, pinfo, tree, request_val, beep_frame_data);
-      decrement_dissection_depth(pinfo);
-    }
   }
 
   return offset - st_offset;
@@ -819,19 +808,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    * We also depend on the first frame in a group having a pl_size of 0.
    */
 
-  if (beep_frame_data != NULL && beep_frame_data->pl_left > 0) {
-
-    int pl_left = beep_frame_data->pl_left;
-
-    pl_left = MIN(pl_left, MAX(0, tvb_reported_length_remaining(tvb, offset)));
-
-    /* Add the payload bit, only if we have a tree */
-    if (tree && (pl_left > 0)) {
-      proto_tree_add_item(tree, hf_beep_payload, tvb, offset, pl_left, ENC_NA|ENC_ASCII);
-    }
-    offset += pl_left;
-  }
-  else if (request_val && request_val->size > 0) {
+  if (beep_frame_data == NULL && request_val && request_val->size > 0) {
 
     int pl_left = request_val->size;
 
@@ -851,6 +828,19 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   }
 
+  if (beep_frame_data != NULL && beep_frame_data->pl_left > 0) {
+
+    int pl_left = beep_frame_data->pl_left;
+
+    pl_left = MIN(pl_left, MAX(0, (int)tvb_reported_length_remaining(tvb, offset)));
+
+    /* Add the payload bit, only if we have a tree */
+    if (tree) {
+      proto_tree_add_item(beep_tree, hf_beep_payload, tvb, offset, pl_left, ENC_ASCII);
+    }
+    offset += pl_left;
+  }
+
   /* Set up the per-frame data here if not already done so
    * This _must_ come after the checks above ...
    */
@@ -867,10 +857,14 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   }
 
-  if (tvb_reported_length_remaining(tvb, offset) > 0) {
+  /* Dissect the messages one after the other rather than recursing, a
+   * frame can hold any number of them */
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    int len = dissect_beep_tree(tvb, offset, pinfo, beep_tree, request_val, beep_frame_data);
 
-    /*offset += */dissect_beep_tree(tvb, offset, pinfo, beep_tree, request_val, beep_frame_data);
-
+    if (len <= 0)
+      break;
+    offset += len;
   }
 
   return tvb_captured_length(tvb);
