@@ -657,7 +657,14 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 break;
             case 0x02: /* Write Advertising Data */
             case 0x03: /* Write Scan Response Data */
-                call_dissector_with_data(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, 31), pinfo, tree, bluetooth_data);
+                {
+                bluetooth_eir_ad_data_t *ad_data;
+
+                ad_data = wmem_new0(pinfo->pool, bluetooth_eir_ad_data_t);
+                ad_data->interface_id = interface_id;
+                ad_data->adapter_id = adapter_id;
+                call_dissector_with_data(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, 31), pinfo, tree, ad_data);
+                }
                 save_local_device_name_from_eir_ad(tvb, offset, pinfo, 31, bluetooth_data);
                 offset += 31;
 
