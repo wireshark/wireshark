@@ -12071,3 +12071,209 @@ class TestDissectBencode:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['10', '11', '12', '14']
+
+
+class TestDissectBer:
+    '''The generic BER helpers (packet-ber.c) through the unknown BER
+    decoder, the BER file dissector, X.509, Glow, INAP, LDAP, SNMP,
+    GOOSE and Kerberos. ber_coverage.pcap.gz uses the Exported PDU link
+    type; ber_coverage.ber.gz is a raw BER file.'''
+
+    def test_ber_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol, and no malformed packets or error
+        expert infos in one and two passes. The only warnings are the
+        REAL overflow (frame 36) and the size constraint checks (37-40).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 40
+        assert protocols.count('BER') == 8
+        assert protocols.count('') == 3          # PKIX certificates
+        assert protocols.count('PKIX-CRL') == 1
+        assert protocols.count('Glow') == 4
+        assert protocols.count('INAP') == 1
+        assert protocols.count('LDAP') == 13
+        assert protocols.count('SNMP') == 7
+        assert protocols.count('GOOSE') == 1
+        assert protocols.count('KRB5') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ber_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                    '-E', 'aggregator=|',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '36\tBER Error: REAL overflow',
+                '37\tSize constraint: value too small: 100 (484 .. 2147483647)|'
+                'Size constraint: string too long: 33 (1 .. 32)',
+                '38\tSize constraint: string too short: 0 (1 .. 32)',
+                '39\tSize constraint: value too small: 0 (1 .. 127)',
+                '40\tSize constraint: value too big: 200 (1 .. 127)',
+            ]
+
+    def test_ber_unknown(self, cmd_tshark, capture_file, test_env):
+        '''The unknown BER decoder: universal types, other classes, long
+        tags and lengths, indefinite lengths. Frame 4 is the reproducer
+        of a NULL with contents, which are skipped (they used to be
+        decoded as an INTEGER 7).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 6',
+                '-Tfields', '-eframe.number', '-eber.unknown.INTEGER',
+                '-eber.unknown.OID', '-eber.unknown.relative_OID', '-eber.null_tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t5,-129,0,9223372036854775807,-1\t1.3.6.1.4.1.37411.2.1.1,2.5.4.3\t.1.2.300.70000\t1',
+            '2\t1,7,8,9,10\t\t\t',
+            '3\t1\t1.2.3\t\t1',
+            '4\t\t\t\t1',
+            '5\t\t\t\t',
+            '6\t123456\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eber.unknown.UTF8String', '-eber.unknown.BMPString',
+                '-eber.unknown.UniversalString', '-eber.unknown.TeletexString',
+                '-eber.64bit_uint_as_bytes', '-eber.unknown.BITSTRING', '-eber.bitstring.empty',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'grüße €\tBMP é\tUniv\tTeletex é\t0102030405060708090a0b0c\ta8,00,5aa5\t0']
+        # REAL values (compared in a filter, not printed: locale independent)
+        for flt in ('ber.unknown.REAL == 0.15625', 'ber.unknown.REAL == -196608',
+                    'ber.unknown.REAL == -42', 'ber.unknown.REAL == 12.5',
+                    'ber.unknown.REAL == -inf'):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('ber_coverage.pcap.gz'),
+                    '-Y', flt, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['1'], flt
+
+    def test_ber_file_without_data(self, cmd_tshark, capture_file, test_env):
+        '''"ber_file" named by an Exported PDU has no file data; it used
+        to dereference a NULL pointer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Y', 'frame.number == 7',
+                '-Tfields', '-e_ws.col.info', '-eber.unknown.INTEGER', '-eber.unknown.UTF8String',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == 'Unknown BER\t1\tfile\n'
+
+    def test_ber_real_overflow(self, cmd_tshark, capture_file, test_env):
+        '''A REAL with a 264 octet mantissa is an overflow, not a small
+        finite value.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Y', 'ber.error.overflow.real && ber.unknown.REAL == inf',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '36\n'
+
+    def test_ber_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Constructed OCTET STRINGs: three segments, indefinite length,
+        and (frame 24) an LDAP AttributeValue of two segments, which LDAP
+        dissects with hf_id -1 and which used to fail an assertion.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Y', 'ber.octet_string.fragment.count',
+                '-Tfields', '-eframe.number', '-eldap.name', '-eldap.baseObject',
+                '-eldap.AttributeValue', '-eber.octet_string.fragment.count',
+                '-eber.octet_string.reassembled.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '17\tcn=admin,dc=example,dc=com\t\t\t3\t26',
+            '21\t\tdc=example,dc=com\t\t2\t17',
+            '24\t\t\t61626364\t2\t4',
+        ]
+
+    def test_ber_times(self, cmd_tshark, capture_file, test_env):
+        '''UTCTime with Z and with a +hhmm/-hhmm offset (a valid offset
+        used to be reported as malformed), GeneralizedTime.'''
+        for flt, frames in (
+                ('x509af.notAfterTime == "2025-12-31 23:00:00Z"', ['8']),
+                ('x509af.notBeforeTime == "2025-01-01 01:30:00Z"', ['10']),
+                ('x509af.notAfterTime == "2050-12-31 22:59:59.5Z"', ['9']),
+                ('x509ce.notAfter == "2025-12-31 23:59:59Z"', ['8']),
+                ('kerberos.till == "2037-09-13 02:48:05Z"', ['34'])):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('ber_coverage.pcap.gz'),
+                    '-Y', flt, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == frames, flt
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Y', 'x509af.utcTime || cms.utcTime',
+                '-Tfields', '-eframe.number', '-ex509af.utcTime', '-ecms.utcTime',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t\t25-06-01 12:00:00Z',
+            '11\t2025-02-01T00:00:00.000000000Z,2025-02-28T18:30:00.000000000Z,'
+            '2025-02-03T04:05:00.000000000Z,2025-02-03T04:05:06.000000000Z,'
+            '2025-02-03T12:05:00.000000000Z\t',
+        ]
+
+    def test_ber_external(self, cmd_tshark, capture_file, test_env):
+        '''EXTERNAL (X.509 statusReferrals INSTANCE OF) with every
+        encoding alternative, and an INAP EMBEDDED PDV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Y', 'ber.encoding',
+                '-Tfields', '-eframe.number', '-eber.direct_reference', '-eber.indirect_reference',
+                '-eber.encoding', '-eber.octet_aligned', '-eber.arbitrary',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t2.5.4.3,2.5.4.14,2.5.4.10,1.3.6.1.4.1.32473.7,1.3.6.1.4.1.32473.7,'
+            '1.3.6.1.4.1.32473.7\t3\t0,0,1,1,2,0\t010203\ta0',
+            '16\t1.3.6.1.4.1.32473.9\t\t1\t0a0b0c\t',
+        ]
+        # the searchGuide reached through the EXTERNAL is a SET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Y', 'x509sat.objectClass',
+                '-Tfields', '-eframe.number', '-ex509sat.objectClass', '-ex509sat.criteria',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '8\t2.5.6.6\t2\n'
+
+    def test_ber_glow_goose(self, cmd_tshark, capture_file, test_env):
+        '''REAL, RELATIVE-OID and SET in Glow; implicitly tagged REAL,
+        BOOLEAN and OBJECT IDENTIFIER in GOOSE.'''
+        for flt, frames in (
+                ('glow.real == -6.5 && glow.real == -96', ['12']),
+                ('glow.real == 6', ['13']),
+                ('glow.real == 0.25', ['15']),
+                ('goose.real == 12 && goose.boolean == 1 && goose.objId == 1.0.61850.7.2', ['33'])):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('ber_coverage.pcap.gz'),
+                    '-Y', flt, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == frames, flt
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12',
+                '-Tfields', '-eglow.path', '-eglow.templateReference',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '.1.2.3,.1.2\t.1.1.5,.7\n'
+
+    def test_ber_internals(self, cmd_tshark, capture_file, test_env):
+        '''With ber.show_internals the identifier and length octets are
+        shown: a long-form tag and long-form lengths.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.pcap.gz'),
+                '-o', 'ber.show_internals:TRUE',
+                '-Y', 'frame.number == 2',
+                '-Tfields', '-eber.id.tag', '-eber.length_octets',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '0,2,3,5,3,7,1000,200\t2,1,2,3\n'
+
+    def test_ber_file(self, cmd_tshark, capture_file, test_env):
+        '''A raw BER file (indefinite length, gzipped) opens as the BER
+        file type and is decoded as unknown BER.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ber_coverage.ber.gz'),
+                '-Tfields', '-eframe.protocols', '-e_ws.col.info', '-eber.unknown.INTEGER',
+                '-eber.unknown.UTF8String', '-eber.unknown.OID',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == 'ber\tUnknown BER\t2025\tBER file\t1.3.6.1.4.1.32473.7\n'
