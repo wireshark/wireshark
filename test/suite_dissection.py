@@ -12403,3 +12403,136 @@ class TestDissectBfcp:
             '64\t1\tFalse\tGoodbye',
             '65\t1\tTrue\tGoodbyeAck',
         ]
+
+
+class TestDissectBfd:
+    def test_bfd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''BFD Control over UDP (IPv4 and IPv6), the G-ACh (BFD CC and CV)
+        and VCCV, BFD Echo and MPLS-TP Lock Instruct decode without
+        malformed packets or errors in one and two passes. The only
+        warnings are the invalid authentication sections of frames 49-56.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 77
+        assert protocols.count('BFD Control') == 70
+        assert protocols.count('BFD Echo') == 3
+        assert protocols.count('MPLS-TP LI') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bfd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '49\tLength of authentication section (20) is invalid for Authentication Type: Keyed MD5',
+                '50\tLength of authentication section (16) is invalid for Authentication Type: Meticulous Keyed MD5',
+                '51\tLength of authentication section (24) is invalid for Authentication Type: Keyed SHA1',
+                '52\tLength of authentication section (27) is invalid for Authentication Type: Meticulous Keyed SHA1',
+                '53\tAuthentication: Length of the BFD frame is invalid (4)',
+                '54\tLength of authentication section (2) is invalid for Authentication Type: Simple Password',
+                '55\tLength of authentication section (1) is invalid for Authentication Type: Simple Password',
+                '56\tAuthentication: Length of the BFD frame is invalid (26)',
+            ]
+
+    def test_bfd_header(self, cmd_tshark, capture_file, test_env):
+        '''Versions 0 and 1, every state, diagnostic and flag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfd_coverage.pcap.gz'),
+                '-Y', 'bfd',
+                '-Tfields', '-ebfd.version', '-ebfd.diag', '-ebfd.sta', '-ebfd.flags',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len(frames) == 70
+        assert {f[0] for f in frames} == {'0', '1', '2', '7'}
+        v1 = [f for f in frames if f[0] != '0']
+        v0 = [f for f in frames if f[0] == '0']
+        assert len(v0) == 15
+        assert {int(f[1], 16) for f in v1} == set(range(11)) | {31}
+        assert {int(f[1], 16) for f in v0} == set(range(9))
+        assert {int(f[2], 16) for f in v1} == {0, 1, 2, 3}
+        assert all(f[2] == '' for f in v0)
+        flags1 = 0
+        for f in v1:
+            flags1 |= int(f[3], 16)
+        assert flags1 & 0x3f == 0x3f
+        flags0 = 0
+        for f in v0:
+            flags0 |= int(f[3], 16)
+        assert flags0 == 0xff
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfd_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14, 35}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Diag: Mis-Connectivity Defect, State: Down, Flags: 0x00',
+            'Diag: No Diagnostic, Flags: 0xf0',
+        ]
+
+    def test_bfd_authentication(self, cmd_tshark, capture_file, test_env):
+        '''Simple Password and the keyed MD5 and SHA1 authentication
+        sections, with the summary on the subtree item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfd_coverage.pcap.gz'),
+                '-Y', 'bfd.auth.type',
+                '-Tfields', '-eframe.number', '-ebfd.auth.type', '-ebfd.auth.password',
+                '-ebfd.auth.seq_num', '-ebfd.checksum',
+            ), encoding='utf-8', env=test_env)
+        frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+        assert frames[40][:2] == ['1', 'x']
+        assert frames[42][:2] == ['1', '0123456789abcdef']
+        assert frames[66][:2] == ['1', 'tp-cc']
+        assert [frames[n][0] for n in (44, 45, 46, 47, 48)] == ['2', '3', '4', '5', '6']
+        assert [frames[n][2] for n in (44, 45, 46, 47)] == [
+            '0x00000100', '0x00000101', '0x00000200', '0x00000201']
+        assert [len(frames[n][3]) // 2 for n in (44, 45, 46, 47)] == [16, 16, 20, 20]
+        assert frames[48][1:] == ['', '', '']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfd_coverage.pcap.gz'),
+                '-Y', 'frame.number in {41, 44, 49}',
+                '-O', 'bfd', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, r'Authentication: Simple Password: secret12$')
+        assert grep_output(stdout, r'Authentication: Keyed MD5$')
+        assert grep_output(stdout, r'Authentication: Keyed MD5: Invalid Authentication Section$')
+
+    def test_bfd_auth_short(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of frames 53-55: the A flag with a Length of 4
+        reports that there is no authentication data, and a Simple Password
+        section shorter than four octets is reported as invalid instead of
+        running to the end of the frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfd_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 53 && frame.number <= 55',
+                '-Tfields', '-eframe.number', '-ebfd.message_length', '-ebfd.auth.no_data',
+                '-ebfd.auth.len.invalid', '-ebfd.auth.len', '-ebfd.auth.password',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == ['53', '54', '55']
+        assert [f[1] for f in frames] == ['4', '28', '28']
+        assert [bool(f[2]) for f in frames] == [True, False, False]
+        assert [bool(f[3]) for f in frames] == [False, True, True]
+        assert [f[4] for f in frames] == ['', '2', '1']
+        assert [f[5] for f in frames] == ['', '', '']
+
+    def test_bfd_mpls(self, cmd_tshark, capture_file, test_env):
+        '''BFD CC, CV with the Source MEP-ID TLVs, VCCV and Lock Instruct.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfd_coverage.pcap.gz'),
+                '-Y', 'pwach',
+                '-Tfields', '-eframe.number', '-epwach.channel_type', '-ebfd.sta',
+                '-ebfd.mep.type', '-ebfd.mep.node.id', '-ebfd.mep.tunnel.no',
+                '-ebfd.mep.lsp.no', '-ebfd.mep.agi.val',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == [str(n) for n in range(65, 78)]
+        assert [int(f[1], 16) for f in frames] == [0x22] * 2 + [0x23] * 5 + [0x7] * 2 + [0x26] * 4
+        assert [f[3] for f in frames] == ['', '', '0', '1', '2', '', '1', '', '', '0', '1', '2', '']
+        assert frames[3][4:7] == ['192.0.2.2', '10', '1']
+        assert frames[4][7] == 'agi-value'
+        assert frames[6][4:7] == ['192.0.2.1', '11', '2']
+        assert frames[11][7] == 'pw'
+        assert [f[2] for f in frames[7:9]] == ['0x01', '0x03']
