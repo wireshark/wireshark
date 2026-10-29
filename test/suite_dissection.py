@@ -16626,3 +16626,104 @@ class TestDissectBtDht:
                 'eth:ethertype:ip:udp:data\t',
                 'eth:ethertype:ip:udp:bt-dht\tr,id,' + '41' * 20,
             ]
+
+
+class TestDissectBthciAcl:
+    def test_bthci_acl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''HCI commands and events set up the local device, two BR/EDR and
+        one LE connection; ACL carries L2CAP signalling and ATT, whole and
+        fragmented, without malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_acl_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 41
+        assert protocols.count('HCI_CMD') == 6
+        assert protocols.count('HCI_EVT') == 14
+        assert protocols.count('HCI_ACL') == 5
+        assert protocols.count('L2CAP') == 12
+        assert protocols.count('ATT') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_acl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_bthci_acl_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragmented L2CAP PDUs are reassembled per direction, also with a
+        PDU of the other direction in between and with a first fragment
+        holding only the L2CAP header. A continuation without its first
+        fragment is shown as a fragment. The forward references ("This PDU
+        is reassembled in frame") appear in the second pass only.'''
+        fields = ('-ebthci_acl.pb_flag', '-ebthci_acl.continuation_to',
+                  '-ebtl2cap.cmd_code', '-ebtl2cap.cmd_length', '-ebtatt.opcode')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_acl_coverage.pcap.gz'),
+                    '-Y', 'bthci_acl',
+                    '-Tfields', '-eframe.number', *fields,
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in outputs[0].splitlines())}
+        # PB flags 2, 0, 1 and the unknown 3
+        assert [frames[n][0] for n in (13, 15, 18, 24)] == ['2', '0', '1', '3']
+        # Echo Request reassembled from frames 17-19, Echo Response from
+        # 20 and 22 with frame 21 (received) in between
+        assert frames[17] == ['2', '', '', '', '']
+        assert frames[18] == ['1', '17', '', '', '']
+        assert frames[19] == ['1', '17', '0x08', '40', '']
+        assert frames[21] == ['2', '', '0x08', '1', '']
+        assert frames[22] == ['1', '20', '0x09', '30', '']
+        # ATT Read Request reassembled from the L2CAP header and the rest
+        assert frames[39] == ['0', '', '', '', '']
+        assert frames[40] == ['1', '39', '', '', '0x0a']
+        # A continuation whose first fragment is not in the capture
+        assert frames[30] == ['1', '', '', '', '']
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_acl_coverage.pcap.gz'),
+                '-Y', 'bthci_acl.reassembled_in',
+                '-Tfields', '-eframe.number', '-ebthci_acl.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['17\t19', '18\t19', '20\t22', '39\t40']
+
+    def test_bthci_acl_connections(self, cmd_tshark, capture_file, test_env):
+        '''Addresses, device names, roles and modes come from the HCI
+        events: local address and name from Read BD_ADDR and Read Local
+        Name, connection 1 with a remote name, role change and sniff mode,
+        connection 2 with another role and no name, LE connection 3 with
+        no mode.'''
+        fields = ('-ebthci_acl.chandle', '-ebthci_acl.src.bd_addr', '-ebthci_acl.src.name',
+                  '-ebthci_acl.src.role', '-ebthci_acl.dst.bd_addr', '-ebthci_acl.dst.name',
+                  '-ebthci_acl.dst.role', '-ebthci_acl.mode', '-ebthci_acl.connect_in',
+                  '-ebthci_acl.last_change_in_frame.role', '-ebthci_acl.last_change_in_frame.mode')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_acl_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {13, 14, 31, 32, 37, 38}',
+                    '-Tfields', *fields,
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        local = '00:1b:dc:00:00:01'
+        assert [line.split('\t') for line in outputs[0].splitlines()] == [
+            ['0x0001', local, 'ws-local', '2', '00:1b:dc:00:00:a2', 'ws-remote', '1', '2', '7', '11', '12'],
+            ['0x0001', '00:1b:dc:00:00:a2', 'ws-remote', '1', local, 'ws-local', '2', '2', '7', '11', '12'],
+            ['0x0002', local, 'ws-local', '1', '00:1b:dc:00:00:b3', '', '2', '0', '28', '29', '28'],
+            ['0x0002', '00:1b:dc:00:00:b3', '', '2', local, 'ws-local', '1', '0', '28', '29', '28'],
+            ['0x0003', local, 'ws-local', '0', 'c0:ff:ee:00:00:c4', '', '0', '-1', '36', '', ''],
+            ['0x0003', 'c0:ff:ee:00:00:c4', '', '0', local, 'ws-local', '0', '-1', '36', '', ''],
+        ]
+        # Connection 2 is disconnected in frame 35 (shown in the second pass)
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_acl_coverage.pcap.gz'),
+                '-Y', 'bthci_acl.disconnect_in',
+                '-Tfields', '-eframe.number', '-ebthci_acl.disconnect_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['30\t35', '31\t35', '32\t35']
