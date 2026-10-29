@@ -16885,3 +16885,155 @@ class TestDissectBthciCmd:
                 '8\t\t\t\t\tUnknownDirection Disconnect\t',
                 '9\t\t0x01,0x08,0x09\tWS,WS-HCI\t\tUnknownDirection LE Set Advertising Data\t',
             ]
+
+
+class TestDissectBthciEvt:
+    def test_bthci_evt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every HCI event, every Command Complete return parameter layout
+        and every LE Meta subevent decodes without malformed packets or
+        errors in one and two passes. The warnings are the expected ones:
+        a link type mismatch, an unknown event, unexpected parameters or
+        events, and unknown opcodes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 548
+        assert protocols.count('HCI_EVT') == 517
+        assert protocols.count('HCI_CMD') == 23
+        assert protocols.count('HCI_EVT_BROADCOM') == 3
+        assert protocols.count('HCI_ISO') == 2
+        assert protocols.count('L2CAP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['90', '146', '461', '462', '463', '476']
+
+    def test_bthci_evt_codes(self, cmd_tshark, capture_file, test_env):
+        '''The capture holds 80 event codes, Command Complete for 305
+        opcodes and 57 LE Meta subevents.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                '-Y', 'bthci_evt',
+                '-Tfields', '-ebthci_evt.code', '-ebthci_evt.opcode',
+                '-ebthci_evt.le_meta_subevent',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len({f[0] for f in frames}) == 80
+        assert len({f[1] for f in frames if f[0] == '0x0e'}) == 305
+        assert len({f[2] for f in frames if f[0] == '0x3e'}) == 57
+
+    def test_bthci_evt_local_name(self, cmd_tshark, capture_file, test_env):
+        '''Change Local Name without a name and a successful Command
+        Complete (the reproducer) saves no name, so the following ISO
+        packets show none. A Change Local Name with a name saves it, and
+        the ACL packets show it as the local device name, with the
+        address from Read BD_ADDR and the remote name from the Remote Name
+        Request Complete.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-n',
+                    '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {7, 8, 9, 10, 11, 12}',
+                    '-Tfields', '-e_ws.col.info', '-ebthci_evt.command_in_frame',
+                    '-e_ws.col.def_src', '-e_ws.col.def_dst',
+                ), encoding='utf-8', env=test_env)
+            frames = [line.split('\t') for line in stdout.splitlines()]
+            assert [f[0] for f in frames] == [
+                'Sent Change Local Name', 'Rcvd Command Complete (Change Local Name)',
+                'Sent ', 'Rcvd ',
+                'Sent Change Local Name', 'Rcvd Command Complete (Change Local Name)']
+            assert frames[1][1] == '7'
+            assert frames[5][1] == '11'
+            assert frames[2][2:] == ['02:00:00:00:00:01 ()', 'remote ()']
+            assert frames[3][2:] == ['remote ()', '02:00:00:00:00:01 ()']
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-n',
+                    '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {19, 20}',
+                    '-Tfields', '-ebthci_acl.src.bd_addr', '-ebthci_acl.src.name',
+                    '-ebthci_acl.dst.bd_addr', '-ebthci_acl.dst.name',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '02:00:00:00:00:01\tCoverage Host\t02:00:00:00:00:02\tRemote Device',
+                '02:00:00:00:00:02\tRemote Device\t02:00:00:00:00:01\tCoverage Host',
+            ]
+
+    def test_bthci_evt_mws_groups(self, cmd_tshark, capture_file, test_env):
+        '''Get MWS Transport Layer Configuration is read from the status
+        on, and the minimum connection interval groups are numbered 1..n.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                '-Y', 'frame.number == 53',
+                '-Tfields', '-ebthci_evt.status', '-ebthci_evt.mws.number_of_transports',
+                '-ebthci_evt.mws.transport_layers.item.transport_layer',
+                '-ebthci_evt.mws.number_of_baud_rates',
+                '-ebthci_evt.mws.to_mws_baud_rates.item.baud_rate',
+                '-ebthci_evt.mws.from_mws_baud_rates.item.baud_rate',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == ['0x00', '1', '0x01', '2', '115200,921600', '230400,3000000\n']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                '-Y', 'frame.number == 52', '-O', 'bthci_evt',
+            ), encoding='utf-8', env=test_env)
+        groups = [line.strip() for line in stdout.splitlines()
+                  if line.strip().startswith('Group ') and ':' not in line]
+        assert groups == ['Group 1', 'Group 2', 'Group 3']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                '-Y', 'frame.number == 52',
+                '-Tfields', '-ebthci_evt.group_ci_min', '-ebthci_evt.group_ci_max',
+                '-ebthci_evt.group_ci_stride',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '6,12,48\t10,40,400\t1,2,4\n'
+
+    def test_bthci_evt_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Commands are matched with their Command Status and the event
+        that completes them; the connection link type selects the packet
+        type bits; the CS configuration selects the mode 1 step layout.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {14, 15, 17, 18, 22, 24, 25}',
+                    '-Tfields', '-ebthci_evt.command_in_frame', '-ebthci_evt.pending_in_frame',
+                    '-ebthci_evt.status',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '13\t\t0x00', '13\t14\t0x00', '16\t\t0x00', '16\t17\t0x00',
+                '21\t\t0x0c', '23\t\t0x00', '23\t24\t0x00']
+            # ACL handle 1, SCO handle 2, LE handle 0x40 (both, with a warning)
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {88, 90, 103}',
+                    '-Tfields', '-ebthci_evt.connection_handle', '-ebthci_evt.packet_type.dh1',
+                    '-ebthci_evt.packet_type.hv1',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['0x0001\tTrue\t', '0x0040\tTrue\tFalse', '0x0002\t\tFalse']
+            # Config 1 initiator with PCT samples, config 2 reflector,
+            # unknown config 3 initiator without PCT samples
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {535, 537, 538}',
+                    '-Tfields', '-ebthci_evt.step_mode', '-ebthci_evt.toa_tod_initiator',
+                    '-ebthci_evt.tod_toa_reflector', '-ebthci_evt.pct_i_sample',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '0,0,0,1,1,2,3,1,5\t100,-100,100\t\t2304,2047,291,255,2304,291,255',
+                '1\t\t-32768\t',
+                '1\t-32768\t\t']
+        # The Command Status frames point forward to the completion only
+        # in the second pass
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_evt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14, 17, 24}',
+                '-Tfields', '-ebthci_evt.response_in_frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['15', '18', '25']
