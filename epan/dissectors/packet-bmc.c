@@ -130,9 +130,7 @@ dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_cbs_serial_number(tvb, tree, offset);
     offset += 2;
 
-    dissect_cbs_data_coding_scheme(tvb, pinfo, tree, offset);
-    offset += 1;
-
+    /* The Cell Broadcast dissector decodes the Data Coding Scheme */
     cell_broadcast_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_umts_cell_broadcast_message(cell_broadcast_tvb, pinfo, tree, NULL);
     offset = tvb_reported_length(cell_broadcast_tvb);
@@ -150,7 +148,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     uint8_t     future_extension_bitmap;
     uint8_t     length_of_serial_number_list;
     uint8_t     entry;
-    uint8_t     bit;
+    unsigned    bit;
     proto_tree *message_description_tree;
     proto_item *ti;
 
@@ -177,7 +175,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             message_description_type = tvb_get_uint8(tvb,offset);
             proto_tree_add_uint_format(message_description_tree, hf_bmc_message_description_type,
                                        tvb, offset, 1, message_description_type,
-                                       "Message %d Message Description Type: %s (%d)",
+                                       "Message %u Message Description Type: %s (%d)",
                                        bit,
                                        val_to_str_const(message_description_type, message_description_type_vals,"Unknown"),
                                        message_description_type);
