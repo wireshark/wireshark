@@ -263,6 +263,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
          op = tvb_get_uint8(tvb, offset + used);
 
          if (op == 'e') {
+            decrement_dissection_depth(pinfo);
             return used + 1;
          }
 
