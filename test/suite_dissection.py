@@ -222,6 +222,141 @@ class TestDissectBpv7:
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '\t'.join(['3', '96', '3,-31'])
 
+    def test_bpv7_coverage_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The synthetic coverage capture (UDP, TCPCLv3 and LTP) decodes
+        without malformed packets or errors, in one and two passes. The only
+        warnings are the primary blocks without a CRC in frames 6 and 14.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv7_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 23
+        assert protocols.count('BPv7') == 14
+        assert protocols.count('BPv7 Admin') == 7
+        assert protocols.count('TCPCL') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpv7_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpv7_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '6\tPrimary block does not have a CRC,'
+                'Block is targed by BIB block number 2,'
+                'Block is targed by BIB block number 2',
+                '14\tPrimary block does not have a CRC',
+            ]
+
+    def test_bpv7_crc(self, cmd_tshark, capture_file, test_env):
+        '''Every CRC-16 (X-25) and CRC-32C block CRC verifies.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv7_coverage.pcap.gz'),
+                '-Y', 'bpv7.crc_status',
+                '-Tfields', '-ebpv7.crc_status',
+            ), encoding='utf-8', env=test_env)
+        status = ','.join(stdout.split()).split(',')
+        assert len(status) == 40
+        assert set(status) == {'1'}
+
+    def test_bpv7_status_report_fragment(self, cmd_tshark, capture_file, test_env):
+        '''The status report subject fragment offset and payload length are
+        decoded (frame 14 is the reproducer, which read the wrong array
+        size before), and become part of the subject identity, so frame 13
+        refers to the second fragment of bundle E in frame 9.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpv7_coverage.pcap.gz'),
+                    '-Y', 'bpv7.status_rep',
+                    '-Tfields', '-eframe.number', '-ebpv7.status_rep.reason_code',
+                    '-ebpv7.status_rep.subj_frag_offset',
+                    '-ebpv7.status_rep.subj_payload_len',
+                    '-ebpv7.status_rep.subj_ref', '-ebpv7.status_rep.identity',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '11\t0\t\t\t1\tSource: ipn:1.1, DTN Time: 1000, Seq: 1',
+                '12\t1\t\t\t1\tSource: ipn:1.1, DTN Time: 1000, Seq: 1',
+                '13\t3\t10\t30\t9\tSource: ipn:1.1, DTN Time: 3000, Seq: 7, Frag Offset: 10, Total Length: 30',
+                '14\t0\t100\t200\t\tSource: ipn:1.1, DTN Time: 1000, Seq: 1, Frag Offset: 100, Total Length: 200',
+                '15\t16\t0\t\t\tSource: dtn://node1/, DTN Time: 2000, Seq: 2, Frag Offset: 0',
+                '16\t99\t\t\t\tSource: ipn:99.1, DTN Time: 12345, Seq: 0',
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv7_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 11 && frame.number <= 16',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Status: RECEIVED|FORWARDED|DELIVERED',
+            'Status: RECEIVED|FORWARDED|DELIVERED|DELETED',
+            'Status: RECEIVED',
+            'Status: RECEIVED',
+            'Status: DELETED',
+            'Status: ',
+        ]
+
+    def test_bpv7_bundle_history(self, cmd_tshark, capture_file, test_env):
+        '''Retransmission and status back-references. The references from
+        a subject to its status reports and to later retransmissions point
+        forward, so they appear only with two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bpv7_coverage.pcap.gz'),
+                '-Y', 'bpv7.bundle.status_ref || bpv7.bundle.retransmit_seen || bpv7.bundle.first_seen',
+                '-Tfields', '-eframe.number', '-ebpv7.bundle.status_ref',
+                '-ebpv7.bundle.retransmit_seen', '-ebpv7.bundle.first_seen',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == ['1', '9', '18']
+        assert [sorted(f[1].split(',')) for f in frames] == [['11', '12'], ['13'], ['11', '12']]
+        assert [f[2] for f in frames] == ['18', '', '']
+        assert [f[3] for f in frames] == ['', '', '1']
+
+    def test_bpv7_eids(self, cmd_tshark, capture_file, test_env):
+        '''dtn (text, well-known and dtn:none) and ipn (two and three
+        element) endpoint IDs, and the destination services.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv7_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 5',
+                '-Tfields', '-ebpv7.primary.dst_uri', '-ebpv7.primary.src_uri',
+                '-ebpv7.primary.report_uri', '-ebpv7.bundle.dst_dtn_srv',
+                '-ebpv7.bundle.dst_ipn_srv', '-ebpv7.previous_node.uri',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'ipn:2.1\tipn:1.1\tipn:1.0\t\t1\t',
+            'dtn://node2/svc\tdtn://node1/\tdtn:none\tsvc\t\tipn:977000.5.0',
+            'dtn:mailbox\tipn:977000.9.61153\tipn:4196183048192009.0\t\t\t',
+            'dtn:none\tipn:7.256\tipn:7.4294967297\t\t\t',
+            'ipn:8.4294967297\tipn:7.256\tipn:1.0\t\t4294967297\t',
+        ]
+
+    def test_bpv7_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Extension blocks, payload reassembly from three fragments, a
+        BCB-protected payload that is not dissected, and two bundles in one
+        LTP block.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpv7_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 7, 10, 23}',
+                '-Tfields', '-eframe.number', '-ebpv7.hop_count.limit',
+                '-ebpv7.hop_count.current', '-ebpv7.bundle_age.time',
+                '-ebpv7.payload.reassembled.length', '-edata.data', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[:3] == [
+            '2\t30\t3\t123456\t\t820163657870,7061796c6f616420746f20737663\tPayload Size: 14',
+            '7\t10\t1\t\t\t\tPayload Size: 24, BPSec BCB target',
+            '10\t\t\t\t30\t' + b'0123456789abcdefghijKLMNOPQRST'.hex()
+            + '\tPayload Size: 10 (reassembled)',
+        ]
+        assert lines[3].split('\t')[:6] == [
+            '23', '', '', '', '', b'over ltp'.hex() + ',' + b'over ltp'.hex(),
+        ]
+
 
 class TestDissectCbor:
     '''
