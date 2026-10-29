@@ -13468,3 +13468,156 @@ class TestDissectBitcoin:
                 '-Tfields', '-eframe.number', '-e_ws.malformed',
             ), encoding='utf-8', env=test_env, timeout=60)
         assert stdout.split() == [str(i) for i in range(1, 21)]
+
+
+BITTORRENT_UTP_OPTS = ('-d', 'udp.port==50001,bt-utp')
+
+
+class TestDissectBittorrent:
+    def test_bittorrent_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Handshakes, every message type, the Fast extension, extended and
+        Azureus Messaging Protocol messages, on TCP ports 6881-6889, found
+        by the heuristic and over uTP, decode without malformed packets or
+        warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 138
+        assert protocols.count('BitTorrent') == 93
+        assert protocols.count('TCP') == 35
+        assert protocols.count('UDP') == 10
+        stdout = subprocess.check_output((cmd_tshark, *BITTORRENT_UTP_OPTS,
+                '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('BitTorrent') == 100
+        assert protocols.count('BT-uTP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *BITTORRENT_UTP_OPTS, *passes,
+                    '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bittorrent_amp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Azureus Messaging Protocol messages decode by name. Fixed length
+        messages (Have, Request, Cancel, Port, Unchoke, the Fast extension)
+        used to be shown as continuation data, because their length was
+        checked including the name (frame 77 is the BT_HAVE reproducer).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                '-Y', 'bittorrent.azureus_msg',
+                '-Tfields', '-eframe.number', '-ebittorrent.msg.aztype',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == [str(n) for n in range(65, 90)] + ['94']
+        info = {f[1]: f[2].strip() for f in frames}
+        assert info['BT_HAVE'] == 'Have, Piece (Idx:0x1)'
+        assert info['BT_REQUEST'] == 'Request, Piece (Idx:0x7,Begin:0x100,Len:0x200)'
+        assert info['BT_CANCEL'] == 'Cancel, Piece (Idx:0x7,Begin:0x100,Len:0x200)'
+        assert info['BT_PORT'] == 'Port'
+        assert info['BT_UNCHOKE'] == 'Unchoke'
+        assert info['BT_HAVE_ALL'] == 'Have All'
+        assert info['BT_HAVE_NONE'] == 'Have None'
+        assert info['BT_SUGGEST'] == 'Suggest Piece, Piece (Idx:0x8)'
+        assert info['BT_REJECT_REQUEST'] == 'Reject Request, Piece (Idx:0x7,Begin:0x100,Len:0x200)'
+        assert info['BT_ALLOWED_FAST'] == 'Allowed Fast, Piece (Idx:0x9)'
+        assert info['JPC_HELLO'] == 'Azureus PeerCache Hello'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                '-Y', 'frame.number in {80, 88}',
+                '-Tfields', '-eframe.number', '-ebittorrent.port',
+                '-ebittorrent.jpc.addr', '-ebittorrent.jpc.port',
+                '-ebittorrent.jpc.session',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '80\t6882\t\t\t',
+            '88\t\t10.0.0.99\t6881\t0x12345678',
+        ]
+
+    def test_bittorrent_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A 0x4000 octet piece over 12 segments, a message split after its
+        length field and one that starts in the middle of a segment are
+        reassembled; for two passes too.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                    '-Y', 'bittorrent.piece.index && tcp.port == 6881',
+                    '-Tfields', '-eframe.number', '-ebittorrent.msg.length',
+                    '-ebittorrent.piece.index', '-ebittorrent.piece.begin',
+                    '-ebittorrent.piece.length',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '19\t5\t0x00000017\t\t',
+                '20\t13\t0x00000001\t0x00000000\t0x00004000',
+                '21\t13\t0x00000001\t0x00000000\t0x00004000',
+                '23\t5\t0x00000005\t\t',
+                '24\t13\t0x00000001\t0x00000000\t0x00004000',
+                '25\t5\t0x00000006\t\t',
+                '27\t13,13,0,5\t0x00000002,0x00000002,0x00000003\t0x00000000,0x00004000\t0x00004000,0x00000010',
+                '28\t25\t0x00000002\t0x00004000\t',
+                '40\t16393,5\t0x00000002,0x00000002\t0x00000000\t',
+                '43\t13\t0x00000004\t0x00000000\t0x00004000',
+                '45\t5\t0x00000004\t\t',
+                '47\t49\t0x00000004\t0x00000000\t',
+                '55\t5\t0x00000004\t\t',
+            ]
+
+    def test_bittorrent_continuation(self, cmd_tshark, capture_file, test_env):
+        '''Messages with an unknown type or a length their type cannot have
+        are shown as continuation data, and the next segment is decoded
+        again.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                '-Y', 'bittorrent.continuous_data',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['48', '49', '50', '51', '52', '53', '54', '93']
+
+    def test_bittorrent_extended(self, cmd_tshark, capture_file, test_env):
+        '''Extended handshakes (id 0) are bencoded; other ids are bytes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                '-Y', 'bittorrent.extended.id',
+                '-Tfields', '-eframe.number', '-ebittorrent.extended.id',
+                '-ebencode.int',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t0\t3,1,51413,250',
+            '7\t0\t2',
+            '8\t1\t',
+            '9\t3\t',
+            '85\t0\t1',
+            '86\t5\t',
+        ]
+
+    def test_bittorrent_heuristic_and_utp(self, cmd_tshark, capture_file, test_env):
+        '''A handshake on unregistered ports is found by the heuristic,
+        also when split after the protocol name, and BitTorrent is decoded
+        over uTP.'''
+        stdout = subprocess.check_output((cmd_tshark, *BITTORRENT_UTP_OPTS,
+                '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                '-Y', 'bittorrent && (tcp.port == 40001 || udp)',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t')[0] for line in stdout.splitlines()] == \
+            [str(n) for n in range(102, 109)] + [str(n) for n in range(131, 138)]
+        assert 'Interested  Have, Piece (Idx:0x1)' in stdout
+
+    def test_bittorrent_decode_client(self, cmd_tshark, capture_file, test_env):
+        '''With decode_client, the client and version come from the peer ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'bittorrent.decode_client:TRUE',
+                '-r', capture_file('bittorrent_coverage.pcap.gz'),
+                '-Y', 'tcp.port in {6881, 6882, 6884, 6885}',
+                '-O', 'bittorrent',
+            ), encoding='utf-8', env=test_env)
+        for client in ('Transmission v2940', 'qBittorrent v4250',
+                       'Azureus v4004', 'Azureus v5770', 'BitTornado v03I',
+                       'Bits on Wheels v0A0', 'Azureus v\\001\\002\\003\\004'):
+            assert 'Client is ' + client in stdout
