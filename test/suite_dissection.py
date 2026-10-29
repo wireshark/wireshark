@@ -14132,3 +14132,138 @@ class TestDissectBluetooth:
             'Audio Source: SyncML Client: Coverage Custom',
             'Rcvd Read By Group Type Response, Attribute List Length: 1, Apple Notification Center Service',
         ]
+
+
+BMC_RLC_HEUR = ('--enable-heuristic', 'rlc_udp')
+
+
+class TestDissectBmc:
+    def test_bmc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BMC message type, every Data Coding Scheme group, BMC
+        through RLC on the CTCH and GSM CBS pages decode without malformed
+        packets or errors, in one and two passes. The only warnings are the
+        reserved coding schemes.'''
+        for dfilter, count in (('bmc', 28), ('gsm_cbs', 28), ('rlc', 1),
+                               ('exported_pdu', 35)):
+            stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR,
+                    '-r', capture_file('bmc_coverage.pcap.gz'),
+                    '-Y', dfilter,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == count, dfilter
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR, *passes,
+                    '-r', capture_file('bmc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error || '
+                          '(_ws.expert.severity >= warning && !gsm_cbs.unhandled_encoding)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bmc_cbs_message(self, cmd_tshark, capture_file, test_env):
+        '''The CBS message's Data Coding Scheme is the octet after the
+        Serial Number, decoded once by the Cell Broadcast dissector, and the
+        CB data after it is the message text.'''
+        stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR,
+                '-r', capture_file('bmc_coverage.pcap.gz'),
+                '-Y', 'bmc.message_type == 1 && frame.number <= 8',
+                '-Tfields', '-eframe.number', '-egsm_cbs.message-identifier',
+                '-egsm_cbs.serial_number', '-egsm_map.cbs.coding_grp',
+                '-egsm_cbs.language', '-egsm_cbs.message_content',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t0x0011\t0\t\tHello BMC',
+            '2\t40\t0x4022\t1\ten\tWeather report',
+            '3\t500\t0x8033\t1\tde\tGrüße',
+            '4\t2000\t0xc044\t2\t\tGroup two',
+            '5\t4100\t0x0055\t3\t\tGroup three',
+            '6\t4300\t0x4066\t4\t\tEight bit data',
+            '7\t4357\t0x8077\t4\t\tUCS2 text',
+            '8\t4390\t0xc088\t5\t\tClass two',
+        ]
+        # The original reproducer's bytes: DCS 0x0f, so 0x80 is message text
+        stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR,
+                '-r', capture_file('bmc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 20',
+                '-Tfields', '-egsm_map.cbs.coding_grp', '-egsm_map.cbs.coding_grp0_lang',
+                '-e', 'gsm_cbs.message_content',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['0\t15\t@\u00a5\u00c7\u039e']
+
+    def test_bmc_reserved_dcs(self, cmd_tshark, capture_file, test_env):
+        '''A reserved Data Coding Scheme gives "Unhandled encoding" and
+        stops, instead of failing an assertion on a missing tvb.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR, *passes,
+                    '-r', capture_file('bmc_coverage.pcap.gz'),
+                    '-Y', 'gsm_cbs.unhandled_encoding',
+                    '-Tfields', '-eframe.number', '-egsm_map.cbs.coding_grp',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '9\t4', '10\t8', '14\t9', '15\t10', '16\t14', '21\t8', '35\t8',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR, *passes,
+                    '-r', capture_file('bmc_coverage.pcap.gz'),
+                    '-Y', 'gsm_cbs.unhandled_encoding && (_ws.malformed || gsm_cbs.message_content)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bmc_schedule(self, cmd_tshark, capture_file, test_env):
+        '''A CBS Schedule Period length of 255 decodes all 255 message
+        descriptions and the future extension bitmap after them.'''
+        stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR,
+                '-r', capture_file('bmc_coverage.pcap.gz'),
+                '-Y', 'bmc.message_type == 2',
+                '-Tfields', '-eframe.number', '-ebmc.length_of_cbs_schedule_period',
+                '-ebmc.future_extension_bitmap', '-ebmc.length_of_serial_number_list',
+                '-ebmc.serial_number', '-ebmc.ctch_bs_index',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '22\t255\t1\t2\t0x1234,0x5678\t7,9',
+            '23\t10\t\t\t\t',
+            '24\t8\t0\t\t\t',
+            '25\t0\t1\t0\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR,
+                '-r', capture_file('bmc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 22',
+                '-Tfields', '-Eoccurrence=l', '-ebmc.message_description_type',
+                '-ebmc.message_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['5', '0x10ff']
+        stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR,
+                '-r', capture_file('bmc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 22',
+                '-Tfields', '-ebmc.message_description_type',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split(',')) == 255
+
+    def test_bmc_rlc_ctch(self, cmd_tshark, capture_file, test_env):
+        '''A BMC CBS message carried by RLC UM on the CTCH (RLC over UDP
+        framing).'''
+        stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR,
+                '-r', capture_file('bmc_coverage.pcap.gz'),
+                '-Y', 'rlc && bmc',
+                '-Tfields', '-eframe.number', '-egsm_cbs.message-identifier',
+                '-egsm_cbs.message_content',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['29\t4371\tVia RLC CTCH']
+
+    def test_bmc_gsm_cbs_pages(self, cmd_tshark, capture_file, test_env):
+        '''GSM CBS pages: CR padding is split off, and a two-page message
+        is reassembled in its second page.'''
+        stdout = subprocess.check_output((cmd_tshark, *BMC_RLC_HEUR, '-2',
+                '-r', capture_file('bmc_coverage.pcap.gz'),
+                '-Y', 'gsm_cbs.current_page',
+                '-Tfields', '-eframe.number', '-egsm_cbs.page_content',
+                '-egsm_cbs.reassembled.in', '-egsm_cbs.message_content',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '30\tSingle GSM page\t\tSingle GSM page',
+            '31\t' + 'A' * 93 + '\t32\t',
+            '32\tSecond page\t\t' + 'A' * 93 + 'Second page',
+            '33\tUCS2 page\t\tUCS2 page',
+            '34\t\t\t',
+            '35\t\t\t',
+        ]
