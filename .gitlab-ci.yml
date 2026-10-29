@@ -1139,10 +1139,43 @@ Windows Build:
     - msbuild -property:Configuration=Debug test-programs.vcxproj
     - C:\Windows\py.exe -m pip install --quiet jsonschema
     - C:\Windows\py.exe -m pytest --build-type=Debug --disable-gui --enable-stratoshark --junitxml=../windows_tests.xml
+    # Test CMake install code. The installation is tested in "Windows Install Test".
+    # Run the cpack next to the cmake in use. Chocolatey also has a "cpack" command.
+    - $cpack = Join-Path (Split-Path (Get-Command cmake).Source) cpack.exe
+    - '& $cpack -G ZIP -C Debug -D CPACK_COMPONENTS_ALL=Unspecified'
   artifacts:
     when: always
+    paths:
+      - build/Wireshark-*-Windows-x64*.zip
+    expire_in: 3 days
     reports:
       junit: windows_tests.xml
+
+Windows Install Test:
+  stage: test
+  rules: !reference [.if-w-w-only-merge-request]
+  # The installation is a Debug build, which needs the debug C runtime installed with Visual Studio.
+  tags:
+    - wireshark-windows-merge-req
+  needs:
+    - job: 'Windows Build'
+  script:
+    - $installDir = "$env:TEMP\install-test-$env:CI_JOB_ID"
+    - New-Item -Path $installDir -ItemType "directory"
+    - tar -C $installDir -xf (Get-Item build\Wireshark-*-Windows-x64*.zip).FullName
+    - $programDir = (Get-ChildItem -Path $installDir -Recurse -Filter tshark.exe).DirectoryName
+    # Don't run Wireshark.exe. The container is missing system DLLs that Qt GUI programs need.
+    - if (-Not (Test-Path $programDir\Wireshark.exe)) { Write-Host "Wireshark.exe isn't installed" ; Exit 1 }
+    - '& $programDir\tshark.exe --version'
+    - '& $programDir\tshark.exe -G folders | Tee-Object -Variable folders'
+    - $pluginDir = ($folders | Select-String "^Global Plugins:\s+(.+)$").Matches.Groups[1].Value.Trim()
+    - $extcapDir = ($folders | Select-String "^Global Extcap path:\s+(.+)$").Matches.Groups[1].Value.Trim()
+    - if (-Not (Test-Path $pluginDir\*\*.dll)) { Write-Host "No plugins in $pluginDir" ; Exit 1 }
+    - if (-Not (Test-Path $extcapDir\*.exe)) { Write-Host "No extcaps in $extcapDir" ; Exit 1 }
+    - '& $programDir\tshark.exe -G plugins | Tee-Object -Variable plugins'
+    - if (-Not ($plugins | Select-String -Quiet -SimpleMatch ".dll")) { Write-Host "No plugins were loaded" ; Exit 1 }
+  after_script:
+    - Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:TEMP\install-test-$env:CI_JOB_ID"
 
 macOS Build:
   extends: .build-macos
