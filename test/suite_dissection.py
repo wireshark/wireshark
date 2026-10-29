@@ -15995,3 +15995,135 @@ class TestDissectBtavctp:
                 '26\t0x03\t\t45454545\tUnexpected frame',
                 '27\t0x02\t\t46464646\t',
             ]
+
+
+class TestDissectBtavdtp:
+    def test_btavdtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''AVDTP signaling and media over HCI H4 with direction, A2DP with
+        SBC, MPEG-1,2 Audio, AAC, ATRAC, aptX, aptX HD, LDAC and Opus,
+        VDP, SCMS-T and Exported PDUs decode without malformed packets in
+        one and two passes. The only warnings are the out of range SBC
+        bitpools and the extra capability octet in frame 55.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavdtp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 397
+        assert protocols.count('AVDTP') == 256
+        assert protocols.count('L2CAP') == 82
+        assert protocols.count('HCI_EVT') == 21
+        assert protocols.count('aptX') == 11
+        assert protocols.count('RTP') == 10
+        assert protocols.count('SBC') == 8
+        assert protocols.count('LDAC') == 3
+        assert protocols.count('AVRCP') == 2
+        assert protocols.count('MPEG TS') == 1
+        assert protocols.count('MPEG-1') == 1
+        assert protocols.count('') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavdtp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['55\tUnexpected losc data,'
+                + ','.join(['Bitpool is out of range. Should be 2..250.'] * 4)]
+
+    def test_btavdtp_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''"btavdtp" called by name from an Exported PDU has no L2CAP
+        channel information; with a direction (frame 386) and without
+        (frame 387) the data is shown instead of failing an assertion.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavdtp_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {386, 387}',
+                    '-Tfields', '-eexported_pdu.prot_name', '-eframe.protocols',
+                    '-e_ws.col.protocol', '-e_ws.col.info', '-edata.data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                'btavdtp\texported_pdu:data\tAVDTP\tSent \t0001',
+                'btavdtp\texported_pdu:data\tAVDTP\tUnknownDirection \t0001',
+            ]
+
+    def test_btavdtp_signaling(self, cmd_tshark, capture_file, test_env):
+        '''Discovered stream end points, capabilities, the delay report
+        and the channels that are neither signaling nor media.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavdtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {47, 49, 70, 100, 385}',
+                '-Tfields', '-eframe.number', '-ebtavdtp.sep_seid', '-ebtavdtp.sep_media_type',
+                '-ebtavdtp.sep_type', '-ebtavdtp.sep_inuse', '-ebtavdtp.service_category',
+                '-ebtavdtp.delay',
+                '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '47\t1,2,3,4\t0x00,0x01,0x00,0x00\t0x01,0x01,0x01,0x00\t0x00,0x00,0x01,0x00\t\t',
+            '49\t\t\t\t\t0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x20\t',
+            '70\t\t\t\t\t\t1505',
+            '100\t\t\t\t\t\t',
+            '385\t\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavdtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {58, 100}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert info[0].startswith('Sent Command - SetConfiguration - ACP SEID [1 - Audio Sink]')
+        assert info[1] == 'Sent Unknown channel stream on cid=0x0052'
+
+    def test_btavdtp_streams(self, cmd_tshark, capture_file, test_env):
+        '''The codec and content protection negotiated by SET_CONFIGURATION
+        and the stream opened by OPEN select the A2DP codec dissector of
+        each media packet, the same in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavdtp_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {78, 97, 207, 222, 236, 250, 264, 280, 358, 373}',
+                    '-Tfields', '-eframe.number', '-ebta2dp.acp_seid', '-ebta2dp.codec',
+                    '-ebta2dp.codec.vendor.vendor_id', '-ebta2dp.codec.vendor.codec_id',
+                    '-ebta2dp.content_protection', '-ebta2dp.stream_number',
+                    '-ebta2dp.stream_start_in_frame', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        p = 'bluetooth:hci_h4:bthci_acl:btl2cap:btavdtp:bta2dp:'
+        assert outputs[0].splitlines() == [
+            '78\t1\t0x00\t\t\t\t3\t78\t' + p + 'rtp:sbc',
+            '97\t1\t0x00\t\t\t\t4\t94\t' + p + 'rtp:sbc',
+            '207\t1\t0x00\t\t\t0x0002\t5\t207\t' + p + 'rtp:bta2dp_content_protection_header_scms_t:sbc',
+            '222\t1\t0x01\t\t\t\t6\t222\t' + p + 'rtp:mp2t',
+            '236\t1\t0x02\t\t\t\t7\t236\t' + p + 'rtp:mpeg-audio',
+            '250\t1\t0x04\t\t\t\t8\t250\t' + p + 'rtp:data',
+            '264\t1\t0xff\t0x0000004f\t0x0001\t\t9\t264\t' + p + 'aptx',
+            '280\t1\t0xff\t0x000000d7\t0x0024\t0x0002\t10\t280\t' + p + 'rtp:bta2dp_content_protection_header_scms_t:aptx',
+            '358\t1\t0xff\t0x0000012d\t0x00aa\t\t15\t358\t' + p + 'rtp:ldac',
+            '373\t1\t0xff\t0x000000e0\t0x0001\t\t16\t373\t' + p + 'rtp:data',
+        ]
+        # Video streams go to VDP; media type 2 and media after CLOSE stay AVDTP
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavdtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {14, 116, 385}',
+                '-Tfields', '-eframe.protocols', '-ebtvdp.stream_number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'bluetooth:hci_h4:bthci_acl:btl2cap:btavdtp:btvdp:rtp\t1',
+            'bluetooth:hci_h4:bthci_acl:btl2cap:btavdtp\t',
+            'bluetooth:hci_h4:bthci_acl:btl2cap:btavdtp\t',
+        ]
+
+    def test_btavdtp_avrcp_song_position(self, cmd_tshark, capture_file, test_env):
+        '''The AVRCP playback position notifications in frames 93 and 95
+        give the song position of the next SBC packet.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavdtp_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {93, 94, 95, 96}',
+                    '-Tfields', '-eframe.number', '-ebtavrcp.song_position',
+                    '-esbc.avrcp_song_position',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '93\t1000\t', '94\t\t1000', '95\t5000\t', '96\t\t5000',
+            ]
