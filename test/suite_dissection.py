@@ -15399,3 +15399,176 @@ class TestDissectBssap:
         assert lines[0] == '1\t42\t\t'
         assert '90\t\t491700023\t' in lines
         assert '94\t\t\t070101' in lines
+
+
+class TestDissectBssgp:
+    def test_bssgp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BSSGP PDU type with its IEs, the RIM PDUs with every RIM
+        application, carried in NS over UDP, decode without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 106
+        assert protocols.count('BSSGP') == 100
+        assert protocols.count('BSSGP/RRLP') == 1
+        assert protocols.count('GPRS-LLC') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bssgp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bssgp_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''The PDU type of every frame, so that a PDU decoded as another
+        one or not at all is noticed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Tfields', '-ebssgp.pdu_type', '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        types = [int(t, 16) for t in stdout.split()]
+        assert types == [
+            0x00, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+            0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12,
+            0x13, 0x14, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+            0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2d, 0x2d, 0x2e, 0x40,
+            0x41, 0x42, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
+            0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x91, 0x92, 0x93,
+            0x59, 0x5a, 0x5c, 0x5c, 0x60, 0x61, 0x62, 0x64, 0x80, 0x81,
+            0x82, 0x83, 0x84, 0x85, 0x71, 0x71, 0x71, 0x71, 0x71, 0x70,
+            0x70, 0x70, 0x70, 0x70, 0x70, 0x70, 0x70, 0x70, 0x70, 0x70,
+            0x70, 0x72, 0x72, 0x73, 0x73, 0x74, 0x74, 0x74, 0x74, 0x74,
+            0x2a, 0x40, 0x07, 0x40, 0x70, 0x25,
+        ]
+
+    def test_bssgp_ies_after_fixed_elements(self, cmd_tshark, capture_file, test_env):
+        '''The IEs after Channel Needed (PAGING-CS), Velocity Data
+        (PERFORM-LOCATION-RESPONSE) and Transaction Id are decoded, and the
+        NSEI of FLUSH-LL / FLUSH-LL-ACK and the OMC Id of SGSN-INVOKE-TRACE
+        are decoded as BSSGP IEs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Y', 'bssgp.pdu_type == 0x07',
+                '-Tfields', '-eframe.number', '-egsm_a.rr.chnl_needed_ch1',
+                '-egsm_a.tmsi', '-esgsap.cn_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t2\t287454020\t5',
+            '103\t0\t287454020\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Y', 'bssgp.pdu_type == 0x2a || bssgp.pdu_type == 0x2b',
+                '-Tfields', '-eframe.number', '-ebssgp.bvci', '-ebssgp.nsei',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '33\t0x0002,0x0003\t0x1234\tFLUSH-LL, NSEI 4660',
+            '34\t0x0003\t0x4321\tFLUSH_LL_ACK, NSEI 17185',
+            '101\t0x0002\t0x1234\tFLUSH-LL, NSEI 4660',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Y', 'bssgp.pdu_type == 0x40',
+                '-Tfields', '-eframe.number', '-ebssgp.trace_ref',
+                '-ebssgp.omc_id', '-ebssgp.transaction_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '40\t1\t' + b'OMC-ID-TEST'.hex() + '\t43981',
+            '102\t1\t' + b'OMC-ID-TEST'.hex() + '\t43981',
+            '104\t1\t\t43981',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Y', 'bssgp.pdu_type == 0x61',
+                '-Tfields', '-egsm_a.gad.horizontal_velocity',
+                '-egsm_a.bssmap.ganss_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['16\t0']
+
+    def test_bssgp_mbms_session(self, cmd_tshark, capture_file, test_env):
+        '''MBMS Session Duration and the MBMS Service Area Identity List
+        step over their value, so the IEs after them are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Y', 'bssgp.pdu_type == 0x80 || bssgp.pdu_type == 0x84',
+                '-Tfields', '-eframe.number', '-egtp.mbms_ses_dur_days',
+                '-ebssgp.session_inf', '-ebssgp.time_to_mbms_data_tran',
+                '-ebssgp.mbms_session_rep_no',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '69\t16\tTrue\t5\t2',
+            '73\t16\tTrue\t5\t2',
+        ]
+
+    def test_bssgp_nacc_si_items(self, cmd_tshark, capture_file, test_env):
+        '''NACC SI items: SI3, SI1 and SI13 are decoded; an item of an
+        unknown message type gets an expert info (it failed an assertion
+        when it was the first item) and does not decide how the next item
+        is decoded.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bssgp_coverage.pcap.gz'),
+                    '-Y', 'bssgp.si_item',
+                    '-Tfields', '-eframe.number', '-egsm_a.dtap.msg_rr_type',
+                    '-ebssgp.unknown_si',
+                ), encoding='utf-8', env=test_env)
+            frames = [line.split('\t') for line in stdout.splitlines()]
+            assert [f[0] for f in frames] == ['80', '82', '105']
+            assert [f[1] for f in frames] == ['0x1b,0x19,0x00', '0xff,0x1b', '0xff']
+            assert [f[2] != '' for f in frames] == [False, True, True]
+
+    def test_bssgp_rim(self, cmd_tshark, capture_file, test_env):
+        '''RIM PDUs: the RIM application of every container and the
+        RAN-INFORMATION SON Transfer reporting cells.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Y', 'bssgp.rim_app_id',
+                '-Tfields', '-eframe.number', '-ebssgp.rim_app_id',
+            ), encoding='utf-8', env=test_env)
+        apps = dict(line.split('\t') for line in stdout.splitlines())
+        assert [apps[str(f)] for f in range(75, 101)] == [
+            '1', '2', '3', '5', '4', '1', '1', '1', '2', '3', '4', '4', '4',
+            '4', '5', '5', '1', '1', '4', '1', '4', '1', '2', '3', '4', '5']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Y', 'bssgp.rat_discriminator',
+                '-Tfields', '-eframe.number', '-ebssgp.rat_discriminator',
+                '-ebssgp.ci', '-eranap.cI', '-es1ap.macroENB_ID',
+            ), encoding='utf-8', env=test_env)
+        # The destination is an eNB and the source a GERAN cell; the
+        # reporting cell adds a second CI (GERAN), a RANAP cI (UTRAN), or a
+        # second macro eNB id (E-UTRAN), nothing for a reserved RAT.
+        assert stdout.splitlines() == [
+            '85\t0\t0x0001,0x0001\t\t000010',
+            '86\t1\t0x0001\t0001\t000010',
+            '87\t3\t0x0001\t\t000010',
+            '88\t2\t0x0001\t\t000010,000010',
+        ]
+
+    def test_bssgp_llc(self, cmd_tshark, capture_file, test_env):
+        '''The LLC-PDUs of the unitdata PDUs are handed to the LLC
+        dissector (valid FCS) and from there to GMM.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Y', 'llcgprs',
+                '-Tfields', '-eframe.number', '-ebssgp.pdu_type',
+                '-egsm_a.dtap.msg_gmm_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00\t0x15,0x15',
+            '2\t0x00\t0x15',
+            '3\t0x01\t0x15',
+            '6\t0x04\t0x15',
+            '7\t0x05\t0x15',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bssgp_coverage.pcap.gz'),
+                '-Y', 'llcgprs',
+                '-O', 'llcgprs',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('(correct)') == 6
