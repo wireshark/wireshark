@@ -10953,3 +10953,126 @@ class TestDissectAyiya:
         layers = frames[0][1].split(':')
         assert layers.count('ayiya') == 161
         assert layers[-1] == 'ayiya'
+
+
+class TestDissectBabel:
+    def test_babel_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Babel message type, address encoding and sub-TLV, packet
+        trailers and two jumbograms larger than 64 KiB decode without
+        malformed packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('babel_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 19
+        assert protocols.count('Babel') == 19
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('babel_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_babel_hello_flags(self, cmd_tshark, capture_file, test_env):
+        '''"Unicast" comes from the U bit (0x8000) of each Hello's own
+        flags, not from the packet header: set in frames 2, 4, 15 and the
+        body Hello of 19, clear with the other flag bits set in frame 3.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('babel_coverage.pcap.gz'),
+                '-Y', 'babel.message.type == 4',
+                '-O', 'babel',
+            ), encoding='utf-8', env=test_env)
+        unicast = {}
+        frame = None
+        for line in stdout.splitlines():
+            if line.startswith('Frame '):
+                frame = int(line.split()[1].rstrip(':'))
+            elif line.strip().startswith('Unicast : '):
+                unicast.setdefault(frame, []).append(line.strip()[len('Unicast : '):])
+        assert unicast == {
+            1: ['0'], 2: ['1'], 3: ['0'], 4: ['1'], 6: ['0'], 14: ['0'],
+            15: ['1'], 18: ['0'], 19: ['1', '0'],
+        }
+
+    def test_babel_long_trailer(self, cmd_tshark, capture_file, test_env):
+        '''A packet trailer longer than 255 octets (298 in frame 15) is
+        decoded whole: its PC, PadN, Pad1 and MAC messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('babel_coverage.pcap.gz'),
+                '-Y', 'frame.number == 15',
+                '-O', 'babel',
+            ), encoding='utf-8', env=test_env)
+        assert 'Packet Trailer (298)' in stdout
+        trailer = stdout[stdout.index('Packet Trailer (298)'):]
+        assert 'Index: 4000000000' in trailer
+        assert 'Message hmac (16)' in trailer
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('babel_coverage.pcap.gz'),
+                '-Y', 'frame.number == 15',
+                '-Tfields', '-e_ws.col.info', '-ebabel.message.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Babel hello pc padn pad1 hmac\t6,4,255,32'
+
+    def test_babel_subtlvs_past_64k(self, cmd_tshark, capture_file, test_env):
+        '''Sub-TLV offsets are not cut to 16 bits: the reproducer of the
+        16-bit wrap (frame 18) stops after its last Hello's one sub-TLV,
+        and in frame 19 the diversity sub-TLV at offset 65536 and the
+        trailer timestamp past 64 KiB decode at the right place.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('babel_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 18',
+                    '-Tfields', '-eframe.number', '-ebabel.subtlv.type',
+                    '-ebabel.subtlv.length', '-ebabel.subtlv.diversity.channel',
+                    '-ebabel.message.index',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '18\t1\t100\t\t',
+                '19\t2,3\t1,4\t7\t77',
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('babel_coverage.pcap.gz'),
+                '-Y', 'frame.number == 19',
+                '-O', 'babel',
+            ), encoding='utf-8', env=test_env)
+        assert 'Packet Trailer (20)' in stdout
+        assert 'Timestamp : 123.456789s' in stdout
+
+    def test_babel_messages(self, cmd_tshark, capture_file, test_env):
+        '''Prefixes and addresses of every address encoding, including
+        IPv4 and IPv6 updates that omit octets of the previous default
+        prefix, and timestamp and diversity sub-TLVs. The sub-TLV length
+        is shown as a number, not as a sub-TLV name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('babel_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 17',
+                '-O', 'babel',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()]
+        prefixes = [l for l in lines if l.startswith(('Prefix: ', 'Address: ', 'NH: '))]
+        assert prefixes == [
+            'Address: ::', 'Address: 192.0.2.1', 'Address: 2001:db8:0:1::1',
+            'Address: fe80::2',
+            'Address: fe80::2', 'Address: ::',
+            'NH: 192.0.2.1', 'NH: 2001:db8:0:1::1', 'NH: fe80::2',
+            'Prefix: 198.51.100.0/24', 'Prefix: 198.51.100.7/32', 'Prefix: ::/0',
+            'Prefix: 2001:db8:0:1::/64', 'Prefix: 2001:db8:0:1::1/128',
+            'Prefix: fe80::2/128', 'Prefix: 10.1.0.0/16',
+            'Prefix: ::/0', 'Prefix: 198.51.100.0/24', 'Prefix: 2001:db8::/48',
+            'Prefix: fe80::2/128', 'Prefix: 2001:db8:0:1::1/128',
+            'Prefix: 192.0.2.1/32', 'Prefix: 2001:db8:0:1::/64',
+        ]
+        assert 'Timestamp : 1234.567890s' in lines
+        assert 'Timestamp origin : 1.000000s' in lines
+        assert 'Timestamp receive: 2.500000s' in lines
+        assert 'Bogus' in lines
+        assert 'Mandatory' in lines
+        assert [l for l in lines if l.startswith('Sub-TLV Length: ')] == [
+            'Sub-TLV Length: 4',
+            'Sub-TLV Length: 2', 'Sub-TLV Length: 3', 'Sub-TLV Length: 3',
+            'Sub-TLV Length: 2',
+            'Sub-TLV Length: 8', 'Sub-TLV Length: 8',
+            'Sub-TLV Length: 2', 'Sub-TLV Length: 4',
+        ]
