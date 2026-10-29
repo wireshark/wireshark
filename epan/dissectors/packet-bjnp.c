@@ -13,6 +13,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #define BJNP_PORT_RANGE    "8611-8614"
 
@@ -111,6 +112,10 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   proto_tree_add_item_ret_uint (bjnp_tree, hf_payload_len, tvb, offset, 4, ENC_BIG_ENDIAN, &payload_len);
   offset += 4;
 
+  /* 0xffffffff must not become -1, "to the end of the tvb" */
+  if (payload_len > (uint32_t)tvb_reported_length_remaining (tvb, offset)) {
+    THROW (ReportedBoundsError);
+  }
   if (payload_len > 0) {
     /* TBD: Dissect various commands */
     proto_tree_add_item (bjnp_tree, hf_payload, tvb, offset, payload_len, ENC_NA);
