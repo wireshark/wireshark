@@ -8805,7 +8805,7 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             break;
         case 4: /* monitoredPropertyIdentifier */
             if (tag_is_opening(tag_info)) {
-                subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "monitoredPropertyIdentifier");
+                subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_bacapp_value, NULL, "monitoredPropertyIdentifier");
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fBACnetPropertyReference(tvb, pinfo, subtree, offset, 1);
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -11263,6 +11263,7 @@ fEventNotificationSubscription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     uint8_t     tag_no, tag_info;
     uint32_t    lvt;
     proto_tree *subtree;
+    proto_tree *subscription_tree = tree;
     unsigned    itemno = 1;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0 && offset > lastoffset) {  /* exit loop if nothing happens inside */
@@ -11273,24 +11274,24 @@ fEventNotificationSubscription(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         }
         switch (tag_no) {
         case 0: /* recipient  */
-            tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
+            subscription_tree = proto_tree_add_subtree_format(tree, tvb, offset, 1,
               ett_bacapp_value, NULL, "Subscription %d", itemno);    /* add tree label and indent */
             itemno = itemno + 1;
 
-            subtree = proto_tree_add_subtree(tree, tvb, offset, 1,
+            subtree = proto_tree_add_subtree(subscription_tree, tvb, offset, 1,
               ett_bacapp_value, NULL, "Recipient: ");    /* add tree label and indent */
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt); /* show context open */
             offset = fRecipient(tvb, pinfo, subtree, offset);
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);  /* show context close */
             break;
         case 1: /* process-identifier  */
-            offset = fUnsignedTag(tvb, pinfo, tree, offset, "Process Identifier: ");
+            offset = fUnsignedTag(tvb, pinfo, subscription_tree, offset, "Process Identifier: ");
             break;
         case 2: /* issue-confirmed-notifications  */
-            offset = fBooleanTag(tvb, pinfo, tree, offset, "Issue Confirmed Notifications: ");
+            offset = fBooleanTag(tvb, pinfo, subscription_tree, offset, "Issue Confirmed Notifications: ");
             break;
         case 3: /* time-remaining  */
-            offset = fUnsignedTag(tvb, pinfo, tree, offset, "Time Remaining: ");
+            offset = fUnsignedTag(tvb, pinfo, subscription_tree, offset, "Time Remaining: ");
             break;
         default:
             return offset;
@@ -13598,7 +13599,7 @@ fAddListElementRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsi
             break;
         case 3: /* listOfElements */
             if (tag_is_opening(tag_info)) {
-                subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "listOfElements");
+                subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_bacapp_value, NULL, "listOfElements");
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 offset  = fAbstractSyntaxNType(tvb, pinfo, subtree, offset);
                 fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -13873,13 +13874,13 @@ fAuditLogQueryParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 
         switch (tag_no) {
         case 0: /* query-by-target-parameters */
-            subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "target-parameters: ");
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_bacapp_value, NULL, "target-parameters: ");
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             offset  = fAuditLogQueryByTargetParameters(tvb, pinfo, subtree, offset);
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             break;
         case 1: /* query-by-source-parameters */
-            subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "source-parameters: ");
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_bacapp_value, NULL, "source-parameters: ");
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             offset  = fAuditLogQueryBySourceParameters(tvb, pinfo, subtree, offset);
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -13909,7 +13910,7 @@ fAuditLogQueryRequest(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
             offset = fObjectIdentifier(tvb, pinfo, tree, offset, hf_bacapp_object_identifier);
             break;
         case 1: /* query-parameters */
-            subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "query-parameters: ");
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_bacapp_value, NULL, "query-parameters: ");
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             offset = fAuditLogQueryParameters(tvb, pinfo, subtree, offset);
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -13978,7 +13979,7 @@ fAuditLogQueryAck(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
             offset = fObjectIdentifier(tvb, pinfo, tree, offset, hf_bacapp_object_identifier);
             break;
         case 1: /* records */
-            subtree = proto_tree_add_subtree(subtree, tvb, offset, 1, ett_bacapp_value, NULL, "records: ");
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_bacapp_value, NULL, "records: ");
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
             offset = fAuditLogRecordResult(tvb, pinfo, subtree, offset);
             offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -14631,7 +14632,8 @@ static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
 fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
-    char  i = 1, *str_ar;
+    int32_t i = 1;
+    char  *str_ar;
     unsigned lastoffset = 0;
     uint8_t tag_no;
     uint8_t tag_info;
@@ -15683,7 +15685,7 @@ fStartConfirmed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *bacapp_tree, 
     if (ack == 0) {
         extra = 3;
     }
-    *svc = tvb_get_int8(tvb, offset+extra);
+    *svc = tvb_get_uint8(tvb, offset+extra);
     if (bacapp_flags & 0x08)
         *svc = tvb_get_int8(tvb, offset+extra+2);
 
@@ -16112,10 +16114,6 @@ do_the_dissection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     flag = tvb_get_int8(tvb, 0);
     bacapp_type = (flag >> 4) & 0x0f;
 
-    if (tvb == NULL) {
-        return 0;
-    }
-
     /* ASHRAE 135-2001 20.1.1 */
     switch (bacapp_type) {
     case BACAPP_TYPE_CONFIRMED_SERVICE_REQUEST: /* BACnet-Confirmed-Service-Request */
@@ -16171,6 +16169,11 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     static const char cackstr[]      = " (ComplexAck)";
     static const char uconfsreqstr[] = " (Unconfirmed Service Request)";
     static const char confsreqstr[]  = " (Confirmed Service Request)";
+
+    /* Do not carry the decoding context over from the previous packet */
+    propertyIdentifier = -1;
+    propertyArrayIndex = -1;
+    object_type = 4096;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-APDU");
     col_clear(pinfo->cinfo, COL_INFO);
