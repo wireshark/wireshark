@@ -16727,3 +16727,161 @@ class TestDissectBthciAcl:
                 '-Tfields', '-eframe.number', '-ebthci_acl.disconnect_in',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['30\t35', '31\t35', '32\t35']
+
+
+class TestDissectBthciCmd:
+    '''Bluetooth HCI Command and BT Common EIR/AD. bthci_cmd_coverage.pcap.gz
+    holds a command for every opcode the dissector knows; the Exported PDU
+    capture calls the btcommon dissectors by name without data.'''
+
+    def test_bthci_cmd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every known opcode decodes without malformed packets or errors,
+        in one and two passes. The only warnings are the two deliberate
+        "Unknown data" AD entries (an unknown type and an over-long Flags
+        entry) in frame 470.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_cmd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-ebthci_cmd.opcode',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        protocols = [f[0] for f in frames]
+        assert len(protocols) == 483
+        assert protocols.count('HCI_CMD') == 473
+        assert protocols.count('HCI_CMD_BROADCOM') == 3
+        assert protocols.count('HCI_EVT') == 6
+        assert protocols.count('BT Mesh PB-ADV') == 1
+        # 374 standard opcodes and 3 vendor opcodes
+        assert len({f[1] for f in frames if f[1]}) == 377
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_cmd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['470\tUnknown data,Unknown data']
+
+    def test_bthci_cmd_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The columns and decoded fields are the same in one and two
+        passes. (The Bluetooth layer's [Source]/[Destination] and the
+        Pending/Response In links are added only in the second pass.)'''
+        fields = ('-Tfields', '-eframe.number', '-e_ws.col.info',
+                  '-ebthci_cmd.opcode', '-ebthci_cmd.param_length',
+                  '-ebtcommon.eir_ad.entry.type', '-ebtcommon.eir_ad.entry.device_name',
+                  '-ebthci_cmd.clock_offset', '-ebthci_cmd.bn_p_to_c',
+                  '-ebthci_cmd.bd_addr', '-e_ws.expert.message')
+        one = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_cmd_coverage.pcap.gz'), *fields,
+            ), encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_cmd_coverage.pcap.gz'), *fields,
+            ), encoding='utf-8', env=test_env)
+        assert one == two
+
+    def test_bthci_cmd_responses(self, cmd_tshark, capture_file, test_env):
+        '''Command Status and Command Complete events link back to their
+        commands (second pass).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_cmd_coverage.pcap.gz'),
+                '-Y', 'bthci_cmd.pending_in_frame || bthci_cmd.response_in_frame',
+                '-Tfields', '-eframe.number', '-ebthci_cmd.pending_in_frame',
+                '-ebthci_cmd.response_in_frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t2\t', '3\t\t4', '5\t\t6', '7\t\t8']
+
+    def test_bthci_cmd_ad_fixed_entries(self, cmd_tshark, capture_file, test_env):
+        '''The AD entry after a Transport Discovery Data block, after a 16
+        octet Security Manager TK value and after a 1 octet LE Supported
+        Features entry decodes (it used to be misparsed).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_cmd_coverage.pcap.gz'),
+                '-Y', 'bthci_cmd.opcode == 0x2008 && btcommon.eir_ad.entry.device_name == "test"',
+                '-Tfields', '-eframe.number', '-ebtcommon.eir_ad.entry.type',
+                '-ebtcommon.eir_ad.entry.device_name', '-ebtcommon.eir_ad.entry.tds.data',
+                '-ebtcommon.eir_ad.entry.data', '-ebtcommon.eir_ad.entry.le_features',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '476\t0x26,0x09\ttest\taabb\t\t',
+            '477\t0x10,0x09\ttest\t\t404142434445464748494a4b4c4d4e4f\t',
+            '478\t0x27,0x09\ttest\t\t\t0x01',
+        ]
+
+    def test_bthci_cmd_small_fixes(self, cmd_tshark, capture_file, test_env):
+        '''Create Connection and Truncated Page read the clock offset at its
+        offset, Write Page Scan Mode steps over its parameter, and "(No
+        data)" goes on the Burst Number that is 0 in LE Set CIG Parameters
+        Test.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_cmd_coverage.pcap.gz'),
+                '-Y', 'frame.number in {378, 385, 425, 448, 449}',
+                '-Tfields', '-eframe.number', '-ebthci_cmd.opcode',
+                '-ebthci_cmd.clock_offset', '-ebthci_cmd.clock_offset_valid',
+                '-ebthci_cmd.page_scan_mode', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '378\t0x0405\t0x0010\t1\t0x00\t',
+            '385\t0x043f\t0x0010\t1\t\t',
+            '425\t0x0c3e\t\t\t0x01\t',
+            '448\t0x2063\t\t\t\t',
+            '449\t0x2063\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_cmd_coverage.pcap.gz'),
+                '-Y', 'frame.number in {448, 449}', '-V',
+            ), encoding='utf-8', env=test_env)
+        bn = [line.strip() for line in stdout.splitlines() if 'Burst Number' in line]
+        assert bn == [
+            'Burst Number Central to Peripheral: 3',
+            'Burst Number Peripheral to Central: 0 (No data)',
+            'Burst Number Central to Peripheral: 3',
+            'Burst Number Peripheral to Central: 0 (No data)',
+            'Burst Number Central to Peripheral: 0 (No data)',
+            'Burst Number Peripheral to Central: 2',
+        ]
+
+    def test_bthci_cmd_eir_ad(self, cmd_tshark, capture_file, test_env):
+        '''Every EIR/AD type the decoder knows appears, and the registered
+        service data, mesh and vendor dissectors are called.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_cmd_coverage.pcap.gz'),
+                '-Tfields', '-ebtcommon.eir_ad.entry.type', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        types = set()
+        protocols = set()
+        for line in stdout.splitlines():
+            t, p = line.split('\t')
+            types.update(int(x, 16) for x in t.split(',') if x)
+            protocols.update(p.split(':'))
+        assert types == set(range(0x01, 0x13)) | set(range(0x14, 0x2f)) | {0x30, 0x32, 0x3d, 0x99, 0xff}
+        assert {'bluetooth.gaen', 'bluetooth.matter', 'btmesh', 'beacon', 'pbadv',
+                'bthci_vendor.broadcom'} <= protocols
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_cmd_coverage.pcap.gz'),
+                '-Y', 'btcommon.eir_ad.entry.did.vendor_id_source',
+                '-Tfields', '-ebtcommon.eir_ad.entry.did.vendor_id_source',
+                '-ebtcommon.eir_ad.entry.did.product_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[:2] == ['0x0001\t0x1234', '0x0002,0x0003\t0xc077,0x0001']
+
+    def test_bthci_cmd_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The btcommon dissectors called by name from an Exported PDU file,
+        without data, decode with the default interface and adapter instead
+        of failing an assertion; commands without a direction decode too.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_cmd_coverage_exppdu.pcapng.gz'),
+                    '-Tfields', '-eframe.number', '-eexported_pdu.prot_name',
+                    '-ebtcommon.eir_ad.entry.type', '-ebtcommon.eir_ad.entry.device_name',
+                    '-ebtcommon.cod.major_device_class', '-e_ws.col.info',
+                    '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\tbtcommon.eir_ad.ad\t0x09,0x01\ttest\t\t\t',
+                '2\tbtcommon.eir_ad.eir\t0x09,0x01\ttest\t\t\t',
+                '3\tbtcommon.eir_ad.ad\t0x01,0x09,0x02,0x03,0x14,0x0c,0x09,0x26,0xff,0xff\ttest,EIR-Name\t\t\t',
+                '4\tbtcommon.eir_ad.eir\t0x0c,0x09,0x10,0x10,0x10,0x16,0x16,0x16,0x16,0x16,0x20,0x20,0x21,0x21,0x17,0x18\tEIR-Name\t\t\t',
+                '5\tbtcommon.cod\t\t\t0x0002\t\t',
+                '6\tbtcommon.channel_map\t\t\t\t\t',
+                '7\tbtcommon.le_channel_map\t\t\t\t\t',
+                '8\t\t\t\t\tUnknownDirection Disconnect\t',
+                '9\t\t0x01,0x08,0x09\tWS,WS-HCI\t\tUnknownDirection LE Set Advertising Data\t',
+            ]
