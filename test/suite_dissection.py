@@ -16127,3 +16127,158 @@ class TestDissectBtavdtp:
             assert stdout.splitlines() == [
                 '93\t1000\t', '94\t\t1000', '95\t5000\t', '96\t\t5000',
             ]
+
+
+class TestDissectBtavrcp:
+    def test_btavrcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every AVRCP PDU (unit/subunit info, pass-through, vendor
+        dependent, notifications, browsing) over HCI H4/L2CAP/AVCTP, AVRCP
+        directly on L2CAP and cover art (OBEX) on SDP announced PSMs, without
+        malformed packets or errors, in one and two passes. The START and
+        CONTINUE fragments are reported as unexpected data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 164
+        assert protocols.count('AVRCP') == 144
+        assert protocols.count('L2CAP') == 12
+        assert protocols.count('SDP') == 4
+        assert protocols.count('OBEX') == 2
+        assert protocols.count('AVCTP') == 1
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity >= warning && !btavrcp.no_response',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['106', '108', '113', '117']
+        # Only the last command is never answered (the other commands know
+        # their response on the second pass)
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                '-Y', 'btavrcp.no_response',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['164']
+
+    def test_btavrcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A fragmented GetElementAttributes response (START, CONTINUE, END
+        with Request Continuing Response between them) is reassembled in
+        the END frame only, in one and two passes. A later END of the same
+        PDU (frame 111) is a complete PDU of its own and is not reassembled
+        again; an aborted message and an END without a START are not
+        reassembled.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                    '-Y', 'btavrcp.packet_type != 0',
+                    '-Tfields', '-eframe.number', '-ebtavrcp.packet_type',
+                    '-ebtavrcp.reassembled', '-ebtavrcp.number_of_attributes',
+                    '-ebtavrcp.setting_value.length', '-ebtavrcp.song_length',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '106\t0x01\t\t\t\t',
+                '108\t0x02\t\t\t\t',
+                '110\t0x03\t1\t3\t372,16,15\t',
+                '111\t0x03\t\t1\t11\t',
+                '113\t0x01\t\t\t\t',
+                '116\t0x03\t\t\t\t2000',
+                '117\t0x02\t\t\t\t',
+            ]
+
+    def test_btavrcp_response_time(self, cmd_tshark, capture_file, test_env):
+        '''The response time counts seconds as 1000 ms: GetPlayStatus
+        answered after 3.5 s, and after 0.5 s across a second boundary.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                    '-Y', 'btavrcp.pdu_id == 0x30 && btavrcp.command_in_frame',
+                    '-Tfields', '-eframe.number', '-ebtavrcp.response_time',
+                    '-ebtavrcp.command_in_frame',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '55\t3500\t54',
+                '57\t500\t56',
+                '116\t500\t56',
+            ]
+        # The command frames know their response on the second pass
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                '-Y', 'btavrcp.pdu_id == 0x30 && btavrcp.response_in_frame',
+                '-Tfields', '-eframe.number', '-ebtavrcp.response_time',
+                '-ebtavrcp.response_in_frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['54\t3500\t55', '56\t500\t57']
+
+    def test_btavrcp_character_set(self, cmd_tshark, capture_file, test_env):
+        '''The 2-octet CharacterSetID of the attribute and value text
+        responses is UTF-8 (106).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                '-Y', 'btavrcp.pdu_id in {0x15, 0x16} && btavrcp.character_set',
+                '-Tfields', '-eframe.number', '-ebtavrcp.character_set',
+                '-ebtavrcp.attribute_name', '-ebtavrcp.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '43\t106,106\tEqualizer,Repeat\t',
+            '45\t106,106\t\tOff,On',
+        ]
+
+    def test_btavrcp_notifications(self, cmd_tshark, capture_file, test_env):
+        '''RegisterNotification CHANGED responses for every event.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                '-Y', 'btavrcp.ctype == 0x0d',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = [line.split('\t', 1)[1].split(' - ', 2)[-1] for line in stdout.splitlines()]
+        assert len(info) == 15
+        assert info[0] == 'PlaybackStatusChanged - PlayStatus: Playing'
+        assert info[1] == 'TrackChanged - 0xFFFFFFFFFFFFFFFF (NOT SELECTED)'
+        assert info[5] == 'PlaybackPositionChanged - SongPosition: 12345ms'
+        assert info[11] == 'AddressedPlayerChanged - PlayerID: 2, UidCounter: 0x1235'
+        assert info[13] == 'VolumeChanged - Volume: 100%'
+        assert info[14] == 'Unknown Event ID'
+
+    def test_btavrcp_browsing(self, cmd_tshark, capture_file, test_env):
+        '''Browsing channel: the current path of SetBrowsedPlayer and the
+        media player, folder and media element items of GetFolderItems.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                '-Y', 'btavrcp.pdu_id in {0x70, 0x71} && btavrcp.status == 4',
+                '-Tfields', '-eframe.number', '-ebtavrcp.folder_name',
+                '-ebtavrcp.displayable_name', '-ebtavrcp.number_of_items',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '134\tMusic,Rock\t\t42',
+            '136\t\tPlayer One,Player Two\t2',
+            '138\t\tAlbums,Track One\t3',
+        ]
+
+    def test_btavrcp_sdp_channels(self, cmd_tshark, capture_file, test_env):
+        '''The cover art PSM of the AVRCP target SDP record is handed to
+        OBEX; AVRCP on the dynamic PSMs of the other records is decoded
+        directly on L2CAP, for a remote and a local record.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btavrcp_coverage.pcap.gz'),
+                '-Y', 'btl2cap.cid >= 0x46 && !btl2cap.cmd_code',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-ebtavrcp.passthrough.operation', '-ebtavrcp.command_in_frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '152\tbluetooth:hci_h4:bthci_acl:btl2cap:btavrcp:obex\t\t',
+            '153\tbluetooth:hci_h4:bthci_acl:btl2cap:btavrcp:obex\t\t',
+            '156\tbluetooth:hci_h4:bthci_acl:btl2cap:btavrcp\t0x46\t',
+            '157\tbluetooth:hci_h4:bthci_acl:btl2cap:btavrcp\t0x46\t156',
+            '162\tbluetooth:hci_h4:bthci_acl:btl2cap:btavrcp\t0x4b\t',
+            '163\tbluetooth:hci_h4:bthci_acl:btl2cap:btavrcp\t0x4b\t162',
+        ]
