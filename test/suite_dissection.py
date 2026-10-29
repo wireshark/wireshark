@@ -11708,3 +11708,112 @@ class TestDissectBat:
             '18\t1\t\t4306,9',
             '19\t2\t\t4306',
         ]
+
+
+class TestDissectBblog:
+    def test_bblog_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Netflix BBLog event and skip custom blocks and packets with the
+        TCP info option decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bblog_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 140
+        assert protocols.count('BBLog') == 128
+        # The two skip blocks (frames 1 and 130) have no data, so the BBLog
+        # dissector returns 0 and the frame shows them as a custom block.
+        assert protocols.count('PCAPNG') == 2
+        assert protocols.count('DISCARD') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bblog_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bblog_events(self, cmd_tshark, capture_file, test_env):
+        '''Every event identifier, the timer and PRU event Info texts, and
+        the buffer fields only when their event flags are set.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bblog_coverage.pcapng.gz'),
+                '-Y', 'bblog',
+                '-Tfields', '-ebblog.event_id', '-ebblog.event_flags',
+            ), encoding='utf-8', env=test_env)
+        events = [line.split('\t') for line in stdout.splitlines()]
+        assert sorted({int(e[0]) for e in events}) == list(range(72)) + [200]
+        assert {int(e[1], 16) for e in events} == set(range(32))
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bblog_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {71, 73, 100, 101, 126, 127, 128}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '71\tProcessing Retransmission timer',
+            '73\tStarting Retransmission timer: 202 ms',
+            '100\tUnknown operation (0x07) for Unknown (0x09) timer',
+            '101\tPRU: ATTACH',
+            '126\tPRU: FLUSH',
+            '127\tPRU: UNKNOWN (0x7f)',
+            '128\tUnknown (flex1 0x11223344, flex2 0x556677880)',
+        ]
+        for flag, field in ((1, 'bblog.rxb_acc'), (2, 'bblog.txb_acc')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('bblog_coverage.pcapng.gz'),
+                    '-Y', field,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 61
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('bblog_coverage.pcapng.gz'),
+                    '-Y', 'bblog && ((bblog.event_flags & {}) ^^ {})'.format(flag, field),
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bblog_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 3',
+                '-Tfields', '-ebblog.rxb_acc', '-ebblog.rxb_ccc',
+                '-ebblog.rxb_spare', '-ebblog.errno', '-ebblog.state',
+                '-ebblog.snd_shift', '-ebblog.rcv_shift',
+                '-ebblog.payload_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '102\t202\t302\t54\t2\t2\t9\t20\n'
+
+    def test_bblog_packet_option(self, cmd_tshark, capture_file, test_env):
+        '''The TCP info custom option on Enhanced Packet Blocks, inbound,
+        outbound and without a direction; a short TCP info and an option
+        of another Netflix type add nothing.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bblog_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 131',
+                '-Tfields', '-eframe.number', '-eframe.p2p_dir',
+                '-eframe.bblog.event_id', '-eframe.bblog.event_flags',
+                '-eframe.bblog.t_flags', '-eframe.bblog.t_flags2',
+                '-eframe.bblog.snd_shift', '-eframe.bblog.rcv_shift',
+                '-eframe.bblog.errno', '-eframe.bblog.payload_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '131\t1\t1\t0x0000\t0x00000060\t0x00000000\t7\t6\t0\t0',
+            '132\t0\t2\t0x0000\t0x00000060\t0x00000000\t7\t6\t0\t0',
+            '133\t\t2\t0x001f\t0x00000060\t0x00000000\t7\t6\t0\t18',
+            '134\t\t1\t0x0000\t0x00000060\t0x00000000\t7\t6\t0\t0',
+            '135\t0\t2\t0x0000\t0x00000000\t0x00000000\t0\t0\t0\t0',
+            '136\t0\t2\t0x0000\t0x00000020\t0x00000000\t0\t0\t0\t0',
+            '137\t1\t\t\t\t\t\t\t\t',
+            '138\t0\t\t\t\t\t\t\t\t',
+            '139\t1\t1\t0x001f\t0xffffffff\t0x000003ff\t14\t2\t-1\t0',
+            '140\t\t\t\t\t\t\t\t\t',
+        ]
+
+    def test_bblog_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming the "bblog" dissector on an ordinary
+        packet record is left to the data dissector instead of crashing
+        on the missing custom block data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bblog_exported_pdu.pcap.gz'),
+                '-Tfields', '-eframe.protocols', '-eexported_pdu.prot_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == 'exported_pdu:data\tbblog\n'
