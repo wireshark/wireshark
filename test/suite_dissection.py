@@ -13719,3 +13719,151 @@ class TestDissectBjnp:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['2', '3']
+
+
+class TestDissectBlip:
+    BLIP_FIELDS = ('-Y', 'blip', '-Tfields', '-eframe.number',
+                   '-eblip.messagenum', '-eblip.frameflags',
+                   '-eblip.propslength', '-eblip.props', '-eblip.messagebody',
+                   '-eblip.numackbytes', '-eblip.checksum', '-Eoccurrence=a')
+
+    def test_blip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Four HTTP Upgrades to the BLIP WebSocket subprotocols (_2, _3 and
+        _4) and their BLIP frames decode without malformed packets or
+        warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('blip_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 71
+        assert protocols.count('BLIP') == 36
+        assert protocols.count('HTTP') == 8
+        assert protocols.count('TCP') == 26
+        assert protocols.count('WebSocket') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('blip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_blip_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''Every BLIP field, the decompressed ones included, is the same in
+        one pass and in two passes.'''
+        one = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('blip_coverage.pcap.gz'),
+                *self.BLIP_FIELDS,
+            ), encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('blip_coverage.pcap.gz'),
+                *self.BLIP_FIELDS,
+            ), encoding='utf-8', env=test_env)
+        assert len(one.splitlines()) == 36
+        assert one == two
+
+    def test_blip_message_types(self, cmd_tshark, capture_file, test_env):
+        '''MSG, RPY, ERR, ACKMSG, ACKRPY and the unknown types in Info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('blip_coverage.pcap.gz'),
+                '-Y', 'blip && frame.number <= 22',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            'MSG#1', 'RPY#1', 'MSG#2', 'MSG#3', 'ERR#2', 'MSG#4', 'MSG#5',
+            'MSG#5', 'ACKMSG#5', 'RPY#5', 'RPY#5', 'ACKRPY#5', 'MSG#300',
+            'MSG#6', '???#7', '???#8', '???#9',
+        ]
+
+    def test_blip_properties(self, cmd_tshark, capture_file, test_env):
+        '''Properties are shown with ':' between the NUL separated strings
+        (not after the last one); the properties length, the flags, the body
+        and the checksum around them; the continuation frames of the
+        multi-frame messages 5 have no properties.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('blip_coverage.pcap.gz'),
+                    *self.BLIP_FIELDS,
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert lines[:14] == [
+                '6\t1\t0x00\t34\tProfile:getCheckpoint:client:cp-1\t\t\t3851910490',
+                '7\t1\t0x00\t8\trev:0-1\t{"time":"2026-01-01","seq":42}\t\t1508552918',
+                '8\t2\t0x10\t35\tProfile:subChanges:continuous:true\t{"since":0}\t\t2730329405',
+                '9\t3\t0x20\t16\tProfile:changes\t[[1,"doc1","1-a"]]\t\t1112529692',
+                '10\t2\t0x00\t33\tError-Domain:HTTP:Error-Code:404\tmissing\t\t2450579132',
+                '11\t4\t0x30\t21\tProfile:norev:error:\t{}\t\t2862184604',
+                '12\t5\t0x40\t23\tProfile:proposeChanges\t{"docs":[1,2,\t\t1744174805',
+                '13\t5\t0x00\t\t\t3,4]}\t\t3364111897',
+                '14\t5\t0x00\t\t\t\t500\t',
+                '15\t5\t0x50\t14\tmaxHistory:20\t[0,0,\t\t3215669924',
+                '16\t5\t0x10\t\t\t0,0]\t\t715424643',
+                '17\t5\t0x00\t\t\t\t70000\t',
+                '18\t300\t0x00\t0\t\tplain body\t\t740653655',
+                '19\t6\t0x00\t0\t\tok\t\t28523',
+            ]
+            assert '23\t10,11\t0x00,0x20\t22,22\tProfile:getAttachment,Profile:setCheckpoint\tfirst,second\t\t3580673869,2123913605' in lines
+            assert '28\t12\t0x00\t12\tProfile:rev\tfragmented websocket message\t\t176424424' in lines
+            assert '29\t13\t0x00\t1\tp\tbody\t\t2040546919' in lines
+
+    def test_blip_compressed(self, cmd_tshark, capture_file, test_env):
+        '''Compressed frames are inflated on the deflate stream of their
+        direction: frame 40 refers back into frame 38, the continuation
+        frames 43 and 47 have no properties, and the 3013 octet body of
+        frame 46 is kept for the second pass.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('blip_coverage.pcap.gz'),
+                    '-Y', 'blip.frameflags & 0x08 && frame.number < 50',
+                    '-Tfields', '-eframe.number', '-eblip.frameflags',
+                    '-eblip.propslength', '-eblip.props', '-eblip.messagebody',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert lines[:6] == [
+                '38\t0x08\t35\tProfile:getCheckpoint:client:cbl-1\t{"client":"cbl-1","since":"0"}',
+                '39\t0x08\t8\trev:0-2\t{"client":"cbl-1","since":"42"}',
+                '40\t0x18\t43\tProfile:setCheckpoint:client:cbl-1:rev:0-2\t{"client":"cbl-1","since":"42"}',
+                '42\t0x48\t16\tProfile:changes\t[["doc1","1-a"],',
+                '43\t0x08\t\t\t["doc2","1-b"]]',
+                '45\t0x28\t0\t\t',
+            ]
+            frame46 = lines[6].split('\t')
+            assert frame46[:4] == ['46', '0x78', '30', 'Content-Type:application/json']
+            assert len(frame46[4]) == 3013
+            assert frame46[4].startswith('{"rows":[{"id":"doc","rev":"1-a"},')
+            assert lines[7] == '47\t0x18\t\t\t '
+            assert len(lines) == 8
+
+    def test_blip_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''The frames of batch95-119/blip_mix.pcap that decode cleanly
+        (1, 9 and 11) on their own connection: the compressed frames share
+        one stream, and the ACK carries its byte count.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('blip_coverage.pcap.gz'),
+                    '-Y', 'blip && tcp.srcport == 50003',
+                    '-Tfields', '-eframe.number', '-eblip.messagenum',
+                    '-eblip.propslength', '-eblip.props', '-eblip.messagebody',
+                    '-eblip.numackbytes', '-eblip.checksum',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '57\t1\t35\tProfile:subChanges:continuous:true\t{"a":1}\t\t0',
+                '58\t9\t\t\t\t1000\t',
+                '59\t11\t3\ta:b\tbody\t\t0',
+            ]
+
+    def test_blip_two_compressed_in_one_segment(self, cmd_tshark, capture_file, test_env):
+        '''Two compressed BLIP frames in one TCP segment (frame 68) each keep
+        their own inflated data, so the second pass does not show the
+        second message twice.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('blip_coverage.pcap.gz'),
+                    '-Y', 'blip && tcp.srcport == 50004',
+                    '-Tfields', '-eframe.number', '-eblip.messagenum',
+                    '-eblip.props', '-eblip.messagebody',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '68\t1,2\tProfile:a,Profile:b\tfirst body,second body',
+            ]
