@@ -11476,3 +11476,151 @@ class TestDissectBanana:
                 '-Tfields', '-ebanana.float',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '-1024,0,1e+100'
+
+
+class TestDissectBatadv:
+    def test_batadv_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every B.A.T.M.A.N. Advanced packet type of versions 5 to 15
+        decodes without malformed packets or errors, in one and two
+        passes. The only warnings are the empty TT VLAN in frame 111 and
+        the nesting limit in frame 123.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('batadv_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 123
+        expected = {
+            'BATADV_BATMAN': 12, 'BATADV_ICMP': 18, 'BATADV_UNICAST': 3,
+            'BATADV_UNICAST_4ADDR': 3, 'BATADV_BCAST': 5, 'BATADV_VIS': 11,
+            'BATADV_UNICAST_FRAG': 8, 'BATADV_TT_QUERY': 6,
+            'BATADV_ROAM_ADV': 3, 'BATADV_???': 3, 'BATADV_IV_OGM': 5,
+            'BATADV_OGM2': 5, 'BATADV_UNICAST_TVLV': 5, 'BATADV_CODED': 3,
+            'BATADV_ELP': 3, 'DISCARD': 29, 'Ethernet': 1,
+        }
+        for proto, count in expected.items():
+            assert protocols.count(proto) == count, proto
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('batadv_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '111\tBATADV Warn: empty VLAN',
+                '123\tPayload nested too deep, not dissected',
+            ]
+
+    def test_batadv_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''Two passes give the same tree as one, apart from the
+        "Reassembled in" link a single pass cannot know.'''
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('batadv_coverage.pcap.gz'),
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            out.append([l for l in stdout.splitlines() if '[Reassembled in: ' not in l])
+        assert out[0] == out[1]
+
+    def test_batadv_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''200 nested unicast/Ethernet layers stop with batadv.too_deep
+        instead of failing an assertion at the layer limit.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('batadv_coverage.pcap.gz'),
+                    '-Y', 'batadv.too_deep || _ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['123\tPayload nested too deep, not dissected']
+
+    def test_batadv_tvlv(self, cmd_tshark, capture_file, test_env):
+        '''The TVLVs of IV OGM, OGM2 and unicast TVLV packets are decoded:
+        every type, with the length read from each TVLV header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('batadv_coverage.pcap.gz'),
+                '-Y', 'batadv.tvlv.len',
+                # batadv.tvlv.length is the TVLV type field
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-ebatadv.tvlv.length', '-ebatadv.tvlv.version', '-ebatadv.tvlv.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '101\tBATADV_IV_OGM\t0x01\t0x01\t8',
+            '102\tBATADV_IV_OGM\t0x01,0x02,0x03,0x04,0x05,0x06,0x07\t'
+            '0x01,0x01,0x01,0x01,0x01,0x01,0x01\t8,0,0,36,8,4,4',
+            '103\tBATADV_IV_OGM\t0x06\t0x02\t4',
+            '108\tBATADV_OGM2\t0x01,0x04,0x06,0x01\t0x01,0x01,0x01,0x01\t8,4,4,8',
+            '109\tBATADV_UNICAST_TVLV\t0x04\t0x01\t4',
+            '110\tBATADV_UNICAST_TVLV\t0x04\t0x01\t80',
+            '111\tBATADV_UNICAST_TVLV\t0x04\t0x01\t24',
+            '112\tBATADV_UNICAST_TVLV\t0x04,0x05\t0x01,0x01\t24,8',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('batadv_coverage.pcap.gz'),
+                '-Y', 'frame.number == 102',
+                '-Tfields', '-ebatadv.tvlv.gw.dl_speed', '-ebatadv.tvlv.gw.ul_speed',
+                '-ebatadv.tvlv.tt.flags', '-ebatadv.tvlv.tt.change.addr',
+                '-ebatadv.tvlv.roam.vid', '-ebatadv.tvlv.mcast.flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ('1000\t205\t0x01\t'
+                                  '02:00:00:00:00:b0,02:00:00:00:00:b1\t0x8005\t0x1f')
+
+    def test_batadv_tt_vlan_crc(self, cmd_tshark, capture_file, test_env):
+        '''A full table TT response verifies each VLAN's CRC over the
+        entries of that VLAN; frame 110 has two VLANs whose CRCs match.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('batadv_coverage.pcap.gz'),
+                '-Y', 'batadv.tvlv.tt.vlan.crc',
+                '-Tfields', '-eframe.number', '-ebatadv.tvlv.tt.vlan.vid',
+                '-ebatadv.tvlv.tt.vlan.crc', '-ebatadv.tvlv.tt.vlan.crc.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '102\t0x8001\t0x01020304\t',
+            '110\t0x8001,0x0000\t0x8a35749a,0x1bfa6455\t1,1',
+            '111\t0x8002\t0x00000000\t1',
+            '112\t0x8001\t0xdeadbeef\t',
+        ]
+
+    def test_batadv_ogm2(self, cmd_tshark, capture_file, test_env):
+        '''Each aggregated OGM2 takes its TVLV length from its own header,
+        so a large throughput does not swallow the next OGM2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('batadv_coverage.pcap.gz'),
+                '-Y', 'batadv.ogm2.seq',
+                '-Tfields', '-eframe.number', '-ebatadv.ogm2.seq',
+                '-ebatadv.ogm2.tvlv_len', '-ebatadv.ogm2.throughput',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '105\t1\t0\t65536',
+            '106\t2,3\t0,0\t100,100',
+            '107\t4,5\t0,0\t327680,100',
+            '108\t6,7\t28,12\t327680,12345',
+        ]
+
+    def test_batadv_icmp_uid(self, cmd_tshark, capture_file, test_env):
+        '''The ICMP v7 and v14 UID is read after the sequence number.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('batadv_coverage.pcap.gz'),
+                '-Y', 'batadv.icmp.version in {7, 14}',
+                '-Tfields', '-eframe.number', '-ebatadv.icmp.seq', '-ebatadv.icmp.uid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['15\t11\t90', '22\t18\t165', '23\t19\t51']
+
+    def test_batadv_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Unicast fragments of v12, v13, v14 (Ethernet inside) and v15
+        (batadv unicast inside) are reassembled, in either order.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('batadv_coverage.pcap.gz'),
+                    '-Y', 'batadv.msg.reassembled.length',
+                    '-Tfields', '-eframe.number', '-ebatadv.unicast_frag.version',
+                    '-ebatadv.msg.reassembled.length', '-ebatadv.unicast.version',
+                    '-eudp.srcport',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '78\t12\t68\t\t40060',
+                '80\t13\t68\t\t40061',
+                '82\t14\t68\t\t40062',
+                '84\t15\t78\t15\t40063',
+                '86\t15\t78\t15\t40064',
+            ]
