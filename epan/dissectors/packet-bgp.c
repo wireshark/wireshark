@@ -4140,7 +4140,7 @@ decode_bgp_nlri_op_dec_value(proto_tree *parent_tree, proto_item *parent_item, t
     uint8_t nlri_operator;
     unsigned cursor_op_val=0;
     uint8_t value_len=0;
-    unsigned value=0;
+    uint64_t value=0;
     uint8_t shift_amount=0;
     unsigned first_loop=0;
 
@@ -4182,18 +4182,19 @@ decode_bgp_nlri_op_dec_value(proto_tree *parent_tree, proto_item *parent_item, t
                 proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_dec_val_16, tvb, offset+cursor_op_val, 2,ENC_BIG_ENDIAN);
                 value = tvb_get_ntohs(tvb,offset+cursor_op_val);
                 break;
-            case 3:
+            case 4:
                 proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_dec_val_32, tvb, offset+cursor_op_val, 4, ENC_BIG_ENDIAN);
                 value = tvb_get_ntohl(tvb,offset+cursor_op_val);
                 break;
-            case 4:
+            case 8:
                 proto_tree_add_item(parent_tree, hf_bgp_flowspec_nlri_dec_val_64, tvb, offset+cursor_op_val, 8, ENC_BIG_ENDIAN);
+                value = tvb_get_ntoh64(tvb,offset+cursor_op_val);
                 break;
             default:
                 return -1;
         }
         cursor_op_val = cursor_op_val + value_len;
-        proto_item_append_text(parent_item,"%u", value);
+        proto_item_append_text(parent_item,"%" PRIu64, value);
     } while ((nlri_operator&BGPNLRI_FSPEC_END_OF_LST) == 0);
     proto_item_append_text(parent_item,")");
     return (cursor_op_val);
@@ -6129,7 +6130,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, unsigned offset
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_flex_algo_calc_type, tvb, offset + 6, 1, ENC_NA);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_flex_algo_priority, tvb, offset + 7, 1, ENC_NA);
             local_offset = offset + 8;
-            while (local_offset < offset + length) {
+            while (local_offset < offset + 4 + length) {
                 advance = decode_link_state_attribute_flex_algo_subtlv(tlv_tree, tvb, local_offset, pinfo, protocol_id);
                 if (advance < 0) {
                     break;
@@ -6563,7 +6564,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, unsigned offset
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_reserved, tvb, offset + 9, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_sid, tvb, offset + 10, 16, ENC_NA);
             local_offset = offset + 26;
-            while (local_offset < offset + length) {
+            while (local_offset < offset + 4 + length) {
                 advance = decode_link_state_attribute_tlv(tlv_tree, tvb, local_offset, pinfo, protocol_id);
                 if (advance < 0) {
                     break;
@@ -6605,7 +6606,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, unsigned offset
             }
             proto_tree_add_item(tlv_tree, hf_bgp_ls_sr_tlv_srv6_endx_sid_sid, tvb, local_offset, 16, ENC_NA);
             local_offset += 16;
-            while (local_offset < offset + length) {
+            while (local_offset < offset + 4 + length) {
                 advance = decode_link_state_attribute_tlv(tlv_tree, tvb, local_offset, pinfo, protocol_id);
                 if (advance < 0) {
                     break;
@@ -6656,7 +6657,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, unsigned offset
             }
             /* Decode Link Attribute sub-TLVs */
             local_offset = offset + 8 + sabm_len + udabm_len;
-            while (local_offset < offset + length) {
+            while (local_offset < offset + 4 + length) {
                 advance = decode_link_state_attribute_tlv(tlv_tree, tvb, local_offset, pinfo, protocol_id);
                 if (advance < 0) {
                     break;
@@ -7623,7 +7624,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, unsigned offset, pa
             /* Maximum Response Time, per RFC2236 (IGMPv2)
              * XXX - What if this is the max response time from RFC3376 (IGMPv3)?
              */
-            uint8_t tsecs = tvb_get_uint8(tvb, offset);
+            uint8_t tsecs = tvb_get_uint8(tvb, reader_offset);
             proto_tree_add_uint_format_value(prefix_tree, hf_bgp_evpn_nlri_igmp_mc_max_resp_time, tvb,
                                              reader_offset, 1, tsecs, "%.1f sec (0x%02x)", tsecs*0.1, tsecs);
 
@@ -8277,7 +8278,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                     break;
                 case BGP_EXT_COM_RT_AS4:
                     wmem_strbuf_append_printf(comm_strbuf, "%u:%u",
-                                              tvb_get_ntohl(tvb, 6),
+                                              tvb_get_ntohl(tvb, offset + 1 + 6),
                                               tvb_get_ntohs(tvb, offset + 1 + 10));
                     break;
                 default:
@@ -8673,7 +8674,9 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
                 if (tvb_get_uint8(tvb, offset + 4 ) <= EVPN_S_PMSI_A_D_ROUTE && tvb_get_uint8(tvb, offset ) == 0) {
                     proto_tree_add_item(tree, hf_path_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
-                    total_length = decode_evpn_nlri(tree, tvb, offset, pinfo) + 4;
+                    total_length = decode_evpn_nlri(tree, tvb, offset, pinfo);
+                    if (total_length >= 0)
+                        total_length += 4;
                 } else {
                      total_length = decode_evpn_nlri(tree, tvb, offset, pinfo);
                 }
@@ -8903,7 +8906,7 @@ decode_prefix_MP(proto_tree *tree, int hf_path_id, int hf_addr4, int hf_addr6,
 
         default:
             proto_tree_add_expert_format(tree, pinfo,  &ei_bgp_ls_error, tvb, start_offset, 0,
-                                         "Unknown Link-State NLRI type (%u)", afi);
+                                         "Unknown Link-State NLRI type (%u)", nlri_type);
 
         }
         break;
@@ -9328,6 +9331,7 @@ dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     break;
                 default:
                     proto_tree_add_item(opt_tree, hf_bgp_open_opt_param_unknown, tvb, offset, plen, ENC_NA);
+                    offset += plen;
                     break;
             } /* switch (ptype) */
         }
@@ -9406,7 +9410,9 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, unsigned as_path_offset, unsigned
     length = tvb_get_uint8(tvb, k++);
     /* let's do some checking with an as length 2 bytes */
     offset_check = k + 2*length;
-    next_type = tvb_get_uint8(tvb, offset_check);
+    /* There is no next segment type when the guess ends the attribute */
+    if (offset_check < end_attr_offset)
+        next_type = tvb_get_uint8(tvb, offset_check);
     /* we do have one segment made of 2 bytes ASN we do reach the end of the attribute taking
      * 2 bytes ASN for our calculation */
     if (offset_check == end_attr_offset)
@@ -10833,6 +10839,11 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
 
                 decode_mp_next_hop(tvb_new_subset_length(tvb, o + i + aoff + 3, nexthop_len + 1), subtree2, pinfo, af, saf, nexthop_len);
 
+                if ((unsigned)nexthop_len + 5 > tlen) {
+                    proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, tlen,
+                        "Attribute length %u too short for next hop length %u", tlen, nexthop_len);
+                    break;
+                }
                 aoff_save = aoff;
                 tlen -= nexthop_len + 4;
                 aoff += nexthop_len + 4;
@@ -11793,18 +11804,16 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                                 break;
                             }
                             proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_originator_srgb_flags, tvb, q + 3, 2, ENC_BIG_ENDIAN);
-                            q += 2;
-                            tlv_item = proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_originator_srgb_blocks, tvb, q , prefix_sid_sublen - 2, ENC_NA);
+                            tlv_item = proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_originator_srgb_blocks, tvb, q + 5, prefix_sid_sublen - 2, ENC_NA);
                             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_prefix_sid_originator_srgb_blocks);
                             while (prefix_sid_sublen > prefix_sid_sub_tlv_offset + 2) {
-                                srgb_tlv_item = proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_originator_srgb_block, tvb, q , prefix_sid_sublen - 2, ENC_NA);
+                                srgb_tlv_item = proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_originator_srgb_block, tvb, q + 5 + prefix_sid_sub_tlv_offset, 6, ENC_NA);
                                 srgb_tlv_tree = proto_item_add_subtree(srgb_tlv_item, ett_bgp_prefix_sid_originator_srgb_block);
-                                prefix_sid_sub_tlv_offset += 3;
-                                proto_tree_add_item(srgb_tlv_tree, hf_bgp_prefix_sid_originator_srgb_base, tvb, q + prefix_sid_sub_tlv_offset, 3, ENC_BIG_ENDIAN);
-                                prefix_sid_sub_tlv_offset += 3;
-                                proto_tree_add_item(srgb_tlv_tree, hf_bgp_prefix_sid_originator_srgb_range, tvb, q + prefix_sid_sub_tlv_offset, 3, ENC_BIG_ENDIAN);
-                                proto_item_append_text(srgb_tlv_tree, "(%u:%u)", tvb_get_ntoh24(tvb, q + prefix_sid_sub_tlv_offset - 3),
-                                    tvb_get_ntoh24(tvb, q + prefix_sid_sub_tlv_offset));
+                                proto_tree_add_item(srgb_tlv_tree, hf_bgp_prefix_sid_originator_srgb_base, tvb, q + 5 + prefix_sid_sub_tlv_offset, 3, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(srgb_tlv_tree, hf_bgp_prefix_sid_originator_srgb_range, tvb, q + 8 + prefix_sid_sub_tlv_offset, 3, ENC_BIG_ENDIAN);
+                                proto_item_append_text(srgb_tlv_tree, "(%u:%u)", tvb_get_ntoh24(tvb, q + 5 + prefix_sid_sub_tlv_offset),
+                                    tvb_get_ntoh24(tvb, q + 8 + prefix_sid_sub_tlv_offset));
+                                prefix_sid_sub_tlv_offset += 6;
                             }
                             q += 3 + prefix_sid_sublen;
                             break;
@@ -12002,7 +12011,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_prefix_sid_unknown);
                             proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_type, tvb, q, 1, ENC_BIG_ENDIAN);
                             proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_length, tvb, q + 1, 2, ENC_BIG_ENDIAN);
-                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_value, tvb, q + 3, prefix_sid_sublen - 3, ENC_NA);
+                            proto_tree_add_item(tlv_tree, hf_bgp_prefix_sid_value, tvb, q + 3, prefix_sid_sublen, ENC_NA);
                             q += (3 + prefix_sid_sublen);
                             break;
                     }
