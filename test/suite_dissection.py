@@ -15754,3 +15754,156 @@ class TestDissectBtamp:
         assert [f[0] for f in frames] == ['14', '15', '20']
         assert frames[0][3] == frames[1][3] == bytes(range(1, 17)).hex()
         assert frames[1][1:3] == ['1', '2']
+
+
+class TestDissectBtatt:
+    def test_btatt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''GATT discovery, every characteristic decoder with the opcodes it
+        allows, the other ATT opcodes, an EATT bearer and long values over
+        HCI H4 decode without malformed packets or errors, and the Info
+        column is the same in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btatt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 1506
+        assert protocols.count('ATT') == 1493
+        assert protocols.count('HCI_EVT') == 3
+        assert protocols.count('L2CAP') == 2
+        assert protocols.count('Matter BTP') == 3
+        assert protocols.count('BT Mesh Beacon') == 3
+        assert protocols.count('BT Mesh Provisioning PDU') == 2
+        info = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btatt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            info.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btatt_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert info[0] == info[1]
+
+    def test_btatt_handle_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Values are decoded by the UUID learned for their handle in the
+        discovery, and Error Responses use the error codes of the service
+        the handle belongs to.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btatt_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {261, 275}',
+                    '-Tfields', '-eframe.number', '-ebtatt.handle',
+                    '-ebtatt.heart_rate_measurement.value.16',
+                    '-ebtatt.heart_rate_measurement.rr_interval',
+                    '-ebtatt.battery_level', '-ebtatt.request_in_frame',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '261\t0x0064\t300\t800,812\t\t',
+                '275\t0x0075\t\t\t87\t274',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btatt_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {1400, 1420, 1430, 1436}',
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                'Rcvd Error Response - Trigger Condition Value not Supported, Handle: 0x00b9 (Automation IO: Digital)',
+                'Rcvd Error Response - Control Point not Supported, Handle: 0x0064 (Heart Rate: Heart Rate Measurement)',
+                'Rcvd Error Response - User Data Access not Permitted, Handle: 0x013a (User Data: Aerobic Threshold)',
+                'Rcvd Error Response - Read Not Permitted, Handle: 0x0003 (GAP: Device Name)',
+            ]
+
+    def test_btatt_long_values_and_eatt(self, cmd_tshark, capture_file, test_env):
+        '''A Device Name longer than the default ATT_MTU is reassembled from
+        a Read Response and one or two Read Blob Responses, and ATT runs on
+        an LE credit based (EATT) channel.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btatt_coverage.pcap.gz'),
+                    '-Y', 'btatt.device_name && bthci_acl.chandle == 0x41',
+                    '-Tfields', '-eframe.number', '-ebtatt.device_name',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1491\tA rather long device name for the blob',
+                '1497\tAnother very long name that needs three reads to arrive',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btatt_coverage.pcap.gz'),
+                    '-Y', 'btatt && btl2cap.cid in {0x0040, 0x0041}',
+                    '-Tfields', '-eframe.number', '-ebtl2cap.cid', '-ebtatt.opcode',
+                    '-ebtatt.battery_level', '-ebtatt.heart_rate_measurement.value.8',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1480\t0x0041\t0x0a\t\t',
+                '1481\t0x0040\t0x0b\t66\t',
+                '1482\t0x0041\t0x12\t\t',
+                '1483\t0x0040\t0x13\t\t',
+                '1484\t0x0040\t0x1b\t\t64',
+            ]
+
+    def test_btatt_custom_uuids(self, cmd_tshark, capture_file, test_env):
+        '''128-bit UUID characteristics go to the registered Nordic UART
+        decoders, and the Matter service to the btatt.service table.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btatt_coverage.pcap.gz'),
+                '-Y', 'btgatt.nordic.uart_tx || btgatt.nordic.uart_rx || btp-matter.mtu',
+                '-Tfields', '-eframe.number', '-ebtgatt.nordic.uart_tx',
+                '-ebtgatt.nordic.uart_rx', '-ebtp-matter.mtu',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1299\t\t\t244',
+            '1302\t\t\t244',
+            '1303\t\t\t244',
+            '1305\tAT+HELLO\\r\\n\t\t',
+            '1308\tAT+HELLO\\r\\n\t\t',
+            '1309\t\tOK\\r\\n\t',
+            '1311\t\tOK\\r\\n\t',
+            '1442\t\tOK\\r\\n\t',
+        ]
+
+    def test_btatt_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Fixes on the branch: Find By Type Value Request takes the type
+        from its own offset, the SC Control Point response lists the
+        supported sensor locations, a Read By (Group) Type Response with an
+        attribute length shorter than the handles gives an expert info, and
+        a Signed Write Command keeps a value longer than 255 octets.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btatt_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {1501, 1504, 1505, 1506}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-ebtatt.sensor_location', '-ebtatt.invalid_length',
+                    '-ebtatt.attribute_data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1501\tSent Find By Type Value Request, Primary Service, Handles: 0x0001..0xffff, Battery\t\t\t',
+                '1504\tRcvd Read By Type Response, Attribute List Length: 1\t0x05,0x06,0x07\t\t1',
+                '1505\tRcvd Read By Type Response\t\t1\t',
+                '1506\tRcvd Read By Group Type Response\t\t1\t',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btatt_coverage.pcap.gz'),
+                    '-Y', 'btatt.opcode == 0xd2',
+                    '-Tfields', '-eframe.number', '-ebtatt.string',
+                    '-ebtatt.sign_counter', '-ebtatt.signature',
+                ), encoding='utf-8', env=test_env)
+            frames = [line.split('\t') for line in stdout.splitlines()]
+            assert [f[0] for f in frames] == ['1472', '1473', '1474']
+            assert [f[1] for f in frames] == ['signed', 'V' * 288, '']
+            assert [f[2] for f in frames] == ['287454020', '287454020', '1']
+            assert all(f[3] == '53' * 8 for f in frames)
+
+    def test_btatt_decode_as_handle_zero(self, cmd_tshark, capture_file, test_env):
+        '''Decode As of ATT handle 0 to a BT GATT attribute does not
+        recurse: the Read Response without a request keeps its raw value.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btatt_coverage.pcap.gz'),
+                '-d', 'btatt.handle==0x0000,btgatt.uuid0x2a00',
+                '-Y', 'btatt.value == "orphan"',
+                '-Tfields', '-eframe.number', '-ebtatt.device_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1451\t']
