@@ -15,6 +15,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 
 void proto_register_bier(void);
 void proto_reg_handoff_bier(void);
@@ -33,6 +35,8 @@ static int hf_bier_bfir_id;
 static int hf_bier_bitstring;
 
 static int ett_bier;
+
+static expert_field ei_bier_too_deep;
 
 static dissector_table_t bier_subdissector_table;
 
@@ -131,6 +135,11 @@ dissect_bier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data
     offset += bitstring_length;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
+    /* MPLS can carry BIER again; stop before the layer limit */
+    if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+        proto_tree_add_expert_remaining(bier_tree, pinfo, &ei_bier_too_deep, next_tvb, 0);
+        return tvb_captured_length(tvb);
+    }
     if (!dissector_try_uint(bier_subdissector_table, proto, next_tvb, pinfo, tree)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
@@ -218,11 +227,19 @@ proto_register_bier(void)
         &ett_bier
     };
 
+    static ei_register_info ei[] = {
+        { &ei_bier_too_deep, { "bier.too_deep", PI_UNDECODED, PI_WARN, "Payload nested too deep, not dissected", EXPFILL }},
+    };
+
+    expert_module_t *expert_bier;
+
     proto_bier =
         proto_register_protocol("Bit Index Explicit Replication", "BIER", "bier");
 
     proto_register_field_array(proto_bier, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_bier = expert_register_protocol(proto_bier);
+    expert_register_field_array(expert_bier, ei, array_length(ei));
     bier_handle = register_dissector_with_description("bier.mpls", "BIER encapsulated in MPLS", dissect_bier, proto_bier);
 
     bier_subdissector_table = register_dissector_table("bier.proto",
