@@ -12277,3 +12277,129 @@ class TestDissectBer:
                 '-eber.unknown.UTF8String', '-eber.unknown.OID',
             ), encoding='utf-8', env=test_env)
         assert stdout == 'ber\tUnknown BER\t2025\tBER file\t1.3.6.1.4.1.32473.7\n'
+
+
+class TestDissectBfcp:
+    def test_bfcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The UDP flow is set up by the SIP/SDP offer and answer
+        (m=application 5070 UDP/BFCP) and decodes without preferences; the
+        TCP flow on port 5071 needs Decode As or the bfcp_tcp heuristic.
+        No malformed packets and no warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 68
+        assert protocols.count('BFCP') == 46
+        assert protocols.count('SIP/SDP') == 2
+        assert protocols.count('UDP') == 5
+        assert protocols.count('TCP') == 15
+        for tcp_opts in (('-d', 'tcp.port==5071,bfcp'),
+                         ('--enable-heuristic', 'bfcp_tcp')):
+            stdout = subprocess.check_output((cmd_tshark, *tcp_opts,
+                    '-r', capture_file('bfcp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert protocols.count('BFCP') == 55
+            assert protocols.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-d', 'tcp.port==5071,bfcp',
+                    '-r', capture_file('bfcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bfcp_zero_padding(self, cmd_tshark, capture_file, test_env):
+        '''A zero padding octet is stepped over, so the BENEFICIARY-ID and
+        USER-URI after the padding in frames 4 and 5 are decoded (frame 5
+        has a payload length of 65535).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bfcp_coverage.pcap.gz'),
+                    '-Y', 'frame.number <= 5 && bfcp',
+                    '-Tfields', '-eframe.number', '-ebfcp.payload_length',
+                    '-ebfcp.floor_id', '-ebfcp.beneficiary_id',
+                    '-ebfcp.user_uri',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '3\t4\t5\t7\tsip:a',
+                '4\t5\t5\t7\tsip:a',
+                '5\t65535\t5\t7\tsip:a',
+            ]
+
+    def test_bfcp_grouped_attributes(self, cmd_tshark, capture_file, test_env):
+        '''FLOOR-REQUEST-INFORMATION with OVERALL-REQUEST-STATUS,
+        FLOOR-REQUEST-STATUS, BENEFICIARY-INFORMATION and
+        REQUESTED-BY-INFORMATION nested in it, with padded strings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 10',
+                '-Tfields', '-ebfcp.attribute_type', '-ebfcp.request_status',
+                '-ebfcp.queue_pos', '-ebfcp.user_disp_name', '-ebfcp.user_uri',
+                '-ebfcp.req_by_i', '-ebfcp.priority', '-ebfcp.part_prov_info_text',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '15,18,5,9,17,5,9,14,12,13,16,12,13,4,8\t1,1\t2,1\t'
+            'Bob Smith ,Chair Carl\tsip:bob@b.org,sip:carl@c.org\t9\t4\tplease!!!!',
+        ]
+
+    def test_bfcp_errors(self, cmd_tshark, capture_file, test_env):
+        '''Every ERROR-CODE, with and without error specific details, and
+        ERROR-INFO.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfcp_coverage.pcap.gz'),
+                '-Y', 'bfcp.error_code',
+                '-Tfields', '-eframe.number', '-ebfcp.error_code',
+                '-ebfcp.error_specific_details', '-ebfcp.error_info_text',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[:14] == ['%d\t%d\t\t' % (22 + code, code) for code in range(1, 15)]
+        assert lines[14:] == [
+            '37\t4\t282a\tunknown mandatory attr',
+            '38\t4\t282a2c2e30\tx',
+            '39\t3\t2a\tUnknown primitive',
+        ]
+
+    def test_bfcp_fragments(self, cmd_tshark, capture_file, test_env):
+        '''BFCPv2 fragments (F bit) show the fragment offset and length and
+        the attributes in each fragment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bfcp_coverage.pcap.gz'),
+                '-Y', 'bfcp.hdr_f_bit == 1',
+                '-Tfields', '-eframe.number', '-ebfcp.primitive',
+                '-ebfcp.hdr_r_bit', '-ebfcp.payload_length',
+                '-ebfcp.fragment_offset', '-ebfcp.fragment_length',
+                '-ebfcp.floor_id', '-ebfcp.user_uri',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '44\t6\tTrue\t41\t0\t11\t\tsip:bobby@example.com.',
+            '45\t6\tTrue\t41\t11\t29\t5\tsip:bob@b.org,sip:carl@c.org',
+            '46\t6\tTrue\t41\t40\t1\t5\t',
+            '47\t7\tFalse\t3\t0\t2\t5,6\t',
+            '48\t7\tFalse\t3\t2\t1\t7\t',
+        ]
+
+    def test_bfcp_tcp(self, cmd_tshark, capture_file, test_env):
+        '''BFCPv1 over TCP, one message per segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-d', 'tcp.port==5071,bfcp',
+                '-r', capture_file('bfcp_coverage.pcap.gz'),
+                '-Y', 'tcp && bfcp',
+                '-Tfields', '-eframe.number', '-ebfcp.ver',
+                '-ebfcp.hdr_r_bit', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '57\t1\tFalse\tHello',
+            '58\t1\tTrue\tHelloAck',
+            '59\t1\tFalse\tFloorRequest',
+            '60\t1\tTrue\tFloorRequestStatus',
+            '61\t1\tFalse\tFloorRequestStatusAck',
+            '62\t1\tFalse\tFloorRelease',
+            '63\t1\tTrue\tFloorRequestStatus',
+            '64\t1\tFalse\tGoodbye',
+            '65\t1\tTrue\tGoodbyeAck',
+        ]
