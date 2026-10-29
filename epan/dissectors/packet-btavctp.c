@@ -59,6 +59,7 @@ typedef struct _fragments_t {
     uint32_t     count;
     uint32_t     number_of_packets;
     uint32_t     pid;
+    uint32_t     end_frame;     /* frame of the END packet, 0 if not seen yet */
     wmem_tree_t  *fragment;
 } fragments_t;
 
@@ -250,6 +251,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 fragments = wmem_new(wmem_file_scope(), fragments_t);
                 fragments->number_of_packets = number_of_packets;
+                fragments->end_frame = 0;
                 fragments->pid = pid;
 
                 fragments->count = 1;
@@ -282,8 +284,7 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     fragments->psm == psm))
                 fragments = NULL;
 
-            /* XXX - This does not check if the END has already been received. */
-            if (!pinfo->fd->visited && fragments != NULL) {
+            if (!pinfo->fd->visited && fragments != NULL && fragments->end_frame == 0) {
                 fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
                 fragment->data = (uint8_t *) wmem_alloc(wmem_file_scope(), fragment->length);
@@ -326,7 +327,8 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     fragments->psm == psm))
                 fragments = NULL;
 
-            if (!pinfo->fd->visited && fragments != NULL) {
+            if (!pinfo->fd->visited && fragments != NULL && fragments->end_frame == 0) {
+                fragments->end_frame = pinfo->num;
                 fragment = wmem_new(wmem_file_scope(), fragment_t);
                 fragment->length = length;
                 fragment->data = (uint8_t *) wmem_alloc(wmem_file_scope(), fragment->length);
@@ -359,7 +361,8 @@ dissect_btavctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             length = 0;
-            if (!fragments || fragments->count != fragments->number_of_packets) {
+            if (!fragments || fragments->end_frame != pinfo->num ||
+                    fragments->count != fragments->number_of_packets) {
                 expert_add_info(pinfo, pitem, &ei_btavctp_unexpected_frame);
                 call_data_dissector(next_tvb, pinfo, tree);
             } else {
