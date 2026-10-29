@@ -76,7 +76,7 @@ dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         expert_add_info(pinfo, sub_item, &ei_message_opcode_reserved);
     offset += 1;
 
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(value, message_opcode_vals, "Unknown"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const(value, message_opcode_vals, "Unknown"));
 
     sub_item = proto_tree_add_item(main_tree, hf_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(main_tree, hf_user_request_for_battery_level_display, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -91,7 +91,7 @@ dissect_bt3ds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     if (value >= 101 && value <= 254)
         expert_add_info(pinfo, sub_item, &ei_battery_level_reserved);
     else if (value == 255)
-        proto_item_append_text(sub_item, "Battery Level Reporting Not Supported");
+        proto_item_append_text(sub_item, " (Battery Level Reporting Not Supported)");
 
     offset += 1;
 
