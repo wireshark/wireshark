@@ -662,6 +662,9 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   tvbuff_t *next_tvb;
   tvbuff_t *next_tvb_le_client;
 
+  if (atm_info == NULL)
+    return 0;
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM LANE");
 
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
@@ -871,7 +874,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_uint(atm_tree, hf_atm_cells, tvb, 0, 0, reported_length/48);
     }
     if ((atm_info->aal == AAL_5 || atm_info->aal == AAL_SIGNALLING) &&
-        length >= reported_length) {
+        length >= reported_length && length >= 8) {
       /*
        * XXX - what if the packet is truncated?  Can that happen?
        * What if you capture with Windows Sniffer on an ATM link
@@ -1391,7 +1394,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     proto_tree_add_item(aal_tree, hf_atm_aal3_4_length_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
     ti = proto_tree_add_item(aal_tree, hf_atm_aal3_4_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, " (%s)", (crc10 == 0) ? " (correct)" : " (incorrect)");
+    proto_item_append_text(ti, (crc10 == 0) ? " (correct)" : " (incorrect)");
     break;
 
   case AAL_OAMCELL:
@@ -1436,7 +1439,7 @@ dissect_atm_cell_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset += 45;
 
     ti = proto_tree_add_item(aal_tree, hf_atm_aal_oamcell_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_item_append_text(ti, " (%s)", (crc10 == 0) ? " (correct)" : " (incorrect)");
+    proto_item_append_text(ti, (crc10 == 0) ? " (correct)" : " (incorrect)");
     break;
 
   default:
@@ -1663,7 +1666,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * PW dissector to ATM dissector. For decoding normal ATM traffic
      * data parameter should be NULL.
      */
-    dissect_reassembled_pdu(tvb, pinfo, tree, atm_tree, atm_ti, truncated,
+    dissect_reassembled_pdu(tvb, pinfo, tree, atm_ti, atm_tree, truncated,
                             atm_info, pseudowire_mode);
   }
 
@@ -1675,7 +1678,8 @@ dissect_atm_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 {
   struct atm_phdr *atm_info = (struct atm_phdr *)data;
 
-  DISSECTOR_ASSERT(atm_info != NULL);
+  if (atm_info == NULL)
+    return 0;
 
   return dissect_atm_common(tvb, pinfo, tree, true, atm_info, false);
 }
@@ -1685,7 +1689,8 @@ dissect_atm_pw_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
   struct atm_phdr *atm_info = (struct atm_phdr *)data;
 
-  DISSECTOR_ASSERT(atm_info != NULL);
+  if (atm_info == NULL)
+    return 0;
 
   return dissect_atm_common(tvb, pinfo, tree, true, atm_info, true);
 }
@@ -1695,7 +1700,8 @@ dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
   struct atm_phdr *atm_info = (struct atm_phdr *)data;
 
-  DISSECTOR_ASSERT(atm_info != NULL);
+  if (atm_info == NULL)
+    return 0;
 
   return dissect_atm_common(tvb, pinfo, tree, false, atm_info, false);
 }
@@ -1705,7 +1711,8 @@ dissect_atm_pw_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
   struct atm_phdr *atm_info = (struct atm_phdr *)data;
 
-  DISSECTOR_ASSERT(atm_info != NULL);
+  if (atm_info == NULL)
+    return 0;
 
   return dissect_atm_common(tvb, pinfo, tree, false, atm_info, true);
 }
@@ -1730,7 +1737,8 @@ dissect_atm_pw_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
   struct pw_atm_phdr *pw_atm_info = (struct pw_atm_phdr *)data;
 
-  DISSECTOR_ASSERT(pw_atm_info != NULL);
+  if (pw_atm_info == NULL)
+    return 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
@@ -1943,7 +1951,7 @@ proto_register_atm(void)
       { "Information", "atm.aal3_4.information", FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_atm_aal3_4_length_indicator,
-      { "Length Indicator", "atm.aal3_4.length_indicator", FT_UINT16, BASE_DEC, VALS(st_vals), 0xFC00,
+      { "Length Indicator", "atm.aal3_4.length_indicator", FT_UINT16, BASE_DEC, NULL, 0xFC00,
         NULL, HFILL }},
     { &hf_atm_aal3_4_crc,
       { "CRC", "atm.aal3_4.crc", FT_UINT16, BASE_DEC, NULL, 0x03FF,
