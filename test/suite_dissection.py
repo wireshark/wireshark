@@ -11242,3 +11242,156 @@ class TestDissectBacapp:
             'BACnet Packets by Instance ID': 848,
             'readProperty (ComplexAck)': 320,
         }
+
+
+class TestDissectBacnet:
+    def test_bacnet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every network layer message, address variant and security
+        message, over BVLC/IPv4, BVLC/IPv6, 802.2 LLC and MS/TP, decodes
+        without malformed packets or warnings, the same in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 97
+        assert protocols.count('BACnet-NPDU') == 62
+        assert protocols.count('BACnet-APDU') == 35
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bacnet_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        one_pass = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'), '-V',
+            ), encoding='utf-8', env=test_env)
+        two_pass = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bacnet_coverage.pcap.gz'), '-V',
+            ), encoding='utf-8', env=test_env)
+        assert one_pass == two_pass
+
+    def test_bacnet_long_mac(self, cmd_tshark, capture_file, test_env):
+        '''A DLEN or SLEN of 7 or more is stepped over, so the hop count
+        and the APDU after it are read from the right place (frame 13 is
+        the DLEN 7 reproducer).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'),
+                '-Y', 'bacnet.dlen >= 7 || bacnet.slen >= 7',
+                '-Tfields', '-eframe.number', '-ebacnet.dlen',
+                '-ebacnet.dadr_tmp', '-ebacnet.slen', '-ebacnet.sadr_tmp',
+                '-ebacnet.hopc', '-ebacapp.unconfirmed_service',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\t7\taaaaaaaaaaaaaa\t\t\t255\t8',
+            '14\t18\t0102030405060708090a0b0c0d0e0f101112\t\t\t7\t8',
+            '20\t\t\t7\tbbbbbbbbbbbbbb\t\t0',
+            '22\t8\td1d1d1d1d1d1d1d1\t9\t515151515151515151\t3\t8',
+        ]
+
+    def test_bacnet_security_payload(self, cmd_tshark, capture_file, test_env):
+        '''The Security-Payload length counts from the payload, so the
+        APDU inside is decoded (frame 55 is the reproducer, a Who-Is),
+        a network message inside is dissected as an NPDU, nested wrappers
+        work and encrypted payloads are left as data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'),
+                '-Y', 'bacnet.mesgtyp == 0x0b',
+                '-Tfields', '-eframe.number', '-ebacnet.security_message_length',
+                '-ebacnet.wrapper_auth_data', '-ebacnet.dnet',
+                '-ebacapp.unconfirmed_service', '-ebacnet.wrapper_encrypted_data',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[0] for f in frames] == [str(n) for n in range(55, 63)]
+        assert frames[0][1:5] == ['2', '', '', '8']
+        assert frames[1][1:5] == ['14', '', '', '0']
+        assert frames[3][1:5] == ['2', b'authd'.hex(), '', '8']
+        assert frames[4][1:5] == ['5', '', '100', '']
+        assert frames[5][1:5] == ['47,2', '', '', '8']
+        assert frames[6][5] == 'e5' * 20
+        assert frames[7][5] == 'e5' * 20
+
+    def test_bacnet_network_messages(self, cmd_tshark, capture_file, test_env):
+        '''The network layer message type of every network message, and
+        the routing table and reject fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'),
+                '-Y', 'bacnet.control_net == 1 && frame.number < 52',
+                '-Tfields', '-ebacnet.mesgtyp',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            '0x00', '0x00', '0x01', '0x02'] + ['0x03'] * 8 + [
+            '0x04', '0x04', '0x05', '0x06', '0x06', '0x07', '0x07', '0x08',
+            '0x09', '0x12', '0x13', '0x13', '0x14', '0x7f', '0x80', '0xff',
+            '0x00']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'),
+                '-Y', 'bacnet.rportnum',
+                '-Tfields', '-eframe.number', '-ebacnet.rportnum',
+                '-ebacnet.dnet', '-ebacnet.portid', '-ebacnet.pinfolen',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '38\t0\t\t\t',
+            '39\t2\t70,71\t0x01,0x02\t0,3',
+            '40\t1\t72\t0x03\t2',
+            '41\t3\t73\t0x04\t0',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'),
+                '-Y', 'bacnet.rejectreason',
+                '-Tfields', '-ebacnet.rejectreason',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(n) for n in range(8)]
+
+    def test_bacnet_security_messages(self, cmd_tshark, capture_file, test_env):
+        '''Security-Response parameters for each response code and the
+        Update-Keyset key sets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'),
+                '-Y', 'bacnet.security_response_code',
+                '-Tfields', '-eframe.number', '-ebacnet.security_response_code',
+                '-ebacnet.security_response_key_algorithm',
+                '-ebacnet.security_response_key_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '63\t0\t\t', '64\t6\t\t', '65\t7\t1\t2', '66\t14\t1,2\t3,4',
+            '67\t15\t3\t4', '68\t21\t\t', '69\t22\t\t', '70\t23\t5\t6',
+            '71\t24\t\t', '72\t25\t\t', '73\t64\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'),
+                '-Y', 'bacnet.update_control',
+                '-Tfields', '-eframe.number', '-ebacnet.update_control',
+                '-ebacnet.security_set1_key_id', '-ebacnet.security_set1_key_data',
+                '-ebacnet.security_set2_key_id', '-ebacnet.security_set2_key_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '77\t0xd8\t1,2\t%s,%s\t3,4\t%s,%s' % (b'K1-one'.hex(), b'K1-two'.hex(),
+                                               b'K2-one'.hex(), b'K2-2'.hex()),
+            '78\t0x25\t\t\t\t',
+            '79\t0x42\t5\t00112233\t\t',
+            '80\t0x90\t\t\t\t',
+        ]
+
+    def test_bacnet_parents(self, cmd_tshark, capture_file, test_env):
+        '''NPDUs in BVLC/IPv6, 802.2 LLC and MS/TP (Cimetrics), including
+        a COBS-encoded extended MS/TP frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bacnet_coverage.pcap.gz'),
+                '-Y', 'bacnet && !ip',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-ebacnet.snet', '-ebacnet.sadr_tmp',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '89\teth:ethertype:ipv6:udp:bvlc:bacnet:bacapp\t\t',
+            '90\teth:ethertype:ipv6:udp:bvlc:bacnet:bacapp\t\t',
+            '91\teth:ethertype:ipv6:udp:bvlc:bacnet\t\t',
+            '92\teth:ethertype:ipv6:udp:bvlc:bacnet:bacapp\t\t',
+            '93\teth:llc:bacnet:bacapp\t\t',
+            '94\teth:llc:bacnet\t\t',
+            '95\teth:llc:cimetrics:bacnet:bacapp\t\t',
+            '96\teth:llc:cimetrics:bacnet:bacapp\t\t',
+            '97\teth:llc:cimetrics:bacnet:bacapp\t257\t0000010000',
+        ]
