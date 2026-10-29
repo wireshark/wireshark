@@ -50,51 +50,64 @@ mkastat_packet(void *arg, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const
 
 /* ---- drawing ---- */
 
+/* Formatting helpers write into a caller-supplied buffer to avoid allocating
+ * memory that would otherwise have to be freed by each caller. */
+#define MI_STR_LEN   (MKA_CA_MI_LEN * 2 + 1)
+#define SCI_STR_LEN  128
+
 static const char *
-mi_str(const uint8_t *mi) {
-  return bytes_to_str(NULL, mi, MKA_CA_MI_LEN);
+mi_str(const uint8_t *mi, char *buf, size_t buflen) {
+  for (unsigned i = 0; i < MKA_CA_MI_LEN; i++) {
+    snprintf(buf + i * 2, buflen - i * 2, "%02x", mi[i]);
+  }
+  return buf;
 }
 
 static const char *
-sci_raw_str(const uint8_t *sci) {
+sci_raw_str(const uint8_t *sci, char *buf, size_t buflen) {
   /* Raw SCI: 6-byte MAC system id (hex) / 4-digit hex port, never resolved. */
-  return wmem_strdup_printf(NULL, "%02x:%02x:%02x:%02x:%02x:%02x/%04x",
-                            sci[0], sci[1], sci[2], sci[3], sci[4], sci[5],
-                            (sci[6] << 8) | sci[7]);
+  snprintf(buf, buflen, "%02x:%02x:%02x:%02x:%02x:%02x/%04x",
+           sci[0], sci[1], sci[2], sci[3], sci[4], sci[5],
+           (sci[6] << 8) | sci[7]);
+  return buf;
 }
 
 static const char *
-sci_str(const uint8_t *sci) {
+sci_str(const uint8_t *sci, char *buf, size_t buflen) {
   /* SCI label. With physical address resolution on, replace the MAC portion
    * with Wireshark's resolved name (matching the packet view). With it off,
    * show the raw SCI with the OUI vendor appended. */
   if (gbl_resolv_flags.mac_name) {
     const char *name = get_ether_name(sci);
     if (name != NULL && name[0] != '\0') {
-      return wmem_strdup_printf(NULL, "%s/%04x", name, (sci[6] << 8) | sci[7]);
+      snprintf(buf, buflen, "%s/%04x", name, (sci[6] << 8) | sci[7]);
+      return buf;
     }
-    return sci_raw_str(sci);
+    return sci_raw_str(sci, buf, buflen);
   }
 
   const char *manuf = get_manuf_name_if_known(sci, MKA_CA_SCI_LEN - 2);
   if (manuf != NULL) {
-    return wmem_strdup_printf(NULL, "%02x:%02x:%02x:%02x:%02x:%02x/%04x (%s)",
-                              sci[0], sci[1], sci[2], sci[3], sci[4], sci[5],
-                              (sci[6] << 8) | sci[7], manuf);
+    snprintf(buf, buflen, "%02x:%02x:%02x:%02x:%02x:%02x/%04x (%s)",
+             sci[0], sci[1], sci[2], sci[3], sci[4], sci[5],
+             (sci[6] << 8) | sci[7], manuf);
+    return buf;
   }
-  return sci_raw_str(sci);
+  return sci_raw_str(sci, buf, buflen);
 }
 
 static void
 print_form(const mka_form_t *form) {
+  char b1[SCI_STR_LEN], b2[MI_STR_LEN];
   printf("      %s (frames %u - %u):\n", mka_form_kind_str(form->kind), form->trigger_frame, form->end_frame);
-  printf("        Key server SCI: %s\n", sci_str(form->ks_sci));
-  printf("        Key server MI:  %s\n", mi_str(form->ks_mi));
+  printf("        Key server SCI: %s\n", sci_str(form->ks_sci, b1, sizeof(b1)));
+  printf("        Key server MI:  %s\n", mi_str(form->ks_mi, b2, sizeof(b2)));
 
   if (form->have_ki) {
     if (form->sak_len != 0) {
-      printf("        Target SAK: AN %u, KN %u, SAK %s\n", form->an, form->kn,
-             bytes_to_str(NULL, form->sak, form->sak_len));
+      char *sak = bytes_to_str(NULL, form->sak, form->sak_len);
+      printf("        Target SAK: AN %u, KN %u, SAK %s\n", form->an, form->kn, sak);
+      wmem_free(NULL, sak);
     } else {
       printf("        Target SAK: AN %u, KN %u, <Unable to unwrap SAK>\n",
              form->an, form->kn);
@@ -124,15 +137,15 @@ print_form(const mka_form_t *form) {
     bool is_ks = (memcmp(fp->sci, form->ks_sci, MKA_CA_SCI_LEN) == 0);
     bool is_new = !is_ks && fp->is_new;
 
-    printf("          %s%s%s:\n", sci_str(fp->sci), is_ks ? " [KS]" : "", is_new ? " [New]" : "");
+    printf("          %s%s%s:\n", sci_str(fp->sci, b1, sizeof(b1)), is_ks ? " [KS]" : "", is_new ? " [New]" : "");
 
     /* With resolution on, the label shows the resolved name; print the raw
      * SCI so the underlying identifier stays visible. */
     if (gbl_resolv_flags.mac_name) {
-      printf("            SCI:               %s\n", sci_raw_str(fp->sci));
+      printf("            SCI:               %s\n", sci_raw_str(fp->sci, b1, sizeof(b1)));
     }
     if (fp->have_mi) {
-      printf("            MI:                %s\n", mi_str(fp->mi));
+      printf("            MI:                %s\n", mi_str(fp->mi, b2, sizeof(b2)));
     }
 
     if (fp->has_installed) {
@@ -167,12 +180,13 @@ print_form(const mka_form_t *form) {
 
 static void
 print_peer(const mka_ca_t *ca _U_, mka_ca_peer_t *peer, const mka_ca_stat_t *st) {
-  printf("    Peer SCI %s%s:\n", sci_str(peer->sci), peer->key_server ? " [Key Server]" : "");
+  char b1[SCI_STR_LEN], b2[MI_STR_LEN];
+  printf("    Peer SCI %s%s:\n", sci_str(peer->sci, b1, sizeof(b1)), peer->key_server ? " [Key Server]" : "");
 
   /* With resolution on, the label shows the resolved name; print the raw SCI
    * so the underlying identifier stays visible. */
   if (gbl_resolv_flags.mac_name) {
-    printf("      SCI: %s\n", sci_raw_str(peer->sci));
+    printf("      SCI: %s\n", sci_raw_str(peer->sci, b1, sizeof(b1)));
   }
 
   unsigned n_mis = peer->mis ? peer->mis->len : 0;
@@ -193,10 +207,10 @@ print_peer(const mka_ca_t *ca _U_, mka_ca_peer_t *peer, const mka_ca_stat_t *st)
       nstime_delta(&first_rel, &m->first_seen, &st->start_time);
       nstime_delta(&last_rel, &m->last_seen, &st->start_time);
       printf("        %s  %s  +%.6f s - +%.6f s\n",
-             mi_str(m->mi), range, nstime_to_sec(&first_rel),
+             mi_str(m->mi, b2, sizeof(b2)), range, nstime_to_sec(&first_rel),
              nstime_to_sec(&last_rel));
     } else {
-      printf("        %s  %s\n", mi_str(m->mi), range);
+      printf("        %s  %s\n", mi_str(m->mi, b2, sizeof(b2)), range);
     }
   }
 }
@@ -223,7 +237,9 @@ mkastat_draw(void *arg) {
            (info && info->name) ? info->name : "<CKN not in table>");
 
     if (ca->ckn_len > 0) {
-      printf("  CKN: %s\n", bytes_to_str(NULL, ca->ckn, ca->ckn_len));
+      char *ckn = bytes_to_str(NULL, ca->ckn, ca->ckn_len);
+      printf("  CKN: %s\n", ckn);
+      wmem_free(NULL, ckn);
     }
 
     printf("  Peers (%u):\n", g_hash_table_size(ca->peers));
@@ -241,13 +257,14 @@ mkastat_draw(void *arg) {
 
     for (unsigned i = 0; i < ca->key_servers->len; i++) {
       mka_ks_t *ks = (mka_ks_t *)g_ptr_array_index(ca->key_servers, i);
+      char b1[SCI_STR_LEN], b2[MI_STR_LEN];
 
       if (ks->first_frame == ks->last_frame) {
         printf("    %u. SCI %s, MI %s (frame %u)\n", i + 1,
-               sci_str(ks->sci), mi_str(ks->mi), ks->first_frame);
+               sci_str(ks->sci, b1, sizeof(b1)), mi_str(ks->mi, b2, sizeof(b2)), ks->first_frame);
       } else {
         printf("    %u. SCI %s, MI %s (frames %u - %u)\n", i + 1,
-               sci_str(ks->sci), mi_str(ks->mi), ks->first_frame, ks->last_frame);
+               sci_str(ks->sci, b1, sizeof(b1)), mi_str(ks->mi, b2, sizeof(b2)), ks->first_frame, ks->last_frame);
       }
     }
 
