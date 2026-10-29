@@ -240,6 +240,10 @@ class TestWslua:
         '''wslua listener'''
         check_lua_script('listener.lua', dhcp_pcap, True)
 
+    def test_wslua_listener_expiry(self, check_lua_script):
+        '''wslua per-packet objects kept by a listener expire'''
+        check_lua_script('listener_expiry.lua', dhcp_pcap, True)
+
     def test_wslua_nstime(self, check_lua_script):
         '''wslua nstime'''
         check_lua_script('nstime.lua', dhcp_pcap, True, '-q')

@@ -124,6 +124,11 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
 
     clear_outstanding_Pinfo();
     clear_outstanding_Tvb();
+    /* The tvbs and the tree are freed at the end of the packet, and
+     * lua_pinfo_end() is only registered when a Lua dissector is called. */
+    clear_outstanding_TvbRange();
+    clear_outstanding_TreeItem();
+    clear_outstanding_FieldInfo();
     /* The pinfo private_table may be destroyed at the end of the packet. */
     clear_outstanding_PrivateTable();
     /* The column_info may not outlive the packet. */
