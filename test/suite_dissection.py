@@ -15227,3 +15227,53 @@ class TestDissectBrdwlk:
         assert 'SOF: Unknown (0x9)' in stdout
         assert 'EOF: EOFa (0x4)' in stdout
         assert 'Error: 0xfe, Empty Frame, No Data, Truncated, CRC, Fifo Full, Jumbo FC Frame, Ctrl Char Inside Frame' in stdout
+
+
+class TestDissectBrp:
+    def test_brp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type decodes without malformed packets in one and
+        two passes. The only warnings are the two unknown types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brp_coverage.pcap.gz'),
+                '-d', 'udp.port==4000,brp',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 20
+        assert protocols.count('BRP') == 20
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('brp_coverage.pcap.gz'),
+                    '-d', 'udp.port==4000,brp',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['19\tUnknown packet type',
+                                           '20\tUnknown packet type']
+
+    def test_brp_fields(self, cmd_tshark, capture_file, test_env):
+        '''Message types and the fields of the flow messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brp_coverage.pcap.gz'),
+                '-d', 'udp.port==4000,brp',
+                '-Tfields', '-ebrp.type', '-ebrp.trans', '-ebrp.stat',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [int(f[0]) for f in frames] == [1, 2, 5, 6, 7, 8, 11, 12, 13, 14, 7, 8,
+                                               15, 9, 10, 3, 4, 2, 0, 16]
+        # Flow Abort and the unknown types have no transaction ID
+        assert [f[1] for f in frames] == ['1', '1', '2', '2', '3', '3', '4', '4', '5', '5',
+                                          '6', '6', '', '7', '7', '8', '8', '9', '', '']
+        assert [f[2] for f in frames if f[2]] == ['0', '0', '0', '4', '2', '4', '13']
+        # Flow Create Request and Flow Get Response
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('brp_coverage.pcap.gz'),
+                '-d', 'udp.port==4000,brp',
+                '-Y', 'frame.number in {5, 8}',
+                '-Tfields', '-ebrp.srcip', '-ebrp.dstip', '-ebrp.dstuport',
+                '-ebrp.bw', '-ebrp.life', '-ebrp.rmttl', '-ebrp.fltype', '-ebrp.flid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '198.51.100.50\t192.0.2.30\t5004\t1875\t7200\t\t\t',
+            '198.51.100.50\t192.0.2.30\t5004\t1875\t7200\t7100\t1\t77',
+        ]
