@@ -14489,3 +14489,125 @@ class TestDissectBootparams:
         # Unknown address types: no address follows
         assert frames[10][7:10] == ['', '', '2']
         assert frames[11][3:10] == ['diskless2', '', '', '', '', '', '0']
+
+
+class TestDissectBpdu:
+    def test_bpdu_protocols(self, cmd_tshark, capture_file, test_env):
+        '''STP, RSTP, MSTP, SPB, PVST+ and the GARP destinations over LLC,
+        ethertype 0x8181 and Cisco SNAP decode without malformed packets
+        or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpdu_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 34
+        assert protocols.count('STP') == 30
+        assert protocols.count('GMRP') == 1
+        assert protocols.count('GVRP') == 2
+        assert protocols.count('GARP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpdu_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bpdu_alt_msti(self, cmd_tshark, capture_file, test_env):
+        '''In the alternative MSTI format the regional root identifier
+        shows the MSTID without the priority bits (frame 11 is the
+        reproducer: 1, not 32769).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bpdu_coverage.pcap.gz'),
+                    '-Y', 'mstp.msti.regional_root_id',
+                    '-Tfields', '-eframe.number', '-emstp.msti.msti_id',
+                    '-emstp.msti.regional_root_id', '-emstp.msti.priority',
+                    '-emstp.msti.bridge_id_priority', '-emstp.msti.port',
+                    '-emstp.msti.remaining_hops',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '11\t1\t1\t0x08\t8\t0x8002\t20',
+                '12\t5,4094\t5,4094\t0x09,0x0f\t9,15\t0x9001,0xf0ff\t18,17',
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpdu_coverage.pcap.gz'),
+                '-Y', 'frame.number == 11',
+                '-O', 'stp',
+            ), encoding='utf-8', env=test_env)
+        assert 'MSTI Regional Root Identifier: 1\n' in stdout
+        assert 'CIST Bridge Identifier: 32768 / 0 / 02:00:00:00:00:03' in stdout
+
+    def test_bpdu_mstp(self, cmd_tshark, capture_file, test_env):
+        '''IEEE 802.1s MSTI messages, with a Version 3 Length in octets
+        and one that counts messages (frame 10).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpdu_coverage.pcap.gz'),
+                '-Y', 'mstp.version_3_length && !mstp.msti.regional_root_id',
+                '-Tfields', '-eframe.number', '-emstp.version_3_length',
+                '-emstp.msti.msti_id', '-emstp.msti.root_cost',
+                '-emstp.cist_bridge.ext',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t112\t1,2,4094\t20000,0,4000\t1',
+            '9\t64\t\t\t1',
+            '10\t2\t11,12\t100,200\t1',
+            '13\t0\t\t\t',
+            '16\t80\t1\t20000\t1',
+            '17\t64\t\t\t1',
+            '18\t64\t\t\t1',
+            '19\t0\t\t\t',
+            '20\t1\t21\t500\t1',
+            '23\t80\t1\t20000\t1',
+        ]
+
+    def test_bpdu_spt(self, cmd_tshark, capture_file, test_env):
+        '''The SPB Version 4 Length follows the MSTI messages and the SPT
+        extension is decoded after it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpdu_coverage.pcap.gz'),
+                '-Y', 'mstp.version_4_length',
+                '-Tfields', '-eframe.number', '-emstp.version_4_length',
+                '-emstp.config_name', '-emstp.agree_flags.agreement_num',
+                '-emstp.agree_flags.dagreement_num',
+                '-emstp.agree_flags.agreement_valid',
+                '-ebpdu.agreement_digest_edge_count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\t85\tSYNTH-REGION,SPT-REGION\t1\t3\tTrue\t5',
+            '17\t40\tSYNTH-REGION\t\t\t\t',
+            '19\t85\tSYNTH-REGION,SPT-REGION\t2\t0\tFalse\t5',
+            '20\t85\tSYNTH-REGION,SPT-REGION\t0\t0\tTrue\t5',
+        ]
+
+    def test_bpdu_pvst(self, cmd_tshark, capture_file, test_env):
+        '''PVST+ and Rapid PVST+ Originating VLAN TLVs, also after an
+        unknown TLV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bpdu_coverage.pcap.gz'),
+                '-Y', 'stp.pvst.tlvtype',
+                '-Tfields', '-eframe.number', '-estp.pvst.origvlan',
+                '-estp.pvst.tlvtype', '-estp.root.ext',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '27\t100\t0x0000\t100',
+            '28\t200\t0x0000\t200',
+            '29\t300\t0x0007,0x0000\t0',
+        ]
+
+    def test_bpdu_no_system_id_extension(self, cmd_tshark, capture_file, test_env):
+        '''With stp.use_system_id_extension off the whole 16 bits are the
+        bridge priority.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'stp.use_system_id_extension:FALSE',
+                '-r', capture_file('bpdu_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 4, 8}',
+                '-Tfields', '-eframe.number', '-estp.root.prio',
+                '-estp.root.ext', '-emstp.cist_bridge.prio', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t32778\t\t\tConf. TC + Root = 32778/02:00:00:00:00:01  Cost = 4  Port = 0x8002',
+            '4\t4097\t\t\tRST. TC + Root = 4097/02:00:00:00:00:05  Cost = 20000  Port = 0x8001',
+            '8\t32768\t\t28673\tMST. Root = 32768/02:00:00:00:00:01  Cost = 0  Port = 0x8001',
+        ]
