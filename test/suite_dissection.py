@@ -13146,3 +13146,139 @@ class TestDissectBistItch:
             assert len(got) == len(want)
             for g, w in zip(got, want):
                 assert g in (w, w.replace('.', ','))
+
+
+class TestDissectBistOuch:
+    def test_bist_ouch_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, found by the heuristic on SoupBinTCP, decodes
+        without malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_ouch_coverage.pcap.gz'),
+                '-d', 'tcp.port==21001,soupbintcp',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 63
+        assert protocols.count('BIST-OUCH') == 42
+        assert protocols.count('SoupBinTCP') == 8
+        assert protocols.count('TCP') == 13
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bist_ouch_coverage.pcap.gz'),
+                    '-d', 'tcp.port==21001,soupbintcp',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bist_ouch_messages(self, cmd_tshark, capture_file, test_env):
+        '''Enter Order with and without the reserved field, Replace Order
+        and Order Replaced told apart by length (with trailing bytes), a
+        negative price and reject code, and an Order Accepted reassembled
+        from two segments (frame 37).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_ouch_coverage.pcap.gz'),
+                '-d', 'tcp.port==21001,soupbintcp',
+                '-Y', 'frame.number in {6, 9, 10, 11, 12, 16, 17, 37}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ebist_ouch.price.int', '-ebist_ouch.reserved',
+                '-ebist_ouch.raw', '-ebist_ouch.order_id',
+                '-ebist_ouch.reject_code', '-etcp.segment',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\tEnter Order, Qty=1000\t123450\t\t\t\t\t',
+            '9\tEnter Order, Qty=1000\t-250\t0000\t\t\t\t',
+            '10\tOrder Rejected\t\t\t\t\t-1234\t',
+            '11\tReplace/Order Replaced, Replace Order\t123500\t0000000000000000\t\t\t\t',
+            '12\tReplace/Order Replaced, Order Replaced\t123500\t\t\t5000001\t\t',
+            '16\tReplace/Order Replaced, Replace Order\t123500\t0000000000000000\teeeeeeeeeeeeeeee\t\t\t',
+            '17\tReplace/Order Replaced, Order Replaced\t123500\t\teeeeeeeeee\t5000001\t\t',
+            '37\tOrder Accepted\t123450\t\t\t5000007\t\t36,37',
+        ]
+
+    def test_bist_ouch_mass_quote(self, cmd_tshark, capture_file, test_env):
+        '''Mass Quote with two entries, without the entry count, and with
+        fewer entries present than counted; Mass Quote Rejection with and
+        without its optional fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_ouch_coverage.pcap.gz'),
+                '-d', 'tcp.port==21001,soupbintcp',
+                '-Y', 'frame.number >= 21 && frame.number <= 29',
+                '-Tfields', '-eframe.number', '-ebist_ouch.order_token',
+                '-ebist_ouch.mq.count', '-ebist_ouch.mq.ob',
+                '-ebist_ouch.mq.bid_px.int', '-ebist_ouch.reject_code',
+                '-ebist_ouch.mq.status',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['21', 'TOKQ1         ', '2', '70616,70617', '123400,-100', '', ''],
+            ['22', 'TOKQ1         ', '', '70616', '', '', '0'],
+            ['23', 'TOKQ1         ', '', '70616', '', '', '5'],
+            ['24', 'TOKQ2         ', '', '', '', '', ''],
+            ['25', 'TOKQ2         ', '', '', '', '', ''],
+            ['26', 'TOKQ3         ', '3', '70618', '1', '', ''],
+            ['27', 'TOKQ3         ', '', '70618', '', '', ''],
+            ['28', 'TOKQ3         ', '', '70618', '', '-5', ''],
+            ['29', 'TOKQ3         ', '', '70618', '', '-6', ''],
+        ]
+
+    def test_bist_ouch_decimal_price(self, cmd_tshark, capture_file, test_env):
+        '''With show_decimal_price, prices are divided by 10000.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_ouch_coverage.pcap.gz'),
+                '-d', 'tcp.port==21001,soupbintcp',
+                '-o', 'bist_ouch.show_decimal_price:TRUE',
+                '-Y', 'frame.number in {6, 9}',
+                '-Tfields', '-ebist_ouch.price', '-ebist_ouch.price.int',
+            ), encoding='utf-8', env=test_env)
+        # Accept the locale's decimal separator in the prices.
+        lines = stdout.splitlines()
+        assert lines[0] in ('12.345\t', '12,345\t')
+        assert lines[1] in ('-0.025\t', '-0,025\t')
+        assert len(lines) == 2
+
+    def test_bist_ouch_orderbook_tracking(self, cmd_tshark, capture_file, test_env):
+        '''With orderbook tracking, messages are grouped into order chains
+        through replacement tokens, chains are joined, and Order Replaced
+        messages with an unseen previous token start a chain. One pass
+        only: the chain links and expert infos are set during the first
+        pass.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_ouch_coverage.pcap.gz'),
+                '-d', 'tcp.port==21001,soupbintcp',
+                '-o', 'bist_ouch.enable_orderbook_tracking:TRUE',
+                '-Y', 'bist_ouch',
+                '-Tfields', '-eframe.number', '-ebist_ouch.order.group_id',
+            ), encoding='utf-8', env=test_env)
+        groups = dict(l.split('\t') for l in stdout.splitlines())
+        assert len(groups) == 42
+        # TOK1 and its replacements TOK1R, TOK1S
+        assert [groups[f] for f in ('6', '7', '8', '11', '12', '13', '14', '15', '17')] == ['1'] * 9
+        # A replace whose ROT is the TOK3 chain joins TOK5's chain to it
+        assert groups['33'] == groups['19'] == '4'
+        # Cancel by Order ID carries no token
+        assert groups['18'] == groups['35'] == ''
+        # TOK41 maps two levels below the root chain (TOK21's)
+        assert groups['59'] == groups['51'] == groups['60'] == '11'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_ouch_coverage.pcap.gz'),
+                '-d', 'tcp.port==21001,soupbintcp',
+                '-o', 'bist_ouch.enable_orderbook_tracking:TRUE',
+                '-Y', 'bist_ouch.order.prev_unmapped || bist_ouch.order.eot_not_initial',
+                '-Tfields', '-eframe.number', '-e_ws.expert.severity',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '32\t4194304', '33\t4194304', '51\t6291456', '52\t6291456', '58\t4194304']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bist_ouch_coverage.pcap.gz'),
+                '-d', 'tcp.port==21001,soupbintcp',
+                '-o', 'bist_ouch.enable_orderbook_tracking:TRUE',
+                '-o', 'bist_ouch.show_order_index_in_info:TRUE',
+                '-o', 'bist_ouch.show_global_index_in_info:TRUE',
+                '-o', 'bist_ouch.show_group_id_in_info:TRUE',
+                '-Y', 'frame.number in {18, 60}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Cancel by Order ID GlobalIndex#13',
+            'Order Executed, TradedQty=42 OrderChainID#11 OrderIndex#6 GlobalIndex#42',
+        ]
