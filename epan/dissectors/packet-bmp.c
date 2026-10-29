@@ -680,6 +680,7 @@ static void bmpv4_dissect_tlvs(proto_tree *tree, tvbuff_t *tvb, int offset, pack
                 // Unknown TLV
                 proto_tree_add_item(tlv_tree, hf_bmpv4_tlv_value_bytes, tvb, offset, tlv.length, ENC_NA);
                 expert_add_info(pinfo, tlv_tree, &ei_bmpv4_tlv_unknown_tlv);
+                offset += tlv.length;
                 break;
         }
 
@@ -716,12 +717,13 @@ dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info 
         case BMP_PEER_DOWN_LOCAL_NO_NOTIFY: {
             /* FSM event code */
             proto_tree_add_item(tree, hf_peer_down_data, tvb, offset, 2, ENC_NA);
+            offset += 2;
             break;
         }
         case BMP_PEER_DOWN_LOCAL_NOTIFY:
         case BMP_PEER_DOWN_REMOTE_NOTIFY: {
             col_clear(pinfo->cinfo, COL_INFO);
-            call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+            offset += call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
             break;
         }
         case BMP_PEER_DOWN_LOCAL_SYSTEM_CLOSED: {
@@ -750,6 +752,7 @@ dissect_bmp_peer_down_notification(tvbuff_t *tvb, proto_tree *tree, packet_info 
             proto_tree_add_item(tlv_tree, hf_peer_state_tlv_value, tvb, offset, length, ENC_NA);
             proto_tree_add_item(tlv_tree, hf_peer_state_tlv_vrf_table_name, tvb, offset, length, ENC_ASCII);
             offset += length;
+            break;
         }
         default:
             break;
@@ -884,6 +887,7 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
 {
     uint32_t stat_len, stat_type;
     uint32_t i;
+    int data_start;
 
     uint32_t stats_count = tvb_get_ntohl(tvb, offset);
 
@@ -900,6 +904,7 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
 
         proto_tree_add_item_ret_uint(subtree, hf_stat_len, tvb, offset, 2, ENC_BIG_ENDIAN, &stat_len);
         offset += 2;
+        data_start = offset;
 
         proto_tree_add_item(subtree, hf_stat_data, tvb, offset, stat_len, ENC_NA);
         switch(stat_type){
@@ -993,9 +998,10 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
             break;
             default:
                 expert_add_info(pinfo, ti, &ei_stat_data_unknown);
-                offset += stat_len;
             break;
         }
+        /* The length of a known type can differ from what is decoded */
+        offset = data_start + stat_len;
     }
 }
 
@@ -1150,14 +1156,13 @@ dissect_bmp_peer_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
                 switch (route_mirroring_type) {
                     case BMP_ROUTE_MIRRORING_TLV_BGP_MESSAGE: /* BGP Message */
                         col_clear(pinfo->cinfo, COL_INFO);
-                        call_dissector(dissector_bgp, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
-                        offset += length;
+                        call_dissector(dissector_bgp, tvb_new_subset_length(tvb, offset, length), pinfo, tree);
                         break;
                     case BMP_ROUTE_MIRRORING_TLV_INFORMATION: /* Information */
                         proto_tree_add_item(tree, hf_peer_route_mirroring_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-                        offset += 2;
                         break;
                     }
+                offset += length;
             }
             break;
 
