@@ -494,7 +494,9 @@ dissect_bittorrent_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          msgtype = try_val_to_str(type, azureus_messages);
       }
 #endif
-      if (msgtype == NULL || !(test_type_length(type, length))) {
+      /* An AMP message has 4+typelen+1 octets of name and priority where
+       * other messages have a one octet type */
+      if (msgtype == NULL || !(test_type_length(type, isamp ? length - (4 + typelen) : length))) {
          /* In modern captures, this is likely Protocol Encryption/
           * Message Stream Encryption, particularly if we're actually
           * desegmenting and have the whole connection starting from
