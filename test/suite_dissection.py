@@ -13867,3 +13867,112 @@ class TestDissectBlip:
             assert stdout.splitlines() == [
                 '68\t1,2\tProfile:a,Profile:b\tfirst body,second body',
             ]
+
+
+class TestDissectBluecom:
+    def test_bluecom_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every bluecom block command, as request, response and both,
+        decodes without malformed packets or warnings, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluecom_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 24
+        assert protocols.count('bluecom') == 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bluecom_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bluecom_search_response_error(self, cmd_tshark, capture_file, test_env):
+        '''The Search Response summary reads the error code big-endian like
+        its field: an error of 5 is summarized as 5, not 83886080.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluecom_coverage.pcap.gz'),
+                '-Y', 'bluecom.searchrsp.error',
+                '-Tfields', '-eframe.number', '-ebluecom.searchrsp.error',
+                '-ebluecom.searchrsp.name', '-ebluecom.searchrsp.ethaddr2',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t5\tslave\t',
+            '9\t16909060\tslave-c\t02:00:00:00:00:05',
+            '10\t6\tboth\t',
+            '22\t5\tslave\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluecom_coverage.pcap.gz'),
+                '-Y', 'bluecom.searchrsp.error',
+                '-O', 'bluecom',
+            ), encoding='utf-8', env=test_env)
+        summaries = [l.strip() for l in stdout.splitlines() if 'BCP Search Response:' in l]
+        assert summaries == [
+            'BCP Search Response: Name=slave, IpAddr=192.0.2.1 Error=5',
+            'BCP Search Response: Name=slave-c, IpAddr=192.0.2.2 Error=16909060',
+            'BCP Search Response: Name=both, IpAddr=192.0.2.3 Error=6',
+            'BCP Search Response: Name=slave, IpAddr=192.0.2.1 Error=5',
+        ]
+        assert '83886080' not in stdout
+
+    def test_bluecom_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Several blocks in one frame, a 16-bit segment code, no blocks,
+        user data of DATA blocks and of an unknown command.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluecom_coverage.pcap.gz'),
+                '-Y', 'frame.number in {17, 18, 19, 20}',
+                '-Tfields', '-eframe.number', '-ebluecom.hdr.segcode',
+                '-ebluecom.hdr.blocknb', '-ebluecom.hdr.cmd', '-ebluecom.hdr.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '17\t4660\t3\t0x01,0x01,0x01\t3,3,3',
+            '18\t2\t2\t0x01,0x09\t0,11',
+            '19\t3\t0\t\t',
+            '20\t4\t5\t0x00,0x01,0x02,0x03,0x04\t12,4,50,40,54',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluecom_coverage.pcap.gz'),
+                '-Y', 'bluecom.userdata && frame.number != 18',
+                '-Tfields', '-eframe.number', '-ebluecom.userdata',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\t' + b'cyclic-data-0001'.hex(),
+            '17\t616263,616263,616263',
+            '20\t01020304',
+        ]
+
+    def test_bluecom_requests(self, cmd_tshark, capture_file, test_env):
+        '''Search requests of each address type and connect requests and
+        responses, with and without the optional second Ethernet address.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluecom_coverage.pcap.gz'),
+                '-Y', 'bluecom.searchreq.addrtype',
+                '-Tfields', '-eframe.number', '-ebluecom.searchreq.addrtype',
+                '-ebluecom.searchreq.name', '-ebluecom.searchreq.ipaddrfirst',
+                '-ebluecom.searchreq.ipaddrlast', '-ebluecom.searchreq.addrdata',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t1\tslave-a\t\t\t',
+            '6\t2\t\t192.0.2.1\t192.0.2.50\t',
+            '7\t7\t\t\t\t' + bytes(range(32)).hex(),
+            '10\t1\tboth\t\t\t',
+            '20\t2\t\t192.0.2.1\t192.0.2.2\t',
+            '23\t2\t\t192.0.2.1\t192.0.2.9\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bluecom_coverage.pcap.gz'),
+                '-Y', 'bluecom.connectreq.name || bluecom.connectrsp.error',
+                '-Tfields', '-eframe.number', '-ebluecom.connectreq.name',
+                '-ebluecom.connectreq.offlinefactor', '-ebluecom.connectreq.ethaddr2',
+                '-ebluecom.connectrsp.error',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\tslave-a\t10\t\t',
+            '13\tslave-b\t3\t02:00:00:00:00:06\t',
+            '14\t\t\t\t7',
+            '15\tboth\t4\t02:00:00:00:00:05\t0',
+            '20\tmulti\t2\t\t',
+        ]
