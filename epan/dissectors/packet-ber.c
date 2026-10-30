@@ -932,6 +932,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile unsigned off
                 break;
             case BER_UNI_TAG_NULL:
                 proto_tree_add_item(tree, hf_ber_null_tag, tvb, offset, len, ENC_NA);
+                offset += len;
                 break;
             case BER_UNI_TAG_UTF8String:
                 offset = dissect_ber_octet_string(false, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_UTF8String, NULL);
@@ -1500,11 +1501,13 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, int hf_id, tvbuff_t 
 
             reassembled_tvb = tvb_new_chain(next_tvb, fd_head->tvb_data);
 
-            actx->created_item = proto_tree_add_item(tree, hf_id, reassembled_tvb, 0, -1, ENC_BIG_ENDIAN);
-            next_tree = proto_item_add_subtree (actx->created_item, ett_ber_reassembled_octet_string);
-
             add_new_data_source(actx->pinfo, reassembled_tvb, "Reassembled OCTET STRING");
-            show_fragment_seq_tree(fd_head, &octet_string_frag_items, next_tree, actx->pinfo, reassembled_tvb, &frag_tree_item);
+            /* Some callers pass -1 and only want the reassembled tvb */
+            if (hf_id > 0) {
+                actx->created_item = proto_tree_add_item(tree, hf_id, reassembled_tvb, 0, -1, ENC_BIG_ENDIAN);
+                next_tree = proto_item_add_subtree (actx->created_item, ett_ber_reassembled_octet_string);
+                show_fragment_seq_tree(fd_head, &octet_string_frag_items, next_tree, actx->pinfo, reassembled_tvb, &frag_tree_item);
+            }
         }
     }
 
@@ -2616,7 +2619,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
     for (set_idx = 0; (set_idx < MAX_SET_ELEMENTS) && (cset = &set[set_idx])->func; set_idx++) {
 
         if (!(cset->flags & BER_FLAGS_OPTIONAL))
-            mandatory_fields |= 1 << set_idx;
+            mandatory_fields |= 1U << set_idx;
 
     }
 
@@ -2730,7 +2733,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) calling subdissector\n"
                 if (count || (first_pass && ((len == 0) || ((ind_field == 1) && (len == 2))))) {
                     /* we found it! */
                     if (set_idx < MAX_SET_ELEMENTS)
-                        mandatory_fields &= ~(1 << set_idx);
+                        mandatory_fields &= ~(1U << set_idx);
 
                     offset = eoffset;
 
@@ -3858,6 +3861,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
             }
         }
         wmem_strbuf_append_len(outstrbuf, &instr[i], 5);
+        i += 5;
         break;
     default:
         error_str = wmem_strdup_printf(actx->pinfo->pool,
@@ -3872,7 +3876,7 @@ dissect_ber_UTCTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuf
         error_str = wmem_strdup_printf(actx->pinfo->pool,
             "BER Error: malformed UTCTime encoding, %d unexpected character%s after %dth octet",
             len - i,
-            (len == (i - 1) ? "s" : ""),
+            (len - i > 1 ? "s" : ""),
             i);
         goto malformed;
     }
@@ -4299,7 +4303,7 @@ dissect_ber_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     if (decode_as_syntax) {
         syntax = decode_as_syntax;
-    } else if ((ptr = strrchr(ber->pathname, '.')) != NULL) {
+    } else if (ber != NULL && (ptr = strrchr(ber->pathname, '.')) != NULL) {
         syntax = get_ber_oid_syntax(ptr);
     }
 
