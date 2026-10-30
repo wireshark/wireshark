@@ -209,7 +209,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     bool defragment = false;
     unsigned offset = 0;
     btle_mesh_transport_ctx_t tr_ctx;
-    uint8_t segn, length;
+    uint8_t segn;
     uint32_t total_length;
     uint8_t gpcf_bearer_opcode;
 
@@ -253,35 +253,37 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             defragment = true;
             if (segn == 0) {
                 if (btmesh_provisioning_handle) {
-                    length = tvb_reported_length(tvb);
                     tr_ctx.transport = E_BTMESH_TR_ADV;
                     tr_ctx.fragmented = false;
                     tr_ctx.segment_index = 0;
-                    call_dissector_with_data(btmesh_provisioning_handle, tvb_new_subset_length(tvb, offset, length),
+                    call_dissector_with_data(btmesh_provisioning_handle, tvb_new_subset_remaining(tvb, offset),
                         pinfo, proto_tree_get_root(sub_tree_generic_provisioning), &tr_ctx);
                 } else {
                     proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpp_payload, tvb, offset, -1, ENC_NA);
                 }
             } else {
                 //Segmentation
+                proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpp_payload_fragment, tvb, offset, -1, ENC_NA);
                 if (!pinfo->fd->visited) {
                     //First fragment can be delivered out of order, and can be the last one.
                     fd_head = fragment_get(&pbadv_reassembly_table, pinfo, BTMESH_PB_ADV_NOT_USED, &frg_key);
-                    if (fd_head) {
-                        fragment_set_tot_len(&pbadv_reassembly_table, pinfo, BTMESH_PB_ADV_NOT_USED, &frg_key, total_length);
+                    if (fd_head && (fd_head->flags & FD_DEFRAGMENTED)) {
+                        //Retransmission of a transaction already reassembled
+                    } else {
+                        if (fd_head) {
+                            fragment_set_tot_len(&pbadv_reassembly_table, pinfo, BTMESH_PB_ADV_NOT_USED, &frg_key, total_length);
+                        }
+                        fd_head = fragment_add(&pbadv_reassembly_table,
+                            tvb, offset, pinfo,
+                            BTMESH_PB_ADV_NOT_USED, &frg_key,
+                            0,
+                            tvb_captured_length_remaining(tvb, offset),
+                            true);
+                        if (!fd_head) {
+                           //Set the length only when not reassembled
+                           fragment_set_tot_len(&pbadv_reassembly_table, pinfo, BTMESH_PB_ADV_NOT_USED, &frg_key, total_length);
+                        }
                     }
-                    fd_head = fragment_add(&pbadv_reassembly_table,
-                        tvb, offset, pinfo,
-                        BTMESH_PB_ADV_NOT_USED, &frg_key,
-                        0,
-                        tvb_captured_length_remaining(tvb, offset),
-                        true);
-                    if (!fd_head) {
-                       //Set the length only when not reassembled
-                       fragment_set_tot_len(&pbadv_reassembly_table, pinfo, BTMESH_PB_ADV_NOT_USED, &frg_key, total_length);
-                    }
-                } else {
-                    proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpp_payload_fragment, tvb, offset, -1, ENC_NA);
                 }
             }
 
@@ -298,15 +300,25 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             defragment = true;
             offset += 1;
             //Segmentation
+            if (segment_index == 0) {
+                //Segment 0 is the Transaction Start
+                proto_tree_add_expert_remaining(sub_tree_generic_provisioning, pinfo, &ei_btmesh_gpcf_unknown_payload, tvb, offset);
+                defragment = false;
+                break;
+            }
+            proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpp_payload_fragment, tvb, offset, -1, ENC_NA);
             if (!pinfo->fd->visited) {
-                fragment_add(&pbadv_reassembly_table,
+                fd_head = fragment_get(&pbadv_reassembly_table, pinfo, BTMESH_PB_ADV_NOT_USED, &frg_key);
+                if (fd_head && (fd_head->flags & FD_DEFRAGMENTED)) {
+                    //Retransmission of a transaction already reassembled
+                    break;
+                }
+                fd_head = fragment_add(&pbadv_reassembly_table,
                     tvb, offset, pinfo,
                     BTMESH_PB_ADV_NOT_USED, &frg_key,
                     20 + (segment_index - 1) * 23,
                     tvb_captured_length_remaining(tvb, offset),
                     true);
-            } else {
-                proto_tree_add_item(sub_tree_generic_provisioning, hf_btmesh_gpp_payload_fragment, tvb, offset, -1, ENC_NA);
             }
 
         break;
@@ -343,9 +355,10 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         break;
     }
-    //Second pass
-    if (pinfo->fd->visited && defragment ) {
-        fd_head = fragment_get(&pbadv_reassembly_table, pinfo, BTMESH_PB_ADV_NOT_USED, &frg_key);
+    if (defragment) {
+        if (pinfo->fd->visited) {
+            fd_head = fragment_get(&pbadv_reassembly_table, pinfo, BTMESH_PB_ADV_NOT_USED, &frg_key);
+        }
         if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
             tvbuff_t *next_tvb;
             next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Provisioning PDU", fd_head, &btmesh_gpp_frag_items, NULL, sub_tree_generic_provisioning);
@@ -363,6 +376,8 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", segment_index);
             }
+        } else {
+            col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", segment_index);
         }
     }
 
