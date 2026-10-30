@@ -24751,3 +24751,125 @@ class TestDissectCigi:
                 '-Tfields', '-e_ws.col.info',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['Host => IG (576 bytes)', 'IG => Host (161 bytes)']
+
+
+class TestDissectCimd:
+    def test_cimd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CIMD operation decodes without malformed packets or
+        warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 87
+        assert protocols.count('CIMD') == 62
+        assert protocols.count('TCP') == 25
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cimd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cimd_operations(self, cmd_tshark, capture_file, test_env):
+        '''All 24 operation codes, found by the TCP heuristic; checksums
+        that are wrong or not a checksum are reported.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimd_coverage.pcap.gz'),
+                '-Y', 'cimd',
+                '-Tfields', '-ecimd.opcode', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert sorted({int(l[0]) for l in lines}) == [
+            1, 2, 3, 4, 5, 6, 8, 9, 20, 23, 40, 51, 52, 53, 54, 55, 56, 58, 59,
+            70, 73, 90, 98, 99]
+        assert [l[1] for l in lines if 'invalid' in l[1]] == [
+            'Alive - invalid checksum', 'Alive - invalid checksum',
+            'Submit message - invalid checksum']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimd_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6',
+                '-Tfields', '-ecimd.chksum', '-ecimd.da', '-ecimd.udh',
+                '-ecimd.vpa', '-ecimd.priority',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '0x23\t+358401234567\t050003A10201\t261231235959\t1\n'
+
+    def test_cimd_param_past_etx(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of the parameter search past ETX (frame 62): the
+        last parameter has no closing TAB and is not shown, rather than
+        running into the second message of the segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimd_coverage.pcap.gz'),
+                '-Y', 'frame.number == 62',
+                '-Tfields', '-ecimd.opcode', '-ecimd.pnumber', '-ecimd.da',
+                '-ecimd.ui', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '3\t1\t12345\t\tSubmit message - invalid checksum\n'
+
+    def test_cimd_dcs(self, cmd_tshark, capture_file, test_env):
+        '''Data coding scheme of every coding group.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimd_coverage.pcap.gz'),
+                '-Y', 'cimd.dcs',
+                '-Tfields', '-ecimd.dcs', '-ecimd.dcs.cg', '-ecimd.dcs.cf',
+                '-ecimd.dcs.mcm', '-ecimd.dcs.chs', '-ecimd.dcs.mc',
+                '-ecimd.dcs.is', '-ecimd.dcs.it',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x00\t0\t0\t0\t0\t\t\t',
+            '0x08\t0\t0\t0\t2\t\t\t',
+            '0x00\t0\t0\t0\t0\t\t\t',
+            '0x11\t0\t0\t1\t0\t1\t\t',
+            '0x26\t0\t1\t0\t1\t\t\t',
+            '0x80\t8\t\t\t\t\t\t',
+            '0xc8\t12\t\t\t\t\t0\t0',
+            '0xd9\t13\t\t\t\t\t0\t1',
+            '0xea\t14\t\t\t\t\t0\t2',
+            '0xf5\t15\t\t\t1\t1\t\t',
+            '0xf0\t15\t\t\t0\t0\t\t',
+        ]
+
+    def test_cimd_user_data(self, cmd_tshark, capture_file, test_env):
+        '''User data: Latin-1 and "_XX" combining sequences converted to
+        the GSM character set; unknown and cut short sequences.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimd_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 48 && frame.number <= 54 && cimd.ud',
+                '-Tfields', '-ecimd.ud',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '@£¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞ�æßÉ"¤(ÄÖÑÜ§¿äöñüà',
+            'Kr£¤¥§¿ÄÅÆÇ ����@\\r\\näöåüÄÖÅÜ� end�X',
+            'x�',
+            '',
+        ]
+
+    def test_cimd_codes(self, cmd_tshark, capture_file, test_env):
+        '''Status codes, status error codes and error codes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimd_coverage.pcap.gz'),
+                '-Y', 'cimd.stcode || cimd.errcode',
+                '-O', 'cimd', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Status Code:  delivery successful (4)',
+                      'Status Error Code: Call barred (13)',
+                      'Status Code:  last no response (6)',
+                      'Status Error Code: Illegal subscriber (9)',
+                      'Error Code Description: Incorrect destination address (300)',
+                      'Error Text: Incorrect destination address',
+                      'Error Code Description: Syntax error (2)'):
+            assert label in stdout
+
+    def test_cimd_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''An unknown operation code is rejected by the heuristic and
+        dissected with Decode As.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimd_coverage.pcap.gz'),
+                '-d', 'tcp.port==9972,cimd',
+                '-Y', 'tcp.port == 9972 && cimd',
+                '-Tfields', '-eframe.number', '-ecimd.opcode', '-ecimd.ui',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '72\t77\tx\tUnknown (77)\n'
