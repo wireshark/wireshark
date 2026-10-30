@@ -19904,3 +19904,139 @@ class TestDissectBtTracker:
             '21\tAnnounce Response: 1 trackers\t\t2001:db8::31\t6881',
             '23\tAnnounce Response: 1 trackers\t203.0.113.41\t\t6881',
         ]
+
+
+class TestDissectBtUtp:
+    # BT-uTP has no port; its UDP heuristic is disabled by default
+    heur = ('--enable-heuristic', 'bt_utp_udp')
+    v0 = ('-o', 'bt-utp.enable_version0:TRUE')
+
+    def test_bt_utp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every packet type and extension decodes without malformed
+        packets or error expert infos, in one and two passes, with and
+        without version 0. The only warning is the close reason of the
+        wrong length in frame 19.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 47
+        assert protocols.count('BT-uTP') == 15
+        assert protocols.count('BitTorrent') == 19
+        assert protocols.count('ICMP') == 1
+        assert protocols.count('UDP') == 12
+        for args in ((), ('-2',), self.v0, (*self.v0, '-2')):
+            stdout = subprocess.check_output((cmd_tshark, *self.heur, *args,
+                    '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['19\tThe extension is an unexpected length']
+
+    def test_bt_utp_header(self, cmd_tshark, capture_file, test_env):
+        '''Packet types, extension chains, close reasons and stream
+        tracking (streams first seen without a SYN, both ends on one
+        address).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                '-Y', 'bt-utp',
+                '-Tfields', '-eframe.number', '-ebt-utp.type', '-ebt-utp.stream',
+                '-ebt-utp.next_extension_type', '-ebt-utp.extension_close_reason',
+                '-E', 'occurrence=a',
+            ), encoding='utf-8', env=test_env)
+        frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+        assert sorted(frames) == list(range(1, 34)) + [35]
+        # Syn, State, Data, Fin, Reset
+        assert [frames[n][0] for n in (1, 3, 4, 17, 18)] == ['4', '2', '0', '1', '3']
+        # SACK, extension bits, SACK then extension bits, close reason then
+        # SACK then an unknown type
+        assert frames[7][2] == '1,0'
+        assert frames[8][2] == '2,0'
+        assert frames[13][2] == '1,2,0'
+        assert frames[18][2:] == ['3,1,9,0', '261']
+        assert frames[17][2:] == ['3,0', '8']
+        assert frames[19][3] == '99'
+        streams = [frames[n][1] for n in sorted(frames)]
+        assert streams == ['0'] * 20 + ['1'] * 3 + ['2'] * 2 + ['3'] * 8 + ['0']
+
+    def test_bt_utp_pdu_tracking(self, cmd_tshark, capture_file, test_env):
+        '''BitTorrent over uTP: several PDUs in a segment, and PDUs over
+        several segments (a Piece over three segments with a retransmitted
+        middle segment, a Piece and an AMP message over two), found again
+        in an ICMP error. The same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.heur, *passes,
+                    '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                    '-Y', 'bt-utp.continuation_to || bt-utp.pdu.size',
+                    '-Tfields', '-eframe.number', '-ebt-utp.continuation_to',
+                    '-ebt-utp.pdu.size', '-ebittorrent.msg.type',
+                    '-E', 'occurrence=a',
+                ), encoding='utf-8', env=test_env)
+            frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+            assert frames[6] == ['', '5,9', '2,4']
+            assert frames[9] == ['', '613', '7']
+            assert frames[10] == ['9', '', '']
+            assert frames[11] == ['9', '9', '4']
+            assert frames[12] == ['9', '', '']
+            assert frames[14] == ['', '4,5,7', '3,5']
+            assert frames[30] == ['29', '4', '']
+            assert frames[31][1] == '175'
+            assert frames[32] == ['31', '9', '4']
+            assert frames[35] == ['9', '9', '4']
+        # Without the sequence analysis the continuations are not found
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-o', 'bt-utp.analyze_sequence_numbers:FALSE',
+                '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                '-Y', 'bt-utp.continuation_to',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == ''
+
+    def test_bt_utp_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''BitTorrent messages in an Exported PDU naming bittorrent.utp
+        (frame 47) have no uTP layer below them. They used to dereference
+        the missing uTP data; now the PDU sizes go in the top level tree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 47',
+                '-Tfields', '-eframe.protocols', '-ebt-utp.pdu.size',
+                '-ebittorrent.msg.type', '-ebittorrent.piece.index',
+                '-E', 'occurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['exported_pdu:bittorrent\t5,9,4\t0,4\t0x00000005']
+
+    def test_bt_utp_version0_and_prefs(self, cmd_tshark, capture_file, test_env):
+        '''Version 0 packets (frames 36-38) only with the preference; a
+        window above the maximum (frame 43) only with a larger maximum.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {36..38}',
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['eth:ethertype:ip:udp:data'] * 3
+        stdout = subprocess.check_output((cmd_tshark, *self.heur, *self.v0,
+                '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {36..38}',
+                '-Tfields', '-ebt-utp.connection_id', '-ebt-utp.flags', '-ebt-utp.stream',
+                '-ebittorrent.piece.index',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2130711092\t4\t4\t', '2130711092\t2\t4\t', '2130711093\t0\t4\t0x00000003',
+        ]
+        for args, protocols in (((), 'eth:ethertype:ip:udp:data'),
+                                (('-o', 'bt-utp.max_window_size:400000'),
+                                 'eth:ethertype:ip:udp:bt-utp:bittorrent')):
+            stdout = subprocess.check_output((cmd_tshark, *self.heur, *args,
+                    '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                    '-Y', 'frame.number == 43',
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [protocols]
+        # The other packets the heuristic rejects stay UDP data with version 0 on
+        stdout = subprocess.check_output((cmd_tshark, *self.heur, *self.v0,
+                '-r', capture_file('bt_utp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {39..46} && !bt-utp',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(n) for n in range(39, 47)]
