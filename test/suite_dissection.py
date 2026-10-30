@@ -23049,3 +23049,187 @@ class TestDissectCcsdsSp:
             '19\t\t4\t512\t2',
             '20\t0102030405060708090a\t\t\t',
         ]
+
+
+class TestDissectCdma2k:
+    # cdma2k decodes only when a tree is built; every tshark run below uses
+    # -T fields with cdma2k fields, -Y or -V, which all build one.
+
+    def test_cdma2k_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CDMA2K message decodes without malformed packets or expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-ecdma2k.MsgType',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) == 120
+        assert all(r[0] == 'CDMA2K' for r in rows)
+        # 1224 TLAC messages: one per frame, one frame with 1100 and
+        # three frames with two or three
+        assert sum(len(r[1].split(',')) for r in rows) == 1224
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cdma2k_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Channel and message type of every message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Tfields', '-ecdma2k.tlacChannel', '-ecdma2k.MsgType',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        rows = stdout.splitlines()
+        c, d = '0x00\t', '0x01\t'
+        r = [c + '0x01'] * 23 + [c + '0x02'] * 16 + [c + '0x03'] * 3 + [c + '0x04'] * 8
+        r += [c + '0x05'] * 7 + [c + '0x06'] + [c + '0x07'] * 20
+        r += ['0x00,0x00\t0x07,0x01'] + [c + '0x07'] * 10
+        r += [c + '0x09', c + '0x0a', c + '0x11', '0x00,0x00\t0x11,0x06']
+        r += [d + '0x03'] * 3 + [d + '0x22'] * 7 + ['0x01,0x01\t0x22,0x22'] + [d + '0x22'] * 5
+        r += [d + '0x35'] * 9
+        r += [','.join(['0x00'] * 1100) + '\t' + ','.join(['0x11'] * 1100)]
+        r += ['0x00,0x00,0x00\t0x11,0x07,0x01']
+        assert rows == r
+
+    def test_cdma2k_msid(self, cmd_tshark, capture_file, test_env):
+        '''Addressing records: ESN, MEID, TMSI zone and code, IMSI.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11,12,13,15}',
+                '-Tfields', '-ecdma2k.tlacHeaderRecordEsn',
+                '-ecdma2k.tlacHeaderRecordExtMsIdMeId',
+                '-ecdma2k.tlacHeaderRecordTmsiZone',
+                '-ecdma2k.tlacHeaderRecordTmsiCodeAddr',
+                '-ecdma2k.tlacHeaderRecordMcc',
+                '-ecdma2k.tlacHeaderRecordImsiS1',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\t0x00a0000012345678\t\t\t\t',
+            '\t0x00a0000012345679\t\t\t\t0x456789',
+            '0x80001111\t0x00a000001234567a\t\t\t0x0136\t0x456789',
+            '\t\t0x0000000005060708,0x0102030405060708\t'
+            '0x00de1234,0xc0de1234,0xc0de1234,0xc0de1234\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14,16,18,21}',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        for note in ('Invalid extMsIdType in Addressing Fields',
+                     'Invalid msIdLen in Addressing Fields',
+                     'Invalid msIdType in Addressing Fields',
+                     'Offset corruption in Addressing Fields',
+                     'Offset corruption in Authentication Fields'):
+            assert note in stdout
+
+    def test_cdma2k_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''The frames from the fixed bugs: header record padding over 64
+        bits, a TMSI MSID_LEN of 15, a BCMC flow discriminator length of
+        0, the order indication offsets, the SCH loops and more than 8 KiB
+        of messages in one packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Y', 'frame.number in {16,17,20,78,105,106}',
+                '-Tfields', '-eframe.number',
+                '-ecdma2k.tlacHeaderRecordTmsiZone',
+                '-ecdma2k.tlacHeaderRecordEsn',
+                '-ecdma2k.tlacHeaderRecordMacIncl',
+                '-ecdma2k.Bcmc_Flow_Discriminator_Len',
+                '-ecdma2k.Bcmc_Flow_Discriminator',
+                '-ecdma2k.Same_As_Previous_Bcmc_Flow',
+                '-ecdma2k.Ccsh_Included', '-ecdma2k.Num_Pilots',
+                '-ecdma2k.Record_Sch',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\t\t\t\t\t\t\t\t\t',
+            '17\t\t0x12345678\t\t\t\t\t\t\t',
+            '20\t\t\t0x00\t\t\t\t\t\t',
+            '78\t\t\t\t0x00\t\t0x00\t\t\t',
+            '105\t\t\t\t\t\t\tTrue\t0x01\t',
+            '106\t\t\t\t\t\t\tTrue\t0x02\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Y', 'frame.number in {28,33,36}',
+                '-Tfields', '-ecdma2k.Rejected_Type', '-ecdma2k.Rejected_Order',
+                '-ecdma2k.Rejected_Ordq', '-ecdma2k.Rsc_Mode_Ind', '-ecdma2k.Rsci',
+                '-ecdma2k.Rsc_End_Time_Unit', '-ecdma2k.Rsc_End_Time_Value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x07\t0x15\t0x22\t\t\t\t',
+            '\t\t\tTrue\t0x0a\t0x02\t0x05',
+            '\t\t\tTrue\t0x0a\t0x02\t0x05',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Y', 'frame.number == 119',
+                '-Tfields', '-eframe.len', '-ecdma2k.tlacHeader',
+                '-ecdma2k.service_option',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        flen, headers, so = stdout.rstrip('\n').split('\t')
+        assert flen == '8858'
+        assert len(headers.split(',')) == 1100
+        assert so == '0x00000021'
+
+    def test_cdma2k_data_burst(self, cmd_tshark, capture_file, test_env):
+        '''Data burst parameter lengths, with continuation items after 32
+        octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Y', 'cdma2k.DataBurstIndMsg || cdma2k.DataBurstCmdMsg',
+                '-Tfields', '-eframe.number', '-ecdma2k.Parm_Length',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '40\t', '41\t0x03,0x20', '42\t0x40', '90\t0x00,0x07,0x60',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Y', 'frame.number == 90',
+                '-Tfields', '-ecdma2k.Parm_Value',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        # 1 + 1 + 4 items: 96 octets are shown as an item and three
+        # continuation items (the last one empty)
+        assert len(stdout.rstrip('\n').split(',')) == 6
+
+    def test_cdma2k_alert_with_info(self, cmd_tshark, capture_file, test_env):
+        '''Alert With Info record types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Y', 'cdma2k.AlertWithInfoMsg',
+                '-Tfields', '-ecdma2k.Record_Type',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x01,0x02,0x03,0x05,0x06',
+            '0x08,0x09,0x0b,0x0b,0x0c,0x0d',
+            '0x0e,0x0e,0x0f,0x0f,0x15,0x40',
+        ]
+
+    def test_cdma2k_handoff(self, cmd_tshark, capture_file, test_env):
+        '''Universal Handoff Direction messages: P_REV, CH_IND and number
+        of pilots.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdma2k_coverage.pcap.gz'),
+                '-Y', 'cdma2k.UhdmMsg || cdma2k.MeIdUhdmMsg',
+                '-Tfields', '-ecdma2k.P_Rev', '-ecdma2k.Ch_Ind',
+                '-ecdma2k.Num_Pilots',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\t0x01\t0x01', '0x06\t0x05\t0x02', '0x09\t0x07\t0x02',
+            '0x0a\t0x02\t0x01', '0x0b\t0x06\t0x01', '0x0c\t0x07\t0x01',
+            '0x0c\t0x07\t0x01', '0x0c,0x0c\t0x02,0x07\t0x03,0x01',
+            '0x07\t0x01\t0x01', '0x07\t0x01\t0x02', '0x07\t0x05\t0x05',
+            '0x08\t0x00\t', '\t0x06\t',
+        ] + ['0x06\t0x01\t0x01'] * 6 + [
+            '0x07\t0x01\t0x01', '0x08\t0x01\t0x01', '\t0x01\t0x01',
+        ]
