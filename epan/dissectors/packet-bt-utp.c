@@ -609,7 +609,10 @@ utp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           /*
            * Display the PDU length as a field
            */
-          item=proto_tree_add_uint(((utp_info_t *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, curr_layer_num))->tree,
+          /* There is no uTP layer when this is called from elsewhere,
+           * e.g. from an Exported PDU naming bittorrent.utp. */
+          utp_info_t *p_utp_info = frame ? (utp_info_t *)p_get_proto_data(pinfo->pool, pinfo, proto_bt_utp, curr_layer_num) : NULL;
+          item=proto_tree_add_uint(p_utp_info ? p_utp_info->tree : tree,
                                    hf_bt_utp_pdu_size,
                                    tvb, offset, plen, plen);
           proto_item_set_generated(item);
