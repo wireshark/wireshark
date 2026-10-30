@@ -493,7 +493,7 @@ dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 			}
 
 			unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
-			if (recursion_depth > prefs.gui_max_tree_depth) {
+			if (recursion_depth >= prefs.gui_max_tree_depth / 4) {
 				proto_tree_add_expert(subtree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
 				return false;
 			}
@@ -633,7 +633,7 @@ dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 			}
 
 			unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
-			if (recursion_depth > prefs.gui_max_tree_depth) {
+			if (recursion_depth >= prefs.gui_max_tree_depth / 4) {
 				proto_tree_add_expert(subtree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
 				return false;
 			}
@@ -1083,7 +1083,7 @@ dissect_cbor_main_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree,
 	unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
 	/* dissect_cbor_main_type and dissect_cbor_tag/dissect_cbor_map can exhaust
 	 * the stack calling each other recursively on malformed packets otherwise */
-	if (recursion_depth > prefs.gui_max_tree_depth) {
+	if (recursion_depth >= prefs.gui_max_tree_depth / 4) {
 		proto_tree_add_expert(cbor_tree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
 		return false;
 	}
