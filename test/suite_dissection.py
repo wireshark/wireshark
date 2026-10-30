@@ -25808,3 +25808,83 @@ class TestDissectCiscoMcp:
             '11\t3,1,9,7\t8,4,42,0\t\t\t' + msg % (12, 8),
             '12\t1,7\t4,0\t\t\tTrailing bytes after last TLV',
         ]
+
+
+class TestDissectCiscoMetadata:
+    def test_cmd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Cisco MetaData on Ethernet and in GRE decodes without malformed
+        packets or errors, in one and two passes; only the nesting limit
+        frame has a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_metadata_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 13
+        assert protocols.count('DISCARD') == 8
+        assert protocols.count('CMD') == 2
+        assert protocols.count('ARP') == 1
+        assert protocols.count('IPv4') == 1
+        assert protocols.count('0x88b5') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_metadata_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['13\tPayload nested too deep, not dissected']
+
+    def test_cmd_headers(self, cmd_tshark, capture_file, test_env):
+        '''The header fields, nested headers, the payload ethertypes and
+        the trailer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_metadata_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 12',
+                '-Tfields', '-ecmd.version', '-ecmd.length', '-ecmd.options',
+                '-ecmd.sgt', '-ecmd.type', '-ecmd.trailer', '-evlan.id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t0x0000\t10\t0x0800\t\t',
+            '2\t3\t0xffff\t65535\t0x86dd\t\t',
+            '1\t1\t0x0000\t0\t0x0806\t\t',
+            '1\t1\t0x0000\t10\t0x0800\tdeadbeef0001\t',
+            '1,1\t1,1\t0x0000,0x0000\t100,200\t0x8909,0x0800\t\t',
+            '1\t1\t0x0000\t10\t0x8100\t\t42',
+            '1\t1\t0x0000\t10\t0x88b5\t\t',
+            '1\t1\t0x0000\t10\t0x0800\t\t',
+            '1\t1\t0x8001\t300\t0x86dd\t\t',
+            '1\t1\t0x0000\t400\t0x6558\t\t',
+            '1\t1\t0x0000\t500\t0x88b5\t\t',
+            '1,1\t1,1\t0x0000,0x0000\t600,601\t0x8909,0x0800\t\t',
+        ]
+
+    def test_cmd_gre_item_length(self, cmd_tshark, capture_file, test_env):
+        '''In GRE the CMD item covers the whole 8 octet header, SGT
+        included, and the inner packet follows it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_metadata_coverage.pcap.gz'),
+                '-Y', 'gre && len(cmd) == 8',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['8', '9', '10', '11', '12']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_metadata_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8',
+                '-Tfields', '-ecmd.sgt', '-eip.dst', '-eip.proto',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '10\t192.0.2.2,198.51.100.2\t47,59'
+
+    def test_cmd_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''CMD nested 260 times stops with an expert info before the
+        layer limit instead of reaching the payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_metadata_coverage.pcap.gz'),
+                '-Y', 'frame.number == 13 && cmd.too_deep',
+                '-Tfields', '-ecmd.sgt', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        sgts, data_len = stdout.rstrip('\n').split('\t')
+        sgts = sgts.split(',')
+        assert len(sgts) > 200
+        assert sgts == [str(i) for i in range(len(sgts))]
+        assert int(sgts[-1]) < 259
+        assert data_len == ''
