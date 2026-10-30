@@ -1,6 +1,8 @@
 /* packet-hip.c
  * Definitions and routines for HIP control packet disassembly
  * Samu Varjonen <samu.varjonen@hiit.fi>
+ * HIPv2 (RFC 7401) support by Mohammad Borhani <mohammad.borhani@liu.se>,
+ * supervised by Andrei Gurtov
  *
  * Based on dissector originally created by
  *   Jeff Ahrenholz <jeffrey.m.ahrenholz@boeing.com>
@@ -39,6 +41,8 @@ static dissector_handle_t hip_udp_handle;
 
 #define HI_ALG_DSA 3
 #define HI_ALG_RSA 5
+#define HI_ALG_ECDSA 7
+#define HI_ALG_ECDSA_LOW 9
 
 /* HIP packet types */
 typedef enum {
@@ -97,9 +101,12 @@ typedef enum {
 #define PARAM_RELAY_FROM                63998
 #define PARAM_RELAY_TO                  64002
 #define PARAM_RELAY_HMAC                65520
-/* HIPv2 draft-ietf-hip-rfc5201-bis-08 see section 5.2 */
+/* HIPv2 RFC 7401 see section 5.2 */
+#define PARAM_R1_COUNTER_V2             129
+#define PARAM_DH_GROUP_LIST             511
 #define PARAM_HIP_CIPHER                579
 #define PARAM_HIT_SUITE_LIST            715
+#define PARAM_TRANSPORT_FORMAT_LIST     2049
 /* Bit masks */
 #define PARAM_CRITICAL_BIT              0x0001
 /* See RFC 5201 section 5.1 */
@@ -162,10 +169,14 @@ static const value_string hip_param_vals[] = {
         { PARAM_REG_FROM, "REG_FROM" },
         { PARAM_HIP_CIPHER, "HIP_CIPHER"},
         { PARAM_HIT_SUITE_LIST, "HIT_SUITE_LIST"},
+        { PARAM_R1_COUNTER_V2, "R1_COUNTER (v2)" },
+        { PARAM_DH_GROUP_LIST, "DH_GROUP_LIST" },
+        { PARAM_TRANSPORT_FORMAT_LIST, "TRANSPORT_FORMAT_LIST" },
         { 0, NULL }
 };
 
-/* RFC 5201 section 5.2.6. */
+/* RFC 5201 section 5.2.6. and RFC 7401 section 5.2.7.
+ * Values 1, 2, 5 and 6 are deprecated in HIPv2. */
 static const value_string dh_group_id_vals[] = {
         { 0x0, "Reserved" },
         { 0x01, "384-bit group" },
@@ -174,6 +185,11 @@ static const value_string dh_group_id_vals[] = {
         { 0x04, "3072-bit MODP group" },
         { 0x05, "6144-bit MODP group" },
         { 0x06, "8192-bit MODP group" },
+        { 0x07, "NIST P-256" },
+        { 0x08, "NIST P-384" },
+        { 0x09, "NIST P-521" },
+        { 0x0a, "SECP160R1" },
+        { 0x0b, "2048-bit MODP group" },
         { 0, NULL }
 };
 
@@ -200,6 +216,22 @@ static const value_string sig_alg_vals[] = {
         { 0x0, "Reserved" },
         { HI_ALG_DSA, "DSA" },
         { HI_ALG_RSA, "RSA" },
+        { HI_ALG_ECDSA, "ECDSA" },
+        { HI_ALG_ECDSA_LOW, "ECDSA_LOW" },
+        { 0, NULL }
+};
+
+/* RFC 7401 section 5.2.9 */
+static const value_string ecdsa_curve_vals[] = {
+        { 0x0, "Reserved" },
+        { 0x01, "NIST P-256" },
+        { 0x02, "NIST P-384" },
+        { 0, NULL }
+};
+
+static const value_string ecdsa_low_curve_vals[] = {
+        { 0x0, "Reserved" },
+        { 0x01, "SECP160R1" },
         { 0, NULL }
 };
 
@@ -251,6 +283,7 @@ static const value_string notification_vals[] = {
         { 17, "Invalid HIP transform chosen" },
         { 18, "No ESP proposal chosen" },
         { 19, "Invalid ESP transform chosen" },
+        { 20, "Unsupported HIT suite" }, /* RFC 7401 */
         { 24, "Authentication failed" },
         { 26, "Checksum failed" },
         { 28, "HMAC failed" },
@@ -258,6 +291,7 @@ static const value_string notification_vals[] = {
         { 40, "Invalid HIT" },
         { 42, "Blocked by policy" },
         { 44, "Server busy please retry" },
+        { 16384, "I2 acknowledgement" }, /* RFC 7401 */
         { 0, NULL }
 };
 
@@ -290,7 +324,7 @@ static const value_string hit_suite_vals[] = {
 };
 
 /* functions */
-static int dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, int type, int tlv_len);
+static int dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, int type, int tlv_len, uint8_t hip_version);
 
 static int proto_hip;
 static int hf_hip_proto;
@@ -331,6 +365,7 @@ static int hf_hip_tlv_trans_id;
 static int hf_hip_tlv_esp_reserved;
 static int hf_hip_tlv_cipher_id;
 static int hf_hip_tlv_hit_suite_id;
+static int hf_hip_tlv_transport_format_type;
 static int hf_hip_tlv_host_id_len;
 static int hf_hip_tlv_host_di_type;
 static int hf_hip_tlv_host_di_len;
@@ -346,6 +381,10 @@ static int hf_hip_tlv_host_id_y;
 static int hf_hip_tlv_host_id_e_len;
 static int hf_hip_tlv_host_id_e;
 static int hf_hip_tlv_host_id_n;
+static int hf_hip_tlv_host_id_algorithm;
+static int hf_hip_tlv_host_id_ecdsa_curve;
+static int hf_hip_tlv_host_id_ecdsa_low_curve;
+static int hf_hip_tlv_host_id_ecc_public_key;
 static int hf_hip_tlv_notification_res;
 static int hf_hip_tlv_notification_type;
 static int hf_hip_tlv_notification_data;
@@ -408,6 +447,7 @@ static int ett_hip_locator_data;
 static expert_field ei_hip_tlv_host_id_len;
 /* static expert_field ei_hip_tlv_host_id_e_len; */
 static expert_field ei_hip_tlv_host_id_hdr_alg;
+static expert_field ei_hip_tlv_sig_len;
 static expert_field ei_hip_checksum;
 
 /* Dissect the HIP packet */
@@ -552,7 +592,7 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool udp
                                                 tlv_type_h, tlv_length_h);
 
             /* Parse value */
-            dissect_hip_tlv(tvb, pinfo, offset, ti_tlv, tlv_type_h, tlv_length_h);
+            dissect_hip_tlv(tvb, pinfo, offset, ti_tlv, tlv_type_h, tlv_length_h, hiph_version);
 
             offset += 11 + tlv_length_h - (tlv_length_h + 3) % 8;
     }
@@ -584,9 +624,97 @@ dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     return tvb_captured_length(tvb);
 }
 
+/* HOST_ID Host Identity as defined in RFC 7401 section 5.2.9: a 16-bit
+ * Algorithm field followed by the public key, without the KEY RR header
+ * used by RFC 5201. */
+static void
+dissect_hip_host_id_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t, int offset,
+                       uint16_t hi_len, proto_item *hi_len_item)
+{
+        proto_item *arg_item, *e_len_item;
+        uint16_t algorithm, e_len;
+        uint8_t hi_t;
+        int newlen, e_len_size, hf_curve;
+
+        arg_item = proto_tree_add_item_ret_uint16(t, hf_hip_tlv_host_id_algorithm, tvb,
+                                                  offset, 2, ENC_BIG_ENDIAN, &algorithm);
+        offset += 2;
+
+        switch (algorithm) {
+        case HI_ALG_DSA:
+                /* DSA public key RFC 2536
+                 *   T         1  octet
+                 *   Q         20  octets
+                 *   P         64 + T*8  octets
+                 *   G         64 + T*8  octets
+                 *   Y         64 + T*8  octets
+                 */
+                proto_tree_add_item_ret_uint8(t, hf_hip_tlv_host_id_t, tvb, offset, 1,
+                                              ENC_BIG_ENDIAN, &hi_t);
+                offset++;
+                proto_tree_add_item(t, hf_hip_tlv_host_id_q, tvb, offset, 20, ENC_NA);
+                offset += 20;
+                if (hi_t > 56) /* max 4096 bits */
+                        break;
+                newlen = 64 + (hi_t * 8);
+                proto_tree_add_item(t, hf_hip_tlv_host_id_p, tvb, offset, newlen, ENC_NA);
+                offset += newlen;
+                proto_tree_add_item(t, hf_hip_tlv_host_id_g, tvb, offset, newlen, ENC_NA);
+                offset += newlen;
+                proto_tree_add_item(t, hf_hip_tlv_host_id_y, tvb, offset, newlen, ENC_NA);
+                break;
+        case HI_ALG_RSA:
+                /* RSA public key RFC 3110
+                 * e_len        1 or 3 octets
+                 * e            specified by e_len
+                 * n            variable length public modulus
+                 */
+                e_len_item = proto_tree_add_item_ret_uint16(t, hf_hip_tlv_host_id_e_len, tvb,
+                                                            offset, 1, ENC_BIG_ENDIAN, &e_len);
+                e_len_size = 1;
+                if (e_len == 0) { /* e_len is 0 followed by 16-bit value */
+                        e_len_item = proto_tree_add_item_ret_uint16(t, hf_hip_tlv_host_id_e_len, tvb,
+                                                                    offset + 1, 2, ENC_BIG_ENDIAN, &e_len);
+                        e_len_size = 3;
+                }
+                offset += e_len_size;
+                /* per RFC 3110 < 4096 bits, and e must fit in the HI */
+                if (e_len > 512 || e_len_size + e_len > hi_len) {
+                        expert_add_info(pinfo, e_len_item, &ei_hip_tlv_host_id_len);
+                        break;
+                }
+                proto_tree_add_item(t, hf_hip_tlv_host_id_e, tvb, offset, e_len, ENC_NA);
+                offset += e_len;
+                /* RSA public modulus n is the rest of the HI */
+                newlen = hi_len - e_len_size - e_len;
+                if (newlen > 512) {
+                        expert_add_info(pinfo, hi_len_item, &ei_hip_tlv_host_id_len);
+                        break;
+                }
+                proto_tree_add_item(t, hf_hip_tlv_host_id_n, tvb, offset, newlen, ENC_NA);
+                break;
+        case HI_ALG_ECDSA:
+        case HI_ALG_ECDSA_LOW:
+                /* ECC Curve (2 octets) followed by the public key */
+                if (hi_len < 2) {
+                        expert_add_info(pinfo, hi_len_item, &ei_hip_tlv_host_id_len);
+                        break;
+                }
+                hf_curve = (algorithm == HI_ALG_ECDSA) ? hf_hip_tlv_host_id_ecdsa_curve
+                                                       : hf_hip_tlv_host_id_ecdsa_low_curve;
+                proto_tree_add_item(t, hf_curve, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(t, hf_hip_tlv_host_id_ecc_public_key, tvb, offset,
+                                    hi_len - 2, ENC_NA);
+                break;
+        default:
+                expert_add_info(pinfo, arg_item, &ei_hip_tlv_host_id_hdr_alg);
+                break;
+        }
+}
 
 static int
-dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, int type, int tlv_len)
+dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, int type, int tlv_len, uint8_t hip_version)
 {
         proto_tree *t=NULL;
         proto_item *ti_tlv, *ti_loc, *hi_len_item, *e_len_item, *arg_item;
@@ -616,11 +744,34 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                 proto_tree_add_item(t, hf_hip_tlv_ei_newspi, tvb, newoffset, 4, ENC_BIG_ENDIAN);
                 break;
         case PARAM_R1_COUNTER:
+        case PARAM_R1_COUNTER_V2:
                 /* Reserved */
                 proto_tree_add_item(t, hf_hip_tlv_r1_res, tvb, newoffset, 4, ENC_BIG_ENDIAN);
                 /* R1 generation counter */
                 newoffset += 4;
                 proto_tree_add_item(t, hf_hip_tlv_r1count, tvb, newoffset, 8, ENC_NA);
+                break;
+        case PARAM_DH_GROUP_LIST:
+                while (tlv_len > 0) {
+                        /* DH Group ID # 1, 2, ...,  n
+                           one byte per DH Group ID */
+                        n = tvb_get_uint8(tvb, newoffset);
+                        proto_tree_add_uint_format(t, hf_hip_tlv_dh_group_id, tvb, newoffset,
+                                                   1, n, "%u (%s)", n,
+                                                   val_to_str_const(n, dh_group_id_vals, "Unknown"));
+                        tlv_len -= 1;
+                        newoffset += 1;
+                }
+                break;
+        case PARAM_TRANSPORT_FORMAT_LIST:
+                while (tlv_len > 0) {
+                        /* TF type # 1, 2, ...,  n
+                           two bytes per TF type; TF types are HIP parameter
+                           type numbers (RFC 7401 section 5.2.11) */
+                        proto_tree_add_item(t, hf_hip_tlv_transport_format_type, tvb, newoffset, 2, ENC_BIG_ENDIAN);
+                        tlv_len -= 2;
+                        newoffset += 2;
+                }
                 break;
         case PARAM_LOCATOR:
                 /* RFC 5206 section 4. and  RFC 5770 section 5.7. for type 2 locators
@@ -897,6 +1048,19 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                 /* DI len */
                 proto_tree_add_item(t, hf_hip_tlv_host_di_len, tvb, newoffset, 2, ENC_BIG_ENDIAN);
                 newoffset += 2;
+                if (hip_version == 2) {
+                        dissect_hip_host_id_v2(tvb, pinfo, t, newoffset, hi_len, hi_len_item);
+                        /* Domain Identifier follows the Algorithm field and the HI */
+                        newoffset += 2 + hi_len;
+                        if (di_type == 1) {
+                                /* RFC 1035 */
+                                proto_tree_add_item(t, hf_hip_fqdn, tvb, newoffset, di_len, ENC_ASCII);
+                        } else if (di_type == 2) {
+                                /* RFC 4282 */
+                                proto_tree_add_item(t, hf_hip_nai, tvb, newoffset, di_len, ENC_ASCII);
+                        }
+                        break;
+                }
                 /* hi_hdr - first 4 bytes are 0200ff03 (KEY RR in RFC 2535)
                  *   flags     2  octets
                  *   protocol  1  octet
@@ -1087,6 +1251,19 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                 break;
         case PARAM_HIP_SIGNATURE:
         case PARAM_HIP_SIGNATURE_2:
+                if (hip_version == 2) {
+                        /* 16-bit Signature algorithm (RFC 7401 section 5.2.14) */
+                        if (tlv_len < 2) {
+                                expert_add_info(pinfo, ti, &ei_hip_tlv_sig_len);
+                                break;
+                        }
+                        proto_tree_add_item(t, hf_hip_tlv_sig_alg, tvb, newoffset, 2, ENC_BIG_ENDIAN);
+                        newoffset += 2;
+                        /* Signature */
+                        proto_tree_add_item(t, hf_hip_tlv_sig, tvb, newoffset, tlv_len-2,
+                                            ENC_NA);
+                        break;
+                }
                 /* Signature algorithm */
                 n = tvb_get_uint8(tvb, offset+4);
                 proto_tree_add_uint_format(t, hf_hip_tlv_sig_alg, tvb, newoffset, 1,
@@ -1306,6 +1483,10 @@ proto_register_hip(void)
                   { "HIT Suite ID", "hip.tlv.hit_suite_id",
                     FT_UINT8, BASE_DEC, VALS(hit_suite_vals), 0xF0, NULL, HFILL }},
 
+                { &hf_hip_tlv_transport_format_type,
+                  { "Transport Format Type", "hip.tlv.transport_format_type",
+                    FT_UINT16, BASE_DEC, VALS(hip_param_vals), 0x0, NULL, HFILL }},
+
                 { &hf_hip_tlv_host_id_len,
                   { "Host Identity Length", "hip.tlv.host_id_length",
                     FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -1369,6 +1550,22 @@ proto_register_hip(void)
                   { "RSA Host Identity public modulus (n)", "hip.tlv.host_id_n",
                     FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+                { &hf_hip_tlv_host_id_algorithm,
+                  { "Host Identity Algorithm", "hip.tlv.host_id_algorithm",
+                    FT_UINT16, BASE_DEC, VALS(sig_alg_vals), 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_host_id_ecdsa_curve,
+                  { "ECDSA Host Identity curve", "hip.tlv.host_id_ecdsa_curve",
+                    FT_UINT16, BASE_DEC, VALS(ecdsa_curve_vals), 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_host_id_ecdsa_low_curve,
+                  { "ECDSA_LOW Host Identity curve", "hip.tlv.host_id_ecdsa_low_curve",
+                    FT_UINT16, BASE_DEC, VALS(ecdsa_low_curve_vals), 0x0, NULL, HFILL }},
+
+                { &hf_hip_tlv_host_id_ecc_public_key,
+                  { "ECC Host Identity public key", "hip.tlv.host_id_ecc_public_key",
+                    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
                 { &hf_hip_tlv_notification_res,
                   { "Notification Reserved", "hip.tlv.notification_res",
                     FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -1411,7 +1608,7 @@ proto_register_hip(void)
 
                 { &hf_hip_tlv_sig_alg,
                   { "Signature Algorithm", "hip.tlv.sig_alg",
-                    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+                    FT_UINT16, BASE_DEC, VALS(sig_alg_vals), 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_sig,
                   { "Signature", "hip.tlv.sig",
@@ -1578,6 +1775,7 @@ proto_register_hip(void)
             { &ei_hip_tlv_host_id_e_len, { "hip.tlv.host_id_e_length.invalid", PI_PROTOCOL, PI_WARN, "e_len too large", EXPFILL }},
 #endif
             { &ei_hip_tlv_host_id_hdr_alg, { "hip.tlv.host_id_header_algo.invalid", PI_PROTOCOL, PI_WARN, "Unknown algorithm type", EXPFILL }},
+            { &ei_hip_tlv_sig_len, { "hip.tlv.sig.length.invalid", PI_MALFORMED, PI_ERROR, "Signature parameter too short", EXPFILL }},
             { &ei_hip_checksum, { "hip.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
         };
 
