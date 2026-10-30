@@ -449,7 +449,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         auth_len = tvb_get_uint8(tvb, *offset);
         proto_tree_add_uint(tree, hf_c1222_auth_len, tvb, *offset, 1, auth_len);
         *offset += 1;
-        if (*length >= auth_len) {
+        if (*length >= auth_len + 1U) {
           auth_req = tvb_bytes_to_str(pinfo->pool, tvb, *offset, auth_len);
           proto_tree_add_item(tree, hf_c1222_auth_data, tvb, *offset, auth_len, ENC_NA);
           *offset += auth_len;
@@ -505,7 +505,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
         proto_tree_add_uint(tree, hf_c1222_write_size, tvb, *offset, 2, tblsize);
         *offset += 2;
         *length -= 2;
-        if (*length >= tblsize+1U) {
+        if (*length >= tblsize+1U && (table != 7 || tblsize >= 3)) {
           if (table == 7) {/* is it a procedure call? */
             procedure_num = tvb_get_uint16(tvb, *offset, c1222_big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
             proto_tree_add_uint(tree, hf_c1222_procedure_response, tvb, *offset, 2, procedure_num);
@@ -1046,6 +1046,11 @@ dissect_epsem(tvbuff_t *tvb, int offset, uint32_t len, packet_info *pinfo, proto
         expert_add_info(pinfo, tree, &ei_c1222_epsem_ber_length_error);
         return offset+len;
       }
+      if (len2 == 0) {
+        /* A service has at least a command or response octet */
+        expert_add_info(pinfo, tree, &ei_c1222_epsem_field_length_error);
+        return offset+len;
+      }
       if (tvb_captured_length_remaining(epsem_buffer, local_offset) >= len2) {
         cmd_err = tvb_get_uint8(epsem_buffer, local_offset);
         ct = proto_tree_add_item(tree, hf_c1222_epsem_total, epsem_buffer, local_offset, len2, ENC_NA);
@@ -1063,9 +1068,9 @@ dissect_epsem(tvbuff_t *tvb, int offset, uint32_t len, packet_info *pinfo, proto
       yt = proto_tree_add_item(tree, hf_c1222_epsem_mac, epsem_buffer, local_offset, 4, ENC_NA);
       /* now we have enough information to fill in the crypto subtree */
       crypto_tree = proto_item_add_subtree(yt, ett_c1222_crypto);
-      item = proto_tree_add_boolean(crypto_tree, hf_c1222_epsem_crypto_good, tvb, local_offset, 4, crypto_good);
+      item = proto_tree_add_boolean(crypto_tree, hf_c1222_epsem_crypto_good, epsem_buffer, local_offset, 4, crypto_good);
       proto_item_set_generated(item);
-      item = proto_tree_add_boolean(crypto_tree, hf_c1222_epsem_crypto_bad, tvb, local_offset, 4, crypto_bad);
+      item = proto_tree_add_boolean(crypto_tree, hf_c1222_epsem_crypto_bad, epsem_buffer, local_offset, 4, crypto_bad);
       proto_item_set_generated(item);
     } else {
       expert_add_info(pinfo, tree, &ei_c1222_mac_missing);
