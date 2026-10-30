@@ -26161,3 +26161,187 @@ class TestDissectCiscoWids:
                 '-ewlan.ssid',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '00\ta1a2a3a4a5a6\tb1b2b3b4b5b6b7b8\t63776964732d74657374'
+
+
+class TestDissectCitp:
+    def test_citp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CITP layer decodes without malformed packets or warnings,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('citp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 119
+        assert protocols.count('CITP') == 1
+        assert protocols.count('CITP/PINF') == 2
+        assert protocols.count('CITP/SDMX') == 14
+        assert protocols.count('DMX Channels') == 3
+        assert protocols.count('CITP/FPTC') == 4
+        assert protocols.count('CITP/FSEL') == 4
+        assert protocols.count('CITP/FINF') == 4
+        assert protocols.count('CITP/CAEX') == 29
+        assert protocols.count('CITP/MSEX') == 51
+        assert protocols.count('TCP') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('citp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_citp_sdmx_encryption(self, cmd_tshark, capture_file, test_env):
+        '''A channel block uses the encryption identifier that was set in
+        its conversation when the frame was first seen, in one and two
+        passes (frames 15-20, the reproducer of the SDMX encryption fix).
+        Channel blocks without an identifier go to dmx-chan.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('citp_coverage.pcap.gz'),
+                    '-Y', 'citp.sdmx.content_type in {0x4368426b, 0x4368426c, 0x456e4964}',  # ChBk ChBl EnId
+                    '-Tfields', '-eframe.number', '-ecitp.sdmx.encryption_identifier',
+                    '-ecitp.sdmx.encrypted_channel_data', '-ecitp.sdmx.channel_levels',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '8\t\t\t0020406080a0c0ff',
+                '9\t\t\t01020304',
+                '15\t\t\t01020304',
+                '16\tKeyA\t\t',
+                '17\tKeyA\t01020304\t',
+                '18\tKeyB\t\t',
+                '19\tKeyB\t\t',
+                '20\tKeyB\taabbcc\t',
+            ]
+
+    def test_citp_msex_layers(self, cmd_tshark, capture_file, test_env):
+        '''Server Information with no layers and with layers (frames 64
+        and 65, the reproducer of the MSEX layers fix), and with the MSEX
+        1.2 fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('citp_coverage.pcap.gz'),
+                '-Y', 'citp.msex.content_type == 0x53496e66',  # SInf
+                '-Tfields', '-eframe.number', '-ecitp.msex.product.name',
+                '-ecitp.msex.layer_count', '-ecitp.msex.layer.dmx_source',
+                '-ecitp.msex.uuid', '-ecitp.msex.supported_version_count',
+            ), encoding='utf-8', env=test_env)
+        uuid = '2b9c1e5a-41f0-4d6e-9a7b-0c3d5e6f7a8b'
+        assert stdout.splitlines() == [
+            '64\tSrv\t0\t\t\t',
+            '65\tSrv\t2\tdmx:1,dmx:2\t\t',
+            f'66\tMedia Server\t1\tArtNet/0/0/1\t{uuid}\t2',
+            f'67\t\t0\t\t{uuid}\t0',
+        ]
+
+    def test_citp_msex_info(self, cmd_tshark, capture_file, test_env):
+        '''The library numbers and IDs (every level) and counts of the MSEX
+        library, element and thumbnail messages, and the images handed to
+        the JPEG and PNG dissectors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('citp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 70 && frame.number <= 99',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'GELI, Type: Media, All libraries',
+            'GELI, Type: Effects, 2 libraries',
+            'GELI, Type: Media, Parent: root, All libraries',
+            'GELI, Type: Media, Parent: 4, 1 libraries',
+            'GELI, Type: Media, Parent: 4.5, All libraries',
+            'GELI, Type: Cues, Parent: 4.5.6, 1 libraries',
+            'ELIn, Type: Media, 2 libraries',
+            'ELIn, Type: Effects, 1 libraries',
+            'ELIn, Type: Media, 1 libraries',
+            'ELIn, Type: Crossfades',
+            'ELUp',
+            'ELUp',
+            'ELUp',
+            'GEIn, Library: 3 (Media), All elements',
+            'GEIn, Library: 1 (Effects), 3 elements',
+            'MEIn, Library: 3 (Media), 1 elements',
+            'MEIn, Library: 3 (Media), 1 elements',
+            'MEIn, Library: 3 (Media)',
+            'EEIn, Library: 2 (Effects), 2 elements',
+            'GLIn, Library: 5 (Effects), 1 elements',
+            'GLIn, Library: 5 (3D Meshes), 1 elements',
+            'GELT, Format: RGB8, 2 libraries',
+            'GELT, Format: JPEG, All libraries',
+            'GELT, Format: PNG , 1 libraries',
+            'GETh, Format: RGB8, Library: 3 (Media), All elements',
+            'GETh, Format: JPEG, Library: 3 (Media), 2 elements',
+            'ELTh, Library: 2 (Media), Format: RGB8',
+            'ELTh, Library: 2 (Media), Format: JPEG (JPEG JFIF image)',
+            'ELTh, Library: 2 (Effects), Format: PNG  (PNG)',
+            'EThn, Library: 3 (Media), Element: 4, Format: PNG  (PNG)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('citp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 81',
+                '-Tfields', '-ecitp.msex.library.affected_elements.element',
+                '-ecitp.msex.library.affected_subs.sub',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['0,7,255\t9']
+
+    def test_citp_caex_fixtures(self, cmd_tshark, capture_file, test_env):
+        '''The CAEX fixture messages: console identifiers, every fixture
+        identifier type, and the fields of Fixture List V2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('citp_coverage.pcap.gz'),
+                '-Y', 'citp.caex.show.fixture.console_identifier',
+                '-Tfields', '-eframe.number', '-ecitp.caex.show.fixture.console_identifier',
+                '-ecitp.caex.show.fixture.identifier.type',
+                '-ecitp.caex.show.fixture.identifier.rdm_manf_id',
+                '-ecitp.caex.show.fixture.identifier.rdm_model_id',
+                '-ecitp.caex.show.fixture.identifier.rdm_personality_id',
+                '-ecitp.caex.show.fixture.identifier.altabase_fixture_id',
+                '-ecitp.caex.show.fixture.identifier.capture_instance_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '48\t0x00000065,0x00000066\t5,0,1,2,3,4\t0x4d50\t0x0102\t0x0102030405060708'
+            '\t03020100-0504-0706-0809-0a0b0c0d0e0f\t23222120-2524-2726-2829-2a2b2c2d2e2f',
+            '50\t0x000000c9\t\t\t\t\t\t',
+            '51\t0x00000065,0x00000066,0x00000067\t\t\t\t\t\t',
+            '52\t0x000000c9\t\t\t\t\t\t',
+            '53\t0x00000065,0x00000066\t\t\t\t\t\t',
+            '54\t0x00000065\t\t\t\t\t\t33323130-3534-3736-3839-3a3b3c3d3e3f',
+            '55\t0x00000066\t\t\t\t\t\t',
+            '57\t0x00000065,0x00000066\t\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('citp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 50',
+                '-Tfields', '-ecitp.caex.show.fixture.universe',
+                '-ecitp.caex.show.fixture.purpose', '-ecitp.caex.show.fixture.focus',
+                '-ecitp.caex.show.fixture.external_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1000\tWash\tCentre\tEXT-201']
+
+    def test_citp_finf_names(self, cmd_tshark, capture_file, test_env):
+        '''The newline separated filter and gobo names of FINF Frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('citp_coverage.pcap.gz'),
+                '-Y', 'citp.finf.content_type == 0x4672616d',  # Fram
+                '-Tfields', '-ecitp.finf.fixture_identifier',
+                '-ecitp.finf.filter_name', '-ecitp.finf.gobo_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['17\tRed,Blue\tStars,Breakup', '18\tCTO\t']
+
+    def test_citp_tcp(self, cmd_tshark, capture_file, test_env):
+        '''CITP over TCP, found by the heuristic: two messages in one
+        segment (frame 113) and a Stream Frame reassembled from three
+        segments (frame 116); the other connection is not CITP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('citp_coverage.pcap.gz'),
+                '-Y', 'tcp.len > 0',
+                '-Tfields', '-eframe.number', '-ecitp.content_type',
+                '-ecitp.pinf.name', '-ecitp.msex.source.id', '-epng.ihdr.width',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '113\t0x50494e46,0x4d534558\tTCP console\t\t',
+            '114\t\t\t\t',
+            '115\t\t\t\t',
+            '116\t0x4d534558\t\t3\t1',
+            '117\t0x4d534558\t\t\t',
+            '118\t\t\t\t',
+            '119\t\t\t\t',
+        ]
