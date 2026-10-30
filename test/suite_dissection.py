@@ -19499,3 +19499,87 @@ class TestDissectBtrfcomm:
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['SPP', 'RFCOMM', 'SPP', 'GNSS']
+
+
+class TestDissectBtsap:
+    def test_btsap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every SAP message on the RFCOMM channel that the SDP record names
+        for SIM Access, decoded without malformed packets or warnings, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsap_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 74
+        assert protocols.count('SAP') == 56
+        assert protocols.count('GSM SIM') == 7
+        assert protocols.count('RFCOMM') == 4
+        assert protocols.count('SDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btsap_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btsap_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message ID (and an unknown one) on RFCOMM channel 5, found
+        through the SDP record, and the card reader status bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsap_coverage.pcapng.gz'),
+                '-Y', 'btsap && btrfcomm.channel == 5',
+                '-Tfields', '-ebtsap.msg_id',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(set(stdout.split())) == ['0x%02x' % i for i in range(0x16)]
+        assert count_output(stdout) == 61
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsap_coverage.pcapng.gz'),
+                '-Y', 'btsap.parameter.card_reader_status.card_reader_identity',
+                '-Tfields', '-eframe.number',
+                '-ebtsap.parameter.card_reader_status.card_reader_identity',
+                '-ebtsap.parameter.card_reader_status.card_reader_removable',
+                '-ebtsap.parameter.card_reader_status.card_present',
+                '-ebtsap.parameter.card_reader_status.card_powered',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '28\t0x01\tTrue\tTrue\tTrue',
+            '32\t0x02\tFalse\tFalse\tFalse',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsap_coverage.pcapng.gz'),
+                '-Y', 'btsap.msg_id == 0x01',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == ('13\tRcvd CONNECT_RESP - ConnectionStatus: Error, Server does not'
+                            ' support maximum message size - MaxMsgSize: 276')
+        assert lines[-1] == '74\tUnknownDirection CONNECT_RESP - ConnectionStatus: OK, Server can fulfill requirements'
+
+    def test_btsap_apdus(self, cmd_tshark, capture_file, test_env):
+        '''Command and response APDUs go to GSM SIM and the ATR to ISO 7816
+        under the SAP parameter; with btsap.sap.top_dissect off they are
+        shown as data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsap_coverage.pcapng.gz'),
+                '-Y', 'gsm_sim || iso7816.atr',
+                '-Tfields', '-eframe.number', '-ebtsap.parameter_id', '-egsm_sim.apdu.ins',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '18\t0x02,0x06\t',
+            '19\t0x04\t0xa4',
+            '20\t0x02,0x05\t',
+            '21\t0x04\t0xb0',
+            '22\t0x02,0x05\t',
+            '23\t0x10\t0xa4',
+            '24\t0x02,0x05\t',
+            '25\t0x04\t0xa4',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsap_coverage.pcapng.gz'),
+                '-o', 'btsap.sap.top_dissect:off',
+                '-Y', 'btsap.data',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['%d\tSAP' % n for n in range(18, 26)]
