@@ -3250,7 +3250,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     /* Need a valid value (e.g. 9, 14).  0 definitely won't work, as won't progress around loop! */
-    if (sample_bit_width == 0) {
+    if (sample_bit_width == 0 || sample_bit_width > 16) {
         expert_add_info_format(pinfo, protocol_item, &ei_oran_invalid_sample_bit_width,
                                "%cL Sample bit width from preference (%u) not valid, so can't decode sections",
                                (direction == DIR_UPLINK) ? 'U' : 'D', sample_bit_width);
@@ -3414,6 +3414,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 static int
 dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    if (data == NULL) {
+        return 0;
+    }
     uint32_t ecpri_message_type = *(uint32_t *)data;
 
     switch (ecpri_message_type) {
