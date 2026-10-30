@@ -19818,3 +19818,89 @@ class TestDissectBtsmp:
             '62\tUnknownDirection Pairing Request: AuthReq: Bonding | Initiator Key(s): LTK | Responder Key(s): LTK',
             '63\tUnknownDirection Pairing Failed: Unspecified Reason',
         ]
+
+
+class TestDissectBtTracker:
+    # BT-Tracker has no port; its UDP heuristic is disabled by default
+    heur = ('--enable-heuristic', 'bt_tracker_udp')
+
+    def test_bt_tracker_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type decodes without malformed packets or expert
+        infos of warning or error severity, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_tracker_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 26
+        assert protocols.count('BT-Tracker') == 23
+        assert protocols.count('UDP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.heur, *passes,
+                    '-r', capture_file('bt_tracker_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_bt_tracker_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message types, found by the heuristic and with Decode As.'''
+        for args in (self.heur, ('-d', 'udp.port==6969,bt-tracker')):
+            stdout = subprocess.check_output((cmd_tshark, *args,
+                    '-r', capture_file('bt_tracker_coverage.pcap.gz'),
+                    '-Y', 'frame.number <= 16',
+                    '-Tfields', '-ebt-tracker.msg_type',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['0', '1', '2', '3', '2', '3', '2', '3', '2', '2',
+                                      '4', '5', '5', '6', '6', '7']
+
+    def test_bt_tracker_scrape_response(self, cmd_tshark, capture_file, test_env):
+        '''A Scrape Response whose third word is the Announce action
+        (frame 13, batch150-179/bt_tracker_msgs.py frame 8) and an Error
+        Response whose third word is the Scrape action (frame 14) are
+        responses, not requests. (The error message of frame 14 begins
+        with a NUL, so the string is empty.)'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_tracker_coverage.pcap.gz'),
+                '-Y', 'frame.number in {12..15}',
+                '-Tfields', '-e_ws.col.info', '-ebt-tracker.seeders',
+                '-ebt-tracker.completed', '-ebt-tracker.leechers',
+                '-ebt-tracker.error_msg',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Scrape Response\t10,0\t20,0\t5,0\t',
+            'Scrape Response\t1,1\t2,2\t3,3\t',
+            'Error Response\t\t\t\t',
+            'Error Response\t\t\t\ttorrent not registered',
+        ]
+
+    def test_bt_tracker_announce(self, cmd_tshark, capture_file, test_env):
+        '''Announce requests with BEP 41 extensions, and the peers of
+        announce responses in the format of the innermost IP version.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_tracker_coverage.pcap.gz'),
+                '-Y', 'bt-tracker.msg_type == 2',
+                '-Tfields', '-ebt-tracker.event', '-ebt-tracker.num_want',
+                '-ebt-tracker.extension_type', '-ebt-tracker.extension.urldata',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t50\t\t',
+            '1\t-1\t0x02,0x01,0x02,0x00\t/announce,?passkey=abc',
+            '3\t50\t0x01,0x09\t',
+            '0\t50\t0x02\t',
+            '7\t50\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('bt_tracker_coverage.pcap.gz'),
+                '-Y', 'bt-tracker.msg_type == 3',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ebt-tracker.tracker.ip',
+                '-ebt-tracker.tracker.ip6', '-ebt-tracker.tracker.port',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tAnnounce Response: 3 trackers\t203.0.113.1,203.0.113.2,203.0.113.3\t\t6881,51413,6889',
+            '6\tAnnounce Response\t\t\t',
+            '8\tAnnounce Response: 1 trackers\t203.0.113.9\t\t6881',
+            '19\tAnnounce Response: 2 trackers\t\t2001:db8::21,2001:db8::22\t6881,51413',
+            '21\tAnnounce Response: 1 trackers\t\t2001:db8::31\t6881',
+            '23\tAnnounce Response: 1 trackers\t203.0.113.41\t\t6881',
+        ]
