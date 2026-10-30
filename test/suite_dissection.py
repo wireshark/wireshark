@@ -17968,3 +17968,140 @@ class TestDissectBthid:
             f'37\t{transaction}', f'38\t{transaction}',
             f'47\t{transaction}', f'48\t{transaction}',
         ]
+
+
+class TestDissectBthsp:
+    def test_bthsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''HSP over RFCOMM, roles from SDP records in both directions, and
+        Exported PDUs, without malformed packets or errors in one and two
+        passes. The warnings are the ones the capture asks for: gains
+        and a key out of range, commands or types the role may not use,
+        and parameters HSP does not define.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 73
+        assert protocols.count('HSP') == 49
+        assert protocols.count('RFCOMM') == 13
+        assert protocols.count('SDP') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                    '-Y', '_ws.expert.severity == warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['29', '30', '31', '32', '33', '34',
+                                      '40', '41', '44', '56', '72', '73']
+
+    def test_bthsp_roles(self, cmd_tshark, capture_file, test_env):
+        '''The role comes from the SDP record of the channel: HSP AG and
+        HS records of the remote device (channels 3, 5) and of the host
+        (7, 9); unknown without a record (Exported PDUs), unless forced
+        by the preference.'''
+        filt = 'frame.number in {22, 23, 61..68}'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-ebthsp.role',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['2', '1', '2', '1', '2', '1', '2', '1', '0', '0']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'bthsp.hsp.hsp_role:ag',
+                '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-ebthsp.role',
+            ), encoding='utf-8', env=test_env)
+        # Sent is AG, the rest (Rcvd and no direction) HS
+        assert stdout.split() == ['1', '2', '2', '1', '2', '1', '1', '2', '2', '1']
+
+    def test_bthsp_commands(self, cmd_tshark, capture_file, test_env):
+        '''Commands and responses, several commands in one lower-case
+        line (upper-cased once per packet), and octets above 0x7F in a
+        complete line (batch150-179/bthsp_highbyte_reassembly.py), which
+        is not taken for a fragment.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {22..28, 33, 34, 38, 42..48}',
+                    '-Tfields', '-eframe.number', '-ebthsp.at_cmd',
+                    '-ebthsp.at_cmd.type', '-ebthsp.vgs', '-ebthsp.vgm',
+                    '-ebthsp.ckpd', '-ebthsp.fragmented',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '22\t+CKPD\t0x003d\t\t\t200\t',
+                '23\tOK\t0x0d0a\t\t\t\t',
+                '24\t+VGS\t0x003d\t7\t\t\t',
+                '25\t+VGS\t0x003a\t5\t\t\t',
+                '26\t+VGM\t0x003d\t\t9\t\t',
+                '27\t+VGM\t0x003a\t\t6\t\t',
+                '28\t+vgs,+vgm,+ckpd\t0x003d,0x003d,0x003d\t3\t4\t200\t',
+                '33\t+VGS\t0x3d3f\t\t\t\t',
+                '34\t+VGM\t0x003f\t\t\t\t',
+                '38\t+XYZ\t0x000d\t\t\t\t',
+                '42\t+VGS\t0x003d\t1\t\t\t',
+                '43\t+CKPD\t0x003d\t\t\t200\t',
+                '44\t+VGS\t0x003d\t\t\t\t',
+                '45\tOK\t0x0d0a\t\t\t\t',
+                '46\tRING\t0x0d0a\t\t\t\t',
+                '47\tERROR\t0x0d0a\t\t\t\t',
+                '48\tOK,RING\t0x0d0a,0x0d0a\t\t\t\t',
+            ]
+        # The name of an unknown command stops before the delimiter
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {37, 38}', '-O', 'bthsp',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Command 0: +XYZ (Unknown)\n') == 2
+
+    def test_bthsp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''AT commands split over two and three RFCOMM frames, and AG
+        responses split over two, are reassembled in the last frame, in
+        one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {50..60}',
+                    '-Tfields', '-eframe.number', '-ebthsp.fragmented',
+                    '-ebthsp.data', '-ebthsp.at_cmd',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '50\t1\t\t',
+                '51\t\tAT+VGS=5\\r\t+VGS',
+                '52\t1\t\t',
+                '53\t1\t\t',
+                '54\t\tAT+CKPD=200\\r\t+CKPD',
+                '55\t1\t\t',
+                '56\t\tAT+VGS=1\\rAT+VGM=2\\r\t+VGS',
+                '57\t1\t\t',
+                '58\t\t\\r\\n+VGM:4\\r\\n\t+VGM',
+                '59\t1\t\t',
+                '60\t\t+VGS:1\\r\\n\\r\\nOK\\r\\n\t+VGS,OK',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                    '-Y', 'bthsp.fragmented', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['50', '52', '53', '55', '57', '59']
+
+    def test_bthsp_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''An RFCOMM channel without an SDP record is data, and HSP with
+        an unknown role when decoded as HSP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 71',
+                '-Tfields', '-eframe.protocols', '-ebthsp.role', '-ebthsp.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t')[0].endswith(':btrfcomm:data')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-d', 'btrfcomm.dlci==22,bthsp',
+                '-r', capture_file('bthsp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 71',
+                '-Tfields', '-ebthsp.role', '-ebthsp.data', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['0\tAT+CKPD=200\\r\tSent Data: AT+CKPD=200\\\\r']
