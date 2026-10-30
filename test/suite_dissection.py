@@ -20589,3 +20589,158 @@ class TestDissectC15ch:
             'Type: NITN_XLATE, SITE SUB XYZ 1 2 3 4 9',
             'Type: NITN_XLATE, SITE SUB XYZ 1 2 3 4',
         ]
+
+
+class TestDissectC2p:
+    def test_c2p_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every C2P message type decodes without malformed packets or
+        warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c2p_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 40
+        assert protocols.count('C2P') == 28
+        assert protocols.count('DISCARD') == 9
+        assert protocols.count('MAPEM') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('c2p_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_c2p_types(self, cmd_tshark, capture_file, test_env):
+        '''Version and type of every message; DSRC and CV2X messages carry
+        an 802.11 frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c2p_coverage.pcap.gz'),
+                '-Tfields', '-ec2p.version', '-ec2p.type', '-ewlan.fc.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == (
+            ['1\t1\t2'] * 3 + ['1\t2\t2'] * 2 + ['1\t8\t2'] * 2 + ['1\t7\t2'] * 2
+            + ['1\t3\t'] * 3 + ['2\t5\t'] * 6 + ['2\t11\t'] * 3 + ['2\t12\t'] * 11
+            + ['1\t4\t', '1\t6\t', '1\t9\t', '2\t1\t', '0\t5\t', '3\t12\t', '1\t5\t', '2\t13\t'])
+
+    def test_c2p_unavailable_values(self, cmd_tshark, capture_file, test_env):
+        '''The "unavailable" markers of the DSRC and navigation records.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c2p_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2 || frame.number == 11',
+                '-O', 'c2p', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Primary channel: Unavailable (0)',
+                      'Datarate: Unavailable (0)',
+                      'Latitude: Unavailable (900000001)',
+                      'Longitude: Unavailable (1800000001)',
+                      'Speed: Unavailable (16383)',
+                      'Heading: Unavailable (3601)',
+                      'RSSI on antenna #1: Unavailable (127)',
+                      'CBR on antenna #2: Unavailable (1001)',
+                      'GPS timestamp: Unavailable (0)',
+                      'Altitude: Unavailable (800001)',
+                      'Semi major confidence: Unavailable (4095)',
+                      'Semi minor confidence: Out of range (4094)',
+                      'Altitude accuracy: Unavailable (65535)',
+                      'Speed accuracy: Unavailable (127)'):
+            assert label in stdout
+
+    def test_c2p_sti(self, cmd_tshark, capture_file, test_env):
+        '''StationInfo lists: every STI type, the unavailable and out of
+        range markers, unknown types and an empty list.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c2p_coverage.pcap.gz'),
+                '-Y', 'c2p.type == 5 && c2p.version == 2',
+                '-Tfields', '-eframe.number', '-ec2p.sti_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\t160', '14\t160', '15\t160', '16\t160', '17\t164', '18\t0',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c2p_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17',
+                '-Tfields', '-ec2p.sti_type', '-ec2p.sti_value',
+            ), encoding='utf-8', env=test_env)
+        types, values = stdout.rstrip('\n').split('\t')
+        assert types.split(',') == [str(t) for t in range(160)] + ['5', '52', '160', '4294967295']
+        assert values.split(',')[-4:] == ['-1500', '-125', '7', '-7']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c2p_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 14 && frame.number <= 17',
+                '-O', 'c2p', '-V',
+            ), encoding='utf-8', env=test_env)
+        # 95 of the 160 types (66 with a unit, and 99-127 shown as integers)
+        # use a formatter that knows the markers; the rest are enumerations
+        assert stdout.count('Value: Unavailable (-9223372036854775808)') == 95
+        assert stdout.count('Value: Out of range (minimum) (-9223372036854775807)') == 95
+        assert stdout.count('Value: Out of range (maximum) (9223372036854775807)') == 95
+        assert 'Type: Project #0 (128)' in stdout
+        assert 'Type: Unknown (99)' in stdout
+        assert 'Type: Unknown (160)' in stdout
+
+    def test_c2p_fac_inject(self, cmd_tshark, capture_file, test_env):
+        '''Injected facility packets: EU messages go to ITS, other message
+        sets (no dissector available) to data; PSIDs are shown p-encoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c2p_coverage.pcap.gz'),
+                '-Y', 'c2p.fac.msg_type',
+                '-Tfields', '-ec2p.fac.msg_type', '-ec2p.fac.payload_length',
+                '-eits.stationId', '-edsrc.msgIssueRevision', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t8\t1234\t42\t',
+            '5\t8\t4294967295\t127\t',
+            '111\t11\t\t\t11',
+            '100\t11\t\t\t11',
+            '132\t12\t\t\t12',
+            '202\t15\t\t\t15',
+            '0\t6\t\t\t6',
+            '50\t7\t\t\t7',
+            '150\t8\t\t\t8',
+            '300\t0\t\t\t',
+            '10\t8\t0\t42\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c2p_coverage.pcap.gz'),
+                '-Y', 'c2p.fac.msg_type',
+                '-O', 'c2p', '-V',
+            ), encoding='utf-8', env=test_env)
+        psids = [l.strip() for l in stdout.splitlines() if 'PSID:' in l]
+        assert psids == [
+            'PSID: 0x24 (0p24) (36)',
+            'PSID: 0x7F (0p7F) (127)',
+            'PSID: 0x80 (0p8000) (128)',
+            'PSID: 0x4080 (0pC00000) (16512)',
+            'PSID: 0x204080 (0pE0000000) (2113664)',
+            'PSID: 0x1020407F (0pEFFFFFFF) (270549119)',
+            'PSID: Unavailable (4294967295)',
+            'PSID: Unavailable (0)',
+            'PSID: 0x10204080 (0pFFFFFFFF) (270549120)',
+            'PSID: 0x20000000 (0pFFFFFFFF) (536870912)',
+            'PSID: 0x1020408F (0pFFFFFFFF) (270549135)',
+        ]
+        for label in ('Timestamp: Unavailable (18446744073709551615)',
+                      'Interface ID: Unavailable (4294967295)',
+                      'Datarate: Unavailable (65535)',
+                      'User priority: Unavailable (255)',
+                      'RSSI: Unavailable (32767)',
+                      'Fingerprint: Unavailable (0x0)',
+                      'Generation time: Unavailable (0)',
+                      'Timestamp: 2023-11-14 22:13:20.123 GMT (1700000000123)'):
+            assert label in stdout
+
+    def test_c2p_api(self, cmd_tshark, capture_file, test_env):
+        '''Remote API messages: direction, client and payload length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c2p_coverage.pcap.gz'),
+                '-Y', 'c2p.api.length',
+                '-Tfields', '-ec2p.api.direction', '-ec2p.api.client_ip',
+                '-ec2p.api.client_port', '-ec2p.api.length', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t10.1.2.3\t7942\t16\t16',
+            '1\t10.1.2.3\t7942\t12\t12',
+            '2\t0.0.0.0\t0\t0\t',
+        ]
