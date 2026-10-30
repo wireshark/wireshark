@@ -349,6 +349,7 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
 %(DEFAULT_BODY)s
+  volatile uint32_t saved_offset = offset;
   if (ngap_dissect_container && parameter_tvb &&
       tvb_reported_length(parameter_tvb) > 0) {
     uint32_t handover_type = ngap_get_private_data(actx->pinfo)->handover_type_value;
@@ -379,6 +380,7 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
     /* Enable writing of the column again */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, true);
   }
+  offset = saved_offset;
 
 #.FN_BODY TargetToSource-TransparentContainer VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;

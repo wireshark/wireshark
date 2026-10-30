@@ -47,9 +47,10 @@ static dissector_handle_t nxp_802154_sniffer_handle;
 static dissector_handle_t ieee802154_handle;
 
 static bool
-test_nxp_802154_sniffer(tvbuff_t *tvb, unsigned offset)
+test_nxp_802154_sniffer(tvbuff_t *tvb, unsigned tvb_offset)
 {
     volatile bool valid = true;
+    volatile unsigned offset = tvb_offset;
     uint8_t channel, frame_len;
 
     TRY {

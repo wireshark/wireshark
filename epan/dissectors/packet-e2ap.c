@@ -3465,7 +3465,7 @@ dissect_e2ap_RANfunctionDefinition(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
   /* Looking for shortName string near beginning of tvb */
   bool found = false;
   /* For each RAN function name.. */
-  int n, found_index;
+  int n, found_index = MIN_RANFUNCTIONS;
   for (n=KPM_RANFUNCTIONS; n<MAX_RANFUNCTIONS && !found; n++) {
     uint32_t tvb_len = tvb_captured_length(parameter_tvb);
     unsigned name_len = (int)strlen(g_ran_function_name_table[n]);

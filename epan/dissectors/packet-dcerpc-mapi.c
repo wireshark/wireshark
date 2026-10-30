@@ -8217,7 +8217,8 @@ mapi_dissect_struct_AUX_PERF_CLIENTINFO(tvbuff_t *tvb _U_, unsigned offset _U_, 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	bool oldalign = di->no_align;
-	unsigned old_offset, cur_end_offset;
+	unsigned old_offset = 0;
+	unsigned cur_end_offset = 0;
 	uint16_t MachineNameOffset = 0;
 	uint16_t UserNameOffset = 0;
 	uint16_t ClientIPSize = 0;

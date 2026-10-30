@@ -9847,27 +9847,27 @@ dissect_ReadAuditableEventsRsp_block(tvbuff_t* tvb, int offset,
     sub_item = proto_tree_add_item(tree, hf_pn_io_number_of_entries, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    if(u16NumberOfEntries != 0)
-    {
-        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_api);
-    }
-
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    while (u16NumberOfEntries--)
+    if (u16NumberOfEntries != 0)
     {
-        // Get syslog Data length
-        uint16_t syslog_data_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_api);
 
-        offset += 2; // move to the start of the syslog message
-        tvbuff_t* syslog_tvb = tvb_new_subset_length(tvb, offset, syslog_data_length);
+        while (u16NumberOfEntries--)
+        {
+            // Get syslog Data length
+            uint16_t syslog_data_length = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
 
-        /* Syslog */
-        call_dissector(find_dissector("syslog"), syslog_tvb, pinfo, sub_tree);
-        offset += syslog_data_length;
-        /* Padding */
-        offset = dissect_pn_align4(tvb, offset, pinfo, sub_tree);
-    };
+            offset += 2; // move to the start of the syslog message
+            tvbuff_t* syslog_tvb = tvb_new_subset_length(tvb, offset, syslog_data_length);
+
+            /* Syslog */
+            call_dissector(find_dissector("syslog"), syslog_tvb, pinfo, sub_tree);
+            offset += syslog_data_length;
+            /* Padding */
+            offset = dissect_pn_align4(tvb, offset, pinfo, sub_tree);
+        };
+    }
 
     col_clear_fence(pinfo->cinfo, COL_INFO);
 

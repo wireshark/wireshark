@@ -237,7 +237,7 @@ static bool
 busmaster_read(wtap   *wth, wtap_rec *rec, int *err, char **err_info,
                int64_t *data_offset)
 {
-    log_entry_type_t   entry;
+    log_entry_type_t   entry = LOG_ENTRY_NONE;
     busmaster_state_t  state;
     busmaster_priv_t  *priv_entry;
     bool               is_msg = false;

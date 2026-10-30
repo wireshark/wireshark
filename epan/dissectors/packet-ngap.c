@@ -23761,6 +23761,7 @@ dissect_ngap_SourceToTarget_TransparentContainer(tvbuff_t *tvb _U_, uint32_t off
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, false, &parameter_tvb);
 
+  volatile uint32_t saved_offset = offset;
   if (ngap_dissect_container && parameter_tvb &&
       tvb_reported_length(parameter_tvb) > 0) {
     uint32_t handover_type = ngap_get_private_data(actx->pinfo)->handover_type_value;
@@ -23791,6 +23792,7 @@ dissect_ngap_SourceToTarget_TransparentContainer(tvbuff_t *tvb _U_, uint32_t off
     /* Enable writing of the column again */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, true);
   }
+  offset = saved_offset;
 
 
   return offset;

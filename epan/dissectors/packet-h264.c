@@ -551,7 +551,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, packet_info *pinfo, int hf_index,
     proto_item *ti;
 
     int      leading_zero_bits, bit_offset, start_offset, length;
-    uint32_t codenum, mask, value, tmp;
+    uint32_t codenum, mask = 0, value = 0, tmp;
     int32_t  se_value = 0;
     int      b;
     char    *str;

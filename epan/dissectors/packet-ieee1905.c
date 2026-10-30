@@ -10785,7 +10785,7 @@ static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    bool eom_seen;
+    bool eom_seen = false;
     bool mic_seen = false;
     uint8_t tlv_type;
     uint16_t tlv_len;

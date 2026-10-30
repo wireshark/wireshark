@@ -2186,7 +2186,7 @@ dissect_ms_if_midi_element_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 {
     int         offset_start = offset;
     proto_tree *bitmap_tree;
-    proto_item *ti;
+    proto_item *ti = NULL;
     uint8_t     nrinputpins;
     unsigned    elcapssize;
 

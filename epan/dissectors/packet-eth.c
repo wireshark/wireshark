@@ -771,7 +771,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     unsigned padding_length = 0;
     bool has_fcs = false;
     bool maybe_padded = false;
-    tvbuff_t *real_trailer_tvb;
+    tvbuff_t *real_trailer_tvb = NULL;
 
     trailer_length = tvb_captured_length(trailer_tvb);
     trailer_reported_length = tvb_reported_length(trailer_tvb);
