@@ -19270,3 +19270,109 @@ class TestDissectBtmeshProxy:
                 '80\t79,80\t23\tGeneric OnOff Status',
                 '104\t102,104\t34\tProvisioning Data PDU (Last Segment)',
             ]
+
+
+class TestDissectBtpMatter:
+    def test_btp_matter_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Matter BTP on the Matter GATT service (0xFFF6) found through GATT
+        discovery: handshake, Additional Data, single and reassembled SDUs,
+        without malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btp_matter_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 56
+        assert sum(':btp-matter' in p for p in protocols) == 18
+        assert sum(p.endswith(':btp-matter:matter') for p in protocols) == 8
+        assert protocols[-1] == 'exported_pdu:data'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btp_matter_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btp_matter_handshake(self, cmd_tshark, capture_file, test_env):
+        '''Handshake requests on C1 and responses on C2 (Write, Indication
+        and Read Response). An op code that shares bits with the handshake
+        op code 0x6C (frame 42, 0x6D) is not taken for a handshake.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btp_matter_coverage.pcapng.gz'),
+                '-Y', 'btp-matter.opcode',
+                '-Tfields', '-eframe.number', '-ebtp-matter.opcode',
+                '-ebtp-matter.versions.0', '-ebtp-matter.versions.7',
+                '-ebtp-matter.version', '-ebtp-matter.mtu', '-ebtp-matter.window',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '14\t0x6c\t4\t0\t\t244\t6',
+            '16\t0x6c\t\t\t4\t244\t6',
+            '40\t0x01\t\t\t\t\t',
+            '42\t0x6d\t\t\t\t\t',
+            '45\t0x6c\t4\t0\t\t23\t2',
+            '47\t0x6c\t\t\t3\t512\t255',
+            '48\t0x6c\t1\t8\t\t128\t4',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btp_matter_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {14, 16, 42}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Sent Matter BTP [Handle: 0x0003] Handshake Request',
+            'Rcvd Matter BTP [Handle: 0x0005] Handshake Response, Version: 4, MTU: 244, Window Size: 6',
+            'Sent Matter BTP [Handle: 0x0003]',
+        ]
+
+    def test_btp_matter_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''SDUs in three segments from the client and two from the server
+        are reassembled and passed to Matter.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btp_matter_coverage.pcapng.gz'),
+                '-Y', 'btp-matter.reassembled.length',
+                '-Tfields', '-eframe.number', '-ebtp-matter.fragment',
+                '-ebtp-matter.reassembled.length', '-ematter.message.counter',
+                '-ematter.message.session_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '30\t26,28,30\t101\t7\t0x0000',
+            '34\t32,34\t88\t99\t0x5a5a',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btp_matter_coverage.pcapng.gz'),
+                    '-Y', 'btp-matter.seq || btp-matter.ack',
+                    '-Tfields', '-eframe.number', '-ebtp-matter.ack', '-ebtp-matter.seq',
+                    '-ebtp-matter.length',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '20\t\t0\t68', '22\t0\t0\t28', '24\t0\t\t', '26\t\t1\t101',
+                '28\t\t2\t', '30\t1\t3\t', '32\t3\t1\t88', '34\t\t2\t',
+                '36\t\t4\t42', '38\t\t3\t48', '40\t\t5\t15',
+            ]
+
+    def test_btp_matter_additional_data(self, cmd_tshark, capture_file, test_env):
+        '''The Additional Data characteristic (C3) is decoded as Matter TLV
+        with the Rotating Device Identifier tag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btp_matter_coverage.pcapng.gz'),
+                '-Y', 'btp-matter.ad',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ebtp-matter.ad.item',
+                '-ematter.tlv.value_bytes',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\tRcvd Matter BTP [Handle: 0x0008] Additional Data\t0x00\t' + bytes(range(0x10, 0x22)).hex(),
+        ]
+
+    def test_btp_matter_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming "btp-matter" has no BT ATT data; the
+        dissector rejects it instead of failing an assertion.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btp_matter_coverage.pcapng.gz'),
+                    '-Y', 'exported_pdu',
+                    '-Tfields', '-eframe.number', '-eexported_pdu.prot_name',
+                    '-edata.data', '-e_ws.expert',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['56\tbtp-matter\t000005000004001122\t']
