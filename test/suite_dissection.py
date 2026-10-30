@@ -26390,3 +26390,68 @@ class TestDissectCl3:
             '99' + '00' * 41,
             b'unknown subprotocol payload'.hex(),
         ]
+
+
+class TestDissectCl3dcw:
+    def test_cl3dcw_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Dual-Channel Wi-Fi message type decodes without malformed
+        packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cl3dcw_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-ecl3dcw.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['CL3-DCW\t0x%02x' % t for t in (
+            0x01, 0x01, 0x21, 0x21, 0x11, 0x11, 0x12, 0x22, 0x02, 0x41, 0x99, 0x01)]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cl3dcw_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cl3dcw_lists(self, cmd_tshark, capture_file, test_env):
+        '''The counts and data channel MAC addresses of the MAC address
+        lists and bonds.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cl3dcw_coverage.pcap.gz'),
+                '-Tfields', '-ecl3dcw.datamacaddrcount', '-ecl3dcw.dccount',
+                '-ecl3dcw.datassidcount', '-ecl3dcw.dcmacaddr', '-ecl3dcw.dcbond',
+            ), encoding='utf-8', env=test_env)
+        dc = ['02:00:00:00:00:a%d' % i for i in range(1, 6)]
+        assert stdout.splitlines() == [
+            '1\t\t\t' + dc[0] + '\t',
+            '3\t\t\t' + ','.join(dc[0:3]) + '\t',
+            '\t\t1\t\t',
+            '\t\t3\t\t',
+            '\t1\t\t' + dc[0] + '\t' + dc[0],
+            '\t3\t\t' + ','.join(dc[1:4]) + '\t' + ','.join(dc[1:4]),
+            '2\t\t\t' + ','.join(dc[3:5]) + '\t',
+            '1\t\t\t' + dc[4] + '\t',
+            '2\t\t\t' + ','.join(dc[0:2]) + '\t',
+            '\t\t\t\t',
+            '\t\t\t\t',
+            '1\t\t\t' + dc[2] + '\t',
+        ]
+
+    def test_cl3dcw_ssids(self, cmd_tshark, capture_file, test_env):
+        '''The SSIDs of an AP Accept Station (frame 4) and of the bonds of
+        a Station Ack (frame 6), of 0 to 32 octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cl3dcw_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,6}',
+                '-O', 'cl3dcw', '-V',
+            ), encoding='utf-8', env=test_env)
+        ssids = [l.strip() for l in stdout.splitlines() if 'Data Channel SSID:' in l]
+        assert ssids == [
+            'Data Channel SSID:',
+            'Data Channel SSID: dual-channel-wifi-data-ssid-0032',
+            'Data Channel SSID: caf�',
+            'Data Channel SSID:',
+            'Data Channel SSID: dual-channel-wifi-data-ssid-0032',
+            'Data Channel SSID: x',
+        ]
+        for label in ('Data Channel Bond: 02:00:00:00:00:a2 -> ""',
+                      'Data Channel Bond: 02:00:00:00:00:a3 -> "dual-channel-wifi-data-ssid-0032"',
+                      'Data Channel Bond: 02:00:00:00:00:a4 -> "x"'):
+            assert label in stdout
