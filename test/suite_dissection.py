@@ -21668,3 +21668,242 @@ class TestDissectCalcappprotocol:
                 'CalcApp Keep-Alive': ('3', '72', '1.000000', '8.000000'),
                 'CalcApp Keep-Alive Ack': ('2', '48', '1.250000', '2.500000'),
             }
+
+
+class TestDissectCamel:
+    def test_camel_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CAMEL operation, version and component type decodes
+        without malformed packets or errors, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 319
+        assert protocols.count('Camel-v4') == 149
+        assert protocols.count('Camel-v3') == 43
+        assert protocols.count('Camel-v2') == 9
+        assert protocols.count('Camel-v1') == 2
+        assert protocols.count('Camel') == 3
+        assert protocols.count('TCAP') == 111
+        assert protocols.count('SCCP (Int. ITU)') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('camel_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            # ReturnError parameters are dissected, but the generated
+            # dissect_returnErrorData() does not advance the offset, so BER
+            # warns about the parameter: the only warnings.
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('camel_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == warning && !camel.returnError_element',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_camel_operations(self, cmd_tshark, capture_file, test_env):
+        '''Every operation with an argument, the ones without, every error
+        code and reject problem.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.invoke_element',
+                '-Tfields', '-ecamel.local',
+            ), encoding='utf-8', env=test_env)
+        opcodes = {int(v) for line in stdout.split() for v in line.split(',')}
+        assert opcodes == {
+            0, 16, 17, 19, 20, 22, 23, 24, 27, 31, 32, 33, 34, 35, 36, 41, 44, 45,
+            46, 47, 48, 49, 53, 55, 60, 61, 62, 63, 64, 65, 66, 67, 71, 72, 73, 74,
+            75, 76, 77, 78, 79, 80, 81, 82, 83, 86, 88, 90, 93, 95, 96, 97, 99}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.returnError_element',
+                '-Tfields', '-ecamel.error_code_local',
+            ), encoding='utf-8', env=test_env)
+        errors = [int(v) for line in stdout.split() for v in line.split(',')]
+        assert sorted(set(errors)) == [0, 1, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                                       16, 17, 50, 51, 52, 53, 99]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.reject_element',
+                '-Tfields', '-ecamel.general', '-ecamel.invokeProblem',
+                '-ecamel.problemReturnResult', '-ecamel.returnErrorProblem',
+            ), encoding='utf-8', env=test_env)
+        cols = [[], [], [], []]
+        for line in stdout.splitlines():
+            for i, v in enumerate(line.split('\t')):
+                cols[i] += [int(x) for x in v.split(',') if x]
+        assert cols == [[0, 1, 2], list(range(8)), [0, 1, 2], [0, 1, 2, 3, 4]]
+        # linked ID present and absent, a global operation code
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 278 && frame.number <= 279',
+                '-Tfields', '-ecamel.linkedIdPresent', '-ecamel.absent_element',
+                '-ecamel.global', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t\tinvoke activityTest invoke activityTest ',
+            '\t\t0.4.0.0.1.0.50.0\tinvoke invoke Unknown CAMEL (99) ',
+        ]
+
+    def test_camel_versions(self, cmd_tshark, capture_file, test_env):
+        '''The application context selects the CAP version, which changes
+        the decoding of InitialDPArgExtension, AChBillingCharging-
+        Characteristics, EstablishTemporaryConnection and
+        SpecializedResourceReport; without a dialogue portion the SSN
+        selects CAMEL.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 217 && frame.number <= 247',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == (
+            ['Camel-v1'] * 2 + ['Camel-v2'] * 9 + ['Camel-v3'] * 6 + ['Camel-v4'] * 2
+            + ['Camel-v3'] * 4 + ['TCAP'] + ['Camel-v4'] * 2 + ['Camel'] * 3
+            + ['SCCP (Int. ITU)'] * 2)
+        # v1/v2 InitialDPArgExtension (naCarrierInformation, gmscAddress),
+        # v2 EstablishTemporaryConnectionArg (naInfo)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.naCarrierInformation_element',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['217', '219', '221']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'frame.number in {220, 227, 229, 230, 238}',
+                '-Ocamel', '-V',
+            ), encoding='utf-8', env=test_env)
+        # v2 timeDurationCharging: releaseIfdurationExceeded is a SEQUENCE
+        # with the tone; v3: the audible indicator is a bare BOOLEAN
+        assert 'releaseIfdurationExceeded\n' in stdout
+        assert stdout.count('allAnnouncementsComplete') == 2
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'frame.number == 229',
+                '-Tfields', '-ecamel.audibleIndicatorTone',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'True'
+        # SSN 147 is CAMEL only with camel.tcap.ssn changed
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'camel.tcap.ssn:146-147',
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 246 && frame.number <= 247',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['Camel\tinvoke initialDP ', 'Camel\tinvoke continue ']
+
+    def test_camel_values(self, cmd_tshark, capture_file, test_env):
+        '''Hand-written decoders: dates and times, PDP addresses, RP cause.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.callStopTimeValue',
+                '-Tfields', '-ecamel.callStopTimeValue',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['12:30:45;30/10/2026', '12:30:4A;30/10/2026']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'camel.date.format:american',
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.callStopTimeValue',
+                '-Tfields', '-ecamel.callStopTimeValue',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['12:30:45;10/30/2026', '12:30:4A;10/30/2026']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.timeandtimezone.time',
+                '-Tfields', '-ecamel.timeandtimezone.time', '-ecamel.timeandtimezone.timezone',
+            ), encoding='utf-8', env=test_env)
+        values = stdout.splitlines()
+        assert len(values) == 23
+        assert set(values) == {'20261030123045\t4', '20261030123045\t-28'}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.PDPAddress_IPv4 || camel.PDPAddress_IPv6',
+                '-Tfields', '-ecamel.PDPAddress_IPv4', '-ecamel.PDPAddress_IPv6',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(stdout.splitlines()) == ['\t2001:db8::1', '192.0.2.33\t', '192.0.2.33\t']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.RP_Cause',
+                '-Tfields', '-ecamel.RP_Cause',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(stdout.split()) == ['30', '30,1']
+
+    def test_camel_srt(self, cmd_tshark, capture_file, test_env):
+        '''Service response time: CAMEL sessions follow the TCAP
+        transaction; responses are linked to their requests, duplicates
+        flagged.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 283',
+                '-Tfields', '-eframe.number', '-ecamel.srt.session_id', '-ecamel.srt.rspframe',
+                '-ecamel.srt.duplicate',
+            ), encoding='utf-8', env=test_env)
+        rows = [l for l in stdout.splitlines() if l.split('\t')[2:] != ['', '']]
+        assert rows == [
+            '284\t18\t283\t',             # Continue answers InitialDP
+            '285\t18\t\t77',              # a second Continue
+            '287\t18\t286\t',             # ApplyCharging answers slice 1
+            '289\t18\t288\t',             # slice 2
+            '290\t18\t\t77',              # a second InitialDP
+            '293\t18\t292\t',             # ReleaseCall answers EventReportBCSM
+            '298\t20\t297\t',
+            '304\t22\t302\t',
+            '307\t23,23\t306\t',          # ContinueGPRS answers InitialDPGPRS
+            '309\t23,23\t\t77',           # a second ContinueGPRS
+            '312\t24,24\t311\t',          # ContinueGPRS answers EventReportGPRS
+            '313\t24\t\t77',              # a second EventReportGPRS
+            '314\t24,24\t\t77',           # ... and ContinueGPRS
+            '316\t25\t315\t',             # ContinueSMS answers InitialDPSMS
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.srt.deltatime31 || camel.srt.deltatime22 || camel.srt.deltatime35'
+                      ' || camel.srt.deltatime75 || camel.srt.deltatime80 || camel.srt.deltatime65',
+                '-Tfields', '-eframe.number', '-ecamel.srt.deltatime31', '-ecamel.srt.deltatime22',
+                '-ecamel.srt.deltatime35', '-ecamel.srt.deltatime75', '-ecamel.srt.deltatime80',
+                '-ecamel.srt.deltatime65',
+            ), encoding='utf-8', env=test_env)
+        deltas = {}
+        for line in stdout.splitlines():
+            f = line.split('\t')
+            deltas[int(f[0])] = [round(float(v) * 1000) if v else None for v in f[1:]]
+        assert deltas[284] == [120, None, None, None, None, None]
+        assert deltas[287] == [None, 30, None, None, None, None]
+        assert deltas[289] == [None, 40, None, None, None, None]
+        assert deltas[293] == [None, None, 60, None, None, None]
+        assert deltas[307] == [None, None, None, 110, None, None]
+        assert deltas[312] == [None, None, None, None, 50, None]
+        assert deltas[316] == [None, None, None, None, None, 90]
+        # The link from a request to its response is known in the second pass
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-Y', 'camel.srt.reqframe && frame.number >= 283',
+                '-Tfields', '-eframe.number', '-ecamel.srt.reqframe',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '283\t284', '286\t287', '288\t289', '292\t293', '297\t298', '302\t304',
+            '306\t307', '311\t312', '315\t316',
+        ]
+
+    def test_camel_counter(self, cmd_tshark, capture_file, test_env):
+        '''-z camel,counter counts the operations.'''
+        stdout = subprocess.check_output((cmd_tshark, '-q',
+                '-r', capture_file('camel_coverage.pcap.gz'),
+                '-z', 'camel,counter',
+            ), encoding='utf-8', env=test_env)
+        counts = {}
+        for line in stdout.splitlines():
+            if line.startswith('Request ') and '|' in line:
+                name, count = line.split('|')[:2]
+                counts[name.strip()] = int(count)
+        assert counts['Request initialDP'] == 15
+        assert counts['Request continue'] == 10
+        assert counts['Request applyCharging'] == 8
+        assert counts['Request applyChargingReport'] == 7
+        assert counts['Request releaseCall'] == 5
+        assert counts['Request initialDPGPRS'] == 2
+        assert counts['Request continueGPRS'] == 5
+        assert counts['Request initialDPSMS'] == 3
