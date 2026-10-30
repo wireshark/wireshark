@@ -25888,3 +25888,69 @@ class TestDissectCiscoMetadata:
         assert sgts == [str(i) for i in range(len(sgts))]
         assert int(sgts[-1]) < 259
         assert data_len == ''
+
+
+class TestDissectCiscoOui:
+    def test_cisco_oui_pids(self, cmd_tshark, capture_file, test_env):
+        '''Every Cisco SNAP PID is named and reaches its dissector, or
+        data when there is none; no malformed packets or expert infos in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_oui_coverage.pcap.gz'),
+                '-Tfields', '-ellc.oui', '-ellc.cisco_pid', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\t0x0102\teth:llc:data',
+            '12\t0x0104\teth:llc:pagp',
+            '12\t0x0105\teth:llc:data',
+            '12\t0x0108\teth:llc:stp',
+            '12\t0x0109\teth:llc:stp',
+            '12\t0x010b\teth:llc:stp',
+            '12\t0x010c\teth:llc:stp',
+            '12\t0x0111\teth:llc:udld',
+            '12\t0x0139\teth:llc:mcp',
+            '12\t0x2000\teth:llc:cdp',
+            '12\t0x2001\teth:llc:cgmp',
+            '12\t0x2003\teth:llc:vtp',
+            '12\t0x2004\teth:llc:dtp',
+            '12\t0x200a\teth:llc:data',
+            '12\t0x7777\teth:llc:data',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_oui_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cisco_oui_pid_names(self, cmd_tshark, capture_file, test_env):
+        '''The PID names registered by packet-cisco-oui.c.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_oui_coverage.pcap.gz'),
+                '-O', 'llc', '-V',
+            ), encoding='utf-8', env=test_env)
+        pids = [l.strip() for l in stdout.splitlines() if l.strip().startswith('PID:')]
+        assert pids == [
+            'PID: DRIP (0x0102)',
+            'PID: PAgP (0x0104)',
+            'PID: MLS Hello (0x0105)',
+            'PID: RLQ BPDUs (request) (0x0108)',
+            'PID: RLQ BPDUs (response) (0x0109)',
+            'PID: PVSTP+ (0x010b)',
+            'PID: VLAN Bridge (0x010c)',
+            'PID: UDLD (0x0111)',
+            'PID: MCP (0x0139)',
+            'PID: CDP (0x2000)',
+            'PID: CGMP (0x2001)',
+            'PID: VTP (0x2003)',
+            'PID: DTP (0x2004)',
+            'PID: STP Uplink Fast (0x200a)',
+            'PID: Unknown (0x7777)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_oui_coverage.pcap.gz'),
+                '-Y', 'llc.cisco_pid == 0x010b || llc.cisco_pid == 0x2003',
+                '-Tfields', '-estp.pvst.origvlan', '-evtp.md',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['10\t', '\tvtp-domain']
