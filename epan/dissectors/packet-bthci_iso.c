@@ -59,6 +59,7 @@ typedef struct _multi_fragment_pdu_t {
     char    *reassembled;
     unsigned alloc_len;         /* allocated length of reassembled */
     int      cur_off;           /* counter used by reassembly */
+    bool     timestamp_present; /* TS flag of the first fragment */
 } multi_fragment_pdu_t;
 
 /* Append to the reassembly buffer, growing it as data actually arrives
@@ -185,7 +186,6 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     bluetooth_data = (bluetooth_data_t *) data;
-    DISSECTOR_ASSERT(bluetooth_data);
 
     k_interface_id      = bluetooth_data->interface_id;
     k_adapter_id        = bluetooth_data->adapter_id;
@@ -398,17 +398,21 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         multi_fragment_pdu_t *mfp = NULL;
         int                   len;
         if (pb_flag == 0x00) { /* first fragment */
+            int timestamp_size = 0;
+            uint16_t sdu_length;
+
+            if (flags & 0x4000) { /* 4 byte timestamp is present */
+                timestamp_size = 4;
+            }
+            /* Read on every pass so a short fragment throws on every pass */
+            sdu_length = tvb_get_letohs(tvb, offset + 2 + timestamp_size) & 0xfff;
             if (!pinfo->fd->visited) {
-                int timestamp_size = 0;
                 mfp = (multi_fragment_pdu_t *) wmem_new(wmem_file_scope(), multi_fragment_pdu_t);
                 mfp->first_frame = pinfo->num;
                 mfp->last_frame  = 0;
-                mfp->tot_len     = 4;
+                mfp->tot_len     = 4 + timestamp_size + sdu_length;
+                mfp->timestamp_present = timestamp_size != 0;
                 len = tvb_captured_length_remaining(tvb, offset);
-                if (flags & 0x4000) { /* 4 byte timestamp is present */
-                    timestamp_size = 4;
-                }
-                mfp->tot_len += timestamp_size + (tvb_get_letohs(tvb, offset + 2 + timestamp_size) & 0xfff);
                 mfp->reassembled = NULL;
                 mfp->alloc_len   = 0;
                 mfp->cur_off     = 0;
@@ -429,6 +433,9 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
         else if (pb_flag & 0x01) { /* continuation/last fragment */
             mfp = (multi_fragment_pdu_t *)wmem_tree_lookup32_le(chandle_data->start_fragments, pinfo->num);
+            /* Not part of an SDU that was completed in an earlier frame */
+            if (mfp != NULL && mfp->last_frame && mfp->last_frame < pinfo->num)
+                mfp = NULL;
             if (!pinfo->fd->visited) {
                 len = tvb_captured_length_remaining(tvb, offset);
                 if (mfp != NULL && !mfp->last_frame) {
@@ -469,6 +476,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     next_tvb = tvb_new_child_real_data(tvb, (uint8_t *) mfp->reassembled, mfp->cur_off, mfp->tot_len);
                     add_new_data_source(pinfo, next_tvb, "Reassembled BTHCI ISO");
 
+                    iso_data_info.timestamp_present = mfp->timestamp_present;
                     call_dissector_with_data(bthci_iso_data_handle, next_tvb, pinfo, tree, &iso_data_info);
                 }
             }
@@ -602,6 +610,9 @@ dissect_iso_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     uint32_t sdu_length;
     iso_data_info_t *iso_data_info = (iso_data_info_t *) data;
     unsigned offset = 0;
+
+    if (iso_data_info == NULL)
+        return 0;
 
     iso_data_load_item = proto_tree_add_item(tree, proto_bthci_iso_data, tvb, offset, -1, ENC_NA);
     iso_data_load_tree = proto_item_add_subtree(iso_data_load_item, ett_bthci_iso_data);
