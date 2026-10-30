@@ -14,6 +14,8 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 #if 0
 #include "packet-ieee8023.h"
 #endif
@@ -39,6 +41,8 @@ static int hf_eth_type;
 static int hf_cmd_trailer;
 
 static int ett_cmd;
+
+static expert_field ei_cmd_too_deep;
 
 static int
 dissect_cmd_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -93,6 +97,11 @@ dissect_cmd_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     ethertype_data.trailer_id = hf_cmd_trailer;
     ethertype_data.fcs_len = 0;
 
+    /* The payload may carry CMD again; stop before the layer limit */
+    if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+        proto_tree_add_expert_remaining(cmd_tree, pinfo, &ei_cmd_too_deep, tvb, 8);
+        return tvb_captured_length(tvb);
+    }
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
     return tvb_captured_length(tvb);
 }
@@ -110,7 +119,7 @@ dissect_cmd_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_cmd, tvb, 0, 6, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_cmd, tvb, 0, 8, ENC_NA);
         cmd_tree = proto_item_add_subtree(ti, ett_cmd);
     }
     encap_proto = tvb_get_ntohs(tvb, 0);
@@ -127,6 +136,11 @@ dissect_cmd_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     offset += 2;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
+    /* The payload may carry CMD again; stop before the layer limit */
+    if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+        proto_tree_add_expert_remaining(cmd_tree, pinfo, &ei_cmd_too_deep, next_tvb, 0);
+        return tvb_captured_length(tvb);
+    }
     if (!dissector_try_uint(gre_dissector_table, encap_proto, next_tvb, pinfo, tree))
         call_data_dissector(next_tvb, pinfo, tree);
     return tvb_captured_length(tvb);
@@ -163,6 +177,12 @@ proto_register_cmd(void)
     proto_cmd = proto_register_protocol("Cisco MetaData", "Cisco MetaData", "cmd");
     proto_register_field_array(proto_cmd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    static ei_register_info ei[] = {
+        { &ei_cmd_too_deep, { "cmd.too_deep", PI_UNDECODED, PI_WARN, "Payload nested too deep, not dissected", EXPFILL }},
+    };
+    expert_module_t* expert_cmd = expert_register_protocol(proto_cmd);
+    expert_register_field_array(expert_cmd, ei, array_length(ei));
 
     cmd_eth_handle = register_dissector("cmd.eth", dissect_cmd_eth, proto_cmd);
     cmd_gre_handle = register_dissector("cmd.gre", dissect_cmd_gre, proto_cmd);
