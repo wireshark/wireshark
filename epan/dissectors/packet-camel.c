@@ -7887,7 +7887,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
     if (srt_type==CAMELSRT_VOICE_ACR1) {
       if (p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num != 0
           && p_camelsrt_call->category[CAMELSRT_VOICE_ACR3].req_num < pinfo->num) {
-        srt_type=CAMELSRT_VOICE_ACR1;
+        srt_type=CAMELSRT_VOICE_ACR3;
       } else  if ( p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num != 0
                    && p_camelsrt_call->category[CAMELSRT_VOICE_ACR2].req_num < pinfo->num) {
         srt_type=CAMELSRT_VOICE_ACR2;
