@@ -22661,3 +22661,91 @@ class TestDissectCatapultDct2000:
         # tty lines and a sprint line
         assert frames[119][11] == 'first line|second line'
         assert frames[203][12] == 'sprint line from the test script'
+
+
+class TestDissectCattp:
+    def test_cattp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CAT-TP PDUs selected with Decode As decode without malformed
+        packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cattp_coverage.pcap.gz'),
+                '-d', 'udp.port==4116,cattp',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 25
+        assert protocols.count('CAT-TP') == 25
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cattp_coverage.pcap.gz'),
+                    '-d', 'udp.port==4116,cattp',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning || '
+                          'cattp.checksum.status != 1',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cattp_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic accepts every PDU except one without a known PDU
+        type (frame 23), a version 1 PDU (frame 24) and the short header
+        reproducer, whose length does not match the datagram (frame 25).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cattp_coverage.pcap.gz'),
+                '--enable-heuristic', 'cattp_udp',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['CAT-TP'] * 22 + ['UDP'] * 3
+
+    def test_cattp_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Flags, header and data lengths, the ICCID, EAK numbers and RST
+        reason codes, the same in one and two passes.'''
+        expected = [
+            '1\t0x80\t33\t0\t89490200002143658709\t\t\t',
+            '2\t0xc0\t23\t0\t\t\t\t',
+            '3\t0x40\t18\t0\t\t\t\t',
+            '4\t0x40\t18\t18\t\t\t\t',
+            '5\t0x44\t18\t23\t\t\t\t',
+            '6\t0x40\t18\t12\t\t\t\t',
+            '7\t0x48\t18\t0\t\t\t\t',
+            '8\t0x60\t24\t0\t\t3\t503,505,506\t',
+            '9\t0x60\t20\t8\t\t1\t508\t',
+            '10\t0x10\t19\t0\t\t\t\t0',
+            '11\t0x80\t32\t0\t894902000021436587\t\t\t',
+            '12\t0x80\t32\t0\t\t\t\t',
+            '13\t0x80\t35\t0\t\t\t\t',
+            '14\t0x80\t31\t0\t\t\t\t',
+            '15\t0x50\t19\t0\t\t\t\t1',
+            '16\t0x10\t19\t0\t\t\t\t2',
+            '17\t0x50\t19\t0\t\t\t\t3',
+            '18\t0x10\t19\t0\t\t\t\t4',
+            '19\t0x50\t19\t0\t\t\t\t5',
+            '20\t0x10\t19\t0\t\t\t\t6',
+            '21\t0x50\t19\t0\t\t\t\t7',
+            '22\t0x10\t19\t0\t\t\t\t8',
+            '23\t0x08\t18\t0\t\t\t\t',
+            '24\t0x41\t18\t0\t\t\t\t',
+            '25\t0x60\t4\t0\t\t0\t\t',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cattp_coverage.pcap.gz'),
+                    '-d', 'udp.port==4116,cattp',
+                    '-Tfields', '-eframe.number', '-ecattp.flags', '-ecattp.hlen',
+                    '-ecattp.datalen', '-ecattp.iccid', '-ecattp.eaks', '-ecattp.eak',
+                    '-ecattp.rc',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_cattp_eak_short_header(self, cmd_tshark, capture_file, test_env):
+        '''An EAK PDU whose header length (4) is shorter than the base
+        header (frame 25) has no EAK numbers; the count used to wrap to
+        249 and end in an exception.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cattp_coverage.pcap.gz'),
+                '-d', 'udp.port==4116,cattp',
+                '-Y', 'frame.number == 25',
+                '-Tfields', '-ecattp.flags.eak', '-ecattp.hlen', '-ecattp.eaks',
+                '-ecattp.eak', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip('\n').split('\t') == ['1', '4', '0', '',
+            '1 > 2 [ACK PDU] Flags=0x60 Ack=1 Seq=1 WSize=10']
