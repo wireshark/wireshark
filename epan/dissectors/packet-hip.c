@@ -202,6 +202,15 @@ static const value_string transform_id_vals[] = {
         { 0x04, "BLOWFISH-CBC with HMAC-SHA1" },
         { 0x05, "NULL with HMAC-SHA1" },
         { 0x06, "NULL with HMAC-MD5" },
+        { 0x07, "NULL with HMAC-SHA-256" },
+        { 0x08, "AES-128-CBC with HMAC-SHA-256" },
+        { 0x09, "AES-256-CBC with HMAC-SHA-256" },
+        { 0x0a, "AES-CCM-8" },
+        { 0x0b, "AES-CCM-16" },
+        { 0x0c, "AES-GCM with an 8-octet ICV" },
+        { 0x0d, "AES-GCM with a 16-octet ICV" },
+        { 0x0e, "AES-CMAC-96" },
+        { 0x0f, "AES-GMAC" },
         { 0, NULL }
 };
 
