@@ -18,6 +18,7 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
+#include <epan/proto_data.h>
 
 #include "packet-osi.h"
 #include "packet-osi-options.h"
@@ -84,6 +85,7 @@ static const fragment_items clnp_frag_items = {
 
 static expert_field ei_clnp_length;
 static expert_field ei_clnp_checksum;
+static expert_field ei_clnp_too_deep;
 
 static dissector_handle_t clnp_handle;
 static dissector_handle_t ositp_handle;
@@ -532,6 +534,16 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     discpdu_tree = proto_tree_add_subtree(clnp_tree, tvb, offset, next_length,
                             ett_clnp_disc_pdu, NULL, "Discarded PDU");
 
+                    /* The discarded PDU may be an error report again; each
+                       level adds two tree levels, stop well before the limit */
+                    unsigned depth = p_get_proto_depth(pinfo, proto_clnp);
+                    if (depth >= prefs.gui_max_tree_depth / 4) {
+                        proto_tree_add_expert_remaining(discpdu_tree, pinfo, &ei_clnp_too_deep, next_tvb, 0);
+                        pinfo->fragmented = save_fragmented;
+                        return tvb_captured_length(tvb);
+                    }
+                    p_set_proto_depth(pinfo, proto_clnp, depth + 1);
+
                     /* Save the current value of the "we're inside an error packet"
                        flag, and set that flag; subdissectors may treat packets
                        that are the payload of error packets differently from
@@ -540,6 +552,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     pinfo->flags.in_error_pkt = true;
 
                     call_dissector(clnp_handle, next_tvb, pinfo, discpdu_tree);
+                    p_set_proto_depth(pinfo, proto_clnp, depth);
 
                     /* Restore the "we're inside an error packet" flag. */
                     pinfo->flags.in_error_pkt = save_in_error_pkt;
@@ -672,6 +685,7 @@ proto_register_clnp(void)
     static ei_register_info ei[] = {
         { &ei_clnp_length, { "clnp.len.bad", PI_MALFORMED, PI_ERROR, "Header length value bad", EXPFILL }},
         { &ei_clnp_checksum, { "clnp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_clnp_too_deep, { "clnp.too_deep", PI_UNDECODED, PI_WARN, "Discarded PDU nested too deep, not dissected", EXPFILL }},
     };
 
     module_t *clnp_module;
