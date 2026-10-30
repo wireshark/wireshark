@@ -264,9 +264,10 @@ dissect_btmcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 col_append_str(pinfo->cinfo, COL_INFO, " (Reserved)");
             }
 
-            if ((op_code == 0x03 || op_code == 0x05 || op_code == 0x07) && tvb_reported_length_remaining(tvb, offset)) {
+            if ((op_code == 0x04 || op_code == 0x06 || op_code == 0x08) && tvb_reported_length_remaining(tvb, offset)) {
                     expert_add_info_format(pinfo, pitem, &ei_btmcap_response_parameters_bad,
-                            "The Response Parameters for MD_RECONNECT_MDL_RSP shall have length zero.");
+                            "The Response Parameters for %s shall have length zero.",
+                            val_to_str_const(op_code, op_code_vals, "Unknown Op Code"));
             } else if (tvb_reported_length_remaining(tvb, offset)) {
                 pitem = proto_tree_add_item(main_tree, hf_btmcap_response_parameters, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
                 if (response_code != 0x00) {
