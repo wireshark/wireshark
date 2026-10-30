@@ -79,6 +79,9 @@ static dissector_handle_t acn_handle;
 #define ACN_DMP_ADT_A_4         2
 #define ACN_DMP_ADT_A_R         3
 
+/* Most addresses shown for a range that has a single data item */
+#define ACN_DMP_MAX_RANGE_ITEMS 1024
+
 #define ACN_PROTOCOL_ID_SDT           0x00000001
 #define ACN_PROTOCOL_ID_DMP           0x00000002
 #define ACN_PROTOCOL_ID_DMX           0x00000003
@@ -502,6 +505,7 @@ static int ett_rdmnet_ept_data_vector_pdu;
 static int ett_rdmnet_ept_status_pdu;
 
 static expert_field ei_acn_dmx_discovery_outofseq;
+static expert_field ei_acn_dmp_range_truncated;
 
 /*  Register fields */
 /* In alphabetical order */
@@ -3661,11 +3665,11 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 
       if (adt->flags & ACN_DMP_ADT_FLAG_V) {
         proto_tree_add_uint_format_value(tree, hf_acn_dmp_virtual_address_first, tvb, start_offset, bytes_used,
-                            adt->address, "0x%X, inc: %d, count: %d",
+                            adt->address, "0x%X, inc: %u, count: %u",
                             adt->address, adt->increment, adt->count);
       } else {
         proto_tree_add_uint_format_value(tree, hf_acn_dmp_actual_address_first, tvb, start_offset, bytes_used,
-                            adt->address, "0x%X, inc: %d, count: %d",
+                            adt->address, "0x%X, inc: %u, count: %u",
                             adt->address, adt->increment, adt->count);
       }
       break;
@@ -3705,11 +3709,11 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 
       if (adt->flags & ACN_DMP_ADT_FLAG_V) {
         proto_tree_add_uint_format_value(tree, hf_acn_dmp_virtual_address_first, tvb, start_offset, bytes_used,
-                            adt->address, "0x%X, inc: %d, count: %d",
+                            adt->address, "0x%X, inc: %u, count: %u",
                             adt->address, adt->increment, adt->count);
       } else {
         proto_tree_add_uint_format_value(tree, hf_acn_dmp_actual_address_first, tvb, start_offset, bytes_used,
-                            adt->address, "0x%X, inc: %d, count: %d",
+                            adt->address, "0x%X, inc: %u, count: %u",
                             adt->address, adt->increment, adt->count);
       }
       break;
@@ -3749,11 +3753,11 @@ acn_add_dmp_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 
       if (adt->flags & ACN_DMP_ADT_FLAG_V) {
         proto_tree_add_uint_format_value(tree, hf_acn_dmp_virtual_address_first, tvb, start_offset, bytes_used,
-                            adt->address, "0x%X, inc: %d, count: %d",
+                            adt->address, "0x%X, inc: %u, count: %u",
                             adt->address, adt->increment, adt->count);
       } else {
         proto_tree_add_uint_format_value(tree, hf_acn_dmp_actual_address_first, tvb, start_offset, bytes_used,
-                            adt->address, "0x%X, inc: %d, count: %d",
+                            adt->address, "0x%X, inc: %u, count: %u",
                             adt->address, adt->increment, adt->count);
       }
       break;
@@ -3803,7 +3807,8 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       }
       break;
     case ACN_DMP_ADT_D_RE:
-      if (adt->count == 0) {
+      /* each of the count items must be at least one byte */
+      if (adt->count == 0 || adt->count > adt->data_length) {
         break;
       }
       if (adt->data_length <= adt->count + 4) {
@@ -3883,6 +3888,12 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
       data_address = adt->address;
 
       for (x=0; x<adt->count; x++) {
+        /* the same data item is shown for every address, so the count alone */
+        /* would decide how long this takes                                  */
+        if (x == ACN_DMP_MAX_RANGE_ITEMS) {
+          expert_add_info(pinfo, tree, &ei_acn_dmp_range_truncated);
+          break;
+        }
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
             buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%2.2X ->", data_address);
@@ -4041,6 +4052,11 @@ acn_add_dmp_reason_codes(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     case ACN_DMP_ADT_D_RS: /* Range address, Single data item */
       data_address = adt->address;
       for (x=0; x<adt->count; x++) {
+        /* the same reason code is shown for every address */
+        if (x == ACN_DMP_MAX_RANGE_ITEMS) {
+          expert_add_info(pinfo, tree, &ei_acn_dmp_range_truncated);
+          break;
+        }
         switch (A) {
           case ACN_DMP_ADT_A_1: /* One octet address, (range: one octet address, increment, and count). */
             buffer = wmem_strdup_printf(pinfo->pool, "Addr 0x%2.2X ->", data_address);
@@ -5076,7 +5092,9 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
         /* virtual */
         while (address_count > 0) {
-          data_offset = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt2);
+          old_offset      = data_offset;
+          data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt2);
+          if (old_offset == data_offset) break;
           address_count--;
         }
       }
@@ -8928,6 +8946,7 @@ proto_register_acn(void)
   static ei_register_info ei[] = {
     { &ei_magic_reply_invalid_type, { "magic.reply.invalid_type", PI_PROTOCOL, PI_WARN, "Invalid type", EXPFILL }},
     { &ei_acn_dmx_discovery_outofseq, { "acn.dmx.discovery.out_of_order_universes", PI_PROTOCOL, PI_WARN, "Universe list is unordered, E1.31 Sec. 8.5 requires sorted lists", EXPFILL }},
+    { &ei_acn_dmp_range_truncated, { "acn.dmp.range_truncated", PI_UNDECODED, PI_NOTE, "Range has more addresses than are shown", EXPFILL }},
   };
 
   module_t *acn_module;
