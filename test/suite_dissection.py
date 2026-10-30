@@ -23233,3 +23233,160 @@ class TestDissectCdma2k:
         ] + ['0x06\t0x01\t0x01'] * 6 + [
             '0x07\t0x01\t0x01', '0x08\t0x01\t0x01', '\t0x01\t0x01',
         ]
+
+
+class TestDissectCdp:
+    def test_cdp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is CDP with a good checksum, without malformed
+        packets or warnings, in one and two passes and with and without a
+        tree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-ecdp.checksum.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['CDP\t1'] * 16
+        for args in ((), ('-2',), ('-V',), ('-2', '-V')):
+            stdout = subprocess.check_output((cmd_tshark, *args,
+                    '-r', capture_file('cdp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cdp_tlv_issues_fixed(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of the fixes on the branch. Frame 14: an unknown TLV
+        of length 4 no longer ends the dissection when a tree is built, so
+        the Device ID after it is shown with and without a tree. Frame 15:
+        an IP prefix TLV of length 6 holds no prefix, instead of reading
+        the following TLVs as prefixes, and the Device ID after it is
+        decoded.'''
+        for args in ((), ('-V',)):
+            stdout = subprocess.check_output((cmd_tshark, *args,
+                    '-r', capture_file('cdp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 14 || frame.number == 15',
+                    '-Tfields', '-ecdp.tlv.type', '-ecdp.deviceid',
+                    '-ecdp.ip_prefix', '-edata.len', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '0x00ff,0x0001\tsw-one\t\t\tDevice ID: sw-one  ',
+                '0x0007,0x0001\tsw-two\t\t\tDevice ID: sw-two  ',
+            ]
+
+    def test_cdp_device_info(self, cmd_tshark, capture_file, test_env):
+        '''Device and port IDs (including the Port ID length heuristic of
+        frame 10), addresses, capabilities, cluster Hello and the VLAN
+        and power TLVs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdp_coverage.pcap.gz'),
+                '-Tfields', '-ecdp.deviceid', '-ecdp.portid',
+                '-ecdp.voice_vlan', '-ecdp.power_requested',
+                '-ecdp.power_available', '-ecdp.odr_default_gateway',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'switch-1.example.net\tGigabitEthernet1/0/1\t\t\t\t',
+            'SEP0200000000AA\tPort 1\t100,200\t12950,6300\t15400,6300\t',
+            'phone-2\t\t\t7000\t7000\t',
+            'odr-hub\t\t\t\t\t192.0.2.1',
+            'router-3\t\t\t\t\t',
+            'router-4\t\t\t\t\t',
+            'switch-5\t\t\t\t\t',
+            'hp-ap-1\t\t\t\t\t',
+            'switch-6\t\t\t\t\t',
+            'switch-7,after\tFa0/1XYZ\t\t\t\t',
+            '\tFa0/2,Fa0/3\t\t\t\t',
+            'odd-1\t\t\t\t\t',
+            'odd2\t\t\t\t\t',
+            'sw-one\t\t\t\t\t',
+            'sw-two\t\t\t\t\t',
+            'switch-8\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-ecdp.nrgyz.ip_address', '-ecdp.nrgyz.ipv6_address',
+                '-ecdp.capabilities', '-ecdp.cluster.master_ip',
+                '-ecdp.cluster.switch_mac', '-ecdp.native_vlan', '-ecdp.mtu',
+                '-ecdp.power_consumption', '-ecdp.system_name',
+                '-ecdp.software_version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '192.0.2.10,192.0.2.10\t2001:db8::1\t0x000007ff\t10.0.0.1\t'
+            '02:00:00:00:0b:bb\t1\t1500\t15400\tswitch-1\t'
+            'Cisco IOS Software, C3750E Software,Technical Support,'
+            'Copyright (c) 1986-2026',
+        ]
+
+    def test_cdp_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Address records that are not IPv4 or IPv6, and records cut short
+        inside the TLV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-ecdp.number_of_addresses', '-ecdp.address',
+            ), encoding='utf-8', env=test_env)
+        counts, address = stdout.rstrip('\n').split('\t')
+        assert counts == '7,0,3,2'
+        assert address.split(',')[:5] == [
+            '393a3b3c3d3e3f404142434445464748494a4b4c',
+            '00000000000000000000000000000000',
+            'c6336407', '01020304', '000000000001020304050607',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6',
+                '-O', 'cdp', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Truncated address') == 6
+        assert stdout.count('(truncated)') == 2
+
+    def test_cdp_prefixes(self, cmd_tshark, capture_file, test_env):
+        '''ODR default gateway and prefix list.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-O', 'cdp', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'ODR Default gateway: 192.0.2.1' in stdout
+        assert 'IP Prefixes: 2' in stdout
+        assert 'IP Prefix: 198.51.100.0/24' in stdout
+        assert 'IP Prefix: 203.0.113.0/25' in stdout
+
+    def test_cdp_energywise(self, cmd_tshark, capture_file, test_env):
+        '''EnergyWise TLV and its sub-TLVs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdp_coverage.pcap.gz'),
+                '-Y', 'cdp.nrgyz.tlv.type',
+                '-Tfields', '-eframe.number', '-ecdp.nrgyz.tlv.type',
+                '-ecdp.nrgyz_reply_to.role', '-ecdp.nrgyz_reply_to.domain',
+                '-ecdp.nrgyz_reply_to.name', '-ecdp.nrgyz_reply_to.port',
+                '-ecdp.nrgyz_reply_to.ip_address',
+                '-ecdp.nrgyz_reply_to.backup_server_ip',
+                '-ecdp.model_number', '-ecdp.system_serial_number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t0x00000007,0x00000008,0x00000009,0x00000017,0x00000030,0x00000031\t'
+            'role-a\tenergy-domain\tswitch-5\t43440\t192.0.2.50\t192.0.2.51\t'
+            'WS-C3750X-48P\tFDO1234X5YZ',
+        ]
+
+    def test_cdp_hp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''HP access point TLVs, and named and unknown TLVs without a
+        dedicated case.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8 || frame.number == 9',
+                '-O', 'cdp', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('BSSID: 02:00:00:00:00:aa', 'Serial: SG12345678',
+                      'SSID: [Empty]', 'SSID: example-ssid',
+                      'Radio 1 channel: 6', 'SNMP port: 161',
+                      'Web mgmt port: 80', 'Source MAC: 02:00:00:00:00:ab',
+                      'Radio 2 channel: 36', 'Radio 1 operating mode: AP',
+                      'Radio 2 operating mode: Monitor',
+                      'Radio 1 radio mode: 802.11g',
+                      'Radio 2 radio mode: 802.11a',
+                      'Type: External Port-ID, length: 12',
+                      'Type: Port Unidirectional, length: 5',
+                      'Type: Unknown (0x00ff), length: 8',
+                      'Type: Unknown (0x00fe), length: 4'):
+            assert label in stdout
