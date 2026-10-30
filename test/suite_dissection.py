@@ -24439,3 +24439,78 @@ class TestDissectChargen:
             '8\t\t\t19\t74', '9\t\t\t19\t740', '10\t\t\t19\t1406',
             '11\t\t\t19\t18',
         ]
+
+
+class TestDissectChargingAse:
+    def test_charging_ase_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Charging ASE messages in ISUP and BICC APM messages and by the
+        registered dissector decode without malformed packets or warnings,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('charging_ase_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 16
+        assert protocols.count('exported_pdu:isup') == 13
+        assert protocols.count('exported_pdu:bicc') == 1
+        assert protocols.count('exported_pdu:chargingase') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('charging_ase_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_charging_ase_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message type, tariff kind, currency and reference IDs of every
+        message; currency factors and scales, tariff durations and pulse
+        units of the tariffs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('charging_ase_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-echarging_ase.ChargingMessageType',
+                '-echarging_ase.chargingTariff', '-echarging_ase.currency',
+                '-echarging_ase.referenceID', '-echarging_ase.currencyFactor',
+                '-echarging_ase.currencyScale', '-echarging_ase.tariffDuration',
+                '-echarging_ase.pulseUnits', '-echarging_ase.addOncharge',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t0\t8\t1001,2002\t150,0,5,999999\t-2,0,-1,3\t60,36000,0\t\t',
+            '2\t0\t1\t4\t1001\t\t\t600,0,120\t01,02,03\t',
+            '3\t0\t0\t0\t1001,2002\t\t\t\t\t',
+            '4\t0\t1\t27\t1001,2002\t\t\t\t\t',
+            '5\t0\t0\t40\t1001,2002\t\t\t\t\t',
+            '6\t1\t\t4\t3003,4004\t250\t-3\t\t\t0',
+            '7\t1\t\t18\t3003\t\t\t\t\t1',
+            '8\t2\t\t\t1001,2002\t\t\t\t\t',
+            '9\t2\t\t\t1001,2002\t\t\t\t\t',
+            '10\t3\t\t\t5005\t\t\t\t\t',
+            '11\t3\t\t\t5005\t\t\t\t\t',
+            '12\t4\t\t\t5005\t\t\t\t\t',
+            '13\t4\t\t\t5005\t\t\t\t\t',
+            '14\t2\t\t\t1001,2002\t\t\t\t\t',
+            '15\t4\t\t\t6006\t\t\t\t\t',
+            '16\t\t\t\t\t\t\t\t\t',
+        ]
+
+    def test_charging_ase_indicators(self, cmd_tshark, capture_file, test_env):
+        '''Bit string indicators, network operators and the tariff
+        switch.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('charging_ase_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                '-echarging.ase.ChargingControlIndicators.subscriberCharge',
+                '-echarging.ase.T.acknowledgementIndicators.accepted',
+                '-echarging.ase.T.stopIndicators.callAttemptChargesApplicable',
+                '-echarging_ase.NetworkIdentification',
+                '-echarging_ase.tariffSwitchoverTime',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\tTrue\t\t\t\t2c'
+        assert lines[1] == '2\tFalse\t\t\t\t10'
+        assert lines[7] == '8\t\tTrue\t\t\t'
+        assert lines[8] == '9\t\tFalse\t\t\t'
+        assert lines[9] == '10\t\t\t\t0.4.0.1296.1,1.2.826.0.1.1234,0.4.0.1296.9\t'
+        assert lines[11] == '12\t\t\tTrue\t0.4.0.1296.1,1.2.826.0.1.1234\t'
+        assert lines[12] == '13\t\t\tFalse\t\t'
