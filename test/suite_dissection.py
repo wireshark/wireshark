@@ -23608,3 +23608,151 @@ class TestDissectCellBroadcast:
                       'GSM CBS Geographic Scope: Location Area-wide (GSM) or Service Area-wide (UMTS) (2)',
                       'GSM CBS Geographic Scope: Cell-wide (normal display) (3)'):
             assert label in stdout
+
+
+class TestDissectCemi:
+    KEY_0 = 'kip.key_1:00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F'
+
+    def test_cemi_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every message code decodes without malformed packets or
+        warnings, in one and two passes, without and with Data Security
+        keys.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-Tfields', '-ecemi.mc',
+            ), encoding='utf-8', env=test_env)
+        mcs = stdout.split()
+        assert len(mcs) == 157
+        assert mcs.count('0x29') == 129
+        assert sorted(set(mcs)) == [
+            '0x10', '0x11', '0x13', '0x25', '0x29', '0x2b', '0x2d', '0x2e', '0x2f',
+            '0x41', '0x4a', '0x89', '0x94', '0xf0', '0xf1', '0xf5', '0xf6', '0xf7',
+            '0xf8', '0xf9', '0xfa', '0xfb', '0xfc']
+        for prefs in ((), ('-o', self.KEY_0)):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *prefs,
+                        '-r', capture_file('cemi_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_cemi_services(self, cmd_tshark, capture_file, test_env):
+        '''All 16 simple and 71 extended application services, the
+        transport control packets and the link layer summary.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-Tfields', '-ecemi.ac', '-ecemi.ax', '-ecemi.tc',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len({l[0] for l in lines if l[0]}) == 16
+        assert len({l[1] for l in lines if l[1]}) == 71
+        assert [l[2] for l in lines if l[2]] == ['0x00', '0x01', '0x02', '0x03']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 6, 24, 54, 102, 147, 151}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'RoutingInd L_Data.ind 1.1.10->1.1.2 GroupValueRead',
+            'RoutingInd L_Data.ind 1.1.10->2/1/2 GroupValueRead',
+            'RoutingInd L_Data.ind 1.1.10->1.1.20 MemRead N=4 X=$0100',
+            'RoutingInd L_Data.ind 1.1.10->1.1.20 PropExtDescrResp OT=0 OI=1 P=1 D=0 PX=0 DPT=7.1 T=4 N=5 R=3 W=2',
+            'RoutingInd L_Data.ind 1.1.10->1.1.20 PropDescrResp OX=0 P=51 PX=5 T=62 N=10 R=3 W=3',
+            'ConfigReq #01:146 M_PropRead.con OT=8 OI=2 P=52 X=0 $0005',
+            'ConfigReq #01:150 M_PropInfo.ind OT=1 P=51 N=3 X=2 $010203',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 5, 109}',
+                '-O', 'cemi', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Additional Info: BiBat Info (2 bytes)',
+                      'Additional Info: ? (3 bytes)',
+                      'Ctrl1: Extended, Repeat On Error, System Broadcast, Ack Wanted, Unconfirmed, Prio = System',
+                      'cEMI L_Data.ind, X R B A C P=System, H=0 F=5 Frame = 5',
+                      'Property ID: 51 = PID_SECURITY_MODE'):
+            assert label in stdout
+
+    def test_cemi_datasec_no_keys(self, cmd_tshark, capture_file, test_env):
+        '''Data Security telegrams without keys: not decrypted; sync
+        requests and responses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-Y', 'cemi.scf',
+                '-Tfields', '-ecemi.scf', '-ecemi.ax',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 17
+        # no embedded telegram is dissected
+        assert all(l.endswith('\t0x03f1') for l in lines)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-Y', 'cemi.scf',
+                '-O', 'cemi', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Could not be decrypted (no keys found)') == 14
+        assert 'DataSec, SyncReq, SeqNrLocal=$000000000000' in stdout
+        assert 'DataSec, SyncRes+T+SBC, SeqNrRemote=$000000000064' in stdout
+
+    def test_cemi_datasec_auth_only(self, cmd_tshark, capture_file, test_env):
+        '''The fix for authentication only telegrams (frames 126-131, the
+        reproducers cemi_datasec_auth_valid and cemi_datasec_auth_overread
+        with an individual destination): a valid MAC is verified and the
+        payload decoded, an invalid one is refused; encrypted telegrams
+        decrypt too.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-o', self.KEY_0,
+                '-Y', 'frame.number >= 126 && frame.number <= 139',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        ds = 'RoutingInd L_Data.ind 1.2.1->1.2.2 DataSec '
+        inner = ' L_Data.ind 1.2.1->1.2.2 '
+        assert stdout.splitlines() == [
+            '126\t' + ds + 'Data+A' + inner + 'GroupValueWrite $01',
+            '127\t' + ds + 'Data+A+C' + inner + 'GroupValueWrite $00',
+            '128\t' + ds + 'Data+A' + inner + 'GroupValueWrite $0102030405060708090A0B0C0D0E',
+            '129\t' + ds + 'Data+A',
+            '130\t' + ds + 'Data+A',
+            '131\t' + ds + 'Data+A',
+            '132\t' + ds + 'Data+A+C+T' + inner + 'PropExtValueWriteCon OT=17 OI=1 P=51 '
+            '$000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F',
+            '133\t' + ds + 'Data+A+T' + inner + 'PropValueRead OX=0 P=1',
+            '134\t' + ds + 'Data+A+C+SBC' + inner + 'DevDescrResp $07B0',
+            '135\t' + ds + 'Data+A+C' + inner + 'GroupValueResp $0102',
+            '136\t' + ds + 'Data+A+C',
+            '137\t' + ds + '?',
+            '138\tRoutingInd L_Data.ind 1.2.3->1.1.1 DataSec Data+A+C',
+            '139\tRoutingInd L_Data.ind 1.1.2->1.2.9 DataSec Data+A+C',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-o', self.KEY_0,
+                '-Y', 'frame.number == 126 || frame.number == 129',
+                '-O', 'cemi', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Decrypted (with key 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F)' in stdout
+        assert 'Embedded APDU: $ 00 81' in stdout
+        assert 'MAC OK' in stdout
+        assert 'Could not be decrypted (failed)' in stdout
+
+    def test_cemi_datasec_keyring(self, cmd_tshark, dirs, capture_file, test_env):
+        '''Device tool keys from the keyring: by destination and by source
+        individual address.'''
+        key_file = os.path.join(dirs.key_dir, 'knx_keyring.xml')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-o', 'kip.key_file:' + key_file,
+                '-Y', 'frame.number == 138 || frame.number == 139',
+                '-O', 'cemi', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Decrypted (with dest IA key B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF)' in stdout
+        assert 'Decrypted (with source IA key B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF)' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cemi_coverage.pcap.gz'),
+                '-o', 'kip.key_file:' + key_file,
+                '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
