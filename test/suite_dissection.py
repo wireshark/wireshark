@@ -25312,3 +25312,145 @@ class TestDissectCipMotion:
                 '-Tfields', '-ecipm.attrdata',
             ), encoding='utf-8', env=test_env)
         assert len(stdout.strip().split(',')) == 37
+
+
+class TestDissectCipSafety:
+    def test_cipsafety_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CIP Safety I/O format, Supervisor service and attribute and
+        Validator attribute decodes without malformed packets or warnings,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 113
+        assert protocols.count('CIP Safety') == 26
+        assert protocols.count('CIP CM') == 24
+        assert protocols.count('CIPS Supervisor') == 32
+        assert protocols.count('CIPS Validator') == 12
+        assert protocols.count('CIP') == 19
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cipsafety_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Safety I/O without a network layer (Exported PDU, frames 1-7):
+        the destination is not an IPv4 address.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 7',
+                '-Tfields', '-eexported_pdu.prot_name', '-ecipsafety.message_encoding',
+                '-ecipsafety.data', '-ecipsafety.mode_byte', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'cipsafety_bd\t0,4\t11\t0x84\t [P->C]',
+            'cipsafety_ed\t1\t11\t0x84\t [P->C]',
+            'cipsafety_bt\t5\t\t\t [C->P]',
+            'cipsafety_et\t6\t\t\t [C->P]',
+            'cipsafety\t\t11843344556677\t\t',
+            'cipsafety_bd\t2,4\t01020304\t0xe8\t [P->C]',
+            'cipsafety_ed\t3\t01020304\t0x14\t [P->C]',
+        ]
+
+    def test_cipsafety_crc(self, cmd_tshark, capture_file, test_env):
+        '''Safety I/O on connections opened in the capture: the message
+        format follows the Forward Open, and every CRC (S1, S2, S3, S5)
+        verifies with the originator or target triad and, in the extended
+        format, the rollover count (including a time stamp rollover), in
+        one and two passes.'''
+        expected = [
+            '10\t0\t1\t\t\t\t\t1',
+            '11\t0\t6\t\t\t\t\t1',
+            '12\t0\t1\t\t\t\t\t1',
+            '13\t0\t3\t\t\t1\t\t1',
+            '14\t0\t3\t\t\t1\t\t1',
+            '19\t1\t5\t\t\t1\t\t',
+            '20\t1\t0,4\t1,1\t1\t\t\t',
+            '21\t1\t0,4\t1,1\t1\t\t\t',
+            '22\t1\t2,4\t1\t\t1\t1\t',
+            '27\t2\t5\t\t\t1\t\t',
+            '28\t2\t0,4,7\t1,1\t1\t\t\t',
+            '29\t2\t2,4,7\t1\t\t1\t1\t',
+            '34\t3\t6\t\t\t\t\t1',
+            '35\t3\t1,8\t\t\t\t\t1',
+            '36\t3\t3,8\t\t\t1\t\t1',
+            '41\t4\t1\t\t\t\t\t1',
+            '42\t4\t6\t\t\t\t\t1',
+            '47\t5\t2,4\t1\t\t1\t1\t',
+            '48\t5\t5\t\t\t1\t\t',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                    '-Y', 'cipsafety.message_encoding && enip',
+                    '-Tfields', '-eframe.number', '-ecip.connection', '-ecipsafety.message_encoding',
+                    '-ecipsafety.crc_s1.status', '-ecipsafety.crc_s2.status', '-ecipsafety.crc_s3.status',
+                    '-ecipsafety.complement_crc_s3.status', '-ecipsafety.crc_s5.status',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_cipsafety_supervisor(self, cmd_tshark, capture_file, test_env):
+        '''Safety Supervisor services: the Configure Request originator
+        UNID is taken from its own field, the Validate Configuration
+        error carries the extended status.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 55',
+                '-Tfields', '-ecipsafety.ssupervisor.configure_request.tunid.nodeid',
+                '-ecipsafety.ssupervisor.configure_request.ounid.nodeid',
+                '-ecipsafety.ssupervisor.configure_request.ounid.snn.time',
+                '-ecipsafety.ssupervisor.configure_request.ounid.snn.date',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0x00000010\t0x00000020\t0x00001770\t0x0064'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                '-Y', 'cipssupervisor',
+                '-Tfields', '-ecipsafety.ssupervisor.sc',
+            ), encoding='utf-8', env=test_env)
+        # Request and response of each service
+        assert stdout.split() == [code for code in (
+            '0x4c', '0x4e', '0x4f', '0x50', '0x50', '0x50', '0x51', '0x52', '0x53', '0x54', '0x54',
+            '0x55', '0x56', '0x57', '0x58', '0x59') for _ in range(2)]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 60',
+                '-Tfields', '-ecipsafety.ssupervisor.validate_configuration.ext_error',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '1'
+
+    def test_cipsafety_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Safety Supervisor and Validator attributes, and the Application
+        Data Path subtree at the path.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 84',
+                '-O', 'cip', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Attribute: 13 (Exception Detail Alarm)',
+                      'Common Exception Detail Data: 0102',
+                      'Attribute: 28 (Output Connection Point Owners)',
+                      'OCPUNID Node ID: 0x00000030',
+                      'Proposed TUNID Node ID: 0x00000040',
+                      'Last Maintenance Date: 2021-04-13',
+                      'Scheduled Maintenance Expiration Timer: -5'):
+            assert label in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 94',
+                '-Tfields', '-ecipsafety.svalidator.state', '-ecipsafety.svalidator.type',
+                '-ecipsafety.svalidator.time_coord_msg_min_mult.item',
+                '-ecipsafety.svalidator.coordination_conn_inst.item', '-ecipsafety.svalidator.max_data_age',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '3\t0x81\t4,5\t2\t500'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipsafety_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 108',
+                '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        assert ('<field name="" show="Application Data Path: Assembly, Instance: 0x01" '
+                'size="4" pos="98" value="20042401">') in stdout
