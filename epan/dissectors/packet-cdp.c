@@ -503,12 +503,14 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 }
                 offset += 4;
                 length -= 4;
-                while (length > 0) {
-                    proto_tree_add_ipv4_format_value(tlv_tree, hf_cdp_ip_prefix, tvb, offset, 5, tvb_get_ntohl(tvb, offset),
+                while (length >= 5) {
+                    proto_tree_add_ipv4_format_value(tlv_tree, hf_cdp_ip_prefix, tvb, offset, 5, tvb_get_ipv4(tvb, offset),
                                     "%s/%u", tvb_ip_to_str(pinfo->pool, tvb, offset), tvb_get_uint8(tvb,offset+4));
                     offset += 5;
                     length -= 5;
                 }
+                /* Step over what is left of the TLV */
+                offset += length;
             }
             break;
 
@@ -1031,8 +1033,6 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
                 if (length > 4) {
                     proto_tree_add_item(tlv_tree, hf_cdp_data, tvb, offset + 4, length - 4, ENC_NA);
-                } else {
-                    return tvb_captured_length(tvb);
                 }
             }
             offset += length;
