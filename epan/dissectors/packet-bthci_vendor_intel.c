@@ -376,9 +376,6 @@ dissect_bthci_vendor_intel_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ma
         proto_tree_add_item(main_tree, hf_intel_reset_ddc_reload, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(main_tree, hf_intel_reset_ddc_reload, tvb, offset, 1, ENC_NA);
-        offset += 1;
-
         proto_tree_add_item(main_tree, hf_intel_reset_boot_option, tvb, offset, 1, ENC_NA);
         offset += 1;
 
@@ -1015,14 +1012,7 @@ dissect_bthci_vendor_intel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_tree_add_item_ret_uint8(main_tree, hf_intel_parameter_length, tvb, offset, 1, ENC_NA, &length);
         offset += 1;
 
-        if (event_code == 0x0e /* Command Complete */) {
-            /* XXX - Is this correct? This was the previous behavior, but
-             * it's not what the Broadcom vendor variant (for which we
-             * have samples) does. */
-            parameter_tvb = tvb_new_subset_length(tvb, offset, length + 4);
-        } else {
-            parameter_tvb = tvb_new_subset_length(tvb, offset, length);
-        }
+        parameter_tvb = tvb_new_subset_length(tvb, offset, length);
         offset += dissect_bthci_vendor_intel_evt(parameter_tvb, pinfo, main_tree, data, event_code);
 
         break;
