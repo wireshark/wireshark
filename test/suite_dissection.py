@@ -18609,3 +18609,99 @@ class TestDissectBtleRf:
             '0x0e00\t',
             '0x0e80\t',
         ]
+
+
+class TestDissectBtlmp:
+    # Fields compared between one and two passes; the Bluetooth layer's
+    # [Source]/[Destination] on the BR/EDR frames appear only in the second
+    # pass, so the whole -V output differs.
+    TWO_PASS_FIELDS = ('-e_ws.col.def_src', '-e_ws.col.def_dst', '-eframe.protocols',
+                       '-ebtlmp.opcode.opcode', '-ebtlmp.opcode.escaped',
+                       '-ebtlmp.parameters', '-ebtbredr_rf.packet_header.type',
+                       '-e_ws.expert.message')
+
+    def test_btlmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every LMP opcode and escape decodes, through Exported PDU and in
+        BR/EDR baseband DM1 packets, without malformed packets or expert
+        infos in one and two passes, and both give the same fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btlmp_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 121
+        assert protocols.count('exported_pdu:btlmp') == 113
+        assert protocols.count('bluetooth:btbredr_rf:btbredr_fhs') == 2
+        assert protocols.count('bluetooth:btbredr_rf:btlmp') == 5
+        assert protocols.count('bluetooth:btbredr_rf') == 1
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btlmp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btlmp_coverage.pcapng.gz'), '-n',
+                    '-Tfields', *self.TWO_PASS_FIELDS,
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+
+    def test_btlmp_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Opcodes 0-67 and 123, escapes 1-3 and escape 4 opcodes 1-38 and
+        255; only the undefined ones and the feature pages with fewer
+        decoded octets than sent leave "Parameters".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btlmp_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu',
+                '-Tfields', '-eframe.number', '-ebtlmp.opcode.opcode', '-ebtlmp.opcode.escaped',
+                '-ebtlmp.parameters',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        basic = {int(f[1]) for f in frames if int(f[1]) < 124}
+        assert basic == set(range(0, 68)) - {26, 27, 28, 29} | {123}
+        assert {int(f[1]) for f in frames} >= {124, 125, 126, 127}
+        escape4 = {int(f[2]) for f in frames if f[1] == '127'}
+        assert escape4 == set(range(1, 39)) - {9, 10, 15, 19, 20} | {255}
+        with_parameters = [int(f[0]) for f in frames if f[3]]
+        assert with_parameters == [1, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+                                   77, 78, 79, 80, 81, 82, 109, 110, 111, 112, 113]
+
+    def test_btlmp_preferred_rate(self, cmd_tshark, capture_file, test_env):
+        '''LMP_preferred_rate (frame 30, the reproducer
+        batch150-179/btlmp_preferred_rate.py) decodes the data rate octet
+        and does not show it again as "Parameters".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btlmp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 30',
+                '-Tfields', '-ebtlmp.opcode.opcode', '-ebtlmp.datarate.nofec',
+                '-ebtlmp.datarate.brpacketsizepreference', '-ebtlmp.datarate.edrdataratepreference',
+                '-ebtlmp.datarate.edrpacketsizepreference', '-ebtlmp.parameters',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '36\t1\t2\t2\t0\t\n'
+
+    def test_btlmp_esco_link(self, cmd_tshark, capture_file, test_env):
+        '''LMP_eSCO_link_req fields, and on the BR/EDR connection (frame 118)
+        the link it sets up: the EV3 packet on LT_ADDR 2 (frame 120) is
+        taken as eSCO voice data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btlmp_coverage.pcapng.gz'),
+                '-Y', 'btlmp.esco.handle',
+                '-Tfields', '-eframe.number', '-ebtlmp.esco.handle', '-ebtlmp.esco.ltaddr',
+                '-ebtlmp.esco.packettypems', '-ebtlmp.esco.packetlengthms',
+                '-ebtlmp.esco.packetlengthsm', '-ebtlmp.sco.airmode', '-ebtlmp.negotiationstate',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '87\t0x05\t0x02\t0x26\t0x003c\t0x003c\t0x03\t0x00',
+            '88\t0x06\t0x03\t0x07\t0x001e\t0x0000\t0x02\t0x03',
+            '89\t0x05\t\t\t\t\t\t',
+            '118\t0x05\t0x02\t0x07\t0x001e\t0x001e\t0x03\t0x00',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btlmp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 120',
+                '-Tfields', '-ebtbredr_rf.packet_header.type', '-ebtbredr_rf.isochronous_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '0x00000007\t1\n'
