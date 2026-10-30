@@ -26887,3 +26887,131 @@ class TestDissectClnp:
             '1,62\t10\teth:llc:osi:clnp:clnp:data',
             '1,1,60\t12,11\teth:llc:osi:clnp:clnp:clnp:data',
         ]
+
+
+class TestDissectCmip:
+    def test_cmip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CMIP PDU decodes without malformed packets, in one and two
+        passes; the only warning is the missing action type OID of the
+        stale OID reproducer (frame 64).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmip_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['CMIP'] * 70
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cmip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '64\tBER Error: No OID supplied to call_ber_oid_callback']
+
+    def test_cmip_ros(self, cmd_tshark, capture_file, test_env):
+        '''ROSE APDUs: the operation and error codes of invokes, results,
+        errors and rejects.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmip_coverage.pcap.gz'),
+                '-Y', 'cmip',
+                '-Tfields', '-eframe.number', '-ecmip.local',
+                '-ecmip.invoke_element', '-ecmip.returnResult_element',
+                '-ecmip.returnError_element', '-ecmip.reject_element',
+            ), encoding='utf-8', env=test_env)
+        invokes, results, errors, rejects = [], [], [], 0
+        for line in stdout.splitlines():
+            frame, code, inv, res, err, rej = line.split('\t')
+            if inv and frame != '70':
+                invokes.append(code)
+            elif res and frame != '70':
+                results.append(code)
+            elif err:
+                errors.append(code)
+            elif rej:
+                rejects += 1
+        # frame 60 has a global operation code
+        assert sorted(set(invokes) - {''}, key=int) == [str(op) for op in range(11)] + ['42']
+        assert len(invokes) == 34
+        assert results == ['1', '3', '3', '3', '3', '5', '7', '7', '8', '8', '9',
+                           '', '', '', '']
+        assert errors == ['2', '21', '23', '']
+        assert rejects == 8
+
+    def test_cmip_x721_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Get results carrying every X.721 attribute type registered by
+        OID, decoded with its own syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmip_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 10 && frame.number <= 12',
+                '-Tfields', '-ecmip.attributeId_globalForm',
+            ), encoding='utf-8', env=test_env)
+        oids = set(','.join(stdout.split()).split(','))
+        assert len(oids) == 70
+        assert '2.9.2.21.7.13' in oids and '2.9.3.2.7.115' in oids
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmip_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 10 && frame.number <= 12',
+                '-O', 'cmip', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('AdditionalText: free text',
+                      'PerceivedSeverity: minor (3)',
+                      'ThresholdInfo',
+                      'real: 25',
+                      'LogFullAction: wrap (0)',
+                      'UsageState: busy (2)',
+                      'LifecycleState: installed (1)',
+                      'noObject',
+                      'continual'):
+            assert label in stdout
+
+    def test_cmip_association(self, cmd_tshark, capture_file, test_env):
+        '''CMIPUserInfo in A-ASSOCIATE (frame 1) and CMIPAbortInfo in
+        A-ABORT (frames 67-68).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmip_coverage.pcap.gz'),
+                '-Y', 'cmip.protocolVersion || cmip.abortSource',
+                '-Tfields', '-eframe.number', '-ecmip.protocolVersion',
+                '-ecmip.functionalUnits', '-ecmip.abortSource', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tc0\tf8\t\tCMIP-A-ASSOCIATE',
+            '67\t\t\t0\tCMIP-A-ABORT AbortSource:cmiseServiceUser',
+            '68\t\t\t1\tCMIP-A-ABORT AbortSource:cmiseServiceProvider',
+            '69\tc0\tf8\t\tCMIP-A-ASSOCIATE',
+        ]
+
+    def test_cmip_linked_replies(self, cmd_tshark, capture_file, test_env):
+        '''Thirteen linked replies to invoke 3 cover every choice of
+        LinkedReplyArgument.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmip_coverage.pcap.gz'),
+                '-Y', 'cmip.linkedIdPresent == 3',
+                '-Tfields', '-eframe.number', '-ecmip.getResult_element',
+                '-ecmip.getListError_element', '-ecmip.actionError_element',
+                '-ecmip.deleteError_element',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[0] for l in lines] == [str(f) for f in range(30, 43)]
+        assert lines[0].split('\t')[1] != ''
+        assert lines[1].split('\t')[2] != ''
+        assert sum(1 for l in lines if l.split('\t')[3]) == 5
+        assert lines[12].split('\t')[4] != ''
+
+    def test_cmip_stale_oid(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "CMIP: Do not use an object identifier from an
+        earlier packet": the action argument of an M-ACTION with a local
+        action type is not decoded with the OID of the M-ACTION before
+        it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 63 || frame.number == 64',
+                '-Tfields', '-ecmip.actionType_OID', '-ecmip.localForm',
+                '-ecmip.AdditionalText', '-eber.error.no_oid',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][0] == '2.9.3.2.7.7'
+        assert lines[0][2] == 'reset'
+        assert lines[1][0] == ''
+        assert lines[1][1] == '7'
+        assert lines[1][2] == ''
+        assert lines[1][3] != ''
