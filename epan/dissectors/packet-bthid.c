@@ -277,7 +277,7 @@ dissect_bthid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_reserved_32, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(bthid_tree, hf_bthid_parameter_report_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(parameter, report_type_vals, "reserved"));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - %s", val_to_str_const(parameter & 0x03, report_type_vals, "reserved"));
 
             /* playload */
             offset = dissect_hid_data(tvb, pinfo,  bthid_tree, offset, parameter & 0x03);
