@@ -25589,3 +25589,80 @@ class TestDissectCiscoErspan:
             '1\t1\t\t\t\t\t\t\t\t\t',
             '\t\t\t\t\t0\t7\t8\t\t\t',
         ]
+
+
+class TestDissectCiscoFpMim:
+    def test_cfp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The FabricPath heuristic takes the 11 FabricPath frames and leaves
+        the plain and 802.1Q frames; no malformed packets or warnings in one
+        and two passes, also with FCS validation.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_fp_mim_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == (
+            ['eth:cfp:eth:ethertype:ip:udp:discard'] * 11
+            + ['eth:ethertype:vlan:ethertype:ip:udp:discard', 'eth:ethertype:ip:udp:discard'])
+        for passes in ((), ('-2',), ('-o', 'cfp.check_fcs:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_fp_mim_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cfp_header(self, cmd_tshark, capture_file, test_env):
+        '''Hierarchical and multicast destinations, the HMAC fields, the
+        802.1ad and 802.1Q tags, FTAG and TTL. Frame 5 is the reproducer of
+        the End Node ID, which was always shown as 0.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_fp_mim_coverage.pcapng.gz'),
+                '-Y', 'cfp',
+                '-Tfields', '-eframe.number', '-ecfp.d_hmac_mc', '-ecfp.eid',
+                '-ecfp.ul', '-ecfp.ig', '-ecfp.ooodl', '-ecfp.swid', '-ecfp.sswid',
+                '-ecfp.lid', '-ecfp.1ad.etype', '-ecfp.1ad.priority',
+                '-ecfp.1ad.dei', '-ecfp.1ad.id', '-ecfp.ftag', '-ecfp.ttl',
+                '-eudp.srcport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t\t0,0\tFalse,False\tFalse,False\tFalse,False\t5,7\t0,0\t1,2\t\t\t\t\t1\t32\t40001',
+            '2\t01:0f:ff:c1:01:c0\t0\tFalse\tFalse\tFalse\t291\t69\t26505\t\t\t\t\t2\t63\t40002',
+            '3\t01:0f:ff:c1:02:c0\t0\tFalse\tFalse\tFalse\t4095\t255\t65535\t\t\t\t\t1023\t0\t40003',
+            '4\tff:ff:ff:ff:ff:ff\t0\tFalse\tFalse\tFalse\t1\t0\t3\t\t\t\t\t0\t1\t40004',
+            '5\t\t129,255\tFalse,False\tFalse,False\tFalse,False\t5,7\t0,0\t1,2\t\t\t\t\t5\t32\t40005',
+            '6\t\t42,21\tTrue,True\tFalse,True\tTrue,True\t2748,222\t18,154\t13398,48350\t\t\t\t\t100\t10\t40006',
+            '7\t\t0,0\tFalse,False\tFalse,False\tFalse,False\t10,11\t0,0\t10,11\t0x88a8\t5\t1\t100\t3\t20\t40007',
+            '8\t01:0f:ff:c1:01:c0\t0\tFalse\tFalse\tFalse\t12\t0\t12\t0x8100\t7\t0\t4095\t4\t21\t40008',
+            '9\t\t0,0\tFalse,False\tFalse,False\tFalse,False\t20,21\t0,0\t20,21\t\t\t\t\t6\t30\t40009',
+            '10\t\t0,0\tFalse,False\tFalse,False\tFalse,False\t22,23\t0,0\t22,23\t0x88a8\t0\t0\t1\t7\t31\t40010',
+            '11\tff:ff:ff:ff:ff:ff\t255\tFalse\tFalse\tFalse\t24\t0\t24\t\t\t\t\t8\t33\t40011',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_fp_mim_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 5 || frame.number == 2',
+                '-O', 'cfp', '-V',
+            ), encoding='utf-8', env=test_env)
+        # The multicast destination may be shown with its well-known name
+        mc = [l for l in stdout.splitlines() if l.startswith('Cisco FabricPath, Src: 123.45.6789, Dst: ')]
+        assert len(mc) == 1
+        assert mc[0].rstrip(')').endswith('01:0f:ff:c1:01:c0')
+        assert 'Cisco FabricPath, Src: 007.00.0002, Dst: 005.00.0001' in stdout
+        assert 'End Node ID: 129 (0x81)' in stdout
+        assert 'End Node ID: 255 (0xff)' in stdout
+
+    def test_cfp_fcs(self, cmd_tshark, capture_file, test_env):
+        '''With an FCS length of 4 from the capture, the FCS covering the
+        FabricPath frame is shown, and validated with cfp.check_fcs; the
+        inner Ethernet frame has no trailer.'''
+        for prefs, status in (((), '2'), (('-o', 'cfp.check_fcs:TRUE'), '1')):
+            stdout = subprocess.check_output((cmd_tshark, *prefs,
+                    '-r', capture_file('cisco_fp_mim_coverage.pcapng.gz'),
+                    '-Y', 'cfp.fcs',
+                    '-Tfields', '-eframe.number', '-ecfp.fcs', '-ecfp.fcs.status',
+                    '-eeth.trailer', '-eudp.srcport',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                f'9\t0x23c1e561\t{status}\t\t40009',
+                f'10\t0xa82cad10\t{status}\t\t40010',
+                f'11\t0x497824ed\t{status}\t\t40011',
+            ]
