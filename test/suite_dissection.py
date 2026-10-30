@@ -22945,3 +22945,107 @@ class TestDissectCbrsOids:
                       'policyIdentifier: 1.3.6.1.4.1.46609.1.1.6 (CBRS PAL)',
                       'policyIdentifier: 1.3.6.1.4.1.46609.1.1.7 (CBRS ESC)'):
             assert label in stdout
+
+
+class TestDissectCcsdsSp:
+    DECODE_AS = ('-d', 'udp.port==5000,ccsds')
+
+    def test_ccsds_sp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CCSDS Space Packets (Decode As) decode without malformed packets
+        or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccsds_sp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 20
+        assert protocols.count('CCSDS SP') == 17
+        assert protocols.count('CFDP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ccsds_sp_coverage.pcap.gz'), *self.DECODE_AS,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ccsds_sp_headers(self, cmd_tshark, capture_file, test_env):
+        '''Primary header of every packet, and the core and payload
+        secondary header fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccsds_sp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Tfields', '-eccsds.apid', '-eccsds.type', '-eccsds.secheader',
+                '-eccsds.seqflag', '-eccsds.seqnum', '-eccsds.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '100\t0\tFalse\t3\t1\t39', '100\t0\tFalse\t1\t2\t12',
+            '100\t0\tFalse\t0\t3\t19', '100\t0\tFalse\t2\t16383\t11',
+            '200\t0\tTrue\t3\t1\t13', '201\t0\tTrue\t3\t1\t21',
+            '202\t0\tTrue\t3\t1\t22', '203\t0\tTrue\t3\t1\t24',
+            '300\t0\tTrue\t3\t1\t23', '301\t0\tTrue\t3\t1\t23',
+            '400\t1\tTrue\t3\t1\t29', '401\t1\tTrue\t3\t1\t31',
+            '402\t1\tTrue\t3\t1\t18', '500\t0\tTrue\t3\t1\t9',
+            '501\t0\tFalse\t3\t1\t3', '502\t0\tTrue\t3\t1\t19',
+            '2045\t0\tFalse\t3\t1\t19', '2045\t0\tTrue\t3\t1\t18',
+            '2045\t0\tTrue\t3\t1\t31', '2046\t1\tFalse\t3\t1\t9',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccsds_sp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'frame.number >= 5 && frame.number <= 8',
+                '-Tfields', '-eccsds.coarse_time', '-eccsds.timeid', '-eccsds.packet_type',
+                '-eccsds.element_id', '-eccsds.cmd_data_packet', '-eccsds.format_version_id',
+                '-eccsds.extended_format_id', '-eccsds.frame_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t0\t0\t0\t0\t0\t0\t0',
+            '1500000000\t3\t4\t1\t1\t2\t63\t255',
+            '123456\t1\t11\t11\t0\t9\t16\t1',
+            '654321\t2\t15\t15\t1\t15\t0\t2',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccsds_sp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'ccsds.type == 1 && ccsds.secheader == 1',
+                '-Tfields', '-eccsds.zoe', '-eccsds.vid', '-eccsds.dcc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t4660\t43981', '0\t4660\t43981', '1\t4660\t43981']
+
+    def test_ccsds_sp_checkword(self, cmd_tshark, capture_file, test_env):
+        '''Correct and incorrect checkwords, and the preference that
+        overrides the checkword flag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccsds_sp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'ccsds.checkword',
+                '-Tfields', '-eframe.number', '-eccsds.checkword',
+                '-eccsds.checkword_good', '-eccsds.checkword_bad',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t0x0990\tTrue\tFalse', '10\t0x1234\tFalse\tTrue',
+            '12\t0xa355\tTrue\tFalse', '13\t0x0000\tFalse\tTrue',
+            '19\t0xd76e\tTrue\tFalse',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccsds_sp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-o', 'ccsds.global_pref_checkword:no',
+                '-Y', 'ccsds.checkword',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_ccsds_sp_payload(self, cmd_tshark, capture_file, test_env):
+        '''User data, CFDP on APID 2045, octets after the packet, and a
+        packet shorter than both headers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ccsds_sp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'frame.number >= 14',
+                '-Tfields', '-eframe.number', '-eccsds.user_data', '-ecfdp.fdtype',
+                '-ecfdp.file_size', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '14\t<MISSING>\t\t\t',     # zero length user data
+            '15\t61626364000000000000\t\t\t',
+            '16\t30313233343536373839\t\t\t4',
+            '17\t\t4\t512\t',
+            '18\t\t9\t\t',
+            '19\t\t4\t512\t2',
+            '20\t0102030405060708090a\t\t\t',
+        ]
