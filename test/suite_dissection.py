@@ -26569,3 +26569,74 @@ class TestDissectClassicstun:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['25']
+
+
+class TestDissectClearcase:
+    def test_clearcase_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ClearCase NULL calls and replies over UDP and TCP and the
+        portmapper lookups decode without malformed packets or warnings,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clearcase_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 27
+        assert protocols.count('CLEARCASE') == 10
+        assert protocols.count('Portmap') == 4
+        assert protocols.count('TCP') == 13
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('clearcase_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_clearcase_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every call and reply of program 390512 version 3 is the NULL
+        procedure, matched to its call by XID, the same in one and two
+        passes; frames 20 and 21 hold two calls and two replies.'''
+        expected = [
+            '3\t0x00002001\t0\t0\t',
+            '4\t0x00002001\t1\t0\t3',
+            '5\t0x00002002\t0\t0\t',
+            '6\t0x00002002\t1\t0\t5',
+            '18\t0x00003001\t0\t0\t',
+            '19\t0x00003001\t1\t0\t18',
+            '20\t0x00003002,0x00003003\t0,0\t0,0\t',
+            '21\t0x00003002,0x00003003\t1,1\t0,0\t20,20',
+            '23\t0x00003004\t0\t0\t',
+            '24\t0x00003004\t1\t0\t23',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('clearcase_coverage.pcap.gz'),
+                    '-Y', 'clearcase',
+                    '-Tfields', '-eframe.number', '-erpc.xid', '-erpc.msgtyp',
+                    '-eclearcase.procedure_v3', '-erpc.repframe',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_clearcase_portmap(self, cmd_tshark, capture_file, test_env):
+        '''The portmapper GETPORT calls name the ClearCase program, over
+        UDP (frames 1-2) and TCP (frames 10-11).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clearcase_coverage.pcap.gz'),
+                '-Y', 'portmap',
+                '-Tfields', '-eframe.number', '-eportmap.prog', '-eportmap.proto',
+                '-eportmap.port',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t390512\t17\t0', '2\t\t\t371',
+            '10\t390512\t6\t0', '11\t\t\t371',
+        ]
+
+    def test_clearcase_stats(self, cmd_tshark, capture_file, test_env):
+        '''The RPC statistics count six ClearCase NULL calls.'''
+        stdout = subprocess.check_output((cmd_tshark, '-q',
+                '-r', capture_file('clearcase_coverage.pcap.gz'),
+                '-z', 'rpc,programs',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split() for l in stdout.splitlines() if l.startswith('CLEARCASE')]
+        assert [l[:3] for l in lines] == [['CLEARCASE(390512)', '3', '6']]
