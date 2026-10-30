@@ -19157,3 +19157,116 @@ class TestDissectBtmeshProvisioning:
             '3\t\t\t0\t1', '3\t\t\t1\t3', '3\t\t\t2\t5', '3\t\t\t3\t8',
             '2\t3\t4\t\t',
         ]
+
+
+class TestDissectBtmeshProxy:
+    # Mesh Profile sample data: NetKey, AppKey, IV Index
+    btmesh_keys = ('uat:btmesh_nw_keys:'
+                   '"0x7dd7364cd842ad18c17c2b820c84c3d6",'
+                   '"0x63964771734fbd76e3b40519d1d94a48","0x12345678"')
+
+    def test_btmesh_proxy_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Mesh Proxy PDUs of every type on the Mesh Provisioning and Mesh
+        Proxy GATT characteristics, complete and segmented, decode without
+        malformed packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', self.btmesh_keys,
+                '-r', capture_file('btmesh_proxy_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 106
+        assert protocols.count('BT Mesh Proxy') == 28
+        assert protocols.count('BT Mesh Provisioning PDU') == 8
+        assert protocols.count('BT Mesh Beacon') == 5
+        assert protocols.count('BT Mesh') == 4
+        assert protocols.count('ATT') == 57
+        assert protocols.count('HCI_EVT') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-o', self.btmesh_keys,
+                    '-r', capture_file('btmesh_proxy_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btmesh_proxy_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming btmesh.proxy has no proxy context: the
+        dissector declines it instead of failing an assertion, and the
+        payload is shown as data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_proxy_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu',
+                '-Tfields', '-eframe.number', '-eexported_pdu.prot_name',
+                '-eframe.protocols', '-edata.data', '-e_ws.expert',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['106\tbtmesh.proxy\texported_pdu:data\t030005\t']
+
+    def test_btmesh_proxy_configuration(self, cmd_tshark, capture_file, test_env):
+        '''Proxy Configuration messages are decrypted with the network key
+        (proxy nonce): Set Filter Type, Add and Remove Addresses and Filter
+        Status, also one reassembled from three segments (frame 48).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-o', self.btmesh_keys,
+                    '-r', capture_file('btmesh_proxy_coverage.pcapng.gz'),
+                    '-Y', 'btmproxy.control.opcode',
+                    '-Tfields', '-eframe.number', '-ebtmproxy.seq', '-ebtmproxy.src',
+                    '-ebtmproxy.control.opcode', '-ebtmproxy.control.filter_type',
+                    '-ebtmproxy.control.list_item', '-ebtmproxy.control.list_size',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '24\t1\t1\t0\t0\t\t',
+                '25\t1\t4609\t3\t0\t\t0',
+                '26\t2\t1\t1\t\t3,49153\t',
+                '27\t2\t4609\t3\t0\t\t2',
+                '28\t3\t1\t2\t\t49153\t',
+                '29\t4\t1\t0\t1\t\t',
+                '30\t3\t4609\t3\t1\t\t0',
+                '48\t5\t1\t1\t\t4,5,49154,65533\t',
+                '78\t4\t4609\t3\t0\t\t4',
+            ]
+        # Without the key (and with a key the UAT does not have, or a bad
+        # NetMIC: frames 35 and 36) the message is shown as data only
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_proxy_coverage.pcapng.gz'),
+                '-Y', 'btmproxy.control.opcode',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', self.btmesh_keys,
+                '-r', capture_file('btmesh_proxy_coverage.pcapng.gz'),
+                '-Y', 'btmproxy.type == 2 && btmproxy.sar == 0 && !btmproxy.control.opcode',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['35', '36']
+
+    def test_btmesh_proxy_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Segmented Proxy PDUs of the client (Write Command), server
+        (Notification) and unknown (Write Request) side are reassembled
+        and passed to the Provisioning, Beacon, Mesh and Proxy
+        Configuration dissectors.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-o', self.btmesh_keys,
+                    '-r', capture_file('btmesh_proxy_coverage.pcapng.gz'),
+                    '-Y', 'btmproxy.reassembled.length',
+                    '-Tfields', '-eframe.number', '-ebtmproxy.fragment',
+                    '-ebtmproxy.reassembled.length', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '38\t37,38\t65\tProvisioning Public Key PDU (Last Segment)',
+                '41\t39,40,41\t65\tProvisioning Public Key PDU (Last Segment)',
+                '43\t42,43\t34\tProvisioning Data PDU (Last Segment)',
+                '45\t44,45\t22\tGeneric OnOff Set',
+                '48\t46,47,48\t26\tProxy Configuration (Last Segment) (Message Reassembled)',
+                '50\t49,50\t12\tUnknown Proxy PDU (Last Segment) (Message Reassembled)',
+                '72\t70,71,72\t65\tProvisioning Public Key PDU (Last Segment)',
+                '74\t73,74\t22\tSecure Network Beacon (Last Segment)',
+                '76\t75,76\t23\tUnprovisioned Device Beacon (Last Segment)',
+                '78\t77,78\t21\tProxy Configuration (Last Segment) (Message Reassembled)',
+                '80\t79,80\t23\tGeneric OnOff Status',
+                '104\t102,104\t34\tProvisioning Data PDU (Last Segment)',
+            ]
