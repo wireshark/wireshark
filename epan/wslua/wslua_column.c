@@ -102,12 +102,12 @@ static const char*  col_id_to_name(int id) {
 
 
 WSLUA_METAMETHOD Column__tostring(lua_State *L) {
-    /* Bypass checkColumn (which raises on expired/null) so the debugger
-     * Variables view can still render an expired Column. Its column_info
-     * may no longer exist. */
     Column c = toColumn(L,1);
     const char* text;
 
+    /* Bypass checkColumn (which raises on expired/null) so the debugger
+     * Variables view can still render an expired Column. Its column_info
+     * may no longer exist. */
     if (!c || WSLUA_EXPIRED(c)) {
         lua_pushstring(L, "(expired)");
     }
