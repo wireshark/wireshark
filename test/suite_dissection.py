@@ -18500,3 +18500,112 @@ class TestDissectBtle:
             'Peripheral_0x3c3c5a01\tc0:0b:db:00:00:40\tc0:0b:db:00:00:41',
             '\t\t',
         ]
+
+
+class TestDissectBtleRf:
+    def test_btle_rf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every PDU type, PHY and flag of the LE LL pseudo header decodes
+        without malformed packets in one and two passes; the warnings are
+        the access address bit errors and the CRC found invalid at
+        capture.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_rf_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 36
+        assert protocols.count('LE LL') == 35
+        assert protocols.count('ATT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btle_rf_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '11\tAccessAddress has errors present at capture',
+                '16\tIncorrect CRC',
+            ]
+
+    def test_btle_rf_channels(self, cmd_tshark, capture_file, test_env):
+        '''RF channels map to advertising and data channel indexes; 40 is
+        illegal.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_rf_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 8',
+                '-V', '-O', 'btle_rf',
+            ), encoding='utf-8', env=test_env)
+        channels = [line.strip() for line in stdout.splitlines() if 'RF Channel:' in line]
+        assert channels == [
+            'RF Channel: 0, 2402 MHz, Advertising channel 37',
+            'RF Channel: 12, 2426 MHz, Advertising channel 38',
+            'RF Channel: 39, 2480 MHz, Advertising channel 39',
+            'RF Channel: 1, 2404 MHz, Data channel 0',
+            'RF Channel: 11, 2424 MHz, Data channel 10',
+            'RF Channel: 13, 2428 MHz, Data channel 11',
+            'RF Channel: 38, 2478 MHz, Data channel 36',
+            'RF Channel: 40, 2482 MHz, Illegal channel 255',
+        ]
+
+    def test_btle_rf_flags(self, cmd_tshark, capture_file, test_env):
+        '''Signal and noise power, access address offenses and reference,
+        PDU types and PHYs reach BT LE LL as context: the access address
+        category, the auxiliary PDU type, the direction and the coding
+        indicator.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_rf_coverage.pcap.gz'),
+                '-Y', 'frame.number in {9..13}',
+                '-Tfields', '-ebtle_rf.signal_dbm', '-ebtle_rf.noise_dbm',
+                '-ebtle_rf.access_address_offenses', '-ebtle_rf.reference_access_address',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '-45\t-95\t\t\t',
+            '\t\t0\t0x8e89bed6\tAccessAddress matched at capture',
+            '\t\t1\t0x8e89bed6\tAccessAddress has errors present at capture',
+            '\t\t0\t\t',
+            '\t\t\t0x8e89bed6\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_rf_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 18',
+                '-Tfields', '-ebtle_rf.pdu_type', '-ebtle_rf.phy', '-ebtle.coding_indicator',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t\tAUX_ADV_IND',
+            '1\t2\t0\tAUX_ADV_IND',
+            '1\t2\t1\tAUX_ADV_IND',
+            '1\t3\t\tAUX_ADV_IND',
+            '1\t0\t\tAUX_ADV_IND',
+            '1\t0\t\tAUX_CHAIN_IND',
+            '1\t0\t\tAUX_SYNC_IND',
+            '1\t0\t\tAUX_SCAN_RSP',
+            '2\t0\t\tEmpty PDU',
+            '3\t0\t\tControl Opcode: LL_PING_REQ',
+            '2\t0\t\tControl Opcode: LL_PING_RSP',
+            '3\t0\t\tRcvd Handle Value Notification, Handle: 0x0003 (Unknown)',
+            '0\t0\t\tEmpty PDU',
+            '7\t0\t\tEmpty PDU',
+            '4\t0\t\t',
+            '5\t0\t\t',
+            '0\t0\t\tADV_EXT_IND',
+            '6\t0\t\t',
+            '0\t0\t\tBIG Control Opcode: BIG_TERMINATE_IND',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_rf_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14, 26..33}',
+                '-Tfields', '-ebtle_rf.flags', '-e_ws.col.def_src',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0c41\tc0:0b:db:00:00:12',
+            '0x0d00\tCentral_0x50654321',
+            '0x3d88\tPeripheral_0x50654321',
+            '0x3d08\tCentral_0x50654321',
+            '0x1d88\tPeripheral_0x50654321',
+            '0x0c00\tUnknown_0x50654321',
+            '0x0f80\tUnknown_0x50654321',
+            '0x0e00\t',
+            '0x0e80\t',
+        ]
