@@ -21907,3 +21907,92 @@ class TestDissectCamel:
         assert counts['Request initialDPGPRS'] == 2
         assert counts['Request continueGPRS'] == 5
         assert counts['Request initialDPSMS'] == 3
+
+
+# The CAN-ETH UDP heuristic is disabled by default
+CANETH_HEUR = ('--enable-heuristic', 'caneth_udp')
+
+
+class TestDissectCaneth:
+    def test_caneth_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CAN-ETH on UDP port 11898 and, with the heuristic, on other
+        ports decodes without malformed packets or warnings, in one and
+        two passes.'''
+        for opts, caneth, data in (((), 7, 8), (CANETH_HEUR, 10, 5)):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('caneth_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 15
+            assert protocols.count('CAN-ETH') == caneth
+            assert protocols.count('UDP') == data
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                        '-r', capture_file('caneth_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_caneth_heur_len(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer: the heuristic takes the PDU length from the frame
+        count (10 + 15 * count), so both PDUs of frame 12 are dissected
+        (the first used to swallow the datagram). Frame 13 holds three
+        PDUs; frame 14 a PDU and octets that are not a PDU.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *CANETH_HEUR, *passes,
+                    '-r', capture_file('caneth_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 12',
+                    '-Tfields', '-ecaneth.frames', '-ecan.id', '-ecan.len',
+                    '-edata.data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1,1\t0x00000101,0x00000102\t2,2\t1122,1122',
+                '0,2,1\t0x00000010,0x00000011,0x00000012\t1,2,0\t10,1111',
+                '1\t0x00000020\t2\t2021',
+                '\t\t\t' + b'not CAN-ETH payload'.hex(),
+            ]
+        # Without the heuristic the datagrams on other ports are data
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('caneth_coverage.pcap.gz'),
+                '-Y', 'caneth && udp.port != 11898',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_caneth_frames(self, cmd_tshark, capture_file, test_env):
+        '''CAN frames: standard, extended and RTR identifiers (masked to
+        11 or 29 bits), every DLC up to the limit of 16 frames, padding,
+        options and rejected datagrams on port 11898.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('caneth_coverage.pcap.gz'),
+                '-Tfields', '-ecaneth.frames', '-ecan.id', '-ecan.len',
+                '-ecan.flags.xtd', '-ecan.flags.rtr', '-ecaneth.options',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t0x00000123\t8\tFalse\tFalse\t'
+        assert lines[1] == ('3\t0x00000321,0x01abcdef,0x000007ff\t2,4,0'
+                            '\tFalse,True,False\tFalse,False,True\t')
+        frames, ids, lens, xtd, rtr, options = lines[2].split('\t')
+        assert frames == '16'
+        assert ids.split(',') == ['0x%08x' % (0x100 + i if i % 3 else 0x18000000 + i)
+                                  for i in range(16)]
+        assert lens.split(',') == [str(min(i, 8)) for i in range(16)]
+        assert xtd.split(',') == ['False' if i % 3 else 'True' for i in range(16)]
+        assert rtr.split(',') == ['False'] * 15 + ['True']
+        assert lines[3:7] == [
+            '0\t\t\t\t\t',
+            '1\t0x00000055\t1\tFalse\tFalse\t01020304',
+            '1\t0x1fffffff\t3\tTrue\tTrue\t',
+            '1\t0x000002aa\t1\tFalse\tFalse\t',
+        ]
+        # 9 octets, wrong magic, version 2, 17 frames: not CAN-ETH
+        assert lines[7:11] == ['\t\t\t\t\t'] * 4
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('caneth_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-ecaneth.magic', '-ecaneth.version',
+                '-ecaneth.can.padding', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == 'ISO11898\t1\t000000000000000000\t55\n'
