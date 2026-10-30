@@ -326,6 +326,13 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
    total_pages &= 0x0F;
    proto_tree_add_item(cbs_page_tree, hf_gsm_cbs_current_page, tvb, offset, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(cbs_page_tree, hf_gsm_cbs_total_pages, tvb, offset++, 1, ENC_BIG_ENDIAN);
+   /* 3GPP TS 23.041: treat a page parameter of 0000 0000, and one that is
+    * not valid, as page 1 of 1 rather than reassembling it */
+   if (current_page == 0 || current_page > total_pages)
+   {
+      current_page = 1;
+      total_pages = 1;
+   }
    cbs_page_tvb = dissect_cbs_data(sms_encoding, tvb, cbs_page_tree, pinfo, offset );
 
    if (cbs_page_tvb != NULL)
