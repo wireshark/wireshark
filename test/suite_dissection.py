@@ -19583,3 +19583,136 @@ class TestDissectBtsap:
                 '-Tfields', '-eframe.number', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['%d\tSAP' % n for n in range(18, 26)]
+
+
+class TestDissectBtsdp:
+    def test_btsdp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every SDP PDU over HCI H4/L2CAP, profile records for every
+        attribute decoder and continued responses, without malformed
+        packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsdp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 63
+        assert protocols.count('SDP') == 55
+        assert protocols.count('L2CAP') == 6
+        assert protocols.count('HCI_EVT') == 1
+        assert protocols.count('OBEX') == 1
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsdp_coverage.pcap.gz'),
+                '-Y', 'btsdp', '-Tfields', '-ebtsdp.pdu',
+            ), encoding='utf-8', env=test_env)
+        pdus = stdout.split()
+        assert [pdus.count('0x%02x' % i) for i in range(1, 9)] == [1, 4, 4, 8, 7, 15, 15, 1]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btsdp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btsdp_continuation(self, cmd_tshark, capture_file, test_env):
+        '''Continued Service Attribute and Service Search Attribute
+        responses in three parts with multi-octet continuation states, and
+        two interleaved transactions whose 8-octet continuation states
+        differ only in the last octet: each is reassembled from its own
+        fragments (with the states compared as text, frame 51 got the
+        first fragment of the other transaction), in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btsdp_coverage.pcap.gz'),
+                    '-Y', 'btsdp.fragment',
+                    '-Tfields', '-eframe.number', '-ebtsdp.continuation_state.length',
+                    '-ebtsdp.service_record_handle',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '21\t16\t',
+                '23\t16\t',
+                '25\t\t0x00010011',
+                '41\t6\t',
+                '43\t14\t',
+                '45\t\t0x00010070,0x00010030,0x00010031,0x00010032',
+                '47\t8\t',
+                '49\t8\t',
+                '51\t\t0x00010020,0x00010021,0x00010022',
+                '53\t\t0x00010030,0x00010031,0x00010032',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btsdp_coverage.pcap.gz'),
+                    '-Y', 'btsdp.partial_attribute_list || btsdp.reassembled_attribute_list',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['23', '25', '43', '45', '51', '53']
+
+    def test_btsdp_did(self, cmd_tshark, capture_file, test_env):
+        '''Device ID records: the Vendor ID is named from the Bluetooth SIG
+        or the USB table by the Vendor ID Source, and the USB Product ID
+        by vendor and product; a record with only a Vendor ID (DID from
+        the search pattern) has no source.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsdp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {29, 31}', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split(': ', 1)[1] for line in stdout.splitlines()
+                 if 'Service Attribute: (DID) Vendor ID' in line
+                 or 'Service Attribute: (DID) Product ID' in line]
+        assert lines == [
+            '(DID) Vendor ID (0x201), value = Broadcom Corporation (0x000f)',
+            '(DID) Product ID (0x202), value = 0x1234',
+            '(DID) Vendor ID Source (0x205), value = Bluetooth SIG (0x0001)',
+            '(DID) Vendor ID (0x201), value = Logitech, Inc. (0x046d)',
+            '(DID) Product ID (0x202), value = Unifying Receiver (0xc52b)',
+            "(DID) Vendor ID Source (0x205), value = USB Implementer's Forum (0x0002)",
+            '(DID) Vendor ID (0x201), value = Unknown (0x1111)',
+            '(DID) Product ID (0x202), value = 0x2222',
+            '(DID) Vendor ID Source (0x205), value = Unknown (0x0003)',
+            '(DID) Vendor ID (0x201), value = Unknown (0x000f)',
+        ]
+
+    def test_btsdp_hdp(self, cmd_tshark, capture_file, test_env):
+        '''HDP Supported Features: the MDEP data type is named when the
+        record's Data Exchange Specification is 0x0001.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsdp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 33', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()
+                 if 'MDEP Data Type: ' in line or 'MDEP Description: ' in line]
+        assert lines == [
+            'MDEP Data Type: 4100 (0x1004)', 'MDEP Data Type: 0x1004',
+            'MDEP Description: Pulse Oximeter', 'MDEP Description: Pulse Oximeter',
+            'MDEP Data Type: 4103 (0x1007)', 'MDEP Data Type: 0x1007',
+            'MDEP Description: Blood Pressure', 'MDEP Description: Blood Pressure',
+            'MDEP Data Type: 4200 (0x1068)', 'MDEP Data Type: 0x1068',
+            'MDEP Description: Thermometer', 'MDEP Description: Thermometer',
+            'MDEP Data Type: 4111 (0x100f)', 'MDEP Data Type: Body Weight Scale (0x100f)',
+            'MDEP Description: Scale', 'MDEP Description: Scale',
+        ]
+
+    def test_btsdp_profiles(self, cmd_tshark, capture_file, test_env):
+        '''Profile specific attribute names of every profile the capture
+        holds a record of, and the L2CAP PSM of the FTP record names the
+        channel the local side opens (OBEX).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsdp_coverage.pcap.gz'), '-V',
+            ), encoding='utf-8', env=test_env)
+        profiles = set(line.split('Service Attribute: (', 1)[1].split(')', 1)[0]
+                       for line in stdout.splitlines()
+                       if 'Service Attribute: (' in line)
+        assert profiles == {
+            'A2DP', 'AVRCP', 'BIP IAA', 'BIP IR', 'BIP IRO', 'BPP', 'BPP RUI',
+            'CTN AS', 'CTN NS', 'DID', 'DUN', 'FAX', 'FTP', 'GNSS', 'HCRP',
+            'HDP', 'HFP AG', 'HFP HS', 'HID', 'HSP', 'MAP MAS', 'MAP MNS', 'MPS',
+            'OPP', 'PAN GN', 'PAN NAP', 'PAN PANU', 'PBAP', 'SYNCH', 'WAP',
+        }
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsdp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 61',
+                '-Tfields', '-eframe.protocols', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert 'OBEX File Transfer' in lines[0]
+        assert lines[2].startswith('bluetooth:hci_h4:bthci_acl:btl2cap:obex\t')
