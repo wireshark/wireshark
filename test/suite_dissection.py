@@ -17731,3 +17731,154 @@ class TestDissectBthcrp:
                 '-Tfields', '-eframe.number', '-edata.len', '-e_ws.col.info',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['51\t4\tSent HCRP data stream']
+
+
+class TestDissectBthfp:
+    def test_bthfp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''HFP AT commands and responses over HCI H4/L2CAP/RFCOMM, with the
+        role (AG or HS) known from the SDP records of four connections,
+        without malformed packets or errors, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthfp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 316
+        assert protocols.count('HFP') == 272
+        assert protocols.count('L2CAP') == 16
+        assert protocols.count('RFCOMM') == 16
+        assert protocols.count('SDP') == 8
+        assert protocols.count('HCI_EVT') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthfp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            # Warnings are confined to the frames that ask for them (106-263),
+            # the reserved XAPL feature bits (99) and ATD, whose type is
+            # never set, so its usage is always reported as invalid (93).
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthfp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity >= warning && (frame.number < 106 || frame.number > 263)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['93', '99']
+
+    def test_bthfp_roles(self, cmd_tshark, capture_file, test_env):
+        '''The role of each side follows the SDP record: a remote AG and a
+        remote hands-free record that we read (connections 1 and 2), and a
+        local AG and a local hands-free record that the remote reads
+        (connections 3 and 4).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthfp_coverage.pcap.gz'),
+                    '-Y', 'bthfp',
+                    '-Tfields', '-ebthci_acl.chandle', '-ehci_h4.direction',
+                    '-ebthfp.role',
+                ), encoding='utf-8', env=test_env)
+            assert sorted(set(stdout.splitlines())) == [
+                '0x0001\t0x00\t2',
+                '0x0001\t0x01\t1',
+                '0x0002\t0x00\t1',
+                '0x0002\t0x01\t2',
+                '0x0003\t0x00\t1',
+                '0x0003\t0x01\t2',
+                '0x0004\t0x00\t2',
+                '0x0004\t0x01\t1',
+            ]
+
+    def test_bthfp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''AT lines split over RFCOMM frames are reassembled in the frame
+        that ends them (CR for the HS, CR LF for the AG), also when the two
+        directions interleave, in one and two passes. A message that grows
+        past 64 KiB is dropped and the next frame starts a new one (frame
+        271 holds only frames 270-271).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthfp_coverage.pcap.gz'),
+                    '-Y', 'bthfp.fragmented',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['245', '247', '249', '250', '252',
+                    '254', '256', '258', '260', '261', '268', '269', '270',
+                    '286']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthfp_coverage.pcap.gz'),
+                    '-Y', 'bthfp.fragment && !bthfp.fragmented',
+                    '-Tfields', '-eframe.number', '-ebthfp.at_cmd',
+                    '-ebthfp.vgs', '-ebthfp.ciev.indicator_index',
+                    '-ebthfp.unknown_parameter',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '246\t+CIND\t\t\t',
+                '248\t+CIND\t\t\t',
+                '251\t+CKPD\t\t\t',
+                '253\t+VGS\t12\t\t',
+                '255\t+VGS\t1\t\tAT+VGM=2',
+                '257\t+CIEV,+CIEV\t\t1,2\t',
+                '259\t\t\t\t',
+                '262\t+CLCC\t\t\t',
+                '263\t+CIEV\t\t5\t',
+                '271\t+CKPD\t\t\t',
+                '287\t+VGS\t5\t\t',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthfp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 271 && len(bthfp.data) == 6002',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['271']
+
+    def test_bthfp_fixes(self, cmd_tshark, capture_file, test_env):
+        '''+CIEV with an empty first parameter (frame 164) shows the second
+        one as unknown; several ';' separated HS commands (frame 242) each
+        get a command; lines with a non-ASCII octet (frames 264 and 266)
+        end at their CR or CR LF instead of waiting for the next frame.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthfp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {164, 242} || (frame.number >= 264 && frame.number <= 267)',
+                    '-Tfields', '-eframe.number', '-ebthfp.at_cmd',
+                    '-ebthfp.vgs', '-ebthfp.vgm', '-ebthfp.nrec',
+                    '-ebthfp.bvra.vrect', '-ebthfp.ciev.indicator_index',
+                    '-ebthfp.unknown_parameter', '-ebthfp.fragmented',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '164\t+CIEV\t\t\t\t\t\t2\t',
+                '242\t+VGS,+VGM,+NREC,+BVRA\t7\t3\t0\t1\t\t\t',
+                '264\t+VGS\t1\t\t\t\t\t\t',
+                '265\t+VGM\t\t2\t\t\t\t\t',
+                '266\t+CIEV\t\t\t\t\t2\t\t',
+                '267\tOK\t\t\t\t\t\t\t',
+            ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthfp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {228, 242}', '-O', 'bthfp',
+            ), encoding='utf-8', env=test_env)
+        # An unknown command name ends before the '='
+        assert 'Command 0: +CKPD (Unknown)' in stdout
+        assert '+CKPD=' not in stdout.replace('AT Stream: AT+CKPD=', '')
+        for i, name in enumerate(('+VGS', '+VGM', '+NREC', '+BVRA')):
+            assert 'Command %d: %s\n' % (i, name) in stdout
+
+    def test_bthfp_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded parameters: supported features of both sides, CIND
+        indicator names, a quoted number with a comma in it and the XAPL
+        accessory vendor ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthfp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {12, 13, 18, 88, 96}',
+                '-Tfields', '-eframe.number', '-ebthfp.brsf.hs.features',
+                '-ebthfp.brsf.ag.features', '-ebthfp.indicator.2',
+                '-ebthfp.at.number', '-ebthfp.at.alpha',
+                '-ebthfp.xapl.accessory_info.vendor_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\t959\t\t\t\t\t',
+            '13\t\t4095\t\t\t\t',
+            '18\t\t\t("call",(0,1))\t\t\t',
+            '88\t\t\t\t"555,1234"\t"Alice"\t',
+            '96\t\t\t\t\t\t0x0000abcd',
+        ]
