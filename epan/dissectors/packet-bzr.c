@@ -17,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/exceptions.h>
 
 void proto_register_bzr(void);
 void proto_reg_handoff_bzr(void);
@@ -115,7 +116,7 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *parent_tvb, unsigned offset, u
     return false;
 }
 
-static int
+static unsigned
 dissect_prefixed_bencode(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
     uint32_t    plen;
@@ -140,7 +141,7 @@ dissect_prefixed_bencode(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pro
     return 4 + plen;
 }
 
-static int
+static unsigned
 dissect_prefixed_bytes(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     uint32_t    plen;
@@ -167,6 +168,7 @@ static int
 dissect_body(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree)
 {
     uint8_t cmd = 0;
+    unsigned len;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         cmd = tvb_get_uint8(tvb, offset);
@@ -175,10 +177,14 @@ dissect_body(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tre
 
         switch (cmd) {
         case 's':
-            offset += dissect_prefixed_bencode(tvb, offset, pinfo, tree);
-            break;
         case 'b':
-            offset += dissect_prefixed_bytes(tvb, offset, pinfo, tree);
+            if (cmd == 's')
+                len = dissect_prefixed_bencode(tvb, offset, pinfo, tree);
+            else
+                len = dissect_prefixed_bytes(tvb, offset, pinfo, tree);
+            /* The 32-bit length must not wrap the offset back */
+            if (len < 4 || ckd_add(&offset, offset, len))
+                THROW(ReportedBoundsError);
             break;
         case 'o':
             proto_tree_add_item(tree, hf_bzr_result, tvb, offset, 1,
