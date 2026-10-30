@@ -683,7 +683,7 @@ dissect_cimd_operation(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsi
   offset = CIMD_PN_OFFSET + CIMD_PN_LENGTH;
   while (offset < etxp && tvb_get_uint8(tvb, offset) == CIMD_DELIM)
   {
-    if (!tvb_find_uint8_length(tvb, offset + 1, etxp, CIMD_DELIM, &endOffset))
+    if (!tvb_find_uint8_length(tvb, offset + 1, etxp - (offset + 1), CIMD_DELIM, &endOffset))
       break;
 
     tvb_get_string_uint(tvb, offset + 1, CIMD_PC_LENGTH, ENC_STR_DEC, &PC, NULL);
