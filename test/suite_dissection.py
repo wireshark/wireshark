@@ -25454,3 +25454,138 @@ class TestDissectCipSafety:
             ), encoding='utf-8', env=test_env)
         assert ('<field name="" show="Application Data Path: Assembly, Instance: 0x01" '
                 'size="4" pos="98" value="20042401">') in stdout
+
+
+class TestDissectCiscoErspan:
+    def test_erspan_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has ERSPAN; Type I, II and III mirrored Ethernet
+        frames decode up to the discard protocol, without malformed packets
+        in one and two passes. The only warnings are the two unknown
+        versions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_erspan_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 29
+        assert protocols.count('DISCARD') == 24
+        assert protocols.count('ERSPAN') == 5
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_erspan_coverage.pcapng.gz'),
+                '-Y', 'erspan',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 29
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_erspan_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_erspan_coverage.pcapng.gz'),
+                    '-Y', '_ws.expert.severity == warning',
+                    '-Tfields', '-eframe.number', '-eerspan.version',
+                    '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '26\t0,0\tUnknown version, please report or test to use fake ERSPAN preference',
+                '27\t15,15\tUnknown version, please report or test to use fake ERSPAN preference',
+            ]
+
+    def test_erspan_type1(self, cmd_tshark, capture_file, test_env):
+        '''Type I: GRE 0x88BE without a sequence number, and a Linux cooked
+        capture of an ipgre interface, which has no GRE flags.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_erspan_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 28',
+                '-O', 'erspan', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Encapsulated Remote Switch Packet ANalysis Type I\n') == 2
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_erspan_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 28',
+                '-Tfields', '-esll.hatype', '-egre.proto', '-esll.gretype',
+                '-eerspan.version', '-eudp.srcport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['\t0x88be\t\t\t40001', '778\t\t0x88be\t\t40028']
+
+    def test_erspan_type2(self, cmd_tshark, capture_file, test_env):
+        '''Type II headers: VLAN, encapsulation, truncated, span ID and
+        index.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_erspan_coverage.pcapng.gz'),
+                '-Y', 'erspan.version == 1',
+                '-Tfields', '-eframe.number', '-eerspan.vlan', '-eerspan.cos',
+                '-eerspan.encap', '-eerspan.truncated', '-eerspan.spanid',
+                '-eerspan.reserved', '-eerspan.index', '-eudp.srcport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t100\t5\t0\t0\t1\t0\t12345\t40002',
+            '3\t200\t0\t1\t1\t2\t0\t1\t40003',
+            '4\t300\t7\t2\t0\t1023\t0\t1048575\t40004',
+            '5\t400\t0\t3\t0\t3\t4095\t0\t40005',
+            '6\t4095\t0\t0\t0\t4\t0\t0\t40006',
+            '25\t41\t0\t0\t0\t41\t0\t41\t40025',
+        ]
+
+    def test_erspan_type3(self, cmd_tshark, capture_file, test_env):
+        '''Type III headers: BSO, timestamp, SGT, frame type, hardware ID,
+        direction, granularity and the platform specific sub-headers; frame
+        types other than Ethernet go to data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_erspan_coverage.pcapng.gz'),
+                '-Y', 'erspan.version == 2',
+                '-Tfields', '-eframe.number', '-eerspan.bso', '-eerspan.timestamp',
+                '-eerspan.sgt', '-eerspan.p', '-eerspan.ft', '-eerspan.hw',
+                '-eerspan.direction', '-eerspan.gra', '-eerspan.o',
+                '-eerspan.platid', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t0\t1000\t4660\t1\t0\t1\tFalse\t0\t0\t\t',
+            '8\t1\t2000\t2\t1\t0\t63\tTrue\t1\t0\t\t',
+            '9\t2\t4294967295\t65535\t1\t0\t0\tFalse\t2\t0\t\t',
+            '10\t3\t0\t0\t0\t0\t0\tTrue\t3\t0\t\t',
+            '11\t0\t1\t0\t1\t0\t0\tFalse\t3\t1\t1\t',
+            '12\t0\t2\t0\t1\t0\t0\tFalse\t2\t1\t3\t',
+            '13\t0\t3\t0\t1\t0\t0\tFalse\t0\t1\t4\t',
+            '14\t0\t4\t0\t1\t0\t0\tFalse\t0\t1\t5\t',
+            '15\t0\t5\t0\t1\t0\t0\tFalse\t0\t1\t6\t',
+            '16\t0\t6\t0\t1\t0\t0\tFalse\t2\t1\t7\t',
+            '17\t0\t7\t0\t1\t0\t0\tFalse\t2\t1\t0\t',
+            '18\t0\t8\t0\t1\t0\t0\tFalse\t0\t1\t2\t',
+            '19\t0\t9\t0\t1\t0\t0\tFalse\t0\t1\t8\t',
+            '20\t0\t10\t0\t1\t0\t0\tFalse\t0\t1\t63\t',
+            '21\t0\t0\t0\t0\t2\t0\tFalse\t0\t0\t\t36',
+            '22\t0\t0\t0\t0\t1\t0\tFalse\t0\t0\t\t4',
+            '23\t0\t0\t0\t0\t31\t0\tFalse\t0\t1\t1\t4',
+            '24\t0\t40\t0\t1\t0\t0\tFalse\t0\t0\t\t',
+            '29\t0\t50\t0\t1\t0\t0\tFalse\t0\t1\t5\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_erspan_coverage.pcapng.gz'),
+                '-Y', 'erspan.platid',
+                '-Tfields', '-eerspan.pid1.vsmid', '-eerspan.pid1.port_index',
+                '-eerspan.pid3.port_index', '-eerspan.pid3.timestamp',
+                '-eerspan.pid4.rsvd3', '-eerspan.pid5.switchid',
+                '-eerspan.pid5.port_index', '-eerspan.pid5.timestamp',
+                '-eerspan.pid7.source_index', '-eerspan.pid7.timestamp',
+                '-eerspan.pid.rsvd',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '291\t2882400001\t\t\t\t\t\t\t\t\t',
+            '\t\t16383\t65535\t\t\t\t\t\t\t',
+            '\t\t\t\t4294967295\t\t\t\t\t\t',
+            '\t\t\t\t\t1023\t32769\t1700000000\t\t\t',
+            '\t\t\t\t\t1\t2\t1700000001\t\t\t',
+            '\t\t\t\t\t\t\t\t1048575\t1\t',
+            '\t\t\t\t\t\t\t\t66\t2\t',
+            # The reserved field is 64 bits wide with a 26 bit mask, so
+            # it shows the low 26 bits of the second word
+            '\t\t\t\t\t\t\t\t\t\t28036591',
+            '\t\t\t\t\t\t\t\t\t\t0',
+            '\t\t\t\t\t\t\t\t\t\t67108863',
+            '1\t1\t\t\t\t\t\t\t\t\t',
+            '\t\t\t\t\t0\t7\t8\t\t\t',
+        ]
