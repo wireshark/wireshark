@@ -19716,3 +19716,105 @@ class TestDissectBtsdp:
         lines = stdout.splitlines()
         assert 'OBEX File Transfer' in lines[0]
         assert lines[2].startswith('bluetooth:hci_h4:bthci_acl:btl2cap:obex\t')
+
+
+class TestDissectBtsmp:
+    def test_btsmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every SMP opcode on the LE (CID 0x0006) and BR/EDR (CID 0x0007)
+        channels decodes without malformed packets or warnings, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsmp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 63
+        assert protocols.count('SMP') == 60
+        assert protocols.count('HCI_EVT') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btsmp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btsmp_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''All 14 opcodes and an unknown one, every Pairing Failed reason,
+        and cross-transport key derivation on the BR/EDR channel.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsmp_coverage.pcapng.gz'),
+                '-Y', 'btsmp',
+                '-Tfields', '-ebtsmp.opcode',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(set(stdout.split())) == ['0x%02x' % i for i in range(1, 16)]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsmp_coverage.pcapng.gz'),
+                '-Y', 'btsmp.opcode == 0x05 && btl2cap.cid == 0x0006',
+                '-Tfields', '-ebtsmp.reason',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['0x%02x' % i for i in range(1, 16)] + ['0x08']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsmp_coverage.pcapng.gz'),
+                '-Y', 'btl2cap.cid == 0x0007',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[0] for l in lines] == ['55', '56', '57', '58', '59', '60']
+        assert lines[0].split('\t')[1] == ('Sent Pairing Request: AuthReq: Bonding, CT2'
+                                            ' | Initiator Key(s): IRK, CSRK, Linkkey'
+                                            ' | Responder Key(s): IRK, CSRK, Linkkey')
+
+    def test_btsmp_authreq_ct2(self, cmd_tshark, capture_file, test_env):
+        '''The AuthReq CT2 flag (0x20) is shown as CT2 in Info, and only
+        the bits 0xC0 as Reserved.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsmp_coverage.pcapng.gz'),
+                '-Y', 'btsmp.opcode == 0x0b',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ebtsmp.ct2_flag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\tRcvd Security Request: AuthReq: Bonding, MITM\tFalse',
+            '33\tRcvd Security Request: AuthReq: <unknown>, MITM, SecureConnection, Keypress, CT2, Reserved\tTrue',
+            '34\tRcvd Security Request: AuthReq: No Bonding, CT2\tTrue',
+            '35\tRcvd Security Request: AuthReq: No Bonding, SecureConnection\tFalse',
+            '36\tRcvd Security Request: AuthReq: No Bonding, Keypress\tFalse',
+        ]
+
+    def test_btsmp_secure_connections(self, cmd_tshark, capture_file, test_env):
+        '''LE Secure Connections: the debug public key is flagged on each
+        coordinate separately, the DHKey checks and the keypress
+        notifications are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsmp_coverage.pcapng.gz'),
+                '-Y', 'btsmp.opcode == 0x0c',
+                '-O', 'btsmp',
+            ), encoding='utf-8', env=test_env)
+        frames = ('\n' + stdout).split('\nFrame ')[1:]
+        flags = []
+        for frame in frames:
+            x = [l for l in frame.splitlines() if 'Public Key X:' in l][0]
+            y = [l for l in frame.splitlines() if 'Public Key Y:' in l][0]
+            flags.append((x.endswith('(Debug Key)'), y.endswith('(Debug Key)')))
+        assert flags == [(True, True), (False, False), (True, False), (False, True)]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsmp_coverage.pcapng.gz'),
+                '-Y', 'btsmp.opcode == 0x0d || btsmp.opcode == 0x0e',
+                '-Tfields', '-eframe.number', '-ebtsmp.dhkey_check', '-ebtsmp.notification_type',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[0] for l in lines] == ['23', '24', '25', '26', '27', '28', '29', '52']
+        assert lines[0].split('\t')[1] == bytes((0xa0 + i * 17) & 0xff for i in range(16)).hex()
+        assert [l.split('\t')[2] for l in lines[2:]] == ['0x%02x' % i for i in range(6)]
+
+    def test_btsmp_unknown_direction(self, cmd_tshark, capture_file, test_env):
+        '''HCI H4 without a direction header gives "UnknownDirection".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btsmp_coverage.pcapng.gz'),
+                '-Y', 'btsmp && frame.interface_id == 1',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '62\tUnknownDirection Pairing Request: AuthReq: Bonding | Initiator Key(s): LTK | Responder Key(s): LTK',
+            '63\tUnknownDirection Pairing Failed: Unspecified Reason',
+        ]
