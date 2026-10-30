@@ -22374,3 +22374,96 @@ class TestDissectCapwap:
                 '51\t\t\t\t22\t32769',
                 '53\t142\t2\t\t\t5247,9',
             ]
+
+
+# IP protocol 112 belongs to VRRP by default; CARP needs Decode As
+CARP_DECODE_AS = ('-d', 'ip.proto==112,carp')
+
+
+class TestDissectCarp:
+    def test_carp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CARP over IP protocol 112 (Decode As or heuristics first) and
+        over unassigned protocol numbers (heuristic) decodes without
+        malformed packets or warnings, in one and two passes.'''
+        for opts, carp, vrrp, data in (
+                ((), 2, 6, 7),
+                (CARP_DECODE_AS, 7, 0, 8),
+                (('-o', 'ip.try_heuristic_first:TRUE'), 7, 1, 7),
+                (CARP_DECODE_AS + ('-o', 'ip.defragment:FALSE'), 7, 0, 8)):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('carp_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 15
+            assert protocols.count('eth:ethertype:ip:carp') == carp
+            assert protocols.count('eth:ethertype:ip:vrrp') == vrrp
+            assert protocols.count('eth:ethertype:ip:data') == data
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                        '-r', capture_file('carp_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_carp_fields(self, cmd_tshark, capture_file, test_env):
+        '''Every field of the advertisements; the truncated frame 4 is not
+        checksummed, the fragmented datagram is checked once reassembled.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *CARP_DECODE_AS, *passes,
+                    '-r', capture_file('carp_coverage.pcap.gz'),
+                    '-Y', 'carp',
+                    '-Tfields', '-eframe.number', '-ecarp.version', '-ecarp.type',
+                    '-ecarp.vhid', '-ecarp.advskew', '-ecarp.authlen',
+                    '-ecarp.demotion', '-ecarp.adver_int', '-ecarp.counter',
+                    '-ecarp.checksum', '-ecarp.checksum.status',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\t2\t1\t1\t0\t7\t0\t1\t81985529216486895\t0x63ea\t1',
+                '2\t2\t1\t255\t255\t7\t255\t255\t18446744073709551615\t0xdef8\t1',
+                '3\t1\t1\t5\t100\t7\t0\t1\t0\t0x8af2\t1',
+                '4\t2\t1\t7\t0\t7\t0\t1\t81985529216486895\t0xc646\t2',
+                '6\t2\t1\t9\t10\t7\t0\t1\t81985529216486895\t0x3bbe\t1',
+                '7\t2\t1\t20\t1\t7\t0\t3\t81985529216486895\t0x62d5\t1',
+                '8\t1\t1\t21\t0\t7\t0\t1\t81985529216486895\t0x73d6\t1',
+            ]
+        stdout = subprocess.check_output((cmd_tshark, *CARP_DECODE_AS,
+                '-r', capture_file('carp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2}',
+                '-Tfields', '-ecarp.hmac', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            bytes(range(0x40, 0x54)).hex() + '\tAnnouncement (Virtual Host ID: 1)',
+            'ff' * 20 + '\tAnnouncement (Virtual Host ID: 255)',
+        ]
+
+    def test_carp_fragment(self, cmd_tshark, capture_file, test_env):
+        '''Without IP reassembly the first fragment reaches CARP and its
+        checksum is not verified; the second fragment is data.'''
+        stdout = subprocess.check_output((cmd_tshark, *CARP_DECODE_AS,
+                '-o', 'ip.defragment:FALSE',
+                '-r', capture_file('carp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 6}',
+                '-Tfields', '-eframe.protocols', '-ecarp.vhid',
+                '-ecarp.checksum.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'eth:ethertype:ip:carp\t9\t2',
+            'eth:ethertype:ip:data\t\t',
+        ]
+
+    def test_carp_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The carp_ip heuristic takes CARP over protocols 253 and 254 and
+        rejects a short payload, versions 0 and 3, type 2 and an authlen
+        other than 7. With Decode As, the VRRP frame 9 is rejected.'''
+        stdout = subprocess.check_output((cmd_tshark, *CARP_DECODE_AS,
+                '-r', capture_file('carp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 7',
+                '-Tfields', '-eip.proto', '-eframe.protocols', '-ecarp.vhid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '253\teth:ethertype:ip:carp\t20',
+            '254\teth:ethertype:ip:carp\t21',
+            '112\teth:ethertype:ip:data\t',
+        ] + ['253\teth:ethertype:ip:data\t'] * 6
