@@ -22749,3 +22749,127 @@ class TestDissectCattp:
             ), encoding='utf-8', env=test_env)
         assert stdout.strip('\n').split('\t') == ['1', '4', '0', '',
             '1 > 2 [ACK PDU] Flags=0x60 Ack=1 Seq=1 WSize=10']
+
+
+class TestDissectCborCoverage:
+    def test_cbor_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CBOR items and sequences by Exported PDU and over HTTP decode
+        without malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbor_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 25
+        assert protocols.count('exported_pdu:cbor') == 16
+        assert protocols.count('eth:ethertype:ip:tcp:http:cbor') == 3
+        assert protocols.count('eth:ethertype:ip:tcp:http:media:cbor') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cbor_coverage.pcapng.gz'),
+                    '-o', 'cbor.display_diagnostic:all',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cbor_diagnostic(self, cmd_tshark, capture_file, test_env):
+        '''Diagnostic notation of the top items: every argument size,
+        definite and indefinite arrays and maps, tags, sequences and the
+        HTTP media types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbor_coverage.pcapng.gz'),
+                '-o', 'cbor.display_diagnostic:top',
+                '-Y', 'cbor.diagnostic',
+                '-Tfields', '-eframe.number', '-ecbor.diagnostic',
+                '-Eoccurrence=l',
+            ), encoding='utf-8', env=test_env)
+        diag = dict(line.split('\t', 1) for line in stdout.splitlines())
+        assert diag['1'] == '[0, 23, 24, 4660, 305419896, 18446744073709551615, 5]'
+        assert diag['2'] == '[-1, -24, -25, -1000, -100000, -9223372036854775808, -2]'
+        assert diag['4'].startswith('["", "say \\\\"hi\\\\"", "xxxxxxxxxx')
+        assert diag['4'].endswith(', "four", "eight", "grüße ☃", (_ "ab", "cd"), ""_]')
+        assert diag['5'] == '[[], [1], [2], [3], [4], [_ 1, "two", []], [_ ]]'
+        assert diag['6'] == ('{1: {}, 2: {"a": 1}, 3: {-1: true}, 4: {\'k\': null}, '
+                             '5: {0: false}, "i": {_ "x": 1, "y": []}, "e": {_ }}')
+        assert diag['7'] == ('[0("2013-03-21T20:04:00Z"), 1(1363896240), 2(h\'0100\'), '
+                             '32("http://cbor.example/"), 256([]), 55799({}), 65536(1), '
+                             '1099511627776(null), 1(0), 20(0)]')
+        assert diag['8'] == ('[false, true, null, undefined, simple(16), simple(32), true, '
+                             '5.96046e-08, -5.96046e-08, 1.00000, -2.00000, Infinity, -Infinity, '
+                             'NaN, 0.00000, 3.50000000000000, NaN, -Infinity, 1.10000000000000, '
+                             'Infinity, NaN, -0.00000000000000]')
+        assert diag['10'] == '[' * 100 + '0' + ']' * 100
+        assert diag['12'] == '[-1]'
+        assert diag['15'] == '1, "a", [2, h\'05\']'
+        assert diag['18'] == '{"req": 1}'
+        assert diag['19'] == '1, 2, 3'
+        assert diag['20'] == ("61(18([h'a10126', {}, h'a10163616263', h'0000000000000000']))")
+        assert diag['22'] == '7, null'
+
+    def test_cbor_byte_strings(self, cmd_tshark, capture_file, test_env):
+        '''Byte strings as text or hex, and with the heuristic dissection
+        of their contents enabled, CBOR items and sequences in them.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbor_coverage.pcapng.gz'),
+                '-o', 'cbor.display_diagnostic:top',
+                '-o', 'cbor.diagnostic_bstr_text:FALSE',
+                '-Y', 'frame.number == 3',
+                '-Tfields', '-ecbor.diagnostic', '-Eoccurrence=l',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().endswith(
+            "h'deadbeef00', h'cafe00', h'697427732074657874', (_ h'01', h'0203'), ''_]")
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbor_coverage.pcapng.gz'),
+                '-o', 'cbor.display_diagnostic:top',
+                '-o', 'cbor.dissect_embeded_bstr:TRUE',
+                '-Y', 'frame.number in {13,14}',
+                '-Tfields', '-ecbor.diagnostic', '-Eoccurrence=l',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            "{1: <<{1: \"x\"}>>, 2: <<1, 2, \"three\">>, 3: h'ff', 4: h'1c', "
+            "5: h'01ff', 6: 'ba', 7: <<''>>}",
+            '<<<<"deep">>>>',
+        ]
+
+    def test_cbor_http_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The CBOR over HTTP heuristic (disabled by default) takes a body
+        of unknown media type as an item or a sequence, or rejects it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbor_coverage.pcapng.gz'),
+                '--enable-heuristic', 'cbor_http',
+                '-o', 'cbor.display_diagnostic:top',
+                '-Y', 'frame.number >= 23',
+                '-Tfields', '-eframe.protocols', '-ecbor.diagnostic',
+                '-Eoccurrence=l',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'eth:ethertype:ip:tcp:http:cbor\t{1: 2}',
+            'eth:ethertype:ip:tcp:http:cbor\t1, "b"',
+            'eth:ethertype:ip:tcp:http:media\t',
+        ]
+
+    def test_cbor_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''Frame 11 holds 600 nested byte strings. With the heuristic
+        dissection of byte strings each level is a new CBOR layer; the
+        dissection stops at a quarter of the tree depth limit with an
+        expert info instead of the layer limit assertion.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbor_coverage.pcapng.gz'),
+                '-o', 'cbor.dissect_embeded_bstr:TRUE',
+                '-Y', 'frame.number == 11',
+                '-V', '-O', 'cbor',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Byte String: (') == 125
+        assert stdout.count('Concise Binary Object Representation') == 126
+        assert stdout.count('[Expert Info (Warning/Protocol): Maximum allowed recursion depth reached') == 1
+        assert 'Malformed' not in stdout
+        assert 'Dissector bug' not in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbor_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {11,12}',
+                '-V', '-O', 'cbor',
+            ), encoding='utf-8', env=test_env)
+        # Without the preference frame 11 is one byte string
+        assert stdout.count('Byte String: (') == 1
+        assert 'Negative Integer: -1' in stdout
