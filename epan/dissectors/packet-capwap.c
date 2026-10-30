@@ -2323,7 +2323,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
             break;
         }
 
-        if(optlen -(2 + maclength)) {
+        if(optlen > 2u + maclength) {
                 proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_vlan_name, tvb, offset+6+maclength, optlen -(2 + maclength), ENC_ASCII);
         }
         }
@@ -3070,10 +3070,8 @@ hf_capwap_msg_element_type_ieee80211_station_capabilities, ett_capwap_ieee80211_
         break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_numbers, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        /* TODO: offset should be +4 here? */
-        num_profiles = tvb_get_uint8(tvb, offset);
+        num_profiles = tvb_get_uint8(tvb, offset+4);
         while(num_profiles){
-            /* TODO: profiles all read from same offset? */
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_supported_mac_profiles_profile, tvb, offset+5, 1, ENC_BIG_ENDIAN);
             offset += 1;
             num_profiles--;
@@ -3309,6 +3307,9 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, unsigned o
     {
         expert_add_info_format(pinfo, ti_len, &ei_capwap_header_length_bad, "Wrong calculate length (%d) =! header length (%d) ! (May be try to use Cisco Wireless Controller Support Preference ?)", plen, hlen);
     }
+    /* A header length of 0 would step back to the preamble */
+    if (hlen == UINT_MAX)
+        return plen;
     return hlen;
 }
 
