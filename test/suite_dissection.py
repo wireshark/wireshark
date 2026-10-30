@@ -26345,3 +26345,48 @@ class TestDissectCitp:
             '118\t\t\t\t',
             '119\t\t\t\t',
         ]
+
+
+class TestDissectCl3:
+    def test_cl3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CL3 frames with the Dual-Channel Wi-Fi subprotocol and unknown
+        subprotocols decode without malformed packets or warnings, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cl3_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['CL3-DCW'] * 3 + ['CL3'] * 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cl3_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cl3_header(self, cmd_tshark, capture_file, test_env):
+        '''The version, header length and subprotocol of every frame; the
+        Dual-Channel Wi-Fi subprotocol (0x00DC) is handed to cl3dcw.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cl3_coverage.pcap.gz'),
+                '-Tfields', '-ecl3.version', '-ecl3.headerlen',
+                '-ecl3.subprotocol', '-ecl3dcw.type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t4\t0x00dc\t0x01\tDual-Channel Wi-Fi Station Join [Type 0x01]',
+            '1\t4\t0x00dc\t0x21\tDual-Channel Wi-Fi AP Accept Station [Type 0x21]',
+            '1\t4\t0x00dc\t0x99\tDual-Channel Wi-Fi AQ Quit [Type 0x99]',
+            '1\t4\t0x1234\t\tCableLabs Layer-3 Protocol (Ver 1) [Subprotocol 0x1234]',
+            '1\t4\t0xffff\t\tCableLabs Layer-3 Protocol (Ver 1) [Subprotocol 0xFFFF]',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cl3_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3,4}',
+                '-Tfields', '-ecl3.payload',
+            ), encoding='utf-8', env=test_env)
+        # The Ethernet padding of frame 3 is part of the CL3 payload
+        assert stdout.splitlines() == [
+            '99' + '00' * 41,
+            b'unknown subprotocol payload'.hex(),
+        ]
