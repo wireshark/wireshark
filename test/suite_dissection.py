@@ -18884,3 +18884,124 @@ class TestDissectBtmeshBeacon:
                 '32\tFalse\tTrue\t3ecaff672f673370\t305419897\tSecure Network Beacon',
                 '35\tTrue\tFalse\t3ecaff672f673370\t305419898\tSecure Network Beacon (Last Segment)',
             ]
+
+
+BTMESH_KEYS = (
+    '-o', 'uat:btmesh_nw_keys:"0x7dd7364cd842ad18c17c2b820c84c3d6","0x63964771734fbd76e3b40519d1d94a48","0x12345678"',
+    '-o', 'uat:btmesh_nw_keys:"0xf7a2a44f8e8a8029064f173ddc1e2b00","0x3216d1509884b533248541792b877f98","0x00000001"',
+    '-o', 'uat:btmesh_dev_keys:"0x9d6dd0e96eb25dc19a40ed9914f8f03f","0x1201"',
+    '-o', 'uat:btmesh_label_uuids:"0x0073e7e4d8b9440faf8415df4c56c0e1"',
+)
+
+
+class TestDissectBtmesh:
+    def test_btmesh_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a Mesh Network PDU; all but three decrypt with the
+        keys, and nothing is malformed or has a warning in one and two
+        passes. Every model opcode the dissector knows is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark, *BTMESH_KEYS,
+                '-r', capture_file('btmesh_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-ebtmesh.src',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len(frames) == 1316
+        assert {f[0] for f in frames} == {'BT Mesh'}
+        assert sum(1 for f in frames if f[1]) == 1313
+        stdout = subprocess.check_output((cmd_tshark, *BTMESH_KEYS,
+                '-r', capture_file('btmesh_coverage.pcap.gz'),
+                '-Tfields', '-ebtmesh.model.opcode',
+            ), encoding='utf-8', env=test_env)
+        opcodes = {line for line in stdout.splitlines() if line}
+        # 282 opcodes with a case in the model layer and two unknown ones
+        assert len(opcodes) == 284
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *BTMESH_KEYS, *passes,
+                    '-r', capture_file('btmesh_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_btmesh_keys(self, cmd_tshark, capture_file, test_env):
+        '''Application key, device key from the source and the
+        destination, a Label UUID for a virtual address and a second
+        network key.'''
+        stdout = subprocess.check_output((cmd_tshark, *BTMESH_KEYS,
+                '-r', capture_file('btmesh_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 25 && frame.number <= 33',
+                '-Tfields', '-e_ws.col.info', '-ebtmesh.src', '-ebtmesh.dst',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Generic OnOff Get\t1\t49153',
+            'Generic OnOff Status\t4609\t1',
+            'Generic OnOff Set\t1\t46377',
+            'Config Composition Data Get\t1\t4609',
+            'Config Default TTL Status\t4609\t1',
+            'Config Default TTL Get\t4609\t46377',
+            'Generic OnOff Get\t1\t49153',
+            'Generic OnOff Get\t2\t49153',
+            'Generic OnOff Get\t1\t0',
+        ]
+
+    def test_btmesh_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Segmented control and access messages, also out of order, are
+        reassembled and dissected in the first pass, the same as in two
+        passes.'''
+        results = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *BTMESH_KEYS, *passes,
+                    '-r', capture_file('btmesh_coverage.pcap.gz'),
+                    '-Y', 'btmesh.segmented.access.reassembled.length || btmesh.segmented.control.reassembled.length',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-ebtmesh.segmented.control.reassembled.length',
+                    '-ebtmesh.segmented.access.reassembled.length',
+                ), encoding='utf-8', env=test_env)
+            results.append(stdout)
+        assert results[0] == results[1]
+        frames = [line.split('\t') for line in results[0].splitlines()]
+        assert frames[:9] == [
+            ['17', 'Friend Request (Message Reassembled)', '9', ''],
+            ['20', 'Control Message Unknown (Message Reassembled)', '19', ''],
+            ['22', 'Heartbeat (Message Reassembled)', '9', ''],
+            ['24', 'Friend Request (Message Reassembled)', '9', ''],
+            ['43', 'Config Composition Data Status (Message Reassembled)', '', '32'],
+            ['46', 'Config Composition Data Status (Message Reassembled)', '', '32'],
+            ['49', 'Config Composition Data Status (Message Reassembled)', '', '32'],
+            ['52', 'Config Composition Data Status (Message Reassembled)', '', '36'],
+            ['57', 'Config Composition Data Status (Message Reassembled)', '', '32'],
+        ]
+        assert len(frames) == 69
+
+    def test_btmesh_fixes(self, cmd_tshark, capture_file, test_env):
+        '''A single segment with a 64-bit TransMIC decrypts; the Sensor
+        Status MPID Length is 1-based; Time Status shows TAI seconds as a
+        UTC date (the formatting used to leak the string).'''
+        stdout = subprocess.check_output((cmd_tshark, *BTMESH_KEYS,
+                '-r', capture_file('btmesh_coverage.pcap.gz'),
+                '-Y', 'frame.number in {53, 1198}',
+                '-Tfields', '-e_ws.col.info', '-ebtmesh.szmic', '-ebtmesh.transtmic',
+                '-ebtmesh.model.sensor_status.raw_value',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert frames[0][:2] == ['Generic OnOff Get', '1']
+        assert len(frames[0][2]) == 16
+        assert frames[1][0] == 'Sensor Status'
+        assert frames[1][3] == '1122,33'
+        stdout = subprocess.check_output((cmd_tshark, *BTMESH_KEYS,
+                '-r', capture_file('btmesh_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 1157 && frame.number <= 1164',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        # TAI seconds since 2000 minus 32 and the leap seconds since then:
+        # 0, 1e8 .. 5e8, 7e8 and 7e8 + 3600
+        tai = [line.strip() for line in stdout.splitlines() if 'TAI Seconds:' in line]
+        assert tai == [
+            'TAI Seconds: Unknown',
+            'TAI Seconds: Mar  3, 2003 09:46:08 UTC',
+            'TAI Seconds: May  3, 2006 19:32:47 UTC',
+            'TAI Seconds: Jul  4, 2009 05:19:26 UTC',
+            'TAI Seconds: Sep  3, 2012 15:06:05 UTC',
+            'TAI Seconds: Nov  5, 2015 00:52:44 UTC',
+            'TAI Seconds: Mar  7, 2022 20:26:03 UTC',
+            'TAI Seconds: Mar  7, 2022 21:26:03 UTC',
+        ]
