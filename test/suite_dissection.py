@@ -22467,3 +22467,103 @@ class TestDissectCarp:
             '254\teth:ethertype:ip:carp\t21',
             '112\teth:ethertype:ip:data\t',
         ] + ['253\teth:ethertype:ip:data\t'] * 6
+
+
+class TestDissectCast:
+    def test_cast_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CAST messages on TCP port 4224 decode without malformed packets
+        or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('cast_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 34
+        assert protocols.count('CAST') == 20
+        assert protocols.count('TCP') == 14
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cast_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cast_messages(self, cmd_tshark, capture_file, test_env):
+        '''The message IDs of every frame, the same in one and two passes:
+        every message the dissector knows and an unknown one, several in
+        one segment.'''
+        expected = [
+            '4\t0x00000001', '5\t0x00000002', '7\t0x00000003',
+            '8\t0x00000004,0x00000000,0x0000000f', '9\t0x00000005',
+            '10\t0x00000006', '11\t0x00000008', '12\t0x0000000a,0x0000000b',
+            '13\t0x0000000a', '14\t0x0000000d,0x0000000e', '15\t0x00000010',
+            '16\t0x00000011,0x00000012,0x00000013',
+            '17\t0x00000015,0x00000041,0x00000047,0x00000043,0x00000044,'
+            '0x00000045,0x00000046,0x00000042',
+            '18\t0x00000014,0x00000040', '19\t0x00000007,0x00000009,0x0000000c',
+            '20\t0x00000090', '21\t0x00000091',
+            '22\t0x00000050,0x00000051,0x00000060,0x00000061,0x00000062,'
+            '0x00000070,0x00000071,0x00000074,0x00000075,0x00000080',
+            '23\t0x000000a0,0x000000a1,0x000000a4,0x000000a5,0x000000b0,'
+            '0x000000b1,0x000000b4,0x000000b5,0x000000c0,0x000000c1,0x000000c4,'
+            '0x000000c5,0x000000cc,0x000000d0,0x000000d1',
+            '24\t0x00001234',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cast_coverage.pcap.gz'),
+                    '-Y', 'cast.messageid',
+                    '-Tfields', '-eframe.number', '-ecast.messageid',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_cast_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The 1560 octet UpdateCapabilities message in frames 6-7 and the
+        HangUp message whose header starts in frame 17 are reassembled; the
+        connection that does not start with a CAST header (frame 31) is
+        left to TCP.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('cast_coverage.pcap.gz'),
+                '-Y', 'tcp.reassembled_in',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['6\t7', '17\t18']
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('cast_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7, 18, 31}',
+                '-Tfields', '-eframe.number', '-etcp.reassembled.length',
+                '-ecast.data_length', '-ecast.videoCapCount', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t1560\t1552\t2\tCAST',
+            '18\t28\t8,4\t\tCAST',
+            '31\t\t\t\tTCP',
+        ]
+
+    def test_cast_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded fields of CallInfo (frame 15), the media channel
+        messages (frames 10 and 11) and RemoteResponse (frame 21).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cast_coverage.pcap.gz'),
+                '-Y', 'frame.number == 15',
+                '-Tfields', '-ecast.callingPartyName', '-ecast.callingParty',
+                '-ecast.calledPartyName', '-ecast.calledParty', '-ecast.callType',
+                '-ecast.lastRedirectingParty', '-ecast.callSecurityStatus',
+                '-ecast.partyPIRestrictionBits.CallingPartyName',
+                '-ecast.partyPIRestrictionBits.CallingPartyNumber',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip('\n').split('\t') == ['Alice', '1001', 'Bob', '2002', '2',
+            '4004', '2', 'True', 'False']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cast_coverage.pcap.gz'),
+                '-Y', 'frame.number in {10, 11, 21}',
+                '-Tfields', '-eframe.number', '-ecast.ipAddress', '-ecast.portNumber',
+                '-ecast.payloadCapability', '-ecast.stationIpAddress',
+                '-ecast.stationFriendlyName', '-ecast.directoryNumber',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t192.0.2.10\t20000\t\t\t\t',
+            '11\t198.51.100.30\t20002\t101\t\t\t',
+            '21\t\t\t\t192.0.2.10\tConference room phone\t5005',
+        ]
