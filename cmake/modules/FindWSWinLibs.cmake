@@ -125,17 +125,19 @@ endfunction()
 # The top-level CMakeLists.txt copies each registered DLL, along with its
 # PDB if one is present, to the run directory and installs it.
 #
-# ws_add_runtime_dlls(<release DLL paths...> [DEBUG <debug DLL paths...>])
+# ws_add_runtime_dlls(<release DLL paths...> [DEBUG <debug DLL paths...>]
+#                     [ONLY_FOR <application>])
 #
 # DEBUG lists the debug counterpart of each release DLL, in the same order,
 # for packages that we link against debug import libraries in Debug builds.
+# ONLY_FOR limits the DLLs to one application's installer, e.g. stratoshark.
 # The targets are named ws_runtime::<DLL name> and do not have an import
 # library, so they can't be linked against (yet).
 function(ws_add_runtime_dlls)
   if(NOT USE_REPOSITORY)
     return()
   endif()
-  cmake_parse_arguments(_ws "" "" "DEBUG" ${ARGN})
+  cmake_parse_arguments(_ws "" "ONLY_FOR" "DEBUG" ${ARGN})
   set(_release_dlls ${_ws_UNPARSED_ARGUMENTS})
   list(LENGTH _release_dlls _release_count)
   list(LENGTH _ws_DEBUG _debug_count)
@@ -156,13 +158,58 @@ function(ws_add_runtime_dlls)
       add_library(${_target} SHARED IMPORTED GLOBAL)
       set_property(GLOBAL APPEND PROPERTY WS_RUNTIME_DLL_TARGETS ${_target})
     endif()
-    set_target_properties(${_target} PROPERTIES IMPORTED_LOCATION "${_dll}")
+    set_target_properties(${_target} PROPERTIES
+      IMPORTED_LOCATION "${_dll}"
+      WS_RUNTIME_DLL_ONLY_FOR "${_ws_ONLY_FOR}"
+    )
     if(_debug_dll AND EXISTS "${_debug_dll}")
       set_target_properties(${_target} PROPERTIES IMPORTED_LOCATION_DEBUG "${_debug_dll}")
     else()
       set_property(TARGET ${_target} PROPERTY IMPORTED_LOCATION_DEBUG)
     endif()
   endforeach()
+endfunction()
+
+# Get the file names of the DLLs registered with ws_add_runtime_dlls(), for
+# an installer manifest. Names that are the same in Release and Debug builds
+# go in <common_var>, the others in <release_var> and <debug_var>. Each list
+# is sorted.
+#
+# ws_get_runtime_dll_names(<common_var> <release_var> <debug_var> FOR <application>)
+#
+# DLLs registered with ONLY_FOR are included only for that application.
+function(ws_get_runtime_dll_names _common_var _release_var _debug_var)
+  cmake_parse_arguments(_ws "" "FOR" "" ${ARGN})
+  set(_common)
+  set(_release)
+  set(_debug)
+  get_property(_targets GLOBAL PROPERTY WS_RUNTIME_DLL_TARGETS)
+  foreach(_target IN LISTS _targets)
+    get_target_property(_only_for ${_target} WS_RUNTIME_DLL_ONLY_FOR)
+    if(_only_for AND NOT _only_for STREQUAL _ws_FOR)
+      continue()
+    endif()
+    get_target_property(_location ${_target} IMPORTED_LOCATION)
+    get_target_property(_location_debug ${_target} IMPORTED_LOCATION_DEBUG)
+    get_filename_component(_name "${_location}" NAME)
+    if(_location_debug)
+      get_filename_component(_name_debug "${_location_debug}" NAME)
+    else()
+      set(_name_debug "${_name}")
+    endif()
+    if(_name STREQUAL _name_debug)
+      list(APPEND _common "${_name}")
+    else()
+      list(APPEND _release "${_name}")
+      list(APPEND _debug "${_name_debug}")
+    endif()
+  endforeach()
+  foreach(_list _common _release _debug)
+    list(SORT ${_list} CASE INSENSITIVE)
+  endforeach()
+  set(${_common_var} ${_common} PARENT_SCOPE)
+  set(${_release_var} ${_release} PARENT_SCOPE)
+  set(${_debug_var} ${_debug} PARENT_SCOPE)
 endfunction()
 
 # Add a single DLL. The debug DLL is used in Debug builds only if
