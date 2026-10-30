@@ -1818,7 +1818,18 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   proto_tree     *eap_tree;
   proto_tree     *eap_tls_flags_tree;
   proto_item     *eap_type_item;
-  uint8_t        curr_layer_num = p_get_proto_depth(pinfo, proto_eap);
+  uint8_t curr_layer_num = p_get_proto_depth(pinfo, proto_eap);
+
+  /*
+   * we could use a wmem_map again here but it is a little excessive for
+   * a few flags, so instead we note that curr_layer_num is
+   * uint8_t and the key for proto_data is at least uint32_t (though only
+   * the bottom 24bits are usable due to PROTO_DEPTH_KEY) whilst our
+   * flag space is small so we partition by curr_layer_num
+   */
+  uint32_t p_proto_data_layer = curr_layer_num << 8;
+
+  p_set_proto_depth(pinfo, proto_eap, curr_layer_num + 1);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1896,17 +1907,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     conversation_state->last_eap_id_resp = -1;
     wmem_map_insert(conversation_state_map, GUINT_TO_POINTER(curr_layer_num), conversation_state);
   }
-
-  /*
-   * we could use a wmem_map again here but it is a little excessive for
-   * a few flags, so instead we note that curr_layer_num is
-   * uint8_t and the key for proto_data is at least uint32_t (though only
-   * the bottom 24bits are usable due to PROTO_DEPTH_KEY) whilst our
-   * flag space is small so we partition by curr_layer_num
-   */
-  uint32_t p_proto_data_layer = curr_layer_num << 8;
-
-  p_set_proto_depth(pinfo, proto_eap, curr_layer_num + 1);
 
   /*
    * Set this now, so that it gets remembered even if we throw an exception
