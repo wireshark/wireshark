@@ -1000,8 +1000,11 @@ get_cast_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 
   /*
    * That length doesn't include the length of the header itself;
-   * add that in.
+   * add that in. A length that wraps is shorter than the header, which
+   * tcp_dissect_pdus() reports as malformed.
    */
+  if (hdr_data_length > UINT32_MAX - 8)
+    return 1;
   return hdr_data_length + 8;
 }
 
