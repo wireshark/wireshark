@@ -461,6 +461,13 @@ target_include_directories(wsutil SYSTEM
 		${PCRE2_INCLUDE_DIRS}
 )
 
+# We require C17; ensure that out-of-tree plugins that import the exported
+# CMake package compile with C17 or later. (The absolute minimum is C11,
+# because, e.g., ws_attributes.h uses _Noreturn. On a similar note, we
+# might want to require C++17 and then simplify ws_attributes.h to use
+# the standard attributes.)
+target_compile_features(wsutil PUBLIC c_std_17)
+
 install(TARGETS wsutil
 	EXPORT WiresharkTargets
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

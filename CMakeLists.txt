@@ -39,7 +39,7 @@ if(NOT "c_std_17" IN_LIST CMAKE_C_COMPILE_FEATURES)
 	message(FATAL_ERROR "The C compiler you're using does not support C17, but Wireshark and Stratoshark require it; use GCC or Clang.")
 endif()
 if(NOT "cxx_std_17" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
-	message(FATAL_ERROR "The C++ compiler you're using does not support C17, but Wireshark and Stratoshark require it; use GCC or Clang.")
+	message(FATAL_ERROR "The C++ compiler you're using does not support C++17, but Wireshark and Stratoshark require it; use GCC or Clang.")
 endif()
 
 #
