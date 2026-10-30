@@ -21593,3 +21593,78 @@ class TestDissectDnsResinfo:
         assert 'qnamemin' in stdout                                 # boolean key
         assert 'exterr=15-17' in stdout                             # range value
         assert 'infourl=https://resolver.example.com/guide' in stdout  # URL value
+
+
+class TestDissectCalcappprotocol:
+    def test_calcappprotocol_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, with both SCTP PPIs, decodes without
+        malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('calcappprotocol_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-esctp.data_payload_proto_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == (['CalcAppProtocol\t34'] * 9
+            + ['CalcAppProtocol\t688485891'] * 2 + ['CalcAppProtocol\t688485891,688485891']
+            + ['CalcAppProtocol\t34'] * 2)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('calcappprotocol_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_calcappprotocol_messages(self, cmd_tshark, capture_file, test_env):
+        '''The fields of every message, including the bundled messages of
+        frame 12, the extreme values of frames 8-9 and the unknown types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('calcappprotocol_coverage.pcap.gz'),
+                '-Tfields', '-ecalcappprotocol.message_type',
+                '-ecalcappprotocol.message_flags', '-ecalcappprotocol.message_length',
+                '-ecalcappprotocol.message_jobid', '-ecalcappprotocol.message_jobsize',
+                '-ecalcappprotocol.message_completed', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t24\t1\t10000\t0\tCalcApp Request ',
+            '2\t0\t24\t1\t10000\t0\tCalcApp Accept ',
+            '6\t0\t24\t1\t0\t0\tCalcApp Keep-Alive ',
+            '7\t0\t24\t1\t0\t2500\tCalcApp Keep-Alive Ack ',
+            '6\t0\t24\t1\t0\t0\tCalcApp Keep-Alive ',
+            '7\t0\t24\t1\t0\t5000\tCalcApp Keep-Alive Ack ',
+            '5\t0\t24\t1\t10000\t10000\tCalcApp Complete ',
+            '1\t255\t24\t4294967295\t18446744073709551615\t0\tCalcApp Request ',
+            '3\t128\t24\t4294967295\t18446744073709551615\t0\tCalcApp Reject ',
+            '1\t0\t24\t2\t123456789\t0\tCalcApp Request ',
+            '4\t0\t24\t2\t123456789\t42\tCalcApp Abort ',
+            '2,6\t0,0\t24,24\t3,3\t500,0\t0,0\tCalcApp Accept CalcApp Keep-Alive ',
+            '0\t0\t0\t4\t1\t1\tUnknown CalcAppProtocol message type ',
+            '200\t0\t65535\t4\t1\t1\tUnknown CalcAppProtocol message type ',
+        ]
+
+    def test_calcappprotocol_stat(self, cmd_tshark, capture_file, test_env):
+        '''-z calcappprotocol,stat counts the known message types (the
+        unknown types of frames 13 and 14 have no row), with the bytes
+        taken from the Length field and the first and last time seen.
+        The share columns are not checked: they are declared
+        TABLE_ITEM_UINT but hold doubles.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('calcappprotocol_coverage.pcap.gz'),
+                    '-q', '-z', 'calcappprotocol,stat',
+                ), encoding='utf-8', env=test_env)
+            rows = {}
+            for line in stdout.splitlines():
+                if line.startswith('CalcApp '):
+                    cols = [c.strip() for c in line.split('|')]
+                    # The times are printed with the locale's decimal separator
+                    rows[cols[0]] = (cols[1], cols[3], cols[5].replace(',', '.'),
+                                     cols[6].replace(',', '.'))
+            assert rows == {
+                'CalcApp Request': ('3', '72', '0.000000', '6.000000'),
+                'CalcApp Accept': ('2', '48', '0.500000', '8.000000'),
+                'CalcApp Reject': ('1', '24', '5.000000', '5.000000'),
+                'CalcApp Abort': ('1', '24', '7.000000', '7.000000'),
+                'CalcApp Complete': ('1', '24', '4.000000', '4.000000'),
+                'CalcApp Keep-Alive': ('3', '72', '1.000000', '8.000000'),
+                'CalcApp Keep-Alive Ack': ('2', '48', '1.250000', '2.500000'),
+            }
