@@ -34,12 +34,12 @@ static void cdma2k_message_DATA_BURST_CMD(proto_item *item, tvbuff_t *tvb, proto
 static void cdma2k_message_AUTH_CHALL_REQ(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset);
 static void cdma2k_message_GEN_PAGE_REQ(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint16_t l3PduLen);
 
-static void cdma2k_message_ADDR_FIELDS(proto_item *item, tvbuff_t *tvb, proto_tree *tree, uint16_t *l_offset,  uint16_t headerRecLen);
-static void cdma2k_message_AUTH_FIELDS(proto_item *item, tvbuff_t *tvb, proto_tree *tree, uint16_t *l_offset,  uint16_t headerRecLen);
-static void cdma2k_message_IMSI_CLASS_SUBFIELDS(proto_item *item, tvbuff_t *tvb, proto_tree *tree, uint16_t *l_offset);
+static void cdma2k_message_ADDR_FIELDS(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *l_offset,  uint16_t headerRecLen);
+static void cdma2k_message_AUTH_FIELDS(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *l_offset,  uint16_t headerRecLen);
+static void cdma2k_message_IMSI_CLASS_SUBFIELDS(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *l_offset);
 static void cdma2k_message_ALERT_WITH_INFO(proto_item *item,tvbuff_t *tvb,proto_tree *tree,unsigned *offset);
 static void cdma2k_message_HANDOFF_DIR(proto_item *item,tvbuff_t *tvb,proto_tree *tree,unsigned *offset, uint16_t msgType);
-static void cdma2k_message_ACTIVE_SET_RECORD_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree *subtree,uint16_t *l_offset, uint16_t chInd,uint16_t schIncl);
+static void cdma2k_message_ACTIVE_SET_RECORD_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree *subtree,unsigned *l_offset, uint16_t chInd,uint16_t schIncl);
 
 
 /*Initialize all the header parameters that are to be displayed*/
@@ -1182,7 +1182,8 @@ static const value_string l3dpu_ORM_ch_ind_values[] = {
 /* Decoder for all the information elements of CDMA2K Message Type */
 static void cdma2k_message_decode(proto_item *item _U_, tvbuff_t *tvb,proto_tree *tree, unsigned *offset, proto_tree *mainTree _U_, uint16_t *noerror _U_ , packet_info *pinfo _U_)
 {
-    uint16_t channel = -1, msgtype = -1, headerRecCnt = -1, headerRecLen = -1, l_offset = -1;
+    uint16_t channel = -1, msgtype = -1, headerRecCnt = -1, headerRecLen = -1;
+    unsigned l_offset = 0;
     uint16_t headerRecType = -1, inc = -1, count = -1, l3PduLen = -1, authIncl = -1, oneXPrev = -1;
     proto_item *item1 = NULL;
     proto_tree *subtree = NULL, *subtree1 = NULL, *subtree2 = NULL, *subtree3 = NULL;
@@ -1398,7 +1399,8 @@ dissect_cdma2000_scm(tvbuff_t* tvb, proto_tree* tree, unsigned bit_offset)
 static void cdma2k_message_REGISTRATION(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset, uint16_t oneXPrev)
 {
     uint16_t mob_P_Rev_Value = -1, mob_P_Rev_Rx = -1;
-    uint16_t uzid_Incl = -1, geoLoc_Incl = -1, l_offset = -1;
+    uint16_t uzid_Incl = -1, geoLoc_Incl = -1;
+    unsigned l_offset = 0;
     proto_tree *subtree = NULL;
 
     /*iws_Mob_P_Rev_In_Use = 7;*/
@@ -1480,7 +1482,8 @@ static void cdma2k_message_REGISTRATION(proto_item *item, tvbuff_t *tvb, proto_t
 static void cdma2k_message_ORDER_IND(proto_item *item,tvbuff_t *tvb,proto_tree *tree,unsigned *offset)
 {
     uint16_t addRecLen = -1, ordq = -1, rejectedtype = -1;
-    uint16_t l_offset = -1, rsc_mode_ind = -1, ordertype = -1;
+    uint16_t rsc_mode_ind = -1, ordertype = -1;
+    unsigned l_offset = 0;
     proto_tree *subtree = NULL, *subtree1 = NULL;
 
     item = proto_tree_add_item(tree,hf_cdma2k_OrderIndMsg, tvb, *offset, -1, ENC_NA);
@@ -1550,7 +1553,7 @@ static void cdma2k_message_ORDER_IND(proto_item *item,tvbuff_t *tvb,proto_tree *
                 l_offset+=8;
 
                 proto_tree_add_bits_item(subtree1, hf_cdma2k_Rejected_Type, tvb, l_offset, 8, ENC_BIG_ENDIAN);
-                rejectedtype = tvb_get_bits8(tvb,*offset*8+1,8);
+                rejectedtype = tvb_get_bits8(tvb,l_offset,8);
                 l_offset+=8;
 
                 if ((rejectedtype == 7) || (rejectedtype == 1)) /* 7= access, 1= reverse traffic */
@@ -1600,7 +1603,7 @@ static void cdma2k_message_ORDER_IND(proto_item *item,tvbuff_t *tvb,proto_tree *
                 if (ordq == 3)
                 {
                     proto_tree_add_bits_item(subtree1, hf_cdma2k_Rsc_Mode_Ind , tvb, l_offset, 1, ENC_BIG_ENDIAN);
-                    rsc_mode_ind = tvb_get_bits8(tvb,*offset*8+1,1);
+                    rsc_mode_ind = tvb_get_bits8(tvb,l_offset,1);
                     l_offset+=1;
                     if (rsc_mode_ind == 1)
                     {
@@ -1624,7 +1627,7 @@ static void cdma2k_message_ORDER_IND(proto_item *item,tvbuff_t *tvb,proto_tree *
                 l_offset+=8;
 
                 proto_tree_add_bits_item(subtree1, hf_cdma2k_Rsc_Mode_Ind , tvb, l_offset, 1, ENC_BIG_ENDIAN);
-                rsc_mode_ind = tvb_get_bits8(tvb,*offset*8+1,1);
+                rsc_mode_ind = tvb_get_bits8(tvb,l_offset,1);
                 l_offset+=1;
 
                 if (rsc_mode_ind == 1)
@@ -1656,7 +1659,8 @@ static void cdma2k_message_ORDER_IND(proto_item *item,tvbuff_t *tvb,proto_tree *
 static void cdma2k_message_ORDER_CMD(proto_item *item,tvbuff_t *tvb,proto_tree *tree,unsigned *offset)
 {
     uint16_t addRecLen = -1, ordq = -1, csig = -1;
-    uint16_t l_offset = -1, MsgIntInfoIncl = -1, retrytype = -1, allbcmcflowind = -1, clearallretrydelay = -1;
+    uint16_t MsgIntInfoIncl = -1, retrytype = -1, allbcmcflowind = -1, clearallretrydelay = -1;
+    unsigned l_offset = 0;
     uint16_t numbcmcprograms = -1, bcmc_program_id = -1;
     uint16_t bcmcflowdiscriminatorlen = -1, regulatoryindincl = -1;
     uint16_t rsc_mode_supported = -1, rer_mode_incl = -1, rer_mode_enabled = -1, tkz_mode_incl = -1;
@@ -1717,7 +1721,7 @@ static void cdma2k_message_ORDER_CMD(proto_item *item,tvbuff_t *tvb,proto_tree *
             if (ordq == 3)
             {
                 proto_tree_add_bits_item(subtree1, hf_cdma2k_Rsc_Mode_Ind , tvb, l_offset, 1, ENC_BIG_ENDIAN);
-                rsc_mode_ind = tvb_get_bits8(tvb,*offset*8+1,1);
+                rsc_mode_ind = tvb_get_bits8(tvb,l_offset,1);
                 l_offset+=1;
                 if (rsc_mode_ind == 1)
                 {
@@ -1892,8 +1896,11 @@ static void cdma2k_message_ORDER_CMD(proto_item *item,tvbuff_t *tvb,proto_tree *
                     l_offset+=bcmcflowdiscriminatorlen;
                 }
 
-                proto_tree_add_bits_item(subtree1, hf_cdma2k_Bcmc_Flow_Discriminator, tvb, l_offset, bcmcflowdiscriminatorlen, ENC_BIG_ENDIAN);
-                l_offset+=bcmcflowdiscriminatorlen;
+                if (bcmcflowdiscriminatorlen != 0)
+                {
+                    proto_tree_add_bits_item(subtree1, hf_cdma2k_Bcmc_Flow_Discriminator, tvb, l_offset, bcmcflowdiscriminatorlen, ENC_BIG_ENDIAN);
+                    l_offset+=bcmcflowdiscriminatorlen;
+                }
 
                 proto_tree_add_bits_item(subtree1, hf_cdma2k_Same_As_Previous_Bcmc_Flow, tvb, l_offset, 1, ENC_BIG_ENDIAN);
                 sameaspreviousbcmcflow = tvb_get_bits8(tvb,l_offset, 1);
@@ -1923,7 +1930,7 @@ static void cdma2k_message_ORDER_CMD(proto_item *item,tvbuff_t *tvb,proto_tree *
             proto_item_append_text(item, " : FAST CALL SETUP Order ");
 
             proto_tree_add_bits_item(subtree1, hf_cdma2k_Ordq, tvb, l_offset, 8, ENC_BIG_ENDIAN);
-            ordq = tvb_get_bits8(tvb, l_offset, 1);
+            ordq = tvb_get_bits8(tvb, l_offset, 8);
             l_offset += 8;
 
             proto_tree_add_bits_item(subtree1, hf_cdma2k_Rsc_Mode_Supported, tvb, l_offset, 1, ENC_BIG_ENDIAN);
@@ -2134,7 +2141,8 @@ static void cdma2k_message_ORIGINATION(proto_item *item,tvbuff_t *tvb,proto_tree
 {
     uint16_t prevInUse = -1, mob_P_Rev_Rx = -1, Prev_Nid_Incl = -1;
     uint16_t Sync_Id_Len = -1, Prev_Pzid_Incl= -1, For_FchLen = -1,Rev_FchLen = -1;
-    uint16_t uzid_Incl = -1, GeoLoc_Incl = -1, l_offset = -1, numOfFields = -1, Map_Length = -1, Qos_Parms_Incl= -1;
+    uint16_t uzid_Incl = -1, GeoLoc_Incl = -1, numOfFields = -1, Map_Length = -1, Qos_Parms_Incl= -1;
+    unsigned l_offset = 0;
     uint16_t specialService = -1, Wll_Incl = -1,Global_Emergency_call = -1,Sync_Id_Incl = -1,Prev_Sid_Incl = -1;
     uint16_t DigitMode = -1, Num_Alt_So = -1, Qos_Parms_Length = -1, Enc_Info_Incl = -1;
     uint16_t digitSize = -1, So_Bitmap_Ind = -1, Dcch_supported = -1;
@@ -2682,7 +2690,8 @@ static void cdma2k_message_PAGE_RESPONSE(proto_item *item, tvbuff_t *tvb,proto_t
     uint16_t fchSupported = -1, dcchSupported = -1,numAltSo = -1, soBitmapInd = -1;
     uint16_t forFchLen = -1, revFchLen = -1, forDcchLen = -1, revDcchLen = -1 , syncIdLen =-1;
     uint16_t uzidIncl = -1, wllIncl = -1, encInfoIncl = -1, syncIdIncl = -1;
-    uint16_t l_offset = -1, rea = -1, ecmea = -1;
+    uint16_t rea = -1, ecmea = -1;
+    unsigned l_offset = 0;
     uint16_t prevInUse = -1, mob_P_Rev_Rx = -1;
 
     proto_tree *subtree = NULL, *subtree1 = NULL;
@@ -3007,7 +3016,8 @@ static void cdma2k_message_PAGE_RESPONSE(proto_item *item, tvbuff_t *tvb,proto_t
 static void cdma2k_message_HANDOFF_DIR(proto_item *item,tvbuff_t *tvb,proto_tree *tree,unsigned *offset, uint16_t msgType)
 {
     uint16_t useTime = -1, parmsIncl = -1, searchIncl = -1, extraParmsIncl = -1;
-    uint16_t l_offset = -1, returnIfHandoffFail = -1, scrIncl = -1, nnscrIncl = -1;
+    uint16_t returnIfHandoffFail = -1, scrIncl = -1, nnscrIncl = -1;
+    unsigned l_offset = 0;
     uint16_t recLen= -1, pwrCntlStepIncl = -1, schIncl = -1, startTimeIncl = -1;
     uint16_t loop = -1, usePcTime = -1, chInd = -1, gatMode = -1, pwrCntlDelayIncl = -1;
     uint16_t encryptMode = -1, linkIncl = -1, pRev = -1, syncIdIncl = -1, syncIdLen = -1;
@@ -3930,10 +3940,10 @@ static void cdma2k_message_ALERT_WITH_INFO(proto_item *item,tvbuff_t *tvb,proto_
 
 
 /* Helper function to decode Active Set Record Field Parameters */
-static void cdma2k_message_ACTIVE_SET_RECORD_FIELDS(proto_item *item _U_, tvbuff_t *tvb, proto_tree *subtree, uint16_t *l_offset, uint16_t chInd, uint16_t schIncl)
+static void cdma2k_message_ACTIVE_SET_RECORD_FIELDS(proto_item *item _U_, tvbuff_t *tvb, proto_tree *subtree, unsigned *l_offset, uint16_t chInd, uint16_t schIncl)
 {
-    uint16_t loop = -1, numForSch = -1, numRevSch = -1, pilotCnt = -1, srchOffsetIncl = -1;
-    uint16_t pilotInfoIncl = -1, recLen = -1, schCnt = -1, fchInfoIncl = -1, fchLowIncl = -1;
+    uint16_t loop = -1, schLoop = 0, numForSch = -1, numRevSch = -1, pilotCnt = -1, srchOffsetIncl = -1;
+    uint16_t pilotInfoIncl = -1, recLen = -1, schCnt = 0, fchInfoIncl = -1, fchLowIncl = -1;
     uint16_t fchHighIncl = -1, schInfoIncl = -1, schLowIncl = -1, ccshIncl = -1, ccshEncIncl = -1;
     uint16_t pilotIncl = -1, schHighIncl = -1, dcchInfoIncl = -1, dcchLowIncl = -1, dcchHighIncl = -1;
     uint16_t bcmcFunIncl = -1, addPlcmFchIncl = -1, cpcchInfoIncl = -1, addPlcmFchType = -1;
@@ -4038,10 +4048,10 @@ static void cdma2k_message_ACTIVE_SET_RECORD_FIELDS(proto_item *item _U_, tvbuff
             proto_tree_add_bits_item(subtree1, hf_cdma2k_Num_Sch, tvb, *l_offset, 5, ENC_BIG_ENDIAN);
             schCnt = tvb_get_bits8(tvb,*l_offset, 5);
             *l_offset+=5;
-            for(loop = 1; loop <= schCnt; loop++)
+            for(schLoop = 1; schLoop <= schCnt; schLoop++)
             {
                 item2 = proto_tree_add_item(subtree1, hf_cdma2k_Record_Sch, tvb, *l_offset/8,-1, ENC_NA);
-                proto_item_append_text(item2," : [%d]", loop);
+                proto_item_append_text(item2," : [%d]", schLoop);
                 subtree2 = proto_item_add_subtree(item2,ett_cdma2k_subtree2);
                 proto_tree_add_bits_item(subtree2,hf_cdma2k_Sch_Id, tvb, *l_offset, 1, ENC_BIG_ENDIAN);
                 *l_offset+=1;
@@ -4133,10 +4143,10 @@ static void cdma2k_message_ACTIVE_SET_RECORD_FIELDS(proto_item *item _U_, tvbuff
                 *l_offset+=1;
                 if(schInfoIncl == 1)
                 {
-                    for(loop = 1; loop <= schCnt; loop++)
+                    for(schLoop = 1; schLoop <= schCnt; schLoop++)
                     {
                         item2 = proto_tree_add_item(subtree1, hf_cdma2k_Record_Sch, tvb, *l_offset/8,-1, ENC_NA);
-                        proto_item_append_text(item2," : [%d]", loop);
+                        proto_item_append_text(item2," : [%d]", schLoop);
                         subtree2 = proto_item_add_subtree(item2,ett_cdma2k_subtree2);
                         proto_tree_add_bits_item(subtree2,hf_cdma2k_Sch_Id, tvb, *l_offset, 1, ENC_BIG_ENDIAN);
                         *l_offset+=1;
@@ -4184,10 +4194,10 @@ static void cdma2k_message_ACTIVE_SET_RECORD_FIELDS(proto_item *item _U_, tvbuff
             item1 = proto_tree_add_item(subtree, hf_cdma2k_Record_Pilots, tvb, *l_offset/8,-1, ENC_NA);
             proto_item_append_text(item1," : [%d]", loop);
             subtree1 = proto_item_add_subtree(item1,ett_cdma2k_subtree2);
-            for(loop = 1; loop <= schCnt; loop++)
+            for(schLoop = 1; schLoop <= schCnt; schLoop++)
             {
                 item2 = proto_tree_add_item(subtree1, hf_cdma2k_Record_Sch, tvb, *l_offset/8,-1, ENC_NA);
-                proto_item_append_text(item2," : [%d]", loop);
+                proto_item_append_text(item2," : [%d]", schLoop);
                 subtree2 = proto_item_add_subtree(item2,ett_cdma2k_subtree2);
                 proto_tree_add_bits_item(subtree2,hf_cdma2k_Ccsh_Encoder_Type, tvb, *l_offset, 1, ENC_BIG_ENDIAN);
                 *l_offset+=1;
@@ -4246,9 +4256,10 @@ static void cdma2k_message_ACTIVE_SET_RECORD_FIELDS(proto_item *item _U_, tvbuff
 
 
 /* Helper function to decode Authentication Field Parameters */
-static void cdma2k_message_AUTH_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree *subtree,uint16_t *l_offset, uint16_t headerRecLen)
+static void cdma2k_message_AUTH_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree *subtree,unsigned *l_offset, uint16_t headerRecLen)
 {
-    uint16_t macIncl = -1, authIncl = -1, sduSseqOrSseqh = -1, endOffset = -1;
+    uint16_t macIncl = -1, authIncl = -1, sduSseqOrSseqh = -1;
+    unsigned endOffset = 0;
     endOffset = *l_offset + (headerRecLen*8);
 
     proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Mac_Incl, tvb, *l_offset, 1, ENC_BIG_ENDIAN);
@@ -4299,7 +4310,9 @@ static void cdma2k_message_AUTH_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree
     /*Skip bits till Header Record Length*/
     if(*l_offset < endOffset)
     {
-        proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Reserved, tvb, *l_offset, (endOffset-*l_offset), ENC_BIG_ENDIAN);
+        /* Padding of more than 64 bits does not fit the field */
+        if (endOffset - *l_offset <= 64)
+            proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Reserved, tvb, *l_offset, (endOffset-*l_offset), ENC_BIG_ENDIAN);
         *l_offset+=(endOffset-*l_offset);
     }
     else if(*l_offset > endOffset)
@@ -4310,11 +4323,12 @@ static void cdma2k_message_AUTH_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree
 
 
 /* Helper function to decode Addressing Field Parameters */
-static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree *tree,uint16_t *l_offset, uint16_t headerRecLen)
+static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree *tree,unsigned *l_offset, uint16_t headerRecLen)
 {
     proto_item* ti;
     proto_tree *sub_tree;
-    uint16_t msIdType = -1, extMsIdType = -1, msIdLen = -1, endOffset = -1;
+    uint16_t msIdType = -1, extMsIdType = -1, msIdLen = -1;
+    unsigned endOffset = 0;
 
     endOffset = *l_offset + (headerRecLen*8);
     proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_MsId_Type, tvb, *l_offset, 3, ENC_BIG_ENDIAN);
@@ -4395,14 +4409,18 @@ static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree
             break;
 
         case 5:
-            if(msIdLen > 4)
+            if(msIdLen > 12)
+            {
+                proto_item_append_text(item," : Invalid msIdLen in Addressing Fields");
+            }
+            else if(msIdLen > 4)
             {
                 proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Tmsi_Zone, tvb, *l_offset, (msIdLen-4)*8, ENC_BIG_ENDIAN);
                 *l_offset+=((msIdLen-4)*8);
                 proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Tmsi_Code_Addr, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
                 *l_offset+=32;
             }
-            else
+            else if(msIdLen > 0)
             {
                 proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Tmsi_Code_Addr, tvb, *l_offset, msIdLen*8, ENC_BIG_ENDIAN);
                 *l_offset+=(msIdLen*8);
@@ -4417,7 +4435,9 @@ static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree
     /*Skip bits till Header Record Length*/
     if(*l_offset < endOffset)
     {
-        proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Reserved, tvb, *l_offset, (endOffset-*l_offset), ENC_BIG_ENDIAN);
+        /* Padding of more than 64 bits does not fit the field */
+        if (endOffset - *l_offset <= 64)
+            proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Reserved, tvb, *l_offset, (endOffset-*l_offset), ENC_BIG_ENDIAN);
         *l_offset+=(endOffset-*l_offset);
     }
     else if(*l_offset > endOffset)
@@ -4427,7 +4447,7 @@ static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree
 }
 
 /* Helper function to decode Imsi Class and SubField Parameters */
-static void cdma2k_message_IMSI_CLASS_SUBFIELDS(proto_item *item,tvbuff_t *tvb, proto_tree *subtree, uint16_t *l_offset)
+static void cdma2k_message_IMSI_CLASS_SUBFIELDS(proto_item *item,tvbuff_t *tvb, proto_tree *subtree, unsigned *l_offset)
 {
     uint16_t imsi_class = -1, classType = -1;
 
@@ -4636,9 +4656,9 @@ void proto_register_cdma2k(void)
             { &hf_cdma2k_tlac_Header_Record_Ext_MsId_MeId,
             { "Ext MsId MeId", "cdma2k.tlacHeaderRecordExtMsIdMeId", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_Tmsi_Code_Addr,
-            { "Tmsi Code Addr", "cdma2k.tlacHeaderRecordTmsiCodeAddr", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Tmsi Code Addr", "cdma2k.tlacHeaderRecordTmsiCodeAddr", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_Tmsi_Zone,
-            { "Tmsi Zone", "cdma2k.tlacHeaderRecordTmsiZone", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Tmsi Zone", "cdma2k.tlacHeaderRecordTmsiZone", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_Mac_Incl,
             { "Maci Incl", "cdma2k.tlacHeaderRecordMacIncl", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_Auth_Incl,
