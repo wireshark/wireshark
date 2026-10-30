@@ -2513,7 +2513,7 @@ if(USE_REPOSITORY)
 	# need libunwind.
 	if (SINSP_FOUND AND FALCO_PLUGIN_DIR AND FALCO_PLUGIN_DLLS)
 		list(TRANSFORM FALCO_PLUGIN_DLLS PREPEND "${FALCO_PLUGIN_DIR}/" OUTPUT_VARIABLE _falco_plugin_dlls)
-		ws_add_runtime_dlls(${_falco_plugin_dlls})
+		ws_add_runtime_dlls(${_falco_plugin_dlls} ONLY_FOR stratoshark)
 	endif()
 
 	if (SMI_FOUND)
