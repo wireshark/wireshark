@@ -17374,3 +17374,127 @@ class TestDissectBthciVendorAndroid:
         assert all(f[5] == '5644' for f in frames)
         assert frames[0] == ['132', '0x01', '11:22:33:44:55:66', '', '', '5644']
         assert frames[15] == ['147', '0x16', '', '11:22:33:44:55:66', '00:02:03:04:05:06', '5644']
+
+
+class TestDissectBthciVendorBroadcom:
+    '''Bluetooth Broadcom HCI vendor commands and events.
+    bthci_vendor_broadcom_coverage.pcapng.gz has HCI H4 frames on interface 0
+    (a Read Local Version Information reply naming Broadcom, then vendor
+    commands and their Command Complete events) and Exported PDU frames
+    naming bthci_vendor.broadcom, without Bluetooth data, on interface 1.'''
+
+    def test_bthci_vendor_broadcom_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or warnings, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_broadcom_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 147
+        assert protocols.count('HCI_CMD_BROADCOM') == 71
+        assert protocols.count('HCI_EVT_BROADCOM') == 72
+        assert protocols.count('HCI_BROADCOM') == 2
+        assert protocols.count('HCI_CMD') == 1
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_vendor_broadcom_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_bthci_vendor_broadcom_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The columns and decoded fields are the same in one and two passes.
+        (The Bluetooth layer's [Source]/[Destination] and the Response In
+        links are added only in the second pass.)'''
+        fields = ('-Tfields', '-eframe.number', '-e_ws.col.info',
+                  '-ebthci_vendor.broadcom.opcode', '-ebthci_vendor.broadcom.bd_addr',
+                  '-ebtcommon.eir_ad.entry.device_name', '-ebthci_vendor.broadcom.status',
+                  '-ebthci_vendor.broadcom.le.total_energy_used', '-e_ws.expert.message')
+        one = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_broadcom_coverage.pcapng.gz'), *fields,
+            ), encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_vendor_broadcom_coverage.pcapng.gz'), *fields,
+            ), encoding='utf-8', env=test_env)
+        assert one == two
+
+    def test_bthci_vendor_broadcom_energy_info(self, cmd_tshark, capture_file, test_env):
+        '''The LE Energy Info counters are four 4-octet little endian values
+        (TX, RX, Idle, Energy), over HCI and from Exported PDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_broadcom_coverage.pcapng.gz'),
+                '-Y', 'bthci_vendor.broadcom.le.total_tx_time',
+                '-Tfields', '-eframe.number', '-ebthci_vendor.broadcom.le.total_tx_time',
+                '-ebthci_vendor.broadcom.le.total_rx_time', '-ebthci_vendor.broadcom.le.total_idle_time',
+                '-ebthci_vendor.broadcom.le.total_energy_used', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '104\t1000\t2000\t3000\t4000\t',
+            '140\t1000\t2000\t3000\t4000\t',
+        ]
+
+    def test_bthci_vendor_broadcom_multi_advertising(self, cmd_tshark, capture_file, test_env):
+        '''LE Multi Advertising Write Advertising / Scan Response Data
+        decodes its AD, over HCI and from Exported PDU without Bluetooth
+        data (frame 138, which used to crash).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_broadcom_coverage.pcapng.gz'),
+                '-Y', 'btcommon.eir_ad.entry.device_name',
+                '-Tfields', '-eframe.number', '-eframe.interface_id',
+                '-ebthci_vendor.broadcom.le.multi_advertising.subcode',
+                '-ebtcommon.eir_ad.entry.device_name',
+                '-ebthci_vendor.broadcom.le.multi_advertising.instance_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '59\t0\t0x02\tBRCM-ADV\t1',
+            '61\t0\t0x03\tBRCM-SCAN\t1',
+            '138\t1\t0x02\ttest\t1',
+            '139\t1\t0x03\texp\t2',
+        ]
+
+    def test_bthci_vendor_broadcom_a2dp_offload(self, cmd_tshark, capture_file, test_env):
+        '''Start A2DP offload (legacy): the SCMS-T value or its reserved
+        octet, the LDAC bitrate index and the LDAC channel mode bitmask.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_broadcom_coverage.pcapng.gz'),
+                '-Y', 'bthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec',
+                '-Tfields', '-eframe.number',
+                '-ebthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec',
+                '-ebthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.scms_t_enable_value',
+                '-ebthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.scms_t_enable_value_reserved',
+                '-ebthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.bitrate_index',
+                '-ebthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.bitrate_index.reserved',
+                '-ebthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.codec_information.ldac.channel_mode_mask',
+                '-ebthci_vendor.broadcom.a2dp_hardware_offload.start_legacy.encoded_audio_bitrate',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '107\t0x00000001\t\t0x00\t\t\t\t',
+            '109\t0x00000002\t1\t\t\t\t\t256000',
+            '111\t0x00000010\t\t0x02\t0x01\t\t0x07\t',
+            '113\t0x00000010\t\t0x00\t\t0x05\t0x04\t990000',
+            '115\t0x00000010\t\t0x00\t0x7f\t\t0x01\t',
+            '117\t0x00000004\t\t0x00\t\t\t\t352000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_broadcom_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 111', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()]
+        assert 'Channel Mode: 0x07, Mono, Dual, Stereo' in lines
+        assert '.... .1.. = Mono: True' in lines
+
+    def test_bthci_vendor_broadcom_capabilities(self, cmd_tshark, capture_file, test_env):
+        '''LE Get Vendor Capabilities: the fields before version 0.98 and
+        the reserved fields from 0.98 on.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_broadcom_coverage.pcapng.gz'),
+                '-Y', 'bthci_vendor.broadcom.version_support',
+                '-Tfields', '-eframe.number', '-ebthci_vendor.broadcom.version_support',
+                '-ebthci_vendor.broadcom.max_advertising_instance',
+                '-ebthci_vendor.broadcom.max_advertising_instance_reserved',
+                '-ebthci_vendor.broadcom.a2dp_offload_v2_support',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['52\t0x0060\t4\t\tTrue', '54\t0x0100\t\t0x04\t']
