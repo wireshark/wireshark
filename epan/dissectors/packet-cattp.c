@@ -172,7 +172,7 @@ dissect_cattp_eakpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
     proto_item *eaki;
     uint8_t     eak_count;
 
-    eak_count = (hlen - offset) >> 1;
+    eak_count = hlen > offset ? (hlen - offset) >> 1 : 0;
     eaki = proto_tree_add_uint(cattp_tree, hf_cattp_eaklen, tvb, offset, eak_count * 2, eak_count);
 
     if (eak_count > 0) {
