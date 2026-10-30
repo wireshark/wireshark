@@ -25722,3 +25722,89 @@ class TestDissectCiscoMarker:
                 '-Tfields', '-eerspan-marker.prop_header',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '000102030405060708090a0b0c0d0e0f10111213'
+
+
+class TestDissectCiscoMcp:
+    def test_mcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is MCP, without malformed packets or errors in one and
+        two passes; the warnings are the unexpected TLV lengths and the
+        trailing octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_mcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['MCP'] * 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_mcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_mcp_coverage.pcap.gz'),
+                    '-Y', 'mcp.unexpected_tlv_length || mcp.trailing_bytes',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['8', '9', '10', '11', '12']
+
+    def test_mcp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The TLVs of non-strict (62 octets) and strict PDUs, VPC Info,
+        unknown TLVs and a PDU without an end TLV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_mcp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 7',
+                '-Tfields', '-emcp.tlv.type', '-emcp.fabric_id', '-emcp.node_id',
+                '-emcp.vpc.domain', '-emcp.vpc.id', '-emcp.vpc.vtep',
+                '-emcp.port_id', '-emcp.strictmode', '-emcp.digest',
+                '-emcp.unknown',
+            ), encoding='utf-8', env=test_env)
+        digest = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3'
+        assert stdout.splitlines() == [
+            f'1,2,3,4,5,6,7\t1\t101\t0\t0\t0.0.0.0\t0x1a000005\t\t{digest}\t',
+            f'1,2,3,4,5,6,7\t2\t102\t10\t20\t10.0.0.1\t0x1a010010\t\t{digest}\t',
+            f'1,2,3,4,5,6,7,8\t1\t201\t0\t0\t0.0.0.0\t0x1a000101\t1\t{digest}\t',
+            f'1,2,3,4,5,6,7,8\t1\t202\t1000\t2000\t192.0.2.77\t0x1a000202\t0\t{digest}\t',
+            '1,2,3,4,5,6,7,8\t4294967295\t4294967295\t4294967295\t4294967295\t255.255.255.255\t0xffffffff\t4294967295\t' + 'ff' * 20 + '\t',
+            '1,0,9,255,8\t1\t\t\t\t\t\t\t\t0102,<MISSING>,756e6b6e6f776e',
+            f'1,2,3,4,5,6,7\t1\t207\t0\t0\t0.0.0.0\t0x1a000000\t1\t{digest}\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_mcp_coverage.pcap.gz'),
+                '-Y', 'mcp.send_time == "2023-11-14 22:13:20Z"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '7']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_mcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 3',
+                '-O', 'mcp', '-V',
+            ), encoding='utf-8', env=test_env)
+        tlvs = [l.strip().split(':')[0] for l in stdout.splitlines() if l.startswith('    ') and not l.startswith('     ')]
+        assert tlvs == ['Fabric ID', 'Node ID', 'VPC Info', 'Port ID', 'Send Time', 'Digest', 'End',
+                        'Fabric ID', 'Node ID', 'VPC Info', 'Port ID', 'Send Time', 'Strictmode?', 'Digest', 'End']
+        assert 'VPC Info: 0/0/0.0.0.0' in stdout
+
+    def test_mcp_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Frame 8 is the reproducer of a VPC Info TLV of length 2: it is
+        flagged and skipped, and the Node ID after it is read. Every other
+        TLV with an unexpected length is flagged, in strict and non-strict
+        PDUs, followed by trailing octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_mcp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 8',
+                '-Tfields', '-eframe.number', '-emcp.tlv.type', '-emcp.tlv.length',
+                '-emcp.node_id', '-emcp.vpc.domain', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        msg = 'Expected value length differs from seen length (%d != %d)'
+        assert stdout.splitlines() == [
+            '8\t3,2,8\t2,4,0\t101\t\t' + msg % (12, 2),
+            '9\t1,2,4,5,6,7,8\t2,3,5,1,0,16,1\t\t\t' + ','.join(
+                [msg % m for m in ((4, 2), (4, 3), (4, 5), (4, 1), (4, 0), (20, 16), (0, 1))]
+                + ['Trailing bytes after last TLV']),
+            '10\t1,2,4,5,6,7\t1,2,3,5,30,3\t\t\t' + ','.join(
+                [msg % m for m in ((4, 1), (4, 2), (4, 3), (4, 5), (20, 30), (0, 3))]
+                + ['Trailing bytes after last TLV']),
+            '11\t3,1,9,7\t8,4,42,0\t\t\t' + msg % (12, 8),
+            '12\t1,7\t4,0\t\t\tTrailing bytes after last TLV',
+        ]
