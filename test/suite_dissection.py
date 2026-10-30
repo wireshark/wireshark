@@ -22873,3 +22873,75 @@ class TestDissectCborCoverage:
         # Without the preference frame 11 is one byte string
         assert stdout.count('Byte String: (') == 1
         assert 'Negative Integer: -1' in stdout
+
+
+class TestDissectCbrsOids:
+    def test_cbrs_oids_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CBRS certificates decode without malformed packets or warnings,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbrs_oids_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 8
+        assert [p.split(':').count('cbrs_oids') for p in protocols] == [2, 1, 1, 1, 2, 1, 0, 10]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cbrs_oids_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cbrs_oids_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Every CBRS attribute in a subject name, and as an extension.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbrs_oids_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ecbrs-oids.FCCID', '-ecbrs-oids.SERIAL',
+                '-ecbrs-oids.FRN', '-ecbrs-oids.CPIRID', '-ecbrs-oids.ZONE',
+                '-ecbrs-oids.FREQUENCY', '-ecbrs-oids.TEST',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tABC-CBSD100\tSN-000123456\t\t\t\t\t',
+            '2\t\t\t\tCPIR-0042\t\t\t',
+            '3\t\t\t0012345678\t\t\t\t',
+            '4\t\t\t0087654321\t\t\t\t',
+            '5\t\t\t\t\tPAL-ZONE-06037\t3550-3560 MHz\t',
+            '6\t\t\t\t\t\t\t',
+            '7\t\t\t\t\t\t\t',
+            '8\tXYZ-TEST,EXT-FCCID\tT1,EXT-SERIAL\t0000000001\tCPIR-T\tZ-T\t3700 MHz\t'
+            'test certificate – not for use,EXT-TEST',
+        ]
+        # An empty FCC ID is present as an empty string
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbrs_oids_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6 && cbrs-oids.FCCID == ""',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['6']
+
+    def test_cbrs_oids_names(self, cmd_tshark, capture_file, test_env):
+        '''The attribute, role and policy OIDs are shown by name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cbrs_oids_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Object Id: 1.3.6.1.4.1.46609.1.2 (CBRS_PAL_ZONE)',
+                      'Object Id: 1.3.6.1.4.1.46609.1.3 (CBRS_PAL_FREQUENCY)',
+                      'Object Id: 1.3.6.1.4.1.46609.1.4 (CBRS_CBSD_FCCID)',
+                      'Object Id: 1.3.6.1.4.1.46609.1.5 (CBRS_CBSD_SERIAL)',
+                      'Object Id: 1.3.6.1.4.1.46609.1.6 (CBRS_SAS/OPERATOR_administrator_FRN)',
+                      'Object Id: 1.3.6.1.4.1.46609.1.7 (CBRS_installer_CPIR-ID)',
+                      'Object Id: 1.3.6.1.4.1.46609.1.8 (CBRS_TEST)',
+                      'Extension (CBRS_CBSD_FCCID)',
+                      'policyIdentifier: 1.3.6.1.4.1.46609.2.1 (CBRS Certificates issued pursuant to CPS)',
+                      'policyIdentifier: 1.3.6.1.4.1.46609.1.1.1 (CBRS SAS)',
+                      'policyIdentifier: 1.3.6.1.4.1.46609.1.1.2 (CBRS INSTALLER)',
+                      'policyIdentifier: 1.3.6.1.4.1.46609.1.1.3 (CBRS CBSD)',
+                      'policyIdentifier: 1.3.6.1.4.1.46609.1.1.4 (CBRS OPERATOR (Domain Proxy Operator))',
+                      'policyIdentifier: 1.3.6.1.4.1.46609.1.1.5 (CBRS CA)',
+                      'policyIdentifier: 1.3.6.1.4.1.46609.1.1.6 (CBRS PAL)',
+                      'policyIdentifier: 1.3.6.1.4.1.46609.1.1.7 (CBRS ESC)'):
+            assert label in stdout
