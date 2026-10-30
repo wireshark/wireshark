@@ -24514,3 +24514,96 @@ class TestDissectChargingAse:
         assert lines[9] == '10\t\t\t\t0.4.0.1296.1,1.2.826.0.1.1234,0.4.0.1296.9\t'
         assert lines[11] == '12\t\t\tTrue\t0.4.0.1296.1,1.2.826.0.1.1234\t'
         assert lines[12] == '13\t\t\tFalse\t\t'
+
+
+class TestDissectChdlc:
+    def test_chdlc_frames(self, cmd_tshark, capture_file, test_env):
+        '''Protocol type, address and top protocol of every frame; no
+        malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('chdlc_coverage.pcapng.gz'),
+                '-Tfields', '-echdlc.address', '-echdlc.protocol',
+                '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0f\t0x0800\tDISCARD',
+            '0x0f\t0x86dd\tDISCARD',
+            '0x8f\t0x0800\tDISCARD',
+            '0x0f\t0x8035\tSLARP',
+            '0x0f\t0x8035\tSLARP',
+            '0x0f\t0x8035\tSLARP',
+            '0x0f\t0x8035\tSLARP',
+            '0x0f\t0x2000\tCDP',
+            '0x0f\t0xfefe\tESIS',
+            '0x0f\t0xfefe\tESIS',
+            '0x0f\t0xfefe\tCLNP',
+            '0x0f\t0xfefe\tISIS PSNP',
+            '0x0f\t0x1234\t0x1234',
+            '0x0f\t0x1234\t0x1234',
+            '0x0f\t0x1234\t0x1234',
+            '0x0f\t0x1234\t0x1234',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('chdlc_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_chdlc_no_payload(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of the fix on the branch: a frame with only the
+        Cisco HDLC header (frame 14) no longer reads a CLNS padding octet
+        past the end; only OSI frames have one (frame 9).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('chdlc_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {9, 10, 14}',
+                '-Tfields', '-eframe.len', '-echdlc.protocol',
+                '-echdlc.clns_padding', '-e_ws.malformed', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '27\t0xfefe\t0x00\t\t',
+            '26\t0xfefe\t\t\t',
+            '4\t0x1234\t\t\t',
+        ]
+
+    def test_chdlc_direction(self, cmd_tshark, capture_file, test_env):
+        '''The pcapng direction flags give DTE and DCE as link addresses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('chdlc_coverage.pcapng.gz'),
+                '-Y', 'slarp || data',
+                '-Tfields', '-e_ws.col.def_src', '-e_ws.col.def_dst',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'DTE\tDCE', 'DCE\tDTE', 'DTE\tDCE', 'N/A\tN/A',
+            'N/A\tN/A', 'DCE\tDTE', 'DTE\tDCE',
+        ]
+
+    def test_chdlc_slarp(self, cmd_tshark, capture_file, test_env):
+        '''SLARP request, reply, line keepalive and an unknown type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('chdlc_coverage.pcapng.gz'),
+                '-Y', 'slarp',
+                '-Tfields', '-eslarp.ptype', '-eslarp.address',
+                '-eslarp.netmask', '-eslarp.mysequence',
+                '-eslarp.yoursequence', '-eslarp.reliability', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t0.0.0.0\t0.0.0.0\t\t\t\tRequest, from 0.0.0.0, mask 0.0.0.0',
+            '1\t10.1.1.1\t255.255.255.252\t\t\t\tReply, from 10.1.1.1, mask 255.255.255.252',
+            '2\t\t\t17\t16\t0xffff\tLine keepalive, outgoing sequence 17, returned sequence 16',
+            '7\t\t\t\t\t\tUnknown packet type 0x00000007',
+        ]
+
+    def test_chdlc_fcs(self, cmd_tshark, capture_file, test_env):
+        '''Frames 15 and 16 end with a valid 16 and 32 bit FCS, checked
+        with the chdlc.fcs_type preference.'''
+        for fcs, field, good in (('16-bit', 'ppp.fcs_16', '15'),
+                                 ('32-bit', 'ppp.fcs_32', '16')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-o', 'chdlc.fcs_type:' + fcs,
+                    '-r', capture_file('chdlc_coverage.pcapng.gz'),
+                    '-Y', field + ' && ppp.fcs.status == 1',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [good]
