@@ -26776,3 +26776,114 @@ class TestDissectCliqueRm:
             '\t\t0x03\t0x1a2b3c4d,0x0badf00d,0xcafe0001\t\t',
             '\t\t\t\t0x01\t0x1a2b3c4d',
         ]
+
+
+class TestDissectClnp:
+    def test_clnp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CLNP NPDU type decodes without malformed packets or
+        warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clnp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 25
+        assert protocols.count('CLNP') == 17
+        assert protocols.count('CLTP') == 6
+        assert protocols.count('COTP') == 1
+        assert protocols.count('IDRP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('clnp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_clnp_types(self, cmd_tshark, capture_file, test_env):
+        '''PDU type and flags, checksum status and what the payload goes
+        to: transport for NSEL 0x21, IDRP for NSEL 0x00, data otherwise.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clnp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 13 || frame.number == 25',
+                '-Tfields', '-eclnp.type', '-eclnp.checksum.status',
+                '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '188\t1\teth:llc:osi:clnp:cotp:data',
+            '28\t3\teth:llc:osi:clnp:cotp',
+            '28\t1\teth:llc:osi:clnp:idrp',
+            '28\t1\teth:llc:osi:clnp:data',
+            '28\t1\teth:llc:osi:clnp:data',
+            '28\t1\teth:llc:osi:clnp:data',
+            '60\t1\teth:llc:osi:clnp',
+            '29\t1\teth:llc:osi:clnp:cotp:data',
+            '62\t1\teth:llc:osi:clnp:data',
+            '31\t1\teth:llc:osi:clnp:data',
+            '5\t1\teth:llc:osi:clnp:data',
+            '\t\teth:llc:osi:clnp:cotp:data',
+            '\t\teth:llc:osi:clnp:data',
+            '28\t1\teth:ethertype:ip:osi:clnp:cotp:data',
+        ]
+
+    def test_clnp_nsel_prefs(self, cmd_tshark, capture_file, test_env):
+        '''The transport NSAP selector and "always decode transport"
+        preferences hand the NSEL 0x22 payload to CLTP.'''
+        for pref in ('clnp.tp_nsap_selector:0x22', 'clnp.always_decode_transport:TRUE'):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('clnp_coverage.pcap.gz'),
+                    '-o', pref,
+                    '-Y', 'frame.number == 5',
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip() == 'CLTP'
+
+    def test_clnp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Data unit 100 in three segments and data unit 101 in two
+        segments out of order are reassembled; data units 102 and 103
+        stay unreassembled.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('clnp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 14 && frame.number <= 20',
+                '-Tfields', '-eclnp.data_unit_identifier', '-eclnp.segment_offset',
+                '-eclnp.reassembled_in', '-eclnp.segment', '-eclnp.reassembled.length',
+                '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '100\t0\t16\t\t\tCLNP',
+            '100\t48\t16\t\t\tCLNP',
+            '100\t96\t\t14,15,16\t130\tCLTP',
+            '101\t40\t18\t\t\tCLNP',
+            '101\t0\t\t18,17\t88\tCLTP',
+            '102\t8\t\t\t\tCLNP',
+            '103\t0\t\t\t\tCLNP',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clnp_coverage.pcap.gz'),
+                '-o', 'clnp.reassemble:FALSE',
+                '-Y', 'frame.number >= 14 && frame.number <= 18',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'UD TPDU',
+            'Fragmented DT NPDU S M (off=48)',
+            'Fragmented DT NPDU S (off=96)',
+            'Fragmented DT NPDU S (off=40)',
+            'UD TPDU',
+        ]
+
+    def test_clnp_error_reports(self, cmd_tshark, capture_file, test_env):
+        '''Error reports: the discarded PDU is dissected as CLNP again,
+        also when it is an error report itself.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clnp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 21 && frame.number <= 24',
+                '-Tfields', '-eclnp.type', '-eosi.options.rfd.error_class',
+                '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1,188\t8\teth:llc:osi:clnp:clnp:cotp:data',
+            '1\t10\teth:llc:osi:clnp',
+            '1,62\t10\teth:llc:osi:clnp:clnp:data',
+            '1,1,60\t12,11\teth:llc:osi:clnp:clnp:clnp:data',
+        ]
