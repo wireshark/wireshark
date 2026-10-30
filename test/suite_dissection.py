@@ -26115,3 +26115,49 @@ class TestDissectCiscoTtag:
         assert len(types) > 200
         assert set(types) == {'0x8905'}
         assert data_len == ''
+
+
+class TestDissectCiscoWids:
+    def test_cwids_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CWIDS records decode without malformed packets or warnings, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_wids_coverage.pcap.gz'),
+                '-d', 'udp.port==5555,cwids',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['802.11', 'DISCARD', '802.11', '802.11']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_wids_coverage.pcap.gz'),
+                    '-d', 'udp.port==5555,cwids',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cwids_records(self, cmd_tshark, capture_file, test_env):
+        '''The record headers, several records in one datagram, and the
+        802.11 frame each one carries.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_wids_coverage.pcap.gz'),
+                '-d', 'udp.port==5555,cwids',
+                '-Tfields', '-ecwids.version', '-ecwids.timestamp', '-ecwids.channel',
+                '-ecwids.reallen', '-ecwids.caplen', '-ewlan.fc.type_subtype',
+                '-ewlan_radio.channel',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t000102030405\t1\t57\t57\t0x0008\t1',
+            '1\tffffffffffff\t6\t70\t70\t0x0020\t6',
+            '1,2,1\t000102030405,000102030405,000000000000\t11,11,36'
+            '\t32,10,51\t32,10,51\t0x0004,0x001d,0x0008\t11,11,36',
+            '1\t000102030405\t165\t1500\t10\t0x001d\t165',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_wids_coverage.pcap.gz'),
+                '-d', 'udp.port==5555,cwids',
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-ecwids.unknown1', '-ecwids.unknown2', '-ecwids.unknown3',
+                '-ewlan.ssid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '00\ta1a2a3a4a5a6\tb1b2b3b4b5b6b7b8\t63776964732d74657374'
