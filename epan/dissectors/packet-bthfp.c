@@ -1731,6 +1731,8 @@ dissect_ciev_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         *((unsigned *) *data) = value;
         break;
     case 1:
+        if (*data == NULL)
+            return false;
         indicator_index = *((unsigned *) *data) - 1;
         if (indicator_index > 19) {
             proto_tree_add_expert(tree, pinfo, &ei_ciev_indicator, tvb, offset, parameter_length);
@@ -1792,9 +1794,23 @@ static const at_cmd_t at_cmds[] = {
 };
 
 
+static char *
+at_upper_copy(tvbuff_t *tvb, packet_info *pinfo)
+{
+    unsigned  length = tvb_captured_length(tvb);
+    char     *at_buf = (char *) wmem_alloc(pinfo->pool, length + 1);
+
+    tvb_memcpy(tvb, at_buf, 0, length);
+    at_buf[length] = '\0';
+    for (unsigned i = 0; i < length; i++)
+        at_buf[i] = g_ascii_toupper(at_buf[i]);
+
+    return at_buf;
+}
+
 static int
 dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        int offset, uint32_t role, int command_number)
+        int offset, uint32_t role, int command_number, char *at_buf)
 {
     proto_item      *pitem;
     proto_tree      *command_item = NULL;
@@ -1822,30 +1838,26 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (length <= 0)
         return tvb_reported_length(tvb);
 
+    /* at_buf is an upper-cased copy of the whole tvb, made once per
+     * packet: copying the rest of the tvb for each command would be
+     * quadratic in the number of commands. */
+    tvb_ensure_bytes_exist(tvb, offset, length);
+    at_stream = at_buf + offset;
+
     if (!command_number) {
         proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_ASCII);
-        col_str = (uint8_t *) wmem_alloc(pinfo->pool, length + 1);
-        tvb_memcpy(tvb, col_str, offset, length);
-        col_str[length] = '\0';
-    }
-
-    at_stream = (char *) wmem_alloc(pinfo->pool, length + 1);
-    tvb_memcpy(tvb, (uint8_t*)at_stream, offset, length);
-    at_stream[length] = '\0';
-
-    while (at_stream[i_char]) {
-        at_stream[i_char] = g_ascii_toupper(at_stream[i_char]);
-        if (!command_number) {
-            col_str[i_char] = g_ascii_toupper(col_str[i_char]);
+        col_str = (uint8_t *) wmem_strndup(pinfo->pool, at_stream, length);
+        for (i_char = 0; col_str[i_char]; i_char += 1) {
             if (!g_ascii_isgraph(col_str[i_char])) col_str[i_char] = ' ';
         }
-        i_char += 1;
+        col_append_str(pinfo->cinfo, COL_INFO, (const char*)col_str);
     }
-
-    if (!command_number) col_append_str(pinfo->cinfo, COL_INFO, (const char*)col_str);
 
     if (role == ROLE_HS) {
         if (command_number) {
+            command_item = proto_tree_add_none_format(tree, hf_command, tvb,
+                    offset, 0, "Command %u", command_number);
+            command_tree = proto_item_add_subtree(command_item, ett_bthfp_command);
             at_command = at_stream;
             i_char = 0;
         } else {
@@ -1930,7 +1942,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (i_at_cmd && i_at_cmd->name == NULL) {
             char *name;
 
-            name = format_text(pinfo->pool, at_command, i_char + 1);
+            name = format_text(pinfo->pool, at_command, i_char);
             proto_item_append_text(command_item, ": %s (Unknown)", name);
             proto_item_append_text(pitem, " (Unknown - Non-Standard HFP Command)");
             expert_add_info(pinfo, pitem, &ei_non_mandatory_command);
@@ -2293,7 +2305,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         /* Detect reassemble end character: \r for HS or \n for AG */
         length = tvb_reported_length(tvb);
-        at_stream = tvb_get_string_enc(pinfo->pool, tvb, 0, length, ENC_ASCII);
+        at_stream = (uint8_t *) tvb_memdup(pinfo->pool, tvb, 0, length);
 
         reassemble_start_offset = 0;
 
@@ -2437,16 +2449,19 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         command_number = 0;
         if (reassembled_tvb) {
             unsigned reassembled_offset = 0;
+            char *at_buf = at_upper_copy(reassembled_tvb, pinfo);
 
             while (tvb_reported_length(reassembled_tvb) > reassembled_offset) {
                 reassembled_offset = dissect_at_command(reassembled_tvb,
-                        pinfo, main_tree, reassembled_offset, role, command_number);
+                        pinfo, main_tree, reassembled_offset, role, command_number, at_buf);
                 command_number += 1;
             }
             offset = tvb_captured_length(tvb);
         } else {
+            char *at_buf = at_upper_copy(tvb, pinfo);
+
             while (tvb_reported_length(tvb) > (unsigned) offset) {
-                offset = dissect_at_command(tvb, pinfo, main_tree, offset, role, command_number);
+                offset = dissect_at_command(tvb, pinfo, main_tree, offset, role, command_number, at_buf);
                 command_number += 1;
             }
         }
