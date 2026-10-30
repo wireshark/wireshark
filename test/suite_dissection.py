@@ -24382,3 +24382,60 @@ class TestDissectCgmp:
         gda, usa = stdout.rstrip('\n').split('\t')
         assert gda.split(',') == ['01:00:5e:00:01:%02x' % i for i in range(255)]
         assert usa.split(',') == ['00:11:22:33:44:%02x' % i for i in range(255)]
+
+
+class TestDissectChargen:
+    def test_chargen_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Chargen over UDP and TCP port 19 decodes without malformed
+        packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('chargen_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 15
+        assert protocols.count('Chargen') == 7
+        # The empty UDP request (frame 3) is not handed to Chargen
+        assert protocols.count('UDP') == 1
+        assert protocols.count('TCP') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('chargen_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_chargen_data(self, cmd_tshark, capture_file, test_env):
+        '''The data item shows the length and the characters of every
+        datagram and segment, the same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('chargen_coverage.pcap.gz'),
+                    '-Y', 'chargen', '-V', '-O', 'chargen',
+                ), encoding='utf-8', env=test_env)
+            # Long labels are truncated and start with "[…] "
+            data = [l.strip().removeprefix('[…] ') for l in stdout.splitlines()
+                    if l.startswith('    Data (') or l.startswith('    […] Data (')]
+            assert [d.split(':')[0] for d in data] == [
+                'Data (6)', 'Data (74)', 'Data (512)', 'Data (74)',
+                'Data (740)', 'Data (1406)', 'Data (18)',
+            ]
+            assert data[0] == 'Data (6): hello\\n'
+            assert data[1] == ('Data (74):  !"#$%&\'()*+,-./0123456789:;<=>?@'
+                               'ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefg\\r\\n')
+
+    def test_chargen_transport(self, cmd_tshark, capture_file, test_env):
+        '''Chargen frames are on port 19 over UDP (frames 1-4) and TCP
+        (frames 8-11).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('chargen_coverage.pcap.gz'),
+                '-Y', 'chargen',
+                '-Tfields', '-eframe.number', '-eudp.srcport', '-eudp.dstport',
+                '-etcp.srcport', '-etcp.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t50000\t19\t\t', '2\t19\t50000\t\t', '4\t19\t50001\t\t',
+            '8\t\t\t19\t74', '9\t\t\t19\t740', '10\t\t\t19\t1406',
+            '11\t\t\t19\t18',
+        ]
