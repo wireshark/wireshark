@@ -1210,7 +1210,7 @@ btle_init(void)
  * endian-neutral.
  */
 static uint32_t
-btle_crc(tvbuff_t *tvb, const uint8_t payload_len, const uint32_t crc_init)
+btle_crc(tvbuff_t *tvb, const uint32_t payload_len, const uint32_t crc_init)
 {
     static const uint16_t btle_crc_next_state_flips[256] = {
         0x0000, 0x32d8, 0x196c, 0x2bb4, 0x0cb6, 0x3e6e, 0x15da, 0x2702,
@@ -1248,7 +1248,7 @@ btle_crc(tvbuff_t *tvb, const uint8_t payload_len, const uint32_t crc_init)
     };
     int     offset = 4; /* skip AA, CRC applies over PDU */
     uint32_t state = crc_init;
-    uint8_t bytes_to_go = 2+payload_len; /* PDU includes header and payload */
+    uint32_t bytes_to_go = 2+payload_len; /* PDU includes header and payload */
     while( bytes_to_go-- ) {
         uint8_t byte   = tvb_get_uint8(tvb, offset++);
         uint8_t nibble = (byte & 0xf);
@@ -1444,7 +1444,7 @@ dissect_periodic_sync_ind(tvbuff_t *tvb, proto_tree *btle_tree, unsigned offset,
     sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
 
     call_dissector_with_data(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree, &reserved_offset);
-    proto_tree_add_item(btle_tree, hf_control_sync_info_sleep_clock_accuracy, tvb, reserved_offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_sync_info_sleep_clock_accuracy, tvb, offset + reserved_offset, 1, ENC_LITTLE_ENDIAN);
     offset += 5;
 
     proto_tree_add_item(btle_tree, hf_control_sync_info_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2377,6 +2377,7 @@ control_proc_start(tvbuff_t *tvb,
         proc_info = (control_proc_info_t *)wmem_tree_lookup32_le(control_proc_tree, pinfo->num);
         if (proc_info && proc_info->last_frame == 0) {
             /* Control procedure violation - initiating new procedure before previous was complete */
+            expert_add_info(pinfo, control_proc_item, &ei_control_proc_overlapping);
             return NULL;
         } else {
             /* Create a new control procedure context. */
@@ -2677,8 +2678,8 @@ dissect_btle_adv(tvbuff_t *tvb,
     bool         ch_sel_valid = false, tx_add_valid = false, rx_add_valid = false;
     bool         is_periodic_adv = false;
 
-    src_bd_addr = (uint8_t *) wmem_alloc(pinfo->pool, 6);
-    dst_bd_addr = (uint8_t *) wmem_alloc(pinfo->pool, 6);
+    src_bd_addr = (uint8_t *) wmem_alloc0(pinfo->pool, 6);
+    dst_bd_addr = (uint8_t *) wmem_alloc0(pinfo->pool, 6);
 
     key[0].length = 1;
     key[0].key = &interface_id;
@@ -3015,7 +3016,8 @@ dissect_btle_adv(tvbuff_t *tvb,
     case 0x08: /* AUX_CONNECT_RSP */
     case 0x09: /* ADV_DECISION_IND */
     {
-        uint8_t tmp, ext_header_len, flags, acad_len;
+        uint8_t tmp, ext_header_len, flags;
+        int acad_len;
         proto_item  *ext_header_item, *ext_flags_item;
         proto_tree  *ext_header_tree, *ext_flags_tree;
         uint32_t adi;
@@ -3056,7 +3058,7 @@ dissect_btle_adv(tvbuff_t *tvb,
         } else if (!connection_info) {
             const char * anon_str = "Anonymous";
             clear_address(&pinfo->dl_src);
-            set_address(&pinfo->net_src, AT_STRINGZ, sizeof(*anon_str), anon_str);
+            set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(anon_str) + 1, anon_str);
             copy_address_shallow(&pinfo->src, &pinfo->net_src);
         }
 
@@ -3318,39 +3320,37 @@ dissect_btle_adv(tvbuff_t *tvb,
                         break;
                 }
                 if (ad_processed) {
-                    if (pinfo->fd->visited) {
-                        /* Host Advertising Data fragment */
-                        proto_tree_add_item(btle_tree, hf_extended_advertising_had_fragment, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3, ENC_NA);
-                        if (ad_reassembled) {
-                            fragment_head *fd_head = NULL;
-                            tvbuff_t *assembled_tvb = NULL;
+                    /* Host Advertising Data fragment */
+                    proto_tree_add_item(btle_tree, hf_extended_advertising_had_fragment, tvb, offset, tvb_captured_length_remaining(tvb, offset) - 3, ENC_NA);
+                    if (ad_reassembled) {
+                        fragment_head *fd_head = NULL;
+                        tvbuff_t *assembled_tvb = NULL;
 
-                            ae_had_info = (ae_had_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_btle, (uint32_t)(pinfo->curr_layer_num) << 8);
-                            if (ae_had_info != NULL) {
-                                col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Reassembled)");
+                        ae_had_info = (ae_had_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_btle, (uint32_t)(pinfo->curr_layer_num) << 8);
+                        if (ae_had_info != NULL) {
+                            col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Reassembled)");
 
-                                if (!(flags & 0x01) && (ae_had_info->adv_addr.len > 0)) {
-                                    /* Copy Advertiser Address from AUX_ADV_IND if not present. */
-                                    copy_address_shallow(&pinfo->src, &ae_had_info->adv_addr);
-                                }
+                            if (!(flags & 0x01) && (ae_had_info->adv_addr.len > 0)) {
+                                /* Copy Advertiser Address from AUX_ADV_IND if not present. */
+                                copy_address_shallow(&pinfo->src, &ae_had_info->adv_addr);
+                            }
 
-                                fd_head = fragment_get(&btle_ea_host_advertising_data_reassembly_table, pinfo, ae_had_info->first_frame_num, NULL);
-                                assembled_tvb = process_reassembled_data(
-                                    tvb, offset, pinfo,
-                                    "Reassembled Host Advertising Data", fd_head,
-                                    &btle_ea_host_advertising_data_frag_items,
-                                    NULL, btle_tree);
+                            fd_head = fragment_get(&btle_ea_host_advertising_data_reassembly_table, pinfo, ae_had_info->first_frame_num, NULL);
+                            assembled_tvb = process_reassembled_data(
+                                tvb, offset, pinfo,
+                                "Reassembled Host Advertising Data", fd_head,
+                                &btle_ea_host_advertising_data_frag_items,
+                                NULL, btle_tree);
 
-                                if (assembled_tvb) {
-                                    dissect_ad_eir(assembled_tvb, interface_id, adapter_id, pinfo->num, src_bd_addr, pinfo, btle_tree);
-                                }
+                            if (assembled_tvb) {
+                                dissect_ad_eir(assembled_tvb, interface_id, adapter_id, pinfo->num, src_bd_addr, pinfo, btle_tree);
                             }
                         }
-                        else {
-                            col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Fragment)");
-                        }
-                        offset += tvb_captured_length_remaining(tvb, offset) - 3;
                     }
+                    else {
+                        col_append_str(pinfo->cinfo, COL_INFO, " (EA HAD Fragment)");
+                    }
+                    offset += tvb_captured_length_remaining(tvb, offset) - 3;
                 }
             }
 
@@ -3406,7 +3406,7 @@ dissect_btle_acl(tvbuff_t *tvb,
     uint32_t               connection_access_address;
 
     proto_item            *item;
-    unsigned               item_value;
+    unsigned               item_value = 0;
 
     proto_item  *data_header_item, *seq_item, *control_proc_item;
     proto_tree  *data_header_tree;
@@ -5223,7 +5223,7 @@ dissect_btle_connected_iso(tvbuff_t *tvb,
     key[3].key = NULL;
 
     oct = tvb_get_uint8(tvb, offset);
-    wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
+    wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connectediso_connection_info_tree, key);
     if (wmem_tree) {
         connection_info = (connectediso_connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
         if (connection_info) {
