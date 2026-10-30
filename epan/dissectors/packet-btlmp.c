@@ -684,6 +684,7 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     case 0x024: // LMP_preferred_rate
         for (unsigned i = 0; i < array_length(hf_param_datarate); ++i)
             proto_tree_add_item(btlmp_tree, hf_param_datarate[i], tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        ++offset;
         break;
 
     case 0x025: // LMP_version_req
@@ -969,8 +970,9 @@ dissect_btlmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         break;
 
     case 0x40c: // LMP_eSCO_link_req
-        btbredr_rf_add_esco_link(connection_info, pinfo, tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset + 1),
-                                 tvb_get_uint16(tvb, offset + 8, ENC_LITTLE_ENDIAN), tvb_get_uint16(tvb, offset + 10, ENC_LITTLE_ENDIAN));
+        if (tvb_bytes_exist(tvb, offset, 12))
+            btbredr_rf_add_esco_link(connection_info, pinfo, tvb_get_uint8(tvb, offset), tvb_get_uint8(tvb, offset + 1),
+                                     tvb_get_uint16(tvb, offset + 8, ENC_LITTLE_ENDIAN), tvb_get_uint16(tvb, offset + 10, ENC_LITTLE_ENDIAN));
         proto_tree_add_item(btlmp_tree, hf_param_escohandle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         ++offset;
         proto_tree_add_item(btlmp_tree, hf_param_escoltaddr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
