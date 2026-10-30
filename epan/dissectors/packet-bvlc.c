@@ -575,6 +575,7 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	proto_tree *fdt_tree; /* Foreign Device Table */
 
 	int offset;
+	unsigned sec_length;
 	uint8_t bvlc_type;
 	uint8_t bvlc_function;
 	uint16_t bvlc_length;
@@ -720,15 +721,23 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		/*offset += 2;*/
 		break;
 	case 0x0C: /* Secure-BVLL */
+		sec_length = tvb_captured_length(tvb);
 		offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL);
 		if (offset < 0) {
 			call_data_dissector(tvb, pinfo, tree);
-			return tvb_captured_length(tvb);
+			return sec_length;
 		}
-		increment_dissection_depth(pinfo);
-		dissect_ipv4_bvlc(tvb, pinfo, tree, data);
-		decrement_dissection_depth(pinfo);
-		break;
+		/* Dissect the secured BVLL message, not this one again;
+		 * a Secure-BVLL inside a Secure-BVLL is not decoded. */
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		if (tvb_get_uint8(next_tvb, 1) == 0x0C) {
+			call_data_dissector(next_tvb, pinfo, tree);
+		} else {
+			increment_dissection_depth(pinfo);
+			dissect_ipv4_bvlc(next_tvb, pinfo, tree, data);
+			decrement_dissection_depth(pinfo);
+		}
+		return sec_length;
 		/* We check this if we get a FDT-packet somewhere */
 	case 0x04:	/* Forwarded-NPDU
 			 * Why is this 0x04? It would have been a better
@@ -774,6 +783,7 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	proto_tree *bvlc_tree;
 
 	int offset;
+	unsigned sec_length;
 	uint8_t bvlc_type;
 	uint8_t bvlc_function;
 	uint16_t bvlc_length = 0;
@@ -910,15 +920,23 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		offset += 2;
 		break;
 	case 0x0B: /* Secure-BVLL */
+		sec_length = tvb_captured_length(tvb);
 		offset = bacnet_dissect_sec_wrapper(tvb, pinfo, tree, offset, NULL);
 		if (offset < 0) {
 			call_data_dissector(tvb, pinfo, tree);
-			return tvb_captured_length(tvb);
+			return sec_length;
 		}
-		increment_dissection_depth(pinfo);
-		dissect_ipv6_bvlc(tvb, pinfo, tree, data);
-		decrement_dissection_depth(pinfo);
-		break;
+		/* Dissect the secured BVLL message, not this one again;
+		 * a Secure-BVLL inside a Secure-BVLL is not decoded. */
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		if (tvb_get_uint8(next_tvb, 1) == 0x0B) {
+			call_data_dissector(next_tvb, pinfo, tree);
+		} else {
+			increment_dissection_depth(pinfo);
+			dissect_ipv6_bvlc(next_tvb, pinfo, tree, data);
+			decrement_dissection_depth(pinfo);
+		}
+		return sec_length;
 	case 0x02: /* Original-Broadcast-NPDU */
 	case 0x0c: /* Distribute-Broadcast-To-Network */
 	default:
