@@ -84,7 +84,8 @@ test_caneth(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 static unsigned
 get_caneth_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return (unsigned) tvb_get_ntohs(tvb, offset+3);
+    /* The header is followed by the number of CAN frames given in it */
+    return 10 + CAN_FRAME_LEN * tvb_get_uint8(tvb, offset + 9);
 }
 
 static int
