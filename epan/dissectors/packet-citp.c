@@ -24,6 +24,7 @@
 #include <epan/tfs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-tcp.h"
 
 
@@ -843,12 +844,8 @@ static void set_conversation_encryption(packet_info *pinfo, char* enid) {
         info->id = enid;
         conversation_add_proto_data(conv, proto_citp_sdmx, (void*)info);
     } else {
-        if (strcmp(info->id, enid) == 0) {
-            /* free unused enid */
-            wmem_free(wmem_file_scope(), enid);
-        } else {
-            /* free old enid, is copied wherever it's used in proto tree, so no use-after-free */
-            wmem_free(wmem_file_scope(), info->id);
+        /* The old enid is kept, earlier frames refer to it */
+        if (strcmp(info->id, enid) != 0) {
             info->id = enid;
         }
     }
@@ -957,13 +954,15 @@ dissect_sdmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             break;
         case CITP_SDMX_ENID: {
             str_len = tvb_strsize(tvb, offset);
-            char* enid = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, str_len, ENC_UTF_8);
-            proto_tree_add_item(sdmx_tree, hf_citp_sdmx_encryption_identifier, tvb, offset, str_len, ENC_UTF_8);
-            offset += str_len;
+            const uint8_t* enid;
+            proto_tree_add_item_ret_string(sdmx_tree, hf_citp_sdmx_encryption_identifier, tvb, offset, str_len, ENC_UTF_8, pinfo->pool, &enid);
             col_add_fstr(pinfo->cinfo, COL_INFO, "EnId, %s", enid);
 
             /* add encryption info to conversation */
-            set_conversation_encryption(pinfo, enid);
+            if (!PINFO_FD_VISITED(pinfo)) {
+                set_conversation_encryption(pinfo, (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, str_len, ENC_UTF_8));
+            }
+            offset += str_len;
             break;
         }
         case CITP_SDMX_CHBK:
@@ -986,7 +985,16 @@ dissect_sdmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "ChBk, %s, Universe %d, Channels %d-%d", tfs_get_string(blind, &tfs_live_blind), univ_num, start_chan+1, start_chan+count);
 
-            char* enc_info = get_conversation_encryption(pinfo);
+            /* Use the encryption that applied when the frame was first seen */
+            char* enc_info;
+            if (!PINFO_FD_VISITED(pinfo)) {
+                enc_info = get_conversation_encryption(pinfo);
+                if (enc_info != NULL) {
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_citp_sdmx, 0, enc_info);
+                }
+            } else {
+                enc_info = (char*)p_get_proto_data(wmem_file_scope(), pinfo, proto_citp_sdmx, 0);
+            }
             if (enc_info != NULL) {
                 proto_tree_add_item(sdmx_tree, hf_citp_sdmx_encrypted_channel_data, tvb, offset, count, ENC_NA);
                 proto_item_set_generated(
@@ -1831,7 +1839,7 @@ dissect_msex_sinf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
 
     proto_tree_add_item_ret_uint(tree, hf_citp_msex_layer_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &count);
     offset+=1;
-    proto_item* layer = proto_tree_add_item(tree, hf_citp_msex_layers, tvb, offset, -1, ENC_NA);
+    proto_item* layer = proto_tree_add_item(tree, hf_citp_msex_layers, tvb, offset, 0, ENC_NA);
     proto_tree* layer_tree = proto_item_add_subtree(layer, ett_citp_msex_layers);
     int s_offset = offset;
     for (unsigned int i = 0; i < count; i++) {
@@ -1854,7 +1862,7 @@ dissect_msex_lsta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     proto_tree_add_item_ret_uint(tree, hf_citp_msex_layer_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &count);
     offset+=1;
 
-    proto_item *layers = proto_tree_add_item(tree, hf_citp_msex_layers, tvb, offset, -1, ENC_NA);
+    proto_item *layers = proto_tree_add_item(tree, hf_citp_msex_layers, tvb, offset, 0, ENC_NA);
     proto_tree *layers_tree = proto_item_add_subtree(layers, ett_citp_msex_layers);
     int list_offset = offset;
     for (unsigned int i = 0; i < count; i++) {
@@ -2209,7 +2217,7 @@ dissect_msex_vsrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     offset+=2;
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %d sources", count);
 
-    proto_item *sources = proto_tree_add_item(tree, hf_citp_msex_sources, tvb, offset, -1, ENC_NA);
+    proto_item *sources = proto_tree_add_item(tree, hf_citp_msex_sources, tvb, offset, 0, ENC_NA);
     proto_tree *sources_tree = proto_item_add_subtree(sources, ett_citp_msex_sources);
     int list_offset = offset;
     for (unsigned int i = 0; i < count; i++) {
@@ -3678,7 +3686,7 @@ proto_register_citp(void) {
         },
         { &hf_citp_msex_layers,
             { "Layers", "citp.msex.layers",
-            FT_UINT8, BASE_DEC,
+            FT_NONE, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },
