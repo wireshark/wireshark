@@ -15,6 +15,8 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/to_str.h>
 
 void proto_register_ttag(void);
@@ -30,6 +32,8 @@ static int hf_ttag_time_stamp;
 static int hf_ttag_eth_type;
 
 static int ett_ttag;
+
+static expert_field ei_ttag_too_deep;
 
 static int
 dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -72,6 +76,11 @@ dissect_ttag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     ethertype_data.trailer_id = proto_registrar_get_id_byname("eth.trailer");
     ethertype_data.fcs_len = 0;
 
+    /* The payload may carry TTAG again; stop before the layer limit */
+    if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+        proto_tree_add_expert_remaining(ttag_tree, pinfo, &ei_ttag_too_deep, tvb, offset);
+        return tvb_captured_length(tvb);
+    }
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
 
     return tvb_captured_length(tvb);
@@ -96,6 +105,12 @@ proto_register_ttag(void)
     proto_ttag = proto_register_protocol("Cisco ttag", "Cisco ttag", "ttag");
     proto_register_field_array(proto_ttag, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    static ei_register_info ei[] = {
+        { &ei_ttag_too_deep, { "ttag.too_deep", PI_UNDECODED, PI_WARN, "Payload nested too deep, not dissected", EXPFILL }},
+    };
+    expert_module_t* expert_ttag = expert_register_protocol(proto_ttag);
+    expert_register_field_array(expert_ttag, ei, array_length(ei));
 
     ttag_handle = register_dissector("ttag", dissect_ttag, proto_ttag);
 }
