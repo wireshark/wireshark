@@ -8,9 +8,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
+
 #include "config.h"
 #include <wsutil/cpu_info.h>
 
+#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -25,6 +28,7 @@
 
 #if defined(_WIN32)
   #include <windows.h>
+  #include <wsutil/win32-utils.h>
 #elif defined(HAVE_SYSCTL)
   #include <sys/types.h>
   #include <sys/sysctl.h>
@@ -115,12 +119,175 @@ get_translator_name(void)
 }
 
 #ifdef HAVE_CPUINFO
+/*
+ * Depending on how it was built, cpuinfo logs debugging and informational
+ * messages to the standard output, and warnings and errors to the standard
+ * error; for example, the vcpkg debug build logs debugging messages. It
+ * writes them with write() on UN*X, and with WriteFile() on the handles
+ * from GetStdHandle() on Windows, bypassing stdio. That can corrupt what we
+ * write to those streams, such as a capture file that dumpcap writes to
+ * the standard output, or dumpcap's messages to its parent.
+ *
+ * So while cpuinfo initializes, which is when it logs, point the standard
+ * output and error at temporary files, and afterwards log what it wrote
+ * with our own logging. This affects the whole process, so it should be
+ * done as briefly as possible. It only happened at startup in our programs;
+ * later calls don't reinitialize and just fetch the existing info.
+ */
+
+/* Don't log more than this much of a stream. */
+#define STD_STREAM_CAPTURE_MAX  (64 * 1024)
+
+struct std_stream_capture {
+    enum ws_log_level level;    /* level at which to log what was written */
+    bool active;
+#ifdef _WIN32
+    DWORD std_handle;           /* STD_OUTPUT_HANDLE or STD_ERROR_HANDLE */
+    HANDLE saved_handle;
+    HANDLE file;                /* deleted when closed */
+#else
+    int std_fd;                 /* STDOUT_FILENO or STDERR_FILENO */
+    int saved_fd;
+    int file_fd;                /* already unlinked */
+#endif
+};
+
+static void
+std_stream_capture_start(struct std_stream_capture *capture, FILE *stream,
+                         enum ws_log_level level)
+{
+    capture->level = level;
+    capture->active = false;
+    /* Write out anything we've buffered to the real stream first. */
+    fflush(stream);
+#ifdef _WIN32
+    WCHAR dir[MAX_PATH + 1];
+    WCHAR path[MAX_PATH + 1];
+
+    capture->std_handle = (stream == stdout) ? STD_OUTPUT_HANDLE : STD_ERROR_HANDLE;
+    if (GetTempPathW((DWORD)G_N_ELEMENTS(dir), dir) == 0 ||
+        GetTempFileNameW(dir, L"wsc", 0, path) == 0) {
+        ws_debug("Can't get a temporary file name for cpuinfo output: %s",
+                 win32strerror(GetLastError()));
+        return;
+    }
+    capture->file = CreateFileW(path, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+                                CREATE_ALWAYS,
+                                FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE,
+                                NULL);
+    if (capture->file == INVALID_HANDLE_VALUE) {
+        ws_debug("Can't create a temporary file for cpuinfo output: %s",
+                 win32strerror(GetLastError()));
+        DeleteFileW(path);
+        return;
+    }
+    capture->saved_handle = GetStdHandle(capture->std_handle);
+    if (!SetStdHandle(capture->std_handle, capture->file)) {
+        ws_debug("Can't redirect a standard stream for cpuinfo: %s",
+                 win32strerror(GetLastError()));
+        CloseHandle(capture->file);
+        return;
+    }
+#else
+    GError *err = NULL;
+    char *path;
+
+    capture->std_fd = fileno(stream);
+    capture->file_fd = g_file_open_tmp("wireshark_cpuinfo_XXXXXX", &path, &err);
+    if (capture->file_fd == -1) {
+        ws_debug("Can't create a temporary file for cpuinfo output: %s",
+                 err->message);
+        g_error_free(err);
+        return;
+    }
+    ws_unlink(path);
+    g_free(path);
+    capture->saved_fd = ws_dup(capture->std_fd);
+    if (capture->saved_fd == -1) {
+        ws_debug("Can't save a standard stream for cpuinfo: %s", g_strerror(errno));
+        ws_close(capture->file_fd);
+        return;
+    }
+    if (dup2(capture->file_fd, capture->std_fd) == -1) {
+        ws_debug("Can't redirect a standard stream for cpuinfo: %s", g_strerror(errno));
+        ws_close(capture->saved_fd);
+        ws_close(capture->file_fd);
+        return;
+    }
+#endif
+    capture->active = true;
+}
+
+static void
+std_stream_capture_finish(struct std_stream_capture *capture)
+{
+    char *buf;
+    size_t len = 0;
+
+    if (!capture->active) {
+        return;
+    }
+    buf = g_malloc(STD_STREAM_CAPTURE_MAX + 1);
+    /* Restore the stream, and read back what was written to it. */
+#ifdef _WIN32
+    DWORD bytes_read;
+
+    SetStdHandle(capture->std_handle, capture->saved_handle);
+    if (SetFilePointer(capture->file, 0, NULL, FILE_BEGIN) != INVALID_SET_FILE_POINTER) {
+        while (len < STD_STREAM_CAPTURE_MAX &&
+               ReadFile(capture->file, buf + len, (DWORD)(STD_STREAM_CAPTURE_MAX - len),
+                        &bytes_read, NULL) && bytes_read > 0) {
+            len += bytes_read;
+        }
+    }
+    CloseHandle(capture->file);
+#else
+    ws_file_ssize_t bytes_read;
+
+    dup2(capture->saved_fd, capture->std_fd);
+    ws_close(capture->saved_fd);
+    if (ws_lseek64(capture->file_fd, 0, SEEK_SET) == 0) {
+        while (len < STD_STREAM_CAPTURE_MAX &&
+               (bytes_read = ws_read(capture->file_fd, buf + len,
+                                     STD_STREAM_CAPTURE_MAX - len)) > 0) {
+            len += (size_t)bytes_read;
+        }
+    }
+    ws_close(capture->file_fd);
+#endif
+    capture->active = false;
+
+    /* Log each line, without the line ending. */
+    buf[len] = '\0';
+    char **lines = g_strsplit(buf, "\n", -1);
+    for (char **line = lines; *line != NULL; line++) {
+        g_strchomp(*line);
+        if (**line != '\0') {
+            ws_log(WS_LOG_DOMAIN, capture->level, "%s", *line);
+        }
+    }
+    g_strfreev(lines);
+    g_free(buf);
+}
+
 static bool
 try_cpuinfo(GTree* model_names)
 {
     static bool tried_cpuinfo_init = false;
     if (!tried_cpuinfo_init) {
-        if ((cpuinfo_is_initialized = cpuinfo_initialize())) {
+        struct std_stream_capture out_capture, err_capture;
+
+        /* XXX - If we really cared, we could string match against the
+         * common prefixes cpuinfo used, remove them and send to the
+         * exact same log level. Probably overkill. Also note we'll
+         * log all the debug messages before all the warnings at the
+         * end, instead of preserving the exact order. */
+        std_stream_capture_start(&out_capture, stdout, LOG_LEVEL_DEBUG);
+        std_stream_capture_start(&err_capture, stderr, LOG_LEVEL_WARNING);
+        cpuinfo_is_initialized = cpuinfo_initialize();
+        std_stream_capture_finish(&err_capture);
+        std_stream_capture_finish(&out_capture);
+        if (cpuinfo_is_initialized) {
             atexit(cpuinfo_deinitialize);
         }
         tried_cpuinfo_init = true;
