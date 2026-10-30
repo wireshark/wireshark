@@ -452,7 +452,7 @@ proto_register_mim(void)
     {
       &hf_eid,
       { "End Node ID", "cfp.eid",
-        FT_UINT24, BASE_DEC_HEX, NULL, FP_3B_EID_MASK,
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
         "Cisco FabricPath End node ID", HFILL }},
     {
       &hf_lid,
