@@ -124,9 +124,10 @@ if(FETCH_lua)
 	add_dependencies(wslua lua54)
 endif()
 
+target_link_libraries(wslua PRIVATE GCrypt::GCrypt)
+
 target_include_directories(wslua
 	SYSTEM PRIVATE
-		${GCRYPT_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
 		${LUA_INCLUDE_DIRS}
 	PRIVATE

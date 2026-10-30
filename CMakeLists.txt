@@ -3625,7 +3625,7 @@ if(BUILD_sharkd)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${SOCKET_LIBRARY}
 		${SPEEXDSP_LIBRARIES}
-		${GCRYPT_LIBRARIES}
+		GCrypt::GCrypt
 	)
 	set(sharkd_FILES
 		ui/cli/simple_dialog.c
@@ -3639,7 +3639,7 @@ if(BUILD_sharkd)
 	add_executable(sharkd ${sharkd_FILES})
 	set_extra_executable_properties(sharkd "Executables")
 	target_link_libraries(sharkd ${sharkd_LIBS})
-	target_include_directories(sharkd SYSTEM PUBLIC ${SPEEXDSP_INCLUDE_DIRS} ${GCRYPT_INCLUDE_DIRS})
+	target_include_directories(sharkd SYSTEM PUBLIC ${SPEEXDSP_INCLUDE_DIRS})
 
 	install(TARGETS sharkd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -3755,7 +3755,7 @@ if(BUILD_capinfos)
 		wsutil
 		${ZLIB_LIBRARIES}
 		${ZLIBNG_LIBRARIES}
-		${GCRYPT_LIBRARIES}
+		GCrypt::GCrypt
 		${CMAKE_DL_LIBS}
 	)
 	set(capinfos_FILES
@@ -3766,7 +3766,6 @@ if(BUILD_capinfos)
 	add_executable(capinfos ${capinfos_FILES})
 	set_extra_executable_properties(capinfos "Executables")
 	target_link_libraries(capinfos ${capinfos_LIBS})
-	target_include_directories(capinfos SYSTEM PRIVATE ${GCRYPT_INCLUDE_DIRS})
 	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -3796,7 +3795,7 @@ if(BUILD_editcap)
 		wiretap
 		${ZLIB_LIBRARIES}
 		${ZLIBNG_LIBRARIES}
-		${GCRYPT_LIBRARIES}
+		GCrypt::GCrypt
 		${CMAKE_DL_LIBS}
 	)
 	set(editcap_FILES
@@ -3807,7 +3806,6 @@ if(BUILD_editcap)
 	add_executable(editcap ${editcap_FILES})
 	set_extra_executable_properties(editcap "Executables")
 	target_link_libraries(editcap ${editcap_LIBS})
-	target_include_directories(editcap SYSTEM PRIVATE ${GCRYPT_INCLUDE_DIRS})
 	install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -4714,6 +4712,21 @@ install(
 install(EXPORT WiresharkTargets
 	DESTINATION ${WIRESHARK_INSTALL_CMAKEDIR}
 	COMPONENT "Development"
+	EXCLUDE_FROM_ALL
+)
+
+# WiresharkConfig.cmake uses these to create the GLib2:: and GCrypt::
+# targets that WiresharkTargets.cmake links to.
+install(
+	FILES
+		${CMAKE_SOURCE_DIR}/cmake/modules/FindGCRYPT.cmake
+		${CMAKE_SOURCE_DIR}/cmake/modules/FindGLIB2.cmake
+		${CMAKE_SOURCE_DIR}/cmake/modules/FindWSLibrary.cmake
+		${CMAKE_SOURCE_DIR}/cmake/modules/FindWSWinLibs.cmake
+	DESTINATION
+		${WIRESHARK_INSTALL_CMAKEDIR}/modules
+	COMPONENT
+		"Development"
 	EXCLUDE_FROM_ALL
 )
 

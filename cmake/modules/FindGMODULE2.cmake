@@ -5,6 +5,7 @@
 #  GMODULE2_FOUND               True if GMODULE2 was found
 #  GMODULE2_INCLUDE_DIRS        Location of GMODULE2 headers
 #  GMODULE2_LIBRARIES           List of libraries to use GMODULE2
+#  GLib2::GModule               IMPORTED target for GModule
 #
 
 include(FindWSWinLibs)
@@ -40,6 +41,11 @@ find_package_handle_standard_args(GMODULE2 DEFAULT_MSG GMODULE2_LIBRARY GMODULE2
 if(GMODULE2_FOUND)
 	set(GMODULE2_INCLUDE_DIRS ${GMODULE2_INCLUDE_DIR})
 	set(GMODULE2_LIBRARIES ${GMODULE2_LIBRARY})
+	ws_add_imported_library(GLib2::GModule GMODULE2_LIBRARY
+		DLL "gmodule-2.0-0"
+		INCLUDE_DIRS ${GMODULE2_INCLUDE_DIRS}
+		LINK_LIBRARIES GLib2::GLib2
+	)
 else()
 	set(GMODULE2_INCLUDE_DIRS)
 	set(GMODULE2_LIBRARIES)

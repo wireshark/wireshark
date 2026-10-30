@@ -2094,9 +2094,10 @@ add_library(dissectors OBJECT
 )
 add_dependencies(dissectors generate_dissector_registration)
 
+target_link_libraries(dissectors PRIVATE GCrypt::GCrypt)
+
 target_include_directories(dissectors
 	SYSTEM PRIVATE
-		${GCRYPT_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
 		${KERBEROS_INCLUDE_DIRS}
 		${LIBXML2_INCLUDE_DIRS}

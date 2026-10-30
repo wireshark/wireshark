@@ -5,6 +5,7 @@
 #  GLIB2_FOUND           - system has glib2
 #  GLIB2_INCLUDE_DIRS    - the glib2 include directory
 #  GLIB2_LIBRARIES       - glib2 library
+#  GLib2::GLib2          - IMPORTED target for GLib
 #  GLIB2_DLL_DIR_DEBUG   - (Windows) Path to required GLib2 DLLs in debug build.
 #  GLIB2_DLL_DIR_RELEASE - (Windows) Path to required GLib2 DLLs in release builds.
 #  GLIB2_DLLS_DEBUG      - (Windows) List of required GLib2 DLLs in debug builds.
@@ -154,6 +155,20 @@ if( GLIB2_FOUND )
 		endif()
 	endif()
 	set( GLIB2_INCLUDE_DIRS ${GLIB2_MAIN_INCLUDE_DIR} ${GLIB2_INTERNAL_INCLUDE_DIR} )
+
+	# For static linking, link to the transitive dependencies added above.
+	list(LENGTH GLIB2_LIBRARY _glib2_library_length)
+	list(LENGTH GLIB2_LIBRARIES _glib2_libraries_length)
+	set(_glib2_link_libraries)
+	if(_glib2_libraries_length GREATER _glib2_library_length)
+		list(SUBLIST GLIB2_LIBRARIES ${_glib2_library_length} -1 _glib2_link_libraries)
+	endif()
+	ws_add_imported_library(GLib2::GLib2 GLIB2_LIBRARY
+		DLL "glib-2.0-0"
+		INCLUDE_DIRS ${GLIB2_INCLUDE_DIRS}
+		LINK_LIBRARIES ${_glib2_link_libraries}
+	)
+
 	if ( USE_REPOSITORY AND GLIB2_FOUND )
 		set(GLIB2_DLL_DIR_RELEASE "${GLIB2_HINTS}/bin")
 		set(GLIB2_DLL_DIR_DEBUG "${GLIB2_HINTS}/debug/bin")

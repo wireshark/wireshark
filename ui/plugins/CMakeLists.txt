@@ -50,7 +50,7 @@ if(MSVC)
 	set_target_properties(uiqt_plugin PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 endif()
 
-target_link_libraries(uiqt_plugin wsutil epan ${GLIB2_LIBRARIES})
+target_link_libraries(uiqt_plugin wsutil epan GLib2::GLib2)
 
 install(TARGETS uiqt_plugin
 	EXPORT WiresharkTargets

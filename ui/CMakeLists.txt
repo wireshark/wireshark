@@ -99,13 +99,8 @@ target_link_libraries(summary
 		wiretap
 		epan
 		wsutil
-		${GCRYPT_LIBRARIES}
+		GCrypt::GCrypt
 	)
-
-target_include_directories(summary
-	SYSTEM PRIVATE
-		${GCRYPT_INCLUDE_DIRS}
-)
 
 set_target_properties(ui summary PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"

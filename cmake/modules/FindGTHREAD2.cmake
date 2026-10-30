@@ -5,6 +5,7 @@
 #  GTHREAD2_FOUND               True if GTHREAD2 was found
 #  GTHREAD2_INCLUDE_DIRS        Location of GTHREAD2 headers
 #  GTHREAD2_LIBRARIES           List of libraries to use GTHREAD2
+#  GLib2::GThread               IMPORTED target for GThread
 #
 
 include(FindWSWinLibs)
@@ -40,6 +41,11 @@ find_package_handle_standard_args(GTHREAD2 DEFAULT_MSG GTHREAD2_LIBRARY GTHREAD2
 if(GTHREAD2_FOUND)
 	set(GTHREAD2_INCLUDE_DIRS ${GTHREAD2_INCLUDE_DIR})
 	set(GTHREAD2_LIBRARIES ${GTHREAD2_LIBRARY})
+	ws_add_imported_library(GLib2::GThread GTHREAD2_LIBRARY
+		DLL "gthread-2.0-0"
+		INCLUDE_DIRS ${GTHREAD2_INCLUDE_DIRS}
+		LINK_LIBRARIES GLib2::GLib2
+	)
 else()
 	set(GTHREAD2_INCLUDE_DIRS)
 	set(GTHREAD2_LIBRARIES)

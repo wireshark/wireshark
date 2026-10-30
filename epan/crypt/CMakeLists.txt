@@ -53,9 +53,9 @@ add_library(crypt OBJECT
 	${CRYPT_FILES}
 )
 
+target_link_libraries(crypt PRIVATE GCrypt::GCrypt)
+
 target_include_directories(crypt
-	SYSTEM PRIVATE
-		${GCRYPT_INCLUDE_DIRS}
 	PRIVATE
 		${CMAKE_CURRENT_BINARY_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}

@@ -23,6 +23,39 @@ if(Wireshark_PLUGINS_ENABLED)
 endif()
 set(Wireshark_EXTCAP_INSTALL_DIR "@PACKAGE_EXTCAP_INSTALL_LIBDIR@")
 
+#
+# Our exported targets link to the GLib2::GLib2 and GCrypt::GCrypt IMPORTED
+# targets, because our public headers include GLib's and Libgcrypt's. Create
+# them with the Find modules that we install alongside this file.
+#
+include(CMakeFindDependencyMacro)
+set(_Wireshark_saved_module_path "${CMAKE_MODULE_PATH}")
+list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/modules")
+# On Windows, look in the same third party library repository that we were
+# built with (WIRESHARK_BASE_DIR), unless told otherwise.
+set(_Wireshark_unset_use_repository FALSE)
+if("@USE_REPOSITORY@" AND NOT DEFINED USE_REPOSITORY)
+    set(USE_REPOSITORY TRUE)
+    set(_Wireshark_unset_use_repository TRUE)
+endif()
+set(_Wireshark_unset_target_platform FALSE)
+if(NOT DEFINED WIRESHARK_TARGET_PLATFORM)
+    set(WIRESHARK_TARGET_PLATFORM "@WIRESHARK_TARGET_PLATFORM@")
+    set(_Wireshark_unset_target_platform TRUE)
+endif()
+find_dependency(GLIB2)
+find_dependency(GCRYPT)
+set(CMAKE_MODULE_PATH "${_Wireshark_saved_module_path}")
+if(_Wireshark_unset_use_repository)
+    unset(USE_REPOSITORY)
+endif()
+if(_Wireshark_unset_target_platform)
+    unset(WIRESHARK_TARGET_PLATFORM)
+endif()
+unset(_Wireshark_saved_module_path)
+unset(_Wireshark_unset_use_repository)
+unset(_Wireshark_unset_target_platform)
+
 include("${CMAKE_CURRENT_LIST_DIR}/WiresharkTargets.cmake")
 
 check_required_components(Wireshark)

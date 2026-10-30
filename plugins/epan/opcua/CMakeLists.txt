@@ -36,8 +36,7 @@ set(DISSECTOR_SUPPORT_SRC
 )
 
 add_wireshark_epan_plugin_library(opcua
-	PLUGIN_LIBS ${GCRYPT_LIBRARIES}
-	PLUGIN_INCS ${GCRYPT_INCLUDE_DIRS}
+	PLUGIN_LIBS GCrypt::GCrypt
 )
 
 #

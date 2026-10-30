@@ -1103,9 +1103,10 @@ if(Qt6DBus_FOUND)
 	target_link_libraries(qtui PUBLIC Qt6::DBus)
 endif()
 
+target_link_libraries(qtui PRIVATE GCrypt::GCrypt)
+
 target_include_directories(qtui
 	SYSTEM PRIVATE
-		${GCRYPT_INCLUDE_DIRS}
 		${MINIZIP_INCLUDE_DIRS}
 		${MINIZIPNG_INCLUDE_DIRS}
 		${PCAP_INCLUDE_DIRS}

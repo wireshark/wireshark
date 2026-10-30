@@ -8,13 +8,13 @@ set(REX_SRC
 add_library(lrexlib STATIC ${REX_SRC})
 
 target_link_libraries(lrexlib PRIVATE
+	GCrypt::GCrypt
 	${LUA_LIBRARIES}
 	$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 )
 
 target_include_directories(lrexlib SYSTEM PRIVATE
 	${CMAKE_SOURCE_DIR}/epan
-	${GCRYPT_INCLUDE_DIRS}
 	${LUA_INCLUDE_DIRS}
 	${PCRE2_INCLUDE_DIRS}
 )

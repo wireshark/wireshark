@@ -45,7 +45,7 @@ target_link_libraries(caputils
 		${WIN_IPHLPAPI_LIBRARY}
 )
 if(WIN32)
-	target_link_libraries(caputils PRIVATE ${GMODULE2_LIBRARIES})
+	target_link_libraries(caputils PRIVATE $<TARGET_NAME_IF_EXISTS:GLib2::GModule>)
 endif()
 
 set_target_properties(caputils PROPERTIES

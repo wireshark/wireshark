@@ -5,6 +5,8 @@
 #  GCRYPT_INCLUDE_DIRS - where to find gcrypt.h, etc.
 #  GCRYPT_LIBRARIES    - List of libraries when using gcrypt.
 #  GCRYPT_FOUND        - True if gcrypt found.
+#  GCrypt::GCrypt      - IMPORTED target for libgcrypt, which links to
+#                        GCrypt::GPGError for libgpg-error if that was found.
 #  GCRYPT_DLL_DIR      - (Windows) Path to the Libgcrypt DLLs.
 #  GCRYPT_DLLS         - (Windows) List of required Libgcrypt DLLs.
 
@@ -65,6 +67,19 @@ find_package_handle_standard_args(GCRYPT
 if(GCRYPT_FOUND)
   set(GCRYPT_LIBRARIES ${GCRYPT_LIBRARY} ${GCRYPT_ERROR_LIBRARY})
   set(GCRYPT_INCLUDE_DIRS ${GCRYPT_INCLUDE_DIR})
+  set(_gcrypt_link_libraries)
+  if(GCRYPT_ERROR_LIBRARY)
+    ws_add_imported_library(GCrypt::GPGError GCRYPT_ERROR_LIBRARY
+      DLL "libgpg-error*"
+      INCLUDE_DIRS ${GCRYPT_INCLUDE_DIRS}
+    )
+    set(_gcrypt_link_libraries GCrypt::GPGError)
+  endif()
+  ws_add_imported_library(GCrypt::GCrypt GCRYPT_LIBRARY
+    DLL "libgcrypt-*"
+    INCLUDE_DIRS ${GCRYPT_INCLUDE_DIRS}
+    LINK_LIBRARIES ${_gcrypt_link_libraries}
+  )
   AddWSWinDLLS(GCRYPT GCRYPT_HINTS "libgcrypt-*" "libgpg-error*")
 else()
   set(GCRYPT_LIBRARIES)

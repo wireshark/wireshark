@@ -15,8 +15,14 @@ function( FindWSWinLibs _WS_LIB_SEARCH_PATH _LIB_HINT_VAR )
     if( ARGN )
       set( _PROJECT_LIB_DIR ${ARGN} )
     else()
-      if (WIRESHARK_BASE_DIR)
-        file( TO_CMAKE_PATH "${WIRESHARK_BASE_DIR}" _ws_base_dir )
+      # Our CMakeLists.txt sets WIRESHARK_BASE_DIR from the environment, but
+      # projects that use our installed Find modules might not.
+      set(_ws_base_dir_var "${WIRESHARK_BASE_DIR}")
+      if (NOT _ws_base_dir_var AND DEFINED ENV{WIRESHARK_BASE_DIR})
+        set(_ws_base_dir_var "$ENV{WIRESHARK_BASE_DIR}")
+      endif()
+      if (_ws_base_dir_var)
+        file( TO_CMAKE_PATH "${_ws_base_dir_var}" _ws_base_dir )
         set( _PROJECT_LIB_DIR "${_ws_base_dir}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
 	unset(_ws_base_dir)
       else()
@@ -151,6 +157,11 @@ function(ws_add_runtime_dlls)
     endif()
     get_filename_component(_dll_name "${_dll}" NAME_WLE)
     string(MAKE_C_IDENTIFIER "${_dll_name}" _dll_id)
+    get_property(_owner GLOBAL PROPERTY _WS_RUNTIME_DLL_OWNER_${_dll_id})
+    if(_owner)
+      # A target from ws_add_imported_library() provides this DLL.
+      continue()
+    endif()
     set(_target ws_runtime::${_dll_id})
     # Some DLLs, such as liblzma and zstd, are shipped by more than one
     # package. The last one found wins.
@@ -210,6 +221,96 @@ function(ws_get_runtime_dll_names _common_var _release_var _debug_var)
   set(${_common_var} ${_common} PARENT_SCOPE)
   set(${_release_var} ${_release} PARENT_SCOPE)
   set(${_debug_var} ${_debug} PARENT_SCOPE)
+endfunction()
+
+# Find the DLL for an import library, in the bin directory next to its lib
+# directory, as in our Windows packages and vcpkg.
+function(_ws_find_import_library_dll out_var import_library dll_glob)
+  get_filename_component(_lib_dir "${import_library}" DIRECTORY)
+  file(GLOB _dlls "${_lib_dir}/../bin/${dll_glob}.dll")
+  list(LENGTH _dlls _count)
+  if(_count GREATER 1)
+    message(WARNING "Found more than one DLL for ${import_library}, using the first one: ${_dlls}")
+  endif()
+  if(_dlls)
+    list(GET _dlls 0 _dll)
+    get_filename_component(_dll "${_dll}" ABSOLUTE)
+    set(${out_var} "${_dll}" PARENT_SCOPE)
+  else()
+    set(${out_var} "" PARENT_SCOPE)
+  endif()
+endfunction()
+
+# Create an IMPORTED target for a library found with FindWSLibrary() or
+# find_library().
+#
+# ws_add_imported_library(<target> <library variable> [DLL <DLL glob>]
+#                         [INCLUDE_DIRS <dirs...>] [LINK_LIBRARIES <items...>])
+#
+# <library variable> is the variable passed to FindWSLibrary() or
+# find_library(), e.g. GLIB2_LIBRARY. If it was found for both Release and
+# Debug builds, the target uses each in the matching configuration.
+#
+# In repository builds, if DLL is given and <DLL glob>.dll is found in the
+# bin directory next to the library's lib directory, the target is a SHARED
+# IMPORTED library, and its DLL is copied to the run directory, installed
+# and packaged like those registered with ws_add_runtime_dlls(). Otherwise
+# the target is an UNKNOWN IMPORTED library.
+function(ws_add_imported_library _target _lib_var)
+  cmake_parse_arguments(_ws "" "DLL" "INCLUDE_DIRS;LINK_LIBRARIES" ${ARGN})
+  if(TARGET ${_target})
+    return()
+  endif()
+  if(${_lib_var}_RELEASE)
+    # FindWSLibrary() in a repository build
+    set(_lib "${${_lib_var}_RELEASE}")
+    set(_lib_debug "${${_lib_var}_DEBUG}")
+  else()
+    set(_lib "${${_lib_var}}")
+    set(_lib_debug)
+  endif()
+
+  set(_dll)
+  set(_dll_debug)
+  if(USE_REPOSITORY AND _ws_DLL)
+    _ws_find_import_library_dll(_dll "${_lib}" "${_ws_DLL}")
+    if(_dll AND _lib_debug)
+      _ws_find_import_library_dll(_dll_debug "${_lib_debug}" "${_ws_DLL}")
+    endif()
+  endif()
+
+  if(_dll)
+    add_library(${_target} SHARED IMPORTED GLOBAL)
+    set_target_properties(${_target} PROPERTIES
+      IMPORTED_IMPLIB "${_lib}"
+      IMPORTED_LOCATION "${_dll}"
+    )
+    # Use the debug import library only with its own DLL.
+    if(_dll_debug)
+      set_target_properties(${_target} PROPERTIES
+        IMPORTED_IMPLIB_DEBUG "${_lib_debug}"
+        IMPORTED_LOCATION_DEBUG "${_dll_debug}"
+      )
+    endif()
+    # Take over the DLL from ws_add_runtime_dlls(), if it registered it.
+    get_filename_component(_dll_name "${_dll}" NAME_WLE)
+    string(MAKE_C_IDENTIFIER "${_dll_name}" _dll_id)
+    get_property(_targets GLOBAL PROPERTY WS_RUNTIME_DLL_TARGETS)
+    list(REMOVE_ITEM _targets ws_runtime::${_dll_id})
+    list(APPEND _targets ${_target})
+    set_property(GLOBAL PROPERTY WS_RUNTIME_DLL_TARGETS ${_targets})
+    set_property(GLOBAL PROPERTY _WS_RUNTIME_DLL_OWNER_${_dll_id} ${_target})
+  else()
+    add_library(${_target} UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(${_target} PROPERTIES IMPORTED_LOCATION "${_lib}")
+    if(_lib_debug)
+      set_target_properties(${_target} PROPERTIES IMPORTED_LOCATION_DEBUG "${_lib_debug}")
+    endif()
+  endif()
+  set_target_properties(${_target} PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${_ws_INCLUDE_DIRS}"
+    INTERFACE_LINK_LIBRARIES "${_ws_LINK_LIBRARIES}"
+  )
 endfunction()
 
 # Add a single DLL. The debug DLL is used in Debug builds only if

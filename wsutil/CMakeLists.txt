@@ -423,12 +423,12 @@ endif()
 
 target_link_libraries(wsutil
 	PUBLIC
-		${GLIB2_LIBRARIES}
+		GLib2::GLib2
+		GCrypt::GCrypt
 	PRIVATE
-		${GMODULE2_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:GLib2::GModule>
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${CMAKE_DL_LIBS}
-		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
 		${M_LIBRARIES}
 		${ZLIB_LIBRARIES}
@@ -443,18 +443,15 @@ target_link_libraries(wsutil
 		$<$<BOOL:${CpuInfo_FOUND}>:CpuInfo::CpuInfo>
 )
 
+# Installed public headers include <glib.h> (via wireshark.h) and
+# <gcrypt.h> (via wsutil/wsgcrypt.h) unconditionally, so GLib2::GLib2 and
+# GCrypt::GCrypt above must stay PUBLIC. Targets importing the exported
+# CMake package, such as out-of-tree plugins linking epan, get them from
+# WiresharkConfig.cmake; the top-level include_directories() only applies
+# inside this source tree.
 target_include_directories(wsutil SYSTEM
-	# Installed public headers include <glib.h> (via wireshark.h) and
-	# <gcrypt.h> (via wsutil/wsgcrypt.h) unconditionally. These must stay
-	# PUBLIC so that targets importing the exported CMake package, such as
-	# out-of-tree plugins linking epan, receive them; the top-level
-	# include_directories() only applies inside this source tree.
-	PUBLIC
-		${GLIB2_INCLUDE_DIRS}
-		${GCRYPT_INCLUDE_DIRS}
 	PRIVATE
 		${GNUTLS_INCLUDE_DIRS}
-		${GMODULE2_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
 		${ZLIBNG_INCLUDE_DIRS}
 		${ZSTD_INCLUDE_DIRS}
@@ -498,12 +495,12 @@ target_compile_definitions(wsutil_static PRIVATE
 
 target_link_libraries(wsutil_static
 	PUBLIC
-		${GLIB2_LIBRARIES}
+		GLib2::GLib2
+		GCrypt::GCrypt
 	PRIVATE
-		${GMODULE2_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:GLib2::GModule>
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${CMAKE_DL_LIBS}
-		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
 		${M_LIBRARIES}
 		$<TARGET_NAME_IF_EXISTS:XXHASH::XXHASH>
@@ -519,12 +516,8 @@ target_link_libraries(wsutil_static
 )
 
 target_include_directories(wsutil_static SYSTEM
-	PUBLIC
-		${GLIB2_INCLUDE_DIRS}
-		${GCRYPT_INCLUDE_DIRS}
 	PRIVATE
 		${GNUTLS_INCLUDE_DIRS}
-		${GMODULE2_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
 		${ZLIBNG_INCLUDE_DIRS}
 		${ZSTD_INCLUDE_DIRS}
@@ -556,7 +549,7 @@ add_executable(test_wsutil EXCLUDE_FROM_ALL
 	test_wsutil.c
 )
 
-target_link_libraries(test_wsutil ${M_LIBRARIES} ${GLIB2_LIBRARIES} ${SOCKET_LIBRARY} wsutil)
+target_link_libraries(test_wsutil ${M_LIBRARIES} GLib2::GLib2 ${SOCKET_LIBRARY} wsutil)
 target_include_directories(test_wsutil SYSTEM PRIVATE ${XXHASH_INCLUDE_DIRS})
 target_link_libraries(test_wsutil ${ZSTD_LIBRARIES})
 target_include_directories(test_wsutil SYSTEM PRIVATE ${ZSTD_INCLUDE_DIRS})

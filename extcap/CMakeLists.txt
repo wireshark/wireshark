@@ -219,7 +219,7 @@ if(BUILD_dpauxmon AND HAVE_LIBNL3)
 		extcap-base
 		wsutil
 		writecap
-		${GLIB2_LIBRARIES}
+		GLib2::GLib2
 		${CMAKE_DL_LIBS}
 		${NL_LIBRARIES}
 	)
@@ -337,7 +337,7 @@ if(BUILD_dumpcalls AND SINSP_FOUND)
 		wsutil
 		sinsp::sinsp
 		${CMAKE_DL_LIBS}
-		${GCRYPT_LIBRARIES}
+		GCrypt::GCrypt
 	)
 	set(dumpcalls_FILES
 		dumpcalls.cpp
@@ -358,7 +358,7 @@ if(BUILD_falcodump AND SINSP_FOUND)
 		wsutil
 		sinsp::sinsp
 		${CMAKE_DL_LIBS}
-		${GCRYPT_LIBRARIES}
+		GCrypt::GCrypt
 	)
 	set(falcodump_FILES
 		falcodump.cpp

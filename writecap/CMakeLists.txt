@@ -35,7 +35,7 @@ target_compile_definitions(writecap
 
 target_link_libraries(writecap
 	PRIVATE
-		${GMODULE2_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:GLib2::GModule>
 		${SOCKET_LIBRARY}
 		wsutil
 )
