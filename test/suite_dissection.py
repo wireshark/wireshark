@@ -17498,3 +17498,115 @@ class TestDissectBthciVendorBroadcom:
                 '-ebthci_vendor.broadcom.a2dp_offload_v2_support',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['52\t0x0060\t4\t\tTrue', '54\t0x0100\t\t0x04\t']
+
+
+class TestDissectBthciVendorIntel:
+    # Fields compared between one and two passes; the Bluetooth layer's
+    # [Source]/[Destination] and bthci_cmd's "Response in frame" appear only
+    # in the second pass, so the whole -V output differs.
+    TWO_PASS_FIELDS = ('-e_ws.col.protocol', '-e_ws.col.info', '-eframe.protocols',
+                       '-ebthci_vendor.intel.opcode', '-ebthci_vendor.intel.event_code',
+                       '-ebthci_vendor.intel.status', '-ebthci_vendor.intel.parameter_length',
+                       '-ebtlmp.opcode.opcode', '-e_ws.expert.message')
+
+    def test_bthci_vendor_intel_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Intel command and event, on HCI H4 after Read Local Version
+        Information names Intel and through Exported PDU, decodes without
+        malformed packets in one and two passes, and both give the same
+        fields. The warnings are the intended unexpected parameters and data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_intel_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 120
+        assert protocols.count('bluetooth:hci_h4:bthci_cmd:bthci_vendor.intel') == 41
+        assert protocols.count('bluetooth:hci_h4:bthci_evt:bthci_vendor.intel') == 43
+        assert protocols.count('exported_pdu:bthci_vendor.intel') == 28
+        assert protocols.count('exported_pdu:bthci_vendor.intel:btlmp') == 4
+        assert protocols.count('exported_pdu:bthci_vendor.intel:btle') == 2
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_vendor_intel_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '43\tUnexpected parameter', '44\tUnexpected parameter',
+                '76\tUnexpected parameter', '77\tUnexpected parameter',
+                '83\tUnexpected parameter', '85\tUnexpected parameter',
+                '119\tUnexpected data',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_vendor_intel_coverage.pcapng.gz'),
+                    '-Tfields', *self.TWO_PASS_FIELDS,
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+
+    def test_bthci_vendor_intel_vendor_state(self, cmd_tshark, capture_file, test_env):
+        '''Read Local Version Information (manufacturer 0x0002) makes the
+        HCI vendor commands and Command Complete events go to the Intel
+        dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_intel_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 86',
+                '-Tfields', '-e_ws.col.protocol', '-ebthci_evt.comp_id',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert frames[1] == ['HCI_EVT', '0x0002']
+        assert frames[0] == ['HCI_CMD', '']
+        protocols = [f[0] for f in frames]
+        assert protocols[2:] == ['HCI_CMD_INTEL', 'HCI_EVT_INTEL'] + ['HCI_CMD_INTEL'] * 40 + ['HCI_EVT_INTEL'] * 42
+
+    def test_bthci_vendor_intel_command_complete(self, cmd_tshark, capture_file, test_env):
+        '''Command Complete for Read Version is decoded within the event,
+        both on HCI (frame 79) and in the reproducer
+        batch150-179/bthci_vendor_intel_cmd_complete_length.py (frame 87),
+        which was malformed when the parameters were taken 4 octets past the
+        event.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_intel_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {79, 87}',
+                '-Tfields', '-e_ws.col.info', '-ebthci_vendor.intel.parameter_length',
+                '-ebthci_vendor.intel.hardware.platform', '-ebthci_vendor.intel.hardware.variant',
+                '-ebthci_vendor.intel.firmware.build_version.yy', '-ebthci_vendor.intel.firmware.patch',
+                '-ebthci_vendor.intel.data', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Rcvd Intel Command Complete (Read Version)\t13\t0x37\t0x0b\t21\t0\t\t',
+        ] * 2
+
+    def test_bthci_vendor_intel_reset(self, cmd_tshark, capture_file, test_env):
+        '''Reset shows each of its fields once (DDC Reload used to be added
+        twice).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_intel_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 3',
+                '-Tfields', '-ebthci_vendor.intel.reset.type', '-ebthci_vendor.intel.reset.patch_enable',
+                '-ebthci_vendor.intel.reset.ddc_reload', '-ebthci_vendor.intel.reset.boot.option',
+                '-ebthci_vendor.intel.reset.boot.address', '-ebthci_vendor.intel.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '0x01\t0x01\t0x01\t0x01\t0x00012800\t\n'
+
+    def test_bthci_vendor_intel_link_pdu_trace(self, cmd_tshark, capture_file, test_env):
+        '''Link PDU Trace events hand LMP (Rx and Tx) to btlmp and LL
+        (Rx and Tx) to btle, with the link clock, ID and count around them.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_intel_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {100..107}',
+                '-Tfields', '-ebthci_vendor.intel.link_pdu_trace_type', '-ebthci_vendor.intel.clock',
+                '-ebthci_vendor.intel.id', '-ebthci_vendor.intel.count', '-ebtlmp.opcode.opcode',
+                '-ebtlmp.opcode.escaped', '-ebtlmp.name.fragment', '-ebtle.control_opcode',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x00\t0x00012345\t\t\t37\t\t\t',
+            '0x00\t0x00012346\t\t\t2\t\tCoverage\t',
+            '0x01\t0x00012350\t0x07\t\t3\t\t\t',
+            '0x01\t0x00012351\t0x08\t\t127\t3\t\t',
+            '0x02\t0x00012352\t0x07\t\t\t\t\t',
+            '0x03\t\t0x01\t8\t\t\t\t0x0c',
+            '0x04\t\t0x01\t9\t\t\t\t0x0c',
+            '0x05\t\t0x01\t9\t\t\t\t',
+        ]
