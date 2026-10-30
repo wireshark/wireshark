@@ -26455,3 +26455,117 @@ class TestDissectCl3dcw:
                       'Data Channel Bond: 02:00:00:00:00:a3 -> "dual-channel-wifi-data-ssid-0032"',
                       'Data Channel Bond: 02:00:00:00:00:a4 -> "x"'):
             assert label in stdout
+
+
+class TestDissectClassicstun:
+    def test_classicstun_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every classic STUN message type is taken by the heuristic and
+        decodes without malformed packets or warnings, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('classicstun_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['CLASSIC-STUN'] * 25
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('classicstun_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_classicstun_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are matched by transaction ID (the
+        "Response In" links need the second pass); the Data Indication,
+        the unanswered requests and the response without a request are
+        not matched.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('classicstun_coverage.pcap.gz'),
+                '-Tfields', '-eclassicstun.type', '-eclassicstun.response_in',
+                '-eclassicstun.response_to',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0001\t2\t', '0x0101\t\t1', '0x0001\t4\t', '0x0111\t\t3',
+            '0x0002\t6\t', '0x0102\t\t5', '0x0002\t8\t', '0x1112\t\t7',
+            '0x0003\t10\t', '0x0103\t\t9', '0x0003\t12\t', '0x0113\t\t11',
+            '0x0004\t14\t', '0x0104\t\t13', '0x0004\t16\t', '0x0114\t\t15',
+            '0x0115\t\t', '0x0006\t19\t', '0x0106\t\t18', '0x0006\t21\t',
+            '0x0116\t\t20', '0x0001\t\t', '0x0101\t\t', '0x0001\t\t', '0x0001\t\t',
+        ]
+
+    def test_classicstun_addresses(self, cmd_tshark, capture_file, test_env):
+        '''IPv4 and IPv6 address attributes, and the XOR-d address and
+        port shown in the clear.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('classicstun_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2 || frame.number == 10',
+                '-Tfields', '-eclassicstun.att.ipv4', '-eclassicstun.att.ipv6',
+                '-eclassicstun.att.port', '-eclassicstun.att.ipv4-xord',
+                '-eclassicstun.att.port-xord', '-eclassicstun.att.ipv6-xord',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '203.0.113.10,198.51.100.2,198.51.100.3,192.0.2.1,203.0.113.10\t'
+            '\t61000,3478,3479,40000,61000\t106.178.178.11\t20474\t',
+            '198.51.100.9\t2001:db8::1\t5000,45627,3478\t\t5001\t2001:db8::2',
+        ]
+
+    def test_classicstun_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Error code, unknown attributes, server, lifetime, bandwidth,
+        magic cookie, change request, TR-111 binding and DATA.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('classicstun_coverage.pcap.gz'),
+                '-Y', 'classicstun.att.error.reason',
+                '-Tfields', '-eframe.number', '-eclassicstun.att.error.class',
+                '-eclassicstun.att.error', '-eclassicstun.att.error.reason',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t4\t20\tUnknown Attr', '8\t4\t33\tNeed TLS', '12\t4\t1\tUnauthorized',
+            '16\t4\t37\tNo Binding', '21\t4\t39\tBad Dest',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('classicstun_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 4, 9, 10, 22}',
+                '-Tfields', '-eclassicstun.att.unknown', '-eclassicstun.att.server',
+                '-eclassicstun.att.lifetime', '-eclassicstun.att.bandwidth',
+                '-eclassicstun.att.magic.cookie', '-eclassicstun.att.change.ip',
+                '-eclassicstun.att.change.port', '-eclassicstun.att.connection_request_binding',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\t\t\t\t\tTrue\tTrue\t',
+            '\tclassicstun-test 1.0\t\t\t\t\t\t',
+            '0x0025,0x0026,0x0027,0x0028,0x0029,0x0029\t\t\t\t\t\t\t',
+            '\t\t600\t64\t0x72c64bc6\t\t\t',
+            '\t\t4294967295\t0\t\t\t\t',
+            '\t\t\t\t\t\t\tdslforum.org/TR-111 ',
+        ]
+        # The DATA attribute goes to the classicstun heuristic list (whose
+        # entries are disabled by default), then to the data dissector
+        for heuristic, protocols in (((), 'data,data'),
+                                     (('--enable-heuristic', 'stun_classicstun'), 'data,stun')):
+            stdout = subprocess.check_output((cmd_tshark, *heuristic,
+                    '-r', capture_file('classicstun_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 13 || frame.number == 17',
+                    '-Tfields', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            assert [p.rsplit(':', 1)[1] for p in stdout.splitlines()] == protocols.split(',')
+
+    def test_classicstun_short_and_padded(self, cmd_tshark, capture_file, test_env):
+        '''Attributes too short for their fields, and unaligned attributes
+        with RFC 5389 style padding (a note each time padding is
+        assumed).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('classicstun_coverage.pcap.gz'),
+                '-Y', 'frame.number == 24 || frame.number == 25',
+                '-Tfields', '-eclassicstun.att.length', '-eclassicstun.att.padding',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0,4,8,8,0,0,0,4,0,0,0,0,4,8,8,0\t',
+            '5,6,12,2,2,2,3,4,3\t3,2,2,2,1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('classicstun_coverage.pcap.gz'),
+                '-Y', 'classicstun.att.padding.assumed',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['25']
