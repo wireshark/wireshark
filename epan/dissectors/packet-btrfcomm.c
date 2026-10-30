@@ -295,7 +295,7 @@ get_le_multi_byte_value(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint32
     do {
         byte = tvb_get_uint8(tvb, offset);
         offset += 1;
-        val |= ((byte >> 1) & 0xff) << (bc++ * 7);
+        val |= (uint32_t)((byte >> 1) & 0x7f) << (bc++ * 7);
     } while (((byte & 0x1) == 0) && (bc <= 4));
 
     *val_ptr = val;
@@ -454,7 +454,7 @@ dissect_btrfcomm_address(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, pro
     if (p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL) == NULL) {
         uint8_t *value_data;
 
-        value_data = wmem_new(wmem_file_scope(), uint8_t);
+        value_data = wmem_new(pinfo->pool, uint8_t);
         *value_data = dlci;
 
         p_add_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL, value_data);
@@ -562,7 +562,7 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, unsigned offset, proto_tree *tree, uint8
                              mcc_type, mcc_cr_flag, mcc_ea_flag);
     mcc_tree = proto_item_add_subtree(ti, ett_mcc);
 
-    proto_tree_add_item(mcc_tree, hf_mcc_cmd, tvb, start_offset, offset - start_offset, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mcc_tree, hf_mcc_cmd, tvb, start_offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mcc_tree, hf_mcc_cr, tvb, start_offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mcc_tree, hf_mcc_ea, tvb, start_offset, 1, ENC_LITTLE_ENDIAN);
 
@@ -730,7 +730,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s Channel=%u ",
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
-    if (dlci && (frame_type == FRAME_TYPE_SABM) && service_info) {
+    if (dlci && (frame_type == FRAME_TYPE_SABM) && service_info && service_info->uuid.size != 0) {
         const char *desc = try_print_bluetooth_uuid(&service_info->uuid);
 
         if (desc) {
@@ -804,7 +804,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             dissect_ctrl_msc(ctrl_tree, tvb, offset, length, &mcc_channel);
             break;
         default:
-            mcc_channel = -1;
+            mcc_channel = 0;
         }
 
         if (mcc_channel > 0) {
@@ -1071,7 +1071,7 @@ proto_register_btrfcomm(void)
         },
         { &hf_mcc_len,
           { "MCC Length", "btrfcomm.mcc.len",
-            FT_UINT16, BASE_DEC, NULL, 0,
+            FT_UINT32, BASE_DEC, NULL, 0,
             "Length of MCC data", HFILL}
         },
         { &hf_fcs,
