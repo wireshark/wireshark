@@ -20467,3 +20467,125 @@ class TestDissectC1222:
             98: ['0x40', '', '0x0096', '188'],
             99: ['', '0x00', '', ''],
         }
+
+
+class TestDissectC15ch:
+    def test_c15ch_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every C15 message type, the INC_GWE, OUT_GWE and TONE subtypes and
+        the heartbeat decode without malformed packets or expert infos, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c15ch_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len(frames) == 142
+        protocols = [f[0] for f in frames]
+        assert protocols.count('C15') == 139
+        assert protocols.count('C15CH_HBEAT') == 3
+        layers = [f[1].split(':')[-1] for f in frames]
+        assert layers.count('c15.inc_gwe') == 29
+        assert layers.count('c15.out_gwe') == 24
+        assert layers.count('c15.tone') == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('c15ch_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_c15ch_q931_length(self, cmd_tshark, capture_file, test_env):
+        '''A Q.931 message length shorter than the octets skipped before the
+        message (frames 100 and 101) is not handed to Q.931; frame 99 with a
+        valid length is.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('c15ch_coverage.pcap.gz'),
+                    '-Y', 'c15.q931',
+                    '-Tfields', '-eframe.number', '-ec15.q931.direction',
+                    '-ec15.q931.msglength', '-eq931.message_type',
+                    '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '96\t0\t22\t0x05\t',
+                '97\t1\t18\t0x4d\t',
+                '98\t2\t18\t\t',
+                '99\t0\t22\t0x05\t',
+                '100\t0\t5\t\t',
+                '101\t1\t3\t\t',
+            ]
+
+    def test_c15ch_subdissectors(self, cmd_tshark, capture_file, test_env):
+        '''ISUP, encapsulated ISUP, SCCP and Q.931 payloads are handed to
+        their dissectors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c15ch_coverage.pcap.gz'),
+                '-Y', 'isup || sccp || q931',
+                '-Tfields', '-eframe.number', '-eisup.message_type',
+                '-esccp.message_type', '-eq931.message_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\t12\t\t',
+            '28\t\t0x09\t',
+            '96\t\t\t0x05',
+            '97\t\t\t0x4d',
+            '99\t\t\t0x05',
+            '117\t16\t\t',
+        ]
+
+    def test_c15ch_digits(self, cmd_tshark, capture_file, test_env):
+        '''Digit strings map 10-15 to A * # ? ? D, and the digits item spans
+        the count octets that precede the digits (4 for DEST_DIGITS, 1 for
+        the others).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c15ch_coverage.pcap.gz'),
+                '-Y', 'c15.dest_digits || c15.orig',
+                '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        assert ('<field name="c15.dest_digits.digits" showname="Digits: 6135550199A*#??D" '
+                'size="36" pos="50"') in stdout
+        assert ('<field name="c15.orig.dndigits" showname="DN Digits: 5551234567" '
+                'size="11" pos="62"') in stdout
+        assert 'UPN Digits: 0123456789A*#??' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c15ch_coverage.pcap.gz'),
+                '-Y', 'c15.dest_digits',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Type: DEST_DIGITS, 6135550199A*#??D'
+
+    def test_c15ch_cp_event(self, cmd_tshark, capture_file, test_env):
+        '''CP_EVENT names the sub PM from the PM type, and for the digital
+        circuit test PM from the trunk PM when it is in range.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c15ch_coverage.pcap.gz'),
+                '-Y', 'c15.cpe',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert len(info) == 11
+        assert info[3] == 'Type: CP_EVENT, PM Type: DGTX, Trk PM: TEST_SP, Sub PM: SET_UP, Event Type: DIGT, Parm: 7'
+        assert info[9] == 'Type: CP_EVENT, PM Type: DGTX, Trk PM: 6, Sub PM: 1, Event Type: CONN, Parm: 7'
+        assert info[10] == 'Type: CP_EVENT, PM Type: Unknown 78, Sub PM: 3, Event Type: CONN, Parm: 7'
+
+    def test_c15ch_nitnxlate(self, cmd_tshark, capture_file, test_env):
+        '''NITN_XLATE builds its description from the equipment name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('c15ch_coverage.pcap.gz'),
+                '-Y', 'c15.nitnxlate',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Type: NITN_XLATE, SITE SUB GWE 1 2',
+            'Type: NITN_XLATE, SITE SUB IDE 1 2',
+            'Type: NITN_XLATE, SITE SUB VLIN 1',
+            'Type: NITN_XLATE, SITE SUB PTRK 1',
+            'Type: NITN_XLATE, SITE SUB LCE 1 2 3 4 7',
+            'Type: NITN_XLATE, SITE SUB RSE 1 2 3 4',
+            'Type: NITN_XLATE, SITE SUB RSC 1 2 3 4 3',
+            'Type: NITN_XLATE, SITE SUB HUBE 1 2 3 4',
+            'Type: NITN_XLATE,    1 2 3 4',
+            'Type: NITN_XLATE, SITE SUB XYZ 1 2 3 4 9',
+            'Type: NITN_XLATE, SITE SUB XYZ 1 2 3 4',
+        ]
