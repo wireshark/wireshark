@@ -25954,3 +25954,102 @@ class TestDissectCiscoOui:
                 '-Tfields', '-estp.pvst.origvlan', '-evtp.md',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['10\t', '\tvtp-domain']
+
+
+class TestDissectCiscoSm:
+    def test_sm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Cisco SM over RUDP decodes without malformed packets or
+        warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_sm_coverage.pcap.gz'),
+                '-d', 'udp.port==8003,rudp',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 41
+        assert protocols.count('SM') == 35
+        assert protocols.count('MTP3MG (Int. ITU)') == 2
+        assert protocols.count('Q.931') == 2
+        assert protocols.count('SM/SDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_sm_coverage.pcap.gz'),
+                    '-d', 'udp.port==8003,rudp',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sm_session_messages(self, cmd_tshark, capture_file, test_env):
+        '''The session message types and a reserved one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_sm_coverage.pcap.gz'),
+                '-d', 'udp.port==8003,rudp',
+                '-Y', 'frame.number <= 11',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Cisco SM Packet (%s)' % t for t in (
+                'Start', 'Stop', 'Active', 'Standby', 'Q_HOLD Invoke',
+                'Q_HOLD Response', 'Q_RESUME Invoke', 'Q_RESUME Response',
+                'Q_RESET Invoke', 'Q_RESET Response', 'reserved')]
+
+    def test_sm_backhaul(self, cmd_tshark, capture_file, test_env):
+        '''SS7 backhaul PDUs: the codes after each message type and the
+        MTP3 messages they carry.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_sm_coverage.pcap.gz'),
+                '-d', 'udp.port==8003,rudp',
+                '-Y', 'sm.protocol <= 2',
+                '-Tfields', '-esm.msg_type', '-esm.len', '-esm.connect_type',
+                '-esm.backhaul_reason', '-esm.backhaul_event', '-esm.backhaul_cause',
+                '-esm.linkdown_reason', '-esm.retrieval_type', '-esm.bsn_num',
+                '-esm.lsc_state_type', '-esm.stat_request_type', '-emtp3mg.test.h1',
+                '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0006\t4\t0x00000004\t\t\t\t\t\t\t\t\t\t',
+            '0x0007\t4\t0x00000003\t\t\t\t\t\t\t\t\t\t',
+            '0x0010\t11\t\t\t\t\t\t\t\t\t\t0x01\t',
+            '0x0011\t11\t\t\t\t\t\t\t\t\t\t0x02\t',
+            '0x000b\t4\t\t0x00000000\t\t\t\t\t\t\t\t\t',
+            '0x000c\t4\t\t0x00000025\t\t\t\t\t\t\t\t\t',
+            '0x0012\t4\t\t\t\t\t\t0x00000001\t\t\t\t\t',
+            '0x0013\t8\t\t\t\t\t\t0x00000001\t127\t\t\t\t',
+            '0x0013\t4\t\t\t\t\t\t0x00000002\t\t\t\t\t',
+            '0x0020\t4\t\t\t\t\t\t\t\t0x0000000a\t\t\t',
+            '0x0021\t4\t\t\t\t\t\t\t\t0x0000000b\t\t\t',
+            '0x0022\t8\t\t\t0x00000002\t\t0x00000003\t\t\t\t\t\t',
+            '0x0022\t8\t\t\t0x00000004\t\t0x00000001\t\t\t\t\t\t',
+            '0x0022\t8\t\t\t0x00000006\t0x00000002\t\t\t\t\t\t\t',
+            '0x0022\t4\t\t\t0x00000007\t\t\t\t\t\t\t\t',
+            '0x0044\t4\t\t\t\t\t\t\t\t\t0x00000001\t\t',
+            '0x0040\t6\t\t\t\t\t\t\t\t\t\t\t6',
+            '0x0042\t0\t\t\t\t\t\t\t\t\t\t\t',
+            '0x0099\t2\t\t\t\t\t\t\t\t\t\t\t2',
+        ]
+
+    def test_sm_other_protocols(self, cmd_tshark, capture_file, test_env):
+        '''BSM v1 carries Q.931, EISUP is shown as data, and protocols
+        0x0101 and 0x0114 carry an SDP body after tag 0x01ac.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_sm_coverage.pcap.gz'),
+                '-d', 'udp.port==8003,rudp',
+                '-Y', 'sm.protocol > 2',
+                '-Tfields', '-esm.protocol', '-esm.len', '-eq931.message_type',
+                '-esm.ip_addr', '-esm.context', '-esm.eisup_message_id', '-esm.tag',
+                '-esdp.media.port', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0004\t9\t0x05\t\t\t\t\t\t',
+            '0x0004\t4\t0x5a\t\t\t\t\t\t',
+            '0x0004\t4\t\t\t\t\t\t\t4',
+            '0x0004\t0\t\t\t\t\t\t\t',
+            '0x0100\t9\t\t\t\t\t\t\t9',
+            '0x0122\t11\t\t\t\t\t\t\t11',
+            '0x0100\t0\t\t\t\t\t\t\t',
+            '0x0101\t103,90\t\t10.1.2.3\t12345\t7\t428\t49170\t',
+            '0x0114\t103,90\t\t10.3.2.1\t54321\t8\t428\t49170\t',
+            '0x0101\t11\t\t10.1.2.3\t12345\t7\t1\t\t',
+            '0x0114\t11\t\t10.1.2.3\t12345\t7\t2\t\t',
+        ]
