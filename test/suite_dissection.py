@@ -23390,3 +23390,95 @@ class TestDissectCdp:
                       'Type: Unknown (0x00ff), length: 8',
                       'Type: Unknown (0x00fe), length: 4'):
             assert label in stdout
+
+
+class TestDissectCdt:
+    def test_cdt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CDT by OID (CAMEL extensions, P1 content) and from P_Mul
+        decodes without malformed packets or warnings, in one and two
+        passes, with and without p_mul.decode:cdt.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdt_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 22
+        assert sum(p.startswith('exported_pdu:p_mul') for p in protocols) == 9
+        assert sum(p.startswith('exported_pdu:camel:cdt') for p in protocols) == 13
+        assert protocols[20] == 'exported_pdu:camel:cdt:cdt:cdt:imf'
+        for prefs in ((), ('-o', 'p_mul.decode:cdt')):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *prefs,
+                        '-r', capture_file('cdt_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_cdt_content(self, cmd_tshark, capture_file, test_env):
+        '''Algorithm and content type in both forms, and the content
+        decompressed and dispatched by content type: data, BER, P1 (whose
+        content is an Internet message, or CDT again).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdt_coverage.pcap.gz'),
+                '-o', 'p_mul.decode:cdt',
+                '-Y', 'cdt',
+                '-Tfields', '-eframe.number', '-ecdt.algorithmID_ShortForm',
+                '-ecdt.algorithmID_OID', '-ecdt.contentType_ShortForm',
+                '-ecdt.contentType_OID', '-edata.len', '-eimf.subject',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0\t\t0\t\t68\t',
+            '3\t0\t\t0\t\t200\t',
+            '9\t0\t\t2\t\t\tP1 content in P_Mul',
+            '11\t0\t\t0\t\t20\t',
+            '12\t0\t\t1\t\t\t',
+            '13\t0\t\t2\t\t\tplain P1 content',
+            '14\t0\t\t3\t\t10\t',
+            '15\t0\t\t4\t\t10\t',
+            '16\t0\t\t9\t\t14\t',
+            '17\t0\t\t\t1.2.840.113549.1.7.1\t19\t',
+            '18\t0\t\t\t1.2.3.4.5\t20\t',
+            '19\t\t1.2.840.113549.1.9.16.3.8\t0\t\t16\t',
+            '20\t1\t\t0\t\t11\t',
+            '21\t0,0,0\t\t2,2,2\t\t\tend of the nesting',
+            '22\t0\t\t0\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdt_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 11 && frame.number <= 20',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = [line.strip() for line in stdout.splitlines()]
+        assert info[1] == 'invoke initialDP zlibCompress external'
+        assert info[5] == 'invoke initialDP zlibCompress unknown'
+        assert info[6] == 'invoke initialDP zlibCompress id-data'
+        assert info[7] == 'invoke initialDP zlibCompress iso.2.3.4.5'
+        assert info[9] == 'invoke initialDP unknown unidentified'
+
+    def test_cdt_stale_tree(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer: a CDT from P_Mul (frame 2) followed by a CDT reached
+        by OID from CAMEL (frame 3). The second CDT gets its own tree in its
+        own frame, the same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cdt_coverage.pcap.gz'),
+                    '-o', 'p_mul.decode:cdt',
+                    '-Y', 'frame.number in {2,3}',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            frames = stdout.split('\nFrame ')
+            assert len(frames) == 2
+            assert frames[0].count('Compressed Data Type, zlibCompress, unidentified') == 1
+            assert 'Data (68 bytes)' in frames[0]
+            assert 'Data (200 bytes)' not in frames[0]
+            assert frames[1].count('Compressed Data Type, zlibCompress, unidentified') == 1
+            assert 'Data (200 bytes)' in frames[1]
+            assert 'Data (68 bytes)' not in frames[1]
+        # Without the preference frame 2 is P_Mul data, frame 3 still CDT
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cdt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2,3}',
+                '-Tfields', '-eframe.number', '-ecdt.contentType_ShortForm', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['2\t\t42', '3\t0\t200']
