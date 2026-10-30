@@ -4051,6 +4051,7 @@ format_tai_to_utc_date(char *buf, uint64_t value) {
         val = (time_t)(value + EPOCH_DELTA_2000_01_01_00_00_00_UTC - 32ll - delta);
         time_str = abs_time_secs_to_str(NULL, val, ABSOLUTE_TIME_UTC, true);
         snprintf(buf, ITEM_LABEL_LENGTH, "%s", time_str);
+        wmem_free(NULL, time_str);
     }
 }
 
@@ -7313,6 +7314,12 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_sensor_status_mpid_format_b_property_id, tvb, offset, 2, ENC_LITTLE_ENDIAN, &mpid_property_id);
                 offset+=2;
             }
+            /* The Length is 1-based; 0x7F in Format B means a length of zero */
+            if (mpid_format == MPID_FORMAT_B && mpid_length == 0x7F) {
+                mpid_length = 0;
+            } else {
+                mpid_length += 1;
+            }
             offset+=dissect_btmesh_property(sub_tree, hf_btmesh_sensor_status_raw_value, tvb, offset, (uint16_t)mpid_property_id, mpid_length);
         }
         break;
@@ -7604,12 +7611,12 @@ btmesh_access_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, unsigned o
     uint8_t *decrypted_data;
 
     enc_data_len = tvb_reported_length_remaining(tvb, offset) - dec_ctx->transmic_size;
-    decrypted_data = (uint8_t *)wmem_alloc(pinfo->pool, enc_data_len);
     dec_ctx->label_uuid_idx = NO_LABEL_UUID_IDX_USED;
 
     if (enc_data_len <= 0) {
         return NULL;
     }
+    decrypted_data = (uint8_t *)wmem_alloc(pinfo->pool, enc_data_len);
 
     dst_address_type = check_address_type(dec_ctx->dst);
 
@@ -7686,6 +7693,10 @@ dissect_btmesh_transport_access_message(tvbuff_t *tvb, packet_info *pinfo, proto
     int length = tvb_reported_length_remaining(tvb, offset);
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_upper_transp_acc_pdu, NULL, "Upper Transport Access PDU");
+    if (length <= (int)dec_ctx->transmic_size) {
+        proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_unknown_payload, tvb, offset, length);
+        return;
+    }
     de_acc_tvb = btmesh_access_find_key_and_decrypt(tvb, pinfo, offset, dec_ctx);
 
     proto_tree_add_item(sub_tree, hf_btmesh_enc_access_pld, tvb, offset, length - dec_ctx->transmic_size, ENC_NA);
@@ -7775,17 +7786,17 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     }
                 } else {
                     fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
-                    if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
-                        tvbuff_t *next_tvb;
-                        next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Control PDU", fd_head, &btmesh_segmented_control_frag_items, NULL, sub_tree);
-                        if (next_tvb) {
-                            dissect_btmesh_transport_control_message(next_tvb, pinfo, tree, 0, opcode);
-                            col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
-                        } else {
-                            col_clear(pinfo->cinfo, COL_INFO);
-                            col_append_fstr(pinfo->cinfo, COL_INFO,"Control Message (fragment %u)", sego);
-                        }
-                    }
+                }
+                tvbuff_t *next_tvb = NULL;
+                if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
+                    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Control PDU", fd_head, &btmesh_segmented_control_frag_items, NULL, sub_tree);
+                }
+                if (next_tvb) {
+                    dissect_btmesh_transport_control_message(next_tvb, pinfo, tree, 0, opcode);
+                    col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+                } else {
+                    col_clear(pinfo->cinfo, COL_INFO);
+                    col_append_fstr(pinfo->cinfo, COL_INFO,"Control Message (fragment %u)", sego);
                 }
             }
         } else {
@@ -7849,7 +7860,7 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             if (segn == 0) {
                 proto_item_set_len(ti, 1);
-                dec_ctx->transmic_size = 4; /*TransMic is 32 bits*/
+                dec_ctx->transmic_size = (szmic ? 8 : 4 );
                 dissect_btmesh_transport_access_message(tvb, pinfo, tree, offset, dec_ctx);
             } else {
                 upper_transport_fragment_key frg_key;
@@ -7882,18 +7893,18 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     }
                 } else {
                     fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
-                    if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
-                        tvbuff_t *next_tvb;
-                        next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Access PDU", fd_head, &btmesh_segmented_access_frag_items, NULL, sub_tree);
-                        if (next_tvb) {
-                            dec_ctx->transmic_size = (szmic ? 8 : 4 );
-                            dissect_btmesh_transport_access_message(next_tvb, pinfo, tree, 0, dec_ctx);
-                            col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
-                        } else {
-                            col_clear(pinfo->cinfo, COL_INFO);
-                            col_append_fstr(pinfo->cinfo, COL_INFO, "Access Message (fragment %u)", sego);
-                        }
-                    }
+                }
+                tvbuff_t *next_tvb = NULL;
+                if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
+                    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Access PDU", fd_head, &btmesh_segmented_access_frag_items, NULL, sub_tree);
+                }
+                if (next_tvb) {
+                    dec_ctx->transmic_size = (szmic ? 8 : 4 );
+                    dissect_btmesh_transport_access_message(next_tvb, pinfo, tree, 0, dec_ctx);
+                    col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+                } else {
+                    col_clear(pinfo->cinfo, COL_INFO);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Access Message (fragment %u)", sego);
                 }
             }
         } else {
