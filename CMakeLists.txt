@@ -2521,51 +2521,20 @@ if(USE_REPOSITORY)
 		# Wireshark.nsi wants SMI_DIR which is the base SMI directory
 		get_filename_component(SMI_DIR ${SMI_DLL_DIR} DIRECTORY)
 
-		#Make the initial output directory for the SMI MIBs.
-		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E make_directory
-				"${_dll_output_dir}/snmp"
-		)
-
-		set(SMI_MIBS)
-
-		#List of the subdirectories in the SMI share directory that contain desired MIBs.
-		set(MIB_DIRS "mibs" "pibs" "yang")
-
-		foreach( _mib_dir ${MIB_DIRS} )
-
-			set(MIBS_FILES "")
-
-			#Make the necessary output directories for the SMI MIBs.
+		# Copy and install the directories of SMI modules (MIBs, PIBs and YANG
+		# modules) that we use, including their subdirectories, such as
+		# mibs/iana and mibs/ietf. This is the same layout as in the NSIS
+		# installer. We search the snmp directory recursively for modules.
+		cmake_path(SET _snmp_install_dir NORMALIZE "${CMAKE_INSTALL_BINDIR}/snmp")
+		foreach(_mib_dir mibs pibs yang)
 			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E make_directory
+				COMMAND ${CMAKE_COMMAND} -E copy_directory
+					"${SMI_SHARE_DIR}/${_mib_dir}"
 					"${_dll_output_dir}/snmp/${_mib_dir}"
 			)
-
-			#Grab everything in the subdirectory, but only keep the files.
-			file(GLOB_RECURSE POTENTIAL_MIBS_FILES
-				RELATIVE "${SMI_SHARE_DIR}/${_mib_dir}/*"
-				CONFIGURE_DEPENDS "${SMI_SHARE_DIR}/${_mib_dir}/*"
+			install(DIRECTORY "${SMI_SHARE_DIR}/${_mib_dir}"
+				DESTINATION "${_snmp_install_dir}"
 			)
-			foreach(_path ${POTENTIAL_MIBS_FILES})
-				if(NOT IS_DIRECTORY "${_path}")
-					list(APPEND MIBS_FILES "${_path}")
-				endif()
-			endforeach()
-
-			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_directory
-				"${SMI_SHARE_DIR}/${_mib_dir}"
-				"${_dll_output_dir}/snmp/${_mib_dir}"
-			)
-
-			#Keep track of the MIBs for packaging and installation.
-			list (APPEND SMI_MIBS ${MIBS_FILES})
-
-			#Add the MIBs to the list of files to be installed.
-			cmake_path(SET MIBS_INSTALL_DIR NORMALIZE "${CMAKE_INSTALL_BINDIR}/snmp/${_mib_dir}")
-			install(FILES ${SMI_MIBS} DESTINATION "${MIBS_INSTALL_DIR}")
-
 		endforeach()
 
 	endif(SMI_FOUND)
