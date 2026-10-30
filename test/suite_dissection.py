@@ -20040,3 +20040,80 @@ class TestDissectBtUtp:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == [str(n) for n in range(39, 47)]
+
+
+class TestDissectBusMirroring:
+    def test_busmirroring_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CAN, LIN and FlexRay data items decode without malformed packets
+        or errors, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('busmirroring_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('BUSMIRRORING') == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('busmirroring_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error'
+                          ' || busmirroring.data_incomplete || busmirroring.data_item_incomplete',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_busmirroring_data_items(self, cmd_tshark, capture_file, test_env):
+        '''Network type, frame IDs and payload lengths of every data item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('busmirroring_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 5',
+                '-Tfields', '-ebusmirroring.network_type', '-ebusmirroring.can_id',
+                '-ebusmirroring.lin_pid', '-ebusmirroring.flexray_slot_id',
+                '-ebusmirroring.flexray_cycle', '-ebusmirroring.payload_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1,1,1,1,1\t0x00000123,0x000007ff\t\t\t\t3,8',
+            '1,1,1,1,1\t0x01abcdef,0x00000100,0x1fffffff,0x00000010,0x00000011\t\t\t\t4,12,64,8,0',
+            '2,2,2,2,2\t\t0x92,0x3c\t\t\t2,8',
+            '3,3,3,3,3\t\t\t0x07ff,0x0011\t63,5\t32,254',
+            '1,2,3\t0x00000055\t0xc1\t0x0001\t0\t1,1,1',
+        ]
+
+    def test_busmirroring_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Invalid CAN IDs, LIN PIDs, payload lengths and network types are
+        flagged.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('busmirroring_coverage.pcap.gz'),
+                '-Y', '_ws.expert.severity == warning',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\tID of CAN frame is invalid',
+            '8\tPID of LIN frame is invalid',
+            '9\tLength of CAN frame is invalid,Length of CAN frame is invalid,'
+            'Length of LIN frame is invalid',
+            '10\tNetwork type is invalid,Network type is invalid',
+            '11\tNanoseconds must be less than 1000000000',
+            '12\tNanoseconds must be less than 1000000000',
+        ]
+
+    def test_busmirroring_bad_nanoseconds(self, cmd_tshark, capture_file, test_env):
+        '''Nanoseconds of a second or more are flagged and the header
+        timestamp shows the seconds only (frame 11 is the reproducer); the
+        data item after the header still decodes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('busmirroring_coverage.pcap.gz'),
+                    '-Y', 'busmirroring.nanoseconds_invalid',
+                    '-Tfields', '-eframe.number', '-ebusmirroring.seconds',
+                    '-ebusmirroring.nanoseconds', '-ebusmirroring.header_timestamp',
+                    '-ebusmirroring.can_id', '-ebusmirroring.payload',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert len(lines) == 2
+            fields = lines[0].split('\t')
+            assert fields[:3] == ['11', '281474976710655', '4294967295']
+            # Windows cannot show a timestamp in the year 8921556
+            assert fields[3] in ('8921556-12-07T10:44:15.000000000Z', 'Not representable')
+            assert fields[4:] == ['0x00000123', 'aa']
+            assert lines[1] == '12\t1700000000\t1000000000\t2023-11-14T22:13:20.000000000Z\t\t'
