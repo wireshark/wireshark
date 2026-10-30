@@ -315,6 +315,13 @@ mark_as_advanced(SINSP_INCLUDE_DIRS SINSP_LINK_LIBRARIES SINSP_DEBUG_LINK_LIBRAR
 
 # Windows plugins
 
+# FALCO_PLUGIN_DIR might be a native path, e.g. from an environment variable
+# on Windows. Backslashes in it would be taken as escapes in the generated
+# install script.
+if(FALCO_PLUGIN_DIR)
+  file(TO_CMAKE_PATH "${FALCO_PLUGIN_DIR}" FALCO_PLUGIN_DIR)
+endif()
+
 set(_falco_plugins)
 if(WIN32 AND SINSP_FOUND)
   # Do this even if FALCO_PLUGINS is set, so that FindWSWinLibs clears it
