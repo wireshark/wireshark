@@ -327,7 +327,7 @@ target_link_libraries(epan
 target_include_directories(epan
 	INTERFACE
 		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
-		$<INSTALL_INTERFACE:include/wireshark>
+		$<INSTALL_INTERFACE:${PROJECT_INSTALL_INCLUDEDIR}>
 )
 
 target_include_directories(epan

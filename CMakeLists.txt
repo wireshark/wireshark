@@ -30,6 +30,7 @@ else()
 endif()
 
 project(${_project_name} C CXX)
+string(TOLOWER "${PROJECT_NAME}" PROJECT_NAME_LOWER)
 
 #
 # Make sure the C and C++ compilers support C17 and C++17, and recommend
@@ -423,11 +424,15 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Haiku")
 endif()
 include(GNUInstallDirs)
 
-if (ENABLE_SEPARATE_PROJECT_NAME)
-	set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
-else()
-	set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}")
-endif()
+# Always install headers to a package-specific subdirectory,
+# ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME_LOWER}. This is good namespacing
+# practice and avoids polluting the include directory when the prefix is
+# shared with other packages (e.g. /usr or /usr/local). It is unnecessary
+# when the prefix belongs to this package alone (e.g. /opt/wireshark or
+# C:\Program Files\Wireshark), but detecting that or adding an option for it
+# would complicate the build, and a fixed path is simpler for consumers
+# such as WiresharkConfig.cmake.
+set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME_LOWER}")
 
 # Make sure our executables can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
@@ -4688,7 +4693,7 @@ configure_package_config_file(WiresharkConfig.cmake.in
 	INSTALL_DESTINATION ${WIRESHARK_INSTALL_CMAKEDIR}
 	PATH_VARS
 		CMAKE_INSTALL_LIBDIR
-		CMAKE_INSTALL_INCLUDEDIR
+		PROJECT_INSTALL_INCLUDEDIR
 		PLUGIN_INSTALL_VERSION_LIBDIR
 		EXTCAP_INSTALL_LIBDIR
 )

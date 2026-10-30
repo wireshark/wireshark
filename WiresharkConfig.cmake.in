@@ -10,7 +10,7 @@ set(Wireshark_PLUGIN_LIBDIR "@PLUGIN_INSTALL_VERSION_LIBDIR@")
 
 set_and_check(Wireshark_INSTALL_PREFIX     "${PACKAGE_PREFIX_DIR}")
 set_and_check(Wireshark_LIB_DIR            "@PACKAGE_CMAKE_INSTALL_LIBDIR@")
-set_and_check(Wireshark_INCLUDE_DIR        "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/wireshark")
+set_and_check(Wireshark_INCLUDE_DIR        "@PACKAGE_PROJECT_INSTALL_INCLUDEDIR@")
 #
 # set_and_check() cannot be used with directories that may or may not exist.
 # If no plugins or extcaps are built the respective directories will not exist in the target
