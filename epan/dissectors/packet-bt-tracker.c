@@ -131,18 +131,20 @@ get_message_type(tvbuff_t *tvb)
   if (tvb_get_ntoh64(tvb, 0) == MAGIC_CONSTANT &&
       tvb_get_ntohl(tvb, 8) == ACTION_CONNECT)
     return MSG_TYPE_CONNECT_REQUEST;
+  /* Responses start with the action; requests start with a random
+   * connection ID, so check the responses first. */
   if (tvb_get_ntohl(tvb, 0) == ACTION_CONNECT)
     return MSG_TYPE_CONNECT_RESPONSE;
-  if (tvb_get_ntohl(tvb, 8) == ACTION_ANNOUNCE)
-    return MSG_TYPE_ANNOUNCE_REQUEST;
   if (tvb_get_ntohl(tvb, 0) == ACTION_ANNOUNCE)
     return MSG_TYPE_ANNOUNCE_RESPONSE;
-  if (tvb_get_ntohl(tvb, 8) == ACTION_SCRAPE)
-    return MSG_TYPE_SCRAPE_REQUEST;
   if (tvb_get_ntohl(tvb, 0) == ACTION_SCRAPE)
     return MSG_TYPE_SCRAPE_RESPONSE;
   if (tvb_get_ntohl(tvb, 0) == ACTION_ERROR)
     return MSG_TYPE_ERROR_RESPONSE;
+  if (tvb_get_ntohl(tvb, 8) == ACTION_ANNOUNCE)
+    return MSG_TYPE_ANNOUNCE_REQUEST;
+  if (tvb_get_ntohl(tvb, 8) == ACTION_SCRAPE)
+    return MSG_TYPE_SCRAPE_REQUEST;
 
   return MSG_TYPE_UNKNOWN;
 }
