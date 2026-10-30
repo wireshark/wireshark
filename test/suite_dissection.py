@@ -26640,3 +26640,37 @@ class TestDissectClearcase:
             ), encoding='utf-8', env=test_env)
         lines = [l.split() for l in stdout.splitlines() if l.startswith('CLEARCASE')]
         assert [l[:3] for l in lines] == [['CLEARCASE(390512)', '3', '6']]
+
+
+class TestDissectClip:
+    def test_clip_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is handed from CLIP to IP; no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clip_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'clip:ip:udp:discard\tDISCARD',
+            'clip:ip:icmp:data\tICMP',
+            'clip:ip:icmp:data\tICMP',
+            'clip:ip:ipv6:udp:discard\tDISCARD',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('clip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_clip_no_link_info(self, cmd_tshark, capture_file, test_env):
+        '''Every frame carries the "no link information" note.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clip_coverage.pcap.gz'),
+                '-Y', 'clip && _ws.expert.message == "No link information available"',
+                '-Tfields', '-eip.src', '-eipv6.src',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '192.0.2.1\t', '192.0.2.1\t', '198.51.100.2\t', '\t2001:db8::1',
+        ]
