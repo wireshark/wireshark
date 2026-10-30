@@ -17882,3 +17882,89 @@ class TestDissectBthfp:
             '88\t\t\t\t"555,1234"\t"Alice"\t',
             '96\t\t\t\t\t\t0x0000abcd',
         ]
+
+
+class TestDissectBthid:
+    def test_bthid_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every HID transaction type on L2CAP PSM 0x11 and 0x13 decodes
+        without malformed packets or expert infos, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthid_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 54
+        assert protocols.count('HID') == 49
+        assert protocols.count('L2CAP') == 4
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthid_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bthid_data_report_type(self, cmd_tshark, capture_file, test_env):
+        '''DATA and DATC show the report type of the low two bits of the
+        parameter in the Info column even with the reserved bits set
+        (frames 46 and 47: 0xA5 Input, 0xBF Feature), and dissect the
+        boot protocol keyboard and mouse reports.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthid_coverage.pcap.gz'),
+                    '-Y', 'bthid.transaction_type in {10,11}',
+                    '-Tfields', '-eframe.number', '-ebthid.parameter.report_type',
+                    '-ebthid.data.protocol_code', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '25\t0x01\t0x01\tRcvd DATA - Input - Keyboard - RIGHT SHIFT + LEFT SHIFT + a + b',
+                '28\t0x03\t0x00\tRcvd DATA - Feature - None',
+                '39\t0x01\t0x01\tRcvd DATA - Input - Keyboard - RIGHT SHIFT + LEFT SHIFT + a + b',
+                '40\t0x01\t0x01\tRcvd DATA - Input - Keyboard - RIGHT GUI + RIGHT ALT + RIGHT CTRL + LEFT GUI + LEFT ALT + LEFT CTRL + 1',
+                '41\t0x02\t0x01\tSent DATA - Output - Keyboard - LEDs: NumLock, CapsLock',
+                '42\t0x03\t0x01\tSent DATA - Feature - Keyboard',
+                '43\t0x01\t0x02\tRcvd DATA - Input - Mouse - Button LEFT + Button MIDDLE',
+                '44\t0x00\t0x00\tRcvd DATA - Other - None',
+                '45\t0x01\t0x07\tRcvd DATA - Input - unknown type',
+                '46\t0x01\t0x02\tRcvd DATA - Input - Mouse - Button LEFT + Button MIDDLE',
+                '47\t0x03\t0x00\tRcvd DATC - Feature - None',
+                '48\t0x02\t0x01\tSent DATC - Output - Keyboard - LEDs: ScrollLock',
+            ]
+
+    def test_bthid_get_report(self, cmd_tshark, capture_file, test_env):
+        '''GET_REPORT with size 0 (Report ID only when present) and size 1
+        (Report ID and BufferSize, or BufferSize alone).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthid_coverage.pcap.gz'),
+                '-Y', 'bthid.transaction_type == 4',
+                '-Tfields', '-eframe.number', '-ebthid.parameter.size',
+                '-ebthid.parameter.report_type', '-ebthid.report_id',
+                '-ebthid.buffer_size',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\t0x00\t0x01\t0x01\t',
+            '22\t0x00\t0x02\t\t',
+            '23\t0x01\t0x03\t0x02\t0x0040',
+            '24\t0x01\t0x00\t\t0x0020',
+            '27\t0x00\t0x01\t0x03\t',
+        ]
+
+    def test_bthid_deprecated(self, cmd_tshark, capture_file, test_env):
+        '''With "Show what is deprecated in HID 1.1", the control
+        operations NOP, Hard Reset and Soft Reset, GET_IDLE, SET_IDLE and
+        DATC get a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'bthid.hid.deprecated:TRUE',
+                '-r', capture_file('bthid_coverage.pcap.gz'),
+                '-Y', '_ws.expert.severity == warning',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        control = 'This value of Control Operation is deprecated by HID 1.1'
+        transaction = 'This Transaction Type is deprecated by HID 1.1'
+        assert stdout.splitlines() == [
+            f'14\t{control}', f'15\t{control}', f'16\t{control}',
+            f'37\t{transaction}', f'38\t{transaction}',
+            f'47\t{transaction}', f'48\t{transaction}',
+        ]
