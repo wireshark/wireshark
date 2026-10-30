@@ -18306,3 +18306,197 @@ class TestDissectBtl2cap:
             ['137', '', '', 'L2CAP', 'UnknownDirection Echo Request'],
             ['138', '0x1101', b'exported'.hex(), 'L2CAP', 'UnknownDirection Connectionless reception channel'],
         ]
+
+
+class TestDissectBtle:
+    # Fields that do not depend on a second pass, for comparing one and
+    # two passes ("Response in frame" and the L2CAP "Reassembled in" are
+    # forward references and only appear with -2)
+    two_pass_fields = ('frame.number', '_ws.col.info', '_ws.col.def_src', '_ws.col.def_dst',
+                       'btle.control_opcode', 'btle.request_in_frame',
+                       'btle.connection_parameters_in', 'btle.l2cap_index',
+                       'btle.central_bd_addr', 'btle.peripheral_bd_addr',
+                       'btle.ea.host_advertising_data.reassembled.length',
+                       'btcommon.eir_ad.entry.device_name', '_ws.expert.message')
+
+    def test_btle_protocols(self, cmd_tshark, capture_file, test_env):
+        '''LE Link Layer without a pseudo header, with the btle_rf header
+        and from the Nordic BLE sniffer decodes without malformed packets
+        or error expert infos in one and two passes; the only warnings are
+        the deliberate ones.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-eframe.interface_id',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len(frames) == 265
+        protocols = [f[0] for f in frames]
+        assert protocols.count('LE LL') == 259
+        assert protocols.count('ATT') == 3
+        assert protocols.count('L2CAP') == 2
+        assert protocols.count('SMP') == 1
+        interfaces = [f[1] for f in frames]
+        assert interfaces.count('0') == 52      # link type 251
+        assert interfaces.count('1') == 172     # 256, btle_rf
+        assert interfaces.count('2') == 41      # 272, Nordic BLE
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btle_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '15\tIncorrect CRC',
+                '49\tIncorrect CRC',
+                '54\tAccessAddress has errors present at capture',
+                '56\tIncorrect CRC',
+                '212\tMissing Fragment Start',
+                '214\tMissing Fragment Start',
+            ]
+
+    def test_btle_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''State kept across packets (connections, control procedures,
+        L2CAP and Host Advertising Data reassembly, periodic and
+        isochronous streams) gives the same result in one and two passes.'''
+        fields = [arg for f in self.two_pass_fields for arg in ('-e', f)]
+        outputs = [subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btle_coverage.pcapng.gz'),
+                    '-Tfields', *fields,
+                ), encoding='utf-8', env=test_env) for passes in ((), ('-2',))]
+        assert outputs[0] == outputs[1]
+        assert len(outputs[0].splitlines()) == 265
+
+    def test_btle_advertising(self, cmd_tshark, capture_file, test_env):
+        '''Legacy and extended advertising PDU types, and the reproducers:
+        a valid CRC on 253 to 255 octet PDUs is accepted, an extended
+        advertisement without AdvA gives the broadcast isochronous stream
+        a zero Central address, and an extended header too short for its
+        AdvA has no ACAD.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 35 || frame.number in {53..58} || frame.number in {72..74} || frame.number == 81',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        for pdu in ('ADV_IND', 'ADV_DIRECT_IND', 'ADV_NONCONN_IND', 'SCAN_REQ', 'SCAN_RSP',
+                    'CONNECT_IND', 'ADV_SCAN_IND', 'ADV_EXT_IND', 'AUX_CONNECT_RSP',
+                    'ADV_DECISION_IND', 'AUX_SYNC_IND', 'AUX_SCAN_REQ', 'AUX_ADV_IND',
+                    'AUX_CONNECT_REQ', 'Unknown'):
+            assert pdu in info
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {11..14}',
+                '-Tfields', '-ebtle.length', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['100\t', '253\t', '254\t', '255\t']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {17..19}',
+                '-Tfields', '-e_ws.col.def_src', '-ebtle.central_bd_addr',
+                '-ebtle.advertising_address', '-ebtcommon.eir_ad.entry.biginfo.seed_access_address',
+                '-ebtcommon.eir_ad.entry.device_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Anonymous\t\t\t0x00411234\t',
+            'Central_0x00411234\t00:00:00:00:00:00\t\t\t',
+            'c0:0b:db:00:00:01\t\tc0:0b:db:00:00:01\t\tABCD',
+        ]
+
+    def test_btle_had_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Extended advertising Host Advertising Data in AUX_ADV_IND,
+        AUX_SCAN_RSP and AUX_SYNC_IND chains is shown as fragments and
+        reassembled in the last AUX_CHAIN_IND, in one pass as well.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btle_coverage.pcapng.gz'),
+                    '-Y', 'btle.ea.host_advertising_data.reassembled.length',
+                    '-Tfields', '-eframe.number', '-ebtle.ea.host_advertising_data.fragment',
+                    '-ebtle.ea.host_advertising_data.reassembled.length',
+                    '-ebtcommon.eir_ad.entry.device_name',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '60\t59,60\t15\tABCD,WXYZ',
+                '63\t61,62,63\t28\tLE-cov',
+                '70\t69,70\t11\tLE-cov',
+                '76\t75,76\t11\tLE-cov',
+                '227\t226,227\t11\tLE-cov',
+            ]
+
+    def test_btle_control_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every LL control opcode, each procedure answered in sequence;
+        responses point at their request in one pass and requests at their
+        responses in the second pass.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Y', 'btle.control_opcode',
+                '-Tfields', '-ebtle.control_opcode',
+            ), encoding='utf-8', env=test_env)
+        assert {int(op, 16) for op in stdout.split()} == set(range(0x3e))
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {102..106} || frame.number in {148..150}',
+                '-Tfields', '-e_ws.col.info', '-ebtle.request_in_frame', '-ebtle.response_in_frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Control Opcode: LL_ENC_REQ\t\t103,104,105,106',
+            'Control Opcode: LL_ENC_RSP\t102\t',
+            'Control Opcode: LL_START_ENC_REQ\t102\t',
+            'Control Opcode: LL_START_ENC_RSP\t102\t',
+            'Control Opcode: LL_START_ENC_RSP\t102\t',
+            'Control Opcode: LL_CIS_REQ\t\t149,150',
+            'Control Opcode: LL_CIS_RSP\t148\t',
+            'Control Opcode: LL_CIS_IND\t148\t',
+        ]
+        # LL_PERIODIC_SYNC_IND and LL_PERIODIC_SYNC_WR_IND: the Sleep Clock
+        # Accuracy comes from the channel map octet of the Sync Info
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Y', 'btle.control_opcode == 0x1c || btle.control_opcode == 0x2a',
+                '-Tfields', '-eframe.number', '-ebtle.control.sync_info.sleep_clock_accuracy',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['144\t5', '145\t5', '169\t5']
+
+    def test_btle_instants(self, cmd_tshark, capture_file, test_env):
+        '''With the Nordic BLE event counter, new connection parameters
+        apply from the event of the instant.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {229..235}',
+                '-Tfields', '-enordic_ble.event_counter', '-ebtle.connection_parameters_in',
+            ), encoding='utf-8', env=test_env)
+        # LL_CONNECTION_UPDATE_IND in frame 231 (event 2) with instant 4
+        assert stdout.splitlines() == ['1\t228', '1\t228', '2\t228', '2\t228', '3\t228', '3\t228', '4\t231']
+
+    def test_btle_l2cap_and_iso(self, cmd_tshark, capture_file, test_env):
+        '''L2CAP fragments are reassembled, skipping a retransmission;
+        connected isochronous PDUs get the addresses of the connection that
+        sent the LL_CIS_IND; broadcast isochronous PDUs are found from the
+        BIGInfo seed access address.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Y', 'btle.l2cap.fragments || btle.retransmit || btle.nack',
+                '-Tfields', '-eframe.number', '-ebtle.l2cap.fragment',
+                '-ebtle.l2cap.reassembled.length', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '40\t38,39,40\t27\t',
+            '205\t\t\tNot acknowledged',
+            '206\t\t\tRetransmission',
+            '210\t204,208,210\t16\t',
+            '216\t\t\tNot acknowledged',
+            '217\t\t\tRetransmission',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btle_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {219..223} || frame.number in {26..27}',
+                '-Tfields', '-e_ws.col.def_src', '-ebtle.central_bd_addr', '-ebtle.peripheral_bd_addr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Central_0x0041a5a5\tc0:0b:db:00:00:01\t',
+            'Central_0x8041a5a5\tc0:0b:db:00:00:01\t',
+            'Central_0x3c3c5a01\tc0:0b:db:00:00:40\tc0:0b:db:00:00:41',
+            'Peripheral_0x3c3c5a01\tc0:0b:db:00:00:40\tc0:0b:db:00:00:41',
+            'Central_0x3c3c5a01\tc0:0b:db:00:00:40\tc0:0b:db:00:00:41',
+            'Peripheral_0x3c3c5a01\tc0:0b:db:00:00:40\tc0:0b:db:00:00:41',
+            '\t\t',
+        ]
