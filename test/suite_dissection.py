@@ -23482,3 +23482,129 @@ class TestDissectCdt:
                 '-Tfields', '-eframe.number', '-ecdt.contentType_ShortForm', '-edata.len',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['2\t\t42', '3\t0\t200']
+
+
+class TestDissectCellBroadcast:
+    def test_cell_broadcast_protocols(self, cmd_tshark, capture_file, test_env):
+        '''GSM CBS pages (Exported PDU and GSMTAP CBCH) and UMTS CBS
+        messages decode without malformed packets or warnings, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cell_broadcast_coverage.pcap.gz'),
+                '-Tfields', '-egsm_cbs.serial_number', '-e_ws.col.info',
+                '-egsmtap.chan_type',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 50
+        # 37 GSM pages (2 of them from CBCH blocks), 7 UMTS messages, 8
+        # CBCH blocks; 34 frames complete a message
+        assert sum(1 for l in lines if l[0]) == 37
+        assert sum(1 for l in lines if l[2]) == 8
+        assert sum(1 for l in lines if '(CBS Message)' in l[1]) == 34
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cell_broadcast_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cell_broadcast_page_zero(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer (frames 1-10): page 0 of 2, page 15 of 2 and page
+        0 of 0 are each a message of their own (page 1 of 1); pages 1 and 2
+        of the same message are reassembled without frame 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cell_broadcast_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 5',
+                '-Tfields', '-egsm_cbs.current_page', '-egsm_cbs.total_pages',
+                '-egsm_cbs.page_number', '-egsm_cbs.reassembled.length',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t2\t\t\t (CBS Page) (CBS Message)',
+            '1\t2\t\t\t (CBS Page)',
+            '2\t2\t2,3\t242\t (CBS Page) (CBS Message)',
+            '15\t2\t\t\t (CBS Page) (CBS Message)',
+            '0\t0\t\t\t (CBS Page) (CBS Message)',
+        ]
+
+    def test_cell_broadcast_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Multi-page messages: in order, last page first, over CBCH; in
+        two passes the earlier pages point to the reassembling frame.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('cell_broadcast_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 11 && (gsm_cbs.reassembled.in || gsm_cbs.reassembled.length)',
+                '-Tfields', '-eframe.number', '-egsm_cbs.reassembled.in',
+                '-egsm_cbs.page_number', '-egsm_cbs.message_content',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t13\t\t',
+            '12\t13\t\t',
+            '13\t\t11,12,13\tFirst page of three. Second page of three. Third and last page.',
+            '14\t15\t\t',
+            '15\t\t15,14\tOut of order: the end.',
+            '39\t43\t\t',
+            '43\t\t39,43\tEarthquake warning via CBCH, page two.',
+        ]
+
+    def test_cell_broadcast_encodings(self, cmd_tshark, capture_file, test_env):
+        '''Message text in every encoding, with and without a language
+        indication; CR padding is removed from GSM pages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cell_broadcast_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 17 && frame.number <= 35 || frame.number >= 44',
+                '-Tfields', '-egsm_cbs.language', '-egsm_cbs.message_content',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\tGroup 0 language 2',
+            'en\tEnglish with a language',
+            'de\tGrüße',
+            '\tGroup 2 Czech',
+            '\tGroup 3',
+            '\tGroup 4 uncompressed GSM 7 bit',
+            '\tGroup 5 class 1',
+            '\tGroup 4 8 bit data',
+            '\tΔ UCS2 €',
+            '\tUCS2 class 2',
+            '\tGroup 9 with UDH',
+            '\tGroup 9 8 bit',
+            '\tGroup 9 UCS2',
+            '\tGroup 15 7 bit class 1',
+            '\tGroup 15 8 bit class 2',
+            '\t',
+            '\tThis text has exactly ninety-three characters and fills the page: no CR padding at the end...',
+            '\t@_\\n',
+            '\t',
+            '\tUMTS 7 bit message\\r\\r\\r\\r',
+            'fr\tBonjour',
+            'it\tCiao',
+            '\tUMTS UCS2',
+            '\tUMTS 8 bit',
+            '\tGroup 15',
+            '\t',
+        ]
+
+    def test_cell_broadcast_message_identifier(self, cmd_tshark, capture_file, test_env):
+        '''Message identifiers from every range and the serial number.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cell_broadcast_coverage.pcap.gz'),
+                '-O', 'gsm_cbs', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Message ID to be allocated by GSMA (500)',
+                      'Message ID intended for standardization in future versions of 3GPP TS 23.041 (2000)',
+                      'Message ID reserved for Cell Broadcast Data Download (unsecured) to the SIM  (4100)',
+                      'Message ID reserved for Cell Broadcast Data Download (secured) to the SIM  (4300)',
+                      'ETWS CBS Message Identifier for future extension (4357)',
+                      'CMAS CBS Message Identifier for future extension (4390)',
+                      'CBS Message Identifier for future PWS use (5000)',
+                      'Intended for standardization in future versions of 3GPP TS 23.041 (10000)',
+                      'Message ID in PLMN operator specific range (42000)',
+                      'Traffic Information Traffic Master UK (43510)',
+                      'Traffic information Mannesmann Telecommerce (43550)',
+                      'Message ID in PLMN operator specific range (44000)',
+                      'Message ID intended as PLMN operator specific range in future versions of 3GPP TS 23.041 (50000)',
+                      'ETWS CBS Message Identifier for earthquake warning message (4352)',
+                      'GSM CBS Serial Number: 0x4641 (17985), Message Code: 36, Update Number: 1',
+                      'GSM CBS Geographic Scope: Location Area-wide (GSM) or Service Area-wide (UMTS) (2)',
+                      'GSM CBS Geographic Scope: Cell-wide (normal display) (3)'):
+            assert label in stdout
