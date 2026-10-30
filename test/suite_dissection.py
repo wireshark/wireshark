@@ -26053,3 +26053,65 @@ class TestDissectCiscoSm:
             '0x0101\t11\t\t10.1.2.3\t12345\t7\t1\t\t',
             '0x0114\t11\t\t10.1.2.3\t12345\t7\t2\t\t',
         ]
+
+
+class TestDissectCiscoTtag:
+    def test_ttag_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Cisco ttag decodes without malformed packets or errors, in one
+        and two passes; only the nesting limit frame has a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_ttag_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 8
+        assert protocols.count('DISCARD') == 5
+        assert protocols.count('ARP') == 1
+        assert protocols.count('0x88b5') == 1
+        assert protocols.count('TTAG') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_ttag_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['8\tPayload nested too deep, not dissected']
+
+    def test_ttag_fields(self, cmd_tshark, capture_file, test_env):
+        '''Timestamps from 0 to 2^48-1 ns, the payload ethertypes, nesting
+        and the trailer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_ttag_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 7',
+                '-Tfields', '-ettag.time_stamp', '-ettag.type', '-eeth.trailer',
+                '-evlan.id', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0.000000000\t0x0800\t\t\t',
+            '1.500000000\t0x86dd\t\t\t',
+            '0.000000001\t0x0806\t\t\t',
+            '281474.976710655\t0x0800\tdeadbeef0001\t\t',
+            '0.123456789,0.987654321\t0x8905,0x0800\t\t\t',
+            '1.000000000\t0x8100\t\t42\t',
+            '60.000000000\t0x88b5\t\t\t6578706572696d656e74616c',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_ttag_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-O', 'ttag', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Cisco ttag, Timestamp: 281474.976710655' in stdout
+
+    def test_ttag_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''ttag nested 260 times stops with an expert info before the
+        layer limit instead of reaching the payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_ttag_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8 && ttag.too_deep',
+                '-Tfields', '-ettag.type', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        types, data_len = stdout.rstrip('\n').split('\t')
+        types = types.split(',')
+        assert len(types) > 200
+        assert set(types) == {'0x8905'}
+        assert data_len == ''
