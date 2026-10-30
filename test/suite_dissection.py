@@ -18705,3 +18705,114 @@ class TestDissectBtlmp:
                 '-Tfields', '-ebtbredr_rf.packet_header.type', '-ebtbredr_rf.isochronous_data',
             ), encoding='utf-8', env=test_env)
         assert stdout == '0x00000007\t1\n'
+
+
+class TestDissectBtmcap:
+    def test_btmcap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The MCAP control channel found from SDP (HDP Source record)
+        decodes without malformed packets or errors, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmcap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 39
+        assert protocols.count('MCAP') == 32
+        assert protocols.count('SDP') == 2
+        assert protocols.count('L2CAP') == 4
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btmcap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btmcap_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every standard and clock sync op code, MDL ID ranges, response
+        codes and unknown op codes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmcap_coverage.pcap.gz'),
+                '-Y', 'btmcap',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\tSent MD_CREATE_MDL_REQ (Standard) - MDL ID: 1 (Dynamic Range)',
+            '9\tRcvd MD_CREATE_MDL_RSP (Standard) - Success - 1 (Dynamic Range)',
+            '10\tSent MD_CREATE_MDL_REQ (Standard) - MDL ID: 2 (Dynamic Range)',
+            '11\tRcvd MD_CREATE_MDL_RSP (Standard) - Invalid MDEP - 2 (Dynamic Range)',
+            '12\tSent MD_RECONNECT_MDL_REQ (Standard) - MDL ID: 1 (Dynamic Range)',
+            '13\tRcvd MD_RECONNECT_MDL_RSP (Standard) - Success - 1 (Dynamic Range)',
+            '14\tSent MD_ABORT_MDL_REQ (Standard) - MDL ID: 2 (Dynamic Range)',
+            '15\tRcvd MD_ABORT_MDL_RSP (Standard) - Success - 2 (Dynamic Range)',
+            '16\tSent MD_DELETE_MDL_REQ (Standard) - MDL ID: 65535 (Indicates all MDLs)',
+            '17\tRcvd MD_DELETE_MDL_RSP (Standard) - Success - 65535 (Indicates all MDLs)',
+            '18\tSent MD_RECONNECT_MDL_REQ (Standard) - MDL ID: 0 (Reserved)',
+            '19\tRcvd MD_RECONNECT_MDL_RSP (Standard) - Invalid MDL - 65280',
+            '20\tRcvd ERROR_RSP (Standard) - Invalid Op Code - 0 (Reserved)',
+            '21\tRcvd MD_CREATE_MDL_RSP (Standard) - Unknown ResponseCode - 3 (Dynamic Range)',
+            '22\tSent MD_SYNC_CAP_REQ (Clock Sync)',
+            '23\tRcvd MD_SYNC_CAP_RSP (Clock Sync) - Success',
+            '24\tSent MD_SYNC_SET_REQ (Clock Sync)',
+            '25\tRcvd MD_SYNC_SET_RSP (Clock Sync) - Success',
+            '26\tSent MD_SYNC_SET_REQ (Clock Sync)',
+            '27\tRcvd MD_SYNC_SET_RSP (Clock Sync) - Success',
+            '28\tRcvd MD_SYNC_INFO_IND (Clock Sync)',
+            '29\tSent Unknown Op Code (Standard)',
+            '30\tSent Unknown Op Code (Standard)',
+            '31\tSent Unknown Op Code (Clock Sync)',
+            '32\tRcvd Unknown Op Code (Standard) - Invalid Op Code - 4 (Dynamic Range)',
+            '33\tRcvd Reserved as pseudoresponse (Clock Sync) - Success',
+            '34\tSent MD_CREATE_MDL_REQ (Standard) - MDL ID: 65535 (Indicates all MDLs)',
+            '35\tRcvd MD_CREATE_MDL_RSP (Standard) - Configuration Rejected - 5 (Dynamic Range)',
+            '36\tRcvd MD_ABORT_MDL_RSP (Standard) - Success - 2 (Dynamic Range)',
+            '37\tRcvd MD_RECONNECT_MDL_RSP (Standard) - Success - 1 (Dynamic Range)',
+            '38\tRcvd MD_DELETE_MDL_RSP (Standard) - Success - 6 (Dynamic Range)',
+            '39\tSent MD_ABORT_MDL_REQ (Standard) - MDL ID: 7 (Dynamic Range)',
+        ]
+
+    def test_btmcap_response_parameters(self, cmd_tshark, capture_file, test_env):
+        '''MD_RECONNECT_MDL_RSP, MD_ABORT_MDL_RSP and MD_DELETE_MDL_RSP
+        with response parameters get a warning naming the response, and
+        the parameters are shown as unexpected data, not as response
+        parameters (frames 36-38); MD_CREATE_MDL_RSP keeps its response
+        parameters (frames 9 and 35, the latter with a warning because it
+        failed).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btmcap_coverage.pcap.gz'),
+                    '-Y', '_ws.expert || btmcap.response_parameters',
+                    '-Tfields', '-eframe.number', '-ebtmcap.response_parameters',
+                    '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '9\t01\t',
+                '34\t\tThe value 0xFFFF is not a valid MDL ID for this request and shall not be used.',
+                '35\t02\tWhen the Response Code is not Success, the Response Parameters shall have length zero.',
+                '36\t\tThe Response Parameters for MD_ABORT_MDL_RSP shall have length zero.,Unexpected data',
+                '37\t\tThe Response Parameters for MD_RECONNECT_MDL_RSP shall have length zero.,Unexpected data',
+                '38\t\tThe Response Parameters for MD_DELETE_MDL_RSP shall have length zero.,Unexpected data',
+                '39\t\tUnexpected data',
+            ]
+
+    def test_btmcap_clock_sync(self, cmd_tshark, capture_file, test_env):
+        '''Clock sync capabilities, set (instant and timed) and the
+        indication.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmcap_coverage.pcap.gz'),
+                '-Y', 'btmcap.op_code >= 0x11 && btmcap.op_code <= 0x15',
+                '-Tfields', '-eframe.number', '-ebtmcap.bluetooth_clock_sync_time',
+                '-ebtmcap.timestamp_sync_time', '-ebtmcap.timestamp_sample_accuracy',
+                '-ebtmcap.sync_lead_time',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '22\t\t\t\t',
+            '23\t\t\t\t1000',
+            '24\t4294967295\t18446744073709551615\t\t',
+            '25\t4294967295\t18446744073709551615\t5\t',
+            '26\t74565\t1000000\t\t',
+            '27\t74565\t1000000\t5\t',
+            '28\t74752\t1500000\t6\t',
+        ]
