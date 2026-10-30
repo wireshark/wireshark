@@ -22228,3 +22228,149 @@ class TestDissectCanopen:
             'can:data\tExt. ID: 291 (0x00000123), Length: 8',
             'can:data\tID: 1793 (0x701), Length: 1 (Remote Transmission Request)',
         ]
+
+
+class TestDissectCapwap:
+    def test_capwap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CAPWAP message type, element and payload decodes without
+        malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('capwap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 56
+        assert protocols.count('CAPWAP-Control') == 44
+        assert protocols.count('CAPWAP-Data') == 6
+        assert protocols.count('DISCARD') == 4
+        assert protocols.count('DTLSv1.2') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('capwap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_capwap_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Message type and sequence number of every control message, the
+        same in one and two passes.'''
+        expected = [
+            '1\t0', '2\t0', '3\t1', '4\t1', '5\t2', '6\t2', '7\t3', '8\t3', '9\t4', '10\t4',
+            '11\t5', '12\t5', '13\t6', '14\t6', '15\t7', '16\t7', '15\t8', '15\t9', '15\t10',
+            '17\t11', '18\t11', '19\t12', '20\t12', '21\t13', '22\t13', '23\t14', '24\t14',
+            '25\t15', '26\t15', '3398913\t16', '3398914\t16', '3634073\t17', '7\t18', '7\t19',
+            '4\t20', '1\t0', '13\t21', '13\t22', '13\t23', '1\t24', '7\t25',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('capwap_coverage.pcap.gz'),
+                    '-Y', 'capwap.control.header.message_type',
+                    '-Tfields', '-ecapwap.control.header.message_type',
+                    '-ecapwap.control.header.sequence_number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_capwap_mac_profiles(self, cmd_tshark, capture_file, test_env):
+        '''The Supported MAC Profiles element takes the number of profiles
+        from its count field and shows each profile once (frame 36, the
+        reproducer of the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('capwap_coverage.pcap.gz'),
+                '-Y', 'capwap.control.message_element.ieee80211_supported_mac_profiles.numbers',
+                '-Tfields', '-eframe.number',
+                '-ecapwap.control.message_element.ieee80211_supported_mac_profiles.numbers',
+                '-ecapwap.control.message_element.ieee80211_supported_mac_profiles.profile',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['4\t2\t0,1', '36\t3\t0,1,2']
+
+    def test_capwap_add_station(self, cmd_tshark, capture_file, test_env):
+        '''Add Station with EUI-48, EUI-64 and other MAC lengths, with and
+        without a VLAN name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('capwap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 28',
+                '-Tfields', '-ecapwap.control.message_element.add_station.length',
+                '-ecapwap.control.message_element.add_station.vlan_name',
+                '-ecapwap.control.message_element.add_station.mac.eui48',
+                '-ecapwap.control.message_element.add_station.mac.eui64',
+                '-ecapwap.control.message_element.add_station.mac.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6,6,8,4\tguest-vlan,vlan8,v4\t02:00:00:00:0a:01,02:00:00:00:0a:02'
+            '\t02:00:00:00:00:00:0c:01\t02000000']
+
+    def test_capwap_vendor(self, cmd_tshark, capture_file, test_env):
+        '''Fortinet and Cisco vendor specific elements.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('capwap_coverage.pcap.gz'),
+                '-Y', 'capwap.control.fortinet.element_id || capwap.control.cisco.element_id',
+                '-Tfields', '-eframe.number', '-ecapwap.control.fortinet.element_id',
+                '-ecapwap.control.cisco.element_id',
+                '-ecapwap.control.fortinet.wtp_allow.sn', '-ecapwap.control.cisco.rad_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '33\t16,24,32,33,33,34,36,49,50,51,52,53,54,55,56,81,82,83,84,99,103,104,106\t'
+            '\tFP221C3X12345678\t',
+            '34\t108,112,128,145,147,148,149,150,151,161,167,176,177,192,193,209,146,152,153,'
+            '163,65,170,171,250\t\t\t',
+            '35\t\t2,5,6,54,83,108,123,125,151,207,208,44\t\tAP-CAPWAP-01',
+        ]
+
+    def test_capwap_header_options(self, cmd_tshark, capture_file, test_env):
+        '''Radio MAC addresses and wireless specific information (802.11
+        frame info towards the AC, destination WLANs towards the WTP).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('capwap_coverage.pcap.gz'),
+                '-Y', 'capwap.header.mac.length || capwap.header.wireless.length',
+                '-Tfields', '-eframe.number', '-ecapwap.header.mac.length',
+                '-ecapwap.header.mac.eui48', '-ecapwap.header.mac.eui64',
+                '-ecapwap.header.mac.data', '-ecapwap.header.wireless.length',
+                '-ecapwap.header.wireless.data.ieee80211.fi.rssi',
+                '-ecapwap.header.wireless.data.ieee80211.fi.snr',
+                '-ecapwap.header.wireless.data.ieee80211.fi.data_rate',
+                '-ecapwap.header.wireless.data.ieee80211.dw.wlan_id_bitmap',
+                '-ewlan.fc.type_subtype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '37\t6\t02:00:00:00:0a:01\t\t\t4\t\t\t\t5\t',
+            '38\t8\t\t02:00:00:00:00:00:0c:01\t\t\t\t\t\t\t',
+            '39\t4\t\t\t02000000\t2\t\t\t\t\t',
+            '40\t\t\t\t\t4\t\t\t\t272\t',
+            '46\t\t\t\t\t4\t-60\t30\t540\t\t0x0020',
+            '47\t6\t02:00:00:00:0b:01\t\t\t4\t\t\t\t3\t0x0020',
+        ]
+
+    def test_capwap_draft_8_cisco(self, cmd_tshark, capture_file, test_env):
+        '''With the Cisco draft 8 preference the WTP Descriptor has 2 octets
+        of encryption capabilities and the wireless information starts with
+        a WBID octet; frame 40 decodes cleanly both ways.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'capwap.draft_8_cisco:TRUE',
+                '-r', capture_file('capwap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 40',
+                '-Tfields',
+                '-ecapwap.control.message_element.wtp_descriptor.encrypt_capabilities',
+                '-ecapwap.control.message_element.wtp_descriptor.hardware_version',
+                '-ecapwap.header.wireless.data.ieee80211.dw.wlan_id_bitmap',
+                '-e_ws.malformed', '-e_ws.expert',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['2568\t' + 'C' * 24 + '\t4128\t\t']
+
+    def test_capwap_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A control message in 3 fragments and an 802.3 frame in 2 data
+        fragments are reassembled; keep-alives in both directions.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('capwap_coverage.pcap.gz'),
+                    '-Y', 'capwap.reassembled.length || capwap.keep_alive',
+                    '-Tfields', '-eframe.number', '-ecapwap.reassembled.length',
+                    '-ecapwap.fragment.count', '-ecapwap.control.message_element.ac_name',
+                    '-ecapwap.keep_alive.length', '-eudp.dstport',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '43\t230\t3\tfragmented-ac\t\t32768',
+                '50\t\t\t\t22\t5247',
+                '51\t\t\t\t22\t32769',
+                '53\t142\t2\t\t\t5247,9',
+            ]
