@@ -17209,3 +17209,168 @@ class TestDissectBthciSco:
                 '-Tfields', '-eframe.number', '-ebthci_sco.disconnect_in',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['%d\t20' % n for n in range(12, 18)]
+
+
+class TestDissectBthciVendorAndroid:
+    '''Bluetooth Android HCI vendor commands and events.
+    bthci_vendor_android_coverage.pcapng.gz has HCI H4 frames on interface 0
+    (a Read Local Version Information reply naming Google, then vendor
+    commands, their Command Complete events and Bluetooth Quality Report
+    events) and Exported PDU frames naming bthci_vendor.android, without
+    Bluetooth data, on interface 1.'''
+
+    def test_bthci_vendor_android_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or warnings, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 163
+        assert protocols.count('HCI_CMD_ANDROID') == 79
+        assert protocols.count('HCI_EVT_ANDROID') == 80
+        assert protocols.count('HCI_ANDROID') == 2
+        assert protocols.count('HCI_CMD') == 1
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_bthci_vendor_android_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The columns and decoded fields are the same in one and two passes.
+        (The Bluetooth layer's [Source]/[Destination] and the Response In
+        links are added only in the second pass.)'''
+        fields = ('-Tfields', '-eframe.number', '-e_ws.col.info',
+                  '-ebthci_vendor.android.opcode', '-ebthci_vendor.android.bd_addr',
+                  '-ebtcommon.eir_ad.entry.device_name', '-ebthci_vendor.android.status',
+                  '-ebthci_vendor.android.quality_report_id', '-e_ws.expert.message')
+        one = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'), *fields,
+            ), encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'), *fields,
+            ), encoding='utf-8', env=test_env)
+        assert one == two
+
+    def test_bthci_vendor_android_multi_advertising(self, cmd_tshark, capture_file, test_env):
+        '''LE Multi Advertising Write Advertising / Scan Response Data
+        decodes its AD, over HCI and from Exported PDU without Bluetooth
+        data (frame 153, which used to crash).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'),
+                '-Y', 'btcommon.eir_ad.entry.device_name',
+                '-Tfields', '-eframe.number', '-eframe.interface_id',
+                '-ebthci_vendor.android.le.multi_advertising.subcode',
+                '-ebtcommon.eir_ad.entry.device_name',
+                '-ebthci_vendor.android.le.multi_advertising.instance_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '17\t0\t0x02\tANDROID-ADV\t1',
+            '19\t0\t0x03\tANDROID-SCAN\t1',
+            '153\t1\t0x02\ttest\t1',
+            '154\t1\t0x03\texp\t2',
+        ]
+
+    def test_bthci_vendor_android_a2dp_offload(self, cmd_tshark, capture_file, test_env):
+        '''Start A2DP offload (legacy): the SCMS-T value or its reserved
+        octet, the LDAC bitrate index and the LDAC channel mode bitmask.'''
+        a = 'bthci_vendor.android.a2dp_hardware_offload.start_legacy.'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'),
+                '-Y', a + 'codec',
+                '-Tfields', '-eframe.number', '-e' + a + 'codec',
+                '-e' + a + 'scms_t_enable_value', '-e' + a + 'scms_t_enable_value_reserved',
+                '-e' + a + 'codec_information.ldac.bitrate_index',
+                '-e' + a + 'codec_information.ldac.bitrate_index.reserved',
+                '-e' + a + 'codec_information.ldac.channel_mode_mask',
+                '-e' + a + 'encoded_audio_bitrate',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '106\t0x00000001\t\t0x00\t\t\t\t',
+            '108\t0x00000002\t1\t\t\t\t\t256000',
+            '110\t0x00000010\t\t0x02\t0x01\t\t0x07\t',
+            '112\t0x00000010\t\t0x00\t\t0x05\t0x04\t990000',
+            '114\t0x00000010\t\t0x00\t0x7f\t\t0x01\t',
+            '116\t0x00000008\t\t0x00\t\t\t\t352000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 110', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()]
+        assert 'Channel Mode: 0x07, Mono, Dual, Stereo' in lines
+        assert '.... .1.. = Mono: True' in lines
+
+    def test_bthci_vendor_android_capabilities(self, cmd_tshark, capture_file, test_env):
+        '''LE Get Vendor Capabilities for versions 0.96, 0.98, 1.05 and
+        1.06, and LE Get Controller Activity Energy Info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'),
+                '-Y', 'bthci_vendor.android.version_support',
+                '-Tfields', '-eframe.number', '-ebthci_vendor.android.version_support',
+                '-ebthci_vendor.android.max_advertising_instance',
+                '-ebthci_vendor.android.max_advertising_instance_reserved',
+                '-ebthci_vendor.android.a2dp_offload_v2_support',
+                '-ebthci_vendor.android.iso_link_layer_feedback_supported',
+                '-ebthci_vendor.android.vendor_connection_handle_max',
+                '-ebthci_vendor.android.connection_proximity_threshold',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t96\t4\t\t\t\t\t',
+            '6\t96\t4\t\tTrue\t\t\t',
+            '8\t152\t\t4\tTrue\t\t\t',
+            '10\t261\t\t4\tTrue\tTrue\t\t',
+            '12\t262\t\t4\tTrue\tTrue\t0x01ff\t64',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'),
+                '-Y', 'bthci_vendor.android.le.total_tx_time',
+                '-Tfields', '-eframe.number', '-ebthci_vendor.android.le.total_tx_time',
+                '-ebthci_vendor.android.le.total_rx_time', '-ebthci_vendor.android.le.total_idle_time',
+                '-ebthci_vendor.android.le.total_energy_used',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['103\t1000\t2000\t3000\t4000', '157\t1000\t2000\t3000\t4000']
+
+    def test_bthci_vendor_android_apcf(self, cmd_tshark, capture_file, test_env):
+        '''APCF filters: UUID and mask, data and mask, AD type filter.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'),
+                '-Y', 'bthci_vendor.android.apcf.uuid || bthci_vendor.android.apcf.data || bthci_vendor.android.apcf.ad_data',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ebthci_vendor.android.apcf.uuid', '-ebthci_vendor.android.apcf.uuid_mask',
+                '-ebthci_vendor.android.apcf.data', '-ebthci_vendor.android.apcf.mask',
+                '-ebthci_vendor.android.apcf.ad_data', '-ebthci_vendor.android.apcf.ad_data_mask',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '62\tSent Android APCF Service UUID (Add 3)\t0d18\tffff\t\t\t\t',
+            '63\tSent Android APCF Service UUID (Delete 3)\t000102030405060708090a0b0c0d0e0f\tffffffffffffffffffffffffffffffff\t\t\t\t',
+            '68\tSent Android APCF Service Solicitation UUID (Add 3)\t2cfe\tffff\t\t\t\t',
+            '70\tSent Android APCF Local Name (Add 3)\t\t\t506978656c\t\t\t',
+            '72\tSent Android APCF Manufacturer Data (Add 3)\t\t\te0000102\tffffffff\t\t',
+            '74\tSent Android APCF Service Data (Add 3)\t\t\taafe10\tffffff\t\t',
+            '79\tSent Android APCF AD Type Filter (Add 3)\t\t\t\t\taafe10\tffffff',
+        ]
+
+    def test_bthci_vendor_android_bqr(self, cmd_tshark, capture_file, test_env):
+        '''Bluetooth Quality Report events of every report ID, with the
+        BD_ADDRs of the link and LE Audio broadcast reports.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthci_vendor_android_coverage.pcapng.gz'),
+                '-Y', 'bthci_vendor.android.quality_report_id',
+                '-Tfields', '-eframe.number', '-ebthci_vendor.android.quality_report_id',
+                '-ebthci_vendor.android.bd_addr', '-ebthci_vendor.android.bqr.lea.source_bd_addr',
+                '-ebthci_vendor.android.bqr.lea.receiver_bd_addr',
+                '-ebthci_vendor.android.bqr.vendor_data',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[1] for f in frames] == [
+            '0x01', '0x02', '0x03', '0x04', '0x07', '0x08', '0x05', '0x06', '0x09',
+            '0x0a', '0x0b', '0x0c', '0x11', '0x12', '0x13', '0x16', '0x0d', '0x01', '0x16']
+        assert all(f[5] == '5644' for f in frames)
+        assert frames[0] == ['132', '0x01', '11:22:33:44:55:66', '', '', '5644']
+        assert frames[15] == ['147', '0x16', '', '11:22:33:44:55:66', '00:02:03:04:05:06', '5644']
