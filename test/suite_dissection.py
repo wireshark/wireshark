@@ -24940,3 +24940,210 @@ class TestDissectCimetrics:
             'BACnet MS/TP, Src (11), Dst (10), Unknown Frame Type (48)',
             'BACnet MS/TP, Src (127), Dst (10), Unknown Frame Type (128)',
         ]
+
+
+class TestDissectCip:
+    def test_cip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CIP object, service and segment type in the capture decodes
+        without malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cip_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 384
+        assert protocols.count('CIP') == 202
+        assert protocols.count('CIP CM') == 106
+        assert protocols.count('CIP PCCC') == 26
+        assert protocols.count('CIP MB') == 22
+        assert protocols.count('CIP CCO') == 22
+        assert protocols.count('CIP I/O') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cip_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''A Multiple Service Packet request followed by an Unconnected Send
+        request, and a Forward Open request in both directions, in frames
+        that ENIP matches to each other (frames 1-4).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cip_coverage.pcap.gz'),
+                    '-Y', 'frame.number <= 4',
+                    '-Tfields', '-ecip.sc', '-ecip.cm.msg_req_size', '-ecip.class',
+                    '-ecip.cm.ot_connid', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '0x0a,0x0e\t\t0x02,0x01\t\tMessage Router - Multiple Service Packet: Get Attribute Single',
+                '0x52,0x0e\t8\t0x06,0x01\t\tConnection Manager - Unconnected Send: Identity - Get Attribute Single',
+                '0x54\t\t0x06,0x04\t0x11111111\tConnection Manager - Forward Open',
+                '0x54\t\t0x06,0x04\t0x11111111\tConnection Manager - Forward Open',
+            ]
+
+    def test_cip_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Attributes of the Identity, Time Sync and File objects in
+        Get_Attribute_List and Get_Attributes_All responses, decoded with
+        the path of the matching request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6 || frame.number == 10',
+                '-Tfields', '-ecip.id.vendor_id', '-ecip.id.product_name',
+                '-ecip.stringi.istring', '-ecip.id.vendor_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0001\tSynthetic CIP device\t\t',
+            '0x0001\tProduct\tDevice,Geraet,Appareil,abc,ab,x,Name,Desc,Here\tVendor Inc',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 68',
+                '-O', 'cip', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Attribute: 8 (Grand Master Clock Info)',
+                      'Attribute: 25 (Port Physical Address Info)',
+                      'Attribute: 28 (System Time and Offset)',
+                      'Attribute: 30 (DefaultLeapSeconds)',
+                      'Product Description: Example',
+                      'Revision Data: 1.2.3',
+                      'User Description: User'):
+            assert label in stdout
+
+    def test_cip_multiple_service_packet(self, cmd_tshark, capture_file, test_env):
+        '''Multiple Service Packets: the embedded responses use the request
+        information of the matching embedded request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cip_coverage.pcap.gz'),
+                '-Y', 'cip.msp.num_services',
+                '-Tfields', '-eframe.number', '-ecip.msp.num_services', '-ecip.sc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t0x0a,0x0e',
+            '153\t5\t0x0a,0x0e,0x0e,0x4b,0x4b,0x52,0x0e',
+            '154\t5\t0x0a,0x0e,0x0e,0x4b,0x4b,0x0e',
+            '155\t2\t0x0a,0x0e,0x0e',
+            '156\t2\t0x0a,0x0e,0x0e',
+            '157\t2,1\t0x0a,0x0a,0x0e,0x0e',
+            '158\t2,1\t0x0a,0x0a,0x0e,0x0e',
+            '159\t2\t0x0a,0x0e,0x0e',
+            '160\t1\t0x0a,0x0e',
+            '161\t0\t0x0a',
+            '162\t0\t0x0a',
+            '239\t2\t0x0a,0x0e,0x0e',
+            '240\t2\t0x0a,0x0e,0x0e',
+            '340\t2\t0x0a,0x4c,0x0e',
+            '341\t2\t0x0a,0x4c,0x0e',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 154',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ('Success: Multiple Service Packet: Get Attribute Single, '
+                                  'Get Attribute Single, Service (0x4b), Initiate_Upload, '
+                                  'Identity - Get Attribute Single')
+
+    def test_cip_connections(self, cmd_tshark, capture_file, test_env):
+        '''Forward Open, connected class 3 and class 1 traffic, Concurrent
+        Forward Open with the concurrent connection CRC, and Forward Close
+        are tied to the same connection.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('cip_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 235 && frame.number <= 266',
+                '-Tfields', '-eframe.number', '-ecip.connection', '-ecip.fwd_close_in',
+                '-ecip.fwd_open_in', '-ecip.cc.crc.status',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 32
+        assert lines[0] == '235\t1\t241\t\t'
+        assert lines[6] == '241\t1\t\t235\t'
+        assert lines[10] == '245\t2\t\t\t'
+        assert lines[16] == '251\t3\t\t\t'
+        assert lines[19] == '254\t3\t\t\t'
+        assert lines[22] == '257\t4\t259\t\t'
+        assert lines[28] == '263\t5\t\t\t1'
+        assert lines[29] == '264\t5\t\t\t1'
+        assert lines[30] == '265\t5\t\t261\t'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cip_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 237 && frame.number <= 246',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Identity - Get Attribute Single',
+            'Success: Identity - Get Attribute Single',
+            'Message Router - Multiple Service Packet: Get Attribute Single, Get Attribute Single',
+            'Success: Multiple Service Packet: Get Attribute Single, Get Attribute Single',
+            'Connection Manager - Forward Close (Message Router)',
+            'Success: Connection Manager - Forward Close (Message Router)',
+            'Connection Manager - Forward Open',
+            'Success: Connection Manager - Forward Open',
+            'Implicit Data - Assembly',
+            'Implicit Data - Assembly',
+        ]
+
+    def test_cip_cm_status(self, cmd_tshark, capture_file, test_env):
+        '''Connection Manager error responses with their extended status and
+        remaining path size, for Forward Open, Forward Close and
+        Unconnected Send.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cip_coverage.pcap.gz'),
+                '-Y', 'cip.cm.ext_status || cip.cm.remain_path_size',
+                '-Tfields', '-eframe.number', '-ecip.cm.ext_status', '-ecip.cm.remain_path_size',
+                '-ecip.cm.ext126_size', '-ecip.cm.ext112otrpi_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '274\t0x0112\t0\t\t1',
+            '276\t0x0126\t0\t10\t',
+            '278\t0x0127\t0\t\t',
+            '280\t0x0128\t0\t\t',
+            '282\t0x0100\t0\t\t',
+            '284\t0x0999\t0\t\t',
+            '288\t\t2\t\t',
+            '290\t0x0107\t0\t\t',
+            '300\t0x0204\t1\t\t',
+            '302\t\t1\t\t',
+            '369\t0x0311\t1\t\t',
+            '371\t0x0312\t1\t\t',
+            '373\t0x0315\t1\t\t',
+            '375\t0x0318\t1\t\t',
+            '379\t0x0100\t\t\t',
+        ]
+
+    def test_cip_unconnected_send(self, cmd_tshark, capture_file, test_env):
+        '''Unconnected Send: the response is decoded with the embedded
+        request (generic, PCCC, File, vendor specific, Forward Open),
+        unless it is an Unconnected Send error from a router.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cip_coverage.pcap.gz'),
+                '-Y', 'frame.number in {292,294,296,298,300,302,304,306,308}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Success: Identity - Get Attribute Single',
+            'Success: PCCC Class - Execute PCCC',
+            'Success: File - Initiate_Upload',
+            'Success: Class (0x64) - Service (0x4b)',
+            'Connection failure: Unconnected Send',
+            'Path segment error: Unconnected Send',
+            'Service not supported: Identity - Service (0x52)',
+            'Attribute not supported: Identity - Get Attribute Single',
+            'Success: Connection Manager - Forward Open',
+        ]
+
+    def test_cip_info_column(self, cmd_tshark, capture_file, test_env):
+        '''Symbols and classes in the Info column with the enhanced Info
+        column (the default) and without it.'''
+        for pref, expected in (('TRUE', ["'Program:Main' - 'Tag1' - Get Attribute Single",
+                                         "Success: Connection Manager - Forward Open ('IOTag')"]),
+                               ('FALSE', ['Get Attribute Single', 'Success: Forward Open'])):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('cip_coverage.pcap.gz'),
+                    '-o', 'cip.enhanced_info_column:' + pref,
+                    '-Y', 'frame.number == 183 || frame.number == 337',
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
