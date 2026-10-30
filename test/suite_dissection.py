@@ -25666,3 +25666,59 @@ class TestDissectCiscoFpMim:
                 f'10\t0xa82cad10\t{status}\t\t40010',
                 f'11\t0x497824ed\t{status}\t\t40011',
             ]
+
+
+class TestDissectCiscoMarker:
+    def test_erspan_marker_protocols(self, cmd_tshark, capture_file, test_env):
+        '''With Decode As every frame is an ERSPAN3 marker, without
+        malformed packets or warnings in one and two passes; without Decode
+        As they stay UDP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_marker_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['UDP'] * 6
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_marker_coverage.pcap.gz'),
+                '-d', 'udp.port==35000,erspan-marker',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['CISCO ERSPAN3 MARKER'] * 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cisco_marker_coverage.pcap.gz'),
+                    '-d', 'udp.port==35000,erspan-marker',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_erspan_marker_fields(self, cmd_tshark, capture_file, test_env):
+        '''Every field, with typical, zero and maximum values; the 48 bit
+        timestamp and the tail signature are masked from 8 octet fields,
+        the sequence number is little endian.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_marker_coverage.pcap.gz'),
+                '-d', 'udp.port==35000,erspan-marker',
+                '-Tfields', '-eerspan-marker.header', '-eerspan-marker.version',
+                '-eerspan-marker.type', '-eerspan-marker.ssid',
+                '-eerspan-marker.granularity', '-eerspan-marker.utc_offset',
+                '-eerspan-marker.timestamp', '-eerspan-marker.utc_sec',
+                '-eerspan-marker.utc_usec', '-eerspan-marker.sequence_number',
+                '-eerspan-marker.reserved', '-eerspan-marker.tail',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'True\t1\t5\t1\t3\t37\t20015998343868\t1700000000\t500000\t1\t0x00000000\t0x00000000a5a5a5a5',
+            'True\t1\t5\t1\t3\t37\t20015999343868\t1700000000\t600000\t2\t0x00000000\t0x00000000a5a5a5a5',
+            'True\t1\t5\t1\t3\t37\t20016000343868\t1700000000\t700000\t3\t0x00000000\t0x00000000a5a5a5a5',
+            'False\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0x00000000\t0x0000000000000000',
+            'True\t15\t15\t255\t255\t255\t281474976710655\t4294967295\t999999\t4294967295\t0xffffffff\t0x00000000ffffffff',
+            'True\t1\t5\t1\t3\t37\t20015998343868\t1700000000\t500000\t6\t0x00000000\t0x00000000a5a5a5a5',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cisco_marker_coverage.pcap.gz'),
+                '-d', 'udp.port==35000,erspan-marker',
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eerspan-marker.prop_header',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '000102030405060708090a0b0c0d0e0f10111213'
