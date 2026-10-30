@@ -27015,3 +27015,152 @@ class TestDissectCmip:
         assert lines[1][1] == '7'
         assert lines[1][2] == ''
         assert lines[1][3] != ''
+
+
+class TestDissectCmp:
+    def test_cmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CMP over TCP and HTTP decodes without malformed packets or
+        warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 131
+        assert protocols.count('CMP') == 66
+        assert protocols.count('HTTP') == 4
+        assert protocols.count('TCP') == 61
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cmp_bodies(self, cmd_tshark, capture_file, test_env):
+        '''Every PKIBody choice, ir (0) to pollRep (26), and every
+        PKIStatus value appear.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmp_coverage.pcap.gz'),
+                '-Y', 'cmp',
+                '-Tfields', '-ecmp.body', '-ecmp.pkistatus',
+            ), encoding='utf-8', env=test_env)
+        bodies = set()
+        statuses = set()
+        for line in stdout.splitlines():
+            body, status = line.split('\t')
+            bodies.update(int(b) for b in body.split(',') if b)
+            statuses.update(int(s) for s in status.split(',') if s)
+        assert bodies == set(range(27))
+        assert statuses == set(range(8))
+
+    def test_cmp_tcp_transport(self, cmd_tshark, capture_file, test_env):
+        '''The RFC 2510 and draft (version 10) TCP transport headers and
+        the polling messages, including the reproducer frames 80-82.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmp_coverage.pcap.gz'),
+                '-Y', 'cmp && (frame.number in {14..23} || frame.number in {69..82})',
+                '-Tfields', '-ecmp.tcptrans.length', '-ecmp.tcptrans10.version',
+                '-ecmp.tcptrans.type', '-ecmp.tcptrans.poll_ref',
+                '-ecmp.tcptrans.next_poll_ref', '-ecmp.body',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '714\t\t0\t\t\t2',
+            '9\t\t1\t0x00001234\t\t',
+            '5\t\t2\t0x00001234\t\t',
+            '272\t\t4\t\t0x00001235\t3',
+            '5\t\t2\t0x00001235\t\t',
+            '1\t\t3\t\t\t',
+            '5\t\t2\t0x00001235\t\t',
+            '209\t\t5\t\t\t26',
+            '5\t\t2\t0x00001236\t\t',
+            '3\t\t6\t\t\t',
+            '1864\t10\t0\t\t\t0',
+            '11\t10\t1\t0x0000abcd\t\t',
+            '7\t10\t2\t0x0000abcd\t\t',
+            '1809\t10\t4\t\t0x0000abce\t1',
+            '7\t10\t2\t0x0000abce\t\t',
+            '178\t10\t5\t\t\t19',
+            '7\t10\t2\t0x0000abcf\t\t',
+            '5\t10\t6\t\t\t',
+            '5\t\t2\t0x11223344\t\t',
+            '20\t\t0\t\t\t19',
+            '7\t10\t2\t0x55667788\t\t',
+        ]
+        # Segments that are not CMP over TCP are left to the data dissector.
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmp_coverage.pcap.gz'),
+                '-Y', 'tcp.port == 829 && data',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['86', '90', '94', '98', '102', '106']
+
+    def test_cmp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''PKIMessages that span several TCP segments are reassembled,
+        over TCP port 829 in both header styles and over HTTP.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('cmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 5, 6, 7, 8, 67, 68, 69, 110, 111, 112}',
+                '-Tfields', '-etcp.reassembled_in', '-etcp.reassembled.length',
+                '-ecmp.body', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t\t\tTCP',
+            '6\t\t\tTCP',
+            '\t1866\t0\tCMP',
+            '8\t\t\tTCP',
+            '\t1803\t1\tCMP',
+            '69\t\t\tTCP',
+            '69\t\t\tTCP',
+            '\t1868\t0\tCMP',
+            '112\t\t\tTCP',
+            '112\t\t\tTCP',
+            '\t1960\t0\tCMP',
+        ]
+
+    def test_cmp_http(self, cmd_tshark, capture_file, test_env):
+        '''The HTTP media types, and the alternate HTTP port preferences
+        for HTTP without a Content-Type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmp_coverage.pcap.gz'),
+                '-Y', 'http && cmp',
+                '-Tfields', '-ehttp.content_type', '-ecmp.tcptrans.type', '-ecmp.body',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'application/pkixcmp\t\t0',
+            'application/pkixcmp\t\t1',
+            'application/x-pkixcmp\t\t24',
+            'application/x-pkixcmp\t\t19',
+            'application/pkixcmp-poll\t0\t2',
+            'application/pkixcmp-poll\t1\t',
+            'application/x-pkixcmp-poll\t2\t',
+            'application/x-pkixcmp-poll\t5\t3',
+            'application/pkixcmp-poll\t8\t',
+            'application/pkixcmp-poll\t32\t',
+        ]
+        for prefs, expected in (((), ['HTTP\t\t'] * 4),
+                                (('-o', 'cmp.http_alternate_port:8080',
+                                  '-o', 'cmp.tcp_style_http_alternate_port:8081'),
+                                 ['CMP\t21\t', 'CMP\t22,19\t', 'CMP\t25\t0', 'CMP\t26\t0'])):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('cmp_coverage.pcap.gz'), *prefs,
+                    '-Y', 'frame.number in {125, 126, 130, 131}',
+                    '-Tfields', '-e_ws.col.protocol', '-ecmp.body', '-ecmp.tcptrans.type',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_cmp_infotypes(self, cmd_tshark, capture_file, test_env):
+        '''InfoTypeAndValue in the header (generalInfo) and in a general
+        response: every registered id-it OID is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6, 41}',
+                '-Tfields', '-ecmp.type.oid',
+            ), encoding='utf-8', env=test_env)
+        it = '1.3.6.1.5.5.7.4.'
+        assert stdout.splitlines() == [
+            ','.join((it + '13', it + '14', it + '21', '1.3.6.1.4.1.3029.3.1.1')),
+            ','.join(it + str(n) for n in
+                     (1, 2, 3, 4, 5, 6, 11, 12, 15, 16, 17, 18, 19, 20, 23, 22)),
+        ]
