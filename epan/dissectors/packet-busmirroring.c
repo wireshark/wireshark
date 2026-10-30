@@ -88,6 +88,7 @@ static expert_field ei_can_id_invalid;
 static expert_field ei_lin_pid_invalid;
 static expert_field ei_can_length_invalid;
 static expert_field ei_lin_length_invalid;
+static expert_field ei_nanoseconds_invalid;
 
 static const uint8_t pid_table[] = {
     0x80, 0xC1, 0x42, 0x03, 0xC4, 0x85, 0x06, 0x47,
@@ -121,11 +122,16 @@ dissect_busmirroring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
     proto_tree_add_item(busmirroring_tree, hf_sequence_number, tvb, 1, 1, ENC_BIG_ENDIAN);
     nstime_t header_timestamp = {0, 0};
     header_timestamp.secs = tvb_get_uint48(tvb, 2, ENC_BIG_ENDIAN);
-    header_timestamp.nsecs = tvb_get_uint32(tvb, 8, ENC_BIG_ENDIAN);
+    uint32_t nanoseconds = tvb_get_uint32(tvb, 8, ENC_BIG_ENDIAN);
+    /* nstime_t nsecs is an int and must be less than one second */
+    header_timestamp.nsecs = nanoseconds < 1000000000 ? (int)nanoseconds : 0;
     proto_item *ht_item = proto_tree_add_time(busmirroring_tree, hf_header_timestamp, tvb, 2, 10, &header_timestamp);
     proto_tree *ht_tree = proto_item_add_subtree(ht_item, ett_header_timestamp);
     proto_tree_add_item(ht_tree, hf_seconds, tvb, 2, 6, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ht_tree, hf_nanoseconds, tvb, 8, 4, ENC_BIG_ENDIAN);
+    proto_item *nanoseconds_item = proto_tree_add_item(ht_tree, hf_nanoseconds, tvb, 8, 4, ENC_BIG_ENDIAN);
+    if (nanoseconds >= 1000000000) {
+        expert_add_info(pinfo, nanoseconds_item, &ei_nanoseconds_invalid);
+    }
     uint32_t data_length = 0;
     proto_tree_add_item_ret_uint(busmirroring_tree, hf_data_length, tvb, 12, 2, ENC_BIG_ENDIAN, &data_length);
     if (header_size + data_length > buffer_length) {
@@ -232,6 +238,7 @@ dissect_busmirroring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
                 proto_tree_add_item(ns_tree, hf_flexray_boundary_violation, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ns_tree, hf_flexray_tx_conflict, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
+            break;
             default:
                 break;
             }
@@ -614,6 +621,11 @@ void proto_register_busmirroring(void)
             &ei_lin_length_invalid,
             { "busmirroring.lin_length_invalid", PI_PROTOCOL, PI_WARN,
               "Length of LIN frame is invalid", EXPFILL }
+        },
+        {
+            &ei_nanoseconds_invalid,
+            { "busmirroring.nanoseconds_invalid", PI_PROTOCOL, PI_WARN,
+              "Nanoseconds must be less than 1000000000", EXPFILL }
         }
     };
 
