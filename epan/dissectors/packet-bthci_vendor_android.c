@@ -1117,7 +1117,8 @@ dissect_android_bqr(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, unsigne
         offset += 2;
     }
 
-    proto_tree_add_item(bqr_tree, hf_android_bqr_vendor_data, tvb, offset, -1, ENC_NA);
+    if (tvb_reported_length_remaining(tvb, offset) > 0)
+        proto_tree_add_item(bqr_tree, hf_android_bqr_vendor_data, tvb, offset, -1, ENC_NA);
 
     return tvb_reported_length(tvb);
 }
@@ -1611,7 +1612,7 @@ dissect_bthci_vendor_android_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                     }
                     offset += 1;
 
-                    proto_tree_add_bitmask(main_tree, tvb, offset, hf_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask,
+                    proto_tree_add_bitmask(codec_information_tree, tvb, offset, hf_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask,
                                            ett_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode_mask, hfx_android_a2dp_hardware_offload_start_legacy_codec_information_ldac_channel_mode, ENC_NA);
                     offset += 1;
 
@@ -1654,7 +1655,7 @@ dissect_bthci_vendor_android_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             if (cp_enable_scmst) {
                 proto_tree_add_item(main_tree, hf_android_a2dp_hardware_offload_start_cp_header_scmst, tvb, offset, 1, ENC_NA);
             } else {
-                proto_tree_add_item(main_tree, hf_android_a2dp_hardware_offload_start_cp_header_scmst_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(main_tree, hf_android_a2dp_hardware_offload_start_cp_header_scmst_reserved, tvb, offset, 1, ENC_NA);
             }
             offset += 1;
 
@@ -3848,7 +3849,7 @@ proto_register_bthci_vendor_android(void)
         },
         { &hf_android_a2dp_hardware_offload_start_cp_header_scmst_reserved,
           { "Reserved",                                    "bthci_vendor.android.a2dp_hardware_offload.start.cp_header_scmst_reserved",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_android_a2dp_hardware_offload_start_vendor_specific_parameters_length,
