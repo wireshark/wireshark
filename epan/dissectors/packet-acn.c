@@ -5652,7 +5652,6 @@ dissect_acn_common_base_pdu(tvbuff_t *tvb, proto_tree *tree, int *offset, acn_pd
 /* Dissect sACN Discovery PDU*/
 #define DMX_UNIV_LIST_MAX_DIGITS 5
 #define DMX_UNIV_LIST_MAX_ITEMS_PER_LINE 16
-#define DMX_UNIV_LIST_BUF_SIZE (DMX_UNIV_LIST_MAX_DIGITS + 1) * DMX_UNIV_LIST_MAX_ITEMS_PER_LINE + 1
 static uint32_t
 dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, acn_pdu_offsets *last_pdu_offsets)
 {
@@ -5673,8 +5672,7 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
 /* this pdu */
   const char       *name;
   uint32_t          vector;
-  char             *buffer;
-  char             *buf_ptr;
+  wmem_strbuf_t    *buffer;
   unsigned          x;
   uint16_t          universe;
   uint16_t          last_universe;
@@ -5682,14 +5680,12 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
   uint32_t          page;
   uint32_t          lastpage;
   uint32_t          current_universe_idx;
-  uint32_t          bytes_printed;
   bool              warned_unorder_once;
 
   (void)protocol_id;
   warned_unorder_once = false;
 
-  buffer = (char*)wmem_alloc(pinfo->pool, DMX_UNIV_LIST_BUF_SIZE);
-  buffer[0] = '\0';
+  buffer = wmem_strbuf_new(pinfo->pool, "");
 
   data_length = 0;
 
@@ -5716,8 +5712,6 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
 
   switch (vector) {
     case ACN_DMX_DISCOVERY_UNIVERSE_LIST_VECTOR:
-      buf_ptr = buffer;
-
       /* add a snippet to info (this may be slow) */
       col_append_fstr(pinfo->cinfo,COL_INFO, ",[Universe Page %u/%u: ", page+1, lastpage+1);
       current_universe_idx = 0;
@@ -5745,18 +5739,17 @@ dissect_acn_dmx_discovery_pdu(uint32_t protocol_id, tvbuff_t *tvb, packet_info *
           expert_add_info(pinfo, pdu_tree, &ei_acn_dmx_discovery_outofseq);
           warned_unorder_once = true;
         }
-        bytes_printed = snprintf(buf_ptr, DMX_UNIV_LIST_BUF_SIZE, "%*u ", DMX_UNIV_LIST_MAX_DIGITS /*max 5 digits (1-63999), align right*/, universe);
-        if(bytes_printed > 0)
-          buf_ptr += bytes_printed;
+        wmem_strbuf_append_printf(buffer, "%*u ", DMX_UNIV_LIST_MAX_DIGITS /*max 5 digits (1-63999), align right*/, universe);
 
         item_cnt++;
         if((item_cnt % DMX_UNIV_LIST_MAX_ITEMS_PER_LINE) == 0 || x+2 >= end_offset)
         {
-          proto_tree_add_string_format(pdu_tree, hf_acn_dmx_discovery_universe_list, tvb, data_offset, item_cnt*2, buffer, "%s", buffer);
+          proto_tree_add_string_format(pdu_tree, hf_acn_dmx_discovery_universe_list, tvb, data_offset, item_cnt*2,
+                                       wmem_strbuf_get_str(buffer), "%s", wmem_strbuf_get_str(buffer));
           data_offset += item_cnt * 2;
           item_cnt = 0;
 
-          buf_ptr = buffer;
+          wmem_strbuf_truncate(buffer, 0);
         }
 
         last_universe = universe;
