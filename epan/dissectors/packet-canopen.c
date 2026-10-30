@@ -1079,7 +1079,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
                 reserved = 5;
                 break;
             case LSS_CS_CONF_ACT_BIT_TIMING:
-                lss_abt_delay = tvb_get_letohl(tvb, offset);
+                lss_abt_delay = tvb_get_letohs(tvb, offset);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, ": %d ms", lss_abt_delay);
 
@@ -1129,7 +1129,7 @@ dissect_lss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *canopen_type_tree, un
                     proto_tree_add_uint_format_value(canopen_type_tree,
                             hf_canopen_lss_fastscan_check, tvb, offset, 1,
                             lss_bc_mask, "0x%x (0x%02x)",
-                            ~((1 << lss_bc_mask) - 1),
+                            ~((1U << lss_bc_mask) - 1),
                             lss_bc_mask);
                 } else {
                     proto_tree_add_uint_format_value(canopen_type_tree,
@@ -1244,7 +1244,8 @@ dissect_canopen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_tree *canopen_cob_tree;
     proto_tree *canopen_type_tree;
 
-    DISSECTOR_ASSERT(data);
+    if (data == NULL)
+        return 0;
     can_info = *((struct can_info*)data);
 
     if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG | CAN_EFF_FLAG))
