@@ -440,16 +440,16 @@ RejectProblem
   FN_VARIANT = _str  HF_INDEX = hf_cmip_actionType_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ActionInfo/actionInfoArg
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_PARS EventTypeId/globalForm
   FN_VARIANT = _str  HF_INDEX = hf_cmip_eventType_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY EventReportArgument/eventInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_BODY EventReply/eventReplyInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_BODY SetArgument/modificationList/_item/attributeValue
   if(actx->external.direct_ref_present){
@@ -465,39 +465,69 @@ RejectProblem
   FN_VARIANT = _str  HF_INDEX = hf_cmip_errorId_OID  VAL_PTR = &object_identifier_id
 
 #.FN_BODY SpecificErrorInfo/errorInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_BODY AttributeError/attributeValue
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_BODY InvalidArgumentValue/eventValue/eventInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_BODY ActionReply/actionReplyInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
+
+#.FN_BODY ActionTypeId/globalForm
+  const char *object_identifier_id = NULL;
+%(DEFAULT_BODY)s
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
+#.FN_BODY EventTypeId/globalForm
+  const char *object_identifier_id = NULL;
+%(DEFAULT_BODY)s
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
+#.FN_BODY SpecificErrorInfo/errorId
+  const char *object_identifier_id = NULL;
+%(DEFAULT_BODY)s
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
+#.FN_BODY ManagementExtension/identifier
+  const char *object_identifier_id = NULL;
+%(DEFAULT_BODY)s
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
+#.FN_BODY ServiceUser/identifier
+  const char *object_identifier_id = NULL;
+%(DEFAULT_BODY)s
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
+#.FN_BODY SupportedFeatures/_item/featureIdentifier
+  const char *object_identifier_id = NULL;
+%(DEFAULT_BODY)s
+  cmip_set_oid(actx->pinfo, object_identifier_id);
 
 
 # X.721
 #.FN_PARS ManagementExtension/identifier FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ManagementExtension/information
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_BODY AttributeValueChangeDefinition/_item/oldAttributeValue
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_BODY AttributeValueChangeDefinition/_item/newAttributeValue
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_PARS ServiceUser/identifier FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY ServiceUser/details
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FN_PARS SupportedFeatures/_item/featureIdentifier FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_BODY SupportedFeatures/_item/featureInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 #.FIELD_ATTR
 Attribute/id ABBREV=attributeid

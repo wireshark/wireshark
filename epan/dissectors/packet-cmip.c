@@ -505,7 +505,20 @@ static int opcode_type;
 #define OPCODE_RETURN_ERROR  3
 #define OPCODE_REJECT        4
 
-static const char *object_identifier_id;
+/* The object identifier that selects the dissector of the information
+ * that follows it, set by the PDU being dissected.  It is in packet scope,
+ * so keep it with the packet rather than across packets. */
+static const char *
+cmip_get_oid(packet_info *pinfo)
+{
+	return (const char *)p_get_proto_data(pinfo->pool, pinfo, proto_cmip, 0);
+}
+
+static void
+cmip_set_oid(packet_info *pinfo, const char *oid)
+{
+	p_set_proto_data(pinfo->pool, pinfo, proto_cmip, 0, (void *)oid);
+}
 
 #define smi2AttributeID                "2.9.3.2.7"
 #define smi2AttributeGroup             "2.9.3.2.8"
@@ -1081,7 +1094,11 @@ dissect_cmip_CMISFilter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offse
 
 static unsigned
 dissect_cmip_T_actionTypeId_globalForm(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const char *object_identifier_id = NULL;
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_actionType_OID, &object_identifier_id);
+
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
 
   return offset;
 }
@@ -1114,7 +1131,7 @@ static unsigned
 dissect_cmip_T_actionInfoArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // ActionInfo/actionInfoArg -> ActionInfo/actionInfoArg
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -1202,7 +1219,11 @@ dissect_cmip_T_actionId(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offse
 
 static unsigned
 dissect_cmip_T_eventTypeId_globalForm(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const char *object_identifier_id = NULL;
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_eventType_OID, &object_identifier_id);
+
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
 
   return offset;
 }
@@ -1272,7 +1293,7 @@ static unsigned
 dissect_cmip_T_eventInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // InvalidArgumentValue/eventValue/eventInfo -> InvalidArgumentValue/eventValue/eventInfo
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -1378,8 +1399,7 @@ static unsigned
 dissect_cmip_T_actionReplyInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // ActionReply/actionReplyInfo -> ActionReply/actionReplyInfo
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
-
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -1461,7 +1481,7 @@ static unsigned
 dissect_cmip_T_attributeValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // AttributeError/attributeValue -> AttributeError/attributeValue
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -1690,7 +1710,7 @@ static unsigned
 dissect_cmip_T_eventReplyInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // EventReply/eventReplyInfo -> EventReply/eventReplyInfo
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -1718,7 +1738,7 @@ static unsigned
 dissect_cmip_EventReportArgumentEventInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // EventReportArgument/eventInfo -> EventReportArgument/eventInfo
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -1975,7 +1995,11 @@ dissect_cmip_SetListError(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned off
 
 static unsigned
 dissect_cmip_T_errorId(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const char *object_identifier_id = NULL;
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_cmip_errorId_OID, &object_identifier_id);
+
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
 
   return offset;
 }
@@ -1986,7 +2010,7 @@ static unsigned
 dissect_cmip_T_errorInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // SpecificErrorInfo/errorInfo -> SpecificErrorInfo/errorInfo
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -2303,7 +2327,11 @@ dissect_cmip_AdditionalText(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned o
 
 static unsigned
 dissect_cmip_T_managementExtensionidentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const char *object_identifier_id = NULL;
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
 
   return offset;
 }
@@ -2323,7 +2351,7 @@ static unsigned
 dissect_cmip_T_information(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // ManagementExtension/information -> ManagementExtension/information
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -2421,7 +2449,7 @@ static unsigned
 dissect_cmip_T_oldAttributeValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // AttributeValueChangeDefinition/_item/oldAttributeValue -> AttributeValueChangeDefinition/_item/oldAttributeValue
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -2434,7 +2462,7 @@ static unsigned
 dissect_cmip_T_newAttributeValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // AttributeValueChangeDefinition/_item/newAttributeValue -> AttributeValueChangeDefinition/_item/newAttributeValue
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -3200,7 +3228,11 @@ dissect_cmip_SecurityAlarmDetector(bool implicit_tag _U_, tvbuff_t *tvb _U_, uns
 
 static unsigned
 dissect_cmip_T_serviceUseridentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const char *object_identifier_id = NULL;
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
 
   return offset;
 }
@@ -3211,7 +3243,7 @@ static unsigned
 dissect_cmip_T_details(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // ServiceUser/details -> ServiceUser/details
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -3324,7 +3356,12 @@ dissect_cmip_StopTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset 
 
 static unsigned
 dissect_cmip_T_featureIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  const char *object_identifier_id = NULL;
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+  cmip_set_oid(actx->pinfo, object_identifier_id);
+
+
 
   return offset;
 }
@@ -3335,7 +3372,7 @@ static unsigned
 dissect_cmip_T_featureInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   // SupportedFeatures/_item/featureInfo -> SupportedFeatures/_item/featureInfo
   increment_dissection_depth_by_n(actx->pinfo, 1);
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
+  offset=call_ber_oid_callback(cmip_get_oid(actx->pinfo), tvb, offset, actx->pinfo, tree, actx->private_data);
 
 
   decrement_dissection_depth_by_n(actx->pinfo, 1);
@@ -4484,6 +4521,7 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	proto_item *item;
 	proto_tree *tree;
 	asn1_ctx_t asn1_ctx;
+	const char *saved_object_identifier_id;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	/* Reject the packet if data is NULL */
@@ -4498,6 +4536,10 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	}
 
 	asn1_ctx.private_data = session;
+
+	/* The OID is set from this PDU only; restore the one of an outer PDU */
+	saved_object_identifier_id = cmip_get_oid(pinfo);
+	cmip_set_oid(pinfo, NULL);
 
 	item = proto_tree_add_item(parent_tree, proto_cmip, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_cmip);
@@ -4521,6 +4563,8 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		default:
 			;
 	}
+
+	cmip_set_oid(pinfo, saved_object_identifier_id);
 
 	return tvb_captured_length(tvb);
 }
