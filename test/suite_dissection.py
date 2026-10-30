@@ -18105,3 +18105,204 @@ class TestDissectBthsp:
                 '-Tfields', '-ebthsp.role', '-ebthsp.data', '-e_ws.col.info',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['0\tAT+CKPD=200\\r\tSent Data: AT+CKPD=200\\\\r']
+
+
+class TestDissectBtl2cap:
+    BTL2CAP_FIELDS = (
+        'frame.number', 'btl2cap.cid', 'btl2cap.cmd_code', 'btl2cap.psm',
+        'btl2cap.scid', 'btl2cap.dcid', 'btl2cap.option_type',
+        'btl2cap.control_sar', 'btl2cap.control_supervisory',
+        'btl2cap.sdulength', 'btl2cap.continuation_to', 'btl2cap.fcs.status',
+        'btl2cap.payload', 'btl2cap.le_sdu_length',
+        'btl2cap.le_sdu.reassembled.length', 'btl2cap.connect_in',
+        'btl2cap.service', '_ws.col.protocol',
+    )
+
+    def fields(self, cmd_tshark, capture_file, test_env, display_filter, fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('btl2cap_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields']
+        for field in fields:
+            args += ['-e', field]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_btl2cap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Signalling commands, channels in every mode, connectionless and
+        fixed channels decode without malformed packets or errors in one
+        and two passes; the only warnings are a Connection Parameter
+        Update Request with mismatching parameters and an unknown
+        command code.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btl2cap_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 173
+        assert protocols.count('L2CAP') == 140
+        assert protocols.count('HID') == 16
+        assert protocols.count('ATT') == 6
+        assert protocols.count('SDP') == 5
+        assert protocols.count('SMP') == 2
+        assert protocols.count('HCI_EVT') == 2
+        assert protocols.count('AMP') == 1
+        assert protocols.count('LE LL') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btl2cap_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btl2cap_coverage.pcapng.gz'),
+                    '-Y', '_ws.expert.severity == warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['141', '145']
+
+    def test_btl2cap_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The L2CAP fields (channel state, modes, reassembly) are the same
+        in one and two passes.'''
+        one = self.fields(cmd_tshark, capture_file, test_env, 'btl2cap', self.BTL2CAP_FIELDS)
+        two = self.fields(cmd_tshark, capture_file, test_env, 'btl2cap', self.BTL2CAP_FIELDS, ('-2',))
+        assert len(one) == 170
+        assert one == two
+
+    def test_btl2cap_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Reproducers of the fixes: the extended (4-octet) control field
+        length, an SDU announced longer than its first segment and grown
+        by each continuation, two L2CAP Credit Based Connection Requests in
+        one PDU, and a configuration option longer than its value.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {64,65,67}',
+                ('frame.number', 'btl2cap.control', 'btl2cap.control_sar',
+                 'btl2cap.sdulength', 'btl2cap.continuation_to',
+                 'btl2cap.fcs.status', 'btl2cap.payload'))
+        assert frames == [
+            ['64', '0x00000000', '0x00000000', '', '', '1', b'HELLOWORLD'.hex()],
+            ['65', '0x00050000', '0x00000001', '15', '', '1', ''],
+            ['67', '0x000e0000', '0x00000002', '', '65', '1', b'HELLO-WIDEWORLD'.hex()],
+        ]
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {40..45}',
+                ('frame.number', 'btl2cap.control_sar', 'btl2cap.sdulength',
+                 'btl2cap.continuation_to', 'btl2cap.fcs.status', '_ws.col.protocol'))
+        assert frames == [
+            ['40', '0x0001', '300', '', '1', 'L2CAP'],
+            ['41', '0x0003', '', '40', '1', 'L2CAP'],
+            ['42', '0x0003', '', '40', '1', 'L2CAP'],
+            ['43', '0x0003', '', '40', '1', 'L2CAP'],
+            ['44', '0x0003', '', '40', '1', 'L2CAP'],
+            ['45', '0x0002', '', '40', '1', 'HID'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btl2cap_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 45', '-x',
+            ), encoding='utf-8', env=test_env)
+        assert 'Reassembled L2CAP (300 bytes):' in stdout
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {80,159}',
+                ('frame.number', 'btl2cap.cmd_code', 'btl2cap.option_type',
+                 'btl2cap.option_mtu', 'btl2cap.option_fcs', 'btl2cap.scid',
+                 'btl2cap.psm'))
+        assert frames == [
+            ['80', '0x04', '0x01,0x05', '672', '0x0000', '', ''],
+            ['159', '0x17,0x17', '', '100,100', '', '0x0043,0x0044,0x0045,0x0046', '0x0027'],
+        ]
+
+    def test_btl2cap_frames(self, cmd_tshark, capture_file, test_env):
+        '''S-frames in Enhanced Retransmission, Retransmission and
+        Streaming (extended control field) mode, and the AMP Manager
+        fixed channel.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'btl2cap.control_supervisory',
+                ('frame.number', 'btl2cap.control_supervisory',
+                 'btl2cap.control_poll', 'btl2cap.control_final',
+                 'btl2cap.fcs.status', '_ws.col.info'))
+        assert frames == [
+            ['35', '0x0000', '0x0000', '0x0000', '1', 'Rcvd [S] Receiver Ready'],
+            ['36', '0x0001', '0x0001', '0x0000', '1', 'Rcvd [S] Reject'],
+            ['37', '0x0002', '0x0000', '0x0001', '1', 'Rcvd [S] Unknown supervisory frame'],
+            ['38', '0x0003', '0x0000', '0x0000', '1', 'Rcvd [S] Unknown supervisory frame'],
+            ['55', '0x0000', '', '', '1', 'Rcvd [S] Receiver Ready'],
+            ['56', '0x0001', '', '', '1', 'Rcvd [S] Reject'],
+            ['68', '0x00000000', '0x00000000', '0x00000000', '1', 'Rcvd [S] Receiver Ready'],
+            ['69', '0x00000001', '0x00000001', '0x00000001', '1', 'Rcvd [S] Reject'],
+            ['133', '0x0000', '', '', '1', 'Rcvd [S] Receiver Ready'],
+        ]
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {31,32,33,34,52,53,54,75,76,77}',
+                ('frame.number', 'btl2cap.control_sar', 'btl2cap.psm',
+                 'btl2cap.service', '_ws.col.protocol'))
+        assert frames == [
+            ['31', '0x0000', '0x1011', '0x1124', 'HID'],
+            ['32', '0x0001', '', '0x1124', 'L2CAP'],
+            ['33', '0x0003', '', '0x1124', 'L2CAP'],
+            ['34', '0x0002', '0x1011', '0x1124', 'HID'],
+            ['52', '0x0000', '0x0011', '', 'HID'],
+            ['53', '0x0001', '', '', 'L2CAP'],
+            ['54', '0x0002', '0x0011', '', 'HID'],
+            ['75', '0x0000', '0x1003', '', 'L2CAP'],
+            ['76', '0x0001', '', '', 'L2CAP'],
+            ['77', '0x0002', '0x1003', '', 'L2CAP'],
+        ]
+
+    def test_btl2cap_le_sdu(self, cmd_tshark, capture_file, test_env):
+        '''SDU reassembly on LE and L2CAP Credit Based channels (HCI and
+        LE link layer), and a link layer retransmission.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'btl2cap.le_sdu.fragment.count',
+                ('frame.number', 'btl2cap.le_sdu.fragment',
+                 'btl2cap.le_sdu.reassembled.length', '_ws.col.protocol'))
+        assert frames == [
+            ['122', '120,121,122', '9', 'HID'],
+            ['151', '149,150,151', '7', 'HID'],
+            ['173', '171,173', '6', 'L2CAP'],
+        ]
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'btl2cap.le_sdu.reassembled.in',
+                ('frame.number', 'btl2cap.le_sdu.reassembled.in'), ('-2',))
+        assert frames == [['120', '122'], ['121', '122'], ['149', '151'],
+                          ['150', '151'], ['171', '173']]
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {119,148,155,172}',
+                ('frame.number', 'btl2cap.le_sdu_length', 'btl2cap.psm',
+                 'btl2cap.payload', '_ws.col.info'))
+        assert frames == [
+            ['119', '3', '0x1011', '', 'Sent DATA - Input - unknown type'],
+            ['148', '4', '0x0081', '', 'Sent DATA - Input - unknown type'],
+            ['155', '3', '0x0027', '', 'Rcvd Read Request, Handle: 0x0003 (Unknown)'],
+            ['172', '', '', '060061626364', 'Connection oriented channel, LE Information frame'],
+        ]
+
+    def test_btl2cap_channels(self, cmd_tshark, capture_file, test_env):
+        '''Disconnection of channels with a known PSM, a PSM named by an
+        SDP record and an unknown PSM; connectionless frames; data after a
+        disconnection and on an unknown channel.'''
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'btl2cap.cmd_code == 6',
+                ('frame.number', 'btl2cap.psm', 'btl2cap.connect_in', '_ws.col.info'))
+        assert frames == [
+            ['86', '0x1005', '78', 'Sent Disconnection Request (SCID: 0x004a, DCID: 0x004b, PSM: 0x1005, Service: Unknown)'],
+            ['93', '0x1015', '89', 'Rcvd Disconnection Request (SCID: 0x0070, DCID: 0x004c, PSM: 0x1015, Service: HID)'],
+            ['96', '0x0001', '13', 'Sent Disconnection Request (SCID: 0x0040, DCID: 0x0041, PSM: 0x0001, Service: SDP)'],
+            ['98', '0x1011', '23', 'Rcvd Disconnection Request (SCID: 0x0043, DCID: 0x0042, PSM: 0x1011, Service: HID)'],
+            ['111', '', '', 'Sent Disconnection Request (SCID: 0x0058, DCID: 0x0000, PSM: Unknown, Service: Unknown)'],
+            ['123', '0x1011', '117', 'Sent Disconnection Request (SCID: 0x0060, DCID: 0x0080, PSM: 0x1011, Service: HID)'],
+            ['166', '0x0081', '146', 'Sent Disconnection Request (SCID: 0x0040, DCID: 0x0050, PSM: 0x0081, Service: HID)'],
+        ]
+        frames = self.fields(cmd_tshark, capture_file, test_env,
+                'btl2cap.cid == 2 || frame.number in {84,88,135,136,137}',
+                ('frame.number', 'btl2cap.psm', 'btl2cap.payload', '_ws.col.protocol', '_ws.col.info'))
+        assert frames == [
+            ['84', '0x1005', b'basic mode payload'.hex(), 'L2CAP', 'Sent Connection oriented channel'],
+            ['88', '', b'late'.hex(), 'L2CAP', 'Sent Connection oriented channel'],
+            ['128', '0x0011', '', 'HID', 'Sent DATA - Input - unknown type'],
+            ['129', '0x1011', '', 'HID', 'Sent DATA - Input - unknown type'],
+            ['130', '0x1015', '', 'HID', 'Rcvd DATA - Input - unknown type'],
+            ['131', '0x1101', b'connectionless'.hex(), 'L2CAP', 'Rcvd Connectionless reception channel'],
+            ['135', '', b'reserved fixed'.hex(), 'L2CAP', 'Sent '],
+            ['136', '', b'no connection'.hex(), 'L2CAP', 'Sent Connection oriented channel'],
+            ['137', '', '', 'L2CAP', 'UnknownDirection Echo Request'],
+            ['138', '0x1101', b'exported'.hex(), 'L2CAP', 'UnknownDirection Connectionless reception channel'],
+        ]
