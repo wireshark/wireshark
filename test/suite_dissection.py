@@ -23756,3 +23756,133 @@ class TestDissectCemi:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 0
+
+
+class TestDissectCeph:
+    def test_ceph_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Ceph connections decode without malformed packets or errors, in
+        one and two passes; the only warnings are the expected "not
+        decoded" ones (auth payloads, an OSD op argument union, an unknown
+        message type, the padding of the redirect reproducer).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ceph_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 166
+        assert protocols.count('Ceph') == 86
+        assert protocols.count('TCP') == 80
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ceph_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ceph_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['8', '9', '10', '35', '51', '149']
+
+    def test_ceph_messages(self, cmd_tshark, capture_file, test_env):
+        '''Tags, message types and the node names learned from the message
+        headers, the same in one and two passes.'''
+        expected = [
+            '6\t0x01\t\tUnknown\tUnknown',
+            '7\t0x07\t0x0011\tclient4100\tUnknown',
+            '8\t0x07\t0x0012\tmon0\tclient4100',
+            '10\t0x07,0x08\t0x0012\tmon0,mon0\tclient4100,client4100',
+            '13\t0x07\t0x0004\tmon0\tclient4100',
+            '20\t0x07\t0x0029\tmon0\tclient4100',
+            '33\t0x07,0x08,0x09,0x0e\t0x0002\tclient4100,client4100,client4100,client4100'
+            '\tmon0,mon0,mon0,mon0',
+            '34\t0x0f,0x08\t\tmon0,mon0\tclient4100,client4100',
+            '35\t0x07\t0x0050\tclient4100\tmon0',
+            '36\t0x06\t\tclient4100\tmon0',
+            '47\t0x0d\t\tUnknown\tUnknown',
+            '50\t0x07\t0x002b\tosd0\tclient4101',
+            '56\t0x07,0x07\t0x002a,0x0002\tclient4101,client4101\tosd0,osd0',
+            '68\t0x07\t0x0043\tmon0\tmon1',
+            '76\t0x07\t0x0600\tmon0\tmon1',
+            '92\t0x07\t0x0059\tmon0\tosd0',
+            '110\t0x07\t0x0310\tmds0\tclient4102',
+            '121\t0x03\t\tUnknown\tUnknown',
+        ]
+        frames = '{' + ', '.join(line.split('\t')[0] for line in expected) + '}'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ceph_coverage.pcap.gz'),
+                    '-Y', 'frame.number in ' + frames,
+                    '-Tfields', '-eframe.number', '-eceph.tag', '-eceph.type',
+                    '-eceph.src', '-eceph.dst',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ceph_coverage.pcap.gz'),
+                '-Y', 'ceph.type',
+                '-Tfields', '-eceph.type',
+            ), encoding='utf-8', env=test_env)
+        types = set(','.join(stdout.split()).split(','))
+        assert len(types) == 36
+
+    def test_ceph_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of the fixes decode in one and two passes: a
+        message length that wraps (frame 128, only the hello is
+        dissected), a hello whose authorizer length wraps (135), a redirect
+        object name (149), a pg_stat_t stats category (156) and a pool op
+        reply blob (163).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ceph_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {128, 135, 149, 156, 163}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-eceph.osd_redirect.obj', '-eceph.pg_stat.stats',
+                    '-eceph.msg.poolopreply.data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '128\tCeph\tConnect\t\t\t',
+                '135\tCeph\t\t\t\t',
+                '149\tCeph\tConnect | OSD Operation Reply\tobj\t\t',
+                '156\tCeph\tConnect | PG Stats\t\tcat\t',
+                '163\tCeph\tConnect | Pool Operation Reply\t\t\t616263',
+            ]
+
+    def test_ceph_state(self, cmd_tshark, capture_file, test_env):
+        '''Connection state: the SEQ reply moves the client to the
+        sequence number state (frame 47-48), the client and server are told
+        apart when the client speaks first (frames 64-66), and CLOSE ends
+        the session (36).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ceph_coverage.pcap.gz'),
+                '-Y', 'ceph.seq_new || ceph.seq_existing || ceph.connect || ceph.server_info',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eceph.seq_existing',
+                '-eceph.seq_new',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert '47\tConnect Reply\t7\t' in lines
+        assert '48\tSequence Number\t\t9' in lines
+        assert '64\tConnect\t\t' in lines
+        assert '65\tConnect\t\t' in lines
+
+    def test_ceph_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''PDUs spread over several TCP segments are reassembled: an OSD
+        map cut before the message lengths (frames 18-20), hellos and
+        connect replies cut before their lengths are known (44-45, 46-47,
+        63-64, 86-87), and an OSD op followed by a ping (55-56).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ceph_coverage.pcap.gz'),
+                '-Y', 'tcp.reassembled_in',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '18\t20', '19\t20', '44\t45', '46\t47', '55\t56', '63\t64', '86\t87',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ceph_coverage.pcap.gz'),
+                '-Y', 'frame.number == 20',
+                '-Tfields', '-etcp.reassembled.length', '-eceph.msg.osd_map.epoch',
+                '-eceph.osdmap.epoch', '-eceph.osdmap.erasurecodeprofile.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1430', '19,20,20', '20', 'ec42']
