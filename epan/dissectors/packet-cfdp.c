@@ -722,7 +722,7 @@ static uint32_t dissect_cfdp_filestore_resp_tlv(tvbuff_t *tvb, proto_tree *tree,
         offset += length;
     }
 
-    return offset+1;
+    return offset;
 }
 
 /* Dissect the Fault Location TLV */
@@ -855,7 +855,7 @@ static uint32_t dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, packet_info *pinfo, 
                 break;
 
             case PROXY_FILESTORE_RESP:
-                offset = dissect_cfdp_filestore_req_tlv(tvb, cfdp_msg_to_user_tree, offset);
+                offset = dissect_cfdp_filestore_resp_tlv(tvb, cfdp_msg_to_user_tree, offset);
                 break;
 
             case PROXY_PUT_CANCEL:
@@ -940,8 +940,9 @@ static uint32_t dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, packet_info *pinfo, 
                                      cfdp_remote_stat_rep_resp,
                                      ENC_BIG_ENDIAN,
                                      &retval);
+                offset += 2;
 
-                len_ent_id = ((retval & (HDR_LEN_ENT_ID<<8)) >> 12) + 1;
+                len_ent_id = ((retval & HDR_LEN_ENT_ID) >> 4) + 1;
                 dissect_cfdp_src_entity_id(tvb, pinfo, cfdp_msg_to_user_tree, offset, len_ent_id);
                 offset += len_ent_id;
 
@@ -1045,7 +1046,7 @@ static uint32_t dissect_cfdp_flow_label_tlv(tvbuff_t *tvb, proto_tree *tree, uin
     /* It is undefined, so no specific encoding */
     proto_tree_add_item(cfdp_flow_label_tree, hf_cfdp_flow_label, tvb, offset, tlv_len, ENC_NA);
 
-    return offset;
+    return offset + tlv_len;
 }
 
 /* Dissect the End of File PDU */
@@ -1055,7 +1056,8 @@ static uint32_t dissect_cfdp_eof_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree  *cfdp_fault_location_tree;
 
     uint32_t offset = ext_offset;
-    unsigned   cfdp_packet_data_length = ext_packet_len;
+    /* The data length includes the directive code before ext_offset */
+    unsigned   cfdp_packet_data_length = ext_offset + ext_packet_len - 1;
 
     aux_byte = tvb_get_uint8(tvb, offset);
     proto_tree_add_uint(tree, hf_cfdp_condition_code, tvb, offset, 1, aux_byte);
@@ -1156,7 +1158,7 @@ static uint32_t dissect_cfdp_ack_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static uint32_t dissect_cfdp_metadata_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t ext_offset, unsigned ext_packet_len){
 
     uint8_t aux_byte, tlv_type;
-    unsigned  cfdp_packet_data_length = ext_packet_len;
+    unsigned  cfdp_packet_data_length = ext_offset + ext_packet_len - 1;
     uint32_t length;
 
     uint32_t offset = ext_offset;
