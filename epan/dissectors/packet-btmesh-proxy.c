@@ -292,7 +292,9 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     unsigned offset = 0;
     btle_mesh_proxy_ctx_t *proxy_ctx = NULL;
 
-    DISSECTOR_ASSERT(proxy_data);
+    /* Needs the context BT ATT passes */
+    if (!proxy_data)
+        return 0;
     proxy_ctx = (btle_mesh_proxy_ctx_t *)proxy_data;
     DISSECTOR_ASSERT(proxy_ctx->proxy_side < E_BTMESH_PROXY_SIDE_LAST);
 
