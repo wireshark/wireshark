@@ -20239,3 +20239,92 @@ class TestDissectBvlc:
         assert stdout.split('\t') == [
             '0x02,0x1f,0x06,0x01,0x03,0x04,0x05,0x1f,0x09', '000701aa,000702,01',
             '0a0000000002', '0a0000000003', '0\n']
+
+
+class TestDissectBzr:
+    def test_bzr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Bazaar requests and responses decode without malformed packets
+        or errors, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bzr_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 35
+        assert protocols.count('BZR') == 16
+        assert protocols.count('TCP') == 19
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bzr_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_bzr_messages(self, cmd_tshark, capture_file, test_env):
+        '''Body part kinds, results and byte lengths of every message, the
+        same in one and two passes; frames 9 and 10 hold two messages,
+        frame 16 a message and the start of the next one.'''
+        expected = [
+            "4\t's','e'\t\t",
+            "5\t'o','s','e'\t'S'\t",
+            "6\t's','b','e'\t\t0x00000020",
+            "7\t'o','s','b','b','s','e'\t'S'\t0x00000040,0x00000000",
+            "8\t'o','s','e'\t'E'\t",
+            "9\t's','e','s','e'\t\t",
+            "10\t'o','s','e','o','s','b','e'\t'S','S'\t0x00000017",
+            "13\t's','b','b','e'\t\t0x0000012c,0x000000c8",
+            "15\t'o','s','e'\t'S'\t",
+            "16\t's','e'\t\t",
+            "17\t's','b','e'\t\t0x00000006",
+            "18\t'x','o','s','e'\t'?'\t",
+            "19\t'e'\t\t",
+            "20\t's','o','e'\t'S'\t",
+            "31\t's','b','e'\t\t0x00000bb8",
+            "32\t'o','s','e'\t'S'\t",
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bzr_coverage.pcap.gz'),
+                    '-Y', 'bzr.kind',
+                    '-Tfields', '-eframe.number', '-ebzr.kind', '-ebzr.result',
+                    '-ebzr.bytes.length',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_bzr_bencode(self, cmd_tshark, capture_file, test_env):
+        '''The prefixed header and structures are handed to bencode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bzr_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4 || frame.number == 20',
+                '-Tfields', '-ebzr.bencode.length', '-ebencode.str', '-ebencode.int',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x00000034,0x00000021\tSoftware version,2.7.0,context,bzr-coverage,'
+            'BzrDir.open_2.1,/srv/repo/\t',
+            '0x00000016,0x00000034\theader-as-list,revno,revid,rev-42,revno,revid,\t3,42,-1',
+        ]
+
+    def test_bzr_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Messages spread over several TCP segments are reassembled: a
+        request cut inside the version line (frames 11-13), a response cut
+        after the header length (14-15), one split across a message
+        boundary (16-17) and a 3131 octet request in five segments
+        (27-31).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bzr_coverage.pcap.gz'),
+                '-Y', 'tcp.reassembled_in',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t13', '12\t13', '14\t15', '16\t17',
+            '27\t31', '28\t31', '29\t31', '30\t31',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('bzr_coverage.pcap.gz'),
+                '-Y', 'frame.number == 31',
+                '-Tfields', '-etcp.reassembled.length', '-ebzr.bytes.length',
+                '-ebencode.str',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == ['3131', '0x00000bb8',
+            'Software version,2.7.0,context,bzr-coverage,Repository.insert_stream,/srv/big/\n']
