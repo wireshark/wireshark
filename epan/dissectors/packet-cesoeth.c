@@ -193,7 +193,7 @@ dissect_cesoeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         if (bm_tree) {
             proto_item *pi;
 
-            for (pi = tree->first_child; pi; pi = pi->next)
+            for (pi = bm_tree->first_child; pi; pi = pi->next)
             {
                 field_info *fi;
                 fi = PITEM_FINFO(pi);
@@ -245,7 +245,7 @@ dissect_cesoeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
             int rtp_header_len = dissect_rtp_shim_header(tvb, offset, pinfo, cesoeth_tree, &rtp_info);
 
-            if (rtp_header_len > 0)
+            if (rtp_header_len > 0 && rtp_header_len <= payload_len)
             {
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "CESoETH (w RTP)");
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "RTP PT: %u, SSRC: 0x%X, Seq: %u, Time=%u",
