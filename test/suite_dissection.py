@@ -19376,3 +19376,126 @@ class TestDissectBtpMatter:
                     '-edata.data', '-e_ws.expert',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['56\tbtp-matter\t000005000004001122\t']
+
+
+class TestDissectBtrfcomm:
+    def test_btrfcomm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every RFCOMM frame type and multiplexer control command, and
+        data for the DUN, SPP, GNSS and HSP dissectors, without malformed
+        packets or expert infos of warning or error severity, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btrfcomm_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 74
+        assert protocols.count('RFCOMM') == 51
+        assert protocols.count('SPP') == 5
+        assert protocols.count('DUN') == 1
+        assert protocols.count('GNSS') == 1
+        assert protocols.count('HSP') == 1
+        assert protocols.count('PPP LCP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btrfcomm_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btrfcomm_mcc(self, cmd_tshark, capture_file, test_env):
+        '''PN with credit based flow control, MSC with and without the
+        break octet, RPN, RLS, Test with a two octet length, FCon, FCoff,
+        NSC, unknown types, a five octet type and a five octet length
+        (batch150-179/btrfcomm_mcc.py: no shift into the sign bit, the
+        command field is one octet, and only PN, RPN and MSC name a
+        channel, no "-> 255").'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btrfcomm_coverage.pcapng.gz'),
+                    '-Y', 'btrfcomm.mcc',
+                    '-Tfields', '-eframe.number', '-ebtrfcomm.mcc.cmd',
+                    '-ebtrfcomm.mcc.len', '-ebtrfcomm.mcc.channel',
+                    '-ebtrfcomm.pn.cl', '-ebtrfcomm.msc.bl', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '10\t0x20\t8\t1\t0x0f\t\tSent UIH Channel=0 -> 1 MPX_CTRL DLC Parameter Negotiation (PN) ',
+                '11\t0x20\t8\t1\t0x0e\t\tRcvd UIH Channel=0 -> 1 MPX_CTRL DLC Parameter Negotiation (PN) ',
+                '14\t0x38\t2\t1\t\t\tSent UIH Channel=0 -> 1 MPX_CTRL Modem Status Command (MSC) ',
+                '15\t0x38\t2\t1\t\t\tRcvd UIH Channel=0 -> 1 MPX_CTRL Modem Status Command (MSC) ',
+                '16\t0x38\t3\t1\t\t3\tSent UIH Channel=0 -> 1 MPX_CTRL Modem Status Command (MSC) ',
+                '17\t0x24\t1\t1\t\t\tSent UIH Channel=0 -> 1 MPX_CTRL Remote Port Negotiation Command (RPN) ',
+                '18\t0x24\t8\t1\t\t\tRcvd UIH Channel=0 -> 1 MPX_CTRL Remote Port Negotiation Command (RPN) ',
+                '19\t0x14\t2\t\t\t\tSent UIH Channel=0 MPX_CTRL Remote Line Status Command (RLS) ',
+                '20\t0x08\t130\t\t\t\tSent UIH Channel=0 MPX_CTRL Test Command (Test) ',
+                '21\t0x08\t130\t\t\t\tRcvd UIH Channel=0 MPX_CTRL Test Command (Test) ',
+                '22\t0x28\t0\t\t\t\tSent UIH Channel=0 MPX_CTRL Flow Control On Command (FCon) ',
+                '23\t0x18\t0\t\t\t\tSent UIH Channel=0 MPX_CTRL Flow Control Off Command (FCoff) ',
+                '24\t0x04\t1\t\t\t\tRcvd UIH Channel=0 MPX_CTRL Non Supported Command Response (NSC) ',
+                '25\t0x0f\t0\t\t\t\tSent UIH Channel=0 MPX_CTRL Unknown ',
+                '26\t0x00\t0\t\t\t\tSent UIH Channel=0 MPX_CTRL ',
+                '27\t0x0f\t0\t\t\t\tSent UIH Channel=0 MPX_CTRL Unknown ',
+                '28\t0x08\t0\t\t\t\tSent UIH Channel=0 MPX_CTRL Test Command (Test) ',
+                '29\t0x08\t4\t\t\t\tSent UIH Channel=0 MPX_CTRL Test Command (Test) ',
+                '30\t0x38\t1\t1\t\t\tSent UIH Channel=0 -> 1 MPX_CTRL Modem Status Command (MSC) ',
+            ]
+
+    def test_btrfcomm_services(self, cmd_tshark, capture_file, test_env):
+        '''The SABM names the service of the channel from the SDP record,
+        or its numeric UUID; a channel without a record shows no service
+        (no "(UUID: (null))"). Data goes to the dissector of the
+        service, or to data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btrfcomm_coverage.pcapng.gz'),
+                '-Y', 'btrfcomm.frame_type == 0x2f && btrfcomm.dlci != 0',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\tSent SABM Channel=1 (Serial Port) ',
+            '35\tSent SABM Channel=2 (Dial-Up Networking) ',
+            '39\tSent SABM Channel=3 (Headset Audio Gateway) ',
+            '42\tSent SABM Channel=4 (GNSS Server) ',
+            '45\tSent SABM Channel=5 (LAN Access Using PPP) ',
+            '47\tSent SABM Channel=6 (UUID: 8a0b1c2d-3e4f-4051-8293-a4b5c6d7e8f9) ',
+            '49\tSent SABM Channel=7 (UUID: 7777) ',
+            '51\tSent SABM Channel=10 ',
+            '54\tSent SABM Channel=1 (Serial Port) ',
+            '59\tRcvd SABM Channel=3 ',
+            '72\tRcvd SABM Channel=13 (Serial Port) ',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btrfcomm_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {31, 32, 37, 38, 41, 44, 46, 48, 50, 53, 74}',
+                '-Tfields', '-eframe.number', '-ebtrfcomm.credits',
+                '-ebtrfcomm.service_uuid16', '-ebtrfcomm.service_uuid', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [f[1] for f in frames] == ['7', '5'] + [''] * 9
+        assert [f[2] or f[3] for f in frames] == [
+            '0x1101', '0x1101', '0x1103', '0x1103', '0x1112', '0x1136', '0x1102',
+            '8a0b1c2d3e4f40518293a4b5c6d7e8f9', '0x7777', '', '0x1101']
+        assert [f[4].split(':btrfcomm')[1] for f in frames] == [
+            ':btspp', '', ':btdun', ':btdun:ppp_hdlc:lcp', ':bthsp', ':btgnss',
+            ':data', ':data', ':data', ':data', ':btspp']
+
+    def test_btrfcomm_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''Decode As of a directed channel (DLCI) wins over the SDP
+        record; Force Decode by Channel applies to channels without a
+        dissector for their service.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-d', 'btrfcomm.dlci==20,btdun', '-d', 'btrfcomm.dlci==2,btgnss',
+                '-r', capture_file('btrfcomm_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {31, 53}',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['GNSS', 'DUN']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'btrfcomm.rfcomm.decode_by.enabled:TRUE',
+                '-o', 'uat:rfcomm_channels:"10","btgnss"',
+                '-o', 'uat:rfcomm_channels:"6","btspp"',
+                '-r', capture_file('btrfcomm_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {31, 46, 48, 53}',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['SPP', 'RFCOMM', 'SPP', 'GNSS']
