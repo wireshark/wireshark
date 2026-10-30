@@ -24011,3 +24011,137 @@ class TestDissectCesoeth:
                 '-ecesoeth.cw.sn',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['19\t0x00000005\t256\t']
+
+
+class TestDissectCfdp:
+    DECODE_AS = ('-d', 'udp.port==5234,cfdp')
+
+    def test_cfdp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CFDP on UDP (Decode As) and in BPv6 bundles decodes without
+        malformed packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 58
+        assert protocols.count('CFDP') == 50
+        assert protocols.count('Bundle') == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cfdp_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''The PDU type and directive code of every PDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Tfields', '-ecfdp.pdu_type', '-ecfdp.fdtype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == (
+            ['0\t4'] + ['0\t7'] * 7 + ['0\t5'] * 2 + ['1\t'] * 2 + ['0\t4'] * 14
+            + ['0\t6'] * 5 + ['0\t8'] * 2 + ['0\t9'] * 2 + ['0\t12', '0\t10', '0\t0']
+            + ['0\t9'] * 8 + ['0\t4', '1\t', '0\t7', '0\t12']
+            # Bundles
+            + ['0\t7', '1\t', '0\t4', '0\t5', '0\t6', '0\t9', '0\t12', '0\t11'])
+
+    def test_cfdp_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''The frames of "CFDP: Fix the remote status report response and
+        TLV bounds": the fault location TLV of an EOF, and the entity ID
+        and sequence number of the Remote Status Report Responses (after
+        their two octet flags) around a Proxy Filestore Response and a flow
+        label TLV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'frame.number <= 2',
+                '-Tfields', '-ecfdp.condition_code', '-ecfdp.entity',
+                '-ecfdp.proxy_msg_type', '-ecfdp.srcid', '-ecfdp.transeqnum',
+                '-ecfdp.flow_label',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t05\t\t1\t2\t',
+            '\t\t33,8,33\t1,7,7\t2,9,9\taabb',
+        ]
+
+    def test_cfdp_proxy_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every proxy message type, with the entity IDs and sequence
+        numbers of the originating transaction ID and of the remote status
+        report, suspend and resume messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'cfdp.proxy_msg_type',
+                '-Tfields', '-eframe.number', '-ecfdp.proxy_msg_type',
+                '-ecfdp.srcid', '-ecfdp.transeqnum',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t33,8,33\t1,7,7\t2,9,9',
+            '5\t0,1,2,3,4,6,7,8,9,10\t1,258\t2,7',
+            '6\t16,17,32,33,48,49,56,57,127\t1,2571,2571,10,72623859790382856,2571,10'
+            '\t2,4660,4660,18,153,305419896,18',
+            '7\t5\t1\t2',
+            '51\t9\t1\t2',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'frame.number == 6',
+                '-Tfields', '-ecfdp.rep_resp_code_b', '-ecfdp.suspension_ind_b',
+                '-ecfdp.report_file_name', '-ecfdp.directory_file_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '1\t1,0\tstatus.txt\t/data/listing.txt,/data/listing.txt\n'
+
+    def test_cfdp_filestore_response(self, cmd_tshark, capture_file, test_env):
+        '''Filestore responses with every action code and its status code
+        table, and Finished PDUs whose TLVs end at the end of the PDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'frame.number == 9',
+                '-O', 'cfdp', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Status code: Create not allowed (1)',
+                      'Status code: File does not exist (1)',
+                      'Status code: Old File Name does not exist (1)',
+                      'Status code: Directory cannot be created (1)',
+                      'Status code: Directory does not exist (1)',
+                      'Action code: Unknown (9)'):
+            assert label in stdout
+        assert stdout.count('Status code: Delete not allowed (1)') == 2
+        assert stdout.count('Status code: File Name 1 does not exist (1)') == 2
+        assert stdout.count('Filestore Response TLV') == 10
+        # The TLVs of the Finished PDUs end exactly at the end of the PDU:
+        # nothing is left for the data dissector
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'cfdp.fdtype == 5',
+                '-Tfields', '-eframe.number', '-ecfdp.first_file_name',
+                '-ecfdp.entity', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t' + ','.join('f%d' % i for i in range(10)) + '\t\t',
+            '10\t\t0a0b\t',
+            '54\t\t01\t',
+        ]
+
+    def test_cfdp_header_sizes(self, cmd_tshark, capture_file, test_env):
+        '''Every entity ID length with the matching sequence number length,
+        and the CRC field.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'frame.number >= 39 && frame.number <= 46',
+                '-Tfields', '-ecfdp.entid_length', '-ecfdp.srcid', '-ecfdp.dstid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t1\t33', '1\t258\t8482', '2\t66051\t2171427', '3\t16909060\t555885348',
+            '4\t4328719365\t142306649125', '5\t1108152157446\t36430502176038',
+            '6\t283686952306183\t9326208557065767', '7\t72623859790382856\t2387509390608836392',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfdp_coverage.pcap.gz'), *self.DECODE_AS,
+                '-Y', 'cfdp.crc',
+                '-Tfields', '-eframe.number', '-ecfdp.crc', '-ecfdp.user_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '47\t0xbeef\t', '48\t0x1234\t7769746820637263', '49\t0x0102\t', '56\t0x4242\t',
+        ]
