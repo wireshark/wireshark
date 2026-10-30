@@ -233,6 +233,7 @@ typedef struct _sdu_reassembly_t
     uint32_t last_frame;
     uint16_t tot_len;
     int      cur_off;           /* counter used by reassembly */
+    int      alloc_len;         /* allocated size of reassembled */
 } sdu_reassembly_t;
 
 typedef struct _psm_data_t {
@@ -1140,6 +1141,7 @@ dissect_l2cap_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *p
     uint32_t     psm;
     uint32_t     scid;
     uint32_t     cid_index;
+    int          end_offset = offset + length;
 
     proto_tree_add_item_ret_uint(command_tree, hf_btl2cap_le_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN, &psm);
     if (psm < 0x80) {
@@ -1158,7 +1160,7 @@ dissect_l2cap_credit_based_connrequest(tvbuff_t *tvb, int offset, packet_info *p
     offset += 2;
 
     cid_index = 0;
-    while (offset < length + 8) {
+    while (offset < end_offset) {
         proto_tree_add_item_ret_uint(command_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &scid);
         offset += 2;
 
@@ -1319,6 +1321,7 @@ dissect_l2cap_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *
 {
     uint32_t           dcid;
     uint32_t           cid_index;
+    int                end_offset = offset + length;
 
     proto_tree_add_item(tree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -1333,7 +1336,7 @@ dissect_l2cap_credit_based_connresponse(tvbuff_t *tvb, int offset, packet_info *
     offset += 2;
 
     cid_index = 0;
-    while (offset < length + 8) {
+    while (offset < end_offset) {
         proto_tree_add_item_ret_uint(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN, &dcid);
         offset += 2;
 
@@ -1446,6 +1449,7 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
     proto_item *ti_option;
     proto_tree *ti_option_subtree;
     uint8_t     option_type, option_length;
+    int         option_offset;
 
     if (config_data) {
         config_data->mode     = L2CAP_BASIC_MODE;
@@ -1465,6 +1469,7 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
         proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_length, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
         offset += 2;
+        option_offset = offset;
 
         if (option_length != 0) {
             switch (option_type) {
@@ -1576,10 +1581,10 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 
             default:
                 proto_item_append_text(ti_option, "unknown");
-                offset += option_length;
                 break;
             }
         }
+        offset = option_offset + option_length;
         length -= (option_length + 2);
     }
     return offset;
@@ -2596,8 +2601,11 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     uint16_t          sdulen;
     sdu_reassembly_t *mfp      = NULL;
     uint16_t          psm      = (psm_data ? psm_data->psm : 0);
+    int               control_length;
 
+    control_length = offset;
     offset = dissect_i_frame_control_field(tvb, pinfo, btl2cap_tree, offset, config_data, &segment);
+    control_length = offset - control_length;
 
     /*Segmented frames with SAR = start have an extra SDU length header field*/
     if (segment == 0x01) {
@@ -2609,13 +2617,13 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Detect malformed data */
 
-        if (length <= 6) {
+        if (length <= control_length + 4) {
             expert_add_info_format(pinfo, pi, &ei_btl2cap_sdulength_bad,
                     "SDU length too short: %u", length);
             THROW(ReportedBoundsError);
         }
 
-        length -= 6; /*Control, SDUlength, FCS*/
+        length -= control_length + 4; /*Control, SDUlength, FCS*/
 
         if (sdulen < length) {
             sdulen = length;
@@ -2628,9 +2636,10 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             mfp->first_frame = pinfo->num;
             mfp->last_frame  = 0;
             mfp->tot_len     = sdulen;
-            mfp->reassembled = (uint8_t *) wmem_alloc(wmem_file_scope(), sdulen);
-            tvb_memcpy(tvb, mfp->reassembled, offset, length);
+            /* Allocate what has arrived, not the SDU length the packet claims */
+            mfp->reassembled = (uint8_t *) tvb_memdup(wmem_file_scope(), tvb, offset, length);
             mfp->cur_off     = length;
+            mfp->alloc_len   = length;
             wmem_tree_insert32(config_data->start_fragments, pinfo->num, mfp);
         } else {
             mfp              = (sdu_reassembly_t *)wmem_tree_lookup32(config_data->start_fragments, pinfo->num);
@@ -2642,17 +2651,21 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_append_frame_number(pinfo, COL_INFO, "[Reassembled in #%u] ", mfp->last_frame);
         }
     } else {
-        if (length <= 4) {
+        if (length <= control_length + 2) {
             expert_add_info_format(pinfo, btl2cap_tree, &ei_btl2cap_length_bad,
                     "Control / FCS length too short: %u", length);
             THROW(ReportedBoundsError);
         }
-        length -= 4; /*Control, FCS*/
+        length -= control_length + 2; /*Control, FCS*/
     }
     if (segment == 0x02 || segment == 0x03) {
         mfp = (sdu_reassembly_t *)wmem_tree_lookup32_le(config_data->start_fragments, pinfo->num);
         if (!pinfo->fd->visited) {
             if (mfp != NULL && !mfp->last_frame && (mfp->tot_len>=mfp->cur_off + length)) {
+                if (mfp->cur_off + length > mfp->alloc_len) {
+                    mfp->alloc_len = MIN(MAX(mfp->cur_off + length, 2 * mfp->alloc_len), mfp->tot_len);
+                    mfp->reassembled = (uint8_t *) wmem_realloc(wmem_file_scope(), mfp->reassembled, mfp->alloc_len);
+                }
                 tvb_memcpy(tvb, mfp->reassembled + mfp->cur_off, offset, length);
                 mfp->cur_off += length;
                 if (segment == 0x02) {
