@@ -24873,3 +24873,70 @@ class TestDissectCimd:
                 '-e_ws.col.info',
             ), encoding='utf-8', env=test_env)
         assert stdout == '72\t77\tx\tUnknown (77)\n'
+
+
+class TestDissectCimetrics:
+    def test_cimetrics_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Cimetrics MS/TP frames decode without malformed packets or
+        warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimetrics_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 11
+        assert protocols.count('BACnet') == 8
+        assert protocols.count('BACnet-APDU') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cimetrics_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cimetrics_fields(self, cmd_tshark, capture_file, test_env):
+        '''The Cimetrics header, the MS/TP frame after it with good
+        checksums, and the BACnet or vendor payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimetrics_coverage.pcap.gz'),
+                '-Tfields', '-ellc.cimetrics_pid', '-ecimetrics.mstp_timer',
+                '-ecimetrics.mstp_value', '-emstp.frame_type', '-emstp.dst',
+                '-emstp.src', '-emstp.len', '-emstp.checksum.status',
+                '-emstp.vendorid', '-ebacapp.type', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0001\t0\t0\t0\t10\t5\t0\t1\t\t\t',
+            '0x0001\t12\t1\t1\t11\t10\t0\t1\t\t\t',
+            '0x0001\t3\t2\t2\t10\t11\t0\t1\t\t\t',
+            '0x0001\t250\t3\t3\t11\t10\t9\t1,1\t\t\t9',
+            '0x0001\t2\t4\t4\t10\t11\t9\t1,1\t\t\t9',
+            '0x0001\t1000\t5\t5\t11\t10\t13\t1,1\t\t0\t',
+            '0x0001\t5\t6\t7\t10\t11\t0\t1\t\t\t',
+            '0x0001\t65535\t255\t6\t255\t10\t4\t1,1\t\t1\t',
+            '0x0001\t40\t7\t6\t255\t11\t16\t1,1\t\t1\t',
+            '0x0001\t1\t8\t48\t10\t11\t0\t1\t\t\t',
+            '0x0001\t7\t9\t128\t10\t127\t8\t1,1\t291\t\t6',
+        ]
+
+    def test_cimetrics_summary(self, cmd_tshark, capture_file, test_env):
+        '''The protocol item summarizes source, destination and frame
+        type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cimetrics_coverage.pcap.gz'),
+                '-O', 'cimetrics', '-V',
+            ), encoding='utf-8', env=test_env)
+        summaries = [l for l in stdout.splitlines() if l.startswith('BACnet MS/TP, Src')]
+        assert summaries == [
+            'BACnet MS/TP, Src (5), Dst (10), Token',
+            'BACnet MS/TP, Src (10), Dst (11), Poll For Master',
+            'BACnet MS/TP, Src (11), Dst (10), Reply To Poll For Master',
+            'BACnet MS/TP, Src (10), Dst (11), Test_Request',
+            'BACnet MS/TP, Src (11), Dst (10), Test_Response',
+            'BACnet MS/TP, Src (10), Dst (11), BACnet Data Expecting Reply',
+            'BACnet MS/TP, Src (11), Dst (10), Reply Postponed',
+            'BACnet MS/TP, Src (10), Dst (255), BACnet Data Not Expecting Reply',
+            'BACnet MS/TP, Src (11), Dst (255), BACnet Data Not Expecting Reply',
+            'BACnet MS/TP, Src (11), Dst (10), Unknown Frame Type (48)',
+            'BACnet MS/TP, Src (127), Dst (10), Unknown Frame Type (128)',
+        ]
