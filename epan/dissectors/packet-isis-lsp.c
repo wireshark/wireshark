@@ -132,15 +132,21 @@
 #define IGP_MSD_TYPE_H_ENCAP        44
 #define IGP_MSD_TYPE_END_D          45
 
-/* Flex Algo Definition Sub-TLV (rfc9350) */
+/* Flex Algo Definition Sub-TLV (rfc9350/rfc9843) */
 #define FAD_EXCLUDE_AG              1
 #define FAD_INCLUDE_ANY_AG          2
 #define FAD_INCLUDE_ALL_AG          3
 #define FAD_DEF_FLAGS               4
 #define FAD_EXCLUDE_SRLG            5
+#define FAD_EXCLUDE_MIN_BANDWIDTH   6
+#define FAD_EXCLUDE_MAX_DELAY       7
+#define FAD_REFERENCE_BANDWIDTH     8
 
 /* Flex Algo Definition Flags (rfc9350) */
 #define FAD_DEF_FLAGS_M             0x80
+
+/* Flex Algo Reference Bandwidth Flags (rfc9843) */
+#define FAD_REFERENCE_BANDWIDTH_FLAGS_G     0x80
 
 /* Prefix Attribute Flags Sub-TLV (rfc7794)*/
 #define ISIS_LSP_PFX_ATTR_FLAG_X    0x80
@@ -450,6 +456,14 @@ static int hf_isis_lsp_clv_flex_algo_def_flags;
 static int hf_isis_lsp_clv_flex_algo_def_flags_m;
 static int hf_isis_lsp_clv_flex_algo_srlg_value;
 static int hf_isis_lsp_clv_flex_algo_prefix_metric;
+static int hf_isis_lsp_clv_flex_algo_exclude_min_bandwidth;
+static int hf_isis_lsp_clv_flex_algo_exclude_max_delay;
+static int hf_isis_lsp_clv_flex_algo_ref_bw_flags;
+static int hf_isis_lsp_clv_flex_algo_ref_bw_flags_g;
+static int hf_isis_lsp_clv_flex_algo_ref_bw_reference_bandwidth;
+static int hf_isis_lsp_clv_flex_algo_ref_bw_granularity_bandwidth;
+static int hf_isis_lsp_clv_flex_algo_generic_metric_type;
+static int hf_isis_lsp_clv_flex_algo_generic_metric_value;
 static int hf_isis_lsp_clv_srv6_endx_sid_system_id;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags_b;
@@ -593,6 +607,7 @@ static int ett_isis_lsp_clv_srv6_cap;
 static int ett_isis_lsp_clv_srv6_cap_flags;
 static int ett_isis_lsp_clv_flex_algo_def;
 static int ett_isis_lsp_clv_flex_algo_def_sub_tlv;
+static int ett_isis_lsp_clv_flex_algo_ref_bw_flags;
 static int ett_isis_lsp_clv_app_sabm_bits;
 static int ett_isis_lsp_clv_ipv6_te_rtrid;
 static int ett_isis_lsp_clv_trill_version;
@@ -805,17 +820,26 @@ static const value_string isis_lsp_igp_msd_types[] = {
 static const value_string isis_lsp_flex_algo_metric_type_vals[] = {
     { 0, "IGP Metric"},
     { 1, "Min Unidirectional Link Delay"},
-    { 2, "TE Metric"},
+    { 2, "TE Default Metric"},
+    { 3, "Bandwidth Metric"},
     { 0, NULL }
 };
 
 static const value_string isis_lsp_flex_algo_sub_tlv_vals[] = {
-    { FAD_EXCLUDE_AG,       "Flexible Algorithm Exclude Admin Group"},
-    { FAD_INCLUDE_ANY_AG,   "Flexible Algorithm Include-Any Admin Group"},
-    { FAD_INCLUDE_ALL_AG,   "Flexible Algorithm Include-All Admin Group"},
-    { FAD_DEF_FLAGS,        "Flexible Algorithm Definition Flags"},
-    { FAD_EXCLUDE_SRLG,     "Flexible Algorithm Exclude SRLG"},
+    { FAD_EXCLUDE_AG,               "Flexible Algorithm Exclude Admin Group"},
+    { FAD_INCLUDE_ANY_AG,           "Flexible Algorithm Include-Any Admin Group"},
+    { FAD_INCLUDE_ALL_AG,           "Flexible Algorithm Include-All Admin Group"},
+    { FAD_DEF_FLAGS,                "Flexible Algorithm Definition Flags"},
+    { FAD_EXCLUDE_SRLG,             "Flexible Algorithm Exclude SRLG"},
+    { FAD_EXCLUDE_MIN_BANDWIDTH,    "Exclude Minimum Bandwidth"},
+    { FAD_EXCLUDE_MAX_DELAY,        "Exclude Maximum Delay"},
+    { FAD_REFERENCE_BANDWIDTH,      "Reference Bandwidth"},
     { 0, NULL } };
+
+static int * const isis_lsp_fad_ref_bw_flags[] = {
+    &hf_isis_lsp_clv_flex_algo_ref_bw_flags_g,
+    NULL,
+};
 
 static int * const isis_lsp_app_sabm_bits[] = {
     &hf_isis_lsp_clv_app_sabm_bits_r,
@@ -862,6 +886,7 @@ static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 14, "Extended Administrative Group" },
     { 15, "Link Maximum SID Depth" },
     { 16, "Application-Specific Link Attributes" },
+    { 17, "Generic Metric" },
     { 18, "TE Default metric" },
     { 19, "Link-attributes" },
     { 20, "Link Protection Type" },
@@ -1767,6 +1792,8 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     int i;
     int local_offset, local_len;
     uint8_t flags;
+    uint32_t max_delay;
+    float bytes_per_sec;
 
     switch (subtype) {
 
@@ -2052,6 +2079,32 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
                     local_len -= 4;
                     local_offset += 4;
                 }
+                break;
+            case FAD_EXCLUDE_MIN_BANDWIDTH:
+                bytes_per_sec = tvb_get_ntohieee_float(tvb, offset);
+                proto_tree_add_float_format_value(subtree, hf_isis_lsp_clv_flex_algo_exclude_min_bandwidth,
+                                                  tvb, offset, 4,
+                                                  bytes_per_sec, "%.0f (%.3f Mbps)",
+                                                  bytes_per_sec, (double)bytes_per_sec*8/1000000);
+                break;
+            case FAD_EXCLUDE_MAX_DELAY:
+                max_delay = tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN);
+                proto_tree_add_uint_format_value(subtree, hf_isis_lsp_clv_flex_algo_exclude_max_delay,
+                                                 tvb, offset, 3, max_delay, "%u (usec)", max_delay);
+                break;
+            case FAD_REFERENCE_BANDWIDTH:
+                proto_tree_add_bitmask(subtree, tvb, offset, hf_isis_lsp_clv_flex_algo_ref_bw_flags,
+                                       ett_isis_lsp_clv_flex_algo_ref_bw_flags, isis_lsp_fad_ref_bw_flags, ENC_NA);
+                bytes_per_sec = tvb_get_ntohieee_float(tvb, offset+1);
+                proto_tree_add_float_format_value(subtree, hf_isis_lsp_clv_flex_algo_ref_bw_reference_bandwidth,
+                                                  tvb, offset+1, 4,
+                                                  bytes_per_sec, "%.0f (%.3f Mbps)",
+                                                  bytes_per_sec, (double)bytes_per_sec*8/1000000);
+                bytes_per_sec = tvb_get_ntohieee_float(tvb, offset+5);
+                proto_tree_add_float_format_value(subtree, hf_isis_lsp_clv_flex_algo_ref_bw_granularity_bandwidth,
+                                                  tvb, offset+5, 4,
+                                                  bytes_per_sec, "%.0f (%.3f Mbps)",
+                                                  bytes_per_sec, (double)bytes_per_sec*8/1000000);
                 break;
             default:
                 break;
@@ -2427,8 +2480,7 @@ dissect_lsp_appspec_srlg_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree
         length -= udabm_length;
     }
 
-    proto_tree_add_item(tree, hf_isis_lsp_appspec_srlg_sub_tlv_length, tvb, offset, 1, ENC_NA);
-    sub_tlv_len = tvb_get_uint8(tvb, offset);
+    proto_tree_add_item_ret_uint8(tree, hf_isis_lsp_appspec_srlg_sub_tlv_length, tvb, offset, 1, ENC_NA, &sub_tlv_len);
     if (sub_tlv_len > length) {
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, 1,
                                      "Invalid Application-Specific SRLG sub-TLV length (%u vs %d bytes left)",
@@ -3749,6 +3801,11 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
                     /* Dissect Link Attribute sub-sub-TLVs */
                     dissect_sub_clv_tlv_22_22_23_141_222_223(tvb, pinfo, subtree, local_offset, local_len);
                 }
+                break;
+            case 17:
+                /* Generic Metric (rfc9843) */
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_flex_algo_generic_metric_type, tvb, sub_tlv_offset, 1, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_flex_algo_generic_metric_value, tvb, sub_tlv_offset+1, 3, ENC_BIG_ENDIAN);
                 break;
             case 18:
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric,
@@ -5637,7 +5694,7 @@ proto_register_isis_lsp(void)
 
         { &hf_isis_lsp_sid_sli_index,
             { "SID/Label/Index", "isis.lsp.sid.sli_index",
-              FT_UINT32, BASE_HEX, NULL, 0x0,
+              FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
               NULL, HFILL }
         },
 
@@ -6923,6 +6980,17 @@ proto_register_isis_lsp(void)
             FT_BYTES, SEP_SPACE, NULL, 0x0,
             NULL, HFILL }
         },
+        /* rfc9843 */
+        { &hf_isis_lsp_clv_flex_algo_generic_metric_type,
+            { "Metric-Type", "isis.lsp.flex_algorithm.generic_metric.metric_type",
+              FT_UINT8, BASE_DEC, VALS(isis_lsp_flex_algo_metric_type_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_generic_metric_value,
+            { "Value", "isis.lsp.flex_algorithm.generic_metric.value",
+              FT_UINT24, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
 
         /* rfc9350 */
         { &hf_isis_lsp_clv_flex_algo_algorithm,
@@ -6963,6 +7031,37 @@ proto_register_isis_lsp(void)
         { &hf_isis_lsp_clv_flex_algo_prefix_metric,
             { "Metric", "isis.lsp.flex_algorithm.prefix_metric",
               FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        /* rfc9843 */
+        { &hf_isis_lsp_clv_flex_algo_exclude_min_bandwidth,
+            { "Min Bandwidth", "isis.lsp.flex_algorithm.exclude_min_bandwidth",
+              FT_FLOAT, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_exclude_max_delay,
+            { "Max Link Delay", "isis.lsp.flex_algorithm.exclude_max_delay",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_ref_bw_flags,
+            { "Flags", "isis.lsp.flex_algorithm.reference_bandwidth.flags",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_ref_bw_flags_g,
+            { "G-flag (G)", "isis.lsp.flex_algorithm.reference_bandwidth.flags.g",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), FAD_REFERENCE_BANDWIDTH_FLAGS_G,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_ref_bw_reference_bandwidth,
+            { "Reference Bandwidth", "isis.lsp.flex_algorithm.reference_bandwidth.reference_bandwidth",
+              FT_FLOAT, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_flex_algo_ref_bw_granularity_bandwidth,
+            { "Granularity Bandwidth", "isis.lsp.flex_algorithm.reference_bandwidth.granularity_bandwidth",
+              FT_FLOAT, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
 
@@ -7324,6 +7423,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_srv6_loc_end_sid_sub_sub_tlv,
         &ett_isis_lsp_clv_flex_algo_def,
         &ett_isis_lsp_clv_flex_algo_def_sub_tlv,
+        &ett_isis_lsp_clv_flex_algo_ref_bw_flags,
         &ett_isis_lsp_clv_app_sabm_bits,
         &ett_isis_lsp_sl_flags,
         &ett_isis_lsp_sl_sub_tlv,
