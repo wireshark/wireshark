@@ -958,7 +958,7 @@ static const uint8_t* decrypt_data_security_data_with_key( wmem_allocator_t *poo
     {
       int additionalInfoLength = cemi[ 1 ];
       int offsetToData = additionalInfoLength + 11;
-      if( offsetToData + 6 <= cemi_size )
+      if( offsetToData + 6 < cemi_size )
       {
         /* 1 byte Security Control Field */
         uint8_t scf = cemi[ offsetToData ];
@@ -1007,6 +1007,8 @@ static const uint8_t* decrypt_data_security_data_with_key( wmem_allocator_t *poo
         ctr_0[ 15 ] = 0;
 
         decrypted = knx_ccm_encrypt(pool, 0, key, p_bytes, p_length, encrypted + encrypted_size - 4, 4, ctr_0, 4 );
+        if( !decrypted )
+          return NULL;
 
         a_bytes = (uint8_t*) wmem_alloc( pool, encrypted_size );
         if( (scf & 0x30) == 0x10 ) // A+C
@@ -1018,15 +1020,28 @@ static const uint8_t* decrypt_data_security_data_with_key( wmem_allocator_t *poo
         }
         else if( (scf & 0x30) == 0x00 ) // A
         {
+          // The payload is not encrypted, return it followed by the MAC
+          uint8_t* plain = (uint8_t*) wmem_alloc( pool, encrypted_size );
+          memcpy( plain, encrypted, encrypted_size - 4 );
+          memcpy( plain + encrypted_size - 4, decrypted, 4 );
+          wmem_free( pool, decrypted );
+          decrypted = plain;
+
           a_bytes[ 0 ] = scf;
-          memcpy( a_bytes + 1, decrypted, encrypted_size - 4 );
+          memcpy( a_bytes + 1, encrypted, encrypted_size - 4 );
           a_length = encrypted_size - 3;
+        }
+        else
+        {
+          wmem_free( pool, a_bytes );
+          wmem_free( pool, decrypted );
+          return NULL;
         }
 
         knx_ccm_calc_cbc_mac( mac, key, a_bytes, a_length, p_bytes, p_length, b_0 );
         wmem_free( pool, a_bytes );
 
-        if( memcmp( mac, decrypted + p_length, 4 ) != 0 )
+        if( memcmp( mac, decrypted + encrypted_size - 4, 4 ) != 0 )
         {
           // Wrong mac. Return 0.
           wmem_free( pool, decrypted );
@@ -2160,7 +2175,7 @@ static void dissect_property_ext_description_service( tvbuff_t* tvb, packet_info
 
       if( cemi_list )
       {
-        proto_item *dpt_node = proto_tree_add_none_format( cemi_list, hf_folder, tvb, offset, 2, "Data Point Type: %u.%u", dpt_major, dpt_minor );
+        proto_item *dpt_node = proto_tree_add_none_format( cemi_list, hf_folder, tvb, offset, 4, "Data Point Type: %u.%u", dpt_major, dpt_minor );
         proto_tree *dpt_list = proto_item_add_subtree( dpt_node, ett_cemi_dpt );
         proto_tree_add_item( dpt_list, hf_cemi_dpt_major, tvb, offset, 2, ENC_BIG_ENDIAN );
         proto_tree_add_item( dpt_list, hf_cemi_dpt_minor, tvb, offset + 2, 2, ENC_BIG_ENDIAN );
@@ -2391,7 +2406,9 @@ static void dissect_data_security_service( tvbuff_t* tvb, packet_info* pinfo, pr
               dissector_handle_t cemi_handle = find_dissector( "cemi" );
               if( cemi_handle )
               {
+                increment_dissection_depth( pinfo );
                 call_dissector( cemi_handle, tvb3, pinfo, root_tree );
+                decrement_dissection_depth( pinfo );
               }
             }
           }
