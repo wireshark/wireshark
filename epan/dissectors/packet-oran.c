@@ -1365,7 +1365,7 @@ static void ext11_work_out_bundles(unsigned startPrbc,
 
         unsigned bundles_set = 0;
         for (unsigned n=0;
-             n < (settings->ext6_num_bits_set * settings->ext6_rbg_size) / numBundPrb;
+             n < settings->ext6_num_bits_set;
              n++) {
 
             /* Watch out for array bound */
@@ -1758,13 +1758,6 @@ addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *s
     *seq_id_ti = proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_sequence_id, tvb, offset, 1, ENC_NA, &seqId);
     *seq_id = seqId;
     offset += 1;
-
-    /* Show link back to previous sequence ID, if set */
-    flow_result_t *result = wmem_tree_lookup32(flow_results_table, pinfo->num);
-    if (result) {
-        proto_item *prev_ti = proto_tree_add_uint(oran_seqid_tree, hf_oran_previous_frame, tvb, 0, 0, result->previous_frame);
-        proto_item_set_generated(prev_ti);
-    }
 
     /* E bit */
     proto_tree_add_item_ret_uint(oran_seqid_tree, hf_oran_e_bit, tvb, offset, 1, ENC_NA, &e);
@@ -2441,6 +2434,12 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_item *iq_width_item = proto_tree_add_uint(c_section_tree, hf_oran_sinrCompHdrIqWidth_pref, tvb, 0, 0, pref_sample_bit_width_sinr);
                 proto_item_append_text(iq_width_item, " (from preferences)");
                 proto_item_set_generated(iq_width_item);
+                if (pref_sample_bit_width_sinr == 0 || pref_sample_bit_width_sinr > 16) {
+                    expert_add_info_format(pinfo, iq_width_item, &ei_oran_invalid_sample_bit_width,
+                                           "SINR sample bit width from preference (%u) not valid, so can't decode SINR",
+                                           pref_sample_bit_width_sinr);
+                    break;
+                }
 
                 /* sinr compMethod */
                 proto_item *sinr_comp_meth_item = proto_tree_add_uint(c_section_tree, hf_oran_sinrCompHdrMeth_pref, tvb, 0, 0, pref_iqCompressionSINR);
@@ -4928,7 +4927,10 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
             tap_info->missing_sns = 0;
         }
 
-        /* TODO: could add previous/next frames (in seqId tree?) ? */
+        /* Show link back to previous frame in stream */
+        proto_item *prev_ti = proto_tree_add_uint(proto_item_get_subtree(proto_item_get_parent(seq_id_ti)),
+                                                  hf_oran_previous_frame, tvb, 0, 0, result->previous_frame);
+        proto_item_set_generated(prev_ti);
     }
 
     /* payloadVersion */
@@ -5545,7 +5547,6 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                                                "For non-zero sleepMode (%u), symbolMask should be 0x0 or 0x3fff - found 0x%05x",
                                                sleep_mode, symbol_mask);
                     }
-                    offset += 2;
 
                     /* antMask (16-2048 bits).  Size is lookup from log2MaskBits enum.. */
                     unsigned antmask_length = 2;
@@ -5604,7 +5605,6 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo,
                                                "For non-zero sleepMode (%u), symbolMask should be 0x0 or 0x3fff - found 0x%05x",
                                                sleep_mode, symbol_mask);
                     }
-                    offset += 2;
 
                     /* reserved (2 bytes) */
                     proto_tree_add_item(command_tree, hf_oran_reserved_16bits, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6079,7 +6079,11 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    "Sequence number %u expected, but got %u",
                                    result->expected_sequence_number, seq_id);
             tap_info->missing_sns = (256 + seq_id - result->expected_sequence_number) % 256;
-            /* TODO: could add previous/next frame (in seqId tree?) ? */
+
+            /* Show link back to previous frame in stream */
+            proto_item *prev_ti = proto_tree_add_uint(proto_item_get_subtree(proto_item_get_parent(seq_id_ti)),
+                                                      hf_oran_previous_frame, tvb, 0, 0, result->previous_frame);
+            proto_item_set_generated(prev_ti);
         }
     }
 
@@ -6180,7 +6184,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Need a valid value (e.g. 9, 14).  0 definitely won't work, as won't progress around loop! */
     /* N.B. may yet be overwritten by udCompHdr settings in sections below! */
-    if (sample_bit_width == 0) {
+    if (sample_bit_width == 0 || sample_bit_width > 16) {
         expert_add_info_format(pinfo, protocol_item, &ei_oran_invalid_sample_bit_width,
                                "%cL Sample bit width from %s (%u) not valid, so can't decode sections",
                                (direction == DIR_UPLINK) ? 'U' : 'D',
@@ -6519,11 +6523,14 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    if (data == NULL) {
+        return 0;
+    }
     uint32_t ecpri_message_type = *(uint32_t *)data;
     int offset = 0;
 
     /* Allocate and zero tap struct */
-    oran_tap_info *tap_info = wmem_new0(wmem_file_scope(), oran_tap_info);
+    oran_tap_info *tap_info = wmem_new0(pinfo->pool, oran_tap_info);
     tap_info->pdu_size = pinfo->fd->pkt_len;
 
     switch (ecpri_message_type) {
