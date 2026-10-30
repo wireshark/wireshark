@@ -21996,3 +21996,235 @@ class TestDissectCaneth:
                 '-ecaneth.can.padding', '-edata.data',
             ), encoding='utf-8', env=test_env)
         assert stdout == 'ISO11898\t1\t000000000000000000\t55\n'
+
+
+# CANopen is reached through the CAN Decode As table only
+CANOPEN_DECODE_AS = ('-d', 'can.subdissector,canopen')
+
+
+class TestDissectCanopen:
+    def test_canopen_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CANopen message type decodes without malformed packets or
+        warnings, in one and two passes; extended and RTR frames are not
+        CANopen.'''
+        stdout = subprocess.check_output((cmd_tshark, *CANOPEN_DECODE_AS,
+                '-r', capture_file('canopen_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 132
+        assert protocols.count('can:canopen') == 126
+        # SYNC, PDO and NMT error control without data (no octets for
+        # the CANopen item, so it is not listed in frame.protocols)
+        assert protocols.count('can') == 3
+        assert protocols.count('can:data') == 2
+        assert protocols.count('exported_pdu:data') == 1
+        for opts in ((), CANOPEN_DECODE_AS):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                        '-r', capture_file('canopen_coverage.pcapng.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_canopen_no_can_info(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer: an Exported PDU naming "canopen" carries no CAN
+        information. The dissector rejects it (it used to assert) and the
+        payload is data.'''
+        for opts in ((), CANOPEN_DECODE_AS):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('canopen_coverage.pcapng.gz'),
+                    '-Y', 'frame.number == 131',
+                    '-Tfields', '-eframe.protocols', '-eexported_pdu.prot_name',
+                    '-edata.data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == 'exported_pdu:data\tcanopen\t0000000000000000\n'
+
+    def test_canopen_basic(self, cmd_tshark, capture_file, test_env):
+        '''NMT, SYNC, TIME STAMP, EMCY, PDO and NMT error control.'''
+        stdout = subprocess.check_output((cmd_tshark, *CANOPEN_DECODE_AS,
+                '-r', capture_file('canopen_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 24 || (frame.number >= 70 && frame.number <= 76)',
+                '-Tfields', '-ecanopen.cob_id', '-ecanopen.nmt_ctrl.cd',
+                '-ecanopen.nmt_ctrl.node_id', '-ecanopen.sync.counter',
+                '-ecanopen.time_stamp_ms', '-ecanopen.time_stamp_days',
+                '-ecanopen.em.err_code', '-ecanopen.em.err_reg',
+                '-ecanopen.pdo.data.bytes', '-ecanopen.pdo.data.string',
+                '-ecanopen.nmt_guard.toggle', '-ecanopen.nmt_guard.state',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[:13] == [
+            '0x00000000\t0x01\t0x00\t\t\t\t\t\t\t\t\t\tNMT: Start remote node [All]',
+            '0x00000000\t0x02\t0x05\t\t\t\t\t\t\t\t\t\tNMT: Stop remote node [0x5]',
+            '0x00000000\t0x80\t0x7f\t\t\t\t\t\t\t\t\t\tNMT: Enter pre-operational state [0x7f]',
+            '0x00000000\t0x81\t0x01\t\t\t\t\t\t\t\t\t\tNMT: Reset node [0x1]',
+            '0x00000000\t0x82\t0x00\t\t\t\t\t\t\t\t\t\tNMT: Reset communication [All]',
+            '0x00000000\t0x55\t0x03\t\t\t\t\t\t\t\t\t\tNMT: Unknown (0x55) [0x3]',
+            '0x00000080\t\t\t\t\t\t\t\t\t\t\t\tSYNC',
+            '0x00000080\t\t\t42\t\t\t\t\t\t\t\t\tSYNC [42]',
+            '0x00000100\t\t\t\t45296789\t14610\t\t\t\t\t\t\tTIME STAMP',
+            '0x00000100\t\t\t\t268435455\t65535\t\t\t\t\t\t\tTIME STAMP',
+            '0x00000081\t\t\t\t\t\t0x8130\t0x11\t\t\t\t\tEMCY',
+            '0x000000ff\t\t\t\t\t\t0xffff\t0xff\t\t\t\t\tEMCY',
+            '0x00000085\t\t\t\t\t\t0x0000\t0x00\t\t\t\t\tEMCY',
+        ]
+        pdos = [l.split('\t') for l in lines[13:24]]
+        assert [(p[0], p[8], p[9], p[12]) for p in pdos] == [
+            ('0x00000181', '0102030405060708', '', 'PDO1 (tx)'),
+            ('0x00000202', '0203', '', 'PDO1 (rx)'),
+            ('0x00000283', '030405060708090a', '', 'PDO2 (tx)'),
+            ('0x00000304', '04050607', '', 'PDO2 (rx)'),
+            ('0x00000385', '05060708090a0b0c', '', 'PDO3 (tx)'),
+            ('0x00000406', '060708090a0b', '', 'PDO3 (rx)'),
+            ('0x00000487', '0708090a0b0c0d0e', '', 'PDO4 (tx)'),
+            ('0x00000508', '08090a0b0c0d0e0f', '', 'PDO4 (rx)'),
+            ('0x00000182', '', 'empty', 'PDO1 (tx)'),
+            ('0x00000180', 'aabb', '', 'Unknown (3)'),
+            ('0x00000203', '000102030405060708090a0b', '', 'PDO1 (rx)'),
+        ]
+        guard = [l.split('\t') for l in lines[24:]]
+        assert [(g[10], g[11], g[12]) for g in guard] == [
+            ('0', '0x00', 'NMT Error Control: Boot-up [0x1]'),
+            ('0', '0x04', 'NMT Error Control: Stopped [0x1]'),
+            ('0', '0x05', 'NMT Error Control: Operational [0x1]'),
+            ('0', '0x7f', 'NMT Error Control: Pre-operational [0x1]'),
+            ('1', '0x05', 'NMT Error Control: Operational [0x1]'),
+            ('0', '0x33', 'NMT Error Control: (Unknown) [0x1]'),
+            ('', '', 'NMT Error Control [0x2]'),
+        ]
+
+    def test_canopen_sdo(self, cmd_tshark, capture_file, test_env):
+        '''SDO client and server commands, block transfers and aborts.
+        Block segments (non-zero unused bits) and command specifier 7 are
+        not dissected further.'''
+        stdout = subprocess.check_output((cmd_tshark, *CANOPEN_DECODE_AS,
+                '-r', capture_file('canopen_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 25 && frame.number <= 69',
+                '-Tfields', '-ecanopen.sdo.cmd', '-ecanopen.sdo.main_idx',
+                '-ecanopen.sdo.sub_idx', '-ecanopen.sdo.data.bytes',
+                '-ecanopen.sdo.abort_code', '-ecanopen.sdo.blksize',
+                '-ecanopen.sdo.ackseq', '-ecanopen.sdo.pst',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x00\t\t\t01020304050607\t\t\t\t',
+            '0x1f\t\t\t01020304050607\t\t\t\t',
+            '0x23\t0x1017\t0x00\te8030000\t\t\t\t',
+            '0x2f\t0x6040\t0x00\t0f000000\t\t\t\t',
+            '0x21\t0x1008\t0x00\t10000000\t\t\t\t',
+            '0x22\t0x2000\t0x01\t01020304\t\t\t\t',
+            '0x40\t0x1000\t0x00\t\t\t\t\t',
+            '0x60\t\t\t\t\t\t\t',
+            '0x70\t\t\t\t\t\t\t',
+            '0x80\t0x1234\t0x05\t\t0x06020000\t\t\t',
+            '0x80\t0x1234\t0x06\t\t0x12345678\t\t\t',
+            '0xa0\t0x1f50\t0x01\t\t\t127\t\t16',
+            '\t\t\t\t\t\t\t',
+            '0xa1\t\t\t\t\t\t\t',
+            '0xa2\t\t\t\t\t127\t5\t',
+            '0xa3\t\t\t\t\t\t\t',
+            '0xc0\t0x1f50\t0x01\t00010000\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '0xc1\t\t\t3412\t\t\t\t',
+            '0xdd\t\t\t3412\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '0x82\t0x0000\t0x00\t\t0x00000000\t\t\t',
+            '0x40\t0x1018\t0x04\t\t\t\t\t',
+            '0x00\t\t\t41424344454647\t\t\t\t',
+            '0x1d\t\t\t41424344454647\t\t\t\t',
+            '0x20\t\t\t\t\t\t\t',
+            '0x30\t\t\t\t\t\t\t',
+            '0x43\t0x1000\t0x00\t91010f00\t\t\t\t',
+            '0x4f\t0x1001\t0x00\t00000000\t\t\t\t',
+            '0x41\t0x1008\t0x00\t10000000\t\t\t\t',
+            '0x60\t0x1017\t0x00\t\t\t\t\t',
+            '0x80\t0x6040\t0x00\t\t0x06010002\t\t\t',
+            '0x80\t0x6041\t0x00\t\t0x08000024\t\t\t',
+            '0x80\t0x6042\t0x00\t\t0x05040001\t\t\t',
+            '0xa0\t0x1f50\t0x01\t\t\t32\t\t',
+            '\t\t\t\t\t\t\t',
+            '0xa1\t\t\t\t\t\t\t',
+            '0xa2\t\t\t\t\t32\t32\t',
+            '0xa3\t\t\t\t\t\t\t',
+            '0xc2\t0x1f50\t0x01\t00020000\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '0xc1\t\t\tcdab\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *CANOPEN_DECODE_AS,
+                '-r', capture_file('canopen_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {34, 35, 46, 64, 69}',
+                '-O', 'canopen', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Abort code: Object does not exist in the object dictionary (0x06020000)',
+                      'Abort code: Unknown (0x12345678)',
+                      # server block download subcommand 3 has no field list
+                      'SDO command byte: 0xa3'):
+            assert label in stdout
+        stdout = subprocess.check_output((cmd_tshark, *CANOPEN_DECODE_AS,
+                '-r', capture_file('canopen_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {46, 69}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['Default-SDO (rx): Unknown (0x7)',
+                                       'Default-SDO (tx): Unknown (0x7)']
+
+    def test_canopen_lss(self, cmd_tshark, capture_file, test_env):
+        '''LSS master and slave commands. The fastscan bit check of the
+        reproducer (31) shows 0x80000000; the switch delay is two octets.'''
+        stdout = subprocess.check_output((cmd_tshark, *CANOPEN_DECODE_AS,
+                '-r', capture_file('canopen_coverage.pcapng.gz'),
+                '-Y', 'canopen.lss.cs',
+                '-Tfields', '-eframe.number', '-ecanopen.lss.cs',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[1] for l in stdout.splitlines()] == [
+            '0x04', '0x04', '0x04', '0x40', '0x41', '0x42', '0x43', '0x11', '0x13',
+            '0x13', '0x15', '0x17', '0x5a', '0x5b', '0x5c', '0x5d', '0x5e', '0x4c',
+            '0x46', '0x47', '0x48', '0x49', '0x4a', '0x4b', '0x51', '0x51', '0x51',
+            '0x51', '0x51', '0x44', '0x99',
+            '0x44', '0x11', '0x11', '0x11', '0x13', '0x13', '0x17', '0x17', '0x17',
+            '0x17', '0x5a', '0x5b', '0x5c', '0x5d', '0x5e', '0x4f', '0x50', '0x04',
+            '0x15',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *CANOPEN_DECODE_AS,
+                '-r', capture_file('canopen_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {87, 95, 100, 118, 122, 132}',
+                '-Tfields', '-ecanopen.lss.abt_delay', '-ecanopen.lss.addr.vendor',
+                '-ecanopen.lss.addr.serial_high', '-ecanopen.lss.nid', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4660\t\t\t\tLSS (Master): Activate bit timing parameters protocol: 4660 ms',
+            '\t0x11111111\t\t\tLSS (Master): Identify remote slave protocol, Vendor-ID 0x11111111',
+            '\t\t0x66666666\t\tLSS (Master): Identify remote slave protocol, Serial-number (high) 0x66666666',
+            '\t0x000000aa\t\t\tLSS (Slave): Inquire identity vendor-ID protocol, Vendor-ID 0x000000aa',
+            '\t\t\t0x22\tLSS (Slave): Inquire node-ID protocol, Node-ID 0x00000022',
+            '65535\t\t\t\tLSS (Master): Activate bit timing parameters protocol: 65535 ms',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *CANOPEN_DECODE_AS,
+                '-r', capture_file('canopen_coverage.pcapng.gz'),
+                '-Y', 'canopen.lss.fastscan.check',
+                '-O', 'canopen', '-V',
+            ), encoding='utf-8', env=test_env)
+        checks = [l.strip() for l in stdout.splitlines() if 'Bit Check:' in l]
+        assert checks == [
+            'Bit Check: All LSS slaves (0x80)',
+            'Bit Check: 0xffffffff (0x00)',
+            'Bit Check: 0xffffffe0 (0x05)',
+            'Bit Check: Reserved (0x40)',
+            'Bit Check: 0x80000000 (0x1f)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *CANOPEN_DECODE_AS,
+                '-r', capture_file('canopen_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 126 && frame.number <= 130',
+                '-Tfields', '-eframe.protocols', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'can:canopen\tUnknown (15)',
+            'can:canopen\tUnknown (15)',
+            'can:canopen\tUnknown (13)',
+            'can:data\tExt. ID: 291 (0x00000123), Length: 8',
+            'can:data\tID: 1793 (0x701), Length: 1 (Remote Transmission Request)',
+        ]
