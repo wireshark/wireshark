@@ -1716,7 +1716,8 @@ reassemble_continuation_state(tvbuff_t *tvb, packet_info *pinfo,
         continuation_state_length = tvb_get_uint8(tvb, offset);
         offset++;
 
-        continuation_state_buffer = tvb_bytes_to_str(wmem_file_scope(), tvb, offset, continuation_state_length);
+        /* The raw octets, which are compared as the reassembly key */
+        continuation_state_buffer = (char *) tvb_memdup(wmem_file_scope(), tvb, offset, continuation_state_length);
 
         if (continuation_state_length > MAX_CONTINUATION_STATE_LEN) {
             // Try to make do with what we can.
@@ -3617,7 +3618,9 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, unsigned offset,
             hfx_attribute_id = hf_service_attribute_id_did;
             profile_specific = "(DID) ";
 
-            if (number_of_attributes > 1) {
+            /* Only the Vendor ID and Product ID need these; searching
+             * for every attribute would be quadratic. */
+            if (number_of_attributes > 1 && (id == 0x201 || id == 0x202)) {
                 service_did_vendor_id_source = findUintAttribute(tvb, service_offset, number_of_attributes, 0x205);
                 service_did_vendor_id = findUintAttribute(tvb, service_offset, number_of_attributes, 0x201);
             }
@@ -3682,7 +3685,8 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, unsigned offset,
             hfx_attribute_id = hf_service_attribute_id_hdp;
             profile_specific = "(HDP) ";
 
-            if (number_of_attributes > 1) {
+            /* Only the Supported Features need this */
+            if (number_of_attributes > 1 && id == 0x200) {
                 service_hdp_data_exchange_specification = findUintAttribute(tvb, service_offset, number_of_attributes, 0x301);
             }
             break;
