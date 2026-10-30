@@ -20328,3 +20328,142 @@ class TestDissectBzr:
             ), encoding='utf-8', env=test_env)
         assert stdout.split('\t') == ['3131', '0x00000bb8',
             'Software version,2.7.0,context,bzr-coverage,Repository.insert_stream,/srv/big/\n']
+
+
+C1222_KEYS = '"02",00112233445566778899aabbccddeeff\n"00",ffeeddccbbaa99887766554433221100\n'
+C1222_OPTS = ('-o', 'c1222.baseoid:2.16.124.113620.1.22')
+
+
+class TestDissectC1222:
+    @pytest.fixture
+    def c1222_env(self, conf_path, test_env):
+        with open(os.path.join(conf_path, 'c1222_decryption_table'), 'w') as f:
+            f.write(C1222_KEYS)
+        return test_env
+
+    def c1222_fields(self, cmd_tshark, capture_file, env, *fields, passes=(), dfilter='c1222'):
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        stdout = subprocess.check_output((cmd_tshark, *C1222_OPTS, *passes,
+                '-r', capture_file('c1222_coverage.pcap.gz'), '-Y', dfilter,
+                '-Tfields', '-eframe.number', *args,
+            ), encoding='utf-8', env=env)
+        return {int(line.split('\t')[0]): line.split('\t')[1:] for line in stdout.splitlines()}
+
+    def test_c1222_protocols(self, cmd_tshark, capture_file, c1222_env):
+        '''Every service, header element and security mode decodes over UDP
+        and TCP without malformed packets, in one and two passes; the only
+        warning is the message encrypted with a key not in the table.'''
+        frames = self.c1222_fields(cmd_tshark, capture_file, c1222_env, '_ws.col.protocol',
+                                   dfilter='frame')
+        protocols = [f[0] for f in frames.values()]
+        assert len(protocols) == 99
+        assert protocols.count('C12.22') == 93
+        assert protocols.count('TCP') == 6
+        results = []
+        for passes in ((), ('-2',)):
+            frames = self.c1222_fields(cmd_tshark, capture_file, c1222_env, '_ws.expert.message',
+                                       passes=passes,
+                                       dfilter='_ws.malformed || _ws.expert.severity >= "Warning"')
+            assert frames == {87: ['C12.22 EPSEM could not be decrypted']}
+            results.append(self.c1222_fields(cmd_tshark, capture_file, c1222_env,
+                    'c1222.cmd', 'c1222.err', 'c1222.crypto_good', 'c1222.crypto_bad',
+                    'c1222.logon.user', 'c1222.write.data', 'c1222.data', passes=passes))
+        assert results[0] == results[1]
+        assert len(results[0]) == 93
+
+    def test_c1222_services(self, cmd_tshark, capture_file, c1222_env):
+        '''Requests and responses of every service.'''
+        frames = self.c1222_fields(cmd_tshark, capture_file, c1222_env,
+                'c1222.cmd', 'c1222.err', dfilter='udp && frame.number <= 76')
+        cmds = {int(c, 16) for f in frames.values() for c in f[0].split(',') if c}
+        assert cmds == {0x20, 0x21, 0x22, 0x30, 0x3e, 0x3f, 0x40, 0x4e, 0x4f, 0x50, 0x51,
+                        0x52, 0x53, 0x60, 0x70, 0x71, 0x7f}
+        errs = {int(c, 16) for f in frames.values() for c in f[1].split(',') if c}
+        assert errs == set(range(0x14))
+        frames = self.c1222_fields(cmd_tshark, capture_file, c1222_env,
+                'c1222.logon.user', 'c1222.security.password', 'c1222.logon.id',
+                'c1222.authenticate.data', 'c1222.negotiate.pktsize', 'c1222.wait.seconds',
+                'c1222.timingsetup.nbrretries',
+                dfilter='frame.number in {5, 6, 7, 9, 13, 36, 38}')
+        assert frames == {
+            5: ['', '', '', '', '256', '', ''],
+            6: ['', '', '', '', '128', '', ''],
+            7: ['OPERATOR  ', '', '2', '', '', '', ''],
+            9: ['', 'secret password 0123', '2', '', '', '', ''],
+            13: ['', '', '', 'deadbeef', '', '', ''],
+            36: ['', '', '', '', '', '30', ''],
+            38: ['', '', '', '', '', '', '3'],
+        }
+        # Full Write of a table and two procedures (little endian by default,
+        # big endian with the preference), Partial Write; checksums good
+        frames = self.c1222_fields(cmd_tshark, capture_file, c1222_env,
+                'c1222.write.table', 'c1222.procedure.num', 'c1222.procedure.mfg',
+                'c1222.procedure.sequence', 'c1222.write.chksum.status',
+                dfilter='c1222.write.table && frame.number <= 76')
+        assert frames == {
+            27: ['0x0801', '', '', '', '1'],
+            29: ['0x0007', '10', '0', '5', '1'],
+            31: ['0x0007', '10', '1', '6', '1'],
+            34: ['0x0017', '', '', '', '1'],
+        }
+        stdout = subprocess.check_output((cmd_tshark, *C1222_OPTS,
+                '-o', 'c1222.big_endian:TRUE',
+                '-r', capture_file('c1222_coverage.pcap.gz'),
+                '-Y', 'frame.number in {29, 31}', '-Tfields', '-ec1222.procedure.num',
+            ), encoding='utf-8', env=c1222_env)
+        assert stdout.split() == ['512', '536']
+
+    def test_c1222_crypto(self, cmd_tshark, capture_file, c1222_env):
+        '''Cleartext with authentication is authenticated and ciphertext
+        with authentication decrypted with the keys of the decryption table;
+        a message with an unknown key is not decrypted. The crypto status
+        items cover the MAC.'''
+        frames = self.c1222_fields(cmd_tshark, capture_file, c1222_env,
+                'c1222.epsem.flags', 'c1222.crypto_good', 'c1222.crypto_bad',
+                'c1222.cmd', 'c1222.logon.user', dfilter='c1222.epsem.mac')
+        assert list(frames) == list(range(77, 88))
+        assert all(f[1:3] == ['True', 'False'] for n, f in frames.items() if n != 87)
+        assert frames[87][1:3] == ['False', 'True']
+        assert [f[0] for f in frames.values()] == [
+            '0x84', '0x84', '0x88', '0x88', '0x88', '0x84', '0x84', '0x98', '0x88', '0x84', '0x88']
+        # Decrypted Logon and Full Write of a procedure
+        assert frames[79][3:] == ['0x50,0x40', 'OPERATOR  ']
+        # The crypto status items are on the EPSEM, at the MAC
+        stdout = subprocess.check_output((cmd_tshark, *C1222_OPTS,
+                '-r', capture_file('c1222_coverage.pcap.gz'),
+                '-Y', 'c1222.epsem.flags.security == 1', '-Tpdml',
+            ), encoding='utf-8', env=c1222_env)
+        pos = {'c1222.epsem.mac': [], 'c1222.crypto_good': [], 'c1222.crypto_bad': []}
+        for line in stdout.splitlines():
+            for name in pos:
+                if '<field name="%s" ' % name in line:
+                    pos[name].append(line.split(' pos="')[1].split('"')[0])
+        assert len(pos['c1222.epsem.mac']) == 5
+        assert pos['c1222.crypto_good'] == pos['c1222.epsem.mac']
+        assert pos['c1222.crypto_bad'] == pos['c1222.epsem.mac']
+
+    def test_c1222_no_keys(self, cmd_tshark, capture_file, test_env):
+        '''Without the decryption table no message can be authenticated or
+        decrypted.'''
+        frames = self.c1222_fields(cmd_tshark, capture_file, test_env, '_ws.expert.message',
+                                   dfilter='_ws.expert.severity >= "Warning"')
+        assert list(frames) == list(range(77, 88))
+        assert frames[77] == ['C12.22 EPSEM failed authentication']
+        assert frames[79] == ['C12.22 EPSEM could not be decrypted']
+
+    def test_c1222_tcp(self, cmd_tshark, capture_file, c1222_env):
+        '''C12.22 over TCP: a message in two segments, two messages in one
+        segment, and a message with a long form length in three segments.'''
+        frames = self.c1222_fields(cmd_tshark, capture_file, c1222_env,
+                'c1222.cmd', 'c1222.err', 'c1222.write.size', 'tcp.reassembled.length',
+                dfilter='tcp && c1222')
+        assert frames == {
+            91: ['0x20', '', '', ''],
+            92: ['', '0x00', '', ''],
+            94: ['0x30', '', '', '30'],
+            95: ['', '0x00,0x00', '', ''],
+            98: ['0x40', '', '0x0096', '188'],
+            99: ['', '0x00', '', ''],
+        }
