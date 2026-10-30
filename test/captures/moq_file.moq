@@ -1,0 +1,16 @@
+[
+  {
+    "trackNamespace": ["ZXhhbXBsZQ", "dmlkZW8"],
+    "trackName": "dGVzdC10cmFjaw",
+    "objectID": 7,
+    "groupID": 3,
+    "subgroupID": 1,
+    "forwardingPref": "Subgroup",
+    "objectStatus": 0,
+    "publisherPriority": 10,
+    "receiveTime": 1729457464000,
+    "dataFile": "moq_file.dat",
+    "dataOffset": 0,
+    "dataLength": 8
+  }
+]

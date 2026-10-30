@@ -62,6 +62,7 @@
 #include "logcat_text.h"
 #include "json.h"
 #include "json_log.h"
+#include "moq.h"
 #include "mmodule.h"
 #include "observer.h"
 #include "k12.h"
@@ -375,6 +376,7 @@ static const struct open_info open_info_base[] = {
 	{ "NetLog",                                 OPEN_INFO_HEURISTIC, netlog_open,              "json",     NULL, NULL },
 	/* JSON Log needs to be before JSON because it handles a variety of JSON logs */
 	{ "JSON Log",                               OPEN_INFO_HEURISTIC, json_log_open,            "json;jsonl;log", NULL, NULL },
+	{ "MoQ Object File",                        OPEN_INFO_HEURISTIC, moq_open,                 "moq",      NULL, NULL },
 	{ "JavaScript Object Notation",             OPEN_INFO_HEURISTIC, json_open,                "json",     NULL, NULL },
 	{ "Bachmann M-Module File",                 OPEN_INFO_HEURISTIC, mmodule_open,             "m",        NULL, NULL },
 	{ "Ruby Marshal Object",                    OPEN_INFO_HEURISTIC, ruby_marshal_open,        "",         NULL, NULL },
