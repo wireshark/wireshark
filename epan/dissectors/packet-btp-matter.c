@@ -156,7 +156,9 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
     uint32_t opcode = 0;
     unsigned offset = 0;
 
-    DISSECTOR_ASSERT(att_data);
+    /* Needs the data BT ATT passes */
+    if (!att_data)
+        return 0;
     btl2cap_data_t *l2cap_data = att_data->l2cap_data;
     const uint8_t att_opcode = att_data->opcode;
     const uint32_t att_handle = att_data->handle;
@@ -242,7 +244,7 @@ dissect_matter_btp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btatt_tree, vo
     // Section 4.18.3
     if (flags & MATTER_BTP_FLAGS_HANDSHAKE) {
 
-        if (opcode & MATTER_BTP_OPCODE_HANDSHAKE) {
+        if (opcode == MATTER_BTP_OPCODE_HANDSHAKE) {
 
             // Section 4.18.3.1. BTP Handshake Request
             if (memcmp(uuid.data, MATTER_GATT_CHR_TX_UUID_128, 16) == 0) {
