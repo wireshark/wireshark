@@ -24607,3 +24607,147 @@ class TestDissectChdlc:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == [good]
+
+
+CIGI_DECODE_AS = ('-d', 'udp.port==8004,cigi')
+
+
+class TestDissectCigi:
+    def test_cigi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CIGI 2, 3 and 4 message decodes without malformed packets
+        or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *CIGI_DECODE_AS,
+                '-r', capture_file('cigi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 28
+        assert protocols.count('CIGI') == 28
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *CIGI_DECODE_AS,
+                    '-r', capture_file('cigi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cigi_versions(self, cmd_tshark, capture_file, test_env):
+        '''The version, CIGI 3 byte swap magic and minor version of every
+        message, the same in one and two passes (the version is taken from
+        the first packet of each message, not from the previous frame).'''
+        expected = (
+            ['2\t\t\t'] * 2
+            + ['3\t0x8000\t\t', '3\t0x8000\t\t', '3\t0x0080\t\t', '3\t0x0080\t\t']
+            + ['3\t0x8000\t2\t', '3\t0x8000\t\t2', '3\t0x0080\t2\t', '3\t0x0080\t\t2']
+            + ['3\t0x8000\t3\t', '3\t0x8000\t\t3', '3\t0x0080\t3\t', '3\t0x0080\t\t3']
+            + ['4\t\t2\t', '4\t\t\t2'] * 2
+            + ['4\t\t\t0', '1,1\t\t\t', '1\t\t\t']
+            + ['3\t0x8000\t\t', '3\t0x8000\t\t', '4\t\t2\t', '3\t0x8000\t\t', '3\t0x8000\t\t']
+            + ['4\t\t2\t'] * 2
+        )
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *CIGI_DECODE_AS,
+                    '-r', capture_file('cigi_coverage.pcap.gz'),
+                    '-Tfields', '-ecigi.version', '-ecigi.byte_swap',
+                    '-ecigi.ig_control.minor_version', '-ecigi.sof.minor_version',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_cigi_packet_ids(self, cmd_tshark, capture_file, test_env):
+        '''Every packet type of each version, read in either byte order.'''
+        stdout = subprocess.check_output((cmd_tshark, *CIGI_DECODE_AS,
+                '-r', capture_file('cigi_coverage.pcap.gz'),
+                '-Tfields', '-ecigi.packet_id',
+            ), encoding='utf-8', env=test_env)
+        ids = stdout.splitlines()
+        assert ids[0] == '1,2,3,4,5,6,7,8,9,21,22,23,24,25,41,42,43,44'
+        assert ids[1] == '101,102,103,104,105,106,107,108'
+        cigi3_host = ','.join(str(i) for i in range(1, 30)) + ',33,34,30,31,32'
+        cigi3_ig = ','.join(str(i) for i in range(101, 118)) + ',255,150'
+        # CIGI 3.0 and 3.2 carry a Short Symbol Control (35) as data
+        assert ids[2:10] == [cigi3_host + ',35,201', cigi3_ig] * 4
+        assert ids[10:14] == [cigi3_host + ',201', cigi3_ig] * 2
+        cigi4_host = (','.join('0x%04x' % i for i in range(0x1d))
+                      + ',0x0020,0x0021,0x0022,0x0025,0x0026,0x001d,0x001e,0x001f,0x0023,0x0024'
+                      + ',0x8000,0xfffe,0x1000,0x7fff,0x0100')
+        cigi4_ig = '0xffff,' + ','.join('0x%04x' % i for i in range(0xff1, 0x1000)) + ',0x0ff0'
+        assert ids[14:18] == [cigi4_host, cigi4_ig] * 2
+        assert ids[18:21] == ['0xffff,0x0ff0', '1,101,7', '101,9']
+        stdout = subprocess.check_output((cmd_tshark, *CIGI_DECODE_AS,
+                '-r', capture_file('cigi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4 || frame.number == 15',
+                '-Tfields', '-ecigi.user_defined', '-ecigi.locally_defined',
+                '-ecigi.registered', '-ecigi.unknown',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t\t\t1', '\t1,1\t1,1\t1']
+
+    def test_cigi_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of the fixes: CIGI 3 after CIGI 4 (frames 22-25),
+        a 4 octet packet after a CIGI 3 IG Control (26), CIGI 4 packets of
+        256 octets or more in both byte orders (27-28).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *CIGI_DECODE_AS,
+                    '-r', capture_file('cigi_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 22',
+                    '-Tfields', '-ecigi.version', '-ecigi.packet_size',
+                    '-ecigi.entity_control.entity_id', '-ecigi.user_defined',
+                    '-ecigi.data', '-ecigi.image_generator_message.message_id',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '3\t16,48\t1\t\t\t', '3\t16,48\t1\t\t\t', '4\t24\t\t\t\t',
+                '3\t16,48\t1\t\t\t', '3\t16,4\t\t1\taabb\t',
+                '4\t24,272\t\t\t\t7', '4\t24,272\t\t\t\t7',
+            ]
+        stdout = subprocess.check_output((cmd_tshark, *CIGI_DECODE_AS,
+                '-r', capture_file('cigi_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 27',
+                '-Tfields', '-ecigi.image_generator_message.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['hello ' * 44] * 2
+
+    def test_cigi_variable_packets(self, cmd_tshark, capture_file, test_env):
+        '''Image generator messages, symbol text, circles and vertices.'''
+        stdout = subprocess.check_output((cmd_tshark, *CIGI_DECODE_AS,
+                '-r', capture_file('cigi_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 19',
+                '-Tfields', '-ecigi.image_generator_message.message',
+                '-ecigi.symbol_text_def.text',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\t', 'CIGI 2 IG\t',
+            '\t', 'IG ready\t', '\t', 'IG ready\t', '\t', 'IG ready\t', '\t', 'IG ready\t',
+            '\tALT 1500 FT', 'IG ready\t', '\tALT 1500 FT', 'IG ready\t',
+            '\tHDG 270', 'IG4 ready\t', '\tHDG 270', 'IG4 ready\t', 'SOF first\t',
+        ]
+        # Symbol definitions are dissected from CIGI 3.3 on (3.0 and 3.2
+        # show them as data): 2 circles, 3 vertices each
+        stdout = subprocess.check_output((cmd_tshark, *CIGI_DECODE_AS,
+                '-r', capture_file('cigi_coverage.pcap.gz'),
+                '-Y', 'cigi.symbol_text_def.symbol_id',
+                '-Tfields', '-eframe.number', '-ecigi.symbol_text_def.symbol_id',
+                '-ecigi.symbol_circle_def.symbol_id', '-ecigi.symbol_line_def.symbol_id',
+                '-ecigi.symbol_polygon_def.symbol_id',
+                '-ecigi.symbol_circle_textured_def.symbol_id',
+                '-ecigi.symbol_polygon_textured_def.symbol_id',
+                '-ecigi.symbol_circle_def.end_angle2',
+                '-ecigi.symbol_circle_textured_def.texture_mapping_rotation2',
+                '-ecigi.symbol_polygon_def.vertices',
+                '-ecigi.symbol_circle_textured_def.circles',
+                '-ecigi.symbol_polygon_textured_def.vertices',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t10\t11\t12\t\t\t\t181\t\t\t\t',
+            '13\t10\t11\t12\t\t\t\t181\t\t\t\t',
+            '15\t20\t21\t\t22\t23\t24\t181\t15\t1,1,1\t1,1\t1,1,1',
+            '17\t20\t21\t\t22\t23\t24\t181\t15\t1,1,1\t1,1\t1,1,1',
+        ]
+
+    def test_cigi_host_ig(self, cmd_tshark, capture_file, test_env):
+        '''The host and IG address preferences name the ends in Info.'''
+        stdout = subprocess.check_output((cmd_tshark, *CIGI_DECODE_AS,
+                '-o', 'cigi.host:192.0.2.1', '-o', 'cigi.ig:192.0.2.2',
+                '-r', capture_file('cigi_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 2',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['Host => IG (576 bytes)', 'IG => Host (161 bytes)']
