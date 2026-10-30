@@ -1512,11 +1512,13 @@ class TestDissectMoqt:
 
     @classmethod
     def _make_capture(cls, cmd_text2pcap, result_file, base_env,
-                      name, dissector, packets):
+                      name, dissector, packets, draft=18):
+        '''Export packets to "moqt" or "moqt.datagram" for the given draft.'''
         text_path = result_file(f'{name}.txt')
         capture_path = result_file(f'{name}.pcapng')
         with open(text_path, 'w') as text_file:
             text_file.write(cls._hexdump(packets))
+        dissector = dissector.replace('moqt', f'moqt-{draft}', 1)
         subprocess.check_call(
             (cmd_text2pcap, '-q', '-P', dissector, text_path, capture_path),
             env=base_env)
@@ -2082,6 +2084,215 @@ class TestDissectMoqt:
             cmd_tshark, capture_path, test_env,
             'moqt && (_ws.malformed || _ws.expert.severity == error)',
             quic_args) == []
+
+    @pytest.mark.parametrize('extra_args', ((), ('-2',)), ids=('first-pass', 'second-pass'))
+    def test_moqt_draft22_native_quic(
+            self, cmd_tshark, capture_file, test_env, extra_args):
+        '''A draft-22 session is selected by its "moqt-22" ALPN.
+
+        Regenerate with tools/generate-moqt-draft22-capture.py.
+        '''
+        capture_path = capture_file('moqt-draft22.pcapng.gz')
+        stdout = subprocess.check_output((
+            cmd_tshark, *extra_args, '-r', capture_path, '-zexpert,warn',
+            '-Ymoqt',
+        ), encoding='utf-8', env=test_env)
+        # Control messages, including one reassembled from two STREAM frames.
+        assert count_output(stdout, 'SETUP') == 2
+        for message in ('SUBSCRIBE', 'SUBSCRIBE_OK', 'PUBLISH_STATE_NOTIFY',
+                        'REQUEST_UPDATE', 'FETCH', 'FETCH_OK', 'GOAWAY',
+                        'REQUEST_OK, NAMESPACE', 'REQUEST_OK, PUBLISH_SKIPPED'):
+            assert grep_output(stdout, f'{message}$')
+        assert grep_output(stdout, r'REQUEST_ERROR \(REDIRECT\), .*PUBLISH_DONE \(TRACK_ENDED\)')
+        # Object IDs are resolved from their deltas, across two STREAM frames.
+        assert grep_output(stdout, r'Subgroup Header \(Track Alias 1, Group 12\), Object 0\b')
+        assert grep_output(stdout, 'Object 2, Object 3$')
+        assert grep_output(stdout, r'Fetch Header \(Request ID 4\), Fetch Object, Fetch Object, End of Range$')
+        assert grep_output(stdout, r'Object Datagram \(Track Alias 1, Group 20, Object 4, 16 bytes\)')
+        assert grep_output(stdout, r'Object Datagram \(Track Alias 1, Group 20, Object 0, End of Track\)')
+        assert grep_output(stdout, 'Padding Datagram')
+        assert not grep_output(stdout, 'Warns')
+        assert not grep_output(stdout, 'Errors')
+
+        fields = self._field_rows
+        assert fields(cmd_tshark, capture_path, test_env, 'moqt.message.type == 3',
+                      ('moqt.draft', 'moqt.location_filter.type', 'moqt.filter.end_object',
+                       'moqt.parameter.varint', 'moqt.range.start', 'moqt.range.end'),
+                      extra_args) == [['22', '4,1', '3', '500', '0,3,10', '1,5']]
+        assert fields(cmd_tshark, capture_path, test_env, 'moqt.message.type == 4',
+                      ('moqt.property.type', 'moqt.property.integer'),
+                      extra_args) == [['11,8,14', '90000,64']]
+
+    def test_moqt_draft22_control_messages(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env):
+        '''Verify the draft-22 control messages, setup options and error codes.'''
+        vi = self._vi64
+        namespace = self._namespace
+        parameters = self._parameters
+        track = namespace((b'live', b'demo')) + vi(5) + b'video'
+
+        setup = self._message(0x2f00, self._key_values((
+            (0x01, vi(4) + b'/moq'), (0x06, vi(8)),
+            (0x07, vi(1) + b'x'), (0x08, vi(4)))))
+        packets = (
+            # GOAWAY on the control stream no longer carries a Request ID.
+            setup + self._message(0x10, vi(0) + vi(100)),
+            # FETCH carries its range in a LOCATION_FILTER parameter.
+            self._message(0x16, vi(4) + track + parameters((
+                (0x21, vi(4) + vi(0) + vi(0) + vi(2) + vi(5)),
+                (0x35, bytes((0,)))))),
+            self._message(0x22, parameters((
+                (0x09, vi(12) + vi(0)), (0x10, bytes((0,)))))),
+            self._message(0x0f, namespace((b'demo',)) + vi(5) + b'audio'),
+            self._message(0x05, vi(0x36) + vi(0) + vi(3) + b'bad'),
+            self._message(0x0b, vi(2) + vi(0) + vi(0)),
+        )
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            'moqt-draft22-control', 'moqt', packets, draft=22)
+
+        fields = self._field_rows
+        assert fields(cmd_tshark, capture_path, test_env, 'moqt',
+                      ('_ws.col.info',)) == [
+            ['SETUP, GOAWAY'], ['FETCH'], ['PUBLISH_STATE_NOTIFY'],
+            ['PUBLISH_SKIPPED'], ['REQUEST_ERROR (INVALID_FILTER)'],
+            ['PUBLISH_DONE (TRACK_ENDED)']]
+        assert fields(cmd_tshark, capture_path, test_env, 'moqt.message.type == 0x10',
+                      ('moqt.setup.option.type', 'moqt.request_id', 'moqt.timeout',
+                       'moqt.unparsed')) == [['1,6,7,8', '', '100', '']]
+        assert fields(cmd_tshark, capture_path, test_env, 'moqt.message.type == 0x16',
+                      ('moqt.request_id', 'moqt.track_name', 'moqt.location_filter.type',
+                       'moqt.filter.end_object', 'moqt.parameter.type')) == [
+            ['4', '766964656f', '4', '5', '33,53']]
+        assert fields(cmd_tshark, capture_path, test_env, 'moqt.message.type == 0x22',
+                      ('moqt.group_id', 'moqt.parameter.uint8')) == [['12', '0']]
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env,
+            '_ws.malformed || _ws.expert.severity == error') == []
+
+    def test_moqt_draft22_parameters(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env):
+        '''Verify Location and Range Filters, FILL_PARAMETERS and their limits.'''
+        vi = self._vi64
+        parameters = self._parameters
+        lp = lambda value: vi(len(value)) + value  # noqa: E731
+
+        def update(*entries):
+            return self._message(0x02, vi(2) + parameters(entries))
+
+        packets = (
+            update((0x21, vi(0))),
+            update((0x21, vi(1) + vi(3))),
+            update((0x21, vi(2) + vi(7) + vi(1))),
+            update((0x21, vi(3) + vi(7) + vi(1) + vi(2))),
+            update((0x21, vi(5))),
+            update((0x21, vi(6))),
+            # An empty Range Filter removes it; the final Range can be open.
+            update((0x25, lp(b'')),
+                   (0x26, lp(bytes((2,)) + vi(3) + vi(2) + vi(5))),
+                   (0x28, lp(bytes((1,)) + vi(0x0c) + vi(4) + vi(4)))),
+            update((0x23, lp(parameters(((0x0a, vi(250)), (0x20, bytes((9,)))))))),
+            # FILL_PARAMETERS cannot contain FILL_PARAMETERS.
+            update((0x23, lp(parameters(((0x23, lp(parameters(()))),)))),
+                   (0x35, bytes((1,)))),
+        )
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            'moqt-draft22-parameters', 'moqt', packets, draft=22)
+
+        fields = self._field_rows(
+            cmd_tshark, capture_path, test_env, 'moqt',
+            ('moqt.location_filter.type', 'moqt.filter.start_group',
+             'moqt.filter.start_object', 'moqt.filter.end_group_delta',
+             'moqt.range.set_id', 'moqt.range.start', 'moqt.range.end',
+             'moqt.parameter.varint', 'moqt.parameter.uint8', 'moqt.type.invalid'))
+        assert fields == [
+            ['0', '', '', '', '', '', '', '', '', ''],
+            ['1', '3', '', '', '', '', '', '', '', ''],
+            ['2', '7', '1', '', '', '', '', '', '', ''],
+            ['3', '7', '1', '2', '', '', '', '', '', ''],
+            ['5', '', '', '', '', '', '', '', '', ''],
+            ['6', '', '', '', '', '', '', '', '', '1'],
+            ['', '', '', '', '2,1', '3,10,4', '5,8', '', '', ''],
+            ['', '', '', '', '', '', '', '250', '9', ''],
+            ['', '', '', '', '', '', '', '', '1', '1'],
+        ]
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env, 'moqt.type.invalid') == ['6', '9']
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env, '_ws.malformed') == []
+
+    def test_moqt_draft_differences(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env):
+        '''The same bytes are dissected according to the selected draft.'''
+        vi = self._vi64
+        parameters = self._parameters
+        packets = (
+            # 0x21 is SUBSCRIPTION_FILTER (length prefixed) in draft 18 and
+            # LOCATION_FILTER in draft 22, so only one draft accepts each form.
+            self._message(0x02, vi(2) + parameters(((0x21, vi(1) + vi(2)),))),
+            self._message(0x02, vi(2) + parameters(((0x21, vi(2) + vi(7) + vi(1)),))),
+            self._message(0x1e, parameters(())),
+            self._message(0x22, parameters(())),
+            # End of Timed-Out Range is a draft-22 FETCH marker.
+            vi(5) + vi(4) + vi(0x20c) + vi(1) + vi(2),
+        )
+        results = {}
+        for draft in (18, 22):
+            capture_path = self._make_capture(
+                cmd_text2pcap, result_file, base_env,
+                f'moqt-differences-{draft}', 'moqt', packets, draft=draft)
+            results[draft] = self._field_rows(
+                cmd_tshark, capture_path, test_env, 'moqt',
+                ('moqt.draft', 'moqt.filter.type', 'moqt.location_filter.type',
+                 'moqt.stream.unknown', 'moqt.type.invalid', '_ws.col.info'))
+        # Without QUIC metadata, a message unknown to the draft is not
+        # recognised as a control message, leaving an unknown stream type.
+        assert results[18] == [
+            ['18', '2', '', '', '', 'REQUEST_UPDATE'],
+            ['18', '7', '', '', '1', 'REQUEST_UPDATE'],
+            ['18', '', '', '', '', 'PUBLISH_OK'],
+            ['18', '', '', '1', '', ''],
+            ['18', '', '', '', '1', 'Fetch Header (Request ID 4), Fetch Object'],
+        ]
+        assert results[22] == [
+            ['22', '', '1', '', '', 'REQUEST_UPDATE'],
+            ['22', '', '2', '', '', 'REQUEST_UPDATE'],
+            ['22', '', '', '1', '', ''],
+            ['22', '', '', '', '', 'PUBLISH_STATE_NOTIFY'],
+            ['22', '', '', '', '', 'Fetch Header (Request ID 4), End of Range'],
+        ]
+
+    @pytest.mark.parametrize('draft', (18, 22))
+    def test_moqt_immutable_properties(
+            self, cmd_text2pcap, cmd_tshark, result_file,
+            base_env, test_env, draft):
+        '''Immutable Properties are dissected, but cannot nest.'''
+        vi = self._vi64
+        key_values = self._key_values
+        lp = lambda value: vi(len(value)) + value  # noqa: E731
+        inner = key_values(((0x08, vi(90000)), (0x0c, vi(30))))
+        nested = key_values(((0x0b, lp(key_values(((0x02, vi(1)),)))),))
+        packets = (
+            self._message(0x04, vi(1) + self._parameters(()) +
+                          key_values(((0x0b, lp(inner)), (0x0e, vi(64))))),
+            self._message(0x04, vi(1) + self._parameters(()) +
+                          key_values(((0x0b, lp(nested)),))),
+        )
+        capture_path = self._make_capture(
+            cmd_text2pcap, result_file, base_env,
+            f'moqt-immutable-{draft}', 'moqt', packets, draft=draft)
+        assert self._field_rows(
+            cmd_tshark, capture_path, test_env, 'moqt',
+            ('moqt.property.type', 'moqt.property.integer', 'moqt.type.invalid')) == [
+            ['11,8,12,14', '90000,30,64', ''],
+            ['11,11', '', '1'],
+        ]
+        assert self._matching_frames(
+            cmd_tshark, capture_path, test_env, 'moqt.type.invalid') == ['2']
 
 
 class TestDissectRoq:

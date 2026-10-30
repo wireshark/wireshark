@@ -1,6 +1,6 @@
 /* packet-moqt.c
  * Routines for Media over QUIC Transport (MOQT) dissection
- * draft-ietf-moq-transport-18
+ * draft-ietf-moq-transport-18 and draft-ietf-moq-transport-22
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,10 +16,27 @@
 
 #include "packet-quic.h"
 
+/*
+ * Each supported draft has a context (moqt_draft_t) and its own ALPN token,
+ * "moqt-<draft>".  The final-version ALPN "moqt" is mapped to the latest draft.
+ * Exported PDUs have no ALPN, so each draft also registers dissectors named
+ * after its ALPN ("moqt-18", "moqt-18.datagram", ...); "moqt" and
+ * "moqt.datagram" select the latest draft.
+ *
+ * Draft 22 differs from draft 18 in its control messages and parameters: FETCH
+ * carries its range in a LOCATION_FILTER parameter, PUBLISH_OK and the Joining
+ * FETCH are gone, PUBLISH_BLOCKED became PUBLISH_SKIPPED, GOAWAY lost its
+ * Request ID, and PUBLISH_STATE_NOTIFY, FILL_PARAMETERS, INCLUDE_PROPERTIES and
+ * the Range Filter parameters were added.  The data stream and datagram layouts
+ * are the same apart from the End of Timed-Out Range FETCH marker, so draft 22
+ * reuses the draft-18 stream and datagram parsers.
+ */
+
 void proto_register_moqt(void);
 void proto_reg_handoff_moqt(void);
 
 #define MOQT_ALPN_DRAFT_18 "moqt-18"
+#define MOQT_ALPN_DRAFT_22 "moqt-22"
 
 #define MOQT_MSG_REQUEST_UPDATE       0x02
 #define MOQT_MSG_SUBSCRIBE            0x03
@@ -31,12 +48,13 @@ void proto_reg_handoff_moqt(void);
 #define MOQT_MSG_PUBLISH_DONE         0x0b
 #define MOQT_MSG_TRACK_STATUS         0x0d
 #define MOQT_MSG_NAMESPACE_DONE       0x0e
-#define MOQT_MSG_PUBLISH_BLOCKED      0x0f
+#define MOQT_MSG_PUBLISH_BLOCKED      0x0f  /* PUBLISH_SKIPPED in draft 22 */
 #define MOQT_MSG_GOAWAY               0x10
 #define MOQT_MSG_FETCH                0x16
 #define MOQT_MSG_FETCH_OK             0x18
 #define MOQT_MSG_PUBLISH              0x1d
 #define MOQT_MSG_PUBLISH_OK           0x1e
+#define MOQT_MSG_PUBLISH_STATE_NOTIFY 0x22
 #define MOQT_MSG_SUBSCRIBE_NAMESPACE  0x50
 #define MOQT_MSG_SUBSCRIBE_TRACKS     0x51
 #define MOQT_MSG_SETUP                0x2f00
@@ -60,6 +78,17 @@ void proto_reg_handoff_moqt(void);
 #define MOQT_PARAM_GROUP_ORDER                0x22
 #define MOQT_PARAM_NEW_GROUP_REQUEST          0x32
 #define MOQT_PARAM_TRACK_NAMESPACE_PREFIX     0x34
+/* Draft 22: 0x21 is LOCATION_FILTER rather than SUBSCRIPTION_FILTER. */
+#define MOQT_PARAM_LOCATION_FILTER            0x21
+#define MOQT_PARAM_FILL_PARAMETERS            0x23
+#define MOQT_PARAM_SUBGROUP_FILTER            0x25
+#define MOQT_PARAM_OBJECTID_FILTER            0x26
+#define MOQT_PARAM_PRIORITY_FILTER            0x27
+#define MOQT_PARAM_OBJECT_PROPERTY_FILTER     0x28
+#define MOQT_PARAM_TRACK_PROPERTY_FILTER      0x29
+#define MOQT_PARAM_INCLUDE_PROPERTIES         0x35
+
+#define MOQT_PROPERTY_IMMUTABLE               0x0b
 
 #define MOQT_SETUP_AUTHORIZATION_TOKEN        0x03
 
@@ -86,6 +115,7 @@ void proto_reg_handoff_moqt(void);
 #define MOQT_FETCH_DEFINED_BITS               0x7f
 #define MOQT_FETCH_END_NONEXISTENT_RANGE       0x8c
 #define MOQT_FETCH_END_UNKNOWN_RANGE          0x10c
+#define MOQT_FETCH_END_TIMED_OUT_RANGE        0x20c  /* draft 22 */
 
 /* Draft 18 OBJECT_DATAGRAM types (section 11.3.1). */
 #define MOQT_DATAGRAM_PROPERTIES              0x01
@@ -106,11 +136,14 @@ void proto_reg_handoff_moqt(void);
 #define MOQT_FILTER_ABSOLUTE_START            0x03
 #define MOQT_FILTER_ABSOLUTE_RANGE            0x04
 
-static dissector_handle_t moqt_handle;
+static dissector_handle_t moqt_handle;              /* latest draft */
 static dissector_handle_t moqt_datagram_handle;
+static dissector_handle_t moqt_handles[2];          /* indexed as moqt_drafts */
+static dissector_handle_t moqt_datagram_handles[2];
 
 static int proto_moqt;
 
+static int hf_moqt_draft;
 static int hf_moqt_stream_type;
 static int hf_moqt_message_type;
 static int hf_moqt_message_length;
@@ -178,6 +211,13 @@ static int hf_moqt_uri;
 static int hf_moqt_timeout;
 static int hf_moqt_filter_type;
 static int hf_moqt_end_group_delta;
+static int hf_moqt_location_filter_type;
+static int hf_moqt_start_group;
+static int hf_moqt_start_object;
+static int hf_moqt_end_object;
+static int hf_moqt_range_set_id;
+static int hf_moqt_range_start;
+static int hf_moqt_range_end;
 static int hf_moqt_alias_type;
 static int hf_moqt_token_alias;
 static int hf_moqt_token_type;
@@ -220,10 +260,7 @@ static const val64_string moqt_stream_type_vals[] = {
     { 0, NULL }
 };
 
-/* Display names are derived from the draft's descriptors during registration. */
-static const val64_string *moqt_message_type_vals;
-static const val64_string *moqt_parameter_type_vals;
-
+/* Message and parameter names come from each draft's descriptors. */
 static const val64_string moqt_setup_option_type_vals[] = {
     { 0x01, "PATH" },
     { MOQT_SETUP_AUTHORIZATION_TOKEN, "AUTHORIZATION_TOKEN" },
@@ -243,6 +280,134 @@ static const val64_string moqt_property_type_vals[] = {
     { 0x30, "DYNAMIC_GROUPS" },
     { 0x3c, "PRIOR_GROUP_ID_GAP" },
     { 0x3e, "PRIOR_OBJECT_ID_GAP" },
+    { 0, NULL }
+};
+
+static const val64_string moqt_draft22_setup_option_type_vals[] = {
+    { 0x01, "PATH" },
+    { MOQT_SETUP_AUTHORIZATION_TOKEN, "AUTHORIZATION_TOKEN" },
+    { 0x04, "MAX_AUTH_TOKEN_CACHE_SIZE" },
+    { 0x05, "AUTHORITY" },
+    { 0x06, "MAX_FILTER_RANGES" },
+    { 0x07, "MOQT_IMPLEMENTATION" },
+    { 0x08, "MAX_REQUEST_UPDATES" },
+    { 0, NULL }
+};
+
+/* Section 16.8, including the provisional LOC and Secure Objects entries. */
+static const val64_string moqt_draft22_property_type_vals[] = {
+    { 0x02, "OBJECT_DELIVERY_TIMEOUT" },
+    { 0x04, "MAX_CACHE_DURATION" },
+    { 0x06, "SUBGROUP_DELIVERY_TIMEOUT" },
+    { 0x08, "TIMESCALE" },
+    { 0x09, "VIDEO_FRAME_MARKING" },
+    { 0x0a, "ENCRYPTED_LIST" },
+    { 0x0b, "IMMUTABLE" },
+    { 0x0c, "AUDIO_LEVEL" },
+    { 0x0d, "VIDEO_CONFIG" },
+    { 0x0e, "DEFAULT_PUBLISHER_PRIORITY" },
+    { 0x0f, "AUDIO_CONFIG" },
+    { 0x10, "TIMESTAMP" },
+    { 0x22, "DEFAULT_PUBLISHER_GROUP_ORDER" },
+    { 0x30, "DYNAMIC_GROUPS" },
+    { 0x32, "PADDING" },
+    { 0x3c, "PRIOR_GROUP_ID_GAP" },
+    { 0x3e, "PRIOR_OBJECT_ID_GAP" },
+    { 0, NULL }
+};
+
+static const val64_string moqt_draft18_request_error_vals[] = {
+    { 0x00, "INTERNAL_ERROR" },
+    { 0x01, "UNAUTHORIZED" },
+    { 0x02, "TIMEOUT" },
+    { 0x03, "NOT_SUPPORTED" },
+    { 0x04, "MALFORMED_AUTH_TOKEN" },
+    { 0x05, "EXPIRED_AUTH_TOKEN" },
+    { 0x06, "GOING_AWAY" },
+    { 0x09, "EXCESSIVE_LOAD" },
+    { 0x10, "DOES_NOT_EXIST" },
+    { 0x11, "INVALID_RANGE" },
+    { 0x12, "MALFORMED_TRACK" },
+    { 0x19, "DUPLICATE_SUBSCRIPTION" },
+    { 0x20, "UNINTERESTED" },
+    { 0x30, "PREFIX_OVERLAP" },
+    { 0x31, "NAMESPACE_TOO_LARGE" },
+    { 0x32, "INVALID_JOINING_REQUEST_ID" },
+    { 0x33, "UNSUPPORTED_EXTENSION" },
+    { MOQT_REQUEST_ERROR_REDIRECT, "REDIRECT" },
+    { 0, NULL }
+};
+
+static const val64_string moqt_draft22_request_error_vals[] = {
+    { 0x00, "INTERNAL_ERROR" },
+    { 0x01, "UNAUTHORIZED" },
+    { 0x02, "TIMEOUT" },
+    { 0x03, "NOT_SUPPORTED" },
+    { 0x04, "MALFORMED_AUTH_TOKEN" },
+    { 0x05, "EXPIRED_AUTH_TOKEN" },
+    { 0x06, "GOING_AWAY" },
+    { 0x09, "EXCESSIVE_LOAD" },
+    { 0x10, "DOES_NOT_EXIST" },
+    { 0x11, "INVALID_RANGE" },
+    { 0x12, "MALFORMED_TRACK" },
+    { 0x20, "UNINTERESTED" },
+    { 0x30, "PREFIX_OVERLAP" },
+    { 0x31, "NAMESPACE_TOO_LARGE" },
+    { 0x33, "UNSUPPORTED_EXTENSION" },
+    { MOQT_REQUEST_ERROR_REDIRECT, "REDIRECT" },
+    { 0x35, "CONFLICTING_FILTERS" },
+    { 0x36, "INVALID_FILTER" },
+    { 0, NULL }
+};
+
+static const val64_string moqt_draft18_publish_done_vals[] = {
+    { 0x00, "INTERNAL_ERROR" },
+    { 0x01, "UNAUTHORIZED" },
+    { 0x02, "TRACK_ENDED" },
+    { 0x03, "SUBSCRIPTION_ENDED" },
+    { 0x04, "GOING_AWAY" },
+    { 0x05, "TOO_FAR_BEHIND" },
+    { 0x06, "EXPIRED" },
+    { 0x08, "UPDATE_FAILED" },
+    { 0x09, "EXCESSIVE_LOAD" },
+    { 0x12, "MALFORMED_TRACK" },
+    { 0, NULL }
+};
+
+static const val64_string moqt_draft22_publish_done_vals[] = {
+    { 0x00, "INTERNAL_ERROR" },
+    { 0x01, "UNAUTHORIZED" },
+    { 0x02, "TRACK_ENDED" },
+    { 0x04, "GOING_AWAY" },
+    { 0x05, "TOO_FAR_BEHIND" },
+    { 0x06, "EXPIRED" },
+    { 0x08, "UPDATE_FAILED" },
+    { 0x09, "EXCESSIVE_LOAD" },
+    { 0x12, "MALFORMED_TRACK" },
+    { 0, NULL }
+};
+
+static const val64_string moqt_draft18_fetch_end_vals[] = {
+    { MOQT_FETCH_END_NONEXISTENT_RANGE, "End of Non-Existent Range" },
+    { MOQT_FETCH_END_UNKNOWN_RANGE,     "End of Unknown Range" },
+    { 0, NULL }
+};
+
+static const val64_string moqt_draft22_fetch_end_vals[] = {
+    { MOQT_FETCH_END_NONEXISTENT_RANGE, "End of Non-Existent Range" },
+    { MOQT_FETCH_END_UNKNOWN_RANGE,     "End of Unknown Range" },
+    { MOQT_FETCH_END_TIMED_OUT_RANGE,   "End of Timed-Out Range" },
+    { 0, NULL }
+};
+
+/* Draft 22 section 9.20.9: the filter type selects the fields that follow. */
+static const val64_string moqt_location_filter_type_vals[] = {
+    { 0x00, "None" },
+    { 0x01, "Relative Start" },
+    { 0x02, "Absolute Start" },
+    { 0x03, "Absolute Start, Group End" },
+    { 0x04, "Absolute Range" },
+    { 0x05, "Next Object" },
     { 0, NULL }
 };
 
@@ -385,6 +550,8 @@ typedef struct {
     int end;
     int needed;
     bool failed;
+    /* Set inside FILL_PARAMETERS, which cannot contain another one. */
+    bool in_fill_parameters;
 } moqt_cursor_t;
 
 typedef void (*moqt_parameter_decoder_t)(moqt_cursor_t *);
@@ -397,6 +564,7 @@ typedef enum {
     MOQT_PARAMETER_INTEGER,
     MOQT_PARAMETER_LOCATION,
     MOQT_PARAMETER_NAMESPACE,
+    MOQT_PARAMETER_INLINE,          /* decoder reads its own fields */
     MOQT_PARAMETER_LENGTH_PREFIXED
 } moqt_parameter_encoding_t;
 
@@ -434,6 +602,11 @@ struct moqt_draft {
     unsigned parameter_count;
     const val64_string *setup_options;
     const val64_string *properties;
+    const val64_string *request_errors;
+    const val64_string *publish_done_codes;
+    const val64_string *fetch_end_of_range;
+    const char *dissector_name;
+    const char *datagram_dissector_name;
     const moqt_stream_layout_t *streams;
     moqt_stream_kind_t (*classify_stream)(uint64_t);
     bool (*read_integer)(tvbuff_t *, int, int, uint64_t *, int *, int *);
@@ -441,6 +614,14 @@ struct moqt_draft {
 };
 
 static const moqt_draft_t moqt_draft18;
+static const moqt_draft_t moqt_draft22;
+
+/* Every supported draft, oldest first; the last one is the latest. */
+static const moqt_draft_t *const moqt_drafts[] = {
+    &moqt_draft18,
+    &moqt_draft22,
+};
+#define MOQT_LATEST_DRAFT (moqt_drafts[array_length(moqt_drafts) - 1])
 
 typedef enum {
     MOQT_KV_SETUP,
@@ -682,23 +863,60 @@ moqt_cursor_remainder(moqt_cursor_t *cursor, int hf)
     }
 }
 
-static void
+static proto_item *
 moqt_add_generated_uint64(moqt_cursor_t *cursor, int hf, uint64_t value)
 {
     proto_item *item;
 
     if (cursor->phase == MOQT_MEASURE) {
-        return;
+        return NULL;
     }
     item = proto_tree_add_uint64(cursor->tree, hf, cursor->tvb,
                                  cursor->offset, 0, value);
     proto_item_set_generated(item);
+    return item;
+}
+
+/*
+ * A varint naming a draft-specific code, shown with its name.  The name is
+ * also appended to the enclosing message and the Info column.
+ */
+static bool
+moqt_cursor_code(moqt_cursor_t *cursor, int hf, const val64_string *names,
+                 uint64_t *value, const char *description)
+{
+    uint64_t decoded;
+    int length;
+    const char *name;
+
+    if (cursor->failed) {
+        return false;
+    }
+    if (!cursor->draft->read_integer(cursor->tvb, cursor->offset, cursor->end,
+                                     &decoded, &length, &cursor->needed)) {
+        moqt_cursor_fail(cursor, description);
+        return false;
+    }
+    if (cursor->phase == MOQT_DISSECT) {
+        name = val64_to_str_const(decoded, names, "Unknown");
+        proto_tree_add_uint64_format_value(cursor->tree, hf, cursor->tvb,
+                                           cursor->offset, length, decoded,
+                                           "%s (0x%" PRIx64 ")", name, decoded);
+        proto_item_append_text(proto_tree_get_parent(cursor->tree), " (%s)", name);
+        col_append_fstr(cursor->pinfo->cinfo, COL_INFO, " (%s)", name);
+    }
+    cursor->offset += length;
+    if (value) {
+        *value = decoded;
+    }
+    return true;
 }
 
 /* The same checked delta encoding is used by parameters and Key-Value-Pairs. */
 static bool
 moqt_cursor_type_delta(moqt_cursor_t *cursor, int hf_delta, int hf_type,
-                       uint64_t *previous_type, const char *description)
+                       uint64_t *previous_type, const char *description,
+                       proto_item **type_item)
 {
     uint64_t delta;
     int start = cursor->offset;
@@ -717,8 +935,26 @@ moqt_cursor_type_delta(moqt_cursor_t *cursor, int hf_delta, int hf_type,
         return false;
     }
     *previous_type += delta;
-    moqt_add_generated_uint64(cursor, hf_type, *previous_type);
+    *type_item = moqt_add_generated_uint64(cursor, hf_type, *previous_type);
     return true;
+}
+
+/*
+ * Section 2.4 recommends showing a name with letters, digits and '_' as they
+ * are and every other byte as '.' followed by two lower case hex digits.
+ */
+static void
+moqt_append_name(wmem_strbuf_t *text, tvbuff_t *tvb, int offset, int length)
+{
+    for (int i = 0; i < length; i++) {
+        uint8_t c = tvb_get_uint8(tvb, offset + i);
+
+        if (g_ascii_isalnum(c) || c == '_') {
+            wmem_strbuf_append_c(text, (char)c);
+        } else {
+            wmem_strbuf_append_printf(text, ".%02x", c);
+        }
+    }
 }
 
 static bool
@@ -728,6 +964,7 @@ moqt_dissect_namespace(moqt_cursor_t *cursor, const char *label)
     moqt_cursor_t nested;
     uint64_t count;
     int start = cursor->offset;
+    wmem_strbuf_t *text = NULL;
 
     if (cursor->failed) {
         return false;
@@ -747,10 +984,25 @@ moqt_dissect_namespace(moqt_cursor_t *cursor, const char *label)
             cursor->tvb, start, nested.offset - start,
             "Track namespace has %" PRIu64 " fields; maximum is 32", count);
     }
+    if (cursor->phase == MOQT_DISSECT) {
+        text = wmem_strbuf_new(cursor->pinfo->pool, "");
+    }
     for (uint64_t i = 0; i < count && !nested.failed; i++) {
-        moqt_cursor_length_prefixed(&nested, hf_moqt_namespace_field_length,
-                                     hf_moqt_namespace_field, NULL,
-                                     "track namespace field", ENC_NA);
+        uint64_t length;
+
+        if (moqt_cursor_length_prefixed(&nested, hf_moqt_namespace_field_length,
+                                        hf_moqt_namespace_field, &length,
+                                        "track namespace field", ENC_NA) &&
+            text) {
+            if (i != 0) {
+                wmem_strbuf_append_c(text, '-');
+            }
+            moqt_append_name(text, cursor->tvb, nested.offset - (int)length,
+                             (int)length);
+        }
+    }
+    if (text) {
+        proto_item_append_text(item, ": %s", wmem_strbuf_get_str(text));
     }
     proto_item_set_len(item, nested.offset - start);
     moqt_cursor_finish_nested(cursor, &nested);
@@ -822,9 +1074,20 @@ static void
 moqt_dissect_subscription_filter(moqt_cursor_t *cursor)
 {
     uint64_t type;
+    int start = cursor->offset;
 
     if (!moqt_cursor_varint(cursor, hf_moqt_filter_type, &type,
                             "subscription filter type")) {
+        return;
+    }
+    /* Section 5.1.2: any other filter type is a PROTOCOL_VIOLATION. */
+    if (!try_val64_to_str(type, moqt_filter_type_vals)) {
+        if (cursor->phase == MOQT_DISSECT) {
+            proto_tree_add_expert_format(
+                cursor->tree, cursor->pinfo, &ei_moqt_invalid_type, cursor->tvb,
+                start, cursor->offset - start,
+                "Invalid Subscription Filter Type 0x%" PRIx64, type);
+        }
         return;
     }
     if (type == MOQT_FILTER_ABSOLUTE_START ||
@@ -848,6 +1111,141 @@ moqt_dissect_namespace_prefix(moqt_cursor_t *cursor)
 {
     /* Section 10.2.14 uses the namespace directly, without an outer length. */
     moqt_dissect_namespace(cursor, "Track Namespace Prefix");
+}
+
+/*
+ * Draft 22 section 9.20.9: unlike the draft-18 SUBSCRIPTION_FILTER this value
+ * has no outer length; the filter type selects the fields that follow.
+ */
+static void
+moqt_dissect_location_filter(moqt_cursor_t *cursor)
+{
+    static const int *const fields[] = {
+        &hf_moqt_start_group, &hf_moqt_start_object,
+        &hf_moqt_end_group_delta, &hf_moqt_end_object,
+    };
+    static const unsigned field_count[] = { 0, 1, 2, 3, 4, 0 };
+    uint64_t type;
+    int start = cursor->offset;
+
+    if (!moqt_cursor_varint(cursor, hf_moqt_location_filter_type, &type,
+                            "location filter type")) {
+        return;
+    }
+    if (type >= array_length(field_count)) {
+        if (cursor->phase == MOQT_DISSECT) {
+            proto_tree_add_expert_format(
+                cursor->tree, cursor->pinfo, &ei_moqt_invalid_type, cursor->tvb,
+                start, cursor->offset - start,
+                "Invalid Location Filter Type 0x%" PRIx64, type);
+        }
+        cursor->failed = true;
+        cursor->offset = cursor->end;
+        return;
+    }
+    for (unsigned i = 0; i < field_count[type]; i++) {
+        moqt_cursor_varint(cursor, *fields[i], NULL, "location filter field");
+    }
+}
+
+/*
+ * Draft 22 section 8.6: [SetID (8)], [Property Type], then Ranges.  Each Start
+ * is a delta from the previous End and each End a delta from its Start; the
+ * last End may be absent.  An empty value removes the filter.
+ */
+static void
+moqt_dissect_range_filter_common(moqt_cursor_t *cursor, bool property)
+{
+    uint64_t previous_end = 0;
+
+    if (cursor->offset == cursor->end) {
+        return;
+    }
+    moqt_cursor_uint8(cursor, hf_moqt_range_set_id, NULL, "range filter set ID");
+    if (property) {
+        moqt_cursor_varint(cursor, hf_moqt_property_type, NULL,
+                           "range filter property type");
+    }
+    while (!cursor->failed && cursor->offset < cursor->end) {
+        uint64_t start_delta, end_delta, first;
+        int start = cursor->offset;
+
+        if (!moqt_cursor_varint(cursor, -1, &start_delta, "range start")) {
+            break;
+        }
+        if (start_delta > UINT64_MAX - previous_end) {
+            if (cursor->phase == MOQT_DISSECT) {
+                proto_tree_add_expert(cursor->tree, cursor->pinfo,
+                                      &ei_moqt_invalid_type, cursor->tvb,
+                                      start, cursor->offset - start);
+            }
+            cursor->failed = true;
+            break;
+        }
+        first = previous_end + start_delta;
+        if (cursor->phase == MOQT_DISSECT) {
+            proto_tree_add_uint64(cursor->tree, hf_moqt_range_start,
+                                  cursor->tvb, start, cursor->offset - start, first);
+        }
+        if (cursor->offset == cursor->end) {
+            break; /* An open-ended final Range. */
+        }
+        start = cursor->offset;
+        if (!moqt_cursor_varint(cursor, -1, &end_delta, "range end")) {
+            break;
+        }
+        if (end_delta > UINT64_MAX - first) {
+            if (cursor->phase == MOQT_DISSECT) {
+                proto_tree_add_expert(cursor->tree, cursor->pinfo,
+                                      &ei_moqt_invalid_type, cursor->tvb,
+                                      start, cursor->offset - start);
+            }
+            cursor->failed = true;
+            break;
+        }
+        previous_end = first + end_delta;
+        if (cursor->phase == MOQT_DISSECT) {
+            proto_tree_add_uint64(cursor->tree, hf_moqt_range_end,
+                                  cursor->tvb, start, cursor->offset - start,
+                                  previous_end);
+        }
+    }
+}
+
+static void
+moqt_dissect_range_filter(moqt_cursor_t *cursor)
+{
+    moqt_dissect_range_filter_common(cursor, false);
+}
+
+static void
+moqt_dissect_property_range_filter(moqt_cursor_t *cursor)
+{
+    moqt_dissect_range_filter_common(cursor, true);
+}
+
+static void moqt_dissect_parameters(moqt_cursor_t *cursor);
+
+/*
+ * Draft 22 section 9.20.15: a nested parameter list for the fill fetch.  It
+ * may not contain FILL_PARAMETERS itself, which bounds the nesting to one
+ * level; a nested one is reported rather than descended into.
+ */
+static void
+moqt_dissect_fill_parameters(moqt_cursor_t *cursor)
+{
+    if (cursor->in_fill_parameters) {
+        if (cursor->phase == MOQT_DISSECT) {
+            proto_tree_add_expert_format(
+                cursor->tree, cursor->pinfo, &ei_moqt_invalid_type, cursor->tvb,
+                cursor->offset, cursor->end - cursor->offset,
+                "FILL_PARAMETERS cannot contain FILL_PARAMETERS");
+        }
+        return; /* The value is shown as unparsed data. */
+    }
+    cursor->in_fill_parameters = true;
+    moqt_dissect_parameters(cursor);
+    cursor->in_fill_parameters = false;
 }
 
 /* Section 10.2: type, name, wire encoding and display/decoder stay together. */
@@ -880,6 +1278,50 @@ static const moqt_parameter_descriptor_t moqt_draft18_parameters[] = {
       MOQT_PARAMETER_NAMESPACE, NULL, moqt_dissect_namespace_prefix },
 };
 
+/* Draft 22 section 9.20; FILL_TIMEOUT and RENDEZVOUS_TIMEOUT remain integers. */
+static const moqt_parameter_descriptor_t moqt_draft22_parameters[] = {
+    { MOQT_PARAM_OBJECT_DELIVERY_TIMEOUT, "OBJECT_DELIVERY_TIMEOUT",
+      MOQT_PARAMETER_INTEGER, &hf_moqt_parameter_varint, NULL },
+    { MOQT_PARAM_AUTHORIZATION_TOKEN, "AUTHORIZATION_TOKEN",
+      MOQT_PARAMETER_LENGTH_PREFIXED, NULL, moqt_dissect_token },
+    { MOQT_PARAM_RENDEZVOUS_TIMEOUT, "RENDEZVOUS_TIMEOUT",
+      MOQT_PARAMETER_INTEGER, &hf_moqt_parameter_varint, NULL },
+    { MOQT_PARAM_SUBGROUP_DELIVERY_TIMEOUT, "SUBGROUP_DELIVERY_TIMEOUT",
+      MOQT_PARAMETER_INTEGER, &hf_moqt_parameter_varint, NULL },
+    { MOQT_PARAM_EXPIRES, "EXPIRES",
+      MOQT_PARAMETER_INTEGER, &hf_moqt_parameter_varint, NULL },
+    { MOQT_PARAM_LARGEST_OBJECT, "LARGEST_OBJECT",
+      MOQT_PARAMETER_LOCATION, NULL, moqt_dissect_largest_object },
+    { MOQT_PARAM_FILL_TIMEOUT, "FILL_TIMEOUT",
+      MOQT_PARAMETER_INTEGER, &hf_moqt_parameter_varint, NULL },
+    { MOQT_PARAM_FORWARD, "FORWARD",
+      MOQT_PARAMETER_UINT8, &hf_moqt_parameter_uint8, NULL },
+    { MOQT_PARAM_SUBSCRIBER_PRIORITY, "SUBSCRIBER_PRIORITY",
+      MOQT_PARAMETER_UINT8, &hf_moqt_parameter_uint8, NULL },
+    { MOQT_PARAM_LOCATION_FILTER, "LOCATION_FILTER",
+      MOQT_PARAMETER_INLINE, NULL, moqt_dissect_location_filter },
+    { MOQT_PARAM_GROUP_ORDER, "GROUP_ORDER",
+      MOQT_PARAMETER_UINT8, &hf_moqt_parameter_uint8, NULL },
+    { MOQT_PARAM_FILL_PARAMETERS, "FILL_PARAMETERS",
+      MOQT_PARAMETER_LENGTH_PREFIXED, NULL, moqt_dissect_fill_parameters },
+    { MOQT_PARAM_SUBGROUP_FILTER, "SUBGROUP_FILTER",
+      MOQT_PARAMETER_LENGTH_PREFIXED, NULL, moqt_dissect_range_filter },
+    { MOQT_PARAM_OBJECTID_FILTER, "OBJECTID_FILTER",
+      MOQT_PARAMETER_LENGTH_PREFIXED, NULL, moqt_dissect_range_filter },
+    { MOQT_PARAM_PRIORITY_FILTER, "PRIORITY_FILTER",
+      MOQT_PARAMETER_LENGTH_PREFIXED, NULL, moqt_dissect_range_filter },
+    { MOQT_PARAM_OBJECT_PROPERTY_FILTER, "OBJECT_PROPERTY_FILTER",
+      MOQT_PARAMETER_LENGTH_PREFIXED, NULL, moqt_dissect_property_range_filter },
+    { MOQT_PARAM_TRACK_PROPERTY_FILTER, "TRACK_PROPERTY_FILTER",
+      MOQT_PARAMETER_LENGTH_PREFIXED, NULL, moqt_dissect_property_range_filter },
+    { MOQT_PARAM_NEW_GROUP_REQUEST, "NEW_GROUP_REQUEST",
+      MOQT_PARAMETER_INTEGER, &hf_moqt_parameter_varint, NULL },
+    { MOQT_PARAM_TRACK_NAMESPACE_PREFIX, "TRACK_NAMESPACE_PREFIX",
+      MOQT_PARAMETER_NAMESPACE, NULL, moqt_dissect_namespace_prefix },
+    { MOQT_PARAM_INCLUDE_PROPERTIES, "INCLUDE_PROPERTIES",
+      MOQT_PARAMETER_UINT8, &hf_moqt_parameter_uint8, NULL },
+};
+
 static const moqt_parameter_descriptor_t *
 moqt_find_parameter(const moqt_draft_t *draft, uint64_t type)
 {
@@ -909,6 +1351,7 @@ moqt_dissect_parameter_value(moqt_cursor_t *cursor,
         break;
     case MOQT_PARAMETER_LOCATION:
     case MOQT_PARAMETER_NAMESPACE:
+    case MOQT_PARAMETER_INLINE:
         parameter->decode(cursor);
         break;
     case MOQT_PARAMETER_LENGTH_PREFIXED:
@@ -944,7 +1387,7 @@ moqt_dissect_parameters(moqt_cursor_t *cursor)
 
     for (uint64_t i = 0; i < count && !parameters.failed; i++) {
         const moqt_parameter_descriptor_t *descriptor;
-        proto_item *item;
+        proto_item *item, *type_item;
         moqt_cursor_t parameter = parameters;
         int parameter_start = parameter.offset;
 
@@ -954,11 +1397,13 @@ moqt_dissect_parameters(moqt_cursor_t *cursor)
         if (moqt_cursor_type_delta(
                 &parameter, hf_moqt_parameter_type_delta,
                 hf_moqt_parameter_type, &previous_type,
-                "message parameter type delta")) {
+                "message parameter type delta", &type_item)) {
             descriptor = moqt_find_parameter(cursor->draft, previous_type);
             proto_item_append_text(item, ": %s (0x%" PRIx64 ")",
                                    descriptor ? descriptor->name : "Unknown",
                                    previous_type);
+            proto_item_append_text(type_item, " (%s)",
+                                   descriptor ? descriptor->name : "Unknown");
             if (descriptor) {
                 moqt_dissect_parameter_value(&parameter, descriptor);
             } else {
@@ -1039,7 +1484,12 @@ moqt_dissect_kv_value(moqt_cursor_t *cursor, const moqt_kv_fields_t *fields,
     cursor->failed = value.failed;
 }
 
-/* Section 1.4.3: bounded delta types; odd types have length-prefixed values. */
+/*
+ * Section 1.4.3: bounded delta types; odd types have length-prefixed values.
+ * IMMUTABLE_PROPERTIES holds a further list of Properties that cannot contain
+ * another one, so it is walked in the same loop with the enclosing list saved,
+ * rather than recursively; a nested one is reported and shown as bytes.
+ */
 static void
 moqt_dissect_kv_pairs(moqt_cursor_t *cursor, moqt_kv_kind_t kind,
                       const char *label)
@@ -1050,10 +1500,11 @@ moqt_dissect_kv_pairs(moqt_cursor_t *cursor, moqt_kv_kind_t kind,
         kind == MOQT_KV_SETUP ? cursor->draft->setup_options
                              : cursor->draft->properties;
     proto_item *container_item;
-    moqt_cursor_t container;
-    uint64_t previous_type = 0;
+    moqt_cursor_t container, outer = { 0 };
+    uint64_t previous_type = 0, outer_previous_type = 0;
     int start = cursor->offset;
-    unsigned pair_index = 0;
+    unsigned pair_index = 0, outer_pair_index = 0;
+    bool nested = false;
 
     if (cursor->failed) {
         return;
@@ -1063,22 +1514,62 @@ moqt_dissect_kv_pairs(moqt_cursor_t *cursor, moqt_kv_kind_t kind,
         cursor->tree, cursor->tvb, start, -1, *fields->ett_container,
         &container_item, "%s", label);
 
-    while (container.offset < container.end && !container.failed) {
-        proto_item *item;
-        moqt_cursor_t pair = container;
-        int pair_start = pair.offset;
+    for (;;) {
+        proto_item *item, *type_item;
+        moqt_cursor_t pair;
+        int pair_start;
 
+        if (container.offset >= container.end || container.failed) {
+            if (!nested) {
+                break;
+            }
+            /* The nested list is bounded, so a failure inside it is local. */
+            container = outer;
+            previous_type = outer_previous_type;
+            pair_index = outer_pair_index;
+            nested = false;
+            continue;
+        }
+        pair = container;
+        pair_start = pair.offset;
         pair.tree = proto_tree_add_subtree_format(
             container.tree, cursor->tvb, pair_start, -1, *fields->ett_entry,
             &item, "%s %u", fields->entry_name, ++pair_index);
         if (moqt_cursor_type_delta(
                 &pair, *fields->hf_delta, *fields->hf_type, &previous_type,
-                "key-value type delta")) {
-            proto_item_append_text(
-                item, ": %s (0x%" PRIx64 ")",
-                val64_to_str_const(previous_type, names, "Unknown"),
-                previous_type);
-            moqt_dissect_kv_value(&pair, fields, kind, previous_type);
+                "key-value type delta", &type_item)) {
+            const char *name = val64_to_str_const(previous_type, names, "Unknown");
+            bool immutable = kind == MOQT_KV_PROPERTY &&
+                             previous_type == MOQT_PROPERTY_IMMUTABLE;
+            moqt_cursor_t value;
+
+            proto_item_append_text(item, ": %s (0x%" PRIx64 ")", name,
+                                   previous_type);
+            proto_item_append_text(type_item, " (%s)", name);
+            if (immutable && !nested) {
+                if (moqt_cursor_block(&pair, *fields->hf_length, &value,
+                                      "immutable properties")) {
+                    proto_item_set_len(item, pair.offset - pair_start);
+                    outer = container;
+                    outer.offset = pair.offset;
+                    outer_previous_type = previous_type;
+                    outer_pair_index = pair_index;
+                    container = value;
+                    container.tree = pair.tree;
+                    previous_type = 0;
+                    pair_index = 0;
+                    nested = true;
+                    continue;
+                }
+            } else {
+                if (immutable && cursor->phase == MOQT_DISSECT) {
+                    proto_tree_add_expert_format(
+                        pair.tree, cursor->pinfo, &ei_moqt_invalid_type,
+                        cursor->tvb, pair_start, pair.offset - pair_start,
+                        "Immutable Properties cannot contain Immutable Properties");
+                }
+                moqt_dissect_kv_value(&pair, fields, kind, previous_type);
+            }
         }
         proto_item_set_len(item, pair.offset - pair_start);
         container.offset = pair.offset;
@@ -1169,8 +1660,9 @@ moqt_draft18_decode_request_error(moqt_cursor_t *cursor,
 {
     uint64_t code;
 
-    if (!moqt_cursor_varint(cursor, hf_moqt_status_code, &code,
-                            "request error code")) {
+    if (!moqt_cursor_code(cursor, hf_moqt_status_code,
+                          cursor->draft->request_errors, &code,
+                          "request error code")) {
         return;
     }
     moqt_cursor_varint(cursor, hf_moqt_retry_interval, NULL,
@@ -1220,8 +1712,9 @@ static void
 moqt_draft18_decode_publish_done(moqt_cursor_t *cursor,
                                  const moqt_stream_state_t *state _U_)
 {
-    moqt_cursor_varint(cursor, hf_moqt_status_code, NULL,
-                       "publish done status code");
+    moqt_cursor_code(cursor, hf_moqt_status_code,
+                     cursor->draft->publish_done_codes, NULL,
+                     "publish done status code");
     moqt_cursor_varint(cursor, hf_moqt_stream_count, NULL,
                        "publish done stream count");
     moqt_dissect_reason_phrase(cursor);
@@ -1307,6 +1800,34 @@ moqt_draft18_decode_publish_blocked(moqt_cursor_t *cursor,
     moqt_dissect_track_name(cursor);
 }
 
+/* Draft 22 section 9.2: GOAWAY no longer carries a Request ID. */
+static void
+moqt_draft22_decode_goaway(moqt_cursor_t *cursor,
+                           const moqt_stream_state_t *state _U_)
+{
+    moqt_cursor_length_prefixed(cursor, hf_moqt_uri_length, hf_moqt_uri,
+                                NULL, "new session URI", ENC_UTF_8 | ENC_NA);
+    moqt_cursor_varint(cursor, hf_moqt_timeout, NULL, "GOAWAY timeout");
+}
+
+/* Draft 22 section 9.11: the range is carried in a LOCATION_FILTER parameter. */
+static void
+moqt_draft22_decode_fetch(moqt_cursor_t *cursor,
+                          const moqt_stream_state_t *state _U_)
+{
+    moqt_cursor_varint(cursor, hf_moqt_request_id, NULL, "request ID");
+    moqt_dissect_full_track_name(cursor);
+    moqt_dissect_parameters(cursor);
+}
+
+/* Draft 22 section 9.10. */
+static void
+moqt_draft22_decode_publish_state_notify(moqt_cursor_t *cursor,
+                                         const moqt_stream_state_t *state _U_)
+{
+    moqt_dissect_parameters(cursor);
+}
+
 static const moqt_message_descriptor_t moqt_draft18_messages[] = {
     { MOQT_MSG_REQUEST_UPDATE, "REQUEST_UPDATE",
       moqt_draft18_decode_request_update },
@@ -1333,6 +1854,37 @@ static const moqt_message_descriptor_t moqt_draft18_messages[] = {
      * draft-18 control-message table also lists 0x1e. Accept both spellings.
      */
     { MOQT_MSG_PUBLISH_OK, "PUBLISH_OK", moqt_draft18_decode_request_ok },
+    { MOQT_MSG_SUBSCRIBE_NAMESPACE, "SUBSCRIBE_NAMESPACE",
+      moqt_draft18_decode_namespace_request },
+    { MOQT_MSG_SUBSCRIBE_TRACKS, "SUBSCRIBE_TRACKS",
+      moqt_draft18_decode_namespace_request },
+    { MOQT_MSG_SETUP, "SETUP", moqt_draft18_decode_setup },
+};
+
+/* Draft 22 section 9, Table 5. */
+static const moqt_message_descriptor_t moqt_draft22_messages[] = {
+    { MOQT_MSG_REQUEST_UPDATE, "REQUEST_UPDATE",
+      moqt_draft18_decode_request_update },
+    { MOQT_MSG_SUBSCRIBE, "SUBSCRIBE", moqt_draft18_decode_track_request },
+    { MOQT_MSG_SUBSCRIBE_OK, "SUBSCRIBE_OK", moqt_draft18_decode_subscribe_ok },
+    { MOQT_MSG_REQUEST_ERROR, "REQUEST_ERROR",
+      moqt_draft18_decode_request_error },
+    { MOQT_MSG_PUBLISH_NAMESPACE, "PUBLISH_NAMESPACE",
+      moqt_draft18_decode_namespace_request },
+    { MOQT_MSG_REQUEST_OK, "REQUEST_OK", moqt_draft18_decode_request_ok },
+    { MOQT_MSG_NAMESPACE, "NAMESPACE", moqt_draft18_decode_namespace_suffix },
+    { MOQT_MSG_PUBLISH_DONE, "PUBLISH_DONE", moqt_draft18_decode_publish_done },
+    { MOQT_MSG_TRACK_STATUS, "TRACK_STATUS", moqt_draft18_decode_track_request },
+    { MOQT_MSG_NAMESPACE_DONE, "NAMESPACE_DONE",
+      moqt_draft18_decode_namespace_suffix },
+    { MOQT_MSG_PUBLISH_BLOCKED, "PUBLISH_SKIPPED",
+      moqt_draft18_decode_publish_blocked },
+    { MOQT_MSG_GOAWAY, "GOAWAY", moqt_draft22_decode_goaway },
+    { MOQT_MSG_FETCH, "FETCH", moqt_draft22_decode_fetch },
+    { MOQT_MSG_FETCH_OK, "FETCH_OK", moqt_draft18_decode_fetch_ok },
+    { MOQT_MSG_PUBLISH, "PUBLISH", moqt_draft18_decode_publish },
+    { MOQT_MSG_PUBLISH_STATE_NOTIFY, "PUBLISH_STATE_NOTIFY",
+      moqt_draft22_decode_publish_state_notify },
     { MOQT_MSG_SUBSCRIBE_NAMESPACE, "SUBSCRIBE_NAMESPACE",
       moqt_draft18_decode_namespace_request },
     { MOQT_MSG_SUBSCRIBE_TRACKS, "SUBSCRIBE_TRACKS",
@@ -1384,10 +1936,12 @@ moqt_draft18_parse_message(moqt_cursor_t *cursor, moqt_stream_state_t *state)
     body.tree = proto_tree_add_subtree_format(
         cursor->tree, cursor->tvb, start, body.end - start, ett_moqt_message,
         &item, "%s, Length: %u", name, body_length);
-    proto_tree_add_uint64(body.tree, hf_moqt_message_type, cursor->tvb,
-                          start, length_offset - start, type);
+    proto_tree_add_uint64_format_value(body.tree, hf_moqt_message_type,
+                                       cursor->tvb, start, length_offset - start,
+                                       type, "%s (0x%" PRIx64 ")", name, type);
     proto_tree_add_uint(body.tree, hf_moqt_message_length, cursor->tvb,
                         length_offset, 2, body_length);
+    col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ", name);
     if (message) {
         message->decode(&body, state);
     } else {
@@ -1399,7 +1953,6 @@ moqt_draft18_parse_message(moqt_cursor_t *cursor, moqt_stream_state_t *state)
     }
     moqt_cursor_remainder(&body, hf_moqt_unparsed);
     cursor->failed = body.failed;
-    col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ", name);
 }
 
 static void
@@ -1468,6 +2021,10 @@ moqt_draft18_parse_subgroup_header(moqt_cursor_t *cursor,
         proto_item_append_text(item, ": Track Alias %" PRIu64
                                ", Group %" PRIu64,
                                decoded.track_alias, decoded.group_id);
+        col_append_sep_fstr(cursor->pinfo->cinfo, COL_INFO, ", ",
+                            "Subgroup Header (Track Alias %" PRIu64
+                            ", Group %" PRIu64 ")",
+                            decoded.track_alias, decoded.group_id);
     }
 
 finished:
@@ -1499,17 +2056,19 @@ moqt_validate_object_status(moqt_cursor_t *cursor, uint64_t status,
     }
 }
 
-static void
+/* Returns false if the Object ID cannot be resolved. */
+static bool
 moqt_resolve_subgroup_object_id(moqt_cursor_t *cursor,
                                 moqt_stream_state_t *state,
-                                uint64_t delta, int object_offset)
+                                uint64_t delta, int object_offset,
+                                uint64_t *resolved)
 {
     moqt_subgroup_state_t *subgroup = &state->subgroup;
     uint64_t object_id = delta;
     int saved_offset;
 
     if (cursor->phase == MOQT_MEASURE || cursor->failed) {
-        return;
+        return false;
     }
     if (subgroup->object_seen) {
         if (subgroup->object_id == UINT64_MAX ||
@@ -1517,7 +2076,7 @@ moqt_resolve_subgroup_object_id(moqt_cursor_t *cursor,
             proto_tree_add_expert(
                 cursor->tree, cursor->pinfo, &ei_moqt_object_id_overflow,
                 cursor->tvb, object_offset, cursor->offset - object_offset);
-            return;
+            return false;
         }
         object_id = subgroup->object_id + delta + 1;
     }
@@ -1534,6 +2093,8 @@ moqt_resolve_subgroup_object_id(moqt_cursor_t *cursor,
         moqt_add_generated_uint64(cursor, hf_moqt_subgroup_id, object_id);
     }
     cursor->offset = saved_offset;
+    *resolved = object_id;
+    return true;
 }
 
 /* Object ID Delta, [Properties], Payload Length, then Status or Payload. */
@@ -1576,7 +2137,16 @@ moqt_draft18_parse_subgroup_object(moqt_cursor_t *cursor,
                           "object payload", ENC_NA);
     }
     if (!object.failed && cursor->phase == MOQT_DISSECT) {
-        moqt_resolve_subgroup_object_id(&object, state, delta, start);
+        uint64_t object_id;
+
+        if (moqt_resolve_subgroup_object_id(&object, state, delta, start,
+                                            &object_id)) {
+            proto_item_append_text(item, " %" PRIu64, object_id);
+            col_append_sep_fstr(cursor->pinfo->cinfo, COL_INFO, ", ",
+                                "Object %" PRIu64, object_id);
+        } else {
+            col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ", "Object");
+        }
         proto_item_append_text(
             item, ": ID Delta %" PRIu64 ", Payload %" PRIu64 " byte%s",
             delta, payload_length, payload_length == 1 ? "" : "s");
@@ -1585,8 +2155,6 @@ moqt_draft18_parse_subgroup_object(moqt_cursor_t *cursor,
                 item, ", Status: %s",
                 val64_to_str_const(status, moqt_object_status_vals, "Unknown"));
         }
-        col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ",
-                           "Subgroup Object");
     }
 
 finished:
@@ -1618,6 +2186,8 @@ moqt_draft18_parse_fetch_header(moqt_cursor_t *cursor,
             .fetch_request_id = request_id,
         };
         proto_item_append_text(item, ": Request ID %" PRIu64, request_id);
+        col_append_sep_fstr(cursor->pinfo->cinfo, COL_INFO, ", ",
+                            "Fetch Header (Request ID %" PRIu64 ")", request_id);
     }
     proto_item_set_len(item, header.offset - start);
     moqt_cursor_finish_nested(cursor, &header);
@@ -1678,7 +2248,7 @@ moqt_draft18_parse_fetch_object(moqt_cursor_t *cursor,
     moqt_cursor_t object = *cursor;
     uint64_t flags;
     uint64_t payload_length = 0;
-    bool end_of_range;
+    const char *end_of_range;
     int start = cursor->offset;
     int flags_length;
 
@@ -1689,8 +2259,7 @@ moqt_draft18_parse_fetch_object(moqt_cursor_t *cursor,
         goto finished;
     }
     flags_length = object.offset - start;
-    end_of_range = flags == MOQT_FETCH_END_NONEXISTENT_RANGE ||
-                   flags == MOQT_FETCH_END_UNKNOWN_RANGE;
+    end_of_range = try_val64_to_str(flags, cursor->draft->fetch_end_of_range);
     if (end_of_range || flags > MOQT_FETCH_DEFINED_BITS) {
         if (cursor->phase == MOQT_DISSECT) {
             proto_tree_add_uint64(object.tree, hf_moqt_serialization_flags,
@@ -1701,10 +2270,7 @@ moqt_draft18_parse_fetch_object(moqt_cursor_t *cursor,
     }
     if (end_of_range) {
         moqt_dissect_location(&object, "End of Range Location");
-        proto_item_set_text(item, "%s",
-                            flags == MOQT_FETCH_END_NONEXISTENT_RANGE
-                                ? "End of Non-Existent Range"
-                                : "End of Unknown Range");
+        proto_item_set_text(item, "%s", end_of_range);
     } else if (flags > MOQT_FETCH_DEFINED_BITS) {
         if (cursor->phase == MOQT_DISSECT) {
             proto_tree_add_expert_format(
@@ -1720,7 +2286,8 @@ moqt_draft18_parse_fetch_object(moqt_cursor_t *cursor,
                                payload_length, payload_length == 1 ? "" : "s");
     }
     if (!object.failed && cursor->phase == MOQT_DISSECT) {
-        col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ", "Fetch Object");
+        col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ",
+                           end_of_range ? "End of Range" : "Fetch Object");
     }
 
 finished:
@@ -1961,6 +2528,17 @@ moqt_looks_like_control_pdu(moqt_cursor_t *cursor, uint64_t type)
     return !measured.failed && measured.offset == measured.end;
 }
 
+static void
+moqt_add_draft(proto_item *protocol_item, tvbuff_t *tvb, const moqt_draft_t *draft)
+{
+    proto_item *item;
+
+    proto_item_append_text(protocol_item, ", Draft %u", draft->version);
+    item = proto_tree_add_uint(proto_item_add_subtree(protocol_item, ett_moqt),
+                               hf_moqt_draft, tvb, 0, 0, draft->version);
+    proto_item_set_generated(item);
+}
+
 static int
 moqt_dissect_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     quic_stream_info *stream_info, const moqt_draft_t *draft)
@@ -1982,6 +2560,15 @@ moqt_dissect_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MOQT");
     protocol_item = proto_tree_add_item(tree, proto_moqt, tvb, 0, -1, ENC_NA);
+    if (stream_info) {
+        /* A stream keeps the draft it was first seen with. */
+        const moqt_stream_t *known =
+            (const moqt_stream_t *)quic_stream_get_proto_data(pinfo, stream_info);
+        if (known) {
+            draft = known->draft;
+        }
+    }
+    moqt_add_draft(protocol_item, tvb, draft);
     cursor = (moqt_cursor_t){
         .tvb = tvb,
         .pinfo = pinfo,
@@ -2007,7 +2594,8 @@ moqt_dissect_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (stream->latest.kind == MOQT_STREAM_UNKNOWN) {
         if (stream_info && stream_info->offset != 0) {
             proto_tree_add_expert(cursor.tree, pinfo,
-                                  &ei_moqt_stream_head_missing, tvb, 0, -1);
+                                  &ei_moqt_stream_head_missing, tvb, 0,
+                                  tvb_captured_length(tvb));
             call_data_dissector(tvb, pinfo, cursor.tree);
             return tvb_captured_length(tvb);
         }
@@ -2034,7 +2622,8 @@ moqt_dissect_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (stream->latest.kind == MOQT_STREAM_UNKNOWN) {
         proto_tree_add_expert_format(
-            cursor.tree, pinfo, &ei_moqt_unknown_stream, tvb, 0, -1,
+            cursor.tree, pinfo, &ei_moqt_unknown_stream, tvb, 0,
+            tvb_captured_length(tvb),
             "Unknown draft-%u unidirectional stream type 0x%" PRIx64,
             cursor.draft->version, stream->latest.header.type);
         call_data_dissector(tvb, pinfo, cursor.tree);
@@ -2044,12 +2633,13 @@ moqt_dissect_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return tvb_captured_length(tvb);
 }
 
+/* cb_data is the draft context of the ALPN or dissector name. */
 static int
-dissect_moqt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_moqt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data,
+             void *cb_data)
 {
-    /* Future ALPN entry points pass their own draft context to this helper. */
     return moqt_dissect_stream(tvb, pinfo, tree, (quic_stream_info *)data,
-                               &moqt_draft18);
+                               (const moqt_draft_t *)cb_data);
 }
 
 static void
@@ -2078,13 +2668,14 @@ moqt_draft18_parse_datagram_object(moqt_cursor_t *cursor, uint64_t type)
 {
     uint64_t properties_length = 0;
     uint64_t status = MOQT_OBJECT_NORMAL;
+    uint64_t track_alias = 0, group_id = 0, object_id = 0;
     int properties_offset;
     int status_offset;
 
-    moqt_cursor_varint(cursor, hf_moqt_track_alias, NULL, "track alias");
-    moqt_cursor_varint(cursor, hf_moqt_group_id, NULL, "group ID");
+    moqt_cursor_varint(cursor, hf_moqt_track_alias, &track_alias, "track alias");
+    moqt_cursor_varint(cursor, hf_moqt_group_id, &group_id, "group ID");
     if ((type & MOQT_DATAGRAM_ZERO_OBJECT_ID) == 0) {
-        moqt_cursor_varint(cursor, hf_moqt_object_id, NULL, "object ID");
+        moqt_cursor_varint(cursor, hf_moqt_object_id, &object_id, "object ID");
     } else if (!cursor->failed) {
         moqt_add_generated_uint64(cursor, hf_moqt_object_id, 0);
     }
@@ -2110,7 +2701,21 @@ moqt_draft18_parse_datagram_object(moqt_cursor_t *cursor, uint64_t type)
         moqt_validate_object_status(cursor, status, status_offset,
                                      cursor->offset - status_offset,
                                      properties_length);
+    }
+    if (cursor->failed) {
+        col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ", "Object Datagram");
+        return;
+    }
+    col_append_sep_fstr(cursor->pinfo->cinfo, COL_INFO, ", ",
+                        "Object Datagram (Track Alias %" PRIu64 ", Group %" PRIu64
+                        ", Object %" PRIu64 ", ", track_alias, group_id, object_id);
+    if ((type & MOQT_DATAGRAM_STATUS) != 0) {
+        col_append_fstr(cursor->pinfo->cinfo, COL_INFO, "%s)",
+                        val64_to_str_const(status, moqt_object_status_vals,
+                                           "Unknown status"));
     } else {
+        col_append_fstr(cursor->pinfo->cinfo, COL_INFO, "%d bytes)",
+                        cursor->end - cursor->offset);
         moqt_cursor_remainder(cursor, hf_moqt_object_payload);
     }
 }
@@ -2128,7 +2733,7 @@ moqt_draft18_parse_datagram(moqt_cursor_t *cursor)
     type_length = cursor->offset;
     if (type == MOQT_DATAGRAM_PADDING) {
         moqt_dissect_padding_bytes(cursor);
-        col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ", "Padding");
+        col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ", "Padding Datagram");
         return;
     }
     if ((type & ~((uint64_t)MOQT_DATAGRAM_DEFINED_BITS)) != 0 ||
@@ -2139,6 +2744,7 @@ moqt_draft18_parse_datagram(moqt_cursor_t *cursor)
             0, type_length, "Invalid draft-%u datagram type 0x%" PRIx64,
             cursor->draft->version, type);
         moqt_cursor_remainder(cursor, hf_moqt_unparsed);
+        col_append_sep_str(cursor->pinfo->cinfo, COL_INFO, ", ", "Object Datagram");
         return;
     }
     moqt_add_datagram_type_flags(cursor, type_length, type);
@@ -2154,6 +2760,32 @@ static const moqt_draft_t moqt_draft18 = {
     .parameter_count = array_length(moqt_draft18_parameters),
     .setup_options = moqt_setup_option_type_vals,
     .properties = moqt_property_type_vals,
+    .request_errors = moqt_draft18_request_error_vals,
+    .publish_done_codes = moqt_draft18_publish_done_vals,
+    .fetch_end_of_range = moqt_draft18_fetch_end_vals,
+    .dissector_name = MOQT_ALPN_DRAFT_18,
+    .datagram_dissector_name = MOQT_ALPN_DRAFT_18 ".datagram",
+    .streams = moqt_draft18_streams,
+    .classify_stream = moqt_draft18_classify_stream,
+    .read_integer = moqt_draft18_read_integer,
+    .parse_datagram = moqt_draft18_parse_datagram,
+};
+
+/* Draft 22 keeps the draft-18 integers, stream layouts and datagrams. */
+static const moqt_draft_t moqt_draft22 = {
+    .version = 22,
+    .alpn = MOQT_ALPN_DRAFT_22,
+    .messages = moqt_draft22_messages,
+    .message_count = array_length(moqt_draft22_messages),
+    .parameters = moqt_draft22_parameters,
+    .parameter_count = array_length(moqt_draft22_parameters),
+    .setup_options = moqt_draft22_setup_option_type_vals,
+    .properties = moqt_draft22_property_type_vals,
+    .request_errors = moqt_draft22_request_error_vals,
+    .publish_done_codes = moqt_draft22_publish_done_vals,
+    .fetch_end_of_range = moqt_draft22_fetch_end_vals,
+    .dissector_name = MOQT_ALPN_DRAFT_22,
+    .datagram_dissector_name = MOQT_ALPN_DRAFT_22 ".datagram",
     .streams = moqt_draft18_streams,
     .classify_stream = moqt_draft18_classify_stream,
     .read_integer = moqt_draft18_read_integer,
@@ -2162,19 +2794,20 @@ static const moqt_draft_t moqt_draft18 = {
 
 static int
 dissect_moqt_datagram(tvbuff_t *tvb, packet_info *pinfo,
-                      proto_tree *tree, void *data _U_)
+                      proto_tree *tree, void *data _U_, void *cb_data)
 {
+    const moqt_draft_t *draft = (const moqt_draft_t *)cb_data;
     proto_item *item;
     moqt_cursor_t cursor;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MOQT");
-    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Object Datagram");
     item = proto_tree_add_item(tree, proto_moqt, tvb, 0, -1, ENC_NA);
+    moqt_add_draft(item, tvb, draft);
     cursor = (moqt_cursor_t){
         .tvb = tvb,
         .pinfo = pinfo,
         .tree = proto_item_add_subtree(item, ett_moqt),
-        .draft = &moqt_draft18,
+        .draft = draft,
         .phase = MOQT_DISSECT,
         .end = (int)tvb_reported_length(tvb),
     };
@@ -2185,31 +2818,17 @@ dissect_moqt_datagram(tvbuff_t *tvb, packet_info *pinfo,
 void
 proto_register_moqt(void)
 {
-    val64_string *message_names = (val64_string *)wmem_alloc(
-        wmem_epan_scope(),
-        sizeof(val64_string) * (moqt_draft18.message_count + 1));
-    val64_string *parameter_names = (val64_string *)wmem_alloc(
-        wmem_epan_scope(),
-        sizeof(val64_string) * (moqt_draft18.parameter_count + 1));
-
-    for (unsigned i = 0; i < moqt_draft18.message_count; i++) {
-        message_names[i] = (val64_string){
-            moqt_draft18.messages[i].type, moqt_draft18.messages[i].name
-        };
-    }
-    message_names[moqt_draft18.message_count] = (val64_string){ 0, NULL };
-    moqt_message_type_vals = message_names;
-
-    for (unsigned i = 0; i < moqt_draft18.parameter_count; i++) {
-        parameter_names[i] = (val64_string){
-            moqt_draft18.parameters[i].type, moqt_draft18.parameters[i].name
-        };
-    }
-    parameter_names[moqt_draft18.parameter_count] = (val64_string){ 0, NULL };
-    moqt_parameter_type_vals = parameter_names;
-
-    /* Wireshark retains pointers into this array, so it must remain static. */
+    /*
+     * Wireshark retains pointers into this array, so it must remain static.
+     * Message, parameter, setup option and property names depend on the draft,
+     * so those type fields carry no value strings; the name is shown instead.
+     */
     static hf_register_info hf[] = {
+        { &hf_moqt_draft,
+          { "Draft", "moqt.draft",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "draft-ietf-moq-transport version used to dissect this packet", HFILL }
+        },
         { &hf_moqt_stream_type,
           { "Stream Type", "moqt.stream.type",
             FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
@@ -2218,8 +2837,7 @@ proto_register_moqt(void)
         },
         { &hf_moqt_message_type,
           { "Message Type", "moqt.message.type",
-            FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
-            NULL, 0x0,
+            FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_moqt_message_length,
@@ -2249,7 +2867,7 @@ proto_register_moqt(void)
         },
         { &hf_moqt_namespace_field,
           { "Track Namespace Field", "moqt.namespace.field",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_moqt_track_name_length,
@@ -2259,7 +2877,7 @@ proto_register_moqt(void)
         },
         { &hf_moqt_track_name,
           { "Track Name", "moqt.track_name",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_moqt_parameter_count,
@@ -2274,8 +2892,7 @@ proto_register_moqt(void)
         },
         { &hf_moqt_parameter_type,
           { "Parameter Type", "moqt.parameter.type",
-            FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
-            NULL, 0x0,
+            FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_moqt_parameter_uint8,
@@ -2305,8 +2922,7 @@ proto_register_moqt(void)
         },
         { &hf_moqt_setup_option_type,
           { "Setup Option Type", "moqt.setup.option.type",
-            FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
-            VALS64(moqt_setup_option_type_vals), 0x0,
+            FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_moqt_setup_option_length,
@@ -2331,8 +2947,7 @@ proto_register_moqt(void)
         },
         { &hf_moqt_property_type,
           { "Property Type", "moqt.property.type",
-            FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
-            VALS64(moqt_property_type_vals), 0x0,
+            FT_UINT64, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_moqt_property_length,
@@ -2554,6 +3169,42 @@ proto_register_moqt(void)
             FT_UINT64, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_moqt_location_filter_type,
+          { "Location Filter Type", "moqt.location_filter.type",
+            FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
+            VALS64(moqt_location_filter_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_moqt_start_group,
+          { "Start Group", "moqt.filter.start_group",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_moqt_start_object,
+          { "Start Object", "moqt.filter.start_object",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_moqt_end_object,
+          { "End Object", "moqt.filter.end_object",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_moqt_range_set_id,
+          { "Set ID", "moqt.range.set_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Filters with the same Set ID are combined with AND", HFILL }
+        },
+        { &hf_moqt_range_start,
+          { "Range Start", "moqt.range.start",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_moqt_range_end,
+          { "Range End", "moqt.range.end",
+            FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_moqt_alias_type,
           { "Alias Type", "moqt.token.alias_type",
             FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
@@ -2656,29 +3307,39 @@ proto_register_moqt(void)
 
     proto_moqt = proto_register_protocol(
         "Media over QUIC Transport", "MOQT", "moqt");
-    for (unsigned i = 0; i < array_length(hf); i++) {
-        if (hf[i].p_id == &hf_moqt_message_type) {
-            hf[i].hfinfo.strings = VALS64(moqt_message_type_vals);
-        } else if (hf[i].p_id == &hf_moqt_parameter_type) {
-            hf[i].hfinfo.strings = VALS64(moqt_parameter_type_vals);
-        }
-    }
     proto_register_field_array(proto_moqt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_moqt = expert_register_protocol(proto_moqt);
     expert_register_field_array(expert_moqt, ei, array_length(ei));
 
-    moqt_handle = register_dissector("moqt", dissect_moqt, proto_moqt);
-    moqt_datagram_handle = register_dissector(
-        "moqt.datagram", dissect_moqt_datagram, proto_moqt);
+    DISSECTOR_ASSERT(array_length(moqt_drafts) == array_length(moqt_handles));
+    for (unsigned i = 0; i < array_length(moqt_drafts); i++) {
+        const moqt_draft_t *draft = moqt_drafts[i];
+
+        moqt_handles[i] = register_dissector_with_data(
+            draft->dissector_name, dissect_moqt, proto_moqt, (void *)draft);
+        moqt_datagram_handles[i] = register_dissector_with_data(
+            draft->datagram_dissector_name, dissect_moqt_datagram, proto_moqt,
+            (void *)draft);
+    }
+    moqt_handle = register_dissector_with_data(
+        "moqt", dissect_moqt, proto_moqt, (void *)MOQT_LATEST_DRAFT);
+    moqt_datagram_handle = register_dissector_with_data(
+        "moqt.datagram", dissect_moqt_datagram, proto_moqt,
+        (void *)MOQT_LATEST_DRAFT);
 }
 
 void
 proto_reg_handoff_moqt(void)
 {
-    dissector_add_string("quic.proto", moqt_draft18.alpn, moqt_handle);
-    dissector_add_string("quic.proto.datagram", moqt_draft18.alpn,
-                         moqt_datagram_handle);
+    for (unsigned i = 0; i < array_length(moqt_drafts); i++) {
+        dissector_add_string("quic.proto", moqt_drafts[i]->alpn, moqt_handles[i]);
+        dissector_add_string("quic.proto.datagram", moqt_drafts[i]->alpn,
+                             moqt_datagram_handles[i]);
+    }
+    /* The final version's ALPN; until then, the latest draft. */
+    dissector_add_string("quic.proto", "moqt", moqt_handle);
+    dissector_add_string("quic.proto.datagram", "moqt", moqt_datagram_handle);
 }
 
 /*
