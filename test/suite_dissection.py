@@ -21367,3 +21367,18 @@ class TestDissectC2p:
             '1\t10.1.2.3\t7942\t12\t12',
             '2\t0.0.0.0\t0\t0\t',
         ]
+
+
+class TestDissectDnsResinfo:
+    def test_resinfo_record(self, cmd_tshark, capture_file, test_env):
+        '''RESINFO record key/value pairs are decoded correctly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_resinfo.pcap'),
+                '-Tfields',
+                '-e', 'dns.qry.type',
+                '-e', 'dns.resinfo',
+            ), encoding='utf-8', env=test_env)
+        assert '261' in stdout                                      # RESINFO type
+        assert 'qnamemin' in stdout                                 # boolean key
+        assert 'exterr=15-17' in stdout                             # range value
+        assert 'infourl=https://resolver.example.com/guide' in stdout  # URL value

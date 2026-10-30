@@ -396,6 +396,8 @@ static int hf_dns_dsync_target_name;
 static int hf_dns_openpgpkey;
 static int hf_dns_spf_length;
 static int hf_dns_spf;
+static int hf_dns_resinfo_length;
+static int hf_dns_resinfo;
 static int hf_dns_ilnp_nodeid_preference;
 static int hf_dns_ilnp_nodeid;
 static int hf_dns_ilnp_locator32_preference;
@@ -4601,6 +4603,23 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     }
     break;
 
+    case DNS_T_RESINFO: /* Resolver Information (261) */
+    {
+      int rr_len = data_len;
+      int resinfo_offset;
+      unsigned resinfo_len;
+
+      resinfo_offset = cur_offset;
+      while (rr_len != 0) {
+        proto_tree_add_item_ret_uint(rr_tree, hf_dns_resinfo_length, tvb, resinfo_offset, 1, ENC_BIG_ENDIAN, &resinfo_len);
+        resinfo_offset += 1;
+        rr_len         -= 1;
+        proto_tree_add_item(rr_tree, hf_dns_resinfo, tvb, resinfo_offset, resinfo_len, ENC_ASCII);
+        resinfo_offset +=  resinfo_len;
+        rr_len         -= resinfo_len;
+      }
+    }
+    break;
 
     case DNS_T_WINS:  /* Microsoft's WINS (65281)*/
     {
@@ -7121,6 +7140,16 @@ proto_register_dns(void)
       { "SPF", "dns.spf",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_dns_resinfo_length,
+      { "RESINFO Length", "dns.resinfo.length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_resinfo,
+      { "RESINFO", "dns.resinfo",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "Resolver Information (RFC9606)", HFILL }},
 
     { &hf_dns_ilnp_nodeid_preference,
       { "Preference", "dns.ilnp.nid.preference",
