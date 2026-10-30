@@ -192,7 +192,9 @@ dissect_btsmp_auth_req(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "SecureConnection");
     if (value & 0x10)
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Keypress");
-    if (value & 0xE0)
+    if (value & 0x20)
+        col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "CT2");
+    if (value & 0xC0)
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "Reserved");
 
     return offset + 1;
