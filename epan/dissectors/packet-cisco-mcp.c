@@ -142,7 +142,7 @@ dissect_mcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	while (offset < data_length && !last) {
 		if (data_length - offset < 2) {
 			proto_tree_add_expert_format(mcp_tree, pinfo, &ei_mcp_short_tlv, tvb,
-				offset, data_length, "Too few bytes left for TLV (%u < 2)", data_length - offset);
+				offset, data_length - offset, "Too few bytes left for TLV (%u < 2)", data_length - offset);
 			break;
 		}
 		tlv_type = tvb_get_uint8(tvb, offset);
@@ -200,6 +200,12 @@ dissect_mcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			}
 			break;
 		case MCPS_TYPE_VPC_INFO:
+			if (tlv_length != 12) {
+				proto_tree_add_expert_format(mcp_tree, pinfo, &ei_mcp_unexpected_tlv_length, tvb,
+					offset, tlv_length, "Expected value length differs from seen length (%u != %u)",
+					12, tlv_length);
+				break;
+			}
 			proto_tree_add_item_ret_uint(tlv_tree, hf_mcp_vpc_domain, tvb, offset, 4, ENC_BIG_ENDIAN, &vpcdomain);
 			proto_tree_add_item_ret_uint(tlv_tree, hf_mcp_vpc_id, tvb, offset + 4, 4, ENC_BIG_ENDIAN, &vpcid);
 			proto_tree_add_item(tlv_tree, hf_mcp_vpc_vtep, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
