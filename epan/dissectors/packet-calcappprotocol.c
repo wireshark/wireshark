@@ -150,9 +150,9 @@ typedef enum
 static stat_tap_table_item calcappprotocol_stat_fields[] = {
   { TABLE_ITEM_STRING, TAP_ALIGN_LEFT,  "CalcAppProtocol Message Type", "%-25s" },
   { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages ",            "%u"       },
-  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages Share (%)"  , "%1.3f %%" },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_RIGHT, "Messages Share (%)"  , "%1.3f %%" },
   { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes (B)",            "%u"       },
-  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes Share (%) ",     "%1.3f %%" },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_RIGHT, "Bytes Share (%) ",     "%1.3f %%" },
   { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "First Seen (s)",       "%1.6f"    },
   { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Last Seen (s)",        "%1.6f"    },
   { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Interval (s)",         "%1.6f"    },
