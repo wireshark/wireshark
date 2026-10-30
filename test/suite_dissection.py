@@ -20117,3 +20117,125 @@ class TestDissectBusMirroring:
             assert fields[3] in ('8921556-12-07T10:44:15.000000000Z', 'Not representable')
             assert fields[4:] == ['0x00000123', 'aa']
             assert lines[1] == '12\t1700000000\t1000000000\t2023-11-14T22:13:20.000000000Z\t\t'
+
+
+class TestDissectBvlc:
+    def test_bvlc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BVLC/IPv4, BVLC/IPv6 and BACnet/SC BVLC function decodes
+        without malformed packets or warnings in one and two passes, and
+        the BVLC and BSCVLC fields are the same in both.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bvlc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 91
+        assert protocols.count('BVLC') == 38
+        assert protocols.count('BSCVLC') == 22
+        assert protocols.count('BACnet-APDU') == 16
+        assert protocols.count('BACnet-NPDU') == 3
+        fields = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bvlc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+            fields.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bvlc_coverage.pcap.gz'),
+                    '-Y', 'bvlc || bscvlc',
+                    '-Tfields', '-eframe.number', '-eframe.protocols',
+                    '-ebvlc.function', '-ebvlc.function_ipv6', '-ebvlc.length',
+                    '-ebscvlc.function', '-ebscvlc.msgid', '-ebscvlc.header_type',
+                    '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert fields[0] == fields[1]
+        assert len(fields[0].splitlines()) == 77
+
+    def test_bvlc_secure_bvll(self, cmd_tshark, capture_file, test_env):
+        '''A Secure-BVLL with an unencrypted security wrapper dissects the
+        BVLL message after the wrapper (IPv4 and IPv6), and a Secure-BVLL
+        inside one is not decoded again.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bvlc_coverage.pcap.gz'),
+                '-Y', 'bvlc.function == 0x0c || bvlc.function_ipv6 == 0x0b',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-ebvlc.function', '-ebvlc.function_ipv6',
+                '-ebacnet.wrapper_signature', '-ebacapp.unconfirmed_service',
+            ), encoding='utf-8', env=test_env)
+        sig = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeaf'
+        assert stdout.splitlines() == [
+            f'21\teth:ethertype:ip:udp:bvlc:bacnet:bacapp\t0x0c,0x0a\t\t{sig}\t8',
+            f'22\teth:ethertype:ip:udp:bvlc:bacnet:bacapp\t0x0c,0x0b\t\t{sig}\t0',
+            f'23\teth:ethertype:ip:udp:bvlc\t0x0c,0x00\t\t{sig}\t',
+            f'24\teth:ethertype:ip:udp:bvlc:data\t0x0c\t\t{sig}\t',
+            f'46\teth:ethertype:ipv6:udp:bvlc:bacnet:bacapp\t\t0x0b,0x01\t{sig}\t8',
+            f'47\teth:ethertype:ipv6:udp:bvlc\t\t0x0b,0x09\t{sig}\t',
+            f'48\teth:ethertype:ipv6:udp:bvlc:data\t\t0x0b\t{sig}\t',
+        ]
+
+    def test_bvlc_fields(self, cmd_tshark, capture_file, test_env):
+        '''BVLC/IPv4 tables and results, BVLC/IPv6 virtual addresses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bvlc_coverage.pcap.gz'),
+                '-Y', 'bvlc.type == 0x81 && !bvlc.function == 0x0c',
+                '-Tfields', '-eframe.number', '-ebvlc.function', '-ebvlc.result',
+                '-ebvlc.bdt_ip', '-ebvlc.bdt_mask', '-ebvlc.fdt_ip', '-ebvlc.fdt_ttl',
+                '-ebvlc.fdt_timeout', '-ebvlc.fwd_ip', '-ebvlc.fwd_port', '-ebvlc.reg_ttl',
+            ), encoding='utf-8', env=test_env)
+        frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+        assert [frames[n][1] for n in range(1, 9)] == [
+            '0x0000', '0x0010', '0x0020', '0x0030', '0x0040', '0x0050', '0x0060', '0x0070']
+        assert frames[9][2:4] == ['192.0.2.1,198.51.100.7', 'ffffffff,ffffff00']
+        assert frames[11][2] == '192.0.2.1,198.51.100.7'
+        assert frames[12][2] == ''
+        assert frames[13][7:9] == ['198.51.100.7', '47809']
+        assert frames[14][9] == '300'
+        assert frames[16][4:7] == ['192.0.2.1,203.0.113.9', '300,60', '330,12']
+        assert frames[17][4] == '203.0.113.9'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bvlc_coverage.pcap.gz'),
+                '-Y', 'bvlc.type == 0x82 && frame.number <= 45',
+                '-Tfields', '-ebvlc.function_ipv6', '-ebvlc.virtual_source',
+                '-ebvlc.virtual_dest', '-ebvlc.orig_source_addr', '-ebvlc.fdt_ipv6',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert [int(f[0], 16) for f in frames] == [0] * 7 + list(range(1, 11))
+        assert {f[1] for f in frames} == {'658188', '855567'}   # 0x0a0b0c, 0x0d0e0f
+        assert frames[10][2:4] == ['855567', '2001:db8::1']     # Forwarded-Address-Resolution
+        assert frames[16][4] == '2001:db8::1'
+
+    def test_bscvlc_fields(self, cmd_tshark, capture_file, test_env):
+        '''BACnet/SC over WebSocket: header options, results, Advertisement,
+        Connect-Request and Proprietary-Message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bvlc_coverage.pcap.gz'),
+                '-Y', 'bscvlc',
+                '-Tfields', '-ebscvlc.function', '-ebscvlc.header_type',
+                '-ebscvlc.result', '-ebscvlc.error_class', '-ebscvlc.error_code',
+                '-ebscvlc.hub_conn_state', '-ebscvlc.identity_device_id',
+                '-ebscvlc.connect_uuid', '-ebscvlc.max_bvlc_length', '-ebscvlc.vendor_id',
+                '-ebscvlc.hello_opt_identity_relay',
+                '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split('\t') for line in stdout.splitlines()]
+        assert len(frames) == 28
+        functions = [int(f[0], 16) for f in frames]
+        assert sorted(set(functions)) == list(range(14))
+        connect = frames[0]
+        assert connect[0] == '0x06' and connect[1] == '0x02' and connect[10] == 'True'
+        assert connect[7] == '101112131415161718191a1b1c1d1e1f' and connect[8] == '1600'
+        assert [f[5] for f in frames if f[0] == '0x04'] == ['0x00', '0x01', '0x02', '0x03']
+        results = [f[2:5] for f in frames if f[0] == '0x00']
+        assert results == [['0x00', '', ''], ['0x01', '7', '136'], ['0x01', '64', '32767']]
+        assert [f[9] for f in frames if f[0] == '0x0c'] == ['0x0007']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bvlc_coverage.pcap.gz'),
+                '-Y', 'bscvlc.msgid == 10',
+                '-Tfields', '-ebscvlc.header_type', '-ebscvlc.header_data',
+                '-ebscvlc.orig_virtual_address', '-ebscvlc.dest_virtual_address',
+                '-ebacapp.unconfirmed_service',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == [
+            '0x02,0x1f,0x06,0x01,0x03,0x04,0x05,0x1f,0x09', '000701aa,000702,01',
+            '0a0000000002', '0a0000000003', '0\n']
