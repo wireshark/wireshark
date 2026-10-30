@@ -409,11 +409,11 @@ oran_stat_draw(void *phs)
                row->missing_sns
                );
 
-        wmem_free(NULL, eaxcid_strbuf);
-        wmem_free(NULL, sectiontypes_strbuf);
-        wmem_free(NULL, sectionids_strbuf);
-        wmem_free(NULL, extensions_strbuf);
-        wmem_free(NULL, beams_strbuf);
+        wmem_strbuf_destroy(eaxcid_strbuf);
+        wmem_strbuf_destroy(sectiontypes_strbuf);
+        wmem_strbuf_destroy(sectionids_strbuf);
+        wmem_strbuf_destroy(extensions_strbuf);
+        wmem_strbuf_destroy(beams_strbuf);
 
         if (row->base_info.userplane) {
             /* U-Plane only */
