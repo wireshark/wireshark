@@ -23886,3 +23886,128 @@ class TestDissectCeph:
                 '-eceph.osdmap.epoch', '-eceph.osdmap.erasurecodeprofile.name',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['1430', '19,20,20', '20', 'ec42']
+
+
+class TestDissectCesoeth:
+    def test_cesoeth_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes as CESoETH, three with an RTP header,
+        without malformed packets in one and two passes; the only warnings
+        are the reserved field and Len >= 42 frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 21
+        assert protocols.count('CESoETH') == 18
+        assert protocols.count('CESoETH (w RTP)') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == warning',
+                    '-Tfields', '-eframe.number', '-ecesoeth.cw.len',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['17\t50', '18\t0']
+
+    def test_cesoeth_control_word(self, cmd_tshark, capture_file, test_env):
+        '''L, R, M and fragmentation bits, Len and sequence number.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 8 || frame.number == 20',
+                '-Tfields', '-ecesoeth.cw.l', '-ecesoeth.cw.r',
+                '-ecesoeth.cw.m', '-ecesoeth.cw.frg', '-ecesoeth.cw.len',
+                '-ecesoeth.cw.sn', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'False\tFalse\t0x00000000\t0x00000000\t0\t1\tECID: 0x00001, SN: 1',
+            'False\tTrue\t0x00000002\t0x00000001\t0\t2\tECID: 0x00001, SN: 2, RDI on TDM input, Remote loss of frame, First fragment',
+            'False\tFalse\t0x00000003\t0x00000002\t0\t3\tECID: 0x00001, SN: 3, Non-TDM data, Last fragment',
+            'False\tTrue\t0x00000001\t0x00000003\t0\t4\tECID: 0x00001, SN: 4, Reserved, Remote loss of frame, Intermediate fragment',
+            'True\tFalse\t0x00000000\t0x00000000\t0\t5\tECID: 0x00001, SN: 5, TDM defect',
+            'True\tFalse\t0x00000001\t0x00000000\t0\t6\tECID: 0x00001, SN: 6, Reserved',
+            'True\tTrue\t0x00000002\t0x00000000\t0\t7\tECID: 0x00001, SN: 7, Reserved, Remote loss of frame',
+            'True\tFalse\t0x00000003\t0x00000001\t0\t8\tECID: 0x00001, SN: 8, Reserved, First fragment',
+            'True\tTrue\t0x00000003\t0x00000003\t41\t65535\tECID: 0xfffff, SN: 65535, Reserved, Remote loss of frame, Intermediate fragment, RTP PT: 127, SSRC: 0xFFFFFFFF, Seq: 65535, Time=4294967295',
+        ]
+
+    def test_cesoeth_rtp_padding(self, cmd_tshark, capture_file, test_env):
+        '''The RTP header heuristic and the split into RTP header, payload
+        and padding. Frame 16 is the reproducer of an RTP header longer
+        than the payload before the padding: it is taken as missing and
+        the payload keeps its 4 octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 9 && frame.number <= 16',
+                '-Tfields', '-eframe.number', '-ecesoeth.cw.len', '-ertp.seq',
+                '-edata.len', '-ecesoeth.padding',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t0\t1000\t32\t',
+            '10\t26\t1001\t10\t' + '00' * 16,
+            '11\t20\t\t16\t' + '00' * 22,
+            '12\t4\t\t\t' + '00' * 38,
+            '13\t0\t\t32\t',
+            '14\t0\t\t32\t',
+            '15\t0\t\t36\t',
+            '16\t10\t4660\t4\t00000000deadbeef' + 'aa' * 24,
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                '-Y', 'frame.number == 16',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'ECID: 0x00001, SN: 4660, RTP header missing'
+
+    def test_cesoeth_rtp_prefs(self, cmd_tshark, capture_file, test_env):
+        '''With rtp_header every payload starts with an RTP header; with
+        the heuristic off none does.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                '-o', 'cesoeth.rtp_header:TRUE',
+                '-Y', 'rtp.seq',
+                '-Tfields', '-eframe.number', '-ertp.csrc.item', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        # Frame 16 (the header longer than the payload) has an RTP tree
+        # but is not taken as RTP; the other frames have RTP version 1
+        assert stdout.splitlines() == [
+            '9\t\tCESoETH (w RTP)', '10\t\tCESoETH (w RTP)',
+            '13\t\tCESoETH (w RTP)', '14\t\tCESoETH (w RTP)',
+            '15\t0x55667788\tCESoETH (w RTP)', '16\t\tCESoETH',
+            '20\t\tCESoETH (w RTP)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                '-o', 'cesoeth.rtp_header_heuristic:FALSE',
+                '-Y', 'rtp',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_cesoeth_len_expert(self, cmd_tshark, capture_file, test_env):
+        '''Frame 17 is the reproducer of Len >= 42: the expert info is
+        shown under the Len field.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17',
+                '-O', 'cesoeth', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        i = lines.index('.... .... ..11 0010 .... .... .... .... = Len: 50')
+        assert lines[i + 1] == '[Expert Info (Warning/Protocol): Length can not be 42 or larger]'
+
+    def test_cesoeth_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''Decode As by ECID hands the frame to SAToP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cesoeth_coverage.pcap.gz'),
+                '-d', 'cesoeth.ecid==5,pwsatopcw',
+                '-Y', 'pwsatopcw',
+                '-Tfields', '-eframe.number', '-ecesoeth.ecid', '-epwsatop.cw.seqno',
+                '-ecesoeth.cw.sn',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['19\t0x00000005\t256\t']
