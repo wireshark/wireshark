@@ -8220,17 +8220,18 @@ int dissect_cip_multiple_service_packet(tvbuff_t *tvb, packet_info *pinfo, proto
    cip_req_info = (cip_req_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
    if ( cip_req_info )
    {
-      /* Only allocate memory for requests. */
-      if (cip_req_info->pData == NULL && request == true)
+      /* Only allocate memory for requests, and only for offsets in the packet. */
+      if (cip_req_info->pMultReq == NULL && request == true
+         && num_services*2 <= (unsigned)tvb_reported_length_remaining(tvb, offset+2))
       {
          mr_mult_req_info = wmem_new(wmem_file_scope(), mr_mult_req_info_t);
          mr_mult_req_info->service = SC_MULT_SERV_PACK;
          mr_mult_req_info->num_services = num_services;
          mr_mult_req_info->requests = (cip_req_info_t *)wmem_alloc0(wmem_file_scope(), sizeof(cip_req_info_t)*num_services);
-         cip_req_info->pData = mr_mult_req_info;
+         cip_req_info->pMultReq = mr_mult_req_info;
       }
 
-      mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pData;
+      mr_mult_req_info = (mr_mult_req_info_t*)cip_req_info->pMultReq;
 
       if (mr_mult_req_info
          && (mr_mult_req_info->service != SC_MULT_SERV_PACK
@@ -9418,9 +9419,9 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, pro
    }
    else
    {
-      if (preq_info != NULL)
+      /* A request in a frame matched to an earlier request has its connection already */
+      if (preq_info != NULL && preq_info->connInfo == NULL)
       {
-         DISSECTOR_ASSERT(preq_info->connInfo == NULL);
          preq_info->connInfo = wmem_new0(wmem_file_scope(), cip_conn_info_t);
 
          preq_info->connInfo->triad = conn_triad;
@@ -9658,14 +9659,14 @@ static void dissect_cip_cm_unconnected_send_req(proto_tree* cmd_data_tree, tvbuf
    cip_req_info_t* pembedded_req_info = NULL;
    if (preq_info)
    {
-      if (preq_info->pData == NULL)
+      if (preq_info->pEmbeddedReq == NULL)
       {
          pembedded_req_info = wmem_new0(wmem_file_scope(), cip_req_info_t);
-         preq_info->pData = pembedded_req_info;
+         preq_info->pEmbeddedReq = pembedded_req_info;
       }
       else
       {
-         pembedded_req_info = (cip_req_info_t*)preq_info->pData;
+         pembedded_req_info = preq_info->pEmbeddedReq;
       }
    }
 
@@ -9819,7 +9820,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
              )
          )
       {
-         cip_req_info_t* pembedded_req_info = (cip_req_info_t*)preq_info->pData;
+         cip_req_info_t* pembedded_req_info = preq_info->pEmbeddedReq;
 
          if ( pembedded_req_info )
          {
@@ -10175,7 +10176,7 @@ dissect_cip_pccc_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int ite
    /* Response message */
    if ( service & CIP_SC_RESPONSE_MASK )
    {
-       req_path_size = 2 + tvb_get_uint8( tvb, offset+2 )*2;
+       req_path_size = 2 + tvb_get_uint8( tvb, offset+3 )*2;
    }
    /* Request message */
    else

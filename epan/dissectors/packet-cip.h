@@ -607,7 +607,10 @@ typedef struct cip_req_info {
    unsigned                   RouteConnectionPathLen;
    void                      *pRouteConnectionPath;
 
-   void                      *pData;
+   // Request info of the request embedded in an Unconnected Send.
+   struct cip_req_info       *pEmbeddedReq;
+   // Requests of a Multiple Service Packet (mr_mult_req_info_t).
+   void                      *pMultReq;
    cip_simple_request_info_t *ciaData;
    cip_conn_info_t*           connInfo;
 } cip_req_info_t;
