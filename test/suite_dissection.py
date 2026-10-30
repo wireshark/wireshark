@@ -18816,3 +18816,71 @@ class TestDissectBtmcap:
             '27\t74565\t1000000\t5\t',
             '28\t74752\t1500000\t6\t',
         ]
+
+
+class TestDissectBtmeshBeacon:
+    def test_btmesh_beacon_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Unprovisioned Device and Secure Network Beacons in BLE
+        advertising and over Mesh Proxy (complete and segmented) decode
+        without malformed packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_beacon_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 38
+        assert protocols.count('BT Mesh Beacon') == 24
+        assert protocols.count('BT Mesh Proxy') == 3
+        assert protocols.count('ATT') == 10
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btmesh_beacon_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btmesh_beacon_unprovisioned(self, cmd_tshark, capture_file, test_env):
+        '''Unprovisioned Device Beacon: every OOB Information bit, and the
+        URI Hash only when four octets follow.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_beacon_coverage.pcap.gz'),
+                '-Y', 'beacon.type == 0',
+                '-Tfields', '-ebeacon.uuid', '-ebeacon.oob', '-ebeacon.uri_hash',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) == 18
+        assert set(r[0] for r in rows) == {'70cf7c97-32a3-45b6-9149-4810d2e9cbf4'}
+        assert [r[1] for r in rows[:14]] == [
+            '0x0000', '0x0001', '0x0002', '0x0004', '0x0008', '0x0010', '0x0020',
+            '0x0040', '0x0800', '0x1000', '0x2000', '0x4000', '0x8000', '0xf87f']
+        assert [r[2] for r in rows].count('d97478b3') == 3
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_beacon_coverage.pcap.gz'),
+                '-Y', 'beacon.oob == 0xf87f',
+                '-Tfields', '-ebeacon.oob.other', '-ebeacon.oob.string',
+                '-ebeacon.oob.rfu', '-ebeacon.oob.on_box', '-ebeacon.oob.on_device',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['True\tTrue\t0\tTrue\tTrue']
+
+    def test_btmesh_beacon_secure(self, cmd_tshark, capture_file, test_env):
+        '''Secure Network Beacon: the Key Refresh and IV Update flags, the
+        IV Index; a beacon reassembled from Mesh Proxy segments shows
+        "(Last Segment)".'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btmesh_beacon_coverage.pcap.gz'),
+                    '-Y', 'beacon.type == 1',
+                    '-Tfields', '-eframe.number', '-ebeacon.flags.key_refresh',
+                    '-ebeacon.flags.iv_update', '-ebeacon.network_id', '-ebeacon.ivindex',
+                    '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '17\tFalse\tFalse\t3ecaff672f673370\t305419896\tSecure Network Beacon',
+                '18\tTrue\tFalse\t3ecaff672f673370\t305419896\tSecure Network Beacon',
+                '19\tFalse\tTrue\t3ecaff672f673370\t305419897\tSecure Network Beacon',
+                '20\tTrue\tTrue\t3ecaff672f673370\t0\tSecure Network Beacon',
+                '32\tFalse\tTrue\t3ecaff672f673370\t305419897\tSecure Network Beacon',
+                '35\tTrue\tFalse\t3ecaff672f673370\t305419898\tSecure Network Beacon (Last Segment)',
+            ]
