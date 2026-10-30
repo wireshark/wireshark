@@ -18,6 +18,9 @@
 
 #include "packet-adb_service.h"
 
+/* LOGGER_ENTRY_MAX_LEN in Android liblog: header and payload of an entry */
+#define LOGCAT_ENTRY_MAX_LENGTH (5 * 1024)
+
 static int proto_adb_service;
 
 static int hf_service;
@@ -56,6 +59,7 @@ static int hf_pids;
 static int hf_result;
 
 static expert_field ei_incomplete_message;
+static expert_field ei_logcat_entry_too_long;
 
 static int ett_adb_service;
 static int ett_length;
@@ -480,6 +484,14 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                             logcat_length = payload_length + 20;
                         else
                             logcat_length = payload_length + 24;
+
+                        /* Don't carry a longer entry over to the next
+                         * message: each message would keep its own, ever
+                         * larger copy of it. */
+                        if (logcat_length > LOGCAT_ENTRY_MAX_LENGTH) {
+                            proto_tree_add_expert_remaining(main_tree, pinfo, &ei_logcat_entry_too_long, next_tvb, i_offset);
+                            break;
+                        }
                     }
 
                     if (tvb_reported_length_remaining(next_tvb, i_offset) >= 4 && tvb_reported_length_remaining(next_tvb, i_offset) >= logcat_length) {
@@ -744,6 +756,7 @@ proto_register_adb_service(void)
 
     static ei_register_info ei[] = {
         { &ei_incomplete_message,         { "adb_service.expert.incomplete_message", PI_PROTOCOL, PI_WARN, "Incomplete message", EXPFILL }},
+        { &ei_logcat_entry_too_long,      { "adb_service.expert.logcat_entry_too_long", PI_MALFORMED, PI_ERROR, "Logcat entry is longer than the maximum of 5 KiB", EXPFILL }},
     };
 
     fragments          = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
