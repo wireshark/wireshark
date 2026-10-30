@@ -19005,3 +19005,84 @@ class TestDissectBtmesh:
             'TAI Seconds: Mar  7, 2022 20:26:03 UTC',
             'TAI Seconds: Mar  7, 2022 21:26:03 UTC',
         ]
+
+
+class TestDissectBtmeshPbadv:
+    def test_btmesh_pbadv_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Generic Provisioning PDU (Transaction Start, Acknowledgment,
+        Continuation, Link Open/ACK/Close) in BLE advertising decodes
+        without malformed packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_pbadv_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 41
+        assert protocols.count('BT Mesh PB-ADV') == 25
+        assert protocols.count('BT Mesh Provisioning PDU') == 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btmesh_pbadv_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btmesh_pbadv_reassembly_one_pass(self, cmd_tshark, capture_file, test_env):
+        '''A segmented transaction is reassembled and the Provisioning PDU
+        dissected on the first pass, also when the Transaction Start
+        comes last (frame 15), when a Continuation is repeated (frame 37)
+        and when two links use the same Transaction Number (34, 37).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btmesh_pbadv_coverage.pcap.gz'),
+                    '-Y', 'pbadv.gen_prov.gpp.reassembled.length',
+                    '-Tfields', '-eframe.number', '-epbadv.linkid', '-epbadv.trnumber',
+                    '-epbadv.gen_prov.gpp.fragment', '-epbadv.gen_prov.gpp.reassembled.length',
+                    '-eprovisioning.pdu_type', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '5\t168496141\t0\t3,4,5\t65\t3\tProvisioning Public Key PDU (Message fragment 2)',
+                '15\t168496141\t129\t15,14,13\t65\t3\tProvisioning Public Key PDU (Message fragment 0)',
+                '23\t168496141\t5\t22,23\t34\t7\tProvisioning Data PDU (Message fragment 1)',
+                '28\t168496143\t2\t27,28\t34\t7\tProvisioning Data PDU (Message fragment 1)',
+                '34\t572662306\t0\t32,34\t34\t7\tProvisioning Data PDU (Message fragment 1)',
+                '37\t286331153\t0\t33,35,36,37\t65\t3\tProvisioning Public Key PDU (Message fragment 2)',
+            ]
+
+    def test_btmesh_pbadv_retransmission(self, cmd_tshark, capture_file, test_env):
+        '''A Transaction Start and Continuation sent again after the
+        transaction was reassembled (frames 29-30) are shown as fragments,
+        not as malformed packets.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btmesh_pbadv_coverage.pcap.gz'),
+                    '-Y', 'pbadv.linkid == 168496143',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '27\tTransaction Start (Message fragment 0)',
+                '28\tProvisioning Data PDU (Message fragment 1)',
+                '29\tTransaction Start (Message fragment 0)',
+                '30\tTransaction Continuation (Message fragment 1)',
+            ]
+
+    def test_btmesh_pbadv_bearer_control(self, cmd_tshark, capture_file, test_env):
+        '''Link Open with its Device UUID, Link ACK and Link Close with
+        every reason.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_pbadv_coverage.pcap.gz'),
+                '-Y', 'pbadv.gen_prov.gpcf == 3',
+                '-Tfields', '-eframe.number', '-epbadv.gen_prov.gpcf.bearer_opcode',
+                '-epbadv.gen_prov.gpcf.bearer_opcode.device_uuid',
+                '-epbadv.gen_prov.gpcf.bearer_opcode.reason',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t70cf7c97-32a3-45b6-9149-4810d2e9cbf4\t',
+            '2\t1\t\t',
+            '26\t2\t\t0',
+            '31\t0\t00010203-0405-0607-0809-0a0b0c0d0e0f\t',
+            '39\t2\t\t1',
+            '40\t2\t\t2',
+            '41\t1\t\t',
+        ]
