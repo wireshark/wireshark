@@ -24312,3 +24312,73 @@ class TestDissectCfm:
                 '-Tfields', '-eframe.number', '-ecfm.tlv.tst_id.test_id',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['124\t00000008']
+
+
+class TestDissectCgmp:
+    def test_cgmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CGMP over Ethernet II and over LLC/SNAP decodes without
+        malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cgmp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 10
+        assert protocols.count('eth:ethertype:cgmp') == 8
+        assert protocols.count('eth:llc:cgmp') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cgmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cgmp_header(self, cmd_tshark, capture_file, test_env):
+        '''Version, type, reserved field and count of every message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cgmp_coverage.pcap.gz'),
+                '-Tfields', '-ecgmp.version', '-ecgmp.type', '-ecgmp.reserved',
+                '-ecgmp.count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t0x0000\t1',
+            '1\t1\t0x0000\t1',
+            '1\t0\t0x0000\t0',
+            '1\t1\t0x0000\t1',
+            '1\t0\t0xbeef\t5',
+            '2\t5\t0x0000\t1',
+            '1\t0\t0x0000\t2',
+            '1\t1\t0x0000\t0',
+            '1\t0\t0x0000\t255',
+            '15\t15\t0x0000\t1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cgmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 6}',
+                '-O', 'cgmp', '-V',
+            ), encoding='utf-8', env=test_env)
+        for label in ('Type: Join (0)', 'Type: Leave (1)', 'Type: Unknown (5)'):
+            assert label in stdout
+
+    def test_cgmp_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Group Destination and Unicast Source Address pairs, up to the
+        largest count of 255.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cgmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 7}',
+                '-Tfields', '-ecgmp.gda', '-ecgmp.usa',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            ','.join('01:00:5e:00:01:%02x' % i for i in range(2, 7)) + '\t'
+            + ','.join('00:11:22:33:44:%02x' % i for i in range(2, 7)),
+            '01:00:5e:00:01:0a,01:00:5e:00:01:0b\t00:11:22:33:44:0a,00:11:22:33:44:0b',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cgmp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9',
+                '-Tfields', '-ecgmp.gda', '-ecgmp.usa',
+            ), encoding='utf-8', env=test_env)
+        gda, usa = stdout.rstrip('\n').split('\t')
+        assert gda.split(',') == ['01:00:5e:00:01:%02x' % i for i in range(255)]
+        assert usa.split(',') == ['00:11:22:33:44:%02x' % i for i in range(255)]
