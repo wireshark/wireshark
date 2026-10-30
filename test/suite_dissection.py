@@ -17610,3 +17610,124 @@ class TestDissectBthciVendorIntel:
             '0x04\t\t0x01\t9\t\t\t\t0x0c',
             '0x05\t\t0x01\t9\t\t\t\t',
         ]
+
+
+class TestDissectBthcrp:
+    def test_bthcrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The HCRP control, data and notification channels found from
+        SDP decode without malformed packets or errors, in one and two
+        passes; the warnings are the parameter length checks and data on
+        the wrong channels.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('bthcrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 51
+        assert protocols.count('HCRP') == 36
+        assert protocols.count('SDP') == 4
+        assert protocols.count('L2CAP') == 10
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthcrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthcrp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '36\tParameter length is shorter than 2 in response,Parameter length is shorter than payload length',
+                '37\tParameter length is shorter than payload length',
+                '38\tParameter length is larger than payload length',
+                '48\tUnexpected data',
+                '51\tUnexpected data',
+            ]
+
+    def test_bthcrp_control(self, cmd_tshark, capture_file, test_env):
+        '''Every control PDU as request (sent by the client, the side that
+        connected to the printer's PSM) and response.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthcrp_coverage.pcap.gz'),
+                    '-Y', 'bthcrp.control.pdu_id',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '10\tSent Control: Request CR_DataChannelCreditGrant - CreditGranted: 10000',
+                '11\tRcvd Control: Response CR_DataChannelCreditGrant',
+                '12\tSent Control: Request CR_DataChannelCreditRequest',
+                '13\tRcvd Control: Response CR_DataChannelCreditRequest - CreditGranted: 20000',
+                '14\tSent Control: Request CR_DataChannelCreditReturn - Client Credit Return: 300',
+                '15\tRcvd Control: Response CR_DataChannelCreditReturn - Server Credit Return: 400',
+                '16\tSent Control: Request CR_DataChannelCreditQuery - Client Credit: 500',
+                '17\tRcvd Control: Response CR_DataChannelCreditQuery - Server Credit: 600',
+                '18\tSent Control: Request CR_GetLPTStatus',
+                '19\tRcvd Control: Response CR_GetLPTStatus',
+                '20\tSent Control: Request CR_Get1284ID - Start Byte: 0, Number Of Bytes: 64',
+                '21\tRcvd Control: Response CR_Get1284ID - 1284 ID: MFG:Example;MDL:Synthetic Printer;CMD:PCL;',
+                '22\tSent Control: Request CR_SoftReset',
+                '23\tRcvd Control: Response CR_SoftReset',
+                '24\tSent Control: Request CR_HardReset',
+                '25\tRcvd Control: Response CR_HardReset',
+                '26\tSent Control: Request CR_RegisterNotification -  Register: Add Client To Receiver Notification, Callback ContextID: 287454020, Callback Timeout: 30000',
+                '27\tRcvd Control: Response CR_RegisterNotification - Timeout: 60000, Callback Timeout: 30000',
+                '28\tSent Control: Request CR_RegisterNotification -  Register: Remove Client From Receiver Notification, Callback ContextID: 287454020, Callback Timeout: 0',
+                '29\tSent Control: Request CR_RegisterNotification -  Register: unknown register, Callback ContextID: 1, Callback Timeout: 2',
+                '30\tSent Control: Request CR_NotificationConnectionAlive',
+                '31\tRcvd Control: Response CR_NotificationConnectionAlive - Timeout: 45000',
+                '32\tSent Control: Request Unknown PDU ID (Vendor Specific)',
+                '33\tRcvd Control: Response Unknown PDU ID (Vendor Specific)',
+                '34\tSent Control: Request Unknown PDU ID (Reserved)',
+                '35\tRcvd Control: Response Unknown PDU ID (Reserved)',
+                '36\tRcvd Control: Response CR_SoftReset',
+                '37\tSent Control: Request CR_DataChannelCreditGrant - CreditGranted: 1',
+                '38\tSent Control: Request CR_GetLPTStatus',
+            ]
+
+    def test_bthcrp_channels(self, cmd_tshark, capture_file, test_env):
+        '''The data channel from the additional protocol descriptor list,
+        the notification channel of our own record that the printer
+        connects to, and a channel of a record without an HCRP protocol.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('bthcrp_coverage.pcap.gz'),
+                    '-Y', 'bthcrp && !bthcrp.control.pdu_id',
+                    '-Tfields', '-eframe.number', '-ebthcrp.notification.pdu_id',
+                    '-ebthcrp.callback.context_id', '-edata.len', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '39\t\t\t15\tSent HCRP data stream',
+                '40\t\t\t21\tRcvd HCRP data stream',
+                '45\t0x0001\t0x11223344\t\tRcvd Notification: N_Notification',
+                '46\t0x8002\t\t\tRcvd Notification: Unknown PDU ID (Vendor Specific)',
+                '47\t0x0002\t\t\tRcvd Notification: Unknown PDU ID (Reserved)',
+                '48\t\t\t\tSent Notification: unexpected notification stream',
+                '51\t\t\t\tSent HCRP stream',
+            ]
+
+    def test_bthcrp_preferences(self, cmd_tshark, capture_file, test_env):
+        '''"Force Client" no makes the local side the server; an L2CAP PSM
+        preference sets the channel type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'bthcrp.hcrp.force_client:no',
+                '-r', capture_file('bthcrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {10,45,48}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\tSent Control: Response CR_DataChannelCreditGrant',
+            '45\tRcvd Notification: unexpected notification stream',
+            '48\tSent Notification: N_Notification',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'bthcrp.hcrp.data.psm:4103',
+                '-r', capture_file('bthcrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 51',
+                '-Tfields', '-eframe.number', '-edata.len', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['51\t4\tSent HCRP data stream']
