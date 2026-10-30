@@ -19086,3 +19086,74 @@ class TestDissectBtmeshPbadv:
             '40\t2\t\t2',
             '41\t1\t\t',
         ]
+
+
+class TestDissectBtmeshProvisioning:
+    def test_btmesh_provisioning_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Provisioning PDU type over PB-ADV (unsegmented and
+        reassembled) and over Mesh Proxy (complete and segmented) decodes
+        without malformed packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_provisioning_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 61
+        assert protocols.count('BT Mesh Provisioning PDU') == 44
+        assert protocols.count('BT Mesh PB-ADV') == 3
+        assert protocols.count('BT Mesh Proxy') == 3
+        assert protocols.count('ATT') == 10
+        assert protocols.count('HCI_EVT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btmesh_provisioning_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_btmesh_provisioning_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''All ten PDU types, the four authentication methods and the nine
+        error codes; the transport shows in Info: the PB-ADV segment of a
+        reassembled PDU and the last Mesh Proxy segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_provisioning_coverage.pcap.gz'),
+                '-Y', 'provisioning',
+                '-Tfields', '-eprovisioning.pdu_type',
+                '-eprovisioning.authentication_method', '-eprovisioning.error_code',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert sorted(set(r[0] for r in rows)) == [str(t) for t in range(10)]
+        assert sorted(set(r[1] for r in rows if r[1])) == ['0', '1', '2', '3']
+        assert [r[2] for r in rows if r[2]] == [str(c) for c in range(9)]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('btmesh_provisioning_coverage.pcap.gz'),
+                    '-Y', 'provisioning.pdu_type in {3, 7}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '33\tProvisioning Public Key PDU (Message fragment 2)',
+                '35\tProvisioning Data PDU (Message fragment 1)',
+                '52\tProvisioning Public Key PDU (Last Segment)',
+                '53\tProvisioning Public Key PDU',
+                '60\tProvisioning Data PDU (Last Segment)',
+            ]
+
+    def test_btmesh_provisioning_start(self, cmd_tshark, capture_file, test_env):
+        '''Provisioning Start: the action and size of each authentication
+        method are decoded with that method's fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('btmesh_provisioning_coverage.pcap.gz'),
+                '-Y', 'provisioning.authentication_method >= 2',
+                '-Tfields', '-eprovisioning.authentication_method',
+                '-eprovisioning.authentication_action.output_oob_action',
+                '-eprovisioning.authentication_size.output_oob_action',
+                '-eprovisioning.authentication_action.input_oob_action',
+                '-eprovisioning.authentication_size.input_oob_action',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0\t1\t\t', '2\t1\t2\t\t', '2\t2\t4\t\t', '2\t3\t6\t\t', '2\t4\t8\t\t',
+            '3\t\t\t0\t1', '3\t\t\t1\t3', '3\t\t\t2\t5', '3\t\t\t3\t8',
+            '2\t3\t4\t\t',
+        ]
