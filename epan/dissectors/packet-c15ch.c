@@ -4080,7 +4080,7 @@ static void add_digits_string(int hf, tvbuff_t *tvb, packet_info* pinfo, proto_t
     /* we are consuming all data from (first_offset - offset_from_start_to_consume) to (first_offset + max_num_digits) */
 
     proto_tree_add_string(tree, hf,
-                tvb, first_offset - offset_from_digits_to_consume, max_num_digits + 1, ch_buff);
+                tvb, first_offset - offset_from_digits_to_consume, max_num_digits + offset_from_digits_to_consume, ch_buff);
 }
 
 
@@ -4611,7 +4611,7 @@ static int dissect_c15ch_echo_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         loop_val = tvb_get_ntohl( tvb, 23 );
         slot_val = tvb_get_ntohl( tvb, 27 );
         loc_string = wmem_strdup_printf(pinfo->pool, "%d  %d  %d  %d", pm_val, pc_val, loop_val, slot_val );
-        ti = proto_tree_add_string(c15ch_echo_cancel_tree, hf_c15ch_echo_cancel_location, tvb, 15, (27 + 4 - 15) + 1, loc_string);
+        ti = proto_tree_add_string(c15ch_echo_cancel_tree, hf_c15ch_echo_cancel_location, tvb, 15, 27 + 4 - 15, loc_string);
         loc_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub4);
 
         proto_tree_add_item(loc_tree, hf_c15ch_echo_cancel_pm, tvb, 15, 4, ENC_BIG_ENDIAN);
@@ -5423,7 +5423,7 @@ static int dissect_c15ch_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         proto_tree_add_item(c15ch_q931_tree, hf_c15ch_q931_msglength,
                             tvb, 9, 4, ENC_BIG_ENDIAN);
-        if (q931_msg_len && bytes_to_skip)
+        if (bytes_to_skip && q931_msg_len > bytes_to_skip)
         {
             next_tvb = tvb_new_subset_length(tvb, 13 + bytes_to_skip, q931_msg_len - bytes_to_skip);
             call_dissector(general_q931_handle, next_tvb, pinfo, tree);
