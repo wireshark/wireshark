@@ -2961,8 +2961,6 @@ static void
 dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    uint16_t packet_id = 0;
-
     proto_item *ti, *hidden_item;
     proto_tree *cigi_tree;
 
@@ -2970,24 +2968,23 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const char* dest_str;
 
 
-    if ((tvb_get_ntohs(tvb, 0) & 0xFF00) == 0) {
-        packet_id = tvb_get_uint16(tvb, 2, ENC_BIG_ENDIAN);     //packet_id is not at the same location
-    }
-    else {
-        packet_id = tvb_get_uint16(tvb, 2, ENC_LITTLE_ENDIAN);
-    }
-
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIGI");
 
     /* If we have the start of frame or IG Control packet set the version
      * XXX - If another version of cigi is added to this dissector be sure to
      * place the IG Control and SOF packet id's in this comparison. */
-    if ( ( packet_id == CIGI2_PACKET_ID_IG_CONTROL || packet_id == CIGI2_PACKET_ID_START_OF_FRAME || packet_id == CIGI3_PACKET_ID_IG_CONTROL || packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-        cigi_version = tvb_get_uint8(tvb, 2);
-    }
-    else if ((packet_id == CIGI4_PACKET_ID_IG_CONTROL || packet_id == CIGI4_PACKET_ID_START_OF_FRAME) && global_cigi_version == CIGI_VERSION_FROM_PACKET) {
-        cigi_version = tvb_get_uint8(tvb, 4);
+    if ( global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
+        /* CIGI 2 and 3 have a one octet packet id at offset 0, CIGI 4 a two
+         * octet packet id at offset 2 (0x0000 and 0xFFFF in either byte order) */
+        uint8_t first_id = tvb_get_uint8(tvb, 0);
+        uint16_t cigi4_id = tvb_get_ntohs(tvb, 2);
+
+        if ( first_id == CIGI3_PACKET_ID_IG_CONTROL || first_id == CIGI3_PACKET_ID_START_OF_FRAME ) {
+            cigi_version = tvb_get_uint8(tvb, 2);
+        } else if ( cigi4_id == CIGI4_PACKET_ID_IG_CONTROL || cigi4_id == CIGI4_PACKET_ID_START_OF_FRAME ) {
+            cigi_version = tvb_get_uint8(tvb, 4);
+        }
     }
 
     /* Format the Info String */
@@ -3074,14 +3071,14 @@ cigi_add_tree(tvbuff_t *tvb, proto_tree *cigi_tree)
 
         /* a cigi packet must be at least 2 bytes long
            ( 1 - packet_id; 2 - packet_size ) */
-        if ( packet_size < 2 )
+        if ( packet_size < 2 || ( ( packet_id == 1 || packet_id == 101 ) && packet_size < 3 ) )
             return;
 
         /* If we have the start of frame or IG Control packet set the version.
          * Since we have no cigi version we assume that packet id 1 is the
          * IG Control and packet id 101 is the Start of Frame. */
         if ( ( packet_id == 1 || packet_id == 101 ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-            cigi_version = tvb_get_uint8(tvb, 2);
+            cigi_version = tvb_get_uint8(tvb, offset + 2);
         }
 
         /* Add the subtree for the packet */
@@ -3159,7 +3156,7 @@ cigi2_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 
         /* If we have the start of frame or IG Control packet set the version */
         if ( ( packet_id == CIGI2_PACKET_ID_IG_CONTROL || packet_id == CIGI2_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-            cigi_version = tvb_get_uint8(tvb, 2);
+            cigi_version = tvb_get_uint8(tvb, offset + 2);
         }
 
         /* Add the subtree for the packet */
@@ -3352,7 +3349,7 @@ cigi2_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
             offset = cigi2_add_image_generator_message(tvb, cigi_packet_tree, offset);
             break;
         default:
-            offset = cigi_add_data(next_tvb, cigi_packet_tree, 0);
+            offset += cigi_add_data(next_tvb, cigi_packet_tree, 0);
             break;
         }
 
@@ -3390,18 +3387,17 @@ cigi3_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 
         packet_id = tvb_get_uint8(tvb, offset);
         packet_size = tvb_get_uint8(tvb, offset + 1);
-        byte_swap = tvb_get_ntohs(tvb, offset + 6);
 
         /* If we have the start of frame or IG Control packet set the version */
         if ( ( packet_id == CIGI3_PACKET_ID_IG_CONTROL || packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-            cigi_version = tvb_get_uint8(tvb, 2);
+            cigi_version = tvb_get_uint8(tvb, offset + 2);
 
             /* CIGI Minor Version first appeared in CIGI 3.2. Note: It is in a
              * different location in IG Control vs Start of Frame. */
             if ( packet_size == CIGI3_2_PACKET_SIZE_IG_CONTROL && packet_id == CIGI3_PACKET_ID_IG_CONTROL ) {
-               cigi_minor_version = tvb_get_uint8(tvb, 4) >> 4;
+               cigi_minor_version = tvb_get_uint8(tvb, offset + 4) >> 4;
             } else if ( packet_size == CIGI3_2_PACKET_SIZE_START_OF_FRAME && packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) {
-               cigi_minor_version = tvb_get_uint8(tvb, 5) >> 4;
+               cigi_minor_version = tvb_get_uint8(tvb, offset + 5) >> 4;
             } else {
                /* CIGI version prior to 3.2 */
                cigi_minor_version = 0;
@@ -3410,6 +3406,7 @@ cigi3_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
 
         /* If we have the SOF or IG Control packet set the byte order */
         if ( ( packet_id == CIGI3_PACKET_ID_IG_CONTROL || packet_id == CIGI3_PACKET_ID_START_OF_FRAME ) && global_cigi_byte_order == CIGI_BYTE_ORDER_FROM_PACKET ) {
+            byte_swap = tvb_get_ntohs(tvb, offset + 6);
             if ( byte_swap == CIGI3_BYTE_SWAP_BIG_ENDIAN ) {
                 cigi_byte_order = ENC_BIG_ENDIAN;
             } else if ( byte_swap == CIGI3_BYTE_SWAP_LITTLE_ENDIAN ) {
@@ -8227,9 +8224,9 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
      * a new packet to dissect. */
     while ( offset < length ) {
 
-        byte_swap = tvb_get_ntohs(tvb, offset);
-        /* If we have the SOF or IG Control packet set the byte order */
-        //if ((packet_id == CIGI4_PACKET_ID_IG_CONTROL || packet_id == CIGI4_PACKET_ID_START_OF_FRAME) && global_cigi_byte_order == CIGI_BYTE_ORDER_FROM_PACKET) {
+        /* The first packet is the SOF or IG Control packet; it sets the byte order */
+        if (offset == 0) {
+            byte_swap = tvb_get_ntohs(tvb, offset);
             //If the parser detects a zero in the "leftmost" byte, then the message is in Big Endian byte
             if ((byte_swap & 0xFF00) == 0) {
                 cigi_byte_order = ENC_BIG_ENDIAN;
@@ -8237,17 +8234,17 @@ cigi4_add_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cigi_tree)
             else {
                 cigi_byte_order = ENC_LITTLE_ENDIAN;
             }
-        //}
+        }
         packet_id = tvb_get_uint16(tvb, offset + 2, cigi_byte_order);
         packet_size = tvb_get_uint16(tvb, offset, cigi_byte_order);
 
         /* If we have the start of frame or IG Control packet set the version */
         if ( ( packet_id == CIGI4_PACKET_ID_IG_CONTROL || packet_id == CIGI4_PACKET_ID_START_OF_FRAME ) && global_cigi_version == CIGI_VERSION_FROM_PACKET ) {
-            cigi_version = tvb_get_uint8(tvb, 4);
+            cigi_version = tvb_get_uint8(tvb, offset + 4);
 
             if (( packet_size == CIGI4_PACKET_SIZE_IG_CONTROL && packet_id == CIGI4_PACKET_ID_IG_CONTROL ) ||
                 ( packet_size == CIGI4_PACKET_SIZE_START_OF_FRAME && packet_id == CIGI4_PACKET_ID_START_OF_FRAME )) {
-               cigi_minor_version = tvb_get_uint8(tvb, 7) >> 4;
+               cigi_minor_version = tvb_get_uint8(tvb, offset + 7) >> 4;
             } else {
                cigi_minor_version = 0;
             }
