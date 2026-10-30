@@ -664,6 +664,9 @@ static int ett_oran_se10_port;
 static int ett_oran_fragment;
 static int ett_oran_fragments;
 
+/* Dissector table for Section Extensions not in the standard, keyed by exttype. */
+static dissector_table_t oran_sectionextension_table;
+
 /* Reassembly table. */
 static reassembly_table oran_reassembly_table;
 
@@ -5618,12 +5621,37 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             case 35: /* TODO: Codebook-based beamforming parameters */
 
             default:
+            {
+                /* Not handled above.  Offer the SE to an external dissector. */
+                /* If one handles it, use the number of bytes it dissected; */
+                /* otherwise fall back to flagging it as unsupported. */
+                int dissected = 0;
+                unsigned se_end = extension_start_offset + (extlen*4);
+                oran_se_info se_info;
+                se_info.exttype   = exttype;
+                se_info.extlen    = extlen;
+                se_info.startPrbc = startPrbc;
+                se_info.numPrbc   = numPrbc;
+                se_info.extension_ti = extension_ti;
+                se_info.exttype_ti   = exttype_ti;
+
+                /* Subset tvb covering just the SE payload */
+                tvbuff_t *se_tvb = tvb_new_subset_length(tvb, offset, se_end-offset);
+                dissected = dissector_try_uint_with_data(oran_sectionextension_table, exttype,
+                                                         se_tvb, pinfo, extension_tree, true, &se_info);
+
+                if (dissected > 0) {
+                    offset += dissected;
+                    break;
+                }
+
                 /* Other/unexpected extension types */
                 expert_add_info_format(pinfo, exttype_ti, &ei_oran_unhandled_se,
                                        "SE %u (%s) not supported by dissector",
                                        exttype, val_to_str_ext_const(exttype, &exttype_vals_ext, "Reserved"));
                 ext_unhandled = true;
                 break;
+            }
         }
 
         /* Check offset compared with extlen.  There should be 0-3 bytes of padding */
@@ -11920,6 +11948,11 @@ proto_register_oran(void)
 
     /* Allow dissector to find be found by name. */
     register_dissector("oran_fh_cus", dissect_oran, proto_oran);
+
+    /* Dissector table so dissectors for non-standard Section Extension can register by exttype  */
+    oran_sectionextension_table = register_dissector_table("oran.sectionextension",
+                                                        "O-RAN non-standard Section Extension (by exttype)",
+                                                        proto_oran, FT_UINT8, BASE_DEC);
 
     /* Register the tap name. */
     oran_tap = register_tap("oran-fh-cus");
