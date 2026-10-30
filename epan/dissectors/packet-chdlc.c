@@ -127,7 +127,8 @@ chdlctype(dissector_handle_t sub_dissector, uint16_t chdlc_type,
   proto_tree_add_uint(fh_tree, chdlctype_id, tvb,
                         offset_after_chdlctype - 2, 2, chdlc_type);
 
-  padbyte = tvb_get_uint8(tvb, offset_after_chdlctype);
+  /* Only CLNS protocols can have a padding byte */
+  padbyte = chdlc_type == CHDLCTYPE_OSI ? tvb_get_uint8(tvb, offset_after_chdlctype) : 0;
   if (chdlc_type == CHDLCTYPE_OSI &&
     !( padbyte == NLPID_ISO8473_CLNP || /* older Juniper SW does not send a padbyte */
        padbyte == NLPID_ISO9542_ESIS ||
