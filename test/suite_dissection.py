@@ -26674,3 +26674,105 @@ class TestDissectClip:
         assert stdout.splitlines() == [
             '192.0.2.1\t', '192.0.2.1\t', '198.51.100.2\t', '\t2001:db8::1',
         ]
+
+
+class TestDissectCliqueRm:
+    HEURISTIC = ('--enable-heuristic', 'clique_rm_udp')
+
+    def test_clique_rm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Clique RM packet decodes (with the heuristic enabled)
+        without malformed packets or expert infos, in one and two passes;
+        the heuristic is disabled by default.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clique_rm_coverage.pcap.gz'), *self.HEURISTIC,
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['Clique-rm'] * 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('clique_rm_coverage.pcap.gz'), *self.HEURISTIC,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clique_rm_coverage.pcap.gz'),
+                '-Y', 'clique-rm',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_clique_rm_types(self, cmd_tshark, capture_file, test_env):
+        '''Type, sender and packet ID of every packet, and the Info
+        column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clique_rm_coverage.pcap.gz'), *self.HEURISTIC,
+                '-Tfields', '-eclique_rm.type', '-eclique_rm.sender', '-eclique_rm.packet_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x00\t0x1a2b3c4d\t', '0x01\t0x0badf00d\t', '0x01\t0xcafe0001\t',
+            '0x02\t0x1a2b3c4d\t', '0x03\t0x0badf00d\t', '0x03\t0x1a2b3c4d\t',
+            '0x05\t0xcafe0001\t',
+            '0x0f\t0x1a2b3c4d\t0x00000065', '0x0f\t0x0badf00d\t0x0000002b',
+            '0x10\t0xcafe0001\t0x00000008', '0x11\t0x1a2b3c4d\t0x00000066',
+            '0x11\t0x0badf00d\t0x0000002c', '0x12\t0xcafe0001\t0x00000009',
+            '0x13\t0x1a2b3c4d\t0x00000067', '0x14\t0x0badf00d\t0x0000002d',
+            '0x20\t0xcafe0001\t0x0000000a',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clique_rm_coverage.pcap.gz'), *self.HEURISTIC,
+                '-Y', 'frame.number == 7 || frame.number == 8 || frame.number == 16',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Unknown (0x05), sender: 0xcafe0001',
+            'Data, sender: 0x1a2b3c4d, id: 0x65',
+            'Unknown (0x20), sender: 0xcafe0001, id: 0xa',
+        ]
+
+    def test_clique_rm_unreliable(self, cmd_tshark, capture_file, test_env):
+        '''Whois request and reply, repair request and session fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clique_rm_coverage.pcap.gz'), *self.HEURISTIC,
+                '-Y', 'clique_rm.type < 0x0f',
+                '-Tfields', '-eclique_rm.whois_request.id', '-eclique_rm.whois_reply.length',
+                '-eclique_rm.whois_reply.name', '-eclique_rm.repair_request.sender_id',
+                '-eclique_rm.repair_request.packet_id', '-eclique_rm.depends',
+                '-eclique_rm.depends.sender', '-eclique_rm.depends.packet_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0badf00d\t\t\t\t\t\t\t',
+            '\t11\tbob@example\t\t\t\t\t',
+            '\t0\t\t\t\t\t\t',
+            '\t\t\t0x0badf00d\t0x00000029\t\t\t',
+            '\t\t\t\t\t0x00\t\t',
+            '\t\t\t\t\t0x03\t0x0badf00d,0xcafe0001,0x1a2b3c4d\t0x0000002a,0x00000007,0x00000064',
+            '\t\t\t\t\t\t\t',
+        ]
+
+    def test_clique_rm_reliable(self, cmd_tshark, capture_file, test_env):
+        '''Data packets and the sender lists of failure, attempt join and
+        join packets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clique_rm_coverage.pcap.gz'), *self.HEURISTIC,
+                '-Y', 'clique_rm.type == 0x0f',
+                '-Tfields', '-eclique_rm.depends', '-eclique_rm.data.flags',
+                '-eclique_rm.data.stream_id', '-eclique_rm.data.size', '-eclique_rm.data.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x02\t0x03\t0x0001\t23\t48656c6c6f2c206d756c7469636173742067726f757021',
+            '0x00\t0x00\t0xffff\t1\t21',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('clique_rm_coverage.pcap.gz'), *self.HEURISTIC,
+                '-Y', 'clique_rm.type >= 0x11 && clique_rm.type <= 0x13',
+                '-Tfields', '-eclique_rm.failures', '-eclique_rm.failures.sender',
+                '-eclique_rm.attempt_join', '-eclique_rm.attempt_join.sender',
+                '-eclique_rm.join_failures', '-eclique_rm.join_failures.sender',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x02\t0x0badf00d,0xcafe0001\t\t\t\t',
+            '0x00\t\t\t\t\t',
+            '\t\t0x03\t0x1a2b3c4d,0x0badf00d,0xcafe0001\t\t',
+            '\t\t\t\t0x01\t0x1a2b3c4d',
+        ]
