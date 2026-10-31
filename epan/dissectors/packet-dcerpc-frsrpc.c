@@ -638,15 +638,16 @@ static int frsrpc_dissect_element_FrsStartPromotionParent_partner_guid__(tvbuff_
 static int frsrpc_dissect_element_FrsStartPromotionParent_parent_guid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int frsrpc_dissect_element_FrsStartPromotionParent_parent_guid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int frsrpc_dissect_element_FrsStartPromotionParent_parent_guid__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+	#include <epan/exceptions.h>
 static int
 frsrpc_dissect_element_CommPktChangeOrderCommand_file_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_)
 {
 	int conformant = di->conformant_run;
 	if (!conformant) {
-		uint32_t soffset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_frsrpc_CommPktChangeOrderCommand_file_name, 0);
-		/* The difference has to be 4 due to the uint16 of the length  + null terminator utf16*/
-		DISSECTOR_ASSERT(soffset - offset < 261);
-		offset += 261;
+		/* uint16 file_name[FRSRPC_MAX_PATH+1], padded with zeros */
+		proto_tree_add_item(tree, hf_frsrpc_CommPktChangeOrderCommand_file_name, tvb,
+		    offset, 2*(260+1), ENC_UTF_16|DREP_ENC_INTEGER(drep));
+		offset += 2*(260+1);
 	}
 	return offset;
 }
@@ -713,7 +714,11 @@ frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_i
 		proto_tree *subtree = proto_item_add_subtree(item, ett_ChunkCtr);
 		di->no_align = 1;
 		while (remaining > 0) {
+			int old_offset = offset;
 			offset = frsrpc_dissect_struct_CommPktChunk(tvb, offset, pinfo, subtree, di, drep, hf_CommPktChunk, param);
+			/* A chunk size near 2^32 wraps the offset back */
+			if (offset <= old_offset)
+				THROW(ReportedBoundsError);
 			remaining = tvb_reported_length_remaining(tvb, offset);
 		}
 		di->no_align = align_status;
@@ -3495,7 +3500,7 @@ void proto_register_dcerpc_frsrpc(void)
 	{ &hf_CommPktChunk,
 	  { "Chunk", "frsrpc.chunk.ctr.chunk", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_CommPktChangeOrderCommand_file_name,
-	  { "File Name", "frsrpc.CommPktChangeOrderCommand.file_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "File Name", "frsrpc.CommPktChangeOrderCommand.file_name", FT_STRINGZPAD, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_ack_version,
 	  { "Ack Version", "frsrpc.frsrpc_CommPktChangeOrderCommand.ack_version", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_change_order_guid,
