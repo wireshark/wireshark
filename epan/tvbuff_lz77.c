@@ -15,6 +15,7 @@
 #include <epan/wmem_scopes.h>
 
 #define MAX_INPUT_SIZE (16*1024*1024) /* 16MB */
+#define MAX_OUTPUT_SIZE (16*1024*1024) /* 16MB */
 
 static bool do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 			      wmem_array_t *obuf)
@@ -33,6 +34,11 @@ static bool do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 		}
 		buf_flag_count--;
 		if ((buf_flags & (1u << buf_flag_count)) == 0) {
+			/* A literal must be inside the compressed data. */
+			if (in_off >= in_size)
+				return false;
+			if (wmem_array_get_count(obuf) >= MAX_OUTPUT_SIZE)
+				return false;
 			uint8_t v = tvb_get_uint8(tvb, offset+in_off);
 			wmem_array_append_one(obuf, v);
 			in_off++;
@@ -72,13 +78,17 @@ static bool do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 				}
 				match_len += 7;
 			}
-			/* XXX - We could instead fail inside the loops, e.g.
-			 * testing wmem_array_get_count(obuf) > MAX_INPUT_SIZE,
-			 * and return what we could decompress in a tvb with
-			 * reported length greater than captured length. */
-			if (match_len > MAX_INPUT_SIZE)
+			/* Each match can be up to 4 GB long, so limit the
+			 * whole output, not just one match: a few octets of
+			 * matches could otherwise expand to gigabytes.
+			 * XXX - We could instead return what we could
+			 * decompress in a tvb with reported length greater
+			 * than captured length. */
+			if (match_len > MAX_OUTPUT_SIZE)
 				return false;
 			match_len += 3;
+			if (match_len > MAX_OUTPUT_SIZE - wmem_array_get_count(obuf))
+				return false;
                         /* We can copy up to match_off bytes at a time.
                          * (The overlap handling is *not* like memmove,
                          * see [MS-XCA] 2.4.4.) */
