@@ -2958,6 +2958,132 @@ class TestDissectMoqLite:
 
 
 @pytest.mark.parametrize("pass_args", [(), ("-2",)], ids=["one-pass", "two-pass"])
+class TestDissectMoqHang:
+    '''
+    hang over moq-lite. The capture was generated with aioquic and holds one
+    session for each hang draft 00 to 03 over moq-lite-04 and moq-lite-05.
+    Each session publishes the broadcast room/dNN-lVV.hang, where NN is the
+    hang draft and VV the moq-lite draft.
+    '''
+    SESSIONS = [f'room/d{d:02d}-l{v}.hang' for d in range(4) for v in ('04', '05')]
+
+    def test_moq_hang_catalog_layout(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''The draft of each catalog is inferred from its layout.'''
+        rows = self.read(cmd_tshark, capture_file, test_env, pass_args,
+                         'moql.track_name == "catalog.json"',
+                         'moql.broadcast_path', 'moq_hang.catalog_layout')
+        layouts = {row[0].split(',')[0]: row[1] for row in rows}
+        assert layouts == {path: str(int(path[6:8]) + 1) for path in self.SESSIONS}
+
+    def test_moq_hang_track_roles(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Every track is classified from the catalog, whatever the draft.'''
+        rows = self.read(cmd_tshark, capture_file, test_env, pass_args, 'moq_hang',
+                         'moql.broadcast_path', 'moql.track_name', 'moq_hang.track_role')
+        roles = {}
+        for path, name, role in rows:
+            roles.setdefault(path.split(',')[0], {})[name.split(',')[0]] = role.split(',')[0]
+        for path in self.SESSIONS:
+            expected = {'catalog.json': '1', 'video': '4', 'audio': '4'}
+            if path >= 'room/d02':
+                expected['video.cmaf'] = '4'
+            if path >= 'room/d03':
+                expected.update({'captions.en': '4', 'chat.json': '5',
+                                 'timeline.z': '3', 'catalog.json.z': '2'})
+            assert roles[path] == expected, path
+
+    def test_moq_hang_legacy_container(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Legacy timestamps, codecs and the empty payload marker.'''
+        for path in ('room/d00-l04.hang', 'room/d03-l05.hang'):
+            rows = self.read(cmd_tshark, capture_file, test_env, pass_args,
+                             f'moql.broadcast_path == "{path}" && moql.track_name == "video"'
+                             ' && moq_hang',
+                             'moq_hang.container', 'moq_hang.codec', 'moq_hang.timestamp',
+                             'moq_hang.marker')
+            assert len(rows) == 1
+            container, codec, timestamps, marker = rows[0]
+            assert set(container.split(',')) == {'0'}
+            assert set(codec.split(',')) == {'avc1.64001f'}
+            assert timestamps == '0,33333,66666'
+            assert marker.startswith('Exclusive end of the previous frame')
+
+    def test_moq_hang_opus(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Opus audio is handed to the Opus dissector.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-hang.pcapng.gz'),
+                '-Y', 'moq_hang && opus', '-T', 'fields', '-e', 'moql.broadcast_path',
+            ), encoding='utf-8', env=test_env)
+        paths = {line.split(',')[0] for line in stdout.splitlines()}
+        assert paths == set(self.SESSIONS)
+
+    def test_moq_hang_cmaf(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''The cmaf container is handed to the MP4 dissector (draft 02 on).'''
+        rows = self.read(cmd_tshark, capture_file, test_env, pass_args,
+                         'moq_hang.container == 1 && mp4.box.type_str == "moof"',
+                         'moql.broadcast_path')
+        assert sorted(row[0].split(',')[0] for row in rows) == self.SESSIONS[4:]
+
+    def test_moq_hang_text(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''A WebVTT cue on a draft 03 text track.'''
+        rows = self.read(cmd_tshark, capture_file, test_env, pass_args, 'moq_hang.text',
+                         'moq_hang.format', 'moq_hang.text')
+        assert rows == [['vtt', r'WEBVTT\n\n00:00.000 --> 00:01.000\nHello hang\n']] * 2
+
+    def test_moq_hang_deflate(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''DEFLATE tracks are inflated across the frames of each group.'''
+        rows = self.read(cmd_tshark, capture_file, test_env, pass_args,
+                         'moql.broadcast_path == "room/d03-l05.hang" && moq_hang.decompressed_length',
+                         'moql.track_name', 'moq_hang.decompressed_length', 'json.value.string')
+        by_track = {row[0].split(',')[0]: row[1:] for row in rows}
+        assert by_track['chat.json'] == ['19,27', 'hi,hi,there']
+        assert by_track['timeline.z'][0] == '117,55,10'
+        assert by_track['catalog.json.z'][0] == '607'
+        assert 'timeline.z' in by_track['catalog.json.z'][1].split(',')
+
+    def test_moq_hang_timeline_info(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Timeline checkpoints are told apart from operations.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-hang.pcapng.gz'),
+                '-Y', 'moql.broadcast_path == "room/d03-l04.hang" && moql.track_name == "timeline.z"',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout, r'\[hang timeline checkpoint\]') == 1
+        assert count_output(stdout, r'\[hang timeline op\]') == 1
+
+    def test_moq_hang_disabled(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''With the heuristic disabled payloads stay opaque moq-lite bytes.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-hang.pcapng.gz'),
+                '--disable-heuristic', 'moq_hang_moql',
+                '-Y', 'moq_hang || moql.frame.payload', '-T', 'fields', '-e', 'moq_hang.track_role',
+            ), encoding='utf-8', env=test_env)
+        # Frames are still matched by moql.frame.payload, but none by moq_hang.
+        assert len(stdout.splitlines()) > 0
+        assert not stdout.strip()
+
+    def test_moq_hang_expert(self, cmd_tshark, capture_file, test_env, pass_args):
+        '''Nothing in the capture is flagged.'''
+        stdout = subprocess.check_output((cmd_tshark, *pass_args,
+                '-r', capture_file('moq-hang.pcapng.gz'),
+                '-zexpert,note,moq_hang', '-Y', 'moq_hang || moql',
+                ), encoding='utf-8', env=test_env)
+        assert not grep_output(stdout, 'Errors')
+        assert not grep_output(stdout, 'Warns')
+        assert not grep_output(stdout, 'Notes')
+
+    @staticmethod
+    def read(cmd_tshark, capture_file, test_env, pass_args, display_filter, *fields):
+        command = [
+            cmd_tshark, *pass_args,
+            '-r', capture_file('moq-hang.pcapng.gz'),
+            '-Y', display_filter,
+            '-T', 'fields',
+        ]
+        for field in fields:
+            command.extend(('-e', field))
+        output = subprocess.check_output(command, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in output.splitlines()]
+
+
+@pytest.mark.parametrize("pass_args", [(), ("-2",)], ids=["one-pass", "two-pass"])
 class TestDissectMoqLiteEdges:
     @pytest.mark.parametrize("name,delta", [("positive", (1 << 61) - 1),
                                            ("negative", -(1 << 61))])

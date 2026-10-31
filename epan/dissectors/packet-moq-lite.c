@@ -52,6 +52,7 @@
 #include <wsutil/array.h>
 #include <wsutil/str_util.h>
 
+#include "packet-moq-lite.h"
 #include "packet-quic.h"
 #include "packet-tls.h"
 
@@ -179,6 +180,9 @@ static expert_field ei_moql_protocol_violation;
 
 static dissector_handle_t moql_handle;
 static dissector_handle_t moql_datagram_handle;
+
+/* Application protocols carried in frame payloads, e.g. hang. */
+static heur_dissector_list_t moql_payload_heur_list;
 
 /* Reassemble messages that span multiple QUIC STREAM frames. */
 static bool moql_desegment = true;
@@ -349,6 +353,12 @@ typedef struct _moql_stream {
      */
     wmem_map_t *frame_timestamps;
     moql_timestamp_t timestamp; /* Running sum, first pass only. */
+    /* The group carried by a Group stream, from its GROUP header. */
+    uint64_t    group_sequence;
+    bool        group_sequence_known;
+    /* Stream offset of the first FRAME, set on the first pass. */
+    uint64_t    first_frame_offset;
+    bool        first_frame_offset_known;
 } moql_stream_t;
 
 static moql_session_t *
@@ -807,10 +817,10 @@ moql_timestamp_nsecs(int64_t timestamp, uint64_t timescale)
  * Add the absolute timestamp of a frame, accumulated from the per frame deltas,
  * and its wall clock equivalent if the track's timescale is known.
  */
-static void
+static bool
 moql_add_frame_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *msg_ti,
                          moql_session_t *session, moql_stream_t *stream, uint64_t abs_offset,
-                         int64_t delta, int payload_len)
+                         int64_t delta, int payload_len, int64_t *timestamp_out)
 {
     proto_item *ti;
     moql_timestamp_t *memoized, current;
@@ -836,9 +846,10 @@ moql_add_frame_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
     if (current.overflow) {
         proto_tree_add_expert_format(tree, pinfo, &ei_moql_protocol_violation, tvb, 0, 0,
                                     "Frame timestamp overflow; absolute timestamp is unknown");
-        return;
+        return false;
     }
     timestamp = current.value;
+    *timestamp_out = timestamp;
 
     ti = proto_tree_add_int64(tree, hf_moql_frame_timestamp, tvb, 0, 0, timestamp);
     proto_item_set_generated(ti);
@@ -870,6 +881,29 @@ moql_add_frame_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 
     proto_item_append_text(msg_ti, ": Timestamp %" PRId64 ", %d byte%s payload",
                            timestamp, payload_len, plurality(payload_len, "", "s"));
+    return true;
+}
+
+/*
+ * Offer a frame payload to the application protocols registered on the
+ * "moql.payload" heuristic list, falling back to opaque bytes.
+ */
+static void
+moql_dissect_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len,
+                     moql_payload_info_t *info)
+{
+    heur_dtbl_entry_t *hdtbl_entry;
+    tvbuff_t *payload_tvb = tvb_new_subset_length(tvb, offset, len);
+
+    /* Empty payloads carry meaning in some applications (e.g. hang markers). */
+    if (info->track_name != NULL &&
+        dissector_try_heuristic(moql_payload_heur_list, payload_tvb, pinfo, tree, &hdtbl_entry,
+                                info)) {
+        return;
+    }
+    if (len > 0) {
+        proto_tree_add_item(tree, hf_moql_frame_payload, tvb, offset, len, ENC_NA);
+    }
 }
 
 /*
@@ -1257,6 +1291,8 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
         stream->subscription = (moql_subscription_t *)wmem_map_lookup(session->subscriptions,
                                                                      &subscribe_id);
+        stream->group_sequence = group_sequence;
+        stream->group_sequence_known = true;
 
         proto_item_append_text(msg_ti, ": Subscribe ID %" PRIu64 ", Group %" PRIu64,
                                subscribe_id, group_sequence);
@@ -1267,19 +1303,41 @@ moql_dissect_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         break;
     }
 
-    case MOQL_MSG_FRAME:
+    case MOQL_MSG_FRAME: {
+        moql_payload_info_t info = { 0 };
+
         if (session->version >= 5) {
-            moql_add_frame_timestamp(body_tvb, pinfo, msg_tree, msg_ti, session, stream, abs_offset,
-                                     delta, (int)msg_len);
+            info.timestamp_known = moql_add_frame_timestamp(body_tvb, pinfo, msg_tree, msg_ti,
+                                                            session, stream, abs_offset, delta,
+                                                            (int)msg_len, &info.timestamp);
         } else {
             proto_item_append_text(msg_ti, ": %d byte%s payload", (int)msg_len,
                                    plurality(msg_len, "", "s"));
         }
-        if (msg_len > 0) {
-            proto_tree_add_item(msg_tree, hf_moql_frame_payload, body_tvb, 0, (int)msg_len, ENC_NA);
+
+        if (!PINFO_FD_VISITED(pinfo) && !stream->first_frame_offset_known) {
+            stream->first_frame_offset = abs_offset;
+            stream->first_frame_offset_known = true;
         }
+        info.broadcast_path = stream->broadcast_path;
+        info.track_name = stream->track_name;
+        if (stream->subscription != NULL) {
+            info.broadcast_path = stream->subscription->broadcast_path;
+            info.track_name = stream->subscription->track_name;
+        }
+        info.version = session->version;
+        /* A Group stream carries one group; a Fetch stream answers one. */
+        info.group_key = stream;
+        info.group_sequence = stream->group_sequence;
+        info.group_sequence_known = stream->group_sequence_known;
+        info.frame_offset = abs_offset;
+        info.first_in_group = stream->first_frame_offset_known &&
+                              stream->first_frame_offset == abs_offset;
+
+        moql_dissect_payload(body_tvb, pinfo, msg_tree, 0, (int)msg_len, &info);
         body_fully_used = true;
         break;
+    }
 
     default:
         ws_assert_not_reached();
@@ -1485,11 +1543,21 @@ dissect_moql_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     offset += moql_add_varint(tvb, moql_tree, offset, hf_moql_datagram_timestamp, &timestamp);
 
     int payload_len = (int)tvb_reported_length_remaining(tvb, offset);
-    if (payload_len > 0) {
-        proto_tree_add_item(moql_tree, hf_moql_frame_payload, tvb, offset, payload_len, ENC_NA);
-    }
 
     subscription = (moql_subscription_t *)wmem_map_lookup(session->subscriptions, &subscribe_id);
+
+    moql_payload_info_t info = { 0 };
+    if (subscription != NULL) {
+        info.broadcast_path = subscription->broadcast_path;
+        info.track_name = subscription->track_name;
+    }
+    info.version = session->version;
+    info.group_sequence = group_sequence;
+    info.group_sequence_known = true;
+    info.first_in_group = true;
+    info.timestamp = (int64_t)timestamp;
+    info.timestamp_known = timestamp <= INT64_MAX;
+    moql_dissect_payload(tvb, pinfo, moql_tree, offset, payload_len, &info);
     if (subscription != NULL) {
         ti = proto_tree_add_string(moql_tree, hf_moql_broadcast_path, tvb, 0, 0,
                                    subscription->broadcast_path);
@@ -1855,6 +1923,9 @@ proto_register_moq_lite(void)
     moql_handle = register_dissector("moq-lite", dissect_moql, proto_moq_lite);
     moql_datagram_handle = register_dissector("moq-lite.datagram", dissect_moql_datagram,
                                              proto_moq_lite);
+
+    moql_payload_heur_list = register_heur_dissector_list_with_description("moql.payload",
+                                     "MoQ-Lite frame payload", proto_moq_lite);
 
     moql_module = prefs_register_protocol(proto_moq_lite, NULL);
     prefs_register_bool_preference(moql_module, "desegment",
