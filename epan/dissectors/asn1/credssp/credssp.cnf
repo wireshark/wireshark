@@ -13,6 +13,10 @@ TSRequest
 
 	%(DEFAULT_BODY)s
 
+	/* Not an OCTET STRING */
+	if (!auth_tvb)
+		return offset;
+
 	memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
 	gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
 	call_dissector_with_data(gssapi_wrap_handle, auth_tvb, actx->pinfo, tree, &gssapi_encrypt);
@@ -27,6 +31,10 @@ TSRequest
 	gssapi_encrypt_info_t gssapi_encrypt;
 
 	%(DEFAULT_BODY)s
+
+	/* Not an OCTET STRING */
+	if (!auth_tvb)
+		return offset;
 
 	memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
 	gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
@@ -61,6 +69,9 @@ TSRequest
 	tvbuff_t *creds_tvb = NULL;
 
 	%(DEFAULT_BODY)s
+
+	if (!creds_tvb)
+		return offset;
 
 	switch(creds_type) {
 	case TS_PASSWORD_CREDS:

@@ -86,6 +86,7 @@ dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
 	creds_type = 0;
 	credssp_ver = 0;
+	credssp_TS_RGC_package = TS_RGC_UNKNOWN;
 
 	return dissect_TSRequest_PDU(tvb, pinfo, tree, data);
 }

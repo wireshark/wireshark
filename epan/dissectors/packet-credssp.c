@@ -339,6 +339,9 @@ dissect_credssp_T_credentials(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned
                                        &creds_tvb);
 
 
+	if (!creds_tvb)
+		return offset;
+
 	switch(creds_type) {
 	case TS_PASSWORD_CREDS:
 		dissect_credssp_TSPasswordCreds(false, creds_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
@@ -393,6 +396,10 @@ dissect_credssp_T_authInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned of
                                        &auth_tvb);
 
 
+	/* Not an OCTET STRING */
+	if (!auth_tvb)
+		return offset;
+
 	memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
 	gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
 	call_dissector_with_data(gssapi_wrap_handle, auth_tvb, actx->pinfo, tree, &gssapi_encrypt);
@@ -416,6 +423,10 @@ dissect_credssp_T_pubKeyAuth(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned 
 	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &auth_tvb);
 
+
+	/* Not an OCTET STRING */
+	if (!auth_tvb)
+		return offset;
 
 	memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
 	gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
@@ -513,6 +524,7 @@ dissect_credssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
 	creds_type = 0;
 	credssp_ver = 0;
+	credssp_TS_RGC_package = TS_RGC_UNKNOWN;
 
 	return dissect_TSRequest_PDU(tvb, pinfo, tree, data);
 }
