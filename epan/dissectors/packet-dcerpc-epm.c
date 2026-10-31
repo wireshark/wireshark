@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include "packet-dcerpc.h"
@@ -166,6 +167,8 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, unsigned offset,
                                  hf_epm_ann_offset, NULL);
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                  hf_epm_ann_len, &len);
+    if (len > (uint32_t)tvb_reported_length_remaining(tvb, offset))
+        THROW(ReportedBoundsError);
     proto_tree_add_item_ret_string(tree, hf_epm_annotation, tvb, offset, len, ENC_ASCII|ENC_NA, pinfo->pool, &str);
     offset += len;
 
@@ -724,7 +727,7 @@ proto_register_epm (void)
         { &hf_epm_rc,
           { "Return code", "epm.rc", FT_UINT32, BASE_HEX, NULL, 0x0, "EPM return value", HFILL }},
         { &hf_epm_replace,
-          { "Replace", "epm.replace", FT_UINT8, BASE_DEC, NULL, 0x0, "Replace existing objects?", HFILL }},
+          { "Replace", "epm.replace", FT_UINT32, BASE_DEC, NULL, 0x0, "Replace existing objects?", HFILL }},
         { &hf_epm_tower_num_floors,
           { "Number of floors", "epm.tower.num_floors", FT_UINT16, BASE_DEC, NULL, 0x0, "Number of floors in tower", HFILL }},
         { &hf_epm_proto_udp_port,
