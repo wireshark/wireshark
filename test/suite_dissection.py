@@ -35092,3 +35092,124 @@ class TestDissectDcerpcInitshutdown:
             'Force Apps: 1',
             'Do Reboot: 1',
         ]
+
+
+class TestDissectDcerpcIwbemlevel1login:
+    def test_iwbemlevel1login_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: a little endian and a big endian connection with
+        a bind and calls of every opnum, and the reproducer connection,
+        and no malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemlevel1login_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 88
+        assert protocols.count('IWBEMLEVEL1LOGIN') == 64
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_iwbemlevel1login_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_iwbemlevel1login_calls(self, cmd_tshark, capture_file, test_env):
+        '''The opnum, status and Info column of every response, the same
+        in both byte orders.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemlevel1login_coverage.pcap.gz'),
+                '-Y', 'IWbemLevel1Login && dcerpc.pkt_type == 2 && tcp.dstport <= 50002',
+                '-Tfields', '-eIWbemLevel1Login.opnum', '-eIWbemLevel1Login.werror',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        calls = []
+        for op in range(3):
+            calls += ['%d\t0x00000000\tiwbemlevel1login_opnum%d response' % (op, op),
+                      '%d\t0x%08x\tiwbemlevel1login_opnum%d response, Error: Unknown DOS error 0x%08x'
+                      % (op, 0x80041001 + op, op, 0x80041001 + op)]
+        err = ', Error: Unknown DOS error 0x80041003'
+        calls += ['3\t0x00000000\tEstablishPosition response',
+                  '3\t0x80041003\tEstablishPosition response' + err,
+                  '4\t0x00000000\tRequestChallenge response',
+                  '4\t0x80041003\tRequestChallenge response' + err,
+                  '5\t0x00000000\tWBEMLogin response',
+                  '5\t0x80041003\tWBEMLogin response' + err,
+                  '6\t0x00000000\tNTLMLogin response',
+                  '6\t0x00000000\tNTLMLogin response',
+                  '6\t0x80041008\tNTLMLogin response, Error: Unknown DOS error 0x80041008']
+        assert lines == calls + ['7\t\tUnknown operation 7 response'] + calls
+
+    def test_iwbemlevel1login_requests(self, cmd_tshark, capture_file, test_env):
+        '''The strings, flags and context of the requests.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemlevel1login_coverage.pcap.gz'),
+                '-Y', 'IWbemLevel1Login.opnum in {4, 5, 6} && dcerpc.pkt_type == 0 && tcp.srcport <= 50002',
+                '-Tfields', '-eIWbemLevel1Login.RequestChallenge.reserved1',
+                '-eIWbemLevel1Login.RequestChallenge.reserved2',
+                '-eIWbemLevel1Login.WBEMLogin.reserved1', '-eIWbemLevel1Login.WBEMLogin.reserved2',
+                '-eIWbemLevel1Login.WBEMLogin.reserved3', '-eIWbemLevel1Login.WBEMLogin.reserved4',
+                '-eIWbemLevel1Login.NTLMLogin.wszNetworkResource',
+                '-eIWbemLevel1Login.NTLMLogin.wszPreferredLocale',
+                '-eIWbemLevel1Login.NTLMLogin.lFlags', '-eIWbemLevel1Login.NTLMLogin.pCtx',
+            ), encoding='utf-8', env=test_env)
+        reqs = [
+            r'\\\\SRV01\\root\\cimv2' + '\talice' + '\t' * 8,
+            '\t' * 9,
+            '\t\ten-US\t' + ','.join(str(i) for i in range(16, 32)) + '\t0\t7\t\t\t\t',
+            '\t\t\t\t-1\t7\t\t\t\t',
+            '\t' * 6 + r'\\\\.\\root\\cimv2' + '\tMS_409\t128\t0',
+            '\t' * 8 + '0\t',
+            '\t' * 8 + '0\t',
+        ]
+        assert stdout.splitlines() == reqs * 2
+
+    def test_iwbemlevel1login_responses(self, cmd_tshark, capture_file, test_env):
+        '''The locale version, the challenge, and the namespace OBJREFs
+        with their IPIDs; the same in both byte orders.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemlevel1login_coverage.pcap.gz'),
+                '-Y', 'IWbemLevel1Login.opnum in {3, 4, 5, 6} && dcerpc.pkt_type == 2 && tcp.dstport <= 50002',
+                '-Tfields', '-eIWbemLevel1Login.EstablishPosition.LocaleVersion',
+                '-eIWbemLevel1Login.RequestChallenge.reserved3',
+                '-eIWbemLevel1Login.IWbemServices.count', '-edcom.iid', '-edcom.oxid', '-edcom.oid',
+            ), encoding='utf-8', env=test_env)
+        ns = '\t9556dc99-828c-11cf-a37e-00aa003240c7\t0x0a0b0c0d01020304\t0x1a1b1c1d11121314'
+        resps = [
+            '1033' + '\t' * 5,
+            '0' + '\t' * 5,
+            '\t' + ','.join(str(i) for i in range(160, 176)) + '\t' * 4,
+            '\t' + ','.join(['0'] * 16) + '\t' * 4,
+            '\t\t190' + ns,
+            '\t' * 5,
+            '\t\t116' + ns,
+            '\t\t124' + ns,
+            '\t' * 5,
+        ]
+        assert stdout.splitlines() == resps * 2
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemlevel1login_coverage.pcap.gz'),
+                '-Y', 'dcom.stdobjref && tcp.dstport <= 50002',
+                '-Tfields', '-edcom.ipid',
+            ), encoding='utf-8', env=test_env)
+        ipids = ['0000b004-0d40-5678-1122-334455667788,0000c004-0e50-1234-5678-9abcdef0000%d' % i
+                 for i in (1, 2, 3)]
+        assert stdout.splitlines() == ipids * 2
+
+    def test_iwbemlevel1login_namespace_length(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of "IWbemLevel1Login: Step over the whole
+        namespace array" (frame 85): an 80-octet array holding a 72-octet
+        OBJREF; the status after the array is 0x80041003 (unfixed, the
+        octets after the OBJREF were taken as the status, 0xaaaaaaaa).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemlevel1login_coverage.pcap.gz'),
+                '-Y', 'frame.number == 85',
+                '-Tfields', '-eIWbemLevel1Login.IWbemServices.count', '-edcom.oxid', '-edcom.oid',
+                '-edcom.ipid', '-eIWbemLevel1Login.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == ('80\t0x0000000000001111\t0x0000000000002222\t'
+                          '11111111-2222-3333-4444-555555555555\t0x80041003\t'
+                          'NTLMLogin response, Error: Unknown DOS error 0x80041003\n')
