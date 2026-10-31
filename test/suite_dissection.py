@@ -24145,3 +24145,170 @@ class TestDissectCfdp:
         assert stdout.splitlines() == [
             '47\t0xbeef\t', '48\t0x1234\t7769746820637263', '49\t0x0102\t', '56\t0x4242\t',
         ]
+
+
+class TestDissectCfm:
+    def test_cfm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every OpCode, MAID format and TLV decodes without malformed
+        packets or error expert infos, in one and two passes, over
+        Ethernet, a VLAN tag and the MPLS-TP G-ACh.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfm_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 138
+        assert protocols.count('eth:ethertype:cfm') == 135
+        assert protocols.count('eth:ethertype:vlan:ethertype:cfm') == 1
+        assert protocols.count('eth:ethertype:mpls:pwach:cfm') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cfm_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        # The only warning: a Management Address Length without a domain
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfm_coverage.pcap.gz'),
+                '-Y', '_ws.expert.severity == warning',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['34']
+
+    def test_cfm_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Every OpCode the dissector knows, plus an unknown one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfm_coverage.pcap.gz'),
+                '-Tfields', '-ecfm.opcode',
+            ), encoding='utf-8', env=test_env)
+        opcodes = {int(op) for op in stdout.split()}
+        assert opcodes == {0, 1, 2, 3, 4, 5, 6, 7, 32, 33, 35, 37, 39, 40, 41,
+                           42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 64}
+
+    def test_cfm_maid(self, cmd_tshark, capture_file, test_env):
+        '''Every MD and MA name format of the MAID, with the length that
+        selects the typed field and a length that falls back to hex.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfm_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 15',
+                '-Tfields', '-ecfm.maid.md_name.format', '-ecfm.maid.ma_name.format',
+                '-ecfm.maid.md_name.string', '-ecfm.maid.md_name.mac',
+                '-ecfm.maid.ma_name.pvid', '-ecfm.maid.ma_name.id',
+                '-ecfm.maid.ma_name.vpnid.index', '-ecfm.maid.ma_name.icc',
+                '-ecfm.maid.ma_name.cc', '-ecfm.maid.ma_name.hex',
+                '-ecfm.maid.md_name.hex',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t2\tMD-Level-Seven\t\t\t\t\t\t\t\t',
+            '1\t1\t\t\t100\t\t\t\t\t\t',
+            '2\t1\texample.net\t\t\t\t\t\t\t006400\t',
+            '3\t3\t\t02:00:00:00:00:01\t\t300\t\t\t\t\t',
+            '3\t3\t\t\t\t\t\t\t\t05\t0200000000',
+            '0\t4\t\t\t\t\t42\t\t\t\t01020304',
+            '7\t4\t\t\t\t\t\t\t\t00000a0001\taabbcc',
+            '1\t32\t\t\t\t\t\tABCDEF0123456\t\t\t',
+            '1\t32\t\t\t\t\t\t\t\t41424344454630313233\t',
+            '1\t33\t\t\t\t\t\tABCDEF0123456\tGB\t\t',
+            '1\t33\t\t\t\t\t\t\t\t474241424344454630313233\t',
+            '1\t0\t\t\t\t\t\t\t\tdeadbeef\t',
+            '1\t9\t\t\t\t\t\t\t\tdeadbeef\t',
+            '4\t2\t\t\t\t\t\t\t\t\t',
+            '1\t2\t\t\t\t\t\t\t\t\t',
+        ]
+        # An MD name that fills the MAID leaves no room for the MA name
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfm_coverage.pcap.gz'),
+                '-Y', 'frame.number in {16,17}',
+                '-Tfields', '-ecfm.maid.md_name.length', '-ecfm.maid.ma_name.format',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['46\t', '45\t']
+
+    def test_cfm_sender_id(self, cmd_tshark, capture_file, test_env):
+        '''Sender ID TLV: chassis ID subtypes and each management address
+        domain (UDP, TCP and SCTP over IPv4 and IPv6, IEEE 802, unknown).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfm_coverage.pcap.gz'),
+                '-Y', 'frame.number in {23..30}',
+                '-Tfields', '-ecfm.tlv.sender_id.chassis_id.subtype',
+                '-ecfm.tlv.sender_id.management_addr.ipv4',
+                '-ecfm.tlv.sender_id.management_addr.ipv6',
+                '-ecfm.tlv.sender_id.management_addr.eth',
+                '-ecfm.tlv.sender_id.management_addr.unknown',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t192.0.2.1\t\t\t',
+            '5\t\t2001:db8::1\t\t',
+            '5\t192.0.2.1\t\t\t',
+            '5\t\t2001:db8::1\t\t',
+            '5\t192.0.2.1\t\t\t',
+            '6\t\t2001:db8::1\t\t',
+            '7\t\t\t02:00:00:00:00:01\t',
+            '9\t\t\t\t010203',
+        ]
+
+    def test_cfm_short_lengths(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "CFM: Do not let short lengths abort the rest
+        of the PDU": short chassis ID, management address and reply port
+        ID addresses, a Target MEP ID with padding followed by an End TLV
+        at the end of the frame, MEP and MIP IDs shorter than the ID, Test
+        TLVs with a CRC-32 pattern shorter than 5 octets, and MCC, EXM, EXR,
+        VSM and VSR with the First TLV Offset inside the OUI. Each one is
+        dissected up to its End TLV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfm_coverage.pcap.gz'),
+                '-Y', 'frame.number in {37..42} || frame.number in {53..55}'
+                      ' || frame.number in {64,65,89,90} || frame.number >= 134',
+                '-Tfields', '-eframe.number', '-ecfm.tlv.type',
+                '-ecfm.tlv.sender_id.chassis_id.unknown',
+                '-ecfm.tlv.sender_id.chassis_id.network_address.unknown',
+                '-ecfm.tlv.sender_id.management_addr.unknown',
+                '-ecfm.tlv.tgt_rpl_mep_mip.mep_id', '-ecfm.tlv.tgt_rpl_mep_mip.padding',
+                '-ecfm.tlv.reply_ing_egr.portid.unknown',
+                '-ecfm.tlv.reply_ing_egr.portid.network_address.unknown',
+                '-ecfm.mcc.data', '-ecfm.exm.data', '-ecfm.exr.data',
+                '-ecfm.vsm.data', '-ecfm.vsr.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '37\t1,0\t020000\t\t\t\t\t\t\t\t\t\t\t',
+            '38\t1,0\t\tc000\t\t\t\t\t\t\t\t\t\t',
+            '39\t1,0\t\t20010db800000000\t\t\t\t\t\t\t\t\t\t',
+            '40\t1,0\t\t\tc000\t\t\t\t\t\t\t\t\t',
+            '41\t1,0\t\t\t20010db8\t\t\t\t\t\t\t\t\t',
+            '42\t1,0\t\t\t020000\t\t\t\t\t\t\t\t\t',
+            '53\t33,0\t\t\t\t1\t' + '00' * 22 + '\t\t\t\t\t\t\t',
+            '54\t33,0\t\t\t\t\t\t\t\t\t\t\t\t',
+            '55\t34,0\t\t\t\t\t\t\t\t\t\t\t\t',
+            '64\t5,6,0\t\t\t\t\t\t02000000\tc000\t\t\t\t\t',
+            '65\t5,6,0\t\t\t\t\t\t\t20010db80000\t\t\t\t\t',
+            '89\t32,0\t\t\t\t\t\t\t\t\t\t\t\t',
+            '90\t32,0\t\t\t\t\t\t\t\t\t\t\t\t',
+            '134\t0\t\t\t\t\t\t\t\t0000\t\t\t\t',
+            '135\t0\t\t\t\t\t\t\t\t\t0000\t\t\t',
+            '136\t0\t\t\t\t\t\t\t\t\t\t0000\t\t',
+            '137\t0\t\t\t\t\t\t\t\t\t\t\t0000\t',
+            '138\t0\t\t\t\t\t\t\t\t\t\t\t\t0000',
+        ]
+
+    def test_cfm_raps_and_test_id(self, cmd_tshark, capture_file, test_env):
+        '''R-APS version 1 and 2 (event sub-code and BPR only in version
+        2), and the Test ID TLV whose length is given in bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfm_coverage.pcap.gz'),
+                '-Y', 'frame.number in {94..97}',
+                '-Tfields', '-ecfm.version', '-ecfm.raps.req_st',
+                '-ecfm.raps.event.subcode', '-ecfm.raps.subcode.reserved',
+                '-ecfm.raps.status.bpr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t0x0b\t\t0x00\t',
+            '1\t0x0e\t0x00\t\tTrue',
+            '1\t0x07\t\t0x00\tTrue',
+            '0\t0x00\t\t0x00\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cfm_coverage.pcap.gz'),
+                '-Y', 'cfm.tlv.tst_id.length',
+                '-Tfields', '-eframe.number', '-ecfm.tlv.tst_id.test_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['124\t00000008']
