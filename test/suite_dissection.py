@@ -33081,3 +33081,84 @@ class TestDissectDcerpcClusapi:
                 '-eclusapi.clusapi_ClusterControl.nOutBufferSize',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['3\t9040\t16777285\t512']
+
+
+class TestDissectDcerpcConv:
+    def test_conv_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: connectionless calls of every opnum in little
+        endian (plus an unknown opnum) and in big endian, and no
+        malformed packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_conv_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert protocols.count('CONV') == 30
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_conv_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_conv_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every call: activity UIDs, sequence
+        numbers, status and address space UUIDs; the same in both byte
+        orders.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_conv_coverage.pcap.gz'),
+                '-Tfields', '-edcerpc.drep.byteorder', '-econv.opnum',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        calls = [
+            '0\tconv_who_are_you request actuid: a1b2c3d4-e5f6-4711-8899-aabbccddeeff',
+            '0\tconv_who_are_you response seq:42 st:SUCCESS',
+            '0\tconv_who_are_you request actuid: 00000000-0000-0000-0000-000000000000',
+            '0\tconv_who_are_you response seq:0 st:Error returned from rpc service',
+            '1\tconv_who_are_you2 request actuid: a1b2c3d4-e5f6-4711-8899-aabbccddeeff',
+            '1\tconv_who_are_you2 response seq:43 st:SUCCESS cas:01234567-89ab-4cde-8f01-23456789abcd',
+            '1\tconv_who_are_you2 request actuid: 01234567-89ab-4cde-8f01-23456789abcd',
+            '1\tconv_who_are_you2 response seq:4294967295 st:305419896 cas:a1b2c3d4-e5f6-4711-8899-aabbccddeeff',
+            '2\tare_you_there request',
+            '2\tare_you_there response',
+            '3\twho_are_you_auth request',
+            '3\twho_are_you_auth response',
+            '4\twho_are_you_auth_more request',
+            '4\twho_are_you_auth_more response',
+        ]
+        assert lines[0:14] == ['1\t' + c for c in calls]
+        assert lines[14:16] == ['1\t5\tUnknown operation 5 request',
+                                '1\t5\tUnknown operation 5 response']
+        assert lines[16:30] == ['0\t' + c for c in calls]
+
+    def test_conv_fields(self, cmd_tshark, capture_file, test_env):
+        '''The decoded request and response fields (little endian), and
+        the boot times in both byte orders.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_conv_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 8',
+                '-Tfields', '-econv.who_are_you_rqst_actuid',
+                '-econv.who_are_you2_rqst_actuid', '-econv.who_are_you_resp_seq',
+                '-econv.who_are_you2_resp_seq', '-econv.who_are_you2_resp_casuuid',
+                '-econv.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'a1b2c3d4-e5f6-4711-8899-aabbccddeeff\t\t\t\t\t',
+            '\t\t42\t\t\t0',
+            '00000000-0000-0000-0000-000000000000\t\t\t\t\t',
+            '\t\t0\t\t\t556613636',
+            '\ta1b2c3d4-e5f6-4711-8899-aabbccddeeff\t\t\t\t',
+            '\t\t\t43\t01234567-89ab-4cde-8f01-23456789abcd\t0',
+            '\t01234567-89ab-4cde-8f01-23456789abcd\t\t\t\t',
+            '\t\t\t4294967295\ta1b2c3d4-e5f6-4711-8899-aabbccddeeff\t305419896',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_conv_coverage.pcap.gz'),
+                '-Y', 'conv.who_are_you_rqst_boot_time == "2023-11-14T22:13:20Z"'
+                      ' || conv.who_are_you2_rqst_boot_time == "2023-11-14T22:14:20Z"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '5', '17', '21']
