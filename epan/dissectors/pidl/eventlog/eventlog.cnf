@@ -54,6 +54,7 @@ eventlog_dissect_element_ReadEventLogW_data_(tvbuff_t *tvb, unsigned offset, pac
 	 * NDR encoded at all and there are byte offsets into this buffer
 	 * encoded therein.
 	 */
+	tvb_ensure_bytes_exist64(tvb, offset, len);
 	record_tvb=tvb_new_subset_length(tvb, offset, len);
 	eventlog_dissect_struct_Record(record_tvb, 0, pinfo, tree, di, drep, hf_eventlog_Record, 0);
 	offset+=len;
