@@ -13,6 +13,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include "packet-dcerpc.h"
 #include <packet-dcom.h>
 
@@ -398,6 +399,27 @@ static int *ett[] = {
 };
 
 static int dissect_wmio_objectblock(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
+
+/*
+ * Heap offsets of the method signatures and property infos already
+ * dissected in the current WMIO object. Several references can point at
+ * the same heap entry, and a method signature holds an object with methods
+ * of its own, so following every reference again can take exponential
+ * time. Dissect each entry once.
+ */
+static wmem_map_t *wmio_seen_heap_entries;
+
+static bool
+wmio_heap_entry_seen(int offset, unsigned kind)
+{
+    void *key = GUINT_TO_POINTER(((unsigned)offset << 1) | kind);
+
+    if (wmem_map_contains(wmio_seen_heap_entries, key)) {
+        return true;
+    }
+    wmem_map_insert(wmio_seen_heap_entries, key, key);
+    return false;
+}
 static int dissect_wmio_object_decoration(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 static int dissect_wmio_encoded_string(tvbuff_t *tvb, int offset, int hfindex, packet_info *pinfo, proto_tree *tree, bool withlength, int heapoffset);
 static int dissect_wmio_encoding_classtype(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
@@ -484,7 +506,7 @@ dissect_wmio_encoded_string(tvbuff_t *tvb, int offset, int hfindex, packet_info 
                 if (foffset < array_length(stringDictionary)){
                     proto_item_set_text(sub_tree, "%s: %s", proto_registrar_get_name(hfindex), stringDictionary[foffset]);
                 } else {
-                    proto_item_set_text(sub_tree, "%s: Unknown Index %d", proto_registrar_get_name(hfindex), hfindex);
+                    proto_item_set_text(sub_tree, "%s: Unknown Index %u", proto_registrar_get_name(hfindex), foffset);
                 }
                 proto_item_set_len(sub_item, 4);
             }
@@ -508,11 +530,13 @@ dissect_wmio_encoded_string(tvbuff_t *tvb, int offset, int hfindex, packet_info 
         } else if (encoded_string_flags == 1){
             /* UNICODE */
             proto_tree_add_item_ret_length(sub_tree, hfindex, tvb, offset, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN, &fn_len);
-            s = tvb_get_string_enc(pinfo->pool, tvb, offset, fn_len, ENC_UTF_16);
+            s = tvb_get_string_enc(pinfo->pool, tvb, offset, fn_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
         }
         offset += fn_len;
 
-        proto_item_set_text(sub_tree, "%s: %s", proto_registrar_get_name(hfindex), s);
+        if (s) {
+            proto_item_set_text(sub_tree, "%s: %s", proto_registrar_get_name(hfindex), s);
+        }
 
         if(withlength){
             proto_tree_add_item(sub_tree, hf_wmio_class_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -648,58 +672,54 @@ dissect_wmio_qualifier(tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset += 4;
 
         // CimArrayType
+        unsigned element_size = 0;
         switch(cimType){
             case CIM_ARRAY_SINT8:
-                offset += array_count;
-                break;
             case CIM_ARRAY_UINT8:
-                offset += array_count;
+                element_size = 1;
                 break;
             case CIM_ARRAY_SINT16:
-                offset += (sizeof(int16_t) * array_count);
-                break;
             case CIM_ARRAY_UINT16:
-                offset += (sizeof(uint16_t) * array_count);
+            case CIM_ARRAY_BOOLEAN:
+            case CIM_ARRAY_CHAR16:
+                element_size = 2;
                 break;
             case CIM_ARRAY_SINT32:
-                offset += (sizeof(int32_t) * array_count);
-                break;
             case CIM_ARRAY_UINT32:
-                offset += (sizeof(uint32_t) * array_count);
+            case CIM_ARRAY_REAL32:
+                element_size = 4;
                 break;
             case CIM_ARRAY_SINT64:
-                offset += (sizeof(int64_t) * array_count);
-                break;
             case CIM_ARRAY_UINT64:
-                offset += (sizeof(uint64_t) * array_count);
-                break;
-            case CIM_ARRAY_REAL32:
-                offset += (sizeof(int32_t) * array_count);
-                break;
             case CIM_ARRAY_REAL64:
-                offset += (sizeof(int64_t) * array_count);
-                break;
-            case CIM_ARRAY_BOOLEAN:
-                offset += (2 * array_count);
+                element_size = 8;
                 break;
             case CIM_ARRAY_STRING:
             case CIM_ARRAY_DATETIME:
             case CIM_ARRAY_REFERENCE:
                 // TODO
                 break;
-            case CIM_ARRAY_CHAR16:
-                offset += (sizeof(int16_t) * array_count);
-                break;
             case CIM_ARRAY_OBJECT:
                 {
                     for (uint32_t i=0; i < array_count; i++){
-                        int32_t objEncLength = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                        uint32_t objEncLength = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                        /* The length includes itself; a shorter one would
+                         * not advance, a longer one would move back */
+                        if (objEncLength < 4 || objEncLength > (uint32_t)tvb_reported_length_remaining(tvb, offset))
+                            THROW(ReportedBoundsError);
                         offset += objEncLength;
                     }
                     break;
                 }
             default:
                 break;
+        }
+        if (element_size) {
+            /* A count near 2^32 would move the offset back */
+            uint64_t array_size = (uint64_t)element_size * array_count;
+            if (array_size > (uint64_t)tvb_reported_length_remaining(tvb, offset))
+                THROW(ReportedBoundsError);
+            offset += (int)array_size;
         }
     } else {
         // CimBaseType
@@ -715,7 +735,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, int offset, packet_info *pinfo,
             case CIM_TYPE_UINT8:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(vitem, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_int8(tvb, offset));
+                proto_item_set_text(vitem, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_uint8(tvb, offset));
                 proto_item_set_len(vitem, 1);
                 offset+= 1;
                 }
@@ -732,7 +752,7 @@ dissect_wmio_qualifier(tvbuff_t *tvb, int offset, packet_info *pinfo,
             case CIM_TYPE_UINT16:
                 {
                 proto_item *vitem = proto_tree_add_item(tree, hf_wmio_qualifiervalue, tvb, offset, -1, ENC_ASCII);
-                proto_item_set_text(tree, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN));
+                proto_item_set_text(vitem, "%s: %u", proto_registrar_get_name(hf_wmio_qualifiervalue), tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN));
                 proto_item_set_len(vitem, 2);
                 offset+= 2;
                 }
@@ -801,7 +821,10 @@ dissect_wmio_qualifier(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 break;
             case CIM_TYPE_OBJECT:
                 {
-                    int32_t objEncLength = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                    uint32_t objEncLength = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                    /* A length near 2^32 would move the offset back */
+                    if (objEncLength > (uint32_t)tvb_reported_length_remaining(tvb, offset))
+                        THROW(ReportedBoundsError);
                     offset += objEncLength;
                 }
                 break;
@@ -864,6 +887,11 @@ dissect_wmio_encoding_propertyinfo(tvbuff_t *tvb, int offset, packet_info *pinfo
 
     offset = classheapoffset + propertyinfo_offset;
     old_offset = offset;
+
+    if (wmio_heap_entry_seen(offset, 1)) {
+        proto_item_append_text(item, " (already dissected)");
+        return;
+    }
 
     int32_t propType = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_uint(tree, hf_wmio_cimtype, tvb, offset, 4, propType & 0x3FFF);
@@ -1092,6 +1120,11 @@ dissect_wmio_encoding_methodsignature(tvbuff_t *tvb, int offset, packet_info *pi
 
     proto_tree_add_item(tree, hf_methodsignature_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
+    if (wmio_heap_entry_seen(old_offset, 0)) {
+        proto_item_append_text(item, " (already dissected)");
+        return;
+    }
+
     offset = old_offset;
 
     proto_tree_add_item(tree, hf_wmio_objectencodinglength, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1238,6 +1271,7 @@ dissect_wmio(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dc
     proto_tree_add_item(sub_tree, hf_wmio_objectencodinglength, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset+= 4;
 
+    wmio_seen_heap_entries = wmem_map_new(pinfo->pool, g_direct_hash, g_direct_equal);
     dissect_wmio_objectblock(tvb, offset, pinfo, sub_tree);
 
     return old_offset + size;
