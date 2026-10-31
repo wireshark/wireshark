@@ -32954,3 +32954,130 @@ class TestDissectDcerpcDceSmall:
             '\t0\t00150000\tUnknown operation 0 request',
             '\t0\t0000000000000000\tUnknown operation 0 response',
         ]
+
+
+class TestDissectDcerpcClusapi:
+    def test_clusapi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and calls, and no malformed packets or warnings
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_clusapi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 1176
+        assert protocols.count('CLUSAPI') == 1146
+        assert protocols.count('DCERPC') == 8
+        assert protocols.count('TCP') == 22
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_clusapi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_clusapi_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_clusapi_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tb97db8b2-4c63-11cf-bff6-08002be23f2f\t3\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\tb97db8b2-4c63-11cf-bff6-08002be23f2f\t3\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\tb97db8b2-4c63-11cf-bff6-08002be23f2f\t3\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_clusapi_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum has a request and a response (except the response of
+        SetServiceAccountPassword, 108) in NDR and NDR64, plus the unknown
+        opnum 184 in the first connection.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_clusapi_coverage.pcap.gz'),
+                '-Y', 'clusapi',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type', '-eclusapi.opnum',
+            ), encoding='utf-8', env=test_env)
+        seen = {}
+        for line in stdout.splitlines():
+            stream, ptype, opnum = line.split('\t')
+            seen.setdefault((stream, ptype), set()).add(int(opnum))
+        everything = set(range(184))
+        assert seen[('0', '0')] == everything | {184}
+        assert seen[('0', '2')] == (everything - {108}) | {184}
+        assert seen[('1', '0')] == seen[('1', '2')] == set(range(16))
+        assert seen[('2', '0')] == everything
+        assert seen[('2', '2')] == everything - {108}
+
+    def test_clusapi_strings(self, cmd_tshark, capture_file, test_env):
+        '''GetClusterName responses with two strings and with NULL
+        pointers and an error, in all three encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_clusapi_coverage.pcap.gz'),
+                '-Y', 'clusapi.opnum == 3 && dcerpc.pkt_type == 2',
+                '-Tfields', '-etcp.dstport',
+                '-eclusapi.clusapi_GetClusterName.ClusterName',
+                '-eclusapi.clusapi_GetClusterName.NodeName', '-eclusapi.werror',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '50001\tClusterName4\tNodeName5\t0x00000000\tGetClusterName response',
+            '50001\t\t\t0x00000005\tGetClusterName response, Error: WERR_ACCESS_DENIED',
+            '50002\tClusterName2\tNodeName3\t0x00000000\tGetClusterName response',
+            '50003\tClusterName0\tNodeName1\t0x00000000\tGetClusterName response',
+        ]
+
+    def test_clusapi_enum(self, cmd_tshark, capture_file, test_env):
+        '''CreateEnum: every bit, no bit and an unknown bit in the
+        ClusterEnumType bitmap, and the ENUM_LIST entries.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_clusapi_coverage.pcap.gz'),
+                '-Y', 'clusapi.opnum == 7',
+                '-Tfields', '-eclusapi.clusapi_CreateEnum.dwType',
+                '-eclusapi.ENUM_LIST.EntryCount', '-eclusapi.ENUM_ENTRY.Name',
+                '-eclusapi.ENUM_ENTRY.Type', '-eclusapi.werror',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0xc000003f\t\t\t\t',
+            '\t2\tName9,Name0\t0xc000003f,0xc000003f\t0x00000000',
+            '0x00000000\t\t\t\t',
+            '\t\t\t\t0x00000005',
+            '0x00000041\t\t\t\t',
+            '\t2\tName1,Name2\t0x00000041,0x00000041\t0x00000057',
+            '0xc000003f\t\t\t\t',
+            '\t2\tName9,Name0\t0xc000003f,0xc000003f\t0x00000000',
+            '0xc000003f\t\t\t\t',
+            '\t2\tName7,Name8\t0xc000003f,0xc000003f\t0x00000000',
+        ]
+
+    def test_clusapi_mrr(self, cmd_tshark, capture_file, test_env):
+        '''ClusterMrr (opnum 142): the CLUSTER_MRR_RESPONSE behind two
+        levels of conformant pointers, in NDR and NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_clusapi_coverage.pcap.gz'),
+                '-Y', 'clusapi.CLUSTER_MRR_RESPONSE.NodeCount',
+                '-Tfields', '-etcp.dstport', '-eclusapi.opnum',
+                '-eclusapi.CLUSTER_MRR_RESPONSE.NodeCount',
+                '-eclusapi.CLUSTER_MRR_NODE_RESPONSE.pszNodeName',
+                '-eclusapi.CLUSTER_MRR_NODE_RESPONSE.ResultSize',
+                '-eclusapi.CLUSTER_MRR_NODE_RESPONSE.pResultData',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '50001\t142\t1\tpszNodeName5\t1\t48',
+            '50003\t142\t1\tpszNodeName9\t1\t48',
+        ]
+
+    def test_clusapi_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A ClusterControl request with a 9000 octet buffer in three
+        DCE/RPC fragments over several TCP segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_clusapi_coverage.pcap.gz'),
+                '-Y', 'clusapi.clusapi_ClusterControl.nInBufferSize == 9000',
+                '-Tfields', '-edcerpc.fragment.count', '-edcerpc.reassembled.length',
+                '-eclusapi.clusapi_ClusterControl.dwControlCode',
+                '-eclusapi.clusapi_ClusterControl.nOutBufferSize',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['3\t9040\t16777285\t512']
