@@ -34316,3 +34316,155 @@ class TestDissectDcerpcFileexp:
         assert [info[n - 1] for n in le] == info[140:152]
         assert 'Principal:host/fx.example.com' in info[140]
         assert ':tn_tag: new0.txt' in info[142]
+
+
+class TestDissectDcerpcFldb:
+    @staticmethod
+    def fldb_calls():
+        '''One transport's calls: (opnum, status of the response or None
+        where the dissector reads none).'''
+        noent = 676372485
+        calls = [(0, None), (1, 0), (1, noent), (2, None), (3, None), (4, None),
+                 (6, 0), (6, 4660), (13, 0), (14, noent), (16, 0), (17, 0),
+                 (18, noent), (19, None), (26, None)]
+        calls += [(op, None) for op in (5, 7, 8, 9, 10, 11, 12, 15, 20, 21, 22,
+                                        23, 24, 25, 27, 28)]
+        lines = []
+        for op, status in calls:
+            lines.append('%d\t' % op)
+            lines.append('%d\t%s' % (op, '' if status is None else status))
+        return lines
+
+    def test_fldb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: two TCP connections (little and big endian) with
+        a bind and 31 calls each (plus an unknown opnum in the first) and
+        the same 31 calls over UDP, the large responses reassembled from
+        TCP segments or DCE/RPC fragments; no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 234
+        assert protocols.count('FLDB') == 188
+        assert protocols.count('DCERPC') == 14
+        assert protocols.count('TCP') == 32
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fldb_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum and the status of the responses, the same over TCP
+        in both byte orders and over UDP.'''
+        for filt, extra in (('tcp.stream == 0', ['29\t', '29\t']),
+                            ('tcp.stream == 1', []), ('udp', [])):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                    '-Y', 'fldb && ' + filt,
+                    '-Tfields', '-efldb.opnum', '-efldb.error_st',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == self.fldb_calls() + extra
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                '-Y', 'udp && dcerpc.dg_flags1_frag == 1',
+                '-Tfields', '-edcerpc.opnum', '-edcerpc.dg_frag_num',
+            ), encoding='utf-8', env=test_env)
+        frags = [tuple(l.split('\t')) for l in stdout.splitlines()]
+        assert frags == [
+            ('0', '0'), ('0', '1'), ('1', '0'), ('1', '1'), ('1', '0'), ('1', '1'),
+            ('3', '0'), ('3', '1'), ('3', '2'), ('3', '3'), ('4', '0'), ('4', '1'),
+            ('13', '0'), ('13', '1'), ('16', '0'), ('16', '1'), ('19', '0'), ('19', '1'),
+        ]
+
+    def test_fldb_cell_name(self, cmd_tshark, capture_file, test_env):
+        '''The whole 128 octet cell name field of GetCellInfo is decoded:
+        the 121 octet name is shown in full (it was cut to 114 octets
+        before "FLDB: Show the whole cell name, stop at an invalid name
+        length").'''
+        name = 'dce.cell.' + 'x' * 100 + '.example.com'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                '-Y', 'fldb.opnum == 3 && dcerpc.pkt_type == 2',
+                '-Tfields', '-efldb.vlconf.name', '-efldb.vlconf.cellidlow',
+                '-efldb.vlconf.numservers', '-efldb.vlconf.spare5',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['%s\t42\t2\t5' % name] * 3
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                '-Y', 'fldb.opnum == 3 && dcerpc.pkt_type == 2 && tcp.stream == 1',
+                '-Tfields', '-efldb.vlconf.hostname', '-e_ws.col.info',
+                '-Eoccurrence=f',
+            ), encoding='utf-8', env=test_env)
+        hostname, info = stdout.rstrip('\n').split('\t')
+        assert hostname == 'fs1.example.com'
+        assert info.startswith('GetCellInfo response Name: %s CellID:0-42 numServers:2 '
+                               'Type:2  IP:192.0.2.10 Type:2  IP:192.0.2.11 '
+                               'hostName: fs1.example.com hostName: fs2.example.com hostName: ' % name)
+
+    def test_fldb_vldbentry(self, cmd_tshark, capture_file, test_env):
+        '''vldbentry with every site flag and afsFlags bit, with the afsFlags
+        below SERVER_REESTABLISH only, and an all-zero entry, over UDP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                '-Y', 'udp && fldb.vldbentry.volumetype',
+                '-Tfields', '-efldb.opnum', '-efldb.vldbentry.volumename',
+                '-efldb.vldbentry.nservers', '-efldb.vldbentry.siteflags',
+                '-efldb.vldbentry.afsflags', '-efldb.vldbentry.voltypes',
+                '-efldb.vldbentry.cloneidlow', '-efldb.vldbentry.lockername',
+                '-efldb.vldbentry.charspares',
+            ), encoding='utf-8', env=test_env)
+        full = ('user.alice\t2\t1,2,4,8,16,32,64,2147483648,2147483775,0,0,0,0,0,0,0'
+                '\t%d\t1,2,4,0,0,0,0,0\t536870920\tadmin\tspare chars')
+        zero = '\t\t0\t' + ','.join(['0'] * 16) + '\t0\t' + ','.join(['0'] * 8) + '\t0\t\t'
+        assert stdout.splitlines() == [
+            '0\t' + full % 262143,
+            '1\t' + full % 511,
+            '1' + zero,
+            '4\t' + full % 262143,
+            '13\t' + full % 262143,
+            '16' + zero,
+            '19\t' + full % 511,
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                '-Y', 'udp && fldb.opnum == 0 && dcerpc.pkt_type == 2',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert (' afsFlags=:RETURNTOKEN:TOKENJUMPQUEUE:SKIPTOKEN:NOOPTIMISM:TOKENID'
+                ':RETURNBLOCKER:ASYNCGRANT:NOREVOKE:MOVE_REESTABLISH:SERVER_REESTABLISH'
+                ':NO_NEW_EPOCH:MOVE_SOURCE_OK:SYNC:ZERO:SKIPSTATUS:FORCEREVOCATIONS'
+                ':FORCEVOLQUIESCE:SEC_SERVICE:CONTEXT_NEW_ACL_IF MaxTotLat:600 ') in stdout
+        assert (' SiteFlags:NEWREPSITE:SPARE1:SPARE2:SPARE3:SAMEASPREV:DEFINED'
+                ':PARTIALADDRS :ZEROIXHERE ') in stdout
+
+    def test_fldb_site_and_name(self, cmd_tshark, capture_file, test_env):
+        '''GetSiteInfo answers and GetEntryByName principal names, in big
+        endian (the second connection).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                '-Y', 'tcp.stream == 1 && fldb.opnum in {1, 6, 26} && dcerpc.pkt_type == 0',
+                '-Tfields', '-efldb.opnum', '-efldb.afsnetaddr.type',
+                '-efldb.principalName_size', '-efldb.NameString_principal',
+                '-efldb.numwanted',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t\t10\tuser.alice\t',
+            '1\t\t0\t\t',
+            '6\t2\t\t\t',
+            '6\t0\t\t\t',
+            '26\t2\t\t\t4',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fldb_coverage.pcap.gz'),
+                '-Y', 'tcp.stream == 1 && fldb.opnum == 6 && dcerpc.pkt_type == 2',
+                '-Tfields', '-efldb.NameString', '-efldb.uuid_owner', '-efldb.uuid_objid',
+                '-efldb.creationquota', '-efldb.spare5', '-efldb.error_st',
+            ), encoding='utf-8', env=test_env)
+        site = ('hosts/fs1/self\t00000000-0000-0000-0000-000000000001'
+                '\t11111111-2222-3333-4444-555555555501\t100\t5\t')
+        assert stdout.splitlines() == [site + '0', site + '4660']
