@@ -142,20 +142,28 @@ static unsigned mdssvc_dissect_element_close_out_handle_(tvbuff_t *tvb _U_, unsi
 static unsigned mdssvc_dissect_element_close_status(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static unsigned mdssvc_dissect_element_close_status_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static unsigned
-mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_)
+mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep)
 {
 	tvbuff_t *spotlight_tvb;
 	dissector_handle_t spotlight_handle;
+	uint32_t length;
 	if (di->conformant_run) {
 		return offset;
 	}
+	/* A NULL pointer has only its referent ID */
+	if (tvb_get_uint32(tvb, offset, DREP_ENC_INTEGER(drep)) == 0) {
+		return offset + 4;
+	}
+	/* Referent ID, max count, offset and actual count */
+	length = tvb_get_uint32(tvb, offset + 12, DREP_ENC_INTEGER(drep));
+	tvb_ensure_bytes_exist64(tvb, offset + 16, length);
 	spotlight_handle = find_dissector("afp_spotlight");
 	if (spotlight_handle)
 	{
-		spotlight_tvb = tvb_new_subset_remaining(tvb, offset + 16);
-		return (offset + 16 + call_dissector(spotlight_handle, spotlight_tvb, pinfo, tree));
+		spotlight_tvb = tvb_new_subset_length(tvb, offset + 16, length);
+		call_dissector(spotlight_handle, spotlight_tvb, pinfo, tree);
 	}
-	return offset;
+	return offset + 16 + length;
 }
 
 
