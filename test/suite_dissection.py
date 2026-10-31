@@ -35521,3 +35521,97 @@ class TestDissectDcerpcIwbemservices:
                for line in stdout.splitlines() if '<field name="dcom.extent.id" ' in line]
         assert ids == [('134', '01020304-0506-0708-090a-0b0c0d0e0f10'),
                        ('134', '9556dc99-828c-11cf-a37e-00aa003240c7')]
+
+
+class TestDissectDcerpcKrb5rpc:
+    def test_krb5rpc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: the reproducer, connectionless calls in both
+        byte orders and two TCP connections with a bind; no malformed
+        packets or warnings (such as "Long frame") in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_krb5rpc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 52
+        assert protocols.count('KRB5RPC') == 36
+        assert protocols.count('DCERPC') == 4
+        assert protocols.count('TCP') == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_krb5rpc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_krb5rpc_kerberos_length(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of "KRB5RPC: Add the Kerberos length to the
+        offset": a request and a response that a KRB-ERROR fills
+        exactly. dissect_kerberos_main() returned the length in its own
+        tvb and it was used as the offset in the stub, so the request
+        was shown with a "Long frame".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_krb5rpc_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 2',
+                '-Tfields', '-edcerpc.dg_frag_len', '-ekrb5rpc.sendto_kdc_rqst_keysize',
+                '-ekrb5rpc.sendto_kdc_resp_len', '-ekrb5rpc.sendto_kdc_resp_keysize',
+                '-ekerberos.msg_type', '-ekerberos.error_code', '-ekerberos.realm',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '88\t80\t\t\t30\t6\tEXAMPLE.TEST\t',
+            '96\t\t80\t80\t30\t6\tEXAMPLE.TEST\t',
+        ]
+
+    def test_krb5rpc_calls(self, cmd_tshark, capture_file, test_env):
+        '''The sendto_kdc arguments and the Kerberos messages they carry,
+        the same in every byte order and transport.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_krb5rpc_coverage.pcap.gz'),
+                '-Y', 'krb5rpc && frame.number > 2',
+                '-Tfields', '-edcerpc.drep.byteorder', '-ekrb5rpc.opnum',
+                '-ekrb5rpc.sendto_kdc_rqst_keysize', '-ekrb5rpc.sendto_kdc_rqst_spare1',
+                '-ekrb5rpc.sendto_kdc_resp_len', '-ekrb5rpc.sendto_kdc_resp_max',
+                '-ekrb5rpc.sendto_kdc_resp_spare1', '-ekrb5rpc.sendto_kdc_resp_keysize',
+                '-ekerberos.msg_type', '-ekerberos.error_code', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 34
+        calls = [
+            '0\t184\t184\t\t\t\t\t10\t\tAS-REQ',
+            '0\t\t\t94\t4096\t0\t94\t30\t25\tKRB Error: KRB5KDC_ERR_PREAUTH_REQUIRED',
+            '0\t184\t184\t\t\t\t\t10\t\tAS-REQ',
+            '0\t\t\t267\t4096\t0\t267\t11\t\tAS-REP',
+            '0\t413\t413\t\t\t\t\t12,14\t\tTGS-REQ',
+            '0\t\t\t111\t4096\t0\t111\t30\t60\tKRB Error: KRB5KRB_ERR_GENERIC',
+            '0\t413\t413\t\t\t\t\t12,14\t\tTGS-REQ',
+            '0\t\t\t94\t4096\t0\t94\t30\t7\tKRB Error: KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN',
+        ]
+        le = ['1\t' + c for c in calls]
+        be = ['0\t' + c for c in calls]
+        assert lines[0:8] == le       # connectionless
+        assert lines[8:16] == be
+        assert lines[16:24] == le     # TCP
+        assert lines[24:26] == ['1\t1\t\t\t\t\t\t\t\t\tUnknown operation 1 request',
+                                '1\t1\t\t\t\t\t\t\t\t\tUnknown operation 1 response']
+        assert lines[26:34] == be
+
+    def test_krb5rpc_kerberos_fields(self, cmd_tshark, capture_file, test_env):
+        '''Kerberos fields decoded inside the krb5 blob of the first
+        AS-REQ, AS-REP and TGS-REQ.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_krb5rpc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 6, 7}',
+                '-Tfields', '-ekrb5rpc.krb5', '-ekerberos.CNameString',
+                '-ekerberos.SNameString', '-ekerberos.nonce', '-ekerberos.ENCTYPE',
+                '-ekerberos.etype',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [len(l[0]) // 2 for l in lines] == [184, 267, 413]
+        assert [l[1:] for l in lines] == [
+            ['alice', 'krbtgt,EXAMPLE.TEST', '19088743', '18,17,23', ''],
+            ['alice', 'krbtgt,EXAMPLE.TEST', '', '', '18,18'],
+            ['alice', 'krbtgt,EXAMPLE.TEST,host,server.example.test', '19088743', '18,17,23', '18,18'],
+        ]
