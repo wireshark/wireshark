@@ -34206,3 +34206,113 @@ class TestDissectDcerpcEventlog:
             '\t0\t\tC:\\\\backup.evt\t1',
             '\t\t\t\t0',
         ]
+
+
+class TestDissectDcerpcFileexp:
+    @staticmethod
+    def fileexp_tree(cmd_tshark, capture_file, test_env, passes):
+        '''The FILEEXP trees of every frame, without the DCE/RPC request
+        and response links that only the second pass adds.'''
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('dcerpc_fileexp_coverage.pcap.gz'),
+                '-V', '-O', 'fileexp',
+            ), encoding='utf-8', env=test_env)
+        return [l.split(', [Resp: #')[0]
+                for l in stdout.splitlines()
+                if not l.lstrip().startswith(('[Response in frame', '[Request in frame', '[Time from request'))]
+
+    def test_fileexp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is FILEEXP and none is malformed or has an expert
+        info, in one and two passes, and both passes decode the same.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fileexp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 153
+        assert protocols.count('FILEEXP') == 153
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_fileexp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        assert self.fileexp_tree(cmd_tshark, capture_file, test_env, ()) == \
+            self.fileexp_tree(cmd_tshark, capture_file, test_env, ('-2',))
+
+    def test_fileexp_opnums(self, cmd_tshark, capture_file, test_env):
+        '''A request and a response for every opnum 0-27.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fileexp_coverage.pcap.gz'),
+                '-Tfields', '-edcerpc.pkt_type', '-efileexp.opnum',
+            ), encoding='utf-8', env=test_env)
+        pairs = {tuple(l.split('\t')) for l in stdout.splitlines()}
+        assert pairs == {(t, str(op)) for t in ('0', '2') for op in range(28)}
+
+    def test_fileexp_release_tokens(self, cmd_tshark, capture_file, test_env):
+        '''The ReleaseTokens returns array is decoded (it was skipped
+        before "FILEEXP: Check ACL lengths, fix the pipe size and
+        ReleaseTokens") and each entry's flags are read in place.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fileexp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 153 || frame.number == 37',
+                '-Tfields', '-eframe.number',
+                '-efileexp.afsreturndesc_tokenid_low', '-efileexp.flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '37\t0x00000080,0x00000081\t4294967295,1,4294967295',
+            '153\t0x00000005,0x00000005\t119,119,153',
+        ]
+
+    def test_fileexp_fetchdata_pipe_size(self, cmd_tshark, capture_file, test_env):
+        '''The FetchData pipe size is a number (it was an empty string).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fileexp_coverage.pcap.gz'),
+                '-Y', 'fileexp.fetchdata_pipe_t_size',
+                '-Tfields', '-eframe.number', '-efileexp.fetchdata_pipe_t_size',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['6\t4096', '62\t4097']
+
+    def test_fileexp_acl(self, cmd_tshark, capture_file, test_env):
+        '''ACLs with lengths above, at and below the 38 octet header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fileexp_coverage.pcap.gz'),
+                '-Y', 'fileexp.acl_len',
+                '-Tfields', '-eframe.number', '-efileexp.acl_len',
+                '-efileexp.acltype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t46\t', '13\t54\t0', '64\t38\t', '69\t38\t1',
+            '116\t20\t', '119\t0\t0', '130\t46\t', '133\t54\t1',
+        ]
+
+    def test_fileexp_status(self, cmd_tshark, capture_file, test_env):
+        '''Status codes are named from the DCE error table
+        (packet-dcerpc-dce122.c), unknown ones shown as numbers, and an
+        error replaces the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fileexp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 58, 64, 66, 70, 72}',
+                '-Tfields', '-eframe.number', '-efileexp.st', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.rstrip() for l in stdout.splitlines()] == [
+            '2\t0\tSetContext response st:SUCCESS',
+            '58\t543465481\tSetContext reply st:No such fileset entry',
+            '64\t12345\tFetchAcl reply st:12345',
+            '66\t539918337\tFetchStatus reply st:event already in set',
+            '70\t556904451\tStoreAcl reply st:ACL entry not found',
+            '72\t704852032\tStoreStatus reply st:zlc_Init() returning .ld',
+        ]
+
+    def test_fileexp_big_endian(self, cmd_tshark, capture_file, test_env):
+        '''The big endian calls decode the same as the little endian ones.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fileexp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        le = [1, 2, 19, 20, 35, 36, 37, 38, 41, 42, 53, 54]
+        assert [info[n - 1] for n in le] == info[140:152]
+        assert 'Principal:host/fx.example.com' in info[140]
+        assert ':tn_tag: new0.txt' in info[142]
