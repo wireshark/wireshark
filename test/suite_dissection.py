@@ -35902,3 +35902,114 @@ class TestDissectDcerpcMapi:
             ), encoding='utf-8', env=test_env)
         opnums = [x for x in stdout.split() if x]
         assert len(opnums) >= 10
+
+
+class TestDissectDcerpcMdssvc:
+    def test_mdssvc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: a little endian and a big endian connection with
+        a bind and calls of every opnum, and the reproducer connection,
+        and no malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mdssvc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 58
+        assert protocols.count('MDSSVC') == 34
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_mdssvc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mdssvc_calls(self, cmd_tshark, capture_file, test_env):
+        '''The opnum and Info column of every call, the same in both
+        byte orders.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mdssvc_coverage.pcap.gz'),
+                '-Y', 'mdssvc && tcp.port in {50001, 50002}',
+                '-Tfields', '-emdssvc.opnum', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        calls = ['0\topen request', '0\topen response', '1\tunknown1 request',
+                 '1\tunknown1 response'] + ['2\tcmd request', '2\tcmd response'] * 4 + [
+                 '3\tclose request', '3\tclose response']
+        assert stdout.splitlines() == calls + [
+            '4\tUnknown operation 4 request', '4\tUnknown operation 4 response'] + calls
+
+    def test_mdssvc_open(self, cmd_tshark, capture_file, test_env):
+        '''open, unknown1 and close: paths, handle, uid, gid and flags.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mdssvc_coverage.pcap.gz'),
+                '-Y', 'mdssvc.opnum in {0, 1, 3} && tcp.port in {50001, 50002}',
+                '-Tfields', '-emdssvc.mdssvc_open.device_id', '-emdssvc.mdssvc_open.share_mount_path',
+                '-emdssvc.mdssvc_open.share_name', '-emdssvc.mdssvc_open.share_path',
+                '-emdssvc.mdssvc_open.handle', '-emdssvc.mdssvc_unknown1.uid',
+                '-emdssvc.mdssvc_unknown1.gid', '-emdssvc.mdssvc_unknown1.flags',
+                '-emdssvc.mdssvc_close.status',
+            ), encoding='utf-8', env=test_env)
+        lines = [
+            '42\t/Volumes/share\tshare' + '\t' * 6,
+            '42\t\t\t/srv/share\t000000004142434445464748494a4b4c4d4e4f50\t\t\t\t',
+            '\t' * 5 + '501\t20\t\t',
+            '\t' * 7 + '1795162113\t',
+            '\t' * 8,
+            '\t' * 8 + '0',
+        ]
+        assert stdout.splitlines() == lines * 2
+
+    def test_mdssvc_spotlight(self, cmd_tshark, capture_file, test_env):
+        '''The Spotlight request of the cmd calls in little and big endian
+        Spotlight data and NDR: strings, a UTF-16 string with and without
+        BOM, integers, booleans, nulls, a UUID, CNIDs, a nested FileMeta
+        blob and an unknown element type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mdssvc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {10, 12, 34, 36}',
+                '-Tfields', '-eafp.endianness', '-eafp.string', '-eafp.utf_16_string',
+                '-eafp.int64', '-eafp.bool', '-eafp.cnid', '-eafp.spotlight.uuid',
+                '-eafp.query_type', '-eafp.num_toc_entries', '-eafp.toc_offset', '-eafp.query_len',
+            ), encoding='utf-8', env=test_env)
+        common = ('fetchAttributes:forOIDArray:context:,kMDItemDisplayName,kMDItemFSSize\t'
+                  'Résumé.txt,BigEndian\t'
+                  '0x0000000000001234,0x0000000000005678,0x0000000000001000,'
+                  '0x0000000000000007,0x0000000000000009\t1,0,1\t101,102\t'
+                  '00010203-0405-0607-0809-0a0b0c0d0e0f\tUnknown\t1,10\t528,24\t616,40')
+        le = '0x0000000000000000,0x0000000000000001\t' + common
+        be = '0x0000000000000001,0x0000000000000000\t' + common
+        assert stdout.splitlines() == [le, be, le, be]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mdssvc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 11',
+                '-Tfields', '-emdssvc.mdssvc_blob.length', '-eafp.string', '-eafp.cnid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '176\tkMDItemPath,/Volumes/share/Résumé.txt\t101\n'
+
+    def test_mdssvc_blob_bounds(self, cmd_tshark, capture_file, test_env):
+        '''"MDSSVC: Handle a NULL Spotlight blob, limit it to its length":
+        a reply blob with 8 octets after the Spotlight data (frames 15
+        and 39) and a NULL reply blob (frames 17 and 41, and frame 55 of
+        the reproducer) are followed by the right unkn9 (unfixed, 0 and a
+        malformed packet).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mdssvc_coverage.pcap.gz'),
+                '-Y', 'mdssvc.opnum == 2 && dcerpc.pkt_type == 2',
+                '-Tfields', '-eframe.number', '-emdssvc.mdssvc_cmd.fragment',
+                '-emdssvc.mdssvc_blob.length', '-emdssvc.mdssvc_blob.size',
+                '-emdssvc.mdssvc_cmd.unkn9',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t1\t176\t176\t0',
+            '13\t1\t176\t176\t0',
+            '15\t2\t184\t184\t1432778632',
+            '17\t0\t0\t0\t287454020',
+            '35\t1\t176\t176\t0',
+            '37\t1\t176\t176\t0',
+            '39\t2\t184\t184\t1432778632',
+            '41\t0\t0\t0\t287454020',
+            '53\t7\t40\t40\t287454020',
+            '55\t7\t0\t0\t287454020',
+        ]
