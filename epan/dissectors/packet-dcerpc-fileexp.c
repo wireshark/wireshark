@@ -784,6 +784,8 @@ dissect_afsAcl (tvbuff_t *tvb, unsigned offset,
       return offset;
     }
 
+  if (acl_len - 38 > (uint32_t)tvb_reported_length_remaining (tvb, offset))
+    THROW (ReportedBoundsError);
   offset += (acl_len - 38);
 
   proto_item_set_len (item, offset-old_offset);
@@ -1878,9 +1880,7 @@ dissect_afsReturnDesc (tvbuff_t *tvb, unsigned offset,
   col_append_fstr (pinfo->cinfo, COL_INFO, " TokenId:%u/%u Type:%u/%u",
                      tokenid_high, tokenid_low, type_high, type_low);
 
-  offset =
-    dissect_ndr_pointer (tvb, offset, pinfo, tree, di, drep, dissect_afsFlags,
-                         NDR_POINTER_REF, "afsFlags: ", -1);
+  offset = dissect_afsFlags (tvb, offset, pinfo, tree, di, drep);
 
   proto_item_set_len (item, offset - old_offset);
   return offset;
@@ -1900,11 +1900,6 @@ dissect_afsReturns (tvbuff_t *tvb, unsigned offset,
 
   /* this is not really a ucvarray, but with the initial len, we can
      cheat and pretend it is */
-  if (di->conformant_run)
-    {
-      return offset;
-    }
-
   offset =
     dissect_ndr_ucvarray (tvb, offset, pinfo, tree, di, drep,
                           dissect_afsReturnDesc);
@@ -4660,7 +4655,7 @@ proto_register_fileexp (void)
     },
     { &hf_fileexp_fetchdata_pipe_t_size,
       { "FetchData Pipe_t size", "fileexp.fetchdata_pipe_t_size",
-        FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
   };
