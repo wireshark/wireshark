@@ -13,6 +13,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/exceptions.h>
 #include "packet-windows-common.h"
 #include <epan/asn1.h>
 #include "packet-x509af.h"
@@ -32,12 +34,15 @@ static int hf_gpef_efskey_certificate;
 static int ett_gpef;
 static int ett_gpef_efskey;
 
+static expert_field ei_gpef_efskey_length;
+
 
 /* MS-GPEF section 2.2.1.2.2 EfsKey*/
 static int
 dissect_gpef_efskey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item = NULL;
+	proto_item *length_item;
 	proto_tree *tree = NULL;
 	int old_offset = offset;
 	uint32_t length1, sid_offset;
@@ -47,13 +52,17 @@ dissect_gpef_efskey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_gpef_efskey, tvb, -1, -1, ENC_NA);
+		item = proto_tree_add_item(parent_tree, hf_gpef_efskey, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_gpef_efskey);
 	}
 
 	/* length 1 */
-	length1 = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_gpef_efskey_length1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	length_item = proto_tree_add_item_ret_uint(tree, hf_gpef_efskey_length1, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length1);
+	/* The key holds at least the six fields that follow the length */
+	if (length1 < 24 || length1 > (uint32_t)tvb_reported_length_remaining(tvb, offset)) {
+		expert_add_info(pinfo, length_item, &ei_gpef_efskey_length);
+		THROW(ReportedBoundsError);
+	}
 	offset += 4;
 
 	/* length 2 */
@@ -166,7 +175,16 @@ proto_register_gpef(void)
 
 	proto_gpef = proto_register_protocol("GPEF", "GPEF", "gpef");
 	proto_register_field_array(proto_gpef, hf, array_length(hf));
+	static ei_register_info ei[] = {
+		{ &ei_gpef_efskey_length,
+		  { "gpef.efskey.length1.invalid", PI_MALFORMED, PI_ERROR,
+		    "Key length shorter than the key header or beyond the data", EXPFILL }},
+	};
+	expert_module_t *expert_gpef;
+
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_gpef = expert_register_protocol(proto_gpef);
+	expert_register_field_array(expert_gpef, ei, array_length(ei));
 
 	register_dissector("efsblob", dissect_gpef_efsblob, proto_gpef);
 }
