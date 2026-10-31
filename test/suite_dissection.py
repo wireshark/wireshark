@@ -35615,3 +35615,166 @@ class TestDissectDcerpcKrb5rpc:
             ['alice', 'krbtgt,EXAMPLE.TEST', '', '', '18,18'],
             ['alice', 'krbtgt,EXAMPLE.TEST,host,server.example.test', '19088743', '18,17,23', '18,18'],
         ]
+
+
+class TestDissectDcerpcLsa:
+    def test_lsa_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64), and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 1639
+        assert protocols.count('LSARPC') == 1610
+        assert protocols.count('DCERPC') == 11
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lsa_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t12345778-1234-abcd-ef00-0123456789ab\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t12345778-1234-abcd-ef00-0123456789ab\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t12345778-1234-abcd-ef00-0123456789ab\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_lsa_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum is called in the little endian connection; the 64
+        opnums with parameters also in big endian and NDR64. Every request
+        has its response, and the status codes.'''
+        expected = {
+            50001: (390, set(range(134)),
+                    {'0x00000000': 227, '0xc0000002': 22, '0xc0000022': 93}),
+            50002: (208, None, {'0x00000000': 208}),
+            50003: (208, None, {'0x00000000': 208}),
+        }
+        for port, (calls, opnums, status) in expected.items():
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                    '-Y', 'lsarpc && tcp.port == %d' % port,
+                    '-Tfields', '-edcerpc.pkt_type', '-elsarpc.opnum', '-elsarpc.status',
+                ), encoding='utf-8', env=test_env)
+            # a reassembled PDU lists the packet type of every fragment
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            lines = [[l[0].split(',')[-1]] + l[1:] for l in lines]
+            requests = [l for l in lines if l[0] == '0']
+            responses = [l for l in lines if l[0] == '2']
+            assert len(requests) == calls
+            assert len(responses) == calls
+            seen = {int(l[1]) for l in requests}
+            if opnums is not None:
+                assert seen == opnums
+            else:
+                assert len(seen) == 64
+            counts = {}
+            for l in responses:
+                if l[2]:
+                    counts[l[2]] = counts.get(l[2], 0) + 1
+            assert counts == status
+
+    def test_lsa_union_levels(self, cmd_tshark, capture_file, test_env):
+        '''Every arm of lsa_PolicyInformation, lsa_TrustedDomainInfo and
+        lsa_DomainInformationPolicy (also with minimal values in the little
+        endian connection).'''
+        for port, times in ((50001, 2), (50002, 1), (50003, 1)):
+            for field, levels in (('lsa_QueryInfoPolicy', 14),
+                                  ('lsa_QueryTrustedDomainInfo', 15),
+                                  ('lsa_QueryDomainInformationPolicy', 3)):
+                stdout = subprocess.check_output((cmd_tshark,
+                        '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                        '-Y', 'tcp.port == %d && lsarpc.%s.level' % (port, field),
+                        '-Tfields', '-elsarpc.%s.level' % field,
+                    ), encoding='utf-8', env=test_env)
+                assert stdout.split() == [str(i) for i in range(1, levels + 1)] * times
+
+    def test_lsa_sec_desc_access_rights(self, cmd_tshark, capture_file, test_env):
+        '''QuerySecurity responses on a policy, account, secret, trusted
+        domain and unknown handle: the ACE access masks are decoded with
+        the specific rights of the handle type opened before.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 756 && frame.number <= 775 && dcerpc.pkt_type == 0',
+                '-Tfields', '-elsarpc.opnum', '-edcerpc.nt.open_frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t749', '4\t749', '3\t751', '4\t751', '3\t753', '4\t753',
+            '3\t755', '4\t755', '3\t', '4\t']
+        for frame, rights in ((757, 'LSA Policy specific rights'),
+                              (761, 'LSA Account specific rights'),
+                              (765, 'LSA Secret specific rights'),
+                              (769, 'LSA Trusted specific rights'),
+                              (773, 'Specific rights')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame,
+                    '-V', '-O', 'lsarpc',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.count(rights + ': 0x') == 3
+            assert 'NT Error: STATUS_SUCCESS (0x00000000)' in stdout
+
+    def test_lsa_efs_blob(self, cmd_tshark, capture_file, test_env):
+        '''The EFS policy blob of QueryDomainInformationPolicy and
+        SetDomainInformationPolicy level 2 is handed to GPEF: two keys with
+        a SID and an X.509 certificate each.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                '-Y', 'gpef',
+                '-Tfields', '-eframe.number', '-elsarpc.efs.blob_size', '-egpef.key_count',
+                '-egpef.efskey.length1', '-egpef.efskey.cert_length', '-ex509sat.uTF8String',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[0] for l in lines] == ['395', '400', '1178', '1183', '1602', '1607']
+        for l in lines:
+            assert l.split('\t')[1:] == ['703', '2', '348,347', '292,291',
+                                         'EFS Recovery CA,Administrator,EFS Recovery CA,EFS Recovery']
+
+    def test_lsa_efs_key_position(self, cmd_tshark, capture_file, test_env):
+        '''Each EfsKey item starts at its key (before the fix every key
+        item started at the start of the blob).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                '-Y', 'frame.number == 395',
+                '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        def attr(line, name):
+            return line.split(' %s="' % name)[1].split('"')[0]
+        blob = [attr(l, 'pos') for l in stdout.splitlines() if '<proto name="gpef"' in l]
+        keys = [(attr(l, 'size'), attr(l, 'pos')) for l in stdout.splitlines()
+                if '<field name="gpef.efskey"' in l]
+        assert blob == ['98']
+        assert keys == [('348', '106'), ('347', '454')]
+
+    def test_lsa_fragmented_lookup(self, cmd_tshark, capture_file, test_env):
+        '''A LookupSids2 request and response split into DCE/RPC fragments
+        of 400 octets: 40 SIDs and 40 names after reassembly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                '-Y', 'lsarpc.opnum == 57 && frame.number >= 776 && frame.number <= 780 && lsarpc.lsa_SidArray.num_sids',
+                '-Tfields', '-eframe.number', '-elsarpc.lsa_SidArray.num_sids',
+                '-elsarpc.lsa_TransNameArray2.count', '-elsarpc.lsa.string',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:2] for l in lines] == [['778', '40']]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_lsa_coverage.pcap.gz'),
+                '-Y', 'frame.number == 780',
+                '-Tfields', '-elsarpc.lsa_TransNameArray2.count', '-elsarpc.lsa.string',
+            ), encoding='utf-8', env=test_env)
+        count, names = stdout.strip().split('\t')
+        assert count == '40'
+        assert names.split(',')[2:] == ['user%02d' % i for i in range(40)]
