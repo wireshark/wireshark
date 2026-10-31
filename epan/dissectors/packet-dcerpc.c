@@ -675,6 +675,8 @@ static int ett_dcerpc_fault_flags;
 static int ett_dcerpc_fault_stub_data;
 
 static expert_field ei_dcerpc_fragment_multiple;
+static expert_field ei_dcerpc_ndr64_count_too_large;
+static expert_field ei_dcerpc_pointers_too_deep;
 static expert_field ei_dcerpc_cn_status;
 static expert_field ei_dcerpc_fragment_reassembled;
 static expert_field ei_dcerpc_fragment;
@@ -2136,6 +2138,11 @@ dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
         tap_data->uuid.data4[7] = d47;
 
         procs             = dcerpc_get_proto_sub_dissector(&tap_data->uuid, ver);
+        if (procs == NULL) {
+            *err = ws_strdup_printf("dcerpcstat_init() No dissector for this interface and version %u", ver);
+            g_free(tap_data);
+            return pos;
+        }
         tap_data->prog    = dcerpc_get_proto_name(&tap_data->uuid, ver);
         tap_data->ver     = ver;
 
@@ -2271,11 +2278,12 @@ dissect_dcerpc_time_t(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 }
 
 int
-dissect_dcerpc_uint64(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_dcerpc_uint64(tvbuff_t *tvb, int offset, packet_info *pinfo,
                       proto_tree *tree, dcerpc_info *di, uint8_t *drep,
                       int hfindex, uint64_t *pdata)
 {
     uint64_t data;
+    proto_item *pi;
 
     data = ((drep[0] & DREP_LITTLE_ENDIAN)
             ? tvb_get_letoh64(tvb, offset)
@@ -2300,8 +2308,10 @@ dissect_dcerpc_uint64(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         default:
             /* The value is truncated to 32bits.  64bit values have only been
                seen on fuzz-tested files */
-            DISSECTOR_ASSERT((di->call_data->flags & DCERPC_IS_NDR64) || (data <= UINT32_MAX));
-            proto_tree_add_uint(tree, hfindex, tvb, offset, 8, (uint32_t)data);
+            pi = proto_tree_add_uint(tree, hfindex, tvb, offset, 8, (uint32_t)data);
+            if (!(di->call_data->flags & DCERPC_IS_NDR64) && data > UINT32_MAX) {
+                expert_add_info(pinfo, pi, &ei_dcerpc_ndr64_count_too_large);
+            }
         }
     }
     if (pdata)
@@ -2439,6 +2449,23 @@ dcerpc_tvb_get_uuid(tvbuff_t *tvb, int offset, uint8_t *drep, e_guid_t *uuid)
 
 
 /* NDR arrays */
+/*
+ * An NDR64 array count or offset is 64 bits, but no array or string that
+ * big can be in a packet. Report one that does not fit in 32 bits and
+ * stop, as for any other count beyond the end of the data.
+ */
+static uint32_t
+ndr64_check_count(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
+                  proto_tree *tree, uint64_t val)
+{
+    if (val > UINT32_MAX) {
+        proto_tree_add_expert(tree, pinfo, &ei_dcerpc_ndr64_count_too_large,
+                              tvb, offset - 8, 8);
+        THROW(ReportedBoundsError);
+    }
+    return (uint32_t)val;
+}
+
 /* function to dissect a unidimensional conformant array */
 static int
 dissect_ndr_ucarray_core(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -2465,7 +2492,7 @@ dissect_ndr_ucarray_core(tvbuff_t *tvb, int offset, packet_info *pinfo,
         di->conformant_run = 0;
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
                                        hf_dcerpc_array_max_count, &val);
-        di->array_max_count = (int32_t)val;
+        di->array_max_count = ndr64_check_count(tvb, offset, pinfo, tree, val);
         di->array_max_count_offset = offset-conformance_size;
         di->conformant_run = 1;
         di->conformant_eaten = offset-old_offset;
@@ -2473,7 +2500,9 @@ dissect_ndr_ucarray_core(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* we don't remember where in the bytestream this field was */
         proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, conformance_size, di->array_max_count);
 
-        /* real run, dissect the elements */
+        /* real run, dissect the elements; an element can hold an
+           array of the same type, so limit the nesting */
+        increment_dissection_depth(pinfo);
         if (fnct_block) {
                 offset = (*fnct_block)(tvb, offset, di->array_max_count,
                                        pinfo, tree, di, drep);
@@ -2482,6 +2511,7 @@ dissect_ndr_ucarray_core(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 offset = (*fnct_bytes)(tvb, offset, pinfo, tree, di, drep);
             }
         }
+        decrement_dissection_depth(pinfo);
     }
 
     return offset;
@@ -2529,18 +2559,15 @@ dissect_ndr_ucvarray_core(tvbuff_t *tvb, int offset, packet_info *pinfo,
         di->conformant_run = 0;
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
                                        hf_dcerpc_array_max_count, &val);
-        DISSECTOR_ASSERT(val <= UINT32_MAX);
-        di->array_max_count = (uint32_t)val;
+        di->array_max_count = ndr64_check_count(tvb, offset, pinfo, tree, val);
         di->array_max_count_offset = offset-conformance_size;
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
                                        hf_dcerpc_array_offset, &val);
-        DISSECTOR_ASSERT(val <= UINT32_MAX);
-        di->array_offset = (uint32_t)val;
+        di->array_offset = ndr64_check_count(tvb, offset, pinfo, tree, val);
         di->array_offset_offset = offset-conformance_size;
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
                                        hf_dcerpc_array_actual_count, &val);
-        DISSECTOR_ASSERT(val <= UINT32_MAX);
-        di->array_actual_count = (uint32_t)val;
+        di->array_actual_count = ndr64_check_count(tvb, offset, pinfo, tree, val);
         di->array_actual_count_offset = offset-conformance_size;
         di->conformant_run = 1;
         di->conformant_eaten = offset-old_offset;
@@ -2551,6 +2578,7 @@ dissect_ndr_ucvarray_core(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, conformance_size, di->array_actual_count);
 
         /* real run, dissect the elements */
+        increment_dissection_depth(pinfo);
         if (fnct_block) {
                 offset = (*fnct_block)(tvb, offset, di->array_actual_count,
                                        pinfo, tree, di, drep);
@@ -2563,6 +2591,7 @@ dissect_ndr_ucvarray_core(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     break;
             }
         }
+        decrement_dissection_depth(pinfo);
     }
 
     return offset;
@@ -2605,13 +2634,11 @@ dissect_ndr_uvarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
         di->conformant_run = 0;
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
                                        hf_dcerpc_array_offset, &val);
-        DISSECTOR_ASSERT(val <= UINT32_MAX);
-        di->array_offset = (uint32_t)val;
+        di->array_offset = ndr64_check_count(tvb, offset, pinfo, tree, val);
         di->array_offset_offset = offset-conformance_size;
         offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
                                        hf_dcerpc_array_actual_count, &val);
-        DISSECTOR_ASSERT(val <= UINT32_MAX);
-        di->array_actual_count = (uint32_t)val;
+        di->array_actual_count = ndr64_check_count(tvb, offset, pinfo, tree, val);
         di->array_actual_count_offset = offset-conformance_size;
         di->conformant_run = 1;
         di->conformant_eaten = offset-old_offset;
@@ -2621,9 +2648,11 @@ dissect_ndr_uvarray(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, conformance_size, di->array_actual_count);
 
         /* real run, dissect the elements */
+        increment_dissection_depth(pinfo);
         for (i=0; i<di->array_actual_count; i++) {
             offset = (*fnct)(tvb, offset, pinfo, tree, di, drep);
         }
+        decrement_dissection_depth(pinfo);
     }
 
     return offset;
@@ -2666,7 +2695,7 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_ndr_uint3264(tvb, offset, pinfo, tree, di, drep,
                                   hf_dcerpc_array_actual_count, &len);
 
-    DISSECTOR_ASSERT(len <= UINT32_MAX);
+    ndr64_check_count(tvb, offset, pinfo, tree, len);
     if (len) {
         proto_tree_add_item(tree, di->hf_index, tvb, offset, (uint32_t)len,
                             ENC_NA);
@@ -2725,8 +2754,10 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, di, drep,
                                   hf_dcerpc_array_actual_count, &len);
 
-    /* The value is truncated to 32bits.  64bit values have only been
-       seen on fuzztested files */
+    len = ndr64_check_count(tvb, offset, pinfo, string_tree, len);
+    /* A count of wide characters can still overflow the octet length */
+    if ((uint64_t)size_is * len > UINT32_MAX)
+        THROW(ReportedBoundsError);
     buffer_len = size_is * (uint32_t)len;
 
     /* Adjust offset */
@@ -2901,7 +2932,10 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_ndr_uint3264(tvb, offset, pinfo, string_tree, di, drep,
                                   hf_dcerpc_array_actual_count, &len);
 
-    DISSECTOR_ASSERT(len <= UINT32_MAX);
+    len = ndr64_check_count(tvb, offset, pinfo, string_tree, len);
+    /* A count of wide characters can still overflow the octet length */
+    if ((uint64_t)size_is * len > UINT32_MAX)
+        THROW(ReportedBoundsError);
     buffer_len = size_is * (uint32_t)len;
 
     /* Adjust offset */
@@ -2994,15 +3028,27 @@ typedef struct ndr_pointer_data {
     void                   *callback_args;
 } ndr_pointer_data_t;
 
+/* One level of deferred pointers: the pointers found while dissecting one
+ * pointed-to object, in the order found. */
+typedef struct ndr_pointer_level {
+    GSList *head;
+    GSList *tail;
+    GSList *resume;     /* the last pointer handled, NULL for none */
+} ndr_pointer_level_t;
+
+static void
+free_ndr_pointer_level(void *data)
+{
+    ndr_pointer_level_t *level = (ndr_pointer_level_t *)data;
+
+    g_slist_free_full(level->head, g_free);
+    g_free(level);
+}
+
 void
 free_ndr_pointer_list(dcerpc_info *di)
 {
-    while (di->pointers.list_list) {
-        GSList *list = (GSList *)g_slist_nth_data(di->pointers.list_list, 0);
-        di->pointers.list_list = g_slist_remove(di->pointers.list_list, list);
-        g_slist_free_full(list, g_free);
-    }
-    g_slist_free_full(di->pointers.list_list, g_free);
+    g_slist_free_full(di->pointers.list_list, free_ndr_pointer_level);
     if (di->pointers.hash) {
         g_hash_table_destroy(di->pointers.hash);
     }
@@ -3021,15 +3067,23 @@ init_ndr_pointer_list(dcerpc_info *di)
     di->pointers.hash = g_hash_table_new(g_int_hash, g_int_equal);
 }
 
+static unsigned
+ndr_tree_depth(proto_tree *tree)
+{
+    unsigned depth = 0;
+
+    for (proto_node *node = tree; node != NULL; node = node->parent) {
+        depth++;
+    }
+    return depth;
+}
+
 int
 dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_info *di, uint8_t *drep)
 {
-    int          found_new_pointer;
-    int          old_offset;
-    int          next_pointer;
-    unsigned     original_depth;
-    int          len;
-    GSList      *current_ndr_pointer_list;
+    int                  old_offset;
+    ndr_pointer_level_t *base, *level;
+    GSList              *node;
 
     /*
      * pidl has a difficiency of unconditionally emitting calls
@@ -3039,143 +3093,127 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
         return offset;
     }
 
-    /* Probably not necessary, it is supposed to prevent more pointers from
-     * being added to the list. */
+    /* Pointers found from here on start a new level. */
     di->pointers.list = NULL;
 
-    next_pointer = 0;
+    /*
+     * list_list is a stack of levels with the newest first. Handle the
+     * pointers of the current level in order; when a pointed-to object
+     * has pointers of its own, they form a new level that is handled
+     * first, and then the level below goes on after the pointer it
+     * stopped at. Pointers already handled are not visited again.
+     */
+    base = level = (ndr_pointer_level_t *)di->pointers.list_list->data;
+    node = level->resume ? level->resume->next : level->head;
 
-    /* Obtain the current list of pointers at this level. */
-    current_ndr_pointer_list = (GSList *)g_slist_last(di->pointers.list_list)->data;
-    original_depth = g_slist_length(di->pointers.list_list);
+    for (;;) {
+        ndr_pointer_data_t *tnpd;
 
-    len = g_slist_length(current_ndr_pointer_list);
-    do {
-        int i;
-
-        found_new_pointer = 0;
-process_list:
-        for (i=next_pointer; i<len; i++) {
-            ndr_pointer_data_t *tnpd = (ndr_pointer_data_t *)g_slist_nth_data(current_ndr_pointer_list, i);
-
-            if (tnpd->fnct) {
-                GSList *saved_ndr_pointer_list = NULL;
-
-                dcerpc_dissect_fnct_t *fnct;
-
-                next_pointer = i+1;
-                found_new_pointer = 1;
-                fnct = tnpd->fnct;
-                tnpd->fnct = NULL;
-                di->hf_index = tnpd->hf_index;
-                /* first a run to handle any conformant
-                   array headers */
-                di->conformant_run = 1;
-                di->conformant_eaten = 0;
-                old_offset = offset;
-                saved_ndr_pointer_list = current_ndr_pointer_list;
-                di->pointers.list = NULL;
-                offset = (*(fnct))(tvb, offset, pinfo, NULL, di, drep);
-
-                DISSECTOR_ASSERT((offset-old_offset) == di->conformant_eaten);
-                /* This is to check for any bugs in the dissectors.
-                 *
-                 * Basically, the NDR representation will store all
-                 * arrays in two blocks, one block with the dimension
-                 * description, like size, number of elements and such,
-                 * and another block that contains the actual data stored
-                 * in the array.
-                 * If the array is embedded directly inside another,
-                 * encapsulating aggregate type, like a union or struct,
-                 * then these two blocks will be stored at different places
-                 * in the bytestream, with other data between the blocks.
-                 *
-                 * For this reason, all pointers to types (both aggregate
-                 * and scalar, for simplicity no distinction is made)
-                 * will have its dissector called twice.
-                 * The dissector will first be called with conformant_run == 1
-                 * in which mode the dissector MUST NOT consume any data from
-                 * the tvbuff (i.e. may not dissect anything) except the
-                 * initial control block for arrays.
-                 * The second time the dissector is called, with
-                 * conformant_run == 0, all other data for the type will be
-                 * dissected.
-                 *
-                 * All dissect_ndr_<type> dissectors are already prepared
-                 * for this and knows when it should eat data from the tvb
-                 * and when not to, so implementors of dissectors will
-                 * normally not need to worry about this or even know about
-                 * it. However, if a dissector for an aggregate type calls
-                 * a subdissector from outside packet-dcerpc.c, such as
-                 * the dissector in packet-smb.c for NT Security Descriptors
-                 * as an example, then it is VERY important to encapsulate
-                 * this call to an external subdissector with the appropriate
-                 * test for conformant_run, i.e. it will need something like
-                 *
-                 *      dcerpc_info *di (received as function parameter)
-                 *
-                 *      if (di->conformant_run) {
-                 *              return offset;
-                 *      }
-                 *
-                 * to make sure it makes the right thing.
-                 * This assert will signal when someone has forgotten to
-                 * make the dissector aware of this requirement.
-                 */
-
-                /* now we dissect the actual pointer */
-                di->conformant_run = 0;
-                old_offset = offset;
-                offset = (*(fnct))(tvb, offset, pinfo, tnpd->tree, di, drep);
-                if (tnpd->callback)
-                    tnpd->callback(pinfo, tnpd->tree, tnpd->item, di, tvb, old_offset, offset, tnpd->callback_args);
-                proto_item_set_len(tnpd->item, offset - old_offset);
-                if (di->pointers.list) {
-                    /* We found some pointers to dissect, descend into it. */
-                    next_pointer = 0;
-                    len = g_slist_length(di->pointers.list);
-                    current_ndr_pointer_list = di->pointers.list;
-                    di->pointers.list = NULL;
-                    goto process_list;          /* Process the new current_ndr_pointer_list */
-                } else {
-                    current_ndr_pointer_list = saved_ndr_pointer_list;
-                }
+        if (node == NULL) {
+            if (level == base) {
+                break;
             }
-            /* If we found the end of the list, but add_pointer_to_list extended
-             * it, then be sure to handle those extra elements. */
-            if (i == (len - 1) && (di->pointers.must_check_size == true)) {
-                len = g_slist_length(di->pointers.list);
-                di->pointers.must_check_size = false;
-            }
+            /* This level is done: drop it, go back to the one below. */
+            di->pointers.list_list = g_slist_delete_link(di->pointers.list_list,
+                                                         di->pointers.list_list);
+            free_ndr_pointer_level(level);
+            level = (ndr_pointer_level_t *)di->pointers.list_list->data;
+            node = level->resume->next;
+            continue;
         }
 
-        /* We reached the end of one level, go to the level bellow if possible
-         * reset list a level n
-         */
-        if ((i >= (len - 1)) && (g_slist_length(di->pointers.list_list) > original_depth)) {
-            GSList *list;
-            /* Remove existing list */
-            g_slist_free_full(current_ndr_pointer_list, g_free);
-            list = (GSList *)g_slist_last(di->pointers.list_list)->data;
-            di->pointers.list_list = g_slist_remove(di->pointers.list_list, list);
+        level->resume = node;
+        tnpd = (ndr_pointer_data_t *)node->data;
+        if (tnpd->fnct) {
+            dcerpc_dissect_fnct_t *fnct;
 
-            /* Rewind on the lower level, in theory it's not too great because we
-             * will one more time iterate on pointers already done
-             * In practice it shouldn't be that bad !
+            fnct = tnpd->fnct;
+            tnpd->fnct = NULL;
+            di->hf_index = tnpd->hf_index;
+            /* first a run to handle any conformant
+               array headers */
+            di->conformant_run = 1;
+            di->conformant_eaten = 0;
+            old_offset = offset;
+            di->pointers.list = NULL;
+            offset = (*(fnct))(tvb, offset, pinfo, NULL, di, drep);
+
+            DISSECTOR_ASSERT((offset-old_offset) == di->conformant_eaten);
+            /* This is to check for any bugs in the dissectors.
+             *
+             * Basically, the NDR representation will store all
+             * arrays in two blocks, one block with the dimension
+             * description, like size, number of elements and such,
+             * and another block that contains the actual data stored
+             * in the array.
+             * If the array is embedded directly inside another,
+             * encapsulating aggregate type, like a union or struct,
+             * then these two blocks will be stored at different places
+             * in the bytestream, with other data between the blocks.
+             *
+             * For this reason, all pointers to types (both aggregate
+             * and scalar, for simplicity no distinction is made)
+             * will have its dissector called twice.
+             * The dissector will first be called with conformant_run == 1
+             * in which mode the dissector MUST NOT consume any data from
+             * the tvbuff (i.e. may not dissect anything) except the
+             * initial control block for arrays.
+             * The second time the dissector is called, with
+             * conformant_run == 0, all other data for the type will be
+             * dissected.
+             *
+             * All dissect_ndr_<type> dissectors are already prepared
+             * for this and knows when it should eat data from the tvb
+             * and when not to, so implementers of dissectors will
+             * normally not need to worry about this or even know about
+             * it. However, if a dissector for an aggregate type calls
+             * a subdissector from outside packet-dcerpc.c, such as
+             * the dissector in packet-smb.c for NT Security Descriptors
+             * as an example, then it is VERY important to encapsulate
+             * this call to an external subdissector with the appropriate
+             * test for conformant_run, i.e. it will need something like
+             *
+             *      dcerpc_info *di (received as function parameter)
+             *
+             *      if (di->conformant_run) {
+             *              return offset;
+             *      }
+             *
+             * to make sure it makes the right thing.
+             * This assert will signal when someone has forgotten to
+             * make the dissector aware of this requirement.
              */
-            next_pointer = 0;
-            /* Move to the next list of pointers. */
-            current_ndr_pointer_list = (GSList *)g_slist_last(di->pointers.list_list)->data;
-            len = g_slist_length(current_ndr_pointer_list);
-            found_new_pointer = 1;
+
+            /* now we dissect the actual pointer */
+            di->conformant_run = 0;
+            old_offset = offset;
+            offset = (*(fnct))(tvb, offset, pinfo, tnpd->tree, di, drep);
+            if (tnpd->callback)
+                tnpd->callback(pinfo, tnpd->tree, tnpd->item, di, tvb, old_offset, offset, tnpd->callback_args);
+            proto_item_set_len(tnpd->item, offset - old_offset);
+            if (di->pointers.list) {
+                /*
+                 * We found some pointers to dissect, descend into them.
+                 * Each level is a level deeper in the tree, so stop a
+                 * long chain of pointers, such as a linked list, before
+                 * the maximum tree depth.
+                 */
+                if (tnpd->tree &&
+                    ndr_tree_depth(tnpd->tree) + 16 >= (unsigned)prefs.gui_max_tree_depth) {
+                    expert_add_info(pinfo, tnpd->item, &ei_dcerpc_pointers_too_deep);
+                    THROW(ReportedBoundsError);
+                }
+                di->pointers.list = NULL;
+                level = (ndr_pointer_level_t *)di->pointers.list_list->data;
+                node = level->head;
+                continue;
+            }
         }
+        node = node->next;
+    }
 
-    } while (found_new_pointer);
-    DISSECTOR_ASSERT(original_depth == g_slist_length(di->pointers.list_list));
-
-    g_slist_free_full(di->pointers.list, g_free);
-    /* Restore the previous list of pointers. */
-    di->pointers.list = (GSList *)g_slist_last(di->pointers.list_list)->data;
+    /* Pointers found from here on are added to the current level. */
+    di->pointers.list = base->head;
 
     return offset;
 }
@@ -3194,6 +3232,7 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
                     dcerpc_callback_fnct_t *callback, void *callback_args)
 {
     ndr_pointer_data_t *npd;
+    ndr_pointer_level_t *level;
     unsigned *p_id;
 
     /* check if this pointer is valid */
@@ -3232,20 +3271,22 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
     npd->hf_index = hf_index;
     npd->callback = callback;
     npd->callback_args = callback_args;
-    p_id = wmem_new(wmem_file_scope(), unsigned);
+    p_id = wmem_new(pinfo->pool, unsigned);
     *p_id = id;
 
     /* Update the list of pointers for use by dissect_deferred_pointers. If this
-     * is the first pointer, create a list and add it to the stack. */
+     * is the first pointer, start a new level on top of the stack. */
     if (!di->pointers.list) {
-        di->pointers.list = g_slist_append(NULL, npd);
-        di->pointers.list_list = g_slist_append(di->pointers.list_list,
-                                                di->pointers.list);
+        level = g_new(ndr_pointer_level_t, 1);
+        level->head = level->tail = g_slist_prepend(NULL, npd);
+        level->resume = NULL;
+        di->pointers.list_list = g_slist_prepend(di->pointers.list_list, level);
+        di->pointers.list = level->head;
     } else {
-        di->pointers.list = g_slist_append(di->pointers.list, npd);
+        level = (ndr_pointer_level_t *)di->pointers.list_list->data;
+        level->tail = g_slist_append(level->tail, npd)->next;
     }
     g_hash_table_insert(di->pointers.hash, p_id, p_id);
-    di->pointers.must_check_size = true;
 }
 
 
@@ -5164,7 +5205,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                                         stub_tvb, 0,
                                                         pinfo, value->rep_frame, NULL,
                                                         stub_length,
-                                                        true);
+                                                        false);
 
                         if (fd_head) {
                             /* We completed reassembly */
@@ -7228,6 +7269,8 @@ proto_register_dcerpc(void)
 
     static ei_register_info ei[] = {
         { &ei_dcerpc_fragment, { "dcerpc.fragment.reassemble", PI_REASSEMBLE, PI_CHAT, "Fragment", EXPFILL }},
+        { &ei_dcerpc_ndr64_count_too_large, { "dcerpc.ndr64_count_too_large", PI_MALFORMED, PI_ERROR, "Value does not fit in 32 bits", EXPFILL }},
+        { &ei_dcerpc_pointers_too_deep, { "dcerpc.pointers_too_deep", PI_UNDECODED, PI_WARN, "Too many nested pointers to dissect", EXPFILL }},
         { &ei_dcerpc_fragment_reassembled, { "dcerpc.fragment_reassembled", PI_REASSEMBLE, PI_CHAT, "Fragment, reassembled", EXPFILL }},
         { &ei_dcerpc_cn_ctx_id_no_bind, { "dcerpc.cn_ctx_id.no_bind", PI_UNDECODED, PI_NOTE, "No bind info for interface Context ID", EXPFILL }},
         { &ei_dcerpc_no_request_found, { "dcerpc.no_request_found", PI_SEQUENCE, PI_NOTE, "No request to this DCE/RPC call found", EXPFILL }},

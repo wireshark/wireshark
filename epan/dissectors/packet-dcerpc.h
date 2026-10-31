@@ -173,23 +173,19 @@ typedef struct _dcerpc_info {
 
 	/* ndr pointer handling */
 	struct {
-		/* Should we re-read the size of the list ?
-		 * Instead of re-calculating the size every time, use the stored value unless this
-		 * flag is set which means: re-read the size of the list
-		 */
+		/* No longer used; kept so that the structure layout does not change. */
 		bool must_check_size;
 		/*
-		 * List of pointers encountered so far in the current level. Points to an
-		 * element of list_ndr_pointer_list.
+		 * List of pointers encountered so far in the current level, the
+		 * head of the level on top of list_list, or NULL to start a new
+		 * level with the next pointer.
 		 */
 		GSList *list;
 		GHashTable *hash;
 		/*
-		 * List of pointer list, in order to avoid huge performance penalty
-		 * when dealing with list bigger than 100 elements due to the way we
-		 * try to insert in the list.
-		 * We instead maintain a stack of pointer list
-		 * To make it easier to manage we just use a list to materialize the stack
+		 * Stack of levels of deferred pointers, the newest first. Each
+		 * level holds the pointers found in one pointed-to object, so
+		 * that they are dissected before the pointers that follow it.
 		 */
 		GSList *list_list;
 
