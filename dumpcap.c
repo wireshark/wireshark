@@ -5322,6 +5322,14 @@ main(int argc, char *argv[])
     }
 #endif
 
+    /*
+     * Reset the options parser, set ws_optreset to 1 and set ws_optind to 1;
+     * the loop above has gone through all the arguments, so otherwise
+     * ws_log_parse_args() wouldn't see any of them.
+     */
+    ws_optreset = 1;
+    ws_optind = 1;
+
     /* Early logging command-line initialization. */
     ws_log_parse_args(&argc, argv, optstring, long_options, vcmdarg_err, WS_EXIT_INVALID_OPTION);
 
