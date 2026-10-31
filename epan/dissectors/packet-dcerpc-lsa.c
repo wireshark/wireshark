@@ -1925,6 +1925,7 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pr
 		ami=&lsarpc_trusted_access_mask_info;
 		break;
 	}
+	tvb_ensure_bytes_exist64(tvb, offset, len);
 	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, true, len, ami);
 	offset += len;
 	return offset;
@@ -1998,17 +1999,19 @@ lsarpc_dissect_element_lsa_LookupNames4_names(tvbuff_t *tvb _U_, unsigned offset
 static unsigned
 lsarpc_dissect_element_lsa_String_string_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_)
 {
-	char *data;
+	char *data = NULL;
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_lsarpc_String_name, false, &data);
-	proto_item_append_text(tree, ": %s", data);
+	if (data)
+		proto_item_append_text(tree, ": %s", data);
 	return offset;
 }
 static unsigned
 lsarpc_dissect_element_lsa_StringLarge_string_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di, uint8_t *drep _U_)
 {
-	char *data;
+	char *data = NULL;
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(uint16_t), hf_lsarpc_String_name, false, &data);
-	proto_item_append_text(tree, ": %s", data);
+	if (data)
+		proto_item_append_text(tree, ": %s", data);
 	return offset;
 }
 static unsigned
