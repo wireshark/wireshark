@@ -4055,7 +4055,6 @@ typedef struct _blf_writer_data {
     blf_fileheader_t *fileheader;
     uint32_t object_count;
     uint64_t start_time;
-    bool start_time_set;
     uint64_t end_time;
 
     uint64_t logcontainer_start;
@@ -4239,10 +4238,7 @@ blf_finalize_file_header(wtap_dumper *wdh, int *err) {
 
     fileheader->obj_count = writer_data->object_count;
 
-    if (writer_data->start_time_set) {
-        blf_write_date_to_blf_header(fileheader, true, writer_data->start_time);
-    }
-
+    blf_write_date_to_blf_header(fileheader, true, writer_data->start_time);
     blf_write_date_to_blf_header(fileheader, false, writer_data->end_time);
 
     fix_endianness_blf_fileheader(fileheader);
@@ -5411,8 +5407,10 @@ static bool blf_dump(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err
 
     uint64_t obj_timestamp = (rec->ts.secs * 1000 * 1000 * 1000 + rec->ts.nsecs);
 
-    /* Due to all object timestamps being relative the file header start time, we only want to do this once */
-    if (!writer_data->start_time_set) {
+    /* Due to all object timestamps being relative the file header start time, we only want to do this once. */
+    /* Packets can be skipped due to writing of that specfic event type not being supported or just not yet */
+    /* implemented, so use the object_count to know if any events has been output to file yet. */
+    if (writer_data->object_count == 0) {
         /* TODO: refine method. Right now assume no event will ever be more than 1 second prior to first packet time. */
         /* Suggested improvement 1: For 2-pass or preloaded data use the time of the actual first event. */
         /* Suggested improvement 2: For single step conversion, make safety margin configurable. */
@@ -5421,7 +5419,6 @@ static bool blf_dump(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err
         } else {
             writer_data->start_time = 0;
         }
-        writer_data->start_time_set = true;
     }
 
     if (obj_timestamp < writer_data->start_time) {
@@ -5554,7 +5551,6 @@ blf_dump_open(wtap_dumper *wdh, int *err, char **err_info) {
     writer_data->fileheader = NULL;
     writer_data->object_count = 0;
     writer_data->start_time = 0;
-    writer_data->start_time_set = false;
     writer_data->end_time = 0;
 
     writer_data->logcontainer_start = LOG_CONTAINER_NONE;
