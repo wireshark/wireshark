@@ -34961,3 +34961,134 @@ class TestDissectDcerpcFsrvp:
         assert lines[0:26] == values
         assert lines[26:52] == values
         assert lines[52:78] == values
+
+
+class TestDissectDcerpcInitshutdown:
+    def test_initshutdown_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 7 calls each (plus an unknown opnum in the
+        first), and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_initshutdown_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 68
+        assert protocols.count('INITSHUTDOWN') == 44
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_initshutdown_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_initshutdown_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order, interface version and transfer
+        syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_initshutdown_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t894de0c0-0d55-11d3-a322-00c04fa321a1\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t894de0c0-0d55-11d3-a322-00c04fa321a1\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t894de0c0-0d55-11d3-a322-00c04fa321a1\t1\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_initshutdown_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum with NULL and non-NULL host names and messages,
+        timeouts, reasons and WERROR codes; the same in all three
+        connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_initshutdown_coverage.pcap.gz'),
+                '-Y', 'initshutdown',
+                '-Tfields', '-einitshutdown.opnum',
+                '-einitshutdown.initshutdown_Init.hostname',
+                '-einitshutdown.initshutdown_InitEx.hostname',
+                '-einitshutdown.initshutdown_Abort.server',
+                '-elsarpc.lsa.string',
+                '-einitshutdown.initshutdown_Init.timeout',
+                '-einitshutdown.initshutdown_InitEx.timeout',
+                '-einitshutdown.initshutdown_InitEx.reason',
+                '-einitshutdown.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 44
+        calls = [
+            '0\t23644\t\t\tSystem maintenance\t30\t\t\t\tInit request',
+            '0\t\t\t\t\t\t\t\t0x00000000\tInit response',
+            '0\t\t\t\t\t0\t\t\t\tInit request',
+            '0\t\t\t\t\t\t\t\t0x0000045b\tInit response, Error: WERR_SHUTDOWN_IN_PROGRESS',
+            '0\t83\t\t\t\t4294967295\t\t\t\tInit request',
+            '0\t\t\t\t\t\t\t\t0x00000005\tInit response, Error: WERR_ACCESS_DENIED',
+            '1\t\t\t23644\t\t\t\t\t\tAbort request',
+            '1\t\t\t\t\t\t\t\t0x00000000\tAbort response',
+            '1\t\t\t\t\t\t\t\t\tAbort request',
+            '1\t\t\t\t\t\t\t\t0x0000045c\tAbort response, Error: WERR_NO_SHUTDOWN_IN_PROGRESS',
+            '2\t\t23644\t\tInstalling updates\t\t600\t2147745793\t\tInitEx request',
+            '2\t\t\t\t\t\t\t\t0x00000000\tInitEx response',
+            '2\t\t\t\t\t\t5\t1073741824\t\tInitEx request',
+            '2\t\t\t\t\t\t\t\t0x0badc0de\tInitEx response, Error: Unknown DOS error 0x0badc0de',
+        ]
+        assert lines[0:14] == calls
+        assert lines[14:16] == ['3\t\t\t\t\t\t\t\t\tUnknown operation 3 request',
+                                '3\t\t\t\t\t\t\t\t\tUnknown operation 3 response']
+        assert lines[16:30] == calls
+        assert lines[30:44] == calls
+
+    def test_initshutdown_message(self, cmd_tshark, capture_file, test_env):
+        '''The lsa_StringLarge message of Init in NDR64 (the third
+        connection): length, size and the conformant varying string; and
+        the empty message in big endian.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_initshutdown_coverage.pcap.gz'),
+                '-Y', 'frame.number in {34, 52}',
+                '-V', '-O', 'initshutdown',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        start = lines.index('Init shutdown service, Init')
+        assert lines[start:start + 18] == [
+            'Init shutdown service, Init',
+            'Operation: Init (0)',
+            'Pointer to Hostname (uint16)',
+            'Referent ID: 0x00020004',
+            'Hostname: 83',
+            'Pointer to Message (lsa_StringLarge)',
+            'Referent ID: 0x00020008',
+            'Message',
+            'Length: 0',
+            'Size: 2',
+            'Pointer to String (uint16):',
+            'Referent ID: 0x0002000c',
+            'Max Count: 1',
+            'Offset: 0',
+            'Actual Count: 0',
+            'Timeout: 4294967295',
+            'Force Apps: 0',
+            'Do Reboot: 1',
+        ]
+        start = lines.index('Init shutdown service, Init', start + 1)
+        assert lines[start + 3:start + 19] == [
+            'Referent ID: 0x0000000000020004',
+            'Hostname: 23644',
+            'Pointer to Message (lsa_StringLarge)',
+            'Referent ID: 0x0000000000020008',
+            'Message',
+            'Length: 36',
+            'Size: 38',
+            'Pointer to String (uint16): System maintenance',
+            'Referent ID: 0x000000000002000c',
+            'Max Count: 19',
+            'Offset: 0',
+            'Actual Count: 18',
+            'String: System maintenance',
+            'Timeout: 30',
+            'Force Apps: 1',
+            'Do Reboot: 1',
+        ]
