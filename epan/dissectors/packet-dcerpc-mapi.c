@@ -8440,6 +8440,7 @@ uint32_size_uint8_buffer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pro
 {
 	uint32_t size= 0;
 	offset = PIDL_dissect_uint32_val(tvb, offset, pinfo, parent_tree, di, drep, hf_size_index, param, &size);
+	tvb_ensure_bytes_exist64(tvb, offset, size);
 	proto_tree_add_item(parent_tree, hf_buffer_index, tvb, offset, size, ENC_NA);
 	return offset+size;
 }
