@@ -34792,3 +34792,172 @@ class TestDissectDcerpcFrstrans:
         assert lines[0:12] == calls
         assert lines[12:24] == calls
         assert lines[24:36] == calls
+
+
+class TestDissectDcerpcFsrvp:
+    def test_fsrvp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 31 calls each (plus an unknown opnum in the
+        first), and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fsrvp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 212
+        assert protocols.count('FSRVP') == 188
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_fsrvp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fsrvp_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order, interface and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fsrvp_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\ta8e0653c-2744-4389-a61d-7373df8b2292\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\ta8e0653c-2744-4389-a61d-7373df8b2292\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\ta8e0653c-2744-4389-a61d-7373df8b2292\t1\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_fsrvp_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum 0-12 with success and an error status; the same in
+        all three connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fsrvp_coverage.pcap.gz'),
+                '-Y', 'fsrvp',
+                '-Tfields', '-efsrvp.opnum', '-efsrvp.status', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 188
+        calls = [
+            '0\t\tGetSupportedVersion request FSRVP V1',
+            '0\t0x00000000\tGetSupportedVersion response',
+            '0\t\tGetSupportedVersion request FSRVP V1',
+            '0\t0xc0000022\tGetSupportedVersion response, STATUS_ACCESS_DENIED, Error: STATUS_ACCESS_DENIED',
+            '1\t\tSetContext request',
+            '1\t0x00000000\tSetContext response',
+            '1\t\tSetContext request',
+            '1\t0x00000000\tSetContext response',
+            '1\t\tSetContext request',
+            '1\t0x00000000\tSetContext response',
+            '1\t\tSetContext request',
+            '1\t0x00000000\tSetContext response',
+            '1\t\tSetContext request',
+            '1\t0x8004231b\tSetContext response, Unknown error 0x8004231b, Error: Unknown NT status 0x8004231b',
+            '2\t\tStartShadowCopySet request',
+            '2\t0x00000000\tStartShadowCopySet response',
+            '2\t\tStartShadowCopySet request',
+            '2\t0x80042316\tStartShadowCopySet response, Unknown error 0x80042316, Error: Unknown NT status 0x80042316',
+            '3\t\tAddToShadowCopySet request',
+            '3\t0x00000000\tAddToShadowCopySet response',
+            '3\t\tAddToShadowCopySet request',
+            '3\t0x80042308\tAddToShadowCopySet response, Unknown error 0x80042308, Error: Unknown NT status 0x80042308',
+            '4\t\tCommitShadowCopySet request',
+            '4\t0x00000000\tCommitShadowCopySet response',
+            '4\t\tCommitShadowCopySet request',
+            '4\t0x00000102\tCommitShadowCopySet response, STATUS_TIMEOUT, Error: STATUS_TIMEOUT',
+            '5\t\tExposeShadowCopySet request',
+            '5\t0x00000000\tExposeShadowCopySet response',
+            '5\t\tExposeShadowCopySet request',
+            '5\t0x00000102\tExposeShadowCopySet response, STATUS_TIMEOUT, Error: STATUS_TIMEOUT',
+            '12\t\tPrepareShadowCopySet request',
+            '12\t0x00000000\tPrepareShadowCopySet response',
+            '12\t\tPrepareShadowCopySet request',
+            '12\t0x00000102\tPrepareShadowCopySet response, STATUS_TIMEOUT, Error: STATUS_TIMEOUT',
+            '6\t\tRecoveryCompleteShadowCopySet request',
+            '6\t0x00000000\tRecoveryCompleteShadowCopySet response',
+            '6\t\tRecoveryCompleteShadowCopySet request',
+            '6\t0x80042301\tRecoveryCompleteShadowCopySet response, Unknown error 0x80042301, Error: Unknown NT status 0x80042301',
+            '7\t\tAbortShadowCopySet request',
+            '7\t0x00000000\tAbortShadowCopySet response',
+            '7\t\tAbortShadowCopySet request',
+            '7\t0x80042301\tAbortShadowCopySet response, Unknown error 0x80042301, Error: Unknown NT status 0x80042301',
+            '8\t\tIsPathSupported request',
+            '8\t0x00000000\tIsPathSupported response',
+            '8\t\tIsPathSupported request',
+            '8\t0xc0000022\tIsPathSupported response, STATUS_ACCESS_DENIED, Error: STATUS_ACCESS_DENIED',
+            '9\t\tIsPathShadowCopied request',
+            '9\t0x00000000\tIsPathShadowCopied response',
+            '9\t\tIsPathShadowCopied request',
+            '9\t0xc0000022\tIsPathShadowCopied response, STATUS_ACCESS_DENIED, Error: STATUS_ACCESS_DENIED',
+            '10\t\tGetShareMapping request',
+            '10\t0x00000000\tGetShareMapping response',
+            '10\t\tGetShareMapping request',
+            '10\t0x80042308\tGetShareMapping response, Unknown error 0x80042308, Error: Unknown NT status 0x80042308',
+            '10\t\tGetShareMapping request',
+            '10\t0x80042308\tGetShareMapping response, Unknown error 0x80042308, Error: Unknown NT status 0x80042308',
+            '10\t\tGetShareMapping request',
+            '10\t0x80042308\tGetShareMapping response, Unknown error 0x80042308, Error: Unknown NT status 0x80042308',
+            '11\t\tDeleteShareMapping request',
+            '11\t0x00000000\tDeleteShareMapping response',
+            '11\t\tDeleteShareMapping request',
+            '11\t0x80042501\tDeleteShareMapping response, Unknown error 0x80042501, Error: Unknown NT status 0x80042501',
+        ]
+        assert lines[0:62] == calls
+        assert lines[62:64] == ['13\t\tUnknown operation 13 request',
+                                '13\t\tUnknown operation 13 response']
+        assert lines[64:126] == calls
+        assert lines[126:188] == calls
+
+    def test_fsrvp_values(self, cmd_tshark, capture_file, test_env):
+        '''SetContext contexts, IsPathSupported with and without an owner
+        name, a negative compatibility, and GetShareMapping with a full
+        mapping, a mapping without names, a NULL mapping and an unknown
+        level, the same in all three encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_fsrvp_coverage.pcap.gz'),
+                '-Y', 'fsrvp.opnum in {1, 8, 9, 10}',
+                '-Tfields', '-efsrvp.fsrvp_SetContext.Context',
+                '-efsrvp.fsrvp_IsPathSupported.SupportedByThisProvider',
+                '-efsrvp.fsrvp_IsPathSupported.OwnerMachineName',
+                '-efsrvp.fsrvp_IsPathShadowCopied.ShadowCopyCompatibility',
+                '-efsrvp.fsrvp_GetShareMapping.Level',
+                '-efsrvp.fssagent_share_mapping_1.ShadowCopyId',
+                '-efsrvp.fssagent_share_mapping_1.ShareNameUNC',
+                '-efsrvp.fssagent_share_mapping_1.ShadowCopyShareName',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 78
+        values = [
+            '0\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '16\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '25\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '9\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '67108880\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '\t1\tFS1\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '\t0\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '\t\t\t-1\t\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '\t\t\t0\t\t\t\t',
+            '\t\t\t\t1\t\t\t',
+            '\t\t\t\t\taaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\t\\\\\\\\fs1.example.com\\\\share\t\\\\\\\\fs1.example.com\\\\share@{00000000-0000-0000-0000-000000000001}',
+            '\t\t\t\t1\t\t\t',
+            '\t\t\t\t\taaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\t\t',
+            '\t\t\t\t1\t\t\t',
+            '\t\t\t\t\t\t\t',
+            '\t\t\t\t2\t\t\t',
+            '\t\t\t\t\t\t\t',
+        ]
+        assert lines[0:26] == values
+        assert lines[26:52] == values
+        assert lines[52:78] == values
