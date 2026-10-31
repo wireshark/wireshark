@@ -33730,3 +33730,169 @@ class TestDissectDcerpcDssetup:
                 '-Tfields', '-edssetup.dssetup_DsRoleGetPrimaryDomainInformation.level',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == (['1'] * 6 + ['2'] * 3 + ['3'] * 3 + ['7', '1']) * 3
+
+
+class TestDissectDcerpcEfs:
+    def test_efs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 26 calls each (plus an unknown opnum in the
+        first) and the reproducer connection, and no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_efs_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 192
+        assert protocols.count('EFS') == 160
+        assert protocols.count('DCERPC') == 8
+        assert protocols.count('TCP') == 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_efs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_efs_bind(self, cmd_tshark, capture_file, test_env):
+        '''The four binds: byte order, interface and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_efs_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tc681d488-d850-11d0-8c52-00c04fd90f7e\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\tc681d488-d850-11d0-8c52-00c04fd90f7e\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\tc681d488-d850-11d0-8c52-00c04fd90f7e\t1\t71710533-beba-4937-8319-b5dbef9ccc36',
+            '1\tc681d488-d850-11d0-8c52-00c04fd90f7e\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+        ]
+
+    def test_efs_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum 0-13 with its status; the same in all three
+        connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_efs_coverage.pcap.gz'),
+                '-Y', 'efs',
+                '-Tfields', '-eefs.opnum', '-eefs.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 160
+        calls = [
+            '0\t\tEfsRpcOpenFileRaw request',
+            '0\t0x00000000\tEfsRpcOpenFileRaw response',
+            '0\t\tEfsRpcOpenFileRaw request',
+            '0\t0x00000000\tEfsRpcOpenFileRaw response',
+            '0\t\tEfsRpcOpenFileRaw request',
+            '0\t0x00000005\tEfsRpcOpenFileRaw response, Error: WERR_ACCESS_DENIED',
+            '1\t\tEfsRpcReadFileRaw request',
+            '1\t0x00000000\tEfsRpcReadFileRaw response',
+            '1\t\tEfsRpcReadFileRaw request',
+            '1\t0x00000006\tEfsRpcReadFileRaw response, Error: WERR_INVALID_HANDLE',
+            '2\t\tEfsRpcWriteFileRaw request',
+            '2\t0x00000000\tEfsRpcWriteFileRaw response',
+            '2\t\tEfsRpcWriteFileRaw request',
+            '2\t0x00000006\tEfsRpcWriteFileRaw response, Error: WERR_INVALID_HANDLE',
+            '3\t\tEfsRpcCloseRaw request',
+            '3\t\tEfsRpcCloseRaw response',
+            '4\t\tEfsRpcEncryptFileSrv request',
+            '4\t0x00000000\tEfsRpcEncryptFileSrv response',
+            '4\t\tEfsRpcEncryptFileSrv request',
+            '4\t0x00001770\tEfsRpcEncryptFileSrv response, Error: WERR_ENCRYPTION_FAILED',
+            '5\t\tEfsRpcDecryptFileSrv request',
+            '5\t0x00000000\tEfsRpcDecryptFileSrv response',
+            '5\t\tEfsRpcDecryptFileSrv request',
+            '5\t0x00001771\tEfsRpcDecryptFileSrv response, Error: WERR_DECRYPTION_FAILED',
+            '6\t\tEfsRpcQueryUsersOnFile request',
+            '6\t0x00000000\tEfsRpcQueryUsersOnFile response',
+            '6\t\tEfsRpcQueryUsersOnFile request',
+            '6\t0x00000002\tEfsRpcQueryUsersOnFile response, Error: WERR_FILE_NOT_FOUND',
+            '7\t\tEfsRpcQueryRecoveryAgents request',
+            '7\t0x00000000\tEfsRpcQueryRecoveryAgents response',
+            '7\t\tEfsRpcQueryRecoveryAgents request',
+            '7\t0x0000000d\tEfsRpcQueryRecoveryAgents response, Error: WERR_INVALID_DATA',
+            '8\t\tEfsRpcRemoveUsersFromFile request',
+            '8\t0x00000000\tEfsRpcRemoveUsersFromFile response',
+            '8\t\tEfsRpcRemoveUsersFromFile request',
+            '8\t0x00000005\tEfsRpcRemoveUsersFromFile response, Error: WERR_ACCESS_DENIED',
+            '9\t\tEfsRpcAddUsersToFile request',
+            '9\t0x00000000\tEfsRpcAddUsersToFile response',
+            '9\t\tEfsRpcAddUsersToFile request',
+            '9\t0x00000005\tEfsRpcAddUsersToFile response, Error: WERR_ACCESS_DENIED',
+            '10\t\tEfsRpcSetFileEncryptionKey request',
+            '10\t0x00000000\tEfsRpcSetFileEncryptionKey response',
+            '10\t\tEfsRpcSetFileEncryptionKey request',
+            '10\t0x00000057\tEfsRpcSetFileEncryptionKey response, Error: WERR_INVALID_PARAMETER',
+            '10\t\tEfsRpcSetFileEncryptionKey request',
+            '10\t0x00000057\tEfsRpcSetFileEncryptionKey response, Error: WERR_INVALID_PARAMETER',
+            '11\t\tEfsRpcNotSupported request EFS V1',
+            '11\t0x00000032\tEfsRpcNotSupported response, Error: WERR_NOT_SUPPORTED',
+            '12\t\tEfsRpcFileKeyInfo request EFS V1',
+            '12\t0x00000032\tEfsRpcFileKeyInfo response, Error: WERR_NOT_SUPPORTED',
+            '13\t\tEfsRpcDuplicateEncryptionInfoFile request EFS V1',
+            '13\t0x00000032\tEfsRpcDuplicateEncryptionInfoFile response, Error: WERR_NOT_SUPPORTED',
+        ]
+        assert lines[0:52] == calls
+        assert lines[52:54] == ['14\t\tUnknown operation 14 request',
+                                '14\t\tUnknown operation 14 response']
+        assert lines[54:106] == calls
+        assert lines[106:158] == calls
+
+    def test_efs_certificates(self, cmd_tshark, capture_file, test_env):
+        '''QueryUsersOnFile, QueryRecoveryAgents and SetFileEncryptionKey:
+        user SIDs, hash blobs, display names and certificate blobs in NDR
+        and NDR64 (the big endian connection is left out: dissect_nt_sid()
+        reads the sub-authorities little endian).'''
+        for port in (50001, 50003):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_efs_coverage.pcap.gz'),
+                    '-Y', 'tcp.port == %d && efs.opnum in {6, 7, 10} && dcerpc.pkt_type == 2' % port,
+                    '-Tfields', '-edcerpc.nt.domain_sid',
+                    '-eefs.ENCRYPTION_CERTIFICATE_HASH_LIST.nCert_Hash',
+                    '-eefs.EFS_HASH_BLOB.cbData',
+                    '-eefs.ENCRYPTION_CERTIFICATE_HASH.lpDisplayInformation',
+                    '-eefs.werror',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                'S-1-5-21-1111-2222-3333-1001\t3\t20,0\tAlice (alice@example.com)\t0x00000000',
+                '\t\t\t\t0x00000002',
+                'S-1-5-21-1111-2222-3333-500\t1\t20\tRecovery Agent\t0x00000000',
+                '\t0\t\t\t0x0000000d',
+                '\t\t\t\t0x00000000',
+                '\t\t\t\t0x00000057',
+                '\t\t\t\t0x00000057',
+            ]
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_efs_coverage.pcap.gz'),
+                    '-Y', 'tcp.port == %d && efs.opnum == 10 && dcerpc.pkt_type == 0' % port,
+                    '-Tfields', '-edcerpc.nt.domain_sid',
+                    '-eefs.ENCRYPTION_CERTIFICATE.TotalLength',
+                    '-eefs.EFS_CERTIFICATE_BLOB.dwCertEncodingType',
+                    '-eefs.EFS_CERTIFICATE_BLOB.cbData',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                'S-1-5-32-544\t100\t1\t8',
+                '\t100\t\t',
+                '\t\t\t',
+            ]
+
+    def test_efs_user_sid(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of "EFS: Dissect a user SID as an NDR RPC_SID":
+        the SID of an ENCRYPTION_CERTIFICATE_HASH starts with the max_count
+        of its sub-authorities. It was decoded from the max_count, so the
+        SID was wrong and the rest of the stub misaligned.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_efs_coverage.pcap.gz'),
+                '-Y', 'tcp.port == 50601 && efs',
+                '-Tfields', '-eframe.number', '-edcerpc.nt.count',
+                '-edcerpc.nt.domain_sid',
+                '-eefs.ENCRYPTION_CERTIFICATE_HASH_LIST.nCert_Hash',
+                '-eefs.ENCRYPTION_CERTIFICATE_HASH.cbTotalLength',
+                '-eefs.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '188\t\t\t\t\t\tEfsRpcQueryUsersOnFile request',
+            '189\t5\tS-1-5-21-1-2-3-500\t1\t64\t0x00000000\tEfsRpcQueryUsersOnFile response',
+        ]
