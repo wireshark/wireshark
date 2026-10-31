@@ -33162,3 +33162,181 @@ class TestDissectDcerpcConv:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['1', '5', '17', '21']
+
+
+class TestDissectDcerpcDfs:
+    # One connection's calls: (opnum, Windows error of the response or
+    # None for GetManagerVersion, which has no status). The big endian
+    # connection answers some calls with WERR_INVALID_PARAMETER (0x57).
+    @staticmethod
+    def dfs_calls(be=False):
+        e = 0x57 if be else 0
+        calls = [(0, None)] * 4
+        calls += [(1, 0), (1, 5), (2, 0), (2, 0x490)]
+        calls += [(3, 0 if i % 4 else 5) for i in range(1, 15)]
+        calls += [(4, 0)] * 15 + [(4, 0x490), (4, 0x1234567)]
+        calls += [(5, 0)] * 6
+        calls += [(21, 0)] * 5 + [(21, e)]
+        calls += [(5, 0x103)]
+        calls += [(op, 0x32) for op in (6, 7, 8, 9, 16, 17, 19, 20, 22)]
+        calls += [(10, e), (10, e), (10, e), (11, 0), (11, 5)]
+        calls += [(op, e) for op in (12, 13, 14, 15, 18)]
+        lines = []
+        for op, status in calls:
+            lines.append('%d\t' % op)
+            lines.append('%d\t%s' % (op, '' if status is None else '0x%08x' % status))
+        return lines
+
+    def test_dfs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 71 calls each (plus an unknown opnum in
+        the first), and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dfs_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 452
+        assert protocols.count('NETDFS') == 428
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_dfs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dfs_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dfs_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t4fc742e0-4a10-11cf-8273-00aa004ae673\t3\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t4fc742e0-4a10-11cf-8273-00aa004ae673\t3\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t4fc742e0-4a10-11cf-8273-00aa004ae673\t3\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_dfs_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum and the status of every response, in all three
+        connections, and the Info column of some calls.'''
+        for stream, extra in ((0, ['23\t', '23\t']), (1, []), (2, [])):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_dfs_coverage.pcap.gz'),
+                    '-Y', 'netdfs && tcp.stream == %d' % stream,
+                    '-Tfields', '-enetdfs.opnum', '-enetdfs.werror',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == self.dfs_calls(stream == 1) + extra
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dfs_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7, 17, 21, 83, 109, 147, 148}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'dfs_GetManagerVersion response',
+            'dfs_Add response, Error: WERR_ACCESS_DENIED',
+            'dfs_Remove response, Error: WERR_NOT_FOUND',
+            'dfs_GetInfo response, Error: Unknown DOS error 0x01234567',
+            'dfs_Enum response, Error: WERR_NO_MORE_ITEMS',
+            'dfs_FlushFtTable response',
+            'Unknown operation 23 request',
+        ]
+
+    def test_dfs_get_info(self, cmd_tshark, capture_file, test_env):
+        '''GetInfo answered at every dfs_Info level: strings behind
+        embedded pointers, storage arrays, GUIDs, bitmaps with unknown
+        bits and target priorities. All three encodings give the same.'''
+        fields = ('netdfs.dfs_Info1.path', 'netdfs.dfs_Info2.state',
+                  'netdfs.dfs_Info3.path', 'netdfs.dfs_StorageInfo.server',
+                  'netdfs.dfs_StorageInfo.share', 'netdfs.dfs_Info4.guid',
+                  'netdfs.dfs_Info5.flags', 'netdfs.dfs_Info6.num_stores',
+                  'netdfs.dfs_Target_Priority.target_priority_rank',
+                  'netdfs.dfs_Info7.generation_guid', 'netdfs.dfs_Info100.comment',
+                  'netdfs.dfs_Info101.state', 'netdfs.dfs_Info102.timeout',
+                  'netdfs.dfs_Info103.flags', 'netdfs.dfs_Info105.comment',
+                  'netdfs.dfs_Info106.state')
+        expected = [
+            '',
+            '\\\\\\\\dom\\\\dfs\\\\link1',
+            '\t0x0000130f',
+            '\t\t\\\\\\\\dom\\\\dfs\\\\link3\t\\\\\\\\srv1,\\\\\\\\srv2\tshare1',
+            '\t\t\t\\\\\\\\srv1,\\\\\\\\srv2\tshare1\t12345678-9abc-def0-0123-456789abcdef',
+            '\t' * 6 + '0x0000011f',
+            '\t\t\tsrv1,srv3,srv4,srv5,srv6,srv7\tshare1,share2,share3,s4,s5,s6,s7\t\t\t7\t1,2,3,4,5,6,7',
+            '\t' * 9 + 'fedcba98-7654-3210-8899-aabbccddeeff',
+            '\t' * 10 + 'A comment',
+            '\t' * 11 + '0x00000087',
+            '\t' * 12 + '3600',
+            '\t' * 13 + '0x00000000',
+            '\t' * 8 + '7',
+            '\t' * 14 + 'Comment 105',
+            '\t' * 8 + '9' + '\t' * 7 + '0x00000002',
+            '',
+            '',
+        ]
+        for stream in (0, 1, 2):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_dfs_coverage.pcap.gz'),
+                    '-Y', 'netdfs.opnum == 4 && dcerpc.pkt_type == 2 && tcp.stream == %d' % stream,
+                    '-Tfields', *['-e' + f for f in fields],
+                ), encoding='utf-8', env=test_env)
+            assert [l.rstrip('\t') for l in stdout.splitlines()] == expected
+
+    def test_dfs_enum(self, cmd_tshark, capture_file, test_env):
+        '''Enum and EnumEx answered at every dfs_EnumInfo level, in NDR64
+        (the third connection).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dfs_coverage.pcap.gz'),
+                '-Y', 'netdfs.opnum in {5, 21} && dcerpc.pkt_type == 2 && tcp.stream == 2',
+                '-Tfields', '-enetdfs.opnum', '-enetdfs.dfs_EnumStruct.level',
+                '-enetdfs.dfs_EnumArray1.count', '-enetdfs.dfs_EnumArray3.count',
+                '-enetdfs.dfs_EnumArray300.count', '-enetdfs.dfs_Info2.path',
+                '-enetdfs.dfs_Info4.path', '-enetdfs.dfs_Info200.dom_root',
+                '-enetdfs.dfs_Info300.flavor', '-enetdfs.dfs_Info300.dom_root',
+                '-enetdfs.dfs_Enum.total', '-enetdfs.dfs_EnumEx.total',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 13
+        assert [l[0:2] for l in lines] == [['5', '1'], ['5', '2'], ['5', '3'], ['5', '4'],
+                                           ['5', '200'], ['5', '300'],
+                                           ['21', '1'], ['21', '2'], ['21', '3'], ['21', '4'],
+                                           ['21', '200'], ['21', '300'], ['5', '1']]
+        assert lines[0][2] == '3' and lines[2][3] == '2' and lines[5][4] == '3'
+        assert lines[1][5] == r'\\\\dom\\dfs,\\\\dom\\dfs\\a'
+        assert lines[3][6] == r'\\\\dom\\dfs'
+        assert lines[4][7] == r'\\\\dom\\dfs,\\\\dom\\other'
+        assert lines[5][8:10] == ['256,512,768', r'\\\\srv\\standalone,\\\\dom\\adblob']
+        assert [l[10] for l in lines[0:6]] == ['1', '2', '3', '4', '5', '6']
+        assert [l[11] for l in lines[6:12]] == ['10', '', '12', '', '14', '']
+        # the last Enum is answered with a NULL array and no total
+        assert lines[12][2:] == [''] * 10
+
+    def test_dfs_ft_root(self, cmd_tshark, capture_file, test_env):
+        '''AddFtRoot and RemoveFtRoot with a dfs_UnknownStruct behind two
+        pointers, with a NULL inner pointer and with a NULL outer one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dfs_coverage.pcap.gz'),
+                '-Y', 'netdfs.opnum in {10, 11} && tcp.stream == 1',
+                '-Tfields', '-enetdfs.opnum', '-enetdfs.dfs_AddFtRoot.unknown1',
+                '-enetdfs.dfs_UnknownStruct.unknown1', '-enetdfs.dfs_UnknownStruct.unknown2',
+                '-enetdfs.dfs_AddFtRoot.dfs_config_dn', '-enetdfs.dfs_RemoveFtRoot.dns_servername',
+                '-enetdfs.werror',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t1\t7\tunknown\tCN=Dfs-Configuration\t\t',
+            '10\t\t7\tunknown\t\t\t0x00000057',
+            '10\t1\t\t\tCN=Dfs-Configuration\t\t',
+            '10\t\t\t\t\t\t0x00000057',
+            '10\t1\t\t\tCN=Dfs-Configuration\t\t',
+            '10\t\t\t\t\t\t0x00000057',
+            '11\t\t9\t\t\tsrv1.dom.example\t',
+            '11\t\t9\t\t\t\t0x00000000',
+            '11\t\t\t\t\tsrv1.dom.example\t',
+            '11\t\t\t\t\t\t0x00000005',
+        ]
