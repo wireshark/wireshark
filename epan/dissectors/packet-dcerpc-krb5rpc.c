@@ -74,7 +74,7 @@ krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, unsigned offset,
 
   remain = tvb_captured_length_remaining(tvb, offset);
   krb5_tvb = tvb_new_subset_length(tvb, offset, remain);
-  offset = dissect_kerberos_main (krb5_tvb, pinfo, subtree, true, NULL);
+  offset += dissect_kerberos_main (krb5_tvb, pinfo, subtree, true, NULL);
 
 
   return offset;
@@ -120,8 +120,7 @@ krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, unsigned offset,
   remain = tvb_captured_length_remaining(tvb, offset);
   krb5_tvb = tvb_new_subset_length(tvb, offset, remain);
 
-  offset = dissect_kerberos_main (krb5_tvb, pinfo, subtree, true, NULL);
-  offset += 16; /* no idea what this is, probably just extended encrypted text. */
+  offset += dissect_kerberos_main (krb5_tvb, pinfo, subtree, true, NULL);
 
   return offset;
 }
