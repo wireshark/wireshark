@@ -819,7 +819,7 @@ static void dissect_pgsql_copy_data_be_msg(int32_t length, tvbuff_t *tvb,
         n += 8;
         dissect_pg_epoch(tvb, n, shrub, hf_standby_clock_ts);
         n += 8;
-        proto_tree_add_item(shrub, hf_standby_immediate_ack, tvb, n, 1, ENC_NULL);
+        proto_tree_add_item(shrub, hf_standby_immediate_ack, tvb, n, 1, ENC_NA);
         break;
 
     default:
@@ -846,7 +846,7 @@ static void dissect_pgsql_copy_data_fe_msg(tvbuff_t *tvb, int n, proto_tree *tre
         n += 8;
         dissect_pg_epoch(tvb, n, shrub, hf_standby_clock_ts);
         n += 8;
-        proto_tree_add_item(shrub, hf_standby_immediate_ack, tvb, n, 1, ENC_NULL);
+        proto_tree_add_item(shrub, hf_standby_immediate_ack, tvb, n, 1, ENC_NA);
         break;
 
     /* Hot standby feedback */
