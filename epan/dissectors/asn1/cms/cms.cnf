@@ -71,7 +71,7 @@ GCMParameters		B "2.16.840.1.101.3.4.1.46"	"id-aes256-GCM"
 
 CCMParameters		B "2.16.840.1.101.3.4.1.7"	"id-aes128-CCM"
 CCMParameters		B "2.16.840.1.101.3.4.1.27"	"id-aes192-CCM"
-CCMParameters		B "2.16.840.1.101.3.4.1.44"	"id-aes256-CCM"
+CCMParameters		B "2.16.840.1.101.3.4.1.47"	"id-aes256-CCM"
 
 # EC algorithms from RFC 3278 / RFC 5753
 KeyWrapAlgorithm B "1.3.133.16.840.63.0.2"  "dhSinglePass-stdDH-sha1kdf-scheme"
@@ -143,9 +143,13 @@ FirmwarePackageLoadError/version		fwErrorVersion
 
 #.FN_BODY ContentInfo
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  /* Do not verify a digest against the content of another ContentInfo */
+  tvbuff_t *saved_content_tvb = cms_data->content_tvb;
+  cms_data->content_tvb = NULL;
   cms_data->top_tree = tree;
   %(DEFAULT_BODY)s
   cms_data->top_tree = NULL;
+  cms_data->content_tvb = saved_content_tvb;
 
 #.FN_PARS ContentType
   FN_VARIANT = _str VAL_PTR = &cms_data->object_identifier_id
@@ -164,7 +168,7 @@ FirmwarePackageLoadError/version		fwErrorVersion
 
 #.FN_BODY ContentInfo/content
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
-  offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=cms_call_content(cms_data->object_identifier_id, tvb, offset, actx, tree);
 
 
 #.FN_BODY EncapsulatedContentInfo/eContent
@@ -175,7 +179,7 @@ FirmwarePackageLoadError/version		fwErrorVersion
   if(cms_data->content_tvb) {
     proto_item_set_text(actx->created_item, "eContent (%%u bytes)", tvb_reported_length(cms_data->content_tvb));
 
-    call_ber_oid_callback(cms_data->object_identifier_id, cms_data->content_tvb, 0, actx->pinfo, cms_data->top_tree ? cms_data->top_tree : tree, NULL);
+    cms_call_content(cms_data->object_identifier_id, cms_data->content_tvb, 0, actx, cms_data->top_tree ? cms_data->top_tree : tree);
   }
 
 #.FN_PARS OtherRecipientInfo/oriType

@@ -14,6 +14,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
@@ -39,6 +41,8 @@ static int hf_cms_ci_contentType;
 /* Initialize the subtree pointers */
 static int ett_cms;
 #include "packet-cms-ett.c"
+
+static expert_field ei_cms_too_deep;
 
 static dissector_handle_t cms_handle;
 
@@ -148,6 +152,17 @@ cms_dissect_by_last_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return call_ber_oid_callback(cms_data->object_identifier_id, tvb, 0, pinfo, tree, data);
 }
 
+/* The content can hold another ContentInfo; stop before the layer limit */
+static unsigned
+cms_call_content(const char *oid, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree)
+{
+  if (wmem_list_count(actx->pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+    proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_cms_too_deep, tvb, offset);
+    return tvb_reported_length(tvb);
+  }
+  return call_ber_oid_callback(oid, tvb, offset, actx->pinfo, tree, NULL);
+}
+
 #include "packet-cms-fn.c"
 
 /*--- proto_register_cms ----------------------------------------------*/
@@ -176,6 +191,12 @@ void proto_register_cms(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_cms, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  static ei_register_info ei[] = {
+    { &ei_cms_too_deep, { "cms.too_deep", PI_UNDECODED, PI_WARN, "Content nested too deeply", EXPFILL }},
+  };
+  expert_module_t *expert_cms = expert_register_protocol(proto_cms);
+  expert_register_field_array(expert_cms, ei, array_length(ei));
 
   register_ber_syntax_dissector("ContentInfo", proto_cms, dissect_ContentInfo_PDU);
   register_ber_syntax_dissector("SignedData", proto_cms, dissect_SignedData_PDU);

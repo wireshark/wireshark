@@ -19,6 +19,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
 #include <epan/proto_data.h>
@@ -308,6 +310,8 @@ static int ett_cms_HardwareModuleName;
 static int ett_cms_FirmwarePackageMessageDigest;
 static int ett_cms_CMSAlgorithmProtection;
 
+static expert_field ei_cms_too_deep;
+
 static dissector_handle_t cms_handle;
 
 static unsigned dissect_cms_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
@@ -416,6 +420,17 @@ cms_dissect_by_last_oid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return call_ber_oid_callback(cms_data->object_identifier_id, tvb, 0, pinfo, tree, data);
 }
 
+/* The content can hold another ContentInfo; stop before the layer limit */
+static unsigned
+cms_call_content(const char *oid, tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree)
+{
+  if (wmem_list_count(actx->pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+    proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_cms_too_deep, tvb, offset);
+    return tvb_reported_length(tvb);
+  }
+  return call_ber_oid_callback(oid, tvb, offset, actx->pinfo, tree, NULL);
+}
+
 
 
 unsigned
@@ -441,7 +456,7 @@ dissect_cms_ContentType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offse
 static unsigned
 dissect_cms_T_content(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
-  offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=cms_call_content(cms_data->object_identifier_id, tvb, offset, actx, tree);
 
 
 
@@ -458,11 +473,15 @@ static const ber_sequence_t ContentInfo_sequence[] = {
 unsigned
 dissect_cms_ContentInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  /* Do not verify a digest against the content of another ContentInfo */
+  tvbuff_t *saved_content_tvb = cms_data->content_tvb;
+  cms_data->content_tvb = NULL;
   cms_data->top_tree = tree;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ContentInfo_sequence, hf_index, ett_cms_ContentInfo);
 
   cms_data->top_tree = NULL;
+  cms_data->content_tvb = saved_content_tvb;
 
 
   return offset;
@@ -521,7 +540,7 @@ dissect_cms_T_eContent(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset
   if(cms_data->content_tvb) {
     proto_item_set_text(actx->created_item, "eContent (%u bytes)", tvb_reported_length(cms_data->content_tvb));
 
-    call_ber_oid_callback(cms_data->object_identifier_id, cms_data->content_tvb, 0, actx->pinfo, cms_data->top_tree ? cms_data->top_tree : tree, NULL);
+    cms_call_content(cms_data->object_identifier_id, cms_data->content_tvb, 0, actx, cms_data->top_tree ? cms_data->top_tree : tree);
   }
 
 
@@ -3559,6 +3578,12 @@ void proto_register_cms(void) {
   proto_register_field_array(proto_cms, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  static ei_register_info ei[] = {
+    { &ei_cms_too_deep, { "cms.too_deep", PI_UNDECODED, PI_WARN, "Content nested too deeply", EXPFILL }},
+  };
+  expert_module_t *expert_cms = expert_register_protocol(proto_cms);
+  expert_register_field_array(expert_cms, ei, array_length(ei));
+
   register_ber_syntax_dissector("ContentInfo", proto_cms, dissect_ContentInfo_PDU);
   register_ber_syntax_dissector("SignedData", proto_cms, dissect_SignedData_PDU);
   register_ber_oid_syntax(".p7s", NULL, "ContentInfo");
@@ -3600,7 +3625,7 @@ void proto_reg_handoff_cms(void) {
   register_ber_oid_dissector("2.16.840.1.101.3.4.1.46", dissect_GCMParameters_PDU, proto_cms, "id-aes256-GCM");
   register_ber_oid_dissector("2.16.840.1.101.3.4.1.7", dissect_CCMParameters_PDU, proto_cms, "id-aes128-CCM");
   register_ber_oid_dissector("2.16.840.1.101.3.4.1.27", dissect_CCMParameters_PDU, proto_cms, "id-aes192-CCM");
-  register_ber_oid_dissector("2.16.840.1.101.3.4.1.44", dissect_CCMParameters_PDU, proto_cms, "id-aes256-CCM");
+  register_ber_oid_dissector("2.16.840.1.101.3.4.1.47", dissect_CCMParameters_PDU, proto_cms, "id-aes256-CCM");
   register_ber_oid_dissector("1.3.133.16.840.63.0.2", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha1kdf-scheme");
   register_ber_oid_dissector("1.3.132.1.11.0", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha224kdf-scheme");
   register_ber_oid_dissector("1.3.132.1.11.1", dissect_KeyWrapAlgorithm_PDU, proto_cms, "dhSinglePass-stdDH-sha256kdf-scheme");
