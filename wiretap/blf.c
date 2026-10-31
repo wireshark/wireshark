@@ -4257,6 +4257,9 @@ static bool blf_dump_objheader(wtap_dumper *wdh, int *err, uint64_t obj_timestam
         return false;
     }
 
+    /* Successful writing done, time to update count */
+    writer_data->object_count += 1;
+
     return true;
 }
 
@@ -5164,7 +5167,6 @@ static bool blf_dump(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err
 
     /* reduce by BLF start offset */
     obj_timestamp = obj_timestamp - writer_data->start_time;
-    writer_data->object_count += 1;
 
     switch (rec->rec_header.packet_header.pkt_encap) {
     case WTAP_ENCAP_ETHERNET: /* 1 */
@@ -5195,8 +5197,7 @@ static bool blf_dump(wtap_dumper *wdh, const wtap_rec *rec, int *err, char **err
         break;
 
     default:
-        /* we did not write, so correct count */
-        writer_data->object_count -= 1;
+        break;
     }
 
     return true;
