@@ -35778,3 +35778,127 @@ class TestDissectDcerpcLsa:
         count, names = stdout.strip().split('\t')
         assert count == '40'
         assert names.split(',')[2:] == ['user%02d' % i for i in range(40)]
+
+
+class TestDissectDcerpcMapi:
+    def test_mapi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The connection-oriented DCE/RPC MAPI (EMSMDB) coverage capture:
+        six binds and their calls, and no malformed packets or warnings in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count("MAPI") == 484
+        assert protocols.count('DCERPC') == 16
+        assert protocols.count('TCP') == 36
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mapi_binds(self, cmd_tshark, capture_file, test_env):
+        '''Six binds to the MAPI interface, five NDR (little and big
+        endian) and one NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.cn_bind_to_uuid', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 6
+        assert all(line.startswith('a4f1db00-ca47-1067-b31f-00dd010662da') for line in lines)
+        syntaxes = [line.split('\t')[1] for line in lines]
+        assert syntaxes.count('8a885d04-1ceb-11c9-9fe8-08002b104860') == 5   # NDR
+        assert syntaxes.count('71710533-beba-4937-8319-b5dbef9ccc36') == 1   # NDR64
+
+    def test_mapi_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every EMSMDB opnum 0-14 appears as a request and a response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                '-Y', 'mapi',
+                '-Tfields', '-edcerpc.opnum', '-edcerpc.pkt_type',
+            ), encoding='utf-8', env=test_env)
+        req = set()
+        resp = set()
+        for line in stdout.splitlines():
+            opnum, pkt = line.split('\t')
+            (req if pkt == '0' else resp).add(int(opnum))
+        assert req == set(range(0, 15))
+        assert resp == set(range(0, 15))
+
+    def test_mapi_rop_coverage(self, cmd_tshark, capture_file, test_env):
+        '''Every ROP request opnum and response opnum the dissector knows
+        is exercised (the switch arms of RopRequest and RopReply).'''
+        def distinct(field):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                    '-Tfields', '-e' + field,
+                ), encoding='utf-8', env=test_env)
+            ids = set()
+            for line in stdout.splitlines():
+                ids.update(x for x in line.split(',') if x)
+            return ids
+        assert len(distinct('mapi.RopInput.RopId')) == 119
+        assert len(distinct('mapi.RopOutput.RopId')) == 121
+
+    def test_mapi_clientinfo(self, cmd_tshark, capture_file, test_env):
+        '''An AUX_PERF_CLIENTINFO block whose string and address offsets
+        are correct decodes its machine name, user name, IPv4 address and
+        MAC address.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                '-Y', 'mapi.AUX_PERF_CLIENTINFO.MachineName == "CLIENT01"',
+                '-Tfields', '-emapi.AUX_PERF_CLIENTINFO.UserName',
+                '-emapi.AUX_PERF_CLIENTINFO.ClientIP',
+                '-emapi.AUX_PERF_CLIENTINFO.MacAddress',
+            ), encoding='utf-8', env=test_env)
+        first = stdout.splitlines()[0].split('\t')
+        assert first == ['user1', '192.0.2.50', '02:00:00:00:00:50']
+
+    def test_mapi_compressed_rop(self, cmd_tshark, capture_file, test_env):
+        '''LZ77-compressed RPC_HEADER_EXT buffers are decompressed and the
+        ROPs inside them are dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                '-Y', 'mapi.RPC_HEADER_EXT_Flags.RHEF_Compressed == 1',
+                '-Tfields', '-eframe.number',
+                '-emapi.RopInput.RopId', '-emapi.RopOutput.RopId',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) > 40
+        # at least one compressed frame decoded a ROP from the inflated data
+        assert any(line.split('\t')[1] or line.split('\t')[2] for line in lines)
+
+    def test_mapi_sync_upload_buffer(self, cmd_tshark, capture_file, test_env):
+        '''RopSynchronizationUploadStateStreamContinue and
+        ...ImportMessageMove carry uint32-sized byte buffers; the sizes are
+        checked against the data ("MAPI: Do not let a buffer size move the
+        offset back"), and the buffers decode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                '-Y', 'mapi.SyncUploadStateStreamContinue_req.StreamData',
+                '-Tfields', '-emapi.SyncUploadStateStreamContinue_req.StreamData',
+            ), encoding='utf-8', env=test_env)
+        assert '73746174652d73747265616d2d64617461' in stdout   # "state-stream-data"
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                '-Y', 'mapi.SyncImportMessageMove_req.SourceFolderId',
+                '-Tfields', '-emapi.SyncImportMessageMove_req.SourceFolderId',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() != ''
+
+    def test_mapi_obfuscated_rpc(self, cmd_tshark, capture_file, test_env):
+        '''EcDoRpc (opnum 2) carries XOR-0xA5 obfuscated MAPI buffers; they
+        are deobfuscated and the single ROP in each decodes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mapi_coverage.pcap.gz'),
+                '-Y', 'dcerpc.opnum == 2 && dcerpc.pkt_type == 0',
+                '-Tfields', '-emapi.EcDoRpcMapiRequest.opnum',
+            ), encoding='utf-8', env=test_env)
+        opnums = [x for x in stdout.split() if x]
+        assert len(opnums) >= 10
