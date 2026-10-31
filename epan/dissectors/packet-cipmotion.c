@@ -887,10 +887,12 @@ const attribute_info_t cip_motion_attribute_vals[] = {
  * Returns: The number of bytes in the cyclic data used
  */
 static uint32_t
-dissect_cmd_data_set(uint32_t cmd_data_set, proto_tree* parent_tree, tvbuff_t* tvb, uint32_t offset, bool lreal_pos)
+dissect_cmd_data_set(uint32_t cmd_data_set, proto_tree* parent_tree, tvbuff_t* tvb, uint32_t offset, bool lreal_pos, uint32_t avail)
 {
    // If no Command Data Set bits are set, then we don't need to display any additional data.
-   if (cmd_data_set == 0)
+   // avail is the bytes left in the cyclic block. The bits and the block
+   // size are independent; reading past the block steals the next one.
+   if (cmd_data_set == 0 || avail == 0)
    {
       return 0;
    }
@@ -904,24 +906,33 @@ dissect_cmd_data_set(uint32_t cmd_data_set, proto_tree* parent_tree, tvbuff_t* t
     * appear in the cyclic data */
    if ( (cmd_data_set & COMMAND_DATA_SET_POSITION) == COMMAND_DATA_SET_POSITION )
    {
+      uint32_t flen = lreal_pos ? 8 : 4;
+
       /* Based on the Command Position Data Type value embedded in the Command Control
       * header field the position is either 64-bit floating or 32-bit integer */
+      if (bytes_used + flen > avail) {
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       if (lreal_pos)
       {
          /* Display the command data set position command value */
          proto_tree_add_item(tree, hf_cip_pos_cmd, tvb, offset + bytes_used, 8, ENC_LITTLE_ENDIAN );
-         bytes_used += 8;
       }
       else
       {
          /* Display the command data set position command value */
          proto_tree_add_item(tree, hf_cip_pos_cmd_int, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-         bytes_used += 4;
       }
+      bytes_used += flen;
    }
 
    if ( (cmd_data_set & COMMAND_DATA_SET_VELOCITY) == COMMAND_DATA_SET_VELOCITY )
    {
+      if (bytes_used + 4 > avail) {
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       /* Display the command data set velocity command value */
       proto_tree_add_item(tree, hf_cip_vel_cmd, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
       bytes_used += 4;
@@ -929,6 +940,10 @@ dissect_cmd_data_set(uint32_t cmd_data_set, proto_tree* parent_tree, tvbuff_t* t
 
    if ( (cmd_data_set & COMMAND_DATA_SET_ACCELERATION) == COMMAND_DATA_SET_ACCELERATION )
    {
+      if (bytes_used + 4 > avail) {
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       /* Display the command data set acceleration command value */
       proto_tree_add_item(tree, hf_cip_accel_cmd, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
       bytes_used += 4;
@@ -936,6 +951,10 @@ dissect_cmd_data_set(uint32_t cmd_data_set, proto_tree* parent_tree, tvbuff_t* t
 
    if ( (cmd_data_set & COMMAND_DATA_SET_TORQUE) == COMMAND_DATA_SET_TORQUE )
    {
+      if (bytes_used + 4 > avail) {
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       /* Display the command data set torque command value */
       proto_tree_add_item(tree, hf_cip_trq_cmd, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
       bytes_used += 4;
@@ -958,11 +977,21 @@ dissect_cmd_data_set(uint32_t cmd_data_set, proto_tree* parent_tree, tvbuff_t* t
  * Returns: The number of bytes in the cyclic data used
  */
 static uint32_t
-dissect_act_data_set(uint32_t act_data_set, proto_tree* parent_tree, tvbuff_t* tvb, uint32_t offset, uint8_t feedback_mode)
+dissect_act_data_set(uint32_t act_data_set, proto_tree* parent_tree, tvbuff_t* tvb, uint32_t offset, uint8_t feedback_mode, uint32_t avail, bool *stopped)
 {
    // If no Actual Data Set bits are set, then we don't need to display any additional data.
+   if (stopped != NULL) {
+      *stopped = false;
+   }
    if (act_data_set == 0)
    {
+      return 0;
+   }
+   if (avail == 0)
+   {
+      if (stopped != NULL) {
+         *stopped = true;
+      }
       return 0;
    }
 
@@ -977,20 +1006,35 @@ dissect_act_data_set(uint32_t act_data_set, proto_tree* parent_tree, tvbuff_t* t
    {
       /* Display the actual data set position feedback value in either 32 or 64 bit */
       bool is_64_bit_position = (feedback_mode & FEEDBACK_DATA_TYPE_BITS) == 0x10;
+      uint32_t flen = is_64_bit_position ? 8 : 4;
+
+      if (bytes_used + flen > avail) {
+         if (stopped != NULL) {
+            *stopped = true;
+         }
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       if (is_64_bit_position)
       {
          proto_tree_add_item(tree, hf_cip_act_pos_64, tvb, offset + bytes_used, 8, ENC_LITTLE_ENDIAN);
-         bytes_used += 8;
       }
       else
       {
          proto_tree_add_item(tree, hf_cip_act_pos, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
-         bytes_used += 4;
       }
+      bytes_used += flen;
    }
 
    if ( (act_data_set & ACTUAL_DATA_SET_VELOCITY) == ACTUAL_DATA_SET_VELOCITY )
    {
+      if (bytes_used + 4 > avail) {
+         if (stopped != NULL) {
+            *stopped = true;
+         }
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       /* Display the actual data set velocity feedback value */
       proto_tree_add_item(tree, hf_cip_act_vel, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
       bytes_used += 4;
@@ -998,6 +1042,13 @@ dissect_act_data_set(uint32_t act_data_set, proto_tree* parent_tree, tvbuff_t* t
 
    if ( (act_data_set & ACTUAL_DATA_SET_ACCELERATION) == ACTUAL_DATA_SET_ACCELERATION )
    {
+      if (bytes_used + 4 > avail) {
+         if (stopped != NULL) {
+            *stopped = true;
+         }
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       /* Display the actual data set acceleration feedback value */
       proto_tree_add_item(tree, hf_cip_act_accel, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
       bytes_used += 4;
@@ -1020,10 +1071,10 @@ dissect_act_data_set(uint32_t act_data_set, proto_tree* parent_tree, tvbuff_t* t
  * Returns: The number of bytes in the cyclic data used
  */
 static uint32_t
-dissect_status_data_set(uint32_t status_data_set, proto_tree* parent_tree, tvbuff_t* tvb, uint32_t offset)
+dissect_status_data_set(uint32_t status_data_set, proto_tree* parent_tree, tvbuff_t* tvb, uint32_t offset, uint32_t avail)
 {
    // If no Status Data Set bits are set, then we don't need to display any additional data.
-   if (status_data_set == 0)
+   if (status_data_set == 0 || avail == 0)
    {
       return 0;
    }
@@ -1037,6 +1088,10 @@ dissect_status_data_set(uint32_t status_data_set, proto_tree* parent_tree, tvbuf
     * appear in the cyclic data */
    if ( (status_data_set & STATUS_DATA_SET_AXIS_FAULT) == STATUS_DATA_SET_AXIS_FAULT )
    {
+      if (bytes_used + 12 > avail) {
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       /* Display the various fault codes from the device */
       proto_tree_add_item(tree, hf_cip_fault_type, tvb, offset + bytes_used, 1, ENC_LITTLE_ENDIAN);
       bytes_used += 1;
@@ -1056,6 +1111,10 @@ dissect_status_data_set(uint32_t status_data_set, proto_tree* parent_tree, tvbuf
 
    if ( (status_data_set & STATUS_DATA_SET_AXIS_ALARM) == STATUS_DATA_SET_AXIS_ALARM )
    {
+      if (bytes_used + 12 > avail) {
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       /* Display the various alarm codes from the device */
       proto_tree_add_item(tree, hf_cip_alarm_type, tvb, offset + bytes_used, 1, ENC_LITTLE_ENDIAN);
       bytes_used += 1;
@@ -1075,6 +1134,10 @@ dissect_status_data_set(uint32_t status_data_set, proto_tree* parent_tree, tvbuf
 
    if ( (status_data_set & STATUS_DATA_SET_AXIS_STATUS) == STATUS_DATA_SET_AXIS_STATUS )
    {
+      if (bytes_used + 8 > avail) {
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       /* Display the various axis state values from the device */
       bytes_used += dissect_axis_status(NULL, tree, NULL, tvb, offset + bytes_used, 4);
 
@@ -1084,6 +1147,10 @@ dissect_status_data_set(uint32_t status_data_set, proto_tree* parent_tree, tvbuf
 
    if ( (status_data_set & STATUS_DATA_SET_AXIS_IO_STATUS) == STATUS_DATA_SET_AXIS_IO_STATUS )
    {
+      if (bytes_used + 8 > avail) {
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       proto_tree_add_item(tree, hf_cip_axis_io_status, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
       bytes_used += 4;
 
@@ -1093,6 +1160,10 @@ dissect_status_data_set(uint32_t status_data_set, proto_tree* parent_tree, tvbuf
 
    if ( (status_data_set & STATUS_DATA_SET_AXIS_SAFETY) == STATUS_DATA_SET_AXIS_SAFETY )
    {
+      if (bytes_used + 12 > avail) {
+         proto_item_set_len(item, bytes_used);
+         return bytes_used;
+      }
       proto_tree_add_item(tree, hf_cip_axis_safety_status, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
       bytes_used += 4;
       proto_tree_add_item(tree, hf_cip_axis_safety_status_mfg, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
@@ -1120,6 +1191,14 @@ dissect_cntr_cyclic(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t s
    /* Create the tree for the entire instance data header */
    proto_tree* header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_cyclic_data_block, NULL, "Cyclic Command Data Block");
 
+   /* The header is 8 bytes of the block. A shorter block used to read
+      past size, and the return value followed the bits rather than size,
+      so the next block started at the wrong offset. */
+   if (size < 8) {
+      proto_tree_add_item(header_tree, hf_cip_data, tvb, offset, size, ENC_NA);
+      return offset + size;
+   }
+
    proto_tree_add_item(header_tree, hf_cip_motor_cntrl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    dissect_feedback_mode(NULL, header_tree, NULL, tvb, offset + 1, 1);
    proto_tree_add_item(header_tree, hf_cip_axis_control, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1140,10 +1219,10 @@ dissect_cntr_cyclic(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t s
     * cyclic data starts immediately after the interpolation control field in the controller to device
     * direction */
    uint32_t command_data_set = tvb_get_uint8(tvb, offset + 4);
-   bytes_used += dissect_cmd_data_set(command_data_set, header_tree, tvb, offset + bytes_used, lreal_pos);
+   bytes_used += dissect_cmd_data_set(command_data_set, header_tree, tvb, offset + bytes_used, lreal_pos, size - bytes_used);
 
-   /* Return the offset to the next byte in the message */
-   return offset + bytes_used;
+   /* The following block starts after this one, not after the bits. */
+   return offset + size;
 }
 
 /*
@@ -1160,6 +1239,11 @@ dissect_device_cyclic(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t
    /* Create the tree for the entire instance data header */
    proto_tree* header_tree = proto_tree_add_subtree(tree, tvb, offset, size, ett_cyclic_data_block, NULL, "Cyclic Actual Data Block");
 
+   if (size < 8) {
+      proto_tree_add_item(header_tree, hf_cip_data, tvb, offset, size, ENC_NA);
+      return offset + size;
+   }
+
    proto_tree_add_item(header_tree, hf_cip_motor_cntrl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    dissect_feedback_mode(NULL, header_tree, NULL, tvb, offset + 1, 1);
    proto_tree_add_item(header_tree, hf_cip_axis_response, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
@@ -1174,14 +1258,17 @@ dissect_device_cyclic(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t
    /* Display the "Cyclic Actual Data" values from the cyclic data payload. */
    uint8_t feedback_mode = tvb_get_uint8(tvb, offset + 1);
    uint8_t actual_data_set = tvb_get_uint8(tvb, offset + 5);
-   bytes_used += dissect_act_data_set(actual_data_set, header_tree, tvb, offset + bytes_used, feedback_mode);
+   bool act_stopped = false;
+   bytes_used += dissect_act_data_set(actual_data_set, header_tree, tvb, offset + bytes_used, feedback_mode, size - bytes_used, &act_stopped);
 
-   /* Display the "Cyclic Status Data" values from the cyclic data payload. */
-   uint8_t status_data_set = tvb_get_uint8(tvb, offset + 6);
-   bytes_used += dissect_status_data_set(status_data_set, header_tree, tvb, offset + bytes_used);
+   /* Skip status when the actual-data bits did not fit: the leftover
+      bytes are truncated actual data, not the status block. */
+   if (!act_stopped) {
+      uint8_t status_data_set = tvb_get_uint8(tvb, offset + 6);
+      bytes_used += dissect_status_data_set(status_data_set, header_tree, tvb, offset + bytes_used, size - bytes_used);
+   }
 
-   /* Return the offset to the next byte in the message */
-   return offset + bytes_used;
+   return offset + size;
 }
 
 /*
@@ -1276,12 +1363,16 @@ dissect_cntr_event(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t si
    /* The event checking control value is 4 bytes long */
    bytes_used = 4;
 
-   /* The final 4 bits of the event checking control value are the number of acknowledgements in the message */
-   acks = (event_checking_control >> 28) & 0x0F;
+   /* Bits 30..28. Bit 31 is the extended format and is not dissected.
+      The displayed count uses the same 3-bit mask. */
+   acks = (event_checking_control >> 28) & 0x07;
 
    /* Each acknowledgement contains and id and a status value */
    for (cur_ack = 0; cur_ack < acks; cur_ack++)
    {
+     if (bytes_used + 2 > size) {
+        break;
+     }
      /* Display the current acknowledgement id */
      proto_tree_add_item(header_tree, hf_cip_event_ack, tvb, offset + bytes_used, 1, ENC_LITTLE_ENDIAN);
      bytes_used += 1;
@@ -1318,12 +1409,16 @@ dissect_devce_event(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t s
    /* The event status control value is 4 bytes long */
    bytes_used = 4;
 
-   /* The final 4 bits of the event status control value are the number of notifications in the message */
-   nots = (event_checking_status >> 28) & 0x0F;
+   /* Bits 30..28. Bit 31 is the extended format and is not dissected. */
+   nots = (event_checking_status >> 28) & 0x07;
 
    /* Each notification contains and id, status value, event type, position and time stamp */
    for (cur_not = 0; cur_not < nots; cur_not++)
    {
+      /* id, status, type+reserved, position, timestamp: 16 bytes */
+      if (bytes_used + 16 > size) {
+         break;
+      }
       /* Display the current event id */
       proto_tree_add_item(header_tree, hf_cip_event_id, tvb, offset + bytes_used, 1, ENC_LITTLE_ENDIAN);
       bytes_used += 1;
