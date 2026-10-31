@@ -32215,3 +32215,167 @@ class TestDissectDcerpcBossvr:
                 value = (0x1000 + opnum).to_bytes(4, 'little' if le else 'big').hex()
                 assert lines[conn * 70 + 2 * opnum] == '%d\t%s request\t%s' % (opnum, name, value)
                 assert lines[conn * 70 + 2 * opnum + 1] == '%d\t%s response\t%s00000000' % (opnum, name, value)
+
+
+class TestDissectDcerpcBrowser:
+    def test_browser_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 23 calls each (plus an unknown opnum in the
+        first), and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_browser_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 164
+        assert protocols.count('RPC_BROWSER') == 140
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_browser_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_browser_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_browser_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t6bffd098-a112-3610-9833-012892020162\t0\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t6bffd098-a112-3610-9833-012892020162\t0\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t6bffd098-a112-3610-9833-012892020162\t0\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_browser_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum with its status code and Info column; the same in
+        all three connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_browser_coverage.pcap.gz'),
+                '-Y', 'rpc_browser',
+                '-Tfields', '-ebrowser.opnum', '-ebrowser.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 140
+        calls = [
+            '0\t\tBrowserrServerEnum request',
+            '0\t0x00000000\tBrowserrServerEnum response',
+            '0\t\tBrowserrServerEnum request',
+            '0\t0x000000ea\tBrowserrServerEnum response, Error: WERR_MORE_DATA',
+            '1\t\tBrowserrDebugCall request',
+            '1\t0x00000032\tBrowserrDebugCall response, Error: WERR_NOT_SUPPORTED',
+            '1\t\tBrowserrDebugCall request',
+            '1\t0x00000000\tBrowserrDebugCall response',
+            '2\t\tBrowserrQueryOtherDomains request',
+            '2\t0x00000000\tBrowserrQueryOtherDomains response',
+            '2\t\tBrowserrQueryOtherDomains request',
+            '2\t0x00000005\tBrowserrQueryOtherDomains response, Error: WERR_ACCESS_DENIED',
+            '3\t\tBrowserrResetNetlogonState request',
+            '3\t0x00000000\tBrowserrResetNetlogonState response',
+            '3\t\tBrowserrResetNetlogonState request',
+            '3\t0x00000005\tBrowserrResetNetlogonState response, Error: WERR_ACCESS_DENIED',
+            '4\t\tBrowserrDebugTrace request',
+            '4\t0x00000000\tBrowserrDebugTrace response',
+            '4\t\tBrowserrDebugTrace request',
+            '4\t0x00000005\tBrowserrDebugTrace response, Error: WERR_ACCESS_DENIED',
+            '5\t\tBrowserrQueryStatistics request',
+            '5\t0x00000000\tBrowserrQueryStatistics response',
+            '5\t\tBrowserrQueryStatistics request',
+            '5\t0x00000005\tBrowserrQueryStatistics response, Error: WERR_ACCESS_DENIED',
+            '6\t\tBrowserrResetStatistics request',
+            '6\t0x00000000\tBrowserrResetStatistics response',
+            '6\t\tBrowserrResetStatistics request',
+            '6\t0x00000005\tBrowserrResetStatistics response, Error: WERR_ACCESS_DENIED',
+            '7\t\tNetrBrowserStatisticsClear request',
+            '7\t0x00000005\tNetrBrowserStatisticsClear response, Error: WERR_ACCESS_DENIED',
+            '7\t\tNetrBrowserStatisticsClear request',
+            '7\t0x00000000\tNetrBrowserStatisticsClear response',
+            '8\t\tNetrBrowserStatisticsGet request',
+            '8\t0x00000057\tNetrBrowserStatisticsGet response, Error: WERR_INVALID_PARAMETER',
+            '9\t\tBrowserrSetNetlogonState request',
+            '9\t0x00000000\tBrowserrSetNetlogonState response',
+            '9\t\tBrowserrSetNetlogonState request',
+            '9\t0x00000005\tBrowserrSetNetlogonState response, Error: WERR_ACCESS_DENIED',
+            '10\t\tBrowserrQueryEmulatedDomains request',
+            '10\t0x00000000\tBrowserrQueryEmulatedDomains response',
+            '10\t\tBrowserrQueryEmulatedDomains request',
+            '10\t0x00000005\tBrowserrQueryEmulatedDomains response, Error: WERR_ACCESS_DENIED',
+            '11\t\tBrowserrServerEnumEx request',
+            '11\t0x00000000\tBrowserrServerEnumEx response',
+            '11\t\tBrowserrServerEnumEx request',
+            '11\t0x00000005\tBrowserrServerEnumEx response, Error: WERR_ACCESS_DENIED',
+        ]
+        assert lines[0:46] == calls
+        assert lines[46:48] == ['12\t\tUnknown operation 12 request',
+                                '12\t\tUnknown operation 12 response']
+        assert lines[48:94] == calls
+        assert lines[94:140] == calls
+
+    def test_browser_info101_entries(self, cmd_tshark, capture_file, test_env):
+        '''The NetSrvInfo101 entries of a BrowserrSrvInfo101Ctr are labelled
+        with the info 101 field, not the info 100 one ("RPC Browser: Label
+        the info 101 entries with their own field").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_browser_coverage.pcap.gz'),
+                '-Y', 'browser.BrowserrSrvInfo101Ctr.entries_read > 0',
+                '-Tfields', '-eframe.number', '-ebrowser.BrowserrSrvInfo101Ctr.entries_read',
+                '-esrvsvc.srvsvc_NetSrvInfo101.server_name',
+                '-esrvsvc.srvsvc_NetSrvInfo101.version_major',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t3\tFILESRV,X\t10,4,6',
+            '49\t1\tFILESRV\t10',
+            '65\t3\tFILESRV,X\t10,4,6',
+            '105\t1\tFILESRV\t10',
+            '119\t3\tFILESRV,X\t10,4,6',
+            '159\t1\tFILESRV\t10',
+        ]
+        for count, frames in ((3, '9\n65\n119\n'), (1, '49\n105\n159\n')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_browser_coverage.pcap.gz'),
+                    '-Y', 'count(browser.BrowserrSrvInfo101Ctr.entries) == %d'
+                          ' && !browser.BrowserrSrvInfo100Ctr.entries' % count,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == frames
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_browser_coverage.pcap.gz'),
+                '-Y', 'count(browser.BrowserrSrvInfo100Ctr.entries) == 3',
+                '-Tfields', '-eframe.number', '-esrvsvc.srvsvc_NetSrvInfo100.server_name',
+                '-esrvsvc.srvsvc_NetSrvInfo100.platform_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t\\\\\\\\FILESRV,DC1\t500,400,600',
+            '63\t\\\\\\\\FILESRV,DC1\t500,400,600',
+            '117\t\\\\\\\\FILESRV,DC1\t500,400,600',
+        ]
+
+    def test_browser_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded arguments in NDR64 (the third connection): strings,
+        the statistics (TYPE_2), the emulated domains byte array (TYPE_4)
+        and the total entries.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_browser_coverage.pcap.gz'),
+                '-Y', 'rpc_browser && tcp.port == 50003',
+                '-Tfields', '-ebrowser.BrowserrServerEnum.unknown7',
+                '-ebrowser.BrowserrDebugTrace.unknown2', '-ebrowser.TYPE_1.unknown',
+                '-ebrowser.TYPE_2.unknown4', '-ebrowser.TYPE_2.unknown18',
+                '-ebrowser.TYPE_4.unknown2', '-ebrowser.BrowserrSetNetlogonState.unknown2',
+                '-ebrowser.BrowserrQueryOtherDomains.total_entries',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 46
+        assert lines[0][0] == 'WORKGROUP'
+        assert lines[16][1] == 'c:\\\\trace.log'
+        assert lines[21][2:5] == ['72623859790382856,72623859790382857,72623859790382858,72623859790386952',
+                                  '84281352', '84281366']
+        assert lines[39][5] == '1,2,3,4,5,6,7,8'
+        assert lines[34][6] == 'DOMAIN'
+        assert lines[9][7] == '2'
