@@ -748,7 +748,7 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return tvb_reported_length(tvb);
     }
 
-    if (info->piv_len > OSCORE_PIV_MAX_LEN) {
+    if (info->piv_len > OSCORE_PIV_MAX_LEN || info->request_piv_len > OSCORE_PIV_MAX_LEN) {
         expert_add_info(pinfo, oscore_tree, &ei_oscore_piv_len_invalid);
         return tvb_reported_length(tvb);
     }
