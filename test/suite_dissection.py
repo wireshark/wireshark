@@ -35213,3 +35213,106 @@ class TestDissectDcerpcIwbemlevel1login:
         assert stdout == ('80\t0x0000000000001111\t0x0000000000002222\t'
                           '11111111-2222-3333-4444-555555555555\t0x80041003\t'
                           'NTLMLogin response, Error: Unknown DOS error 0x80041003\n')
+
+
+class TestDissectDcerpcIwbemloginclientid:
+    def test_iwbemloginclientid_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: IWbemLoginClientID and IWbemLoginClientIDEx, each
+        in an NDR little endian and a big endian connection with a bind
+        and every opnum (plus an unknown opnum in little endian), and no
+        malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemloginclientid_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 80
+        assert protocols.count('IWBEMLOGINCLIENTID') == 22
+        assert protocols.count('IWBEMLOGINCLIENTIDEX') == 26
+        assert protocols.count('DCERPC') == 8
+        assert protocols.count('TCP') == 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_iwbemloginclientid_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_iwbemloginclientid_calls(self, cmd_tshark, capture_file, test_env):
+        '''IWbemLoginClientID: every opnum, the client machine name and
+        process ID of SetClientInfo, WERROR codes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemloginclientid_coverage.pcap.gz'),
+                '-Y', 'IWbemLoginClientID',
+                '-Tfields', '-eIWbemLoginClientID.opnum',
+                '-eIWbemLoginClientID.SetClientInfo.wszClientMachine',
+                '-eIWbemLoginClientID.SetClientInfo.lClientProcId',
+                '-eIWbemLoginClientID.SetClientInfo.lReserved',
+                '-eIWbemLoginClientID.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 22
+        set_client_info = [
+            '3\tWORKSTATION1\t4242\t0\t\tSetClientInfo request',
+            '3\t\t\t\t0x00000000\tSetClientInfo response',
+            '3\t\t4294967295\t1\t\tSetClientInfo request',
+            '3\t\t\t\t0x80041003\tSetClientInfo response, Error: Unknown DOS error 0x80041003',
+        ]
+        assert lines[0:6] == [
+            '0\t\t\t\t\tiwbemloginclientid_opnum0 request IWBEMLOGINCLIENTID V0',
+            '0\t\t\t\t0x00000000\tiwbemloginclientid_opnum0 response',
+            '1\t\t\t\t\tiwbemloginclientid_opnum1 request IWBEMLOGINCLIENTID V0',
+            '1\t\t\t\t0x00000000\tiwbemloginclientid_opnum1 response',
+            '2\t\t\t\t\tiwbemloginclientid_opnum2 request IWBEMLOGINCLIENTID V0',
+            '2\t\t\t\t0x00000005\tiwbemloginclientid_opnum2 response, Error: WERR_ACCESS_DENIED',
+        ]
+        assert lines[6:10] == set_client_info
+        assert lines[10:12] == ['4\t\t\t\t\tUnknown operation 4 request',
+                                '4\t\t\t\t\tUnknown operation 4 response']
+        assert lines[13] == '0\t\t\t\t0x00000005\tiwbemloginclientid_opnum0 response, Error: WERR_ACCESS_DENIED'
+        assert lines[15] == '1\t\t\t\t0x80070005\tiwbemloginclientid_opnum1 response, Error: Unknown DOS error 0x80070005'
+        assert lines[18:22] == set_client_info
+
+    def test_iwbemloginclientidex_calls(self, cmd_tshark, capture_file, test_env):
+        '''IWbemLoginClientIDEx: SetClientInfoEx with both, no and only
+        one of the machine names, and the FILETIME of the process
+        creation.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemloginclientid_coverage.pcap.gz'),
+                '-Y', 'IWbemLoginClientIDEx.opnum == 3',
+                '-Tfields',
+                '-eIWbemLoginClientIDEx.SetClientInfoEx.ClientMachine',
+                '-eIWbemLoginClientIDEx.SetClientInfoEx.ClientMachineFQDN',
+                '-eIWbemLoginClientIDEx.SetClientInfoEx.ClientProcId',
+                '-eIWbemLoginClientIDEx.FILETIME.dwLowDateTime',
+                '-eIWbemLoginClientIDEx.FILETIME.dwHighDateTime',
+                '-eIWbemLoginClientIDEx.SetClientInfoEx.Reserved',
+                '-eIWbemLoginClientIDEx.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        calls = [
+            'WORKSTATION1\tworkstation1.example.test\t4242\t3577643008\t30975666\t0\t\tSetClientInfoEx request',
+            '\t\t\t\t\t\t0x00000000\tSetClientInfoEx response',
+            '\t\t1\t0\t0\t7\t\tSetClientInfoEx request',
+            '\t\t\t\t\t\t0x00000005\tSetClientInfoEx response, Error: WERR_ACCESS_DENIED',
+            '\thost.example.test\t99\t4294967295\t2147483647\t0\t\tSetClientInfoEx request',
+            '\t\t\t\t\t\t0x00000000\tSetClientInfoEx response',
+        ]
+        assert stdout.splitlines() == calls + calls
+
+    def test_iwbemloginclientid_orpc(self, cmd_tshark, capture_file, test_env):
+        '''The DCOM ORPCTHIS of SetClientInfo (big endian) and the
+        ORPCTHAT of its response, with an extent array, and the IPID from
+        the object UUID of the request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemloginclientid_coverage.pcap.gz'),
+                '-Y', 'IWbemLoginClientID.opnum == 3 && dcom.extent.size',
+                '-Tfields', '-eframe.number', '-edcom.version_major',
+                '-edcom.version_minor', '-edcom.this.uuid',
+                '-edcom.extent.array_count', '-edcom.extent.size',
+                '-edcom.extent.id', '-edcom.ipid',
+            ), encoding='utf-8', env=test_env)
+        this = '5\t7\t5a5a5a5a-1111-4222-8333-444455556666\t2\t4\t3f2e1d0c-aaaa-4bbb-8ccc-0123456789ab\t0000a401-0f5c-0000-9e3b-7a1c2d4e5f60'
+        that = '\t\t\t2\t4\t3f2e1d0c-aaaa-4bbb-8ccc-0123456789ab\t0000a401-0f5c-0000-9e3b-7a1c2d4e5f60'
+        assert stdout.splitlines() == ['12\t' + this, '13\t' + that,
+                                       '32\t' + this, '33\t' + that]
