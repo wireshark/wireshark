@@ -757,6 +757,7 @@ Studio (MSVC). Currently the MSYS2 build has the following limitations compared 
 the build using MSVC:
 
 * Lua does not have https://github.com/Lekensteyn/lua-unicode[custom UTF-8 patches].
+  (Affects Wireshark prior to 5.0 only.)
 
 * The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 
@@ -857,6 +858,7 @@ If successful the installer can be found in `$CMAKE_BINARY_DIR/packaging/nsis`.
   the bug tracker (https://gitlab.com/wireshark/wireshark/-/work_items/19108[issue 19108]).
 
 * Lua does not have https://github.com/Lekensteyn/lua-unicode[custom UTF-8 patches].
+  (Affects Wireshark prior to 5.0 only.)
 
 * The Event Tracing for Windows (ETW) extcap cannot be compiled using MinGW-w64.
 

@@ -94,10 +94,13 @@ then responsible for requiring any additional dependencies, allowing for more co
 over the loading order within the package.
 ====
 
-Wireshark for Windows uses a modified Lua runtime
-(link:https://github.com/Lekensteyn/lua-unicode[lua-unicode]) to
-support Unicode (UTF-8) filesystem paths. This brings consistency with other
-platforms (for example, Linux and macOS).
+On versions prior to 5.0, Wireshark for Windows uses a modified Lua runtime
+(link:https://github.com/Lekensteyn/lua-unicode[lua-unicode]) to support
+support Unicode (UTF-8) filesystem paths regardless of the Windows code
+page. This brings consistency with other platforms (for example, Linux and
+macOS). On Wireshark 5.0 and later this is not necessary as an application
+manifest forces the Windows code page to be UTF-8 when running Wireshark or
+any of the related programs.
 
 [#wslua_menu_example]
 
