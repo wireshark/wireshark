@@ -36083,3 +36083,82 @@ class TestDissectDcerpcMessenger:
             '122\t13,6,38\t13,6,38',
             '158\t13,6,38\t13,6,38',
         ]
+
+
+class TestDissectDcerpcMgmt:
+    def test_mgmt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three TCP connections (NDR little endian, big
+        endian, NDR64) with a bind and six calls each (plus an unknown
+        opnum in the first), and connectionless calls in both byte orders;
+        no malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mgmt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 86
+        assert protocols.count('MGMT') == 62
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_mgmt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mgmt_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum by name, the inq_princ_name arguments, principal
+        name and status, the same in every encoding and transport.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mgmt_coverage.pcap.gz'),
+                '-Y', 'mgmt',
+                '-Tfields', '-edcerpc.drep.byteorder', '-emgmt.opnum',
+                '-emgmt.proto', '-emgmt.princ_size', '-emgmt.princ_name',
+                '-emgmt.rc', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 62
+        calls = [
+            '0\t\t\t\t\trpc__mgmt_inq_if_ids request MGMT V1',
+            '0\t\t\t\t\trpc__mgmt_inq_if_ids response',
+            '1\t\t\t\t\trpc__mgmt_inq_stats request',
+            '1\t\t\t\t\trpc__mgmt_inq_stats response',
+            '2\t\t\t\t\trpc__mgmt_is_server_listening request MGMT V1',
+            '2\t\t\t\t\trpc__mgmt_is_server_listening response',
+            '3\t\t\t\t\trpc__mgmt_stop_server_listening request MGMT V1',
+            '3\t\t\t\t\trpc__mgmt_stop_server_listening response',
+            '4\t0x00000010\t1024\t\t\trpc__mgmt_inq_princ_name request',
+            '4\t\t\thost/server.example.test@EXAMPLE.TEST\t0x00000000\trpc__mgmt_inq_princ_name response',
+            '4\t0x0000000a\t0\t\t\trpc__mgmt_inq_princ_name request',
+            '4\t\t\t\t0xc0000022\trpc__mgmt_inq_princ_name response, STATUS_ACCESS_DENIED',
+        ]
+        le = ['1\t' + c for c in calls]
+        be = ['0\t' + c for c in calls]
+        assert lines[0:12] == le
+        assert lines[12:14] == ['1\t5\t\t\t\t\tUnknown operation 5 request',
+                                '1\t5\t\t\t\t\tUnknown operation 5 response']
+        assert lines[14:26] == be
+        assert lines[26:38] == le     # NDR64
+        assert lines[38:50] == le     # connectionless
+        assert lines[50:62] == be
+
+    def test_mgmt_stub_data(self, cmd_tshark, capture_file, test_env):
+        '''The opnums without stub dissectors show their stubs as data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_mgmt_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 7 && frame.number <= 13',
+                '-Tfields', '-edcerpc.stub_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '04000200010000000100000008000200'
+            '80bda8af8a7dc911bef408002b102989'
+            '0100000000000000',
+            '04000000',
+            '04000000040000006400000063000000070000000600000000000000',
+            '',
+            '0100000000000000',
+            '',
+            'd6a0c916',
+        ]
