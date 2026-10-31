@@ -32557,3 +32557,127 @@ class TestDissectDcerpcBudb:
             '24\t\t\t\t\t\t\t\t\t\t\t\t1',
             '27\t\t\t\t\t\t\t\t\t\t\t\t\t0',
         ]
+
+
+class TestDissectDcerpcButc:
+    @staticmethod
+    def butc_tree(cmd_tshark, capture_file, test_env, passes):
+        '''The BUTC trees of every frame, without the DCE/RPC request and
+        response links that only the second pass adds.'''
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('dcerpc_butc_coverage.pcap.gz'),
+                '-V', '-O', 'butc',
+            ), encoding='utf-8', env=test_env)
+        return [l.split(', [Resp: #')[0]
+                for l in stdout.splitlines()
+                if not l.lstrip().startswith(('[Response in frame', '[Request in frame', '[Time from request'))]
+
+    def test_butc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is BUTC and none is malformed or has an expert
+        info, in one and two passes, and both passes decode the same.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_butc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 82
+        assert protocols.count('BUTC') == 82
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_butc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        assert self.butc_tree(cmd_tshark, capture_file, test_env, ()) == \
+            self.butc_tree(cmd_tshark, capture_file, test_env, ('-2',))
+
+    def test_butc_opnums(self, cmd_tshark, capture_file, test_env):
+        '''A request and a response for every opnum 0-13, in little and
+        big endian, and the return codes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_butc_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 56',
+                '-Tfields', '-edcerpc.pkt_type', '-ebutc.opnum', '-ebutc.rc',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        expected = []
+        for rc in ('', '0xc0000022'):
+            for op in range(14):
+                expected += ['0\t%d\t' % op, '2\t%d\t%s' % (op, rc or '0x00000000')]
+        assert lines == expected
+
+    def test_butc_restore(self, cmd_tshark, capture_file, test_env):
+        '''Restore descriptors behind embedded pointers (one NULL), their
+        flags bits in little and big endian (frame 82 is the reproducer
+        butc_flags_be.py), and an unknown flag bit.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_butc_coverage.pcap.gz'),
+                '-Y', 'butc.tc_restoreDesc.flags',
+                '-Tfields', '-Eseparator=|', '-eframe.number',
+                '-ebutc.BUTC_PerformRestore.dumpSetName',
+                '-ebutc.tc_restoreDesc.tapeName',
+                '-ebutc.Restore_flags.TC_RESTORE_CREATE',
+                '-ebutc.Restore_flags.TC_RESTORE_INCR',
+                '-ebutc.tc_restoreDesc.newName',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3|user.vols.daily|tape.1,tape.2,tape.3|True,False,True|False,True,True|.restored,,.r',
+            '31|user.vols.daily|tape.1,tape.2,tape.3|True,False,True|False,True,True|.restored,,.r',
+            '81||tape.4|True|False|',
+            '82||tape|True|True|new',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_butc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 81}',
+                '-Tfields', '-ebutc.tc_restoreDesc.flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['0x00000001,0x00000002,0x00000003', '0x00000005']
+
+    def test_butc_dump(self, cmd_tshark, capture_file, test_env):
+        '''PerformDump with the dump interface and two dump descriptors
+        (the second of the three pointers is NULL).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_butc_coverage.pcap.gz'),
+                '-Y', 'butc.tc_dumpDesc.name',
+                '-Tfields', '-Eseparator=|', '-eframe.number',
+                '-ebutc.tc_dumpInterface.dumpName',
+                '-ebutc.tc_tapeSet.format',
+                '-ebutc.tc_dumpArray.tc_dumpArray_len',
+                '-ebutc.tc_dumpDesc.name', '-ebutc.tc_dumpDesc.partition',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1|user.vols.daily|daily.%d|2|user.alice,|1,2',
+            '29|user.vols.daily|daily.%d|2|user.alice,|1,2',
+        ]
+
+    def test_butc_status_info(self, cmd_tshark, capture_file, test_env):
+        '''Every arm of tc_statusInfoSwitch and a level without an arm.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_butc_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 57 && dcerpc.pkt_type == 2 && butc.tciStatusS.info',
+                '-Tfields', '-Eseparator=|', '-eframe.number',
+                '-ebutc.tciStatusS.taskName', '-ebutc.tciStatusS.info',
+                '-ebutc.tc_statusInfoSwitch.none',
+                '-ebutc.tc_statusInfoSwitchVol.volumeName',
+                '-ebutc.tc_tapeLabel.name',
+                '-ebutc.tc_statusInfoSwitch.spare1',
+                '-ebutc.tc_statusInfoSwitch.spare2',
+                '-ebutc.tc_statusInfoSwitch.spare3',
+                '-ebutc.tc_statusInfoSwitch.spare4',
+                '-ebutc.tc_statusInfoSwitch.spare5',
+                '-ebutc.tciStatusS.taskId',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '58|op0|0|80||||||||100',
+            '60|op1|1|||tape.1||||||101',
+            '62|op2|2|||tape.2||||||102',
+            '64|op3|3||user.vol3|||||||103',
+            '66|op4|4||user.vol4|||||||104',
+            '68|op5|5||||85|||||105',
+            '70|op6|6||||||86|||106',
+            '72|op7|7|||||||87||107',
+            '74|op8|8|||||88||||108',
+            '76|op9|9||||||||89|109',
+            '78||42|||||||||142',
+        ]
