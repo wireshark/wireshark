@@ -3488,7 +3488,7 @@ capture_loop_init_filter(pcap_t *pcap_h, bool from_cap_pipe,
 {
     struct bpf_program fcode;
 
-    ws_debug("capture_loop_init_filter: %s", cfilter);
+    ws_debug("capture_loop_init_filter: %s", cfilter ? cfilter : "(none)");
 
     /* capture filters only work on real interfaces */
     if (cfilter && !from_cap_pipe) {
@@ -4356,14 +4356,9 @@ capture_loop_start(capture_options *capture_opts, bool *stats_known, struct pcap
         pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
         /* init the input filter from the network interface (capture pipe will do nothing) */
-        /*
-         * When remote capturing WinPCap crashes when the capture filter
-         * is NULL. This might be a bug in WPCap. Therefore we provide an empty
-         * string.
-         */
         switch (capture_loop_init_filter(pcap_src->pcap_h, pcap_src->from_cap_pipe,
                                          interface_opts->name,
-                                         interface_opts->cfilter?interface_opts->cfilter:"",
+                                         interface_opts->cfilter,
                                          interface_opts->optimize)) {
 
         case INITFILTER_NO_ERROR:
