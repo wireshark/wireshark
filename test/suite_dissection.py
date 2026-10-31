@@ -34649,3 +34649,146 @@ class TestDissectDcerpcFrsrpc:
             '\t\t\t\t',
             '\t\t\t\t0x00000005',
         ]
+
+
+class TestDissectDcerpcFrstrans:
+    def test_frstrans_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 26 calls each (plus an unknown opnum in the
+        first), and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frstrans_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 182
+        assert protocols.count('FRSTRANS') == 158
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_frstrans_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_frstrans_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order, interface and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frstrans_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t897e2e5f-93f3-4376-9c9c-fd2277495c27\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t897e2e5f-93f3-4376-9c9c-fd2277495c27\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t897e2e5f-93f3-4376-9c9c-fd2277495c27\t1\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_frstrans_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum 0-16 with its status; the same in all three
+        connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frstrans_coverage.pcap.gz'),
+                '-Y', 'frstrans',
+                '-Tfields', '-efrstrans.opnum', '-efrstrans.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 158
+        calls = [
+            '0\t\tCheckConnectivity request',
+            '0\t0x00000000\tCheckConnectivity response',
+            '0\t\tCheckConnectivity request',
+            '0\t0x000006ba\tCheckConnectivity response, Error: WERR_RPC_S_SERVER_UNAVAILABLE',
+            '1\t\tEstablishConnection request',
+            '1\t0x00000000\tEstablishConnection response',
+            '1\t\tEstablishConnection request',
+            '1\t0x00000000\tEstablishConnection response',
+            '1\t\tEstablishConnection request',
+            '1\t0x00000005\tEstablishConnection response, Error: WERR_ACCESS_DENIED',
+            '2\t\tEstablishSession request',
+            '2\t0x00000000\tEstablishSession response',
+            '2\t\tEstablishSession request',
+            '2\t0x00000005\tEstablishSession response, Error: WERR_ACCESS_DENIED',
+            '3\t\tRequestUpdates request',
+            '3\t0x00000000\tRequestUpdates response',
+            '3\t\tRequestUpdates request',
+            '3\t0x00000057\tRequestUpdates response, Error: WERR_INVALID_PARAMETER',
+            '4\t\tRequestVersionVector request',
+            '4\t0x00000000\tRequestVersionVector response',
+            '4\t\tRequestVersionVector request',
+            '4\t0x00000000\tRequestVersionVector response',
+            '4\t\tRequestVersionVector request',
+            '4\t0x00000015\tRequestVersionVector response, Error: WERR_NOT_READY',
+            '5\t\tAsyncPoll request',
+            '5\t0x00000000\tAsyncPoll response',
+            '5\t\tAsyncPoll request',
+            '5\t0x00000005\tAsyncPoll response, Error: WERR_ACCESS_DENIED',
+        ]
+        for op, name in ((6, 'FRSTRANS_REQUEST_RECORDS'), (7, 'FRSTRANS_UPDATE_CANCEL'),
+                         (8, 'FRSTRANS_RAW_GET_FILE_DATA'), (9, 'FRSTRANS_RDC_GET_SIGNATURES'),
+                         (10, 'FRSTRANS_RDC_PUSH_SOURCE_NEEDS'), (11, 'FRSTRANS_RDC_GET_FILE_DATA'),
+                         (12, 'FRSTRANS_RDC_CLOSE')):
+            calls += ['%d\t\t%s request FRSTRANS V1' % (op, name),
+                      '%d\t\t%s response FRSTRANS V1' % (op, name)]
+        calls += [
+            '13\t\tInitializeFileTransferAsync request',
+            '13\t0x00000000\tInitializeFileTransferAsync response',
+            '13\t\tInitializeFileTransferAsync request',
+            '13\t0x0000000e\tInitializeFileTransferAsync response, Error: WERR_OUTOFMEMORY',
+        ]
+        for op, name in ((14, 'FRSTRANS_OPNUM_0E_NOT_USED_ON_THE_WIRE'),
+                         (15, 'FRSTRANS_RAW_GET_FILE_DATA_ASYNC'),
+                         (16, 'FRSTRANS_RDC_GET_FILE_DATA_ASYNC')):
+            calls += ['%d\t\t%s request FRSTRANS V1' % (op, name),
+                      '%d\t\t%s response FRSTRANS V1' % (op, name)]
+        assert lines[0:52] == calls
+        assert lines[52:54] == ['17\t\tUnknown operation 17 request',
+                                '17\t\tUnknown operation 17 response']
+        assert lines[54:106] == calls
+        assert lines[106:158] == calls
+
+    def test_frstrans_updates(self, cmd_tshark, capture_file, test_env):
+        '''RequestUpdates, AsyncPoll and InitializeFileTransferAsync:
+        version vectors, updates, epoque vectors and every RDC filter
+        union arm decode the same in all three encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frstrans_coverage.pcap.gz'),
+                '-Y', 'frstrans.opnum in {3, 5, 13}',
+                '-Tfields', '-efrstrans.frstrans_Update.name',
+                '-efrstrans.frstrans_Update.present',
+                '-efrstrans.frstrans_RequestUpdates.update_count',
+                '-efrstrans.frstrans_RequestUpdates.update_status',
+                '-efrstrans.frstrans_RequestUpdates.gvsn_version',
+                '-efrstrans.frstrans_VersionVector.low',
+                '-efrstrans.frstrans_VersionVector.high',
+                '-efrstrans.frstrans_EpoqueVector.year',
+                '-efrstrans.frstrans_EpoqueVector.milli_seconds',
+                '-efrstrans.frstrans_RdcParameters.rdc_chunker_algorithm',
+                '-efrstrans.frstrans_RdcParameterFilterMax.min_horizon_size',
+                '-efrstrans.frstrans_RdcParameterFilterPoint.max_chunk_size',
+                '-efrstrans.frstrans_InitializeFileTransferAsync.size_read',
+                '-efrstrans.frstrans_InitializeFileTransferAsync.is_end_of_file',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 36
+        calls = [
+            '\t\t\t\t\t1,101\t100,200\t\t\t\t\t\t\t',
+            'file1.txt,deleted.doc\t1,0\t2\t3\t201\t\t\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t\t\t\t\t\t\t',
+            '\t\t0\t2\t0\t\t\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t\t\t\t\t\t\t',
+            '\t\t\t\t\t1,3\t2,4\t2025\t999\t\t\t\t\t',
+            '\t\t\t\t\t\t\t\t\t\t\t\t\t',
+            '\t\t\t\t\t\t\t\t\t\t\t\t\t',
+            'file1.txt\t1\t\t\t\t\t\t\t\t\t\t\t\t',
+            'file1.txt\t1\t\t\t\t\t\t\t\t0,1,2,3\t128\t65535\t8\t0',
+            'b\t1\t\t\t\t\t\t\t\t\t\t\t\t',
+            'b\t1\t\t\t\t\t\t\t\t\t\t\t0\t1',
+        ]
+        assert lines[0:12] == calls
+        assert lines[12:24] == calls
+        assert lines[24:36] == calls
