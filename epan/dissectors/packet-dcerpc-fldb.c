@@ -16,6 +16,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-dce122.h"
 
@@ -315,9 +316,8 @@ dissect_vlconf_cell (tvbuff_t *tvb, unsigned offset,
     }
 
   /* byte name[MAXVLCELLCHARS];          Cell name */
-  proto_tree_add_item (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114, ENC_ASCII);
-  name = tvb_get_string_enc(pinfo->pool, tvb, offset, MAXVLCELLCHARS, ENC_ASCII); /* XXX why 114 above and 128 here?? */
-  offset += MAXVLCELLCHARS;     /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
+  proto_tree_add_item_ret_string (tree, hf_fldb_vlconf_cell_name, tvb, offset, MAXVLCELLCHARS, ENC_ASCII, pinfo->pool, &name);
+  offset += MAXVLCELLCHARS;
   col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", name);
 
   /* afsHyper CellID;                     identifier for that cell  */
@@ -432,6 +432,8 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
         col_append_fstr (pinfo->cinfo, COL_INFO,
                          " :FIXME!: Invalid string length of  %u",
                          string_size);
+        /* The fields that follow cannot be found */
+        THROW (ReportedBoundsError);
     }
   proto_item_set_len (item, offset - old_offset);
   return offset;
