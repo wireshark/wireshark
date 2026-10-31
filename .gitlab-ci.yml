@@ -606,10 +606,10 @@ Windows x64 Package:
     - $wiresharkVersion = Get-Content .\wireshark_version.txt
     - $wiresharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-x64.exe).Hash.ToLower()
     # XXX this should probably be done elsewhere, e.g. in a CMake target or in a script similar to the macOS package.
-    - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-17763`nnsis_sha256 = $wiresharkNsisSha256")
+    - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-19044`nnsis_sha256 = $wiresharkNsisSha256")
     - $stratosharkVersion = Get-Content .\stratoshark_version.txt
     - $stratosharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Stratoshark-*-x64.exe).Hash.ToLower()
-    - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-17763`nnsis_sha256 = $stratosharkNsisSha256")
+    - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-19044`nnsis_sha256 = $stratosharkNsisSha256")
     - if (Test-Path env:S3_DESTINATION_RELEASE) { rclone copy . "wireshark:$env:S3_DESTINATION_RELEASE" --include "*shark-release-info-*-windows-*.ini" --missing-on-dst - }
     - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release
   artifacts:
@@ -655,10 +655,10 @@ Windows Arm64 Package:
     - if (Test-Path env:S3_DESTINATION_WINDOWS_ARM64) { foreach ($package in $packages) { rclone copyto $package "wireshark:$env:S3_DESTINATION_WINDOWS_ARM64/$($package.Name)" --missing-on-dst - } }
     - $wiresharkVersion = Get-Content .\wireshark_version.txt
     - $wiresharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Wireshark-*-arm64.exe).Hash.ToLower()
-    - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-17763`nnsis_sha256 = $wiresharkNsisSha256")
+    - Set-Content -Path wireshark-release-info-$($wiresharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-19044`nnsis_sha256 = $wiresharkNsisSha256")
     - $stratosharkVersion = Get-Content .\stratoshark_version.txt
     - $stratosharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Stratoshark-*-arm64.exe).Hash.ToLower()
-    - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-17763`nnsis_sha256 = $stratosharkNsisSha256")
+    - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-19044`nnsis_sha256 = $stratosharkNsisSha256")
     - if (Test-Path env:S3_DESTINATION_RELEASE) { rclone copy . "wireshark:$env:S3_DESTINATION_RELEASE" --include "*shark-release-info-*-windows-*.ini" --missing-on-dst - }
     - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release
   artifacts:
