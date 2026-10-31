@@ -25147,3 +25147,168 @@ class TestDissectCip:
                     '-Tfields', '-e_ws.col.info',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == expected
+
+
+class TestDissectCipMotion:
+    def test_cipmotion_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every connection header, block, data set bit and service decodes
+        without malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipmotion_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 163
+        assert protocols.count('CIP Motion') == 146
+        assert protocols.count('CIP') == 8
+        assert protocols.count('CIP CM') == 8
+        assert protocols.count('CIP I/O') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cipmotion_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_cipmotion_block_sizes(self, cmd_tshark, capture_file, test_env):
+        '''Cyclic blocks smaller or larger than their data set bits, blocks
+        smaller than their header, an event count with the extended format
+        bit set and more acknowledgements or notifications than the event
+        block holds (frames 136-158). Values that do not fit are not shown,
+        and the following cyclic write/read block (block IDs 113 and 114)
+        or service block (transaction 113 or 114) starts right after the
+        declared block size.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('cipmotion_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 136 && frame.number <= 158',
+                    '-Tfields', '-eframe.number',
+                    '-ecipm.posfcmd', '-ecipm.posicmd', '-ecipm.velcmd',
+                    '-ecipm.accelcmd', '-ecipm.torquecmd',
+                    '-ecipm.actpos', '-ecipm.actpos_64', '-ecipm.actvel',
+                    '-ecipm.actaccel', '-ecipm.flttype', '-ecipm.alarmtype',
+                    '-ecipm.axisstatus', '-ecipm.axisiostatus', '-ecipm.safetystatus',
+                    '-ecipm.writeblk', '-ecipm.readblk', '-ecipm.evntack',
+                    '-ecipm.evntid', '-ecipm.svc.tranid', '-ecipm.data',
+                    '-E', 'separator=|',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                # Command blocks: LREAL position, position (8 octets),
+                # velocity, acceleration and torque do not fit
+                '136|||||||||||||||113|114||||',
+                '137|||||||||||||||113|114||||',
+                '138||123456|||||||||||||113|114||||',
+                '139||123456|100||||||||||||113|114||||',
+                '140|1234||100|-50|||||||||||113|114||||',
+                # Larger than the bits, padding after the values
+                '141|||100||||||||||||113|114||||',
+                '142||||||||99||||0x01ffffff|||113|114||||',
+                # Smaller than the 8 octet header
+                '143|||||||||||||||113|114||||01020304',
+                '144|||||||||||||||113|114||||01020304',
+                # Actual blocks: no room, 64 bit position, velocity and
+                # acceleration do not fit (the status is skipped)
+                '145|||||||||||||||113|114||||',
+                '146|||||||||||||||113|114||||',
+                '147||||||-123456|||||||||113|114||||',
+                '148||||||-123456||99|||||||113|114||||',
+                # Status: no room, fault, alarm, status, I/O status and
+                # safety do not fit
+                '149|||||||||||||||113|114||||',
+                '150|||||||||||||||113|114||||',
+                '151||||||||||1|||||113|114||||',
+                '152|||||||||||||||113|114||||',
+                '153|||||||||||||||113|114||||',
+                '154|||||||||||||||113|114||||',
+                # Extended format bit: 2 acks / 1 notification, not 10 / 9
+                '155|||||||||||||||||1,2||113|',
+                '156||||||||||||||||||1|113|',
+                # Count larger than the block holds
+                '157|||||||||||||||||1,2||114|',
+                '158||||||||||||||||||1|114|',
+            ]
+
+    def test_cipmotion_connections(self, cmd_tshark, capture_file, test_env):
+        '''The Forward Opens tell ENIP which I/O connections carry CIP
+        Motion: connection point 2 without and connection point 3 with a
+        run/idle header. I/O on a connection without a Forward Open is
+        CIP I/O unless decoded as CIP Motion - Rev 3.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipmotion_coverage.pcap.gz'),
+                '-Y', 'frame.number in {13, 14, 133, 134, 135, 159}',
+                '-Tfields', '-e_ws.col.protocol', '-ecipm.class1seqnum',
+                '-ecip.32bitheader.run_idle', '-ecipm.revision', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'CIP Motion\t1\t\t2\tVariable Controller-to-Device, Update Id: 1',
+            'CIP Motion\t1\t\t2\tVariable Device-to-Controller, Update Id: 1',
+            'CIP Motion\t1\t0x00000001\t3\tVariable Controller-to-Device, Update Id: 1',
+            'CIP Motion\t1\t0x00000001\t3\tVariable Device-to-Controller, Update Id: 1',
+            'CIP Motion\t2\t0x00000000\t3\tVariable Controller-to-Device, Update Id: 2',
+            'CIP I/O\t\t\t\tConnection: ID=0x80000699, SEQ=0000000001',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipmotion_coverage.pcap.gz'),
+                '-d', 'cip.io,cipm3',
+                '-Y', 'frame.number == 159',
+                '-Tfields', '-e_ws.col.protocol', '-ecip.32bitheader.run_idle',
+                '-ecipm.revision', '-ecipm.posfcmd', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'CIP Motion\t0x00000001\t3\t1234\tVariable Controller-to-Device, Update Id: 1',
+        ]
+
+    def test_cipmotion_headers(self, cmd_tshark, capture_file, test_env):
+        '''Connection headers with time stamps and diagnostics, and cyclic
+        command and actual data with 32 and 64 bit positions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipmotion_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14, 15, 16}',
+                '-Tfields', '-ecipm.ctrltimestamp', '-ecipm.devctimestamp',
+                '-ecipm.devctimeoffser', '-ecipm.lostupdates', '-ecipm.lateupdates',
+                '-ecipm.rxtimestamp', '-ecipm.txtimestamp', '-ecipm.posicmd',
+                '-ecipm.actpos', '-ecipm.actpos_64', '-ecipm.actaccel',
+                '-ecipm.flttimestamp', '-ecipm.alarmtimestamp', '-ecipm.safetystate',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\t\t\t\t\t\t\t\t-123456\t\t-2\t1111111111\t2222222222\t0x04',
+            '1700000000123456789\t\t\t\t\t\t\t123456\t\t\t\t\t\t',
+            '\t1700000000123456000\t42\t3\t2\t1700000000100000000\t1700000000110000000'
+            '\t\t\t4294967298\t-2\t1111111111\t2222222222\t0x04',
+        ]
+
+    def test_cipmotion_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The motion attribute table in explicit Get_Attribute_List
+        responses (class and instance attributes) and in a Get Axis
+        Attribute List service response with an array, an unknown
+        attribute, an error status and a two dimensional attribute.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipmotion_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6, 8}',
+                '-Tfields', '-ecipm.nodecontrol', '-ecipm.sync_threshold',
+                '-ecipm.ccb', '-ecipm.config.drive_class_id',
+                '-ecipm.rotary_motor_poles', '-ecipm.dc_bus_voltage',
+                '-ecipm.axisstatus', '-ecipm.axisstatus2', '-ecipm.evntchkcontrol',
+                '-ecipm.postrim',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0f\t1000\t7\t4660\t\t\t\t\t\t',
+            '\t\t\t\t8\t600\t0x01ffffff\t0x00ffffff\t0x7000ffff\t-1000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipmotion_coverage.pcap.gz'),
+                '-Y', 'frame.number == 79',
+                '-Tfields', '-ecipm.getaxisattr.sts', '-ecipm.attrdata',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\t0200000003000000,010203,eeee,0000000000000000',
+        ]
+        # With the preference, the raw data of every attribute is shown
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('cipmotion_coverage.pcap.gz'),
+                '-o', 'cipm.display_full_attribute_data:TRUE',
+                '-Y', 'frame.number == 79',
+                '-Tfields', '-ecipm.attrdata',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.strip().split(',')) == 37
