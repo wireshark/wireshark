@@ -33340,3 +33340,139 @@ class TestDissectDcerpcDfs:
             '11\t\t\t\t\tsrv1.dom.example\t',
             '11\t\t\t\t\t\t0x00000005',
         ]
+
+
+class TestDissectDcerpcDnsserver:
+    def test_dnsserver_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 26 calls each (plus an unknown opnum in the
+        first), and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dnsserver_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 182
+        assert protocols.count('DNSSERVER') == 158
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_dnsserver_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dnsserver_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dnsserver_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t50abc2a4-574d-40b3-9d66-ee4fd5fba076\t5\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t50abc2a4-574d-40b3-9d66-ee4fd5fba076\t5\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t50abc2a4-574d-40b3-9d66-ee4fd5fba076\t5\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_dnsserver_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum with its status code and Info column; the same in
+        all three connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dnsserver_coverage.pcap.gz'),
+                '-Y', 'dnsserver',
+                '-Tfields', '-ednsserver.opnum', '-ednsserver.status', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 158
+        calls = []
+        for op, name in ((0, 'DnssrvOperation'), (1, 'DnssrvQuery'),
+                         (2, 'DnssrvComplexOperation'), (3, 'DnssrvEnumRecords'),
+                         (4, 'DnssrvUpdateRecord'), (5, 'DnssrvOperation2'),
+                         (7, 'DnssrvComplexOperation2'), (9, 'DnssrvUpdateRecord2')):
+            calls += [
+                '%d\t\t%s request DNSSERVER V5' % (op, name),
+                '%d\t0x00000000\t%s response' % (op, name),
+                '%d\t\t%s request DNSSERVER V5' % (op, name),
+                '%d\t0xc0000022\t%s response, STATUS_ACCESS_DENIED, Error: STATUS_ACCESS_DENIED' % (op, name),
+            ]
+        for status in ('0x00000000', '0x00000000', '0x00000000', '0x00000000',
+                       '0xc0000225\tDnssrvQuery2 response, STATUS_NOT_FOUND, Error: STATUS_NOT_FOUND',
+                       '0xc0000022\tDnssrvQuery2 response, STATUS_ACCESS_DENIED, Error: STATUS_ACCESS_DENIED',
+                       '0xc000000d\tDnssrvQuery2 response, STATUS_INVALID_PARAMETER, Error: STATUS_INVALID_PARAMETER'):
+            calls += ['6\t\tDnssrvQuery2 request',
+                      '6\t' + (status if '\t' in status else status + '\tDnssrvQuery2 response')]
+        calls += [
+            '8\t\tDnssrvEnumRecords2 request',
+            '8\t0x00000000\tDnssrvEnumRecords2 response',
+            '8\t\tDnssrvEnumRecords2 request',
+            '8\t0x00000000\tDnssrvEnumRecords2 response',
+            '8\t\tDnssrvEnumRecords2 request',
+            '8\t0x0000251d\tDnssrvEnumRecords2 response, Unknown error 0x0000251d, Error: Unknown NT status 0x0000251d',
+        ]
+        assert len(calls) == 52
+        assert lines[0:52] == calls
+        assert lines[52:54] == ['10\t\tUnknown operation 10 request',
+                                '10\t\tUnknown operation 10 response']
+        assert lines[54:106] == calls
+        assert lines[106:158] == calls
+
+    def test_dnsserver_query2(self, cmd_tshark, capture_file, test_env):
+        '''DnssrvQuery2 in NDR64 (the third connection): every union arm,
+        the server info with its strings, IP4 arrays and bitmaps.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dnsserver_coverage.pcap.gz'),
+                '-Y', 'dnsserver.opnum == 6 && tcp.port == 50003',
+                '-Tfields', '-ednsserver.DnssrvQuery2.client_version',
+                '-ednsserver.DnssrvQuery2.zone', '-ednsserver.DnssrvQuery2.operation',
+                '-ednsserver.DnssrvQuery2.type_id', '-ednsserver.DNSSRV_RPC_UNION.dword',
+                '-ednsserver.DNSSRV_RPC_UNION.null',
+                '-ednsserver.DNS_RPC_SERVER_INFO_DOTNET.ServerName',
+                '-ednsserver.DNS_RPC_SERVER_INFO_DOTNET.DsContainer',
+                '-ednsserver.IP4_ARRAY.AddrCount', '-ednsserver.IP4_ARRAY.AddrArray',
+                '-ednsserver.DNS_RPC_SERVER_INFO_DOTNET.LogLevel',
+                '-ednsserver.DNS_RPC_SERVER_INFO_DOTNET.extension5',
+                '-ednsserver.DNS_RPC_SERVER_INFO_DOTNET.DsDsaVersion',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 14
+        assert lines[0][0:3] == ['7', '', 'ServerInfo']
+        assert lines[1][3:] == ['19', '', '', 'dns1.example.test',
+                                'CN=MicrosoftDNS,DC=example,DC=test', '2,1,0,3',
+                                '3221225985,3221225986,3221225985,3325256705,3325256706,3325256707',
+                                '0x8100f333', 'ext5', '114']
+        assert lines[2][0:3] == ['6', '..Cache', 'ServerInfo']
+        assert lines[3][3:] == ['19', '', '', '', '', '', '', '0x00000000', '', '114']
+        assert lines[5][3:6] == ['1', '305419896', '']
+        assert lines[7][3:6] == ['0', '', '90']
+        assert lines[9][3:6] == ['0', '', '']
+        assert lines[13][3] == '2'
+
+    def test_dnsserver_enum_records2(self, cmd_tshark, capture_file, test_env):
+        '''DnssrvEnumRecords2 in big endian (the second connection): the
+        node in the subcontext with its records and names.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dnsserver_coverage.pcap.gz'),
+                '-Y', 'dnsserver.opnum == 8 && tcp.port == 50002',
+                '-Tfields', '-ednsserver.DnssrvEnumRecords2.node_name',
+                '-ednsserver.DnssrvEnumRecords2.record_type',
+                '-ednsserver.DnssrvEnumRecords2.select_flag',
+                '-ednsserver.DnssrvEnumRecords2.buffer_length',
+                '-ednsserver.DnssrvEnumRecords2.record_buffer.subcontext',
+                '-ednsserver.DNS_RPC_NODE.Length', '-ednsserver.DNS_RPC_NODE.RecordCount',
+                '-ednsserver.DNS_RPC_NODE.Flags', '-ednsserver.DNS_RPC_NODE.Childcount',
+                '-ednsserver.DNS_RPC_NAME.name', '-ednsserver.DNS_RPC_RECORD.Type',
+                '-ednsserver.DNS_RPC_RECORD.DataLength',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '@\t255\t0x0003011f\t\t\t\t\t\t\t\t\t',
+            '\t\t\t160\t0x000000a0\t160\t4\t0xfe870100\t2\thost,ns1.example.test,\t1,2,2,65281\t4,21,5,8',
+            '\t1\t0x00000000\t\t\t\t\t\t\t\t\t',
+            '\t\t\t13\t0x0000000d\t13\t0\t0x00000000\t0\t\t\t',
+            'missing\t28\t0x00000001\t\t\t\t\t\t\t\t\t',
+            '\t\t\t0\t\t\t\t\t\t\t\t',
+        ]
