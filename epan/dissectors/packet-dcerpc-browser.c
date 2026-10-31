@@ -364,7 +364,7 @@ browser_dissect_element_BrowserrSrvInfo101Ctr_entries_(tvbuff_t *tvb _U_, unsign
 static unsigned
 browser_dissect_element_BrowserrSrvInfo101Ctr_entries__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = srvsvc_dissect_struct_NetSrvInfo101(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo100Ctr_entries, 0);
+	offset = srvsvc_dissect_struct_NetSrvInfo101(tvb, offset, pinfo, tree, di, drep, hf_browser_BrowserrSrvInfo101Ctr_entries, 0);
 
 	return offset;
 }
