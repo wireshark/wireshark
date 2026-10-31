@@ -34038,3 +34038,171 @@ class TestDissectDcerpcEpm:
             '27\t0x0d,0x0d,0x0b,0x1f,0x09,0x0d,0x0d,0x0b,0x07,0x09\t135\t\t192.0.2.60,0.0.0.0'
             '\t\t\t593\t0,512,768,512',
         ]
+
+
+class TestDissectDcerpcEventlog:
+    def test_eventlog_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 53 calls each (plus an unknown opnum in the
+        first), a fourth with the well-formed call of the record length
+        reproducer, and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_eventlog_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 354
+        assert protocols.count('EVENTLOG') == 322
+        assert protocols.count('DCERPC') == 8
+        assert protocols.count('TCP') == 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_eventlog_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_eventlog_bind(self, cmd_tshark, capture_file, test_env):
+        '''The four binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_eventlog_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        ndr = '8a885d04-1ceb-11c9-9fe8-08002b104860'
+        ndr64 = '71710533-beba-4937-8319-b5dbef9ccc36'
+        uuid = '82273fdc-e32a-18c3-3f78-827929dc23ea'
+        assert stdout.splitlines() == [
+            '1\t%s\t0\t%s' % (uuid, ndr),
+            '0\t%s\t0\t%s' % (uuid, ndr),
+            '1\t%s\t0\t%s' % (uuid, ndr64),
+            '1\t%s\t0\t%s' % (uuid, ndr),
+        ]
+
+    def test_eventlog_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum with its status code and Info column; the same in
+        all three connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_eventlog_coverage.pcap.gz'),
+                '-Y', 'eventlog',
+                '-Tfields', '-eeventlog.opnum', '-eeventlog.status', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 322
+        names = {
+            0xc0000022: 'STATUS_ACCESS_DENIED', 0xc0000008: 'STATUS_INVALID_HANDLE',
+            0xc0000023: 'STATUS_BUFFER_TOO_SMALL', 0xc0000011: 'STATUS_END_OF_FILE',
+        }
+        sequence = [
+            (7, 'OpenEventLogW', [0, 0xc0000022]),
+            (4, 'GetNumRecords', [0, 0xc0000008]),
+            (5, 'GetOldestRecord', [0, 0xc0000008]),
+            (10, 'ReadEventLogW', [0, 0, 0, 0, 0xc0000023]),
+            (6, 'ChangeNotify', [0, 0xc0000022]),
+            (22, 'GetLogInformation', [0, 0xc0000023]),
+            (0, 'ClearEventLogW', [0, 0xc0000022]),
+            (1, 'BackupEventLogW', [0, 0xc0000022]),
+            (23, 'FlushEventLog', [0, 0xc0000008]),
+            (8, 'RegisterEventSourceW', [0, 0xc0000022]),
+            (11, 'ReportEventW', [0, 0, 0xc0000022]),
+            (3, 'DeregisterEventSource', [0, 0xc0000008]),
+            (9, 'OpenBackupEventLogW', [0, 0xc0000011]),
+            (2, 'CloseEventLog', [0, 0, 0xc0000008]),
+        ]
+        calls = []
+        for op, name, statuses in sequence:
+            for status in statuses:
+                calls.append('%d\t\t%s request' % (op, name))
+                if status:
+                    calls.append('%d\t0x%08x\t%s response, %s, Error: %s' % (
+                        op, status, name, names[status], names[status]))
+                else:
+                    calls.append('%d\t0x00000000\t%s response' % (op, name))
+        for op, name in ((12, 'ClearEventLogA'), (13, 'BackupEventLogA'),
+                         (14, 'OpenEventLogA'), (15, 'RegisterEventSourceA'),
+                         (16, 'OpenBackupEventLogA'), (17, 'ReadEventLogA'),
+                         (18, 'ReportEventA'), (19, 'RegisterClusterSvc'),
+                         (20, 'DeregisterClusterSvc'), (21, 'WriteClusterEvents')):
+            calls += [
+                '%d\t\t%s request EVENTLOG V0' % (op, name),
+                '%d\t0x00000000\t%s response' % (op, name),
+                '%d\t\t%s request EVENTLOG V0' % (op, name),
+                '%d\t0xc0000022\t%s response, STATUS_ACCESS_DENIED, Error: STATUS_ACCESS_DENIED' % (op, name),
+            ]
+        assert len(calls) == 106
+        assert lines[0:106] == calls
+        assert lines[106:108] == ['24\t\tUnknown operation 24 request',
+                                  '24\t\tUnknown operation 24 response']
+        assert lines[108:214] == calls
+        assert lines[214:320] == calls
+        assert lines[320:322] == ['10\t\tReadEventLogW request',
+                                  '10\t0x00000000\tReadEventLogW response']
+
+    def test_eventlog_records(self, cmd_tshark, capture_file, test_env):
+        '''The ReadEventLogW records in all three encodings: names, strings
+        found by their offset, the SID, the data and the sizes after the
+        record; the last one is the well-formed call of the record length
+        reproducer (eventlog_reclen_wrap.py).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_eventlog_coverage.pcap.gz'),
+                '-Y', 'eventlog.Record',
+                '-Tfields', '-eframe.number', '-eeventlog.Record.length',
+                '-eeventlog.eventlog_Record.record_number',
+                '-eeventlog.eventlog_Record.event_type',
+                '-eeventlog.Record.source_name', '-eeventlog.Record.computer_name',
+                '-eeventlog.Record.string', '-ent.sid',
+                '-eeventlog.eventlog_Record.raw_data',
+                '-eeventlog.eventlog_ReadEventLogW.sent_size',
+                '-eeventlog.eventlog_ReadEventLogW.real_size',
+            ), encoding='utf-8', env=test_env)
+        records = [
+            '116\t1\t4\tSrc\tHost\tone,two\tS-1-5-32-544\traw\t116\t0',
+            '80\t2\t1\tSrc\tHost\t\t\t\t80\t0',
+            '100\t3\t16\tSrc\tHost\tx\tS-1-5-32-544\tx\t100\t0',
+            '84\t4\t8\t\t\t\tS-1-5-32-544\tdat\t84\t0',
+            '80\t5\t2\tSrc\tHost\t\t\t\t0\t96',
+        ]
+        expected = []
+        for first in (19, 135, 249):
+            expected += ['%d\t%s' % (first + 2 * i, r) for i, r in enumerate(records)]
+        expected.append('351\t110\t1\t4\tSrc\tHost\tone,two\tS-1-5-32-544\to\t110\t0')
+        assert stdout.splitlines() == expected
+
+    def test_eventlog_handles(self, cmd_tshark, capture_file, test_env):
+        '''Policy handles opened by OpenEventLogW and OpenBackupEventLogW
+        and closed by CloseEventLog (NDR little endian connection, two
+        passes), and the counted strings of the open calls in NDR64.
+        Frames 70 and 71 close the handle closed in frame 68 again
+        (STATUS_INVALID_HANDLE) and stay on that instance.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcerpc_eventlog_coverage.pcap.gz'),
+                '-Y', 'tcp.port == 50001 && (eventlog.opnum == 2 || eventlog.opnum == 7 || eventlog.opnum == 9)',
+                '-Tfields', '-eframe.number', '-edcerpc.nt.open_frame',
+                '-edcerpc.nt.close_frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t\t', '7\t7\t68', '8\t\t', '9\t\t',
+            '62\t\t', '63\t63\t66', '64\t\t', '65\t\t',
+            '66\t63\t66', '67\t\t', '68\t7\t68', '69\t\t', '70\t7\t68', '71\t7\t68',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_eventlog_coverage.pcap.gz'),
+                '-Y', 'tcp.port == 50003 && dcerpc.pkt_type == 0'
+                      ' && (eventlog.opnum == 7 || eventlog.opnum == 8 || eventlog.opnum == 9)',
+                '-Tfields', '-eeventlog.eventlog_OpenEventLogW.Module',
+                '-eeventlog.eventlog_OpenUnknown0.unknown0',
+                '-eeventlog.eventlog_RegisterEventSourceW.servername',
+                '-eeventlog.eventlog_OpenBackupEventLogW.logname',
+                '-eeventlog.eventlog_OpenBackupEventLogW.unknown3',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Application\t92\t\t\t',
+            '\t\t\t\t',
+            '\t92\tHOST\t\t',
+            '\t\t\t\t',
+            '\t0\t\tC:\\\\backup.evt\t1',
+            '\t\t\t\t0',
+        ]
