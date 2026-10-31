@@ -32379,3 +32379,181 @@ class TestDissectDcerpcBrowser:
         assert lines[39][5] == '1,2,3,4,5,6,7,8'
         assert lines[34][6] == 'DOMAIN'
         assert lines[9][7] == '2'
+
+
+class TestDissectDcerpcBudb:
+    @staticmethod
+    def budb_calls():
+        '''One connection's calls: (opnum, return code of the response).'''
+        ok, denied = 0, 0xc0000022
+        calls = [(0, ok), (0, denied), (1, ok), (2, ok), (3, 0x0b4d7b06),
+                 (4, ok), (4, ok), (5, ok), (5, denied), (6, ok), (7, ok), (7, ok),
+                 (8, ok), (9, ok), (10, ok), (10, denied), (11, ok), (11, denied),
+                 (12, ok), (12, denied)]
+        calls += [(op, ok) for op in range(13, 18)]
+        calls += [(18, denied)]
+        calls += [(op, ok) for op in range(19, 25)]
+        calls += [(25, ok), (25, ok), (26, ok), (27, ok), (28, ok)]
+        lines = []
+        for op, rc in calls:
+            lines.append('%d\t' % op)
+            lines.append('%d\t0x%08x' % (op, rc))
+        return lines
+
+    def test_budb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 37 calls each (plus an unknown opnum in the
+        first), and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_budb_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 248
+        assert protocols.count('BUDB') == 224
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_budb_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_budb_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_budb_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\teb814e2a-0099-11ca-8678-02608c2ea96e\t4\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\teb814e2a-0099-11ca-8678-02608c2ea96e\t4\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\teb814e2a-0099-11ca-8678-02608c2ea96e\t4\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_budb_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum and the return code of every response in all three
+        connections, and the Info column of some calls.'''
+        for stream, extra in ((0, ['29\t', '29\t']), (1, []), (2, [])):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_budb_coverage.pcap.gz'),
+                    '-Y', 'budb && tcp.stream == %d' % stream,
+                    '-Tfields', '-ebudb.opnum', '-ebudb.rc',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == self.budb_calls() + extra
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_budb_coverage.pcap.gz'),
+                '-Y', 'frame.number in {9, 15, 57, 80}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'AddVolume response, STATUS_ACCESS_DENIED',
+            'DeleteTape response, Unknown error 0x0b4d7b06',
+            'FreeLock response, STATUS_ACCESS_DENIED',
+            'Unknown operation 29 request',
+        ]
+
+    def test_budb_entries(self, cmd_tshark, capture_file, test_env):
+        '''Dump entries with their tape set and principal, tape and volume
+        entries and the database header; the same in all three
+        connections.'''
+        dumps = ('1\t0\t5', '1\t1001\t5', '6\t1001\t0', '7\t1001\t5', '7\t1001\t5',
+                 '8\t1001\t4', '8\t1001\t0')
+        rest = '\tuser.vs\t/full/incr1\tuser.vs.incr1\ttapesrv.example\tuser.vs.incr1.%d\tadmin\texample.com\t4'
+        for stream in (0, 1, 2):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_budb_coverage.pcap.gz'),
+                    '-Y', 'budb.dumpEntry.id && tcp.stream == %d' % stream,
+                    '-Tfields', '-ebudb.opnum', '-ebudb.dumpEntry.id',
+                    '-ebudb.dumpEntry.flags', '-ebudb.dumpEntry.volumeSetName',
+                    '-ebudb.dumpEntry.dumpPath', '-ebudb.dumpEntry.name',
+                    '-ebudb.tapeSet.tapeServer', '-ebudb.tapeSet.format',
+                    '-ebudb.principal.name', '-ebudb.principal.cell',
+                    '-ebudb.principal.spare4',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [d + rest for d in dumps]
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_budb_coverage.pcap.gz'),
+                    '-Y', '(budb.tapeEntry.name || budb.volumeEntry.name || budb.DbHeader.cell) && tcp.stream == %d' % stream,
+                    '-Tfields', '-ebudb.opnum', '-ebudb.tapeEntry.name',
+                    '-ebudb.tapeEntry.flags', '-ebudb.tapeEntry.tapeid',
+                    '-ebudb.volumeEntry.name', '-ebudb.volumeEntry.id',
+                    '-ebudb.volumeEntry.server', '-ebudb.volumeEntry.tape',
+                    '-ebudb.DbHeader.cell', '-ebudb.DbHeader.lastTapeId',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '0\t\t\t\tuser.alice\t4294967811\tfs1.example\tuser.vs.incr1.1\t\t',
+                '0\t\t\t\t\t18446744073709551615\t\t\t\t',
+                '3\tuser.vs.incr1.1\t2\t77\t\t\t\t\t\t',
+                '9\tuser.vs.incr1.1\t32\t77\t\t\t\t\t\t',
+                '13\tuser.vs.incr1.1\t4\t77\t\t\t\t\t\t',
+                '23\t\t\t\t\t\t\t\texample.com\t77',
+            ]
+
+    def test_budb_names(self, cmd_tshark, capture_file, test_env):
+        '''Name strings behind full pointers, and NULL pointers, in the
+        requests, in NDR64 (the third connection).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_budb_coverage.pcap.gz'),
+                '-Y', 'budb.opnum in {4, 5, 6, 7, 10, 11, 12, 25, 26} && dcerpc.pkt_type == 0 && tcp.stream == 2',
+                '-Tfields', '-ebudb.opnum', '-ebudb.DeleteVDP.dsname',
+                '-ebudb.DeleteVDP.dumpPath', '-ebudb.FindClone.volName',
+                '-ebudb.FindDump.volName', '-ebudb.FindLatestDump.vsname',
+                '-ebudb.FindLatestDump.dname', '-ebudb.GetDumps.name',
+                '-ebudb.GetTapes.name', '-ebudb.GetVolumes.name',
+                '-ebudb.T_DumpHashTable.filename', '-ebudb.T_DumpDatabase.filename',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tuser.vs\t/full/incr1' + '\t' * 9,
+            '4' + '\t' * 11,
+            '5\t\t\tuser.alice' + '\t' * 8,
+            '5' + '\t' * 11,
+            '6' + '\t' * 4 + 'user.alice' + '\t' * 7,
+            '7' + '\t' * 5 + 'user.vs' + '\t' * 6,
+            '7' + '\t' * 6 + 'user.vs.incr1' + '\t' * 5,
+            '10' + '\t' * 7 + 'user.vs' + '\t' * 4,
+            '10' + '\t' * 11,
+            '11' + '\t' * 8 + 'user.vs.incr1.1' + '\t' * 3,
+            '11' + '\t' * 11,
+            '12' + '\t' * 9 + 'user.alice' + '\t' * 2,
+            '12' + '\t' * 11,
+            '25' + '\t' * 10 + '/tmp/budb.hash\t',
+            '25' + '\t' * 11,
+            '26' + '\t' * 11 + '/tmp/budb.dump',
+        ]
+
+    def test_budb_results(self, cmd_tshark, capture_file, test_env):
+        '''Output values of the responses: clone time, list indexes, an
+        empty dump list, lock and instance handles, DbVerify, empty text
+        blocks and an empty interface list.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_budb_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 2 && tcp.stream == 1 && budb.opnum in {10, 12, 13, 14, 15, 19, 20, 21, 22, 24, 27}',
+                '-Tfields', '-ebudb.opnum', '-ebudb.GetDumps.nextIndex',
+                '-ebudb.dumpList.dumpList_len', '-ebudb.volumeList.volumeList_len',
+                '-ebudb.UseTape.new', '-ebudb.charListT.charListT_len',
+                '-ebudb.GetTextVersion.tversion', '-ebudb.GetInstanceId.instanceId',
+                '-ebudb.GetLock.lockHandle', '-ebudb.DbVerify.orphans', '-ebudb.DbVerify.host',
+                '-ebudb.DumpDB.flags', '-ebudb.T_GetVersion.majorVersion',
+                '-ebudb.dfs_interfaceList.dfs_interfaceList_len',
+            ), encoding='utf-8', env=test_env)
+        assert [l.rstrip('\t') for l in stdout.splitlines()] == [
+            '10\t-1\t0',
+            '10\t-1',
+            '12\t\t\t0',
+            '12',
+            '13\t\t\t\t1',
+            '14\t\t\t\t\t0',
+            '15\t\t\t\t\t\t9',
+            '19\t\t\t\t\t\t\t12',
+            '20\t\t\t\t\t\t\t\t55',
+            '21\t\t\t\t\t\t\t\t\t2\t167772161',
+            '22\t\t\t\t\t0\t\t\t\t\t\t1',
+            '24\t\t\t\t\t\t\t\t\t\t\t\t1',
+            '27\t\t\t\t\t\t\t\t\t\t\t\t\t0',
+        ]
