@@ -36013,3 +36013,73 @@ class TestDissectDcerpcMdssvc:
             '53\t7\t40\t40\t287454020',
             '55\t7\t0\t0\t287454020',
         ]
+
+
+class TestDissectDcerpcMessenger:
+    def test_messenger_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three TCP connections (NDR little endian, big
+        endian, NDR64) with a bind and three calls each (plus an unknown
+        opnum in the first), and connectionless calls in both byte orders;
+        no malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_messenger_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 56
+        assert protocols.count('Messenger') == 32
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_messenger_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_messenger_calls(self, cmd_tshark, capture_file, test_env):
+        '''Server, client and message strings (with and without the
+        terminating NUL, and empty) and the return codes, the same in
+        every encoding and transport.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_messenger_coverage.pcap.gz'),
+                '-Y', 'messenger',
+                '-Tfields', '-edcerpc.drep.byteorder', '-emessenger.opnum',
+                '-emessenger.server', '-emessenger.client', '-emessenger.message',
+                '-emessenger.rc', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 32
+        calls = [
+            '0\tWORKSTATION1\tADMIN\tThe server will restart in 5 minutes.\t\tNetrSendMessage request',
+            '0\t\t\t\t0x00000000\tNetrSendMessage response',
+            '0\tPC2\tALICE\t\t\tNetrSendMessage request',
+            '0\t\t\t\t0xc0000022\tNetrSendMessage response, STATUS_ACCESS_DENIED',
+            '0\tPC3\tBOB\tno terminating NUL\t\tNetrSendMessage request',
+            '0\t\t\t\t0x00000103\tNetrSendMessage response, STATUS_PENDING',
+        ]
+        le = ['1\t' + c for c in calls]
+        be = ['0\t' + c for c in calls]
+        assert lines[0:6] == le
+        assert lines[6:8] == ['1\t1\t\t\t\t\tUnknown operation 1 request',
+                              '1\t1\t\t\t\t\tUnknown operation 1 response']
+        assert lines[8:14] == be
+        assert lines[14:20] == le     # NDR64
+        assert lines[20:26] == le     # connectionless
+        assert lines[26:32] == be
+
+    def test_messenger_ndr64_strings(self, cmd_tshark, capture_file, test_env):
+        '''The NDR64 string counts are 8 octets: the request carries the
+        same three strings in a longer stub.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_messenger_coverage.pcap.gz'),
+                '-Y', 'messenger.opnum == 0 && dcerpc.pkt_type == 0 && tcp',
+                '-Tfields', '-edcerpc.cn_frag_len', '-edcerpc.array.max_count',
+                '-edcerpc.array.actual_count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[::3] == [
+            '122\t13,6,38\t13,6,38',
+            '122\t13,6,38\t13,6,38',
+            '158\t13,6,38\t13,6,38',
+        ]
