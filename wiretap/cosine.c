@@ -363,6 +363,12 @@ parse_cosine_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		}
 		yy = mm = dd = hr = min = sec = csec = 0;
 	}
+	if (csec < 0 || csec > 99) {
+		/* The fraction of a second is in hundredths */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = ws_strdup_printf("cosine: packet header has a fraction of a second of %d hundredths", csec);
+		return false;
+	}
 	if (pkt_len < 0) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("cosine: packet header has a negative packet length");
