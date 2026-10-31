@@ -33896,3 +33896,145 @@ class TestDissectDcerpcEfs:
             '188\t\t\t\t\t\tEfsRpcQueryUsersOnFile request',
             '189\t5\tS-1-5-21-1-2-3-500\t1\t64\t0x00000000\tEfsRpcQueryUsersOnFile response',
         ]
+
+
+class TestDissectDcerpcEpm:
+    def test_epm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: EPM v3 over TCP in NDR little endian, big endian
+        and NDR64, EPM v4 over UDP little endian and EPM v3 over UDP big
+        endian; no malformed packets and no expert info above a note
+        except the undecoded OSI TP4 floor, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_epm_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 160
+        assert protocols.count('EPM') == 106
+        assert protocols.count('EPMv4') == 30
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_epm_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '%d\tRightHandSide not decoded yet for proto_id 0x5' % f
+                for f in (25, 65, 128)]
+
+    def test_epm_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum with its request and response, in the first TCP
+        connection; the other connections decode the same calls.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_epm_coverage.pcap.gz'),
+                '-Y', 'epm || epm4',
+                '-Tfields', '-eframe.number', '-eepm.opnum', '-eepm.num_ents',
+                '-eepm.rc', '-eepm.num_towers', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 136
+        svc = 'Service:LSA access, Service:no tower, Service:RPC over HTTP, ' + \
+              'LSARPC, 32bit NDR, LSARPC, 32bit NDR, LSARPC, 32bit NDR'
+        assert lines[0:32] == [
+            '6\t0\t4\t\t\tInsert request, ' + svc,
+            '7\t0\t\t0x00000000\t\tInsert response',
+            '8\t0\t0\t\t\tInsert request',
+            '9\t0\t\t0x16c9a0d6\t\tInsert response',
+            '10\t1\t1\t\t\tDelete request, Service:local, 64bit NDR',
+            '11\t1\t\t0x00000000\t\tDelete response',
+            '12\t2\t\t\t\tLookup request',
+            '13\t2\t4\t0x00000000\t\tLookup response, ' + svc,
+            '14\t2\t\t\t\tLookup request',
+            '15\t2\t0\t0x16c9a0d6\t\tLookup response',
+            '16\t2\t\t\t\tLookup request',
+            '17\t2\t0\t0x16c9a0d6\t\tLookup response',
+            '18\t2\t\t\t\tLookup request',
+            '19\t2\t0\t0x16c9a0d6\t\tLookup response',
+            '20\t3\t\t\t\tMap request, LSARPC, 32bit NDR',
+            '21\t3\t\t0x00000000\t2\tMap response, LSARPC, 32bit NDR, LSARPC, 32bit NDR',
+            '22\t3\t\t\t\tMap request, EPM, 32bit NDR',
+            '23\t3\t\t0x00000000\t3\tMap response, EPM, 32bit NDR, 64bit NDR',
+            '24\t3\t\t\t\tMap request, 32bit NDR',
+            '25\t3\t\t0x00000000\t2\tMap response, 32bit NDR, LSARPC, 32bit NDR',
+            '26\t3\t\t\t\tMap request, LSARPC, 32bit NDR',
+            '27\t3\t\t0x00000000\t3\tMap response, LSARPC, 32bit NDR, EPMv4, 32bit NDR',
+            '28\t3\t\t\t\tMap request',
+            '29\t3\t\t0x16c9a0d6\t0\tMap response',
+            '30\t4\t\t\t\tLookupHandleFree request',
+            '31\t4\t\t0x00000000\t\tLookupHandleFree response',
+            '32\t5\t\t\t\tInqObject request',
+            '33\t5\t\t\t\tInqObject response',
+            '34\t6\t\t\t\tMgmtDelete request',
+            '35\t6\t\t\t\tMgmtDelete response',
+            '36\t7\t\t\t\tUnknown operation 7 request',
+            '37\t7\t\t\t\tUnknown operation 7 response',
+        ]
+        # big endian and EPM v4 over UDP: the same calls without opnum 7
+        strip = [l.split('\t', 1)[1] for l in lines[0:30]]
+        assert [l.split('\t', 1)[1] for l in lines[32:62]] == strip
+        assert [l.split('\t', 1)[1] for l in lines[84:114]] == strip
+        # NDR64 and UDP big endian: one Map call only
+        short = strip[0:16] + strip[24:30]
+        assert [l.split('\t', 1)[1] for l in lines[62:84]] == short
+        assert [l.split('\t', 1)[1] for l in lines[114:136]] == short
+
+    def test_epm_insert_replace(self, cmd_tshark, capture_file, test_env):
+        '''Insert entries: objects, annotations (also empty) and a 32 bit
+        replace value of 256, which only matches since the replace field
+        is FT_UINT32 ("EPM: Do not let an annotation length move back,
+        fix the replace field").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_epm_coverage.pcap.gz'),
+                '-Y', 'epm.replace == 256',
+                '-Tfields', '-eframe.number', '-eepm.num_ents', '-eepm.ann_len',
+                '-eepm.annotation', '-eepm.object',
+            ), encoding='utf-8', env=test_env)
+        obj = '9e1c8d04-3b2e-4c59-8a71-5d2f00a1b2c3'
+        zero = '00000000-0000-0000-0000-000000000000'
+        assert stdout.splitlines() == [
+            '%d\t4\t11,0,9,14\tLSA access,,no tower,RPC over HTTP\t%s,%s,%s,%s'
+            % (f, obj, zero, zero, obj) for f in (6, 46, 84, 109, 139)]
+
+    def test_epm_lookup(self, cmd_tshark, capture_file, test_env):
+        '''Lookup requests with every inquiry type, with and without the
+        object and interface, and the context handles.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_epm_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 12 && frame.number <= 18 && epm.inq_type',
+                '-Tfields', '-eframe.number', '-eepm.inq_type', '-eepm.object',
+                '-eepm.if_id', '-eepm.ver_maj', '-eepm.ver_opt', '-eepm.max_ents',
+                '-eepm.hnd',
+            ), encoding='utf-8', env=test_env)
+        hnd = '000000002e3d1f5b6c4a8e4f9d0b1c2e3f405162'
+        assert stdout.splitlines() == [
+            '12\t0\t\t\t\t1\t500\t' + '00' * 20,
+            '14\t1\t\t12345778-1234-abcd-ef00-0123456789ab\t0\t1\t500\t' + hnd,
+            '16\t2\t9e1c8d04-3b2e-4c59-8a71-5d2f00a1b2c3\t\t\t1\t500\t' + hnd,
+            '18\t3\t9e1c8d04-3b2e-4c59-8a71-5d2f00a1b2c3\te1af8308-5d1f-11c9-91a4-08002b14a0fa\t3\t1\t500\t' + hnd,
+        ]
+
+    def test_epm_towers(self, cmd_tshark, capture_file, test_env):
+        '''Map responses with towers of every floor protocol: UUID, RPC
+        CO and CL, TCP, UDP, IP, named pipes, NetBIOS, LRPC, RPC over
+        HTTP and every other protocol identifier.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_epm_coverage.pcap.gz'),
+                '-Y', 'frame.number in {21, 23, 25, 27}',
+                '-Tfields', '-eframe.number', '-eepm.tower.proto_id',
+                '-eepm.proto.tcp_port', '-eepm.proto.udp_port', '-eepm.proto.ip',
+                '-eepm.proto.named_pipe', '-eepm.proto.netbios_name',
+                '-eepm.proto.http_port', '-eepm.uuid_version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\t0x0d,0x0d,0x0b,0x07,0x09,0x0d,0x0d,0x0b,0x0f,0x11\t49155\t\t192.0.2.60\t'
+            '\\\\PIPE\\\\lsass\t\\\\\\\\SERVER\t\t0,512,0,512',
+            '23\t0x0d,0x0d,0x0a,0x08,0x09,0x0d,0x0d,0x0b,0x10\t\t49156\t192.0.2.60\t'
+            'LRPC-0123456789abcdef01\t\t\t3,512,513,256',
+            '25\t0x0d,0x0d,0x00,0x02,0x03,0x04,0x05,0x06,0x0c,0x0e,0x12,0x13,0x14,0x16,'
+            '0x17,0x18,0x19,0x1a,0x1b,0x1c,0x20,0x21,0x22,0x30,0x0d,0x0d,0x0b,0x05'
+            '\t\t\t\t\t\t\t513,512,0,512',
+            '27\t0x0d,0x0d,0x0b,0x1f,0x09,0x0d,0x0d,0x0b,0x07,0x09\t135\t\t192.0.2.60,0.0.0.0'
+            '\t\t\t593\t0,512,768,512',
+        ]
