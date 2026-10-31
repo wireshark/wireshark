@@ -22567,3 +22567,97 @@ class TestDissectCast:
             '11\t198.51.100.30\t20002\t101\t\t\t',
             '21\t\t\t\t192.0.2.10\tConference room phone\t5005',
         ]
+
+
+class TestDissectCatapultDct2000:
+    def test_dct2000_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every encapsulation, primitive and formatted comment hands off to
+        the expected dissector, without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dct2000_coverage.out.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split(':') for line in stdout.splitlines()]
+        assert len(frames) == 203
+        assert all(f[0] == 'dct2000' for f in frames)
+        counts = {}
+        for f in frames:
+            for proto in set(f[1:]):
+                counts[proto] = counts.get(proto, 0) + 1
+        expected = {
+            'atm': 20, 'fp': 20, 'rlc': 7, 'mac-lte': 12, 'rlc-lte': 3,
+            'pdcp-lte': 7, 'lte_rrc': 20, 'nr-rrc': 14, 'mac-nr': 10,
+            'nrup': 3, 'nas-eps': 4, 'nas-5gs': 3, 'nbap': 3, 'dns': 20,
+            'diameter': 2, 'gtpv2': 1, 'sip': 1, 'lapd': 3, 'ppp': 2,
+            'sscop': 2, 'mtp2': 1, 'fr': 1, 'lapb': 2, 'eth': 3, 'xml': 1,
+        }
+        for proto, count in expected.items():
+            assert counts.get(proto, 0) == count, proto
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dct2000_coverage.out.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dct2000_malformed_record_fixes(self, cmd_tshark, capture_file, test_env):
+        '''Records that used to crash or read out of bounds decode: FP
+        outhdr counts above INT_MAX (frames 34-36), IPPrim remote address
+        TLVs of 8 and 12 octets (134-135), MAC-NR hex of odd length and
+        without '$' (189-191), NR PDCP key lines without "key: " (195-198)
+        and RawTraffic hex of odd length (202).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dct2000_coverage.out.gz'),
+                '-Y', 'frame.number in {34..36, 134, 135, 189..191, 195..198, 202}',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-efp.release.version', '-edct2000.ipprim.src',
+                '-edct2000.ipprim.dst', '-edns.qry.name',
+                '-edct2000.rawtraffic.interface',
+            ), encoding='utf-8', env=test_env)
+        frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+        assert sorted(frames) == [34, 35, 36, 134, 135, 189, 190, 191, 195, 196, 197, 198, 202]
+        # FP control frames still decode with the counts capped
+        assert [frames[n][:2] for n in (34, 35, 36)] == [
+            ['dct2000:atm:fp', '6'], ['dct2000:atm:fp', '8'], ['dct2000:atm:fp', '6']]
+        # An 8 or 12 octet remote address is not used; the local one is
+        assert frames[134][2:5] == ['10.1.1.1', '', 'len8.example.test']
+        assert frames[135][2:5] == ['', '10.1.1.1', 'len12.example.test']
+        for n in (189, 190, 191):
+            assert frames[n][0].startswith('dct2000:mac-nr')
+        for n in (195, 196, 197, 198):
+            assert frames[n][0] == 'dct2000'
+        assert frames[202][0] == 'dct2000:eth:ethertype:ip:udp:dns'
+        assert frames[202][4] == 'raw.example.test'
+        assert frames[202][5] == '2'
+
+    def test_dct2000_primitives(self, cmd_tshark, capture_file, test_env):
+        '''IPPrim and SCTPPrim addresses and ports, UMTS RLC, NAS RRC and
+        RRC primitive fields, tty lines and comments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dct2000_coverage.out.gz'),
+                '-Y', 'frame.number in {37, 75, 119, 125, 127, 129, 138, 142, 203}',
+                '-Tfields', '-eframe.number', '-edct2000.ipprim.src',
+                '-edct2000.ipprim.dstv6', '-edct2000.ipprim.udp.dstport',
+                '-edct2000.ipprim.tcp.dstport', '-edct2000.ipprim.conn-id',
+                '-edct2000.sctpprim.dst', '-edct2000.sctpprim.dstv6',
+                '-edct2000.sctprim.dstport', '-edct2000.ueid', '-edct2000.rbid',
+                '-edct2000.lte.nas-rrc.establish-cause', '-edct2000.tty-line',
+                '-edct2000.sprint', '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+        # UMTS RLC primitive: UE Id and RBID
+        assert frames[37][8:10] == ['7', '3']
+        # NAS RRC Establish-Req
+        assert frames[75][10] == '3'
+        # IPPrim UDP over IPv4 and IPv6, TCP with a conn_id
+        assert frames[125][0] == '10.1.1.1' and frames[125][2] == '53'
+        assert frames[127][1] == '2001:db8::2' and frames[127][2] == '53'
+        assert frames[129][3:5] == ['3868', '17']
+        # SCTPPrim variant 1 and variant 3 with an IPv6 address
+        assert frames[138][5] == '10.1.1.2' and frames[138][7] == '53'
+        assert frames[142][6] == '2001:db8::2' and frames[142][7] == '53'
+        # tty lines and a sprint line
+        assert frames[119][11] == 'first line|second line'
+        assert frames[203][12] == 'sprint line from the test script'
