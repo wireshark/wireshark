@@ -32855,3 +32855,102 @@ class TestDissectDcerpc:
             ), encoding='utf-8', env=test_env)
         rows = [l.split()[:3] for l in stdout.splitlines() if l.split()[:1] in (['15'], ['23'])]
         assert rows == [['15', 'NetShareEnumAll', '2'], ['23', 'NetDiskEnum', '5']]
+
+
+class TestDissectDcerpcDceSmall:
+    # Opnum names of the interfaces that only register them, in opnum order
+    OPNUMS = {
+        'cds_clerkserver': [
+            'AddReplica', 'AllowClearinghouses', 'Combine', 'CreateChild',
+            'CreateDirectory', 'CreateSoftLink', 'CreateObject', 'DeleteChild',
+            'DeleteObject', 'DeleteSoftLink', 'DeleteDirectory',
+            'DisallowClearinghouses', 'DoUpdate', 'EnumerateAttributes',
+            'EnumerateChildren', 'EnumerateObjects', 'EnumerateSoftLinks',
+            'LinkReplica', 'ModifyAttribute', 'ModifyReplica', 'NewEpoch',
+            'ReadAttribute', 'RemoveReplica', 'ResolveName', 'Skulk',
+            'TestAttribute', 'TestGroup'],
+        'cds_solicit': ['cds_Solicit', 'cds_Advertise', 'cds_SolicitServer'],
+        'cprpc_server': ['dnscp_server'],
+        'dtsprovider': ['ContactProvider', 'ServerRequestProviderTime'],
+        'dtsstime_req': ['ClerkRequestTime', 'ServerRequestTime'],
+        'ftserver': [
+            'CreateTrans', 'AbortTrans', 'DeleteTrans', 'CreateVolume',
+            'DeleteVolume', 'Dump', 'Restore', 'Forward', 'Clone', 'ReClone',
+            'GetFlags', 'SetFlags', 'GetStatus', 'SetStatus', 'ListVolumes',
+            'ListAggregates', 'AggregateInfo', 'Monitor', 'GetOneVolStatus',
+            'GetServerInterfaces', 'SwapIDs'],
+        'icl_rpc': [
+            'DFSTRACE_GetSetInfo', 'DFSTRACE_SetSetInfo', 'DFSTRACE_GetLogInfo',
+            'DFSTRACE_SetLogInfo', 'DFSTRACE_ClearSet', 'DFSTRACE_ClearLog',
+            'DFSTRACE_DumpSet'],
+        'llb': ['insert', 'delete', 'lookup'],
+        'frsapi': [
+            'VerifyPromotion', 'PromotionStatus', 'StartDemotion',
+            'CommitDemotion', 'Set_DsPollingIntervalW', 'Get_DsPollingIntervalW',
+            'VerifyPromotionW', 'InfoW', 'IsPathReplicated', 'WriterCommand'],
+    }
+
+    def test_dcerpc_dce_small_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: a request and response for every opnum of each
+        interface (the connectionless ones also once in big endian), two
+        TCP connections with a bind (FRSAPI and MISC); no malformed
+        packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dce_small_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 186
+        assert protocols.count('CDS_CLERK') == 56
+        assert protocols.count('cds_solicit') == 8
+        assert protocols.count('cprpc_server') == 4
+        assert protocols.count('DTSPROVIDER') == 6
+        assert protocols.count('DTSSTIME_REQ') == 6
+        assert protocols.count('FTSERVER') == 44
+        assert protocols.count('ICL_RPC') == 16
+        assert protocols.count('llb') == 8
+        assert protocols.count('FRSAPI') == 20
+        assert protocols.count('MISC') == 2
+        assert protocols.count('DCERPC') == 4
+        assert protocols.count('TCP') == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_dce_small_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dcerpc_dce_small_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum is shown by its name, in the request and in the
+        response matched to it; the big endian call of each
+        connectionless interface comes last.'''
+        for proto, names in self.OPNUMS.items():
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_dce_small_coverage.pcap.gz'),
+                    '-Y', proto,
+                    '-Tfields', '-e' + proto + '.opnum', '-edcerpc.drep.byteorder',
+                    '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            expected = []
+            for opnum, name in enumerate(names):
+                expected += ['%d\t1\t%s request' % (opnum, name),
+                             '%d\t1\t%s response' % (opnum, name)]
+            if proto != 'frsapi':
+                expected += ['0\t0\t%s request' % names[0],
+                             '0\t0\t%s response' % names[0]]
+            assert stdout.splitlines() == expected, proto
+
+    def test_dcerpc_dce_small_misc(self, cmd_tshark, capture_file, test_env):
+        '''MISC registers its interface without operations, so its call is
+        an unknown operation with the stub shown as data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dce_small_coverage.pcap.gz'),
+                '-Y', 'misc',
+                '-Tfields', '-edcerpc.cn_bind_to_uuid', '-emisc.opnum',
+                '-edcerpc.stub_data', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\t0\t00150000\tUnknown operation 0 request',
+            '\t0\t0000000000000000\tUnknown operation 0 response',
+        ]
