@@ -35316,3 +35316,208 @@ class TestDissectDcerpcIwbemloginclientid:
         that = '\t\t\t2\t4\t3f2e1d0c-aaaa-4bbb-8ccc-0123456789ab\t0000a401-0f5c-0000-9e3b-7a1c2d4e5f60'
         assert stdout.splitlines() == ['12\t' + this, '13\t' + that,
                                        '32\t' + this, '33\t' + that]
+
+
+class TestDissectDcerpcIwbemservices:
+    def test_iwbemservices_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: a little endian and a big endian connection with
+        a bind and calls of every opnum, and the four reproducer
+        connections, and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 226
+        assert protocols.count('IWBEMSERVICES') == 178
+        assert protocols.count('DCERPC') == 12
+        assert protocols.count('TCP') == 36
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_iwbemservices_calls(self, cmd_tshark, capture_file, test_env):
+        '''The opnum and status of every response in the little endian
+        and the big endian connection.'''
+        def expected(le):
+            calls = [(op, 0x80041001 + op if le else 0) for op in range(6)]
+            calls += [(3, 0)] + [(6, 0)] * 15 + [(6, 0x80041002)]
+            calls += [(op, 0x80041001 + op if le else 0) for op in range(7, 24)]
+            calls += [(24, 0), (24, 0x80041002)]
+            return ['%d\t0x%08x' % c for c in calls]
+        for port, le in ((50001, True), (50002, False)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                    '-Y', 'IWbemServices && dcerpc.pkt_type == 2 && tcp.port == %d' % port,
+                    '-Tfields', '-eIWbemServices.opnum', '-eIWbemServices.werror',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            if le:
+                assert lines[-1] == '25\t'          # unknown opnum
+                lines = lines[:-1]
+            assert lines == expected(le)
+
+    def test_iwbemservices_requests(self, cmd_tshark, capture_file, test_env):
+        '''GetObject with extents, a context with an interface pointer
+        and an object, and ExecMethod, in both byte orders.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Y', 'frame.number in {22, 116}',
+                '-Tfields', '-edcom.extent.size', '-edcom.extent.id', '-edcom.ipid',
+                '-eIWbemServices.GetObject.lFlags', '-eIWbemServices.IWbemContext.u',
+                '-eIWbemServices.MInterfacePointer.ulCntData',
+                '-eIWbemServices.IWbemClassObject.count', '-edcom.objref.size',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16,8\t01020304-0506-0708-090a-0b0c0d0e0f10,f1f19680-4d2a-11ce-a66a-0020af6e72f4\t'
+            '0000a404-0c60-1234-8899-aabbccddeeff\t131072\t1\t8\t197\t149'] * 2
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Y', 'IWbemServices.opnum == 24 && dcerpc.pkt_type == 0',
+                '-Tfields', '-eIWbemServices.ExecMethod.strObjectPath',
+                '-eIWbemServices.ExecMethod.strMethodName', '-eIWbemServices.ExecMethod.lFlags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Win32_Service.Name="Spooler"\tStartService\t0', '\t\t16'] * 2
+
+    def test_iwbemservices_objref(self, cmd_tshark, capture_file, test_env):
+        '''The OBJREFs of the GetObject responses: custom (WMIO and an
+        unknown IID), standard, handler and unknown flags, with their
+        OXID, OID and IPID; the same in both byte orders.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Y', 'dcom.objref && dcerpc.pkt_type == 2 && tcp.dstport <= 50002',
+                '-Tfields', '-edcom.objref.flags', '-edcom.iid', '-edcom.oxid', '-edcom.oid',
+                '-edcom.objref.size',
+            ), encoding='utf-8', env=test_env)
+        wmio = 'dc12a681-737f-11cf-884d-00aa004b2e24'
+        wbem = '9556dc99-828c-11cf-a37e-00aa003240c7'
+        unk = '00000000-0000-0000-c000-000000000046'
+        null = '00000000-0000-0000-0000-000000000000'
+        o1, o2 = '0x0102030405060708', '0x1112131415161718'
+        objrefs = [
+            '0x00000004\t%s\t\t\t1724' % wmio,
+            '0x00000001\t%s\t%s\t%s\t' % (wmio, o1, o2),
+            '0x00000002\t%s\t%s\t%s\t' % (unk, o1, o2),
+            '0x00000001\t%s\t%s\t%s\t' % (wbem, o1, o2),
+            '0x00000001\t%s\t%s\t%s\t' % (wbem, o1, o2),
+            '0x00000001\t%s\t0x0000000000000000\t0x0000000000000000\t' % wbem,
+            '0x00000001\t%s\t0x1111222233334444\t0x5555666677778888\t' % null,
+            '0x00000001\t%s\t0x2122232425262728\t0x3132333435363738\t' % wbem,
+            '0x00000001\t%s\t%s\t0x4142434445464748\t' % (wbem, o1),
+            '0x00000004\t%s\t\t\t0' % null,
+            '0x00000004\t0c733a8a-2a1c-11ce-ade5-00aa0044773d\t\t\t6',
+            '0x00000008\t%s\t\t\t' % unk,
+            '0x00000004\t%s\t\t\t9' % wmio,
+            '0x00000004\t%s\t\t\t91' % wmio,
+        ]
+        assert stdout.splitlines() == objrefs * 2
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Y', 'frame.number in {23, 117}',
+                '-Tfields', '-edcom.dualstringarray.tower_id', '-edcom.dualstringarray.network_addr',
+                '-edcom.dualstringarray.security_authn_svc',
+                '-edcom.dualstringarray.security_princ_name', '-edcom.dualstringarray.mult_ip',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0007,0x0007,0x0099,0x001f\t192.0.2.60,192.0.2.61,SRV01,E9007400E9000000\t'
+            '0x000a,0x0009\t,host/srv01.example.com\t1'] * 2
+
+    def test_iwbemservices_wmio_class(self, cmd_tshark, capture_file, test_env):
+        '''The WMIO class of frame 21 (and 115, big endian NDR): the
+        decoration, derivation, qualifiers of every integer type, the
+        properties that share a PropertyInfo and the methods whose
+        signatures share their objects.'''
+        for frame in (21, 115):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame, '-V', '-O', 'IWbemServices',
+                ), encoding='utf-8', env=test_env)
+            lines = [line.strip() for line in stdout.splitlines()]
+            for text in ('CIM Server Name: SRV01', 'CIM Namespace: root\\cimv2',
+                         'Class Name Reference: CIM_Service', 'Class Name Reference: Win32_Service',
+                         'Derivation: CIM_Service', 'Derivation: CIM_LogicalElement',
+                         'Qualifier Value: CIMWin32',
+                         'Qualifier Value: {8502C4D9-5FBB-11D2-AAC1-006008C78BC7}',
+                         'Qualifier Value: -1033', 'Qualifier Value: -5', 'Qualifier Value: 200',
+                         'Qualifier Value: -300', 'Qualifier Value: 65000',
+                         'Qualifier Value: 4000000000', 'Qualifier Value: 9223372036854775808',
+                         'Qualifier Value: 20261101120000.000000+000',
+                         'Qualifier Value: Win32_ComputerSystem.Name="SRV01"',
+                         'Qualifier Value: cimwin32', 'Qualifier Value: NULL',
+                         'Qualifier Name: Unknown Index 99', 'CIM Type: CIM_ARRAY_OBJECT (0x0000200d)',
+                         'Property Name Ref: Name', 'Property Name Ref: State',
+                         'Property Name Ref: Alias', 'Property Name Ref: write',
+                         'Methodname: StartService', 'Methodname: StopService',
+                         'Property Name Ref: Timeout', 'Property Name Ref: ReturnValue'):
+                assert text in lines
+            assert lines.count('Property Info (already dissected)') == 2
+            assert lines.count('Inputsignature (already dissected)') == 1
+            assert lines.count('Outputsignature (already dissected)') == 1
+            assert lines.count('Qualifier') == 48
+
+    def test_iwbemservices_wmio_exponential(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of "WMIO: Dissect each heap entry once": a chain
+        of 20 objects whose method signatures all point at the next one.
+        Each object is dissected once (unfixed, 4^19 times).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Y', 'frame.number == 193',
+                '-Tfields', '-ewmio.objectflags', '-ewmio.methodsignature.offset',
+            ), encoding='utf-8', env=test_env)
+        flags, offsets = stdout.rstrip('\n').split('\t')
+        assert len(flags.split(',')) == 20
+        assert len(offsets.split(',')) == 76
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Y', 'frame.number == 193', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('signature (already dissected)') == 57
+
+    def test_iwbemservices_wmio_property_quadratic(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of "WMIO: Dissect each heap entry once": 2400
+        property lookups that share a PropertyInfo with 3300 qualifiers;
+        the PropertyInfo and its qualifiers are dissected once.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Y', 'frame.number == 223',
+                '-Tfields', '-ewmio.property_lookup.propertyinforef', '-ewmio.declaration_order',
+                '-ewmio.cim_type',
+            ), encoding='utf-8', env=test_env)
+        refs, order, types = stdout.rstrip('\n').split('\t')
+        assert len(refs.split(',')) == 2400
+        assert order == '0'
+        assert len(types.split(',')) == 3301
+
+    def test_iwbemservices_wmio_small_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of the small WMIO fixes (frame 203): the label
+        of a Unicode derivation, a UINT8 qualifier of 200, a UINT16
+        qualifier that keeps its label, and an unknown dictionary index.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Y', 'frame.number == 203', '-V', '-O', 'IWbemServices',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.split('Current Class')[1].splitlines()]
+        assert lines.count('Derivation: Ab') == 2
+        assert 'Qualifier Value: 200' in lines
+        assert 'Qualifier Value: 4660' in lines
+        assert lines.count('Qualifier') == 3
+        assert 'Qualifier Name: Unknown Index 99' in lines
+
+    def test_iwbemservices_dcom_extent(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of "DCOM: Put a registered extent ID on its own
+        octets": the extent ID is at offset 134 of frames 212 and 213,
+        registered or not.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_iwbemservices_coverage.pcap.gz'),
+                '-Y', 'frame.number in {212, 213}', '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        ids = [(line.split(' pos="')[1].split('"')[0], line.split(' show="')[1].split('"')[0])
+               for line in stdout.splitlines() if '<field name="dcom.extent.id" ' in line]
+        assert ids == [('134', '01020304-0506-0708-090a-0b0c0d0e0f10'),
+                       ('134', '9556dc99-828c-11cf-a37e-00aa003240c7')]
