@@ -7225,7 +7225,7 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
             proto_tree_add_item(tree, hf_btatt_sc_control_point_response_value, tvb, offset, 1, ENC_NA);
             offset += 1;
 
-            if (value == 0x04 && tvb_get_uint8(tvb, offset) == 0x01) { /* Request Supported Sensor Locations */
+            if (value == 0x04 && tvb_get_uint8(tvb, offset - 1) == 0x01) { /* Request Supported Sensor Locations */
                 while (tvb_captured_length_remaining(tvb, offset)) {
                     proto_tree_add_item(tree, hf_btatt_sensor_location, tvb, offset, 1, ENC_NA);
                     offset += 1;
@@ -10685,6 +10685,11 @@ btatt_dissect_attribute_handle(uint16_t handle, tvbuff_t *tvb, packet_info *pinf
     dissector_handle_t attribute_handler;
     const char* attribute_name;
 
+    /* Handle 0 is reserved, and is what dissect_btgatt() passes; looking
+     * it up would recurse without limit if Decode As maps it to BT GATT */
+    if (handle == 0)
+        return 0;
+
     attribute_handler = dissector_get_uint_handle(att_handle_dissector_table, handle);
     if (attribute_handler == NULL)
         return 0;
@@ -10711,6 +10716,10 @@ dissect_btgatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, 
     proto_tree  *main_tree;
     proto_item  *patron_item = NULL;
     bluetooth_uuid_t uuid;
+
+    /* An Exported PDU file can call the registered handles without data */
+    if (data == NULL)
+        return 0;
 
     main_item = proto_tree_add_item(tree, (int) GPOINTER_TO_UINT(wmem_list_frame_data(wmem_list_tail(pinfo->layers))), tvb, 0, tvb_captured_length(tvb), ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btgatt);
@@ -11213,7 +11222,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset += 2;
 
         proto_tree_add_item(main_tree, hf_btatt_uuid16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        uuid = get_bluetooth_uuid(tvb, offset - 2, 2);
+        uuid = get_bluetooth_uuid(tvb, offset, 2);
         offset += 2;
 
         dissect_attribute_value(main_tree, NULL, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset), 0, uuid, &att_data);
@@ -11304,10 +11313,13 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         {
             uint8_t length = tvb_get_uint8(tvb, offset);
 
-            proto_tree_add_item(main_tree, hf_btatt_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            sub_item = proto_tree_add_item(main_tree, hf_btatt_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            if (length > 0) {
+            if (length > 0 && length < 2) {
+                /* Too short for the handle */
+                expert_add_info(pinfo, sub_item, &ei_btatt_invalid_length);
+            } else if (length > 0) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Attribute List Length: %u",
                                         tvb_reported_length_remaining(tvb, offset)/length);
 
@@ -11513,10 +11525,13 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         {
             uint8_t length = tvb_get_uint8(tvb, offset);
 
-            proto_tree_add_item(main_tree, hf_btatt_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            sub_item = proto_tree_add_item(main_tree, hf_btatt_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
-            if (length > 0) {
+            if (length > 0 && length < 4) {
+                /* Too short for the handle and the group end handle */
+                expert_add_info(pinfo, sub_item, &ei_btatt_invalid_length);
+            } else if (length > 0) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", Attribute List Length: %u", tvb_reported_length_remaining(tvb, offset)/length);
 
                 while (tvb_reported_length_remaining(tvb, offset) >= length) {
@@ -11655,7 +11670,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     case 0xd2: /* Signed Write Command */
         {
-            uint8_t length;
+            unsigned length;
 
             offset = dissect_handle(main_tree, pinfo, hf_btatt_handle, tvb, offset, l2cap_data, &uuid, HANDLE_TVB, opcode, &handle);
 
