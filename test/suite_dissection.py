@@ -33623,3 +33623,110 @@ class TestDissectDcerpcDrsuapi:
         flags = stdout.strip().split(',')
         assert len(flags) == 100
         assert sorted(int(f, 16) for f in flags) == list(range(100))
+
+
+class TestDissectDcerpcDssetup:
+    def test_dssetup_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 24 calls each (plus an unknown opnum in
+        the first), and no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dssetup_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 170
+        assert protocols.count('DSSETUP') == 146
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_dssetup_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dssetup_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order, interface and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dssetup_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t3919286a-b10c-11d0-9ba8-00c04fd92ef5\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t3919286a-b10c-11d0-9ba8-00c04fd92ef5\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t3919286a-b10c-11d0-9ba8-00c04fd92ef5\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_dssetup_calls(self, cmd_tshark, capture_file, test_env):
+        '''The opnum and status of every response in the three
+        connections.'''
+        names = ['DsRoleDnsNameToFlatName', 'DsRoleDcAsDc', 'DsRoleDcAsReplica', 'DsRoleDemoteDc',
+                 'DsRoleGetDcOperationProgress', 'DsRoleGetDcOperationResults', 'DsRoleCancel',
+                 'DsRoleServerSaveStateForUpgrade', 'DsRoleUpgradeDownlevelServer',
+                 'DsRoleAbortDownlevelServerUpgrade']
+        err = ', Error: WERR_NOT_SUPPORTED'
+        for port, le in ((50001, True), (50002, False), (50003, False)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_dssetup_coverage.pcap.gz'),
+                    '-Y', 'dssetup && dcerpc.pkt_type == 2 && tcp.dstport == %d' % port,
+                    '-Tfields', '-edssetup.opnum', '-edssetup.werror', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            calls = ['0\t0x00000000\tDsRoleGetPrimaryDomainInformation response'] * 13
+            calls += ['0\t0x00000032\tDsRoleGetPrimaryDomainInformation response' + err]
+            for op, name in enumerate(names, 1):
+                if op % 2 or le:
+                    calls.append('%d\t0x00000032\t%s response%s' % (op, name, err))
+                else:
+                    calls.append('%d\t0x00000000\t%s response' % (op, name))
+            if le:
+                calls.append('11\t\tUnknown operation 11 response')
+            assert stdout.splitlines() == calls
+
+    def test_dssetup_role_info(self, cmd_tshark, capture_file, test_env):
+        '''DsRoleGetPrimaryDomainInformation: basic information for every
+        role with present and NULL names, flags and domain GUID; the
+        upgrade and operation status; an unknown level. The same in all
+        three connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dssetup_coverage.pcap.gz'),
+                '-Y', 'dssetup.opnum == 0 && dcerpc.pkt_type == 2',
+                '-Tfields', '-edssetup.dssetup_DsRolePrimaryDomInfoBasic.role',
+                '-edssetup.dssetup_DsRolePrimaryDomInfoBasic.flags',
+                '-edssetup.dssetup_DsRolePrimaryDomInfoBasic.domain',
+                '-edssetup.dssetup_DsRolePrimaryDomInfoBasic.dns_domain',
+                '-edssetup.dssetup_DsRolePrimaryDomInfoBasic.forest',
+                '-edssetup.dssetup_DsRolePrimaryDomInfoBasic.domain_guid',
+                '-edssetup.dssetup_DsRoleUpgradeStatus.upgrading',
+                '-edssetup.dssetup_DsRoleUpgradeStatus.previous_role',
+                '-edssetup.dssetup_DsRoleOpStatus.status',
+            ), encoding='utf-8', env=test_env)
+        guid = '6f3c2a1b-4d5e-4f60-8a7b-9c0d1e2f3a4b'
+        null = '00000000-0000-0000-0000-000000000000'
+        infos = [
+            '5\t0x01000001\tEXAMPLE\texample.com\texample.com\t%s\t\t\t' % guid,
+            '4\t0x01000003\tEXAMPLE\texample.com\tforest.example.com\t%s\t\t\t' % guid,
+            '3\t0x00000000\tEXAMPLE\texample.com\t\t%s\t\t\t' % null,
+            '2\t0x00000004\tWORKGROUP\t\t\t%s\t\t\t' % null,
+            '1\t0x00000000\tEXAMPLE\t\t\t%s\t\t\t' % null,
+            '0\t0x80000000\t\t\t\t%s\t\t\t' % null,
+            '\t' * 6 + '0\t0\t',
+            '\t' * 6 + '1\t1\t',
+            '\t' * 6 + '1\t2\t',
+            '\t' * 8 + '0',
+            '\t' * 8 + '1',
+            '\t' * 8 + '2',
+            '\t' * 8,
+            '\t' * 8,
+        ]
+        assert stdout.splitlines() == infos * 3
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dssetup_coverage.pcap.gz'),
+                '-Y', 'dssetup.opnum == 0 && dcerpc.pkt_type == 0',
+                '-Tfields', '-edssetup.dssetup_DsRoleGetPrimaryDomainInformation.level',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == (['1'] * 6 + ['2'] * 3 + ['3'] * 3 + ['7', '1']) * 3
