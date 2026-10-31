@@ -33476,3 +33476,150 @@ class TestDissectDcerpcDnsserver:
             'missing\t28\t0x00000001\t\t\t\t\t\t\t\t\t',
             '\t\t\t0\t\t\t\t\t\t\t\t',
         ]
+
+
+class TestDissectDcerpcDrsuapi:
+    def test_drsuapi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and calls, and no malformed packets or warnings
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 435
+        assert protocols.count('DRSUAPI') == 403
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 26
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_drsuapi_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\te3514235-4b06-11d1-ab04-00c04fc2dcd2\t4\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\te3514235-4b06-11d1-ab04-00c04fc2dcd2\t4\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\te3514235-4b06-11d1-ab04-00c04fc2dcd2\t4\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_drsuapi_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum 0-30 has requests and responses in all three
+        connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                '-Y', 'drsuapi',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type', '-edrsuapi.opnum',
+            ), encoding='utf-8', env=test_env)
+        seen = {}
+        for line in stdout.splitlines():
+            stream, ptype, opnum = line.split('\t')
+            seen.setdefault((stream, ptype), set()).add(int(opnum))
+        assert len(seen) == 6
+        for opnums in seen.values():
+            assert opnums == set(range(31))
+
+    def test_drsuapi_bind_info(self, cmd_tshark, capture_file, test_env):
+        '''DsBind: DsBindInfoCtr with each length (24, 28, 32, 48, 52 and
+        a fallback blob in requests), the NULL bind_info and the status.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                '-Y', 'drsuapi.opnum == 0 && tcp.stream == 0',
+                '-Tfields', '-edrsuapi.drsuapi_DsBindInfoCtr.length',
+                '-edrsuapi.drsuapi_DsBindInfo24.pid', '-edrsuapi.werror',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '24\t7\t', '28\t\t0x00000000',
+            '\t\t', '\t\t0x00000005',
+            '32\t\t', '48\t\t0x00000057',
+            '52\t\t', '24\t1\t0x000006ba',
+            '14\t\t', '24\t4294967295\t0x00000057',
+        ]
+
+    def test_drsuapi_getncchanges(self, cmd_tshark, capture_file, test_env):
+        '''DsGetNCChanges: request levels 5, 8 and 10, ctr levels 1, 2
+        (the MSZIP ctr) and 6, in NDR and NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                '-Y', 'drsuapi.opnum == 3',
+                '-Tfields', '-etcp.stream', '-edrsuapi.drsuapi_DsGetNCChanges.level',
+                '-edrsuapi.drsuapi_DsGetNCChanges.level_out',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0:12] == [
+            '0\t5\t', '0\t\t1', '0\t8\t', '0\t\t2', '0\t10\t', '0\t\t6',
+            '0\t8\t', '0\t\t2', '0\t10\t', '0\t\t6', '0\t10\t', '0\t\t6',
+        ]
+        assert lines[12:14] == ['1\t8\t', '1\t\t2']
+        assert lines[14:20] == ['2\t5\t', '2\t\t1', '2\t8\t', '2\t\t2', '2\t10\t', '2\t\t6']
+
+    def test_drsuapi_cracknames(self, cmd_tshark, capture_file, test_env):
+        '''DsCrackNames: the name in the request and DsNameInfo1 in the
+        response (the manual DsNameCtr union), also in NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                '-Y', 'drsuapi.opnum == 12',
+                '-Tfields', '-etcp.stream', '-edrsuapi.drsuapi_DsNameString.str',
+                '-edrsuapi.drsuapi_DsCrackNames.level_out',
+                '-edrsuapi.drsuapi_DsNameInfo1.status',
+                '-edrsuapi.drsuapi_DsNameInfo1.dns_domain_name',
+                '-edrsuapi.drsuapi_DsNameInfo1.result_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\tstr1\t\t\t\t',
+            '0\t\t1\t0\tdns_domain_n2\tresult_name3',
+            '0\t\t\t\t\t',
+            '0\t\t1\t\t\t',
+            '1\tstr1\t\t\t\t',
+            '1\t\t1\t5\tdns_domain_n2\tresult_name3',
+            '2\tstr8\t\t\t\t',
+            '2\t\t1\t0\tdns_domain_n9\tresult_name0',
+        ]
+
+    def test_drsuapi_replica_get_info(self, cmd_tshark, capture_file, test_env):
+        '''DsReplicaGetInfo: every DsReplicaInfo arm in NDR and NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                '-Y', 'drsuapi.opnum == 19 && dcerpc.pkt_type == 2',
+                '-Tfields', '-etcp.stream', '-edrsuapi.drsuapi_DsReplicaGetInfo.info_type',
+            ), encoding='utf-8', env=test_env)
+        types = {}
+        for line in stdout.splitlines():
+            stream, info_type = line.split('\t')
+            types.setdefault(stream, set()).add(int(info_type))
+        arms = set(range(11)) | {0xfffffffa, 0xfffffffb, 0xfffffffc, 0xfffffffe}
+        assert types['0'] == arms
+        assert types['2'] == arms
+
+    def test_drsuapi_sid_and_list(self, cmd_tshark, capture_file, test_env):
+        '''The 28 octet SIDs of DsReplicaSync, and a DsAddEntry request
+        whose linked list of objects has 100 items.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                '-Y', 'drsuapi.opnum == 2 && tcp.stream == 0',
+                '-Tfields', '-edcerpc.nt.domain_sid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'S-1-5-21-286331153-572662306-858993459-500', '',
+            'S-1-5-21-286331153-572662306-858993459-513', '',
+            'S-1-5-21-286331153-572662306-858993459-0', '',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_drsuapi_coverage.pcap.gz'),
+                '-Y', 'drsuapi.opnum == 17 && dcerpc.pkt_type == 0 && tcp.reassembled.length',
+                '-Tfields', '-edrsuapi.drsuapi_DsReplicaObject.flags',
+            ), encoding='utf-8', env=test_env)
+        flags = stdout.strip().split(',')
+        assert len(flags) == 100
+        assert sorted(int(f, 16) for f in flags) == list(range(100))
