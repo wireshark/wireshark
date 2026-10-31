@@ -23,7 +23,7 @@
 
 typedef struct _srt_t {
 	const char *type;
-	const char *filter;
+	char *filter;
 	srt_data_t data;
 } srt_t;
 
@@ -110,6 +110,16 @@ srt_draw(void *arg)
 
 static GArray* global_srt_array;
 
+static void
+srt_finish(void *arg)
+{
+	srt_data_t *data = (srt_data_t *)arg;
+	srt_t *ui = (srt_t *)data->user_data;
+
+	g_free(ui->filter);
+	g_free(ui);
+}
+
 static bool
 init_srt_tables(register_srt_t* srt, const char *filter)
 {
@@ -122,9 +132,10 @@ init_srt_tables(register_srt_t* srt, const char *filter)
 	ui->data.srt_array = global_srt_array;
 	ui->data.user_data = ui;
 
-	error_string = register_tap_listener(get_srt_tap_listener_name(srt), &ui->data, filter, 0, NULL, get_srt_packet_func(srt), srt_draw, NULL);
+	error_string = register_tap_listener(get_srt_tap_listener_name(srt), &ui->data, filter, 0, NULL, get_srt_packet_func(srt), srt_draw, srt_finish);
 	if (error_string) {
 		free_srt_table(srt, global_srt_array);
+		g_free(ui->filter);
 		g_free(ui);
 		cmdarg_err("Couldn't register srt tap: %s", error_string->str);
 		g_string_free(error_string, TRUE);
