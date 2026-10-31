@@ -729,7 +729,7 @@ dissect_dcom_extent(tvbuff_t *tvb, unsigned offset,
 			/* look for a registered uuid name */
 			if((uuid_name = guids_get_guid_name(&uuidExtend, pinfo->pool)) != NULL) {
 				proto_tree_add_guid_format_value(sub_tree, hf_dcom_extent_id, tvb,
-								 offset, sizeof(e_guid_t), (e_guid_t *) &uuidExtend,
+								 u32VariableOffset, sizeof(e_guid_t), (e_guid_t *) &uuidExtend,
 								 "%s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
 								 uuid_name,
 								 uuidExtend.data1, uuidExtend.data2, uuidExtend.data3,
