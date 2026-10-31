@@ -718,17 +718,61 @@ static int ett_cfm_raps_status;
 
 static expert_field ei_tlv_tst_id_length;
 static expert_field ei_tlv_management_addr_length;
+static expert_field ei_cfm_maid_length;
 
 static dissector_handle_t cfm_handle;
 
 /* CFM EOAM sub-protocol dissectors */
 
-static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+/* The MAID is 48 octets. A name length past that was passed straight
+   to proto_tree_add_item and threw when the captured frame ended. */
+static int
+cfm_maid_name_len(int maid_offset, int maid_end, uint32_t claimed,
+		  packet_info *pinfo, proto_item *ti)
+{
+	int remain = maid_end - maid_offset;
+
+	if (remain < 0) {
+		remain = 0;
+	}
+	if ((int)claimed > remain) {
+		expert_add_info(pinfo, ti, &ei_cfm_maid_length);
+		return remain;
+	}
+	return (int)claimed;
+}
+
+/* find_end_tlv() starts at the First TLV Offset. MCC, EXM, EXR, VSM and
+   VSR have already consumed an OUI and subopcode, so that offset can
+   fall before the cursor. The difference is then negative: FT_BYTES
+   treats -1 as the rest of the tvb and throws on any smaller length. */
+static int
+cfm_data_until_end_tlv(tvbuff_t *tvb, int tlv_end, int offset, int *offset_after)
+{
+	int remain;
+
+	if (tlv_end >= offset) {
+		*offset_after = tlv_end;
+		return tlv_end - offset;
+	}
+	/* No End TLV was found (0), or the search landed inside the OUI
+	   already consumed. The rest of the captured frame is PDU data,
+	   so do not dissect it again as TLVs. */
+	remain = tvb_captured_length_remaining(tvb, offset);
+	if (remain < 0) {
+		remain = 0;
+	}
+	*offset_after = offset + remain;
+	return remain;
+}
+
+static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	proto_item *ti;
 	proto_tree *cfm_maid_tree;
 
 	int maid_offset;
+	int maid_end;
 
 	uint32_t maid_md_name_format;
 	uint32_t maid_ma_name_format;
@@ -741,6 +785,7 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	ti = proto_tree_add_item(tree, hf_cfm_maid, tvb, offset, 48, ENC_NA);
 	cfm_maid_tree = proto_item_add_subtree(ti, ett_cfm_maid);
 	maid_offset = offset;
+	maid_end = offset + 48;
 	proto_tree_add_item_ret_uint(cfm_maid_tree, hf_cfm_maid_md_name_format, tvb, maid_offset, 1, ENC_NA, &maid_md_name_format);
 	maid_offset += 1;
 
@@ -750,6 +795,8 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 				tvb, maid_offset, 1, ENC_NA);
 		maid_md_name_length = tvb_get_uint8(tvb, maid_offset);
 		maid_offset += 1;
+		maid_md_name_length = (uint8_t)cfm_maid_name_len(maid_offset, maid_end,
+								 maid_md_name_length, pinfo, ti);
 		if (maid_md_name_length) {  // NOTE: Between 1 and 43
 			switch (maid_md_name_format) {
 			case MD_NAME_FMT_MAC_ID:
@@ -776,10 +823,13 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			maid_offset += maid_md_name_length;
 		}
 	}
+	if (maid_offset + 2 <= maid_end) {
 	proto_tree_add_item_ret_uint(cfm_maid_tree, hf_cfm_maid_ma_name_format, tvb, maid_offset, 1, ENC_NA, &maid_ma_name_format);
 	maid_offset += 1;
 	proto_tree_add_item_ret_uint(cfm_maid_tree, hf_cfm_maid_ma_name_length, tvb, maid_offset, 1, ENC_NA, &maid_ma_name_length);
 	maid_offset += 1;
+	maid_ma_name_length = cfm_maid_name_len(maid_offset, maid_end,
+						maid_ma_name_length, pinfo, ti);
 
 	switch (maid_ma_name_format) {
 	case MA_NAME_FMT_RESVD:
@@ -846,6 +896,7 @@ static int dissect_mep_maid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	}
 
 	maid_offset += maid_ma_name_length;
+	}
 	offset += 48;
 	if (offset > maid_offset) {
 		int padding_length;
@@ -1520,9 +1571,15 @@ static int dissect_cfm_mcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 1;
 
 	tlv_tvb_offset = find_end_tlv(tvb, first_tlv_offset);
+	{
+		int data_len;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_mcc_data, tvb, offset, (tlv_tvb_offset) ? (tlv_tvb_offset - offset) : -1, ENC_NA);
-	offset = (tlv_tvb_offset) ? tlv_tvb_offset : (int)tvb_captured_length(tvb);
+		data_len = cfm_data_until_end_tlv(tvb, tlv_tvb_offset, offset, &tlv_tvb_offset);
+		if (data_len != 0) {
+			proto_tree_add_item(cfm_pdu_tree, hf_cfm_mcc_data, tvb, offset, data_len, ENC_NA);
+		}
+		offset = tlv_tvb_offset;
+	}
 
 	proto_item_set_len(ti, offset - start_offset);
 	return offset;
@@ -1762,9 +1819,15 @@ static int dissect_cfm_exm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 1;
 
 	tlv_tvb_offset = find_end_tlv(tvb, first_tlv_offset);
+	{
+		int data_len;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_exm_data, tvb, offset, (tlv_tvb_offset) ? (tlv_tvb_offset - offset) : -1, ENC_NA);
-	offset = (tlv_tvb_offset) ? tlv_tvb_offset : (int)tvb_captured_length(tvb);
+		data_len = cfm_data_until_end_tlv(tvb, tlv_tvb_offset, offset, &tlv_tvb_offset);
+		if (data_len != 0) {
+			proto_tree_add_item(cfm_pdu_tree, hf_cfm_exm_data, tvb, offset, data_len, ENC_NA);
+		}
+		offset = tlv_tvb_offset;
+	}
 
 	proto_item_set_len(ti, offset - start_offset);
 	return offset;
@@ -1802,9 +1865,15 @@ static int dissect_cfm_exr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 1;
 
 	tlv_tvb_offset = find_end_tlv(tvb, first_tlv_offset);
+	{
+		int data_len;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_exr_data, tvb, offset, (tlv_tvb_offset) ? (tlv_tvb_offset - offset) : -1, ENC_NA);
-	offset = (tlv_tvb_offset) ? tlv_tvb_offset : (int)tvb_captured_length(tvb);
+		data_len = cfm_data_until_end_tlv(tvb, tlv_tvb_offset, offset, &tlv_tvb_offset);
+		if (data_len != 0) {
+			proto_tree_add_item(cfm_pdu_tree, hf_cfm_exr_data, tvb, offset, data_len, ENC_NA);
+		}
+		offset = tlv_tvb_offset;
+	}
 
 	proto_item_set_len(ti, offset - start_offset);
 	return offset;
@@ -1842,9 +1911,15 @@ static int dissect_cfm_vsm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 1;
 
 	tlv_tvb_offset = find_end_tlv(tvb, first_tlv_offset);
+	{
+		int data_len;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_vsm_data, tvb, offset, (tlv_tvb_offset) ? (tlv_tvb_offset - offset) : -1, ENC_NA);
-	offset = (tlv_tvb_offset) ? tlv_tvb_offset : (int)tvb_captured_length(tvb);
+		data_len = cfm_data_until_end_tlv(tvb, tlv_tvb_offset, offset, &tlv_tvb_offset);
+		if (data_len != 0) {
+			proto_tree_add_item(cfm_pdu_tree, hf_cfm_vsm_data, tvb, offset, data_len, ENC_NA);
+		}
+		offset = tlv_tvb_offset;
+	}
 
 	proto_item_set_len(ti, offset - start_offset);
 	return offset;
@@ -1882,9 +1957,15 @@ static int dissect_cfm_vsr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 1;
 
 	tlv_tvb_offset = find_end_tlv(tvb, first_tlv_offset);
+	{
+		int data_len;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_vsr_data, tvb, offset, (tlv_tvb_offset) ? (tlv_tvb_offset - offset) : -1, ENC_NA);
-	offset = (tlv_tvb_offset) ? tlv_tvb_offset : (int)tvb_captured_length(tvb);
+		data_len = cfm_data_until_end_tlv(tvb, tlv_tvb_offset, offset, &tlv_tvb_offset);
+		if (data_len != 0) {
+			proto_tree_add_item(cfm_pdu_tree, hf_cfm_vsr_data, tvb, offset, data_len, ENC_NA);
+		}
+		offset = tlv_tvb_offset;
+	}
 
 	proto_item_set_len(ti, offset - start_offset);
 	return offset;
@@ -2103,21 +2184,28 @@ static int sender_id_tlv_chassis_id(proto_tree *cfm_tlv_tree, tvbuff_t *tvb, int
 		proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_port_component, tvb, tlv_data_offset, tlv_chassis_id_length, ENC_NA);
 		break;
 	case 4:
-		proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_mac_address, tvb, tlv_data_offset, tlv_chassis_id_length, ENC_NA);
+		/* FT_ETHER throws unless the length is 6. */
+		if (tlv_chassis_id_length == 6) {
+			proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_mac_address, tvb, tlv_data_offset, tlv_chassis_id_length, ENC_NA);
+		} else {
+			proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_unknown, tvb, tlv_data_offset, tlv_chassis_id_length, ENC_NA);
+		}
 		break;
 	case 5:
 		proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_network_address_family, tvb, tlv_data_offset, 1, ENC_NA);
 
-		switch (tvb_get_uint8(tvb, tlv_data_offset)) {
-		case AFNUM_IP:
-			proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_network_address_ipv4, tvb, tlv_data_offset+1, tlv_chassis_id_length-1, ENC_BIG_ENDIAN);
-			break;
-		case AFNUM_IP6:
-			proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_network_address_ipv6, tvb, tlv_data_offset+1, tlv_chassis_id_length-1, ENC_NA);
-			break;
-		default:
-			proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_network_address_unknown, tvb, tlv_data_offset+1, tlv_chassis_id_length-1, ENC_NA);
-			break;
+		/* FT_IPv4 / FT_IPv6 throw when the length is shorter than the address. */
+		if (tlv_chassis_id_length > 1) {
+			int addr_len = tlv_chassis_id_length - 1;
+			uint8_t family = tvb_get_uint8(tvb, tlv_data_offset);
+
+			if (family == AFNUM_IP && addr_len == 4) {
+				proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_network_address_ipv4, tvb, tlv_data_offset+1, addr_len, ENC_BIG_ENDIAN);
+			} else if (family == AFNUM_IP6 && addr_len == 16) {
+				proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_network_address_ipv6, tvb, tlv_data_offset+1, addr_len, ENC_NA);
+			} else {
+				proto_tree_add_item(cfm_tlv_tree, hf_tlv_chassis_id_network_address_unknown, tvb, tlv_data_offset+1, addr_len, ENC_NA);
+			}
 		}
 		break;
 	case 6:
@@ -2170,8 +2258,24 @@ static int sender_id_tlv_management_address(proto_tree *cfm_tlv_tree, tvbuff_t *
 		}
 		if (tlv_ma_domain_length == management_address_type[i].oid_length) {
 			if (!(memcmp(tlv_ma_domain_oid, management_address_type[i].oid, tlv_ma_domain_length))) {
-				proto_tree_add_item(cfm_tlv_tree, *management_address_type[i].header_field,
-					tvb, tlv_data_offset, tlv_management_addr_length, management_address_type[i].encoding);
+				int hf = *management_address_type[i].header_field;
+				int expect = 0;
+
+				if (hf == hf_tlv_management_addr_ipv4) {
+					expect = 4;
+				} else if (hf == hf_tlv_management_addr_ipv6) {
+					expect = 16;
+				} else if (hf == hf_tlv_management_addr_eth) {
+					expect = 6;
+				}
+				/* A short address is a field-type mismatch and throws. */
+				if (expect != 0 && tlv_management_addr_length == expect) {
+					proto_tree_add_item(cfm_tlv_tree, hf,
+						tvb, tlv_data_offset, tlv_management_addr_length, management_address_type[i].encoding);
+				} else {
+					proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr_unknown,
+						tvb, tlv_data_offset, tlv_management_addr_length, ENC_NA);
+				}
 				break;
 			}
 		}
@@ -2198,21 +2302,26 @@ static int reply_ing_egr_tlv_port_id(proto_tree *cfm_tlv_tree, tvbuff_t *tvb, in
 		proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_port_component, tvb, tlv_data_offset, tlv_reply_ingress_portid_length, ENC_NA);
 		break;
 	case 3:
-		proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_mac_address, tvb, tlv_data_offset, tlv_reply_ingress_portid_length, ENC_NA);
+		if (tlv_reply_ingress_portid_length == 6) {
+			proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_mac_address, tvb, tlv_data_offset, tlv_reply_ingress_portid_length, ENC_NA);
+		} else {
+			proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_unknown, tvb, tlv_data_offset, tlv_reply_ingress_portid_length, ENC_NA);
+		}
 		break;
 	case 4:
 		proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_network_address_family, tvb, tlv_data_offset, 1, ENC_NA);
 
-		switch (tvb_get_uint8(tvb, tlv_data_offset)) {
-		case AFNUM_IP:
-			proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_network_address_ipv4, tvb, tlv_data_offset+1, tlv_reply_ingress_portid_length-1, ENC_BIG_ENDIAN);
-			break;
-		case AFNUM_IP6:
-			proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_network_address_ipv6, tvb, tlv_data_offset+1, tlv_reply_ingress_portid_length-1, ENC_NA);
-			break;
-		default:
-			proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_network_address_unknown, tvb, tlv_data_offset+1, tlv_reply_ingress_portid_length-1, ENC_NA);
-			break;
+		if (tlv_reply_ingress_portid_length > 1) {
+			int addr_len = tlv_reply_ingress_portid_length - 1;
+			uint8_t family = tvb_get_uint8(tvb, tlv_data_offset);
+
+			if (family == AFNUM_IP && addr_len == 4) {
+				proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_network_address_ipv4, tvb, tlv_data_offset+1, addr_len, ENC_BIG_ENDIAN);
+			} else if (family == AFNUM_IP6 && addr_len == 16) {
+				proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_network_address_ipv6, tvb, tlv_data_offset+1, addr_len, ENC_NA);
+			} else {
+				proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ing_egr_portid_network_address_unknown, tvb, tlv_data_offset+1, addr_len, ENC_NA);
+			}
 		}
 		break;
 	case 5:
@@ -2616,19 +2725,22 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				default:
 					proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_test_pattern,
 						tvb, tlv_data_offset, cfm_tlv_length - 1, ENC_NA);
-					tlv_data_offset += cfm_tlv_length - 1;
 					break;
 				case 1:
 				case 3:
-					proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_test_pattern,
-						tvb, tlv_data_offset, cfm_tlv_length - 5, ENC_NA);
-					tlv_data_offset += cfm_tlv_length - 5;
-					// TODO: look at using proto_tree_add_checksum()
-					proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_CRC32,
-						tvb, tlv_data_offset, 4, ENC_NA);
-					tlv_data_offset += 4;
+					/* length - 5 is negative for a value shorter than
+					   the pattern type plus a CRC-32. FT_NONE then
+					   swallows the rest of the frame. */
+					if (cfm_tlv_length >= 5) {
+						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_test_pattern,
+							tvb, tlv_data_offset, cfm_tlv_length - 5, ENC_NA);
+						// TODO: look at using proto_tree_add_checksum()
+						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tst_CRC32,
+							tvb, tlv_data_offset + (cfm_tlv_length - 5), 4, ENC_NA);
+					}
 					break;
 				}
+				tlv_data_offset += cfm_tlv_length - 1;
 			} else {
 				// TODO: report error
 			}
@@ -2650,29 +2762,40 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 							tvb, tlv_data_offset, cfm_tlv_length - 1, ENC_NA);
 						break;
 					case 0x02:  // MEP ID
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mep_id,
-							tvb, tlv_data_offset, 2, ENC_BIG_ENDIAN);
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_padding,
-							tvb, tlv_data_offset + 2, cfm_tlv_length - 3, ENC_NA);
+						/* length - 3 is -1 when the value is 2 octets,
+						   and FT_BYTES treats -1 as the rest of the tvb. */
+						if (cfm_tlv_length >= 3) {
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mep_id,
+								tvb, tlv_data_offset, 2, ENC_BIG_ENDIAN);
+							if (cfm_tlv_length > 3) {
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_padding,
+									tvb, tlv_data_offset + 2, cfm_tlv_length - 3, ENC_NA);
+							}
+						}
 						break;
 					case 0x03:  // MIP ID
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mip_id_icc,
-							tvb, tlv_data_offset, 6, ENC_ASCII|ENC_NA);
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mip_id_node_id,
-							tvb, tlv_data_offset + 6, 4, ENC_BIG_ENDIAN);
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mip_id_if_num,
-							tvb, tlv_data_offset + 10, 4, ENC_BIG_ENDIAN);
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mip_id_cc,
-							tvb, tlv_data_offset + 14, 2, ENC_ASCII|ENC_NA);
-						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_padding,
-							tvb, tlv_data_offset + 16, cfm_tlv_length - 17, ENC_NA);
+						if (cfm_tlv_length >= 17) {
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mip_id_icc,
+								tvb, tlv_data_offset, 6, ENC_ASCII|ENC_NA);
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mip_id_node_id,
+								tvb, tlv_data_offset + 6, 4, ENC_BIG_ENDIAN);
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mip_id_if_num,
+								tvb, tlv_data_offset + 10, 4, ENC_BIG_ENDIAN);
+							proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_mip_id_cc,
+								tvb, tlv_data_offset + 14, 2, ENC_ASCII|ENC_NA);
+							if (cfm_tlv_length > 17) {
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_padding,
+									tvb, tlv_data_offset + 16, cfm_tlv_length - 17, ENC_NA);
+							}
+						}
 						break;
 					default:
 						proto_tree_add_item(cfm_tlv_tree, hf_tlv_tgt_rpl_padding,
 							tvb, tlv_data_offset, cfm_tlv_length - 1, ENC_NA);
 						break;
 				}
-				tlv_data_offset += cfm_tlv_length;
+				/* The subtype octet was already consumed. */
+				tlv_data_offset += cfm_tlv_length - 1;
 			} else {
 				// TODO: report error
 			}
@@ -3707,6 +3830,11 @@ void proto_register_cfm(void)
 			{ "cfm.tlv.sender_id.management_addr.length.zero",
 			  PI_PROTOCOL, PI_WARN,
 			  "Management Address Length should not be present if Management Address Domain Length is 0",
+			  EXPFILL }
+		},
+		{ &ei_cfm_maid_length,
+			{ "cfm.maid.length.invalid", PI_MALFORMED, PI_ERROR,
+			  "MAID name length extends past the 48-octet MAID",
 			  EXPFILL }
 		},
 	};
