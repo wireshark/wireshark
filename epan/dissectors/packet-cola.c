@@ -550,7 +550,7 @@ static const value_string sick_cola_sopas_error_vals[] = {
 
 static const unit_name_string sick_cola_units_ticks_mm = { "ticks/mm", NULL };
 
-static uint8_t get_crc8_xor(tvbuff_t *p, uint8_t len, uint8_t offset) {
+static uint8_t get_crc8_xor(tvbuff_t *p, unsigned len, unsigned offset) {
 	uint8_t FCS = 0x00;
 	uint8_t tmp;
 
@@ -754,8 +754,9 @@ diplay_timestamp_field(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_field
 		time_info.tm_isdst = -1;
 
 		time_info_seconds = mktime(&time_info);
-		ns_time_info.secs = time_info_seconds;
-		ns_time_info.nsecs = tvb_get_ntohl(tvb, time_offset)*1000;
+		uint32_t usecs = tvb_get_ntohl(tvb, time_offset);
+		ns_time_info.secs = time_info_seconds + usecs / 1000000;
+		ns_time_info.nsecs = (usecs % 1000000) * 1000;
 		proto_tree_add_time(tree, hf_field, tvb, offset, 11, &ns_time_info);
 		offset += 11;
 	}
@@ -1149,7 +1150,8 @@ dissect_sick_cola_method(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, bo
 			proto_tree_add_item(tree, hf_sick_cola_set_access_mode_user_level, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			password = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_string(tree, hf_sick_cola_set_access_mode_password, tvb, offset, 4, dword_to_hex(str_password, password));
+			*dword_to_hex(str_password, password) = '\0';
+			proto_tree_add_string(tree, hf_sick_cola_set_access_mode_password, tvb, offset, 4, str_password);
 			offset += 4;
 		}
 		else
@@ -1601,7 +1603,7 @@ dissect_ascii_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int
 	save_offset = offset;
 	output_channel16_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_scan_data_16bit_output_channels, &output_channel16_item, "16-bit Channels");
 
-	proto_tree_add_uint(output_channel16_tree, hf_sick_cola_scan_data_num_16bit_channels, tvb, parameter_end_offset-offset, 2, num_channels);
+	proto_tree_add_uint(output_channel16_tree, hf_sick_cola_scan_data_num_16bit_channels, tvb, offset, parameter_end_offset-offset, num_channels);
 	offset = parameter_end_offset + 1;
 
 	for (channel = 0; channel < num_channels; channel++)
@@ -1673,7 +1675,7 @@ dissect_ascii_scan_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int
 	save_offset = offset;
 	output_channel8_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_scan_data_8bit_output_channels, &output_channel8_item, "8-bit Channels");
 
-	proto_tree_add_uint(output_channel8_tree, hf_sick_cola_scan_data_num_8bit_channels, tvb, parameter_end_offset-offset, 2, num_channels);
+	proto_tree_add_uint(output_channel8_tree, hf_sick_cola_scan_data_num_8bit_channels, tvb, offset, parameter_end_offset-offset, num_channels);
 	offset = parameter_end_offset + 1;
 
 	for (channel = 0; channel < num_channels; channel++)
@@ -1923,16 +1925,16 @@ dissect_sick_cola_answer_sra(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 	{
 		if (binary)
 		{
-			proto_tree_add_item(tree, hf_sick_cola_ntp_max_offset_time, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset += 1;
+			proto_tree_add_item(tree, hf_sick_cola_ntp_max_offset_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 		}
 	}
 	else if (strcmp(answer_name, "TSCTCdelay") == 0)
 	{
 		if (binary)
 		{
-			proto_tree_add_item(tree, hf_sick_cola_ntp_max_offset_time, tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset += 1;
+			proto_tree_add_item(tree, hf_sick_cola_ntp_max_offset_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 		}
 	}
 	else if (strcmp(answer_name, "CLFogFilterEn") == 0)
@@ -2135,7 +2137,8 @@ dissect_sick_cola_answer_san(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb
 	{
 		if (binary)
 		{
-			offset = diplay_timestamp_field(tree, tvb, offset, hf_sick_cola_set_date_time_status_code, binary);
+			proto_tree_add_item(tree, hf_sick_cola_set_date_time_status_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
 		}
 	}
 	else if (strcmp(answer_name, "mDOSetOutput") == 0)
@@ -2288,7 +2291,12 @@ dissect_sick_cola_b_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	col_set_str(pinfo->cinfo, COL_INFO, (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, 4, ENC_ASCII));
 	offset += 4;
 
-	command_tvb = tvb_new_subset_length(tvb, offset, length);
+	/* The length includes the command */
+	if (length < 4) {
+		expert_add_info_format(pinfo, command_item, &ei_sick_cola_command, "Length %u is shorter than the command", length);
+		return tvb_captured_length(tvb);
+	}
+	command_tvb = tvb_new_subset_length(tvb, offset, length-4);
 	switch (command)
 	{
 	case SICK_COLA_COMMAND_READ:
