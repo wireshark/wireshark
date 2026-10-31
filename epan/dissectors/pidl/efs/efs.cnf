@@ -13,15 +13,10 @@ PARAM_VALUE efs_dissect_element_EfsRpcCloseRaw_pvContext_    PIDL_POLHND_CLOSE
 
 CODE START
 static unsigned
-efs_dissect_struct_dom_sid(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+efs_dissect_struct_dom_sid(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
 {
-	if(di->conformant_run){
-		/* just a run to handle conformant arrays, no scalars to dissect */
-		return offset;
-	}
-
-	offset=dissect_nt_sid(tvb, pinfo, offset, tree, "SID", NULL, -1);
-	return offset;
+	/* An RPC_SID starts with the max_count of its conformant array */
+	return dissect_ndr_nt_SID(tvb, offset, pinfo, tree, di, drep);
 }
 
 CODE END

@@ -126,14 +126,10 @@ static unsigned efs_dissect_element_EfsRpcAddUsersToFile_FileName(tvbuff_t *tvb 
 static unsigned efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static unsigned efs_dissect_element_EfsRpcSetFileEncryptionKey_pEncryptionCertificate_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static unsigned
-efs_dissect_struct_dom_sid(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep _U_, int hf_index _U_, uint32_t param _U_)
+efs_dissect_struct_dom_sid(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, uint8_t *drep, int hf_index _U_, uint32_t param _U_)
 {
-	if(di->conformant_run){
-		/* just a run to handle conformant arrays, no scalars to dissect */
-		return offset;
-	}
-	offset=dissect_nt_sid(tvb, pinfo, offset, tree, "SID", NULL, -1);
-	return offset;
+	/* An RPC_SID starts with the max_count of its conformant array */
+	return dissect_ndr_nt_SID(tvb, offset, pinfo, tree, di, drep);
 }
 
 
