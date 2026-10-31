@@ -32,6 +32,7 @@
 
 #ifdef _WIN32
 #include <objbase.h>
+#include <wsutil/file_util.h>
 #include <wsutil/unicode-utils.h>
 #include <wsutil/win32-utils.h>
 #define in_port_t   uint16_t
@@ -239,6 +240,7 @@ int ws_socketpair(int type, socket_handle_t sv[2])
     int e;
     SOCKET listen_sock = INVALID_SOCKET;
     SOCKET pair[2] = { INVALID_SOCKET, INVALID_SOCKET };
+    bool bound = false;
 
     listen_sock = socket(AF_UNIX, type, 0);
     if (listen_sock == INVALID_SOCKET) return -1;
@@ -246,7 +248,11 @@ int ws_socketpair(int type, socket_handle_t sv[2])
     /* Create a random temporary filename. */
     GString *tempname = g_string_new(g_get_tmp_dir());
     GUID guid;
-    CoCreateGuid(&guid);
+    HRESULT hr = CoCreateGuid(&guid);
+    if (FAILED(hr)) {
+        WSASetLastError(HRESULT_FACILITY(hr) == FACILITY_WIN32 ? (int)HRESULT_CODE(hr) : WSAEINVAL);
+        goto fail;
+    }
     wchar_t wideGuid[40];
     StringFromGUID2(&guid, wideGuid, 40);
 
@@ -255,8 +261,13 @@ int ws_socketpair(int type, socket_handle_t sv[2])
     struct sockaddr_un sa;
     memset(&sa, 0, sizeof(sa));
     sa.sun_family = AF_UNIX;
-    (void)g_strlcpy(sa.sun_path, tempname->str, sizeof(sa.sun_path));
+    if (g_strlcpy(sa.sun_path, tempname->str, sizeof(sa.sun_path)) >= sizeof(sa.sun_path)) {
+        /* This means that temp dir >= 64 bytes. */
+        WSASetLastError(WSAENAMETOOLONG);
+        goto fail;
+    }
     if (bind(listen_sock, (struct sockaddr*)&sa, sizeof(sa)) == SOCKET_ERROR) goto fail;
+    bound = true;
     if (listen(listen_sock, 1) == SOCKET_ERROR) goto fail;
 
     pair[0] = socket(AF_UNIX, type, 0);
@@ -267,7 +278,7 @@ int ws_socketpair(int type, socket_handle_t sv[2])
     if (pair[1] == INVALID_SOCKET) goto fail;
 
     closesocket(listen_sock);
-    DeleteFileA(tempname->str);
+    ws_unlink(sa.sun_path);
     g_string_free(tempname, true);
 
     /* Make it POSIX-like and not modify the contents of sv on failure. */
@@ -276,13 +287,11 @@ int ws_socketpair(int type, socket_handle_t sv[2])
     return 0;
 fail:
     e = WSAGetLastError();
-    if (listen_sock != INVALID_SOCKET) {
-        closesocket(listen_sock);
-        DeleteFileA(tempname->str);
-    }
+    if (listen_sock != INVALID_SOCKET) closesocket(listen_sock);
+    if (bound) ws_unlink(sa.sun_path);
     g_string_free(tempname, true);
-    if (pair[0] != INVALID_SOCKET) closesocket(listen_sock);
-    if (pair[1] != INVALID_SOCKET) closesocket(listen_sock);
+    if (pair[0] != INVALID_SOCKET) closesocket(pair[0]);
+    if (pair[1] != INVALID_SOCKET) closesocket(pair[1]);
     WSASetLastError(e);
     return -1;
 # else /* _WIN32 */
