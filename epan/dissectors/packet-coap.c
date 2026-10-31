@@ -439,9 +439,9 @@ find_or_create_conversation_noaddrb(packet_info *pinfo, bool request)
 						pinfo->srcport, pinfo->destport, NO_ADDR2|NO_PORT2);
 		}
 	} else {
-		/* fetch the conversation created by the TCP dissector */
-		conv = find_conversation_pinfo(pinfo, 0);
-		DISSECTOR_ASSERT(conv);
+		/* fetch the conversation created by the TCP dissector (there is
+		 * none for an Exported PDU) */
+		conv = find_or_create_conversation(pinfo);
 	}
 	return conv;
 }
@@ -630,7 +630,7 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 	bool kid_present = false;
 	uint8_t piv_len = 0;
 	uint8_t kid_context_len = 0;
-	uint8_t kid_len = 0;
+	int kid_len = 0;
 
 	coinfo->object_security = true;
 
@@ -674,6 +674,11 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 			expert_add_info_format(pinfo, subtree, &dissect_hf->ei.opt_object_security_bad, "Unsupported format");
 		}
 
+		if (piv_len > kid_len) {
+			expert_add_info_format(pinfo, subtree, &dissect_hf->ei.opt_object_security_bad, "Partial IV longer than the option");
+			return;
+		}
+
 		if (piv_len > 0) {
 			proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_piv, tvb, offset, piv_len, ENC_NA);
 			coinfo->oscore_info->piv = (uint8_t *) tvb_memdup(pinfo->pool, tvb, offset, piv_len);
@@ -690,11 +695,20 @@ dissect_coap_opt_object_security(tvbuff_t *tvb, proto_item *head_item, proto_tre
 		}
 
 		if (kid_context_present) {
+			if (kid_len < 1) {
+				expert_add_info_format(pinfo, subtree, &dissect_hf->ei.opt_object_security_bad, "Key ID Context length missing");
+				return;
+			}
 			proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_kid_context_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 			kid_context_len = tvb_get_uint8(tvb, offset);
 
 			offset += 1;
 			kid_len -= 1;
+
+			if (kid_context_len > kid_len) {
+				expert_add_info_format(pinfo, subtree, &dissect_hf->ei.opt_object_security_bad, "Key ID Context longer than the option");
+				return;
+			}
 
 			proto_tree_add_item(subtree, dissect_hf->hf.opt_object_security_kid_context, tvb, offset, kid_context_len, ENC_NA);
 			coinfo->oscore_info->kid_context = (uint8_t *) tvb_memdup(pinfo->pool, tvb, offset, kid_context_len);
@@ -1580,7 +1594,7 @@ dissect_coap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	tvbuff_t *payload_tvb = NULL;
 	if (coap_length > offset) {
 		if (coinfo->block_number == DEFAULT_COAP_BLOCK_NUMBER) {
-			payload_tvb = tvb_new_subset_remaining(tvb, offset);
+			payload_tvb = tvb_new_subset_length(tvb, offset, coap_length - offset);
 		} else {
 			proto_tree_add_bytes_format(coap_tree, hf_block_payload, tvb, offset,
 						    coap_length - offset, NULL, "Block Payload");
