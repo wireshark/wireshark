@@ -304,8 +304,7 @@ https://dev-libs.wireshark.org/windows/packages/[].
 
 The Lua library is used to add scripting support to Wireshark.
 Wireshark 4.2.x and earlier support Lua versions 5.1 and 5.2.
-Recent versions of Wireshark have added support for Lua 5.3 and 5.4
-as well.
+More recent versions of Wireshark require Lua 5.3 or later.
 
 [#ChLibsUnixLua]
 
@@ -321,8 +320,13 @@ https://www.lua.org/download.html[].
 [discrete]
 ==== Windows
 
-We provide packages for Windows, patched for UTF-8 support, at
+We provide packages for Windows at
 https://dev-libs.wireshark.org/windows/packages/[].
+The versions prior to 5.5.0 (shipped with Wireshark prior to 5.0) are
+patched to support UTF-8 regardless of the Windows code page. Starting
+with Lua the packages are not patched, and intended for Wireshark 5.0
+and later, which use an application manifest to enforce that the Windows
+code page is 65001, i.e., UTF-8.
 
 [#ChLibsMaxMindDB]
 
