@@ -34468,3 +34468,184 @@ class TestDissectDcerpcFldb:
         site = ('hosts/fs1/self\t00000000-0000-0000-0000-000000000001'
                 '\t11111111-2222-3333-4444-555555555501\t100\t5\t')
         assert stdout.splitlines() == [site + '0', site + '4660']
+
+
+class TestDissectDcerpcFrsrpc:
+    def test_frsrpc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and 20 calls each (plus an unknown opnum in the
+        first), a fourth with the file name reproducer, and no malformed
+        packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frsrpc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 156
+        assert protocols.count('FRSRPC') == 124
+        assert protocols.count('DCERPC') == 8
+        assert protocols.count('TCP') == 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_frsrpc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_frsrpc_bind(self, cmd_tshark, capture_file, test_env):
+        '''The four binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frsrpc_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_if_ver_minor',
+                '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        ndr = '8a885d04-1ceb-11c9-9fe8-08002b104860'
+        ndr64 = '71710533-beba-4937-8319-b5dbef9ccc36'
+        uuid = 'f5cc59b4-4264-101a-8c59-08002b2f8426'
+        assert stdout.splitlines() == [
+            '1\t%s\t1\t1\t%s' % (uuid, ndr),
+            '0\t%s\t1\t1\t%s' % (uuid, ndr),
+            '1\t%s\t1\t1\t%s' % (uuid, ndr64),
+            '1\t%s\t1\t1\t%s' % (uuid, ndr),
+        ]
+
+    def test_frsrpc_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum with its status code and Info column, including the
+        commands of the communication packets; the same in all three
+        connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frsrpc_coverage.pcap.gz'),
+                '-Y', 'frsrpc',
+                '-Tfields', '-efrsrpc.opnum', '-efrsrpc.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 124
+        commands = ('REMOTE_CO', 'RECEIVING_STATE', 'REMOTE_CO_DONE', 'ABORT_FETCH',
+                    'RETRY_FETCH', 'NEED_JOIN', 'START_JOIN', 'JOINING', 'JOINED',
+                    'UNJOIN_REMOTE', 'WJOIN_DONE', 'SEND_STAGE')
+        calls = [
+            '0\t\tFrsSendCommPkt request,command = FRSRPC_COMMAND_START_JOIN',
+            '0\t0x00000000\tFrsSendCommPkt response',
+            '0\t\tFrsSendCommPkt request,command = FRSRPC_COMMAND_REMOTE_CO',
+            '0\t0x00000000\tFrsSendCommPkt response',
+            '0\t\tFrsSendCommPkt request,command = FRSRPC_COMMAND_REMOTE_CO',
+            '0\t0x00000000\tFrsSendCommPkt response',
+            '0\t\tFrsSendCommPkt request,command = FRSRPC_COMMAND_REMOTE_CO',
+            '0\t0x00000000\tFrsSendCommPkt response',
+            '0\t\tFrsSendCommPkt request' + ''.join(',command = FRSRPC_COMMAND_' + c for c in commands),
+            '0\t0x00000000\tFrsSendCommPkt response',
+            '0\t\tFrsSendCommPkt request',
+            '0\t0x00000057\tFrsSendCommPkt response, Error: WERR_INVALID_PARAMETER',
+            '0\t\tFrsSendCommPkt request',
+            '0\t0x00000005\tFrsSendCommPkt response, Error: WERR_ACCESS_DENIED',
+            '1\t\tFrsVerifyPromotionParent request',
+            '1\t0x00000000\tFrsVerifyPromotionParent response',
+            '1\t\tFrsVerifyPromotionParent request',
+            '1\t0x00000005\tFrsVerifyPromotionParent response, Error: WERR_ACCESS_DENIED',
+            '2\t\tFrsStartPromotionParent request',
+            '2\t0x00000000\tFrsStartPromotionParent response',
+            '2\t\tFrsStartPromotionParent request',
+            '2\t0x00000005\tFrsStartPromotionParent response, Error: WERR_ACCESS_DENIED',
+            '3\t\tFrsNOP request FRSRPC V1',
+            '3\t0x00000000\tFrsNOP response',
+            '3\t\tFrsNOP request FRSRPC V1',
+            '3\t0x00000005\tFrsNOP response, Error: WERR_ACCESS_DENIED',
+        ]
+        for op, name in ((4, 'FRSRPC_BACKUP_COMPLETE'), (5, 'FRSRPC_BACKUP_COMPLETE_5'),
+                         (6, 'FRSRPC_BACKUP_COMPLETE_6'), (7, 'FRSRPC_BACKUP_COMPLETE_7'),
+                         (8, 'FRSRPC_BACKUP_COMPLETE_8'), (9, 'FRSRPC_BACKUP_COMPLETE_9'),
+                         (10, 'FRSRPC_VERIFY_PROMOTION_PARENT_EX')):
+            calls += ['%d\t\t%s request FRSRPC V1' % (op, name),
+                      '%d\t\t%s response FRSRPC V1' % (op, name)]
+        assert len(calls) == 40
+        assert lines[0:40] == calls
+        assert lines[40:42] == ['11\t\tUnknown operation 11 request',
+                                '11\t\tUnknown operation 11 response']
+        assert lines[42:82] == calls
+        assert lines[82:122] == calls
+        assert lines[122:124] == [
+            '0\t\tFrsSendCommPkt request',
+            '0\t0x00000000\tFrsSendCommPkt response',
+        ]
+
+    def test_frsrpc_chunks(self, cmd_tshark, capture_file, test_env):
+        '''The chunk types of each communication packet and the names and
+        GUIDs of the TO, FROM, REPLICA and CONNECTION chunks (NDR64).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frsrpc_coverage.pcap.gz'),
+                '-Y', 'frsrpc.opnum == 0 && dcerpc.pkt_type == 0 && tcp.port == 50003',
+                '-Tfields', '-efrsrpc.frsrpc_FrsSendCommPktReq.minor',
+                '-efrsrpc.frsrpc_FrsSendCommPktReq.pkt_len',
+                '-efrsrpc.frsrpc_CommPktChunk.type',
+                '-efrsrpc.frsrpc_CommPktChunkGuidName.name',
+                '-efrsrpc.frsrpc_CommPktChunkData.co_sequence_number',
+            ), encoding='utf-8', env=test_env)
+        join = ('0x00000001,0x00000002,0x00000003,0x00000004,0x00000005,0x00000008,'
+                '0x00000006,0x00000012,0x00000007,0x00000011,0x00000014,0x00000018,0x00000013')
+        remote_co = ('0x00000001,0x00000002,0x00000003,0x00000004,0x00000005,0x00000008,'
+                     '0x0000000d,0x00000016,0x00000017,0x0000000e,0x0000000f,0x00000010,'
+                     '0x0000000a,0x0000000b,0x0000000c,0x00000009,0x00000099,0x00000013')
+        assert stdout.splitlines() == [
+            '9\t374\t%s\tDC1.example.test,DC2.example.test,SYSVOL,\t' % join,
+            '9\t1268\t%s\tDC1,DC2,SYSVOL,cxtion\t4660' % remote_co,
+            '4\t1268\t%s\tDC1,DC2,SYSVOL,cxtion\t4660' % remote_co,
+            '5\t1268\t%s\tDC1,DC2,SYSVOL,cxtion\t4660' % remote_co,
+            '0\t130\t%s\t\t' % ','.join(['0x00000002'] * 13),
+            '1\t0\t\t\t',
+            '16\t0\t\t\t',
+        ]
+
+    def test_frsrpc_change_order_file_name(self, cmd_tshark, capture_file, test_env):
+        '''The file name of a change order is a zero-padded UTF-16 array of
+        522 octets: short, 140 character and 261 character (no NUL) names
+        in big endian, the fields after it, and the reproducer of the
+        assertion on names without a NUL (frsrpc_filename_assert.py) ("FRSRPC:
+        Do not loop on a chunk size that wraps, do not assert on names").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frsrpc_coverage.pcap.gz'),
+                '-Y', 'frsrpc.frsrpc_CommPktChunkData.remote_co && (tcp.port == 50002 || tcp.port == 50004)',
+                '-Tfields', '-eframe.number',
+                '-efrsrpc.frsrpc_CommPktChangeOrderCommand.file_name_length',
+                '-efrsrpc.CommPktChangeOrderCommand.file_name',
+                '-efrsrpc.frsrpc_CommPktChangeOrderCommand.padding1',
+                '-efrsrpc.frsrpc_CommPktChangeOrderCommand.padding4',
+                '-efrsrpc.frsrpc_CommPktChangeOrderCommand.flags',
+                '-efrsrpc.frsrpc_CommPktChangeOrderCommand.status',
+                '-efrsrpc.frsrpc_CommPktCoRecordExtensionWin2k.field_size',
+                '-efrsrpc.frsrpc_CommPktChangeOrderRecordExtension.field_size',
+                '-efrsrpc.frsrpc_CommPktDataExtensionRetryTimeout.count',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 4
+        assert lines[0] == ['58', '34', 'scripts\\\\logon.cmd', '0', '0', '0x83743677',
+                            '0x00000018', '40', '72', '3']
+        assert lines[1] == ['60', '280', 'dir\\\\' + 'longname' * 17, '0', '0', '0x00000000',
+                            '0x00000099', '40', '72', '3']
+        assert lines[2] == ['62', '522', 'F' * 261, '0', '0', '0x83743677',
+                            '0x00000018', '40', '72', '3']
+        assert lines[3][0:2] == ['152', '16705']
+        assert lines[3][2] == '䅁' * 261
+        assert lines[3][3:5] == ['65', '65']
+
+    def test_frsrpc_promotion(self, cmd_tshark, capture_file, test_env):
+        '''FrsStartPromotionParent in NDR64: strings and the GUIDs in
+        their subcontexts.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_frsrpc_coverage.pcap.gz'),
+                '-Y', 'frsrpc.opnum == 2 && tcp.port == 50003',
+                '-Tfields', '-efrsrpc.frsrpc_FrsStartPromotionParent.partner_princ_name',
+                '-efrsrpc.frsrpc_FrsStartPromotionParent.connection_guid',
+                '-efrsrpc.frsrpc_FrsStartPromotionParent.partner_guid',
+                '-efrsrpc.frsrpc_FrsStartPromotionParent.parent_guid',
+                '-efrsrpc.werror',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'DC2$@EXAMPLE.TEST\t01234567-89ab-cdef-0123-456789abcdef\t'
+            '11111111-2222-3333-4444-555555555555\t66666666-7777-8888-9999-aaaaaaaaaaaa\t',
+            '\t\t\tbbbbbbbb-cccc-dddd-eeee-ffffffffffff\t0x00000000',
+            '\t\t\t\t',
+            '\t\t\t\t0x00000005',
+        ]
