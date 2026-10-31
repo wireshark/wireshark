@@ -32681,3 +32681,177 @@ class TestDissectDcerpcButc:
             '76|op9|9||||||||89|109',
             '78||42|||||||||142',
         ]
+
+
+class TestDissectDcerpc:
+    def test_dcerpc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol column, and no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 434
+        assert protocols.count('DCERPC') == 87
+        assert protocols.count('WINREG') == 82
+        assert protocols.count('RPCH') == 62
+        assert protocols.count('SRVSVC') == 13
+        assert protocols.count('EPM') == 12
+        assert protocols.count('TCP') == 138
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dcerpc_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Every connection-oriented and connectionless PDU type.'''
+        for ver, expected in (('5', {0: 71, 2: 59, 3: 6, 11: 21, 12: 19, 14: 2, 15: 2,
+                                     16: 2, 17: 1, 18: 2, 19: 2, 20: 64}),
+                              ('4', {0: 13, 1: 2, 2: 8, 3: 1, 4: 1, 5: 2, 6: 1, 7: 1,
+                                     8: 3, 9: 3, 10: 3})):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                    '-Y', 'dcerpc.ver == ' + ver,
+                    '-Tfields', '-edcerpc.pkt_type',
+                ), encoding='utf-8', env=test_env)
+            types = [int(t) for t in stdout.replace(',', '\n').split()]
+            assert {t: types.count(t) for t in set(types)} == expected
+
+    def test_dcerpc_bind(self, cmd_tshark, capture_file, test_env):
+        '''A bind with NDR32, NDR64, bind time feature negotiation and two
+        transfer syntaxes in one context; the bind_ack results.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 5}',
+                '-Tfields', '-edcerpc.cn_ctx_id', '-edcerpc.cn_num_trans_items',
+                '-edcerpc.cn_bind_trans_id', '-edcerpc.cn_ack_result',
+                '-edcerpc.cn_ack_reason', '-edcerpc.cn_sec_addr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0,1,2,3\t1,1,1,2\t8a885d04-1ceb-11c9-9fe8-08002b104860,'
+            '71710533-beba-4937-8319-b5dbef9ccc36,6cb71c2c-9812-4540-0300-000000000000,'
+            '71710533-beba-4937-8319-b5dbef9ccc36,8a885d04-1ceb-11c9-9fe8-08002b104860\t\t\t',
+            '\t\t\t0,0,3,2\t2\t49152',
+        ]
+
+    def test_dcerpc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Connection-oriented request, response and fault fragments and
+        connectionless request and response fragments are reassembled.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Y', 'dcerpc.reassembled.length',
+                '-Tfields', '-eframe.number', '-edcerpc.fragment',
+                '-edcerpc.reassembled.length', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '25\t23,24,25\t2464\tSetValue request, Blob',
+            '30\t28,29,30\t3044\tQueryValue response',
+            '39\t37,38,39\t24\tFault: call_id: 15, Fragment: Last, Ctx: 0, status: nca_s_fault_ndr',
+            '408\t404,406,408\t264\tSetValue request, Frag',
+            '412\t411,412\t196\tQueryValue response',
+        ]
+
+    def test_dcerpc_deferred_pointers(self, cmd_tshark, capture_file, test_env):
+        '''dcerpc_ptrlist_cubic with a small N: 16 QueryMultipleValues
+        elements, each with a nested pointer, are dissected once and in
+        order; drsuapi_list_quadratic with 100 linked objects (99 pointers
+        deep) is dissected without the "Too many nested pointers" expert
+        info. Both took quadratic or cubic time before "DCERPC: Do not
+        assert on NDR64 counts, dissect deferred pointers once".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 14',
+                '-Tfields', '-ewinreg.winreg_ValNameBuf.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split(',') == ['Value%d' % i for i in range(16)]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Y', 'drsuapi', '-V', '-O', 'drsuapi',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Referent ID') == 99
+        assert 'Too many nested pointers' not in stdout
+
+    def test_dcerpc_verification_trailer(self, cmd_tshark, capture_file, test_env):
+        '''Verification trailers after a WINREG stub and after the stub of
+        an interface without a dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Y', 'dcerpc.rpc_sec_vt.signature',
+                '-Tfields', '-eframe.number', '-edcerpc.rpc_sec_vt.command.cmd',
+                '-edcerpc.rpc_sec_vt.command.length',
+                '-edcerpc.rpc_sec_vt.pcontext.interface.uuid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\t0x0001,0x0002,0x0003,0x0007\t4,40,16,3\t'
+            '338cd001-2244-31f1-aaaa-900038001003,8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '159\t0x0001,0x0002,0x0003\t4,40,16\t'
+            '12345678-9abc-def0-1234-56789abcdef0,0badc0de-1111-2222-3333-444455556666',
+        ]
+
+    def test_dcerpc_auth(self, cmd_tshark, capture_file, test_env):
+        '''NTLMSSP integrity with auth padding, NTLMSSP privacy (stubs
+        shown encrypted), an unknown authentication type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Y', 'dcerpc.auth_type',
+                '-Tfields', '-edcerpc.auth_type', '-edcerpc.auth_level',
+                '-edcerpc.auth_pad_len',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        counts = {l: lines.count(l) for l in set(lines)}
+        assert counts == {'10\t5\t0': 8, '10\t5\t4': 3, '10\t5\t8': 4, '10\t5\t12': 2,
+                          '10\t6\t0': 7, '10\t6\t4': 1, '127\t2\t0': 4, '127\t6\t0': 2}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Y', 'dcerpc.encrypted_stub_data',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['134', '135', '136', '137', '138', '149', '150']
+
+    def test_dcerpc_transports(self, cmd_tshark, capture_file, test_env):
+        '''DCE/RPC in HTTP bodies, over NetBIOS, SMB1 and SMB2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Y', '(http || netbios || smb || smb2) && dcerpc',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '270\t2*DCERPC', '271\t3*DCERPC',
+            '275\tDCERPC', '276\tDCERPC', '277\tWINREG', '278\tWINREG',
+            '282\tDCERPC', '285\tDCERPC', '286\tSRVSVC', '287\tSRVSVC',
+            '294\tDCERPC', '295\tDCERPC', '296\tWINREG', '297\tWINREG',
+            '306\tDCERPC', '308\tSRVSVC', '389\tSMB2',
+        ]
+
+    def test_dcerpc_rts(self, cmd_tshark, capture_file, test_env):
+        '''Every RTS command and the named RTS PDUs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 20',
+                '-Tfields', '-edcerpc.cn_rts_command', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        cmds = set()
+        names = set()
+        for line in stdout.splitlines():
+            c, info = line.split('\t')
+            cmds.update(int(x, 16) for x in c.split(',') if x)
+            names.add(info.split(', ')[0])
+        assert cmds == set(range(15))
+        assert {'CONN/A1', 'CONN/A2', 'CONN/A3', 'CONN/B1', 'CONN/B2', 'CONN/B3',
+                'CONN/C1,CONN/C2', 'IN_R1/A2', 'OUT_R1/A4', 'OUT_R2/B3', 'Ping',
+                'Echo', 'Keep-Alive', 'FlowControlAck', 'FlowControlAckWithDestination',
+                'PingTrafficSentNotify', 'unknown RTS PDU'} <= names
+        assert len(names) == 31
+
+    def test_dcerpc_srt(self, cmd_tshark, capture_file, test_env):
+        '''Service response time statistics count the matched calls.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_coverage.pcap.gz'), '-q',
+                '-z', 'dcerpc,srt,4b324fc8-1670-01d3-1278-5a47bf6ee188,3.0',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split()[:3] for l in stdout.splitlines() if l.split()[:1] in (['15'], ['23'])]
+        assert rows == [['15', 'NetShareEnumAll', '2'], ['23', 'NetDiskEnum', '5']]
