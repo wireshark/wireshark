@@ -36957,3 +36957,194 @@ class TestDissectDcerpcNt:
         assert frames[490][0] == 'NetWkstaGetInfo request Level:100'
         assert frames[511][4] == 'share01'
         assert frames[521][5] == 'raw data'
+
+
+class TestDissectDcerpcDceSmall2:
+    # Opnum names of the interfaces that only register them, in opnum order
+    OPNUMS = {
+        'rdaclif': [
+            'lookup', 'replace', 'get_access', 'test_access',
+            'test_access_on_behalf', 'get_manager_types',
+            'get_printstring', 'get_referral',
+            'get_mgr_types_semantics'],
+        'rep_proc': [
+            'CheckReplicationConfig',
+            'AllCheckReplicationConfig', 'KeepFilesAlive',
+            'GetVolChangedFiles', 'GetRepStatus',
+            'GetRepServerStatus', 'UpdateSelf', 'Probe',
+            'GetOneRepStatus', 'GetServerInterfaces'],
+        'roverride': [
+            'roverride_get_login_info',
+            'roverride_check_passwd',
+            'roverride_is_passwd_overridden',
+            'roverride_get_by_unix_num',
+            'roverride_get_group_info',
+            'roverride_check_group_passwd',
+            'roverride_is_grp_pwd_overridden'],
+        'rs_attr': [
+            'rs_attr_cursor_init', 'rs_attr_lookup_by_id',
+            'rs_attr_lookup_no_expand',
+            'rs_attr_lookup_by_name', 'rs_attr_update',
+            'rs_attr_test_and_update', 'rs_attr_delete',
+            'rs_attr_get_referral', 'rs_attr_get_effective'],
+        'rs_attr_schema': [
+            'create_entry', 'delete_entry', 'update_entry',
+            'cursor_init', 'scan', 'lookup_by_name',
+            'lookup_by_id', 'get_referral', 'get_acl_mgrs',
+            'aclmgr_strings'],
+        'rs_bind': [
+            'get_update_site'],
+        'rsec_login': [
+            'rsec_login_get_trusted_preauth'],
+        'pnp': [
+            'PNP_Disconnect', 'PNP_Connect', 'PNP_GetVersion',
+            'PNP_GetGlobalState', 'PNP_InitDetection',
+            'PNP_ReportLogOn', 'PNP_ValidateDeviceInstance',
+            'PNP_GetRootDeviceInstance',
+            'PNP_GetRelatedDeviceInstance',
+            'PNP_EnumerateSubKeys', 'PNP_GetDeviceList',
+            'PNP_GetDeviceListSize', 'PNP_GetDepth',
+            'PNP_GetDeviceRegProp', 'PNP_SetDeviceRegProp',
+            'PNP_GetClassInstance', 'PNP_CreateKey',
+            'PNP_DeleteRegistryKey', 'PNP_GetClassCount',
+            'PNP_GetClassName', 'PNP_DeleteClassKey',
+            'PNP_GetInterfaceDeviceAlias',
+            'PNP_GetInterfaceDeviceList',
+            'PNP_GetInterfaceDeviceListSize',
+            'PNP_RegisterDeviceClassAssociation',
+            'PNP_UnregisterDeviceClassAssociation',
+            'PNP_GetClassRegProp', 'PNP_SetClassRegProp',
+            'PNP_CreateDevInst', 'PNP_DeviceInstanceAction',
+            'PNP_GetDeviceStatus', 'PNP_SetDeviceProblem',
+            'PNP_DisableDevInst', 'PNP_UninstallDevInst',
+            'PNP_AddID', 'PNP_RegisterDriver',
+            'PNP_QueryRemove', 'PNP_RequestDeviceEject',
+            'PNP_IsDockStationPresent', 'PNP_RequestEjectPC',
+            'PNP_HwProfFlags', 'PNP_GetHwProfInfo',
+            'PNP_AddEmptyLogConf', 'PNP_FreeLogConf',
+            'PNP_GetFirstLogConf', 'PNP_GetNextLogConf',
+            'PNP_GetLogConfPriority', 'PNP_AddResDes',
+            'PNP_FreeResDes', 'PNP_GetNextResDes',
+            'PNP_GetResDesData', 'PNP_GetResDesDataSize',
+            'PNP_ModifyResDes', 'PNP_DetectResourceConflict',
+            'PNP_QueryResConfList', 'PNP_SetHwProf',
+            'PNP_QueryArbitratorFreeData',
+            'PNP_QueryArbitratorFreeSize', 'PNP_RunDetection',
+            'PNP_RegisterNotification',
+            'PNP_UnregisterNotification',
+            'PNP_GetCustomDevProp', 'PNP_GetVersionInternal',
+            'PNP_GetBlockedDriverInfo',
+            'PNP_GetServerSideDeviceInstallFlags',
+            'PNP_GetObjectPropKeys', 'PNP_GetObjectProp',
+            'PNP_SetObjectProp', 'PNP_InstallDevInst',
+            'PNP_ApplyPowerSettings',
+            'PNP_DriverStoreAddDriverPackage',
+            'PNP_DriverStoreDeleteDriverPackage',
+            'PNP_RegisterServiceNotification',
+            'PNP_SetActiveService', 'PNP_DeleteServiceDevices'],
+        'rras': [
+            'MprAdminServerGetInfo', 'RasAdminConnectionEnum',
+            'RasAdminConnectionGetInfo',
+            'RasAdminConnectionClearStats', 'RasAdminPortEnum',
+            'RasAdminPortGetInfo', 'RasAdminPortClearStats',
+            'RasAdminPortReset', 'RasAdminPortDisconnect',
+            'RouterInterfaceTransportSetGlobalInfo',
+            'RouterInterfaceTransportGetGlobalInfo',
+            'RouterInterfaceGetHandle', 'RouterInterfaceCreate',
+            'RouterInterfaceGetInfo', 'RouterInterfaceSetInfo',
+            'RouterInterfaceDelete',
+            'RouterInterfaceTransportRemove',
+            'RouterInterfaceTransportAdd',
+            'RouterInterfaceTransportGetInfo',
+            'RouterInterfaceTransportSetInfo',
+            'RouterInterfaceEnum', 'RouterInterfaceConnect',
+            'RouterInterfaceDisconnect',
+            'RouterInterfaceUpdateRoutes',
+            'RouterInterfaceQueryUpdateResult',
+            'RouterInterfaceUpdatePhonebookInfo',
+            'MIBEntryCreate', 'MIBEntryDelete', 'MIBEntrySet',
+            'MIBEntryGet', 'MIBEntryGetFirst',
+            'MIBEntryGetNext', 'MIBGetTrapInfo',
+            'MIBSetTrapInfo', 'RasAdminConnectionNotification',
+            'RasAdminSendUserMessage', 'RouterDeviceEnum',
+            'RouterInterfaceTransportCreate',
+            'RouterInterfaceDeviceGetInfo',
+            'RouterInterfaceDeviceSetInfo',
+            'RouterInterfaceSetCredentialsEx',
+            'RouterInterfaceGetCredentialsEx',
+            'RasAdminConnectionRemoveQuarantine'],
+    }
+    # Microsoft interfaces, carried over TCP with a bind and no big endian call
+    CO = ('pnp', 'rras')
+
+    def test_dcerpc_dce_small2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: a request and response for every opnum of each
+        interface (the connectionless ones also once in big endian), two
+        TCP connections with a bind (PNP and RRAS); no malformed packets
+        or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dce_small2_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 360
+        assert protocols.count('PNP') == 150
+        assert protocols.count('rdaclif') == 20
+        assert protocols.count('REP_PROC') == 22
+        assert protocols.count('roverride') == 16
+        assert protocols.count('RRAS') == 86
+        assert protocols.count('RS_ATTR') == 20
+        assert protocols.count('rs_attr_schema') == 22
+        assert protocols.count('RS_BIND') == 4
+        assert protocols.count('rsec_login') == 4
+        assert protocols.count('DCERPC') == 4
+        assert protocols.count('TCP') == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_dce_small2_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dcerpc_dce_small2_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum is shown by its name, in the request and in the
+        response matched to it; the big endian call of each
+        connectionless interface comes last.'''
+        for proto, names in self.OPNUMS.items():
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_dce_small2_coverage.pcap.gz'),
+                    '-Y', proto,
+                    '-Tfields', '-e' + proto + '.opnum', '-edcerpc.drep.byteorder',
+                    '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            expected = []
+            for opnum, name in enumerate(names):
+                expected += ['%d\t1\t%s request' % (opnum, name),
+                             '%d\t1\t%s response' % (opnum, name)]
+            if proto not in self.CO:
+                expected += ['0\t0\t%s request' % names[0],
+                             '0\t0\t%s response' % names[0]]
+            assert stdout.splitlines() == expected, proto
+
+    def test_dcerpc_dce_small2_bind(self, cmd_tshark, capture_file, test_env):
+        '''The binds name the PNP (v1.0) and RRAS (v0.0) interfaces and
+        the responses are matched to their requests.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcerpc_dce_small2_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.cn_bind_to_uuid', '-edcerpc.cn_bind_if_ver',
+                '-edcerpc.cn_bind_if_ver_minor',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8d9f4e40-a03d-11ce-8f69-08003e30051b\t1\t0',
+            '8f09f000-b7ed-11ce-bbd2-00001a181cad\t0\t0',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcerpc_dce_small2_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 2 && (pnp || rras)',
+                '-Tfields', '-Eoccurrence=f', '-edcerpc.request_in',
+            ), encoding='utf-8', env=test_env)
+        frames = [int(x) for x in stdout.split()]
+        assert len(frames) == 75 + 43
+        assert frames[:2] == [114, 116]
