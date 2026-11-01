@@ -1109,12 +1109,11 @@ if(Qt6DBus_FOUND)
 	target_link_libraries(qtui PUBLIC Qt6::DBus)
 endif()
 
-target_link_libraries(qtui PRIVATE GCrypt::GCrypt)
+target_link_libraries(qtui PRIVATE GCrypt::GCrypt $<TARGET_NAME_IF_EXISTS:Minizipng::Minizipng>)
 
 target_include_directories(qtui
 	SYSTEM PRIVATE
 		${MINIZIP_INCLUDE_DIRS}
-		${MINIZIPNG_INCLUDE_DIRS}
 		${PCAP_INCLUDE_DIRS}
 		${SPEEXDSP_INCLUDE_DIRS}
 		${WINSPARKLE_INCLUDE_DIRS}
