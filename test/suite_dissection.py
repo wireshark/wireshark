@@ -36162,3 +36162,388 @@ class TestDissectDcerpcMgmt:
             '',
             'd6a0c916',
         ]
+
+
+class TestDissectDcerpcNetlogon:
+    def test_netlogon_protocols(self, cmd_tshark, capture_file, features, test_env):
+        '''Frame counts: three connections with every opnum (NDR little
+        endian, big endian, NDR64), two secure channel connections with
+        no session key, one that negotiates a sealing key, one that
+        decrypts passwords and opaque buffers, and one Kerberos ticket.
+        The ticket's keys are in the capture. No malformed packets or
+        warnings in one and two passes, and no Kerberos preference.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 791
+        assert protocols.count('RPC_NETLOGON') == 688
+        assert protocols.count('DCERPC') == 18
+        assert protocols.count('TCP') == 84
+        assert protocols.count('KRB5') == 1
+        if not features.have_kerberos:
+            # Without Kerberos the ticket is not decrypted and warns.
+            return
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_netlogon_binds(self, cmd_tshark, capture_file, test_env):
+        '''The binds and the alter context: byte order, transfer syntax,
+        and the NL_AUTH_MESSAGE of the SEC_CHAN (68) auth type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                '-Y', 'dcerpc.pkt_type == 11 || dcerpc.pkt_type == 14',
+                '-Tfields', '-eframe.number', '-edcerpc.drep.byteorder',
+                '-edcerpc.cn_bind_trans_id', '-edcerpc.auth_type',
+                '-enetlogon.secchan.nl_auth_message.message_flags',
+                '-enetlogon.secchan.nl_auth_message.nb_domain',
+                '-enetlogon.secchan.nl_auth_message.dns_host',
+            ), encoding='utf-8', env=test_env)
+        ndr = '8a885d04-1ceb-11c9-9fe8-08002b104860'
+        ndr64 = '71710533-beba-4937-8319-b5dbef9ccc36'
+        assert stdout.splitlines() == [
+            '4\t1\t%s\t\t\t\t' % ndr,
+            '232\t1\t%s\t68\t0x00000003\tEXAMPLE\t' % ndr,
+            '240\t0\t%s\t\t\t\t' % ndr,
+            '453\t1\t%s\t\t\t\t' % ndr64,
+            '676\t1\t%s\t68\t0x0000001f\tEXAMPLE\tws01.example.test' % ndr,
+            '692\t0\t%s\t68\t0x0000001f\tEXAMPLE\tws01.example.test' % ndr,
+            '708\t1\t%s\t\t\t\t' % ndr,
+            '756\t1\t%s\t\t\t\t' % ndr,
+        ]
+
+    def test_netlogon_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum the dissector knows is called in each byte order and
+        in NDR64, and every request has its response.'''
+        opnums = set(range(47)) | {48, 54, 59}
+        for port, calls in ((50001, 105), (50002, 98), (50003, 98)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'rpc_netlogon && tcp.port == %d' % port,
+                    '-Tfields', '-edcerpc.pkt_type', '-enetlogon.opnum',
+                ), encoding='utf-8', env=test_env)
+            # a reassembled PDU lists the packet type of every fragment
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            requests = [l for l in lines if l[0].split(',')[-1] == '0']
+            responses = [l for l in lines if l[0] == '2']
+            assert len(requests) == calls
+            assert len(responses) == calls
+            assert {int(l[1]) for l in requests} == opnums
+
+    def test_netlogon_strings_byte_order(self, cmd_tshark, capture_file, test_env):
+        '''UTF-16 strings, counted strings and the cleartext password of
+        NetrServerPasswordSet2 decode the same in all three connections.'''
+        for port in (50001, 50002, 50003):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == %d && netlogon.opnum == 0' % port,
+                    '-Tfields', '-enetlogon.acct_name', '-enetlogon.logon_script',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                'alice\t', 'Administrator\tlogon.cmd', 'alice\t', '\t']
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == %d && netlogon.new_password' % port,
+                    '-Tfields', '-enetlogon.new_password',
+                ), encoding='utf-8', env=test_env)
+            expected = ['S3cret-Passw0rd'] * 2
+            if port == 50001:
+                expected += ['S3cret-Passw0rd', 'S3cret-Passw0rd!']
+            assert stdout.splitlines() == expected
+
+    def test_netlogon_logon_levels(self, cmd_tshark, capture_file, test_env):
+        '''Every logon information level (1-8 and an unknown one) and
+        every validation level (1-7 and an unknown one).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                '-Y', 'tcp.port == 50002 && netlogon.opnum == 2 && dcerpc.pkt_type == 0',
+                '-Tfields', '-enetlogon.level16',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1,1', '2,2', '3,3', '4,4', '5,5', '6,6', '7,7', '8,8',
+                                  '2,2', '1,1', '9,9', '8,8', '8,8', '8,8', '8,8', '8,8']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                '-Y', 'tcp.port == 50002 && netlogon.opnum == 2 && dcerpc.pkt_type == 2',
+                '-Tfields', '-enetlogon.validation_level',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '2', '3', '4', '5', '6', '7', '7',
+                                  '6', '3', '8', '7', '7', '7', '7', '7']
+
+    def test_netlogon_claims(self, cmd_tshark, capture_file, test_env):
+        '''The claims of NetrLogonSamLogon validation level 7: NDR32 MES
+        blobs uncompressed, LZNT1, XPRESS and XPRESS+HUFF compressed (and
+        an unknown format, undecodable compressed data and an empty blob,
+        shown as bytes), with string, int64, uint64 and boolean claims.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                '-Y', 'tcp.port == 50001 && netlogon.claims_compression_format',
+                '-Tfields', '-eframe.number', '-enetlogon.claims_compression_format',
+                '-enetlogon.claim_id',
+            ), encoding='utf-8', env=test_env)
+        ids = ','.join(('ad://ext/department', 'ad://ext/level', 'ad://ext/clearance',
+                        'ad://ext/manager'))
+        full = ids + ',ad://ext/unknown'
+        assert stdout.splitlines() == [
+            '26\t0,2\t%s,%s' % (full, full),
+            '29\t0,2\t%s,%s' % (full, full),
+            '38\t3,4\t%s,%s' % (full, full),
+            '40\t2,5\t%s' % ids,
+            '42\t1\t',
+            '44\t2,3\t',
+            '46\t4\t',
+            '182\t0,2\t%s,%s' % (full, full),
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 38',
+                '-Tfields', '-enetlogon.claim_string_value', '-enetlogon.claim_int64_value',
+                '-enetlogon.claim_uint64_value', '-enetlogon.claim_boolean_value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '\t'.join((
+            'Engineering,Research,Engineering,Research', '5,-2,5,-2', '3,3', '1,0,1,0'))
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 38', '-x',
+            ), encoding='utf-8', env=test_env)
+        assert 'Claims XPRESS decompressed' in stdout
+        assert 'Claims XPRESS+HUFF decompressed' in stdout
+
+    def test_netlogon_deltas(self, cmd_tshark, capture_file, test_env):
+        '''NetrDatabaseDeltas, Sync, Sync2 and Redo: every delta type
+        (and an unknown one) in DELTA_ENUM, DELTA_ID_UNION and
+        DELTA_UNION.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                '-Y', 'tcp.port == 50003 && netlogon.delta_type',
+                '-Tfields', '-enetlogon.opnum', '-enetlogon.delta_type',
+            ), encoding='utf-8', env=test_env)
+        every = ','.join('%d,%d,%d' % (t, t, t) for t in list(range(1, 23)) + [99])
+        assert stdout.splitlines() == [
+            '7\t' + every, '7\t' + every, '8\t1,1,1,5,5,5,13,13,13',
+            '16\t2,2,2,8,8,8,9,9,9,12,12,12', '17\t14,14,14,16,16,16,18,18,18']
+
+    def test_netlogon_authenticate(self, cmd_tshark, capture_file, test_env):
+        '''The negotiate flags of NetrServerAuthenticate2/3/Kerberos and
+        NetrLogonGetCapabilities are read little endian in all three
+        connections; NetrServerAuthenticateKerberos gives a zero session
+        key, which only cleartext data and an alter context use.'''
+        for port in (50001, 50002, 50003):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == %d && netlogon.neg_flags' % port,
+                    '-Tfields', '-enetlogon.opnum', '-enetlogon.neg_flags',
+                ), encoding='utf-8', env=test_env)
+            expected = ['15\t0xffffffff'] * 2 + ['21\t0x612fffff'] * 2 + \
+                ['26\t0xffffffff'] * 2 + ['26\t0x00000000'] * 2 + ['59\t0x612fffff'] * 2
+            if port == 50001:
+                expected += ['15\t0x000047ff'] * 2 + ['26\t0x000001ff'] * 2
+            assert stdout.splitlines() == expected
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                '-Y', 'tcp.port == 50001 && _ws.expert.message contains "session key"',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        learned = 'session key learned in frame 210 (00000000) from ServerAuthenticateKerberos(WS02) at frame 210'
+        assert stdout.splitlines() == [
+            '148\tNot encrypted and no session key found nor needed',
+            '150\tNot encrypted and no session key found nor needed',
+            '152\tNo session key found',
+            '156\tNo session key found',
+            '210\tzero session key',
+            '222\tNot encrypted with ' + learned,
+            '224\tNot encrypted with ' + learned,
+            '232\tUsing ' + learned,
+            '233\tUsing ' + learned,
+        ]
+
+    def test_netlogon_secchan_verifiers(self, cmd_tshark, capture_file, test_env):
+        '''Two DCE/RPC requests in one frame, each with a SEC_CHAN
+        verifier, and their two responses in one frame: each verifier is
+        dissected, in one pass and in two (fixed in "Netlogon: Dissect
+        every secure channel verifier, free the claims pointers"). The
+        keyed connection appends 24 more verifiers, and the password
+        connection appends two that sit between a challenge and its
+        authenticate reply.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'netlogon.secchan.verifier',
+                    '-Tfields', '-eframe.number', '-enetlogon.secchan.signalg',
+                    '-enetlogon.secchan.sealalg', '-enetlogon.secchan.flags',
+                    '-enetlogon.secchan.seq', '-enetlogon.secchan.digest',
+                    '-enetlogon.secchan.nonce',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            pair = [
+                '\t0x0077,0x0077\t0xffff,0xffff\t0000,0000\t1100000000000000,2200000000000000'
+                '\ta1a2a3a4a5a6a7a8,a2a3a4a5a6a7a8a9\t0001020304050607,0001020304050607',
+                '\t0x0077,0x0077\t0xffff,0xffff\t0000,8000\t3300000000000000,3400000000000000'
+                '\t1011121314151617,1011121314151617\t2021222324252627,2021222324252627',
+                '\t0x0013\t0xffff\t0000\t4400000000000000\t5555555555555555\t',
+                '\t0x0013\t0xffff\t0000\t4500000000000000\t5656565656565656\t',
+                '\t0x0077\t0x007a\t0000\t6161616161616161\t6262626262626262\t6363636363636363',
+                '\t0x0077\t0x007a\t0000\t6464646464646464\t6565656565656565\t6666666666666666',
+                '\t0x0013\t0x001a\t0000\t6161616161616161\t6262626262626262\t6363636363636363',
+                '\t0x0013\t0x001a\t0000\t6464646464646464\t6565656565656565\t6666666666666666',
+            ]
+            keyed = [
+                '712\t0x0013\t0xffff\t0000\t91e5912b2eab4311\t9091929394959697\t8081828384858687',
+                '713\t0x0013\t0xffff\t0000\t921082052209efd3\t9091929394959697\t8081828384858687',
+                '714\t0x0013\t0x001a\t0000\t921082052209efd3\t9091929394959697\t8081828384858687',
+                '715\t0x0013\t0x001a\t0000\t936ed53c11656441\t9091929394959697\t8081828384858687',
+                '718\t0x0077\t0xffff\t0000\t4e0b3bae509e06a7\t9091929394959697\t8081828384858687',
+                '719\t0x0077\t0xffff\t0000\t4d0b3bae509e06a7\t9091929394959697\t8081828384858687',
+                '720\t0x0077\t0x007a\t0000\t4d0b3bae509e06a7\t9091929394959697\t8081828384858687',
+                '721\t0x0077\t0x007a\t0000\t4c0b3bae509e06a7\t9091929394959697\t8081828384858687',
+                '726\t0x0013\t0xffff\t0000\tad301ece581fb0e0\t9091929394959697\t8081828384858687',
+                '727\t0x0013\t0xffff\t0000\taef423d964a0c155\t9091929394959697\t8081828384858687',
+                '728\t0x0013\t0xffff\t0000\taef423d964a0c155\t9091929394959697\t',
+                '729\t0x0013\t0xffff\t0000\tafda1221f5567b37\t9091929394959697\t',
+                '730\t0x0013\t0x001a\t0000\tafda1221f5567b37\t9091929394959697\t8d96b14ba963b239',
+                '731\t0x0013\t0x001a\t0000\ta81d26b4d287a58c\t9091929394959697\tce7d407f1c3aa660',
+                '736\t0x0077\t0xffff\t0000\t399a761ee0387954\t9091929394959697\t8081828384858687',
+                '737\t0x0077\t0xffff\t0000\t3a9a761ee0387954\t9091929394959697\t8081828384858687',
+                '738\t0x0077\t0x007a\t0000\t3a9a761ee0387954\t9091929394959697\tcefd896283abb922',
+                '739\t0x0077\t0x007a\t0000\t3b9a761ee0387954\t9091929394959697\tc39d1d0ce016b790',
+                '740\t0x0077\t0x007a\t0000\t3b9a761ee0387954\t9091929394959697\t',
+                '741\t0x0077\t0x007a\t0000\t3c9a761ee0387954\t9091929394959697\t',
+                '746\t0x0077\t0xffff\t0000\tc1770fdfe91bab2e\t9091929394959697\t8081828384858687',
+                '747\t0x0077\t0xffff\t0000\tc2770fdfe91bab2e\t9091929394959697\t8081828384858687',
+                '748\t0x0077\t0x007a\t0000\tc2770fdfe91bab2e\t9091929394959697\tf14573cf081c1a7c',
+                '749\t0x0077\t0x007a\t0000\tc3770fdfe91bab2e\t9091929394959697\t165bcb4b3574c213',
+                '760\t0x0013\t0xffff\t0000\t91e23f0b29e406a8\t9091929394959697\t8081828384858687',
+                '761\t0x0013\t0xffff\t0000\t92170fd42da0985b\t9091929394959697\t8081828384858687',
+            ]
+            assert lines == ['%d%s' % (678 + i, p) for i, p in enumerate(pair)] + \
+                ['%d%s' % (694 + i, p) for i, p in enumerate(pair)] + keyed
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'frame.number == 678', '-V',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.count('Secure Channel Verifier') == 2
+            assert stdout.count('Operation: NetrLogonGetCapabilities (21)') == 2
+
+    def test_netlogon_schannel_keys(self, cmd_tshark, capture_file, test_env):
+        '''Port 50006 negotiates session keys from the NT password
+        SchannelCover. With that password, ServerAuthenticate2/3 report
+        the AES, MD5 and DES keys and the sealed GetCapabilities stubs
+        decrypt to level 1; the two Kerberos calls keep a zero key, so
+        their privacy stubs stay encrypted. Without the password nothing
+        on this connection is decrypted, and neither way is malformed.
+        One pass and two passes agree. The password is not in the
+        capture: the suite passes it as an NTLMSSP credential.'''
+        cred = ('-o', 'uat:ntlmssp_creds:"NT Password","SchannelCover"')
+        aes = 'Using session key learned in frame 725 (45807f4f) from <NT Password 1>'
+        md5 = 'Using session key learned in frame 735 (3d593e66) from <NT Password 1>'
+        des = 'Using session key learned in frame 745 (95ff0e2e) from <NT Password 1>'
+        experts = [
+            '711\tzero session key',
+            '717\tzero session key',
+            '725\tAES authenticated using <NT Password 1> (e883f4d0...),session key (45807f4fd8c3688f1db70993f15a9cee)',
+        ] + ['%d\t%s' % (n, aes) for n in range(726, 732)] + [
+            '735\tMD5 authenticated using <NT Password 1> (e883f4d0...),session key (3d593e663106ac4a6633968a9fcba4b0)',
+        ] + ['%d\t%s' % (n, md5) for n in range(736, 742)] + [
+            '745\tDES authenticated using <NT Password 1> (e883f4d0...),session key (95ff0e2e0ff12ec20000000000000000)',
+        ] + ['%d\t%s' % (n, des) for n in range(746, 750)]
+        privacy = ['714\t', '715\t', '720\t', '721\t'] + \
+            ['%d\t1' % n for n in (730, 731, 738, 739, 740, 741, 748, 749)]
+        sealed = ['%d\t' % n for n in (714, 715, 720, 721, 730, 731, 738, 739, 740, 741, 748, 749)]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *cred,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == 50006 && _ws.expert.message contains "session key"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == experts
+            stdout = subprocess.check_output((cmd_tshark, *passes, *cred,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == 50006 && dcerpc.auth_level == 6',
+                    '-Tfields', '-eframe.number', '-enetlogon.level',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == privacy
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == 50006 && dcerpc.auth_level == 6',
+                    '-Tfields', '-eframe.number', '-enetlogon.level',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == sealed
+            for extra in (cred, ()):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *extra,
+                        '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_netlogon_session_key_buffers(self, cmd_tshark, capture_file, test_env):
+        '''Port 50007 decrypts netr_CryptPassword and the OpaqueBuffer
+        with the AES and STRONGKEY session keys of SchannelCover. A
+        plaintext length that does not survive decryption is reported
+        unusable, and the DES key has no cipher. One pass and two passes
+        agree.'''
+        cred = ('-o', 'uat:ntlmssp_creds:"NT Password","SchannelCover"')
+        aes = 'session key learned in frame 763 (3d5cc643) from <NT Password 1>'
+        md5 = 'session key learned in frame 775 (76464ee5) from <NT Password 1>'
+        des = 'session key learned in frame 783 (dea7a40f) from <NT Password 1>'
+        experts = [
+            '763\tAES authenticated using <NT Password 1> (e883f4d0...),session key (3d5cc643e8ea656cc842f84e32ad5544)',
+            '764\tUsed ' + aes,
+            '766\tUnusable ' + aes,
+            '768\tUsing ' + aes,
+            '770\tUnusable ' + aes,
+            '775\tMD5 authenticated using <NT Password 1> (e883f4d0...),session key (76464ee5eeb30ade2cc909934279374e)',
+            '776\tUsed ' + md5,
+            '778\tUsing ' + md5,
+            '783\tDES authenticated using <NT Password 1> (e883f4d0...),session key (dea7a40faa629c710000000000000000)',
+        ]
+        # Frame 784 embeds libgcrypt's error text, which is translated.
+        des_prefix = '784\tDecryption not possible ('
+        des_suffix = ') with ' + des
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *cred,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == 50007 && _ws.expert.message contains "session key"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert lines[:-1] == experts
+            assert lines[-1].startswith(des_prefix)
+            assert lines[-1].endswith(des_suffix)
+            stdout = subprocess.check_output((cmd_tshark, *passes, *cred,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == 50007 && netlogon.new_password',
+                    '-Tfields', '-eframe.number', '-enetlogon.new_password',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['764\tCover-Passw0rd', '776\tCover-Passw0rd']
+
+    def test_netlogon_pac(self, cmd_tshark, capture_file, features, test_env):
+        '''The UDP ticket's PAC is PAC_LOGON_INFO, PAC_S4U_DELEGATION_INFO
+        and PAC_DEVICE_INFO. The decryption secrets block is enough:
+        no keytab and no Kerberos preference. The whole capture,
+        including the TICKET_INFO blobs, has no malformed packets and
+        no warning, in one pass and in two.'''
+        if not features.have_kerberos:
+            pytest.skip('Requires Kerberos.')
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', 'udp.port == 88',
+                    '-Tfields', '-ekerberos.pac.type', '-enetlogon.s4u2proxytarget',
+                    '-enetlogon.transited_service', '-enetlogon.rid',
+                    '-enetlogon.acct_name',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip() == (
+                '1,11,14,6,7\tcifs/files.coverage.test\thost/ws01.coverage.test'
+                '\t1104,1107\talice')
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_netlogon_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
