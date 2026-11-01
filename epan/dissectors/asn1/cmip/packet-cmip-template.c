@@ -59,7 +59,20 @@ static int opcode_type;
 #define OPCODE_RETURN_ERROR  3
 #define OPCODE_REJECT        4
 
-static const char *object_identifier_id;
+/* The object identifier that selects the dissector of the information
+ * that follows it, set by the PDU being dissected.  It is in packet scope,
+ * so keep it with the packet rather than across packets. */
+static const char *
+cmip_get_oid(packet_info *pinfo)
+{
+	return (const char *)p_get_proto_data(pinfo->pool, pinfo, proto_cmip, 0);
+}
+
+static void
+cmip_set_oid(packet_info *pinfo, const char *oid)
+{
+	p_set_proto_data(pinfo->pool, pinfo, proto_cmip, 0, (void *)oid);
+}
 
 #include "packet-cmip-val.h"
 #include "packet-cmip-fn.c"
@@ -75,6 +88,7 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	proto_item *item;
 	proto_tree *tree;
 	asn1_ctx_t asn1_ctx;
+	const char *saved_object_identifier_id;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
 	/* Reject the packet if data is NULL */
@@ -89,6 +103,10 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	}
 
 	asn1_ctx.private_data = session;
+
+	/* The OID is set from this PDU only; restore the one of an outer PDU */
+	saved_object_identifier_id = cmip_get_oid(pinfo);
+	cmip_set_oid(pinfo, NULL);
 
 	item = proto_tree_add_item(parent_tree, proto_cmip, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_cmip);
@@ -112,6 +130,8 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		default:
 			;
 	}
+
+	cmip_set_oid(pinfo, saved_object_identifier_id);
 
 	return tvb_captured_length(tvb);
 }
