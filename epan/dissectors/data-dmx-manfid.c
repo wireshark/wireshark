@@ -11,7 +11,7 @@
 #include "data-dmx-manfid.h"
 
 /*
- * ESTA codes download date: 2026-10-25
+ * ESTA codes download date: 2026-11-01
  */
 static const value_string dmx_esta_manfid_vals[] = {
   { 0x0000, "ESTA / PLASA" },
@@ -510,7 +510,9 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x06C9, "PIXELERR TECHNOLOGIES PRIVATE LIMITED" },
   { 0x06CA, "Leding" },
   { 0x06CC, "RGB Lights" },
+  { 0x06CD, "CODEXA SOFTWARE (Pty) Ltd" },
   { 0x06CE, "American-Pro International" },
+  { 0x06CF, "AMIMOR sp. z o.o." },
   { 0x06D1, "BIRUN ELECTRONIC INDUSTRIAL CO., LTD" },
   { 0x06D2, "LIGHTSTAR (BEIJING) ELECTRONIC CORPORATION" },
   { 0x06D3, "Boerner Distribution International GmbH" },
@@ -584,6 +586,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x0777, "Antalya Elektronik Mühendislik Sanayi ve Tic Ltd Şti." },
   { 0x077A, "Oblique Systems" },
   { 0x077B, "GENLED Brands" },
+  { 0x077C, "Julien Raulot EI" },
   { 0x0780, "Zedfy GmbH" },
   { 0x0781, "Profoto AB" },
   { 0x0782, "R9 Lighting" },
@@ -1161,6 +1164,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x150C, "ACASS SYSTEMS LLC" },
   { 0x152A, "SHOWTACLE Ltd." },
   { 0x154E, "Fire & Magic" },
+  { 0x158D, "Shenzhen Dazhi Optoelectronic Display Technology Co., Ltd." },
   { 0x15A0, "GuangZhou MCSWE Technologies, INC" },
   { 0x15A2, "FEIMEX" },
   { 0x15D0, "Music & Lights S.r.l." },
@@ -1204,6 +1208,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x19BB, "Panalux Ltd." },
   { 0x19BC, "Newtone AS" },
   { 0x19D7, "TPK Optoelectronic Tech Co., Ltd." },
+  { 0x19E0, "Illusion Universe Co. Ltd." },
   { 0x19F8, "CEZOS Spolka z ograniczona odpowiedzialnoscia, sp.k." },
   { 0x1A00, "LIGEO GmbH" },
   { 0x1A0D, "Cineo Lighting" },
@@ -1217,6 +1222,7 @@ static const value_string dmx_esta_manfid_vals[] = {
   { 0x1AFA, "TMB" },
   { 0x1AFD, "Shenzhen ZMO Information Technology Co., Ltd." },
   { 0x1B7E, "Kaltech Lighting Systems" },
+  { 0x1B9C, "Vossloh-Schwabe Deutschland GmbH" },
   { 0x1BB1, "PH Lightning AB" },
   { 0x1BC0, "ALS Stanislaw Binkiewicz" },
   { 0x1BC6, "Studio S Music City" },

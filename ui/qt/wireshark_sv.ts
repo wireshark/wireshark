@@ -65,19 +65,19 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation>Katalogen finns inte</translation>
+        <translation type="vanished">Katalogen finns inte</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation>Skall katalogen %1 skapas?</translation>
+        <translation type="vanished">Skall katalogen %1 skapas?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation>Katalogen kunde inte skapas</translation>
+        <translation type="vanished">Katalogen kunde inte skapas</translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation>Katalogen %1 kunde inte skapas.</translation>
+        <translation type="vanished">Katalogen %1 kunde inte skapas.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -1764,7 +1764,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Fångst</translation>
     </message>
     <message>
         <source>Default interface</source>
@@ -2086,7 +2086,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Columns</source>
-        <translation type="unfinished">Kolumner</translation>
+        <translation>Kolumner</translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -4498,16 +4498,16 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>Ram</translation>
     </message>
     <message>
-        <source>Main window font:</source>
-        <translation type="vanished">Huvudfönstrets typsnitt:</translation>
-    </message>
-    <message>
-        <source>Select Font</source>
-        <translation type="vanished">Välj typsnitt</translation>
-    </message>
-    <message>
         <source>Theme</source>
         <translation>Tema</translation>
+    </message>
+    <message>
+        <source>Contrast:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme Designer…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Theme Author Information</source>
@@ -4516,15 +4516,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Theme Description</source>
         <translation>Temabeskrivning</translation>
-    </message>
-    <message>
-        <source>Example GIF query packets have jumbo window sizes</source>
-        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation type="vanished">Flygande bäckasiner söka hwila på mjuka tuvor</translation>
-    </message>
-    <message>
-        <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation type="vanished">Yxmördaren Julia Blomqvist på fäktning i Schweiz</translation>
     </message>
     <message>
         <source>System</source>
@@ -4548,125 +4539,145 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Theme by %1</source>
-        <translation>Tema av %1</translation>
+        <translation type="vanished">Tema av %1</translation>
     </message>
     <message>
-        <source>Font</source>
-        <translation type="vanished">Typsnitt</translation>
+        <source>Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System follows the operating system contrast setting (Qt 6.10 or later).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The operating system contrast setting cannot be read with this Qt version; System acts as Standard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The selected theme always uses high contrast.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Author: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>FontPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ram</translation>
+        <translation>Ram</translation>
     </message>
     <message>
         <source>Monospace font</source>
-        <translation type="unfinished"></translation>
+        <translation>Fastbreddsteckensnitt</translation>
     </message>
     <message>
         <source>Used by the packet list, packet details, packet bytes and other text views.</source>
-        <translation type="unfinished"></translation>
+        <translation>Används av paketlistan, paketdetaljerna, paketbyte och andra textvyer.</translation>
     </message>
     <message>
         <source>%1 is not a monospaced font. Hex bytes and aligned columns will not line up.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 är inte ett fastbreddsteckensnitt. Hexadecimala byte och justerade kolumner kommer inte att vara i linje.</translation>
     </message>
     <message>
         <source>Packet Details underlines links and shows entries of disabled coloring rules in italic. With an italic or underlined font only their colors mark them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketdetaljer understryker länkar och visar poster med inaktiverade färgregler i kursiv stil. Med ett kursivt eller understruket teckensnitt är det endast deras färger som märker dem.</translation>
     </message>
 </context>
 <context>
     <name>FontSelectionDialog</name>
     <message>
         <source>Font</source>
-        <translation type="unfinished">Typsnitt</translation>
+        <translation>Teckensnitt</translation>
     </message>
 </context>
 <context>
     <name>FontSelectionWidget</name>
     <message>
         <source>&amp;Family</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Familj</translation>
     </message>
     <message>
         <source>St&amp;yle</source>
-        <translation type="unfinished"></translation>
+        <translation>Sti&amp;l</translation>
     </message>
     <message>
         <source>&amp;Size</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Storlek</translation>
     </message>
     <message>
         <source>Filter font families</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrera teckensnittsfamiljer</translation>
     </message>
     <message>
         <source>Filter families</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrera familjer</translation>
     </message>
     <message>
         <source>Font style</source>
-        <translation type="unfinished"></translation>
+        <translation>Teckensnittsstil</translation>
     </message>
     <message>
         <source>Font size</source>
-        <translation type="unfinished"></translation>
+        <translation>Teckenstorlek</translation>
     </message>
     <message>
         <source>Font family</source>
-        <translation type="unfinished"></translation>
+        <translation>Teckensnittsfamilj</translation>
     </message>
     <message>
         <source>Font sizes</source>
-        <translation type="unfinished"></translation>
+        <translation>Teckenstorlekar</translation>
     </message>
     <message>
         <source>Show only &amp;monospaced fonts</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa endast teckensnitt med &amp;fast bredd</translation>
     </message>
     <message>
         <source>Effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Effekter</translation>
     </message>
     <message>
         <source>Stri&amp;keout</source>
-        <translation type="unfinished"></translation>
+        <translation>Gen&amp;omstruken</translation>
     </message>
     <message>
         <source>&amp;Underline</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Understruken</translation>
     </message>
     <message>
         <source>Sample</source>
-        <translation type="unfinished"></translation>
+        <translation>Exempel</translation>
     </message>
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation type="unfinished">Flygande bäckasiner söka hwila på mjuka tuvor</translation>
+        <translation>Exempel på GIF-frågepaket har jumbo-fönsterstorlekar</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation type="unfinished">Yxmördaren Julia Blomqvist på fäktning i Schweiz</translation>
+        <translation>Söliga grävlingar flyttar unika vaxartade manetpaket</translation>
     </message>
     <message>
         <source>(Platform default)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Plattformens standard)</translation>
     </message>
     <message>
         <source>%1 (not installed)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (inte installerat)</translation>
     </message>
     <message>
         <source>No matching font families</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga matchande teckensnittsfamiljer</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Standard</translation>
+        <translation>Standard</translation>
     </message>
 </context>
 <context>
@@ -5219,11 +5230,11 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>EWMA moving average</source>
-        <translation type="unfinished"></translation>
+        <translation>EWMA-glidande medelvärde</translation>
     </message>
     <message>
         <source>Toggle Moving Average algorithm between EWMA and SMA</source>
-        <translation type="unfinished"></translation>
+        <translation>Växla mellan algoritmerna EWMA och SMA för glidande medelvärde</translation>
     </message>
     <message>
         <source>Crosshairs</source>
@@ -6480,6 +6491,13 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
 </context>
 <context>
+    <name>JsoncDocument</name>
+    <message>
+        <source>A block comment is not closed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>KeyboardShortcutsDialog</name>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -7368,10 +7386,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>Panel 3:</translation>
     </message>
     <message>
-        <source>Packet List settings:</source>
-        <translation type="vanished">Paketlisteinställningar:</translation>
-    </message>
-    <message>
         <source>Show packet separator</source>
         <translation>Visa paketavdelare</translation>
     </message>
@@ -7396,10 +7410,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>Aktivera färgläggning vid musen över</translation>
     </message>
     <message>
-        <source>Status Bar settings:</source>
-        <translation type="vanished">Statusradinställningar:</translation>
-    </message>
-    <message>
         <source>Show selected packet number</source>
         <translation>Visa det valda paketets nummer</translation>
     </message>
@@ -7413,7 +7423,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Pane Layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Panellayout</translation>
     </message>
     <message>
         <source>Off</source>
@@ -7473,11 +7483,11 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Show disabled coloring rules</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa inaktiverade färgregler</translation>
     </message>
     <message>
         <source>Status Bar</source>
-        <translation type="unfinished">Statusfält</translation>
+        <translation>Statusrad</translation>
     </message>
 </context>
 <context>
@@ -8767,7 +8777,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Appearance</source>
-        <translation type="unfinished">Utseende</translation>
+        <translation>Utseende</translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
@@ -10399,7 +10409,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     <name>PreferencesDialog</name>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished">Avancerat</translation>
+        <translation>Avancerat</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -10448,12 +10458,8 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <translation>Kolumner</translation>
     </message>
     <message>
-        <source>Theme and Font</source>
-        <translation type="vanished">Tema och teckensnitt</translation>
-    </message>
-    <message>
         <source>Theme</source>
-        <translation type="unfinished">Tema</translation>
+        <translation>Tema</translation>
     </message>
     <message>
         <source>Welcome Page</source>
@@ -10481,7 +10487,7 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Fonts</source>
-        <translation type="unfinished"></translation>
+        <translation>Teckensnitt</translation>
     </message>
 </context>
 <context>
@@ -10915,23 +10921,11 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Enable Coloring Rule</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktivera färgläggningsregel</translation>
     </message>
     <message>
         <source>Disable Coloring Rule</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Resume Coloring Rule</source>
-        <translation type="vanished">Återuppta färgregel</translation>
-    </message>
-    <message>
-        <source>Pause Coloring Rule</source>
-        <translation type="vanished">Pausa färgregel</translation>
-    </message>
-    <message>
-        <source>Resume All Coloring Rules</source>
-        <translation type="vanished">Återuppta alla färgregler</translation>
+        <translation>Inaktivera färgläggningsregel</translation>
     </message>
     <message>
         <source>Copied %1</source>
@@ -11930,6 +11924,30 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
 %1: add or remove on the current line in the editor</source>
         <translation>Klicka för att inaktivera alla brytpunkter
 %1: lägg till eller ta bort på den aktuella raden i redigeraren</translation>
+    </message>
+    <message>
+        <source>Count</source>
+        <translation type="unfinished">Antal</translation>
+    </message>
+    <message>
+        <source>Percent</source>
+        <translation type="unfinished">Procent</translation>
+    </message>
+    <message>
+        <source>The directory does not exist</source>
+        <translation type="unfinished">Katalogen finns inte</translation>
+    </message>
+    <message>
+        <source>Should the directory %1 be created?</source>
+        <translation type="unfinished">Skall katalogen %1 skapas?</translation>
+    </message>
+    <message>
+        <source>The directory could not be created</source>
+        <translation type="unfinished">Katalogen kunde inte skapas</translation>
+    </message>
+    <message>
+        <source>The directory %1 could not be created.</source>
+        <translation type="unfinished">Katalogen %1 kunde inte skapas.</translation>
     </message>
 </context>
 <context>
@@ -15792,6 +15810,153 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
 </context>
 <context>
+    <name>ThemeColorEditor</name>
+    <message>
+        <source>Filter colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Changed only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished">Färg</translation>
+    </message>
+    <message>
+        <source>Value (Light)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation type="unfinished">Tillstånd</translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation type="unfinished">Ljust</translation>
+    </message>
+    <message>
+        <source>Choose...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Revert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation type="unfinished">Mörkt</translation>
+    </message>
+    <message>
+        <source>Use Auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graph color cycle. No backfill from the default theme.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hairline dividers between cards and panes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>color %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No graph colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Derived (read-only)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Value (Dark)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>edited</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Derived, read-only. Source: %1. Not stored in theme files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Right-click the row to go to a source color.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>changed by another color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Affects: %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is not a color. Use #rrggbb.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Revert to the saved value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this color; the saved theme does not set it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No source color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (derived)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Also uses %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Revert Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>auto %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>auto row background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose %1 (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ThemeDebugDialog</name>
     <message>
         <source>Theme Debug</source>
@@ -15987,6 +16152,546 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
 </context>
 <context>
+    <name>ThemeDesignerDialog</name>
+    <message>
+        <source>Theme Designer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Themes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bundled themes cannot be modified. Changes are saved as a new personal theme.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New…</source>
+        <translation type="unfinished">Ny …</translation>
+    </message>
+    <message>
+        <source>Copy…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished">Ta bort</translation>
+    </message>
+    <message>
+        <source>Import…</source>
+        <translation type="unfinished">Importera …</translation>
+    </message>
+    <message>
+        <source>Export…</source>
+        <translation type="unfinished">Exportera …</translation>
+    </message>
+    <message>
+        <source>Personal themes folder:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open the folder in the file manager</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation type="unfinished">Namn:</translation>
+    </message>
+    <message>
+        <source>Author:</source>
+        <translation type="unfinished">Upphovsperson:</translation>
+    </message>
+    <message>
+        <source>Description:</source>
+        <translation type="unfinished">Beskrivning:</translation>
+    </message>
+    <message>
+        <source>Appearance:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Light</source>
+        <translation type="unfinished">Ljust</translation>
+    </message>
+    <message>
+        <source>Dark</source>
+        <translation type="unfinished">Mörkt</translation>
+    </message>
+    <message>
+        <source>side to edit and preview</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fonts</source>
+        <translation type="unfinished">Teckensnitt</translation>
+    </message>
+    <message>
+        <source>Default values use the platform fonts and are not written to the file, so the theme stays portable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Family:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size:</source>
+        <translation type="unfinished">Storlek:</translation>
+    </message>
+    <message>
+        <source>Sample:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets: 9 · Displayed: 9 (100.0%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Example GIF query packets have jumbo window sizes 0123456789</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compare with:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Previous Change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next Change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy to Clipboard</source>
+        <translation type="unfinished">Kopiera till urklipp</translation>
+    </message>
+    <message>
+        <source>Welcome Page</source>
+        <translation type="unfinished">Välkomstsida</translation>
+    </message>
+    <message>
+        <source>Packet List</source>
+        <translation type="unfinished">Paketlista</translation>
+    </message>
+    <message>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Revert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished">Spara</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished">Stäng</translation>
+    </message>
+    <message>
+        <source>%1 Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopiera</translation>
+    </message>
+    <message>
+        <source>Save Theme As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (bundled)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; could not be imported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The preview shows the theme&apos;s font.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save the theme (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bundled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal</source>
+        <translation type="unfinished">Personlig</translation>
+    </message>
+    <message>
+        <source>No personal themes yet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The theme &quot;%1&quot; could not be loaded.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bundled with Wireshark, read-only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal theme, %1.jsonc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The theme &quot;%1&quot; has unsaved changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Platform default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (not installed)</source>
+        <translation type="unfinished">%1 (inte installerat)</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Standard</translation>
+    </message>
+    <message>
+        <source>%1 pt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Revert Font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Regular font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Monospace font</source>
+        <translation type="unfinished">Fastbreddsteckensnitt</translation>
+    </message>
+    <message>
+        <source>Saved file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 changed, %2 added, %3 removed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not valid: %1 is not a color. The theme cannot be saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not valid: %1 is required. The theme cannot be saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not valid: the file does not read back unchanged. The theme cannot be saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Valid. Parses with the theme parser and reads back unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1 color is not valid. Fix it to save.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 colors are not valid. Fix them to save.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 edited, %2 changed as a consequence. Not saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Loaded with problems. Saving rewrites the file without the invalid entries.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bundled theme, no changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No unsaved changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save the theme first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not a theme color.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Links have no color of their own; they follow %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cleared the color filter to show %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not a theme color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1  %2</source>
+        <extracomment>Theme Designer sample context menu entry: the part a color paints (Text, Background, Border, Link text), then the color name.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1&lt;/b&gt; (links follow it) · %2</source>
+        <extracomment>Tooltip over a Theme Designer sample: color name, then the part it paints.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;%1&lt;/b&gt; · %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to select it in Colors. Right-click for all colors here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The personal themes folder is not available, so the theme cannot be saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; is the name of a bundled theme, so the theme cannot be saved under it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The theme does not read back unchanged, so it was not saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The theme could not be saved to %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The saved file %1 does not load as a theme.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The theme has changes that cannot be saved. Fix or revert them before renaming it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The theme was saved as %1, but the old file %2 could not be removed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the theme &quot;%1&quot;?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 is removed. This cannot be undone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 could not be removed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Theme files (*.jsonc *.json)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file is larger than 1 MiB.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file could not be read: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file is not a theme.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Imported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Imported with 1 note.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Imported with %1 notes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The theme could not be exported to %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ThemeImportErrorDialog</name>
+    <message>
+        <source>Nothing was copied to your personal themes. Imported files are limited in size and may only contain meta data, colors and fonts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ThemeManager</name>
+    <message>
+        <source>Theme &quot;%1&quot; not found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ThemeNameDialog</name>
+    <message>
+        <source>Copy of:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation type="unfinished">Namn:</translation>
+    </message>
+    <message>
+        <source>File name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Folder:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file name is made from the name. A name already used by a bundled or personal theme gets a number appended.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ThemeParser</name>
+    <message>
+        <source>Could not open &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Line %1, column %2: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>missing required section &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>unknown section &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Line %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1.%2: &quot;%3&quot; is not a color.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1: only one side set, the other side uses the same value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1.%2: not a color pair.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1.%2: unknown color, skipped.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1: missing required color &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ThemePreviewPick</name>
+    <message>
+        <source>Link text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Background</source>
+        <translation type="unfinished">Bakgrund</translation>
+    </message>
+    <message>
+        <source>Save Theme Preview</source>
+        <translation type="unfinished">Spara förhandsgranskning av tema</translation>
+    </message>
+    <message>
+        <source>PNG Image (*.png)</source>
+        <translation type="unfinished">PNG-bild (*.png)</translation>
+    </message>
+    <message>
+        <source>Could not write the image to &quot;%1&quot;.</source>
+        <translation type="unfinished">Det gick inte att skriva bilden till ”%1”.</translation>
+    </message>
+</context>
+<context>
     <name>ThemePreviewWidget</name>
     <message>
         <source>No.</source>
@@ -16026,15 +16731,15 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Save Theme Preview</source>
-        <translation>Spara förhandsgranskning av tema</translation>
+        <translation type="vanished">Spara förhandsgranskning av tema</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation>PNG-bild (*.png)</translation>
+        <translation type="vanished">PNG-bild (*.png)</translation>
     </message>
     <message>
         <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation>Det gick inte att skriva bilden till ”%1”.</translation>
+        <translation type="vanished">Det gick inte att skriva bilden till ”%1”.</translation>
     </message>
     <message>
         <source>Info</source>
@@ -16054,7 +16759,556 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Displayed: %1 (100.0%)</source>
-        <translation>Visade: %1 (100,0 %)</translation>
+        <translation type="vanished">Visade: %1 (100,0 %)</translation>
+    </message>
+</context>
+<context>
+    <name>ThemeTokenHandler</name>
+    <message>
+        <source>accent.info at 40% opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success at 40% opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.warning at 40% opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.error at 40% opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on expert.comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 30% toward brand.primary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.window 40% toward brand.primary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>brand.primary 65% darker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 50% toward palette.windowText</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 40% toward palette.windowText</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on packets.selection, kept readable on it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on packets.inactive, kept readable on it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on packets.marked, kept readable on it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 40% toward accent.error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 40% toward brand.primary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.error 30% darker (light) / 50% lighter (dark)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>brand.primary 30% darker (light) / 50% lighter (dark)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 33% toward accent.success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 33% toward accent.success, moved until black or white text is readable on it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 33% toward accent.error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 33% toward accent.error, moved until black or white text is readable on it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 33% toward accent.warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 33% toward accent.warning, moved until black or white text is readable on it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.text 50% toward palette.base, lifted to the large text ratio on filter.busy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.mid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.mid, kept readable on palette.base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success 30% darker (light) / lighter (dark)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.info 30% darker (light) / lighter (dark)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.highlight 40% darker, kept apart from palette.window and readable under HeaderText</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.highlightedText if readable on HeaderBackground, else black or white</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HeaderText 25% toward HeaderBackground, kept at the large text ratio (readable text ratio in high contrast)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>brand.primary, kept readable on palette.base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.mid, kept at the non-text ratio to palette.base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 53% toward palette.mid, kept at the divider ratio to palette.base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.text 40% toward palette.base, kept readable on palette.base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 16% (light) / 22% (dark) toward accent.success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 16% (light) / 30% (dark) toward accent.info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 10% (light) / 22% (dark) toward accent.error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 10% (light) / 22% (dark) toward accent.info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 45% toward accent.info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 8% (light) / 22% (dark) toward accent.error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.base 50% toward accent.error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.alternateBase when set, else palette.base; in dark mode kept at the dark card surface ratio to palette.base</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Separator, kept at the divider ratio to CardBackground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SectionHeader, kept readable on CardBackground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SectionHeaderHover, kept readable on CardBackground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>the palette link color, kept readable on CardBackground and on CardLinkHover</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>hover fill of palette.highlight on CardBackground, moved until CardLink reads on it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>palette.highlight, kept readable on CardBackground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>the lighter of palette.base and CardBackground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Separator, kept at the divider ratio to OverlayCardBackground</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on accent.success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on accent.warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on accent.error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on accent.info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on filter.valid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on filter.invalid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white on filter.deprecated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success 60% darker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success at 20% opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success 50% lighter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success 70% lighter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success 30% lighter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success 20% darker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success 8% darker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success 16% darker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success 40% darker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>black or white faded toward UpdateButtonDisabledBg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>hover tint on the update bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pressed tint on the update bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>accent.success, kept at the non-text ratio to UpdateBackground in high contrast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>packets.selection when set, else brand.primary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>packets.selectionText when palette.highlight is packets.selection, else black or white on palette.highlight, kept readable on it</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ThemeWelcomePreview</name>
+    <message>
+        <source>Development Build</source>
+        <translation type="unfinished">Utvecklingsbygge</translation>
+    </message>
+    <message>
+        <source>Release Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download Update</source>
+        <translation type="unfinished">Ladda ner uppdatering</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="unfinished">Öppna</translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…using this filter:</source>
+        <translation type="unfinished">…med detta filter:</translation>
+    </message>
+    <message>
+        <source>tcp port 443</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Image As…</source>
+        <translation type="unfinished">Spara bild som…</translation>
+    </message>
+</context>
+<context>
+    <name>ThemeWriter</name>
+    <message>
+        <source>Main brand hue: section header hover, link fallback, last selection fallback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update bar, valid filter tint fallback, capture bookmark glyph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Development Build badge, deprecated filter tint fallback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invalid filter tint fallback, clear glyph, client stream text fallback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bookmark and apply glyphs, expert chat and note fallback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expert item background without severity.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expert comment background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expert chat background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expert note background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expert warning background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expert error background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text on expert backgrounds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected packet row background; selection in other lists when palette.highlight is not set.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected packet row text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection background when the view has no focus.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inactive selection text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Marked packet background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Marked packet text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignored packet background. Auto: the normal row background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignored packet text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dimmed text for hidden items.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter background, valid expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter background, invalid expression.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter background, deprecated syntax.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture filter background while compiling.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture filter text while compiling.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bookmark glyph in the display filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bookmark glyph in the capture filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bookmark glyph when the filter matches a saved one.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear glyph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply glyph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recent filters arrow at rest.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow Stream client background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow Stream client text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow Stream server background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow Stream server text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window background (QPalette::Window).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View background (lists, editors).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alternate rows in lists and tables.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mid gray: borders, section headers, separators.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Light bevel shade (QPalette::Midlight).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selection in all lists except the packet list; the welcome header and hover fills derive from it. Auto: packets.selection, else brand.primary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text on highlight, kept readable on it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>QPalette::Accent (Qt 6.6 and later). Auto: brand.primary.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not create &quot;%1&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -16728,24 +17982,20 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Ram</translation>
     </message>
     <message>
-        <source>Tips Section</source>
-        <translation type="vanished">Tipsavsnitt</translation>
-    </message>
-    <message>
         <source>General</source>
-        <translation type="unfinished">Allmänt</translation>
+        <translation>Allmänt</translation>
     </message>
     <message>
         <source>Show the Open and Capture sections next to each other when the window is wide enough, otherwise stacked.</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa avsnitten Öppna och Fångst bredvid varandra när fönstret är tillräckligt brett, annars staplade.</translation>
     </message>
     <message>
         <source>Prefer Open and Capture sections side-by-side</source>
-        <translation type="unfinished"></translation>
+        <translation>Föredra att avsnitten Öppna och Fångst visas sida vid sida</translation>
     </message>
     <message>
         <source>Tips</source>
-        <translation type="unfinished"></translation>
+        <translation>Tips</translation>
     </message>
     <message>
         <source>Show Tips section in sidebar</source>
@@ -16781,11 +18031,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Learn</source>
-        <translation type="unfinished">Lär dig</translation>
-    </message>
-    <message>
-        <source>Learn Section</source>
-        <translation type="vanished">Avsnittet Lär dig</translation>
+        <translation>Lär dig</translation>
     </message>
     <message>
         <source>Show Learn section in sidebar</source>
@@ -18162,7 +19408,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Discord</source>
-        <translation type="unfinished"></translation>
+        <translation>Discord</translation>
     </message>
     <message>
         <source>First Packet in Conversation</source>
@@ -18637,6 +19883,14 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Visa det aktiva temat, huvudfönstrets geometri och aktuell komponentinformation</translation>
     </message>
     <message>
+        <source>Theme D&amp;esigner…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create, copy, edit, import and export personal themes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAP Summary</source>
         <translation>MAP-sammanfattning</translation>
     </message>
@@ -18717,6 +19971,14 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>Release Notes</source>
         <translation>Utgåvenoteringar</translation>
+    </message>
+    <message>
+        <source>Personal Themes Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open the folder that holds your own theme files</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
