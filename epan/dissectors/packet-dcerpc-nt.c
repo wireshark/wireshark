@@ -519,6 +519,11 @@ dissect_ndr_nt_NTTIME_1sec (tvbuff_t *tvb, unsigned offset,
  * only if that frame is within the interval [first frame,last frame].
  * The list is sorted by "first frame".
  *
+ * A close of a handle whose latest instance is already closed does not
+ * fall in that interval. It updates that instance instead of appending
+ * a new one: N extra closes of one value would otherwise cost O(N)
+ * entries and O(N^2) list walks.
+ *
  * This doesn't handle the case of a handle being opened in frame N and
  * re-opened in frame M, where N < M, with no intervening close, but I'm
  * not sure anything can handle that if it's within the same DCE RPC
@@ -541,11 +546,13 @@ static unsigned pol_hash_fn(const void *k)
 {
 	const pol_hash_key *key = (const pol_hash_key *)k;
 
-	/* Bytes 4-7 of the policy handle are a timestamp so should make a
-	   reasonable hash value */
-
-	return key->policy_hnd[4] + (key->policy_hnd[5] << 8) +
-		(key->policy_hnd[6] << 16) + ((unsigned)key->policy_hnd[7] << 24);
+	/*
+	 * Hash every byte. Bytes 4-7 are a timestamp in many policy
+	 * handles, so hashing only those puts every handle that shares
+	 * them in one bucket. Lookups then walk a chain, and a stream
+	 * of such handles is quadratic.
+	 */
+	return wmem_strong_hash(key->policy_hnd, sizeof(key->policy_hnd));
 }
 
 /* Return true if a policy handle is all zeros */
@@ -718,9 +725,45 @@ void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 			pol = NULL;
 		} else {
 			if (param & PIDL_POLHND_CLOSE) {
-				pol->close_frame = pinfo->num;
+				/*
+				 * Keep the first close. A second call in this
+				 * frame, or a later close that still falls in
+				 * the instance, must not replace it.
+				 */
+				if (pol->close_frame == 0)
+					pol->close_frame = pinfo->num;
 				pol->last_frame = pinfo->num;
 			}
+			return;
+		}
+	}
+
+	/*
+	 * Nothing covers this frame. A close whose latest instance is
+	 * already closed used to allocate another node and walk the
+	 * list to insert it. Point the close at that instance instead.
+	 *
+	 * An open falls through to the allocation below on purpose: it
+	 * has closed the previous instance implicitly and starts a new one.
+	 */
+	if (value != NULL &&
+	    (param & PIDL_POLHND_CLOSE) && !(param & PIDL_POLHND_OPEN)) {
+		pol_value *last;
+
+		last = value->list;
+		while (last != NULL && last->next != NULL)
+			last = last->next;
+
+		if (last != NULL && last->last_frame != 0 &&
+		    last->last_frame < pinfo->num) {
+			/*
+			 * Keep the frame that closed the handle. A retry,
+			 * including one that fails, must not hide it.
+			 * Extend the range so this close is the same instance.
+			 */
+			if (last->close_frame == 0)
+				last->close_frame = pinfo->num;
+			last->last_frame = pinfo->num;
 			return;
 		}
 	}
@@ -827,9 +870,8 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 /*
  * Retrieve a policy handle.
  *
- * XXX - should this get a "param" argument, and match even closed
- * policy handles if the call closes the handle, so we can handle
- * retransmitted close operations?
+ * A later close of an already-closed instance extends that instance's
+ * last frame, so a retransmitted close matches here.
  */
 
 bool dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd,
@@ -2118,7 +2160,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 		&ett_nt_MIDL_BLOB,
 	};
 	static ei_register_info ei[] = {
-		{ &ei_dcerpc_nt_badsid, { "dcerpc.nt.badsid", PI_MALFORMED, PI_ERROR, "Association rejected", EXPFILL }},
+		{ &ei_dcerpc_nt_badsid, { "dcerpc.nt.badsid", PI_MALFORMED, PI_ERROR, "SID longer than its 28-octet field", EXPFILL }},
 	};
 
 	/* Register ett's and hf's */
