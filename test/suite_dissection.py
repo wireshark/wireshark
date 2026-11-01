@@ -37148,3 +37148,110 @@ class TestDissectDcerpcDceSmall2:
         frames = [int(x) for x in stdout.split()]
         assert len(frames) == 75 + 43
         assert frames[:2] == [114, 116]
+
+
+class TestDissectDcerpcRcg:
+    def test_rcg_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: an RDP connection request and RDPEAR frames
+        (Exported PDUs); no malformed packets or warnings in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rcg_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 65
+        assert protocols.count('RDP') == 1
+        assert protocols.count('RDPEAR') == 64
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_rcg_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rcg_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every Kerberos and NTLM call, its input from the RDP server and
+        its output to the server (known from the connection request), the
+        status of outputs and call IDs no union arm handles.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rcg_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 2 && frame.number <= 59',
+                '-Tfields', '-erdp_ear.payload.package',
+                '-ercg.KerbCredIsoRemoteInput.CallId',
+                '-ercg.KerbCredIsoRemoteOutput.CallId',
+                '-ercg.KerbCredIsoRemoteOutput.Status',
+                '-ercg.NtlmCredIsoRemoteInput.CallId',
+                '-ercg.NtlmCredIsoRemoteOutput.CallId',
+                '-ercg.NtlmCredIsoRemoteOutput.Status',
+            ), encoding='utf-8', env=test_env)
+        kerb = [0x100, 0x101, 0x101, 0x102, 0x102, 0x103, 0x103, 0x104,
+                0x105, 0x105, 0x106, 0x107, 0x108, 0x109, 0x10a, 0x10b,
+                0x113, 0x114, 0x115, 0x116, 0x117, 0x118]
+        status = {2: '0xc000000d', 6: '0xc000018b'}
+        expected = []
+        for i, c in enumerate(kerb):
+            expected.append('Kerberos\t%d\t\t\t\t\t' % c)
+            expected.append('Kerberos\t\t%d\t%s\t\t\t' % (c, status.get(i, '0x00000000')))
+        for c in range(0x200, 0x205):
+            expected.append('NTLM\t\t\t\t%d\t\t' % c)
+            expected.append('NTLM\t\t\t\t\t%d\t0x00000000' % c)
+        expected += [
+            'Kerberos\t511\t\t\t\t\t',
+            'Kerberos\t\t511\t0xc0000002\t\t\t',
+            'NTLM\t\t\t\t767\t\t',
+            'NTLM\t\t\t\t\t767\t0xc0000002',
+        ]
+        assert stdout.splitlines() == expected
+
+    def test_rcg_unknown_package(self, cmd_tshark, capture_file, test_env):
+        '''A package other than Kerberos and NTLM is not dissected (it was
+        taken as NTLM before "RDPEAR: Free the NDR pointer list, do not
+        take an unknown package as NTLM"); nor is a sealed wrap token.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rcg_coverage.pcap.gz'),
+                '-Y', 'frame.number in {60,61,64}',
+                '-Tfields', '-eframe.number', '-erdp_ear.payload.package',
+                '-espnego.krb5.cfx_flags', '-erdp_ear.package.reservedheader',
+                '-ercg.NtlmCredIsoRemoteInput.CallId', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '60\tNegotiate\t0x00\t' + '00' * 16 + '\t\t',
+            '61\t\t0x06\t\t\t',
+            '64\tNegotiate\t0x00\t' + '00' * 16 + '\t\t',
+        ]
+
+    def test_rcg_values(self, cmd_tshark, capture_file, test_env):
+        '''Deferred pointers in the right order: names and strings, the
+        GSS-API and HMAC checksums, PAC credentials, double pointers,
+        crypto blobs, times and the NTLM response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rcg_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2,4,12,13,14,23,29,31,35,39,48,49,65}',
+                '-Tfields', '-eframe.number', '-erdp_ear.payload.version',
+                '-ercg.RPC_UNICODE_STRING.Buffer', '-ekerberos.cksumtype',
+                '-ercg.KERB_ASN1_DATA_CHECKSUM.Length',
+                '-ercg.SECPKG_SUPPLEMENTAL_CRED.CredentialSize',
+                '-ercg.HashS4UPreauthResp.ChecksumSize',
+                '-ercg.SignS4UPreauthDataResp.ChecksumSize',
+                '-ercg.KERB_RPC_CRYPTO_API_BLOB.cbData',
+                '-ercg.LARGE_INTEGER.QuadPart',
+                '-ercg.CreateDHKeyAgreementResp.KeyAgreementHandle',
+                '-ercg.Lm20GetNtlm3ChallengeResponseResp.Ntlm3ResponseLength',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0\t\t\t\t\t\t\t\t\t\t',
+            '4\t\t\t\t\t\t\t\t\t-3000000000\t\t',
+            '12\t\talice,EXAMPLE.TEST\t32771\t37\t\t\t\t\t72623859790382856\t\t',
+            '13\t\t\t\t\t\t\t\t\t133137663984140288\t\t',
+            '14\t\thost,server.example.test\t\t\t\t\t\t\t0\t\t',
+            '23\t\t\t16\t23\t\t\t\t\t\t\t',
+            '29\t\t\t\t\t\t16\t\t\t\t\t',
+            '31\t\t\t\t\t\t\t12\t\t\t\t',
+            '35\t\tNTLM,Kerberos\t\t\t40,24\t\t\t\t\t\t',
+            '39\t\t\t\t\t\t\t\t32,1,20\t\t8192\t',
+            '48\t\talice,EXAMPLE,SERVER\t\t\t\t\t\t\t\t\t',
+            '49\t\t\t\t\t\t\t\t\t\t\t24',
+            '65\t\t\t32771\t4\t\t\t\t\t72623859790382856\t\t',
+        ]
