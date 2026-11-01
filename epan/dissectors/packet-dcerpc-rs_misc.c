@@ -50,6 +50,8 @@ rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, unsigned offset,
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
 
+		tvb_ensure_bytes_exist64(tvb, offset, key_size);
+
 		proto_tree_add_item_ret_string(tree, hf_rs_misc_login_get_info_rqst_key_t, tvb, offset, key_size, ENC_ASCII|ENC_NA, pinfo->pool, &key_t1);
 		offset += key_size;
 
