@@ -16,6 +16,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
@@ -54,7 +55,7 @@ static dissector_handle_t gssapi_wrap_handle;
 typedef enum {
 	RCG_PACKAGE_KERBEROS,
 	RCG_PACKAGE_NTLM,
-	RCG_PACKAGE_UNKNOWN = 1,
+	RCG_PACKAGE_UNKNOWN,
 } RcgPackageType;
 
 typedef struct {
@@ -89,6 +90,12 @@ dissect_rdpear_ber_packageName(bool implicit_tag, tvbuff_t *tvb, unsigned offset
 }
 
 
+static void
+rdpear_free_ndr_pointer_list(void *arg)
+{
+	free_ndr_pointer_list((dcerpc_info *)arg);
+}
+
 static int
 dissect_rdpear_packagePayload(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, RcgPackageType package)
 {
@@ -105,6 +112,8 @@ dissect_rdpear_packagePayload(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 	di.conformant_run = 0;
 	di.call_data = &call_data;
 	init_ndr_pointer_list(&di);
+	/* Free the pointer list also when an exception is thrown */
+	CLEANUP_PUSH(rdpear_free_ndr_pointer_list, &di);
 
 	switch (package) {
 	case RCG_PACKAGE_KERBEROS:
@@ -129,6 +138,7 @@ dissect_rdpear_packagePayload(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 		break;
 	}
 
+	CLEANUP_CALL_AND_POP;
 	return offset;
 }
 
