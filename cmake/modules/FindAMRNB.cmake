@@ -36,19 +36,7 @@ find_package_handle_standard_args( AMRNB DEFAULT_MSG AMRNB_LIBRARY AMRNB_INCLUDE
 if( AMRNB_FOUND )
   set( AMRNB_INCLUDE_DIRS ${AMRNB_INCLUDE_DIR} )
   set( AMRNB_LIBRARIES ${AMRNB_LIBRARY} )
-  if (WIN32)
-    set ( AMRNB_DLL_DIR "${AMRNB_HINTS}/bin"
-      CACHE PATH "Path to the AMR-NB DLL"
-    )
-    file( GLOB _amrnb_dll RELATIVE "${AMRNB_DLL_DIR}"
-      "${AMRNB_DLL_DIR}/libopencore-amrnb-0.dll"
-    )
-    set ( AMRNB_DLL ${_amrnb_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "AMR NB-DLL file name"
-    )
-    mark_as_advanced( AMRNB_DLL_DIR AMRNB_DLL )
-  endif()
+  AddWSWinDLL(AMRNB AMRNB_HINTS "libopencore-amrnb-0")
 else()
   set( AMRNB_INCLUDE_DIRS )
   set( AMRNB_LIBRARIES )

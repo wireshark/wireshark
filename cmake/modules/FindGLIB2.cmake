@@ -216,6 +216,10 @@ if( GLIB2_FOUND )
 
 		mark_as_advanced( GLIB2_DLL_DIR_RELEASE GLIB2_DLLS_RELEASE GLIB2_PDBS_RELEASE )
 		mark_as_advanced( GLIB2_DLL_DIR_DEBUG GLIB2_DLLS_DEBUG GLIB2_PDBS_DEBUG )
+
+		list(TRANSFORM GLIB2_DLLS_RELEASE PREPEND "${GLIB2_DLL_DIR_RELEASE}/" OUTPUT_VARIABLE _glib2_release_dlls)
+		list(TRANSFORM GLIB2_DLLS_DEBUG PREPEND "${GLIB2_DLL_DIR_DEBUG}/" OUTPUT_VARIABLE _glib2_debug_dlls)
+		ws_add_runtime_dlls(${_glib2_release_dlls} DEBUG ${_glib2_debug_dlls})
 	endif()
 elseif( GLIB2_FIND_REQUIRED )
 	message( SEND_ERROR "Package required but not found" )

@@ -36,19 +36,7 @@ find_package_handle_standard_args( BCG729 DEFAULT_MSG BCG729_LIBRARY BCG729_INCL
 if( BCG729_FOUND )
   set( BCG729_INCLUDE_DIRS ${BCG729_INCLUDE_DIR} )
   set( BCG729_LIBRARIES ${BCG729_LIBRARY} )
-  if (WIN32)
-    set ( BCG729_DLL_DIR "${BCG729_HINTS}/bin"
-      CACHE PATH "Path to bcg729 DLL"
-    )
-    file( GLOB _bcg729_dll RELATIVE "${BCG729_DLL_DIR}"
-      "${BCG729_DLL_DIR}/libbcg729.dll"
-    )
-    set ( BCG729_DLL ${_bcg729_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "bcg729 DLL file name"
-    )
-    mark_as_advanced( BCG729_DLL_DIR BCG729_DLL )
-  endif()
+  AddWSWinDLL(BCG729 BCG729_HINTS "libbcg729")
 else()
   set( BCG729_INCLUDE_DIRS )
   set( BCG729_LIBRARIES )

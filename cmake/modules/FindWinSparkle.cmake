@@ -52,16 +52,7 @@ find_package_handle_standard_args(WinSparkle
 if(WINSPARKLE_FOUND)
   set(WINSPARKLE_LIBRARIES ${WINSPARKLE_LIBRARY} )
   set(WINSPARKLE_INCLUDE_DIRS ${WINSPARKLE_INCLUDE_DIR} )
-  if (WIN32)
-    set (WINSPARKLE_DLL_DIR "${WINSPARKLE_HINTS}/bin"
-      CACHE PATH "Path to the WinSparkle DLL"
-    )
-    set (WINSPARKLE_DLL WinSparkle.dll
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "WinSparkle DLL file name"
-    )
-    mark_as_advanced( WINSPARKLE_DLL_DIR WINSPARKLE_DLL )
-  endif()
+  AddWSWinDLL(WINSPARKLE WINSPARKLE_HINTS "WinSparkle")
 else()
   set(WINSPARKLE_LIBRARIES )
   set(WINSPARKLE_INCLUDE_DIRS )

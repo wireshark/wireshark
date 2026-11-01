@@ -30,19 +30,7 @@ find_package_handle_standard_args( SBC DEFAULT_MSG SBC_LIBRARY SBC_INCLUDE_DIR )
 if( SBC_FOUND )
   set( SBC_INCLUDE_DIRS ${SBC_INCLUDE_DIR} )
   set( SBC_LIBRARIES ${SBC_LIBRARY} )
-  if (WIN32)
-    set ( SBC_DLL_DIR "${SBC_HINTS}/bin"
-      CACHE PATH "Path to SBC DLL"
-    )
-    file( GLOB _sbc_dll RELATIVE "${SBC_DLL_DIR}"
-      "${SBC_DLL_DIR}/libsbc-*.dll"
-    )
-    set ( SBC_DLL ${_sbc_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "SBC DLL file name"
-    )
-    mark_as_advanced( SBC_DLL_DIR SBC_DLL )
-  endif()
+  AddWSWinDLL(SBC SBC_HINTS "libsbc-*")
 else()
   set( SBC_INCLUDE_DIRS )
   set( SBC_LIBRARIES )

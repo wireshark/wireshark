@@ -36,19 +36,7 @@ find_package_handle_standard_args( AMRWB DEFAULT_MSG AMRWB_LIBRARY AMRWB_INCLUDE
 if( AMRWB_FOUND )
   set( AMRWB_INCLUDE_DIRS ${AMRWB_INCLUDE_DIR} )
   set( AMRWB_LIBRARIES ${AMRWB_LIBRARY} )
-  if (WIN32)
-    set ( AMRWB_DLL_DIR "${AMRWB_HINTS}/bin"
-      CACHE PATH "Path to the AMRWB DLL"
-    )
-    file( GLOB _amrwb_dll RELATIVE "${AMRWB_DLL_DIR}"
-      "${AMRWB_DLL_DIR}/libopencore-amrwb-0.dll"
-    )
-    set ( AMRWB_DLL ${_amrwb_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "AMR WB-DLL file name"
-    )
-    mark_as_advanced( AMRWB_DLL_DIR AMRWB_DLL )
-  endif()
+  AddWSWinDLL(AMRWB AMRWB_HINTS "libopencore-amrwb-0")
 else()
   set( AMRWB_INCLUDE_DIRS )
   set( AMRWB_LIBRARIES )

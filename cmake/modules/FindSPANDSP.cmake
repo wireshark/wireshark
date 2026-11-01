@@ -45,19 +45,7 @@ if( SPANDSP_FOUND )
     list(APPEND SPANDSP_INCLUDE_DIRS ${TIFF_INCLUDE_DIR})
   endif()
   set( SPANDSP_LIBRARIES ${SPANDSP_LIBRARY} )
-  if (WIN32)
-    set ( SPANDSP_DLL_DIR "${SPANDSP_HINTS}/bin"
-      CACHE PATH "Path to SpanDSP DLL"
-    )
-    file( GLOB _spandsp_dll RELATIVE "${SPANDSP_DLL_DIR}"
-      "${SPANDSP_DLL_DIR}/libspandsp-*.dll"
-    )
-    set ( SPANDSP_DLL ${_spandsp_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "SpanDSP DLL file name"
-    )
-    mark_as_advanced( SPANDSP_DLL_DIR SPANDSP_DLL )
-  endif()
+  AddWSWinDLL(SPANDSP SPANDSP_HINTS "libspandsp-*")
 else()
   set( SPANDSP_INCLUDE_DIRS )
   set( SPANDSP_LIBRARIES )

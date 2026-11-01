@@ -53,19 +53,7 @@ if( SNAPPY_FOUND )
     set(SNAPPY_VERSION ${SNAPPY_VERSION_MAJOR}.${SNAPPY_VERSION_MINOR}.${SNAPPY_VERSION_PATCH})
     endif()
 
-  if (WIN32)
-    set ( SNAPPY_DLL_DIR "${SNAPPY_HINTS}/bin"
-      CACHE PATH "Path to Snappy DLL"
-    )
-    file( GLOB _snappy_dll RELATIVE "${SNAPPY_DLL_DIR}"
-      "${SNAPPY_DLL_DIR}/snappy*.dll"
-    )
-    set ( SNAPPY_DLL ${_snappy_dll}
-      # We're storing filenames only. Should we use STRING instead?
-      CACHE FILEPATH "Snappy DLL file name"
-    )
-    mark_as_advanced( SNAPPY_DLL_DIR SNAPPY_DLL )
-  endif()
+  AddWSWinDLL(SNAPPY SNAPPY_HINTS "snappy*")
 else()
   set( SNAPPY_INCLUDE_DIRS )
   set( SNAPPY_LIBRARIES )

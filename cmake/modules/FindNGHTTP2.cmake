@@ -36,24 +36,7 @@ find_package_handle_standard_args( NGHTTP2 DEFAULT_MSG NGHTTP2_LIBRARY NGHTTP2_I
 if( NGHTTP2_FOUND )
   set( NGHTTP2_INCLUDE_DIRS ${NGHTTP2_INCLUDE_DIR} )
   set( NGHTTP2_LIBRARIES ${NGHTTP2_LIBRARY} )
-  if (WIN32)
-    set ( NGHTTP2_DLL_DIR "${NGHTTP2_HINTS}/bin"
-      CACHE PATH "Path to nghttp2 DLL"
-    )
-    file( GLOB _nghttp2_dll RELATIVE "${NGHTTP2_DLL_DIR}"
-      "${NGHTTP2_DLL_DIR}/nghttp2.dll"
-    )
-    set ( NGHTTP2_DLL ${_nghttp2_dll}
-      CACHE FILEPATH "nghttp2 DLL file name"
-    )
-    file( GLOB _nghttp2_pdb RELATIVE "${NGHTTP2_DLL_DIR}"
-      "${NGHTTP2_DLL_DIR}/nghttp2.pdb"
-    )
-    set ( NGHTTP2_PDB ${_nghttp2_pdb}
-      CACHE FILEPATH "nghttp2 PDB file name"
-    )
-    mark_as_advanced( NGHTTP2_DLL_DIR NGHTTP2_DLL NGHTTP2_PDB )
-  endif()
+  AddWSWinDLL(NGHTTP2 NGHTTP2_HINTS "nghttp2")
 else()
   set( NGHTTP2_INCLUDE_DIRS )
   set( NGHTTP2_LIBRARIES )
