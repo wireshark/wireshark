@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-10-23) */
+/* (last updated 2026-10-30) */
 
 #include "config.h"
 
@@ -28123,7 +28123,7 @@ static const char * const table[] =
     "MIVAN KIER JOINT VENTURE LIMITED NEWPARK BUCHAREST",                                 // 28101
     "baringanet gmbh",                                                                    // 28102
     "Audionics Ltd",                                                                      // 28103
-    "Evorad",                                                                             // 28104
+    "IKNOWHEALTH S.A.",                                                                   // 28104
     "Arcelor Bremen GmbH",                                                                // 28105
     "GEUTEBRUECK",                                                                        // 28106
     "Liangjiang Communications System Inc.",                                              // 28107
@@ -29087,7 +29087,7 @@ static const char * const table[] =
     "vzcs",                                                                               // 29065
     "enovatia",                                                                           // 29066
     "The Loop Communications",                                                            // 29067
-    "OpenSource Training Ralf Spenneberg",                                                // 29068
+    "OpenSource Security GmbH",                                                           // 29068
     "HartmannSoft",                                                                       // 29069
     "Conversion Co., Ltd.",                                                               // 29070
     "ON DEMAND Microelectronics AG",                                                      // 29071
@@ -47835,7 +47835,7 @@ static const char * const table[] =
     "Luetze Transportation GmbH",                                                         // 47813
     "ChinaUnicom",                                                                        // 47814
     "Stora Enso Skog AB",                                                                 // 47815
-    "Joseph Studio",                                                                      // 47816
+    "Joseph Chris",                                                                       // 47816
     "HAWE Hydraulik SE",                                                                  // 47817
     "Salzburg AG",                                                                        // 47818
     "NTT DATA Italia",                                                                    // 47819
@@ -61401,7 +61401,7 @@ static const char * const table[] =
     "Appleby Westward Group Limited",                                                     // 61379
     "Vitamin IT Limited",                                                                 // 61380
     "Clipsal Cortex",                                                                     // 61381
-    "Squirrel Energy Pty Ltd",                                                            // 61382
+    NULL,                                                                                 // 61382
     "Jeremy D. Pavleck",                                                                  // 61383
     "SWARCO FUTURIT Verkehrssignalsysteme Ges.m.b.H",                                     // 61384
     "Dongdong Wen",                                                                       // 61385
@@ -61666,7 +61666,7 @@ static const char * const table[] =
     "Lunner.Kommune.no",                                                                  // 61644
     "Dyagsys Karya Informatika",                                                          // 61645
     "Région Réunion",                                                                     // 61646
-    "Fractal Energy Pty Ltd",                                                             // 61647
+    NULL,                                                                                 // 61647
     "Norcal Ambulance",                                                                   // 61648
     "Citykinect Inc",                                                                     // 61649
     "Semco Maritime A/S",                                                                 // 61650
@@ -67161,7 +67161,7 @@ static const char * const table[] =
     "Diasorin S.p.A.",                                                                    // 67139
     "NTEKSYSTEM Co., Ltd.",                                                               // 67140
     "ZKTL INFORMATION TECHNOLOGY LTD",                                                    // 67141
-    "FTSTECH AUSTRALIA PRIVATE LIMITED",                                                  // 67142
+    "FTSTECH AUSTRALIA PTY LTD",                                                          // 67142
     "Volvo Car Retail AB",                                                                // 67143
     "FORYOULINK CO.,LTD",                                                                 // 67144
     "MVision AI Oy",                                                                      // 67145
@@ -67366,7 +67366,119 @@ static const char * const table[] =
     "Secureletter.inc",                                                                   // 67344
     "Lab0nline",                                                                          // 67345
     "Shenzhen Silicon Dynamic Networks Co.,Ltd.",                                         // 67346
-    "PRESTAR SERVICOS E SOLUCOES LTDA"                                                    // 67347
+    "PRESTAR SERVICOS E SOLUCOES LTDA",                                                   // 67347
+    "CyberSecSecurity Inc.",                                                              // 67348
+    "BudgetCity Inc.",                                                                    // 67349
+    "Rai",                                                                                // 67350
+    "Zecurit Technologies Private Limited",                                               // 67351
+    "ConnectMyAssets",                                                                    // 67352
+    "布林(Brin)",                                                                           // 67353
+    "Each Energy Technology (Suzhou) Co.,Ltd.",                                           // 67354
+    "Kim Bonde",                                                                          // 67355
+    "F. X. MEILLER Fahrzeug- und Maschinenfabrik - GmbH & Co KG",                         // 67356
+    "Born3",                                                                              // 67357
+    "Persante Healthcare",                                                                // 67358
+    "Keystone Insights Corp",                                                             // 67359
+    "Keystone Digital Sdn Bhd",                                                           // 67360
+    "DuoKey SA",                                                                          // 67361
+    "Vinterra Technology Private Limited",                                                // 67362
+    "Ateleris GmbH",                                                                      // 67363
+    "Fria Skog AB",                                                                       // 67364
+    "Mega AS Consulting",                                                                 // 67365
+    "Virtue Digital Indonesia",                                                           // 67366
+    "Akya Group",                                                                         // 67367
+    "tado GmbH",                                                                          // 67368
+    "DENNIS EDMUND HELMS",                                                                // 67369
+    "CABLENET LTD.",                                                                      // 67370
+    "Quicksand Cyber Defense",                                                            // 67371
+    "Heinz Siegfried AG",                                                                 // 67372
+    "Oncodata Solucoes Tecnologicas Ltda",                                                // 67373
+    "Inex.net",                                                                           // 67374
+    "Toccata Systems Inc.",                                                               // 67375
+    "Shinerium Foundation",                                                               // 67376
+    "Tannerpress",                                                                        // 67377
+    "河北康普科技有限公司 (Hebei Kangpu Technology Co., Ltd.)",                                     // 67378
+    "TPSBoston",                                                                          // 67379
+    "Sławomir Koszewski",                                                                 // 67380
+    "CORUH ARGE VE TEKNOLOJI SANAYI TICARET LIMITED SIRKETI",                             // 67381
+    "Cognisn Pty Ltd",                                                                    // 67382
+    "Platinum Relations",                                                                 // 67383
+    "NomaSign (YouSource SA Pty Ltd)",                                                    // 67384
+    "EVEX TECHNOLOGY CO., LTD.",                                                          // 67385
+    "Vinicius A. Santana",                                                                // 67386
+    "Saltline Software",                                                                  // 67387
+    "LabOWL",                                                                             // 67388
+    "AppXLerate, LLC",                                                                    // 67389
+    "DhitraLabs",                                                                         // 67390
+    "PATA SALADA GRUPO CORPORATIVO",                                                      // 67391
+    "SID banka, d.d.",                                                                    // 67392
+    "Tianjin Beifang Hengye Electriacal Technical co.,LTD",                               // 67393
+    "Centrum voor Kankeropsporing vzw",                                                   // 67394
+    "DATA KNOX DMS PRIVATE LIMITED",                                                      // 67395
+    "H&M Software-Netzwerktechnik-GmbH",                                                  // 67396
+    "Cylenk S.A.",                                                                        // 67397
+    "Impuls ing d.o.o.",                                                                  // 67398
+    "University of Defence",                                                              // 67399
+    "BURGERETCIE",                                                                        // 67400
+    "Devolutions",                                                                        // 67401
+    "Mesoscale Systems Ltd. Co.",                                                         // 67402
+    "Healistic Group Ltd",                                                                // 67403
+    "Fromages Fins CA",                                                                   // 67404
+    "Lightfield Medical, Inc.",                                                           // 67405
+    "Vasily Povalyaev",                                                                   // 67406
+    "Net Max for Communication Services,General Trading,General Contracting,Energy Solutions  and Renewable Energy",// 67407
+    "Validated One",                                                                      // 67408
+    "NAKIVO Inc.",                                                                        // 67409
+    "YASSS",                                                                              // 67410
+    "xorpoz",                                                                             // 67411
+    "accroma labtec Ltd.",                                                                // 67412
+    "上海金榜智能科技有限公司 (Shanghai Jinbang Intelligent Technology Co., Ltd.)",                   // 67413
+    "Rush Enterprises",                                                                   // 67414
+    "Markovian Protocol",                                                                 // 67415
+    "Certificate.Digital Ltd.",                                                           // 67416
+    "Starostwo Powiatowe w Oswiecimiu",                                                   // 67417
+    "VIZIOME",                                                                            // 67418
+    "Pulse Biosciences, Inc.",                                                            // 67419
+    "JERACNC Co.,LTD.",                                                                   // 67420
+    "Tianjin Beifang Hengye Electriacal Technical co.,LTD",                               // 67421
+    "Telco Electronics LTD",                                                              // 67422
+    "tix entertainment (pvt) Ltd",                                                        // 67423
+    "ToffeeX",                                                                            // 67424
+    "Traceframe",                                                                         // 67425
+    "SINAENG Co., Ltd.",                                                                  // 67426
+    "KQC Quantum Inc.",                                                                   // 67427
+    "MEDQUOTE LTD",                                                                       // 67428
+    "DTC NAH LLC",                                                                        // 67429
+    "Quantum Leap",                                                                       // 67430
+    "Digivert Asmasta",                                                                   // 67431
+    "Logos Payment A/S",                                                                  // 67432
+    "Ella Networks",                                                                      // 67433
+    "hcsystem",                                                                           // 67434
+    "Tristan Pengelley Ltd",                                                              // 67435
+    "Absentia Technologies Corporation",                                                  // 67436
+    "SyntheNote",                                                                         // 67437
+    "WolfieSchema",                                                                       // 67438
+    "深圳市亿万克数据设备科技有限公司 (Shenzhen EVOC Data Equipment Technology Co., Ltd.)",               // 67439
+    "Spanalytics, LLC",                                                                   // 67440
+    "Mi Tecnico SpA",                                                                     // 67441
+    "OKG Aktiebolag",                                                                     // 67442
+    "SecureMachines",                                                                     // 67443
+    "Shenzhen Yunt Digital Power Co., Ltd.",                                              // 67444
+    "AVASIM",                                                                             // 67445
+    "Oregon Institute of Technology",                                                     // 67446
+    "SMLK Studio",                                                                        // 67447
+    "APOTEC APOIO TECNICO IND E COM ELETROMECANICA LTDA - ME",                            // 67448
+    "Avnir, LLC",                                                                         // 67449
+    "ILO Endoscopic Systems; Inc.",                                                       // 67450
+    "SABE",                                                                               // 67451
+    "Codigm Limited",                                                                     // 67452
+    "Trendy Beat Network LTD",                                                            // 67453
+    "Distro Globe FZC",                                                                   // 67454
+    "GANSHORN Medizin Electronic GmbH",                                                   // 67455
+    "Shenzhen Drawer Technologies Development Co., Ltd.",                                 // 67456
+    "Selene Feigl",                                                                       // 67457
+    "UBISENSE LIMITED",                                                                   // 67458
+    "IPM-Pro, LLC"                                                                        // 67459
 };
 
 const char* global_enterprises_lookup(uint32_t value)
