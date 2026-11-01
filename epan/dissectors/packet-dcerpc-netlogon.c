@@ -14,6 +14,8 @@
 #define WS_LOG_DOMAIN "packet-dcerpc-netlogon"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
+#include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
 
@@ -516,12 +518,9 @@ typedef struct _netlogon_auth_vars {
 static gcry_error_t prepare_session_key_cipher(netlogon_auth_vars *vars,
                                                gcry_cipher_hd_t *_cipher_hd);
 
-typedef struct _seen_packet {
-    bool isseen;
-    uint32_t num;
-} seen_packet;
-
-static seen_packet seen;
+/* Proto data key base for the secure channel verifiers dissected in the
+ * current pass of a frame, keyed by their offset in the frame */
+#define NETLOGON_SECCHAN_VERF_SEEN 0x40000000
 
 static e_guid_t uuid_dcerpc_netlogon = {
     0x12345678, 0x1234, 0xabcd,
@@ -2822,6 +2821,12 @@ netlogon_dissect_CLAIMS_SET(tvbuff_t *tvb, unsigned offset,
     return offset;
 }
 
+static void
+netlogon_free_ndr_pointer_list(void *arg)
+{
+    free_ndr_pointer_list((dcerpc_info *)arg);
+}
+
 static unsigned
 netlogon_dissect_CLAIMS_SET_BUFFER(tvbuff_t *tvb, unsigned offset, unsigned length,
                                    packet_info *pinfo, proto_tree *tree,
@@ -2874,10 +2879,11 @@ netlogon_dissect_CLAIMS_SET_BUFFER(tvbuff_t *tvb, unsigned offset, unsigned leng
     suboffset = nt_dissect_MIDL_NDRHEADERBLOB(tree, subtvb, suboffset, &drep[0]);
 
     init_ndr_pointer_list(&di);
+    CLEANUP_PUSH(netlogon_free_ndr_pointer_list, &di);
     dissect_ndr_pointer(subtvb, suboffset, pinfo, tree, &di, drep,
                         netlogon_dissect_CLAIMS_SET, NDR_POINTER_UNIQUE,
                         "Claims Set:", -1);
-    free_ndr_pointer_list(&di);
+    CLEANUP_CALL_AND_POP;
 
     return offset;
 }
@@ -3091,11 +3097,12 @@ netlogon_dissect_CLAIMS_SET_METADATA_BLOB(tvbuff_t *tvb,
     offset = nt_dissect_MIDL_NDRHEADERBLOB(tree, tvb, offset, &drep[0]);
 
     init_ndr_pointer_list(&di);
+    CLEANUP_PUSH(netlogon_free_ndr_pointer_list, &di);
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, &di, drep,
                                  netlogon_dissect_CLAIMS_SET_METADATA,
                                  NDR_POINTER_UNIQUE,
                                  info_str, -1);
-    free_ndr_pointer_list(&di);
+    CLEANUP_CALL_AND_POP;
 
     return offset;
 }
@@ -8002,8 +8009,6 @@ netlogon_dissect_netrserverauthenticate3_rqst(tvbuff_t *tvb, unsigned offset,
 
     flags = tvb_get_letohl (tvb, offset);
     netlogon_dissect_neg_options(tvb,tree,flags,offset);
-    seen.isseen = false;
-    seen.num = 0;
     offset +=4;
     return offset;
 }
@@ -8051,8 +8056,6 @@ netlogon_dissect_netrserverauthenticatekerberos_rqst(tvbuff_t *tvb, unsigned off
 
     flags = tvb_get_letohl (tvb, offset);
     netlogon_dissect_neg_options(tvb,tree,flags,offset);
-    seen.isseen = false;
-    seen.num = 0;
     offset +=4;
 
     vars->flags = flags;
@@ -10268,7 +10271,11 @@ dissect_secchan_verf(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
     uint64_t confounder = 0;
     int update_vars = 0;
 
-    if(  ! (seen.isseen && seen.num == pinfo->num) ) {
+    /* The verifier can be handed to us more than once for the same PDU;
+     * dissect it once per pass. Several PDUs in a frame each have one. */
+    uint32_t seen_key = NETLOGON_SECCHAN_VERF_SEEN | (uint32_t)(tvb_raw_offset(tvb) + offset);
+    if (!p_get_proto_data(pinfo->pool, pinfo, proto_dcerpc_netlogon, seen_key)) {
+        p_add_proto_data(pinfo->pool, pinfo, proto_dcerpc_netlogon, seen_key, GUINT_TO_POINTER(1));
         /*
          * Create a new tree, and split into x components ...
          */
@@ -10300,9 +10307,6 @@ dissect_secchan_verf(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
         update_vars = 1;
     }
 
-    /*ws_debug("Setting isseen to true, old packet %d new %d",seen.num,pinfo->num);*/
-    seen.isseen = true;
-    seen.num = pinfo->num;
 
     vars = find_or_create_schannel_netlogon_auth_vars(pinfo, auth_info, is_server);
     if (vars == NULL) {
@@ -12039,8 +12043,6 @@ void
 proto_reg_handoff_dcerpc_netlogon(void)
 {
     /* Register protocol as dcerpc */
-    seen.isseen = false;
-    seen.num = 0;
     dcerpc_init_uuid(proto_dcerpc_netlogon, ett_dcerpc_netlogon,
                      &uuid_dcerpc_netlogon, ver_dcerpc_netlogon,
                      dcerpc_netlogon_dissectors, hf_netlogon_opnum);
