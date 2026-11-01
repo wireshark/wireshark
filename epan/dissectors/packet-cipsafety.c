@@ -688,7 +688,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
                          ett_ssupervisor_configure_request_tunid_snn);
             pi = proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_configure_request_ounid,
                                      tvb, offset+2+req_path_size+26, 10, ENC_NA);
-            dissect_unid(tvb, pinfo, offset+2+req_path_size+16, pi, "OUNID SNN",
+            dissect_unid(tvb, pinfo, offset+2+req_path_size+26, pi, "OUNID SNN",
                          hf_cip_ssupervisor_configure_request_ounid_snn_timestamp,
                          hf_cip_ssupervisor_configure_request_ounid_snn_date,
                          hf_cip_ssupervisor_configure_request_ounid_snn_time,
@@ -1109,7 +1109,7 @@ static int dissect_s_validator_app_data_path(packet_info *pinfo, proto_tree *tre
                                              proto_item *item _U_, tvbuff_t *tvb, int offset, int total_len)
 {
    proto_item* pi;
-   proto_tree* epath_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_path, &pi, "Application Data Path: ");
+   proto_tree* epath_tree = proto_tree_add_subtree(tree, tvb, offset, total_len, ett_path, &pi, "Application Data Path: ");
    dissect_epath(tvb, pinfo, epath_tree, pi, offset, total_len, false, false, NULL, NULL, NO_DISPLAY, NULL, false);
    return total_len;
 }
@@ -1920,7 +1920,7 @@ void add_safety_data_type_to_info_column(packet_info *pinfo, enum enip_connid_ty
 static void
 dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int item_length, packet_info *pinfo, cip_safety_info_t* safety_info)
 {
-   bool multicast = in4_addr_is_multicast(pntohu32(pinfo->dst.data));
+   bool multicast = (pinfo->dst.type == AT_IPv4) && in4_addr_is_multicast(pntohu32(pinfo->dst.data));
    bool server_dir = false;
    enum enip_connid_type conn_type = ECIDT_UNKNOWN;
    enum cip_safety_format_type format = CIP_SAFETY_BASE_FORMAT;
