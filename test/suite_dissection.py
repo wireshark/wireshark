@@ -37390,3 +37390,86 @@ class TestDissectDcerpcRdpdrSmartcard:
             '135\t0x00000020\tSCARD\t\t\t\t\t\t\tDevice list announce',
             '136\t\t\t\t\t\t\t\t2\tSCARD_IOCTL_ESTABLISHCONTEXT req',
         ]
+
+
+class TestDissectDcerpcRfr:
+    def test_rfr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three TCP connections (NDR little endian, big
+        endian, NDR64) with a bind and both opnums (plus a logon failure
+        and an unknown opnum in the first); no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rfr_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 52
+        assert protocols.count('RFR') == 28
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_rfr_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rfr_calls(self, cmd_tshark, capture_file, test_env):
+        '''Both opnums by name, their arguments, the returned server names
+        through the double pointers (also NULL), known and unknown MAPI
+        status codes, the same in every encoding.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rfr_coverage.pcap.gz'),
+                '-Y', 'rfr',
+                '-Tfields', '-edcerpc.drep.byteorder', '-erfr.opnum',
+                '-erfr.RfrGetNewDSA.ulFlags',
+                '-erfr.RfrGetFQDNFromLegacyDN.ulFlags',
+                '-erfr.RfrGetFQDNFromLegacyDN.cbMailboxServerDN',
+                '-erfr.RfrGetNewDSA.ppszServer',
+                '-erfr.RfrGetFQDNFromLegacyDN.ppszServerFQDN',
+                '-erfr.MAPISTATUS_status', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 28
+        calls = [
+            '0\t0\t\t\t\t\t\tRfrGetNewDSA request',
+            '0\t\t\t\tdc1.example.test\t\t0x00000000\tRfrGetNewDSA response',
+            '0\t1\t\t\tdc2.example.test\t\t\tRfrGetNewDSA request',
+            '0\t\t\t\t\t\t0x8004010f\tRfrGetNewDSA response, Status: MAPI_E_NOT_FOUND',
+            '1\t\t0\t80\t\t\t\tRfrGetFQDNFromLegacyDN request',
+            '1\t\t\t\t\tmbx1.example.test\t0x00000000\tRfrGetFQDNFromLegacyDN response',
+            '1\t\t2\t10\t\t\t\tRfrGetFQDNFromLegacyDN request',
+            '1\t\t\t\t\t\t0x80070005\tRfrGetFQDNFromLegacyDN response, Status: Unknown MAPISTATUS error 0x80070005',
+        ]
+        extra = [
+            '1\t\t0\t80\t\t\t\tRfrGetFQDNFromLegacyDN request',
+            '1\t\t\t\t\t\t0x80040111\tRfrGetFQDNFromLegacyDN response, Status: MAPI_E_LOGON_FAILED',
+            '2\t\t\t\t\t\t\tUnknown operation 2 request',
+            '2\t\t\t\t\t\t\tUnknown operation 2 response',
+        ]
+        assert lines == (['1\t' + c for c in calls + extra] +
+                         ['0\t' + c for c in calls] +
+                         ['1\t' + c for c in calls])
+
+    def test_rfr_strings(self, cmd_tshark, capture_file, test_env):
+        '''The DNs of the requests, and the referent IDs of the double
+        pointers: the outer pointer NULL, the inner pointer NULL, both
+        set with an empty string.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rfr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6,7,8,9,10,12}',
+                '-Tfields', '-eframe.number', '-edcerpc.referent_id',
+                '-erfr.RfrGetNewDSA.pUserDN', '-erfr.RfrGetNewDSA.ppszUnused',
+                '-erfr.RfrGetFQDNFromLegacyDN.szMailboxServerDN',
+            ), encoding='utf-8', env=test_env)
+        user = '/o=Example/ou=Exchange Administrative Group/cn=Recipients/cn=alice'
+        server = '/o=Example/ou=Exchange Administrative Group/cn=Configuration/cn=Servers/cn=MBX1'
+        assert stdout.splitlines() == [
+            '6\t0x00020004\t%s\t\t' % user,
+            '7\t0x00020004,0x00020008\t\t\t',
+            '8\t0x00020004,0x00020008,0x0002000c,0x00020010\t%s\t\t' % user,
+            '9\t0x00020004,0x00020008,0x0002000c\t\t\t',
+            '10\t\t\t\t%s' % server,
+            '12\t\t\t\t/o=Ex/cn=X',
+        ]
