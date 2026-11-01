@@ -16,6 +16,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
@@ -394,6 +395,12 @@ rdpdr_get_conversation_data(packet_info *pinfo)
 	return info;
 }
 
+static void
+rdpdr_free_ndr_pointer_list(void *arg)
+{
+	free_ndr_pointer_list((dcerpc_info *)arg);
+}
+
 static int
 dissect_smartcard_req(tvbuff_t *in_tvb, int in_offset, packet_info *pinfo, proto_tree *tree, uint32_t ioControlCode)
 {
@@ -407,7 +414,10 @@ dissect_smartcard_req(tvbuff_t *in_tvb, int in_offset, packet_info *pinfo, proto
 	dcerpc_call_value call_data = { 0 };
 	di.conformant_run = 0;
 	di.call_data = &call_data;
+	int ret = in_offset;
 	init_ndr_pointer_list(&di);
+	/* Free the pointer list also when an exception is thrown */
+	CLEANUP_PUSH(rdpdr_free_ndr_pointer_list, &di);
 
 	int offset = 16;
 	tvbuff_t *tvb = tvb_new_subset_remaining(in_tvb, in_offset);
@@ -476,9 +486,13 @@ dissect_smartcard_req(tvbuff_t *in_tvb, int in_offset, packet_info *pinfo, proto
 		offset = scard_pack_dissect_struct_Reconnect_Call(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
 		break;
 	default:
-		return in_offset;
+		offset = -1;
+		break;
 	}
-	return in_offset + dissect_deferred_pointers(pinfo, tvb, offset, &di, drep);
+	if (offset >= 0)
+		ret = in_offset + dissect_deferred_pointers(pinfo, tvb, offset, &di, drep);
+	CLEANUP_CALL_AND_POP;
+	return ret;
 }
 
 static int
@@ -492,7 +506,10 @@ dissect_smartcard_resp(tvbuff_t *in_tvb, int in_offset, packet_info *pinfo, prot
 	dcerpc_call_value call_data = { 0 };
 	di.conformant_run = 0;
 	di.call_data = &call_data;
+	int ret = in_offset;
 	init_ndr_pointer_list(&di);
+	/* Free the pointer list also when an exception is thrown */
+	CLEANUP_PUSH(rdpdr_free_ndr_pointer_list, &di);
 
 	int offset = 16;
 	proto_tree_add_item(tree, hf_rdpdr_ioreq_sc_returnCode, in_tvb, in_offset + 16, 4, ENC_LITTLE_ENDIAN);
@@ -560,10 +577,14 @@ dissect_smartcard_resp(tvbuff_t *in_tvb, int in_offset, packet_info *pinfo, prot
 		offset = scard_pack_dissect_struct_GetAttrib_Return(tvb, offset, pinfo, tree, &di, drep, hf_rdpdr_ioreq_sc_command, 0);
 		break;
 	default:
-		return in_offset;
+		offset = -1;
+		break;
 	}
 
-	return in_offset + dissect_deferred_pointers(pinfo, tvb, offset, &di, drep);
+	if (offset >= 0)
+		ret = in_offset + dissect_deferred_pointers(pinfo, tvb, offset, &di, drep);
+	CLEANUP_CALL_AND_POP;
+	return ret;
 }
 
 
@@ -604,8 +625,8 @@ dissect_rdpdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U_, vo
 
 			for (uint32_t i = 0; i < deviceCount; i++) {
 				uint32_t deviceDataLen = tvb_get_uint32(tvb, offset + 16, ENC_LITTLE_ENDIAN);
-				char dosName[8];
-				tvb_get_raw_bytes_as_string(tvb, offset + 8, dosName, 8);
+				/* As text: the raw octets need not be valid UTF-8 */
+				const char *dosName = (const char *)tvb_get_string_enc(pinfo->pool, tvb, offset + 8, 8, ENC_ASCII);
 
 				proto_tree *dev_tree = proto_tree_add_subtree(tree, tvb, offset, 16 + deviceDataLen, ett_rdpdr_device, NULL, dosName);
 
