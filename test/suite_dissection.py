@@ -37255,3 +37255,138 @@ class TestDissectDcerpcRcg:
             '49\t\t\t\t\t\t\t\t\t\t\t24',
             '65\t\t\t32771\t4\t\t\t\t\t72623859790382856\t\t',
         ]
+
+
+class TestDissectDcerpcRdpdrSmartcard:
+    def test_rdpdr_smartcard_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is RDPDR (Exported PDUs) and none is malformed or
+        has a warning, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rdpdr_smartcard_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 137
+        assert protocols.count('RDPDR') == 137
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_rdpdr_smartcard_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rdpdr_smartcard_calls(self, cmd_tshark, capture_file, test_env):
+        '''Smart card IOCTLs sent to the announced smart card device and
+        their completions, matched by completion ID; the NDR command is
+        decoded only for the IOCTLs the dissector knows.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rdpdr_smartcard_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 40 && frame.number <= 123',
+                '-Tfields', '-erdpdr.iocontrolcode', '-erdpdr.sc.returnCode',
+                '-erdpdr.sc.command', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 84
+        decoded = []
+        for req, resp in zip(lines[0::2], lines[1::2]):
+            code, rc, cmd, info = req.split('\t')
+            assert rc == ''
+            assert info.endswith(' req')
+            code2, rc2, cmd2, info2 = resp.split('\t')
+            assert code2 == ''
+            assert rc2 == '0x00000000'
+            assert info2 == info[:-4] + ' resp'
+            decoded.append((code, info[:-4], cmd != '', cmd2 != ''))
+        known = ['ESTABLISHCONTEXT', 'ISVALIDCONTEXT', 'LISTREADERSA',
+                 'LISTREADERSW', 'LISTREADERSA', 'GETDEVICETYPEID',
+                 'GETSTATUSCHANGEA', 'GETSTATUSCHANGEW', 'CONNECTA',
+                 'CONNECTW', 'BEGINTRANSACTION', 'STATE', 'STATUSA',
+                 'STATUSW', 'TRANSMIT', 'TRANSMIT', 'GETATTRIB',
+                 'READCACHEA', 'READCACHEW', 'WRITECACHEA', 'WRITECACHEW',
+                 'RECONNECT', 'ENDTRANSACTION', 'DISCONNECT', 'CANCEL']
+        long_return = ['ACCESSSTARTEDEVENT', 'INTRODUCEREADERGROUPA',
+                       'INTRODUCEREADERGROUPW', 'FORGETREADERGROUPA',
+                       'FORGETREADERGROUPW', 'INTRODUCEREADERA',
+                       'INTRODUCEREADERW', 'FORGETREADERA', 'FORGETREADERW',
+                       'ADDREADERTOGROUPA', 'ADDREADERTOGROUPW',
+                       'REMOVEREADERFROMGROUPA', 'REMOVEREADERFROMGROUPW',
+                       'SETATTRIB']
+        expected = [('SCARD_IOCTL_' + n, True, n != 'STATE') for n in known]
+        expected += [('SCARD_IOCTL_' + n, False, True) for n in long_return]
+        expected += [('SCARD_IOCTL_LOCATECARDSA', False, False),
+                     ('SCARD_IOCTL_CONTROL', False, False),
+                     ('SCARD_IOCTL_RELEASECONTEXT', True, True)]
+        assert [d[1:] for d in decoded] == expected
+        assert decoded[0][0] == '0x00090014'
+        assert decoded[-1][0] == '0x00090018'
+
+    def test_rdpdr_smartcard_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values of deferred pointers: group and reader names
+        (char and wchar_t strings), reader states, protocols, the Transmit
+        receive length and cache lookup names and return codes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rdpdr_smartcard_coverage.pcap.gz'),
+                '-Y', 'frame.number in {44,50,51,52,53,54,56,59,65,69,71,76,77,83}',
+                '-Tfields', '-eframe.number',
+                '-escard_pack.ListReadersA_Call.mszGroups',
+                '-escard_pack.GetDeviceTypeId_Call.szReaderName',
+                '-escard_pack.GetDeviceTypeId_Return.dwDeviceId',
+                '-escard_pack.ReaderStateA.szReader',
+                '-escard_pack.ReaderStateW.szReader',
+                '-escard_pack.ReaderState_Return.cbAtr',
+                '-escard_pack.ConnectA_Call.szReader',
+                '-escard_pack.Connect_Return.dwActiveProtocol',
+                '-escard_pack.Status_Return.dwState',
+                '-escard_pack.Transmit_Return.cbRecvLength',
+                '-escard_pack.ReadCacheW_Call.szLookupName',
+                '-escard_pack.ReadCache_Return.ReturnCode',
+                '-escard_pack.Reconnect_Return.dwActiveProtocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '44\tSCard$\t\t\t\t\t\t\t\t\t\t\t\t',
+            '50\t\tExample Reader 0\t\t\t\t\t\t\t\t\t\t\t',
+            '51\t\t\t31\t\t\t\t\t\t\t\t\t\t',
+            # tshark escapes the backslashes of \\?PnP?\Notification
+            '52\t\t\t\tExample Reader 0,' + r'\\\\?PnP?\\Notification' + '\t' * 9,
+            '53\t\t\t\t\t\t24,0\t\t\t\t\t\t\t',
+            '54\t\t\t\t\tExample Reader 0\t\t\t\t\t\t\t\t',
+            '56\t\t\t\t\t\t\tExample Reader 0\t\t\t\t\t\t',
+            '59\t\t\t\t\t\t\t\t1\t\t\t\t\t',
+            '65\t\t\t\t\t\t\t\t\t6\t\t\t\t',
+            '69\t\t\t\t\t\t\t\t\t\t4\t\t\t',
+            '71\t\t\t\t\t\t\t\t\t\t0\t\t\t',
+            '76\t\t\t\t\t\t\t\t\t\t\tCache/W\t\t',
+            '77\t\t\t\t\t\t\t\t\t\t\t\t-2146434967\t',
+            '83\t\t\t\t\t\t\t\t\t\t\t\t\t2',
+        ]
+
+    def test_rdpdr_devices(self, cmd_tshark, capture_file, test_env):
+        '''The device list announce, device replies by name, file system
+        I/O requests linked to their completions (in two passes), the
+        create information, printer events and the reproducer of "RDPDR:
+        Free the NDR pointer list of smart card calls" (an announce in a
+        conversation of its own and EstablishContext requests).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcerpc_rdpdr_smartcard_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7,8,10,11,12,35,36,124,129,130,135,136}',
+                '-Tfields', '-eframe.number', '-erdpdr.devicetype',
+                '-erdpdr.dosname', '-erdpdr.ioresultframe',
+                '-erdpdr.iorequestframe', '-erdpdr.dr.create.info',
+                '-erdpdr.printer.printername', '-erdpdr.device',
+                '-escard_pack.EstablishContext_Call.dwScope', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t0x00000020,0x00000008,0x00000004\tSCARD,C:,PRN1\t\t\t\t\t\t\tDevice list announce',
+            '8\t\t\t\t\t\t\t\t\tSCARD, status=0x0',
+            '10\t\t\t\t\t\t\t\t\t',
+            '11\t\t\t12\t\t\t\t\t\tFS IRP_MJ_CREATE',
+            '12\t\t\t\t11\t0x05\t\t\t\t',
+            '35\t\t\t36\t\t\t\t\t\tFS IRP_MJ_CREATE',
+            '36\t\t\t\t35\t\t\t\t\t',
+            '124\t\tPRN1\t\t\t\tPrinter\t\t\tRDPDR_ADD_PRINTER_EVENT',
+            '129\t\t\t\t\t\t\tPRN1\t\tPAKID_PRN_USING_XPS PRN1',
+            '130\t\t\t\t\t\t\t\t\tPAKID_PRN_USING_XPS',
+            '135\t0x00000020\tSCARD\t\t\t\t\t\t\tDevice list announce',
+            '136\t\t\t\t\t\t\t\t2\tSCARD_IOCTL_ESTABLISHCONTEXT req',
+        ]
