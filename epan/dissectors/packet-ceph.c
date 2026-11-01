@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/to_str.h>
@@ -743,6 +744,7 @@ static int ett_mds_release;
 static int ett_hitset_params;
 static int ett_snapinfo;
 static int ett_pgpool;
+static int ett_pgpool_flags;
 static int ett_pgpool_snap;
 static int ett_pgpool_snapdel;
 static int ett_pgpool_property;
@@ -1513,9 +1515,18 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, unsigned off)
 		/* Retrieve the saved state. */
 		d->convd = (c_conv_data*)p_get_proto_data(wmem_file_scope(), pinfo,
 							  proto_ceph, off);
-		DISSECTOR_ASSERT_HINT(d->convd, "Frame visited, but no saved state.");
 		/* Make a copy and use that so we don't mess up the original. */
-		d->convd = c_conv_data_copy(d->convd, wmem_new(pinfo->pool, c_conv_data));
+		if (d->convd)
+			d->convd = c_conv_data_copy(d->convd, wmem_new(pinfo->pool, c_conv_data));
+		else
+		{
+			/*
+				Nothing was saved if the first pass stopped before the
+				first PDU of the frame; start over without storing it.
+			*/
+			d->convd = wmem_new(pinfo->pool, c_conv_data);
+			c_conv_data_init(d->convd);
+		}
 	}
 	else
 	{
@@ -2279,6 +2290,9 @@ unsigned c_dissect_encoded(proto_tree *tree, c_encoded *enc,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 
+	/* The callers continue at the end, which must not wrap back. */
+	if (enc->size > (unsigned)tvb_reported_length_remaining(tvb, off))
+		THROW(ReportedBoundsError);
 	enc->end = off + enc->size;
 
 	return off;
@@ -2372,7 +2386,7 @@ unsigned c_dissect_object_locator(proto_tree *root, int hf,
 
 	if (key.size && hash >= 0)
 	{
-		proto_tree_add_expert(tree, data->pinfo, &ei_oloc_both, NULL, 0, 0);
+		proto_tree_add_expert(tree, data->pinfo, &ei_oloc_both, tvb, off, 0);
 	}
 
 	c_warn_size(tree, tvb, off, enchdr.end, data);
@@ -2635,14 +2649,16 @@ unsigned c_dissect_snapinfo(proto_tree *root,
 
 	off = c_dissect_str(tree, hf_snapinfo_name, &name, tvb, data->pinfo, off);
 
-	proto_item_set_text(ti, ", ID: 0x%016"PRIX64
+	proto_item_append_text(ti, ", ID: 0x%016"PRIX64
 			    ", Name: %s, Date: %s",
 			    id,
 			    name.str,
 			    date);
 
-	c_warn_size(tree, tvb, off, enc.size, data);
-	off = enc.size;
+	c_warn_size(tree, tvb, off, enc.end, data);
+	off = enc.end;
+
+	proto_item_set_end(ti, tvb, off);
 
 	return off;
 }
@@ -2665,10 +2681,6 @@ unsigned c_dissect_pgpool(proto_tree *root,
 		&hf_pgpool_flag_fake_ec_pool,
 		NULL
 	};
-	static int * const flags_high[] = {
-		NULL
-	};
-
 	/** pg_pool_t from ceph:/src/osd/osd_types.h */
 
 	ti   = proto_tree_add_item(root, hf_pgpool, tvb, off, -1, ENC_NA);
@@ -2754,11 +2766,11 @@ unsigned c_dissect_pgpool(proto_tree *root,
 			    tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 
-	proto_tree_add_bitmask(tree, tvb, off, hf_pgpool_flags_low, hf_pgpool_flags_low,
+	proto_tree_add_bitmask(tree, tvb, off, hf_pgpool_flags_low, ett_pgpool_flags,
 			       flags_low, ENC_LITTLE_ENDIAN);
 	off += 4;
-	proto_tree_add_bitmask(tree, tvb, off, hf_pgpool_flags_high, hf_pgpool_flags_high,
-			       flags_high, ENC_LITTLE_ENDIAN);
+	/* No high flags are defined */
+	proto_tree_add_item(tree, hf_pgpool_flags_high, tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 
 	proto_tree_add_item(tree, hf_pgpool_crash_reply_interval,
@@ -4441,7 +4453,7 @@ unsigned c_dissect_msg_mon_sub(proto_tree *root,
 				    tvb, off, 1, ENC_LITTLE_ENDIAN);
 		off += 1;
 
-		proto_item_set_end(ti, tvb, off);
+		proto_item_set_end(subti, tvb, off);
 	}
 
 	return off;
@@ -7008,7 +7020,8 @@ int dissect_ceph(tvbuff_t *tvb, packet_info *pinfo,
 			c_pkt_data_save(&data, pinfo, off);
 
 		offt = c_pdu_end(tvb, pinfo, off, &data);
-		if (offt == C_INVALID)
+		/* A length that wraps back to this PDU would never end. */
+		if (offt == C_INVALID || offt <= off)
 		{
 			return 0;
 		}
@@ -7715,8 +7728,8 @@ proto_register_ceph(void)
 			NULL, HFILL
 		} },
 		{ &hf_pg_stat_stats, {
-			"Stats", "ceph.pg_stat.stats",
-			FT_NONE, BASE_NONE, NULL, 0,
+			"Stats Category", "ceph.pg_stat.stats",
+			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL
 		} },
 		{ &hf_pg_stat_logsize, {
@@ -8710,7 +8723,7 @@ proto_register_ceph(void)
 		} },
 		{ &hf_osd_redirect_obj, {
 			"Object Name", "ceph.osd_redirect.obj",
-			FT_BYTES, BASE_NONE, NULL, 0,
+			FT_STRING, BASE_NONE, NULL, 0,
 			"Redirect to this object.", HFILL
 		} },
 		{ &hf_osd_redirect_osdinstr, {
@@ -9622,7 +9635,7 @@ proto_register_ceph(void)
 		} },
 		{ &hf_msg_poolopreply_datai, {
 			"Data", "ceph.msg.poolopreply.datai",
-			FT_UINT32, BASE_DEC, NULL, 0,
+			FT_NONE, BASE_NONE, NULL, 0,
 			NULL, HFILL
 		} },
 		{ &hf_msg_poolopreply_data, {
@@ -10333,6 +10346,7 @@ proto_register_ceph(void)
 		&ett_hitset_params,
 		&ett_snapinfo,
 		&ett_pgpool,
+		&ett_pgpool_flags,
 		&ett_pgpool_snap,
 		&ett_pgpool_snapdel,
 		&ett_pgpool_property,
