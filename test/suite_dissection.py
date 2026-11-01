@@ -37652,3 +37652,118 @@ class TestDissectDcerpcRsMisc:
             '0\t0\t0\t0\t\tlogin_get_info requestrs_login_get_info Request (other)',
             '0\t0\t\t\t\tlogin_get_info response',
         ]
+
+
+class TestDissectDcerpcRsPgo:
+    OPNUMS = ['add', 'add', 'delete', 'delete', 'replace', 'replace',
+              'rename', 'get', 'get', 'get', 'get', 'get', 'get',
+              'key_transfer', 'key_transfer', 'key_transfer', 'key_transfer',
+              'key_transfer', 'key_transfer', 'add_member', 'add_member',
+              'delete_member', 'is_member', 'get_members']
+
+    def test_rs_pgo_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: 24 calls (every opnum, the unions in every arm),
+        little endian and then big endian; no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rs_pgo_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-edcerpc.drep.byteorder',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines == ['RS_PGO\t1'] * 48 + ['RS_PGO\t0'] * 48
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_rs_pgo_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rs_pgo_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every request is followed by its response, matched by opnum.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcerpc_rs_pgo_coverage.pcap.gz'),
+                '-Tfields', '-edcerpc.pkt_type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        names = [line.split('\t')[1].split(' ')[0] for line in stdout.splitlines()]
+        kinds = [line.split('\t')[0] for line in stdout.splitlines()]
+        assert names == [n for n in self.OPNUMS for _ in (0, 1)] * 2
+        assert kinds == ['0', '2'] * 48
+
+    def test_rs_pgo_flags(self, cmd_tshark, capture_file, test_env):
+        '''The PGO flags in the Info column: ":NONE" only for flags 0
+        (fixed in "RS_PGO: Stop at an oversize name, fix the flags and
+        query field types"; before it every frame showed ":NONE").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rs_pgo_coverage.pcap.gz'),
+                '-Y', 'rs_pgo.flags',
+                '-Tfields', '-eframe.number', '-ers_pgo.flags', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        got = []
+        for line in stdout.splitlines():
+            frame, flags, info = line.split('\t')
+            pgo = info.split('PgoFlags=')[1].split(' ')[0]
+            got.append((int(frame), flags, pgo))
+        expected = [
+            (1, '0x00000007', ':IS_AN_ALIAS:IS_REQUIRED:PROJLIST_OK'),
+            (3, '0x00000000', ':NONE'),
+            (9, '0x00000001', ':IS_AN_ALIAS'),
+            (11, '0x00000002', ':IS_REQUIRED'),
+            (16, '0x00000004', ':PROJLIST_OK'),
+            (18, '0x00000003', ':IS_AN_ALIAS:IS_REQUIRED'),
+            (20, '0x00000005', ':IS_AN_ALIAS:PROJLIST_OK'),
+            (22, '0x00000000', ':NONE'),
+        ]
+        assert got == expected + [(f + 48, v, s) for f, v, s in expected]
+
+    def test_rs_pgo_query_field_types(self, cmd_tshark, test_env):
+        '''The query and query key fields have the width they are read
+        with (8 and 16 bits; fixed in "RS_PGO: Stop at an oversize name,
+        fix the flags and query field types").'''
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                                         encoding='utf-8', env=test_env)
+        types = {}
+        for line in stdout.splitlines():
+            f = line.split('\t')
+            if len(f) > 3 and f[2] in ('rs_pgo.query', 'rs_pgo.query_key'):
+                types[f[2]] = f[3]
+        assert types == {'rs_pgo.query': 'FT_UINT8', 'rs_pgo.query_key': 'FT_UINT16'}
+
+    def test_rs_pgo_query_keys(self, cmd_tshark, capture_file, test_env):
+        '''get and key_transfer: every arm of the query key union (name,
+        id, unix number, next, none, unknown), the requested result type
+        and the get result with its PGO item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rs_pgo_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 15 && frame.number <= 38',
+                '-Tfields', '-ers_pgo.query', '-ers_pgo.query_key',
+                '-ers_pgo.name_principalName', '-ers_pgo.unix_num_key_t',
+                '-ers_pgo.query_result', '-ers_pgo.pname_principalName',
+                '-ers_pgo.unix_num',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\t0\talice\t\t\t\t0',              # get NAME
+            '\t\talice\t\t0\tFull Name 0\t1,1001',
+            '\t1\t/.:/sec\t\t\t\t1',            # get ID
+            '\t\talice\t\t0\tFull Name 1\t2,1002',
+            '\t2\t/.:/sec\t1001\t\t\t2',        # get UNIX_NUM
+            '\t\talice\t\t0\tFull Name 2\t3,1003',
+            '\t3\tprincipal\t\t\t\t3',          # get NEXT
+            '\t\tbob\t\t0\tFull Name 3\t4,1004',
+            '\t4\t\t\t\t\t4',                   # get NONE
+            '\t\t\t\t387063811\t\t5',
+            '\t7\t\t\t\t\t5',                   # get, unknown arm
+            '\t\t\t\t387063811\t\t6',
+            '0\t1\t/.:/sec\t\t\t\t',            # key_transfer
+            '\t0\talice\t\t\t\t',
+            '1\t0\talice\t\t\t\t',
+            '\t1\t/.:/sec\t\t\t\t',
+            '2\t0\tcarol\t\t\t\t',
+            '\t1\t/.:/sec\t\t\t\t',
+            '3\t2\t/.:/sec\t4242\t\t\t',
+            '\t2\t/.:/sec\t4242\t\t\t',
+            '4\t3\tgroup\t\t\t\t',
+            '\t3\tgroup\t\t\t\t',
+            '9\t4\t\t\t\t\t',
+            '\t8\t\t\t\t\t',
+        ]
