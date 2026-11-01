@@ -37526,3 +37526,81 @@ class TestDissectDcerpcRpriv:
             '0\t0\t\t\t\t\t\t\tget_ptgt request',
             '0\t0\t\t\t\t\t\t\tget_ptgt response',
         ]
+
+
+class TestDissectDcerpcRsAcct:
+    def test_rs_acct_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: every frame is RS_ACCT; no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rs_acct_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['RS_ACCT'] * 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_rs_acct_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rs_acct_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every call: opnum, byte order, the decoded request fields
+        and the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rs_acct_coverage.pcap.gz'),
+                '-Tfields',
+                '-ers_acct.opnum',
+                '-edcerpc.drep.byteorder',
+                '-ers_acct.lookup_rqst_var',
+                '-ers_acct.lookup_rqst_key_size',
+                '-ers_acct.lookup_rqst_key_t',
+                '-ers_acct.get_projlist_rqst_var1',
+                '-ers_acct.get_projlist_rqst_key_size',
+                '-ers_acct.get_projlist_rqst_key_t',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t1\t\t\t\t\t\t\tadd request',
+            '0\t1\t\t\t\t\t\t\tadd response',
+            '1\t1\t\t\t\t\t\t\tdelete request',
+            '1\t1\t\t\t\t\t\t\tdelete response',
+            '2\t1\t\t\t\t\t\t\trename request',
+            '2\t1\t\t\t\t\t\t\trename response',
+            '3\t1\t7\t6\talice\t\t\t\tlookup request Request for: alice ',
+            '3\t1\t\t\t\t\t\t\tlookup response',
+            '4\t1\t\t\t\t\t\t\treplace request',
+            '4\t1\t\t\t\t\t\t\treplace response',
+            '5\t1\t\t\t\t7\t6\talice\tget_projlist request Request for: alice',
+            '5\t1\t\t\t\t\t\t\tget_projlist response',
+            '3\t1\t1\t16\thosts/srv1/self\t\t\t\tlookup request Request for: hosts/srv1/self ',
+            '3\t1\t\t\t\t\t\t\tlookup response',
+            '3\t1\t2\t0\t\t\t\t\tlookup request Request (other)',
+            '3\t1\t\t\t\t\t\t\tlookup response',
+            '5\t1\t\t\t\t3\t3\tbob\tget_projlist request Request for: bob',
+            '5\t1\t\t\t\t\t\t\tget_projlist response',
+            '5\t1\t\t\t\t4\t0\t\tget_projlist request Request for: ',
+            '5\t1\t\t\t\t\t\t\tget_projlist response',
+            '3\t0\t7\t6\tcarol\t\t\t\tlookup request Request for: carol ',
+            '3\t0\t\t\t\t\t\t\tlookup response',
+            '5\t0\t\t\t\t7\t6\tcarol\tget_projlist request Request for: carol',
+            '5\t0\t\t\t\t\t\t\tget_projlist response',
+        ]
+
+
+    def test_rs_acct_projlist_labels(self, cmd_tshark, capture_file, test_env):
+        '''The get_projlist key size and key have their own labels (fixed
+        in "RS_ACCT: Do not let a key size move the offset back, fix
+        labels"; before it all three fields were labelled "Var1").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rs_acct_coverage.pcap.gz'),
+                '-Y', 'frame.number == 11', '-O', 'rs_acct', '-V',
+            ), encoding='utf-8', env=test_env)
+        tree = stdout[stdout.index('DCE/RPC RS_ACCT, get_projlist'):].splitlines()
+        assert tree[1:5] == [
+            '    Operation: get_projlist (5)',
+            '    Var1: 7',
+            '    Key Size: 6',
+            '    Key: alice',
+        ]
