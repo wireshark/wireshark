@@ -207,6 +207,47 @@ function(update_artifacts)
   endif()
 endfunction()
 
+# Unset the cache entries that point into package directories in
+# ARTIFACTS_DIR that no longer exist, e.g. because update_artifacts()
+# removed them when the package was updated. find_*() doesn't search
+# again while its result variable is set, even if the cached path is
+# gone. FindWSWinLibs clears entries for the packages it's used for, but
+# not every Find module uses it, e.g. FindAsciidoctor relies on
+# Asciidoctor_ROOT. Doing this on every run also repairs build
+# directories whose cache went stale on an earlier run.
+# This is only needed on Windows, where each package is in its own
+# versioned directory. On macOS packages share a common prefix whose
+# paths don't change when a package is updated.
+function(unset_cache_entries_in_missing_artifact_dirs)
+  string(LENGTH "${ARTIFACTS_DIR}/" prefix_len)
+  set(unset_vars)
+  get_cmake_property(cache_vars CACHE_VARIABLES)
+  foreach(var IN LISTS cache_vars)
+    get_property(type CACHE ${var} PROPERTY TYPE)
+    if(NOT type MATCHES "^(FILEPATH|PATH|STRING)$")
+      continue()
+    endif()
+    get_property(value CACHE ${var} PROPERTY VALUE)
+    foreach(item IN LISTS value)
+      string(FIND "${item}" "${ARTIFACTS_DIR}/" pos)
+      if(NOT pos EQUAL 0)
+        continue()
+      endif()
+      string(SUBSTRING "${item}" ${prefix_len} -1 subpath)
+      string(REGEX REPLACE "/.*" "" subdir "${subpath}")
+      if(NOT IS_DIRECTORY "${ARTIFACTS_DIR}/${subdir}")
+        unset(${var} CACHE)
+        list(APPEND unset_vars ${var})
+        break()
+      endif()
+    endforeach()
+  endforeach()
+  if(unset_vars)
+    list(JOIN unset_vars ", " unset_vars)
+    message(STATUS "Clearing cached paths to removed artifacts: ${unset_vars}")
+  endif()
+endfunction()
+
 set(need_falco_libs FALSE)
 if(BUILD_stratoshark OR BUILD_strato OR BUILD_falcodump OR BUILD_dumpcalls)
   set(need_falco_libs TRUE)
@@ -329,6 +370,9 @@ elseif(WIN32)
 endif()
 
 update_artifacts()
+if(WIN32)
+  unset_cache_entries_in_missing_artifact_dirs()
+endif()
 
 unset(manifest_file)
 unset(download_prefix)
