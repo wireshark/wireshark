@@ -36725,3 +36725,235 @@ class TestDissectDcerpcNspi:
             '28\t\t\t\t\t\t\t0',
             '29\t3\t9,9,0\tAlice Example\t\t\t\t42',
         ]
+
+
+class TestDissectDcerpcNt:
+    '''The shared DCE/RPC helpers in packet-dcerpc-nt.c and
+    packet-dcerpc-ndr.c, reached through LSARPC, SAMR, WINREG, SRVSVC,
+    NETLOGON, SPOOLSS, DRSUAPI, WKSSVC, ATSVC, WITNESS, EVENTLOG and SMB2.'''
+
+    def test_dcerpc_nt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts, and no malformed packets or warnings in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 536
+        expected = {'LSARPC': 146, 'SAMR': 148, 'WINREG': 28, 'SRVSVC': 14,
+                    'RPC_NETLOGON': 26, 'SPOOLSS': 10, 'DRSUAPI': 8, 'WKSSVC': 2,
+                    'ATSVC': 2, 'WITNESS': 2, 'EVENTLOG': 2, 'SMB2': 6,
+                    'DCERPC': 32, 'TCP': 110}
+        assert {p: protocols.count(p) for p in expected} == expected
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dcerpc_nt_binds(self, cmd_tshark, capture_file, test_env):
+        '''The interfaces, byte orders and transfer syntaxes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.cn_bind_to_uuid', '-edcerpc.drep.byteorder',
+                '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        ndr, ndr64 = '8a885d04-1ceb-11c9-9fe8-08002b104860', '71710533-beba-4937-8319-b5dbef9ccc36'
+        lsa, samr = '12345778-1234-abcd-ef00-0123456789ab', '12345778-1234-abcd-ef00-0123456789ac'
+        netlogon = '12345678-1234-abcd-ef00-01234567cffb'
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            [lsa, '1', ndr], [lsa, '0', ndr], [lsa, '1', ndr64],
+            [samr, '1', ndr], [samr, '0', ndr], [samr, '1', ndr64],
+            ['338cd001-2244-31f1-aaaa-900038001003', '1', ndr],
+            ['4b324fc8-1670-01d3-1278-5a47bf6ee188', '1', ndr],
+            [netlogon, '1', ndr], [netlogon, '1', ndr64],
+            ['12345678-1234-abcd-ef00-0123456789ab', '1', ndr],
+            ['e3514235-4b06-11d1-ab04-00c04fc2dcd2', '1', ndr],
+            ['6bffd098-a112-3610-9833-46c3f87e345a', '1', ndr],
+            ['1ff70682-0a51-30e8-076d-740be8cee98b', '1', ndr],
+            ['ccd8c074-d0e5-4a40-92b4-d074faa6ba28', '1', ndr],
+            ['82273fdc-e32a-18c3-3f78-827929dc23ea', '1', ndr],
+        ]
+
+    @staticmethod
+    def _handle_frames(cmd_tshark, capture_file, test_env, passes, pkt_type):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                '-Y', 'lsarpc && frame.number >= 40 && frame.number <= 115 && dcerpc.pkt_type == %d' % pkt_type,
+                '-Tfields', '-eframe.number', '-edcerpc.nt.open_frame', '-edcerpc.nt.close_frame',
+            ), encoding='utf-8', env=test_env)
+        return {int(l.split('\t')[0]): tuple(l.split('\t')[1:]) for l in stdout.splitlines()}
+
+    def test_dcerpc_nt_policy_handle_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The frames in which LSA policy handles are opened and closed, in
+        two passes: a handle closed four times (every close shows the open
+        and the first close; before "DCERPC: Spread policy handles over
+        the hash, do not grow on repeated closes" the later closes showed
+        only themselves), handles that share octets 4-7, a handle opened
+        again without a close, opened, closed and opened again (and closed
+        twice), a handle whose open is not in the capture, two opens of
+        one handle in one frame, a null handle and a failed open.'''
+        requests = self._handle_frames(cmd_tshark, capture_file, test_env, ('-2',), 0)
+        assert requests == {
+            # closed four times
+            40: ('', ''), 42: ('41', '44'), 44: ('41', '44'), 46: ('41', '44'),
+            48: ('41', '44'), 50: ('41', '44'),
+            # octets 4-7 shared by four handles
+            52: ('', ''), 54: ('', ''), 56: ('', ''), 58: ('', ''),
+            60: ('59', '74'), 62: ('57', '72'), 64: ('55', '70'), 66: ('53', '68'),
+            68: ('53', '68'), 70: ('55', '70'), 72: ('57', '72'), 74: ('59', '74'),
+            # opened again without a close
+            76: ('', ''), 78: ('77', ''), 80: ('', ''), 82: ('81', '84'), 84: ('81', '84'),
+            # opened, closed, opened, closed twice
+            86: ('', ''), 88: ('87', '88'), 90: ('', ''), 92: ('91', '94'), 94: ('91', '94'),
+            96: ('91', '94'),
+            # not opened in the capture; used after its close
+            98: ('', '100'), 100: ('', '100'), 102: ('', ''),
+            # two opens of one handle in frame 105
+            104: ('', ''), 106: ('105', '108'), 108: ('105', '108'),
+            # null handle, failed open, close of the first policy handle
+            110: ('', ''), 112: ('', ''), 114: ('7', '114'),
+        }
+        responses = self._handle_frames(cmd_tshark, capture_file, test_env, ('-2',), 2)
+        opens = {k: v for k, v in responses.items() if v != ('', '')}
+        assert opens == {
+            41: ('41', '44'), 53: ('53', '68'), 55: ('55', '70'), 57: ('57', '72'),
+            59: ('59', '74'), 77: ('77', ''), 81: ('77', ''), 87: ('87', '88'),
+            91: ('91', '94'), 105: ('105,105', '108,108'),
+        }
+
+    def test_dcerpc_nt_policy_handle_one_pass(self, cmd_tshark, capture_file, test_env):
+        '''In one pass the open frames are the same and a close frame is
+        known from the close on.'''
+        requests = self._handle_frames(cmd_tshark, capture_file, test_env, (), 0)
+        two = self._handle_frames(cmd_tshark, capture_file, test_env, ('-2',), 0)
+        assert {k: v[0] for k, v in requests.items()} == {k: v[0] for k, v in two.items()}
+        assert {k: v for k, v in requests.items() if v[1]} == {
+            44: ('41', '44'), 46: ('41', '44'), 48: ('41', '44'), 50: ('41', '44'),
+            68: ('53', '68'), 70: ('55', '70'), 72: ('57', '72'), 74: ('59', '74'),
+            84: ('81', '84'), 88: ('87', '88'), 94: ('91', '94'), 96: ('91', '94'),
+            100: ('', '100'), 108: ('105', '108'), 114: ('7', '114'),
+        }
+
+    def test_dcerpc_nt_handle_names(self, cmd_tshark, capture_file, test_env):
+        '''Handle names stored with the open (SAMR CreateUser2 and WINREG
+        OpenKey strings saved with PIDL_STR_SAVE, SPOOLSS OpenPrinterEx),
+        and SMB2 file ids tracked as GUID handles.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7, 213, 262, 357, 462, 529, 532}', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()
+                 if 'Policy Handle:' in l or 'GUID handle' in l]
+        assert lines == [
+            'Policy Handle: lsa_OpenPolicy2(<...>)',
+            'Policy Handle: CreateUser2(carol1)',
+            'Policy Handle: CreateUser2(carol1)',
+            'Policy Handle: OpenKey(SOFTWARE\\Example)',
+            'Policy Handle: OpenPrinterEx(\\\\SRV01\\Printer1)',
+            'GUID handle, File: docs\\report.txt',
+            'GUID handle, File: docs\\report.txt',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                '-Y', 'spoolss || smb2',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-edcerpc.nt.open_frame', '-edcerpc.nt.close_frame',
+            ), encoding='utf-8', env=test_env)
+        frames = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert frames[455][1:] == ['455', '462']
+        # -Tfields escapes the backslashes
+        assert frames[462] == ['ClosePrinter request, OpenPrinterEx(\\\\\\\\SRV01\\\\Printer1)', '455', '462']
+        assert frames[529][1:] == ['529', '532']
+        assert frames[532][1:] == ['529', '532']
+
+    def test_dcerpc_nt_status_codes(self, cmd_tshark, capture_file, test_env):
+        '''NTSTATUS, DOS error, WERROR and HRESULT codes in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {113, 425, 457, 459}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'lsa_OpenPolicy2 response, STATUS_ACCESS_DENIED, Error: STATUS_ACCESS_DENIED',
+            'NetrLogonControl response, WERR_NOT_SUPPORTED',
+            'GetPrinter response, level 2, Insufficient buffer',
+            'GetCorePrinterDrivers response, HRES_E_ACCESSDENIED',
+        ]
+
+    def test_dcerpc_nt_netlogon(self, cmd_tshark, capture_file, test_env):
+        '''NETLOGON: counted strings, NTTIME and UNIX times, SIDs, group
+        attributes, SID_AND_ATTRIBUTES arrays, account flags, logon hours,
+        SID arrays, GUIDs and a claims blob in a MES header, in NDR and
+        NDR64.'''
+        env = dict(test_env, TZ='UTC')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                '-Y', 'rpc_netlogon && dcerpc.pkt_type == 2',
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number', '-enetlogon.acct_name',
+                '-edcerpc.nt.domain_sid', '-edcerpc.nt.groups.attrs', '-edcerpc.nt.acct_ctrl',
+                '-edcerpc.nt.logonhours.divisions', '-edcerpc.nt.guid', '-ent.midl.version',
+                '-enetlogon.logon_time',
+            ), encoding='utf-8', env=env)
+        frames = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        dom = 'S-1-5-21-1004336348-1177238915-682003330'
+        extra = '|S-1-18-1|%s-1200|S-1-5-32-544' % dom
+        groups = '0x00000007|0x0000001f|0x20000004'
+        nttime = '2024-01-17T21:20:00.000000000+0000'
+        assert frames[413] == ['alice', '', '', '', '', '', '', '2023-11-14T22:13:20.000000000+0000']
+        for ndr32, ndr64 in ((415, 437), (417, 439), (419, 441), (421, 443), (423, 445)):
+            assert frames[ndr32] == frames[ndr64]
+        assert frames[415] == ['alice', dom, groups, '', '', '', '', nttime]
+        assert frames[417] == ['alice', dom + extra, groups + '|0x00000007|0x20000007|0x0000001f',
+                               '', '', '', '', nttime]
+        assert frames[419] == frames[417]
+        assert frames[421] == ['', '', '', '', '', '', '1', '']
+        assert frames[423] == ['carol', '%s-1106|%s-1107|S-1-5-32-545' % (dom, dom), '', '0x00000ffd',
+                               '168', '', '', nttime]
+        assert frames[427][5] == 'a3a2a1a0-a5a4-a7a6-a8a9-aaabacadaeaf'
+
+    def test_dcerpc_nt_samr(self, cmd_tshark, capture_file, test_env):
+        '''SAMR: LSA strings in the Info column, SID arrays, NTTIME in all
+        three encodings, the access rights of the handle type in security
+        descriptors.'''
+        env = dict(test_env, TZ='UTC')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                '-Y', 'samr.opnum in {5, 12, 16, 36, 50} || samr.opnum == 3 && dcerpc.pkt_type == 2',
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number', '-e_ws.col.info',
+                '-edcerpc.nt.domain_sid', '-esamr.samr_UserInfo21.last_logon',
+                '-esamr.user.access_mask',
+            ), encoding='utf-8', env=env)
+        frames = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        dom = 'S-1-5-21-1004336348-1177238915-682003330'
+        assert frames[184][0] == 'LookupDomain request, EXAMPLE'
+        assert frames[200][1] == '%s-1011|%s-1012' % (dom, dom)
+        assert frames[212][0] == 'CreateUser2 request, carol1'
+        for f in (222, 296, 335):
+            assert frames[f][2] == '2023-06-18T07:01:54.590053400+0000'
+
+    def test_dcerpc_nt_other_helpers(self, cmd_tshark, capture_file, test_env):
+        '''28 octet SIDs, NTTIME_1sec and data blobs (DRSUAPI), the uint32
+        level in the Info column (WKSSVC), a NUL terminated UTF-16 name
+        (WITNESS), a NUL terminated ASCII string (EVENTLOG).'''
+        env = dict(test_env, TZ='UTC')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {472, 476, 490, 511, 521}',
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number', '-e_ws.col.info',
+                '-edcerpc.nt.domain_sid', '-edrsuapi.drsuapi_DsReplicaMetaData.originating_change_time',
+                '-edcerpc.nt.blob.data', '-ewitness.witness_ResourceChange.name',
+                '-eeventlog.eventlog_Record.raw_data',
+            ), encoding='utf-8', env=env)
+        frames = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert frames[472][3] == '0a0000000102030405060708090a'
+        assert frames[476][1] == '|'.join(['S-1-5-21-286331153-572662306-858993459-500'] * 7)
+        assert frames[476][2] == '|'.join(['2022-06-18T04:26:40.000000000+0000'] * 6)
+        assert frames[476][3] == '616263|616263'
+        assert frames[490][0] == 'NetWkstaGetInfo request Level:100'
+        assert frames[511][4] == 'share01'
+        assert frames[521][5] == 'raw data'
