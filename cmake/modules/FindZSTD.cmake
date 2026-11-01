@@ -7,6 +7,8 @@
 #  ZSTD_FOUND        - True if Zstd found.
 #  ZSTD_DLL_DIR      - (Windows) Path to the Zstd DLL
 #  ZSTD_DLL          - (Windows) Name of the Zstd DLL
+#
+# Creates an IMPORTED target ZSTD::ZSTD if found
 
 include( FindWSWinLibs )
 FindWSWinLibs( "zstd-.*" "ZSTD_HINTS" )
@@ -14,6 +16,11 @@ FindWSWinLibs( "zstd-.*" "ZSTD_HINTS" )
 if( NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_search_module(ZSTD libzstd)
+else()
+  # FindWSLibrary caches ZSTD_LIBRARY_RELEASE and ZSTD_LIBRARY_DEBUG.
+  # Remove ZSTD_LIBRARY, which FindMinizipng used to set to the copy in
+  # the minizip-ng package.
+  unset(ZSTD_LIBRARY CACHE)
 endif()
 
 find_path(ZSTD_INCLUDE_DIR
@@ -23,12 +30,15 @@ find_path(ZSTD_INCLUDE_DIR
   /usr/local/include
 )
 
-find_library(ZSTD_LIBRARY
+include(FindWSLibrary)
+FindWSLibrary(ZSTD_LIBRARY
   NAMES zstd
-  HINTS "${ZSTD_LIBDIR}" "${ZSTD_HINTS}/lib"
+  HINTS "${ZSTD_LIBDIR}"
   PATHS
-  /usr/lib
-  /usr/local/lib
+    /usr/lib
+    /usr/local/lib
+  WIN32_HINTS
+    "${ZSTD_HINTS}"
 )
 
 if( ZSTD_INCLUDE_DIR AND ZSTD_LIBRARY )
@@ -52,6 +62,10 @@ find_package_handle_standard_args(ZSTD
 if( ZSTD_FOUND )
   set( ZSTD_INCLUDE_DIRS ${ZSTD_INCLUDE_DIR} )
   set( ZSTD_LIBRARIES ${ZSTD_LIBRARY} )
+  ws_add_imported_library(ZSTD::ZSTD ZSTD_LIBRARY
+    DLL "zstd*"
+    INCLUDE_DIRS ${ZSTD_INCLUDE_DIRS}
+  )
   AddWSWinDLL(ZSTD ZSTD_HINTS "zstd*")
 else()
   set( ZSTD_INCLUDE_DIRS )
