@@ -297,6 +297,12 @@ The following features are either new or have been significantly updated since v
   Rows can be used as filters from their context menu (including _Copy as Filter_) or sent to the I/O Graph with _Show in I/O Graph_.
   The copied and saved text includes the Count column, `-z distribution,<fields>` opens the dialog, and the dialog has a Help button.
 
+* Kerberos long-term keys can be embedded in a pcapng Decryption Secrets Block.
+  `editcap --inject-secrets krb5,<file>` inserts a key log. Each line is an
+  encryption type and a hex key, for example `18` or `aes256-cts-hmac-sha1-96`
+  followed by the key. The keys are used without the Kerberos decrypt preference
+  and without a keytab file.
+
 === Removed Features and Support
 
 Dumpcap's TCP@host:port interface has been removed. Tools like `socat`, `ncat`,

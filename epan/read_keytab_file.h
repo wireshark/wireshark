@@ -79,6 +79,17 @@ WS_DLL_PUBLIC wmem_map_t* keytab_get_file_session_keys(void);
 
 WS_DLL_PUBLIC void keytab_file_key_map_insert(wmem_map_t* key_map, enc_key_t* new_key);
 
+/**
+ * @brief Create the krb5 context used for keys, once.
+ *
+ * keytab_file_read() calls this; anything else that adds keys to the
+ * key list without reading a keytab must call it too: Heimdal's crypto
+ * functions dereference the context.
+ *
+ * @return true if the context can be used.
+ */
+WS_DLL_PUBLIC bool keytab_krb5_ctx_init(void);
+
 #endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
 
 #endif /* HAVE_KERBEROS */

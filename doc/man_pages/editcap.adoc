@@ -508,7 +508,8 @@ __opcua__  OPC UA Key Log, see https://ietf-opsawg-wg.github.io/draft-ietf-opsaw
 __ssh__  SSH Key Log, see {wireshark-wiki-url}SSH#key-log-format +
 __tls__  TLS Key Log, see https://tlswg.org/sslkeylogfile/draft-ietf-tls-keylogfile.html +
 __wg__   WireGuard Key Log, see {wireshark-wiki-url}WireGuard#key-log-format +
-__esp__  ESP SA Key, see esp_sa file in your profile folder and https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcapng.html#name-decryption-secrets-block
+__esp__  ESP SA Key, see esp_sa file in your profile folder and https://ietf-opsawg-wg.github.io/draft-ietf-opsawg-pcap/draft-ietf-opsawg-pcapng.html#name-decryption-secrets-block +
+__krb5__  Kerberos Key Log. Each line is an encryption type and a hex key, for example `18 00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff`. The type is a decimal number (17, 18, 23, ...) or a name such as `aes128-cts-hmac-sha1-96`, `aes256-cts-hmac-sha1-96` or `rc4-hmac`. Empty lines and lines that start with a number sign are ignored. These are long-term keys, as supplied by a keytab.
 
 This option may be specified multiple times. The available options for
 <secrets type> can be listed with *--inject-secrets help*.

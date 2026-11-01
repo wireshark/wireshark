@@ -231,6 +231,8 @@ interface that packet capture will occur from.
 
 -K <keytab file>::
 Use the specified file for Kerberos decryption.
+A pcapng file can carry the same keys in a Decryption Secrets Block.
+See `editcap --inject-secrets`.
 
 -l::
 This option turns on automatic scrolling if the packet list pane is being

@@ -78,6 +78,8 @@ Enable dissection of heuristic protocol.
 --
 Load kerberos crypto keys from the specified keytab file.
 This option can be used multiple times to load keys from several files.
+A pcapng Decryption Secrets Block can carry the same long-term keys.
+See *editcap --inject-secrets krb5,<file>*.
 
 Example: *-K krb5.keytab*
 --

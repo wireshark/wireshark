@@ -11,7 +11,8 @@
  *                          added AP-REQ and AP-REP dissection
  *
  * Ronnie Sahlberg (C) 2004, major rewrite for new ASN.1/BER API.
- *                           decryption of kerberos blobs if keytab is provided
+ *                           decryption of kerberos blobs if a keytab
+ *                           or a pcapng decryption secrets block is provided
  *
  * See RFC 1510, and various I-Ds and other documents showing additions,
  * e.g. ones listed under
@@ -70,6 +71,10 @@
 #include <epan/tfs.h>
 #include <epan/read_keytab_file.h>
 #include <epan/keytab_krb5_ctx.h>
+#include <epan/secrets.h>
+#include <wiretap/secrets-types.h>
+#include <errno.h>
+#include <limits.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/file_util.h>
 #include <wsutil/str_util.h>
@@ -1215,6 +1220,27 @@ static unsigned dissect_kerberos_defer_PA_FX_FAST_REQUEST(bool implicit_tag _U_,
 /* Decrypt Kerberos blobs */
 bool krb_decrypt;
 
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+/*
+ * Set when a pcapng Kerberos key log contained at least one key.
+ * Cleared when the file is closed. Not the preference itself:
+ * the preference UI keeps reading krb_decrypt.
+ */
+static bool kerberos_dsb_decrypt;
+/* File-scoped list of enc_key_t loaded from that key log. */
+static wmem_list_t *kerberos_dsb_keys;
+#endif
+
+bool
+kerberos_decrypt_requested(void)
+{
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+	return krb_decrypt || kerberos_dsb_decrypt;
+#else
+	return krb_decrypt;
+#endif
+}
+
 /* keytab filename */
 static const char *keytab_filename = "";
 
@@ -1284,16 +1310,32 @@ static void insert_longterm_keys_into_key_map_cb(void *__key _U_,
 	keytab_file_key_map_insert(state->key_map, key);
 }
 
+static void
+kerberos_dsb_insert_cb(void *data, void *user_data)
+{
+	keytab_file_key_map_insert((wmem_map_t *)user_data, (enc_key_t *)data);
+}
+
 static void insert_longterm_keys_into_key_map(wmem_map_t *key_map)
 {
+	unsigned longterm_count = wmem_map_size(keytab_get_file_longterm_keys());
+	unsigned dsb_count = 0;
+
 	/*
 	 * Because the keytab_file_longterm_keys are allocated on
 	 * wmem_epan_scope() and keytab_file_all_keys are allocated
 	 * on wmem_file_scope(), we need to plug the longterm keys
 	 * back to keytab_file_all_keys if a new file was loaded
 	 * and wmem_file_scope() got cleared.
+	 *
+	 * Keys from a decryption secrets block are inserted before the
+	 * first decrypt. Count them too, or a secrets block that holds
+	 * more keys than the keytab would hide the keytab.
 	 */
-	if (wmem_map_size(key_map) < wmem_map_size(keytab_get_file_longterm_keys())) {
+	if (kerberos_dsb_keys != NULL) {
+		dsb_count = wmem_list_count(kerberos_dsb_keys);
+	}
+	if (wmem_map_size(key_map) < longterm_count + dsb_count) {
 		struct insert_longterm_keys_into_key_map_state state = {
 			.key_map = key_map,
 		};
@@ -1303,6 +1345,11 @@ static void insert_longterm_keys_into_key_map(wmem_map_t *key_map)
 		wmem_map_foreach(keytab_get_file_longterm_keys(),
 				 insert_longterm_keys_into_key_map_cb,
 				 &state);
+		if (kerberos_dsb_keys != NULL) {
+			wmem_list_foreach(kerberos_dsb_keys,
+					  kerberos_dsb_insert_cb,
+					  key_map);
+		}
 	}
 }
 
@@ -1749,7 +1796,7 @@ krb5_fast_key(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb,
 	krb5_keyblock k2;
 	krb5_keyblock *k = NULL;
 
-	if (!krb_decrypt) {
+	if (!kerberos_decrypt_requested()) {
 		return;
 	}
 
@@ -2131,7 +2178,7 @@ decrypt_krb5_data_private(proto_tree *tree _U_, packet_info *pinfo,
 	const uint8_t *cryptotext;
 
 	/* don't do anything if we are not attempting to decrypt data */
-	if(!krb_decrypt || length < 1){
+	if(!kerberos_decrypt_requested() || length < 1){
 		return NULL;
 	}
 
@@ -2328,7 +2375,7 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree,
 	krb5_error_code ret;
 
 	/* don't do anything if we are not attempting to decrypt data */
-	if (!krb_decrypt) {
+	if (!kerberos_decrypt_requested()) {
 		return NULL;
 	}
 
@@ -2565,6 +2612,14 @@ verify_krb5_pac_try_kdc_key(void *__key _U_, void *value, void *userdata)
 			state->kdc_ek = ek;
 		}
 	}
+}
+
+/* wmem_list_foreach callback. A key log holds the same long-term keys
+ * a keytab does, and the KDC checksum is checked against those. */
+static void
+verify_krb5_pac_try_kdc_dsb(void *data, void *userdata)
+{
+	verify_krb5_pac_try_kdc_key(NULL, data, userdata);
 }
 
 #define __KRB5_PAC_TICKET_CHECKSUM 16
@@ -3010,12 +3065,14 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 	krb5_data full_checksum_data = {0,0,NULL};
 	int length = tvb_captured_length(pactvb);
 	const uint8_t *pacbuffer = NULL;
+	unsigned longterm_count;
+	unsigned dsb_count;
 	struct verify_krb5_pac_state state = {
 		.kdc_checksum = 0,
 	};
 
 	/* don't do anything if we are not attempting to decrypt data */
-	if(!krb_decrypt || length < 1){
+	if(!kerberos_decrypt_requested() || length < 1){
 		return;
 	}
 
@@ -3098,15 +3155,28 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 				    wmem_map_size(keytab_get_file_all_keys()),
 				    state.server_count);
 	}
+	/*
+	 * The KDC checksum is signed with a long-term key. The keytab
+	 * map holds those, and so does a pcapng key log. Session keys
+	 * in all_keys are not tried.
+	 */
+	longterm_count = wmem_map_size(keytab_get_file_longterm_keys());
+	dsb_count = 0;
 	wmem_map_foreach(keytab_get_file_longterm_keys(),
 			 verify_krb5_pac_try_kdc_key,
 			 &state);
+	if (kerberos_dsb_keys != NULL) {
+		dsb_count = wmem_list_count(kerberos_dsb_keys);
+		wmem_list_foreach(kerberos_dsb_keys,
+				  verify_krb5_pac_try_kdc_dsb,
+				  &state);
+	}
 	if (state.kdc_ek != NULL) {
 		used_signing_key(tree, actx->pinfo, private_data,
 				 state.kdc_ek, pactvb,
 				 state.kdc_checksum, "Verified KDC",
 				 "longterm_keys",
-				 wmem_map_size(keytab_get_file_longterm_keys()),
+				 longterm_count + dsb_count,
 				 state.kdc_count);
 	} else {
 		int keytype = keytype_for_cksumtype(state.kdc_checksum);
@@ -3114,7 +3184,7 @@ verify_krb5_pac(proto_tree *tree _U_, asn1_ctx_t *actx, tvbuff_t *pactvb)
 				    pactvb, state.kdc_checksum, keytype,
 				    "Missing KDC",
 				    "longterm_keys",
-				    wmem_map_size(keytab_get_file_longterm_keys()),
+				    longterm_count + dsb_count,
 				    state.kdc_count);
 	}
 
@@ -3166,7 +3236,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 	const uint8_t *cryptotext = tvb_get_ptr(cryptotvb, 0, length);
 
 	/* don't do anything if we are not attempting to decrypt data */
-	if(!krb_decrypt){
+	if(!kerberos_decrypt_requested()){
 		return NULL;
 	}
 
@@ -8846,6 +8916,296 @@ dissect_kerberos_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	return tvb_captured_length(tvb);
 }
 
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+
+/*
+ * One key per line: "<encryption type> <hex key>".
+ * The type is a decimal etype or a name such as aes256-cts-hmac-sha1-96.
+ * Empty lines and lines starting with '#' are ignored.
+ * These are long-term keys, the same kind a keytab supplies.
+ */
+static const struct {
+	const char *name;
+	int etype;
+} kerberos_keylog_etypes[] = {
+	{ "des-cbc-crc", 1 },
+	{ "des-cbc-md4", 2 },
+	{ "des-cbc-md5", 3 },
+	{ "des3-cbc-sha1", 16 },
+	{ "des3-hmac-sha1", 16 },
+	{ "aes128-cts-hmac-sha1-96", 17 },
+	{ "aes128-cts", 17 },
+	{ "aes256-cts-hmac-sha1-96", 18 },
+	{ "aes256-cts", 18 },
+	{ "aes128-cts-hmac-sha256-128", 19 },
+	{ "aes256-cts-hmac-sha384-192", 20 },
+	{ "arcfour-hmac", 23 },
+	{ "rc4-hmac", 23 },
+	{ "arcfour-hmac-md5", 23 },
+	{ "arcfour-hmac-exp", 24 },
+	{ "camellia128-cts-cmac", 25 },
+	{ "camellia256-cts-cmac", 26 },
+};
+
+static bool
+kerberos_keylog_parse_etype(const char *token, int *etypep)
+{
+	char *end = NULL;
+	long val;
+	unsigned i;
+
+	if (token[0] == '-' || token[0] == '+' || g_ascii_isdigit(token[0])) {
+		errno = 0;
+		val = strtol(token, &end, 10);
+		if (errno == 0 && end != token && *end == '\0' &&
+		    val >= INT_MIN && val <= INT_MAX) {
+			*etypep = (int)val;
+			return true;
+		}
+	}
+
+	if (g_ascii_strncasecmp(token, "etype-", 6) == 0) {
+		token += 6;
+	}
+
+	for (i = 0; i < array_length(kerberos_keylog_etypes); i++) {
+		if (g_ascii_strcasecmp(token, kerberos_keylog_etypes[i].name) == 0) {
+			*etypep = kerberos_keylog_etypes[i].etype;
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool
+kerberos_dsb_have_key(int etype, const uint8_t *key, unsigned keylength)
+{
+	wmem_list_frame_t *frame;
+
+	if (kerberos_dsb_keys == NULL) {
+		return false;
+	}
+	for (frame = wmem_list_head(kerberos_dsb_keys); frame != NULL;
+	     frame = wmem_list_frame_next(frame)) {
+		const enc_key_t *ek = (const enc_key_t *)wmem_list_frame_data(frame);
+
+		if (ek->keytype == etype && (unsigned)ek->keylength == keylength &&
+		    memcmp(ek->keyvalue, key, keylength) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static bool
+kerberos_dsb_is_key(const enc_key_t *ek)
+{
+	wmem_list_frame_t *frame;
+
+	if (ek == NULL || kerberos_dsb_keys == NULL) {
+		return false;
+	}
+	for (frame = wmem_list_head(kerberos_dsb_keys); frame != NULL;
+	     frame = wmem_list_frame_next(frame)) {
+		if (wmem_list_frame_data(frame) == (void *)ek) {
+			return true;
+		}
+	}
+	return false;
+}
+
+static void
+kerberos_keylog_add_key(int etype, const uint8_t *key, unsigned keylength)
+{
+	enc_key_t *new_key;
+	static unsigned dsb_ids;
+
+	if (keylength == 0 || keylength > KRB_MAX_KEY_LENGTH) {
+		return;
+	}
+	/* Without a keytab nothing has created the krb5 context yet,
+	 * and Heimdal dereferences it when decrypting. */
+	if (!keytab_krb5_ctx_init()) {
+		return;
+	}
+	if (kerberos_dsb_have_key(etype, key, keylength)) {
+		kerberos_dsb_decrypt = true;
+		return;
+	}
+
+	if (kerberos_dsb_keys == NULL) {
+		kerberos_dsb_keys = wmem_list_new(wmem_file_scope());
+		dsb_ids = 0;
+	}
+	if (kerberos_dsb_keys == NULL) {
+		return;
+	}
+
+	new_key = wmem_new0(wmem_file_scope(), enc_key_t);
+	new_key->fd_num = -1;
+	new_key->id = ++dsb_ids;
+	new_key->id_str = wmem_strdup_printf(wmem_file_scope(), "dsb.%u", new_key->id);
+	new_key->key_origin = wmem_strdup(wmem_file_scope(), "decryption secrets");
+	new_key->keytype = etype;
+	new_key->keylength = (int)keylength;
+	memcpy(new_key->keyvalue, key, keylength);
+
+	new_key->next = (enc_key_t *)keytab_get_enc_key_list();
+	keytab_set_enc_key_list(new_key);
+	wmem_list_append(kerberos_dsb_keys, new_key);
+	kerberos_dsb_decrypt = true;
+}
+
+static void
+kerberos_keylog_process_line(const char *line, size_t linelen)
+{
+	char *copy;
+	char *p;
+	char *etype_tok;
+	char *key_tok;
+	int etype = 0;
+	GByteArray *bytes;
+	bool ok;
+
+	while (linelen > 0 && g_ascii_isspace(line[0])) {
+		line++;
+		linelen--;
+	}
+	while (linelen > 0 && g_ascii_isspace(line[linelen - 1])) {
+		linelen--;
+	}
+	if (linelen == 0 || line[0] == '#') {
+		return;
+	}
+
+	copy = g_strndup(line, linelen);
+	etype_tok = copy;
+	p = copy;
+	while (*p != '\0' && !g_ascii_isspace(*p)) {
+		p++;
+	}
+	if (*p == '\0') {
+		ws_info("kerberos key log: expected \"<encryption type> <hex key>\"");
+		g_free(copy);
+		return;
+	}
+	*p++ = '\0';
+	while (g_ascii_isspace(*p)) {
+		p++;
+	}
+	key_tok = p;
+	while (*p != '\0' && !g_ascii_isspace(*p)) {
+		p++;
+	}
+	if (*p != '\0') {
+		ws_info("kerberos key log: extra data after the key");
+		g_free(copy);
+		return;
+	}
+	if (!kerberos_keylog_parse_etype(etype_tok, &etype)) {
+		ws_info("kerberos key log: unknown encryption type \"%s\"", etype_tok);
+		g_free(copy);
+		return;
+	}
+
+	bytes = g_byte_array_new();
+	ok = hex_str_to_bytes(key_tok, bytes, false);
+	if (!ok || bytes->len == 0 || bytes->len > KRB_MAX_KEY_LENGTH) {
+		ws_info("kerberos key log: invalid key for encryption type %d", etype);
+		g_byte_array_free(bytes, true);
+		g_free(copy);
+		return;
+	}
+	kerberos_keylog_add_key(etype, bytes->data, bytes->len);
+	g_byte_array_free(bytes, true);
+	g_free(copy);
+}
+
+static void
+kerberos_keylog_process_lines(const void *data, unsigned datalen)
+{
+	const char *next;
+	const char *end;
+
+	if (data == NULL || datalen == 0) {
+		return;
+	}
+	next = (const char *)data;
+	end = next + datalen;
+	while (next < end) {
+		const char *line = next;
+		size_t linelen;
+		const char *nl = (const char *)memchr(line, '\n', (size_t)(end - line));
+
+		if (nl != NULL) {
+			linelen = (size_t)(nl - line);
+			next = nl + 1;
+		} else {
+			linelen = (size_t)(end - line);
+			next = end;
+		}
+		if (linelen > 0 && line[linelen - 1] == '\r') {
+			linelen--;
+		}
+		kerberos_keylog_process_line(line, linelen);
+	}
+}
+
+static void
+kerberos_secrets_cleanup(void)
+{
+	enc_key_t *head;
+	enc_key_t **pp;
+	enc_key_t *ek;
+
+	if (kerberos_dsb_keys == NULL) {
+		kerberos_dsb_decrypt = false;
+		return;
+	}
+
+	/*
+	 * enc_key_list and keys learnt from the capture outlive the file.
+	 * Drop every pointer at a key from this file before the file
+	 * scope frees it.
+	 */
+	head = (enc_key_t *)keytab_get_enc_key_list();
+	for (ek = head; ek != NULL; ek = ek->next) {
+		while (ek->same_list != NULL && kerberos_dsb_is_key(ek->same_list)) {
+			ek->same_list = ek->same_list->same_list;
+			if (ek->num_same > 0) {
+				ek->num_same--;
+			}
+		}
+		if (kerberos_dsb_is_key(ek->src1)) {
+			ek->src1 = NULL;
+		}
+		if (kerberos_dsb_is_key(ek->src2)) {
+			ek->src2 = NULL;
+		}
+	}
+
+	pp = &head;
+	while (*pp != NULL) {
+		if (kerberos_dsb_is_key(*pp)) {
+			*pp = (*pp)->next;
+		} else {
+			pp = &(*pp)->next;
+		}
+	}
+	keytab_set_enc_key_list(head);
+
+	kerberos_dsb_keys = NULL;
+	kerberos_dsb_decrypt = false;
+}
+
+static void
+kerberos_secrets_block_callback(const void *secrets, unsigned size)
+{
+	kerberos_keylog_process_lines(secrets, size);
+}
+
+#endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
+
 /*--- proto_register_kerberos -------------------------------------------*/
 void proto_register_kerberos(void) {
 
@@ -10460,8 +10820,8 @@ void proto_register_kerberos(void) {
 	prefs_register_bool_preference(krb_module, "decrypt",
 	"Try to decrypt Kerberos blobs",
 	"Whether the dissector should try to decrypt "
-	"encrypted Kerberos blobs. This requires that the proper "
-	"keytab file is installed as well.", &krb_decrypt);
+	"encrypted Kerberos blobs. This requires a keytab file, "
+	"or a Kerberos key log embedded in the capture file.", &krb_decrypt);
 
 	prefs_register_filename_preference(krb_module, "file",
 				   "Kerberos keytab file",
@@ -10469,6 +10829,8 @@ void proto_register_kerberos(void) {
 				   &keytab_filename, false);
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
+	secrets_register_type(SECRETS_TYPE_KRB5, kerberos_secrets_block_callback);
+	register_cleanup_routine(kerberos_secrets_cleanup);
 #endif /* defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS) */
 #endif /* HAVE_KERBEROS */
 

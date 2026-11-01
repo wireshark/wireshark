@@ -874,6 +874,43 @@ class TestDecryptKerberos:
         # keyvalue: ccda7d48219f73c3b28311c4ba7242b3
         assert grep_output(stdout, 'ccda7d48219f73c3b28311c4ba7242b3')
 
+    def test_kerberos_dsb(self, cmd_tshark, cmd_editcap, features, capture_file, result_file, test_env):
+        '''Kerberos keys from a pcapng key log, without the decrypt preference.'''
+        # Same keys as test/keys/krb-816.keytab: des-cbc-md5 and arcfour-hmac.
+        if not features.have_kerberos:
+            pytest.skip('Requires kerberos.')
+        keylog = result_file('krb-816.keys')
+        outfile = result_file('krb-816-dsb.pcapng')
+        with open(keylog, 'w') as f:
+            f.write('# encryption-type hex-key\n')
+            f.write('des-cbc-md5 b55eadb9df16f1ec\n')
+            f.write('23 3dbde697d71690a769204beb12283678\n')
+        subprocess.run((cmd_editcap,
+                '--inject-secrets', f'krb5,{keylog}',
+                capture_file('krb-816.pcap.gz'), outfile,
+            ), check=True, env=test_env)
+        # No kerberos.decrypt preference and no -K. The secrets block is enough.
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', outfile,
+                '-Tfields',
+                '-e', 'kerberos.keyvalue',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'ccda7d48219f73c3b28311c4ba7242b3')
+        stdout_2 = subprocess.check_output((cmd_tshark,
+                '-r', outfile,
+                '-2',
+                '-Tfields',
+                '-e', 'kerberos.keyvalue',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout_2, 'ccda7d48219f73c3b28311c4ba7242b3')
+        # The same capture without the secrets block still does not decrypt.
+        plain = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('krb-816.pcap.gz'),
+                '-Tfields',
+                '-e', 'kerberos.keyvalue',
+            ), encoding='utf-8', env=test_env)
+        assert 'ccda7d48219f73c3b28311c4ba7242b3' not in plain
+
 
 @pytest.fixture
 def run_wireguard_test(cmd_tshark, capture_file, result_file, features, test_env):

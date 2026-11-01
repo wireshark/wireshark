@@ -696,7 +696,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree,
   tvbuff_t *next_tvb;
 
   /* don't do anything if we are not attempting to decrypt data */
-  if(!krb_decrypt){
+  if (!kerberos_decrypt_requested()) {
     return;
   }
 

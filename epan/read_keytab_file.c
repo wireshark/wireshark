@@ -240,6 +240,26 @@ keytab_file_key_map_insert(wmem_map_t* key_map, enc_key_t* new_key)
 
 USES_APPLE_DEPRECATED_API
 
+bool
+keytab_krb5_ctx_init(void)
+{
+    static bool tried;
+    static bool ok;
+    krb5_error_code ret;
+
+    if (tried) {
+        return ok;
+    }
+    tried = true;
+    ret = krb5_init_context(&keytab_krb5_ctx);
+    ok = (ret == 0
+#ifdef HAVE_MIT_KERBEROS
+          || ret == KRB5_CONFIG_CANTOPEN
+#endif
+          );
+    return ok;
+}
+
 void
 keytab_file_read(const char* filename)
 {
@@ -247,22 +267,13 @@ keytab_file_read(const char* filename)
     krb5_error_code ret;
     krb5_keytab_entry key;
     krb5_kt_cursor cursor;
-    static bool first_time = true;
 
     if (filename == NULL || filename[0] == 0) {
         return;
     }
 
-    if (first_time) {
-        first_time = false;
-        ret = krb5_init_context(&keytab_krb5_ctx);
-        if (ret
-#ifdef HAVE_MIT_KERBEROS
-        && ret != KRB5_CONFIG_CANTOPEN
-#endif
-        ) {
-            return;
-        }
+    if (!keytab_krb5_ctx_init()) {
+        return;
     }
 
     /* should use a file in the wireshark users dir */

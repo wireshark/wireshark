@@ -133,6 +133,10 @@ extern bool krb_decrypt;
 WS_DLL_PUBLIC
 void read_keytab_file_from_preferences(void);
 
+/* True when the decrypt preference is on, or a pcapng Kerberos key log was loaded. */
+WS_DLL_PUBLIC
+bool kerberos_decrypt_requested(void);
+
 #endif /* HAVE_KERBEROS */
 
 #ifdef __cplusplus

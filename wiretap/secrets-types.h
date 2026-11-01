@@ -30,6 +30,7 @@ extern "C" {
 #define SECRETS_TYPE_ZIGBEE_APS_KEY 0x5a415053 /* Zigbee APS Key */
 #define SECRETS_TYPE_OPCUA          0x55414b4c /* OPC UA Key Log */
 #define SECRETS_TYPE_ESP            0x45535053 /* ESP SA Key */
+#define SECRETS_TYPE_KRB5           0x4b524235 /* Kerberos Key Log */
 
 /**
  * @brief Returns a description for a given secrets type.
