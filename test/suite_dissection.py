@@ -37473,3 +37473,56 @@ class TestDissectDcerpcRfr:
             '10\t\t\t\t%s' % server,
             '12\t\t\t\t/o=Ex/cn=X',
         ]
+
+
+class TestDissectDcerpcRpriv:
+    def test_rpriv_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: every frame is rpriv; no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rpriv_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['rpriv'] * 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_rpriv_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rpriv_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every call: opnum, byte order, the decoded request fields
+        and the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rpriv_coverage.pcap.gz'),
+                '-Tfields',
+                '-erpriv.opnum',
+                '-edcerpc.drep.byteorder',
+                '-erpriv.get_eptgt_rqst_authn_svc',
+                '-erpriv.get_eptgt_rqst_authz_svc',
+                '-erpriv.get_eptgt_rqst_var1',
+                '-erpriv.get_eptgt_rqst_key_size2',
+                '-erpriv.get_eptgt_rqst_key_t',
+                '-erpriv.get_eptgt_rqst_key_t2',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t1\t\t\t\t\t\t\tget_ptgt request',
+            '0\t1\t\t\t\t\t\t\tget_ptgt response',
+            '1\t1\t\t\t\t\t\t\tbecome_delegate request',
+            '1\t1\t\t\t\t\t\t\tbecome_delegate response',
+            '2\t1\t\t\t\t\t\t\tbecome_impersonator request',
+            '2\t1\t\t\t\t\t\t\tbecome_impersonator response',
+            '3\t1\t2\t1\t16\t21,5\t/.../cell.example.com\talice\tget_eptgt request Request for: alice in /.../cell.example.com ',
+            '3\t1\t\t\t\t\t\t\tget_eptgt response',
+            '3\t1\t1\t0\t16\t14,15\t/.../c.example\thosts/srv1/self\tget_eptgt request Request for: hosts/srv1/self in /.../c.example ',
+            '3\t1\t\t\t\t\t\t\tget_eptgt response',
+            '3\t1\t0\t2\t0\t0,0\t\t\tget_eptgt request Request for:  in  ',
+            '3\t1\t\t\t\t\t\t\tget_eptgt response',
+            '3\t0\t2\t1\t16\t19,3\t/.../be.example.org\tbob\tget_eptgt request Request for: bob in /.../be.example.org ',
+            '3\t0\t\t\t\t\t\t\tget_eptgt response',
+            '0\t0\t\t\t\t\t\t\tget_ptgt request',
+            '0\t0\t\t\t\t\t\t\tget_ptgt response',
+        ]
