@@ -36547,3 +36547,181 @@ class TestDissectDcerpcNetlogon:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
+
+
+class TestDissectDcerpcNspi:
+    def test_nspi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three TCP connections (NDR little endian, big
+        endian, NDR64) with a bind and the NSPI calls; no malformed
+        packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nspi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 200
+        assert protocols.count('NSPI') == 176
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_nspi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nspi_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum by name, with the MAPI status of the responses,
+        the same in every encoding; failed calls in the first
+        connection.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nspi_coverage.pcap.gz'),
+                '-Y', 'nspi',
+                '-Tfields', '-edcerpc.drep.byteorder', '-enspi.opnum',
+                '-enspi.MAPISTATUS_status', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 176
+        ok = '\t0x00000000\t'
+        calls = ['0\t\tNspiBind request', '0' + ok + 'NspiBind response']
+        calls += ['3\t\tNspiQueryRows request', '3' + ok + 'NspiQueryRows response'] * 2
+        calls += ['5\t\tNspiGetMatches request', '5' + ok + 'NspiGetMatches response'] * 5
+        calls += ['7\t\tNspiDNToEph request', '7' + ok + 'NspiDNToEph response']
+        calls += ['9\t\tNspiGetProps request', '9' + ok + 'NspiGetProps response'] * 2
+        calls += ['12\t\tNspiGetHierarchyInfo request', '12' + ok + 'NspiGetHierarchyInfo response']
+        for op, name in ((2, 'NspiUpdateStat'), (4, 'NspiSeekEntries'),
+                         (6, 'NspiResortRestriction'), (8, 'NspiGetPropList'),
+                         (10, 'NspiCompareDNTs'), (11, 'NspiModProps'),
+                         (13, 'NspiGetTemplateInfo'), (14, 'NspiModLInkAtt'),
+                         (15, 'NspiDeleteEntries'), (16, 'NspiQueryColumns'),
+                         (17, 'NspiGetNamesFromIDs'), (18, 'NspiGetIDsFromNames'),
+                         (19, 'NspiResolveNames'), (20, 'NspiResolveNamesW')):
+            calls += ['%d\t\t%s request NSPI V56' % (op, name),
+                      '%d\t\t%s response NSPI V56' % (op, name)]
+        unbind = ['1\t\tNspiUnbind request', '1' + ok + 'NspiUnbind response']
+        nf = '\t0x8004010f\t'
+        errors = ['0\t\tNspiBind request',
+                  '0\t0x80040111\tNspiBind response, Status: MAPI_E_LOGON_FAILED']
+        for op, name in ((3, 'NspiQueryRows'), (5, 'NspiGetMatches'),
+                         (12, 'NspiGetHierarchyInfo'), (7, 'NspiDNToEph'),
+                         (9, 'NspiGetProps')):
+            errors += ['%d\t\t%s request' % (op, name),
+                       '%d%s%s response, Status: MAPI_E_NOT_FOUND' % (op, nf, name)]
+        errors += unbind
+        errors += ['1\t\tNspiUnbind request',
+                   '1' + nf + 'NspiUnbind response, Status: MAPI_E_NOT_FOUND']
+        le = ['1\t' + c for c in calls + errors]
+        be = ['0\t' + c for c in calls + unbind]
+        ndr64 = ['1\t' + c for c in calls + unbind]
+        assert lines == le + be + ndr64
+
+    def test_nspi_propvalues(self, cmd_tshark, capture_file, test_env):
+        '''NspiGetProps returns a row with every SPropValue arm of the
+        IDL; the values are the same in NDR, big endian NDR and NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nspi_coverage.pcap.gz'),
+                '-Y', 'nspi.opnum == 9 && dcerpc.pkt_type == 2 && nspi.SRow.cValues == 18',
+                '-Tfields', '-enspi.SPropValue.value',
+                '-enspi.SPropValue_CTR.i', '-enspi.SPropValue_CTR.l',
+                '-enspi.SPropValue_CTR.b', '-enspi.SPropValue_CTR.lpszA',
+                '-enspi.SPropValue_CTR.lpszW', '-enspi.MAPIUID.ab',
+                '-enspi.FILETIME.dwLowDateTime', '-enspi.SPropValue_CTR.err',
+                '-enspi.SShortArray.lpi', '-enspi.MV_LONG_STRUCT.lpl',
+                '-enspi.LPSTR.lppszA', '-enspi.SBinary.cb',
+                '-enspi.SGuidArray.lpguid', '-enspi.MV_UNICODE_STRUCT.lpi',
+                '-enspi.SPropValue_CTR.null', '-enspi.SPropValue_CTR.object',
+                '-enspi.MAPISTATUS_status',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 3
+        assert lines[0] == lines[1] == lines[2]
+        assert lines[0].split('\t') == [
+            '0x00000002,0x00000003,0x0000000b,0x0000001e,0x00000102,'
+            '0x0000001f,0x00000048,0x00000040,0x0000000a,0x00001002,'
+            '0x00001003,0x0000101e,0x00001102,0x00001048,0x0000101f,'
+            '0x00001040,0x00000001,0x0000000d',
+            '1', '6', '1', 'Alice Example', 'Alice Exämple',
+            '0,17,34,51,68,85,102,119,136,153,170,187,204,221,238,255',
+            '3302352631,3302352631,3302352632', '0x8004010f',
+            '1,2,65534', '10,20,30', 'SMTP,EX', '28,3,0,5',
+            '286331153,572662306,858993459,1145324612', '65,66',
+            '0', '4660', '0x00000000',
+        ]
+
+    def test_nspi_or_restriction(self, cmd_tshark, capture_file, test_env):
+        '''An NspiGetMatches request with an RES_OR restriction is
+        decoded as such, and the arguments after it are decoded from the
+        right octets ("NSPI: Dissect OR restrictions"; before the fix the
+        OR arm was empty and unknown3 and REQ_properties were garbage).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nspi_coverage.pcap.gz'),
+                '-Y', 'nspi.SRestriction_CTR.resOr && !nspi.SRestriction_CTR.resAnd',
+                '-Tfields', '-eframe.number', '-enspi.SAndRestriction.cRes',
+                '-enspi.SPropertyRestriction.ulPropTag',
+                '-enspi.SPropValue_CTR.lpszA', '-enspi.NspiGetMatches.unknown3',
+                '-enspi.SPropTagArray.aulPropTag',
+            ), encoding='utf-8', env=test_env)
+        expected = '\t2\t0x3001001e,0x3001001e\tAlice,Bob\t50\t' \
+                   '0x3001001e,0x0ffe0003,0x0fff0102,0x3001001f'
+        assert stdout.splitlines() == ['16' + expected, '92' + expected,
+                                       '154' + expected]
+
+    def test_nspi_nested_restriction(self, cmd_tshark, capture_file, test_env):
+        '''AND and OR restrictions nested eight levels deep, with an
+        empty AND, an OR without subrestrictions and a property
+        restriction without a value, decode completely.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nspi_coverage.pcap.gz'),
+                '-Y', 'nspi.opnum == 5 && nspi.SAndRestriction.cRes == 4',
+                '-Tfields', '-eframe.number', '-enspi.property_type',
+                '-enspi.SAndRestriction.cRes', '-enspi.SPropertyRestriction.ulPropTag',
+                '-enspi.MAPIUID.ab', '-enspi.NspiGetMatches.unknown3',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[0] for l in lines] == ['18', '94', '156']
+        for line in lines:
+            f = line.split('\t')
+            # rt and the union discriminator of every restriction
+            types = f[1].split(',')
+            assert types[0::2] == types[1::2]
+            assert [int(t, 16) for t in types[0::2]] == \
+                [1, 0, 1, 0, 1, 0, 1, 0, 0, 4, 0, 1, 4]
+            assert f[2] == '1,1,1,1,1,1,1,1,4,0,0'
+            assert f[3] == '0x0ffe0003,0x33020048'
+            assert f[4].startswith('160,161,') and f[4].endswith(
+                '220,167,64,200,192,66,16,26,180,185,8,0,43,47,225,130')
+            assert f[5] == '50'
+
+    def test_nspi_rows(self, cmd_tshark, capture_file, test_env):
+        '''Row sets, instance keys and distinguished names of
+        NspiQueryRows, NspiGetMatches, NspiDNToEph and
+        NspiGetHierarchyInfo in the first connection.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_nspi_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 29 && nspi.opnum != 9 && nspi.opnum != 0',
+                '-Tfields', '-eframe.number', '-enspi.SRowSet.cRows',
+                '-enspi.SRow.cValues', '-enspi.SPropValue_CTR.lpszA',
+                '-enspi.instance_key.value', '-enspi.NspiQueryRows.instance_key',
+                '-enspi.NAME_STRING.str', '-enspi.NspiGetHierarchyInfo.unknown2',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t\t\t\t\t4097,4098\t\t',
+            '9\t2\t4,4\tAlice,Bob\t\t\t\t',
+            '10\t\t\t\t\t\t\t',
+            '11\t0\t\t\t\t\t\t',
+            '12\t\t\tAlice\t\t\t\t',
+            '13\t1\t4\tAlice\t4097\t\t\t',
+            '14\t\t\t\t\t\t\t',
+            '15\t1\t4\tBob\t4098\t\t\t',
+            '16\t\t\tAlice,Bob\t\t\t\t',
+            '17\t2\t4,4\tAlice,Bob\t4097,4098\t\t\t',
+            '18\t\t\t\t\t\t\t',
+            '19\t\t\t\t\t\t\t',
+            '20\t\t\t\t\t\t\t',
+            '21\t0\t\t\t\t\t\t',
+            '22\t\t\t\t\t\t/o=Example/ou=First Administrative Group/cn=Recipients/cn=alice\t',
+            '23\t\t\t\t4097,0\t\t\t',
+            '28\t\t\t\t\t\t\t0',
+            '29\t3\t9,9,0\tAlice Example\t\t\t\t42',
+        ]
