@@ -16,6 +16,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-dce122.h"
 
@@ -188,6 +189,8 @@ dissect    sec_rgy_pname const signed32        sec_rgy_pname_t_size  = 257; * In
         col_append_fstr (pinfo->cinfo, COL_INFO,
                          " :FIXME!: Invalid string length of  %u",
                          string_size);
+        /* The fields that follow cannot be found */
+        THROW (ReportedBoundsError);
     }
 
   proto_item_set_len (item, offset - old_offset);
@@ -272,11 +275,7 @@ dissect_sec_rgy_pgo_flags_t (tvbuff_t * tvb, unsigned offset,
     {
       col_append_str (pinfo->cinfo, COL_INFO, ":PROJLIST_OK");
     }
-  if ((flags & sec_rgy_acct_admin_client) == sec_rgy_acct_admin_client)
-    {
-      col_append_str (pinfo->cinfo, COL_INFO, ":NONE");
-    }
-  if ((flags & sec_rgy_pgo_flags_none) == sec_rgy_pgo_flags_none)
+  if (flags == sec_rgy_pgo_flags_none)
     {
       col_append_str (pinfo->cinfo, COL_INFO, ":NONE");
     }
@@ -393,6 +392,8 @@ dissect_sec_rgy_name_t (tvbuff_t * tvb, unsigned offset,
         col_append_fstr (pinfo->cinfo, COL_INFO,
                          " :FIXME!: Invalid string length of  %u",
                          string_size);
+        /* The fields that follow cannot be found */
+        THROW (ReportedBoundsError);
     }
 
   proto_item_set_len (item, offset - old_offset);
@@ -1499,13 +1500,13 @@ proto_register_rs_pgo (void)
      {"Error status", "rs_pgo.error_status", FT_UINT32, BASE_DEC, NULL,
       0x0, NULL, HFILL}},
     {&hf_rs_pgo_query_key_t,
-     {"Query key", "rs_pgo.query_key", FT_UINT32, BASE_DEC,
+     {"Query key", "rs_pgo.query_key", FT_UINT16, BASE_DEC,
       NULL, 0x0, NULL, HFILL}},
     {&hf_rs_pgo_query_result_t,
      {"Query result", "rs_pgo.query_result", FT_UINT32,
       BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_rs_pgo_query_t,
-     {"Query", "rs_pgo.query", FT_UINT32, BASE_DEC, NULL,
+     {"Query", "rs_pgo.query", FT_UINT8, BASE_DEC, NULL,
       0x0, NULL, HFILL}},
     {&hf_rs_sec_rgy_pgo_item_t_quota,
      {"Quota", "rs_pgo.quota",
