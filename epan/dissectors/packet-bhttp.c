@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 
 #include "packet-http.h"
 
@@ -103,6 +104,17 @@ try_get_quic_varint(tvbuff_t *tvb, int offset, uint64_t *value, unsigned *lenvar
     return true;
 }
 
+/* A length that does not fit in what is left must not be cut to 32 bits,
+ * where 0xffffffff would mean "to the end of the tvb". */
+static unsigned
+bhttp_check_len(tvbuff_t *tvb, int offset, uint64_t len)
+{
+    if (len > (uint64_t)tvb_reported_length_remaining(tvb, offset)) {
+        THROW(ReportedBoundsError);
+    }
+    return (unsigned)len;
+}
+
 static int
 dissect_bhttp_request_control_data(tvbuff_t *tvb, packet_info *pinfo, proto_item *pi, int offset)
 {
@@ -116,26 +128,26 @@ dissect_bhttp_request_control_data(tvbuff_t *tvb, packet_info *pinfo, proto_item
     proto_tree_add_item_ret_varint(cd_tree, hf_bhttp_request_method_len, tvb, offset, -1, ENC_VARINT_QUIC, &method_len, &lenvar);
     offset += lenvar;
 
-    proto_tree_add_item_ret_string(cd_tree, hf_bhttp_request_method, tvb, offset, (uint32_t)method_len, ENC_ASCII, pinfo->pool, &method);
-    offset += (uint32_t)method_len;
+    proto_tree_add_item_ret_string(cd_tree, hf_bhttp_request_method, tvb, offset, bhttp_check_len(tvb, offset, method_len), ENC_ASCII, pinfo->pool, &method);
+    offset += bhttp_check_len(tvb, offset, method_len);
 
     proto_tree_add_item_ret_varint(cd_tree, hf_bhttp_request_scheme_len, tvb, offset, -1, ENC_VARINT_QUIC, &scheme_len, &lenvar);
     offset += lenvar;
 
-    proto_tree_add_item(cd_tree, hf_bhttp_request_scheme, tvb, offset, (uint32_t)scheme_len, ENC_ASCII);
-    offset += (uint32_t)scheme_len;
+    proto_tree_add_item(cd_tree, hf_bhttp_request_scheme, tvb, offset, bhttp_check_len(tvb, offset, scheme_len), ENC_ASCII);
+    offset += bhttp_check_len(tvb, offset, scheme_len);
 
     proto_tree_add_item_ret_varint(cd_tree, hf_bhttp_request_authority_len, tvb, offset, -1, ENC_VARINT_QUIC, &authority_len, &lenvar);
     offset += lenvar;
 
-    proto_tree_add_item(cd_tree, hf_bhttp_request_authority, tvb, offset, (uint32_t)authority_len, ENC_ASCII);
-    offset += (uint32_t)authority_len;
+    proto_tree_add_item(cd_tree, hf_bhttp_request_authority, tvb, offset, bhttp_check_len(tvb, offset, authority_len), ENC_ASCII);
+    offset += bhttp_check_len(tvb, offset, authority_len);
 
     proto_tree_add_item_ret_varint(cd_tree, hf_bhttp_request_path_len, tvb, offset, -1, ENC_VARINT_QUIC, &path_len, &lenvar);
     offset += lenvar;
 
-    proto_tree_add_item_ret_string(cd_tree, hf_bhttp_request_path, tvb, offset, (uint32_t)path_len, ENC_ASCII|ENC_NA, pinfo->pool, &path);
-    offset += (uint32_t)path_len;
+    proto_tree_add_item_ret_string(cd_tree, hf_bhttp_request_path, tvb, offset, bhttp_check_len(tvb, offset, path_len), ENC_ASCII|ENC_NA, pinfo->pool, &path);
+    offset += bhttp_check_len(tvb, offset, path_len);
 
     proto_item_append_text(cd_tree, ": %s: %s", method, path);
     proto_tree* ptree = proto_tree_get_parent_tree(pi);
@@ -158,7 +170,7 @@ dissect_bhttp_known_field_section(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     proto_tree_add_item_ret_varint(fs_tree, hf_bhttp_known_length_field_section_length, tvb, offset, -1, ENC_VARINT_QUIC, &fs_length, &lenvar);
     offset += lenvar;
-    target_offset = offset + (uint32_t)fs_length;
+    target_offset = offset + bhttp_check_len(tvb, offset, fs_length);
 
     total_fields = 0;
 
@@ -166,14 +178,14 @@ dissect_bhttp_known_field_section(tvbuff_t *tvb, proto_tree *tree, int offset)
         proto_tree_add_item_ret_varint(fs_tree, hf_bhttp_name_len, tvb, offset, -1, ENC_VARINT_QUIC, &length, &lenvar);
         offset += lenvar;
 
-        proto_tree_add_item(fs_tree, hf_bhttp_name, tvb, offset, (uint32_t)length, ENC_ASCII);
-        offset += (uint32_t)length;
+        proto_tree_add_item(fs_tree, hf_bhttp_name, tvb, offset, bhttp_check_len(tvb, offset, length), ENC_ASCII);
+        offset += bhttp_check_len(tvb, offset, length);
 
         proto_tree_add_item_ret_varint(fs_tree, hf_bhttp_value_len, tvb, offset, -1, ENC_VARINT_QUIC, &length, &lenvar);
         offset += lenvar;
 
-        proto_tree_add_item(fs_tree, hf_bhttp_value, tvb, offset, (uint32_t)length, ENC_ASCII);
-        offset += (uint32_t)length;
+        proto_tree_add_item(fs_tree, hf_bhttp_value, tvb, offset, bhttp_check_len(tvb, offset, length), ENC_ASCII);
+        offset += bhttp_check_len(tvb, offset, length);
 
         total_fields +=1;
     }
@@ -209,14 +221,14 @@ dissect_bhttp_indeterminate_field_section(tvbuff_t *tvb, proto_tree *tree, int o
             break;
         }
 
-        proto_tree_add_item(fs_tree, hf_bhttp_name, tvb, offset, (uint32_t)length, ENC_ASCII);
-        offset += (uint32_t)length;
+        proto_tree_add_item(fs_tree, hf_bhttp_name, tvb, offset, bhttp_check_len(tvb, offset, length), ENC_ASCII);
+        offset += bhttp_check_len(tvb, offset, length);
 
         proto_tree_add_item_ret_varint(fs_tree, hf_bhttp_value_len, tvb, offset, -1, ENC_VARINT_QUIC, &length, &lenvar);
         offset += lenvar;
 
-        proto_tree_add_item(fs_tree, hf_bhttp_value, tvb, offset, (uint32_t)length, ENC_ASCII);
-        offset += (uint32_t)length;
+        proto_tree_add_item(fs_tree, hf_bhttp_value, tvb, offset, bhttp_check_len(tvb, offset, length), ENC_ASCII);
+        offset += bhttp_check_len(tvb, offset, length);
 
         total_fields +=1;
 
@@ -254,8 +266,8 @@ dissect_bhttp_indeterminate_content(tvbuff_t *tvb, proto_tree *tree, int offset)
         offset += lenvar;
 
         if (chunk_length > 0) {
-            proto_tree_add_item(c_tree, hf_bhttp_known_length_content_content, tvb, offset, (uint32_t)chunk_length, ENC_NA);
-            offset += (uint32_t)chunk_length;
+            proto_tree_add_item(c_tree, hf_bhttp_known_length_content_content, tvb, offset, bhttp_check_len(tvb, offset, chunk_length), ENC_NA);
+            offset += bhttp_check_len(tvb, offset, chunk_length);
         }
 
         if (!try_get_quic_varint(tvb, offset, &content_terminator, &lenvar)) {
@@ -288,8 +300,8 @@ dissect_bhttp_known_content(tvbuff_t *tvb, proto_tree *tree, int offset)
     offset += lenvar;
 
     if (length > 0) {
-        proto_tree_add_item(c_tree, hf_bhttp_known_length_content_content, tvb, offset, (uint32_t)length, ENC_NA);
-        offset += (uint32_t)length;
+        proto_tree_add_item(c_tree, hf_bhttp_known_length_content_content, tvb, offset, bhttp_check_len(tvb, offset, length), ENC_NA);
+        offset += bhttp_check_len(tvb, offset, length);
     }
 
     proto_item_append_text(c_tree, ": Length: %" PRIu64, length);
