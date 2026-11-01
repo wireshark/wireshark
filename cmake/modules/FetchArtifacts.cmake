@@ -252,10 +252,12 @@ function(unset_cache_entries_in_missing_artifact_dirs)
   endif()
 endfunction()
 
-set(need_falco_libs FALSE)
-if(BUILD_stratoshark OR BUILD_strato OR BUILD_falcodump OR BUILD_dumpcalls)
-  set(need_falco_libs TRUE)
-endif()
+# Fetch the same artifacts whatever the build options are, e.g. the
+# Falco libraries even if we're not building Stratoshark. Build
+# directories with different options can share ARTIFACTS_DIR, and each
+# writes its own list to the manifest, so artifacts that depended on
+# options would be removed and downloaded again every time we switched
+# between them, even while another build was using them.
 
 if(APPLE)
   if (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "arm64")
@@ -295,10 +297,8 @@ if(APPLE)
   file(MAKE_DIRECTORY ${ARTIFACTS_DIR}/sparkle)
   add_external_artifact(https://github.com/sparkle-project/Sparkle/releases/download/2.7.3/Sparkle-2.7.3.tar.xz 4146b751cf53f54ad0bacb63b4d2fa412d8edc10bd0939dd25b5866f0c8c5094 sparkle)
 
-  if(need_falco_libs)
-    add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.26.1-1-macos-universal.tar.xz ba3f427b1dc66101fac72049340749e5f62cb7c2fbc54c43ee418ab53dce1eaf)
-    add_artifact(falcosecurity-libs/falcosecurity-plugins-2026-03-16-1-macos-universal.tar.xz e571bceed45bbeb514d71e9078a0d39c9f1f814ccd70d3abdad355115add4805)
-  endif()
+  add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.26.1-1-macos-universal.tar.xz ba3f427b1dc66101fac72049340749e5f62cb7c2fbc54c43ee418ab53dce1eaf)
+  add_artifact(falcosecurity-libs/falcosecurity-plugins-2026-03-16-1-macos-universal.tar.xz e571bceed45bbeb514d71e9078a0d39c9f1f814ccd70d3abdad355115add4805)
 elseif(WIN32)
   if(WIRESHARK_TARGET_PLATFORM STREQUAL "arm64")
     add_artifact(bcg729/bcg729-1.1.1-1-win64armws.zip f4d76b9acf0d0e12e87a020e9805d136a0e8775e061eeec23910a10828153625)
@@ -328,10 +328,8 @@ elseif(WIN32)
     add_artifact(zlib-ng/zlib-ng-2.2.3-1-arm64-windows-ws.zip bea4250059565c3cc49a382d8ec3f82b70c51c3ccca41c5d3daec6862d22d8f8)
     add_artifact(zstd/zstd-1.5.7-arm64-windows-ws.zip 5a066e38a0c7bbbae3955919107e099565aee0c6c6523c43c0c9a0e6982a6a0a)
 
-    if(need_falco_libs)
-      add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.26.1-1-arm64-ws.7z b553fd616ec3bb7c878ea88269710aaa22c891e49ef23f75e414ece9ba772522)
-      add_artifact(falcosecurity-libs/falcosecurity-plugins-2026-03-16-2-arm64-ws.7z 46912192dde43b47f97038fbe64415f25fbbe4416b96ca7cdaa0c9039c0a8f1e)
-    endif()
+    add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.26.1-1-arm64-ws.7z b553fd616ec3bb7c878ea88269710aaa22c891e49ef23f75e414ece9ba772522)
+    add_artifact(falcosecurity-libs/falcosecurity-plugins-2026-03-16-2-arm64-ws.7z 46912192dde43b47f97038fbe64415f25fbbe4416b96ca7cdaa0c9039c0a8f1e)
   else() # x64
     add_artifact(bcg729/bcg729-1.0.4-win64ws.zip 9a095fda4c39860d96f0c568830faa6651cd17635f68e27aa6de46c689aa0ee2)
     add_artifact(brotli/brotli-1.2.1-1-x64-windows-ws.7z 20dff41efba7a88c34831f9aff50041e48dcbbf2f6a9da669e72f25885038bcb)
@@ -360,10 +358,8 @@ elseif(WIN32)
     add_artifact(zlib-ng/zlib-ng-2.2.3-1-x64-windows-ws.zip 8b4e5ba1b61688eccb7e315c2f4ce1ef0c4301172f265bd41455e1df6a5a9522)
     add_artifact(zstd/zstd-1.5.7-x64-windows-ws.zip cdce6d578ece3a14873572b1bffd54b42443ddb97386df9e4552ab7c17b2097d)
 
-    if(need_falco_libs)
-      add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.26.1-1-x64-ws.7z baf0ba415a0ae3c71d41a0bde279f21998f080606e2ceb6fb17485176cb07b5c)
-      add_artifact(falcosecurity-libs/falcosecurity-plugins-2026-03-16-2-x64-ws.7z 3a90c406e1c8e62175ac138f12046554b4c49a2303012e2c9680bd1f48fdc114)
-    endif()
+    add_artifact(falcosecurity-libs/falcosecurity-libs-bundle-0.26.1-1-x64-ws.7z baf0ba415a0ae3c71d41a0bde279f21998f080606e2ceb6fb17485176cb07b5c)
+    add_artifact(falcosecurity-libs/falcosecurity-plugins-2026-03-16-2-x64-ws.7z 3a90c406e1c8e62175ac138f12046554b4c49a2303012e2c9680bd1f48fdc114)
   endif()
   add_artifact(asciidoctor/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws.7z 626a21bf9cff6dfba9284a9c4ed459cd348ee635b7025808e2675aecf905f7a3)
   add_external_artifact(${docbook_download_prefix}/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
@@ -382,5 +378,4 @@ unset(manifest_file)
 unset(download_prefix)
 unset(docbook_download_prefix)
 unset(artifacts)
-unset(need_falco_libs)
 unset(asciidoctor_version)
