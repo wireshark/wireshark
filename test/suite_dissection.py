@@ -37604,3 +37604,51 @@ class TestDissectDcerpcRsAcct:
             '    Key Size: 6',
             '    Key: alice',
         ]
+
+
+class TestDissectDcerpcRsMisc:
+    def test_rs_misc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: every frame is rs_misc; no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rs_misc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['rs_misc'] * 14
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_rs_misc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rs_misc_calls(self, cmd_tshark, capture_file, test_env):
+        '''Every call: opnum, byte order, the decoded request fields
+        and the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_rs_misc_coverage.pcap.gz'),
+                '-Tfields',
+                '-ers_misc.opnum',
+                '-edcerpc.drep.byteorder',
+                '-ers_misc.login_get_info_rqst_var',
+                '-ers_misc.login_get_info_rqst_key_size',
+                '-ers_misc.login_get_info_rqst_key_t',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t1\t7\t6\talice\tlogin_get_info requestrs_login_get_info Request for: alice ',
+            '0\t1\t\t\t\tlogin_get_info response',
+            '1\t1\t\t\t\twait_until_consistent request',
+            '1\t1\t\t\t\twait_until_consistent response',
+            '2\t1\t\t\t\tcheck_consistency request',
+            '2\t1\t\t\t\tcheck_consistency response',
+            '0\t1\t1\t15\thosts/srv1/self\tlogin_get_info requestrs_login_get_info Request for: hosts/srv1/self ',
+            '0\t1\t\t\t\tlogin_get_info response',
+            '0\t1\t2\t0\t\tlogin_get_info requestrs_login_get_info Request (other)',
+            '0\t1\t\t\t\tlogin_get_info response',
+            '0\t0\t7\t6\tcarol\tlogin_get_info requestrs_login_get_info Request for: carol ',
+            '0\t0\t\t\t\tlogin_get_info response',
+            '0\t0\t0\t0\t\tlogin_get_info requestrs_login_get_info Request (other)',
+            '0\t0\t\t\t\tlogin_get_info response',
+        ]
