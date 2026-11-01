@@ -198,7 +198,7 @@ workflow:
     AQT_ARCH: "msvc2022_64"
     VCVARS_ARCH: "64"
     WIRESHARK_BASE_DIR: "$CI_PROJECT_DIR\\.."
-    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/wireshark-x64-libs/falcosecurity-plugins-2026-03-16-2-x64-ws"
+    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/wireshark-x64-libs-5.0/falcosecurity-plugins-2026-03-16-2-x64-ws"
   stage: build
   retry: 1
   before_script:
@@ -621,7 +621,7 @@ Windows Arm64 Package:
     AQT_HOST: "windows_arm64"
     AQT_ARCH: "msvc2022_arm64"
     VCVARS_ARCH: "arm64"
-    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/wireshark-arm64-libs/falcosecurity-plugins-2026-03-16-2-arm64-ws"
+    FALCO_PLUGIN_DIR: "$WIRESHARK_BASE_DIR/wireshark-arm64-libs-5.0/falcosecurity-plugins-2026-03-16-2-arm64-ws"
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
