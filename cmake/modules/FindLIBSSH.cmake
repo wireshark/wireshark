@@ -97,4 +97,5 @@ endif()
 # This is outside the block above so that the DLLs are registered when
 # the results are cached.
 include(FindWSWinLibs)
+FindWSWinLibs("libssh-.*" "LIBSSH_HINTS")
 AddWSWinDLLS(LIBSSH LIBSSH_HINTS "libssh")

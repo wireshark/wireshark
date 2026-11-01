@@ -34,6 +34,7 @@ find_library(ILBC_LIBRARY
 
 # Check if ilbc library is WebRTC from https://github.com/TimothyGu/libilbc
 if(ILBC_INCLUDE_DIR AND ILBC_LIBRARY)
+  ws_reset_checks_on_change(ILBC "${ILBC_INCLUDE_DIR};${ILBC_LIBRARY}" HAVE_ILBC_LIB_WEBRTC)
   include(CheckSymbolExists)
   cmake_push_check_state()
   set(CMAKE_REQUIRED_INCLUDES ${ILBC_INCLUDE_DIR})

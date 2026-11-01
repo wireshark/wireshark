@@ -13,6 +13,11 @@
 # support for 8-bit code units".
 
 include( FindWSWinLibs )
+# The DLL and PDB variables used to be cache entries. Remove those so that
+# they can't be used if the package isn't found.
+foreach(_var PCRE2_RELEASE_DLL_DIR PCRE2_RELEASE_DLL PCRE2_RELEASE_PDB PCRE2_DEBUG_DLL_DIR PCRE2_DEBUG_DLL PCRE2_DEBUG_PDB)
+	unset(${_var} CACHE)
+endforeach()
 # PCRE2 is included with GLib2
 FindWSWinLibs( "glib-bundle-.*" "PCRE2_HINTS" )
 
@@ -59,40 +64,25 @@ if(PCRE2_FOUND)
 	set(PCRE2_DEBUG_LIBRARIES ${PCRE2_DEBUG_LIBRARY})
 	set(PCRE2_INCLUDE_DIRS ${PCRE2_INCLUDE_DIR})
 	if (USE_REPOSITORY)
-		set (PCRE2_RELEASE_DLL_DIR "${PCRE2_HINTS}/bin"
-			CACHE PATH "Path to PCRE2 release DLL"
-		)
+		set(PCRE2_RELEASE_DLL_DIR "${PCRE2_HINTS}/bin")
 		file(GLOB _pcre2_release_dll RELATIVE "${PCRE2_RELEASE_DLL_DIR}"
 			"${PCRE2_RELEASE_DLL_DIR}/pcre2-8*.dll"
 		)
-		set (PCRE2_RELEASE_DLL ${_pcre2_release_dll}
-			# We're storing filenames only. Should we use STRING instead?
-			CACHE FILEPATH "PCRE2 release DLL file name"
-		)
+		set(PCRE2_RELEASE_DLL ${_pcre2_release_dll})
 		file(GLOB _pcre2_release_pdb RELATIVE "${PCRE2_RELEASE_DLL_DIR}"
 			"${PCRE2_RELEASE_DLL_DIR}/pcre2-8*.pdb"
 		)
-		set (PCRE2_RELEASE_PDB ${_pcre2_release_pdb}
-			CACHE FILEPATH "PCRE2 release PDB file name"
-		)
+		set(PCRE2_RELEASE_PDB ${_pcre2_release_pdb})
 
-		set (PCRE2_DEBUG_DLL_DIR "${PCRE2_HINTS}/debug/bin"
-			CACHE PATH "Path to PCRE2 debug DLL"
-		)
+		set(PCRE2_DEBUG_DLL_DIR "${PCRE2_HINTS}/debug/bin")
 		file(GLOB _pcre2_debug_dll RELATIVE "${PCRE2_DEBUG_DLL_DIR}"
 			"${PCRE2_DEBUG_DLL_DIR}/pcre2-8d*.dll"
 		)
-		set (PCRE2_DEBUG_DLL ${_pcre2_debug_dll}
-			# We're storing filenames only. Should we use STRING instead?
-			CACHE FILEPATH "PCRE2 debug DLL file name"
-		)
+		set(PCRE2_DEBUG_DLL ${_pcre2_debug_dll})
 		file(GLOB _pcre2_debug_pdb RELATIVE "${PCRE2_DEBUG_DLL_DIR}"
 			"${PCRE2_DEBUG_DLL_DIR}/pcre2-8d*.pdb"
 		)
-		set (PCRE2_DEBUG_PDB ${_pcre2_debug_pdb}
-			CACHE FILEPATH "PCRE2 debug PDB file name"
-		)
-		mark_as_advanced(PCRE2_RELEASE_DLL_DIR PCRE2_RELEASE_DLL PCRE2_PDB PCRE2_DEBUG_DLL_DIR PCRE2_DEBUG_DLL)
+		set(PCRE2_DEBUG_PDB ${_pcre2_debug_pdb})
 
 		list(TRANSFORM PCRE2_RELEASE_DLL PREPEND "${PCRE2_RELEASE_DLL_DIR}/" OUTPUT_VARIABLE _pcre2_release_dlls)
 		list(TRANSFORM PCRE2_DEBUG_DLL PREPEND "${PCRE2_DEBUG_DLL_DIR}/" OUTPUT_VARIABLE _pcre2_debug_dlls)

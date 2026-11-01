@@ -316,12 +316,14 @@ mark_as_advanced(SINSP_INCLUDE_DIRS SINSP_LINK_LIBRARIES SINSP_DEBUG_LINK_LIBRAR
 # Windows plugins
 
 set(_falco_plugins)
-if(WIN32 AND SINSP_FOUND AND NOT FALCO_PLUGINS)
+if(WIN32 AND SINSP_FOUND)
+  # Do this even if FALCO_PLUGINS is set, so that FindWSWinLibs clears it
+  # if it holds paths to another version of the plugins.
   FindWSWinLibs( "falcosecurity-plugins-.*" _falco_plugin_dir)
-  if(_falco_plugin_dir)
+  if(_falco_plugin_dir AND NOT FALCO_PLUGINS)
     file( GLOB _falco_plugins LIST_DIRECTORIES false "${_falco_plugin_dir}/*.dll" )
-    unset(_falco_plugin_dir)
   endif()
+  unset(_falco_plugin_dir)
 endif()
 
 # XXX It looks like we can either autodiscover this value or provide an option but not both.

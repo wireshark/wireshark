@@ -36,6 +36,11 @@
 #  License text for the above reference.)
 
 include( FindWSWinLibs )
+# The DLL and PDB variables used to be cache entries. Remove those so that
+# they can't be used if the package isn't found.
+foreach(_var ZLIB_DLL_DIR ZLIB_DLLS_RELEASE ZLIB_PDB)
+    unset(${_var} CACHE)
+endforeach()
 # Zlib is included with GLib2
 FindWSWinLibs( "glib-bundle-*" "ZLIB_HINTS" )
 
@@ -139,22 +144,14 @@ if(ZLIB_FOUND)
 
     #AddWSWinDLL(ZLIB ZLIB_HINTS "zlib*")
     # With zlib-ng the hints does not work
-    set (ZLIB_DLL_DIR "${ZLIB_HINTS}/bin"
-        CACHE PATH "Path to ZLIB DLL"
-    )
+    set(ZLIB_DLL_DIR "${ZLIB_HINTS}/bin")
     # MinGW, older zlib and vcpkg
     set(ZLIB_DLLS_RELEASE zlib1.dll)
     # Newer zlib and vcpkg
     if (EXISTS "${ZLIB_DLL_DIR}/z.dll")
         list(APPEND ZLIB_DLLS_RELEASE z.dll)
     endif()
-    set (ZLIB_DLLS_RELEASE ${ZLIB_DLLS_RELEASE}
-        CACHE FILEPATH "ZLIB DLL file names"
-    )
     set(ZLIB_PDB z.pdb)
-    set (ZLIB_PDB ${ZLIB_PDB}
-        CACHE FILEPATH "ZLIB PDB file name"
-    )
     list(TRANSFORM ZLIB_DLLS_RELEASE PREPEND "${ZLIB_DLL_DIR}/" OUTPUT_VARIABLE _zlib_dlls)
     ws_add_runtime_dlls(${_zlib_dlls})
     SET(ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIR})

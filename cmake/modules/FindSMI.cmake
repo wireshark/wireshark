@@ -43,6 +43,7 @@ IF(SMI_FOUND)
   endif()
   AddWSWinDLL(SMI SMI_HINTS "libsmi-*")
 
+  ws_reset_checks_on_change(SMI "${SMI_INCLUDE_DIRS};${SMI_LIBRARIES}" HAVE_SMI_VERSION_STRING)
   include(CheckSymbolExists)
   cmake_push_check_state()
   set(CMAKE_REQUIRED_INCLUDES ${SMI_INCLUDE_DIRS})
