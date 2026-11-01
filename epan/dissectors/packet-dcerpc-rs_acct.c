@@ -52,6 +52,7 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, unsigned offset,
 			hf_rs_acct_lookup_rqst_key_size, &key_size);
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
+		tvb_ensure_bytes_exist64(tvb, offset, key_size);
 		proto_tree_add_item_ret_string(tree, hf_rs_acct_lookup_rqst_key_t, tvb, offset, key_size, ENC_ASCII|ENC_NA, pinfo->pool, &keyx_t);
 		offset += key_size;
 
@@ -78,6 +79,8 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, unsigned offset,
 			hf_rs_acct_get_projlist_rqst_var1, NULL);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 			hf_rs_acct_get_projlist_rqst_key_size, &key_size);
+
+	tvb_ensure_bytes_exist64(tvb, offset, key_size);
 
 	proto_tree_add_item_ret_string(tree, hf_rs_acct_get_projlist_rqst_key_t,
 			     tvb, offset, key_size, ENC_ASCII|ENC_NA, pinfo->pool, &keyx_t);
@@ -115,9 +118,9 @@ proto_register_rs_acct (void)
 	{ &hf_rs_acct_get_projlist_rqst_var1,
 		{ "Var1", "rs_acct.get_projlist_rqst_var1", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_get_projlist_rqst_key_size,
-		{ "Var1", "rs_acct.get_projlist_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ "Key Size", "rs_acct.get_projlist_rqst_key_size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_rs_acct_get_projlist_rqst_key_t,
-		{ "Var1", "rs_acct.get_projlist_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+		{ "Key", "rs_acct.get_projlist_rqst_key_t", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 
 	static int *ett[] = {
