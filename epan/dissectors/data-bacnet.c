@@ -1690,6 +1690,15 @@ BACnetVendorIdentifiers[] = {
     { 1677, "Latina Control Comercio, Servicos e Fabricacao Ltda" },
     { 1678, "Hamel Building Technologies LLC" },
     { 1679, "Airmaster A/S" },
+    { 1680, "D.H.C. Automation and Controls Ltd." },
+    { 1681, "Prosys OPC Ltd" },
+    { 1682, "ATS Inland NW" },
+    { 1683, "Ingenieria en Disenos Electronicos y Automatizacion" },
+    { 1685, "Jones AV Ltd." },
+    { 1686, "Procon Electronics" },
+    { 1687, "Zentec LLC" },
+    { 1688, "Eko-Automatyka Sp. z.o.o." },
+    { 1689, "MachDatum Private Limited" },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);
