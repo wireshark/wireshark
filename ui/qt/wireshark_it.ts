@@ -3812,7 +3812,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation>I pacchetti di query GIF zelanti hanno dimensioni di finestra jumbo</translation>
+        <translation>Zitto, fissa il traffico che blocca quei brevi dump</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
