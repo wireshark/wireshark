@@ -55,6 +55,10 @@ set(manifest_file ${ARTIFACTS_DIR}/manifest.txt)
 
 set(artifacts)
 
+# The DocBook releases we use haven't changed in years. Fetch our copies
+# instead of depending on more sites being up.
+set(docbook_download_prefix "https://dev-libs.wireshark.org/src/docbook")
+
 function(add_artifact archive_path sha256_hash)
   # XXX Should this be a list of lists instead?
   list(APPEND artifacts "${download_prefix}/${archive_path}:${sha256_hash}:.")
@@ -284,9 +288,9 @@ if(APPLE)
   add_artifact(zlib-ng/zlib-ng-2.2.4-1-macos-universal.tar.xz 52f1f054be4c97320b4417ebad5d4d8e278f615efac8fbec94abb4986100cbb0)
   add_artifact(zstd/zstd-1.5.7-1-macos-universal.tar.xz a7bfa6fdc228badbe30da5b89fc875e1c9bad52ee692df117aba9721798249d0)
 
-  add_external_artifact(https://archive.docbook.org/xml/5.0.1/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 etc/xml)
-  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 etc/xml)
-  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 etc/xml)
+  add_external_artifact(${docbook_download_prefix}/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 etc/xml)
+  add_external_artifact(${docbook_download_prefix}/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 etc/xml)
+  add_external_artifact(${docbook_download_prefix}/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 etc/xml)
 
   file(MAKE_DIRECTORY ${ARTIFACTS_DIR}/sparkle)
   add_external_artifact(https://github.com/sparkle-project/Sparkle/releases/download/2.7.3/Sparkle-2.7.3.tar.xz 4146b751cf53f54ad0bacb63b4d2fa412d8edc10bd0939dd25b5866f0c8c5094 sparkle)
@@ -362,9 +366,9 @@ elseif(WIN32)
     endif()
   endif()
   add_artifact(asciidoctor/asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws.7z 626a21bf9cff6dfba9284a9c4ed459cd348ee635b7025808e2675aecf905f7a3)
-  add_external_artifact(https://archive.docbook.org/xml/5.0.1/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
-  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
-  add_external_artifact(https://github.com/docbook/xslt10-stylesheets/releases/download/release%2F1.79.2/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+  add_external_artifact(${docbook_download_prefix}/docbook-5.0.1.zip 7af9df452410e035a3707883e43039b4062f09dc2f49f2e986da3e4c0386e3c7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+  add_external_artifact(${docbook_download_prefix}/docbook-xsl-1.79.2.zip 853dce096f5b32fe0b157d8018d8fecf92022e9c79b5947a98b365679c7e31d7 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
+  add_external_artifact(${docbook_download_prefix}/docbook-xsl-nons-1.79.2.zip ba41126fbf4021e38952f3074dc87cdf1e50f3981280c7a619f88acf31456822 asciidoctor-bundle-${asciidoctor_version}-x64-windows-ws/etc/xml)
   file(MAKE_DIRECTORY ${WIN_FLEX_BISON_DIR})
   add_external_artifact(https://github.com/lexxmark/winflexbison/releases/download/v2.5.25/win_flex_bison-2.5.25.zip 8d324b62be33604b2c45ad1dd34ab93d722534448f55a16ca7292de32b6ac135 win_flex_bison)
 endif()
@@ -376,6 +380,7 @@ endif()
 
 unset(manifest_file)
 unset(download_prefix)
+unset(docbook_download_prefix)
 unset(artifacts)
 unset(need_falco_libs)
 unset(asciidoctor_version)
