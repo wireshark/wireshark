@@ -4,8 +4,8 @@
 #.EXPORTS
 CompressedData
 
-#.REGISTER
-CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
+#.PDU
+CompressedData
 
 #.FN_BODY CompressedData
   content_type = 0;
@@ -87,6 +87,12 @@ CompressedData    B "1.3.26.0.4406.0.4.2"  "cdt"
   }
 
   add_new_data_source (actx->pinfo, next_tvb, "Uncompressed Content");
+
+   /* The content can contain compressed data again; stop before the layer limit */
+   if (wmem_list_count(actx->pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+     proto_tree_add_expert_remaining(top_tree, actx->pinfo, &ei_cdt_too_deep, next_tvb, 0);
+     return offset;
+   }
 
    switch (content_type) {
    case CDT_UNDEFINED:

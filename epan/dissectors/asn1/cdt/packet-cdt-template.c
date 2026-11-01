@@ -19,6 +19,7 @@
 #include <epan/oids.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 #include <wsutil/array.h>
 #include "packet-ber.h"
 #include "packet-p1.h"
@@ -48,6 +49,7 @@ static int proto_cdt;
 
 static expert_field ei_cdt_unable_compress_content;
 static expert_field ei_cdt_unable_uncompress_content;
+static expert_field ei_cdt_too_deep;
 
 #include "packet-cdt-fn.c"
 
@@ -60,6 +62,8 @@ static expert_field ei_cdt_unable_uncompress_content;
 void dissect_cdt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   proto_tree *tree = NULL;
+  proto_tree *saved_top_tree = top_tree;
+  proto_item *saved_cdt_item = cdt_item;
 
   /* save parent_tree so subdissectors can create new top nodes */
   top_tree = parent_tree;
@@ -75,6 +79,17 @@ void dissect_cdt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   col_clear (pinfo->cinfo, COL_INFO);
 
   dissect_CompressedData_PDU (tvb, pinfo, tree, NULL);
+
+  /* Restore the trees of an enclosing CDT, they are gone after this packet */
+  top_tree = saved_top_tree;
+  cdt_item = saved_cdt_item;
+}
+
+static int
+dissect_cdt_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  dissect_cdt(tvb, pinfo, tree);
+  return tvb_captured_length(tvb);
 }
 
 void proto_register_cdt (void) {
@@ -92,6 +107,7 @@ void proto_register_cdt (void) {
   static ei_register_info ei[] = {
      { &ei_cdt_unable_compress_content, { "cdt.unable_compress_content", PI_UNDECODED, PI_ERROR, "Unable to get compressed content", EXPFILL }},
      { &ei_cdt_unable_uncompress_content, { "cdt.unable_uncompress_content", PI_UNDECODED, PI_ERROR, "Unable to get uncompressed content", EXPFILL }},
+     { &ei_cdt_too_deep, { "cdt.too_deep", PI_UNDECODED, PI_WARN, "Content nested too deep, not dissected", EXPFILL }},
   };
 
   expert_module_t* expert_cdt;
@@ -109,5 +125,5 @@ void proto_register_cdt (void) {
 
 /*--- proto_reg_handoff_cdt ---------------------------------------*/
 void proto_reg_handoff_cdt (void) {
-#include "packet-cdt-dis-tab.c"
+  register_ber_oid_dissector("1.3.26.0.4406.0.4.2", dissect_cdt_ber, proto_cdt, "cdt");
 }
