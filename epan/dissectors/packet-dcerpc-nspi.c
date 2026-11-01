@@ -142,6 +142,7 @@ static int hf_nspi_SPropertyRestriction_lpProp;
 static int hf_nspi_SPropertyRestriction_relop;
 static int hf_nspi_SPropertyRestriction_ulPropTag;
 static int hf_nspi_SRestriction_CTR_resAnd;
+static int hf_nspi_SRestriction_CTR_resOr;
 static int hf_nspi_SRestriction_CTR_resProperty;
 static int hf_nspi_SRestriction_PTTYPE;
 static int hf_nspi_SRowSet_aRow;
@@ -3689,6 +3690,7 @@ static unsigned nspi_dissect_element_SAndRestriction_lpRes(tvbuff_t *tvb _U_, un
 static unsigned nspi_dissect_element_SAndRestriction_lpRes_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static unsigned nspi_dissect_element_SAndRestriction_lpRes__(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static unsigned nspi_dissect_element_SRestriction_CTR_resAnd(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+static unsigned nspi_dissect_element_SRestriction_CTR_resOr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static unsigned nspi_dissect_element_SRestriction_CTR_resProperty(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static unsigned nspi_dissect_element_SRestriction_rt(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *rt);
 static unsigned nspi_dissect_element_SRestriction_res(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_, uint32_t *rt);
@@ -7948,6 +7950,7 @@ nspi_dissect_struct_SAndRestriction(tvbuff_t *tvb _U_, unsigned offset _U_, pack
 
 /* IDL: [switch_type(nspi_RestrictionType)] union { */
 /* IDL: [case(RES_AND)] [case(RES_AND)] SAndRestriction resAnd; */
+/* IDL: [case(RES_OR)] [case(RES_OR)] SAndRestriction resOr; */
 /* IDL: [case(RES_PROPERTY)] [case(RES_PROPERTY)] SPropertyRestriction resProperty; */
 /* IDL: } */
 
@@ -7955,6 +7958,14 @@ static unsigned
 nspi_dissect_element_SRestriction_CTR_resAnd(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
 	offset = nspi_dissect_struct_SAndRestriction(tvb,offset,pinfo,tree,di,drep,hf_nspi_SRestriction_CTR_resAnd,0);
+
+	return offset;
+}
+
+static unsigned
+nspi_dissect_element_SRestriction_CTR_resOr(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
+{
+	offset = nspi_dissect_struct_SAndRestriction(tvb,offset,pinfo,tree,di,drep,hf_nspi_SRestriction_CTR_resOr,0);
 
 	return offset;
 }
@@ -7986,6 +7997,10 @@ nspi_dissect_SRestriction_CTR(tvbuff_t *tvb _U_, unsigned offset _U_, packet_inf
 	switch(level) {
 		case RES_AND:
 			offset = nspi_dissect_element_SRestriction_CTR_resAnd(tvb, offset, pinfo, tree, di, drep);
+		break;
+
+		case RES_OR:
+			offset = nspi_dissect_element_SRestriction_CTR_resOr(tvb, offset, pinfo, tree, di, drep);
 		break;
 
 		case RES_PROPERTY:
@@ -10801,6 +10816,8 @@ void proto_register_dcerpc_nspi(void)
 	  { "UlPropTag", "nspi.SPropertyRestriction.ulPropTag", FT_UINT32, BASE_HEX, VALS(nspi_MAPITAGS_vals), 0, NULL, HFILL }},
 	{ &hf_nspi_SRestriction_CTR_resAnd,
 	  { "ResAnd", "nspi.SRestriction_CTR.resAnd", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_nspi_SRestriction_CTR_resOr,
+	  { "ResOr", "nspi.SRestriction_CTR.resOr", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_SRestriction_CTR_resProperty,
 	  { "ResProperty", "nspi.SRestriction_CTR.resProperty", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_nspi_SRestriction_PTTYPE,

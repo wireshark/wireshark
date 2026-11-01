@@ -151,7 +151,7 @@
 
 	typedef [switch_type(nspi_RestrictionType)] union {
 		[case(RES_AND)           ] SAndRestriction resAnd;
-//     [case(RES_OR)            ] SOrRestriction resOr;
+		[case(RES_OR)            ] SAndRestriction resOr; /* same as SOrRestriction */
 //     [case(RES_NOT)           ] SNotRestriction resNot;
 //     [case(RES_CONTENT)       ] SContentRestriction resContent;
 		[case(RES_PROPERTY)      ] SPropertyRestriction resProperty;
