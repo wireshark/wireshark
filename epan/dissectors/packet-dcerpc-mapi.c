@@ -12709,7 +12709,9 @@ mapi_dissect_struct_MV_LONG_STRUCT(tvbuff_t *tvb _U_, unsigned offset _U_, packe
 static unsigned
 mapi_dissect_element_LPSTR_lppszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_mapi_LPSTR_lppszA , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_mapi_LPSTR_lppszA , 0);
+	}
 
 	return offset;
 }
@@ -12812,7 +12814,9 @@ mapi_dissect_struct_SLPSTRArray(tvbuff_t *tvb _U_, unsigned offset _U_, packet_i
 static unsigned
 mapi_dissect_element_LPWSTR_lppszW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_mapi_LPWSTR_lppszW , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_mapi_LPWSTR_lppszW , 0);
+	}
 
 	return offset;
 }
@@ -14906,7 +14910,9 @@ mapi_dissect_element_OpenFolder_Replicas_Servers(tvbuff_t *tvb _U_, unsigned off
 static unsigned
 mapi_dissect_element_OpenFolder_Replicas_Servers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_OpenFolder_Replicas_Servers , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_OpenFolder_Replicas_Servers , 0);
+	}
 
 	return offset;
 }
@@ -15186,7 +15192,9 @@ mapi_dissect_enum_StringType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info
 static unsigned
 mapi_dissect_element_String_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_String_lpszA , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_String_lpszA , 0);
+	}
 
 	return offset;
 }
@@ -15194,7 +15202,9 @@ mapi_dissect_element_String_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet
 static unsigned
 mapi_dissect_element_String_lpszW_reduced(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_String_lpszW_reduced , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_String_lpszW_reduced , 0);
+	}
 
 	return offset;
 }
@@ -15202,7 +15212,9 @@ mapi_dissect_element_String_lpszW_reduced(tvbuff_t *tvb _U_, unsigned offset _U_
 static unsigned
 mapi_dissect_element_String_lpszW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_String_lpszW , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_String_lpszW , 0);
+	}
 
 	return offset;
 }
@@ -15518,7 +15530,9 @@ mapi_dissect_element_RecipExchange_addr_type(tvbuff_t *tvb _U_, unsigned offset 
 static unsigned
 mapi_dissect_element_RecipExchange_username(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_RecipExchange_username , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_RecipExchange_username , 0);
+	}
 
 	return offset;
 }
@@ -15647,7 +15661,9 @@ mapi_dissect_recipient_type(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info 
 static unsigned
 mapi_dissect_element_recipient_SimpleDisplayName_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_SimpleDisplayName_lpszA , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_SimpleDisplayName_lpszA , 0);
+	}
 
 	return offset;
 }
@@ -15655,7 +15671,9 @@ mapi_dissect_element_recipient_SimpleDisplayName_lpszA(tvbuff_t *tvb _U_, unsign
 static unsigned
 mapi_dissect_element_recipient_SimpleDisplayName_lpszW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_SimpleDisplayName_lpszW , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_SimpleDisplayName_lpszW , 0);
+	}
 
 	return offset;
 }
@@ -15706,7 +15724,9 @@ mapi_dissect_recipient_SimpleDisplayName(tvbuff_t *tvb _U_, unsigned offset _U_,
 static unsigned
 mapi_dissect_element_recipient_TransmittableDisplayName_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_TransmittableDisplayName_lpszA , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_TransmittableDisplayName_lpszA , 0);
+	}
 
 	return offset;
 }
@@ -15714,7 +15734,9 @@ mapi_dissect_element_recipient_TransmittableDisplayName_lpszA(tvbuff_t *tvb _U_,
 static unsigned
 mapi_dissect_element_recipient_TransmittableDisplayName_lpszW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_TransmittableDisplayName_lpszW , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_TransmittableDisplayName_lpszW , 0);
+	}
 
 	return offset;
 }
@@ -15769,7 +15791,9 @@ mapi_dissect_recipient_TransmittableDisplayName(tvbuff_t *tvb _U_, unsigned offs
 static unsigned
 mapi_dissect_element_recipient_DisplayName_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_DisplayName_lpszA , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_DisplayName_lpszA , 0);
+	}
 
 	return offset;
 }
@@ -15777,7 +15801,9 @@ mapi_dissect_element_recipient_DisplayName_lpszA(tvbuff_t *tvb _U_, unsigned off
 static unsigned
 mapi_dissect_element_recipient_DisplayName_lpszW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_DisplayName_lpszW , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_DisplayName_lpszW , 0);
+	}
 
 	return offset;
 }
@@ -15826,7 +15852,9 @@ mapi_dissect_recipient_DisplayName(tvbuff_t *tvb _U_, unsigned offset _U_, packe
 static unsigned
 mapi_dissect_element_recipient_EmailAddress_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_EmailAddress_lpszA , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_EmailAddress_lpszA , 0);
+	}
 
 	return offset;
 }
@@ -15834,7 +15862,9 @@ mapi_dissect_element_recipient_EmailAddress_lpszA(tvbuff_t *tvb _U_, unsigned of
 static unsigned
 mapi_dissect_element_recipient_EmailAddress_lpszW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_EmailAddress_lpszW , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_recipient_EmailAddress_lpszW , 0);
+	}
 
 	return offset;
 }
@@ -21919,7 +21949,9 @@ mapi_dissect_enum_FOLDER_STRING(tvbuff_t *tvb _U_, unsigned offset _U_, packet_i
 static unsigned
 mapi_dissect_element_LPTSTR_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_LPTSTR_lpszA , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_LPTSTR_lpszA , 0);
+	}
 
 	return offset;
 }
@@ -21927,7 +21959,9 @@ mapi_dissect_element_LPTSTR_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet
 static unsigned
 mapi_dissect_element_LPTSTR_lpszW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_LPTSTR_lpszW , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_LPTSTR_lpszW , 0);
+	}
 
 	return offset;
 }
@@ -23360,7 +23394,9 @@ mapi_dissect_element_SetReceiveFolder_req_fid(tvbuff_t *tvb _U_, unsigned offset
 static unsigned
 mapi_dissect_element_SetReceiveFolder_req_lpszMessageClass(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_SetReceiveFolder_req_lpszMessageClass , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_SetReceiveFolder_req_lpszMessageClass , 0);
+	}
 
 	return offset;
 }
@@ -23453,7 +23489,9 @@ mapi_dissect_element_GetReceiveFolder_req_InputHandleIndex(tvbuff_t *tvb _U_, un
 static unsigned
 mapi_dissect_element_GetReceiveFolder_req_MessageClass(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_GetReceiveFolder_req_MessageClass , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_GetReceiveFolder_req_MessageClass , 0);
+	}
 
 	return offset;
 }
@@ -23507,7 +23545,9 @@ mapi_dissect_element_GetReceiveFolder_repl_folder_id(tvbuff_t *tvb _U_, unsigned
 static unsigned
 mapi_dissect_element_GetReceiveFolder_repl_MessageClass(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_GetReceiveFolder_repl_MessageClass , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_GetReceiveFolder_repl_MessageClass , 0);
+	}
 
 	return offset;
 }
@@ -23799,7 +23839,9 @@ mapi_dissect_bitmap_MsgFlags(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info
 static unsigned
 mapi_dissect_element_MessageClass_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_MessageClass_lpszA , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_MessageClass_lpszA , 0);
+	}
 
 	return offset;
 }
@@ -23807,7 +23849,9 @@ mapi_dissect_element_MessageClass_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, 
 static unsigned
 mapi_dissect_element_MessageClass_lpszW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_MessageClass_lpszW , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_MessageClass_lpszW , 0);
+	}
 
 	return offset;
 }
@@ -27595,7 +27639,9 @@ mapi_dissect_struct_AbortSubmit_repl(tvbuff_t *tvb _U_, unsigned offset _U_, pac
 static unsigned
 mapi_dissect_element_Folder_name_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_Folder_name_lpszA , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_Folder_name_lpszA , 0);
+	}
 
 	return offset;
 }
@@ -27603,7 +27649,9 @@ mapi_dissect_element_Folder_name_lpszA(tvbuff_t *tvb _U_, unsigned offset _U_, p
 static unsigned
 mapi_dissect_element_Folder_name_lpszW(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_Folder_name_lpszW , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_Folder_name_lpszW , 0);
+	}
 
 	return offset;
 }
@@ -29292,7 +29340,9 @@ mapi_dissect_element_GetOwningServers_repl_OwningServers(tvbuff_t *tvb _U_, unsi
 static unsigned
 mapi_dissect_element_GetOwningServers_repl_OwningServers_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_GetOwningServers_repl_OwningServers , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_GetOwningServers_repl_OwningServers , 0);
+	}
 
 	return offset;
 }
@@ -31072,7 +31122,9 @@ mapi_dissect_element_TransportNewMail_req_FolderId(tvbuff_t *tvb _U_, unsigned o
 static unsigned
 mapi_dissect_element_TransportNewMail_req_MessageClass(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_TransportNewMail_req_MessageClass , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_TransportNewMail_req_MessageClass , 0);
+	}
 
 	return offset;
 }
@@ -31300,7 +31352,9 @@ mapi_dissect_element_name_NameSize(tvbuff_t *tvb _U_, unsigned offset _U_, packe
 static unsigned
 mapi_dissect_element_name_Name(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_mapi_name_Name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_mapi_name_Name , 0);
+	}
 
 	return offset;
 }
@@ -33582,7 +33636,9 @@ mapi_dissect_element_ReceiveFolder_fid(tvbuff_t *tvb _U_, unsigned offset _U_, p
 static unsigned
 mapi_dissect_element_ReceiveFolder_lpszMessageClass(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_ReceiveFolder_lpszMessageClass , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_ReceiveFolder_lpszMessageClass , 0);
+	}
 
 	return offset;
 }
@@ -34121,7 +34177,9 @@ mapi_dissect_element_OptionsData_req_InputHandleIndex(tvbuff_t *tvb _U_, unsigne
 static unsigned
 mapi_dissect_element_OptionsData_req_AddressType(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_OptionsData_req_AddressType , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_OptionsData_req_AddressType , 0);
+	}
 
 	return offset;
 }
@@ -34177,7 +34235,9 @@ mapi_dissect_struct_OptionsData_req(tvbuff_t *tvb _U_, unsigned offset _U_, pack
 static unsigned
 mapi_dissect_element_OptionsData_HelpFileName_HelpFileName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_OptionsData_HelpFileName_HelpFileName , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_OptionsData_HelpFileName_HelpFileName , 0);
+	}
 
 	return offset;
 }
@@ -37052,7 +37112,9 @@ mapi_dissect_element_Logon_req_EssdnSize(tvbuff_t *tvb _U_, unsigned offset _U_,
 static unsigned
 mapi_dissect_element_Logon_req_EssDN(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_Logon_req_EssDN , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_Logon_req_EssDN , 0);
+	}
 
 	return offset;
 }
@@ -37216,7 +37278,9 @@ mapi_dissect_element_Logon_repl_ServerNameSize(tvbuff_t *tvb _U_, unsigned offse
 static unsigned
 mapi_dissect_element_Logon_repl_ServerName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_Logon_repl_ServerName , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_mapi_Logon_repl_ServerName , 0);
+	}
 
 	return offset;
 }
@@ -40795,7 +40859,9 @@ mapi_dissect_element_AUX_PERF_SERVERINFO_ServerNameOffset(tvbuff_t *tvb _U_, uns
 static unsigned
 mapi_dissect_element_AUX_PERF_SERVERINFO_ServerDN(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_AUX_PERF_SERVERINFO_ServerDN , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_AUX_PERF_SERVERINFO_ServerDN , 0);
+	}
 
 	return offset;
 }
@@ -40803,7 +40869,9 @@ mapi_dissect_element_AUX_PERF_SERVERINFO_ServerDN(tvbuff_t *tvb _U_, unsigned of
 static unsigned
 mapi_dissect_element_AUX_PERF_SERVERINFO_ServerName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_AUX_PERF_SERVERINFO_ServerName , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_AUX_PERF_SERVERINFO_ServerName , 0);
+	}
 
 	return offset;
 }
@@ -42078,7 +42146,9 @@ mapi_dissect_element_AUX_PERF_PROCESSINFO_Reserved2(tvbuff_t *tvb _U_, unsigned 
 static unsigned
 mapi_dissect_element_AUX_PERF_PROCESSINFO_ProcessName(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_AUX_PERF_PROCESSINFO_ProcessName , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_mapi_AUX_PERF_PROCESSINFO_ProcessName , 0);
+	}
 
 	return offset;
 }

@@ -783,7 +783,9 @@ frsrpc_dissect_element_CommPktChunkGuidName_name(tvbuff_t *tvb _U_, unsigned off
 static unsigned
 frsrpc_dissect_element_CommPktChunkGuidName_name_(tvbuff_t *tvb _U_, unsigned offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_frsrpc_frsrpc_CommPktChunkGuidName_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_frsrpc_frsrpc_CommPktChunkGuidName_name , 0);
+	}
 
 	return offset;
 }
