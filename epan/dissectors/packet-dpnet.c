@@ -14,6 +14,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/tfs.h>
 
 void proto_register_dpnet(void);
@@ -89,6 +90,8 @@ static int hf_dpnet_desc_fast_signed;
 static int hf_dpnet_desc_full_signed;
 
 static int ett_dpnet;
+
+static expert_field ei_dpnet_offset_invalid;
 static int ett_dpnet_command_flags;
 static int ett_dpnet_desc_flags;
 
@@ -266,7 +269,7 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
         proto_tree_add_item(dpnet_tree, hf_dpnet_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
 
         if (has_guid & DPNET_QUERY_GUID) {
-            proto_tree_add_item(dpnet_tree, hf_dpnet_application, tvb, offset, 16, ENC_BIG_ENDIAN);
+            proto_tree_add_item(dpnet_tree, hf_dpnet_application, tvb, offset, 16, ENC_LITTLE_ENDIAN);
             offset += 16;
         }
 
@@ -279,6 +282,9 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
     {
         uint32_t session_offset, session_size;
         uint32_t application_offset, application_size;
+        proto_item *session_offset_item, *application_offset_item;
+        /* The offsets start from the hf_dpnet_payload field */
+        uint64_t payload_len = tvb_reported_length(tvb) - 4;
 
         col_set_str(pinfo->cinfo, COL_INFO, "DPNET Enum Response");
 
@@ -289,13 +295,13 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
         offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_max_players, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_current_players, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-        proto_tree_add_item_ret_uint(dpnet_tree, hf_dpnet_session_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &session_offset); offset += 4;
+        session_offset_item = proto_tree_add_item_ret_uint(dpnet_tree, hf_dpnet_session_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &session_offset); offset += 4;
         proto_tree_add_item_ret_uint(dpnet_tree, hf_dpnet_session_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &session_size); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_password_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_password_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_reserved_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_reserved_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-        proto_tree_add_item_ret_uint(dpnet_tree, hf_dpnet_application_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &application_offset); offset += 4;
+        application_offset_item = proto_tree_add_item_ret_uint(dpnet_tree, hf_dpnet_application_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &application_offset); offset += 4;
         proto_tree_add_item_ret_uint(dpnet_tree, hf_dpnet_application_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &application_size); offset += 4;
         proto_tree_add_item(dpnet_tree, hf_dpnet_instance, tvb, offset, 16, ENC_LITTLE_ENDIAN); offset += 16;
         proto_tree_add_item(dpnet_tree, hf_dpnet_application, tvb, offset, 16, ENC_LITTLE_ENDIAN);
@@ -303,13 +309,19 @@ static void process_dpnet_query(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_in
         if(session_offset)
         {
             /* session_offset starts from the hf_dpnet_payload */
-            proto_tree_add_item(dpnet_tree, hf_dpnet_session_name, tvb, session_offset + 4, session_size, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+            if((uint64_t)session_offset + session_size > payload_len)
+                expert_add_info(pinfo, session_offset_item, &ei_dpnet_offset_invalid);
+            else
+                proto_tree_add_item(dpnet_tree, hf_dpnet_session_name, tvb, session_offset + 4, session_size, ENC_UTF_16|ENC_LITTLE_ENDIAN);
         }
 
         if(application_offset)
         {
             /* application_offset starts from the hf_dpnet_payload */
-            proto_tree_add_item(dpnet_tree, hf_dpnet_application_data, tvb, application_offset + 4, application_size, ENC_NA);
+            if((uint64_t)application_offset + application_size > payload_len)
+                expert_add_info(pinfo, application_offset_item, &ei_dpnet_offset_invalid);
+            else
+                proto_tree_add_item(dpnet_tree, hf_dpnet_application_data, tvb, application_offset + 4, application_size, ENC_NA);
         }
     }
 }
@@ -395,7 +407,7 @@ dpnet_process_control_frame(proto_tree *dpnet_tree, tvbuff_t *tvb, packet_info *
             offset += 4;
 
             data_tvb_len = tvb_reported_length_remaining(tvb, offset);
-            if(data_tvb_len)
+            if(data_tvb_len >= 8)
                 proto_tree_add_item(dpnet_tree, hf_dpnet_data_cframe_signature, tvb, offset, 8, ENC_BIG_ENDIAN);
             break;
         case FRAME_EXOPCODE_SACK:
@@ -525,7 +537,7 @@ proto_register_dpnet(void)
         },
         { &hf_dpnet_desc_flags,
             { "Description Flags", "dpnet.desc_flags",
-            FT_UINT16, BASE_HEX,
+            FT_UINT32, BASE_HEX,
             NULL, 0,
             NULL, HFILL }
         },
@@ -728,7 +740,7 @@ proto_register_dpnet(void)
             NULL, HFILL }
         },
         { &hf_dpnet_data_cframe_echo_time,
-            { "Signing Options", "dpnet.cframe.echo_time",
+            { "Echo Time", "dpnet.cframe.echo_time",
             FT_UINT32, BASE_HEX,
             NULL, 0,
             NULL, HFILL }
@@ -795,43 +807,43 @@ proto_register_dpnet(void)
         },
         {&hf_dpnet_desc_client_server,
             {"Client", "dpnet.session.client",
-            FT_BOOLEAN, 16,
+            FT_BOOLEAN, 32,
             TFS(&tfs_flags_game_client), SESSION_CLIENT_SERVER,
             NULL, HFILL}
         },
         {&hf_dpnet_desc_migrate_host,
             {"Migrate", "dpnet.session.migrate",
-            FT_BOOLEAN, 16,
+            FT_BOOLEAN, 32,
             TFS(&tfs_flags_migrate), SESSION_MIGRATE_HOST,
             NULL, HFILL}
         },
         {&hf_dpnet_desc_nodpnsvr,
             {"dpnsvr", "dpnet.session.dpnsvr",
-            FT_BOOLEAN, 16,
+            FT_BOOLEAN, 32,
             TFS(&tfs_flags_dpnsvr), SESSION_NODPNSVR,
             NULL, HFILL}
         },
         {&hf_dpnet_desc_req_password,
             {"Password", "dpnet.session.password",
-            FT_BOOLEAN, 16,
+            FT_BOOLEAN, 32,
             TFS(&tfs_flags_password_required), SESSION_REQUIREPASSWORD,
             NULL, HFILL}
         },
         {&hf_dpnet_desc_no_enums,
             {"Enumeration", "dpnet.session.enumeration",
-            FT_BOOLEAN, 16,
+            FT_BOOLEAN, 32,
             TFS(&tfs_flags_enumeration), SESSION_NOENUMS,
             NULL, HFILL}
         },
         {&hf_dpnet_desc_fast_signed,
             {"Fast signing", "dpnet.session.fast_sign",
-            FT_BOOLEAN, 16,
+            FT_BOOLEAN, 32,
             TFS(&tfs_flags_fast), SESSION_FAST_SIGNED,
             NULL, HFILL}
         },
         {&hf_dpnet_desc_full_signed,
             {"Full signing", "dpnet.session.full_sign",
-            FT_BOOLEAN, 16,
+            FT_BOOLEAN, 32,
             TFS(&tfs_flags_full), SESSION_FULL_SIGNED,
             NULL, HFILL}
         },
@@ -845,10 +857,21 @@ proto_register_dpnet(void)
     };
 
 
+    static ei_register_info ei[] = {
+        { &ei_dpnet_offset_invalid,
+            { "dpnet.offset.invalid", PI_MALFORMED, PI_ERROR,
+            "Offset and size exceed the packet", EXPFILL }
+        },
+    };
+
+    expert_module_t *expert_dpnet;
+
     proto_dpnet = proto_register_protocol ("DirectPlay 8 protocol", "DPNET", "dpnet");
 
     proto_register_field_array(proto_dpnet, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_dpnet = expert_register_protocol(proto_dpnet);
+    expert_register_field_array(expert_dpnet, ei, array_length(ei));
 
     dpnet_handle = register_dissector("dpnet", dissect_dpnet, proto_dpnet);
 }
