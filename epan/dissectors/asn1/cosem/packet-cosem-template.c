@@ -23,6 +23,7 @@
 #include <epan/asn1.h>
 #include <wsutil/array.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/reassemble.h>
 #include <epan/tfs.h>
 
@@ -1109,6 +1110,17 @@ dlms_append_date_time_maybe(tvbuff_t* tvb, proto_item* item, int offset, unsigne
     proto_item_append_text(item, hundredths < 100 ? ".%02u)" : ".%02X)", hundredths);
 }
 
+/* Skip length bytes of a value. The length comes from the packet and
+ * must not move the offset backwards. */
+static int
+dlms_skip_value(tvbuff_t* tvb, int offset, unsigned length)
+{
+    if (length > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+        THROW(ReportedBoundsError);
+    }
+    return offset + length;
+}
+
 /* Set the value of an item with a planar data type (not array nor structure) */
 static int
 dlms_set_data_value(tvbuff_t* tvb, packet_info *pinfo, proto_item* item, int choice, int offset)
@@ -1126,9 +1138,9 @@ dlms_set_data_value(tvbuff_t* tvb, packet_info *pinfo, proto_item* item, int cho
         }
         case 4: {
             unsigned bits = dlms_get_length(tvb, &offset);
-            unsigned bytes = (bits + 7) / 8;
+            unsigned bytes = bits / 8 + (bits % 8 != 0);
             proto_item_set_text(item, "Bit-string (bits: %u, bytes: %u):", bits, bytes);
-            offset += bytes;
+            offset = dlms_skip_value(tvb, offset, bytes);
             break;
         }
         case 5: {
@@ -1147,19 +1159,19 @@ dlms_set_data_value(tvbuff_t* tvb, packet_info *pinfo, proto_item* item, int cho
             unsigned length = dlms_get_length(tvb, &offset);
             proto_item_set_text(item, "Octet String (length %u)", length);
             dlms_append_date_time_maybe(tvb, item, offset, length);
-            offset += length;
+            offset = dlms_skip_value(tvb, offset, length);
             break;
         }
         case 10: {
             unsigned length = dlms_get_length(tvb, &offset);
             proto_item_set_text(item, "Visible String (length %u)", length);
-            offset += length;
+            offset = dlms_skip_value(tvb, offset, length);
             break;
         }
         case 12: {
             unsigned length = dlms_get_length(tvb, &offset);
             proto_item_set_text(item, "UTF8 String (length %u)", length);
-            offset += length;
+            offset = dlms_skip_value(tvb, offset, length);
             break;
         }
         case 13: {
@@ -1194,13 +1206,13 @@ dlms_set_data_value(tvbuff_t* tvb, packet_info *pinfo, proto_item* item, int cho
         }
         case 20: {
             int64_t value = tvb_get_ntoh64(tvb, offset);
-            proto_item_set_text(item, "Long64: %" PRIu64 "", value);
+            proto_item_set_text(item, "Long64: %" PRId64 "", value);
             offset += 8;
             break;
         }
         case 21: {
             uint64_t value = tvb_get_ntoh64(tvb, offset);
-            proto_item_set_text(item, "Long64 Unsigned: %" PRId64 "", value);
+            proto_item_set_text(item, "Long64 Unsigned: %" PRIu64 "", value);
             offset += 8;
             break;
         }
@@ -1299,8 +1311,14 @@ static proto_item* dlms_dissect_compact_array_content(tvbuff_t* tvb, packet_info
         proto_item_set_text(item, "Array (%u elements)", elements);
         subtree = proto_item_add_subtree(item, ett_dlms_composite_data);
         for (i = 0; i < elements; i++) {
+            int element_offset = *content_offset;
             subitem = dlms_dissect_compact_array_content(tvb, pinfo, subtree, description_offset, content_offset);
             proto_item_prepend_text(subitem, "[%u] ", i + 1);
+            /* Elements that use no content (null) would only repeat; with
+             * nested arrays of up to 65535 elements that never ends. */
+            if (*content_offset == element_offset) {
+                break;
+            }
         }
     }
     else if (choice == 2) { /* structure */
@@ -1386,7 +1404,7 @@ static proto_item* dlms_dissect_data(tvbuff_t* tvb, packet_info* pinfo, proto_tr
                 break;
             }
         }
-        *offset += length;
+        *offset = dlms_skip_value(tvb, *offset, length);
         proto_item_set_text(item, "Compact Array (%u elements)", elements);
     }
     else { /* planar type */
@@ -2196,9 +2214,9 @@ dissect_dlms_hdlc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     }
     else if ((control & 0xef) == 0x0f) {
         col_set_str(pinfo->cinfo, COL_INFO, "HDLC DM"); /* Disconnected Mode */
-        item = proto_tree_add_item(subsubtree, hf_dlms_hdlc_frame_other, tvb, control_off, control_off, ENC_NA);
+        item = proto_tree_add_item(subsubtree, hf_dlms_hdlc_frame_other, tvb, control_off, 1, ENC_NA);
         expert_add_info(pinfo, item, &ei_dlms_no_success);
-        proto_tree_add_item(subsubtree, hf_dlms_hdlc_pf, tvb, control_off, control_off, ENC_NA);
+        proto_tree_add_item(subsubtree, hf_dlms_hdlc_pf, tvb, control_off, 1, ENC_NA);
     }
     else if ((control & 0xef) == 0x87) {
         col_set_str(pinfo->cinfo, COL_INFO, "HDLC FRMR"); /* Frame Reject */
