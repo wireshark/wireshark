@@ -149,7 +149,13 @@ if(ZLIB_FOUND)
     set(ZLIB_DLL_DIR "${ZLIB_HINTS}/bin")
     # MinGW, older zlib and vcpkg
     set(ZLIB_DLLS_RELEASE zlib1.dll)
-    # Newer zlib and vcpkg
+    # Newer zlib and vcpkg. zlib 1.3.2 renamed its DLL to z.dll, and our
+    # GLib bundle adds a zlib1.dll that forwards to it. Our libssh, which
+    # we get from MSYS2 so that it uses libgcrypt instead of OpenSSL,
+    # imports zlib1.dll for SSH compression.
+    # MSYS2 packages use the release CRT, so the wrapper and z.dll are
+    # the release DLLs in Debug builds too. If Debug builds ever link
+    # zd.lib, keep z.dll alongside zd.dll for the wrapper.
     if (EXISTS "${ZLIB_DLL_DIR}/z.dll")
         list(APPEND ZLIB_DLLS_RELEASE z.dll)
     endif()
