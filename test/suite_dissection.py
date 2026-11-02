@@ -39354,3 +39354,72 @@ class TestDissectDcerpcWkssvc:
         assert [line[3].split(',') for line in lines] == [
             [v] * 524 for _ in range(3) for v in ('65', '0')
         ]
+
+
+class TestDissectDcerpcWzcsvc:
+    def test_wzcsvc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and calls, and no malformed packets or warnings
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wzcsvc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 134
+        assert protocols.count('WZCSVC') == 110
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_wzcsvc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wzcsvc_opnums(self, cmd_tshark, capture_file, test_env):
+        '''The three binds, and a request and a response for every opnum
+        0-17 in each of them, plus the unknown opnum 18 in the first.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wzcsvc_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t621dff68-3c39-4c6c-aae3-e68e2c6503ad\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t621dff68-3c39-4c6c-aae3-e68e2c6503ad\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t621dff68-3c39-4c6c-aae3-e68e2c6503ad\t1\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wzcsvc_coverage.pcap.gz'),
+                '-Y', 'wzcsvc',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type', '-ewzcsvc.opnum',
+            ), encoding='utf-8', env=test_env)
+        seen = {}
+        for line in stdout.splitlines():
+            stream, ptype, opnum = line.split('\t')
+            seen.setdefault((stream, ptype), set()).add(int(opnum))
+        assert seen[('0', '0')] == seen[('0', '2')] == set(range(19))
+        for stream in ('1', '2'):
+            assert seen[(stream, '0')] == seen[(stream, '2')] == set(range(18))
+
+    def test_wzcsvc_names(self, cmd_tshark, capture_file, test_env):
+        '''The operation names in the Info column (NDR64 connection).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wzcsvc_coverage.pcap.gz'),
+                '-Y', 'wzcsvc && tcp.stream == 2 && dcerpc.pkt_type == 0',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        names = [line.split(' ')[0] for line in stdout.splitlines()]
+        assert names == [
+            'EnumInterfaces', 'QueryInterface', 'SetInterface',
+            'RefreshInterface', 'QueryContext', 'SetContext',
+            'EapolUIResponse', 'EapolGetCustomAuthData',
+            'EapolSetCustomAuthData', 'EapolGetInterfaceParams',
+            'EapolSetInterfaceParams', 'EapolReAuthenticateInterface',
+            'EapolQueryInterfaceState', 'OpenWZCDbLogSession',
+            'CloseWZCDbLogSession', 'EnumWZCDbLogRecords', 'FlushWZCdbLog',
+            'GetWZCDbLogRecord',
+        ]
