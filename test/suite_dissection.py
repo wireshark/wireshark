@@ -41378,3 +41378,141 @@ class TestDissectDectNr:
             '63\t65\t', '64\t65\t', '66\t67\t', '68\t69\t',
             '76\t\t78', '77\t\t78', '79\t\t80',
         ]
+
+
+class TestDissectDectNrTap:
+    def test_dect_nr_tap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DECT NR+ TAP, all but the one with a PCC CRC
+        error carry DECT NR+, and none is malformed or has an error, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_tap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 14
+        assert len([p for p in protocols if p.startswith('dect_nr_tap:dect_nr')]) == 13
+        assert protocols[7] == 'dect_nr_tap'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_nr_tap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dect_nr_tap_modem_time(self, cmd_tshark, capture_file, test_env):
+        '''The modem time combines a high and a low half in either order
+        and not two halves of the same kind, as fixed in "dect_nr_tap:
+        Combine the modem time halves in either order" (frames 1-3 are
+        the reproducer: LO/HI, HI/LO, HI/HI).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_tap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                '-edect_nr_tap.tlv_element.modem_time',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1234605616436508552',
+            '2\t1234605616436508552',
+            '3\t',
+            '4\t4294967298',
+            '5\t',
+            '6\t',
+            '7\t',
+            '8\t1000',
+            '9\t',
+            '10\t',
+            '11\t12884901890,21474836486',
+            '12\t18446744073709551615,2147483648',
+            '13\t',
+            '14\t',
+        ]
+
+    def test_dect_nr_tap_header(self, cmd_tshark, capture_file, test_env):
+        '''The header fields, with Reserved2 little endian like the rest
+        (0x0102 is 258).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_tap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 13, 14}',
+                '-Tfields', '-edect_nr_tap.header.version',
+                '-edect_nr_tap.header.reserved1',
+                '-edect_nr_tap.header.tlvs_length',
+                '-edect_nr_tap.header.length',
+                '-edect_nr_tap.header.reserved2',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x02\t7\t96\t104\t258',
+            '0x01\t0\t16\t24\t0',
+            '0x01\t0\t0\t8\t0',
+        ]
+
+    def test_dect_nr_tap_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Every TLV type of frame 4, with RSSI2 and SNR in dBm and dB.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_tap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-V', '-O', 'dect_nr_tap',
+            ), encoding='utf-8', env=test_env)
+        tlvs = [l.strip() for l in stdout.splitlines()
+                if l.startswith('    ') and not l.startswith('     ')]
+        assert tlvs == [
+            'Header',
+            'Data type: PCC length is 40 bits',
+            'Header status: Valid, PDC bytes are included in packet',
+            'PCC RSSI2: -43.5 dBm',
+            'PCC SNR: 9.25 dB',
+            'PDC RSSI2: -42.0 dBm',
+            'PDC SNR: -3.25 dB',
+            'Transaction ID: 4242',
+            'Channel: 1657',
+            'Trace line number: 123',
+            'Modem time high bits: 1',
+            'Modem time low bits: 2',
+            '[Modem Time: 4294967298]',
+            'Direction: TX',
+        ]
+
+    def test_dect_nr_tap_data_type(self, cmd_tshark, capture_file, test_env):
+        '''The data type TLV selects the 40 or 80 bit physical header
+        field of DECT NR+ (80 bit for data types 2 and 4), and data type
+        5 (PCC CRC error) passes nothing to DECT NR+.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_tap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                '-edect_nr_tap.tlv_element.data_type',
+                '-edect_nr_tap.tlv_element.header_status',
+                '-edect_nr.phf.df_mcs_t1', '-edect_nr.phf.receiver_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t\t0\t',
+            '2\t1\t\t0\t',
+            '3\t1\t\t0\t',
+            '4\t1\t0\t0\t',
+            '5\t2\t0\t\t0x2222',
+            '6\t3\t2\t0\t',
+            '7\t4\t1\t\t0x2222',
+            '8\t5\t7\t\t',
+            '9\t9\t\t0\t',
+            '10\t\t\t0\t',
+            '11\t\t\t0\t',
+            '12\t\t\t0\t',
+            '13\t2\t\t\t0x4444',
+            '14\t\t\t0\t',
+        ]
+
+    def test_dect_nr_tap_unknown_tlv(self, cmd_tshark, capture_file, test_env):
+        '''Unknown TLVs are shown as values with an expert info, and a
+        length above 4 is flagged.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_tap_coverage.pcap.gz'),
+                '-Y', 'dect_nr_tap.unknown_tlv || dect_nr_tap.invalid_tlv_length',
+                '-Tfields', '-eframe.number',
+                '-edect_nr_tap.tlv_element.type',
+                '-edect_nr_tap.tlv_element.value',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 2
+        assert lines[0].startswith('9\t1,99,9,7,')
+        assert lines[0].endswith('\tde ad be ef')
+        assert lines[1].startswith('10\t200,201,7,')
+        assert lines[1].endswith(',ab cd')
