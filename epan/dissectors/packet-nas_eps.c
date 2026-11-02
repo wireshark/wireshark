@@ -29,6 +29,7 @@
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
 #include <epan/strutil.h>
+#include <epan/addr_resolv.h>
 #include <wsutil/wsgcrypt.h>
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
@@ -148,6 +149,7 @@ static int hf_nas_eps_emm_short_mac;
 static int hf_nas_eps_emm_tai_tol;
 static int hf_nas_eps_emm_tai_n_elem;
 static int hf_nas_eps_emm_tai_tac;
+static int hf_nas_eps_emm_tai_tac_name;
 static int hf_nas_eps_emm_eea0;
 static int hf_nas_eps_emm_128eea1;
 static int hf_nas_eps_emm_128eea2;
@@ -2162,6 +2164,21 @@ de_emm_nas_short_mac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  * 9.9.3.31 TMSI status
  * See subclause 10.5.5.4 in 3GPP TS 24.008 [6].
  */
+static void
+nas_eps_add_tac_name(proto_tree *tree, tvbuff_t *tvb, uint32_t offset, uint32_t tac)
+{
+    const char *tac_name_str;
+    proto_item *item;
+
+    if (!gbl_resolv_flags.tac_name || !tac)
+        return;
+    tac_name_str = tac_name_lookup(tac);
+    if (tac_name_str == NULL)
+        return;
+    item = proto_tree_add_string(tree, hf_nas_eps_emm_tai_tac_name, tvb, offset, 2, tac_name_str);
+    proto_item_set_generated(item);
+}
+
 /*
  * 9.9.3.32 Tracking area identity
  */
@@ -2171,12 +2188,13 @@ de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     uint32_t offset, unsigned len _U_,
                     char *add_string _U_, int string_len _U_)
 {
-    uint32_t curr_offset;
+    uint32_t curr_offset, tac;
 
     curr_offset = offset;
 
     curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_TAI, true);
-    proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &tac);
+    nas_eps_add_tac_name(tree, tvb, curr_offset, tac);
     curr_offset+=2;
 
     return curr_offset-offset;
@@ -2247,8 +2265,10 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     proto_tree_add_expert(tree, pinfo, &ei_nas_eps_wrong_nb_of_elems, tvb, curr_offset, len-(curr_offset-offset));
                     return len;
                 }
-                for (i=0; i < n_elem; i++, curr_offset+=2)
-                    proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                for (i=0; i < n_elem; i++, curr_offset+=2) {
+                    proto_tree_add_item_ret_uint(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &tac);
+                    nas_eps_add_tac_name(tree, tvb, curr_offset, tac);
+                }
                 break;
             case 1:
                 /* type of list = "001" */
@@ -2258,10 +2278,12 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 */
                 curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_TAI, true);
                 proto_tree_add_item_ret_uint(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &tac);
+                nas_eps_add_tac_name(tree, tvb, curr_offset, tac);
                 curr_offset+=2;
                 for (i = 1; i < n_elem; i++) {
                     it = proto_tree_add_uint(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 0, tac+i);
                     proto_item_set_generated(it);
+                    nas_eps_add_tac_name(tree, tvb, curr_offset, tac + (uint32_t)i);
                 }
                 break;
             case 2:
@@ -2276,7 +2298,8 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     * MNC digit 2 MNC digit 1 octet 4
                     */
                     curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_TAI, true);
-                    proto_tree_add_item(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &tac);
+                    nas_eps_add_tac_name(tree, tvb, curr_offset, tac);
                     curr_offset+=2;
                 }
                 break;
@@ -8128,6 +8151,11 @@ proto_register_nas_eps(void)
     { &hf_nas_eps_emm_tai_tac,
         { "Tracking area code (TAC)","nas-eps.emm.tai_tac",
         FT_UINT16, BASE_DEC,  NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_tai_tac_name,
+        { "Tracking area name", "nas-eps.emm.tai_tac_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_eea0,

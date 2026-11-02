@@ -28,6 +28,7 @@
 #include <epan/stats_tree.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/addr_resolv.h>
 #include <wsutil/wsjson.h>
 #include <wsutil/array.h>
 
@@ -143,6 +144,7 @@ static int hf_ngap_UpdateFeedback_CN_PDB_DL;
 static int hf_ngap_UpdateFeedback_CN_PDB_UL;
 static int hf_ngap_UpdateFeedback_reserved;
 static int hf_ngap_extensionValue_data;
+static int hf_ngap_tAC_Name;
 #include "packet-ngap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -1501,6 +1503,10 @@ void proto_register_ngap(void) {
     { &hf_ngap_extensionValue_data,
       { "Data", "ngap.extensionValue.data",
         FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_tAC_Name,
+      { "TAC Name", "ngap.tAC_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 #include "packet-ngap-hfarr.c"
   };
