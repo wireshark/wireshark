@@ -38726,3 +38726,106 @@ class TestDissectDcerpcSvcctl:
         assert values == ([['50004'] + l for l in calls + failing] +
                           [['50005'] + l for l in calls] +
                           [['50006'] + l for l in ndr64])
+
+
+class TestDissectDcerpcTapi:
+    def test_tapi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and calls, and no malformed packets or warnings
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_tapi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 76
+        assert protocols.count('TAPI') == 44
+        assert protocols.count('DCERPC') == 8
+        assert protocols.count('TCP') == 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_tapi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tapi_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_tapi_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t2f5f6520-ca46-1067-b319-00dd010662da\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t2f5f6520-ca46-1067-b319-00dd010662da\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t2f5f6520-ca46-1067-b319-00dd010662da\t1\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_tapi_attach(self, cmd_tshark, capture_file, test_env):
+        '''ClientAttach: the two strings of the request, and the context
+        handle and return code of the reply, in all three encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_tapi_coverage.pcap.gz'),
+                '-Y', 'tapi.opnum == 0',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type', '-etapi.unknown.long',
+                '-etapi.unknown.string', '-etapi.hnd', '-etapi.rc',
+            ), encoding='utf-8', env=test_env)
+        h = '000000007461706900000000000000000000aa01'
+        ok = [
+            '\t0\t0x00010001\tCLIENT01,user01\t\t',
+            '\t2\t0x00000003\t\t%s\t0x00000000' % h,
+        ]
+        refused = [
+            '\t0\t0x00000000\t,x\t\t',
+            '\t2\t0x00000000\t\t%s\t0xc0000022' % ('0' * 40),
+        ]
+        assert stdout.splitlines() == [
+            '%d%s' % (s, line) for s, lines in ((0, ok + refused), (1, ok + refused), (2, ok))
+            for line in lines
+        ]
+
+    def test_tapi_request(self, cmd_tshark, capture_file, test_env):
+        '''ClientRequest: the array of octets and the long after it (the
+        array count must not move the offset), and the reply codes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_tapi_coverage.pcap.gz'),
+                '-Y', 'tapi.opnum == 1 && tcp.stream == 0',
+                '-Tfields', '-edcerpc.pkt_type', '-etapi.unknown.long', '-etapi.rc',
+                '-edcerpc.reassembled.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t0x00000008\t\t', '2\t\t0x00000000\t',
+            '0\t0x0000001b\t\t', '2\t\t0xc000000d\t',
+            '0\t0x00000000\t\t', '2\t\t0x00000000\t',
+            '0\t0x00000040\t\t', '2\t\t0x00000000\t',
+            '0\t0x00001770\t\t6036', '2\t\t0x00000000\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_tapi_coverage.pcap.gz'),
+                '-Y', 'tapi.opnum == 1 && len(tapi.unknown.bytes) > 0',
+                '-Tfields', '-etcp.stream', '-etapi.unknown.bytes',
+            ), encoding='utf-8', env=test_env)
+        lengths = [(s, len(b) // 2, b[:8]) for s, b in
+                   (line.split('\t') for line in stdout.splitlines())]
+        assert lengths == [
+            (s, n, b) for s in '012' for n, b in (
+                (8, '41424344'), (27, '20212223'), (4, '30313233'), (6000, '000d1a27'))
+            if s != '2' or n in (8, 27)
+        ]
+
+    def test_tapi_detach(self, cmd_tshark, capture_file, test_env):
+        '''ClientDetach (empty stubs) and the unknown opnum 3.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_tapi_coverage.pcap.gz'),
+                '-Y', 'tapi.opnum >= 2',
+                '-Tfields', '-etcp.stream', '-etapi.opnum', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t')[:2] for line in stdout.splitlines()] == [
+            ['0', '3'], ['0', '3'], ['0', '2'], ['0', '2'],
+            ['1', '3'], ['1', '3'], ['1', '2'], ['1', '2'],
+            ['2', '2'], ['2', '2'],
+        ]
+        assert 'ClientDetach request' in stdout and 'ClientDetach response' in stdout
