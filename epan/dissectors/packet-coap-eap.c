@@ -91,7 +91,7 @@ static const value_string cipher_suite_vals[] = {
     { 0, NULL }
 };
 
-static const value_string cbormap_key_vals[] = {
+static const val64_string cbormap_key_vals[] = {
     { 1, "Cipher Suites" },
     { 2, "RID-C" },
     { 3, "RID-I" },
@@ -179,8 +179,8 @@ dissect_cbor_info(tvbuff_t *tvb, packet_info *pinfo, int offset, int len, proto_
 
         /* Show the key in the tree */
         uint64_t k = *key_val;
-        proto_tree_add_uint(cbor_tree, hf_coap_eap_cbormap_key,
-            tvb, key_chunk->start, key_chunk->head_length, k <= UINT32_MAX ? (uint32_t)k : UINT32_MAX);
+        proto_tree_add_uint64(cbor_tree, hf_coap_eap_cbormap_key,
+            tvb, key_chunk->start, key_chunk->head_length, k);
         wscbor_chunk_free(key_chunk);
 
         if (off >= len)
@@ -614,7 +614,7 @@ proto_register_coap_eap(void)
         },
         { &hf_coap_eap_cbormap_key,
             { "CBOR Map Key", "coap_eap.cbormap_key",
-              FT_UINT8, BASE_DEC, VALS(cbormap_key_vals), 0x0,
+              FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(cbormap_key_vals), 0x0,
               "Key identifier in the CoAP-EAP_Info CBOR map", HFILL }
         },
     };
