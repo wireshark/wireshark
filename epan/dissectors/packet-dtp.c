@@ -58,7 +58,7 @@ static expert_field ei_dtp_truncated;
 
 static void
 dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
-		proto_tree *tree, proto_item *ti, proto_item *tlv_length_item, uint8_t type);
+		proto_tree *tree, proto_item *ti, proto_item *tlv_length_item, unsigned type);
 
 
 #define	DTP_TLV_DOMAIN		0x01 /* VTP Domain Name */
@@ -164,7 +164,8 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	offset += 1;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		int type, length, valuelength;
+		unsigned type;
+		int length, valuelength;
 		proto_item * tlv_length_item;
 
 		/* XXX - why not just let tvbuff exceptions handle this? */
@@ -193,7 +194,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			break;
 		}
 		valuelength = (length-4);
-		dissect_dtp_tlv(pinfo, tvb, offset, valuelength, tlv_tree, ti, tlv_length_item, (uint8_t) type);
+		dissect_dtp_tlv(pinfo, tvb, offset, valuelength, tlv_tree, ti, tlv_length_item, type);
 		offset += valuelength;
 	}
 	return tvb_captured_length(tvb);
@@ -201,7 +202,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 static void
 dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
-		proto_tree *tree, proto_item *ti, proto_item *tlv_length_item, uint8_t type)
+		proto_tree *tree, proto_item *ti, proto_item *tlv_length_item, unsigned type)
 {
 	switch (type) {
 
@@ -316,7 +317,7 @@ proto_register_dtp(void)
 		NULL, 0x0, "MAC Address of neighbor", HFILL }},
 
 	{ &hf_dtp_data,
-		{ "Data", "dtp.data", FT_ETHER, BASE_NONE,
+		{ "Data", "dtp.data", FT_BYTES, BASE_NONE,
 		NULL, 0x0, NULL, HFILL }},
 	};
 
