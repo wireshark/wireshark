@@ -395,14 +395,14 @@ int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* p
  *      Par4: name of the structure member holding the size of the array
  *****************************************************************************/
 #define M_VAR_TARRAY(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)\
-        {CSN_VARIABLE_TARRAY, offsetof(_STRUCT, _ElementCountField), {(const void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, sizeof(_MEMBER_TYPE), NULL, NULL, NULL}
+        {CSN_VARIABLE_TARRAY, offsetof(_STRUCT, _ElementCountField), {(const void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, sizeof(_MEMBER_TYPE), NULL, NULL, (void_fn_t)array_length(((_STRUCT*)0)->_MEMBER)}
 
 /******************************************************************************
  * M_VAR_TARRAY_OFFSET(Par1, Par2, Par3, Par4)
  * Same as M_VAR_TARRAY with offset
  *****************************************************************************/
 #define M_VAR_TARRAY_OFFSET(_STRUCT, _MEMBER, _MEMBER_TYPE, _ElementCountField)\
-        {CSN_VARIABLE_TARRAY_OFFSET, offsetof(_STRUCT, _ElementCountField), {(const void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, sizeof(_MEMBER_TYPE), NULL, NULL, NULL}
+        {CSN_VARIABLE_TARRAY_OFFSET, offsetof(_STRUCT, _ElementCountField), {(const void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, sizeof(_MEMBER_TYPE), NULL, NULL, (void_fn_t)array_length(((_STRUCT*)0)->_MEMBER)}
 
 /******************************************************************************
  * M_REC_ARRAY(Par1, Par2, Par3, Par4)
