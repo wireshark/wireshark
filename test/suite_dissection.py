@@ -40461,3 +40461,108 @@ class TestDissectDecDnart:
             '20\t1024\t0x11,0x00\t0x0010\t0x0020\tMAIL\tME\tSession control version 1.0\t',
             '21\t512\t0x19,0x11\t\t\t\t\tVersion 1.0: USRDATA field included\t',
         ]
+
+
+class TestDissectDect:
+    def test_dect_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DECT (phone, station, unknown or too short) and
+        none is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 162
+        assert protocols.count('DECT RFP') == 106
+        assert protocols.count('DECT PP') == 54
+        assert protocols.count('DECT Unk') == 1
+        assert protocols.count('DECT') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dect_rfpi_tail(self, cmd_tshark, capture_file, test_env):
+        '''A zero length page tail shows the RFPI in the RFPI field
+        dect.afield.tail.Pt.RFPI, which was named "InfoType".'''
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                encoding='utf-8', env=test_env)
+        names = [l.split('\t')[1] for l in stdout.splitlines()
+                 if l.startswith('F\t') and l.split('\t')[2] == 'dect.afield.tail.Pt.RFPI']
+        assert names == ['RFPI']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_coverage.pcap.gz'),
+                '-Y', 'frame.number == 162',
+                '-V', '-O', 'dect',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('        FP-Tail: Pt Paging Tail')
+        assert lines[start + 1:start + 6] == [
+            '            0... .... = ExtFlag: Next normal Page in Frame 0 (0)',
+            '            .000 .... = Bs SDU: Zero Length Page (0)',
+            '            RFPI: xxxxx12345',
+            '            0000 .... = InfoType: Fill Bits (0)',
+            '            Fillbits: 000',
+        ]
+
+    def test_dect_tails(self, cmd_tshark, capture_file, test_env):
+        '''The A-field tail of each type is summarized in the columns.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3..7, 13, 16, 19, 31, 33, 41, 129, 162}',
+                '-Tfields', '-eframe.number', '-edect.cc.TA', '-edect.cc.afield',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t[Ct]\tC-Channel Next  Data: 0102030405',
+            '4\t[Ct]\tC-Channel First Data: 060708090a',
+            '5\t[Nt]\tRFPI: 123456789a',
+            '6\t[Nt]\tRFPI: 0123456789',
+            '7\t\t',
+            '13\t[Qt]\tStatic System Info',
+            '16\t[Qt]\tFixed Part Capabilities',
+            '19\t[Qt]\tMulti-Frame No.: 123456',
+            '31\t[Mt]\tBasic Connection Control',
+            '33\t[Mt]\tAdvanced Connection Control',
+            '41\t[Mt]\tEncryption Control: reserved Grant',
+            '129\t[Pt]\tFull Page, Full Page',
+            '162\t[Pt]\tRFPI: xxxxx12345, Fill Bits',
+        ]
+
+    def test_dect_crcs(self, cmd_tshark, capture_file, test_env):
+        '''The R-CRC of the A-field and the X-CRC of a full slot B-field are
+        computed and compared: two frames have a bad R-CRC, four full slots
+        a bad X-CRC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_coverage.pcap.gz'),
+                '-Y', 'dect.afield.rcrc == 0 || (dect.bfield.xcrc == 0 && dect.cc.bfield == "Full Slot")',
+                '-Tfields', '-eframe.number', '-edect.afield.rcrc', '-edect.bfield.xcrc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '136\t1\t0',
+            '137\t1\t0',
+            '139\t1\t0',
+            '140\t1\t0',
+            '145\t1\t0',
+            '146\t1\t0',
+            '151\t1\t0',
+            '152\t1\t0',
+            '154\t1\t0',
+            '155\t1\t0',
+            '160\t0\t1',
+            '161\t0\t1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_coverage.pcap.gz'),
+                '-Y', 'frame.number in {135, 136, 137, 141, 147}',
+                '-V', '-O', 'dect',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines() if 'X-CRC' in l] == [
+            'X-CRC Match (Calc:80, Recv:80)',
+            'X-CRC Error (Calc:80, Recv:d0)',
+            'No X-CRC logged (Calc:80)',
+            'X-CRC Match (Calc:00, Recv:00)',
+            'X-CRC Match (Calc:00, Recv:00)',
+        ]
