@@ -40297,3 +40297,167 @@ class TestDissectDecBpdu:
                 '-Tfields', '-eeth.padding',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '00' * 19
+
+
+class TestDissectDecDnart:
+    def test_dec_dnart_protocols(self, cmd_tshark, capture_file, test_env):
+        '''DEC DNA is found over Ethernet, Cisco HDLC and PPP, and no frame
+        is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_dnart_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 56
+        assert protocols.count('eth:ethertype:dec_dna') == 54
+        assert protocols.count('chdlc:dec_dna') == 1
+        assert protocols.count('ppp:dec_dna') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dec_dnart_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dec_dnart_router_list_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer for "DEC DNA: Do not wrap the router list lengths":
+        router hello lists whose lengths are not whole entries (a 3 octet
+        list, a list too short for the router its entry claims, and an
+        entry claiming 5 octets of routers in frame 14) show no routers
+        and are not malformed. The lengths used to wrap around and bogus
+        routers were shown until the packet ran out.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_dnart_coverage.pcapng.gz'),
+                '-Y', 'dec_dna.ctl.elist',
+                '-Tfields', '-eframe.number', '-edec_dna.ctl.ename',
+                '-edec_dna.ctl.router_id', '-edec_dna.ctl.router_state',
+                '-edec_dna.ctl.router_prio', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t4554484e455431,4554484e455432\taa:00:04:00:0a:04,02:00:00:00:00:01\tknown 2-way,unknown\t0x40,0x10\t',
+            '11\t4554484e455433\taa:00:04:00:05:08\tknown 2-way\t0x05\t',
+            '12\t\t\t\t\t',
+            '13\t4554484e455434\t\t\t\t',
+            '14\t41424344454647\t\t\t\t',
+            '56\t4554484e455435\taa:01:04:00:0a:04,aa:00:05:00:0a:04,aa:00:04:01:0a:04\tknown 2-way,known 2-way,unknown\t0x00,0x01,0x02\t',
+        ]
+
+    def test_dec_dnart_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every routing control and NSP message. The
+        byte counts of a data segment run from its beginning of segment
+        message, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dec_dnart_coverage.pcapng.gz'),
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                'Routing control, initialization message',
+                'Routing control, initialization message',
+                'Routing control, verification message',
+                'Routing control, verification message',
+                'Routing control, hello/test message',
+                'Routing control, hello/test message',
+                'Routing control, Level 1 routing message',
+                'Routing control, Level 2 routing message',
+                'Routing control, Level 2 routing message',
+            ] + ['Routing control, Ethernet Router Hello  message'] * 5 + [
+                'Routing control, Endnode Hello message',
+                'Routing control, Endnode Hello message',
+                '',
+                'NSP connect confirm/initiate message',
+                'NSP connect acknowledgement',
+                'NSP connect confirm/initiate message',
+                'NSP connect confirm/initiate message',
+                '',
+                '',
+                'msg nr. 6: start of segment, bytes this segment: 11, total so far:11',
+                'msg nr. 7: continuation segment , bytes this segment: 12, total so far:23',
+                'msg nr. 8: end of segment, bytes this segment: 9, total so far:32',
+                'msg nr. 1 single segment, bytes this segment: 5, total so far:5',
+                'msg nr. 9: start of segment, bytes this segment: 3, total so far:3',
+                'msg nr. 10: end of segment, bytes this segment: 0, total so far:3',
+                'msg nr. 11 single segment, bytes this segment: 0, total so far:0',
+                'msg nr. 12 single segment, bytes this segment: 4, total so far:4',
+                'NSP interrupt message',
+                'NSP interrupt message',
+                'NSP interrupt message',
+                'NSP link control message',
+                'NSP link control message(no change)',
+                'NSP link control message(stop)',
+                'NSP link control message(go)',
+                'NSP link control message',
+                'NSP link control message',
+                'NSP data ACK message(11)',
+                'NSP data NAK message(11)',
+                'NSP data ACK message(12)',
+                'NSP other data ACK message',
+                'NSP other data ACK message',
+                'NSP other data ACK message',
+                'NSP disconnect initiate/confirm message',
+                'NSP disconnect initiate/confirm message',
+                '',
+                'Routing control, hello/test message',
+                'NSP interrupt message',
+                'NSP link control message(go)',
+                'NSP data ACK message(13)',
+                'NSP other data ACK message',
+                'msg nr. 14 single segment, bytes this segment: 1, total so far:1',
+                'Routing control, Ethernet Router Hello  message',
+            ]
+
+    def test_dec_dnart_addresses(self, cmd_tshark, capture_file, test_env):
+        '''DECnet Ethernet addresses (AA-00-04-00-xx-xx) are shown as
+        area.node, in the columns and after the address fields of long
+        data packets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_dnart_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {3,4,24}',
+                '-Tfields', '-e_ws.col.def_src', '-e_ws.col.def_dst',
+                '-edec_dna.dst.address', '-edec_dna.src.addr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1.10\t1.20\t\t',
+            '1.20\t1.10\t\t',
+            '1.10\t1.20\taa:00:04:00:14:04\taa:00:04:00:0a:04',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_dnart_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 24',
+                '-O', 'dec_dna', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert '(aa:00:04:00:14:04) (1.20)' in stdout
+        assert '(aa:00:04:00:0a:04) (1.10)' in stdout
+
+    def test_dec_dnart_routing(self, cmd_tshark, capture_file, test_env):
+        '''The routing message checksums (one folded) are good.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_dnart_coverage.pcapng.gz'),
+                '-Y', 'dec_dna.ctl.checksum',
+                '-Tfields', '-eframe.number', '-edec_dna.ctl.checksum',
+                '-edec_dna.ctl.checksum.status', '-edec_dna.ctl.segment',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[:3] for l in stdout.splitlines()] == [
+            ['7', '0x86fd', '1'],
+            ['8', '0x0445', '1'],
+            ['9', '0x001c', '1'],
+        ]
+
+    def test_dec_dnart_connect(self, cmd_tshark, capture_file, test_env):
+        '''The session connect data of connect initiate and confirm
+        messages: end user formats 0, 1 and 2 and every menu version.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_dnart_coverage.pcapng.gz'),
+                '-Y', 'dec_dna.sess.conn',
+                '-Tfields', '-eframe.number', '-edec_dna.nsp.segsize',
+                '-edec_dna.sess.obj_type', '-edec_dna.sess.grp_code',
+                '-edec_dna.sess.usr_code', '-edec_dna.sess.dst_name',
+                '-edec_dna.sess.src_name', '-edec_dna.sess.menu_ver',
+                '-edec_dna.sess.rqstr_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '18\t1460\t0x00,0x00\t0x0102\t0x0304\tFAL\tUSER\tVersion 1.0: RQSTRID, PASSWRD and ACCOUNT fields included\tSYSTEM,,ACCT',
+            '20\t1024\t0x11,0x00\t0x0010\t0x0020\tMAIL\tME\tSession control version 1.0\t',
+            '21\t512\t0x19,0x11\t\t\t\t\tVersion 1.0: USRDATA field included\t',
+        ]
