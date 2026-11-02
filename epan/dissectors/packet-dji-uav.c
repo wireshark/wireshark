@@ -23,6 +23,7 @@
 /* Request Response tracking */
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 
 void proto_register_djiuav(void);
 void proto_reg_handoff_djiuav(void);
@@ -125,8 +126,12 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 					djiuav_trans->reply_frame=pinfo->num;
 			}
 		}
+		/* Remember the transaction for this frame, so that later passes
+		 * do not find a later transaction that reused the seqno. */
+		if (djiuav_trans)
+			p_add_proto_data(wmem_file_scope(), pinfo, proto_djiuav, seq_no, djiuav_trans);
 	} else {
-		djiuav_trans=(djiuav_transaction_t *)wmem_map_lookup(djiuav_info->pdus, GUINT_TO_POINTER((unsigned)seq_no));
+		djiuav_trans=(djiuav_transaction_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_djiuav, seq_no);
 	}
 
 	/* djiuav_trans may be 0 in case it's a reply without a matching request */
