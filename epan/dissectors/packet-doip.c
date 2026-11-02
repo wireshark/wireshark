@@ -894,8 +894,8 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static unsigned
 get_doip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *p _U_)
 {
-    uint8_t ver1 = tvb_get_uint8(tvb, DOIP_VERSION_OFFSET);
-    uint8_t ver2 = tvb_get_uint8(tvb, DOIP_INV_VERSION_OFFSET);
+    uint8_t ver1 = tvb_get_uint8(tvb, offset + DOIP_VERSION_OFFSET);
+    uint8_t ver2 = tvb_get_uint8(tvb, offset + DOIP_INV_VERSION_OFFSET);
 
     if (ver1 != ((~ver2) & 0xff)) {
         /* if ver2 is not the inverse of ver1, we are not at the start of a DoIP message! */
