@@ -146,7 +146,7 @@ rssi2_hex2dbm(char *buf, int16_t value)
        Values are in dBm with 0.5 dBm resolution (Q14.1).
        For example, -87 is -43.5 dbm,  -84 is -42,0 dbm.
     */
-    snprintf(buf, ITEM_LABEL_LENGTH, "%i.%i dBm", value/2, abs(value)%2 * 5);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%s%i.%i dBm", value < 0 ? "-" : "", abs(value)/2, abs(value)%2 * 5);
 }
 
 /*
@@ -159,7 +159,7 @@ static void
 snr_hex2dbm(char *buf, int16_t value)
 {
     /* Values are dB values with 0.25 dB resolution (Q13.2) */
-    snprintf(buf, ITEM_LABEL_LENGTH, "%i.%i dB", value/4, abs(value)%4 * 25);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%s%i.%i dB", value < 0 ? "-" : "", abs(value)/4, abs(value)%4 * 25);
 }
 
 
@@ -168,21 +168,27 @@ snr_hex2dbm(char *buf, int16_t value)
  *
  * @param parent_tree parrent tree pointer
  * @param tvb pointer to buffer containing raw packet.
- * @param modem_time calculated 64-bit modem time value.
- * @param offset offset in the tvb buffer used when adding the combined modem time.
+ * @param num the high or low 32 bits of the modem time.
+ * @param is_hi whether num is the high 32 bits.
  * @param[out] have_prev indicates whether a previous 32-bit modem time value is stored.
- * @param[out] prev stores the previously received 32-bit modem time value.
+ * @param[out] prev stores the previously received 32-bit modem time value and its half.
  */
 static void
-add_modem_time(proto_tree *parent_tree, tvbuff_t *tvb, uint64_t modem_time, bool *have_prev, uint64_t *prev)
+add_modem_time(proto_tree *parent_tree, tvbuff_t *tvb, uint32_t num, bool is_hi, bool *have_prev, uint64_t *prev)
 {
-    if (!*have_prev)
+    uint32_t other;
+    uint64_t modem_time;
+
+    /* prev holds the other half in the low 32 bits, and in bit 32 whether it is the high half */
+    if (!*have_prev || (bool)((*prev >> 32) & 1) == is_hi)
     {
         *have_prev = true;
-        *prev = modem_time;
+        *prev = ((uint64_t)is_hi << 32) | num;
         return;
     }
 
+    other = (uint32_t)*prev;
+    modem_time = is_hi ? (((uint64_t)num << 32) | other) : (((uint64_t)other << 32) | num);
     proto_item *pi = proto_tree_add_uint64(parent_tree, hf_dect_nr_tap_tlv_element_modem_time, tvb, 0, 0, modem_time);
     proto_item_set_generated(pi);
 
@@ -319,26 +325,22 @@ static int process_tlv(proto_tree *parent_tree, tvbuff_t *tvb, packet_info *pinf
 
         case TLV_TYPE_MODEM_TIME_HI: {
             uint32_t num;
-            uint64_t modem_time;
 
             proto_tree_add_item_ret_uint(tree, hf_dect_nr_tap_tlv_element_modem_time_hi, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num);
             proto_item_append_text(ti, ": %u", num);
             offset += 4;
-            modem_time = ((uint64_t)num << 32) | *prev_modem_time;
-            add_modem_time(parent_tree, tvb, modem_time, have_prev_modem_time, prev_modem_time);
+            add_modem_time(parent_tree, tvb, num, true, have_prev_modem_time, prev_modem_time);
 
             break;
         }
 
         case TLV_TYPE_MODEM_TIME_LO: {
             uint32_t num;
-            uint64_t modem_time;
 
             proto_tree_add_item_ret_uint(tree, hf_dect_nr_tap_tlv_element_modem_time_lo, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num);
             proto_item_append_text(ti, ": %u", num);
             offset += 4;
-            modem_time = ((uint64_t)*prev_modem_time << 32) | num;
-            add_modem_time(parent_tree, tvb, modem_time, have_prev_modem_time, prev_modem_time);
+            add_modem_time(parent_tree, tvb, num, false, have_prev_modem_time, prev_modem_time);
 
             break;
         }
