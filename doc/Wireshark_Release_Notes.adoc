@@ -327,6 +327,7 @@ Xiph.org Ogg Stream
 [commaize]
 --
 Apple Darwin Metadata
+Authentication Service Based on EAP for Use with CoAP (CoAP-EAP)
 Axia Livewire
 Controller Interface Transport Protocol (CITP)
 DCERPC SCARD_PACK
