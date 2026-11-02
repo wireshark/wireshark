@@ -1015,6 +1015,9 @@ Clang + Code Checks:
     - source /clang-latest.env
     - export PYTHON_MINOR_VERSION="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
     - apt-get update && apt-get --yes install python3-venv "python${PYTHON_MINOR_VERSION}-venv"
+    # XXX The ubuntu-dev image is built from master's debian-setup.sh, so an MR cannot add a
+    # package to the image it runs on. Remove this once the image provides libsinsp.
+    - DEBIAN_FRONTEND=noninteractive ../tools/os_setup/debian-setup.sh --install-optional --yes --no-install-recommends
     - python3 -m venv $CI_PROJECT_DIR/.venv
     - source $CI_PROJECT_DIR/.venv/bin/activate
     # build-ubuntu puts us in `build`.
@@ -1103,6 +1106,9 @@ Clang ASAN Build:
       optional: true
   script:
     - source /clang-latest.env
+    # XXX The ubuntu-dev image is built from master's debian-setup.sh, so an MR cannot add a
+    # package to the image it runs on. Remove this once the image provides libsinsp.
+    - DEBIAN_FRONTEND=noninteractive ../tools/os_setup/debian-setup.sh --install-optional --yes --no-install-recommends
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake --preset=ninja_ccache -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DENABLE_WERROR=ON -DBUILD_stratoshark=ON ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
@@ -1111,7 +1117,7 @@ Clang ASAN Build:
     - chown -R user .
     - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
     - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
-    - WIRESHARK_DEBUG_WMEM_OVERRIDE=simple PYTEST_ADDOPTS="--skip-missing-programs=dumpcap,rawshark,falcodump --enable-stratoshark" su user -c "pytest --junitxml=../clang_asan_tests.xml"
+    - WIRESHARK_DEBUG_WMEM_OVERRIDE=simple PYTEST_ADDOPTS="--skip-missing-programs=dumpcap,rawshark --enable-stratoshark" su user -c "pytest --junitxml=../clang_asan_tests.xml"
   artifacts:
     when: always
     reports:
