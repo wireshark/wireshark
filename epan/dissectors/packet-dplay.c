@@ -15,6 +15,8 @@
 
 #include <epan/packet.h>
 #include <epan/aftypes.h>
+#include <epan/exceptions.h>
+#include <epan/expert.h>
 #include <epan/tfs.h>
 #include "packet-smb-common.h"
 
@@ -275,6 +277,8 @@ static int hf_dplay_type_2f_dpid;
 
 /* various */
 static int ett_dplay;
+
+static expert_field ei_dplay_len_invalid;
 static int ett_dplay_header;
 static int ett_dplay_sockaddr;
 static int ett_dplay_data;
@@ -448,9 +452,26 @@ static int dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, int offset)
     return offset;
 }
 
+/*
+ * Checks a length taken from the packet against the remaining data.
+ * A length beyond the data is reported on the length item and
+ * dissection stops.
+ */
+static void dplay_check_len(tvbuff_t *tvb, packet_info *pinfo, proto_item *len_item, int offset, uint32_t len)
+{
+    int remaining = tvb_reported_length_remaining(tvb, offset);
+
+    if (remaining < 0 || len > (unsigned)remaining) {
+        expert_add_info(pinfo, len_item, &ei_dplay_len_invalid);
+        THROW(ReportedBoundsError);
+    }
+}
+
 static int dissect_packed_player(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, int offset)
 {
     uint32_t sn_len, ln_len, sd_len, pd_len, num_players, i, size;
+    proto_item *sd_len_item, *pd_len_item;
+    int start = offset;
     static int * const flags[] = {
         &hf_dplay_pp_flag_sending,
         &hf_dplay_pp_flag_in_group,
@@ -466,8 +487,8 @@ static int dissect_packed_player(proto_tree *tree, packet_info* pinfo, tvbuff_t 
 
     proto_tree_add_item_ret_uint(tree, hf_dplay_pp_short_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &sn_len); offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_dplay_pp_long_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ln_len); offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_dplay_pp_sp_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &sd_len); offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_dplay_pp_player_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pd_len); offset += 4;
+    sd_len_item = proto_tree_add_item_ret_uint(tree, hf_dplay_pp_sp_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &sd_len); offset += 4;
+    pd_len_item = proto_tree_add_item_ret_uint(tree, hf_dplay_pp_player_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pd_len); offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_dplay_pp_num_players, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num_players); offset += 4;
 
     proto_tree_add_item(tree, hf_dplay_pp_system_player, tvb, offset, 4, ENC_NA); offset += 4;
@@ -481,10 +502,12 @@ static int dissect_packed_player(proto_tree *tree, packet_info* pinfo, tvbuff_t 
     if (ln_len)
         offset = display_unicode_string(tvb, pinfo, tree, offset, hf_dplay_pp_long_name, NULL);
 
+    dplay_check_len(tvb, pinfo, sd_len_item, offset, sd_len);
     proto_tree_add_item(tree, hf_dplay_pp_sp_data, tvb, offset, sd_len, ENC_NA);
     offset += sd_len;
 
     if (pd_len) {
+        dplay_check_len(tvb, pinfo, pd_len_item, offset, pd_len);
         proto_tree_add_item(tree, hf_dplay_pp_player_data, tvb, offset, pd_len, ENC_NA);
         offset += pd_len;
     }
@@ -493,8 +516,9 @@ static int dissect_packed_player(proto_tree *tree, packet_info* pinfo, tvbuff_t 
         proto_tree_add_item(tree, hf_dplay_pp_player_id, tvb, offset, 4, ENC_NA); offset += 4;
     }
 
-    /* Size seems to miss the unknown empty dword */
-    if ((uint32_t)(offset - 4) < size) {
+    /* A parent ID follows when the size of the structure leaves room
+     * for it */
+    if (size >= 4 && (uint32_t)(offset - start) <= size - 4) {
         proto_tree_add_item(tree, hf_dplay_pp_parent_id, tvb, offset, 4, ENC_NA); offset += 4;
     }
 
@@ -532,6 +556,7 @@ static int dissect_dplay_super_packed_player(proto_tree *tree, packet_info* pinf
     uint32_t player_count_type, shortcut_count_type;
     uint32_t player_data_length, sp_data_length, player_count, shortcut_count;
     int len;
+    proto_item *len_item;
     static int * const ssp_flags[] = {
         &hf_dplay_spp_flags_sending,
         &hf_dplay_spp_flags_in_group,
@@ -583,16 +608,18 @@ static int dissect_dplay_super_packed_player(proto_tree *tree, packet_info* pinf
 
     if (pd_length_type) {
         len = spp_get_value(pd_length_type, tvb, offset, &player_data_length);
-        proto_tree_add_item(tree, hf_dplay_spp_player_data_length, tvb, offset, len, ENC_LITTLE_ENDIAN);
+        len_item = proto_tree_add_item(tree, hf_dplay_spp_player_data_length, tvb, offset, len, ENC_LITTLE_ENDIAN);
         offset += len;
+        dplay_check_len(tvb, pinfo, len_item, offset, player_data_length);
         proto_tree_add_item(tree, hf_dplay_spp_player_data, tvb, offset, player_data_length, ENC_NA);
         offset += player_data_length;
     }
 
     if (sp_length_type) {
         len = spp_get_value(sp_length_type, tvb, offset, &sp_data_length);
-        proto_tree_add_item(tree, hf_dplay_spp_sp_data_length, tvb, offset, len, ENC_LITTLE_ENDIAN);
+        len_item = proto_tree_add_item(tree, hf_dplay_spp_sp_data_length, tvb, offset, len, ENC_LITTLE_ENDIAN);
         offset += len;
+        dplay_check_len(tvb, pinfo, len_item, offset, sp_data_length);
         proto_tree_add_item(tree, hf_dplay_spp_sp_data, tvb, offset, sp_data_length, ENC_NA);
         offset += sp_data_length;
     }
@@ -738,14 +765,16 @@ static int dissect_player_message(proto_tree *tree, packet_info* pinfo, tvbuff_t
     return offset;
 }
 
-static int dissect_type0f_message(proto_tree *tree, tvbuff_t *tvb, int offset)
+static int dissect_type0f_message(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
     uint32_t data_size;
+    proto_item *data_size_item;
 
     proto_tree_add_item(tree, hf_dplay_type_0f_id_to, tvb, offset, 4, ENC_NA); offset += 4;
     proto_tree_add_item(tree, hf_dplay_type_0f_id, tvb, offset, 4, ENC_NA); offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_dplay_type_0f_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &data_size); offset += 4;
+    data_size_item = proto_tree_add_item_ret_uint(tree, hf_dplay_type_0f_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &data_size); offset += 4;
     proto_tree_add_item(tree, hf_dplay_type_0f_data_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
+    dplay_check_len(tvb, pinfo, data_size_item, offset, data_size);
     proto_tree_add_item(tree, hf_dplay_type_0f_data, tvb, offset, data_size, ENC_NA);
     offset += data_size;
 
@@ -796,7 +825,7 @@ static int dissect_type15_message(proto_tree *tree, packet_info* pinfo, tvbuff_t
             offset = dissect_type05_message(enc_tree, tvb, offset);
             break;
         case 0x0007:
-            offset = dissect_type05_message(enc_tree, tvb, offset);
+            offset = dissect_type07_message(enc_tree, pinfo, tvb, offset);
             break;
         case 0x0008:
         case 0x0009:
@@ -900,20 +929,11 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     uint16_t message_type;
     uint16_t second_message_type = UINT16_MAX;
     uint16_t proto_version;
-    uint32_t dplay_id;
-    const uint8_t play_id[] = {'p','l','a','y'};
 
-    dplay_id = tvb_get_letohl(tvb, 20);
     message_type = tvb_get_letohs(tvb, 24);
     proto_version = tvb_get_letohs(tvb, 26);
 
-    if(memcmp(play_id, (uint8_t *)&dplay_id, 4) != 0)
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPLAY");
-        col_set_str(pinfo->cinfo,COL_INFO, "DPlay data packet");
-        return;
-    }
-
+    /* heur_dissect_dplay() has found "play" at offset 20 */
     if(message_type == 0x0015)
     {
         second_message_type = tvb_get_letohs(tvb, 72);
@@ -977,7 +997,7 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 dissect_player_message(dplay_data, pinfo, tvb, offset);
                 break;
             case 0x000f:
-                dissect_type0f_message(dplay_data, tvb, offset);
+                dissect_type0f_message(dplay_data, pinfo, tvb, offset);
                 break;
             case 0x0013:
                 dissect_type13_message(dplay_data, pinfo, tvb, offset);
@@ -1036,8 +1056,9 @@ static bool heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         return false;
 
     /* The string play = 0x706c6179 */
+    /* The header up to the protocol dialect is 28 bytes */
     dplay_id = tvb_get_ntohl(tvb, 20);
-    if( dplay_id == 0x706c6179) {
+    if( dplay_id == 0x706c6179 && tvb_captured_length(tvb) >= (unsigned)DPLAY_HEADER_OFFSET) {
         dissect_dplay(tvb, pinfo, tree);
         return true;
     }
@@ -1609,9 +1630,19 @@ void proto_register_dplay(void)
         &ett_dplay_type29_spp,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_dplay_len_invalid,
+            { "dplay.length.invalid", PI_MALFORMED, PI_ERROR,
+            "Length exceeds the remaining data", EXPFILL }},
+    };
+
+    expert_module_t *expert_dplay;
+
     proto_dplay = proto_register_protocol ("DirectPlay Protocol", "DPLAY", "dplay");
     proto_register_field_array(proto_dplay, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_dplay = expert_register_protocol(proto_dplay);
+    expert_register_field_array(expert_dplay, ei, array_length(ei));
 }
 
 void proto_reg_handoff_dplay(void)
