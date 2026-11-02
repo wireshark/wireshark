@@ -28427,7 +28427,7 @@ class TestDissectCoapEap:
         assert stdout.splitlines() == [
             '3\t1,3\tAES-CCM-16-64-128, SHA-256 (0),A128GCM, SHA-256 (1),A256GCM, SHA-384 (2),ChaCha20/Poly1305, SHA-256 (3),ChaCha20/Poly1305, SHAKE256 (4),Unknown (9)\t\t0a0b\t',
             '4\t1,2\tAES-CCM-16-64-128, SHA-256 (0)\t01\t\t',
-            '7\t4,7,4294967295\t\t\t\t8760',
+            '7\t4,7,4294967301\t\t\t\t8760',
             '9\t4\t\t\t\t4294967296',
             # the first cipher suite is a map: skipped, no leading comma
             '11\t1,4,3,2\tA256GCM, SHA-384 (2),ChaCha20/Poly1305, SHA-256 (3)\t05\t\t',
@@ -28440,8 +28440,36 @@ class TestDissectCoapEap:
             '25\t1,60\tChaCha20/Poly1305, SHAKE256 (4)\t\t\t',
             '26\t4,2\t\t0102\t\t',
             '27\t1,4\t\t\t\t60',
-            '28\t300,4294967295\t\t\t\t',
+            '28\t300,4294967300\t\t\t\t',
         ]
+
+    def test_coap_eap_cbormap_key_filter(self, cmd_tshark, capture_file, test_env):
+        '''coap_eap.cbormap_key is a 64-bit field: keys above 255 and above
+        2^32 can be filtered on and are shown with their own value instead
+        of being truncated to a known key.'''
+        def frames(dfilter):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('coap_eap_coverage.pcap.gz'),
+                    '-Y', dfilter,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            return stdout.split()
+
+        assert frames('coap_eap.cbormap_key == 300') == ['28']
+        assert frames('coap_eap.cbormap_key == 4294967300') == ['28']
+        assert frames('coap_eap.cbormap_key == 4294967301') == ['7']
+        assert frames('coap_eap.cbormap_key > 4294967295') == ['7', '28']
+        # 2^32+4 is not the Session-Lifetime key (4) in the same frame
+        assert frames('coap_eap.cbormap_key == 4 && frame.number == 28') == []
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('coap_eap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3 || frame.number == 7',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'CBOR Map Key: Cipher Suites (1)' in stdout
+        assert 'CBOR Map Key: Session-Lifetime (4)' in stdout
+        assert 'CBOR Map Key: Unknown (4294967301)' in stdout
 
     def test_coap_eap_media_without_info(self, cmd_tshark, capture_file, test_env):
         '''An ID3v2 picture in an MP3 over HTTP that claims to be
