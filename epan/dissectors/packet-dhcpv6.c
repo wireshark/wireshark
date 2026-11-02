@@ -622,10 +622,8 @@ static value_string_ext msgtype_vals_ext = VALUE_STRING_EXT_INIT(msgtype_vals);
 #define OPTION_FORWARD_DIST_MANAGER    146 /* RFC 9527 */
 #define OPTION_REVERSE_DIST_MANAGER    147 /* RFC 9527 */
 #define OPTION_ADDR_REG_ENABLE         148 /* RFC 9686 */
-
-/* temporary value until defined by IETF */
-#define OPTION_IA_SRV6_LOCATOR         149 /* draft-ietf-spring-dhc-distribute-srv6-locator-dhcp-02 */
-#define OPTION_IALOCATOR               150 /* draft-ietf-spring-dhc-distribute-srv6-locator-dhcp-02 */
+#define OPTION_IA_SRV6_LOCATOR         149 /* RFC 10038 */
+#define OPTION_IALOCATOR               150 /* RFC 10038 */
 /********************************************************************************************/
 
 static const value_string opttype_vals[] = {
@@ -775,7 +773,6 @@ static const value_string opttype_vals[] = {
     { OPTION_FORWARD_DIST_MANAGER,   "Forward Distribution Manager" },
     { OPTION_REVERSE_DIST_MANAGER,   "Reverse Distribution Manager" },
     { OPTION_ADDR_REG_ENABLE,        "Address Registration Enable" },
-    /* temporary value until defined by IETF */
     { OPTION_IA_SRV6_LOCATOR,        "Identity Association for SRv6 Locator" },
     { OPTION_IALOCATOR,              "IA SRv6 Locator" },
     { 0,        NULL }
