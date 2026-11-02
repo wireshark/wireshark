@@ -47,6 +47,10 @@ void destroy_console(void);
 
 /**
  * @brief Set console wait.
+ *
+ * Setting it to false also keeps create_console() from setting it again
+ * when it creates a console later.
+ *
  * @param console_wait set/no set console wait
  */
 WS_DLL_PUBLIC
