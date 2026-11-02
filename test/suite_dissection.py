@@ -39096,3 +39096,140 @@ class TestDissectDcerpcWinspool:
                 '-eiremotewinspool.winspool_AsyncWritePrinter.cbBuf',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['3\t9028\t9000']
+
+
+class TestDissectDcerpcWitness:
+    def test_witness_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and calls, and no malformed packets or warnings
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_witness_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 101
+        assert protocols.count('WITNESS') == 74
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 21
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_witness_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_witness_opnums(self, cmd_tshark, capture_file, test_env):
+        '''The three binds, and a request and a response for every opnum
+        in each of them, plus the unknown opnum 5 in the first.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_witness_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tccd8c074-d0e5-4a40-92b4-d074faa6ba28\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\tccd8c074-d0e5-4a40-92b4-d074faa6ba28\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\tccd8c074-d0e5-4a40-92b4-d074faa6ba28\t1\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_witness_coverage.pcap.gz'),
+                '-Y', 'witness',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type', '-ewitness.opnum',
+            ), encoding='utf-8', env=test_env)
+        seen = {}
+        for line in stdout.splitlines():
+            stream, ptype, opnum = line.split('\t')
+            seen.setdefault((stream, ptype), set()).add(int(opnum))
+        assert seen[('0', '0')] == seen[('0', '2')] == set(range(6))
+        for stream in ('1', '2'):
+            assert seen[(stream, '0')] == seen[(stream, '2')] == set(range(5))
+
+    def test_witness_notify_unknown_type(self, cmd_tshark, capture_file, test_env):
+        '''An AsyncNotify response with a message of an unknown type in a
+        buffer of 4 octets, then the status: the message is limited to its
+        buffer and the status after it is decoded.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_witness_coverage.pcap.gz'),
+                    '-Y', 'witness.witness_notifyResponse.type == 0x44434241',
+                    '-Tfields', '-ewitness.witness_notifyResponse.length',
+                    '-edcerpc.nt.blob.data', '-ewitness.werror', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '4\tefbeadde\t0x00000005\tAsyncNotify response, Error: WERR_ACCESS_DENIED',
+            ]
+
+    def test_witness_notify(self, cmd_tshark, capture_file, test_env):
+        '''AsyncNotify responses with every message type, in all three
+        encodings; the messages are always little endian.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_witness_coverage.pcap.gz'),
+                '-Y', 'witness.opnum == 3 && dcerpc.pkt_type == 2 && tcp.dstport != 50001',
+                '-Tfields', '-etcp.dstport', '-ewitness.witness_notifyResponse.type',
+                '-ewitness.witness_ResourceChange.type', '-ewitness.witness_ResourceChange.name',
+                '-ewitness.witness_IPaddrInfoList.num', '-ewitness.witness_IPaddrInfo.flags',
+                '-ewitness.witness_IPaddrInfo.ipv4', '-ewitness.witness_IPaddrInfo.ipv6',
+            ), encoding='utf-8', env=test_env)
+        expected = [
+            '1\t1\tFS\t\t\t\t',
+            '2\t\t\t2\t0x00000009,0x00000012\t192.0.2.1,192.0.2.2\t2001:db8::1,2001:db8::2',
+            '3\t\t\t2\t0x00000001,0x00000000\t192.0.2.3,192.0.2.7\t2001:db8::3,2001:db8::7',
+            '4\t\t\t3\t0x0000000b,0x00000013,0x00000040\t192.0.2.4,192.0.2.5,192.0.2.6\t2001:db8::4,2001:db8::5,2001:db8::6',
+        ]
+        assert stdout.splitlines() == ['50002\t' + x for x in expected] + ['50003\t' + x for x in expected]
+
+    def test_witness_interface_list(self, cmd_tshark, capture_file, test_env):
+        '''GetInterfaceList responses with four interfaces (every version
+        and state, an unknown one, and a group name of 260 characters
+        without a terminator), with none and with a NULL list.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_witness_coverage.pcap.gz'),
+                '-Y', 'witness.opnum == 0 && dcerpc.pkt_type == 2',
+                '-Tfields', '-etcp.dstport', '-ewitness.witness_interfaceList.num_interfaces',
+                '-ewitness.witness_interfaceInfo.version', '-ewitness.witness_interfaceInfo.state',
+                '-ewitness.witness_interfaceInfo.ipv4', '-ewitness.witness_interfaceInfo.ipv6',
+                '-ewitness.witness_interfaceInfo.flags', '-ewitness.werror',
+                '-ewitness.witness_interfaceInfo.group_name',
+            ), encoding='utf-8', env=test_env)
+        interfaces = ('4\t65537,131072,4294967295,196608\t1,0,255,66\t'
+                      '192.0.2.1,192.0.2.2,192.0.2.3,192.0.2.4\t'
+                      '2001:db8::1,2001:db8::2,2001:db8::3,2001:db8::4\t'
+                      '0x00000007,0x00000000,0x00000009,0x00000001\t0x00000000\t'
+                      'fileserver-1,fileserver-2,fileserver-3,' + 'X' * 260)
+        assert stdout.splitlines() == [
+            '50001\t' + interfaces,
+            '50001\t0\t\t\t\t\t\t0x00000000\t',
+            '50001\t\t\t\t\t\t\t0x00000005\t',
+            '50002\t' + interfaces,
+            '50003\t' + interfaces,
+        ]
+
+    def test_witness_register(self, cmd_tshark, capture_file, test_env):
+        '''Register and RegisterEx requests with strings and NULL
+        pointers, in all three encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_witness_coverage.pcap.gz'),
+                '-Y', 'witness.opnum in {1, 4} && dcerpc.pkt_type == 0',
+                '-Tfields', '-etcp.srcport', '-ewitness.opnum',
+                '-ewitness.witness_Register.version', '-ewitness.witness_Register.net_name',
+                '-ewitness.witness_Register.ip_address',
+                '-ewitness.witness_Register.client_computer_name',
+                '-ewitness.witness_RegisterEx.version', '-ewitness.witness_RegisterEx.net_name',
+                '-ewitness.witness_RegisterEx.share_name', '-ewitness.witness_RegisterEx.ip_address',
+                '-ewitness.witness_RegisterEx.client_computer_name',
+                '-ewitness.witness_RegisterEx.flags', '-ewitness.witness_RegisterEx.timeout',
+            ), encoding='utf-8', env=test_env)
+        reg = '1\t65537\tFS\t192.0.2.60\tCLIENT1\t\t\t\t\t\t\t'
+        regex = '4\t\t\t\t\t131072\tFS\tshare1\t192.0.2.60\tCLIENT1\t0x00000001\t30'
+        assert stdout.splitlines() == [
+            '50001\t' + reg,
+            '50001\t1\t305419896\t\t\t\t\t\t\t\t\t\t',
+            '50001\t' + regex,
+            '50001\t4\t\t\t\t\t4294967295\t\t\t\t\t0x80000000\t0',
+            '50001\t4\t\t\t\t\t131072\tFS\t\tfe80::1\t\t0x00000000\t120',
+            '50002\t' + reg, '50002\t' + regex,
+            '50003\t' + reg, '50003\t' + regex,
+        ]
