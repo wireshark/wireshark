@@ -39423,3 +39423,288 @@ class TestDissectDcerpcWzcsvc:
             'CloseWZCDbLogSession', 'EnumWZCDbLogRecords', 'FlushWZCdbLog',
             'GetWZCDbLogRecord',
         ]
+
+
+class TestDissectDcm:
+    '''The DICOM capture is synthetic: one association with every
+    association item and DIMSE command, every VR in implicit and explicit
+    little endian and explicit big endian, sequences, PDV reassembly over
+    PDUs and TCP segments, rejects, aborts, a heuristic stream on port
+    11112 and the reproducers of "DICOM: Fix reassembled PDV offsets, keep
+    later passes the same".'''
+
+    def test_dcm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame but one (4 octets of a split PDU) is DICOM, and none
+        is malformed or has an error, in one and two passes and without
+        PDV reassembly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcm_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 139
+        assert protocols.count('DICOM') == 138
+        for prefs in ((), ('-o', 'dicom.pdv_reassemble:FALSE')):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *prefs,
+                        '-r', capture_file('dcm_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= "error"',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_dcm_info(self, cmd_tshark, capture_file, test_env):
+        '''Commands with their message IDs, sub-operation counts and status
+        classes, rejects and aborts with every source and reason.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcm_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(line.split('\t') for line in stdout.splitlines())
+        assert info['1'] == 'A-ASSOCIATE request SYNTH-SCU --> STORE-SCP'
+        assert info['2'] == 'A-ASSOCIATE accept  SYNTH-SCU <-- STORE-SCP'
+        assert info['6'] == 'P-DATA, C-STORE-RSP (Sub-operations Complete - One or more Failures, Elements coerced)'
+        assert info['7'] == 'P-DATA, C-STORE-RQ ID=3, MR Image Storage Fragment (reassembled in #9)'
+        assert info['9'] == 'P-DATA, MR Image Storage'
+        assert info['13'] == 'P-DATA, C-FIND-RQ ID=5, C-FIND-RQ-DATA'
+        assert info['14'] == 'P-DATA, C-FIND-RSP ID=5, C-FIND-RSP-DATA'
+        assert info['17'] == 'P-DATA, C-FIND-RSP (Cancel)'
+        assert info['19'] == 'P-DATA, C-MOVE-RSP ID=6 C=1 R=2 W=1 F=1'
+        assert info['20'] == 'P-DATA, C-MOVE-RSP ID=6 C=5 (Success)'
+        assert info['21'] == 'P-DATA, C-MOVE-RSP (Refused: Out of Resources - Unable to perform sub-operations)'
+        assert info['23'] == 'P-DATA, C-GET-RSP (Error: Data Set does not match SOP Class)'
+        assert info['24'] == 'P-DATA, C-GET-RSP (Refused: Out of Resources)'
+        assert info['26'] == 'P-DATA, N-ACTION-RSP (Error: Cannot understand/Unable to Process, Cannot do that)'
+        assert info['27'] == 'P-DATA, PDV Fragment, N-CREATE-RQ ID=9, N-CREATE-RQ-DATA'
+        assert info['34'] == 'P-DATA, N-DELETE-RSP (Unknown)'
+        assert info['49'] == 'P-DATA, C-ECHO-RQ ID=18, C-ECHO-RQ ID=19, C-ECHO-RQ ID=20, C-ECHO-RQ ID=21'
+        assert info['51'] == 'A-RELEASE request'
+        assert info['52'] == 'A-RELEASE response'
+        assert info['65'] == 'A-ASSOCIATE request  --> '
+        assert [info[str(n)].split('REJ-SCP ')[1] for n in range(76, 95, 2)] == [
+            '(No reason given)', '(Application context name not supported)',
+            '(Calling AE title not recognized)', '(Called AE title not recognized)',
+            '()', '(No reason given)', '(Protocol version not supported)',
+            '(Temporary congestion)', '(Local limit exceeded)', '()',
+        ]
+        assert [info[str(n)] for n in range(97, 122, 3)] == [
+            'ABORT SYNTH-SCU --> ABRT-SCP',
+            'ABORT SYNTH-SCU <-- ABRT-SCP ()',
+            'ABORT SYNTH-SCU <-- ABRT-SCP (Not specified)',
+            'ABORT SYNTH-SCU <-- ABRT-SCP (Unrecognized PDU)',
+            'ABORT SYNTH-SCU <-- ABRT-SCP (Unexpected PDU)',
+            'ABORT SYNTH-SCU <-- ABRT-SCP ()',
+            'ABORT SYNTH-SCU <-- ABRT-SCP (Unrecognized PDU parameter)',
+            'ABORT SYNTH-SCU <-- ABRT-SCP (Unexpected PDU parameter)',
+            'ABORT SYNTH-SCU <-- ABRT-SCP (Invalid PDU parameter value)',
+        ]
+
+    def test_dcm_assoc_items(self, cmd_tshark, capture_file, test_env):
+        '''Presentation contexts, results and the user information
+        sub-items of the A-ASSOCIATE-RQ and -AC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcm_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 2',
+                '-Tfields', '-edicom.pctx.id', '-edicom.pctx.result',
+                '-edicom.userinfo.extneg.relational',
+                '-edicom.userinfo.extneg.timezone',
+                '-edicom.userinfo.rolesel.scurole',
+                '-edicom.userinfo.user_identify.primary_field',
+                '-edicom.userinfo.user_identify.secondary_field',
+                '-edicom.userinfo.asyncneg.maxnumopsinv',
+                '-edicom.max_pdu_len', '-edicom.userinfo.version',
+                '-edicom.userinfo.unknown',
+            ), encoding='utf-8', env=test_env)
+        rq, ac = [line.split('\t') for line in stdout.splitlines()]
+        ids = ','.join('0x%02x' % i for i in range(1, 37, 2))
+        assert rq == [ids, '', '0x01,0x01,0x01,0x01,0x01,0x00,0x01,0x01,0x01', '0x01',
+                      '0x01,0x00', 'synthuser,synthuser', 'not-a-password', '0', '16384',
+                      'SYNTH_SCU_1', '1']
+        assert ac == [ids, '0x00,' * 12 + '0x01,0x02,0x03,0x04,0x05,0x00', '0x01', '0x00',
+                      '0x01', '', '', '5', '32768', 'SYNTH_SCP_1', '']
+
+    def test_dcm_vrs(self, cmd_tshark, capture_file, test_env):
+        '''Values of every VR in explicit big endian (reassembled from three
+        PDUs) and implicit little endian with the VR from the dictionary.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcm_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9 || frame.number == 11',
+                '-V', '-O', 'dicom',
+            ), encoding='utf-8', env=test_env)
+        lines = [' '.join(line.split()) for line in stdout.splitlines()]
+        for expected in (
+                '[3 Message fragments (5254 bytes): #7(300), #8(1500), #9(3454)]',
+                '(0008,0016) 26 SOP Class UID [UI] 1.2.840.10008.5.1.4.1.1.4 (MR Image Storage)',
+                '(0008,0108) 84 Extended Code Meaning [LT] A long text value that is longer than fifty charac…',
+                '(0008,0119) 14 Long Code Value [UC] (unknown VR)',
+                '(0008,0309) 4 Private Data Element Value Multiplicity [UL] 7',
+                '(0018,6020) 4 Reference Pixel X0 [SL] -5',
+                '(0018,9219) 2 Tag Angle Second Axis [SS] -3',
+                '(0028,0009) 8 Frame Increment Pointer [AT] (0018,1063)(0018,1065)',
+                '(0028,0010) 2 Rows [US] 8',
+                '(0072,006d) 6 Selector UN Value [UN] A\\tB\\r\\n',
+                '(0072,006d) 4 Selector UN Value [UN] (binary)',
+                '(0008,0020) 2 Study Date [ZZ] (unknown VR)',
+                '(0008,0080) 0 Institution Name [LO] <Empty>',
+                '(7fe0,0010) 4096 Pixel Data [OB] (binary)',
+                '(0008,2218) <udef> Anatomic Region Sequence [SQ]',
+                '(fffe,e000) 0 Item [UL] <Empty>',
+                # Implicit
+                '(0008,0202) 2 (Retired) (unknown VR)',
+                '(0008,9999) 8 (unknown) unknown',
+                '(0009,0010) 14 Private Tag SYNTH PRIVATE',
+                '(0009,1001) 4 Private Tag (binary)',
+                '(000a,0000) 4 Group Length 0',
+                '(0018,9810) 2 Zero Velocity Pixel Value 3',
+                '(0028,0812) 2 (Retired) Number of Tables 2',
+                '(1010,0004) 2 (Retired) Zonal Map 1',
+                '(6002,0010) 2 Overlay Rows 4',
+                '(7fe0,0010) <udef> Pixel Data',
+                ):
+            assert expected in lines
+
+    def test_dcm_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Reassembled PDVs: over three PDUs in three segments; a command
+        PDV in two PDUs; eight fragments with three PDUs in one segment, a
+        PDU over three segments and PDUs that start in the segment of the
+        one before; fragments cut inside values and tag headers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcm_coverage.pcap.gz'),
+                '-Y', 'dicom.pdv.fragment_count',
+                '-Tfields', '-eframe.number', '-edicom.pdv.fragment',
+                '-edicom.pdv.reassembled.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t7,8,9\t5254',
+            '27\t27,27\t72',
+            '46\t40,40,40,43,44,45,46,46\t1296',
+            '56\t55,55,55,56,56,56,56,56,56,56\t356',
+            '59\t58,58,58,59,59,59,59,59,59,59\t356',
+            '61\t61,61,61,61,61,61\t200',
+            '124\t124,124\t126',
+            '126\t125,126\t126',
+            '129\t129,129\t126',
+        ]
+
+    def test_dcm_reasm_offset(self, cmd_tshark, capture_file, test_env):
+        '''A PDV after a reassembled last fragment, and a PDU after it in
+        the same segment, are decoded, the same in two passes; a PDU split
+        after an A-RELEASE-RQ is decoded, and so are the items of an
+        A-ASSOCIATE-RQ after an A-RELEASE-RQ (fixed in "DICOM: Fix
+        reassembled PDV offsets, keep later passes the same").'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcm_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {124, 126, 133, 136}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-edicom.max_pdu_len',
+                ), encoding='utf-8', env=test_env)
+            lines = [line.split('\t') for line in stdout.splitlines()]
+            assert [line[:2] for line in lines] == [
+                ['124', 'P-DATA, PDV Fragment, DATA, C-ECHO-RQ ID=5'],
+                ['126', 'P-DATA, CT Image Storage, C-ECHO-RQ ID=6'],
+                ['133', 'A-ASSOCIATE request CALLING --> CALLED'],
+                ['136', 'P-DATA, C-ECHO-RQ ID=9'],
+            ]
+            # The User Info item of the A-ASSOCIATE-RQ after the A-RELEASE-RQ
+            assert [line[2] for line in lines] == ['', '', '16384', '']
+
+    def test_dcm_hdrfrag_2pass(self, cmd_tshark, capture_file, test_env):
+        '''A command PDV that ends in a part of a tag header keeps its
+        undefined length sequence nested on the second pass.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcm_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 132', '-V', '-O', 'dicom',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+        lines = [line.rstrip() for line in outputs[1].splitlines()]
+        start = [n for n, line in enumerate(lines) if '(0000,1000)' in line][0]
+        assert [' '.join(line.split()) for line in lines[start:start + 5]] == [
+            '(0000,1000) <udef> Affected SOP Instance UID',
+            '(fffe,e000) <udef> Item',
+            '(0000,0110) 2 Message ID 7',
+            '(fffe,e00d) 0 Item Delimitation Item',
+            '(fffe,e0dd) 0 Sequence Delimitation Item',
+        ]
+        # Nested: the item two levels below the sequence, the message ID
+        # below the item
+        indent = [len(line) - len(line.lstrip()) for line in lines[start:start + 5]]
+        assert indent[1] == indent[0] + 4 and indent[2] == indent[1] + 4
+
+    def test_dcm_no_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Without PDV reassembly, a value over three PDVs and tag headers
+        cut at every position are resumed in the next PDV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'dicom.pdv_reassemble:FALSE',
+                '-r', capture_file('dcm_coverage.pcap.gz'),
+                '-Y', 'frame.number in {55, 56}', '-V', '-O', 'dicom',
+            ), encoding='utf-8', env=test_env)
+        lines = [' '.join(line.split()) for line in stdout.splitlines()]
+        tags = [line for line in lines if line.startswith('(0008,0108)') or line.startswith('(0008,0070)')]
+        assert tags == [
+            '(0008,0108) 120 Extended Code Meaning [LT] <Bytes 1 - 12, start>',
+            '(0008,0108) 120 Extended Code Meaning [LT] <Bytes 13 - 52, continuation>',
+            '(0008,0108) 120 Extended Code Meaning [LT] <Bytes 53 - 120, end>',
+            '(0008,0070) 16 Manufacturer [LO] cut-after-group',
+            '(0008,0070) 18 Manufacturer [LO] cut-after-element',
+            '(0008,0070) 12 Manufacturer [LO] cut-after-vr',
+            '(0008,0070) 18 Manufacturer [OB] (binary)',
+            '(0008,0070) 18 Manufacturer [OB] (binary)',
+            '(0008,0070) 14 Manufacturer [OB] (binary)',
+        ]
+
+    def test_dcm_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The stream on port 11112 is found by the heuristic only.'''
+        for heur, count in ((), 6), (('--disable-heuristic', 'dicom_tcp'), 0):
+            stdout = subprocess.check_output((cmd_tshark, *heur,
+                    '-r', capture_file('dcm_coverage.pcap.gz'),
+                    '-Y', 'tcp.port == 11112 && dicom',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == count
+
+    def test_dcm_export_objects(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Export objects finds the same objects in one and two passes,
+        reassembled, with the meta header holding the UIDs alone.'''
+        files = []
+        for passes in ((), ('-2',)):
+            export_dir = tmp_path / ('export%d' % len(passes))
+            export_dir.mkdir()
+            subprocess.check_call((cmd_tshark, *passes,
+                    '-r', capture_file('dcm_coverage.pcap.gz'),
+                    '-o', 'dicom.export_minsize:0',
+                    '-q', '--export-objects', f'dicom,{export_dir}',
+                ), env=test_env)
+            files.append({p.name: p.read_bytes() for p in export_dir.iterdir()})
+        assert files[0] == files[1]
+        files = files[0]
+        assert len(files) == 79
+        assert sorted(name for name in files if name[7].isdigit() and name[9].isdigit()) == [
+            '000005-2-2.25.100001.dcm', '000009-1-2.25.100002.dcm',
+            '000011-2-2.25.100003.dcm', '000046-2-2.25.100016.dcm',
+            '000056-7-2.25.100030.dcm', '000059-7-2.25.100031.dcm',
+            '000126-1-1.2.3.4.dcm', '000129-3-1.2.3.4.dcm',
+        ]
+        for name in ('000126-2-C-ECHO-RQ.dcm', '000124-2-DATA.dcm', '000067-1-DATA.dcm',
+                     '000027-2-N-CREATE-RQ.dcm', '000061-7-CT-Image-Storage.dcm'):
+            assert name in files
+        # Meta header: preamble, "DICM", the SOP class UID without its name
+        obj = files['000129-3-1.2.3.4.dcm']
+        assert obj[128:132] == b'DICM'
+        assert b'\x02\x00\x02\x00UI\x1a\x001.2.840.10008.5.1.4.1.1.2\x00' in obj
+        assert b'\x02\x00\x03\x00UI\x08\x001.2.3.4\x00' in obj
+        assert obj.endswith(b'\xe0\x7f\x10\x00OB\x00\x00\x40\x00\x00\x00' + b'\x55' * 64)
+        # Big endian object from three PDVs: 4096 octets of pixel data
+        obj = files['000009-1-2.25.100002.dcm']
+        assert len(obj) == 5548
+        assert bytes(range(256)) * 16 in obj
+        # Only the large object with the default minimum size
+        export_dir = tmp_path / 'export_default'
+        export_dir.mkdir()
+        subprocess.check_call((cmd_tshark,
+                '-r', capture_file('dcm_coverage.pcap.gz'),
+                '-q', '--export-objects', f'dicom,{export_dir}',
+            ), env=test_env)
+        assert [p.name for p in export_dir.iterdir()] == ['000009-1-2.25.100002.dcm']
