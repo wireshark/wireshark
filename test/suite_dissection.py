@@ -38977,3 +38977,122 @@ class TestDissectDcerpcWinreg:
         count, name, vtype, size, data = stdout.rstrip('\n').split('\t')
         assert (count, name, vtype, size) == ('3', 'BigValue', '3', '9000')
         assert data.split(',') == ['%d' % ((i * 7) & 0xff) for i in range(9000)]
+
+
+class TestDissectDcerpcWinspool:
+    def test_winspool_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and calls, and no malformed packets or warnings
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winspool_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 679
+        assert protocols.count('IREMOTEWINSPOOL') == 649
+        assert protocols.count('DCERPC') == 8
+        assert protocols.count('TCP') == 22
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_winspool_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_winspool_opnums(self, cmd_tshark, capture_file, test_env):
+        '''The three binds, and a request and a response for every opnum
+        0-74 in each of them, plus the unknown opnum 75 in the first.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winspool_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t76f03f96-cdfd-44fc-a22c-64950a001209\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t76f03f96-cdfd-44fc-a22c-64950a001209\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t76f03f96-cdfd-44fc-a22c-64950a001209\t1\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winspool_coverage.pcap.gz'),
+                '-Y', 'iremotewinspool',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type', '-eiremotewinspool.opnum',
+            ), encoding='utf-8', env=test_env)
+        seen = {}
+        for line in stdout.splitlines():
+            stream, ptype, opnum = line.split('\t')
+            seen.setdefault((stream, ptype), set()).add(int(opnum))
+        assert seen[('0', '0')] == seen[('0', '2')] == set(range(76))
+        for stream in ('1', '2'):
+            assert seen[(stream, '0')] == seen[(stream, '2')] == set(range(75))
+
+    def test_winspool_property_types(self, cmd_tshark, capture_file, test_env):
+        '''Every arm of PrintPropertyValueUnion in NDR little endian and
+        NDR64 (the big endian connection has one call of each opnum).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winspool_coverage.pcap.gz'),
+                '-Y', 'iremotewinspool.winspool_PrintPropertyValue.PropertyType',
+                '-Tfields', '-etcp.stream',
+                '-eiremotewinspool.winspool_PrintPropertyValue.PropertyType',
+            ), encoding='utf-8', env=test_env)
+        seen = {}
+        for line in stdout.splitlines():
+            stream, types = line.split('\t')
+            seen.setdefault(stream, set()).update(int(t) for t in types.split(','))
+        assert seen['0'] == seen['2'] == set(range(1, 10))
+        assert seen['1'] == set(range(3, 9))
+
+    def test_winspool_security_descriptor(self, cmd_tshark, capture_file, test_env):
+        '''sec_desc_buf (AsyncAddPrinter, AsyncSetPrinter and the SD
+        property of the notification calls): the length and the
+        descriptor with its owner, in all three encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winspool_coverage.pcap.gz'),
+                '-Y', 'iremotewinspool.sec_desc_buf_len',
+                '-Tfields', '-etcp.stream', '-eiremotewinspool.opnum',
+                '-eiremotewinspool.sec_desc_buf_len', '-ent.sid',
+            ), encoding='utf-8', env=test_env)
+        sd = '\t36\tS-1-5-32-544'
+        assert stdout.splitlines() == [x + sd for x in (
+            '0\t1', '0\t1', '0\t8', '0\t8', '0\t58', '0\t58',
+            '1\t1', '1\t8', '1\t60', '1\t58',
+            '2\t1', '2\t8', '2\t58', '2\t60', '2\t60', '2\t61', '2\t58',
+        )]
+
+    def test_winspool_open_printer(self, cmd_tshark, capture_file, test_env):
+        '''AsyncOpenPrinter with strings and with NULL pointers and an
+        error, and the policy handle of the response, in all three
+        encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winspool_coverage.pcap.gz'),
+                '-Y', 'iremotewinspool.opnum == 0',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type',
+                '-eiremotewinspool.winspool_AsyncOpenPrinter.pPrinterName',
+                '-eiremotewinspool.winspool_AsyncOpenPrinter.pDatatype',
+                '-eiremotewinspool.winspool_AsyncOpenPrinter.AccessRequired',
+                '-eiremotewinspool.winspool_AsyncOpenPrinter.pHandle',
+                '-eiremotewinspool.werror', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t0\tpPrinterName1\tpDatatype2\t7\t\t\twinspool_AsyncOpenPrinter request',
+            '0\t2\t\t\t\t0700000007000000341234124141414141414141\t0x00000000\twinspool_AsyncOpenPrinter response',
+            '0\t0\t\t\t0\t\t\twinspool_AsyncOpenPrinter request',
+            '0\t2\t\t\t\t0000000000000000000000000000000000000000\t0x00000005\twinspool_AsyncOpenPrinter response, Error: WERR_ACCESS_DENIED',
+            '1\t0\tpPrinterName7\tpDatatype8\t7\t\t\twinspool_AsyncOpenPrinter request',
+            '1\t2\t\t\t\t0000000700000007123412344141414141414141\t0x00000000\twinspool_AsyncOpenPrinter response',
+            '2\t0\tpPrinterName9\tpDatatype0\t7\t\t\twinspool_AsyncOpenPrinter request',
+            '2\t2\t\t\t\t0700000007000000341234124141414141414141\t0x00000000\twinspool_AsyncOpenPrinter response',
+        ]
+
+    def test_winspool_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''An AsyncWritePrinter request with a 9000 octet buffer in three
+        DCE/RPC fragments over several TCP segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winspool_coverage.pcap.gz'),
+                '-Y', 'iremotewinspool.winspool_AsyncWritePrinter.cbBuf == 9000',
+                '-Tfields', '-edcerpc.fragment.count', '-edcerpc.reassembled.length',
+                '-eiremotewinspool.winspool_AsyncWritePrinter.cbBuf',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['3\t9028\t9000']
