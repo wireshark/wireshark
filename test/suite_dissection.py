@@ -40153,3 +40153,79 @@ class TestDissectDcpEtsi:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 0
+
+
+class TestDissectDdtp:
+    def test_ddtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''18 of the 20 frames are DDTP; the other 2 (unknown version, 3
+        octets) are not. None is malformed, and the only expert info is
+        the unknown message type of frame 13, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ddtp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 20
+        assert protocols.count('DDTP') == 18
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ddtp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['13\tUnknown type']
+
+    def test_ddtp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every version, encryption type, message type, opcode and
+        status.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ddtp_coverage.pcap.gz'),
+                '-Y', 'ddtp',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-eddtp.version', '-eddtp.encrypt', '-eddtp.hostid',
+                '-eddtp.msgtype', '-eddtp.opcode', '-eddtp.ipaddr',
+                '-eddtp.status', '-eddtp.alive',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tUpdate Query\t2\t1\t4242\t1\t0\t198.51.100.7\t\t',
+            '2\tUpdate Reply\t2\t1\t4242\t2\t\t\t0\t',
+            '3\tUpdate Query\t2\t1\t4242\t1\t1\t198.51.100.8\t\t',
+            '4\tUpdate Reply\t2\t1\t4242\t2\t\t\t1\t',
+            '5\tUpdate Reply\t2\t1\t4242\t2\t\t\t2\t',
+            '6\tUpdate Reply\t2\t1\t4242\t2\t\t\t3\t',
+            '7\tUpdate Reply\t2\t1\t4242\t2\t\t\t4\t',
+            '8\tUpdate Query\t2\t1\t4242\t1\t7\t198.51.100.9\t\t',
+            '9\tUpdate Reply\t2\t1\t4242\t2\t\t\t9\t',
+            '10\tAlive Query\t2\t1\t4242\t3\t\t\t\t4660',
+            '11\tAlive Reply\t2\t1\t4242\t4\t\t\t\t4660',
+            '12\tMessage Error\t2\t1\t4242\t0\t\t\t\t',
+            '13\tUnknown type\t2\t1\t4242\t9\t\t\t\t',
+            '14\tEncrypted payload\t2\t2\t4242\t\t\t\t\t',
+            '15\tEncrypted payload\t2\t0\t4242\t\t\t\t\t',
+            '16\tAlive Query\t1\t1\t17\t3\t\t\t\t1',
+            '17\tAlive Reply\t1\t1\t17\t4\t\t\t\t1',
+            '18\tMessage Error\t0\t1\t0\t0\t\t\t\t',
+        ]
+
+    def test_ddtp_value_names(self, cmd_tshark, capture_file, test_env):
+        '''The value names in the tree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ddtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 5, 14, 16, 18}',
+                '-V', '-O', 'ddtp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        for expected in (
+            'Version: 5 (2)',
+            'Encryption: Plain text (1)',
+            'Message type: Update Query (1)',
+            'Opcode: Mark online (0)',
+            'IP address: 198.51.100.7',
+            'Status: Invalid password (2)',
+            'Encryption: Blowfish (2)',
+            'Version: 4 (1)',
+            'Version: Protocol Error (0)',
+            'Message type: Message Error (0)',
+        ):
+            assert expected in lines
