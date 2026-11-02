@@ -22,6 +22,7 @@
 #include <wireshark.h>
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/epan.h>
 #include <epan/tfs.h>
 #include <epan/expert.h>
@@ -17311,7 +17312,7 @@ typedef struct dis_header
 dis_header_t;
 
 /* Forward declarations */
-static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name, uint32_t* entityidentifier);
+static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name, uint64_t* entityidentifier);
 static int parseField_Aggregate(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name);
 static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name, uint8_t* entityKind, uint8_t* entityDomain);
 static int parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, int offset, uint8_t paramType);
@@ -17369,7 +17370,7 @@ static int dissect_DIS_FIELDS_CLOCK_TIME(tvbuff_t *tvb, proto_tree *tree, int of
     tv.nsecs = (int)(ms%1000)*1000000;
 
     /* add hour */
-    tv.secs += (hour*3600);
+    tv.secs += (time_t)hour * 3600;
 
     ti = proto_tree_add_time(sub_tree, hf_dis_clocktime, tvb, offset, 8, &tv);
     if (isAbsolute)
@@ -17513,7 +17514,7 @@ static int dissect_DIS_FIELDS_MODULATION_TYPE(tvbuff_t *tvb, proto_tree *tree, i
     offset += 2;
 
     majorModulation = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_modulation_major, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_modulation_major, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
 
@@ -17543,11 +17544,11 @@ static int dissect_DIS_FIELDS_MODULATION_TYPE(tvbuff_t *tvb, proto_tree *tree, i
         break;
     }
 
-    proto_tree_add_item(tree, hf_mod_detail, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_mod_detail, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     *systemModulation = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_dis_modulation_system, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_modulation_system, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     return offset;
@@ -18053,7 +18054,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
     entityApplication = tvb_get_ntohs(tvb, offset+2);
     entityEntity = tvb_get_ntohs(tvb, offset+4);
 
-    uint32_t entityid =0;
+    uint64_t entityid = 0;
     offset = parseField_Entity(tvb, tree, offset, "Entity ID", &entityid);
 
     proto_tree_add_item(tree, hf_dis_force_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -18071,14 +18072,13 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
                     entitySite , entityApplication , entityEntity
                     );
 
-    packet_context_t *context = wmem_map_lookup(packet_context_map, GUINT_TO_POINTER(entityid));
-    if (context == NULL)
+    if (!PINFO_FD_VISITED(pinfo) && wmem_map_lookup(packet_context_map, &entityid) == NULL)
     {
-        context = wmem_new0(wmem_file_scope(), packet_context_t);
+        packet_context_t *context = wmem_new0(wmem_file_scope(), packet_context_t);
         context->entity_kind = entityKind;
         context->entity_domain = entityDomain;
 
-        wmem_map_insert(packet_context_map, GUINT_TO_POINTER(entityid), context);
+        wmem_map_insert(packet_context_map, wmem_memdup(wmem_file_scope(), &entityid, sizeof(entityid)), context);
     }
 
     offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Alternative Entity Type", NULL, NULL);
@@ -18241,6 +18241,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo
         case 1:/* ASCII */
             proto_tree_add_item_ret_string(sub_tree, hf_dis_entity_marking, tvb, offset, 11, ENC_ASCII|ENC_NA, pinfo->pool, &entity_marking_text);
             col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", entity_marking_text);
+            break;
         case 2:/* Army Marking (CCTT) */
             /* TODO: Complete this */
             break;
@@ -18282,7 +18283,7 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
     entityApplication = tvb_get_ntohs(tvb, offset+2);
     entityEntity = tvb_get_ntohs(tvb, offset+4);
 
-    uint32_t entityid = 0;
+    uint64_t entityid = 0;
     offset = parseField_Entity(tvb, tree, offset, "Entity ID", &entityid);
 
     proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
@@ -18321,7 +18322,21 @@ static int dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvbuff_t *tvb, packet_info
     proto_tree_add_item(sub_tree, hf_dis_entity_orientation_phi, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    packet_context_t *context = wmem_map_lookup(packet_context_map, GUINT_TO_POINTER(entityid));
+    /* Look up the entity on the first pass only and keep what was found,
+     * so that later passes give the same result. */
+    packet_context_t *context;
+    if (!PINFO_FD_VISITED(pinfo))
+    {
+        context = (packet_context_t *)wmem_map_lookup(packet_context_map, &entityid);
+        if (context != NULL)
+        {
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_dis, pinfo->curr_layer_num, context);
+        }
+    }
+    else
+    {
+        context = (packet_context_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dis, pinfo->curr_layer_num);
+    }
     if (context != NULL)
     {
         //look for the previous EntityStatePDU in order to get the EntityKind and EntityDomain
@@ -18615,7 +18630,8 @@ static int dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvbuff_t *tvb, packet
 static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_tree *sub_tree, *sub_tree2;
-    uint8_t i, numShafts, numApas, numUAEmitter, numUABeams = 0;
+    uint8_t numShafts, numApas, numUAEmitter;
+    unsigned i, numUABeams = 0;
 
     offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID", NULL);
     offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
@@ -18644,12 +18660,12 @@ static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info
     proto_tree_add_item(tree, hf_dis_num_ua_emitter_systems, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    col_append_fstr( pinfo->cinfo, COL_INFO, ", Shafts=%d, APA=%d, Acoustic Emitter=%d",
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", Shafts=%u, APA=%u, Acoustic Emitter=%u",
                       numShafts, numApas, numUAEmitter);
 
     for (i = 0; i < numShafts; i++)
     {
-        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_shafts, NULL, "Shafts [%d of %d]", i+1, numShafts);
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_shafts, NULL, "Shafts [%u of %u]", i+1, numShafts);
 
         proto_tree_add_item(sub_tree, hf_dis_shaft_rpm_current, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -18663,7 +18679,7 @@ static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info
 
     for (i = 0; i < numApas; i++)
     {
-        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_apas, NULL, "APAs [%d of %d]", i+1, numApas);
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_apas, NULL, "APAs [%u of %u]", i+1, numApas);
 
         proto_tree_add_item(sub_tree, hf_dis_apas_parameter_index, tvb, offset, 2, ENC_BIG_ENDIAN); /*FIXME enum*/
         offset += 2;
@@ -18675,7 +18691,7 @@ static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info
     for (i = 0; i < numUAEmitter; i++)
     {
         sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 20, ett_underwater_acoustic_emission, NULL,
-                            "Underwater Acoustic Emission System [%d of %d]", i+1, numUAEmitter);
+                            "Underwater Acoustic Emission System [%u of %u]", i+1, numUAEmitter);
 
         proto_tree_add_item(sub_tree, hf_dis_ua_emitter_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -18710,7 +18726,7 @@ static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info
 
     for (i = 0; i < numUABeams; ++i)
     {
-        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 24, ett_ua_beams, NULL, "Beams [%d of %d]", i+1, numUABeams);
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 24, ett_ua_beams, NULL, "Beams [%u of %u]", i+1, numUABeams);
 
         proto_tree_add_item(sub_tree, hf_dis_ua_beam_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
@@ -19315,7 +19331,7 @@ static int dissect_DIS_PARSER_SIGNAL_PDU(tvbuff_t *tvb, packet_info *pinfo, prot
     if (tdlType == DIS_PDU_SIGNAL_TDL_TYPE_LINK_16_STANDARDIZED_FORMAT_JTIDS_MIDS_TADIL_J) {
         offset = parse_DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER(tvb, tree, offset, &messageType);
 
-        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_dis_signal_link16_message_data, NULL,
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_dis_signal_link16_message_data, &ti,
             "Link 16 Message Data: %s", val_to_str_const(messageType, DIS_PDU_Message_Type_Identifier_Strings, ""));
         offset = parse_Link16_Message_Data(sub_tree, tvb, offset, pinfo, encodingScheme, messageType);
         proto_item_set_end(ti, tvb, offset);
@@ -19753,7 +19769,8 @@ static int dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvbuff_t *tvb, packet_info *pi
         offset = parseField_Entity(tvb, sub_tree, offset, "Entity ID", NULL);
 
     /* padding */
-    padding = (((number_of_entities + number_of_aggregates) * 16) % 2) / 8;
+    /* 48-bit IDs, padded to a 32-bit boundary */
+    padding = (uint16_t)WS_PADDING_TO_4(6U * ((unsigned)number_of_entities + number_of_aggregates));
     proto_tree_add_item(tree, hf_dis_padding, tvb, offset, padding, ENC_NA);
     offset += padding;
 
@@ -20035,7 +20052,7 @@ static int dissect_DIS_PARSER_APPLICATION_CONTROL_PDU(tvbuff_t *tvb, packet_info
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_record, &ti, "Record");
 
         variableRecordType = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(tree, hf_dis_variable_record_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_dis_variable_record_type, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         variableRecordLength = tvb_get_ntohs(tvb, offset);
@@ -20242,14 +20259,14 @@ static int parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, int offset, int
 }
 
 /* Parse an Entity */
-static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name, uint32_t* entityidentifier)
+static int parseField_Entity(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name, uint64_t* entityidentifier)
 {
     proto_tree  *sub_tree;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_entity, NULL, entity_name);
 
-    // Use the full 32 bits
-    if (entityidentifier) *entityidentifier = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
+    // Site, application and entity number together identify the entity
+    if (entityidentifier) *entityidentifier = tvb_get_uint48(tvb, offset, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(sub_tree, hf_dis_entity_id_site, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -20312,6 +20329,10 @@ static int parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, int off
  */
 static int parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t variableRecordType, uint16_t record_length)
 {
+    /* The record length counts the 6 octets of record type and length
+     * that precede the record value. */
+    int record_end = offset - 6 + record_length;
+
     /* Determine the parser to use based on the type */
     switch (variableRecordType) {
     case 47200:
@@ -20335,6 +20356,13 @@ static int parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, int offset
         }
         }
         break;
+    }
+
+    /* Skip any part of the record value that was not dissected */
+    if (offset < record_end)
+    {
+        proto_tree_add_item(tree, hf_dis_record_data, tvb, offset, record_end - offset, ENC_NA);
+        offset = record_end;
     }
 
     /* Should alignment padding be added */
@@ -20763,7 +20791,7 @@ void proto_reg_handoff_dis(void);
 
 void proto_register_dis(void)
 {
-    packet_context_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+    packet_context_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int64_hash, g_int64_equal);
 
     static ei_register_info ei[] = {
         {
