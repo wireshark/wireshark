@@ -1681,7 +1681,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	item = proto_tree_add_item(parent_tree, proto_dsp, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_dsp);
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAP");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSP");
   	col_clear(pinfo->cinfo, COL_INFO);
 
 	asn1_ctx.private_data = session;
@@ -1731,11 +1731,11 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    break;
 	  case 8: /* modifyEntry */
 	    dsp_dissector = dissect_dsp_ChainedModifyEntryArgument;
-	    dsp_op_name = "ChainedModify-Entry-Argument";
+	    dsp_op_name = "Chained-Modify-Entry-Argument";
 	    break;
 	  case 9: /* modifyDN */
 	    dsp_dissector = dissect_dsp_ChainedModifyDNArgument;
-	    dsp_op_name = "ChainedModify-DN-Argument";
+	    dsp_op_name = "Chained-Modify-DN-Argument";
 	    break;
 	  default:
 	    proto_tree_add_expert_format_remaining(tree, pinfo, &ei_dsp_unsupported_opcode, tvb, offset,
@@ -1779,7 +1779,7 @@ dissect_dsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	    break;
 	  case 9: /* modifyDN */
 	    dsp_dissector = dissect_dsp_ChainedModifyDNResult;
-	    dsp_op_name = "ChainedModify-DN-Result";
+	    dsp_op_name = "Chained-Modify-DN-Result";
 	    break;
 	  default:
 	    proto_tree_add_expert_remaining(tree, pinfo, &ei_dsp_unsupported_opcode, tvb, offset);
