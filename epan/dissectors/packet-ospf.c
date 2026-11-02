@@ -579,6 +579,10 @@ static const true_false_string tfs_arbitrary_standard = { "Arbitrary", "Standard
 #define OSPF_V3_PREFIX_OPTION_LA 0x02
 #define OSPF_V3_PREFIX_OPTION_MC 0x04
 #define OSPF_V3_PREFIX_OPTION_P  0x08
+#define OSPF_V3_PREFIX_OPTION_DN 0x10
+#define OSPF_V3_PREFIX_OPTION_N  0x20
+#define OSPF_V3_PREFIX_OPTION_E  0x40
+#define OSPF_V3_PREFIX_OPTION_AC 0x80
 
 #define OSPF_V3_AS_EXTERNAL_FLAG_T 0x01
 #define OSPF_V3_AS_EXTERNAL_FLAG_F 0x02
@@ -599,7 +603,9 @@ static const true_false_string tfs_arbitrary_standard = { "Arbitrary", "Standard
 
 #define EXT_PREFIX_TLV_FLAG_A             0x80
 #define EXT_PREFIX_TLV_FLAG_N             0x40
-#define EXT_PREFIX_TLV_FLAG_UNKNOWN       ~(EXT_PREFIX_TLV_FLAG_A | EXT_PREFIX_TLV_FLAG_N)
+#define EXT_PREFIX_TLV_FLAG_E             0x20
+#define EXT_PREFIX_TLV_FLAG_AC            0x10
+#define EXT_PREFIX_TLV_FLAG_UNKNOWN       ~(EXT_PREFIX_TLV_FLAG_A | EXT_PREFIX_TLV_FLAG_N | EXT_PREFIX_TLV_FLAG_E | EXT_PREFIX_TLV_FLAG_AC)
 
 #define EXT_PREFIX_RANGE_TLV_FLAG_IA      0x80
 #define EXT_PREFIX_RANGE_TLV_FLAG_UNKNOWN ~(EXT_PREFIX_RANGE_TLV_FLAG_IA)
@@ -987,6 +993,8 @@ static int hf_ospf_ls_epfx_af;
 static int hf_ospf_ls_epfx_flags;
 static int hf_ospf_ls_epfx_flag_a;
 static int hf_ospf_ls_epfx_flag_n;
+static int hf_ospf_ls_epfx_flag_e;
+static int hf_ospf_ls_epfx_flag_ac;
 static int hf_ospf_ls_epfx_flag_unknown;
 static int hf_ospf_ls_epfx_range_flags;
 static int hf_ospf_ls_epfx_range_flag_ia;
@@ -1040,6 +1048,10 @@ static int hf_ospf_v3_prefix_option_nu;
 static int hf_ospf_v3_prefix_option_la;
 static int hf_ospf_v3_prefix_option_mc;
 static int hf_ospf_v3_prefix_option_p;
+static int hf_ospf_v3_prefix_option_dn;
+static int hf_ospf_v3_prefix_option_n;
+static int hf_ospf_v3_prefix_option_e;
+static int hf_ospf_v3_prefix_option_ac;
 static int hf_ospf_dyn_hostname;
 static int hf_ospf_lsa_sa;
 static int hf_ospf_ls_slr_stlv;
@@ -1352,6 +1364,10 @@ static int * const bf_v3_options[] = {
     NULL
 };
 static int * const bf_v3_prefix_options[] = {
+    &hf_ospf_v3_prefix_option_ac,
+    &hf_ospf_v3_prefix_option_e,
+    &hf_ospf_v3_prefix_option_n,
+    &hf_ospf_v3_prefix_option_dn,
     &hf_ospf_v3_prefix_option_p,
     &hf_ospf_v3_prefix_option_mc,
     &hf_ospf_v3_prefix_option_la,
@@ -1361,6 +1377,8 @@ static int * const bf_v3_prefix_options[] = {
 static int * const bf_ospf_epfx_flags[] = {
     &hf_ospf_ls_epfx_flag_a,
     &hf_ospf_ls_epfx_flag_n,
+    &hf_ospf_ls_epfx_flag_e,
+    &hf_ospf_ls_epfx_flag_ac,
     &hf_ospf_ls_epfx_flag_unknown,
     NULL
 };
@@ -5314,6 +5332,18 @@ proto_register_ospf(void)
         {&hf_ospf_v3_prefix_option_p,
          { "(P) Propagate", "ospf.v3.prefix.options.p", FT_BOOLEAN, 8,
            TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_P, NULL, HFILL }},
+        {&hf_ospf_v3_prefix_option_dn,
+         { "(DN) Down", "ospf.v3.prefix.options.dn", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_DN, NULL, HFILL }},
+        {&hf_ospf_v3_prefix_option_n,
+         { "(N)", "ospf.v3.prefix.options.n", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_N, NULL, HFILL }},
+        {&hf_ospf_v3_prefix_option_e,
+         { "(E) ELC", "ospf.v3.prefix.options.e", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_E, NULL, HFILL }},
+        {&hf_ospf_v3_prefix_option_ac,
+         { "(AC) Anycast", "ospf.v3.prefix.options.ac", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), OSPF_V3_PREFIX_OPTION_AC, NULL, HFILL }},
 
         /* Dynamic Hostname contained in the Opaque RI LSA - dynamic hostname TLV*/
         {&hf_ospf_dyn_hostname,
@@ -5398,6 +5428,12 @@ proto_register_ospf(void)
         {&hf_ospf_ls_epfx_flag_n,
          { "(N) Node Flag", "ospf.tlv.extpfx.flags.n", FT_BOOLEAN, 8,
            TFS(&tfs_set_notset), EXT_PREFIX_TLV_FLAG_N, NULL, HFILL }},
+        {&hf_ospf_ls_epfx_flag_e,
+         { "E-Flag (ELC)", "ospf.tlv.extpfx.flags.e", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), EXT_PREFIX_TLV_FLAG_E, NULL, HFILL }},
+        {&hf_ospf_ls_epfx_flag_ac,
+         { "AC-Flag (Anycast)", "ospf.tlv.extpfx.flags.ac", FT_BOOLEAN, 8,
+           TFS(&tfs_set_notset), EXT_PREFIX_TLV_FLAG_AC, NULL, HFILL }},
         {&hf_ospf_ls_epfx_flag_unknown,
          { "(*) Unknown Flag", "ospf.tlv.extpfx.flags.unknown", FT_UINT8, BASE_HEX,
            NULL, EXT_PREFIX_TLV_FLAG_UNKNOWN, NULL, HFILL }},
