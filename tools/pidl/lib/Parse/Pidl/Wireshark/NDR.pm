@@ -379,11 +379,17 @@ sub ElementLevel($$$$$$$$)
 			} elsif (property_matches($e, "flag", ".*LIBNDR_FLAG_STR_SIZE4.*")) {
 				$self->pidl_code("offset = dissect_ndr_vstring(tvb, offset, pinfo, tree, di, drep, $bs, $hf, false, NULL);");
 			} elsif (property_matches($e, "flag", ".*STR_NULLTERM.*")) {
+				# These helpers do not know about the conformant run, in
+				# which a pointed-to string must not consume anything.
+				$self->pidl_code("if (!di->conformant_run) {");
+				$self->indent;
 				if ($bs == 2) {
 					$self->pidl_code("offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, $hf , 0);")
 				} else {
 					$self->pidl_code("offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, $hf , 0);")
 				}
+				$self->deindent;
+				$self->pidl_code("}");
 			} else {
 				warn("Unable to handle string with flags $e->{PROPERTIES}->{flag}");
 			}

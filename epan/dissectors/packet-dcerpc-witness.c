@@ -695,7 +695,9 @@ witness_dissect_element_ResourceChange_type(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 witness_dissect_element_ResourceChange_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_witness_witness_ResourceChange_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_witness_witness_ResourceChange_name , 0);
+	}
 
 	return offset;
 }

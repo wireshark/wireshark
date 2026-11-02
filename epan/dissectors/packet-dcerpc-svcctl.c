@@ -1660,7 +1660,9 @@ svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name(tvbuff_t *tvb _U_, int 
 static int
 svcctl_dissect_element_ENUM_SERVICE_STATUSW_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSW_service_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSW_service_name , 0);
+	}
 
 	return offset;
 }
@@ -1676,7 +1678,9 @@ svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name(tvbuff_t *tvb _U_, int 
 static int
 svcctl_dissect_element_ENUM_SERVICE_STATUSW_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSW_display_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSW_display_name , 0);
+	}
 
 	return offset;
 }
@@ -1740,7 +1744,9 @@ svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name(tvbuff_t *tvb _U_, int 
 static int
 svcctl_dissect_element_ENUM_SERVICE_STATUSA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSA_service_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSA_service_name , 0);
+	}
 
 	return offset;
 }
@@ -1756,7 +1762,9 @@ svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name(tvbuff_t *tvb _U_, int 
 static int
 svcctl_dissect_element_ENUM_SERVICE_STATUSA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSA_display_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_ENUM_SERVICE_STATUSA_display_name , 0);
+	}
 
 	return offset;
 }
@@ -4684,7 +4692,9 @@ svcctl_dissect_element_ChangeServiceConfigA_binary_path(tvbuff_t *tvb _U_, int o
 static int
 svcctl_dissect_element_ChangeServiceConfigA_binary_path_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_binary_path , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_binary_path , 0);
+	}
 
 	return offset;
 }
@@ -4700,7 +4710,9 @@ svcctl_dissect_element_ChangeServiceConfigA_load_order_group(tvbuff_t *tvb _U_, 
 static int
 svcctl_dissect_element_ChangeServiceConfigA_load_order_group_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_load_order_group , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_load_order_group , 0);
+	}
 
 	return offset;
 }
@@ -4732,7 +4744,9 @@ svcctl_dissect_element_ChangeServiceConfigA_dependencies(tvbuff_t *tvb _U_, int 
 static int
 svcctl_dissect_element_ChangeServiceConfigA_dependencies_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_dependencies , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_dependencies , 0);
+	}
 
 	return offset;
 }
@@ -4748,7 +4762,9 @@ svcctl_dissect_element_ChangeServiceConfigA_service_start_name(tvbuff_t *tvb _U_
 static int
 svcctl_dissect_element_ChangeServiceConfigA_service_start_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_service_start_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_service_start_name , 0);
+	}
 
 	return offset;
 }
@@ -4764,7 +4780,9 @@ svcctl_dissect_element_ChangeServiceConfigA_password(tvbuff_t *tvb _U_, int offs
 static int
 svcctl_dissect_element_ChangeServiceConfigA_password_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_password , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_password , 0);
+	}
 
 	return offset;
 }
@@ -4780,7 +4798,9 @@ svcctl_dissect_element_ChangeServiceConfigA_display_name(tvbuff_t *tvb _U_, int 
 static int
 svcctl_dissect_element_ChangeServiceConfigA_display_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_display_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_ChangeServiceConfigA_display_name , 0);
+	}
 
 	return offset;
 }
@@ -4988,7 +5008,9 @@ svcctl_dissect_element_CreateServiceA_dependencies_(tvbuff_t *tvb _U_, int offse
 static int
 svcctl_dissect_element_CreateServiceA_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_CreateServiceA_dependencies , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_CreateServiceA_dependencies , 0);
+	}
 
 	return offset;
 }
@@ -5910,7 +5932,9 @@ svcctl_dissect_element_GetServiceDisplayNameA_service_name(tvbuff_t *tvb _U_, in
 static int
 svcctl_dissect_element_GetServiceDisplayNameA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_GetServiceDisplayNameA_service_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_GetServiceDisplayNameA_service_name , 0);
+	}
 
 	return offset;
 }
@@ -6025,7 +6049,9 @@ svcctl_dissect_element_GetServiceKeyNameA_service_name(tvbuff_t *tvb _U_, int of
 static int
 svcctl_dissect_element_GetServiceKeyNameA_service_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_GetServiceKeyNameA_service_name , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_GetServiceKeyNameA_service_name , 0);
+	}
 
 	return offset;
 }
@@ -7422,7 +7448,9 @@ svcctl_dissect_element_CreateServiceWOW64A_dependencies_(tvbuff_t *tvb _U_, int 
 static int
 svcctl_dissect_element_CreateServiceWOW64A_dependencies__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_CreateServiceWOW64A_dependencies , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_svcctl_svcctl_CreateServiceWOW64A_dependencies , 0);
+	}
 
 	return offset;
 }
