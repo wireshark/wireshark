@@ -147,6 +147,7 @@ static int ett_catapult_dct2000_security_mode_params;
 static expert_field ei_catapult_dct2000_lte_ccpri_status_error;
 static expert_field ei_catapult_dct2000_error_comment_expert;
 static expert_field ei_catapult_dct2000_string_invalid;
+static expert_field ei_catapult_dct2000_malformed;
 
 static const value_string direction_vals[] = {
     { 0,   "Sent" },
@@ -327,6 +328,24 @@ static const value_string integrity_algorithm_vals[] = {
 
 #define MAX_OUTHDR_VALUES 32
 
+/* Copied into fp_info and used as loop counts and lengths by the FP
+   dissector, including when no protocol tree is built.
+   NumberOfTransportBlocks is at most 512 (3GPP 25.331). A transport
+   block is far smaller than 200000 bits, and that cap keeps
+   size + 7 from overflowing a signed int. PICH Np is at most 144. */
+#define DCT2000_MAX_FP_NUM_TBS     512
+#define DCT2000_MAX_FP_TF_BITS     200000
+#define DCT2000_MAX_FP_PAGING_BITS 1024
+
+static int
+fp_bounded_count(unsigned value, unsigned limit)
+{
+    if (value > limit) {
+        return (int)limit;
+    }
+    return (int)value;
+}
+
 static int proto_fp;
 static int proto_umts_rlc;
 
@@ -347,7 +366,7 @@ static dissector_handle_t eth_handle;
 static dissector_handle_t look_for_dissector(const char *protocol_name);
 static unsigned parse_outhdr_string(const char *outhdr_string, int outhdr_length, unsigned *outhdr_values);
 
-static void attach_fp_info(packet_info *pinfo, bool received,
+static bool attach_fp_info(packet_info *pinfo, bool received,
                            const char *protocol_name, int variant,
                            unsigned *outhdr_values, unsigned outhdr_values_found);
 static void attach_rlc_info(packet_info *pinfo, uint32_t urnti, uint8_t rbid,
@@ -423,24 +442,32 @@ static bool find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, uint8_t dir
             length = tvb_get_uint8(tvb, offset++);
 
             if (tag == 0x31 && length >=4) {
-                /* Remote IP address */
-                if (direction == 0) {
-                    /* Sent *to* remote, so dest */
-                    *dest_addr_offset = offset;
-                    *dest_addr_length = (length/4) * 4;
-                }
-                else {
-                    *source_addr_offset = offset;
-                    *source_addr_length = (length/4) * 4;
-                }
+                /* Remote IP address.  4 bytes is IPv4 and 16 is IPv6.
+                   A following UDP/TCP port makes the TLV 6 or 18 bytes.
+                   Any other multiple of 4 is not an address: storing it
+                   as AT_IPv6 with that length makes later address code
+                   read the wrong number of bytes. */
+                uint8_t addr_length = (uint8_t)((length / 4) * 4);
 
-                /* Remote port follows (if present) */
-                if ((length % 4) == 2) {
+                if (addr_length == 4 || addr_length == 16) {
                     if (direction == 0) {
-                        *dest_port_offset = offset + *dest_addr_length;
+                        /* Sent *to* remote, so dest */
+                        *dest_addr_offset = offset;
+                        *dest_addr_length = addr_length;
                     }
                     else {
-                        *source_port_offset = offset + *source_addr_length;
+                        *source_addr_offset = offset;
+                        *source_addr_length = addr_length;
+                    }
+
+                    /* Remote port follows (if present) */
+                    if ((length % 4) == 2) {
+                        if (direction == 0) {
+                            *dest_port_offset = offset + addr_length;
+                        }
+                        else {
+                            *source_port_offset = offset + addr_length;
+                        }
                     }
                 }
             }
@@ -1681,7 +1708,7 @@ static unsigned parse_outhdr_string(const char *outhdr_string, int outhdr_string
 
 /* Fill in an FP packet info struct and attach it to the packet for the FP
    dissector to use */
-static void attach_fp_info(packet_info *pinfo, bool received,
+static bool attach_fp_info(packet_info *pinfo, bool received,
                            const char *protocol_name, int variant,
                            unsigned *outhdr_values, unsigned outhdr_values_found)
 {
@@ -1694,7 +1721,7 @@ static void attach_fp_info(packet_info *pinfo, bool received,
     /* Only need to set info once per session. */
     struct fp_info *p_fp_info = (struct fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
     if (p_fp_info != NULL) {
-        return;
+        return true;
     }
 
     /* Allocate struct */
@@ -1704,7 +1731,7 @@ static void attach_fp_info(packet_info *pinfo, bool received,
     if (((strcmp(protocol_name, "fpiur_r5") == 0) && (outhdr_values_found != 2)) ||
         (outhdr_values_found < 5)) {
 
-        return;
+        return true;
     }
 
     /* 3gpp release (99, 4, 5, 6, 7) */
@@ -1730,9 +1757,9 @@ static void attach_fp_info(packet_info *pinfo, bool received,
         p_fp_info->release = 5;
     }
     else {
-        /* Really shouldn't get here */
-        DISSECTOR_ASSERT_NOT_REACHED();
-        return;
+        /* The caller matches every "fp_r*" name. fp_r9 and anything
+           other than the releases above used to hit the assert. */
+        return false;
     }
 
     /* Release date is derived from variant number */
@@ -1818,7 +1845,7 @@ static void attach_fp_info(packet_info *pinfo, bool received,
         /* Store info in packet */
         p_fp_info->iface_type = IuR_Interface;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, p_fp_info);
-        return;
+        return true;
     }
 
     /* DCH CRC present... */
@@ -1829,14 +1856,15 @@ static void attach_fp_info(packet_info *pinfo, bool received,
         p_fp_info->dch_crc_present = 2; /* unknown */
     }
 
-    /* How many paging indications (if PCH data) */
-    p_fp_info->paging_indications = outhdr_values[i++];
+    /* How many paging indications (if PCH data). The FP dissector
+       divides this by 8 and copies that many bytes. */
+    p_fp_info->paging_indications = fp_bounded_count(outhdr_values[i++],
+                                                     DCT2000_MAX_FP_PAGING_BITS);
 
-    /* Number of channels (for coordinated channels) */
-    p_fp_info->num_chans = outhdr_values[i++];
-    if (p_fp_info->num_chans > MAX_FP_CHANS) {
-        p_fp_info->num_chans = MAX_FP_CHANS;
-    }
+    /* Number of channels (for coordinated channels). Compare the
+       outhdr value before it is stored: a value above INT_MAX becomes
+       negative and would skip the cap. */
+    p_fp_info->num_chans = fp_bounded_count(outhdr_values[i++], MAX_FP_CHANS);
 
     /* EDCH-Common is always T2 */
     if (p_fp_info->channel == CHANNEL_EDCH_COMMON) {
@@ -1848,17 +1876,22 @@ static void attach_fp_info(packet_info *pinfo, bool received,
         tf_start = i;
         for (chan=0; chan < p_fp_info->num_chans; chan++) {
             if (outhdr_values_found > tf_start+chan) {
-                p_fp_info->chan_tf_size[chan] = outhdr_values[tf_start+chan];
+                p_fp_info->chan_tf_size[chan] =
+                    fp_bounded_count(outhdr_values[tf_start+chan],
+                                     DCT2000_MAX_FP_TF_BITS);
             } else {
                 p_fp_info->chan_tf_size[chan] = 0;
             }
         }
 
-        /* Number of TBs for each channel */
+        /* Number of TBs for each channel. dissect_tb_data() loops this
+           many times per channel even when no tree is built. */
         num_chans_start = tf_start + p_fp_info->num_chans;
         for (chan=0; chan < p_fp_info->num_chans; chan++) {
             if (outhdr_values_found > num_chans_start+chan) {
-                p_fp_info->chan_num_tbs[chan] = outhdr_values[num_chans_start+chan];
+                p_fp_info->chan_num_tbs[chan] =
+                    fp_bounded_count(outhdr_values[num_chans_start+chan],
+                                     DCT2000_MAX_FP_NUM_TBS);
             } else {
                 p_fp_info->chan_num_tbs[chan] = 0;
             }
@@ -1908,6 +1941,7 @@ static void attach_fp_info(packet_info *pinfo, bool received,
 
     /* Store info in packet */
     p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, p_fp_info);
+    return true;
 }
 
 
@@ -2374,6 +2408,48 @@ hex_from_char(char c)
     return 0xff;
 }
 
+/* Decode pairs of hex digits. An odd count, or a missing string, stops
+   at the terminating NUL instead of stepping over it. */
+static unsigned
+dct2000_hex_to_bytes(const char *hex, uint8_t *out, unsigned out_len)
+{
+    unsigned n = 0;
+
+    if (hex == NULL) {
+        return 0;
+    }
+    while (n < out_len && hex[0] != '\0' && hex[1] != '\0') {
+        out[n++] = (hex_from_char(hex[0]) << 4) + hex_from_char(hex[1]);
+        hex += 2;
+    }
+    return n;
+}
+
+/* The inner pseudo-header is filled in only for a real DCT2000 file.
+   An Exported PDU record that names this dissector has some other
+   pseudo-header (or none of this shape). */
+static bool
+dct2000_phdr_available(const packet_info *pinfo)
+{
+    return pinfo->rec != NULL &&
+           pinfo->rec->rec_type == REC_TYPE_PACKET &&
+           pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_CATAPULT_DCT2000 &&
+           pinfo->pseudo_header != NULL;
+}
+
+/* "key: " is a literal in the sscanf format, but a mismatch after the
+   conversions still returns the number of items assigned. */
+static char *
+dct2000_key_value(const char *string)
+{
+    const char *key = strstr(string, "key: ");
+
+    if (key == NULL) {
+        return NULL;
+    }
+    return g_strdup(key + 5);
+}
+
 
 /*****************************************/
 /* Main dissection function.             */
@@ -2537,9 +2613,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         outhdr_values_found = parse_outhdr_string(outhdr_string, outhdr_length,
                                                   outhdr_values);
-        if (ws_strtou32(variant_string, NULL, &variant))
-            attach_fp_info(pinfo, direction, protocol_name, variant,
-                           outhdr_values, outhdr_values_found);
+        if (ws_strtou32(variant_string, NULL, &variant)) {
+            if (!attach_fp_info(pinfo, direction, protocol_name, variant,
+                                outhdr_values, outhdr_values_found)) {
+                expert_add_info_format(pinfo, ti, &ei_catapult_dct2000_malformed,
+                                       "Unknown FP protocol \"%s\"", protocol_name);
+            }
+        }
         else
             expert_add_info(pinfo, ti, &ei_catapult_dct2000_string_invalid);
     }
@@ -2733,16 +2813,30 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
              * in the channel, and call the ISDN dissector rather
              * than the LAPD-with-pseudoheader dissector.
              */
-            protocol_handle = find_dissector("lapd-phdr");
-            protocol_data = &pinfo->pseudo_header->dct2000.inner_pseudo_header.isdn;
+            if (dct2000_phdr_available(pinfo)) {
+                protocol_handle = find_dissector("lapd-phdr");
+                protocol_data = &pinfo->pseudo_header->dct2000.inner_pseudo_header.isdn;
+            }
+            else {
+                /* lapd-phdr dereferences its data argument. Without a
+                   DCT2000 pseudo-header, dissect LAPD on its own. */
+                protocol_handle = find_dissector("lapd");
+            }
             break;
         case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
             protocol_handle = find_dissector("atm_untruncated");
-            protocol_data = &pinfo->pseudo_header->dct2000.inner_pseudo_header.atm;
+            if (dct2000_phdr_available(pinfo)) {
+                protocol_data = &pinfo->pseudo_header->dct2000.inner_pseudo_header.atm;
+            }
+            /* Otherwise leave protocol_data NULL. atm_untruncated
+               rejects that instead of reading the wrong header. */
             break;
         case WTAP_ENCAP_PPP:
             protocol_handle = find_dissector("ppp_hdlc");
-            pinfo->p2p_dir = pinfo->pseudo_header->p2p.sent;
+            /* The same bool wiretap stores in the p2p pseudo-header:
+               direction 0 is sent. Do not read the pseudo-header, which
+               is not a DCT2000 header for an Exported PDU record. */
+            pinfo->p2p_dir = (direction == 0);
             break;
         case DCT2000_ENCAP_SSCOP:
             protocol_handle = find_dissector("sscop");
@@ -2930,24 +3024,22 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     /* Store info in packet */
                     set_mac_nr_proto_data(pinfo, p_mac_nr_info);
 
-                    /* Payload is from $ to end of string */
-                    int data_offset = 0;
-                    for (unsigned int n=0; n < strlen(string); n++) {
-                        if (string[n] == '$') {
-                            data_offset = n;
-                            break;
-                        }
-                    }
+                    /* Payload is the hex after '$'. With no '$', data_offset
+                       used to stay 0 and the header text was decoded as
+                       hex. An odd number of digits stepped over the NUL
+                       and kept reading and writing. */
+                    const char *dollar = strchr(string, '$');
+                    const char *hex = (dollar != NULL) ? dollar + 1 : NULL;
+                    unsigned nbytes = (hex != NULL) ? (unsigned)strlen(hex) / 2 : 0;
+                    uint8_t *mac_data = NULL;
 
-                    /* Convert data to hex. */
-                    char *mac_data = (char *)wmem_alloc(pinfo->pool, 2 + (strlen(string)-data_offset)/2);
-                    int idx, m;
-                    for (idx=0, m=data_offset+1; string[m] != '\0'; m+=2, idx++) {
-                        mac_data[idx] = (hex_from_char(string[m]) << 4) + hex_from_char(string[m+1]);
+                    if (nbytes > 0) {
+                        mac_data = (uint8_t *)wmem_alloc(pinfo->pool, nbytes);
+                        dct2000_hex_to_bytes(hex, mac_data, nbytes);
                     }
 
                     /* Create tvb */
-                    tvbuff_t *mac_nr_tvb = tvb_new_child_real_data(tvb, (const uint8_t*)mac_data, idx, idx);
+                    tvbuff_t *mac_nr_tvb = tvb_new_child_real_data(tvb, mac_data, nbytes, nbytes);
                     add_new_data_source(pinfo, mac_nr_tvb, "MAC-NR Payload");
                     /* Call the dissector! */
                     call_dissector_only(mac_nr_handle, mac_nr_tvb, pinfo, tree, NULL);
@@ -2957,40 +3049,42 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 const char *nrup_pattern = "NRUP PDU: ";
                 char *start = strstr(string, nrup_pattern);
                 if (start) {
-                    int off = 0;
+                    const char *dollar = strchr(start, '$');
 
-                    while (start[off] && start[off] != '$') {
-                        off++;
+                    /* No '$' used to leave payload one past the NUL. */
+                    if (dollar == NULL) {
+                        expert_add_info_format(pinfo, string_ti, &ei_catapult_dct2000_malformed,
+                                               "NRUP PDU comment has no payload");
                     }
+                    else {
+                        const char *payload = dollar + 1;
 
-                    const char *payload = &start[off+1];
+                        /* Pad out to nearest 4 bytes if necessary. */
+                        /* Convert data to hex. */
+                        #define MAX_NRUP_DATA_LENGTH 200
+                        static uint8_t nrup_data[MAX_NRUP_DATA_LENGTH];
+                        int idx;
 
-                    /* Pad out to nearest 4 bytes if necessary. */
-                    /* Convert data to hex. */
-                    #define MAX_NRUP_DATA_LENGTH 200
-                    static uint8_t nrup_data[MAX_NRUP_DATA_LENGTH];
-                    int idx, m;
-
-                    /* The rest (or all) is data! */
-                    for (m=0, idx=0; payload[m] != '\0' && idx < MAX_NRUP_DATA_LENGTH-4; m+=2, idx++) {
-                        nrup_data[idx] = (hex_from_char(payload[m]) << 4) + hex_from_char(payload[m+1]);
-                    }
-                    length = idx;
-                    /* Pad out to nearest 4 bytes if necessary. */
-                    if (length % 4 != 0) {
-                        for (int p=length % 4; p < 4; p++) {
-                            nrup_data[length++] = '\0';
+                        /* The rest (or all) is data! */
+                        idx = (int)dct2000_hex_to_bytes(payload, nrup_data,
+                                                       MAX_NRUP_DATA_LENGTH - 4);
+                        length = idx;
+                        /* Pad out to nearest 4 bytes if necessary. */
+                        if (length % 4 != 0) {
+                            for (int p=length % 4; p < 4; p++) {
+                                nrup_data[length++] = '\0';
+                            }
                         }
+
+                        /* Create separate NRUP tvb */
+                        /* XXX - Should the reported length be based upon
+                         * strlen(payload) / 2 as we might have truncated? */
+                        tvbuff_t *nrup_tvb = tvb_new_child_real_data(tvb, nrup_data, length, length);
+                        add_new_data_source(pinfo, nrup_tvb, "NRUP Payload");
+
+                        /* Call the dissector! */
+                        call_dissector_only(nrup_handle, nrup_tvb, pinfo, tree, NULL);
                     }
-
-                    /* Create separate NRUP tvb */
-                    /* XXX - Should the reported length be based upon
-                     * strlen(payload) / 2 as we might have truncated? */
-                    tvbuff_t *nrup_tvb = tvb_new_child_real_data(tvb, nrup_data, length, length);
-                    add_new_data_source(pinfo, nrup_tvb, "NRUP Payload");
-
-                    /* Call the dissector! */
-                    call_dissector_only(nrup_handle, nrup_tvb, pinfo, tree, NULL);
                 }
 
                 /* Read key info from formatted lines */
@@ -2998,27 +3092,35 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 if (strstr(string, "setThreadAuthKey:")) {
                     unsigned ue_id, id, alg;
                     if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadAuthKey: RRC id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
-                        char *key = g_strdup(strstr(string, "key: ")+5);
-                        set_pdcp_nr_rrc_integrity_key(ue_id, key, pinfo->num);
-                        g_free(key);
+                        char *key = dct2000_key_value(string);
+                        if (key != NULL) {
+                            set_pdcp_nr_rrc_integrity_key(ue_id, key, pinfo->num);
+                            g_free(key);
+                        }
                     }
                     else if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadAuthKey: UP id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
-                        char *key = g_strdup(strstr(string, "key: ")+5);
-                        set_pdcp_nr_up_integrity_key(ue_id, key, pinfo->num);
-                        g_free(key);
+                        char *key = dct2000_key_value(string);
+                        if (key != NULL) {
+                            set_pdcp_nr_up_integrity_key(ue_id, key, pinfo->num);
+                            g_free(key);
+                        }
                     }
                 }
                 else if (strstr(string, "setThreadCryptKey:")) {
                     unsigned ue_id, id, alg;
                     if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadCryptKey: RRC id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
-                        char *key = g_strdup(strstr(string, "key: ")+5);
-                        set_pdcp_nr_rrc_ciphering_key(ue_id, key, pinfo->num);
-                        g_free(key);
+                        char *key = dct2000_key_value(string);
+                        if (key != NULL) {
+                            set_pdcp_nr_rrc_ciphering_key(ue_id, key, pinfo->num);
+                            g_free(key);
+                        }
                     }
                     else if (!PINFO_FD_VISITED(pinfo) && sscanf(string, "NRPDCP: RRCPRIM:ueId=   %u;setThreadCryptKey: UP id=%u alg %u key: ", &ue_id, &id, &alg) == 3) {
-                        char *key = g_strdup(strstr(string, "key: ")+5);
-                        set_pdcp_nr_up_ciphering_key(ue_id, key, pinfo->num);
-                        g_free(key);
+                        char *key = dct2000_key_value(string);
+                        if (key != NULL) {
+                            set_pdcp_nr_up_ciphering_key(ue_id, key, pinfo->num);
+                            g_free(key);
+                        }
                     }
                 }
 
@@ -3036,21 +3138,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     proto_tree_add_uint(tree, hf_catapult_dct2000_rawtraffic_direction,
                                         tvb, 0, 0, raw_direction == 'r');
 
-                    /* Payload is from $ to end of string */
-                    int data_offset = 0;
-                    for (unsigned int n=0; n < strlen(string); n++) {
-                        if (string[n] == '$') {
-                            data_offset = n;
-                            break;
-                        }
-                    }
-
-                    /* Convert data to hex. */
+                    /* Payload is the hex after '$'. An odd number of digits
+                       used to step over the NUL and keep reading. */
+                    const char *raw_dollar = strchr(string, '$');
                     static uint8_t eth_data[36000];
-                    int idx, m;
-                    for (idx=0, m=data_offset+1; idx<36000 && string[m] != '\0'; m+=2, idx++) {
-                        eth_data[idx] = (hex_from_char(string[m]) << 4) + hex_from_char(string[m+1]);
-                    }
+                    int idx = (int)dct2000_hex_to_bytes(raw_dollar != NULL ?
+                                                       raw_dollar + 1 : NULL,
+                                                       eth_data, 36000);
 
                     /* Create tvb */
                     tvbuff_t *raw_traffic_tvb = tvb_new_child_real_data(tvb, eth_data, idx, idx);
@@ -3138,13 +3232,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                     proto_tree *ipprim_tree;
                     proto_item *ipprim_ti;
-                    struct     e_in6_addr sourcev6, destv6;
+                    struct     e_in6_addr sourcev6 = {0}, destv6 = {0};
 
                     /* Fetch IPv6 addresses */
-                    if (source_addr_length != 4) {
+                    if (source_addr_length == 16) {
                         tvb_get_ipv6(tvb, source_addr_offset, &sourcev6);
                     }
-                    if (dest_addr_length != 4) {
+                    if (dest_addr_length == 16) {
                         tvb_get_ipv6(tvb, dest_addr_offset, &destv6);
                     }
 
@@ -3399,11 +3493,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             break;
 
         default:
-            /* !! If get here, there is a mismatch between
-               this dissector and the wiretap module catapult_dct2000.c !!
-            */
-            DISSECTOR_ASSERT_NOT_REACHED();
-            return 0;
+            /* The encapsulation byte is part of the record. Wiretap only
+               writes values it knows, but an Exported PDU payload can
+               carry any byte. Do not abort. */
+            expert_add_info_format(pinfo, ti, &ei_catapult_dct2000_malformed,
+                                   "Unknown encapsulation %d", encap);
+            break;
     }
 
     /* Set selection length of dct2000 tree */
@@ -3976,7 +4071,8 @@ void proto_register_catapult_dct2000(void)
     static ei_register_info ei[] = {
         { &ei_catapult_dct2000_lte_ccpri_status_error, { "dct2000.lte.ccpri.status.error", PI_SEQUENCE, PI_ERROR, "CCPRI Indication has error status", EXPFILL }},
         { &ei_catapult_dct2000_error_comment_expert, { "dct2000.error-comment.expert", PI_SEQUENCE, PI_ERROR, "Formatted expert comment", EXPFILL }},
-        { &ei_catapult_dct2000_string_invalid, { "dct2000.string.invalid", PI_MALFORMED, PI_ERROR, "String must contain an integer", EXPFILL }}
+        { &ei_catapult_dct2000_string_invalid, { "dct2000.string.invalid", PI_MALFORMED, PI_ERROR, "String must contain an integer", EXPFILL }},
+        { &ei_catapult_dct2000_malformed, { "dct2000.malformed", PI_MALFORMED, PI_ERROR, "Malformed DCT2000 record", EXPFILL }}
     };
 
     module_t *catapult_dct2000_module;
