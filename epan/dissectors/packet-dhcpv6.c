@@ -1539,6 +1539,7 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
                 proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_tld_lookup, tvb, first_lab_off, total_label_ascii_len+1);
 
                 num_labels = 0;
+                wmem_strbuf_truncate(decoded_name_buf, 0);
                 total_label_ascii_len = 0;
                 fqdn_seen = true;
                 continue;   /* This was only a COMMENT/WARNING so continue */
@@ -1550,6 +1551,7 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
              */
             proto_tree_add_string(subtree, hfindex, tvb, first_lab_off, total_label_ascii_len+1, decoded_name_buf->str);
             num_labels = 0;
+            wmem_strbuf_truncate(decoded_name_buf, 0);
             total_label_ascii_len = 0;
             fqdn_seen = true;
             continue;   /* Decode the next FQDN, if any */
@@ -1572,7 +1574,11 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
          * for more info.
          */
         if (offset + label_len - 1 == final_field_off) {
-            label_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, first_lab_off + 1, label_len, ENC_ASCII);
+            if (num_labels) {
+                wmem_strbuf_append_c(decoded_name_buf, '.');
+                total_label_ascii_len++;
+            }
+            label_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, label_len, ENC_ASCII);
             wmem_strbuf_append(decoded_name_buf, label_str);
             total_label_ascii_len += label_len;
             num_labels++;
@@ -1585,13 +1591,13 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item _U_, packet_info *pinfo, i
                 col_append_str(pinfo->cinfo, COL_INFO, " [PROTOCOL VIOLATION]");
 
                 exi = proto_tree_add_string_format(subtree, hf_dhcpv6_partial_name_preceded_by_fqdn,
-                        tvb, first_lab_off, label_len, decoded_name_buf->str,
+                        tvb, first_lab_off, total_label_ascii_len+1, decoded_name_buf->str,
                         "Partial name: %s\n"
                         "ERROR: A single or multi-part partial name must be the only name in "
                         "the domain field", decoded_name_buf->str);
                 ex_subtree = proto_item_add_subtree(exi, ett_clientfqdn_expert);
                 proto_tree_add_expert(ex_subtree, pinfo, &ei_dhcpv6_partial_name_preceded_by_fqdn,
-                    tvb, first_lab_off, label_len);
+                    tvb, first_lab_off, total_label_ascii_len+1);
                 return;
             }
 
@@ -1672,6 +1678,10 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
         suboptoff += subopt_len;
         break;
     case PKT_CCCV6_IETF_PROV_SRV:
+        if (subopt_len < 1) {
+            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
+            break;
+        }
         proto_tree_add_item_ret_uint8(pkt_s_tree, hf_packetcable_cccV6_prov_srv_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN, &type);
 
         /** Type 0 is FQDN **/
@@ -1680,11 +1690,12 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
 
             /** Type 1 is IPv6 **/
         } else if (type == 1) {
-            if ((subopt_len % 16) == 0) {
-                for (i = 0; i < subopt_len/16; i++) {
-                    proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_ipv6, tvb, suboptoff+1, 4, ENC_NA);
-                    suboptoff += 16;
+            if (((subopt_len - 1) % 16) == 0) {
+                for (i = 0; i < (subopt_len - 1)/16; i++) {
+                    proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_ipv6, tvb, suboptoff+1+16*i, 16, ENC_NA);
                 }
+            } else {
+                expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
             }
         } else {
             expert_add_info_format(pinfo, vti, &ei_dhcpv6_invalid_type, "Invalid type: %u (%u byte%s)",
@@ -1740,8 +1751,8 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
         suboptoff += subopt_len;
         break;
     case PKT_CCCV6_IETF_SEC_TKT:
-        proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
         if (subopt_len == 2) {
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm_provisioning_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm_call_manager_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
         } else {
@@ -1786,10 +1797,9 @@ dissect_cablelabs_specific_opts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     /* Enterprise */
     v_item = proto_tree_add_item(tree, hf_vendoropts_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
     off += 4;
-    len -= 4;
 
-    if (len > 4) {
-        while (off < len) {
+    if (len >= 8) {
+        while (off + 4 <= len) {
 
             /* Type */
             type = tvb_get_ntohs(tvb, off);
@@ -2188,12 +2198,16 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     {
         temp_optlen = 0;
         while (optlen > temp_optlen) {
+            if (optlen - temp_optlen < 2) {
+                expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "User Class: suboption too short");
+                break;
+            }
             subopt_len = tvb_get_ntohs(tvb,  off + temp_optlen);
-            if (subopt_len > optlen - temp_optlen) {
+            if (subopt_len + 2 > optlen - temp_optlen) {
                 expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "User Class: suboption too long");
                 break;
             }
-            subtree_2 = proto_tree_add_subtree(subtree, tvb, off+temp_optlen, subopt_len, ett_dhcpv6_userclass_option, &ti, "User Class suboption");
+            subtree_2 = proto_tree_add_subtree(subtree, tvb, off+temp_optlen, subopt_len + 2, ett_dhcpv6_userclass_option, &ti, "User Class suboption");
             proto_tree_add_item(subtree_2, hf_option_userclass_length, tvb, off + temp_optlen, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(subtree_2, hf_option_userclass_opaque_data, tvb, off + temp_optlen + 2, subopt_len, ENC_NA);
 
@@ -2208,9 +2222,13 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         temp_optlen = 0;
         while (optlen > temp_optlen) {
+            if (optlen - temp_optlen < 4) {
+                expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "NTP Server: suboption too short");
+                break;
+            }
             subopt_type = tvb_get_ntohs(tvb, off + temp_optlen);
             subopt_len = tvb_get_ntohs(tvb,  off + 2 + temp_optlen);
-            if (subopt_len > optlen - temp_optlen) {
+            if (subopt_len + 4 > optlen - temp_optlen) {
                 expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "NTP Server: suboption too long");
                 break;
             }
@@ -2221,9 +2239,17 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             temp_optlen += 4;
             switch (subopt_type) {
             case NTP_SUBOPTION_SRV_ADDR:
+                if (subopt_len != 16) {
+                    expert_add_info_format(pinfo, ti, &ei_dhcpv6_malformed_option, "NTP Server: address suboption is not 16 bytes long");
+                    break;
+                }
                 proto_tree_add_item(subtree_2, hf_option_ntpserver_addr,    tvb, off + temp_optlen, 16, ENC_NA);
                 break;
             case NTP_SUBOPTION_MC_ADDR:
+                if (subopt_len != 16) {
+                    expert_add_info_format(pinfo, ti, &ei_dhcpv6_malformed_option, "NTP Server: multicast address suboption is not 16 bytes long");
+                    break;
+                }
                 proto_tree_add_item(subtree_2, hf_option_ntpserver_mc_addr, tvb, off + temp_optlen, 16, ENC_NA);
                 break;
             case NTP_SUBOPTION_SRV_FQDN:
@@ -2518,8 +2544,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_item(subtree, hf_vendorclass_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
-        if (optlen > 4)
+        if (optlen > 6)
             proto_tree_add_item(subtree, hf_vendorclass_data, tvb, off+6, optlen-6, ENC_ASCII);
+        else if (optlen > 4)
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "VENDOR_CLASS: malformed option");
         break;
     case OPTION_VENDOR_OPTS:
     {
@@ -2533,10 +2561,20 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         // Find a per-vendor dissector or fallback to the generic-enterprise-dissector.
         if (!dissector_try_uint_with_data(dhcpv6_enterprise_opts_dissector_table, enterprise_no, opt_tvb, pinfo, subtree, false, &msgtype)) {
             proto_tree_add_item(subtree, hf_vendoropts_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
-            int optoffset = 0;
+            unsigned optoffset = 0;
 
-            while ((optlen - 4 - optoffset) > 0) {
-                int olen = tvb_get_ntohs(tvb, off + optoffset + 6);
+            while (optlen - 4 > optoffset) {
+                unsigned olen;
+
+                if (optlen - 4 - optoffset < 4) {
+                    expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "VENDOR_OPTS: suboption too short");
+                    break;
+                }
+                olen = tvb_get_ntohs(tvb, off + optoffset + 6);
+                if (olen > optlen - 8 - optoffset) {
+                    expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "VENDOR_OPTS: suboption too long");
+                    break;
+                }
                 subtree_2 = proto_tree_add_subtree(subtree, tvb, off + optoffset + 4,
                                          4 + olen, ett_dhcpv6_option_vsoption, NULL, "option");
                 proto_tree_add_item(subtree_2, hf_vendoropts_enterprise_option_code, tvb, off + optoffset + 4, 2, ENC_BIG_ENDIAN);
@@ -2968,9 +3006,13 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_BOOTFILE_PARAM:
         temp_optlen = 0;
-        while (tvb_reported_length_remaining(opt_tvb, temp_optlen)) {
+        while (optlen > temp_optlen) {
+            if (optlen - temp_optlen < 2) {
+                expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Boot file parameter: suboption too short");
+                break;
+            }
             subopt_len = tvb_get_ntohs(opt_tvb, temp_optlen);
-            if (subopt_len > optlen - temp_optlen) {
+            if (subopt_len + 2 > optlen - temp_optlen) {
                 expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Boot file parameter: suboption too long");
                 break;
             }
@@ -3003,8 +3045,12 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     case OPTION_IPV6_ADDRESS_MOS:
         temp_optlen = 0;
         while (optlen > temp_optlen) {
+            if (optlen - temp_optlen < 4) {
+                expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "MoS IPv6 Address: suboption too short");
+                break;
+            }
             subopt_len = tvb_get_ntohs(tvb, off + temp_optlen + 2);
-            if (subopt_len > optlen - temp_optlen) {
+            if (subopt_len + 4 > optlen - temp_optlen) {
                 expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "MoS IPv6 Address: suboption too long");
                 break;
             }
@@ -3014,7 +3060,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             }
             proto_tree_add_item(subtree, hf_mos_address_code, tvb, off + temp_optlen, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(subtree, hf_mos_address_len, tvb, off + temp_optlen + 2, 2, ENC_BIG_ENDIAN);
-            for (i = 0; i < (subopt_len - 4); i += 16) {
+            for (i = 0; i < subopt_len; i += 16) {
                 proto_tree_add_item(subtree, hf_mos_address_ipv6_addr, tvb, off + temp_optlen + 4 + i, 16, ENC_NA);
             }
 
@@ -3082,8 +3128,12 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     case OPTION_IPV6_FQDN_MOS:
         temp_optlen = 0;
         while (optlen > temp_optlen) {
+            if (optlen - temp_optlen < 4) {
+                expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "MoS IPv6 FQDN: suboption too short");
+                break;
+            }
             subopt_len = tvb_get_ntohs(tvb, off + temp_optlen + 2);
-            if (subopt_len > optlen - temp_optlen) {
+            if (subopt_len + 4 > optlen - temp_optlen) {
                 expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "MoS IPv6 FQDN: suboption too long");
                 break;
             }
@@ -3150,6 +3200,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         const char *dns_name;
         int dns_name_len;
 
+        if (optlen == 0) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
         get_dns_name(pinfo->pool, tvb, off, optlen, off, &dns_name, &dns_name_len);
         proto_tree_add_string(subtree, hf_option_failover_dns_hostname, tvb, off, optlen, format_text(pinfo->pool, dns_name, dns_name_len));
         break;
@@ -3159,6 +3213,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         const char *dns_name;
         int dns_name_len;
 
+        if (optlen == 0) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
         get_dns_name(pinfo->pool, tvb, off, optlen, off, &dns_name, &dns_name_len);
         proto_tree_add_string(subtree, hf_option_failover_dns_zonename, tvb, off, optlen, format_text(pinfo->pool, dns_name, dns_name_len));
         break;
