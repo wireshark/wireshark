@@ -1801,7 +1801,8 @@ blf_read_canmessage(blf_params_t *params, int *err, char **err_info, int64_t blo
     uint32_t canid;
     uint8_t  payload_length;
 
-    if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
+    /* The canheader is followed by 8 bytes, which need to be present! */
+    if (object_length < (data_start - block_start) + (int) sizeof(canheader) + 8) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = ws_strdup_printf("blf: %s: not enough bytes for can header in object",
                                     can_message2 ? "CAN_MESSAGE2" : "CAN_MESSAGE");
