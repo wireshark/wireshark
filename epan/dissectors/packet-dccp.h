@@ -83,6 +83,7 @@ typedef struct _e_dccphdr {
 typedef struct _dccp_flow_t {
 	uint8_t static_flags;   /* flags */
 	uint64_t base_seq;       /* base seq number (used by relative sequence numbers) */
+	uint32_t base_frame;     /* frame of the Request or Response that set base_seq */
 } dccp_flow_t;
 
 struct dccp_analysis {

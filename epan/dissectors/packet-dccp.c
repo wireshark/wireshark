@@ -599,7 +599,7 @@ static char *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo
         *stream = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_dccp_stream, curr_layer_num));
         if (*stream) {
             --*stream;
-            return ws_strdup_printf("dcp.stream eq %u", *stream);
+            return ws_strdup_printf("dccp.stream eq %u", *stream);
         }
      }
 
@@ -738,6 +738,25 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
 /*
  * This function dissects DCCP options
  */
+/* The sequence numbers of a flow are relative to its Request or Response,
+ * and only from that frame on, so that every pass shows the same numbers. */
+static void
+dccp_set_base_seq(dccp_flow_t *flow, const e_dccphdr *dccph, const packet_info *pinfo)
+{
+    if (!PINFO_FD_VISITED(pinfo) && !(flow->static_flags & DCCP_S_BASE_SEQ_SET) &&
+        (dccph->type == 0x0 || dccph->type == 0x1)) {
+        flow->base_seq = dccph->seq;
+        flow->base_frame = pinfo->num;
+        flow->static_flags |= DCCP_S_BASE_SEQ_SET;
+    }
+}
+
+static bool
+dccp_flow_base_set(const dccp_flow_t *flow, const packet_info *pinfo)
+{
+    return (flow->static_flags & DCCP_S_BASE_SEQ_SET) && pinfo->num >= flow->base_frame;
+}
+
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_options(tvbuff_t *tvb, packet_info *pinfo,
@@ -755,6 +774,7 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
     uint8_t     option_len  = 0;
     uint32_t    p;
     uint8_t     mp_option_type = 0;
+    int         mp_option_start;
 
     proto_item *option_item;
     proto_tree *option_tree;
@@ -801,6 +821,11 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
         case 33:
         case 34:
         case 35:
+            if (option_len < 1) {
+                expert_add_info_format(pinfo, option_item, &ei_dccp_option_len_bad,
+                                        "Missing feature number");
+                break;
+            }
             dissect_feature_options(option_tree, tvb, offset, option_len);
             break;
         case 36:
@@ -868,6 +893,13 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                                         "Wrong Data checksum length");
             break;
         case 46:
+            if (option_len < 1) {
+                /* option_len would wrap to 255 */
+                expert_add_info_format(pinfo, option_item, &ei_dccp_option_len_bad,
+                                        "Missing MP-DCCP option type");
+                break;
+            }
+            mp_option_start = offset;
             mp_option_type = tvb_get_uint8(tvb, offset);
             option_len -= 1;
             switch (mp_option_type) {
@@ -875,8 +907,9 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
 		    mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_confirm, tvb, offset, 1, ENC_BIG_ENDIAN);
                     mp_option_sub_tree = proto_item_add_subtree(mp_option_sub_item, ett_dccp_options_item);
                     offset += 1;
-                    // We recurse here, but we'll run out of packet before we run out of stack.
-                    dissect_options(tvb, pinfo, mp_option_sub_tree, tree, dccph, offset, offset + option_len);
+                    // We recurse here, but each level is inside the option of the level
+                    // above, which is at most 255 octets.
+                    dissect_options(tvb, pinfo, mp_option_sub_tree, tree, dccph, offset, MIN(offset + option_len, offset_end));
                     break;
                 case 1:
                     mp_option_sub_item = proto_tree_add_item(option_tree, hf_mpdccp_join, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -951,11 +984,11 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                     switch (option_len) {
                        case 5:
                           proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_BIG_ENDIAN);
                           break;
                        case 7:
                           proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrid,tvb,offset,1,ENC_BIG_ENDIAN);
-                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_LITTLE_ENDIAN);
+                          proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addr_dec,tvb,offset+1,4,ENC_BIG_ENDIAN);
                           proto_tree_add_item(mp_option_sub_tree,hf_mpdccp_addrport,tvb,offset+5,2,ENC_BIG_ENDIAN);
                           break;
                        case 17:// Check endianness for ipv6
@@ -1015,6 +1048,8 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                                    "MP-DCCP option [%u] not defined, [len: %u ]", mp_option_type, option_len);
                     break;
             }
+            /* Not every case above steps past the MP option type */
+            offset = mp_option_start + 1;
             break;
 
 
@@ -1035,7 +1070,7 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo,
                                         "Wrong CCID3 Loss Event Rate length");
             break;
         case 193: /* RFC 4342, 8.6 */
-            proto_tree_add_item(dccp_options_tree, hf_dccp_ccid3_loss_intervals, tvb, offset, option_len, ENC_NA);
+            proto_tree_add_item(option_tree, hf_dccp_ccid3_loss_intervals, tvb, offset, option_len, ENC_NA);
             /*
              * FIXME: not implemented and apparently not used by any
              * implementation so far
@@ -1181,7 +1216,9 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     len = tvb_captured_length(tvb);
     csum_coverage_len = dccp_csum_coverage(dccph, reported_len);
 
-    if (dccp_check_checksum && !pinfo->fragmented && len >= csum_coverage_len) {
+    /* The pseudo-header needs IP addresses, which an Exported PDU may not have */
+    if (dccp_check_checksum && !pinfo->fragmented && len >= csum_coverage_len &&
+        (pinfo->src.type == AT_IPv4 || pinfo->src.type == AT_IPv6 || pinfo->src.type == AT_ILNP_NID)) {
         /* We're supposed to check the checksum, and the packet isn't part
          * of a fragmented datagram and isn't truncated, so we can checksum it.
          * XXX - make a bigger scatter-gather list once we do fragment
@@ -1255,7 +1292,8 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         offset += 1;
 
         dccph->seq = tvb_get_ntoh48(tvb, offset);
-        if((dccp_relative_seq) && (dccpd->fwd->static_flags & DCCP_S_BASE_SEQ_SET)) {
+        dccp_set_base_seq(dccpd->fwd, dccph, pinfo);
+        if((dccp_relative_seq) && dccp_flow_base_set(dccpd->fwd, pinfo)) {
             seq = dccph->seq - dccpd->fwd->base_seq;
             proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_seq, tvb, offset, 6,
                                                seq, "%" PRIu64 "    (relative sequence number)", seq);
@@ -1275,7 +1313,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
         dccph->seq = tvb_get_ntoh24(tvb, offset);
         proto_tree_add_uint64(dccp_tree, hf_dccp_seq, tvb, offset, 3, dccph->seq);
-        if((dccp_relative_seq) && (dccpd->fwd->static_flags & DCCP_S_BASE_SEQ_SET)) {
+        if((dccp_relative_seq) && dccp_flow_base_set(dccpd->fwd, pinfo)) {
             seq = (dccph->seq - dccpd->fwd->base_seq) & 0xffffff;
             proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_seq, tvb, offset, 3,
                                                seq, "%" PRIu64 "    (relative sequence number)", seq);
@@ -1309,11 +1347,6 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         val_to_str(pinfo->pool, dccph->service_code, dccp_service_code_vals, "Unknown (%u)"));
         offset += 4; /* move offset past the service code */
 
-        if( !(dccpd->fwd->static_flags & DCCP_S_BASE_SEQ_SET) ) {
-            dccpd->fwd->base_seq = dccph->seq;
-            dccpd->fwd->static_flags |= DCCP_S_BASE_SEQ_SET;
-        }
-
         break;
     case 0x1: /* DCCP-Response */
         if (advertised_dccp_header_len < offset + 12) {
@@ -1333,7 +1366,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         dccph->ack <<= 32;
         dccph->ack += tvb_get_ntohl(tvb, offset + 4);
 
-        if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+        if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
             ack = dccph->ack - dccpd->rev->base_seq;
         }
         else {
@@ -1341,7 +1374,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
 
         if (tree) {
-            if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+            if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
                 proto_tree_add_uint64(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6, ack);
             }
             proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 2, 6, dccph->ack);
@@ -1357,11 +1390,6 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         val_to_str(pinfo->pool, dccph->service_code, dccp_service_code_vals, "Unknown (%u)"));
 
         offset += 4; /* move offset past the service code */
-
-        if( !(dccpd->fwd->static_flags & DCCP_S_BASE_SEQ_SET) ) {
-            dccpd->fwd->base_seq = dccph->seq;
-            dccpd->fwd->static_flags |= DCCP_S_BASE_SEQ_SET;
-        }
 
         break;
     case 0x2: /* DCCP-Data */
@@ -1388,7 +1416,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             dccph->ack <<= 32;
             dccph->ack += tvb_get_ntohl(tvb, offset + 4);
 
-            if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+            if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
                 ack = dccph->ack - dccpd->rev->base_seq;
             }
             else {
@@ -1396,7 +1424,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
 
             if (tree) {
-                if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+                if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
                     proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6,
                                                        ack, "%" PRIu64 "    (relative acknowledgement number)", ack);
                 }
@@ -1423,7 +1451,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             dccph->ack <<= 16;
             dccph->ack += tvb_get_ntohs(tvb, offset + 2);
 
-            if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+            if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
                 ack = (dccph->ack - dccpd->rev->base_seq) & 0xffffff;
             }
             else {
@@ -1431,7 +1459,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
 
             if (tree) {
-                if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
+                if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
                     proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3,
                                                        ack, "%" PRIu64 "    (relative acknowledgement number)", ack);
                 }
@@ -1442,10 +1470,10 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
         break;
     case 0x7: /* DCCP-Reset */
-        if (advertised_dccp_header_len < offset + 4) {
+        if (advertised_dccp_header_len < offset + 12) {
             expert_add_info_format(pinfo, offset_item, &ei_dccp_advertised_header_length_bad,
                 "Advertised header length (%u) is smaller than the minimum (%u) for Reset",
-                advertised_dccp_header_len, offset + 4);
+                advertised_dccp_header_len, offset + 12);
             return tvb_reported_length(tvb);
         }
         dccph->ack_reserved = tvb_get_ntohs(tvb, offset);
@@ -1461,19 +1489,19 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         dccph->ack <<= 32;
         dccph->ack += tvb_get_ntohl(tvb, offset + 4);
 
-        if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
-            ack = (dccph->ack - dccpd->rev->base_seq) & 0xffffff;
+        if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
+            ack = dccph->ack - dccpd->rev->base_seq;
         }
         else {
             ack = dccph->ack;
         }
 
         if (tree) {
-            if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
-                proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3,
+            if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
+                proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6,
                                                     ack, "%" PRIu64 "    (relative acknowledgement number)", ack);
             }
-            proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 1, 3, dccph->ack);
+            proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 2, 6, dccph->ack);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", ack);
         offset += 8; /* move offset past the Ack. Number Subheader */
@@ -1521,19 +1549,19 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         dccph->ack <<= 32;
         dccph->ack += tvb_get_ntohl(tvb, offset + 4);
 
-        if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
-            ack = (dccph->ack - dccpd->rev->base_seq) & 0xffffff;
+        if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
+            ack = dccph->ack - dccpd->rev->base_seq;
         }
         else {
             ack = dccph->ack;
         }
 
         if (tree) {
-            if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
-                proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3,
+            if((dccp_relative_seq) && dccp_flow_base_set(dccpd->rev, pinfo)) {
+                proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6,
                                                     ack, "%" PRIu64 "    (relative acknowledgement number)", ack);
             }
-            proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 1, 3, dccph->ack);
+            proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 2, 6, dccph->ack);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", ack);
         offset += 8; /* move offset past the Ack. Number Subheader */
