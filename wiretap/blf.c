@@ -2263,7 +2263,24 @@ blf_read_canxlchannelframe(blf_params_t *params, int *err, char **err_info, int6
         bool canfd = canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_FDF;
         uint8_t canfd_flags = 0;
 
+        if (object_length < (data_start - block_start) + (int)sizeof(canxlheader) + payload_length) {
+            ws_debug("shortening canxl for can/canfd payload because buffer is too short.");
+            object_length = (data_start - block_start) + (int)sizeof(canxlheader) + payload_length;
+        }
+
         if (canfd) {
+            if (payload_length > 64) {
+                ws_debug("CANFD should not have payload_length > 64. Shortening!");
+                payload_length = 64;
+            }
+
+            if (canxlheader.dlc > 0x0f) {
+                ws_debug("CANFD should not have DLC > 0x0f.");
+            } else if (payload_length > canfd_dlc_to_length[canxlheader.dlc]) {
+                ws_debug("CANFD payload_length and DLC not compatible!");
+            }
+
+
             if ((canxlheader.flags & BLF_CANXLCHANNELFRAME_FLAG_BRS) == BLF_CANXLCHANNELFRAME_FLAG_BRS) {
                 canfd_flags |= CANFD_BRS;
             }
@@ -2274,8 +2291,15 @@ blf_read_canxlchannelframe(blf_params_t *params, int *err, char **err_info, int6
                 canfd_flags |= CANFD_FDF;
             }
         } else {
+            if (payload_length > 8) {
+                ws_debug("Regular CAN should not have payload_length > 8. Shortening!");
+                payload_length = 8;
+            }
+
             if (canxlheader.dlc > 8) {
                 ws_debug("Regular CAN should not have DLC > 8.");
+            } else if (payload_length != canxlheader.dlc) {
+                ws_debug("CAN payload_length and DLC not compatible!");
             }
 
             canfd_flags = 0;
