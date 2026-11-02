@@ -40566,3 +40566,107 @@ class TestDissectDect:
             'X-CRC Match (Calc:00, Recv:00)',
             'X-CRC Match (Calc:00, Recv:00)',
         ]
+
+
+class TestDissectDectDlc:
+    def test_dect_dlc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DECT-DLC over DECT-MITEL-ETH (ethertype 0xA000)
+        and none is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_dlc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 29
+        assert all(l.startswith('DECT-DLC\teth:ethertype:dect_mitel_eth:dect_dlc') for l in lines)
+        assert sum(l.endswith(':dect_nwk') for l in lines) == 11
+        assert sum(l.endswith(':data') for l in lines) == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_dlc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dect_dlc_retransmission(self, cmd_tshark, capture_file, test_env):
+        '''A retransmitted I frame (frame 2, the N(S) of frame 1) is left out
+        of the reassembly in one pass and in two passes: it is neither a
+        fragment nor in the reassembled message of frame 3. In two passes it
+        used to show as a fragment.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_dlc_coverage.pcap.gz'),
+                    '-Y', 'frame.number <= 3',
+                    '-Tfields', '-eframe.number', '-edect_dlc.control.n_s',
+                    '-edect_dlc.fragment_data', '-edect_dlc.fragment',
+                    '-edect_dlc.reassembled.length', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+            assert stdout.splitlines() == [
+                '1\t0\t1\t\t\tI, N(R)=0, N(S)=0 (Fragment)',
+                '2\t0\t\t\t\tI, N(R)=0, N(S)=0',
+                '3\t1\t\t1,3\t18\tI, N(R)=0, N(S)=1(NWK) MM-AUTH-REQ ',
+            ]
+        assert outputs[0] == outputs[1]
+
+    def test_dect_dlc_frames(self, cmd_tshark, capture_file, test_env):
+        '''Address, control and length fields, the direction (LC_DATA_REQ is
+        sent, LC_DATA_IND received) deciding command or response,
+        reassembly of segmented I frames and the SAPI deciding the next
+        dissector. The same in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_dlc_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-edect_mitel_eth.prim',
+                    '-edect_dlc.nlf', '-edect_dlc.lln', '-edect_dlc.sapi',
+                    '-edect_dlc.cr', '-edect_dlc.m', '-edect_dlc.length',
+                    '-edect_dlc.fragment', '-edect_dlc.reassembled.length',
+                    '-edect_nwk.pdisc', '-edata.len', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        assert outputs[0].splitlines()[3:] == [
+            '4\t0x06\t0\t1\t0\t0\t0\t20\t\t\t0x00\t\tU F, func=SABM(NWK) LCE-PAGE-RESPONSE ',
+            '5\t0x05\t0\t1\t0\t1\t0\t0\t\t\t\t\tU F, func=UA',
+            '6\t0x06\t0\t1\t0\t0\t0\t22\t\t\t0x03\t\tI, N(R)=0, N(S)=0(NWK) CC-SETUP ',
+            '7\t0x05\t0\t1\t0\t0\t0\t0\t\t\t\t\tS, func=RR, N(R)=1',
+            '8\t0x06\t0\t1\t0\t0\t1\t60\t\t\t\t\tI, N(R)=0, N(S)=1 (Fragment)',
+            '9\t0x06\t0\t1\t0\t0\t1\t60\t\t\t\t\tI, N(R)=0, N(S)=2 (Fragment)',
+            '10\t0x06\t0\t1\t0\t0\t0\t3\t8,9,10\t123\t0x03\t\tI, N(R)=0, N(S)=3(NWK) CC-INFO ',
+            '11\t0x05\t0\t1\t0\t0\t0\t0\t\t\t\t\tS P, func=RNR, N(R)=4',
+            '12\t0x06\t0\t1\t0\t0\t0\t0\t\t\t\t\tS F, func=RR, N(R)=1',
+            '13\t0x05\t0\t1\t0\t1\t0\t0\t\t\t\t\tS, func=REJ, N(R)=4',
+            '14\t0x05\t0\t1\t0\t0\t0\t2\t\t\t0x03\t\tI, N(R)=4, N(S)=0(NWK) CC-CONNECT ',
+            '15\t0x05\t0\t1\t0\t0\t0\t4\t\t\t0x03\t\tI P, N(R)=4, N(S)=1(NWK) CC-RELEASE-COM ',
+            '16\t0x06\t0\t1\t0\t1\t0\t0\t\t\t\t\tS, func=RR, N(R)=3',
+            '17\t0x05\t0\t1\t0\t0\t0\t0\t\t\t\t\tU P, func=DISC',
+            '18\t0x06\t0\t1\t0\t0\t0\t0\t\t\t\t\tU F, func=DM',
+            '19\t0x06\t1\t0\t0\t0\t0\t20\t\t\t0x05\t\tI, N(R)=0, N(S)=0(NWK) MM-LOCATE-REQUEST ',
+            '20\t0x05\t0\t2\t0\t1\t0\t2\t\t\t0x03\t\tI, N(R)=1, N(S)=0(NWK) CC-CONNECT ',
+            '21\t0x06\t0\t0\t0\t0\t0\t2\t\t\t0x03\t\tI, N(R)=1, N(S)=1(NWK) CC-CONNECT ',
+            '22\t0x05\t0\t7\t3\t1\t0\t9\t\t\t0x06\t\tU, func=UI(NWK) CLMS-VARIABLE ',
+            '23\t0x06\t0\t7\t3\t0\t0\t9\t\t\t0x06\t\tU, func=UI(NWK) CLMS-VARIABLE ',
+            '24\t0x05\t0\t3\t1\t1\t0\t4\t\t\t\t4\tU, func=UI',
+            '25\t0x05\t0\t4\t2\t1\t0\t3\t\t\t\t3\tI, N(R)=0, N(S)=0',
+            '26\t0x06\t0\t5\t2\t1\t0\t2\t\t\t\t2\tU P, func=UI',
+            '27\t0x05\t0\t6\t2\t1\t1\t20\t\t\t\t\tI, N(R)=0, N(S)=1 (Fragment)',
+            '28\t0x05\t0\t6\t2\t1\t0\t10\t27,28\t30\t\t30\tI, N(R)=0, N(S)=2',
+            '29\t0x06\t0\t7\t0\t0\t0\t0\t\t\t\t\tU F, func=UA',
+        ]
+
+    def test_dect_dlc_reassembled_message(self, cmd_tshark, capture_file, test_env):
+        '''The CC-INFO reassembled from frames 8-10 carries the whole 110
+        character display text and the portable identity after it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_dlc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 10',
+                '-Tfields', '-edect_nwk.s.ie.multi_display.information',
+                '-edect_nwk.s.ie.portable_identity.ipei',
+            ), encoding='utf-8', env=test_env)
+        text, ipei = stdout.rstrip('\n').split('\t')
+        assert text == ('Synthetic DECT DLC segmentation test, three frames long. ' * 2)[:110]
+        assert ipei == '305419896'  # 0x12345678
