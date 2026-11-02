@@ -40670,3 +40670,224 @@ class TestDissectDectDlc:
         text, ipei = stdout.rstrip('\n').split('\t')
         assert text == ('Synthetic DECT DLC segmentation test, three frames long. ' * 2)[:110]
         assert ipei == '305419896'  # 0x12345678
+
+
+class TestDissectDectMitelEth:
+    def test_dect_mitel_eth_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DECT-MITEL-ETH (three carry a DECT DLC/NWK
+        message) and none is malformed or has an expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 80
+        assert protocols.count('MI-DECToE') == 77
+        assert protocols.count('DECT-DLC') == 3
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_eth',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 80
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dect_mitel_eth_rfpc_item_after_item(self, cmd_tshark, capture_file, test_env):
+        '''An RFPI item with a length of 2 (its decoder steps over 5
+        octets) is followed by the next item at the end of its length
+        (before the fix the later items were parsed from the wrong offset
+        and the frame was malformed). An item longer than its decoded
+        contents (frame 34) also ends where its length says.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'frame.number in {34, 35, 74}',
+                '-Tfields', '-eframe.number', '-e_ws.malformed',
+                '-edect_mitel_eth.rfpc.item.type',
+                '-edect_mitel_eth.rfpc.item.length',
+                '-edect_mitel_eth.rfpc.item.value',
+                '-edect_mitel_eth.rfpc.rfp_pli.length_indicator',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '34\t\t0x27\t0x03\t\t20',
+            '35\t\t0x14,0x21\t0x00,0x01\t<MISSING>,01\t',
+            '74\t\t0x04,0x01,0x26\t0x02,0x02,0x01\t0010,00\t',
+        ]
+
+    def test_dect_mitel_eth_rfpc(self, cmd_tshark, capture_file, test_env):
+        '''Every RFPc message type and the decoded items.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_eth.rfpc.message_type',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = [l.strip() for l in stdout.splitlines()]
+        assert info[0:27] == ['RFPc: ' + t for t in (
+            'READY_IND', 'INIT_REQ', 'INIT_CFM', 'SARI_LIST_REQ',
+            'CHANGE_HIGHER_LAYER_CAPABILITIES_REQ',
+            'CHANGE_HIGHER_LAYER_CAPABILITIES_CFM',
+            'CHANGE_STATUS_INFO_REQ', 'CHANGE_STATUS_INFO_CFM',
+            'ACTIVATE_REQ', 'ACTIVATE_CFM', 'DEACTIVATE_REQ',
+            'DEACTIVATE_CFM', 'RESET_REQ', 'STATISTICS_DATA_REQ',
+            'STATISTICS_DATA_CFM', 'ERROR_IND', 'TO_RFP_IND', 'TO_RFP_REQ',
+            'TOPO_DATA_REQ', 'TOPO_DATA_IND', 'BMC_RESTART_REQ',
+            'CHANGE_MASTER_REQ', 'INFO_IND', 'ACTIVE_IND', 'ACTIVE_RES',
+            'PAGING_QUEUE_OVERFLOW_IND', 'Unknown 0x7e')]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields',
+                '-edect_mitel_eth.rfpc.revision.generation',
+                '-edect_mitel_eth.rfpc.revision.boot_software',
+                '-edect_mitel_eth.rfpc.revision.prog_software',
+                '-edect_mitel_eth.rfpc.revision.hardware',
+                '-edect_mitel_eth.rfpc.rfpi.ari_class',
+                '-edect_mitel_eth.rfpc.higher_layer_capabilities.flags',
+                '-edect_mitel_eth.rfpc.extended_capabilities.wireless_relay_stations',
+                '-edect_mitel_eth.rfpc.extended_capabilities.flags',
+                '-edect_mitel_eth.rfpc.mac_capabilities.flags',
+                '-edect_mitel_eth.rfpc.rfp_pli.length_indicator',
+                '-edect_mitel_eth.rfpc.extended_capabilities2.mac_capability.flags',
+                '-edect_mitel_eth.rfpc.extended_capabilities2.flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split('\t') == [
+            '0x05', '0x0102', '0x0304', '0x0506', '0x01', '0xfffe', '60',
+            '0x1f0fffff', '0x0dffff', '31', '0x0fe1', '0xfff83c']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_eth.rfpc.statistic_data.good_frames',
+                '-Tfields',
+                '-edect_mitel_eth.rfpc.statistic_data.bmc_connections_1_3',
+                '-edect_mitel_eth.rfpc.statistic_data.bmc_channels_7_8',
+                '-edect_mitel_eth.rfpc.statistic_data.lost_connections',
+                '-edect_mitel_eth.rfpc.statistic_data.mac_reset',
+                '-edect_mitel_eth.rfpc.statistic_data.reject_dummy',
+                '-edect_mitel_eth.rfpc.statistic_data.bad_frames',
+                '-edect_mitel_eth.rfpc.statistic_data.good_frames',
+                '-edect_mitel_eth.rfpc.statistic_data.handoff_timer',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split('\t') == [
+            '256', '263', '7', '3', '2', '12', '123456', '90']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 28 && frame.number <= 33',
+                '-Tfields',
+                '-edect_mitel_eth.rfpc.extended_capabilities2.dprs_data_category',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['0x%06x' % c for c in range(6)]
+
+    def test_dect_mitel_eth_primitives(self, cmd_tshark, capture_file, test_env):
+        '''The Lc and MAC primitives with their MCEI, Mt items, Sync, an
+        unknown layer and a length below 3.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 36 && frame.number <= 72',
+                '-Tfields', '-eframe.number', '-edect_mitel_eth.layer',
+                '-edect_mitel_eth.prim', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines[0:19] == [
+            '36\t0x7a\t0x01\tMAC_CON_IND MCEI=21',
+            '37\t0x7a\t0x01\tMAC_CON_IND MCEI=22',
+            '38\t0x79\t0x05\tU, func=UI(NWK) CC-RELEASE-COM',
+            '39\t0x79\t0x06\tU, func=UI(NWK) MM-LOCATE-REQUEST',
+            '40\t0x79\t0x07\tLC_DTR_IND MCEI=21',
+            '41\t0x7a\t0x08\tMAC_PAGE_REQ',
+            '42\t0x7a\t0x09\tMAC_ENC_KEY_REQ MCEI=21',
+            '43\t0x7a\t0x0a\tMAC_ENC_EKS_IND MCEI=21',
+            '44\t0x7a\t0x0a\tMAC_ENC_EKS_IND MCEI=21',
+            '45\t0x7a\t0x0a\tMAC_ENC_EKS_IND MCEI=21',
+            '46\t0x7a\t0x0b\tMAC_HO_IN_PROGRESS_IND MCEI=21',
+            '47\t0x7a\t0x0c\tMAC_HO_IN_PROGRESS_RES MCEI=21',
+            '48\t0x7a\t0x0d\tMAC_HO_FAILED_IND MCEI=21',
+            '49\t0x7a\t0x1c\tMAC_INFO_IND MCEI=21',
+            '50\t0x7a\t0x1f\tMAC_CLEAR_DEF_CKEY_REQ',
+            '51\t0x7a\t0x02\tMAC_DIS_REQ MCEI=21',
+            '52\t0x7a\t0x03\tMAC_DIS_IND MCEI=21',
+            '53\t0x7a\t0x03\tMAC_DIS_IND MCEI=21',
+            '54\t0x7a\t0x03\tMAC_DIS_IND MCEI=21',
+        ]
+        assert lines[32:] == [
+            '68\t0x7a\t0x7f\tUnknown 0x7f',
+            '69\t0x7c\t0x01\tMAC_CON_IND',
+            '70\t0x7d\t0x01\tMAC_CON_IND',
+            '71\t0x7b\t0x02\tMAC_DIS_REQ',
+            '72',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 36 && frame.number <= 69',
+                '-Tfields', '-eframe.number', '-edect_mitel_eth.pmid',
+                '-edect_mitel_eth.mac_con_ind.flags.handover',
+                '-edect_mitel_eth.subfield',
+                '-edect_mitel_eth.mac_page_req.flags',
+                '-edect_mitel_eth.mac.enc_key_req.key',
+                '-edect_mitel_eth.mac.enc_key_req.id',
+                '-edect_mitel_eth.mac.enc_eks_ind.type',
+                '-edect_mitel_eth.mac.enc_eks_ind.id',
+                '-edect_mitel_eth.mac.enc_eks_ind.ppn',
+                '-edect_mitel_eth.mac.ho_in_progress_res.key',
+                '-edect_mitel_eth.mac.ho_in_progress_res.id',
+                '-edect_mitel_eth.mac.ho_failed_ind.reason',
+                '-edect_mitel_eth.mac_dis_ind.reason',
+                '-edect_mitel_eth.mt.item.key',
+                '-edect_mitel_eth.mt.item.length',
+                '-edect_mitel_eth.mt.item.value',
+            ), encoding='utf-8', env=test_env)
+        fields = {int(l.split('\t')[0]): [f for f in l.split('\t')[1:] if f]
+                  for l in stdout.splitlines()}
+        assert fields[36] == ['0x000123', 'True']
+        assert fields[37] == ['0x000456', 'False']
+        assert fields[38] == ['0x01']
+        assert fields[39] == ['0x00']
+        assert fields[40] == ['0x01']
+        assert fields[41] == ['0x42']
+        assert fields[42] == ['0x0011223344556677', '0x05']
+        assert fields[43] == ['0x01']
+        assert fields[44] == ['0x02', '0x07', '0x1234']
+        assert fields[45] == ['0x09']
+        assert fields[46] == ['0x000123']
+        assert fields[47] == ['0x8899aabbccddeeff', '0x03']
+        assert fields[48] == ['0x01']
+        assert fields[50] == ['0x000123']
+        assert [fields[n] for n in (52, 53, 54)] == [['0x01'], ['0x02'], ['0x03']]
+        assert fields[69] == ['0x10,0x11,0x12', '3,0,1', '010203,<MISSING>,ff']
+
+    def test_dect_mitel_eth_dlc(self, cmd_tshark, capture_file, test_env):
+        '''LC_DATA_REQ and LC_DATA_IND hand their payload to DECT DLC and
+        NWK, also when carried over TCP in DECT-MITEL-RFP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'dect_dlc',
+                '-Tfields', '-eframe.number', '-edect_mitel_eth.mcei',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines()] == [
+            '38\t0x21\tU, func=UI(NWK) CC-RELEASE-COM',
+            '39\t0x21\tU, func=UI(NWK) MM-LOCATE-REQUEST',
+            '78\t0x30\tU, func=UI(NWK) CC-RELEASE-COM',
+        ]
+
+    def test_dect_mitel_eth_over_rfp(self, cmd_tshark, capture_file, test_env):
+        '''In DECT-MITEL-RFP ETH messages there is no length field.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_eth_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_rfp',
+                '-Tfields', '-eframe.number', '-edect_mitel_rfp.message.type',
+                '-edect_mitel_eth.length', '-edect_mitel_eth.layer',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines()] == [
+            '75\t0x0301\t\t0x78\tRFPc: INIT_REQ',
+            '76\t0x0301\t\t0x78\tRFPc: READY_IND',
+            '77\t0x0301\t\t0x7a\tMAC_CON_IND MCEI=30',
+            '78\t0x0301\t\t0x79\tU, func=UI(NWK) CC-RELEASE-COM',
+            '79\t0x0301\t\t0x7a\tMAC_DIS_IND MCEI=30',
+            '80\t0x0301\t\t0x78\tRFPc: RESET_REQ',
+        ]
