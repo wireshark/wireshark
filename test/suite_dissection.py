@@ -38354,3 +38354,172 @@ class TestDissectDcerpcSpoolss:
         assert returned == '16000'
         assert offsets.split(',')[:3] == ['2', '4294967292', '4294967288']
         assert len(offsets.split(',')) == 16000
+
+
+class TestDissectDcerpcSrvsvc:
+    # The arms of the info level unions, as srvsvc.srvsvc_<union>.<prefix><level>
+    SRVSVC_ARMS = {
+        'NetCharDevCtr': ('ctr', (0, 1)),
+        'NetCharDevInfo': ('info', (0, 1)),
+        'NetCharDevQCtr': ('ctr', (0, 1)),
+        'NetCharDevQInfo': ('info', (0, 1)),
+        'NetConnCtr': ('ctr', (0, 1)),
+        'NetFileCtr': ('ctr', (2, 3)),
+        'NetFileInfo': ('info', (2, 3)),
+        'NetSessCtr': ('ctr', (0, 1, 2, 10, 502)),
+        'NetShareCtr': ('ctr', (0, 1, 2, 501, 502, 1004, 1005, 1006, 1007, 1501)),
+        # info1501 is a sec_desc_buf, which srvsvc.cnf shows without its field
+        'NetShareInfo': ('info', (0, 1, 2, 501, 502, 1004, 1005, 1006, 1007)),
+        'NetSrvInfo': ('info', (100, 101, 102, 402, 403, 502, 503, 599, 1005,
+                                1010, 1016, 1017, 1018, 1107, 1501, 1502, 1503,
+                                1506, 1509, 1510, 1511, 1512, 1513, 1514, 1515,
+                                1516, 1518, 1520, 1521, 1522, 1523, 1524, 1525,
+                                1528, 1529, 1530, 1533, 1534, 1535, 1536, 1537,
+                                1538, 1539, 1540, 1541, 1542, 1543, 1544, 1545,
+                                1546, 1547, 1548, 1549, 1550, 1552, 1553, 1554,
+                                1555, 1556)),
+        'NetTransportCtr': ('ctr', (0, 1, 2, 3)),
+        'NetTransportInfo': ('info', (0, 1, 2, 3)),
+    }
+
+    def test_srvsvc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and calls, and no malformed packets or warnings
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_srvsvc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 1010
+        assert protocols.count('SRVSVC') == 986
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_srvsvc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_srvsvc_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_srvsvc_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t4b324fc8-1670-01d3-1278-5a47bf6ee188\t3\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t4b324fc8-1670-01d3-1278-5a47bf6ee188\t3\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t4b324fc8-1670-01d3-1278-5a47bf6ee188\t3\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_srvsvc_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum has a request and a response (except the response of
+        NetPathCanonicalize, 31) in NDR little and big endian and NDR64,
+        plus the unknown opnum 54 in the first connection.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_srvsvc_coverage.pcap.gz'),
+                '-Y', 'srvsvc',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type', '-esrvsvc.opnum',
+            ), encoding='utf-8', env=test_env)
+        seen = {}
+        for line in stdout.splitlines():
+            stream, ptype, opnum = line.split('\t')
+            seen.setdefault((stream, ptype), set()).add(int(opnum))
+        everything = set(range(54))
+        assert seen[('0', '0')] == everything | {54}
+        assert seen[('0', '2')] == (everything - {31}) | {54}
+        for stream in ('1', '2'):
+            assert seen[(stream, '0')] == everything
+            assert seen[(stream, '2')] == everything - {31}
+
+    def test_srvsvc_union_arms(self, cmd_tshark, capture_file, test_env):
+        '''Every arm of every info level union (NetShareInfo, NetShareCtr,
+        NetSessCtr, NetFileInfo, NetSrvInfo, ...) in each of the three
+        encodings.'''
+        fields = ['srvsvc.srvsvc_%s.%s%d' % (union, prefix, level)
+                  for union, (prefix, levels) in self.SRVSVC_ARMS.items()
+                  for level in levels]
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        for stream in range(3):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_srvsvc_coverage.pcap.gz'),
+                    '-Y', 'tcp.stream == %d' % stream,
+                    '-Tfields', '-Eoccurrence=f', *args,
+                ), encoding='utf-8', env=test_env)
+            seen = set()
+            for line in stdout.splitlines():
+                for field, value in zip(fields, line.split('\t')):
+                    if value:
+                        seen.add(field)
+            assert sorted(set(fields) - seen) == []
+
+    def test_srvsvc_share_1501(self, cmd_tshark, capture_file, test_env):
+        '''NetShareEnumAll at level 1501 with an array of three security
+        descriptors, laid out like the reproducer of "SRVSVC: Do not loop
+        on a security descriptor length that wraps": each descriptor is
+        dissected with its own length, and the fields after the array
+        follow it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_srvsvc_coverage.pcap.gz'),
+                '-Y', 'srvsvc.srvsvc_NetShareCtr1501.count == 3',
+                '-Tfields', '-Eoccurrence=a', '-Eaggregator=,',
+                '-eframe.number', '-esrvsvc.srvsvc_NetShareInfoCtr.level',
+                '-esrvsvc.sec_desc_buf_len', '-ent.sec_desc.revision',
+                '-ent.sid', '-ent.ace.type',
+                '-esrvsvc.srvsvc_NetShareEnumAll.max_buffer',
+                '-esrvsvc.srvsvc_NetShareEnumAll.totalentries',
+                '-esrvsvc.srvsvc_NetShareEnumAll.resume_handle',
+                '-esrvsvc.werror',
+            ), encoding='utf-8', env=test_env)
+        sids = ('S-1-5-32-544,S-1-5-18,S-1-1-0,S-1-1-0,S-1-5-18,'
+                'S-1-5-32-544,S-1-1-0,S-1-5-18,'
+                'S-1-5-32-544,S-1-5-18,S-1-1-0,S-1-1-0,S-1-5-18')
+        aces = '2,0,1,0,1,2,0,1'
+        assert stdout.splitlines() == [
+            '410\t1501\t124,84,124\t1,1,1\t%s\t%s\t4294967295\t\t\t' % (sids, aces),
+            '411\t1501\t124,84,124\t1,1,1\t%s\t%s\t\t3\t3\t0x00000000' % (sids, aces),
+        ]
+
+    def test_srvsvc_file_security(self, cmd_tshark, capture_file, test_env):
+        '''NetGetFileSecurity responses with a security descriptor, in all
+        three encodings (the descriptor itself is always little endian).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_srvsvc_coverage.pcap.gz'),
+                '-Y', 'srvsvc.opnum == 39 && dcerpc.pkt_type == 2',
+                '-Tfields', '-Eoccurrence=a', '-Eaggregator=,',
+                '-etcp.stream', '-esrvsvc.sec_desc_buf_len',
+                '-ent.sec_desc.type.sacl_present', '-ent.sid',
+                '-esrvsvc.werror',
+            ), encoding='utf-8', env=test_env)
+        full = 'S-1-5-32-544,S-1-5-18,S-1-1-0,S-1-1-0,S-1-5-18'
+        assert stdout.splitlines() == [
+            '0\t124\tTrue\t%s\t0x00000000' % full,
+            '0\t84\tFalse\tS-1-5-32-544,S-1-1-0,S-1-5-18\t0x00000005',
+            '1\t124\tTrue\t%s\t0x00000000' % full,
+            '2\t124\tTrue\t%s\t0x00000000' % full,
+        ]
+
+    def test_srvsvc_server_info(self, cmd_tshark, capture_file, test_env):
+        '''NetSrvGetInfo level 101: the server type flags read by the
+        browser dissector, in all three encodings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_srvsvc_coverage.pcap.gz'),
+                '-Y', 'srvsvc.srvsvc_NetSrvInfo.info101',
+                '-Tfields', '-etcp.stream',
+                '-esrvsvc.srvsvc_NetSrvInfo101.platform_id',
+                '-esrvsvc.srvsvc_NetSrvInfo101.server_name',
+                '-ebrowser.server_type', '-esrvsvc.srvsvc_NetSrvInfo101.comment',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t600\tserver_name5\t0x0000000b\tcomment6\tNetSrvGetInfo response, Error: WERR_ACCESS_DENIED',
+            '1\t300\tserver_name3\t0x00009003\tcomment4\tNetSrvGetInfo response, Error: WERR_INVALID_PARAMETER',
+            '2\t600\tserver_name9\t0x0000000b\tcomment0\tNetSrvGetInfo response, Error: WERR_ACCESS_DENIED',
+        ]
