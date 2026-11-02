@@ -219,14 +219,15 @@ IWbemLevel1Login_dissect_element_IWbemServices_services(tvbuff_t *tvb _U_, unsig
 	return offset;
 }
 static unsigned
-IWbemLevel1Login_dissect_element_IWbemServices_services_(tvbuff_t *tvb, unsigned offset, unsigned length _U_, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep _U_)
+IWbemLevel1Login_dissect_element_IWbemServices_services_(tvbuff_t *tvb, unsigned offset, unsigned length, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, uint8_t *drep _U_)
 {
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	sub_item = proto_tree_add_item(tree, hf_IWbemLevel1Login_WBEMLogin_ppNamespace, tvb, offset, 0, ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_IWbemLevel1Login_IWbemServices);
-	offset = dissect_dcom_OBJREF(tvb, offset, pinfo, sub_tree, di, drep, hf_IWbemLevel1Login_WBEMLogin_ppNamespace, NULL);
-	return offset;
+	dissect_dcom_OBJREF(tvb, offset, pinfo, sub_tree, di, drep, hf_IWbemLevel1Login_WBEMLogin_ppNamespace, NULL);
+	/* The OBJREF can be shorter than the array that holds it */
+	return offset + length;
 }
 
 
