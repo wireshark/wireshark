@@ -58,7 +58,7 @@ static bool parse(ems_line *line, ems_msg_t *msg) {
     int i;
 
     // try to parse for L1
-    i = sscanf((char *)line, "%03u %02u %02u %02u %02u %02u %02u %u %64c",
+    i = sscanf((char *)line, "%03u %02u %02u %02u %02u %02u %02u %2u %64c",
                 &msg->prn,
                 &msg->year,
                 &msg->month,

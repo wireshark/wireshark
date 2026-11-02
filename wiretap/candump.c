@@ -103,8 +103,19 @@ candump_parse(wtap *wth, FILE_T fh, wtap_can_msg_t *msg, int64_t *offset,
 
         if (tokens[0] == NULL)
             break;
-        if (sscanf(tokens[0], "(%d.%d)", &secs, &nsecs) != 2)
-            break;
+        /* Parse "(secs.nsecs)" timestamp format */
+        {
+            const char *p = tokens[0];
+            const char *end;
+            if (*p != '(')
+                break;
+            p++;
+            if (!ws_strtoi(p, &end, &secs) || *end != '.')
+                break;
+            p = end + 1;
+            if (!ws_strtoi(p, &end, &nsecs) || *end != ')')
+                break;
+        }
 
         msg->ts.secs = secs;
         msg->ts.nsecs = nsecs*1000;

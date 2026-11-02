@@ -15,6 +15,7 @@
 #include "file_wrappers.h"
 
 #include "logcat.h"
+#include <wsutil/strtoi.h>
 
 struct dumper_t {
     int type;
@@ -165,19 +166,29 @@ static void get_time(char *string, wtap_rec *rec) {
     struct tm date;
     time_t seconds;
 
-    if (6 == sscanf(string, "%d-%d %d:%d:%d.%d", &date.tm_mon, &date.tm_mday, &date.tm_hour,
-                    &date.tm_min, &date.tm_sec, &ms)) {
-        date.tm_year = 70;
-        date.tm_mon -= 1;
-        date.tm_isdst = -1;
-        seconds = mktime(&date);
-        rec->ts.secs = seconds;
-        rec->ts.nsecs = (int) (ms * 1e6);
-        rec->presence_flags = WTAP_HAS_TS;
-    } else {
-        rec->presence_flags = 0;
-        rec->ts.secs = (time_t) 0;
-        rec->ts.nsecs = 0;
+    /* Parse "MM-DD HH:MM:SS.mmm" timestamp */
+    {
+        const char *p = string;
+        const char *end;
+        bool ok = ws_strtoi(p, &end, &date.tm_mon)  && *end == '-' &&
+                  ws_strtoi(end+1, &end, &date.tm_mday) && *end == ' ' &&
+                  ws_strtoi(end+1, &end, &date.tm_hour) && *end == ':' &&
+                  ws_strtoi(end+1, &end, &date.tm_min)  && *end == ':' &&
+                  ws_strtoi(end+1, &end, &date.tm_sec)  && *end == '.' &&
+                  ws_strtoi(end+1, NULL, &ms);
+        if (ok) {
+            date.tm_year = 70;
+            date.tm_mon -= 1;
+            date.tm_isdst = -1;
+            seconds = mktime(&date);
+            rec->ts.secs = seconds;
+            rec->ts.nsecs = (int) (ms * 1e6);
+            rec->presence_flags = WTAP_HAS_TS;
+        } else {
+            rec->presence_flags = 0;
+            rec->ts.secs = (time_t) 0;
+            rec->ts.nsecs = 0;
+        }
     }
 }
 

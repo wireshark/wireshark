@@ -21,6 +21,7 @@
 
 #include "wtap_module.h"
 #include "file_wrappers.h"
+#include <wsutil/strtoi.h>
 
 #define MAX_FIRST_LINE_LENGTH      200
 #define MAX_TIMESTAMP_LINE_LENGTH  100
@@ -729,8 +730,31 @@ bool get_file_time_stamp(const char* linebuff, time_t *secs, uint32_t *usecs)
 
     /********************************************************/
     /* Scan for remaining numerical fields                  */
-    scan_found = sscanf(linebuff+n, "%d, %d     %d:%d:%d.%u",
-                        &day, &year, &hour, &minute, &second, usecs);
+    /* Parse "day, year     hour:minute:second.usecs" */
+    {
+        const char *p = linebuff + n;
+        const char *end;
+        bool ok;
+
+        ok = ws_strtoi(p, &end, &day) && *end == ',';
+        if (ok) {
+            /* skip ", " and any following whitespace run */
+            p = end + 1;
+            while (*p == ' ')
+                p++;
+            ok = ws_strtoi(p, &end, &year) && *end == ' ';
+        }
+        if (ok) {
+            while (*end == ' ')
+                end++;
+            p = end;
+            ok = ws_strtoi(p, &end, &hour)   && *end == ':' &&
+                 ws_strtoi(end + 1, &end, &minute) && *end == ':' &&
+                 ws_strtoi(end + 1, &end, &second) && *end == '.' &&
+                 ws_strtou32(end + 1, NULL, usecs);
+        }
+        scan_found = ok ? 6 : 0;
+    }
     if (scan_found != 6)
     {
         /* Give up if not all found */

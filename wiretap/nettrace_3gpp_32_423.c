@@ -31,6 +31,7 @@
 #include "wsutil/tempfile.h"
 #include "wsutil/os_version_info.h"
 #include "wsutil/str_util.h"
+#include <wsutil/strtoi.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/ws_assert.h>
 #include <libxml/tree.h>
@@ -382,7 +383,16 @@ nettrace_parse_msg_attributes(xmlNodePtr msg_element,
 
 			xmlChar* str_time = xmlNodeListGetString(msg_element->doc, attr->children, 1);
 			if (str_time != NULL) {
-				scan_found = sscanf((const char*)str_time, "%u.%u", &second, &ms);
+				scan_found = 0;
+				{
+					const char *p = (const char*)str_time;
+					const char *end;
+					if (ws_strtou(p, &end, &second) && *end == '.') {
+						p = end + 1;
+						if (ws_strtou(p, &end, &ms))
+							scan_found = 2;
+					}
+				}
 				if (scan_found == 2) {
 					unsigned start_ms = start_time.nsecs / 1000000;
 					unsigned elapsed_ms = start_ms + ms;
