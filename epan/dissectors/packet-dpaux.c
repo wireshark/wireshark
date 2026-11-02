@@ -170,31 +170,34 @@ dissect_dpaux_from_source(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     uint8_t mot = tvb_get_bits8(tvb, 1, 1);
     uint8_t cmd = tvb_get_bits8(tvb, 2, 2);
     uint32_t addr = tvb_get_bits32(tvb, 4, 20, ENC_BIG_ENDIAN);
-    uint8_t len = tvb_get_uint8(tvb, 3) + 1;
+    unsigned len = tvb_get_uint8(tvb, 3) + 1;
     bool is_read = cmd & 0x1;
 
-    conversation_t *conversation = NULL;
-    struct dpaux_transaction *transaction = NULL;
+    /* Remember the request for the reply, on the first pass only */
+    if (!PINFO_FD_VISITED(pinfo)) {
+        conversation_t *conversation;
+        struct dpaux_transaction *transaction;
 
-    conversation = conversation_new(pinfo->num,  &pinfo->src, &pinfo->dst,
-        CONVERSATION_NONE, pinfo->srcport, pinfo->destport, 0);
+        conversation = conversation_new(pinfo->num,  &pinfo->src, &pinfo->dst,
+            CONVERSATION_NONE, pinfo->srcport, pinfo->destport, 0);
 
-    transaction = wmem_new(wmem_file_scope(), struct dpaux_transaction);
-    transaction->is_native = type;
-    transaction->addr = addr;
+        transaction = wmem_new(wmem_file_scope(), struct dpaux_transaction);
+        transaction->is_native = type;
+        transaction->addr = addr;
 
-    conversation_add_proto_data(conversation, proto_dpaux, (void *)transaction);
+        conversation_add_proto_data(conversation, proto_dpaux, (void *)transaction);
+    }
 
     proto_tree_add_uint(tree, hf_dpaux_transaction_type, tvb, 0, 0,
         type ? DPAUX_TRANSACTION_NATIVE : DPAUX_TRANSACTION_I2C_OVER_AUX);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                transaction->is_native ? "Native" : "I2C-over-AUX");
+                type ? "Native" : "I2C-over-AUX");
     col_set_str(pinfo->cinfo, COL_INFO, is_read ? "RD" : "WR");
     col_append_fstr(pinfo->cinfo, COL_INFO, " %u byte%s %s 0x%05x",
         len, len > 1 ? "s" : "", is_read ? "FROM" : "TO", addr);
 
-    if (transaction->is_native) {
+    if (type) {
         proto_tree_add_uint(tree, hf_dpaux_native_req_cmd, tvb, 0, 1, cmd);
     } else {
         proto_tree_add_uint(tree, hf_dpaux_i2c_req_cmd, tvb, 0, 1, cmd);
@@ -213,8 +216,9 @@ dissect_dpaux_from_source(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_dpaux_from_sink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    uint8_t cmd = tvb_get_bits8(tvb, 2, 2);
-    uint8_t len = (tvb_reported_length(tvb) > 1) ? tvb_reported_length(tvb) -1 : 0;
+    /* Reply command: I2C-over-AUX reply in bits 7:6, AUX reply in bits 5:4 */
+    uint8_t cmd = tvb_get_bits8(tvb, 0, 4);
+    unsigned len = (tvb_reported_length(tvb) > 1) ? tvb_reported_length(tvb) -1 : 0;
     conversation_t *conversation = NULL;
     struct dpaux_transaction *transaction = NULL;
     proto_item *ti;
@@ -261,7 +265,9 @@ dissect_dpaux_from_sink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO, " with %u byte%s", len,
                             len > 1 ? "s" : "");
         }
-        proto_tree_add_uint(tree, hf_dpaux_len, tvb, 3, 1, len);
+        /* A reply has no length field, the length is that of the data */
+        ti = proto_tree_add_uint(tree, hf_dpaux_len, tvb, 0, 0, len);
+        proto_item_set_generated(ti);
         proto_tree_add_item(tree, hf_dpaux_data, tvb, 1, len, ENC_NA);
 
         if (transaction && transaction->is_native) {
@@ -392,7 +398,7 @@ proto_register_dpaux(void)
         { &hf_dpaux_reply_cmd, { "Reply Command", "dpaux.reply_cmd", FT_UINT8, BASE_DEC, VALS(convert_reply_cmd), 0, NULL, HFILL } },
         { &hf_dpaux_mot, { "MOT (Middle-of-Transaction)", "dpaux.mot", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_dpaux_addr, { "Address", "dpaux.addr", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_dpaux_len, { "Data Length", "dpaux.len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_dpaux_len, { "Data Length", "dpaux.len", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_dpaux_data, { "Data", "dpaux.data", FT_BYTES, SEP_SPACE, NULL, 0, NULL, HFILL } },
         { &hf_dpaux_reg_addr, { "DPCD", "dpaux.reg", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL } },
 
