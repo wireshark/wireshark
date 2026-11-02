@@ -41165,3 +41165,216 @@ class TestDissectDectMitelRfp:
             '149\t\t0x79\tU, func=UI(NWK) CC-RELEASE-COM',
             '150\t\t0x7a\tMAC_DIS_REQ MCEI=21',
         ]
+
+
+class TestDissectDectNr:
+    '''DECT NR+ (LINKTYPE 301) synthetic coverage capture.'''
+
+    def test_dect_nr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DECT NR+ and none is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 81
+        assert all(p.startswith('DECT NR+') for p in protocols)
+        assert protocols.count('DECT NR+/IPv6') == 1
+        assert protocols.count('DECT NR+/IPv6/IPv6/data') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dect_nr_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes give the same Long RD IDs, address
+        columns, HPCs and CVG/DLC payloads in every frame. The Long RD
+        IDs used to be learned on every pass, so a frame saw the IDs from
+        later frames, and two complete SDUs with the same SN in one frame
+        lost their payload on the second pass.'''
+        fields = ('-e_ws.col.def_src', '-e_ws.col.def_dst',
+                  '-edect_nr.mac.hdr.data.rx_addr', '-edect_nr.mac.hdr.data.tx_addr',
+                  '-edect_nr.mac.msi.hpc', '-edect_nr.dlc.data',
+                  '-edect_nr.cvg.data.payload', '-edect_nr.cvg.data_transparent.payload',
+                  '-edata.data', '-edect_nr.undecoded', '-e_ws.col.info')
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', *fields,
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
+
+    def test_dect_nr_long_rd_id(self, cmd_tshark, capture_file, test_env):
+        '''A Data MAC header before the Unicast header that maps its Short
+        RD IDs shows the broadcast address and no address columns, in one
+        and two passes (frame 1, dect_nr_rdid_twopass); after it, the Long
+        RD IDs are known (frame 3 and 31).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {1,2,3,31}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.def_src', '-e_ws.col.def_dst',
+                    '-edect_nr.mac.hdr.data.rx_addr', '-edect_nr.mac.hdr.data.tx_addr',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\t\t\t0xffffffff\t0xffffffff',
+                '2\t0x01020304\t0x0a0b0c0d\t\t',
+                '3\t0x01020304\t0x0a0b0c0d\t0x0a0b0c0d\t0x01020304',
+                '31\t0x30303002\t0x30303001\t0x30303001\t0x30303002',
+            ]
+
+    def test_dect_nr_same_sn(self, cmd_tshark, capture_file, test_env):
+        '''Two complete CVG Data IEs (frame 3) and two complete DLC SDUs
+        (frame 4) with the same sequence number keep both payloads in one
+        and two passes (dect_nr_cvg_same_sn).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {3,4}',
+                    '-Tfields', '-eframe.number', '-edect_nr.cvg.data.payload',
+                    '-edect_nr.cvg.data_transparent.payload', '-edata.data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '3\t41414141,4242424242424242\t\t41414141,4242424242424242',
+                '4\t\t43434343,4444444444444444\t43434343,4444444444444444',
+            ]
+
+    def test_dect_nr_arq_fb_reserved(self, cmd_tshark, capture_file, test_env):
+        '''An ARQ Feedback IE whose second entry has reserved feedback info
+        is not malformed: the undecoded item ends with the IE
+        (dect_nr_arq_fb_reserved_len). Frame 70 has every feedback info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5,70}',
+                '-Tfields', '-eframe.number', '-edect_nr.cvg.arq_fb.info',
+                '-edect_nr.undecoded', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t0,6\t0000\t',
+            '70\t0,1,2,3,4,5\t\t',
+        ]
+
+    def test_dect_nr_mac_messages(self, cmd_tshark, capture_file, test_env):
+        '''MAC messages and IEs in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 24 && frame.number <= 41',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0:8] == [
+            '24\tCluster Beacon message (1500 ms, Next channel: 1677), Random Access Resource IE, Neighbouring IE',
+            '25\tCluster Beacon message (100 ms), Random Access Resource IE, Random Access Resource IE',
+            '26\tAssociation Request message (Association to request new set of flows), RD Capability IE (Num PHY: 1), RD Capability Short IE, Radio Device Status IE (Memory Full)',
+            '27\tAssociation Request message (Initial association), RD Capability IE (Num PHY: 0)',
+            '28\tAssociation Response message (Accepted), Resource Allocation IE, Group Assignment IE, Association Control IE',
+            '29\tAssociation Response message (Rejected cause: Non-secured Association Requests not accepted)',
+            '30\tAssociation Response message (Accepted)',
+            '31\tAssociation Release message (Long inactivity), Application Sequence Number IE',
+        ]
+        assert lines[11] == '35\tRoute Info IE, Source Routing IE, Joining Beacon message, Joining Information IE, Access Token IE, Load Info IE, Load Info IE' + ', Measurement Report IE' * 6
+        assert lines[13] == '37\tBroadcast Indication IE (RA Response to 0x3002), Broadcast Indication IE (RA Response to 0x30303002), Broadcast Indication IE (RA Response to 0x30303002), Broadcast Indication IE (RA Response to 0x3002), Broadcast Indication IE (Paging to 0x30303002)'
+        assert lines[15] == '39\tPadding IE, Configuration Request IE, 0 byte IE type 17, Padding IE, Escape, Additional MAC message, Escape, IE type extension, Padding IE, Group Assignment IE, Padding IE'
+        assert lines[17] == '41\tReserved, IE type 30, 1 byte IE type 5, Route Info IE'
+
+    def test_dect_nr_phf(self, cmd_tshark, capture_file, test_env):
+        '''Type 1 and type 2 Physical Header Fields and every feedback
+        format.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 6 && frame.number <= 20',
+                '-Tfields', '-eframe.number', '-edect_nr.phf.receiver_id',
+                '-edect_nr.phf.fb_format', '-edect_nr.conv_index',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == [str(n) for n in range(6, 21)]
+        # Type 1: no receiver ID and no conversation
+        assert lines[0][1:] == ['', '', '']
+        assert lines[1][1:] == ['', '', '']
+        assert [l[2] for l in lines[2:]] == ['0', '1', '2', '3', '4', '5', '6', '7', '7', '15', '9', '1', '4']
+        # Broadcast receiver: no conversation
+        assert lines[14][1] == '0xffff' and lines[14][3] == ''
+
+    def test_dect_nr_security(self, cmd_tshark, capture_file, test_env):
+        '''The HPC of the MAC Security Info IE is kept per conversation and
+        incremented when the PSN wraps (frames 48 and 57); without cipher
+        keys the PDUs stay encrypted.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 46 && frame.number <= 57',
+                '-Tfields', '-eframe.number', '-edect_nr.mac.msi.hpc', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '46\t0x00000100\tMAC Security Info IE [No Cipher Key #0]',
+            '47\t0x00000100\t[No Cipher Key #0]',
+            '48\t0x00000101\t[No Cipher Key #0]',
+            '49\t0x00000101\t[No Cipher Key #0]',
+            '50\t0x00000201\tMAC Security Info IE [No Cipher Key #1]',
+            '51\t0x00000202\tMAC Security Info IE [No Cipher Key #2]',
+            '52\t0x00000203\tMAC Security Info IE [No Cipher Key #3]',
+            '53\t0x00000300\tMAC Security Info IE [Unknown Security Version 1]',
+            '54\t0x00000400\tMAC Security Info IE [No Cipher Key #0]',
+            '55\t\t[Missing Security Info IE]',
+            '56\t\tPadding IE',
+            '57\t0x00000204\t[No Cipher Key #3]',
+        ]
+
+    def test_dect_nr_security_prefs(self, cmd_tshark, capture_file, test_env):
+        '''With "Handle MAC PDUs as decrypted" the IEs and the MIC are
+        decoded; a cipher key that is not hex or not an AES-128 key is
+        reported.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'dect_nr.mac_pdus_decrypted:TRUE',
+                '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {46,47,55}',
+                '-Tfields', '-eframe.number', '-edect_nr.mac.mic_bytes', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '46\t4d49432121\tMAC Security Info IE, Association Release message (Mobility), Application Sequence Number IE',
+            '47\t4d49432121\tAssociation Release message (Mobility), Application Sequence Number IE',
+            '55\t4d49432121\tAssociation Release message (Mobility), Application Sequence Number IE',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'dect_nr.cipher_key_1:xyz', '-o', 'dect_nr.cipher_key_2:0011',
+                '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {50,51}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '50\tMAC Security Info IE [Illegal Cipher Key #1]',
+            '51\tMAC Security Info IE [Decryption failed]',
+        ]
+
+    def test_dect_nr_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Segmented DLC SDUs (service types 3, 2 with routing header, and
+        6) and segmented CVG Data and Data EP IEs are reassembled; the
+        reassembled Data EP IE is IPv6.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                '-Y', 'dect_nr.dlc.reassembled.length || dect_nr.cvg.reassembled.length',
+                '-Tfields', '-eframe.number', '-edect_nr.dlc.reassembled.length',
+                '-edect_nr.cvg.reassembled.length', '-edect_nr.cvg.data_transparent.payload',
+                '-edata.data', '-eipv6.dst',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '65\t38\t\t303132333435363738396162636465666768696a6b6c6d6e6f707172737475767778797a\t303132333435363738396162636465666768696a6b6c6d6e6f707172737475767778797a\t',
+            '67\t22\t\t524f555445442d5345474d454e5445442d534455\t524f555445442d5345474d454e5445442d534455\t',
+            '69\t21\t\t7472616e73706172656e74\t7472616e73706172656e74\t',
+            '78\t\t17\t\t66697273742d6d6964646c652d6c617374\t',
+            '80\t\t40\t\t\tfe80::2',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dect_nr_coverage.pcap.gz'),
+                '-Y', 'dect_nr.dlc.reassembled.in || dect_nr.cvg.reassembled.in',
+                '-Tfields', '-eframe.number', '-edect_nr.dlc.reassembled.in',
+                '-edect_nr.cvg.reassembled.in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '63\t65\t', '64\t65\t', '66\t67\t', '68\t69\t',
+            '76\t\t78', '77\t\t78', '79\t\t80',
+        ]
