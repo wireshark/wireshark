@@ -1500,6 +1500,9 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
     uint8_t abort_source;
     uint8_t abort_reason;
 
+    /* The items end pdu_len octets after the start of the PDU body */
+    uint32_t pdu_body_start = offset;
+
     assoc_header_ptree = proto_tree_add_subtree(tree, tvb, offset, pdu_len, ett_assoc_header, &assoc_header_pitem, "Association Header");
 
     switch (pdu_type) {
@@ -1538,7 +1541,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
         buf_desc = wmem_strdup_printf(pinfo->pool, "A-ASSOCIATE request %s --> %s",
             assoc->ae_calling, assoc->ae_called);
 
-        offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc, offset, pdu_len-offset);
+        offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc, offset, pdu_body_start + pdu_len - offset);
 
         break;
     case 2:                                     /* Association Accept */
@@ -1561,7 +1564,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ui
         buf_desc = wmem_strdup_printf(pinfo->pool, "A-ASSOCIATE accept  %s <-- %s",
             assoc->ae_calling_resp, assoc->ae_called_resp);
 
-        offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc, offset, pdu_len-offset);
+        offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc, offset, pdu_body_start + pdu_len - offset);
 
         break;
     case 3:                                     /* Association Reject */
@@ -3358,11 +3361,13 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         */
 
         /* Store SOP Class and Instance UID in first PDV of this object */
+        /* The displayed value of a known UID has its name after it;
+           the exported file wants the UID alone. */
         if (grp == 0x0008 && elm == 0x0016) {
-            dcm_state_pdv_get_obj_start(pdv)->sop_class_uid = wmem_strdup(wmem_file_scope(), tag_value);
+            dcm_state_pdv_get_obj_start(pdv)->sop_class_uid = tag_value ? wmem_strndup(wmem_file_scope(), tag_value, strcspn(tag_value, " ")) : NULL;
         }
         else if (grp == 0x0008 && elm == 0x0018) {
-            dcm_state_pdv_get_obj_start(pdv)->sop_instance_uid = wmem_strdup(wmem_file_scope(), tag_value);
+            dcm_state_pdv_get_obj_start(pdv)->sop_instance_uid = tag_value ? wmem_strndup(wmem_file_scope(), tag_value, strcspn(tag_value, " ")) : NULL;
         }
         else if (grp == 0x0000 && elm == 0x0100) {
             /* This is the command tag -> overwrite existing PDV description */
@@ -3486,6 +3491,11 @@ dissect_dcm_pdv_body(
     uint32_t endpos = 0;
 
     endpos = offset + pdv_body_len;
+
+    /* The PDV state is kept for every pass: clear what the end of the
+       last pass left, or a header fragment changes this decoding. */
+    pdv->open_tag.is_header_fragmented = false;
+    pdv->open_tag.len_decoded = 0;
 
     if (pdv->is_command || tree || have_tap_listener(dicom_eo_tap)) {
         /* Performance optimization starts here. Don't put any COL_INFO related stuff in here */
@@ -3645,15 +3655,21 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Will return a complete buffer, once last fragment is hit.
                The description is not used in packet-dcm. COL_INFO is set specifically in dissect_dcm_pdu()
             */
-            combined_tvb = process_reassembled_data(
-                tvb,
-                offset,
-                pinfo,
-                "Reassembled PDV",
-                head,
-                &dcm_pdv_fragment_items,
-                NULL,
-                tree);
+            /* On later passes the reassembled data is also returned for
+               the earlier fragments in the frame of the last one: decode
+               it only at the last fragment. */
+            combined_tvb = NULL;
+            if (pdv->is_last_fragment) {
+                combined_tvb = process_reassembled_data(
+                    tvb,
+                    offset,
+                    pinfo,
+                    "Reassembled PDV",
+                    head,
+                    &dcm_pdv_fragment_items,
+                    NULL,
+                    tree);
+            }
 
             if (combined_tvb == NULL) {
                 /* Just show this as a fragment */
@@ -3679,8 +3695,10 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += pdv_body_len;
             }
             else {
-                /* Decode reassembled data. This needs to be += */
-                offset += dissect_dcm_pdv_body(combined_tvb, pinfo, tree, assoc, pdv, 0, tvb_captured_length(combined_tvb), pdv_description);
+                /* Decode reassembled data, then go on after this
+                   fragment, not after the length of the whole PDV. */
+                dissect_dcm_pdv_body(combined_tvb, pinfo, tree, assoc, pdv, 0, tvb_captured_length(combined_tvb), pdv_description);
+                offset += pdv_body_len;
             }
         }
     }
@@ -3735,7 +3753,8 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         pdvlen_item = proto_tree_add_item(pdv_ptree, hf_dcm_pdv_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        if ((pdv_len + 4 > pdu_len)  || (pdv_len + 4 < pdv_len)) {
+        /* The PDV must fit in what is left of the PDU */
+        if (offset > endpos || pdv_len > endpos - offset) {
             expert_add_info_format(pinfo, pdvlen_item, &ei_dcm_pdv_len, "Invalid PDV length (too large)");
             return endpos;
         }
@@ -3904,14 +3923,16 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_po
     while (pdu_start < tlen) {
         uint32_t old_pdu_start;
 
-        if ((pdu_len+6) > (tlen-offset)) {
+        /* The next PDU starts at pdu_start, which is not where the
+           decoding of the previous one stopped for every PDU type. */
+        if ((pdu_len+6) > (tlen-pdu_start)) {
 
             /*  PDU is larger than the remaining packet (buffer), therefore request whole PDU
                 The next time this function is called, tlen will be equal to pdu_len
             */
 
-            pinfo->desegment_offset = offset;
-            pinfo->desegment_len = (pdu_len+6) - (tlen-offset);
+            pinfo->desegment_offset = pdu_start;
+            pinfo->desegment_len = (pdu_len+6) - (tlen-pdu_start);
             return tvb_captured_length(tvb);
         }
 
@@ -3926,7 +3947,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_po
             break;
         }
 
-        if (pdu_start < tlen - 6) {
+        if (pdu_start <= tlen - 6) {
             /* we got at least 6 bytes of the next PDU still in the buffer */
              pdu_len = tvb_get_ntohl(tvb, pdu_start+2);
         }
