@@ -35,7 +35,7 @@ static uint16_t ver_dcerpc_rs_plcy = 1;
 
 static const dcerpc_sub_dissector dcerpc_rs_plcy_dissectors[] = {
 	{ 0,  "rs_properties_get_info",       NULL, NULL },
-	{ 1,  "rs_properties_set_info ",      NULL, NULL },
+	{ 1,  "rs_properties_set_info",       NULL, NULL },
 	{ 2,  "rs_policy_get_info",           NULL, NULL },
 	{ 3,  "rs_policy_set_info",           NULL, NULL },
 	{ 4,  "rs_policy_get_effective",      NULL, NULL },
