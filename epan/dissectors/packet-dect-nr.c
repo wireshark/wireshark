@@ -17,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/unit_strings.h>
 #include <epan/strutil.h>
 #include <epan/tfs.h>
@@ -2337,29 +2338,44 @@ static void format_hex_pct_cf_func(char *result, uint32_t value)
 	snprintf(result, ITEM_LABEL_LENGTH, "%.2f %%", (value * 100.0) / 255.0);
 }
 
-static void insert_long_rd_id(uint8_t nw_id, uint16_t short_rd_id, uint32_t long_rd_id)
+static void insert_long_rd_id(packet_info *pinfo, uint8_t nw_id, uint16_t short_rd_id, uint32_t long_rd_id)
 {
 	/* nw_id is 8 bits and short_rd_id is 16 bits */
 	uint32_t rd_id_key = (nw_id << 16) | short_rd_id;
+
+	/* Learn the mappings in the first pass only, in frame order */
+	if (PINFO_FD_VISITED(pinfo)) {
+		return;
+	}
 
 	if (!wmem_map_contains(rd_id_map, GUINT_TO_POINTER(rd_id_key))) {
 		wmem_map_insert(rd_id_map, GUINT_TO_POINTER(rd_id_key), GUINT_TO_POINTER(long_rd_id));
 	}
 }
 
-static uint32_t lookup_long_rd_id(uint8_t nw_id, uint16_t short_rd_id)
+static uint32_t lookup_long_rd_id(packet_info *pinfo, uint8_t nw_id, uint16_t short_rd_id)
 {
 	/* nw_id is 8 bits and short_rd_id is 16 bits */
 	uint32_t rd_id_key = (nw_id << 16) | short_rd_id;
-	uint32_t long_rd_id;
+	uint32_t *long_rd_id;
 
-	if (wmem_map_contains(rd_id_map, GUINT_TO_POINTER(rd_id_key))) {
-		long_rd_id = GPOINTER_TO_UINT(wmem_map_lookup(rd_id_map, GUINT_TO_POINTER(rd_id_key)));
-	} else {
-		long_rd_id = 0xFFFFFFFF; /* Broadcast address */
+	/* Later passes see what the first pass saw in this frame */
+	long_rd_id = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dect_nr, rd_id_key);
+	if (long_rd_id) {
+		return *long_rd_id;
 	}
 
-	return long_rd_id;
+	long_rd_id = wmem_new(wmem_file_scope(), uint32_t);
+	if (!PINFO_FD_VISITED(pinfo) && wmem_map_contains(rd_id_map, GUINT_TO_POINTER(rd_id_key))) {
+		*long_rd_id = GPOINTER_TO_UINT(wmem_map_lookup(rd_id_map, GUINT_TO_POINTER(rd_id_key)));
+	} else {
+		*long_rd_id = 0xFFFFFFFF; /* Broadcast address */
+	}
+	if (!PINFO_FD_VISITED(pinfo)) {
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_dect_nr, rd_id_key, long_rd_id);
+	}
+
+	return *long_rd_id;
 }
 
 static void set_last_psn(dect_nr_context_t *ctx, uint16_t psn)
@@ -2434,7 +2450,7 @@ static void conversation_setup(packet_info *pinfo, proto_tree *tree, dect_nr_con
 	ctx->conv_info = (dect_nr_conv_info_t *)conversation_get_proto_data(conversation, proto_dect_nr);
 	if (!ctx->conv_info) {
 		ctx->conv_info = wmem_new0(wmem_file_scope(), dect_nr_conv_info_t);
-		ctx->conv_info->hpc_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+		ctx->conv_info->hpc_tree = wmem_tree_new(wmem_file_scope());
 		conversation_add_proto_data(conversation, proto_dect_nr, ctx->conv_info);
 	}
 
@@ -2710,7 +2726,7 @@ static int dissect_mac_data_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree_add_item_ret_uint16(tree, hf_dect_nr_data_hdr_sn, tvb, offset, 2, ENC_BIG_ENDIAN, &ctx->psn);
 	offset += 2;
 
-	long_rd_id = lookup_long_rd_id(ctx->nw_id, ctx->rx_id);
+	long_rd_id = lookup_long_rd_id(pinfo, ctx->nw_id, ctx->rx_id);
 	item = proto_tree_add_uint(tree, hf_dect_nr_data_hdr_rx_addr, NULL, 0, 0, long_rd_id);
 	proto_item_set_generated(item);
 
@@ -2718,7 +2734,7 @@ static int dissect_mac_data_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%08x", long_rd_id);
 	}
 
-	long_rd_id = lookup_long_rd_id(ctx->nw_id, ctx->tx_id);
+	long_rd_id = lookup_long_rd_id(pinfo, ctx->nw_id, ctx->tx_id);
 	item = proto_tree_add_uint(tree, hf_dect_nr_data_hdr_tx_addr, NULL, 0, 0, long_rd_id);
 	proto_item_set_generated(item);
 
@@ -2747,7 +2763,7 @@ static int dissect_mac_beacon_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08x", tx_addr);
 	offset += 4;
 
-	insert_long_rd_id(ctx->nw_id, ctx->tx_id, tx_addr);
+	insert_long_rd_id(pinfo, ctx->nw_id, ctx->tx_id, tx_addr);
 
 	return offset;
 }
@@ -2778,8 +2794,8 @@ static int dissect_mac_unicast_header(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08x", tx_addr);
 	offset += 4;
 
-	insert_long_rd_id(ctx->nw_id, ctx->tx_id, tx_addr);
-	insert_long_rd_id(ctx->nw_id, ctx->rx_id, rx_addr);
+	insert_long_rd_id(pinfo, ctx->nw_id, ctx->tx_id, tx_addr);
+	insert_long_rd_id(pinfo, ctx->nw_id, ctx->rx_id, rx_addr);
 
 	return offset;
 }
@@ -2804,7 +2820,7 @@ static int dissect_mac_rd_broadcasting_header(tvbuff_t *tvb, packet_info *pinfo,
 	col_add_fstr(pinfo->cinfo, COL_DEF_SRC, "0x%08x", tx_addr);
 	offset += 4;
 
-	insert_long_rd_id(ctx->nw_id, ctx->tx_id, tx_addr);
+	insert_long_rd_id(pinfo, ctx->nw_id, ctx->tx_id, tx_addr);
 
 	return offset;
 }
@@ -2967,10 +2983,15 @@ cvg_data_reassemble(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 		wmem_strbuf_append_printf(segm_info, "SN %u (segment at %u), ", seq_num, seg_offset);
 	}
 
-	frag_msg = fragment_add_seq_next(&dect_nr_cvg_reassembly_table, tvb, offset, pinfo,
-					 seq_num, &reassembly_ctx, *data_len, (si == 1 || si == 3));
-	subtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CVG",
-					  frag_msg, &dect_nr_cvg_segment_items, NULL, tree);
+	if (si == 0) {
+		/* A complete SDU, which another one with the same SN in this frame must not replace */
+		subtvb = tvb_new_subset_length(tvb, offset, *data_len);
+	} else {
+		frag_msg = fragment_add_seq_next(&dect_nr_cvg_reassembly_table, tvb, offset, pinfo,
+						 seq_num, &reassembly_ctx, *data_len, (si == 1 || si == 3));
+		subtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled CVG",
+						  frag_msg, &dect_nr_cvg_segment_items, NULL, tree);
+	}
 
 	*data_info = wmem_strbuf_create(pinfo->pool);
 	wmem_strbuf_append_printf(*data_info, " [ %s%d bytes ]",
@@ -3222,7 +3243,7 @@ static int dissect_cvg_arq_fb_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			break;
 
 		default: /* Reserved */
-			uc_item = proto_tree_add_item(tree, hf_dect_nr_undecoded, tvb, offset, length, ENC_NA);
+			uc_item = proto_tree_add_item(tree, hf_dect_nr_undecoded, tvb, offset, length - offset, ENC_NA);
 			expert_add_info(pinfo, uc_item, &ei_dect_nr_undecoded);
 			offset = length;
 		}
@@ -3643,11 +3664,16 @@ static int dissect_dlc_service_type(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			wmem_strbuf_append_printf(segm_info, "SN %u (segment at %u), ", sn, segm_offset);
 		}
 
-		/* Reassemble segments */
-		frag_msg = fragment_add_seq_next(&dect_nr_dlc_reassembly_table, tvb, offset, pinfo,
-						 sn, ctx, data_len, (si == 1 || si == 3));
-		subtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled DLC",
-						  frag_msg, &dect_nr_dlc_segment_items, NULL, tree);
+		if (si == 0) {
+			/* A complete SDU, which another one with the same SN in this frame must not replace */
+			subtvb = tvb_new_subset_length(tvb, offset, data_len);
+		} else {
+			/* Reassemble segments */
+			frag_msg = fragment_add_seq_next(&dect_nr_dlc_reassembly_table, tvb, offset, pinfo,
+							 sn, ctx, data_len, (si == 1 || si == 3));
+			subtvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled DLC",
+							  frag_msg, &dect_nr_dlc_segment_items, NULL, tree);
+		}
 	} else {
 		subtvb = tvb_new_subset_length(tvb, offset, data_len);
 	}
@@ -5002,8 +5028,8 @@ static tvbuff_t *decrypt_mac_pdus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return NULL;
 	}
 
-	uint32_t tx_long_rd_id = lookup_long_rd_id(ctx->nw_id, ctx->tx_id);
-	uint32_t rx_long_rd_id = lookup_long_rd_id(ctx->nw_id, ctx->rx_id);
+	uint32_t tx_long_rd_id = lookup_long_rd_id(pinfo, ctx->nw_id, ctx->tx_id);
+	uint32_t rx_long_rd_id = lookup_long_rd_id(pinfo, ctx->nw_id, ctx->rx_id);
 
 	/*
 	 * The bit 0 is the most significant bit and bit 127 is the least significant bit
@@ -5022,7 +5048,7 @@ static tvbuff_t *decrypt_mac_pdus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	*(uint32_t *)&iv[0] = GUINT32_TO_BE(tx_long_rd_id);
 	*(uint32_t *)&iv[4] = GUINT32_TO_BE(rx_long_rd_id);
 	*(uint32_t *)&iv[8] = GUINT32_TO_BE(sec_info->hpc);
-	*(uint32_t *)&iv[12] = GUINT32_TO_BE(ctx->psn << 20);
+	*(uint32_t *)&iv[12] = GUINT32_TO_BE((uint32_t)ctx->psn << 20);
 
 	uint8_t *payload_data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, length);
 
@@ -5044,7 +5070,7 @@ static tvbuff_t *decrypt_mac_pdus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return NULL;
 	}
 
-	tvbuff_t *decrypt_tvb = tvb_new_real_data(payload_data, length, length);
+	tvbuff_t *decrypt_tvb = tvb_new_child_real_data(tvb, payload_data, length, length);
 	add_new_data_source(pinfo, decrypt_tvb, "Decrypted MAC PDUs");
 	g_byte_array_free(cipher_key, true);
 
