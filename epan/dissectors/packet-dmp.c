@@ -490,6 +490,10 @@ typedef struct _dmp_id_val {
 } dmp_id_val;
 
 static wmem_map_t *dmp_id_hash_table;
+
+/* Keys for p_add_proto_data() */
+#define DMP_ID_VAL_KEY   0
+#define DMP_SUBJ_ID_KEY  1
 static wmem_map_t *dmp_long_id_hash_table;
 
 /* Global values used in several functions */
@@ -1344,7 +1348,8 @@ static int dmp_id_hash_equal (const void *k1, const void *k2)
 static void register_dmp_id (packet_info *pinfo, uint8_t reason)
 {
   dmp_id_val *dmp_data = NULL, *pkg_data = NULL;
-  dmp_id_key *dmp_key = NULL;
+  dmp_id_key  key;
+  dmp_id_key *dmp_key = &key;
   nstime_t    msg_time;
   unsigned    msg_id = 0;
 
@@ -1355,15 +1360,13 @@ static void register_dmp_id (packet_info *pinfo, uint8_t reason)
 
   nstime_set_zero(&msg_time);
 
-  dmp_key = wmem_new (wmem_file_scope(), dmp_id_key);
-
   if (!pinfo->fd->visited &&
       (dmp.msg_type == REPORT || dmp.msg_type == NOTIF))
   {
     /* Try to match corresponding message */
     dmp_key->id = (unsigned) dmp.subj_id;
-    copy_address_wmem(wmem_file_scope(), &dmp_key->src, &(pinfo->dst));
-    copy_address_wmem(wmem_file_scope(), &dmp_key->dst, &(pinfo->src));
+    copy_address_shallow(&dmp_key->src, &(pinfo->dst));
+    copy_address_shallow(&dmp_key->dst, &(pinfo->src));
 
     dmp_data = (dmp_id_val *) wmem_map_lookup (dmp_id_hash_table, dmp_key);
 
@@ -1380,12 +1383,12 @@ static void register_dmp_id (packet_info *pinfo, uint8_t reason)
 
   if (dmp.msg_type == ACK) {
     dmp_key->id = (unsigned) dmp.subj_id;
-    copy_address_wmem(wmem_file_scope(), &dmp_key->src, &(pinfo->dst));
-    copy_address_wmem(wmem_file_scope(), &dmp_key->dst, &(pinfo->src));
+    copy_address_shallow(&dmp_key->src, &(pinfo->dst));
+    copy_address_shallow(&dmp_key->dst, &(pinfo->src));
   } else {
     dmp_key->id = (unsigned) dmp.msg_id;
-    copy_address_wmem(wmem_file_scope(), &dmp_key->src, &(pinfo->src));
-    copy_address_wmem(wmem_file_scope(), &dmp_key->dst, &(pinfo->dst));
+    copy_address_shallow(&dmp_key->src, &(pinfo->src));
+    copy_address_shallow(&dmp_key->dst, &(pinfo->dst));
   }
 
   dmp_data = (dmp_id_val *) wmem_map_lookup (dmp_id_hash_table, dmp_key);
@@ -1434,23 +1437,28 @@ static void register_dmp_id (packet_info *pinfo, uint8_t reason)
           dmp_data->msg_id = pinfo->num;
         }
 
+        dmp_key = wmem_new (wmem_file_scope(), dmp_id_key);
+        dmp_key->id = key.id;
+        copy_address_wmem(wmem_file_scope(), &dmp_key->src, &key.src);
+        copy_address_wmem(wmem_file_scope(), &dmp_key->dst, &key.dst);
         wmem_map_insert (dmp_id_hash_table, dmp_key, dmp_data);
       }
     }
 
     pkg_data = wmem_new (wmem_file_scope(), dmp_id_val);
     *pkg_data = *dmp_data;
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_dmp, 0, pkg_data);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_dmp, DMP_ID_VAL_KEY, pkg_data);
   } else {
     /* Fetch last values from data saved in packet */
-    pkg_data = (dmp_id_val *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dmp, 0);
+    pkg_data = (dmp_id_val *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dmp, DMP_ID_VAL_KEY);
 
     if (dmp_data && pkg_data && dmp.msg_type != ACK && pkg_data->ack_id == 0) {
       pkg_data->ack_id = dmp_data->ack_id;
     }
   }
 
-  DISSECTOR_ASSERT (pkg_data);
+  /* pkg_data is NULL if the first pass did not get here, for example
+   * because the analysis preference was changed. */
   dmp.id_val = pkg_data;
 }
 
@@ -2647,6 +2655,27 @@ static int dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
   return offset;
 }
 
+/*
+ * Look up the message id for a subject MTS or IPM identifier.  The hash
+ * table holds the state at the end of the first pass, so keep the result
+ * of the first pass in the packet.
+ */
+static uint16_t lookup_dmp_long_id (packet_info *pinfo, const char *long_id)
+{
+  unsigned subj_id;
+
+  if (!PINFO_FD_VISITED (pinfo)) {
+    subj_id = GPOINTER_TO_UINT (wmem_map_lookup (dmp_long_id_hash_table, long_id));
+    if (subj_id) {
+      p_add_proto_data (wmem_file_scope(), pinfo, proto_dmp, DMP_SUBJ_ID_KEY, GUINT_TO_POINTER (subj_id));
+    }
+  } else {
+    subj_id = GPOINTER_TO_UINT (p_get_proto_data (wmem_file_scope(), pinfo, proto_dmp, DMP_SUBJ_ID_KEY));
+  }
+
+  return (uint16_t) subj_id;
+}
+
 static int dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     int offset, bool subject)
 {
@@ -2667,12 +2696,14 @@ static int dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree
     ti = proto_tree_add_string (tree, hf_message_subj_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     /* Read from hash, for analysis */
-    dmp.subj_id = GPOINTER_TO_UINT (wmem_map_lookup (dmp_long_id_hash_table, mts_id));
+    dmp.subj_id = lookup_dmp_long_id (pinfo, mts_id);
   } else {
     ti = proto_tree_add_string (tree, hf_envelope_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     hidden_item = proto_tree_add_string (tree, hf_mts_id, tvb, offset, dmp.mts_id_length, mts_id);
     /* Insert into hash, for analysis */
-    wmem_map_insert (dmp_long_id_hash_table, wmem_strdup (wmem_file_scope(), mts_id), GUINT_TO_POINTER ((unsigned)dmp.msg_id));
+    if (!PINFO_FD_VISITED (pinfo)) {
+      wmem_map_insert (dmp_long_id_hash_table, wmem_strdup (wmem_file_scope(), mts_id), GUINT_TO_POINTER ((unsigned)dmp.msg_id));
+    }
   }
   proto_item_set_hidden (hidden_item);
   offset += dmp.mts_id_length;
@@ -2723,12 +2754,14 @@ static int dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree
     ti = proto_tree_add_string (tree, hf_message_subj_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     /* Read from hash, for analysis */
-    dmp.subj_id = GPOINTER_TO_UINT (wmem_map_lookup (dmp_long_id_hash_table, ipm_id));
+    dmp.subj_id = lookup_dmp_long_id (pinfo, ipm_id);
   } else {
     ti = proto_tree_add_string (tree, hf_envelope_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     hidden_item = proto_tree_add_string (tree, hf_ipm_id, tvb, offset, ipm_id_length, ipm_id);
     /* Insert into hash, for analysis */
-    wmem_map_insert (dmp_long_id_hash_table, wmem_strdup (wmem_file_scope(), ipm_id), GUINT_TO_POINTER ((unsigned)dmp.msg_id));
+    if (!PINFO_FD_VISITED (pinfo)) {
+      wmem_map_insert (dmp_long_id_hash_table, wmem_strdup (wmem_file_scope(), ipm_id), GUINT_TO_POINTER ((unsigned)dmp.msg_id));
+    }
   }
   proto_item_set_hidden (hidden_item);
   offset += ipm_id_length;
@@ -3909,7 +3942,8 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   if (dmp.version > DMP_VERSION_2) {
     /* Unsupported DMP Version, no point to continue */
     col_add_fstr (pinfo->cinfo, COL_INFO, "Unsupported Version: %d", dmp.version);
-    return 0;
+    /* The tree and expert info are added, so claim the packet */
+    return tvb_captured_length (tvb);
   }
 
   if (dmp.extensions) {
@@ -3925,12 +3959,16 @@ static int dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   if (dmp.checksum) {
+    /* The checksum is the last two octets of the message */
     length = tvb_captured_length (tvb);
-    checksum1 = crc16_x25_ccitt_tvb (tvb, length - 2);
-    checksum2 = tvb_get_ntohs (tvb, offset);
+    if (length >= 2) {
+      offset = length - 2;
+      checksum1 = crc16_x25_ccitt_tvb (tvb, offset);
+      checksum2 = tvb_get_ntohs (tvb, offset);
 
-    proto_tree_add_checksum(dmp_tree, tvb, offset, hf_checksum, hf_checksum_status, &ei_checksum_bad, pinfo, checksum1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
-    offset += 2;
+      proto_tree_add_checksum(dmp_tree, tvb, offset, hf_checksum, hf_checksum_status, &ei_checksum_bad, pinfo, checksum1, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+      offset += 2;
+    }
   }
 
   if (use_seq_ack_analysis) {
