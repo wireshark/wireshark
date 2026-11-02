@@ -38829,3 +38829,151 @@ class TestDissectDcerpcTapi:
             ['2', '2'], ['2', '2'],
         ]
         assert 'ClientDetach request' in stdout and 'ClientDetach response' in stdout
+
+
+class TestDissectDcerpcWinreg:
+    def test_winreg_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) and a connectionless call, and no malformed packets or
+        warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winreg_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 400
+        assert protocols.count('WINREG') == 370
+        assert protocols.count('DCERPC') == 8
+        assert protocols.count('TCP') == 22
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_winreg_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_winreg_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winreg_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t338cd001-2244-31f1-aaaa-900038001003\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t338cd001-2244-31f1-aaaa-900038001003\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t338cd001-2244-31f1-aaaa-900038001003\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_winreg_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum 0-35 is called in each connection, three times in
+        the little endian one, with the unknown opnum 36 there too. Every
+        request has its response, and the status codes.'''
+        expected = {
+            50001: (112, set(range(37)),
+                    {'0x00000000': 39, '0x00000005': 36, '0x00000057': 36}),
+            50002: (36, set(range(36)), {'0x00000000': 36}),
+            50003: (36, set(range(36)), {'0x00000000': 36}),
+        }
+        for port, (calls, opnums, status) in expected.items():
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_winreg_coverage.pcap.gz'),
+                    '-Y', 'winreg && tcp.port == %d' % port,
+                    '-Tfields', '-edcerpc.pkt_type', '-ewinreg.opnum', '-ewinreg.werror',
+                ), encoding='utf-8', env=test_env)
+            # a reassembled PDU lists the packet type of every fragment
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            lines = [[l[0].split(',')[-1]] + l[1:] for l in lines]
+            requests = [l for l in lines if l[0] == '0']
+            responses = [l for l in lines if l[0] == '2']
+            assert len(requests) == calls
+            assert len(responses) == calls
+            assert {int(l[1]) for l in requests} == opnums
+            counts = {}
+            for l in responses:
+                if l[2]:
+                    counts[l[2]] = counts.get(l[2], 0) + 1
+            assert counts == status
+
+    def test_winreg_key_security(self, cmd_tshark, capture_file, test_env):
+        '''GetKeySecurity and SetKeySecurity: a GetKeySecurity request
+        offers a buffer (size 4096) and has no descriptor yet (len 0), as
+        in batch330-359/winreg_sd_len.py (frames 399-400, over UDP); it is
+        not malformed ("WINREG: Dissect a key security descriptor only with
+        its own octets"). The descriptors are dissected in their own
+        octets; a NULL data pointer, and 8 octets, less than a descriptor
+        header (frames 222-225). In NDR64 the data pointer is NULL.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winreg_coverage.pcap.gz'),
+                '-Y', 'winreg.opnum == 12 || winreg.opnum == 21',
+                '-Tfields', '-eframe.number', '-edcerpc.pkt_type', '-ewinreg.opnum',
+                '-ewinreg.sd.max_size', '-ewinreg.sd.actual_size',
+                '-ent.sec_desc.revision', '-ent.sid', '-ent.acl.num_aces',
+                '-ewinreg.werror', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        sd = '176\t160\t1\tS-1-5-21-1004336348-1177238915-682003330-500,S-1-5-32-544,' \
+            'S-1-1-0,S-1-5-21-1004336348-1177238915-682003330-500,S-1-5-32-545\t1,2'
+        assert stdout.splitlines() == [
+            '78\t0\t12\t4096\t0\t\t\t\t\t',
+            '79\t2\t12\t' + sd + '\t0x00000000\t',
+            '80\t0\t12\t\t\t\t\t\t\t',
+            '81\t2\t12\t\t\t\t\t\t0x00000005\t',
+            '82\t0\t12\t4096\t0\t\t\t\t\t',
+            '83\t2\t12\t' + sd + '\t0x00000057\t',
+            '132\t0\t21\t' + sd + '\t\t',
+            '133\t2\t21\t\t\t\t\t\t0x00000000\t',
+            '134\t0\t21\t\t\t\t\t\t\t',
+            '135\t2\t21\t\t\t\t\t\t0x00000005\t',
+            '136\t0\t21\t' + sd + '\t\t',
+            '137\t2\t21\t\t\t\t\t\t0x00000057\t',
+            '222\t0\t21\t\t\t\t\t\t\t',
+            '223\t2\t21\t\t\t\t\t\t0x00000000\t',
+            '224\t0\t21\t8\t8\t\t\t\t\t',
+            '225\t2\t21\t\t\t\t\t\t0x00000000\t',
+            '268\t0\t12\t4096\t0\t\t\t\t\t',
+            '269\t2\t12\t' + sd + '\t0x00000000\t',
+            '286\t0\t21\t' + sd + '\t\t',
+            '287\t2\t21\t\t\t\t\t\t0x00000000\t',
+            '348\t0\t12\t\t\t\t\t\t\t',
+            '349\t2\t12\t\t\t\t\t\t0x00000000\t',
+            '366\t0\t21\t\t\t\t\t\t\t',
+            '367\t2\t21\t\t\t\t\t\t0x00000000\t',
+            '399\t0\t12\t4096\t0\t\t\t\t\t',
+            '400\t2\t12\t4096\t20\t1\t\t\t0x00000000\t',
+        ]
+
+    def test_winreg_strings(self, cmd_tshark, capture_file, test_env):
+        '''winreg_String (winreg.cnf): the key name of OpenKey in the Info
+        column and as a field, and the handle it opens, in NDR and NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winreg_coverage.pcap.gz'),
+                '-Y', 'winreg.opnum == 15 && !(tcp.port == 50002)',
+                '-Tfields', '-e_ws.col.info', '-ewinreg.winreg_OpenKey.keyname',
+                '-ewinreg.handle',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'OpenKey request, C:\\\\hive29.dat\tC:\\\\hive29.dat\t',
+            'OpenKey response\t\t000000005245475f350000004041424344454647',
+            'OpenKey request\t\t',
+            'OpenKey response, Error: WERR_ACCESS_DENIED\t\t000000005245475f370000004041424344454647',
+            'OpenKey request, SOFTWARE\\\\Example30\tSOFTWARE\\\\Example30\t',
+            'OpenKey response, Error: WERR_INVALID_PARAMETER\t\t000000005245475f390000004041424344454647',
+            'OpenKey request, SOFTWARE\\\\Example120\tSOFTWARE\\\\Example120\t',
+            'OpenKey response\t\t000000005245475fa60000004041424344454647',
+        ]
+
+    def test_winreg_reassembled(self, cmd_tshark, capture_file, test_env):
+        '''A SetValue request with 9000 octets of data in three DCE/RPC
+        fragments, reassembled in frame 234.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_winreg_coverage.pcap.gz'),
+                '-Y', 'frame.number == 234',
+                '-Tfields', '-edcerpc.fragment.count', '-ewinreg.winreg_SetValue.name',
+                '-ewinreg.winreg_SetValue.type', '-ewinreg.winreg_SetValue.size',
+                '-ewinreg.winreg_SetValue.data',
+            ), encoding='utf-8', env=test_env)
+        count, name, vtype, size, data = stdout.rstrip('\n').split('\t')
+        assert (count, name, vtype, size) == ('3', 'BigValue', '3', '9000')
+        assert data.split(',') == ['%d' % ((i * 7) & 0xff) for i in range(9000)]
