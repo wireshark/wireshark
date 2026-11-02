@@ -30,6 +30,7 @@
 #include <epan/prefs.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/addr_resolv.h>
 
 #include <wsutil/array.h>
 
@@ -15217,6 +15218,7 @@ static int hf_nr_rrc_nonCriticalExtension_236;    /* UuMessageTransferSidelink_v
 static int hf_nr_rrc_sl_PagingDelivery_r18;       /* T_sl_PagingDelivery_r18 */
 static int hf_nr_rrc_nonCriticalExtension_237;    /* T_nonCriticalExtension_76 */
 static int dummy_hf_nr_rrc_eag_field; /* never registered */
+static int hf_nr_rrc_trackingAreaCode_Name;
 static int hf_nr_rrc_serialNumber_gs;
 static int hf_nr_rrc_serialNumber_msg_code;
 static int hf_nr_rrc_serialNumber_upd_nb;
@@ -26470,8 +26472,19 @@ dissect_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_PLMN_Identity(tvbuff_t *tvb _U_, uint3
 
 static unsigned
 dissect_nr_rrc_TrackingAreaCode(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, false, NULL, 0, NULL, NULL);
+  tvbuff_t *tac_tvb = NULL;
+  uint32_t tac;
+  const char *tac_name_str;
+  proto_item *item;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, 24, 24, false, NULL, 0, &tac_tvb, NULL);
+  if (tac_tvb && gbl_resolv_flags.tac_name) {
+    tac = tvb_get_bits32(tac_tvb, 0, 24, ENC_BIG_ENDIAN);
+    if (tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_nr_rrc_trackingAreaCode_Name, tac_tvb, 0, tvb_captured_length(tac_tvb), tac_name_str);
+      proto_item_set_generated(item);
+    }
+  }
+  return offset;
 
   return offset;
 }
@@ -88017,6 +88030,7 @@ static const per_sequence_t MBSMulticastConfiguration_r18_sequence[] = {
 static unsigned
 dissect_nr_rrc_MBSMulticastConfiguration_r18(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBS Multicast Configuration");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_MBSMulticastConfiguration_r18, MBSMulticastConfiguration_r18_sequence);
 
@@ -273058,6 +273072,10 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_absolute_time,
       { "Absolute time", "nr-rrc.absolute_time",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_trackingAreaCode_Name,
+      { "Tracking Area Name", "nr-rrc.trackingAreaCode_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
   };
 

@@ -2935,3 +2935,18 @@ ThresholdQ-LR-r19 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
 
 #.FN_HDR MBSMulticastConfiguration-r18
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MBS Multicast Configuration");
+
+#.FN_BODY TrackingAreaCode
+  tvbuff_t *tac_tvb = NULL;
+  uint32_t tac;
+  const char *tac_name_str;
+  proto_item *item;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, 24, 24, false, NULL, 0, &tac_tvb, NULL);
+  if (tac_tvb && gbl_resolv_flags.tac_name) {
+    tac = tvb_get_bits32(tac_tvb, 0, 24, ENC_BIG_ENDIAN);
+    if (tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_nr_rrc_trackingAreaCode_Name, tac_tvb, 0, tvb_captured_length(tac_tvb), tac_name_str);
+      proto_item_set_generated(item);
+    }
+  }
+  return offset;

@@ -32,6 +32,7 @@
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/addr_resolv.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/epochs.h>
@@ -9685,6 +9686,7 @@ static int hf_lte_rrc_physCellId_r14;             /* PhysCellId */
 static int hf_lte_rrc_carrierFreq_r14;            /* CarrierFreq_NB_r13 */
 static int dummy_hf_lte_rrc_eag_field; /* never registered */
 
+static int hf_lte_rrc_trackingAreaCode_Name;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_3;
@@ -44052,8 +44054,20 @@ dissect_lte_rrc_PLMN_IdentityList(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_c
 
 static unsigned
 dissect_lte_rrc_TrackingAreaCode(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, false, NULL, 0, NULL, NULL);
+  tvbuff_t *tac_tvb = NULL;
+  uint32_t tac;
+  const char *tac_name_str;
+  proto_item *item;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, 16, 16, false, NULL, 0, &tac_tvb, NULL);
+  if (tac_tvb && gbl_resolv_flags.tac_name) {
+    tac = tvb_get_bits32(tac_tvb, 0, 16, ENC_BIG_ENDIAN);
+    if (tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_lte_rrc_trackingAreaCode_Name, tac_tvb, 0, tvb_captured_length(tac_tvb), tac_name_str);
+      proto_item_set_generated(item);
+    }
+  }
+  return offset;
+
 
   return offset;
 }
@@ -45576,8 +45590,20 @@ dissect_lte_rrc_RAN_AreaCode_r15(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ct
 
 static unsigned
 dissect_lte_rrc_TrackingAreaCode_5GC_r15(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, false, NULL, 0, NULL, NULL);
+  tvbuff_t *tac_tvb = NULL;
+  uint32_t tac;
+  const char *tac_name_str;
+  proto_item *item;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, 24, 24, false, NULL, 0, &tac_tvb, NULL);
+  if (tac_tvb && gbl_resolv_flags.tac_name) {
+    tac = tvb_get_bits32(tac_tvb, 0, 24, ENC_BIG_ENDIAN);
+    if (tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_lte_rrc_trackingAreaCode_Name, tac_tvb, 0, tvb_captured_length(tac_tvb), tac_name_str);
+      proto_item_set_generated(item);
+    }
+  }
+  return offset;
+
 
   return offset;
 }
@@ -57989,8 +58015,19 @@ dissect_lte_rrc_PLMN_IdentityListNR_r15(tvbuff_t *tvb _U_, uint32_t offset _U_, 
 
 static unsigned
 dissect_lte_rrc_TrackingAreaCodeNR_r15(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, false, NULL, 0, NULL, NULL);
+  tvbuff_t *tac_tvb = NULL;
+  uint32_t tac;
+  const char *tac_name_str;
+  proto_item *item;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, 24, 24, false, NULL, 0, &tac_tvb, NULL);
+  if (tac_tvb && gbl_resolv_flags.tac_name) {
+    tac = tvb_get_bits32(tac_tvb, 0, 24, ENC_BIG_ENDIAN);
+    if (tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_lte_rrc_trackingAreaCode_Name, tac_tvb, 0, tvb_captured_length(tac_tvb), tac_name_str);
+      proto_item_set_generated(item);
+    }
+  }
+  return offset;
 
   return offset;
 }
@@ -181394,6 +181431,10 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_measGapPatterns_r15_bit8,
       { "Gap Pattern 11", "lte-rrc.measGapPatterns_r15.bit8",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }},
+    { &hf_lte_rrc_trackingAreaCode_Name,
+      { "Tracking Area Name", "lte-rrc.trackingAreaCode_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }}
   };
 
