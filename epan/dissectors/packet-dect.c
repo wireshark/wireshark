@@ -2499,7 +2499,7 @@ proto_register_dect(void)
 			0x70, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_RFPI,
-		{"InfoType", "dect.afield.tail.Pt.RFPI", FT_NONE, BASE_NONE, NULL,
+		{"RFPI", "dect.afield.tail.Pt.RFPI", FT_NONE, BASE_NONE, NULL,
 			0x0, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Pt_BsData,
