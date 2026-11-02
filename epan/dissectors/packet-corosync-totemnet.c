@@ -47,6 +47,8 @@ static int hf_corosync_totemnet_security_crypto_key;
 /* configurable parameters */
 static char*  corosync_totemnet_private_keys;
 static char** corosync_totemnet_private_keys_list;
+/* Index of the key that decrypted the last packet, -1 for none */
+static int corosync_totemnet_last_key_index = -1;
 
 /* Initialize the subtree pointers */
 static int ett_corosync_totemnet_security_header;
@@ -350,7 +352,6 @@ dissect_corosynec_totemnet(tvbuff_t *tvb,
 {
   if (corosync_totemnet_private_keys_list)
     {
-      static int last_key_index = -1;
       int key_index;
 
       static int last_check_crypt_type_index;
@@ -358,7 +359,7 @@ dissect_corosynec_totemnet(tvbuff_t *tvb,
       bool check_crypt_type_list[] = {false, true};
 
 
-      if (last_key_index != -1)
+      if (corosync_totemnet_last_key_index != -1)
         {
           int r;
 
@@ -366,11 +367,11 @@ dissect_corosynec_totemnet(tvbuff_t *tvb,
                                                          pinfo,
                                                          parent_tree,
                                                          check_crypt_type_list[last_check_crypt_type_index],
-                                                         corosync_totemnet_private_keys_list[last_key_index]);
+                                                         corosync_totemnet_private_keys_list[corosync_totemnet_last_key_index]);
           if (r > 0)
             return r;
           else
-            last_key_index = -1;
+            corosync_totemnet_last_key_index = -1;
         }
 
       for (key_index = 0;
@@ -390,7 +391,7 @@ dissect_corosynec_totemnet(tvbuff_t *tvb,
                                                              corosync_totemnet_private_keys_list[key_index]);
               if (r > 0)
                 {
-                  last_key_index = key_index;
+                  corosync_totemnet_last_key_index = key_index;
                   last_check_crypt_type_index = check_crypt_type_index;
                   return r;
                 }
@@ -470,6 +471,7 @@ proto_reg_handoff_corosync_totemnet(void)
 
   g_strfreev(corosync_totemnet_private_keys_list);
   corosync_totemnet_private_keys_list = g_strsplit(corosync_totemnet_private_keys, ";", 0);
+  corosync_totemnet_last_key_index = -1;
 }
 
 /*
