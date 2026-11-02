@@ -145,8 +145,8 @@ dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
             }
         } else {
             start_time.secs = 0xFFFFFFFF;
-            start_time.nsecs = 0xFFFFFFFF;
-            proto_tree_add_time_format_value(tree, hf_dvb_eit_start_time, tvb, offset, 5, &start_time, "Undefined (0xFFFFFFFFFF)");
+            start_time.nsecs = 0;
+            proto_tree_add_time_format_value(dvb_eit_event_tree, hf_dvb_eit_start_time, tvb, offset, 5, &start_time, "Undefined (0xFFFFFFFFFF)");
         }
         offset += 5;
 
