@@ -209,6 +209,7 @@ typedef struct {
    uint8_t  function_code;
    uint8_t  commmand_code;
    uint16_t numberofcharacters;
+   uint16_t num_requested_points;
    uint8_t  *requested_points;
 } request_frame;
 
@@ -623,13 +624,15 @@ dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
                     }
                     /*If it request all the special calculation data, dissect all of them and associated a sequence ID with it.*/
                     else if (req_command_code == SPECIAL_CALC_RANGE ){
-                        do{
+                        /* Only as many values as the request asked for */
+                        while (point_num < request_data->num_requested_points &&
+                               tvb_reported_length_remaining(tvb, offset) > 2) {
                             specialcalvalue = tvb_get_letohieee_float(tvb, offset );
                             proto_tree_add_float_format(cp2179_data_tree, hf_cp2179_specialcalc, tvb, offset, 4, specialcalvalue,
                                 "Special Calculation %u : %f",  request_data->requested_points[point_num], specialcalvalue);
                             point_num += 1;
                             offset += 4;
-                        }while(tvb_reported_length_remaining(tvb, offset) > 2);
+                        }
                     }
                     break;
 
@@ -642,13 +645,15 @@ dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
 
                     /*Report the values of the requested SCAN inclusive data. To figure out which sequence ID the values in the response associated with,
                       we read the request_frame information and show the corresponding sequence ID of the data in response frame.*/
-                    do{
+                    /* Only as many values as the request asked for */
+                    while (point_num < request_data->num_requested_points &&
+                           tvb_reported_length_remaining(tvb, offset) > 2) {
                         analogtestvalue = tvb_get_letohis(tvb, offset);
                         proto_tree_add_int_format(cp2179_data_tree, hf_cp2179_analog_16bit, tvb, offset, 2, request_data->requested_points[point_num],
                                                    "Analog (16 bit) %u : %d",  request_data->requested_points[point_num], analogtestvalue);
                         point_num += 1;
                         offset += 2;
-                    }while(tvb_reported_length_remaining(tvb, offset) > 2);
+                    }
 
                     break;
 
@@ -793,7 +798,7 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
         uint8_t startpt, endpt;
         startpt = tvb_get_uint8(tvb, offset);
         endpt = tvb_get_uint8(tvb, offset+1);
-        num_objects = (endpt - startpt) + 1;
+        num_objects = (endpt >= startpt) ? (endpt - startpt) + 1 : 0;
         frame->requested_points = (uint8_t *)wmem_alloc(wmem_file_scope(), num_objects * sizeof(uint8_t));
 
         /* We have a range of 'request' points */
@@ -810,6 +815,7 @@ static request_frame* copy_request_frame(tvbuff_t *tvb  )
         tvb_memcpy(tvb, frame->requested_points, offset, num_objects * sizeof(uint8_t));
         /* offset += num_objects * sizeof(uint8_t); */
     }
+    frame->num_requested_points = num_objects;
 
     return frame;
 }
