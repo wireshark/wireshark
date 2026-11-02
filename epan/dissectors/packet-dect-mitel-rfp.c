@@ -1231,7 +1231,7 @@ static unsigned dissect_dect_mitel_rfp_media_dtmf(tvbuff_t *tvb, packet_info *pi
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_dtmf_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_dtmf_key, tvb, offset, 1, ENC_ASCII_7BITS);
+	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_dtmf_key, tvb, offset, 1, ENC_NA);
 	offset++;
 
 	proto_tree_add_item(tree, hf_dect_mitel_rfp_media_direction, tvb, offset, 1, ENC_BIG_ENDIAN);
