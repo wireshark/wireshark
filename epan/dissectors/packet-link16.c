@@ -216,13 +216,16 @@ static int * const *link16_fields[4] = {
 static int dissect_link16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     Link16State *state = (Link16State *)data;
+    Link16State local_state = { 0 };
     proto_item *link16_item = NULL;
     proto_tree *link16_tree = NULL;
     uint16_t cache;
     uint8_t wordformat, contlabel;
 
+    /* Called without the state of the message (for example from an
+     * Exported PDU): dissect this word on its own. */
     if (!state)
-        REPORT_DISSECTOR_BUG("Link 16 dissector state missing");
+        state = &local_state;
 
     cache = tvb_get_letohs(tvb, 0);
     wordformat = cache & 0x3;
