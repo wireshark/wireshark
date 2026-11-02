@@ -841,7 +841,7 @@ dissect_disp_T_standard(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offse
                                   &update);
 
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, update, disp_T_standard_vals, "standard(%d"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(actx->pinfo->pool, update, disp_T_standard_vals, "standard(%d)"));
 
 
   return offset;
@@ -1708,7 +1708,7 @@ void proto_register_disp(void) {
         "BOOLEAN", HFILL }},
     { &hf_disp_beginTime,
       { "beginTime", "disp.beginTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "Time", HFILL }},
     { &hf_disp_windowSize,
       { "windowSize", "disp.windowSize",
@@ -1724,7 +1724,7 @@ void proto_register_disp(void) {
         NULL, HFILL }},
     { &hf_disp_lastUpdate,
       { "lastUpdate", "disp.lastUpdate",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "Time", HFILL }},
     { &hf_disp_updateStrategy,
       { "updateStrategy", "disp.updateStrategy",
@@ -1820,7 +1820,7 @@ void proto_register_disp(void) {
         "RequestShadowUpdateArgumentData", HFILL }},
     { &hf_disp_updateTime,
       { "updateTime", "disp.updateTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "Time", HFILL }},
     { &hf_disp_updateWindow,
       { "updateWindow", "disp.updateWindow_element",
@@ -1844,11 +1844,11 @@ void proto_register_disp(void) {
         "UpdateShadowArgumentData", HFILL }},
     { &hf_disp_start,
       { "start", "disp.start",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "Time", HFILL }},
     { &hf_disp_stop,
       { "stop", "disp.stop",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "Time", HFILL }},
     { &hf_disp_noRefresh,
       { "noRefresh", "disp.noRefresh_element",
