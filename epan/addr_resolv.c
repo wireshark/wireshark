@@ -3636,7 +3636,7 @@ read_tacs_file(const char *tacspath)
     FILE *hf;
     char line[MAX_LINELEN];
     char *cp;
-    uint16_t id;
+    uint32_t id;
 
     /*
     *  File format is TAC(decimal)<tab/space>TACName (no spaces)
@@ -3651,9 +3651,12 @@ read_tacs_file(const char *tacspath)
         if ((cp = strtok(line, " \t")) == NULL)
             continue;
 
-        if (sscanf(cp, "%" SCNu16, &id) != 1) {
+        if (sscanf(cp, "%" SCNu32, &id) != 1) {
             continue;
         }
+
+        if (id > 0xFFFFFF)
+            continue;
 
         if ((cp = strtok(NULL, " \t\n")) == NULL)
             continue; /* no TAC name */
@@ -3801,9 +3804,9 @@ addr_resolve_pref_init(module_t *nameres)
 
     prefs_register_bool_preference(nameres, "tac_name",
             "Resolve TAC",
-            "Resolve TAC to area names from the preferences \"tac\" file."
-            " Format of the file is: \"TAC(decimail)<Tab/space>Name\"."
-            " One line per TAC, e.g.: 30123 City1",
+            "Resolve TAC to area names from the preferences \"tacs\" file."
+            " Format of the file is: \"TAC(decimal)<Tab/space>Name\"."
+            " One line per TAC (16-bit LTE/EPS or 24-bit 5GS decimal value), e.g.: 30123 City1",
             &gbl_resolv_flags.tac_name);
 
 }
