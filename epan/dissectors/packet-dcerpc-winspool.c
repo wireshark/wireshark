@@ -1009,6 +1009,7 @@ iremotewinspool_dissect_sec_desc_buf(tvbuff_t *tvb, unsigned offset, packet_info
 	}
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
 		hf_iremotewinspool_sec_desc_buf_len, &len);
+	tvb_ensure_bytes_exist64(tvb, offset, len);
 	dissect_nt_sec_desc(
 		tvb, offset, pinfo, tree, drep, true, len,
 		&spoolss_printer_access_mask_info);
