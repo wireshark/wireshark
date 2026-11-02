@@ -15,6 +15,7 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/packet_info.h>
 #include <epan/proto.h>
 #include <epan/tfs.h>
@@ -1936,6 +1937,18 @@ static int dissect_dect_nwk_s_ie_duration(tvbuff_t *tvb, unsigned offset, uint8_
 	return offset;
 }
 
+/*
+ * Add an item of no_of_bits bits, a width taken from the packet. A width
+ * of 0 or wider than the field is not valid.
+ */
+static void dect_nwk_add_bits_item(proto_tree *tree, int hfindex, tvbuff_t *tvb, unsigned bit_offset,
+	unsigned no_of_bits, unsigned max_bits, const unsigned encoding)
+{
+	if (no_of_bits == 0 || no_of_bits > max_bits)
+		THROW(ReportedBoundsError);
+	proto_tree_add_bits_item(tree, hfindex, tvb, bit_offset, no_of_bits, encoding);
+}
+
 static int dissect_dect_nwk_s_ie_fixed_identity(tvbuff_t *tvb, unsigned offset, proto_tree *tree, void _U_ *data)
 {
 	uint8_t value_length;
@@ -1948,7 +1961,7 @@ static int dissect_dect_nwk_s_ie_fixed_identity(tvbuff_t *tvb, unsigned offset, 
 	proto_tree_add_item(tree, hf_dect_nwk_s_ie_fixed_identity_arc, tvb, offset, 1, ENC_NA);
 	bit_offset = ( offset * 8 ) + 4;
 	no_of_bits = value_length - 4;
-	proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_fixed_identity_ard, tvb, bit_offset, no_of_bits, ENC_NA);
+	dect_nwk_add_bits_item(tree, hf_dect_nwk_s_ie_fixed_identity_ard, tvb, bit_offset, no_of_bits, 64, ENC_BIG_ENDIAN);
 	bit_offset += no_of_bits;
 	offset += value_length / 8;
 	if (value_length % 8) {
@@ -2027,7 +2040,7 @@ static int dissect_dect_nwk_s_ie_nwk_assigned_identity(tvbuff_t *tvb, unsigned o
 	value_length = tvb_get_uint8(tvb, offset) & 0x7F;
 	offset++;
 	bit_offset = offset * 8;
-	proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_nwk_assigned_identity_value, tvb, bit_offset, value_length, ENC_NA);
+	dect_nwk_add_bits_item(tree, hf_dect_nwk_s_ie_nwk_assigned_identity_value, tvb, bit_offset, value_length, 127, ENC_NA);
 	bit_offset += value_length;
 	offset += value_length / 8;
 	if (value_length % 8) {
@@ -2081,14 +2094,14 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offse
 			no_of_bits = value_length - 4;
 			switch(ipui_type) {
 				case DECT_NWK_IPUI_TYPE_N:
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, ENC_NA);
+					dect_nwk_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, 64, ENC_BIG_ENDIAN);
 					break;
 				case DECT_NWK_IPUI_TYPE_O:
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_o_number, tvb, bit_offset, no_of_bits, ENC_NA);
+					dect_nwk_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_o_number, tvb, bit_offset, no_of_bits, 64, ENC_BIG_ENDIAN);
 					break;
 				case DECT_NWK_IPUI_TYPE_P:
 					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_p_poc, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
-					proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_p_acc, tvb, bit_offset + 16, no_of_bits - 16, ENC_BIG_ENDIAN);
+					dect_nwk_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_p_acc, tvb, bit_offset + 16, no_of_bits - 16, 127, ENC_BIG_ENDIAN);
 					break;
 				case DECT_NWK_IPUI_TYPE_Q:
 					proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_q_bacn, tvb, offset, no_of_bytes,
@@ -2123,13 +2136,13 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offse
 			break;
 		case DECT_NWK_S_IE_PORTABLE_IDENTITY_IPEI:
 			no_of_bits = value_length - 4;
-			proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, ENC_NA);
+			dect_nwk_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_ipei, tvb, bit_offset, no_of_bits, 64, ENC_BIG_ENDIAN);
 			offset += 5;
 			break;
 		case DECT_NWK_S_IE_PORTABLE_IDENTITY_TPUI:
 			no_of_bits = value_length;
 			proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_tpui_assignment_type, tvb, offset, 1, ENC_NA);
-			proto_tree_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_tpui_value, tvb, bit_offset, no_of_bits, ENC_NA);
+			dect_nwk_add_bits_item(tree, hf_dect_nwk_s_ie_portable_identity_tpui_value, tvb, bit_offset, no_of_bits, 32, ENC_BIG_ENDIAN);
 			offset += 3;
 			break;
 	}
@@ -2479,6 +2492,7 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, unsigned offset, packet_info *pi
 {
 	bool fixed_length;
 	uint8_t element_type, element_length, fl_ie_type, fl_ie_double_octet_type;
+	unsigned ie_end;
 	proto_tree *field_tree;
 	proto_tree *field_tree_item;
 
@@ -2550,6 +2564,7 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, unsigned offset, packet_info *pi
 		offset++;
 		proto_tree_add_item(field_tree, hf_dect_nwk_s_ie_length, tvb, offset, 1, ENC_NA);
 		offset++;
+		ie_end = offset + element_length;
 		switch (element_type) {
 			case DECT_NWK_S_IE_AUTH_TYPE:
 				offset = dissect_dect_nwk_s_ie_auth_type(tvb, offset, field_tree, data);
@@ -2610,9 +2625,10 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, unsigned offset, packet_info *pi
 				offset = dissect_dect_nwk_s_ie_codec_list(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			default:
-				offset += element_length;
 				break;
 		}
+		/* The next element follows this one, however much of it was decoded */
+		offset = ie_end;
 	}
 	return offset;
 }
