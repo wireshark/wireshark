@@ -470,6 +470,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           nCount = *pui8DATA(data, pDescr->i);
           /*  nCount--; the 1 offset is already taken into account in CSN_UINT_OFFSET */
         }
+        if (pDescr->type != CSN_TYPE_ARRAY && nCount > (int16_t)(uintptr_t)pDescr->aux_fn)
+        { /* the count comes from the stream; more elements than the array holds */
+          return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_csn1_stream_not_supported, pDescr);
+        }
 
         while (nCount > 0)
         { /* resulting array of length 0 is possible
@@ -968,6 +972,10 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               nCount = *pui8DATA(data, pDescr->i);
               nCount--; /* Offset 1 */
             }
+            if (pDescr->type != CSN_TYPE_ARRAY && nCount > (uint16_t)(uintptr_t)pDescr->aux_fn)
+            { /* the count comes from the stream; more elements than the array holds */
+              return ProcessError(tree, ar->pinfo, tvb, bit_offset, CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_csn1_stream_not_supported, pDescr);
+            }
 
             while (nCount--)    /* Changed to handle length = 0.  */
             {
@@ -1374,7 +1382,11 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             /* error: too many elements in recursive array. Increase its size! */
             return ProcessError(tree , ar->pinfo, tvb, bit_offset, CSN_ERROR_STREAM_NOT_SUPPORTED, &ei_csn1_stream_not_supported, pDescr);
           }
-          *pui8++   = tvb_get_bits8(tvb, bit_offset, no_of_bits);
+          /* Elements wider than 8 bits are kept in uint16_t arrays */
+          if (no_of_bits <= 8)
+            pui8[ElementCount - 1] = tvb_get_bits8(tvb, bit_offset, no_of_bits);
+          else
+            pui16DATA(data, pDescr->offset)[ElementCount - 1] = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 
           if (remaining_bits_len < 0)
           {
