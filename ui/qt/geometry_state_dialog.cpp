@@ -18,12 +18,13 @@ GeometryStateDialog::~GeometryStateDialog()
     saveSplitterState();
 }
 
-void GeometryStateDialog::loadGeometry(int width, int height, const QString &dialog_name)
+bool GeometryStateDialog::loadGeometry(int width, int height, const QString &dialog_name)
 {
     window_geometry_t geom;
 
     dialog_name_ = dialog_name.isEmpty() ? objectName() : dialog_name;
     if (!dialog_name_.isEmpty() && window_geom_load(dialog_name_.toUtf8().constData(), &geom)) {
+        bool restored = true;
         if (geom.qt_geom == nullptr || !restoreGeometry(QByteArray::fromHex(geom.qt_geom))) {
             // restoreGeometry didn't work, fallback to older (but other
             // toolkit compatible?) less-accurate method. (restoreGeometry
@@ -40,19 +41,24 @@ void GeometryStateDialog::loadGeometry(int width, int height, const QString &dia
                 recent_geom.moveTopLeft(QPoint(50, 50));
                 if (rect_on_screen(recent_geom)) {
                     resize(recent_geom.size());
-                } else if (width > 0 && height > 0) {
+                } else {
                     // We're not visible on any screens, use defaults
-                    resize(width, height);
+                    restored = false;
+                    if (width > 0 && height > 0) {
+                        resize(width, height);
+                    }
                 }
             }
             if (geom.maximized) {
                 showFullScreen();
             }
         }
+        return restored;
     } else if (width > 0 && height > 0) {
         // No saved geometry found, use defaults
         resize(width, height);
     }
+    return false;
 }
 
 #ifndef Q_OS_MACOS

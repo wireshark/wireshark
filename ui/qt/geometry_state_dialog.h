@@ -110,8 +110,10 @@ protected:
      * @param width The initial width for the dialog.
      * @param height The initial height for the dialog.
      * @param dialog_name The name of the dialog for saving/loading geometry.
+     * @return true if a saved geometry was applied, false if the dialog kept
+     * its size or got the default width and height.
      */
-    void loadGeometry(int width = 0, int height = 0, const QString &dialog_name = QString());
+    bool loadGeometry(int width = 0, int height = 0, const QString &dialog_name = QString());
     /**
      * @brief Loads the state of a splitter for the dialog.
      * @param splitter The splitter for which to load the state.
