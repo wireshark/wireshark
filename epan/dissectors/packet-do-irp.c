@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/unit_strings.h>
 #include "packet-tcp.h"
@@ -212,6 +213,7 @@ static int hf_msg_reassembled_data;
 /* Expert fields */
 static expert_field ei_do_irp_digest_unknown;
 static expert_field ei_do_irp_frag_wo_tc;
+static expert_field ei_do_irp_len_invalid;
 
 /* Trees */
 static int ett_do_irp;
@@ -449,6 +451,22 @@ do_irp_handle_equal(const void *v, const void *w)
 }
 
 /*
+ * Checks a 4-octet length field at offset against the data that follows it.
+ * A length beyond the data is reported and dissection stops.
+ */
+static void
+check_len(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint32_t len)
+{
+    int remaining = tvb_reported_length_remaining(tvb, offset + 4);
+
+    if (remaining < 0 || len > (unsigned)remaining) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_do_irp_len_invalid, tvb, offset, 4,
+            "Length %u exceeds the remaining data", len);
+        THROW(ReportedBoundsError);
+    }
+}
+
+/*
  * Decodes a string to the given hf and adds it to a tree
  * All "strings" are defined as 4 octets representing the length of of the actual string,
  * followed by the octets representing the actual string.
@@ -461,8 +479,10 @@ do_irp_handle_equal(const void *v, const void *w)
 static int
 decode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf, const char **value_of_string)
 {
-    uint32_t len = tvb_get_int32(tvb, offset, ENC_BIG_ENDIAN);
+    uint32_t len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
     proto_item *ti;
+
+    check_len(tvb, pinfo, tree, offset, len);
 
     const char *text = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset+4, len, ENC_UTF_8);
 
@@ -490,9 +510,11 @@ decode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, i
  * Returns length of the dissected value
  */
 static int
-decode_generic_data(tvbuff_t *tvb, proto_tree *tree, int offset, int hf)
+decode_generic_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf)
 {
-    uint32_t len = tvb_get_int32(tvb, offset, ENC_BIG_ENDIAN);
+    uint32_t len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
+
+    check_len(tvb, pinfo, tree, offset, len);
 
     proto_item *ti = proto_tree_add_item(tree, hf, tvb, offset, len + 4, ENC_NA);
     proto_tree *string_tree = proto_item_add_subtree(ti, ett_do_irp_string);
@@ -515,6 +537,8 @@ decode_pk_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
     uint32_t pk_len = tvb_get_uint32(tvb, offset + len, ENC_BIG_ENDIAN);
 
+    check_len(tvb, pinfo, tree, offset, pk_len);
+
     proto_item *ti = proto_tree_add_item(tree, hf_do_irp_pkrec, tvb, offset, pk_len + 4, ENC_NA);
     proto_tree *pk_tree = proto_item_add_subtree(ti, ett_do_irp_pk);
 
@@ -530,20 +554,20 @@ decode_pk_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     proto_item_append_text(pk_tree, " (%s)", pk_type);
 
     if(!strcmp("DSA_PUB_KEY", pk_type)) {
-        len += decode_generic_data(tvb, pk_tree, offset + len, hf_do_irp_pkrec_dsa_q);
-        len += decode_generic_data(tvb, pk_tree, offset + len, hf_do_irp_pkrec_dsa_p);
-        len += decode_generic_data(tvb, pk_tree, offset + len, hf_do_irp_pkrec_dsa_g);
-               decode_generic_data(tvb, pk_tree, offset + len, hf_do_irp_pkrec_dsa_y);
+        len += decode_generic_data(tvb, pinfo, pk_tree, offset + len, hf_do_irp_pkrec_dsa_q);
+        len += decode_generic_data(tvb, pinfo, pk_tree, offset + len, hf_do_irp_pkrec_dsa_p);
+        len += decode_generic_data(tvb, pinfo, pk_tree, offset + len, hf_do_irp_pkrec_dsa_g);
+               decode_generic_data(tvb, pinfo, pk_tree, offset + len, hf_do_irp_pkrec_dsa_y);
     }
     else if(!strcmp("RSA_PUB_KEY", pk_type)) {
-        len += decode_generic_data(tvb, pk_tree, offset + len, hf_do_irp_pkrec_rsa_exp);
-               decode_generic_data(tvb, pk_tree, offset + len, hf_do_irp_pkrec_rsa_mod);
+        len += decode_generic_data(tvb, pinfo, pk_tree, offset + len, hf_do_irp_pkrec_rsa_exp);
+               decode_generic_data(tvb, pinfo, pk_tree, offset + len, hf_do_irp_pkrec_rsa_mod);
         /* len += 4; */ /* unused, 4 empty bytes */
     }
     else if(!strcmp("DH_PUB_KEY", pk_type)) {
-        len += decode_generic_data(tvb, pk_tree, offset + len, hf_do_irp_pkrec_dh_y);
-        len += decode_generic_data(tvb, pk_tree, offset + len, hf_do_irp_pkrec_dh_p);
-               decode_generic_data(tvb, pk_tree, offset + len, hf_do_irp_pkrec_dh_g);
+        len += decode_generic_data(tvb, pinfo, pk_tree, offset + len, hf_do_irp_pkrec_dh_y);
+        len += decode_generic_data(tvb, pinfo, pk_tree, offset + len, hf_do_irp_pkrec_dh_p);
+               decode_generic_data(tvb, pinfo, pk_tree, offset + len, hf_do_irp_pkrec_dh_g);
     }
     /* else: undefined, not dissectable */
 
@@ -806,7 +830,7 @@ decode_identifier_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     }
     else {
         /* generic data */
-        len += decode_generic_data(tvb, do_irp_record_tree, offset + len, hf_do_irp_identrecord_value);
+        len += decode_generic_data(tvb, pinfo, do_irp_record_tree, offset + len, hf_do_irp_identrecord_value);
     }
 
     uint32_t references = tvb_get_uint32(tvb, offset + len, ENC_BIG_ENDIAN);
@@ -833,7 +857,6 @@ decode_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *r
 {
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DO-IRP");
-    col_clear(pinfo->cinfo,COL_INFO);
 
     unsigned offset = 0;
 
@@ -867,7 +890,8 @@ decode_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t *r
 
     *reqid = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree_add_item(do_irp_envelope_tree, hf_do_irp_reqid, tvb, offset, 4, ENC_BIG_ENDIAN);
-    col_append_fstr(pinfo->cinfo, COL_INFO, "ReqID=%u", tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN));
+    /* Several messages in one TCP segment are separated in Info */
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "ReqID=%u", *reqid);
     offset += 4;
 
     proto_tree_add_item(do_irp_envelope_tree, hf_do_irp_seq, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -950,7 +974,7 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_item *ti_body = proto_tree_add_item(tree, hf_do_irp_body, tvb, offset, body_len, ENC_NA);
         proto_tree *do_irp_body_tree = proto_item_add_subtree(ti_body, ett_do_irp_body);
 
-        int body_start_offset = offset;
+        unsigned body_start_offset = offset;
 
         /* If RD bit is set, body must start with message digest (response only) */
         if(header_opflags & 0x800000 && respcode > DO_IRP_RC_RESERVED) {
@@ -1084,11 +1108,11 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             proto_tree_add_item(do_irp_body_tree, hf_do_irp_keyidx, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            offset += decode_generic_data(tvb, do_irp_body_tree, offset, hf_do_irp_nonce);
+            offset += decode_generic_data(tvb, pinfo, do_irp_body_tree, offset, hf_do_irp_nonce);
 
-            offset += decode_generic_data(tvb, do_irp_body_tree, offset, hf_do_irp_digest);
+            offset += decode_generic_data(tvb, pinfo, do_irp_body_tree, offset, hf_do_irp_digest);
 
-            offset += decode_generic_data(tvb, do_irp_body_tree, offset, hf_do_irp_challresp);
+            offset += decode_generic_data(tvb, pinfo, do_irp_body_tree, offset, hf_do_irp_challresp);
 
         }
         else if(opcode == DO_IRP_OC_CHALLENGE_RESPONSE && respcode == DO_IRP_RC_RESERVED) { /* Challenge response (client -> server) */
@@ -1100,12 +1124,12 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             proto_tree_add_item(do_irp_body_tree, hf_do_irp_keyidx, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            offset += decode_generic_data(tvb, do_irp_body_tree, offset, hf_do_irp_challresp);
+            offset += decode_generic_data(tvb, pinfo, do_irp_body_tree, offset, hf_do_irp_challresp);
 
         }
         else if(respcode == DO_IRP_RC_AUTHEN_NEEDED) { /* Challenge (server -> client) */
 
-            offset += decode_generic_data(tvb, do_irp_body_tree, offset, hf_do_irp_nonce);
+            offset += decode_generic_data(tvb, pinfo, do_irp_body_tree, offset, hf_do_irp_nonce);
 
         }
         else if(
@@ -1198,13 +1222,14 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         }
         else {
             /* unsupported codes */
-            int unhandled_bytes = body_len - (offset - body_start_offset);
+            unsigned consumed = offset - body_start_offset;
+            unsigned unhandled_bytes = (consumed < body_len) ? body_len - consumed : 0;
             call_data_dissector(
                 tvb_new_subset_length(tvb, offset, unhandled_bytes),
                 pinfo, do_irp_body_tree
             );
             /* call_data_dissector doesn't throw an exception */
-            tvb_ensure_bytes_exist(tvb, offset, unhandled_bytes);
+            tvb_ensure_bytes_exist64(tvb, offset, unhandled_bytes);
             offset += unhandled_bytes;
         }
     }
@@ -1213,6 +1238,8 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if(tvb_captured_length_remaining(tvb, offset) >= 4) {
 
         uint32_t cred_len = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
+
+        check_len(tvb, pinfo, tree, offset, cred_len);
 
         proto_item *ti_cred = proto_tree_add_item(tree, hf_do_irp_credential, tvb, offset, cred_len + 4, ENC_NA);
         proto_tree *do_irp_cred_tree = proto_item_add_subtree(ti_cred, ett_do_irp_credential);
@@ -1233,6 +1260,8 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
             if(sig_len) {
 
+                check_len(tvb, pinfo, do_irp_cred_tree, offset, sig_len);
+
                 proto_item *ti_signedinfo = proto_tree_add_item(do_irp_cred_tree, hf_do_irp_credential_signedinfo, tvb, offset, sig_len + 4, ENC_NA);
                 proto_tree *do_irp_signedinfo_tree = proto_item_add_subtree(ti_signedinfo, ett_do_irp_credential_signedinfo);
 
@@ -1243,7 +1272,7 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 offset += decode_string(tvb, pinfo, do_irp_signedinfo_tree, offset, hf_do_irp_credential_signedinfo_algo, &algo);
                 proto_item_append_text(do_irp_signedinfo_tree, " (%s)", algo);
 
-                offset += decode_generic_data(tvb, do_irp_signedinfo_tree, offset, hf_do_irp_credential_signedinfo_sig);
+                offset += decode_generic_data(tvb, pinfo, do_irp_signedinfo_tree, offset, hf_do_irp_credential_signedinfo_sig);
             }
         }
     }
@@ -1281,7 +1310,10 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* If this packet is a response to a registered request */
     else if(respcode != DO_IRP_RC_RESERVED && request_val) {
 
-        request_val->pnum_resp = pinfo->num;
+        /* Remember the first response, on the first pass only */
+        if(!PINFO_FD_VISITED(pinfo) && request_val->pnum_resp == 0) {
+            request_val->pnum_resp = pinfo->num;
+        }
 
         r_pkt = proto_tree_add_uint(tree , hf_do_irp_response_to, tvb, 0, 0, request_val->pnum);
         proto_item_set_generated(r_pkt);
@@ -1312,7 +1344,15 @@ test_do_irp(tvbuff_t *tvb)
 static unsigned
 get_do_irp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-    return (tvb_get_uint32(tvb, offset + 16, ENC_BIG_ENDIAN) + DO_IRP_ENVELOPE_LEN);
+    uint32_t msg_len = tvb_get_uint32(tvb, offset + 16, ENC_BIG_ENDIAN);
+
+    /* A length that wraps when the envelope is added is bogus;
+     * a value below the envelope length makes tcp_dissect_pdus()
+     * report a bounds error. */
+    if (msg_len > UINT32_MAX - DO_IRP_ENVELOPE_LEN)
+        return 1;
+
+    return msg_len + DO_IRP_ENVELOPE_LEN;
 }
 
 static int
@@ -1322,6 +1362,8 @@ dissect_do_irp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     /* Do some basic tests */
     if(!test_do_irp(tvb))
         return 0;
+
+    col_clear(pinfo->cinfo, COL_INFO);
 
     proto_item *ti = proto_tree_add_item(tree, proto_do_irp, tvb, 0, -1, ENC_NA);
     proto_tree *do_irp_tree = proto_item_add_subtree(ti, ett_do_irp);
@@ -1358,8 +1400,8 @@ dissect_do_irp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         fragment_head *frag_msg = NULL;
         bool first_frag = false;
 
-        uint16_t msg_reqid = tvb_get_uint32(tvb, 8, ENC_BIG_ENDIAN);
-        uint16_t msg_seqid = tvb_get_uint32(tvb, 12, ENC_BIG_ENDIAN);
+        uint32_t msg_reqid = tvb_get_uint32(tvb, 8, ENC_BIG_ENDIAN);
+        uint32_t msg_seqid = tvb_get_uint32(tvb, 12, ENC_BIG_ENDIAN);
 
         if( !(env_flags & 0x20) ) {
             expert_add_info(pinfo, do_irp_tree, &ei_do_irp_frag_wo_tc);
@@ -1370,19 +1412,19 @@ dissect_do_irp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             first_frag = true;
         }
 
+        uint32_t expected_packets = msg_len / (DO_IRP_MAX_UDP_SIZE - DO_IRP_ENVELOPE_LEN);
+        if ((msg_len % (DO_IRP_MAX_UDP_SIZE - DO_IRP_ENVELOPE_LEN)) != 0) expected_packets++;
+
         pinfo->fragmented = true;
         frag_msg = fragment_add_seq_check(&do_irp_reassemble_table, tvb, offset, pinfo,
             msg_reqid, NULL,
             msg_seqid,
             tvb_captured_length_remaining(tvb, offset),
-            true /* Expected packet count set */
+            /* A message that fits into one fragment (TC set) is complete */
+            !(first_frag && expected_packets <= 1)
         );
 
-        if(first_frag) {
-
-            uint32_t expected_packets = msg_len / (DO_IRP_MAX_UDP_SIZE - DO_IRP_ENVELOPE_LEN);
-            if ((msg_len % (DO_IRP_MAX_UDP_SIZE - DO_IRP_ENVELOPE_LEN)) != 0) expected_packets++;
-
+        if(first_frag && expected_packets > 1) {
             fragment_set_tot_len(&do_irp_reassemble_table, pinfo, msg_reqid, NULL, expected_packets-1); /* Set expected packet count (0-index) */
         }
 
@@ -1429,8 +1471,16 @@ dissect_do_irp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 static int
-dissect_do_irp_tcp_full_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_do_irp_tcp_full_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    bool *first_msg = (bool *)data;
+
+    /* The Info column shows every message of the segment */
+    if (*first_msg) {
+        col_clear(pinfo->cinfo, COL_INFO);
+        *first_msg = false;
+    }
+
     proto_item *ti = proto_tree_add_item(tree, proto_do_irp, tvb, 0, -1, ENC_NA);
     proto_tree *do_irp_tree = proto_item_add_subtree(ti, ett_do_irp);
 
@@ -1447,11 +1497,22 @@ dissect_do_irp_tcp_full_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int
 dissect_do_irp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    /* Do some basic tests */
-    if(!test_do_irp(tvb))
-        return 0;
+    /* Do some basic tests. A first segment shorter than the envelope is
+     * left to tcp_dissect_pdus() to reassemble; check its version only. */
+    if (tvb_captured_length(tvb) < DO_IRP_ENVELOPE_LEN) {
+        uint8_t majorversion;
 
-    tcp_dissect_pdus(tvb, pinfo, tree, true, DO_IRP_ENVELOPE_LEN, get_do_irp_message_len, dissect_do_irp_tcp_full_message, data);
+        if (tvb_captured_length(tvb) < 1)
+            return 0;
+        majorversion = tvb_get_uint8(tvb, 0);
+        if (majorversion < 2 || majorversion > 3)
+            return 0;
+    } else if(!test_do_irp(tvb)) {
+        return 0;
+    }
+
+    bool first_msg = true;
+    tcp_dissect_pdus(tvb, pinfo, tree, true, DO_IRP_ENVELOPE_LEN, get_do_irp_message_len, dissect_do_irp_tcp_full_message, &first_msg);
     return tvb_reported_length(tvb);
 }
 
@@ -2107,6 +2168,10 @@ proto_register_do_irp(void)
         { &ei_do_irp_frag_wo_tc,
             { "do-irp.envelope.tc_missing", PI_MALFORMED, PI_ERROR,
                 "Fragmentation without TC bit set", EXPFILL }
+        },
+        { &ei_do_irp_len_invalid,
+            { "do-irp.length.invalid", PI_MALFORMED, PI_ERROR,
+                "Length exceeds the remaining data", EXPFILL }
         }
     };
 
