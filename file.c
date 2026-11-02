@@ -5647,8 +5647,8 @@ cf_save_records(capture_file *cf, const char *fname, unsigned save_format,
                Sadly, on Windows, as we have the current capture file
                open, even MoveFileEx() with MOVEFILE_REPLACE_EXISTING
                (to cause the rename to remove an existing target), as
-               done by ws_stdio_rename() (ws_rename() is #defined to
-               be ws_stdio_rename() on Windows) will fail.
+               done by g_rename() (ws_rename() is #defined to
+               be g_rename() on Windows) will fail.
 
                According to the MSDN documentation for CreateFile(), if,
                when we open a capture file, we were to directly do a CreateFile(),

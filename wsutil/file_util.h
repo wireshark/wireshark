@@ -18,6 +18,7 @@
 #ifdef _WIN32
 #include <io.h>		/* for _read(), _write(), etc. */
 #include <gmodule.h>
+#include <glib/gstdio.h>	/* for g_open(), g_fopen(), etc. */
 #endif
 
 #include <fcntl.h>	/* for open() */
@@ -71,11 +72,12 @@ extern "C" {
  *  wrappers. We enforce code page 65001 (UTF-8) as the active code page
  *  via an application manifest in our executables now, but someone could
  *  build a different application without a manifest and link against these
- *  libraries.
+ *  libraries. (If we don't think that's a real problem, we could just map
+ *  to the UCRT wrappers directly instead of the GLib wrappers.)
  *
  *  File descriptors and FILE pointers belong to the C runtime that
  *  created them, so callers of the wrappers that return or take them
- *  must use the same C runtime as libwsutil. Our builds use the same
+ *  must use the same C runtime as GLib. Our builds use the same
  *  one for libwsutil and GLib (the UCRT, or the debug UCRT in Debug
  *  builds), and we already pass file descriptors to GLib, e.g. with
  *  g_io_channel_win32_new_fd(). With CMake, a plugin that uses the
@@ -83,29 +85,25 @@ extern "C" {
  *  matching C runtime; one built with the static C runtime (/MT) or
  *  against MINGW64's msvcrt.dll doesn't.
  *
- *  Note also that ws_stdio_rename() uses MoveFileEx() with
+ *  We have our own ws_stdio_stat64() instead of g_stat(), which can't
+ *  return the size of a file of 2 GB or more: with MSVC on 64-bit
+ *  Windows, GStatBuf is struct stat, which has a 32-bit st_size.
+ *
+ *  Note also that g_rename() uses MoveFileEx() with
  *  MOVEFILE_REPLACE_EXISTING, so that it acts like UN*X rename(),
  *  removing the target if necessary.
  */
 
-WS_DLL_PUBLIC int ws_stdio_open (const char *filename, int flags, int mode);
-WS_DLL_PUBLIC int ws_stdio_rename (const char *oldfilename, const char *newfilename);
-WS_DLL_PUBLIC int ws_stdio_mkdir (const char *filename, int mode);
 WS_DLL_PUBLIC int ws_stdio_stat64 (const char *filename, ws_statb64 *buf);
-WS_DLL_PUBLIC int ws_stdio_unlink (const char *filename);
-WS_DLL_PUBLIC int ws_stdio_remove (const char *filename);
 
-WS_DLL_PUBLIC FILE * ws_stdio_fopen (const char *filename, const char *mode);
-WS_DLL_PUBLIC FILE * ws_stdio_freopen (const char *filename, const char *mode, FILE *stream);
-
-#define ws_open		ws_stdio_open
-#define ws_rename	ws_stdio_rename
-#define ws_mkdir	ws_stdio_mkdir
+#define ws_open		g_open
+#define ws_rename	g_rename
+#define ws_mkdir	g_mkdir
 #define ws_stat64	ws_stdio_stat64
-#define ws_unlink	ws_stdio_unlink
-#define ws_remove	ws_stdio_remove
-#define ws_fopen	ws_stdio_fopen
-#define ws_freopen	ws_stdio_freopen
+#define ws_unlink	g_unlink
+#define ws_remove	g_remove
+#define ws_fopen	g_fopen
+#define ws_freopen	g_freopen
 
 /*
  * These routines don't take pathnames, so they don't require
