@@ -1520,6 +1520,9 @@ proto_register_ISystemActivator (void)
     proto_register_field_array (proto_ISystemActivator, hf_actproperties, array_length (hf_actproperties));
     proto_register_field_array(proto_ISystemActivator, hf_tshdr, array_length(hf_tshdr));
     proto_register_subtree_array (ett, array_length (ett));
+    /* The marshaler list is per file; register before any packet
+     * needs it, not only when an activation call is seen. */
+    register_init_routine(sysact_register_routines);
 }
 
 void
