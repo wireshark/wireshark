@@ -969,9 +969,9 @@ dissect_dlm3_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 {
   proto_item *sub_item, *opts_item;
   proto_tree *sub_tree, *opts_tree;
-  int        offset, tlv_offset;
-  unsigned o_nextcmd;
-  uint16_t o_optlen, tmp, t_len;
+  int        offset;
+  unsigned   o_nextcmd, tlv_offset, tmp;
+  uint16_t   o_optlen, t_len;
 
   switch (h_cmd) {
   case DLM3_MSG:
@@ -1052,29 +1052,25 @@ dissect_dlm3_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
       opts_tree = proto_item_add_subtree(opts_item, ett_dlm3_options);
 
       tlv_offset = 0;
-      while (tmp > 0) {
-        proto_tree_add_item(opts_tree, hf_dlm3_t_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        tlv_offset += 2;
+      while (tlv_offset + 8 <= tmp) {
+        proto_tree_add_item(opts_tree, hf_dlm3_t_type, tvb, offset + tlv_offset, 2, ENC_LITTLE_ENDIAN);
 
-        t_len = tvb_get_letohs(tvb, offset);
-        if (t_len > o_optlen - tlv_offset)
+        t_len = tvb_get_letohs(tvb, offset + tlv_offset + 2);
+        proto_tree_add_uint(opts_tree, hf_dlm3_t_length, tvb, offset + tlv_offset + 2, 2, t_len);
+
+        proto_tree_add_item(opts_tree, hf_dlm3_t_pad, tvb, offset + tlv_offset + 4, 4, ENC_LITTLE_ENDIAN);
+
+        if (t_len > tmp - tlv_offset - 8)
           return 0;
-        proto_tree_add_uint(opts_tree, hf_dlm3_t_length, tvb, offset, 2, t_len);
-        tlv_offset += 2;
-
-        proto_tree_add_item(opts_tree, hf_dlm3_t_pad, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        tlv_offset += 4;
-
-        proto_tree_add_item(opts_tree, hf_dlm3_t_value, tvb, offset, t_len, ENC_NA);
-        tlv_offset += t_len;
-        tmp -= t_len;
+        proto_tree_add_item(opts_tree, hf_dlm3_t_value, tvb, offset + tlv_offset + 8, t_len, ENC_NA);
+        tlv_offset += 8 + t_len;
       }
-      offset += tlv_offset;
+      offset += tmp;
     }
 
     switch (o_nextcmd) {
     case DLM3_MSG:
-      tmp = DLM_OPTS_LEN + o_optlen + DLM_RCOM_LEN;
+      tmp = DLM_OPTS_LEN + o_optlen + DLM_MSG_LEN;
       if (length < tmp)
         return 0;
 
@@ -1097,13 +1093,16 @@ dissect_dlm3_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     if (length < DLM_MSG_LEN)
       return 0;
 
-    dissect_dlm3_1(tvb, pinfo, sub_tree, data, h_cmd, h_version, length, offset);
+    /* The header has been decoded above; decode the body. */
+    sub_tree = proto_item_add_subtree(sub_item, ett_dlm3_msg);
+    dissect_dlm3_msg(tvb, pinfo, sub_tree, length, offset);
     break;
   case DLM3_RCOM:
     if (length < DLM_RCOM_LEN)
       return 0;
 
-    dissect_dlm3_1(tvb, pinfo, sub_tree, data, h_cmd, h_version, length, offset);
+    sub_tree = proto_item_add_subtree(sub_item, ett_dlm3_rcom);
+    dissect_dlm3_rcom(tvb, pinfo, sub_tree, length, offset, h_version);
     break;
   default:
     break;
@@ -1140,10 +1139,10 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   col_set_str(pinfo->cinfo, COL_INFO, "DLM3");
 
   h_cmd = tvb_get_uint8(tvb, DLM_HEADER_LEN - 1 - 1);
-  col_set_str(pinfo->cinfo, COL_INFO,
-                val_to_str_const(h_cmd,
+  col_add_str(pinfo->cinfo, COL_INFO,
+                val_to_str(pinfo->pool, h_cmd,
                            dlm3_cmd,
-                           "packet-dlm3.c internal bug"));
+                           "unknown command (%u)"));
 
   item = proto_tree_add_item(parent_tree, proto_dlm3, tvb, 0,
                              -1, ENC_NA);
