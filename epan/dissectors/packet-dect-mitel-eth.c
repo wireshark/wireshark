@@ -911,6 +911,7 @@ RFPc Message
 static unsigned dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, unsigned offset)
 {
 	uint8_t message_type, item_type, item_length;
+	unsigned item_start;
 	proto_tree *rfpc_item_tree;
 	proto_item *rfpc_item_tree_item;
 
@@ -929,6 +930,7 @@ static unsigned dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo, p
 		proto_tree_add_item_ret_uint8(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_length, tvb, offset, 1, ENC_NA, &item_length);
 		proto_item_set_len(rfpc_item_tree_item, item_length + 2);
 		offset ++;
+		item_start = offset;
 
 		switch (item_type) {
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_REVISION:
@@ -957,9 +959,10 @@ static unsigned dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo, p
 				break;
 			default:
 				proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_value, tvb, offset, item_length, ENC_NA);
-				offset += item_length;
 				break;
 		}
+		/* The next item follows this one, however much of it was decoded */
+		offset = item_start + item_length;
 	}
 	return offset;
 }
