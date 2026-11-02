@@ -39708,3 +39708,185 @@ class TestDissectDcm:
                 '-q', '--export-objects', f'dicom,{export_dir}',
             ), env=test_env)
         assert [p.name for p in export_dir.iterdir()] == ['000009-1-2.25.100002.dcm']
+
+
+class TestDissectDcom:
+    def test_dcom_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts of every DCOM interface in the capture, and no
+        malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 245
+        assert protocols.count('REMACT') == 4
+        assert protocols.count('IWBEMSERVICES') == 2
+        assert protocols.count('ISystemActivator') == 21
+        assert protocols.count('IOXIDResolver') == 36
+        assert protocols.count('IRemUnknown') == 16
+        assert protocols.count('IRemUnknown2') == 18
+        assert protocols.count('IDispatch') == 36
+        assert protocols.count('IProvideClassInfo') == 8
+        assert protocols.count('DCERPC') == 26
+        assert protocols.count('TCP') == 78
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcom_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dcom_custom_objref_first_pass(self, cmd_tshark, capture_file, test_env):
+        '''A custom OBJREF for IStorage (frame 6, an IRemoteActivation
+        request) and one for IWbemClassObject (frame 18) come before any
+        ISystemActivator or IWbemServices call. Their marshalers are
+        registered when the file is opened, so the IStorage OBJREF holds
+        its standard OBJREF and the WMIO object is decoded in the first
+        pass as in the second ("DCOM: Limit nested OBJREFs, register
+        custom marshalers for every packet").'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcom_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {6, 18}',
+                    '-Tfields', '-eframe.number', '-edcom.objref.flags', '-edcom.ipid',
+                    '-ewmio.signature',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '6\t0x00000004,0x00000001\t00009801-0aa8-1234-5678-9abcdef09abc\t',
+                '18\t0x00000004\t\t0x12345678',
+            ]
+
+    def test_dcom_nested_objref(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of the OBJREF recursion with 8 nested custom
+        OBJREFs for IStorage decodes every level.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Y', 'frame.number == 72',
+                '-Tfields', '-edcom.objref.flags', '-edcom.iid',
+            ), encoding='utf-8', env=test_env)
+        flags, iids = stdout.rstrip('\n').split('\t')
+        assert flags.split(',') == ['0x00000004'] * 8 + ['0x00000000']
+        assert iids.split(',') == ['0000000b-0000-0000-c000-000000000046'] * 8 + \
+            ['00000000-0000-0000-0000-000000000000']
+
+    def test_dcom_activation(self, cmd_tshark, capture_file, test_env):
+        '''RemoteCreateInstance with every activation property, in a
+        little endian (frames 28, 29) and a big endian connection with
+        big endian type serialization (frames 50, 51).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Y', 'frame.number in {28, 50}',
+                '-Tfields', '-eisystemactivator.customhdr.actpropnumber',
+                '-eisystemactivator.customhdr.datasize',
+                '-eisystemactivator.properties.instninfo.iid',
+                '-eisystemactivator.properties.si.ci.name',
+                '-eisystemactivator.properties.sri.protseq',
+                '-eisystemactivator.properties.context.id',
+                '-eisystemactivator.actproperties.ts.end',
+            ), encoding='utf-8', env=test_env)
+        common = ('7\t96,104,144,96,56,48,336\t'
+                  '00000000-0000-0000-c000-000000000046,00020400-0000-0000-c000-000000000046\t'
+                  'srv01.example.com\t7,31\t2c4f3f8b-6e2e-4c31-9f0e-1a2b3c4d5e6f\t')
+        assert stdout.splitlines() == [common + ','.join(['0x10'] * 8),
+                                       common + ','.join(['0x00'] * 8)]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Y', 'frame.number in {29, 51}',
+                '-Tfields', '-eisystemactivator.properties.iid',
+                '-eisystemactivator.properties.retval', '-edcom.ipid',
+                '-eisystemactivator.properties.scmresp.oxid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '00000000-0000-0000-c000-000000000046,00020400-0000-0000-c000-000000000046,'
+            '00020401-0000-0000-c000-000000000046\t0,0,2147500034\t'
+            '00007c04-0aa8-1234-5678-9abcdef01234,00007c04-0aa8-1234-5678-9abcdef05678\t'
+            '0x1111222233334444'] * 2
+
+    def test_dcom_dualstringarray(self, cmd_tshark, capture_file, test_env):
+        '''IOXIDResolver ResolveOxid2 and ServerAlive2 replies: string
+        bindings with three IPv4 addresses (two notes), an unknown tower
+        with a non-printable address, and security bindings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Y', 'frame.number in {92, 96}',
+                '-Tfields', '-edcom.dualstringarray.tower_id',
+                '-edcom.dualstringarray.network_addr',
+                '-edcom.dualstringarray.security_princ_name', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0007,0x0007,0x0055,0x0008\t192.0.2.60,192.0.2.61,0102FF000000,198.51.100.7\t'
+            'NT AUTHORITY\tDUALSTRINGARRAY: multiple IP\'s 192.0.2.60 192.0.2.61,'
+            'DUALSTRINGARRAY: multiple IP\'s 192.0.2.60 198.51.100.7',
+            '0x0007,0x0007,0x001f\t192.0.2.60,srv01.example.com,192.0.2.60[593]\t'
+            ',host/srv01.example.com,srv01$\t',
+        ]
+
+    def test_dcom_remunknown(self, cmd_tshark, capture_file, test_env):
+        '''IRemUnknown replies: the IIDs of the request are kept for the
+        QI results, and the HRESULTs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 133 && frame.number <= 148 && dcerpc.pkt_type == 2',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'RemQueryInterface response S_OK[1] S_OK[2] E_NOINTERFACE[3] -> S_OK',
+            'RemQueryInterface response S_OK[1] S_OK[2] S_OK[3] -> S_OK',
+            'RemQueryInterface response S_OK[1] -> E_NOINTERFACE',
+            'RemQueryInterface response -> E_POINTER',
+            'RemAddRef response',
+            'RemRelease response -> S_OK',
+            'RemRelease response -> RPC_E_DISCONNECTED',
+            'RemRelease response -> S_FALSE',
+        ]
+
+    def test_dcom_variant(self, cmd_tshark, capture_file, test_env):
+        '''The VARIANTs of an IDispatch Invoke request: integer types,
+        BSTRs (printable, non-printable, by reference, nested in a
+        VARIANT, in a SAFEARRAY) and SAFEARRAYs of I1, I2, I4, I8 and
+        ERROR, and the ExcepInfo strings of a reply.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Y', 'frame.number == 193',
+                '-Tfields', '-edcom.vt.bool', '-edcom.vt.i1', '-edcom.vt.ui1', '-edcom.vt.i2',
+                '-edcom.vt.ui2', '-edcom.vt.i4', '-edcom.vt.ui4', '-edcom.vt.i8',
+                '-edcom.vt.ui8', '-edcom.vt.bstr', '-edcom.hresult',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            '0xffff,0x0000', '-5,1,2,3', '200', '-300,7,-1,2', '60000',
+            '-70000,42,1,-2,3,1', '4000000000', '-5000000000000,1099511627776,-1',
+            '9223372036854775808',
+            ',Hello, DCOM,,0100FFFE,,line1\\r\\nline2,,by reference,,nested,,one,,three',
+            '0x80020005,0x00000000,0x80020009',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Y', 'frame.number == 198',
+                '-Tfields', '-edispatch.source', '-edispatch.description',
+                '-edispatch.help_file', '-edispatch.scode', '-edispatch.arg_err',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            ',Word\t,The file could not be found.\t,C:\\\\help\\\\word.chm\t0x80020009\t1']
+
+    def test_dcom_variant_cy(self, cmd_tshark, capture_file, test_env):
+        '''VT_CY VARIANTs (a positive and a negative currency value, in
+        the little and the big endian IDispatch Invoke request): the
+        64-bit value and its display with four decimals. The display
+        is accepted with ',' as well, for locales that use it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Y', 'dcom.vt.cy',
+                '-Tfields', '-eframe.number', '-edcom.vt.cy',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['193\t123456789,-15000', '219\t123456789,-15000']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_coverage.pcap.gz'),
+                '-Y', 'frame.number == 193',
+                '-V', '-O', 'dispatch',
+            ), encoding='utf-8', env=test_env)
+        cy = [l.strip() for l in stdout.splitlines() if l.strip().startswith('VT_CY:')]
+        assert len(cy) == 2
+        assert cy[0] in ('VT_CY: 12345.6789', 'VT_CY: 12345,6789')
+        assert cy[1] in ('VT_CY: -1.5000', 'VT_CY: -1,5000')
