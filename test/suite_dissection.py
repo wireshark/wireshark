@@ -41516,3 +41516,299 @@ class TestDissectDectNrTap:
         assert lines[0].endswith('\tde ad be ef')
         assert lines[1].startswith('10\t200,201,7,')
         assert lines[1].endswith(',ab cd')
+
+
+class TestDissectDectNwk:
+    def test_dect_nwk_protocols(self, cmd_tshark, capture_file, test_env):
+        '''DECT-NWK over DECT-DLC SAPI 0 and 3 over DECT-MITEL-ETH: every
+        frame but two DLC segments has a NWK message, four with an unknown
+        protocol discriminator end in data. No frame is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 126
+        assert protocols.count('eth:ethertype:dect_mitel_eth:dect_dlc:dect_nwk') == 120
+        assert protocols.count('eth:ethertype:dect_mitel_eth:dect_dlc:dect_nwk:data') == 4
+        assert protocols.count('eth:ethertype:dect_mitel_eth:dect_dlc') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dect_nwk_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message type of every protocol discriminator (LCE, CC with
+        the CRSS messages, CISS, MM, COMS, CLMS over SAPI 3), an unknown
+        type of each and unknown protocol discriminators.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 72',
+                '-Tfields', '-eframe.number', '-edect_nwk.ti', '-edect_nwk.pdisc',
+                '-edect_dlc.sapi', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x01\t0x00\t0\tU, func=UI(NWK) LCE-PAGE-RESPONSE ',
+            '2\t0x02\t0x00\t0\tU, func=UI(NWK) LCE-PAGE-REJECT ',
+            '3\t0x00\t0x00\t0\tU, func=UI(NWK) Unknown 0x7e ',
+            '4\t0x01\t0x03\t0\tU, func=UI(NWK) CC-ALERTING ',
+            '5\t0x02\t0x03\t0\tU, func=UI(NWK) CC-CALL-PROC ',
+            '6\t0x05\t0x03\t0\tU, func=UI(NWK) CC-SETUP ',
+            '7\t0x07\t0x03\t0\tU, func=UI(NWK) CC-CONNECT ',
+            '8\t0x05\t0x03\t0\tU, func=UI(NWK) CC-SETUP-ACK ',
+            '9\t0x07\t0x03\t0\tU, func=UI(NWK) CC-CONNECT-ACK ',
+            '10\t0x00\t0x03\t0\tU, func=UI(NWK) CC-SERVICE-CHANGE ',
+            '11\t0x01\t0x03\t0\tU, func=UI(NWK) CC-SERVICE-ACCEPT ',
+            '12\t0x03\t0x03\t0\tU, func=UI(NWK) CC-SERVICE-REJECT ',
+            '13\t0x05\t0x03\t0\tU, func=UI(NWK) CC-RELEASE ',
+            '14\t0x02\t0x03\t0\tU, func=UI(NWK) CC-RELEASE-COM ',
+            '15\t0x00\t0x03\t0\tU, func=UI(NWK) CC-IWU-INFO ',
+            '16\t0x06\t0x03\t0\tU, func=UI(NWK) CC-NOTIFY ',
+            '17\t0x03\t0x03\t0\tU, func=UI(NWK) CC-INFO ',
+            '18\t0x04\t0x03\t0\tU, func=UI(NWK) HOLD ',
+            '19\t0x00\t0x03\t0\tU, func=UI(NWK) HOLD-ACK ',
+            '20\t0x00\t0x03\t0\tU, func=UI(NWK) HOLD-REJECT ',
+            '21\t0x01\t0x03\t0\tU, func=UI(NWK) RETRIEVE ',
+            '22\t0x03\t0x03\t0\tU, func=UI(NWK) RETRIEVE-ACK ',
+            '23\t0x07\t0x03\t0\tU, func=UI(NWK) RETRIEVE-REJECT ',
+            '24\t0x02\t0x03\t0\tU, func=UI(NWK) FACILITY ',
+            '25\t0x00\t0x03\t0\tU, func=UI(NWK) Unknown 0x7e ',
+            '26\t0x02\t0x04\t0\tU, func=UI(NWK) CISS-RELEASE-COM ',
+            '27\t0x02\t0x04\t0\tU, func=UI(NWK) FACILITY ',
+            '28\t0x04\t0x04\t0\tU, func=UI(NWK) CISS-REGISTER ',
+            '29\t0x00\t0x04\t0\tU, func=UI(NWK) Unknown 0x7e ',
+            '30\t0x00\t0x05\t0\tU, func=UI(NWK) MM-AUTH-REQ ',
+            '31\t0x01\t0x05\t0\tU, func=UI(NWK) MM-AUTH-REPLY ',
+            '32\t0x02\t0x05\t0\tU, func=UI(NWK) MM-KEY-ALLOCATE ',
+            '33\t0x03\t0x05\t0\tU, func=UI(NWK) MM-AUTH-REJECT ',
+            '34\t0x04\t0x05\t0\tU, func=UI(NWK) MM-ACCESS-RIGHTS-REQUEST ',
+            '35\t0x05\t0x05\t0\tU, func=UI(NWK) MM-ACCESS-RIGHTS-ACCEPT ',
+            '36\t0x07\t0x05\t0\tU, func=UI(NWK) MM-ACCESS-RIGHTS-REJECT ',
+            '37\t0x00\t0x05\t0\tU, func=UI(NWK) MM-ACCESS-RIGHTS-TERMINATE-REQUEST ',
+            '38\t0x01\t0x05\t0\tU, func=UI(NWK) MM-ACCESS-RIGHTS-TERMINATE-ACCEPT ',
+            '39\t0x03\t0x05\t0\tU, func=UI(NWK) MM-ACCESS-RIGHTS-TERMINATE-REJECT ',
+            '40\t0x04\t0x05\t0\tU, func=UI(NWK) MM-CIPHER-REQUEST ',
+            '41\t0x06\t0x05\t0\tU, func=UI(NWK) MM-CIPHER-SUGGEST ',
+            '42\t0x07\t0x05\t0\tU, func=UI(NWK) MM-CIPHER-REJECT ',
+            '43\t0x00\t0x05\t0\tU, func=UI(NWK) MM-INFO-REQUEST ',
+            '44\t0x01\t0x05\t0\tU, func=UI(NWK) MM-INFO-ACCEPT ',
+            '45\t0x02\t0x05\t0\tU, func=UI(NWK) MM-INFO-SUGGEST ',
+            '46\t0x03\t0x05\t0\tU, func=UI(NWK) MM-INFO-REJECT ',
+            '47\t0x04\t0x05\t0\tU, func=UI(NWK) MM-LOCATE-REQUEST ',
+            '48\t0x05\t0x05\t0\tU, func=UI(NWK) MM-LOCATE-ACCEPT ',
+            '49\t0x06\t0x05\t0\tU, func=UI(NWK) MM-DETACH ',
+            '50\t0x07\t0x05\t0\tU, func=UI(NWK) MM-LOCATE-REJECT ',
+            '51\t0x00\t0x05\t0\tU, func=UI(NWK) MM-IDENTITY-REQUEST ',
+            '52\t0x01\t0x05\t0\tU, func=UI(NWK) MM-IDENTITY-REPLY ',
+            '53\t0x03\t0x05\t0\tU, func=UI(NWK) MM-IWU ',
+            '54\t0x04\t0x05\t0\tU, func=UI(NWK) MM-TEMPORARY-IDENTITY-ASSIGN ',
+            '55\t0x05\t0x05\t0\tU, func=UI(NWK) MM-TEMPORARY-IDENTITY-ASSIGN-ACK ',
+            '56\t0x07\t0x05\t0\tU, func=UI(NWK) MM-TEMPORARY-IDENTITY-ASSIGN-REJ ',
+            '57\t0x06\t0x05\t0\tU, func=UI(NWK) MM-NOTIFY ',
+            '58\t0x00\t0x05\t0\tU, func=UI(NWK) Unknown 0x7e ',
+            '59\t0x05\t0x07\t0\tU, func=UI(NWK) COMS-SETUP ',
+            '60\t0x07\t0x07\t0\tU, func=UI(NWK) COMS-CONNECT ',
+            '61\t0x00\t0x07\t0\tU, func=UI(NWK) COMS-NOTIFY ',
+            '62\t0x05\t0x07\t0\tU, func=UI(NWK) COMS-RELEASE ',
+            '63\t0x02\t0x07\t0\tU, func=UI(NWK) COMS-RELEASE-COM ',
+            '64\t0x03\t0x07\t0\tU, func=UI(NWK) COMS-INFO ',
+            '65\t0x00\t0x07\t0\tU, func=UI(NWK) COMS-ACK ',
+            '66\t0x00\t0x07\t0\tU, func=UI(NWK) Unknown 0x7e ',
+            '67\t0x00\t0x06\t3\tU, func=UI(NWK) CLMS-VARIABLE ',
+            '68\t0x00\t0x06\t3\tU, func=UI(NWK) Unknown 0x02 ',
+            '69\t0x00\t0x01\t0\tU, func=UI(NWK) ',
+            '70\t0x00\t0x02\t0\tU, func=UI(NWK) ',
+            '71\t0x00\t0x08\t0\tU, func=UI(NWK) ',
+            '72\t0x00\t0x0f\t0\tU, func=UI(NWK) ',
+        ]
+
+    def test_dect_nwk_fixed_length_elements(self, cmd_tshark, capture_file, test_env):
+        '''Single octet (shift, control, repeat indicator, reserved) and
+        double octet elements, known and unknown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                '-Y', 'frame.number in {73, 74, 75}',
+                '-V', '-O', 'dect_nwk',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines() if 'Fixed length Element' in l] == [
+            'Fixed length Element: SHIFT',
+            'Fixed length Element: SHIFT',
+            'Fixed length Element: SENDING-COMPLETE',
+            'Fixed length Element: DELIMITER-REQUEST',
+            'Fixed length Element: USE-TPUI',
+            'Fixed length Element: Unknown: 0x7',
+            'Fixed length Element: REPEAT-INDICATOR',
+            'Fixed length Element: REPEAT-INDICATOR',
+            'Fixed length Element: Unknown: 0x0',
+            'Fixed length Element: Unknown: 0x3',
+            'Fixed length Element: Unknown: 0x4',
+            'Fixed length Element: Unknown: 0x7',
+            'Fixed length Element: BASIC-SERVICE',
+            'Fixed length Element: RELEASE-REASON',
+            'Fixed length Element: SIGNAL',
+            'Fixed length Element: TIMER-RESTART',
+            'Fixed length Element: TEST-HOOK-CONTROL',
+            'Fixed length Element: SINGLE-DISPLAY',
+            'Fixed length Element: SINGLE-DISPLAY',
+            'Fixed length Element: SINGLE-KEYPAD',
+            'Fixed length Element: SINGLE-KEYPAD',
+            'Fixed length Element: Unknown: 0x1',
+            'Fixed length Element: Unknown: 0x3',
+            'Fixed length Element: Unknown: 0x7',
+            'Fixed length Element: Unknown: 0xa',
+            'Fixed length Element: Unknown: 0xb',
+            'Fixed length Element: Unknown: 0xc',
+            'Fixed length Element: Unknown: 0xd',
+            'Fixed length Element: Unknown: 0xe',
+            'Fixed length Element: Unknown: 0xf',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                '-Y', 'frame.number == 74',
+                '-Tfields', '-edect_nwk.s.ie.fl.basic_service.call_class',
+                '-edect_nwk.s.ie.fl.basic_service', '-edect_nwk.s.ie.fl.release_reason.code',
+                '-edect_nwk.s.ie.fl.signal.value', '-edect_nwk.s.ie.fl.timer_restart.restart_value',
+                '-edect_nwk.s.ie.fl.test_hook_control.hook_value',
+                '-edect_nwk.s.ie.fl.single_display.display_info',
+                '-edect_nwk.s.ie.fl.single_keypad.keypad_info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '0x08\t0x08\t0x00\t0x40\t0x01\t0x01\tA,\\f\t5,\x05\n'
+
+    def test_dect_nwk_portable_identities(self, cmd_tshark, capture_file, test_env):
+        '''Portable identities of every type: IPUI N-U and a reserved PUT,
+        IPEI, TPUI and an unknown identity type, with and without padding.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                '-Y', 'frame.number in {76..94}',
+                '-Tfields', '-eframe.number', '-edect_nwk.s.ie.portable_identity.type',
+                '-edect_nwk.s.ie.portable_identity.ipui.put',
+                '-edect_nwk.s.ie.portable_identity.ipei',
+                '-edect_nwk.s.ie.portable_identity.ipui_o.number',
+                '-edect_nwk.s.ie.portable_identity.ipui_p.poc',
+                '-edect_nwk.s.ie.portable_identity.ipui_p.acc',
+                '-edect_nwk.s.ie.portable_identity.ipui_q.bacn',
+                '-edect_nwk.s.ie.portable_identity.ipui_r.imsi',
+                '-edect_nwk.s.ie.portable_identity.ipui_s.number',
+                '-edect_nwk.s.ie.portable_identity.ipui_t.eic',
+                '-edect_nwk.s.ie.portable_identity.ipui_t.number',
+                '-edect_nwk.s.ie.portable_identity.ipui_u.cacn',
+                '-edect_nwk.s.ie.portable_identity.tpui_value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '76\t0x00\t0x00\t305419896\t\t\t\t\t\t\t\t\t\t',
+            '77\t0x00\t0x01\t\t0x00123456789abcde\t\t\t\t\t\t\t\t\t',
+            '78\t0x00\t0x02\t\t\t0x1234\t112233445566778899aa\t\t\t\t\t\t\t',
+            '79\t0x00\t0x03\t\t\t\t\t12345678\t\t\t\t\t\t',
+            '80\t0x00\t0x03\t\t\t\t\t123456789\t\t\t\t\t\t',
+            '81\t0x00\t0x04\t\t\t\t\t\t262011234567890\t\t\t\t\t',
+            '82\t0x00\t0x05\t\t\t\t\t\t\t49891234567\t\t\t\t',
+            '83\t0x00\t0x06\t\t\t\t\t\t\t\t0x2468\t1357924\t\t',
+            '84\t0x00\t0x07\t\t\t\t\t\t\t\t\t\t4111111111111111\t',
+            '85\t0x00\t0x04\t\t\t\t\t\t26201123456789\t\t\t\t\t',
+            '86\t0x00\t0x05\t\t\t\t\t\t\t4989123456\t\t\t\t',
+            '87\t0x00\t0x06\t\t\t\t\t\t\t\t0x2468\t13579246\t\t',
+            '88\t0x00\t0x07\t\t\t\t\t\t\t\t\t\t411111111111111\t',
+            '89\t0x00\t0x08\t\t\t\t\t\t\t\t\t\t\t',
+            '90\t0x10\t\t305419896\t\t\t\t\t\t\t\t\t\t',
+            '91\t0x10\t\t305135623\t\t\t\t\t\t\t\t\t\t',
+            '92\t0x20\t\t\t\t\t\t\t\t\t\t\t\t0x000c1234',
+            '93\t0x20\t\t\t\t\t\t\t\t\t\t\t\t0x0000abcd',
+            '94\t0x30\t\t\t\t\t\t\t\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                '-Y', 'frame.number in {90, 91}',
+                '-V', '-O', 'dect_nwk',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split(' = ')[1] for l in stdout.splitlines() if ' = IPEI: ' in l] == [
+            'IPEI: 00291 0284280 5',
+            'IPEI: 00291 0000007 *',
+        ]
+
+    def test_dect_nwk_fixed_and_assigned_identities(self, cmd_tshark, capture_file, test_env):
+        '''Fixed identities (ARI, ARI+RPN, ARI+RPN for WRS, PARK) of
+        several access rights classes and NWK assigned identities.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                '-Y', 'frame.number in {95..103}',
+                '-Tfields', '-eframe.number', '-edect_nwk.s.ie.fixed_identity.type',
+                '-edect_nwk.s.ie.fixed_identity.value_length',
+                '-edect_nwk.s.ie.fixed_identity.arc', '-edect_nwk.s.ie.fixed_identity.ard',
+                '-edect_nwk.s.ie.nwk_assigned_identity.type',
+                '-edect_nwk.s.ie.nwk_assigned_identity.value_length',
+                '-edect_nwk.s.ie.nwk_assigned_identity.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '95\t0x00\t36\t0x00\t0x0000000012345678\t\t\t',
+            '96\t0x01\t40\t0x01\t0x0000000123456789\t\t\t',
+            '97\t0x02\t31\t0x02\t0x0000000001abcdef\t\t\t',
+            '98\t0x20\t32\t0x03\t0x0000000001234567\t\t\t',
+            '99\t0x20\t33\t0x04\t0x0000000002468ace\t\t\t',
+            '100\t0x20\t8\t0x05\t0x0000000000000001\t\t\t',
+            '101\t\t\t\t\t0x74\t32\tdeadbeef',
+            '102\t\t\t\t\t0x7f\t20\tabcde0',
+            '103\t\t\t\t\t0x64\t8\t12',
+        ]
+
+    def test_dect_nwk_elements(self, cmd_tshark, capture_file, test_env):
+        '''A selection of the decoded variable length elements.'''
+        def fields(frame, *names):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame,
+                    '-Tfields', *['-e' + n for n in names],
+                ), encoding='utf-8', env=test_env)
+            return stdout.rstrip('\n').split('\t')
+        assert fields(104, 'dect_nwk.s.ie.auth_type.authentication_algorithm',
+                      'dect_nwk.s.ie.auth_type.proprietary_algorithm',
+                      'dect_nwk.s.ie.auth_type.default_cipher_key_index') == [
+            '0x01,0x02,0x7f,0x20', '0x33', '0x1234']
+        assert fields(105, 'dect_nwk.s.ie.calling_party_number.presentation',
+                      'dect_nwk.s.ie.calling_party_number.address') == ['0x00', '04989,123']
+        assert fields(106, 'dect_nwk.s.ie.cipher_info.algorithm',
+                      'dect_nwk.s.ie.cipher_info.proprietary_algorithm') == ['0x01,0x7f', '0x55']
+        assert fields(107, 'dect_nwk.s.ie.duration.time_duration') == ['10']
+        assert fields(108, 'dect_nwk.s.ie.iwu_to_iwu.protocol_discriminator',
+                      'dect_nwk.s.ie.iwu_to_iwu.emc_discriminator',
+                      'dect_nwk.s.ie.iwu_to_iwu.proprietary_contents') == [
+            '0x00,0x00,0x03,0x06', '0x0123', 'deadbeef']
+        assert fields(109, 'dect_nwk.s.ie.location_area.eli_type', 'e212.mcc', 'e212.mnc',
+                      'dect_nwk.s.ie.location_area.lac', 'dect_nwk.s.ie.location_area.ci') == [
+            '0x0f,0x07', '262', '01', '1234', '5678']
+        assert fields(112, 'dect_nwk.s.ie.terminal_capability.stored_display_characters',
+                      'dect_nwk.s.ie.terminal_capability.profile_indicator_10') == ['192', '0x1f']
+        assert fields(115, 'dect_nwk.s.ie.model_identifier.manic',
+                      'dect_nwk.s.ie.model_identifier.modic') == ['0123', '69']
+        assert fields(116, 'dect_nwk.s.ie.codec_list.codec_identifier',
+                      'dect_nwk.s.ie.codec_list.slot_size') == ['0x02,0x03,0x02', '0x01,0x04,0x02']
+
+    def test_dect_nwk_reassembled(self, cmd_tshark, capture_file, test_env):
+        '''A CC-SETUP longer than a DLC frame, reassembled from three I
+        frames, with all of its elements.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                '-Y', 'frame.number == 124',
+                '-Tfields', '-edect_dlc.fragment', '-edect_nwk.s.ie.type',
+                '-edect_nwk.s.ie.multi_display.information',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == ['122,123,124', '0x05,0x06,0x6c,0x28,0x63,0x7c,0x21',
+            'Synthetic DECT NWK display text that needs DLC segmentation\n']
+
+    def test_dect_nwk_element_resync(self, cmd_tshark, capture_file, test_env):
+        '''Each element is found after the length of the one before: a
+        MODEL-IDENTIFIER of length 5 and an IPEI with two extra octets are
+        each one element. Their contents used to be taken for a RAND
+        element.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_nwk_coverage.pcap.gz'),
+                '-Y', 'frame.number in {125, 126}',
+                '-V', '-O', 'dect_nwk',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines() if 'Element: ' in l] == [
+            'Element: MODEL-IDENTIFIER',
+            'Element: PORTABLE-IDENTITY',
+        ]
