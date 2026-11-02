@@ -37944,3 +37944,158 @@ class TestDissectDcerpcDceSmall3:
         assert len(frames) == 20 + 1
         assert frames[:2] == [254, 256]
         assert frames[-1] == 302
+
+
+class TestDissectDcerpcSamr:
+    def test_samr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: six connections (NDR little endian, big endian,
+        NDR64, policy handles, and the big endian and NDR64 reproducers)
+        and no malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 1020
+        assert protocols.count('SAMR') == 966
+        assert protocols.count('DCERPC') == 15
+        assert protocols.count('TCP') == 39
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_samr_bind(self, cmd_tshark, capture_file, test_env):
+        '''The six binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        ndr = '12345778-1234-abcd-ef00-0123456789ac\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860'
+        ndr64 = '12345778-1234-abcd-ef00-0123456789ac\t1\t71710533-beba-4937-8319-b5dbef9ccc36'
+        assert stdout.splitlines() == [
+            '1\t' + ndr, '0\t' + ndr, '1\t' + ndr64,
+            '1\t' + ndr, '0\t' + ndr, '1\t' + ndr64,
+        ]
+
+    def test_samr_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum 0-73 has a request and a response in NDR little
+        endian, big endian and NDR64, plus the unknown opnum 74 in the
+        first connection.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Y', 'samr && tcp.stream <= 2',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type', '-esamr.opnum',
+            ), encoding='utf-8', env=test_env)
+        seen = {}
+        for line in stdout.splitlines():
+            stream, ptype, opnum = line.split('\t')
+            seen.setdefault((stream, ptype), set()).add(int(opnum))
+        everything = set(range(74))
+        assert seen[('0', '0')] == seen[('0', '2')] == everything | {74}
+        for stream in ('1', '2'):
+            assert seen[(stream, '0')] == seen[(stream, '2')] == everything
+
+    def test_samr_ndr64_string(self, cmd_tshark, capture_file, test_env):
+        '''LookupDomain for "EXAMPLE" in NDR and NDR64: the domain name is
+        in the Info column and in the lsa_String item (an NDR64 string was
+        looked for after a 12 octet header instead of 24, and the label had
+        a doubled colon).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Y', 'samr.samr_LookupDomain.domain_name == "EXAMPLE"',
+                '-Tfields', '-etcp.srcport', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '50004\tLookupDomain request, EXAMPLE',
+            '50006\tLookupDomain request, EXAMPLE',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Y', 'tcp.srcport == 50006 && samr.opnum == 5 && dcerpc.pkt_type == 0',
+                '-O', 'samr', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert '    Pointer to Domain Name (lsa_String) EXAMPLE\n' in stdout
+        assert '        Domain Name: EXAMPLE\n' in stdout
+        assert ': :' not in stdout
+
+    def test_samr_owf_passwords(self, cmd_tshark, capture_file, test_env):
+        '''The OWF passwords and the user parameters (lsa_BinaryString) are
+        FT_NONE items over opaque octets, not strings made of the header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Y', 'samr.samr_UserInfo21.nt_owf_password',
+                '-Tfields', '-etcp.stream', '-esamr.opnum',
+                '-esamr.samr_UserInfo21.lm_owf_password',
+                '-esamr.samr_UserInfo21.nt_owf_password',
+                '-esamr.samr_UserInfo21.parameters',
+                '-elsarpc.lsa_BinaryString.length',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 12
+        for line in lines:
+            assert line.split('\t')[1:] == ['36', '1', '1', '1', '2,2,2']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Y', 'samr.samr_UserInfo21.nt_owf_password && tcp.stream == 2',
+                '-O', 'samr', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Nt Owf Password\n' in stdout
+        assert 'Lm Owf Password\n' in stdout
+        assert 'Nt Owf Password:' not in stdout
+        assert 'stray' not in stdout
+
+    def test_samr_secinfo_big_endian(self, cmd_tshark, capture_file, test_env):
+        '''The security information mask of a big endian QuerySecurity
+        request (DACL only), and of a SetSecurity and a QuerySecurity
+        request with all four flags, is read in the byte order
+        of the data representation.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Y', 'nt.sec_info && dcerpc.drep.byteorder == 0',
+                '-Tfields', '-etcp.srcport', '-esamr.opnum', '-ent.sec_info', '-ent.sec_info.owner',
+                '-ent.sec_info.group', '-ent.sec_info.dacl', '-ent.sec_info.sacl',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '50002\t2\t0x0000000f\tTrue\tTrue\tTrue\tTrue',
+            '50002\t3\t0x0000000f\tTrue\tTrue\tTrue\tTrue',
+            '50005\t3\t0x00000004\tFalse\tFalse\tTrue\tFalse',
+        ]
+
+    def test_samr_handle_types(self, cmd_tshark, capture_file, test_env):
+        '''QuerySecurity on a connect, domain, group, alias and user
+        handle: the ACE's access mask is decoded with the specific rights
+        of the object the handle was opened for.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Y', 'tcp.srcport == 49155 && tcp.dstport == 50004 && samr.opnum == 3',
+                '-Tfields', '-ent.access_mask',
+                '-esamr.samr_ConnectAccessMask.SAMR_ACCESS_CONNECT_TO_SERVER',
+                '-esamr.samr_DomainAccessMask.SAMR_DOMAIN_ACCESS_CREATE_ALIAS',
+                '-esamr.samr_GroupAccessMask.SAMR_GROUP_ACCESS_ADD_MEMBER',
+                '-esamr.samr_AliasAccessMask.SAMR_ALIAS_ACCESS_ADD_MEMBER',
+                '-esamr.samr_UserAccessMask.SAMR_USER_ACCESS_CHANGE_GROUP_MEMBERSHIP',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x000f07ff\tTrue\t\t\t\t',
+            '0x000f07ff\t\tTrue\t\t\t',
+            '0x000f07ff\t\t\tTrue\t\t',
+            '0x000f07ff\t\t\t\tTrue\t',
+            '0x000f07ff\t\t\t\t\tTrue',
+        ]
+
+    def test_samr_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A LookupRids request with 1000 RIDs in four DCE/RPC fragments
+        over several TCP segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_samr_coverage.pcap.gz'),
+                '-Y', 'samr.samr_LookupRids.num_rids == 1000',
+                '-Tfields', '-edcerpc.fragment.count', '-edcerpc.reassembled.length',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['4\t4036\tLookupRids request']
