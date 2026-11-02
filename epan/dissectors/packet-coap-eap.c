@@ -649,7 +649,7 @@ proto_register_coap_eap(void)
     };
 
     proto_coap_eap = proto_register_protocol(
-        "CoAP-EAP",
+        "Authentication Service Based on EAP for Use with CoAP",
         "CoAP-EAP",
         "coap_eap"
     );
