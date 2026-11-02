@@ -80,8 +80,6 @@ void proto_reg_handoff_rbm(void);
 
 static dissector_handle_t rbm_file_handle;
 
-#define BETWEEN(v, b1, b2) (((v) >= (b1)) && ((v) <= (b2)))
-
 static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned* offset, char** type, char** value);
 
 static void rbm_set_info(packet_info* pinfo, const char* str)
@@ -91,51 +89,52 @@ static void rbm_set_info(packet_info* pinfo, const char* str)
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Ruby Marshal Object: %s", str);
 }
 
+/*
+ * Decode a Ruby Marshal "long" (r_long() in Ruby's marshal.c):
+ *   0          -> 0
+ *   5..127     -> c - 5
+ *   1..4       -> c little-endian bytes follow, positive
+ *   -128..-5   -> c + 5
+ *   -4..-1     -> -c little-endian bytes follow, negative
+ */
 void get_rbm_integer(tvbuff_t* tvb, unsigned offset, int32_t* value, int* len)
 {
 	int8_t c;
-	c = (tvb_get_int8(tvb, offset) ^ 128) - 128;
+	int i;
+	uint32_t v;
+
+	c = tvb_get_int8(tvb, offset);
 	if (c == 0) {
 		*value = 0;
 		*len = 1;
 		return;
 	}
-	if (c >= 4) {
+	if (c > 4) {
 		*value = c - 5;
 		*len = 1;
 		return;
 	}
-	if (BETWEEN(c, 1, 3)) {
-		int i;
-		*value = 0;
-		uint8_t byte;
-		for (i = 0; i < c; i++) {
-			byte = tvb_get_uint8(tvb, offset + 1 + i);
-			*value |= (byte << (8 * i));
-		}
-		*len = (c + 1);
-		return;
-	}
-	if (c < -6) {
+	if (c < -4) {
 		*value = c + 5;
 		*len = 1;
 		return;
 	}
-	if (BETWEEN(c, -5, -1)) {
-		int i;
-		*value = -1;
-		uint8_t byte;
-		int32_t a;
-		int32_t b;
-		for (i = 0; i < -c; i++) {
-			byte = tvb_get_uint8(tvb, offset + 1 + i);
-			a = ~(0xff << (8*i));
-			b = byte << (8*i);
-			*value = ((*value & a) | b);
-		}
-		*len = (-c + 1);
+	if (c > 0) {
+		v = 0;
+		for (i = 0; i < c; i++)
+			v |= (uint32_t)tvb_get_uint8(tvb, offset + 1 + i) << (8 * i);
+		*value = (int32_t)v;
+		*len = c + 1;
 		return;
 	}
+	/* c is -4..-1 */
+	v = UINT32_MAX;
+	for (i = 0; i < -c; i++) {
+		v &= ~((uint32_t)0xff << (8 * i));
+		v |= (uint32_t)tvb_get_uint8(tvb, offset + 1 + i) << (8 * i);
+	}
+	*value = (int32_t)v;
+	*len = -c + 1;
 }
 
 static void dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned* offset, char** value_str)
@@ -552,6 +551,11 @@ static bool dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 // NOLINTNEXTLINE(misc-no-recursion)
 void dissect_rbm_inline(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, unsigned* offset, char** type, char** value)
 {
+	/* The outputs are not set when the header is not supported */
+	if (type)
+		*type = NULL;
+	if (value)
+		*value = NULL;
 	if (!dissect_rbm_header(tvb, pinfo, tree, offset))
 		return;
 	dissect_rbm_object(tvb, pinfo, tree, offset, type, value);
