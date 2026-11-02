@@ -317,7 +317,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     return NULL;
   }
   /* RSk == 0 is also nonsensical. */
-  if (rsk > PFT_RS_K_MAX) {
+  if (rsk == 0 || rsk > PFT_RS_K_MAX) {
     return NULL;
   }
 
@@ -404,7 +404,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     dtvb = tvb_new_child_real_data(tvb, deinterleaved, reassembled_size, reassembled_size);
     add_new_data_source(pinfo, dtvb, "Deinterleaved");
 
-    uint8_t *output = (uint8_t*) wmem_alloc(pinfo->pool, decoded_size + PFT_RS_N - rsk);
+    uint8_t *output = (uint8_t*) wmem_alloc0(pinfo->pool, decoded_size + PFT_RS_N - rsk);
     decoded = rs_correct_data(deinterleaved, output, c_max, rsk, rsz);
     proto_tree_add_boolean (tree, hf_edcp_rs_ok, tvb, offset, 2, decoded);
 
