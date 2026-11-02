@@ -40891,3 +40891,277 @@ class TestDissectDectMitelEth:
             '79\t0x0301\t\t0x7a\tMAC_DIS_IND MCEI=30',
             '80\t0x0301\t\t0x78\tRFPc: RESET_REQ',
         ]
+
+
+class TestDissectDectMitelRfp:
+    def test_dect_mitel_rfp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DECT-MITEL-RFP (four carry DECT-MITEL-ETH, one of
+        them a DECT DLC/NWK message) and none is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 150
+        assert protocols.count('MITEL-RFP') == 146
+        assert protocols.count('MI-DECToE') == 3
+        assert protocols.count('DECT-DLC') == 1
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_rfp',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 150
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dect_mitel_rfp_dtmf_key(self, cmd_tshark, capture_file, test_env):
+        '''MEDIA-DTMF with every key: the key is a character (with a tree
+        it failed an assertion before the fix, as it was added with a
+        string encoding). Frame 107 is the reproducer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_rfp.message.type == 0x0209',
+                '-Tfields', '-eframe.number', '-edect_mitel_rfp.media.handle',
+                '-edect_mitel_rfp.media.dtmf.duration',
+                '-edect_mitel_rfp.media.dtmf.key',
+                '-edect_mitel_rfp.media.start.direction',
+            ), encoding='utf-8', env=test_env)
+        expected = ['%d\t0x0101\t%d\t\'%c\'\t0x%02x' % (91 + k, 40 + 10 * k, key, k % 4)
+                    for k, key in enumerate('0123456789*#ABCD')]
+        expected.append('107\t0x0001\t100\t\'5\'\t0x00')
+        assert stdout.splitlines() == expected
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 107',
+                '-V', '-O', 'dect_mitel_rfp',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('Mitel RFP/OMM TCP communication protocol')
+        assert lines[start + 1:] == [
+            '    Message Type: MEDIA-DTMF (0x0209)',
+            '    Length: 6',
+            '    Handle: 0x0001',
+            '    Duration: 100ms',
+            "    Key: '5'",
+            '    Direction: None (0x00)',
+            '',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Y', "dect_mitel_rfp.media.dtmf.key == '#'",
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['102']
+
+    def test_dect_mitel_rfp_message_types(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names every message type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 118',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = [l.strip() for l in stdout.splitlines()]
+        assert info[0:4] == ['SYS-INIT', 'SYS-AUTHENTICATE', 'SYS-AUTHENTICATE', 'CONTROL-ACK']
+        assert info[4:13] == ['CONTROL-NACK'] * 9
+        assert info[13:15] == ['CONTROL-HEARTBEAT', 'SYS-IP-OPTIONS']
+        assert info[15:24] == [
+            'SYS-LED LED 0:Off', 'SYS-LED LED 1:Steady green',
+            'SYS-LED LED 2:Flash green', 'SYS-LED LED 0:Flash green-orange',
+            'SYS-LED LED 1:Flash green-red', 'SYS-LED LED 2:Steady red',
+            'SYS-LED LED 0:Steady orange', 'SYS-LED LED 1:Cycle green-red',
+            'SYS-LED LED 2:Unknown: 08']
+        assert info[24:34] == [
+            'SYS-HEARTBEAT-INTERVAL Interval: 30s', 'SYS-SYSLOG',
+            'SYS-MAX-CHANNELS', 'SYS-HTTP-SET', 'SYS-PASSWD', 'SYS-RPING',
+            'SYS-CORE-DUMP', 'SYS-VSNTP-TIME', 'SYS-LICENSE-TIMER',
+            'SYS-LICENSE-TIMER']
+        assert info[34:76] == [
+            'SYS-SPY', 'SYS-RSX', 'SYS-CRYPTED-PACKET', 'SYS-OMM-CONTROL',
+            'SYS-STATE-DUMP', 'SYS-STATE-DUMP-REQ', 'SYS-STATE-DUMP-RES',
+            'SYS-NEW-SW', 'SYS-AUDIO-LOG', 'SYS-USB-OVERLOAD',
+            'SYS-SW-CONTAINER', 'SYS-UPDATE-802-1X-SUPPLICANT', 'SYS-RESET',
+            'SYS-SUPPLICANT-MD5', 'SYS-STREAM-INFO', 'SYS-RFP-AUTH-KEY',
+            'SYS-RFP-RE-ENROLEMENT', 'SYS-ENCRYPTION-CONF',
+            'WLAN-RFP-CONFIG', 'WLAN-RFP-UP', 'WLAN-RFP-DOWN',
+            'WLAN-RFP-CLIENT-REQ', 'WLAN-RFP-CLIENT-REP', 'WLAN-RFP-SET-ACL',
+            'WLAN-RFP-CLIENT-INFO', 'WLAN-RFP-ACK', 'WLAN-RFP-LINK-NON-NACK',
+            'WLAN-RFP-IFACE-REP', 'SNMP-RFP-UPDATE', 'CONF-OPEN',
+            'CONF-ADD-SUBSCR', 'CONF-CHG-SUBSCR', 'CONF-DEL-SUBSCR',
+            'CONF-CLOSE', 'CONF-RTP', 'BLUETOOTH-DEVICE', 'BLUETOOTH-CONFIG',
+            'BLUETOOTH-DATA', 'VIDEO-DEVICE', 'VIDEO-CONFIG',
+            'Unknown 0x7777', 'SYS-RESET']
+        assert info[76:90] == [
+            'MEDIA-OPEN', 'MEDIA-CONF', 'MEDIA-CONF', 'MEDIA-CLOSE',
+            'MEDIA-START', 'MEDIA-START', 'MEDIA-START', 'MEDIA-START',
+            'MEDIA-START', 'MEDIA-STOP', 'MEDIA-STATISTICS',
+            'MEDIA-REDIRECT-START', 'MEDIA-REDIRECT-STOP', 'MEDIA-RESTART']
+        assert info[90:107] == ['MEDIA-DTMF'] * 17
+        assert info[107:] == [
+            'MEDIA-TONE', 'MEDIA-TONE', 'MEDIA-DSP-CLOSE',
+            'MEDIA-BANDWIDTH-SWO', 'MEDIA-MUTE', 'MEDIA-G729-USED',
+            'MEDIA-TRACE-PPN', 'MEDIA-EOS-DETECT', 'MEDIA-AUDIO-STATISTICS',
+            'MEDIA-VIDEO-STATE', 'MEDIA-CHANNEL-MOD-INFO']
+
+    def test_dect_mitel_rfp_sys(self, cmd_tshark, capture_file, test_env):
+        '''Decoded SYS and CONTROL fields.'''
+        def fields(frame, *names):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame, '-Tfields',
+                    *['-e' + n for n in names],
+                ), encoding='utf-8', env=test_env)
+            return stdout.rstrip('\n').split('\t')
+        p = 'dect_mitel_rfp.sys.'
+        assert fields(1, p + 'init.rfp_model', p + 'init.rfp_mac',
+                      p + 'init.capabilities', p + 'init.protocol',
+                      p + 'init.rfp_software_version', p + 'init.signature') == [
+            '0x0000000c', '02:00:00:aa:bb:cc', '0x00008738', '0x00080000',
+            'SIP-DECT 8.1SP1-FA27', 'f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff']
+        assert fields(2, p + 'authenticate.rfp_iv', p + 'authenticate.omm_iv') == [
+            '0x0102030405060708', '0x1112131415161718']
+        assert fields(4, 'dect_mitel_rfp.control.ack.message',
+                      'dect_mitel_rfp.control.ack.call_id') == ['0x0120', '0x0000']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_rfp.control.nack.reason',
+                '-Tfields', '-edect_mitel_rfp.control.nack.reason',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['0x%08x' % r for r in range(0x04000000, 0x04000008)] + ['0x05000000']
+        assert fields(14, 'dect_mitel_rfp.control.heartbeat.milliseconds',
+                      'dect_mitel_rfp.control.heartbeat.nanoseconds') == ['123456', '789']
+        assert fields(15, p + 'ip_options.voice_tos', p + 'ip_options.signalling_tos',
+                      p + 'ip_options.ttl', p + 'ip_options.signal_vlan_priority',
+                      p + 'ip_options.voice_vlan_priority') == ['0xb8', '0x68', '64', '0x03', '0x05']
+        assert fields(26, p + 'syslog.ip_address', p + 'syslog.port') == ['2001:db8::10', '514']
+        assert fields(27, p + 'max_channels.dsp', p + 'max_channels.sessions') == ['8', '4']
+        assert fields(28, p + 'http_set.ip_address', p + 'http_set.port') == ['2001:db8::20', '80']
+        assert fields(29, p + 'passwd.remote_access_enabled', p + 'passwd.root_username',
+                      p + 'passwd.root_password', p + 'passwd.admin_username',
+                      p + 'passwd.admin_password') == [
+            'True', 'root', 'example-root-pw', 'admin', 'example-admin-pw']
+        assert fields(30, p + 'rping.ip_address', p + 'rping.rtt') == ['2001:db8::30', '12']
+        assert fields(31, p + 'core_dump.url') == ['tftp://192.0.2.1/core.rfp']
+        assert fields(32, p + 'vsntp_time.t1_seconds', p + 'vsntp_time.t1_nanoseconds',
+                      p + 'vsntp_time.t2_seconds', p + 'vsntp_time.t2_nanoseconds') == [
+            '1700000000', '500', '1700000001', '250']
+        assert fields(33, p + 'license_timer.query', p + 'license_timer.grace_period') == ['True', '1440']
+        assert fields(34, p + 'license_timer.query', p + 'license_timer.grace_period') == ['False', '720']
+
+    def test_dect_mitel_rfp_media(self, cmd_tshark, capture_file, test_env):
+        '''Decoded MEDIA fields: the codec list stops at the MCEI however
+        large the codec count, and tone entries follow the count.'''
+        def fields(frame, *names):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame, '-Tfields',
+                    *['-e' + n for n in names],
+                ), encoding='utf-8', env=test_env)
+            return stdout.rstrip('\n').split('\t')
+        p = 'dect_mitel_rfp.media.'
+        assert fields(77, p + 'handle', p + 'open.codec', p + 'open.slot_count',
+                      p + 'open.flags') == ['0x0101', '0x01', '2', '0x0000a5a5']
+        conf = (p + 'conf.vif', p + 'conf.vad', p + 'conf.codec_count',
+                p + 'conf.codec.type', p + 'conf.codec.priority', p + 'mcei',
+                p + 'conf.ppn', p + 'conf.local_port_1', p + 'conf.local_port_2',
+                p + 'conf.rx_ip_address', p + 'conf.rx_port_1', p + 'conf.rx_port_2',
+                p + 'conf.tx_ip_address', p + 'conf.tx_port_1', p + 'conf.tx_port_2')
+        assert fields(78, *conf) == [
+            '0x01', 'True', '6', '0x00,0x01,0x02,0x03,0x04,0x05',
+            '0x10,0x11,0x12,0x13,0x14,0x15', '0x21', '0x1234', '3000', '3001',
+            '192.0.2.3', '4000', '4001', '192.0.2.4', '5000', '5001']
+        f = fields(79, *conf)
+        assert f[0:3] == ['0x00', 'False', '200']
+        assert f[3].split(',') == ['0x04'] * 17
+        assert f[5:7] == ['0x22', '0x0042']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_rfp.message.type == 0x0203',
+                '-Tfields', '-e' + p + 'start.direction', '-e' + p + 'start.time',
+                '-e' + p + 'start.met_keep_alive',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x00\t0\t0x00', '0x01\t20\t0x01', '0x02\t40\t0x00',
+            '0x03\t60\t0x01', '0x04\t80\t0x00']
+        assert fields(86, p + 'start.direction') == ['0x03']
+        assert fields(87, p + 'statistics.duration', p + 'statistics.tx_packets',
+                      p + 'statistics.tx_bytes', p + 'statistics.rx_packets',
+                      p + 'statistics.rx_bytes', p + 'statistics.lost_packets',
+                      p + 'statistics.max_jitter', p + 'statistics.rtp_ip_address') == [
+            '61', '3000', '480000', '2990', '478400', '10', '2500', '192.0.2.5']
+        assert fields(88, p + 'redirect_start.local_port_1', p + 'redirect_start.local_port_2',
+                      p + 'redirect_start.remote_ip_address', p + 'redirect_start.remote_port_1',
+                      p + 'redirect_start.remote_port_2', p + 'redirect_start.time') == [
+            '6000', '6001', '192.0.2.6', '7000', '7001', '100']
+        assert fields(89, p + 'redirect_stop.fallback') == ['0x01']
+        assert fields(90, p + 'mcei') == ['0x21']
+        assert fields(108, p + 'tone.count', p + 'tone.frequency_1') == ['0', '']
+        assert fields(109, p + 'start.direction', p + 'tone.count', p + 'tone.frequency_1',
+                      p + 'tone.frequency_4', p + 'tone.cb_4', p + 'tone.duration',
+                      p + 'tone.cycle_count', p + 'tone.cycle_to', p + 'tone.next') == [
+            '0x01', '3', '350,351,352', '620,621,622', '130,130,130',
+            '500,501,502', '3,4,5', '0,0,0', '1,1,1']
+
+    def test_dect_mitel_rfp_sync(self, cmd_tshark, capture_file, test_env):
+        '''SYNC payload types and their decoded contents.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_rfp.sync.payload_type',
+                '-Tfields', '-eframe.number',
+                '-edect_mitel_rfp.sync.payload_type',
+                '-edect_mitel_rfp.sync.payload_length',
+                '-edect_mitel_rfp.sync.freq_ctrl_mode_ind.mode',
+                '-edect_mitel_rfp.sync.freq_ctrl_mode_cfm.mode',
+                '-edect_mitel_rfp.sync.freq_ctrl_mode_cfm.ppm',
+                '-edect_mitel_rfp.sync.freq_ctrl_mode_cfm.avg',
+                '-edect_mitel_rfp.sync.set_frequency.value',
+                '-edect_mitel_rfp.sync.start_mac_slave_mode_ind.rfp',
+                '-edect_mitel_rfp.sync.system_search_ind.mode',
+                '-edect_mitel_rfp.sync.system_search_cfm.count',
+                '-edect_mitel_rfp.sync.system_search_cfm.item.rpn',
+                '-edect_mitel_rfp.sync.system_search_cfm.item.rssi',
+                '-edect_mitel_rfp.sync.phase_ofs_with_rssi_ind.count',
+                '-edect_mitel_rfp.sync.phase_ofs_with_rssi_ind.item.rpn',
+                '-edect_mitel_rfp.sync.phase_ofs_with_rssi_ind.item.offset',
+                '-edect_mitel_rfp.sync.phase_ofs_with_rssi_ind.item.rssi',
+                '-edect_mitel_rfp.sync.phase_ofs_with_rssi_ind.item.qt_sync_check',
+            ), encoding='utf-8', env=test_env)
+        lines = [[f for f in l.split('\t') if f] for l in stdout.splitlines()]
+        assert len(lines) == 28
+        assert lines[0:9] == [
+            ['119', '0x7d15', '1', '0x01'],
+            ['120', '0x7d16', '5', '0x01', '12', '34'],
+            ['121', '0x7d18', '2', '1234'],
+            ['122', '0x7d1d', '2', '0x0007'],
+            ['123', '0x7d1e', '1', '0x02'],
+            ['124', '0x7d1f', '13', '3', '0x0001,0x0002,0x0003', '64,65,66'],
+            ['125', '0x7d1f', '1', '0'],
+            ['126', '0x7d2c', '13', '2', '0x0001,0x0002', '10,20', '80,96', '0x01,0x00'],
+            ['127', '0x7d15', '0'],
+        ]
+        assert [l[1] for l in lines[9:]] == [
+            '0x7d0e', '0x7d0f', '0x7d17', '0x7d1a', '0x7d1b', '0x7d1c', '0x7d20',
+            '0x7d21', '0x7d22', '0x7d23', '0x7d24', '0x7d25', '0x7d26', '0x7d27',
+            '0x7d29', '0x7d2f', '0x7d32', '0x7d33', '0x7dff']
+
+    def test_dect_mitel_rfp_eth(self, cmd_tshark, capture_file, test_env):
+        '''ETH messages are handed to DECT-MITEL-ETH without its length
+        field.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dect_mitel_rfp_coverage.pcap.gz'),
+                '-Y', 'dect_mitel_rfp.message.type == 0x0301',
+                '-Tfields', '-eframe.number', '-edect_mitel_eth.length',
+                '-edect_mitel_eth.layer', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines()] == [
+            '147\t\t0x78\tRFPc: READY_IND',
+            '148\t\t0x7a\tMAC_CON_IND MCEI=21',
+            '149\t\t0x79\tU, func=UI(NWK) CC-RELEASE-COM',
+            '150\t\t0x7a\tMAC_DIS_REQ MCEI=21',
+        ]
