@@ -19,6 +19,7 @@
 #include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include <epan/reassemble.h>
 #include "packet-xdlc.h"
 
@@ -212,12 +213,14 @@ static int dissect_dect_dlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				unsigned *p_last_n_s = (unsigned*)wmem_map_lookup(dect_dlc_last_n_s_map, GUINT_TO_POINTER(fragment_id));
 				if (GPOINTER_TO_UINT(p_last_n_s) == (unsigned)(n_s+1)) {
 					add_frag = false;
+					/* Remember the retransmission for later passes */
+					p_add_proto_data(wmem_file_scope(), pinfo, proto_dect_dlc, pinfo->curr_layer_num, GUINT_TO_POINTER(1));
 				} else {
 					add_frag = true;
 					wmem_map_insert(dect_dlc_last_n_s_map, GUINT_TO_POINTER(fragment_id), GUINT_TO_POINTER(n_s+1));
 				}
 			} else {
-				add_frag = true;
+				add_frag = p_get_proto_data(wmem_file_scope(), pinfo, proto_dect_dlc, pinfo->curr_layer_num) == NULL;
 			}
 
 			if (add_frag) {
