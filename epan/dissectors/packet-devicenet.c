@@ -417,7 +417,9 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     uint8_t service_rr;
     uint8_t *src_address, *dest_address;
 
-    DISSECTOR_ASSERT(data);
+    /* An Exported PDU can name the dissector without CAN information */
+    if (data == NULL)
+        return 0;
     can_info = *((struct can_info*)data);
 
     if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG | CAN_EFF_FLAG))
