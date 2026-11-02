@@ -2370,9 +2370,10 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
   uint8_t      byte;
   uint16_t     payload_length;
   uint16_t     padding_length;
+  bool         plausible;
 
   ti = proto_tree_add_item(tree, hf_dtls_heartbeat_message, tvb,
-                             offset, record_length - 32, ENC_NA);
+                             offset, record_length, ENC_NA);
   dtls_heartbeat_tree = proto_item_add_subtree(ti, ett_dtls_heartbeat);
 
   /*
@@ -2385,16 +2386,18 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 
   payload_length = tvb_get_ntohs(tvb, offset + 1);
   padding_length = record_length - 3 - payload_length;
+  /* type (1), length (2), payload and at least 16 bytes of padding */
+  plausible = 3u + payload_length + 16 <= record_length;
 
   /* now set the text in the record layer line */
-  if (type && (payload_length <= record_length - 16 - 3)) {
+  if (type && plausible) {
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Heartbeat %s", type);
   } else {
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Heartbeat");
   }
 
   if (tree) {
-    if (type && ((payload_length <= record_length - 16 - 3) || decrypted)) {
+    if (type && (plausible || decrypted)) {
       proto_item_set_text(tree, "%s Record Layer: Heartbeat "
                                 "%s",
                                 val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
@@ -2405,12 +2408,17 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
       ti = proto_tree_add_uint(dtls_heartbeat_tree, hf_dtls_heartbeat_message_payload_length,
                                tvb, offset, 2, payload_length);
       offset += 2;
-      if (payload_length > record_length - 16 - 3) {
+      if (!plausible) {
         expert_add_info_format(pinfo, ti, &ei_dtls_heartbeat_payload_length,
                                "Invalid heartbeat payload length (%d)", payload_length);
         /* Invalid heartbeat payload length, adjust to try decoding */
-        payload_length = record_length - 16 - 3;
-        padding_length = 16;
+        if (record_length >= 3 + 16) {
+          payload_length = record_length - 16 - 3;
+          padding_length = 16;
+        } else {
+          payload_length = 0;
+          padding_length = record_length > 3 ? record_length - 3 : 0;
+        }
         proto_item_append_text (ti, " (invalid, using %u to decode payload)", payload_length);
 
       }
@@ -2467,7 +2475,7 @@ dissect_dtls_ack(tvbuff_t *tvb, packet_info *pinfo,
   dtls_ack_tree = proto_item_add_subtree(ti, ett_dtls_ack);
 
   /* record_numbers<2..2^16-2> */
-  if (!ssl_add_vector(&dissect_dtls_hf, tvb, pinfo, dtls_ack_tree, offset, record_length, &record_number_length,
+  if (!ssl_add_vector(&dissect_dtls_hf, tvb, pinfo, dtls_ack_tree, offset, offset + record_length, &record_number_length,
                       hf_dtls_ack_record_numbers_length, 2, UINT16_MAX - 1)) {
         return;
   }
