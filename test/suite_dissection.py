@@ -39890,3 +39890,133 @@ class TestDissectDcom:
         assert len(cy) == 2
         assert cy[0] in ('VT_CY: 12345.6789', 'VT_CY: 12345,6789')
         assert cy[1] in ('VT_CY: -1.5000', 'VT_CY: -1,5000')
+
+
+class TestDissectDcomIfaces:
+    def test_dcom_ifaces_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts of every DCOM interface in the capture, and no
+        malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_ifaces_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 130
+        assert protocols.count('ITypeInfo') == 84
+        assert protocols.count('ISystemActivator') == 4
+        assert protocols.count('IDispatch') == 2
+        assert protocols.count('DCERPC') == 10
+        assert protocols.count('TCP') == 30
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcom_ifaces_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dcom_ifaces_typeattr(self, cmd_tshark, capture_file, test_env):
+        '''ITypeInfo GetTypeAttr replies in the little and the big endian
+        connection: every TYPEKIND, the type flags and the TYPEDESC of
+        tdescAlias in each arm (plain, VT_USERDEFINED, VT_PTR,
+        VT_SAFEARRAY, nested pointers, VT_CARRAY), and a NULL TYPEATTR.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_ifaces_coverage.pcap.gz'),
+                '-Y', 'typeinfo.opnum == 3 && dcerpc.pkt_type == 2',
+                '-Tfields', '-etypeinfo.typekind', '-etypeinfo.typeflags', '-etypeinfo.lcid',
+                '-etypeinfo.typedesc.vtret', '-etypeinfo.typedesc.reftype', '-edcom.hresult',
+            ), encoding='utf-8', env=test_env)
+        expected = [
+            '0x00000000\t0x00000000\t0x00000000\t0x0003,0x0003\t\t0x00000000',
+            '0x00000001\t0x00000003\t0x00000400\t0x001d,0x001d\t0x00000102\t0x00000000',
+            '0x00000002\t0x0000000c\t0x00000800\t0x001a,0x0008,0x0008,0x001a\t\t0x00000000',
+            '0x00000003\t0x00000070\t0x00000000\t0x001b,0x000c,0x000c,0x001b\t\t0x00000000',
+            '0x00000004\t0x00001140\t0x00000409\t0x001a,0x001a,0x001d,0x001d,0x001a,0x001a\t'
+            '0x00000203\t0x00000000',
+            '0x00000005\t0x00000380\t0x00000409\t0x001c,0x001c\t\t0x00000000',
+            '0x00000006\t0x00004c00\t0x00000409\t0x001a,0x001b,0x0003,0x0003,0x001b,0x001a\t\t'
+            '0x00000000',
+            '0x00000007\t0x00005fff\t0x00000409\t0x0003,0x0003\t\t0x00000000',
+            '0x00000008\t0x00000000\t0x00001234\t0x0019,0x0019\t\t0x00000000',
+            '\t\t\t\t\t0x8000ffff',
+        ]
+        assert stdout.splitlines() == expected * 2
+
+    def test_dcom_ifaces_funcdesc(self, cmd_tshark, capture_file, test_env):
+        '''ITypeInfo GetFuncDesc reply with six parameters (frames 27 and
+        77, little and big endian): the ELEMDESC of every parameter with
+        its PARAMDESC flags and PARAMDESCEX default values (VT_I4 42, a
+        BSTR, one without a VARIANT), and the function flags.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_ifaces_coverage.pcap.gz'),
+                '-Y', 'frame.number in {27, 77}',
+                '-Tfields', '-etypeinfo.funcdesc.memberid', '-etypeinfo.funcdesc.params',
+                '-etypeinfo.funcdesc.paramsopt', '-etypeinfo.paramdesc.paramflags',
+                '-etypeinfo.typedesc.vtret', '-etypeinfo.typedesc.reftype',
+                '-etypeinfo.paramdescex.len', '-edcom.vt.i4', '-edcom.vt.bstr',
+                '-etypeinfo.funcdesc.funcflags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x60020000\t6\t2\t0x0001,0x000a,0x0031,0x0044,0x0031,0x0003,0x0000\t'
+            '0x0003,0x0003,0x001a,0x0008,0x0008,0x001a,0x001d,0x001d,0x001b,0x000c,0x000c,'
+            '0x001b,0x001c,0x001c,0x001a,0x001a,0x0003,0x0003,0x001a,0x001a,0x0019,0x0019\t'
+            '0x00000304\t24,24,24\t42\t,default\t0x1fff'] * 2
+
+    def test_dcom_ifaces_names_documentation(self, cmd_tshark, capture_file, test_env):
+        '''ITypeInfo GetNames (with a NULL name) and GetDocumentation
+        replies with every pointer present, one, two and none.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_ifaces_coverage.pcap.gz'),
+                '-Y', 'typeinfo.opnum in {7, 12} && dcerpc.pkt_type == 2 && frame.number < 50',
+                '-Tfields', '-e_ws.col.info', '-etypeinfo.names.value', '-etypeinfo.docname',
+                '-etypeinfo.docstring', '-etypeinfo.helpctx', '-etypeinfo.helpfile',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'GetNames response 4 Names\t,Open,,FileName,,ReadOnly\t\t\t\t',
+            'GetNames response 0 Names\t\t\t\t\t',
+            'GetDocumentation response\t\t,Document\t,A Word document\t0x00012345\t'
+            ',C:\\\\help\\\\vbawd10.chm',
+            'GetDocumentation response\t\t,Open\t\t\t',
+            'GetDocumentation response\t\t\t,Opens a file\t0x00000007\t',
+            'GetDocumentation response\t\t\t\t\t',
+        ]
+
+    def test_dcom_ifaces_nested_activation(self, cmd_tshark, capture_file, test_env):
+        '''An activation blob that holds five nested ActivationPropertiesIn
+        blobs (frames 106 and 116, little and big endian type
+        serialization) decodes every level and comes back to the
+        property after each nested blob; the reply holds a nested
+        ActivationPropertiesOut blob ("DCOM: Limit nested activation
+        properties" counts each level in the dissection depth).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcom_ifaces_coverage.pcap.gz'),
+                    '-Y', 'isystemactivator',
+                    '-Tfields', '-eframe.number', '-eisystemactivator.actproperties.size',
+                    '-eisystemactivator.properties.li.name',
+                    '-eisystemactivator.properties.retval',
+                ), encoding='utf-8', env=test_env)
+            req = '\t1744,1744,1488,1488,1232,1232,976,976,720,720,464,464\t' \
+                'level-5,level-4,level-3,level-2,level-1,level-0\t'
+            rsp = '\t984,984,576,576\t\t1,0'
+            assert stdout.splitlines() == ['106' + req, '107' + rsp, '116' + req, '117' + rsp]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_ifaces_coverage.pcap.gz'),
+                '-Y', 'frame.number == 106',
+                '-Tfields', '-eisystemactivator.customhdr.clsid',
+            ), encoding='utf-8', env=test_env)
+        loc, nest, scm = ('000001a4-0000-0000-c000-000000000046',
+                          '000001a2-0000-0000-c000-000000000046',
+                          '000001aa-0000-0000-c000-000000000046')
+        assert stdout.rstrip('\n').split(',') == [loc, nest, scm] * 5 + [
+            '000001b9-0000-0000-c000-000000000046', loc,
+            '000001ab-0000-0000-c000-000000000046', scm]
+
+    def test_dcom_ifaces_dispatch_rgvarg(self, cmd_tshark, capture_file, test_env):
+        '''IDispatch Invoke request with an rgvarg VARIANT (frame 126).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcom_ifaces_coverage.pcap.gz'),
+                '-Y', 'frame.number == 126',
+                '-Tfields', '-edispatch.args', '-edcom.variant_type32',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t0x00000000']
