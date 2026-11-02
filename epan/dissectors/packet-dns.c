@@ -1458,7 +1458,7 @@ qname_labels_count(const char* name, int name_len)
     unsigned labels = 0;
     int i;
 
-    if (name_len > 1) {
+    if (name_len > 0) {
         /* it was not a Zero-length name */
         for (i = 0; i < name_len; i++) {
             if (name[i] == '.')
@@ -1545,12 +1545,23 @@ expand_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len,
 
             bit_count = tvb_get_uint8(tvb, offset);
             offset++;
+            /* A count of 0 means 256 bits (RFC 2673 section 3.1) */
+            if (bit_count == 0) {
+              bit_count = 256;
+            }
             label_len = (bit_count - 1) / 8 + 1;
 
+            if (np != *name && maxname > 0) {
+              /* Not the first component - put in a '.'. */
+              *np++ = '.';
+              (*name_len)++;
+              maxname--;
+            }
             if (maxname > 0) {
               print_len = snprintf(np, maxname, "\\[x");
-              if (print_len <= maxname) {
+              if (print_len < maxname) {
                 np      += print_len;
+                (*name_len) += print_len;
                 maxname -= print_len;
               } else {
                 /* Nothing printed, as there's no room.
@@ -1562,8 +1573,9 @@ expand_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len,
               if (maxname > 0) {
                 print_len = snprintf(np, maxname, "%02x",
                                        tvb_get_uint8(tvb, offset));
-                if (print_len <= maxname) {
+                if (print_len < maxname) {
                   np      += print_len;
+                  (*name_len) += print_len;
                   maxname -= print_len;
                 } else {
                   /* Nothing printed, as there's no room.
@@ -1575,8 +1587,9 @@ expand_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len,
             }
             if (maxname > 0) {
               print_len = snprintf(np, maxname, "/%d]", bit_count);
-              if (print_len <= maxname) {
+              if (print_len < maxname) {
                 np      += print_len;
+                (*name_len) += print_len;
                 maxname -= print_len;
               } else {
                 /* Nothing printed, as there's no room.
@@ -1655,9 +1668,9 @@ expand_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len,
 
 /* return the bytes in the tvb consumed by the function. The converted string (that
    can contain null bytes, is written in name and its length in name_len. */
-int
-get_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
-    const char **name, int* name_len)
+static int
+get_dns_name_root(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
+    const char **name, int* name_len, bool *is_root)
 {
   int len;
 
@@ -1667,7 +1680,13 @@ get_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len, in
   if (**name == '\0' && len <= MIN_DNAME_LEN) {
     *name="<Root>";
     *name_len = (int)strlen(*name);
+    if (is_root) {
+      *is_root = true;
+    }
     return len;
+  }
+  if (is_root) {
+    *is_root = false;
   }
 
   if ((len < MIN_DNAME_LEN) || (len > MIN_DNAME_LEN && *name_len == 0)) {
@@ -1677,13 +1696,22 @@ get_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len, in
   return len;
 }
 
+int
+get_dns_name(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
+    const char **name, int* name_len)
+{
+  return get_dns_name_root(scope, tvb, offset, max_len, dns_data_offset, name, name_len, NULL);
+}
+
+/* *is_root (if not NULL) is set if the name is the root; *name is then
+ * "<Root>" for display, but the name itself has no labels and length 0. */
 static int
 get_dns_name_type_class(wmem_allocator_t* scope, tvbuff_t *tvb, int offset, int dns_data_offset,
-    const char **name, int *name_len, uint16_t *type, uint16_t *dns_class)
+    const char **name, int *name_len, uint16_t *type, uint16_t *dns_class, bool *is_root)
 {
   int start_offset = offset;
 
-  offset += get_dns_name(scope, tvb, offset, 0, dns_data_offset, name, name_len);
+  offset += get_dns_name_root(scope, tvb, offset, 0, dns_data_offset, name, name_len, is_root);
 
   *type = tvb_get_ntohs(tvb, offset);
   offset += 2;
@@ -1789,6 +1817,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   const char   *type_name;
   int           data_start;
   uint16_t      labels;
+  bool          is_root;
   proto_tree   *q_tree;
   proto_item   *tq;
   proto_item   *ti;
@@ -1796,7 +1825,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   data_start = offset;
 
   used_bytes = get_dns_name_type_class(pinfo->pool, tvb, offset, dns_data_offset, &name, &name_len,
-    &type, &dns_class);
+    &type, &dns_class, &is_root);
 
   if (is_mdns) {
     /* Split the QU flag and the class */
@@ -1832,10 +1861,10 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     /* The number of used bytes for qname is the total used bytes minus 2 bytes for qtype and 2 bytes for qclass */
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, used_bytes - 4, name_out);
 
-    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, used_bytes - 4, name_len > 1 ? name_len : 0);
+    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, used_bytes - 4, is_root ? 0 : name_len);
     proto_item_set_generated(tq);
 
-    labels = qname_labels_count(name, name_len);
+    labels = is_root ? 0 : qname_labels_count(name, name_len);
     tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, used_bytes - 4, labels);
     proto_item_set_generated(tq);
 
@@ -1988,7 +2017,7 @@ dissect_type_bitmap(proto_tree *rr_tree, packet_info* pinfo, tvbuff_t *tvb, int 
   uint8_t bits;
 
   initial_offset = cur_offset;
-  while (rr_len != 0) {
+  while (rr_len > 0) {
     blockbase = tvb_get_uint8(tvb, cur_offset);
     blocksize = tvb_get_uint8(tvb, cur_offset + 1);
     cur_offset += 2;
@@ -2024,7 +2053,7 @@ dissect_type_bitmap_nxt(proto_tree *rr_tree, packet_info* pinfo, tvbuff_t *tvb, 
 
   initial_offset = cur_offset;
   rr_type = 0;
-  while (rr_len != 0) {
+  while (rr_len > 0) {
     bits = tvb_get_uint8(tvb, cur_offset);
     mask = 1<<7;
     for (i = 0; i < 8; i++) {
@@ -2518,7 +2547,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   cur_offset = offsetx;
 
   used_bytes = get_dns_name_type_class(pinfo->pool, tvb, offsetx, dns_data_offset, &name, &name_len,
-                                &dns_type, &dns_class);
+                                &dns_type, &dns_class, NULL);
 
   /* The offset if the total used bytes minus 2 bytes for qtype and 2 bytes for qclass */
   data_offset += used_bytes;
@@ -2804,7 +2833,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len     -= 1;
 
       port_num = 0;
-      while (rr_len != 0) {
+      while (rr_len > 0) {
         bits = tvb_get_uint8(tvb, cur_offset);
         if (bits != 0) {
           mask = 1<<7;
@@ -2966,19 +2995,18 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       int rr_len = data_len;
       int txt_offset;
-      int txt_len;
+      unsigned txt_len;
       const bool is_dnscrypt_name = (strstr(name, "2.dnscrypt-cert.") != NULL);
       #define DNSCRYPT_CERT_MAGIC 0x444E5343
 
       txt_offset = cur_offset;
-      while (rr_len != 0) {
-        txt_len = tvb_get_uint8(tvb, txt_offset);
-        proto_tree_add_item(rr_tree, hf_dns_txt_length, tvb, txt_offset, 1, ENC_BIG_ENDIAN);
+      while (rr_len > 0) {
+        proto_tree_add_item_ret_uint(rr_tree, hf_dns_txt_length, tvb, txt_offset, 1, ENC_BIG_ENDIAN, &txt_len);
         txt_offset += 1;
         rr_len     -= 1;
         if(  is_dnscrypt_name
           && txt_len == 124
-          && rr_len >= txt_len
+          && rr_len >= (int)txt_len
           && tvb_get_uint32(tvb, txt_offset, ENC_BIG_ENDIAN) == DNSCRYPT_CERT_MAGIC){
           dissect_dnscrypt(rr_tree, tvb, txt_offset, txt_len);
         } else {
@@ -3488,6 +3516,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           {
               if (optlen != 4 && optlen != 8) {
                   expert_add_info(pinfo, rroptlen, &ei_dns_opt_bad_length);
+                  cur_offset += optlen;
+                  rropt_len  -= optlen;
                   break;
               }
               proto_tree_add_item(rropt_tree, hf_dns_opt_ul_lease, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
@@ -3508,6 +3538,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
               }
               if (optlen != 4) {
                   expert_add_info(pinfo, rroptlen, &ei_dns_opt_bad_length);
+                  cur_offset += optlen;
+                  rropt_len  -= optlen;
                   break;
               }
               proto_tree_add_item(rropt_tree, hf_dns_opt_edns_expire, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
@@ -4218,12 +4250,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       int rr_len = data_len;
       int spf_offset;
-      int spf_len;
+      unsigned spf_len;
 
       spf_offset = cur_offset;
-      while (rr_len != 0) {
-        spf_len = tvb_get_uint8(tvb, spf_offset);
-        proto_tree_add_item(rr_tree, hf_dns_spf_length, tvb, spf_offset, 1, ENC_BIG_ENDIAN);
+      while (rr_len > 0) {
+        proto_tree_add_item_ret_uint(rr_tree, hf_dns_spf_length, tvb, spf_offset, 1, ENC_BIG_ENDIAN, &spf_len);
         spf_offset += 1;
         rr_len     -= 1;
         proto_tree_add_item(rr_tree, hf_dns_spf, tvb, spf_offset, spf_len, ENC_ASCII);
@@ -4449,7 +4480,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       target = (const char*)tvb_get_string_enc(pinfo->pool, tvb, cur_offset, target_len, ENC_ASCII|ENC_NA);
 
-      proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset, used_bytes, target);
+      proto_tree_add_string(rr_tree, hf_dns_srv_target, tvb, cur_offset, target_len, target);
 
       col_append_fstr(pinfo->cinfo, COL_INFO, " %u %u %s", priority, weight, target);
       proto_item_append_text(trr,
@@ -4482,11 +4513,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       value = format_text(pinfo->pool, value, value_len);
 
-      if (strncmp(tag, "issue", tag_len) == 0) {
+      if (tag_len == strlen("issue") && strncmp(tag, "issue", tag_len) == 0) {
         cur_hf = hf_dns_caa_issue;
-      } else if (strncmp(tag, "issuewild", tag_len) == 0) {
+      } else if (tag_len == strlen("issuewild") && strncmp(tag, "issuewild", tag_len) == 0) {
         cur_hf = hf_dns_caa_issuewild;
-      } else if (strncmp(tag, "iodef", tag_len) == 0) {
+      } else if (tag_len == strlen("iodef") && strncmp(tag, "iodef", tag_len) == 0) {
         cur_hf = hf_dns_caa_iodef;
       } else {
         cur_hf = hf_dns_caa_unknown;
@@ -4570,7 +4601,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += 4;
       rr_len     -= 4;
 
-      while (rr_len != 0 && nservers != 0) {
+      while (rr_len > 0 && nservers != 0) {
         proto_tree_add_item(rr_tree, hf_dns_wins_server, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
 
         cur_offset += 4;
@@ -4811,6 +4842,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   const char        *name;
   int                name_len;
   nstime_t           delta = NSTIME_INIT_ZERO;
+  bool               qname_is_root = false;
   bool               is_multiple_responds = false;
   bool               is_dso_unidirectional;
   const char        *msg_type;
@@ -5241,8 +5273,9 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dns_stats->packet_rcode = rcode;
     dns_stats->packet_opcode = opcode;
     dns_stats->packet_qr = flags >> 15;
+    dns_stats->flags = flags;
     if (quest > 0) {
-      get_dns_name_type_class(pinfo->pool, tvb, offset + DNS_HDRLEN, dns_data_offset, &name, &name_len, &qtype, &qclass);
+      get_dns_name_type_class(pinfo->pool, tvb, offset + DNS_HDRLEN, dns_data_offset, &name, &name_len, &qtype, &qclass, &qname_is_root);
       dns_stats->packet_qtype = qtype;
       dns_stats->packet_qclass = qclass;
     }
@@ -5252,8 +5285,9 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dns_stats->nauthorities = auth;
     dns_stats->nadditionals = add;
     if (quest > 0) {
-      dns_stats->qname_len = name_len;
-      dns_stats->qname_labels = qname_labels_count(name, name_len);
+      /* The root name has no labels; name is only the "<Root>" placeholder */
+      dns_stats->qname_len = qname_is_root ? 0 : name_len;
+      dns_stats->qname_labels = qname_is_root ? 0 : qname_labels_count(name, name_len);
       dns_stats->qname = format_text(pinfo->pool, name, name_len);
       // split into host and domain
       qname_host_and_domain(dns_stats->qname, name_len, dns_stats->qhost, dns_stats->qdomain);
@@ -5511,6 +5545,9 @@ static tap_packet_status dns_stats_tree_packet(stats_tree* st, packet_info* pinf
   if (pi->packet_qr == 0) {
     avg_stat_node_add_value_int(st, st_str_query_qname_len, 0, false, pi->qname_len);
     switch(pi->qname_labels) {
+      case 0:
+        /* the root name or no question */
+        break;
       case 1:
         tick_stat_node(st, st_str_query_domains_l1, 0, false);
         break;
@@ -5540,18 +5577,10 @@ static tap_packet_status dns_stats_tree_packet(stats_tree* st, packet_info* pinf
     if (pi->unsolicited) {
       tick_stat_node(st, st_str_service_unsolicited, 0, false);
     } else {
-        avg_stat_node_add_value_int(st, st_str_response_nquestions, 0, false, pi->nquestions);
-        avg_stat_node_add_value_int(st, st_str_response_nanswers, 0, false, pi->nanswers);
-        avg_stat_node_add_value_int(st, st_str_response_nauthorities, 0, false, pi->nauthorities);
-        avg_stat_node_add_value_int(st, st_str_response_nadditionals, 0, false, pi->nadditionals);
-        if (pi->unsolicited) {
-          tick_stat_node(st, st_str_service_unsolicited, 0, false);
-        } else {
-          if (pi->retransmission)
-            tick_stat_node(st, st_str_service_retransmission, 0, false);
-          else
-            avg_stat_node_add_value_float(st, st_str_service_rrt, 0, false, (float)(pi->rrt.secs*1000. + pi->rrt.nsecs/1000000.0));
-        }
+      if (pi->retransmission)
+        tick_stat_node(st, st_str_service_retransmission, 0, false);
+      else
+        avg_stat_node_add_value_float(st, st_str_service_rrt, 0, false, (float)(pi->rrt.secs*1000. + pi->rrt.nsecs/1000000.0));
     }
   }
   return TAP_PACKET_REDRAW;
@@ -5789,8 +5818,8 @@ static tap_packet_status dns_qr_stats_tree_packet(stats_tree* st, packet_info* p
       }
     }
 
-    // ql = Query-Label
-    if (dns_qr_ql_statistics_enabled) {
+    // ql = Query-Label (not for the root name or a message without a question)
+    if (dns_qr_ql_statistics_enabled && pi->qname_labels > 0) {
       ws_debug("ql = Query-Label\n");
       tick_stat_node(st, st_str_qr_ql_packets, st_node_qr_q_packets, true);
       switch (pi->qname_labels) {
