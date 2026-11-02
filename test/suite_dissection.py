@@ -39233,3 +39233,124 @@ class TestDissectDcerpcWitness:
             '50002\t' + reg, '50002\t' + regex,
             '50003\t' + reg, '50003\t' + regex,
         ]
+
+
+class TestDissectDcerpcWkssvc:
+    def test_wkssvc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections (NDR little endian, big endian,
+        NDR64) with a bind and calls, and no malformed packets or warnings
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wkssvc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 662
+        assert protocols.count('WKSSVC') == 638
+        assert protocols.count('DCERPC') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_wkssvc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_wkssvc_bind(self, cmd_tshark, capture_file, test_env):
+        '''The three binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wkssvc_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_if_ver', '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t6bffd098-a112-3610-9833-46c3f87e345a\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t6bffd098-a112-3610-9833-46c3f87e345a\t1\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t6bffd098-a112-3610-9833-46c3f87e345a\t1\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ]
+
+    def test_wkssvc_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum 0-30 has a request and a response in each of the
+        three encodings, plus the unknown opnum 31 in the first one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wkssvc_coverage.pcap.gz'),
+                '-Y', 'wkssvc',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type', '-ewkssvc.opnum',
+            ), encoding='utf-8', env=test_env)
+        seen = {}
+        for line in stdout.splitlines():
+            stream, ptype, opnum = line.split('\t')
+            seen.setdefault((stream, ptype), set()).add(int(opnum))
+        everything = set(range(31))
+        assert seen[('0', '0')] == seen[('0', '2')] == everything | {31}
+        for stream in ('1', '2'):
+            assert seen[(stream, '0')] == seen[(stream, '2')] == everything
+
+    def test_wkssvc_getinfo_levels(self, cmd_tshark, capture_file, test_env):
+        '''NetWkstaGetInfo responses go over all 36 arms of the
+        wkssvc_NetWkstaInfo union in each encoding.'''
+        levels = {100, 101, 102, 502, 1010, 1011, 1012, 1013, 1018, 1023,
+                  1027, 1028, 1032, 1033, *range(1041, 1063)}
+        for stream in range(3):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_wkssvc_coverage.pcap.gz'),
+                    '-Y', f'wkssvc.opnum == 0 && dcerpc.pkt_type == 2 && tcp.stream == {stream}',
+                    '-V', '-O', 'wkssvc',
+                ), encoding='utf-8', env=test_env)
+            seen = set()
+            for line in stdout.splitlines():
+                if 'Pointer to Info' in line and '(wkssvc_NetWkstaInfo' in line:
+                    level = line.split('(wkssvc_NetWkstaInfo')[1].rstrip(')')
+                    if level:
+                        seen.add(int(level))
+            assert seen == levels
+
+    def test_wkssvc_enum_users(self, cmd_tshark, capture_file, test_env):
+        '''NetWkstaEnumUsers: the level 0 request and the level 1 response,
+        whose union is aligned by LIBNDR_FLAG_ALIGN5 (8 octets in NDR64).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wkssvc_coverage.pcap.gz'),
+                '-Y', 'wkssvc.opnum == 2 && wkssvc.wkssvc_NetWkstaEnumUsers.resume_handle',
+                '-Tfields', '-etcp.stream', '-edcerpc.pkt_type',
+                '-ewkssvc.wkssvc_NetWkstaEnumUsersInfo.level',
+                '-ewkssvc.wkssvc_NetrWkstaUserInfo0.user_name',
+                '-ewkssvc.wkssvc_NetrWkstaUserInfo1.user_name',
+                '-ewkssvc.wkssvc_NetrWkstaUserInfo1.logon_server',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            line for s in range(3) for line in (
+                '%d\t0\t0\tuser_name6\t\t' % s,
+                '%d\t2\t1\t\tuser_name7\tlogon_server0' % s)
+        ]
+
+    def test_wkssvc_computer_names(self, cmd_tshark, capture_file, test_env):
+        '''NetrEnumerateComputerNames: the lsa_String computer name goes
+        through the hand-written cnf_dissect_lsa_String().'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wkssvc_coverage.pcap.gz'),
+                '-Y', 'wkssvc.wkssvc_ComputerNamesCtr.count',
+                '-Tfields', '-etcp.stream', '-ewkssvc.wkssvc_ComputerNamesCtr.count',
+                '-ewkssvc.wkssvc_ComputerNamesCtr.computer_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['0\t1\tname9', '1\t1\tname9', '2\t1\tname9']
+
+    def test_wkssvc_password_buffer(self, cmd_tshark, capture_file, test_env):
+        '''NetrJoinDomain2: the encrypted password buffer is shown as 524
+        opaque octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_wkssvc_coverage.pcap.gz'),
+                '-Y', 'wkssvc.opnum == 22 && dcerpc.pkt_type == 0',
+                '-Tfields', '-etcp.stream', '-ewkssvc.wkssvc_NetrJoinDomain2.domain_name',
+                '-ewkssvc.wkssvc_NetrJoinDomain2.join_flags',
+                '-ewkssvc.wkssvc_PasswordBuffer.data',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert [line[:3] for line in lines] == [
+            [str(s), name, flags] for s in range(3) for name, flags in (
+                ('domain_name3', '0x000007f7'), ('domain_name1', '0x00000000'))
+        ]
+        assert [line[3].split(',') for line in lines] == [
+            [v] * 524 for _ in range(3) for v in ('65', '0')
+        ]
