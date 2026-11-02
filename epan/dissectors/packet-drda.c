@@ -2478,6 +2478,8 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      * the length.
      */
 
+    /* A collection can contain another collection; bound the recursion. */
+    increment_dissection_depth(pinfo);
     while (tvb_reported_length_remaining(tvb, offset) >= 2)
     {
         drda_tree_sub = proto_tree_add_subtree(tree, tvb, offset, 4,
@@ -2497,6 +2499,7 @@ dissect_drda_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         }
         offset += iLengthParam;
     }
+    decrement_dissection_depth(pinfo);
 
     return tvb_captured_length(tvb);
 }
