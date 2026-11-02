@@ -3950,7 +3950,8 @@ dissect_nt_sec_desc_type(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 }
 
 int
-dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
+dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
+				const unsigned encoding)
 {
 	proto_item *item = NULL;
 	uint32_t mask;
@@ -3962,9 +3963,9 @@ dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 		NULL
 	};
 
-	mask = tvb_get_letohl(tvb, offset);
+	mask = tvb_get_uint32(tvb, offset, encoding);
 	item = proto_tree_add_bitmask(parent_tree, tvb, offset, hf_nt_security_information,
-					   ett_nt_security_information, flags, ENC_LITTLE_ENDIAN);
+					   ett_nt_security_information, flags, encoding);
 
 	if (mask & 0x00000008) {
 		proto_item_append_text(item, " SACL");

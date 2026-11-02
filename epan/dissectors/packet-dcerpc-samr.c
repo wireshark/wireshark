@@ -2237,8 +2237,9 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pr
 		ami=&samr_alias_access_mask_info;
 		break;
 	}
+	tvb_ensure_bytes_exist64(tvb, offset, len);
 	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, true, (int)len, ami);
-	offset += (int)len;
+	offset += (unsigned)len;
 	return offset;
 }
 static unsigned
@@ -2269,9 +2270,9 @@ cnf_dissect_lsa_SidArray(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pro
 	return offset;
 }
 static unsigned
-cnf_dissect_samr_security_secinfo(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_)
+cnf_dissect_samr_security_secinfo(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep)
 {
-	offset = dissect_nt_security_information(tvb, offset, tree);
+	offset = dissect_nt_security_information(tvb, offset, tree, DREP_ENC_INTEGER(drep));
 	return offset;
 }
 
@@ -16105,7 +16106,7 @@ void proto_register_dcerpc_samr(void)
 	{ &hf_samr_samr_UserInfo1_primary_gid,
 	  { "Primary Gid", "samr.samr_UserInfo1.primary_gid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo20_parameters,
-	  { "Parameters", "samr.samr_UserInfo20.parameters", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Parameters", "samr.samr_UserInfo20.parameters", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_account_name,
 	  { "Account Name", "samr.samr_UserInfo21.account_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_acct_expiry,
@@ -16145,7 +16146,7 @@ void proto_register_dcerpc_samr(void)
 	{ &hf_samr_samr_UserInfo21_last_password_change,
 	  { "Last Password Change", "samr.samr_UserInfo21.last_password_change", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_lm_owf_password,
-	  { "Lm Owf Password", "samr.samr_UserInfo21.lm_owf_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Lm Owf Password", "samr.samr_UserInfo21.lm_owf_password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_lm_password_set,
 	  { "Lm Password Set", "samr.samr_UserInfo21.lm_password_set", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_logon_count,
@@ -16155,11 +16156,11 @@ void proto_register_dcerpc_samr(void)
 	{ &hf_samr_samr_UserInfo21_logon_script,
 	  { "Logon Script", "samr.samr_UserInfo21.logon_script", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_nt_owf_password,
-	  { "Nt Owf Password", "samr.samr_UserInfo21.nt_owf_password", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Nt Owf Password", "samr.samr_UserInfo21.nt_owf_password", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_nt_password_set,
 	  { "Nt Password Set", "samr.samr_UserInfo21.nt_password_set", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_parameters,
-	  { "Parameters", "samr.samr_UserInfo21.parameters", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "Parameters", "samr.samr_UserInfo21.parameters", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_password_expired,
 	  { "Password Expired", "samr.samr_UserInfo21.password_expired", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_samr_samr_UserInfo21_primary_gid,

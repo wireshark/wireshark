@@ -154,7 +154,7 @@ TYPE lsa_String "offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, dre
 TYPE lsa_AsciiString "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_StringLarge "offset=dissect_ndr_lsa_String(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
 TYPE lsa_AsciiStringLarge "offset=cnf_dissect_lsa_AsciiString(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 5
-TYPE lsa_BinaryString "offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_STRING BASE_NONE 0 NULL 5
+TYPE lsa_BinaryString "offset=lsarpc_dissect_struct_lsa_BinaryString(tvb, offset, pinfo, tree, di, drep, @HF@, @PARAM@);" FT_NONE BASE_NONE 0 NULL 5
 
 
 TYPE sec_desc_buf "offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);" FT_NONE BASE_NONE 0 NULL 4
@@ -435,9 +435,10 @@ cnf_dissect_sec_desc_buf_(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pr
 		break;
 	}
 
+	tvb_ensure_bytes_exist64(tvb, offset, len);
 	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, true, (int)len, ami);
 
-	offset += (int)len;
+	offset += (unsigned)len;
 
 	return offset;
 }
@@ -482,9 +483,9 @@ cnf_dissect_lsa_SidArray(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, pro
 
 
 static unsigned
-cnf_dissect_samr_security_secinfo(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep _U_)
+cnf_dissect_samr_security_secinfo(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree, uint8_t *drep)
 {
-	offset = dissect_nt_security_information(tvb, offset, tree);
+	offset = dissect_nt_security_information(tvb, offset, tree, DREP_ENC_INTEGER(drep));
 
 	return offset;
 }
