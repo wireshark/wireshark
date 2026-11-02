@@ -1573,6 +1573,9 @@ static expert_field ei_dnp3_data_chunk_crc_incorrect;
 static expert_field ei_dnp3_unknown_object;
 static expert_field ei_dnp3_unknown_group0_variation;
 static expert_field ei_dnp3_num_items_invalid;
+static expert_field ei_dnp3_oct_zero_len;
+static expert_field ei_dnp3_no_progress;
+static expert_field ei_dnp3_file_obj_size;
 /* Generated from convert_proto_tree_add_text.pl */
 #if 0
 static expert_field ei_dnp3_buffering_user_data_until_final_frame_is_received;
@@ -1645,6 +1648,102 @@ calculateCRCtvb(tvbuff_t *tvb, unsigned offset, unsigned len) {
   uint16_t crc = crc16_0x3D65_tvb_offset_seed(tvb, offset, len, 0);
   return ~crc;
 }
+
+/*
+ * Reassembly key: the network addresses (as addresses_reassembly_table_functions)
+ * plus the DNP3 link layer addresses, so that the messages of different
+ * outstations behind the same IP address are not mixed.
+ */
+typedef struct {
+  address  src;
+  address  dst;
+  uint32_t id;
+  uint16_t dl_src;
+  uint16_t dl_dst;
+} dnp3_frag_key;
+
+typedef struct {
+  uint16_t dl_src;
+  uint16_t dl_dst;
+} dnp3_frag_link_addrs;
+
+static unsigned
+dnp3_frag_hash(const void *k)
+{
+  const dnp3_frag_key *key = (const dnp3_frag_key *)k;
+
+  return key->id ^ ((unsigned)key->dl_src << 16) ^ key->dl_dst;
+}
+
+static int
+dnp3_frag_equal(const void *k1, const void *k2)
+{
+  const dnp3_frag_key *key1 = (const dnp3_frag_key *)k1;
+  const dnp3_frag_key *key2 = (const dnp3_frag_key *)k2;
+
+  return (key1->id == key2->id) &&
+         (key1->dl_src == key2->dl_src) &&
+         (key1->dl_dst == key2->dl_dst) &&
+         addresses_equal(&key1->src, &key2->src) &&
+         addresses_equal(&key1->dst, &key2->dst);
+}
+
+static void *
+dnp3_frag_temporary_key(const packet_info *pinfo, const uint32_t id, const void *data)
+{
+  const dnp3_frag_link_addrs *link = (const dnp3_frag_link_addrs *)data;
+  dnp3_frag_key *key = g_new(dnp3_frag_key, 1);
+
+  copy_address_shallow(&key->src, &pinfo->src);
+  copy_address_shallow(&key->dst, &pinfo->dst);
+  key->id = id;
+  key->dl_src = link->dl_src;
+  key->dl_dst = link->dl_dst;
+
+  return key;
+}
+
+static void *
+dnp3_frag_persistent_key(const packet_info *pinfo, const uint32_t id, const void *data)
+{
+  const dnp3_frag_link_addrs *link = (const dnp3_frag_link_addrs *)data;
+  dnp3_frag_key *key = g_new(dnp3_frag_key, 1);
+
+  copy_address(&key->src, &pinfo->src);
+  copy_address(&key->dst, &pinfo->dst);
+  key->id = id;
+  key->dl_src = link->dl_src;
+  key->dl_dst = link->dl_dst;
+
+  return key;
+}
+
+static void
+dnp3_frag_free_temporary_key(void *ptr)
+{
+  g_free(ptr);
+}
+
+static void
+dnp3_frag_free_persistent_key(void *ptr)
+{
+  dnp3_frag_key *key = (dnp3_frag_key *)ptr;
+
+  if (key) {
+    free_address(&key->src);
+    free_address(&key->dst);
+    g_free(key);
+  }
+}
+
+static const reassembly_table_functions dnp3_reassembly_table_functions = {
+  dnp3_frag_hash,
+  dnp3_frag_equal,
+  dnp3_frag_temporary_key,
+  dnp3_frag_persistent_key,
+  dnp3_frag_free_temporary_key,
+  dnp3_frag_free_persistent_key
+};
 
 /* calculate the extended sequence number - top 26 bits of the previous sequence number,
  * plus our own; then correct for wrapping */
@@ -1763,7 +1862,7 @@ dnp3_endpoint_packet(void* pit, packet_info* pinfo,
   hash->flags = flags;
 
   alloc_address_wmem(pinfo->pool, src, AT_NUMERIC, (int)sizeof(uint16_t), &dnp3_info->dl_src);
-  alloc_address_wmem(pinfo->pool, dst, AT_NUMERIC, (int)sizeof(uint16_t), &dnp3_info->dl_src);
+  alloc_address_wmem(pinfo->pool, dst, AT_NUMERIC, (int)sizeof(uint16_t), &dnp3_info->dl_dst);
 
   add_endpoint_table_data(hash, src, 0, true, 1, dnp3_info->msg_len, &dnp3_dissector_info, ENDPOINT_NONE);
   add_endpoint_table_data(hash, dst, 0, false, 1, dnp3_info->msg_len, &dnp3_dissector_info, ENDPOINT_NONE);
@@ -2091,6 +2190,20 @@ dnp3_al_empty_obj(uint16_t al_obj)
 }
 
 /*****************************************************************/
+/* Size of the variable part of a file object (g70v4-6): the      */
+/* object size from the prefix less the fixed fields.            */
+/*****************************************************************/
+static uint32_t
+dnp3_file_data_size(packet_info *pinfo, proto_item *point_item, uint32_t obj_size, uint32_t fixed_len)
+{
+  if (obj_size < fixed_len) {
+    expert_add_info(pinfo, point_item, &ei_dnp3_file_obj_size);
+    return 0;
+  }
+  return obj_size - fixed_len;
+}
+
+/*****************************************************************/
 /*  Desc:    Application Layer Process Object Details            */
 /*  Returns: New offset pointer into tvb                         */
 /*****************************************************************/
@@ -2261,6 +2374,15 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   /* Move offset past any range field */
   offset += rangebytes;
 
+  /* Zero-length octet strings without a prefix take no space, so the item
+   * loop below would not advance. */
+  if (((al_obj == AL_OBJ_OCT) || (al_obj == AL_OBJ_OCT_EVT)) && (al_oct_len == 0) &&
+      (al_objq_prefix == AL_OBJQL_PREFIX_NI) && !header_only && (num_items > 0)) {
+    expert_add_info(pinfo, object_item, &ei_dnp3_oct_zero_len);
+    proto_item_set_len(object_item, offset - orig_offset);
+    return tvb_captured_length(tvb);
+  }
+
   bitindex = 0; /* Temp variable for cycling through points when object values are encoded into
                    bits; primarily objects 0x0101, 0x0301 & 0x1001 */
 
@@ -2268,6 +2390,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   if (!header_only || al_objq_prefix > 0) {
     int item_num;
     int start_offset;
+    int item_offset;
+    int stall_count = 0;
 
     start_offset = offset;
     for (item_num = 0; item_num < num_items; item_num++)
@@ -2276,6 +2400,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       proto_tree *point_tree;
       unsigned    data_pos;
       int         prefixbytes;
+
+      item_offset = offset;
 
       /* Create Point item and process prefix */
       if (al_objq_prefix <= AL_OBJQL_PREFIX_4O) {
@@ -2364,17 +2490,17 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 data_pos++;
                 if (da_len == 1) {
                   proto_tree_add_item(point_tree, hf_dnp3_al_da_int8, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
-                  proto_item_append_text(object_item, ", Value: %d", tvb_get_uint8(tvb, data_pos));
+                  proto_item_append_text(object_item, ", Value: %d", (int8_t)tvb_get_uint8(tvb, data_pos));
                   data_pos++;
                 }
                 else if (da_len == 2) {
                   proto_tree_add_item(point_tree, hf_dnp3_al_da_int16, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
-                  proto_item_append_text(object_item, ", Value: %d", tvb_get_letohs(tvb, data_pos));
+                  proto_item_append_text(object_item, ", Value: %d", (int16_t)tvb_get_letohs(tvb, data_pos));
                   data_pos += 2;
                 }
                 else if (da_len == 4) {
                   proto_tree_add_item(point_tree, hf_dnp3_al_da_int32, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
-                  proto_item_append_text(object_item, ", Value: %d", tvb_get_letohl(tvb, data_pos));
+                  proto_item_append_text(object_item, ", Value: %d", (int32_t)tvb_get_letohl(tvb, data_pos));
                   data_pos += 4;
                 }
                 break;
@@ -2766,6 +2892,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                   al_val_int32 = tvb_get_letohl(tvb, data_pos);
                   proto_item_append_text(point_item, ", Value: %d", al_val_int32);
                   proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+                  data_pos += 4;
                   break;
                 case AL_OBJ_AOC_16EVNT:
                 case AL_OBJ_AOC_16EVTT:
@@ -3267,18 +3394,18 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                 proto_item *perms_item;
                 proto_tree *perms_tree;
 
-                perms_item = proto_tree_add_item(point_tree, hf_dnp3_al_file_perms, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                perms_item = proto_tree_add_item(point_tree, hf_dnp3_al_file_perms, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
 
                 perms_tree = proto_item_add_subtree(perms_item, ett_dnp3_al_obj_point_perms);
-                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_read_owner,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_write_owner, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_exec_owner,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_read_group,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_write_group, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_exec_group,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_read_world,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_write_world, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_exec_world,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_read_owner,  tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_write_owner, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_exec_owner,  tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_read_group,  tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_write_group, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_exec_group,  tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_read_world,  tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_write_world, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(perms_tree, hf_dnp3_al_file_perms_exec_world,  tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
               }
               data_pos += 2;
 
@@ -3337,7 +3464,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               data_pos += 1;
 
               /* Optional text */
-              file_data_size = al_ptaddr - (data_pos - offset - prefixbytes);
+              file_data_size = dnp3_file_data_size(pinfo, point_item, al_ptaddr, data_pos - offset - prefixbytes);
               if ((file_data_size) > 0) {
                 proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_NA);
                 data_pos += file_data_size;
@@ -3360,7 +3487,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               data_pos += 4;
 
               /* File data */
-              file_data_size = al_ptaddr - (data_pos - offset - prefixbytes);
+              file_data_size = dnp3_file_data_size(pinfo, point_item, al_ptaddr, data_pos - offset - prefixbytes);
               if ((file_data_size) > 0) {
                 proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_NA);
                 data_pos += file_data_size;
@@ -3387,7 +3514,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               data_pos += 1;
 
               /* Optional text */
-              file_data_size = al_ptaddr - (data_pos - offset - prefixbytes);
+              file_data_size = dnp3_file_data_size(pinfo, point_item, al_ptaddr, data_pos - offset - prefixbytes);
               if ((file_data_size) > 0) {
                 proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_NA);
                 data_pos += file_data_size;
@@ -3715,6 +3842,20 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       if (start_offset > offset) {
         expert_add_info(pinfo, point_item, &ei_dnp_invalid_length);
         offset = tvb_captured_length(tvb); /* Finish decoding if unknown object is encountered... */
+      }
+
+      /* Bit-packed objects advance only every 4 or 8 items; anything that
+       * does not advance for longer than that would loop num_items times. */
+      if (offset == item_offset) {
+        if (++stall_count > 8) {
+          if ((unsigned)offset < tvb_captured_length(tvb)) {
+            expert_add_info(pinfo, point_item, &ei_dnp3_no_progress);
+          }
+          offset = tvb_captured_length(tvb);
+          break;
+        }
+      } else {
+        stall_count = 0;
       }
     }
   }
@@ -4158,6 +4299,8 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     tvbuff_t   *next_tvb = NULL;
     unsigned    i;
     uint32_t    ext_seq;
+    unsigned    pdu_idx;
+    dnp3_frag_link_addrs frag_link = { dl_src, dl_dst };
     static int * const transport_flags[] = {
       &hf_dnp3_tr_fin,
       &hf_dnp3_tr_fir,
@@ -4170,6 +4313,10 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     tr_seq = tr_ctl & DNP3_TR_SEQ;
     tr_fir = tr_ctl & DNP3_TR_FIR;
     tr_fin = tr_ctl & DNP3_TR_FIN;
+
+    /* Index of this message in the frame, to key the per-message data */
+    pdu_idx = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_dnp3, 0));
+    p_set_proto_data(pinfo->pool, pinfo, proto_dnp3, 0, GUINT_TO_POINTER(pdu_idx + 1));
 
     if (!PINFO_FD_VISITED(pinfo)) {
       /* create a unidirectional conversation. Use the addresses (IP currently)
@@ -4198,9 +4345,13 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       /* The only thing we store right now is the 32 bit extended sequence
        * number, so we don't need a conversation_data type. */
       conversation_add_proto_data(conv, proto_dnp3, GUINT_TO_POINTER(ext_seq));
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_dnp3, tr_seq, GUINT_TO_POINTER(ext_seq));
+      /* The reassembled table is keyed by frame number and id only, so
+       * offset the id by the link addresses (keeping the low 6 bits) to
+       * separate messages of different links in the same frame. */
+      ext_seq += (((uint32_t)dl_src << 16) | dl_dst) << 6;
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_dnp3, pdu_idx, GUINT_TO_POINTER(ext_seq));
     } else {
-      ext_seq = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_dnp3, tr_seq));
+      ext_seq = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_dnp3, pdu_idx));
     }
 
     /* Add Transport Layer Tree */
@@ -4277,7 +4428,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       if (!pinfo->fd->visited)
       {
         frag_al = fragment_add_seq_single(&al_reassembly_table,
-            al_tvb, 0, pinfo, ext_seq, NULL,
+            al_tvb, 0, pinfo, ext_seq, &frag_link,
             tvb_reported_length(al_tvb), /* As this is a constructed tvb, all of it is ok */
             tr_fir, tr_fin,
             al_max_fragments);
@@ -5705,6 +5856,9 @@ proto_register_dnp3(void)
      { &ei_dnp3_unknown_object, { "dnp3.unknown_object", PI_PROTOCOL, PI_WARN, "Unknown Object\\Variation", EXPFILL }},
      { &ei_dnp3_unknown_group0_variation, { "dnp3.unknown_group0_variation", PI_PROTOCOL, PI_WARN, "Unknown Group 0 Variation", EXPFILL }},
      { &ei_dnp3_num_items_invalid, { "dnp3.num_items_invalid", PI_MALFORMED, PI_ERROR, "Number of items is invalid for normally empty object. Potentially malicious packet", EXPFILL }},
+     { &ei_dnp3_oct_zero_len, { "dnp3.oct_zero_len", PI_MALFORMED, PI_ERROR, "Zero-length octet string objects without a prefix", EXPFILL }},
+     { &ei_dnp3_no_progress, { "dnp3.no_progress", PI_MALFORMED, PI_ERROR, "Object items do not advance, stopping", EXPFILL }},
+     { &ei_dnp3_file_obj_size, { "dnp3.file_obj_size_invalid", PI_MALFORMED, PI_ERROR, "Object size is smaller than the fixed part of the file object", EXPFILL }},
       /* Generated from convert_proto_tree_add_text.pl */
 #if 0
       { &ei_dnp3_buffering_user_data_until_final_frame_is_received, { "dnp3.buffering_user_data_until_final_frame_is_received", PI_PROTOCOL, PI_WARN, "Buffering User Data Until Final Frame is Received..", EXPFILL }},
@@ -5715,7 +5869,7 @@ proto_register_dnp3(void)
   expert_module_t* expert_dnp3;
 
   reassembly_table_register(&al_reassembly_table,
-                        &addresses_reassembly_table_functions);
+                        &dnp3_reassembly_table_functions);
 
 /* Register the protocol name and description */
   proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0", "DNP 3.0", "dnp3");
