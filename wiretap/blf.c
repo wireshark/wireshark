@@ -1877,9 +1877,9 @@ blf_read_canfdmessage(blf_params_t *params, int *err, char **err_info, int64_t b
 
     payload_length_valid = payload_length;
 
-    if (payload_length_valid > object_length - (data_start - block_start) + sizeof(canheader)) {
-        ws_debug("shortening can payload because buffer is too short!");
-        payload_length_valid = (uint8_t)(object_length - (data_start - block_start));
+    if (payload_length_valid > object_length - (data_start - block_start) - sizeof(canheader)) {
+        ws_debug("shortening can payload because buffer is too short.");
+        payload_length_valid = (uint8_t)(object_length - (data_start - block_start) - sizeof(canheader));
     }
 
     if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel, canfd_flags)) {
@@ -1942,9 +1942,9 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, char **err_info, int64_t
 
     payload_length_valid = payload_length;
 
-    if (payload_length_valid > object_length - (data_start - block_start)) {
-        ws_debug("shortening can payload because buffer is too short!");
-        payload_length_valid = (uint8_t)(object_length - (data_start - block_start));
+    if (payload_length_valid > object_length - (data_start - block_start) - sizeof(canheader)) {
+        ws_debug("shortening can payload because buffer is too short.");
+        payload_length_valid = (uint8_t)(object_length - (data_start - block_start) - sizeof(canheader));
     }
 
     if (!blf_can_fill_buf_and_rec(params, err, err_info, canid, payload_length, payload_length_valid, data_start + sizeof(canheader), flags, object_timestamp, canheader.channel, canfd_flags)) {
