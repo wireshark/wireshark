@@ -234,6 +234,17 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, struct wtap *wth,
                         const struct wtap_rec *first_event_rec);
 
 /**
+ * @brief Check whether libsinsp failed to open the capture.
+ *
+ * For example, libscap versions before 0.21 can't read a section header
+ * block that has options. Syscall fields can't be extracted in that case.
+ *
+ * @param sinsp_span Pointer to the sinsp span representing the capture session.
+ * @return true if the last call to open_sinsp_capture() failed.
+ */
+bool sinsp_capture_open_failed(sinsp_span_t *sinsp_span);
+
+/**
  * @brief Feed one event block to the raw_block engine.
  *
  * Called once per frame (in order) before extracting that frame's fields. With

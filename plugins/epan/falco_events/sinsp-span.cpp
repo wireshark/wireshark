@@ -84,6 +84,8 @@ typedef struct sinsp_span_t {
     // Interned data. Copied from maxmind_db.c.
     wmem_map_t *str_chunk;
     wmem_map_t *proc_info_chunk;
+    // libsinsp couldn't open the capture, so we can't extract syscall fields.
+    bool capture_open_failed;
 #if SINSP_CHECK_VERSION(0, 26, 0)
     // Block buffer for the raw_block engine. Before the inspector is opened it
     // accumulates the synthesized section header plus metadata blocks; once open
@@ -906,6 +908,7 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, struct wtap *wth,
     sinsp_span->sfe_ptrs.clear();
     sinsp_span->sfe_lengths.clear();
     sinsp_span->sfe_infos.clear();
+    sinsp_span->capture_open_failed = false;
 
 #if SINSP_CHECK_VERSION(0, 26, 0)
     (void) first_event_rec;
@@ -927,6 +930,7 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, struct wtap *wth,
                                              &sinsp_span->block_buffer_size);
     } catch (sinsp_exception &e) {
         ws_warning("%s", e.what());
+        sinsp_span->capture_open_failed = true;
     }
 #else
     (void) wth;
@@ -936,6 +940,7 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, struct wtap *wth,
         sinsp_span->inspector.open_savefile(first_event_rec->rec_header.syscall_header.pathname);
     } catch (sinsp_exception &e) {
         ws_warning("%s", e.what());
+        sinsp_span->capture_open_failed = true;
     }
 #endif
 
@@ -952,6 +957,11 @@ void open_sinsp_capture(sinsp_span_t *sinsp_span, struct wtap *wth,
     alloc_chunked_string_bytes = 0;
     total_bytes = 0;
 #endif
+}
+
+bool sinsp_capture_open_failed(sinsp_span_t *sinsp_span)
+{
+    return sinsp_span->capture_open_failed;
 }
 
 void feed_sinsp_event_block(sinsp_span_t *sinsp_span, const wtap_rec *rec,

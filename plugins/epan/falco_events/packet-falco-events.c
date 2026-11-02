@@ -43,6 +43,7 @@
 #include <epan/dfilter/sttype-field.h>
 #include <epan/dfilter/sttype-op.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 #include <epan/follow.h>
 #include <epan/maxmind_db.h>
 #include <epan/packet.h>
@@ -165,6 +166,8 @@ static int ett_sinsp_span;
 static int ett_address;
 static int ett_json;
 static int ett_geoip_info;
+
+static expert_field ei_sinsp_capture_unreadable;
 
 static int container_io_tap;
 
@@ -826,6 +829,11 @@ extract_syscall_conversation_fields (packet_info *pinfo, falco_conv_filter_field
         return false;
     }
 
+    if (sinsp_capture_open_failed(sinsp_span)) {
+        // Nothing was extracted, so get_extracted_syscall_source_fields would fail too.
+        return false;
+    }
+
     args->container_id = NULL;
     args->pid = -1;
     args->tid = -1;
@@ -1312,6 +1320,13 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
         feed_sinsp_event_block(sinsp_span, pinfo->rec,
                                tvb_get_ptr(tvb, 0, tvb_captured_length(tvb)),
                                tvb_captured_length(tvb));
+    }
+
+    if (sinsp_capture_open_failed(sinsp_span)) {
+        // This is a limitation of the libsinsp we're using, not a dissector bug.
+        // We also can't tell which events are internal, so show all of them.
+        proto_tree_add_expert(tree, pinfo, &ei_sinsp_capture_unreadable, tvb, 0, 0);
+        return tvb_captured_length(tvb);
     }
 
     sinsp_field_extract_t *sinsp_fields = NULL;
@@ -2016,6 +2031,14 @@ proto_register_falcoplugin(void)
     proto_register_field_array(proto_falco_events, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_subtree_array(ett_lin, array_length(ett_lin));
+
+    static ei_register_info ei[] = {
+        { &ei_sinsp_capture_unreadable,
+          { "falcoevents.capture_unreadable", PI_UNDECODED, PI_WARN,
+            "libsinsp couldn't open this capture file, so Falco event fields aren't available", EXPFILL }},
+    };
+    expert_module_t *expert_falco_events = expert_register_protocol(proto_falco_events);
+    expert_register_field_array(expert_falco_events, ei, array_length(ei));
 
     register_dfilter_translator("Falco rule", dfilter_to_falco_rule);
 
