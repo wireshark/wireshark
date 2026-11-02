@@ -16,110 +16,210 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="PrefModuleTreeView" name="prefsView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="uniformRowHeights">
-       <bool>true</bool>
-      </property>
-      <property name="headerHidden">
-       <bool>true</bool>
-      </property>
-      <property name="sortingEnabled">
-        <bool>true</bool>
-      </property>
+     <widget class="QWidget" name="treeContainer">
+      <layout class="QVBoxLayout" name="treeContainerLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="PrefModuleTreeView" name="prefsView">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+         <property name="headerHidden">
+          <bool>true</bool>
+         </property>
+         <property name="sortingEnabled">
+           <bool>true</bool>
+         </property>
+         <property name="accessibleName">
+          <string>Preference pages</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
-     <widget class="QStackedWidget" name="stackedWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="currentIndex">
-       <number>6</number>
-      </property>
-      <widget class="MainWindowPreferencesFrame" name="appearanceFrame"/>
-      <widget class="LayoutPreferencesFrame" name="layoutFrame"/>
-      <widget class="ColumnPreferencesFrame" name="columnFrame"/>
-      <widget class="FontColorPreferencesFrame" name="fontandcolorFrame"/>
-      <widget class="FontPreferencesFrame" name="fontsFrame"/>
-      <widget class="WelcomePagePreferencesFrame" name="welcomePageFrame"/>
-      <widget class="CapturePreferencesFrame" name="captureFrame"/>
-      <widget class="UatFrame" name="expertFrame"/>
-      <widget class="UatFrame" name="aggregationFrame"/>
-      <widget class="UatFrame" name="filterExpressonsFrame"/>
-      <widget class="RsaKeysFrame" name="rsaKeysFrame"/>
-      <widget class="QFrame" name="advancedFrame">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QGroupBox" name="advancedGroupBox">
-          <property name="title">
-           <string>Advanced</string>
+     <widget class="QWidget" name="pageArea">
+      <layout class="QVBoxLayout" name="pageAreaLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QWidget" name="navRow">
+         <layout class="QHBoxLayout" name="navRowLayout" stretch="0,1">
+          <property name="leftMargin">
+           <number>0</number>
           </property>
-          <layout class="QVBoxLayout" name="advancedLayout">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>Search:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="advancedSearchLineEdit"/>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="showChangedValuesCheckBox">
-               <property name="toolTip">
-                <string>Checking this will show only changed preferences.</string>
-               </property>
-               <property name="text">
-                <string>Show changed values</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QTreeView" name="advancedView">
-             <property name="indentation">
-              <number>0</number>
-             </property>
-             <property name="uniformRowHeights">
-              <bool>true</bool>
-             </property>
-             <property name="selectionMode">
-              <enum>QAbstractItemView::ContiguousSelection</enum>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="pagesButton">
+            <property name="toolTip">
+             <string>Show the list of preference pages</string>
+            </property>
+            <property name="accessibleName">
+             <string>Show preference pages</string>
+            </property>
+            <property name="text">
+             <string>Pages</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="breadcrumbLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="accessibleName">
+             <string>Current preference page</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QScrollArea" name="pageScrollArea">
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QStackedWidget" name="stackedWidget">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="currentIndex">
+           <number>6</number>
+          </property>
+          <widget class="MainWindowPreferencesFrame" name="appearanceFrame"/>
+          <widget class="LayoutPreferencesFrame" name="layoutFrame"/>
+          <widget class="ColumnPreferencesFrame" name="columnFrame"/>
+          <widget class="FontColorPreferencesFrame" name="fontandcolorFrame"/>
+          <widget class="FontPreferencesFrame" name="fontsFrame"/>
+          <widget class="WelcomePagePreferencesFrame" name="welcomePageFrame"/>
+          <widget class="CapturePreferencesFrame" name="captureFrame"/>
+          <widget class="UatFrame" name="expertFrame"/>
+          <widget class="UatFrame" name="aggregationFrame"/>
+          <widget class="UatFrame" name="filterExpressonsFrame"/>
+          <widget class="RsaKeysFrame" name="rsaKeysFrame"/>
+          <widget class="QFrame" name="advancedFrame">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QGroupBox" name="advancedGroupBox">
+              <property name="title">
+               <string>Advanced</string>
+              </property>
+              <layout class="QVBoxLayout" name="advancedLayout">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QLabel" name="label">
+                   <property name="text">
+                    <string>Search:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="advancedSearchLineEdit"/>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="showChangedValuesCheckBox">
+                   <property name="toolTip">
+                    <string>Checking this will show only changed preferences.</string>
+                   </property>
+                   <property name="text">
+                    <string>Show changed values</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QTreeView" name="advancedView">
+                 <property name="indentation">
+                  <number>0</number>
+                 </property>
+                 <property name="uniformRowHeights">
+                  <bool>true</bool>
+                 </property>
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::ContiguousSelection</enum>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
-        </item>
-       </layout>
-      </widget>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>

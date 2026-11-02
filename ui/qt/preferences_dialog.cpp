@@ -27,6 +27,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/capture_globals.h>
 #include <app/application_flavor.h>
 
@@ -36,12 +37,18 @@
 
 #include "main_application.h"
 
+#include <QApplication>
 #include <QClipboard>
 #include <QDesktopServices>
+#include <QItemSelectionModel>
 #include <QKeyEvent>
+#include <QLayoutItem>
 #include <QMenu>
+#include <QResizeEvent>
+#include <QScreen>
 #include <QScrollBar>
 #include <QUrl>
+#include <QWindow>
 
 extern "C" {
 // Callbacks prefs routines
@@ -123,6 +130,12 @@ const int APPEARANCE_ITEM = 0;
 //placeholder key to keep dynamically loaded preferences
 static const char* MODULES_NAME = "Modules";
 
+// Opacity of the scrim over the page while the page drawer is open: enough
+// to set the drawer apart, light enough to keep the page readable. Dark
+// palettes need more for the same contrast.
+static const int drawer_scrim_alpha_light = 46;  // 18 %
+static const int drawer_scrim_alpha_dark = 102;  // 40 %
+
 PreferencesDialog::PreferencesDialog(QWidget *parent) :
     GeometryStateDialog(parent),
     pd_ui_(new Ui::PreferencesDialog),
@@ -151,7 +164,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     // Some classes depend on pref_ptr_to_pref_ so this MUST be called after
     // model_.populate().
     pd_ui_->setupUi(this);
-    loadGeometry();
+    geometry_restored_ = loadGeometry();
 
     setWindowTitle(mainApp->windowTitleString(tr("Preferences")));
 
@@ -161,8 +174,12 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
     pd_ui_->prefsView->setModel(&modulePrefsModel_);
 
-    pd_ui_->splitter->setStretchFactor(0, 1);
-    pd_ui_->splitter->setStretchFactor(1, 5);
+    // The page area scrolls, so it takes every width change; the tree
+    // keeps the width its contents need (see resizeSplitter()).
+    pd_ui_->splitter->setStretchFactor(0, 0);
+    pd_ui_->splitter->setStretchFactor(1, 1);
+    pd_ui_->splitter->setCollapsible(0, false);
+    pd_ui_->splitter->setCollapsible(1, false);
 
     // The calculations done in showEvent to set the minimum size of the
     // protocol column mean that if we load the splitter state it will become
@@ -199,6 +216,35 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     connect(pd_ui_->prefsView, &PrefModuleTreeView::expanded, this, &PreferencesDialog::resizeSplitter);
     connect(pd_ui_->prefsView, &PrefModuleTreeView::collapsed, this, &PreferencesDialog::resizeSplitter);
 
+    // The navigation row only appears when the tree is collapsed into the
+    // drawer; the breadcrumb follows the tree's current item in every mode.
+    pd_ui_->navRow->hide();
+    connect(pd_ui_->prefsView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &PreferencesDialog::updateBreadcrumb);
+    // The group part uses a theme color baked into the rich text.
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &PreferencesDialog::updateBreadcrumb);
+
+    // A plain sibling below the tree, so its translucent palette does not
+    // propagate into the tree.
+    nav_scrim_ = new QWidget(pd_ui_->pageArea);
+    nav_scrim_->setAutoFillBackground(true);
+    nav_scrim_->hide();
+    nav_scrim_->installEventFilter(this);
+    pd_ui_->pageScrollArea->installEventFilter(this);
+    pd_ui_->prefsView->installEventFilter(this);
+    setTabOrder(pd_ui_->pagesButton, pd_ui_->prefsView);
+
+    connect(pd_ui_->pagesButton, &QPushButton::toggled, this, &PreferencesDialog::setDrawerOpen);
+    // A click on an item picks it; clicks on the branch arrows do not emit
+    // clicked(), so expanding a group keeps the drawer open.
+    connect(pd_ui_->prefsView, &QAbstractItemView::clicked, this, [this]() {
+        pd_ui_->pagesButton->setChecked(false);
+    });
+    connect(qApp, &QApplication::focusChanged, this, &PreferencesDialog::applicationFocusChanged);
+
+    connect(pd_ui_->stackedWidget, &QStackedWidget::currentChanged, this, &PreferencesDialog::updatePageMinimumSize);
+
     /* Create a single-shot timer for debouncing calls to
      * updateSearchLineEdit() */
     searchLineEditTimer = new QTimer(this);
@@ -213,6 +259,9 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
 PreferencesDialog::~PreferencesDialog()
 {
+    // Child widgets are destroyed after this destructor; focus moving
+    // among them must not reach applicationFocusChanged(), which uses pd_ui_.
+    disconnect(qApp, &QApplication::focusChanged, this, &PreferencesDialog::applicationFocusChanged);
     delete pd_ui_;
     delete searchLineEditTimer;
     prefs_modules_for_all_modules(module_prefs_clean_stash, NULL);
@@ -225,6 +274,12 @@ void PreferencesDialog::setPane(const QString module_name)
 
 void PreferencesDialog::keyPressEvent(QKeyEvent *event)
 {
+    if (pd_ui_->pagesButton->isChecked() && event->matches(QKeySequence::Cancel)) {
+        // Escape closes the drawer, not the dialog.
+        pd_ui_->pagesButton->setChecked(false);
+        return;
+    }
+
     if (pd_ui_->advancedSearchLineEdit->hasFocus() && (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)) {
         return; // Don't close window on enter/return.
     }
@@ -234,8 +289,6 @@ void PreferencesDialog::keyPressEvent(QKeyEvent *event)
 
 void PreferencesDialog::resizeSplitter()
 {
-    QList<int> sizes = pd_ui_->splitter->sizes();
-
     pd_ui_->prefsView->header()->setStretchLastSection(false);
     pd_ui_->prefsView->resizeColumnToContents(ModulePrefsModel::colName);
 
@@ -245,16 +298,272 @@ void PreferencesDialog::resizeSplitter()
     int border_width = pd_ui_->prefsView->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     new_prefs_tree_width += 2 * border_width;
 
-    sizes[1] = (sizes[0] + sizes[1]) - new_prefs_tree_width;
-    sizes[0] = new_prefs_tree_width;
+    // Never let the splitter squeeze the tree below its contents. With
+    // Protocols expanded the name column is as wide as the longest protocol
+    // name, so cap it to keep room for the page area on small screens.
+    int max_tree_width = screen()->availableGeometry().width() / 3;
+    prefs_tree_width_ = qMin(new_prefs_tree_width, max_tree_width);
 
+    if (compact_navigation_) {
+        // The tree is not in the splitter; the drawer uses the width
+        // computed above.
+        layoutDrawer();
+        return;
+    }
+
+    QList<int> sizes = pd_ui_->splitter->sizes();
+    sizes[1] = (sizes[0] + sizes[1]) - prefs_tree_width_;
+    sizes[0] = prefs_tree_width_;
     pd_ui_->splitter->setSizes(sizes);
-    pd_ui_->splitter->setStretchFactor(0, 1);
+    pd_ui_->prefsView->setMinimumWidth(prefs_tree_width_);
+}
+
+void PreferencesDialog::updatePageMinimumSize()
+{
+    QWidget *page = pd_ui_->stackedWidget->currentWidget();
+    if (!page) {
+        return;
+    }
+
+    // A stacked widget asks for the largest minimum of all its pages,
+    // hidden ones included. Inside the scroll area that would make every
+    // page scroll as soon as the tallest one does, so limit the stack to
+    // the page that is shown. QWidgetItem applies the same rules a layout
+    // uses: an explicit minimum size wins over the size hint, per axis.
+    // Keep at least 1 px so an empty axis does not fall back to the
+    // stack's all-pages hint.
+    QSize page_min = QWidgetItem(page).minimumSize();
+    pd_ui_->stackedWidget->setMinimumSize(qMax(page_min.width(), 1), qMax(page_min.height(), 1));
+}
+
+void PreferencesDialog::fitToScreen()
+{
+    QScreen *dlg_screen = screen();
+    if (!dlg_screen || isMaximized() || isFullScreen()) {
+        return;
+    }
+
+    // A geometry saved while the dialog could not get smaller, or the
+    // default size, may not fit this screen. The page area scrolls, so
+    // shrink the dialog until its frame fits and keep it on screen.
+    // On X11 the frame margins are unknown before the window is mapped;
+    // the window this dialog opens over is decorated by the same window
+    // manager, so use its frame in that case.
+    const QRect avail = dlg_screen->availableGeometry();
+    QMargins margins = windowHandle() ? windowHandle()->frameMargins() : QMargins();
+    if (margins.isNull() && parentWidget()) {
+        const QWindow *top_handle = parentWidget()->window()->windowHandle();
+        if (top_handle) {
+            margins = top_handle->frameMargins();
+        }
+    }
+    const QSize fitted = size().boundedTo(avail.marginsRemoved(margins).size()).expandedTo(minimumSize());
+
+    QRect frame(frameGeometry().topLeft(), fitted.grownBy(margins));
+    if (frame.right() > avail.right()) {
+        frame.moveRight(avail.right());
+    }
+    if (frame.bottom() > avail.bottom()) {
+        frame.moveBottom(avail.bottom());
+    }
+    if (frame.left() < avail.left()) {
+        frame.moveLeft(avail.left());
+    }
+    if (frame.top() < avail.top()) {
+        frame.moveTop(avail.top());
+    }
+
+    // Position and size are set as client geometry computed from the
+    // frame margins, so the whole frame, title bar included, ends up on
+    // the available area. Set it even when nothing seems to change: an
+    // earlier move() may have stored a frame position, which a later
+    // resize() turns into a client position while the frame is unknown.
+    setGeometry(frame.marginsRemoved(margins));
+}
+
+int PreferencesDialog::sideBySideWidth() const
+{
+    const QMargins margins = layout()->contentsMargins();
+    return margins.left() + margins.right()
+            + pd_ui_->splitter->handleWidth() + prefs_tree_width_ + widest_page_width_;
+}
+
+void PreferencesDialog::applyDefaultSize()
+{
+    // The .ui size is narrower than the tree beside the widest page, so
+    // a fresh profile would open in compact mode even on a large screen.
+    // Grow to the side-by-side width and to the height at which the
+    // tallest page does not scroll; fitToScreen() shrinks it again on a
+    // small screen.
+    layout()->activate();
+    const int outside_pages_height = height() - pd_ui_->pageScrollArea->viewport()->height();
+    const int tallest_page_height = pd_ui_->stackedWidget->layout()->minimumSize().height();
+    resize(size().expandedTo(QSize(sideBySideWidth(), outside_pages_height + tallest_page_height)));
+    // QDialog centered the dialog at its old size before showing it.
+    adjustPosition(parentWidget());
+}
+
+void PreferencesDialog::resizeEvent(QResizeEvent *event)
+{
+    GeometryStateDialog::resizeEvent(event);
+    updateNavigationMode();
+}
+
+void PreferencesDialog::updateNavigationMode()
+{
+    if (widest_page_width_ <= 0) {
+        // Not shown yet; showEvent() measures the pages and calls us.
+        return;
+    }
+
+    // Neither side of the comparison depends on the current mode, and
+    // switching never resizes the dialog, so the mode cannot flip back
+    // and forth at the threshold.
+    setCompactNavigation(width() < sideBySideWidth());
+}
+
+void PreferencesDialog::setCompactNavigation(bool compact)
+{
+    if (compact == compact_navigation_) {
+        return;
+    }
+
+    PrefModuleTreeView *tree = pd_ui_->prefsView;
+    pd_ui_->pagesButton->setChecked(false);
+    compact_navigation_ = compact;
+
+    if (compact) {
+        const bool tree_had_focus = tree->hasFocus();
+        // Keep the tree as a hidden child of the page area; the drawer
+        // shows it over the page. Its splitter minimum width would only
+        // get in the way of the drawer geometry.
+        tree->setMinimumWidth(0);
+        tree->setParent(pd_ui_->pageArea);
+        tree->hide();
+        pd_ui_->treeContainer->hide();
+        pd_ui_->navRow->show();
+        if (tree_had_focus) {
+            pd_ui_->pagesButton->setFocus(Qt::OtherFocusReason);
+        }
+    } else {
+        const bool button_had_focus = pd_ui_->pagesButton->hasFocus();
+        pd_ui_->navRow->hide();
+        pd_ui_->treeContainerLayout->addWidget(tree);
+        tree->show();
+        pd_ui_->treeContainer->show();
+        resizeSplitter();
+        if (button_had_focus) {
+            tree->setFocus(Qt::OtherFocusReason);
+        }
+    }
+}
+
+void PreferencesDialog::updateBreadcrumb()
+{
+    const QModelIndex current = pd_ui_->prefsView->currentIndex().siblingAtColumn(ModulePrefsModel::colName);
+    if (!current.isValid()) {
+        pd_ui_->breadcrumbLabel->clear();
+        return;
+    }
+
+    // The page in the normal text color, its group and the separator
+    // de-emphasized like other secondary labels.
+    QString crumb = QStringLiteral("<b>%1</b>").arg(current.data().toString().toHtmlEscaped());
+    const QModelIndex group = current.parent();
+    if (group.isValid()) {
+        const QString muted = ThemeManager::instance()->color(ThemeManager::MutedText).name();
+        crumb = QStringLiteral("<span style=\"color: %1\">%2 ›</span> %3")
+                .arg(muted, group.data().toString().toHtmlEscaped(), crumb);
+    }
+    pd_ui_->breadcrumbLabel->setText(crumb);
+}
+
+void PreferencesDialog::setDrawerOpen(bool open)
+{
+    PrefModuleTreeView *tree = pd_ui_->prefsView;
+    if (!open || !compact_navigation_) {
+        if (tree->hasFocus()) {
+            pd_ui_->pagesButton->setFocus(Qt::OtherFocusReason);
+        }
+        if (compact_navigation_) {
+            tree->hide();
+        }
+        nav_scrim_->hide();
+        return;
+    }
+
+    QColor scrim_color = palette().color(QPalette::Shadow);
+    scrim_color.setAlpha(ThemeManager::isDark() ? drawer_scrim_alpha_dark : drawer_scrim_alpha_light);
+    QPalette scrim_palette = nav_scrim_->palette();
+    scrim_palette.setColor(QPalette::Window, scrim_color);
+    nav_scrim_->setPalette(scrim_palette);
+
+    layoutDrawer();
+    nav_scrim_->show();
+    nav_scrim_->raise();
+    tree->show();
+    tree->raise();
+    tree->scrollTo(tree->currentIndex());
+    tree->setFocus(Qt::PopupFocusReason);
+}
+
+void PreferencesDialog::layoutDrawer()
+{
+    if (!compact_navigation_) {
+        return;
+    }
+    const QRect area = pd_ui_->pageScrollArea->geometry();
+    nav_scrim_->setGeometry(area);
+    pd_ui_->prefsView->setGeometry(area.x(), area.y(), qMin(prefs_tree_width_, area.width()), area.height());
+}
+
+bool PreferencesDialog::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == pd_ui_->pageScrollArea
+            && (event->type() == QEvent::Resize || event->type() == QEvent::Move)) {
+        layoutDrawer();
+    } else if (obj == nav_scrim_ && event->type() == QEvent::MouseButtonPress) {
+        pd_ui_->pagesButton->setChecked(false);
+        return true;
+    } else if (obj == pd_ui_->prefsView && event->type() == QEvent::KeyPress
+            && pd_ui_->pagesButton->isChecked()) {
+        // Handle these before the tree: it passes Enter on to the dialog,
+        // which would press OK, and Escape would reject the dialog.
+        QKeyEvent *key_event = static_cast<QKeyEvent *>(event);
+        if (key_event->matches(QKeySequence::Cancel)
+                || key_event->key() == Qt::Key_Enter || key_event->key() == Qt::Key_Return) {
+            pd_ui_->pagesButton->setChecked(false);
+            return true;
+        }
+    }
+    return GeometryStateDialog::eventFilter(obj, event);
+}
+
+void PreferencesDialog::applicationFocusChanged(QWidget *, QWidget *now)
+{
+    if (!pd_ui_->pagesButton->isChecked() || !now || now->window() != this) {
+        return;
+    }
+    if (now == pd_ui_->prefsView || now == pd_ui_->pagesButton || pd_ui_->prefsView->isAncestorOf(now)) {
+        return;
+    }
+    // Focus moved on (Tab, click on a dialog button): leave it there.
+    pd_ui_->pagesButton->setChecked(false);
 }
 
 void PreferencesDialog::showEvent(QShowEvent *)
 {
     resizeSplitter();
+    updatePageMinimumSize();
+
+    // The tree moves into a drawer when the dialog cannot show it beside the
+    // widest page. Ask the stack's layout: it takes the largest minimum of
+    // all pages, hidden ones included, with the same rule a layout applies
+    // to each widget. A protocol page is a scroll area with a small minimum,
+    // so it never decides the width. Hidden pages are not polished yet;
+    // polishing the stack polishes all its children.
+    pd_ui_->stackedWidget->ensurePolished();
+    widest_page_width_ = pd_ui_->stackedWidget->layout()->minimumSize().width();
 
     pd_ui_->advancedView->expandAll();
     pd_ui_->advancedView->setSortingEnabled(true);
@@ -265,6 +574,15 @@ void PreferencesDialog::showEvent(QShowEvent *)
     pd_ui_->advancedView->resizeColumnToContents(AdvancedPrefsModel::colStatus);
     pd_ui_->advancedView->setColumnWidth(AdvancedPrefsModel::colType, one_acw * 22);
     pd_ui_->advancedView->setColumnWidth(AdvancedPrefsModel::colValue, one_acw * 30);
+
+    if (!geometry_fitted_) {
+        geometry_fitted_ = true;
+        if (!geometry_restored_) {
+            applyDefaultSize();
+        }
+        fitToScreen();
+    }
+    updateNavigationMode();
 }
 
 void PreferencesDialog::selectPane(QString pane)
