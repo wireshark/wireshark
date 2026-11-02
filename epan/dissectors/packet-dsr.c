@@ -434,15 +434,18 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(dsr_tree, hf_dsr_fs_hopcount, tvb, offset, 1, ENC_BIG_ENDIAN); /* Hop count */
         offset += 1;
 
-        proto_tree_add_item(dsr_tree, hf_dsr_fs_id, tvb, offset, 1, ENC_BIG_ENDIAN); /* Flow identifier */
+        proto_tree_add_item(dsr_tree, hf_dsr_fs_id, tvb, offset, 2, ENC_BIG_ENDIAN); /* Flow identifier */
         offset += 2;
     }
 
     /* Call other dissectors if needed */
     next_tvb = tvb_new_subset_remaining(tvb, offset);
+    /* The next header can be DSR again; bound the recursion. */
+    increment_dissection_depth(pinfo);
     if (!dissector_try_uint(ip_dissector_table, nexthdr, next_tvb, pinfo, tree)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
+    decrement_dissection_depth(pinfo);
 
     return offset+4;
 }
