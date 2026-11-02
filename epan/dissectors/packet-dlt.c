@@ -727,7 +727,9 @@ dissect_dlt_verbose_parameter_string(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     if (encoding!=DLT_MSG_VERB_PARAM_SCOD_ASCII && encoding!=DLT_MSG_VERB_PARAM_SCOD_UTF8) {
         expert_dlt_unsupported_string_coding(tree, pinfo, tvb, offset, str_len);
-        return -1;
+        /* Skip the string, its length is known. */
+        offset += str_len;
+        return offset - offset_orig;
     }
 
     subtvb = tvb_new_subset_length(tvb, offset, str_len);
@@ -761,7 +763,7 @@ dissect_dlt_verbose_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* we need at least the uint32 type info to decide on how much more bytes we need */
     if (tvb_captured_length_remaining(tvb, offset) < 4) {
         expert_dlt_parsing_error(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
-        return -1;
+        return 0;
     }
 
     if (payload_le) {
@@ -793,7 +795,8 @@ dissect_dlt_verbose_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     if (length > 0 && tvb_captured_length_remaining(tvb, offset) < length) {
-        return -1;
+        expert_dlt_buffer_too_short(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+        return 0;
     }
 
     switch (type_info & (~ (DLT_MSG_VERB_PARAM_LENGTH | DLT_MSG_VERB_PARAM_SCOD))) {
@@ -1159,7 +1162,9 @@ dissect_dlt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_,
         offset += 4;
     }
 
-    ti = proto_tree_add_item(dlt_tree, hf_dlt_payload, tvb, offset, length - offset, ENC_NA);
+    /* length counts from the start of the DLT message, offset includes offset_orig */
+    ti = proto_tree_add_item(dlt_tree, hf_dlt_payload, tvb, offset,
+                             (length > offset - offset_orig) ? length - (offset - offset_orig) : 0, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_dlt_payload);
 
     col_append_str(pinfo->cinfo, COL_INFO, ":");
