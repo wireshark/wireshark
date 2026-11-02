@@ -11,35 +11,25 @@
  * File wrapper functions to replace the file functions from GLib like
  * g_open().
  *
- * With MSVC, code using the C support library from one version of MSVC
- * cannot use file descriptors or FILE *'s returned from code using
- * the C support library from another version of MSVC.
- *
- * We therefore provide our own versions of the routines to open files,
- * so that they're built to use the same C support library as our code
- * that reads them.
- *
- * (If both were built to use the Universal CRT:
- *
- *    http://blogs.msdn.com/b/vcblog/archive/2015/03/03/introducing-the-universal-crt.aspx
- *
- * this would not be a problem.)
+ * File descriptors and FILE pointers belong to the C runtime that
+ * created them, so code that reads files opened with these functions
+ * must use the same C runtime as libwsutil. See the comment in
+ * file_util.h.
  *
  * DO NOT USE THESE FUNCTIONS DIRECTLY, USE ws_open() AND ALIKE FUNCTIONS
  * FROM file_util.h INSTEAD!!!
  *
  * The following code is stripped down code copied from the GLib file
- * glib/gstdio.h - stripped down because this is used only on Windows
+ * glib/gstdio.c - stripped down because this is used only on Windows
  * and we use only wide char functions.
  *
  * In addition, we have our own ws_stdio_stat64(), which uses
  * _wstati64(), so that we can get file sizes for files > 4 GB in size.
+ * g_stat() can't do that: with MSVC on 64-bit Windows, GStatBuf is
+ * struct stat, which has a 32-bit st_size.
  *
- * XXX - is there any reason why we supply our own versions of routines
- * that *don't* return file descriptors, other than ws_stdio_stat64()?
- * Is there an issue with UTF-16 support in _wmkdir() with some versions
- * of the C runtime, so that if GLib is built to use that version, it
- * won't handle UTF-16 paths?
+ * XXX - libwsutil and GLib now use the same C runtime, so we could use
+ * the GLib functions other than g_stat() instead of these.
  */
 
 #ifndef _WIN32

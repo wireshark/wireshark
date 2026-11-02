@@ -68,10 +68,20 @@ extern "C" {
  *  UTF-8 to UTF-16 as we use NT Unicode (Win9x - now unsupported - used
  *  locale-based encoding here).  Microsoft's UN*X-style wrappers don't
  *  do that - they expect locale-based encodings - so we need our own
- *  wrappers.  (We don't use the wrappers from GLib as that would, at
- *  least for the wrappers that return file descriptors or take them
- *  as arguments, require that we use the version of the C runtime with
- *  which the GLib binaries were built, and we can't guarantee to do that.)
+ *  wrappers. We enforce code page 65001 (UTF-8) as the active code page
+ *  via an application manifest in our executables now, but someone could
+ *  build a different application without a manifest and link against these
+ *  libraries.
+ *
+ *  File descriptors and FILE pointers belong to the C runtime that
+ *  created them, so callers of the wrappers that return or take them
+ *  must use the same C runtime as libwsutil. Our builds use the same
+ *  one for libwsutil and GLib (the UCRT, or the debug UCRT in Debug
+ *  builds), and we already pass file descriptors to GLib, e.g. with
+ *  g_io_channel_win32_new_fd(). With CMake, a plugin that uses the
+ *  imported targets and the default MSVC_RUNTIME_LIBRARY gets the
+ *  matching C runtime; one built with the static C runtime (/MT) or
+ *  against MINGW64's msvcrt.dll doesn't.
  *
  *  Note also that ws_stdio_rename() uses MoveFileEx() with
  *  MOVEFILE_REPLACE_EXISTING, so that it acts like UN*X rename(),
