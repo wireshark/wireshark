@@ -620,7 +620,9 @@ eventlog_dissect_element_Record_data_offset(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 eventlog_dissect_element_Record_raw_data(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_)
 {
-	offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_raw_data , 0);
+	if (!di->conformant_run) {
+		offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, hf_eventlog_eventlog_Record_raw_data , 0);
+	}
 
 	return offset;
 }
