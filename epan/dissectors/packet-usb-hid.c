@@ -5775,7 +5775,7 @@ proto_register_usb_hid(void)
                 NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_hid_protocol,
-            { "Protocol", "usbhid.setup.Protocol", FT_UINT8, BASE_HEX,
+            { "Protocol", "usbhid.setup.Protocol", FT_UINT16, BASE_HEX,
                 VALS(setup_protocol_vals), 0x0, NULL, HFILL }},
 
         /* components of the HID descriptor */

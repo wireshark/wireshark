@@ -425,7 +425,7 @@ dissect_edata_tlvs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* edata_tree, ui
 
             proto_tree_add_item_ret_uint16(edata_item_data_tree, hf_etw_edata_traits_traitssize, tvb, edata_off_int, 2, ENC_LITTLE_ENDIAN, &traits_size);
             edata_off_int += 2;
-            proto_tree_add_item(edata_item_data_tree, hf_etw_edata_traits_providername, tvb, edata_off_int, traits_size - 2, ENC_NA | ENC_UTF_8);
+            proto_tree_add_item(edata_item_data_tree, hf_etw_edata_traits_providername, tvb, edata_off_int, traits_size - 2, ENC_UTF_8);
             /* edata_off_int += traits_size; */
             break;
         }

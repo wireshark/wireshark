@@ -6660,7 +6660,7 @@ static int dissect_nhdr_topicname(tvbuff_t * tvb, unsigned offset, packet_info *
     namelen = (int) hdrlen - len_dissected;
     if (namelen > 0)
     {
-        proto_tree_add_item(subtree, hf_lbmc_topicname_topicname, tvb, offset + O_LBMC_TOPICNAME_HDR_T_FLAGS + L_LBMC_TOPICNAME_HDR_T_FLAGS, namelen, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(subtree, hf_lbmc_topicname_topicname, tvb, offset + O_LBMC_TOPICNAME_HDR_T_FLAGS + L_LBMC_TOPICNAME_HDR_T_FLAGS, namelen, ENC_ASCII);
         len_dissected += namelen;
     }
     else
@@ -8480,7 +8480,7 @@ static int dissect_nhdr_storename(tvbuff_t * tvb, unsigned offset, packet_info *
     namelen = (int) hdrlen - len_dissected;
     if (namelen > 0)
     {
-        proto_tree_add_item(subtree, hf_lbmc_ume_storename_store, tvb, offset + O_LBMC_UME_STORENAME_HDR_T_FLAGS + L_LBMC_UME_STORENAME_HDR_T_FLAGS, namelen, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(subtree, hf_lbmc_ume_storename_store, tvb, offset + O_LBMC_UME_STORENAME_HDR_T_FLAGS + L_LBMC_UME_STORENAME_HDR_T_FLAGS, namelen, ENC_ASCII);
         len_dissected += namelen;
     }
     else
@@ -9832,7 +9832,7 @@ static int dissect_nhdr_gateway_name(tvbuff_t * tvb, unsigned offset, packet_inf
     namelen = (int) hdrlen - len_dissected;
     if (namelen > 0)
     {
-        proto_tree_add_item(subtree, hf_lbmc_gateway_name_gateway_name, tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS + L_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS, namelen, ENC_ASCII | ENC_NA);
+        proto_tree_add_item(subtree, hf_lbmc_gateway_name_gateway_name, tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS + L_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS, namelen, ENC_ASCII);
         len_dissected += namelen;
     }
     else

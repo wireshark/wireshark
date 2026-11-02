@@ -488,7 +488,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         tokenbuf = wmem_ascii_strdown(pinfo->pool, tokenbuf, tokenlen);
 
         if (is_request && !tvb_strncaseeql(tvb, offset, "UID", tokenlen)) {
-          proto_tree_add_item(reqresp_tree, hf_imap_request_uid, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(reqresp_tree, hf_imap_request_uid, tvb, offset, tokenlen, ENC_NA);
           /*
            * UID is a precursor to a command, if following the tag,
            * so move to next token to grab the actual command.

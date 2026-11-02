@@ -407,12 +407,12 @@ de_bmaple_deciph_keys(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, u
 	/*offset++;*/
 
 	/* Extract the Current Deciphering Key Value and add to protocol tree */
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_current_deciphering_key_value, tvb, bit_offset, 56, ENC_NA);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_current_deciphering_key_value, tvb, bit_offset, 56, ENC_BIG_ENDIAN);
 	bit_offset += 56;
 	/*offset += 7;*/
 
 	/* Extract the Next Deciphering Key Value and add to protocol tree */
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_next_deciphering_key_value, tvb, bit_offset, 56, ENC_NA);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_next_deciphering_key_value, tvb, bit_offset, 56, ENC_BIG_ENDIAN);
 	/*offset += 7;*/
 
 	return len;

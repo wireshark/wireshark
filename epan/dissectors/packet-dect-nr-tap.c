@@ -396,7 +396,7 @@ static int process_custom_header(proto_tree *parent_tree, tvbuff_t *tvb, uint32_
     offset += 2;
 
     /* 2 byte reserved */
-    proto_tree_add_item(tree, hf_dect_nr_tap_header_reserved2, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_dect_nr_tap_header_reserved2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     return offset;

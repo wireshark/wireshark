@@ -116,7 +116,7 @@ dissect_ogg_page(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, unsigned o
     ogg_tree = proto_item_add_subtree(ti_tree, ett_ogg_page);
 
     proto_tree_add_item(ogg_tree, hf_magic,
-            tvb, offset, 4, ENC_ASCII|ENC_NA);
+            tvb, offset, 4, ENC_ASCII);
     proto_tree_add_item(ogg_tree, hf_version,
             tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
 

@@ -4745,7 +4745,7 @@ dissect_nmea0183_sentence_glc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_glc_td5, NULL, NULL);
 
     /* Signal Status */
-    proto_tree_add_item(subtree, hf_nmea0183_glc_sig_status, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_nmea0183_glc_sig_status, tvb, offset + 2, 1, ENC_ASCII);
 
     return tvb_captured_length(tvb);
 }
@@ -4792,19 +4792,19 @@ dissect_nmea0183_sentence_gmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         if (i == 0)
         {
             proto_tree_add_item(subtree, hf_nmea0183_gmp_mode_gps, tvb,
-                                mode_offset + i, 1, ENC_BIG_ENDIAN);
+                                mode_offset + i, 1, ENC_ASCII);
         }
         /* GLONASS Mode Indicator */
         else if (i == 1)
         {
             proto_tree_add_item(subtree, hf_nmea0183_gmp_mode_glonass, tvb,
-                                mode_offset + i, 1, ENC_BIG_ENDIAN);
+                                mode_offset + i, 1, ENC_ASCII);
         }
         /* Other Satellite System Mode Indicators (1 to n) */
         else
         {
             proto_tree_add_item(subtree, hf_nmea0183_gmp_mode_other, tvb,
-                                mode_offset + i, 1, ENC_BIG_ENDIAN);
+                                mode_offset + i, 1, ENC_ASCII);
         }
     }
     offset += dissect_nmea0183_field_skip(tvb, offset);
@@ -4897,19 +4897,19 @@ dissect_nmea0183_sentence_gns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             if (i == 0)
             {
                 proto_tree_add_item(pt, hf_nmea0183_gns_mode_gps, tvb,
-                                    mode_offset + i, 1, ENC_BIG_ENDIAN);
+                                    mode_offset + i, 1, ENC_ASCII);
             }
             /* GLONASS Mode Indicator */
             else if (i == 1)
             {
                 proto_tree_add_item(pt, hf_nmea0183_gns_mode_glonass, tvb,
-                                    mode_offset + i, 1, ENC_BIG_ENDIAN);
+                                    mode_offset + i, 1, ENC_ASCII);
             }
             /* Other Satellite System Mode Indicators (1 to n) */
             else
             {
                 proto_tree_add_item(pt, hf_nmea0183_gns_mode_other, tvb,
-                                    mode_offset + i, 1, ENC_BIG_ENDIAN);
+                                    mode_offset + i, 1, ENC_ASCII);
             }
         }
     }
@@ -5417,7 +5417,7 @@ dissect_nmea0183_sentence_lrf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     {
         /* Add each function request by looking it up and resolving it. */
         proto_tree_add_item(subtree, hf_nmea0183_lrf_function_req_val, tvb,
-                            field_offset + i, 1, ENC_BIG_ENDIAN);
+                            field_offset + i, 1, ENC_ASCII);
     }
     offset += dissect_nmea0183_field_skip(tvb, offset);
 
@@ -5431,7 +5431,7 @@ dissect_nmea0183_sentence_lrf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     {
         /* Add each function reply by looking it up and resolving it. */
         proto_tree_add_item(subtree, hf_nmea0183_lrf_function_rep_val, tvb,
-                            field_offset + i, 1, ENC_BIG_ENDIAN);
+                            field_offset + i, 1, ENC_ASCII);
     }
 
     return tvb_captured_length(tvb);

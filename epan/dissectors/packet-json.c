@@ -911,7 +911,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 		if (!is_valid) {
 			proto_item *item = proto_tree_add_item(json_tree_plus, hf_json_binary_data,
-				tvb, offset, len, ENC_UTF_8);
+				tvb, offset, len, ENC_NA);
 			proto_item_append_text(ti, " [Invalid JSON]");
 			expert_add_info(pinfo, item, &ei_json_plus_invalid_json);
 		} else {
@@ -924,7 +924,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			if (num_tokens < 0) {
 				// Parse error
 				proto_item *item = proto_tree_add_item(json_tree_plus, hf_json_binary_data,
-					tvb, offset, len, ENC_UTF_8);
+					tvb, offset, len, ENC_NA);
 				proto_item_append_text(ti, " [JSON Parse Error: %d]", num_tokens);
 				expert_add_info_format(pinfo, item, &ei_json_plus_parse_error,
 					"JSON parse error: %d", num_tokens);
