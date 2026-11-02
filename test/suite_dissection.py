@@ -37767,3 +37767,180 @@ class TestDissectDcerpcRsPgo:
             '9\t4\t\t\t\t\t',
             '\t8\t\t\t\t\t',
         ]
+
+
+class TestDissectDcerpcDceSmall3:
+    # Opnum names of the interfaces that only register them, in opnum order
+    OPNUMS = {
+        'rs_plcy': [
+            'rs_properties_get_info', 'rs_properties_set_info',
+            'rs_policy_get_info', 'rs_policy_set_info',
+            'rs_policy_get_effective', 'rs_policy_get_override_info',
+            'rs_policy_set_override_info', 'rs_auth_policy_get_info',
+            'rs_auth_policy_get_effective', 'rs_auth_policy_set_info'],
+        'rs_prop_acct': [
+            'rs_prop_acct_add', 'rs_prop_acct_delete',
+            'rs_prop_acct_rename', 'rs_prop_acct_replace',
+            'rs_prop_acct_add_key_version'],
+        'rs_prop_acl': [
+            'replace'],
+        'rs_prop_attr': [
+            'update', 'delete'],
+        'rs_prop_pgo': [
+            'add', 'rename', 'replace', 'add_member', 'delete_member',
+            'add_member_global'],
+        'rs_prop_plcy': [
+            'rs_prop_properties_set_info', 'rs_prop_plcy_set_info',
+            'rs_prop_auth_plcy_set_info', 'rs_prop_plcy_set_dom_cache_info'],
+        'rs_pwd_mgmt': [
+            'lookup', 'replace', 'get_access', 'test_access',
+            'test_access_on_behalf', 'get_manager_types', 'get_printstring',
+            'get_referral', 'get_mgr_types_semantics'],
+        'rs_repadm': [
+            'stop', 'maint', 'mkey', 'info', 'info_full', 'destroy',
+            'init_replica', 'change_master', 'become_master',
+            'become_slave', 'set_sw_rev', 'get_sw_vers_info'],
+        'rs_replist': [
+            'rs_replist_add_replica', 'rs_replist_replace_replica',
+            'rs_replist_delete_replica', 'rs_replist_read',
+            'rs_replist_read_full', 'rs_replist_add_replica',
+            'rs_replist_replace_replica', 'rs_replist_delete_replica',
+            'rs_replist_read', 'rs_replist_read_full'],
+        'rs_repmgr': [
+            'get_info_and_creds', 'init', 'init_done', 'i_am_slave',
+            'i_am_master', 'become_master', 'copy_all', 'copy_propq',
+            'stop_until_compat_sw'],
+        'rs_unix': [
+            'getpwents'],
+        'secidmap': [
+            'parse_name', 'gen_name', 'avoid_cn_bug', 'parse_name_cache',
+            'gen_name_cache'],
+        'tkn4int': [
+            'Probe', 'InitTokenState', 'TokenRevoke', 'GetCellName',
+            'GetLock', 'GetCE', 'GetServerInterfaces', 'SetParams',
+            'AsyncGrant'],
+        'ubikdisk': [
+            'Begin', 'Commit', 'Lock', 'Write', 'GetVersion', 'GetFile',
+            'SendFile', 'Abort', 'ReleaseLocks', 'Truncate', 'Probe',
+            'GetServerInterfaces', 'BulkUpdate'],
+        'ubikvote': [
+            'Beacon', 'Debug', 'SDebug', 'GetServerInterfaces',
+            'GetSyncSite', 'DebugV2', 'SDebugV2', 'GetSyncSiteIdentity'],
+        'dce_update': [
+            'UPDATE_GetServerInterfaces', 'UPDATE_FetchInfo',
+            'UPDATE_FetchFile', 'UPDATE_FetchObjectInfo'],
+        'taskschedulerservice': [
+            'SchRpcHighestVersion', 'SchRpcRegisterTask',
+            'SchRpcRetrieveTask', 'SchRpcCreateFolder', 'SchRpcSetSecurity',
+            'SchRpcGetSecurity', 'SchRpcEnumFolders', 'SchRpcEnumTasks',
+            'SchRpcEnumInstances', 'SchRpcGetInstanceInfo',
+            'SchRpcStopInstance', 'SchRpcStop', 'SchRpcRun', 'SchRpcDelete',
+            'SchRpcRename', 'SchRpcScheduledRuntimes',
+            'SchRpcGetLastRunInfo', 'SchRpcGetTaskInfo',
+            'SchRpcGetNumberOfMissedRuns', 'SchRpcEnableTask'],
+        'trksvr': [
+            'LnkSvrMessage'],
+    }
+    # Microsoft interfaces, carried over TCP with a bind and no big endian call
+    CO = ('taskschedulerservice', 'trksvr')
+
+    def test_dcerpc_dce_small3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: a request and response for every opnum of each
+        interface (the connectionless ones also once in big endian), two
+        TCP connections with a bind (TaskSchedulerService and TRKSVR); no
+        malformed packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dce_small3_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 306
+        assert protocols.count('RS_PLCY') == 22
+        assert protocols.count('rs_prop_acct') == 12
+        assert protocols.count('rs_prop_acl') == 4
+        assert protocols.count('rs_prop_attr') == 6
+        assert protocols.count('rs_prop_pgo') == 14
+        assert protocols.count('rs_prop_plcy') == 10
+        assert protocols.count('rs_pwd_mgmt') == 20
+        assert protocols.count('RS_REPADM') == 26
+        assert protocols.count('RS_REPLIST') == 22
+        assert protocols.count('rs_repmgr') == 20
+        assert protocols.count('RS_UNIX') == 4
+        assert protocols.count('SECIDMAP') == 12
+        assert protocols.count('TKN4Int') == 20
+        assert protocols.count('UBIKDISK') == 28
+        assert protocols.count('UBIKVOTE') == 18
+        assert protocols.count('dce_update') == 10
+        assert protocols.count('TaskSchedulerService') == 40
+        assert protocols.count('TRKSVR') == 2
+        assert protocols.count('DCERPC') == 4
+        assert protocols.count('TCP') == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_dce_small3_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dcerpc_dce_small3_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum is shown by its name, in the request and in the
+        response matched to it; the big endian call of each
+        connectionless interface comes last.'''
+        for proto, names in self.OPNUMS.items():
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_dce_small3_coverage.pcap.gz'),
+                    '-Y', proto,
+                    '-Tfields', '-e' + proto + '.opnum', '-edcerpc.drep.byteorder',
+                    '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            expected = []
+            for opnum, name in enumerate(names):
+                expected += ['%d\t1\t%s request' % (opnum, name),
+                             '%d\t1\t%s response' % (opnum, name)]
+            if proto not in self.CO:
+                expected += ['0\t0\t%s request' % names[0],
+                             '0\t0\t%s response' % names[0]]
+            assert stdout.splitlines() == expected, proto
+
+    def test_dcerpc_dce_small3_rs_plcy_name(self, cmd_tshark, capture_file, test_env):
+        '''RS_PLCY opnum 1 is named rs_properties_set_info, without the
+        trailing space it once had, in the tree and the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dce_small3_coverage.pcap.gz'),
+                '-Y', 'rs_plcy.opnum == 1', '-O', 'rs_plcy',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('    Operation: rs_properties_set_info (1)\n') == 2
+        assert 'rs_properties_set_info  ' not in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_dce_small3_coverage.pcap.gz'),
+                '-Y', 'rs_plcy.opnum == 1',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\trs_properties_set_info request',
+            '4\trs_properties_set_info response',
+        ]
+
+    def test_dcerpc_dce_small3_bind(self, cmd_tshark, capture_file, test_env):
+        '''The binds name the TaskSchedulerService (v1.0) and TRKSVR (v1.0)
+        interfaces and the responses are matched to their requests.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcerpc_dce_small3_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.cn_bind_to_uuid', '-edcerpc.cn_bind_if_ver',
+                '-edcerpc.cn_bind_if_ver_minor',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '86d35949-83c9-4044-b424-db363231fd0c\t1\t0',
+            '4da1c422-943d-11d1-acae-00c04fc2aa3f\t1\t0',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dcerpc_dce_small3_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 2 && (taskschedulerservice || trksvr)',
+                '-Tfields', '-Eoccurrence=f', '-edcerpc.request_in',
+            ), encoding='utf-8', env=test_env)
+        frames = [int(x) for x in stdout.split()]
+        assert len(frames) == 20 + 1
+        assert frames[:2] == [254, 256]
+        assert frames[-1] == 302
