@@ -33,6 +33,7 @@
 #include <epan/stats_tree.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/addr_resolv.h>
 #include <wsutil/wsjson.h>
 #include <wsutil/array.h>
 
@@ -868,6 +869,7 @@ static int hf_ngap_UpdateFeedback_CN_PDB_DL;
 static int hf_ngap_UpdateFeedback_CN_PDB_UL;
 static int hf_ngap_UpdateFeedback_reserved;
 static int hf_ngap_extensionValue_data;
+static int hf_ngap_tAC_Name;
 static int hf_ngap_AdditionalDLUPTNLInformationForHOList_PDU;  /* AdditionalDLUPTNLInformationForHOList */
 static int hf_ngap_AerialUEsubscriptionInformation_PDU;  /* AerialUEsubscriptionInformation */
 static int hf_ngap_AdditionalULI_PDU;             /* AdditionalULI */
@@ -5441,15 +5443,24 @@ static unsigned
 dissect_ngap_TAC(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+  uint32_t    tac = 0;
+  const char *tac_name_str = NULL;
+  proto_item *item;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        3, 3, false, &parameter_tvb);
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+    tac = tvb_get_ntoh24(parameter_tvb, 0);
     if (ngap_data->supported_ta) {
-      ngap_data->supported_ta->tac = tvb_get_ntoh24(parameter_tvb, 0);
+      ngap_data->supported_ta->tac = tac;
     } else if (ngap_data->tai) {
-      ngap_data->tai->tac = tvb_get_ntoh24(parameter_tvb, 0);
+      ngap_data->tai->tac = tac;
+    }
+
+    if (gbl_resolv_flags.tac_name && tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_ngap_tAC_Name, parameter_tvb, 0, 3, tac_name_str);
+      proto_item_set_generated(item);
     }
   }
 
@@ -11523,11 +11534,19 @@ dissect_ngap_EquivalentPLMNs(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t 
 static unsigned
 dissect_ngap_EPS_TAC(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
+  uint16_t    tac = 0;
+  const char *tac_name_str = NULL;
+  proto_item *item;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        2, 2, false, &parameter_tvb);
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+    tac = tvb_get_ntohs(parameter_tvb, 0);
+    if (gbl_resolv_flags.tac_name && tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_ngap_tAC_Name, parameter_tvb, 0, 2, tac_name_str);
+      proto_item_set_generated(item);
+    }
   }
 
 
@@ -34982,6 +35001,10 @@ void proto_register_ngap(void) {
     { &hf_ngap_extensionValue_data,
       { "Data", "ngap.extensionValue.data",
         FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ngap_tAC_Name,
+      { "TAC Name", "ngap.tAC_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ngap_AdditionalDLUPTNLInformationForHOList_PDU,
       { "AdditionalDLUPTNLInformationForHOList", "ngap.AdditionalDLUPTNLInformationForHOList",

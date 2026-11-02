@@ -24,6 +24,7 @@
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include <epan/iana-info.h>
+#include <epan/addr_resolv.h>
 
 #include <wsutil/array.h>
 #include <wsutil/pow2.h>
@@ -813,6 +814,7 @@ static int hf_nas_5gs_nw_feat_sup_mlcsup;
 static int hf_nas_5gs_nw_feat_sup_ef5l;
 
 static int hf_nas_5gs_tac;
+static int hf_nas_5gs_tac_name;
 
 static int hf_nas_5gs_mm_tal_t_li;
 static int hf_nas_5gs_mm_tal_num_e;
@@ -2056,6 +2058,21 @@ de_nas_5gs_mm_5gs_reg_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     return 1;
 }
 
+static void
+nas_5gs_add_tac_name(proto_tree *tree, tvbuff_t *tvb, uint32_t offset, uint32_t tac)
+{
+    const char *tac_name_str;
+    proto_item *item;
+
+    if (!gbl_resolv_flags.tac_name || !tac)
+        return;
+    tac_name_str = tac_name_lookup(tac);
+    if (tac_name_str == NULL)
+        return;
+    item = proto_tree_add_string(tree, hf_nas_5gs_tac_name, tvb, offset, 3, tac_name_str);
+    proto_item_set_generated(item);
+}
+
 /*
  * 9.11.3.8     5GS tracking area identity
  */
@@ -2068,12 +2085,13 @@ de_nas_5gs_mm_5gs_ta_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /* MNC digit 3    MCC digit 3 Octet 3*/
     /* MNC digit 2    MNC digit 1 Octet 4*/
     /* TAC Octet 5 - 7 */
-    uint32_t curr_offset;
+    uint32_t curr_offset, tac;
 
     curr_offset = offset;
 
     curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_5GSTAI, true);
-    proto_tree_add_item(tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN, &tac);
+    nas_5gs_add_tac_name(tree, tvb, curr_offset, tac);
     curr_offset += 3;
 
     return curr_offset - offset;
@@ -2125,6 +2143,7 @@ de_nas_5gs_mm_5gs_ta_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     unsigned num_par_tal = 1;
     uint32_t curr_offset = offset;
     uint32_t start_offset;
+    uint32_t tac;
     uint8_t tal_head, tal_t_li, tal_num_e;
 
     /*Partial tracking area list*/
@@ -2146,7 +2165,8 @@ de_nas_5gs_mm_5gs_ta_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_5GSTAI, true);
             curr_offset += 3;
             while (tal_num_e > 0) {
-                proto_tree_add_item(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN, &tac);
+                nas_5gs_add_tac_name(sub_tree, tvb, curr_offset, tac);
                 curr_offset += 3;
                 tal_num_e--;
             }
@@ -2159,7 +2179,8 @@ de_nas_5gs_mm_5gs_ta_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             curr_offset += 3;
 
             /*octet 5  TAC 1*/
-            proto_tree_add_item(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN, &tac);
+            nas_5gs_add_tac_name(sub_tree, tvb, curr_offset, tac);
             curr_offset+=3;
             break;
         case 2:
@@ -2171,7 +2192,8 @@ de_nas_5gs_mm_5gs_ta_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
                 curr_offset += 3;
 
                 /*octet 5  TAC 1*/
-                proto_tree_add_item(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN, &tac);
+                nas_5gs_add_tac_name(sub_tree, tvb, curr_offset, tac);
                 curr_offset += 3;
 
                 tal_num_e--;
@@ -3981,6 +4003,7 @@ de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     unsigned num_par_sal = 1;
     uint32_t curr_offset = offset;
     uint32_t start_offset;
+    uint32_t tac;
     uint8_t sal_head, sal_t_li, sal_num_e;
 
     /*Partial service area list*/
@@ -4002,7 +4025,8 @@ de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_5GSTAI, true);
             curr_offset += 3;
             while (sal_num_e > 0) {
-                proto_tree_add_item(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN, &tac);
+                nas_5gs_add_tac_name(sub_tree, tvb, curr_offset, tac);
                 curr_offset += 3;
                 sal_num_e--;
             }
@@ -4015,7 +4039,8 @@ de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             curr_offset += 3;
 
             /*octet 5  TAC 1*/
-            proto_tree_add_item(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN, &tac);
+            nas_5gs_add_tac_name(sub_tree, tvb, curr_offset, tac);
             curr_offset+=3;
             break;
         case 2:
@@ -4027,7 +4052,8 @@ de_nas_5gs_mm_sal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 curr_offset += 3;
 
                 /*octet 5  TAC 1*/
-                proto_tree_add_item(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_tac, tvb, curr_offset, 3, ENC_BIG_ENDIAN, &tac);
+                nas_5gs_add_tac_name(sub_tree, tvb, curr_offset, tac);
                 curr_offset += 3;
 
                 sal_num_e--;
@@ -16425,6 +16451,11 @@ proto_register_nas_5gs(void)
         { "ExtendedFacility IE for 5G LCS (EF5L)",   "nas-5gs.nw_feat_sup.ef5l",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
             NULL, HFILL }
+        },
+        { &hf_nas_5gs_tac_name,
+        { "TAC Name", "nas-5gs.tac_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
         },
         { &hf_nas_5gs_tac,
         { "TAC",   "nas-5gs.tac",
