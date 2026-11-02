@@ -38099,3 +38099,258 @@ class TestDissectDcerpcSamr:
                 '-e_ws.col.info',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['4\t4036\tLookupRids request']
+
+
+class TestDissectDcerpcSpoolss:
+    def test_spoolss_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: fifteen connections with a bind each (nine
+        generated, six from the reproducers), no malformed packets and no
+        errors in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 512
+        assert protocols.count('SPOOLSS') == 380
+        assert protocols.count('DCERPC') == 30
+        assert protocols.count('TCP') == 102
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_spoolss_warnings(self, cmd_tshark, capture_file, test_env):
+        '''The only warnings are for info levels the dissector does not
+        decode, an unknown notify type and value type, and the 40 opnums
+        that only have a status dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', '_ws.expert.severity == "Warning" && !spoolss.unimplemented_dissector',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\tInfo level 2 not decoded',
+            '27\tUnknown printer info level',
+            '41\tUnknown printer info level',
+            '52\tUnknown spool printer info level 2',
+            '91\tUnknown job info level 3',
+            '97\tUnknown job info level 2',
+            '143\tUnknown data follows',
+            '145\tUnknown driver info level 4',
+            '181\tUnknown data follows',
+            '183\tUnknown driver info level 5',
+            '212\tUnknown form info level 2',
+            '219\tUnknown form info level 2',
+            '285\tprintQword: unknown type 11,printPath: unknown type 2',
+            '320\tUnknown notify type',
+            '498\tUnknown job info level 3',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'spoolss.unimplemented_dissector',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 40
+
+    def test_spoolss_binds(self, cmd_tshark, capture_file, test_env):
+        '''Little endian NDR, one big endian and one NDR64 connection.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        ndr = '1\t12345678-1234-abcd-ef00-0123456789ab\t8a885d04-1ceb-11c9-9fe8-08002b104860'
+        assert stdout.splitlines() == [ndr] * 7 + [
+            '0\t12345678-1234-abcd-ef00-0123456789ab\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t12345678-1234-abcd-ef00-0123456789ab\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ] + [ndr] * 6
+
+    def test_spoolss_opnums(self, cmd_tshark, capture_file, test_env):
+        '''A request and a response for every opnum the dissector knows.'''
+        opnums = list(range(0, 68)) + [69, 70, 72, 73, 77, 78, 79, 80, 81, 84, 89, 102, 104]
+        for ptype in (0, 2):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                    '-Y', 'spoolss && dcerpc.pkt_type == %d' % ptype,
+                    '-Tfields', '-espoolss.opnum',
+                ), encoding='utf-8', env=test_env)
+            assert sorted(set(int(op) for op in stdout.split())) == opnums
+
+    def test_spoolss_handles(self, cmd_tshark, capture_file, test_env):
+        '''Policy handles opened by OpenPrinterEx, AddPrinterEx and
+        ReplyOpenPrinter are named after the printer, and the name shows in
+        later calls on the handle.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7, 9, 56, 58, 61, 78, 170, 315, 318}',
+                '-V', '-O', 'spoolss',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        handles = [l for l in lines if l.startswith('Policy Handle')]
+        assert handles == [
+            r'Policy Handle: OpenPrinterEx(\\PRINTSRV)',
+            r'Policy Handle: OpenPrinterEx(\\PRINTSRV\Office Laser)',
+            r'Policy Handle: OpenPrinterEx(\\PRINTSRV)',
+            r'Policy Handle: OpenPrinterEx(\\PRINTSRV\Office Laser)',
+            'Policy Handle: Unknown AddPrinterEx() handle',
+            r'Policy Handle: OpenPrinterEx(\\PRINTSRV\Office Laser)',
+            r'Policy Handle: OpenPrinterEx(\\PRINTSRV\Office Laser)',
+            r'Policy Handle: ReplyOpenPrinter(\\WS042)',
+            r'Policy Handle: ReplyOpenPrinter(\\WS042)',
+        ]
+
+    def test_spoolss_printer_info(self, cmd_tshark, capture_file, test_env):
+        '''PRINTER_INFO levels 1, 2, 0, 5, 7 and 3 in EnumPrinters: relative
+        strings, the devmode and the security descriptor of level 2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {13, 15, 17, 19, 21, 23}',
+                '-Tfields', '-eframe.number', '-espoolss.printername', '-espoolss.sharename',
+                '-espoolss.devmode.devicename', '-espoolss.devmode.print_quality',
+                '-espoolss.devmode.driver_extra', '-espoolss.printer.guid',
+                '-ent.sid', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        sids = 'S-1-5-32-544,S-1-5-18,S-1-1-0,S-1-5-32-544,S-1-5-21-1001-2002-3003-1104'
+        # -Tfields escapes the backslashes
+        printer = r'\\\\PRINTSRV\\Office Laser'
+        assert stdout.splitlines() == ['\t'.join(f) for f in [
+            ['13', printer, '', '', '', '', '', ''],
+            ['15', printer, 'OfficeLaser', 'Office Laser', '600', '11223344', '', sids],
+            ['17', printer, '', '', '', '', '', ''],
+            ['19', printer, '', '', '', '', '', ''],
+            ['21', '', '', '', '', '', '{4c9b3c19-2c5a-4b8e-9a1f-0123456789ab}', ''],
+            ['23', '', '', '', '', '', '', sids],
+        ]]
+
+    def test_spoolss_relative_string_length(self, cmd_tshark, capture_file, test_env):
+        '''A relative string that is not ASCII covers its own UTF-16 octets
+        and NUL (before "SPOOLSS: Do not loop on key buffers or job levels,
+        convert each string once" the length came from its UTF-8 form).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number == 87', '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        docs = [(line.split(' show="')[1].split('"')[0], line.split(' size="')[1].split('"')[0])
+                for line in stdout.splitlines() if '<field name="spoolss.document" ' in line]
+        assert docs == [('Quarterly report.pdf', '42'), ('memo.txt', '18'),
+                        ('Mötley Crüe – tour dates.docx', '60')]
+
+    def test_spoolss_key_buffer(self, cmd_tshark, capture_file, test_env):
+        '''EnumPrinterKey key buffers: every key is found, also after a key
+        that is not ASCII (it used to start the next key too late), in NDR
+        and NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {289, 291, 463}',
+                '-Tfields', '-espoolss.hf_keybuffer', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'PrinterDriverData,DsSpooler,DsDriver,',
+            'Drücker,Zwei,Ελληνικά,',
+            'printer,,',
+        ]
+
+    def test_spoolss_printer_data(self, cmd_tshark, capture_file, test_env):
+        '''GetPrinterData values of every type; a REG_DWORD of two octets
+        is not read from before the value.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {239, 241, 243, 245, 247, 249, 251}',
+                '-Tfields', '-e_ws.col.info', '-espoolss.printerdata.data.dword',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'GetPrinterData response, ChangeID = 0x0001e240\t0x0001e240',
+            r'GetPrinterData response, DefaultSpoolDirectory = C:\\Windows\\system32\\spool\\PRINTERS' + '\t',
+            'GetPrinterData response, Architecture = <binary data>\t',
+            'GetPrinterData response, DsDriver\t',
+            'GetPrinterData response, Short\t',
+            'GetPrinterData response, Empty\t',
+            'GetPrinterData response, Path\t',
+        ]
+
+    def test_spoolss_drivers_and_forms(self, cmd_tshark, capture_file, test_env):
+        '''Three drivers of each level in EnumPrinterDrivers, 64 long
+        driver names, the forms of EnumForms and the core printer drivers
+        in NDR and NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {125, 127, 131, 135, 141, 143}',
+                '-Tfields', '-espoolss.drivername', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        names = 'HP LaserJet 4,Microsoft Print To PDF,Generic / Text Only'
+        assert stdout.splitlines() == [names] * 5 + ['HP LaserJet 4']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number == 169',
+                '-Tfields', '-espoolss.drivername', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        names = stdout.strip().split(',')
+        assert len(names) == 64
+        assert names[0] == 'Driver 00 ' + ''.join(chr(0x41 + j % 26) for j in range(90))
+        assert names[63] == 'Driver 63 ' + ''.join(chr(0x41 + (63 + j) % 26) for j in range(153))
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {195, 221, 465}',
+                '-Tfields', '-espoolss.form.name', '-espoolss.core_driver_guid',
+                '-espoolss.package_id', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\td20ea372-dd35-4950-9ed8-a6335afe79f0,4d8bbc7c-0a4b-4b3d-9a4e-7c1e3f0d6c11'
+            '\tprnhp001.inf_amd64_0,prnhp001.inf_amd64_1',
+            'Letter,A4,Index card 5x8,Tray 2 Custom\t\t',
+            '\td20ea372-dd35-4950-9ed8-a6335afe79f0\tprnhp001.inf_amd64',
+        ]
+
+    def test_spoolss_notify(self, cmd_tshark, capture_file, test_env):
+        '''RRPCN with printer and job notifications of every kind.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number == 320', '-V', '-O', 'spoolss',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'Job notify, Document: job value 13' in lines
+        assert 'Job notify, Submitted: 2024/05/03 07:12:34.567' in lines
+        assert 'Job notify, Bytes printed: 1023' in lines
+        assert 'Unknown (5), Unknown field' in lines
+
+    def test_spoolss_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "SPOOLSS: Do not loop on key buffers or job
+        levels, convert each string once": EnumJobs, EnumForms and
+        EnumPrinterDrivers responses with a NULL buffer and a count of 1
+        (frames 477, 484, 491; an assertion before), an EnumJobs response
+        of an unknown level with 2^32-1 jobs (frame 498; an expert info
+        per job before) and the same for two jobs (frame 91), and 16000
+        relative strings in one buffer (frame 505; quadratic before).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {477, 484, 491, 498}',
+                '-Tfields', '-eframe.number', '-espoolss.enumjobs.numjobs',
+                '-espoolss.returned', '-espoolss.enumforms.num', '-espoolss.rc',
+                '-e_ws.expert.message', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '477\t1\t\t\t0x00000000\t',
+            '484\t\t\t1\t0x00000000\t',
+            '491\t\t1\t\t0x00000000\t',
+            '498\t4294967295\t\t\t0x00000000\tUnknown job info level 3',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {91, 498}',
+                '-Tfields', '-e_ws.expert.message', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['Unknown job info level 3'] * 2
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_spoolss_coverage.pcap.gz'),
+                '-Y', 'frame.number == 505',
+                '-Tfields', '-espoolss.returned', '-espoolss.offset', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        returned, offsets = stdout.strip().split('\t')
+        assert returned == '16000'
+        assert offsets.split(',')[:3] == ['2', '4294967292', '4294967288']
+        assert len(offsets.split(',')) == 16000
