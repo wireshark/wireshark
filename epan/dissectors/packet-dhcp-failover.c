@@ -1015,9 +1015,8 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_ms_client_name, tvb, offset,
 			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &client_hostname_str);
-			/* With UTF-16 the string length is half the data length, minus the zero-termination */
 			proto_item_append_text(oi,", \"%s\"",
-			    format_text(pinfo->pool, (char*)client_hostname_str, option_length/2-1));
+			    format_text_string(pinfo->pool, (char*)client_hostname_str));
 			break;
 
 		case DHCP_FO_PD_OPTION_32:
@@ -1025,9 +1024,8 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_ms_client_description, tvb, offset,
 			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_client_description_str);
-			/* With UTF-16 the string length is half the data length, minus the zero-termination */
 			proto_item_append_text(oi,", \"%s\"",
-			    format_text(pinfo->pool, (char*)ms_client_description_str, option_length/2-1));
+			    format_text_string(pinfo->pool, (char*)ms_client_description_str));
 			break;
 
 		case DHCP_FO_PD_OPTION_33:
@@ -1059,9 +1057,8 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_ms_server_name, tvb, offset,
 			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_server_name_str);
-			/* With UTF-16 the string length is half the data length, minus the zero-termination */
 			proto_item_append_text(oi,", \"%s\"",
-			    format_text(pinfo->pool, (char*)ms_server_name_str, option_length/2-1));
+			    format_text_string(pinfo->pool, (char*)ms_server_name_str));
 			break;
 
 		case DHCP_FO_PD_OPTION_36:
@@ -1127,9 +1124,8 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_ms_client_matched_policy, tvb, offset,
 			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_client_matched_policy_str);
-			/* With UTF-16 the string length is half the data length, minus the zero-termination */
 			proto_item_append_text(oi,", \"%s\"",
-			    format_text(pinfo->pool, (char*)ms_client_matched_policy_str, option_length/2-1));
+			    format_text_string(pinfo->pool, (char*)ms_client_matched_policy_str));
 			break;
 
 		case DHCP_FO_PD_OPTION_41:
