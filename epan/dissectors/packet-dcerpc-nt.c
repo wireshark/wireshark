@@ -17,6 +17,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
 
@@ -270,6 +271,31 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, unsigned offset,
 	return offset;
 }
 
+/*
+ * Find the data of a conformant varying string or array that a callback
+ * is given, after its header: max count, offset and actual count, each 4
+ * octets aligned to 4 in NDR and 8 octets aligned to 8 in NDR64.
+ */
+static bool
+ndr_cv_data(dcerpc_info *di, unsigned *start_offset, unsigned end_offset,
+	    unsigned *length)
+{
+	unsigned header;
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		header = 24;
+		*start_offset = WS_ROUNDUP_8(*start_offset);
+	} else {
+		header = 12;
+		*start_offset = WS_ROUNDUP_4(*start_offset);
+	}
+	if (end_offset <= *start_offset || end_offset - *start_offset <= header)
+		return false;
+	*start_offset += header;
+	*length = end_offset - *start_offset;
+	return true;
+}
+
 static void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 			proto_item *item, dcerpc_info *di _U_, tvbuff_t *tvb,
 			unsigned start_offset, unsigned end_offset,
@@ -279,16 +305,14 @@ static void cb_byte_array_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	int levels = CB_STR_ITEM_LEVELS(options);
 	char *s;
 
-	/* Align start_offset on 4-byte boundary. */
-
-	start_offset = WS_ROUNDUP_4(start_offset);
+	unsigned length;
 
 	/* Get byte array value */
 
-	if ((end_offset - start_offset) <= 12)
+	if (!ndr_cv_data(di, &start_offset, end_offset, &length))
 		return;
 
-	s = tvb_bytes_to_str(pinfo->pool, tvb, start_offset + 12, (end_offset - start_offset - 12) );
+	s = tvb_bytes_to_str(pinfo->pool, tvb, start_offset, length);
 
 	/* Append string to COL_INFO */
 
@@ -415,7 +439,7 @@ dissect_ndr_lsa_String(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
 	old_offset = offset;
 	hf_info=proto_registrar_get_nth(hfindex);
 
-	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_lsa_String, &item, "%s: ", hf_info->name);
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_lsa_String, &item, "%s", hf_info->name);
 
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsa_String_name_len, 0);
 
@@ -1253,6 +1277,10 @@ dissect_dcerpc_uint16s(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
 	   or something such as that, with each pair of octets
 	   displayed as a single unit, in which case the byte order
 	   would matter, so we'll calculate the byte order here.  */
+	/* The count comes from the packet: twice it must not overflow */
+	if (length < 0)
+		THROW(ReportedBoundsError);
+	tvb_ensure_bytes_exist64(tvb, offset, 2 * (uint64_t)length);
 	proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, DREP_ENC_INTEGER(drep));
 
 	return offset + length * 2;
@@ -1333,13 +1361,11 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	int options = GPOINTER_TO_INT(callback_args);
 	const char *s;
 
-	/* Align start_offset on 4-byte boundary. */
-
-	start_offset = WS_ROUNDUP_4(start_offset);
+	unsigned length;
 
 	/* Get string value */
 
-	if ((end_offset - start_offset) <= 12)
+	if (!ndr_cv_data(di, &start_offset, end_offset, &length))
 		return;		/* XXX: Use unistr2 dissector instead? */
 
 	/*
@@ -1351,7 +1377,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * efforts of that routine?
 	 */
 	s = (char*)tvb_get_string_enc(pinfo->pool,
-		tvb, start_offset + 12, end_offset - start_offset - 12,
+		tvb, start_offset, length,
 		ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	cb_str_postprocess_options(pinfo, item, di, options, s);
@@ -1365,13 +1391,11 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	int options = GPOINTER_TO_INT(callback_args);
 	const char *s;
 
-	/* Align start_offset on 4-byte boundary. */
-
-	start_offset = WS_ROUNDUP_4(start_offset);
+	unsigned length;
 
 	/* Get string value */
 
-	if ((end_offset - start_offset) <= 12)
+	if (!ndr_cv_data(di, &start_offset, end_offset, &length))
 		return;		/* XXX: Use unistr2 dissector instead? */
 
 	/*
@@ -1383,7 +1407,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * efforts of that routine?
 	 */
 	s = (char*)tvb_get_string_enc(pinfo->pool,
-		tvb, start_offset + 12, (end_offset - start_offset - 12), ENC_ASCII);
+		tvb, start_offset, length, ENC_ASCII);
 
 	cb_str_postprocess_options(pinfo, item, di, options, s);
 }
