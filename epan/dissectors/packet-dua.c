@@ -22,6 +22,7 @@
 
 #include <epan/packet.h>
 #include <wsutil/str_util.h>
+#include <epan/expert.h>
 #include <wsutil/ws_roundup.h>
 #include "packet-sctp.h"
 
@@ -64,6 +65,8 @@ static int hf_message_length;
 /* Initialize the subtree pointers */
 static int ett_dua;
 static int ett_dua_parameter;
+
+static expert_field ei_dua_parameter_length;
 
 static dissector_handle_t dpnss_handle;
 static dissector_handle_t dua_handle;
@@ -316,14 +319,14 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
 
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   protocol_data_tvb    = tvb_new_subset_length(parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length);
+  proto_item_append_text(parameter_item, " (%u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
+
   if(dpnss_handle){
     call_dissector(dpnss_handle, protocol_data_tvb, pinfo, tree);
     return;
   }
 
   call_data_dissector(protocol_data_tvb, pinfo, tree);
-
-  proto_item_append_text(parameter_item, " (%u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
 }
 
 #define RELEASE_MGMT_REASON   0
@@ -532,6 +535,18 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
   offset = 0;
   while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset))) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
+    if (length < PARAMETER_HEADER_LENGTH) {
+      /* The length includes the parameter header; anything shorter is
+       * invalid and leaves no way to find the next parameter. */
+      proto_item *length_item;
+
+      length_item = proto_tree_add_item(dua_tree, hf_parameter_length, parameters_tvb,
+                                        offset + PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
+      expert_add_info_format(pinfo, length_item, &ei_dua_parameter_length,
+                             "Parameter length %d is less than the parameter header length %d",
+                             length, PARAMETER_HEADER_LENGTH);
+      break;
+    }
     total_length = WS_ROUNDUP_4(length);
     if (remaining_length >= length)
       total_length = MIN(total_length, remaining_length);
@@ -883,12 +898,22 @@ proto_register_dua(void)
     &ett_dua_parameter,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_dua_parameter_length,
+      { "dua.parameter_length.invalid", PI_MALFORMED, PI_ERROR,
+        "Parameter length is less than the parameter header length", EXPFILL } },
+  };
+
+  expert_module_t *expert_dua;
+
   /* Register the protocol name and description */
   proto_dua = proto_register_protocol("DPNSS/DASS2-User Adaptation Layer", "DUA", "dua");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_dua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_dua = expert_register_protocol(proto_dua);
+  expert_register_field_array(expert_dua, ei, array_length(ei));
 
   /* Allow other dissectors to find this one by name. */
   dua_handle = register_dissector("dua", dissect_dua, proto_dua);
