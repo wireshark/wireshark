@@ -763,7 +763,8 @@ do_hello_msg(
             my_offset, image_len, ENC_NA);
         list_tree = proto_item_add_subtree(ti_locala, ett_dec_rt_list);
 
-        while (image_len > 0) {
+        /* Each entry is a 7-octet name, a count and 7-octet routers */
+        while (image_len >= 8) {
             ti_ether = proto_tree_add_item(list_tree, hf_dec_rt_ename, tvb,
                 my_offset, 7, ENC_NA);
             list_ether = proto_item_add_subtree(ti_ether, ett_dec_rt_rlist);
@@ -774,7 +775,7 @@ do_hello_msg(
             item_len = tvb_get_uint8(tvb, my_offset);
             my_offset++;
             image_len -= 1;
-            while (item_len > 0)
+            while (item_len >= 7 && image_len >= 7)
             {
                 uint8_t pristate;
                 proto_item  *ti_localb;
