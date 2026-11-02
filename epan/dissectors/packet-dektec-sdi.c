@@ -398,7 +398,8 @@ sdi_scan_stream(const sdi_words_t *words, packet_info *pinfo,
                     region = vertical_blank ? SDI_REGION_VANC :
                                               SDI_REGION_ACTIVE_VIDEO;
                     next_word_index = word_index + 4 * stride;
-                    if (!vertical_blank) {
+                    /* An SAV at the end of the frame starts no active video */
+                    if (!vertical_blank && next_word_index < words->word_count) {
                         unsigned offset;
                         unsigned length;
 
