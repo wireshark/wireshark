@@ -67,12 +67,14 @@ int display_unicode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	char    *str;
 	unsigned len;
 
-	/* display a unicode string from the tree and return new offset */
-	proto_tree_add_item_ret_display_string_and_length(tree, hf_index, tvb, offset, -1, ENC_UTF_16 | ENC_LITTLE_ENDIAN, pinfo->pool, &str, &len);
+	/* display a NUL-terminated unicode string from the tree and return
+	 * the new offset (just past the terminating NUL) */
+	str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+	proto_tree_add_string(tree, hf_index, tvb, offset, len, str);
 
-	/* Return a copy of the string if requested */
+	/* Return a displayable copy of the string if requested */
 	if (data)
-		*data = str;
+		*data = format_text(pinfo->pool, str, strlen(str));
 
 	return 	offset+len;
 }
