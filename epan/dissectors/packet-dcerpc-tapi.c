@@ -110,6 +110,8 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, unsigned offset,
 		return offset;
 	}
 
+	/* 0xffffffff would be "to the end" and move the offset back */
+	tvb_ensure_bytes_exist64(tvb, offset, di->array_actual_count);
 	proto_tree_add_item(tree, hf_tapi_unknown_bytes, tvb, offset,
 		di->array_actual_count, ENC_NA);
 	offset += di->array_actual_count;
