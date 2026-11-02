@@ -925,7 +925,8 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree, 
     char * par_data;
 
     par_len = par_end_offset - par_start_offset;
-    if (par_len==0) {
+    if (par_len <= 0) {
+        par_len = 0;
         par_type_num = DPNSS_NONE;
     }
     switch (par_type_num) {
@@ -1132,7 +1133,9 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                     number_of_found_par++;
                     /* 1:st Parameter */
                     par_start_offset = offset;
-                    if (!tvb_find_uint8_remaining(tvb, offset, '*', &par_end_offset)) {
+                    /* A parameter ends at the next '*' or at the '#' of this string */
+                    if (offset >= hash_offset ||
+                        !tvb_find_uint8_length(tvb, offset, hash_offset - offset, '*', &par_end_offset)) {
                         /* last parameter */
                         par_end_offset = hash_offset;
                         has_par = false;
@@ -1204,6 +1207,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* 2.3.3 LINK-by-LINK REJECT Message - LLRM */
             /* Rejection Cause */
             proto_tree_add_item(tree, hf_dpnss_rejection_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
             /* Indication Field (Optional) */
             if (tvb_end_offset>offset) {
                 ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_ASCII);
@@ -1428,6 +1432,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* 2.1.10 RECALL REJECTION Message - RRM */
             /* Rejection Cause */
             proto_tree_add_item(tree, hf_dpnss_rejection_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
             /* Indication Field (Optional) */
             if (tvb_end_offset>offset) {
                 ind_field_item = proto_tree_add_item(tree, hf_dpnss_indication_field, tvb, offset, -1, ENC_ASCII);
