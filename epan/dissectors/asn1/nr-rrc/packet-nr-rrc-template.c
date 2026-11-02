@@ -25,6 +25,7 @@
 #include <epan/prefs.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/addr_resolv.h>
 
 #include <wsutil/array.h>
 
@@ -74,6 +75,7 @@ static int proto_pdcp_nr;
 /* Initialize the protocol and registered fields */
 static int proto_nr_rrc;
 #include "packet-nr-rrc-hf.c"
+static int hf_nr_rrc_trackingAreaCode_Name;
 static int hf_nr_rrc_serialNumber_gs;
 static int hf_nr_rrc_serialNumber_msg_code;
 static int hf_nr_rrc_serialNumber_upd_nb;
@@ -1090,6 +1092,10 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_absolute_time,
       { "Absolute time", "nr-rrc.absolute_time",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_trackingAreaCode_Name,
+      { "Tracking Area Name", "nr-rrc.trackingAreaCode_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
   };
 

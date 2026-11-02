@@ -27,6 +27,7 @@
 #include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/addr_resolv.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/epochs.h>
@@ -83,6 +84,7 @@ static int proto_lte_rrc;
 
 #include "packet-lte-rrc-hf.c"
 
+static int hf_lte_rrc_trackingAreaCode_Name;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_3;
@@ -4548,6 +4550,10 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_measGapPatterns_r15_bit8,
       { "Gap Pattern 11", "lte-rrc.measGapPatterns_r15.bit8",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+        NULL, HFILL }},
+    { &hf_lte_rrc_trackingAreaCode_Name,
+      { "Tracking Area Name", "lte-rrc.trackingAreaCode_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }}
   };
 
