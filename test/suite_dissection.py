@@ -38523,3 +38523,206 @@ class TestDissectDcerpcSrvsvc:
             '1\t300\tserver_name3\t0x00009003\tcomment4\tNetSrvGetInfo response, Error: WERR_INVALID_PARAMETER',
             '2\t600\tserver_name9\t0x0000000b\tcomment0\tNetSrvGetInfo response, Error: WERR_ACCESS_DENIED',
         ]
+
+
+class TestDissectDcerpcSvcctl:
+    def test_svcctl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts: three connections with every opnum (NDR little
+        endian, big endian, NDR64), three with the calls that have
+        nstring/astring pointers, and no malformed packets or warnings in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_svcctl_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 718
+        assert protocols.count('SVCCTL') == 663
+        assert protocols.count('DCERPC') == 14
+        assert protocols.count('TCP') == 41
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcerpc_svcctl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_svcctl_bind(self, cmd_tshark, capture_file, test_env):
+        '''The six binds: byte order and transfer syntax.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_svcctl_coverage.pcap.gz'),
+                '-Y', 'dcerpc.pkt_type == 11',
+                '-Tfields', '-edcerpc.drep.byteorder', '-edcerpc.cn_bind_to_uuid',
+                '-edcerpc.cn_bind_trans_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t367abb81-9844-35f1-ad32-98f038001003\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '0\t367abb81-9844-35f1-ad32-98f038001003\t8a885d04-1ceb-11c9-9fe8-08002b104860',
+            '1\t367abb81-9844-35f1-ad32-98f038001003\t71710533-beba-4937-8319-b5dbef9ccc36',
+        ] * 2
+
+    def test_svcctl_opnums(self, cmd_tshark, capture_file, test_env):
+        '''Every opnum but GetServiceDisplayNameA and GetServiceKeyNameA
+        (32, 33) is called in each of the first three connections, three
+        times in the little endian one, with the unknown opnum 67 there
+        too; the last three have the five calls with nstring/astring
+        pointers (13, 23, 25, 32, 33), and the little endian one
+        GetServiceDisplayNameA and GetServiceKeyNameA again with an
+        error. Every request has its response
+        except the five whose response the generated code cannot read
+        (26, 29, 35, 38, 41). The status codes.'''
+        expected = {
+            50001: (197, 182, set(range(67)) - {32, 33} | {67},
+                    {'0x00000000': 61, '0x00000005': 59, '0x00000057': 59,
+                     '0x000000ea': 2}),
+            50002: (65, 60, set(range(67)) - {32, 33}, {'0x00000000': 60}),
+            50003: (65, 60, set(range(67)) - {32, 33}, {'0x00000000': 60}),
+            50004: (7, 7, {13, 23, 25, 32, 33}, {'0x00000000': 5, '0x00000005': 2}),
+            50005: (5, 5, {13, 23, 25, 32, 33}, {'0x00000000': 5}),
+            50006: (5, 5, {13, 23, 25, 32, 33}, {'0x00000000': 5}),
+        }
+        for port, (nreq, nresp, opnums, status) in expected.items():
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dcerpc_svcctl_coverage.pcap.gz'),
+                    '-Y', 'svcctl && tcp.port == %d' % port,
+                    '-Tfields', '-edcerpc.pkt_type', '-esvcctl.opnum', '-esvcctl.werror',
+                ), encoding='utf-8', env=test_env)
+            # a reassembled PDU lists the packet type of every fragment
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            lines = [[l[0].split(',')[-1]] + l[1:] for l in lines]
+            requests = [l for l in lines if l[0] == '0']
+            responses = [l for l in lines if l[0] == '2']
+            assert len(requests) == nreq
+            assert len(responses) == nresp
+            assert {int(l[1]) for l in requests} == opnums
+            counts = {}
+            for l in responses:
+                if l[2]:
+                    counts[l[2]] = counts.get(l[2], 0) + 1
+            assert counts == status
+
+    def test_svcctl_enum_services_status(self, cmd_tshark, capture_file, test_env):
+        '''The EnumServicesStatusW responses, which svcctl.cnf dissects by
+        hand: the names are at offsets from the start of the services
+        buffer (an NDR64 entry is 40 octets), in little endian, big endian
+        and NDR64, an empty one, and one with an error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_svcctl_coverage.pcap.gz'),
+                '-Y', 'svcctl.opnum == 14 && dcerpc.pkt_type == 2 && !dcerpc.fragment',
+                '-Tfields', '-edcerpc.drep.byteorder',
+                '-esvcctl.services.buffer_size',
+                '-esvcctl.svcctl_EnumServicesStatusW.services_returned',
+                '-esvcctl.ENUM_SERVICE_STATUSW.referent_id',
+                '-esvcctl.ENUM_SERVICE_STATUSW.service_name',
+                '-esvcctl.ENUM_SERVICE_STATUSW.display_name',
+                '-esvcctl.SERVICE_STATUS.state',
+                '-esvcctl.svcctl_EnumServicesStatusW.resume_index',
+                '-esvcctl.werror',
+            ), encoding='utf-8', env=test_env)
+        names = 'Alerter,Dnscache,Spooler\tAlerter service,DNS Client,Print Spooler\t4,1,2\t42'
+        assert stdout.splitlines() == [
+            '1\t240\t3\t108,124,156,174,196,212\t' + names + '\t0x00000000',
+            '1\t0\t0\t\t\t\t\t\t0x000000ea',
+            '1\t240\t3\t108,124,156,174,196,212\t' + names + '\t0x000000ea',
+            '0\t240\t3\t108,124,156,174,196,212\t' + names + '\t0x00000000',
+            '1\t252\t3\t120,136,168,186,208,224\t' + names + '\t0x00000000',
+        ]
+
+    def test_svcctl_enum_services_reassembled(self, cmd_tshark, capture_file, test_env):
+        '''An EnumServicesStatusW response of 120 services in three
+        DCE/RPC fragments, reassembled in frame 391.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_svcctl_coverage.pcap.gz'),
+                '-Y', 'frame.number == 391',
+                '-Tfields', '-edcerpc.fragment.count',
+                '-esvcctl.services.buffer_size',
+                '-esvcctl.svcctl_EnumServicesStatusW.services_returned',
+                '-esvcctl.ENUM_SERVICE_STATUSW.service_name',
+                '-esvcctl.ENUM_SERVICE_STATUSW.display_name',
+            ), encoding='utf-8', env=test_env)
+        count, size, returned, names, displays = stdout.rstrip('\n').split('\t')
+        assert (count, size, returned) == ('3', '10340', '120')
+        assert names.split(',') == ['Svc%03d' % i for i in range(120)]
+        assert displays.split(',') == ['Service number %d' % i for i in range(120)]
+
+    def test_svcctl_query_service_config(self, cmd_tshark, capture_file, test_env):
+        '''The QUERY_SERVICE_CONFIG of QueryServiceConfigW: with every
+        pointer set, with every pointer NULL, and in big endian and NDR64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_svcctl_coverage.pcap.gz'),
+                '-Y', 'svcctl.opnum == 17 && dcerpc.pkt_type == 2',
+                '-Tfields', '-esvcctl.QUERY_SERVICE_CONFIG.executablepath',
+                '-esvcctl.QUERY_SERVICE_CONFIG.displayname',
+                '-esvcctl.QUERY_SERVICE_CONFIG.start_type',
+                '-esvcctl.QUERY_SERVICE_CONFIG.tag_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'executablepa6\tdisplayname0\t0\t7',
+            '\t\t1\t0',
+            'executablepa1\tdisplayname5\t2\t4294967295',
+            'executablepa9\tdisplayname3\t2\t7',
+            'executablepa2\tdisplayname6\t4\t7',
+        ]
+
+    def test_svcctl_null_term_strings(self, cmd_tshark, capture_file, test_env):
+        '''The calls with pointers to NUL-terminated strings (Pidl
+        nstring/astring, dissect_null_term_[w]string()): the names of the
+        EnumDependentServicesW/A responses, ChangeServiceConfigA,
+        GetServiceDisplayNameA and GetServiceKeyNameA, in little endian
+        (with GetServiceDisplayNameA and GetServiceKeyNameA also failing),
+        big endian and NDR64. These failed a DISSECTOR_ASSERT in the
+        conformant run of the deferred pointers before.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcerpc_svcctl_coverage.pcap.gz'),
+                '-Y', 'tcp.port >= 50004 && svcctl',
+                '-Tfields', '-etcp.srcport', '-etcp.dstport', '-esvcctl.opnum',
+                '-esvcctl.ENUM_SERVICE_STATUSW.service_name',
+                '-esvcctl.ENUM_SERVICE_STATUSW.display_name',
+                '-esvcctl.ENUM_SERVICE_STATUSA.service_name',
+                '-esvcctl.ENUM_SERVICE_STATUSA.display_name',
+                '-esvcctl.svcctl_ChangeServiceConfigA.binary_path',
+                '-esvcctl.svcctl_ChangeServiceConfigA.password',
+                '-esvcctl.svcctl_ChangeServiceConfigA.display_name',
+                '-esvcctl.svcctl_GetServiceDisplayNameA.service_name',
+                '-esvcctl.svcctl_GetServiceDisplayNameA.display_name',
+                '-esvcctl.svcctl_GetServiceKeyNameA.service_name',
+                '-esvcctl.svcctl_GetServiceKeyNameA.key_name',
+                '-esvcctl.werror',
+            ), encoding='utf-8', env=test_env)
+        # port, opnum and the fields that are set
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        values = [[max(l[0], l[1]), l[2]] + [v for v in l[3:] if v] for l in lines]
+        calls = [
+            ['13'],
+            ['13', 'service_name9,service_name1', 'display_name0,display_name2', '0x00000000'],
+            ['23', 'binary_path3', 'password7', 'display_name8'],
+            ['23', '0x00000000'],
+            ['25'],
+            ['25', 'service_name9', 'display_name0', '0x00000000'],
+            ['32', 'service_name1'],
+            ['32', 'display_name2', '0x00000000'],
+            ['33', 'service_name3'],
+            ['33', 'key_name4', '0x00000000'],
+        ]
+        failing = [
+            ['32', 'service_name5'],
+            ['32', 'display_name6', '0x00000005'],
+            ['33', 'service_name7'],
+            ['33', 'key_name8', '0x00000005'],
+        ]
+        ndr64 = [
+            ['13'],
+            ['13', 'service_name5,service_name7', 'display_name6,display_name8', '0x00000000'],
+            ['23', 'binary_path9', 'password3', 'display_name4'],
+            ['23', '0x00000000'],
+            ['25'],
+            ['25', 'service_name5', 'display_name6', '0x00000000'],
+            ['32', 'service_name7'],
+            ['32', 'display_name8', '0x00000000'],
+            ['33', 'service_name9'],
+            ['33', 'key_name0', '0x00000000'],
+        ]
+        assert values == ([['50004'] + l for l in calls + failing] +
+                          [['50005'] + l for l in calls] +
+                          [['50006'] + l for l in ndr64])
