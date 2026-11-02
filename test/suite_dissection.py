@@ -41931,3 +41931,194 @@ class TestDissectDektecSdi:
             '1\t\t0xe7,0x88,0x50,0x41,0x41',
             '2\t\t0xe7,0xe3,0x41,0x41',
         ]
+
+
+DEVICENET_DECODE_AS = ('-d', 'can.subdissector,devicenet')
+
+
+class TestDissectDevicenet:
+    def test_devicenet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every DeviceNet message group decodes without malformed packets
+        or errors, in one and two passes; extended and RTR frames are not
+        DeviceNet, and without Decode As nothing is.'''
+        stdout = subprocess.check_output((cmd_tshark, *DEVICENET_DECODE_AS,
+                '-r', capture_file('devicenet_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 51
+        assert protocols.count('can:devicenet') == 48
+        assert protocols.count('can:data') == 1
+        # The RTR frame has no data
+        assert protocols.count('can') == 1
+        assert protocols.count('exported_pdu:data') == 1
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('devicenet_coverage.pcapng.gz'),
+                '-Y', 'devicenet',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *DEVICENET_DECODE_AS, *passes,
+                    '-r', capture_file('devicenet_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        # Warnings: services that group 3 messages 5 and 6 do not allow,
+        # fragments (not reassembled) and the invalid CAN ID
+        stdout = subprocess.check_output((cmd_tshark, *DEVICENET_DECODE_AS,
+                '-r', capture_file('devicenet_coverage.pcapng.gz'),
+                '-Y', '_ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\tInvalid service code (0xe) for Group 3 Message ID 5',
+            '22\tInvalid service code (0xe) for Group 3 Message ID 6',
+            '27\tFragmentation not currently supported',
+            '28\tFragmentation not currently supported',
+            '29\tFragmentation not currently supported',
+            '30\tFragmentation not currently supported',
+            '48\tInvalid CAN Message 0x07F0',
+        ]
+
+    def test_devicenet_no_can_info(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer: an Exported PDU naming "devicenet" carries no CAN
+        information. The dissector rejects it (it used to assert) and the
+        payload is data.'''
+        for opts in ((), DEVICENET_DECODE_AS):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('devicenet_coverage.pcapng.gz'),
+                    '-Y', 'frame.number == 51',
+                    '-Tfields', '-eframe.protocols', '-eexported_pdu.prot_name',
+                    '-edata.data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == 'exported_pdu:data\tdevicenet\t054b0232\n'
+
+    def test_devicenet_info(self, cmd_tshark, capture_file, test_env):
+        '''The message group and message ID of every CAN identifier, the
+        source and destination MAC IDs as addresses, and the Info
+        column.'''
+        stdout = subprocess.check_output((cmd_tshark, *DEVICENET_DECODE_AS,
+                '-r', capture_file('devicenet_coverage.pcapng.gz'),
+                '-Y', 'devicenet',
+                '-Tfields', '-e_ws.col.def_src', '-e_ws.col.def_dst',
+                '-edevicenet.grp_msg1.id', '-edevicenet.grp_msg2.id',
+                '-edevicenet.grp_msg3.id', '-edevicenet.grp_msg4.id',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            "5\t\t12\t\t\t\tSlave's I/O Multicast Poll Response",
+            "5\t\t13\t\t\t\tSlave's I/O Change of State or Cyclic Message",
+            "5\t\t14\t\t\t\tSlave's I/O Bit-Strobe Response Message",
+            "5\t\t15\t\t\t\tSlave's I/O Poll Response or COS/Cyclic Ack Message",
+            "5\t\t4\t\t\t\tOther Group 1 Message",
+            "5\t\t\t0\t\t\tMaster's I/O Bit-Strobe Command Message",
+            "5\t\t\t1\t\t\tMaster's I/O Multicast Poll Group ID",
+            "5\t\t\t2\t\t\tMaster's Change of State or Cyclic Acknowledge Message",
+            "5\t\t\t3\t\t\tSlave's Explicit/Unconnected Response Messages",
+            "5\t\t\t4\t\t\tMaster's Explicit Request Messages",
+            "5\t\t\t5\t\t\tMaster's I/O Poll Command/COS/Cyclic Messages",
+            "5\t\t\t6\t\t\tGroup 2 Only Unconnected Explicit Request Messages",
+            "5\t\t\t7\t\t\tDuplicate MAC ID Check Messages",
+            "5\t\t\t7\t\t\tDuplicate MAC ID Check Messages",
+            "5\t1\t\t\t5\t\tOpen Explicit Message Connection Request - Response",
+            "5\t1\t\t\t5\t\tClose Connection Request - Response",
+            "5\t1\t\t\t5\t\tDevice Heartbeat Message - Response",
+            "5\t1\t\t\t5\t\tDevice Shutdown Message - Response",
+            "5\t1\t\t\t5\t\tGet Attribute Single - Response",
+            "1\t5\t\t\t6\t\tOpen Explicit Message Connection Request - Request",
+            "1\t5\t\t\t6\t\tClose Connection Request - Request",
+            "1\t5\t\t\t6\t\tGet Attribute Single - Request",
+            "1\t5\t\t\t4\t\tGet Attribute Single - Request",
+            "5\t1\t\t\t4\t\tGet Attribute Single - Response",
+            "1\t5\t\t\t4\t\tUnknown Service Code - Request",
+            "5\t1\t\t\t3\t\tUnknown Service Code - Response",
+            "1\t5\t\t\t4\t\tFirst Fragment",
+            "1\t5\t\t\t4\t\tMiddle fragment",
+            "1\t5\t\t\t4\t\tLast fragment",
+            "5\t1\t\t\t4\t\tFragment Acknowledge",
+            "1\t5\t\t\t0\t\tReset - Request",
+            "1\t10\t\t\t1\t\tUnknown Service Code - Request",
+            "1\t11\t\t\t1\t\tUnknown Service Code - Request",
+            "1\t12\t\t\t1\t\tUnknown Service Code - Request",
+            "1\t13\t\t\t1\t\tUnknown Service Code - Request",
+            "1\t14\t\t\t1\t\tUnknown Service Code - Request",
+            "1\t10\t\t\t2\t\tUnknown Service Code - Request",
+            "1\t11\t\t\t2\t\tUnknown Service Code - Request",
+            "1\t12\t\t\t2\t\tUnknown Service Code - Response",
+            "\t\t\t\t\t44\tCommunication Faulted Response Message - Response",
+            "\t\t\t\t\t45\tCommunication Faulted Request Message - Request",
+            "\t\t\t\t\t45\tCommunication Faulted Request Message - Request",
+            "\t\t\t\t\t44\tCommunication Faulted Response Message - Response",
+            "\t\t\t\t\t46\tOffline Ownership Response Message - Response",
+            "\t\t\t\t\t47\tOffline Ownership Request Message - Request",
+            "\t\t\t\t\t0\tReserved Group 4 Message",
+            "\t\t\t\t\t45\tCommunication Faulted Request Message",
+            "\t\t\t\t\t\tInvalid CAN Message 0x0007F0",
+        ]
+
+    def test_devicenet_fields(self, cmd_tshark, capture_file, test_env):
+        '''Open and close connection requests and responses, duplicate
+        MAC ID checks, Communication Faulted and Offline Ownership
+        messages and fragments.'''
+        stdout = subprocess.check_output((cmd_tshark, *DEVICENET_DECODE_AS,
+                '-r', capture_file('devicenet_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {13,14,15,20,21,27,28,29,30,40,42,44}',
+                '-Tfields', '-eframe.number',
+                '-edevicenet.dup_mac_id.physical_port_number',
+                '-edevicenet.dup_mac_id.serial_number',
+                '-edevicenet.open_message.actual_body_format',
+                '-edevicenet.open_message.req_body_format',
+                '-edevicenet.open_message.group_select',
+                '-edevicenet.open_message.dest_message_id',
+                '-edevicenet.open_message.src_message_id',
+                '-edevicenet.connection_id',
+                '-edevicenet.fragment_type', '-edevicenet.fragment_count',
+                '-edevicenet.comm_fault.value', '-edevicenet.vendor',
+                '-edevicenet.serial_number',
+                '-edevicenet.offline_ownership.client_mac_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\t1\t0x12345678\t\t\t\t\t\t\t\t\t\t\t\t',
+            '14\t2\t0x0badcafe\t\t\t\t\t\t\t\t\t\t\t\t',
+            '15\t\t\t1\t\t\t3\t4\t291\t\t\t\t\t\t',
+            '20\t\t\t\t2\t3\t\t2\t\t\t\t\t\t\t',
+            '21\t\t\t\t\t\t\t\t291\t\t\t\t\t\t',
+            '27\t\t\t\t\t\t\t\t\t0x00\t0x00\t\t\t\t',
+            '28\t\t\t\t\t\t\t\t\t0x01\t0x01\t\t\t\t',
+            '29\t\t\t\t\t\t\t\t\t0x02\t0x02\t\t\t\t',
+            '30\t\t\t\t\t\t\t\t\t0x03\t0x02\t\t\t\t',
+            '40\t\t\t\t\t\t\t\t\t\t\t0x05\t\t\t',
+            '42\t\t\t\t\t\t\t\t\t\t\t\t0x0001\t0x01020304\t',
+            '44\t\t\t\t\t\t\t\t\t\t\t\t0x0001\t0x01020304\t0x05',
+        ]
+
+    def test_devicenet_body_types(self, cmd_tshark, capture_file, test_env):
+        '''Service code 0 carries a class, instance and attribute: 8/8 by
+        default, or the format the Node bodytypes table gives the
+        destination MAC ID. The attribute name comes from CIP.'''
+        stdout = subprocess.check_output((cmd_tshark, *DEVICENET_DECODE_AS,
+                '-r', capture_file('devicenet_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {25,26,37,38}',
+                '-Tfields', '-eframe.number', '-edevicenet.class',
+                '-edevicenet.instance', '-edevicenet.attribute',
+                '-edevicenet.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '25\t0x01\t0x01\t0x01\taabbcc',
+            '26\t0x99\t0x02\t0x05\t010203',
+            '37\t0x01\t0x01\t0x00\t020304',
+            '38\t0x01\t0x00\t0x01\t010304',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *DEVICENET_DECODE_AS,
+                '-o', 'uat:devicenet_bodytypes:"10","DeviceNet 8/16. Class ID = 8 bit integer, Instance ID = 16 bit integer"',
+                '-o', 'uat:devicenet_bodytypes:"11","DeviceNet 16/16. Class ID = 16 bit integer. Instance ID = 16 bit integer"',
+                '-o', 'uat:devicenet_bodytypes:"12","DeviceNet 16/8. Class ID = 16 bit integer. Instance ID = 8 bit integer"',
+                '-r', capture_file('devicenet_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {37,38,39}',
+                '-O', 'devicenet', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'DeviceNet 8/16\n            Class: Identity (0x01)\n            Instance: 0x0001\n            Attribute: 0x01 (Vendor ID)\n' in stdout
+        assert 'Class: Identity (0x0001)\n            Instance: 0x01\n            Attribute: 0x01 (Vendor ID)\n' in stdout
+        assert 'Class: Identity (0x0001)\n            Instance: 0x0702\n            Attribute: 0x08 (State)\n' in stdout
