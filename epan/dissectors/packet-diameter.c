@@ -49,6 +49,7 @@
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/tfs.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
@@ -107,6 +108,7 @@ typedef struct _diam_ctx_t {
 	proto_tree *tree;
 	packet_info *pinfo;
 	wmem_tree_t *avps;
+	wmem_strbuf_t *avps_info; /* Info column of diameter_avps */
 } diam_ctx_t;
 
 typedef struct _diam_avp_t diam_avp_t;
@@ -383,8 +385,10 @@ compare_avps(const void *a, const void *b)
 	return 0;
 }
 
-static GHashTable* diameterstat_cmd_str_hash;
 #define DIAMETER_NUM_PROCEDURES     1
+
+static void
+add_group_str(packet_info *pinfo, diam_sub_dis_t *diam_sub_dis_inf, const char *fmt, ...) G_GNUC_PRINTF(3, 4);
 
 static void
 add_group_str(packet_info *pinfo, diam_sub_dis_t *diam_sub_dis_inf, const char *fmt, ...)
@@ -406,18 +410,6 @@ static void
 diameterstat_init(struct register_srt* srt _U_, GArray* srt_array)
 {
 	srt_stat_table *diameter_srt_table;
-	int* idx;
-
-    /* XXX - This is a hack/workaround support so resetting/freeing parameters at the dissector
-       level doesn't need to be supported. */
-	if (diameterstat_cmd_str_hash != NULL)
-	{
-		g_hash_table_destroy(diameterstat_cmd_str_hash);
-	}
-
-	idx = wmem_new0(wmem_epan_scope(), int);
-	diameterstat_cmd_str_hash = g_hash_table_new(g_str_hash,g_str_equal);
-	g_hash_table_insert(diameterstat_cmd_str_hash, "Unknown", idx);
 
 	/** @todo the filter to use instead of NULL is "diameter.cmd.code"
 	 * to enable the filter popup in the service response time dialogue
@@ -435,7 +427,7 @@ diameterstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	srt_stat_table *diameter_srt_table;
 	srt_data_t *data = (srt_data_t *)pss;
 	const diameter_req_ans_pair_t *diameter=(const diameter_req_ans_pair_t *)prv;
-	int* idx = NULL;
+	int idx;
 
 	/* Process only answers where corresponding request is found.
 	 * Unpaired diameter messages are currently not supported by statistics.
@@ -445,15 +437,18 @@ diameterstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 
 	diameter_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
 
-	idx = (int*) g_hash_table_lookup(diameterstat_cmd_str_hash, diameter->cmd_str);
-	if (idx == NULL) {
-		idx = wmem_new(wmem_epan_scope(), int);
-		*idx = (int) g_hash_table_size(diameterstat_cmd_str_hash);
-		g_hash_table_insert(diameterstat_cmd_str_hash, (char*) diameter->cmd_str, idx);
-		init_srt_table_row(diameter_srt_table, *idx,  (const char*) diameter->cmd_str);
+	/* Find the row of this command in this table. Each SRT table (there
+	 * can be several, e.g. with different filters) has its own rows, so
+	 * look them up in the table itself rather than in a shared map. */
+	for (idx = 0; idx < diameter_srt_table->num_procs; idx++) {
+		if (g_strcmp0(diameter_srt_table->procedures[idx].procedure, diameter->cmd_str) == 0)
+			break;
+	}
+	if (idx == diameter_srt_table->num_procs) {
+		init_srt_table_row(diameter_srt_table, idx, diameter->cmd_str);
 	}
 
-	add_srt_table_data(diameter_srt_table, *idx, &diameter->req_time, pinfo);
+	add_srt_table_data(diameter_srt_table, idx, &diameter->req_time, pinfo);
 
 	return TAP_PACKET_REDRAW;
 }
@@ -580,7 +575,8 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo, prot
 
 		memset(&value.bytes, 0, sizeof(value));
 		tvb_memcpy(tvb, (uint8_t *)&value.bytes, 2, prefix_len_bytes);
-		value.bytes[prefix_len_bytes] = value.bytes[prefix_len_bytes] & (0xff<<(prefix_len % 8));
+		if (prefix_len % 8)
+			value.bytes[prefix_len_bytes - 1] &= (uint8_t)(0xff << (8 - (prefix_len % 8)));
 		proto_tree_add_ipv6(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, &value);
 		set_address(&addr, AT_IPv6, 16, value.bytes);
 		diam_sub_dis->avp_str = wmem_strdup_printf(pinfo->pool, "%s/%u", address_to_str(pinfo->pool, &addr), prefix_len);
@@ -727,7 +723,7 @@ dissect_diameter_result_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		proto_item_set_generated(pi);
 
 		result_code = tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN);
-		add_group_str(pinfo, diam_sub_dis_inf, "RC=%d", result_code);
+		add_group_str(pinfo, diam_sub_dis_inf, "RC=%u", result_code);
 
 		return 4;
 	}
@@ -741,9 +737,9 @@ dissect_diameter_cc_total_octets(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
 	uint64_t total_octets = tvb_get_uint64(tvb, 0, ENC_BIG_ENDIAN);
 	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
-	add_group_str(pinfo, diam_sub_dis_inf, "Total-Octets=%d", total_octets);
+	add_group_str(pinfo, diam_sub_dis_inf, "Total-Octets=%" PRIu64, total_octets);
 
-	return 16;
+	return 8;
 }
 
 /* AVP Code: 432 Rating-Group */
@@ -752,7 +748,7 @@ dissect_diameter_rating_group(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 {
 	uint32_t rg = tvb_get_uint32(tvb, 0, ENC_BIG_ENDIAN);
 	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
-	add_group_str(pinfo, diam_sub_dis_inf, "RG=%d", rg);
+	add_group_str(pinfo, diam_sub_dis_inf, "RG=%u", rg);
 
 	return 4;
 }
@@ -1025,6 +1021,9 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 
 	if (update_col_info) {
 		col_append_fstr(c->pinfo->cinfo, COL_INFO, " %s", code_str);
+		if (c->avps_info) {
+			wmem_strbuf_append_printf(c->avps_info, " %s", code_str);
+		}
 	}
 
 	/* Flags */
@@ -1104,6 +1103,9 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 
 	subtvb = tvb_new_subset_length(tvb,offset,len-(8+(vendor_flag?4:0)));
 	offset += len-(8+(vendor_flag?4:0));
+
+	/* The item of a previous AVP must not be seen by this AVP's subdissector */
+	diam_sub_dis_inf->item = NULL;
 
 	save_tree = c->tree;
 	c->tree = avp_tree;
@@ -1414,7 +1416,7 @@ unsigned32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 }
 
 static const char *
-unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf _U_)
+unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf)
 {
 	char *label = NULL;
 	proto_item *pi;
@@ -1423,7 +1425,7 @@ unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 	int length = tvb_reported_length(tvb);
 	if (length == 8) {
 		if (c->tree) {
-			pi= proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
+			diam_sub_dis_inf->item = pi = proto_tree_add_item(c->tree, a->hf_value, tvb, 0, length, ENC_BIG_ENDIAN);
 			label = (char *)wmem_alloc(c->pinfo->pool, ITEM_LABEL_LENGTH+1);
 			proto_item_fill_label(PITEM_FINFO(pi), label, NULL);
 			label = strstr(label,": ")+2;
@@ -1500,11 +1502,16 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 static const char *
 grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf)
 {
-	unsigned offset = 0;
 	unsigned len = tvb_reported_length(tvb);
 	wmem_strbuf_t *group_avp_str = NULL;
 	const char *group_avp_str_char = NULL;
 	proto_item *pi = proto_tree_add_item(c->tree, a->hf_value, tvb , 0 , -1, ENC_BIG_ENDIAN);
+	/* A grouped AVP can be inside another one; keep the state of the
+	 * enclosing group so that the AVPs after this one still see it. */
+	const bool saved_dis_gouped = diam_sub_dis_inf->dis_gouped;
+	const uint32_t saved_group_avp_code = diam_sub_dis_inf->group_avp_code;
+	const uint32_t saved_vendor_id = diam_sub_dis_inf->vendor_id;
+
 	proto_item_set_generated(pi);
 
 	/* Set the flag that we are dissecting a grouped AVP */
@@ -1514,13 +1521,33 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	group_avp_str = diam_sub_dis_inf->group_avp_str;
 	diam_sub_dis_inf->group_avp_str = NULL;
 
-	while (offset < len) {
-		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, false);
+	TRY {
+		unsigned offset = 0;
+
+		/* Grouped AVPs can nest; bound the recursion. This increments
+		 * the depth before it throws, so it is undone below too. */
+		increment_dissection_depth(c->pinfo);
+		while (offset < len) {
+			offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, false);
+		}
 	}
-	/* Clear info collected in grouped AVP */
-	diam_sub_dis_inf->vendor_id  = 0;
-	diam_sub_dis_inf->dis_gouped = false;
-	diam_sub_dis_inf->group_avp_code = 0;
+	CATCH_ALL {
+		/* Undo the depth and the group state, as a following PDU in
+		 * the same segment is dissected with the same pinfo. */
+		decrement_dissection_depth(c->pinfo);
+		diam_sub_dis_inf->dis_gouped = saved_dis_gouped;
+		diam_sub_dis_inf->group_avp_code = saved_group_avp_code;
+		diam_sub_dis_inf->vendor_id = saved_vendor_id;
+		diam_sub_dis_inf->group_avp_str = group_avp_str;
+		RETHROW;
+	}
+	ENDTRY;
+	decrement_dissection_depth(c->pinfo);
+	/* Clear info collected in grouped AVP, back to the enclosing group */
+	diam_sub_dis_inf->item = NULL;
+	diam_sub_dis_inf->vendor_id  = saved_vendor_id;
+	diam_sub_dis_inf->dis_gouped = saved_dis_gouped;
+	diam_sub_dis_inf->group_avp_code = saved_group_avp_code;
 	diam_sub_dis_inf->avp_str = NULL;
 
 	if (diam_sub_dis_inf->group_avp_str) {
@@ -1718,16 +1745,29 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	if (gbl_diameter_session_imsi) {
-		if (diam_sub_dis_inf->session_id && !wmem_map_contains(diam_session_imsi, diam_sub_dis_inf->session_id) && diam_sub_dis_inf->imsi) {
-			wmem_map_insert(diam_session_imsi,
-					wmem_strdup(wmem_file_scope(), diam_sub_dis_inf->session_id),
-					wmem_strdup(wmem_file_scope(), diam_sub_dis_inf->imsi));
-		}
-		if (diam_sub_dis_inf->session_id) {
-			char *imsi = (char *)wmem_map_lookup(diam_session_imsi, diam_sub_dis_inf->session_id);
-			if (imsi) {
-				add_assoc_imsi_item(tvb, pinfo, diam_tree, imsi);
+		char *imsi = NULL;
+
+		/* The map is only updated on the first pass; later passes use
+		 * what was found then, so the result does not depend on the
+		 * order in which frames are dissected.
+		 */
+		if (!PINFO_FD_VISITED(pinfo)) {
+			if (diam_sub_dis_inf->session_id) {
+				if (diam_sub_dis_inf->imsi && !wmem_map_contains(diam_session_imsi, diam_sub_dis_inf->session_id)) {
+					wmem_map_insert(diam_session_imsi,
+							wmem_strdup(wmem_file_scope(), diam_sub_dis_inf->session_id),
+							wmem_strdup(wmem_file_scope(), diam_sub_dis_inf->imsi));
+				}
+				imsi = (char *)wmem_map_lookup(diam_session_imsi, diam_sub_dis_inf->session_id);
 			}
+			if (imsi) {
+				p_add_proto_data(wmem_file_scope(), pinfo, proto_diameter, pinfo->curr_proto_layer_num, imsi);
+			}
+		} else {
+			imsi = (char *)p_get_proto_data(wmem_file_scope(), pinfo, proto_diameter, pinfo->curr_proto_layer_num);
+		}
+		if (imsi) {
+			add_assoc_imsi_item(tvb, pinfo, diam_tree, imsi);
 		}
 	}
 
@@ -1865,6 +1905,10 @@ dissect_diameter_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	diam_ctx_t *c = wmem_new0(pinfo->pool, diam_ctx_t);
 	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(pinfo->pool, diam_sub_dis_t);
 
+	/* Set default value Subscription-Id-Type and User-Equipment-Info-Type as XXX_UNKNOWN */
+	diam_sub_dis_inf->subscription_id_type = SUBSCRIPTION_ID_TYPE_UNKNOWN;
+	diam_sub_dis_inf->user_equipment_info_type = USER_EQUIPMENT_INFO_TYPE_UNKNOWN;
+
 	/* Load header fields if not already done */
 	if (hf_diameter_code <= 0)
 		proto_registrar_get_byname("diameter.code");
@@ -1876,11 +1920,16 @@ dissect_diameter_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	diam_tree = proto_item_add_subtree(pi, ett_diameter);
 	c->tree = diam_tree;
 	c->pinfo = pinfo;
+	c->avps_info = wmem_strbuf_new(pinfo->pool, "AVPs:");
 
 	/* Dissect AVPs until the end of the packet is reached */
 	while (tvb_reported_length_remaining(tvb, offset)) {
 		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, true);
 	}
+
+	/* AVP subdissectors (e.g. EAP for EAP-Message) can replace the Info
+	 * column; put the list of AVPs back. */
+	col_add_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(c->avps_info));
 	return tvb_reported_length(tvb);
 }
 
@@ -2858,7 +2907,7 @@ ddictionary_process_file(const char* dir, const char* filename, ddict_t* dict)
 				}
 			}
 			if (value_start) {
-				value_start += strlen("key=\"");
+				value_start += strlen("value=\"");
 				char* value_end = strchr(value_start, '"');
 				if (value_end) {
 					element->value = xmlStrndup((const xmlChar*)value_start, (int)(value_end - value_start));
