@@ -343,7 +343,7 @@ static int hf_docsis_tlv_phs_dsc_action;
 /* static int hf_docsis_tlv_phs_err; */
 static int hf_docsis_tlv_phs_phsf;
 static int hf_docsis_tlv_phs_phsm;
-/* static int hf_docsis_tlv_phs_phsv; */
+static int hf_docsis_tlv_phs_phsv;
 static int hf_docsis_tlv_phs_phsi;
 static int hf_docsis_tlv_phs_phss;
 static int hf_docsis_tlv_phs_dbc_action;
@@ -670,12 +670,10 @@ static const value_string dbc_action_vals[] = {
   {0, NULL},
 };
 
-#if 0
 static const true_false_string verify_tfs = {
   "Don't Verify",
   "Verify"
 };
-#endif
 
 static const value_string rng_tech_vals[] = {
   {0, "Perform initial maintenance on new channel"},
@@ -1196,8 +1194,8 @@ dissect_phs (tvbuff_t * tvb, packet_info *pinfo, proto_tree * tree, int start, u
           case PHS_VERIFICATION:
             if (length == 1)
               {
-                proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
-                                     length, ENC_NA);
+                proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsv, tvb, pos,
+                                     length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -1736,9 +1734,9 @@ dissect_sflow (tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, int start,
             break;
           default:
             if (direction == 24)
-              dissect_upstream_sflow (tvb, pinfo, sflow_tree, sflow_item, pos - 2, length);
+              dissect_upstream_sflow (tvb, pinfo, sflow_tree, sflow_item, pos - 2, length + 2);
             else
-              dissect_downstream_sflow (tvb, pinfo, sflow_tree, sflow_item, pos - 2, length);
+              dissect_downstream_sflow (tvb, pinfo, sflow_tree, sflow_item, pos - 2, length + 2);
             break;
 
         }                       /* switch (type) */
@@ -4046,9 +4044,19 @@ dissect_sid_cl(tvbuff_t * tvb, packet_info* pinfo, proto_tree *tree, int start, 
     }                           /* while */
 }
 
+/* The UCD reassembly id is the channel id plus the number of UCDs already
+ * completed in this TLV buffer, so that several UCDs that complete in the
+ * same frame do not share one reassembled head. */
+static uint32_t
+ucd_reassembly_id(int channel_id, int ucd_instance)
+{
+  return ((uint32_t)channel_id & 0xFF) | ((uint32_t)ucd_instance << 8);
+}
+
 static void
 dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
-            proto_tree *tree, int start, uint16_t len, int* previous_channel_id)
+            proto_tree *tree, int start, uint16_t len, int* previous_channel_id,
+            int* ucd_instance)
 {
   uint8_t type, length;
   proto_tree *tcc_tree, *reassembled_ucd_tree;
@@ -4100,7 +4108,9 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
                                      length, ENC_BIG_ENDIAN, (uint32_t*)&channel_id);
                 /* Only perform reassembly on UCD if TLV is reassembled. fragment_end_seq_next added for the rare cases where UCD end is 254 long. */
                 if(!pinfo->fragmented && *previous_channel_id != -1) {
-                  fragment_end_seq_next(&ucd_reassembly_table, pinfo, *previous_channel_id, NULL);
+                  fragment_end_seq_next(&ucd_reassembly_table, pinfo,
+                                        ucd_reassembly_id(*previous_channel_id, *ucd_instance), NULL);
+                  (*ucd_instance)++;
                 }
                 *previous_channel_id = channel_id;
 
@@ -4130,14 +4140,22 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
 
             /* Only perform reassembly on UCD if TLV is reassembled */
             if(!pinfo->fragmented) {
-              reassembled_ucd_item = proto_tree_add_item(tcc_tree, hf_docsis_ucd_reassembled, tvb, 0, -1, ENC_NA);
+              reassembled_ucd_item = proto_tree_add_item(tcc_tree, hf_docsis_ucd_reassembled, tvb, pos, length, ENC_NA);
               reassembled_ucd_tree = proto_item_add_subtree (reassembled_ucd_item, ett_docsis_ucd_reassembled );
 
               reassembled_ucd = fragment_add_seq_next(&ucd_reassembly_table,
                                   tvb, pos, pinfo,
-                                  channel_id, NULL, /* ID for fragments belonging together */
+                                  ucd_reassembly_id(channel_id, *ucd_instance), NULL, /* ID for fragments belonging together */
                                   length, /* fragment length - to the end */
                                   (len == 254)); /* More fragments? */
+
+              /* On later passes every piece finds the reassembled head;
+               * dissect the UCD only at its last piece, as on the first pass. */
+              if (len != 254) {
+                (*ucd_instance)++;
+              } else {
+                reassembled_ucd = NULL;
+              }
 
               if (reassembled_ucd) {
                 tvbuff_t *ucd_tvb = NULL;
@@ -5412,6 +5430,7 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   uint8_t type, length;
   uint16_t x;
   int previous_channel_id = -1;
+  int ucd_instance = 0;
 
   total_len = tvb_reported_length_remaining (tvb, 0);
 
@@ -5745,7 +5764,7 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
               dissect_dut_filter(tvb, pinfo, tlv_tree, pos, length);
               break;
             case TLV_TCC:
-              dissect_tcc(tvb, pinfo, tlv_tree, pos, length, &previous_channel_id);
+              dissect_tcc(tvb, pinfo, tlv_tree, pos, length, &previous_channel_id, &ucd_instance);
               break;
             case TLV_SID_CL:
               dissect_sid_cl(tvb, pinfo, tlv_tree, pos, length);
@@ -7302,13 +7321,11 @@ proto_register_docsis_tlv (void)
       FT_UINT8, BASE_DEC, VALS (dbc_action_vals), 0x0,
       NULL, HFILL}
     },
-#if 0
     {&hf_docsis_tlv_phs_phsv,
      {".11 PHS Verify", "docsis_tlv.phs.phsv",
       FT_BOOLEAN, BASE_NONE, TFS (&verify_tfs), 0x0,
       NULL, HFILL}
     },
-#endif
     {&hf_docsis_tlv_phs_vendorspec,
      {".43 PHS Vendor Specific", "docsis_tlv.phs.vendorspec",
       FT_BYTES, BASE_NONE, NULL, 0x0,

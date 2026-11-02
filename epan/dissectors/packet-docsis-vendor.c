@@ -183,7 +183,7 @@ dissect_cisco (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int vsif_
                       }
                       break;
                     case IP_PREC_BW:
-                      if (length != 4)
+                      if (length == 1)
                       {
                         proto_tree_add_item (ipprec_tree,
                                            hf_docsis_vsif_cisco_ipprec_bw, tvb,
@@ -199,7 +199,10 @@ dissect_cisco (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int vsif_
                   }
                 pos += length;
               }
-            break;
+            /* The sub-TLVs have taken pos to the end of the TLV; do not
+             * add the length of the last sub-TLV again. */
+            pos = templen;
+            continue;
           case IOS_CONFIG_FILE:
             proto_tree_add_item (tree, hf_docsis_vsif_cisco_config_file, tvb,
                                  pos, length, ENC_ASCII);
@@ -321,7 +324,7 @@ dissect_sav_static_prefix_rule(tvbuff_t * tvb, packet_info * pinfo,  proto_tree 
           case GEX_SAV_STATIC_PREFIX_ADDRESS:
             if (length == 4) {
               proto_tree_add_item (sav_spr_tree, hf_docsis_vsif_gex_sav_static_prefix_addressv4, tvb, pos, length, ENC_BIG_ENDIAN);
-            } else if (length == 6) {
+            } else if (length == 16) {
               proto_tree_add_item (sav_spr_tree, hf_docsis_vsif_gex_sav_static_prefix_addressv6, tvb, pos, length, ENC_NA);
             } else {
               expert_add_info_format(pinfo, sav_spr_it, &ei_docsis_vsif_tlvlen_bad, "Wrong TLV length: %u", length);
@@ -473,7 +476,7 @@ dissect_ip_multicast_join_authorization_static_session_rule(tvbuff_t * tvb, pack
           case GEX_IMJA_SSR_AUTHORIZATION_SOURCE_PREFIX_ADDRESS:
             if (length == 4) {
               proto_tree_add_item (imja_ssr_tree, hf_docsis_vsif_gex_imja_ssr_source_prefix_addressv4, tvb, pos, length, ENC_BIG_ENDIAN);
-            } else if (length == 6) {
+            } else if (length == 16) {
               proto_tree_add_item (imja_ssr_tree, hf_docsis_vsif_gex_imja_ssr_source_prefix_addressv6, tvb, pos, length, ENC_NA);
             } else {
               expert_add_info_format(pinfo, imja_ssr_it, &ei_docsis_vsif_tlvlen_bad, "Wrong TLV length: %u", length);
@@ -488,7 +491,7 @@ dissect_ip_multicast_join_authorization_static_session_rule(tvbuff_t * tvb, pack
           case GEX_IMJA_SSR_AUTHORIZATION_GROUP_PREFIX_ADDRESS:
             if (length == 4) {
               proto_tree_add_item (imja_ssr_tree, hf_docsis_vsif_gex_imja_ssr_group_prefix_addressv4, tvb, pos, length, ENC_BIG_ENDIAN);
-            } else if (length == 6) {
+            } else if (length == 16) {
               proto_tree_add_item (imja_ssr_tree, hf_docsis_vsif_gex_imja_ssr_group_prefix_addressv6, tvb, pos, length, ENC_NA);
             } else {
               expert_add_info_format(pinfo, imja_ssr_it, &ei_docsis_vsif_tlvlen_bad, "Wrong TLV length: %u", length);
