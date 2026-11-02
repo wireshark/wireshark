@@ -273,7 +273,7 @@ static hf_register_info fields[] = {
     {&hf_hdr_alg_int, {"Algorithm", "cose.alg.int", FT_INT64, BASE_DEC | BASE_VAL64_STRING, VALS64(alg_vals), 0x0, NULL, HFILL}},
     {&hf_hdr_alg_tstr, {"Algorithm", "cose.alg.tstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_crit_list, {"Critical Headers, Count", "cose.crit", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_hdr_ctype_uint, {"Content-Format", "cose.content-type.uint", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+    {&hf_hdr_ctype_uint, {"Content-Format", "cose.content-type.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_ctype_tstr, {"Content-Type", "cose.content-type.tstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_kid, {"Key identifier", "cose.kid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_kid_text, {"As Text", "cose.kid.as_text", FT_STRING, BASE_NONE, NULL, 0x0, "The kid byte string interpreted as UTF-8 text", HFILL}},
@@ -643,10 +643,12 @@ static void dissect_header_map(dissector_table_t dis_table, tvbuff_t *tvb, packe
             for (uint64_t ix = 0; ix < chunk_hdr_map->head_value; ++ix) {
                 GVariant *key = get_header_value(pinfo->pool, tvb, &peek_offset);
                 if (key) {
-                    if (g_variant_equal(key, principal_key)) {
+                    /* Release the key before reading the value, which can throw */
+                    bool is_principal = g_variant_equal(key, principal_key);
+                    g_variant_unref(key);
+                    if (is_principal) {
                         ctx->principal = get_header_value(pinfo->pool, tvb, &peek_offset);
                     }
-                    g_variant_unref(key);
                     if (ctx->principal) {
                         break;
                     }
@@ -954,7 +956,8 @@ static int dissect_cose_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     const media_content_info_t *content_info = (media_content_info_t *)data;
 
     const char *subtype = NULL;
-    if (content_info->media_str) {
+    /* Some media_type callers (AMQP, OBEX, ID3v2) pass no media_content_info_t */
+    if (content_info && content_info->media_str) {
         subtype = ws_find_media_type_parameter(pinfo->pool, content_info->media_str, "cose-type");
     }
 
@@ -967,9 +970,11 @@ static int dissect_cose_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         dissector = handle_cose_msg_tagged;
     }
 
-    int sublen = call_dissector_only(dissector, tvb, pinfo, tree, NULL);
-    if (sublen > 0) {
-        return sublen;
+    if (dissector) {
+        int sublen = call_dissector_only(dissector, tvb, pinfo, tree, NULL);
+        if (sublen > 0) {
+            return sublen;
+        }
     }
 
     proto_item *item_msg = proto_tree_add_item(tree, proto_cose, tvb, 0, -1, ENC_NA);
