@@ -35,6 +35,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 
@@ -1284,6 +1285,26 @@ has_json_value(bool is_request, uint8_t opcode)
   }
 }
 
+/* A 32-bit length from the packet must fit in what is left. As an int,
+ * 0xFFFFFFFF would mean "to the end" and move the offset back. */
+static void
+check_value_length(tvbuff_t *tvb, unsigned offset, uint32_t length)
+{
+  if (length > (uint32_t)tvb_reported_length_remaining(tvb, offset)) {
+    THROW(ReportedBoundsError);
+  }
+}
+
+/* Each multipath result is handed to the JSON dissector, which adds a
+ * layer; stop before the layer limit. */
+static void
+call_json_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (wmem_list_count(pinfo->layers) + 16 < prefs.gui_max_tree_depth) {
+    call_dissector(json_handle, tvb, pinfo, tree);
+  }
+}
+
 static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
                                uint32_t value_len, unsigned offset,
                                packet_info *pinfo) {
@@ -1295,6 +1316,7 @@ static void dissect_dcp_xattrs(tvbuff_t *tvb, proto_tree *tree,
   proto_tree_add_item_ret_uint(tree, hf_xattr_length, tvb, offset, 4, ENC_BIG_ENDIAN, &xattr_size);
   value_len = value_len - (xattr_size + 4);
   offset += 4;
+  check_value_length(tvb, offset, xattr_size);
 
   ti = proto_tree_add_item(tree, hf_xattrs, tvb, offset, xattr_size, ENC_NA);
   xattr_tree = proto_item_add_subtree(ti, ett_xattrs);
@@ -2278,6 +2300,7 @@ dissect_dcp_cache_transfer_value(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item_ret_uint(item_tree, hf_value_length, tvb, offset, 4,
                                  ENC_BIG_ENDIAN, &item_value_len);
     offset += 4;
+    check_value_length(tvb, offset, item_value_len);
     /* flags is stored/forwarded as opaque bytes - same as DCP mutation */
     proto_tree_add_item(item_tree, hf_extras_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -2593,12 +2616,13 @@ dissect_multipath_lookup_response(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item_ret_uint(multipath_tree, hf_value_length, tvb, offset,
                                  4, ENC_BIG_ENDIAN, &result_len);
     offset += 4;
+    check_value_length(tvb, offset, result_len);
 
     proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
                         ENC_ASCII);
     if (result_len > 0) {
         json_tvb = tvb_new_subset_length(tvb, offset, result_len);
-        call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
+        call_json_dissector(json_tvb, pinfo, multipath_tree);
     }
     offset += result_len;
 
@@ -2643,12 +2667,13 @@ dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item_ret_uint(multipath_tree, hf_value_length, tvb,
                                    offset, 4, ENC_BIG_ENDIAN, &result_len);
       offset += 4;
+      check_value_length(tvb, offset, result_len);
 
       proto_tree_add_item(multipath_tree, hf_value, tvb, offset, result_len,
                           ENC_ASCII);
       if (result_len > 0) {
         json_tvb = tvb_new_subset_length(tvb, offset, result_len);
-        call_dissector(json_handle, json_tvb, pinfo, multipath_tree);
+        call_json_dissector(json_tvb, pinfo, multipath_tree);
       }
       offset += result_len;
     }
@@ -2701,6 +2726,7 @@ dissect_multipath_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      tvb, offset, 4, ENC_BIG_ENDIAN,
                                      &spec_value_len);
         offset += 4;
+        check_value_length(tvb, offset, spec_value_len);
       }
 
       if (path_len) {
@@ -2875,10 +2901,9 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_tree_add_item(tree, hf_range_scan_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
     } else if (path_len != 0) {
         ti = proto_tree_add_item(tree, hf_path, tvb, offset, path_len, ENC_ASCII);
-        value_len -= path_len;
-        if (value_len > 0) {
+        if (value_len > path_len) {
             ti = proto_tree_add_item(tree, hf_value, tvb, offset + path_len,
-                                     value_len, ENC_ASCII);
+                                     value_len - path_len, ENC_ASCII);
         }
     } else if (request && opcode == CLIENT_OPCODE_CREATE_BUCKET) {
       unsigned sep, equals_pos, sep_pos, config_len;
@@ -3924,9 +3949,9 @@ static void dissect_frame_value(tvbuff_t *tvb,
                                 uint8_t magic,
                                 uint8_t opcode,
                                 uint16_t subdoc_path_len) {
-  if (size > INT32_MAX) {
-    // The packet size isn't supported
-  }
+  /* The size is the body length minus the other sections, which can
+   * wrap when they claim more than the body. */
+  check_value_length(tvb, offset, size);
 
   switch (magic) {
     case MAGIC_CLIENT_REQUEST:
