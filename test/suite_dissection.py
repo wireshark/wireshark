@@ -40229,3 +40229,71 @@ class TestDissectDdtp:
             'Message type: Message Error (0)',
         ):
             assert expected in lines
+
+
+class TestDissectDecBpdu:
+    def test_dec_bpdu_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DEC_STP, over Ethernet, Cisco HDLC and PPP, and
+        none is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_bpdu_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'DEC_STP\teth:ethertype:dec_stp',
+        ] * 5 + [
+            'DEC_STP\tchdlc:dec_stp',
+        ] * 2 + [
+            'DEC_STP\tppp:dec_stp',
+        ] * 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dec_bpdu_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dec_bpdu_fields(self, cmd_tshark, capture_file, test_env):
+        '''Hello and topology change BPDUs, an unknown type, every flag
+        and the maximum values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_bpdu_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-edec_stp.protocol', '-edec_stp.version', '-edec_stp.flags',
+                '-edec_stp.root.pri', '-edec_stp.root.mac',
+                '-edec_stp.root.cost', '-edec_stp.bridge.pri',
+                '-edec_stp.bridge.mac', '-edec_stp.port',
+                '-edec_stp.msg_age', '-edec_stp.hello',
+                '-edec_stp.max_age', '-edec_stp.forward',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tHello Packet\t0xe1\t1\t0x00\t128\t02:00:2b:00:00:01\t10\t128\t02:00:2b:00:00:02\t3\t1\t1\t20\t15',
+            '2\tHello Packet\t0xe1\t1\t0x83\t128\t02:00:2b:00:00:01\t10\t128\t02:00:2b:00:00:02\t3\t2\t1\t20\t15',
+            '3\tHello Packet\t0xe1\t1\t0x01\t128\t02:00:2b:00:00:03\t0\t128\t02:00:2b:00:00:03\t0\t0\t1\t20\t15',
+            '4\tTopology Change Notification\t0xe1\t1\t0x80\t128\t02:00:2b:00:00:01\t10\t128\t02:00:2b:00:00:02\t3\t1\t1\t20\t15',
+            '5\tUnknown BPDU type (7)\t0xe1\t2\t0x02\t65535\t02:00:2b:00:00:01\t65535\t0\t02:00:2b:00:00:02\t255\t255\t255\t255\t255',
+            '6\tHello Packet\t0xe1\t1\t0x00\t128\t02:00:2b:00:00:01\t10\t128\t02:00:2b:00:00:04\t1\t1\t1\t20\t15',
+            '7\tTopology Change Notification\t0xe1\t1\t0x01\t128\t02:00:2b:00:00:01\t10\t128\t02:00:2b:00:00:04\t3\t1\t1\t20\t15',
+            '8\tHello Packet\t0xe1\t1\t0x02\t128\t02:00:2b:00:00:01\t10\t128\t02:00:2b:00:00:05\t2\t1\t1\t20\t15',
+            '9\tTopology Change Notification\t0xe1\t1\t0x00\t128\t02:00:2b:00:00:01\t10\t128\t02:00:2b:00:00:05\t3\t1\t1\t20\t15',
+        ]
+
+    def test_dec_bpdu_length(self, cmd_tshark, capture_file, test_env):
+        '''The BPDU is 27 octets in every frame: the Ethernet padding and
+        the 4 octets after the BPDU in PPP frame 9 are not part of it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_bpdu_coverage.pcapng.gz'),
+                '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        protos = [l.strip() for l in stdout.splitlines()
+                  if l.strip().startswith('<proto name="dec_stp"')]
+        assert len(protos) == 9
+        assert all('size="27"' in p for p in protos)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dec_bpdu_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eeth.padding',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '00' * 19
