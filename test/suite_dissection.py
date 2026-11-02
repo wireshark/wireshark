@@ -40020,3 +40020,136 @@ class TestDissectDcomIfaces:
                 '-Tfields', '-edispatch.args', '-edcom.variant_type32',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['1\t0x00000000']
+
+
+class TestDissectDcpEtsi:
+    def test_dcp_etsi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''33 of the 40 frames are DCP, found by the UDP heuristic; the
+        other 7 are rejected by it. None is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcp_etsi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 40
+        assert protocols.count('DCP-TPL') == 11
+        assert protocols.count('DCP-PFT') == 22
+        assert protocols.count('UDP') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcp_etsi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 6291456',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dcp_etsi_af_tpl(self, cmd_tshark, capture_file, test_env):
+        '''AF packets with and without a CRC, with bytes after the AF
+        frame and without tag items, and the tag items of frame 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcp_etsi_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 4',
+                '-Tfields', '-eframe.number', '-edcp-af.len',
+                '-edcp-af.seq', '-edcp-af.crcflag', '-edcp-af.crc.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t263\t1\tTrue\t1',
+            '2\t28\t2\tFalse\t2',
+            '3\t28\t3\tTrue\t1',
+            '4\t0\t4\tTrue\t1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcp_etsi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 3',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        start = lines.index('DCP Tag Packet Layer')
+        assert lines[start + 1:start + 11] == [
+            '*ptr (64 bits)',
+            'dlfc (32 bits)',
+            'fac_ (72 bits)',
+            'sdc_ (168 bits)',
+            'robm (8 bits)',
+            'str0 (800 bits)',
+            'rinf (64 bits)',
+            'info (240 bits)',
+            'Ttst (9 bits)',
+            'Tnil (0 bits)',
+        ]
+        assert 'length: 28 (4 bytes in packet after end of AF frame)' in lines
+
+    def test_dcp_etsi_pft(self, cmd_tshark, capture_file, test_env):
+        '''PFT packets and fragments: reassembly in and out of order, a
+        lost fragment without FEC, length errors, and with FEC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcp_etsi_coverage.pcap.gz'),
+                '-Y', 'dcp-pft',
+                '-Tfields', '-eframe.number', '-edcp-pft.seq',
+                '-edcp-pft.findex', '-edcp-pft.fcount', '-edcp-pft.rsk',
+                '-edcp-pft.source', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\t100\t0\t1\t\t\t',
+            '13\t101\t0\t1\t\t4660\t',
+            '14\t102\t0\t1\t20\t1\t',
+            '15\t110\t0\t3\t\t1\t (Message fragment 0) (first)',
+            '16\t110\t1\t3\t\t1\t (Message fragment 1)',
+            '17\t110\t2\t3\t\t1\t (Message Reassembled) (last)',
+            '18\t111\t2\t3\t\t\t (Message Reassembly failure) (last)',
+            '19\t111\t0\t3\t\t\t (Message fragment 0) (first)',
+            '20\t111\t1\t3\t\t\t (Message Reassembled)',
+            '21\t112\t0\t3\t\t\t (Message fragment 0) (first)',
+            '22\t112\t2\t3\t\t\t (Message Reassembly failure) (last)',
+            '23\t113\t0\t2\t\t\t',
+            '24\t114\t1\t2\t\t\t',
+            '25\t120\t0\t3\t150\t1\t (Message fragment 0) (first)',
+            '26\t120\t1\t3\t150\t1\t (Message fragment 1)',
+            '27\t120\t2\t3\t150\t1\t (Message Reassembled) (last)',
+            '28\t121\t0\t8\t150\t\t (Message fragment 0) (first)',
+            '29\t121\t1\t8\t150\t\t (Message fragment 1)',
+            '30\t121\t2\t8\t150\t\t (Message fragment 2)',
+            '31\t121\t3\t8\t150\t\t (Message fragment 3)',
+            '32\t121\t4\t8\t150\t\t (Message fragment 4)',
+            '33\t121\t5\t8\t150\t\t (Message fragment 5)',
+            '34\t121\t7\t8\t150\t\t (Message Reassembled) (last)',
+            '35\t1\t0\t4\t0\t\t (Message fragment 0) (first)',
+            '36\t1\t1\t4\t0\t\t (Message fragment 1)',
+            '37\t1\t2\t4\t0\t\t (Message fragment 2)',
+            '38\t1\t3\t4\t0\t\t (Message Reassembly failure) (last)',
+            '39\t122\t0\t2\t208\t\t (Message fragment 0) (first)',
+            '40\t122\t1\t2\t208\t\t (Message Reassembly failure) (last)',
+        ]
+
+    def test_dcp_etsi_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The reassembled AF packets, in one and two passes: without FEC,
+        and with Reed-Solomon FEC, where frame 27 has 12 corrupted octets
+        and frame 34 a lost fragment that the RS decoder corrects (the AF
+        CRC is good).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dcp_etsi_coverage.pcap.gz'),
+                    '-Y', 'dcp-pft.fragment.count',
+                    '-Tfields', '-eframe.number',
+                    '-edcp-pft.fragment.count', '-edcp-pft.reassembled.length',
+                    '-edcp-pft.rs_ok', '-edcp-af.len', '-edcp-af.seq',
+                    '-edcp-af.crc.status',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '17\t3\t275\t\t263\t15\t1',
+                '20\t3\t275\t\t263\t18\t1',
+                '27\t3\t396\tTrue\t288\t25\t1',
+                '34\t8\t200\tTrue\t138\t28\t1',
+            ]
+
+    def test_dcp_etsi_rsk_zero(self, cmd_tshark, capture_file, test_env):
+        '''Frames 35-38 (the RS k of 0 reproducer) are not reassembled
+        and RS decoded (they were before "ETSI DCP: Reject an RS k of
+        0").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dcp_etsi_coverage.pcap.gz'),
+                '-Y', 'dcp-pft.seq == 1 && (dcp-pft.rs_ok || dcp-af || dcp-pft.fragment.count)',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
