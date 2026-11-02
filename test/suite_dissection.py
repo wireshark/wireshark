@@ -41812,3 +41812,122 @@ class TestDissectDectNwk:
             'Element: MODEL-IDENTIFIER',
             'Element: PORTABLE-IDENTITY',
         ]
+
+
+class TestDissectDektecSdi:
+    def test_dektec_sdi_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a DekTec SDI frame and none is malformed or has
+        an error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dektec_sdi_coverage.dtsdi.gz'),
+                '-Tfields', '-eframe.protocols', '-edektec_sdi.data_type',
+                '-edektec_sdi.flags', '-edektec_sdi.storage',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'dektec_sdi:st2016_3\t0x09\t0x0081\t10',
+            'dektec_sdi:st2016_3\t0x09\t0x0081\t10',
+            'dektec_sdi\t0x09\t0x0081\t10',
+            'dektec_sdi:st2016_3\t0x09\t0x0081\t10',
+            'dektec_sdi:st2016_3:op47\t0x09\t0x0081\t10',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dektec_sdi_coverage.dtsdi.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dektec_sdi_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column counts the VANC, HANC and HANC audio packets of
+        both HD streams.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dektec_sdi_coverage.dtsdi.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '720p59.94, VANC: 2 packets, HANC: 2 non-audio packets, Audio: present (1 packet)',
+            '720p59.94, VANC: 1 packet, HANC: 1 non-audio packet, Audio: present (2 packets)',
+            '720p59.94, VANC: 0 packets, HANC: 0 non-audio packets, Audio: not found',
+            '720p59.94, VANC: 1 packet, HANC: 1 non-audio packet, Audio: not found',
+            '720p59.94, VANC: 3 packets, HANC: 0 non-audio packets, Audio: not found',
+        ]
+
+    def test_dektec_sdi_anc(self, cmd_tshark, capture_file, test_env):
+        '''The ANC packets with their line, stream, DID, SDID or DBN,
+        data count and checksum; frame 5 has bad parity in DID, SDID and
+        DC and a bad checksum, and a packet with 255 user data words.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dektec_sdi_coverage.dtsdi.gz'),
+                '-Tfields', '-eframe.number', '-edektec_sdi.anc.line',
+                '-edektec_sdi.anc.stream', '-est291.did', '-est291.sdid',
+                '-est291.dbn', '-edektec_sdi.anc.data_count',
+                '-edektec_sdi.anc.checksum_good',
+                '-edektec_sdi.anc.bad_parity',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t9,9,9,9\tC,C,Y,Y\t0x88,0x50,0x41,0x41\t0x01,0x01,0x05\t0x00\t2,0,4,8\tTrue,True,True,True\t',
+            '2\t10,10\tY,Y\t0x41,0x41\t0x01,0x05\t\t4,8\tTrue,True\t',
+            '3\t\t\t\t\t\t\t\t',
+            '4\t12,12\tC,C\t0x41,0x41\t0x01,0x05\t\t4,8\tTrue,True\t',
+            '5\t570,570,570\tY,Y,Y\t0x41,0xc0,0x43\t0x05,0x02\t0x05\t8,4,255\tFalse,True,True\t1,1,1',
+        ]
+
+    def test_dektec_sdi_sav_at_end(self, cmd_tshark, capture_file, test_env):
+        '''An SAV in the last words of a stream starts no active video:
+        frame 3 has only that in C, frame 4 has it in Y after an active
+        video line. Frame 3 was malformed before "DekTec SDI: Do not
+        start active video after the last word".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dektec_sdi_coverage.dtsdi.gz'),
+                '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        packets = stdout.split('<packet>')[1:]
+        assert len(packets) == 5
+        def attr(packet, field, name):
+            start = packet.find('name="%s"' % field)
+            if start < 0:
+                return None
+            element = packet[start:packet.index('>', start)]
+            return element.split(' %s="' % name)[1].split('"')[0]
+
+        spans = []
+        for packet in packets:
+            assert '_ws.malformed' not in packet
+            span = None
+            if attr(packet, 'dektec_sdi.active_video_span', 'pos') is not None:
+                span = (int(attr(packet, 'dektec_sdi.active_video_span', 'pos')),
+                        int(attr(packet, 'dektec_sdi.active_video_span', 'size')))
+            spans.append((span, attr(packet, 'dektec_sdi.active_video_present', 'show')))
+        assert spans == [
+            ((281, 2220), 'True'),
+            (None, 'False'),
+            (None, 'False'),
+            ((56, 4945), 'True'),
+            (None, 'False'),
+        ]
+
+    def test_dektec_sdi_hanc_audio(self, cmd_tshark, capture_file, test_env):
+        '''HANC audio packets are counted and shown as a byte span, or
+        one by one with the decode_hanc_audio preference.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dektec_sdi_coverage.dtsdi.gz'),
+                '-Y', 'frame.number <= 2',
+                '-Tfields', '-edektec_sdi.hanc.audio_packet_count',
+                '-edektec_sdi.hanc.audio_span', '-est291.did',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t0x88,0x50,0x41,0x41',
+            '2\t1\t0x41,0x41',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dektec_sdi_coverage.dtsdi.gz'),
+                '-o', 'dektec_sdi.decode_hanc_audio:TRUE',
+                '-Y', 'frame.number <= 2',
+                '-Tfields', '-edektec_sdi.hanc.audio_packet_count',
+                '-edektec_sdi.hanc.audio_span', '-est291.did',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t\t0xe7,0x88,0x50,0x41,0x41',
+            '2\t\t0xe7,0xe3,0x41,0x41',
+        ]
