@@ -58,19 +58,18 @@ static const val64_string ciplus_security_level[] = {
    that use OIDs which are not officially assigned
    dissection of these extensions can be enabled temporarily using the
    functions below */
+static dissector_handle_t ciplus_scr_cap_handle;
+static dissector_handle_t ciplus_info_handle;
+static dissector_handle_t ciplus_cicam_brand_id_handle;
+static dissector_handle_t ciplus_security_level_handle;
+
 void
 x509ce_enable_ciplus(void)
 {
-  dissector_handle_t dh25, dh26, dh27, dh50;
-
-  dh25 = create_dissector_handle(dissect_ScramblerCapabilities_PDU, proto_x509ce);
-  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.25", dh25);
-  dh26 = create_dissector_handle(dissect_CiplusInfo_PDU, proto_x509ce);
-  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.26", dh26);
-  dh27 = create_dissector_handle(dissect_CicamBrandId_PDU, proto_x509ce);
-  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.27", dh27);
-  dh50 = create_dissector_handle(dissect_SecurityLevel_PDU, proto_x509ce);
-  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.50", dh50);
+  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.25", ciplus_scr_cap_handle);
+  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.26", ciplus_info_handle);
+  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.27", ciplus_cicam_brand_id_handle);
+  dissector_change_string("ber.oid", "1.3.6.1.5.5.7.1.50", ciplus_security_level_handle);
 }
 
 void
@@ -156,6 +155,12 @@ void proto_reg_handoff_x509ce(void) {
   register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
   register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
   oid_add_from_string("anyPolicy","2.5.29.32.0");
+
+  /* handles for the CI+ extensions, see x509ce_enable_ciplus() */
+  ciplus_scr_cap_handle = create_dissector_handle(dissect_ScramblerCapabilities_PDU, proto_x509ce);
+  ciplus_info_handle = create_dissector_handle(dissect_CiplusInfo_PDU, proto_x509ce);
+  ciplus_cicam_brand_id_handle = create_dissector_handle(dissect_CicamBrandId_PDU, proto_x509ce);
+  ciplus_security_level_handle = create_dissector_handle(dissect_SecurityLevel_PDU, proto_x509ce);
 }
 
 
