@@ -44166,3 +44166,241 @@ class TestDissectDmx:
             '13: 132 143 154 165 176 187',
             '19: 198 209 220 231 242 253',
         ]
+
+
+class TestDissectDnp3:
+    # The last frame is the reproducer of the octet string loop; it has an
+    # error expert info by design.
+    OCT0_FRAME = 111
+
+    def test_dnp3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every link function, application function and object variation
+        decodes without malformed packets or error expert infos, in one and
+        two passes (except the octet string reproducer in the last frame).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 111
+        assert protocols.count('DNP 3.0') == 106
+        assert protocols.count('TCP') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dnp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == [str(self.OCT0_FRAME)]
+
+    def test_dnp3_oct_zero_len(self, cmd_tshark, capture_file, test_env):
+        '''A zero-length octet string object (g110v0) without a prefix and
+        2^31-1 items is rejected with an expert info. Each item took no
+        space, and the item loop took minutes of CPU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'dnp3.oct_zero_len',
+                '-Tfields', '-eframe.number', '-ednp3.al.obj',
+                '-ednp3.al.range.quantity',
+            ), encoding='utf-8', env=test_env, timeout=60)
+        assert stdout.splitlines() == ['%d\t0x6e00\t2147483647' % self.OCT0_FRAME]
+
+    def test_dnp3_same_seq_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''Two messages from different link addresses with the same
+        transport sequence number in one datagram keep their own
+        application layer in the second pass.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dnp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 99',
+                    '-Tfields', '-ednp3.src', '-ednp3.dst', '-ednp3.tr.seq',
+                    '-ednp3.al.func', '-ednp3.al.obj', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['1,2\t10,20\t5,5\t1,13\t0x3c02\tRead, Cold Restart']
+
+    def test_dnp3_link_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Interleaved three-segment responses from outstations 1026 and
+        1025 behind one IP address, with the same transport sequence
+        numbers, are reassembled separately. They were mixed into one
+        message before the link addresses were added to the reassembly
+        key.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 90 && frame.number <= 95',
+                '-Tfields', '-eframe.number', '-ednp3.src', '-ednp3.tr.seq',
+                '-ednp3.al.fragment', '-ednp3.al.fragment.reassembled_in',
+                '-ednp3.al.cnt', '-E', 'aggregator= ',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:5] for l in lines] == [
+            ['90', '1026', '10', '', '94'],
+            ['91', '1025', '10', '', '95'],
+            ['92', '1026', '11', '', '94'],
+            ['93', '1025', '11', '', '95'],
+            ['94', '1026', '12', '90 92 94', ''],
+            ['95', '1025', '12', '91 93 95', ''],
+        ]
+        assert lines[4][5].split() == [str(1000 + i) for i in range(60)]
+        assert lines[5][5].split() == [str(2000 + i) for i in range(90)]
+
+    def test_dnp3_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Multi-segment application layer messages over UDP and TCP are
+        reassembled, also across the transport sequence number wrap
+        (62, 63, 0); a series that is never finished is not.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'dnp3.al.fragment.count > 1',
+                '-Tfields', '-eframe.number', '-ednp3.al.fragment',
+                '-ednp3.al.fragment.reassembled.length',
+                '-E', 'aggregator= ',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '63\t62 63\t424',
+            '65\t64 65\t430',
+            '67\t66 67\t320',
+            '89\t87 88 89\t604',
+            '94\t90 92 94\t604',
+            '95\t91 93 95\t724',
+            '109\t107 108 109\t604',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 96 && frame.number <= 98',
+                '-Tfields', '-eframe.number', '-ednp3.tr.seq', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '96\t5\t1024 → 1, len=255, Unconfirmed User Data (Application Layer Unreassembled fragment 5)',
+            '97\t40\t1024 → 1, len=57, Unconfirmed User Data (Application Layer Unreassembled fragment 40)',
+            '98\t6\tResponse',
+        ]
+
+    def test_dnp3_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Over TCP, a link frame split over two segments is reassembled
+        and two link frames in one segment are both dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'tcp.len > 0',
+                '-Tfields', '-eframe.number', '-etcp.len', '-etcp.segment',
+                '-ednp3.al.func', '-E', 'aggregator= ',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '104\t7\t\t',
+            '105\t16\t104 105\t1',
+            '106\t41\t\t129 130',
+            '107\t292\t\t',
+            '108\t292\t\t',
+            '109\t131\t\t129',
+        ]
+
+    def test_dnp3_functions(self, cmd_tshark, capture_file, test_env):
+        '''The link control octet and application function code of every
+        frame (second pass, so that fragments are not dissected).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Tfields', '-ednp3.ctl', '-ednp3.al.func',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.replace('\t', ':') for l in stdout.splitlines()]
+        assert lines[0:11] == ['0xc9:', '0x0b:', '0xc0:', '0x30:', '0xf2:0', '0xd3:0',
+                               '0xc5:0', '0x21:0', '0x1e:0', '0x0f:0', '0x07:0']
+        # requests from the master
+        assert [int(l.split(':')[1]) for l in lines[11:56]] == [
+            1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+            15, 16, 17, 18, 19, 22, 24, 28, 29, 30, 31, 20, 21, 23, 80, 25, 25, 25,
+            26, 27, 0, 32, 33]
+        # responses: 0x81, 0x83 (authentication), 0x82 (unsolicited)
+        assert lines[56:59] == ['0x44:129', '0x44:129', '0x44:131']
+        assert lines[83] == '0x44:130'
+        assert lines[98:100] == ['0xc4,0xc4:1,13', '0xc4,0x0b,0xc4:0,1']
+        assert lines[105] == '0x44,0x44:129,130'
+
+    def test_dnp3_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values: file names, device attribute strings and
+        numbers, octet strings, CROB operations and the relative times of
+        events after a CTO object.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'dnp3.al.file_name || dnp3.al.da.value || dnp3.al.octet_string',
+                '-Tfields', '-eframe.number', '-ednp3.al.file_name',
+                '-ednp3.al.da.value', '-ednp3.al.octet_string',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\t\t\t41424344,5758595a',
+            '49\t/tmp/cfg.txt\t\t',
+            '50\t/tmp/log.txt\t\t',
+            '53\t/tmp/old.txt\t\t',
+            '68\t\t\t68656c6c6f,776f726c64,616263',
+            '71\t\tExample,Unit\t',
+            '72\t\txy\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 71',
+                '-Tfields', '-ednp3.al.da.uint8', '-ednp3.al.da.uint16',
+                '-ednp3.al.da.uint32', '-ednp3.al.da.int8', '-ednp3.al.da.int16',
+                '-ednp3.al.da.int32', '-ednp3.al.da.float', '-ednp3.al.da.double',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.strip().split('\t')
+        assert fields[0:6] == ['16', '1000', '2048', '-2', '-300', '-70000']
+        # floating point values may use the locale's decimal separator
+        assert fields[6] in ('12.75', '12,75')
+        assert fields[7] in ('-3.5', '-3,5')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 22 || frame.number == 60',
+                '-Tfields', '-eframe.number', '-ednp3.ctl.op',
+                '-ednp3.al.reltimestamp', '-ednp3.al.timestamp',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '22\t1,1,3,4,0,15\t\t'
+        number, op, rel, ts = lines[1].split('\t')
+        assert rel == '1.500000000,0.025000000'
+        assert ts.split(',') == ['2023-11-14T22:13:20.123000000Z'] * 3 + ['2023-11-14T22:13:21.123000000Z']
+
+    def test_dnp3_decoding_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The 32-bit analog command events g43v1 and g43v3 take their
+        32-bit value (g43v3's timestamp was read over it), the g70v3 file
+        command reads the permissions at their own position, signed
+        device attributes are shown signed in the item text, and the
+        endpoint table has the destination addresses.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 67',
+                '-Tfields', '-ednp3.al.anaout.int', '-ednp3.al.ctrlstatus',
+            ), encoding='utf-8', env=test_env)
+        values, status = stdout.strip().split('\t')
+        assert values.split(',')[-4:] == ['-100000', '-2', '300000', '4']
+        assert status.split(',')[-8:] == [str(i) for i in range(8)]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 67',
+                '-V', '-O', 'dnp3',
+            ), encoding='utf-8', env=test_env)
+        assert 'Point Number 1 [Status: Req. Accepted/Init/Queued (0x00)], Value: -100000\n' in stdout
+        assert ("Point Number 3 [Status: Req. Not Accepted; No 'SELECT' Received (0x02)], "
+                'Value: 300000, Timestamp: Nov 14, 2023 22:13:20.123000000\n') in stdout
+        assert ('Point Number 4 [Status: Req. Not Accepted; Format Err. in Ctl Req. (0x03)], '
+                'Value: 4, Timestamp: Nov 14, 2023 22:13:20.123000000\n') in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'dnp3.al.file.perms',
+                '-Tfields', '-eframe.number', '-ednp3.al.file.perms',
+            ), encoding='utf-8', env=test_env)
+        # only the write mode (frame 49) has permissions; 0x01ff, not the
+        # octets at the start of the object
+        assert stdout.splitlines() == ['49\t511']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 71',
+                '-V', '-O', 'dnp3',
+            ), encoding='utf-8', env=test_env)
+        assert '(Obj:00, Var:204) (0x00cc), 1 point, Value: -2\n' in stdout
+        assert '(Obj:00, Var:205) (0x00cd), 1 point, Value: -300\n' in stdout
+        assert '(Obj:00, Var:203) (0x00cb), 1 point, Value: -70000\n' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dnp_coverage.pcap.gz'),
+                '-q', '-z', 'endpoints,dnp3',
+            ), encoding='utf-8', env=test_env)
+        endpoints = {l.split()[0]: l.split()[1] for l in stdout.splitlines()
+                     if l.split() and l.split()[0].isdigit()}
+        assert endpoints == {'1': '109', '1024': '102', '1025': '3', '1026': '3',
+                             '2': '1', '10': '1', '20': '1'}
