@@ -35,6 +35,8 @@ struct profile {
 	char *path;
 	void *data;
 	unsigned cb_id;
+	/* a shallow copy in the scope of another profile, freed with it */
+	bool is_clone;
 	wmem_array_t *TPDO; /* CN->MN */
 	wmem_array_t *RPDO; /* MN->CN */
 

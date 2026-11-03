@@ -454,18 +454,8 @@ static const value_string errorcode_vals[] = {
 
 static value_string_ext errorcode_vals_ext = VALUE_STRING_EXT_INIT(errorcode_vals);
 
-/* duplication table key */
-typedef struct {
-	uint8_t src;
-	uint8_t dest;
-	uint8_t seq_send;
-	uint8_t seq_recv;
-} duplication_key;
-
-/* duplication table value */
-typedef struct {
-	uint32_t frame;
-} duplication_data;
+/* proto data key for the frame a duplicated SDO frame duplicates */
+#define EPL_DUPLICATED_FRAME_KEY (ETHERTYPE_EPL_V2 + 1)
 
 static uint32_t ct;
 static uint32_t count;
@@ -1336,7 +1326,6 @@ struct object_mapping {
 
 	uint16_t bit_offset;
 	uint16_t no_of_bits;
-	int ett;
 	/* info */
 	struct {
 		uint32_t first, last;
@@ -1345,7 +1334,10 @@ struct object_mapping {
 	const char *index_name;
 	char title[32];
 };
-#define OBJECT_MAPPING_INITIALIZER { { 0, 0 }, { 0, 0 }, 0, 0, 0, { 0, 0 }, 0, 0, { 0 } }
+#define OBJECT_MAPPING_INITIALIZER { { 0, 0 }, { 0, 0 }, 0, 0, { 0, 0 }, 0, 0, { 0 } }
+
+/* Upper bound on the ObjectMappings remembered per conversation or profile */
+#define EPL_MAX_OBJECT_MAPPINGS 4096
 
 #define CONVO_FOR_RESPONSE  1
 #define CONVO_FOR_REQUEST   2
@@ -1410,7 +1402,7 @@ static int dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto
 static int dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t segmented, bool response, uint16_t segment_size);
 static int dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t segmented, bool response, uint16_t segment_size);
 static int dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, uint8_t segmented, bool response, uint16_t segment_size);
-static int dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tree *epl_tree, tvbuff_t *tvb, uint32_t framenum, int offset, uint16_t idx, uint8_t subindex);
+static int dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tree *epl_tree, packet_info *pinfo, tvbuff_t *tvb, uint32_t framenum, int offset, uint16_t idx, uint8_t subindex);
 
 static const char* decode_epl_address(unsigned char adr);
 
@@ -1690,6 +1682,7 @@ static int hf_epl_od_boolean;
 static int hf_epl_od_int;
 static int hf_epl_od_uint;
 static int hf_epl_od_real;
+static int hf_epl_od_real64;
 static int hf_epl_od_string;
 static int hf_epl_od_octet_string;
 static int hf_epl_od_time;
@@ -1730,7 +1723,7 @@ static const struct epl_datatype {
 
 	/* non-integer types */
 	{ "Real32",         &hf_epl_od_real,    ENC_LITTLE_ENDIAN, 4 },
-	{ "Real64",         &hf_epl_od_real,    ENC_LITTLE_ENDIAN, 8 },
+	{ "Real64",         &hf_epl_od_real64,  ENC_LITTLE_ENDIAN, 8 },
 	{ "Visible_String", &hf_epl_od_string,  ENC_ASCII, 0 },
 	{ "Octet_String",   &hf_epl_od_octet_string,    ENC_NA, 0 },
 	{ "Unicode_String", &hf_epl_od_string,  ENC_UCS_2 | ENC_LITTLE_ENDIAN, 0 },
@@ -1809,11 +1802,13 @@ static int ett_epl_soa_sync;
 static int ett_epl_asnd_sync;
 
 static int ett_epl_pdo_meta;
+static int ett_epl_pdo;
 
 static expert_field ei_duplicated_frame;
 static expert_field ei_recvseq_value;
 static expert_field ei_sendseq_value;
 static expert_field ei_real_length_differs;
+static expert_field ei_too_many_mappings;
 
 static dissector_handle_t epl_handle;
 static dissector_handle_t epl_udp_handle;
@@ -1888,18 +1883,34 @@ object_mapping_eq(struct object_mapping *a, struct object_mapping *b)
 	    && a->param.idx == b->param.idx
 	    && a->param.subindex == b->param.subindex;
 }
-static unsigned
-add_object_mapping(wmem_array_t *arr, struct object_mapping *mapping)
+static bool
+find_object_mapping(wmem_array_t *arr, struct object_mapping *mapping)
 {
-	/* let's check if this overwrites an existing mapping */
 	unsigned i, len;
-	/* A bit inefficient (looping backwards would be better), but it's acyclic anyway */
 	struct object_mapping *old = get_object_mappings(arr, &len);
 	for (i = 0; i < len; i++)
 	{
 		if (object_mapping_eq(&old[i], mapping))
-			return len;
+			return true;
+	}
+	return false;
+}
+static bool
+add_object_mapping(wmem_array_t *arr, struct object_mapping *mapping)
+{
+	unsigned i, len, pos;
+	struct object_mapping *old;
 
+	if (find_object_mapping(arr, mapping))
+		return true;
+
+	old = get_object_mappings(arr, &len);
+	if (len >= EPL_MAX_OBJECT_MAPPINGS)
+		return false;
+
+	/* let's check if this overwrites an existing mapping */
+	for (i = 0; i < len; i++)
+	{
 		if (old[i].frame.first < mapping->frame.first
 		  && (CHECK_OVERLAP_LENGTH(old[i].bit_offset, old[i].no_of_bits, mapping->bit_offset, mapping->no_of_bits)
 		  || (old[i].param.idx == mapping->param.idx && old[i].param.subindex == mapping->param.subindex
@@ -1909,9 +1920,17 @@ add_object_mapping(wmem_array_t *arr, struct object_mapping *mapping)
 		}
 	}
 
+	/* insert behind the last entry that doesn't sort after the new one */
 	wmem_array_append(arr, mapping, 1);
-	wmem_array_sort(arr, object_mapping_cmp);
-	return len + 1;
+	old = get_object_mappings(arr, &len);
+	for (pos = len - 1; pos > 0 && object_mapping_cmp(&old[pos - 1], mapping) > 0; pos--)
+		;
+	if (pos < len - 1)
+	{
+		memmove(&old[pos + 1], &old[pos], (len - 1 - pos) * sizeof *old);
+		old[pos] = *mapping;
+	}
+	return true;
 }
 
 static wmem_map_t *epl_profiles_by_device, *epl_profiles_by_nodeid, *epl_profiles_by_address;
@@ -1987,6 +2006,7 @@ bool
 	wmem_array_t *mappings;
 	tvbuff_t *tvb;
 	uint64_t mapping_le;
+	bool ok;
 
 	if (!use_xdc_mappings)
 		return false;
@@ -2000,8 +2020,10 @@ bool
 
 	mapping_le = GUINT64_TO_LE(mapping);
 	tvb = tvb_new_real_data((uint8_t*)&mapping_le, sizeof mapping_le, sizeof mapping_le);
+	ok = dissect_object_mapping(profile, mappings, NULL, NULL, tvb, 0, 0, idx, subindex) == EPL_OBJECT_MAPPING_SIZE;
+	tvb_free(tvb);
 
-	return dissect_object_mapping(profile, mappings, NULL, tvb, 0, 0, idx, subindex) == EPL_OBJECT_MAPPING_SIZE;
+	return ok;
 }
 
 bool
@@ -2122,7 +2144,7 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 			break;
 
 		item = proto_tree_add_string_format(epl_tree, hf_epl_pdo, payload_tvb, 0, 0, "", "%s", map->title);
-		pdo_tree = proto_item_add_subtree(item, map->ett);
+		pdo_tree = proto_item_add_subtree(item, ett_epl_pdo);
 
 		item = proto_tree_add_uint_format_value(pdo_tree, hf_epl_pdo_index, payload_tvb, 0, 0, map->pdo.idx, "%04X", map->pdo.idx);
 		proto_item_set_generated(item);
@@ -2163,7 +2185,8 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 				pinfo, 0, map->no_of_bits / 8, map->info ? map->info->type : NULL, msgType
 		);
 
-		payload_len -= map->no_of_bits / 8;
+		/* mappings may overlap, don't wrap around */
+		payload_len -= MIN(payload_len, map->no_of_bits / 8u);
 
 		off = willbe_offset_bits / 8;
 	}
@@ -2327,126 +2350,66 @@ subobject_lookup(struct object *obj, uint8_t subindex)
 	return (const struct subobject*)epl_wmem_iarray_find(obj->subindices, subindex);
 }
 
-/* epl duplication table hash function */
+/* duplication table: one entry per (src, dest) transfer, holding the
+ * frame number last seen for each (seq_recv, seq_send) pair */
 static unsigned
-epl_duplication_hash(const void *k)
+epl_duplication_transfer_key(uint8_t src, uint8_t dest)
 {
-	const duplication_key *key = (const duplication_key*)k;
-	unsigned hash;
-
-	hash = ((key->src)<<24) | ((key->dest)<<16)|
-		((key->seq_recv)<<8)|(key->seq_send);
-
-	return hash;
+	return ((unsigned)src << 8) | dest;
 }
 
-/* epl duplication table equal function */
-static int
-epl_duplication_equal(const void *k1, const void *k2)
+static unsigned
+epl_duplication_seq_key(uint8_t seq_recv, uint8_t seq_send)
 {
-	const duplication_key *key1 = (const duplication_key*)k1;
-	const duplication_key *key2 = (const duplication_key*)k2;
-	int hash;
-
-	hash = (key1->src == key2->src)&&(key1->dest == key2->dest)&&
-		(key1->seq_recv == key2->seq_recv)&&(key1->seq_send == key2->seq_send);
-
-	return hash;
-}
-
-/* free the permanent key */
-static void
-free_key(void *ptr)
-{
-	duplication_key *key = (duplication_key *)ptr;
-	g_slice_free(duplication_key, key);
+	/* +1 so that the key is never 0 (NULL) */
+	return (((unsigned)seq_recv << 8) | seq_send) + 1;
 }
 
 /* removes the table entries of a specific transfer */
 static void
 epl_duplication_remove(GHashTable* table, uint8_t src, uint8_t dest)
 {
-	GHashTableIter iter;
-	void *pkey;
-	duplication_key *key;
+	GHashTable *transfer = (GHashTable *)g_hash_table_lookup(table,
+			GUINT_TO_POINTER(epl_duplication_transfer_key(src, dest)));
 
-	g_hash_table_iter_init(&iter, table);
-
-	while(g_hash_table_iter_next(&iter, &pkey, NULL))
-	{
-		key = (duplication_key *)pkey;
-
-		if((src == key->src) && (dest == key->dest))
-		{
-			/* remove the key + value from the hash table */
-			g_hash_table_iter_remove(&iter);
-		}
-	}
+	if (transfer)
+		g_hash_table_remove_all(transfer);
 }
 
 /* insert function */
 static void
-epl_duplication_insert(GHashTable* table, void *ptr, uint32_t frame)
+epl_duplication_insert(GHashTable* table, uint8_t src, uint8_t dest, uint8_t seq_recv, uint8_t seq_send, uint32_t frame)
 {
-	duplication_data *data = NULL;
-	duplication_key *key = NULL;
-	void *pdata;
+	unsigned tkey = epl_duplication_transfer_key(src, dest);
+	GHashTable *transfer = (GHashTable *)g_hash_table_lookup(table, GUINT_TO_POINTER(tkey));
 
-	/* check if the values are stored */
-	if(g_hash_table_lookup_extended(table, ptr, NULL, &pdata))
+	if (!transfer)
 	{
-		data = (duplication_data *)pdata;
-		data->frame = frame;
+		transfer = g_hash_table_new(g_direct_hash, g_direct_equal);
+		g_hash_table_insert(table, GUINT_TO_POINTER(tkey), transfer);
 	}
-	/* insert the data struct into the table */
-	else
-	{
-		key = (duplication_key *)wmem_memdup(wmem_file_scope(), ptr,sizeof(duplication_key));
-		/* create memory */
-		data = wmem_new0(wmem_file_scope(), duplication_data);
-		data->frame = frame;
-		g_hash_table_insert(table,(void *)key, data);
-	}
-}
-
-/* create a key*/
-static void *
-epl_duplication_key(uint8_t src, uint8_t dest, uint8_t seq_recv, uint8_t seq_send)
-{
-	duplication_key *key = g_slice_new(duplication_key);
-
-	key->src = src;
-	key->dest = dest;
-	key->seq_recv = seq_recv;
-	key->seq_send = seq_send;
-
-	return (void *)key;
+	g_hash_table_insert(transfer, GUINT_TO_POINTER(epl_duplication_seq_key(seq_recv, seq_send)), GUINT_TO_POINTER(frame));
 }
 
 /* get the saved data */
 static uint32_t
-epl_duplication_get(GHashTable* table, void *ptr)
+epl_duplication_get(GHashTable* table, uint8_t src, uint8_t dest, uint8_t seq_recv, uint8_t seq_send)
 {
-	duplication_data *data = NULL;
-	void *pdata;
+	GHashTable *transfer = (GHashTable *)g_hash_table_lookup(table,
+			GUINT_TO_POINTER(epl_duplication_transfer_key(src, dest)));
 
-	if(g_hash_table_lookup_extended(table, ptr, NULL, &pdata))
-	{
-		data = (duplication_data *)pdata;
-		if(data->frame == 0x00)
-			return 0x00;
-	}
-	if(data != NULL)
-		return data->frame;
-	else
+	if (!transfer)
 		return 0x00;
+
+	return GPOINTER_TO_UINT(g_hash_table_lookup(transfer,
+			GUINT_TO_POINTER(epl_duplication_seq_key(seq_recv, seq_send))));
 }
 
 static void
 setup_dissector(void)
 {
 	/* init duplication hash table */
-	epl_duplication_table = g_hash_table_new(epl_duplication_hash, epl_duplication_equal);
+	epl_duplication_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, (GDestroyNotify)g_hash_table_destroy);
 
 	/* create memory block for upload/download */
 	memset(&epl_asnd_sdo_reassembly_write, 0, sizeof(epl_sdo_reassembly));
@@ -2795,7 +2758,8 @@ dissect_epl_payload(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, int
 	{
 		if (*type->hf != hf_epl_od_uint)
 		{
-			proto_tree_add_item(epl_tree, *type->hf, tvb, offset, type->len, type->encoding);
+			/* variable length types (strings) have a len of 0 and use the whole payload */
+			proto_tree_add_item(epl_tree, *type->hf, tvb, offset, type->len ? (int)type->len : payload_len, type->encoding);
 		}
 		else
 		{
@@ -3693,7 +3657,6 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 	proto_tree *sod_seq_tree;
 	proto_item *item;
 	uint8_t duplication = 0x00;
-	void *key;
 	uint32_t saved_frame;
 	uint16_t seqnum = 0;
 
@@ -3714,11 +3677,11 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 	/* get the current frame-number */
 	frame = pinfo->num;
 
-	/* Create a key */
-	key = epl_duplication_key(epl_segmentation.src,epl_segmentation.dest,seq_recv,seq_send);
-
 	/* Get the saved data */
-	saved_frame = epl_duplication_get(epl_duplication_table, key);
+	if (!PINFO_FD_VISITED(pinfo))
+		saved_frame = epl_duplication_get(epl_duplication_table, epl_segmentation.src, epl_segmentation.dest, seq_recv, seq_send);
+	else
+		saved_frame = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_epl, EPL_DUPLICATED_FRAME_KEY));
 
 	/* clear array at the start Sequence */
 	if((rcon < EPL_VALID && scon < EPL_VALID)
@@ -3726,7 +3689,8 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 		||(rcon < EPL_VALID && scon == EPL_VALID))
 	{
 		/* remove all the keys of the specified src and dest address*/
-		epl_duplication_remove(epl_duplication_table,epl_segmentation.src,epl_segmentation.dest);
+		if (!PINFO_FD_VISITED(pinfo))
+			epl_duplication_remove(epl_duplication_table,epl_segmentation.src,epl_segmentation.dest);
 		/* There is no cmd layer */
 		epl_set_sequence_nr(pinfo, 0x02);
 	}
@@ -3745,13 +3709,14 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 		duplication = 0x00;
 		epl_set_sequence_nr(pinfo, 0x00);
 	}
-	else
+	/* the duplication state of later passes is kept in the proto data */
+	else if (!PINFO_FD_VISITED(pinfo))
 	{
 		/* if retransmission request or connection valid with acknowledge request */
 		if((rcon == EPL_VALID && scon == EPL_RETRANSMISSION) || (rcon == EPL_RETRANSMISSION && scon == EPL_VALID))
 		{
 			/* replace the saved frame with the new frame */
-			epl_duplication_insert(epl_duplication_table, key, frame);
+			epl_duplication_insert(epl_duplication_table, epl_segmentation.src, epl_segmentation.dest, seq_recv, seq_send, frame);
 		}
 		/* if connection valid */
 		else
@@ -3760,7 +3725,7 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 			if(saved_frame == 0x00)
 			{
 				/* store the new frame in the hash table */
-				epl_duplication_insert(epl_duplication_table,key,frame);
+				epl_duplication_insert(epl_duplication_table, epl_segmentation.src, epl_segmentation.dest, seq_recv, seq_send, frame);
 			}
 			/* if the frame is bigger than the stored frame + the max frame offset
 			   or the saved frame is bigger that the current frame then store the current
@@ -3769,12 +3734,13 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 				||(saved_frame > frame)))
 			{
 				/* store the new frame in the hash table */
-				epl_duplication_insert(epl_duplication_table,key,frame);
+				epl_duplication_insert(epl_duplication_table, epl_segmentation.src, epl_segmentation.dest, seq_recv, seq_send, frame);
 			}
 			else if((frame < (saved_frame + EPL_MAX_FRAME_OFFSET))
 				&&(frame > saved_frame))
 			{
 				duplication = 0x01;
+				p_add_proto_data(wmem_file_scope(), pinfo, proto_epl, EPL_DUPLICATED_FRAME_KEY, GUINT_TO_POINTER(saved_frame));
 			}
 		}
 	}
@@ -3789,12 +3755,11 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 			saved_frame,seq_recv,seq_send );
 	}
 	/* if the last frame in the ReceiveSequence is sent get new memory */
-	if(seq_recv == 0x3f && seq_send <= 0x3f)
+	if(seq_recv == 0x3f && seq_send <= 0x3f && !PINFO_FD_VISITED(pinfo))
 	{
 		/* reset all entries of the transfer */
 		epl_duplication_remove(epl_duplication_table,epl_segmentation.src,epl_segmentation.dest);
 	}
-	free_key(key);
 	item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_seq, tvb,  offset, 5, ENC_NA);
 	sod_seq_tree = proto_item_add_subtree(item, ett_epl_sdo_sequence_layer);
 	/* Asynchronous SDO Sequence Layer */
@@ -4227,7 +4192,7 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 			if (use_sdo_mappings)
 				mappings = idx == EPL_SOD_PDO_TX_MAPP ? convo->TPDO : convo->RPDO;
 
-			offset = dissect_object_mapping(convo->profile, mappings, epl_tree, tvb, pinfo->num, offset, idx, subindex);
+			offset = dissect_object_mapping(convo->profile, mappings, epl_tree, pinfo, tvb, pinfo->num, offset, idx, subindex);
 		}
 		else
 		{
@@ -4249,15 +4214,14 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 	return offset;
 }
 
-/* epl_tree may be null here, when this function is called from the profile parser */
+/* epl_tree and pinfo may be null here, when this function is called from the profile parser */
 static int
-dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tree *epl_tree, tvbuff_t *tvb, uint32_t framenum, int offset, uint16_t idx, uint8_t subindex)
+dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tree *epl_tree, packet_info *pinfo, tvbuff_t *tvb, uint32_t framenum, int offset, uint16_t idx, uint8_t subindex)
 {
 	proto_item *ti_obj, *ti_subobj, *psf_item;
 	proto_tree *psf_tree;
 	struct object_mapping map = OBJECT_MAPPING_INITIALIZER;
 	struct object *mapping_obj;
-	int *ett;
 	const struct subobject *mapping_subobj;
 	bool nosub = false;
 
@@ -4312,22 +4276,26 @@ dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tr
 	proto_item_append_text(psf_item, " bits");
 	offset += 2;
 
-	map.ett = -1;
-	ett = &map.ett;
-	/* We leak an ett entry every time we destruct a mapping
-	 * Not sure what to do about that
-	 */
-	proto_register_subtree_array(&ett, 1);
-
 	if (mappings)
 	{
+		bool recorded;
+
 		/* TODO One could think of a better string here? */
 		if (nosub)
 			snprintf(map.title, sizeof(map.title), "PDO - %04X", map.pdo.idx);
 		else
 			snprintf(map.title, sizeof(map.title), "PDO - %04X:%02X", map.pdo.idx, map.pdo.subindex);
 
-		add_object_mapping(mappings, &map);
+		/* The mappings are complete after the first pass, so only check
+		 * whether this one made it in, which it did unless the list is full */
+		if (pinfo && PINFO_FD_VISITED(pinfo))
+			recorded = wmem_array_get_count(mappings) < EPL_MAX_OBJECT_MAPPINGS
+				|| find_object_mapping(mappings, &map);
+		else
+			recorded = add_object_mapping(mappings, &map);
+
+		if (!recorded && pinfo)
+			expert_add_info(pinfo, psf_item, &ei_too_many_mappings);
 	}
 
 	return offset;
@@ -4548,7 +4516,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 				wmem_array_t *mappings = NULL;
 				if (use_sdo_mappings)
 					mappings = idx == EPL_SOD_PDO_TX_MAPP ? convo->TPDO : convo->RPDO;
-				dissect_object_mapping(convo->profile, mappings, psf_od_tree, tvb, pinfo->num, dataoffset, idx, subindex);
+				dissect_object_mapping(convo->profile, mappings, psf_od_tree, pinfo, tvb, pinfo->num, dataoffset, idx, subindex);
 			}
 			else /* dissect the payload */
 			{
@@ -4579,13 +4547,13 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 		remlength = (uint32_t)tvb_reported_length_remaining(tvb, offset);
 		objectcnt = 0;
 
-		dataoffset = offset;
-
 		/* As long as no lastentry has been detected, and we have still bytes left,
 		 * we start the loop. */
 		while ( remlength > 0 )
 		{
 			uint16_t sod_index;
+
+			dataoffset = offset;
 			if ((tvb_get_uint8 ( tvb, offset + 3 ) & 0x80) == 0x80)
 				is_abort = true;
 
@@ -4603,7 +4571,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 				/* get subindex string */
 				sub_index_str = val_to_str_ext_const(idx, &sod_cmd_no_sub, "unknown");
 				/* get subindex string value*/
-				nosub = str_to_val(sub_index_str, sod_cmd_str_no_sub,error);
+				nosub = str_to_val(sub_index_str, sod_cmd_str_no_sub,error) != error;
 
 				if (objectcnt < 8)
 					col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%04X", idx);
@@ -4621,7 +4589,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 				/* get subindex offset */
 				subindex = tvb_get_uint8(tvb, dataoffset);
 				proto_item_append_text(psf_od_tree, " SubIdx: 0x%02X", subindex);
-				proto_tree_add_uint_format(psf_od_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, dataoffset, 1, idx,"SubIndex: 0x%02X", subindex);
+				proto_tree_add_uint_format(psf_od_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, dataoffset, 1, subindex,"SubIndex: 0x%02X", subindex);
 
 				/* info text */
 				if (objectcnt < 8)
@@ -4899,7 +4867,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 					idx = tvb_get_letohs(tvb, dataoffset);
 					proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_index, tvb, dataoffset, 2, idx,"Index: 0x%04X", idx);
 					dataoffset += 2;
-					idx = tvb_get_letohs(tvb, dataoffset);
+					idx = tvb_get_uint8(tvb, dataoffset);
 					proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, dataoffset, 1, idx,"SubIndex: 0x%02X", idx);
 					dataoffset += 2;
 					idx = tvb_get_letohs(tvb, dataoffset);
@@ -6259,6 +6227,10 @@ proto_register_epl(void)
 			{ "Data", "epl.od.data.real",
 				FT_FLOAT, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
+		{ &hf_epl_od_real64,
+			{ "Data", "epl.od.data.real64",
+				FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
 		{ &hf_epl_od_string,
 			{ "Data", "epl.od.data.string",
 				FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
@@ -6315,7 +6287,8 @@ proto_register_epl(void)
 		&ett_epl_fragments,
 		&ett_epl_asnd_sdo_data_reassembled,
 		&ett_epl_asnd_nmt_dna,
-		&ett_epl_pdo_meta
+		&ett_epl_pdo_meta,
+		&ett_epl_pdo
 	};
 
 	static ei_register_info ei[] = {
@@ -6330,6 +6303,10 @@ proto_register_epl(void)
 		{ &ei_sendseq_value,
 			{ "epl.error.value.send.sequence", PI_PROTOCOL, PI_ERROR,
 				"Invalid Value for SendSequenceNumber", EXPFILL }
+		},
+		{ &ei_too_many_mappings,
+			{ "epl.asnd.sdo.cmd.data.mapping.too_many", PI_PROTOCOL, PI_WARN,
+				"Too many ObjectMappings, mapping not used for PDO dissection", EXPFILL }
 		},
 		{ &ei_real_length_differs,
 			{ "epl.error.payload.length.differs", PI_PROTOCOL, PI_ERROR,
@@ -6521,11 +6498,20 @@ static void
 drop_profiles(void *key _U_, void *value, void *user_data _U_)
 {
 	struct profile *head = (struct profile*)value, *curr;
-	while ((curr = head))
+	GPtrArray *owners = g_ptr_array_new();
+
+	/* A clone lives in the scope of the profile it was copied from and
+	 * goes away with it, so walk the whole list before freeing anything
+	 * and free only the profiles that own their scope.
+	 */
+	for (curr = head; curr; curr = curr->next)
 	{
-		head = head->next;
-		profile_del(curr);
+		if (!curr->is_clone)
+			g_ptr_array_add(owners, curr);
 	}
+	for (unsigned i = 0; i < owners->len; i++)
+		profile_del((struct profile*)g_ptr_array_index(owners, i));
+	g_ptr_array_free(owners, true);
 }
 
 static void
@@ -6563,6 +6549,7 @@ device_profile_parse_uat(void)
 		{
 			struct profile *clone = wmem_new0(profile->scope, struct profile);
 			*clone = *profile;
+			clone->is_clone = true;
 			profile = clone;
 		}
 
@@ -6688,6 +6675,7 @@ nodeid_profile_uat_free_cb(void *_r)
 	if (!r->is_nodeid)
 		free_address(&r->node.addr);
 	g_free(r->path);
+	g_free(r->id_str);
 }
 
 static void*
