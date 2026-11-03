@@ -152,6 +152,7 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 
 	if (0xe0 == tag) {
 		unsigned total_length;
+		uint32_t irl_length;
 
 		total_length = tvb_get_uint8(tvb, offset+1);
 		sub_tree = proto_tree_add_subtree(tree, tvb, offset, (2+total_length),
@@ -188,11 +189,11 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 		offset++;
 		proto_tree_add_item(sub_tree, hf_eiss_irl_type, tvb, offset, 2,
 					ENC_BIG_ENDIAN);
-		proto_tree_add_item(sub_tree, hf_eiss_irl_length, tvb, offset,
-					2, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(sub_tree, hf_eiss_irl_length, tvb, offset,
+					2, ENC_BIG_ENDIAN, &irl_length);
 		offset += 2;
-		proto_tree_add_item(sub_tree, hf_eiss_irl_string, tvb, offset, 2,
-					ENC_ASCII|ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_eiss_irl_string, tvb, offset,
+					irl_length, ENC_ASCII);
 		return (2+total_length);
 	} else if (0xe1 == tag) {
 		sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6,
@@ -508,7 +509,7 @@ proto_register_eiss(void)
 
 		{ &hf_eiss_irl_string, {
 			"Initial Resource Locator String", "eiss.aid.irl.string",
-			FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
 		{ &hf_eiss_mtd_time_value, {
@@ -522,7 +523,7 @@ proto_register_eiss(void)
 		} },
 
 		{ &hf_eiss_sed_descriptor_length, {
-			"Descriptor Length", "eiss.desc.length",
+			"Descriptor Length", "eiss.sed.desc_length",
 			FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL
 		} },
 
