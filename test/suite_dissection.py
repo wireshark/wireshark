@@ -52484,3 +52484,125 @@ class TestDissectEnc:
             'Enc IPv6, SPI 0x00002001',
             'Enc unknown (4660), SPI 0x00003001',
         ]
+
+
+class TestDissectEnip:
+    def test_enip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocol counts, and no malformed packets or warning/error
+        expert infos in one and two passes (only notes: requests without
+        a response in the first pass, I/O heartbeats).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enip_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 242
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {
+            'CIP': 149, 'CIP CM': 32, 'CIP I/O': 21, 'CIP Motion': 1,
+            'DLR': 12, 'ENIP': 23, 'LLDP': 1, 'TCP': 2, 'UDP': 1,
+        }
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('enip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_enip_lldp_attribute_lists(self, cmd_tshark, capture_file, test_env):
+        '''Set_Attribute_List with the LLDP attributes: the attribute after
+        each one is decoded (the handlers returned an offset instead of a
+        length before the fix, so it was skipped with a Malformed expert).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('enip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 103 || frame.number == 105 || frame.number == 107',
+                '-Tfields', '-ecip.attribute', '-ecip.lldpdatatbl.position_id',
+                '-ecip.lldpmngmnt.msg_tx_interval', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5,10\t16962\t\t',
+            '1,2\t\t30\t',
+            '6,7,8,9,11,10\t17219\t\t',
+        ]
+
+    def test_enip_cpf_after_concurrent_item(self, cmd_tshark, capture_file, test_env):
+        '''A CPF item after a concurrent connection data item starts at the
+        end of that item (it was parsed 4 octets early, inside the CRC,
+        before the CPF length fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 192',
+                '-Tfields', '-eenip.cpf.typeid', '-eenip.sinfamily',
+                '-eenip.sinport', '-eenip.sinaddr', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '0x8002,0x00b1,0x8000\t2\t2222\t192.0.2.10\t\n'
+
+    def test_enip_connections(self, cmd_tshark, capture_file, test_env):
+        '''I/O is matched to the Forward Open that created its connection,
+        with the direction; heartbeats on input only connections.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enip_coverage.pcap.gz'),
+                '-Y', 'frame.number in {169,170,179,190,197,204,221}',
+                '-Tfields', '-eframe.number', '-eenip.fwd_open_in',
+                '-ecip.data_direction', '-ecip.analysis.cip_io_heartbeat',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:3] for l in lines] == [
+            ['169', '167', '1'], ['170', '167', '2'], ['179', '177', '1'],
+            ['190', '188', '1'], ['197', '195', '1'], ['204', '202', '1'],
+            ['221', '219', '1'],
+        ]
+        assert [l[0] for l in lines if l[3]] == ['179', '197']
+
+    def test_enip_request_matching(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are matched by sender context, and the
+        Unconnected Message over UDP items by transaction ID.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('enip_coverage.pcap.gz'),
+                '-Y', 'frame.number in {19,20,151,217,218}',
+                '-Tfields', '-eframe.number', '-eenip.response_in', '-eenip.response_to',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\t20\t', '20\t\t19', '151\t\t', '217\t218\t', '218\t\t217',
+        ]
+
+    def test_enip_encapsulation(self, cmd_tshark, capture_file, test_env):
+        '''The encapsulation commands over TCP and UDP and the Info column
+        additions (identity product name, service name, session).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enip_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 17',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Register Session (Req), Session: 0x00000000',
+            'Register Session (Rsp), Session: 0x12345678',
+            'List Services (Req)',
+            'List Services (Rsp), Communications',
+            'List Identity (Req)',
+            'List Identity (Rsp), Example Adapter',
+            'List Interfaces (Req)',
+            'List Interfaces (Rsp)',
+            'NOP (Req)',
+            'Unknown Command (0x00ab) (Req)',
+            'Send RR Data (Rsp)',
+            'List Identity (Req)',
+            'List Identity (Rsp), Example Adapter',
+            'List Identity (?)',
+            'List Identity (?)',
+            'List Services (Req)',
+            'List Services (Rsp), Communications',
+        ]
+
+    def test_enip_dlr(self, cmd_tshark, capture_file, test_env):
+        '''Every DLR frame type, Sign_On with two and three nodes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enip_coverage.pcap.gz'),
+                '-Y', 'dlr',
+                '-Tfields', '-eenip.dlr.frametype', '-eenip.dlr.sonumnodes',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x01\t', '0x02\t', '0x03\t', '0x04\t', '0x05\t', '0x06\t',
+            '0x07\t2', '0x07\t3', '0x08\t', '0x09\t', '0x0a\t', '0x20\t',
+        ]
