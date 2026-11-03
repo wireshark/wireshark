@@ -53833,3 +53833,53 @@ class TestDissectEss:
                 '-Y', 'frame.number == 12', '-Tfields', '-e_ws.col.info',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == 'Signed Receipt'
+
+
+class TestDissectEsun:
+    # ESUN has no ethertype of its own (Decode As only); the capture uses
+    # the IEEE local experimental ethertype 0x88B5.
+    decode_as = ('-d', 'ethertype==0x88b5,esun')
+
+    def test_esun_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Five frames are ESUN and the 3 octet one is rejected; none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('esun_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 6
+        assert protocols.count('ESUN') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.decode_as, *passes,
+                    '-r', capture_file('esun_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_esun_fields(self, cmd_tshark, capture_file, test_env):
+        '''The header bit fields, the flow label (in the Info column only
+        with the F bit) and the data after the header.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('esun_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eesun.rev', '-eesun.f',
+                '-eesun.cos', '-eesun.ecn', '-eesun.flow_label', '-eesun.ttl',
+                '-eesun.ud', '-eesun.rsvd', '-edata.len', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.rstrip() for l in stdout.splitlines()] == [
+            '1\t0\tTrue\t5\t2\t4660\t15\t2\t1\t12\tFlow: 0x1234',
+            '2\t1\tFalse\t3\t1\t48879\t8\t1\t0\t16',
+            '3\t3\tTrue\t7\t3\t65535\t15\t3\t3\t\tFlow: 0xffff',
+            '4\t0\tFalse\t0\t0\t0\t0\t0\t0',
+            '5\t\t\t\t\t\t\t\t\t3\tLocal Experimental Ethertype 1',
+            '6\t2\tTrue\t1\t0\t1\t1\t0\t2\t42\tFlow: 0x0001',
+        ]
+
+    def test_esun_ignored_flow_label(self, cmd_tshark, capture_file, test_env):
+        '''Without the F bit the flow label is marked as ignored.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('esun_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-V', '-O', 'esun',
+            ), encoding='utf-8', env=test_env)
+        assert '    Flow Label: 48879 <Ignored (F=0)>' in stdout.splitlines()
