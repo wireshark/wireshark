@@ -9,6 +9,7 @@ CryptographicMessageSyntax2004 cms
 
 #.INCLUDE ../pkix1explicit/pkix1explicit_exp.cnf
 #.INCLUDE ../pkix1implicit/pkix1implicit-exp.cnf
+#.IMPORT ../x509ce/x509ce-exp.cnf
 #.INCLUDE ../crmf/crmf-exp.cnf
 #.INCLUDE ../cms/cms-exp.cnf
 
