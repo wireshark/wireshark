@@ -53728,3 +53728,108 @@ class TestDissectEsis:
             '6\t\t\t\t490001\tffff.ff00.0000',
             '7\t\t15\t\t\t',
         ]
+
+
+class TestDissectEss:
+    def test_ess_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CMS SignedData with ESS attributes posted over HTTP: no malformed
+        packets or error expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ess_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols == ['TCP'] * 3 + ['HTTP'] * 8 + ['ESS', 'HTTP']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ess_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ess_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The receipt request, content identifier, hints and reference,
+        message signature digest and signing certificate attributes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ess_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4 || frame.number == 6', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        for line in ('receiptsFrom: allOrFirstTier (0)',
+                     'allOrFirstTier: firstTierRecipients (1)',
+                     'receiptsFrom: receiptList (1)',
+                     'rfc822Name: receipts@example.com',
+                     'ContentIdentifier: 6d73672d30303031',
+                     'contentDescription: Synthetic report',
+                     'MsgSigDigest: 202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f',
+                     'ContentReference (id-data)',
+                     'SigningCertificate', 'SigningCertificateV2', 'hashAlgorithm (sha256)',
+                     'mailListIdentifier: issuerAndSerialNumber (0)',
+                     'mailListIdentifier: subjectKeyIdentifier (1)',
+                     'mlReceiptPolicy: none (0)', 'mlReceiptPolicy: insteadOf (1)',
+                     'mlReceiptPolicy: inAdditionTo (2)'):
+            assert line in lines
+        assert lines.count('ESSCertID') == 3
+        assert lines.count('ESSCertIDv2') == 3
+
+    def test_ess_security_label(self, cmd_tshark, capture_file, test_env):
+        '''A security label with every kind of security category.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ess_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'security-classification: confidential (3)' in lines
+        assert 'pString: CONFIDENTIAL' in lines
+        assert 'security-categories: 7 items' in lines
+        for tag in ('RestrictiveTag', 'EnumeratedTag', 'PermissiveTag', 'InformativeTag'):
+            assert tag in lines
+        assert [l for l in lines if l.startswith('tagName:')] == [
+            'tagName: 2.16.840.1.101.2.1.8.3.0 (id-restrictiveAttributes)',
+            'tagName: 2.16.840.1.101.2.1.8.3.1 (id-enumeratedPermissiveAttributes)',
+            'tagName: 2.16.840.1.101.2.1.8.3.2 (id-permissiveAttributes)',
+            'tagName: 2.16.840.1.101.2.1.8.3.3 (id-informativeAttributes)',
+            'tagName: 2.16.840.1.101.2.1.8.3.3 (id-informativeAttributes)',
+            'tagName: 2.16.840.1.101.2.1.8.3.4 (id-enumeratedRestrictiveAttributes)',
+        ]
+
+    def test_ess_category_attributes_table(self, cmd_tshark, capture_file, test_env):
+        '''The "ESS Category Attributes" table names attribute values and
+        set flag bits of the matching tag set.'''
+        tags = '2.16.840.1.101.2.1.8.3'
+        uat = []
+        for oid, value, name in ((tags + '.1', 5, 'Five'), (tags + '.0', 0, 'Bit zero'),
+                                 (tags + '.0', 2, 'Bit two'), (tags + '.0', 3, 'Bit three'),
+                                 (tags + '.0', 200, 'Beyond the flags'),
+                                 (tags + '.3', 7, 'Informative seven')):
+            uat += ['-o', 'uat:ess_category_attributes:"%s","%d","%s"' % (oid, value, name)]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ess_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8', '-V', *uat,
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'SecurityAttribute: 5 (Five)' in lines
+        assert 'SecurityAttribute: 300' in lines
+        assert 'Bit zero (0)' in lines
+        assert 'Bit two (2)' in lines
+        assert 'Bit three (3)' not in lines
+        assert 'Beyond the flags (200)' not in lines
+        assert 'Informative seven (7)' in lines
+        assert 'SecurityAttribute: 7 (Informative seven)' in lines
+
+    def test_ess_receipt(self, cmd_tshark, capture_file, test_env):
+        '''A signed receipt sets the protocol and Info columns.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ess_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'Receipt (id-data)' in lines
+        assert 'version: v1 (1)' in lines
+        assert 'signedContentIdentifier: 6d73672d30303031' in lines
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ess_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Signed Receipt'
