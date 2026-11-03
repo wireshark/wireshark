@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref: 3GPP TS 29.274 V18.7.0 (2024-06-26)
+ * Ref: 3GPP TS 29.274 V20.0.0 (2026-09)
  */
 
 #include "config.h"
@@ -59,10 +59,11 @@ static int hf_gtpv2_response_to;
 static int hf_gtpv2_response_time;
 static int hf_gtpv2_spare_half_octet;
 //static int hf_gtpv2_spare_b7_b1;
+static int hf_gtpv2_spare_b7;
 static int hf_gtpv2_spare_b7_b2;
 static int hf_gtpv2_spare_b7_b3;
-static int hf_gtpv2_spare_b7_b4;
 static int hf_gtpv2_spare_b7_b5;
+static int hf_gtpv2_spare_b7_b6;
 
 static int hf_gtpv2_spare_bits;
 static int hf_gtpv2_flags;
@@ -190,6 +191,9 @@ static int hf_gtpv2_nsenbi;
 static int hf_gtpv2_idfupf;
 static int hf_gtpv2_emci;
 
+static int hf_gtpv2_uhrrsi;
+static int hf_gtpv2_disrei;
+static int hf_gtpv2_ppri;
 static int hf_gtpv2_lapcosi;
 static int hf_gtpv2_ltemsai;
 static int hf_gtpv2_srtpi;
@@ -357,6 +361,9 @@ static int hf_gtpv2_charging_id;
 static int hf_gtpv2_charging_characteristic;
 static int hf_gtpv2_bearer_flag_ppc;
 static int hf_gtpv2_bearer_flag_vb;
+static int hf_gtpv2_bearer_flag_vind;
+static int hf_gtpv2_bearer_flag_asi;
+static int hf_gtpv2_bearer_flag_uhrrei;
 static int hf_gtpv2_ue_time_zone_dst;
 static int hf_gtpv2_fq_csid_type;
 static int hf_gtpv2_fq_csid_nr;
@@ -445,6 +452,7 @@ static int hf_gtpv2_mm_context_nrna;
 static int hf_gtpv2_mm_context_ussrna;
 static int hf_gtpv2_mm_context_nrsrna;
 static int hf_gtpv2_mm_context_ensct;
+static int hf_gtpv2_mm_context_tridi;
 
 static int hf_gtpv2_mm_context_samb_ri;
 static int hf_gtpv2_mm_context_unipa;
@@ -842,6 +850,32 @@ static int hf_gtpv2_ie_up_security_policy_up_ip_policy;
 static int hf_gtpv2_ie_up_security_policy_spare;
 static int hf_gtpv2_nf_instance_id_nf_instance_id;
 static int hf_gtpv2_nf_timer_in_seconds_timer_value;
+
+static int hf_gtpv2_mdt_configuration_nr_job_type;
+static int hf_gtpv2_mdt_configuration_nr_list_of_measurements;
+static int hf_gtpv2_mdt_configuration_nr_reporting_trigger;
+static int hf_gtpv2_mdt_configuration_nr_report_interval;
+static int hf_gtpv2_mdt_configuration_nr_report_amount;
+static int hf_gtpv2_mdt_configuration_nr_event_threshold_rsrp;
+static int hf_gtpv2_mdt_configuration_nr_event_threshold_rsrq;
+static int hf_gtpv2_mdt_configuration_nr_event_threshold_sinr;
+static int hf_gtpv2_mdt_configuration_nr_length_of_area_scope;
+static int hf_gtpv2_mdt_configuration_nr_area_scope;
+static int hf_gtpv2_mdt_configuration_nr_flags_pli;
+static int hf_gtpv2_mdt_configuration_nr_flags_smi;
+static int hf_gtpv2_mdt_configuration_nr_flags_pmi;
+static int hf_gtpv2_mdt_configuration_nr_flags_cm7i;
+static int hf_gtpv2_mdt_configuration_nr_flags_cm6i;
+static int hf_gtpv2_mdt_configuration_nr_flags_crrmi;
+static int hf_gtpv2_mdt_configuration_nr_collection_period_rrm_nr;
+static int hf_gtpv2_mdt_configuration_nr_collection_period_m6_nr;
+static int hf_gtpv2_mdt_configuration_nr_collection_period_m7_nr;
+static int hf_gtpv2_mdt_configuration_nr_positioning_method;
+static int hf_gtpv2_mdt_configuration_nr_number_of_sensor_measurements;
+static int hf_gtpv2_mdt_configuration_nr_sensor_measurement;
+static int hf_gtpv2_mdt_configuration_nr_number_of_mdt_plmns;
+
+static int hf_gtpv2_uri;
 
 
 static int ett_gtpv2;
@@ -1315,8 +1349,10 @@ static int ett_gtpv2_ies[NUM_GTPV2_IES];
 #define GTPV2_IE_ALT_IMSI                            219
 #define GTPV2_IE_NF_INSTANCE_ID                      220
 #define GTPV2_IE_TIMER_IN_SECONDS                    221
+#define GTPV2_IE_MDT_CONFIGURATION_NR                222
+#define GTPV2_IE_URI                                 223
 /*
-220 to 253    Spare. For future use.
+224 to 253    Spare. For future use.
 254    Special IE type for IE Type Extension
 255    Private Extension
 256 to 65535    Spare. For future use.
@@ -1515,7 +1551,9 @@ static const value_string gtpv2_element_type_vals[] = {
     {219, "Alternative IMSI" },                                                 /* Variable Length / 8.150 */
     {220, "NF Instance ID" },                                                   /* Fixed Length / 8.151 */
     {221, "Timer in Seconds"},                                                  /* Variable Length / 8.152 */
-                                                                                /* 222 to 254    Spare. For future use.    */
+    {222, "MDT Configuration NR"},                                              /* Extendable / 8.153 */
+    {223, "URI"},                                                               /* Variable Length / 8.154 */
+                                                                                /* 224 to 254    Spare. For future use.    */
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
@@ -1899,8 +1937,12 @@ static const gtpv2_information_element_instance_t gtpv2_information_element_inst
     {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_FQDN, 2, "MME FQDN" },
     {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX, 0, "Subscribed Additional RRM Policy Index" },
     {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX, 1, "Additional RRM Policy Index in Use" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_PLMN_ID, 0, "Selected PLMN ID" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, 0, GTPV2_IE_PLMN_ID, 1, "Disaster PLMN" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PDN_CONNECTION, GTPV2_IP_ADDRESS, 2, "New PGW-C/SMF IP Address" },
     {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 0, "PGW FQDN" },
     {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 1, "Local Home Network ID" },
+    {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 2, "New PGW Node Name" },
     {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_V2X_CONTEXT, GTPV2_IE_SERVICES_AUTHORIZED, 0, "LTE V2X Service Authorized" },
     {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_V2X_CONTEXT, GTPV2_IE_SERVICES_AUTHORIZED, 1, "NR V2X Service Authorized" },
     {  GTPV2_FORWARD_RELOCATION_REQ, GTPV2_IE_V2X_CONTEXT, GTPV2_IE_BIT_RATE, 0, "LTE UE Sidelink Aggregate Maximum Bit Rate" },
@@ -1949,8 +1991,10 @@ static const gtpv2_information_element_instance_t gtpv2_information_element_inst
     {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_INTEGER_NUMBER, 1, "Remaining Running Service Gap Timer" },
     {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX, 0, "Subscribed Additional RRM Policy Index" },
     {  GTPV2_CONTEXT_RESPONSE, 0, GTPV2_IE_ADDITIONAL_RRM_POLICY_INDEX, 1, "Additional RRM Policy Index in Use" },
+    {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PDN_CONNECTION, GTPV2_IP_ADDRESS, 2, "New PGW-C/SMF IP Address" },
     {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 0, "PGW FQDN" },
     {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 1, "Local Home Network ID" },
+    {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PDN_CONNECTION, GTPV2_IE_FQDN, 2, "New PGW Node Name" },
     {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 0, "PGW Set FQDN" },
     {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IE_PGW_FQDN, 1, "Alternative PGW-C/SMF FQDN" },
     {  GTPV2_CONTEXT_RESPONSE, GTPV2_IE_PGW_CHANGE_INFO, GTPV2_IP_ADDRESS, 0, "Alternative PGW-C/SMF Address" },
@@ -2980,7 +3024,10 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     }
 
     static int* const oct14_flags[] = {
-        &hf_gtpv2_spare_b7_b4,
+        &hf_gtpv2_spare_b7,
+        &hf_gtpv2_uhrrsi,
+        &hf_gtpv2_disrei,
+        &hf_gtpv2_ppri,
         &hf_gtpv2_lapcosi,
         &hf_gtpv2_ltemsai,
         &hf_gtpv2_srtpi,
@@ -2988,7 +3035,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         NULL
     };
 
-    /* Octet 13 Spare LAPCOSI LTEMSAI SRTPI UPIPSI */
+    /* Octet 14 Spare UHRRSI DISREI PPRI LAPCOSI LTEMSAI SRTPI UPIPSI */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct14_flags, ENC_NA);
     offset += 1;
 
@@ -4077,18 +4124,30 @@ dissect_gtpv2_char_char(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 /*
- * 8.30 Bearer Flag
+ * 8.32 Bearer Flags
  */
 static void
-dissect_gtpv2_bearer_flag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
+dissect_gtpv2_bearer_flag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t * args _U_)
 {
-
     unsigned offset = 0;
 
-    /* Octet 5 Spare VB PPC */
-    proto_tree_add_item(tree, hf_gtpv2_bearer_flag_ppc, tvb, offset, length, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_bearer_flag_vb, tvb, offset, length, ENC_BIG_ENDIAN);
+    static int * const bearer_flags[] = {
+        &hf_gtpv2_spare_b7_b5,
+        &hf_gtpv2_bearer_flag_uhrrei,
+        &hf_gtpv2_bearer_flag_asi,
+        &hf_gtpv2_bearer_flag_vind,
+        &hf_gtpv2_bearer_flag_vb,
+        &hf_gtpv2_bearer_flag_ppc,
+        NULL
+    };
 
+    /* Octet 5 Spare UHRREI ASI Vind VB PPC */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, bearer_flags, ENC_NA);
+    offset += 1;
+
+    if (length > offset) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset, "The rest of the IE not dissected yet");
+    }
 }
 /*
  * 8.34 PDN Type
@@ -5438,8 +5497,14 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return;
     }
 
-    /*(a) ENSCT */
-    proto_tree_add_item(tree, hf_gtpv2_mm_context_ensct, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* (a) Spare TRIDI ENSCT */
+    static int * const octet_a_flags[] = {
+        &hf_gtpv2_spare_b7_b3,
+        &hf_gtpv2_mm_context_tridi,
+        &hf_gtpv2_mm_context_ensct,
+        NULL
+    };
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, octet_a_flags, ENC_NA);
     offset += 1;
 
     if (offset <length){
@@ -8968,6 +9033,141 @@ dissect_gtpv2_timer_in_seconds(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree
     }
 }
 
+/* 222 MDT Configuration NR / 8.153 */
+static void
+dissect_gtpv2_mdt_configuration_nr(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item _U_, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t* args _U_)
+{
+    unsigned offset = 0;
+    uint32_t area_scope_length, number_of_entries;
+    uint64_t flags;
+
+    static int * const mdt_configuration_nr_flags[] = {
+        &hf_gtpv2_spare_b7_b6,
+        &hf_gtpv2_mdt_configuration_nr_flags_pli,
+        &hf_gtpv2_mdt_configuration_nr_flags_smi,
+        &hf_gtpv2_mdt_configuration_nr_flags_pmi,
+        &hf_gtpv2_mdt_configuration_nr_flags_cm7i,
+        &hf_gtpv2_mdt_configuration_nr_flags_cm6i,
+        &hf_gtpv2_mdt_configuration_nr_flags_crrmi,
+        NULL
+    };
+
+    /*
+     * Parameters in octets 5 to 16, a to b, d, e, f, g, h, i to j, k and l to m
+     * shall be encoded as specified in 3GPP TS 32.422.
+     */
+    /* 5 Job Type */
+    proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_job_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* 6 to 9 List of Measurements */
+    proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_list_of_measurements, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    /* 10 Reporting Trigger */
+    proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_reporting_trigger, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* 11 Report Interval */
+    proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_report_interval, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* 12 Report Amount */
+    proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_report_amount, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* 13 Event Threshold for RSRP */
+    proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_event_threshold_rsrp, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* 14 Event Threshold for RSRQ */
+    proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_event_threshold_rsrq, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* 15 Event Threshold for SINR */
+    proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_event_threshold_sinr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* 16 Length of Area Scope */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mdt_configuration_nr_length_of_area_scope, tvb, offset, 1, ENC_BIG_ENDIAN, &area_scope_length);
+    offset += 1;
+    /* a to b Area Scope, not present if Length of Area Scope equals zero */
+    if (area_scope_length > 0) {
+        proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_area_scope, tvb, offset, area_scope_length, ENC_NA);
+        offset += area_scope_length;
+    }
+
+    if (offset >= length) {
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length);
+        return;
+    }
+
+    /* c Spare PLI SMI PMI CM7I CM6I CRRMI */
+    proto_tree_add_bitmask_list_ret_uint64(tree, tvb, offset, 1, mdt_configuration_nr_flags, ENC_NA, &flags);
+    offset += 1;
+
+    /* d Collection period for RRM measurements NR, present if CRRMI is set */
+    if (flags & 0x01) {
+        proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_collection_period_rrm_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+    /* e Collection period M6 in NR, present if CM6I is set */
+    if (flags & 0x02) {
+        proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_collection_period_m6_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+    /* f Collection period M7 in NR, present if CM7I is set */
+    if (flags & 0x04) {
+        proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_collection_period_m7_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+    /* g Positioning Method, present if PMI is set */
+    if (flags & 0x08) {
+        proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_positioning_method, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
+    /* h Number of Sensor Measurements and i to j Sensor Measurement List, present if SMI is set */
+    if (flags & 0x10) {
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_mdt_configuration_nr_number_of_sensor_measurements, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_entries);
+        offset += 1;
+        if (offset + number_of_entries > length) {
+            proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length);
+            return;
+        }
+        for (uint32_t i = 0; i < number_of_entries; i++) {
+            proto_tree_add_item(tree, hf_gtpv2_mdt_configuration_nr_sensor_measurement, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+        }
+    }
+    /* k Number of MDT PLMNs and l to m MDT PLMN List, present if PLI is set */
+    if (flags & 0x20) {
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_mdt_configuration_nr_number_of_mdt_plmns, tvb, offset, 1, ENC_BIG_ENDIAN, &number_of_entries);
+        offset += 1;
+        if (offset + (number_of_entries * 3) > length) {
+            proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length);
+            return;
+        }
+        /* Each PLMN ID is encoded as octets 5 to 7 of the Serving Network IE (8.18) */
+        for (uint32_t i = 0; i < number_of_entries; i++) {
+            dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, true);
+            offset += 3;
+        }
+    }
+
+    if (offset < length) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset, "The rest of the IE not dissected yet");
+    }
+}
+
+/* 223 URI / 8.154 */
+static void
+dissect_gtpv2_uri(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, proto_item* item, uint16_t length, uint8_t message_type _U_, uint8_t instance _U_, session_args_t* args _U_)
+{
+    /*
+     * The URI field shall contain an octet string representing the URI formatted
+     * according to IETF RFC 3986.
+     * NOTE: Figure 8.154-1 in 3GPP TS 29.274 V20.0.0 shows a 2 octet Type and no
+     * Instance octet. This is assumed to be an error in the figure; the IE is
+     * dissected with the common GTPv2 IE header described in clause 8.2.1.
+     */
+    char *uri_str;
+
+    proto_tree_add_item_ret_display_string(tree, hf_gtpv2_uri, tvb, 0, length, ENC_ASCII, pinfo->pool, &uri_str);
+    proto_item_append_text(item, "%s", uri_str);
+}
+
 /* Table 8.1-1: Information Element types for GTPv2 */
 
 typedef struct _gtpv2_ie {
@@ -9146,6 +9346,8 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_ALT_IMSI, dissect_gtpv2_ie_alternative_imsi },                 /* 219 Alternative IMSI Variable Length / 8.150 */
     {GTPV2_IE_NF_INSTANCE_ID, dissect_gtpv2_ie_nf_instance_id },              /* 220 NF Instance ID*/
     {GTPV2_IE_TIMER_IN_SECONDS, dissect_gtpv2_timer_in_seconds },             /* 221 Timer in Seconds*/
+    {GTPV2_IE_MDT_CONFIGURATION_NR, dissect_gtpv2_mdt_configuration_nr },     /* 222 MDT Configuration NR / 8.153 */
+    {GTPV2_IE_URI, dissect_gtpv2_uri },                                       /* 223 URI / 8.154 */
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext },
     {0, dissect_gtpv2_unknown}
 };
@@ -9826,14 +10028,19 @@ void proto_register_gtpv2(void)
             FT_UINT8, BASE_DEC, NULL, 0xf8,
             NULL, HFILL }
         },
-        { &hf_gtpv2_spare_b7_b4,
-        { "Spare", "gtpv2.spare.b7_b4",
-            FT_UINT8, BASE_HEX, NULL, 0xf0,
+        { &hf_gtpv2_spare_b7,
+        { "Spare", "gtpv2.spare.b7",
+            FT_UINT8, BASE_HEX, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_gtpv2_spare_b7_b5,
         { "Spare", "gtpv2.spare.b7_b5",
             FT_UINT8, BASE_HEX, NULL, 0xe0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_spare_b7_b6,
+        { "Spare", "gtpv2.spare.b7_b6",
+            FT_UINT8, BASE_HEX, NULL, 0xc0,
             NULL, HFILL }
         },
         {&hf_gtpv2_flags,
@@ -10394,6 +10601,18 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_emci,
          {"EMCI (Emergency PDU Session Indication)", "gtpv2.emci",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+        { &hf_gtpv2_uhrrsi,
+         {"UHRRSI (UHRR Support Indication)", "gtpv2.uhrrsi",
+          FT_BOOLEAN, 8, NULL, 0x40, "UDP/IP Header Removal & Restoration Support Indication", HFILL}
+        },
+        { &hf_gtpv2_disrei,
+         {"DISREI (Disaster Roaming service in EPS Indication)", "gtpv2.disrei",
+          FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+        },
+        { &hf_gtpv2_ppri,
+         {"PPRI (Pending PDN connection Restoration Indication)", "gtpv2.ppri",
+          FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
         },
         { &hf_gtpv2_lapcosi,
          {"LAPCOSI (Large Additional Protocol Configuration Options Support Indication)", "gtpv2.lapcosi",
@@ -11195,6 +11414,21 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x02,
           NULL, HFILL}
         },
+        {&hf_gtpv2_bearer_flag_vind,
+         {"Vind (vSRVCC indicator)", "gtpv2.bearer_flag.vind",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL}
+        },
+        {&hf_gtpv2_bearer_flag_asi,
+         {"ASI (Activity Status Indicator)", "gtpv2.bearer_flag.asi",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL}
+        },
+        {&hf_gtpv2_bearer_flag_uhrrei,
+         {"UHRREI (UHRR Enabled Indication)", "gtpv2.bearer_flag.uhrrei",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          "UDP/IP Header Removal & Restoration Enabled Indication", HFILL}
+        },
         {&hf_gtpv2_pti,
          {"Procedure Transaction Id", "gtpv2.pti",
           FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11518,6 +11752,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_mm_context_ensct,
           {"ENSCT (EPS NAS Security Context Type)", "gtpv2.mm_context_ensct",
            FT_UINT8, BASE_DEC, VALS(gtpv2_mm_context_eps_nas_security_context_type_vals), 0x03,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_mm_context_tridi,
+          {"TRIDI (Time Reference Information Distribution Indication)", "gtpv2.mm_context_tridi",
+           FT_BOOLEAN, 8, NULL, 0x04,
            NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_samb_ri,
@@ -13161,6 +13400,128 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_nf_timer_in_seconds_timer_value,
       { "Timer in Seconds", "gtpv2.timer_in_seconds_timer_value",
           FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+
+      { &hf_gtpv2_mdt_configuration_nr_job_type,
+      { "Job Type", "gtpv2.mdt_configuration_nr.job_type",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_list_of_measurements,
+      { "List of Measurements", "gtpv2.mdt_configuration_nr.list_of_measurements",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_reporting_trigger,
+      { "Reporting Trigger", "gtpv2.mdt_configuration_nr.reporting_trigger",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_report_interval,
+      { "Report Interval", "gtpv2.mdt_configuration_nr.report_interval",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_report_amount,
+      { "Report Amount", "gtpv2.mdt_configuration_nr.report_amount",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_event_threshold_rsrp,
+      { "Event Threshold for RSRP", "gtpv2.mdt_configuration_nr.event_threshold_rsrp",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_event_threshold_rsrq,
+      { "Event Threshold for RSRQ", "gtpv2.mdt_configuration_nr.event_threshold_rsrq",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_event_threshold_sinr,
+      { "Event Threshold for SINR", "gtpv2.mdt_configuration_nr.event_threshold_sinr",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_length_of_area_scope,
+      { "Length of Area Scope", "gtpv2.mdt_configuration_nr.length_of_area_scope",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_area_scope,
+      { "Area Scope", "gtpv2.mdt_configuration_nr.area_scope",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_flags_pli,
+      { "PLI (PLMN List Indicator)", "gtpv2.mdt_configuration_nr.flags.pli",
+          FT_BOOLEAN, 8, NULL, 0x20,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_flags_smi,
+      { "SMI (Sensor Measurement Indicator)", "gtpv2.mdt_configuration_nr.flags.smi",
+          FT_BOOLEAN, 8, NULL, 0x10,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_flags_pmi,
+      { "PMI (Positioning Method Indicator)", "gtpv2.mdt_configuration_nr.flags.pmi",
+          FT_BOOLEAN, 8, NULL, 0x08,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_flags_cm7i,
+      { "CM7I (Collection period M7 in NR Indicator)", "gtpv2.mdt_configuration_nr.flags.cm7i",
+          FT_BOOLEAN, 8, NULL, 0x04,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_flags_cm6i,
+      { "CM6I (Collection period M6 in NR Indicator)", "gtpv2.mdt_configuration_nr.flags.cm6i",
+          FT_BOOLEAN, 8, NULL, 0x02,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_flags_crrmi,
+      { "CRRMI (Collection period for RRM measurements NR Indicator)", "gtpv2.mdt_configuration_nr.flags.crrmi",
+          FT_BOOLEAN, 8, NULL, 0x01,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_collection_period_rrm_nr,
+      { "Collection period for RRM measurements NR", "gtpv2.mdt_configuration_nr.collection_period_rrm_nr",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_collection_period_m6_nr,
+      { "Collection period M6 in NR", "gtpv2.mdt_configuration_nr.collection_period_m6_nr",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_collection_period_m7_nr,
+      { "Collection period M7 in NR", "gtpv2.mdt_configuration_nr.collection_period_m7_nr",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_positioning_method,
+      { "Positioning Method", "gtpv2.mdt_configuration_nr.positioning_method",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_number_of_sensor_measurements,
+      { "Number of Sensor Measurements", "gtpv2.mdt_configuration_nr.number_of_sensor_measurements",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_sensor_measurement,
+      { "Sensor Measurement", "gtpv2.mdt_configuration_nr.sensor_measurement",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_mdt_configuration_nr_number_of_mdt_plmns,
+      { "Number of MDT PLMNs", "gtpv2.mdt_configuration_nr.number_of_mdt_plmns",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+      },
+
+      { &hf_gtpv2_uri,
+      { "URI", "gtpv2.uri",
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
       },
     };
