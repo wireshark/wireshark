@@ -51497,3 +51497,80 @@ class TestDissectEero:
             '    Sender MAC address: 02:00:5e:10:00:01 (02:00:5e:10:00:01)',
             '    Data: <MISSING>',
         ]
+
+
+class TestDissectEgd:
+    def test_egd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-18 are EGD data messages on UDP port 18246; frames 19
+        and 20 (another PDU type, another version) are left to UDP. No
+        frame is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('egd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 20
+        assert protocols.count('EGD') == 18
+        assert protocols[18:] == ['UDP', 'UDP']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('egd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_egd_header(self, cmd_tshark, capture_file, test_env):
+        '''The header fields, every status value, the data handed to the
+        data dissector, and the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('egd_coverage.pcap.gz'),
+                '-Y', 'egd',
+                '-Tfields', '-eegd.type', '-eegd.ver', '-eegd.rid',
+                '-eegd.pid', '-eegd.exid', '-eegd.stat', '-eegd.csig',
+                '-eegd.rsrv', '-edata.len', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        statuses = [0, 1, 2, 3, 4, 6, 7, 10, 12, 16, 18, 22, 26, 28, 30]
+        for i, st in enumerate(statuses):
+            assert lines[i] == ('13\t1\t%d\t192.0.2.10\t0x00000001\t%d\t65537\t0\t16\t'
+                                'Data Msg: ExchangeID=0x00000001, RequestID=%05d' % (i + 1, st, i + 1))
+        assert lines[15:] == [
+            '13\t1\t16\t192.0.2.10\t0x00000001\t5\t0\t0\t\t'
+            'Data Msg: ExchangeID=0x00000001, RequestID=00016',
+            '13\t1\t65535\t192.0.2.11\t0xdeadbeef\t1\t4294967295\t7\t1024\t'
+            'Data Msg: ExchangeID=0xDEADBEEF, RequestID=65535',
+            '13\t1\t2\t10.0.0.1\t0x00000002\t1\t0\t0\t1\t'
+            'Data Msg: ExchangeID=0x00000002, RequestID=00002',
+        ]
+
+    def test_egd_timestamp(self, cmd_tshark, capture_file, test_env):
+        '''A zero seconds field is shown as "no timestamp" (also with
+        nanoseconds set), anything else as an absolute time.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('egd_coverage.pcap.gz'),
+                '-Y', 'egd.time',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(n) for n in range(1, 16)] + ['18']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('egd_coverage.pcap.gz'),
+                '-Y', 'egd.notime',
+                '-V', '-O', 'egd',
+            ), encoding='utf-8', env=test_env)
+        notime = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Timestamp:')]
+        assert notime == [
+            'Timestamp: 0x0000000000000000--No TimeStamp',
+            'Timestamp: 0x0000007b00000000--No TimeStamp',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('egd_coverage.pcap.gz'),
+                '-Y', 'egd.stat == 5 || egd.stat == 30',
+                '-V', '-O', 'egd',
+            ), encoding='utf-8', env=test_env)
+        status = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Status:')]
+        assert status == [
+            'Status: Configured exchange deleted. (30)',
+            'Status: Unknown (5)',
+        ]
