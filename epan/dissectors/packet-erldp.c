@@ -465,8 +465,11 @@ static int dissect_etf_big_ext(tvbuff_t *tvb, packet_info *pinfo, int offset, ui
 
         if (value_str)
           *value_str = buf;
-      } else
+      } else {
+        /* len is from the packet: do not let a huge value wrap offset */
+        tvb_ensure_bytes_exist64(tvb, offset, len);
         proto_tree_add_item(tree, hf_erldp_big_ext_bytes, tvb, offset, len, ENC_NA);
+      }
 
       return offset + len;
 }
@@ -663,6 +666,7 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
     case BINARY_EXT:
       proto_tree_add_item_ret_uint(tree, hf_erldp_binary_ext_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
       offset += 4;
+      tvb_ensure_bytes_exist64(tvb, offset, len);
       proto_tree_add_item(tree, hf_erldp_binary_ext, tvb, offset, len, ENC_NA);
       offset += len;
       break;
@@ -672,6 +676,7 @@ static int dissect_etf_type_content(uint8_t tag, packet_info *pinfo, tvbuff_t *t
       offset += 4;
       proto_tree_add_item(tree, hf_erldp_binary_ext_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
+      tvb_ensure_bytes_exist64(tvb, offset, len);
       proto_tree_add_item(tree, hf_erldp_binary_ext, tvb, offset, len, ENC_NA);
       offset += len;
       break;
@@ -967,7 +972,7 @@ static int dissect_etf_type_ret_tree(const char *label, packet_info *pinfo, tvbu
 static bool is_handshake(tvbuff_t *tvb, int offset) {
   uint32_t len = tvb_get_ntohs(tvb, offset);
   uint8_t tag = tvb_get_uint8(tvb, offset + 2);
-  return ((len > 0) && strchr("nNcras", tag) && (len == (uint32_t)tvb_captured_length_remaining(tvb, offset + 2)));
+  return ((len > 0) && (tag != 0) && strchr("nNcras", tag) && (len == (uint32_t)tvb_captured_length_remaining(tvb, offset + 2)));
 }
 
 /*--- dissect_erldp_handshake -------------------------------------------------*/
