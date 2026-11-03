@@ -308,9 +308,17 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
 TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
 #.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
+  uint32_t tac;
+  const char *tac_name_str;
+  proto_item *item;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+    actx->created_item = proto_tree_add_item_ret_uint(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN, &tac);
+
+    if (gbl_resolv_flags.tac_name && tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_xnap_tAC_Name, parameter_tvb, 0, 3, tac_name_str);
+      proto_item_set_generated(item);
+    }
   }
 
 #.FIELD_ATTR

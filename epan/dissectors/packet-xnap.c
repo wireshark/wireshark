@@ -27,6 +27,7 @@
 #include <epan/conversation.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
+#include <epan/addr_resolv.h>
 
 #include <wsutil/array.h>
 #include "packet-xnap.h"
@@ -888,6 +889,7 @@ static int hf_xnap_nodemeasurementFailedReportCharacteristics_AveragePacketLossD
 static int hf_xnap_nodemeasurementFailedReportCharacteristics_MeasuredUETrajectory;
 static int hf_xnap_nodemeasurementFailedReportCharacteristics_Reserved;
 static int hf_xnap_extensionValue_data;
+static int hf_xnap_tAC_Name;
 static int hf_xnap_A2XPC5QoSParameters_PDU;       /* A2XPC5QoSParameters */
 static int hf_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_PDU;  /* AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated */
 static int hf_xnap_AdditionLocationInformation_PDU;  /* AdditionLocationInformation */
@@ -5534,11 +5536,19 @@ dissect_xnap_PLMN_Identity(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *a
 static unsigned
 dissect_xnap_TAC(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb = NULL;
+  uint32_t tac;
+  const char *tac_name_str;
+  proto_item *item;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
                                        3, 3, false, &parameter_tvb);
 
   if (parameter_tvb) {
-    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+    actx->created_item = proto_tree_add_item_ret_uint(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN, &tac);
+
+    if (gbl_resolv_flags.tac_name && tac && (tac_name_str = tac_name_lookup(tac)) != NULL) {
+      item = proto_tree_add_string(tree, hf_xnap_tAC_Name, parameter_tvb, 0, 3, tac_name_str);
+      proto_item_set_generated(item);
+    }
   }
 
 
@@ -38752,6 +38762,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_extensionValue_data,
       { "Data", "xnap.extensionValue.data",
         FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
+        NULL, HFILL }},
+    { &hf_xnap_tAC_Name,
+      { "TAC Name", "xnap.tAC_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_xnap_A2XPC5QoSParameters_PDU,
       { "A2XPC5QoSParameters", "xnap.A2XPC5QoSParameters_element",
