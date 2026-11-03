@@ -46457,3 +46457,151 @@ class TestDissectDpnet:
         assert 'Description Flags: 0x000007c5, Client, Migrate, dpnsvr, Password, Enumeration, Fast signing, Full signing' in lines
         assert 'Signing Options: Full signing (0x00000002)' in lines
         assert 'Echo Time: 0x000004d2' in lines
+
+
+class TestDissectDpnss:
+    def test_dpnss_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a DPNSS message in a DPNSS link UI frame of an
+        EyeSDN file. None is malformed or has an error, in one and two
+        passes; the only expert infos are the warnings for the message
+        types that are not dissected and the unknown message group.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnss_coverage.eyesdn.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 40
+        assert protocols.count('dpnss_link:dpnss') == 40
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dpnss_coverage.eyesdn.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dpnss_coverage.eyesdn.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '18\tUnknown or Dissection of this message not supported yet',
+                '19\tUnknown or Dissection of this message not supported yet',
+                '20\tUnknown or Dissection of this message not supported yet',
+                '29\tDissection of this message not supported yet',
+                '37\tDissection of this message not supported yet',
+                '38\tUnknown Message Group',
+            ]
+
+    def test_dpnss_info(self, cmd_tshark, capture_file, test_env):
+        '''Every message type of the call control, end-to-end and
+        link-by-link groups, and the TE/NT direction from EyeSDN.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnss_coverage.eyesdn.gz'),
+                '-Tfields', '-e_ws.col.def_src', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['NT', 'TE'] * 20
+        assert [l[1].strip() for l in lines] == [
+            'ISRM(C)', 'ISRM(I)', 'RM(C)', 'RM(I)', 'CCM', 'CCM', 'NIM',
+            'NAM', 'NAM', 'NAM', 'CRM/CIM', 'CRM/CIM', 'RRM', 'RRM',
+            'SSRM(I)', 'SSRM(C)', 'SSRM(C)', 'CS', 'CA', 'Unknown (13)',
+            'EEM(C)', 'EEM(I)', 'SCRM', 'SCIM', 'ERM(C)', 'ERM(I)', 'NSIM',
+            'NSIM', 'Unknown (0)', 'LLM(C)', 'LLM(I)', 'LLRM', 'LLRM', 'SM',
+            'LMM', 'LMRM', 'Unknown (3)', '', 'SM', 'ISRM(C)',
+        ]
+
+    def test_dpnss_strings(self, cmd_tshark, capture_file, test_env):
+        '''Supplementary Information Strings: identifiers, up to four
+        parameters (a fifth is ignored), empty parameters, A/B party
+        addresses, call indexes, identifiers that are out of range or
+        have a suffix, and destination addresses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnss_coverage.eyesdn.gz'),
+                '-Y', 'frame.number in {1,15,21,22,25,26,40}',
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number',
+                '-edpnss.sup_str', '-edpnss.parameter',
+                '-edpnss.a_b_party_addr', '-edpnss.dest_addr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tOLI/CLI|CH-TR\t10|60|1|GBP\t2001\t5551234',
+            '15\tCOS\tA|B|C\t\t4000',
+            '21\tCH-TR\t1|2|3|4\t\t',
+            '22\tCH-UR\tNone|2|None\t\t',
+            '25\t\t\t\t123456',
+            '26\t\t\t\t',
+            '40\t\t\t\t99',
+        ]
+
+    def test_dpnss_parameter_end(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "DPNSS: Stop parameter search at the end of the
+        string": the last parameter of a string ends at its '#', so it
+        does not take in the strings that follow and the message is not
+        malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnss_coverage.eyesdn.gz'),
+                '-Y', 'frame.number in {8,9,10}',
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number',
+                '-edpnss.indication_field', '-edpnss.sup_str',
+                '-edpnss.parameter', '-edpnss.dest_addr', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t*3*AB#*1#\tCLC-ISDN|CLC-ORD\tAB\t\t',
+            '9\t*3*AB#*1*CD#123\tCLC-ISDN|CLC-ORD\tAB|CD\t123\t',
+            '10\t*3*AB*CD#*1*X#123\tCLC-ISDN|CLC-ORD\tAB|CD|X\t123\t',
+        ]
+
+    def test_dpnss_causes(self, cmd_tshark, capture_file, test_env):
+        '''Clearing and rejection causes come before the indication
+        field; for RRM and LLRM the cause octet was not skipped before
+        the fix, so the indication field started at the cause.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnss_coverage.eyesdn.gz'),
+                '-Y', 'dpnss.clearing_cause || dpnss.rejection_cause',
+                '-Tfields', '-eframe.number', '-edpnss.clearing_cause',
+                '-edpnss.rejection_cause', '-edpnss.indication_field',
+                '-edpnss.sup_str', '-edpnss.call_idx',
+                '-edpnss.a_b_party_addr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t16\t\t\t\t\t',
+            '12\t33\t\t*93*4#\tCD-UNLINK\t4\t',
+            '13\t\t5\t*97*3#\tCD-CSU\t3\t',
+            '14\t\t6\t\t\t\t',
+            '23\t18\t\t*254#\tPCON-D\t\t',
+            '24\t19\t\t\t\t\t',
+            '32\t\t7\t*50*3000#\tOLI/CLI\t\t3000',
+            '33\t\t8\t\t\t\t',
+            '36\t2\t\t*3*0*1#\tCLC-ISDN\t\t',
+        ]
+
+    def test_dpnss_sic(self, cmd_tshark, capture_file, test_env):
+        '''Service Indicator Codes for speech and data with synchronous
+        and asynchronous second octets, the NSIM usage identifier with
+        and without extension, and the maintenance action.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnss_coverage.eyesdn.gz'),
+                '-Y', 'dpnss.sic_type || dpnss.man_code || dpnss.maint_act',
+                '-Tfields', '-eframe.number', '-edpnss.ext_bit',
+                '-edpnss.sic_type', '-edpnss.sic_details_for_speech',
+                '-edpnss.sic_details_for_data1', '-edpnss.sic_details_data2',
+                '-edpnss.ext_bit_notall', '-edpnss.sic_oct2_net_ind_clk',
+                '-edpnss.sic_oct2_async_data', '-edpnss.sic_oct2_duplex',
+                '-edpnss.sic_oct2_data_type', '-edpnss.man_code',
+                '-edpnss.subcode', '-edpnss.user_information',
+                '-edpnss.maint_act',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tFalse\t1\t1\t\t\t\t\t\t\t\t\t\t\t',
+            '2\tTrue\t2\t\t3\t\tTrue\tTrue\t\tTrue\t3\t\t\t\t',
+            '3\tTrue\t3\t\t\t4\tFalse\t\t1\tFalse\t5\t\t\t\t',
+            '4\tTrue\t0\t\t\t\tFalse\t\t\tFalse\t0\t\t\t\t',
+            '25\tFalse\t1\t2\t\t\t\t\t\t\t\t\t\t\t',
+            '26\tTrue\t2\t\t5\t\tFalse\tFalse\t\tFalse\t4\t\t\t\t',
+            '27\tTrue\t\t\t\t\t\t\t\t\t\t1\t1\tdeadbeef\t',
+            '28\tFalse\t\t\t\t\t\t\t\t\t\t1\t1\t0102\t',
+            '34\tTrue\t2\t\t6\t\tFalse\t\t0\tFalse\t6\t\t\t\t',
+            '35\t\t\t\t\t\t\t\t\t\t\t\t\t\t1',
+            '39\tTrue\t7\t\t\t\tFalse\t\t0\tFalse\t7\t\t\t\t',
+            '40\tFalse\t5\t\t\t\t\t\t\t\t\t\t\t\t',
+        ]
