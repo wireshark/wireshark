@@ -46605,3 +46605,66 @@ class TestDissectDpnss:
             '39\tTrue\t7\t\t\t\tFalse\t\t0\tFalse\t7\t\t\t\t',
             '40\tFalse\t5\t\t\t\t\t\t\t\t\t\t\t\t',
         ]
+
+
+class TestDissectDpnssLink:
+    def test_dpnss_link_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a DPNSS link frame from an EyeSDN file (DPNSS
+        and DASS2 records); UI frames with data carry DPNSS. None is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnss_link_coverage.eyesdn.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('dpnss_link') == 6
+        assert protocols.count('dpnss_link:dpnss') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dpnss_link_coverage.eyesdn.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dpnss_link_header(self, cmd_tshark, capture_file, test_env):
+        '''The address octets and frame types; only UI frames with data
+        are passed to DPNSS.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnss_link_coverage.eyesdn.gz'),
+                '-Tfields', '-eframe.number', '-edpnss_link.framegroup',
+                '-edpnss_link.crbit', '-edpnss_link.extension',
+                '-edpnss_link.reserved', '-edpnss_link.dlcId',
+                '-edpnss_link.dlcIdNr', '-edpnss_link.extension2',
+                '-edpnss_link.frameType', '-edpnss.msg_grp_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t3\t1\t1\t0\t0\t1\t1\t239\t',
+            '2\t3\t0\t1\t0\t0\t1\t1\t99\t',
+            '3\t17\t0\t1\t0\t0\t1\t1\t3\t0',
+            '4\t17\t1\t1\t0\t0\t1\t1\t19\t0',
+            '5\t17\t0\t1\t1\t1\t31\t1\t3\t0',
+            '6\t17\t0\t1\t0\t1\t2\t1\t19\t',
+            '7\t17\t0\t0\t0\t0\t3\t0\t1\t',
+            '8\t63\t1\t1\t1\t1\t0\t1\t99\t',
+            '9\t17\t0\t1\t0\t0\t4\t1\t3\t0',
+            '10\t3\t1\t1\t0\t0\t4\t1\t239\t',
+            '11\t17\t0\t1\t0\t1\t5\t1\t3\t4',
+            '12\t17\t1\t1\t0\t1\t5\t1\t19\t2',
+        ]
+
+    def test_dpnss_link_direction(self, cmd_tshark, capture_file, test_env):
+        '''The source and destination columns follow the EyeSDN sender
+        bit (TE or NT), and the DPNSS message names the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnss_link_coverage.eyesdn.gz'),
+                '-Tfields', '-e_ws.col.def_src', '-e_ws.col.def_dst',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [(l[0], l[1]) for l in lines] == [('TE', 'NT'), ('NT', 'TE')] * 6
+        assert [l[2].strip() for l in lines] == [
+            '', '', 'ISRM(C)', 'NAM', 'CCM', '', '', '', 'CRM/CIM', '',
+            'LLM(C)', 'EEM(C)',
+        ]
