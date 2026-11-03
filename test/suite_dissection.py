@@ -49190,3 +49190,102 @@ class TestDissectDvbTot:
             '    UTC Time: Nov  3, 2026 12:35:56.000000000 UTC',
             '    UTC Time: Nov  3, 2026 12:36:26.000000000 UTC',
         ]
+
+
+class TestDissectDvmrp:
+    def test_dvmrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DVMRP and none is malformed or has an expert
+        info, in one and two passes and with and without strict_v3.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvmrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 25
+        assert protocols.count('DVMRP') == 25
+        for opts in ((), ('-2',), ('-o', 'dvmrp.strict_v3:TRUE'),
+                     ('-2', '-o', 'dvmrp.strict_v3:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('dvmrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvmrp_info(self, cmd_tshark, capture_file, test_env):
+        '''Every v3 code, and v1 for messages shorter than 8 octets; with
+        strict_v3 the long v1 messages and the v3 header with another
+        version are v1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvmrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'V3 Probe', 'V3 Probe', 'V3 Report', 'V3 Ask Neighbors',
+            'V3 Neighbors', 'V3 Ask Neighbors 2', 'V3 Neighbors 2',
+            'V3 Prune', 'V3 Prune', 'V3 Graft', 'V3 Graft',
+            'V3 Graft ACK', 'V3 Graft ACK', 'V3 Unknown Type:0x0a',
+            'V3 Ask Neighbors 2', 'V1 Response', 'V1 Request',
+            'V1 Response', 'V1 Response', 'V1 Response',
+            'V1 Unknown Type:0x0b', 'V3 Ask Neighbors', 'V3 Neighbors',
+            'V3 Report', 'V3 Ask Neighbors 2',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'dvmrp.strict_v3:TRUE',
+                '-r', capture_file('dvmrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {15, 22, 23, 25}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'V1 Unknown Type:0x05', 'V1 Non-membership report',
+            'V1 Non-membership cancellation', 'V1 Unknown Type:0x05',
+        ]
+
+    def test_dvmrp_reserved(self, cmd_tshark, capture_file, test_env):
+        '''The v3 reserved field is one octet, so it does not take in the
+        capabilities (it was two octets before "DVMRP: Make the v3
+        reserved field one byte").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvmrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 7}',
+                '-Tfields', '-edvmrp.reserved', '-edvmrp.capabilities',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['0x00\t0x3f', '0x00\t0x15']
+
+    def test_dvmrp_v3_body(self, cmd_tshark, capture_file, test_env):
+        '''Report routes with every netmask form and the default route,
+        Probe and Neighbors 2 neighbors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvmrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3, 7, 24}',
+                '-Tfields', '-edvmrp.saddr', '-edvmrp.metric',
+                '-edvmrp.neighbor', '-edvmrp.ncount',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '\t\t192.0.2.2,192.0.2.3\t',
+            '10.1.0.0,10.2.0.0,192.0.2.0,198.51.100.7,0.0.0.0,11.0.0.0\t1,2,3,4,5,32\t\t',
+            '\t1,2,3\t192.0.2.1,192.0.2.5,203.0.113.2,203.0.113.3\t2,0,3',
+            '10.0.3.0,10.0.0.4\t6,7\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvmrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3',
+                '-V', '-O', 'dvmrp',
+            ), encoding='utf-8', env=test_env)
+        assert '        Default Route 0.0.0.0 (netmask 0.0.0.0)' in stdout.splitlines()
+
+    def test_dvmrp_v1_commands(self, cmd_tshark, capture_file, test_env):
+        '''With strict_v3 every v1 command of frame 22 is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'dvmrp.strict_v3:TRUE',
+                '-r', capture_file('dvmrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 22',
+                '-Tfields', '-edvmrp.command', '-edvmrp.afi',
+                '-edvmrp.netmask', '-edvmrp.daddr', '-edvmrp.maddr',
+                '-edvmrp.hold', '-edvmrp.infinity',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == [
+            ','.join('0x%02x' % c for c in (0, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 12)), '0x02,0x07', '255.255.255.0',
+            '198.51.100.0,203.0.113.0,192.0.2.0',
+            '233.252.0.1,233.252.0.2,233.252.0.3', '600,1200', '32\n',
+        ]
