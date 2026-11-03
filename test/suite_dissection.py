@@ -48341,3 +48341,176 @@ class TestDissectDvbIpdc:
         start = lines.index('ESG Bootstrap')
         assert lines[start + 1] == '    Asynchronous Layered Coding'
         assert '                    Content-Location="ESGProviderDiscovery.xml"' in lines
+
+
+class TestDissectDvbci:
+    def test_dvbci_protocols(self, cmd_tshark, capture_file, test_env):
+        '''272 DVB-CI frames and 4 Exported PDU frames, none malformed and
+        no error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 276
+        assert sum(1 for p in protocols if p.startswith('dvb-ci')) == 272
+        assert sum(1 for p in protocols if p.startswith('exported_pdu')) == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvbci_ciplus_extensions_disabled(self, cmd_tshark, capture_file, test_env):
+        '''Frame 272 is a CC data confirm whose CI+ certificate is cut
+        short by the capture length, so the certificate dissection throws.
+        The CI+ X.509 extensions must be disabled again: the MUD URL
+        extension (1.3.6.1.5.5.7.1.25) of the X.509 CRL in frame 273 must
+        not be decoded as CI+ ScramblerCapabilities.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 272 && frame.number <= 273',
+                '-Tfields', '-eframe.number', '-e_ws.short',
+                '-emudurl.MUDURLSyntax', '-ex509ce.capability',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].split('\t')[0] == '272'
+        assert lines[0].split('\t')[1] != ''
+        assert lines[1] == '273\t\thttps://mud.example/x\t'
+
+    def test_dvbci_ciplus_certificate(self, cmd_tshark, capture_file, test_env):
+        '''The CI+ extensions of the certificates in CC data items are
+        decoded with their CI+ meaning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 127',
+                '-Tfields', '-edvb-ci.cc.datatype_id', '-ex509ce.capability',
+                '-ex509ce.version', '-ex509ce.CicamBrandId',
+                '-ex509ce.SecurityLevel', '-emudurl',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '0x08,0x10,0x0d,0x11,0x0f,0x07\t1,1\t2,2\t4660,4660\t1,1\t\n'
+
+    def test_dvbci_buffer_size_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The buffer size is negotiated as 1024 bytes and, at the end of
+        the capture, as 16 bytes. The 22 byte LPDU in frame 18, before
+        the first negotiation, must not be "too large" and the host's 1024
+        must not exceed the CAM's proposal, also in the second pass.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                    '-Y', 'dvb-ci.apdu.bad_length || dvb-ci.buf_size.invalid',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-Y', 'dvb-ci.buf_size',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\tbuffer size proposal: 1024 bytes',
+            '20\tnegotiated buffer size: 1024 bytes',
+            '274\tbuffer size proposal: 16 bytes',
+            '275\tnegotiated buffer size: 16 bytes',
+        ]
+
+    def test_dvbci_sessions(self, cmd_tshark, capture_file, test_env):
+        '''APDUs get the resource of their session, which was opened in an
+        earlier frame, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {66, 79, 96, 158, 237, 246, 264}',
+                    '-Tfields', '-eframe.number', '-edvb-ci.res.class',
+                    '-edvb-ci.res.version', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '66\t0x00000001\t0x00000001\tProfile enquiry',
+                '79\t0x00000003\t0x00000001\tCA PMT reply, Program number 64, descrambling possible',
+                '96\t0x00000024\t0x00000001\tDate-Time: Jan  1, 2026 12:34:56.000000000 UTC',
+                '158\t0x0000008c\t0x00000002\tCC SAC data request, message #1, Status: Ok (Authentication Step 3)',
+                '237\t0x00000096\t0x00000001\tSAS async message: Message #1 ',
+                '246\t0x00000010\t0x00000001\tAuthentication response',
+                '264\t0x00000002\t0x00000001\tDatarate info: 72 Mbit/s',
+            ]
+
+    def test_dvbci_cc_protocol_steps(self, cmd_tshark, capture_file, test_env):
+        '''The CC protocol and step are named from the requested or the
+        sent datatype ids.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 127 && frame.number <= 154',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        steps = [l[l.index('(') + 1:-1] for l in stdout.splitlines()]
+        names = ['Authentication', 'Authentication', 'AuthKey',
+                 'CC key calculation', 'SAC key calculation',
+                 'URI transmission', 'URI version negotiation',
+                 'CICAM to Host License Exchange',
+                 'Playback License Exchange', 'License Check Exchange',
+                 'Record Start', 'Change Operating Mode', 'Record Stop',
+                 'SRM Transmission']
+        expected = []
+        for i, n in enumerate(names):
+            step = 3 if i == 1 else 1
+            expected += ['%s Step %d' % (n, step), '%s Step %d' % (n, step + 1)]
+        assert steps == expected
+
+    def test_dvbci_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''An SPDU in two TPDUs (T_data_more, T_data_last) and a TPDU in
+        two LPDUs (more, last) are reassembled.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 242 && frame.number <= 245',
+                '-Tfields', '-eframe.number',
+                '-edvb-ci.spdu_reassembled.length',
+                '-edvb-ci.tpdu_reassembled.length', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '242\t\t\tT_data_more: tcid 1 (Message fragment), T_SB: no message available',
+            '243\t34\t\tApplication info, Module name Synthetisches Modul',
+            '244\t\t\tLPDU: tcid 1 (Message fragment)',
+            '245\t\t18\tDate-Time: Jan  1, 2026 13:01:00.000000000 UTC',
+        ]
+
+    def test_dvbci_lsc_and_sas_messages(self, cmd_tshark, capture_file, test_env):
+        '''A SAS session with the OIPF application id hands its messages
+        to the OIPF dissector. LSC messages go to the dissector of the
+        connection's port when dvb-ci.dissect_lsc_msg is set.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-Y', 'oipf.ciplus.cmd_id',
+                '-Tfields', '-eframe.number', '-eoipf.ciplus.transaction_id',
+                '-eoipf.ciplus.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['237\t0x00000007\t444555']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-o', 'dvb-ci.dissect_lsc_msg:TRUE',
+                '-Y', 'http.request',
+                '-Tfields', '-eframe.number', '-ehttp.host',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['189\texample.com', '268\texample.com']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-Y', 'http',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_dvbci_exported_sac_messages(self, cmd_tshark, capture_file, test_env):
+        '''Clear SAC messages in Exported PDUs: the direction gives the
+        APDU tag, and a message that was encrypted gets a note.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvbci_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 269 && frame.number <= 270',
+                '-Tfields', '-eframe.number', '-edvb-ci.cc.sac.msg_ctr',
+                '-e_ws.expert.message', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '269\t0x00000005\t\tCC SAC data request, message #5, Status: Ok (Authentication Step 3)',
+            '270\t0x00000006\tThe original PDU was encrypted, this exported PDU is in the clear\t'
+            'CC SAC data confirm, message #6, Status: Ok (Authentication Step 4)',
+        ]
