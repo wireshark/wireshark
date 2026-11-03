@@ -49549,3 +49549,103 @@ class TestDissectE164:
             '33123456789,442079460123\t33,44\t\t\t',
             '\t\t\t\t447700900123',
         ]
+
+
+class TestDissectE1ap:
+    E1AP_MESSAGES = [
+        'BCBearerContextModificationConfirm', 'BCBearerContextModificationFailure',
+        'BCBearerContextModificationRequest', 'BCBearerContextModificationRequired',
+        'BCBearerContextModificationResponse', 'BCBearerContextReleaseCommand',
+        'BCBearerContextReleaseComplete', 'BCBearerContextReleaseRequest',
+        'BCBearerContextSetupFailure', 'BCBearerContextSetupRequest',
+        'BCBearerContextSetupResponse', 'BearerContextInactivityNotification',
+        'BearerContextModificationConfirm', 'BearerContextModificationFailure',
+        'BearerContextModificationRequest', 'BearerContextModificationRequired',
+        'BearerContextModificationResponse', 'BearerContextReleaseCommand',
+        'BearerContextReleaseComplete', 'BearerContextReleaseRequest',
+        'BearerContextSetupFailure', 'BearerContextSetupRequest',
+        'BearerContextSetupResponse', 'CellTrafficTrace', 'DataCollectionFailure',
+        'DataCollectionRequest', 'DataCollectionResponse', 'DataCollectionUpdate',
+        'DataUsageReport', 'DeactivateTrace', 'DLDataNotification', 'E1ReleaseRequest',
+        'E1ReleaseResponse', 'EarlyForwardingSNTransfer', 'ErrorIndication',
+        'GNB-CU-CP-ConfigurationUpdate', 'GNB-CU-CP-ConfigurationUpdateAcknowledge',
+        'GNB-CU-CP-ConfigurationUpdateFailure', 'GNB-CU-CP-E1SetupFailure',
+        'GNB-CU-CP-E1SetupRequest', 'GNB-CU-CP-E1SetupResponse',
+        'GNB-CU-CPMeasurementResultsInformation', 'GNB-CU-UP-ConfigurationUpdate',
+        'GNB-CU-UP-ConfigurationUpdateAcknowledge', 'GNB-CU-UP-ConfigurationUpdateFailure',
+        'GNB-CU-UP-CounterCheckRequest', 'GNB-CU-UP-E1SetupFailure',
+        'GNB-CU-UP-E1SetupRequest', 'GNB-CU-UP-E1SetupResponse', 'IABPSKNotification',
+        'IAB-UPTNLAddressUpdate', 'IAB-UPTNLAddressUpdateAcknowledge',
+        'IAB-UPTNLAddressUpdateFailure', 'MCBearerContextModificationConfirm',
+        'MCBearerContextModificationFailure', 'MCBearerContextModificationRequest',
+        'MCBearerContextModificationRequired', 'MCBearerContextModificationResponse',
+        'MCBearerContextReleaseCommand', 'MCBearerContextReleaseComplete',
+        'MCBearerContextReleaseRequest', 'MCBearerContextSetupFailure',
+        'MCBearerContextSetupRequest', 'MCBearerContextSetupResponse',
+        'MCBearerNotification', 'MRDC-DataUsageReport', 'PrivateMessage', 'Reset',
+        'ResetAcknowledge', 'ResourceStatusFailure', 'ResourceStatusRequest',
+        'ResourceStatusResponse', 'ResourceStatusUpdate', 'TraceStart',
+        'ULDataNotification',
+    ]
+
+    def test_e1ap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is E1AP over SCTP and none is malformed or has an
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e1ap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 304
+        assert protocols.count('E1AP') == 304
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('e1ap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_e1ap_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every E1AP message type: three variants with every optional
+        component and IE, and one with the mandatory IEs only.
+        GNB-CU-UP-StatusIndication sets no Info column (its FN_HDR in
+        e1ap.cnf is a second one for GNB-CU-UP-CounterCheckRequest).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e1ap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert sorted(set(i.split(',')[0] for i in info)) == sorted([''] + self.E1AP_MESSAGES)
+        for m in self.E1AP_MESSAGES + ['']:
+            assert sum(1 for i in info if i.split(',')[0] == m) == 4
+
+    def test_e1ap_transport_layer_address(self, cmd_tshark, capture_file, test_env):
+        '''TransportLayerAddress holds an IPv4, an IPv6 or an IPv4 and an
+        IPv6 address (and a 16-bit address shown as neither).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e1ap_coverage.pcap.gz'),
+                '-Tfields', '-ee1ap.transportLayerAddressIPv4',
+                '-ee1ap.transportLayerAddressIPv6',
+            ), encoding='utf-8', env=test_env)
+        values = set(stdout.replace('\t', ',').replace('\n', ',').split(','))
+        assert values == {'', '192.0.2.10', '192.0.2.11', '2001:db8::10', '2001:db8::11'}
+
+    def test_e1ap_hand_written_ies(self, cmd_tshark, capture_file, test_env):
+        '''The IEs with hand-written code: PLMN identities through E.212,
+        the NR RRC ReferenceTime in BurstArrivalTime, the bit masks of
+        InterfacesToTrace and MeasurementsToActivate, and a private IE.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e1ap_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 304', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = set(l.strip() for l in stdout.splitlines())
+        for line in ('Mobile Country Code (MCC): Test network (001)',
+                     'Mobile Network Code (MNC): Test network (01)',
+                     'Mobile Country Code (MCC): Germany (262)',
+                     'refDays-r16: 100', 'refSeconds-r16: 3600',
+                     'refMilliSeconds-r16: 250', 'refTenNanoSeconds-r16: 12345',
+                     '0... .... = NG-C: Should not be traced',
+                     '...1 .... = M4: Activated',
+                     'local: 7'):
+            assert line in lines
