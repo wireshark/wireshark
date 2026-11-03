@@ -48298,3 +48298,46 @@ class TestDissectDvbEit:
         assert lines[4] == '5\t0x4d'
         assert lines[7] == '8\t' + ','.join(['0x4d'] * 8)
         assert lines[8] == '9\t0x4e'
+
+
+class TestDissectDvbIpdc:
+    def test_dvb_ipdc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''UDP port 9214 is the ESG bootstrap, which hands every datagram
+        to ALC; no frame is malformed or has an expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_ipdc_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        alc = 'eth:ethertype:ip:udp:dvb_ipdc:alc:rmt-lct:rmt-fec'
+        assert stdout.splitlines() == [alc + ':xml', alc, alc]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvb_ipdc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_ipdc_flute(self, cmd_tshark, capture_file, test_env):
+        '''The FLUTE FDT instance and the two encoding symbols of the
+        ESG provider discovery file are in the ESG Bootstrap tree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_ipdc_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ermt-lct.tsi',
+                '-ermt-lct.toi', '-ermt-lct.fdt_instance_id', '-ermt-fec.esi',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t0\t1\t0x00000000\tTSI: 1 TOI: 0 SBN: 0 ESI: 0x0',
+            '2\t1\t1\t\t0x00000000\tTSI: 1 TOI: 1 SBN: 0 ESI: 0x0',
+            '3\t1\t1\t\t0x00000001\tTSI: 1 TOI: 1 Close object SBN: 0 ESI: 0x1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_ipdc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1', '-V', '-O', 'dvb_ipdc',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('ESG Bootstrap')
+        assert lines[start + 1] == '    Asynchronous Layered Coding'
+        assert '                    Content-Location="ESGProviderDiscovery.xml"' in lines
