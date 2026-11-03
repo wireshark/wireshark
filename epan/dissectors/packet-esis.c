@@ -293,6 +293,10 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 val_to_str(pinfo->pool, type, esis_vals,
                             "Unknown (0x%x)" ) );
 
+  if (length < ESIS_HDR_FIXED_LENGTH) {
+    /* Reported above; variable_len would wrap */
+    return tvb_captured_length(tvb);
+  }
   variable_len = length - ESIS_HDR_FIXED_LENGTH;
 
   switch (type) {
