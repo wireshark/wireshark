@@ -42591,3 +42591,245 @@ class TestDissectDhcpv6:
             '33\t1\t\t\t\t\t',
             '34\t1\t\t\t\t\t',
         ]
+
+
+class TestDissectDiameter:
+    def test_diameter_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Diameter over TCP and SCTP, Exported PDU "diameter" and
+        "diameter_avps", and the protocols the AVPs hand off to; no
+        malformed packets or error expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        frames = [line.split(':') for line in stdout.splitlines()]
+        assert len(frames) == 111
+        counts = {}
+        for f in frames:
+            for proto in set(f):
+                counts[proto] = counts.get(proto, 0) + 1
+        expected = {
+            'diameter': 97, 'tcp': 103, 'sctp': 5, 'exported_pdu': 3,
+            'xml': 3, 'sdp': 1, 'eap': 4, 'gsm_sms': 4, 'data': 3,
+        }
+        for proto, count in expected.items():
+            assert counts.get(proto, 0) == count, proto
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('diameter_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_diameter_request_answer(self, cmd_tshark, capture_file, test_env):
+        '''Requests and answers are matched by Hop-by-Hop and End-to-End
+        Identifier (in two passes for "Answer In"); the second answer in
+        frame 84 and the requests in 88, 89 and 96 have no partner.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'diameter.cmd.code',
+                '-Tfields', '-eframe.number', '-ediameter.cmd.code',
+                '-ediameter.flags.request', '-ediameter.answer_in',
+                '-ediameter.answer_to',
+            ), encoding='utf-8', env=test_env)
+        frames = {int(f[0]): f[1:] for f in (line.split('\t') for line in stdout.splitlines())}
+        assert len(frames) == 94
+        for req in range(4, 77, 2):
+            assert frames[req][1] == 'True' and frames[req][2] == str(req + 1), req
+            assert frames[req + 1][1] == 'False' and frames[req + 1][3] == str(req), req
+        assert frames[83] == ['272', 'True', '84', '']
+        assert frames[84] == ['272,280', 'False,False', '', '83']
+        assert frames[86] == ['280', 'True', '87', '']
+        for req in (88, 89, 91, 96):
+            assert frames[req] == ['280', 'True', '', ''], req
+        assert [frames[n][0] for n in range(4, 78, 2)] == [
+            '257', '280', '272', '316', '318', '319', '320', '321', '317', '323',
+            '300', '301', '306', '265', '272', '272', '303', '305', '268', '258',
+            '268', '268', '265', '8388647', '8388645', '8388646', '8388647',
+            '8388718', '8388722', '8388637', '8388622', '8388620', '324',
+            '8388647', '8388663', '265', '9999']
+
+    def test_diameter_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message in three TCP segments, two messages in one segment, a
+        message whose first segment has 3 octets and a segment that does
+        not start a message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {83..91}',
+                '-E', 'aggregator=|',
+                '-Tfields', '-eframe.number', '-etcp.segment',
+                '-ediameter.cmd.code', '-ediameter.flags.error',
+                '-ediameter.flags.T', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [line.rstrip() for line in stdout.splitlines()] == [
+            '83\t81|82|83\t272\tFalse\tFalse\tCredit-Control Request |',
+            '84\t\t272|280\tFalse|False\tFalse|False\tCredit-Control Answer | Device-Watchdog Answer |',
+            '85\t\t\t\t\t40001 → 3868 [PSH, ACK] Seq=2761 Ack=185 Win=65535 Len=3',
+            '86\t85|86\t280\tFalse\tFalse\tDevice-Watchdog Request |',
+            '87\t\t280\tTrue\tFalse\tDevice-Watchdog Answer |',
+            '88\t\t280\tFalse\tFalse\tDevice-Watchdog Request |',
+            '89\t\t280\tFalse\tTrue\tDevice-Watchdog Request |',
+            '90\t\t\t\t\tContinuation',
+            '91\t\t280\tFalse\tFalse\tDevice-Watchdog Request |',
+        ]
+
+    def test_diameter_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The flow on TCP port 33868 is Diameter only with the (disabled
+        by default) heuristic dissector.'''
+        for heur, expected in (((), ''), (('--enable-heuristic', 'diameter_tcp'), '280')):
+            stdout = subprocess.check_output((cmd_tshark, *heur,
+                    '-r', capture_file('diameter_coverage.pcapng.gz'),
+                    '-Y', 'tcp.port == 33868 && tcp.len > 0',
+                    '-Tfields', '-ediameter.cmd.code',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [expected, expected]
+
+    def test_diameter_base_avps(self, cmd_tshark, capture_file, test_env):
+        '''Subscription-Id, User-Equipment-Info of every type, Address
+        families, MSCC group text, Experimental-Result of 3GPP2 and another
+        vendor, and the bare AVP list of "diameter_avps".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {4, 8, 35, 102}',
+                '-E', 'aggregator=|',
+                '-Tfields', '-eframe.number', '-ediameter.Host-IP-Address.IPv4',
+                '-ediameter.Host-IP-Address.IPv6', '-ediameter.Host-IP-Address.E164',
+                '-ediameter.Host-IP-Address.Bytes', '-ee212.imsi', '-ee164.msisdn',
+                '-ediameter.user_equipment_info.imeisv',
+                '-ediameter.user_equipment_info.mac',
+                '-ediameter.user_equipment_info.eui64',
+                '-ediameter.user_equipment_info.modified_eui64',
+                '-ediameter.3gpp2.exp_res',
+                '-ediameter.other_vendor.Experimental-Result-Code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t192.0.2.1\t2001:db8::1\t+46701234567\t01020304|020000000001'
+            '\t\t\t\t\t\t\t\t',
+            '8\t\t\t\t\t001010123456789\t46701234567\t3534900698733190|3534900698733190'
+            '\t02:00:00:00:00:01\t02:00:00:00:00:00:00:01\t00:00:00:00:00:00:00:02\t\t',
+            '35\t\t\t\t\t\t\t\t\t\t\t5001|5999\t5555',
+            '102\t\t\t\t\t001010123456789\t\t\t02:00:00:00:00:09\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {9, 32}', '-V', '-O', 'diameter',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()]
+        for line in ('Multiple-Services-Credit-Control: RG=9, RC=2001',
+                     'Granted-Service-Unit: Total-Octets=12884901895',
+                     'Multiple-Services-Credit-Control: RG=10, RC=4012',
+                     'Charging-Rule-Install: CRBN=base-1, CRBN=base-2',
+                     'Framed-IPv6-Prefix: 2001:db8:1::/64',
+                     '3GPP-MS-TimeZone: Timezone: GMT + 1 hours 0 minutes +1 hour adjustment for Daylight Saving Time',
+                     '3GPP-MS-TimeZone: Timezone: GMT - 7 hours 0 minutes +2 hours adjustment for Daylight Saving Time'):
+            assert line in lines, line
+
+    def test_diameter_3gpp_avps(self, cmd_tshark, capture_file, test_env):
+        '''Feature-List by application and Feature-List-ID, and some of the
+        3GPP AVP subdissectors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'diameter.Feature-List',
+                '-E', 'aggregator=|',
+                '-Tfields', '-eframe.number', '-ediameter.Feature-List-ID',
+                '-ediameter.3gpp.feature_list_flags', '-ediameter.3gpp.cx_feature_list_flags',
+                '-ediameter.3gpp.gx_feature_list_flags', '-ediameter.3gpp.sd_feature_list_flags',
+                '-ediameter.3gpp.s6t.feature_list_flags', '-ediameter.3gpp.swx.feature_list_flags',
+                '-ediameter.3gpp.s6b.feature_list_flags', '-ediameter.3gpp.s6c.feature_list_flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t1|2\t0xffffffff|0x7fffffff\t\t\t\t\t\t\t',
+            '11\t1\t0x00000005\t\t\t\t\t\t\t',
+            '24\t1\t\t0x0000000f\t\t\t\t\t\t',
+            '28\t1\t0x0000000f\t\t\t\t\t\t\t',
+            '29\t1\t0x00000003\t\t\t\t\t\t\t',
+            '30\t1|2|3\t0xffffffff|0x0000ffff\t\t\t\t\t\t\t',
+            '32\t1|2\t\t\t0xffffffff|0x000000ff\t\t\t\t\t',
+            '36\t1\t\t\t\t\t\t0x0000007f\t\t',
+            '46\t1\t\t\t\t\t\t\t0x00000001\t',
+            '50\t1\t\t\t\t\t\t\t\t0x00000001',
+            '58\t1\t\t\t\t\t0x000003ff\t\t\t',
+            '59\t1\t\t\t\t\t0x000003ff\t\t\t',
+            '62\t1\t\t\t\t0x000007ff\t\t\t\t',
+            '74\t1\t\t\t\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {30, 32, 52, 54, 72}',
+                '-E', 'aggregator=|',
+                '-Tfields', '-eframe.number', '-ediameter.3gpp.selection_mode',
+                '-ediameter.3gpp.rat-type', '-ediameter.3gpp.ipv6addr',
+                '-ediameter.3gpp.ran_nas.protocol_type', '-ediameter.3gpp.ran_nas.diameter_cause',
+                '-ediameter.3gpp.ran_nas.ikev2_cause', '-ediameter.3gpp.ran_nas.cause_value',
+                '-ediameter.3gpp.codec_data.direction', '-ediameter.3gpp.codec_data.sdp_type',
+                '-esdp.media', '-egsm_sms.sms_text', '-ediameter.3gpp.mbms_service_id',
+                '-ediameter.3gpp.udp_port', '-ediameter.3gpp.ipaddr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '30\t\t\t\t\t\t\t\tuplink|downlink|uplink|downlink\toffer|answer|answer'
+            '\taudio 49152 RTP/AVP 96|audio 50000 RTP/AVP 96\t\t\t\t',
+            '32\t0\t6\t2001:db8::2\t1|1|1|1|1|1|2|3|4|5|6\t3001\t24\t6|66051\t\t\t\t\t\t\t',
+            '52\t\t\t\t\t\t\t\t\t\t\thello\t\t\t',
+            '54\t\t\t\t\t\t\t\t\t\t\thi\t\t\t',
+            '72\t\t\t2001:db8::917\t\t\t\t\t\t\t\t\t0x000001\t16|17\t198.51.100.18',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {52..55, 72}', '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()]
+        for line in ('GSM SMS TPDU (GSM 03.40) SMS-SUBMIT',
+                     'GSM SMS TPDU (GSM 03.40) SMS-SUBMIT REPORT',
+                     'GSM SMS TPDU (GSM 03.40) SMS-DELIVER',
+                     'GSM SMS TPDU (GSM 03.40) SMS-DELIVER REPORT',
+                     'RAI: MCC 001, MNC 01, LAC 0xA2C1, RAC 0x0A',
+                     'RAI: MCC 310, MNC 410, LAC 0xA2C1, RAC 0x0B'):
+            assert line in lines, line
+
+    def test_diameter_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "Diameter: Bound grouped AVP recursion and fix
+        several decoding issues" (frames 103-111).'''
+        # The Unsigned64 subdissectors no longer hide the item of the
+        # preceding Unsigned32 AVP (Auth-Application-Id, Vendor-Id)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 103', '-V', '-O', 'diameter',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert '        Auth-Application-Id: Diameter Credit Control Application (4)' in lines
+        assert '        Vendor-Id: 10415' in lines
+        assert '        MIP6-Feature-Vector: 0x0000000000000001, MIP6_INTEGRATED' in lines
+        # CC-Total-Octets above 2^32, Framed-IPv6-Prefix /60 masked in the
+        # last prefix octet, every 3GPP Path entry, QoS transfer delay
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {104..107}', '-V', '-O', 'diameter,diameter.3gpp',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.strip() for line in stdout.splitlines()]
+        assert 'Used-Service-Unit: Total-Octets=4294967301' in lines
+        assert 'Framed-IPv6-Prefix: 2001:db8:0:fff0::/60' in lines
+        assert 'Framed IPv6 Prefix as an IPv6 address: 2001:db8:0:fff0::' in lines
+        paths = [line for line in lines if line.startswith('Path: <')]
+        assert paths == ['Path: <sip:p1.example.net>', 'Path: <sip:p2.example.net>',
+                         'Path: <sip:p3.example.net>']
+        assert '0011 11.. = Transfer delay: 150 ms (15)' in lines
+        # Subscription-Id-Data / User-Equipment-Info-Value without a type are
+        # not decoded as E.164 / IMEISV, through "diameter_avps" too
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diameter_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {110, 111}',
+                '-Tfields', '-eframe.number', '-ediameter.Subscription-Id-Data',
+                '-ee164.msisdn', '-ediameter.user_equipment_info.imeisv',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['110\tuser@example.net\t\t', '111\tuser@example.net\t\t']
+        # session_imsi: the first message of the session has no IMSI, in
+        # one and in two passes
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-o', 'diameter.session_imsi:TRUE',
+                    '-r', capture_file('diameter_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {108, 109}',
+                    '-Tfields', '-eframe.number', '-ee212.assoc.imsi',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['108\t', '109\t001010123456789,001010123456789']
