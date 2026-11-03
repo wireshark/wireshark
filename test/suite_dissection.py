@@ -42917,3 +42917,172 @@ class TestDissectDiffservMplsCommon:
             'PSC: DSCP 18',
             'PSC: PHB id code 4095',
         ]
+
+
+class TestDissectDis:
+    def test_dis_protocols(self, cmd_tshark, capture_file, test_env):
+        '''129 DIS frames over UDP port 3000 (two of them carry Link 16
+        words) and three Link 16 words in Exported PDU frames; no malformed
+        packets or error expert infos in one and two passes.'''
+        def count(dfilter, passes=()):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dis_coverage.pcapng.gz'),
+                    '-Y', dfilter, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            return count_output(stdout)
+        assert count('frame') == 132
+        assert count('dis') == 129
+        assert count('link16') == 5
+        assert count('dis && link16') == 2
+        assert count('exported_pdu && link16') == 3
+        for passes in ((), ('-2',)):
+            assert count('_ws.malformed || _ws.expert.severity == "Error"', passes) == 0
+            # Only the two Entity State Updates for entities without an
+            # earlier Entity State PDU have an expert info (a warning).
+            assert count('_ws.expert', passes) == 2
+
+    def test_dis_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of a selection of PDUs of every family.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dis_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 7, 24, 26, 27, 28, 38, 40, 44, 48..53, 77, 82, 89, 128, 131}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        # The Info column holds an escaped tab after the PDU type number
+        assert [' '.join(l.replace('\\\\t', '|').split()) for l in stdout.splitlines()] == [
+            '1 PDUType: 1 | Entity State, Platform, Land, (1:1:1), TEST',
+            '7 PDUType: 1 | Entity State, Life form, Land, (1:1:7), INFANTRY',
+            '24 PDUType: 29 | Underwater Acoustic, Shafts=2, APA=2, Acoustic Emitter=2',
+            '26 PDUType: 24 | Designator, CodeName=1100',
+            '27 PDUType: 32 | Intercom Control, SourceLineID=4',
+            '28 PDUType: 25 | Transmitter, RadioID=1, Transmit State=On and transmitting',
+            '38 PDUType: 26 | Signal, RadioID=1, Encoding Type=16-bit Linear PCM 2s Complement, Big Endian, Number of Samples=8',
+            '40 PDUType: 26 | Signal, RadioID=3, STN=012345, Link 16 Words: J3.2I J3.2C5 J3.2E0',
+            '44 PDUType: 27 | Receiver, RadioID=1, Receive State=Off',
+            '48 PDUType: 28 | IFF, 1-2-3, 1=21, 2=4321, 3=7654, 4=511, C=FL100, TCAS I',
+            '49 PDUType: 28 | IFF, 1-2-3, RRB=3, TCAS II',
+            '50 PDUType: 28 | IFF, 1-2-3, 2=7000, 3=0700, P=II 3, S=II 5, C=FL-20, ACAS I',
+            '51 PDUType: 28 | IFF, 1-2-3, P=SI 9, S=SI 7, C=FL0, ACAS II',
+            '52 PDUType: 28 | IFF, 1-2-3',
+            '53 PDUType: 28 | IFF, 1-2-3',
+            '77 PDUType: 33 | Aggregate State, (1:1:1), AGGREGATE',
+            '82 PDUType: 0 | Simulator Present',
+            '89 PDUType: 0 | Other',
+            '128 PDUType: 250 | Unknown',
+            '131 J2.2I',
+        ]
+
+    def test_dis_entity_state_update(self, cmd_tshark, capture_file, test_env):
+        '''An Entity State Update PDU decodes its appearance with the kind
+        and domain of the earlier Entity State PDU of the same entity, in
+        one and two passes: land, air, life form and other in frames
+        10-13; unknown in 14 and 15 (15 precedes the Entity State PDU of
+        its entity, frame 16); air in 19 (entity 21:21:2, after the land
+        entity 21:21:1 of the same site and application). Before "DIS:
+        Make entity state lookups pass-stable and fix field decoding" the
+        second pass decoded frame 15 as air and frame 19 was decoded as
+        land.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dis_coverage.pcapng.gz'),
+                    '-Y', 'dis.pdu_type == 67',
+                    '-Tfields', '-eframe.number',
+                    '-edis.appearance.landform.paint_scheme',
+                    '-edis.appearance.airform.paint_scheme',
+                    '-edis.appearance.lifeform.paint_scheme',
+                    '-edis.appearance', '-edis.entity_identifier_not_found',
+                ), encoding='utf-8', env=test_env)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert [(l[0], l[1] != '', l[2] != '', l[3] != '', l[4], l[5] != '') for l in lines] == [
+                ('10', True, False, False, '0x00010203', False),
+                ('11', False, True, False, '0x00800001', False),
+                ('12', False, False, True, '0x00010005', False),
+                ('13', False, False, False, '0x00000015', False),
+                ('14', False, False, False, '0x00000016', True),
+                ('15', False, False, False, '0x00010000', True),
+                ('19', False, True, False, '0x00010000', False),
+            ]
+
+    def test_dis_field_decoding(self, cmd_tshark, capture_file, test_env):
+        '''Reproducers of the field decoding fixes: the clock time hour
+        does not wrap (frame 56), the Aggregate State PDU pads the ID list
+        to 32 bits (78), the Underwater Acoustic PDU dissects all 400 beams
+        of two emitters (25), a variable record longer than its value is
+        skipped to its end (80).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dis_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {25, 56, 78, 80}',
+                '-Tfields', '-eframe.number', '-edis.clocktime',
+                '-edis.datum_id', '-edis.hf_dis_variable_datum_value_as_text',
+                '-edis.variable_record_type', '-edis.record_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '25\t\t\t\t\t',
+            '56\t7549747200.000000000,3600.000000000\t\t\t\t',
+            '78\t\t4660\tABCD\t\t',
+            '80\t\t11000,32000\t\t47200,47300,47600,12345,23456\teeeeeeeeeeeeeeee,5758595a',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dis_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 25',
+                '-Tfields', '-edis.ua.beam.id_number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.strip().split(',')) == 400
+
+    def test_dis_subtrees(self, cmd_tshark, capture_file, test_env):
+        '''The modulation type fields are in the Modulation Type subtree
+        (frame 28), the record type in the Record subtree (frame 81), and
+        the Link 16 message data, not the Encoding Scheme item, ends after
+        the Link 16 words (frame 43).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dis_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 28', '-V', '-O', 'dis',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('        Modulation Type')
+        assert lines[start + 5:start + 8] == [
+            '            Major Modulation: Amplitude (1)',
+            '            Detail: AM (Amplitude Modulation) (2)',
+            '            System Modulation: SINCGARS (5)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dis_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 81', '-V', '-O', 'dis',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('        Record')
+        assert lines[start + 1:start + 5] == [
+            '            Record Type: 12345',
+            '            Record Length: 10',
+            '            Record data: 5758595a',
+            '            Alignment padding: 000000000000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dis_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 43', '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        assert 'name="dis.radio.encoding_scheme" showname="Encoding Scheme: 0x0002" size="2" pos="62"' in stdout
+        assert 'show="Link 16 Message Data: JTIDS Header/Messages" size="28" pos="94"' in stdout
+
+    def test_dis_link16(self, cmd_tshark, capture_file, test_env):
+        '''Link 16 words: initial, continuation, extension and format 3
+        words of a Signal PDU (frame 40), and words in Exported PDU frames
+        (130-132), which reported a dissector bug before "Link 16: Dissect
+        a word without state instead of a dissector bug".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dis_coverage.pcapng.gz'),
+                '-Y', 'link16',
+                '-Tfields', '-eframe.number', '-elink16.wordformat',
+                '-elink16.label', '-elink16.sublabel', '-elink16.mli',
+                '-elink16.contlabel', '-edis.signal.link16.stn',
+                '-edis.signal.link16.sdusn', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:8] for l in lines] == [
+            ['40', '0,1,2,3', '3', '2', '3', '5', '5349', '4660'],
+            ['43', '0,0', '0,0', '0,0', '0,0', '', '0', '0'],
+            ['130', '0', '0', '0', '0', '', '', ''],
+            ['131', '0', '2', '2', '1', '', '', ''],
+            ['132', '2', '', '', '', '', '', ''],
+        ]
+        assert [' '.join(l[8].split()) for l in lines[2:]] == ['J0.0I', 'J2.2I', 'J0.0E0']
