@@ -4,12 +4,12 @@ IPAccessPDU
 DEFINITIONS IMPLICIT TAGS ::=
 BEGIN
 
---IMPORTS
---    - - from ETSI TS 102 232-1 [2]
---    IPAddress,
---    Location
---        FROM LI-PS-PDU
---        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) genHeader(1) version39(39)};
+IMPORTS
+    -- from ETSI TS 102 232-1 [2]
+    IPAddress,
+    Location
+        FROM LI-PS-PDU
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) genHeader(1) version39(39)};
 
 -- ============================
 -- Object Identifier Definition
@@ -117,7 +117,7 @@ IPIRIContents ::= SEQUENCE
         -- This parameter will carry the second and subsequent IPv4 or IPv6 target IP addresses
         -- It is used when multiple subnet/prefix ranges are assigned to a target service.
         -- Use of this field is fully described in section 6.2.1
---    location                [24] LI-PS-PDU.Location OPTIONAL,
+    location                [24] LI-PS-PDU.Location OPTIONAL,
         -- The location associated with the target
     pOPPortID               [25] OCTET STRING OPTIONAL,
         -- This field will carry the NAS-Port-ID as defined in RFC 2869 [17]:

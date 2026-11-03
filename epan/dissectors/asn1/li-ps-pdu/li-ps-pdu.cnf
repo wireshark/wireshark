@@ -1,0 +1,127 @@
+# li-ps-pdu.cnf
+# ETSI TS 102 232-1 LI-PS-PDU conformation file
+
+#.MODULE
+# The modules that Wireshark does not have: their types are shown as bytes
+# (see dissect_li_ps_pdu_not_decoded()). HI2Operations and UmtsHI2Operations
+# are given here, before the .IMPORT of HI2Operations-exp.cnf, because the
+# HI2Operations dissector decodes them with the EPS definitions.
+HI2Operations                      li-ps-pdu-not-decoded
+HI1NotificationOperations          li-ps-pdu-not-decoded
+EmailPDU                           li-ps-pdu-not-decoded
+L2AccessPDU                        li-ps-pdu-not-decoded
+IPMultimediaPDU                    li-ps-pdu-not-decoded
+PstnIsdnPDU                        li-ps-pdu-not-decoded
+UmtsHI2Operations                  li-ps-pdu-not-decoded
+UmtsCS-HI2Operations               li-ps-pdu-not-decoded
+CONFHI2Operations                  li-ps-pdu-not-decoded
+ProSeHI2Operations                 li-ps-pdu-not-decoded
+GCSEHI2Operations                  li-ps-pdu-not-decoded
+Umts-HI3-PS                        li-ps-pdu-not-decoded
+Eps-HI3-PS                         li-ps-pdu-not-decoded
+CONF-HI3-IMS                       li-ps-pdu-not-decoded
+VoIP-HI3-IMS                       li-ps-pdu-not-decoded
+GCSE-HI3                           li-ps-pdu-not-decoded
+ThreeGPP-HI1NotificationOperations li-ps-pdu-not-decoded
+CSvoice-HI3-IP                     li-ps-pdu-not-decoded
+TS101909201                        li-ps-pdu-not-decoded
+TS101909202                        li-ps-pdu-not-decoded
+ILHIPDU                            li-ps-pdu-not-decoded
+#.END
+
+#.IMPORT ../lix2/lix2-exp.cnf
+#.IMPORT ../HI2Operations/HI2Operations-exp.cnf
+
+#.EXPORTS
+# for TS33128Payloads
+IPIRIPacketReport
+
+#.PDU
+PS-PDU
+Payload
+
+#.OMIT_ASSIGNMENT
+# not referenced, and it would make Payload recursive
+EncryptedPayload
+
+#.OMIT_ASSIGNMENTS_EXCEPT Common-Parameters
+# the types that LI-PS-PDU uses
+LIID
+ShortString
+LongString
+WGS84CoordinateDecimal
+WGS84LatitudeDecimal
+WGS84LongitudeDecimal
+GNSSLocation
+GeoShape
+GMLShape
+GeoPoint
+WGS84Location
+WGS84Coordinate
+WGS84CoordinateAngular
+WGS84LatitudeAngular
+WGS84LongitudeAngular
+Altitude
+AltitudeMeters
+GeoSphere
+XYEllipsoid
+UncertaintyMeters
+Percentage
+FixMode
+#.END
+
+#.FIELD_RENAME
+# the PSHeader/sequenceNumber is an INTEGER
+TCPInformation/sequenceNumber tcpinformation-sequenceNumber
+
+#.IMPORT_TAG
+# not known: any tag
+ILHIPayload BER_CLASS_ANY -1
+#.END
+
+#.TYPE_ATTR
+LIID TYPE = FT_STRING  DISPLAY = BASE_NONE
+# ASCII, e.g. "N43.616300" (see the XSD of ETSI TS 103 280)
+WGS84LatitudeDecimal TYPE = FT_STRING  DISPLAY = BASE_NONE
+WGS84LongitudeDecimal TYPE = FT_STRING  DISPLAY = BASE_NONE
+WGS84LatitudeAngular TYPE = FT_STRING  DISPLAY = BASE_NONE
+WGS84LongitudeAngular TYPE = FT_STRING  DISPLAY = BASE_NONE
+
+#
+# The contents of TS33128Payloads.IRIPayload and CCPayload
+#
+
+#.FN_BODY IRIContents/threeGPP33128DefinedIRI VAL_PTR = &iri_tvb
+  tvbuff_t *iri_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (iri_tvb) {
+    dissect_lix2_IRIPayload(false, iri_tvb, 0, actx,
+                            proto_item_add_subtree(actx->created_item, ett_li_ps_pdu_contents),
+                            hf_li_ps_pdu_IRIPayload_element);
+  }
+
+#.FN_BODY CCContents/threeGPP33128DefinedCC VAL_PTR = &cc_tvb
+  tvbuff_t *cc_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (cc_tvb) {
+    dissect_lix2_CCPayload(false, cc_tvb, 0, actx,
+                           proto_item_add_subtree(actx->created_item, ett_li_ps_pdu_contents),
+                           hf_li_ps_pdu_CCPayload_element);
+  }
+
+#
+# ETSI TS 102 232-3: IP packets
+#
+
+#.FN_BODY IPCCContents/iPPackets VAL_PTR = &packet_tvb
+  tvbuff_t *packet_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (packet_tvb) {
+    call_dissector(ip_handle, packet_tvb, actx->pinfo,
+                   proto_item_add_subtree(actx->created_item, ett_li_ps_pdu_contents));
+  }
+
+#.END

@@ -24,5 +24,11 @@
 #define hi3CCLinkIdOperationId         hi3CCLinkId".4"
 #define threeGPPSUBDomainId            lawfulInterceptDomainId".4"
 #define hi2epsDomainId                 threeGPPSUBDomainId".8.16.1"
+#include <epan/asn1.h>
+
+extern const value_string HI2Operations_EpsIRIsContent_vals[];
+unsigned dissect_HI2Operations_EpsIRIsContent(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+unsigned dissect_HI2Operations_IRI_Parameters(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+unsigned dissect_HI2Operations_EPSLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 #endif  /* PACKET_HI2OPERATIONS_H */

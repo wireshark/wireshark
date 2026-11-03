@@ -1,0 +1,174 @@
+Common-Parameters
+{itu-t(0) identified-organization(4) etsi(0) common-parameters(3280) version281(281)}
+
+DEFINITIONS IMPLICIT TAGS EXTENSIBILITY IMPLIED ::= BEGIN
+
+-- Object Identifier definitions
+
+commonParameterDomainId OBJECT IDENTIFIER ::= {itu-t(0) identified-organization(4) etsi(0) common-parameters(3280) version281(281)}
+
+-- Common Parameters (below are as defined in order in clause 6)
+
+LIID ::= OCTET STRING (SIZE (1..25))
+
+QualifiedDateTime ::= GeneralizedTime
+
+QualifiedMicrosecondDateTime ::= GeneralizedTime
+
+InternationalE164 ::= NumericString (SIZE(1..15))
+
+IMSI ::= NumericString (SIZE(6..15))
+
+IMEI ::= NumericString (SIZE(14))
+
+IMEICheckDigit ::= NumericString (SIZE(15))
+
+IMEISV ::= NumericString (SIZE(16))
+
+TCPPort ::= INTEGER (1..65535)
+
+TCPPortRange ::= SEQUENCE
+{
+    start [0] TCPPort,
+    end   [1] TCPPort
+}
+
+UDPPort ::= INTEGER (0..65535)
+
+UDPPortRange ::= SEQUENCE
+{
+    start [0] UDPPort,
+    end   [1] UDPPort
+}
+
+Port ::= CHOICE
+{
+    tCPPort [0] TCPPort,
+    uDPPort [1] UDPPort
+}
+
+PortRange ::= CHOICE
+{
+    tCPPortRange [0] TCPPortRange,
+    uDPPortRange [1] UDPPortRange
+}
+
+ShortString ::= UTF8String (SIZE (0..255))
+
+LongString ::= UTF8String (SIZE (0..65535))
+
+WGS84CoordinateDecimal ::= SEQUENCE
+{
+    latitude  [0] WGS84LatitudeDecimal,
+    longitude [1] WGS84LongitudeDecimal
+}
+
+WGS84LatitudeDecimal ::= OCTET STRING (SIZE (10))
+
+WGS84LongitudeDecimal ::= OCTET STRING (SIZE (11))
+
+WGS84CoordinateAngular ::= SEQUENCE
+{
+    latitude  [0] WGS84LatitudeAngular,
+    longitude [1] WGS84LongitudeAngular
+}
+
+WGS84LatitudeAngular ::= OCTET STRING (SIZE (10))
+
+WGS84LongitudeAngular ::= OCTET STRING (SIZE (11))
+
+SUPIIMSI ::= IMSI
+
+SUPINAI ::= NAI
+
+SUCI ::= OCTET STRING
+
+PEIIMEI ::= IMEI
+
+PEIIMEICheckDigit ::= IMEICheckDigit
+
+PEIIMEISV ::= IMEISV
+
+GPSIMSISDN ::= NumericString (SIZE(1..15))
+
+GPSINAI ::= NAI
+
+NAI ::= UTF8String
+
+IPProtocol ::= INTEGER (0..255)
+
+VLANID ::= INTEGER (0..4095)
+
+ServiceAccessIdentifier ::= UTF8String
+
+Percentage ::= INTEGER (0..100)
+
+AltitudeMeters ::= INTEGER (-1000..50000)
+
+Altitude ::= CHOICE
+{
+    altitudeAboveGroundLevel  [0] AltitudeMeters,
+    altitudeAboveMeanSeaLevel [1] AltitudeMeters
+}
+
+UncertaintyMeters ::= INTEGER (1..MAX)
+
+GNSSLocation ::= SEQUENCE
+{
+    location [0] GeoShape,
+    fixMode  [1] FixMode
+}
+
+WGS84Location ::= SEQUENCE
+{
+    location [0] WGS84Coordinate,
+    altitude [1] Altitude OPTIONAL
+}
+
+WGS84Coordinate ::= CHOICE
+{
+    decimal [0] WGS84CoordinateDecimal,
+    angular [1] WGS84CoordinateAngular
+}
+
+GeoShape ::= SEQUENCE
+{
+    shape      [0] GMLShape,
+    confidence [1] Percentage OPTIONAL
+}
+
+GMLShape ::= CHOICE
+{
+    point       [0] GeoPoint,
+    sphere      [1] GeoSphere,
+    xyEllipsoid [2] XYEllipsoid
+}
+
+GeoPoint ::= CHOICE
+{
+    wGS84Point [0] WGS84Location
+}
+
+GeoSphere ::= SEQUENCE
+{
+    centerPoint  [0] GeoPoint,
+    radiusMeters [1] UncertaintyMeters
+}
+
+XYEllipsoid ::= SEQUENCE
+{
+    centerPoint          [0] GeoPoint,
+    uncertaintyLongitude [1] UncertaintyMeters,
+    uncertaintyLatitude  [2] UncertaintyMeters,
+    uncertaintyAltitude  [3] UncertaintyMeters OPTIONAL
+}
+
+FixMode ::= ENUMERATED
+{
+    unknown(0),
+    noFix(1),
+    fix2D(2),
+    fix3D(3)
+}
+
+END

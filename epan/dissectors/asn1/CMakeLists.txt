@@ -69,6 +69,7 @@ set(ASN1_SRC_DIRS
 	kpm-v2
 	lcsap
 	ldap
+	li-ps-pdu
 	lix2
 	llc-v1
 	lnpdqp

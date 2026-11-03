@@ -11,17 +11,21 @@ set( PROTOCOL_NAME lix2 )
 
 set( PROTO_OPT )
 
+set( EXPORT_FILES
+	${PROTOCOL_NAME}-exp.cnf
+)
+
 set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
 	lix2.asn
-	IPAccessPDU.asn
 )
 
 set( EXTRA_DIST
 	${ASN_FILE_LIST}
 	packet-${PROTOCOL_NAME}-template.c
+	packet-${PROTOCOL_NAME}-template.h
 	${PROTOCOL_NAME}.cnf
 )
 
@@ -31,5 +35,9 @@ set( SRC_FILES
 )
 
 set( A2W_FLAGS -b )
+
+set( EXTRA_CNF
+	"${CMAKE_CURRENT_BINARY_DIR}/../li-ps-pdu/li-ps-pdu-exp.cnf"
+)
 
 ASN2WRS()

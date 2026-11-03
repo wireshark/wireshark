@@ -1,0 +1,819 @@
+LI-PS-PDU
+{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) genHeader(1) version43(43)}
+
+DEFINITIONS IMPLICIT TAGS ::=
+
+BEGIN
+
+IMPORTS
+    -- Any of the IMPORTs may be commented out if they are not used (see clause A.3)
+
+    -- from ETSI TS 103 280 [44]
+    GNSSLocation,
+    LIID,
+    LongString,
+    ShortString,
+    WGS84CoordinateDecimal
+        FROM Common-Parameters
+        {itu-t(0) identified-organization(4) etsi(0) common-parameters(3280) version281(281)}
+
+    -- previously from ETSI TS 101 671 [4]; now provided with this specification
+    IRI-Parameters,
+    IRIsContent,
+    Location,
+    Network-Element-Identifier
+        FROM HI2Operations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) hi2(1) version18(18)}
+
+    -- previously from ETSI TS 101 671 [4]; now provided with this specification
+    HI1-Operation
+        FROM HI1NotificationOperations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) hi1(0) notificationOperations(1) version7(7)}
+
+    -- from ETSI TS 102 232-2 [5]
+    EmailCC,
+    EmailIRI,
+    MessagingCC,
+    MessagingMMCC,
+    MessagingIRI
+        FROM EmailPDU
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) email(2) version20(20)}
+
+    -- from ETSI TS 102 232-3 [6]
+    IPCC,
+    IPIRI,
+    IPIRIOnly,
+    IPIRIPacketReport
+        FROM IPAccessPDU
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) iPAccess(3) version20(20)}
+
+    -- from ETSI TS 102 232-4 [32]
+    L2CC,
+    L2IRI,
+    L2IRIOnly
+        FROM L2AccessPDU
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) l2Access(4) version10(10)}
+
+    -- from ETSI TS 102 232-5 [37]
+    IPMMCC,
+    IPMMIRI
+        FROM IPMultimediaPDU
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) iPMultimedia(5) version17(17)}
+
+    -- from ETSI TS 102 232-6 [36]
+    PstnIsdnCC,
+    PstnIsdnIRI
+        FROM PstnIsdnPDU
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) li-ps(5) pstnIsdn(6) version6(6)}
+
+    -- from 3GPP TS 33.108 [9]
+    IRI-Parameters,
+    UmtsIRIsContent,
+    CorrelationValues,
+    Location
+        FROM UmtsHI2Operations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) hi2(1)}
+            -- The relevant module (including the 3GPP release and version number) needs
+            -- to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    IRI-Parameters,
+    UmtsCS-IRIsContent
+        FROM UmtsCS-HI2Operations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) hi2CS(3)}
+            -- The relevant module (including the 3GPP release and version number) needs
+            -- to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    IRI-Parameters,
+    EpsIRIsContent,
+    EPSLocation
+        FROM EpsHI2Operations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) hi2eps(8)}
+            -- The relevant module (including the 3GPP release and version number) needs
+            -- to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    IRI-Parameters,
+    ConfIRIsContent
+        FROM CONFHI2Operations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) hi2conf(10)}
+            -- The relevant module (including the 3GPP release and version number) needs
+            -- to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    IRI-Parameters,
+    ProSeIRIsContent
+        FROM ProSeHI2Operations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) hi2prose (15)}
+            -- The relevant module (including the 3GPP release and version number) needs
+            -- to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    IRI-Parameters,
+    GcseIRIsContent
+        FROM GCSEHI2Operations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) hi2gcse(13)}
+            -- The relevant module (including the 3GPP release and version number) needs
+            -- to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    CC-PDU
+        FROM Umts-HI3-PS
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2) threeGPP(4) hi3(2)}
+            -- The relevant module (including the 3GPP release and version number)
+            -- needs to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    CC-PDU
+        FROM Eps-HI3-PS
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2) threeGPP(4) hi3eps(9)}
+            -- The relevant module (including the 3GPP release and version number)
+            -- needs to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    Conf-CC-PDU
+        FROM CONF-HI3-IMS
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2) threeGPP(4) hi3conf(11)}
+            -- The relevant module (including the 3GPP release and version number)
+            -- needs to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    Voip-CC-PDU
+        FROM VoIP-HI3-IMS
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2) threeGPP(4) hi3voip(12)}
+            -- The relevant module (including the 3GPP release and version number)
+            -- needs to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    Gcse-CC-PDU
+        FROM GCSE-HI3
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2) threeGPP(4) hi3gcse(14)}
+            -- The relevant module (including the 3GPP release and version number)
+            -- needs to be chosen when compiling the application.
+
+    -- from 3GPP TS 33.108 [9]
+    ThreeGPP-HI1-Operation
+        FROM ThreeGPP-HI1NotificationOperations
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) hi1(0) notificationOperations(1)}
+            -- The relevant module (including the 3GPP release and version number)
+            -- needs to be chosen when compiling the application.
+            -- TS 101 671 HI1 and 3GPP HI1 are related to the same functionality but are
+            -- corresponding to different implementations and exclusive usage each other.
+            -- The implementation depends of national regulations or LEA/CSP negotiations.
+            -- 3GPP HI1 may be used with other services/networks than 3GPP's one.
+
+    -- from 3GPP TS 33.108 [9]
+    CSvoice-CC-PDU
+        FROM CSvoice-HI3-IP
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) hi3CSvoice(18)}
+            -- The relevant module (including the 3GPP release and version number)
+            -- needs to be chosen when compiling the application.
+            -- The implementation of the CS domain delivery in IP have to be based on 3GPP TS 33.108 [9].
+
+    -- from ETSI TS 101 909-20-1 [33]
+    TARGETACTIVITYMONITOR-1,
+    TTRAFFIC,
+    CTTRAFFIC
+        FROM TS101909201
+        {itu-t(0) identified-organization(4) etsi(0) ts101909(1909) part20(20) subpart1(1) interceptVersion(0)}
+
+    -- from ETSI TS 101 909-20-2 [34]
+    TARGETACTIVITYMONITOR,
+    TTRAFFIC,
+    CTTRAFFIC
+        FROM TS101909202
+        {itu-t(0) identified-organization(4) etsi(0) ts101909(1909) part20(20) subpart2(2) interceptVersion(0)}
+
+    -- from ETSI TS 103 462 [45]
+    ILHIPayload
+        FROM ILHIPDU
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) informationHandover(4) ilhi(0) ilhiPdu(0) version2(2)}
+        -- This import is only used for the handover between LEMFs.
+
+    -- from 3GPP TS 33.128 [46]
+    LINotificationPayload,
+    IRIPayload,
+    CCPayload,
+    UserLocation
+        FROM TS33128Payloads
+        {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) ts33128(19)};
+        -- The relevant module (including the 3GPP release and version number)
+        -- needs to be chosen when compiling the application.
+
+-- end of IMPORTS
+
+-- =============================
+-- Object Identifier Definitions
+-- =============================
+
+lawfulInterceptDomainId OBJECT IDENTIFIER ::= {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2)}
+
+li-psDomainId OBJECT IDENTIFIER ::= {lawfulInterceptDomainId li-ps(5) genHeader(1) version43(43)}
+
+-- ====================
+-- Top-level definition
+-- ====================
+
+PS-PDU ::= SEQUENCE
+{
+    pSHeader    [1] PSHeader,
+    payload     [2] Payload
+}
+
+PSHeader ::= SEQUENCE
+{
+    li-psDomainId                   [0] OBJECT IDENTIFIER,
+    lawfulInterceptionIdentifier    [1] LawfulInterceptionIdentifier,
+        -- As of ASN.1 version 26 this parameter is included from ETSI TS 103 280 [44]
+    authorizationCountryCode        [2] PrintableString (SIZE (2)) OPTIONAL,
+        -- see clause 5.2.3
+    communicationIdentifier         [3] CommunicationIdentifier,
+    sequenceNumber                  [4] INTEGER (0..4294967295),
+    timeStamp                       [5] GeneralizedTime OPTIONAL,
+        -- see clause 5.2.6
+    ...,
+    interceptionPointID             [6] PrintableString (SIZE (1..8)) OPTIONAL,
+        -- see clause 5.2.11
+    microSecondTimeStamp            [7] MicroSecondTimeStamp OPTIONAL,
+    timeStampQualifier              [8] TimeStampQualifier OPTIONAL,
+    extendedInterceptionPointID     [9] OCTET STRING (SIZE (1..65535)) OPTIONAL,
+        -- see clause 5.2.13
+    networkFunctionIdentifier       [10] OCTET STRING (SIZE (1..65535)) OPTIONAL
+        -- see clause 5.2.14
+}
+
+Payload ::= CHOICE
+{
+    iRIPayloadSequence      [0] SEQUENCE OF IRIPayload,
+    cCPayloadSequence       [1] SEQUENCE OF CCPayload,
+        -- Clause 6.2.3 explains how to include more than one payload in the same PDU
+    tRIPayload              [2] TRIPayload,
+    ...,
+    hI1-Operation           [3] HI1NotificationOperations.HI1-Operation,
+    encryptionContainer     [4] EncryptionContainer,
+    threeGPP-HI1-Operation  [5] ThreeGPP-HI1NotificationOperations.ThreeGPP-HI1-Operation,
+        -- This structure may be functionally redundant with hI1-Operation previously from ETSI TS 101 671 [4]
+    iLHIPayload             [6] SEQUENCE OF ILHIPDU.ILHIPayload,
+        -- For typical use cases see ETSI TS 103 462 [45]
+    hI4Payload              [7] SEQUENCE OF HI4Payload
+}
+
+TimeStampQualifier ::= ENUMERATED
+{
+    unknown(0),
+    timeOfInterception(1),
+    timeOfMediation(2),
+    ...,
+    timeOfAggregation(3)
+}
+
+HI4Payload ::= CHOICE
+{
+    threeGPP-LI-Notification [1] TS33128Payloads.LINotificationPayload,
+    ...,
+    hi4Notification          [2] HI4Notification
+}
+
+-- ====================================
+-- Items contained within the PS-Header
+-- ====================================
+
+CommunicationIdentifier ::= SEQUENCE
+{
+    networkIdentifier               [0] NetworkIdentifier,
+    communicationIdentityNumber     [1] INTEGER (0..4294967295) OPTIONAL,
+        -- in case of transport of HI1 messages not required
+        -- Mandatory for CC and IRI, with certain exceptions (see clause 5.2.4)
+    deliveryCountryCode             [2] PrintableString (SIZE (2)) OPTIONAL,
+        -- see clause 5.2.4
+    ...,
+    cINExtension                    [3] UmtsHI2Operations.CorrelationValues OPTIONAL
+        -- To be used when a single INTEGER is not sufficient to identify
+        -- a particular session (see clause 5.2.4)
+}
+
+NetworkIdentifier ::= SEQUENCE
+{
+    operatorIdentifier          [0] OCTET STRING (SIZE(1..16)),
+    networkElementIdentifier    [1] OCTET STRING (SIZE(1..16)) OPTIONAL,
+    ...,
+    eTSI671NEID                 [2] HI2Operations.Network-Element-Identifier OPTIONAL
+}
+
+-- ==========================
+-- Definitions for CC Payload
+-- ==========================
+
+CCPayload ::= SEQUENCE
+{
+    payloadDirection        [0] PayloadDirection OPTIONAL,
+    timeStamp               [1] GeneralizedTime OPTIONAL,
+        -- For aggregated payloads (see clause 6.2.3)
+    cCContents              [2] CCContents,
+    ...,
+    microSecondTimeStamp    [3] MicroSecondTimeStamp OPTIONAL,
+        -- For aggregated payloads (see clause 6.2.3)
+    timeStampQualifier      [4] TimeStampQualifier OPTIONAL
+}
+
+PayloadDirection ::= ENUMERATED
+{
+    fromTarget(0),
+    toTarget(1),
+    ...,
+    indeterminate(2),
+        -- Indication that the direction was indeterminate
+    combined(3),
+        -- Indication applicable to some services that the traffic is actually a combination
+        -- of To and From
+    notapplicable(4)
+        -- Indication that direction of interceptable service does not make sense
+}
+
+CCContents ::= CHOICE
+    -- Any of these choices may be commented out if they are not being used, see clause A.3
+{
+    -- tag [0] deprecated in version15, ETSI TS 102 232-1 V3.3.1 (2013-02)
+    emailCC                     [1] EmailPDU.EmailCC,
+    iPCC                        [2] IPAccessPDU.IPCC,
+    -- tag [3] not used
+    uMTSCC                      [4] OCTET STRING,
+    ...,
+    -- tag [5] deprecated in version15, ETSI TS 102 232-1 V3.3.1 (2013-02)
+    l2CC                        [6] L2AccessPDU.L2CC,
+    tTRAFFIC-1                  [7] TS101909201.TTRAFFIC,
+    cTTRAFFIC-1                 [8] TS101909201.CTTRAFFIC,
+    tTRAFFIC-2                  [9] TS101909202.TTRAFFIC,
+    cTTRAFFIC-2                 [10] TS101909202.CTTRAFFIC,
+    pstnIsdnCC                  [11] PstnIsdnPDU.PstnIsdnCC,
+    iPMMCC                      [12] IPMultimediaPDU.IPMMCC,
+    -- tag [13] deprecated in version32, ETSI TS 102 232-1 V3.24.1 (2021-07)
+    messagingCC                 [14] EmailPDU.MessagingCC,
+    ePSCC                       [15] OCTET STRING,
+    uMTSCC-CC-PDU               [16] Umts-HI3-PS.CC-PDU,
+    ePSCC-CC-PDU                [17] Eps-HI3-PS.CC-PDU,
+    messagingMMCC               [18] EmailPDU.MessagingMMCC,
+    confCC-CC-PDU               [19] CONF-HI3-IMS.Conf-CC-PDU,
+    voipCC-CC-PDU               [20] VoIP-HI3-IMS.Voip-CC-PDU,
+    gcseCC-CC-PDU               [21] GCSE-HI3.Gcse-CC-PDU,
+    cSvoice-CC-PDU              [22] CSvoice-HI3-IP.CSvoice-CC-PDU,
+    threeGPP33128DefinedCC      [23] OCTET STRING (CONTAINING TS33128Payloads.CCPayload)
+}
+
+MicroSecondTimeStamp ::= SEQUENCE
+{
+    seconds         [0] INTEGER (0..18446744073709551615),
+        -- number of seconds since 1970-1-1 00:00Z also known as unix time epoch
+    microSeconds    [1] INTEGER (0..999999),
+    ...
+}
+
+-- ===========================
+-- Definitions for IRI Payload
+-- ===========================
+
+IRIPayload ::= SEQUENCE
+{
+    iRIType                 [0] IRIType OPTIONAL,
+        -- See clause 5.2.10
+    timeStamp               [1] GeneralizedTime OPTIONAL,
+        -- For aggregated payloads (see clause 6.2.3)
+    iRIContents             [2] IRIContents,
+    ...,
+    microSecondTimeStamp    [3] MicroSecondTimeStamp OPTIONAL,
+        -- For aggregated payloads (see clause 6.2.3)
+    timeStampQualifier      [4] TimeStampQualifier OPTIONAL,
+    sessionDirection        [5] PayloadDirection OPTIONAL,
+        -- If the sessionDirection field is to be used for a given service then
+        -- the exact meaning and use of the field will be described in the
+        -- relevant service-specific details
+    payloadDirection        [6] PayloadDirection OPTIONAL
+        -- If the payloadDirection field is to be used for a given service then
+        -- the exact meaning and use of the field will be described in the
+        -- relevant service-specific details
+}
+
+IRIType ::= ENUMERATED
+{
+    iRI-Begin(1),
+    iRI-End(2),
+    iRI-Continue(3),
+    iRI-Report(4)
+}
+
+IRIContents ::= CHOICE
+    -- Any of these choices may be commented out if they are not being used (see clause A.3)
+{
+    -- tag [0] deprecated in version15, ETSI TS 102 232-1 V3.3.1 (2013-02)
+    emailIRI                    [1] EmailPDU.EmailIRI,
+    iPIRI                       [2] IPAccessPDU.IPIRI,
+    iPIRIOnly                   [3] IPAccessPDU.IPIRIOnly,
+    uMTSIRI                     [4] UMTSIRI,
+    eTSI671IRI                  [5] ETSI671IRI,
+    ...,
+    l2IRI                       [6] L2AccessPDU.L2IRI,
+    l2IRIOnly                   [7] L2AccessPDU.L2IRIOnly,
+    tARGETACTIVITYMONITOR-1     [8] TS101909201.TARGETACTIVITYMONITOR-1,
+    tARGETACTIVITYMONITOR-2     [9] TS101909202.TARGETACTIVITYMONITOR,
+    pstnIsdnIRI                 [10] PstnIsdnPDU.PstnIsdnIRI,
+    iPMMIRI                     [11] IPMultimediaPDU.IPMMIRI,
+    -- tag [12] deprecated in version32, ETSI TS 102 232-1 V3.24.1 (2021-07)
+    -- tag [13] deprecated in version32, ETSI TS 102 232-1 V3.24.1 (2021-07)
+    messagingIRI                [14] EmailPDU.MessagingIRI,
+    ePSIRI                      [15] EPSIRI,
+    confIRI                     [16] ConfIRI,
+    proseIRI                    [17] ProSeIRI,
+    gcseIRI                     [18] GcseIRI,
+    threeGPP33128DefinedIRI     [19] OCTET STRING (CONTAINING TS33128Payloads.IRIPayload),
+    iPIRIPacketReport           [20] IPAccessPDU.IPIRIPacketReport
+}
+
+UMTSIRI ::= CHOICE
+    -- This structure may be commented out if not used
+{
+    iRI-Parameters      [0] UmtsHI2Operations.IRI-Parameters,
+    umtsIRIsContent     [1] UmtsHI2Operations.UmtsIRIsContent,
+    ...,
+    iRI-CS-Parameters   [2] UmtsCS-HI2Operations.IRI-Parameters,
+    umtsCS-IRIsContent  [3] UmtsCS-HI2Operations.UmtsCS-IRIsContent
+}
+
+ETSI671IRI ::= CHOICE
+    -- This structure may be commented out if not used
+{
+    iRI-Parameters  [0] HI2Operations.IRI-Parameters,
+    iRIsContent     [1] HI2Operations.IRIsContent,
+    ...
+}
+
+EPSIRI ::= CHOICE
+    -- This structure may be commented out if not used
+{
+    iRI-EPS-Parameters  [0] EpsHI2Operations.IRI-Parameters,
+    epsIRIsContent      [1] EpsHI2Operations.EpsIRIsContent,
+    ...
+}
+
+ConfIRI ::= CHOICE
+    -- This structure may be commented out if not used
+{
+    iRI-Conf-Parameters     [0] CONFHI2Operations.IRI-Parameters,
+    confIRIsContent         [1] CONFHI2Operations.ConfIRIsContent,
+    ...
+}
+
+
+ProSeIRI ::= CHOICE
+    -- This structure may be commented out if not used
+{
+    iRI-ProSe-Parameters    [0] ProSeHI2Operations.IRI-Parameters,
+    proseIRIsContent        [1] ProSeHI2Operations.ProSeIRIsContent,
+    ...
+}
+
+
+GcseIRI ::= CHOICE
+    -- This structure may be commented out if not used
+{
+    iRI-Gcse-Parameters     [0] GCSEHI2Operations.IRI-Parameters,
+    gcseIRIsContent         [1] GCSEHI2Operations.GcseIRIsContent,
+    ...
+}
+
+-- ===========================
+-- Definitions for TRI Payload
+-- ===========================
+
+TRIPayload ::= CHOICE
+{
+    integrityCheck                  [0] IntegrityCheck,
+    testPDU                         [1] NULL,
+    paddingPDU                      [2] OCTET STRING,
+        -- Undefined contents (will be discarded)
+    keep-alive                      [3] NULL,
+    keep-aliveResponse              [4] NULL,
+    firstSegmentFlag                [5] NULL,
+    lastSegmentFlag                 [6] NULL,
+    ...,
+    cINReset                        [7] NULL,
+    operatorLeaMessage              [8] OperatorLeaMessage,
+    optionRequest                   [9] OptionRequest,
+    optionResponse                  [10] OptionResponse,
+    optionComplete                  [11] NULL,
+    pDUAcknowledgementRequest       [12] NULL,
+    pDUAcknowledgementResponse      [13] NULL
+}
+
+IntegrityCheck ::= SEQUENCE
+{
+    includedSequenceNumbers     [0] SEQUENCE OF INTEGER (0..4294967295),
+        -- gives the order the PDUs were processed
+    checkType                   [1] CheckType,
+    dataType                    [2] DataType OPTIONAL,
+        -- From version5(5) the dataType is mandatory for hashes and for signatures
+        -- (see clause 7.2.3)
+    checkValue                  [3] OCTET STRING,
+        -- Network byte order
+        -- If checkValue contains a signature, the octet string field space may be
+        -- used to insert the appropriate ASN.1 DER or BER encoded structure for the
+        -- DSS/DSA signature as described in IETF RFC 3279 [43], clause 2.2.2.
+    ...,
+    hashAlgorithm               [4] HashAlgorithm OPTIONAL,
+        -- Clarifies the hash function if checkType is hash(1).
+        -- If used, it shall be present for each checkType hash(1).
+    signatureAlgorithm          [5] SignatureAlgorithm OPTIONAL
+        -- Clarifies the signature algorithm if checkType is signature(2).
+        -- If used, it shall be present for each checkType signature(2).
+}
+
+CheckType ::= ENUMERATED
+{
+    hash(1),
+        -- hash value
+    signature(2),
+        -- DSS/DSA signature
+    ...
+}
+
+DataType ::= ENUMERATED
+{
+    iRI(1),
+    cC(2),
+    ...,
+    iLHI(3)
+}
+
+HashAlgorithm ::= ENUMERATED
+{
+    sHA-1(1),
+        -- Included for legacy/migration purposes only, not to be used for new implementations
+    sHA-256(2),
+    sHA-384(3),
+    sHA-512(4),
+    ...
+}
+
+SignatureAlgorithm ::= ENUMERATED
+{
+    dSA(1),
+        -- Included for legacy/migration purposes only, not to be used for new implementations
+    eCDSA(2),
+    edDSA(3),
+    ...
+}
+
+Option ::= CHOICE
+{
+    pDUAcknowledgement  [0] NULL,
+    ...
+}
+
+OptionRequest ::= SEQUENCE
+{
+    requestedOptions    [0] SEQUENCE OF Option,
+    ...
+}
+
+OptionResponse ::= SEQUENCE
+{
+    acceptedOptions     [0] SEQUENCE OF Option,
+    declinedOptions     [1] SEQUENCE OF Option,
+    ...
+}
+
+-- ==================================
+-- Definitions for OperatorLeaMessage
+-- ==================================
+
+OperatorLeaMessage ::= SEQUENCE
+{
+    messagePriority     [0] OperatorLeaMessagePriority,
+    message             [1] OCTET STRING (SIZE(1..255)),
+    ...
+}
+
+OperatorLeaMessagePriority ::= ENUMERATED
+{
+    error(1),
+        -- reporting of error conditions that have impact on the quality of the
+        -- intercepted data
+    informational(2),
+        -- reporting of conditions that will not have direct impact on the quality of
+        -- the intercepted data
+    ...
+}
+
+-- ===================================
+-- Definitions for EncryptionContainer
+-- ===================================
+
+EncryptionContainer ::= SEQUENCE
+{
+    encryptionType          [0] EncryptionType,
+    encryptedPayload        [1] OCTET STRING,
+        -- once decrypted, it can be interpreted as EncryptedPayload
+    ...,
+    encryptedPayloadType    [2] EncryptedPayloadType OPTIONAL
+}
+
+EncryptionType ::= ENUMERATED
+{
+    none(1),
+        -- No encryption is applied.
+    national-option(2),
+        -- Use this option when an encryption scheme is negotiated on a national level
+    aES-192-CBC(3),
+        -- The Advanced Encryption Standard using a 192 bit key in CBC mode
+    aES-256-CBC(4),
+        -- The Advanced Encryption Standard using a 256 bit key in CBC mode
+    blowfish-192-CBC(5),
+        -- Blowfish (www.schneier.com/blowfish.html) using a 192 bit key in CBC mode
+    blowfish-256-CBC(6),
+        -- Blowfish using a 256 bit key in CBC mode
+    threedes-cbc(7),
+        -- Triple-DES using a 192 bit key in CBC mode
+    ...
+}
+
+EncryptedPayload ::= SEQUENCE
+{
+    byteCounter         [0] INTEGER (0..18446744073709551615),
+        -- The sum of the sizes of all PDUs before this PDU.
+        -- It is initialized with the unixTime (number of seconds since 01-01-1970)
+        -- multiplied by 2^32 at first use.
+        -- Where N is sequencenumber of the n-th PDU in transfer, and size(PDU(N))
+        -- as defined in annex G:
+        --      IF N > 0 THEN
+        --      PDU[N].byteCounter = PDU[N-1].byteCounter + size(PDU[N-1])
+        --      ELSE
+        --      PDU[N].byteCounter = ( unixTime(now) << 32 )
+        --      ENDIF
+    payload             [1] Payload,
+    ...
+}
+
+EncryptedPayloadType ::= ENUMERATED
+{
+    unknown(1),
+    part2(2),
+        -- encrypted payload is ETSI TS 102 232-2 [5]
+    part3(3),
+        -- encrypted payload is ETSI TS 102 232-3 [6]
+    part4(4),
+        -- encrypted payload is ETSI TS 102 232-4 [32]
+    part5(5),
+        -- encrypted payload is ETSI TS 102 232-5 [37]
+    part6(6),
+        -- encrypted payload is ETSI TS 102 232-6 [36]
+    part7(7),
+        -- encrypted payload is ETSI TS 102 232-7 [38]
+    ...,
+    part1(8)
+        -- encrypted payload is ETSI TS 102 232-1 (the present document)
+}
+
+-- =================================
+-- Definitions for HI4 notifications
+-- =================================
+
+HI4Notification ::= CHOICE
+{
+    liActivated                 [1] HI4LINotification,
+    liDeactivated               [2] HI4LINotification,
+    liModified                  [3] HI4LINotification,
+    ...
+}
+
+HI4LINotification ::= SEQUENCE
+{
+    activationTime              [1] GeneralizedTime OPTIONAL,
+    deactivationTime            [2] GeneralizedTime OPTIONAL,
+    targetIdentifiers           [3] SEQUENCE OF TargetIdentifier OPTIONAL,
+    serviceType                 [4] DictionaryEntry OPTIONAL,
+    targetIdentifierSubtype     [5] DictionaryEntry OPTIONAL,
+    interceptType               [6] InterceptType OPTIONAL,
+    ownerIdentifier             [7] Common-Parameters.ShortString OPTIONAL,
+    authorizationReference      [8] Common-Parameters.LongString OPTIONAL,
+    ...
+}
+
+TargetIdentifier ::= CHOICE
+{
+    targetIdentifierFormat      [1] TargetIdentifierFormat,
+    ...
+}
+
+TargetIdentifierFormat ::= SEQUENCE
+{
+    formatOwner                 [1] Common-Parameters.ShortString,
+    formatName                  [2] Common-Parameters.ShortString,
+    targetValue                 [3] Common-Parameters.LongString,
+    ...
+}
+
+InterceptType ::= ENUMERATED
+{
+    iriAndCc(1),
+    iriOnly(2),
+    ccOnly(3),
+    ...
+}
+
+DictionaryEntry ::= SEQUENCE
+{
+    owner                       [1] Common-Parameters.ShortString,
+    name                        [2] Common-Parameters.ShortString,
+    value                       [3] Common-Parameters.ShortString,
+    ...
+}
+
+-- ===================================
+-- Common Parameters
+-- ===================================
+
+Location ::= SEQUENCE
+    -- This is a common parameter, the use of this parameter is described in clause 4.5
+{
+    umtsHI2Location               [0] UmtsHI2Operations.Location OPTIONAL,
+    epsLocation                   [1] EpsHI2Operations.EPSLocation OPTIONAL,
+    ...,
+    wlanLocationAttributes        [2] WlanLocationAttributes OPTIONAL,
+    eTSI671HI2Location            [3] HI2Operations.Location OPTIONAL,
+    threeGPP33128UserLocation     [4] TS33128Payloads.UserLocation OPTIONAL,
+    cPEProvidedLocationAttributes [5] CPEProvidedLocationAttributes OPTIONAL
+}
+
+WlanLocationAttributes ::= SEQUENCE
+{
+    wlanAPMACAddress        [0] OCTET STRING (SIZE(6)) OPTIONAL,
+        -- 48-bit (6 octet) MAC address of the WLAN access point derived from the BSSID
+    ...
+}
+
+CPEProvidedLocationAttributes ::= SEQUENCE
+{
+    wGS84CoordinateDecimal  [0] Common-Parameters.WGS84CoordinateDecimal OPTIONAL,
+    ...,
+    gNSSLocation            [1] Common-Parameters.GNSSLocation OPTIONAL
+}
+
+IPAddress ::= SEQUENCE
+    -- This parameter was previously imported from ETSI TS 101 671 [4] but has been copied
+    -- to ETSI TS 102 232-1 (the present document). It is not recommended to use this parameter in
+    -- future change requests. Suggested approach is to use a parameter from ETSI TS 103 280 [44]
+    -- instead.
+{
+    iP-type             [1] ENUMERATED
+    {
+        iPV4(0),
+        iPV6(1),
+        ...
+    },
+    iP-value            [2] IP-value,
+    iP-assignment       [3] ENUMERATED
+    {
+        static(1),
+            -- The static coding shall be used to report a static address.
+        dynamic(2),
+            -- The dynamic coding shall be used to report a dynamically allocated address.
+        notKnown(3),
+            -- The notKnown coding shall be used to report other than static or dynamically
+            -- allocated IP addresses.
+        ...
+    } OPTIONAL,
+    ...,
+    iPv6PrefixLength    [4] INTEGER (1..128) OPTIONAL,
+        -- Indicates the length of the prefix delegated by the CSP to the subscriber
+        -- example: 60 if IP address is "2001:db8:0:85a3::ac1f:8001/60"
+        -- Mandatory in case where the iP-value contains an IPv6 binary value
+    iPv4SubnetMask      [5] OCTET STRING (SIZE(4)) OPTIONAL,
+        -- For IPv4 addresses, this indicates the subnet mask to be applied to the iP-value field.
+        -- The subnet mask is intended to be presented as a binary value, e.g. "ff ff ff f8" to
+        -- represent the dotted-decimal subnet mask of "255.255.255.248" corresponding to
+        -- a /29 CIDR-format subnet mask
+    iP-NAT-translated   [6] BOOLEAN OPTIONAL
+        -- If TRUE then NAT translated, if FALSE then not NAT translated.
+        -- If absent, IPAddress may or may not be NAT translated.
+}
+
+IP-value ::= CHOICE
+{
+    iPBinaryAddress [1] OCTET STRING (SIZE(4..16)),
+        -- In case of IPv6, the Prefix Length is provided by the "iPv6PrefixLength"
+        -- In case of IPv4, the netmask is provided by the "iPv4SubnetMask"
+    iPTextAddress   [2] IA5String (SIZE(7..45)),
+        -- In case of IPv6, the delivered iPTextAddress field could include a complete
+        -- single IPv6-Address or an IPv6-Prefix for a subnetwork on the target side.
+        -- In case of IPv4, the delivered iPTextAddress field could include a single
+        -- IPv4 address or an IPv4address/netmask, for example "192.168.1.1" or "192.168.1.1/24"
+    ...
+}
+
+LawfulInterceptionIdentifier ::= Common-Parameters.LIID
+    -- LIID is a common parameter imported from ETSI TS 103 280 [44].
+    -- It is redefined as LawfulInterceptionIdentifier in this
+    -- module to preserve the original type name during the
+    -- removal of imports from ETSI TS 101 671 [4].
+
+END -- end of LI-PS-PDU

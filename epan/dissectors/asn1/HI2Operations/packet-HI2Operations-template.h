@@ -12,5 +12,6 @@
 #define PACKET_HI2OPERATIONS_H
 
 #include "packet-HI2Operations-val.h"
+#include "packet-HI2Operations-exp.h"
 
 #endif  /* PACKET_HI2OPERATIONS_H */

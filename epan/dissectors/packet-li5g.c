@@ -363,6 +363,7 @@ proto_register_li5g(void)
 void
 proto_reg_handoff_li5g(void)
 {
+    dissector_add_uint("li5g.payload", 1, find_dissector_add_dependency("li-ps-pdu", proto_li5g));
     dissector_add_uint("li5g.payload", 2, find_dissector_add_dependency("xiri", proto_li5g));
     dissector_add_uint("li5g.payload", 5, find_dissector("ip"));
     dissector_add_uint("li5g.payload", 6, find_dissector("ipv6"));
@@ -374,6 +375,7 @@ proto_reg_handoff_li5g(void)
     dissector_add_uint("li5g.payload", 12, find_dissector("gtp"));
     dissector_add_uint("li5g.payload", 13, find_dissector("msrp"));
     dissector_add_uint("li5g.payload", 14, find_dissector("HI2Operations"));
+    dissector_add_uint("li5g.payload", 17, find_dissector_add_dependency("li-ps-pdu.payload", proto_li5g));
 
     dissector_add_uint_range_with_preference("tcp.port", "", li5g_handle);
     dissector_add_uint_range_with_preference("udp.port", "", li5g_handle);

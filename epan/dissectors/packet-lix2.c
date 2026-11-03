@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lix2.c                                                              */
-/* asn2wrs.py -b -q -L -p lix2 -c ./lix2.cnf -s ./packet-lix2-template -D . -O ../.. lix2.asn IPAccessPDU.asn */
+/* asn2wrs.py -b -q -L -p lix2 -c ./lix2.cnf -s ./packet-lix2-template -D . -O ../.. lix2.asn */
 
 /* packet-lix2-template.c
  * Routines for Lawful Interception X2 xIRI event dissection
@@ -27,6 +27,8 @@
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
 #include "packet-gtpv2.h"
+#include "packet-li-ps-pdu.h"
+#include "packet-lix2.h"
 
 void proto_reg_handoff_lix2(void);
 void proto_register_lix2(void);
@@ -1908,29 +1910,6 @@ static int hf_lix2_aSNReference;                  /* ExternalASNReference */
 static int hf_lix2_encodedASNValue;               /* ExternalASNValue */
 static int hf_lix2_bER;                           /* OCTET_STRING */
 static int hf_lix2_alignedPER;                    /* OCTET_STRING */
-static int hf_lix2_iPIRIPacketReportObjId;        /* RELATIVE_OID */
-static int hf_lix2_report;                        /* PacketReport */
-static int hf_lix2_header;                        /* PacketReportHeader */
-static int hf_lix2_summary;                       /* PacketReportSummary */
-static int hf_lix2_header_01;                     /* OCTET_STRING */
-static int hf_lix2_indications;                   /* PacketReportIndications */
-static int hf_lix2_trigger;                       /* PacketReportTrigger */
-static int hf_lix2_firstTimestamp;                /* GeneralizedTime */
-static int hf_lix2_lastTimestamp;                 /* GeneralizedTime */
-/* named bits */
-static int hf_lix2_PacketReportIndications_zeroedIPv4TotalLength;
-static int hf_lix2_PacketReportIndications_zeroedIPv4Flags;
-static int hf_lix2_PacketReportIndications_zeroedIPv4TimeToLive;
-static int hf_lix2_PacketReportIndications_zeroedIPv4HeaderChecksum;
-static int hf_lix2_PacketReportIndications_zeroedIPv6PayloadLength;
-static int hf_lix2_PacketReportIndications_removedIPv6ExtensionHeaders;
-static int hf_lix2_PacketReportIndications_zeroedTCPSequenceNumber;
-static int hf_lix2_PacketReportIndications_zeroedTCPAcknowledgementNumber;
-static int hf_lix2_PacketReportIndications_zeroedTCPFlags;
-static int hf_lix2_PacketReportIndications_zeroedTCPWindowSize;
-static int hf_lix2_PacketReportIndications_zeroedTCPChecksum;
-static int hf_lix2_PacketReportIndications_zeroedUDPLength;
-static int hf_lix2_PacketReportIndications_zeroedUDPChecksum;
 
 static int ett_lix2_eps_indicationflags;
 static int ett_lix2_XIRIPayload;
@@ -2613,11 +2592,6 @@ static int ett_lix2_MIMEPartIdentifier;
 static int ett_lix2_MIMEBody;
 static int ett_lix2_ExternalASNType;
 static int ett_lix2_ExternalASNValue;
-static int ett_lix2_IPIRIPacketReport;
-static int ett_lix2_PacketReport;
-static int ett_lix2_PacketReportHeader;
-static int ett_lix2_PacketReportSummary;
-static int ett_lix2_PacketReportIndications;
 
 
 
@@ -4363,7 +4337,7 @@ static const ber_sequence_t UserLocation_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static unsigned
+unsigned
 dissect_lix2_UserLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    UserLocation_sequence, hf_index, ett_lix2_UserLocation);
@@ -19748,128 +19722,6 @@ dissect_lix2_UDMProSeTargetAuthentication(bool implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
-static const ber_sequence_t PacketReportHeader_sequence[] = {
-  { &hf_lix2_header_01      , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static unsigned
-dissect_lix2_PacketReportHeader(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PacketReportHeader_sequence, hf_index, ett_lix2_PacketReportHeader);
-
-  return offset;
-}
-
-
-static int * const PacketReportIndications_bits[] = {
-  &hf_lix2_PacketReportIndications_zeroedIPv4TotalLength,
-  &hf_lix2_PacketReportIndications_zeroedIPv4Flags,
-  &hf_lix2_PacketReportIndications_zeroedIPv4TimeToLive,
-  &hf_lix2_PacketReportIndications_zeroedIPv4HeaderChecksum,
-  &hf_lix2_PacketReportIndications_zeroedIPv6PayloadLength,
-  &hf_lix2_PacketReportIndications_removedIPv6ExtensionHeaders,
-  &hf_lix2_PacketReportIndications_zeroedTCPSequenceNumber,
-  &hf_lix2_PacketReportIndications_zeroedTCPAcknowledgementNumber,
-  &hf_lix2_PacketReportIndications_zeroedTCPFlags,
-  &hf_lix2_PacketReportIndications_zeroedTCPWindowSize,
-  &hf_lix2_PacketReportIndications_zeroedTCPChecksum,
-  &hf_lix2_PacketReportIndications_zeroedUDPLength,
-  &hf_lix2_PacketReportIndications_zeroedUDPChecksum,
-  NULL
-};
-
-static unsigned
-dissect_lix2_PacketReportIndications(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    PacketReportIndications_bits, 13, hf_index, ett_lix2_PacketReportIndications,
-                                    NULL);
-
-  return offset;
-}
-
-
-static const value_string lix2_PacketReportTrigger_vals[] = {
-  {   1, "flowStart" },
-  {   2, "flowEnd" },
-  {   3, "flowTimeout" },
-  {   4, "flowTimerExpiration" },
-  {   5, "flowPacketCount" },
-  {   6, "flowByteCount" },
-  {   7, "sessionTimerExpiration" },
-  {   8, "sessionPacketCount" },
-  {   9, "sessionByteCount" },
-  {  10, "reportEnd" },
-  { 0, NULL }
-};
-
-
-static unsigned
-dissect_lix2_PacketReportTrigger(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t PacketReportSummary_sequence[] = {
-  { &hf_lix2_header_01      , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_OCTET_STRING },
-  { &hf_lix2_indications    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_PacketReportIndications },
-  { &hf_lix2_trigger        , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_lix2_PacketReportTrigger },
-  { &hf_lix2_packetCount    , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_INTEGER },
-  { &hf_lix2_byteCount      , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_INTEGER },
-  { &hf_lix2_firstTimestamp , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GeneralizedTime },
-  { &hf_lix2_lastTimestamp  , BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_lix2_GeneralizedTime },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static unsigned
-dissect_lix2_PacketReportSummary(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PacketReportSummary_sequence, hf_index, ett_lix2_PacketReportSummary);
-
-  return offset;
-}
-
-
-static const value_string lix2_PacketReport_vals[] = {
-  {   1, "header" },
-  {   2, "summary" },
-  { 0, NULL }
-};
-
-static const ber_choice_t PacketReport_choice[] = {
-  {   1, &hf_lix2_header         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_lix2_PacketReportHeader },
-  {   2, &hf_lix2_summary        , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_lix2_PacketReportSummary },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static unsigned
-dissect_lix2_PacketReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 PacketReport_choice, hf_index, ett_lix2_PacketReport,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t IPIRIPacketReport_sequence[] = {
-  { &hf_lix2_iPIRIPacketReportObjId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_lix2_RELATIVE_OID },
-  { &hf_lix2_report         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_PacketReport },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static unsigned
-dissect_lix2_IPIRIPacketReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   IPIRIPacketReport_sequence, hf_index, ett_lix2_IPIRIPacketReport);
-
-  return offset;
-}
-
-
 static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_IMPU_sequence_of[1] = {
   { &hf_lix2_calledIdentity_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_lix2_IMPU },
 };
@@ -21327,7 +21179,7 @@ static const ber_choice_t XIRIEvent_choice[] = {
   { 158, &hf_lix2_startOfInterceptWithEstablisedRCSSession, BER_CLASS_CON, 158, BER_FLAGS_IMPLTAG, dissect_lix2_StartOfInterceptWithEstablisedRCSSession },
   { 159, &hf_lix2_uDMProSeTargetIdentifierDeconcealment, BER_CLASS_CON, 159, BER_FLAGS_IMPLTAG, dissect_lix2_UDMProSeTargetIdentifierDeconcealment },
   { 160, &hf_lix2_uDMProSeTargetAuthentication, BER_CLASS_CON, 160, BER_FLAGS_IMPLTAG, dissect_lix2_UDMProSeTargetAuthentication },
-  { 161, &hf_lix2_iPIRIPacketReport, BER_CLASS_CON, 161, BER_FLAGS_IMPLTAG, dissect_lix2_IPIRIPacketReport },
+  { 161, &hf_lix2_iPIRIPacketReport, BER_CLASS_CON, 161, BER_FLAGS_IMPLTAG, dissect_li_ps_pdu_IPIRIPacketReport },
   { 162, &hf_lix2_iMSDataChannelSetup, BER_CLASS_CON, 162, BER_FLAGS_IMPLTAG, dissect_lix2_IMSDataChannelSetup },
   { 163, &hf_lix2_iMSDataChannelModification, BER_CLASS_CON, 163, BER_FLAGS_IMPLTAG, dissect_lix2_IMSDataChannelModification },
   { 164, &hf_lix2_iMSDataChannelTermination, BER_CLASS_CON, 164, BER_FLAGS_IMPLTAG, dissect_lix2_IMSDataChannelTermination },
@@ -21916,7 +21768,7 @@ static const ber_sequence_t IRIPayload_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static unsigned
+unsigned
 dissect_lix2_IRIPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IRIPayload_sequence, hf_index, ett_lix2_IRIPayload);
@@ -22093,7 +21945,7 @@ static const ber_sequence_t CCPayload_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static unsigned
+unsigned
 dissect_lix2_CCPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CCPayload_sequence, hf_index, ett_lix2_CCPayload);
@@ -22195,7 +22047,7 @@ static const ber_sequence_t LINotificationPayload_sequence[] = {
   { NULL, 0, 0, 0, NULL }
 };
 
-static unsigned
+unsigned
 dissect_lix2_LINotificationPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LINotificationPayload_sequence, hf_index, ett_lix2_LINotificationPayload);
@@ -29739,94 +29591,6 @@ void proto_register_lix2(void) {
       { "alignedPER", "lix2.alignedPER",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
-    { &hf_lix2_iPIRIPacketReportObjId,
-      { "iPIRIPacketReportObjId", "lix2.iPIRIPacketReportObjId",
-        FT_REL_OID, BASE_NONE, NULL, 0,
-        "RELATIVE_OID", HFILL }},
-    { &hf_lix2_report,
-      { "report", "lix2.report",
-        FT_UINT32, BASE_DEC, VALS(lix2_PacketReport_vals), 0,
-        "PacketReport", HFILL }},
-    { &hf_lix2_header,
-      { "header", "lix2.header_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "PacketReportHeader", HFILL }},
-    { &hf_lix2_summary,
-      { "summary", "lix2.summary_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "PacketReportSummary", HFILL }},
-    { &hf_lix2_header_01,
-      { "header", "lix2.header",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
-    { &hf_lix2_indications,
-      { "indications", "lix2.indications",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "PacketReportIndications", HFILL }},
-    { &hf_lix2_trigger,
-      { "trigger", "lix2.trigger",
-        FT_UINT32, BASE_DEC, VALS(lix2_PacketReportTrigger_vals), 0,
-        "PacketReportTrigger", HFILL }},
-    { &hf_lix2_firstTimestamp,
-      { "firstTimestamp", "lix2.firstTimestamp",
-        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
-        "GeneralizedTime", HFILL }},
-    { &hf_lix2_lastTimestamp,
-      { "lastTimestamp", "lix2.lastTimestamp",
-        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
-        "GeneralizedTime", HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedIPv4TotalLength,
-      { "zeroedIPv4TotalLength", "lix2.PacketReportIndications.zeroedIPv4TotalLength",
-        FT_BOOLEAN, 8, NULL, 0x80,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedIPv4Flags,
-      { "zeroedIPv4Flags", "lix2.PacketReportIndications.zeroedIPv4Flags",
-        FT_BOOLEAN, 8, NULL, 0x40,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedIPv4TimeToLive,
-      { "zeroedIPv4TimeToLive", "lix2.PacketReportIndications.zeroedIPv4TimeToLive",
-        FT_BOOLEAN, 8, NULL, 0x20,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedIPv4HeaderChecksum,
-      { "zeroedIPv4HeaderChecksum", "lix2.PacketReportIndications.zeroedIPv4HeaderChecksum",
-        FT_BOOLEAN, 8, NULL, 0x10,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedIPv6PayloadLength,
-      { "zeroedIPv6PayloadLength", "lix2.PacketReportIndications.zeroedIPv6PayloadLength",
-        FT_BOOLEAN, 8, NULL, 0x08,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_removedIPv6ExtensionHeaders,
-      { "removedIPv6ExtensionHeaders", "lix2.PacketReportIndications.removedIPv6ExtensionHeaders",
-        FT_BOOLEAN, 8, NULL, 0x04,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedTCPSequenceNumber,
-      { "zeroedTCPSequenceNumber", "lix2.PacketReportIndications.zeroedTCPSequenceNumber",
-        FT_BOOLEAN, 8, NULL, 0x02,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedTCPAcknowledgementNumber,
-      { "zeroedTCPAcknowledgementNumber", "lix2.PacketReportIndications.zeroedTCPAcknowledgementNumber",
-        FT_BOOLEAN, 8, NULL, 0x01,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedTCPFlags,
-      { "zeroedTCPFlags", "lix2.PacketReportIndications.zeroedTCPFlags",
-        FT_BOOLEAN, 8, NULL, 0x80,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedTCPWindowSize,
-      { "zeroedTCPWindowSize", "lix2.PacketReportIndications.zeroedTCPWindowSize",
-        FT_BOOLEAN, 8, NULL, 0x40,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedTCPChecksum,
-      { "zeroedTCPChecksum", "lix2.PacketReportIndications.zeroedTCPChecksum",
-        FT_BOOLEAN, 8, NULL, 0x20,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedUDPLength,
-      { "zeroedUDPLength", "lix2.PacketReportIndications.zeroedUDPLength",
-        FT_BOOLEAN, 8, NULL, 0x10,
-        NULL, HFILL }},
-    { &hf_lix2_PacketReportIndications_zeroedUDPChecksum,
-      { "zeroedUDPChecksum", "lix2.PacketReportIndications.zeroedUDPChecksum",
-        FT_BOOLEAN, 8, NULL, 0x08,
-        NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -30512,11 +30276,6 @@ void proto_register_lix2(void) {
     &ett_lix2_MIMEBody,
     &ett_lix2_ExternalASNType,
     &ett_lix2_ExternalASNValue,
-    &ett_lix2_IPIRIPacketReport,
-    &ett_lix2_PacketReport,
-    &ett_lix2_PacketReportHeader,
-    &ett_lix2_PacketReportSummary,
-    &ett_lix2_PacketReportIndications,
   };
 
   /* Register protocol */
@@ -30532,9 +30291,6 @@ void proto_register_lix2(void) {
   (void)&dissect_lix2_MMSElementDescriptor;
   (void)&dissect_lix2_MMSCancelStatus;
   (void)&lix2_MMSCancelStatus_vals;
-  (void)&dissect_lix2_LINotificationPayload;
-  (void)&dissect_lix2_CCPayload;
-  (void)&dissect_lix2_IRIPayload;
   (void)&hf_lix2_bCCRecipients_item;
   (void)&hf_lix2_cCRecipients_item;
   (void)&hf_lix2_expectedTimeAndDayOfWeekInTrajectory_item;

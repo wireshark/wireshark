@@ -364,6 +364,7 @@ Controller Interface Transport Protocol (CITP)
 DCERPC SCARD_PACK
 DECT NR+
 ESUN
+ETSI TS 102 232-1 LI-PS-PDU (LI-PS-PDU)
 Generic UDP Encapsulation (GUE)
 HyperDHT / DHT-RPC
 JSON Dictionary

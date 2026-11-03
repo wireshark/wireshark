@@ -9991,7 +9991,9 @@ class TestDissectLi5g:
     def test_li5g_payload_formats(self, cmd_tshark, capture_file, test_env):
         '''Each payload format of the li5g.payload table goes to its
         dissector, the others to data; the addresses of the Exported PDU
-        are restored after an IP payload (frames 2 and 28).'''
+        are restored after an IP payload (frames 2 and 28). Format 17
+        (frame 26) is not BER, so the LI-PS-PDU Payload dissector rejects
+        it; li_ps_pdu_coverage.pcap.gz has valid ones.'''
         stdout = self.run_fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number in {1, 2, 7, 11..28}', '-Tfields',
                 '-eli5g.pf', '-eframe.protocols', '-e_ws.col.def_src')
@@ -10000,7 +10002,7 @@ class TestDissectLi5g:
             ['5', 'exported_pdu:li5g:ip:udp:syslog', '198.51.100.1'],
             ['6', 'exported_pdu:li5g:ipv6:udp:syslog', ''],
             ['0', 'exported_pdu:li5g', ''],
-            ['1', 'exported_pdu:li5g:data', ''],
+            ['1', 'exported_pdu:li5g:li-ps-pdu', ''],
             ['3', 'exported_pdu:li5g:data', ''],
             ['4', 'exported_pdu:li5g:data', ''],
             ['6', 'exported_pdu:li5g:ipv6:udp:syslog', ''],
@@ -10045,6 +10047,112 @@ class TestDissectLi5g:
         assert [line.split('\t') for line in stdout.splitlines()] == [
             ['29', '1', '0', '1'],
             ['33', '2', '0', '2'],
+        ]
+
+
+# li_ps_pdu_coverage.pcap.gz is synthetic: every packet was generated. Each
+# is an Exported PDU with an LI5G (ETSI TS 103 221-2 V1.10.1) PDU whose
+# payload is an ETSI TS 102 232-1 PS-PDU (Payload Format 1, frames 1-3, 6
+# and 7) or a PS-PDU Payload (Payload Format 17, frames 4, 5, 8 and 9).
+class TestDissectLiPsPdu:
+    def run_fields(self, cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('li_ps_pdu_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_li_ps_pdu_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes as LI-PS-PDU, with the IP packet of an IPCC,
+        without malformed packets or warnings, in one and two passes.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eli5g.pf', '-eframe.protocols')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['1', 'exported_pdu:li5g:li-ps-pdu'],
+            ['1', 'exported_pdu:li5g:li-ps-pdu:ip:udp:syslog'],
+            ['1', 'exported_pdu:li5g:li-ps-pdu'],
+            ['17', 'exported_pdu:li5g:li-ps-pdu'],
+            ['17', 'exported_pdu:li5g:li-ps-pdu'],
+            ['1', 'exported_pdu:li5g:li-ps-pdu'],
+            ['1', 'exported_pdu:li5g:li-ps-pdu'],
+            ['17', 'exported_pdu:li5g:li-ps-pdu'],
+            ['17', 'exported_pdu:li5g:li-ps-pdu'],
+        ]
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_li_ps_pdu_header(self, cmd_tshark, capture_file, test_env):
+        '''The PSHeader.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'li-ps-pdu.pSHeader_element', '-Tfields', '-E', 'occurrence=f',
+                '-eframe.number', '-eli-ps-pdu.li_psDomainId',
+                '-eli-ps-pdu.lawfulInterceptionIdentifier', '-eli-ps-pdu.authorizationCountryCode',
+                '-eli-ps-pdu.operatorIdentifier', '-eli-ps-pdu.communicationIdentityNumber',
+                '-eli-ps-pdu.sequenceNumber', '-eli-ps-pdu.interceptionPointID',
+                '-eli-ps-pdu.seconds', '-eli-ps-pdu.microSeconds', '-eli-ps-pdu.timeStampQualifier',
+                '-eli-ps-pdu.networkFunctionIdentifier')
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert [line[0] for line in lines] == ['1', '2', '3', '6', '7']
+        assert [line[6] for line in lines] == ['1', '2', '3', '4', '5']
+        assert lines[0][1:6] + lines[0][7:] == [
+            '0.4.0.2.2.5.1.43', 'LIID-0001', 'FR', '6f70657261746f72', '42',
+            'ip1', '1700000000', '500000', '1', '736d662e6578616d706c65']
+
+    def test_li_ps_pdu_iri(self, cmd_tshark, capture_file, test_env):
+        '''IRI payloads: a TS 33.128 IRIPayload (frame 1); an IPIRI of
+        TS 102 232-3 with an IPAddress and a Location of LI-PS-PDU, an EPS
+        IRI of HI2Operations and an email IRI, whose module is not available,
+        shown as bytes (frame 3).'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 3}', '-Tfields', '-eframe.number',
+                '-eli-ps-pdu.iRIType', '-elix2.deregistrationDirection',
+                '-eli-ps-pdu.accessEventType', '-eli-ps-pdu.iPBinaryAddress',
+                '-eli-ps-pdu.iP_assignment', '-eli-ps-pdu.wlanAPMACAddress',
+                '-eHI2Operations.lawfulInterceptionIdentifier', '-eli-ps-pdu.not_decoded')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['1', '4', '2', '', '', '', '', '', ''],
+            ['3', '1,4', '', '1', '0a000001', '2', '020000000001', 'LIID-0001',
+             '8009656d61696c2d697269'],
+        ]
+        # the CPE provided location of the IPIRI, with ETSI TS 103 280 types
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 3', '-Tfields', '-eli-ps-pdu.latitude',
+                '-eli-ps-pdu.longitude', '-eli-ps-pdu.altitudeAboveMeanSeaLevel',
+                '-eli-ps-pdu.confidence', '-eli-ps-pdu.fixMode')
+        assert stdout.splitlines() == [
+            'N43.616300,N43.616300\tE007.054600,E007.054600\t120\t90\t3']
+
+    def test_li_ps_pdu_cc(self, cmd_tshark, capture_file, test_env):
+        '''CC payloads: the IP packet of an IPCC, a TS 33.128 CCPayload,
+        and an email CC with an indefinite length shown as bytes,
+        without the end-of-contents octets.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 2', '-Tfields', '-eli-ps-pdu.payloadDirection',
+                '-eli-ps-pdu.iPCCObjId', '-eip.src', '-eudp.dstport', '-elix2.uPFCCPDU',
+                '-eli-ps-pdu.not_decoded')
+        assert stdout.splitlines() == [
+            '1,0\t.5.3.20.2\t192.0.2.1\t514\t7570662d63632d706475\t80046d61696c']
+
+    def test_li_ps_pdu_payloads(self, cmd_tshark, capture_file, test_env):
+        '''TRI payloads (keep-alive, integrity check, operator-LEA message),
+        HI4 notifications, an encryption container and an HI1 operation
+        shown as bytes, with a note.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 4', '-Tfields', '-eframe.number',
+                '-eli-ps-pdu.tRIPayload', '-eli-ps-pdu.includedSequenceNumbers_item',
+                '-eli-ps-pdu.hashAlgorithm', '-eli-ps-pdu.messagePriority',
+                '-eli-ps-pdu.targetValue', '-eli-ps-pdu.authorizationReference',
+                '-elix2.notificationType', '-eli-ps-pdu.encryptionType',
+                '-eli-ps-pdu.encryptedPayloadType', '-eli-ps-pdu.not_decoded',
+                '-e_ws.expert.severity')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['4', '3', '', '', '', '', '', '', '', '', '', ''],
+            ['5', '0', '1,2,3', '2', '', '', '', '', '', '', '', ''],
+            ['6', '', '', '', '', '001010123456789', 'warrant-1', '1', '', '', '', ''],
+            ['7', '', '', '', '', '', '', '', '4', '3', '', ''],
+            ['8', '8', '', '', '2', '', '', '', '', '', '', ''],
+            ['9', '', '', '', '', '', '', '', '', '', 'a10b81094c4949442d30303031', '4194304'],
         ]
 
 

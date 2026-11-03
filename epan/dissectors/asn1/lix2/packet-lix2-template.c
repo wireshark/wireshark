@@ -22,6 +22,8 @@
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
 #include "packet-gtpv2.h"
+#include "packet-li-ps-pdu.h"
+#include "packet-lix2.h"
 
 void proto_reg_handoff_lix2(void);
 void proto_register_lix2(void);
@@ -65,9 +67,6 @@ void proto_register_lix2(void) {
   (void)&dissect_lix2_MMSElementDescriptor;
   (void)&dissect_lix2_MMSCancelStatus;
   (void)&lix2_MMSCancelStatus_vals;
-  (void)&dissect_lix2_LINotificationPayload;
-  (void)&dissect_lix2_CCPayload;
-  (void)&dissect_lix2_IRIPayload;
   (void)&hf_lix2_bCCRecipients_item;
   (void)&hf_lix2_cCRecipients_item;
   (void)&hf_lix2_expectedTimeAndDayOfWeekInTrajectory_item;

@@ -5,6 +5,8 @@
 
 #.MODULE_IMPORT
 
+#.IMPORT ../li-ps-pdu/li-ps-pdu-exp.cnf
+
 #.OMIT_ASSIGNMENT
 HeaderOnlyIndication
 KAFParams
@@ -15,32 +17,12 @@ MDTConfigurationNR
 MDTMode
 RCSServerURI
 
-#omit from IPAccessPDU
-IPCC
-IPCCContents
-IPTruncatedPacket
-IPIRI
-IPIRIContents
-AccessEventType
-InternetAccessType
-IPVersion
-EndReason
-IPIRIIDType
-NationalIPIRIParameters
-AuthenticationType
-OtherTargetIdentifiers
-FramedRoute
-IPIRIOnly
-IPInformation
-ProtocolInformation
-IPv4Information
-IPv6Information
-TCPInformation
-UDPInformation
-PDSRInformation
-PDSRSummaryTriggerIPaccess
-
 #.EXPORTS
+# for LI-PS-PDU
+IRIPayload
+CCPayload
+LINotificationPayload
+UserLocation
 
 #.PDU
 XIRIPayload

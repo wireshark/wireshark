@@ -9,6 +9,10 @@
 
 set( PROTOCOL_NAME HI2Operations )
 
+set( EXPORT_FILES
+	${PROTOCOL_NAME}-exp.cnf
+)
+
 set( ASN_FILE_LIST
 	HI2Operations_ver18.asn
 	HI3CCLinkData.asn

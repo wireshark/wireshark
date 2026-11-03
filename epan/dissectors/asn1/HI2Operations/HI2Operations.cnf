@@ -2,12 +2,14 @@
 # HI2Operations conformation file
 
 #.MODULE
-EpsHI2Operations EpsHI2
-UmtsHI2Operations UmtsHI2
 HI3CCLinkData	hi3cclinkdata
 #.MODULE_IMPORT
 
 #.EXPORTS
+# for LI-PS-PDU
+IRI-Parameters
+EpsIRIsContent
+EPSLocation
 
 #.REGISTER
 
