@@ -50698,3 +50698,77 @@ class TestDissectEcp:
             '7\t954,954\t0x01,0x01\t0x01,0x07',
             '8\t954,32962\t0x02\t',
         ]
+
+
+class TestDissectEcpOui:
+    def test_ecp_oui_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ECP (802.1Qbg draft 0) in the IEEE 802a OUI
+        Extended Ethertype, with no malformed packets or expert infos in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecp_oui_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 15
+        assert protocols.count('eth:ethertype:ieee802a:ecp') == 15
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ecp_oui_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+
+    def test_ecp_oui_vdp(self, cmd_tshark, capture_file, test_env):
+        '''Requests and ACKs, the VDP mode, response and filter format of
+        every VDP TLV and the MAC/VID pairs of formats 1 and 2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecp_oui_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 12',
+                '-Tfields', '-eframe.number', '-eecp.mode', '-eecp.seq',
+                '-eecp.vdp.mode', '-eecp.vdp.response', '-eecp.vdp.format',
+                '-eecp.vdp.mac', '-eecp.vdp.vlan',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00\t0x0001\t0x00\t0x00\t0x02\t52:54:00:00:00:01\t10',
+            '2\t0x01\t0x0001\t0x00\t0x00\t0x02\t52:54:00:00:00:01\t10',
+            '3\t0x00\t0x0002\t0x01\t0x00\t0x01\t52:54:00:00:00:01,52:54:00:00:00:02,52:54:00:00:00:03\t10,20,4095',
+            '4\t0x01\t0x0002\t0x01\t0x02\t0x01\t52:54:00:00:00:01\t10',
+            '5\t0x00\t0x0003\t0x02,0x03\t0x00,0x00\t0x02,0x02\t52:54:00:00:00:02\t20',
+            '6\t0x01\t0x0003\t0x02,0x03\t0x01,0x03\t0x02,0x02\t52:54:00:00:00:02\t20',
+            '7\t0x01\t0x0004\t0x02,0x02\t0x04,0x05\t0x03,0x04\t\t',
+            '8\t0x01\t0x0005\t0x09,0x02\t0x06,0x07\t0x77,0x00\t\t',
+            '9\t0x00\t0x0006\t0x00,0x00,0x00\t0x00,0x00,0x00\t0x03,0x03,0x03\t\t',
+            '10\t0x00\t0x0007\t0x02,0x02\t0x00,0x00\t0x03,0x03\t\t',
+            '11\t0x00\t0x0008\t0x02\t0x00\t0x02\t52:54:00:00:00:01\t1',
+            '12\t0x00\t0x0009\t0x02\t0x00\t0x02\t52:54:00:00:00:01\t2',
+        ]
+
+    def test_ecp_oui_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''TLV subtrees are named by OUI and 802.1Qbg subtype, an unknown
+        TLV ends the PDU, and a PDU of 50 MAC/VID pairs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecp_oui_coverage.pcap.gz'),
+                '-Y', 'frame.number in {9,10,11}',
+                '-V', '-O', 'ecp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        heads = [l for l in lines if ' - ' in l or l in ('Unknown TLV', 'End of VDPDU')]
+        assert heads[0].endswith(' - EVB')
+        assert heads[1].endswith(' - CDCP')
+        assert heads[2].endswith(' - Unknown subtype 0x9')
+        assert heads[3] == 'End of VDPDU'
+        assert heads[4] == 'IEEE 802.1 Working Group - Unknown'
+        assert heads[5] == 'Unknown - Unknown'
+        assert heads[6] == 'End of VDPDU'
+        assert heads[8:] == ['Unknown TLV']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecp_oui_coverage.pcap.gz'),
+                '-Y', 'frame.number == 15',
+                '-Tfields', '-eecp.vdp.vlan', '-eecp.vdp.vsitypeid',
+            ), encoding='utf-8', env=test_env)
+        vlans, typeid = stdout.strip().split('\t')
+        assert vlans.split(',') == [str(100 + k) for k in range(50)]
+        assert typeid == '0xffffff'
