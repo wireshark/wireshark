@@ -8,7 +8,7 @@ CertificateSerialNumber  BER_CLASS_UNI BER_UNI_TAG_INTEGER
 DirectoryString  BER_CLASS_UNI BER_UNI_TAG_PrintableString
 Extension                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Extensions               BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
-GeneralName              BER_CLASS_CON -1/*choice*/
+GeneralName              BER_CLASS_ANY/*choice*/ -1/*choice*/
 Name                     BER_CLASS_ANY -1
 RDNSequence              BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 RelativeDistinguishedName BER_CLASS_UNI BER_UNI_TAG_SET
@@ -25,11 +25,9 @@ Attribute                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  
 AttributeTypeAndValue    TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Certificate		 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 CertificateList		 TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
-CertificateSerialNumber  TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 DirectoryString          TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Extension                TYPE = FT_NONE    DISPLAY = BASE_NONE  STRINGS = NULL  BITMASK = 0
 Extensions               TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
-GeneralName              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 Name                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 RDNSequence              TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
 RelativeDistinguishedName TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
