@@ -43781,3 +43781,137 @@ class TestDissectDlsw:
         assert 'MAC Address Exclusivity: On' in stdout
         assert 'NetBIOS Name Exclusivity: Off' in stdout
         assert 'SAP List Support: 0x55, x2: On, x6: On, xA: On, xE: On' in stdout
+
+
+class TestDissectDlt:
+    def test_dlt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message of the DLT file is DLT and none is malformed or
+        has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlt_coverage.dlt.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 40
+        assert protocols.count('DLT') == 40
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dlt_coverage.dlt.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dlt_payload_length(self, cmd_tshark, capture_file, test_env):
+        '''The payload item of a message behind a storage header covers
+        the whole payload (it was 16 octets short before "DLT: Fix the
+        payload length and parameter error returns"; frames 1-3 are the
+        reproducer).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlt_coverage.dlt.gz'),
+                '-Y', 'frame.number <= 3 || frame.number == 10',
+                '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        sizes = []
+        for line in stdout.splitlines():
+            line = line.strip()
+            if line.startswith('<field name="dlt.payload" '):
+                attrs = dict(a.split('="', 1) for a in line[len('<field '):].split('" ') if '="' in a)
+                sizes.append((attrs['pos'], attrs['size']))
+        assert sizes == [('34', '9'), ('34', '8'), ('34', '47'), ('42', '8')]
+
+    def test_dlt_headers(self, cmd_tshark, capture_file, test_env):
+        '''Header flags, extended header, verbose and non-verbose
+        messages, control requests and responses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlt_coverage.dlt.gz'),
+                '-Tfields', '-eframe.number', '-edlt.header_type.msb_first',
+                '-edlt.ecu_id', '-edlt.session_id', '-edlt.msg_info.msg_type',
+                '-edlt.num_of_args', '-edlt.application_id', '-edlt.message_id',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.replace('\t', '|').splitlines()
+        assert len(lines) == 40
+        assert lines[9] == '10|True|ECU1|1234|1|1|APP1|'
+        assert lines[10] == '11|True|||2|1|APP1|'
+        assert lines[13] == '14|True|ECU1||3|0|DA1|0x00000001'
+        assert lines[21] == '22|False|ECU1||3|0|DA1|0x00000001'
+        assert lines[37:] == [
+            '38|True|ECU1||0|0|NV1|0x00001001',
+            '39|False||||||0x00001002',
+            '40|True|ECU1|2||||0x00001003',
+        ]
+
+    def test_dlt_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the verbose arguments and the control
+        services.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlt_coverage.dlt.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[:6] == [
+            'DLT: hi',
+            'DLT: 7',
+            'DLT: ' + 'A' * 40,
+            'DLT: true false undefined true',
+            'DLT: -1 -300 -70000 -5000000000 42',
+            'DLT: 255 65535 4000000000 10000000000 12',
+        ]
+        # The float format follows the locale's decimal separator.
+        assert lines[6].replace(',', '.') == 'DLT: 1.500000 -2.250000 0.500000'
+        assert lines[7:13] == [
+            'DLT: line1 line2 end grüße named',
+            'DLT: 01 02 03 ff aa bb',
+            'DLT: 3735928559',
+            'DLT: 7f 7f 7f 7f 7f 7f 7f 7f',
+            'DLT:',
+            'DLT: 1',
+        ]
+        assert lines[13] == 'DLT: Set Log Level (ID: 0x01)'
+        assert lines[31:37] == [
+            'DLT: Get Log Info (ID: 0x03)',
+            'DLT: Get Log Info (ID: 0x03)',
+            'DLT: Get Default Log Level (ID: 0x04)',
+            'DLT: Get Software Version (ID: 0x13)',
+            'DLT: Marker (undefined) (ID: 0xf04)',
+            'DLT: Unknown Non-Verbose Message (ID: 0x99)',
+        ]
+
+    def test_dlt_values(self, cmd_tshark, capture_file, test_env):
+        '''Argument values, variable info names and units, and the log
+        info and software version responses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlt_coverage.dlt.gz'),
+                '-Y', 'frame.number in {4,5,6,9,32,33,35}',
+                '-Tfields', '-eframe.number', '-edlt.data.bool',
+                '-edlt.data.int8', '-edlt.data.int64', '-edlt.data.uint16',
+                '-edlt.data.uint64', '-edlt.data.rawd',
+                '-edlt.service.application_id', '-edlt.service.context_id',
+                '-edlt.service.ctx_description',
+                '-edlt.service.app_description', '-edlt.service.sw_version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.replace('\t', '|').splitlines() == [
+            '4|True,False,True,True||||||||||',
+            '5||-1|-5000000000||||||||',
+            '6||||65535,12|10000000000||||||',
+            '9||||||010203ff,aabb|||||',
+            '32|||||||APP1,APP2|CTX1,CTX2|||',
+            '33|||||||APP1|CTX1|first context|application one|',
+            '35|||||||||||DLT 2.18',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlt_coverage.dlt.gz'),
+                '-Y', 'frame.number in {4,5}', '-V', '-O', 'dlt',
+            ), encoding='utf-8', env=test_env)
+        assert '(bool): True [name: flag] [unit: on]' in stdout
+        assert '(int32): 42 [name: speed] [unit: km/h]' in stdout
+
+    def test_dlt_utf8_string(self, cmd_tshark, capture_file, test_env):
+        '''A UTF-8 string argument keeps its non-ASCII characters in
+        dlt.data.string, not only in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlt_coverage.dlt.gz'),
+                '-Y', 'dlt.data.string == "grüße"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['8']
