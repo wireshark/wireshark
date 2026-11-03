@@ -124,7 +124,7 @@ static int hf_tecmp_payload_data_flags_sleep;
 
 /* CAN and CAN-FD DATA */
 static int hf_tecmp_payload_data_flags_ack;
-static int hf_tecmp_payload_data_flags_rtr;  /* CAN DATA only */
+static int hf_tecmp_payload_data_flags_rtr;  /* CAN DATA only (RX and TX) */
 static int hf_tecmp_payload_data_flags_esi;  /* CAN-FD DATA only */
 static int hf_tecmp_payload_data_flags_ide;
 static int hf_tecmp_payload_data_flags_err;
@@ -1439,6 +1439,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         &hf_tecmp_payload_data_flags_can_ack_del_err,
         &hf_tecmp_payload_data_flags_can_crc_del_err,
         &hf_tecmp_payload_data_flags_can_bit_stuff_err,
+        &hf_tecmp_payload_data_flags_rtr,
         NULL
     };
 
