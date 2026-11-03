@@ -43308,3 +43308,74 @@ class TestDissectDisp:
         assert values('disp.knowledgeType') == '136=2 138=0 140=0 142=0 144=2 146=2'
         assert values('disp.supplyContexts') == '136=1 138=0 140=0 142=0 144=1 146=1'
         assert values('disp.modifiedSecondaryShadows') == '144=2 146=2'
+
+
+class TestDissectDistcc:
+    def test_distcc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The two sessions without split PDUs are distcc in every data
+        segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('distcc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.splitlines()) == 37
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('distcc_coverage.pcap.gz'),
+                '-Y', 'tcp.port in {40001, 40003}',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('DISTCC') == 14
+        assert protocols.count('TCP') == 12
+
+    def test_distcc_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an error expert info, in one and
+        two passes: the token loop stops at the end of the data.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('distcc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_distcc_tokens(self, cmd_tshark, capture_file, test_env):
+        '''Every token of the sessions without split PDUs: several tokens
+        in a segment (session 1) and one token per segment (session 3).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('distcc_coverage.pcap.gz'),
+                '-Y', 'distcc && tcp.port in {40001, 40003}',
+                '-Tfields', '-eframe.number', '-edistcc.version',
+                '-edistcc.argc', '-edistcc.argv', '-edistcc.status',
+                '-edistcc.serr', '-edistcc.sout',
+                '-edistcc.doti_source', '-edistcc.doto_object',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '4\t1\t6\tgcc,-O2,-c,foo.c,-o,foo.o\t\t\t\t\t'
+        assert lines[1].startswith('5\t\t\t\t\t\t\t# 1 "foo.c"\\nint f0(int x)')
+        assert lines[2].startswith("6\t1\t\t\t0\tfoo.c:2: warning: unused variable 'y'\\n"
+                                   "\tcompiled\\n\t\t7f454c46020101")
+        assert lines[3:] == [
+            '24\t1\t\t\t\t\t\t\t',
+            '25\t\t4\t\t\t\t\t\t',
+            '26\t\t\tgcc\t\t\t\t\t',
+            '27\t\t\t-c\t\t\t\t\t',
+            '28\t\t\tbaz.c\t\t\t\t\t',
+            '29\t\t\t-Wall\t\t\t\t\t',
+            '30\t\t\t\t\t\t\tint main(void) { return y; }\\n\t',
+            '31\t1\t\t\t\t\t\t\t',
+            '32\t\t\t\t256\t\t\t\t',
+            "33\t\t\t\t\tbaz.c:1: error: 'y' undeclared\\n\t\t\t",
+            '34\t\t\t\t\t\tfailed\\n\t\t',
+        ]
+
+    def test_distcc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The source file split over three segments and the object file
+        split over two are reassembled.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('distcc_coverage.pcap.gz'),
+                    '-Y', 'len(distcc.doti_source) == 1352 || len(distcc.doto_object) == 1600',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['15', '17']
