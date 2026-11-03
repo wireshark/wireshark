@@ -43159,3 +43159,152 @@ class TestDissectDiscard:
                 '-e_ws.col.info',
             ), encoding='utf-8', env=test_env)
         assert stdout == '9\t200\tDiscard[Packet size limited during capture]\n'
+
+
+class TestDissectDisp:
+    def test_disp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; no malformed packets and no
+        expert infos of warning or error severity in one and two passes,
+        except the ROS warning for the IDMP bind (153).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('disp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 155
+        assert protocols.count('DISP') == 72
+        assert protocols.count('DOP') == 14
+        assert protocols.count('ACSE') == 20
+        assert protocols.count('COTP') == 12
+        assert protocols.count('IDMP') == 1
+        assert protocols.count('TCP') == 36
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('disp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert [l.split('\t')[0] for l in lines] == ['153']
+
+    def test_disp_times(self, cmd_tshark, capture_file, test_env):
+        '''Every Time field (lastUpdate, updateTime, beginTime and the
+        update window start and stop) is decoded in one and two passes
+        (Time had the field type FT_STRING, which made every valid
+        GeneralizedTime a dissector bug). test_env sets TZ=UTC.'''
+        t = '2026-11-01T12:00:00.000000000+0000'
+        start = '2026-11-01T00:00:00.000000000+0000'
+        stop = '2026-11-02T00:00:00.000000000+0000'
+        last = [t, '', '', '', '']
+        upd = ['', t, '', '', '']
+        window = ['', '', '', start, stop]
+        expected = {
+            '10': last, '13': last, '17': last, '18': last, '19': last,
+            '20': last, '23': last, '30': last,
+            '32': ['', t, '', start, stop], '34': upd, '35': last,
+            '36': upd, '38': upd, '40': upd, '41': last,
+            '42': ['', t, '', start, stop],
+            '49': [t, '', '', start, stop], '69': [t, '', '', start, stop],
+            '138': ['', '', t, '', ''],
+        }
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('disp_coverage.pcap.gz'),
+                    '-Y', 'disp.lastUpdate || disp.updateTime || disp.beginTime || disp.start || disp.stop',
+                    '-Tfields', '-eframe.number', '-edisp.lastUpdate', '-edisp.updateTime',
+                    '-edisp.beginTime', '-edisp.start', '-edisp.stop',
+                ), encoding='utf-8', env=test_env)
+            lines = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+            assert lines == expected
+
+    def test_disp_standard_unknown(self, cmd_tshark, capture_file, test_env):
+        '''An unknown standard update strategy is shown as "standard(N)"
+        (the closing parenthesis was missing).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('disp_coverage.pcap.gz'),
+                '-Y', 'disp.standard',
+                '-Tfields', '-eframe.number', '-edisp.standard', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert lines['14'] == ['9', 'Request-Shadow-Update-Argument id=1,1 standard(9)']
+        assert lines['154'] == ['1', 'Request-Shadow-Update-Argument id=1,1 incremental']
+        assert lines['155'] == ['7', 'Request-Shadow-Update-Argument id=1,1 standard(7)']
+
+    def test_disp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every operation, result and error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('disp_coverage.pcap.gz'),
+                '-Y', 'disp && frame.number in {10..69}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rsu = 'Request-Shadow-Update-Argument id=1,1 '
+        csu = 'Coordinate-Shadow-Update-Argument id=1,1 '
+        usa = 'Update-Shadow-Argument id=1,1 '
+        problems = ['invalidAgreementID', 'inactiveAgreement', 'invalidInformationReceived',
+                    'unsupportedStrategy', 'missedPrevious', 'fullUpdateRequired',
+                    'unwillingToPerform', 'unsuitableTiming', 'updateAlreadyReceived',
+                    'invalidSequencing', 'insufficientResources', 'ShadowProblem(99)',
+                    'fullUpdateRequired']
+        errors = []
+        for p in problems:
+            errors += [rsu + 'incremental', 'Shadow-Error ' + p]
+        assert stdout.splitlines() == [
+            rsu + 'incremental', 'Request-Shadow-Result null',
+            rsu + 'total', 'Request-Shadow-Result id=1,2 information',
+            rsu + 'standard(9)', 'Request-Shadow-Result id=1,2 information',
+            rsu.rstrip(' '), 'Request-Shadow-Result id=1,2 information',
+            rsu + 'incremental', 'Request-Shadow-Result id=1,2 information',
+            csu + 'noChanges', 'Coordinate-Shadow-Update-Result null',
+            csu + 'incremental', 'Coordinate-Shadow-Update-Result id=1,2 information',
+            csu + 'total', 'Coordinate-Shadow-Update-Result id=1,2 information',
+            csu + 'unknown(9)', 'Coordinate-Shadow-Update-Result null',
+            csu.rstrip(' '), 'Coordinate-Shadow-Update-Result null',
+            csu + 'incremental', 'Coordinate-Shadow-Update-Result null',
+            usa + 'noRefresh', 'Update-Shadow-Result null',
+            usa + 'total', 'Update-Shadow-Result id=1,2 information',
+            usa + 'total', 'Update-Shadow-Result null',
+            usa + 'incremental', 'Update-Shadow-Result id=1,2 information',
+            usa + 'otherStrategy', 'Update-Shadow-Result id=1,2 information',
+            usa + 'total', 'Update-Shadow-Result null',
+            *errors,
+        ]
+
+    def test_disp_binds(self, cmd_tshark, capture_file, test_env):
+        '''Binds over ROS and in the RTSE RTORQ/RTOAC, and bind errors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('disp_coverage.pcap.gz'),
+                '-Y', 'disp && !(frame.number in {10..69}) && !idmp',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        alice = 'id-at-commonName=Alice Smith,id-at-organizationalUnitName=People,id-at-organizationName=Example Org,id-at-countryName=AU'
+        dsa = 'id-at-commonName=dsa-1,id-at-organizationName=Example Org,id-at-countryName=AU'
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['8', 'Shadow-Bind-Argument ' + alice], ['9', 'Shadow-Bind-Result ' + dsa],
+            ['82', 'Shadow-Bind-Argument ' + alice], ['83', 'Shadow-Bind-Error unavailable'],
+            ['96', 'Shadow-Bind-Argument ' + alice], ['97', 'Shadow-Bind-Error blockedCredentials'],
+            ['108', 'Shadow-Bind-Argument ' + alice], ['109', 'Shadow-Bind-Result ' + dsa],
+            ['120', 'Shadow-Bind-Argument ' + alice], ['121', 'Shadow-Bind-Result ' + dsa],
+        ]
+
+    def test_disp_values(self, cmd_tshark, capture_file, test_env):
+        '''Choices of the operations, the incremental refresh and of the
+        shadowing agreements that DOP hands to DISP.'''
+        def values(field):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('disp_coverage.pcap.gz'),
+                    '-Y', field,
+                    '-Tfields', '-eframe.number', '-e' + field,
+                ), encoding='utf-8', env=test_env)
+            return ' '.join('='.join(l.split('\t')) for l in stdout.splitlines())
+        assert values('disp.standardUpdate') == '20=0 22=1 24=2 26=9 30=1'
+        assert values('disp.problem') == '45=1 47=2 49=3 51=4 53=5 55=6 57=7 59=8 61=9 63=10 65=11 67=99 69=6'
+        assert values('disp.updatedInfo') == '32=0 34=1 36=1 38=2 40=3 42=1'
+        assert values('disp.sDSEChanges') == '38=0,1,2,2,1,0'
+        assert values('disp.rename') == '38=0,1'
+        assert values('disp.attributeChanges') == '38=0,1'
+        assert values('disp.information') == '13=0 15=0 17=1 19=0 23=0 25=1 35=0 39=0 41=1'
+        assert values('disp.updateMode') == '136=0 138=0 140=1 142=1 144=0 146=0'
+        assert values('disp.supplierInitiated') == '136=0 138=1 144=0 146=0'
+        assert values('disp.knowledgeType') == '136=2 138=0 140=0 142=0 144=2 146=2'
+        assert values('disp.supplyContexts') == '136=1 138=0 140=0 142=0 144=1 146=1'
+        assert values('disp.modifiedSecondaryShadows') == '144=2 146=2'
