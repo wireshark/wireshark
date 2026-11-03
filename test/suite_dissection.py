@@ -48208,3 +48208,93 @@ class TestDissectDvbDataMpe:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 8
+
+
+class TestDissectDvbEit:
+    def test_dvb_eit_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every EIT section in the MPEG-TS packets is dissected, and no
+        frame is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_eit_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'mp2t:mpeg_sect:dvb_eit'] * 6 + [
+            'mp2t', 'mp2t:mpeg_sect:dvb_eit',
+            'mp2t:mpeg_sect:dvb_eit:mpeg_sect:dvb_eit']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvb_eit_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_eit_tables(self, cmd_tshark, capture_file, test_env):
+        '''Table IDs, service IDs and the events of every section,
+        including the section reassembled from two TS packets (frame 8)
+        and two sections in one TS packet (frame 9).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_eit_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-empeg_sect.tid',
+                '-edvb_eit.sid', '-edvb_eit.version',
+                '-edvb_eit.cur_next_ind', '-edvb_eit.last_tid',
+                '-edvb_eit.evt.id', '-edvb_eit.evt.duration',
+                '-edvb_eit.evt.running_status', '-edvb_eit.evt.free_ca_mode',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x4e\t0x0101\t0x01\tTrue\t0x4e\t0x1001,0x1002\t0x013000,0x004530\t0x0004,0x0001\t0x0000,0x0001',
+            '2\t0x4e\t0x0101\t0x02\tFalse\t0x4e\t0x1003\t0x000001\t0x0002\t0x0000',
+            '3\t0x4f\t0x0202\t0x00\tTrue\t0x4f\t0x2001,0x2002\t0x020000,0x020000\t0x0003,0x0005\t0x0000,0x0001',
+            '4\t0x4e\t0x0001\t0x00\tTrue\t0x4e\t0x1234\t0x013000\t0x0004\t0x0000',
+            '5\t0x50\t0x0303\t0x03\tTrue\t0x57\t0x3001\t0x001000\t0x0006\t0x0000',
+            '6\t0x6f\t0x0404\t0x1f\tTrue\t0x6f\t\t\t\t',
+            '7\t\t\t\t\t\t\t\t\t',
+            '8\t0x60\t0x0505\t0x04\tTrue\t0x60\t' +
+            ','.join('0x%04x' % (0x4000 + i) for i in range(8)) + '\t' +
+            ','.join(['0x010000'] * 8) + '\t' + ','.join(['0x0001'] * 8) +
+            '\t' + ','.join(['0x0000'] * 8),
+            '9\t0x58,0x5f\t0x0606,0x0606\t0x05,0x05\tTrue,True\t0x58,0x5f\t0x5001\t0x003000\t0x0004\t0x0000',
+        ]
+
+    def test_dvb_eit_start_times(self, cmd_tshark, capture_file, test_env):
+        '''Start times: MJD with BCD time, an unparseable time (hour 25)
+        and the undefined time.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_eit_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,3,5}', '-V', '-O', 'dvb_eit',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'UTC Start Time: Feb 25, 2023 12:30:00.000000000 UTC' in lines
+        assert 'UTC Start Time: May 31, 2020 02:00:00.000000000 UTC' in lines
+        assert 'Unparseable time' in lines
+        assert 'Duration: 0x004530 (00:45:30)' in lines
+
+    def test_dvb_eit_undefined_start_time(self, cmd_tshark, capture_file, test_env):
+        '''An undefined start time (0xFFFFFFFFFF) is in the event's tree,
+        not in the EIT tree (fixed in "DVB-EIT: Fix the undefined start
+        time item").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_eit_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4', '-V', '-O', 'dvb_eit',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('    Event 0x1234')
+        assert lines[start + 1:start + 4] == [
+            '        Event ID: 0x1234',
+            '        UTC Start Time: Undefined (0xFFFFFFFFFF)',
+            '        Duration: 0x013000 (01:30:00)',
+        ]
+
+    def test_dvb_eit_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Descriptors of the event loops are handed to the MPEG
+        descriptor dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_eit_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-empeg_descr.tag',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t0x4d,0x54,0x55,0x50,0x5f'
+        assert lines[4] == '5\t0x4d'
+        assert lines[7] == '8\t' + ','.join(['0x4d'] * 8)
+        assert lines[8] == '9\t0x4e'
