@@ -8,6 +8,7 @@ SMUX-PDUs
 #.NO_EMIT
 NotificationName
 VarBind
+VarBind/valueType
 
 #.TYPE_RENAME
 Message/community               Community

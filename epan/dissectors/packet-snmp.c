@@ -294,7 +294,7 @@ static int hf_snmp_generic_trap;                  /* GenericTrap */
 static int hf_snmp_specific_trap;                 /* SpecificTrap */
 static int hf_snmp_time_stamp;                    /* TimeTicks */
 static int hf_snmp_name;                          /* ObjectName */
-static int hf_snmp_valueType;                     /* ValueType */
+static int hf_snmp_valueType;                     /* T_valueType */
 static int hf_snmp_VarBindList_item;              /* VarBind */
 static int hf_snmp_open;                          /* OpenPDU */
 static int hf_snmp_close;                         /* ClosePDU */
@@ -2225,6 +2225,7 @@ dissect_snmp_INTEGER(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _
 
   return offset;
 }
+
 
 
 
