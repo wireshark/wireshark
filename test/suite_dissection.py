@@ -46016,3 +46016,114 @@ class TestDissectDop:
                 '-edop.supplier_is_master', '-edop.maxImmSub', '-edop.maxCount',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['0,1,0,0', '2,0,2', '10,3,5,2,0,10,3', 'False', '100,100,100', '3,3,3']
+
+
+class TestDissectDpaux:
+    def test_dpaux_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a DPAUX transaction in DPAUXMON and none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpaux_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 29
+        assert protocols.count('N/A') == 3
+        assert protocols.count('Native') == 18
+        assert protocols.count('I2C-over-AUX') == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dpaux_coverage.pcap.gz'),
+                    '-Y', 'dpauxmon && dpaux && !_ws.malformed && !_ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 29
+
+    def test_dpaux_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Requests of every command and replies of every reply code; a
+        reply takes the transaction type and address of the last request,
+        the same in one and two passes.'''
+        expected = [
+            '1\t2\t\t\t\t0\t\t2\tACK with 2 bytes',
+            '2\t2\t\t\t\t0\t\t1\tACK with 1 byte',
+            '3\t2\t\t\t\t1\t\t\tNACK',
+            '4\t0\t0\t\t\t\t0x000100\t1\tWR 1 byte TO 0x00100',
+            '5\t0\t\t\t\t0\t\t\tACK',
+            '6\t0\t1\t\t\t\t0x000000\t5\tRD 5 bytes FROM 0x00000',
+            '7\t0\t\t\t\t0\t0x000000\t5\tACK with 5 bytes FROM 0x00000',
+            '8\t0\t1\t\t\t\t0x000000\t5\tRD 5 bytes FROM 0x00000',
+            '9\t0\t\t\t\t0\t0x000000\t5\tACK with 5 bytes FROM 0x00000',
+            '10\t0\t1\t\t\t\t0x000200\t16\tRD 16 bytes FROM 0x00200',
+            '11\t0\t\t\t\t0\t0x000200\t16\tACK with 16 bytes FROM 0x00200',
+            '12\t0\t1\t\t\t\t0x000003\t4\tRD 4 bytes FROM 0x00003',
+            '13\t0\t\t\t\t0\t0x000003\t4\tACK with 4 bytes FROM 0x00003',
+            '14\t1\t\t0\tTrue\t\t0x000050\t1\tWR 1 byte TO 0x00050',
+            '15\t1\t\t\t\t0\t\t\tACK',
+            '16\t1\t\t1\tFalse\t\t0x000050\t16\tRD 16 bytes FROM 0x00050',
+            '17\t1\t\t\t\t0\t0x000050\t16\tACK with 16 bytes FROM 0x00050',
+            '18\t1\t\t2\tTrue\t\t0x000050\t1\tWR 1 byte TO 0x00050',
+            '19\t1\t\t\t\t2\t\t\tDEFER',
+            '20\t1\t\t3\tFalse\t\t0x000050\t2\tRD 2 bytes FROM 0x00050',
+            '21\t1\t\t\t\t3\t0x000050\t2\tDisplayPort AUX channel with 2 bytes FROM 0x00050',
+            '22\t0\t1\t\t\t\t0x000002\t1\tRD 1 byte FROM 0x00002',
+            '23\t0\t\t\t\t0\t0x000002\t1\tACK with 1 byte FROM 0x00002',
+            '24\t0\t0\t\t\t\t0x000000\t256\tWR 256 bytes TO 0x00000',
+            '25\t0\t1\t\t\t\t0x000000\t5\tRD 5 bytes FROM 0x00000',
+            '26\t0\t\t\t\t0\t0x000000\t5\tACK with 5 bytes FROM 0x00000',
+            '27\t0\t1\t\t\t\t0x000000\t256\tRD 256 bytes FROM 0x00000',
+            '28\t0\t\t\t\t0\t0x000000\t300\tACK with 300 bytes FROM 0x00000',
+            '29\t0\t\t\t\t1\t\t\tNACK',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dpaux_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-edpaux.transaction_type',
+                    '-edpaux.native_req_cmd', '-edpaux.native_i2c_req_cmd',
+                    '-edpaux.mot', '-edpaux.reply_cmd', '-edpaux.addr',
+                    '-edpaux.len', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_dpaux_registers(self, cmd_tshark, capture_file, test_env):
+        '''A native read reply decodes the DPCD capability registers
+        0x00000-0x00004 at the address of its request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpaux_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7,9,13,23}',
+                '-Tfields', '-eframe.number', '-edpaux.00000_MAJOR',
+                '-edpaux.00000_MINOR', '-edpaux.00001_MAX_LINK_RATE',
+                '-edpaux.00002_MAX_LANE_COUNT',
+                '-edpaux.00002_ENHANCED_FRAME_CAP',
+                '-edpaux.00003_MAX_DOWNSPREAD', '-edpaux.00003_TPS4_SUPPORTED',
+                '-edpaux.00004_NORP', '-edpaux.00004_5V_DP_PWR_CAP',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t0x01\t0x02\t0x14\t4\tTrue\t1\tTrue\t1\tTrue',
+            '9\t0x01\t0x01\t0x06\t2\tFalse\t0\tFalse\t0\tFalse',
+            '13\t\t\t\t\t\t1\tFalse\t0\tTrue',
+            '23\t\t\t\t4\tTrue\t\t\t\t',
+        ]
+
+    def test_dpaux_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "DPAUX: Fix length truncation and create the
+        conversation once": a request with LEN 0xff is 256 octets with its
+        write data (it was "0 byte" without data), a reply of 300 octets
+        keeps its length, and the length of a reply with one data octet is
+        a generated item (it was read at offset 3 and threw).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpaux_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2,23,24,28}',
+                '-Tfields', '-eframe.number', '-edpaux.len', '-edpaux.data',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['2', '1', '33']
+        assert lines[1] == ['23', '1', '84']
+        assert lines[2] == ['24', '256', ' '.join('%02x' % i for i in range(256))]
+        assert lines[3][0:2] == ['28', '300']
+        assert len(lines[3][2].split(' ')) == 300
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpaux_coverage.pcap.gz'),
+                '-Y', 'frame.number == 28',
+                '-Tfields', '-edpaux.reg',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.strip().split(',')) == 300
