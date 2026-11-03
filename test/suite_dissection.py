@@ -49289,3 +49289,92 @@ class TestDissectDvmrp:
             '198.51.100.0,203.0.113.0,192.0.2.0',
             '233.252.0.1,233.252.0.2,233.252.0.3', '600,1200', '32\n',
         ]
+
+
+DXL_MQTT_UAT = ('-o', 'uat:mqtt_message_decoding:"Starts with","/mcafee/","none","dxl"')
+
+
+class TestDissectDxl:
+    def test_dxl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-7 (Exported PDU) are DXL at default preferences, and
+        the MQTT PUBLISH messages of frames 13-19 with an MQTT Message
+        Decoding entry. No frame is malformed or has an error expert
+        info, in one and two passes.'''
+        for opts, count in (((), 7), (DXL_MQTT_UAT, 14)):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('dxl_coverage.pcapng.gz'),
+                    '-Y', 'dxl',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == count
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                        '-r', capture_file('dxl_coverage.pcapng.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= "error"',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_dxl_types(self, cmd_tshark, capture_file, test_env):
+        '''Version and type of every message; the request, response and
+        error types have the "unsupported" warning.'''
+        stdout = subprocess.check_output((cmd_tshark, *DXL_MQTT_UAT,
+                '-r', capture_file('dxl_coverage.pcapng.gz'),
+                '-Y', 'dxl',
+                '-Tfields', '-eframe.number', '-edxl.version', '-edxl.type',
+                '-e_ws.expert.message', '-emqtt.topic',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0:7] == [
+            '1\t3\t0x02\t\t', '2\t3\t0x02\t\t', '3\t3\t0x02\t\t',
+            '4\t3\t0x00\tType 0x0 is unsupported\t',
+            '5\t3\t0x01\tType 0x1 is unsupported\t',
+            '6\t3\t0x03\tType 0x3 is unsupported\t',
+            '7\t2\t0x07\t\t',
+        ]
+        assert lines[7:14] == [
+            '13\t3\t0x02\t\t/mcafee/event/sample',
+            '14\t3\t0x02\t\t/mcafee/event/sample',
+            '15\t3\t0x02\t\t/mcafee/event/other',
+            '16\t3\t0x00\tType 0x0 is unsupported\t/mcafee/service/x',
+            '17\t3\t0x01\tType 0x1 is unsupported\t/mcafee/client/client-a',
+            '18\t3\t0x03\tType 0x3 is unsupported\t/mcafee/client/client-a',
+            '19\t2\t0x07\t\t/mcafee/event/sample',
+        ]
+
+    def test_dxl_event(self, cmd_tshark, capture_file, test_env):
+        '''The eight MessagePack objects of an event, with the array
+        elements of the broker and client IDs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dxl_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 3',
+                '-V', '-O', 'dxl',
+            ), encoding='utf-8', env=test_env)
+        labels = [l for l in stdout.splitlines()
+                  if l.startswith('    ') and not l.startswith('     ')]
+        assert labels == [
+            '    Version: 3', '    Type: Event (0x02)',
+            '    Message ID: id-3', '    Client ID: client-b',
+            '    Source Broker ID: broker-2', '    Broker IDs 3 elements',
+            '    Client IDs 2 elements', '    Payload: ', '    Reply to topic: ',
+            '    Service ID: ',
+        ]
+        assert '        Broker IDs: broker-3' in stdout.splitlines()
+        assert '        Client IDs: client-b' in stdout.splitlines()
+
+    def test_dxl_unsupported_on_type(self, cmd_tshark, capture_file, test_env):
+        '''The "unsupported" expert info is on the Type item (it was on
+        the parent tree before "DXL: Return the length of the whole
+        event").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dxl_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 4',
+                '-V', '-O', 'dxl',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('Data Exchange Layer')
+        assert lines[start + 1:start + 4] == [
+            '    Version: 3',
+            '    Type: Request (0x00)',
+            '        [Expert Info (Warning/Undecoded): Type 0x0 is unsupported]',
+        ]
