@@ -47886,3 +47886,108 @@ class TestDissectDtpt:
             'eth:ethertype:ip:tcp:dtpt:data\t7',
             'eth:ethertype:ip:tcp:dtpt:data\t12',
         ]
+
+
+class TestDissectDua:
+    def test_dua_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; no malformed packets and no
+        expert infos of warning or error severity in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dua_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 67
+        assert protocols.count('DUA') == 56
+        assert protocols.count('DPNSS') == 4
+        assert protocols.count('SCTP') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dua_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dua_protocol_data_length(self, cmd_tshark, capture_file, test_env):
+        '''The Protocol Data parameter shows its length although the data
+        goes to DPNSS (the length was only appended when the data
+        dissector was used).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dua_coverage.pcap.gz'),
+                '-Y', 'dua.parameter_tag == 14',
+                '-V', '-O', 'dua',
+            ), encoding='utf-8', env=test_env)
+        assert [l for l in stdout.splitlines() if l.startswith('    Protocol data')] == [
+            '    Protocol data (4 bytes)',
+            '    Protocol data (2 bytes)',
+            '    Protocol data (4 bytes)',
+            '    Protocol data (10 bytes)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dua_coverage.pcap.gz'),
+                '-Y', 'dua.parameter_tag == 14',
+                '-Tfields', '-eframe.number', '-edpnss.msg_grp_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['41', '0', '42', '4', '43', '4', '44', '0']
+
+    def test_dua_messages(self, cmd_tshark, capture_file, test_env):
+        '''The message class and type of every DUA message, with the
+        tags of its parameters.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dua_coverage.pcap.gz'),
+                '-Y', 'dua',
+                '-Tfields', '-e_ws.col.info', '-edua.message_class',
+                '-edua.message_type', '-edua.parameter_tag',
+            ), encoding='utf-8', env=test_env)
+        lines = [' '.join(l.split()) for l in stdout.splitlines()]
+        err = ['ERR 0 0 12,1,7'] * 15
+        assert lines == [
+            'ASP_UP 3 1 17,4', 'ASP_UP_ACK 3 4 4', 'BEAT 3 3 9', 'BEAT_ACK 3 6 9',
+            'ASP_ACTIVE 4 1 11,8,4', 'ASP_ACTIVE_ACK 4 3 11,1',
+            'ASP_ACTIVE 4 1 11,8', 'ASP_ACTIVE_ACK 4 3 11,3',
+            'NTFY 0 1 13,17,4', 'NTFY 0 1 13', 'NTFY 0 1 13,1', 'NTFY 0 1 13',
+            'NTFY 0 1 13', 'NTFY 0 1 13', 'NTFY 0 1 13', *err,
+            'DLC_STAT_REQ 0 5 1,5', 'DLC_STAT_CON 0 6 1,5,18',
+            'DLC_STAT_IND 0 7 3,5,18',
+            'EST_REQ 13 5 1,5', 'EST_CON 13 6 1,5', 'EST_IND 13 7 3,5',
+            'ISRM(C) 13 1 1,14', 'LLRM 13 1 1,5,14', 'LLM(C) 13 2 1,5,14',
+            'ISRM(C) 13 2 3,5,14',
+            *['REL_REQ 13 8 1,5,15'] * 5, 'REL_CON 13 9 1,5', 'REL_IND 13 10 1,5,15',
+            'NTFY 0 1 13,16', 'NTFY 0 1 13,16', 'NTFY 0 1 13,16',
+            'NTFY 0 1 13,153,152,151',
+            'Unknown 0 9 4', 'Unknown 3 9', 'Unknown 4 9', 'Unknown 13 99',
+            'Unknown 7 1',
+            'ASP_INACTIVE 4 2 1,4', 'ASP_INACTIVE_ACK 4 4 1', 'ASP_DOWN 3 2 17',
+            'ASP_DOWN_ACK 3 5',
+        ]
+
+    def test_dua_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Parameter values, including unknown ones.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dua_coverage.pcap.gz'),
+                '-Y', 'dua',
+                '-Tfields', '-E', 'separator=;',
+                '-edua.traffic_mode_type', '-edua.error_code',
+                '-edua.status_type', '-edua.status_identification',
+                '-edua.release_reason', '-edua.tei_status',
+                '-edua.interface_range_start', '-edua.interface_range_end',
+                '-edua.text_interface_identifier', '-edua.asp_identifier',
+                '-edua.dlci_channel', '-edua.info_string',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        fields = list(zip(*[l.split(';') for l in lines]))
+        assert [v for v in fields[0] if v] == ['0x%08x' % v for v in (1, 2, 9, 9)]
+        assert [v for v in fields[1] if v] == [
+            '1', '2', '3', '4', '5', '6', '7', '8', '9', '13', '14', '15', '28', '29', '99']
+        assert [(t, i) for t, i in zip(fields[2], fields[3]) if t] == [
+            ('1', '1'), ('1', '2'), ('1', '3'), ('1', '4'), ('2', '1'), ('2', '2'),
+            ('2', '9'), ('1', '3'), ('1', '3'), ('1', '3'), ('1', '3')]
+        assert [v for v in fields[4] if v] == ['0x%08x' % v for v in (0, 1, 2, 3, 9, 1)]
+        assert [v for v in fields[5] if v] == ['0x%08x' % v for v in (0, 1, 7)]
+        assert [v for v in fields[6] if v] == ['0,10', '5']
+        assert [v for v in fields[7] if v] == ['3,12', '5']
+        assert [v for v in fields[8] if v] == ['dpnss-link-A', 'link', 'link', 'link']
+        assert [v for v in fields[9] if v] == ['0x00000007'] * 3
+        assert [v for v in fields[11] if v] == [
+            'asp one', 'up ack', 'active', 'as down', 'x', 'inactive']
