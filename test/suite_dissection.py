@@ -43468,3 +43468,102 @@ class TestDissectDjiUav:
         assert stdout.splitlines() == [
             '1\t2', '3\t4', '7\t8', '9\t10,10', '12\t13', '16\t17', '18\t19',
         ]
+
+
+class TestDissectDlep:
+    def test_dlep_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Signals over UDP and messages over TCP, and no frame is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlep_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 26
+        assert protocols.count('DLEP') == 25
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dlep_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dlep_signals_and_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every signal and message type and the data items each one
+        carries, three messages in one segment and one reassembled from
+        two segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlep_coverage.pcap.gz'),
+                '-Y', 'dlep',
+                '-Tfields', '-eframe.number', '-edlep.signal.type',
+                '-edlep.message.type', '-edlep.dataitem.type',
+            ), encoding='utf-8', env=test_env)
+        metrics = '12,13,14,15,16,17,18,19,20'
+        assert stdout.replace('\t', '|').splitlines() == [
+            '1|1||4',
+            '2|2||4,2,2,3,3,1',
+            '3|0||5',
+            '4|9||',
+            '5||1|5,4,6',
+            '6||2|1,5,4,6,' + metrics + ',8,9,10,11',
+            '7||3|8,9,10,11,' + metrics,
+            '8||4|1',
+            '9||7|7,' + metrics + ',8,11,21,26,27,28',
+            '10||8|7,1',
+            '11||9|7,8,27',
+            '12||10|7,1,' + metrics,
+            '13||13|7,21,16,18',
+            '14||14|7,14,16',
+            '15||15|7,1,' + metrics,
+            '16||16,13,11|7,22,22,7',
+            '17||12|7,1',
+            '18||13|7,22,22,22,22,22',
+            '19||13|7,23,24,25,0,200',
+            '21||13|7,' + ','.join([metrics] * 3),
+            '22||13|7,1,1,1,1,1,1',
+            '23||5|1',
+            '24||6|',
+            '25||0|',
+            '26||99|1,4',
+        ]
+
+    def test_dlep_dataitems(self, cmd_tshark, capture_file, test_env):
+        '''Values of the connection point, peer type, extension, MAC
+        address, multi-hop, link identifier, latency range and status
+        data items.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlep_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2,5,9,18,22}',
+                '-Tfields', '-eframe.number', '-edlep.dataitem.v4conn.port',
+                '-edlep.dataitem.v6conn.addr',
+                '-edlep.dataitem.peertype.description',
+                '-edlep.dataitem.extsupp.code',
+                '-edlep.dataitem.macaddr_eui48', '-edlep.dataitem.hop_count',
+                '-edlep.dataitem.link_identifier',
+                '-edlep.dataitem.min_latency', '-edlep.dataitem.hop_control',
+                '-edlep.dataitem.status.code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.replace('\t', '|').splitlines() == [
+            '2|854|2001:db8::1,2001:db8::1|modem one|||||||0',
+            '5|||router|0,1,2,3,4,5,65520,65535||||||',
+            '9|||||02:00:00:00:aa:01|3|00000007|1000||',
+            '18|||||02:00:00:00:aa:01||||2,3,100,65520,65535|',
+            '22|||||02:00:00:00:aa:01|||||128,129,130,131,132,200',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlep_coverage.pcap.gz'),
+                '-Y', 'frame.number in {9,11}', '-V', '-O', 'dlep',
+            ), encoding='utf-8', env=test_env)
+        for line in (
+                'MAC Address Data Item: 02:00:00:00:aa:01',
+                'MAC Address Data Item: 02:00:00:00:aa:01:bb:02',
+                'Maximum Data Rate (Receive) (MDRR) Data Item: 100000000 (bps)',
+                'Latency Data Item: 2500 (us)',
+                'Resources (RES) Data Item: 75 (%)',
+                'Maximum Transmission Unit (MTU) Data Item: 1500 (bytes)',
+                'IPv4 Address Data Item, Add: 192.0.2.50',
+                'IPv6 Attached Subnet Data Item, Add: 2001:db8:1::/48',
+                'Hop Count Data Item: 3 Hops',
+                'Latency Range Data Item: 1000 - 5000 (us)'):
+            assert '    ' + line + '\n' in stdout
