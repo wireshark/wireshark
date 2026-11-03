@@ -741,7 +741,12 @@ dissect_printerdata_data(tvbuff_t *tvb, unsigned offset,
 			break;
 		}
 		case DCERPC_REG_DWORD: {
-			uint32_t data = tvb_get_letohl(tvb, offset - size);
+			uint32_t data;
+
+			/* Do not read before the value */
+			if (size < 4)
+				break;
+			data = tvb_get_letohl(tvb, offset - size);
 
 			proto_item_append_text(item, ": 0x%08x", data);
 
@@ -928,6 +933,8 @@ SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, unsigned offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", (char *)dcv->se_data);
 	}
 
+	/* The size comes from the packet: it must not wrap the offset */
+	tvb_ensure_bytes_exist64(tvb, offset, size);
 	if (size)
 		dissect_printerdata_data(tvb, offset, pinfo, tree, di, drep, type);
 
@@ -1096,7 +1103,8 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_
 			  proto_tree *tree, uint8_t *drep _U_, char **data,
 			  int hf_name)
 {
-	int len, remaining;
+	int remaining;
+	unsigned units, len;
 	char *text;
 
 	offset = WS_ROUNDUP_2(offset);
@@ -1110,8 +1118,18 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_
 		return offset;
 	}
 
-	text = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, remaining, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-	len = (int)strlen(text);
+	/*
+	 * Find the terminating NUL, or take the rest of the buffer.
+	 * Converting the whole rest of the buffer for each string took
+	 * quadratic time with many strings.
+	 */
+	units = (unsigned)remaining / 2;
+	for (len = 0; len < units; len++) {
+		if (tvb_get_letohs(tvb, offset + len * 2) == 0)
+			break;
+	}
+
+	text = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, len * 2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	proto_tree_add_string(tree, hf_name, tvb, offset, len * 2, text);
 
@@ -3629,7 +3647,8 @@ SpoolssEnumForms_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 
 	buffer_offset = 0;
 
-	for (i = 0; i < count; i++) {
+	/* There is no buffer with a NULL pointer or a size that is too big */
+	for (i = 0; buffer.tvb && i < count; i++) {
 		int struct_start = buffer_offset;
 
 		buffer_offset = dissect_FORM_REL(
@@ -3786,6 +3805,7 @@ SpoolssEnumPrinterData_r(tvbuff_t *tvb, unsigned offset,
 		hf_enumprinterdata_value_len, &value_len);
 
 	if (value_len) {
+		tvb_ensure_bytes_exist64(tvb, offset, 2 * (uint64_t)value_len);
 		dissect_spoolss_uint16uni(
 			tvb, offset, pinfo, value_subtree, drep, &value, hf_value_name);
 
@@ -4592,7 +4612,8 @@ SpoolssEnumJobs_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 
 	buffer_offset = 0;
 
-	for (i = 0; i < num_jobs; i++) {
+	/* There is no buffer with a NULL pointer or a size that is too big */
+	for (i = 0; buffer.tvb && i < num_jobs; i++) {
 		switch(level) {
 		case 1:
 			buffer_offset = dissect_spoolss_JOB_INFO_1(
@@ -4606,11 +4627,13 @@ SpoolssEnumJobs_r(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 			break;
 		default:
 			proto_tree_add_expert_format_remaining( buffer.tree, pinfo, &ei_job_info_level, buffer.tvb, 0, "Unknown job info level %d", level);
-			break;
+			/* Nothing advances: do not repeat it for every job */
+			goto done;
 		}
 
 	}
 
+done:
 	offset = dissect_doserror(
 		tvb, offset, pinfo, tree, di, drep, hf_rc, NULL);
 
@@ -5625,7 +5648,8 @@ SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, unsigned offset,
 
 	buffer_offset = 0;
 
-	for (i = 0; i < num_drivers; i++) {
+	/* There is no buffer with a NULL pointer or a size that is too big */
+	for (i = 0; buffer.tvb && i < num_drivers; i++) {
 		switch(level) {
 		case 1:
 			buffer_offset = dissect_DRIVER_INFO_1(
@@ -6524,19 +6548,17 @@ dissect_spoolss_keybuffer(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 				    hf_keybuffer_size, &size);
 
+	tvb_ensure_bytes_exist64(tvb, offset, 2 * (uint64_t)size);
 	end_offset = offset + (size*2);
-	if (end_offset < offset) {
-		/*
-		 * Overflow - make the end offset one past the end of
-		 * the packet data, so we throw an exception (as the
-		 * size is almost certainly too big).
-		 */
-		end_offset = tvb_reported_length_remaining(tvb, offset) + 1;
-	}
 
-	while (offset > 0 && offset < end_offset) {
+	while (offset < end_offset) {
+		unsigned prev_offset = offset;
+
 		offset = dissect_spoolss_uint16uni(
 			tvb, offset, pinfo, tree, drep, NULL, hf_keybuffer);
+		/* It returns the offset unchanged at the end of the data */
+		if (offset <= prev_offset)
+			break;
 	}
 
 	return offset;
@@ -6772,7 +6794,8 @@ SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, unsigned offset,
 		subtree = proto_tree_add_subtree(
 			tree, tvb, offset, 0, ett_PRINTER_DATA_CTR, NULL, "Printer data");
 
-		for (i=0; i < num_values; i++)
+		tvb_ensure_bytes_exist64(tvb, offset, size);
+		for (i=0; i < num_values && offset2 < offset + size; i++)
 			offset2 = dissect_spoolss_printer_enum_values(
 				tvb, offset2, pinfo, subtree, di, drep);
 	}
