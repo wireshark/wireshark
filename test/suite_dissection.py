@@ -46127,3 +46127,73 @@ class TestDissectDpaux:
                 '-Tfields', '-edpaux.reg',
             ), encoding='utf-8', env=test_env)
         assert len(stdout.strip().split(',')) == 300
+
+
+class TestDissectDpauxmon:
+    def test_dpauxmon_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DPAUXMON, data packets carry DPAUX, and none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpauxmon_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('dpauxmon') == 8
+        assert protocols.count('dpauxmon:dpaux') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dpauxmon_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dpauxmon_packets(self, cmd_tshark, capture_file, test_env):
+        '''Every packet type, the origin of data packets and the input
+        bits of start and event packets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpauxmon_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edpauxmon.packet_type',
+                '-edpauxmon.origin', '-edpauxmon.inputs', '-edpauxmon.hpd',
+                '-edpauxmon.in0', '-edpauxmon.in1', '-edpauxmon.in2',
+                '-edpaux.transaction_type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t3\t\t0x00\tFalse\tFalse\tFalse\tFalse\t\tDisplayPort AUX channel - Start',
+            '2\t2\t\t0x01\tTrue\tFalse\tFalse\tFalse\t\tDisplayPort AUX channel - Event',
+            '3\t0\t1\t\t\t\t\t\t0\tRD 1 byte FROM 0x00000',
+            '4\t0\t0\t\t\t\t\t\t0\tACK with 1 byte FROM 0x00000',
+            '5\t1\t\t\t\t\t\t\t\tDisplayPort AUX channel - Unknown',
+            '6\t2\t\t0x0e\tFalse\tTrue\tTrue\tTrue\t\tDisplayPort AUX channel - Event',
+            '7\t132\t\t\t\t\t\t\t\tDisplayPort AUX channel - Timestamp Overflow',
+            '8\t0\t2\t\t\t\t\t\t0\tRD 1 byte FROM 0x00001',
+            '9\t0\t0\t\t\t\t\t\t0\tNACK',
+            '10\t16\t\t\t\t\t\t\t\tDisplayPort AUX channel - Unknown',
+            '11\t2\t\t0x0f\tTrue\tTrue\tTrue\tTrue\t\tDisplayPort AUX channel - Event',
+            '12\t4\t\t\t\t\t\t\t\tDisplayPort AUX channel - Stop',
+        ]
+
+    def test_dpauxmon_source_sink(self, cmd_tshark, capture_file, test_env):
+        '''The origin of a data packet sets the DPAUX direction: the
+        source and sink in the address columns ("Internal" for the other
+        packets) and the reply address from the request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpauxmon_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.def_src',
+                '-e_ws.col.def_dst', '-edpaux.addr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tInternal\tN/A\t',
+            '2\tInternal\tN/A\t',
+            '3\tDP-Source\tN/A\t0x000000',
+            '4\tDP-Sink\tN/A\t0x000000',
+            '5\tInternal\tN/A\t',
+            '6\tInternal\tN/A\t',
+            '7\tInternal\tN/A\t',
+            '8\tDP-Source\tN/A\t0x000001',
+            '9\tDP-Sink\tN/A\t',
+            '10\tInternal\tN/A\t',
+            '11\tInternal\tN/A\t',
+            '12\tInternal\tN/A\t',
+        ]
