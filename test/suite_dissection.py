@@ -52340,3 +52340,82 @@ class TestDissectElcom:
             '\t\t64\t\t7\t2\t10\t1\t20\t\t094f424a',
             '\t\t\t\t\t\t\t\t\t\t0102',
         ]
+
+
+class TestDissectElmi:
+    def test_elmi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is E-LMI and none is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elmi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 10
+        assert protocols.count('E-LMI') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('elmi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_elmi_elements(self, cmd_tshark, capture_file, test_env):
+        '''The information elements and sub-information elements of every
+        frame; the Ethernet padding (tag 0) ends a message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elmi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info', '-eelmi.info_element.tag',
+                '-eelmi.sub_info.tag', '-eelmi.report_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Status enquiry\t0x01,0x02\t\t1',
+            'Status\t0x01,0x02,0x03\t\t1',
+            'Status enquiry\t0x01,0x02\t\t0',
+            'Status\t0x01,0x02,0x03,0x11,0x21,0x22\t0x51,0x71,0x61,0x62,0x71,0x63\t0',
+            'Status\t0x01,0x02,0x03,0x11,0x21,0x21,0x21,0x21,0x21,0x22\t0x51,0x61,0x71,0x63\t3',
+            'Status\t0x01,0x02,0x11,0x21\t0x7f,0x62\t2',
+            'Status\t0x01,0x11,0x40,0x02\t\t9',
+            'unknown (0x42)\t\t\t',
+            'Status\t0x01,0x02,0x03,0x11,0x21\t0x51,0x62\t0',
+            'Status\t0x01,0x21,0x02\t0x62\t0',
+        ]
+
+    def test_elmi_long_sub_element(self, cmd_tshark, capture_file, test_env):
+        '''A UNI Identifier of 254 octets and an EVC Identifier of 255
+        octets are sub-elements of 256 and 257 octets, inside their
+        elements, and the elements after them are found (the size was
+        truncated to 0 or 1 before "ELMI: Do not truncate the
+        sub-information element length").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elmi_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 9',
+                '-Tfields', '-eelmi.info_element.tag',
+                '-eelmi.sub_info.tag', '-eelmi.sub_info.len',
+                '-eelmi.sub_info.uni_id',
+                '-eelmi.sub_info.evc_id', '-eelmi.evc.refid',
+                '-eelmi.snd_seq_num',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x01,0x02,0x03,0x11,0x21\t0x51,0x62\t254,5\t' + 'U' * 254 +
+            '\tEVC-7\t7\t6',
+            '0x01,0x21,0x02\t0x62\t255\t\t' + 'E' * 255 + '\t8\t7',
+        ]
+
+    def test_elmi_status(self, cmd_tshark, capture_file, test_env):
+        '''EVC status types, map types, CE-VLAN IDs and the map flags.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elmi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4..7}',
+                '-Tfields', '-eelmi.map_type', '-eelmi.evc.refid',
+                '-eelmi.evc.status', '-eelmi.sub_info.vlan_id',
+                '-eelmi.map.seq', '-eelmi.map.last_ie', '-eelmi.map.priority',
+                '-eelmi.map.evc', '-eelmi.sub_info.bw_prio7',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x03\t100,100\t0x02\t10,20,30\t1\tTrue\tFalse\tTrue\tFalse,True',
+            '0x01\t1,2,3,4,5,5\t0x00,0x01,0x03,0x04,0x05\t4094\t2\tFalse\tTrue\tFalse\tFalse',
+            '0x02\t6\t0x07\t\t\t\t\t\t',
+            '0x09\t\t\t\t\t\t\t\t',
+        ]
