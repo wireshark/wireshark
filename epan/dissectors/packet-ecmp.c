@@ -851,8 +851,8 @@ static void add_attributes(packet_info* pinfo, unsigned offset, tvbuff_t *tvb, p
 	proto_tree* ecmp_attribute_data_tree = NULL;
 	uint8_t no_of_attributes = 0;
 	uint8_t a = 0; /*values used for looping*/
-	uint8_t b = 0;
-	uint8_t c = 0;
+	uint16_t c = 0;
+	unsigned seg_start;
 	uint8_t check = 0;
 	uint16_t att_length = 0;
 	uint32_t color;
@@ -904,6 +904,7 @@ static void add_attributes(packet_info* pinfo, unsigned offset, tvbuff_t *tvb, p
 				att_length = tvb_get_ntohs(tvb, offset);
 				pStr = wmem_strbuf_create(pinfo->pool);
 				offset+= 2;
+				seg_start = offset;
 				if (pStr != NULL) {
 					for (c = 0; c < att_length; c++, offset++) {
 						check = tvb_get_uint8(tvb,offset);
@@ -911,8 +912,9 @@ static void add_attributes(packet_info* pinfo, unsigned offset, tvbuff_t *tvb, p
 							wmem_strbuf_append_c(pStr, ' ');
 						} else if (check == ';') {
 							/*display version summary parameter, e.g 'FW', 'BL', 'HW'*/
-							proto_tree_add_string(ecmp_attribute_data_tree, hf_ecmp_version_summary, tvb, offset-b, b, wmem_strbuf_get_str(pStr));
+							proto_tree_add_string(ecmp_attribute_data_tree, hf_ecmp_version_summary, tvb, seg_start, offset-seg_start, wmem_strbuf_get_str(pStr));
 							wmem_strbuf_truncate(pStr, 0);
+							seg_start = offset + 1;
 						} else if (check <= 0x7f) {
 							wmem_strbuf_append_c(pStr, check);
 						}
@@ -921,7 +923,7 @@ static void add_attributes(packet_info* pinfo, unsigned offset, tvbuff_t *tvb, p
 						}
 					}
 					/*display last version summary parameter, e.g 'FW', 'BL', 'HW' as no delimiter to check for, just prints out rest of version string*/
-					proto_tree_add_string(ecmp_attribute_data_tree, hf_ecmp_version_summary, tvb, offset-b, b, wmem_strbuf_get_str(pStr));
+					proto_tree_add_string(ecmp_attribute_data_tree, hf_ecmp_version_summary, tvb, seg_start, offset-seg_start, wmem_strbuf_get_str(pStr));
 					offset-= 1;
 				}
 				break;
@@ -1108,7 +1110,7 @@ static int display_raw_cyclic_data(uint8_t display, unsigned offset, uint16_t bu
 		uint16_t		num_elements_per_line = 8; /* counts the current number of elements per line */
 		uint16_t		num_elements = 0; /* counts the number of elements in the format string */
 		uint16_t		a = 0; /* value used for looping */
-		int		start_offset, line_offset;
+		int		line_offset;
 
 		/* calculate number of elements                                                     */
 		/*                                                                                  */
@@ -1129,7 +1131,7 @@ static int display_raw_cyclic_data(uint8_t display, unsigned offset, uint16_t bu
 		/* OK, let's get started */
 		num_elements = 0;
 
-		line_offset = start_offset = offset;
+		line_offset = offset;
 		/* work through the display elements, 1 byte\word\long at a time  */
 		for (a = 0; a < num_elements_total; a++ ) {
 			if (wmem_strbuf_get_len(pdata) > 0) {
@@ -1157,7 +1159,7 @@ static int display_raw_cyclic_data(uint8_t display, unsigned offset, uint16_t bu
 			/* check if we hit the max number of byte elements per line  */
 			if (num_elements >= num_elements_per_line) {
 				/* display the completed line in the sub-tree  */
-				proto_tree_add_bytes_format(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, offset, offset-line_offset, NULL, "%s", wmem_strbuf_get_str(pdata));
+				proto_tree_add_bytes_format(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, line_offset, offset-line_offset, NULL, "%s", wmem_strbuf_get_str(pdata));
 
 				/* start the line over */
 				wmem_strbuf_truncate(pdata, 0);
@@ -1169,7 +1171,7 @@ static int display_raw_cyclic_data(uint8_t display, unsigned offset, uint16_t bu
 		/* if we exited the loop, see if there's a partial line to display  */
 		if (num_elements > 0) {
 			/* display the partial line in the sub-tree  */
-			proto_tree_add_bytes_format(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, start_offset, offset-start_offset, NULL, "%s", wmem_strbuf_get_str(pdata));
+			proto_tree_add_bytes_format(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, line_offset, offset-line_offset, NULL, "%s", wmem_strbuf_get_str(pdata));
 		}
 	}
 	return offset;
@@ -1468,7 +1470,7 @@ static void get_object_info_response(packet_info* pinfo, unsigned offset, tvbuff
 			}
 			offset++;
 			/*display response header */
-			proto_tree_add_subtree_format(ecmp_parameter_number_tree, tvb, offset, n, ett_ecmp_command, NULL, "Response %d:", (a+1));
+			ecmp_parameter_response_tree = proto_tree_add_subtree_format(ecmp_parameter_number_tree, tvb, offset, n, ett_ecmp_command, NULL, "Response %d:", (a+1));
 
 			/*display response status */
 			proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_parameter_status, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1957,7 +1959,7 @@ static void file_pos(unsigned offset, bool request, tvbuff_t *tvb, proto_tree* e
 			offset++;
 
 			/*display offset from ref point*/
-			proto_tree_add_item(ecmp_file_position_tree, hf_ecmp_ref_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ecmp_tree, hf_ecmp_ref_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
 		}
 	}
 }
@@ -2645,8 +2647,8 @@ static void interrogate(packet_info* pinfo, unsigned offset, bool request, tvbuf
 
 				/* display if the command is supported  */
 				proto_tree_add_uint_format(ecmp_interrogate_message_tree, hf_ecmp_interrogate_command, tvb, offset, 1, command_req, "%s: %s",
-					                try_val_to_str(command_req, command_vals),
-					                try_val_to_str(supported, Interrogate_support_state));
+					                val_to_str_const(command_req, command_vals, "Unknown"),
+					                val_to_str_const(supported, Interrogate_support_state, "Unknown"));
 			}
 
 		} else {
@@ -2852,7 +2854,7 @@ static int dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				add_cyclic_frame_query(offset, tvb, ecmp_tree);
 				break;
 			case ECMP_COMMAND_TUNNELFRAME:
-				tunnel_frame(offset, command_value, tvb, ecmp_tree);
+				tunnel_frame(offset, request, tvb, ecmp_tree);
 				break;
 			case ECMP_COMMAND_MODBUSPDU:
 				modbus_pdu(offset, request, tvb, pinfo, ecmp_tree);
@@ -2963,7 +2965,7 @@ static int dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						add_cyclic_frame(offset, tvb, ecmp_tree);
 						break;
 					case ECMP_COMMAND_TUNNELFRAME:
-						tunnel_frame(offset, command_value, tvb, ecmp_tree);
+						tunnel_frame(offset, request, tvb, ecmp_tree);
 						break;
 					case ECMP_COMMAND_MODBUSPDU:
 						modbus_pdu(offset, request, tvb, pinfo, ecmp_tree);
