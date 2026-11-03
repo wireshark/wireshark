@@ -47719,3 +47719,72 @@ class TestDissectDtlsCoverage:
             '88\tHTTP\tGET /dtls HTTP/1.1',
             '89\tHTTP\tHTTP/1.1 200 OK',
         ]
+
+
+class TestDissectDtp:
+    def test_dtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DTP and none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('DTP') == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dtp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dtp_fields(self, cmd_tshark, capture_file, test_env):
+        '''Domain, trunk status, trunk type and sender ID of every frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 8',
+                '-Tfields', '-eframe.number', '-edtp.version',
+                '-edtp.domain', '-edtp.tos', '-edtp.tas', '-edtp.tot',
+                '-edtp.tat', '-edtp.senderid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\tLAB\t0x00\t0x03\t0x05\t0x05\t02:00:00:00:00:01',
+            '2\t1\tLAB\t0x00\t0x04\t0x02\t0x00\t02:00:00:00:00:02',
+            '3\t1\tLAB\t0x01\t0x01\t0x05\t0x05\t02:00:00:00:00:01',
+            '4\t1\tLAB\t0x01\t0x03\t0x02\t0x02\t02:00:00:00:00:02',
+            '5\t1\t\t0x00,0x00,0x00,0x01\t0x01,0x02,0x00,0x07\t\t\t',
+            '6\t1\t\t\t\t0x01,0x01,0x02,0x00,0x03\t0x00,0x01,0x05,0x07,0x00\t',
+            '7\t2\t\t\t\t\t\t02:00:00:00:00:03',
+            '8\t1\t' + 'D' * 32 + '\t\t\t\t\t02:00:00:00:00:04',
+        ]
+
+    def test_dtp_summary(self, cmd_tshark, capture_file, test_env):
+        '''The protocol item shows the decoded TLVs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3',
+                '-V', '-O', 'dtp',
+            ), encoding='utf-8', env=test_env)
+        assert ('Dynamic Trunk Protocol: LAB (Operating/Administrative): '
+                'Trunk/On (0x81) (Operating/Administrative): 802.1Q/802.1Q '
+                '(0xa5): 02:00:00:00:00:01') in stdout
+
+    def test_dtp_unknown_tlv(self, cmd_tshark, capture_file, test_env):
+        '''Unknown TLVs of any length are shown as bytes and the TLVs
+        after them are decoded; a 16 bit type whose low octet is a known
+        type is unknown (fixed in "DTP: Show unknown TLV data as bytes
+        and dispatch on the 16-bit type").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 9',
+                '-Tfields', '-eframe.number', '-edtp.tlv_type',
+                '-edtp.data', '-edtp.tos', '-edtp.senderid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t0x0005,0x0002,0x0004\t1234\t0x01\t02:00:00:00:00:01',
+            '10\t0x0006\t414141414141414141414141\t\t',
+            '11\t0x0104\t020000000009\t\t',
+            '12\t0x0101,0x0202,0x0303,0xff00,0x0002\t585900,81,a5,000000000000\t0x01\t',
+        ]
