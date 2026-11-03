@@ -47788,3 +47788,101 @@ class TestDissectDtp:
             '11\t0x0104\t020000000009\t\t',
             '12\t0x0101,0x0202,0x0303,0xff00,0x0002\t585900,81,a5,000000000000\t0x01\t',
         ]
+
+
+class TestDissectDtpt:
+    def test_dtpt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''14 DTPT frames, 5 TCP segments that are not DTPT, none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtpt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 19
+        assert protocols.count('DTPT') == 14
+        assert protocols.count('TCP') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dtpt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dtpt_messages(self, cmd_tshark, capture_file, test_env):
+        '''The control messages of a lookup and of Connect.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtpt_coverage.pcap.gz'),
+                '-Y', 'dtpt.message_type',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-edtpt.flags', '-edtpt.payload_size', '-edtpt.handle',
+                '-edtpt.error', '-edtpt.buffer_size', '-edtpt.data_size',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tLookupBeginRequest\t0x0000bfff\t176\t\t\t\t',
+            '3\tLookupBeginResponse\t\t\t0x0123456789abcdef\t0\t\t',
+            '4\tLookupNextRequest\t\t\t0x0123456789abcdef\t\t4096\t',
+            '5\tLookupNextResponse\t\t\t\t0\t\t440',
+            '7\tLookupNextRequest\t\t\t0x0123456789abcdef\t\t4096\t',
+            '8\tLookupNextResponse\t\t\t\t10108\t\t0',
+            '9\tLookupEndRequest\t\t\t0x0123456789abcdef\t\t\t',
+            '12\tConnectRequest\t\t\t\t0\t\t',
+            '13\tConnectResponseOK\t\t\t\t0\t\t',
+            '14\tConnectRequest\t\t\t\t0\t\t',
+            '15\tConnectResponseERR\t\t\t\t10060\t\t',
+        ]
+
+    def test_dtpt_queryset(self, cmd_tshark, capture_file, test_env):
+        '''The query sets decoded through the conversation set up by the
+        LookupBeginRequest: strings, GUIDs, protocols, query string,
+        addresses and blob.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtpt_coverage.pcap.gz'),
+                '-Y', 'dtpt.queryset_size',
+                '-Tfields', '-eframe.number', '-edtpt.service_instance_name',
+                '-edtpt.service_class_id', '-edtpt.comment',
+                '-edtpt.ns_provider_id', '-edtpt.context',
+                '-edtpt.protocols.number', '-edtpt.protocol.protocol',
+                '-edtpt.query_string', '-edtpt.cs_addrs.number',
+                '-edtpt.cs_addrs.socket_type', '-edtpt.blob_size',
+                '-edtpt.blob.cbSize', '-edtpt.blob.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\twww.example.com\t0002a803-0000-0000-c000-000000000046\t\t'
+            '00000000-0000-0000-0000-000000000000\t\t3\t6,17,0\t\t0\t\t0\t\t',
+            '6\twww.example.com\t0002a803-0000-0000-c000-000000000046\tsynthetic\t'
+            '12345678-9abc-def0-1122-334455667788\tctx\t1\t6\tq=1\t3\t1,2,3\t8\t20\t'
+            '000102030405060708090a0b0c0d0e0f10111213',
+            '10\t\t12345678-9abc-def0-1122-334455667788\t\t'
+            '00000000-0000-0000-0000-000000000000\t\t0\t\t\t0\t\t4\t0\t',
+        ]
+
+    def test_dtpt_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Socket addresses of the query set and of Connect; AF_INET
+        addresses have a port and address, other families only the
+        family.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtpt_coverage.pcap.gz'),
+                '-Y', 'dtpt.sockaddr.family',
+                '-Tfields', '-eframe.number', '-edtpt.sockaddr.family',
+                '-edtpt.sockaddr.port', '-edtpt.sockaddr.address',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t2,2,2,2,23,23\t0,80,0,53\t0.0.0.0,192.0.2.80,0.0.0.0,192.0.2.53',
+            '12\t2\t80\t192.0.2.80', '13\t2\t80\t192.0.2.80',
+            '14\t23\t\t', '15\t2\t443\t192.0.2.81',
+        ]
+
+    def test_dtpt_conversation_data(self, cmd_tshark, capture_file, test_env):
+        '''Octets after a query set and a segment that is neither a control
+        message nor a query set are handed to data in the conversation.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtpt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {10,11}',
+                '-Tfields', '-eframe.protocols', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'eth:ethertype:ip:tcp:dtpt:data\t7',
+            'eth:ethertype:ip:tcp:dtpt:data\t12',
+        ]
