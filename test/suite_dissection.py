@@ -49757,3 +49757,136 @@ class TestDissectE212:
         assert '310410123456789 3 2 27 GTPv2, Diameter, NAS-EPS' in rows
         assert '99899 3 4 28 GTPv2, NAS-EPS' in rows
         assert 'Total IMSIs: 8' in rows
+
+
+class TestDissectE2ap:
+    def test_e2ap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is E2AP over SCTP (some carry NGAP, XnAP, E1AP,
+        F1AP, S1AP or X2AP component configurations, or E2SM-CCC JSON),
+        and none is malformed or has an error expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e2ap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 386
+        assert all(p.startswith('E2AP') for p in protocols)
+        for p in ('E2AP|NGAP', 'E2AP|NGAP|XnAP', 'E2AP|E1AP', 'E2AP|F1AP', 'E2AP|S1AP',
+                  'E2AP|X2AP', 'E2AP/JSON/JSON/JSON'):
+            assert p in protocols
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('e2ap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_e2ap_message_label(self, cmd_tshark, capture_file, test_env):
+        '''The message name is appended to the protocol item (the top-level
+        tree was stored before it was created).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e2ap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 383', '-O', 'e2ap',
+            ), encoding='utf-8', env=test_env)
+        lines = [l for l in stdout.splitlines() if l.startswith('E2 Application Protocol')]
+        assert lines == ['E2 Application Protocol (E2setupRequest)',
+                         'E2 Application Protocol (E2connectionUpdate)']
+
+    def test_e2ap_tnl_address(self, cmd_tshark, capture_file, test_env):
+        '''TNL addresses of 4, 16, 20 and other numbers of octets, with and
+        without a port; the port after a 36-bit address is not octet
+        aligned (it was read at the wrong offset), and frame 383 has an
+        extended address of length 0 (a NULL tvb that failed an assertion).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e2ap_coverage.pcap.gz'),
+                '-V', '-O', 'e2ap',
+            ), encoding='utf-8', env=test_env)
+        tnl = [l.strip() for l in stdout.splitlines() if l.strip().startswith('tnlInformation (')]
+        assert sorted(set(tnl)) == [
+            'tnlInformation (',
+            'tnlInformation (192.0.2.20:36421)',
+            'tnlInformation (192.0.2.21, 2001:db8::21:36423)',
+            'tnlInformation (192.0.2.23',
+            'tnlInformation (2001:db8::20:36422)',
+            'tnlInformation (:36424)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e2ap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 383', '-V', '-O', 'e2ap',
+            ), encoding='utf-8', env=test_env)
+        assert 'tnlInformation (' in stdout
+        assert 'tnlUsage: ric-service (0)' in stdout
+        assert 'Malformed' not in stdout
+
+    def test_e2ap_ran_function_dissector(self, cmd_tshark, capture_file, test_env):
+        '''Frame 384 announces RAN function 2 as ORAN-E2SM-RC, and the
+        RICindication in frame 385 is decoded with the RC service model in
+        one and two passes (it was decoded with KPM and malformed, and
+        differently with -2).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('e2ap_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 385', '-V', '-O', 'e2ap',
+                ), encoding='utf-8', env=test_env)
+            assert '[RANfunction setup frame: 384 (2 -> RC)]' in stdout
+            assert '[Version (dissector): RC v3]' in stdout
+            assert 'E2SM-RC-IndicationHeader' in stdout
+            assert 'KPM' not in stdout
+            assert 'Malformed' not in stdout
+
+    def test_e2ap_ran_function_mapping(self, cmd_tshark, capture_file, test_env):
+        '''The RAN functions of frame 1 (KPM, RC, NI, CCC and LLC) are found
+        in later frames by their ID, also on a second association of the same gNB (frame 377); KPM
+        signalled as v4 is decoded with v3 and flagged; IDs 6 (an unknown
+        short name) and 7 (never announced) are not mapped.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e2ap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esctp.srcport', '-ee2ap.setup-frame',
+                '-ee2ap.version.frame', '-ee2ap.version.dissector',
+                '-Y', 'frame.number in {1, 3, 69, 123, 159, 177, 377}',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t36422\t\tKPM v3,RC v1,RC v1,NI v1,CCC v2,KPM v4,'
+            'iso.3.6.1.4.1.53148.1.1.2.99,KPM v3,LLC v1,LLC v1\t',
+            '3\t37464\t1,1\tKPM v3,KPM v3\tKPM v3,KPM v3',
+            '69\t37464\t1,1\tRC v1,RC v1\tRC v3,RC v3',
+            '123\t37464\t1,1\tNI v1,NI v1\tNI v1,NI v1',
+            '159\t37464\t1,1\tCCC v2,CCC v2\tCCC v2,CCC v2',
+            '177\t37464\t1,1\tLLC v1,LLC v1\tLLC v1,LLC v1',
+            '377\t36423\t1,1,1\tRC v1,RC v1,RC v1\tRC v3,RC v3,RC v3',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e2ap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.expert.message',
+                '-Y', 'e2ap.ran-function-id-not-known || e2ap.ran-function-dissector-version-mismatch'
+                      ' || e2ap.ran-function-names-no-match',
+            ), encoding='utf-8', env=test_env)
+        messages = set(','.join(stdout.splitlines()).split(','))
+        assert messages == {
+            'ShortName does not match any known Service Model',
+            'Dissector version mismatch - frame is KPM v4 but dissector is KPM v3',
+            'Service Model not mapped for FunctionID 6',
+            'Service Model not mapped for FunctionID 7',
+        }
+
+    def test_e2ap_stats_tree(self, cmd_tshark, capture_file, test_env):
+        '''The e2ap stats tree counts the message types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e2ap_coverage.pcap.gz'),
+                '-q', '-z', 'e2ap,tree',
+            ), encoding='utf-8', env=test_env)
+        counts = {}
+        for line in stdout.splitlines():
+            words = line.split()
+            for i, w in enumerate(words):
+                if w.isdigit():
+                    counts[' '.join(words[:i])] = int(w)
+                    break
+        assert counts['Total Packets'] == 386
+        assert counts['RICsubscriptionRequest'] == 57
+        assert counts['RICindication'] == 49
+        assert counts['RICcontrolRequest'] == 22
+        assert counts['E2setupRequest'] == 12
+        assert counts['ErrorIndication'] == 4
