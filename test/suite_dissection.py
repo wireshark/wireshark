@@ -43915,3 +43915,158 @@ class TestDissectDlt:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['8']
+
+
+class TestDissectDmp:
+    def test_dmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DMP (one inside an ICMP error), none is malformed
+        or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 175
+        assert protocols.count('DMP') == 174
+        assert protocols.count('ICMP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dmp_coverage.pcap.gz'),
+                    '-Y', 'dmp',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 175
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dmp_subject_mts_id_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''A Report (frame 1) names a subject MTS identifier that is only
+        seen in the following message (frame 2), so it has no subject
+        message identifier; before the fix, tshark -2 found 1234 in the
+        state at the end of the first pass. A Report and a notification
+        after the message they name (frames 63, 64) find it in both
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dmp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {1, 2, 62, 63, 64}',
+                    '-Tfields', '-eframe.number', '-edmp.subj_mts_id',
+                    '-edmp.subj_ipm_id', '-edmp.subj_id', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\t PH4\t\t\tReport (DR), Msg Id: 16, Subj Id: 0',
+                '2\t\t\t\tMessage (Operation) [Deferred], Msg Id: 1234',
+                '62\t\t\t\tMessage (Operation) [Priority], Msg Id: 12288',
+                '63\tMTA1/0001\t\t12288\tReport (DR), Msg Id: 12289, Subj Id: 12288',
+                '64\t\tIPM-ID-1\t12288\tReceipt Notification (RN), Msg Id: 12290, Subj Id: 12288',
+            ]
+
+    def test_dmp_checksum_offset(self, cmd_tshark, capture_file, test_env):
+        '''The checksum is read from the last two octets, also when the
+        dissection ends before them (frame 159, a notification of a
+        reserved type); before the fix it was read where the dissection
+        ended and shown as incorrect. Frame 160 has a bad checksum.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 159, 160}',
+                '-Tfields', '-eframe.number', '-edmp.checksum',
+                '-edmp.checksum.status', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t0x226a\t1\tMessage (Operation) [Priority], Msg Id: 5000',
+            '159\t0xb6bc\t1\tUnknown Notification, Msg Id: 21504, Subj Id: 8193',
+            '160\t0x3101\t0\tMessage (Operation) [Priority], Msg Id: 21505, Checksum incorrect',
+        ]
+
+    def test_dmp_seq_ack_analysis(self, cmd_tshark, capture_file, test_env):
+        '''SEQ/ACK analysis across frames 3-24 in two passes: ACKs of
+        messages, reports and notifications, duplicate ACKs,
+        retransmissions, reports and notifications matched to their
+        messages, missing ACKs and messages, and none for the message
+        inside an ICMP error (frame 24).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dmp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 3 && frame.number <= 24',
+                '-Tfields', '-eframe.number', '-edmp.analysis.ack_in',
+                '-edmp.analysis.acks_msg_in', '-edmp.analysis.acks_report_in',
+                '-edmp.analysis.acks_notif_in', '-edmp.analysis.msg_in',
+                '-edmp.analysis.retrans_no', '-edmp.analysis.msg_first_sent_in',
+                '-edmp.analysis.report_first_sent_in',
+                '-edmp.analysis.notif_first_sent_in', '-edmp.analysis.dup_ack_no',
+                '-edmp.analysis.ack_first_sent_in', '-edmp.analysis.ack_missing',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['3', '4', '', '', '', '', '', '', '', '', '', '', '', ''],
+            ['4', '', '3', '', '', '', '', '', '', '', '', '', '', ''],
+            ['5', '', '3', '', '', '', '', '', '', '', '1', '4', '', 'Dup ACK #1'],
+            ['6', '9', '', '', '', '', '', '', '', '', '', '', '', ''],
+            ['7', '9', '', '', '', '', '1', '6', '', '', '', '', '', 'Retransmission #1'],
+            ['8', '9', '', '', '', '', '2', '6', '', '', '', '', '', 'Retransmission #2'],
+            ['9', '', '6', '', '', '', '', '', '', '', '', '', '', ''],
+            ['10', '11', '', '', '', '3', '', '', '', '', '', '', '', ''],
+            ['11', '', '', '10', '', '', '', '', '', '', '', '', '', ''],
+            ['12', '', '', '', '', '8', '', '', '', '', '', '', '1', 'Acknowledgement missing'],
+            ['13', '14', '', '', '', '3', '', '', '', '', '', '', '', ''],
+            ['14', '', '', '', '13', '', '', '', '', '', '', '', '', ''],
+            ['15', '11', '', '', '', '3', '1', '', '10', '', '', '', '', 'Retransmission #1'],
+            ['16', '14', '', '', '', '3', '1', '', '', '13', '', '', '', 'Retransmission #1'],
+            ['17', '', '', '', '', '', '', '', '', '', '', '', '1',
+             'Acknowledgement missing,Message missing'],
+            ['18', '', '', '', '', '', '', '', '', '', '', '', '1',
+             'Acknowledgement missing,Message missing'],
+            ['19', '', '', '', '', '', '', '', '', '', '', '', '', 'Message missing'],
+            ['20', '', '6', '', '', '', '', '', '', '', '', '', '', 'ACK reason: Unspecified error'],
+            ['21', '22', '', '', '', '', '', '', '', '', '', '', '', ''],
+            ['22', '', '21', '', '', '', '', '', '', '', '', '', '', ''],
+            ['23', '', '21', '', '', '', '', '', '', '', '1', '22', '', 'Dup ACK #1'],
+            ['24', '', '', '', '', '', '', '', '', '', '', '', '', 'Type indicates an error'],
+        ]
+
+    def test_dmp_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values: SICs of every encoding, security labels,
+        a zlib-compressed body, a BER OR-name address and a recipient
+        number above 1023.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {116, 118, 124, 125, 126, 127, 164}',
+                '-Tfields', '-eframe.number', '-edmp.sic',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '116\tABC',
+            '118\t0a?',
+            '124\tAAA,B12,ZZZ',
+            '125\t1bc,A?=',
+            '126\tAB1,ABCD,ABCDE,ABCDEF,ABCDEFG,ABCDEFGH',
+            '127\t1b1,abcd,abcde,abcdef,abcdefg,0Aabcdef,1/y',
+            "164\t'()+,-,.: ?",
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {90, 91, 92, 93, 167}',
+                '-Tfields', '-eframe.number', '-edmp.sec_label',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '90\tConfidential,cl,ne',
+            '91\tSecret,cs,ne,rel-to-pol',
+            '92\tTop secret,rel-to-est',
+            '93\tUnclassified,rel-to-xxx',
+            '167\t,rel-to-???',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 130',
+                '-Tfields', '-edmp.body.plain',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Compressed text ' * 3 + 'Compressed text'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmp_coverage.pcap.gz'),
+                '-Y', 'dmp.msg_id == 0x2602 || dmp.msg_id == 0x2500',
+                '-V', '-O', 'dmp',
+            ), encoding='utf-8', env=test_env)
+        assert 'ASN.1 BER-encoded OR-name (/C=NO/A= /O=ACME1/)' in stdout
+        assert 'Recipient Number 1120 (offset from previous: 1100), Direct Address: 200' in stdout
