@@ -43666,3 +43666,118 @@ class TestDissectDlm3:
                 '-Tfields', '-edlm3.m.extra',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == bytes(range(200)).hex()
+
+
+class TestDissectDlsw:
+    def test_dlsw_protocols(self, cmd_tshark, capture_file, test_env):
+        '''DLSw over UDP 2067 and TCP 2065, and no frame is malformed or
+        has a warning or error expert info, in one and two passes.
+        (Capabilities exchanges have "Not used for CapEx" notes.)'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlsw_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 39
+        assert protocols.count('DLSw') == 36
+        assert protocols.count('UDP') == 1
+        assert protocols.count('TCP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dlsw_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dlsw_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, with the 72 octet control header or the 16
+        octet information header, three PDUs in one TCP segment and a
+        PDU reassembled from two segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlsw_coverage.pcap.gz'),
+                '-Y', 'dlsw',
+                '-Tfields', '-eframe.number', '-edlsw.version',
+                '-edlsw.message_type', '-edlsw.header_length',
+                '-edlsw.message_length', '-edlsw.flow_ctrl_byte',
+                '-edlsw.dlc_header_length', '-edlsw.gds_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.replace('\t', '|').splitlines() == [
+            '1|49|0x03|72|0|0x00|0|',
+            '2|49|0x04|72|0|0x00|0|',
+            '3|49|0x12|72|18|0x00|0|',
+            '4|49|0x13|72|7|0x00|0|',
+            '5|49|0x1a|72|3|0x00|0|',
+            '6|49|0x1b|72|3|0x00|0|',
+            '7|49|0x06|72|46|0x00|35|',
+            '8|49|0x7a|72|4|0x00|0|',
+            '9|49|0x7b|72|4|0x00|0|',
+            '10|49|0x0a|16|14|0x00||',
+            '11|50|0x03|72|0|0x00|0|',
+            '12|75|0x03|72|0|0x00|0|',
+            '13|56|0x03|72|0|0x00|0|',
+            '15|49|0x20|72|108|||5408',
+            '16|49|0x20|72|4|||5409',
+            '17|49|0x20|72|8|||5410',
+            '18|49|0x20|72|35|||5408',
+            '19|49|0x20|72|8|||39321',
+            '20|49|0x03|72|0|0x00|0|',
+            '21|49|0x04|72|0|0x00|0|',
+            '22|49|0x05|72|0|0x00|0|',
+            '23|49|0x07|72|38|0x00|35|',
+            '24|49|0x08|72|0|0x80|0|',
+            '25|49|0x09|72|0|0xc1|0|',
+            '26|49,49,49|0x0a,0x0a,0x1d|16,16,16|11,11,0|0x82,0x83,0x00||',
+            '28|49|0x0a|16|512|0x84||',
+            '29|49|0x21|16|2|0x80||',
+            '30|49|0x0c|72|0|0x00|0|',
+            '31|49|0x0d|72|0|0x00|0|',
+            '32|49|0x14|72|45|0x00|35|',
+            '33|49|0x10|72|0|0x00|0|',
+            '34|49|0x11|72|0|0x00|0|',
+            '35|49|0x0e|72|0|0x00|0|',
+            '36|49|0x0f|72|0|0x00|0|',
+            '37|49|0x19|72|0|0x00|0|',
+            '38|49|0x55|72|2|0x00|0|',
+        ]
+
+    def test_dlsw_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The information frame split over frames 27 and 28 is
+        reassembled in frame 28 with all 512 data octets, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dlsw_coverage.pcap.gz'),
+                    '-Y', 'dlsw.data && frame.number == 28',
+                    '-Tfields', '-edlsw.data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip() == bytes(range(256)).hex() * 2
+
+    def test_dlsw_capex(self, cmd_tshark, capture_file, test_env):
+        '''Every capabilities exchange control vector, and a refusal.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlsw_coverage.pcap.gz'),
+                '-Y', 'frame.number in {15,17}',
+                '-Tfields', '-edlsw.vector_type', '-edlsw.oui',
+                '-edlsw.dlsw_version', '-edlsw.initial_pacing_window',
+                '-edlsw.version_string', '-edlsw.mac_address_exclusivity',
+                '-edlsw.tcp_connections', '-edlsw.netbios_name_exclusivity',
+                '-edlsw.mac_address_list', '-edlsw.netbios_name',
+                '-edlsw.vendor_oui', '-edlsw.multicast_version_number',
+                '-edlsw.vector_data', '-edlsw.error_pointer',
+                '-edlsw.error_cause',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x81,0x82,0x83,0x84,0x85,0x86,0x87,0x88,0x89,0x8a,0x8b,0x8c,0x91,0x85,0x88\t'
+            '0x00000c\t512\t20\tsynthetic DLSw 1.0\t1,0\t2\t0,1\t'
+            '02:00:00:00:0a:a1,ff:ff:ff:ff:ff:ff\tSYNTHHOST*\t0x00000c\t1\t1234\t\t',
+            '\t' * 13 + '-1\t0x000d',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlsw_coverage.pcap.gz'),
+                '-Y', 'frame.number == 15', '-V', '-O', 'dlsw',
+            ), encoding='utf-8', env=test_env)
+        assert 'DLSw Version: 2.00' in stdout
+        assert 'MAC Address Exclusivity: On' in stdout
+        assert 'NetBIOS Name Exclusivity: Off' in stdout
+        assert 'SAP List Support: 0x55, x2: On, x6: On, xA: On, xE: On' in stdout
