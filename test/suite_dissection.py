@@ -44949,3 +44949,219 @@ class TestDissectDoIrp:
             '62\t1\t\t\t\t\t',
             '73\t\tHS_SIGNED\tSHA1withDSA\t\t\t',
         ]
+
+
+class TestDissectDocsis:
+    '''DOCSIS MAC frames, configuration file TLVs and VSIF encodings
+    (packet-docsis.c, packet-docsis-tlv.c, packet-docsis-vendor.c).'''
+
+    def test_docsis_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol, and no malformed packets or errors
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('docsis_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = [p.split(':') for p in stdout.splitlines()]
+        assert len(protocols) == 41
+        assert sum('docsis' in p for p in protocols) == 33
+        assert sum('docsis_mgmt' in p for p in protocols) == 9
+        assert sum('docsis_tlv' in p for p in protocols) == 12
+        assert sum('docsis_vsif' in p for p in protocols) == 6
+        assert sum('exported_pdu' in p for p in protocols) == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('docsis_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_docsis_info(self, cmd_tshark, capture_file, test_env):
+        '''Every frame control type and parameter of the DOCSIS MAC
+        frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('docsis_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 23',
+                '-Tfields', '-eframe.number', '-edocsis.fctype', '-edocsis.fcparm',
+                '-edocsis.exthdr', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00\t0\tFalse\t4000 → 5000 Len=25',
+            '2\t0x00\t0\tTrue\t4000 → 5000 Len=25',
+            '3\t0x00\t0\tTrue\t4000 → 5000 Len=25',
+            '4\t0x00\t0\tTrue\tPacket PDU (Encrypted)',
+            '5\t0x01\t1\tFalse\tSync Message',
+            '6\t0x01\t2\tFalse\tSpecial Use',
+            '7\t0x01\t1\tTrue\tSpecial Use',
+            '8\t0x02\t0\tFalse\t4000 → 5000 Len=25',
+            '9\t0x02\t0\tTrue\tIsolation PDU (Encrypted)',
+            '10\t0x03\t0\tFalse\tSync Message',
+            '11\t0x03\t0\tTrue\tMAC Specific (Encrypted)',
+            '12\t0x03\t1\tTrue\tRegistration Request SID = 291',
+            '13\t0x03\t1\tTrue\tMAC Specific (Encrypted MMM)',
+            '14\t0x03\t2\tFalse\tRequest Frame SID=291 Mini Slots=5',
+            '15\t0x03\t4\tFalse\tRequest Frame SID=291, Requested Size=300xN bytes',
+            '16\t0x03\t28\tFalse\tMAC Specific',
+            '17\t0x03\t5\tFalse\tMAC Specific',
+            '18\t0x03\t3\tTrue\tFragmented Frame',
+            '19\t0x03\t3\tTrue\tFragmented Frame',
+            '20\t0x03\t3\tTrue\t4000 → 5000 Len=120',
+            '21\t0x03\t3\tTrue\tFragmented Frame',
+            '22\t0x03\t3\tTrue\tFragmented Frame (Encrypted Fragmentation MAC Frame)',
+            '23\t0x03\t1\tTrue\tRegistration Response SID = 609 (okay/success)',
+        ]
+
+    def test_docsis_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Three fragments of SID 0x0123 make one Ethernet frame; two
+        encrypted fragments are shown as an encrypted frame. Only the
+        frame a message is reassembled in is labelled "Message
+        Reassembled", in one and two passes (before "DOCSIS: Keep
+        fragment state per packet and fix UCD reassembly ids" tshark -2
+        labelled frames 18, 19 and 21 so as well).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('docsis_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 18 && frame.number <= 22',
+                    '-V', '-O', 'docsis',
+                ), encoding='utf-8', env=test_env)
+            assert [l for l in stdout.splitlines() if l.startswith('DOCSIS')] == [
+                'DOCSIS MAC-Specific PDU (Message fragment 0)',
+                'DOCSIS MAC-Specific PDU (Message fragment 1)',
+                'DOCSIS MAC-Specific PDU (Message Reassembled)',
+                'DOCSIS MAC-Specific PDU (Message fragment 0)',
+                'DOCSIS MAC-Specific PDU (Message Reassembled)',
+            ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('docsis_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 18 && frame.number <= 22',
+                '-Tfields', '-eframe.number', '-edocsis.frag_seq',
+                '-edocsis.reassembled_in', '-edocsis.fragment.count',
+                '-edocsis.reassembled.length', '-eudp.length', '-edocsis.bpi_en',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '18\t0\t20\t\t\t\tFalse',
+            '19\t1\t20\t\t\t\tFalse',
+            '20\t2\t\t3\t162\t128\tFalse',
+            '21\t0\t22\t\t\t\tTrue',
+            '22\t1\t\t2\t72\t\tTrue',
+        ]
+
+    def test_docsis_ehdr_255(self, cmd_tshark, capture_file, test_env):
+        '''An extended header of 255 octets: the header is 261 octets
+        long and the REG-RSP follows it (the header length wrapped to 5
+        before "DOCSIS: Keep fragment state per packet and fix UCD
+        reassembly ids", so the HCS was taken from the wrong place).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('docsis_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 23',
+                '-Tfields', '-edocsis.ehdrlen', '-edocsis.hcs.status',
+                '-edocsis_regrsp.sid', '-edocsis_tlv.netaccess',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '255\t1\t609\tTrue\n'
+
+    def test_docsis_frag_state(self, cmd_tshark, capture_file, test_env):
+        '''docsis_frag_state: a fragment without an Upstream Privacy EH
+        element is not reassembled and does not take the SID and sequence
+        of another frame, in one and two passes. docsis_frag_sid:
+        fragments of SIDs 0x0101 and 0x0102 are not joined.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('docsis_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 24 && frame.number <= 28',
+                    '-Tfields', '-eframe.number', '-edocsis.ehdr.sid', '-edocsis.frag_seq',
+                    '-e_ws.expert.message', '-eframe.protocols',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '24\t256\t3\t\tdocsis:data',
+                '25\t\t\tFragmentation MAC frame without an Upstream Privacy EH '
+                'element with fragmentation; not reassembled\tdocsis:data',
+                '26\t512\t7\t\tdocsis:data',
+                '27\t257\t0\t\tdocsis:data',
+                '28\t258\t1\t\tdocsis:data',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('docsis_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 24 && frame.number <= 28',
+                    '-V', '-O', 'docsis',
+                ), encoding='utf-8', env=test_env)
+            assert [l for l in stdout.splitlines() if l.startswith('DOCSIS')] == [
+                'DOCSIS MAC-Specific PDU (Message fragment 3)',
+                'DOCSIS MAC-Specific PDU',
+                'DOCSIS MAC-Specific PDU (Message fragment 7)',
+                'DOCSIS MAC-Specific PDU (Message fragment 0)',
+                'DOCSIS MAC-Specific PDU (Message fragment 1)',
+            ]
+
+    def test_docsis_tlv_ucd_dup(self, cmd_tshark, capture_file, test_env):
+        '''docsis_tlv_ucd_dup: three TCCs with four UCDs in one REG-RSP
+        decode the same in one and two passes.'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('docsis_coverage.pcapng.gz'),
+                    '-Y', 'frame.number == 29 || frame.number == 30',
+                    '-V',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
+        assert out[0].count('DOCSIS Upstream Channel Descriptor') == 8
+        assert 'Malformed' not in out[0]
+
+    def test_docsis_ucd_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A UCD split over two TCCs (the first 254 octets long) in a
+        REG-RSP is reassembled from the two pieces.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('docsis_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 33',
+                '-Tfields', '-edocsis_tlv.ucd.fragment.count',
+                '-edocsis_tlv.ucd.reassembled.length', '-edocsis_tlv.tcc.uschid',
+                '-edocsis_mgmt.upchid', '-edocsis_ucd.freq',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '2\t258\t3,4\t3,4\t30000000\n'
+
+    def test_docsis_vsif(self, cmd_tshark, capture_file, test_env):
+        '''docsis_vsif_lengths: a 1-octet Cisco IP Precedence bandwidth and
+        16-octet IPv6 SAV and multicast prefixes are decoded (they were
+        flagged "Wrong TLV length" before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('docsis_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 31 || frame.number >= 39',
+                '-Tfields', '-eframe.number', '-edocsis_vsif.vendorid',
+                '-edocsis_vsif.cisco.ipprec.bw', '-edocsis_vsif.cisco.iosfile',
+                '-edocsis_vsif.gex.sav.spr.static_prefix_address6',
+                '-edocsis_vsif.gex.imja.imja_ssr_group_prefix_address6',
+                '-edocsis_vsif.gex.service_type_identifier',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '31\t0x00000c,0xffffff\t50\t\t2001:db8::\t\t',
+            '39\t0x00000c\t50\tios.cfg\t\t\t',
+            '40\t0xffffff\t\t\t2001:db8::\tff3e::\tsvc-type',
+            '41\t0x001095\t\t\t\t\t',
+        ]
+
+    def test_docsis_config_files(self, cmd_tshark, capture_file, test_env):
+        '''Configuration files: the TLVs fixed in "DOCSIS: Keep fragment
+        state per packet and fix UCD reassembly ids" (PHS Verify,
+        service flow TLVs without a known type) and the unknown TLVs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('docsis_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu',
+                '-Tfields', '-eframe.number', '-edocsis_tlv.phs.phsv',
+                '-edocsis_tlv.netaccess', '-edocsis_tlv.maxcpe',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '34\t\tTrue\t4',
+            '35\t\tTrue\t1',
+            '36\tTrue\t\t',
+            '37\tTrue\t\t',
+            '38\t\t\t',
+            '39\t\t\t',
+            '40\t\t\t',
+            '41\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('docsis_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu',
+                '-Tfields', '-edocsis_tlv.unknown.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.replace('\n', ',').split(',').count('200') == 54
