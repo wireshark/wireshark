@@ -93,11 +93,14 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	uint16_t    protocol_data_length;
 	bool        uton;
 
-	uton = pinfo->pseudo_header->l1event.uton;
-	/* Make entries in src and dst column */
-
-	col_set_str(pinfo->cinfo, COL_DEF_SRC, uton?"TE":"NT");
-	col_set_str(pinfo->cinfo, COL_DEF_DST, uton?"NT":"TE");
+	/* Make entries in src and dst column. Only the DPNSS records of
+	 * EyeSDN files have the direction in the pseudo-header. */
+	if (pinfo->rec->rec_type == REC_TYPE_PACKET &&
+	    pinfo->rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_DPNSS) {
+		uton = pinfo->pseudo_header->isdn.uton;
+		col_set_str(pinfo->cinfo, COL_DEF_SRC, uton?"TE":"NT");
+		col_set_str(pinfo->cinfo, COL_DEF_DST, uton?"NT":"TE");
+	}
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPNSS");
