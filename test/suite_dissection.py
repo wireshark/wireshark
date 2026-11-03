@@ -47476,3 +47476,246 @@ class TestDissectDtcpIp:
             '1\t48\t40', '3\t44\t36', '5\t56\t48', '7\t28\t20',
             '9\t28\t20', '11\t28\t20', '16\t12\t4',
         ]
+
+
+class TestDissectDtlsCoverage:
+    def test_dtls_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-72: DTLS 1.0, 1.2 and 1.3 records, SRTP set up by
+        use_srtp, and datagrams that are not DTLS. No malformed packets and no expert
+        infos above Chat in one and two passes; the only expert info is
+        the legacy_version note of DTLS 1.3 hellos.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 72',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 72
+        assert protocols.count('DTLS') == 15
+        assert protocols.count('DTLSv1.0') == 2
+        assert protocols.count('DTLS 1.0 (OpenSSL pre 0.9.8f)') == 1
+        assert protocols.count('DTLSv1.2') == 38
+        assert protocols.count('DTLSv1.3') == 11
+        assert protocols.count('SRTP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dtls_coverage.pcapng.gz'),
+                    '-Y', 'frame.number <= 72 && (_ws.malformed || _ws.expert.severity >= "Note")',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 72 && _ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert set(l.split('\t')[1] for l in stdout.splitlines()) == {
+            'This legacy_version field MUST be ignored. The supported_versions '
+            'extension is present and MUST be used instead.'}
+
+    def test_dtls_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the DTLS 1.2 handshake with a cookie
+        exchange, reassembly, client authentication and alerts.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 23',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Client Hello (SNI=dtls.example)', 'Hello Verify Request',
+            'Client Hello (SNI=dtls.example)', 'Server Hello, Certificate',
+            'Server Key Exchange (Fragment)', 'Server Key Exchange (Fragment)',
+            'Server Key Exchange (Fragment)', 'Server Key Exchange (Reassembled)',
+            'Certificate Request, Server Hello Done',
+            'Certificate, Client Key Exchange, Certificate Verify, '
+            'Change Cipher Spec, Encrypted Handshake Message',
+            'New Session Ticket, Change Cipher Spec, Encrypted Handshake Message',
+            'Client Key Exchange', 'Application Data', 'Application Data',
+            'Heartbeat Request', 'Heartbeat Response', 'Encrypted Heartbeat',
+            'Encrypted Heartbeat', 'Encrypted Heartbeat',
+            'PT=DynamicRTP-Type-96, SSRC=0x11223344, Seq=1, Time=160',
+            'Encrypted Alert', 'Alert (Level: Warning, Description: Close Notify)',
+            'Alert (Level: Fatal, Description: Handshake Failure)',
+        ]
+
+    def test_dtls_records(self, cmd_tshark, capture_file, test_env):
+        '''Content types, epochs and sequence numbers of records, several
+        records per datagram.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1,4,10,11}',
+                '-Tfields', '-eframe.number', '-edtls.record.content_type',
+                '-edtls.record.epoch', '-edtls.record.sequence_number',
+                '-edtls.handshake.type', '-edtls.handshake.message_seq',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t22\t0\t0\t1\t0', '4\t22\t0\t1\t2,11\t1,2',
+            '10\t22,22,22,20,22\t0,0,0,0,1\t2,3,4,5,0\t11,16,15\t2,3,4',
+            '11\t22,20,22\t0,0,1\t7,8,0\t4\t6',
+        ]
+
+    def test_dtls_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A ServerKeyExchange in three fragments, one of them
+        retransmitted and one overlapping, is reassembled in the frame of
+        the last fragment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-Y', 'dtls.handshake.type == 12',
+                '-Tfields', '-eframe.number', '-edtls.handshake.fragment_offset',
+                '-edtls.handshake.fragment_length', '-edtls.reassembled.length',
+                '-edtls.fragment.count', '-edtls.fragment.overlap',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t0\t60\t\t\t', '6\t0\t60\t\t\t', '7\t40\t60\t\t\t',
+            '8\t100\t44\t144\t4\tTrue,True',
+        ]
+
+    def test_dtls_heartbeat(self, cmd_tshark, capture_file, test_env):
+        '''Heartbeats with 16 octets of padding are decoded; the 3 and 10
+        octet heartbeats of frames 17 and 18 are shorter than the minimum
+        padding and shown as encrypted (they were shown as requests
+        before "DTLS: Fix the plausibility check for short heartbeats").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 72 && dtls.heartbeat_message',
+                '-Tfields', '-eframe.number', '-edtls.heartbeat_message.type',
+                '-edtls.heartbeat_message.payload_length',
+                '-edtls.heartbeat_message.payload', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '15\t1\t4\t70696e67\tHeartbeat Request',
+            '16\t2\t4\t70696e67\tHeartbeat Response',
+            '17\t\t\t\tEncrypted Heartbeat',
+            '18\t\t\t\tEncrypted Heartbeat',
+            '19\t\t\t\tEncrypted Heartbeat',
+        ]
+
+    def test_dtls_cid_and_unified_header(self, cmd_tshark, capture_file, test_env):
+        '''DTLS 1.2 Connection ID records with the CIDs negotiated in the
+        hellos, and DTLS 1.3 unified headers with every flag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 72 && '
+                      '(dtls.record.special_type || dtls.unified_header.bitmask)',
+                '-Tfields', '-eframe.number', '-edtls.record.connection_id',
+                '-edtls.unified_header.cid_present', '-edtls.unified_header.seq_size',
+                '-edtls.unified_header.length', '-edtls.unified_header.epoch_bits',
+                '-edtls.record.sequence_suffix', '-edtls.record.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '41\t5a5b\t\t\t\t\t\t32', '42\tc1c2c3c4\t\t\t\t\t\t32',
+            '43\t5a5b,5a5b\t\t\t\t\t\t20,8',
+            '48\t\tFalse\tTrue\tTrue\t2\t0\t40',
+            '49\t\tFalse\tFalse\tTrue\t2\t1\t30',
+            '50\t\tFalse\tTrue\tFalse\t3\t2\t25',
+            '51\tcc\tTrue\tTrue\tTrue\t2\t3\t20',
+            '53\t\tFalse,False\tTrue,True\tTrue,True\t3,3\t4,5\t10,12',
+        ]
+
+    def test_dtls_hand_off(self, cmd_tshark, capture_file, test_env):
+        '''Application data on the CoAP over DTLS port names CoAP, a
+        HelloVerifyRequest cookie, and a datagram fragmented by IP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {2,60,70}',
+                '-Tfields', '-eframe.number', '-edtls.handshake.cookie_length',
+                '-edtls.app_data_proto', '-edtls.handshake.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t20\t\t23', '60\t0\t\t1652', '70\t\tConstrained Application Protocol\t',
+        ]
+
+    # Frames 73-112 are encrypted with made-up secrets. The key log is in
+    # the capture (Decryption Secrets Block); the DTLS 1.2 RSA session
+    # (frames 84-89) needs the RSA key table (the test configuration has
+    # snakeoil-rsa.key) and GnuTLS, and is checked on its own.
+    DECRYPTED_INFO = [
+        '73\tClient Hello',
+        '74\tServer Hello, Server Hello Done',
+        '75\tClient Key Exchange, Change Cipher Spec, Finished',
+        '76\tChange Cipher Spec, Finished',
+        '77\tCON, MID:4660, GET, /test',
+        '78\tACK, MID:4660, 2.05 Content, /test',
+        '79\tHeartbeat Request',
+        '80\tHeartbeat Response',
+        '81\tApplication Data',
+        '82\tCON, MID:4663, GET, /test',
+        '83\tAlert (Level: Warning, Description: Close Notify)',
+        '90\tClient Hello',
+        '91\tServer Hello, Encrypted Extensions, Certificate, Certificate Verify',
+        '92\tFinished',
+        '93\tFinished',
+        '94\tAcknowledgement',
+        '95\tCON, MID:4664, GET, /test',
+        '96\tACK, MID:4664, 2.05 Content, /test',
+        '97\tCON, MID:4665, GET, /test',
+        '98\tCON, MID:4666, GET, /test',
+        '99\tCON, MID:4667, GET, /test',
+        '100\tKey Update',
+        '101\tCON, MID:4668, GET, /test',
+        '102\tCON, MID:4669, GET, /test',
+        '103\tCON, MID:4670, GET, /test',
+        '104\tCON, MID:4671, GET, /test',
+        '105\tClient Hello',
+        '106\tServer Hello, Encrypted Extensions',
+        '107\tCON, MID:4672, GET, /test',
+        '108\tACK, MID:4672, 2.05 Content, /test',
+        '109\tClient Hello',
+        '110\tCON, MID:4673, GET, /test',
+        '111\tCON, MID:4674, GET, /test',
+        '112\tServer Hello, Encrypted Extensions',
+    ]
+
+    def test_dtls_decrypt_key_log(self, cmd_tshark, capture_file, test_env):
+        '''With the key log of the capture: a DTLS 1.2 ECDHE AES-GCM session
+        (Finished, CoAP, heartbeats, an alert; frame 81 has a broken tag),
+        DTLS 1.3 sessions with AES-128-GCM and ChaCha20-Poly1305 (encrypted
+        handshake with 8 and 16 bit sequence numbers, with and without a
+        length, an ACK, records out of order and after a gap of 198
+        records, a KeyUpdate and the next epoch) and DTLS 1.3 early data
+        with AES-256-GCM found by trial decryption. The 8 bit sequence
+        numbers, the gap and the second early data record were not
+        decrypted before "DTLS: Fix DTLS 1.3 sequence number
+        reconstruction". The same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dtls_coverage.pcapng.gz'),
+                    '-Y', 'frame.number > 72 && !(frame.number >= 84 && frame.number <= 89)',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert [l.strip() for l in stdout.splitlines()] == self.DECRYPTED_INFO
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dtls_coverage.pcapng.gz'),
+                    '-Y', 'frame.number > 72 && (_ws.malformed || _ws.expert.severity >= "Note")',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-Y', 'frame.number > 72 && dtls.heartbeat_message',
+                '-Tfields', '-eframe.number', '-edtls.heartbeat_message.type',
+                '-edtls.heartbeat_message.payload',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['79\t1\t70696e67', '80\t2\t70696e67']
+
+    def test_dtls_decrypt_rsa_key(self, cmd_tshark, dirs, capture_file, features, test_env):
+        '''The DTLS 1.2 RSA session: the RSA key table entry (with the
+        protocol "http" for UDP 4433) decrypts the premaster secret.'''
+        if not features.have_gnutls:
+            pytest.skip('Requires GnuTLS.')
+        key_file = os.path.join(dirs.key_dir, 'snakeoil-rsa.key')
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dtls_coverage.pcapng.gz'),
+                '-o', 'uat:dtlsdecrypttablefile:"10.0.1.4","4433","http","{}",""'.format(
+                    key_file.replace('\\', '\\x5c')),
+                '-Y', 'frame.number >= 84 && frame.number <= 89',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines()] == [
+            '84\tDTLSv1.2\tClient Hello',
+            '85\tDTLSv1.2\tServer Hello, Certificate, Server Hello Done',
+            '86\tDTLSv1.2\tClient Key Exchange, Change Cipher Spec, Finished',
+            '87\tDTLSv1.2\tChange Cipher Spec, Finished',
+            '88\tHTTP\tGET /dtls HTTP/1.1',
+            '89\tHTTP\tHTTP/1.1 200 OK',
+        ]
