@@ -51900,3 +51900,124 @@ class TestDissectEhs:
             '\t85\t1\t58\t1000\t1\t4',
             '\t85\t1\t58\t1000\t3\t4',
         ]
+
+
+class TestDissectEigrp:
+    def test_eigrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''EIGRP over IPv4, IPv6, IPX and DDP, the IPX/SAP update handed to
+        IPX SAP and the SAF XML service data; no malformed packets or
+        malformed group expert infos in one and two passes, and warnings
+        only where the capture asks for them.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eigrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 30
+        assert protocols.count('EIGRP') == 28
+        assert protocols[20] == 'IPX SAP'
+        assert protocols[26] == 'EIGRP/XML'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('eigrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            # Bad authentication types, a bad checksum, unknown TLVs and
+            # unknown address families.
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('eigrp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['7', '17', '18', '28', '30']
+
+    def test_eigrp_opcodes_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The opcode (a Hello with an acknowledgement number is shown as
+        Hello (Ack)) and the TLV types of every frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eigrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info', '-eeigrp.tlv_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Hello\t0x0001,0x0004,0x0006',
+            'Hello (Ack)\t',
+            'Hello\t0x0001,0x0003,0x0005,0x0007,0x0008,0x00f5',
+            'Hello\t0x0003',
+            'Hello\t0x0002,0x0001',
+            'Hello\t0x0002,0x0001',
+            'Hello\t0x0002,0x0002,0x0002',
+            'Update\t0x0101,0x0102,0x0103,0x0104',
+            'Query\t0x0102',
+            'Reply\t0x0102',
+            'SIA-Query\t',
+            'SIA-Reply\t',
+            'Request\t',
+            'Route Probe\t',
+            'Stub-Info\t',
+            'Hello (Ack)\t',
+            'Unknown OpCode (0x0020)\t',
+            'Hello\t0x000a,0x0500,0x0001',
+            'Update\t0x0402,0x0403,0x0404',
+            'Update\t0x0302,0x0303',
+            'General Response\t',
+            'Update\t0x0203,0x0204',
+            'Update\t0x0601,0x0602,0x0603,0x0604',
+            'Update\t0x0602',
+            'Update\t0x0603',
+            'Update\t0x0602,0x0603,0x0602,0x0603',
+            'Update (text/plain) (text/plain)\t0x0602,0x0602,0x0603',
+            'Update\t0x0602',
+            'Update\t0x00f1,0x00f2,0x00f3,0x00f4',
+            'Update\t0x00f2,0x00f3,0x00f2,0x00f3,0x00f2,0x00f2',
+        ]
+
+    def test_eigrp_seq_ipx_address(self, cmd_tshark, capture_file, test_env):
+        '''An IPX address after an IPv4 address in a Sequence TLV is
+        formatted from its own offset (it was formatted from offset 1
+        before "EIGRP: Fix the community attribute and IPX sequence
+        address offsets").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eigrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3,4}',
+                '-V', '-O', 'eigrp',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines() if 'IPX Address' in l] == [
+            'IPX Address: IPX Address: aabbccdd.020000000044',
+            'IPX Address: IPX Address: 00000123.020000000099',
+        ]
+
+    def test_eigrp_community_attribute(self, cmd_tshark, capture_file, test_env):
+        '''The community attributes of a wide metric are decoded from
+        their own 8 octets (before the fix they were read with the offset
+        and length of the attribute list and threw).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eigrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 25',
+                '-Tfields', '-eeigrp.metric.comm_type', '-eeigrp.extcomm.tag',
+                '-eeigrp.extcomm.xmetric', '-eeigrp.extcomm.xrid',
+                '-eeigrp.ipv4.destination', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '34816,34822,34817,34818,34819,34820,34821,3,259,17476\t'
+            '16777216,16777223,16777224\t16777222\t16777221\t198.51.100.0\t',
+        ]
+
+    def test_eigrp_auth_and_routes(self, cmd_tshark, capture_file, test_env):
+        '''The authentication digests are shown as they are (nothing is
+        computed), and the route destinations of the legacy and wide
+        metric TLVs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eigrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5,6,8,19,23}',
+                '-Tfields', '-eeigrp.auth.type', '-eeigrp.auth.digest',
+                '-eeigrp.ipv4.destination', '-eeigrp.ipv6.destination',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\ta0a1a2a3a4a5a6a7a8a9aaabacadaeaf\t\t',
+            '3\t404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f\t\t',
+            '\t\t198.51.100.0,198.51.100.0,0.0.0.0,198.51.100.7,203.0.0.0,10.0.0.0,198.18.0.0\t',
+            '\t\t\t2001:db8:1::,2001:db8::7,::,2001:db8:8000::,2001:db8:2::,2001:db8:300::',
+            '\t\t198.51.100.0,198.51.100.0,198.51.100.1,10.1.0.0,10.0.0.0\t',
+        ]
