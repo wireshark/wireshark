@@ -46197,3 +46197,163 @@ class TestDissectDpauxmon:
             '11\tInternal\tN/A\t',
             '12\tInternal\tN/A\t',
         ]
+
+
+class TestDissectDplay:
+    # DirectPlay is found by heuristics that are disabled by default.
+    heur = ('--enable-heuristic', 'dplay_udp', '--enable-heuristic', 'dplay_tcp')
+
+    def test_dplay_protocols(self, cmd_tshark, capture_file, test_env):
+        '''With the DirectPlay heuristics enabled, every UDP and TCP
+        payload is DirectPlay, and none is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('dplay_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 44
+        assert protocols.count('DPLAY') == 41
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dplay_coverage.pcap.gz'),
+                '-Y', 'dplay',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.heur, *passes,
+                    '-r', capture_file('dplay_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || dplay.length.invalid',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dplay_info(self, cmd_tshark, capture_file, test_env):
+        '''Every command the dissector decodes, every dialect, type 0x15
+        packets naming the message they hold, player to player messages.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('dplay_coverage.pcap.gz'),
+                '-Y', 'dplay',
+                '-Tfields', '-eframe.number', '-edplay.command',
+                '-edplay.command_2', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0002\t\tdplay 9: Enum Sessions',
+            '2\t0x0002\t\tdplay 6: Enum Sessions',
+            '3\t0x0001\t\tdplay 9: Enum Sessions Reply',
+            '4\t0x0001\t\tdplay 6.1: Enum Sessions Reply',
+            '5\t0x0001\t\tdplay 9: Enum Sessions Reply',
+            '6\t0x0004\t\tdplay 6.1a: Enum Players',
+            '7\t0x0005\t\tdplay 7.1: Request Player ID',
+            '8\t0x0007\t\tdplay 9: Request Player Reply',
+            '9\t0x0007\t\tdplay 8: Request Player Reply',
+            '10\t0x0008\t\tdplay 9: Create Player',
+            '11\t0x0009\t\tdplay 9: Create Group',
+            '12\t0x000b\t\tdplay 9: Delete Player',
+            '13\t0x000c\t\tdplay 9: Delete Group',
+            '14\t0x000d\t\tdplay 9: Add Player To Group',
+            '15\t0x000e\t\tdplay 9: Delete Player From Group',
+            '16\t0x002e\t\tdplay 9: Add Forward',
+            '17\t0x0038\t\tdplay 9: Create Players Verify',
+            '18\t0x000f\t\tdplay 9: Player Data Changed',
+            '19\t0x000f\t\tdplay 9: Player Data Changed',
+            '20\t0x0013\t\tdplay 9: Add Forward Request',
+            '21\t0x0013\t\tdplay 9: Add Forward Request',
+            '22\t0x0015\t0x0005\tdplay 9: Packet, holding a Request Player ID',
+            '23\t0x0015\t0x0007\tdplay 9: Packet, holding a Request Player Reply',
+            '24\t0x0015\t0x0008\tdplay 9: Packet, holding a Create Player',
+            '25\t0x0015\t0x0013\tdplay 9: Packet, holding a Add Forward Request',
+            '26\t0x0015\t0x001a\tdplay 9: Packet, holding a Session Desc Changed',
+            '27\t0x0015\t0x0016\tdplay 9: Packet, holding a Ping',
+            '28\t0x0016\t\tdplay 9: Ping',
+            '29\t0x0017\t\tdplay 9: Pong',
+            '30\t0x001a\t\tdplay 9: Session Desc Changed',
+            '31\t0x001a\t\tdplay 9: Session Desc Changed',
+            '32\t0x0029\t\tdplay 9: Super Enum Players Reply',
+            '33\t0x0029\t\tdplay 9: Super Enum Players Reply',
+            '34\t0x002f\t\tdplay 9: Add Forward ACK',
+            '35\t0x0024\t\tUnknown (0x0042): Add Forward Reply',
+            '36\t\t\tDPlay player to player message',
+            '37\t\t\tDPlay player to player message',
+            '38\t\t\tDPlay player to player message',
+            '42\t0x0002\t\tdplay 9: Enum Sessions',
+            '43\t0x0001\t\tdplay 9: Enum Sessions Reply',
+            '44\t0x0005\t\tdplay 9: Request Player ID',
+        ]
+
+    def test_dplay_strings(self, cmd_tshark, capture_file, test_env):
+        '''The fields after a NUL-terminated UTF-16 string are decoded:
+        the CAPI provider after the SSPI provider, the SP data and the
+        password after the player names, the tick count after the
+        password (reproducer dplay_misc.pcap), the password after the
+        session or game name. Before "SMB: End display_unicode_string()
+        strings at the NUL" the string ran to the end of the packet and
+        these fields were lost.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('dplay_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,3,5,8,10,20,25,30,32}',
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number',
+                '-edplay.type02.password', '-edplay.type_01.game_name',
+                '-edplay.type_07.sspi', '-edplay.type_07.capi',
+                '-edplay.pp.long_name', '-edplay.pp.sp_data',
+                '-edplay.multi.password', '-edplay.type_13.password',
+                '-edplay.type_13.tick_count', '-edplay.type_1a.session_name',
+                '-edplay.type_1a.password', '-edplay.type_29.game_name',
+                '-edplay.type_29.password', '-edplay.spp.short_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tsecret\t\t\t\t\t\t\t\t\t\t\t\t\t',
+            '3\t\tCoverage Game\t\t\t\t\t\t\t\t\t\t\t\t',
+            '5\t\tGame\t\t\t\t\t\t\t\t\t\t\t\t',
+            '8\t\t\tNTLM\tMicrosoft Base Cryptographic Provider\t\t\t\t\t\t\t\t\t\t',
+            '10\t\t\t\t\tAlice Liddell\t01020304\tpw\t\t\t\t\t\t\t',
+            '20\t\t\t\t\t\t\t\tpw\t78563412\t\t\t\t\t',
+            '25\t\t\t\t\t\t\t\tpass\t07000000\t\t\t\t\t',
+            '30\t\t\t\t\t\t\t\t\t\tRenamed Session\tnewpass\t\t\t',
+            '32\t\t\t\t\t\t\t\t\t\t\t\tSuper Game\tsp\tSys|Dave',
+        ]
+
+    def test_dplay_type15(self, cmd_tshark, capture_file, test_env):
+        '''A type 0x15 packet holding a type 0x07 message is dissected as
+        a type 0x07 message (it was dissected as type 0x05), and the other
+        held messages are dissected too.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('dplay_coverage.pcap.gz'),
+                '-Y', 'dplay.command == 0x15',
+                '-Tfields', '-eframe.number', '-edplay.type_05.flags',
+                '-edplay.type_07.sspi', '-edplay.sd.enc_alg',
+                '-edplay.pp.short_name', '-edplay.type_13.tick_count',
+                '-edplay.type_1a.session_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '22\t0x00000009\t\t\t\t\t',
+            '23\t\tKerberos\t0x00006610\t\t\t',
+            '24\t\t\t\tCarol\t\t',
+            '25\t\t\t\t\t07000000\t',
+            '26\t\t\t\t\t\tInner',
+            '27\t\t\t\t\t\t',
+        ]
+
+    def test_dplay_players(self, cmd_tshark, capture_file, test_env):
+        '''Packed players with names, data, player IDs and a parent ID,
+        and super packed players with every length type, parent IDs and
+        shortcuts.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heur,
+                '-r', capture_file('dplay_coverage.pcap.gz'),
+                '-Y', 'dplay.pp.size || dplay.spp.size',
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number',
+                '-edplay.pp.short_name', '-edplay.pp.player_data',
+                '-edplay.pp.player_id', '-edplay.pp.parent_id',
+                '-edplay.spp.long_name', '-edplay.spp.player_data',
+                '-edplay.spp.sp_data', '-edplay.spp.player_id',
+                '-edplay.spp.parent_id', '-edplay.spp.shortcut_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\tAlice\taabb\t01040000|02040000\t\t\t\t\t\t\t',
+            '11\t\t\t\t01050000\t\t\t\t\t\t',
+            '21\tBob\t01\t\t\t\t\t\t\t\t',
+            '24\tCarol\t\t\t\t\t\t\t\t\t',
+            '32\t\t\t\t\tSystem Player|Group One\t01|0405|070707\t0203|06|08\t'
+            '01040000|02040000|03040000|04040000\t01050000\t'
+            '01060000|02060000|03060000|04060000',
+        ]
