@@ -37,7 +37,6 @@
 #include <QFileInfo>
 #include <QFont>
 #include <QFontMetricsF>
-#include <QFormLayout>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -417,7 +416,6 @@ void uninstallDialogCallbacks()
 } // namespace
 
 LuaDebuggerDialog *LuaDebuggerDialog::_instance = nullptr;
-int32_t LuaDebuggerDialog::currentTheme_ = WSLUA_DEBUGGER_THEME_AUTO;
 
 LuaDebuggerDialog *LuaDebuggerDialog::instanceIfExists()
 {
@@ -429,21 +427,16 @@ bool LuaDebuggerDialog::handleMainCloseIfPaused(QCloseEvent *event)
     return LuaDebuggerMainClosePolicy::handleMainCloseIfPaused(event);
 }
 
-int32_t LuaDebuggerDialog::currentTheme()
-{
-    return currentTheme_;
-}
-
 LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
     : GeometryStateDialog(parent), ui(new Ui::LuaDebuggerDialog), variablesController_(this), stackController_(this),
       evalController_(this), breakpointsController_(this), filesController_(this), watchController_(this),
       codeTabsController_(this), pauseController_(this), reloadCoordinator_(this), keyRouter_(this),
       enabledCheckBox(nullptr), debuggerPaused(false), variablesSection(nullptr),
       watchSection(nullptr), stackSection(nullptr), breakpointsSection(nullptr), filesSection(nullptr),
-      evalSection(nullptr), settingsSection(nullptr), variablesTree(nullptr), variablesModel(nullptr),
+      evalSection(nullptr), variablesTree(nullptr), variablesModel(nullptr),
       watchTree(nullptr), watchModel(nullptr), stackTree(nullptr), stackModel(nullptr), fileTree(nullptr),
       fileModel(nullptr), breakpointsTree(nullptr), breakpointsModel(nullptr), evalInputEdit(nullptr),
-      evalOutputEdit(nullptr), evalButton(nullptr), evalClearButton(nullptr), themeComboBox(nullptr),
+      evalOutputEdit(nullptr), evalButton(nullptr), evalClearButton(nullptr),
       breakpointHeaderToggleButton_(nullptr), breakpointHeaderRemoveButton_(nullptr),
       breakpointHeaderRemoveAllButton_(nullptr), breakpointHeaderEditButton_(nullptr)
 {
@@ -581,9 +574,9 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
         connect(mainApp, &MainApplication::preferencesChanged, this, &LuaDebuggerDialog::onPreferencesChanged,
                 Qt::UniqueConnection);
         /*
-         * Connect to themeChanged signal to update code view themes when
-         * Wireshark's color scheme changes. This is important when the debugger
-         * theme preference is set to "Auto (follow color scheme)".
+         * Re-apply the code view colors when the theme or the light/dark
+         * color scheme changes; the editor's syntax colors come from the
+         * theme's "code" section.
          */
         connect(ThemeManager::instance(), &ThemeManager::themeChanged, this, &LuaDebuggerDialog::onColorsChanged,
                 Qt::UniqueConnection);
@@ -1341,35 +1334,8 @@ void LuaDebuggerDialog::onPreferencesChanged()
     watchController_.refreshDisplay();
 }
 
-void LuaDebuggerDialog::onThemeChanged(int idx)
-{
-    if (themeComboBox)
-    {
-        int32_t theme = themeComboBox->itemData(idx).toInt();
-
-        /* Update static theme for CodeView syntax highlighting */
-        currentTheme_ = theme;
-
-        /* Store theme in our JSON settings */
-        if (theme == WSLUA_DEBUGGER_THEME_DARK)
-            settingsStore_.map()[LuaDebuggerSettingsKeys::Theme] = "dark";
-        else if (theme == WSLUA_DEBUGGER_THEME_LIGHT)
-            settingsStore_.map()[LuaDebuggerSettingsKeys::Theme] = "light";
-        else
-            settingsStore_.map()[LuaDebuggerSettingsKeys::Theme] = "auto";
-
-        applyCodeViewThemes();
-    }
-}
-
 void LuaDebuggerDialog::onColorsChanged()
 {
-    /*
-     * When Wireshark's color scheme changes and the debugger theme is set to
-     * "Auto (follow color scheme)", we need to re-apply themes to all code
-     * views. The applyCodeViewThemes() function will query
-     * ThemeManager::instance()->isDark() to determine the effective theme.
-     */
     applyCodeViewThemes();
     watchController_.refreshDisplay();
 }
@@ -2083,33 +2049,9 @@ void LuaDebuggerDialog::createCollapsibleSections()
     splitter->addWidget(createFilesSection(this));
     splitter->addWidget(createEvaluateSection(this));
 
-    /* Settings panel is intentionally inline: a single QComboBox with no
-     * dedicated controller does not warrant its own translation unit. */
-    settingsSection = new CollapsibleSection(tr("Settings"), this);
-    QWidget *settingsWidget = new QWidget();
-    QFormLayout *settingsLayout = new QFormLayout(settingsWidget);
-    settingsLayout->setContentsMargins(4, 4, 4, 4);
-    settingsLayout->setSpacing(6);
-    ZoomScaling::scaleLayoutMetrics(settingsLayout);
-
-    themeComboBox = new QComboBox();
-    themeComboBox->addItem(tr("Auto (follow color scheme)"), WSLUA_DEBUGGER_THEME_AUTO);
-    themeComboBox->addItem(tr("Dark"), WSLUA_DEBUGGER_THEME_DARK);
-    themeComboBox->addItem(tr("Light"), WSLUA_DEBUGGER_THEME_LIGHT);
-    themeComboBox->setToolTip(tr("Color theme for the code editor"));
-    // Theme will be set by applyDialogSettings() later
-    settingsLayout->addRow(tr("Code View Theme:"), themeComboBox);
-
-    connect(themeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-            &LuaDebuggerDialog::onThemeChanged);
-
-    settingsSection->setContentWidget(settingsWidget);
-    settingsSection->setExpanded(false);
-    splitter->addWidget(settingsSection);
-
     QList<int> sizes;
     int headerH = variablesSection->headerHeight();
-    sizes << 120 << 70 << 100 << headerH << 80 << headerH << headerH;
+    sizes << 120 << 70 << 100 << headerH << 80 << headerH;
     splitter->setSizes(sizes);
 
     /* Tell QSplitter that every section is allowed to absorb surplus
@@ -2129,8 +2071,8 @@ void LuaDebuggerDialog::createCollapsibleSections()
      * the splitter takes all extra height. */
     ui->leftPanelLayout->addStretch(0);
 
-    const QList<CollapsibleSection *> allSections = {variablesSection, watchSection, stackSection,   breakpointsSection,
-                                                     filesSection,     evalSection,  settingsSection};
+    const QList<CollapsibleSection *> allSections = {variablesSection, watchSection, stackSection,
+                                                     breakpointsSection, filesSection, evalSection};
     for (CollapsibleSection *s : allSections)
         connect(s, &CollapsibleSection::toggled, this, &LuaDebuggerDialog::updateLeftPanelStretch);
     updateLeftPanelStretch();
@@ -2141,8 +2083,8 @@ void LuaDebuggerDialog::updateLeftPanelStretch()
     if (!ui || !ui->leftSplitter || !ui->leftPanelLayout)
         return;
 
-    const QList<CollapsibleSection *> sections = {variablesSection, watchSection, stackSection,   breakpointsSection,
-                                                  filesSection,     evalSection,  settingsSection};
+    const QList<CollapsibleSection *> sections = {variablesSection, watchSection, stackSection,
+                                                  breakpointsSection, filesSection, evalSection};
 
     bool anyExpanded = false;
     int contentH = 0;

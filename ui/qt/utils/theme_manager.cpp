@@ -175,7 +175,10 @@ ThemeManager::ThemeManager(QObject *parent)
         // tokens from accent + palette.base.  An explicit theme.filter
         // entry wins per-token (auto-grouping picks up FilterValid →
         // "valid", FilterBusyText → "busytext", etc).
-        { "filter", { false, { } } }
+        { "filter", { false, { } } },
+        // Code editor surface and syntax colors — every subkey optional;
+        // an omitted one gets the editor's fixed light / dark default.
+        { "code", { false, { } } }
     };
 
     // convenience mapping from string to QPalette::ColorRole

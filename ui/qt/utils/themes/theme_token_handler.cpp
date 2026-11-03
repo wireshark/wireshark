@@ -356,6 +356,40 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
         assign(ThemeManager::FilterHistory, ThemeColorPair { midGray, midGray }, QT_TRANSLATE_NOOP("ThemeTokenHandler", "palette.mid"));
     }
 
+    // Code editor colors (Lua Debugger script editor).  An omitted
+    // theme.code key gets the editor's own fixed light / dark default,
+    // independent of the theme palette, so the default syntax colors
+    // always sit on the default code.background they were chosen for.
+    {
+        assign(ThemeManager::CodeBackground,    ThemeColorPair { QColor(0xff, 0xff, 0xff), QColor(0x1e, 0x1e, 0x1e) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeText,          ThemeColorPair { QColor(0x00, 0x00, 0x00), QColor(0xd4, 0xd4, 0xd4) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeSelection,     ThemeColorPair { QColor(0xad, 0xd6, 0xff), QColor(0x26, 0x4f, 0x78) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeSelectionText, ThemeColorPair { QColor(0x00, 0x00, 0x00), QColor(0xff, 0xff, 0xff) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeGutter,        ThemeColorPair { QColor(0xf3, 0xf3, 0xf3), QColor(0x25, 0x25, 0x26) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeGutterText,    ThemeColorPair { QColor(0x23, 0x78, 0x93), QColor(0x85, 0x85, 0x85) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        // Pale warm amber (light); translucent deep gold (dark).
+        assign(ThemeManager::CodePausedLine,    ThemeColorPair { QColor(0xfe, 0xf3, 0xc7), QColor(0x80, 0x6f, 0x00, 120) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeString,       ThemeColorPair { QColor(0xa3, 0x15, 0x15), QColor(0xce, 0x91, 0x78) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeKeyword,      ThemeColorPair { QColor(0x00, 0x00, 0xff), QColor(0x56, 0x9c, 0xd6) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeNumber,       ThemeColorPair { QColor(0x09, 0x86, 0x58), QColor(0xb5, 0xce, 0xa8) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeBuiltIn,      ThemeColorPair { QColor(0x26, 0x7f, 0x99), QColor(0x4f, 0xc1, 0xff) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeFunctionCall, ThemeColorPair { QColor(0x79, 0x5e, 0x26), QColor(0xdc, 0xdc, 0xaa) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+        assign(ThemeManager::CodeComment,      ThemeColorPair { QColor(0x00, 0x80, 0x00), QColor(0x6a, 0x99, 0x55) },
+               QT_TRANSLATE_NOOP("ThemeTokenHandler", "fixed code editor default"));
+    }
+
     // Syntax highlighting — readable foreground text on PaletteBase.
     // Keys use the palette's Mid role, lifted to body-text
     // contrast against Base: on macOS dark mode Mid sits below Base.

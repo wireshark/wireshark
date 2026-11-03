@@ -63,32 +63,17 @@
 
 /* ===== code_palette ===== */
 
-LuaDebuggerEditorPalette luaDebuggerEditorPaletteFor(bool isDark)
+LuaDebuggerEditorPalette luaDebuggerEditorPalette()
 {
+    const ThemeManager *theme = ThemeManager::instance();
     LuaDebuggerEditorPalette p;
-    if (isDark)
-    {
-        p.editorBackground = QColor(QStringLiteral("#1E1E1E"));
-        p.editorText = QColor(QStringLiteral("#D4D4D4"));
-        p.selection = QColor(QStringLiteral("#264F78"));
-        p.selectionText = QColor(QStringLiteral("#FFFFFF"));
-        p.gutterBackground = QColor(QStringLiteral("#252526"));
-        p.gutterText = QColor(QStringLiteral("#858585"));
-        /* Translucent deep gold (reads well on #1E1E1E). */
-        p.pausedLine = QColor(QStringLiteral("#806F00"));
-        p.pausedLine.setAlpha(120);
-    }
-    else
-    {
-        p.editorBackground = QColor(QStringLiteral("#FFFFFF"));
-        p.editorText = QColor(QStringLiteral("#000000"));
-        p.selection = QColor(QStringLiteral("#ADD6FF"));
-        p.selectionText = QColor(QStringLiteral("#000000"));
-        p.gutterBackground = QColor(QStringLiteral("#F3F3F3"));
-        p.gutterText = QColor(QStringLiteral("#237893"));
-        /* Pale warm amber; distinct from the selection #ADD6FF. */
-        p.pausedLine = QColor(QStringLiteral("#FEF3C7"));
-    }
+    p.editorBackground = theme->color(ThemeManager::CodeBackground);
+    p.editorText = theme->color(ThemeManager::CodeText);
+    p.selection = theme->color(ThemeManager::CodeSelection);
+    p.selectionText = theme->color(ThemeManager::CodeSelectionText);
+    p.gutterBackground = theme->color(ThemeManager::CodeGutter);
+    p.gutterText = theme->color(ThemeManager::CodeGutterText);
+    p.pausedLine = theme->color(ThemeManager::CodePausedLine);
     return p;
 }
 
@@ -101,73 +86,31 @@ namespace
 constexpr qint32 kStringStateBase = 0x1000;  // Unique positive range for long strings
 constexpr qint32 kCommentStateBase = 0x2000; // Distinct positive range for block comments
 
-/**
- * @brief Theme-keyed colour table for syntax highlighting.
- *
- * Lives next to the highlighter (its only consumer) so the rule
- * builder is the single owner of "what colour does X get". The
- * editor / gutter palette is a separate story handled by
- * @c LuaDebuggerEditorPalette.
- */
-struct ThemeColors
-{
-    QColor stringColor;
-    QColor keywordColor;
-    QColor numberColor;
-    QColor builtInColor;
-    QColor functionCallColor;
-    QColor commentColor;
-};
-
-ThemeColors themeColorsFor(bool isDark)
-{
-    ThemeColors c;
-    if (isDark)
-    {
-        c.stringColor = QColor(QStringLiteral("#CE9178"));
-        c.keywordColor = QColor(QStringLiteral("#569CD6"));
-        c.numberColor = QColor(QStringLiteral("#B5CEA8"));
-        c.builtInColor = QColor(QStringLiteral("#4FC1FF"));
-        c.functionCallColor = QColor(QStringLiteral("#DCDCAA"));
-        c.commentColor = QColor(QStringLiteral("#6A9955"));
-    }
-    else
-    {
-        c.stringColor = QColor(QStringLiteral("#A31515"));
-        c.keywordColor = QColor(QStringLiteral("#0000FF"));
-        c.numberColor = QColor(QStringLiteral("#098658"));
-        c.builtInColor = QColor(QStringLiteral("#267F99"));
-        c.functionCallColor = QColor(QStringLiteral("#795E26"));
-        c.commentColor = QColor(QStringLiteral("#008000"));
-    }
-    return c;
-}
-
 } // namespace
 
-LuaSyntaxHighlighter::LuaSyntaxHighlighter(QTextDocument *parent, bool isDark) : QSyntaxHighlighter(parent)
+LuaSyntaxHighlighter::LuaSyntaxHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent)
 {
     singleLineComment_ = QRegularExpression(QStringLiteral(R"(--(?!\[).*)"));
-    buildRules(isDark);
+    buildRules();
 }
 
-void LuaSyntaxHighlighter::setTheme(bool isDark)
+void LuaSyntaxHighlighter::updateColors()
 {
-    buildRules(isDark);
+    buildRules();
     rehighlight();
 }
 
-void LuaSyntaxHighlighter::buildRules(bool isDark)
+void LuaSyntaxHighlighter::buildRules()
 {
-    const ThemeColors colors = themeColorsFor(isDark);
+    const ThemeManager *theme = ThemeManager::instance();
     rules_.clear();
 
-    stringFormat_.setForeground(colors.stringColor);
+    stringFormat_.setForeground(theme->color(ThemeManager::CodeString));
     rules_.append({QRegularExpression(QStringLiteral("\"(?:\\\\.|[^\"\\\\])*\"")), stringFormat_});
     rules_.append({QRegularExpression(QStringLiteral("'(?:\\\\.|[^'\\\\])*'")), stringFormat_});
 
     QTextCharFormat keywordFormat;
-    keywordFormat.setForeground(colors.keywordColor);
+    keywordFormat.setForeground(theme->color(ThemeManager::CodeKeyword));
     keywordFormat.setFontWeight(QFont::Bold);
     const QStringList keywords = {
         QStringLiteral("and"),      QStringLiteral("break"),  QStringLiteral("do"),    QStringLiteral("else"),
@@ -185,22 +128,22 @@ void LuaSyntaxHighlighter::buildRules(bool isDark)
     }
 
     QTextCharFormat numberFormat;
-    numberFormat.setForeground(colors.numberColor);
+    numberFormat.setForeground(theme->color(ThemeManager::CodeNumber));
     rules_.append({QRegularExpression(QStringLiteral("\\b0[xX][0-9a-fA-F]+\\b")), numberFormat});
     rules_.append({QRegularExpression(QStringLiteral("\\b\\d+(?:\\.\\d+)?\\b")), numberFormat});
 
     QTextCharFormat builtInFormat;
-    builtInFormat.setForeground(colors.builtInColor);
+    builtInFormat.setForeground(theme->color(ThemeManager::CodeBuiltIn));
     rules_.append({QRegularExpression(QStringLiteral("\\bself\\b")), builtInFormat});
 
     QTextCharFormat functionCallFormat;
-    functionCallFormat.setForeground(colors.functionCallColor);
+    functionCallFormat.setForeground(theme->color(ThemeManager::CodeFunctionCall));
     Rule functionCallRule;
     functionCallRule.pattern = QRegularExpression(QStringLiteral("\\b(?!function\\b)([A-Za-z_]\\w*)\\s*(?=\\()"));
     functionCallRule.format = functionCallFormat;
     rules_.append(functionCallRule);
 
-    commentFormat_.setForeground(colors.commentColor);
+    commentFormat_.setForeground(theme->color(ThemeManager::CodeComment));
 }
 
 void LuaSyntaxHighlighter::highlightBlock(const QString &text)
@@ -367,7 +310,7 @@ LuaDebuggerCodeView::LuaDebuggerCodeView(QWidget *parent)
                                   "Drag existing breakpoint: move to nearest free visible line\n"
                                   "Shift+click: on an empty line, add a disabled breakpoint;\n"
                                   "on an existing breakpoint, toggle its active state"));
-    syntaxHighlighter = new LuaSyntaxHighlighter(document(), ThemeManager::isDark());
+    syntaxHighlighter = new LuaSyntaxHighlighter(document());
 
     connect(this, &LuaDebuggerCodeView::blockCountChanged, this, &LuaDebuggerCodeView::updateLineNumberAreaWidth);
     connect(this, &LuaDebuggerCodeView::updateRequest, this, &LuaDebuggerCodeView::updateLineNumberArea);
@@ -507,7 +450,7 @@ void LuaDebuggerCodeView::rebuildLineHighlights()
             QTextCursor pauseCursor(pauseBlock);
             pauseCursor.movePosition(QTextCursor::StartOfBlock);
             QTextEdit::ExtraSelection pauseSel;
-            const LuaDebuggerEditorPalette palette = luaDebuggerEditorPaletteFor(ThemeManager::isDark());
+            const LuaDebuggerEditorPalette palette = luaDebuggerEditorPalette();
             pauseSel.format.setBackground(palette.pausedLine);
             pauseSel.format.setProperty(QTextFormat::FullWidthSelection, true);
             pauseSel.cursor = pauseCursor;
@@ -626,11 +569,10 @@ void LuaDebuggerCodeView::updateBreakpointMarkers()
 
 void LuaDebuggerCodeView::applyTheme()
 {
-    const bool isDark = ThemeManager::isDark();
     applyEditorPalette();
     if (syntaxHighlighter)
     {
-        static_cast<LuaSyntaxHighlighter *>(syntaxHighlighter)->setTheme(isDark);
+        static_cast<LuaSyntaxHighlighter *>(syntaxHighlighter)->updateColors();
     }
     lineNumberArea->update();
     viewport()->update();
@@ -639,7 +581,7 @@ void LuaDebuggerCodeView::applyTheme()
 
 void LuaDebuggerCodeView::applyEditorPalette()
 {
-    const LuaDebuggerEditorPalette colors = luaDebuggerEditorPaletteFor(ThemeManager::isDark());
+    const LuaDebuggerEditorPalette colors = luaDebuggerEditorPalette();
     QPalette pal = palette();
     QPalette gutterPal = lineNumberArea->palette();
 
@@ -668,7 +610,7 @@ void LuaDebuggerCodeView::applyEditorPalette()
 
 void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
-    const LuaDebuggerEditorPalette colors = luaDebuggerEditorPaletteFor(ThemeManager::isDark());
+    const LuaDebuggerEditorPalette colors = luaDebuggerEditorPalette();
     QPainter painter(lineNumberArea);
     painter.setRenderHint(QPainter::Antialiasing, true);
 

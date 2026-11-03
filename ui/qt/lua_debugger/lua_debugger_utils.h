@@ -121,7 +121,6 @@ QString luaDebuggerSettingsFilePath();
 
 namespace LuaDebuggerSettingsKeys
 {
-constexpr const char *Theme = "theme";
 /** Last toolbar "Enable debugger" checkbox state (persisted across dialog instances). */
 constexpr const char *DebuggerEnabled = "debuggerEnabled";
 constexpr const char *MainSplitter = "mainSplitterState";
@@ -132,7 +131,6 @@ constexpr const char *SectionStack = "sectionStack";
 constexpr const char *SectionFiles = "sectionFiles";
 constexpr const char *SectionBreakpoints = "sectionBreakpoints";
 constexpr const char *SectionEval = "sectionEval";
-constexpr const char *SectionSettings = "sectionSettings";
 constexpr const char *SectionWatch = "sectionWatch";
 constexpr const char *Breakpoints = "breakpoints";
 constexpr const char *Watches = "watches";

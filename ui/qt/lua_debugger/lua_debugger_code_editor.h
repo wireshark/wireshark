@@ -43,9 +43,10 @@ class QTreeView;
 /* ===== code_palette ===== */
 
 /**
- * @brief Single source of truth for the script editor's theme-aware colours.
+ * @brief Script editor colours, read from the theme's @c code section.
  *
- * Used by @ref LuaDebuggerCodeView to seed both its @c QPalette
+ * Filled from the ThemeManager::Code* tokens for the active light/dark
+ * mode. Used by @ref LuaDebuggerCodeView to seed both its @c QPalette
  * (@c applyEditorPalette) and the gutter painter
  * (@c lineNumberAreaPaintEvent), and by @c rebuildLineHighlights for the
  * paused-line stripe. Centralising the table here keeps the editor and
@@ -65,16 +66,11 @@ struct LuaDebuggerEditorPalette
     QColor pausedLine;
 };
 
-/** @brief Resolve the effective theme based on the debugger preference and
- *  Wireshark's current colour scheme when set to AUTO. */
-bool luaDebuggerThemeIsDark();
-
 /**
- * @brief Return the editor palette for the requested theme.
- * @param isDark Indicates whether the dark theme should be used.
- * @return LuaDebuggerEditorPalette The editor palette for the specified theme.
+ * @brief Return the editor palette of the active theme and light/dark mode.
+ * @return LuaDebuggerEditorPalette The editor palette.
  */
-LuaDebuggerEditorPalette luaDebuggerEditorPaletteFor(bool isDark);
+LuaDebuggerEditorPalette luaDebuggerEditorPalette();
 
 /* ===== lua_highlighter ===== */
 
@@ -82,18 +78,19 @@ LuaDebuggerEditorPalette luaDebuggerEditorPaletteFor(bool isDark);
  * @brief Syntax highlighter tuned for Lua keywords, strings, numbers,
  *        comments and Lua's long-bracket strings/comments.
  *
- * Theme-agnostic: takes a @c bool isDark at construction (and at
- * @ref setTheme) and pulls the matching colour table from a private
- * helper. No coupling to @c LuaDebuggerCodeView or @c LuaDebuggerDialog.
+ * Colours come from the theme's @c code section (ThemeManager::Code*
+ * tokens) for the active light/dark mode; call @ref updateColors after
+ * a theme or mode change. No coupling to @c LuaDebuggerCodeView or
+ * @c LuaDebuggerDialog.
  */
 class LuaSyntaxHighlighter : public QSyntaxHighlighter
 {
   public:
-    /** @brief Build the rule set for @p isDark and bind to @p parent's document. */
-    explicit LuaSyntaxHighlighter(QTextDocument *parent, bool isDark);
+    /** @brief Build the rule set from the current theme and bind to @p parent's document. */
+    explicit LuaSyntaxHighlighter(QTextDocument *parent);
 
-    /** @brief Rebuild the rule set for the new theme and rehighlight. */
-    void setTheme(bool isDark);
+    /** @brief Rebuild the rule set from the current theme colours and rehighlight. */
+    void updateColors();
 
   protected:
     /** @brief Apply highlighting to a single text block. */
@@ -124,11 +121,8 @@ class LuaSyntaxHighlighter : public QSyntaxHighlighter
     /** @brief Locate the closing delimiter for a Lua long bracket token. */
     qint32 findLongBlockEnd(const QString &text, qint32 from, qint32 eqCount) const;
 
-    /**
-     * @brief Build the syntax-highlighting rules for @p isDark and store them in @c rules_.
-     * @param isDark Indicates whether the dark theme should be used.
-     */
-    void buildRules(bool isDark);
+    /** @brief Build the syntax-highlighting rules from the current theme colours and store them in @c rules_. */
+    void buildRules();
 };
 
 /* ===== code_view ===== */
@@ -194,7 +188,7 @@ class LuaDebuggerCodeView : public QPlainTextEdit
     /** @brief Refresh breakpoint markers in the gutter area. */
     void updateBreakpointMarkers();
 
-    /** @brief Re-apply theme colors from the current preference. */
+    /** @brief Re-apply theme colors from the active theme and color scheme. */
     void applyTheme();
 
     /**

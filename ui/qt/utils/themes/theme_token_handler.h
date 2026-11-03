@@ -37,6 +37,7 @@
  *   Conversation*                 (from brand + accent + base)
  *   Expert*                       (from accent variants — alpha-blend)
  *   Filter*                       (from accent + base)
+ *   Code*                         (fixed light / dark code editor defaults)
  *   Syntax*                       (from palette.mid + accent)
  *   FieldBorder / Separator / MutedText  (from palette base/mid/text)
  *   TextOn*                       (black or white on accent / filter tints)

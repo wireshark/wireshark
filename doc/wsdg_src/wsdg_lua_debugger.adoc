@@ -50,7 +50,7 @@ _Lua Debugger — Paused_). The debugger has four states:
   disabled in this state and its tooltip explains why; see
   <<wslua_debugger_live_capture>>.
 
-Watches, breakpoints, the editor theme, and section layout are
+Watches, breakpoints, and section layout are
 remembered across Wireshark restarts.
 
 .Lua Debugger dialog, paused inside a postdissector
@@ -1427,8 +1427,8 @@ The debugger-specific behaviors:
   right-pointing triangle in the gutter (overlaid on top of the
   breakpoint circle if one is set on that line); the cursor is
   moved to that line on pause.
-* *Lua-aware syntax highlighting* using the active code-view
-  theme; see <<wslua_debugger_settings>> below.
+* *Lua-aware syntax highlighting* using the colors of the active
+  Wireshark theme; see <<wslua_debugger_settings>> below.
 * *Add Watch.* The editor context menu's *Add Watch* uses the
   current selection if there is one, otherwise the Lua identifier
   under the cursor. The selection is taken verbatim, so a path
@@ -1444,18 +1444,19 @@ The debugger-specific behaviors:
 
 [#wslua_debugger_settings]
 
-==== Color theme
+==== Colors
 
-The code-view theme has three modes: *Auto (follow color scheme)*,
-*Dark*, and *Light*. The setting affects only the code editor
-(syntax coloring, background, cursor-line stripe); the tree panels
-use the normal Wireshark palette. The *Dark* and *Light* palettes
-are VS Code Dark+ / Light+ inspired so that Lua source colors
-match what most developers see in their primary editor. _Auto_
-resolves against the current Wireshark color scheme and reacts to
-palette changes in real time.
-
-The choice is remembered across Wireshark restarts.
+The code editor follows Wireshark's light or dark color scheme and
+reacts to changes in real time. All of its colors — background,
+text, selection, line-number gutter, paused-line stripe, and the
+syntax colors (strings, keywords, numbers, built-ins such as `self`,
+function calls, and comments) — come from the optional `code`
+section of the active Wireshark theme, which can be edited in the
+Theme Designer (*View → Internals → Theme Designer*). A color the
+theme leaves on _Auto_ uses the editor's default, inspired by VS
+Code Dark+ / Light+ so that Lua source colors match what most
+developers see in their primary editor. The tree panels use the
+normal Wireshark palette.
 
 [#wslua_debugger_architecture]
 
@@ -1507,7 +1508,7 @@ and the Globals environment as described in
 <<wslua_debugger_variables>>. *Reload Lua Plugins* in the toolbar
 re-runs the full plugin load sequence in a fresh VM (see
 <<wslua_debugger_toolbar>>); debugger state — breakpoints,
-watches, open editor tabs, and the current theme — survives the
+watches, and open editor tabs — survives the
 reload, anything the script stashed in globals does not.
 
 [#wslua_debugger_troubleshooting]

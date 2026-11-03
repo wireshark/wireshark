@@ -154,6 +154,27 @@
             }
         },
 
+        "code": {
+            "description": "Optional colours of the Lua Debugger script editor. Every key is independently optional; an omitted one uses the editor's fixed default for that side, not a colour derived from the theme palette (light: background #ffffff, text #000000, selection #add6ff, selectionText #000000, gutter #f3f3f3, gutterText #237893, pausedLine #fef3c7, string #a31515, keyword #0000ff, number #098658, builtIn #267f99, functionCall #795e26, comment #008000; dark: background #1e1e1e, text #d4d4d4, selection #264f78, selectionText #ffffff, gutter #252526, gutterText #858585, pausedLine #78806f00, string #ce9178, keyword #569cd6, number #b5cea8, builtIn #4fc1ff, functionCall #dcdcaa, comment #6a9955). `gutter` is also the background of the line with the text cursor; `pausedLine` marks the line the debugger is paused on and may be translucent. `keyword` is drawn bold; `builtIn` colours `self`; `functionCall` colours the name before an opening parenthesis.",
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "background":    { "$ref": "#/$defs/colorPair" },
+                "text":          { "$ref": "#/$defs/colorPair" },
+                "selection":     { "$ref": "#/$defs/colorPair" },
+                "selectionText": { "$ref": "#/$defs/colorPair" },
+                "gutter":        { "$ref": "#/$defs/colorPair" },
+                "gutterText":    { "$ref": "#/$defs/colorPair" },
+                "pausedLine":    { "$ref": "#/$defs/colorPair" },
+                "string":        { "$ref": "#/$defs/colorPair" },
+                "keyword":       { "$ref": "#/$defs/colorPair" },
+                "number":        { "$ref": "#/$defs/colorPair" },
+                "builtIn":       { "$ref": "#/$defs/colorPair" },
+                "functionCall":  { "$ref": "#/$defs/colorPair" },
+                "comment":       { "$ref": "#/$defs/colorPair" }
+            }
+        },
+
         "separator": {
             "description": "Optional hairline/divider color used between sections. When omitted, derived as a 53% mix of palette.base toward palette.mid, raised to at least 1.6:1 contrast against palette.base. Themes whose palette.mid doubles as muted text (e.g. Stratoshark) should set this explicitly to a softer value.",
             "$ref": "#/$defs/colorPair"
