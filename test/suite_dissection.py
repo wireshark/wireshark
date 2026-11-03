@@ -49890,3 +49890,165 @@ class TestDissectE2ap:
         assert counts['RICcontrolRequest'] == 22
         assert counts['E2setupRequest'] == 12
         assert counts['ErrorIndication'] == 4
+
+
+class TestDissectEap:
+    def test_eap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has EAP (over EAPOL or RADIUS); none has an
+        exception or an error expert info, in one and two passes. (The
+        insecure-method, bad-length and identity warnings are on
+        purpose.)'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 175
+        assert protocols.count('EAP') == 157
+        assert protocols.count('TLSv1') == 9
+        assert protocols.count('TEAP') == 2
+        assert protocols.count('IKE') == 3
+        assert protocols.count('RADIUS') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('eap_coverage.pcap.gz'),
+                    '-Y', '!eap || _ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_eap_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "EAP: Fix a zero-width AT_RES assert, the
+        TEAP recursion and lengths": an AKA AT_RES of length 0 is a bad
+        length (it was a dissector bug), every SAKE attribute is shown,
+        both MS-Authentication TLVs are shown, a LEAP name of 300 octets
+        is not cut, and an MD5 value size larger than the data has no
+        extra data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {65, 78, 101, 124, 130, 146}',
+                '-Tfields', '-eframe.number', '-eeap.aka.res.len',
+                '-eeap.sake.attr.type', '-eeap.msauth-tlv.type',
+                '-eeap.md5.value', '-eeap.md5.extra_data',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == ('65\t\t\t\t22222222\t\tVulnerable to MITM attacks. '
+                            'If possible, change EAP type.,Overflow')
+        assert lines[1].startswith('78\t\t\t\t\t\t')
+        assert lines[2] == '101\t0\t\t\t\t\tBad length (too small or too large)'
+        assert lines[3] == '124\t\t0x03,0x07,0x84,0x80,0x81,0x82,0x83\t\t\t\t'
+        assert lines[4] == '130\t\t0x07\t\t\t\t'
+        assert lines[5] == '146\t\t\t3,3\t\t\t'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 78',
+                '-Tfields', '-eeap.leap.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'u' * 300
+
+    def test_eap_leap_states(self, cmd_tshark, capture_file, test_env):
+        '''LEAP after an Identity request: peer challenge, peer response,
+        AP challenge, AP response, then plain data (also after a
+        Failure), in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('eap_coverage.pcap.gz'),
+                    '-Y', 'eap.type == 17',
+                    '-Tfields', '-eframe.number', '-eeap.leap.peer_challenge',
+                    '-eeap.leap.peer_response', '-eeap.leap.ap_challenge',
+                    '-eeap.leap.ap_response', '-eeap.leap.data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '74\t' + '01' * 8 + '\t\t\t\t',
+                '75\t\t' + '02' * 24 + '\t\t\t',
+                '76\t\t\t' + '03' * 8 + '\t\t',
+                '77\t\t\t\t' + '04' * 24 + '\t',
+                '78\t\t\t\t\t' + '05' * 8,
+                '80\t\t\t\t\t' + '06' * 8,
+            ]
+
+    def test_eap_tls_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The EAP-TLS ClientHello in three fragments (frames 3, 5, 7) and
+        the TEAP ClientHello with outer TLVs in two (25, 27) are
+        reassembled; the second pass links the fragments to the
+        reassembly. The nested TEAP EAP-Payload TLVs of frame 28 hold an
+        EAP-TEAP request and an EAP-Success.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('eap_coverage.pcap.gz'),
+                '-Y', 'eap.tls.reassembled_in || eap.tls.fragment',
+                '-Tfields', '-eframe.number', '-eeap.tls.reassembled_in',
+                '-eeap.tls.fragment', '-eeap.tls.reassembled.len',
+                '-etls.handshake.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t7\t\t\t', '5\t7\t\t\t', '7\t\t3,5,7\t52\t1',
+            '25\t27\t\t\t', '27\t\t25,27\t64\t1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {8, 22, 27, 28}',
+                '-Tfields', '-eframe.number', '-eteap.tlv.type', '-eeap.code',
+                '-eeap.tls.flags', '-eeap.tls.outer_tlvs_len', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        # frame 8 repeats the identifier of frame 7: a retransmission,
+        # shown as data
+        assert lines[0] == '8\t\t2\t0x00\t\t1d1e1f000004002f00350100'
+        assert lines[1:] == [
+            '22\t7\t1\t0x31\t20\t', '27\t7\t2\t0x01\t\t',
+            '28\t9,9\t1,1,3\t0x11,0x11\t22,8\t',
+        ]
+
+    def test_eap_identity(self, cmd_tshark, capture_file, test_env):
+        '''3GPP identities: every prefix, the IMSI of permanent
+        identities, the realm's MCC and MNC (2 and 3 digits), the
+        encrypted IMSI form.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eap_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 31 && frame.number <= 51',
+                '-Tfields', '-eframe.number', '-eeap.identity.type',
+                '-ee212.imsi', '-eeap.identity.mcc', '-eeap.identity.mnc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '31\tEAP-AKA Permanent\t001011234567890\t1\t101',
+            '32\tEAP-SIM Permanent\t262011234567890\t262\t26201',
+            '33\tEAP-AKA Prime Permanent\t310410123456789\t310\t310410',
+            '34\tEAP-AKA Pseudonym\t\t1\t101',
+            '35\tEAP-SIM Pseudonym\t\t1\t101',
+            '36\tEAP-AKA Prime Pseudonym\t\t1\t101',
+            '37\tEAP-AKA Reauth ID\t\t1\t101',
+            '38\tEAP-SIM Reauth ID\t\t1\t101',
+            '39\tEAP-AKA Prime Reauth ID\t\t1\t101',
+            '40\tConservative Peer\t\t1\t101',
+            '41\tAnonymous Identity\t\t1\t101',
+            '42\tUnknown\t\t1\t101',
+            '43\tEAP-AKA Permanent\t001011234567890\t1\t101',
+            '44\tEAP-SIM Permanent\t001011234567890\t1\t101',
+            '45\t\t\t1\t101',
+            '46\tEAP-AKA Permanent\t001011234567890\t\t',
+            '47\t\t\t\t', '48\t\t\t\t', '49\t\t\t\t', '50\t\t\t\t',
+            '51\tEncrypted IMSI\t\t1\t101',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 51',
+                '-Tfields', '-eeap.identity', '-eeap.identity.cert_sn',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'QUJDREVGR0hJSktMTU5PUA==\t1234'
+
+    def test_eap_methods_info(self, cmd_tshark, capture_file, test_env):
+        '''The PAX, PSK and GPSK opcodes and messages in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eap_coverage.pcap.gz'),
+                '-Y', 'eap.type in {46, 47, 51}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        tails = [l.split(')')[-1].strip() for l in stdout.splitlines()]
+        assert tails == [
+            'STD-1', 'STD-2', 'STD-2', 'STD-3', 'STD-3', 'ACK', 'ACK',
+            'SEC-1', '', 'First Message', 'Second Message',
+            'Third Message', 'Fourth Message', 'GPSK-1', 'GPSK-2',
+            'GPSK-2', 'GPSK-3', 'GPSK-3', 'GPSK-4', 'GPSK-4', 'Fail',
+            'Protected Fail', 'Reserved',
+        ]
