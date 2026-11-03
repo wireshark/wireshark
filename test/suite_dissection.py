@@ -50268,3 +50268,69 @@ class TestDissectEbhscr:
             '15\t119\t\t\t\t\t',
             '17\t16\t\t\t\t\t',
         ]
+
+
+class TestDissectEcho:
+    def test_echo_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Echo over UDP and TCP port 7 and Wake On LAN on UDP port 7, with
+        no malformed packets or expert infos (other than the TCP
+        connection notes) in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('echo_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('ECHO') == 5
+        assert protocols.count('WOL') == 1
+        assert protocols.count('TCP') == 6
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('echo_coverage.pcap.gz'),
+                '-Y', 'wol',
+                '-Tfields', '-eframe.number', '-eframe.protocols', '-ewol.mac',
+            ), encoding='utf-8', env=test_env)
+        number, protocols, macs = stdout.rstrip('\n').split('\t')
+        assert (number, protocols) == ('3', 'eth:ethertype:ip:udp:echo:wol')
+        assert macs.split(',') == ['02:00:00:00:00:aa'] * 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('echo_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning || (echo && _ws.expert)',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+
+    def test_echo_request_response(self, cmd_tshark, capture_file, test_env):
+        '''A message to port 7 is a request, one from port 7 a response.
+        The Wake On LAN packet (frame 3) is taken by WOL and has no echo
+        tree, although "echo" is in its frame.protocols.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('echo_coverage.pcap.gz'),
+                '-Y', 'echo',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-eecho.request', '-eecho.response', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\teth:ethertype:ip:udp:echo\tTrue\t\tRequest',
+            '2\teth:ethertype:ip:udp:echo\t\tTrue\tResponse',
+            '4\teth:ethertype:ip:udp:echo\tTrue\t\tRequest',
+            '8\teth:ethertype:ip:tcp:echo\tTrue\t\tRequest',
+            '9\teth:ethertype:ip:tcp:echo\t\tTrue\tResponse',
+        ]
+
+    def test_echo_data(self, cmd_tshark, capture_file, test_env):
+        '''The echo data is the whole payload, and the TCP echo returns
+        the 256 octets of the request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('echo_coverage.pcap.gz'),
+                '-Y', 'echo.data',
+                '-Tfields', '-eframe.number', '-eecho.data',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['1', '2', '4', '8', '9']
+        assert bytes.fromhex(lines[0][1]) == b'Hello, echo server!\n'
+        assert lines[1][1] == lines[0][1]
+        assert bytes.fromhex(lines[2][1]) == b'\xff' * 6 + bytes(range(96))
+        assert bytes.fromhex(lines[3][1]) == bytes(range(256))
+        assert lines[4][1] == lines[3][1]
