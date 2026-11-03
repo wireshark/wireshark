@@ -42833,3 +42833,87 @@ class TestDissectDiameter:
                     '-Tfields', '-eframe.number', '-ee212.assoc.imsi',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['108\t', '109\t001010123456789,001010123456789']
+
+
+class TestDissectDiffservMplsCommon:
+    def test_diffserv_mpls_common_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Five RSVP and three LDP frames; none is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diffserv_mpls_common_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 8
+        assert protocols.count('RSVP') == 5
+        assert protocols.count('LDP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('diffserv_mpls_common_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_diffserv_mpls_common_rsvp(self, cmd_tshark, capture_file, test_env):
+        '''RSVP DIFFSERV objects: E-LSP MAP entries (EXP and a PHBID of
+        either RFC 3140 form) and the L-LSP PSC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diffserv_mpls_common_coverage.pcap.gz'),
+                '-Y', 'rsvp',
+                '-Tfields', '-eframe.number', '-ersvp.diffserv.mapnb',
+                '-ersvp.diffserv.map.exp', '-ersvp.diffserv.phbid.dscp',
+                '-ersvp.diffserv.phbid.code', '-ersvp.diffserv.phbid.bit14',
+                '-ersvp.diffserv.phbid.bit15',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t8\t0,1,2,3,4,5,6,7\t0,10,18,26,34,46\t291,2748'
+            '\t0,0,0,1,0,0,0,1\t0,0,0,0,0,0,1,1',
+            '2\t1\t5\t46\t\t0\t0',
+            '3\t\t\t10\t\t1\t0',
+            '4\t\t\t\t1110\t0\t1',
+            '5\t0\t\t\t\t\t',
+        ]
+
+    def test_diffserv_mpls_common_ldp(self, cmd_tshark, capture_file, test_env):
+        '''LDP Diff-Serv TLVs: E-LSP MAP entries and the L-LSP PSC, two
+        Label Mappings in one PDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diffserv_mpls_common_coverage.pcap.gz'),
+                '-Y', 'ldp',
+                '-Tfields', '-eframe.number', '-eldp.msg.tlv.diffserv.type',
+                '-eldp.msg.tlv.diffserv.mapnb',
+                '-eldp.msg.tlv.diffserv.map.exp',
+                '-eldp.msg.tlv.diffserv.phbid.dscp',
+                '-eldp.msg.tlv.diffserv.phbid.code',
+                '-eldp.msg.tlv.diffserv.phbid.bit14',
+                '-eldp.msg.tlv.diffserv.phbid.bit15',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t0\t8\t0,1,2,3,4,5,6,7\t0,10,18,26,34,46\t291,2748'
+            '\t0,0,0,1,0,0,0,1\t0,0,0,0,0,0,1,1',
+            '7\t1,1\t\t\t18\t4095\t0,1\t0,1',
+            '8\t0\t2\t5,6\t46\t291\t0,0\t0,1',
+        ]
+
+    def test_diffserv_mpls_common_text(self, cmd_tshark, capture_file, test_env):
+        '''The MAP, PHBID and PSC items are labelled by the helper.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('diffserv_mpls_common_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 4 || frame.number == 7',
+                '-V', '-O', 'rsvp,ldp',
+            ), encoding='utf-8', env=test_env)
+        items = [l.strip() for l in stdout.splitlines()
+                 if l.strip().startswith(('MAP:', 'PHBID:', 'PSC:'))]
+        assert items[12:16] == [
+            'MAP: EXP 6, PHB id code 291',
+            'PHBID: PHB id code 291',
+            'MAP: EXP 7, PHB id code 2748',
+            'PHBID: PHB id code 2748',
+        ]
+        assert items[0:2] == ['MAP: EXP 0, DSCP 0', 'PHBID: DSCP 0']
+        assert items[16:] == [
+            'PSC: PHB id code 1110',
+            'PSC: DSCP 18',
+            'PSC: PHB id code 4095',
+        ]
