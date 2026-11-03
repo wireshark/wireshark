@@ -1577,7 +1577,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, char **err_info, int64_t 
     tmpbuf[10] = ethheader.src_addr[4];
     tmpbuf[11] = ethheader.src_addr[5];
 
-    if (ethheader.tpid != 0 && ethheader.tci != 0) {
+    if (ethheader.tpid != 0) {  /* A valid VLAN tag can have a TCI of 0. */
         phtonu16(tmpbuf + 12, ethheader.tpid);
         phtonu16(tmpbuf + 14, ethheader.tci);
         phtonu16(tmpbuf + 16, ethheader.ethtype);
