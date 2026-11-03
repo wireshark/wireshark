@@ -49449,3 +49449,103 @@ class TestDissectE100:
             'Who has 198.51.100.2? Tell 198.51.100.1\t198.51.100.2\t96',
             'Who has 198.51.100.2? Tell 198.51.100.1\t198.51.100.2\t96',
         ]
+
+
+class TestDissectE164:
+    def test_e164_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Diameter, SIP with ISUP and RTSP frames; no exceptions and no
+        error expert infos in one and two passes. (Frames 5 and 7 have
+        the "non-decimal digits" warnings of E.164 on purpose.)'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e164_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 14
+        assert protocols.count('DIAMETER') == 4
+        assert protocols.count('SIP/ISUP(ITU)') == 1
+        assert protocols.count('SIP') == 1
+        assert protocols.count('RTSP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('e164_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed.expert || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e164_coverage.pcap.gz'),
+                '-Y', 'e164.country_code.non_decimal || e164.identification_code.non_decimal',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['5', '7']
+
+    def test_e164_country_codes(self, cmd_tshark, capture_file, test_env):
+        '''A country code of every length, in UTF-8 (Subscription-Id-Data)
+        and BCD (MSISDN), and the identification codes of 881, 882, 883
+        and 883 510.'''
+        cc = ('0,1,20,27,212,30,31,32,33,34,36,39,351,420,44,502,590,51,'
+              '671,681,691,61,7,81,82,84,86,852,881,882,883,883,90,91,92,'
+              '93,94,95,98,971,961')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e164_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 6}',
+                '-Tfields', '-ee164.country_code', '-ee164.identification_code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [cc + '\t6,16,120,5101'] * 2
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e164_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-V', '-O', 'diameter',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()
+                 if 'Identification Code' in l]
+        assert lines == [
+            'Identification Code: 6 Iridium Satellite LLC',
+            'Identification Code: 16 Thuraya RMSS Network',
+            'Identification Code: 120 Telenor Connexion AB',
+            'Identification Code: 5101 Unknown',
+        ]
+
+    def test_e164_short_numbers(self, cmd_tshark, capture_file, test_env):
+        '''Numbers shorter than their country code or identification code
+        decode without an exception and show a country code only when it
+        is complete (before "E.164: Do not read the country code past the
+        number" the UTF-8 "8", "88" and "882" threw an exception).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e164_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 7}',
+                '-Tfields', '-ee164.msisdn', '-ee164.country_code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            ':1234567,4:1234567,881:12345,882:1234567,883:1234567,'
+            '883510:12345,8,88,882,881,883,8835,88351,4471'
+            '\t1012,50,881,882,883,883,882,881,883,883,883,44',
+            '?1234567,4?1234567,881?2345,882?234567,883?234567,'
+            '883510?2345,8,88,882,881,883,8835,88351,4471'
+            '\t1012,50,881,882,883,883,882,881,883,883,883,44,44,882',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e164_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert 'Malformed' not in stdout
+
+    def test_e164_isup_sip_rtsp(self, cmd_tshark, capture_file, test_env):
+        '''The SIP URIs with "+" numbers, the ISUP called and calling
+        party numbers and the generic number in the SIP body, and the RTSP
+        X-Vig-Msisdn calling party number.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e164_coverage.pcap.gz'),
+                '-Y', 'frame.number in {8, 9, 13}',
+                '-Tfields', '-ee164.msisdn', '-ee164.country_code',
+                '-ee164.identification_code', '-ee164.called_party_number.digits',
+                '-ee164.calling_party_number.digits',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '442079460123,33123456789,442079460123,33123456789,4420794601234,'
+            '33123456789\t44,33,44,33,883\t5101\t4420794601234\t33123456789',
+            '33123456789,442079460123\t33,44\t\t\t',
+            '\t\t\t\t447700900123',
+        ]
