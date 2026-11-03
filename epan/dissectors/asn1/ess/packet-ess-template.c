@@ -84,6 +84,9 @@ ess_dissect_attribute (uint32_t value, asn1_ctx_t *actx)
 {
   unsigned i;
 
+  if (!object_identifier_id)
+    return;
+
   for (i = 0; i < num_ess_category_attributes; i++) {
     ess_category_attributes_t *u = &(ess_category_attributes[i]);
 
@@ -102,6 +105,9 @@ ess_dissect_attribute_flags (tvbuff_t *tvb, asn1_ctx_t *actx)
   proto_tree *tree;
   uint8_t *value;
   unsigned i;
+
+  if (!object_identifier_id)
+    return;
 
   tree = proto_item_add_subtree (actx->created_item, ett_Category_attributes);
   value = (uint8_t *)tvb_memdup (actx->pinfo->pool, tvb, 0, tvb_captured_length (tvb));
