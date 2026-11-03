@@ -277,6 +277,7 @@ static expert_field ei_erf_meta_truncated_record;
 static expert_field ei_erf_meta_truncated_tag;
 static expert_field ei_erf_meta_zero_len_tag;
 static expert_field ei_erf_meta_reset;
+static expert_field ei_erf_anchor_links_not_shown;
 
 typedef enum {
   ERF_HDLC_CHDLC  = 0,
@@ -753,12 +754,21 @@ typedef struct {
 
 typedef struct {
   unsigned frame_num;
+  bool definition;
 } erf_anchored_info_t;
 
 typedef struct {
   wmem_tree_t* anchored_tree;
-  wmem_list_t* anchored_list;
+  wmem_list_t* anchored_list;   /* All records with this Anchor ID */
+  wmem_list_t* definition_list; /* Only the anchor definition records */
 } erf_host_anchor_info_t;
+
+/*
+ * Maximum number of linked frames shown (and marked as depended upon) for
+ * one record, so that many records with the same Anchor ID do not take
+ * quadratic time and memory.
+ */
+#define ERF_ANCHOR_MAX_LINKS 64
 
 typedef struct {
   uint64_t host_id;
@@ -1386,10 +1396,10 @@ static gboolean erf_anchor_key_equal(const void *a, const void *b) {
   const erf_anchor_key_t *anchor_key_b = (const erf_anchor_key_t*) b ;
 
   return (anchor_key_a->host_id) == (anchor_key_b->host_id) &&
-    (anchor_key_a->anchor_id & ERF_EXT_HDR_TYPE_ANCHOR_ID) == (anchor_key_b->anchor_id & ERF_EXT_HDR_TYPE_ANCHOR_ID);
+    (anchor_key_a->anchor_id & ERF_EHDR_ANCHOR_ID_MASK) == (anchor_key_b->anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
 }
 
-static void erf_host_anchor_info_insert(packet_info *pinfo, uint64_t host_id, uint64_t anchor_id, uint8_t flags _U_) {
+static void erf_host_anchor_info_insert(packet_info *pinfo, uint64_t host_id, uint64_t anchor_id, uint8_t flags) {
   erf_host_anchor_info_t *anchor_info;
   erf_anchor_key_t key = {host_id, anchor_id};
   erf_anchored_info_t *anchored_info;
@@ -1403,6 +1413,7 @@ static void erf_host_anchor_info_insert(packet_info *pinfo, uint64_t host_id, ui
     anchor_info = (erf_host_anchor_info_t*) wmem_new(wmem_file_scope(), erf_host_anchor_info_t);
     anchor_info->anchored_tree = wmem_tree_new(wmem_file_scope());
     anchor_info->anchored_list = wmem_list_new(wmem_file_scope());
+    anchor_info->definition_list = wmem_list_new(wmem_file_scope());
 
     wmem_map_insert(erf_state.host_anchor_map, key_ptr, anchor_info);
   }
@@ -1413,8 +1424,12 @@ static void erf_host_anchor_info_insert(packet_info *pinfo, uint64_t host_id, ui
     /* anchored_info not found */
     anchored_info = (erf_anchored_info_t*)wmem_new(wmem_file_scope(), erf_anchored_info_t);
     anchored_info->frame_num = pinfo->num;
+    anchored_info->definition = (flags & 0x80) != 0;
 
     wmem_list_append(anchor_info->anchored_list, anchored_info);
+    if (anchored_info->definition) {
+      wmem_list_append(anchor_info->definition_list, anchored_info);
+    }
     wmem_tree_insert32(anchor_info->anchored_tree, pinfo->num, anchored_info);
   }
   else {
@@ -1907,7 +1922,7 @@ find_host_id(packet_info *pinfo, bool *has_anchor_definition) {
   return host_id;
 }
 
-static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint64_t host_id, uint64_t anchor_id, uint8_t anchor _U_) {
+static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint64_t host_id, uint64_t anchor_id, uint8_t flags) {
 
   erf_anchor_key_t key = {host_id, anchor_id};
   erf_host_anchor_info_t *anchor_info;
@@ -1916,6 +1931,7 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   wmem_list_t *frame_list;
   proto_item *pi = NULL;
   proto_tree *subtree;
+  unsigned    links = 0;
 
   /* TODO: top level linking to most recent frame like we have for Host ID? */
   subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_anchor, &pi, "Host ID: 0x%012" PRIx64 ", Anchor ID: 0x%012" PRIx64, host_id & ERF_EHDR_HOST_ID_MASK, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
@@ -1932,7 +1948,16 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return;
   }
 
-  frame_list = anchor_info->anchored_list;
+  /*
+   * An anchor definition record links to all records with the same Anchor
+   * ID. Other records link only to the definition records, not to each
+   * other.
+   */
+  if (flags & 0x80) {
+    frame_list = anchor_info->anchored_list;
+  } else {
+    frame_list = anchor_info->definition_list;
+  }
 
   /* Try to link frames */
   frame = wmem_list_head(frame_list);
@@ -1940,6 +1965,11 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     anchored_info = (erf_anchored_info_t*)wmem_list_frame_data(frame);
     if(pinfo->num != anchored_info->frame_num) {
       /* Don't list the frame itself */
+      if (links >= ERF_ANCHOR_MAX_LINKS) {
+        proto_tree_add_expert(subtree, pinfo, &ei_erf_anchor_links_not_shown, tvb, 0, 0);
+        break;
+      }
+      links++;
       pi = proto_tree_add_uint(subtree, hf_erf_anchor_linked, tvb, 0, 0, anchored_info->frame_num);
       proto_item_set_generated(pi);
       /* XXX: Need to do this each time because pinfo is discarded. Filtering does not reset visited as it does not do a full redissect.
@@ -2664,6 +2694,11 @@ meta_tag_expected_length(erf_meta_tag_info_t *tag_info) {
     case ERF_META_TAG_ext_hdrs_added:
     case ERF_META_TAG_ext_hdrs_removed:
       /* 1 to 4 uint32 fields */
+      expected_length = 4;
+      break;
+
+    case ERF_META_TAG_parent_section:
+      /* uint16 Section Type and uint16 Section ID */
       expected_length = 4;
       break;
   }
@@ -3868,7 +3903,8 @@ static void register_erf_fields(const char* unused _U_)
       { &ei_erf_meta_truncated_record, { "erf.meta.truncated_record", PI_MALFORMED, PI_ERROR, "Provenance truncated record", EXPFILL }},
       { &ei_erf_meta_truncated_tag, { "erf.meta.truncated_tag", PI_PROTOCOL, PI_ERROR, "Provenance truncated tag", EXPFILL }},
       { &ei_erf_meta_zero_len_tag, { "erf.meta.zero_len_tag", PI_PROTOCOL, PI_NOTE, "Provenance zero length tag", EXPFILL }},
-      { &ei_erf_meta_reset, { "erf.meta.metadata_reset", PI_PROTOCOL, PI_WARN, "Provenance metadata reset", EXPFILL }}
+      { &ei_erf_meta_reset, { "erf.meta.metadata_reset", PI_PROTOCOL, PI_WARN, "Provenance metadata reset", EXPFILL }},
+      { &ei_erf_anchor_links_not_shown, { "erf.anchor.more_not_shown", PI_SEQUENCE, PI_NOTE, "More frames with this Anchor ID, not shown", EXPFILL }}
   };
 
   expert_module_t* expert_erf;
