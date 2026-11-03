@@ -46932,3 +46932,114 @@ class TestDissectDrbd:
             '105\tQP=0x000123 [RDMA Flow Control] [P_PING_ACK] [P_RECV_ACK]\t\t4096',
             '108\tQP=0x000123 [P_PING]\t\t',
         ]
+
+
+class TestDissectDrda:
+    def test_drda_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame but one (a segment that is not DRDA) is DRDA, none
+        is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('drda_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 75
+        assert protocols.count('DRDA') == 74
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('drda_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_drda_info(self, cmd_tshark, capture_file, test_env):
+        '''The commands, replies and objects of the SQLAM 7 session.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('drda_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 28',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'EXCSAT | ACCSEC', 'EXCSATRD | ACCSECRD', 'SECCHK', 'SECCHKRM', 'ACCRDB',
+            'ACCRDBRM', 'PRPSQLSTT | SQLATTR | SQLSTT', 'SQLDARD', 'DSCSQLSTT', 'SQLDARD',
+            'OPNQRY', 'OPNQRYRM', 'CNTQRY', 'ENDQRYRM | SQLCARD', 'CLSQRY', 'SQLCARD',
+            'EXCSQLIMM | SQLSTT', 'SQLCARD', 'EXCSQLSTT', 'SQLCARD', 'RDBCMM',
+            'ENDUOWRM | SQLCARD', 'RDBRLLBCK', 'BNDSQLSTT', 'Unknown (0x7abc)', '',
+            'EXCSQLIMM', 'SQLCARD | SQLCARD',
+        ]
+
+    def test_drda_sqlcard(self, cmd_tshark, capture_file, test_env):
+        '''SQLCARDs: null (generated SQLCODE 0), warnings and errors with
+        messages split at 0xFF, at SQLAM 5 (fixed RDBNAM) and later, in
+        EBCDIC, ASCII and UTF-8 and in both byte orders.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('drda_coverage.pcap.gz'),
+                '-Y', 'drda.sqlcode && !drda.sqlname',
+                '-Tfields', '-eframe.number', '-edrda.sqlcode', '-edrda.sqlstate',
+                '-edrda.sqlerrmsg', '-edrda.sqlerrd1', '-edrda.sqlerrd6',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t0\t00000\t\t\t', '14\t100\t02000\trow,not found,end\t1\t6',
+            '16\t0\t00000\t\t\t', '18\t-204\t42704\tT,DB2INST1.T\t1\t6',
+            '20\t0\t00000\t,tok1,tok2\t1\t6', '22\t0\t00000\t\t\t',
+            '28\t0,0\t00000,00000\t\t\t', '31\t0\t00000\t\t\t',
+            '45\t-803\t23505\tdup,k\t1\t6', '55\t-803\t23505\tdup,k\t1\t6',
+            '65\t-803\t23505\tdup,k\t1\t6', '75\t-803\t23505\tdup,k\t1\t6',
+        ]
+
+    def test_drda_sqldard(self, cmd_tshark, capture_file, test_env):
+        '''SQLDARD column descriptions at SQLAM 7, 5, 6, 9 and 7 (VAX).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('drda_coverage.pcap.gz'),
+                '-Y', 'drda.sqlname',
+                '-Tfields', '-eframe.number', '-edrda.sqlnum', '-edrda.sqlname',
+                '-edrda.sqltype', '-edrda.sqllength', '-edrda.sqldhold',
+                '-edrda.sqludtname',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t3\t,EMPNO,,SALARY\t452,485,497\t6,9,4\t1\t,MONEY',
+            '43\t2\t,C1,,C2\t496,449\t4,10\t\t',
+            '53\t2\t,C1,,C2\t496,449\t4,10\t\t,MONEY',
+            '63\t2\t,C1,,C2\t496,449\t4,10\t1\t,MONEY',
+            '73\t2\t,C1,,C2\t496,449\t4,10\t1\t,MONEY',
+        ]
+
+    def test_drda_statements(self, cmd_tshark, capture_file, test_env):
+        '''SQL statements in the null indicator and in the length form, in
+        the encodings set by ACCRDB (UTF-8, EBCDIC 500 and 037, ISO 8859-1,
+        ASCII, UTF-16LE).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('drda_coverage.pcap.gz'),
+                '-Y', 'drda.sqlstatement',
+                '-Tfields', '-eframe.number', '-edrda.sqlstatement',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\tFOR READ ONLY ,SELECT EMPNO, SALARY FROM EMPLOYEE',
+            '17\tDELETE FROM T WHERE ID = 1,', '34\tCOMMIT',
+            '42\tVALUES 1', '52\tVALUES 1', '62\tVALUES 1', '72\tVALUES 1',
+        ]
+
+    def test_drda_nested_collection(self, cmd_tshark, capture_file, test_env):
+        '''A TYPDEFOVR in a PKGSNLST in a TYPDEFOVR (collections are
+        dissected recursively, with the depth limited since "DRDA: Limit
+        the recursion of nested collections"), and an unknown parameter.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('drda_coverage.pcap.gz'),
+                '-Y', 'frame.number == 24',
+                '-Tfields', '-edrda.param.codepoint', '-edrda.ccsid',
+                '-edrda.param.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0035,0x2139,0x0035,0x119c,0x7777,0x1c04\t819\tzz',
+        ]
+
+    def test_drda_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A DSS split over two segments is reassembled in the second.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('drda_coverage.pcap.gz'),
+                '-Y', 'frame.number in {26,27}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-etcp.reassembled.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['26\t\t', '27\tEXCSQLIMM\t83']
