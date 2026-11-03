@@ -92,9 +92,11 @@ dissect_dpauxmon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (packet_type) {
     case DPAUXMON_DATA: {
         struct dpaux_info dpaux_info;
+        uint32_t origin;
 
-        dpaux_info.from_source = tvb_get_uint8(tvb, 1);
-        proto_tree_add_uint(dpauxmon_tree, hf_origin, tvb, 1, 1, dpaux_info.from_source);
+        /* Show the origin octet as it is, not as a bool */
+        proto_tree_add_item_ret_uint(dpauxmon_tree, hf_origin, tvb, 1, 1, ENC_NA, &origin);
+        dpaux_info.from_source = origin != 0;
 
         call_dissector_with_data(dpaux_handle, tvb_new_subset_remaining(tvb, 2),
                  pinfo, dpauxmon_tree, &dpaux_info);
