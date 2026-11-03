@@ -10,6 +10,10 @@ CertificateExtensions x509ce
 #.IMPORT ../pkix1implicit/pkix1implicit-exp.cnf
 #.IMPORT ../x509ce/x509ce-exp.cnf
 
+#.TYPE_ATTR
+CertificateSerialNumber  TYPE = FT_INT32   DISPLAY = BASE_DEC   STRINGS = NULL  BITMASK = 0
+#.END
+
 #.OMIT_ASSIGNMENT
 ACClearAttrs
 AttributeCertificate
