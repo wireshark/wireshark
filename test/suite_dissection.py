@@ -50772,3 +50772,186 @@ class TestDissectEcpOui:
         vlans, typeid = stdout.strip().split('\t')
         assert vlans.split(',') == [str(100 + k) for k in range(50)]
         assert typeid == '0xffffff'
+
+
+class TestDissectEcpri:
+    def test_ecpri_protocols(self, cmd_tshark, capture_file, test_env):
+        '''eCPRI on ethertype 0xAEFE, message types 0 and 2 also decoded
+        by O-RAN FH CUS, with no malformed packets or error expert infos
+        in one and two passes. The only warnings are a compensation value
+        for a remote request and, in the second pass, the unmatched delay
+        measurements.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecpri_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 39
+        assert protocols.count('eCPRI') == 36
+        assert protocols.count('O-RAN-FH-C') == 1
+        assert protocols.count('O-RAN-FH-U') == 1
+        # frame 38 is too short for the eCPRI header
+        assert protocols.count('0xaefe') == 1
+        for passes, warnings in (((), [
+                    '17\tCompensation Value is not defined for Action Type 4 (Remote request with Follow_Up), should be 0',
+                ]), (('-2',), [
+                    '17\tCompensation Value is not defined for Action Type 4 (Remote request with Follow_Up), should be 0',
+                    '18\tNo Response for One-Way Delay Measurement Request',
+                    '19\tRequest for One-Way Delay Measurement Response not found',
+                ])):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ecpri_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ecpri_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == warnings
+
+    def test_ecpri_messages(self, cmd_tshark, capture_file, test_env):
+        '''The message type, payload size and C bit of every message,
+        including concatenated messages aligned on 4 octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecpri_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eecpri.type', '-eecpri.size',
+                '-eecpri.cbit', '-eecpri.revision',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 39
+        assert lines[0:12] == [
+            '1\t0x02\t28\tFalse\t1',
+            '2\t0x00\t244\tFalse\t1',
+            '3\t0x01\t20\tFalse\t1',
+            '4\t0x01\t4\tFalse\t1',
+            '5\t0x03\t20\tFalse\t1',
+            '6\t0x04\t12\tFalse\t1',
+            '7\t0x04\t20\tFalse\t1',
+            '8\t0x04\t16\tFalse\t1',
+            '9\t0x04\t14\tFalse\t1',
+            '10\t0x04,0x04\t12,12\tTrue,False\t1,1',
+            '11\t0x05\t28\tFalse\t1',
+            '12\t0x05\t20\tFalse\t1',
+        ]
+        assert lines[22:] == [
+            '23\t0x06,0x06\t3,3\tTrue,False\t1,1',
+            '24\t0x07\t36\tFalse\t1',
+            '25\t0x07\t4\tFalse\t1',
+            '26\t0x07\t60\tFalse\t1',
+            '27\t0x07,0x07,0x07,0x07\t4,4,4,4\tTrue,True,True,False\t1,1,1,1',
+            '28\t0x08\t9\tFalse\t1',
+            '29\t' + ','.join(['0x08'] * 13) + '\t9,10,11,9,10,11,9,10,9,10,11,9,10\t'
+            + ','.join(['True'] * 12) + ',False\t' + ','.join(['1'] * 13),
+            '30\t0x09,0x0a,0x06\t8,8,3\tTrue,True,False\t1,1,1',
+            '31\t0x0b\t12\tFalse\t1',
+            '32\t0x0b\t12\tFalse\t1',
+            '33\t0x0c,0x3f,0x40,0xff\t1,0,6,5\tTrue,True,True,False\t1,1,1,1',
+            '34\t0x01,0x03,0x04,0x06,0x07,0x0b\t5,10,12,4,4,12\tTrue,True,True,True,True,False\t1,1,1,1,1,1',
+            '35\t0x06\t3\tFalse\t0',
+            '36\t0x06\t3\tFalse\t15',
+            '37\t0x03\t11\tFalse\t1',
+            '38\t\t\t\t',
+            '39\t0x14\t0\tFalse\t1',
+        ]
+
+    def test_ecpri_iwf_operation_skipped(self, cmd_tshark, capture_file, test_env):
+        '''IWF Operation and IWF Mapping payloads that look like a remote
+        reset header are skipped, so the frame holds three messages (before
+        "eCPRI: Skip the IWF Operation and Mapping payloads" the payloads
+        were dissected as further eCPRI headers).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecpri_coverage.pcap.gz'),
+                '-Y', 'frame.number == 30',
+                '-Tfields', '-eecpri.type', '-eecpri.rr.resetid', '-eecpri.rr.resetcode',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '0x09,0x0a,0x06\t0x0009\t0x01\tNot dissected yet,Not dissected yet\n'
+
+    def test_ecpri_delay_measurement(self, cmd_tshark, capture_file, test_env):
+        '''One-way delay measurements: the delay is calculated from the
+        request (or follow-up) and the response with the same measurement
+        ID and shown, with a link to the other frame, in the second pass.'''
+        args = ('-r', capture_file('ecpri_coverage.pcap.gz'),
+                '-Y', 'ecpri.type == 5',
+                '-Tfields', '-eframe.number', '-eecpri.owdm.measurementid',
+                '-eecpri.owdm.actiontype', '-eecpri.owdm.sec', '-eecpri.owdm.nanosec',
+                '-eecpri.owdm.calculated-delay', '-eecpri.owdm.request-frame',
+                '-eecpri.owdm.response-frame')
+        stdout = subprocess.check_output((cmd_tshark, '-2', *args),
+                encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t0x01\t0x00\t1000\t500\t1999\t\t12',
+            '12\t0x01\t0x02\t1000\t2500\t1999\t11\t',
+            '13\t0x02\t0x01\t0\t0\t\t\t',
+            '14\t0x02\t0x05\t2000\t100\t799\t\t15',
+            '15\t0x02\t0x02\t2000\t900\t799\t14\t',
+            '16\t0x03\t0x03\t0\t0\t\t\t',
+            '17\t0x04\t0x04\t5\t0\t\t\t',
+            '18\t0x05\t0x00\t3000\t1\t\t\t',
+            '19\t0x06\t0x02\t3000\t2\t\t\t',
+            '20\t0x07\t0x06\t0\t0\t\t\t',
+        ]
+        # in one pass nothing is calculated yet
+        stdout = subprocess.check_output((cmd_tshark, *args),
+                encoding='utf-8', env=test_env)
+        assert all(l.endswith('\t\t\t') for l in stdout.splitlines())
+
+    def test_ecpri_payloads(self, cmd_tshark, capture_file, test_env):
+        '''Remote memory access, remote reset, event indication elements
+        and IWF delay control fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecpri_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6,7,8,9,10}',
+                '-Tfields', '-eframe.number', '-eecpri.rma.rmaid', '-eecpri.rma.rw',
+                '-eecpri.rma.reqresp', '-eecpri.rma.elementid', '-eecpri.rma.datalength',
+                '-eecpri.rma.rmadata',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t0x01\t0x00\t0x00\t0x0010\t0\t<MISSING>',
+            '7\t0x01\t0x00\t0x01\t0x0010\t8\t00:01:02:03:04:05:06:07',
+            '8\t0x02\t0x01\t0x00\t0x0011\t4\tde:ad:be:ef',
+            '9\t0x03\t0x02\t0x00\t0xffff\t2\t01:02',
+            '10\t0x02,0x04\t0x01,0x07\t0x02,0x09\t0x0011,0x0012\t0,0\t<MISSING>,<MISSING>',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecpri_coverage.pcap.gz'),
+                '-Y', 'frame.number in {24,26}',
+                '-Tfields', '-eframe.number', '-eecpri.ei.eventtype',
+                '-eecpri.ei.numberfaultnotif', '-eecpri.ei.elementid',
+                '-eecpri.ei.raisecease', '-eecpri.ei.faultnotif',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '24\t0x00\t4\t0x0001,0xffff,0x0002,0x0003\t0x00,0x01,0x00,0x01\t0x0000,0x0001,0x0123,0x0800',
+            '26\t0x02\t7\t' + ','.join(['0x0004'] * 6) + ',0x0005\t' + ','.join(['0x00'] * 6)
+            + ',0x02\t0x0400,0x0401,0x0402,0x0403,0x0404,0x07ff,0x0fff',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecpri_coverage.pcap.gz'),
+                '-Y', 'frame.number in {21,22,23,31,32}',
+                '-Tfields', '-eframe.number', '-eecpri.rr.resetid', '-eecpri.rr.resetcode',
+                '-eecpri.rr.vendorpayload', '-eecpri.iwfdc.actiontype',
+                '-eecpri.iwfdc.delaya', '-eecpri.iwfdc.delayb',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\t0x0001\t0x01\t<MISSING>\t\t\t',
+            '22\t0x0001\t0x02\t11:22:33\t\t\t',
+            '23\t0x0002,0x0003\t0x00,0x80\t<MISSING>,<MISSING>\t\t\t',
+            '31\t\t\t\t0x00\t0\t0',
+            '32\t\t\t\t0x01\t160\t65544',
+        ]
+
+    def test_ecpri_oran(self, cmd_tshark, capture_file, test_env):
+        '''Message types 0 and 2 go to O-RAN FH CUS as well as eCPRI.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecpri_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2}',
+                '-Tfields', '-eframe.number', '-eecpri.pcid', '-eoran_fh_cus.sectionId',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00000100\t1,2',
+            '2\t0x00000100\t1,2',
+        ]
