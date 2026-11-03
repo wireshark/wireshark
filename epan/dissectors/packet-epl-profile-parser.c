@@ -190,7 +190,7 @@ struct profile *
 epl_eds_load(struct profile *profile, const char *eds_file)
 {
 	GKeyFile* gkf;
-	GError *err;
+	GError *err = NULL;
 	char **group, **groups;
 	char *val;
 	size_t groups_count;
@@ -199,7 +199,8 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 
 	/* Load EDS document */
 	if (!g_key_file_load_from_file(gkf, eds_file, G_KEY_FILE_NONE, &err)){
-		ws_log(NULL, LOG_LEVEL_WARNING, "Error: unable to parse file \"%s\"\n", eds_file);
+		ws_log(NULL, LOG_LEVEL_WARNING, "Error: unable to parse file \"%s\": %s\n", eds_file, err ? err->message : "unknown error");
+		g_clear_error(&err);
 		profile = NULL;
 		goto cleanup;
 	}
@@ -207,9 +208,12 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 	profile->path = wmem_strdup(profile->scope, eds_file);
 
 	val = g_key_file_get_string(gkf, "FileInfo", "Description", NULL);
-	/* This leaves a trailing space, but that's ok */
-	profile->name = wmem_strndup(profile->scope, val, strcspn(val, "#"));
-	g_free(val);
+	if (val)
+	{
+		/* This leaves a trailing space, but that's ok */
+		profile->name = wmem_strndup(profile->scope, val, strcspn(val, "#"));
+		g_free(val);
+	}
 
 	groups = g_key_file_get_groups(gkf, &groups_count);
 	for (group = groups; *group; group++)
@@ -344,7 +348,7 @@ epl_xdd_load(struct profile *profile, const char *xml_file)
 	for (xpath = xpaths; xpath->expr; xpath++)
 	{
 		xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(xpath->expr, xpathCtx);
-		if (!xpathObj || !xpathObj->nodesetval)
+		if (!xpathObj)
 		{
 			ws_log(NULL, LOG_LEVEL_WARNING, "Error: unable to evaluate xpath expression \"%s\"\n", xpath->expr);
 			xmlXPathFreeObject(xpathObj);
@@ -352,8 +356,8 @@ epl_xdd_load(struct profile *profile, const char *xml_file)
 			goto cleanup;
 		}
 
-		/* run handler */
-		if (xpath->handler && xpathObj->nodesetval->nodeNr)
+		/* run handler, an empty result may come without a node set */
+		if (xpath->handler && xpathObj->nodesetval && xpathObj->nodesetval->nodeNr)
 			xpath->handler(xpathObj->nodesetval, profile);
 		xmlXPathFreeObject(xpathObj);
 	}
@@ -413,7 +417,11 @@ populate_datatype_list(xmlNodeSetPtr nodes, void *_profile)
 		{
 			const char *endptr;
 			const char *key = (const char*)attr->name;
-			const char *val = (const char*)attr->children->content;
+			const char *val;
+
+			if (!attr->children || !attr->children->content)
+				continue;
+			val = (const char*)attr->children->content;
 
 			if (g_str_equal("dataType", key))
 			{
@@ -457,8 +465,11 @@ parse_obj_tag(xmlNode *cur, struct od_entry *out, struct profile *profile) {
 
 		for(attr = cur->properties; attr; attr = attr->next)
 		{
-			const char *key = (const char*)attr->name,
-			           *val = (const char*)attr->children->content;
+			const char *key = (const char*)attr->name, *val;
+
+			if (!attr->children || !attr->children->content)
+				continue;
+			val = (const char*)attr->children->content;
 
 			if (g_str_equal("index", key))
 			{
@@ -533,12 +544,14 @@ populate_object_list(xmlNodeSetPtr nodes, void *_profile)
 			if (tmpobj.type_class == OD_ENTRY_ARRAY || tmpobj.type_class == OD_ENTRY_RECORD)
 			{
 				xmlNode *subcur;
-				struct subobject subobj = SUBOBJECT_INITIALIZER;
 
 				obj->subindices = epl_wmem_iarray_new(profile->scope, sizeof (struct subobject), subobject_equal);
 
 				for (subcur = cur->children; subcur; subcur = subcur->next)
 				{
+					/* don't carry fields over from the previous subobject */
+					struct subobject subobj = SUBOBJECT_INITIALIZER;
+
 					if (subcur->type != XML_ELEMENT_NODE)
 						continue;
 
