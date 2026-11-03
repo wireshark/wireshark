@@ -50334,3 +50334,257 @@ class TestDissectEcho:
         assert bytes.fromhex(lines[2][1]) == b'\xff' * 6 + bytes(range(96))
         assert bytes.fromhex(lines[3][1]) == bytes(range(256))
         assert lines[4][1] == lines[3][1]
+
+
+class TestDissectEcmp:
+    def test_ecmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ECMP over TCP and UDP port 6160, with no malformed packets or
+        error expert infos in one and two passes, and warnings only where
+        the capture has unknown codes on purpose.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 126
+        assert protocols.count('ECMP') == 119
+        assert protocols.count('TCP') == 6
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ecmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ecmp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '6\tERROR - Unrecognised Option Code',
+                '7\tInvalid color data value,Invalid color data value',
+                '18\tECMP Options Not Implemented',
+                '28\tIncorrect parameter addressing scheme',
+                '31\tUnknown Data Type',
+                '38\tUnknown info type',
+                '59\tWrong attribute type',
+                '70\tUnknown item type',
+                '115\tUnknown Command',
+                '116\tUnknown Command',
+            ]
+
+    def test_ecmp_commands(self, cmd_tshark, capture_file, test_env):
+        '''The command and request/response flag of every TCP message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'ecmp.command',
+                '-Tfields', '-eecmp.command', '-eecmp.type',
+            ), encoding='utf-8', env=test_env)
+        pairs = [tuple(l.split('\t')) for l in stdout.splitlines()]
+        assert len(pairs) == 111
+        commands = sorted(set(int(c) for c, _ in pairs))
+        assert commands == [0x00, 0x01, 0x02, 0x10, 0x11, 0x12, 0x13, 0x14,
+                            0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+                            0x28, 0x2a, 0x31, 0x55, 0x60, 0x61, 0x70, 0x73, 0x74]
+        for c in commands:
+            assert (str(c), 'False') in pairs
+            assert (str(c), 'True') in pairs
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,5,110,111,112,113,114,115,116,120,121,126}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eecmp.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tIdentify, Request. Transaction ID: 1\t',
+            '5\tIdentify, Response. Transaction ID: 1\t0',
+            '110\tInfo, Request. Transaction ID: 49\t',
+            '111\tInfo, Response. Transaction ID: 49\t1',
+            '112\tInfo, Response. Transaction ID: 49\t2',
+            '113\t\t-1',
+            '114\t\t-3',
+            '115\tUnknown Type (0x55), Request. Transaction ID: 0\t',
+            '116\tUnknown Type (0x55), Response. Transaction ID: 0\t0',
+            '120\tCyclicFrame, Request. Transaction ID: 50\t',
+            '121\tUnknown Type:0x45, Response. Transaction ID: 7\t',
+            '126\t6160 → 6160 Len=5\t',
+        ]
+
+    def test_ecmp_cyclic_line_offsets(self, cmd_tshark, capture_file, test_env):
+        '''The reproducer of "ECMP: Fix cyclic data offsets, tunnel frame
+        flag and empty trees": 32 octets of cyclic data are one full line
+        of 32-bit and 16-bit values and two lines of octets, each at the
+        start of its data (the full lines were placed at their end
+        offset, and the last line ran past the frame).'''
+        import re
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 121',
+                '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        lines = re.findall(r'<field name="ecmp.cyclic_data" showname="([^"]*)" size="(\d+)" pos="(\d+)"', stdout)
+        assert lines == [
+            ('00010203 04050607 08090a0b 0c0d0e0f 10111213 14151617 18191a1b 1c1d1e1f', '32', '52'),
+            ('0001 0203 0405 0607 0809 0a0b 0c0d 0e0f 1011 1213 1415 1617 1819 1a1b 1c1d 1e1f', '32', '52'),
+            ('00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f', '16', '52'),
+            ('10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f', '16', '68'),
+        ]
+        assert '_ws.malformed' not in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'udp && ecmp',
+                '-Tfields', '-eframe.number', '-eecmp.udp_scheme', '-eecmp.grandmaster',
+                '-eecmp.cyclic_data',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['120', '121', '122', '123', '124', '125']
+        # 70 octets: 17 longs (8 + 8 + 1), 35 words (16 + 16 + 3), 70 octets (4 x 16 + 6)
+        assert len(lines[2][3].split(',')) == 3 + 3 + 5
+        # synchronised scheme, 3 octets: no long, one word, three octets
+        assert lines[3][1:3] == ['1', '00:11:22:33:44:55:66:77']
+        assert lines[3][3] == '0102,010203'
+        # 256 octets: 8 + 8 + 16 lines
+        assert len(lines[4][3].split(',')) == 32
+
+    def test_ecmp_fixed_fields(self, cmd_tshark, capture_file, test_env):
+        '''Fields fixed in "ECMP: Fix cyclic data offsets, tunnel frame
+        flag and empty trees": the object info response items (in a tree
+        that was never set), the FilePos response offset (added to a NULL
+        tree), the check output flag only in tunnel requests, the
+        interrogate names of unknown codes and the version summary
+        strings at their own offsets.'''
+        import re
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {38,65,106,107}',
+                '-Tfields', '-eframe.number', '-eecmp.info_type',
+                '-eecmp.parameter.status', '-eecmp.min_param_menu', '-eecmp.string_id',
+                '-eecmp.ref_offset', '-eecmp.tunnel_control.check', '-eecmp.tunnel_size',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '38\t0,1,2,3,4,5,6,7,9\t0,0,0,0,0,0,0,0,0\t1\tU1\t\t\t',
+            '65\t\t\t\t\t3996\t\t',
+            '106\t\t\t\t\t\tTrue\t17',
+            '107\t\t\t\t\t\t\t5',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17',
+                '-V', '-O', 'ecmp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        start = lines.index('ECMP Commands Supported')
+        assert lines[start + 1:start + 6] == [
+            'Read: Supported',
+            'ReadWithType: Supported',
+            'Write: Not Supported',
+            'ObjectInfo: Supported',
+            'Unknown: Unknown',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        assert re.findall(r'<field name="ecmp.version_summary" showname="Version summary: ([^"]*)" size="(\d+)" pos="(\d+)"', stdout) == [
+            ('FW: 01.02.03 4', '14', '128'),
+            ('BL: 1.0', '7', '143'),
+            (r'HW:\x80\xFF', '5', '151'),
+        ]
+
+    def test_ecmp_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Parameter reads with every data type, an error status followed
+        by zero octets, read with type (decimal places and units) and
+        writes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {21,25,29,33,34}',
+                '-Tfields', '-eframe.number', '-eecmp.parameter.status',
+                '-eecmp.parameter.data_type', '-eecmp.number_of_decimal_places',
+                '-eecmp.display_unit_id', '-eecmp.unit_id_string', '-eecmp.ecmp_string',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\t0,1\t4,1\t\t\t\t',
+            '25\t-4,2\t6\t\t\t\t',
+            '29\t0,0,0,0,0,0,0,0,0,0,0,0,0\t0,2,5,7,8,9,10,20,21,30,32,130,255\t\t\t\tstring value',
+            '33\t0,0,0\t4,5,2\t2,-1,1\t11,0,255\tfurlongs\t',
+            '34\t\t4,3,32\t2,-1,0\t\t\tabc',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 29',
+                '-Tfields', '-eecmp.data.boolean', '-eecmp.data.uint8', '-eecmp.data.int32',
+                '-eecmp.data.int64', '-eecmp.data.uint64', '-eecmp.string_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '1\t128\t-2\t-9223372036854775808\t18446744073709551615\tID\n'
+
+    def test_ecmp_files(self, cmd_tshark, capture_file, test_env):
+        '''File commands: open with a relative handle and additional
+        scheme data, file info attributes, and file list items.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {47,48,59,68,69}',
+                '-Tfields', '-eframe.number', '-eecmp.file_name', '-eecmp.directory',
+                '-eecmp.file.handle', '-eecmp.scheme_data_length', '-eecmp.file.attribute',
+                '-eecmp.file_length', '-eecmp.crc', '-eecmp.item_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '47\t/par/menu1.par\t\t7\t3\t\t\t\t',
+            '48\t\t\t4660\t\t\t\t\t',
+            '59\t\t\t\t\t0,1,2,3,4,5,9\t4096\t3735928559\t',
+            '68\tmenu1.par\t\t\t\t\t\t\t0',
+            '69\t\tlogs\t\t\t\t\t\t1',
+        ]
+
+    def test_ecmp_cyclic_setup(self, cmd_tshark, capture_file, test_env):
+        '''Cyclic link setup modes in requests and responses, and the
+        attributes of a create request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'ecmp.cyclic_setup.mode',
+                '-Tfields', '-eframe.number', '-eecmp.cyclic_setup.mode',
+            ), encoding='utf-8', env=test_env)
+        modes = [l.split('\t')[1] for l in stdout.splitlines()]
+        assert modes == ['0', '0', '10', '10', '1', '1', '2', '2', '3', '3', '4', '4',
+                         '5', '5', '6', '6', '11', '11', '12', '12', '7', '7']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 74',
+                '-Tfields', '-eecmp.cyclic_setup.attrib', '-eecmp.transport_addr',
+                '-eecmp.mapping_item_scheme', '-eecmp.address_scheme.menu',
+                '-eecmp.mec_period',
+            ), encoding='utf-8', env=test_env)
+        attribs, addr, schemes, menus, period = stdout.rstrip('\n').split('\t')
+        assert attribs.split(',') == [str(a) for a in
+                                      list(range(13)) + [12, 13] + list(range(128, 136)) + [126]]
+        assert addr == '192.0.2.30'
+        assert schemes == '0,1'
+        assert menus == '1,2'
+        assert period == '1000'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {85,87}',
+                '-Tfields', '-eframe.number', '-eecmp.cyclic_setup.exists.state',
+                '-eecmp.cyclic_setup.linkno', '-eecmp.cyclic_setup.tx_count',
+                '-eecmp.cyclic_setup.rx_count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '85\t1\t\t\t',
+            '87\t\t1,2,5,6,7\t2\t3',
+        ]
+
+    def test_ecmp_modbus(self, cmd_tshark, capture_file, test_env):
+        '''Modbus PDUs carried in ECMP: a read holding registers request
+        and its response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecmp_coverage.pcap.gz'),
+                '-Y', 'modbus',
+                '-Tfields', '-eframe.number', '-eframe.protocols', '-emodbus.func_code',
+                '-emodbus.reference_num', '-emodbus.word_cnt', '-emodbus.regval_uint16',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '108\teth:ethertype:ip:tcp:ecmp:modbus\t3\t2020\t3\t',
+            '109\teth:ethertype:ip:tcp:ecmp:modbus\t3\t\t\t12345,787,100',
+        ]
