@@ -46668,3 +46668,144 @@ class TestDissectDpnssLink:
             '', '', 'ISRM(C)', 'NAM', 'CCM', '', '', '', 'CRM/CIM', '',
             'LLM(C)', 'EEM(C)',
         ]
+
+
+class TestDissectDrb:
+    # DRb has no default port; the capture uses TCP port 8787.
+    decode_as = ('-d', 'tcp.port==8787,drb')
+
+    def test_drb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DRb and none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('drb_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'DRb\tDistributed Ruby (request)', 'DRb\tDistributed Ruby (response)',
+        ] * 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.decode_as, *passes,
+                    '-r', capture_file('drb_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_drb_elements(self, cmd_tshark, capture_file, test_env):
+        '''The length of every Marshal dump of each message: requests
+        have the reference, the message, the argument count, the
+        arguments and the block; replies the success flag and result.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('drb_coverage.pcap.gz'),
+                '-Tfields', '-edrb.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3,15,4,15,4,3', '3,21',
+            '3,13,4,4,4,4,4,4,5,6,7,8,8,5,6,7,8,4,3', '3,8',
+            '21,15,4,3,3,3,4,8,4,14,12,20,20,4,4,7,9,11,14,17,21,21,8,21,7,7,3', '3,14',
+            '3,14,4,17', '3,66', '3,13,4,4,3', '3,3',
+        ]
+
+    def test_drb_rbm_integers(self, cmd_tshark, capture_file, test_env):
+        '''Ruby Marshal integers of every length form are decoded as Ruby
+        does: 4 octets positive, the type octets -5 (0) and -6 (-1)
+        (fixed in "RBM: Decode Ruby Marshal integers like Ruby does").'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('drb_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3,4}',
+                '-Tfields', '-erbm.int',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            # the argument count 15, then the 15 arguments
+            '1,15,0,1,122,-1,-123,255,4660,1193046,305419896,2147483647,'
+            '-256,-4660,-3359830,-2147483648,0',
+            '305419896',
+        ]
+
+    def test_drb_rbm_types(self, cmd_tshark, capture_file, test_env):
+        '''The Marshal types of the arguments of frame 5 and their
+        values.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('drb_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-erbm.string', '-erbm.link', '-erbm.struct',
+                '-erbm.regex.param',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == [
+            'DRb::DRbObject,store,E,name,text,E,bare,x,E,a,b,E,Integer,'
+            'Comparable,^a.*z$,E,x,y,subclassed,E,Mod,DRb::DRbObject',
+            '0,0,1', 'Point', '1\n',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('drb_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-V', '-O', 'drb',
+            ), encoding='utf-8', env=test_env)
+        labels = [l[4:] for l in stdout.splitlines() if l.startswith('    ') and l[4] != ' ']
+        assert labels[0:14] == [
+            'RefType: DRb::DRbObjectValue: Unknown',
+            'Msg IDType: Instance VariableValue: store',
+            'Arg lengthType: IntegerValue: 23',
+            'Arg 1Type: nilValue: Unknown',
+            'Arg 2Type: BooleanValue: true',
+            'Arg 3Type: BooleanValue: false',
+            'Arg 4Type: IntegerValue: 42',
+            'Arg 5Type: SymbolValue: :name',
+            'Arg 6Type: SymbolValue: 0',
+            'Arg 7Type: Instance VariableValue: text',
+            'Arg 8Type: StringValue: bare',
+            'Arg 9Type: ArrayValue: 3',
+            'Arg 10Type: HashValue: 2',
+            'Arg 11Type: HashValue: 0',
+        ]
+        assert labels[14] == 'Arg 12Type: ObjectValue: 1'
+        # Doubles are printed with the decimal separator of the locale.
+        assert labels[15] in ('Arg 13Type: DoubleValue: 1.500000',
+                              'Arg 13Type: DoubleValue: 1,500000')
+        assert labels[16] in ('Arg 14Type: DoubleValue: -0.250000',
+                              'Arg 14Type: DoubleValue: -0,250000')
+        assert labels[17:] == [
+            'Arg 15Type: ClassValue: Integer',
+            'Arg 16Type: ModuleValue: Comparable',
+            'Arg 17Type: Instance VariableValue: /^a.*z$/',
+            'Arg 18Type: StructValue: 5',
+            'Arg 19Type: UserClassValue: subclassed',
+            'Arg 20Type: Extended ObjectValue: Unknown',
+            'Arg 21Type: DRb::DRbObjectValue: Unknown',
+            'Arg 22Type: IntegerValue: 99',
+            'Arg 23Type: ArrayValue: 2',
+            'BlockType: nilValue: Unknown',
+        ]
+
+    def test_drb_ruby_object(self, cmd_tshark, capture_file, test_env):
+        '''A Ruby object as the block and as the result of an exception
+        reply; an array with the element count -1 (the type octet 0xfa
+        of the reproducer).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('drb_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 7',
+                '-Tfields', '-erbm.type', '-erbm.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x30,0x49,0x22,0x3a,0x54,0x69,0x6f,0x3a,0x3a,0x69\t4,1,4,1,3',
+            '0x46,0x6f,0x3a,0x3a,0x49,0x22,0x3a,0x54,0x3a,0x5b,0x49,0x22,0x3a,0x54,0x30'
+            '\t9,2,4,16,1,2,1,6,1',
+            '0x30,0x49,0x22,0x3a,0x54,0x69,0x5b,0x30\t3,1,-1',
+            '0x54,0x30\t',
+        ]
+
+    def test_rbm_file(self, cmd_tshark, capture_file, test_env):
+        '''A Ruby Marshal file with every type and integers of every
+        length form, decoded as Ruby does (fixed in "RBM: Decode Ruby
+        Marshal integers like Ruby does").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rbm_coverage.rbm.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+                '-e_ws.expert', '-erbm.int',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Rbm\tRuby Marshal Object: Array\t\t'
+            '42,1,1,1,2,1,1,1,1,1,-2,1,7,99,-1,0,1,122,-1,-123,255,4660,'
+            '1193046,305419896,2147483647,-256,-4660,-3359830,-2147483648,0,1',
+        ]
