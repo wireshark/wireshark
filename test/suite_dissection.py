@@ -42122,3 +42122,188 @@ class TestDissectDevicenet:
         assert 'DeviceNet 8/16\n            Class: Identity (0x01)\n            Instance: 0x0001\n            Attribute: 0x01 (Vendor ID)\n' in stdout
         assert 'Class: Identity (0x0001)\n            Instance: 0x01\n            Attribute: 0x01 (Vendor ID)\n' in stdout
         assert 'Class: Identity (0x0001)\n            Instance: 0x0702\n            Attribute: 0x08 (State)\n' in stdout
+
+
+class TestDissectDhcp:
+    def test_dhcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DHCP or BOOTP and none is malformed or has an
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 161
+        # Frame 37 has its message type only in the overloaded file
+        # field and is DHCP.
+        assert protocols.count('DHCP') == 158
+        assert protocols.count('BOOTP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dhcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dhcp_message_types(self, cmd_tshark, capture_file, test_env):
+        '''The DORA exchange, every other message type, an unknown type,
+        BOOTP without the magic cookie, an unknown opcode and proxyDHCP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 32',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = [' '.join(l.split()) for l in stdout.splitlines()]
+        assert info[0:6] == [
+            '1 DHCP Discover - Transaction ID 0x3903f326',
+            '2 DHCP Offer - Transaction ID 0x3903f326',
+            '3 DHCP Request - Transaction ID 0x3903f326',
+            '4 DHCP ACK - Transaction ID 0x3903f326',
+            '5 DHCP Release - Transaction ID 0x3903f326',
+            '6 DHCP Inform - Transaction ID 0x3903f326',
+        ]
+        assert info[6] == '7 DHCP Decline - Transaction ID 0x3903f326'
+        assert info[18] == '19 DHCP Unknown Message Type (0x13) - Transaction ID 0x3903f326'
+        assert info[19] == '20 Boot Request from 02:00:00:00:00:01 (02:00:00:00:00:01)'
+        assert info[20] == '21 Boot Reply'
+        assert info[29] == '30 DHCP Discover - Transaction ID 0x3903f326'
+        assert info[31] == '32 proxyDHCP ACK - Transaction ID 0x3903f326'
+
+    def test_dhcp_stat(self, cmd_tshark, capture_file, test_env):
+        '''The DHCP statistics tap counts every message type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-q', '-z', 'dhcp,stat',
+            ), encoding='utf-8', env=test_env)
+        counts = {}
+        for line in stdout.splitlines():
+            parts = [p.strip() for p in line.split('|')]
+            if len(parts) == 3 and parts[1].isdigit():
+                counts[parts[0]] = int(parts[1])
+        assert counts['Discover'] == 68
+        assert counts['ACK'] == 65
+        assert counts['Request'] == 4
+        assert counts['TLS'] == 1
+        assert sum(counts.values()) == 157
+
+    def test_dhcp_long_options(self, cmd_tshark, capture_file, test_env):
+        '''RFC 3396 long options are reassembled, also across the
+        overloaded file and sname fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 33 && frame.number <= 41',
+                '-Tfields', '-eframe.number', '-edhcp.option.hostname',
+                '-edhcp.option.domain_name',
+                '-edhcp.option.dhcp_dns_domain_search_list_fqdn',
+                '-edhcp.option.tftp_server_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '33\t\tfile.example\t\ttftp.example',
+            '34\tsnamehost\t\t\t',
+            '35\tsnamehost\tfile.example\t\ttftp.example',
+            '36\t\t\t\t',
+            '37\t\t\t\t',
+            '38\tvery-long-host-name\t\t\t',
+            '39\t\t\ta.example.com,b.example.org\t',
+            '40\t\t\t\t',
+            '41\t\tsplit.example.com\t\t',
+        ]
+
+    def test_dhcp_lci(self, cmd_tshark, capture_file, test_env):
+        '''RFC 3825 location with negative latitude and altitude (the sign
+        extension fixed in "DHCP: Fix LCI sign extension and several
+        decoding errors").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 96',
+                '-Tfields', '-edhcp.option.rfc3825.latitude',
+                '-edhcp.option.rfc3825.longitude',
+                '-edhcp.option.rfc3825.altitude',
+            ), encoding='utf-8', env=test_env)
+        values = [float(v.replace(',', '.')) for v in stdout.split()]
+        assert values == [-33.875, 151.25, -20.25]
+
+    def test_dhcp_fixed_decoding(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "DHCP: Fix LCI sign extension and several
+        decoding errors": DUID-EN client id, second DSS_ID, Avaya
+        L2QVLAN, option 82.9 tag after a PBB service tag, MTA version
+        "12", the TGT flag with length 2, and option 82 sub-option 13
+        decoded as reserved octet and access technology type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 155',
+                '-Tfields', '-eframe.number',
+                '-edhcp.client_id.enterprise_num', '-edhcp.option.cl_dss_id',
+                '-edhcp.option.vendor.avaya.l2qvlan',
+                '-edhcp.option.agent_information_option.vi.cl.mso_defined_text',
+                '-e_ws.expert',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[0:4] == [
+            '155\t311\t\t\t\t',
+            '156\t\tabcde,xyz\t\t\t',
+            '157\t\t\t10\t\t',
+            '158\t\t\t\tMSO\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {159, 161}',
+                '-V', '-O', 'dhcp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert '0x01: PacketCable Version = Reserved (12)' in lines
+        assert not any('Provisioning Flows' in l for l in lines)
+        assert "Suboption: TSP's Ticket Granting Server Utilization (7): Yes (2 bytes [Invalid])" in lines
+        assert "Suboption: TSP's Provisioning Timer Value (8): 5 (1 byte)" in lines
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-Y', 'dhcp.option.agent_information_option.ani_att.att',
+                '-Tfields', '-eframe.number',
+                '-edhcp.option.agent_information_option.ani_att.res',
+                '-edhcp.option.agent_information_option.ani_att.att',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['111\t0\t3']
+
+    def test_dhcp_ccc_i05(self, cmd_tshark, capture_file, test_env):
+        '''Option 122 with the PKT-SP-PROV-I05 preference: the sub-option
+        length comes from the length byte and the AP-REQ backoff fields
+        are at offsets 0, 4 and 8.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-o', 'dhcp.pkt.ccc.protocol_version:ccc_i05',
+                '-Y', 'frame.number == 160 || frame.number == 146',
+                '-Tfields', '-eframe.number',
+                '-edhcp.cl.ietf_ccc.dev_prov_unc_key_nom_timeout',
+                '-edhcp.cl.ietf_ccc.dev_prov_unc_key_max_timeout',
+                '-edhcp.cl.ietf_ccc.dev_prov_unc_key_max_retries',
+                '-e_ws.expert.severity',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '146\t4\t5\t6\t',
+            '160\t16909060\t84281096\t151653132\t',
+        ]
+
+    def test_dhcp_vendor_options(self, cmd_tshark, capture_file, test_env):
+        '''A sample of the vendor-specific decoders of options 43, 60,
+        82, 124 and 125, and client identifier DUIDs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                '-edhcp.option.vendor.pxeclient.boot_servers.ip',
+                '-edhcp.option.vendor.bsdp.boot_image.name',
+                '-edhcp.option.vendor.cisco.model',
+                '-edhcp.option.vendor.cl.mta_mac_address',
+                '-edhcp.option.vi.tr111.device_manufacturer_oui',
+                '-edhcp.option.dnr.addrs.ip', '-edhcp.fqdn.name',
+                '-edhcp.option.classless_static_route',
+                '-edhcp.client_id.duid_type',
+            ), encoding='utf-8', env=test_env)
+        rows = {int(r.split('\t')[0]): r.split('\t')[1:] for r in stdout.splitlines()}
+        assert rows[113][0] == '192.0.2.1,192.0.2.2'
+        assert rows[128][1] == 'Image,X'
+        assert rows[129][2] == 'N9K-C'
+        assert rows[116][3] == '02:00:00:00:00:01'
+        assert rows[152][4] == '53431'
+        assert rows[92][5] == '192.0.2.70,192.0.2.71'
+        assert rows[77][6] == 'client1.example.com'
+        assert [rows[n][8] for n in range(56, 64)] == ['1', '1', '1', '2', '3', '3', '3', '4']
