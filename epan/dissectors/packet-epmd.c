@@ -220,7 +220,7 @@ dissect_epmd_response_names(packet_info *pinfo _U_, tvbuff_t *tvb, unsigned offs
             expert_add_info_format(pinfo, node_tree, &ei_epmd_malformed_names_line, "Invalid or missing port number");
             continue;
         }
-        proto_tree_add_uint(node_tree, hf_epmd_node_port, tvb, pos_port, 2, portnum);
+        proto_tree_add_uint(node_tree, hf_epmd_node_port, tvb, pos_port, port_len, portnum);
     }
 }
 
