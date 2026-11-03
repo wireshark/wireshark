@@ -50,25 +50,22 @@ extern void proto_reg_handoff_distcc(void);
 
 static dissector_handle_t distcc_handle;
 
+/*
+ * Check that the value of a token, "parameter" octets at "offset", is all
+ * there.  If it is not and TCP can give us more data, ask for the rest of
+ * the PDU, starting at the token, and stop; otherwise dissect what there
+ * is (the caller marks the item as short).
+ */
 #define CHECK_PDU_LEN(x) \
-    if(parameter>tvb_captured_length_remaining(tvb, offset) || parameter < 1){\
-        len=tvb_captured_length_remaining(tvb, offset);\
-        col_append_str(pinfo->cinfo, COL_INFO, "[Short" x " PDU]");\
-    } \
-    tvb_ensure_bytes_exist(tvb, offset, len);
-
-
-#define DESEGMENT_TCP(x) \
-    if(distcc_desegment && pinfo->can_desegment){\
-        /* only attempt reassembly if we have the full segment */\
-        if(tvb_captured_length_remaining(tvb, offset)==(unsigned)tvb_reported_length_remaining(tvb, offset)){\
-            if(parameter>tvb_captured_length_remaining(tvb, offset)){\
-                proto_tree_add_expert_format_remaining(tree, pinfo, &ei_distcc_short_pdu, tvb, offset-12, "[Short " x " PDU]");\
-                pinfo->desegment_offset=offset-12;\
-                pinfo->desegment_len=parameter-tvb_captured_length_remaining(tvb, offset);\
-                return offset+len;\
-            }\
+    if(parameter>(unsigned)tvb_captured_length_remaining(tvb, offset)){\
+        if(distcc_desegment && pinfo->can_desegment &&\
+           tvb_captured_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){\
+            pinfo->desegment_offset=offset-12;\
+            pinfo->desegment_len=parameter-(unsigned)tvb_captured_length_remaining(tvb, offset);\
+            return tvb_captured_length(tvb);\
         }\
+        len=tvb_captured_length_remaining(tvb, offset);\
+        col_append_str(pinfo->cinfo, COL_INFO, "[Short " x " PDU] ");\
     }
 
 static int
@@ -118,10 +115,8 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     char *argv;
     proto_item* ti;
 
-    CHECK_PDU_LEN("ARGV");
-
     /* see if we need to desegment the PDU */
-    DESEGMENT_TCP("ARGV");
+    CHECK_PDU_LEN("ARGV");
 
     /*
      * XXX - we have no idea what encoding is being used, other than
@@ -145,10 +140,8 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     char *serr;
     proto_item* ti;
 
-    CHECK_PDU_LEN("SERR");
-
     /* see if we need to desegment the PDU */
-    DESEGMENT_TCP("SERR");
+    CHECK_PDU_LEN("SERR");
 
     /*
      * XXX - we have no idea what encoding is being used, other than
@@ -172,10 +165,8 @@ dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     char *sout;
     proto_item* ti;
 
-    CHECK_PDU_LEN("SOUT");
-
     /* see if we need to desegment the PDU */
-    DESEGMENT_TCP("SOUT");
+    CHECK_PDU_LEN("SOUT");
 
     /*
      * XXX - we have no idea what encoding is being used, other than
@@ -199,10 +190,8 @@ dissect_distcc_doti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     int len=(int)parameter;
     proto_item* ti;
 
-    CHECK_PDU_LEN("DOTI");
-
     /* see if we need to desegment the PDU */
-    DESEGMENT_TCP("DOTI");
+    CHECK_PDU_LEN("DOTI");
 
     col_append_str(pinfo->cinfo, COL_INFO, "DOTI source ");
 
@@ -220,10 +209,8 @@ dissect_distcc_doto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     int len=(int)parameter;
     proto_item* ti;
 
-    CHECK_PDU_LEN("DOTO");
-
     /* see if we need to desegment the PDU */
-    DESEGMENT_TCP("DOTO");
+    CHECK_PDU_LEN("DOTO");
 
     col_append_str(pinfo->cinfo, COL_INFO, "DOTO object ");
 
@@ -248,7 +235,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
     uint32_t parameter;
 
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISTCC ");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISTCC");
 
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -258,7 +245,19 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
         tree = proto_item_add_subtree(item, ett_distcc);
     }
 
-    while (true) {
+    while (tvb_captured_length_remaining(tvb, offset) > 0) {
+        if (tvb_captured_length_remaining(tvb, offset) < 12) {
+            /* the token is split over segments */
+            if (distcc_desegment && pinfo->can_desegment &&
+                tvb_captured_length_remaining(tvb, offset) == tvb_reported_length_remaining(tvb, offset)) {
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = 12 - tvb_captured_length_remaining(tvb, offset);
+                return tvb_captured_length(tvb);
+            }
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_distcc_short_pdu, tvb, offset, "[Short token]");
+            break;
+        }
+
         /* read the raw token (4 bytes) and parameter (8 bytes) */
         tvb_memcpy(tvb, buf, offset, 12);
         buf[12] = '\0';
