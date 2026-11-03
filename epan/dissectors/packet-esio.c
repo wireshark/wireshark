@@ -115,7 +115,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        proto_tree *esio_tree, *esio_header_tree, *esio_transfer_header_tree,
                   *esio_data_tansfer_tree, *esio_data_tree;
 
-       int         i;
+       int         i, j;
        int         offset;
        uint8_t     esio_nbr_data_transfers;
        uint16_t    esio_telegram_type;
@@ -220,7 +220,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                             /*here comes the data*/
                             esio_data_tree = proto_tree_add_subtree(esio_data_tansfer_tree, tvb, offset,
                                                      esio_transfer_length, ett_esio_data, NULL, "Data bytes ");
-                            for (i=((esio_transfer_length)); i>0; i--) {
+                            for (j=((esio_transfer_length)); j>0; j--) {
                                    proto_tree_add_item(esio_data_tree,
                                                        hf_esio_data, tvb, offset,
                                                        1, ENC_BIG_ENDIAN);
