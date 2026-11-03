@@ -53288,3 +53288,144 @@ class TestDissectEpon:
             '4\tepon\tRemaining data is encrypted and will not decode.',
             '5\tepon\tRemaining data is encrypted and will not decode.',
         ]
+
+
+class TestDissectErf:
+    def test_erf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''146 ERF records of 28 record types; no malformed packets and no
+        error expert infos in one and two passes (the warnings are a loss
+        counter, a reset tag and a record with 17 extension headers).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erf_coverage.erf.gz'),
+                '-Tfields', '-eframe.protocols', '-eerf.types.type',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 146
+        assert all(l.startswith('erf') for l in lines)
+        assert len({l.split('\t')[1] for l in lines}) == 28
+        assert sum(1 for l in lines if l.startswith('erf:eth:')) == 103
+        assert sum(1 for l in lines if l.split('\t')[1] == '27') == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('erf_coverage.erf.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('erf_coverage.erf.gz'),
+                    '-Y', '_ws.expert.severity == "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '2\tProvenance metadata reset',
+                '10\tPacket loss occurred between previous and current packet',
+                '54\tMore extension headers were present, not shown',
+            ]
+
+    def test_erf_anchor_links(self, cmd_tshark, capture_file, test_env):
+        '''Anchor ID linking as fixed in "ERF: Bound Anchor ID linking and
+        check parent_section length": the definition record of an Anchor
+        ID used by 70 other records links to 64 of them with a note, a
+        record without the definition flag links only to the definition,
+        and Anchor IDs 0x000000000012 and 0x000100000012 are told apart.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('erf_coverage.erf.gz'),
+                '-Y', 'frame.number in {66, 67, 69, 138, 139, 140, 141, 142}',
+                '-Tfields', '-eframe.number', '-eerf.anchor.anchorid',
+                '-eerf.anchor.frame', '-e_ws.expert.message',
+                '-Eoccurrence=a', '-Eaggregator=;',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['66', '0x0000000000001001', '67', '']
+        assert lines[1] == ['67', '0x0000000000001001', '66', '']
+        assert lines[2] == ['69', '0x0000000000002002', '138', '']
+        assert lines[3][0:2] == ['138', '0x0000000000002002']
+        assert lines[3][2].split(';') == [str(n) for n in range(68, 132)]
+        assert lines[3][3] == 'More frames with this Anchor ID, not shown'
+        assert lines[4] == ['139', '0x0000000000002002', '138', '']
+        assert lines[5] == ['140', '0x0000000000000012', '142', '']
+        assert lines[6] == ['141', '0x0000000100000012', '', '']
+        assert lines[7] == ['142', '0x0000000000000012', '140', '']
+
+    def test_erf_anchor_links_one_pass(self, cmd_tshark, capture_file, test_env):
+        '''In one pass a record only links to earlier records.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erf_coverage.erf.gz'),
+                '-Y', 'frame.number in {66, 67, 69, 139, 142}',
+                '-Tfields', '-eframe.number', '-eerf.anchor.frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['66\t', '67\t66', '69\t', '139\t138', '142\t140']
+
+    def test_erf_host_source(self, cmd_tshark, capture_file, test_env):
+        '''Records are linked to the Provenance records of their Host ID
+        and Source ID (from a Host ID or Flow ID extension header, or the
+        implicit Host ID).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('erf_coverage.erf.gz'),
+                '-Y', 'frame.number in {1, 4, 41, 55, 57, 59, 63, 64, 65}',
+                '-Tfields', '-eframe.number', '-eerf.hostid', '-eerf.sourceid',
+                '-eerf.source_meta_frame_prev', '-eerf.source_meta_frame_next',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00000000a1b2c3d4\t1\t\t2',
+            '4\t0x00000000a1b2c3d4\t1\t3\t59',
+            '41\t0x00000000a1b2c3d4\t2\t\t60',
+            '55\t0x00000000a1b2c3d4\t1\t4\t59',
+            '57\t0x00000000b0b1b2b3\t1\t\t61',
+            '59\t0x00000000a1b2c3d4\t1\t4\t65',
+            '63\t0x00000000a1b2c3d4\t1\t59\t65',
+            '64\t0x00000000b0b1b2b3\t1\t61\t',
+            '65\t0x00000000a1b2c3d4\t1\t59\t67',
+        ]
+
+    def test_erf_provenance(self, cmd_tshark, capture_file, test_env):
+        '''Provenance records: every section, section lengths, tag
+        values with special formatting.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erf_coverage.erf.gz'),
+                '-Y', 'frame.number in {1, 2, 3}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tProvenance Metadata, Capture Section, Host Section, Interface Section',
+            '2\tProvenance Metadata, Capture Section, Host Section, Module Section, '
+            'Interface Section, Flow Section, Statistics Section, Information Section, '
+            'Context Section, Stream Section, Transform Section, DNS Section, '
+            'Source Section, Network Section, Endpoint Section, Input Section, Output Section',
+            '3\tProvenance Metadata, Unknown Section (0xff7e), Information Section',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erf_coverage.erf.gz'),
+                '-Y', 'frame.number == 2',
+                '-V', '-O', 'erf',
+            ), encoding='utf-8', env=test_env)
+        for line in (
+                'Parent Section: Interface Section 1',
+                'Interface Line Rate: 10 Gbps (10000000000 bps)',
+                'Memory: 64 GiB (68719476736 bytes)',
+                'Extension Headers Added: Host ID, Anchor ID',
+                'Extension Headers Removed: 35',
+                'IPv4 Name: host-a.example, Address: 192.0.2.1',
+                'Host Section (Local) 1',
+                'Section Length: 0',
+                ):
+            assert line in stdout
+        assert stdout.count('[correct]') == 15
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erf_coverage.erf.gz'),
+                '-Y', 'frame.number == 4',
+                '-V', '-O', 'erf',
+            ), encoding='utf-8', env=test_env)
+        assert 'Extension Headers Added: <All>' in stdout
+        assert 'Extension Headers Removed: <None>' in stdout
+
+    def test_erf_extension_headers(self, cmd_tshark, capture_file, test_env):
+        '''Every extension header type in one record.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erf_coverage.erf.gz'),
+                '-Y', 'erf.ehdr.bfs.hash',
+                '-Tfields', '-eframe.number', '-eerf.ehdr.types',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['41\t3,4,5,6,14,15,16,19,99']
