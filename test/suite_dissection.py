@@ -48792,3 +48792,141 @@ class TestDissectDvbS2Bb:
             '34\teth:ethertype:ip:udp:dvb-s2_modeadapt',
             '35\teth:ethertype:ip:udp:data',
         ]
+
+
+class TestDissectDvbS2Table:
+    def test_dvb_s2_table_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Exported PDU is dissected as a DVB-S2 signalling table,
+        and no frame is malformed or has an expert info, in one and two
+        passes, apart from the expected warning for the TBTP2 with an
+        unknown assignment format (frame 1).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_table_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['exported_pdu:dvb-s2_table'] * 37
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvb_s2_table_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\tUnknown assignment format, assignments not dissected']
+
+    def test_dvb_s2_table_ids(self, cmd_tshark, capture_file, test_env):
+        '''The table ID and Info column of every table (RCS2 decoding).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_table_coverage.pcap.gz'),
+                '-Tfields', '-edvb-s2_table.id', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines()] == [
+            '0xad\tTBTP2', '0xb0\tget-request 1.3.6.1.2.1.1.1.0',
+            '0xaf\tFAT', '0xa0\tSCT', '0xa1\tFCT',
+            '0xab\tTCTE(RCS)-FCT2(RCS2)', '0xa3\tSPT', '0xa4\tCMT',
+            '0xa5\tTBTP'] + ['0xad\tTBTP2'] * 7 + [
+            '0xaa\tTMST', '0xae\tTMST2', '0xac\tBCT', '0xb0\tTIM',
+            '0xfe\tTIMB', '0xaf\tFAT', '0xaf\tFAT', '0x40\tNIT',
+            '0x41\tRMT', '0x40\tNIT', '0xb2\tMMT2', '0x70\tTDT',
+            '0x80,0x01\tSMT', '0x00\tPAT', '0x01\tCAT', '0x02\tPMT',
+            '0x42\tSDT', '0xa2\tTCT', '0xa6\tPCR', '0xc0\tMMT',
+            '0x99\tUnknown table id']
+
+    def test_dvb_s2_table_tbtp2_unknown_format(self, cmd_tshark, capture_file, test_env):
+        '''A TBTP2 with an unknown assignment format gets an expert info
+        and its 256 frames of 65536 assignments are not walked (before
+        "DVB-S2-TABLE: Stop on unknown TBTP2 format, fix SNMP proto id"
+        the loops ran about 16 million times and, with a tree, hit the
+        "possible infinite loop" check).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_table_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1', '-V',
+                '-Tfields', '-edvb-s2_table.assign_format',
+                '-edvb-s2_table.frame.number', '-edvb-s2_table.frame.assignment',
+                '-e_ws.expert.severity', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['4\t\t\t6291456\t']
+
+    def test_dvb_s2_table_tbtp2_formats(self, cmd_tshark, capture_file, test_env):
+        '''The assignment IDs of the TBTP2 assignment formats 0-3 and
+        10-12, with the dynamic tx_type of formats 10-12.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_table_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 10 && frame.number <= 16',
+                '-Tfields', '-edvb-s2_table.assign_format',
+                '-edvb-s2_table.frame.assign_id8',
+                '-edvb-s2_table.frame.assign_id16',
+                '-edvb-s2_table.frame.assign_id24',
+                '-edvb-s2_table.frame.assign_id48',
+                '-edvb-s2_table.frame.dynamic_tx_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t\t\t\t000000000001,000000000002,000000000001\t',
+            '1\t0x01,0x02,0x01\t\t\t\t',
+            '2\t\t0x0001,0x0002,0x0001\t\t\t',
+            '3\t\t\t0x000001,0x000002,0x000001\t\t',
+            '10\t0x01,0x02,0x01\t\t\t\t0x80,0x81,0x80',
+            '11\t\t0x0001,0x0002,0x0001\t\t\t0x80,0x81,0x80',
+            '12\t\t\t0x000001,0x000002,0x000001\t\t0x80,0x81,0x80',
+        ]
+
+    def test_dvb_s2_table_snmp(self, cmd_tshark, capture_file, test_env):
+        '''The Network Layer Info descriptor holds an SNMP PDU, shown
+        under SNMP (it was shown under "Wireshark Columns" with the
+        Protocol column "Columns" before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_table_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2',
+                '-Tfields', '-e_ws.col.protocol', '-esnmp.community',
+                '-esnmp.name', '-edvb-s2_table.desc.tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'SNMP\tpublic\t1.3.6.1.2.1.1.1.0\t0xa0']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_table_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert '        Simple Network Management Protocol' in stdout.splitlines()
+        assert 'Wireshark Columns' not in stdout
+
+    def test_dvb_s2_table_route_ids(self, cmd_tshark, capture_file, test_env):
+        '''The Return Interaction Path descriptor: three network routing
+        labels, the first with a route id loop count of 2 and so three
+        route IDs (the loop count had the mask 0x01 before the fix, so
+        only one route ID was read and the rest was misaligned).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_table_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3',
+                '-Tfields',
+                '-edvb-s2_table.desc.network_touing.ripd_route_id_loop_count',
+                '-edvb-s2_table.desc.network_touing.ripd_route_id',
+                '-edvb-s2_table.desc.network_touing.ripd_pid',
+                '-edvb-s2_table.desc.network_touing.ripd_channel_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t2561,2562,2563\t768,769,1024\t7,8,9']
+
+    def test_dvb_s2_table_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Transmission types of the BCT, the NCR of the satellite
+        forward link descriptor in the broadcast TIM and the linkage
+        descriptor variants.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_table_coverage.pcap.gz'),
+                '-Y', 'frame.number == 19 || frame.number == 21 || frame.number == 23',
+                '-Tfields', '-edvb-s2_table.tx_type.id',
+                '-edvb-s2_table.tx_type.tx_format_class',
+                '-edvb-s2_table.tx_type.modulation_scheme',
+                '-edvb-s2_table.desc.sfld_ncr_base_private_data',
+                '-edvb-s2_table.desc.sfld_ncr_ext_private_data',
+                '-edvb-s2_table.desc.ld_linkage_type',
+                '-edvb-s2_table.desc.ld_hand_over_type',
+                '-edvb-s2_table.desc.ld_network_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x81,0x82,0x83,0x84,0x05,0x91,0x92,0x13,0x20,0x21,0x22\t'
+            '0x01,0x01,0x01,0x01,0x01,0x02,0x02,0x02,0x03,0x04,0x00\t'
+            '0x01,0x02,0x03,0x05\t\t\t\t\t',
+            '\t\t\t38177487\t427\t\t\t',
+            '\t\t\t\t\t0x08,0x08,0x08,0x08,0x0d,0x81,0x82,0x01\t'
+            '0x01,0x02,0x03,0x00\t0x0020,0x0022,0x0023,0x0030,0x0031',
+        ]
