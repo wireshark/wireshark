@@ -42426,3 +42426,168 @@ class TestDissectDhcpFailover:
             '65\t\t\t\t\t\t',
             '66\t149\t12\t0x00000a03\t\t2,3,16\t149',
         ]
+
+
+class TestDissectDhcpv6:
+    def test_dhcpv6_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol, no malformed packets or error expert
+        infos in one and two passes, and only the expected warnings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 61
+        assert protocols.count('DHCPv6') == 52
+        assert protocols.count('DHCPv4o6') == 2
+        assert protocols.count('DHCPv6 BulkLease') == 3
+        assert protocols.count('TCP') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            # obsoleted IA_TA/UNICAST, FQDN in Confirm, deprecated SNTP,
+            # TLD, hop counts, CCCv6 provisioning server type and timer
+            assert stdout.split() == ['18', '22', '25', '26', '42', '47']
+
+    def test_dhcpv6_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, the relay nesting and the Bulk Leasequery
+        message types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                '-Tfields', '-edhcpv6.msgtype', '-edhcpv6.bulk_leasequery.msgtype',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0:14] == ['1\t', '2\t', '3\t', '7\t', '4\t', '5\t', '6\t', '8\t',
+                               '9\t', '10\t', '11\t', '18\t', '19\t', '99\t']
+        assert lines[19:21] == ['36\t', '37\t']
+        assert lines[32:34] == ['20\t', '21\t']
+        assert lines[35:39] == ['14\t', '15\t', '16\t', '17\t']
+        assert lines[39:42] == ['12,12,1\t', '13,13,2\t', '12,12,1\t']
+        assert lines[57:61] == ['\t14,14,14', '\t', '\t15', '\t17,16']
+
+    def test_dhcpv6_relay_hopcount(self, cmd_tshark, capture_file, test_env):
+        '''Nested relays: hop counts and the warnings for a hop count above
+        32, not decremented, and not zero for the inner message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                '-Y', 'dhcpv6.hopcount',
+                '-Tfields', '-eframe.number', '-edhcpv6.hopcount',
+                '-edhcpv6.linkaddr', '-e_ws.expert.message',
+                '-Eaggregator=|',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '40\t1|0\t2001:db8::|2001:db8::3\t'
+        assert lines[1] == '41\t1|0\t2001:db8::|2001:db8::3\t'
+        assert lines[2].split('\t')[0:3] == ['42', '40|40', '2001:db8::|2001:db8::3']
+        assert lines[2].split('\t')[3].split('|') == [
+            'Hopcount (40) exceeds the maximum limit HOP_COUNT_LIMIT (32)',
+            'hopcount is not correctly incremented by 1 (expected : 41, actual : 40)',
+            'Hopcount (40) exceeds the maximum limit HOP_COUNT_LIMIT (32)',
+            'Hopcount of most inner message has to equal 0 instead of 40',
+        ]
+
+    def test_dhcpv6_suboption_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "DHCPv6: Fix several sub-option length and
+        offset errors" (frames 49-54): the CableLabs sub-option in the last
+        4 bytes is shown and an 8-byte option is not bogus, the CCCv6
+        provisioning server address is shown, partial names keep all labels
+        and dots, and a MoS sub-option of length 0 does not eat the
+        following DNS option.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 49 && frame.number <= 54',
+                '-Tfields', '-eframe.number', '-edhcpv6.cablelabs.opt',
+                '-edhcpv6.packetcable.cccV6.prov_srv.ipv6',
+                '-edhcpv6.search_list_entry', '-edhcpv6.mos.addr.len',
+                '-edhcpv6.mos.addr.addr', '-edhcpv6.dns_server',
+                '-e_ws.expert', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '49\t1,2\t\t\t\t\t\t\t',
+            '50\t1\t\t\t\t\t\t\t',
+            '51\t2171,2\t2001:db8::53\t\t\t\t\t\t',
+            '52\t\t\tfoo.bar\t\t\t\t\t',
+            '53\t\t\ta.bb.ccc\t\t\t\t\t',
+            '54\t\t\t\t0\t\t2001:db8::53,2001:db8::53,2001:db8::53\t\t',
+        ]
+
+    def test_dhcpv6_domain_names(self, cmd_tshark, capture_file, test_env):
+        '''FQDN lists, a TLD, an empty Client FQDN, partial names and names
+        in CableLabs sub-options.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2,7,24,26,46}',
+                '-Tfields', '-eframe.number', '-edhcpv6.search_list_entry',
+                '-edhcpv6.client_domain', '-edhcpv6.tld', '-edhcpv6.aftr_name',
+                '-edhcpv6.packetcable.cccV6.prov_srv.fqdn',
+                '-edhcpv6.packetcable.cccV6.prov_srv.ipv6',
+                '-edhcpv6.packetcable.cccV6.krb_realm',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        # Each name of a list is shown on its own (dhcpv6_domain()
+        # empties its buffer after every FQDN).
+        assert lines == [
+            '2\texample.com.,example.net.\thost.example.com.\t\t\t\t\t',
+            '7\t\t\t\t\t\t\t',
+            '24\t\thost\t\t\t\t\t',
+            '26\t\t\torg.\taftr.example.com.\t\t\t',
+            '46\t\t\t\t\tprov.example.com.\t2001:db8::31,2001:db8::32\tREALM.EXAMPLE.COM.',
+        ]
+
+    def test_dhcpv6_bulk_leasequery(self, cmd_tshark, capture_file, test_env):
+        '''Bulk Leasequery over TCP: three PDUs in one segment, a reply
+        reassembled from two segments, and two PDUs in the last
+        segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                '-Y', 'dhcpv6.bulk_leasequery',
+                '-Tfields', '-eframe.number', '-edhcpv6.bulk_leasequery.size',
+                '-edhcpv6.bulk_leasequery.trans_id', '-etcp.reassembled.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '58\t49,53,61\t1,2,3\t',
+            '60\t140\t1\t142',
+            '61\t50,10\t1,1\t',
+        ]
+
+    def test_dhcpv6_cablelabs_interface_id(self, cmd_tshark, capture_file, test_env):
+        '''With dhcpv6.cablelabs_interface_id the Interface-Id is a name,
+        a NUL and an optional MAC address.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                '-o', 'dhcpv6.cablelabs_interface_id:TRUE',
+                '-Y', 'dhcpv6.option.type == 18',
+                '-Tfields', '-eframe.number', '-edhcpv6.cablelabs.interface_id',
+                '-edhcpv6.cablelabs.interface_id_link_address',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '40\teth1,eth0\t02:00:00:00:00:01',
+            '41\teth1,eth0\t',
+        ]
+
+    def test_dhcpv6_embedded(self, cmd_tshark, capture_file, test_env):
+        '''DHCPv4 over DHCPv6, RADIUS attributes, DNR SvcParams and the
+        softwire containers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv6_coverage.pcap.gz'),
+                '-Y', 'dhcp || radius.User_Name || dhcpv6.dnr.addrs || dhcpv6.option.type == 94',
+                '-Tfields', '-eframe.number', '-edhcp.option.dhcp',
+                '-eradius.User_Name', '-edhcpv6.dnr.addrs', '-esvc_params.port',
+                '-edhcpv6.s46_rule.ipv4_prefix', '-edhcpv6.s46_portparam.psid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '28\t\talice\t\t\t\t',
+            '29\t\t\t2001:db8::531,2001:db8::532\t443\t\t',
+            '31\t\t\t\t\t192.0.2.0,192.0.2.1\t52,0',
+            '33\t1\t\t\t\t\t',
+            '34\t1\t\t\t\t\t',
+        ]
