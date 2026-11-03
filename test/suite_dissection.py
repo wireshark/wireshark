@@ -49087,3 +49087,54 @@ class TestDissectDvbSit:
         assert [l for l in lines if 'Running Status' in l] == [
             '.100 .... .... .... = Running Status: Running (0x4)',
             '.001 .... .... .... = Running Status: Not Running (0x1)']
+
+
+class TestDissectDvbTdt:
+    def test_dvb_tdt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every TDT section in the MPEG-TS packets is dissected, and no
+        frame is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_tdt_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['mp2t:mpeg_sect:dvb_tdt'] * 5 + [
+            'mp2t:mpeg_sect:dvb_tdt:mpeg_sect:dvb_tdt']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvb_tdt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_tdt_utc_time(self, cmd_tshark, capture_file, test_env):
+        '''The UTC time of every section. An invalid BCD hour or minute
+        is shown as "Unparseable time" after the field name (the field
+        name was lost before "DVB-TDT: Keep the field name for an
+        unparseable time").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_tdt_coverage.pcap.gz'),
+                '-V', '-O', 'dvb_tdt',
+            ), encoding='utf-8', env=test_env)
+        assert [l for l in stdout.splitlines() if 'UTC Time' in l] == [
+            '    UTC Time: Nov  3, 2026 12:34:56.000000000 UTC',
+            '    UTC Time: Unparseable time',
+            '    UTC Time: Dec 31, 1999 23:59:59.000000000 UTC',
+            '    UTC Time: Unparseable time',
+            '    UTC Time: Jan  1, 1970 00:00:00.000000000 UTC',
+            '    UTC Time: Nov  3, 2026 12:35:00.000000000 UTC',
+            '    UTC Time: Nov  3, 2026 12:35:01.000000000 UTC',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_tdt_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edvb_tdt.utc_time',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t2026-11-03T12:34:56.000000000Z',
+            '2\t2026-11-03T00:00:00.000000000Z',
+            '3\t1999-12-31T23:59:59.000000000Z',
+            '4\t2026-11-03T00:00:00.000000000Z',
+            '5\t1970-01-01T00:00:00.000000000Z',
+            '6\t2026-11-03T12:35:00.000000000Z,2026-11-03T12:35:01.000000000Z',
+        ]
