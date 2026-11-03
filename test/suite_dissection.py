@@ -43567,3 +43567,102 @@ class TestDissectDlep:
                 'Hop Count Data Item: 3 Hops',
                 'Latency Range Data Item: 1000 - 5000 (us)'):
             assert '    ' + line + '\n' in stdout
+
+
+class TestDissectDlm3:
+    def test_dlm3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''DLM3 over TCP and SCTP, and no frame is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlm3_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 47
+        assert protocols.count('DLM3') == 45
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dlm3_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dlm3_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message and recovery command type of versions 3.1 and
+        3.2, options with TLVs and a nested message or recovery command,
+        three PDUs in one segment and one reassembled from two.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlm3_coverage.pcap.gz'),
+                '-Y', 'dlm3',
+                '-Tfields', '-eframe.number', '-edlm3.h.version',
+                '-edlm3.h.cmd', '-edlm3.m.type', '-edlm3.rc.type',
+                '-edlm3.o.nextcmd', '-edlm3.t.type', '-edlm3.t.length',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.replace('\t', '|').splitlines()
+        assert len(lines) == 45
+        assert lines[13] == ('14|0x00030001,0x00030001,0x00030001|1,1,1|14,15,1|||||'
+                             'message: request message')
+        assert lines[14] == '16|0x00030001|1|1|||||message: request message'
+        assert [l.split('|')[4] for l in lines[15:24]] == \
+            ['1', '2', '3', '4', '5', '6', '7', '8', '4']
+        assert lines[30:] == [
+            '33|0x00030002|1|1|||||message: request message',
+            '34|0x00030002|1|5|||||message: request reply',
+            '35|0x00030002|2||1||||recovery command: status command',
+            '36|0x00030002|2||5||||recovery command: status reply',
+            '37|0x00030002|4||||||acknowledge',
+            '38|0x00030002|5||||||fin',
+            '39|0x00030002,0x00030002|3,1|3||1|257,514,3|4,2,0|options: message: unlock message',
+            '40|0x00030002,0x00030002|3,2||4|2|7|7|options: recovery command: lock command',
+            '41|0x00030002,0x00030002|3,1|3||1|||options: message: unlock message',
+            '42|0x00030002,0x00030002|3,1|3||1|1|2|options: message: unlock message',
+            '43||||||||unknown command (9)',
+            '44|0x00030002|1|1|||||message: request message',
+            '45|0x00030002,0x00030002|3,1|1||1|257,514|4,2|options: message: request message',
+            '46|0x00030001|1|1|||||message: request message',
+            '47|0x00030002|2||3||||recovery command: lookup command',
+        ]
+
+    def test_dlm3_v32_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Frames 44-45 (the v3.2 message and options reproducer) decode
+        the message body after the header and walk both TLVs, as fixed
+        in "DLM3: Fix v3.2 message decoding and the OPTS TLV loop".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlm3_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 44 && frame.number <= 45',
+                '-Tfields', '-edlm3.h.seq', '-edlm3.m.type',
+                '-edlm3.m.nodeid', '-edlm3.m.result', '-edlm3.t.type',
+                '-edlm3.t.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t1\t4352\t4368\t\t',
+            '8\t1\t4352\t4368\t257,514\t41414141,4242',
+        ]
+
+    def test_dlm3_fields(self, cmd_tshark, capture_file, test_env):
+        '''Flags, modes, extra data, the lock buffer with its name and
+        lock value block, and the status reply buffer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlm3_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,20,21,25,26}',
+                '-Tfields', '-eframe.number', '-edlm3.m.exflags',
+                '-edlm3.m.grmode', '-edlm3.m.rqmode', '-edlm3.rl.namelen',
+                '-edlm3.rl.name_contents', '-edlm3.rl.lvb',
+                '-edlm3.rf.lvblen', '-edlm3.rf.lsflags',
+            ), encoding='utf-8', env=test_env)
+        lvb = bytes(range(32)).hex()
+        assert stdout.splitlines() == [
+            '1\t0x0007ffff\t-1\t5\t\t\t\t\t',
+            '20\t\t\t\t12\tresource-one\t' + lvb + '\t\t',
+            '21\t\t\t\t\t\t\t32\t0x000fffff',
+            '25\t\t\t\t12\tresource-one\t\t\t',
+            '26\t\t\t\t80\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dlm3_coverage.pcap.gz'),
+                '-Y', 'frame.number == 16 && dlm3',
+                '-Tfields', '-edlm3.m.extra',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == bytes(range(200)).hex()
