@@ -4,6 +4,10 @@
 #.IMPORT ../dap/dap-exp.cnf
 #.IMPORT ../dsp/dsp-exp.cnf
 
+#.MODULE
+Remote-Operations-Information-Objects ROS
+#.END
+
 #.EXPORTS
 BothwayThroughConnectionInd
 CallingPartysCategory
