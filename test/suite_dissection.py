@@ -52729,3 +52729,94 @@ class TestDissectEnrp:
             'ENRP Takeover Server': ['1', '2.941 %', '16', '0.920 %'],
             'ENRP Error': ['3', '8.824 %', '284', '16.322 %'],
         }
+
+
+class TestDissectEnttec:
+    def test_enttec_protocols(self, cmd_tshark, capture_file, test_env):
+        '''14 of the 18 frames are ENTTEC and none is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enttec_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 18
+        assert protocols.count('ENTTEC') == 14
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('enttec_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_enttec_info(self, cmd_tshark, capture_file, test_env):
+        '''Every UDP packet type, the TCP Config packet, and the packets
+        on the port that are not ENTTEC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enttec_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eenttec.head',
+                '-eenttec.dmx_data.type', '-eenttec.dmx_data.size',
+                '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x45535050\t\t\tENTTEC',
+            '2\t0x45535052\t\t\tENTTEC',
+            '3\t0x45534150\t\t\tENTTEC',
+            '4\t0x45535a5a\t\t\tENTTEC',
+            '5\t0x45534444\t0x01\t40\tENTTEC',
+            '6\t0x45534444\t0x01\t512\tENTTEC',
+            '7\t0x45534444\t0x01\t600\tENTTEC',
+            '8\t0x45534444\t0x02\t6\tENTTEC',
+            '9\t0x45534444\t0x04\t14\tENTTEC',
+            '10\t0x45534444\t0x04\t11\tENTTEC',
+            '11\t0x45534444\t0x04\t5\tENTTEC',
+            '12\t0x45534444\t0x07\t4\tENTTEC',
+            '13\t0x45534444\t0x01\t0\tENTTEC',
+            '14\t0x45534e43\t\t\tENTTEC',
+            '15\t\t\t\tUDP',
+            '16\t\t\t\tTCP',
+            '17\t\t\t\tUDP',
+            '18\t\t\t\tTCP',
+        ]
+
+    def test_enttec_poll_reply(self, cmd_tshark, capture_file, test_env):
+        '''The Poll Reply fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enttec_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2',
+                '-Tfields', '-eenttec.poll_reply.mac',
+                '-eenttec.poll_reply.node_type', '-eenttec.poll_reply.version',
+                '-eenttec.poll_reply.name', '-eenttec.poll_reply.ttl',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '02:00:00:00:00:02\t0x0102\t3\tDMXNODE-01\t64\n'
+
+    def test_enttec_rle(self, cmd_tshark, capture_file, test_env):
+        '''RLE runs and 0xFD escapes are expanded (in percent), and a run
+        that would go past 512 channels stops there.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enttec_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9 || frame.number == 10',
+                '-V', '-O', 'enttec',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert '001:  50 50 50 50 50 50 50 50  50 50 50 50 50 50 50 50' in lines
+        assert '011:  50 50 50 50 99 99  6 12  18 FL FL FL FL FL 25' in lines
+        # Frame 10: 255 + 255 + 10 channels, cut at 512
+        assert '0f1:   6  6  6  6  6  6  6  6   6  6  6  6  6  6  6 13' in lines
+        assert '1f1:  13 13 13 13 13 13 13 13  13 13 13 13 13 13 20 20' in lines
+        assert not any(l.startswith('201:') for l in lines)
+
+    def test_enttec_display_prefs(self, cmd_tshark, capture_file, test_env):
+        '''Channel values in hex, channel numbers in decimal, 10 columns.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enttec_coverage.pcap.gz'),
+                '-o', 'enttec.dmx_disp_chan_val_type:hex',
+                '-o', 'enttec.dmx_disp_chan_nr_type:dec',
+                '-o', 'enttec.dmx_disp_col_count:10',
+                '-Y', 'frame.number == 5',
+                '-V', '-O', 'enttec',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert '1:  00 01 02 7f 80  fe ff ff 00 06' in lines
+        assert '31:  84 8a 90 96 9c  a2 a8 ae b4 ba' in lines
