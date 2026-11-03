@@ -4333,9 +4333,13 @@ dissect_e212_mcc_mnc_high_nibble(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     mnc2  = octet >> 4;
     offset++;
 
-    /* MNC digits 3 */
-    octet = tvb_get_uint8(tvb,offset);
-    mnc3  = octet & 0x0f;
+    /* MNC digits 3, if the number has it */
+    if (tvb_bytes_exist(tvb, offset, 1)) {
+        octet = tvb_get_uint8(tvb,offset);
+        mnc3  = octet & 0x0f;
+    } else {
+        mnc3  = 0xf;
+    }
 
     mcc   = 100 * mcc1 + 10 * mcc2 + mcc3;
     mnc   = 10 * mnc1 + mnc2;
@@ -4502,6 +4506,7 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     proto_tree *subtree;
     const char *imsi_str;
     uint8_t   oct;
+    tvbuff_t   *mcc_mnc_tvb;
 
     /* Fetch the BCD encoded digits from tvb indicated half byte, formating the digits according to
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the wmem
@@ -4534,10 +4539,19 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 
     queue_imsi_tap(pinfo, imsi_str);
 
-    if(skip_first) {
-        dissect_e212_mcc_mnc_high_nibble(tvb, pinfo, subtree, offset);
-    } else {
-        dissect_e212_mcc_mnc_in_address(tvb, pinfo, subtree, offset);
+    /* Do not let the MCC/MNC parsers read past the IMSI. An IMSI too
+     * short to hold an MCC and a 2-digit MNC (3 octets) is already
+     * reported above.
+     */
+    if (length < 0)
+        length = (int)tvb_reported_length_remaining(tvb, offset);
+    if (length >= 3) {
+        mcc_mnc_tvb = tvb_new_subset_length(tvb, offset, length);
+        if(skip_first) {
+            dissect_e212_mcc_mnc_high_nibble(mcc_mnc_tvb, pinfo, subtree, 0);
+        } else {
+            dissect_e212_mcc_mnc_in_address(mcc_mnc_tvb, pinfo, subtree, 0);
+        }
     }
 
     return imsi_str;
@@ -4563,7 +4577,14 @@ dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
-    dissect_e212_mcc_mnc_in_utf8_address(tvb, pinfo, subtree, offset);
+    /* Do not let the MCC/MNC parser read past the IMSI. An IMSI too
+     * short to hold an MCC and a 2-digit MNC is already reported above.
+     */
+    if (length < 0)
+        length = (int)tvb_reported_length_remaining(tvb, offset);
+    if (length >= 5) {
+        dissect_e212_mcc_mnc_in_utf8_address(tvb_new_subset_length(tvb, offset, length), pinfo, subtree, 0);
+    }
 
     return imsi_str;
 }
