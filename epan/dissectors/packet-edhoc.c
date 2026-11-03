@@ -21,6 +21,7 @@
 #include <epan/wscbor.h>
 #include <epan/wscbor_enc.h>
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/media_params.h>
@@ -208,7 +209,7 @@ static const edhoc_cs_t edhoc_cs_list[] = {
     // 6: A128GCM, SHA-256, 16, X25519, ES256, A128GCM, SHA-256
     {6, 1, -16, 16, 4, -7, 1, -16},
     // 24: A256GCM, SHA-384, 16, P-384, ES384, A256GCM, SHA-384
-    {24, 3, -43, 16, 1, -35, 3, -43},
+    {24, 3, -43, 16, 2, -35, 3, -43},
     // 25: ChaCha20/Poly1305, SHAKE256, 16, X448, EdDSA, ChaCha20/Poly1305, SHAKE256
     {25, 24, -45, 16, 5, -8, 24, -45},
 };
@@ -280,16 +281,23 @@ static GBytes * edhoc_any_kdf(int64_t algo, GBytes *prk, int64_t label, GBytes *
                 out, (unsigned)length
             );
             if (err) {
-                ws_error("HKDF error: %s", gcry_strerror(err));
+                // e.g. a length (from the packet) above 255 times the hash size
+                ws_warning("HKDF error: %s", gcry_strerror(err));
+                g_free(out);
+                out = NULL;
             }
             break;
         }
         default:
-            ws_error("unhandled KDF hash algo: %"PRId64, algo);
+            // e.g. SHAKE256 of cipher suite 25, selected by the packet
+            ws_warning("unhandled KDF hash algo: %"PRId64, algo);
             break;
     }
 
     g_bytes_unref(info_data);
+    if (!out) {
+        return NULL;
+    }
     // this may be treated as a truncation, but does not change allocation
     return g_bytes_new_take(out, length);
 }
@@ -381,14 +389,17 @@ static int edhoc_decrypt(const edhoc_cs_t *suite, GBytes *key, GBytes *iv, GByte
     err = gcry_cipher_open(&ghd, aead_props->gcry_cipher, aead_props->gcry_mode, 0);
     if (err) {
         ws_warning("gcry_cipher_open error: %s", gcry_strerror(err));
+        return -1;
     }
     err = gcry_cipher_setkey(ghd, g_bytes_get_data(key, NULL), g_bytes_get_size(key));
     if (err) {
         ws_warning("gcry_cipher_setkey error: %s", gcry_strerror(err));
+        goto done;
     }
     err = gcry_cipher_setiv(ghd, g_bytes_get_data(iv, NULL), g_bytes_get_size(iv));
     if (err) {
         ws_warning("gcry_cipher_setiv error: %s", gcry_strerror(err));
+        goto done;
     }
 
     if (aead_props->gcry_mode == GCRY_CIPHER_MODE_CCM) {
@@ -403,12 +414,14 @@ static int edhoc_decrypt(const edhoc_cs_t *suite, GBytes *key, GBytes *iv, GByte
     err = gcry_cipher_authenticate(ghd, g_bytes_get_data(aad, NULL), g_bytes_get_size(aad));
     if (err) {
         ws_warning("gcry_cipher_authenticate error: %s", gcry_strerror(err));
+        goto done;
     }
 
     // in-place decryption in the scratch buffer
     err = gcry_cipher_decrypt(ghd, scratch, pt_len, NULL, 0);
     if (err) {
         ws_warning("gcry_cipher_decrypt size %d error: %s", pt_len, gcry_strerror(err));
+        goto done;
     }
 
     err = gcry_cipher_checktag(ghd, scratch + pt_len, aead_props->tag_len);
@@ -416,6 +429,7 @@ static int edhoc_decrypt(const edhoc_cs_t *suite, GBytes *key, GBytes *iv, GByte
         ws_warning("gcry_cipher_checktag error: %s", gcry_strerror(err));
     }
 
+done:
     gcry_cipher_close(ghd);
     return err ? -1 : pt_len;
 }
@@ -445,7 +459,7 @@ static bool dissect_connid(proto_tree *tree, int hfindex, packet_info *pinfo, tv
         // either a bstr or show the error
         tvbuff_t *data = wscbor_require_bstr(pinfo->pool, chunk);
         proto_tree_add_cbor_bstr(tree, hfindex, pinfo, tvb, chunk);
-        if (want_hex) {
+        if (want_hex && data) {
             *want_hex = tvb_bytes_to_str(pinfo->pool, data, 0, tvb_reported_length(data));
         }
     }
@@ -495,8 +509,8 @@ static void dissect_ead_list(proto_tree *tree_msg, packet_info *pinfo, tvbuff_t 
                 expert_add_info(pinfo, item_ead, &ei_ead_critical);
             }
 
-            // Show absolute value
-            *label = llabs(*label);
+            // Show absolute value (there is none for INT64_MIN)
+            *label = (*label == INT64_MIN) ? INT64_MAX : llabs(*label);
             proto_item *item_abs = proto_tree_add_cbor_int64(tree_ead, hf_ead_label_abs, pinfo, tvb, chunk, label);
             proto_item_set_generated(item_abs);
 
@@ -724,7 +738,7 @@ static bool dissect_edhoc_msg1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     dissect_ead_list(tree_msg, pinfo, tvb, offset, sess);
 
     // Copy and store the G_X contents to correlate with secret items
-    if (!sess->gx_data) {
+    if (!sess->gx_data && gx_tvb) {
         size_t gx_len = tvb_reported_length(gx_tvb);
         uint8_t *gx_raw = g_malloc(gx_len);
         tvb_memcpy(gx_tvb, gx_raw, 0, gx_len);
@@ -746,7 +760,7 @@ static bool dissect_edhoc_msg1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         ws_warning("Unknown cipher sel_suite %"PRId64, sess->suite);
     }
 
-    if (sess->ecc_props) {
+    if (sess->ecc_props && sess->gx_data) {
         if (sess->ecc_props->pubkey_len != g_bytes_get_size(sess->gx_data)) {
             expert_add_info(pinfo, item_gx, &ei_pubkey_len);
         }
@@ -968,7 +982,7 @@ static bool dissect_edhoc_msg3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (!prk_3e2m) {
             expert_add_info_format(pinfo, item_ctext, &ei_no_decrypt, "Message not decrypted: No PRK_3e2m is available");
         }
-        if (!th_3) {
+        else if (!th_3) {
             expert_add_info_format(pinfo, item_ctext, &ei_no_decrypt, "Message not decrypted: No TH_3 is available");
         }
         else {
@@ -992,14 +1006,19 @@ static bool dissect_edhoc_msg3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
             GBytes *th_4 = secrets->th_4;
             size_t hash_len = sess->hash_props->out_len;
-            sess->prk_out = edhoc_kdf(sess, prk_4e3m, 7, th_4, hash_len);
+            // derived once; the session keeps them for later passes
+            if (!sess->prk_out) {
+                sess->prk_out = edhoc_kdf(sess, prk_4e3m, 7, th_4, hash_len);
+            }
             if (!sess->prk_out) {
                 ws_warning(
                    "Failed to generate PRK_out with CS %p, prk_4e3m %p, TH_4 %p, length %zu",
                    sess->found_cs, prk_4e3m, th_4, hash_len
                );
             }
-            sess->prk_exporter = edhoc_kdf(sess, sess->prk_out, 10, NULL, hash_len);
+            if (!sess->prk_exporter) {
+                sess->prk_exporter = edhoc_kdf(sess, sess->prk_out, 10, NULL, hash_len);
+            }
             if (!sess->prk_exporter) {
                 ws_warning(
                    "Failed to generate PRK_exporter with CS %p, prk_out %p, TH_4 %p, length %zu",
@@ -1123,7 +1142,7 @@ static bool dissect_edhoc_msg4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 
     tvbuff_t *tvb_plain = NULL;
-    if (secrets && sess->found_cs && ciphertext_4) {
+    if (secrets && sess->found_cs && sess->aead_props && ciphertext_4) {
         GBytes *prk_4e3m = sess->prk_4e3m;
         GBytes *th_4 = secrets->th_4;
 
@@ -1234,7 +1253,10 @@ static edhoc_state_t * edhoc_ensure_state(packet_info *pinfo, bool as_request _U
  */
 static int dissect_edhoc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     edhoc_state_t *state = data;
-    DISSECTOR_ASSERT(state);
+    if (!state) {
+        // the "edhoc" handle needs the state from a caller (not e.g. Exported PDU)
+        return 0;
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EDHOC");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1301,10 +1323,24 @@ static int dissect_edhoc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             sess = wmem_alloc0(wmem_file_scope(), sizeof(edhoc_session_t));
             sess->parent = state;
             sess->sess_idx = wmem_list_count(state->session_list);
+            if (PINFO_FD_VISITED(pinfo)) {
+                // a frame that was not a message 1: show the index it got
+                // in the first pass
+                void *idx = p_get_proto_data(wmem_file_scope(), pinfo, proto_edhoc, 0);
+                if (idx) {
+                    sess->sess_idx = GPOINTER_TO_UINT(idx) - 1;
+                }
+            }
             wmem_list_append(state->session_list, sess);
 
-            // always start with message 1
+            // always start with message 1; a frame that is not one does not
+            // keep a session (it would get a new one in every pass)
             if (!dissect_edhoc_msg1(tvb, pinfo, tree_msg, &offset, sess)) {
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_edhoc, 0,
+                                     GUINT_TO_POINTER((unsigned)sess->sess_idx + 1));
+                }
+                wmem_list_remove(state->session_list, sess);
                 sess = NULL;
             }
         }
@@ -1322,8 +1358,8 @@ static int dissect_edhoc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  */
 static int dissect_edhoc_media(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     media_content_info_t *info = data;
-    DISSECTOR_ASSERT(info);
-    edhoc_state_t *state = edhoc_ensure_state(pinfo, info->type == MEDIA_CONTAINER_HTTP_REQUEST);
+    // some media_type callers (e.g. MQTT, OBEX) pass no info
+    edhoc_state_t *state = edhoc_ensure_state(pinfo, info && info->type == MEDIA_CONTAINER_HTTP_REQUEST);
     state->prepend_cid = false;
     return dissect_edhoc_msg(tvb, pinfo, tree, state);
 }
@@ -1332,8 +1368,8 @@ static int dissect_edhoc_media(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  */
 static int dissect_edhoc_media_cid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     media_content_info_t *info = data;
-    DISSECTOR_ASSERT(info);
-    edhoc_state_t *state = edhoc_ensure_state(pinfo, info->type == MEDIA_CONTAINER_HTTP_REQUEST);
+    // some media_type callers (e.g. MQTT, OBEX) pass no info
+    edhoc_state_t *state = edhoc_ensure_state(pinfo, info && info->type == MEDIA_CONTAINER_HTTP_REQUEST);
     state->prepend_cid = true;
     return dissect_edhoc_msg(tvb, pinfo, tree, state);
 }
@@ -1485,21 +1521,27 @@ static void edhoc_secrets_uat_post_update_cb(void) {
 
         if (rec->prk_2e_ptr) {
             sec->prk_2e = g_bytes_new(rec->prk_2e_ptr, rec->prk_2e_len);
+            wmem_list_append(uat_secrets.bytes_list, sec->prk_2e);
         }
         if (rec->th_2_ptr) {
             sec->th_2 = g_bytes_new(rec->th_2_ptr, rec->th_2_len);
+            wmem_list_append(uat_secrets.bytes_list, sec->th_2);
         }
         if (rec->prk_3e2m_ptr) {
             sec->prk_3e2m = g_bytes_new(rec->prk_3e2m_ptr, rec->prk_3e2m_len);
+            wmem_list_append(uat_secrets.bytes_list, sec->prk_3e2m);
         }
         if (rec->th_3_ptr) {
             sec->th_3 = g_bytes_new(rec->th_3_ptr, rec->th_3_len);
+            wmem_list_append(uat_secrets.bytes_list, sec->th_3);
         }
         if (rec->prk_4e3m_ptr) {
             sec->prk_4e3m = g_bytes_new(rec->prk_4e3m_ptr, rec->prk_4e3m_len);
+            wmem_list_append(uat_secrets.bytes_list, sec->prk_4e3m);
         }
         if (rec->th_4_ptr) {
             sec->th_4 = g_bytes_new(rec->th_4_ptr, rec->th_4_len);
+            wmem_list_append(uat_secrets.bytes_list, sec->th_4);
         }
     }
 }
