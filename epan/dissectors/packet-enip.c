@@ -560,6 +560,7 @@ static expert_field ei_mal_eip_security_crl;
 static expert_field ei_mal_eip_cert_capability_flags;
 static expert_field ei_mal_cpf_item_length_mismatch;
 static expert_field ei_mal_cpf_item_minimum_size;
+static expert_field ei_mal_cpf_item_too_short;
 static expert_field ei_mal_lldp_mngmt_datastore;
 static expert_field ei_mal_datatbl_system_capabilities;
 static expert_field ei_mal_datatbl_management_address;
@@ -2756,7 +2757,7 @@ static int dissect_lldp_mngmt_enable(packet_info* pinfo _U_, proto_tree* tree, p
       }
    }
 
-   return offset + byte_length;
+   return 2 + byte_length;
 }
 
 static int dissect_lldp_mngmt_datastore(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb,
@@ -2814,6 +2815,8 @@ static int dissect_lldp_datatbl_system_capabilities(packet_info* pinfo _U_, prot
        NULL
    };
 
+   const int start_offset = offset;
+
    if (total_len < 4)
    {
       expert_add_info(pinfo, item, &ei_mal_datatbl_system_capabilities);
@@ -2826,11 +2829,12 @@ static int dissect_lldp_datatbl_system_capabilities(packet_info* pinfo _U_, prot
    proto_tree_add_bitmask(tree, tvb, offset, hf_lldp_datatbl_enabled_capabilities, ett_lldp_datatbl_enabled_capabilities, enabled_capability_bits, ENC_LITTLE_ENDIAN);
    offset += 2;
 
-   return offset;
+   return offset - start_offset;
 }
 
 static int dissect_lldp_datatbl_management_address(packet_info* pinfo, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb, int offset, int total_len _U_)
 {
+   const int start_offset = offset;
    uint32_t addr_count;
 
    if (total_len < 1)
@@ -2847,11 +2851,12 @@ static int dissect_lldp_datatbl_management_address(packet_info* pinfo, proto_tre
       offset += 4;
    }
 
-   return offset;
+   return offset - start_offset;
 }
 
 static int dissect_lldp_datatbl_cip_identification(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb, int offset, int total_len _U_)
 {
+   const int start_offset = offset;
    if (total_len < 12)
    {
       expert_add_info(pinfo, item, &ei_mal_datatbl_cip_identification);
@@ -2876,11 +2881,12 @@ static int dissect_lldp_datatbl_cip_identification(packet_info* pinfo _U_, proto
    proto_tree_add_item(tree, hf_lldp_datatbl_cip_id_serial_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
    offset += 4;
 
-   return offset;
+   return offset - start_offset;
 }
 
 static int dissect_lldp_datatbl_eth_capabilities(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb, int offset, int total_len _U_)
 {
+   const int start_offset = offset;
    uint8_t frag_size;
 
    if (total_len < 4)
@@ -2907,11 +2913,12 @@ static int dissect_lldp_datatbl_eth_capabilities(packet_info* pinfo _U_, proto_t
    }
    offset += 1;
 
-   return offset;
+   return offset - start_offset;
 }
 
 static int dissect_lldp_datatbl_last_change(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb, int offset, int total_len _U_)
 {
+   const int start_offset = offset;
    uint32_t centiseconds;
    double  seconds;
 
@@ -2927,11 +2934,12 @@ static int dissect_lldp_datatbl_last_change(packet_info* pinfo _U_, proto_tree* 
    proto_tree_add_uint_format_value(tree, hf_lldp_datatbl_last_change, tvb, offset, 4, centiseconds, "%.2f seconds (%u hundredths of a second)", seconds, centiseconds);
    offset += 4;
 
-   return offset;
+   return offset - start_offset;
 }
 
 static int dissect_lldp_datatbl_t1s_phy_config(packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, tvbuff_t* tvb, int offset, int total_len _U_)
 {
+   const int start_offset = offset;
    uint8_t phy_mode;
 
    if (total_len < 2)
@@ -2952,7 +2960,7 @@ static int dissect_lldp_datatbl_t1s_phy_config(packet_info* pinfo _U_, proto_tre
    proto_tree_add_item(tree, hf_lldp_datatbl_phy_node_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    offset += 1;
 
-   return offset;
+   return offset - start_offset;
 }
 
 const attribute_info_t enip_attribute_vals[] = {
@@ -3522,6 +3530,12 @@ static void dissect_cip_class23_data(packet_info* pinfo, tvbuff_t* tvb, int offs
 {
    enip_request_info_t* request_info = NULL;
 
+   if (item_length < 2)
+   {
+      expert_add_info(pinfo, item_tree, &ei_mal_cpf_item_too_short);
+      return;
+   }
+
    if (request_key)
    {
       request_key->type = EPDT_CONNECTED_TRANSPORT;
@@ -3771,6 +3785,9 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
       // offset now starts at the data field after the Item Length field. The name of this
       //    field varies depending on the item type.
+      // The cases below may advance offset and reduce item_length for fields they
+      //    have already parsed, so remember where the next item starts.
+      const int next_item_offset = offset + (int)item_length;
       if ( item_length )
       {
           /* Add item data field */
@@ -3784,6 +3801,12 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
             case CPF_ITEM_UNCONNECTED_MSG_DTLS:  // Only item for: Unconnected messages over DTLS
             {
+               if (item_length < 10)
+               {
+                  expert_add_info(pinfo, type_item, &ei_mal_cpf_item_too_short);
+                  break;
+               }
+
                ifacehndl = ENIP_CIP_INTERFACE;
 
                dissect_item_unconnected_message_over_udp(pinfo, tvb, offset, item_tree, &request_key);
@@ -3844,6 +3867,12 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                if (conn_info && conn_info->is_concurrent_connection)
                {
                   int cc_header_len = dissect_concurrent_connection_packet(pinfo, tvb, offset, dissector_tree);
+
+                  if (item_length < (uint32_t)cc_header_len + CC_CRC_LENGTH)
+                  {
+                     expert_add_info(pinfo, type_item, &ei_mal_cpf_item_too_short);
+                     break;
+                  }
 
                   // The header length only includes the beginning part of the header. But, the actual data length
                   // needs to remove the header AND the CRC field. The CRC field was parsed as part of the previous
@@ -3907,7 +3936,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
       } /* end of if ( item length ) */
 
-      offset += item_length;
+      offset = next_item_offset;
    } /* end of while ( item count ) */
 
    /* See if there is a CIP connection to establish */
@@ -4269,7 +4298,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    {
       uint16_t nCnt;
       uint16_t nNumNodes;
-      uint16_t nOffset;
+      unsigned nOffset;
 
 
       /* Sign_On */
@@ -5902,6 +5931,7 @@ proto_register_enip(void)
       { &ei_mal_eip_cert_capability_flags, { "cip.malformed.eip_cert.capability_flags", PI_MALFORMED, PI_ERROR, "Malformed EIP Certificate Management Capability Flags", EXPFILL }},
       { &ei_mal_cpf_item_length_mismatch, { "enip.malformed.cpf_item_length_mismatch", PI_MALFORMED, PI_ERROR, "CPF Item Length Mismatch", EXPFILL } },
       { &ei_mal_cpf_item_minimum_size, { "enip.malformed.cpf_item_minimum_size", PI_MALFORMED, PI_ERROR, "CPF Item Minimum Size is 4", EXPFILL } },
+      { &ei_mal_cpf_item_too_short, { "enip.malformed.cpf_item_too_short", PI_MALFORMED, PI_ERROR, "CPF Item Length is too short for its fixed fields", EXPFILL } },
       { &ei_mal_lldp_mngmt_datastore, { "cip.malformed.lldp.lldp_datastore", PI_MALFORMED, PI_ERROR, "Malformed LLDP Datastore", EXPFILL }},
       { &ei_mal_datatbl_system_capabilities, { "cip.malformed.lldp.system_capabilities", PI_MALFORMED, PI_ERROR, "Malformed LLDP System Capabilities", EXPFILL }},
       { &ei_mal_datatbl_management_address, { "cip.malformed.lldp.management_address", PI_MALFORMED, PI_ERROR, "Malformed LLDP Management Address", EXPFILL }},
