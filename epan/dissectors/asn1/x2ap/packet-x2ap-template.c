@@ -25,6 +25,7 @@
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include <wsutil/array.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-x2ap.h"
 #include "packet-per.h"
@@ -128,6 +129,7 @@ static int hf_x2ap_rAT_RestrictionInformation_NR_LEO;
 static int hf_x2ap_rAT_RestrictionInformation_NR_MEO;
 static int hf_x2ap_rAT_RestrictionInformation_NR_GEO;
 static int hf_x2ap_rAT_RestrictionInformation_NR_OTHERSAT;
+static int hf_x2ap_tAC_Name;
 #include "packet-x2ap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -679,6 +681,10 @@ void proto_register_x2ap(void) {
     { &hf_x2ap_rAT_RestrictionInformation_NR_OTHERSAT,
       { "NR-OTHERSAT", "x2ap.rAT_RestrictionInformation.NR_OTHERSAT",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x01,
+        NULL, HFILL }},
+    { &hf_x2ap_tAC_Name,
+      { "TAC Name", "x2ap.tAC_name",
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 #include "packet-x2ap-hfarr.c"
   };
