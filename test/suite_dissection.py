@@ -53026,3 +53026,95 @@ class TestDissectEpl:
                 '-Tfields', '-eepl.pdo', '-eepl.od.data.uint', '-Eoccurrence=a',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip().split('\t')[1] == '300,7'
+
+
+class TestDissectEplV1:
+    def test_epl_v1_protocols(self, cmd_tshark, capture_file, test_env):
+        '''16 EPL V1 frames and two frames with the EPL V1 ethertype that
+        are not EPL V1 (unknown service, too short); no malformed packets
+        or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epl_v1_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 18
+        assert protocols.count('EPL_V1') == 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('epl_v1_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_epl_v1_info(self, cmd_tshark, capture_file, test_env):
+        '''Every service with its destination, source and channel.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epl_v1_coverage.pcap.gz'),
+                '-Y', 'epl_v1',
+                '-Tfields', '-eframe.number', '-eepl_v1.service',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 1 SoC dest = 255 src = 0',
+            '2 3 PReq dest = 1 src = 0',
+            '3 4 PRes dest = 255 src = 1',
+            '4 3 PReq dest = 2 src = 0',
+            '5 4 PRes dest = 255 src = 2',
+            '6 2 EoC dest = 255 src = 0',
+            '7 5 AInv dest = 1 src = 0 channel = Ident',
+            '8 6 ASnd dest = 0 src = 1 channel = Ident',
+            '9 5 AInv dest = 2 src = 0 channel = Generic Channel',
+            '10 6 ASnd dest = 0 src = 2 channel = Generic Channel',
+            '11 1 SoC dest = 255 src = 0',
+            '12 2 EoC dest = 255 src = 0',
+            '13 5 AInv dest = 3 src = 0 channel = unknown Channel (7)',
+            '14 6 ASnd dest = 0 src = 3 channel = unknown Channel (7)',
+            '15 1 SoC dest = 255 src = 0',
+            '16 6 ASnd dest = 0 src = 2 channel = Generic Channel',
+        ]
+
+    def test_epl_v1_fields(self, cmd_tshark, capture_file, test_env):
+        '''SoC/EoC net commands and flags, poll data with and without data,
+        the ASnd Ident fields and generic data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epl_v1_coverage.pcap.gz'),
+                '-Y', 'epl_v1.soc.netcommand || epl_v1.eoc.netcommand',
+                '-Tfields', '-eframe.number', '-eepl_v1.soc.ms',
+                '-eepl_v1.soc.ps', '-eepl_v1.soc.netcommand',
+                '-eepl_v1.soc.nettime', '-eepl_v1.eoc.netcommand',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t0\t0\t1000\t',
+            '6\t\t\t\t\t0',
+            '11\t1\t1\t1\t3000\t',
+            '12\t\t\t\t\t1',
+            '15\t1\t0\t2\t5000\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epl_v1_coverage.pcap.gz'),
+                '-Y', 'epl_v1.preq.pollsize || epl_v1.pres.pollsize',
+                '-Tfields', '-eframe.number', '-eepl_v1.preq.ms',
+                '-eepl_v1.preq.rd', '-eepl_v1.preq.data',
+                '-eepl_v1.pres.ex', '-eepl_v1.pres.er', '-eepl_v1.pres.rd',
+                '-eepl_v1.pres.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0\t1\t11223344\t\t\t\t',
+            '3\t\t\t\t0\t0\t1\ta1a2a3a4a5a6',
+            '4\t1\t0\t\t\t\t\t',
+            '5\t\t\t\t1\t1\t1\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epl_v1_coverage.pcap.gz'),
+                '-Y', 'epl_v1.asnd.size > 0',
+                '-Tfields', '-eframe.number', '-eepl_v1.asnd.node_id',
+                '-eepl_v1.asnd.firmware.version',
+                '-eepl_v1.asnd.poll.out.size', '-eepl_v1.asnd.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t1\t196612\t24\t',
+            '10\t\t\t\t67656e65726963206368616e6e656c2064617461',
+            '14\t\t\t\t010203',
+        ]
