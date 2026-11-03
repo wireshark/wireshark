@@ -50052,3 +50052,79 @@ class TestDissectEap:
             'GPSK-2', 'GPSK-3', 'GPSK-3', 'GPSK-4', 'GPSK-4', 'Fail',
             'Protected Fail', 'Reserved',
         ]
+
+
+class TestDissectEapol:
+    def test_eapol_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is EAPOL; none is malformed or has a warning or
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eapol_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 19
+        assert protocols.count('EAPOL') == 14
+        assert protocols.count('EAP') == 4
+        assert protocols.count('EAPOL-MKA') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('eapol_coverage.pcap.gz'),
+                    '-Y', '!eapol || _ws.malformed || _ws.expert.severity >= "warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_eapol_header(self, cmd_tshark, capture_file, test_env):
+        '''Version, packet type and body length of every frame, and the
+        key descriptor type and key fields of the EAPOL-Key frames: RC4
+        without a key, with a key and with a key generated locally, RSN,
+        WPA and an unknown descriptor.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eapol_coverage.pcap.gz'),
+                '-Tfields', '-eeapol.version', '-eeapol.type', '-eeapol.len',
+                '-eeapol.keydes.type', '-eeapol.keydes.key_len',
+                '-eeapol.keydes.key.generated_locally', '-eeapol.keydes.key',
+                '-eeapol.keydes.body',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t0\t\t\t\t\t',
+            '2\t0\t5\t\t\t\t\t',
+            '2\t0\t21\t\t\t\t\t',
+            '2\t0\t4\t\t\t\t\t',
+            '1\t3\t44\t1\t0\t\t\t',
+            '1\t3\t57\t1\t13\tFalse\t' + 'a5' * 13 + '\t',
+            '1\t3\t44\t1\t5\tTrue\t\t',
+            '2\t3\t95\t2\t16\t\t\t',
+            '1\t3\t95\t254\t16\t\t\t',
+            '2\t3\t21\t5\t\t\t\t' + '99' * 20,
+            '2\t4\t4\t\t\t\t\t',
+            '3\t5\t68\t\t\t\t\t',
+            '3\t6\t4\t\t\t\t\t',
+            '3\t7\t4\t\t\t\t\t',
+            '3\t8\t0\t\t\t\t\t',
+            '4\t9\t2\t\t\t\t\t',
+            '3\t2\t0\t\t\t\t\t',
+            '2\t1\t0\t\t\t\t\t',
+            '2\t0\t4\t\t\t\t\t',
+        ]
+
+    def test_eapol_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the frames that EAPOL does not hand on, the
+        802.11 key descriptors, MKA and the pre-authentication ethertype.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eapol_coverage.pcap.gz'),
+                '-Tfields', '-eeth.type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '0x888e\tStart'
+        assert lines[4:18] == [
+            '0x888e\tKey', '0x888e\tKey', '0x888e\tKey',
+            '0x888e\tKey (Message 1 of 4)', '0x888e\tKey (Message 1 of 4)',
+            '0x888e\tKey', '0x888e\tEncapsulated ASF Alert',
+            '0x888e\tKey Server, ICV Indicator',
+            '0x888e\tAnnouncement (Generic)', '0x888e\tAnnouncement (Specific)',
+            '0x888e\tAnnouncement Request', '0x888e\tUnknown Type (0x09)',
+            '0x888e\tLogoff', '0x88c7\tStart',
+        ]
+        assert lines[18] == '0x888e\tFailure'
