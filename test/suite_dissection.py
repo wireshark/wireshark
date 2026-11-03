@@ -51440,3 +51440,60 @@ class TestDissectEdonkey:
             '162\t0x00,0x01,0x00,0x02,0x00,0x03,0x08\t0x00,0x01,0x02\tdebian\t0x03,0x09\t700\t'
             '8589934592',
         ]
+
+
+class TestDissectEero:
+    def test_eero_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is EERO (ethertype 0x9104) and none is malformed or
+        has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eero_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 7
+        assert protocols.count('EERO') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('eero_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_eero_fields(self, cmd_tshark, capture_file, test_env):
+        '''The type, the sender MAC address (which need not be the
+        source address) and the data, which may be empty.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eero_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eeth.src', '-eeero.type',
+                '-eeero.hw_mac', '-eeero.data',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0:5] == [
+            '1\t02:00:5e:10:00:01\t1\t02:00:5e:10:00:01\t00011020',
+            '2\t02:00:5e:10:00:02\t1\t02:00:5e:10:00:02\t00021020',
+            '3\t02:00:5e:10:00:03\t1\t02:00:5e:10:00:03\t00031020',
+            '4\t02:00:5e:10:00:01\t0\t02:00:5e:10:00:01\t<MISSING>',
+            '5\t02:00:5e:10:00:02\t2\t02:00:5e:10:00:09\t6565726f206d657368',
+        ]
+        frame6 = lines[5].split('\t')
+        assert frame6[0:4] == ['6', '02:00:5e:10:00:03', '127', '02:00:5e:10:00:03']
+        assert len(frame6[4]) == 2 * 1400
+        assert lines[6] == '7\t02:00:5e:10:00:01\t255\t02:00:5e:10:00:01\t01'
+
+    def test_eero_tree(self, cmd_tshark, capture_file, test_env):
+        '''The protocol item names the type; frame 4 has an empty data
+        item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eero_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-V', '-O', 'eero',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('EERO,  Type 0x0000')
+        assert lines[start + 1:start + 4] == [
+            '    Type: 0',
+            '    Sender MAC address: 02:00:5e:10:00:01 (02:00:5e:10:00:01)',
+            '    Data: <MISSING>',
+        ]
