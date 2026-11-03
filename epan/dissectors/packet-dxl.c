@@ -50,35 +50,37 @@ static void dissect_dxl_event(tvbuff_t* tvb, packet_info* pinfo, proto_tree* dxl
 {
 	tvbuff_t* tvb_msgpack;
 
+	/* The msgpack dissector returns the length it used within its subset */
 	tvb_msgpack = tvb_new_subset_remaining(tvb, *offset);
-	*offset = call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Message ID");
+	*offset += call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Message ID");
 
-	tvb_msgpack = tvb_new_subset_remaining(tvb_msgpack, *offset);
-	*offset = call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Client ID");
+	tvb_msgpack = tvb_new_subset_remaining(tvb, *offset);
+	*offset += call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Client ID");
 
-	tvb_msgpack = tvb_new_subset_remaining(tvb_msgpack, *offset);
-	*offset = call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Source Broker ID");
+	tvb_msgpack = tvb_new_subset_remaining(tvb, *offset);
+	*offset += call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Source Broker ID");
 
-	tvb_msgpack = tvb_new_subset_remaining(tvb_msgpack, *offset);
-	*offset = call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Broker IDs");
+	tvb_msgpack = tvb_new_subset_remaining(tvb, *offset);
+	*offset += call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Broker IDs");
 
-	tvb_msgpack = tvb_new_subset_remaining(tvb_msgpack, *offset);
-	*offset = call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Client IDs");
+	tvb_msgpack = tvb_new_subset_remaining(tvb, *offset);
+	*offset += call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Client IDs");
 
-	tvb_msgpack = tvb_new_subset_remaining(tvb_msgpack, *offset);
-	*offset = call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Payload");
+	tvb_msgpack = tvb_new_subset_remaining(tvb, *offset);
+	*offset += call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Payload");
 
-	tvb_msgpack = tvb_new_subset_remaining(tvb_msgpack, *offset);
-	*offset = call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Reply to topic");
+	tvb_msgpack = tvb_new_subset_remaining(tvb, *offset);
+	*offset += call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Reply to topic");
 
-	tvb_msgpack = tvb_new_subset_remaining(tvb_msgpack, *offset);
-	*offset = call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Service ID");
+	tvb_msgpack = tvb_new_subset_remaining(tvb, *offset);
+	*offset += call_dissector_with_data(msgpack_handle, tvb_msgpack, pinfo, dxl_tree, "Service ID");
 }
 
 static int dissect_dxl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
 	unsigned offset = 0;
 	proto_item* ti;
+	proto_item* type_item;
 	proto_tree* dxl_tree;
 	uint8_t type;
 
@@ -88,14 +90,14 @@ static int dissect_dxl(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
 	proto_tree_add_item(dxl_tree, hf_dxl_version, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	proto_tree_add_item_ret_uint8(dxl_tree, hf_dxl_type, tvb, offset, 1, ENC_NA, &type);
+	type_item = proto_tree_add_item_ret_uint8(dxl_tree, hf_dxl_type, tvb, offset, 1, ENC_NA, &type);
 	offset += 1;
 
 	switch (type) {
 		case DXL_REQUEST:
 		case DXL_RESPONSE:
 		case DXL_ERROR:
-			expert_add_info_format(pinfo, tree, &ei_dxl_unsupported, "Type 0x%x is unsupported", type);
+			expert_add_info_format(pinfo, type_item, &ei_dxl_unsupported, "Type 0x%x is unsupported", type);
 			break;
 		case DXL_EVENT:
 			dissect_dxl_event(tvb, pinfo, dxl_tree, &offset);
