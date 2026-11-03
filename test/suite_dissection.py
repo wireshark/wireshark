@@ -53232,3 +53232,59 @@ class TestDissectEpmd:
                     '-e_ws.col.info',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['14\t25672\tSEND_NAME alpha']
+
+
+class TestDissectEpon:
+    def test_epon_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has an EPON preamble; five carry Ethernet, two are
+        DPoE encrypted. No malformed packets or warning or error expert
+        infos (the encrypted frames have a note), in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epon_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 7
+        assert all(l.startswith('epon') for l in lines)
+        assert sum(1 for l in lines if l.startswith('epon:eth:')) == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('epon_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_epon_preamble(self, cmd_tshark, capture_file, test_env):
+        '''The 8, 7 and 6 octet preambles, unicast and broadcast LLIDs,
+        the CRC-8 and the DPoE security octet with key ID 0 and 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epon_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eepon.dpoe.sec',
+                '-eepon.dpoe.encrypted', '-eepon.dpoe.keyid', '-eepon.mode',
+                '-eepon.llid', '-eepon.checksum', '-eepon.checksum.status',
+                '-eeth.src', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t\t\t\tFalse\t1\t0x96\t1\t02:00:00:00:00:11\tWho has 192.0.2.22? Tell 192.0.2.11',
+            '2\t\t\t\tFalse\t4660\t0xeb\t1\t02:00:00:00:00:11\tDiscard',
+            '3\t\t\t\tTrue\t32767\t0x23\t1\t02:00:00:00:00:11\tDiscard',
+            '4\t0x56\tTrue\t0x00\tFalse\t5\t0x20\t1\t\tEPON Preamble [ENCRYPTED]',
+            '5\t0x57\tTrue\t0x01\tTrue\t6\t0x2a\t1\t\tEPON Preamble [ENCRYPTED]',
+            '6\t\t\t\tFalse\t7\t0x72\t1\t02:00:00:00:00:11\tDiscard',
+            '7\t\t\t\tFalse\t8\t0x09\t1\t02:00:00:00:00:11\tDiscard',
+        ]
+
+    def test_epon_encrypted(self, cmd_tshark, capture_file, test_env):
+        '''An encrypted frame is shown as encrypted data with a note, not
+        passed to Ethernet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epon_coverage.pcap.gz'),
+                '-Y', 'epon.dpoe.encrypted.data',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tepon\tRemaining data is encrypted and will not decode.',
+            '5\tepon\tRemaining data is encrypted and will not decode.',
+        ]
