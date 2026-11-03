@@ -1075,6 +1075,8 @@ static const value_string dns_types_vals[] = {
   { DNS_T_SVCB,       "SVCB"       }, /* draft-ietf-dnsop-svcb-https-01 */
   { DNS_T_HTTPS,      "HTTPS"      }, /* draft-ietf-dnsop-svcb-https-01 */
   { DNS_T_DSYNC,      "DSYNC"      }, /* draft-ietf-dnsop-generalized-notify */
+  { DNS_T_HHIT,       "HHIT"       }, /* RFC9886 */
+  { DNS_T_BRID,       "BRID"       }, /* RFC9886 */
   { DNS_T_SPF,        "SPF"        }, /* RFC 4408 */
   { DNS_T_UINFO,      "UINFO"      }, /* IANA reserved */
   { DNS_T_UID,        "UID"        }, /* IANA reserved */
@@ -1177,6 +1179,8 @@ static const value_string dns_types_description_vals[] = {
   { DNS_T_SVCB,       "(General Purpose Service Endpoints)" }, /*  draft-ietf-dnsop-svcb-https*/
   { DNS_T_HTTPS,      "(HTTPS Specific Service Endpoints)" }, /*  draft-ietf-dnsop-svcb-https*/
   { DNS_T_DSYNC,      "(Endpoint discovery for delegation synchronization)" }, /* draft-ietf-dnsop-generalized-notify */
+  { DNS_T_HHIT,       "(Hierarchical Host Identity Tag)" }, /* RFC 9886 */
+  { DNS_T_BRID,       "(UAS Broadcast Remote Identification)" }, /* RFC 9886 */
   { DNS_T_SPF,        "" }, /* RFC 4408 */
   { DNS_T_UINFO,      "" }, /* IANA reserved */
   { DNS_T_UID,        "" }, /* IANA reserved */

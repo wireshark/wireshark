@@ -79,6 +79,8 @@
 #define DNS_T_SVCB          64              /* draft-ietf-dnsop-svcb-https-01 */
 #define DNS_T_HTTPS         65              /* draft-ietf-dnsop-svcb-https-01 */
 #define DNS_T_DSYNC         66              /* draft-ietf-dnsop-generalized-notify */
+#define DNS_T_HHIT          67              /* DRIP Entity Tags (RFC 9886) */
+#define DNS_T_BRID          68              /* DRIP Entity Tags (RFC 9886) */
 #define DNS_T_SPF           99              /* SPF RR (RFC 4408) section 3 */
 #define DNS_T_UINFO        100              /* [IANA-Reserved] */
 #define DNS_T_UID          101              /* [IANA-Reserved] */
