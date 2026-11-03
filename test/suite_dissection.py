@@ -52912,3 +52912,117 @@ class TestDissectEobi:
             'Counter overflow: 21 > 20',
             'Counter overflow: 16 > 15',
         ]
+
+
+class TestDissectEpl:
+    def test_epl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''164 POWERLINK frames, 3 POWERLINK/UDP frames and 3 frames with
+        the POWERLINK ethertype that are not POWERLINK (unknown message
+        type, too short, unknown SDO command). No malformed packets or
+        error expert infos in one and two passes; the only warnings are
+        the 404 mappings beyond the limit of 4096.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epl_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 170
+        assert protocols.count('POWERLINK') == 164
+        assert protocols.count('POWERLINK/UDP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('epl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('epl_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                    '-Eoccurrence=a', '-Eaggregator=;',
+                ), encoding='utf-8', env=test_env)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert [l[0] for l in lines] == ['60', '168']
+            assert lines[0][1].startswith('Duplication of Frame: 56 ')
+            msgs = lines[1][1].split(';')
+            assert len(msgs) == 404
+            assert set(msgs) == {'Too many ObjectMappings, mapping not used for PDO dissection'}
+
+    def test_epl_sdo_multiple(self, cmd_tshark, capture_file, test_env):
+        '''Write Multiple response entries are each read at their own
+        offset, and the mapping subindex in a Read Multiple response is
+        one octet (both fixed in "EPL: Fix quadratic mapping handling and
+        profile parser crashes").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epl_coverage.pcap.gz'),
+                '-Y', 'frame.number in {88, 90}',
+                '-Tfields', '-eframe.number',
+                '-eepl.asnd.sdo.cmd.data.mapping.index',
+                '-eepl.asnd.sdo.cmd.data.mapping.subindex',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][1] == '0x1600,0x1006,0x1a00,0x2000,0x1401,0x1010,0x1003,0x1f81,0x1602'
+        assert lines[1][2] == '0x05,0x03'
+
+    def test_epl_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Segmented SDO downloads and an upload are reassembled.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('epl_coverage.pcap.gz'),
+                    '-Y', 'epl.asnd.sdo.cmd.reassembled.length',
+                    '-Tfields', '-eframe.number',
+                    '-eepl.asnd.sdo.cmd.reassembled.length',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['99\t68', '103\t40', '107\t64']
+
+    def test_epl_pdo_mappings(self, cmd_tshark, capture_file, test_env):
+        '''PReq and PRes payloads split by the mappings written over SDO,
+        a mapping that is replaced later, a payload too short for the
+        second mapping.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epl_coverage.pcap.gz'),
+                '-Y', 'frame.number in {78, 79, 80, 82}',
+                '-Tfields', '-eframe.number', '-eepl.pdo', '-eepl.od.data.uint',
+                '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[0] for l in stdout.splitlines()] == ['78', '79', '80', '82']
+        uints = [l.split('\t')[2] for l in stdout.splitlines()]
+        assert uints == ['4660,86,39544', '878082048,60946', '4660', '127,86,171']
+
+    def test_epl_profiles(self, cmd_tshark, capture_file, test_env):
+        '''With the EDS (no [FileInfo] Description, which crashed before
+        the fix) for CN 2 and the XDD (no matching ProfileName, which made
+        it fail to load, and an empty attribute) for device type 401:
+        typed values including Real64, and the second subobject of an XDD
+        record does not take over the name of the first.'''
+        # UAT strings take backslash escapes: keep Windows paths intact.
+        eds = capture_file('epl_coverage.eds').replace('\\', '\\x5c')
+        xdd = capture_file('epl_coverage.xdd').replace('\\', '\\x5c')
+        opts = ('-o', 'uat:epl_nodeid_profiles:"2","%s"' % eds,
+                '-o', 'uat:epl_device_profiles:"401","DEADBEEF","8BADF00D","%s"' % xdd)
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('epl_coverage.pcap.gz'),
+                '-Y', 'epl.od.data.real64 || epl.od.data.string',
+                '-Tfields', '-eframe.number', '-eepl.od.data.real64',
+                '-eepl.od.data.string',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert '121\t1.5\t' in lines
+        assert '144\t-0.25\t' in lines
+        assert '117\t\thello' in lines
+        assert '156\t\tlabel' in lines
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('epl_coverage.pcap.gz'),
+                '-Y', 'frame.number in {153, 154}',
+                '-V', '-O', 'epl',
+            ), encoding='utf-8', env=test_env)
+        assert 'OD SubIndex: 0x01 (Speed)' in stdout
+        assert 'OD SubIndex: 0x02 ()' in stdout
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('epl_coverage.pcap.gz'),
+                '-Y', 'frame.number == 151',
+                '-Tfields', '-eepl.pdo', '-eepl.od.data.uint', '-Eoccurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split('\t')[1] == '300,7'

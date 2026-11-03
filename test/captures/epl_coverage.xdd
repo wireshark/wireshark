@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- XDD for the EPL coverage capture (synthetic). The ProfileName XPath
+     matches nothing: there is no Powerlink_Communication_Profile. -->
+<ISO15745ProfileContainer xmlns="http://www.ethernet-powerlink.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <ISO15745Profile>
+  <ProfileHeader>
+   <ProfileIdentification>Powerlink_Device_Profile</ProfileIdentification>
+   <ProfileName>Example device</ProfileName>
+  </ProfileHeader>
+  <ProfileBody xsi:type="ProfileBody_CommunicationNetwork_Powerlink">
+   <ApplicationLayers>
+    <DataTypeList>
+     <defType dataType="0005"><Unsigned8/></defType>
+     <defType dataType="0006"><Unsigned16/></defType>
+     <defType dataType="0007"><Unsigned32/></defType>
+     <defType dataType="0009"><Visible_String/></defType>
+     <defType dataType="001B"><Unsigned64/></defType>
+     <defType dataType="00FF"><NoSuchType/></defType>
+     <defType dataType="zz"><Unsigned8/></defType>
+     <defType dataType="" name="empty"><Unsigned8/></defType>
+    </DataTypeList>
+    <ObjectList>
+     <Object index="1000" name="NMT_DeviceType_U32" objectType="7" dataType="0007" defaultValue="0x191"/>
+     <Object index="1600" name="PDO_RxMappParam_00h_AU64" objectType="8" dataType="001B">
+      <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" defaultValue="2"/>
+      <SubObject subIndex="01" name="ObjectMapping" objectType="7" dataType="001B" defaultValue="0x0010000000012100"/>
+      <SubObject subIndex="02" name="ObjectMapping" objectType="7" dataType="001B" defaultValue="0x0" actualValue="0x0008001000002101"/>
+      <SubObject subIndex="03" name="ObjectMapping" objectType="7" dataType="001B"/>
+     </Object>
+     <Object index="1A00" name="PDO_TxMappParam_00h_AU64" objectType="8" dataType="001B">
+      <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005" defaultValue="1"/>
+      <SubObject subIndex="01" name="ObjectMapping" objectType="7" dataType="001B" actualValue="0x0020000000002106"/>
+     </Object>
+     <Object index="2100" name="Record" objectType="9">
+      <SubObject subIndex="00" name="NumberOfEntries" objectType="7" dataType="0005"/>
+      <!-- a comment between subobjects -->
+      <SubObject subIndex="01" name="Speed" objectType="7" dataType="0006"/>
+      <SubObject subIndex="02" objectType="7"/>
+     </Object>
+     <Object index="2101" name="" objectType="7" dataType="0005"/>
+     <Object index="2102" name="Label" objectType="7" dataType="0009"/>
+     <Object index="2103" name="UnknownType" objectType="7" dataType="1234"/>
+     <Object index="2106" name="Value32" objectType="7" dataType="0007"/>
+     <Object index="zz" name="BadIndex" objectType="7"/>
+     <Object name="NoIndex" objectType="7"/>
+     <Object index="2104" name="BadSub" objectType="8">
+      <SubObject subIndex="zz" name="Bad" objectType="7"/>
+      <SubObject subIndex="01" name="Good" objectType="7" dataType="0005"/>
+     </Object>
+    </ObjectList>
+   </ApplicationLayers>
+  </ProfileBody>
+ </ISO15745Profile>
+</ISO15745ProfileContainer>
