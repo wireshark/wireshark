@@ -50955,3 +50955,287 @@ class TestDissectEcpri:
             '1\t0x00000100\t1,2',
             '2\t0x00000100\t1,2',
         ]
+
+
+class TestDissectEdhoc:
+    # Made-up EDHOC session secrets for frames 38-52 (keyed by G_X:
+    # PRK_2e, TH_2, PRK_3e2m, TH_3, PRK_4e3m, TH_4), the output of
+    # "edhoc_decrypt.py -k".
+    SECRETS = (
+        ('uat:edhoc_secrets:'
+         '02471b328104070fdde69f5eecfbb77fdb6ff0a7f61b86a03f07c07b13c20b46,'
+         '6b3932b2d8e2ba0842cf78e87130d4238b22e2f1d83d30242979f3d9c9721642,'
+         '50ece47bfd73164df845beac70f021d0c26c9c483a5abd493ab45492815bcfda,'
+         '7cca4573d1f589dd0f0af9a5690657323f9776556756f8b150d1bc7d7074af24,'
+         'a4303f275321fbd2c3ffdeb89cf38eecd58e864e0efff7ea1161c5a054befb5d,'
+         'aa984222ee208536969739850956dbae41aa9549c66212c6d75dea79e0e34456,'
+         '3fc62bfa623fa1a05c000d23b97a6152193d4d2d20a4d5cca66e7a1ab4e146e6'),
+        ('uat:edhoc_secrets:'
+         'aa71b2a3b4cb06809022d18630b74a5ea10749f149ed22d9a1c888fee6dcc85a,'
+         '1d82aa6ef01fabeccc7eb169229b5176aa84d7395c8554fc8180b3f3e55ab289,'
+         'a63da60849ea00bebbf6e20617cab8f668bb7e3698554a674930686d5142f38b,'
+         '1d82aa6ef01fabeccc7eb169229b5176aa84d7395c8554fc8180b3f3e55ab289,'
+         '2d66369674dbe8853614a2638c0c6bcf5b502ee5e287f73220b54d4bd81d8c2c,'
+         '1d82aa6ef01fabeccc7eb169229b5176aa84d7395c8554fc8180b3f3e55ab289,'
+         '4033bd0481f6dda370c0c33843503076f8e874aaeaa4d1331f9cfa0cbf50bc3c'),
+        ('uat:edhoc_secrets:'
+         'da75f98853ecfe3de9706d5d65a527a2c2b4d8c19574fb39c3808bfe3b786d15'
+         '473ab577c780b9dd4ff81866d4d8ad11f2e42564384b9b192d,'
+         '4271116d5efef707280dca3eaba881b2feec9b4c2a7cc3f71df5c30df07961b0,'
+         '4c3d11eb9a7c96750c89e5b216d76942b3acca9696ef4e6d174c6fc2eb30243f,'
+         '194fd861cff13521e973d4bf70399902022ac867fb8925e26c1337b4b902c833,'
+         'eec308ffeb13d4a5192ed0e236837969cf5d01117781a28e8d5c30ca06cef4b2,'
+         'd0b63f8f243df4110caff5f7c39b382997a31f8a339095cadeb2bc711b464ed3,'
+         '66c1147d06e8826b73c163219385dbfea5bf472898bbb34b17768bf289e6e8c3'),
+        ('uat:edhoc_secrets:'
+         '6f56148de147ddab5bb360cd2eec99716524c5826b1a8121656d10f029ef3e87,'
+         'b16e39a8bd66e4420182ad3d614df70d6559194f4814dafabf66d65e8b36877d,'
+         '2da54ddbd6c518b56ef5f8ba896c022f126538c0afe26aa7413e04f2277920df,'
+         '649de48e63ad1d5ef46b0368a52aff685521a6ccba88c7931f7365edb6de9a5d,'
+         'eeaebfd28cc6475c3dd4464494415d3a6e52f9a50c8fae724c8a44bb3c5a1029,'
+         '83792bb623717bc6220b86fb1b31323dfb18052cfbd3fe31aea3231f67b22bd0,'
+         '245fae9fd9b9659f3c267b118bb22b52949f7b8021b4cb42b4be095eb4832974'),
+        ('uat:edhoc_secrets:'
+         '0802fc8938141bd0b74f70f9f3eb22053b39609f12bde1f3c3339f5ea7fa7a4a,'
+         'ac419bccba520730e04231adb9f42c1cf6bc3b3f034f7f0f6d38ccffecfed78c,'
+         'fda199f7165c37f341c42bc7c356a4f27457947d42453557d5d572211779a54f,'
+         '552925ca8f5595ab92dbde4a616c55e08d84b6f90b57a3693e871fad518a8846,'
+         '5b6f6b7ee9cda5eb2edde177299bcad21306422c4e43c9609e90ebeb05afe77e,'
+         'bf9325fc827d551999df12feee98b859afb4bd8942cc2bdd96eb1cc3e03835f1,'
+         '7d7888967e888606df4ca402e5091ca2aa758901f69bc0131d3857dbd1f7d9d8'),
+    )
+
+    def secrets(self):
+        opts = []
+        for s in self.SECRETS:
+            opts += ['-o', s]
+        return opts
+
+    def test_edhoc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''EDHOC is reached through CoAP (Content-Format 64 and 65), HTTP
+        and MQTT v5; frame 34 is the MQTT CONNECT and frame 37 an
+        Exported PDU naming "edhoc", left to the data dissector. No frame
+        is malformed or has an error expert info, in one and two passes,
+        without and with the secrets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protos = stdout.splitlines()
+        assert len(protos) == 52
+        assert sum(1 for p in protos if p.endswith(':coap:edhoc') or p.endswith(':coap:edhoc:cbor')) == 39
+        assert sum(1 for p in protos if p.endswith(':coap')) == 5
+        assert sum(1 for p in protos if p.endswith(':http:edhoc')) == 4
+        assert protos[33:37] == [
+            'eth:ethertype:ip:tcp:mqtt',
+            'eth:ethertype:ip:tcp:mqtt:edhoc',
+            'eth:ethertype:ip:tcp:mqtt:edhoc',
+            'exported_pdu:data',
+        ]
+        for keys in ((), self.secrets()):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *keys,
+                        '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= "error"',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_edhoc_sessions(self, cmd_tshark, capture_file, test_env):
+        '''Session tracking per transport conversation: messages 1-4 of
+        session 0 on CoAP 192.0.2.40, frames 5-9 that are neither a
+        message nor an error after message 4 (nothing dissected), errors
+        ending sessions 1 and 2, CID-prefixed sessions (a "true" prefix
+        starts a new session), HTTP and MQTT sessions. The session index,
+        method, suite and previous message are the same in one and two
+        passes (the next message is only known in the second).'''
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                    '-Y', 'frame.number <= 36',
+                    '-Tfields', '-eframe.number', '-eedhoc.sess_idx', '-eedhoc.method',
+                    '-eedhoc.suite_sel', '-eedhoc.sess_msg1', '-eedhoc.sess_prev',
+                    '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            out.append(stdout)
+        assert out[0] == out[1]
+        assert out[0].splitlines() == [
+            '1\t0\t3\t2\t\t\tMessage 1, M=3, CS=2, C_I=37, EAD=6',
+            '2\t0\t3\t2\t1\t1\tMessage 2',
+            '3\t0\t3\t2\t1\t2\tMessage 3',
+            '4\t0\t3\t2\t1\t3\tMessage 4',
+            '5\t\t\t\t\t\t',
+            '6\t\t\t\t\t\t',
+            '7\t\t\t\t\t\t',
+            '8\t\t\t\t\t\t',
+            '9\t\t\t\t\t\t',
+            '10\t1\t3\t2\t\t\tMessage 1, M=3, CS=2, C_I=0506, EAD=0',
+            '11\t1\t3\t2\t10\t\tError, code=1',
+            '12\t2\t3\t2\t\t\tMessage 1, M=3, CS=2, C_I=09, EAD=0',
+            '13\t2\t3\t2\t12\t\tError, code=2',
+            '14\t3\t2\t-24\t\t\tMessage 1, M=2, CS=-24, C_I=0a, EAD=0',
+            '15\t0\t3\t0\t\t\tMessage 1, M=3, CS=0, C_I=33, EAD=0',
+            '16\t0\t3\t0\t15\t15\tMessage 2',
+            '17\t0\t3\t0\t15\t16\tMessage 3',
+            '18\t0\t3\t0\t15\t17\tMessage 4',
+            '19\t1\t3\t1\t\t\tMessage 1, M=3, CS=1, C_I=07, EAD=0',
+            '20\t1\t3\t1\t19\t19\tMessage 2',
+            '21\t1\t3\t1\t19\t20\tMessage 3',
+            '22\t2\t3\t2\t\t\tMessage 1, M=3, CS=2, C_I=01, EAD=0',
+            '23\t0\t0\t4\t\t\tMessage 1, M=0, CS=4, EAD=0',
+            '24\t0\t1\t24\t\t\tMessage 1, M=1, CS=24, C_I=02, EAD=0',
+            '25\t0\t1\t24\t24\t24\tMessage 2',
+            '26\t0\t3\t25\t\t\tMessage 1, M=3, CS=25, C_I=03, EAD=0',
+            '27\t0\t3\t25\t26\t26\tMessage 2',
+            '28\t0\t3\t25\t26\t27\tMessage 3',
+            '29\t0\t3\t25\t26\t28\tMessage 4',
+            '30\t0\t0\t0\t\t\tMessage 1, M=0, CS=0, C_I=0102, EAD=0',
+            '31\t0\t0\t0\t30\t30\tMessage 2',
+            '32\t0\t0\t0\t30\t31\tMessage 3',
+            '33\t0\t0\t0\t30\t32\tMessage 4',
+            '34\t\t\t\t\t\tConnect Command',
+            '35\t0\t3\t2\t\t\tMessage 1, M=3, CS=2, C_I=37, EAD=0',
+            '36\t0\t3\t2\t35\t35\tMessage 2',
+        ]
+
+    def test_edhoc_connection_ids(self, cmd_tshark, capture_file, test_env):
+        '''application/cid-edhoc+cbor-seq: a "true" correlator before
+        message 1, an int and a bstr C_R before message 3; C_I given as
+        "true" in frame 23. Frame 40 (from edhoc_decrypt.py) has an int
+        C_R prefix too.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                '-Y', 'edhoc.cid_true || edhoc.cid_bytes',
+                '-Tfields', '-eframe.number', '-eedhoc.cid_true', '-eedhoc.cid_bytes',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '15\tTrue\t', '17\t\t26', '19\tTrue\t', '21\t\t08', '22\tTrue\t', '23\tTrue\t',
+            '40\t\t27',
+        ]
+
+    def test_edhoc_ead(self, cmd_tshark, capture_file, test_env):
+        '''The EAD items of frame 1: padding, a critical unknown label,
+        the label -2**63 (its absolute value is shown as INT64_MAX; before
+        the fix it was passed to llabs(), which is undefined), labels
+        without a value, a value holding CBOR. The cipher suite list has
+        one preference before the selection.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eedhoc.ead.label', '-eedhoc.ead.label_abs',
+                '-eedhoc.ead.value', '-eedhoc.suite_pref_list', '-eedhoc.suite_pref',
+                '-eedhoc.suite_sel',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ('0,-5,-9223372036854775808,7,8,99\t'
+                                  '0,5,9223372036854775807,7,8,99\t'
+                                  '000000,01,02,a10102\t1\t6\t2')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1',
+                '-V', '-O', 'edhoc',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines.count('EAD Item: Padding') == 1
+        assert lines.count('[Absolute Label: Padding (0)]') == 1
+        assert lines.count('[EAD item is critical]') == 2
+
+    def test_edhoc_mqtt_and_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''MQTT v5 passes no media type information: frames 35 and 36
+        are EDHOC messages 1 and 2 (before the fix the media type handler
+        asserted that the information was present). The "edhoc" handle
+        needs a state from its caller: the Exported PDU of frame 37 is
+        left to the data dissector (it asserted before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 35 && frame.number <= 37',
+                '-Tfields', '-eframe.number', '-emqtt.property.content_type',
+                '-eedhoc.g_x', '-eedhoc.gy_ciphertext', '-edata.len',
+                '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['35', '36', '37']
+        assert lines[0][1] == lines[1][1] == 'application/edhoc+cbor-seq'
+        assert len(lines[0][2]) == 64 and lines[0][3] == ''
+        assert lines[1][2] == '' and len(lines[1][3]) == 84
+        assert lines[2][1:] == ['', '', '', '37', '']
+
+    def test_edhoc_not_decrypted(self, cmd_tshark, capture_file, test_env):
+        '''Without the secrets, messages 2-4 are reported as not
+        decrypted (a warning); message 2 is split into G_Y and the
+        ciphertext by the key length of the suite.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                '-Y', 'edhoc.no_decrypt',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        frames = [int(n) for n in stdout.split()]
+        assert frames == [2, 3, 4, 16, 17, 18, 20, 21, 25, 27, 28, 29, 31, 32, 33, 36,
+                          39, 40, 41, 43, 44, 45, 47, 49, 51, 52]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 27',
+                '-Tfields', '-eedhoc.g_y', '-eedhoc.ciphertext',
+            ), encoding='utf-8', env=test_env)
+        g_y, ctext = stdout.strip().split('\t')
+        assert len(g_y) == 2 * 57 and len(ctext) == 2 * 16
+
+    def test_edhoc_decrypted(self, cmd_tshark, capture_file, test_env):
+        '''With the secrets, messages 2-4 of frames 38-45 decrypt
+        (AES-CCM and ChaCha20/Poly1305), showing C_R, ID_CRED (a COSE
+        header map and a compressed kid), Signature_or_MAC and EAD items,
+        in one and two passes. The suite 25 (SHAKE256) message 2 of frame
+        47 and the message 2 of frame 49, longer than HKDF can expand,
+        are not decrypted (before the fix both ended tshark with
+        ws_error()); message 3 of frame 52 has a broken tag.'''
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.secrets(),
+                    '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 38',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', '-eedhoc.c_r',
+                    '-eedhoc.id_cred_kid', '-eedhoc.sign_or_mac', '-eedhoc.ead.label',
+                ), encoding='utf-8', env=test_env)
+            out.append(stdout)
+        assert out[0] == out[1]
+        lines = out[0].splitlines()
+        assert lines[0:4] == [
+            '38\tMessage 1, M=3, CS=2, C_I=37, EAD=0\t\t\t\t',
+            '39\tMessage 2, decrypted, C_R=27, EAD=0\t27\t\t83a4322c03992c60\t',
+            '40\tMessage 3, decrypted, EAD=0\t\t2b\t1e596da88bd6861a\t',
+            '41\tMessage 4, decrypted, EAD=0\t\t\t\t',
+        ]
+        assert lines[4] == '42\tMessage 1, M=0, CS=4, C_I=0102, EAD=1\t\t\t\t0'
+        assert [l.split('\t')[0:4] for l in lines[5:8]] == [
+            ['43', 'Message 2, decrypted, C_R=27, EAD=1', '27', '22'],
+            ['44', 'Message 3, decrypted, EAD=1', '', ''],
+            ['45', 'Message 4, decrypted, EAD=1', '', ''],
+        ]
+        assert [l.split('\t')[5] for l in lines[5:8]] == ['0', '-5', '0']
+        assert lines[8:] == [
+            '46\tMessage 1, M=3, CS=25, C_I=37, EAD=0\t\t\t\t',
+            '47\tMessage 2\t\t\t\t',
+            '48\tMessage 1, M=3, CS=2, C_I=37, EAD=0\t\t\t\t',
+            '49\tMessage 2\t\t\t\t',
+            '50\tMessage 1, M=3, CS=2, C_I=37, EAD=0\t\t\t\t',
+            '51\tMessage 2, decrypted, C_R=05, EAD=0\t05\t02\t9e57ad1d70b1d5e0\t',
+            '52\tMessage 3\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *self.secrets(),
+                '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 39 || frame.number == 44',
+                '-V', '-O', 'edhoc',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines.count('[Plaintext: 4127a104410a4883a4322c03992c60]') == 1
+        assert lines.count('Label: kid (4)') == 2
+        assert 'Key identifier: 0a' in lines
+        assert 'Key identifier: 0b0c' in lines
+        stdout = subprocess.check_output((cmd_tshark, *self.secrets(),
+                '-r', capture_file('edhoc_coverage.pcapng.gz'),
+                '-Y', 'edhoc.no_decrypt',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[-3:] == [
+            '47\tMessage not decrypted', '49\tMessage not decrypted', '52\tMessage not decrypted',
+        ]
