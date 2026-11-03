@@ -572,7 +572,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         /* eCPRI payload-subtree */
         /* Length Check */
-        if (reported_length >= ECPRI_HEADER_LENGTH + payload_size)
+        if (offset + payload_size <= reported_length)
         {
             /* OK, add undecoded payload */
             payload_item = proto_tree_add_item(ecpri_tree, hf_payload, tvb, offset, payload_size, ENC_NA);
@@ -582,7 +582,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             expert_add_info_format(
                 pinfo, ti_payload_size, &ei_payload_size,
                 "Payload Size %u is too big, maximal %u is possible",
-                payload_size, reported_length - ECPRI_HEADER_LENGTH);
+                payload_size, reported_length - offset);
             payload_item = proto_tree_add_item(ecpri_tree, hf_payload, tvb, offset, -1, ENC_NA);
         }
 
@@ -611,6 +611,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                             pinfo, ti_payload_size, &ei_payload_size,
                             "Payload Size %u is too small for encoding Message Type %u. Should be min. %d",
                             payload_size, msg_type, ECPRI_MSG_TYPE_0_PAYLOAD_MIN_LENGTH);
+                        /* skip the payload, it is not the next message header */
+                        offset += payload_size;
                         break;
                     }
 
@@ -666,6 +668,8 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                             pinfo, ti_payload_size, &ei_payload_size,
                             "Payload Size %u is too small for encoding Message Type %u. Should be min. %d",
                             payload_size, msg_type, ECPRI_MSG_TYPE_2_PAYLOAD_MIN_LENGTH);
+                        /* skip the payload, it is not the next message header */
+                        offset += payload_size;
                         break;
                     }
 
@@ -1148,12 +1152,14 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     //offset += 2;
                     /* TODO: */
                     proto_tree_add_expert(payload_tree, pinfo, &ei_ecpri_not_dis_yet, tvb, offset, payload_size);
+                    offset += payload_size;
                     break;
                 case ECPRI_MESSAGE_TYPE_IWF_MAPPING: /* Message Type 10: 3.2.4.11. IWF Mapping */
                     //proto_tree_add_item(ecpri_tree, hf_pc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
                     //offset += 2;
                     /* TODO: */
                     proto_tree_add_expert(payload_tree, pinfo, &ei_ecpri_not_dis_yet, tvb, offset, payload_size);
+                    offset += payload_size;
                     break;
                 case ECPRI_MESSAGE_TYPE_IWF_DELAY_CONTROL: /* Message Type 11: 3.2.4.12. IWF Delay Control */
                     if (payload_size != ECPRI_MSG_TYPE_11_PAYLOAD_LENGTH)
@@ -1227,8 +1233,13 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             {
                 offset += payload_size;
             }
+            else
+            {
+                /* the payload runs past the frame: nothing follows it */
+                offset = reported_length;
+            }
         }
-    } while (concatenation_bit != 0 && ((reported_length - offset) >= ECPRI_HEADER_LENGTH));
+    } while (concatenation_bit != 0 && offset < reported_length && ((reported_length - offset) >= ECPRI_HEADER_LENGTH));
 
     /* Expecting last concatenation bit to be false */
     if (concatenation_bit != false)
