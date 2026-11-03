@@ -334,7 +334,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 2;
 
 	/* skip unused byte */
-	proto_tree_add_item(parent_tree, hf_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(parent_tree, hf_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* PROBE and NEIGHBORS 2 packets have capabilities flags, unused
@@ -719,7 +719,7 @@ proto_register_dvmrp(void)
 			  VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 
 		{ &hf_reserved,
-			{ "Reserved", "dvmrp.reserved", FT_UINT16, BASE_HEX,
+			{ "Reserved", "dvmrp.reserved", FT_UINT8, BASE_HEX,
 			  NULL, 0, "DVMRP v3 Reserved", HFILL }},
 
 		{ &hf_commands,
