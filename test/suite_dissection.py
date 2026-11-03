@@ -48930,3 +48930,91 @@ class TestDissectDvbS2Table:
             '\t\t\t\t\t0x08,0x08,0x08,0x08,0x0d,0x81,0x82,0x01\t'
             '0x01,0x02,0x03,0x00\t0x0020,0x0022,0x0023,0x0030,0x0031',
         ]
+
+
+class TestDissectDvbSdt:
+    def test_dvb_sdt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every SDT section in the MPEG-TS packets is dissected, and no
+        frame is malformed or has an expert info, in one and two passes
+        and with the section CRC verified.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_sdt_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['mp2t:mpeg_sect:dvb_sdt'] * 4 + [
+            'mp2t', 'mp2t:mpeg_sect:dvb_sdt',
+            'mp2t:mpeg_sect:dvb_sdt:mpeg_sect:dvb_sdt']
+        for opts in ((), ('-2',), ('-o', 'mpeg_sect.verify_crc:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('dvb_sdt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_sdt_services(self, cmd_tshark, capture_file, test_env):
+        '''Table IDs (actual and other transport stream), versions and
+        the services of every section with their EIT flags, running
+        status, free CA mode and descriptors loop length, including the
+        SDT reassembled from two TS packets (frame 6) and two sections in
+        one TS packet (frame 7).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_sdt_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-empeg_sect.tid',
+                '-edvb_sdt.tsid', '-edvb_sdt.original_nid',
+                '-edvb_sdt.version', '-edvb_sdt.cur_next_ind',
+                '-edvb_sdt.sect_num', '-edvb_sdt.svc.id',
+                '-edvb_sdt.svc.running_status', '-edvb_sdt.svc.free_ca_mode',
+                '-edvb_sdt.svc.eit_schedule_flag',
+                '-edvb_sdt.svc.eit_present_following_flag',
+                '-edvb_sdt.svc.descr_loop_len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x42\t0x0001\t0x0002\t0x01\tTrue\t0\t0x0101,0x0102,0x0103\t'
+            '0x0000,0x0001,0x0002\t0x0000,0x0001,0x0000\t1,1,0\t1,0,1\t25,29,37',
+            '2\t0x42\t0x0001\t0x0002\t0x01\tTrue\t1\t'
+            '0x0104,0x0105,0x0106,0x0107,0x0108\t'
+            '0x0003,0x0004,0x0005,0x0006,0x0007\t'
+            '0x0000,0x0000,0x0000,0x0000,0x0001\t0,0,0,0,0\t0,0,0,0,0\t0,9,7,0,0',
+            '3\t0x46\t0x0010\t0x0020\t0x02\tFalse\t0\t0x0201\t0x0004\t0x0000\t0\t0\t0',
+            '4\t0x42\t0x0011\t0x0020\t0x1f\tTrue\t0\t\t\t\t\t\t',
+            '5\t\t\t\t\t\t\t\t\t\t\t\t',
+            '6\t0x42\t0x0012\t0x0002\t0x03\tTrue\t0\t' +
+            ','.join('0x%04x' % (0x300 + i) for i in range(12)) + '\t' +
+            ','.join(['0x0004'] * 12) + '\t' + ','.join(['0x0000'] * 12) +
+            '\t' + ','.join(['1'] * 12) + '\t' + ','.join(['1'] * 12) +
+            '\t' + ','.join(['19'] * 12),
+            '7\t0x42,0x46\t0x0013,0x0014\t0x0002,0x0002\t0x00,0x00\t'
+            'True,True\t0,0\t0x0401,0x0402\t0x0004,0x0004\t0x0000,0x0000\t'
+            '0,0\t0,0\t6,6',
+        ]
+
+    def test_dvb_sdt_names(self, cmd_tshark, capture_file, test_env):
+        '''The service descriptors of frame 1 and the running status
+        names.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_sdt_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-empeg_descr.svc.provider_name',
+                '-empeg_descr.svc.svc_name', '-empeg_descr.tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Synthetic,Synthetic,Prv,Fou\tChannel One,Radio Two,Channel,Chaine\t'
+            '0x48,0x48,0x53,0x5d,0x5f']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_sdt_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 2',
+                '-V', '-O', 'dvb_sdt',
+            ), encoding='utf-8', env=test_env)
+        status = [l.split('= ', 1)[1] for l in stdout.splitlines()
+                  if 'Running Status' in l]
+        assert status == [
+            'Running Status: Undefined (0x0)',
+            'Running Status: Not Running (0x1)',
+            'Running Status: Starts in a few seconds (0x2)',
+            'Running Status: Pausing (0x3)',
+            'Running Status: Running (0x4)',
+            'Running Status: Service off-air (0x5)',
+            'Running Status: Unknown (0x6)',
+            'Running Status: Unknown (0x7)',
+        ]
