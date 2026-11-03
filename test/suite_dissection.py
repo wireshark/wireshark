@@ -45899,3 +45899,120 @@ class TestDissectDoip:
             ), encoding='utf-8', env=test_env)
         assert stdout.split(' / ')[1] == 'Alive check response'
         assert stdout.count(' / ') == 2
+
+
+class TestDissectDop:
+    def test_dop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; no malformed packets and no
+        expert infos of warning or error severity in one and two passes,
+        except "Unknown binding-parameter" for the agreement proposal
+        without a binding type (61) and for the parameters DOP has no
+        dissector for (62-71).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dop_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 107
+        assert protocols.count('DOP') == 71
+        assert protocols.count('ACSE') == 12
+        assert protocols.count('COTP') == 6
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dop_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert [l[0] for l in lines] == ['61', '62', '63', '64', '65', '67', '69', '71']
+            for l in lines:
+                assert set(l[1].split(',')) == {'Unknown binding-parameter'}
+
+    def test_dop_stale_binding_type(self, cmd_tshark, capture_file, test_env):
+        '''An operational binding error without a binding type, after an
+        establish with the hierarchical binding type: its agreement
+        proposal has no binding type. The binding type used to be the
+        one of the earlier packet, a string freed with that packet (it
+        decoded the proposal as a hierarchical agreement, or printed
+        garbage).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dop_coverage.pcap.gz'),
+                '-Y', 'frame.number in {60, 61}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-edop.problem',
+                '-edop.rdn', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[1] == ['61', 'Operational-Binding-Error', '8', '', 'Unknown binding-parameter']
+        assert lines[0] == ['60', 'Establish-Operational-Binding-Argument hierarchical-agreement id=40,1 roleA id=7,1 id=8,1',
+                            '', '1,1,1,1,1', '']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dop_coverage.pcap.gz'),
+                '-Y', 'frame.number == 61',
+                '-V', '-O', 'dop',
+            ), encoding='utf-8', env=test_env)
+        assert '    Dissector for parameter agreement OID:<empty> not implemented. ' \
+            'Contact Wireshark developers if you want this supported' in stdout.splitlines()
+
+    def test_dop_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of establish, modify and terminate arguments and
+        results; the agreements have no Info column text (they used to
+        append "(null)").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dop_coverage.pcap.gz'),
+                '-Y', 'dop',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert not [i for i in info.values() if '(null)' in i]
+        hob, nhob = 'hierarchical-agreement', 'non-specific-hierarchical-agreement'
+        est, res = 'Establish-Operational-Binding-Argument ', 'Establish-Operational-Binding-Result '
+        mod, mres = 'Modify-Operational-Binding-Argument ', 'Modify-Operational-Binding-Result'
+        term, tres = 'Terminate-Operational-Binding-Argument ', 'Terminate-Operational-Binding-Result'
+        assert [info[str(f)] for f in range(10, 36)] == [
+            est + hob + ' id=1,1 roleA id=7,1 id=8,1', res + hob + ' id=1,1 roleB',
+            est + hob + ' id=2,1 roleB id=7,1 id=8,1', res + hob + ' id=2,1 roleA',
+            est + nhob + ' id=3,1 roleA', res + nhob + ' id=3,1 roleB',
+            est + nhob + ' id=4,1 roleB', res + nhob + ' id=4,1 roleA',
+            mod + hob + ' id=1,1 roleA id=1,2', mres + ' id=1,2 ' + hob,
+            mod + hob + ' id=2,1 roleB id=7,1 id=8,1 id=2,2', mres + ' id=2,2 ' + hob,
+            mod + nhob + ' id=3,1 roleA id=3,2', mres + ' id=3,2 ' + nhob,
+            mod + nhob + ' id=4,1 roleB id=4,2', mres + ' id=4,2 ' + nhob,
+            mod + hob + ' id=5,1 id=5,2', mres,
+            mod + nhob + ' id=6,1 roleA id=6,2', mres + ' id=6,2 ' + nhob,
+            term + hob + ' id=1,2', tres,
+            term + nhob + ' id=2,2', tres + ' id=2,2 ' + nhob,
+            term + hob + ' id=3,2', tres + ' id=3,2 ' + hob,
+        ]
+        assert info['37'] == 'Operational-Binding-Error ' + hob
+        assert info['39'] == 'Operational-Binding-Error ' + nhob
+        assert info['59'] == 'Operational-Binding-Error'
+        assert info['73'] == est + 'shadow-agreement roleA cp=id-at-organizationName=Example Org,id-at-countryName=AU'
+        assert info['74'] == res + 'shadow-agreement roleB'
+        assert info['88'] == 'DSA-Operational-Management-Bind-Error chainingRequired'
+        assert info['102'] == 'DSA-Operational-Management-Bind-Error invalidCredentials'
+
+    def test_dop_values(self, cmd_tshark, capture_file, test_env):
+        '''Problems, initiators, validity and time choices, and the ACI
+        items and DSA operational attributes in the entry information.'''
+        def values(field):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dop_coverage.pcap.gz'),
+                    '-Y', field,
+                    '-Tfields', '-eframe.number', '-e' + field,
+                ), encoding='utf-8', env=test_env)
+            return ' '.join('='.join(l.split('\t')) for l in stdout.splitlines())
+        assert values('dop.problem') == '37=0 39=1 41=2 43=3 45=4 47=5 49=6 51=7 53=8 55=9 57=10 59=99 61=8'
+        assert values('dop.initiator') == '11=5 13=4 15=5 17=4 63=3 74=5'
+        assert values('dop.modifyInitiator') == '18=4 20=5 22=4 24=5 28=4 65=3'
+        assert values('dop.terminateInitiator') == '67=2 69=3 71=4'
+        assert values('dop.terminateAtTime') == '30=0 32=1'
+        assert values('dop.retryAt') == '37=0 39=1'
+        assert values('dop.validFrom') == '10=1 12=0 14=1 16=0 18=1 19=0 20=1 21=0 22=1 23=0 24=1 25=0 28=1'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dop_coverage.pcap.gz'),
+                '-Y', 'frame.number == 10',
+                '-Tfields', '-edop.itemOrUserFirst', '-edop.level', '-edop.precedence',
+                '-edop.supplier_is_master', '-edop.maxImmSub', '-edop.maxCount',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['0,1,0,0', '2,0,2', '10,3,5,2,0,10,3', 'False', '100,100,100', '3,3,3']
