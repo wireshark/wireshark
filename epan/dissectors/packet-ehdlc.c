@@ -17,6 +17,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/xdlc.h>
 #include <epan/tfs.h>
 
@@ -56,6 +57,8 @@ static int hf_ehdlc_f_ext;
 static int hf_ehdlc_s_ftype;
 static int hf_ehdlc_ftype_i;
 static int hf_ehdlc_ftype_s_u_ext;
+
+static expert_field ei_ehdlc_bad_length;
 
 static dissector_handle_t ehdlc_handle;
 
@@ -168,7 +171,8 @@ dissect_ehdlc_xid(proto_tree *tree, tvbuff_t *tvb, unsigned base_offset, unsigne
 	proto_tree_add_item(xid_tree, hf_ehdlc_xid_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+	while (offset + 2 <= base_offset + len &&
+	       tvb_reported_length_remaining(tvb, offset) >= 2) {
 		uint8_t iei = tvb_get_uint8(tvb, offset++);
 		uint8_t ie_len = tvb_get_uint8(tvb, offset++);
 
@@ -203,6 +207,7 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_item *ti            = NULL;
+		proto_item *len_item      = NULL;
 		proto_tree *ehdlc_tree    = NULL;
 		uint16_t    len, hdr2;
 		uint8_t     csapi, ctei, sapi, tei, c_r;
@@ -244,8 +249,13 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 			ti = proto_tree_add_uint(ehdlc_tree, hf_ehdlc_tei,
 							 tvb, offset, 1, tei);
 			proto_item_set_generated(ti);
-			proto_tree_add_item(ehdlc_tree, hf_ehdlc_data_len,
+			len_item = proto_tree_add_item(ehdlc_tree, hf_ehdlc_data_len,
 					    tvb, offset, 2, ENC_BIG_ENDIAN);
+		}
+
+		if (len < header_length) {
+			expert_add_info(pinfo, len_item, &ei_ehdlc_bad_length);
+			break;
 		}
 
 		if (sapi == 10 || sapi == 11) {
@@ -266,6 +276,10 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 					       ett_ehdlc_control, &ehdlc_cf_items, &ehdlc_cf_items_ext,
 					       NULL, NULL, is_response, is_extended, false);
 		header_length += XDLC_CONTROL_LEN(control, is_extended);
+		if (len < header_length) {
+			expert_add_info(pinfo, len_item, &ei_ehdlc_bad_length);
+			break;
+		}
 
 		if (XDLC_IS_INFORMATION(control)) {
 			next_tvb = tvb_new_subset_length(tvb, offset+header_length,
@@ -293,8 +307,6 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 					  len-header_length);
 		}
 
-		if (len == 0)
-			len = 1;
 		offset += len;
 	}
 	return tvb_captured_length(tvb);
@@ -443,12 +455,23 @@ proto_register_ehdlc(void)
 		&ett_ehdlc_control,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_ehdlc_bad_length,
+		  { "ehdlc.data_len.invalid", PI_MALFORMED, PI_ERROR,
+		    "DataLen is shorter than the header", EXPFILL }
+		},
+	};
+
+	expert_module_t *expert_ehdlc;
+
 	proto_ehdlc =
 	    proto_register_protocol("Ericsson HDLC",
 				    "Ericsson HDLC as used in A-bis over IP", "ehdlc");
 
 	proto_register_field_array(proto_ehdlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_ehdlc = expert_register_protocol(proto_ehdlc);
+	expert_register_field_array(expert_ehdlc, ei, array_length(ei));
 
 	ehdlc_handle = register_dissector("ehdlc", dissect_ehdlc, proto_ehdlc);
 }
