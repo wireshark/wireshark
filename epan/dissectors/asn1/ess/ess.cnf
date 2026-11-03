@@ -42,6 +42,21 @@ PermissiveTag/attributeFlags    permissiveAttributeFlags
 InformativeTag/tagName          informativeTagName
 FreeFormField/bitSetAttributes  informativeAttributeFlags
 
+#.FN_HDR SecurityCategory
+  object_identifier_id = NULL;
+
+#.FN_HDR RestrictiveTag
+  object_identifier_id = NULL;
+
+#.FN_HDR EnumeratedTag
+  object_identifier_id = NULL;
+
+#.FN_HDR PermissiveTag
+  object_identifier_id = NULL;
+
+#.FN_HDR InformativeTag
+  object_identifier_id = NULL;
+
 #.FN_PARS SecurityCategory/type
   FN_VARIANT = _str  HF_INDEX = hf_ess_SecurityCategory_type_OID  VAL_PTR = &object_identifier_id
 
