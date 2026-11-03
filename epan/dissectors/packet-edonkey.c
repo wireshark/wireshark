@@ -2872,7 +2872,7 @@ static int dissect_kademlia_udp_message(uint8_t msg_type,
                         break;
                     case KADEMLIA_TAGTYPE_BSOB:
                     {
-                      uint16_t bsob_length = tvb_get_uint8(tvb, offset);
+                      uint16_t bsob_length = tvb_get_uint8(tvb, offset + j);
                       j += 1 + bsob_length;
                       break;
                     }
