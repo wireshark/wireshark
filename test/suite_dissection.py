@@ -44750,3 +44750,202 @@ class TestDissectDnsCoverage:
                     ('   > year', 1), ('   <= month', 1), ('   zero', 4)]:
             assert row in rows
         assert ('   retrans.example.com', 1) in rows
+
+
+class TestDissectDoIrp:
+    def test_do_irp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''DO-IRP over UDP and TCP port 2641, and no malformed packets,
+        warnings or errors in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('do_irp_coverage.pcap.gz'),
+                '-Y', 'do-irp',
+                '-Tfields', '-eudp.port', '-etcp.port',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 69
+        assert sum(1 for l in lines if l.startswith('\t')) == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('do_irp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_do_irp_operations(self, cmd_tshark, capture_file, test_env):
+        '''Every opcode with its request and response codes, and the
+        request/response links in two passes. The Info column of a TCP
+        segment with two messages (frame 70) shows both, separated by
+        " | " (before "DO-IRP: Fix TCP length wrap, length checks and
+        request tracking" only the last one).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('do_irp_coverage.pcap.gz'),
+                '-Y', 'do-irp.opcode',
+                '-Tfields', '-eframe.number', '-edo-irp.opcode',
+                '-edo-irp.responsecode', '-edo-irp.response_in',
+                '-edo-irp.response_to', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t0\t2\t\tReqID=1 [RESOLUTION, RESERVED] [10.1000/1]',
+            '2\t1\t100\t\t1\tReqID=1 [RESOLUTION, ID_NOT_FOUND]',
+            '3\t1\t0\t4\t\tReqID=2 [RESOLUTION, RESERVED] [10.1000/2]',
+            '4\t1\t1\t\t3\tReqID=2 [RESOLUTION, SUCCESS] [10.1000/2]',
+            '5\t1\t1\t\t\tReqID=3 [RESOLUTION, SUCCESS] [10.1000/3]',
+            '6\t1\t1\t\t\tReqID=4 [RESOLUTION, SUCCESS] [10.1000/3]',
+            '7\t1\t1\t\t\tReqID=5 [RESOLUTION, SUCCESS] [10.1000/3]',
+            '8\t1\t0\t\t\tReqID=6 [RESOLUTION, RESERVED] [10.1000/6]',
+            '9\t1\t302\t\t\tReqID=7 [RESOLUTION, SERVICE_REFERRAL]',
+            '10\t1\t303\t\t\tReqID=8 [RESOLUTION, PREFIX_REFERRAL]',
+            '11\t1\t402\t\t12\tReqID=9 [RESOLUTION, AUTHEN_NEEDED]',
+            '12\t200\t0\t\t\tReqID=9 [CHALLENGE_RESPONSE, RESERVED]',
+            '13\t201\t0\t14\t\tReqID=10 [VERIFY_RESPONSE, RESERVED]',
+            '14\t201\t1\t\t13\tReqID=10 [VERIFY_RESPONSE, SUCCESS]',
+            '15\t2\t0\t16\t\tReqID=11 [GET_SITEINFO, RESERVED]',
+            '16\t2\t1\t\t15\tReqID=11 [GET_SITEINFO, SUCCESS]',
+            '17\t302\t0\t18\t\tReqID=12 [LIST_HOMED_PREFIXES, RESERVED]',
+            '18\t302\t1\t\t17\tReqID=12 [LIST_HOMED_PREFIXES, SUCCESS]',
+            '19\t100\t0\t20\t\tReqID=13 [CREATE_ID, RESERVED] [10.1000/new]',
+            '20\t100\t1\t\t19\tReqID=13 [CREATE_ID, SUCCESS]',
+            '21\t101\t0\t22\t\tReqID=14 [DELETE_ID, RESERVED]',
+            '22\t101\t1\t\t21\tReqID=14 [DELETE_ID, SUCCESS]',
+            '23\t102\t0\t\t\tReqID=15 [ADD_ELEMENT, RESERVED] [10.1000/1]',
+            '24\t104\t0\t\t\tReqID=16 [MODIFY_ELEMENT, RESERVED] [10.1000/1]',
+            '25\t103\t0\t\t\tReqID=17 [REMOVE_ELEMENT, RESERVED] [10.1000/1]',
+            '26\t105\t0\t27\t\tReqID=18 [LIST_IDS, RESERVED]',
+            '27\t105\t1\t\t26\tReqID=18 [LIST_IDS, SUCCESS]',
+            '28\t106\t0\t29\t\tReqID=19 [LIST_DERIVED_PREFIXES, RESERVED]',
+            '29\t106\t1\t\t28\tReqID=19 [LIST_DERIVED_PREFIXES, SUCCESS]',
+            '30\t300\t0\t\t\tReqID=20 [HOME_PREFIX, RESERVED]',
+            '31\t301\t0\t\t\tReqID=21 [UNHOME_PREFIX, RESERVED]',
+            '32\t400\t0\t33\t\tReqID=22 [SESSION_SETUP, RESERVED]',
+            '33\t400\t1\t\t32\tReqID=22 [SESSION_SETUP, SUCCESS]',
+            '34\t401\t0\t\t\tReqID=23 [SESSION_TERMINATE, RESERVED]',
+            '35\t102\t2\t\t\tReqID=24 [ADD_ELEMENT, ERROR]',
+            '36\t102\t201\t\t\tReqID=25 [ADD_ELEMENT, ELEMENT_ALREADY_EXIST]',
+            '37\t1\t301\t\t\tReqID=26 [RESOLUTION, SERVER_NOT_RESP]',
+            '38\t100\t400\t\t\tReqID=27 [CREATE_ID, INVALID_ADMIN]',
+            '39\t100\t401\t\t\tReqID=28 [CREATE_ID, ACCESS_DENIED]',
+            '40\t200\t403\t\t\tReqID=29 [CHALLENGE_RESPONSE, AUTHEN_FAILED]',
+            '41\t400\t505\t\t\tReqID=30 [SESSION_SETUP, SESSION_MSG_REJECTED]',
+            '42\t102\t1\t\t\tReqID=31 [ADD_ELEMENT, SUCCESS]',
+            '43\t999\t999\t\t\tReqID=32 [Unknown OpCode, Unknown RespCode]',
+            '44\t2\t302\t\t\tReqID=33 [GET_SITEINFO, SERVICE_REFERRAL]',
+            '49\t1\t1\t\t\tReqID=35 [RESOLUTION, SUCCESS] [10.1000/big] (Frag=4, Reassembled)',
+            '52\t2\t0\t\t\tReqID=37 [GET_SITEINFO, RESERVED] (Frag=1, Reassembled)',
+            '57\t2\t0\t58\t\tReqID=21 [GET_SITEINFO, RESERVED]',
+            '58\t2\t2\t\t57\tReqID=21 [GET_SITEINFO, ERROR]',
+            '59\t2\t2\t\t57\tReqID=21 [GET_SITEINFO, ERROR]',
+            '60\t2\t0\t58\t\tReqID=21 [GET_SITEINFO, RESERVED]',
+            '61\t2\t2\t\t57\tReqID=21 [GET_SITEINFO, ERROR]',
+            '62\t999\t1\t\t\tReqID=38 [Unknown OpCode, SUCCESS]',
+            '63\t2\t0\t\t\tReqID=40 [GET_SITEINFO, RESERVED]',
+            '64\t1\t0\t\t\tReqID=39 [RESOLUTION, RESERVED] [10.1000/flags]',
+            '68\t1\t0\t69\t\tReqID=43 [RESOLUTION, RESERVED] [10.1000/big]',
+            '69\t1\t1\t\t68\tReqID=43 [RESOLUTION, SUCCESS] [10.1000/big]',
+            '70\t2,105\t0,0\t73,74\t\tReqID=41 [GET_SITEINFO, RESERVED] | ReqID=42 [LIST_IDS, RESERVED]',
+            '73\t2\t1\t\t70\tReqID=41 [GET_SITEINFO, SUCCESS]',
+            '74\t105\t1\t\t70\tReqID=42 [LIST_IDS, SUCCESS]',
+        ]
+
+    def test_do_irp_response_in(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of the request tracking fix in "DO-IRP: Fix TCP
+        length wrap, length checks and request tracking": a request that
+        gets three responses links to the first one, in one pass (for the
+        repeated request) and in two passes (it linked to the last one).'''
+        for passes, expected in (((), ['60\t58']), (('-2',), ['57\t58', '60\t58'])):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('do_irp_coverage.pcap.gz'),
+                    '-Y', 'do-irp.reqid == 21 && do-irp.response_in',
+                    '-Tfields', '-eframe.number', '-edo-irp.response_in',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_do_irp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''UDP fragments (TC flag) are reassembled by request ID: four
+        fragments of a resolution response, two of an encrypted message,
+        and a message sent as a single fragment with TC set (frame 52; it
+        was never reassembled before "DO-IRP: Fix TCP length wrap, length
+        checks and request tracking"). Reproducer of the 32-bit request ID fix:
+        fragments with request IDs 0x00010007 and 7 are not reassembled
+        together (they were with 16-bit IDs).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('do_irp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 46 && frame.number <= 56',
+                '-Tfields', '-eframe.number', '-edo-irp.reqid',
+                '-edo-irp.flags.ec', '-edo-irp.seq', '-edo-irp.reassembled.in',
+                '-edo-irp.fragment', '-edo-irp.reassembled.len',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '46\t35\tFalse\t0\t49\t\t\tReqID=35 (Frag=1)',
+            '47\t35\tFalse\t1\t49\t\t\tReqID=35 (Frag=2)',
+            '48\t35\tFalse\t2\t49\t\t\tReqID=35 (Frag=3)',
+            '49\t35\tFalse\t3\t\t46,47,48,49\t1489\tReqID=35 [RESOLUTION, SUCCESS] [10.1000/big] (Frag=4, Reassembled)',
+            '50\t36\tTrue\t0\t51\t\t\tReqID=36 (Frag=1)',
+            '51\t36\tTrue\t1\t\t50,51\t984\tReqID=36 (encrypted) (Frag=2, Reassembled)',
+            '52\t37\tFalse\t0\t\t52\t32\tReqID=37 [GET_SITEINFO, RESERVED] (Frag=1, Reassembled)',
+            '53\t65543\tFalse\t0\t\t\t\tReqID=65543 (Frag=1)',
+            '54\t7\tFalse\t1\t\t\t\tReqID=7 (Frag=2)',
+            '55\t31\tFalse\t0\t\t\t\tReqID=31 (Frag=1)',
+            '56\t31\tFalse\t1\t\t\t\tReqID=31 (Frag=2)',
+        ]
+
+    def test_do_irp_records(self, cmd_tshark, capture_file, test_env):
+        '''A resolution response with every identifier record type, both
+        reassembled from UDP fragments and over TCP, with HS_SITE servers,
+        interfaces and RSA, DSA and DH public keys.'''
+        types = ('HS_ADMIN|HS_SITE|HS_SITE.PREFIX|HS_SERV|HS_SERV.PREFIX|'
+                 'HS_PUBKEY|HS_PUBKEY|HS_VLIST|HS_NAMESPACE|HS_ALIAS|HS_CERT|'
+                 'HS_SIGNATURE|DESC|EMAIL|URL|CUSTOM|URL')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('do_irp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {16,33,49,69,73}',
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number',
+                '-edo-irp.identrecord.type', '-edo-irp.identrecord.ref',
+                '-edo-irp.hsadmin.ident', '-edo-irp.hssite.attr.key',
+                '-edo-irp.hssite.srv.id', '-edo-irp.hssite.srv.if.port',
+                '-edo-irp.pk.type',
+            ), encoding='utf-8', env=test_env)
+        site = 'desc|domain\t1|2\t2641|2641|8000|8443'
+        assert stdout.splitlines() == [
+            '16\t\t\t\t%s\tRSA_PUB_KEY|DSA_PUB_KEY' % site,
+            '33\t\t\t\t\t\t\tDH_PUB_KEY',
+            '49\t%s\t10.1000/1|10.1000/2\t0.NA/10.1000\t%s\tRSA_PUB_KEY|DSA_PUB_KEY|DSA_PUB_KEY|DH_PUB_KEY' % (types, site),
+            '69\t%s\t10.1000/1|10.1000/2\t0.NA/10.1000\t%s\tRSA_PUB_KEY|DSA_PUB_KEY|DSA_PUB_KEY|DH_PUB_KEY' % (types, site),
+            '73\t\t\t\t%s\tRSA_PUB_KEY|DSA_PUB_KEY' % site,
+        ]
+
+    def test_do_irp_bodies(self, cmd_tshark, capture_file, test_env):
+        '''Message digests, credentials with and without signed info,
+        verification result, error messages and indices, nonces.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('do_irp_coverage.pcap.gz'),
+                '-Y', 'do-irp.digest_algo || do-irp.credential.type || do-irp.veri_result || do-irp.error.msg || do-irp.nonce',
+                '-Tfields', '-E', 'aggregator=|', '-eframe.number',
+                '-edo-irp.digest_algo', '-edo-irp.credential.type',
+                '-edo-irp.credential.signedinfo.algo', '-edo-irp.veri_result',
+                '-edo-irp.error.msg', '-edo-irp.error.idx',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t\t\t\t\tIdentifier not found\t',
+            '5\t1\t\t\t\t\t',
+            '6\t2\t\t\t\t\t',
+            '7\t3\t\t\t\t\t',
+            '11\t\t\t\t\t\t',
+            '13\t\t\t\t\t\t',
+            '14\t\t\t\t1\t\t',
+            '19\t\tHS_SIGNED\tSHA256withRSA\t\t\t',
+            '21\t\tHS_MAC\t\t\t\t',
+            '35\t\t\t\t\tError\t5|6',
+            '36\t\t\t\t\tElement already exists\t5',
+            '37\t\t\t\t\tServer not responding\t',
+            '38\t\t\t\t\tInvalid admin\t',
+            '39\t\t\t\t\t\t',
+            '40\t\t\t\t\tAuthentication failed\t',
+            '41\t\t\t\t\tSession message rejected\t',
+            '58\t\t\t\t\terr\t',
+            '59\t\t\t\t\terr\t',
+            '61\t\t\t\t\terr\t',
+            '62\t1\t\t\t\t\t',
+            '73\t\tHS_SIGNED\tSHA1withDSA\t\t\t',
+        ]
