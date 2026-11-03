@@ -51679,3 +51679,117 @@ class TestDissectEms:
         crcs = [l for l in stdout.splitlines() if 'Checksum:' in l]
         assert len(crcs) == 8
         assert all(l.endswith('[correct]') for l in crcs)
+
+
+class TestDissectEhdlc:
+    def test_ehdlc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an Exported PDU naming "ehdlc" and none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehdlc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            'RSL', 'EHDLC', 'OML', 'EHDLC', 'TFP', 'P-GSL', 'EHDLC', 'RSL',
+            'RSL', 'EHDLC', 'RSL', 'OML', 'EHDLC',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehdlc_coverage.pcap.gz'),
+                '-Y', 'ehdlc',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ehdlc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ehdlc_frames(self, cmd_tshark, capture_file, test_env):
+        '''Compressed SAPI and TEI, the SAPI, TEI and C/R derived from
+        them, DataLen and control field of each frame, several frames per
+        packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehdlc_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eehdlc.csapi', '-eehdlc.ctei',
+                '-eehdlc.c_r', '-eehdlc.sapi', '-eehdlc.tei', '-eehdlc.data_len',
+                '-eehdlc.control',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t0\t0\t0\t0\t9\t0x0000',
+            '2\t1\t11\t1\t0\t11\t4\t0x0302',
+            '3\t5\t12\t0\t62\t60\t10\t0x0000',
+            '4\t6\t15\t1\t62\t63\t4\t0x0204',
+            '5\t2,3\t1,2\t0,0\t10,11\t1,2\t10,10\t',
+            '6\t4\t3\t0\t12\t3\t14\t',
+            '7\t0,0,0\t0,0,0\t0,0,0\t0,0,0\t0,0,0\t4,4,4\t0x0a01,0x0c05,0x0f09',
+            '8\t0,1,0,1,0,0\t0,0,1,1,2,2\t0,1,0,1,0,0\t0,0,0,0,0,0\t0,0,1,1,2,2\t'
+            '3,3,3,3,8,4\t0x007f,0x0073,0x0043,0x000f,0x0003,0x0013',
+            '9\t5,0\t4,4\t0,0\t62,0\t4,4\t19,9\t0x00af,0x0006',
+            '10\t5,6\t4,4\t0,1\t62,62\t4,4\t19,7\t0x00bf,0x00af',
+            '11\t7\t5\t0\t0\t5\t9\t0x0808',
+            '12\t5\t6\t0\t62\t6\t263\t0x000a',
+            '13\t\t\t\t\t\t\t',
+        ]
+
+    def test_ehdlc_xid(self, cmd_tshark, capture_file, test_env):
+        '''The XID IEs of frame 9 end with its XID frame: the RSL frame
+        that follows in the packet is not read as IEs (before the fix
+        the IE loop ran to the end of the packet). An XID with the P bit
+        set is not dissected as XID; an XID with only the IE header has
+        no IEs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehdlc_coverage.pcap.gz'),
+                '-Y', 'ehdlc.xid_payload',
+                '-Tfields', '-eframe.number', '-eehdlc.xid_payload',
+                '-eehdlc.xid.win_tx', '-eehdlc.xid.win_rx',
+                '-eehdlc.xid.ack_tmr_ms', '-egsm_abis_rsl.msg_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t828000090701050901040801050a0177\t5\t5\t4\t0x1b',
+            '10\t82800000\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehdlc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9',
+                '-V', '-O', 'ehdlc',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('    XID Payload: 828000090701050901040801050a0177')
+        assert lines[start + 1:start + 8] == [
+            '        Format Identifier: 0x82',
+            '        Group Identifier: 0x80',
+            '        XID Length: 9',
+            '        Transmit Window: 5',
+            '        Timer (ms): 4',
+            '        Receive Window: 5',
+            'Ericsson HDLC protocol',
+        ]
+
+    def test_ehdlc_subdissectors(self, cmd_tshark, capture_file, test_env):
+        '''I frames go to RSL (SAPI 0) and OML (SAPI 62) unless they are
+        the 4 octet "ACK", UI frames to RSL; SAPI 10/11 go to TFP and 12
+        to P-GSL without a control field. Frame 13 holds no frame at
+        all, so there is no EHDLC item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehdlc_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protos = [l.split(':')[1:] for l in stdout.splitlines()]
+        assert protos == [
+            ['ehdlc', 'gsm_abis_rsl'],
+            ['ehdlc'],
+            ['ehdlc', 'gsm_abis_oml'],
+            ['ehdlc'],
+            ['ehdlc', 'gsm_abis_tfp', 'data', 'gsm_abis_tfp', 'data'],
+            ['ehdlc', 'gsm_abis_pgsl'],
+            ['ehdlc'],
+            ['ehdlc', 'gsm_abis_rsl'],
+            ['ehdlc', 'gsm_abis_rsl'],
+            ['ehdlc'],
+            ['ehdlc', 'gsm_abis_rsl'],
+            ['ehdlc', 'gsm_abis_oml'],
+            [],
+        ]
