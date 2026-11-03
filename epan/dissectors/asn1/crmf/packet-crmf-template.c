@@ -21,6 +21,7 @@
 #include "packet-cms.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include "packet-x509ce.h"
 
 void proto_register_crmf(void);
 void proto_reg_handoff_crmf(void);
