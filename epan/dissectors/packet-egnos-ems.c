@@ -13,6 +13,8 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <errno.h>
 #include <glib.h>
 #include <proto.h>
@@ -46,11 +48,17 @@ static dissector_table_t ems_msg_dissector_table;
 
 static int ett_ems;
 
+static expert_field ei_ems_nof_bits_invalid;
+
 static dissector_handle_t  ems_handle;
+
+static void ems_free_bytes(void *p) {
+    g_byte_array_free((GByteArray *)p, true);
+}
 
 /* Dissect EMS data record */
 static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-    GByteArray *bytes = g_byte_array_new();
+    GByteArray *bytes;
 
     const char *nof_bits_hex_str;
     unsigned nof_bits_hex_str_len;
@@ -65,6 +73,11 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_clear(pinfo->cinfo, COL_INFO);
 
     proto_tree *ems_tree = proto_tree_add_subtree_format(tree, tvb, 0, 40, ett_ems, NULL, "EMS");
+    proto_item *nof_bits_item = NULL;
+
+    /* Free the array also when an exception is thrown below. */
+    bytes = g_byte_array_new();
+    CLEANUP_PUSH(ems_free_bytes, bytes);
 
     proto_tree_add_item(ems_tree, hf_ems_prn,    tvb,  0, 3, ENC_ASCII);
     proto_tree_add_item(ems_tree, hf_ems_year,   tvb,  4, 2, ENC_ASCII);
@@ -96,7 +109,7 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     else { // L5 or non-standard message encoding
         proto_tree_add_item(ems_tree, hf_ems_second, tvb, 19, 9, ENC_ASCII);
         proto_tree_add_item_ret_string(ems_tree, hf_ems_svc_flag, tvb, 29, 2, ENC_ASCII, pinfo->pool, (const uint8_t **) &svc_flag);
-        proto_tree_add_item_ret_string_and_length(ems_tree, hf_ems_nof_bits, tvb, 32, 4, ENC_ASCII, pinfo->pool, (const uint8_t**)&nof_bits_hex_str, &nof_bits_hex_str_len);
+        nof_bits_item = proto_tree_add_item_ret_string_and_length(ems_tree, hf_ems_nof_bits, tvb, 32, 4, ENC_ASCII, pinfo->pool, (const uint8_t**)&nof_bits_hex_str, &nof_bits_hex_str_len);
         proto_tree_add_item(ems_tree, hf_ems_mt, tvb, 37, 2, ENC_ASCII);
 
         // dissect NOF with a number of bits given by NOF bits
@@ -104,7 +117,10 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             errno = 0;
             nof_bits = (int) strtol(nof_bits_hex_str, NULL, 16);
 
-            if (!errno) {
+            if (!errno && nof_bits < 0) {
+                expert_add_info(pinfo, nof_bits_item, &ei_ems_nof_bits_invalid);
+            }
+            else if (!errno) {
                 nof_hex_chars_len = 2 * ((nof_bits / 8) + ((nof_bits % 8) ? 1 : 0));
                 proto_tree_add_bytes_item(ems_tree, hf_ems_nof, tvb, 40, nof_hex_chars_len, ENC_ASCII | ENC_STR_HEX | ENC_SEP_NONE, bytes, NULL, NULL);
             }
@@ -114,11 +130,11 @@ static int dissect_ems(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     next_tvb = tvb_new_child_real_data(tvb, (uint8_t *)wmem_memdup(pinfo->pool, bytes->data, bytes->len), bytes->len, bytes->len);
     add_new_data_source(pinfo, next_tvb, "SBAS message");
 
+    CLEANUP_CALL_AND_POP;
+
     if (!dissector_try_string_with_data(ems_msg_dissector_table, svc_flag, next_tvb, pinfo, tree, true, NULL)) {
         call_data_dissector(next_tvb, pinfo, tree);
     }
-
-    g_byte_array_free(bytes, true);
 
     return tvb_captured_length(tvb);
 }
@@ -148,6 +164,12 @@ void proto_register_ems(void) {
 
     proto_register_field_array(proto_ems, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    static ei_register_info ei[] = {
+        { &ei_ems_nof_bits_invalid, { "ems.nof_bits.invalid", PI_MALFORMED, PI_ERROR, "Invalid NOF bits number", EXPFILL }},
+    };
+    expert_module_t *expert_ems = expert_register_protocol(proto_ems);
+    expert_register_field_array(expert_ems, ei, array_length(ei));
 
     ems_msg_dissector_table = register_dissector_table("ems.svc_flag", "EMS Service Flag", proto_ems, FT_STRING, STRING_CASE_SENSITIVE);
 }
