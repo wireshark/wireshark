@@ -48136,3 +48136,75 @@ class TestDissectDvbBat:
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == [
             'Synthetic Bouquet\t0x0101,0x0102,0x0201\t0x01,0x02,0x19']
+
+
+class TestDissectDvbDataMpe:
+    def test_dvb_data_mpe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''IPv4, IPv6 and LLC/SNAP datagrams in MPE sections, a datagram
+        reassembled from six TS packets, no malformed frame and only the
+        three scrambling and reserved bit warnings, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_data_mpe_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        mpe = 'mp2t:mpeg_sect:dvb_data_mpe'
+        assert stdout.splitlines() == [
+            mpe + ':ip:udp:data', mpe + ':ip:ipv6:udp:data',
+            mpe + ':llc:ip:udp:data'] + ['mp2t'] * 5 + [
+            mpe + ':ip:udp:data', mpe + ':ip:udp:data:mpeg_sect:dvb_data_mpe:ip:udp:data',
+            mpe + ':ip:udp:data', mpe + ':data', mpe + ':ip:udp:data']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvb_data_mpe_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '11\tCannot descramble destination MAC address (user private scrambling)',
+                '12\tCannot descramble payload (user private scrambling)',
+                '13\tReserved bits not all ones',
+            ]
+
+    def test_dvb_data_mpe_header(self, cmd_tshark, capture_file, test_env):
+        '''The destination MAC address from its two reversed parts, the
+        flags, the payload handed to IP or LLC and the CRC after it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_data_mpe_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edvb_data_mpe.dst_mac',
+                '-edvb_data_mpe.dst_mac.scrambled', '-edvb_data_mpe.reserved',
+                '-edvb_data_mpe.pload_scrambling',
+                '-edvb_data_mpe.addr_scrambling',
+                '-edvb_data_mpe.llc_snap_flag', '-edvb_data_mpe.sect_num',
+                '-eip.dst', '-eipv6.dst', '-eudp.length', '-empeg_sect.crc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t01:00:5e:01:02:03\t\t0x03\t0x00\t0x00\t0x00\t0\t239.1.2.3\t\t25\t0xdb4181ac',
+            '2\t33:33:00:00:01:23\t\t0x03\t0x00\t0x00\t0x00\t0\t\tff0e::123\t25\t0x61781be3',
+            '3\t02:00:00:00:00:42\t\t0x03\t0x00\t0x00\t0x01\t0\t192.0.2.66\t\t20\t0xd067f79d',
+        ] + ['%d\t\t\t\t\t\t\t\t\t\t\t' % i for i in range(4, 9)] + [
+            '9\t01:00:5e:01:02:03\t\t0x03\t0x00\t0x00\t0x00\t0\t239.1.2.3\t\t980\t0xff0a3930',
+            '10\t01:00:5e:01:02:03,01:00:5e:01:02:03\t\t0x03,0x03\t0x00,0x00\t'
+            '0x00,0x00\t0x00,0x00\t0,1\t239.1.2.3,239.1.2.3\t\t11,11\t'
+            '0x07eebc4d,0xc9bb63b7',
+            '11\t\t00:00:00:00:00:00\t0x03\t0x00\t0x01\t0x00\t0\t239.1.2.3\t\t12\t0xb6316318',
+            '12\t01:00:5e:01:02:03\t\t0x03\t0x02\t0x00\t0x00\t0\t\t\t\t0xa75eb839',
+            '13\t01:00:5e:01:02:03\t\t0x01\t0x00\t0x00\t0x00\t0\t239.1.2.3\t\t12\t0x5b121562',
+        ]
+
+    def test_dvb_data_mpe_crc(self, cmd_tshark, capture_file, test_env):
+        '''With CRC verification the CRC after every datagram is good.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_data_mpe_coverage.pcap.gz'),
+                '-o', 'mpeg_sect.verify_crc:TRUE',
+                '-Y', 'mpeg_sect.crc.status != 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_data_mpe_coverage.pcap.gz'),
+                '-o', 'mpeg_sect.verify_crc:TRUE',
+                '-Y', 'mpeg_sect.crc.status == 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 8
