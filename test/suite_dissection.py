@@ -52203,3 +52203,140 @@ class TestDissectElasticsearch:
                 '-e_ws.malformed',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['\tafter/negative\t1\t']
+
+
+class TestDissectElcom:
+    def test_elcom_protocols(self, cmd_tshark, capture_file, test_env):
+        '''32 ELCOM messages after the TCP handshake, then two octets that
+        are too short for ELCOM; no malformed packets and no warnings or
+        errors in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elcom_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 36
+        assert protocols.count('ELCOM') == 32
+        assert protocols[35] == 'TCP'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('elcom_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_elcom_info(self, cmd_tshark, capture_file, test_env):
+        '''Requests go to port 5997; the Info column shows the length (and
+        whether it matches the frame), the initiator suffix of a valid
+        P-Connect message and the message type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elcom_coverage.pcap.gz'),
+                '-Y', 'elcom',
+                '-Tfields', '-e_ws.col.info', '-eelcom.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Request Len=76 AB Connect Request\t0x00',
+            'Response Len=61 AC Connect Response\t0x10',
+            'Request Len=56 CE Connect Request\t0x00',
+            'Request Len=56 BF Connect Request\t0x00',
+            'Request Len=56 AB Connect Request\t0x00',
+            'Request Len=47 AB Connect Request\t0x00',
+            'Request Len=47 AB Connect Request\t0x00',
+            'Request Len=47 AB Connect Request\t0x00',
+            'Request Len=48 AB Connect Request\t0x00',
+            'Response Len=60 BA Connect Response\t0x10',
+            'Request Len=200 (incorrect) AB Connect Request\t0x00',
+            'Request Len=2 Release Request\t0x20',
+            'Response Len=2 Release Response\t0x30',
+            'Request Len=4 Release Request\t0x20',
+            'Request Len=25 Data\t0x80',
+            'Response Len=11 Data\t0x80',
+            'Request Len=4 Data\t0x80',
+            'Request Len=2 Data\t0x80',
+            'Request Len=3 Data\t0x80',
+            'Request Len=4 Data\t0x80',
+            'Request Len=5 Data\t0x80',
+            'Request Len=7 Data\t0x80',
+            'Request Len=9 Data\t0x80',
+            'Request Len=1 Data\t0x80',
+            'Request Len=13 Data\t0x80',
+            'Request Len=3\t0x55',
+        ]
+
+    def test_elcom_connect(self, cmd_tshark, capture_file, test_env):
+        '''The lower addresses (big and little endian, suffixes) and the
+        user data of the P-Connect messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elcom_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4..14}',
+                '-Tfields', '-eelcom.initiator.endian', '-eelcom.initiator.ip',
+                '-eelcom.initiator.port', '-eelcom.initiator.suffix',
+                '-eelcom.responder.ip', '-eelcom.responder.suffix',
+                '-eelcom.userdata.length', '-eelcom.userdata.pduid',
+                '-eelcom.userdata.version', '-eelcom.userdata.result',
+                '-eelcom.userdata.response.restartmarking', '-eelcom.leftover',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0002\t192.0.2.10\t40000\tAB\t192.0.2.20\tBA\t32\t4\t19\t0\t0\t',
+            '0x0200\t192.0.2.20\t5997\tAC\t192.0.2.10\tBD\t16\t5\t18\t0\t1\t',
+            '0x0002\t192.0.2.10\t1\tCE\t192.0.2.20\tAZ\t12\t4\t0\t0\t0\t7e0b030c1e2d01f4',
+            '0x0002\t192.0.2.10\t1\tBF\t192.0.2.20\tAG\t12\t4\t1\t0\t0\t7e0b030c1e2d0109',
+            '\t\t\t\t\t\t17\t129\t0\t2\t0\t',
+            '0x0002\t192.0.2.10\t40000\tAB\t192.0.2.20\tBA\t\t\t\t\t\t00000413',
+            '0x0002\t192.0.2.10\t40000\tAB\t192.0.2.20\tBA\t\t\t\t\t\t50041300',
+            '0x0002\t192.0.2.10\t40000\tAB\t192.0.2.20\tBA\t12\t4\t19\t0\t\t',
+            '0x0002\t192.0.2.10\t40000\tAB\t192.0.2.20\tBA\t12\t4\t19\t0\t0\t',
+            '0x0002\t192.0.2.20\t5997\tBA\t192.0.2.10\tAB\t16\t5\t19\t0\t0\t',
+            '0x0002\t192.0.2.10\t40000\tAB\t192.0.2.20\tBA\t12\t4\t19\t0\t0\t7e0b030c1e2d01f4',
+        ]
+
+    def test_elcom_userdata_text(self, cmd_tshark, capture_file, test_env):
+        '''The control field time and the security information of the
+        first P-Connect request, the suffix texts.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elcom_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,6}',
+                '-V', '-O', 'elcom',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'Suffix: AB (Unsolicited)' in lines
+        assert 'Suffix: BA (Control)' in lines
+        assert ("Restart marking: 0 <-- '0' = no restart etc. Security info:  "
+                "10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f") in lines
+        assert 'Control Field: 2026-11-03 12:30:45.500' in lines
+        assert 'Suffix: CE (invalid)' in lines
+        assert 'Suffix: AZ (<<-- WHAT?)' in lines
+
+    def test_elcom_data_request(self, cmd_tshark, capture_file, test_env):
+        '''P-Release and P-Data messages: test connection request and
+        response, group fields, object names and what is left over.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elcom_coverage.pcap.gz'),
+                '-Y', 'frame.number in {21..35}',
+                '-Tfields', '-eelcom.release.reason', '-eelcom.release.result',
+                '-eelcom.datarequest.grouptype', '-eelcom.datarequest.result',
+                '-eelcom.datarequest.groupnumber',
+                '-eelcom.datarequest.grouppriority',
+                '-eelcom.datarequest.groupsize',
+                '-eelcom.datarequest.groupindex1',
+                '-eelcom.datarequest.groupindex2',
+                '-eelcom.datarequest.oid', '-eelcom.leftover',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t\t\t\t\t\t\t\t\t\t',
+            '\t0\t\t\t\t\t\t\t\t\t',
+            '1\t\t\t\t\t\t\t\t\t\taabb',
+            '\t\t64\t\t7\t2\t10\t1\t20\tOBJ1,OBJECT2\tdead,dead',
+            '\t\t65\t0\t7\t2\t10\t1\t20\t\t',
+            '\t\t66\t\t\t\t\t\t\t\t0102',
+            '\t\t64\t\t\t\t\t\t\t\t',
+            '\t\t64\t\t7\t\t\t\t\t\t',
+            '\t\t64\t\t7\t2\t\t\t\t\t',
+            '\t\t64\t\t7\t2\t10\t\t\t\t',
+            '\t\t64\t\t7\t2\t10\t1\t\t\t',
+            '\t\t64\t\t7\t2\t10\t1\t20\t\t',
+            '\t\t\t\t\t\t\t\t\t\t',
+            '\t\t64\t\t7\t2\t10\t1\t20\t\t094f424a',
+            '\t\t\t\t\t\t\t\t\t\t0102',
+        ]
