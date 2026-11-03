@@ -47043,3 +47043,129 @@ class TestDissectDrda:
                 '-etcp.reassembled.length',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['26\t\t', '27\tEXCSQLIMM\t83']
+
+
+class TestDissectDsi:
+    def test_dsi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''DSI frames, AFP over DSI Command and Write, and none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 27
+        assert protocols.count('DSI') == 18
+        assert protocols.count('AFP') == 8
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dsi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dsi_header(self, cmd_tshark, capture_file, test_env):
+        '''The header of every DSI PDU: the data offset of requests, the
+        error code of replies, nothing for unknown flags.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsi_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edsi.flags', '-edsi.command',
+                '-edsi.requestid', '-edsi.data_offset', '-edsi.error_code',
+                '-edsi.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00\t3\t0\t0\t\t0', '2\t0x01\t3\t0\t\t0\t535',
+            '3\t0x00\t4\t1\t0\t\t17', '4\t0x01\t4\t1\t\t0\t6',
+            '5\t0x00\t2\t2\t0\t\t2', '6\t0x01\t2\t2\t\t0\t27',
+            '7\t0x00\t6\t3\t12\t\t76', '8\t0x01\t6\t3\t\t0\t4',
+            '9\t0x00\t2\t4\t0\t\t4', '10\t0x01\t2\t4\t\t-5019\t0',
+            '11\t0x00\t8\t32768\t0\t\t2', '12\t0x00\t8\t32769\t0\t\t2',
+            '13\t0x00\t8\t32770\t0\t\t2', '14\t0x00\t8\t32771\t0\t\t2',
+            '15\t0x00\t8\t32772\t0\t\t0', '16\t0x00\t5\t5\t0\t\t0',
+            '17\t0x00\t5\t32773\t0\t\t0', '18\t0x00,0x00\t5,5\t6,7\t0,0\t\t0,0',
+            '19\t\t\t\t\t\t', '20\t0x00\t2\t8\t0\t\t2', '21\t0x01\t2\t8\t\t0\t27',
+            '22\t0x00\t7\t9\t0\t\t4', '23\t0x01\t5\t10\t\t0\t0',
+            '24\t0x00\t1\t11\t0\t\t0', '25\t0x01\t1\t11\t\t0\t0',
+            '26\t0x02\t32\t12\t\t\t4', '27\t0x03\t5\t13\t\t\t0',
+        ]
+
+    def test_dsi_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the DSI only frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,4,15,22,24,26,27}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Request GetStatus (0)', 'Reply OpenSession (1)',
+            'Request Attention (32772)', 'Request Unknown (9)',
+            'Request CloseSession (11)',
+            'Unknown flag (0x02) Unknown function (0x20) (12)',
+            'Unknown flag (0x03) Tickle (13)',
+        ]
+
+    def test_dsi_open_session(self, cmd_tshark, capture_file, test_env):
+        '''Open Session options: attention quantum, replay cache size, an
+        unknown option and the server quantum.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsi_coverage.pcap.gz'),
+                '-Y', 'dsi.command == 4',
+                '-Tfields', '-edsi.open_type', '-edsi.open_len',
+                '-edsi.open_quantum', '-edsi.replay_cache', '-edsi.open_option',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1,2,7\t4,4,3\t1024\t128\t010203',
+            '0\t4\t1048576\t\t',
+        ]
+
+    def test_dsi_attention(self, cmd_tshark, capture_file, test_env):
+        '''Attention flags with a time or, for notifications, a bitmap;
+        an Attention without a flag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsi_coverage.pcap.gz'),
+                '-Y', 'dsi.command == 8',
+                '-Tfields', '-edsi.attn_flag', '-edsi.attn_flag.shutdown',
+                '-edsi.attn_flag.msg', '-edsi.attn_flag.time',
+                '-edsi.attn_flag.bitmap',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0002\tFalse\tTrue\t0\t', '0x0003\tFalse\tTrue\t\t0x0003',
+            '0x0008\tTrue\tFalse\t5\t', '0x0009\tTrue\tFalse\t0\t',
+            '\t\t\t\t',
+        ]
+
+    def test_dsi_server_status(self, cmd_tshark, capture_file, test_env):
+        '''The GetStatus reply is handed to the AFP server status.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2',
+                '-Tfields', '-eafp.server_name', '-eafp.server_type',
+                '-eafp.server_vers', '-eafp.utf8_server_name',
+                '-E', 'aggregator=|',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Synthetic DSI Server\tXserve\tAFP2.2|AFPX03|AFP3.1\tSynthetic DSI Server é',
+        ]
+
+    def test_dsi_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A Command split over two segments is reassembled; without
+        desegmentation both halves are malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {19,20}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-etcp.reassembled.length',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[1:] for l in stdout.splitlines()] == [
+            ['49152 → 548 [PSH, ACK] Seq=228 Ack=757 Win=65535 Len=10', ''],
+            ['FPGetSrvrParms request', '18'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsi_coverage.pcap.gz'),
+                '-o', 'dsi.desegment:FALSE',
+                '-Y', '_ws.malformed',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['19', '20']
