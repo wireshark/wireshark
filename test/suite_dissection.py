@@ -45720,3 +45720,182 @@ class TestDissectDof:
                 '352\tSGMP Request Group',
                 '353\tSGMP Request Group Response',
             ]
+
+
+class TestDissectDoip:
+    def test_doip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''DoIP over UDP and TCP port 13400, diagnostic messages with UDS,
+        and no malformed packets, warnings or errors in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('doip_coverage.pcap.gz'),
+                '-Y', 'doip',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 49
+        assert protocols.count('DoIP') == 38
+        assert protocols.count('UDS') == 11
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('doip_coverage.pcap.gz'),
+                '-Y', 'udp && doip',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 22
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('doip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_doip_headers(self, cmd_tshark, capture_file, test_env):
+        '''Version, payload type and length of every message, and the Info
+        column for each version (0xff only for vehicle identification
+        requests), unknown payload types and several messages in one
+        datagram or segment, the same in one and two passes.'''
+        expected = [
+            '1\t0xff\t0x0001\t0\tVehicle identification request',
+            '2\t0x02\t0x0004\t33\tVehicle announcement message/vehicle identification response message',
+            '3\t0xff\t0x0002\t6\tVehicle identification request with EID',
+            '4\t0x01\t0x0004\t32\tVehicle announcement message/vehicle identification response message',
+            '5\t0x03\t0x0003\t17\tVehicle identification request with VIN',
+            '6\t0x03\t0x0004\t33\tVehicle announcement message/vehicle identification response message',
+            '7\t0x02\t0x4001\t0\tDoIP entity status request',
+            '8\t0x02\t0x4002\t7\tDoIP entity status response',
+            '9\t0x01\t0x4002\t3\tDoIP entity status response',
+            '10\t0x02\t0x4003\t0\tDiagnostic power mode information request',
+            '11\t0x02\t0x4004\t1\tDiagnostic power mode information response',
+            '12\t0x04\t0x4004\t1\tDiagnostic power mode information response',
+            '13\t0x02\t0x0000\t1\tGeneric DoIP header NACK',
+            '14\t0x02\t0x0000\t1\tGeneric DoIP header NACK',
+            '15\t0x02\t0x0000\t1\tGeneric DoIP header NACK',
+            '16\t0x02\t0x0000\t1\tGeneric DoIP header NACK',
+            '17\t0x02\t0x0000\t1\tGeneric DoIP header NACK',
+            '18\t0x02\t0x9000\t2\t0x9000 Unknown Payload',
+            '19\t0x00\t0x0001\t0\tInvalid/unsupported DoIP version',
+            '20\t0xff\t0x4001\t0\tInvalid/unsupported DoIP version',
+            '21\t0x02,0x02\t0x4001,0x4003\t0,0\tDoIP entity status request / Diagnostic power mode information request',
+            '22\t0xff\t0x0000\t1\tInvalid/unsupported DoIP version',
+            '26\t0x02\t0x0005\t11\tRouting activation request',
+            '27\t0x02\t0x0006\t13\tRouting activation response',
+            '29\t0x02\t0x8002\t7\tDiagnostic message ACK',
+            '32\t0x02\t0x8002\t5\tDiagnostic message ACK',
+            '35\t0x02\t0x8003\t7\tDiagnostic message NACK',
+            '37\t0x02\t0x8003\t5\tDiagnostic message NACK',
+            '38\t0x02\t0x0007\t0\tAlive check request',
+            '39\t0x02\t0x0008\t2\tAlive check response',
+            '47\t0x02\t0x7000\t1\t0x7000 Unknown Payload',
+            '51\t0x01\t0x0005\t12\tRouting activation request',
+            '52\t0x01\t0x0005\t8\tRouting activation request',
+            '53\t0x03\t0x0005\t7\tRouting activation request',
+            '54\t0x04\t0x0005\t7\tRouting activation request',
+            '55\t0x03\t0x0006\t9\tRouting activation response',
+            '56\t0x04\t0x0006\t9\tRouting activation response',
+            '57\t0x01\t0x0003\t17\tVehicle identification request with VIN',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('doip_coverage.pcap.gz'),
+                    '-Y', 'doip && !uds',
+                    '-Tfields', '-eframe.number', '-edoip.version',
+                    '-edoip.type', '-edoip.length', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+
+    def test_doip_identification(self, cmd_tshark, capture_file, test_env):
+        '''Vehicle announcements with and without the optional sync
+        status, entity status with and without the maximum data size,
+        power mode and generic NACK codes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('doip_coverage.pcap.gz'),
+                '-Y', 'doip.vin || doip.eid || doip.node_type || doip.power_mode || doip.nack_code',
+                '-Tfields', '-eframe.number', '-edoip.vin',
+                '-edoip.logical_address', '-edoip.eid', '-edoip.gid',
+                '-edoip.further_action', '-edoip.sync_status',
+                '-edoip.node_type', '-edoip.max_sockets', '-edoip.sockets',
+                '-edoip.max_data_size', '-edoip.power_mode', '-edoip.nack_code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\tWDB1234567X890123\t0x1001\t020000000014\t0200000000aa\t0x00\t0x00\t\t\t\t\t\t',
+            '3\t\t\t020000000014\t\t\t\t\t\t\t\t\t',
+            '4\tWDB1234567X890123\t0x1001\t020000000014\t0200000000aa\t0x10\t\t\t\t\t\t\t',
+            '5\tWDB1234567X890123\t\t\t\t\t\t\t\t\t\t\t',
+            '6\tWDB1234567X890123\t0x1002\t020000000014\t0200000000aa\t0x00\t0x10\t\t\t\t\t\t',
+            '8\t\t\t\t\t\t\t0x00\t16\t2\t4096\t\t',
+            '9\t\t\t\t\t\t\t0x01\t4\t0\t\t\t',
+            '11\t\t\t\t\t\t\t\t\t\t\t0x01\t',
+            '12\t\t\t\t\t\t\t\t\t\t\t0x02\t',
+            '13\t\t\t\t\t\t\t\t\t\t\t\t0x00',
+            '14\t\t\t\t\t\t\t\t\t\t\t\t0x01',
+            '15\t\t\t\t\t\t\t\t\t\t\t\t0x02',
+            '16\t\t\t\t\t\t\t\t\t\t\t\t0x03',
+            '17\t\t\t\t\t\t\t\t\t\t\t\t0x04',
+            '22\t\t\t\t\t\t\t\t\t\t\t\t0x00',
+            '57\tWDB1234567X890123\t\t\t\t\t\t\t\t\t\t\t',
+        ]
+
+    def test_doip_routing_activation(self, cmd_tshark, capture_file, test_env):
+        '''Routing activation requests of every protocol version (2 octet
+        activation type in version 1, 1 octet in versions 2 and 3, only
+        the source address in version 4), with and without OEM data, and
+        their responses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('doip_coverage.pcap.gz'),
+                '-Y', 'doip.type in {5,6}',
+                '-Tfields', '-eframe.number', '-edoip.source_address',
+                '-edoip.activation_type_v1', '-edoip.activation_type',
+                '-edoip.tester_logical_address', '-edoip.response_code',
+                '-edoip.reserved_iso', '-edoip.reserved_oem',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '26\t0x0e00\t\t0x00\t\t\t0x00000000\t0x11223344',
+            '27\t0x1001\t\t\t0x0e00\t0x10\t0x00000000\t0x55667788',
+            '51\t0x0e01\t0x0000\t\t\t\t0x00000000\t0x01020304',
+            '52\t0x0e01\t0x0001\t\t\t\t0x00000000\t',
+            '53\t0x0e02\t\t0xe0\t\t\t0x00000000\t',
+            '54\t0x0e03\t\t\t\t\t\t',
+            '55\t0x1001\t\t\t0x0e02\t0x00\t0x00000000\t',
+            '56\t0x1001\t\t\t0x0e03\t0x06\t0x00000000\t',
+        ]
+
+    def test_doip_diagnostic(self, cmd_tshark, capture_file, test_env):
+        '''Diagnostic messages are passed to UDS with their addresses;
+        ACK and NACK with and without the previous message; three
+        messages in one segment and messages reassembled from several
+        segments, the same in one and two passes.'''
+        expected = [
+            '28\t0x0e00\t0x1001\t\t\t\t0x10\t\t',
+            '29\t0x1001\t0x0e00\t0x00\t\t1003\t\t\t',
+            '30\t0x1001\t0x0e00\t\t\t\t0x10\t\t',
+            '31\t0x0e00\t0x1001\t\t\t\t0x22\t\t',
+            '32\t0x1001\t0x0e00\t0x00\t\t\t\t\t',
+            '33\t0x1001\t0x0e00\t\t\t\t0x22\t\t',
+            '34\t0x0e00\t0x1002\t\t\t\t0x11\t\t',
+            '35\t0x1002\t0x0e00\t\t0x03\t1101\t\t\t',
+            '36\t0x0e00\t0x1003\t\t\t\t0x3e\t\t',
+            '37\t0x1003\t0x0e00\t\t0x06\t\t\t\t',
+            '40\t0x0e00,0x0e00,0x0e00\t0x1001,0x1001\t\t\t\t0x3e,0x19\t\t',
+            '43\t0x1001\t0x0e00\t\t\t\t0x19\t\t41,42,43',
+            '45\t0x0e00\t0x1001\t\t\t\t0x22\t\t44,45',
+            '46\t0x0e00\t0x1001\t\t\t\t0x22\t\t45,46',
+            '58\t0x1001\t0x0e02\t\t\t\t0x3f\t\t',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('doip_coverage.pcap.gz'),
+                    '-Y', 'doip.type >= 0x8001 && doip.type <= 0x8003',
+                    '-Tfields', '-eframe.number', '-edoip.source_address',
+                    '-edoip.target_address', '-edoip.diag_ack_code',
+                    '-edoip.diag_nack_code', '-edoip.previous', '-euds.sid',
+                    '-edoip.data', '-etcp.segment',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('doip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 40',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split(' / ')[1] == 'Alive check response'
+        assert stdout.count(' / ') == 2
