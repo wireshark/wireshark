@@ -529,6 +529,7 @@ dissect_e164_cc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 	uint8_t	cc_length;
 	uint8_t	length;
 	uint16_t cc = 0;
+	unsigned	ndigits = 0;
 	bool bcd_ok = false;
 	proto_item *item = NULL;
 
@@ -560,9 +561,13 @@ dissect_e164_cc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 		break;
 	case E164_ENC_UTF8:
 		/* XXX - do we need to worry about leading 0s? */
+		/* Read only the digits the number has */
+		ndigits = tvb_captured_length_remaining(tvb, cc_offset);
 		cc  = (tvb_get_uint8(tvb, cc_offset)   - '0') << 8;
-		cc |= (tvb_get_uint8(tvb, cc_offset+1) - '0') << 4;
-		cc |= (tvb_get_uint8(tvb, cc_offset+2) - '0');
+		if (ndigits > 1)
+			cc |= (tvb_get_uint8(tvb, cc_offset+1) - '0') << 4;
+		if (ndigits > 2)
+			cc |= (tvb_get_uint8(tvb, cc_offset+2) - '0');
 		break;
 	}
 
@@ -672,6 +677,12 @@ dissect_e164_cc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 		break;
 	} /* End switch cc */
 
+	/* A number shorter than its Country Code has no Country Code to show */
+	if (encoding == E164_ENC_UTF8 && cc_length > ndigits)
+		return;
+	if (encoding == E164_ENC_BCD && (cc_length == 0 || cc_length == 3) && !tvb_bytes_exist(tvb, cc_offset+1, 1))
+		return;
+
 	/* (Now that we know how long the CC is,)
 	 * shift off any extra digits we got.
 	 */
@@ -704,6 +715,8 @@ dissect_e164_cc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 	/* Handle special Country Codes */
 	switch (cc) {
 	case 881:
+		if (!tvb_bytes_exist(tvb, cc_offset + (encoding == E164_ENC_UTF8 ? cc_length : 1), 1))
+			break;
 		/* Get the 1-digit ID code */
 		switch (encoding) {
 		case E164_ENC_BINARY:
@@ -724,6 +737,8 @@ dissect_e164_cc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 		}
 		break;
 	case 882:
+		if (!tvb_bytes_exist(tvb, cc_offset + (encoding == E164_ENC_UTF8 ? cc_length : 1), 2))
+			break;
 		/* Get the 2-digit ID code */
 		switch (encoding) {
 		case E164_ENC_BINARY:
@@ -747,6 +762,8 @@ dissect_e164_cc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 		}
 		break;
 	case 883:
+		if (!tvb_bytes_exist(tvb, cc_offset + (encoding == E164_ENC_UTF8 ? cc_length : 1), encoding == E164_ENC_UTF8 ? 3 : 2))
+			break;
 		/* Get the 3-digit ID code */
 		switch (encoding) {
 		case E164_ENC_BINARY:
@@ -764,7 +781,8 @@ dissect_e164_cc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
 			id_code |= (tvb_get_uint8(tvb, cc_offset+cc_length+2) - '0');
 			break;
 		}
-		if ((id_code & 0x0ff0) == 0x510) {
+		if ((id_code & 0x0ff0) == 0x510 &&
+		    tvb_bytes_exist(tvb, cc_offset + (encoding == E164_ENC_UTF8 ? cc_length + 3 : 3), 1)) {
 			/* Get the 4th digit of the ID code */
 			switch (encoding) {
 			case E164_ENC_BINARY:
@@ -822,7 +840,11 @@ dissect_e164(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset, in
 
 	subtree = proto_item_add_subtree(pi, ett_e164_msisdn);
 
-	dissect_e164_cc(tvb, pinfo, subtree, offset, encoding);
+	/* Do not let the Country Code parser read past the number */
+	if (length > 0)
+		dissect_e164_cc(tvb_new_subset_length(tvb, offset, length), pinfo, subtree, 0, encoding);
+	else if (length < 0 && tvb_captured_length_remaining(tvb, offset) > 0)
+		dissect_e164_cc(tvb_new_subset_remaining(tvb, offset), pinfo, subtree, 0, encoding);
 
 	return number_str;
 }
