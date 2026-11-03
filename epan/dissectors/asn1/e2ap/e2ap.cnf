@@ -746,17 +746,25 @@ RICQueryResponse                         N e2ap.proc.sout id-RICquery
 
 
 #.FN_BODY TNLinformation/tnlAddress VAL_PTR=&value_tvb
-  tvbuff_t *value_tvb;
+  tvbuff_t *value_tvb = NULL;
 %(DEFAULT_BODY)s
-  if (tvb_captured_length(value_tvb)==4) {
+  if (value_tvb && tvb_captured_length(value_tvb)==4) {
     proto_item_append_text(tree, " (%%s", tvb_ip_to_str(actx->pinfo->pool, value_tvb, 0));
   }
-  else {
+  else if (value_tvb && tvb_captured_length(value_tvb)==16) {
     proto_item_append_text(tree, " (%%s", tvb_ip6_to_str(actx->pinfo->pool, value_tvb, 0));
+  }
+  else if (value_tvb && tvb_captured_length(value_tvb)==20) {
+    /* IPv4 address followed by IPv6 address */
+    proto_item_append_text(tree, " (%%s, %%s", tvb_ip_to_str(actx->pinfo->pool, value_tvb, 0),
+                           tvb_ip6_to_str(actx->pinfo->pool, value_tvb, 4));
+  }
+  else {
+    proto_item_append_text(tree, " (");
   }
 
 #.FN_BODY TNLinformation/tnlPort
-  proto_item_append_text(tree, ":%%u)", tvb_get_ntohs(tvb, offset/8));
+  proto_item_append_text(tree, ":%%u)", tvb_get_bits16(tvb, offset, 16, ENC_BIG_ENDIAN));
 %(DEFAULT_BODY)s
 
 
