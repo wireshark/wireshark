@@ -3390,10 +3390,14 @@ static bool secmode_list_update_cb(void *r, char **err)
     *err = NULL;
 
     size = (uint32_t)strlen(rec->domain);
-    if (!VALIDHEX(rec->domain[0]) && !dof_oid_create_internal(rec->domain, &size, NULL))
+    if (!VALIDHEX(rec->domain[0]))
     {
-        *err = g_strdup("Invalid domain [must be valid OID].");
-        return false;
+        /* dof_oid_create_internal() returns 0 for a valid OID string. */
+        if (dof_oid_create_internal(rec->domain, &size, NULL))
+        {
+            *err = g_strdup("Invalid domain [must be valid OID].");
+            return false;
+        }
     }
     else if (!count_hex_bytes(rec->domain))
     {
@@ -3402,10 +3406,14 @@ static bool secmode_list_update_cb(void *r, char **err)
     }
 
     size = (uint32_t)strlen(rec->identity);
-    if (!VALIDHEX(rec->identity[0]) && !dof_oid_create_internal(rec->identity, &size, NULL))
+    if (!VALIDHEX(rec->identity[0]))
     {
-        *err = g_strdup("Invalid identity [must be valid OID].");
-        return false;
+        /* dof_oid_create_internal() returns 0 for a valid OID string. */
+        if (dof_oid_create_internal(rec->identity, &size, NULL))
+        {
+            *err = g_strdup("Invalid identity [must be valid OID].");
+            return false;
+        }
     }
     else if (!count_hex_bytes(rec->identity))
     {
@@ -7310,28 +7318,11 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                 if (sh_flags & DPP_V2_SEC_FLAG_E)
                 {
-                    /* If we get here without success, then we can only bail. */
-                    if (packet_data->security_session_error)
-                    {
-                        col_set_str(pinfo->cinfo, COL_INFO, packet_data->security_session_error);
-                        proto_item_set_end(tree, tvb, offset);
-                        expert_add_info(pinfo, security_tree, &ei_dpp_no_security_context);
-                        {
-                            tvbuff_t *data_tvb = tvb_new_subset_remaining(tvb, offset);
-                            call_data_dissector(data_tvb, pinfo, tree);
-                        }
-                        proto_item_set_len(security_tree, offset - sec_offset);
-                        return offset;
-                    }
-
-                    if (!api_data->secure_session)
-                    {
+                    if (!packet_data->security_session_error && !api_data->secure_session)
                         packet_data->security_session_error = "[Encrypted - No Session Available]";
-                        proto_item_set_len(security_tree, offset - sec_offset);
-                        return offset;
-                    }
 
                     /* Security has not failed, and we have a security session. */
+                    if (!packet_data->security_session_error)
                     {
                         dissector_table_t sec_header = find_dissector_table("dof.secmode");
                         /* TODO: CCM is hardcoded. We should try all of the sessions, which could mean multiple security modes. */
@@ -7347,14 +7338,30 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                             sdata.session_key_data = NULL;
 
                             offset += call_dissector_only(dp, tvb, pinfo, security_tree, &sdata);
-
-                            if (!packet_data->decrypted_buffer)
-                            {
-                                proto_item_set_end(tree, tvb, offset);
-                                proto_item_set_len(security_tree, offset - sec_offset);
-                                return offset;
-                            }
                         }
+                    }
+
+                    /* If we get here without success, then we can only bail. The
+                     * error is shown in every pass, including the one that found it.
+                     */
+                    if (packet_data->security_session_error)
+                    {
+                        col_set_str(pinfo->cinfo, COL_INFO, packet_data->security_session_error);
+                        proto_item_set_end(tree, tvb, offset);
+                        expert_add_info(pinfo, security_tree, &ei_dpp_no_security_context);
+                        {
+                            tvbuff_t *data_tvb = tvb_new_subset_remaining(tvb, offset);
+                            call_data_dissector(data_tvb, pinfo, tree);
+                        }
+                        proto_item_set_len(security_tree, offset - sec_offset);
+                        return offset;
+                    }
+
+                    if (!packet_data->decrypted_buffer)
+                    {
+                        proto_item_set_end(tree, tvb, offset);
+                        proto_item_set_len(security_tree, offset - sec_offset);
+                        return offset;
                     }
                 }
                 proto_item_set_len(security_tree, offset - sec_offset);
@@ -7957,8 +7964,14 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             {
                 /* There is still a MAC involved, and even though we don't need a new
                 * buffer we need to adjust the length of the existing buffer.
+                * The MAC is not checked. Keep a copy of the (clear) payload as the
+                * secured buffer, so that it is dissected and seen as secured.
                 */
-                app = tvb_new_subset_length(tvb, offset, e_len - session->mac_len);
+                unsigned plain_len = e_len - session->mac_len;
+
+                app = tvb_new_subset_length(tvb, offset, plain_len);
+                if (!dof_packet->decrypted_buffer && plain_len > 0)
+                    dof_packet->decrypted_buffer = (uint8_t *)tvb_memdup(wmem_file_scope(), app, 0, plain_len);
                 dof_packet->decrypted_tvb = app;
                 dof_packet->decrypted_offset = 0;
             }
@@ -7997,6 +8010,13 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                         dof_packet->decrypted_buffer_error = "[Encrypted packet - decryption failure]";
                     }
                 }
+            }
+
+            /* Show a failure found just now as the later passes do (above). */
+            if (dof_packet->decrypted_buffer_error)
+            {
+                col_set_str(pinfo->cinfo, COL_INFO, dof_packet->decrypted_buffer_error);
+                expert_add_info(pinfo, tree, &ei_decode_failure);
             }
         }
 
@@ -9574,13 +9594,6 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             offset += 32;
         }
 
-        /* Add a field to show the session key that has been learned. */
-        if (rekey_data->key_data && rekey_data->key_data->session_key && tep_tree)
-        {
-            ti = proto_tree_add_bytes_with_length(tree, hf_tep_session_key, tvb, 0, 0, rekey_data->key_data->session_key, 32);
-            proto_item_set_generated(ti);
-        }
-
         /* Responder Initialization - present based on whether the command was a rekey */
         {
 
@@ -9773,6 +9786,15 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 }
             }
         }
+
+        /* Add a field to show the session key that has been learned (in this
+         * pass or an earlier one).
+         */
+        if (rekey_data->key_data && rekey_data->key_data->session_key && tep_tree)
+        {
+            ti = proto_tree_add_bytes_with_length(tree, hf_tep_session_key, tvb, 0, 0, rekey_data->key_data->session_key, 32);
+            proto_item_set_generated(ti);
+        }
     }
         break;
 
@@ -9910,11 +9932,6 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         unsigned domain_length = 0;
         int start_offset;
 
-        if (trp_data && trp_data->identity_length)
-        {
-            expert_add_info(pinfo, ti, &ei_trp_initiator_id_known);
-        }
-
         /* Domain - Security.7 */
         start_offset = offset;
         offset = dof_dissect_pdu_as_field(dissect_2008_16_security_7, tvb, pinfo, trp_tree, offset, hf_domain, ett_domain, NULL);
@@ -9972,6 +9989,12 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                     }
                 }
             }
+
+            /* The initiator is in the identity table (found now or in an
+             * earlier pass).
+             */
+            if (trp_pkt_data || (trp_data && trp_data->identity_length))
+                expert_add_info(pinfo, ti, &ei_trp_initiator_id_known);
 
             /* Group Identifier - Security.8 */
             {
@@ -10221,11 +10244,6 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         unsigned domain_length = 0;
         int start_offset;
 
-        if (trp_data && trp_data->identity_length)
-        {
-            expert_add_info(pinfo, ti, &ei_trp_initiator_id_known);
-        }
-
         /* Domain - Security.7 */
         start_offset = offset;
         offset = dof_dissect_pdu_as_field(dissect_2008_16_security_7, tvb, pinfo, trp_tree,
@@ -10285,6 +10303,12 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 }
             }
 
+            /* The initiator is in the identity table (found now or in an
+             * earlier pass).
+             */
+            if (trp_pkt_data || (trp_data && trp_data->identity_length))
+                expert_add_info(pinfo, ti, &ei_trp_initiator_id_known);
+
             if (trp_pkt_data)
             {
                 /* We need to store the entire block_I for later use. */
@@ -10309,11 +10333,6 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         uint8_t *domain_buf = NULL;
         unsigned domain_length = 0;
         int start_offset;
-
-        if (trp_data && trp_data->identity_length)
-        {
-            expert_add_info(pinfo, ti, &ei_trp_initiator_id_known);
-        }
 
         /* Domain - Security.7 */
         start_offset = offset;
@@ -10377,6 +10396,12 @@ static int dissect_trp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                     }
                 }
             }
+
+            /* The initiator is in the identity table (found now or in an
+             * earlier pass).
+             */
+            if (trp_pk_data || (trp_data && trp_data->identity_length))
+                expert_add_info(pinfo, ti, &ei_trp_initiator_id_known);
 
             /* Node - Security.8 */
             {
@@ -10632,8 +10657,30 @@ static void dof_reset(void)
         {
             unsigned kek_len;
             dof_group_data *group_data = global_security.group_data + i;
-            parse_hex_string(list[i].domain, &(group_data->domain), &(group_data->domain_length));
-            parse_hex_string(list[i].identity, &(group_data->identity), &(group_data->identity_length));
+            uint32_t size;
+
+            /* Hex digits or an OID string, as for the identity secrets. */
+            if (VALIDHEX(list[i].domain[0]))
+            {
+                parse_hex_string(list[i].domain, &(group_data->domain), &(group_data->domain_length));
+            }
+            else
+            {
+                size = (uint32_t)strlen(list[i].domain);
+                dof_oid_new_standard_string(list[i].domain, &size, &(group_data->domain));
+                group_data->domain_length = size;
+            }
+
+            if (VALIDHEX(list[i].identity[0]))
+            {
+                parse_hex_string(list[i].identity, &(group_data->identity), &(group_data->identity_length));
+            }
+            else
+            {
+                size = (uint32_t)strlen(list[i].identity);
+                dof_oid_new_standard_string(list[i].identity, &size, &(group_data->identity));
+                group_data->identity_length = size;
+            }
             parse_hex_string(list[i].kek, &(group_data->kek), &kek_len);
         }
     }
