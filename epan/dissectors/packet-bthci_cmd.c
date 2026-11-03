@@ -11565,6 +11565,21 @@ dissect_zigbee_direct_adv_data(proto_tree *tree, tvbuff_t *tvb, const int start,
     proto_tree_add_item(tree, hf_btcommon_eir_ad_zd_zigbee_nwkaddr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 }
 
+static bluetooth_eir_ad_apple_data_t *
+bluetooth_eir_ad_get_apple_data(packet_info *pinfo)
+{
+    bluetooth_eir_ad_apple_data_t *apple_data;
+
+    apple_data = (bluetooth_eir_ad_apple_data_t *) p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_EIR_AD_APPLE);
+    if (apple_data == NULL) {
+        apple_data = wmem_new0(pinfo->pool, bluetooth_eir_ad_apple_data_t);
+        p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_EIR_AD_APPLE, apple_data);
+    }
+
+    return apple_data;
+}
+
+
 static int
 dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetooth_eir_ad_data_t *bluetooth_eir_ad_data)
 {
@@ -11586,6 +11601,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     bluetooth_uuid_t uuid;
     uint32_t     interval, num_bis;
     bluetooth_eir_ad_data_t default_eir_ad_data = { HCI_INTERFACE_DEFAULT, HCI_ADAPTER_DEFAULT, NULL };
+    bluetooth_eir_ad_apple_data_t *apple_data;
 
     /* An Exported PDU file can call the registered handles without data */
     if (bluetooth_eir_ad_data == NULL)
@@ -11614,7 +11630,8 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
         switch (type) {
         case 0x01: /* Flags */
-            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_flags_reserved, tvb, offset, 1, ENC_NA);
+            apple_data = bluetooth_eir_ad_get_apple_data(pinfo);
+            proto_tree_add_item_ret_uint(entry_tree, hf_btcommon_eir_ad_flags_reserved, tvb, offset, 1, ENC_NA, &apple_data->apple_os_flag);
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_flags_le_bredr_support_host, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_flags_le_bredr_support_controller, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_flags_bredr_not_support, tvb, offset, 1, ENC_NA);
@@ -11728,6 +11745,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
         case 0x0A: /* Tx Power Level */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_tx_power, tvb, offset, 1, ENC_NA);
             offset += 1;
+            bluetooth_eir_ad_get_apple_data(pinfo)->ios_13_flag = 1;
 
             break;
         case 0x0B: /* OOB Optional Data Length */

@@ -15049,7 +15049,7 @@ class TestDissectBluetooth:
         ]
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('bluetooth_coverage.pcapng.gz'),
-                '-Y', 'alt_beacon || ibeacon',
+                '-Y', 'alt_beacon || bluetooth.apple.type == 0x02',
                 '-Tfields', '-eframe.number', '-ebluetooth.alt_beacon.code',
                 '-ebluetooth.alt_beacon.reference_rssi', '-ebluetooth.apple.ibeacon.uuid128',
                 '-ebluetooth.apple.ibeacon.major', '-ebluetooth.apple.ibeacon.minor',

@@ -19,6 +19,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define PROTO_DATA_BLUETOOTH_SERVICE_UUID  0
+#define PROTO_DATA_BLUETOOTH_EIR_AD_APPLE  1
 
 #define BLUETOOTH_DATA_SRC 0
 #define BLUETOOTH_DATA_DST 1
@@ -299,6 +300,11 @@ typedef struct _bluetooth_eir_ad_data_t {
     uint8_t          *bd_addr;
 } bluetooth_eir_ad_data_t;
 
+/* Apple vendor specific data */
+typedef struct _bluetooth_eir_ad_apple_data_t {
+    uint32_t          apple_os_flag;
+    uint32_t          ios_13_flag;
+} bluetooth_eir_ad_apple_data_t;
 
 extern int bluetooth_device_tap;
 extern int bluetooth_hci_summary_tap;
