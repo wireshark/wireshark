@@ -51793,3 +51793,110 @@ class TestDissectEhdlc:
             ['ehdlc', 'gsm_abis_oml'],
             [],
         ]
+
+
+class TestDissectEhs:
+    def test_ehs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an Exported PDU for EHS; the CCSDS based
+        protocols carry a CCSDS space packet. No malformed packets or
+        expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehs_coverage.pcap.gz'),
+                '-Tfields', '-eehs.protocol', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\texported_pdu:ehs:ccsds',
+            '1\texported_pdu:ehs:ccsds',
+            '1\texported_pdu:ehs:ccsds',
+            '3\texported_pdu:ehs:ccsds',
+            '10\texported_pdu:ehs:ccsds',
+            '10\texported_pdu:ehs:ccsds',
+            '11\texported_pdu:ehs:ccsds',
+            '12\texported_pdu:ehs:ccsds',
+            '13\texported_pdu:ehs',
+            '14\texported_pdu:ehs:ccsds',
+            '14\texported_pdu:ehs:ccsds',
+            '2\texported_pdu:ehs',
+            '4\texported_pdu:ehs',
+            '5\texported_pdu:ehs',
+            '6\texported_pdu:ehs',
+            '7\texported_pdu:ehs',
+            '8\texported_pdu:ehs',
+            '9\texported_pdu:ehs',
+            '15\texported_pdu:ehs',
+            '0\texported_pdu:ehs',
+            '32\texported_pdu:ehs',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ehs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ehs_primary_header(self, cmd_tshark, capture_file, test_env):
+        '''Version, project, support and data modes, mission, flags and
+        the HOSC packet size of the primary header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehs_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,3,4,12,21}',
+                '-Tfields', '-eehs.version', '-eehs.project',
+                '-eehs.support_mode', '-eehs.data_mode', '-eehs.mission',
+                '-eehs.new_data_flag', '-eehs.hold_flag', '-eehs.sign_flag',
+                '-eehs.hosc_packet_size',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t3\t1\t1\t42\tTrue\tFalse\t0\t80',
+            '1\t1\t3\t0\t42\tFalse\tTrue\t1\t53',
+            '1\t4\t7\t15\t42\tTrue\tFalse\t0\t59',
+            '1\t0\t0\t0\t42\tTrue\tFalse\t0\t46',
+            '2\t3\t1\t1\t42\tTrue\tFalse\t0\t32',
+            '1\t9\t8\t0\t0\tFalse\tFalse\t0\t29',
+        ]
+
+    def test_ehs_tdm(self, cmd_tshark, capture_file, test_env):
+        '''The TDM secondary header with and without the CNT/MET time, the
+        OBT time and the major frame status bytes, and the minor frame
+        status bytes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehs_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1..3}',
+                '-V', '-O', 'ehs',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines.count('EHS Ground Receipt Time: 2026/307:12:34:56.7') == 3
+        assert 'CNT/MET Time: 2026/100:01:02:03.4' in lines
+        assert 'OBT Time: 2025/365:23:59:59.9' in lines
+        assert [l for l in lines if l.startswith('Secondary Header Length')] == [
+            'Secondary Header Length: 40',
+            'Secondary Header Length: 21',
+            'Secondary Header Length: 26',
+        ]
+        assert [l for l in lines if 'Frame Status Byte#' in l] == [
+            'Major Frame Status Byte# 0', 'Major Frame Status Byte# 1',
+            'Minor Frame Status Byte# 0', 'Minor Frame Status Byte# 1',
+            'Minor Frame Status Byte# 2',
+            'Minor Frame Status Byte# 0',
+            'Major Frame Status Byte# 0', 'Major Frame Status Byte# 1',
+            'Major Frame Status Byte# 2',
+            'Minor Frame Status Byte# 0', 'Minor Frame Status Byte# 1',
+        ]
+
+    def test_ehs_data_zones(self, cmd_tshark, capture_file, test_env):
+        '''The AOS/LOS and UDSM data zones after the CCSDS headers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ehs_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5,6,10,11}',
+                '-Tfields', '-eehs.dz.aoslos_indicator',
+                '-eehs.dz.udsm_apid', '-eehs.dz.udsm_start_time_jday',
+                '-eehs.dz.udsm_stop_time_second',
+                '-eehs.dz.udsm_num_pkts_xmtd', '-eehs.dz.udsm_event',
+                '-eehs.dz.udsm_num_pkts_xmtd_rollover',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t\t\t\t\t\t',
+            '0\t\t\t\t\t\t',
+            '\t85\t1\t58\t1000\t1\t4',
+            '\t85\t1\t58\t1000\t3\t4',
+        ]
