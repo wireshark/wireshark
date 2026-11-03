@@ -107,7 +107,7 @@ dissect_pkix1implicit_OBJECT_IDENTIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_
 
 static const ber_sequence_t AccessDescription_sequence[] = {
   { &hf_pkix1implicit_accessMethod, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_OBJECT_IDENTIFIER },
-  { &hf_pkix1implicit_accessLocation, BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralName },
+  { &hf_pkix1implicit_accessLocation, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralName },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -308,7 +308,7 @@ void proto_register_pkix1implicit(void) {
         "OBJECT_IDENTIFIER", HFILL }},
     { &hf_pkix1implicit_accessLocation,
       { "accessLocation", "pkix1implicit.accessLocation",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_pkix1implicit_noticeRef,
       { "noticeRef", "pkix1implicit.noticeRef_element",
