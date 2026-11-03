@@ -52606,3 +52606,126 @@ class TestDissectEnip:
             '0x01\t', '0x02\t', '0x03\t', '0x04\t', '0x05\t', '0x06\t',
             '0x07\t2', '0x07\t3', '0x08\t', '0x09\t', '0x0a\t', '0x20\t',
         ]
+
+
+class TestDissectEnrp:
+    def test_enrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ENRP and none is malformed or has an error
+        expert info, in one and two passes; only frames 19 and 20 reach
+        the recursion limit (a warning).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 23
+        assert protocols.count('ENRP') == 23
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('enrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('enrp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '19\tMaximum allowed recursion depth reached - stop decoding',
+                '20\tMaximum allowed recursion depth reached - stop decoding',
+            ]
+
+    def test_enrp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message type (and an unknown one) with its parameters.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enrp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 18',
+                '-Tfields', '-eenrp.message_type', '-eenrp.message_flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x01', '1\t0x00', '2\t0x01', '2\t0x00', '3\t0x02', '3\t0x01',
+            '4\t0x01', '4\t0x00', '5\t0x00', '6\t0x00', '6\t0x01', '7\t0x00',
+            '8\t0x00', '9\t0x00', '10,32\t0x00,0x00', '10,5\t0x00,0x00',
+            '66\t0x5a', '1\t0x00',
+        ]
+
+    def test_enrp_policies(self, cmd_tshark, capture_file, test_env):
+        '''Every pool member selection policy in the Handle Table
+        Response, with weights, loads, degradation and DPF values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-eenrp.pool_member_selection_policy_type',
+                '-eenrp.pool_member_selection_policy_weight',
+                '-eenrp.pool_member_selection_policy_distance',
+                '-eenrp.pool_member_selection_policy_value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == [
+            '0x00000002,0x00000003,0x00000004,0x00000005,0x40000001,0x40000002,'
+            '0x40000003,0x40000004,0xb0002002,0xb0002001,0xb0001003,0x12345678,'
+            '0x12345679',
+            '7,9,5', '1500,250', '000000010000000200000003,01020304\n',
+        ]
+
+    def test_enrp_error_causes(self, cmd_tshark, capture_file, test_env):
+        '''Every error cause; the unrecognized message cause holds an ENRP
+        message that is dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 15 || frame.number == 16',
+                '-Tfields', '-eenrp.cause_code', '-eenrp.message_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0001,0x0002,0x0003,0x0004,0x0005,0x0006,0x0007,0x0008,0x0009,'
+            '0x000a,0x0077,0x0078\t10,32',
+            '0x0002\t10,5',
+        ]
+
+    def test_enrp_bundled_messages(self, cmd_tshark, capture_file, test_env):
+        '''All twelve ENRP messages bundled in one SCTP packet are
+        dissected and shown in the Info column (only the first one was,
+        and the 12th not at all, before the recursion depth fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 22',
+                '-Tfields', '-eenrp.message_type', '-eenrp.sender_servers_id',
+                '-e_ws.expert.message', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        types, senders, expert, info = stdout.rstrip('\n').split('\t')
+        assert types.split(',') == ['5'] * 12
+        assert senders.split(',') == ['0x%08x' % (0x1000 + i) for i in range(12)]
+        assert expert == ''
+        assert info.split('ENRP List Request')[1:] == [' '] * 12
+
+    def test_enrp_stat(self, cmd_tshark, capture_file, test_env):
+        '''-z enrp,stat counts every top level message, with the shares
+        computed as floating point numbers (they were printed from the
+        wrong argument before the fix) and the table named ENRP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enrp_coverage.pcap.gz'),
+                '-q', '-z', 'enrp,stat',
+            ), encoding='utf-8', env=test_env)
+        lines = [' '.join(l.split()) for l in stdout.splitlines()]
+        assert 'ENRP Statistics:' in lines
+        assert any(l.startswith('ENRP Message Type |Messages |Messages Share (%) |') for l in lines)
+        rows = {l.split(' |')[0]: l.split(' |')[1:5] for l in lines if l.startswith('ENRP ') and ' |' in l}
+
+        def share(s):
+            # tshark prints the share with the locale's decimal separator
+            return s.replace(',', '.')
+        got = {k: [v[0], share(v[1]), v[2], share(v[3])] for k, v in rows.items()
+               if k != 'ENRP Message Type'}
+        assert got == {
+            'ENRP Presence': ['6', '17.647 %', '400', '22.989 %'],
+            'ENRP Handle Table Request': ['2', '5.882 %', '24', '1.379 %'],
+            'ENRP Handle Table Response': ['2', '5.882 %', '528', '30.345 %'],
+            'ENRP Handle Update': ['3', '8.824 %', '216', '12.414 %'],
+            'ENRP List Request': ['13', '38.235 %', '156', '8.966 %'],
+            'ENRP List Response': ['2', '5.882 %', '84', '4.828 %'],
+            'ENRP Init Takeover': ['1', '2.941 %', '16', '0.920 %'],
+            'ENRP Init Takeover Ack': ['1', '2.941 %', '16', '0.920 %'],
+            'ENRP Takeover Server': ['1', '2.941 %', '16', '0.920 %'],
+            'ENRP Error': ['3', '8.824 %', '284', '16.322 %'],
+        }
