@@ -26,6 +26,7 @@
 #include "packet-cms.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include "packet-x509ce.h"
 
 void proto_register_crmf(void);
 void proto_reg_handoff_crmf(void);
@@ -548,7 +549,7 @@ dissect_crmf_T_pubMethod(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offs
 
 static const ber_sequence_t SinglePubInfo_sequence[] = {
   { &hf_crmf_pubMethod      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_crmf_T_pubMethod },
-  { &hf_crmf_pubLocation    , BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_GeneralName },
+  { &hf_crmf_pubLocation    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_GeneralName },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -674,7 +675,7 @@ dissect_crmf_PKIArchiveOptions(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigne
 
 
 static const ber_sequence_t CertId_sequence[] = {
-  { &hf_crmf_issuer         , BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_GeneralName },
+  { &hf_crmf_issuer         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_GeneralName },
   { &hf_crmf_serialNumber   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_crmf_INTEGER_MIN_MAX },
   { NULL, 0, 0, 0, NULL }
 };
@@ -775,7 +776,7 @@ static const value_string crmf_T_identifier_vals[] = {
 
 static const ber_choice_t T_identifier_choice[] = {
   {   0, &hf_crmf_string         , BER_CLASS_UNI, BER_UNI_TAG_UTF8String, BER_FLAGS_NOOWNTAG, dissect_crmf_UTF8String },
-  {   1, &hf_crmf_generalName    , BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_GeneralName },
+  {   1, &hf_crmf_generalName    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_GeneralName },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1053,7 +1054,7 @@ void proto_register_crmf(void) {
         NULL, HFILL }},
     { &hf_crmf_sender,
       { "sender", "crmf.sender",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_crmf_publicKeyMAC,
       { "publicKeyMAC", "crmf.publicKeyMAC_element",
@@ -1121,7 +1122,7 @@ void proto_register_crmf(void) {
         NULL, HFILL }},
     { &hf_crmf_pubLocation,
       { "pubLocation", "crmf.pubLocation",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_crmf_encryptedPrivKey,
       { "encryptedPrivKey", "crmf.encryptedPrivKey",
@@ -1169,7 +1170,7 @@ void proto_register_crmf(void) {
         "BIT_STRING", HFILL }},
     { &hf_crmf_issuer,
       { "issuer", "crmf.issuer",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_crmf_enckeywid_privkey,
       { "privateKey", "crmf.enckeywid_privkey_element",
@@ -1185,7 +1186,7 @@ void proto_register_crmf(void) {
         "UTF8String", HFILL }},
     { &hf_crmf_generalName,
       { "generalName", "crmf.generalName",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         NULL, HFILL }},
     { &hf_crmf_privkey_version,
       { "version", "crmf.privkey_version",
