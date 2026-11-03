@@ -52102,3 +52102,104 @@ class TestDissectEiss:
             '91\t44\t7\t\t45454545454545454545454545454545454545454545454545454545454545454545454545454545',
             '34\t6\t9\t\t0001',
         ]
+
+
+class TestDissectElasticsearch:
+    def test_elasticsearch_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Zen pings over UDP and binary messages over TCP; no malformed
+        packets and no warnings or errors in one and two passes except
+        the warning for the frame that is not an Elasticsearch header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elasticsearch_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 21
+        assert protocols.count('Elasticsearch') == 18
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('elasticsearch_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '21\tUnsupported header type: Elasticsearch version < 0.20.0RC1',
+            ]
+
+    def test_elasticsearch_zen_ping(self, cmd_tshark, capture_file, test_env):
+        '''The discovery node of every Zen ping with IPv4, IPv6 (with a
+        scope ID) and host name transport addresses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elasticsearch_coverage.pcap.gz'),
+                '-Y', 'udp',
+                '-Tfields', '-e_ws.col.info', '-eelasticsearch.node_id',
+                '-eelasticsearch.host_name', '-eelasticsearch.address.ipv4',
+                '-eelasticsearch.address.ipv6',
+                '-eelasticsearch.address.ipv6.scope_id',
+                '-eelasticsearch.address.name', '-eelasticsearch.address.port',
+                '-eelasticsearch.attributes.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Zen Ping: cluster=cluster-a, name=node1, version=1.7.0\tnodeid-node1\tnode1.example\t192.0.2.31\t\t\t\t9300\t0',
+            'Zen Ping: cluster=cluster-a, name=node2, version=5.6.0\tnodeid-node2\tnode2.example\t\t2001:db8::31\t3\t\t9301\t0',
+            'Zen Ping: cluster=cluster-b, name=node3, version=6.8.0\tnodeid-node3\tnode3.example\t\t\t\tnode1.example\t9302\t0',
+            'Zen Ping: cluster=c, name=n4, version=7.10.2\tnodeid-n4\tn4.example\t192.0.2.31\t\t\t\t9300\t0',
+            'Zen Ping: cluster=c, name=n5, version=1.7.0\tnodeid-n5\tn5.example\t\t\t\tnode1.example\t9302\t130',
+        ]
+
+    def test_elasticsearch_binary(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses of every version range: thread context
+        headers from 5.0, features from 6.3, the header size from 7.6,
+        compressed and error messages, two responses in one segment and
+        a request over two segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elasticsearch_coverage.pcap.gz'),
+                '-Y', 'tcp.port == 9300 && elasticsearch && !(frame.number in {19,21})',
+                '-Tfields', '-e_ws.col.info', '-eelasticsearch.version',
+                '-eelasticsearch.header.size', '-eelasticsearch.feature',
+                '-eelasticsearch.header.key', '-eelasticsearch.header.value',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[:7] == [
+            'Request: action=internal:discovery/zen/unicast, request_id=1 \t1070099\t\t\t\t',
+            'Response: [OK], request_id=1 \t1070099\t\t\t\t',
+            'Request: action=cluster:monitor/health, request_id=2 \t5060099\t\t\tX-Opaque-Id,k,Warning\tabc,,w1,w2',
+            'Response: [ERROR], request_id=2 \t5060099\t\t\tEmpty\t',
+            'Request: action=indices:data/read/search, request_id=3 \t6080099\t\tx-pack,security\t\t',
+            'Request: [COMPRESSED], request_id=4 \t6080099\t\t\t\t',
+            'Response: [ERROR], [COMPRESSED], request_id=4 \t7100299\t7\t\t\t',
+        ]
+        assert lines[7].startswith('Request: action=' + 'a' * 200 + ', request_id=5 \t7100299\t')
+        assert lines[8:] == [
+            'Request: action=after/negative, request_id=6 \t5060099\t\t\t\t',
+            'Response: [OK], request_id=5 Response: [OK], request_id=6 \t7100299,5060099\t4\t\t\t',
+            'Request: action=indices:admin/create, request_id=7 \t6080099\t\tf1\ttrace\t' + 't' * 30,
+        ]
+
+    def test_elasticsearch_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The request in frames 19 and 20 is reassembled in frame 20.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('elasticsearch_coverage.pcap.gz'),
+                '-Y', 'frame.number in {19,20}',
+                '-Tfields', '-etcp.reassembled_in', '-eelasticsearch.action',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\t',
+            '\tindices:admin/create',
+        ]
+
+    def test_elasticsearch_negative_vint(self, cmd_tshark, capture_file, test_env):
+        '''A five octet VInt ff ff ff ff 0f as the request header count is
+        -1: no headers, and the action after it is found. Its fifth octet
+        was shifted as an int, which overflows (undefined behaviour,
+        fixed in "Elasticsearch: Avoid a signed shift overflow in
+        read_vint()").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('elasticsearch_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17',
+                '-Tfields', '-eelasticsearch.header.request',
+                '-eelasticsearch.action', '-eelasticsearch.data',
+                '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['\tafter/negative\t1\t']
