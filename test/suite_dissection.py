@@ -47991,3 +47991,92 @@ class TestDissectDua:
         assert [v for v in fields[9] if v] == ['0x00000007'] * 3
         assert [v for v in fields[11] if v] == [
             'asp one', 'up ack', 'active', 'as down', 'x', 'inactive']
+
+
+class TestDissectDvbAit:
+    def test_dvb_ait_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every AIT section in the MPEG-TS packets is dissected, and no
+        frame is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_ait_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['mp2t:mpeg_sect:dvb_ait'] * 4 + [
+            'mp2t', 'mp2t:mpeg_sect:dvb_ait']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvb_ait_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_ait_applications(self, cmd_tshark, capture_file, test_env):
+        '''Application type, test flag, version and the applications with
+        their control codes and descriptors, including the AIT
+        reassembled from two TS packets (frame 6).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_ait_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edvb_ait.app_type',
+                '-edvb_ait.test_app_flag', '-edvb_ait.version',
+                '-edvb_ait.app.app_id', '-edvb_ait.app.ctrl_code',
+                '-edvb_ait.descr.tag', '-edvb_ait.descr.app_name.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0010\t0x00\t0x01\t0x0001\t0x01\t0x02,0x00,0x01,0x15\tGuide,Fuehrer',
+            '2\t0x0001\t0x01\t0x02\t0x0002,0x0003,0x0004,0x0005,0x0006,0x0007,0x0008\t'
+            '0x02,0x03,0x04,0x05,0x06,0x07,0x08\t'
+            '0x02,0x02,0x00,0x05,0x06,0x00,0x0b,0x10,0x14,0x17,0x6f,0x01\t',
+            '3\t0x0010\t0x00\t0x03\t0x4001\t0x09\t0x02,0x02,0x02,0x01\t',
+            '4\t0x0010\t0x00\t0x04\t\t\t\t',
+            '5\t\t\t\t\t\t\t',
+            '6\t0x0010\t0x00\t0x05\t' +
+            ','.join('0x%04x' % (0x100 + i) for i in range(8)) + '\t' +
+            ','.join(['0x02'] * 8) + '\t' + ','.join(['0x00,0x01'] * 8) +
+            '\t' + ','.join('App %d' % i for i in range(8)),
+        ]
+
+    def test_dvb_ait_transport_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Transport protocol descriptors (HTTP with URL extensions, local
+        and remote object carousel, an unknown protocol with selector
+        bytes), application profile versions, the simple application
+        location and a DVB descriptor handed to the MPEG descriptor
+        dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_ait_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 3',
+                '-Tfields', '-eframe.number', '-edvb_ait.descr.trpt_proto.id',
+                '-edvb_ait.descr.trpt_proto.url_base',
+                '-edvb_ait.descr.trpt_proto.url_ext',
+                '-edvb_ait.descr.trpt_proto.onid',
+                '-edvb_ait.descr.trpt_proto.comp_tag',
+                '-edvb_ait.descr.trpt_proto.selector_bytes',
+                '-edvb_ait.descr.app.ver',
+                '-edvb_ait.descr.sim_app_loc.initial_path',
+                '-empeg_descr.tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0003\thttp://example.invalid/app/\t'
+            'https://example.invalid/,http://example.test/\t\t\t\t'
+            '0x010203,0x010301\tindex.html?x=1\t',
+            '2\t0x0001,0x0001\t\t\t0x0001\t0x10,0x21\t\t0x010000\t\t0x5f',
+            '3\t0x0001,0x0003,0x0004\t\t\t\t\t010203\t\t\t',
+        ]
+
+    def test_dvb_ait_tree(self, cmd_tshark, capture_file, test_env):
+        '''The application descriptor shows the profile versions as
+        major.minor.micro and the visibility.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_ait_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1', '-V', '-O', 'dvb_ait',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        start = lines.index('Application: Org 0x17, App 0x1')
+        assert lines[start + 9:start + 15] == [
+            'Application profile: 0x0000',
+            'Version 1.2.3',
+            'Application profile: 0x0001',
+            'Version 1.3.1',
+            '1... .... = Service-bound flag: 0x1',
+            '.11. .... = Visibility: fully visible (0x3)',
+        ]
