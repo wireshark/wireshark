@@ -53638,3 +53638,93 @@ class TestDissectEsio:
             '6\t0x0001\t8\t20\t2\t3\t85\t0xa5\tTelegram(s) lost',
             '7\t0x0000\t0\t21\t0\t0\t0\t0x00\t',
         ]
+
+
+class TestDissectEsis:
+    def test_esis_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ESIS and none is malformed or has an error, in
+        one and two passes. Two frames have warnings: an unknown PDU type
+        and an unknown version.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('esis_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 11
+        assert protocols.count('ESIS') == 11
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('esis_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('esis_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '9\tUnknown ESIS packet type',
+                '10\tUnknown ESIS version (2 vs 1),No Options for this PDU',
+            ]
+
+    def test_esis_pdus(self, cmd_tshark, capture_file, test_env):
+        '''PDU type, holding time, checksum status (1 = Good; empty when no
+        checksum is present) and the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('esis_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eesis.type', '-eesis.htime',
+                '-eesis.chksum.status', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t2\t300\t1\tES HELLO',
+            '2\t2\t65535\t\tES HELLO',
+            '3\t2\t0\t1\tES HELLO',
+            '4\t4\t600\t1\tIS HELLO',
+            '5\t4\t600\t\tIS HELLO',
+            '6\t6\t120\t1\tRD REQUEST',
+            '7\t6\t120\t1\tRD REQUEST',
+            '8\t6\t120\t\tRD REQUEST',
+            '9\t8\t30\t1\tUnknown (0x8)',
+            '10\t2\t300\t1\tES HELLO',
+            '11\t4\t600\t1\tIS HELLO',
+        ]
+
+    def test_esis_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Source addresses of the ES Hellos, the NET of the IS Hellos and
+        redirects, and the destination and subnetwork addresses of the
+        redirects (to an IS in frame 6, to an ES in frames 7 and 8).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('esis_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 8', '-Tfields', '-eframe.number',
+                '-eesis.number_of_source_addresses', '-eesis.sa', '-eesis.net',
+                '-eesis.da', '-eesis.bsnpa',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t49000100.000000000a0000\t\t\t',
+            '2\t3\t49000100.000000000a0000,[39|00:01][02|03:04:05|06:07][08:09|10:11]1213.1415.1617[00],47000501.02030405\t\t\t',
+            '3\t0\t\t\t\t',
+            '4\t\t\t49000102.000000000200\t\t',
+            '5\t\t\t49000102.000000000200\t\t',
+            '6\t\t\t49000102.000000000200\t49000100.0000000000330000\t0200.0000.0003',
+            '7\t\t\t\t49000100.0000000000330000\t0200.0000.0004',
+            '8\t\t\t\t49000100.000000000a0000\t0200.0000.0005',
+        ]
+
+    def test_esis_options(self, cmd_tshark, capture_file, test_env):
+        '''The options after the variable part are found at the right
+        offset for each PDU type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('esis_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 4, 6, 7}', '-Tfields', '-eframe.number',
+                '-eosi.options.security_type', '-eosi.options.priority',
+                '-eosi.options.esct', '-eosi.options.address_mask',
+                '-eosi.options.snpa_mask',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t1\t5\t\t\t',
+            '4\t\t\t50\t\t',
+            '6\t\t\t\t490001\tffff.ff00.0000',
+            '7\t\t15\t\t\t',
+        ]
