@@ -53567,3 +53567,74 @@ class TestDissectErldpCoverage:
         ]
         assert lines[3][7] == 'REG_SEND (Reassembled, Fragment ID: 1)'
         assert lines[4][7] == 'SEND (Reassembled, Fragment ID: 1)'
+
+
+class TestDissectEsio:
+    def test_esio_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Eight frames are ESIO and six are rejected by its heuristics;
+        none is malformed or has an error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('esio_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 14
+        assert protocols.count('ESIO') == 8
+        assert protocols.count('UDP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('esio_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_esio_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every ESIO telegram.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('esio_coverage.pcap.gz'),
+                '-Y', 'esio', '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tData transfer: Src ID: 1, Dst ID(s): 20',
+            '2\tData transfer: Src ID: 34, Dst ID(s): 200 ...',
+            '3\tData transfer: Src ID: 5, Dst ID(s): 40 ...',
+            '4\tData transfer: Src ID: 6, Dst ID(s): 0',
+            '5\tStatus/diag telegram: Src ID: 20',
+            '6\tStatus/diag telegram: Src ID: 20',
+            '7\tStatus/diag telegram: Src ID: 21',
+            '8\tUnknown telegram',
+        ]
+
+    def test_esio_all_transfers(self, cmd_tshark, capture_file, test_env):
+        '''Every data transfer of a telegram is decoded (before "ESIO: Use
+        a separate counter for the data bytes of a transfer" only the first
+        one was).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('esio_coverage.pcap.gz'),
+                '-Y', 'esio.type == 1', '-Tfields', '-eframe.number',
+                '-eesio.data.nbr', '-eesio.data.transfer_id',
+                '-eesio.data.destination_id', '-eesio.data.length', '-eesio.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t10\t20\t4\t1,2,3,4',
+            '2\t3\t100,101,102\t200,201,202\t2,2,2\t160,160,161,161,162,162',
+            '3\t2\t30,31\t40,41\t0,8\t1,2,3,4,5,6,7,8',
+            '4\t0\t\t\t\t',
+        ]
+
+    def test_esio_status(self, cmd_tshark, capture_file, test_env):
+        '''Status telegrams, with the "Telegram(s) lost" note only when
+        telegrams were lost.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('esio_coverage.pcap.gz'),
+                '-Y', 'esio.type == 2', '-Tfields', '-eframe.number',
+                '-eesio.sts.type', '-eesio.sts.length', '-eesio.src_stn_id',
+                '-eesio.sts.rio_sts', '-eesio.sts.rio_lost_tlg',
+                '-eesio.sts.rio_diag', '-eesio.sts.rio_flags', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t0x0001\t8\t20\t1\t0\t0\t0x00\t',
+            '6\t0x0001\t8\t20\t2\t3\t85\t0xa5\tTelegram(s) lost',
+            '7\t0x0000\t0\t21\t0\t0\t0\t0x00\t',
+        ]
