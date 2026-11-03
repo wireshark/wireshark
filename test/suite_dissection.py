@@ -49649,3 +49649,111 @@ class TestDissectE1ap:
                      '...1 .... = M4: Activated',
                      'local: 7'):
             assert line in lines
+
+
+class TestDissectE212:
+    def test_e212_protocols(self, cmd_tshark, capture_file, test_env):
+        '''GTPv2, Diameter, NAS-EPS and NAS-5GS frames; no exceptions and
+        no error expert infos in one and two passes. (The non-decimal
+        digits and malformed IMSIs have E.212 warnings on purpose.)'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e212_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert protocols.count('GTPv2') == 14
+        assert protocols.count('DIAMETER') == 5
+        assert protocols.count('NAS-EPS') == 7
+        assert protocols.count('NAS-5GS') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('e212_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed.expert || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_e212_imsi(self, cmd_tshark, capture_file, test_env):
+        '''IMSIs in BCD (GTPv2, NAS mobile identities) and UTF-8
+        (Diameter) with the MCC and MNC taken from them: 2 and 3 digit
+        MNCs, unknown codes, non-decimal digits. IMSIs too short for an
+        MCC and MNC (frames 12, 13, 20) have none; frame 11 has the
+        all-ones PLMN and an IMSI of filler digits only and no exception (before
+        "E.212: Do not read the MCC and MNC past the IMSI" frames 12, 13
+        and 20 threw one).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e212_coverage.pcapng.gz'),
+                '-Y', 'e212.imsi',
+                '-Tfields', '-eframe.number', '-ee212.imsi',
+                '-ee212.mcc', '-ee212.mnc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t262011234567890\t262,262\t01,01',
+            '2\t310410123456789\t310,310\t410,041',
+            '3\t234150123456789\t234,234\t15,015',
+            '4\t99899\t998,998\t99,99',
+            '5\t2?2?1123456789\t302,302\t1111,111',
+            '6\t2621?1234567890\t262,262\t22,022',
+            '7\t?62011234567890\t1062,1062\t011,01',
+            '8\t26?011234567890\t270,270\t01,10',
+            '9\t262?11234567890\t262,262\t1011,1001',
+            '10\t9989?1234567890\t998,998\t1001,1099',
+            '11\t\t310,1665,1665\t410,1665,165',
+            '12\t26\t\t',
+            '13\t2620\t\t',
+            '14\t2620112345678901\t262\t01',
+            '18\t262011234567890,310410123456789,00101,99899123,'
+            '2a2011234567890,262a11234567890,3104a0123456789,2620,26,'
+            '2620112345678901,26201#234567890\t262,310,001,998,000,262,310,'
+            '262,262\t01,410,01,991,011,000,000,01,01',
+            '19\t262011234567890\t262,262\t01,01',
+            '20\t2620\t\t',
+            '21\t26201\t262\t01',
+            '23\t262011234567890\t262\t01',
+            '24\t31041012345678\t310\t410',
+            '25\t99899\t998\t99',
+            '26\t2620\t262\t15',
+            '27\t310410123456789\t310\t410',
+            '28\t99899\t998\t99',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e212_coverage.pcapng.gz'),
+                '-Y', 'e212.imsi.malformed',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['5', '6', '7', '8', '9', '10', '11',
+                                  '12', '13', '14', '18', '20', '26']
+
+    def test_e212_plmn_types(self, cmd_tshark, capture_file, test_env):
+        '''The MCC/MNC of every identity type: CGI, SAI, RAI, TAI, ECGI and
+        LAI of the GTPv2 ULI, Serving Network, GUMMEI, GUAMI, 5GS TAI and
+        NR CGI.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e212_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 2, 11, 22, 29, 30}',
+                '-Tfields', '-ee212.cgi.mcc', '-ee212.sai.mnc',
+                '-ee212.rai.mnc', '-ee212.tai.mnc', '-ee212.ecgi.mnc',
+                '-ee212.lai.mnc', '-ee212.serv_net.mnc', '-ee212.gummei.mnc',
+                '-ee212.guami.mnc', '-ee212.5gstai.mnc', '-ee212.nrcgi.mnc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '262\t01\t01\t01\t01\t01\t01\t\t\t\t',
+            '310\t410\t410\t410\t410\t410\t410\t\t\t\t',
+            '\t\t\t\t\t\t1665\t\t\t\t',
+            '\t\t\t\t\t\t\t\t\t\t01',
+            '\t\t\t\t\t\t\t410\t\t\t',
+            '\t\t\t\t\t\t\t\t01\t01\t',
+        ]
+
+    def test_e212_imsi_tap(self, cmd_tshark, capture_file, test_env):
+        '''The "imsi" tap counts the valid IMSIs only.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e212_coverage.pcapng.gz'),
+                '-q', '-z', 'imsi',
+            ), encoding='utf-8', env=test_env)
+        rows = [' '.join(l.split()) for l in stdout.splitlines()]
+        assert '262011234567890 4 1 23 GTPv2, Diameter, NAS-EPS' in rows
+        assert '310410123456789 3 2 27 GTPv2, Diameter, NAS-EPS' in rows
+        assert '99899 3 4 28 GTPv2, NAS-EPS' in rows
+        assert 'Total IMSIs: 8' in rows
