@@ -4482,6 +4482,27 @@ class TestDissectTns:
             ['', '', '4', '1', ''],
         ], rows
 
+    def test_tns_oci_implicit(self, cmd_tshark, capture_file, test_env):
+        '''A server sends an OCI client the implicit result sets of a
+        PL/SQL block at fixed widths: a count, then per result the describe
+        of its columns and the cursor id the client fetches it with.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_implicit.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_irs.num_results',
+            '-T', 'fields',
+            '-e', 'tns.data_irs.num_results',
+            '-e', 'tns.data_col.name',
+            '-e', 'tns.data_col.type',
+            '-e', 'tns.data.cursor',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['1', 'N', '2', '3', ''],
+            ['2', 'N,S,M', '2,96,2', '3,4', ''],
+        ], rows
+
     def test_tns_oci_binds(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's execute carries a fixed-width descriptor per
         bind, 49 bytes from 12c and 41 before, and the row of values. A
