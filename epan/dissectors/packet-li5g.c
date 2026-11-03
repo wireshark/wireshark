@@ -1,5 +1,5 @@
 /* packet-li5g.c
- * Routines for ETSI TS 103 221-2 V1.6.1 (2022-06), Internal Network Interface X2/X3 for Lawful Interception
+ * Routines for ETSI TS 103 221-2 V1.10.1 (2026-03), Internal Network Interface X2/X3 for Lawful Interception
  * Roy Zhang <roy.zhang@nokia-sbell.com>
  *
  * Wireshark - Network traffic analyzer
@@ -20,6 +20,8 @@ void proto_register_li5g(void);
 
 static int proto_li5g;
 static int hf_li5g_version;
+static int hf_li5g_version_major;
+static int hf_li5g_version_minor;
 static int hf_li5g_pduType;
 static int hf_li5g_headerLen;
 static int hf_li5g_payloadLen;
@@ -35,8 +37,12 @@ static int hf_li5g_pld;
 #define LI_5G_ATTR_TYPE_MAX 23
 /* the min header length */
 #define LI_5G_HEADER_LEN_MIN 40
+/* the major version is 0 up to V1.10.1 (Version field 6, i.e. 0.6); only the
+ * minor version is incremented for backwards-compatible changes */
+#define LI_5G_VERSION_MAJOR 0
 
 static int ett_li5g;
+static int ett_li5g_version;
 static int ett_attrContents[LI_5G_ATTR_TYPE_MAX];
 static int hf_li5g_attrContents[LI_5G_ATTR_TYPE_MAX];
 static dissector_handle_t li5g_handle;
@@ -69,6 +75,7 @@ static const value_string payload_format_vals[] = {
     {14, "3GPP TS 33.108 EpsIRIContent"},
     {15, "MIME Message"},
     {16, "3GPP Unstructured PDU"},
+    {17, "ETSI TS 102 232-1 PS-PDU.Payload"},
     { 0, NULL}
 };
 
@@ -125,13 +132,19 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     uint32_t src_port;
     uint32_t dst_port;
 
+    static int * const version_fields[] = {
+        &hf_li5g_version_major,
+        &hf_li5g_version_minor,
+        NULL
+    };
+
     headerLen = tvb_get_ntohl(tvb, 4);
     payloadLen = tvb_get_ntohl(tvb, 8);
     payloadFormat = tvb_get_ntohs(tvb, 12);
 
     ti = proto_tree_add_item(tree, proto_li5g, tvb, 0, headerLen+payloadLen, ENC_NA);
     li5g_tree = proto_item_add_subtree(ti, ett_li5g);
-    proto_tree_add_item(li5g_tree, hf_li5g_version, tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(li5g_tree, tvb, 0, hf_li5g_version, ett_li5g_version, version_fields, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint(li5g_tree, hf_li5g_pduType, tvb, 2, 2, ENC_BIG_ENDIAN, &pduType);
     proto_tree_add_item(li5g_tree, hf_li5g_headerLen, tvb, 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(li5g_tree, hf_li5g_payloadLen, tvb, 8, 4, ENC_BIG_ENDIAN);
@@ -245,13 +258,19 @@ static bool
 dissect_li5g_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct tlsinfo* tlsinfo = (struct tlsinfo*)data;
+    uint16_t version;
+
     if (tvb_captured_length(tvb) < LI_5G_HEADER_LEN_MIN)
         return false;
-    /* the version should be 1 */
-    if (tvb_get_ntohs(tvb, 0) != 1)
+    /* the major version should be 0, the minor version 1 or above (every
+     * version up to V1.10.1); later minor versions are backwards-compatible */
+    version = tvb_get_ntohs(tvb, 0);
+    if ((version >> 8) != LI_5G_VERSION_MAJOR || (version & 0xff) == 0)
         return false;
     /* only 4 types supported*/
     if(tvb_get_ntohs(tvb, 2) < 1 || tvb_get_ntohs(tvb, 2) > 4)
+        return false;
+    if (tvb_get_ntohl(tvb, 4) < LI_5G_HEADER_LEN_MIN)
         return false;
 
     /* TLS can hold it, no need to find the dissector every time */
@@ -266,6 +285,8 @@ proto_register_li5g(void)
 {
     static hf_register_info hf[] = {
         { &hf_li5g_version, { "Version", "li5g.ver", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_version_major, { "Major Version", "li5g.ver.major", FT_UINT16, BASE_DEC, NULL, 0xff00, NULL, HFILL }},
+        { &hf_li5g_version_minor, { "Minor Version", "li5g.ver.minor", FT_UINT16, BASE_DEC, NULL, 0x00ff, NULL, HFILL }},
         { &hf_li5g_pduType, { "PDU Type", "li5g.type", FT_UINT16, BASE_DEC, VALS(pdu_type_vals), 0x0, NULL, HFILL }},
         { &hf_li5g_headerLen, { "Header Length", "li5g.hl", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL }},
         { &hf_li5g_payloadLen, { "Payload Length", "li5g.pl", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_octet_octets), 0x0, NULL, HFILL }},
@@ -283,7 +304,7 @@ proto_register_li5g(void)
         { &hf_li5g_attrContents[5], { "Domain ID", "li5g.did", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[6], { "Network Function ID", "li5g.nfid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[7], { "Interception Point ID", "li5g.ipid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_li5g_attrContents[8], { "Sequence Number", "li5g.sq", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_attrContents[8], { "Sequence Number", "li5g.sq", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[9], { "Timestamp", "li5g.ts", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[10], { "Source IPv4 address", "li5g.srcip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_attrContents[11], { "Destination IPv4 address", "li5g.dstip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -304,6 +325,7 @@ proto_register_li5g(void)
 
     static int *ett[] = {
         &ett_li5g,
+        &ett_li5g_version,
         &ett_attrContents[1],
         &ett_attrContents[2],
         &ett_attrContents[3],

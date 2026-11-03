@@ -9537,7 +9537,7 @@ class TestDissectLi5g:
                 '-Tfields', '-e_ws.col.protocol')
         protocols = stdout.splitlines()
         assert len(protocols) == 35
-        assert protocols.count('LI5G') == 31
+        assert protocols.count('LI5G') == 32
         for passes in ((), ('-2',)):
             stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
                     '-Y', '_ws.malformed || _ws.expert.severity >= warning',
@@ -9634,10 +9634,11 @@ class TestDissectLi5g:
 
     def test_li5g_tls_heuristic(self, cmd_tshark, capture_file, test_env):
         '''The 5G LI over TLS heuristic named in an Exported PDU accepts
-        frames 29-31 and rejects a short PDU, version 2 and PDU types 0
-        and 5, which go to data. It used to crash: it stored its handle
-        through the TLS information, which was NULL.'''
-        for args, li5g_frames in (((), ['29', '30', '31']),
+        frames 29-31 and the version 2 PDU of frame 33 (major version 0,
+        any minor version), and rejects a short PDU and PDU types 0 and 5,
+        which go to data. It used to crash: it stored its handle through
+        the TLS information, which was NULL.'''
+        for args, li5g_frames in (((), ['29', '30', '31', '33']),
                                   (('--disable-heuristic', 'li5g_tls'), [])):
             stdout = self.run_fields(cmd_tshark, capture_file, test_env, *args,
                     '-Y', 'exported_pdu.heur_prot_name == "li5g_tls"',
@@ -9647,6 +9648,13 @@ class TestDissectLi5g:
             assert [n for n, p in lines if p.startswith('exported_pdu:li5g')] == li5g_frames
             assert [n for n, p in lines if p == 'exported_pdu:data'] == \
                     [str(n) for n in range(29, 36) if str(n) not in li5g_frames]
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {29, 33}', '-Tfields', '-eframe.number',
+                '-eli5g.ver', '-eli5g.ver.major', '-eli5g.ver.minor')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['29', '1', '0', '1'],
+            ['33', '2', '0', '2'],
+        ]
 
 
 # asphodel_coverage.pcap.gz is synthetic: every packet was generated, to
