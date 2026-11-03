@@ -272,9 +272,10 @@ dissect_vdp_tlv_org(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 	uint32_t oui;
 	uint8_t subtype;
 
-	if (tlvlen < 3) {
+	/* OUI (3 bytes) and subtype (1 byte) */
+	if (tlvlen < 4) {
 		expert_add_info(pinfo, length_item, &ei_vdp_tlvlen_bad);
-        return;
+		return;
 	}
 
 	proto_tree_add_item_ret_uint(tree, hf_vdp_tlv_org_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
@@ -289,6 +290,10 @@ dissect_vdp_tlv_org(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
 
 	switch (subtype) {
 	case OUI_ORACLE_VSIMGR_SUBTYPE:
+		if (tlvlen < 5) {
+			expert_add_info(pinfo, length_item, &ei_vdp_tlvlen_bad);
+			return;
+		}
 		dissect_oracle_tlv(tvb, pinfo, tree, offset);
 		break;
 	}
@@ -499,10 +504,10 @@ proto_register_vdp(void)
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_vdp_vidstr_ps,
 		{ "VIDSTR PS", "vdp21.vidstr.ps", FT_UINT16, BASE_HEX,
-			NULL, 0x0800, NULL, HFILL }},
+			NULL, 0x8000, NULL, HFILL }},
 		{ &hf_vdp_vidstr_pcp,
 		{ "VIDSTR PCP", "vdp21.vidstr.pcp", FT_UINT16, BASE_HEX,
-			NULL, 0x0700, NULL, HFILL }},
+			NULL, 0x7000, NULL, HFILL }},
 		{ &hf_vdp_vidstr_vid,
 		{ "VIDSTR VID", "vdp21.vidstr.vid", FT_UINT16, BASE_HEX,
 			NULL, 0x0FFF, NULL, HFILL }},
@@ -513,7 +518,7 @@ proto_register_vdp(void)
 		{ "Data", "vdp21.data", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_vdp_tlv_org_oui,
-		{ "VIDSTR VID", "vdp21.org_oui", FT_UINT24, BASE_OUI,
+		{ "Organizationally Unique Identifier", "vdp21.org_oui", FT_UINT24, BASE_OUI,
 			NULL, 0x0, NULL, HFILL }},
 		{ &hf_vdp_tlv_oracle_subtype,
 		{ "Oracle Subtype", "vdp21.org.oracle.subtype", FT_UINT8, BASE_HEX,
