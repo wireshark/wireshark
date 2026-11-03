@@ -166,7 +166,10 @@ static vint_t read_vint(tvbuff_t *tvb, int offset){
     }
     b = tvb_get_uint8(tvb, offset+4);
     vint.length = 5;
-    vint.value |= ((b & 0x7F) << 28);
+    /* Shift as unsigned: (b & 0x7F) << 28 overflows an int for b >= 8. As in
+     * Java's readVInt(), the result may be negative, which the callers handle
+     * (loops do not run; string lengths become huge and throw). */
+    vint.value = (int)((uint32_t)vint.value | ((uint32_t)(b & 0x7F) << 28));
     return vint;
 }
 
