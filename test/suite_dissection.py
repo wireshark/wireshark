@@ -52820,3 +52820,95 @@ class TestDissectEnttec:
         lines = [l.strip() for l in stdout.splitlines()]
         assert '1:  00 01 02 7f 80  fe ff ff 00 06' in lines
         assert '31:  84 8a 90 96 9c  a2 a8 ae b4 ba' in lines
+
+
+class TestDissectEobi:
+    '''EOBI is disabled by default, so every run enables it.'''
+
+    def run_eobi(self, cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '--enable-protocol', 'eobi',
+                '-r', capture_file('eobi_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_eobi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is EOBI and none is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = self.run_eobi(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 42
+        assert protocols.count('EOBI') == 42
+        for passes in ((), ('-2',)):
+            stdout = self.run_eobi(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_eobi_templates(self, cmd_tshark, capture_file, test_env):
+        '''Every allocated template, each datagram starting with a
+        PacketHeader.'''
+        stdout = self.run_eobi(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eeobi.templateid')
+        frames = [l.split(',') for l in stdout.splitlines()]
+        assert all(f[0] == '13005' for f in frames)
+        counts = {}
+        for f in frames:
+            for t in f:
+                counts[t] = counts.get(t, 0) + 1
+        assert counts == {
+            '13001': 4, '13005': 42, '13100': 4, '13101': 4, '13102': 4,
+            '13103': 4, '13104': 4, '13105': 4, '13106': 4, '13200': 6,
+            '13201': 4, '13202': 4, '13300': 4, '13301': 4, '13302': 6,
+            '13400': 6, '13500': 4, '13501': 4, '13502': 4, '13503': 4,
+            '13504': 4, '13600': 4, '13601': 6, '13602': 4,
+        }
+
+    def test_eobi_values(self, cmd_tshark, capture_file, test_env):
+        '''Fixed point decimals (negative, small, absent), signed
+        integers, optional fields shown as NO_VALUE, the DSCP bits.'''
+        stdout = self.run_eobi(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 5 || frame.number == 9',
+                '-V', '-O', 'eobi')
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'DSCP: 0x72, DSCP_ExecSummary, DSCP_Improved, DSCP_Widened' in lines
+        assert 'MsgSeqNum: NO_VALUE (0xffffffff)' in lines
+        assert 'SecurityID: -837832' in lines
+        assert 'DisplayQty: -9876543.2110' in lines
+        assert 'Price: NO_VALUE (0x8000000000000000)' in lines
+        assert 'Side: NO_VALUE (255)' in lines
+        assert 'LastPx: 0.00000005' in lines
+        assert 'MDEntryPx: -0.00000007' in lines
+
+    def test_eobi_groups(self, cmd_tshark, capture_file, test_env):
+        '''Repeating groups at their maximum: 15 MDEntries, 24
+        RelatedSyms, 20 legs.'''
+        stdout = self.run_eobi(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 9 || frame.number == 10',
+                '-Tfields', '-eeobi.nomdentries', '-eeobi.norelatedsym',
+                '-eeobi.nolegs', '-eeobi.securitystatus')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:3] for l in lines] == [['15', '24', ''], ['15', '', '20']]
+        # TradeReversal has no SecurityStatus; MassInstrumentStateChange
+        # has one per SecMassStatGrp entry
+        assert len(lines[0][3].split(',')) == 24
+
+    def test_eobi_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Required values missing and unused values set in frames 15-37,
+        counters over their maximum in frames 38-41.'''
+        frames = {}
+        for f in ('eobi.missing', 'eobi.overused', 'eobi.counter_overflow'):
+            stdout = self.run_eobi(cmd_tshark, capture_file, test_env,
+                    '-Y', f, '-Tfields', '-eframe.number')
+            frames[f] = [int(x) for x in stdout.split()]
+        assert frames['eobi.missing'] == list(range(15, 38))
+        assert frames['eobi.overused'] == list(range(15, 38))
+        assert frames['eobi.counter_overflow'] == [38, 39, 40, 41]
+        stdout = self.run_eobi(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 38 && frame.number <= 41',
+                '-Tfields', '-e_ws.expert.message')
+        assert stdout.splitlines() == [
+            'Counter overflow: 16 > 15',
+            'Counter overflow: 25 > 24',
+            'Counter overflow: 21 > 20',
+            'Counter overflow: 16 > 15',
+        ]
