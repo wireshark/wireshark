@@ -1307,11 +1307,13 @@ static uint64_t dtls13_reconstruct_seq_number(uint64_t expected_seq_number, uint
   uint64_t c1, c2, d1, d2;
   uint16_t mask;
 
-  /* we just need 1 or 2 bytes of the xor mask */
+  /* The leading 1 or 2 bytes of the xor mask cover the sequence number
+   * bytes on the wire (RFC 9147 section 4.2.3). */
   if (len == 1) {
-    dec_mask[1] = 0;
+    seq_low_bits ^= dec_mask[0];
+  } else {
+    seq_low_bits ^= (dec_mask[0] << 8 | dec_mask[1]);
   }
-  seq_low_bits ^= (dec_mask[0] << 8 | dec_mask[1]);
 
   mask = (len == 2) ? 0xffff : 0xff;
   expected_low_bits = expected_seq_number & mask;
@@ -1321,6 +1323,9 @@ static uint64_t dtls13_reconstruct_seq_number(uint64_t expected_seq_number, uint
     return c1;
   }
   if (expected_low_bits < seq_low_bits) {
+    /* There is no smaller candidate below sequence number 0. */
+    if (c1 < (uint64_t)mask + 1)
+      return c1;
     d1 = c1 - expected_seq_number;
     c2 = c1 - (mask + 1);
     d2 = expected_seq_number - c2;
@@ -1457,7 +1462,10 @@ static bool dtls13_decrypt_unified_record(tvbuff_t *tvb, packet_info *pinfo, uin
 
   /* CID is already included in dtls13_add, there is no need to add it here */
   success = decrypt_dtls_record(tvb, pinfo, hdr_off + hdr_size, ssl, 0, ssl->session.version, dtls_record_length, curr_layer_num_ssl, NULL, 0);
-  if (sequence_number >= ssl->session.dtls13_next_seq_num[is_from_server]) {
+  /* Only a record that decrypts moves the expected sequence number: the
+   * number of a record that does not (a wrong key in the early data trial
+   * decryption, a corrupt record) is garbage. */
+  if (success && sequence_number >= ssl->session.dtls13_next_seq_num[is_from_server]) {
     ssl->session.dtls13_next_seq_num[is_from_server] = sequence_number + 1;
   }
 
