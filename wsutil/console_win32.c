@@ -27,6 +27,7 @@
 
 static bool has_console;  /* true if app has console */
 static bool console_wait; /* "Press any key..." */
+static bool console_wait_disabled; /* set_console_wait(false) was called */
 static bool stdin_capture; /* Don't grab stdin & stdout if true */
 
 /*
@@ -162,8 +163,9 @@ do a FreeConsole() first. */
         if (AllocConsole()) {
             wchar_t* console_title_w = g_utf8_to_utf16(console_title, -1, NULL, NULL, NULL);
 
-            /* That succeeded. */
-            console_wait = true;
+            /* That succeeded. Wait for a key press before we
+                destroy the console, unless that's been turned off. */
+            console_wait = !console_wait_disabled;
             SetConsoleTitle(console_title_w);
             g_free(console_title_w);
         } else {
@@ -276,6 +278,7 @@ void
 set_console_wait(bool set_console_wait)
 {
     console_wait = set_console_wait;
+    console_wait_disabled = !set_console_wait;
 }
 
 bool

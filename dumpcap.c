@@ -5759,6 +5759,17 @@ main(int argc, char *argv[])
                 do_cleanup();
                 return status;
             }
+#ifdef _WIN32
+            if (opt == 'i' && strcmp(ws_optarg, "-") == 0) {
+                /*
+                 * We'll capture from the standard input and close
+                 * its handle when we stop, so don't let
+                 * create_console() treat it as an invalid handle
+                 * that needs a console.
+                 */
+                set_stdin_capture(true);
+            }
+#endif
             break;
         }
             /*** hidden option: Wireshark child mode (using binary output messages) ***/
