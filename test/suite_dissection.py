@@ -48080,3 +48080,59 @@ class TestDissectDvbAit:
             '1... .... = Service-bound flag: 0x1',
             '.11. .... = Visibility: fully visible (0x3)',
         ]
+
+
+class TestDissectDvbBat:
+    def test_dvb_bat_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every BAT section in the MPEG-TS packets is dissected, and no
+        frame is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_bat_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['mp2t:mpeg_sect:dvb_bat'] * 4 + [
+            'mp2t', 'mp2t:mpeg_sect:dvb_bat',
+            'mp2t:mpeg_sect:dvb_bat:mpeg_sect:dvb_bat']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dvb_bat_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_bat_tables(self, cmd_tshark, capture_file, test_env):
+        '''Bouquet IDs, versions, loop lengths and transport streams of
+        every section, including the BAT reassembled from two TS packets
+        (frame 6) and two sections in one TS packet (frame 7).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_bat_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edvb_bat.bouquet_id',
+                '-edvb_bat.version', '-edvb_bat.cur_next_ind',
+                '-edvb_bat.sect_num', '-edvb_bat.bouquet_desc_len',
+                '-edvb_bat.ts_loop_len', '-edvb_bat.ts.id',
+                '-edvb_bat.ts.desc_len', '-empeg_descr.tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x1001\t0x01\tTrue\t0\t37\t31\t0x0001,0x0003\t8,11\t0x47,0x49,0x4a,0x41,0x41,0x5f',
+            '2\t0x1001\t0x01\tTrue\t1\t0\t6\t0x0004\t0\t',
+            '3\t0x1002\t0x02\tFalse\t0\t22\t0\t\t\t0x5c',
+            '4\t0x1003\t0x1f\tTrue\t0\t0\t0\t\t\t',
+            '5\t\t\t\t\t\t\t\t\t',
+            '6\t0x1004\t0x03\tTrue\t0\t19\t240\t' +
+            ','.join('0x%04x' % (0x100 + i) for i in range(12)) + '\t' +
+            ','.join(['14'] * 12) + '\t' + ','.join(['0x47'] + ['0x41'] * 12),
+            '7\t0x1005,0x1005\t0x00,0x00\tTrue,True\t0,1\t19,0\t0,15\t0x0010\t9\t0x47,0x4a',
+        ]
+
+    def test_dvb_bat_services(self, cmd_tshark, capture_file, test_env):
+        '''The bouquet name and the service lists of the transport
+        streams.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_bat_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-empeg_descr.bouquet_name.name',
+                '-empeg_descr.svc_list.id', '-empeg_descr.svc_list.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Synthetic Bouquet\t0x0101,0x0102,0x0201\t0x01,0x02,0x19']
