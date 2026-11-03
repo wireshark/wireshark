@@ -18,6 +18,7 @@
 #include "packet-ber.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include "packet-x509ce.h"
 #include "packet-cms.h"
 
 void proto_register_pkixtsp(void);
