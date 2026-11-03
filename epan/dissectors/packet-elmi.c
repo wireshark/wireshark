@@ -238,7 +238,8 @@ dissect_elmi_info_elem(
         tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     int         offset_start;
-    uint8_t     tag, len, ret;
+    uint8_t     tag, len;
+    int         ret;
     proto_item *tree_pi;
     proto_tree *info_elem_tree;
 
