@@ -180,7 +180,7 @@ dissect_pkixac_IssuerSerial(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned o
 
 static const ber_sequence_t TargetCert_sequence[] = {
   { &hf_pkixac_targetCertificate, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkixac_IssuerSerial },
-  { &hf_pkixac_targetName   , BER_CLASS_CON, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralName },
+  { &hf_pkixac_targetName   , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralName },
   { &hf_pkixac_certDigestInfo, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixac_ObjectDigestInfo },
   { NULL, 0, 0, 0, NULL }
 };
@@ -305,8 +305,8 @@ dissect_pkixac_IetfAttrSyntax(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned
 
 
 static const ber_sequence_t SvceAuthInfo_sequence[] = {
-  { &hf_pkixac_service      , BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralName },
-  { &hf_pkixac_ident        , BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralName },
+  { &hf_pkixac_service      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralName },
+  { &hf_pkixac_ident        , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_x509ce_GeneralName },
   { &hf_pkixac_authInfo     , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_pkixac_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
@@ -630,11 +630,11 @@ void proto_register_pkixac(void) {
         NULL, HFILL }},
     { &hf_pkixac_targetName,
       { "targetName", "pkixac.targetName",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_pkixac_targetGroup,
       { "targetGroup", "pkixac.targetGroup",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_pkixac_targetCert,
       { "targetCert", "pkixac.targetCert_element",
@@ -674,11 +674,11 @@ void proto_register_pkixac(void) {
         "UTF8String", HFILL }},
     { &hf_pkixac_service,
       { "service", "pkixac.service",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_pkixac_ident,
       { "ident", "pkixac.ident",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_pkixac_authInfo,
       { "authInfo", "pkixac.authInfo",
@@ -690,7 +690,7 @@ void proto_register_pkixac(void) {
         "GeneralNames", HFILL }},
     { &hf_pkixac_roleName,
       { "roleName", "pkixac.roleName",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_pkixac_policyId,
       { "policyId", "pkixac.policyId",
